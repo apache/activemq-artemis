@@ -26,20 +26,15 @@ import java.util.concurrent.ConcurrentMap;
 
 import org.apache.activemq.command.ActiveMQDestination;
 
-public abstract class AMQSecurityContext
-{
+public abstract class AMQSecurityContext {
 
-   public static final AMQSecurityContext BROKER_SECURITY_CONTEXT = new AMQSecurityContext(
-         "ActiveMQBroker")
-   {
+   public static final AMQSecurityContext BROKER_SECURITY_CONTEXT = new AMQSecurityContext("ActiveMQBroker") {
       @Override
-      public boolean isBrokerContext()
-      {
+      public boolean isBrokerContext() {
          return true;
       }
 
-      public Set<Principal> getPrincipals()
-      {
+      public Set<Principal> getPrincipals() {
          return Collections.emptySet();
       }
    };
@@ -49,21 +44,17 @@ public abstract class AMQSecurityContext
    final ConcurrentMap<ActiveMQDestination, ActiveMQDestination> authorizedReadDests = new ConcurrentHashMap<ActiveMQDestination, ActiveMQDestination>();
    final ConcurrentMap<ActiveMQDestination, ActiveMQDestination> authorizedWriteDests = new ConcurrentHashMap<ActiveMQDestination, ActiveMQDestination>();
 
-   public AMQSecurityContext(String userName)
-   {
+   public AMQSecurityContext(String userName) {
       this.userName = userName;
    }
 
-   public boolean isInOneOf(Set<?> allowedPrincipals)
-   {
+   public boolean isInOneOf(Set<?> allowedPrincipals) {
       Iterator<?> allowedIter = allowedPrincipals.iterator();
       HashSet<?> userPrincipals = new HashSet<Object>(getPrincipals());
-      while (allowedIter.hasNext())
-      {
+      while (allowedIter.hasNext()) {
          Iterator<?> userIter = userPrincipals.iterator();
          Object allowedPrincipal = allowedIter.next();
-         while (userIter.hasNext())
-         {
+         while (userIter.hasNext()) {
             if (allowedPrincipal.equals(userIter.next()))
                return true;
          }
@@ -73,23 +64,19 @@ public abstract class AMQSecurityContext
 
    public abstract Set<Principal> getPrincipals();
 
-   public String getUserName()
-   {
+   public String getUserName() {
       return userName;
    }
 
-   public ConcurrentMap<ActiveMQDestination, ActiveMQDestination> getAuthorizedReadDests()
-   {
+   public ConcurrentMap<ActiveMQDestination, ActiveMQDestination> getAuthorizedReadDests() {
       return authorizedReadDests;
    }
 
-   public ConcurrentMap<ActiveMQDestination, ActiveMQDestination> getAuthorizedWriteDests()
-   {
+   public ConcurrentMap<ActiveMQDestination, ActiveMQDestination> getAuthorizedWriteDests() {
       return authorizedWriteDests;
    }
 
-   public boolean isBrokerContext()
-   {
+   public boolean isBrokerContext() {
       return false;
    }
 

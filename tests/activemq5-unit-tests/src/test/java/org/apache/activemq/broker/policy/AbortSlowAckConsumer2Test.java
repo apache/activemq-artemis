@@ -17,6 +17,7 @@
 package org.apache.activemq.broker.policy;
 
 import javax.jms.ConnectionFactory;
+
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.broker.region.policy.AbortSlowAckConsumerStrategy;
@@ -29,43 +30,42 @@ import org.junit.runners.Parameterized;
 @RunWith(value = Parameterized.class)
 public class AbortSlowAckConsumer2Test extends AbortSlowConsumer2Test {
 
-    protected long maxTimeSinceLastAck = 5 * 1000;
+   protected long maxTimeSinceLastAck = 5 * 1000;
 
-    public AbortSlowAckConsumer2Test(Boolean topic) {
-        super(topic);
-    }
+   public AbortSlowAckConsumer2Test(Boolean topic) {
+      super(topic);
+   }
 
-    @Override
-    protected AbortSlowConsumerStrategy createSlowConsumerStrategy() {
-        return new AbortSlowConsumerStrategy();
-    }
+   @Override
+   protected AbortSlowConsumerStrategy createSlowConsumerStrategy() {
+      return new AbortSlowConsumerStrategy();
+   }
 
-    @Override
-    protected BrokerService createBroker() throws Exception {
-        BrokerService broker = super.createBroker();
-        PolicyEntry policy = new PolicyEntry();
+   @Override
+   protected BrokerService createBroker() throws Exception {
+      BrokerService broker = super.createBroker();
+      PolicyEntry policy = new PolicyEntry();
 
-        AbortSlowAckConsumerStrategy strategy = new AbortSlowAckConsumerStrategy();
-        strategy.setAbortConnection(abortConnection);
-        strategy.setCheckPeriod(checkPeriod);
-        strategy.setMaxSlowDuration(maxSlowDuration);
-        strategy.setMaxTimeSinceLastAck(maxTimeSinceLastAck);
+      AbortSlowAckConsumerStrategy strategy = new AbortSlowAckConsumerStrategy();
+      strategy.setAbortConnection(abortConnection);
+      strategy.setCheckPeriod(checkPeriod);
+      strategy.setMaxSlowDuration(maxSlowDuration);
+      strategy.setMaxTimeSinceLastAck(maxTimeSinceLastAck);
 
-        policy.setSlowConsumerStrategy(strategy);
-        policy.setQueuePrefetch(10);
-        policy.setTopicPrefetch(10);
-        PolicyMap pMap = new PolicyMap();
-        pMap.setDefaultEntry(policy);
-        broker.setDestinationPolicy(pMap);
-        return broker;
-    }
+      policy.setSlowConsumerStrategy(strategy);
+      policy.setQueuePrefetch(10);
+      policy.setTopicPrefetch(10);
+      PolicyMap pMap = new PolicyMap();
+      pMap.setDefaultEntry(policy);
+      broker.setDestinationPolicy(pMap);
+      return broker;
+   }
 
-    @Override
-    protected ConnectionFactory createConnectionFactory() throws Exception {
-        ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("vm://localhost");
-        factory.getPrefetchPolicy().setAll(1);
-        return factory;
-    }
-
+   @Override
+   protected ConnectionFactory createConnectionFactory() throws Exception {
+      ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("vm://localhost");
+      factory.getPrefetchPolicy().setAll(1);
+      return factory;
+   }
 
 }

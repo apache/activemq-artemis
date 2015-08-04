@@ -29,8 +29,8 @@ import io.netty.handler.codec.mqtt.MqttTopicSubscription;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.core.server.ServerMessage;
 
-public class MQTTSessionState
-{
+public class MQTTSessionState {
+
    private String clientId;
 
    private ServerMessage willMessage;
@@ -60,8 +60,7 @@ public class MQTTSessionState
    // FIXME We should use a better mechanism for creating packet IDs.
    private AtomicInteger lastId = new AtomicInteger(0);
 
-   public MQTTSessionState(String clientId)
-   {
+   public MQTTSessionState(String clientId) {
       this.clientId = clientId;
 
       pubRec = new HashSet<>();
@@ -74,25 +73,19 @@ public class MQTTSessionState
       addressMessageMap = new ConcurrentHashMap<>();
    }
 
-   int generateId()
-   {
+   int generateId() {
       lastId.compareAndSet(Short.MAX_VALUE, 1);
       return lastId.addAndGet(1);
    }
 
-   void addOutbandMessageRef(int mqttId, String address, long serverMessageId, int qos)
-   {
-      synchronized (outboundLock)
-      {
+   void addOutbandMessageRef(int mqttId, String address, long serverMessageId, int qos) {
+      synchronized (outboundLock) {
          outboundMessageReferenceStore.put(mqttId, new Pair<String, Long>(address, serverMessageId));
-         if (qos == 2)
-         {
-            if (reverseOutboundReferenceStore.containsKey(address))
-            {
+         if (qos == 2) {
+            if (reverseOutboundReferenceStore.containsKey(address)) {
                reverseOutboundReferenceStore.get(address).put(serverMessageId, mqttId);
             }
-            else
-            {
+            else {
                ConcurrentHashMap<Long, Integer> serverToMqttId = new ConcurrentHashMap<Long, Integer>();
                serverToMqttId.put(serverMessageId, mqttId);
                reverseOutboundReferenceStore.put(address, serverToMqttId);
@@ -101,22 +94,17 @@ public class MQTTSessionState
       }
    }
 
-   Pair<String, Long> removeOutbandMessageRef(int mqttId, int qos)
-   {
-      synchronized (outboundLock)
-      {
+   Pair<String, Long> removeOutbandMessageRef(int mqttId, int qos) {
+      synchronized (outboundLock) {
          Pair<String, Long> messageInfo = outboundMessageReferenceStore.remove(mqttId);
-         if (qos == 1)
-         {
+         if (qos == 1) {
             return messageInfo;
          }
 
          Map<Long, Integer> map = reverseOutboundReferenceStore.get(messageInfo.getA());
-         if (map != null)
-         {
+         if (map != null) {
             map.remove(messageInfo.getB());
-            if (map.isEmpty())
-            {
+            if (map.isEmpty()) {
                reverseOutboundReferenceStore.remove(messageInfo.getA());
             }
             return messageInfo;
@@ -125,68 +113,54 @@ public class MQTTSessionState
       }
    }
 
-   Set<Integer> getPubRec()
-   {
+   Set<Integer> getPubRec() {
       return pubRec;
    }
 
-   Set<Integer> getPub()
-   {
+   Set<Integer> getPub() {
       return pub;
    }
 
-   boolean getAttached()
-   {
+   boolean getAttached() {
       return attached;
    }
 
-   void setAttached(boolean attached)
-   {
+   void setAttached(boolean attached) {
       this.attached = attached;
    }
 
-   boolean isWill()
-   {
+   boolean isWill() {
       return willMessage != null;
    }
 
-   ServerMessage getWillMessage()
-   {
+   ServerMessage getWillMessage() {
       return willMessage;
    }
 
-   void setWillMessage(ServerMessage willMessage)
-   {
+   void setWillMessage(ServerMessage willMessage) {
       this.willMessage = willMessage;
    }
 
-   void deleteWillMessage()
-   {
+   void deleteWillMessage() {
       willMessage = null;
    }
 
-   Collection<MqttTopicSubscription> getSubscriptions()
-   {
+   Collection<MqttTopicSubscription> getSubscriptions() {
       return subscriptions.values();
    }
 
-   boolean addSubscription(MqttTopicSubscription subscription)
-   {
-      synchronized (subscriptions)
-      {
+   boolean addSubscription(MqttTopicSubscription subscription) {
+      synchronized (subscriptions) {
          addressMessageMap.putIfAbsent(MQTTUtil.convertMQTTAddressFilterToCore(subscription.topicName()), new ConcurrentHashMap<Long, Integer>());
 
          MqttTopicSubscription existingSubscription = subscriptions.get(subscription.topicName());
-         if (existingSubscription != null)
-         {
-            if (subscription.qualityOfService().value() > existingSubscription.qualityOfService().value())
-            {
+         if (existingSubscription != null) {
+            if (subscription.qualityOfService().value() > existingSubscription.qualityOfService().value()) {
                subscriptions.put(subscription.topicName(), subscription);
                return true;
             }
          }
-         else
-         {
+         else {
             subscriptions.put(subscription.topicName(), subscription);
             return true;
          }
@@ -194,58 +168,46 @@ public class MQTTSessionState
       return false;
    }
 
-   void removeSubscription(String address)
-   {
-      synchronized (subscriptions)
-      {
+   void removeSubscription(String address) {
+      synchronized (subscriptions) {
          subscriptions.remove(address);
          addressMessageMap.remove(address);
       }
    }
 
-   MqttTopicSubscription getSubscription(String address)
-   {
+   MqttTopicSubscription getSubscription(String address) {
       return subscriptions.get(address);
    }
 
-   String getClientId()
-   {
+   String getClientId() {
       return clientId;
    }
 
-   void setClientId(String clientId)
-   {
+   void setClientId(String clientId) {
       this.clientId = clientId;
    }
 
-   void storeMessageRef(Integer mqttId, MQTTMessageInfo messageInfo, boolean storeAddress)
-   {
+   void storeMessageRef(Integer mqttId, MQTTMessageInfo messageInfo, boolean storeAddress) {
       messageRefStore.put(mqttId, messageInfo);
-      if (storeAddress)
-      {
+      if (storeAddress) {
          Map<Long, Integer> addressMap = addressMessageMap.get(messageInfo.getAddress());
-         if (addressMap != null)
-         {
+         if (addressMap != null) {
             addressMap.put(messageInfo.getServerMessageId(), mqttId);
          }
       }
    }
 
-   void removeMessageRef(Integer mqttId)
-   {
+   void removeMessageRef(Integer mqttId) {
       MQTTMessageInfo info = messageRefStore.remove(mqttId);
-      if (info != null)
-      {
+      if (info != null) {
          Map<Long, Integer> addressMap = addressMessageMap.get(info.getAddress());
-         if (addressMap != null)
-         {
+         if (addressMap != null) {
             addressMap.remove(info.getServerMessageId());
          }
       }
    }
 
-   MQTTMessageInfo getMessageInfo(Integer mqttId)
-   {
+   MQTTMessageInfo getMessageInfo(Integer mqttId) {
       return messageRefStore.get(mqttId);
    }
 }

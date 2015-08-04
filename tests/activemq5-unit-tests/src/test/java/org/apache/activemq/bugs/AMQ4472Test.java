@@ -24,68 +24,73 @@ import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 public class AMQ4472Test {
-    private static final Logger LOG = LoggerFactory.getLogger(AMQ4472Test.class);
 
-    @Test
-    public void testLostMessage() {
-        Connection connection = null;
-        try {
-            ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("vm://localhost?broker.useJmx=false");
-            connection = connectionFactory.createConnection();
-            connection.start();
+   private static final Logger LOG = LoggerFactory.getLogger(AMQ4472Test.class);
 
-            Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
-            Destination test_data_destination = session.createQueue("test"+System.currentTimeMillis());
+   @Test
+   public void testLostMessage() {
+      Connection connection = null;
+      try {
+         ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("vm://localhost?broker.useJmx=false");
+         connection = connectionFactory.createConnection();
+         connection.start();
 
-            MessageConsumer consumer = session.createConsumer(test_data_destination);
-            LOG.info("Consumer 1 connected");
+         Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
+         Destination test_data_destination = session.createQueue("test" + System.currentTimeMillis());
 
-            MessageProducer producer = session.createProducer(test_data_destination);
-            producer.send(session.createTextMessage("Message 1"));
+         MessageConsumer consumer = session.createConsumer(test_data_destination);
+         LOG.info("Consumer 1 connected");
 
-            // committing the session prior to the close
+         MessageProducer producer = session.createProducer(test_data_destination);
+         producer.send(session.createTextMessage("Message 1"));
+
+         // committing the session prior to the close
+         session.commit();
+
+         // starting a new transaction
+         producer.send(session.createTextMessage("Message 2"));
+
+         // in a new transaction, with prefetch>0, the message
+         // 1 will be pending till second commit
+         LOG.info("Closing consumer 1...");
+         consumer.close();
+
+         // create a consumer
+         consumer = session.createConsumer(test_data_destination);
+         LOG.info("Consumer 2 connected");
+
+         // retrieve message previously committed to tmp queue
+         Message message = consumer.receive(10000);
+         if (message != null) {
+            LOG.info("Got message 1:", message);
+            assertEquals("expected message", "Message 1", ((TextMessage) message).getText());
             session.commit();
-
-            // starting a new transaction
-            producer.send(session.createTextMessage("Message 2"));
-
-            // in a new transaction, with prefetch>0, the message
-            // 1 will be pending till second commit
-            LOG.info("Closing consumer 1...");
-            consumer.close();
-
-            // create a consumer
-            consumer = session.createConsumer(test_data_destination);
-            LOG.info("Consumer 2 connected");
-
-            // retrieve message previously committed to tmp queue
-            Message message = consumer.receive(10000);
-            if (message != null) {
-                LOG.info("Got message 1:", message);
-                assertEquals("expected message", "Message 1", ((TextMessage) message).getText());
-                session.commit();
-            } else {
-                LOG.error("Expected message but it never arrived");
-            }
-            assertNotNull(message);
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                connection.close();
-            } catch (JMSException e) {
-            }
-        }
-    }
+         }
+         else {
+            LOG.error("Expected message but it never arrived");
+         }
+         assertNotNull(message);
+      }
+      catch (Exception e) {
+         e.printStackTrace();
+      }
+      finally {
+         try {
+            connection.close();
+         }
+         catch (JMSException e) {
+         }
+      }
+   }
 
 }

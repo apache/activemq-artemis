@@ -40,18 +40,15 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase
-{
+public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase {
 
    @Override
-   public boolean useSecurity()
-   {
+   public boolean useSecurity() {
       return false;
    }
 
    @Test
-   public void testSimpleMessageReceivedOnQueue() throws Exception
-   {
+   public void testSimpleMessageReceivedOnQueue() throws Exception {
       ActiveMQResourceAdapter qResourceAdapter = newResourceAdapter();
       MyBootstrapContext ctx = new MyBootstrapContext();
       qResourceAdapter.start(ctx);
@@ -82,8 +79,7 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase
    }
 
    @Test
-   public void testSimpleMessageReceivedOnQueueManyMessages() throws Exception
-   {
+   public void testSimpleMessageReceivedOnQueueManyMessages() throws Exception {
       ActiveMQResourceAdapter qResourceAdapter = newResourceAdapter();
       MyBootstrapContext ctx = new MyBootstrapContext();
       qResourceAdapter.start(ctx);
@@ -99,8 +95,7 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase
       qResourceAdapter.endpointActivation(endpointFactory, spec);
       ClientSession session = locator.createSessionFactory().createSession();
       ClientProducer clientProducer = session.createProducer(MDBQUEUEPREFIXED);
-      for (int i = 0; i < 15; i++)
-      {
+      for (int i = 0; i < 15; i++) {
          ClientMessage message = session.createMessage(true);
          message.getBodyBuffer().writeString("teststring" + i);
          clientProducer.send(message);
@@ -114,8 +109,7 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase
    }
 
    @Test
-   public void testSimpleMessageReceivedOnQueueManyMessagesAndInterrupt() throws Exception
-   {
+   public void testSimpleMessageReceivedOnQueueManyMessagesAndInterrupt() throws Exception {
       final int SIZE = 14;
       ActiveMQResourceAdapter qResourceAdapter = newResourceAdapter();
       MyBootstrapContext ctx = new MyBootstrapContext();
@@ -133,8 +127,7 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase
       qResourceAdapter.endpointActivation(endpointFactory, spec);
       ClientSession session = locator.createSessionFactory().createSession();
       ClientProducer clientProducer = session.createProducer(MDBQUEUEPREFIXED);
-      for (int i = 0; i < SIZE; i++)
-      {
+      for (int i = 0; i < SIZE; i++) {
          ClientMessage message = session.createMessage(true);
          message.getBodyBuffer().writeString("teststring" + i);
          clientProducer.send(message);
@@ -153,8 +146,7 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase
    }
 
    @Test
-   public void testSimpleMessageReceivedOnQueueManyMessagesAndInterruptTimeout() throws Exception
-   {
+   public void testSimpleMessageReceivedOnQueueManyMessagesAndInterruptTimeout() throws Exception {
       final int SIZE = 14;
       ActiveMQResourceAdapter qResourceAdapter = newResourceAdapter();
       MyBootstrapContext ctx = new MyBootstrapContext();
@@ -173,8 +165,7 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase
       qResourceAdapter.endpointActivation(endpointFactory, spec);
       ClientSession session = locator.createSessionFactory().createSession();
       ClientProducer clientProducer = session.createProducer(MDBQUEUEPREFIXED);
-      for (int i = 0; i < SIZE; i++)
-      {
+      for (int i = 0; i < SIZE; i++) {
          ClientMessage message = session.createMessage(true);
          message.getBodyBuffer().writeString("teststring" + i);
          clientProducer.send(message);
@@ -192,19 +183,18 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase
 
       qResourceAdapter.stop();
    }
+
    /**
     * @return
     */
-   protected ActiveMQResourceAdapter newResourceAdapter()
-   {
+   protected ActiveMQResourceAdapter newResourceAdapter() {
       ActiveMQResourceAdapter qResourceAdapter = new ActiveMQResourceAdapter();
       qResourceAdapter.setConnectorClassName(INVM_CONNECTOR_FACTORY);
       return qResourceAdapter;
    }
 
    @Test
-   public void testServerShutdownAndReconnect() throws Exception
-   {
+   public void testServerShutdownAndReconnect() throws Exception {
       ActiveMQResourceAdapter qResourceAdapter = newResourceAdapter();
       qResourceAdapter.setReconnectAttempts(-1);
       qResourceAdapter.setCallTimeout(500L);
@@ -214,23 +204,19 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase
       // This is just to register a listener
       final CountDownLatch failedLatch = new CountDownLatch(1);
       ClientSessionFactoryInternal factoryListener = (ClientSessionFactoryInternal) qResourceAdapter.getDefaultActiveMQConnectionFactory().getServerLocator().createSessionFactory();
-      factoryListener.addFailureListener(new SessionFailureListener()
-      {
+      factoryListener.addFailureListener(new SessionFailureListener() {
 
          @Override
-         public void connectionFailed(ActiveMQException exception, boolean failedOver)
-         {
+         public void connectionFailed(ActiveMQException exception, boolean failedOver) {
          }
 
          @Override
-         public void connectionFailed(ActiveMQException exception, boolean failedOver, String scaleDownTargetNodeID)
-         {
+         public void connectionFailed(ActiveMQException exception, boolean failedOver, String scaleDownTargetNodeID) {
             connectionFailed(exception, failedOver);
          }
 
          @Override
-         public void beforeReconnect(ActiveMQException exception)
-         {
+         public void beforeReconnect(ActiveMQException exception) {
             failedLatch.countDown();
          }
       });
@@ -254,7 +240,6 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase
       assertNotNull(endpoint.lastMessage);
       assertEquals(endpoint.lastMessage.getCoreMessage().getBodyBuffer().readString(), "teststring");
 
-
       server.stop();
 
       assertTrue(failedLatch.await(5, TimeUnit.SECONDS));
@@ -265,27 +250,23 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase
    }
 
    @Test
-   public void testInvalidAckMode() throws Exception
-   {
+   public void testInvalidAckMode() throws Exception {
       ActiveMQResourceAdapter qResourceAdapter = newResourceAdapter();
       MyBootstrapContext ctx = new MyBootstrapContext();
       qResourceAdapter.start(ctx);
       ActiveMQActivationSpec spec = new ActiveMQActivationSpec();
-      try
-      {
+      try {
          spec.setAcknowledgeMode("CLIENT_ACKNOWLEDGE");
          fail("should throw exception");
       }
-      catch (java.lang.IllegalArgumentException e)
-      {
+      catch (java.lang.IllegalArgumentException e) {
          //pass
       }
       qResourceAdapter.stop();
    }
 
    @Test
-   public void testSimpleMessageReceivedOnQueueInLocalTX() throws Exception
-   {
+   public void testSimpleMessageReceivedOnQueueInLocalTX() throws Exception {
       ActiveMQResourceAdapter qResourceAdapter = newResourceAdapter();
       qResourceAdapter.setUseLocalTx(true);
       MyBootstrapContext ctx = new MyBootstrapContext();
@@ -309,7 +290,6 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase
 
       assertNull(endpoint.lastMessage);
 
-
       latch = new CountDownLatch(1);
       endpoint.reset(latch);
       clientProducer.send(message);
@@ -324,8 +304,7 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase
    }
 
    @Test
-   public void testSimpleMessageReceivedOnQueueWithSelector() throws Exception
-   {
+   public void testSimpleMessageReceivedOnQueueWithSelector() throws Exception {
       ActiveMQResourceAdapter qResourceAdapter = newResourceAdapter();
       MyBootstrapContext ctx = new MyBootstrapContext();
       qResourceAdapter.start(ctx);
@@ -361,8 +340,7 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase
    }
 
    @Test
-   public void testEndpointDeactivated() throws Exception
-   {
+   public void testEndpointDeactivated() throws Exception {
       ActiveMQResourceAdapter qResourceAdapter = newResourceAdapter();
       MyBootstrapContext ctx = new MyBootstrapContext();
       qResourceAdapter.start(ctx);
@@ -385,8 +363,7 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase
    }
 
    @Test
-   public void testMaxSessions() throws Exception
-   {
+   public void testMaxSessions() throws Exception {
       ActiveMQResourceAdapter qResourceAdapter = newResourceAdapter();
       MyBootstrapContext ctx = new MyBootstrapContext();
       qResourceAdapter.start(ctx);
@@ -408,8 +385,7 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase
    }
 
    @Test
-   public void testSimpleTopic() throws Exception
-   {
+   public void testSimpleTopic() throws Exception {
       ActiveMQResourceAdapter qResourceAdapter = newResourceAdapter();
       MyBootstrapContext ctx = new MyBootstrapContext();
       qResourceAdapter.start(ctx);
@@ -439,8 +415,7 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase
    }
 
    @Test
-   public void testDurableSubscription() throws Exception
-   {
+   public void testDurableSubscription() throws Exception {
       ActiveMQResourceAdapter qResourceAdapter = newResourceAdapter();
       MyBootstrapContext ctx = new MyBootstrapContext();
       qResourceAdapter.start(ctx);
@@ -496,8 +471,7 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase
    }
 
    @Test
-   public void testNonDurableSubscription() throws Exception
-   {
+   public void testNonDurableSubscription() throws Exception {
       ActiveMQResourceAdapter qResourceAdapter = newResourceAdapter();
       MyBootstrapContext ctx = new MyBootstrapContext();
       qResourceAdapter.start(ctx);
@@ -545,8 +519,7 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase
 
    //https://issues.jboss.org/browse/JBPAPP-8017
    @Test
-   public void testNonDurableSubscriptionDeleteAfterCrash() throws Exception
-   {
+   public void testNonDurableSubscriptionDeleteAfterCrash() throws Exception {
       ActiveMQResourceAdapter qResourceAdapter = newResourceAdapter();
       MyBootstrapContext ctx = new MyBootstrapContext();
       qResourceAdapter.start(ctx);
@@ -589,8 +562,7 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase
    }
 
    @Test
-   public void testSelectorChangedWithTopic() throws Exception
-   {
+   public void testSelectorChangedWithTopic() throws Exception {
       ActiveMQResourceAdapter qResourceAdapter = newResourceAdapter();
 
       MyBootstrapContext ctx = new MyBootstrapContext();
@@ -652,8 +624,7 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase
    }
 
    @Test
-   public void testSharedSubscription() throws Exception
-   {
+   public void testSharedSubscription() throws Exception {
       ActiveMQResourceAdapter qResourceAdapter = newResourceAdapter();
       MyBootstrapContext ctx = new MyBootstrapContext();
       qResourceAdapter.start(ctx);
@@ -682,7 +653,6 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase
       spec2.setShareSubscriptions(true);
       spec2.setMaxSession(1);
 
-
       CountDownLatch latch = new CountDownLatch(5);
       DummyMessageEndpoint endpoint = new DummyMessageEndpoint(latch);
       DummyMessageEndpointFactory endpointFactory = new DummyMessageEndpointFactory(endpoint, false);
@@ -696,8 +666,7 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase
       ClientSession session = locator.createSessionFactory().createSession();
       ClientProducer clientProducer = session.createProducer("jms.topic.mdbTopic");
 
-      for (int i = 0; i < 10; i++)
-      {
+      for (int i = 0; i < 10; i++) {
          ClientMessage message = session.createMessage(true);
          message.getBodyBuffer().writeString("" + i);
          clientProducer.send(message);
@@ -717,8 +686,7 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase
    }
 
    @Test
-   public void testNullSubscriptionName() throws Exception
-   {
+   public void testNullSubscriptionName() throws Exception {
       ActiveMQResourceAdapter qResourceAdapter = newResourceAdapter();
       MyBootstrapContext ctx = new MyBootstrapContext();
       qResourceAdapter.start(ctx);
@@ -733,26 +701,21 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase
       spec.setShareSubscriptions(true);
       spec.setMaxSession(1);
 
-
       CountDownLatch latch = new CountDownLatch(5);
       DummyMessageEndpoint endpoint = new DummyMessageEndpoint(latch);
       DummyMessageEndpointFactory endpointFactory = new DummyMessageEndpointFactory(endpoint, false);
-      try
-      {
+      try {
          qResourceAdapter.endpointActivation(endpointFactory, spec);
          fail();
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          assertTrue(e instanceof InvalidPropertyException);
-         assertEquals("subscriptionName", ((InvalidPropertyException)e).getInvalidPropertyDescriptors()[0].getName());
+         assertEquals("subscriptionName", ((InvalidPropertyException) e).getInvalidPropertyDescriptors()[0].getName());
       }
    }
 
-
    @Test
-   public void testBadDestinationType() throws Exception
-   {
+   public void testBadDestinationType() throws Exception {
       ActiveMQResourceAdapter qResourceAdapter = newResourceAdapter();
       MyBootstrapContext ctx = new MyBootstrapContext();
       qResourceAdapter.start(ctx);
@@ -769,21 +732,18 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase
       CountDownLatch latch = new CountDownLatch(5);
       DummyMessageEndpoint endpoint = new DummyMessageEndpoint(latch);
       DummyMessageEndpointFactory endpointFactory = new DummyMessageEndpointFactory(endpoint, false);
-      try
-      {
+      try {
          qResourceAdapter.endpointActivation(endpointFactory, spec);
          fail();
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          assertTrue(e instanceof InvalidPropertyException);
-         assertEquals("destinationType", ((InvalidPropertyException)e).getInvalidPropertyDescriptors()[0].getName());
+         assertEquals("destinationType", ((InvalidPropertyException) e).getInvalidPropertyDescriptors()[0].getName());
       }
    }
 
    @Test
-   public void testSelectorNotChangedWithTopic() throws Exception
-   {
+   public void testSelectorNotChangedWithTopic() throws Exception {
       ActiveMQResourceAdapter qResourceAdapter = newResourceAdapter();
       MyBootstrapContext ctx = new MyBootstrapContext();
       qResourceAdapter.start(ctx);
@@ -833,20 +793,17 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase
 
    }
 
-   class ExceptionDummyMessageEndpoint extends DummyMessageEndpoint
-   {
+   class ExceptionDummyMessageEndpoint extends DummyMessageEndpoint {
+
       boolean throwException = true;
 
-      public ExceptionDummyMessageEndpoint(CountDownLatch latch)
-      {
+      public ExceptionDummyMessageEndpoint(CountDownLatch latch) {
          super(latch);
       }
 
       @Override
-      public void onMessage(Message message)
-      {
-         if (throwException)
-         {
+      public void onMessage(Message message) {
+         if (throwException) {
             throwException = false;
             throw new IllegalStateException("boo!");
          }
@@ -854,16 +811,15 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase
       }
    }
 
-   class MultipleEndpoints extends DummyMessageEndpoint
-   {
+   class MultipleEndpoints extends DummyMessageEndpoint {
+
       private final CountDownLatch latch;
       private final CountDownLatch latchDone;
       private final boolean pause;
       AtomicInteger messages = new AtomicInteger(0);
       AtomicInteger interrupted = new AtomicInteger(0);
 
-      public MultipleEndpoints(CountDownLatch latch, CountDownLatch latchDone, boolean pause)
-      {
+      public MultipleEndpoints(CountDownLatch latch, CountDownLatch latchDone, boolean pause) {
          super(latch);
          this.latch = latch;
          this.latchDone = latchDone;
@@ -871,46 +827,36 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase
       }
 
       @Override
-      public void beforeDelivery(Method method) throws NoSuchMethodException, ResourceException
-      {
+      public void beforeDelivery(Method method) throws NoSuchMethodException, ResourceException {
 
       }
 
       @Override
-      public void afterDelivery() throws ResourceException
-      {
+      public void afterDelivery() throws ResourceException {
 
       }
 
       @Override
-      public void release()
-      {
+      public void release() {
 
       }
 
       @Override
-      public void onMessage(Message message)
-      {
-         try
-         {
+      public void onMessage(Message message) {
+         try {
             latch.countDown();
-            if (pause && messages.getAndIncrement() % 2 == 0)
-            {
-               try
-               {
+            if (pause && messages.getAndIncrement() % 2 == 0) {
+               try {
                   IntegrationTestLogger.LOGGER.info("pausing for 2 secs");
                   Thread.sleep(2000);
                }
-               catch (InterruptedException e)
-               {
+               catch (InterruptedException e) {
                   interrupted.incrementAndGet();
                }
             }
          }
-         finally
-         {
-            if (latchDone != null)
-            {
+         finally {
+            if (latchDone != null) {
                latchDone.countDown();
             }
          }

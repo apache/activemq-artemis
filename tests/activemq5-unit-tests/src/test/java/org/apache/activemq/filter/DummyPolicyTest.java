@@ -28,17 +28,17 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
  */
 public class DummyPolicyTest extends SpringTestSupport {
 
-    public void testPolicy() throws Exception {
-        DummyPolicy policy = (DummyPolicy)getBean("policy");
+   public void testPolicy() throws Exception {
+      DummyPolicy policy = (DummyPolicy) getBean("policy");
 
-        Set<?> set = policy.get(new ActiveMQTopic("FOO.BAR"));
+      Set<?> set = policy.get(new ActiveMQTopic("FOO.BAR"));
 
-        assertSetEquals("FOO.BAR set", new Object[] {"Edam", "Cheddar"}, set);
-    }
+      assertSetEquals("FOO.BAR set", new Object[]{"Edam", "Cheddar"}, set);
+   }
 
-    @Override
-    protected AbstractApplicationContext createApplicationContext() {
-        return new ClassPathXmlApplicationContext("org/apache/activemq/filter/dummyPolicy.xml");
-    }
+   @Override
+   protected AbstractApplicationContext createApplicationContext() {
+      return new ClassPathXmlApplicationContext("org/apache/activemq/filter/dummyPolicy.xml");
+   }
 
 }

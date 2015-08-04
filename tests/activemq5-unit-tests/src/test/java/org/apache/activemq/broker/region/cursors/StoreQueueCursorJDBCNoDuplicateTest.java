@@ -24,14 +24,14 @@ import org.apache.activemq.store.jdbc.JDBCPersistenceAdapter;
 /**
  * @author gtully
  * @see https://issues.apache.org/activemq/browse/AMQ-2020
- **/
+ */
 public class StoreQueueCursorJDBCNoDuplicateTest extends StoreQueueCursorNoDuplicateTest {
 
-    protected BrokerService createBroker() throws Exception {
-        BrokerService broker = super.createBroker();
-        PersistenceAdapter persistenceAdapter = new JDBCPersistenceAdapter();
-        broker.setPersistenceAdapter(persistenceAdapter);
-        return broker;
-    }
+   protected BrokerService createBroker() throws Exception {
+      BrokerService broker = super.createBroker();
+      PersistenceAdapter persistenceAdapter = new JDBCPersistenceAdapter();
+      broker.setPersistenceAdapter(persistenceAdapter);
+      return broker;
+   }
 
 }

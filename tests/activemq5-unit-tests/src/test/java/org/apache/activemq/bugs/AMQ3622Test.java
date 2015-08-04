@@ -40,70 +40,70 @@ import org.junit.Test;
 
 public class AMQ3622Test {
 
-    protected BrokerService broker;
-    protected AtomicBoolean failed = new AtomicBoolean(false);
-    protected String connectionUri;
-    protected Appender appender = new DefaultTestAppender() {
+   protected BrokerService broker;
+   protected AtomicBoolean failed = new AtomicBoolean(false);
+   protected String connectionUri;
+   protected Appender appender = new DefaultTestAppender() {
 
-        @Override
-        public void doAppend(LoggingEvent event) {
-            System.err.println(event.getMessage());
-            if (event.getThrowableInformation() != null) {
-                if (event.getThrowableInformation().getThrowable() instanceof NullPointerException) {
-                    failed.set(true);
-                }
+      @Override
+      public void doAppend(LoggingEvent event) {
+         System.err.println(event.getMessage());
+         if (event.getThrowableInformation() != null) {
+            if (event.getThrowableInformation().getThrowable() instanceof NullPointerException) {
+               failed.set(true);
             }
-        }
-    };
+         }
+      }
+   };
 
-    @Before
-    public void before() throws Exception {
-        Logger.getRootLogger().addAppender(appender);
+   @Before
+   public void before() throws Exception {
+      Logger.getRootLogger().addAppender(appender);
 
-        broker = new BrokerService();
-        broker.setDataDirectory("target" + File.separator + "activemq-data");
-        broker.setPersistent(true);
-        broker.setDeleteAllMessagesOnStartup(true);
-        PolicyEntry policy = new PolicyEntry();
-        policy.setTopic(">");
-        policy.setProducerFlowControl(false);
-        policy.setMemoryLimit(1 * 1024 * 1024);
-        policy.setPendingSubscriberPolicy(new FilePendingSubscriberMessageStoragePolicy());
-        policy.setSubscriptionRecoveryPolicy(new LastImageSubscriptionRecoveryPolicy());
-        policy.setExpireMessagesPeriod(500);
-        List<PolicyEntry> entries = new ArrayList<PolicyEntry>();
+      broker = new BrokerService();
+      broker.setDataDirectory("target" + File.separator + "activemq-data");
+      broker.setPersistent(true);
+      broker.setDeleteAllMessagesOnStartup(true);
+      PolicyEntry policy = new PolicyEntry();
+      policy.setTopic(">");
+      policy.setProducerFlowControl(false);
+      policy.setMemoryLimit(1 * 1024 * 1024);
+      policy.setPendingSubscriberPolicy(new FilePendingSubscriberMessageStoragePolicy());
+      policy.setSubscriptionRecoveryPolicy(new LastImageSubscriptionRecoveryPolicy());
+      policy.setExpireMessagesPeriod(500);
+      List<PolicyEntry> entries = new ArrayList<PolicyEntry>();
 
-        entries.add(policy);
-        PolicyMap pMap = new PolicyMap();
-        pMap.setPolicyEntries(entries);
-        broker.setDestinationPolicy(pMap);
+      entries.add(policy);
+      PolicyMap pMap = new PolicyMap();
+      pMap.setPolicyEntries(entries);
+      broker.setDestinationPolicy(pMap);
 
-        connectionUri = broker.addConnector("stomp://localhost:0").getPublishableConnectString();
+      connectionUri = broker.addConnector("stomp://localhost:0").getPublishableConnectString();
 
-        broker.start();
-        broker.waitUntilStarted();
-    }
+      broker.start();
+      broker.waitUntilStarted();
+   }
 
-    @After
-    public void after() throws Exception {
-        broker.stop();
-        broker.waitUntilStopped();
-        Logger.getRootLogger().removeAppender(appender);
-    }
+   @After
+   public void after() throws Exception {
+      broker.stop();
+      broker.waitUntilStopped();
+      Logger.getRootLogger().removeAppender(appender);
+   }
 
-    @Test
-    public void go() throws Exception {
-        StompConnection connection = new StompConnection();
-        Integer port = Integer.parseInt(connectionUri.split(":")[2]);
-        connection.open("localhost", port);        
-        connection.connect("", "");
-        connection.subscribe("/topic/foobar", Stomp.Headers.Subscribe.AckModeValues.CLIENT);
-        connection.disconnect();
-        Thread.sleep(1000);
+   @Test
+   public void go() throws Exception {
+      StompConnection connection = new StompConnection();
+      Integer port = Integer.parseInt(connectionUri.split(":")[2]);
+      connection.open("localhost", port);
+      connection.connect("", "");
+      connection.subscribe("/topic/foobar", Stomp.Headers.Subscribe.AckModeValues.CLIENT);
+      connection.disconnect();
+      Thread.sleep(1000);
 
-        if (failed.get()) {
-            fail("Received NullPointerException");
-        }
-    }
+      if (failed.get()) {
+         fail("Received NullPointerException");
+      }
+   }
 
 }

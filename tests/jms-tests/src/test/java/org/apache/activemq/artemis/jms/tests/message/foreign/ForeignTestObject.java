@@ -21,46 +21,39 @@ import java.io.Serializable;
 /**
  * A Simple Serializable Object
  */
-public class ForeignTestObject implements Serializable
-{
+public class ForeignTestObject implements Serializable {
+
    private static final long serialVersionUID = -7503042537789321104L;
 
    private String s1;
 
    private double d1;
 
-   public ForeignTestObject(final String s, final double d)
-   {
+   public ForeignTestObject(final String s, final double d) {
       s1 = s;
       d1 = d;
    }
 
-   public double getD1()
-   {
+   public double getD1() {
       return d1;
    }
 
-   public void setD1(final double d1)
-   {
+   public void setD1(final double d1) {
       this.d1 = d1;
    }
 
-   public String getS1()
-   {
+   public String getS1() {
       return s1;
    }
 
-   public void setS1(final String s1)
-   {
+   public void setS1(final String s1) {
       this.s1 = s1;
    }
 
    @Override
-   public boolean equals(final Object o)
-   {
-      if (o instanceof ForeignTestObject)
-      {
-         ForeignTestObject to = (ForeignTestObject)o;
+   public boolean equals(final Object o) {
+      if (o instanceof ForeignTestObject) {
+         ForeignTestObject to = (ForeignTestObject) o;
 
          return s1.equals(to.getS1()) && d1 == to.getD1();
       }
@@ -68,8 +61,7 @@ public class ForeignTestObject implements Serializable
    }
 
    @Override
-   public int hashCode()
-   {
+   public int hashCode() {
       // TODO
       return 0;
    }

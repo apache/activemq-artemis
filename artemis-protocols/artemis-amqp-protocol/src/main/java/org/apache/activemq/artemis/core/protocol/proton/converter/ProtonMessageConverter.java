@@ -25,14 +25,11 @@ import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.spi.core.protocol.MessageConverter;
 import org.apache.activemq.artemis.utils.IDGenerator;
 
-public class ProtonMessageConverter implements MessageConverter
-{
-
+public class ProtonMessageConverter implements MessageConverter {
 
    ActiveMQJMSVendor activeMQJMSVendor;
 
-   public ProtonMessageConverter(IDGenerator idGenerator)
-   {
+   public ProtonMessageConverter(IDGenerator idGenerator) {
       activeMQJMSVendor = new ActiveMQJMSVendor(idGenerator);
       inboundTransformer = new JMSMappingInboundTransformer(activeMQJMSVendor);
       outboundTransformer = new JMSMappingOutboundTransformer(activeMQJMSVendor);
@@ -42,33 +39,30 @@ public class ProtonMessageConverter implements MessageConverter
    private final JMSMappingOutboundTransformer outboundTransformer;
 
    @Override
-   public ServerMessage inbound(Object messageSource) throws Exception
-   {
+   public ServerMessage inbound(Object messageSource) throws Exception {
       ServerJMSMessage jmsMessage = inboundJMSType((EncodedMessage) messageSource);
 
-      return (ServerMessage)jmsMessage.getInnerMessage();
+      return (ServerMessage) jmsMessage.getInnerMessage();
    }
 
    /**
     * Just create the JMS Part of the inbound (for testing)
+    *
     * @param messageSource
     * @return
     * @throws Exception
     */
-   public ServerJMSMessage inboundJMSType(EncodedMessage messageSource) throws Exception
-   {
+   public ServerJMSMessage inboundJMSType(EncodedMessage messageSource) throws Exception {
       EncodedMessage encodedMessageSource = messageSource;
-      ServerJMSMessage transformedMessage = (ServerJMSMessage)inboundTransformer.transform(encodedMessageSource);
+      ServerJMSMessage transformedMessage = (ServerJMSMessage) inboundTransformer.transform(encodedMessageSource);
 
       transformedMessage.encode();
 
       return transformedMessage;
    }
 
-
    @Override
-   public Object outbound(ServerMessage messageOutbound, int deliveryCount) throws Exception
-   {
+   public Object outbound(ServerMessage messageOutbound, int deliveryCount) throws Exception {
       ServerJMSMessage jmsMessage = activeMQJMSVendor.wrapMessage(messageOutbound.getType(), messageOutbound, deliveryCount);
       jmsMessage.decode();
 

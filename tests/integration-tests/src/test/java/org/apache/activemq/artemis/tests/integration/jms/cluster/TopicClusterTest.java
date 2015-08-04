@@ -27,8 +27,7 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.jms.Topic;
 
-public class TopicClusterTest extends JMSClusteredTestBase
-{
+public class TopicClusterTest extends JMSClusteredTestBase {
 
    // Constants -----------------------------------------------------
 
@@ -41,8 +40,7 @@ public class TopicClusterTest extends JMSClusteredTestBase
    // Public --------------------------------------------------------
 
    @Test
-   public void testDeleteTopicAfterClusteredSend() throws Exception
-   {
+   public void testDeleteTopicAfterClusteredSend() throws Exception {
       Connection conn1 = cf1.createConnection();
 
       conn1.setClientID("someClient1");
@@ -55,8 +53,7 @@ public class TopicClusterTest extends JMSClusteredTestBase
 
       conn2.start();
 
-      try
-      {
+      try {
 
          Topic topic1 = createTopic("t1");
 
@@ -74,9 +71,7 @@ public class TopicClusterTest extends JMSClusteredTestBase
 
          prod1.setDeliveryMode(DeliveryMode.PERSISTENT);
 
-
-         for (int i = 0; i < 2; i++)
-         {
+         for (int i = 0; i < 2; i++) {
             prod1.send(session1.createTextMessage("someMessage"));
          }
 
@@ -88,15 +83,13 @@ public class TopicClusterTest extends JMSClusteredTestBase
 
          cons2.close();
       }
-      finally
-      {
+      finally {
          conn1.close();
          conn2.close();
       }
 
       jmsServer1.destroyTopic("t1");
       jmsServer2.destroyTopic("t1");
-
 
    }
 

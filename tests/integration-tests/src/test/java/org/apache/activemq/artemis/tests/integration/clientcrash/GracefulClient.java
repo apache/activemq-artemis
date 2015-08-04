@@ -31,36 +31,28 @@ import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 /**
  * Code to be run in an external VM, via main()
  */
-public class GracefulClient
-{
+public class GracefulClient {
    // Constants ------------------------------------------------------------------------------------
 
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    // Static ---------------------------------------------------------------------------------------
 
-   public static void main(final String[] args) throws Exception
-   {
-      if (args.length != 2)
-      {
+   public static void main(final String[] args) throws Exception {
+      if (args.length != 2) {
          throw new Exception("require 2 arguments: queue name + message text");
       }
       String queueName = args[0];
       String messageText = args[1];
 
-      try
-      {
+      try {
          ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(NettyConnectorFactory.class.getName()));
          ClientSessionFactory sf = locator.createSessionFactory();
          ClientSession session = sf.createSession(false, true, true);
          ClientProducer producer = session.createProducer(queueName);
          ClientConsumer consumer = session.createConsumer(queueName);
 
-         ClientMessage message = session.createMessage(ActiveMQTextMessage.TYPE,
-                                                       false,
-                                                       0,
-                                                       System.currentTimeMillis(),
-                                                       (byte) 1);
+         ClientMessage message = session.createMessage(ActiveMQTextMessage.TYPE, false, 0, System.currentTimeMillis(), (byte) 1);
          message.getBodyBuffer().writeString(messageText);
          producer.send(message);
 
@@ -73,8 +65,7 @@ public class GracefulClient
          session.close();
          System.exit(0);
       }
-      catch (Throwable t)
-      {
+      catch (Throwable t) {
          GracefulClient.log.error(t.getMessage(), t);
          System.exit(1);
       }

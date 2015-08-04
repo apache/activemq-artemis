@@ -48,226 +48,226 @@ import org.junit.Test;
 //  https://issues.apache.org/activemq/browse/AMQ-2594
 public abstract class StoreOrderTest {
 
-    private static final Logger LOG = LoggerFactory.getLogger(StoreOrderTest.class);
-    
-    protected BrokerService broker;
-    private ActiveMQConnection connection;
-    public Destination destination = new ActiveMQQueue("StoreOrderTest?consumer.prefetchSize=0");
-    
-    protected abstract void setPersistentAdapter(BrokerService brokerService) throws Exception;
-    protected void dumpMessages() throws Exception {}
+   private static final Logger LOG = LoggerFactory.getLogger(StoreOrderTest.class);
 
-    public class TransactedSend implements Runnable {
+   protected BrokerService broker;
+   private ActiveMQConnection connection;
+   public Destination destination = new ActiveMQQueue("StoreOrderTest?consumer.prefetchSize=0");
 
-        private CountDownLatch readyForCommit;
-        private CountDownLatch firstDone;
-        private boolean first;
-        private Session session;
-        private MessageProducer producer;
+   protected abstract void setPersistentAdapter(BrokerService brokerService) throws Exception;
 
-        public TransactedSend(CountDownLatch readyForCommit,
-                CountDownLatch firstDone, boolean b) throws Exception {
-            this.readyForCommit = readyForCommit;
-            this.firstDone = firstDone;
-            this.first = b;
-            session = connection.createSession(true, Session.SESSION_TRANSACTED);
-            producer = session.createProducer(destination);
-        }
+   protected void dumpMessages() throws Exception {
+   }
 
-        public void run() {
-            try {
-                if (!first) {              
-                    firstDone.await(30, TimeUnit.SECONDS);
-                }
-                producer.send(session.createTextMessage(first ? "first" : "second"));
-                if (first) {
-                    firstDone.countDown();
-                }
-                readyForCommit.countDown();
-            
-            } catch (Exception e) {
-                e.printStackTrace();
-                fail("unexpected ex on run " + e);
+   public class TransactedSend implements Runnable {
+
+      private CountDownLatch readyForCommit;
+      private CountDownLatch firstDone;
+      private boolean first;
+      private Session session;
+      private MessageProducer producer;
+
+      public TransactedSend(CountDownLatch readyForCommit, CountDownLatch firstDone, boolean b) throws Exception {
+         this.readyForCommit = readyForCommit;
+         this.firstDone = firstDone;
+         this.first = b;
+         session = connection.createSession(true, Session.SESSION_TRANSACTED);
+         producer = session.createProducer(destination);
+      }
+
+      public void run() {
+         try {
+            if (!first) {
+               firstDone.await(30, TimeUnit.SECONDS);
             }
-        }
-        
-        public void commit() throws Exception {
-            session.commit();
-            session.close();
-        }
-    }
+            producer.send(session.createTextMessage(first ? "first" : "second"));
+            if (first) {
+               firstDone.countDown();
+            }
+            readyForCommit.countDown();
 
-    @Before
-    public void setup() throws Exception {
-        broker = createBroker();
-        initConnection();
-    }
-    
-    public void initConnection() throws Exception {
-        ConnectionFactory connectionFactory = new ActiveMQConnectionFactory("vm://localhost?create=false");
-        connection = (ActiveMQConnection) connectionFactory.createConnection();
-        connection.setWatchTopicAdvisories(false);
-        connection.start();
-    }
+         }
+         catch (Exception e) {
+            e.printStackTrace();
+            fail("unexpected ex on run " + e);
+         }
+      }
 
-    @After
-    public void stopBroker() throws Exception {
-        if (connection != null) {
-            connection.close();
-        }
-        if (broker != null) {
-            broker.stop();
-        }
-    }
-    
-    @Test
-    public void testCompositeSendReceiveAfterRestart() throws Exception {
-        destination = new ActiveMQQueue("StoreOrderTest,SecondStoreOrderTest");
-        enqueueOneMessage();
-        
-        LOG.info("restart broker");
-        stopBroker();
-        broker = createRestartedBroker();
-        dumpMessages();
-        initConnection();
-        destination = new ActiveMQQueue("StoreOrderTest");
-        assertNotNull("got one message from first dest", receiveOne());
-        dumpMessages();
-        destination = new ActiveMQQueue("SecondStoreOrderTest");
-        assertNotNull("got one message from second dest", receiveOne());
-    }
-    
-    @Test
-    public void validateUnorderedTxCommit() throws Exception {
-        
-        Executor executor = Executors.newCachedThreadPool();
-        CountDownLatch readyForCommit = new CountDownLatch(2);
-        CountDownLatch firstDone = new CountDownLatch(1);
-        
-        TransactedSend first = new TransactedSend(readyForCommit, firstDone, true);
-        TransactedSend second = new TransactedSend(readyForCommit, firstDone, false);
-        executor.execute(first);
-        executor.execute(second);
-        
-        assertTrue("both started", readyForCommit.await(20, TimeUnit.SECONDS));
-        
-        LOG.info("commit out of order");        
-        // send interleaved so sequence id at time of commit could be reversed
-        second.commit();
-        
-        // force usage over the limit before second commit to flush cache
-        enqueueOneMessage();
-        
-        // can get lost in the cursor as it is behind the last sequenceId that was cached
-        first.commit();
-        
-        LOG.info("send/commit done..");
-        
-        dumpMessages();
-        
-        String received1, received2, received3 = null;
-        if (true) {
-            LOG.info("receive and rollback...");
-            Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
-            received1 = receive(session);
-            received2 = receive(session);
-            received3 = receive(session);
-            
-            assertEquals("second", received1);
-            assertEquals("middle", received2);
-            assertEquals("first", received3);
-            
-            session.rollback();
-            session.close();
-        }
-        
-        
-        LOG.info("restart broker");
-        stopBroker();
-        broker = createRestartedBroker();
-        initConnection();
-        
-        if (true) {
-            LOG.info("receive and rollback after restart...");
-            Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
-            received1 = receive(session);
-            received2 = receive(session);
-            received3 = receive(session);
-            assertEquals("second", received1);
-            assertEquals("middle", received2);
-            assertEquals("first", received3);
-            session.rollback();
-            session.close();
-        }
-        
-        LOG.info("receive and ack each message");
-        received1 = receiveOne();
-        received2 = receiveOne();
-        received3 = receiveOne();
-        
-        assertEquals("second", received1);
-        assertEquals("middle", received2);
-        assertEquals("first", received3);
-    }
-    
-    private void enqueueOneMessage() throws Exception {
-        Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
-        MessageProducer producer = session.createProducer(destination);
-        producer.send(session.createTextMessage("middle"));
-        session.commit();
-        session.close();
-    }
+      public void commit() throws Exception {
+         session.commit();
+         session.close();
+      }
+   }
 
+   @Before
+   public void setup() throws Exception {
+      broker = createBroker();
+      initConnection();
+   }
 
-    private String receiveOne() throws Exception {
-        Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
-        String received = receive(session);
-        session.commit();
-        session.close();
-        return received;
-    }
-    
-    private String receive(Session session) throws Exception {
-        MessageConsumer consumer = session.createConsumer(destination);
-        String result = null;
-        TextMessage message = (TextMessage) consumer.receive(5000);
-        if (message != null) {
-            LOG.info("got message: " + message);
-            result  = message.getText();
-        }
-        consumer.close();
-        return result;
-    }
+   public void initConnection() throws Exception {
+      ConnectionFactory connectionFactory = new ActiveMQConnectionFactory("vm://localhost?create=false");
+      connection = (ActiveMQConnection) connectionFactory.createConnection();
+      connection.setWatchTopicAdvisories(false);
+      connection.start();
+   }
 
-    protected BrokerService createBroker() throws Exception {
-        boolean deleteMessagesOnStartup = true;
-        return startBroker(deleteMessagesOnStartup);
-    }
-    
-    protected BrokerService createRestartedBroker() throws Exception {
-        boolean deleteMessagesOnStartup = false;
-        return startBroker(deleteMessagesOnStartup);
-    }   
+   @After
+   public void stopBroker() throws Exception {
+      if (connection != null) {
+         connection.close();
+      }
+      if (broker != null) {
+         broker.stop();
+      }
+   }
 
-    protected BrokerService startBroker(boolean deleteMessagesOnStartup) throws Exception {
-        BrokerService newBroker = new BrokerService();   
-        configureBroker(newBroker);
-        newBroker.setDeleteAllMessagesOnStartup(deleteMessagesOnStartup);
-        newBroker.start();
-        return newBroker;
-    }
-    
-    protected void configureBroker(BrokerService brokerService) throws Exception {
-        setPersistentAdapter(brokerService);
-        brokerService.setAdvisorySupport(false);
-        
-        PolicyMap map = new PolicyMap();
-        PolicyEntry defaultEntry = new PolicyEntry();
-        defaultEntry.setMemoryLimit(1024*3);
-        defaultEntry.setCursorMemoryHighWaterMark(68);
-        defaultEntry.setExpireMessagesPeriod(0);
-        map.setDefaultEntry(defaultEntry);
-        brokerService.setDestinationPolicy(map);
-    }
+   @Test
+   public void testCompositeSendReceiveAfterRestart() throws Exception {
+      destination = new ActiveMQQueue("StoreOrderTest,SecondStoreOrderTest");
+      enqueueOneMessage();
+
+      LOG.info("restart broker");
+      stopBroker();
+      broker = createRestartedBroker();
+      dumpMessages();
+      initConnection();
+      destination = new ActiveMQQueue("StoreOrderTest");
+      assertNotNull("got one message from first dest", receiveOne());
+      dumpMessages();
+      destination = new ActiveMQQueue("SecondStoreOrderTest");
+      assertNotNull("got one message from second dest", receiveOne());
+   }
+
+   @Test
+   public void validateUnorderedTxCommit() throws Exception {
+
+      Executor executor = Executors.newCachedThreadPool();
+      CountDownLatch readyForCommit = new CountDownLatch(2);
+      CountDownLatch firstDone = new CountDownLatch(1);
+
+      TransactedSend first = new TransactedSend(readyForCommit, firstDone, true);
+      TransactedSend second = new TransactedSend(readyForCommit, firstDone, false);
+      executor.execute(first);
+      executor.execute(second);
+
+      assertTrue("both started", readyForCommit.await(20, TimeUnit.SECONDS));
+
+      LOG.info("commit out of order");
+      // send interleaved so sequence id at time of commit could be reversed
+      second.commit();
+
+      // force usage over the limit before second commit to flush cache
+      enqueueOneMessage();
+
+      // can get lost in the cursor as it is behind the last sequenceId that was cached
+      first.commit();
+
+      LOG.info("send/commit done..");
+
+      dumpMessages();
+
+      String received1, received2, received3 = null;
+      if (true) {
+         LOG.info("receive and rollback...");
+         Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
+         received1 = receive(session);
+         received2 = receive(session);
+         received3 = receive(session);
+
+         assertEquals("second", received1);
+         assertEquals("middle", received2);
+         assertEquals("first", received3);
+
+         session.rollback();
+         session.close();
+      }
+
+      LOG.info("restart broker");
+      stopBroker();
+      broker = createRestartedBroker();
+      initConnection();
+
+      if (true) {
+         LOG.info("receive and rollback after restart...");
+         Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
+         received1 = receive(session);
+         received2 = receive(session);
+         received3 = receive(session);
+         assertEquals("second", received1);
+         assertEquals("middle", received2);
+         assertEquals("first", received3);
+         session.rollback();
+         session.close();
+      }
+
+      LOG.info("receive and ack each message");
+      received1 = receiveOne();
+      received2 = receiveOne();
+      received3 = receiveOne();
+
+      assertEquals("second", received1);
+      assertEquals("middle", received2);
+      assertEquals("first", received3);
+   }
+
+   private void enqueueOneMessage() throws Exception {
+      Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
+      MessageProducer producer = session.createProducer(destination);
+      producer.send(session.createTextMessage("middle"));
+      session.commit();
+      session.close();
+   }
+
+   private String receiveOne() throws Exception {
+      Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
+      String received = receive(session);
+      session.commit();
+      session.close();
+      return received;
+   }
+
+   private String receive(Session session) throws Exception {
+      MessageConsumer consumer = session.createConsumer(destination);
+      String result = null;
+      TextMessage message = (TextMessage) consumer.receive(5000);
+      if (message != null) {
+         LOG.info("got message: " + message);
+         result = message.getText();
+      }
+      consumer.close();
+      return result;
+   }
+
+   protected BrokerService createBroker() throws Exception {
+      boolean deleteMessagesOnStartup = true;
+      return startBroker(deleteMessagesOnStartup);
+   }
+
+   protected BrokerService createRestartedBroker() throws Exception {
+      boolean deleteMessagesOnStartup = false;
+      return startBroker(deleteMessagesOnStartup);
+   }
+
+   protected BrokerService startBroker(boolean deleteMessagesOnStartup) throws Exception {
+      BrokerService newBroker = new BrokerService();
+      configureBroker(newBroker);
+      newBroker.setDeleteAllMessagesOnStartup(deleteMessagesOnStartup);
+      newBroker.start();
+      return newBroker;
+   }
+
+   protected void configureBroker(BrokerService brokerService) throws Exception {
+      setPersistentAdapter(brokerService);
+      brokerService.setAdvisorySupport(false);
+
+      PolicyMap map = new PolicyMap();
+      PolicyEntry defaultEntry = new PolicyEntry();
+      defaultEntry.setMemoryLimit(1024 * 3);
+      defaultEntry.setCursorMemoryHighWaterMark(68);
+      defaultEntry.setExpireMessagesPeriod(0);
+      map.setDefaultEntry(defaultEntry);
+      brokerService.setDestinationPolicy(map);
+   }
 
 }

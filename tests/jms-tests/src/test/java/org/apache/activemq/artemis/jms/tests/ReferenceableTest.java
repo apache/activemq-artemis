@@ -42,8 +42,7 @@ import org.junit.Test;
  * <br>
  * All administered objects should be referenceable and serializable as per spec 4.2
  */
-public class ReferenceableTest extends JMSTestCase
-{
+public class ReferenceableTest extends JMSTestCase {
    // Constants -----------------------------------------------------
 
    // Static --------------------------------------------------------
@@ -56,8 +55,7 @@ public class ReferenceableTest extends JMSTestCase
 
    @SuppressWarnings("cast")
    @Test
-   public void testSerializable() throws Exception
-   {
+   public void testSerializable() throws Exception {
       ProxyAssertSupport.assertTrue(cf instanceof Serializable);
 
       ProxyAssertSupport.assertTrue(queue1 instanceof Serializable);
@@ -67,8 +65,7 @@ public class ReferenceableTest extends JMSTestCase
 
    @SuppressWarnings("cast")
    @Test
-   public void testReferenceable() throws Exception
-   {
+   public void testReferenceable() throws Exception {
       ProxyAssertSupport.assertTrue(cf instanceof Referenceable);
 
       ProxyAssertSupport.assertTrue(queue1 instanceof Referenceable);
@@ -77,8 +74,7 @@ public class ReferenceableTest extends JMSTestCase
    }
 
    @Test
-   public void testReferenceCF() throws Exception
-   {
+   public void testReferenceCF() throws Exception {
       Reference cfRef = ((Referenceable) cf).getReference();
 
       String factoryName = cfRef.getFactoryClassName();
@@ -97,8 +93,7 @@ public class ReferenceableTest extends JMSTestCase
    }
 
    @Test
-   public void testReferenceQueue() throws Exception
-   {
+   public void testReferenceQueue() throws Exception {
       Reference queueRef = ((Referenceable) queue1).getReference();
 
       String factoryName = queueRef.getFactoryClassName();
@@ -119,8 +114,7 @@ public class ReferenceableTest extends JMSTestCase
    }
 
    @Test
-   public void testReferenceTopic() throws Exception
-   {
+   public void testReferenceTopic() throws Exception {
       Reference topicRef = ((Referenceable) ActiveMQServerTestCase.topic1).getReference();
 
       String factoryName = topicRef.getFactoryClassName();
@@ -140,8 +134,7 @@ public class ReferenceableTest extends JMSTestCase
       simpleSendReceive(cf, topic2);
    }
 
-   protected void simpleSendReceive(final ConnectionFactory cf1, final Destination dest) throws Exception
-   {
+   protected void simpleSendReceive(final ConnectionFactory cf1, final Destination dest) throws Exception {
       Connection conn = createConnection(cf1);
 
       Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);

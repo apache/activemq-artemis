@@ -30,84 +30,87 @@ import org.slf4j.LoggerFactory;
 import org.springframework.jms.core.JmsTemplate;
 
 public class SpringConsumer extends ConsumerBean implements MessageListener {
-    private static final Logger LOG = LoggerFactory.getLogger(SpringConsumer.class);
-    private JmsTemplate template;
-    private String myId = "foo";
-    private Destination destination;
-    private Connection connection;
-    private Session session;
-    private MessageConsumer consumer;
 
-    public void start() throws JMSException {
-        String selector = "next = '" + myId + "'";
+   private static final Logger LOG = LoggerFactory.getLogger(SpringConsumer.class);
+   private JmsTemplate template;
+   private String myId = "foo";
+   private Destination destination;
+   private Connection connection;
+   private Session session;
+   private MessageConsumer consumer;
 
-        try {
-            ConnectionFactory factory = template.getConnectionFactory();
-            final Connection c = connection = factory.createConnection();
+   public void start() throws JMSException {
+      String selector = "next = '" + myId + "'";
 
-            // we might be a reusable connection in spring
-            // so lets only set the client ID once if its not set
-            synchronized (c) {
-                if (c.getClientID() == null) {
-                    c.setClientID(myId);
-                }
+      try {
+         ConnectionFactory factory = template.getConnectionFactory();
+         final Connection c = connection = factory.createConnection();
+
+         // we might be a reusable connection in spring
+         // so lets only set the client ID once if its not set
+         synchronized (c) {
+            if (c.getClientID() == null) {
+               c.setClientID(myId);
             }
+         }
 
-            connection.start();
+         connection.start();
 
-            session = connection.createSession(true, Session.CLIENT_ACKNOWLEDGE);
-            consumer = session.createConsumer(destination, selector, false);
-            consumer.setMessageListener(this);
-        } catch (JMSException ex) {
-            LOG.error("", ex);
-            throw ex;
-        }
-    }
+         session = connection.createSession(true, Session.CLIENT_ACKNOWLEDGE);
+         consumer = session.createConsumer(destination, selector, false);
+         consumer.setMessageListener(this);
+      }
+      catch (JMSException ex) {
+         LOG.error("", ex);
+         throw ex;
+      }
+   }
 
-    public void stop() throws JMSException {
-        if (consumer != null) {
-            consumer.close();
-        }
-        if (session != null) {
-            session.close();
-        }
-        if (connection != null) {
-            connection.close();
-        }
-    }
+   public void stop() throws JMSException {
+      if (consumer != null) {
+         consumer.close();
+      }
+      if (session != null) {
+         session.close();
+      }
+      if (connection != null) {
+         connection.close();
+      }
+   }
 
-    public void onMessage(Message message) {
-        super.onMessage(message);
-        try {
-            message.acknowledge();
-        } catch (JMSException e) {
-            LOG.error("Failed to acknowledge: " + e, e);
-        }
-    }
+   public void onMessage(Message message) {
+      super.onMessage(message);
+      try {
+         message.acknowledge();
+      }
+      catch (JMSException e) {
+         LOG.error("Failed to acknowledge: " + e, e);
+      }
+   }
 
-    // Properties
-    // -------------------------------------------------------------------------
-    public Destination getDestination() {
-        return destination;
-    }
+   // Properties
+   // -------------------------------------------------------------------------
+   public Destination getDestination() {
+      return destination;
+   }
 
-    public void setDestination(Destination destination) {
-        this.destination = destination;
-    }
+   public void setDestination(Destination destination) {
+      this.destination = destination;
+   }
 
-    public String getMyId() {
-        return myId;
-    }
+   public String getMyId() {
+      return myId;
+   }
 
-    public void setMyId(String myId) {
-        this.myId = myId;
-    }
+   public void setMyId(String myId) {
+      this.myId = myId;
+   }
 
-    public JmsTemplate getTemplate() {
-        return template;
-    }
+   public JmsTemplate getTemplate() {
+      return template;
+   }
 
-    public void setTemplate(JmsTemplate template) {
-        this.template = template;
-    }
+   public void setTemplate(JmsTemplate template) {
+      this.template = template;
+   }
 }

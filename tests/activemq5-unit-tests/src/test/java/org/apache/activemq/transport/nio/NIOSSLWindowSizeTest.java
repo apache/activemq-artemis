@@ -17,6 +17,7 @@
 package org.apache.activemq.transport.nio;
 
 import junit.framework.TestCase;
+
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.broker.TransportConnector;
@@ -30,84 +31,84 @@ import javax.jms.Session;
 
 @SuppressWarnings("javadoc")
 public class NIOSSLWindowSizeTest extends TestCase {
-	
-    BrokerService broker;
-    Connection connection;
-    Session session;
-    
-    public static final String KEYSTORE_TYPE = "jks";
-    public static final String PASSWORD = "password";
-    public static final String SERVER_KEYSTORE = "src/test/resources/server.keystore";
-    public static final String TRUST_KEYSTORE = "src/test/resources/client.keystore";
 
-    public static final int PRODUCER_COUNT = 1;
-    public static final int CONSUMER_COUNT = 1;
-    public static final int MESSAGE_COUNT = 1;
-    public static final int MESSAGE_SIZE = 65536;
+   BrokerService broker;
+   Connection connection;
+   Session session;
 
-    byte[] messageData;
-    
-    @Override
-    protected void setUp() throws Exception {
-        System.setProperty("javax.net.ssl.trustStore", TRUST_KEYSTORE);
-        System.setProperty("javax.net.ssl.trustStorePassword", PASSWORD);
-        System.setProperty("javax.net.ssl.trustStoreType", KEYSTORE_TYPE);
-        System.setProperty("javax.net.ssl.keyStore", SERVER_KEYSTORE);
-        System.setProperty("javax.net.ssl.keyStoreType", KEYSTORE_TYPE);
-        System.setProperty("javax.net.ssl.keyStorePassword", PASSWORD);
+   public static final String KEYSTORE_TYPE = "jks";
+   public static final String PASSWORD = "password";
+   public static final String SERVER_KEYSTORE = "src/test/resources/server.keystore";
+   public static final String TRUST_KEYSTORE = "src/test/resources/client.keystore";
 
-        broker = new BrokerService();
-        broker.setPersistent(false);
-        broker.setUseJmx(false);
-        TransportConnector connector = broker.addConnector("nio+ssl://localhost:0?transport.needClientAuth=true");
-        broker.start();
-        broker.waitUntilStarted();
-        
-        messageData = new byte[MESSAGE_SIZE];
-        for (int i = 0; i < MESSAGE_SIZE;  i++)
-        {
-        	messageData[i] = (byte) (i & 0xff);
-        }
-        
-        ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("nio+ssl://localhost:" + connector.getConnectUri().getPort());
-        connection = factory.createConnection();
-        session = connection.createSession(false,  Session.AUTO_ACKNOWLEDGE);        
-        connection.start();
-    }
+   public static final int PRODUCER_COUNT = 1;
+   public static final int CONSUMER_COUNT = 1;
+   public static final int MESSAGE_COUNT = 1;
+   public static final int MESSAGE_SIZE = 65536;
 
-    @Override
-    protected void tearDown() throws Exception {
-    	if (session != null) {
-    		session.close();
-    	}
-        if (connection != null) {
-            connection.close();
-        }
+   byte[] messageData;
 
-        if (broker != null) {
-            broker.stop();
-            broker.waitUntilStopped();
-        }
-    }
+   @Override
+   protected void setUp() throws Exception {
+      System.setProperty("javax.net.ssl.trustStore", TRUST_KEYSTORE);
+      System.setProperty("javax.net.ssl.trustStorePassword", PASSWORD);
+      System.setProperty("javax.net.ssl.trustStoreType", KEYSTORE_TYPE);
+      System.setProperty("javax.net.ssl.keyStore", SERVER_KEYSTORE);
+      System.setProperty("javax.net.ssl.keyStoreType", KEYSTORE_TYPE);
+      System.setProperty("javax.net.ssl.keyStorePassword", PASSWORD);
 
-    public void testLargePayload() throws Exception {
-        Queue dest = session.createQueue("TEST");
-    	MessageProducer prod = null;
-        try {
-        	prod = session.createProducer(dest);
-        	BytesMessage msg = session.createBytesMessage();
-        	msg.writeBytes(messageData);
-        	prod.send(msg);
-        } finally {
-        	prod.close();
-        }        
-    	MessageConsumer cons = null;
-    	try 
-    	{
-    		cons = session.createConsumer(dest);
-    		assertNotNull(cons.receive(30000L));
-        } finally {
-        	cons.close();
-        }        
-    }
+      broker = new BrokerService();
+      broker.setPersistent(false);
+      broker.setUseJmx(false);
+      TransportConnector connector = broker.addConnector("nio+ssl://localhost:0?transport.needClientAuth=true");
+      broker.start();
+      broker.waitUntilStarted();
+
+      messageData = new byte[MESSAGE_SIZE];
+      for (int i = 0; i < MESSAGE_SIZE; i++) {
+         messageData[i] = (byte) (i & 0xff);
+      }
+
+      ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("nio+ssl://localhost:" + connector.getConnectUri().getPort());
+      connection = factory.createConnection();
+      session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      connection.start();
+   }
+
+   @Override
+   protected void tearDown() throws Exception {
+      if (session != null) {
+         session.close();
+      }
+      if (connection != null) {
+         connection.close();
+      }
+
+      if (broker != null) {
+         broker.stop();
+         broker.waitUntilStopped();
+      }
+   }
+
+   public void testLargePayload() throws Exception {
+      Queue dest = session.createQueue("TEST");
+      MessageProducer prod = null;
+      try {
+         prod = session.createProducer(dest);
+         BytesMessage msg = session.createBytesMessage();
+         msg.writeBytes(messageData);
+         prod.send(msg);
+      }
+      finally {
+         prod.close();
+      }
+      MessageConsumer cons = null;
+      try {
+         cons = session.createConsumer(dest);
+         assertNotNull(cons.receive(30000L));
+      }
+      finally {
+         cons.close();
+      }
+   }
 }

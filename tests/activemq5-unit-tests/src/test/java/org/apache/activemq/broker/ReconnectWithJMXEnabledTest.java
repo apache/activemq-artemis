@@ -33,60 +33,60 @@ import org.apache.activemq.EmbeddedBrokerTestSupport;
  */
 public class ReconnectWithJMXEnabledTest extends EmbeddedBrokerTestSupport {
 
-    protected Connection connection;
-    protected boolean transacted;
-    protected int authMode = Session.AUTO_ACKNOWLEDGE;
+   protected Connection connection;
+   protected boolean transacted;
+   protected int authMode = Session.AUTO_ACKNOWLEDGE;
 
-    public void testTestUseConnectionCloseBrokerThenRestartInSameJVM() throws Exception {
-        connection = connectionFactory.createConnection();
-        useConnection(connection);
-        connection.close();
+   public void testTestUseConnectionCloseBrokerThenRestartInSameJVM() throws Exception {
+      connection = connectionFactory.createConnection();
+      useConnection(connection);
+      connection.close();
 
-        broker.stop();
-        broker = createBroker();
-        startBroker();
+      broker.stop();
+      broker = createBroker();
+      startBroker();
 
-        connectionFactory = createConnectionFactory();
-        connection = connectionFactory.createConnection();
-        useConnection(connection);
-    }
+      connectionFactory = createConnectionFactory();
+      connection = connectionFactory.createConnection();
+      useConnection(connection);
+   }
 
-    protected void setUp() throws Exception {
-        bindAddress = "tcp://localhost:0";
-        super.setUp();
-    }
+   protected void setUp() throws Exception {
+      bindAddress = "tcp://localhost:0";
+      super.setUp();
+   }
 
-    @Override
-    protected ConnectionFactory createConnectionFactory() throws Exception {
-        return new ActiveMQConnectionFactory(broker.getTransportConnectors().get(0).getPublishableConnectString());
-    }
+   @Override
+   protected ConnectionFactory createConnectionFactory() throws Exception {
+      return new ActiveMQConnectionFactory(broker.getTransportConnectors().get(0).getPublishableConnectString());
+   }
 
-    protected void tearDown() throws Exception {
-        if (connection != null) {
-            connection.close();
-            connection = null;
-        }
-        super.tearDown();
-    }
+   protected void tearDown() throws Exception {
+      if (connection != null) {
+         connection.close();
+         connection = null;
+      }
+      super.tearDown();
+   }
 
-    protected BrokerService createBroker() throws Exception {
-        BrokerService answer = new BrokerService();
-        answer.setUseJmx(true);
-        answer.setPersistent(isPersistent());
-        answer.addConnector(bindAddress);
-        return answer;
-    }
+   protected BrokerService createBroker() throws Exception {
+      BrokerService answer = new BrokerService();
+      answer.setUseJmx(true);
+      answer.setPersistent(isPersistent());
+      answer.addConnector(bindAddress);
+      return answer;
+   }
 
-    protected void useConnection(Connection connection) throws Exception {
-        connection.setClientID("foo");
-        connection.start();
-        Session session = connection.createSession(transacted, authMode);
-        Destination destination = createDestination();
-        MessageConsumer consumer = session.createConsumer(destination);
-        MessageProducer producer = session.createProducer(destination);
-        Message message = session.createTextMessage("Hello World");
-        producer.send(message);
-        Thread.sleep(1000);
-        consumer.close();
-    }
+   protected void useConnection(Connection connection) throws Exception {
+      connection.setClientID("foo");
+      connection.start();
+      Session session = connection.createSession(transacted, authMode);
+      Destination destination = createDestination();
+      MessageConsumer consumer = session.createConsumer(destination);
+      MessageProducer producer = session.createProducer(destination);
+      Message message = session.createTextMessage("Hello World");
+      producer.send(message);
+      Thread.sleep(1000);
+      consumer.close();
+   }
 }

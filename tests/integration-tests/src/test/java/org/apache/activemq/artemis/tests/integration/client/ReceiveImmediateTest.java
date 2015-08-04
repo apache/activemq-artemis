@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.integration.client;
+
 import org.junit.Before;
 
 import org.junit.Test;
@@ -36,8 +37,8 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 
-public class ReceiveImmediateTest extends ActiveMQTestBase
-{
+public class ReceiveImmediateTest extends ActiveMQTestBase {
+
    private ActiveMQServer server;
 
    private final SimpleString QUEUE = new SimpleString("ReceiveImmediateTest.queue");
@@ -48,8 +49,7 @@ public class ReceiveImmediateTest extends ActiveMQTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
       Configuration config = createDefaultInVMConfig();
       server = createServer(false, config);
@@ -60,35 +60,28 @@ public class ReceiveImmediateTest extends ActiveMQTestBase
    private ClientSessionFactory sf;
 
    @Test
-   public void testConsumerReceiveImmediateWithNoMessages() throws Exception
-   {
+   public void testConsumerReceiveImmediateWithNoMessages() throws Exception {
       doConsumerReceiveImmediateWithNoMessages(false);
    }
 
    @Test
-   public void testConsumerReceiveImmediate() throws Exception
-   {
+   public void testConsumerReceiveImmediate() throws Exception {
       doConsumerReceiveImmediate(false);
    }
 
    @Test
-   public void testBrowserReceiveImmediateWithNoMessages() throws Exception
-   {
+   public void testBrowserReceiveImmediateWithNoMessages() throws Exception {
       doConsumerReceiveImmediateWithNoMessages(true);
    }
 
    @Test
-   public void testBrowserReceiveImmediate() throws Exception
-   {
+   public void testBrowserReceiveImmediate() throws Exception {
       doConsumerReceiveImmediate(true);
    }
 
    @Test
-   public void testConsumerReceiveImmediateWithSessionStop() throws Exception
-   {
-      locator.setBlockOnNonDurableSend(true)
-              .setBlockOnAcknowledge(true)
-              .setAckBatchSize(0);
+   public void testConsumerReceiveImmediateWithSessionStop() throws Exception {
+      locator.setBlockOnNonDurableSend(true).setBlockOnAcknowledge(true).setAckBatchSize(0);
 
       sf = createSessionFactory(locator);
       ClientSession session = sf.createSession(false, true, true);
@@ -116,8 +109,7 @@ public class ReceiveImmediateTest extends ActiveMQTestBase
 
    // https://jira.jboss.org/browse/HORNETQ-450
    @Test
-   public void testReceivedImmediateFollowedByReceive() throws Exception
-   {
+   public void testReceivedImmediateFollowedByReceive() throws Exception {
       locator.setBlockOnNonDurableSend(true);
       sf = createSessionFactory(locator);
 
@@ -150,8 +142,7 @@ public class ReceiveImmediateTest extends ActiveMQTestBase
 
    // https://jira.jboss.org/browse/HORNETQ-450
    @Test
-   public void testReceivedImmediateFollowedByAsyncConsume() throws Exception
-   {
+   public void testReceivedImmediateFollowedByAsyncConsume() throws Exception {
 
       locator.setBlockOnNonDurableSend(true);
       sf = createSessionFactory(locator);
@@ -178,10 +169,8 @@ public class ReceiveImmediateTest extends ActiveMQTestBase
 
       final AtomicBoolean receivedAsync = new AtomicBoolean(false);
 
-      consumer.setMessageHandler(new MessageHandler()
-      {
-         public void onMessage(ClientMessage message)
-         {
+      consumer.setMessageHandler(new MessageHandler() {
+         public void onMessage(ClientMessage message) {
             receivedAsync.set(true);
          }
       });
@@ -193,11 +182,8 @@ public class ReceiveImmediateTest extends ActiveMQTestBase
       session.close();
    }
 
-   private void doConsumerReceiveImmediateWithNoMessages(final boolean browser) throws Exception
-   {
-      locator.setBlockOnNonDurableSend(true)
-              .setBlockOnAcknowledge(true)
-              .setAckBatchSize(0);
+   private void doConsumerReceiveImmediateWithNoMessages(final boolean browser) throws Exception {
+      locator.setBlockOnNonDurableSend(true).setBlockOnAcknowledge(true).setAckBatchSize(0);
 
       sf = createSessionFactory(locator);
 
@@ -214,11 +200,8 @@ public class ReceiveImmediateTest extends ActiveMQTestBase
       session.close();
    }
 
-   private void doConsumerReceiveImmediate(final boolean browser) throws Exception
-   {
-      locator.setBlockOnNonDurableSend(true)
-              .setBlockOnAcknowledge(true)
-              .setAckBatchSize(0);
+   private void doConsumerReceiveImmediate(final boolean browser) throws Exception {
+      locator.setBlockOnNonDurableSend(true).setBlockOnAcknowledge(true).setAckBatchSize(0);
 
       sf = createSessionFactory(locator);
       ClientSession session = sf.createSession(false, true, true);
@@ -229,8 +212,7 @@ public class ReceiveImmediateTest extends ActiveMQTestBase
 
       final int numMessages = 100;
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = createTextMessage(session, "m" + i);
          producer.send(message);
       }
@@ -238,25 +220,22 @@ public class ReceiveImmediateTest extends ActiveMQTestBase
       ClientConsumer consumer = session.createConsumer(QUEUE, null, browser);
       session.start();
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message2 = consumer.receiveImmediate();
          Assert.assertNotNull("did not receive message " + i, message2);
          Assert.assertEquals("m" + i, message2.getBodyBuffer().readString());
-         if (!browser)
-         {
+         if (!browser) {
             message2.acknowledge();
          }
       }
 
-      Assert.assertEquals(0, ((Queue)server.getPostOffice().getBinding(QUEUE).getBindable()).getDeliveringCount());
+      Assert.assertEquals(0, ((Queue) server.getPostOffice().getBinding(QUEUE).getBindable()).getDeliveringCount());
 
       Assert.assertNull(consumer.receiveImmediate());
 
-      Assert.assertEquals(0, ((Queue)server.getPostOffice().getBinding(QUEUE).getBindable()).getDeliveringCount());
+      Assert.assertEquals(0, ((Queue) server.getPostOffice().getBinding(QUEUE).getBindable()).getDeliveringCount());
       int messagesOnServer = browser ? numMessages : 0;
-      Assert.assertEquals(messagesOnServer,
-                          getMessageCount(((Queue)server.getPostOffice().getBinding(QUEUE).getBindable())));
+      Assert.assertEquals(messagesOnServer, getMessageCount(((Queue) server.getPostOffice().getBinding(QUEUE).getBindable())));
 
       consumer.close();
 

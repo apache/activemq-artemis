@@ -34,6 +34,7 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 
 import junit.framework.Test;
+
 import junit.textui.TestRunner;
 
 import org.apache.activemq.broker.BrokerService;
@@ -46,149 +47,150 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class SslBrokerServiceTest extends TransportBrokerTestSupport {
-    private static final Logger LOG = LoggerFactory.getLogger(SslBrokerServiceTest.class);
 
-    TransportConnector needClientAuthConnector;
-    TransportConnector limitedCipherSuites;
-    
-    protected String getBindLocation() {
-        return "ssl://localhost:0";
-    }
-    
-    @Override
-    protected BrokerService createBroker() throws Exception {
-        
-        // http://java.sun.com/javase/javaseforbusiness/docs/TLSReadme.html
-        // work around: javax.net.ssl.SSLHandshakeException: renegotiation is not allowed
-        System.setProperty("sun.security.ssl.allowUnsafeRenegotiation", "true");
-        
-        SslBrokerService service = new SslBrokerService();
-        service.setPersistent(false);
-        
-        KeyManager[] km = getKeyManager();
-        TrustManager[] tm = getTrustManager();
-        connector = service.addSslConnector(getBindLocation(), km, tm, null);
-        limitedCipherSuites = service.addSslConnector("ssl://localhost:0?transport.enabledCipherSuites=SSL_RSA_WITH_RC4_128_SHA,SSL_DH_anon_WITH_3DES_EDE_CBC_SHA", km, tm, null);
-        needClientAuthConnector = service.addSslConnector("ssl://localhost:0?transport.needClientAuth=true", km, tm, null);
-        
-        // for client side
-        SslTransportFactory sslFactory = new SslTransportFactory();
-        SslContext ctx = new SslContext(km, tm, null);
-        SslContext.setCurrentSslContext(ctx);
-        TransportFactory.registerTransportFactory("ssl", sslFactory);
-        
-        return service;
-    }
+   private static final Logger LOG = LoggerFactory.getLogger(SslBrokerServiceTest.class);
 
-    public void testNeedClientAuthReject() throws Exception {
-        SSLContext context = SSLContext.getInstance("TLS");    
-        // no client cert
-        context.init(null, getTrustManager(), null);
-        
-        try {
-            makeSSLConnection(context, null, needClientAuthConnector);
-            fail("expected failure on no client cert");
-        } catch (SSLException expected) {
-            expected.printStackTrace();
-        }
-        // should work with regular connector
-        makeSSLConnection(context, null, connector);
-    }
+   TransportConnector needClientAuthConnector;
+   TransportConnector limitedCipherSuites;
 
-    public void testNeedClientAuthSucceed() throws Exception {
-        SSLContext context = SSLContext.getInstance("TLS");
-        context.init(getKeyManager(), getTrustManager(), null);
-        makeSSLConnection(context, null, needClientAuthConnector);
-    }
-    
-    public void testCipherSuitesDisabled() throws Exception {
-        SSLContext context = SSLContext.getInstance("TLS");
-        context.init(getKeyManager(), getTrustManager(), null);
-        
-        // Enable only one cipher suite which is not enabled on the server
-        try {
-            makeSSLConnection(context, new String[]{ "SSL_RSA_WITH_RC4_128_MD5" }, limitedCipherSuites);
-            fail("expected failure on non allowed cipher suite");
-        } catch (SSLException expectedOnNotAnAvailableSuite) {
-        }
+   protected String getBindLocation() {
+      return "ssl://localhost:0";
+   }
 
-        // ok with the enabled one
-        makeSSLConnection(context, new String[]{ "SSL_RSA_WITH_RC4_128_SHA" }, limitedCipherSuites);
-    }
+   @Override
+   protected BrokerService createBroker() throws Exception {
 
-    private void makeSSLConnection(SSLContext context, String enabledSuites[], TransportConnector connector) throws Exception,
-            UnknownHostException, SocketException {
-        SSLSocket sslSocket = (SSLSocket) context.getSocketFactory().createSocket("localhost", connector.getUri().getPort());
-        
-        if (enabledSuites != null) {
-            sslSocket.setEnabledCipherSuites(enabledSuites);
-        }
-        sslSocket.setSoTimeout(5000);
-        
-        SSLSession session = sslSocket.getSession();
-        sslSocket.startHandshake();
-        LOG.info("cyphersuite: " + session.getCipherSuite());
-        LOG.info("peer port: " + session.getPeerPort());
-        LOG.info("peer cert: " + session.getPeerCertificateChain()[0].toString());    
-    }
-    
-    public static TrustManager[] getTrustManager() throws Exception {
-        TrustManager[] trustStoreManagers = null;
-        KeyStore trustedCertStore = KeyStore.getInstance(SslTransportBrokerTest.KEYSTORE_TYPE);
-        
-        trustedCertStore.load(new FileInputStream(SslTransportBrokerTest.TRUST_KEYSTORE), null);
-        TrustManagerFactory tmf  = 
-            TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-  
-        tmf.init(trustedCertStore);
-        trustStoreManagers = tmf.getTrustManagers();
-        return trustStoreManagers; 
-    }
+      // http://java.sun.com/javase/javaseforbusiness/docs/TLSReadme.html
+      // work around: javax.net.ssl.SSLHandshakeException: renegotiation is not allowed
+      System.setProperty("sun.security.ssl.allowUnsafeRenegotiation", "true");
 
-    public static KeyManager[] getKeyManager() throws Exception {
-        KeyManagerFactory kmf = 
-            KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());  
-        KeyStore ks = KeyStore.getInstance(SslTransportBrokerTest.KEYSTORE_TYPE);
-        KeyManager[] keystoreManagers = null;
-        
-        byte[] sslCert = loadClientCredential(SslTransportBrokerTest.SERVER_KEYSTORE);
-        
-       
-        if (sslCert != null && sslCert.length > 0) {
-            ByteArrayInputStream bin = new ByteArrayInputStream(sslCert);
-            ks.load(bin, SslTransportBrokerTest.PASSWORD.toCharArray());
-            kmf.init(ks, SslTransportBrokerTest.PASSWORD.toCharArray());
-            keystoreManagers = kmf.getKeyManagers();
-        }
-        return keystoreManagers;          
-    }
+      SslBrokerService service = new SslBrokerService();
+      service.setPersistent(false);
 
-    private static byte[] loadClientCredential(String fileName) throws IOException {
-        if (fileName == null) {
-            return null;
-        }
-        FileInputStream in = new FileInputStream(fileName);
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        byte[] buf = new byte[512];
-        int i = in.read(buf);
-        while (i  > 0) {
-            out.write(buf, 0, i);
-            i = in.read(buf);
-        }
-        in.close();
-        return out.toByteArray();
-    }
+      KeyManager[] km = getKeyManager();
+      TrustManager[] tm = getTrustManager();
+      connector = service.addSslConnector(getBindLocation(), km, tm, null);
+      limitedCipherSuites = service.addSslConnector("ssl://localhost:0?transport.enabledCipherSuites=SSL_RSA_WITH_RC4_128_SHA,SSL_DH_anon_WITH_3DES_EDE_CBC_SHA", km, tm, null);
+      needClientAuthConnector = service.addSslConnector("ssl://localhost:0?transport.needClientAuth=true", km, tm, null);
 
-    protected void setUp() throws Exception {
-        maxWait = 10000;
-        super.setUp();
-    }
+      // for client side
+      SslTransportFactory sslFactory = new SslTransportFactory();
+      SslContext ctx = new SslContext(km, tm, null);
+      SslContext.setCurrentSslContext(ctx);
+      TransportFactory.registerTransportFactory("ssl", sslFactory);
 
-    public static Test suite() {
-        return suite(SslBrokerServiceTest.class);
-    }
+      return service;
+   }
 
-    public static void main(String[] args) {
-        TestRunner.run(suite());
-    }
+   public void testNeedClientAuthReject() throws Exception {
+      SSLContext context = SSLContext.getInstance("TLS");
+      // no client cert
+      context.init(null, getTrustManager(), null);
+
+      try {
+         makeSSLConnection(context, null, needClientAuthConnector);
+         fail("expected failure on no client cert");
+      }
+      catch (SSLException expected) {
+         expected.printStackTrace();
+      }
+      // should work with regular connector
+      makeSSLConnection(context, null, connector);
+   }
+
+   public void testNeedClientAuthSucceed() throws Exception {
+      SSLContext context = SSLContext.getInstance("TLS");
+      context.init(getKeyManager(), getTrustManager(), null);
+      makeSSLConnection(context, null, needClientAuthConnector);
+   }
+
+   public void testCipherSuitesDisabled() throws Exception {
+      SSLContext context = SSLContext.getInstance("TLS");
+      context.init(getKeyManager(), getTrustManager(), null);
+
+      // Enable only one cipher suite which is not enabled on the server
+      try {
+         makeSSLConnection(context, new String[]{"SSL_RSA_WITH_RC4_128_MD5"}, limitedCipherSuites);
+         fail("expected failure on non allowed cipher suite");
+      }
+      catch (SSLException expectedOnNotAnAvailableSuite) {
+      }
+
+      // ok with the enabled one
+      makeSSLConnection(context, new String[]{"SSL_RSA_WITH_RC4_128_SHA"}, limitedCipherSuites);
+   }
+
+   private void makeSSLConnection(SSLContext context,
+                                  String enabledSuites[],
+                                  TransportConnector connector) throws Exception, UnknownHostException, SocketException {
+      SSLSocket sslSocket = (SSLSocket) context.getSocketFactory().createSocket("localhost", connector.getUri().getPort());
+
+      if (enabledSuites != null) {
+         sslSocket.setEnabledCipherSuites(enabledSuites);
+      }
+      sslSocket.setSoTimeout(5000);
+
+      SSLSession session = sslSocket.getSession();
+      sslSocket.startHandshake();
+      LOG.info("cyphersuite: " + session.getCipherSuite());
+      LOG.info("peer port: " + session.getPeerPort());
+      LOG.info("peer cert: " + session.getPeerCertificateChain()[0].toString());
+   }
+
+   public static TrustManager[] getTrustManager() throws Exception {
+      TrustManager[] trustStoreManagers = null;
+      KeyStore trustedCertStore = KeyStore.getInstance(SslTransportBrokerTest.KEYSTORE_TYPE);
+
+      trustedCertStore.load(new FileInputStream(SslTransportBrokerTest.TRUST_KEYSTORE), null);
+      TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+
+      tmf.init(trustedCertStore);
+      trustStoreManagers = tmf.getTrustManagers();
+      return trustStoreManagers;
+   }
+
+   public static KeyManager[] getKeyManager() throws Exception {
+      KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+      KeyStore ks = KeyStore.getInstance(SslTransportBrokerTest.KEYSTORE_TYPE);
+      KeyManager[] keystoreManagers = null;
+
+      byte[] sslCert = loadClientCredential(SslTransportBrokerTest.SERVER_KEYSTORE);
+
+      if (sslCert != null && sslCert.length > 0) {
+         ByteArrayInputStream bin = new ByteArrayInputStream(sslCert);
+         ks.load(bin, SslTransportBrokerTest.PASSWORD.toCharArray());
+         kmf.init(ks, SslTransportBrokerTest.PASSWORD.toCharArray());
+         keystoreManagers = kmf.getKeyManagers();
+      }
+      return keystoreManagers;
+   }
+
+   private static byte[] loadClientCredential(String fileName) throws IOException {
+      if (fileName == null) {
+         return null;
+      }
+      FileInputStream in = new FileInputStream(fileName);
+      ByteArrayOutputStream out = new ByteArrayOutputStream();
+      byte[] buf = new byte[512];
+      int i = in.read(buf);
+      while (i > 0) {
+         out.write(buf, 0, i);
+         i = in.read(buf);
+      }
+      in.close();
+      return out.toByteArray();
+   }
+
+   protected void setUp() throws Exception {
+      maxWait = 10000;
+      super.setUp();
+   }
+
+   public static Test suite() {
+      return suite(SslBrokerServiceTest.class);
+   }
+
+   public static void main(String[] args) {
+      TestRunner.run(suite());
+   }
 }

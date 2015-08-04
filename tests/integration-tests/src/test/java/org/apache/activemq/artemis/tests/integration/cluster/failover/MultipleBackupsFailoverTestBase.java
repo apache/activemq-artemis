@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
+
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -36,8 +37,8 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
 import org.junit.Assert;
 
-public abstract class MultipleBackupsFailoverTestBase extends ActiveMQTestBase
-{
+public abstract class MultipleBackupsFailoverTestBase extends ActiveMQTestBase {
+
    IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    protected abstract boolean isNetty();
@@ -45,57 +46,44 @@ public abstract class MultipleBackupsFailoverTestBase extends ActiveMQTestBase
    protected int waitForNewLive(long seconds,
                                 boolean waitForNewBackup,
                                 Map<Integer, TestableServer> servers,
-                                int... nodes)
-   {
+                                int... nodes) {
       long time = System.currentTimeMillis();
       long toWait = seconds * 1000;
       int newLive = -1;
-      while (true)
-      {
-         for (int node : nodes)
-         {
+      while (true) {
+         for (int node : nodes) {
             TestableServer backupServer = servers.get(node);
-            if (newLive == -1 && backupServer.isActive())
-            {
+            if (newLive == -1 && backupServer.isActive()) {
                newLive = node;
             }
-            else if (newLive != -1)
-            {
-               if (waitForNewBackup)
-               {
-                  if (node != newLive && servers.get(node).isStarted())
-                  {
+            else if (newLive != -1) {
+               if (waitForNewBackup) {
+                  if (node != newLive && servers.get(node).isStarted()) {
                      return newLive;
                   }
                }
-               else
-               {
+               else {
                   return newLive;
                }
             }
          }
 
-         try
-         {
+         try {
             Thread.sleep(100);
          }
-         catch (InterruptedException e)
-         {
+         catch (InterruptedException e) {
             // ignore
          }
-         if (System.currentTimeMillis() > (time + toWait))
-         {
+         if (System.currentTimeMillis() > (time + toWait)) {
             Assert.fail("backup server never started");
          }
       }
    }
 
-   protected ClientSession sendAndConsume(final ClientSessionFactory sf, final boolean createQueue) throws Exception
-   {
+   protected ClientSession sendAndConsume(final ClientSessionFactory sf, final boolean createQueue) throws Exception {
       ClientSession session = sf.createSession(false, true, true);
 
-      if (createQueue)
-      {
+      if (createQueue) {
          session.createQueue(FailoverTestBase.ADDRESS, FailoverTestBase.ADDRESS, null, false);
       }
 
@@ -103,13 +91,8 @@ public abstract class MultipleBackupsFailoverTestBase extends ActiveMQTestBase
 
       final int numMessages = 1000;
 
-      for (int i = 0; i < numMessages; i++)
-      {
-         ClientMessage message = session.createMessage(ActiveMQTextMessage.TYPE,
-                                                       false,
-                                                       0,
-                                                       System.currentTimeMillis(),
-                                                       (byte)1);
+      for (int i = 0; i < numMessages; i++) {
+         ClientMessage message = session.createMessage(ActiveMQTextMessage.TYPE, false, 0, System.currentTimeMillis(), (byte) 1);
          message.putIntProperty(new SimpleString("count"), i);
          message.getBodyBuffer().writeString("aardvarks");
          producer.send(message);
@@ -119,8 +102,7 @@ public abstract class MultipleBackupsFailoverTestBase extends ActiveMQTestBase
 
       session.start();
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message2 = consumer.receive(10000);
 
          Assert.assertNotNull(message2);
@@ -140,30 +122,26 @@ public abstract class MultipleBackupsFailoverTestBase extends ActiveMQTestBase
    }
 
    protected ClientSessionFactoryInternal createSessionFactoryAndWaitForTopology(ServerLocator locator,
-                                                                                 int topologyMembers) throws Exception
-   {
+                                                                                 int topologyMembers) throws Exception {
       return createSessionFactoryAndWaitForTopology(locator, topologyMembers, null);
    }
 
    protected ClientSessionFactoryInternal createSessionFactoryAndWaitForTopology(ServerLocator locator,
                                                                                  int topologyMembers,
-                                                                                 ActiveMQServer server) throws Exception
-   {
+                                                                                 ActiveMQServer server) throws Exception {
       ClientSessionFactoryInternal sf;
       CountDownLatch countDownLatch = new CountDownLatch(topologyMembers);
 
       FailoverTestBase.LatchClusterTopologyListener topListener = new FailoverTestBase.LatchClusterTopologyListener(countDownLatch);
       locator.addClusterTopologyListener(topListener);
 
-      sf = (ClientSessionFactoryInternal)locator.createSessionFactory();
+      sf = (ClientSessionFactoryInternal) locator.createSessionFactory();
       addSessionFactory(sf);
 
       boolean ok = countDownLatch.await(5, TimeUnit.SECONDS);
       locator.removeClusterTopologyListener(topListener);
-      if (!ok)
-      {
-         if (server != null)
-         {
+      if (!ok) {
+         if (server != null) {
             log.info("failed topology, Topology on server = " + server.getClusterManager().describe());
          }
       }
@@ -171,11 +149,9 @@ public abstract class MultipleBackupsFailoverTestBase extends ActiveMQTestBase
       return sf;
    }
 
-   public ServerLocator getServerLocator(int... nodes)
-   {
+   public ServerLocator getServerLocator(int... nodes) {
       TransportConfiguration[] configs = new TransportConfiguration[nodes.length];
-      for (int i = 0, configsLength = configs.length; i < configsLength; i++)
-      {
+      for (int i = 0, configsLength = configs.length; i < configsLength; i++) {
          configs[i] = createTransportConfiguration(isNetty(), false, generateParams(nodes[i], isNetty()));
       }
       return addServerLocator(new ServerLocatorImpl(true, configs));

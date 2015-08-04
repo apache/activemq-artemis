@@ -37,74 +37,60 @@ import java.util.List;
 /**
  * MQTTProtocolManager
  */
-class MQTTProtocolManager implements ProtocolManager, NotificationListener
-{
+class MQTTProtocolManager implements ProtocolManager, NotificationListener {
+
    private ActiveMQServer server;
 
    private MQTTLogger log = MQTTLogger.LOGGER;
 
-   public MQTTProtocolManager(ActiveMQServer server)
-   {
+   public MQTTProtocolManager(ActiveMQServer server) {
       this.server = server;
    }
 
    @Override
-   public void onNotification(Notification notification)
-   {
+   public void onNotification(Notification notification) {
       // TODO handle notifications
    }
 
-
    @Override
-   public ProtocolManagerFactory getFactory()
-   {
+   public ProtocolManagerFactory getFactory() {
       return new MQTTProtocolManagerFactory();
    }
 
    @Override
-   public void updateInterceptors(List incomingInterceptors, List outgoingInterceptors)
-   {
+   public void updateInterceptors(List incomingInterceptors, List outgoingInterceptors) {
       // TODO handle interceptors
    }
 
    @Override
-   public ConnectionEntry createConnectionEntry(Acceptor acceptorUsed, Connection connection)
-   {
-      try
-      {
-         MQTTConnection  mqttConnection = new MQTTConnection(connection);
-         ConnectionEntry entry = new ConnectionEntry(mqttConnection,
-                                                     null,
-                                                     System.currentTimeMillis(),
-                                                     MQTTUtil.DEFAULT_KEEP_ALIVE_FREQUENCY);
+   public ConnectionEntry createConnectionEntry(Acceptor acceptorUsed, Connection connection) {
+      try {
+         MQTTConnection mqttConnection = new MQTTConnection(connection);
+         ConnectionEntry entry = new ConnectionEntry(mqttConnection, null, System.currentTimeMillis(), MQTTUtil.DEFAULT_KEEP_ALIVE_FREQUENCY);
 
          NettyServerConnection nettyConnection = ((NettyServerConnection) connection);
          MQTTProtocolHandler protocolHandler = nettyConnection.getChannel().pipeline().get(MQTTProtocolHandler.class);
          protocolHandler.setConnection(mqttConnection, entry);
          return entry;
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          log.error(e);
          return null;
       }
    }
 
    @Override
-   public void removeHandler(String name)
-   {
+   public void removeHandler(String name) {
       // TODO add support for handlers
    }
 
    @Override
-   public void handleBuffer(RemotingConnection connection, ActiveMQBuffer buffer)
-   {
+   public void handleBuffer(RemotingConnection connection, ActiveMQBuffer buffer) {
       connection.bufferReceived(connection.getID(), buffer);
    }
 
    @Override
-   public void addChannelHandlers(ChannelPipeline pipeline)
-   {
+   public void addChannelHandlers(ChannelPipeline pipeline) {
       pipeline.addLast(new MqttEncoder());
       pipeline.addLast(new MqttDecoder(MQTTUtil.MAX_MESSAGE_SIZE));
 
@@ -112,29 +98,26 @@ class MQTTProtocolManager implements ProtocolManager, NotificationListener
    }
 
    @Override
-   public boolean isProtocol(byte[] array)
-   {
+   public boolean isProtocol(byte[] array) {
       boolean mqtt311 = array[4] == 77 && // M
-                        array[5] == 81 && // Q
-                        array[6] == 84 && // T
-                        array[7] == 84;   // T
+         array[5] == 81 && // Q
+         array[6] == 84 && // T
+         array[7] == 84;   // T
 
       // FIXME The actual protocol name is 'MQIsdp' (However we are only passed the first 4 bytes of the protocol name)
-      boolean mqtt31  = array[4] == 77  && // M
-                        array[5] == 81  && // Q
-                        array[6] == 73  && // I
-                        array[7] == 115;   // s
+      boolean mqtt31 = array[4] == 77 && // M
+         array[5] == 81 && // Q
+         array[6] == 73 && // I
+         array[7] == 115;   // s
       return mqtt311 || mqtt31;
    }
 
    @Override
-   public MessageConverter getConverter()
-   {
+   public MessageConverter getConverter() {
       return null;
    }
 
    @Override
-   public void handshake(NettyServerConnection connection, ActiveMQBuffer buffer)
-   {
+   public void handshake(NettyServerConnection connection, ActiveMQBuffer buffer) {
    }
 }

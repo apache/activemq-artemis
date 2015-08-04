@@ -29,15 +29,13 @@ import org.junit.Test;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-public class ActiveMQClusteredTest extends ActiveMQRAClusteredTestBase
-{
+public class ActiveMQClusteredTest extends ActiveMQRAClusteredTestBase {
 
    /*
    * the second server has no queue so this tests for partial initialisation
    * */
    @Test
-   public void testShutdownOnPartialConnect() throws Exception
-   {
+   public void testShutdownOnPartialConnect() throws Exception {
       ActiveMQResourceAdapter qResourceAdapter = newResourceAdapter();
       MyBootstrapContext ctx = new MyBootstrapContext();
       qResourceAdapter.setHA(true);
@@ -56,21 +54,20 @@ public class ActiveMQClusteredTest extends ActiveMQRAClusteredTestBase
       DummyMessageEndpointFactory endpointFactory = new DummyMessageEndpointFactory(endpoint, false);
       qResourceAdapter.endpointActivation(endpointFactory, spec);
       //make sure thet activation didnt start, i.e. no MDB consumers
-      assertEquals(((Queue)server.getPostOffice().getBinding(MDBQUEUEPREFIXEDSIMPLE).getBindable()).getConsumerCount(), 0);
+      assertEquals(((Queue) server.getPostOffice().getBinding(MDBQUEUEPREFIXEDSIMPLE).getBindable()).getConsumerCount(), 0);
       qResourceAdapter.endpointDeactivation(endpointFactory, spec);
 
       qResourceAdapter.stop();
    }
 
-
    /**
     * https://bugzilla.redhat.com/show_bug.cgi?id=1029076
     * Look at the logs for this test, if you see exceptions it's an issue.
+    *
     * @throws Exception
     */
    @Test
-   public void testNonDurableInCluster() throws Exception
-   {
+   public void testNonDurableInCluster() throws Exception {
       ActiveMQResourceAdapter qResourceAdapter = newResourceAdapter();
       MyBootstrapContext ctx = new MyBootstrapContext();
       qResourceAdapter.start(ctx);
@@ -91,14 +88,12 @@ public class ActiveMQClusteredTest extends ActiveMQRAClusteredTestBase
       message.getBodyBuffer().writeString("test");
       clientProducer.send(message);
 
-
-      ActiveMQActivation activation =  lookupActivation(qResourceAdapter);
+      ActiveMQActivation activation = lookupActivation(qResourceAdapter);
 
       SimpleString tempQueue = activation.getTopicTemporaryQueue();
 
       assertNotNull(server.locateQueue(tempQueue));
       assertNotNull(secondaryServer.locateQueue(tempQueue));
-
 
       latch.await(5, TimeUnit.SECONDS);
 

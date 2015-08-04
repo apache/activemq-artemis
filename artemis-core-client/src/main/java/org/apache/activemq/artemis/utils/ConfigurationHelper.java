@@ -24,170 +24,133 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+public class ConfigurationHelper {
 
-public class ConfigurationHelper
-{
-   public static String getStringProperty(final String propName, final String def, final Map<String, Object> props)
-   {
-      if (props == null)
-      {
+   public static String getStringProperty(final String propName, final String def, final Map<String, Object> props) {
+      if (props == null) {
          return def;
       }
 
       Object prop = props.get(propName);
 
-      if (prop == null)
-      {
+      if (prop == null) {
          return def;
       }
-      else
-      {
-         if (prop instanceof String == false)
-         {
+      else {
+         if (prop instanceof String == false) {
             return prop.toString();
          }
-         else
-         {
-            return (String)prop;
+         else {
+            return (String) prop;
          }
       }
    }
 
-   public static int getIntProperty(final String propName, final int def, final Map<String, Object> props)
-   {
-      if (props == null)
-      {
+   public static int getIntProperty(final String propName, final int def, final Map<String, Object> props) {
+      if (props == null) {
          return def;
       }
       Object prop = props.get(propName);
 
-      if (prop == null)
-      {
+      if (prop == null) {
          return def;
       }
-      else
-      {
+      else {
          // The resource adapter will aways send Strings, hence the conversion here
-         if (prop instanceof String)
-         {
-            return Integer.valueOf((String)prop);
+         if (prop instanceof String) {
+            return Integer.valueOf((String) prop);
          }
-         else if (prop instanceof Number == false)
-         {
+         else if (prop instanceof Number == false) {
             ActiveMQClientLogger.LOGGER.propertyNotInteger(propName, prop.getClass().getName());
 
             return def;
          }
-         else
-         {
-            return ((Number)prop).intValue();
+         else {
+            return ((Number) prop).intValue();
          }
       }
    }
 
-   public static long getLongProperty(final String propName, final long def, final Map<String, Object> props)
-   {
-      if (props == null)
-      {
+   public static long getLongProperty(final String propName, final long def, final Map<String, Object> props) {
+      if (props == null) {
          return def;
       }
 
       Object prop = props.get(propName);
 
-      if (prop == null)
-      {
+      if (prop == null) {
          return def;
       }
-      else
-      {
+      else {
          // The resource adapter will aways send Strings, hence the conversion here
-         if (prop instanceof String)
-         {
-            return Long.valueOf((String)prop);
+         if (prop instanceof String) {
+            return Long.valueOf((String) prop);
          }
-         else if (prop instanceof Number == false)
-         {
+         else if (prop instanceof Number == false) {
             ActiveMQClientLogger.LOGGER.propertyNotLong(propName, prop.getClass().getName());
 
             return def;
          }
-         else
-         {
-            return ((Number)prop).longValue();
+         else {
+            return ((Number) prop).longValue();
          }
       }
    }
 
-   public static boolean getBooleanProperty(final String propName, final boolean def, final Map<String, Object> props)
-   {
-      if (props == null)
-      {
+   public static boolean getBooleanProperty(final String propName, final boolean def, final Map<String, Object> props) {
+      if (props == null) {
          return def;
       }
 
       Object prop = props.get(propName);
 
-      if (prop == null)
-      {
+      if (prop == null) {
          return def;
       }
-      else
-      {
+      else {
          // The resource adapter will aways send Strings, hence the conversion here
-         if (prop instanceof String)
-         {
-            return Boolean.valueOf((String)prop);
+         if (prop instanceof String) {
+            return Boolean.valueOf((String) prop);
          }
-         else if (prop instanceof Boolean == false)
-         {
+         else if (prop instanceof Boolean == false) {
             ActiveMQClientLogger.LOGGER.propertyNotBoolean(propName, prop.getClass().getName());
 
             return def;
          }
-         else
-         {
-            return (Boolean)prop;
+         else {
+            return (Boolean) prop;
          }
       }
    }
 
-   public static Set<String> checkKeys(final Set<String> allowableKeys, final Set<String> keys)
-   {
+   public static Set<String> checkKeys(final Set<String> allowableKeys, final Set<String> keys) {
       Set<String> invalid = new HashSet<String>();
 
-      for (String key : keys)
-      {
-         if (!allowableKeys.contains(key))
-         {
+      for (String key : keys) {
+         if (!allowableKeys.contains(key)) {
             invalid.add(key);
          }
       }
       return invalid;
    }
 
-   public static Set<String> checkKeysExist(final Set<String> requiredKeys, final Set<String> keys)
-   {
+   public static Set<String> checkKeysExist(final Set<String> requiredKeys, final Set<String> keys) {
       Set<String> invalid = new HashSet<String>(requiredKeys);
 
-      for (String key : keys)
-      {
-         if (requiredKeys.contains(key))
-         {
+      for (String key : keys) {
+         if (requiredKeys.contains(key)) {
             invalid.remove(key);
          }
       }
       return invalid;
    }
 
-   public static String stringSetToCommaListString(final Set<String> invalid)
-   {
+   public static String stringSetToCommaListString(final Set<String> invalid) {
       StringBuilder sb = new StringBuilder();
       int count = 0;
-      for (String key : invalid)
-      {
+      for (String key : invalid) {
          sb.append(key);
-         if (count != invalid.size() - 1)
-         {
+         if (count != invalid.size() - 1) {
             sb.append(", ");
          }
          count++;
@@ -196,51 +159,44 @@ public class ConfigurationHelper
    }
 
    public static String getPasswordProperty(final String propName,
-         final String def, final Map<String, Object> props,
-         String defaultMaskPassword, String defaultPasswordCodec)
-   {
-      if (props == null)
-      {
+                                            final String def,
+                                            final Map<String, Object> props,
+                                            String defaultMaskPassword,
+                                            String defaultPasswordCodec) {
+      if (props == null) {
          return def;
       }
 
       Object prop = props.get(propName);
 
-      if (prop == null)
-      {
+      if (prop == null) {
          return def;
       }
 
       String value = prop.toString();
       Boolean useMask = (Boolean) props.get(defaultMaskPassword);
-      if (useMask == null || (!useMask))
-      {
+      if (useMask == null || (!useMask)) {
          return value;
       }
 
       final String classImpl = (String) props.get(defaultPasswordCodec);
 
-      if (classImpl == null)
-      {
+      if (classImpl == null) {
          throw ActiveMQClientMessageBundle.BUNDLE.noCodec();
       }
 
       SensitiveDataCodec<String> codec = null;
-      try
-      {
+      try {
          codec = PasswordMaskingUtil.getCodec(classImpl);
       }
-      catch (ActiveMQException e1)
-      {
+      catch (ActiveMQException e1) {
          throw ActiveMQClientMessageBundle.BUNDLE.failedToGetDecoder(e1);
       }
 
-      try
-      {
+      try {
          return codec.decode(value);
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          throw ActiveMQClientMessageBundle.BUNDLE.errordecodingPassword(e);
       }
    }

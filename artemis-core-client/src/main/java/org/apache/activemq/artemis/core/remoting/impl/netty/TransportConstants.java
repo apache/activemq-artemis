@@ -23,8 +23,8 @@ import java.util.Set;
 import io.netty.util.Version;
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 
-public class TransportConstants
-{
+public class TransportConstants {
+
    public static final String SSL_ENABLED_PROP_NAME = "sslEnabled";
 
    public static final String HTTP_ENABLED_PROP_NAME = "httpEnabled";
@@ -53,7 +53,9 @@ public class TransportConstants
 
    public static final String USE_INVM_PROP_NAME = "useInvm";
 
-   /** @deprecated use PROTOCOLS_PROP_NAME */
+   /**
+    * @deprecated use PROTOCOLS_PROP_NAME
+    */
    @Deprecated
    public static final String PROTOCOL_PROP_NAME = "protocol";
 
@@ -197,8 +199,7 @@ public class TransportConstants
 
    public static final long DEFAULT_CONNECTIONS_ALLOWED = -1L;
 
-   static
-   {
+   static {
       Set<String> allowableAcceptorKeys = new HashSet<String>();
       allowableAcceptorKeys.add(TransportConstants.SSL_ENABLED_PROP_NAME);
       allowableAcceptorKeys.add(TransportConstants.HTTP_RESPONSE_TIME_PROP_NAME);
@@ -273,12 +274,10 @@ public class TransportConstants
 
       String version;
       Version v = Version.identify().get("netty-transport");
-      if (v == null)
-      {
+      if (v == null) {
          version = "unknown";
       }
-      else
-      {
+      else {
          version = v.artifactVersion();
       }
       NETTY_VERSION = version;

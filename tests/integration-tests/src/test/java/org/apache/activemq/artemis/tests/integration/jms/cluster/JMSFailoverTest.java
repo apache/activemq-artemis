@@ -74,8 +74,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * A simple test to test failover when using the JMS API.
  * Most of the failover tests are done on the Core API.
  */
-public class JMSFailoverTest extends ActiveMQTestBase
-{
+public class JMSFailoverTest extends ActiveMQTestBase {
+
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    // Constants -----------------------------------------------------
@@ -115,8 +115,7 @@ public class JMSFailoverTest extends ActiveMQTestBase
    // Public --------------------------------------------------------
 
    @Test
-   public void testCreateQueue() throws Exception
-   {
+   public void testCreateQueue() throws Exception {
       liveJMSServer.createQueue(true, "queue1", null, true, "/queue/queue1");
       assertNotNull(ctx1.lookup("/queue/queue1"));
 
@@ -126,8 +125,7 @@ public class JMSFailoverTest extends ActiveMQTestBase
 
       Connection conn = null;
 
-      try
-      {
+      try {
          conn = JMSUtil.createConnectionAndWaitForTopology(jbcf, 2, 5);
 
          Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -138,18 +136,15 @@ public class JMSFailoverTest extends ActiveMQTestBase
 
          assertNotNull(ctx2.lookup("/queue/queue1"));
       }
-      finally
-      {
-         if (conn != null)
-         {
+      finally {
+         if (conn != null) {
             conn.close();
          }
       }
    }
 
    @Test
-   public void testCreateTopic() throws Exception
-   {
+   public void testCreateTopic() throws Exception {
       liveJMSServer.createTopic(true, "topic", "/topic/t1");
       assertNotNull(ctx1.lookup("//topic/t1"));
 
@@ -159,8 +154,7 @@ public class JMSFailoverTest extends ActiveMQTestBase
 
       Connection conn = null;
 
-      try
-      {
+      try {
          conn = JMSUtil.createConnectionAndWaitForTopology(jbcf, 2, 5);
 
          Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -171,18 +165,15 @@ public class JMSFailoverTest extends ActiveMQTestBase
 
          assertNotNull(ctx2.lookup("/topic/t1"));
       }
-      finally
-      {
-         if (conn != null)
-         {
+      finally {
+         if (conn != null) {
             conn.close();
          }
       }
    }
 
    @Test
-   public void testAutomaticFailover() throws Exception
-   {
+   public void testAutomaticFailover() throws Exception {
       ActiveMQConnectionFactory jbcf = ActiveMQJMSClient.createConnectionFactoryWithHA(JMSFactoryType.CF, livetc);
       jbcf.setReconnectAttempts(-1);
       jbcf.setBlockOnDurableSend(true);
@@ -222,8 +213,7 @@ public class JMSFailoverTest extends ActiveMQTestBase
 
       byte[] body = RandomUtil.randomBytes(bodySize);
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          BytesMessage bm = sess.createBytesMessage();
 
          bm.writeBytes(body);
@@ -239,8 +229,7 @@ public class JMSFailoverTest extends ActiveMQTestBase
 
       JMSUtil.crash(liveServer, ((ActiveMQSession) sess).getCoreSession());
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          JMSFailoverTest.log.info("got message " + i);
 
          BytesMessage bm = (BytesMessage) consumer.receive(1000);
@@ -259,19 +248,13 @@ public class JMSFailoverTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testManualFailover() throws Exception
-   {
-      ActiveMQConnectionFactory jbcfLive =
-         ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF,
-                                                            new TransportConfiguration(INVM_CONNECTOR_FACTORY));
+   public void testManualFailover() throws Exception {
+      ActiveMQConnectionFactory jbcfLive = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration(INVM_CONNECTOR_FACTORY));
 
       jbcfLive.setBlockOnNonDurableSend(true);
       jbcfLive.setBlockOnDurableSend(true);
 
-      ActiveMQConnectionFactory jbcfBackup =
-         ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF,
-                                                            new TransportConfiguration(INVM_CONNECTOR_FACTORY,
-                                                                                       backupParams));
+      ActiveMQConnectionFactory jbcfBackup = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration(INVM_CONNECTOR_FACTORY, backupParams));
       jbcfBackup.setBlockOnNonDurableSend(true);
       jbcfBackup.setBlockOnDurableSend(true);
       jbcfBackup.setInitialConnectAttempts(-1);
@@ -299,8 +282,7 @@ public class JMSFailoverTest extends ActiveMQTestBase
 
       MessageProducer producerLive = sessLive.createProducer(queue);
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          TextMessage tm = sessLive.createTextMessage("message" + i);
 
          producerLive.send(tm);
@@ -322,8 +304,7 @@ public class JMSFailoverTest extends ActiveMQTestBase
 
       connBackup.start();
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          TextMessage tm = (TextMessage) consumerBackup.receive(1000);
 
          Assert.assertNotNull(tm);
@@ -338,10 +319,8 @@ public class JMSFailoverTest extends ActiveMQTestBase
       connBackup.close();
    }
 
-
    @Test
-   public void testSendReceiveLargeMessages() throws Exception
-   {
+   public void testSendReceiveLargeMessages() throws Exception {
       SimpleString QUEUE = new SimpleString("jms.queue.somequeue");
 
       ActiveMQConnectionFactory jbcf = ActiveMQJMSClient.createConnectionFactoryWithHA(JMSFactoryType.CF, livetc, backuptc);
@@ -352,25 +331,20 @@ public class JMSFailoverTest extends ActiveMQTestBase
       //jbcf.setConsumerWindowSize(0);
       //jbcf.setMinLargeMessageSize(1024);
 
-
       final CountDownLatch flagAlign = new CountDownLatch(1);
 
       final CountDownLatch waitToKill = new CountDownLatch(1);
 
       final AtomicBoolean killed = new AtomicBoolean(false);
 
-      jbcf.getServerLocator().addIncomingInterceptor(new Interceptor()
-      {
+      jbcf.getServerLocator().addIncomingInterceptor(new Interceptor() {
          int count = 0;
 
          @Override
-         public boolean intercept(Packet packet, RemotingConnection connection) throws ActiveMQException
-         {
+         public boolean intercept(Packet packet, RemotingConnection connection) throws ActiveMQException {
 
-            if (packet instanceof SessionReceiveContinuationMessage)
-            {
-               if (count++ == 300 && !killed.get())
-               {
+            if (packet instanceof SessionReceiveContinuationMessage) {
+               if (count++ == 300 && !killed.get()) {
                   System.out.println("sending countDown on latch waitToKill");
                   killed.set(true);
                   waitToKill.countDown();
@@ -380,36 +354,28 @@ public class JMSFailoverTest extends ActiveMQTestBase
          }
       });
 
-
       Connection conn = JMSUtil.createConnectionAndWaitForTopology(jbcf, 2, 5);
       Session sess = conn.createSession(true, Session.SESSION_TRANSACTED);
       final ClientSession coreSession = ((ActiveMQSession) sess).getCoreSession();
 
-
       // The thread that will fail the server
-      Thread spoilerThread = new Thread()
-      {
-         public void run()
-         {
+      Thread spoilerThread = new Thread() {
+         public void run() {
             flagAlign.countDown();
             // a large timeout just to help in case of debugging
-            try
-            {
+            try {
                waitToKill.await(120, TimeUnit.SECONDS);
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                e.printStackTrace();
             }
 
-            try
-            {
+            try {
                System.out.println("Killing server...");
 
                JMSUtil.crash(liveServer, coreSession);
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                e.printStackTrace();
             }
          }
@@ -422,13 +388,11 @@ public class JMSFailoverTest extends ActiveMQTestBase
       MessageProducer producer = sess.createProducer(queue);
       producer.setDeliveryMode(DeliveryMode.PERSISTENT);
 
-      for (int i = 0; i < 100; i++)
-      {
+      for (int i = 0; i < 100; i++) {
          TextMessage message = sess.createTextMessage(new String(new byte[10 * 1024]));
          producer.send(message);
 
-         if (i % 10 == 0)
-         {
+         if (i % 10 == 0) {
             sess.commit();
          }
       }
@@ -441,54 +405,43 @@ public class JMSFailoverTest extends ActiveMQTestBase
 
       assertTrue(flagAlign.await(10, TimeUnit.SECONDS));
 
-
       MessageConsumer consumer = sess.createConsumer(queue);
 
       // We won't receive the whole thing here.. we just want to validate if message will arrive or not...
       // this test is not meant to validate transactionality during Failover as that would require XA and recovery
-      for (int i = 0; i < 90; i++)
-      {
+      for (int i = 0; i < 90; i++) {
          TextMessage message = null;
 
          int retryNrs = 0;
-         do
-         {
+         do {
             retryNrs++;
-            try
-            {
+            try {
                message = (TextMessage) consumer.receive(5000);
                assertNotNull(message);
                break;
             }
-            catch (JMSException e)
-            {
+            catch (JMSException e) {
                new Exception("Exception on receive message", e).printStackTrace();
             }
          } while (retryNrs < 10);
 
          assertNotNull(message);
 
-         try
-         {
+         try {
             sess.commit();
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             new Exception("Exception during commit", e);
             sess.rollback();
          }
 
       }
 
-
       conn.close();
-
 
       spoilerThread.join();
 
-
    }
-
 
    // Package protected ---------------------------------------------
 
@@ -496,8 +449,7 @@ public class JMSFailoverTest extends ActiveMQTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
       startServers();
    }
@@ -505,8 +457,7 @@ public class JMSFailoverTest extends ActiveMQTestBase
    /**
     * @throws Exception
     */
-   protected void startServers() throws Exception
-   {
+   protected void startServers() throws Exception {
       final boolean sharedStore = true;
       NodeManager nodeManager = new InVMNodeManager(!sharedStore);
       backuptc = new TransportConfiguration(INVM_CONNECTOR_FACTORY, backupParams);
@@ -518,21 +469,7 @@ public class JMSFailoverTest extends ActiveMQTestBase
 
       backupParams.put(TransportConstants.SERVER_ID_PROP_NAME, 1);
 
-      backupConf = createBasicConfig()
-         .addAcceptorConfiguration(backupAcceptortc)
-         .addConnectorConfiguration(livetc.getName(), livetc)
-         .addConnectorConfiguration(backuptc.getName(), backuptc)
-         .setSecurityEnabled(false)
-         .setJournalType(getDefaultJournalType())
-         .addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY, backupParams))
-         .setBindingsDirectory(getBindingsDir())
-         .setJournalMinFiles(2)
-         .setJournalDirectory(getJournalDir())
-         .setPagingDirectory(getPageDir())
-         .setLargeMessagesDirectory(getLargeMessagesDir())
-         .setPersistenceEnabled(true)
-         .setHAPolicyConfiguration(sharedStore ? new SharedStoreSlavePolicyConfiguration() : new ReplicaPolicyConfiguration())
-         .addClusterConfiguration(basicClusterConnectionConfig(backuptc.getName(), livetc.getName()));
+      backupConf = createBasicConfig().addAcceptorConfiguration(backupAcceptortc).addConnectorConfiguration(livetc.getName(), livetc).addConnectorConfiguration(backuptc.getName(), backuptc).setSecurityEnabled(false).setJournalType(getDefaultJournalType()).addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY, backupParams)).setBindingsDirectory(getBindingsDir()).setJournalMinFiles(2).setJournalDirectory(getJournalDir()).setPagingDirectory(getPageDir()).setLargeMessagesDirectory(getLargeMessagesDir()).setPersistenceEnabled(true).setHAPolicyConfiguration(sharedStore ? new SharedStoreSlavePolicyConfiguration() : new ReplicaPolicyConfiguration()).addClusterConfiguration(basicClusterConnectionConfig(backuptc.getName(), livetc.getName()));
 
       backupServer = addServer(new InVMNodeManagerServer(backupConf, nodeManager));
 
@@ -544,21 +481,7 @@ public class JMSFailoverTest extends ActiveMQTestBase
       log.info("Starting backup");
       backupJMSServer.start();
 
-      liveConf = createBasicConfig()
-         .setJournalDirectory(getJournalDir())
-         .setBindingsDirectory(getBindingsDir())
-         .setSecurityEnabled(false)
-         .addAcceptorConfiguration(liveAcceptortc)
-         .setJournalType(getDefaultJournalType())
-         .setBindingsDirectory(getBindingsDir())
-         .setJournalMinFiles(2)
-         .setJournalDirectory(getJournalDir())
-         .setPagingDirectory(getPageDir())
-         .setLargeMessagesDirectory(getLargeMessagesDir())
-         .addConnectorConfiguration(livetc.getName(), livetc)
-         .setPersistenceEnabled(true)
-         .setHAPolicyConfiguration(sharedStore ? new SharedStoreMasterPolicyConfiguration() : new ReplicatedPolicyConfiguration())
-         .addClusterConfiguration(basicClusterConnectionConfig(livetc.getName()));
+      liveConf = createBasicConfig().setJournalDirectory(getJournalDir()).setBindingsDirectory(getBindingsDir()).setSecurityEnabled(false).addAcceptorConfiguration(liveAcceptortc).setJournalType(getDefaultJournalType()).setBindingsDirectory(getBindingsDir()).setJournalMinFiles(2).setJournalDirectory(getJournalDir()).setPagingDirectory(getPageDir()).setLargeMessagesDirectory(getLargeMessagesDir()).addConnectorConfiguration(livetc.getName(), livetc).setPersistenceEnabled(true).setHAPolicyConfiguration(sharedStore ? new SharedStoreMasterPolicyConfiguration() : new ReplicatedPolicyConfiguration()).addClusterConfiguration(basicClusterConnectionConfig(livetc.getName()));
 
       liveServer = addServer(new InVMNodeManagerServer(liveConf, nodeManager));
 
@@ -578,12 +501,11 @@ public class JMSFailoverTest extends ActiveMQTestBase
 
    // Inner classes -------------------------------------------------
 
-   private static class MyExceptionListener implements ExceptionListener
-   {
+   private static class MyExceptionListener implements ExceptionListener {
+
       volatile JMSException e;
 
-      public void onException(final JMSException e)
-      {
+      public void onException(final JMSException e) {
          this.e = e;
       }
    }

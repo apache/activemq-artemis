@@ -34,115 +34,117 @@ import org.slf4j.LoggerFactory;
 @Deprecated
 public class ActiveMQInputStreamTest extends TestCase {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ActiveMQInputStreamTest.class);
+   private static final Logger LOG = LoggerFactory.getLogger(ActiveMQInputStreamTest.class);
 
-    private static final String BROKER_URL = "tcp://localhost:0";
-    private static final String DESTINATION = "destination";
-    private static final int STREAM_LENGTH = 64 * 1024 + 0; // change 0 to 1 to make it not crash
+   private static final String BROKER_URL = "tcp://localhost:0";
+   private static final String DESTINATION = "destination";
+   private static final int STREAM_LENGTH = 64 * 1024 + 0; // change 0 to 1 to make it not crash
 
-    private BrokerService broker;
-    private String connectionUri;
+   private BrokerService broker;
+   private String connectionUri;
 
-    @Override
-    public void setUp() throws Exception {
-        broker = new BrokerService();
-        broker.setUseJmx(false);
-        broker.setPersistent(false);
-        broker.setDestinations(new ActiveMQDestination[] {
-            ActiveMQDestination.createDestination(DESTINATION, ActiveMQDestination.QUEUE_TYPE),
-        });
-        broker.addConnector(BROKER_URL);
-        broker.start();
-        broker.waitUntilStarted();
+   @Override
+   public void setUp() throws Exception {
+      broker = new BrokerService();
+      broker.setUseJmx(false);
+      broker.setPersistent(false);
+      broker.setDestinations(new ActiveMQDestination[]{ActiveMQDestination.createDestination(DESTINATION, ActiveMQDestination.QUEUE_TYPE),});
+      broker.addConnector(BROKER_URL);
+      broker.start();
+      broker.waitUntilStarted();
 
-        //some internal api we don't implement
-        connectionUri = broker.getDefaultUri();
-    }
+      //some internal api we don't implement
+      connectionUri = broker.getDefaultUri();
+   }
 
-    @Override
-    public void tearDown() throws Exception {
-        broker.stop();
-        broker.waitUntilStopped();
-    }
+   @Override
+   public void tearDown() throws Exception {
+      broker.stop();
+      broker.waitUntilStopped();
+   }
 
-    public void testInputStreamSetSyncSendOption() throws Exception {
+   public void testInputStreamSetSyncSendOption() throws Exception {
 
-        ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(connectionUri);
-        ActiveMQConnection connection = (ActiveMQConnection) connectionFactory.createConnection();
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        Queue destination = session.createQueue(DESTINATION + "?producer.alwaysSyncSend=true");
+      ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(connectionUri);
+      ActiveMQConnection connection = (ActiveMQConnection) connectionFactory.createConnection();
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      Queue destination = session.createQueue(DESTINATION + "?producer.alwaysSyncSend=true");
 
-        OutputStream out = null;
-        try {
-            out = connection.createOutputStream(destination);
+      OutputStream out = null;
+      try {
+         out = connection.createOutputStream(destination);
 
-            assertTrue(((ActiveMQOutputStream)out).isAlwaysSyncSend());
+         assertTrue(((ActiveMQOutputStream) out).isAlwaysSyncSend());
 
-            LOG.debug("writing...");
-            for (int i = 0; i < STREAM_LENGTH; ++i) {
-                out.write(0);
-            }
-            LOG.debug("wrote " + STREAM_LENGTH + " bytes");
-        } finally {
-            if (out != null) {
-                out.close();
-            }
-        }
+         LOG.debug("writing...");
+         for (int i = 0; i < STREAM_LENGTH; ++i) {
+            out.write(0);
+         }
+         LOG.debug("wrote " + STREAM_LENGTH + " bytes");
+      }
+      finally {
+         if (out != null) {
+            out.close();
+         }
+      }
 
-        InputStream in = null;
-        try {
-            in = connection.createInputStream(destination);
-            LOG.debug("reading...");
-            int count = 0;
-            while (-1 != in.read()) {
-                ++count;
-            }
-            LOG.debug("read " + count + " bytes");
-        } finally {
-            if (in != null) {
-                in.close();
-            }
-        }
+      InputStream in = null;
+      try {
+         in = connection.createInputStream(destination);
+         LOG.debug("reading...");
+         int count = 0;
+         while (-1 != in.read()) {
+            ++count;
+         }
+         LOG.debug("read " + count + " bytes");
+      }
+      finally {
+         if (in != null) {
+            in.close();
+         }
+      }
 
-        connection.close();
-    }
+      connection.close();
+   }
 
-    public void testInputStreamMatchesDefaultChuckSize() throws Exception {
+   public void testInputStreamMatchesDefaultChuckSize() throws Exception {
 
-        ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(connectionUri);
-        ActiveMQConnection connection = (ActiveMQConnection) connectionFactory.createConnection();
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        Queue destination = session.createQueue(DESTINATION);
+      ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(connectionUri);
+      ActiveMQConnection connection = (ActiveMQConnection) connectionFactory.createConnection();
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      Queue destination = session.createQueue(DESTINATION);
 
-        OutputStream out = null;
-        try {
-            out = connection.createOutputStream(destination);
-            LOG.debug("writing...");
-            for (int i = 0; i < STREAM_LENGTH; ++i) {
-                out.write(0);
-            }
-            LOG.debug("wrote " + STREAM_LENGTH + " bytes");
-        } finally {
-            if (out != null) {
-                out.close();
-            }
-        }
+      OutputStream out = null;
+      try {
+         out = connection.createOutputStream(destination);
+         LOG.debug("writing...");
+         for (int i = 0; i < STREAM_LENGTH; ++i) {
+            out.write(0);
+         }
+         LOG.debug("wrote " + STREAM_LENGTH + " bytes");
+      }
+      finally {
+         if (out != null) {
+            out.close();
+         }
+      }
 
-        InputStream in = null;
-        try {
-            in = connection.createInputStream(destination);
-            LOG.debug("reading...");
-            int count = 0;
-            while (-1 != in.read()) {
-                ++count;
-            }
-            LOG.debug("read " + count + " bytes");
-        } finally {
-            if (in != null) {
-                in.close();
-            }
-        }
+      InputStream in = null;
+      try {
+         in = connection.createInputStream(destination);
+         LOG.debug("reading...");
+         int count = 0;
+         while (-1 != in.read()) {
+            ++count;
+         }
+         LOG.debug("read " + count + " bytes");
+      }
+      finally {
+         if (in != null) {
+            in.close();
+         }
+      }
 
-        connection.close();
-    }
+      connection.close();
+   }
 }

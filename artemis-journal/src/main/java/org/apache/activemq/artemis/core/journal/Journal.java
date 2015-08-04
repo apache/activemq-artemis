@@ -26,14 +26,13 @@ import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 /**
  * Most methods on the journal provide a blocking version where you select the sync mode and a non
  * blocking mode where you pass a completion callback as a parameter.
- * <p>
+ * <br>
  * Notice also that even on the callback methods it's possible to pass the sync mode. That will only
  * make sense on the NIO operations.
  */
-public interface Journal extends ActiveMQComponent
-{
-   enum JournalState
-   {
+public interface Journal extends ActiveMQComponent {
+
+   enum JournalState {
       STOPPED,
       /**
        * The journal has some fields initialized and services running. But it is not fully
@@ -63,7 +62,11 @@ public interface Journal extends ActiveMQComponent
 
    void appendAddRecord(long id, byte recordType, EncodingSupport record, boolean sync) throws Exception;
 
-   void appendAddRecord(long id, byte recordType, EncodingSupport record, boolean sync, IOCompletion completionCallback) throws Exception;
+   void appendAddRecord(long id,
+                        byte recordType,
+                        EncodingSupport record,
+                        boolean sync,
+                        IOCompletion completionCallback) throws Exception;
 
    void appendUpdateRecord(long id, byte recordType, byte[] record, boolean sync) throws Exception;
 
@@ -104,16 +107,15 @@ public interface Journal extends ActiveMQComponent
     * @param sync
     * @param callback
     * @param lineUpContext if appendCommitRecord should call a storeLineUp. This is because the
-    *           caller may have already taken into account
+    *                      caller may have already taken into account
     * @throws Exception
     */
    void appendCommitRecord(long txID, boolean sync, IOCompletion callback, boolean lineUpContext) throws Exception;
 
    /**
-    *
     * <p>If the system crashed after a prepare was called, it should store information that is required to bring the transaction
-    *     back to a state it could be committed. </p>
-    *
+    * back to a state it could be committed. </p>
+    * <br>
     * <p> transactionData allows you to store any other supporting user-data related to the transaction</p>
     *
     * @param txID
@@ -122,7 +124,10 @@ public interface Journal extends ActiveMQComponent
     */
    void appendPrepareRecord(long txID, EncodingSupport transactionData, boolean sync) throws Exception;
 
-   void appendPrepareRecord(long txID, EncodingSupport transactionData, boolean sync, IOCompletion callback) throws Exception;
+   void appendPrepareRecord(long txID,
+                            EncodingSupport transactionData,
+                            boolean sync,
+                            IOCompletion callback) throws Exception;
 
    void appendPrepareRecord(long txID, byte[] transactionData, boolean sync) throws Exception;
 
@@ -143,6 +148,7 @@ public interface Journal extends ActiveMQComponent
 
    /**
     * Load internal data structures, and remain waiting for synchronization to complete.
+    *
     * @param state the current state of the journal, this parameter ensures consistency.
     */
    JournalLoadInformation loadSyncOnly(JournalState state) throws Exception;
@@ -166,10 +172,11 @@ public interface Journal extends ActiveMQComponent
    /**
     * Reserves journal file IDs, creates the necessary files for synchronization, and places
     * references to these (reserved for sync) files in the map.
-    * <p>
+    * <br>
     * During the synchronization between a live server and backup, we reserve in the backup the
     * journal file IDs used in the live server. This call also makes sure the files are created
     * empty without any kind of headers added.
+    *
     * @param fileIds IDs to reserve for synchronization
     * @return map to be filled with id and journal file pairs for <b>synchronization</b>.
     * @throws Exception
@@ -184,18 +191,21 @@ public interface Journal extends ActiveMQComponent
 
    /**
     * Unlock the Journal and the compacting process.
+    *
     * @see Journal#synchronizationLock()
     */
    void synchronizationUnlock();
 
    /**
     * Force the usage of a new {@link JournalFile}.
+    *
     * @throws Exception
     */
    void forceMoveNextFile() throws Exception;
 
    /**
     * Returns the {@link JournalFile}s in use.
+    *
     * @return array with all {@link JournalFile}s in use
     */
    JournalFile[] getDataFiles();
@@ -206,6 +216,7 @@ public interface Journal extends ActiveMQComponent
 
    /**
     * This method will start compact using the compactorExecutor and block up to timeout seconds
+    *
     * @param timeout the timeout in seconds or block forever if {@code <= 0}
     * @throws Exception
     */
@@ -213,7 +224,7 @@ public interface Journal extends ActiveMQComponent
 
    /**
     * Stops any operation that may delete or modify old (stale) data.
-    * <p>
+    * <br>
     * Meant to be used during synchronization of data between a live server and its replicating
     * (remote) backup. Old files must not be compacted or deleted during synchronization.
     */
@@ -221,7 +232,7 @@ public interface Journal extends ActiveMQComponent
 
    /**
     * Restarts file reclaim and compacting on the journal.
-    * <p>
+    * <br>
     * Meant to be used to revert the effect of {@link #replicationSyncPreserveOldFiles()}. it should
     * only be called once the synchronization of the backup and live servers is completed.
     */

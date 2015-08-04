@@ -22,63 +22,51 @@ import org.apache.activemq.command.ConnectionInfo;
 import org.apache.activemq.state.ConnectionState;
 import org.apache.activemq.artemis.core.protocol.openwire.OpenWireConnection;
 
-public class AMQTransportConnectionState extends ConnectionState
-{
+public class AMQTransportConnectionState extends ConnectionState {
 
    private AMQConnectionContext context;
    private OpenWireConnection connection;
    private AtomicInteger referenceCounter = new AtomicInteger();
    private final Object connectionMutex = new Object();
 
-   public AMQTransportConnectionState(ConnectionInfo info,
-         OpenWireConnection transportConnection)
-   {
+   public AMQTransportConnectionState(ConnectionInfo info, OpenWireConnection transportConnection) {
       super(info);
       connection = transportConnection;
    }
 
-   public AMQConnectionContext getContext()
-   {
+   public AMQConnectionContext getContext() {
       return context;
    }
 
-   public OpenWireConnection getConnection()
-   {
+   public OpenWireConnection getConnection() {
       return connection;
    }
 
-   public void setContext(AMQConnectionContext context)
-   {
+   public void setContext(AMQConnectionContext context) {
       this.context = context;
    }
 
-   public void setConnection(OpenWireConnection connection)
-   {
+   public void setConnection(OpenWireConnection connection) {
       this.connection = connection;
    }
 
-   public int incrementReference()
-   {
+   public int incrementReference() {
       return referenceCounter.incrementAndGet();
    }
 
-   public int decrementReference()
-   {
+   public int decrementReference() {
       return referenceCounter.decrementAndGet();
    }
 
-   public AtomicInteger getReferenceCounter()
-   {
+   public AtomicInteger getReferenceCounter() {
       return referenceCounter;
    }
 
-   public void setReferenceCounter(AtomicInteger referenceCounter)
-   {
+   public void setReferenceCounter(AtomicInteger referenceCounter) {
       this.referenceCounter = referenceCounter;
    }
 
-   public Object getConnectionMutex()
-   {
+   public Object getConnectionMutex() {
       return connectionMutex;
    }
 

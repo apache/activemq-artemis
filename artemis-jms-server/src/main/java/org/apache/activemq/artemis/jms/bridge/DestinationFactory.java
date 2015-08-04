@@ -18,7 +18,7 @@ package org.apache.activemq.artemis.jms.bridge;
 
 import javax.jms.Destination;
 
-public interface DestinationFactory
-{
+public interface DestinationFactory {
+
    Destination createDestination() throws Exception;
 }

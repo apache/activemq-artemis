@@ -26,11 +26,10 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;
 
-public class InVMConnectorFactoryTest
-{
+public class InVMConnectorFactoryTest {
+
    @Test
-   public void testCreateConnectorSetsDefaults()
-   {
+   public void testCreateConnectorSetsDefaults() {
       // Test defaults are added when TransportConfig params are empty
       TransportConfiguration tc = new TransportConfiguration(InVMConnectorFactory.class.getName(), new HashMap<String, Object>());
       assertTrue(tc.getParams().equals(InVMConnector.DEFAULT_CONFIG));

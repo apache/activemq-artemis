@@ -16,27 +16,23 @@
  */
 package org.apache.activemq.artemis.rest.queue;
 
-public class QueueDeployment extends DestinationSettings
-{
+public class QueueDeployment extends DestinationSettings {
+
    private String name;
 
-   public QueueDeployment()
-   {
+   public QueueDeployment() {
    }
 
-   public QueueDeployment(String name, boolean duplicatesAllowed)
-   {
+   public QueueDeployment(String name, boolean duplicatesAllowed) {
       this.name = name;
       this.duplicatesAllowed = duplicatesAllowed;
    }
 
-   public String getName()
-   {
+   public String getName() {
       return name;
    }
 
-   public void setName(String name)
-   {
+   public void setName(String name) {
       this.name = name;
    }
 

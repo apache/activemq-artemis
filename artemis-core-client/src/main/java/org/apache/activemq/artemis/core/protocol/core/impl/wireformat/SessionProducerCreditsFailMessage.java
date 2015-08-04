@@ -20,14 +20,13 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 
-public class SessionProducerCreditsFailMessage extends PacketImpl
-{
+public class SessionProducerCreditsFailMessage extends PacketImpl {
+
    private int credits;
 
    private SimpleString address;
 
-   public SessionProducerCreditsFailMessage(final int credits, final SimpleString address)
-   {
+   public SessionProducerCreditsFailMessage(final int credits, final SimpleString address) {
       super(SESS_PRODUCER_FAIL_CREDITS);
 
       this.credits = credits;
@@ -35,38 +34,32 @@ public class SessionProducerCreditsFailMessage extends PacketImpl
       this.address = address;
    }
 
-   public SessionProducerCreditsFailMessage()
-   {
+   public SessionProducerCreditsFailMessage() {
       super(SESS_PRODUCER_FAIL_CREDITS);
    }
 
-   public int getCredits()
-   {
+   public int getCredits() {
       return credits;
    }
 
-   public SimpleString getAddress()
-   {
+   public SimpleString getAddress() {
       return address;
    }
 
    @Override
-   public void encodeRest(final ActiveMQBuffer buffer)
-   {
+   public void encodeRest(final ActiveMQBuffer buffer) {
       buffer.writeInt(credits);
       buffer.writeSimpleString(address);
    }
 
    @Override
-   public void decodeRest(final ActiveMQBuffer buffer)
-   {
+   public void decodeRest(final ActiveMQBuffer buffer) {
       credits = buffer.readInt();
       address = buffer.readSimpleString();
    }
 
    @Override
-   public int hashCode()
-   {
+   public int hashCode() {
       final int prime = 31;
       int result = super.hashCode();
       result = prime * result + ((address == null) ? 0 : address.hashCode());
@@ -75,17 +68,15 @@ public class SessionProducerCreditsFailMessage extends PacketImpl
    }
 
    @Override
-   public boolean equals(Object obj)
-   {
+   public boolean equals(Object obj) {
       if (this == obj)
          return true;
       if (!super.equals(obj))
          return false;
       if (!(obj instanceof SessionProducerCreditsFailMessage))
          return false;
-      SessionProducerCreditsFailMessage other = (SessionProducerCreditsFailMessage)obj;
-      if (address == null)
-      {
+      SessionProducerCreditsFailMessage other = (SessionProducerCreditsFailMessage) obj;
+      if (address == null) {
          if (other.address != null)
             return false;
       }

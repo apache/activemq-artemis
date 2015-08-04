@@ -27,8 +27,7 @@ import org.apache.activemq.artemis.core.version.Version;
 /**
  * ActiveMQ Artemis implementation of a JMS ConnectionMetaData.
  */
-public class ActiveMQConnectionMetaData implements ConnectionMetaData
-{
+public class ActiveMQConnectionMetaData implements ConnectionMetaData {
    // Constants -----------------------------------------------------
 
    private static final String ACTIVEMQ = "ActiveMQ";
@@ -44,50 +43,41 @@ public class ActiveMQConnectionMetaData implements ConnectionMetaData
    /**
     * Create a new ActiveMQConnectionMetaData object.
     */
-   public ActiveMQConnectionMetaData(final Version serverVersion)
-   {
+   public ActiveMQConnectionMetaData(final Version serverVersion) {
       this.serverVersion = serverVersion;
    }
 
    // ConnectionMetaData implementation -----------------------------
 
-   public String getJMSVersion() throws JMSException
-   {
+   public String getJMSVersion() throws JMSException {
       return "2.0";
    }
 
-   public int getJMSMajorVersion() throws JMSException
-   {
+   public int getJMSMajorVersion() throws JMSException {
       return 2;
    }
 
-   public int getJMSMinorVersion() throws JMSException
-   {
+   public int getJMSMinorVersion() throws JMSException {
       return 0;
    }
 
-   public String getJMSProviderName() throws JMSException
-   {
+   public String getJMSProviderName() throws JMSException {
       return ActiveMQConnectionMetaData.ACTIVEMQ;
    }
 
-   public String getProviderVersion() throws JMSException
-   {
+   public String getProviderVersion() throws JMSException {
       return serverVersion.getFullVersion();
    }
 
-   public int getProviderMajorVersion() throws JMSException
-   {
+   public int getProviderMajorVersion() throws JMSException {
       return serverVersion.getMajorVersion();
    }
 
-   public int getProviderMinorVersion() throws JMSException
-   {
+   public int getProviderMinorVersion() throws JMSException {
       return serverVersion.getMinorVersion();
    }
 
-   public Enumeration getJMSXPropertyNames() throws JMSException
-   {
+   public Enumeration getJMSXPropertyNames() throws JMSException {
       Vector<Object> v = new Vector<Object>();
       v.add("JMSXGroupID");
       v.add("JMSXGroupSeq");

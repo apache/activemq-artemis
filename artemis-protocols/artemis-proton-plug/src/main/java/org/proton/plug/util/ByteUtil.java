@@ -19,50 +19,41 @@ package org.proton.plug.util;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.UnpooledByteBufAllocator;
 
-public class ByteUtil
-{
-   public static void debugFrame(String message, ByteBuf byteIn)
-   {
+public class ByteUtil {
+
+   public static void debugFrame(String message, ByteBuf byteIn) {
       int location = byteIn.readerIndex();
       // debugging
       byte[] frame = new byte[byteIn.writerIndex()];
       byteIn.readBytes(frame);
 
-      try
-      {
+      try {
          System.out.println(message + "\n" + ByteUtil.formatGroup(ByteUtil.bytesToHex(frame), 8, 16));
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          e.printStackTrace();
       }
 
       byteIn.readerIndex(location);
    }
 
-
-   public static String formatGroup(String str, int groupSize, int lineBreak)
-   {
+   public static String formatGroup(String str, int groupSize, int lineBreak) {
       StringBuffer buffer = new StringBuffer();
 
       int line = 1;
       buffer.append("/*  1 */ \"");
-      for (int i = 0; i < str.length(); i += groupSize)
-      {
+      for (int i = 0; i < str.length(); i += groupSize) {
          buffer.append(str.substring(i, i + Math.min(str.length() - i, groupSize)));
 
-         if ((i + groupSize) % lineBreak == 0)
-         {
+         if ((i + groupSize) % lineBreak == 0) {
             buffer.append("\" +\n/* ");
             line++;
-            if (line < 10)
-            {
+            if (line < 10) {
                buffer.append(" ");
             }
             buffer.append(Integer.toString(line) + " */ \"");
          }
-         else if ((i + groupSize) % groupSize == 0 && str.length() - i > groupSize)
-         {
+         else if ((i + groupSize) % groupSize == 0 && str.length() - i > groupSize) {
             buffer.append("\" + \"");
          }
       }
@@ -75,11 +66,9 @@ public class ByteUtil
 
    protected static final char[] hexArray = "0123456789ABCDEF".toCharArray();
 
-   public static String bytesToHex(byte[] bytes)
-   {
+   public static String bytesToHex(byte[] bytes) {
       char[] hexChars = new char[bytes.length * 2];
-      for (int j = 0; j < bytes.length; j++)
-      {
+      for (int j = 0; j < bytes.length; j++) {
          int v = bytes[j] & 0xFF;
          hexChars[j * 2] = hexArray[v >>> 4];
          hexChars[j * 2 + 1] = hexArray[v & 0x0F];
@@ -87,45 +76,35 @@ public class ByteUtil
       return new String(hexChars);
    }
 
-   public static byte[] hexStringToByteArray(String s)
-   {
+   public static byte[] hexStringToByteArray(String s) {
       int len = s.length();
       byte[] data = new byte[len / 2];
-      for (int i = 0; i < len; i += 2)
-      {
-         data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4)
-            + Character.digit(s.charAt(i + 1), 16));
+      for (int i = 0; i < len; i += 2) {
+         data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4) + Character.digit(s.charAt(i + 1), 16));
       }
       return data;
    }
 
-   public static byte[] longToBytes(long x)
-   {
+   public static byte[] longToBytes(long x) {
       ByteBuf buffer = UnpooledByteBufAllocator.DEFAULT.heapBuffer(8, 8);
       buffer.writeLong(x);
       return buffer.array();
    }
 
-   public static String maxString(String value, int size)
-   {
-      if (value.length() < size)
-      {
+   public static String maxString(String value, int size) {
+      if (value.length() < size) {
          return value;
       }
-      else
-      {
+      else {
          return value.substring(0, size / 2) + " ... " + value.substring(value.length() - size / 2);
       }
    }
 
-   public static String bytesToHex(byte[] bytes, int groupSize)
-   {
+   public static String bytesToHex(byte[] bytes, int groupSize) {
       char[] hexChars = new char[bytes.length * 2 + numberOfGroups(bytes, groupSize)];
       int outPos = 0;
-      for (int j = 0; j < bytes.length; j++)
-      {
-         if (j > 0 && j % groupSize == 0)
-         {
+      for (int j = 0; j < bytes.length; j++) {
+         if (j > 0 && j % groupSize == 0) {
             hexChars[outPos++] = ' ';
          }
          int v = bytes[j] & 0xFF;
@@ -135,17 +114,14 @@ public class ByteUtil
       return new String(hexChars);
    }
 
-   private static int numberOfGroups(byte[] bytes, int groupSize)
-   {
+   private static int numberOfGroups(byte[] bytes, int groupSize) {
       int groups = bytes.length / groupSize;
 
-      if (bytes.length % groupSize == 0)
-      {
+      if (bytes.length % groupSize == 0) {
          groups--;
       }
 
       return groups;
    }
-
 
 }

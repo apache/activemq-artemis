@@ -16,28 +16,24 @@
  */
 package org.apache.activemq.artemis.utils;
 
-public class SimpleIDGenerator implements IDGenerator
-{
+public class SimpleIDGenerator implements IDGenerator {
+
    private long idSequence;
 
    private boolean wrapped;
 
-   public SimpleIDGenerator(final long startID)
-   {
+   public SimpleIDGenerator(final long startID) {
       idSequence = startID;
    }
 
-   public synchronized long generateID()
-   {
+   public synchronized long generateID() {
       long id = idSequence++;
 
-      if (idSequence == Long.MIN_VALUE)
-      {
+      if (idSequence == Long.MIN_VALUE) {
          wrapped = true;
       }
 
-      if (wrapped)
-      {
+      if (wrapped) {
          // Wrap - Very unlikely to happen
          throw new IllegalStateException("Exhausted ids to use!");
       }
@@ -45,8 +41,7 @@ public class SimpleIDGenerator implements IDGenerator
       return id;
    }
 
-   public synchronized long getCurrentID()
-   {
+   public synchronized long getCurrentID() {
       return idSequence;
    }
 }

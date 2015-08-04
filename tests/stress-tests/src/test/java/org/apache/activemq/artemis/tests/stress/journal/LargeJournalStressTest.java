@@ -35,8 +35,7 @@ import org.junit.Test;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class LargeJournalStressTest extends ActiveMQTestBase
-{
+public class LargeJournalStressTest extends ActiveMQTestBase {
 
    // Constants -----------------------------------------------------
 
@@ -63,19 +62,16 @@ public class LargeJournalStressTest extends ActiveMQTestBase
    // Public --------------------------------------------------------
 
    @Test
-   public void testMultiProducerAndCompactAIO() throws Throwable
-   {
+   public void testMultiProducerAndCompactAIO() throws Throwable {
       internalTestMultiProducer(JournalType.ASYNCIO);
    }
 
    @Test
-   public void testMultiProducerAndCompactNIO() throws Throwable
-   {
+   public void testMultiProducerAndCompactNIO() throws Throwable {
       internalTestMultiProducer(JournalType.NIO);
    }
 
-   public void internalTestMultiProducer(final JournalType journalType) throws Throwable
-   {
+   public void internalTestMultiProducer(final JournalType journalType) throws Throwable {
 
       setupServer(journalType);
 
@@ -86,38 +82,32 @@ public class LargeJournalStressTest extends ActiveMQTestBase
       final CountDownLatch latchReady = new CountDownLatch(2);
       final CountDownLatch latchStart = new CountDownLatch(1);
 
-      class FastProducer extends Thread
-      {
+      class FastProducer extends Thread {
+
          Throwable e;
 
-         FastProducer()
-         {
+         FastProducer() {
             super("Fast-Thread");
          }
 
          @Override
-         public void run()
-         {
+         public void run() {
             ClientSession session = null;
             ClientSession sessionSlow = null;
             latchReady.countDown();
-            try
-            {
+            try {
                ActiveMQTestBase.waitForLatch(latchStart);
                session = sf.createSession(true, true);
                sessionSlow = sf.createSession(false, false);
                ClientProducer prod = session.createProducer(LargeJournalStressTest.AD2);
                ClientProducer slowProd = sessionSlow.createProducer(LargeJournalStressTest.AD1);
-               for (int i = 0; i < NUMBER_OF_FAST_MESSAGES; i++)
-               {
-                  if (i % SLOW_INTERVAL == 0)
-                  {
+               for (int i = 0; i < NUMBER_OF_FAST_MESSAGES; i++) {
+                  if (i % SLOW_INTERVAL == 0) {
                      System.out.println("Sending slow message, msgs = " + i +
                                            " slowMessages = " +
                                            numberOfMessages.get());
 
-                     if (numberOfMessages.incrementAndGet() % 5 == 0)
-                     {
+                     if (numberOfMessages.incrementAndGet() % 5 == 0) {
                         sessionSlow.commit();
                      }
                      slowProd.send(session.createMessage(true));
@@ -127,72 +117,58 @@ public class LargeJournalStressTest extends ActiveMQTestBase
                }
                sessionSlow.commit();
             }
-            catch (Throwable e)
-            {
+            catch (Throwable e) {
                this.e = e;
             }
-            finally
-            {
-               try
-               {
+            finally {
+               try {
                   session.close();
                }
-               catch (Throwable e)
-               {
+               catch (Throwable e) {
                   this.e = e;
                }
-               try
-               {
+               try {
                   sessionSlow.close();
                }
-               catch (Throwable e)
-               {
+               catch (Throwable e) {
                   this.e = e;
                }
             }
          }
       }
 
-      class FastConsumer extends Thread
-      {
+      class FastConsumer extends Thread {
+
          Throwable e;
 
-         FastConsumer()
-         {
+         FastConsumer() {
             super("Fast-Consumer");
          }
 
          @Override
-         public void run()
-         {
+         public void run() {
             ClientSession session = null;
             latchReady.countDown();
-            try
-            {
+            try {
                ActiveMQTestBase.waitForLatch(latchStart);
                session = sf.createSession(true, true);
                session.start();
                ClientConsumer cons = session.createConsumer(LargeJournalStressTest.Q2);
-               for (int i = 0; i < NUMBER_OF_FAST_MESSAGES; i++)
-               {
+               for (int i = 0; i < NUMBER_OF_FAST_MESSAGES; i++) {
                   ClientMessage msg = cons.receive(60 * 1000);
                   msg.acknowledge();
                }
 
                Assert.assertNull(cons.receiveImmediate());
             }
-            catch (Throwable e)
-            {
+            catch (Throwable e) {
                this.e = e;
             }
-            finally
-            {
-               try
-               {
+            finally {
+               try {
                   session.close();
                }
-               catch (Throwable e)
-               {
+               catch (Throwable e) {
                   this.e = e;
                }
             }
@@ -210,15 +186,13 @@ public class LargeJournalStressTest extends ActiveMQTestBase
 
       p1.join();
 
-      if (p1.e != null)
-      {
+      if (p1.e != null) {
          throw p1.e;
       }
 
       f1.join();
 
-      if (f1.e != null)
-      {
+      if (f1.e != null) {
          throw f1.e;
       }
 
@@ -234,8 +208,7 @@ public class LargeJournalStressTest extends ActiveMQTestBase
 
       sess.start();
 
-      for (int i = 0; i < numberOfMessages.intValue(); i++)
-      {
+      for (int i = 0; i < numberOfMessages.intValue(); i++) {
          ClientMessage msg = cons.receive(10000);
          Assert.assertNotNull(msg);
          msg.acknowledge();
@@ -255,29 +228,19 @@ public class LargeJournalStressTest extends ActiveMQTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       clearDataRecreateServerDirs();
 
-      locator = createInVMNonHALocator()
-              .setBlockOnAcknowledge(false)
-              .setBlockOnNonDurableSend(false)
-              .setBlockOnDurableSend(false);
+      locator = createInVMNonHALocator().setBlockOnAcknowledge(false).setBlockOnNonDurableSend(false).setBlockOnDurableSend(false);
    }
 
    /**
     * @throws Exception
     */
-   private void setupServer(final JournalType journalType) throws Exception
-   {
-      Configuration config = createDefaultInVMConfig()
-         .setJournalSyncNonTransactional(false)
-         .setJournalFileSize(ActiveMQDefaultConfiguration.getDefaultJournalFileSize())
-         .setJournalType(journalType)
-         .setJournalCompactMinFiles(0)
-         .setJournalCompactPercentage(50);
+   private void setupServer(final JournalType journalType) throws Exception {
+      Configuration config = createDefaultInVMConfig().setJournalSyncNonTransactional(false).setJournalFileSize(ActiveMQDefaultConfiguration.getDefaultJournalFileSize()).setJournalType(journalType).setJournalCompactMinFiles(0).setJournalCompactPercentage(50);
 
       server = createServer(true, config);
 
@@ -287,20 +250,16 @@ public class LargeJournalStressTest extends ActiveMQTestBase
 
       ClientSession sess = sf.createSession();
 
-      try
-      {
+      try {
          sess.createQueue(LargeJournalStressTest.AD1, LargeJournalStressTest.Q1, true);
       }
-      catch (Exception ignored)
-      {
+      catch (Exception ignored) {
       }
 
-      try
-      {
+      try {
          sess.createQueue(LargeJournalStressTest.AD2, LargeJournalStressTest.Q2, true);
       }
-      catch (Exception ignored)
-      {
+      catch (Exception ignored) {
       }
 
       sess.close();
@@ -310,17 +269,14 @@ public class LargeJournalStressTest extends ActiveMQTestBase
 
    @Override
    @After
-   public void tearDown() throws Exception
-   {
+   public void tearDown() throws Exception {
       locator.close();
 
-      if (sf != null)
-      {
+      if (sf != null) {
          sf.close();
       }
 
-      if (server != null)
-      {
+      if (server != null) {
          server.stop();
       }
 

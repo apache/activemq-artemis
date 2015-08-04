@@ -27,21 +27,21 @@ import org.jboss.logging.annotations.MessageLogger;
 
 /**
  * Logger Code 19
- *
+ * <br>
  * each message id must be 6 digits long starting with 19, the 3rd digit donates the level so
- *
+ * <br>
  * INF0  1
  * WARN  2
  * DEBUG 3
  * ERROR 4
  * TRACE 5
  * FATAL 6
- *
+ * <br>
  * so an INFO message would be 191000 to 191999
  */
 @MessageLogger(projectCode = "AMQ")
-public interface ActiveMQRestLogger extends BasicLogger
-{
+public interface ActiveMQRestLogger extends BasicLogger {
+
    ActiveMQRestLogger LOGGER = Logger.getMessageLogger(ActiveMQRestLogger.class, ActiveMQRestLogger.class.getPackage().getName());
 
    @LogMessage(level = Logger.Level.INFO)

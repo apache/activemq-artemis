@@ -23,18 +23,15 @@ import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 /**
  * A Netty decoder specially optimised to to decode messages on the core protocol only
  */
-public class ActiveMQAMQPFrameDecoder extends LengthFieldBasedFrameDecoder
-{
-   public ActiveMQAMQPFrameDecoder()
-   {
+public class ActiveMQAMQPFrameDecoder extends LengthFieldBasedFrameDecoder {
+
+   public ActiveMQAMQPFrameDecoder() {
       // The interface itself is part of the buffer (hence the -4)
-      super(Integer.MAX_VALUE, 0, 4, -4 , 0);
+      super(Integer.MAX_VALUE, 0, 4, -4, 0);
    }
 
-
    @Override
-   protected ByteBuf extractFrame(ChannelHandlerContext ctx, ByteBuf buffer, int index, int length)
-   {
+   protected ByteBuf extractFrame(ChannelHandlerContext ctx, ByteBuf buffer, int index, int length) {
       return super.extractFrame(ctx, buffer, index, length);
    }
 

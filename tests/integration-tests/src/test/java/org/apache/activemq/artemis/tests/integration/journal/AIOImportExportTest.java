@@ -20,17 +20,15 @@ import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.io.aio.AIOSequentialFileFactory;
 import org.junit.BeforeClass;
 
-public class AIOImportExportTest extends NIOImportExportTest
-{
+public class AIOImportExportTest extends NIOImportExportTest {
+
    @BeforeClass
-   public static void hasAIO()
-   {
+   public static void hasAIO() {
       org.junit.Assume.assumeTrue("Test case needs AIO to run", AIOSequentialFileFactory.isSupported());
    }
 
    @Override
-   protected SequentialFileFactory getFileFactory() throws Exception
-   {
+   protected SequentialFileFactory getFileFactory() throws Exception {
       return new AIOSequentialFileFactory(getTestDirfile(), 10);
    }
 }

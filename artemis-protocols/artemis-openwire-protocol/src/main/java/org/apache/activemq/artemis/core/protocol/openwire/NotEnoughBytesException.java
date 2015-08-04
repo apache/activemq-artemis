@@ -18,8 +18,8 @@ package org.apache.activemq.artemis.core.protocol.openwire;
 
 import java.io.IOException;
 
-public class NotEnoughBytesException extends IOException
-{
+public class NotEnoughBytesException extends IOException {
+
    private static final long serialVersionUID = 3752739907942923658L;
 
 }

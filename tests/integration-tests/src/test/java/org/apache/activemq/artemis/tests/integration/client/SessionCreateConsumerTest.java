@@ -29,8 +29,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class SessionCreateConsumerTest extends ActiveMQTestBase
-{
+public class SessionCreateConsumerTest extends ActiveMQTestBase {
+
    private final String queueName = "ClientSessionCreateConsumerTestQ";
 
    private ServerLocator locator;
@@ -40,84 +40,69 @@ public class SessionCreateConsumerTest extends ActiveMQTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       locator = createInVMNonHALocator();
       super.setUp();
 
       service = createServer(false);
       service.start();
-      locator.setProducerMaxRate(99)
-              .setBlockOnNonDurableSend(true)
-              .setBlockOnNonDurableSend(true);
+      locator.setProducerMaxRate(99).setBlockOnNonDurableSend(true).setBlockOnNonDurableSend(true);
       cf = createSessionFactory(locator);
       clientSession = (ClientSessionInternal) addClientSession(cf.createSession(false, true, true));
    }
 
    @Test
-   public void testCreateConsumer() throws Exception
-   {
+   public void testCreateConsumer() throws Exception {
       clientSession.createQueue(queueName, queueName, false);
       ClientConsumer consumer = clientSession.createConsumer(queueName);
       Assert.assertNotNull(consumer);
    }
 
    @Test
-   public void testCreateConsumerNoQ() throws Exception
-   {
-      try
-      {
+   public void testCreateConsumerNoQ() throws Exception {
+      try {
          clientSession.createConsumer(queueName);
          Assert.fail("should throw exception");
       }
-      catch (ActiveMQNonExistentQueueException neqe)
-      {
+      catch (ActiveMQNonExistentQueueException neqe) {
          //ok
       }
-      catch (ActiveMQException e)
-      {
+      catch (ActiveMQException e) {
          fail("Invalid Exception type:" + e.getType());
       }
    }
 
    @Test
-   public void testCreateConsumerWithFilter() throws Exception
-   {
+   public void testCreateConsumerWithFilter() throws Exception {
       clientSession.createQueue(queueName, queueName, false);
       ClientConsumer consumer = clientSession.createConsumer(queueName, "foo=bar");
       Assert.assertNotNull(consumer);
    }
 
    @Test
-   public void testCreateConsumerWithInvalidFilter() throws Exception
-   {
+   public void testCreateConsumerWithInvalidFilter() throws Exception {
       clientSession.createQueue(queueName, queueName, false);
-      try
-      {
+      try {
          clientSession.createConsumer(queueName, "this is not valid filter");
          Assert.fail("should throw exception");
       }
-      catch (ActiveMQInvalidFilterExpressionException ifee)
-      {
+      catch (ActiveMQInvalidFilterExpressionException ifee) {
          //ok
       }
-      catch (ActiveMQException e)
-      {
+      catch (ActiveMQException e) {
          fail("Invalid Exception type:" + e.getType());
       }
    }
 
    @Test
-   public void testCreateConsumerWithBrowseOnly() throws Exception
-   {
+   public void testCreateConsumerWithBrowseOnly() throws Exception {
       clientSession.createQueue(queueName, queueName, false);
       ClientConsumer consumer = clientSession.createConsumer(queueName, null, true);
       Assert.assertNotNull(consumer);
    }
 
    @Test
-   public void testCreateConsumerWithOverrides() throws Exception
-   {
+   public void testCreateConsumerWithOverrides() throws Exception {
       clientSession.createQueue(queueName, queueName, false);
       ClientConsumer consumer = clientSession.createConsumer(queueName, null, 100, 100, false);
       Assert.assertNotNull(consumer);

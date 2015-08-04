@@ -20,7 +20,9 @@ import javax.jms.Connection;
 import javax.jms.Message;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
+
 import junit.framework.TestCase;
+
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.command.ActiveMQDestination;
@@ -30,45 +32,44 @@ import org.slf4j.LoggerFactory;
 
 public class AMQ3454Test extends TestCase {
 
-    private static final Logger LOG = LoggerFactory.getLogger(AMQ3454Test.class);
-    private static final int MESSAGES_COUNT = 10000;
+   private static final Logger LOG = LoggerFactory.getLogger(AMQ3454Test.class);
+   private static final int MESSAGES_COUNT = 10000;
 
-    public void testSendWithLotsOfDestinations() throws Exception {
-        final BrokerService broker = new BrokerService();
-        broker.setPersistent(false);
-        broker.setUseJmx(false);
-        broker.setDeleteAllMessagesOnStartup(true);
+   public void testSendWithLotsOfDestinations() throws Exception {
+      final BrokerService broker = new BrokerService();
+      broker.setPersistent(false);
+      broker.setUseJmx(false);
+      broker.setDeleteAllMessagesOnStartup(true);
 
-        broker.addConnector("tcp://localhost:0");
+      broker.addConnector("tcp://localhost:0");
 
-        // populate a bunch of destinations, validate the impact on a call to send
-        ActiveMQDestination[] destinations = new ActiveMQDestination[MESSAGES_COUNT];
-        for (int idx = 0; idx < MESSAGES_COUNT; ++idx) {
-            destinations[idx] = new ActiveMQQueue(getDestinationName() + "-" + idx);
-        }
-        broker.setDestinations(destinations);
-        broker.start();
+      // populate a bunch of destinations, validate the impact on a call to send
+      ActiveMQDestination[] destinations = new ActiveMQDestination[MESSAGES_COUNT];
+      for (int idx = 0; idx < MESSAGES_COUNT; ++idx) {
+         destinations[idx] = new ActiveMQQueue(getDestinationName() + "-" + idx);
+      }
+      broker.setDestinations(destinations);
+      broker.start();
 
-        ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(
-                broker.getTransportConnectors().get(0).getPublishableConnectString());
-        final Connection connection = factory.createConnection();
-        connection.start();
+      ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(broker.getTransportConnectors().get(0).getPublishableConnectString());
+      final Connection connection = factory.createConnection();
+      connection.start();
 
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        MessageProducer producer = session.createProducer(new ActiveMQQueue(getDestinationName()));
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      MessageProducer producer = session.createProducer(new ActiveMQQueue(getDestinationName()));
 
-        long start = System.currentTimeMillis();
-        for (int idx = 0; idx < MESSAGES_COUNT; ++idx) {
-            Message message = session.createTextMessage("" + idx);
-            producer.send(message);
-        }
-        LOG.info("Duration: " + (System.currentTimeMillis() - start) + " millis");
-        producer.close();
-        session.close();
+      long start = System.currentTimeMillis();
+      for (int idx = 0; idx < MESSAGES_COUNT; ++idx) {
+         Message message = session.createTextMessage("" + idx);
+         producer.send(message);
+      }
+      LOG.info("Duration: " + (System.currentTimeMillis() - start) + " millis");
+      producer.close();
+      session.close();
 
-    }
+   }
 
-    protected String getDestinationName() {
-        return getClass().getName() + "." + getName();
-    }
+   protected String getDestinationName() {
+      return getClass().getName() + "." + getName();
+   }
 }

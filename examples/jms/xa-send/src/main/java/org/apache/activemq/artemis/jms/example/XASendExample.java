@@ -39,24 +39,22 @@ import org.apache.activemq.artemis.utils.UUIDGenerator;
 /**
  * A simple JMS example showing the usage of XA support in JMS.
  */
-public class XASendExample
-{
-   public static void main(final String[] args) throws Exception
-   {
+public class XASendExample {
+
+   public static void main(final String[] args) throws Exception {
       AtomicBoolean result = new AtomicBoolean(true);
       final ArrayList<String> receiveHolder = new ArrayList<String>();
       XAConnection connection = null;
       InitialContext initialContext = null;
-      try
-      {
+      try {
          // Step 1. Create an initial context to perform the JNDI lookup.
          initialContext = new InitialContext();
 
          // Step 2. Lookup on the queue
-         Queue queue = (Queue)initialContext.lookup("queue/exampleQueue");
+         Queue queue = (Queue) initialContext.lookup("queue/exampleQueue");
 
          // Step 3. Perform a lookup on the XA Connection Factory
-         XAConnectionFactory cf = (XAConnectionFactory)initialContext.lookup("XAConnectionFactory");
+         XAConnectionFactory cf = (XAConnectionFactory) initialContext.lookup("XAConnectionFactory");
 
          // Step 4.Create a JMS XAConnection
          connection = cf.createXAConnection();
@@ -85,9 +83,7 @@ public class XASendExample
          TextMessage worldMessage = session.createTextMessage("world");
 
          // Step 12. create a transaction
-         Xid xid1 = new DummyXid("xa-example1".getBytes(StandardCharsets.UTF_8), 1, UUIDGenerator.getInstance()
-                 .generateStringUUID()
-                 .getBytes());
+         Xid xid1 = new DummyXid("xa-example1".getBytes(StandardCharsets.UTF_8), 1, UUIDGenerator.getInstance().generateStringUUID().getBytes());
 
          // Step 13. Get the JMS XAResource
          XAResource xaRes = xaSession.getXAResource();
@@ -117,9 +113,7 @@ public class XASendExample
          checkNoMessageReceived(receiveHolder);
 
          // Step 21. Create another transaction
-         Xid xid2 = new DummyXid("xa-example2".getBytes(), 1, UUIDGenerator.getInstance()
-                 .generateStringUUID()
-                 .getBytes());
+         Xid xid2 = new DummyXid("xa-example2".getBytes(), 1, UUIDGenerator.getInstance().generateStringUUID().getBytes());
 
          // Step 22. Start the transaction
          xaRes.start(xid2, XAResource.TMNOFLAGS);
@@ -148,59 +142,48 @@ public class XASendExample
          if (!result.get())
             throw new IllegalStateException();
       }
-      finally
-      {
+      finally {
          // Step 29. Be sure to close our JMS resources!
-         if (initialContext != null)
-         {
+         if (initialContext != null) {
             initialContext.close();
          }
-         if (connection != null)
-         {
+         if (connection != null) {
             connection.close();
          }
       }
    }
 
-   private static void checkAllMessageReceived(ArrayList<String> receiveHolder)
-   {
-      if (receiveHolder.size() != 2)
-      {
+   private static void checkAllMessageReceived(ArrayList<String> receiveHolder) {
+      if (receiveHolder.size() != 2) {
          throw new IllegalStateException("Number of messages received not correct ! -- " + receiveHolder.size());
       }
       receiveHolder.clear();
    }
 
-   private static void checkNoMessageReceived(ArrayList<String> receiveHolder)
-   {
-      if (receiveHolder.size() > 0)
-      {
+   private static void checkNoMessageReceived(ArrayList<String> receiveHolder) {
+      if (receiveHolder.size() > 0) {
          throw new IllegalStateException("Message received, wrong!");
       }
       receiveHolder.clear();
    }
 }
 
-class SimpleMessageListener implements MessageListener
-{
+class SimpleMessageListener implements MessageListener {
+
    ArrayList<String> receiveHolder;
    AtomicBoolean result;
 
-   public SimpleMessageListener(ArrayList<String> receiveHolder, AtomicBoolean result)
-   {
+   public SimpleMessageListener(ArrayList<String> receiveHolder, AtomicBoolean result) {
       this.receiveHolder = receiveHolder;
       this.result = result;
    }
 
-   public void onMessage(final Message message)
-   {
-      try
-      {
+   public void onMessage(final Message message) {
+      try {
          System.out.println("Message received: " + message);
-         receiveHolder.add(((TextMessage)message).getText());
+         receiveHolder.add(((TextMessage) message).getText());
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          result.set(false);
          e.printStackTrace();
       }

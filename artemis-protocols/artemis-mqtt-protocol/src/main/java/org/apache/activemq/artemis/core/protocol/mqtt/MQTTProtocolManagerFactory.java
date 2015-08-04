@@ -23,8 +23,8 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.spi.core.protocol.ProtocolManager;
 import org.apache.activemq.artemis.spi.core.protocol.ProtocolManagerFactory;
 
-public class MQTTProtocolManagerFactory implements ProtocolManagerFactory
-{
+public class MQTTProtocolManagerFactory implements ProtocolManagerFactory {
+
    public static final String MQTT_PROTOCOL_NAME = "MQTT";
 
    private static final String MODULE_NAME = "artemis-mqtt-protocol";
@@ -32,27 +32,25 @@ public class MQTTProtocolManagerFactory implements ProtocolManagerFactory
    private static final String[] SUPPORTED_PROTOCOLS = {MQTT_PROTOCOL_NAME};
 
    @Override
-   public ProtocolManager createProtocolManager(ActiveMQServer server, List incomingInterceptors, List outgoingInterceptors)
-   {
+   public ProtocolManager createProtocolManager(ActiveMQServer server,
+                                                List incomingInterceptors,
+                                                List outgoingInterceptors) {
       return new MQTTProtocolManager(server);
    }
 
    @Override
-   public List filterInterceptors(List list)
-   {
+   public List filterInterceptors(List list) {
       // TODO Add support for interceptors.
       return null;
    }
 
    @Override
-   public String[] getProtocols()
-   {
+   public String[] getProtocols() {
       return SUPPORTED_PROTOCOLS;
    }
 
    @Override
-   public String getModuleName()
-   {
+   public String getModuleName() {
       return MODULE_NAME;
    }
 }

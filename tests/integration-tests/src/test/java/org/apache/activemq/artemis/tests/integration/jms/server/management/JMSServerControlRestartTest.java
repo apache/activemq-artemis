@@ -46,16 +46,14 @@ import javax.jms.QueueRequestor;
 import javax.jms.QueueSession;
 import javax.jms.Session;
 
-public class JMSServerControlRestartTest extends ManagementTestBase
-{
+public class JMSServerControlRestartTest extends ManagementTestBase {
 
    protected InVMNamingContext context;
 
    private JMSServerManager serverManager;
 
    @Test
-   public void testCreateDurableQueueUsingJMXAndRestartServer() throws Exception
-   {
+   public void testCreateDurableQueueUsingJMXAndRestartServer() throws Exception {
       String queueName = RandomUtil.randomString();
       String binding = RandomUtil.randomString();
 
@@ -87,8 +85,7 @@ public class JMSServerControlRestartTest extends ManagementTestBase
    }
 
    @Test
-   public void testCreateDurableQueueUsingJMSAndRestartServer() throws Exception
-   {
+   public void testCreateDurableQueueUsingJMSAndRestartServer() throws Exception {
       String queueName = RandomUtil.randomString();
       String binding = RandomUtil.randomString();
 
@@ -134,19 +131,15 @@ public class JMSServerControlRestartTest extends ManagementTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       serverManager = createJMSServer();
       serverManager.start();
    }
 
-   private JMSServerManager createJMSServer() throws Exception
-   {
-      Configuration config = createDefaultInVMConfig()
-         .setJMXManagementEnabled(true)
-         .setJournalType(JournalType.NIO);
+   private JMSServerManager createJMSServer() throws Exception {
+      Configuration config = createDefaultInVMConfig().setJMXManagementEnabled(true).setJournalType(JournalType.NIO);
 
       ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(config, mbeanServer));
 

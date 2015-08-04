@@ -36,74 +36,72 @@ import java.util.Map;
  *
  * @author <a href="ataylor@redhat.com">Andy Taylor</a>
  */
-public class NonSerializableFactory implements ObjectFactory
-{
+public class NonSerializableFactory implements ObjectFactory {
 
-   public NonSerializableFactory()
-   {
-   }
-/*
-   public static void unbind(final Context ctx, final String strName) throws NamingException
-   {
-      Name name = ctx.getNameParser("").parse(strName);
-      int size = name.size();
-      String atom = name.get(size - 1);
-      Context parentCtx = Util.createSubcontext(ctx, name.getPrefix(size - 1));
-      String key = new StringBuilder().append(parentCtx.getNameInNamespace()).append("/").append(atom).toString();
-      NonSerializableFactory.getWrapperMap().remove(key);
-      Util.unbind(ctx, strName);
+   public NonSerializableFactory() {
    }
 
-   public static void rebind(final Context ctx, final String strName, final Object value) throws NamingException
-   {
-      Name name = ctx.getNameParser("").parse(strName);
-      int size = name.size();
-      String atom = name.get(size - 1);
-      Context parentCtx = Util.createSubcontext(ctx, name.getPrefix(size - 1));
-      String key = new StringBuilder().append(parentCtx.getNameInNamespace()).append("/").append(atom).toString();
-      NonSerializableFactory.getWrapperMap().put(key, value);
-      String className = value.getClass().getName();
-      String factory = NonSerializableFactory.class.getName();
-      StringRefAddr addr = new StringRefAddr("nns", key);
-      Reference memoryRef = new Reference(className, addr, factory, null);
-      parentCtx.rebind(atom, memoryRef);
-   }
-
-   public static void bind(final Context ctx, final String strName, final Object value) throws NamingException
-   {
-      Name name = ctx.getNameParser("").parse(strName);
-      int size = name.size();
-      String atom = name.get(size - 1);
-      Context parentCtx = Util.createSubcontext(ctx, name.getPrefix(size - 1));
-      String key = new StringBuilder().append(parentCtx.getNameInNamespace()).append("/").append(atom).toString();
-      NonSerializableFactory.getWrapperMap().put(key, value);
-      String className = value.getClass().getName();
-      String factory = NonSerializableFactory.class.getName();
-      StringRefAddr addr = new StringRefAddr("nns", key);
-      Reference memoryRef = new Reference(className, addr, factory, null);
-
-      parentCtx.bind(atom, memoryRef);
-   }
-*/
-   public static Object lookup(final String name) throws NamingException
-   {
-      if (NonSerializableFactory.getWrapperMap().get(name) == null)
+   /*
+      public static void unbind(final Context ctx, final String strName) throws NamingException
       {
+         Name name = ctx.getNameParser("").parse(strName);
+         int size = name.size();
+         String atom = name.get(size - 1);
+         Context parentCtx = Util.createSubcontext(ctx, name.getPrefix(size - 1));
+         String key = new StringBuilder().append(parentCtx.getNameInNamespace()).append("/").append(atom).toString();
+         NonSerializableFactory.getWrapperMap().remove(key);
+         Util.unbind(ctx, strName);
+      }
+
+      public static void rebind(final Context ctx, final String strName, final Object value) throws NamingException
+      {
+         Name name = ctx.getNameParser("").parse(strName);
+         int size = name.size();
+         String atom = name.get(size - 1);
+         Context parentCtx = Util.createSubcontext(ctx, name.getPrefix(size - 1));
+         String key = new StringBuilder().append(parentCtx.getNameInNamespace()).append("/").append(atom).toString();
+         NonSerializableFactory.getWrapperMap().put(key, value);
+         String className = value.getClass().getName();
+         String factory = NonSerializableFactory.class.getName();
+         StringRefAddr addr = new StringRefAddr("nns", key);
+         Reference memoryRef = new Reference(className, addr, factory, null);
+         parentCtx.rebind(atom, memoryRef);
+      }
+
+      public static void bind(final Context ctx, final String strName, final Object value) throws NamingException
+      {
+         Name name = ctx.getNameParser("").parse(strName);
+         int size = name.size();
+         String atom = name.get(size - 1);
+         Context parentCtx = Util.createSubcontext(ctx, name.getPrefix(size - 1));
+         String key = new StringBuilder().append(parentCtx.getNameInNamespace()).append("/").append(atom).toString();
+         NonSerializableFactory.getWrapperMap().put(key, value);
+         String className = value.getClass().getName();
+         String factory = NonSerializableFactory.class.getName();
+         StringRefAddr addr = new StringRefAddr("nns", key);
+         Reference memoryRef = new Reference(className, addr, factory, null);
+
+         parentCtx.bind(atom, memoryRef);
+      }
+   */
+   public static Object lookup(final String name) throws NamingException {
+      if (NonSerializableFactory.getWrapperMap().get(name) == null) {
          throw new NamingException(name + " not found");
       }
       return NonSerializableFactory.getWrapperMap().get(name);
    }
 
-   public Object getObjectInstance(final Object obj, final Name name, final Context nameCtx, final Hashtable<?, ?> env) throws Exception
-   {
+   public Object getObjectInstance(final Object obj,
+                                   final Name name,
+                                   final Context nameCtx,
+                                   final Hashtable<?, ?> env) throws Exception {
       Reference ref = (Reference) obj;
       RefAddr addr = ref.get("nns");
       String key = (String) addr.getContent();
       return NonSerializableFactory.getWrapperMap().get(key);
    }
 
-   public static Map<String, Object> getWrapperMap()
-   {
+   public static Map<String, Object> getWrapperMap() {
       return NonSerializableFactory.wrapperMap;
    }
 

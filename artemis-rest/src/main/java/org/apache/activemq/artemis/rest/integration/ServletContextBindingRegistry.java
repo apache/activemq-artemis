@@ -20,32 +20,27 @@ import org.apache.activemq.artemis.spi.core.naming.BindingRegistry;
 
 import javax.servlet.ServletContext;
 
-public class ServletContextBindingRegistry implements BindingRegistry
-{
+public class ServletContextBindingRegistry implements BindingRegistry {
+
    private ServletContext servletContext;
 
-   public ServletContextBindingRegistry(ServletContext servletContext)
-   {
+   public ServletContextBindingRegistry(ServletContext servletContext) {
       this.servletContext = servletContext;
    }
 
-   public Object lookup(String name)
-   {
+   public Object lookup(String name) {
       return servletContext.getAttribute(name);
    }
 
-   public boolean bind(String name, Object obj)
-   {
+   public boolean bind(String name, Object obj) {
       servletContext.setAttribute(name, obj);
       return true;
    }
 
-   public void unbind(String name)
-   {
+   public void unbind(String name) {
       servletContext.removeAttribute(name);
    }
 
-   public void close()
-   {
+   public void close() {
    }
 }

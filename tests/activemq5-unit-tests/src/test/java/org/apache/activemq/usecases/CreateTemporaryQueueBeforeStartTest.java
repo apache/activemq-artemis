@@ -27,105 +27,108 @@ import javax.jms.Session;
 import javax.jms.Topic;
 
 import junit.framework.TestCase;
+
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.broker.BrokerService;
 
 /**
  * @author Peter Henning
- *
  */
 public class CreateTemporaryQueueBeforeStartTest extends TestCase {
-    private final String bindAddress = "tcp://localhost:0";
-    private String connectionUri;
-    private Connection connection;
-    private BrokerService broker = new BrokerService();
 
-    public void testCreateTemporaryQueue() throws Exception {
-        connection = createConnection();
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        Queue queue = session.createTemporaryQueue();
-        assertTrue("No queue created!", queue != null);
-        Topic topic = session.createTemporaryTopic();
-        assertTrue("No topic created!", topic != null);
-    }
+   private final String bindAddress = "tcp://localhost:0";
+   private String connectionUri;
+   private Connection connection;
+   private BrokerService broker = new BrokerService();
 
-    public void testTryToReproduceNullPointerBug() throws Exception {
-        String url = connectionUri;
-        ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(url);
-        QueueConnection queueConnection = factory.createQueueConnection();
-        this.connection = queueConnection;
-        QueueSession session = queueConnection.createQueueSession(false, Session.AUTO_ACKNOWLEDGE);
-        session.createSender(null); // Unidentified
-        Queue receiverQueue = session.createTemporaryQueue();
-        session.createReceiver(receiverQueue);
-        queueConnection.start();
-    }
+   public void testCreateTemporaryQueue() throws Exception {
+      connection = createConnection();
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      Queue queue = session.createTemporaryQueue();
+      assertTrue("No queue created!", queue != null);
+      Topic topic = session.createTemporaryTopic();
+      assertTrue("No topic created!", topic != null);
+   }
 
-    public void testTemporaryQueueConsumer() throws Exception {
-        final int number = 20;
-        final AtomicInteger count = new AtomicInteger(0);
-        for (int i = 0; i < number; i++) {
-            Thread thread = new Thread(new Runnable() {
-                public void run() {
-                    try {
-                        QueueConnection connection = createConnection();
-                        QueueSession session = connection.createQueueSession(false, Session.AUTO_ACKNOWLEDGE);
-                        Queue queue = session.createTemporaryQueue();
-                        session.createReceiver(queue);
-                        connection.start();
+   public void testTryToReproduceNullPointerBug() throws Exception {
+      String url = connectionUri;
+      ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(url);
+      QueueConnection queueConnection = factory.createQueueConnection();
+      this.connection = queueConnection;
+      QueueSession session = queueConnection.createQueueSession(false, Session.AUTO_ACKNOWLEDGE);
+      session.createSender(null); // Unidentified
+      Queue receiverQueue = session.createTemporaryQueue();
+      session.createReceiver(receiverQueue);
+      queueConnection.start();
+   }
 
-                        if (count.incrementAndGet() >= number) {
-                            synchronized (count) {
-                                count.notify();
-                            }
-                        }
-                    } catch (Exception ex) {
-                        ex.printStackTrace();
-                    }
-                }
-            });
-            thread.start();
-        }
-        int maxWaitTime = 20000;
-        synchronized (count) {
-            long waitTime = maxWaitTime;
-            long start = System.currentTimeMillis();
-            while (count.get() < number) {
-                if (waitTime <= 0) {
-                    break;
-                } else {
-                    count.wait(waitTime);
-                    waitTime = maxWaitTime - (System.currentTimeMillis() - start);
-                }
+   public void testTemporaryQueueConsumer() throws Exception {
+      final int number = 20;
+      final AtomicInteger count = new AtomicInteger(0);
+      for (int i = 0; i < number; i++) {
+         Thread thread = new Thread(new Runnable() {
+            public void run() {
+               try {
+                  QueueConnection connection = createConnection();
+                  QueueSession session = connection.createQueueSession(false, Session.AUTO_ACKNOWLEDGE);
+                  Queue queue = session.createTemporaryQueue();
+                  session.createReceiver(queue);
+                  connection.start();
+
+                  if (count.incrementAndGet() >= number) {
+                     synchronized (count) {
+                        count.notify();
+                     }
+                  }
+               }
+               catch (Exception ex) {
+                  ex.printStackTrace();
+               }
             }
-        }
-        assertTrue("Unexpected count: " + count, count.get() == number);
-    }
+         });
+         thread.start();
+      }
+      int maxWaitTime = 20000;
+      synchronized (count) {
+         long waitTime = maxWaitTime;
+         long start = System.currentTimeMillis();
+         while (count.get() < number) {
+            if (waitTime <= 0) {
+               break;
+            }
+            else {
+               count.wait(waitTime);
+               waitTime = maxWaitTime - (System.currentTimeMillis() - start);
+            }
+         }
+      }
+      assertTrue("Unexpected count: " + count, count.get() == number);
+   }
 
-    protected QueueConnection createConnection() throws Exception {
-        ActiveMQConnectionFactory factory = createConnectionFactory();
-        return factory.createQueueConnection();
-    }
+   protected QueueConnection createConnection() throws Exception {
+      ActiveMQConnectionFactory factory = createConnectionFactory();
+      return factory.createQueueConnection();
+   }
 
-    protected ActiveMQConnectionFactory createConnectionFactory() throws Exception {
-        return new ActiveMQConnectionFactory(connectionUri);
-    }
+   protected ActiveMQConnectionFactory createConnectionFactory() throws Exception {
+      return new ActiveMQConnectionFactory(connectionUri);
+   }
 
-    protected void setUp() throws Exception {
-        broker.setUseJmx(false);
-        broker.setPersistent(false);
-        connectionUri = broker.addConnector(bindAddress).getPublishableConnectString();
-        broker.start();
-        broker.waitUntilStarted();
+   protected void setUp() throws Exception {
+      broker.setUseJmx(false);
+      broker.setPersistent(false);
+      connectionUri = broker.addConnector(bindAddress).getPublishableConnectString();
+      broker.start();
+      broker.waitUntilStarted();
 
-        super.setUp();
-    }
+      super.setUp();
+   }
 
-    protected void tearDown() throws Exception {
-        if (connection != null) {
-            connection.close();
-        }
-        broker.stop();
-        super.tearDown();
-    }
+   protected void tearDown() throws Exception {
+      if (connection != null) {
+         connection.close();
+      }
+      broker.stop();
+      super.tearDown();
+   }
 }

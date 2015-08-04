@@ -22,25 +22,22 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.utils.DataConstants;
 
-public abstract class SessionContinuationMessage extends PacketImpl
-{
+public abstract class SessionContinuationMessage extends PacketImpl {
 
    public static final int SESSION_CONTINUATION_BASE_SIZE = PACKET_HEADERS_SIZE + DataConstants.SIZE_INT +
-                                                            DataConstants.SIZE_BOOLEAN;
+      DataConstants.SIZE_BOOLEAN;
 
    protected byte[] body;
 
    protected boolean continues;
 
-   public SessionContinuationMessage(final byte type, final byte[] body, final boolean continues)
-   {
+   public SessionContinuationMessage(final byte type, final byte[] body, final boolean continues) {
       super(type);
       this.body = body;
       this.continues = continues;
    }
 
-   public SessionContinuationMessage(final byte type)
-   {
+   public SessionContinuationMessage(final byte type) {
       super(type);
    }
 
@@ -49,14 +46,11 @@ public abstract class SessionContinuationMessage extends PacketImpl
    /**
     * @return the body
     */
-   public byte[] getBody()
-   {
-      if (size <= 0)
-      {
+   public byte[] getBody() {
+      if (size <= 0) {
          return new byte[0];
       }
-      else
-      {
+      else {
          return body;
       }
    }
@@ -64,22 +58,19 @@ public abstract class SessionContinuationMessage extends PacketImpl
    /**
     * @return the continues
     */
-   public boolean isContinues()
-   {
+   public boolean isContinues() {
       return continues;
    }
 
    @Override
-   public void encodeRest(final ActiveMQBuffer buffer)
-   {
+   public void encodeRest(final ActiveMQBuffer buffer) {
       buffer.writeInt(body.length);
       buffer.writeBytes(body);
       buffer.writeBoolean(continues);
    }
 
    @Override
-   public void decodeRest(final ActiveMQBuffer buffer)
-   {
+   public void decodeRest(final ActiveMQBuffer buffer) {
       int size = buffer.readInt();
       body = new byte[size];
       buffer.readBytes(body);
@@ -87,8 +78,7 @@ public abstract class SessionContinuationMessage extends PacketImpl
    }
 
    @Override
-   public int hashCode()
-   {
+   public int hashCode() {
       final int prime = 31;
       int result = super.hashCode();
       result = prime * result + Arrays.hashCode(body);
@@ -97,15 +87,14 @@ public abstract class SessionContinuationMessage extends PacketImpl
    }
 
    @Override
-   public boolean equals(Object obj)
-   {
+   public boolean equals(Object obj) {
       if (this == obj)
          return true;
       if (!super.equals(obj))
          return false;
       if (!(obj instanceof SessionContinuationMessage))
          return false;
-      SessionContinuationMessage other = (SessionContinuationMessage)obj;
+      SessionContinuationMessage other = (SessionContinuationMessage) obj;
       if (!Arrays.equals(body, other.body))
          return false;
       if (continues != other.continues)

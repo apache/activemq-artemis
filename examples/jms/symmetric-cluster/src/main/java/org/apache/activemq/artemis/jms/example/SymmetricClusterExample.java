@@ -33,24 +33,23 @@ import org.apache.activemq.artemis.api.jms.JMSFactoryType;
 /**
  * This example demonstrates a cluster of three nodes set up in a symmetric topology - i.e. each
  * node is connected to every other node in the cluster. Also each node, has it's own backup node.
- * <p>
+ * <br>
  * This is probably the most obvious clustering topology and the one most people will be familiar
  * with from using clustering in an app server, where every node has pretty much identical
  * configuration to every other node.
- * <p>
+ * <br>
  * By clustering nodes symmetrically, ActiveMQ Artemis can give the impression of clustered queues, topics
  * and durable subscriptions.
- * <p>
+ * <br>
  * In this example we send some messages to a distributed queue and topic and kill all the live
  * servers at different times, and verify that they transparently fail over onto their backup
  * servers.
- * <p>
+ * <br>
  * Please see the readme.html file for more information.
  */
-public class SymmetricClusterExample
-{
-   public static void main(final String[] args) throws Exception
-   {
+public class SymmetricClusterExample {
+
+   public static void main(final String[] args) throws Exception {
       Connection connection0 = null;
 
       Connection connection1 = null;
@@ -63,8 +62,7 @@ public class SymmetricClusterExample
 
       Connection connection5 = null;
 
-      try
-      {
+      try {
          // Step 1 - We instantiate a connection factory directly, specifying the UDP address and port for discovering
          // the list of servers in the cluster.
          // We could use JNDI to look-up a connection factory, but we'd need to know the JNDI server host and port for
@@ -154,8 +152,7 @@ public class SymmetricClusterExample
 
          final int numMessages = 500;
 
-         for (int i = 0; i < numMessages; i++)
-         {
+         for (int i = 0; i < numMessages; i++) {
             TextMessage message1 = session2.createTextMessage("Topic message " + i);
 
             producer2.send(topic, message1);
@@ -167,60 +164,51 @@ public class SymmetricClusterExample
 
          // Step 9. Verify all subscribers and the consumer receive the messages
 
-         for (int i = 0; i < numMessages; i++)
-         {
-            TextMessage received0 = (TextMessage)subscriber0.receive(5000);
+         for (int i = 0; i < numMessages; i++) {
+            TextMessage received0 = (TextMessage) subscriber0.receive(5000);
 
-            if (received0 == null)
-            {
+            if (received0 == null) {
                throw new IllegalStateException("Message is null!");
             }
 
-            TextMessage received1 = (TextMessage)subscriber1.receive(5000);
+            TextMessage received1 = (TextMessage) subscriber1.receive(5000);
 
-            if (received1 == null)
-            {
+            if (received1 == null) {
                throw new IllegalStateException("Message is null!");
             }
 
-            TextMessage received2 = (TextMessage)subscriber2.receive(5000);
+            TextMessage received2 = (TextMessage) subscriber2.receive(5000);
 
-            if (received2 == null)
-            {
+            if (received2 == null) {
                throw new IllegalStateException("Message is null!");
             }
 
-            TextMessage received3 = (TextMessage)subscriber3.receive(5000);
+            TextMessage received3 = (TextMessage) subscriber3.receive(5000);
 
-            if (received3 == null)
-            {
+            if (received3 == null) {
                throw new IllegalStateException("Message is null!");
             }
 
-            TextMessage received4 = (TextMessage)subscriber4.receive(5000);
+            TextMessage received4 = (TextMessage) subscriber4.receive(5000);
 
-            if (received4 == null)
-            {
+            if (received4 == null) {
                throw new IllegalStateException("Message is null!");
             }
 
-            TextMessage received5 = (TextMessage)subscriber5.receive(5000);
+            TextMessage received5 = (TextMessage) subscriber5.receive(5000);
 
-            if (received5 == null)
-            {
+            if (received5 == null) {
                throw new IllegalStateException("Message is null!");
             }
 
-            TextMessage received6 = (TextMessage)consumer0.receive(5000);
+            TextMessage received6 = (TextMessage) consumer0.receive(5000);
 
-            if (received6 == null)
-            {
+            if (received6 == null) {
                throw new IllegalStateException("Message is null!");
             }
          }
       }
-      finally
-      {
+      finally {
          // Step 15. Be sure to close our resources!
 
          connection0.close();

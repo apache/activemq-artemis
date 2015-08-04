@@ -22,8 +22,7 @@ import org.apache.activemq.management.SizeStatisticImpl;
 import org.apache.activemq.management.StatsImpl;
 import org.apache.activemq.management.TimeStatisticImpl;
 
-public class AMQDestinationStatistics extends StatsImpl
-{
+public class AMQDestinationStatistics extends StatsImpl {
 
    protected CountStatisticImpl enqueues;
    protected CountStatisticImpl dequeues;
@@ -39,40 +38,25 @@ public class AMQDestinationStatistics extends StatsImpl
    protected TimeStatisticImpl blockedTime;
    protected SizeStatisticImpl messageSize;
 
-   public AMQDestinationStatistics()
-   {
+   public AMQDestinationStatistics() {
 
-      enqueues = new CountStatisticImpl("enqueues",
-            "The number of messages that have been sent to the destination");
-      dispatched = new CountStatisticImpl("dispatched",
-            "The number of messages that have been dispatched from the destination");
-      dequeues = new CountStatisticImpl("dequeues",
-            "The number of messages that have been acknowledged from the destination");
-      inflight = new CountStatisticImpl("inflight",
-            "The number of messages dispatched but awaiting acknowledgement");
-      expired = new CountStatisticImpl("expired",
-            "The number of messages that have expired");
+      enqueues = new CountStatisticImpl("enqueues", "The number of messages that have been sent to the destination");
+      dispatched = new CountStatisticImpl("dispatched", "The number of messages that have been dispatched from the destination");
+      dequeues = new CountStatisticImpl("dequeues", "The number of messages that have been acknowledged from the destination");
+      inflight = new CountStatisticImpl("inflight", "The number of messages dispatched but awaiting acknowledgement");
+      expired = new CountStatisticImpl("expired", "The number of messages that have expired");
 
-      consumers = new CountStatisticImpl(
-            "consumers",
-            "The number of consumers that that are subscribing to messages from the destination");
+      consumers = new CountStatisticImpl("consumers", "The number of consumers that that are subscribing to messages from the destination");
       consumers.setDoReset(false);
-      producers = new CountStatisticImpl("producers",
-            "The number of producers that that are publishing messages to the destination");
+      producers = new CountStatisticImpl("producers", "The number of producers that that are publishing messages to the destination");
       producers.setDoReset(false);
-      messages = new CountStatisticImpl("messages",
-            "The number of messages that that are being held by the destination");
+      messages = new CountStatisticImpl("messages", "The number of messages that that are being held by the destination");
       messages.setDoReset(false);
-      messagesCached = new PollCountStatisticImpl("messagesCached",
-            "The number of messages that are held in the destination's memory cache");
-      processTime = new TimeStatisticImpl("processTime",
-            "information around length of time messages are held by a destination");
-      blockedSends = new CountStatisticImpl("blockedSends",
-            "number of messages that have to wait for flow control");
-      blockedTime = new TimeStatisticImpl("blockedTime",
-            "amount of time messages are blocked for flow control");
-      messageSize = new SizeStatisticImpl("messageSize",
-            "Size of messages passing through the destination");
+      messagesCached = new PollCountStatisticImpl("messagesCached", "The number of messages that are held in the destination's memory cache");
+      processTime = new TimeStatisticImpl("processTime", "information around length of time messages are held by a destination");
+      blockedSends = new CountStatisticImpl("blockedSends", "number of messages that have to wait for flow control");
+      blockedTime = new TimeStatisticImpl("blockedTime", "amount of time messages are blocked for flow control");
+      messageSize = new SizeStatisticImpl("messageSize", "Size of messages passing through the destination");
       addStatistic("enqueues", enqueues);
       addStatistic("dispatched", dispatched);
       addStatistic("dequeues", dequeues);
@@ -88,80 +72,64 @@ public class AMQDestinationStatistics extends StatsImpl
       addStatistic("messageSize", messageSize);
    }
 
-   public CountStatisticImpl getEnqueues()
-   {
+   public CountStatisticImpl getEnqueues() {
       return enqueues;
    }
 
-   public CountStatisticImpl getDequeues()
-   {
+   public CountStatisticImpl getDequeues() {
       return dequeues;
    }
 
-   public CountStatisticImpl getInflight()
-   {
+   public CountStatisticImpl getInflight() {
       return inflight;
    }
 
-   public CountStatisticImpl getExpired()
-   {
+   public CountStatisticImpl getExpired() {
       return expired;
    }
 
-   public CountStatisticImpl getConsumers()
-   {
+   public CountStatisticImpl getConsumers() {
       return consumers;
    }
 
-   public CountStatisticImpl getProducers()
-   {
+   public CountStatisticImpl getProducers() {
       return producers;
    }
 
-   public PollCountStatisticImpl getMessagesCached()
-   {
+   public PollCountStatisticImpl getMessagesCached() {
       return messagesCached;
    }
 
-   public CountStatisticImpl getMessages()
-   {
+   public CountStatisticImpl getMessages() {
       return messages;
    }
 
-   public void setMessagesCached(PollCountStatisticImpl messagesCached)
-   {
+   public void setMessagesCached(PollCountStatisticImpl messagesCached) {
       this.messagesCached = messagesCached;
    }
 
-   public CountStatisticImpl getDispatched()
-   {
+   public CountStatisticImpl getDispatched() {
       return dispatched;
    }
 
-   public TimeStatisticImpl getProcessTime()
-   {
+   public TimeStatisticImpl getProcessTime() {
       return this.processTime;
    }
 
-   public CountStatisticImpl getBlockedSends()
-   {
+   public CountStatisticImpl getBlockedSends() {
       return this.blockedSends;
    }
 
-   public TimeStatisticImpl getBlockedTime()
-   {
+   public TimeStatisticImpl getBlockedTime() {
       return this.blockedTime;
    }
 
-   public SizeStatisticImpl getMessageSize()
-   {
+   public SizeStatisticImpl getMessageSize() {
       return this.messageSize;
    }
 
-   public void reset()
-   {
-      if (this.isDoReset())
-      {
+   public void reset() {
+      if (this.isDoReset()) {
          super.reset();
          enqueues.reset();
          dequeues.reset();
@@ -174,8 +142,7 @@ public class AMQDestinationStatistics extends StatsImpl
       }
    }
 
-   public void setEnabled(boolean enabled)
-   {
+   public void setEnabled(boolean enabled) {
       super.setEnabled(enabled);
       enqueues.setEnabled(enabled);
       dispatched.setEnabled(enabled);
@@ -193,10 +160,8 @@ public class AMQDestinationStatistics extends StatsImpl
 
    }
 
-   public void setParent(AMQDestinationStatistics parent)
-   {
-      if (parent != null)
-      {
+   public void setParent(AMQDestinationStatistics parent) {
+      if (parent != null) {
          enqueues.setParent(parent.enqueues);
          dispatched.setParent(parent.dispatched);
          dequeues.setParent(parent.dequeues);
@@ -211,8 +176,7 @@ public class AMQDestinationStatistics extends StatsImpl
          blockedTime.setParent(parent.blockedTime);
          messageSize.setParent(parent.messageSize);
       }
-      else
-      {
+      else {
          enqueues.setParent(null);
          dispatched.setParent(null);
          dequeues.setParent(null);

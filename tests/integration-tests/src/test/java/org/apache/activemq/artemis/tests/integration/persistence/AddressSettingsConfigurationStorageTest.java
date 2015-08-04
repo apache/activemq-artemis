@@ -28,21 +28,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class AddressSettingsConfigurationStorageTest extends StorageManagerTestBase
-{
+public class AddressSettingsConfigurationStorageTest extends StorageManagerTestBase {
+
    private Map<SimpleString, PersistedAddressSetting> mapExpectedAddresses;
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       mapExpectedAddresses = new HashMap<SimpleString, PersistedAddressSetting>();
    }
 
-   protected void addAddress(JournalStorageManager journal1, String address, AddressSettings setting) throws Exception
-   {
+   protected void addAddress(JournalStorageManager journal1, String address, AddressSettings setting) throws Exception {
       SimpleString str = new SimpleString(address);
       PersistedAddressSetting persistedSetting = new PersistedAddressSetting(str, setting);
       mapExpectedAddresses.put(str, persistedSetting);
@@ -50,15 +48,12 @@ public class AddressSettingsConfigurationStorageTest extends StorageManagerTestB
    }
 
    @Test
-   public void testStoreSecuritySettings() throws Exception
-   {
+   public void testStoreSecuritySettings() throws Exception {
       createStorage();
 
       AddressSettings setting = new AddressSettings();
 
-      setting = new AddressSettings()
-              .setAddressFullMessagePolicy(AddressFullMessagePolicy.BLOCK)
-              .setDeadLetterAddress(new SimpleString("some-test"));
+      setting = new AddressSettings().setAddressFullMessagePolicy(AddressFullMessagePolicy.BLOCK).setDeadLetterAddress(new SimpleString("some-test"));
 
       addAddress(journal, "a2", setting);
 
@@ -89,14 +84,12 @@ public class AddressSettingsConfigurationStorageTest extends StorageManagerTestB
     * @param journal1
     * @throws Exception
     */
-   private void checkAddresses(JournalStorageManager journal1) throws Exception
-   {
+   private void checkAddresses(JournalStorageManager journal1) throws Exception {
       List<PersistedAddressSetting> listSetting = journal1.recoverAddressSettings();
 
       assertEquals(mapExpectedAddresses.size(), listSetting.size());
 
-      for (PersistedAddressSetting el : listSetting)
-      {
+      for (PersistedAddressSetting el : listSetting) {
          PersistedAddressSetting el2 = mapExpectedAddresses.get(el.getAddressMatch());
 
          assertEquals(el.getAddressMatch(), el2.getAddressMatch());

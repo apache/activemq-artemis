@@ -34,6 +34,7 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 
 import junit.framework.TestCase;
+
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.broker.TransportConnector;
@@ -45,135 +46,137 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * 
+ *
  */
 public class TopicClusterTest extends TestCase implements MessageListener {
-    
-    protected static final int MESSAGE_COUNT = 50;
-    protected static final int NUMBER_IN_CLUSTER = 3;
-    private static final Logger LOG = LoggerFactory.getLogger(TopicClusterTest.class);
-    
-    protected Destination destination;
-    protected boolean topic = true;
-    protected final AtomicInteger receivedMessageCount = new AtomicInteger(0);
-    protected int deliveryMode = DeliveryMode.NON_PERSISTENT;
-    protected MessageProducer[] producers;
-    protected Connection[] connections;
-    protected List<BrokerService> services = new ArrayList<BrokerService>();
-    protected String groupId;
-    
-    protected void setUp() throws Exception {
-        groupId = "topic-cluster-test-"+System.currentTimeMillis();
-        connections = new Connection[NUMBER_IN_CLUSTER];
-        producers = new MessageProducer[NUMBER_IN_CLUSTER];
-        Destination destination = createDestination();
-        String root = System.getProperty("activemq.store.dir");
-        if (root == null) {
-            root = "target/store";
-        }
-        try {
-            for (int i = 0; i < NUMBER_IN_CLUSTER; i++) {
 
-                System.setProperty("activemq.store.dir", root + "_broker_" + i);
-                connections[i] = createConnection("broker-" + i);
-                connections[i].setClientID("ClusterTest" + i);
-                connections[i].start();
-                Session session = connections[i].createSession(false, Session.AUTO_ACKNOWLEDGE);
-                producers[i] = session.createProducer(destination);
-                producers[i].setDeliveryMode(deliveryMode);
-                MessageConsumer consumer = createMessageConsumer(session, destination);
-                consumer.setMessageListener(this);
+   protected static final int MESSAGE_COUNT = 50;
+   protected static final int NUMBER_IN_CLUSTER = 3;
+   private static final Logger LOG = LoggerFactory.getLogger(TopicClusterTest.class);
 
-            }
-            LOG.info("Sleeping to ensure cluster is fully connected");
-            Thread.sleep(5000);
-        } finally {
-            System.setProperty("activemq.store.dir", root);
-        }
-    }
+   protected Destination destination;
+   protected boolean topic = true;
+   protected final AtomicInteger receivedMessageCount = new AtomicInteger(0);
+   protected int deliveryMode = DeliveryMode.NON_PERSISTENT;
+   protected MessageProducer[] producers;
+   protected Connection[] connections;
+   protected List<BrokerService> services = new ArrayList<BrokerService>();
+   protected String groupId;
 
-    protected void tearDown() throws Exception {
-        if (connections != null) {
-            for (int i = 0; i < connections.length; i++) {
-                connections[i].close();
-            }
-        }
-        ServiceStopper stopper = new ServiceStopper();
-        stopper.stopServices(services);
-    }
+   protected void setUp() throws Exception {
+      groupId = "topic-cluster-test-" + System.currentTimeMillis();
+      connections = new Connection[NUMBER_IN_CLUSTER];
+      producers = new MessageProducer[NUMBER_IN_CLUSTER];
+      Destination destination = createDestination();
+      String root = System.getProperty("activemq.store.dir");
+      if (root == null) {
+         root = "target/store";
+      }
+      try {
+         for (int i = 0; i < NUMBER_IN_CLUSTER; i++) {
 
-    protected MessageConsumer createMessageConsumer(Session session, Destination destination) throws JMSException {
-        return session.createConsumer(destination);
-    }
+            System.setProperty("activemq.store.dir", root + "_broker_" + i);
+            connections[i] = createConnection("broker-" + i);
+            connections[i].setClientID("ClusterTest" + i);
+            connections[i].start();
+            Session session = connections[i].createSession(false, Session.AUTO_ACKNOWLEDGE);
+            producers[i] = session.createProducer(destination);
+            producers[i].setDeliveryMode(deliveryMode);
+            MessageConsumer consumer = createMessageConsumer(session, destination);
+            consumer.setMessageListener(this);
 
-    protected ActiveMQConnectionFactory createGenericClusterFactory(String brokerName) throws Exception {
-        BrokerService container = new BrokerService();
-        container.setBrokerName(brokerName);
+         }
+         LOG.info("Sleeping to ensure cluster is fully connected");
+         Thread.sleep(5000);
+      }
+      finally {
+         System.setProperty("activemq.store.dir", root);
+      }
+   }
 
-        String url = "tcp://localhost:0";
-        TransportConnector connector = container.addConnector(url);
-        connector.setDiscoveryUri(new URI("multicast://default?group="+groupId));
-        container.addNetworkConnector("multicast://default?group="+groupId);
-        container.start();
+   protected void tearDown() throws Exception {
+      if (connections != null) {
+         for (int i = 0; i < connections.length; i++) {
+            connections[i].close();
+         }
+      }
+      ServiceStopper stopper = new ServiceStopper();
+      stopper.stopServices(services);
+   }
 
-        services.add(container);
+   protected MessageConsumer createMessageConsumer(Session session, Destination destination) throws JMSException {
+      return session.createConsumer(destination);
+   }
 
-        return new ActiveMQConnectionFactory("vm://" + brokerName);
-    }
+   protected ActiveMQConnectionFactory createGenericClusterFactory(String brokerName) throws Exception {
+      BrokerService container = new BrokerService();
+      container.setBrokerName(brokerName);
 
-    protected int expectedReceiveCount() {
-        return MESSAGE_COUNT * NUMBER_IN_CLUSTER * NUMBER_IN_CLUSTER;
-    }
+      String url = "tcp://localhost:0";
+      TransportConnector connector = container.addConnector(url);
+      connector.setDiscoveryUri(new URI("multicast://default?group=" + groupId));
+      container.addNetworkConnector("multicast://default?group=" + groupId);
+      container.start();
 
-    protected Connection createConnection(String name) throws Exception {
-        return createGenericClusterFactory(name).createConnection();
-    }
+      services.add(container);
 
-    protected Destination createDestination() {
-        return createDestination(getClass().getName());
-    }
+      return new ActiveMQConnectionFactory("vm://" + brokerName);
+   }
 
-    protected Destination createDestination(String name) {
-        if (topic) {
-            return new ActiveMQTopic(name);
-        } else {
-            return new ActiveMQQueue(name);
-        }
-    }
+   protected int expectedReceiveCount() {
+      return MESSAGE_COUNT * NUMBER_IN_CLUSTER * NUMBER_IN_CLUSTER;
+   }
 
-    /**
-     * @param msg
-     */
-    public void onMessage(Message msg) {
-        // log.info("GOT: " + msg);
-        receivedMessageCount.incrementAndGet();
-        synchronized (receivedMessageCount) {
-            if (receivedMessageCount.get() >= expectedReceiveCount()) {
-                receivedMessageCount.notify();
-            }
-        }
-    }
+   protected Connection createConnection(String name) throws Exception {
+      return createGenericClusterFactory(name).createConnection();
+   }
 
-    /**
-     * @throws Exception
-     */
-    public void testSendReceive() throws Exception {
-        for (int i = 0; i < MESSAGE_COUNT; i++) {
-            TextMessage textMessage = new ActiveMQTextMessage();
-            textMessage.setText("MSG-NO:" + i);
-            for (int x = 0; x < producers.length; x++) {
-                producers[x].send(textMessage);
-            }
-        }
-        synchronized (receivedMessageCount) {
-            while (receivedMessageCount.get() < expectedReceiveCount()) {
-                receivedMessageCount.wait(20000);
-            }
-        }
-        // sleep a little - to check we don't get too many messages
-        Thread.sleep(2000);
-        LOG.info("GOT: " + receivedMessageCount.get());
-        assertEquals("Expected message count not correct", expectedReceiveCount(), receivedMessageCount.get());
-    }
+   protected Destination createDestination() {
+      return createDestination(getClass().getName());
+   }
+
+   protected Destination createDestination(String name) {
+      if (topic) {
+         return new ActiveMQTopic(name);
+      }
+      else {
+         return new ActiveMQQueue(name);
+      }
+   }
+
+   /**
+    * @param msg
+    */
+   public void onMessage(Message msg) {
+      // log.info("GOT: " + msg);
+      receivedMessageCount.incrementAndGet();
+      synchronized (receivedMessageCount) {
+         if (receivedMessageCount.get() >= expectedReceiveCount()) {
+            receivedMessageCount.notify();
+         }
+      }
+   }
+
+   /**
+    * @throws Exception
+    */
+   public void testSendReceive() throws Exception {
+      for (int i = 0; i < MESSAGE_COUNT; i++) {
+         TextMessage textMessage = new ActiveMQTextMessage();
+         textMessage.setText("MSG-NO:" + i);
+         for (int x = 0; x < producers.length; x++) {
+            producers[x].send(textMessage);
+         }
+      }
+      synchronized (receivedMessageCount) {
+         while (receivedMessageCount.get() < expectedReceiveCount()) {
+            receivedMessageCount.wait(20000);
+         }
+      }
+      // sleep a little - to check we don't get too many messages
+      Thread.sleep(2000);
+      LOG.info("GOT: " + receivedMessageCount.get());
+      assertEquals("Expected message count not correct", expectedReceiveCount(), receivedMessageCount.get());
+   }
 
 }

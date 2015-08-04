@@ -29,8 +29,8 @@ import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManagerImpl
 /**
  * Helper class to simplify bootstrap of ActiveMQ Artemis server.  Bootstraps from classpath-based config files.
  */
-public class EmbeddedActiveMQ
-{
+public class EmbeddedActiveMQ {
+
    protected ActiveMQSecurityManager securityManager;
    protected String configResourcePath = null;
    protected Configuration configuration;
@@ -42,8 +42,7 @@ public class EmbeddedActiveMQ
     *
     * @param filename
     */
-   public void setConfigResourcePath(String filename)
-   {
+   public void setConfigResourcePath(String filename) {
       configResourcePath = filename;
    }
 
@@ -52,8 +51,7 @@ public class EmbeddedActiveMQ
     *
     * @param securityManager
     */
-   public void setSecurityManager(ActiveMQSecurityManager securityManager)
-   {
+   public void setSecurityManager(ActiveMQSecurityManager securityManager) {
       this.securityManager = securityManager;
    }
 
@@ -62,8 +60,7 @@ public class EmbeddedActiveMQ
     *
     * @param mbeanServer
     */
-   public void setMbeanServer(MBeanServer mbeanServer)
-   {
+   public void setMbeanServer(MBeanServer mbeanServer) {
       this.mbeanServer = mbeanServer;
    }
 
@@ -73,50 +70,42 @@ public class EmbeddedActiveMQ
     *
     * @param configuration
     */
-   public void setConfiguration(Configuration configuration)
-   {
+   public void setConfiguration(Configuration configuration) {
       this.configuration = configuration;
    }
 
-   public ActiveMQServer getActiveMQServer()
-   {
+   public ActiveMQServer getActiveMQServer() {
       return activeMQServer;
    }
 
-   public void start() throws Exception
-   {
+   public void start() throws Exception {
       initStart();
       activeMQServer.start();
 
    }
 
-   protected void initStart() throws Exception
-   {
-      if (configuration == null)
-      {
-         if (configResourcePath == null) configResourcePath = "broker.xml";
+   protected void initStart() throws Exception {
+      if (configuration == null) {
+         if (configResourcePath == null)
+            configResourcePath = "broker.xml";
          FileDeploymentManager deploymentManager = new FileDeploymentManager(configResourcePath);
          FileConfiguration config = new FileConfiguration();
          deploymentManager.addDeployable(config);
          deploymentManager.readConfiguration();
          configuration = config;
       }
-      if (securityManager == null)
-      {
+      if (securityManager == null) {
          securityManager = new ActiveMQSecurityManagerImpl();
       }
-      if (mbeanServer == null)
-      {
+      if (mbeanServer == null) {
          activeMQServer = new ActiveMQServerImpl(configuration, securityManager);
       }
-      else
-      {
+      else {
          activeMQServer = new ActiveMQServerImpl(configuration, mbeanServer, securityManager);
       }
    }
 
-   public void stop() throws Exception
-   {
+   public void stop() throws Exception {
       activeMQServer.stop();
    }
 }

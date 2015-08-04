@@ -21,20 +21,20 @@ import org.apache.activemq.artemis.api.core.Message;
 /**
  * A SendAcknowledgementHandler notifies a client when a message sent asynchronously has been
  * received by the server.
- * <p>
+ * <br>
  * If the session is not blocking when sending durable or non-durable messages, the session can set
  * a SendAcknowledgementHandler to be notified later when the messages has been received by the
  * server. The method {@link #sendAcknowledged(Message)} will be called with the message that was
  * sent asynchronously.
- * <p>
+ * <br>
  * The rate of notification can be controlled through
  * {@link ServerLocator#setConfirmationWindowSize(int)}.
- * <p>
+ * <br>
  * Notice that this notification will only take place if {@code ConfirmationWindowSize} is set to a
  * positive value at {@link ServerLocator#setConfirmationWindowSize(int)}.
  */
-public interface SendAcknowledgementHandler
-{
+public interface SendAcknowledgementHandler {
+
    /**
     * Notifies the client that a message sent asynchronously has been received by the server.
     *

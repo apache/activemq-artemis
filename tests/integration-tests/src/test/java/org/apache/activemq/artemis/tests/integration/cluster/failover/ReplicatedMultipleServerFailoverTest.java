@@ -25,17 +25,14 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer;
 import org.junit.Test;
 
-public class ReplicatedMultipleServerFailoverTest extends MultipleServerFailoverTestBase
-{
+public class ReplicatedMultipleServerFailoverTest extends MultipleServerFailoverTestBase {
+
    @Test
-   public void testStartLiveFirst() throws Exception
-   {
-      for (TestableServer liveServer : liveServers)
-      {
+   public void testStartLiveFirst() throws Exception {
+      for (TestableServer liveServer : liveServers) {
          liveServer.start();
       }
-      for (TestableServer backupServer : backupServers)
-      {
+      for (TestableServer backupServer : backupServers) {
          backupServer.start();
       }
       waitForTopology(liveServers.get(0).getServer(), liveServers.size(), backupServers.size());
@@ -43,54 +40,44 @@ public class ReplicatedMultipleServerFailoverTest extends MultipleServerFailover
    }
 
    @Test
-   public void testStartBackupFirst() throws Exception
-   {
-      for (TestableServer backupServer : backupServers)
-      {
+   public void testStartBackupFirst() throws Exception {
+      for (TestableServer backupServer : backupServers) {
          backupServer.start();
       }
-      for (TestableServer liveServer : liveServers)
-      {
+      for (TestableServer liveServer : liveServers) {
          liveServer.start();
       }
       waitForTopology(liveServers.get(0).getServer(), liveServers.size(), liveServers.size());
       sendCrashReceive();
    }
 
-   protected void sendCrashReceive() throws Exception
-   {
+   protected void sendCrashReceive() throws Exception {
       ServerLocator[] locators = new ServerLocator[liveServers.size()];
-      try
-      {
-         for (int i = 0; i < locators.length; i++)
-         {
+      try {
+         for (int i = 0; i < locators.length; i++) {
             locators[i] = getServerLocator(i);
          }
 
          ClientSessionFactory[] factories = new ClientSessionFactory[liveServers.size()];
-         for (int i = 0; i < factories.length; i++)
-         {
+         for (int i = 0; i < factories.length; i++) {
             factories[i] = createSessionFactory(locators[i]);
          }
 
          ClientSession[] sessions = new ClientSession[liveServers.size()];
-         for (int i = 0; i < factories.length; i++)
-         {
+         for (int i = 0; i < factories.length; i++) {
             sessions[i] = createSession(factories[i], true, true);
             sessions[i].createQueue(ADDRESS, ADDRESS, null, true);
          }
 
          //make sure bindings are ready before sending messages
-         for (int i = 0; i < liveServers.size(); i++)
-         {
+         for (int i = 0; i < liveServers.size(); i++) {
             this.waitForBindings(liveServers.get(i).getServer(), ADDRESS.toString(), true, 1, 0, 2000);
             this.waitForBindings(liveServers.get(i).getServer(), ADDRESS.toString(), false, 1, 0, 2000);
          }
 
          ClientProducer producer = sessions[0].createProducer(ADDRESS);
 
-         for (int i = 0; i < liveServers.size() * 100; i++)
-         {
+         for (int i = 0; i < liveServers.size() * 100; i++) {
             ClientMessage message = sessions[0].createMessage(true);
 
             setBody(i, message);
@@ -102,27 +89,21 @@ public class ReplicatedMultipleServerFailoverTest extends MultipleServerFailover
 
          producer.close();
 
-         for (TestableServer liveServer : liveServers)
-         {
+         for (TestableServer liveServer : liveServers) {
             waitForDistribution(ADDRESS, liveServer.getServer(), 100);
          }
 
-
-         for (TestableServer liveServer : liveServers)
-         {
+         for (TestableServer liveServer : liveServers) {
             liveServer.crash();
          }
          ClientConsumer[] consumers = new ClientConsumer[liveServers.size()];
-         for (int i = 0; i < factories.length; i++)
-         {
+         for (int i = 0; i < factories.length; i++) {
             consumers[i] = sessions[i].createConsumer(ADDRESS);
             sessions[i].start();
          }
 
-         for (int i = 0; i < 100; i++)
-         {
-            for (ClientConsumer consumer : consumers)
-            {
+         for (int i = 0; i < 100; i++) {
+            for (ClientConsumer consumer : consumers) {
                ClientMessage message = consumer.receive(1000);
                assertNotNull("expecting durable msg " + i, message);
                message.acknowledge();
@@ -130,18 +111,13 @@ public class ReplicatedMultipleServerFailoverTest extends MultipleServerFailover
 
          }
       }
-      finally
-      {
-         for (ServerLocator locator : locators)
-         {
-            if (locator != null)
-            {
-               try
-               {
+      finally {
+         for (ServerLocator locator : locators) {
+            if (locator != null) {
+               try {
                   locator.close();
                }
-               catch (Exception e)
-               {
+               catch (Exception e) {
                   //ignore
                }
             }
@@ -150,32 +126,27 @@ public class ReplicatedMultipleServerFailoverTest extends MultipleServerFailover
    }
 
    @Override
-   public int getLiveServerCount()
-   {
+   public int getLiveServerCount() {
       return 2;
    }
 
    @Override
-   public int getBackupServerCount()
-   {
+   public int getBackupServerCount() {
       return 2;
    }
 
    @Override
-   public boolean isNetty()
-   {
+   public boolean isNetty() {
       return false;
    }
 
    @Override
-   public boolean isSharedStore()
-   {
+   public boolean isSharedStore() {
       return false;
    }
 
    @Override
-   public String getNodeGroupName()
-   {
+   public String getNodeGroupName() {
       return "nodeGroup";
    }
 }

@@ -39,8 +39,8 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class JournalCrashTest extends ActiveMQTestBase
-{
+public class JournalCrashTest extends ActiveMQTestBase {
+
    private static final int FIRST_RUN = 4;
 
    private static final int SECOND_RUN = 8;
@@ -57,13 +57,8 @@ public class JournalCrashTest extends ActiveMQTestBase
 
    private ServerLocator locator;
 
-   protected void startServer() throws Exception
-   {
-      Configuration config = createDefaultInVMConfig()
-         .setJournalFileSize(ActiveMQDefaultConfiguration.getDefaultJournalFileSize())
-         .setJournalCompactMinFiles(ActiveMQDefaultConfiguration.getDefaultJournalCompactMinFiles())
-         .setJournalCompactPercentage(ActiveMQDefaultConfiguration.getDefaultJournalCompactPercentage())
-         .setJournalMinFiles(2);
+   protected void startServer() throws Exception {
+      Configuration config = createDefaultInVMConfig().setJournalFileSize(ActiveMQDefaultConfiguration.getDefaultJournalFileSize()).setJournalCompactMinFiles(ActiveMQDefaultConfiguration.getDefaultJournalCompactMinFiles()).setJournalCompactPercentage(ActiveMQDefaultConfiguration.getDefaultJournalCompactPercentage()).setJournalMinFiles(2);
 
       server = super.createServer(true, config);
 
@@ -72,8 +67,7 @@ public class JournalCrashTest extends ActiveMQTestBase
       factory = createSessionFactory(locator);
    }
 
-   protected void stopServer() throws Exception
-   {
+   protected void stopServer() throws Exception {
       locator.close();
       closeSessionFactory(factory);
 
@@ -87,12 +81,9 @@ public class JournalCrashTest extends ActiveMQTestBase
    /**
     * The test needs another VM, that will be "killed" right after commit. This main will do this job.
     */
-   public static void main(final String[] arg)
-   {
-      try
-      {
-         if (arg.length != 3)
-         {
+   public static void main(final String[] arg) {
+      try {
+         if (arg.length != 3) {
             throw new IllegalArgumentException(Arrays.toString(arg));
          }
          String testDir = arg[0];
@@ -110,33 +101,27 @@ public class JournalCrashTest extends ActiveMQTestBase
 
          Runtime.getRuntime().halt(100);
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          e.printStackTrace(System.out);
          System.exit(1);
       }
    }
 
-   public void sendMessages(final int start, final int end) throws Exception
-   {
+   public void sendMessages(final int start, final int end) throws Exception {
       ClientSession session = null;
-      try
-      {
+      try {
 
          session = factory.createSession(false, false);
 
-         try
-         {
+         try {
             session.createQueue(QUEUE, QUEUE, true);
          }
-         catch (Exception ignored)
-         {
+         catch (Exception ignored) {
          }
 
          ClientProducer prod = session.createProducer(QUEUE);
 
-         for (int i = start; i < end; i++)
-         {
+         for (int i = start; i < end; i++) {
             ClientMessage msg = session.createMessage(true);
             msg.putIntProperty(new SimpleString("key"), i);
             msg.getBodyBuffer().writeUTF("message " + i);
@@ -147,15 +132,13 @@ public class JournalCrashTest extends ActiveMQTestBase
          session.close();
          // server.stop(); -- this test was not supposed to stop the server, it should crash
       }
-      finally
-      {
+      finally {
          session.close();
       }
    }
 
    @Test
-   public void testRestartJournal() throws Throwable
-   {
+   public void testRestartJournal() throws Throwable {
       runExternalProcess(getTestDir(), 0, JournalCrashTest.FIRST_RUN);
       runExternalProcess(getTestDir(), JournalCrashTest.FIRST_RUN, JournalCrashTest.SECOND_RUN);
       runExternalProcess(getTestDir(), JournalCrashTest.SECOND_RUN, JournalCrashTest.THIRD_RUN);
@@ -164,16 +147,14 @@ public class JournalCrashTest extends ActiveMQTestBase
       printJournal();
 
       ClientSession session = null;
-      try
-      {
+      try {
          startServer();
 
          session = factory.createSession(true, true);
          ClientConsumer consumer = session.createConsumer(QUEUE);
          session.start();
 
-         for (int i = 0; i < JournalCrashTest.FOURTH_RUN; i++)
-         {
+         for (int i = 0; i < JournalCrashTest.FOURTH_RUN; i++) {
             ClientMessage msg = consumer.receive(5000);
 
             Assert.assertNotNull("Msg at " + i, msg);
@@ -184,14 +165,11 @@ public class JournalCrashTest extends ActiveMQTestBase
          }
          session.close();
       }
-      finally
-      {
-         try
-         {
+      finally {
+         try {
             session.close();
          }
-         catch (Throwable ignored)
-         {
+         catch (Throwable ignored) {
          }
       }
 
@@ -201,17 +179,9 @@ public class JournalCrashTest extends ActiveMQTestBase
     * @throws Exception
     * @throws InterruptedException
     */
-   private void runExternalProcess(final String tempDir, final int start, final int end) throws Exception
-   {
+   private void runExternalProcess(final String tempDir, final int start, final int end) throws Exception {
       System.err.println("running external process...");
-      Process process = SpawnedVMSupport.spawnVM(this.getClass().getCanonicalName(),
-              "-Xms128m", "-Xmx128m",
-              new String[]{},
-              true,
-              true,
-              tempDir,
-              Integer.toString(start),
-              Integer.toString(end));
+      Process process = SpawnedVMSupport.spawnVM(this.getClass().getCanonicalName(), "-Xms128m", "-Xmx128m", new String[]{}, true, true, tempDir, Integer.toString(start), Integer.toString(end));
 
       Assert.assertEquals(100, process.waitFor());
    }
@@ -219,17 +189,9 @@ public class JournalCrashTest extends ActiveMQTestBase
    /**
     * @throws Exception
     */
-   private void printJournal() throws Exception
-   {
+   private void printJournal() throws Exception {
       NIOSequentialFileFactory factory = new NIOSequentialFileFactory(new File(getJournalDir()), 100);
-      JournalImpl journal = new JournalImpl(ActiveMQDefaultConfiguration.getDefaultJournalFileSize(),
-                                            2,
-                                            0,
-                                            0,
-                                            factory,
-                                            "activemq-data",
-                                            "amq",
-                                            100);
+      JournalImpl journal = new JournalImpl(ActiveMQDefaultConfiguration.getDefaultJournalFileSize(), 2, 0, 0, factory, "activemq-data", "amq", 100);
 
       ArrayList<RecordInfo> records = new ArrayList<RecordInfo>();
       ArrayList<PreparedTransactionInfo> transactions = new ArrayList<PreparedTransactionInfo>();
@@ -237,13 +199,13 @@ public class JournalCrashTest extends ActiveMQTestBase
       journal.start();
       journal.load(records, transactions, null);
 
-//      System.out.println("===============================================");
-//      System.out.println("Journal records at the end:");
-//
-//      for (RecordInfo record : records)
-//      {
-//         System.out.println(record.id + ", update = " + record.isUpdate);
-//      }
+      //      System.out.println("===============================================");
+      //      System.out.println("Journal records at the end:");
+      //
+      //      for (RecordInfo record : records)
+      //      {
+      //         System.out.println(record.id + ", update = " + record.isUpdate);
+      //      }
       journal.stop();
    }
 }

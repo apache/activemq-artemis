@@ -16,27 +16,23 @@
  */
 package org.apache.activemq.artemis.selector.filter;
 
-
 /**
  * Used to evaluate an XQuery Expression in a JMS selector.
  */
-public final class XQueryExpression implements BooleanExpression
-{
+public final class XQueryExpression implements BooleanExpression {
+
    private final String xpath;
 
-   XQueryExpression(String xpath)
-   {
+   XQueryExpression(String xpath) {
       super();
       this.xpath = xpath;
    }
 
-   public Object evaluate(Filterable message) throws FilterException
-   {
+   public Object evaluate(Filterable message) throws FilterException {
       return Boolean.FALSE;
    }
 
-   public String toString()
-   {
+   public String toString() {
       return "XQUERY " + ConstantExpression.encodeString(xpath);
    }
 
@@ -45,8 +41,7 @@ public final class XQueryExpression implements BooleanExpression
     * @return true if the expression evaluates to Boolean.TRUE.
     * @throws FilterException
     */
-   public boolean matches(Filterable message) throws FilterException
-   {
+   public boolean matches(Filterable message) throws FilterException {
       Object object = evaluate(message);
       return object != null && object == Boolean.TRUE;
    }

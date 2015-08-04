@@ -24,20 +24,18 @@ import org.junit.rules.ExternalResource;
 /**
  * This will remove a folder on a tearDown *
  */
-public class RemoveFolder extends ExternalResource
-{
+public class RemoveFolder extends ExternalResource {
+
    private final String folderName;
 
-   public RemoveFolder(String folderName)
-   {
+   public RemoveFolder(String folderName) {
       this.folderName = folderName;
    }
 
    /**
     * Override to tear down your specific external resource.
     */
-   protected void after()
-   {
+   protected void after() {
       ActiveMQTestBase.deleteDirectory(new File(folderName));
    }
 }

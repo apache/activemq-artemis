@@ -20,13 +20,13 @@ import org.apache.xbean.spring.context.ClassPathXmlApplicationContext;
 import org.springframework.context.support.AbstractApplicationContext;
 
 /**
- * 
- * 
+ *
+ *
  */
 public class TopicBridgeXBeanTest extends TopicBridgeSpringTest {
 
-    protected AbstractApplicationContext createApplicationContext() {
-        return new ClassPathXmlApplicationContext("org/apache/activemq/network/jms/topic-config.xml");
-    }
+   protected AbstractApplicationContext createApplicationContext() {
+      return new ClassPathXmlApplicationContext("org/apache/activemq/network/jms/topic-config.xml");
+   }
 
 }

@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.unit.core.asyncio;
+
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,8 +34,7 @@ import org.junit.Before;
 /**
  * The base class for AIO Tests
  */
-public abstract class AIOTestBase extends ActiveMQTestBase
-{
+public abstract class AIOTestBase extends ActiveMQTestBase {
    // The AIO Test must use a local filesystem. Sometimes $HOME is on a NFS on
    // most enterprise systems
 
@@ -42,44 +42,37 @@ public abstract class AIOTestBase extends ActiveMQTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
-      Assert.assertTrue(String.format("libAIO is not loaded on %s %s %s", System.getProperty("os.name"),
-                                      System.getProperty("os.arch"), System.getProperty("os.version")),
-                        LibaioContext.isLoaded());
+      Assert.assertTrue(String.format("libAIO is not loaded on %s %s %s", System.getProperty("os.name"), System.getProperty("os.arch"), System.getProperty("os.version")), LibaioContext.isLoaded());
    }
 
    @Override
    @After
-   public void tearDown() throws Exception
-   {
+   public void tearDown() throws Exception {
       Assert.assertEquals(0, LibaioContext.getTotalMaxIO());
 
       super.tearDown();
    }
 
-   protected void encodeBufer(final ByteBuffer buffer)
-   {
+   protected void encodeBufer(final ByteBuffer buffer) {
       buffer.clear();
       int size = buffer.limit();
-      for (int i = 0; i < size - 1; i++)
-      {
-         buffer.put((byte)('a' + i % 20));
+      for (int i = 0; i < size - 1; i++) {
+         buffer.put((byte) ('a' + i % 20));
       }
 
-      buffer.put((byte)'\n');
+      buffer.put((byte) '\n');
 
    }
 
-   protected void preAlloc(final LibaioFile controller, final long size) throws ActiveMQException
-   {
+   protected void preAlloc(final LibaioFile controller, final long size) throws ActiveMQException {
       controller.fill(size);
    }
 
-   protected static class CountDownCallback implements IOCallback
-   {
+   protected static class CountDownCallback implements IOCallback {
+
       private final CountDownLatch latch;
 
       private final List<Integer> outputList;
@@ -91,8 +84,7 @@ public abstract class AIOTestBase extends ActiveMQTestBase
       public CountDownCallback(final CountDownLatch latch,
                                final AtomicInteger errors,
                                final List<Integer> outputList,
-                               final int order)
-      {
+                               final int order) {
          this.latch = latch;
 
          this.outputList = outputList;
@@ -108,45 +100,36 @@ public abstract class AIOTestBase extends ActiveMQTestBase
 
       final AtomicInteger timesDoneCalled = new AtomicInteger(0);
 
-      public void done()
-      {
-         if (outputList != null)
-         {
+      public void done() {
+         if (outputList != null) {
             outputList.add(order);
          }
          doneCalled = true;
          timesDoneCalled.incrementAndGet();
-         if (latch != null)
-         {
+         if (latch != null) {
             latch.countDown();
          }
       }
 
-      public void onError(final int errorCode, final String errorMessage)
-      {
+      public void onError(final int errorCode, final String errorMessage) {
          errorCalled++;
-         if (outputList != null)
-         {
+         if (outputList != null) {
             outputList.add(order);
          }
-         if (errors != null)
-         {
+         if (errors != null) {
             errors.incrementAndGet();
          }
-         if (latch != null)
-         {
+         if (latch != null) {
             // even thought an error happened, we need to inform the latch,
             // or the test won't finish
             latch.countDown();
          }
       }
 
-      public static void checkResults(final int numberOfElements, final ArrayList<Integer> result)
-      {
+      public static void checkResults(final int numberOfElements, final ArrayList<Integer> result) {
          Assert.assertEquals(numberOfElements, result.size());
          int i = 0;
-         for (Integer resultI : result)
-         {
+         for (Integer resultI : result) {
             Assert.assertEquals(i++, resultI.intValue());
          }
       }

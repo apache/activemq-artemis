@@ -29,55 +29,45 @@ import org.apache.qpid.amqp_1_0.jms.impl.QueueImpl;
 import org.proton.plug.test.minimalserver.DumbServer;
 import org.proton.plug.test.minimalserver.MinimalServer;
 
-public class AbstractJMSTest
-{
+public class AbstractJMSTest {
+
    protected final boolean useHawtJMS;
    protected final boolean useSASL;
 
    protected String address = "exampleQueue";
    protected MinimalServer server = new MinimalServer();
 
-   public AbstractJMSTest(boolean useHawtJMS, boolean useSASL)
-   {
+   public AbstractJMSTest(boolean useHawtJMS, boolean useSASL) {
       this.useHawtJMS = useHawtJMS;
       this.useSASL = useSASL;
    }
 
-   public void tearDown() throws Exception
-   {
+   public void tearDown() throws Exception {
       server.stop();
       DumbServer.clear();
    }
 
-   public static void forceGC()
-   {
+   public static void forceGC() {
       System.out.println("#test forceGC");
       WeakReference<Object> dumbReference = new WeakReference<Object>(new Object());
       // A loop that will wait GC, using the minimalserver time as possible
-      while (dumbReference.get() != null)
-      {
+      while (dumbReference.get() != null) {
          System.gc();
-         try
-         {
+         try {
             Thread.sleep(100);
          }
-         catch (InterruptedException e)
-         {
+         catch (InterruptedException e) {
          }
       }
       System.out.println("#test forceGC Done");
    }
 
-
-   protected Connection createConnection() throws JMSException
-   {
+   protected Connection createConnection() throws JMSException {
       final ConnectionFactory factory = createConnectionFactory();
       final Connection connection = factory.createConnection();
-      connection.setExceptionListener(new ExceptionListener()
-      {
+      connection.setExceptionListener(new ExceptionListener() {
          @Override
-         public void onException(JMSException exception)
-         {
+         public void onException(JMSException exception) {
             exception.printStackTrace();
          }
       });
@@ -85,48 +75,36 @@ public class AbstractJMSTest
       return connection;
    }
 
-
-   protected ConnectionFactory createConnectionFactory()
-   {
-      if (useSASL)
-      {
-         if (useHawtJMS)
-         {
-//            return new JmsConnectionFactory("aaaaaaaa", "aaaaaaa", "amqp://localhost:" + Constants.PORT);
+   protected ConnectionFactory createConnectionFactory() {
+      if (useSASL) {
+         if (useHawtJMS) {
+            //            return new JmsConnectionFactory("aaaaaaaa", "aaaaaaa", "amqp://localhost:" + Constants.PORT);
             return null;
          }
-         else
-         {
+         else {
             return new ConnectionFactoryImpl("localhost", Constants.PORT, "aaaaaaaa", "aaaaaaa");
          }
       }
-      else
-      {
-         if (useHawtJMS)
-         {
-//            return new JmsConnectionFactory("amqp://localhost:" + Constants.PORT);
+      else {
+         if (useHawtJMS) {
+            //            return new JmsConnectionFactory("amqp://localhost:" + Constants.PORT);
             return null;
          }
-         else
-         {
+         else {
             return new ConnectionFactoryImpl("localhost", Constants.PORT, null, null);
          }
 
       }
    }
 
-   protected Queue createQueue()
-   {
-      if (useHawtJMS)
-      {
-//         return new JmsQueue(address);
+   protected Queue createQueue() {
+      if (useHawtJMS) {
+         //         return new JmsQueue(address);
          return null;
       }
-      else
-      {
+      else {
          return new QueueImpl(address);
       }
    }
-
 
 }

@@ -22,15 +22,13 @@ import java.util.Hashtable;
 
 import javax.jms.Destination;
 
-public class JNDIDestinationFactory extends JNDIFactorySupport implements DestinationFactory
-{
-   public JNDIDestinationFactory(final Hashtable jndiProperties, final String lookup)
-   {
+public class JNDIDestinationFactory extends JNDIFactorySupport implements DestinationFactory {
+
+   public JNDIDestinationFactory(final Hashtable jndiProperties, final String lookup) {
       super(jndiProperties, lookup);
    }
 
-   public Destination createDestination() throws Exception
-   {
-      return (Destination)createObject();
+   public Destination createDestination() throws Exception {
+      return (Destination) createObject();
    }
 }

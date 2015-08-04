@@ -27,8 +27,8 @@ import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionRec
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 
-public class DummyInterceptor implements Interceptor
-{
+public class DummyInterceptor implements Interceptor {
+
    protected IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    boolean sendException = false;
@@ -37,29 +37,23 @@ public class DummyInterceptor implements Interceptor
 
    AtomicInteger syncCounter = new AtomicInteger(0);
 
-   public int getCounter()
-   {
+   public int getCounter() {
       return syncCounter.get();
    }
 
-   public void clearCounter()
-   {
+   public void clearCounter() {
       syncCounter.set(0);
    }
 
-   public boolean intercept(final Packet packet, final RemotingConnection conn) throws ActiveMQException
-   {
+   public boolean intercept(final Packet packet, final RemotingConnection conn) throws ActiveMQException {
       log.debug("DummyFilter packet = " + packet.getClass().getName());
       syncCounter.addAndGet(1);
-      if (sendException)
-      {
+      if (sendException) {
          throw new ActiveMQInternalErrorException();
       }
-      if (changeMessage)
-      {
-         if (packet instanceof SessionReceiveMessage)
-         {
-            SessionReceiveMessage deliver = (SessionReceiveMessage)packet;
+      if (changeMessage) {
+         if (packet instanceof SessionReceiveMessage) {
+            SessionReceiveMessage deliver = (SessionReceiveMessage) packet;
             log.debug("msg = " + deliver.getMessage().getClass().getName());
             deliver.getMessage().putStringProperty(new SimpleString("DummyInterceptor"), new SimpleString("was here"));
          }

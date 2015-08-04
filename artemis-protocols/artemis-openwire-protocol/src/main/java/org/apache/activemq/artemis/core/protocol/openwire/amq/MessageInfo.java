@@ -18,34 +18,30 @@ package org.apache.activemq.artemis.core.protocol.openwire.amq;
 
 import org.apache.activemq.command.MessageId;
 
-public class MessageInfo
-{
+public class MessageInfo {
+
    public MessageId amqId;
    public long nativeId;
    public int size;
    //mark message that is acked within a local tx
    public boolean localAcked;
 
-   public MessageInfo(MessageId amqId, long nativeId, int size)
-   {
+   public MessageInfo(MessageId amqId, long nativeId, int size) {
       this.amqId = amqId;
       this.nativeId = nativeId;
       this.size = size;
    }
 
    @Override
-   public String toString()
-   {
+   public String toString() {
       return "native mid: " + this.nativeId + " amqId: " + amqId + " local acked: " + localAcked;
    }
 
-   public void setLocalAcked(boolean ack)
-   {
+   public void setLocalAcked(boolean ack) {
       localAcked = ack;
    }
 
-   public boolean isLocalAcked()
-   {
+   public boolean isLocalAcked() {
       return localAcked;
    }
 }

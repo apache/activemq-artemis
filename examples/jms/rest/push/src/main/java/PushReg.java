@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 import org.apache.activemq.artemis.rest.queue.push.xml.Authentication;
 import org.apache.activemq.artemis.rest.queue.push.xml.BasicAuth;
 import org.apache.activemq.artemis.rest.queue.push.xml.PushRegistration;
@@ -22,10 +23,9 @@ import org.jboss.resteasy.client.ClientRequest;
 import org.jboss.resteasy.client.ClientResponse;
 import org.jboss.resteasy.spi.Link;
 
-public class PushReg
-{
-   public static void main(String[] args) throws Exception
-   {
+public class PushReg {
+
+   public static void main(String[] args) throws Exception {
       // get the push consumers factory resource
       ClientRequest request = new ClientRequest("http://localhost:9095/queues/jms.queue.orders");
       ClientResponse res = request.head();

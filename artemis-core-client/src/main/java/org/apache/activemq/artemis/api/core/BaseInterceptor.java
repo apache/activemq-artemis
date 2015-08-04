@@ -19,8 +19,8 @@ package org.apache.activemq.artemis.api.core;
 
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 
-public interface BaseInterceptor<P>
-{
+public interface BaseInterceptor<P> {
+
    /**
     * Intercepts a packet which is received before it is sent to the channel
     *

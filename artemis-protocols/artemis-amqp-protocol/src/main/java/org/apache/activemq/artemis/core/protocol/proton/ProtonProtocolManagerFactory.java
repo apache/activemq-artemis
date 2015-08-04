@@ -25,8 +25,8 @@ import org.apache.activemq.artemis.spi.core.protocol.ProtocolManager;
 import java.util.Collections;
 import java.util.List;
 
-public class ProtonProtocolManagerFactory extends AbstractProtocolManagerFactory<Interceptor>
-{
+public class ProtonProtocolManagerFactory extends AbstractProtocolManagerFactory<Interceptor> {
+
    private static final String AMQP_PROTOCOL_NAME = "AMQP";
 
    private static final String MODULE_NAME = "artemis-amqp-protocol";
@@ -34,27 +34,25 @@ public class ProtonProtocolManagerFactory extends AbstractProtocolManagerFactory
    private static String[] SUPPORTED_PROTOCOLS = {AMQP_PROTOCOL_NAME};
 
    @Override
-   public ProtocolManager createProtocolManager(ActiveMQServer server, List<Interceptor> incomingInterceptors, List<Interceptor> outgoingInterceptors)
-   {
+   public ProtocolManager createProtocolManager(ActiveMQServer server,
+                                                List<Interceptor> incomingInterceptors,
+                                                List<Interceptor> outgoingInterceptors) {
       return new ProtonProtocolManager(this, server);
    }
 
    @Override
-   public List<Interceptor> filterInterceptors(List<BaseInterceptor> interceptors)
-   {
+   public List<Interceptor> filterInterceptors(List<BaseInterceptor> interceptors) {
       // no interceptors on Proton
       return Collections.emptyList();
    }
 
    @Override
-   public String[] getProtocols()
-   {
+   public String[] getProtocols() {
       return SUPPORTED_PROTOCOLS;
    }
 
    @Override
-   public String getModuleName()
-   {
+   public String getModuleName() {
       return MODULE_NAME;
    }
 }

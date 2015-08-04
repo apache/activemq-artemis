@@ -25,56 +25,56 @@ import javax.jms.Queue;
 import javax.jms.Session;
 
 /**
- * 
+ *
  */
 public class JmsAutoAckListenerTest extends TestSupport implements MessageListener {
 
-    private Connection connection;
+   private Connection connection;
 
-    protected void setUp() throws Exception {
-        super.setUp();
-        connection = createConnection();
-    }
+   protected void setUp() throws Exception {
+      super.setUp();
+      connection = createConnection();
+   }
 
-    /**
-     * @see junit.framework.TestCase#tearDown()
-     */
-    protected void tearDown() throws Exception {
-        if (connection != null) {
-            connection.close();
-            connection = null;
-        }
-        super.tearDown();
-    }
+   /**
+    * @see junit.framework.TestCase#tearDown()
+    */
+   protected void tearDown() throws Exception {
+      if (connection != null) {
+         connection.close();
+         connection = null;
+      }
+      super.tearDown();
+   }
 
-    /**
-     * Tests if acknowleged messages are being consumed.
-     * 
-     * @throws javax.jms.JMSException
-     */
-    public void testAckedMessageAreConsumed() throws Exception {
-        connection.start();
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        Queue queue = session.createQueue("test");
-        MessageProducer producer = session.createProducer(queue);
-        producer.send(session.createTextMessage("Hello"));
+   /**
+    * Tests if acknowleged messages are being consumed.
+    *
+    * @throws javax.jms.JMSException
+    */
+   public void testAckedMessageAreConsumed() throws Exception {
+      connection.start();
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      Queue queue = session.createQueue("test");
+      MessageProducer producer = session.createProducer(queue);
+      producer.send(session.createTextMessage("Hello"));
 
-        // Consume the message...
-        MessageConsumer consumer = session.createConsumer(queue);
-        consumer.setMessageListener(this);
+      // Consume the message...
+      MessageConsumer consumer = session.createConsumer(queue);
+      consumer.setMessageListener(this);
 
-        Thread.sleep(10000);
-        session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        // Attempt to Consume the message...check if message was acknowledge
-        consumer = session.createConsumer(queue);
-        Message msg = consumer.receive(1000);
-        assertNull(msg);
+      Thread.sleep(10000);
+      session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      // Attempt to Consume the message...check if message was acknowledge
+      consumer = session.createConsumer(queue);
+      Message msg = consumer.receive(1000);
+      assertNull(msg);
 
-        session.close();
-    }
+      session.close();
+   }
 
-    public void onMessage(Message message) {
-        assertNotNull(message);
+   public void onMessage(Message message) {
+      assertNotNull(message);
 
-    }
+   }
 }

@@ -30,58 +30,55 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
 
 public class MessageReroutingTest extends JmsMultipleBrokersTestSupport {
-    private static final transient Logger LOG = LoggerFactory.getLogger(MessageReroutingTest.class);
-    
-    
-    public Destination dest;
-    public static final int MESSAGE_COUNT = 50;
 
-    protected void setUp() throws Exception {
-        super.setAutoFail(true);
-        super.setUp();
-        
-        createBroker(new ClassPathResource("org/apache/activemq/usecases/rerouting-activemq-D.xml"));
-        createBroker(new ClassPathResource("org/apache/activemq/usecases/rerouting-activemq-C.xml"));
-        createBroker(new ClassPathResource("org/apache/activemq/usecases/rerouting-activemq-B.xml"));
-        createBroker(new ClassPathResource("org/apache/activemq/usecases/rerouting-activemq-A.xml"));
+   private static final transient Logger LOG = LoggerFactory.getLogger(MessageReroutingTest.class);
 
-        brokers.get("broker-A").broker.waitUntilStarted();
-    }
-    
-    public void initCombos() {
-        addCombinationValues("dest", new Object[] {new ActiveMQQueue("TEST"), new ActiveMQTopic("TEST")});
-    }
-    
-    public void testMessageRerouting() throws Exception {
-        MessageConsumer consumer = createConsumer("broker-D", dest);
-        
-        MessageIdList received = getConsumerMessages("broker-D", consumer);
-        
-        Thread.sleep(2000); //wait for subs to propagate
+   public Destination dest;
+   public static final int MESSAGE_COUNT = 50;
 
-        // send/receive messages
-        sendMessages("broker-A", dest, MESSAGE_COUNT);
-        received.waitForMessagesToArrive(MESSAGE_COUNT);
-        LOG.info("received " +  received.getMessageCount() + " messages");
-        assertEquals(MESSAGE_COUNT, received.getMessageCount());
-        
-        brokers.get("broker-B").broker.stop();
-        brokers.get("broker-B").broker.waitUntilStopped();
-        Thread.sleep(2000);
-        
-        // ensure send/receive still works
-        sendMessages("broker-A", dest, MESSAGE_COUNT);
-        received.waitForMessagesToArrive(MESSAGE_COUNT);
-        LOG.info("received " +  received.getMessageCount() + " messages");
-        assertTrue("Didn't receive any more messages " + received.getMessageCount(), received.getMessageCount() > MESSAGE_COUNT);
-        
-        
-    }
+   protected void setUp() throws Exception {
+      super.setAutoFail(true);
+      super.setUp();
 
-    
-    public static Test suite() {
-        return suite(MessageReroutingTest.class);
-    }
-    
-    
+      createBroker(new ClassPathResource("org/apache/activemq/usecases/rerouting-activemq-D.xml"));
+      createBroker(new ClassPathResource("org/apache/activemq/usecases/rerouting-activemq-C.xml"));
+      createBroker(new ClassPathResource("org/apache/activemq/usecases/rerouting-activemq-B.xml"));
+      createBroker(new ClassPathResource("org/apache/activemq/usecases/rerouting-activemq-A.xml"));
+
+      brokers.get("broker-A").broker.waitUntilStarted();
+   }
+
+   public void initCombos() {
+      addCombinationValues("dest", new Object[]{new ActiveMQQueue("TEST"), new ActiveMQTopic("TEST")});
+   }
+
+   public void testMessageRerouting() throws Exception {
+      MessageConsumer consumer = createConsumer("broker-D", dest);
+
+      MessageIdList received = getConsumerMessages("broker-D", consumer);
+
+      Thread.sleep(2000); //wait for subs to propagate
+
+      // send/receive messages
+      sendMessages("broker-A", dest, MESSAGE_COUNT);
+      received.waitForMessagesToArrive(MESSAGE_COUNT);
+      LOG.info("received " + received.getMessageCount() + " messages");
+      assertEquals(MESSAGE_COUNT, received.getMessageCount());
+
+      brokers.get("broker-B").broker.stop();
+      brokers.get("broker-B").broker.waitUntilStopped();
+      Thread.sleep(2000);
+
+      // ensure send/receive still works
+      sendMessages("broker-A", dest, MESSAGE_COUNT);
+      received.waitForMessagesToArrive(MESSAGE_COUNT);
+      LOG.info("received " + received.getMessageCount() + " messages");
+      assertTrue("Didn't receive any more messages " + received.getMessageCount(), received.getMessageCount() > MESSAGE_COUNT);
+
+   }
+
+   public static Test suite() {
+      return suite(MessageReroutingTest.class);
+   }
+
 }

@@ -26,22 +26,20 @@ import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.utils.SizeFormatterUtil;
 
-public class ServerInfo
-{
+public class ServerInfo {
+
    private final ActiveMQServer server;
 
    private final PagingManager pagingManager;
 
-   public ServerInfo(final ActiveMQServer server, final PagingManager pagingManager)
-   {
+   public ServerInfo(final ActiveMQServer server, final PagingManager pagingManager) {
       this.server = server;
       this.pagingManager = pagingManager;
    }
 
    // Public --------------------------------------------------------
 
-   public String dump()
-   {
+   public String dump() {
       long maxMemory = Runtime.getRuntime().maxMemory();
       long totalMemory = Runtime.getRuntime().totalMemory();
       long freeMemory = Runtime.getRuntime().freeMemory();
@@ -62,23 +60,16 @@ public class ServerInfo
       return info.toString();
    }
 
-   private String appendPagingInfos()
-   {
+   private String appendPagingInfos() {
       StringBuilder info = new StringBuilder();
 
-      for (SimpleString storeName : pagingManager.getStoreNames())
-      {
+      for (SimpleString storeName : pagingManager.getStoreNames()) {
          PagingStore pageStore;
-         try
-         {
+         try {
             pageStore = pagingManager.getPageStore(storeName);
-            info.append(String.format("\t%s: %s%n",
-                                  storeName,
-                                      SizeFormatterUtil.sizeof(pageStore.getPageSizeBytes() *
-                                               pageStore.getNumberOfPages())));
+            info.append(String.format("\t%s: %s%n", storeName, SizeFormatterUtil.sizeof(pageStore.getPageSizeBytes() * pageStore.getNumberOfPages())));
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             info.append(String.format("\t%s: %s%n", storeName, e.getMessage()));
          }
       }

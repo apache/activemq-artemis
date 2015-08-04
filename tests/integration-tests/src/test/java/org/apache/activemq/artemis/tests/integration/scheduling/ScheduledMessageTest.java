@@ -41,8 +41,8 @@ import javax.transaction.xa.Xid;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class ScheduledMessageTest extends ActiveMQTestBase
-{
+public class ScheduledMessageTest extends ActiveMQTestBase {
+
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    private final SimpleString atestq = new SimpleString("ascheduledtestq");
@@ -57,8 +57,7 @@ public class ScheduledMessageTest extends ActiveMQTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
       startServer();
    }
@@ -66,8 +65,7 @@ public class ScheduledMessageTest extends ActiveMQTestBase
    /**
     * @throws Exception
     */
-   protected void startServer() throws Exception
-   {
+   protected void startServer() throws Exception {
       configuration = createDefaultInVMConfig();
       server = createServer(true, configuration);
       server.start();
@@ -75,68 +73,57 @@ public class ScheduledMessageTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testRecoveredMessageDeliveredCorrectly() throws Exception
-   {
+   public void testRecoveredMessageDeliveredCorrectly() throws Exception {
       testMessageDeliveredCorrectly(true);
    }
 
    @Test
-   public void testMessageDeliveredCorrectly() throws Exception
-   {
+   public void testMessageDeliveredCorrectly() throws Exception {
       testMessageDeliveredCorrectly(false);
    }
 
    @Test
-   public void testScheduledMessagesDeliveredCorrectly() throws Exception
-   {
+   public void testScheduledMessagesDeliveredCorrectly() throws Exception {
       testScheduledMessagesDeliveredCorrectly(false);
    }
 
    @Test
-   public void testRecoveredScheduledMessagesDeliveredCorrectly() throws Exception
-   {
+   public void testRecoveredScheduledMessagesDeliveredCorrectly() throws Exception {
       testScheduledMessagesDeliveredCorrectly(true);
    }
 
    @Test
-   public void testScheduledMessagesDeliveredCorrectlyDifferentOrder() throws Exception
-   {
+   public void testScheduledMessagesDeliveredCorrectlyDifferentOrder() throws Exception {
       testScheduledMessagesDeliveredCorrectlyDifferentOrder(false);
    }
 
    @Test
-   public void testRecoveredScheduledMessagesDeliveredCorrectlyDifferentOrder() throws Exception
-   {
+   public void testRecoveredScheduledMessagesDeliveredCorrectlyDifferentOrder() throws Exception {
       testScheduledMessagesDeliveredCorrectlyDifferentOrder(true);
    }
 
    @Test
-   public void testScheduledAndNormalMessagesDeliveredCorrectly() throws Exception
-   {
+   public void testScheduledAndNormalMessagesDeliveredCorrectly() throws Exception {
       testScheduledAndNormalMessagesDeliveredCorrectly(false);
    }
 
    @Test
-   public void testRecoveredScheduledAndNormalMessagesDeliveredCorrectly() throws Exception
-   {
+   public void testRecoveredScheduledAndNormalMessagesDeliveredCorrectly() throws Exception {
       testScheduledAndNormalMessagesDeliveredCorrectly(true);
    }
 
    @Test
-   public void testTxMessageDeliveredCorrectly() throws Exception
-   {
+   public void testTxMessageDeliveredCorrectly() throws Exception {
       testTxMessageDeliveredCorrectly(false);
    }
 
    @Test
-   public void testRecoveredTxMessageDeliveredCorrectly() throws Exception
-   {
+   public void testRecoveredTxMessageDeliveredCorrectly() throws Exception {
       testTxMessageDeliveredCorrectly(true);
    }
 
    @Test
-   public void testPagedMessageDeliveredCorrectly() throws Exception
-   {
+   public void testPagedMessageDeliveredCorrectly() throws Exception {
       // then we create a client as normal
       ClientSessionFactory sessionFactory = createSessionFactory(locator);
       ClientSession session = sessionFactory.createSession(false, true, false);
@@ -169,8 +156,7 @@ public class ScheduledMessageTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testPagedMessageDeliveredMultipleConsumersCorrectly() throws Exception
-   {
+   public void testPagedMessageDeliveredMultipleConsumersCorrectly() throws Exception {
       AddressSettings qs = new AddressSettings().setRedeliveryDelay(5000L);
       server.getAddressSettingsRepository().addMatch(atestq.toString(), qs);
       // then we create a client as normal
@@ -221,8 +207,7 @@ public class ScheduledMessageTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testPagedMessageDeliveredMultipleConsumersAfterRecoverCorrectly() throws Exception
-   {
+   public void testPagedMessageDeliveredMultipleConsumersAfterRecoverCorrectly() throws Exception {
 
       AddressSettings qs = new AddressSettings().setRedeliveryDelay(5000L);
       server.getAddressSettingsRepository().addMatch(atestq.toString(), qs);
@@ -285,19 +270,14 @@ public class ScheduledMessageTest extends ActiveMQTestBase
       session.close();
    }
 
-   public void testMessageDeliveredCorrectly(final boolean recover) throws Exception
-   {
+   public void testMessageDeliveredCorrectly(final boolean recover) throws Exception {
 
       // then we create a client as normal
       ClientSessionFactory sessionFactory = createSessionFactory(locator);
       ClientSession session = sessionFactory.createSession(false, true, false);
       session.createQueue(atestq, atestq, null, true);
       ClientProducer producer = session.createProducer(atestq);
-      ClientMessage message = session.createMessage(ActiveMQTextMessage.TYPE,
-                                                    false,
-                                                    0,
-                                                    System.currentTimeMillis(),
-                                                    (byte) 1);
+      ClientMessage message = session.createMessage(ActiveMQTextMessage.TYPE, false, 0, System.currentTimeMillis(), (byte) 1);
       message.getBodyBuffer().writeString("testINVMCoreClient");
       message.setDurable(true);
       long time = System.currentTimeMillis();
@@ -306,8 +286,7 @@ public class ScheduledMessageTest extends ActiveMQTestBase
       producer.send(message);
 
       ScheduledMessageTest.log.info("Recover is " + recover);
-      if (recover)
-      {
+      if (recover) {
          producer.close();
          session.close();
          server.stop();
@@ -335,8 +314,7 @@ public class ScheduledMessageTest extends ActiveMQTestBase
       session.close();
    }
 
-   public void testScheduledMessagesDeliveredCorrectly(final boolean recover) throws Exception
-   {
+   public void testScheduledMessagesDeliveredCorrectly(final boolean recover) throws Exception {
 
       ClientSessionFactory sessionFactory = createSessionFactory(locator);
       ClientSession session = sessionFactory.createSession(false, true, false);
@@ -364,8 +342,7 @@ public class ScheduledMessageTest extends ActiveMQTestBase
       m5.putLongProperty(Message.HDR_SCHEDULED_DELIVERY_TIME, time);
       producer.send(m5);
       time -= 4000;
-      if (recover)
-      {
+      if (recover) {
          producer.close();
          session.close();
          server.stop();
@@ -415,8 +392,7 @@ public class ScheduledMessageTest extends ActiveMQTestBase
       session.close();
    }
 
-   public void testScheduledMessagesDeliveredCorrectlyDifferentOrder(final boolean recover) throws Exception
-   {
+   public void testScheduledMessagesDeliveredCorrectlyDifferentOrder(final boolean recover) throws Exception {
 
       ClientSessionFactory sessionFactory = createSessionFactory(locator);
       ClientSession session = sessionFactory.createSession(false, true, false);
@@ -445,8 +421,7 @@ public class ScheduledMessageTest extends ActiveMQTestBase
       producer.send(m5);
       time -= 2000;
       ClientConsumer consumer = null;
-      if (recover)
-      {
+      if (recover) {
          producer.close();
          session.close();
          server.stop();
@@ -496,10 +471,8 @@ public class ScheduledMessageTest extends ActiveMQTestBase
       session.close();
    }
 
-
    @Test
-   public void testManyMessagesSameTime() throws Exception
-   {
+   public void testManyMessagesSameTime() throws Exception {
 
       ClientSessionFactory sessionFactory = createSessionFactory(locator);
       ClientSession session = sessionFactory.createSession(false, false, false);
@@ -508,8 +481,7 @@ public class ScheduledMessageTest extends ActiveMQTestBase
       long time = System.currentTimeMillis();
       time += 1000;
 
-      for (int i = 0; i < 10; i++)
-      {
+      for (int i = 0; i < 10; i++) {
          ClientMessage message = session.createMessage(true);
          message.putIntProperty("value", i);
          message.putLongProperty(Message.HDR_SCHEDULED_DELIVERY_TIME, time);
@@ -518,12 +490,10 @@ public class ScheduledMessageTest extends ActiveMQTestBase
 
       session.commit();
 
-
       session.start();
       ClientConsumer consumer = session.createConsumer(atestq);
 
-      for (int i = 0; i < 10; i++)
-      {
+      for (int i = 0; i < 10; i++) {
          ClientMessage message = consumer.receive(15000);
          assertNotNull(message);
          message.acknowledge();
@@ -538,8 +508,7 @@ public class ScheduledMessageTest extends ActiveMQTestBase
       session.close();
    }
 
-   public void testScheduledAndNormalMessagesDeliveredCorrectly(final boolean recover) throws Exception
-   {
+   public void testScheduledAndNormalMessagesDeliveredCorrectly(final boolean recover) throws Exception {
 
       ClientSessionFactory sessionFactory = createSessionFactory(locator);
       ClientSession session = sessionFactory.createSession(false, true, false);
@@ -564,8 +533,7 @@ public class ScheduledMessageTest extends ActiveMQTestBase
       producer.send(m5);
       time -= 2000;
       ClientConsumer consumer = null;
-      if (recover)
-      {
+      if (recover) {
          producer.close();
          session.close();
          server.stop();
@@ -610,8 +578,7 @@ public class ScheduledMessageTest extends ActiveMQTestBase
       session.close();
    }
 
-   public void testTxMessageDeliveredCorrectly(final boolean recover) throws Exception
-   {
+   public void testTxMessageDeliveredCorrectly(final boolean recover) throws Exception {
       Xid xid = new XidImpl("xa1".getBytes(), 1, UUIDGenerator.getInstance().generateStringUUID().getBytes());
       Xid xid2 = new XidImpl("xa2".getBytes(), 1, UUIDGenerator.getInstance().generateStringUUID().getBytes());
 
@@ -626,8 +593,7 @@ public class ScheduledMessageTest extends ActiveMQTestBase
       producer.send(message);
       session.end(xid, XAResource.TMSUCCESS);
       session.prepare(xid);
-      if (recover)
-      {
+      if (recover) {
          producer.close();
          session.close();
          server.stop();
@@ -662,10 +628,8 @@ public class ScheduledMessageTest extends ActiveMQTestBase
       session.close();
    }
 
-
    @Test
-   public void testPendingACKOnPrepared() throws Exception
-   {
+   public void testPendingACKOnPrepared() throws Exception {
 
       int NUMBER_OF_MESSAGES = 100;
 
@@ -676,8 +640,7 @@ public class ScheduledMessageTest extends ActiveMQTestBase
       ClientProducer producer = session.createProducer(atestq);
 
       long scheduled = System.currentTimeMillis() + 1000;
-      for (int i = 0; i < NUMBER_OF_MESSAGES; i++)
-      {
+      for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
          ClientMessage msg = session.createMessage(true);
          msg.putIntProperty("value", i);
          msg.putLongProperty(Message.HDR_SCHEDULED_DELIVERY_TIME, scheduled);
@@ -686,9 +649,7 @@ public class ScheduledMessageTest extends ActiveMQTestBase
 
       session.close();
 
-
-      for (int i = 0; i < NUMBER_OF_MESSAGES; i++)
-      {
+      for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
          Xid xid = newXID();
 
          session = sessionFactory.createSession(true, false, false);
@@ -733,20 +694,17 @@ public class ScheduledMessageTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testScheduledDeliveryTX() throws Exception
-   {
+   public void testScheduledDeliveryTX() throws Exception {
       scheduledDelivery(true);
    }
 
    @Test
-   public void testScheduledDeliveryNoTX() throws Exception
-   {
+   public void testScheduledDeliveryNoTX() throws Exception {
       scheduledDelivery(false);
    }
 
    @Test
-   public void testRedeliveryAfterPrepare() throws Exception
-   {
+   public void testRedeliveryAfterPrepare() throws Exception {
       AddressSettings qs = new AddressSettings().setRedeliveryDelay(5000L);
       server.getAddressSettingsRepository().addMatch(atestq.toString(), qs);
 
@@ -756,8 +714,7 @@ public class ScheduledMessageTest extends ActiveMQTestBase
       session.createQueue(atestq, atestq, true);
 
       ClientProducer producer = session.createProducer(atestq);
-      for (int i = 0; i < 100; i++)
-      {
+      for (int i = 0; i < 100; i++) {
          ClientMessage msg = session.createMessage(true);
          msg.putIntProperty("key", i);
          producer.send(msg);
@@ -774,8 +731,7 @@ public class ScheduledMessageTest extends ActiveMQTestBase
 
       session.start();
 
-      for (int i = 0; i < 100; i++)
-      {
+      for (int i = 0; i < 100; i++) {
          Xid xid = newXID();
          session.start(xid, XAResource.TMNOFLAGS);
          ClientMessage msg = consumer.receive(5000);
@@ -792,8 +748,7 @@ public class ScheduledMessageTest extends ActiveMQTestBase
 
       server.stop();
 
-      configuration = createDefaultInVMConfig()
-         .addAddressesSetting(atestq.toString(), qs);
+      configuration = createDefaultInVMConfig().addAddressesSetting(atestq.toString(), qs);
 
       server = createServer(true, configuration);
       server.start();
@@ -801,19 +756,15 @@ public class ScheduledMessageTest extends ActiveMQTestBase
       locator = createInVMNonHALocator();
 
       final AtomicInteger count = new AtomicInteger(0);
-      Thread t = new Thread()
-      {
+      Thread t = new Thread() {
          @Override
-         public void run()
-         {
-            try
-            {
+         public void run() {
+            try {
                ClientSessionFactory sf = createSessionFactory(locator);
                ClientSession session = sf.createSession(false, false);
                session.start();
                ClientConsumer cons = session.createConsumer(atestq);
-               for (int i = 0; i < 100; i++)
-               {
+               for (int i = 0; i < 100; i++) {
                   ClientMessage msg = cons.receive(100000);
                   assertNotNull(msg);
                   count.incrementAndGet();
@@ -823,8 +774,7 @@ public class ScheduledMessageTest extends ActiveMQTestBase
                session.close();
                sf.close();
             }
-            catch (Throwable e)
-            {
+            catch (Throwable e) {
                e.printStackTrace();
                count.set(-1);
             }
@@ -837,10 +787,8 @@ public class ScheduledMessageTest extends ActiveMQTestBase
 
       session = sessionFactory.createSession(true, false, false);
 
-      for (Xid xid : xids)
-      {
-         if (xid != null)
-         {
+      for (Xid xid : xids) {
+         if (xid != null) {
             session.rollback(xid);
          }
       }
@@ -854,8 +802,7 @@ public class ScheduledMessageTest extends ActiveMQTestBase
 
    // Private -------------------------------------------------------
 
-   private void scheduledDelivery(final boolean tx) throws Exception
-   {
+   private void scheduledDelivery(final boolean tx) throws Exception {
       ActiveMQTestBase.forceGC();
 
       Xid xid = new XidImpl("xa1".getBytes(), 1, UUIDGenerator.getInstance().generateStringUUID().getBytes());
@@ -867,8 +814,7 @@ public class ScheduledMessageTest extends ActiveMQTestBase
       ClientConsumer consumer = session.createConsumer(atestq);
 
       session.start();
-      if (tx)
-      {
+      if (tx) {
          session.start(xid, XAResource.TMNOFLAGS);
       }
 
@@ -914,21 +860,18 @@ public class ScheduledMessageTest extends ActiveMQTestBase
       tm9.putLongProperty(Message.HDR_SCHEDULED_DELIVERY_TIME, -3);
       producer.send(tm9);
 
-      if (tx)
-      {
+      if (tx) {
          session.end(xid, XAResource.TMSUCCESS);
          session.prepare(xid);
          session.commit(xid, false);
       }
-      else
-      {
+      else {
          session.commit();
       }
 
       // First the non scheduled messages should be received
 
-      if (tx)
-      {
+      if (tx) {
          session.start(xid, XAResource.TMNOFLAGS);
       }
 
@@ -990,8 +933,7 @@ public class ScheduledMessageTest extends ActiveMQTestBase
 
       Assert.assertTrue(now2 - now >= 7000);
 
-      if (tx)
-      {
+      if (tx) {
          session.end(xid, XAResource.TMSUCCESS);
          session.prepare(xid);
          session.commit(xid, false);
@@ -1001,13 +943,8 @@ public class ScheduledMessageTest extends ActiveMQTestBase
       sessionFactory.close();
    }
 
-   private ClientMessage createDurableMessage(final ClientSession session, final String body)
-   {
-      ClientMessage message = session.createMessage(ActiveMQTextMessage.TYPE,
-                                                    true,
-                                                    0,
-                                                    System.currentTimeMillis(),
-                                                    (byte) 1);
+   private ClientMessage createDurableMessage(final ClientSession session, final String body) {
+      ClientMessage message = session.createMessage(ActiveMQTextMessage.TYPE, true, 0, System.currentTimeMillis(), (byte) 1);
       message.getBodyBuffer().writeString(body);
       return message;
    }

@@ -32,52 +32,42 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class SharedNioEventLoopGroup extends NioEventLoopGroup
-{
+public class SharedNioEventLoopGroup extends NioEventLoopGroup {
+
    private static SharedNioEventLoopGroup instance;
 
    private final AtomicReference<ScheduledFuture<?>> shutdown = new AtomicReference<ScheduledFuture<?>>();
    private final AtomicLong nioChannelFactoryCount = new AtomicLong();
    private final Promise<?> terminationPromise = ImmediateEventExecutor.INSTANCE.newPromise();
 
-   private SharedNioEventLoopGroup(int numThreads, ThreadFactory factory)
-   {
+   private SharedNioEventLoopGroup(int numThreads, ThreadFactory factory) {
       super(numThreads, factory);
    }
 
-   private static ClassLoader getThisClassLoader()
-   {
-      return AccessController.doPrivileged(new PrivilegedAction<ClassLoader>()
-      {
-         public ClassLoader run()
-         {
+   private static ClassLoader getThisClassLoader() {
+      return AccessController.doPrivileged(new PrivilegedAction<ClassLoader>() {
+         public ClassLoader run() {
             return ClientSessionFactoryImpl.class.getClassLoader();
          }
       });
    }
 
-   public static synchronized void forceShutdown()
-   {
-      if (instance != null)
-      {
+   public static synchronized void forceShutdown() {
+      if (instance != null) {
          instance.shutdown();
          instance.nioChannelFactoryCount.set(0);
          instance = null;
       }
    }
 
-   public static synchronized SharedNioEventLoopGroup getInstance(int numThreads)
-   {
-      if (instance != null)
-      {
+   public static synchronized SharedNioEventLoopGroup getInstance(int numThreads) {
+      if (instance != null) {
          ScheduledFuture f = instance.shutdown.getAndSet(null);
-         if (f != null)
-         {
+         if (f != null) {
             f.cancel(false);
          }
       }
-      else
-      {
+      else {
          instance = new SharedNioEventLoopGroup(numThreads, new ActiveMQThreadFactory("ActiveMQ-client-netty-threads", true, getThisClassLoader()));
       }
       instance.nioChannelFactoryCount.incrementAndGet();
@@ -85,43 +75,31 @@ public class SharedNioEventLoopGroup extends NioEventLoopGroup
    }
 
    @Override
-   public Future<?> terminationFuture()
-   {
+   public Future<?> terminationFuture() {
       return terminationPromise;
    }
 
    @Override
-   public Future<?> shutdownGracefully()
-   {
+   public Future<?> shutdownGracefully() {
       return shutdownGracefully(100, 3000, TimeUnit.MILLISECONDS);
    }
 
    @Override
-   public Future<?> shutdownGracefully(final long l, final long l2, final TimeUnit timeUnit)
-   {
-      if (nioChannelFactoryCount.decrementAndGet() == 0)
-      {
-         shutdown.compareAndSet(null, next().scheduleAtFixedRate(new Runnable()
-         {
+   public Future<?> shutdownGracefully(final long l, final long l2, final TimeUnit timeUnit) {
+      if (nioChannelFactoryCount.decrementAndGet() == 0) {
+         shutdown.compareAndSet(null, next().scheduleAtFixedRate(new Runnable() {
             @Override
-            public void run()
-            {
-               synchronized (SharedNioEventLoopGroup.class)
-               {
-                  if (shutdown.get() != null)
-                  {
+            public void run() {
+               synchronized (SharedNioEventLoopGroup.class) {
+                  if (shutdown.get() != null) {
                      Future<?> future = SharedNioEventLoopGroup.super.shutdownGracefully(l, l2, timeUnit);
-                     future.addListener(new FutureListener<Object>()
-                     {
+                     future.addListener(new FutureListener<Object>() {
                         @Override
-                        public void operationComplete(Future future) throws Exception
-                        {
-                           if (future.isSuccess())
-                           {
+                        public void operationComplete(Future future) throws Exception {
+                           if (future.isSuccess()) {
                               terminationPromise.setSuccess(null);
                            }
-                           else
-                           {
+                           else {
                               terminationPromise.setFailure(future.cause());
                            }
                         }

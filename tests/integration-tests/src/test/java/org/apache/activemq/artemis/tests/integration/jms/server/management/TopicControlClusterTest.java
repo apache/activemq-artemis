@@ -25,12 +25,10 @@ import javax.jms.Connection;
 import javax.jms.Session;
 import javax.jms.Topic;
 
+public class TopicControlClusterTest extends JMSClusteredTestBase {
 
-public class TopicControlClusterTest extends JMSClusteredTestBase
-{
    @Test
-   public void testClusteredSubscriptionCount() throws Exception
-   {
+   public void testClusteredSubscriptionCount() throws Exception {
       Connection conn1 = cf1.createConnection();
 
       conn1.setClientID("someClient1");
@@ -39,8 +37,7 @@ public class TopicControlClusterTest extends JMSClusteredTestBase
 
       conn2.setClientID("someClient2");
 
-      try
-      {
+      try {
          Topic topic1 = createTopic("t1");
 
          Topic topic2 = (Topic) context2.lookup("/topic/t1");
@@ -58,8 +55,7 @@ public class TopicControlClusterTest extends JMSClusteredTestBase
          assertEquals(2, topicControl1.getSubscriptionCount());
          assertEquals(1, topicControl2.getSubscriptionCount());
       }
-      finally
-      {
+      finally {
          conn1.close();
          conn2.close();
       }

@@ -31,8 +31,7 @@ import javax.jms.TextMessage;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PreACKJMSTest extends JMSTestBase
-{
+public class PreACKJMSTest extends JMSTestBase {
 
    // Constants -----------------------------------------------------
 
@@ -47,25 +46,21 @@ public class PreACKJMSTest extends JMSTestBase
    // Public --------------------------------------------------------
 
    @Test
-   public void testPreACKAuto() throws Exception
-   {
+   public void testPreACKAuto() throws Exception {
       internalTestPreACK(Session.AUTO_ACKNOWLEDGE);
    }
 
    @Test
-   public void testPreACKClientACK() throws Exception
-   {
+   public void testPreACKClientACK() throws Exception {
       internalTestPreACK(Session.CLIENT_ACKNOWLEDGE);
    }
 
    @Test
-   public void testPreACKDupsOK() throws Exception
-   {
+   public void testPreACKDupsOK() throws Exception {
       internalTestPreACK(Session.DUPS_OK_ACKNOWLEDGE);
    }
 
-   public void internalTestPreACK(final int sessionType) throws Exception
-   {
+   public void internalTestPreACK(final int sessionType) throws Exception {
       conn = cf.createConnection();
       Session sess = conn.createSession(false, sessionType);
 
@@ -100,8 +95,7 @@ public class PreACKJMSTest extends JMSTestBase
       assertNull("ConnectionFactory is on PreACK mode, the message shouldn't be received", msg2);
    }
 
-   public void disabled_testPreACKTransactional() throws Exception
-   {
+   public void disabled_testPreACKTransactional() throws Exception {
       conn = cf.createConnection();
       Session sess = conn.createSession(true, Session.SESSION_TRANSACTED);
 
@@ -146,16 +140,14 @@ public class PreACKJMSTest extends JMSTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
       queue = createQueue("queue1");
    }
 
    @Override
    protected void createCF(final List<TransportConfiguration> connectorConfigs,
-                           final String... jndiBindings) throws Exception
-   {
+                           final String... jndiBindings) throws Exception {
       int retryInterval = 1000;
       double retryIntervalMultiplier = 1.0;
       int reconnectAttempts = -1;
@@ -163,41 +155,7 @@ public class PreACKJMSTest extends JMSTestBase
 
       ArrayList<String> connectors = registerConnectors(server, connectorConfigs);
 
-      jmsServer.createConnectionFactory("ManualReconnectionToSingleServerTest",
-                                        false,
-                                        JMSFactoryType.CF,
-                                        connectors,
-                                        null,
-                                        ActiveMQClient.DEFAULT_CLIENT_FAILURE_CHECK_PERIOD,
-                                        ActiveMQClient.DEFAULT_CONNECTION_TTL,
-                                        callTimeout,
-                                        ActiveMQClient.DEFAULT_CALL_FAILOVER_TIMEOUT,
-                                        ActiveMQClient.DEFAULT_CACHE_LARGE_MESSAGE_CLIENT,
-                                        ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE,
-                                        ActiveMQClient.DEFAULT_COMPRESS_LARGE_MESSAGES,
-                                        ActiveMQClient.DEFAULT_CONSUMER_WINDOW_SIZE,
-                                        ActiveMQClient.DEFAULT_CONSUMER_MAX_RATE,
-                                        ActiveMQClient.DEFAULT_CONFIRMATION_WINDOW_SIZE,
-                                        ActiveMQClient.DEFAULT_PRODUCER_WINDOW_SIZE,
-                                        ActiveMQClient.DEFAULT_PRODUCER_MAX_RATE,
-                                        ActiveMQClient.DEFAULT_BLOCK_ON_ACKNOWLEDGE,
-                                        ActiveMQClient.DEFAULT_BLOCK_ON_DURABLE_SEND,
-                                        ActiveMQClient.DEFAULT_BLOCK_ON_NON_DURABLE_SEND,
-                                        ActiveMQClient.DEFAULT_AUTO_GROUP,
-                                        true,
-                                        ActiveMQClient.DEFAULT_CONNECTION_LOAD_BALANCING_POLICY_CLASS_NAME,
-                                        ActiveMQClient.DEFAULT_ACK_BATCH_SIZE,
-                                        ActiveMQClient.DEFAULT_ACK_BATCH_SIZE,
-                                        ActiveMQClient.DEFAULT_USE_GLOBAL_POOLS,
-                                        ActiveMQClient.DEFAULT_SCHEDULED_THREAD_POOL_MAX_SIZE,
-                                        ActiveMQClient.DEFAULT_THREAD_POOL_MAX_SIZE,
-                                        retryInterval,
-                                        retryIntervalMultiplier,
-                                        ActiveMQClient.DEFAULT_MAX_RETRY_INTERVAL,
-                                        reconnectAttempts,
-                                        ActiveMQClient.DEFAULT_FAILOVER_ON_INITIAL_CONNECTION,
-                                        null,
-                                        jndiBindings);
+      jmsServer.createConnectionFactory("ManualReconnectionToSingleServerTest", false, JMSFactoryType.CF, connectors, null, ActiveMQClient.DEFAULT_CLIENT_FAILURE_CHECK_PERIOD, ActiveMQClient.DEFAULT_CONNECTION_TTL, callTimeout, ActiveMQClient.DEFAULT_CALL_FAILOVER_TIMEOUT, ActiveMQClient.DEFAULT_CACHE_LARGE_MESSAGE_CLIENT, ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, ActiveMQClient.DEFAULT_COMPRESS_LARGE_MESSAGES, ActiveMQClient.DEFAULT_CONSUMER_WINDOW_SIZE, ActiveMQClient.DEFAULT_CONSUMER_MAX_RATE, ActiveMQClient.DEFAULT_CONFIRMATION_WINDOW_SIZE, ActiveMQClient.DEFAULT_PRODUCER_WINDOW_SIZE, ActiveMQClient.DEFAULT_PRODUCER_MAX_RATE, ActiveMQClient.DEFAULT_BLOCK_ON_ACKNOWLEDGE, ActiveMQClient.DEFAULT_BLOCK_ON_DURABLE_SEND, ActiveMQClient.DEFAULT_BLOCK_ON_NON_DURABLE_SEND, ActiveMQClient.DEFAULT_AUTO_GROUP, true, ActiveMQClient.DEFAULT_CONNECTION_LOAD_BALANCING_POLICY_CLASS_NAME, ActiveMQClient.DEFAULT_ACK_BATCH_SIZE, ActiveMQClient.DEFAULT_ACK_BATCH_SIZE, ActiveMQClient.DEFAULT_USE_GLOBAL_POOLS, ActiveMQClient.DEFAULT_SCHEDULED_THREAD_POOL_MAX_SIZE, ActiveMQClient.DEFAULT_THREAD_POOL_MAX_SIZE, retryInterval, retryIntervalMultiplier, ActiveMQClient.DEFAULT_MAX_RETRY_INTERVAL, reconnectAttempts, ActiveMQClient.DEFAULT_FAILOVER_ON_INITIAL_CONNECTION, null, jndiBindings);
    }
 
    // Private -------------------------------------------------------

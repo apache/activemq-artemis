@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.core.protocol.openwire.amq;
 
-public interface AMQMessageStore
-{
+public interface AMQMessageStore {
 
 }

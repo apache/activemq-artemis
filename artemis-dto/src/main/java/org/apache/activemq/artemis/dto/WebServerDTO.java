@@ -25,8 +25,8 @@ import java.util.List;
 
 @XmlRootElement(name = "web")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class WebServerDTO extends ComponentDTO
-{
+public class WebServerDTO extends ComponentDTO {
+
    @XmlAttribute
    public String bind;
 
@@ -36,8 +36,7 @@ public class WebServerDTO extends ComponentDTO
    @XmlElementRef
    public List<AppDTO> apps;
 
-   public WebServerDTO()
-   {
+   public WebServerDTO() {
       componentClassName = "org.apache.activemq.artemis.component.WebServerComponent";
    }
 }

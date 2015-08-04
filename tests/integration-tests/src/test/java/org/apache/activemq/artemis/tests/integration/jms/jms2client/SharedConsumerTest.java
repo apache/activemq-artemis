@@ -29,8 +29,8 @@ import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.junit.Before;
 import org.junit.Test;
 
-public class SharedConsumerTest extends JMSTestBase
-{
+public class SharedConsumerTest extends JMSTestBase {
+
    private JMSContext context;
    private final Random random = new Random();
    private Topic topic1;
@@ -38,8 +38,7 @@ public class SharedConsumerTest extends JMSTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
       context = createContext();
       topic1 = createTopic(JmsContextTest.class.getSimpleName() + "Topic1");
@@ -47,23 +46,19 @@ public class SharedConsumerTest extends JMSTestBase
    }
 
    @Test
-   public void sharedDurableSubSimpleRoundRobin() throws Exception
-   {
+   public void sharedDurableSubSimpleRoundRobin() throws Exception {
       context = cf.createContext();
-      try
-      {
+      try {
          JMSConsumer con1 = context.createSharedDurableConsumer(topic1, "mySharedCon");
          JMSConsumer con2 = context.createSharedDurableConsumer(topic1, "mySharedCon");
          context.start();
          JMSProducer producer = context.createProducer();
          int numMessages = 10;
-         for (int i = 0; i < numMessages; i++)
-         {
+         for (int i = 0; i < numMessages; i++) {
             producer.send(topic1, "msg:" + i);
          }
 
-         for (int i = 0; i < numMessages; i += 2)
-         {
+         for (int i = 0; i < numMessages; i += 2) {
             String msg = con1.receiveBody(String.class, 5000);
             System.out.println("msg = " + msg);
             msg = con2.receiveBody(String.class, 5000);
@@ -71,18 +66,15 @@ public class SharedConsumerTest extends JMSTestBase
          }
 
       }
-      finally
-      {
+      finally {
          context.close();
       }
    }
 
    @Test
-   public void sharedDurableUnsubscribeNewTopic() throws Exception
-   {
+   public void sharedDurableUnsubscribeNewTopic() throws Exception {
       context = cf.createContext();
-      try
-      {
+      try {
          JMSConsumer con1 = context.createSharedDurableConsumer(topic1, "mySharedCon");
          JMSConsumer con2 = context.createSharedDurableConsumer(topic1, "mySharedCon");
          con1.close();
@@ -90,18 +82,15 @@ public class SharedConsumerTest extends JMSTestBase
          context.unsubscribe("mySharedCon");
          con1 = context.createSharedDurableConsumer(topic2, "mySharedCon");
       }
-      finally
-      {
+      finally {
          context.close();
       }
    }
 
    @Test
-   public void sharedNonDurableUnsubscribeDifferentTopic() throws Exception
-   {
+   public void sharedNonDurableUnsubscribeDifferentTopic() throws Exception {
       context = cf.createContext();
-      try
-      {
+      try {
          JMSConsumer con1 = context.createSharedConsumer(topic1, "mySharedCon");
          JMSConsumer con2 = context.createSharedConsumer(topic1, "mySharedCon");
          con1.close();
@@ -112,198 +101,154 @@ public class SharedConsumerTest extends JMSTestBase
          assertNull(binding);
          con1 = context.createSharedConsumer(topic2, "mySharedCon");
       }
-      finally
-      {
+      finally {
          context.close();
       }
    }
 
    @Test
-   public void sharedNonDurableSubOnDifferentSelector() throws Exception
-   {
+   public void sharedNonDurableSubOnDifferentSelector() throws Exception {
       context = cf.createContext();
-      try
-      {
+      try {
          context.createSharedConsumer(topic1, "mySharedCon", "sel = 'sel1'");
-         try
-         {
+         try {
             context.createSharedConsumer(topic1, "mySharedCon", "sel = 'sel2'");
             fail("expected JMSRuntimeException");
          }
-         catch (JMSRuntimeException jmse)
-         {
+         catch (JMSRuntimeException jmse) {
             //pass
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             fail("threw wrong exception expected JMSRuntimeException got " + e);
          }
       }
-      finally
-      {
+      finally {
          context.close();
       }
    }
 
    @Test
-   public void sharedNonDurableSubOnDifferentSelectorSrcFilterNull() throws Exception
-   {
+   public void sharedNonDurableSubOnDifferentSelectorSrcFilterNull() throws Exception {
       context = cf.createContext();
-      try
-      {
+      try {
          context.createSharedConsumer(topic1, "mySharedCon");
-         try
-         {
+         try {
             context.createSharedConsumer(topic1, "mySharedCon", "sel = 'sel2'");
             fail("expected JMSRuntimeException");
          }
-         catch (JMSRuntimeException jmse)
-         {
+         catch (JMSRuntimeException jmse) {
             //pass
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             fail("threw wrong exception expected JMSRuntimeException got " + e);
          }
       }
-      finally
-      {
+      finally {
          context.close();
       }
    }
 
    @Test
-   public void sharedNonDurableSubOnDifferentSelectorTargetFilterNull() throws Exception
-   {
+   public void sharedNonDurableSubOnDifferentSelectorTargetFilterNull() throws Exception {
       context = cf.createContext();
-      try
-      {
+      try {
          context.createSharedConsumer(topic1, "mySharedCon", "sel = 'sel1'");
-         try
-         {
+         try {
             context.createSharedConsumer(topic1, "mySharedCon");
             fail("expected JMSRuntimeException");
          }
-         catch (JMSRuntimeException jmse)
-         {
+         catch (JMSRuntimeException jmse) {
             //pass
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             fail("threw wrong exception expected JMSRuntimeException got " + e);
          }
       }
-      finally
-      {
+      finally {
          context.close();
       }
    }
 
-
    @Test
-   public void sharedDurableSubOnDifferentTopic() throws Exception
-   {
+   public void sharedDurableSubOnDifferentTopic() throws Exception {
       context = cf.createContext();
-      try
-      {
+      try {
          context.createSharedDurableConsumer(topic1, "mySharedCon");
-         try
-         {
+         try {
             context.createSharedDurableConsumer(topic2, "mySharedCon");
             fail("expected JMSRuntimeException");
          }
-         catch (JMSRuntimeException jmse)
-         {
+         catch (JMSRuntimeException jmse) {
             //pass
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             fail("threw wrong exception expected JMSRuntimeException got " + e);
          }
       }
-      finally
-      {
+      finally {
          context.close();
       }
    }
 
    @Test
-   public void sharedDurableSubOnDifferentSelector() throws Exception
-   {
+   public void sharedDurableSubOnDifferentSelector() throws Exception {
       context = cf.createContext();
-      try
-      {
+      try {
          context.createSharedDurableConsumer(topic1, "mySharedCon", "sel = 'sel1'");
-         try
-         {
+         try {
             context.createSharedDurableConsumer(topic1, "mySharedCon", "sel = 'sel2'");
             fail("expected JMSRuntimeException");
          }
-         catch (JMSRuntimeException jmse)
-         {
+         catch (JMSRuntimeException jmse) {
             //pass
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             fail("threw wrong exception expected JMSRuntimeException got " + e);
          }
       }
-      finally
-      {
+      finally {
          context.close();
       }
    }
 
    @Test
-   public void sharedDurableSubOnDifferentSelectorSrcFilterNull() throws Exception
-   {
+   public void sharedDurableSubOnDifferentSelectorSrcFilterNull() throws Exception {
       context = cf.createContext();
-      try
-      {
+      try {
          context.createSharedDurableConsumer(topic1, "mySharedCon");
-         try
-         {
+         try {
             context.createSharedDurableConsumer(topic1, "mySharedCon", "sel = 'sel2'");
             fail("expected JMSRuntimeException");
          }
-         catch (JMSRuntimeException jmse)
-         {
+         catch (JMSRuntimeException jmse) {
             //pass
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             fail("threw wrong exception expected JMSRuntimeException got " + e);
          }
       }
-      finally
-      {
+      finally {
          context.close();
       }
    }
 
    @Test
-   public void sharedDurableSubOnDifferentSelectorTargetFilterNull() throws Exception
-   {
+   public void sharedDurableSubOnDifferentSelectorTargetFilterNull() throws Exception {
       context = cf.createContext();
-      try
-      {
+      try {
          context.createSharedDurableConsumer(topic1, "mySharedCon", "sel = 'sel1'");
-         try
-         {
+         try {
             context.createSharedDurableConsumer(topic1, "mySharedCon");
             fail("expected JMSRuntimeException");
          }
-         catch (JMSRuntimeException jmse)
-         {
+         catch (JMSRuntimeException jmse) {
             //pass
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             fail("threw wrong exception expected JMSRuntimeException got " + e);
          }
       }
-      finally
-      {
+      finally {
          context.close();
       }
    }

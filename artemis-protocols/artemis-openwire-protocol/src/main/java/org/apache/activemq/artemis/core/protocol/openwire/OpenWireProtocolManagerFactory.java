@@ -25,34 +25,32 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.spi.core.protocol.AbstractProtocolManagerFactory;
 import org.apache.activemq.artemis.spi.core.protocol.ProtocolManager;
 
-public class OpenWireProtocolManagerFactory extends AbstractProtocolManagerFactory<Interceptor>
-{
+public class OpenWireProtocolManagerFactory extends AbstractProtocolManagerFactory<Interceptor> {
+
    public static final String OPENWIRE_PROTOCOL_NAME = "OPENWIRE";
 
    private static final String MODULE_NAME = "artemis-openwire-protocol";
 
    private static String[] SUPPORTED_PROTOCOLS = {OPENWIRE_PROTOCOL_NAME};
 
-   public ProtocolManager createProtocolManager(final ActiveMQServer server, final List<Interceptor> incomingInterceptors, List<Interceptor> outgoingInterceptors)
-   {
+   public ProtocolManager createProtocolManager(final ActiveMQServer server,
+                                                final List<Interceptor> incomingInterceptors,
+                                                List<Interceptor> outgoingInterceptors) {
       return new OpenWireProtocolManager(this, server);
    }
 
    @Override
-   public List<Interceptor> filterInterceptors(List<BaseInterceptor> interceptors)
-   {
+   public List<Interceptor> filterInterceptors(List<BaseInterceptor> interceptors) {
       return Collections.emptyList();
    }
 
    @Override
-   public String[] getProtocols()
-   {
+   public String[] getProtocols() {
       return SUPPORTED_PROTOCOLS;
    }
 
    @Override
-   public String getModuleName()
-   {
+   public String getModuleName() {
       return MODULE_NAME;
    }
 }

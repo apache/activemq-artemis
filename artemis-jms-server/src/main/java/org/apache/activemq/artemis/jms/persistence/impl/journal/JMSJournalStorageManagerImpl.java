@@ -42,8 +42,7 @@ import org.apache.activemq.artemis.jms.persistence.config.PersistedBindings;
 import org.apache.activemq.artemis.jms.persistence.config.PersistedType;
 import org.apache.activemq.artemis.utils.IDGenerator;
 
-public final class JMSJournalStorageManagerImpl implements JMSStorageManager
-{
+public final class JMSJournalStorageManagerImpl implements JMSStorageManager {
 
    // Constants -----------------------------------------------------
 
@@ -76,10 +75,8 @@ public final class JMSJournalStorageManagerImpl implements JMSStorageManager
    // Constructors --------------------------------------------------
    public JMSJournalStorageManagerImpl(final IDGenerator idGenerator,
                                        final Configuration config,
-                                       final ReplicationManager replicator)
-   {
-      if (config.getJournalType() != JournalType.NIO && config.getJournalType() != JournalType.ASYNCIO)
-      {
+                                       final ReplicationManager replicator) {
+      if (config.getJournalType() != JournalType.NIO && config.getJournalType() != JournalType.ASYNCIO) {
          throw new IllegalArgumentException("Only NIO and AsyncIO are supported journals");
       }
 
@@ -89,39 +86,27 @@ public final class JMSJournalStorageManagerImpl implements JMSStorageManager
 
       SequentialFileFactory bindingsJMS = new NIOSequentialFileFactory(config.getBindingsLocation(), 1);
 
-      Journal localJMS = new JournalImpl(1024 * 1024,
-                                         2,
-                                         config.getJournalCompactMinFiles(),
-                                         config.getJournalCompactPercentage(),
-                                         bindingsJMS,
-                                         "activemq-jms",
-                                         "jms",
-                                         1);
+      Journal localJMS = new JournalImpl(1024 * 1024, 2, config.getJournalCompactMinFiles(), config.getJournalCompactPercentage(), bindingsJMS, "activemq-jms", "jms", 1);
 
-      if (replicator != null)
-      {
+      if (replicator != null) {
          jmsJournal = new ReplicatedJournal((byte) 2, localJMS, replicator);
       }
-      else
-      {
+      else {
          jmsJournal = localJMS;
       }
 
       this.idGenerator = idGenerator;
    }
 
-
    // Public --------------------------------------------------------
    @Override
-   public List<PersistedConnectionFactory> recoverConnectionFactories()
-   {
+   public List<PersistedConnectionFactory> recoverConnectionFactories() {
       List<PersistedConnectionFactory> cfs = new ArrayList<PersistedConnectionFactory>(mapFactories.values());
       return cfs;
    }
 
    @Override
-   public void storeConnectionFactory(final PersistedConnectionFactory connectionFactory) throws Exception
-   {
+   public void storeConnectionFactory(final PersistedConnectionFactory connectionFactory) throws Exception {
       deleteConnectionFactory(connectionFactory.getName());
       long id = idGenerator.generateID();
       connectionFactory.setId(id);
@@ -129,25 +114,21 @@ public final class JMSJournalStorageManagerImpl implements JMSStorageManager
       mapFactories.put(connectionFactory.getName(), connectionFactory);
    }
 
-   public void deleteConnectionFactory(final String cfName) throws Exception
-   {
+   public void deleteConnectionFactory(final String cfName) throws Exception {
       PersistedConnectionFactory oldCF = mapFactories.remove(cfName);
-      if (oldCF != null)
-      {
+      if (oldCF != null) {
          jmsJournal.appendDeleteRecord(oldCF.getId(), false);
       }
    }
 
    @Override
-   public List<PersistedDestination> recoverDestinations()
-   {
+   public List<PersistedDestination> recoverDestinations() {
       List<PersistedDestination> destinations = new ArrayList<PersistedDestination>(this.destinations.values());
       return destinations;
    }
 
    @Override
-   public void storeDestination(final PersistedDestination destination) throws Exception
-   {
+   public void storeDestination(final PersistedDestination destination) throws Exception {
       deleteDestination(destination.getType(), destination.getName());
       long id = idGenerator.generateID();
       destination.setId(id);
@@ -155,35 +136,29 @@ public final class JMSJournalStorageManagerImpl implements JMSStorageManager
       destinations.put(new Pair<PersistedType, String>(destination.getType(), destination.getName()), destination);
    }
 
-   public List<PersistedBindings> recoverPersistedBindings() throws Exception
-   {
+   public List<PersistedBindings> recoverPersistedBindings() throws Exception {
       ArrayList<PersistedBindings> list = new ArrayList<PersistedBindings>(mapBindings.values());
       return list;
    }
 
-   public void addBindings(PersistedType type, String name, String... address) throws Exception
-   {
+   public void addBindings(PersistedType type, String name, String... address) throws Exception {
       Pair<PersistedType, String> key = new Pair<PersistedType, String>(type, name);
 
       long tx = idGenerator.generateID();
 
       PersistedBindings currentBindings = mapBindings.get(key);
-      if (currentBindings != null)
-      {
+      if (currentBindings != null) {
          jmsJournal.appendDeleteRecordTransactional(tx, currentBindings.getId());
       }
-      else
-      {
+      else {
          currentBindings = new PersistedBindings(type, name);
       }
 
       mapBindings.put(key, currentBindings);
 
-      for (String adItem : address)
-      {
+      for (String adItem : address) {
          currentBindings.addBinding(adItem);
       }
-
 
       long newId = idGenerator.generateID();
 
@@ -194,30 +169,25 @@ public final class JMSJournalStorageManagerImpl implements JMSStorageManager
       jmsJournal.appendCommitRecord(tx, true);
    }
 
-   public void deleteBindings(PersistedType type, String name, String address) throws Exception
-   {
+   public void deleteBindings(PersistedType type, String name, String address) throws Exception {
       Pair<PersistedType, String> key = new Pair<PersistedType, String>(type, name);
 
       long tx = idGenerator.generateID();
 
       PersistedBindings currentBindings = mapBindings.get(key);
-      if (currentBindings == null)
-      {
+      if (currentBindings == null) {
          return;
       }
-      else
-      {
+      else {
          jmsJournal.appendDeleteRecordTransactional(tx, currentBindings.getId());
       }
 
       currentBindings.deleteBinding(address);
 
-      if (currentBindings.getBindings().size() == 0)
-      {
+      if (currentBindings.getBindings().size() == 0) {
          mapBindings.remove(key);
       }
-      else
-      {
+      else {
          long newId = idGenerator.generateID();
          currentBindings.setId(newId);
          jmsJournal.appendAddRecordTransactional(tx, newId, BINDING_RECORD, currentBindings);
@@ -226,38 +196,30 @@ public final class JMSJournalStorageManagerImpl implements JMSStorageManager
       jmsJournal.appendCommitRecord(tx, true);
    }
 
-
-   public void deleteBindings(PersistedType type, String name) throws Exception
-   {
+   public void deleteBindings(PersistedType type, String name) throws Exception {
       Pair<PersistedType, String> key = new Pair<PersistedType, String>(type, name);
 
       PersistedBindings currentBindings = mapBindings.remove(key);
 
-      if (currentBindings != null)
-      {
+      if (currentBindings != null) {
          jmsJournal.appendDeleteRecord(currentBindings.getId(), true);
       }
    }
 
-   public void deleteDestination(final PersistedType type, final String name) throws Exception
-   {
+   public void deleteDestination(final PersistedType type, final String name) throws Exception {
       PersistedDestination destination = destinations.remove(new Pair<PersistedType, String>(type, name));
-      if (destination != null)
-      {
+      if (destination != null) {
          jmsJournal.appendDeleteRecord(destination.getId(), false);
       }
    }
 
    @Override
-   public boolean isStarted()
-   {
+   public boolean isStarted() {
       return started;
    }
 
-
    @Override
-   public void start() throws Exception
-   {
+   public void start() throws Exception {
       checkAndCreateDir(config.getBindingsLocation(), createDir);
 
       jmsJournal.start();
@@ -266,14 +228,12 @@ public final class JMSJournalStorageManagerImpl implements JMSStorageManager
    }
 
    @Override
-   public void stop() throws Exception
-   {
+   public void stop() throws Exception {
       this.started = false;
       jmsJournal.stop();
    }
 
-   public void load() throws Exception
-   {
+   public void load() throws Exception {
       mapFactories.clear();
 
       List<RecordInfo> data = new ArrayList<RecordInfo>();
@@ -282,38 +242,33 @@ public final class JMSJournalStorageManagerImpl implements JMSStorageManager
 
       jmsJournal.load(data, list, null);
 
-      for (RecordInfo record : data)
-      {
+      for (RecordInfo record : data) {
          long id = record.id;
 
          ActiveMQBuffer buffer = ActiveMQBuffers.wrappedBuffer(record.data);
 
          byte rec = record.getUserRecordType();
 
-         if (rec == CF_RECORD)
-         {
+         if (rec == CF_RECORD) {
             PersistedConnectionFactory cf = new PersistedConnectionFactory();
             cf.decode(buffer);
             cf.setId(id);
             mapFactories.put(cf.getName(), cf);
          }
-         else if (rec == DESTINATION_RECORD)
-         {
+         else if (rec == DESTINATION_RECORD) {
             PersistedDestination destination = new PersistedDestination();
             destination.decode(buffer);
             destination.setId(id);
             destinations.put(new Pair<PersistedType, String>(destination.getType(), destination.getName()), destination);
          }
-         else if (rec == BINDING_RECORD)
-         {
+         else if (rec == BINDING_RECORD) {
             PersistedBindings bindings = new PersistedBindings();
             bindings.decode(buffer);
             bindings.setId(id);
             Pair<PersistedType, String> key = new Pair<PersistedType, String>(bindings.getType(), bindings.getName());
             mapBindings.put(key, bindings);
          }
-         else
-         {
+         else {
             throw new IllegalStateException("Invalid record type " + rec);
          }
 
@@ -327,26 +282,19 @@ public final class JMSJournalStorageManagerImpl implements JMSStorageManager
 
    // Private -------------------------------------------------------
 
+   private void checkAndCreateDir(final File dir, final boolean create) {
 
-   private void checkAndCreateDir(final File dir, final boolean create)
-   {
-
-      if (!dir.exists())
-      {
-         if (create)
-         {
-            if (!dir.mkdirs())
-            {
+      if (!dir.exists()) {
+         if (create) {
+            if (!dir.mkdirs()) {
                throw new IllegalStateException("Failed to create directory " + dir);
             }
          }
-         else
-         {
+         else {
             throw new IllegalArgumentException("Directory " + dir + " does not exist and will not create it");
          }
       }
    }
-
 
    // Inner classes -------------------------------------------------
 

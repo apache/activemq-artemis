@@ -23,25 +23,25 @@ import java.net.URI;
 
 public class AdvisoryDuplexNetworkBridgeTest extends AdvisoryNetworkBridgeTest {
 
-    @Override
-    public void createBroker1() throws Exception {
-        broker1 = new BrokerService();
-        broker1.setBrokerName("broker1");
-        broker1.addConnector("tcp://localhost:61617");
-        broker1.setUseJmx(false);
-        broker1.setPersistent(false);
-        broker1.start();
-        broker1.waitUntilStarted();
-    }
+   @Override
+   public void createBroker1() throws Exception {
+      broker1 = new BrokerService();
+      broker1.setBrokerName("broker1");
+      broker1.addConnector("tcp://localhost:61617");
+      broker1.setUseJmx(false);
+      broker1.setPersistent(false);
+      broker1.start();
+      broker1.waitUntilStarted();
+   }
 
-    @Override
-    public void createBroker2() throws Exception {
-        broker2 = BrokerFactory.createBroker(new URI("xbean:org/apache/activemq/network/duplexLocalBroker.xml"));
-        broker2.start();
-        broker2.waitUntilStarted();
-    }
+   @Override
+   public void createBroker2() throws Exception {
+      broker2 = BrokerFactory.createBroker(new URI("xbean:org/apache/activemq/network/duplexLocalBroker.xml"));
+      broker2.start();
+      broker2.waitUntilStarted();
+   }
 
-    public void assertCreatedByDuplex(boolean createdByDuplex) {
-        assertTrue(createdByDuplex);
-    }
+   public void assertCreatedByDuplex(boolean createdByDuplex) {
+      assertTrue(createdByDuplex);
+   }
 }

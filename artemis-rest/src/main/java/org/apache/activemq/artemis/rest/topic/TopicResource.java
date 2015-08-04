@@ -32,18 +32,16 @@ import org.apache.activemq.artemis.rest.ActiveMQRestLogger;
 import org.apache.activemq.artemis.rest.queue.DestinationResource;
 import org.apache.activemq.artemis.rest.queue.PostMessage;
 
-public class TopicResource extends DestinationResource
-{
+public class TopicResource extends DestinationResource {
+
    protected SubscriptionsResource subscriptions;
    protected PushSubscriptionsResource pushSubscriptions;
    private TopicDestinationsResource topicDestinationsResource;
 
-   public void start() throws Exception
-   {
+   public void start() throws Exception {
    }
 
-   public void stop()
-   {
+   public void stop() {
       subscriptions.stop();
       pushSubscriptions.stop();
       sender.cleanup();
@@ -51,17 +49,11 @@ public class TopicResource extends DestinationResource
 
    @GET
    @Produces("application/xml")
-   public Response get(@Context UriInfo uriInfo)
-   {
+   public Response get(@Context UriInfo uriInfo) {
       ActiveMQRestLogger.LOGGER.debug("Handling GET request for \"" + uriInfo.getPath() + "\"");
 
       StringBuilder msg = new StringBuilder();
-      msg.append("<topic>")
-         .append("<name>").append(destination).append("</name>")
-         .append("<atom:link rel=\"create\" href=\"").append(createSenderLink(uriInfo)).append("\"/>")
-         .append("<atom:link rel=\"create-with-id\" href=\"").append(createSenderWithIdLink(uriInfo)).append("\"/>")
-         .append("<atom:link rel=\"pull-consumers\" href=\"").append(createSubscriptionsLink(uriInfo)).append("\"/>")
-         .append("<atom:link rel=\"push-consumers\" href=\"").append(createPushSubscriptionsLink(uriInfo)).append("\"/>")
+      msg.append("<topic>").append("<name>").append(destination).append("</name>").append("<atom:link rel=\"create\" href=\"").append(createSenderLink(uriInfo)).append("\"/>").append("<atom:link rel=\"create-with-id\" href=\"").append(createSenderWithIdLink(uriInfo)).append("\"/>").append("<atom:link rel=\"pull-consumers\" href=\"").append(createSubscriptionsLink(uriInfo)).append("\"/>").append("<atom:link rel=\"push-consumers\" href=\"").append(createPushSubscriptionsLink(uriInfo)).append("\"/>")
 
          .append("</topic>");
 
@@ -75,8 +67,7 @@ public class TopicResource extends DestinationResource
 
    @HEAD
    @Produces("application/xml")
-   public Response head(@Context UriInfo uriInfo)
-   {
+   public Response head(@Context UriInfo uriInfo) {
       ActiveMQRestLogger.LOGGER.debug("Handling HEAD request for \"" + uriInfo.getPath() + "\"");
 
       Response.ResponseBuilder builder = Response.ok();
@@ -87,28 +78,24 @@ public class TopicResource extends DestinationResource
       return builder.build();
    }
 
-   protected void setSenderLink(Response.ResponseBuilder response, UriInfo info)
-   {
+   protected void setSenderLink(Response.ResponseBuilder response, UriInfo info) {
       String uri = createSenderLink(info);
       serviceManager.getLinkStrategy().setLinkHeader(response, "create", "create", uri, null);
    }
 
-   protected String createSenderLink(UriInfo info)
-   {
+   protected String createSenderLink(UriInfo info) {
       UriBuilder builder = info.getRequestUriBuilder();
       builder.path("create");
       String uri = builder.build().toString();
       return uri;
    }
 
-   protected void setSenderWithIdLink(Response.ResponseBuilder response, UriInfo info)
-   {
+   protected void setSenderWithIdLink(Response.ResponseBuilder response, UriInfo info) {
       String uri = createSenderWithIdLink(info);
       serviceManager.getLinkStrategy().setLinkHeader(response, "create-with-id", "create-with-id", uri, null);
    }
 
-   protected String createSenderWithIdLink(UriInfo info)
-   {
+   protected String createSenderWithIdLink(UriInfo info) {
       UriBuilder builder = info.getRequestUriBuilder();
       builder.path("create");
       String uri = builder.build().toString();
@@ -116,99 +103,81 @@ public class TopicResource extends DestinationResource
       return uri;
    }
 
-   protected void setSubscriptionsLink(Response.ResponseBuilder response, UriInfo info)
-   {
+   protected void setSubscriptionsLink(Response.ResponseBuilder response, UriInfo info) {
       String uri = createSubscriptionsLink(info);
       serviceManager.getLinkStrategy().setLinkHeader(response, "pull-subscriptions", "pull-subscriptions", uri, null);
    }
 
-   protected String createSubscriptionsLink(UriInfo info)
-   {
+   protected String createSubscriptionsLink(UriInfo info) {
       UriBuilder builder = info.getRequestUriBuilder();
       builder.path("pull-subscriptions");
       String uri = builder.build().toString();
       return uri;
    }
 
-   protected void setPushSubscriptionsLink(Response.ResponseBuilder response, UriInfo info)
-   {
+   protected void setPushSubscriptionsLink(Response.ResponseBuilder response, UriInfo info) {
       String uri = createPushSubscriptionsLink(info);
       serviceManager.getLinkStrategy().setLinkHeader(response, "push-subscriptions", "push-subscriptions", uri, null);
    }
 
-   protected String createPushSubscriptionsLink(UriInfo info)
-   {
+   protected String createPushSubscriptionsLink(UriInfo info) {
       UriBuilder builder = info.getRequestUriBuilder();
       builder.path("push-subscriptions");
       String uri = builder.build().toString();
       return uri;
    }
 
-   public void setSubscriptions(SubscriptionsResource subscriptions)
-   {
+   public void setSubscriptions(SubscriptionsResource subscriptions) {
       this.subscriptions = subscriptions;
    }
 
    @Path("create")
-   public PostMessage post() throws Exception
-   {
+   public PostMessage post() throws Exception {
       return sender;
    }
 
-
    @Path("pull-subscriptions")
-   public SubscriptionsResource getSubscriptions()
-   {
+   public SubscriptionsResource getSubscriptions() {
       return subscriptions;
    }
 
    @Path("push-subscriptions")
-   public PushSubscriptionsResource getPushSubscriptions()
-   {
+   public PushSubscriptionsResource getPushSubscriptions() {
       return pushSubscriptions;
    }
 
-   public void setPushSubscriptions(PushSubscriptionsResource pushSubscriptions)
-   {
+   public void setPushSubscriptions(PushSubscriptionsResource pushSubscriptions) {
       this.pushSubscriptions = pushSubscriptions;
    }
 
    @DELETE
-   public void deleteTopic(@Context UriInfo uriInfo) throws Exception
-   {
+   public void deleteTopic(@Context UriInfo uriInfo) throws Exception {
       ActiveMQRestLogger.LOGGER.debug("Handling DELETE request for \"" + uriInfo.getPath() + "\"");
 
       topicDestinationsResource.getTopics().remove(destination);
 
-      try
-      {
+      try {
          stop();
       }
-      catch (Exception ignored)
-      {
+      catch (Exception ignored) {
       }
 
       ClientSession session = serviceManager.getSessionFactory().createSession(false, false, false);
-      try
-      {
+      try {
          SimpleString topicName = new SimpleString(destination);
          session.deleteQueue(topicName);
       }
-      finally
-      {
-         try
-         {
+      finally {
+         try {
             session.close();
          }
-         catch (Exception ignored)
-         {
+         catch (Exception ignored) {
          }
       }
 
    }
 
-   public void setTopicDestinationsResource(TopicDestinationsResource topicDestinationsResource)
-   {
+   public void setTopicDestinationsResource(TopicDestinationsResource topicDestinationsResource) {
       this.topicDestinationsResource = topicDestinationsResource;
    }
 }

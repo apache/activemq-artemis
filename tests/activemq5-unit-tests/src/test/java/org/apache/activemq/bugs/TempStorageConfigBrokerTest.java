@@ -52,169 +52,169 @@ import org.slf4j.LoggerFactory;
  */
 public class TempStorageConfigBrokerTest {
 
-    public int deliveryMode = DeliveryMode.PERSISTENT;
+   public int deliveryMode = DeliveryMode.PERSISTENT;
 
-    private static final Logger LOG = LoggerFactory.getLogger(TempStorageConfigBrokerTest.class);
-    private static byte[] buf = new byte[4 * 1024];
-    private BrokerService broker;
-    private AtomicInteger messagesSent = new AtomicInteger(0);
-    private AtomicInteger messagesConsumed = new AtomicInteger(0);
+   private static final Logger LOG = LoggerFactory.getLogger(TempStorageConfigBrokerTest.class);
+   private static byte[] buf = new byte[4 * 1024];
+   private BrokerService broker;
+   private AtomicInteger messagesSent = new AtomicInteger(0);
+   private AtomicInteger messagesConsumed = new AtomicInteger(0);
 
-    private String brokerUri;
-    private long messageReceiveTimeout = 10000L;
-    private Destination destination = new ActiveMQTopic("FooTwo");
+   private String brokerUri;
+   private long messageReceiveTimeout = 10000L;
+   private Destination destination = new ActiveMQTopic("FooTwo");
 
-    @Test(timeout=360000)
-    @Ignore("blocks in hudson, needs investigation")
-    public void testFillTempAndConsumeWithBadTempStoreConfig() throws Exception {
+   @Test(timeout = 360000)
+   @Ignore("blocks in hudson, needs investigation")
+   public void testFillTempAndConsumeWithBadTempStoreConfig() throws Exception {
 
-        createBrokerWithInvalidTempStoreConfig();
+      createBrokerWithInvalidTempStoreConfig();
 
-        broker.getSystemUsage().setSendFailIfNoSpace(true);
-        destination = new ActiveMQQueue("Foo");
+      broker.getSystemUsage().setSendFailIfNoSpace(true);
+      destination = new ActiveMQQueue("Foo");
 
-        ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(brokerUri);
-        final ActiveMQConnection producerConnection = (ActiveMQConnection) factory.createConnection();
-        // so we can easily catch the ResourceAllocationException on send
-        producerConnection.setAlwaysSyncSend(true);
-        producerConnection.start();
+      ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(brokerUri);
+      final ActiveMQConnection producerConnection = (ActiveMQConnection) factory.createConnection();
+      // so we can easily catch the ResourceAllocationException on send
+      producerConnection.setAlwaysSyncSend(true);
+      producerConnection.start();
 
-        Session session = producerConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        MessageProducer producer = session.createProducer(destination);
-        producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
+      Session session = producerConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      MessageProducer producer = session.createProducer(destination);
+      producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
 
-        try {
-            while (true) {
-                Message message = session.createTextMessage(new String(buf) + messagesSent.toString());
-                producer.send(message);
-                messagesSent.incrementAndGet();
-                if (messagesSent.get() % 100 == 0) {
-                    LOG.info("Sent Message " + messagesSent.get());
-                    LOG.info("Temp Store Usage " + broker.getSystemUsage().getTempUsage().getUsage());
-                }
+      try {
+         while (true) {
+            Message message = session.createTextMessage(new String(buf) + messagesSent.toString());
+            producer.send(message);
+            messagesSent.incrementAndGet();
+            if (messagesSent.get() % 100 == 0) {
+               LOG.info("Sent Message " + messagesSent.get());
+               LOG.info("Temp Store Usage " + broker.getSystemUsage().getTempUsage().getUsage());
             }
-        } catch (ResourceAllocationException ex) {
-            assertTrue("Should not be able to send 100 messages: ", messagesSent.get() < 100);
-            LOG.info("Got resource exception : " + ex + ", after sent: " + messagesSent.get());
-        }
-    }
+         }
+      }
+      catch (ResourceAllocationException ex) {
+         assertTrue("Should not be able to send 100 messages: ", messagesSent.get() < 100);
+         LOG.info("Got resource exception : " + ex + ", after sent: " + messagesSent.get());
+      }
+   }
 
-    @Test(timeout=360000)
-    @Ignore("blocks in hudson, needs investigation")
-    public void testFillTempAndConsumeWithGoodTempStoreConfig() throws Exception {
+   @Test(timeout = 360000)
+   @Ignore("blocks in hudson, needs investigation")
+   public void testFillTempAndConsumeWithGoodTempStoreConfig() throws Exception {
 
-        createBrokerWithValidTempStoreConfig();
+      createBrokerWithValidTempStoreConfig();
 
-        broker.getSystemUsage().setSendFailIfNoSpace(true);
-        destination = new ActiveMQQueue("Foo");
+      broker.getSystemUsage().setSendFailIfNoSpace(true);
+      destination = new ActiveMQQueue("Foo");
 
-        ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(brokerUri);
-        final ActiveMQConnection producerConnection = (ActiveMQConnection) factory.createConnection();
-        // so we can easily catch the ResourceAllocationException on send
-        producerConnection.setAlwaysSyncSend(true);
-        producerConnection.start();
+      ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(brokerUri);
+      final ActiveMQConnection producerConnection = (ActiveMQConnection) factory.createConnection();
+      // so we can easily catch the ResourceAllocationException on send
+      producerConnection.setAlwaysSyncSend(true);
+      producerConnection.start();
 
-        Session session = producerConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        MessageProducer producer = session.createProducer(destination);
-        producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
+      Session session = producerConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      MessageProducer producer = session.createProducer(destination);
+      producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
 
-        try {
-            while (true) {
-                Message message = session.createTextMessage(new String(buf) + messagesSent.toString());
-                producer.send(message);
-                messagesSent.incrementAndGet();
-                if (messagesSent.get() % 100 == 0) {
-                    LOG.info("Sent Message " + messagesSent.get());
-                    LOG.info("Temp Store Usage " + broker.getSystemUsage().getTempUsage().getUsage());
-                }
+      try {
+         while (true) {
+            Message message = session.createTextMessage(new String(buf) + messagesSent.toString());
+            producer.send(message);
+            messagesSent.incrementAndGet();
+            if (messagesSent.get() % 100 == 0) {
+               LOG.info("Sent Message " + messagesSent.get());
+               LOG.info("Temp Store Usage " + broker.getSystemUsage().getTempUsage().getUsage());
             }
-        } catch (ResourceAllocationException ex) {
-            assertTrue("Should be able to send at least 200 messages but was: " + messagesSent.get(),
-                       messagesSent.get() > 200);
-            LOG.info("Got resource exception : " + ex + ", after sent: " + messagesSent.get());
-        }
+         }
+      }
+      catch (ResourceAllocationException ex) {
+         assertTrue("Should be able to send at least 200 messages but was: " + messagesSent.get(), messagesSent.get() > 200);
+         LOG.info("Got resource exception : " + ex + ", after sent: " + messagesSent.get());
+      }
 
-        // consume all sent
-        Connection consumerConnection = factory.createConnection();
-        consumerConnection.start();
+      // consume all sent
+      Connection consumerConnection = factory.createConnection();
+      consumerConnection.start();
 
-        Session consumerSession = consumerConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        MessageConsumer consumer = consumerSession.createConsumer(destination);
+      Session consumerSession = consumerConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      MessageConsumer consumer = consumerSession.createConsumer(destination);
 
-        while (consumer.receive(messageReceiveTimeout) != null) {
-            messagesConsumed.incrementAndGet();
-            if (messagesConsumed.get() % 1000 == 0) {
-                LOG.info("received Message " + messagesConsumed.get());
-                LOG.info("Temp Store Usage " + broker.getSystemUsage().getTempUsage().getUsage());
-            }
-        }
+      while (consumer.receive(messageReceiveTimeout) != null) {
+         messagesConsumed.incrementAndGet();
+         if (messagesConsumed.get() % 1000 == 0) {
+            LOG.info("received Message " + messagesConsumed.get());
+            LOG.info("Temp Store Usage " + broker.getSystemUsage().getTempUsage().getUsage());
+         }
+      }
 
-        assertEquals("Incorrect number of Messages Consumed: " + messagesConsumed.get(),
-                     messagesConsumed.get(), messagesSent.get());
-    }
+      assertEquals("Incorrect number of Messages Consumed: " + messagesConsumed.get(), messagesConsumed.get(), messagesSent.get());
+   }
 
-    private void createBrokerWithValidTempStoreConfig() throws Exception {
-        broker = new BrokerService();
-        broker.setDataDirectory("target" + File.separator + "activemq-data");
-        broker.setPersistent(true);
-        broker.setUseJmx(true);
-        broker.setAdvisorySupport(false);
-        broker.setDeleteAllMessagesOnStartup(true);
-        broker.setPersistenceAdapter(new KahaDBPersistenceAdapter());
+   private void createBrokerWithValidTempStoreConfig() throws Exception {
+      broker = new BrokerService();
+      broker.setDataDirectory("target" + File.separator + "activemq-data");
+      broker.setPersistent(true);
+      broker.setUseJmx(true);
+      broker.setAdvisorySupport(false);
+      broker.setDeleteAllMessagesOnStartup(true);
+      broker.setPersistenceAdapter(new KahaDBPersistenceAdapter());
 
-        broker.getSystemUsage().setSendFailIfNoSpace(true);
-        broker.getSystemUsage().getMemoryUsage().setLimit(1048576);
-        broker.getSystemUsage().getTempUsage().setLimit(2*1048576);
-        ((PListStoreImpl)broker.getSystemUsage().getTempUsage().getStore()).setJournalMaxFileLength(2 * 1048576);
-        broker.getSystemUsage().getStoreUsage().setLimit(20*1048576);
+      broker.getSystemUsage().setSendFailIfNoSpace(true);
+      broker.getSystemUsage().getMemoryUsage().setLimit(1048576);
+      broker.getSystemUsage().getTempUsage().setLimit(2 * 1048576);
+      ((PListStoreImpl) broker.getSystemUsage().getTempUsage().getStore()).setJournalMaxFileLength(2 * 1048576);
+      broker.getSystemUsage().getStoreUsage().setLimit(20 * 1048576);
 
-        PolicyEntry defaultPolicy = new PolicyEntry();
-        defaultPolicy.setProducerFlowControl(false);
-        defaultPolicy.setMemoryLimit(10 * 1024);
+      PolicyEntry defaultPolicy = new PolicyEntry();
+      defaultPolicy.setProducerFlowControl(false);
+      defaultPolicy.setMemoryLimit(10 * 1024);
 
-        PolicyMap policyMap = new PolicyMap();
-        policyMap.setDefaultEntry(defaultPolicy);
+      PolicyMap policyMap = new PolicyMap();
+      policyMap.setDefaultEntry(defaultPolicy);
 
-        broker.setDestinationPolicy(policyMap);
-        broker.addConnector("tcp://localhost:0").setName("Default");
-        broker.start();
+      broker.setDestinationPolicy(policyMap);
+      broker.addConnector("tcp://localhost:0").setName("Default");
+      broker.start();
 
-        brokerUri = broker.getTransportConnectors().get(0).getPublishableConnectString();
-    }
+      brokerUri = broker.getTransportConnectors().get(0).getPublishableConnectString();
+   }
 
-    private void createBrokerWithInvalidTempStoreConfig() throws Exception {
-        broker = new BrokerService();
-        broker.setDataDirectory("target" + File.separator + "activemq-data");
-        broker.setPersistent(true);
-        broker.setUseJmx(true);
-        broker.setAdvisorySupport(false);
-        broker.setDeleteAllMessagesOnStartup(true);
-        broker.setPersistenceAdapter(new KahaDBPersistenceAdapter());
+   private void createBrokerWithInvalidTempStoreConfig() throws Exception {
+      broker = new BrokerService();
+      broker.setDataDirectory("target" + File.separator + "activemq-data");
+      broker.setPersistent(true);
+      broker.setUseJmx(true);
+      broker.setAdvisorySupport(false);
+      broker.setDeleteAllMessagesOnStartup(true);
+      broker.setPersistenceAdapter(new KahaDBPersistenceAdapter());
 
-        broker.getSystemUsage().setSendFailIfNoSpace(true);
-        broker.getSystemUsage().getMemoryUsage().setLimit(1048576);
-        broker.getSystemUsage().getTempUsage().setLimit(2*1048576);
-        broker.getSystemUsage().getStoreUsage().setLimit(2*1048576);
+      broker.getSystemUsage().setSendFailIfNoSpace(true);
+      broker.getSystemUsage().getMemoryUsage().setLimit(1048576);
+      broker.getSystemUsage().getTempUsage().setLimit(2 * 1048576);
+      broker.getSystemUsage().getStoreUsage().setLimit(2 * 1048576);
 
-        PolicyEntry defaultPolicy = new PolicyEntry();
-        defaultPolicy.setProducerFlowControl(false);
-        defaultPolicy.setMemoryLimit(10 * 1024);
+      PolicyEntry defaultPolicy = new PolicyEntry();
+      defaultPolicy.setProducerFlowControl(false);
+      defaultPolicy.setMemoryLimit(10 * 1024);
 
-        PolicyMap policyMap = new PolicyMap();
-        policyMap.setDefaultEntry(defaultPolicy);
+      PolicyMap policyMap = new PolicyMap();
+      policyMap.setDefaultEntry(defaultPolicy);
 
-        broker.setDestinationPolicy(policyMap);
-        broker.addConnector("tcp://localhost:0").setName("Default");
-        broker.start();
+      broker.setDestinationPolicy(policyMap);
+      broker.addConnector("tcp://localhost:0").setName("Default");
+      broker.start();
 
-        brokerUri = broker.getTransportConnectors().get(0).getPublishableConnectString();
-    }
+      brokerUri = broker.getTransportConnectors().get(0).getPublishableConnectString();
+   }
 
-    @After
-    public void tearDown() throws Exception {
-        if (broker != null) {
-            broker.stop();
-        }
-    }
+   @After
+   public void tearDown() throws Exception {
+      if (broker != null) {
+         broker.stop();
+      }
+   }
 
 }

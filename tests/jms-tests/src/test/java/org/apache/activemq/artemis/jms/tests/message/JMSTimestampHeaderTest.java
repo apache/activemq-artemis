@@ -22,8 +22,7 @@ import javax.jms.Message;
 
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
 
-public class JMSTimestampHeaderTest extends MessageHeaderTestBase
-{
+public class JMSTimestampHeaderTest extends MessageHeaderTestBase {
    // Constants -----------------------------------------------------
 
    // Static --------------------------------------------------------
@@ -35,8 +34,7 @@ public class JMSTimestampHeaderTest extends MessageHeaderTestBase
    // Public --------------------------------------------------------
 
    @Test
-   public void testJMSTimestamp() throws Exception
-   {
+   public void testJMSTimestamp() throws Exception {
       Message m = queueProducerSession.createMessage();
 
       long t1 = System.currentTimeMillis();
@@ -49,8 +47,7 @@ public class JMSTimestampHeaderTest extends MessageHeaderTestBase
    }
 
    @Test
-   public void testDisabledTimestamp() throws Exception
-   {
+   public void testDisabledTimestamp() throws Exception {
       Message m = queueProducerSession.createMessage();
 
       queueProducer.setDisableMessageTimestamp(true);

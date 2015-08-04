@@ -27,22 +27,20 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class RepositoryTest extends ActiveMQTestBase
-{
+public class RepositoryTest extends ActiveMQTestBase {
+
    HierarchicalRepository<HashSet<Role>> securityRepository;
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       securityRepository = new HierarchicalObjectRepository<>();
    }
 
    @Test
-   public void testDefault()
-   {
+   public void testDefault() {
       securityRepository.setDefault(new HashSet<Role>());
       HashSet<Role> roles = securityRepository.getMatch("queues.something");
 
@@ -50,8 +48,7 @@ public class RepositoryTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testMatchingDocs() throws Throwable
-   {
+   public void testMatchingDocs() throws Throwable {
       HierarchicalObjectRepository<String> repo = new HierarchicalObjectRepository<>();
 
       repo.addMatch("a.b.#", "ab#");
@@ -65,16 +62,14 @@ public class RepositoryTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testSingleMatch()
-   {
+   public void testSingleMatch() {
       securityRepository.addMatch("queues.*", new HashSet<Role>());
       HashSet<Role> hashSet = securityRepository.getMatch("queues.something");
       Assert.assertEquals(hashSet.size(), 0);
    }
 
    @Test
-   public void testSingletwo()
-   {
+   public void testSingletwo() {
       securityRepository.addMatch("queues.another.aq.*", new HashSet<Role>());
       HashSet<Role> roles = new HashSet<Role>(2);
       roles.add(new Role("test1", true, true, true, true, true, true, true));
@@ -91,8 +86,7 @@ public class RepositoryTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testWithoutWildcard()
-   {
+   public void testWithoutWildcard() {
       securityRepository.addMatch("queues.1.*", new HashSet<Role>());
       HashSet<Role> roles = new HashSet<Role>(2);
       roles.add(new Role("test1", true, true, true, true, true, true, true));
@@ -103,8 +97,7 @@ public class RepositoryTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testMultipleWildcards()
-   {
+   public void testMultipleWildcards() {
       HierarchicalRepository<String> repository = new HierarchicalObjectRepository<String>();
       repository.addMatch("#", "#");
       repository.addMatch("a", "a");
@@ -148,8 +141,7 @@ public class RepositoryTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testRepositoryMerge()
-   {
+   public void testRepositoryMerge() {
       HierarchicalRepository<DummyMergeable> repository = new HierarchicalObjectRepository<DummyMergeable>();
       repository.addMatch("#", new DummyMergeable(1));
       repository.addMatch("a.#", new DummyMergeable(2));
@@ -178,20 +170,16 @@ public class RepositoryTest extends ActiveMQTestBase
       DummyMergeable.reset();
    }
 
-
    @Test
-   public void testAddListener()
-   {
+   public void testAddListener() {
       HierarchicalRepository<String> repository = new HierarchicalObjectRepository<String>();
       repository.addMatch("#", "1");
       repository.addMatch("B", "2");
 
       final AtomicInteger called = new AtomicInteger(0);
-      repository.registerListener(new HierarchicalRepositoryChangeListener()
-      {
+      repository.registerListener(new HierarchicalRepositoryChangeListener() {
          @Override
-         public void onChange()
-         {
+         public void onChange() {
             called.incrementAndGet();
          }
       });
@@ -223,60 +211,50 @@ public class RepositoryTest extends ActiveMQTestBase
       assertEquals(4, called.get());
    }
 
-
    @Test
-   public void testIllegalMatches()
-   {
+   public void testIllegalMatches() {
       HierarchicalRepository<String> repository = new HierarchicalObjectRepository<String>();
-      try
-      {
+      try {
          repository.addMatch("hjhjhjhjh.#.hhh", "test");
          fail("expected exception");
       }
-      catch (IllegalArgumentException e)
-      {
+      catch (IllegalArgumentException e) {
          // pass
       }
-      try
-      {
+      try {
          repository.addMatch(null, "test");
          fail("expected exception");
       }
-      catch (IllegalArgumentException e)
-      {
+      catch (IllegalArgumentException e) {
          // pass
       }
    }
 
-   static class DummyMergeable implements Mergeable
-   {
+   static class DummyMergeable implements Mergeable {
+
       static int timesMerged = 0;
 
       static ArrayList<Integer> merged = new ArrayList<Integer>();
 
       private final Integer id;
 
-      static void reset()
-      {
+      static void reset() {
          DummyMergeable.timesMerged = 0;
          DummyMergeable.merged = new ArrayList<Integer>();
       }
 
-      static boolean contains(final Integer i)
-      {
+      static boolean contains(final Integer i) {
          return DummyMergeable.merged.contains(i);
       }
 
-      public DummyMergeable(final Integer id)
-      {
+      public DummyMergeable(final Integer id) {
          this.id = id;
       }
 
-      public void merge(final Object merged)
-      {
+      public void merge(final Object merged) {
          DummyMergeable.timesMerged++;
          DummyMergeable.merged.add(id);
-         DummyMergeable.merged.add(((DummyMergeable)merged).id);
+         DummyMergeable.merged.add(((DummyMergeable) merged).id);
       }
    }
 }

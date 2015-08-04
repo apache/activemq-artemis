@@ -18,9 +18,8 @@ package org.apache.activemq.artemis.spi.core.protocol;
 
 import java.util.concurrent.Executor;
 
+public class ConnectionEntry {
 
-public class ConnectionEntry
-{
    public final RemotingConnection connection;
 
    public volatile long lastCheck;
@@ -29,13 +28,14 @@ public class ConnectionEntry
 
    public final Executor connectionExecutor;
 
-   public Object getID()
-   {
+   public Object getID() {
       return connection.getID();
    }
 
-   public ConnectionEntry(final RemotingConnection connection, final Executor connectionExecutor, final long lastCheck, final long ttl)
-   {
+   public ConnectionEntry(final RemotingConnection connection,
+                          final Executor connectionExecutor,
+                          final long lastCheck,
+                          final long ttl) {
       this.connection = connection;
 
       this.lastCheck = lastCheck;

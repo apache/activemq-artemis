@@ -18,47 +18,38 @@ package org.apache.activemq.artemis.core.journal.impl;
 
 import org.apache.activemq.artemis.core.journal.RecordInfo;
 
-public class JournalReaderCallbackAbstract implements JournalReaderCallback
-{
+public class JournalReaderCallbackAbstract implements JournalReaderCallback {
 
-   public void markAsDataFile(final JournalFile file)
-   {
+   public void markAsDataFile(final JournalFile file) {
    }
 
-   public void onReadAddRecord(final RecordInfo info) throws Exception
-   {
+   public void onReadAddRecord(final RecordInfo info) throws Exception {
    }
 
-   public void onReadAddRecordTX(final long transactionID, final RecordInfo recordInfo) throws Exception
-   {
+   public void onReadAddRecordTX(final long transactionID, final RecordInfo recordInfo) throws Exception {
    }
 
-   public void onReadCommitRecord(final long transactionID, final int numberOfRecords) throws Exception
-   {
+   public void onReadCommitRecord(final long transactionID, final int numberOfRecords) throws Exception {
    }
 
-   public void onReadDeleteRecord(final long recordID) throws Exception
-   {
+   public void onReadDeleteRecord(final long recordID) throws Exception {
    }
 
-   public void onReadDeleteRecordTX(final long transactionID, final RecordInfo recordInfo) throws Exception
-   {
+   public void onReadDeleteRecordTX(final long transactionID, final RecordInfo recordInfo) throws Exception {
    }
 
-   public void onReadPrepareRecord(final long transactionID, final byte[] extraData, final int numberOfRecords) throws Exception
-   {
+   public void onReadPrepareRecord(final long transactionID,
+                                   final byte[] extraData,
+                                   final int numberOfRecords) throws Exception {
    }
 
-   public void onReadRollbackRecord(final long transactionID) throws Exception
-   {
+   public void onReadRollbackRecord(final long transactionID) throws Exception {
    }
 
-   public void onReadUpdateRecord(final RecordInfo recordInfo) throws Exception
-   {
+   public void onReadUpdateRecord(final RecordInfo recordInfo) throws Exception {
    }
 
-   public void onReadUpdateRecordTX(final long transactionID, final RecordInfo recordInfo) throws Exception
-   {
+   public void onReadUpdateRecordTX(final long transactionID, final RecordInfo recordInfo) throws Exception {
    }
 
 }

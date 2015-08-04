@@ -25,11 +25,10 @@ import org.junit.Test;
 
 import static org.jboss.resteasy.test.TestPortProvider.generateURL;
 
-public class RoundtripTimeTest extends MessageTestBase
-{
+public class RoundtripTimeTest extends MessageTestBase {
+
    @Test
-   public void testSuccessFirst() throws Exception
-   {
+   public void testSuccessFirst() throws Exception {
       QueueDeployment deployment = new QueueDeployment();
       deployment.setDuplicatesAllowed(true);
       deployment.setDurableSend(false);
@@ -49,19 +48,16 @@ public class RoundtripTimeTest extends MessageTestBase
       Link consumeNext = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "consume-next");
       System.out.println("consume-next: " + consumeNext);
 
-
       long start = System.currentTimeMillis();
       int num = 100;
-      for (int i = 0; i < num; i++)
-      {
+      for (int i = 0; i < num; i++) {
          response = sender.request().body("text/plain", Integer.toString(i + 1)).post();
          response.releaseConnection();
       }
       long end = System.currentTimeMillis() - start;
       System.out.println(num + " iterations took " + end + "ms");
 
-      for (int i = 0; i < num; i++)
-      {
+      for (int i = 0; i < num; i++) {
          response = consumeNext.request().post(String.class);
          consumeNext = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "consume-next");
          Assert.assertEquals(200, response.getStatus());

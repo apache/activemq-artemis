@@ -46,8 +46,8 @@ import org.apache.activemq.artemis.utils.VersionLoader;
 
 import static org.apache.activemq.artemis.core.protocol.stomp.ActiveMQStompProtocolMessageBundle.BUNDLE;
 
-public final class StompConnection implements RemotingConnection
-{
+public final class StompConnection implements RemotingConnection {
+
    protected static final String CONNECTION_ID_PROP = "__AMQ_CID";
    private static final String SERVER_NAME = "ActiveMQ-Artemis/" + VersionLoader.getVersion().getFullVersion() +
       " ActiveMQ Artemis Messaging Engine";
@@ -94,19 +94,16 @@ public final class StompConnection implements RemotingConnection
 
    private final int minLargeMessageSize;
 
-   public StompFrame decode(ActiveMQBuffer buffer) throws ActiveMQStompException
-   {
+   public StompFrame decode(ActiveMQBuffer buffer) throws ActiveMQStompException {
       StompFrame frame = null;
-      try
-      {
+      try {
          frame = frameHandler.decode(buffer);
       }
-      catch (ActiveMQStompException e)
-      {
-         switch (e.getCode())
-         {
+      catch (ActiveMQStompException e) {
+         switch (e.getCode()) {
             case ActiveMQStompException.INVALID_EOL_V10:
-               if (version != null) throw e;
+               if (version != null)
+                  throw e;
                frameHandler = new StompFrameHandlerV12(this);
                buffer.resetReaderIndex();
                frame = decode(buffer);
@@ -121,13 +118,13 @@ public final class StompConnection implements RemotingConnection
       return frame;
    }
 
-   public boolean hasBytes()
-   {
+   public boolean hasBytes() {
       return frameHandler.hasBytes();
    }
 
-   StompConnection(final Acceptor acceptorUsed, final Connection transportConnection, final StompProtocolManager manager)
-   {
+   StompConnection(final Acceptor acceptorUsed,
+                   final Connection transportConnection,
+                   final StompProtocolManager manager) {
       this.transportConnection = transportConnection;
 
       this.manager = manager;
@@ -138,19 +135,13 @@ public final class StompConnection implements RemotingConnection
 
       this.acceptorUsed = acceptorUsed;
 
-      this.enableMessageID = ConfigurationHelper.getBooleanProperty(TransportConstants.STOMP_ENABLE_MESSAGE_ID,
-                                                                    false,
-                                                                    acceptorUsed.getConfiguration());
-      this.minLargeMessageSize = ConfigurationHelper.getIntProperty(TransportConstants.STOMP_MIN_LARGE_MESSAGE_SIZE,
-                                                                    ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE,
-                                                                    acceptorUsed.getConfiguration());
+      this.enableMessageID = ConfigurationHelper.getBooleanProperty(TransportConstants.STOMP_ENABLE_MESSAGE_ID, false, acceptorUsed.getConfiguration());
+      this.minLargeMessageSize = ConfigurationHelper.getIntProperty(TransportConstants.STOMP_MIN_LARGE_MESSAGE_SIZE, ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, acceptorUsed.getConfiguration());
    }
 
    @Override
-   public void addFailureListener(final FailureListener listener)
-   {
-      if (listener == null)
-      {
+   public void addFailureListener(final FailureListener listener) {
+      if (listener == null) {
          throw new IllegalStateException("FailureListener cannot be null");
       }
 
@@ -158,10 +149,8 @@ public final class StompConnection implements RemotingConnection
    }
 
    @Override
-   public boolean removeFailureListener(final FailureListener listener)
-   {
-      if (listener == null)
-      {
+   public boolean removeFailureListener(final FailureListener listener) {
+      if (listener == null) {
          throw new IllegalStateException("FailureListener cannot be null");
       }
 
@@ -169,10 +158,8 @@ public final class StompConnection implements RemotingConnection
    }
 
    @Override
-   public void addCloseListener(final CloseListener listener)
-   {
-      if (listener == null)
-      {
+   public void addCloseListener(final CloseListener listener) {
+      if (listener == null) {
          throw new IllegalStateException("CloseListener cannot be null");
       }
 
@@ -180,10 +167,8 @@ public final class StompConnection implements RemotingConnection
    }
 
    @Override
-   public boolean removeCloseListener(final CloseListener listener)
-   {
-      if (listener == null)
-      {
+   public boolean removeCloseListener(final CloseListener listener) {
+      if (listener == null) {
          throw new IllegalStateException("CloseListener cannot be null");
       }
 
@@ -191,8 +176,7 @@ public final class StompConnection implements RemotingConnection
    }
 
    @Override
-   public List<CloseListener> removeCloseListeners()
-   {
+   public List<CloseListener> removeCloseListeners() {
       List<CloseListener> ret = new ArrayList<CloseListener>(closeListeners);
 
       closeListeners.clear();
@@ -201,8 +185,7 @@ public final class StompConnection implements RemotingConnection
    }
 
    @Override
-   public List<FailureListener> removeFailureListeners()
-   {
+   public List<FailureListener> removeFailureListeners() {
       List<FailureListener> ret = new ArrayList<FailureListener>(failureListeners);
 
       failureListeners.clear();
@@ -211,28 +194,24 @@ public final class StompConnection implements RemotingConnection
    }
 
    @Override
-   public void setCloseListeners(List<CloseListener> listeners)
-   {
+   public void setCloseListeners(List<CloseListener> listeners) {
       closeListeners.clear();
 
       closeListeners.addAll(listeners);
    }
 
    @Override
-   public void setFailureListeners(final List<FailureListener> listeners)
-   {
+   public void setFailureListeners(final List<FailureListener> listeners) {
       failureListeners.clear();
 
       failureListeners.addAll(listeners);
    }
 
-   protected synchronized void setDataReceived()
-   {
+   protected synchronized void setDataReceived() {
       dataReceived = true;
    }
 
-   public synchronized boolean checkDataReceived()
-   {
+   public synchronized boolean checkDataReceived() {
       boolean res = dataReceived;
 
       dataReceived = false;
@@ -240,32 +219,25 @@ public final class StompConnection implements RemotingConnection
       return res;
    }
 
-   public void checkDestination(String destination) throws ActiveMQStompException
-   {
-      if (autoCreateQueueIfPossible(destination))
-      {
+   public void checkDestination(String destination) throws ActiveMQStompException {
+      if (autoCreateQueueIfPossible(destination)) {
          return;
       }
 
-      if (!manager.destinationExists(destination))
-      {
+      if (!manager.destinationExists(destination)) {
          throw BUNDLE.destinationNotExist(destination).setHandler(frameHandler);
       }
    }
 
-   public boolean autoCreateQueueIfPossible(String queue) throws ActiveMQStompException
-   {
+   public boolean autoCreateQueueIfPossible(String queue) throws ActiveMQStompException {
       boolean autoCreated = false;
 
-      if (queue.startsWith(ResourceNames.JMS_QUEUE) && manager.getServer().getAddressSettingsRepository().getMatch(queue).isAutoCreateJmsQueues() && manager.getServer().locateQueue(new SimpleString(queue)) == null)
-      {
+      if (queue.startsWith(ResourceNames.JMS_QUEUE) && manager.getServer().getAddressSettingsRepository().getMatch(queue).isAutoCreateJmsQueues() && manager.getServer().locateQueue(new SimpleString(queue)) == null) {
          SimpleString queueName = new SimpleString(queue);
-         try
-         {
+         try {
             manager.getServer().createQueue(queueName, queueName, null, SimpleString.toSimpleString(this.getLogin()), true, false, true);
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             throw new ActiveMQStompException(e.getMessage(), e).setHandler(frameHandler);
          }
          autoCreated = true;
@@ -275,17 +247,13 @@ public final class StompConnection implements RemotingConnection
    }
 
    @Override
-   public ActiveMQBuffer createTransportBuffer(int size)
-   {
+   public ActiveMQBuffer createTransportBuffer(int size) {
       return ActiveMQBuffers.dynamicBuffer(size);
    }
 
-   public void destroy()
-   {
-      synchronized (failLock)
-      {
-         if (destroyed)
-         {
+   public void destroy() {
+      synchronized (failLock) {
+         if (destroyed) {
             return;
          }
       }
@@ -294,30 +262,24 @@ public final class StompConnection implements RemotingConnection
 
       internalClose();
 
-      synchronized (sendLock)
-      {
+      synchronized (sendLock) {
          callClosingListeners();
       }
    }
 
-   Acceptor getAcceptorUsed()
-   {
+   Acceptor getAcceptorUsed() {
       return acceptorUsed;
    }
 
-   private void internalClose()
-   {
+   private void internalClose() {
       transportConnection.close();
 
       manager.cleanup(this);
    }
 
-   public void fail(final ActiveMQException me)
-   {
-      synchronized (failLock)
-      {
-         if (destroyed)
-         {
+   public void fail(final ActiveMQException me) {
+      synchronized (failLock) {
+         if (destroyed) {
             return;
          }
 
@@ -333,99 +295,79 @@ public final class StompConnection implements RemotingConnection
       internalClose();
    }
 
-   public void fail(final ActiveMQException me, String scaleDownTargetNodeID)
-   {
+   public void fail(final ActiveMQException me, String scaleDownTargetNodeID) {
       fail(me);
    }
 
-   public void flush()
-   {
+   public void flush() {
    }
 
-   public List<FailureListener> getFailureListeners()
-   {
+   public List<FailureListener> getFailureListeners() {
       // we do not return the listeners otherwise the remoting service
       // would NOT destroy the connection.
       return Collections.emptyList();
    }
 
-   public Object getID()
-   {
+   public Object getID() {
       return transportConnection.getID();
    }
 
-   public String getRemoteAddress()
-   {
+   public String getRemoteAddress() {
       return transportConnection.getRemoteAddress();
    }
 
-   public long getCreationTime()
-   {
+   public long getCreationTime() {
       return creationTime;
    }
 
-   public Connection getTransportConnection()
-   {
+   public Connection getTransportConnection() {
       return transportConnection;
    }
 
-   public boolean isClient()
-   {
+   public boolean isClient() {
       return false;
    }
 
-   public boolean isDestroyed()
-   {
+   public boolean isDestroyed() {
       return destroyed;
    }
 
-   public void bufferReceived(Object connectionID, ActiveMQBuffer buffer)
-   {
+   public void bufferReceived(Object connectionID, ActiveMQBuffer buffer) {
       manager.handleBuffer(this, buffer);
    }
 
-   public String getLogin()
-   {
+   public String getLogin() {
       return login;
    }
 
-   public String getPasscode()
-   {
+   public String getPasscode() {
       return passcode;
    }
 
-   public void setClientID(String clientID)
-   {
+   public void setClientID(String clientID) {
       this.clientID = clientID;
    }
 
-   public String getClientID()
-   {
+   public String getClientID() {
       return clientID;
    }
 
-   public boolean isValid()
-   {
+   public boolean isValid() {
       return valid;
    }
 
-   public void setValid(boolean valid)
-   {
+   public void setValid(boolean valid) {
       this.valid = valid;
    }
 
-   private void callFailureListeners(final ActiveMQException me)
-   {
+   private void callFailureListeners(final ActiveMQException me) {
       final List<FailureListener> listenersClone = new ArrayList<FailureListener>(failureListeners);
 
-      for (final FailureListener listener : listenersClone)
-      {
-         try
-         {
+      for (final FailureListener listener : listenersClone) {
+         try {
             listener.connectionFailed(me, false);
          }
-         catch (final Throwable t)
-         {
+         catch (final Throwable t) {
             // Failure of one listener to execute shouldn't prevent others
             // from
             // executing
@@ -434,18 +376,14 @@ public final class StompConnection implements RemotingConnection
       }
    }
 
-   private void callClosingListeners()
-   {
+   private void callClosingListeners() {
       final List<CloseListener> listenersClone = new ArrayList<CloseListener>(closeListeners);
 
-      for (final CloseListener listener : listenersClone)
-      {
-         try
-         {
+      for (final CloseListener listener : listenersClone) {
+         try {
             listener.connectionClosed();
          }
-         catch (final Throwable t)
-         {
+         catch (final Throwable t) {
             // Failure of one listener to execute shouldn't prevent others
             // from
             // executing
@@ -458,37 +396,29 @@ public final class StompConnection implements RemotingConnection
     * accept-version value takes form of "v1,v2,v3..."
     * we need to return the highest supported version
     */
-   public void negotiateVersion(StompFrame frame) throws ActiveMQStompException
-   {
+   public void negotiateVersion(StompFrame frame) throws ActiveMQStompException {
       String acceptVersion = frame.getHeader(Stomp.Headers.ACCEPT_VERSION);
 
-      if (acceptVersion == null)
-      {
+      if (acceptVersion == null) {
          this.version = StompVersions.V1_0;
       }
-      else
-      {
+      else {
          StringTokenizer tokenizer = new StringTokenizer(acceptVersion, ",");
          Set<String> requestVersions = new HashSet<String>(tokenizer.countTokens());
-         while (tokenizer.hasMoreTokens())
-         {
+         while (tokenizer.hasMoreTokens()) {
             requestVersions.add(tokenizer.nextToken());
          }
 
-         if (requestVersions.contains(StompVersions.V1_2.toString()))
-         {
+         if (requestVersions.contains(StompVersions.V1_2.toString())) {
             this.version = StompVersions.V1_2;
          }
-         else if (requestVersions.contains(StompVersions.V1_1.toString()))
-         {
+         else if (requestVersions.contains(StompVersions.V1_1.toString())) {
             this.version = StompVersions.V1_1;
          }
-         else if (requestVersions.contains(StompVersions.V1_0.toString()))
-         {
+         else if (requestVersions.contains(StompVersions.V1_0.toString())) {
             this.version = StompVersions.V1_0;
          }
-         else
-         {
+         else {
             //not a supported version!
             ActiveMQStompException error = BUNDLE.versionNotSupported(acceptVersion).setHandler(frameHandler);
             error.addHeader(Stomp.Headers.Error.VERSION, manager.getSupportedVersionsAsErrorVersion());
@@ -499,9 +429,7 @@ public final class StompConnection implements RemotingConnection
          }
       }
 
-
-      if (this.version != (StompVersions.V1_0))
-      {
+      if (this.version != (StompVersions.V1_0)) {
          VersionedStompFrameHandler newHandler = VersionedStompFrameHandler.getHandler(this, this.version);
          newHandler.initDecoder(this.frameHandler);
          this.frameHandler = newHandler;
@@ -510,44 +438,35 @@ public final class StompConnection implements RemotingConnection
    }
 
    //reject if the host doesn't match
-   public void setHost(String host) throws ActiveMQStompException
-   {
-      if (host == null)
-      {
+   public void setHost(String host) throws ActiveMQStompException {
+      if (host == null) {
          ActiveMQStompException error = BUNDLE.nullHostHeader().setHandler(frameHandler);
          error.setBody(BUNDLE.hostCannotBeNull());
          throw error;
       }
 
       String localHost = manager.getVirtualHostName();
-      if (!host.equals(localHost))
-      {
+      if (!host.equals(localHost)) {
          ActiveMQStompException error = BUNDLE.hostNotMatch().setHandler(frameHandler);
          error.setBody(BUNDLE.hostNotMatchDetails(host));
          throw error;
       }
    }
 
-   public void handleFrame(StompFrame request)
-   {
+   public void handleFrame(StompFrame request) {
       StompFrame reply = null;
 
-      if (stompListener != null)
-      {
+      if (stompListener != null) {
          stompListener.requestAccepted(request);
       }
 
       String cmd = request.getCommand();
-      try
-      {
-         if (isDestroyed())
-         {
+      try {
+         if (isDestroyed()) {
             throw BUNDLE.connectionDestroyed().setHandler(frameHandler);
          }
-         if (!initialized)
-         {
-            if (!(Stomp.Commands.CONNECT.equals(cmd) || Stomp.Commands.STOMP.equals(cmd)))
-            {
+         if (!initialized) {
+            if (!(Stomp.Commands.CONNECT.equals(cmd) || Stomp.Commands.STOMP.equals(cmd))) {
                throw BUNDLE.connectionNotEstablished().setHandler(frameHandler);
             }
             //decide version
@@ -556,295 +475,235 @@ public final class StompConnection implements RemotingConnection
 
          reply = frameHandler.handleFrame(request);
       }
-      catch (ActiveMQStompException e)
-      {
+      catch (ActiveMQStompException e) {
          reply = e.getFrame();
       }
 
-      if (reply != null)
-      {
+      if (reply != null) {
          sendFrame(reply);
       }
 
-      if (Stomp.Commands.DISCONNECT.equals(cmd))
-      {
+      if (Stomp.Commands.DISCONNECT.equals(cmd)) {
          this.disconnect(false);
       }
    }
 
-   public void sendFrame(StompFrame frame)
-   {
+   public void sendFrame(StompFrame frame) {
       manager.sendReply(this, frame);
    }
 
-   public boolean validateUser(final String login1, final String passcode1)
-   {
+   public boolean validateUser(final String login1, final String passcode1) {
       this.valid = manager.validateUser(login1, passcode1);
-      if (valid)
-      {
+      if (valid) {
          this.login = login1;
          this.passcode = passcode1;
       }
       return valid;
    }
 
-   public ServerMessageImpl createServerMessage()
-   {
+   public ServerMessageImpl createServerMessage() {
       return manager.createServerMessage();
    }
 
-   public StompSession getSession(String txID) throws ActiveMQStompException
-   {
+   public StompSession getSession(String txID) throws ActiveMQStompException {
       StompSession session = null;
-      try
-      {
-         if (txID == null)
-         {
+      try {
+         if (txID == null) {
             session = manager.getSession(this);
          }
-         else
-         {
+         else {
             session = manager.getTransactedSession(this, txID);
          }
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          throw BUNDLE.errorGetSession(e).setHandler(frameHandler);
       }
 
       return session;
    }
 
-   protected void validate() throws ActiveMQStompException
-   {
-      if (!this.valid)
-      {
+   protected void validate() throws ActiveMQStompException {
+      if (!this.valid) {
          throw BUNDLE.invalidConnection().setHandler(frameHandler);
       }
    }
 
-   protected void sendServerMessage(ServerMessageImpl message, String txID) throws ActiveMQStompException
-   {
+   protected void sendServerMessage(ServerMessageImpl message, String txID) throws ActiveMQStompException {
       StompSession stompSession = getSession(txID);
 
-      if (stompSession.isNoLocal())
-      {
+      if (stompSession.isNoLocal()) {
          message.putStringProperty(CONNECTION_ID_PROP, getID().toString());
       }
-      if (enableMessageID())
-      {
-         message.putStringProperty("amqMessageId",
-                                   "STOMP" + message.getMessageID());
+      if (enableMessageID()) {
+         message.putStringProperty("amqMessageId", "STOMP" + message.getMessageID());
       }
-      try
-      {
-         if (minLargeMessageSize == -1 || (message.getBodyBuffer().writerIndex() < minLargeMessageSize))
-         {
+      try {
+         if (minLargeMessageSize == -1 || (message.getBodyBuffer().writerIndex() < minLargeMessageSize)) {
             stompSession.sendInternal(message, false);
          }
-         else
-         {
+         else {
             stompSession.sendInternalLarge(message, false);
          }
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          throw BUNDLE.errorSendMessage(message, e).setHandler(frameHandler);
       }
    }
 
    @Override
-   public void disconnect(final boolean criticalError)
-   {
+   public void disconnect(final boolean criticalError) {
       disconnect(null, criticalError);
    }
 
    @Override
-   public void disconnect(String scaleDownNodeID, final boolean criticalError)
-   {
+   public void disconnect(String scaleDownNodeID, final boolean criticalError) {
       destroy();
    }
 
-   protected void beginTransaction(String txID) throws ActiveMQStompException
-   {
-      try
-      {
+   protected void beginTransaction(String txID) throws ActiveMQStompException {
+      try {
          manager.beginTransaction(this, txID);
       }
-      catch (ActiveMQStompException e)
-      {
+      catch (ActiveMQStompException e) {
          throw e;
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          throw BUNDLE.errorBeginTx(txID, e).setHandler(frameHandler);
       }
    }
 
-   public void commitTransaction(String txID) throws ActiveMQStompException
-   {
-      try
-      {
+   public void commitTransaction(String txID) throws ActiveMQStompException {
+      try {
          manager.commitTransaction(this, txID);
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          throw BUNDLE.errorCommitTx(txID, e).setHandler(frameHandler);
       }
    }
 
-   public void abortTransaction(String txID) throws ActiveMQStompException
-   {
-      try
-      {
+   public void abortTransaction(String txID) throws ActiveMQStompException {
+      try {
          manager.abortTransaction(this, txID);
       }
-      catch (ActiveMQStompException e)
-      {
+      catch (ActiveMQStompException e) {
          throw e;
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          throw BUNDLE.errorAbortTx(txID, e).setHandler(frameHandler);
       }
    }
 
-   void subscribe(String destination, String selector, String ack,
-                  String id, String durableSubscriptionName, boolean noLocal) throws ActiveMQStompException
-   {
+   void subscribe(String destination,
+                  String selector,
+                  String ack,
+                  String id,
+                  String durableSubscriptionName,
+                  boolean noLocal) throws ActiveMQStompException {
       autoCreateQueueIfPossible(destination);
-      if (noLocal)
-      {
+      if (noLocal) {
          String noLocalFilter = CONNECTION_ID_PROP + " <> '" + getID().toString() + "'";
-         if (selector == null)
-         {
+         if (selector == null) {
             selector = noLocalFilter;
          }
-         else
-         {
+         else {
             selector += " AND " + noLocalFilter;
          }
       }
 
-      if (ack == null)
-      {
+      if (ack == null) {
          ack = Stomp.Headers.Subscribe.AckModeValues.AUTO;
       }
 
       String subscriptionID = null;
-      if (id != null)
-      {
+      if (id != null) {
          subscriptionID = id;
       }
-      else
-      {
-         if (destination == null)
-         {
+      else {
+         if (destination == null) {
             throw BUNDLE.noDestination().setHandler(frameHandler);
          }
          subscriptionID = "subscription/" + destination;
       }
 
-      try
-      {
+      try {
          manager.createSubscription(this, subscriptionID, durableSubscriptionName, destination, selector, ack, noLocal);
       }
-      catch (ActiveMQStompException e)
-      {
+      catch (ActiveMQStompException e) {
          throw e;
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          throw BUNDLE.errorCreatSubscription(subscriptionID, e).setHandler(frameHandler);
       }
    }
 
-   public void unsubscribe(String subscriptionID, String durableSubscriberName) throws ActiveMQStompException
-   {
-      try
-      {
+   public void unsubscribe(String subscriptionID, String durableSubscriberName) throws ActiveMQStompException {
+      try {
          manager.unsubscribe(this, subscriptionID, durableSubscriberName);
       }
-      catch (ActiveMQStompException e)
-      {
+      catch (ActiveMQStompException e) {
          throw e;
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          throw BUNDLE.errorUnsubscrib(subscriptionID, e).setHandler(frameHandler);
       }
    }
 
-   public void acknowledge(String messageID, String subscriptionID) throws ActiveMQStompException
-   {
-      try
-      {
+   public void acknowledge(String messageID, String subscriptionID) throws ActiveMQStompException {
+      try {
          manager.acknowledge(this, messageID, subscriptionID);
       }
-      catch (ActiveMQStompException e)
-      {
+      catch (ActiveMQStompException e) {
          throw e;
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          throw BUNDLE.errorAck(messageID, e).setHandler(frameHandler);
       }
    }
 
-   public String getVersion()
-   {
+   public String getVersion() {
       return String.valueOf(version);
    }
 
-   public String getActiveMQServerName()
-   {
+   public String getActiveMQServerName() {
       return SERVER_NAME;
    }
 
    public StompFrame createStompMessage(ServerMessage serverMessage,
-                                        StompSubscription subscription, int deliveryCount) throws Exception
-   {
+                                        StompSubscription subscription,
+                                        int deliveryCount) throws Exception {
       return frameHandler.createMessageFrame(serverMessage, subscription, deliveryCount);
    }
 
-   public void addStompEventListener(FrameEventListener listener)
-   {
+   public void addStompEventListener(FrameEventListener listener) {
       this.stompListener = listener;
    }
 
    //send a ping stomp frame
-   public void ping(StompFrame pingFrame)
-   {
+   public void ping(StompFrame pingFrame) {
       manager.sendReply(this, pingFrame);
    }
 
-   public void physicalSend(StompFrame frame) throws Exception
-   {
+   public void physicalSend(StompFrame frame) throws Exception {
       ActiveMQBuffer buffer = frame.toActiveMQBuffer();
-      synchronized (sendLock)
-      {
+      synchronized (sendLock) {
          getTransportConnection().write(buffer, false, false);
       }
 
-      if (stompListener != null)
-      {
+      if (stompListener != null) {
          stompListener.replySent(frame);
       }
 
    }
 
-   public VersionedStompFrameHandler getFrameHandler()
-   {
+   public VersionedStompFrameHandler getFrameHandler() {
       return this.frameHandler;
    }
 
-   public boolean enableMessageID()
-   {
+   public boolean enableMessageID() {
       return enableMessageID;
    }
 
-   public int getMinLargeMessageSize()
-   {
+   public int getMinLargeMessageSize() {
       return minLargeMessageSize;
    }
 

@@ -34,8 +34,7 @@ import javax.jms.QueueConnection;
 import javax.jms.QueueSession;
 import javax.jms.Session;
 
-public class JMSServerControlUsingJMSTest extends JMSServerControlTest
-{
+public class JMSServerControlUsingJMSTest extends JMSServerControlTest {
 
    // Constants -----------------------------------------------------
 
@@ -47,11 +46,9 @@ public class JMSServerControlUsingJMSTest extends JMSServerControlTest
 
    // Static --------------------------------------------------------
 
-   private static String[] toStringArray(final Object[] res)
-   {
+   private static String[] toStringArray(final Object[] res) {
       String[] names = new String[res.length];
-      for (int i = 0; i < res.length; i++)
-      {
+      for (int i = 0; i < res.length; i++) {
          names[i] = res[i].toString();
       }
       return names;
@@ -60,8 +57,7 @@ public class JMSServerControlUsingJMSTest extends JMSServerControlTest
    // The JMS test won't support the server being restarted, hence we have to do a slight different test on that case
    @Override
    @Test
-   public void testCreateConnectionFactory_CompleteList() throws Exception
-   {
+   public void testCreateConnectionFactory_CompleteList() throws Exception {
       JMSServerControl control = createManagementControl();
       control.createConnectionFactory("test", //name
                                       true, // ha
@@ -99,8 +95,7 @@ public class JMSServerControlUsingJMSTest extends JMSServerControlTest
                                       true, // failoverOnInitialConnection
                                       "tst"); // groupID
 
-
-      ActiveMQQueueConnectionFactory cf = (ActiveMQQueueConnectionFactory)context.lookup("tst");
+      ActiveMQQueueConnectionFactory cf = (ActiveMQQueueConnectionFactory) context.lookup("tst");
 
       Assert.assertEquals(true, cf.isHA());
       Assert.assertEquals("tst", cf.getClientID());
@@ -137,187 +132,154 @@ public class JMSServerControlUsingJMSTest extends JMSServerControlTest
 
    // JMSServerControlTest overrides --------------------------------
    @Override
-   protected int getNumberOfConsumers()
-   {
+   protected int getNumberOfConsumers() {
       return 1;
    }
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
-      ActiveMQConnectionFactory cf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF,
-                                                                                        new TransportConfiguration(InVMConnectorFactory.class.getName()));
+      ActiveMQConnectionFactory cf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration(InVMConnectorFactory.class.getName()));
       connection = cf.createQueueConnection();
       session = connection.createQueueSession(false, Session.AUTO_ACKNOWLEDGE);
       connection.start();
    }
 
    @Override
-   protected JMSServerControl createManagementControl() throws Exception
-   {
+   protected JMSServerControl createManagementControl() throws Exception {
       ActiveMQQueue managementQueue = (ActiveMQQueue) ActiveMQJMSClient.createQueue("activemq.management");
       final JMSMessagingProxy proxy = new JMSMessagingProxy(session, managementQueue, ResourceNames.JMS_SERVER);
 
-      return new JMSServerControl()
-      {
+      return new JMSServerControl() {
 
-         public boolean closeConnectionsForAddress(final String ipAddress) throws Exception
-         {
-            return (Boolean)proxy.invokeOperation("closeConnectionsForAddress", ipAddress);
+         public boolean closeConnectionsForAddress(final String ipAddress) throws Exception {
+            return (Boolean) proxy.invokeOperation("closeConnectionsForAddress", ipAddress);
          }
 
-         public boolean closeConsumerConnectionsForAddress(final String address) throws Exception
-         {
-            return (Boolean)proxy.invokeOperation("closeConsumerConnectionsForAddress", address);
+         public boolean closeConsumerConnectionsForAddress(final String address) throws Exception {
+            return (Boolean) proxy.invokeOperation("closeConsumerConnectionsForAddress", address);
          }
 
-         public boolean closeConnectionsForUser(final String userName) throws Exception
-         {
-            return (Boolean)proxy.invokeOperation("closeConnectionsForUser", userName);
+         public boolean closeConnectionsForUser(final String userName) throws Exception {
+            return (Boolean) proxy.invokeOperation("closeConnectionsForUser", userName);
          }
 
-         public boolean createQueue(final String name) throws Exception
-         {
-            return (Boolean)proxy.invokeOperation("createQueue", name);
+         public boolean createQueue(final String name) throws Exception {
+            return (Boolean) proxy.invokeOperation("createQueue", name);
          }
 
-         public boolean createQueue(String name, String jndiBindings, String selector) throws Exception
-         {
-            return (Boolean)proxy.invokeOperation("createQueue", name, jndiBindings, selector);
+         public boolean createQueue(String name, String jndiBindings, String selector) throws Exception {
+            return (Boolean) proxy.invokeOperation("createQueue", name, jndiBindings, selector);
          }
 
-         public boolean createQueue(String name, String jndiBindings, String selector, boolean durable) throws Exception
-         {
-            return (Boolean)proxy.invokeOperation("createQueue", name, jndiBindings, selector, durable);
+         public boolean createQueue(String name,
+                                    String jndiBindings,
+                                    String selector,
+                                    boolean durable) throws Exception {
+            return (Boolean) proxy.invokeOperation("createQueue", name, jndiBindings, selector, durable);
          }
 
-         public boolean createTopic(final String name) throws Exception
-         {
-            return (Boolean)proxy.invokeOperation("createTopic", name);
+         public boolean createTopic(final String name) throws Exception {
+            return (Boolean) proxy.invokeOperation("createTopic", name);
          }
 
-         public void destroyConnectionFactory(final String name) throws Exception
-         {
+         public void destroyConnectionFactory(final String name) throws Exception {
             proxy.invokeOperation("destroyConnectionFactory", name);
          }
 
-         public boolean destroyQueue(final String name) throws Exception
-         {
-            return (Boolean)proxy.invokeOperation("destroyQueue", name);
+         public boolean destroyQueue(final String name) throws Exception {
+            return (Boolean) proxy.invokeOperation("destroyQueue", name);
          }
 
          @Override
-         public boolean destroyQueue(String name, boolean removeConsumers) throws Exception
-         {
-            return (Boolean)proxy.invokeOperation("destroyQueue", name, removeConsumers);
+         public boolean destroyQueue(String name, boolean removeConsumers) throws Exception {
+            return (Boolean) proxy.invokeOperation("destroyQueue", name, removeConsumers);
          }
 
-         public boolean destroyTopic(final String name) throws Exception
-         {
-            return (Boolean)proxy.invokeOperation("destroyTopic", name);
+         public boolean destroyTopic(final String name) throws Exception {
+            return (Boolean) proxy.invokeOperation("destroyTopic", name);
          }
 
-         public boolean destroyTopic(final String name, boolean removeConsumers) throws Exception
-         {
-            return (Boolean)proxy.invokeOperation("destroyTopic", name, removeConsumers);
+         public boolean destroyTopic(final String name, boolean removeConsumers) throws Exception {
+            return (Boolean) proxy.invokeOperation("destroyTopic", name, removeConsumers);
          }
 
-         public String getVersion()
-         {
-            return (String)proxy.retrieveAttributeValue("version");
+         public String getVersion() {
+            return (String) proxy.retrieveAttributeValue("version");
          }
 
-         public boolean isStarted()
-         {
-            return (Boolean)proxy.retrieveAttributeValue("started");
+         public boolean isStarted() {
+            return (Boolean) proxy.retrieveAttributeValue("started");
          }
 
-         public String[] getQueueNames()
-         {
-            return JMSServerControlUsingJMSTest.toStringArray((Object[])proxy.retrieveAttributeValue("queueNames"));
+         public String[] getQueueNames() {
+            return JMSServerControlUsingJMSTest.toStringArray((Object[]) proxy.retrieveAttributeValue("queueNames"));
          }
 
-         public String[] getTopicNames()
-         {
-            return JMSServerControlUsingJMSTest.toStringArray((Object[])proxy.retrieveAttributeValue("topicNames"));
+         public String[] getTopicNames() {
+            return JMSServerControlUsingJMSTest.toStringArray((Object[]) proxy.retrieveAttributeValue("topicNames"));
          }
 
-         public String[] getConnectionFactoryNames()
-         {
-            return JMSServerControlUsingJMSTest.toStringArray((Object[])proxy.retrieveAttributeValue("connectionFactoryNames"));
+         public String[] getConnectionFactoryNames() {
+            return JMSServerControlUsingJMSTest.toStringArray((Object[]) proxy.retrieveAttributeValue("connectionFactoryNames"));
          }
 
-         public String[] listConnectionIDs() throws Exception
-         {
-            return (String[])proxy.invokeOperation("listConnectionIDs");
+         public String[] listConnectionIDs() throws Exception {
+            return (String[]) proxy.invokeOperation("listConnectionIDs");
          }
 
-         public String listConnectionsAsJSON() throws Exception
-         {
-            return (String)proxy.invokeOperation("listConnectionsAsJSON");
+         public String listConnectionsAsJSON() throws Exception {
+            return (String) proxy.invokeOperation("listConnectionsAsJSON");
          }
 
-         public String listConsumersAsJSON(String connectionID) throws Exception
-         {
-            return (String)proxy.invokeOperation("listConsumersAsJSON", connectionID);
+         public String listConsumersAsJSON(String connectionID) throws Exception {
+            return (String) proxy.invokeOperation("listConsumersAsJSON", connectionID);
          }
 
-         public String[] listRemoteAddresses() throws Exception
-         {
-            return (String[])proxy.invokeOperation("listRemoteAddresses");
+         public String[] listRemoteAddresses() throws Exception {
+            return (String[]) proxy.invokeOperation("listRemoteAddresses");
          }
 
-         public String[] listRemoteAddresses(final String ipAddress) throws Exception
-         {
-            return (String[])proxy.invokeOperation("listRemoteAddresses", ipAddress);
+         public String[] listRemoteAddresses(final String ipAddress) throws Exception {
+            return (String[]) proxy.invokeOperation("listRemoteAddresses", ipAddress);
          }
 
-         public String[] listSessions(final String connectionID) throws Exception
-         {
-            return (String[])proxy.invokeOperation("listSessions", connectionID);
+         public String[] listSessions(final String connectionID) throws Exception {
+            return (String[]) proxy.invokeOperation("listSessions", connectionID);
          }
 
-         public boolean createQueue(String name, String jndiBinding) throws Exception
-         {
-            return (Boolean)proxy.invokeOperation("createQueue", name, jndiBinding);
+         public boolean createQueue(String name, String jndiBinding) throws Exception {
+            return (Boolean) proxy.invokeOperation("createQueue", name, jndiBinding);
          }
 
-         public boolean createTopic(String name, String jndiBinding) throws Exception
-         {
-            return (Boolean)proxy.invokeOperation("createTopic", name, jndiBinding);
+         public boolean createTopic(String name, String jndiBinding) throws Exception {
+            return (Boolean) proxy.invokeOperation("createTopic", name, jndiBinding);
          }
 
-         public String[] listTargetDestinations(String sessionID) throws Exception
-         {
+         public String[] listTargetDestinations(String sessionID) throws Exception {
             return null;
          }
 
-         public String getLastSentMessageID(String sessionID, String address) throws Exception
-         {
+         public String getLastSentMessageID(String sessionID, String address) throws Exception {
             return null;
          }
 
-         public String getSessionCreationTime(String sessionID) throws Exception
-         {
-            return (String)proxy.invokeOperation("getSessionCreationTime", sessionID);
+         public String getSessionCreationTime(String sessionID) throws Exception {
+            return (String) proxy.invokeOperation("getSessionCreationTime", sessionID);
          }
 
-         public String listSessionsAsJSON(String connectionID) throws Exception
-         {
-            return (String)proxy.invokeOperation("listSessionsAsJSON", connectionID);
+         public String listSessionsAsJSON(String connectionID) throws Exception {
+            return (String) proxy.invokeOperation("listSessionsAsJSON", connectionID);
          }
 
-         public String listPreparedTransactionDetailsAsJSON() throws Exception
-         {
-            return (String)proxy.invokeOperation("listPreparedTransactionDetailsAsJSON");
+         public String listPreparedTransactionDetailsAsJSON() throws Exception {
+            return (String) proxy.invokeOperation("listPreparedTransactionDetailsAsJSON");
          }
 
-         public String listPreparedTransactionDetailsAsHTML() throws Exception
-         {
-            return (String)proxy.invokeOperation("listPreparedTransactionDetailsAsHTML");
+         public String listPreparedTransactionDetailsAsHTML() throws Exception {
+            return (String) proxy.invokeOperation("listPreparedTransactionDetailsAsHTML");
          }
 
          public void createConnectionFactory(String name,
@@ -325,8 +287,7 @@ public class JMSServerControlUsingJMSTest extends JMSServerControlTest
                                              boolean useDiscovery,
                                              int cfType,
                                              String[] connectorNames,
-                                             Object[] bindings) throws Exception
-         {
+                                             Object[] bindings) throws Exception {
             proxy.invokeOperation("createConnectionFactory", name, ha, useDiscovery, cfType, connectorNames, bindings);
 
          }
@@ -336,14 +297,12 @@ public class JMSServerControlUsingJMSTest extends JMSServerControlTest
                                              boolean useDiscovery,
                                              int cfType,
                                              String connectors,
-                                             String jndiBindings) throws Exception
-         {
+                                             String jndiBindings) throws Exception {
             proxy.invokeOperation("createConnectionFactory", name, ha, useDiscovery, cfType, connectors, jndiBindings);
          }
 
-         public String listAllConsumersAsJSON() throws Exception
-         {
-            return (String)proxy.invokeOperation("listAllConsumersAsJSON");
+         public String listAllConsumersAsJSON() throws Exception {
+            return (String) proxy.invokeOperation("listAllConsumersAsJSON");
          }
 
          public void createConnectionFactory(String name,
@@ -380,44 +339,8 @@ public class JMSServerControlUsingJMSTest extends JMSServerControlTest
                                              long maxRetryInterval,
                                              int reconnectAttempts,
                                              boolean failoverOnInitialConnection,
-                                             String groupId) throws Exception
-         {
-            proxy.invokeOperation("createConnectionFactory",
-                                  name,
-                                  ha,
-                                  useDiscovery,
-                                  cfType,
-                                  connectors,
-                                  jndiBindings,
-                                  clientID,
-                                  clientFailureCheckPeriod,
-                                  connectionTTL,
-                                  callTimeout,
-                                  callFailoverTimeout,
-                                  minLargeMessageSize,
-                                  compressLargeMessages,
-                                  consumerWindowSize,
-                                  consumerMaxRate,
-                                  confirmationWindowSize,
-                                  producerWindowSize,
-                                  producerMaxRate,
-                                  blockOnAcknowledge,
-                                  blockOnDurableSend,
-                                  blockOnNonDurableSend,
-                                  autoGroup,
-                                  preAcknowledge,
-                                  loadBalancingPolicyClassName,
-                                  transactionBatchSize,
-                                  dupsOKBatchSize,
-                                  useGlobalPools,
-                                  scheduledThreadPoolMaxSize,
-                                  threadPoolMaxSize,
-                                  retryInterval,
-                                  retryIntervalMultiplier,
-                                  maxRetryInterval,
-                                  reconnectAttempts,
-                                  failoverOnInitialConnection,
-                                  groupId);
+                                             String groupId) throws Exception {
+            proxy.invokeOperation("createConnectionFactory", name, ha, useDiscovery, cfType, connectors, jndiBindings, clientID, clientFailureCheckPeriod, connectionTTL, callTimeout, callFailoverTimeout, minLargeMessageSize, compressLargeMessages, consumerWindowSize, consumerMaxRate, confirmationWindowSize, producerWindowSize, producerMaxRate, blockOnAcknowledge, blockOnDurableSend, blockOnNonDurableSend, autoGroup, preAcknowledge, loadBalancingPolicyClassName, transactionBatchSize, dupsOKBatchSize, useGlobalPools, scheduledThreadPoolMaxSize, threadPoolMaxSize, retryInterval, retryIntervalMultiplier, maxRetryInterval, reconnectAttempts, failoverOnInitialConnection, groupId);
          }
 
          public void createConnectionFactory(String name,
@@ -454,49 +377,12 @@ public class JMSServerControlUsingJMSTest extends JMSServerControlTest
                                              long maxRetryInterval,
                                              int reconnectAttempts,
                                              boolean failoverOnInitialConnection,
-                                             String groupId) throws Exception
-         {
-            proxy.invokeOperation("createConnectionFactory",
-                                  name,
-                                  ha,
-                                  useDiscovery,
-                                  cfType,
-                                  connectors,
-                                  jndiBindings,
-                                  clientID,
-                                  clientFailureCheckPeriod,
-                                  connectionTTL,
-                                  callTimeout,
-                                  callFailoverTimeout,
-                                  minLargeMessageSize,
-                                  compressLargeMessages,
-                                  consumerWindowSize,
-                                  consumerMaxRate,
-                                  confirmationWindowSize,
-                                  producerWindowSize,
-                                  producerMaxRate,
-                                  blockOnAcknowledge,
-                                  blockOnDurableSend,
-                                  blockOnNonDurableSend,
-                                  autoGroup,
-                                  preAcknowledge,
-                                  loadBalancingPolicyClassName,
-                                  transactionBatchSize,
-                                  dupsOKBatchSize,
-                                  useGlobalPools,
-                                  scheduledThreadPoolMaxSize,
-                                  threadPoolMaxSize,
-                                  retryInterval,
-                                  retryIntervalMultiplier,
-                                  maxRetryInterval,
-                                  reconnectAttempts,
-                                  failoverOnInitialConnection,
-                                  groupId);
+                                             String groupId) throws Exception {
+            proxy.invokeOperation("createConnectionFactory", name, ha, useDiscovery, cfType, connectors, jndiBindings, clientID, clientFailureCheckPeriod, connectionTTL, callTimeout, callFailoverTimeout, minLargeMessageSize, compressLargeMessages, consumerWindowSize, consumerMaxRate, confirmationWindowSize, producerWindowSize, producerMaxRate, blockOnAcknowledge, blockOnDurableSend, blockOnNonDurableSend, autoGroup, preAcknowledge, loadBalancingPolicyClassName, transactionBatchSize, dupsOKBatchSize, useGlobalPools, scheduledThreadPoolMaxSize, threadPoolMaxSize, retryInterval, retryIntervalMultiplier, maxRetryInterval, reconnectAttempts, failoverOnInitialConnection, groupId);
          }
 
-         public String closeConnectionWithClientID(String clientID) throws Exception
-         {
-            return (String)proxy.invokeOperation("closeConnectionWithClientID", clientID);
+         public String closeConnectionWithClientID(String clientID) throws Exception {
+            return (String) proxy.invokeOperation("closeConnectionWithClientID", clientID);
          }
 
       };

@@ -23,17 +23,15 @@ import org.apache.activemq.artemis.rest.util.LinkStrategy;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class AutoAckTopicTest
-{
-   public static Link getLinkByTitle(LinkStrategy strategy, ClientResponse response, String title)
-   {
+public class AutoAckTopicTest {
+
+   public static Link getLinkByTitle(LinkStrategy strategy, ClientResponse response, String title) {
       return response.getLinkHeader().getLinkByTitle(title);
    }
 
    //todo fix
    //@Test
-   public void testSuccessFirst() throws Exception
-   {
+   public void testSuccessFirst() throws Exception {
       ClientRequest request = new ClientRequest("http://localhost:9095/topics/jms.topic.chat");
 
       ClientResponse response = request.head();

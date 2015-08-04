@@ -19,13 +19,13 @@ package org.apache.activemq.usecases;
 import javax.jms.DeliveryMode;
 
 /**
- * 
+ *
  */
 public class PublishOnTemporaryQueueConsumedMessageTest extends PublishOnTopicConsumedMessageTest {
 
-    protected void setUp() throws Exception {
-        topic = false;
-        deliveryMode = DeliveryMode.NON_PERSISTENT;
-        super.setUp();
-    }
+   protected void setUp() throws Exception {
+      topic = false;
+      deliveryMode = DeliveryMode.NON_PERSISTENT;
+      super.setUp();
+   }
 }

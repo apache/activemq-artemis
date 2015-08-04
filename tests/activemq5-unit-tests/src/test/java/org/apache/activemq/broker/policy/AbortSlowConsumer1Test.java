@@ -36,69 +36,65 @@ import static org.junit.Assert.assertTrue;
 @RunWith(value = Parameterized.class)
 public class AbortSlowConsumer1Test extends AbortSlowConsumerBase {
 
-    private static final Logger LOG = LoggerFactory.getLogger(AbortSlowConsumer1Test.class);
+   private static final Logger LOG = LoggerFactory.getLogger(AbortSlowConsumer1Test.class);
 
-    @Parameterized.Parameters(name = "abortConnection({0})-isTopic({1})")
-    public static Collection<Object[]> getTestParameters() {
-        return Arrays.asList(new Object[][]{
-                {Boolean.TRUE, Boolean.TRUE},
-                {Boolean.TRUE, Boolean.FALSE},
-                {Boolean.FALSE, Boolean.TRUE},
-                {Boolean.FALSE, Boolean.FALSE}});
-    }
+   @Parameterized.Parameters(name = "abortConnection({0})-isTopic({1})")
+   public static Collection<Object[]> getTestParameters() {
+      return Arrays.asList(new Object[][]{{Boolean.TRUE, Boolean.TRUE}, {Boolean.TRUE, Boolean.FALSE}, {Boolean.FALSE, Boolean.TRUE}, {Boolean.FALSE, Boolean.FALSE}});
+   }
 
-    public AbortSlowConsumer1Test(Boolean abortConnection, Boolean topic) {
-        this.abortConnection = abortConnection;
-        this.topic = topic;
-    }
+   public AbortSlowConsumer1Test(Boolean abortConnection, Boolean topic) {
+      this.abortConnection = abortConnection;
+      this.topic = topic;
+   }
 
-    @Test(timeout = 60 * 1000)
-    public void testSlowConsumerIsAborted() throws Exception {
-        startConsumers(destination);
-        Entry<MessageConsumer, MessageIdList> consumertoAbort = consumers.entrySet().iterator().next();
-        consumertoAbort.getValue().setProcessingDelay(8 * 1000);
-        for (Connection c : connections) {
-            c.setExceptionListener(this);
-        }
-        startProducers(destination, 100);
+   @Test(timeout = 60 * 1000)
+   public void testSlowConsumerIsAborted() throws Exception {
+      startConsumers(destination);
+      Entry<MessageConsumer, MessageIdList> consumertoAbort = consumers.entrySet().iterator().next();
+      consumertoAbort.getValue().setProcessingDelay(8 * 1000);
+      for (Connection c : connections) {
+         c.setExceptionListener(this);
+      }
+      startProducers(destination, 100);
 
-        consumertoAbort.getValue().assertMessagesReceived(1);
-        TimeUnit.SECONDS.sleep(5);
-        consumertoAbort.getValue().assertAtMostMessagesReceived(1);
-    }
+      consumertoAbort.getValue().assertMessagesReceived(1);
+      TimeUnit.SECONDS.sleep(5);
+      consumertoAbort.getValue().assertAtMostMessagesReceived(1);
+   }
 
-    @Test(timeout = 60 * 1000)
-    public void testAbortAlreadyClosedConsumers() throws Exception {
-        Connection conn = createConnectionFactory().createConnection();
-        conn.setExceptionListener(this);
-        connections.add(conn);
+   @Test(timeout = 60 * 1000)
+   public void testAbortAlreadyClosedConsumers() throws Exception {
+      Connection conn = createConnectionFactory().createConnection();
+      conn.setExceptionListener(this);
+      connections.add(conn);
 
-        Session sess = conn.createSession(false, Session.CLIENT_ACKNOWLEDGE);
-        final MessageConsumer consumer = sess.createConsumer(destination);
-        conn.start();
-        startProducers(destination, 20);
-        TimeUnit.SECONDS.sleep(1);
-        LOG.info("closing consumer: " + consumer);
-        consumer.close();
+      Session sess = conn.createSession(false, Session.CLIENT_ACKNOWLEDGE);
+      final MessageConsumer consumer = sess.createConsumer(destination);
+      conn.start();
+      startProducers(destination, 20);
+      TimeUnit.SECONDS.sleep(1);
+      LOG.info("closing consumer: " + consumer);
+      consumer.close();
 
-        TimeUnit.SECONDS.sleep(5);
-        assertTrue("no exceptions : " + exceptions, exceptions.isEmpty());
-    }
+      TimeUnit.SECONDS.sleep(5);
+      assertTrue("no exceptions : " + exceptions, exceptions.isEmpty());
+   }
 
-    @Test(timeout = 60 * 1000)
-    public void testAbortAlreadyClosedConnection() throws Exception {
-        Connection conn = createConnectionFactory().createConnection();
-        conn.setExceptionListener(this);
+   @Test(timeout = 60 * 1000)
+   public void testAbortAlreadyClosedConnection() throws Exception {
+      Connection conn = createConnectionFactory().createConnection();
+      conn.setExceptionListener(this);
 
-        Session sess = conn.createSession(false, Session.CLIENT_ACKNOWLEDGE);
-        sess.createConsumer(destination);
-        conn.start();
-        startProducers(destination, 20);
-        TimeUnit.SECONDS.sleep(1);
-        LOG.info("closing connection: " + conn);
-        conn.close();
+      Session sess = conn.createSession(false, Session.CLIENT_ACKNOWLEDGE);
+      sess.createConsumer(destination);
+      conn.start();
+      startProducers(destination, 20);
+      TimeUnit.SECONDS.sleep(1);
+      LOG.info("closing connection: " + conn);
+      conn.close();
 
-        TimeUnit.SECONDS.sleep(5);
-        assertTrue("no exceptions : " + exceptions, exceptions.isEmpty());
-    }
+      TimeUnit.SECONDS.sleep(5);
+      assertTrue("no exceptions : " + exceptions, exceptions.isEmpty());
+   }
 }

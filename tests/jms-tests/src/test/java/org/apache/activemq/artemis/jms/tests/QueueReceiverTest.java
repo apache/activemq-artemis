@@ -26,18 +26,16 @@ import javax.jms.TextMessage;
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
 import org.junit.Test;
 
-public class QueueReceiverTest extends JMSTestCase
-{
+public class QueueReceiverTest extends JMSTestCase {
+
    /**
     * com.sun.ts.tests.jms.ee.all.queueconn.QueueConnTest line 171
     */
    @Test
-   public void testCreateReceiverWithMessageSelector() throws Exception
-   {
+   public void testCreateReceiverWithMessageSelector() throws Exception {
       QueueConnection qc = null;
 
-      try
-      {
+      try {
          qc = createQueueConnection();
          QueueSession qs = qc.createQueueSession(false, Session.AUTO_ACKNOWLEDGE);
 
@@ -58,14 +56,12 @@ public class QueueReceiverTest extends JMSTestCase
 
          qsender.send(m);
 
-         TextMessage rm = (TextMessage)qreceiver.receive(1000);
+         TextMessage rm = (TextMessage) qreceiver.receive(1000);
 
          ProxyAssertSupport.assertEquals("two", rm.getText());
       }
-      finally
-      {
-         if (qc != null)
-         {
+      finally {
+         if (qc != null) {
             qc.close();
          }
          Thread.sleep(2000);

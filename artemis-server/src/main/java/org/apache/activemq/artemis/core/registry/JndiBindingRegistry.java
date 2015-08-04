@@ -23,105 +23,80 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
-public class JndiBindingRegistry implements BindingRegistry
-{
+public class JndiBindingRegistry implements BindingRegistry {
+
    private Context context;
 
-   public JndiBindingRegistry(Context context)
-   {
+   public JndiBindingRegistry(Context context) {
       this.context = context;
    }
 
-   public JndiBindingRegistry() throws Exception
-   {
+   public JndiBindingRegistry() throws Exception {
       this.context = new InitialContext();
    }
 
-   public Object lookup(String name)
-   {
-      try
-      {
-         if (context == null)
-         {
+   public Object lookup(String name) {
+      try {
+         if (context == null) {
             return null;
          }
-         else
-         {
+         else {
             return context.lookup(name);
          }
       }
-      catch (NamingException e)
-      {
+      catch (NamingException e) {
          return null;
       }
    }
 
-   public boolean bind(String name, Object obj)
-   {
-      try
-      {
+   public boolean bind(String name, Object obj) {
+      try {
          return bindToJndi(name, obj);
       }
-      catch (NamingException e)
-      {
+      catch (NamingException e) {
          throw new RuntimeException(e);
       }
    }
 
-   public void unbind(String name)
-   {
-      try
-      {
-         if (context != null)
-         {
+   public void unbind(String name) {
+      try {
+         if (context != null) {
             context.unbind(name);
          }
       }
-      catch (NamingException e)
-      {
+      catch (NamingException e) {
       }
    }
 
-   public void close()
-   {
-      try
-      {
-         if (context != null)
-         {
+   public void close() {
+      try {
+         if (context != null) {
             context.close();
          }
       }
-      catch (NamingException e)
-      {
+      catch (NamingException e) {
       }
    }
 
-
-   private boolean bindToJndi(final String jndiName, final Object objectToBind) throws NamingException
-   {
-      if (context != null)
-      {
+   private boolean bindToJndi(final String jndiName, final Object objectToBind) throws NamingException {
+      if (context != null) {
          String parentContext;
          String jndiNameInContext;
          int sepIndex = jndiName.lastIndexOf('/');
-         if (sepIndex == -1)
-         {
+         if (sepIndex == -1) {
             parentContext = "";
          }
-         else
-         {
+         else {
             parentContext = jndiName.substring(0, sepIndex);
          }
          jndiNameInContext = jndiName.substring(sepIndex + 1);
-         try
-         {
+         try {
             context.lookup(jndiName);
 
             //JMSServerManagerImpl.log.warn("Binding for " + jndiName + " already exists");
             return false;
          }
-         catch (Throwable e)
-         {
+         catch (Throwable e) {
             // OK
          }
 

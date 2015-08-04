@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 package org.apache.activemq.security;
+
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
@@ -41,43 +42,42 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-
-@RunWith( FrameworkRunner.class )
-@CreateLdapServer(transports = {@CreateTransport(protocol = "LDAP", port=1024)})
+@RunWith(FrameworkRunner.class)
+@CreateLdapServer(transports = {@CreateTransport(protocol = "LDAP", port = 1024)})
 @ApplyLdifFiles(
-   "org/apache/activemq/security/activemq.ldif"
-)
+   "org/apache/activemq/security/activemq.ldif")
 public class LDAPAuthenticationTest extends AbstractLdapTestUnit {
 
-    public BrokerService broker;
+   public BrokerService broker;
 
-    public static LdapServer ldapServer;
+   public static LdapServer ldapServer;
 
-    @Before
-    public void setup() throws Exception {
-        System.setProperty("ldapPort", String.valueOf(getLdapServer().getPort()));
+   @Before
+   public void setup() throws Exception {
+      System.setProperty("ldapPort", String.valueOf(getLdapServer().getPort()));
 
-        broker = BrokerFactory.createBroker("xbean:org/apache/activemq/security/activemq-ldap-auth.xml");
-        broker.start();
-        broker.waitUntilStarted();
-    }
+      broker = BrokerFactory.createBroker("xbean:org/apache/activemq/security/activemq-ldap-auth.xml");
+      broker.start();
+      broker.waitUntilStarted();
+   }
 
-    @After
-    public void shutdown() throws Exception {
-        broker.stop();
-        broker.waitUntilStopped();
-    }
+   @After
+   public void shutdown() throws Exception {
+      broker.stop();
+      broker.waitUntilStopped();
+   }
 
-    @Test
-    public void testWildcard() throws Exception {
-        ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("tcp://localhost:61616");
-        Connection conn = factory.createQueueConnection("*", "sunflower");
-        try {
-            conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return;
-        }
-        fail("Should have failed connecting");
-    }
+   @Test
+   public void testWildcard() throws Exception {
+      ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("tcp://localhost:61616");
+      Connection conn = factory.createQueueConnection("*", "sunflower");
+      try {
+         conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      }
+      catch (Exception e) {
+         e.printStackTrace();
+         return;
+      }
+      fail("Should have failed connecting");
+   }
 }

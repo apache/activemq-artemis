@@ -35,8 +35,8 @@ import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.transaction.ResourceManager;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 
-public class ResourceManagerImpl implements ResourceManager
-{
+public class ResourceManagerImpl implements ResourceManager {
+
    private final ConcurrentMap<Xid, Transaction> transactions = new ConcurrentHashMap<Xid, Transaction>();
 
    private final List<HeuristicCompletionHolder> heuristicCompletions = new ArrayList<HeuristicCompletionHolder>();
@@ -53,8 +53,7 @@ public class ResourceManagerImpl implements ResourceManager
 
    public ResourceManagerImpl(final int defaultTimeoutSeconds,
                               final long txTimeoutScanPeriod,
-                              final ScheduledExecutorService scheduledThreadPool)
-   {
+                              final ScheduledExecutorService scheduledThreadPool) {
       this.defaultTimeoutSeconds = defaultTimeoutSeconds;
       this.txTimeoutScanPeriod = txTimeoutScanPeriod;
       this.scheduledThreadPool = scheduledThreadPool;
@@ -63,31 +62,23 @@ public class ResourceManagerImpl implements ResourceManager
    // ActiveMQComponent implementation
 
    @Override
-   public void start() throws Exception
-   {
-      if (started)
-      {
+   public void start() throws Exception {
+      if (started) {
          return;
       }
       task = new TxTimeoutHandler();
-      Future<?> future = scheduledThreadPool.scheduleAtFixedRate(task,
-                                                                 txTimeoutScanPeriod,
-                                                                 txTimeoutScanPeriod,
-                                                                 TimeUnit.MILLISECONDS);
+      Future<?> future = scheduledThreadPool.scheduleAtFixedRate(task, txTimeoutScanPeriod, txTimeoutScanPeriod, TimeUnit.MILLISECONDS);
       task.setFuture(future);
 
       started = true;
    }
 
    @Override
-   public void stop() throws Exception
-   {
-      if (!started)
-      {
+   public void stop() throws Exception {
+      if (!started) {
          return;
       }
-      if (task != null)
-      {
+      if (task != null) {
          task.close();
       }
 
@@ -95,81 +86,65 @@ public class ResourceManagerImpl implements ResourceManager
    }
 
    @Override
-   public boolean isStarted()
-   {
+   public boolean isStarted() {
       return started;
    }
 
    // ResourceManager implementation ---------------------------------------------
 
-   public Transaction getTransaction(final Xid xid)
-   {
+   public Transaction getTransaction(final Xid xid) {
       return transactions.get(xid);
    }
 
-   public boolean putTransaction(final Xid xid, final Transaction tx)
-   {
+   public boolean putTransaction(final Xid xid, final Transaction tx) {
       return transactions.putIfAbsent(xid, tx) == null;
    }
 
-   public Transaction removeTransaction(final Xid xid)
-   {
+   public Transaction removeTransaction(final Xid xid) {
       return transactions.remove(xid);
    }
 
-   public int getTimeoutSeconds()
-   {
+   public int getTimeoutSeconds() {
       return defaultTimeoutSeconds;
    }
 
-   public List<Xid> getPreparedTransactions()
-   {
+   public List<Xid> getPreparedTransactions() {
       List<Xid> xids = new ArrayList<Xid>();
 
-      for (Map.Entry<Xid, Transaction> entry : transactions.entrySet())
-      {
-         if (entry.getValue().getState() == Transaction.State.PREPARED)
-         {
+      for (Map.Entry<Xid, Transaction> entry : transactions.entrySet()) {
+         if (entry.getValue().getState() == Transaction.State.PREPARED) {
             xids.add(entry.getKey());
          }
       }
       return xids;
    }
 
-   public Map<Xid, Long> getPreparedTransactionsWithCreationTime()
-   {
+   public Map<Xid, Long> getPreparedTransactionsWithCreationTime() {
       Map<Xid, Long> xidsWithCreationTime = new HashMap<Xid, Long>();
 
-      for (Map.Entry<Xid, Transaction> entry : transactions.entrySet())
-      {
+      for (Map.Entry<Xid, Transaction> entry : transactions.entrySet()) {
          xidsWithCreationTime.put(entry.getKey(), entry.getValue().getCreateTime());
       }
       return xidsWithCreationTime;
    }
 
-   public void putHeuristicCompletion(final long recordID, final Xid xid, final boolean isCommit)
-   {
+   public void putHeuristicCompletion(final long recordID, final Xid xid, final boolean isCommit) {
       heuristicCompletions.add(new HeuristicCompletionHolder(recordID, xid, isCommit));
    }
 
-   public List<Xid> getHeuristicCommittedTransactions()
-   {
+   public List<Xid> getHeuristicCommittedTransactions() {
       return getHeuristicCompletedTransactions(true);
    }
 
-   public List<Xid> getHeuristicRolledbackTransactions()
-   {
+   public List<Xid> getHeuristicRolledbackTransactions() {
       return getHeuristicCompletedTransactions(false);
    }
 
-   public long removeHeuristicCompletion(final Xid xid)
-   {
+   public long removeHeuristicCompletion(final Xid xid) {
       Iterator<HeuristicCompletionHolder> iterator = heuristicCompletions.iterator();
-      while (iterator.hasNext())
-      {
+      while (iterator.hasNext()) {
          ResourceManagerImpl.HeuristicCompletionHolder holder = iterator.next();
-         if (holder.xid.equals(xid))
-         {
+         if (holder.xid.equals(xid)) {
             iterator.remove();
             return holder.recordID;
          }
@@ -177,29 +152,24 @@ public class ResourceManagerImpl implements ResourceManager
       return -1;
    }
 
-   private List<Xid> getHeuristicCompletedTransactions(final boolean isCommit)
-   {
+   private List<Xid> getHeuristicCompletedTransactions(final boolean isCommit) {
       List<Xid> xids = new ArrayList<Xid>();
-      for (HeuristicCompletionHolder holder : heuristicCompletions)
-      {
-         if (holder.isCommit == isCommit)
-         {
+      for (HeuristicCompletionHolder holder : heuristicCompletions) {
+         if (holder.isCommit == isCommit) {
             xids.add(holder.xid);
          }
       }
       return xids;
    }
 
-   private class TxTimeoutHandler implements Runnable
-   {
+   private class TxTimeoutHandler implements Runnable {
+
       private boolean closed = false;
 
       private Future<?> future;
 
-      public void run()
-      {
-         if (closed)
-         {
+      public void run() {
+         if (closed) {
             return;
          }
 
@@ -207,38 +177,30 @@ public class ResourceManagerImpl implements ResourceManager
 
          long now = System.currentTimeMillis();
 
-         for (Transaction tx : transactions.values())
-         {
-            if (tx.hasTimedOut(now, defaultTimeoutSeconds))
-            {
+         for (Transaction tx : transactions.values()) {
+            if (tx.hasTimedOut(now, defaultTimeoutSeconds)) {
                transactions.remove(tx.getXid());
                ActiveMQServerLogger.LOGGER.unexpectedXid(tx.getXid());
                timedoutTransactions.add(tx);
             }
          }
 
-         for (Transaction failedTransaction : timedoutTransactions)
-         {
-            try
-            {
+         for (Transaction failedTransaction : timedoutTransactions) {
+            try {
                failedTransaction.rollback();
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                ActiveMQServerLogger.LOGGER.errorTimingOutTX(e, failedTransaction.getXid());
             }
          }
       }
 
-      synchronized void setFuture(final Future<?> future)
-      {
+      synchronized void setFuture(final Future<?> future) {
          this.future = future;
       }
 
-      void close()
-      {
-         if (future != null)
-         {
+      void close() {
+         if (future != null) {
             future.cancel(false);
          }
 
@@ -247,16 +209,15 @@ public class ResourceManagerImpl implements ResourceManager
 
    }
 
-   private static final class HeuristicCompletionHolder
-   {
+   private static final class HeuristicCompletionHolder {
+
       public final boolean isCommit;
 
       public final Xid xid;
 
       public final long recordID;
 
-      public HeuristicCompletionHolder(final long recordID, final Xid xid, final boolean isCommit)
-      {
+      public HeuristicCompletionHolder(final long recordID, final Xid xid, final boolean isCommit) {
          this.recordID = recordID;
          this.xid = xid;
          this.isCommit = isCommit;

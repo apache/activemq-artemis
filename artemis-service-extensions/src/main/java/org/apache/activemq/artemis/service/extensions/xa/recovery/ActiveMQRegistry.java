@@ -17,8 +17,8 @@
 
 package org.apache.activemq.artemis.service.extensions.xa.recovery;
 
-public interface ActiveMQRegistry
-{
+public interface ActiveMQRegistry {
+
    void register(final XARecoveryConfig resourceConfig);
 
    void unRegister(final XARecoveryConfig resourceConfig);

@@ -16,60 +16,58 @@
  */
 package org.apache.activemq.management;
 
-
 public class TimeStatisticTest extends StatisticTestSupport {
-    
-    private static final org.apache.commons.logging.Log LOG = org.apache.commons.logging.LogFactory
-            .getLog(TimeStatisticTest.class);
 
-    /**
-     * Use case for TimeStatisticImpl class.
-     * @throws Exception
-     */
-    public void testStatistic() throws Exception {
-        TimeStatisticImpl stat = new TimeStatisticImpl("myTimer", "millis", "myDescription");
-        assertStatistic(stat, "myTimer", "millis", "myDescription");
+   private static final org.apache.commons.logging.Log LOG = org.apache.commons.logging.LogFactory.getLog(TimeStatisticTest.class);
 
-        assertEquals(0, stat.getCount());
+   /**
+    * Use case for TimeStatisticImpl class.
+    *
+    * @throws Exception
+    */
+   public void testStatistic() throws Exception {
+      TimeStatisticImpl stat = new TimeStatisticImpl("myTimer", "millis", "myDescription");
+      assertStatistic(stat, "myTimer", "millis", "myDescription");
 
-        stat.addTime(100);
-        assertEquals(1, stat.getCount());
-        assertEquals(100, stat.getMinTime());
-        assertEquals(100, stat.getMaxTime());
+      assertEquals(0, stat.getCount());
 
-        stat.addTime(403);
-        assertEquals(2, stat.getCount());
-        assertEquals(100, stat.getMinTime());
-        assertEquals(403, stat.getMaxTime());
+      stat.addTime(100);
+      assertEquals(1, stat.getCount());
+      assertEquals(100, stat.getMinTime());
+      assertEquals(100, stat.getMaxTime());
 
-        stat.addTime(50);
-        assertEquals(3, stat.getCount());
-        assertEquals(50, stat.getMinTime());
-        assertEquals(403, stat.getMaxTime());
+      stat.addTime(403);
+      assertEquals(2, stat.getCount());
+      assertEquals(100, stat.getMinTime());
+      assertEquals(403, stat.getMaxTime());
 
+      stat.addTime(50);
+      assertEquals(3, stat.getCount());
+      assertEquals(50, stat.getMinTime());
+      assertEquals(403, stat.getMaxTime());
 
-        assertEquals(553, stat.getTotalTime());
+      assertEquals(553, stat.getTotalTime());
 
-        Thread.sleep(500);
+      Thread.sleep(500);
 
-        stat.addTime(10);
+      stat.addTime(10);
 
-        assertLastTimeNotStartTime(stat);
+      assertLastTimeNotStartTime(stat);
 
-        LOG.info("Stat is: " + stat);
+      LOG.info("Stat is: " + stat);
 
-        stat.reset();
+      stat.reset();
 
-        assertEquals(0, stat.getCount());
-        assertEquals(0, stat.getMinTime());
-        assertEquals(0, stat.getMaxTime());
-        assertEquals(0, stat.getTotalTime());
+      assertEquals(0, stat.getCount());
+      assertEquals(0, stat.getMinTime());
+      assertEquals(0, stat.getMaxTime());
+      assertEquals(0, stat.getTotalTime());
 
-        stat.addTime(100);
-        assertEquals(1, stat.getCount());
-        assertEquals(100, stat.getMinTime());
-        assertEquals(100, stat.getMaxTime());
-        assertEquals(100, stat.getTotalTime());
+      stat.addTime(100);
+      assertEquals(1, stat.getCount());
+      assertEquals(100, stat.getMinTime());
+      assertEquals(100, stat.getMaxTime());
+      assertEquals(100, stat.getTotalTime());
 
-    }
+   }
 }

@@ -38,8 +38,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class PushSubscriptionsResource
-{
+public class PushSubscriptionsResource {
+
    protected Map<String, PushSubscription> consumers = new ConcurrentHashMap<String, PushSubscription>();
    protected ClientSessionFactory sessionFactory;
    protected String destination;
@@ -47,74 +47,60 @@ public class PushSubscriptionsResource
    protected final AtomicLong sessionCounter = new AtomicLong(1);
    protected TopicPushStore pushStore;
 
-   public void stop()
-   {
-      for (PushConsumer consumer : consumers.values())
-      {
+   public void stop() {
+      for (PushConsumer consumer : consumers.values()) {
          consumer.stop();
-         if (consumer.getRegistration().isDurable() == false)
-         {
+         if (consumer.getRegistration().isDurable() == false) {
             deleteSubscriberQueue(consumer);
          }
       }
    }
 
-   public TopicPushStore getPushStore()
-   {
+   public TopicPushStore getPushStore() {
       return pushStore;
    }
 
-   public void setPushStore(TopicPushStore pushStore)
-   {
+   public void setPushStore(TopicPushStore pushStore) {
       this.pushStore = pushStore;
    }
 
-   public ClientSession createSubscription(String subscriptionName, boolean durable)
-   {
+   public ClientSession createSubscription(String subscriptionName, boolean durable) {
       ClientSession session = null;
-      try
-      {
+      try {
          session = sessionFactory.createSession();
 
-         if (durable)
-         {
+         if (durable) {
             session.createQueue(destination, subscriptionName, true);
          }
-         else
-         {
+         else {
             session.createTemporaryQueue(destination, subscriptionName);
          }
          return session;
       }
-      catch (ActiveMQException e)
-      {
+      catch (ActiveMQException e) {
          throw new RuntimeException(e);
       }
    }
 
-   public void addRegistration(PushTopicRegistration reg) throws Exception
-   {
-      if (reg.isEnabled() == false) return;
+   public void addRegistration(PushTopicRegistration reg) throws Exception {
+      if (reg.isEnabled() == false)
+         return;
       String destination = reg.getDestination();
       ClientSession session = sessionFactory.createSession(false, false, false);
       ClientSession.QueueQuery query = session.queueQuery(new SimpleString(destination));
       ClientSession createSession = null;
-      if (!query.isExists())
-      {
+      if (!query.isExists()) {
          createSession = createSubscription(destination, reg.isDurable());
       }
       PushSubscription consumer = new PushSubscription(sessionFactory, reg.getDestination(), reg.getId(), reg, pushStore);
-      try
-      {
+      try {
          consumer.start();
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          consumer.stop();
          throw new Exception("Failed starting push subscriber for " + destination + " of push subscriber: " + reg.getTarget(), e);
       }
-      finally
-      {
+      finally {
          closeSession(createSession);
          closeSession(session);
       }
@@ -123,49 +109,38 @@ public class PushSubscriptionsResource
 
    }
 
-   private void closeSession(ClientSession createSession)
-   {
-      if (createSession != null)
-      {
-         try
-         {
+   private void closeSession(ClientSession createSession) {
+      if (createSession != null) {
+         try {
             createSession.close();
          }
-         catch (ActiveMQException e)
-         {
+         catch (ActiveMQException e) {
          }
       }
    }
 
-
    @POST
-   public Response create(@Context UriInfo uriInfo, PushTopicRegistration registration)
-   {
+   public Response create(@Context UriInfo uriInfo, PushTopicRegistration registration) {
       ActiveMQRestLogger.LOGGER.debug("Handling POST request for \"" + uriInfo.getPath() + "\"");
 
       //System.out.println("PushRegistration: " + registration);
       // todo put some logic here to check for duplicates
       String genId = sessionCounter.getAndIncrement() + "-topic-" + destination + "-" + startup;
-      if (registration.getDestination() == null)
-      {
+      if (registration.getDestination() == null) {
          registration.setDestination(genId);
       }
       registration.setId(genId);
       registration.setTopic(destination);
       ClientSession createSession = createSubscription(genId, registration.isDurable());
-      try
-      {
+      try {
          PushSubscription consumer = new PushSubscription(sessionFactory, genId, genId, registration, pushStore);
-         try
-         {
+         try {
             consumer.start();
-            if (registration.isDurable() && pushStore != null)
-            {
+            if (registration.isDurable() && pushStore != null) {
                pushStore.add(registration);
             }
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             consumer.stop();
             throw new WebApplicationException(e, Response.serverError().entity("Failed to start consumer.").type("text/plain").build());
          }
@@ -175,8 +150,7 @@ public class PushSubscriptionsResource
          location.path(genId);
          return Response.created(location.build()).build();
       }
-      finally
-      {
+      finally {
          closeSession(createSession);
       }
    }
@@ -184,13 +158,11 @@ public class PushSubscriptionsResource
    @GET
    @Path("{consumer-id}")
    @Produces("application/xml")
-   public PushTopicRegistration getConsumer(@Context UriInfo uriInfo, @PathParam("consumer-id") String consumerId)
-   {
+   public PushTopicRegistration getConsumer(@Context UriInfo uriInfo, @PathParam("consumer-id") String consumerId) {
       ActiveMQRestLogger.LOGGER.debug("Handling GET request for \"" + uriInfo.getPath() + "\"");
 
       PushConsumer consumer = consumers.get(consumerId);
-      if (consumer == null)
-      {
+      if (consumer == null) {
          throw new WebApplicationException(Response.status(404).entity("Could not find consumer.").type("text/plain").build());
       }
       return (PushTopicRegistration) consumer.getRegistration();
@@ -198,59 +170,48 @@ public class PushSubscriptionsResource
 
    @DELETE
    @Path("{consumer-id}")
-   public void deleteConsumer(@Context UriInfo uriInfo, @PathParam("consumer-id") String consumerId)
-   {
+   public void deleteConsumer(@Context UriInfo uriInfo, @PathParam("consumer-id") String consumerId) {
       ActiveMQRestLogger.LOGGER.debug("Handling DELETE request for \"" + uriInfo.getPath() + "\"");
 
       PushConsumer consumer = consumers.remove(consumerId);
-      if (consumer == null)
-      {
+      if (consumer == null) {
          throw new WebApplicationException(Response.status(404).entity("Could not find consumer.").type("text/plain").build());
       }
       consumer.stop();
       deleteSubscriberQueue(consumer);
    }
 
-   public Map<String, PushSubscription> getConsumers()
-   {
+   public Map<String, PushSubscription> getConsumers() {
       return consumers;
    }
 
-   public ClientSessionFactory getSessionFactory()
-   {
+   public ClientSessionFactory getSessionFactory() {
       return sessionFactory;
    }
 
-   public void setSessionFactory(ClientSessionFactory sessionFactory)
-   {
+   public void setSessionFactory(ClientSessionFactory sessionFactory) {
       this.sessionFactory = sessionFactory;
    }
 
-   public String getDestination()
-   {
+   public String getDestination() {
       return destination;
    }
 
-   public void setDestination(String destination)
-   {
+   public void setDestination(String destination) {
       this.destination = destination;
    }
 
-   private void deleteSubscriberQueue(PushConsumer consumer)
-   {
+   private void deleteSubscriberQueue(PushConsumer consumer) {
       String subscriptionName = consumer.getDestination();
       ClientSession session = null;
-      try
-      {
+      try {
          session = sessionFactory.createSession();
 
          session.deleteQueue(subscriptionName);
       }
-      catch (ActiveMQException e)
-      {
+      catch (ActiveMQException e) {
       }
-      finally
-      {
+      finally {
          closeSession(session);
       }
    }

@@ -18,10 +18,9 @@ package org.proton.plug.exceptions;
 
 import org.apache.qpid.proton.amqp.transport.AmqpError;
 
-public class ActiveMQAMQPInvalidFieldException extends ActiveMQAMQPException
-{
-   public ActiveMQAMQPInvalidFieldException(String message)
-   {
+public class ActiveMQAMQPInvalidFieldException extends ActiveMQAMQPException {
+
+   public ActiveMQAMQPInvalidFieldException(String message) {
       super(AmqpError.INVALID_FIELD, message);
    }
 }

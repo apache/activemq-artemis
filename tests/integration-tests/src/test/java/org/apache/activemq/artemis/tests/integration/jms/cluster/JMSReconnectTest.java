@@ -49,27 +49,23 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.jms.Topic;
 
-public class JMSReconnectTest extends ActiveMQTestBase
-{
+public class JMSReconnectTest extends ActiveMQTestBase {
 
    private ActiveMQServer server;
 
    //In this test we re-attach to the same node without restarting the server
    @Test
-   public void testReattachSameNode() throws Exception
-   {
+   public void testReattachSameNode() throws Exception {
       testReconnectOrReattachSameNode(true);
    }
 
    //In this test, we reconnect to the same node without restarting the server
    @Test
-   public void testReconnectSameNode() throws Exception
-   {
+   public void testReconnectSameNode() throws Exception {
       testReconnectOrReattachSameNode(false);
    }
 
-   private void testReconnectOrReattachSameNode(boolean reattach) throws Exception
-   {
+   private void testReconnectOrReattachSameNode(boolean reattach) throws Exception {
       ActiveMQConnectionFactory jbcf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration(INVM_CONNECTOR_FACTORY));
 
       jbcf.setBlockOnDurableSend(true);
@@ -77,8 +73,7 @@ public class JMSReconnectTest extends ActiveMQTestBase
 
       jbcf.setReconnectAttempts(-1);
 
-      if (reattach)
-      {
+      if (reattach) {
          jbcf.setConfirmationWindowSize(1024 * 1024);
       }
 
@@ -100,9 +95,9 @@ public class JMSReconnectTest extends ActiveMQTestBase
 
       Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-      ClientSession coreSession = ((ActiveMQSession)sess).getCoreSession();
+      ClientSession coreSession = ((ActiveMQSession) sess).getCoreSession();
 
-      RemotingConnection coreConn = ((ClientSessionInternal)coreSession).getConnection();
+      RemotingConnection coreConn = ((ClientSessionInternal) coreSession).getConnection();
 
       SimpleString jmsQueueName = new SimpleString(ActiveMQDestination.JMS_QUEUE_ADDRESS_PREFIX + "myqueue");
 
@@ -118,8 +113,7 @@ public class JMSReconnectTest extends ActiveMQTestBase
 
       byte[] body = RandomUtil.randomBytes(bodySize);
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          BytesMessage bm = sess.createBytesMessage();
 
          bm.writeBytes(body);
@@ -137,22 +131,19 @@ public class JMSReconnectTest extends ActiveMQTestBase
 
       //It should reconnect to the same node
 
-      for (int i = 0; i < numMessages; i++)
-      {
-         BytesMessage bm = (BytesMessage)consumer.receive(1000);
+      for (int i = 0; i < numMessages; i++) {
+         BytesMessage bm = (BytesMessage) consumer.receive(1000);
 
          Assert.assertNotNull(bm);
 
          Assert.assertEquals(body.length, bm.getBodyLength());
       }
 
-      TextMessage tm = (TextMessage)consumer.receiveNoWait();
+      TextMessage tm = (TextMessage) consumer.receiveNoWait();
 
       Assert.assertNull(tm);
 
       conn.close();
-
-
 
       Assert.assertNotNull(listener.e);
 
@@ -160,20 +151,17 @@ public class JMSReconnectTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testReconnectSameNodeServerRestartedWithNonDurableSub() throws Exception
-   {
+   public void testReconnectSameNodeServerRestartedWithNonDurableSub() throws Exception {
       testReconnectSameNodeServerRestartedWithNonDurableSubOrTempQueue(true);
    }
 
    @Test
-   public void testReconnectSameNodeServerRestartedWithTempQueue() throws Exception
-   {
+   public void testReconnectSameNodeServerRestartedWithTempQueue() throws Exception {
       testReconnectSameNodeServerRestartedWithNonDurableSubOrTempQueue(false);
    }
 
    //Test that non durable JMS sub gets recreated in auto reconnect
-   private void testReconnectSameNodeServerRestartedWithNonDurableSubOrTempQueue(final boolean nonDurableSub) throws Exception
-   {
+   private void testReconnectSameNodeServerRestartedWithNonDurableSubOrTempQueue(final boolean nonDurableSub) throws Exception {
       ActiveMQConnectionFactory jbcf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration(INVM_CONNECTOR_FACTORY));
 
       jbcf.setReconnectAttempts(-1);
@@ -186,18 +174,16 @@ public class JMSReconnectTest extends ActiveMQTestBase
 
       Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-      ClientSession coreSession = ((ActiveMQSession)sess).getCoreSession();
+      ClientSession coreSession = ((ActiveMQSession) sess).getCoreSession();
 
       Destination dest;
 
-      if (nonDurableSub)
-      {
+      if (nonDurableSub) {
          coreSession.createQueue(ActiveMQDestination.JMS_TOPIC_ADDRESS_PREFIX + "mytopic", "blahblah", null, false);
 
          dest = ActiveMQJMSClient.createTopic("mytopic");
       }
-      else
-      {
+      else {
          dest = sess.createTemporaryQueue();
       }
 
@@ -217,8 +203,7 @@ public class JMSReconnectTest extends ActiveMQTestBase
 
       byte[] body = RandomUtil.randomBytes(1000);
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          BytesMessage bm = sess.createBytesMessage();
 
          bm.writeBytes(body);
@@ -228,16 +213,15 @@ public class JMSReconnectTest extends ActiveMQTestBase
 
       conn.start();
 
-      for (int i = 0; i < numMessages; i++)
-      {
-         BytesMessage bm = (BytesMessage)consumer.receive(1000);
+      for (int i = 0; i < numMessages; i++) {
+         BytesMessage bm = (BytesMessage) consumer.receive(1000);
 
          Assert.assertNotNull(bm);
 
          Assert.assertEquals(body.length, bm.getBodyLength());
       }
 
-      TextMessage tm = (TextMessage)consumer.receiveNoWait();
+      TextMessage tm = (TextMessage) consumer.receiveNoWait();
 
       Assert.assertNull(tm);
 
@@ -248,8 +232,7 @@ public class JMSReconnectTest extends ActiveMQTestBase
 
    //If the server is shutdown after a non durable sub is created, then close on the connection should proceed normally
    @Test
-   public void testNoReconnectCloseAfterFailToReconnectWithTopicConsumer() throws Exception
-   {
+   public void testNoReconnectCloseAfterFailToReconnectWithTopicConsumer() throws Exception {
       ActiveMQConnectionFactory jbcf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration(INVM_CONNECTOR_FACTORY));
 
       jbcf.setReconnectAttempts(0);
@@ -258,7 +241,7 @@ public class JMSReconnectTest extends ActiveMQTestBase
 
       Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-      ClientSession coreSession = ((ActiveMQSession)sess).getCoreSession();
+      ClientSession coreSession = ((ActiveMQSession) sess).getCoreSession();
 
       coreSession.createQueue(ActiveMQDestination.JMS_TOPIC_ADDRESS_PREFIX + "mytopic", "blahblah", null, false);
 
@@ -280,8 +263,7 @@ public class JMSReconnectTest extends ActiveMQTestBase
 
    //If server is shutdown, and then connection is closed, after a temp queue has been created, the close should complete normally
    @Test
-   public void testNoReconnectCloseAfterFailToReconnectWithTempQueue() throws Exception
-   {
+   public void testNoReconnectCloseAfterFailToReconnectWithTempQueue() throws Exception {
       ActiveMQConnectionFactory jbcf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration(INVM_CONNECTOR_FACTORY));
 
       jbcf.setReconnectAttempts(0);
@@ -303,15 +285,13 @@ public class JMSReconnectTest extends ActiveMQTestBase
       conn.close();
    }
 
-
    // Package protected ---------------------------------------------
 
    // Protected -----------------------------------------------------
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig(), true));
@@ -322,12 +302,11 @@ public class JMSReconnectTest extends ActiveMQTestBase
 
    // Inner classes -------------------------------------------------
 
-   private static class MyExceptionListener implements ExceptionListener
-   {
+   private static class MyExceptionListener implements ExceptionListener {
+
       volatile JMSException e;
 
-      public void onException(final JMSException e)
-      {
+      public void onException(final JMSException e) {
          this.e = e;
       }
    }

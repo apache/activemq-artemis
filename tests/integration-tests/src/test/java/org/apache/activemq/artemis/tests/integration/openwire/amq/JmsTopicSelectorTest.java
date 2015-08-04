@@ -34,8 +34,8 @@ import org.junit.Test;
 /**
  * adapted from: org.apache.activemq.JmsTopicSelectorTest
  */
-public class JmsTopicSelectorTest extends BasicOpenWireTest
-{
+public class JmsTopicSelectorTest extends BasicOpenWireTest {
+
    protected Session session;
    protected MessageConsumer consumer;
    protected MessageProducer producer;
@@ -47,12 +47,10 @@ public class JmsTopicSelectorTest extends BasicOpenWireTest
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
-      if (durable)
-      {
+      if (durable) {
          connection.setClientID(getClass().getName());
       }
 
@@ -62,45 +60,33 @@ public class JmsTopicSelectorTest extends BasicOpenWireTest
 
       System.out.println("Created session: " + session);
 
-      if (topic)
-      {
+      if (topic) {
          consumerDestination = this.createDestination(session, ActiveMQDestination.TOPIC_TYPE);
          producerDestination = this.createDestination(session, ActiveMQDestination.TOPIC_TYPE);
       }
-      else
-      {
+      else {
          consumerDestination = this.createDestination(session, ActiveMQDestination.QUEUE_TYPE);
          producerDestination = this.createDestination(session, ActiveMQDestination.QUEUE_TYPE);
       }
 
-      System.out.println("Created  consumer destination: " + consumerDestination
-            + " of type: " + consumerDestination.getClass());
-      System.out.println("Created  producer destination: " + producerDestination
-            + " of type: " + producerDestination.getClass());
+      System.out.println("Created  consumer destination: " + consumerDestination + " of type: " + consumerDestination.getClass());
+      System.out.println("Created  producer destination: " + producerDestination + " of type: " + producerDestination.getClass());
       producer = session.createProducer(producerDestination);
       producer.setDeliveryMode(deliveryMode);
 
-      System.out.println("Created producer: "
-            + producer
-            + " delivery mode = "
-            + (deliveryMode == DeliveryMode.PERSISTENT ? "PERSISTENT"
-                  : "NON_PERSISTENT"));
+      System.out.println("Created producer: " + producer + " delivery mode = " + (deliveryMode == DeliveryMode.PERSISTENT ? "PERSISTENT" : "NON_PERSISTENT"));
       connection.start();
    }
 
-   protected MessageConsumer createConsumer(String selector) throws JMSException
-   {
-      if (durable)
-      {
+   protected MessageConsumer createConsumer(String selector) throws JMSException {
+      if (durable) {
          System.out.println("Creating durable consumer");
-         return session.createDurableSubscriber((Topic) consumerDestination,
-               getName(), selector, false);
+         return session.createDurableSubscriber((Topic) consumerDestination, getName(), selector, false);
       }
       return session.createConsumer(consumerDestination, selector);
    }
 
-   public void sendMessages() throws Exception
-   {
+   public void sendMessages() throws Exception {
       TextMessage message = session.createTextMessage("1");
       message.setIntProperty("id", 1);
       message.setJMSType("a");
@@ -142,11 +128,9 @@ public class JmsTopicSelectorTest extends BasicOpenWireTest
       producer.send(message);
    }
 
-   public void consumeMessages(int remaining) throws Exception
-   {
+   public void consumeMessages(int remaining) throws Exception {
       consumer = createConsumer(null);
-      for (int i = 0; i < remaining; i++)
-      {
+      for (int i = 0; i < remaining; i++) {
          consumer.receive(1000);
       }
       consumer.close();
@@ -154,17 +138,14 @@ public class JmsTopicSelectorTest extends BasicOpenWireTest
    }
 
    @Test
-   public void testEmptyPropertySelector() throws Exception
-   {
+   public void testEmptyPropertySelector() throws Exception {
       int remaining = 5;
       Message message = null;
       consumer = createConsumer("");
       sendMessages();
-      while (true)
-      {
+      while (true) {
          message = consumer.receive(1000);
-         if (message == null)
-         {
+         if (message == null) {
             break;
          }
 
@@ -176,22 +157,18 @@ public class JmsTopicSelectorTest extends BasicOpenWireTest
    }
 
    @Test
-   public void testPropertySelector() throws Exception
-   {
+   public void testPropertySelector() throws Exception {
       int remaining = 5;
       Message message = null;
       consumer = createConsumer("stringProperty = 'a' and longProperty = 1 and booleanProperty = true");
       sendMessages();
-      while (true)
-      {
+      while (true) {
          message = consumer.receive(1000);
-         if (message == null)
-         {
+         if (message == null) {
             break;
          }
          String text = ((TextMessage) message).getText();
-         if (!text.equals("1") && !text.equals("3"))
-         {
+         if (!text.equals("1") && !text.equals("3")) {
             fail("unexpected message: " + text);
          }
          remaining--;
@@ -203,22 +180,18 @@ public class JmsTopicSelectorTest extends BasicOpenWireTest
    }
 
    @Test
-   public void testJMSPropertySelector() throws Exception
-   {
+   public void testJMSPropertySelector() throws Exception {
       int remaining = 5;
       Message message = null;
       consumer = createConsumer("JMSType = 'a' and stringProperty = 'a'");
       sendMessages();
-      while (true)
-      {
+      while (true) {
          message = consumer.receive(1000);
-         if (message == null)
-         {
+         if (message == null) {
             break;
          }
          String text = ((TextMessage) message).getText();
-         if (!text.equals("1") && !text.equals("2") && !text.equals("3"))
-         {
+         if (!text.equals("1") && !text.equals("2") && !text.equals("3")) {
             fail("unexpected message: " + text);
          }
          remaining--;

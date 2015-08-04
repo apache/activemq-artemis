@@ -31,264 +31,261 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 
 import junit.framework.TestCase;
+
 import org.apache.activemq.command.ActiveMQQueue;
 import org.apache.activemq.command.ActiveMQTopic;
 
 /**
  * Testcases to see if Session.recover() work.
- * 
- * 
  */
 public class JmsSessionRecoverTest extends TestCase {
 
-    private Connection connection;
-    private ActiveMQConnectionFactory factory;
-    private Destination dest;
+   private Connection connection;
+   private ActiveMQConnectionFactory factory;
+   private Destination dest;
 
-    /**
-     * @see junit.framework.TestCase#setUp()
-     */
-    protected void setUp() throws Exception {
-        factory = new ActiveMQConnectionFactory("vm://localhost?broker.persistent=false");
-        connection = factory.createConnection();
-    }
+   /**
+    * @see junit.framework.TestCase#setUp()
+    */
+   protected void setUp() throws Exception {
+      factory = new ActiveMQConnectionFactory("vm://localhost?broker.persistent=false");
+      connection = factory.createConnection();
+   }
 
-    /**
-     * @see junit.framework.TestCase#tearDown()
-     */
-    protected void tearDown() throws Exception {
-        if (connection != null) {
-            connection.close();
-            connection = null;
-        }
-    }
+   /**
+    * @see junit.framework.TestCase#tearDown()
+    */
+   protected void tearDown() throws Exception {
+      if (connection != null) {
+         connection.close();
+         connection = null;
+      }
+   }
 
-    /**
-     * 
-     * @throws JMSException
-     * @throws InterruptedException
-     */
-    public void testQueueSynchRecover() throws JMSException, InterruptedException {
-        dest = new ActiveMQQueue("Queue-" + System.currentTimeMillis());
-        doTestSynchRecover();
-    }
+   /**
+    * @throws JMSException
+    * @throws InterruptedException
+    */
+   public void testQueueSynchRecover() throws JMSException, InterruptedException {
+      dest = new ActiveMQQueue("Queue-" + System.currentTimeMillis());
+      doTestSynchRecover();
+   }
 
-    /**
-     * 
-     * @throws JMSException
-     * @throws InterruptedException
-     */
-    public void testQueueAsynchRecover() throws JMSException, InterruptedException {
-        dest = new ActiveMQQueue("Queue-" + System.currentTimeMillis());
-        doTestAsynchRecover();
-    }
+   /**
+    * @throws JMSException
+    * @throws InterruptedException
+    */
+   public void testQueueAsynchRecover() throws JMSException, InterruptedException {
+      dest = new ActiveMQQueue("Queue-" + System.currentTimeMillis());
+      doTestAsynchRecover();
+   }
 
-    /**
-     * 
-     * @throws JMSException
-     * @throws InterruptedException
-     */
-    public void testTopicSynchRecover() throws JMSException, InterruptedException {
-        dest = new ActiveMQTopic("Topic-" + System.currentTimeMillis());
-        doTestSynchRecover();
-    }
+   /**
+    * @throws JMSException
+    * @throws InterruptedException
+    */
+   public void testTopicSynchRecover() throws JMSException, InterruptedException {
+      dest = new ActiveMQTopic("Topic-" + System.currentTimeMillis());
+      doTestSynchRecover();
+   }
 
-    /**
-     * 
-     * @throws JMSException
-     * @throws InterruptedException
-     */
-    public void testTopicAsynchRecover() throws JMSException, InterruptedException {
-        dest = new ActiveMQTopic("Topic-" + System.currentTimeMillis());
-        doTestAsynchRecover();
-    }
+   /**
+    * @throws JMSException
+    * @throws InterruptedException
+    */
+   public void testTopicAsynchRecover() throws JMSException, InterruptedException {
+      dest = new ActiveMQTopic("Topic-" + System.currentTimeMillis());
+      doTestAsynchRecover();
+   }
 
-    /**
-     * 
-     * @throws JMSException
-     * @throws InterruptedException
-     */
-    public void testQueueAsynchRecoverWithAutoAck() throws JMSException, InterruptedException {
-        dest = new ActiveMQQueue("Queue-" + System.currentTimeMillis());
-        doTestAsynchRecoverWithAutoAck();
-    }
+   /**
+    * @throws JMSException
+    * @throws InterruptedException
+    */
+   public void testQueueAsynchRecoverWithAutoAck() throws JMSException, InterruptedException {
+      dest = new ActiveMQQueue("Queue-" + System.currentTimeMillis());
+      doTestAsynchRecoverWithAutoAck();
+   }
 
-    /**
-     * 
-     * @throws JMSException
-     * @throws InterruptedException
-     */
-    public void testTopicAsynchRecoverWithAutoAck() throws JMSException, InterruptedException {
-        dest = new ActiveMQTopic("Topic-" + System.currentTimeMillis());
-        doTestAsynchRecoverWithAutoAck();
-    }
+   /**
+    * @throws JMSException
+    * @throws InterruptedException
+    */
+   public void testTopicAsynchRecoverWithAutoAck() throws JMSException, InterruptedException {
+      dest = new ActiveMQTopic("Topic-" + System.currentTimeMillis());
+      doTestAsynchRecoverWithAutoAck();
+   }
 
-    /**
-     * Test to make sure that a Sync recover works.
-     * 
-     * @throws JMSException
-     */
-    public void doTestSynchRecover() throws JMSException {
-        Session session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
-        MessageConsumer consumer = session.createConsumer(dest);
-        connection.start();
+   /**
+    * Test to make sure that a Sync recover works.
+    *
+    * @throws JMSException
+    */
+   public void doTestSynchRecover() throws JMSException {
+      Session session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
+      MessageConsumer consumer = session.createConsumer(dest);
+      connection.start();
 
-        MessageProducer producer = session.createProducer(dest);
-        producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
-        producer.send(session.createTextMessage("First"));
-        producer.send(session.createTextMessage("Second"));
+      MessageProducer producer = session.createProducer(dest);
+      producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
+      producer.send(session.createTextMessage("First"));
+      producer.send(session.createTextMessage("Second"));
 
-        TextMessage message = (TextMessage)consumer.receive(1000);
-        assertEquals("First", message.getText());
-        assertFalse(message.getJMSRedelivered());
-        message.acknowledge();
+      TextMessage message = (TextMessage) consumer.receive(1000);
+      assertEquals("First", message.getText());
+      assertFalse(message.getJMSRedelivered());
+      message.acknowledge();
 
-        message = (TextMessage)consumer.receive(1000);
-        assertEquals("Second", message.getText());
-        assertFalse(message.getJMSRedelivered());
+      message = (TextMessage) consumer.receive(1000);
+      assertEquals("Second", message.getText());
+      assertFalse(message.getJMSRedelivered());
 
-        session.recover();
+      session.recover();
 
-        message = (TextMessage)consumer.receive(2000);
-        assertEquals("Second", message.getText());
-        assertTrue(message.getJMSRedelivered());
+      message = (TextMessage) consumer.receive(2000);
+      assertEquals("Second", message.getText());
+      assertTrue(message.getJMSRedelivered());
 
-        message.acknowledge();
-    }
+      message.acknowledge();
+   }
 
-    /**
-     * Test to make sure that an Async recover works.
-     * 
-     * @throws JMSException
-     * @throws InterruptedException
-     */
-    public void doTestAsynchRecover() throws JMSException, InterruptedException {
+   /**
+    * Test to make sure that an Async recover works.
+    *
+    * @throws JMSException
+    * @throws InterruptedException
+    */
+   public void doTestAsynchRecover() throws JMSException, InterruptedException {
 
-        final Session session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
-        final String errorMessage[] = new String[] {null};
-        final CountDownLatch doneCountDownLatch = new CountDownLatch(1);
+      final Session session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
+      final String errorMessage[] = new String[]{null};
+      final CountDownLatch doneCountDownLatch = new CountDownLatch(1);
 
-        MessageConsumer consumer = session.createConsumer(dest);
+      MessageConsumer consumer = session.createConsumer(dest);
 
-        MessageProducer producer = session.createProducer(dest);
-        producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
-        producer.send(session.createTextMessage("First"));
-        producer.send(session.createTextMessage("Second"));
+      MessageProducer producer = session.createProducer(dest);
+      producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
+      producer.send(session.createTextMessage("First"));
+      producer.send(session.createTextMessage("Second"));
 
-        consumer.setMessageListener(new MessageListener() {
-            int counter;
+      consumer.setMessageListener(new MessageListener() {
+         int counter;
 
-            public void onMessage(Message msg) {
-                counter++;
-                try {
-                    TextMessage message = (TextMessage)msg;
-                    switch (counter) {
-                    case 1:
-                        assertEquals("First", message.getText());
-                        assertFalse(message.getJMSRedelivered());
-                        message.acknowledge();
+         public void onMessage(Message msg) {
+            counter++;
+            try {
+               TextMessage message = (TextMessage) msg;
+               switch (counter) {
+                  case 1:
+                     assertEquals("First", message.getText());
+                     assertFalse(message.getJMSRedelivered());
+                     message.acknowledge();
 
-                        break;
-                    case 2:
-                        assertEquals("Second", message.getText());
-                        assertFalse(message.getJMSRedelivered());
-                        session.recover();
-                        break;
+                     break;
+                  case 2:
+                     assertEquals("Second", message.getText());
+                     assertFalse(message.getJMSRedelivered());
+                     session.recover();
+                     break;
 
-                    case 3:
-                        assertEquals("Second", message.getText());
-                        assertTrue(message.getJMSRedelivered());
-                        message.acknowledge();
-                        doneCountDownLatch.countDown();
-                        break;
+                  case 3:
+                     assertEquals("Second", message.getText());
+                     assertTrue(message.getJMSRedelivered());
+                     message.acknowledge();
+                     doneCountDownLatch.countDown();
+                     break;
 
-                    default:
-                        errorMessage[0] = "Got too many messages: " + counter;
-                        doneCountDownLatch.countDown();
-                    }
-                } catch (Throwable e) {
-                    e.printStackTrace();
-                    errorMessage[0] = "Got exception: " + e;
-                    doneCountDownLatch.countDown();
-                }
+                  default:
+                     errorMessage[0] = "Got too many messages: " + counter;
+                     doneCountDownLatch.countDown();
+               }
             }
-        });
-        connection.start();
-
-        if (doneCountDownLatch.await(5, TimeUnit.SECONDS)) {
-            if (errorMessage[0] != null) {
-                fail(errorMessage[0]);
+            catch (Throwable e) {
+               e.printStackTrace();
+               errorMessage[0] = "Got exception: " + e;
+               doneCountDownLatch.countDown();
             }
-        } else {
-            fail("Timeout waiting for async message delivery to complete.");
-        }
+         }
+      });
+      connection.start();
 
-    }
+      if (doneCountDownLatch.await(5, TimeUnit.SECONDS)) {
+         if (errorMessage[0] != null) {
+            fail(errorMessage[0]);
+         }
+      }
+      else {
+         fail("Timeout waiting for async message delivery to complete.");
+      }
 
-    /**
-     * Test to make sure that an Async recover works when using AUTO_ACKNOWLEDGE.
-     * 
-     * @throws JMSException
-     * @throws InterruptedException
-     */
-    public void doTestAsynchRecoverWithAutoAck() throws JMSException, InterruptedException {
+   }
 
-        final Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        final String errorMessage[] = new String[] {null};
-        final CountDownLatch doneCountDownLatch = new CountDownLatch(1);
+   /**
+    * Test to make sure that an Async recover works when using AUTO_ACKNOWLEDGE.
+    *
+    * @throws JMSException
+    * @throws InterruptedException
+    */
+   public void doTestAsynchRecoverWithAutoAck() throws JMSException, InterruptedException {
 
-        MessageConsumer consumer = session.createConsumer(dest);
+      final Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      final String errorMessage[] = new String[]{null};
+      final CountDownLatch doneCountDownLatch = new CountDownLatch(1);
 
-        MessageProducer producer = session.createProducer(dest);
-        producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
-        producer.send(session.createTextMessage("First"));
-        producer.send(session.createTextMessage("Second"));
+      MessageConsumer consumer = session.createConsumer(dest);
 
-        consumer.setMessageListener(new MessageListener() {
-            int counter;
+      MessageProducer producer = session.createProducer(dest);
+      producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
+      producer.send(session.createTextMessage("First"));
+      producer.send(session.createTextMessage("Second"));
 
-            public void onMessage(Message msg) {
-                counter++;
-                try {
-                    TextMessage message = (TextMessage)msg;
-                    switch (counter) {
-                    case 1:
-                        assertEquals("First", message.getText());
-                        assertFalse(message.getJMSRedelivered());
-                        break;
-                    case 2:
-                        // This should rollback the delivery of this message..
-                        // and re-deliver.
-                        assertEquals("Second", message.getText());
-                        assertFalse(message.getJMSRedelivered());
-                        session.recover();
-                        break;
+      consumer.setMessageListener(new MessageListener() {
+         int counter;
 
-                    case 3:
-                        assertEquals("Second", message.getText());
-                        assertTrue(message.getJMSRedelivered());
-                        doneCountDownLatch.countDown();
-                        break;
+         public void onMessage(Message msg) {
+            counter++;
+            try {
+               TextMessage message = (TextMessage) msg;
+               switch (counter) {
+                  case 1:
+                     assertEquals("First", message.getText());
+                     assertFalse(message.getJMSRedelivered());
+                     break;
+                  case 2:
+                     // This should rollback the delivery of this message..
+                     // and re-deliver.
+                     assertEquals("Second", message.getText());
+                     assertFalse(message.getJMSRedelivered());
+                     session.recover();
+                     break;
 
-                    default:
-                        errorMessage[0] = "Got too many messages: " + counter;
-                        doneCountDownLatch.countDown();
-                    }
-                } catch (Throwable e) {
-                    e.printStackTrace();
-                    errorMessage[0] = "Got exception: " + e;
-                    doneCountDownLatch.countDown();
-                }
+                  case 3:
+                     assertEquals("Second", message.getText());
+                     assertTrue(message.getJMSRedelivered());
+                     doneCountDownLatch.countDown();
+                     break;
+
+                  default:
+                     errorMessage[0] = "Got too many messages: " + counter;
+                     doneCountDownLatch.countDown();
+               }
             }
-        });
-        connection.start();
-
-        if (doneCountDownLatch.await(5000, TimeUnit.SECONDS)) {
-            if (errorMessage[0] != null) {
-                fail(errorMessage[0]);
+            catch (Throwable e) {
+               e.printStackTrace();
+               errorMessage[0] = "Got exception: " + e;
+               doneCountDownLatch.countDown();
             }
-        } else {
-            fail("Timeout waiting for async message delivery to complete.");
-        }
-    }
+         }
+      });
+      connection.start();
+
+      if (doneCountDownLatch.await(5000, TimeUnit.SECONDS)) {
+         if (errorMessage[0] != null) {
+            fail(errorMessage[0]);
+         }
+      }
+      else {
+         fail("Timeout waiting for async message delivery to complete.");
+      }
+   }
 }

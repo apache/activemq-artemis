@@ -20,24 +20,21 @@ import org.apache.activemq.command.ActiveMQMessage;
 
 /**
  * A message implementation which is useful for testing as we can spoof its size
- *  
- * 
  */
 public class DummyMessage extends ActiveMQMessage {
 
-    private int size;
+   private int size;
 
-    public DummyMessage(int size) {
-        this.size = size;
-    }
+   public DummyMessage(int size) {
+      this.size = size;
+   }
 
-    public int getSize() {
-        return size;
-    }
+   public int getSize() {
+      return size;
+   }
 
-    public String toString() {
-        return "DummyMessage[id=" + getMessageId() + " size=" + size + "]"; 
-    }
-    
-    
+   public String toString() {
+      return "DummyMessage[id=" + getMessageId() + " size=" + size + "]";
+   }
+
 }

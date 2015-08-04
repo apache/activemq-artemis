@@ -38,23 +38,18 @@ import org.junit.Test;
  * The server was then written to perform a cleanup, and that cleanup should always work.
  * This test will create the dirty situation where the test should recover from
  */
-public class TopicCleanupTest extends JMSTestBase
-{
+public class TopicCleanupTest extends JMSTestBase {
 
-   protected boolean usePersistence()
-   {
+   protected boolean usePersistence() {
       return true;
    }
 
    @Test
-   public void testSendTopic() throws Exception
-   {
+   public void testSendTopic() throws Exception {
       Topic topic = createTopic("topic");
       Connection conn = cf.createConnection();
 
-
-      try
-      {
+      try {
          conn.setClientID("someID");
 
          Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -75,13 +70,10 @@ public class TopicCleanupTest extends JMSTestBase
 
          StorageManager storage = server.getStorageManager();
 
-
-         for (int i = 0; i < 100; i++)
-         {
+         for (int i = 0; i < 100; i++) {
             long txid = storage.generateID();
 
-            final Queue queue = new QueueImpl(storage.generateID(), SimpleString.toSimpleString("jms.topic.topic"), SimpleString.toSimpleString("jms.topic.topic"), FilterImpl.createFilter(ActiveMQServerImpl.GENERIC_IGNORED_FILTER), null, true, false, false, server.getScheduledPool(), server.getPostOffice(),
-                                              storage, server.getAddressSettingsRepository(), server.getExecutorFactory().getExecutor());
+            final Queue queue = new QueueImpl(storage.generateID(), SimpleString.toSimpleString("jms.topic.topic"), SimpleString.toSimpleString("jms.topic.topic"), FilterImpl.createFilter(ActiveMQServerImpl.GENERIC_IGNORED_FILTER), null, true, false, false, server.getScheduledPool(), server.getPostOffice(), storage, server.getAddressSettingsRepository(), server.getExecutorFactory().getExecutor());
 
             LocalQueueBinding binding = new LocalQueueBinding(queue.getAddress(), queue, server.getNodeID());
 
@@ -95,14 +87,11 @@ public class TopicCleanupTest extends JMSTestBase
          jmsServer.start();
 
       }
-      finally
-      {
-         try
-         {
+      finally {
+         try {
             conn.close();
          }
-         catch (Throwable igonred)
-         {
+         catch (Throwable igonred) {
          }
       }
 

@@ -56,142 +56,145 @@ import org.apache.activemq.util.Wait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 public class TwoBrokerTempQueueAdvisoryTest extends JmsMultipleBrokersTestSupport {
-    private static final Logger LOG = LoggerFactory.getLogger(TwoBrokerTempQueueAdvisoryTest.class);
 
-    private void sendReceiveTempQueueMessage(String broker) throws Exception {
+   private static final Logger LOG = LoggerFactory.getLogger(TwoBrokerTempQueueAdvisoryTest.class);
 
-        ConnectionFactory factory = getConnectionFactory(broker);
-        Connection conn = factory.createConnection();
-        Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        session.createTemporaryQueue();
-        conn.close();
-    }
+   private void sendReceiveTempQueueMessage(String broker) throws Exception {
 
-    public void testTemporaryQueueAdvisory() throws Exception {
-        LOG.info("Running testTemporaryQueueAdvisory()");
+      ConnectionFactory factory = getConnectionFactory(broker);
+      Connection conn = factory.createConnection();
+      Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      session.createTemporaryQueue();
+      conn.close();
+   }
 
-        bridgeBrokers("BrokerA", "BrokerB");
-        bridgeBrokers("BrokerB", "BrokerA");
+   public void testTemporaryQueueAdvisory() throws Exception {
+      LOG.info("Running testTemporaryQueueAdvisory()");
 
-        startAllBrokers();
-        waitForBridgeFormation();
-        waitForMinTopicRegionConsumerCount("BrokerB", 1);
-        waitForMinTopicRegionConsumerCount("BrokerA", 1);
+      bridgeBrokers("BrokerA", "BrokerB");
+      bridgeBrokers("BrokerB", "BrokerA");
 
-        final int iterations = 30;
-        for (int i = 0; i < iterations; i++) {
-            sendReceiveTempQueueMessage("BrokerA");
-        }
+      startAllBrokers();
+      waitForBridgeFormation();
+      waitForMinTopicRegionConsumerCount("BrokerB", 1);
+      waitForMinTopicRegionConsumerCount("BrokerA", 1);
 
-        waitForMinTopicRegionConsumerCount("BrokerB", 1);
-        waitForMinTopicRegionConsumerCount("BrokerA", 1);
+      final int iterations = 30;
+      for (int i = 0; i < iterations; i++) {
+         sendReceiveTempQueueMessage("BrokerA");
+      }
 
-        final DestinationViewMBean brokerAView = createView("BrokerA", "ActiveMQ.Advisory.TempQueue", ActiveMQDestination.TOPIC_TYPE);
-        assertTrue("exact amount of advisories created on A, one each for creation/deletion", Wait.waitFor(new Wait.Condition() {
-            @Override
-            public boolean isSatisified() throws Exception {
-                LOG.info("BrokerA temp advisory enque count: " + brokerAView.getEnqueueCount());
-                return iterations * 2 == brokerAView.getEnqueueCount();
-            }
-        }));
+      waitForMinTopicRegionConsumerCount("BrokerB", 1);
+      waitForMinTopicRegionConsumerCount("BrokerA", 1);
 
-        final DestinationViewMBean brokerBView = createView("BrokerB", "ActiveMQ.Advisory.TempQueue", ActiveMQDestination.TOPIC_TYPE);
-        assertTrue("exact amount of advisories created on B, one each for creation/deletion", Wait.waitFor(new Wait.Condition() {
-            @Override
-            public boolean isSatisified() throws Exception {
-                LOG.info("BrokerB temp advisory enque count: " + brokerBView.getEnqueueCount());
-                return iterations * 2 == brokerBView.getEnqueueCount();
-            }
-        }));
-    }
+      final DestinationViewMBean brokerAView = createView("BrokerA", "ActiveMQ.Advisory.TempQueue", ActiveMQDestination.TOPIC_TYPE);
+      assertTrue("exact amount of advisories created on A, one each for creation/deletion", Wait.waitFor(new Wait.Condition() {
+         @Override
+         public boolean isSatisified() throws Exception {
+            LOG.info("BrokerA temp advisory enque count: " + brokerAView.getEnqueueCount());
+            return iterations * 2 == brokerAView.getEnqueueCount();
+         }
+      }));
 
-    public boolean useDuplex = true;
-    public void initCombosForTestSendToRemovedTemp() {
-        addCombinationValues("useDuplex", new Boolean[]{Boolean.FALSE, Boolean.TRUE});
-    }
+      final DestinationViewMBean brokerBView = createView("BrokerB", "ActiveMQ.Advisory.TempQueue", ActiveMQDestination.TOPIC_TYPE);
+      assertTrue("exact amount of advisories created on B, one each for creation/deletion", Wait.waitFor(new Wait.Condition() {
+         @Override
+         public boolean isSatisified() throws Exception {
+            LOG.info("BrokerB temp advisory enque count: " + brokerBView.getEnqueueCount());
+            return iterations * 2 == brokerBView.getEnqueueCount();
+         }
+      }));
+   }
 
-    public void testSendToRemovedTemp() throws Exception {
+   public boolean useDuplex = true;
 
-        ActiveMQQueue requestReplyDest = new ActiveMQQueue("RequestReply");
+   public void initCombosForTestSendToRemovedTemp() {
+      addCombinationValues("useDuplex", new Boolean[]{Boolean.FALSE, Boolean.TRUE});
+   }
 
-        NetworkConnector nc = bridgeBrokers("BrokerA", "BrokerB");
-        if (useDuplex) {
-            nc.setDuplex(true);
-        } else {
-            bridgeBrokers("BrokerB", "BrokerA");
-        }
+   public void testSendToRemovedTemp() throws Exception {
 
-        // destination advisory can loose the race with message dispatch, so we need to allow replies on network broker
-        // to work in the absence of an advisory, the destination will be cleaned up in the normal
-        // way
-        if (!useDuplex) {
-            brokers.get("BrokerB").broker.setAllowTempAutoCreationOnSend(true);
-        }
+      ActiveMQQueue requestReplyDest = new ActiveMQQueue("RequestReply");
 
-        TransportConnector forClient = brokers.get("BrokerA").broker.addConnector("tcp://localhost:0");
-        startAllBrokers();
-        waitForBridgeFormation();
-        waitForMinTopicRegionConsumerCount("BrokerB", 1);
-        waitForMinTopicRegionConsumerCount("BrokerA", 1);
+      NetworkConnector nc = bridgeBrokers("BrokerA", "BrokerB");
+      if (useDuplex) {
+         nc.setDuplex(true);
+      }
+      else {
+         bridgeBrokers("BrokerB", "BrokerA");
+      }
 
-        ConnectionFactory factory = new ActiveMQConnectionFactory(forClient.getConnectUri());
-        ActiveMQConnection conn = (ActiveMQConnection) factory.createConnection();
-        conn.setWatchTopicAdvisories(false);
-        conn.start();
-        Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      // destination advisory can loose the race with message dispatch, so we need to allow replies on network broker
+      // to work in the absence of an advisory, the destination will be cleaned up in the normal
+      // way
+      if (!useDuplex) {
+         brokers.get("BrokerB").broker.setAllowTempAutoCreationOnSend(true);
+      }
 
-        ConnectionFactory replyFactory = getConnectionFactory("BrokerB");
-        for (int i = 0; i < 500; i++) {
-            TemporaryQueue tempDest = session.createTemporaryQueue();
-            MessageProducer producer = session.createProducer(requestReplyDest);
-            javax.jms.Message message = session.createTextMessage("req-" + i);
-            message.setJMSReplyTo(tempDest);
+      TransportConnector forClient = brokers.get("BrokerA").broker.addConnector("tcp://localhost:0");
+      startAllBrokers();
+      waitForBridgeFormation();
+      waitForMinTopicRegionConsumerCount("BrokerB", 1);
+      waitForMinTopicRegionConsumerCount("BrokerA", 1);
 
-            ActiveMQMessageConsumer consumer = (ActiveMQMessageConsumer) session.createConsumer(tempDest);
-            producer.send(message);
+      ConnectionFactory factory = new ActiveMQConnectionFactory(forClient.getConnectUri());
+      ActiveMQConnection conn = (ActiveMQConnection) factory.createConnection();
+      conn.setWatchTopicAdvisories(false);
+      conn.start();
+      Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-            ActiveMQConnection replyConnection = (ActiveMQConnection) replyFactory.createConnection();
-            replyConnection.setWatchTopicAdvisories(false);
-            replyConnection.start();
-            Session replySession = replyConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-            ActiveMQMessageConsumer replyConsumer = (ActiveMQMessageConsumer) replySession.createConsumer(requestReplyDest);
-            javax.jms.Message msg = replyConsumer.receive(10000);
-            assertNotNull("request message not null: " + i, msg);
-            MessageProducer replyProducer = replySession.createProducer(msg.getJMSReplyTo());
-            replyProducer.send(session.createTextMessage("reply-" + i));
-            replyConnection.close();
+      ConnectionFactory replyFactory = getConnectionFactory("BrokerB");
+      for (int i = 0; i < 500; i++) {
+         TemporaryQueue tempDest = session.createTemporaryQueue();
+         MessageProducer producer = session.createProducer(requestReplyDest);
+         javax.jms.Message message = session.createTextMessage("req-" + i);
+         message.setJMSReplyTo(tempDest);
 
-            javax.jms.Message reply = consumer.receive(10000);
-            assertNotNull("reply message : " + i + ", to: " + tempDest + ", by consumer:" + consumer.getConsumerId(), reply);
-            consumer.close();
-            tempDest.delete();
-        }
-    }
+         ActiveMQMessageConsumer consumer = (ActiveMQMessageConsumer) session.createConsumer(tempDest);
+         producer.send(message);
 
-    protected DestinationViewMBean createView(String broker, String destination, byte type) throws Exception {
-        String domain = "org.apache.activemq";
-        ObjectName name;
-        if (type == ActiveMQDestination.QUEUE_TYPE) {
-            name = new ObjectName(domain + ":type=Broker,brokerName=" + broker + ",destinationType=Queue,destinationName=" + destination);
-        } else {
-            name = new ObjectName(domain + ":type=Broker,brokerName=" + broker + ",destinationType=Topic,destinationName=" + destination);
-        }
-        return (DestinationViewMBean) brokers.get(broker).broker.getManagementContext().newProxyInstance(name, DestinationViewMBean.class, true);
-    }
+         ActiveMQConnection replyConnection = (ActiveMQConnection) replyFactory.createConnection();
+         replyConnection.setWatchTopicAdvisories(false);
+         replyConnection.start();
+         Session replySession = replyConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         ActiveMQMessageConsumer replyConsumer = (ActiveMQMessageConsumer) replySession.createConsumer(requestReplyDest);
+         javax.jms.Message msg = replyConsumer.receive(10000);
+         assertNotNull("request message not null: " + i, msg);
+         MessageProducer replyProducer = replySession.createProducer(msg.getJMSReplyTo());
+         replyProducer.send(session.createTextMessage("reply-" + i));
+         replyConnection.close();
 
-    @Override
-    public void setUp() throws Exception {
-        super.setAutoFail(true);
-        super.setUp();
+         javax.jms.Message reply = consumer.receive(10000);
+         assertNotNull("reply message : " + i + ", to: " + tempDest + ", by consumer:" + consumer.getConsumerId(), reply);
+         consumer.close();
+         tempDest.delete();
+      }
+   }
 
-        String options = new String("?persistent=false");
-        createBroker(new URI("broker:(tcp://localhost:0)/BrokerA" + options));
-        createBroker(new URI("broker:(tcp://localhost:0)/BrokerB" + options));
-    }
+   protected DestinationViewMBean createView(String broker, String destination, byte type) throws Exception {
+      String domain = "org.apache.activemq";
+      ObjectName name;
+      if (type == ActiveMQDestination.QUEUE_TYPE) {
+         name = new ObjectName(domain + ":type=Broker,brokerName=" + broker + ",destinationType=Queue,destinationName=" + destination);
+      }
+      else {
+         name = new ObjectName(domain + ":type=Broker,brokerName=" + broker + ",destinationType=Topic,destinationName=" + destination);
+      }
+      return (DestinationViewMBean) brokers.get(broker).broker.getManagementContext().newProxyInstance(name, DestinationViewMBean.class, true);
+   }
 
-    public static Test suite() {
-        return suite(TwoBrokerTempQueueAdvisoryTest.class);
-    }
+   @Override
+   public void setUp() throws Exception {
+      super.setAutoFail(true);
+      super.setUp();
+
+      String options = new String("?persistent=false");
+      createBroker(new URI("broker:(tcp://localhost:0)/BrokerA" + options));
+      createBroker(new URI("broker:(tcp://localhost:0)/BrokerB" + options));
+   }
+
+   public static Test suite() {
+      return suite(TwoBrokerTempQueueAdvisoryTest.class);
+   }
 }

@@ -30,49 +30,40 @@ import java.io.ObjectInputStream;
 import java.util.List;
 import java.util.Map.Entry;
 
-public class HttpMessageHelper
-{
+public class HttpMessageHelper {
+
    public static final String POSTED_AS_HTTP_MESSAGE = "postedAsHttpMessage";
 
-   public static boolean isTransferableHttpHeader(String key)
-   {
+   public static boolean isTransferableHttpHeader(String key) {
       String lowerKey = key.toLowerCase();
       return lowerKey.toLowerCase().startsWith("content") || lowerKey.toLowerCase().equals("link");
    }
 
-   public static void buildMessage(ClientMessage message, Response.ResponseBuilder builder)
-   {
-      for (SimpleString key : message.getPropertyNames())
-      {
+   public static void buildMessage(ClientMessage message, Response.ResponseBuilder builder) {
+      for (SimpleString key : message.getPropertyNames()) {
          String k = key.toString();
          String headerName = HttpHeaderProperty.fromPropertyName(k);
-         if (headerName == null)
-         {
+         if (headerName == null) {
             continue;
          }
          builder.header(headerName, message.getStringProperty(k));
       }
       int size = message.getBodySize();
-      if (size > 0)
-      {
+      if (size > 0) {
          byte[] body = new byte[size];
          message.getBodyBuffer().readBytes(body);
          Boolean aBoolean = message.getBooleanProperty(POSTED_AS_HTTP_MESSAGE);
-         if (aBoolean != null && aBoolean.booleanValue())
-         {
+         if (aBoolean != null && aBoolean.booleanValue()) {
             builder.entity(body);
          }
-         else
-         {
+         else {
             ByteArrayInputStream bais = new ByteArrayInputStream(body);
             Object obj = null;
-            try
-            {
+            try {
                ObjectInputStream ois = new ObjectInputStream(bais);
                obj = ois.readObject();
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                throw new RuntimeException(e);
             }
             builder.entity(obj);
@@ -80,14 +71,11 @@ public class HttpMessageHelper
       }
    }
 
-   public static void buildMessage(ClientMessage message, ClientRequest request, String contentType)
-   {
-      for (SimpleString key : message.getPropertyNames())
-      {
+   public static void buildMessage(ClientMessage message, ClientRequest request, String contentType) {
+      for (SimpleString key : message.getPropertyNames()) {
          String k = key.toString();
          String headerName = HttpHeaderProperty.fromPropertyName(k);
-         if (headerName == null || headerName.contains("content-length"))
-         {
+         if (headerName == null || headerName.contains("content-length")) {
             continue;
          }
          String value = message.getStringProperty(k);
@@ -95,55 +83,46 @@ public class HttpMessageHelper
          request.header(headerName, value);
          ActiveMQRestLogger.LOGGER.debug("Examining " + headerName + ": " + value);
          // override default content type if it is set as a message property
-         if (headerName.equalsIgnoreCase("content-type"))
-         {
+         if (headerName.equalsIgnoreCase("content-type")) {
             contentType = value;
             ActiveMQRestLogger.LOGGER.debug("Using contentType: " + contentType);
          }
       }
       int size = message.getBodySize();
-      if (size > 0)
-      {
+      if (size > 0) {
          Boolean aBoolean = message.getBooleanProperty(POSTED_AS_HTTP_MESSAGE);
-         if (aBoolean != null && aBoolean.booleanValue())
-         {
+         if (aBoolean != null && aBoolean.booleanValue()) {
             byte[] body = new byte[size];
             message.getBodyBuffer().readBytes(body);
             ActiveMQRestLogger.LOGGER.debug("Building Message from HTTP message");
             request.body(contentType, body);
          }
-         else
-         {
+         else {
             // assume posted as a JMS or ActiveMQ Artemis object message
             size = message.getBodyBuffer().readInt();
             byte[] body = new byte[size];
             message.getBodyBuffer().readBytes(body);
             ByteArrayInputStream bais = new ByteArrayInputStream(body);
             Object obj = null;
-            try
-            {
+            try {
                ObjectInputStream ois = new ObjectInputStream(bais);
                obj = ois.readObject();
                ActiveMQRestLogger.LOGGER.debug("**** Building Message from object: " + obj.toString());
                request.body(contentType, obj);
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                throw new RuntimeException(e);
             }
          }
       }
    }
 
-   public static void writeHttpMessage(HttpHeaders headers, byte[] body, ClientMessage message) throws Exception
-   {
+   public static void writeHttpMessage(HttpHeaders headers, byte[] body, ClientMessage message) throws Exception {
 
       MultivaluedMap<String, String> hdrs = headers.getRequestHeaders();
-      for (Entry<String, List<String>> entry : hdrs.entrySet())
-      {
+      for (Entry<String, List<String>> entry : hdrs.entrySet()) {
          String key = entry.getKey();
-         if (isTransferableHttpHeader(key))
-         {
+         if (isTransferableHttpHeader(key)) {
             List<String> vals = entry.getValue();
             String value = concatenateHeaderValue(vals);
             message.putStringProperty(HttpHeaderProperty.toPropertyName(key), value);
@@ -153,17 +132,13 @@ public class HttpMessageHelper
       message.getBodyBuffer().writeBytes(body);
    }
 
-   public static String concatenateHeaderValue(List<String> vals)
-   {
-      if (vals == null)
-      {
+   public static String concatenateHeaderValue(List<String> vals) {
+      if (vals == null) {
          return "";
       }
       StringBuilder val = new StringBuilder();
-      for (String v : vals)
-      {
-         if (val.length() > 0)
-         {
+      for (String v : vals) {
+         if (val.length() > 0) {
             val.append(",");
          }
          val.append(v);

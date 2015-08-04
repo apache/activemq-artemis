@@ -20,15 +20,18 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.utils.TypedProperties;
 
-public interface ClientMessageInternal extends ClientMessage
-{
+public interface ClientMessageInternal extends ClientMessage {
 
    TypedProperties getProperties();
 
-   /** Size used for FlowControl */
+   /**
+    * Size used for FlowControl
+    */
    int getFlowControlSize();
 
-   /** Size used for FlowControl */
+   /**
+    * Size used for FlowControl
+    */
    void setFlowControlSize(int flowControlSize);
 
    void setAddressTransient(SimpleString address);

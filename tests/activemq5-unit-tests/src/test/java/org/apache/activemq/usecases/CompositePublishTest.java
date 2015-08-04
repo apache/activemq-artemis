@@ -36,118 +36,120 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class CompositePublishTest extends JmsSendReceiveTestSupport {
-    private static final Logger LOG = LoggerFactory.getLogger(CompositePublishTest.class);
 
-    protected Connection sendConnection;
-    protected Connection receiveConnection;
-    protected Session receiveSession;
-    protected MessageConsumer[] consumers;
-    @SuppressWarnings("rawtypes")
-    protected List[] messageLists;
+   private static final Logger LOG = LoggerFactory.getLogger(CompositePublishTest.class);
 
-    @SuppressWarnings("unchecked")
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
+   protected Connection sendConnection;
+   protected Connection receiveConnection;
+   protected Session receiveSession;
+   protected MessageConsumer[] consumers;
+   @SuppressWarnings("rawtypes")
+   protected List[] messageLists;
 
-        connectionFactory = createConnectionFactory();
+   @SuppressWarnings("unchecked")
+   @Override
+   protected void setUp() throws Exception {
+      super.setUp();
 
-        sendConnection = createConnection();
-        sendConnection.start();
+      connectionFactory = createConnectionFactory();
 
-        receiveConnection = createConnection();
-        receiveConnection.start();
+      sendConnection = createConnection();
+      sendConnection.start();
 
-        LOG.info("Created sendConnection: " + sendConnection);
-        LOG.info("Created receiveConnection: " + receiveConnection);
+      receiveConnection = createConnection();
+      receiveConnection.start();
 
-        session = sendConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        receiveSession = receiveConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      LOG.info("Created sendConnection: " + sendConnection);
+      LOG.info("Created receiveConnection: " + receiveConnection);
 
-        LOG.info("Created sendSession: " + session);
-        LOG.info("Created receiveSession: " + receiveSession);
+      session = sendConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      receiveSession = receiveConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-        producer = session.createProducer(null);
+      LOG.info("Created sendSession: " + session);
+      LOG.info("Created receiveSession: " + receiveSession);
 
-        LOG.info("Created producer: " + producer);
+      producer = session.createProducer(null);
 
-        if (topic) {
-            consumerDestination = session.createTopic(getConsumerSubject());
-            producerDestination = session.createTopic(getProducerSubject());
-        } else {
-            consumerDestination = session.createQueue(getConsumerSubject());
-            producerDestination = session.createQueue(getProducerSubject());
-        }
+      LOG.info("Created producer: " + producer);
 
-        LOG.info("Created  consumer destination: " + consumerDestination + " of type: " + consumerDestination.getClass());
-        LOG.info("Created  producer destination: " + producerDestination + " of type: " + producerDestination.getClass());
+      if (topic) {
+         consumerDestination = session.createTopic(getConsumerSubject());
+         producerDestination = session.createTopic(getProducerSubject());
+      }
+      else {
+         consumerDestination = session.createQueue(getConsumerSubject());
+         producerDestination = session.createQueue(getProducerSubject());
+      }
 
-        Destination[] destinations = getDestinations();
-        consumers = new MessageConsumer[destinations.length];
-        messageLists = new List[destinations.length];
-        for (int i = 0; i < destinations.length; i++) {
-            Destination dest = destinations[i];
-            messageLists[i] = createConcurrentList();
-            consumers[i] = receiveSession.createConsumer(dest);
-            consumers[i].setMessageListener(createMessageListener(i, messageLists[i]));
-        }
+      LOG.info("Created  consumer destination: " + consumerDestination + " of type: " + consumerDestination.getClass());
+      LOG.info("Created  producer destination: " + producerDestination + " of type: " + producerDestination.getClass());
 
-        LOG.info("Started connections");
-    }
+      Destination[] destinations = getDestinations();
+      consumers = new MessageConsumer[destinations.length];
+      messageLists = new List[destinations.length];
+      for (int i = 0; i < destinations.length; i++) {
+         Destination dest = destinations[i];
+         messageLists[i] = createConcurrentList();
+         consumers[i] = receiveSession.createConsumer(dest);
+         consumers[i].setMessageListener(createMessageListener(i, messageLists[i]));
+      }
 
-    protected MessageListener createMessageListener(int i, final List<Message> messageList) {
-        return new MessageListener() {
-            @Override
-            public void onMessage(Message message) {
-                consumeMessage(message, messageList);
-            }
-        };
-    }
+      LOG.info("Started connections");
+   }
 
-    /**
-     * Returns the subject on which we publish
-     */
-    @Override
-    protected String getSubject() {
-        return getPrefix() + "FOO.BAR," + getPrefix() + "FOO.X.Y";
-    }
+   protected MessageListener createMessageListener(int i, final List<Message> messageList) {
+      return new MessageListener() {
+         @Override
+         public void onMessage(Message message) {
+            consumeMessage(message, messageList);
+         }
+      };
+   }
 
-    /**
-     * Returns the destinations to which we consume
-     */
-    protected Destination[] getDestinations() {
-        return new Destination[] {new ActiveMQTopic(getPrefix() + "FOO.BAR"), new ActiveMQTopic(getPrefix() + "FOO.*"), new ActiveMQTopic(getPrefix() + "FOO.X.Y")};
-    }
+   /**
+    * Returns the subject on which we publish
+    */
+   @Override
+   protected String getSubject() {
+      return getPrefix() + "FOO.BAR," + getPrefix() + "FOO.X.Y";
+   }
 
-    protected String getPrefix() {
-        return super.getSubject() + ".";
-    }
+   /**
+    * Returns the destinations to which we consume
+    */
+   protected Destination[] getDestinations() {
+      return new Destination[]{new ActiveMQTopic(getPrefix() + "FOO.BAR"), new ActiveMQTopic(getPrefix() + "FOO.*"), new ActiveMQTopic(getPrefix() + "FOO.X.Y")};
+   }
 
-    @SuppressWarnings("unchecked")
-    @Override
-    protected void assertMessagesAreReceived() throws JMSException {
-        waitForMessagesToBeDelivered();
-        int size = messageLists.length;
-        for (int i = 0; i < size; i++) {
-            LOG.info("Message list: " + i + " contains: " + messageLists[i].size() + " message(s)");
-        }
-        size = messageLists.length;
-        for (int i = 0; i < size; i++) {
-            assertMessagesReceivedAreValid(messageLists[i]);
-        }
-    }
+   protected String getPrefix() {
+      return super.getSubject() + ".";
+   }
 
-    @Override
-    protected ActiveMQConnectionFactory createConnectionFactory() {
-        return new ActiveMQConnectionFactory("vm://localhost");
-    }
+   @SuppressWarnings("unchecked")
+   @Override
+   protected void assertMessagesAreReceived() throws JMSException {
+      waitForMessagesToBeDelivered();
+      int size = messageLists.length;
+      for (int i = 0; i < size; i++) {
+         LOG.info("Message list: " + i + " contains: " + messageLists[i].size() + " message(s)");
+      }
+      size = messageLists.length;
+      for (int i = 0; i < size; i++) {
+         assertMessagesReceivedAreValid(messageLists[i]);
+      }
+   }
 
-    @Override
-    protected void tearDown() throws Exception {
-        session.close();
-        receiveSession.close();
+   @Override
+   protected ActiveMQConnectionFactory createConnectionFactory() {
+      return new ActiveMQConnectionFactory("vm://localhost");
+   }
 
-        sendConnection.close();
-        receiveConnection.close();
-    }
+   @Override
+   protected void tearDown() throws Exception {
+      session.close();
+      receiveSession.close();
+
+      sendConnection.close();
+      receiveConnection.close();
+   }
 }

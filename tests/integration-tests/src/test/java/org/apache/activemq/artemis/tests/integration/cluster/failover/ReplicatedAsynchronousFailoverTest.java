@@ -16,11 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
-public class ReplicatedAsynchronousFailoverTest extends AsynchronousFailoverTest
-{
+public class ReplicatedAsynchronousFailoverTest extends AsynchronousFailoverTest {
+
    @Override
-   protected void createConfigs() throws Exception
-   {
+   protected void createConfigs() throws Exception {
       createReplicatedConfigs();
    }
 }

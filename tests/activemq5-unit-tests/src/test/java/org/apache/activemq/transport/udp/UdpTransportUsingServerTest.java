@@ -28,39 +28,40 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * 
- * 
+ *
+ *
  */
 public class UdpTransportUsingServerTest extends UdpTestSupport {
-    private static final Logger LOG = LoggerFactory.getLogger(UdpTransportUsingServerTest.class);
 
-    protected int consumerPort = 9123;
-    protected String producerURI = "udp://localhost:" + consumerPort;
-    protected String serverURI = producerURI;
+   private static final Logger LOG = LoggerFactory.getLogger(UdpTransportUsingServerTest.class);
 
-    public void testRequestResponse() throws Exception {
-        ConsumerInfo expected = new ConsumerInfo();
-        expected.setSelector("Edam");
-        expected.setResponseRequired(true);
-        LOG.info("About to send: " + expected);
-        Response response = (Response) producer.request(expected, 2000);
+   protected int consumerPort = 9123;
+   protected String producerURI = "udp://localhost:" + consumerPort;
+   protected String serverURI = producerURI;
 
-        LOG.info("Received: " + response);
-        assertNotNull("Received a response", response);
-        assertTrue("Should not be an exception", !response.isException());
-    }
+   public void testRequestResponse() throws Exception {
+      ConsumerInfo expected = new ConsumerInfo();
+      expected.setSelector("Edam");
+      expected.setResponseRequired(true);
+      LOG.info("About to send: " + expected);
+      Response response = (Response) producer.request(expected, 2000);
 
-    protected Transport createProducer() throws Exception {
-        LOG.info("Producer using URI: " + producerURI);
-        URI uri = new URI(producerURI);
-        return TransportFactory.connect(uri);
-    }
+      LOG.info("Received: " + response);
+      assertNotNull("Received a response", response);
+      assertTrue("Should not be an exception", !response.isException());
+   }
 
-    protected TransportServer createServer() throws Exception {
-        return TransportFactory.bind(new URI(serverURI));
-    }
+   protected Transport createProducer() throws Exception {
+      LOG.info("Producer using URI: " + producerURI);
+      URI uri = new URI(producerURI);
+      return TransportFactory.connect(uri);
+   }
 
-    protected Transport createConsumer() throws Exception {
-        return null;
-    }
+   protected TransportServer createServer() throws Exception {
+      return TransportFactory.bind(new URI(serverURI));
+   }
+
+   protected Transport createConsumer() throws Exception {
+      return null;
+   }
 }

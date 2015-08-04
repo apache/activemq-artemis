@@ -18,22 +18,17 @@ package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 
-public class SessionCloseMessage extends PacketImpl
-{
+public class SessionCloseMessage extends PacketImpl {
 
-
-   public SessionCloseMessage()
-   {
+   public SessionCloseMessage() {
       super(SESS_CLOSE);
    }
 
    // Public --------------------------------------------------------
 
    @Override
-   public boolean equals(final Object other)
-   {
-      if (other instanceof SessionCloseMessage == false)
-      {
+   public boolean equals(final Object other) {
+      if (other instanceof SessionCloseMessage == false) {
          return false;
       }
 
@@ -41,8 +36,7 @@ public class SessionCloseMessage extends PacketImpl
    }
 
    @Override
-   public int hashCode()
-   {
+   public int hashCode() {
       // TODO
       return 0;
    }

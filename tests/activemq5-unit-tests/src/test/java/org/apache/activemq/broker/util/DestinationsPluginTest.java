@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.broker.util;
 
-
 import org.apache.activemq.broker.BrokerPlugin;
 import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.broker.jmx.BrokerView;
@@ -27,54 +26,52 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 
-
 public class DestinationsPluginTest {
 
-    BrokerService broker;
+   BrokerService broker;
 
-    @Before
-    public void setUp() throws Exception {
-        broker = createBroker();
-        broker.start();
-        broker.waitUntilStarted();
-    }
+   @Before
+   public void setUp() throws Exception {
+      broker = createBroker();
+      broker.start();
+      broker.waitUntilStarted();
+   }
 
-    @After
-    public void shutdown() throws Exception {
-        broker.stop();
-        broker.waitUntilStopped();
-    }
+   @After
+   public void shutdown() throws Exception {
+      broker.stop();
+      broker.waitUntilStopped();
+   }
 
-    protected BrokerService createBroker() {
-        BrokerService broker = new BrokerService();
-        broker.setPersistent(false);
-        broker.setUseJmx(true);
-        broker.setPlugins(new BrokerPlugin[]{new DestinationsPlugin()});
-        broker.setDataDirectory("target/test");
-        return broker;
-    }
+   protected BrokerService createBroker() {
+      BrokerService broker = new BrokerService();
+      broker.setPersistent(false);
+      broker.setUseJmx(true);
+      broker.setPlugins(new BrokerPlugin[]{new DestinationsPlugin()});
+      broker.setDataDirectory("target/test");
+      return broker;
+   }
 
-    @Test
-    public void testDestinationSave() throws Exception {
+   @Test
+   public void testDestinationSave() throws Exception {
 
-        BrokerView brokerView = broker.getAdminView();
-        brokerView.addQueue("test-queue");
+      BrokerView brokerView = broker.getAdminView();
+      brokerView.addQueue("test-queue");
 
-        broker.stop();
-        broker.waitUntilStopped();
+      broker.stop();
+      broker.waitUntilStopped();
 
-        broker = createBroker();
-        broker.start();
-        broker.waitUntilStarted();
+      broker = createBroker();
+      broker.start();
+      broker.waitUntilStarted();
 
+      ActiveMQDestination[] destinations = broker.getRegionBroker().getDestinations();
+      for (ActiveMQDestination destination : destinations) {
+         if (destination.isQueue()) {
+            assertEquals("test-queue", destination.getPhysicalName());
+         }
+      }
 
-        ActiveMQDestination[] destinations = broker.getRegionBroker().getDestinations();
-        for (ActiveMQDestination destination : destinations) {
-            if (destination.isQueue()) {
-                assertEquals("test-queue", destination.getPhysicalName());
-            }
-        }
-
-    }
+   }
 
 }

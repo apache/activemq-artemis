@@ -27,8 +27,8 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-public abstract class AbstractStompClientConnection implements StompClientConnection
-{
+public abstract class AbstractStompClientConnection implements StompClientConnection {
+
    public static final String STOMP_COMMAND = "STOMP";
 
    public static final String ACCEPT_HEADER = "accept-version";
@@ -64,8 +64,7 @@ public abstract class AbstractStompClientConnection implements StompClientConnec
    protected boolean connected = false;
    private int serverPingCounter;
 
-   public AbstractStompClientConnection(String version, String host, int port) throws IOException
-   {
+   public AbstractStompClientConnection(String version, String host, int port) throws IOException {
       this.version = version;
       this.host = host;
       this.port = port;
@@ -74,8 +73,7 @@ public abstract class AbstractStompClientConnection implements StompClientConnec
       initSocket();
    }
 
-   private void initSocket() throws IOException
-   {
+   private void initSocket() throws IOException {
       socketChannel.configureBlocking(true);
       InetSocketAddress remoteAddr = new InetSocketAddress(host, port);
       socketChannel.connect(remoteAddr);
@@ -83,37 +81,30 @@ public abstract class AbstractStompClientConnection implements StompClientConnec
       startReaderThread();
    }
 
-   private void startReaderThread()
-   {
+   private void startReaderThread() {
       readBuffer = ByteBuffer.allocateDirect(10240);
       receiveList = new ArrayList<Byte>(10240);
 
       new ReaderThread().start();
    }
 
-   public ClientStompFrame sendFrame(ClientStompFrame frame) throws IOException, InterruptedException
-   {
+   public ClientStompFrame sendFrame(ClientStompFrame frame) throws IOException, InterruptedException {
       ClientStompFrame response = null;
       ByteBuffer buffer = frame.toByteBuffer();
-      while (buffer.remaining() > 0)
-      {
+      while (buffer.remaining() > 0) {
          socketChannel.write(buffer);
       }
 
       //now response
-      if (frame.needsReply())
-      {
+      if (frame.needsReply()) {
          response = receiveFrame();
 
          //filter out server ping
-         while (response != null)
-         {
-            if (response.getCommand().equals("STOMP"))
-            {
+         while (response != null) {
+            if (response.getCommand().equals("STOMP")) {
                response = receiveFrame();
             }
-            else
-            {
+            else {
                break;
             }
          }
@@ -122,30 +113,24 @@ public abstract class AbstractStompClientConnection implements StompClientConnec
       return response;
    }
 
-   public ClientStompFrame sendWickedFrame(ClientStompFrame frame) throws IOException, InterruptedException
-   {
+   public ClientStompFrame sendWickedFrame(ClientStompFrame frame) throws IOException, InterruptedException {
       ClientStompFrame response = null;
       ByteBuffer buffer = frame.toByteBufferWithExtra("\n");
 
-      while (buffer.remaining() > 0)
-      {
+      while (buffer.remaining() > 0) {
          socketChannel.write(buffer);
       }
 
       //now response
-      if (frame.needsReply())
-      {
+      if (frame.needsReply()) {
          response = receiveFrame();
 
          //filter out server ping
-         while (response != null)
-         {
-            if (response.getCommand().equals("STOMP"))
-            {
+         while (response != null) {
+            if (response.getCommand().equals("STOMP")) {
                response = receiveFrame();
             }
-            else
-            {
+            else {
                break;
             }
          }
@@ -153,56 +138,44 @@ public abstract class AbstractStompClientConnection implements StompClientConnec
       return response;
    }
 
-   public ClientStompFrame receiveFrame() throws InterruptedException
-   {
+   public ClientStompFrame receiveFrame() throws InterruptedException {
       return frameQueue.poll(10, TimeUnit.SECONDS);
    }
 
-   public ClientStompFrame receiveFrame(long timeout) throws InterruptedException
-   {
+   public ClientStompFrame receiveFrame(long timeout) throws InterruptedException {
       return frameQueue.poll(timeout, TimeUnit.MILLISECONDS);
    }
 
    //put bytes to byte array.
-   private void receiveBytes(int n)
-   {
+   private void receiveBytes(int n) {
       readBuffer.rewind();
-      for (int i = 0; i < n; i++)
-      {
+      for (int i = 0; i < n; i++) {
          byte b = readBuffer.get();
-         if (b == 0)
-         {
+         if (b == 0) {
             //a new frame got.
             int sz = receiveList.size();
-            if (sz > 0)
-            {
+            if (sz > 0) {
                byte[] frameBytes = new byte[sz];
-               for (int j = 0; j < sz; j++)
-               {
+               for (int j = 0; j < sz; j++) {
                   frameBytes[j] = receiveList.get(j);
                }
                ClientStompFrame frame = factory.createFrame(new String(frameBytes, StandardCharsets.UTF_8));
 
-               if (validateFrame(frame))
-               {
+               if (validateFrame(frame)) {
                   frameQueue.offer(frame);
                   receiveList.clear();
                }
-               else
-               {
+               else {
                   receiveList.add(b);
                }
             }
          }
-         else
-         {
-            if (b == 10 && receiveList.size() == 0)
-            {
+         else {
+            if (b == 10 && receiveList.size() == 0) {
                //may be a ping
                incrementServerPing();
             }
-            else
-            {
+            else {
                receiveList.add(b);
             }
          }
@@ -211,50 +184,39 @@ public abstract class AbstractStompClientConnection implements StompClientConnec
       readBuffer.rewind();
    }
 
-
    @Override
-   public int getServerPingNumber()
-   {
+   public int getServerPingNumber() {
       return serverPingCounter;
    }
 
-   protected void incrementServerPing()
-   {
+   protected void incrementServerPing() {
       serverPingCounter++;
    }
 
-   private boolean validateFrame(ClientStompFrame f)
-   {
+   private boolean validateFrame(ClientStompFrame f) {
       String h = f.getHeader("content-length");
-      if (h != null)
-      {
+      if (h != null) {
          int len = Integer.valueOf(h);
-         if (f.getBody().getBytes(StandardCharsets.UTF_8).length < len)
-         {
+         if (f.getBody().getBytes(StandardCharsets.UTF_8).length < len) {
             return false;
          }
       }
       return true;
    }
 
-   protected void close() throws IOException
-   {
+   protected void close() throws IOException {
       socketChannel.close();
    }
 
-   private class ReaderThread extends Thread
-   {
+   private class ReaderThread extends Thread {
+
       @Override
-      public void run()
-      {
-         try
-         {
+      public void run() {
+         try {
             int n = socketChannel.read(readBuffer);
 
-            while (n >= 0)
-            {
-               if (n > 0)
-               {
+            while (n >= 0) {
+               if (n > 0) {
                   receiveBytes(n);
                }
                n = socketChannel.read(readBuffer);
@@ -263,93 +225,75 @@ public abstract class AbstractStompClientConnection implements StompClientConnec
             close();
 
          }
-         catch (IOException e)
-         {
-            try
-            {
+         catch (IOException e) {
+            try {
                close();
             }
-            catch (IOException e1)
-            {
+            catch (IOException e1) {
                //ignore
             }
          }
       }
    }
 
-   public ClientStompFrame connect() throws Exception
-   {
+   public ClientStompFrame connect() throws Exception {
       return connect(null, null);
    }
 
-   public void destroy()
-   {
-      try
-      {
+   public void destroy() {
+      try {
          close();
       }
-      catch (IOException e)
-      {
+      catch (IOException e) {
       }
-      finally
-      {
+      finally {
          this.connected = false;
       }
    }
 
-   public ClientStompFrame connect(String username, String password) throws Exception
-   {
+   public ClientStompFrame connect(String username, String password) throws Exception {
       throw new RuntimeException("connect method not implemented!");
    }
 
-   public boolean isConnected()
-   {
+   public boolean isConnected() {
       return connected;
    }
 
-   public String getVersion()
-   {
+   public String getVersion() {
       return version;
    }
 
-   public int getFrameQueueSize()
-   {
+   public int getFrameQueueSize() {
       return this.frameQueue.size();
    }
 
    @Override
-   public void startPinger(long interval)
-   {
+   public void startPinger(long interval) {
       pinger = new Pinger(interval);
       pinger.startPing();
    }
 
    @Override
-   public void stopPinger()
-   {
-      if (pinger != null)
-      {
+   public void stopPinger() {
+      if (pinger != null) {
          pinger.stopPing();
-         try
-         {
+         try {
             pinger.join();
          }
-         catch (InterruptedException e)
-         {
+         catch (InterruptedException e) {
             e.printStackTrace();
          }
          pinger = null;
       }
    }
 
-   private class Pinger extends Thread
-   {
+   private class Pinger extends Thread {
+
       long pingInterval;
       ClientStompFrame pingFrame;
       volatile boolean stop = false;
 
-      public Pinger(long interval)
-      {
+      public Pinger(long interval) {
          this.pingInterval = interval;
          pingFrame = createFrame("STOMP");
          pingFrame.setBody("\n");
@@ -357,31 +301,24 @@ public abstract class AbstractStompClientConnection implements StompClientConnec
          pingFrame.setPing(true);
       }
 
-      public void startPing()
-      {
+      public void startPing() {
          start();
       }
 
-      public synchronized void stopPing()
-      {
+      public synchronized void stopPing() {
          stop = true;
          this.notify();
       }
 
-      public void run()
-      {
-         synchronized (this)
-         {
-            while (!stop)
-            {
-               try
-               {
+      public void run() {
+         synchronized (this) {
+            while (!stop) {
+               try {
                   sendFrame(pingFrame);
 
                   this.wait(pingInterval);
                }
-               catch (Exception e)
-               {
+               catch (Exception e) {
                   stop = true;
                   e.printStackTrace();
                }

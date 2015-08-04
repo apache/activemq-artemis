@@ -20,28 +20,25 @@ import org.jgroups.JChannel;
 
 /**
  * An implementation of JGroupsBroadcastEndpoint that uses an externally managed JChannel for its operations.
- *
+ * <br>
  * Note - this implementation does not close the JChannel, since its externally created.
  */
-public class JGroupsChannelBroadcastEndpoint extends JGroupsBroadcastEndpoint
-{
+public class JGroupsChannelBroadcastEndpoint extends JGroupsBroadcastEndpoint {
+
    private final JChannel jChannel;
 
-   public JGroupsChannelBroadcastEndpoint(JChannel jChannel, final String channelName) throws Exception
-   {
+   public JGroupsChannelBroadcastEndpoint(JChannel jChannel, final String channelName) throws Exception {
       super(channelName);
       this.jChannel = jChannel;
    }
 
    @Override
-   public JChannel createChannel() throws Exception
-   {
+   public JChannel createChannel() throws Exception {
       return jChannel;
    }
 
    @Override
-   protected synchronized void internalCloseChannel()
-   {
+   protected synchronized void internalCloseChannel() {
       // no-op, this version takes an externally managed channel.
    }
 }

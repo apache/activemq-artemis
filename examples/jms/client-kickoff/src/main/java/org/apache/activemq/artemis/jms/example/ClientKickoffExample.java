@@ -37,32 +37,28 @@ import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
 /**
  * An example that shows how to kick off a client connected to ActiveMQ Artemis by using JMX.
  */
-public class ClientKickoffExample
-{
+public class ClientKickoffExample {
+
    private static final String JMX_URL = "service:jmx:rmi:///jndi/rmi://localhost:3000/jmxrmi";
 
-   public static void main(final String[] args) throws Exception
-   {
+   public static void main(final String[] args) throws Exception {
       QueueConnection connection = null;
       InitialContext initialContext = null;
-      try
-      {
+      try {
          // Step 1. Create an initial context to perform the JNDI lookup.
          initialContext = new InitialContext();
 
          // Step 2. Perform a lookup on the Connection Factory
-         QueueConnectionFactory cf = (QueueConnectionFactory)initialContext.lookup("ConnectionFactory");
+         QueueConnectionFactory cf = (QueueConnectionFactory) initialContext.lookup("ConnectionFactory");
 
          // Step 3.Create a JMS Connection
          connection = cf.createQueueConnection();
 
          // Step 4. Set an exception listener on the connection to be notified after a problem occurred
          final AtomicReference<JMSException> exception = new AtomicReference<JMSException>();
-         connection.setExceptionListener(new ExceptionListener()
-         {
+         connection.setExceptionListener(new ExceptionListener() {
             @Override
-            public void onException(final JMSException e)
-            {
+            public void onException(final JMSException e) {
                exception.set(e);
             }
          });
@@ -74,17 +70,13 @@ public class ClientKickoffExample
          ObjectName on = ObjectNameBuilder.DEFAULT.getActiveMQServerObjectName();
          JMXConnector connector = JMXConnectorFactory.connect(new JMXServiceURL(JMX_URL), new HashMap<String, String>());
          MBeanServerConnection mbsc = connector.getMBeanServerConnection();
-         ActiveMQServerControl serverControl = MBeanServerInvocationHandler.newProxyInstance(mbsc,
-                                                                                             on,
-                                                                                             ActiveMQServerControl.class,
-                                                                                             false);
+         ActiveMQServerControl serverControl = MBeanServerInvocationHandler.newProxyInstance(mbsc, on, ActiveMQServerControl.class, false);
 
          // Step 7. List the remote address connected to the server
          System.out.println("List of remote addresses connected to the server:");
          System.out.println("----------------------------------");
          String[] remoteAddresses = serverControl.listRemoteAddresses();
-         for (String remoteAddress : remoteAddresses)
-         {
+         for (String remoteAddress : remoteAddresses) {
             System.out.println(remoteAddress);
          }
          System.out.println("----------------------------------");
@@ -102,15 +94,12 @@ public class ClientKickoffExample
          exception.get().printStackTrace();
          System.err.println("----------------------------------");
       }
-      finally
-      {
+      finally {
          // Step 10. Be sure to close the resources!
-         if (initialContext != null)
-         {
+         if (initialContext != null) {
             initialContext.close();
          }
-         if (connection != null)
-         {
+         if (connection != null) {
             connection.close();
          }
       }

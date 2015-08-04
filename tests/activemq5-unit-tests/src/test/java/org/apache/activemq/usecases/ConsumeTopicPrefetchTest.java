@@ -32,123 +32,125 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * 
+ *
  */
 public class ConsumeTopicPrefetchTest extends ProducerConsumerTestSupport {
-    private static final Logger LOG = LoggerFactory.getLogger(ConsumeTopicPrefetchTest.class);
 
-    protected int prefetchSize = 100;
-    protected String[] messageTexts;
-    protected long consumerTimeout = 10000L;
+   private static final Logger LOG = LoggerFactory.getLogger(ConsumeTopicPrefetchTest.class);
 
-    public void testSendPrefetchSize() throws JMSException {
-        testWithMessageCount(prefetchSize);
-    }
+   protected int prefetchSize = 100;
+   protected String[] messageTexts;
+   protected long consumerTimeout = 10000L;
 
-    public void testSendDoublePrefetchSize() throws JMSException {
-        testWithMessageCount(prefetchSize * 2);
-    }
+   public void testSendPrefetchSize() throws JMSException {
+      testWithMessageCount(prefetchSize);
+   }
 
-    public void testSendPrefetchSizePlusOne() throws JMSException {
-        testWithMessageCount(prefetchSize + 1);
-    }
+   public void testSendDoublePrefetchSize() throws JMSException {
+      testWithMessageCount(prefetchSize * 2);
+   }
 
-    protected void testWithMessageCount(int messageCount) throws JMSException {
-        makeMessages(messageCount);
+   public void testSendPrefetchSizePlusOne() throws JMSException {
+      testWithMessageCount(prefetchSize + 1);
+   }
 
-        LOG.info("About to send and receive: " + messageCount + " on destination: " + destination
-                + " of type: " + destination.getClass().getName());
+   protected void testWithMessageCount(int messageCount) throws JMSException {
+      makeMessages(messageCount);
 
-        for (int i = 0; i < messageCount; i++) {
-            Message message = session.createTextMessage(messageTexts[i]);
-            producer.send(message);
-        }
+      LOG.info("About to send and receive: " + messageCount + " on destination: " + destination + " of type: " + destination.getClass().getName());
 
-        validateConsumerPrefetch(this.getSubject(), prefetchSize);
+      for (int i = 0; i < messageCount; i++) {
+         Message message = session.createTextMessage(messageTexts[i]);
+         producer.send(message);
+      }
 
-        LinkedList<TextMessage> consumed = new LinkedList<TextMessage>();
-        // lets consume them in two fetch batches
-        int batchSize = messageCount/2;
-        for (int i = 0; i < batchSize; i++) {
-            consumed.add(consumeMessge(i));
-        }
+      validateConsumerPrefetch(this.getSubject(), prefetchSize);
 
-        // delayed delivered ack a .5 prefetch
-        validateConsumerPrefetchGreaterOrEqual(this.getSubject(), (long) Math.min(messageCount, 1.5 * prefetchSize));
+      LinkedList<TextMessage> consumed = new LinkedList<TextMessage>();
+      // lets consume them in two fetch batches
+      int batchSize = messageCount / 2;
+      for (int i = 0; i < batchSize; i++) {
+         consumed.add(consumeMessge(i));
+      }
 
-        for (int i = 0; i < batchSize; i++) {
-            consumed.remove().acknowledge();
-        }
+      // delayed delivered ack a .5 prefetch
+      validateConsumerPrefetchGreaterOrEqual(this.getSubject(), (long) Math.min(messageCount, 1.5 * prefetchSize));
 
-        // second batch to consume the rest
-        for (int i = batchSize; i < messageCount; i++) {
-            consumeMessge(i).acknowledge();
-        }
-        validateConsumerPrefetch(this.getSubject(), 0);
-    }
+      for (int i = 0; i < batchSize; i++) {
+         consumed.remove().acknowledge();
+      }
 
-    protected Connection createConnection() throws Exception {
-        ActiveMQConnection connection = (ActiveMQConnection) super.createConnection();
-        connection.getPrefetchPolicy().setQueuePrefetch(prefetchSize);
-        connection.getPrefetchPolicy().setTopicPrefetch(prefetchSize);
-        return connection;
-    }
+      // second batch to consume the rest
+      for (int i = batchSize; i < messageCount; i++) {
+         consumeMessge(i).acknowledge();
+      }
+      validateConsumerPrefetch(this.getSubject(), 0);
+   }
 
-    protected TextMessage consumeMessge(int i) throws JMSException {
-        Message message = consumer.receive(consumerTimeout);
-        assertTrue("Should have received a message by now for message: " + i, message != null);
-        assertTrue("Should be a TextMessage: " + message, message instanceof TextMessage);
-        TextMessage textMessage = (TextMessage) message;
-        assertEquals("Message content", messageTexts[i], textMessage.getText());
-        return textMessage;
-    }
+   protected Connection createConnection() throws Exception {
+      ActiveMQConnection connection = (ActiveMQConnection) super.createConnection();
+      connection.getPrefetchPolicy().setQueuePrefetch(prefetchSize);
+      connection.getPrefetchPolicy().setTopicPrefetch(prefetchSize);
+      return connection;
+   }
 
+   protected TextMessage consumeMessge(int i) throws JMSException {
+      Message message = consumer.receive(consumerTimeout);
+      assertTrue("Should have received a message by now for message: " + i, message != null);
+      assertTrue("Should be a TextMessage: " + message, message instanceof TextMessage);
+      TextMessage textMessage = (TextMessage) message;
+      assertEquals("Message content", messageTexts[i], textMessage.getText());
+      return textMessage;
+   }
 
-    protected void makeMessages(int messageCount) {
-        messageTexts = new String[messageCount];
-        for (int i = 0; i < messageCount; i++) {
-            messageTexts[i] = "Message for test: + " + getName() + " = " + i;
-        }
-    }
+   protected void makeMessages(int messageCount) {
+      messageTexts = new String[messageCount];
+      for (int i = 0; i < messageCount; i++) {
+         messageTexts[i] = "Message for test: + " + getName() + " = " + i;
+      }
+   }
 
-    private void validateConsumerPrefetchGreaterOrEqual(String subject, long min) throws JMSException {
-        doValidateConsumerPrefetch(subject, min, true);
-    }
+   private void validateConsumerPrefetchGreaterOrEqual(String subject, long min) throws JMSException {
+      doValidateConsumerPrefetch(subject, min, true);
+   }
 
-    protected void validateConsumerPrefetch(String subject, final long expectedCount) throws JMSException {
-        doValidateConsumerPrefetch(subject, expectedCount, false);
-    }
+   protected void validateConsumerPrefetch(String subject, final long expectedCount) throws JMSException {
+      doValidateConsumerPrefetch(subject, expectedCount, false);
+   }
 
-    protected void doValidateConsumerPrefetch(String destination, final long expectedCount, final boolean greaterOrEqual) throws JMSException {
-        RegionBroker regionBroker = (RegionBroker) BrokerRegistry.getInstance().lookup("localhost").getRegionBroker();
-        for (org.apache.activemq.broker.region.Destination dest : regionBroker.getTopicRegion().getDestinationMap().values()) {
-            final org.apache.activemq.broker.region.Destination target = dest;
-            if (dest.getName().equals(destination)) {
-                try {
-                    Wait.waitFor(new Condition() {
-                        public boolean isSatisified() throws Exception {
-                            DestinationStatistics stats = target.getDestinationStatistics();
-                            LOG.info("inflight for : " + target.getName() + ": " +  stats.getInflight().getCount());
-                            if (greaterOrEqual) {
-                                return stats.getInflight().getCount() >= expectedCount;
-                            } else {
-                                return stats.getInflight().getCount() == expectedCount;
-                            }
-                        }
-                    });
-                } catch (Exception e) {
-                    throw new JMSException(e.toString());
-                }
-                DestinationStatistics stats = dest.getDestinationStatistics();
-                LOG.info("inflight for : " + dest.getName() + ": " + stats.getInflight().getCount());
-                if (greaterOrEqual) {
-                    assertTrue("inflight for: " + dest.getName() + ": " + stats.getInflight().getCount() + " > " + stats.getInflight().getCount(),
-                                             stats.getInflight().getCount() >= expectedCount);
-                } else {
-                    assertEquals("inflight for: " + dest.getName() + ": " + stats.getInflight().getCount() + " matches",
-                        expectedCount, stats.getInflight().getCount());
-                }
+   protected void doValidateConsumerPrefetch(String destination,
+                                             final long expectedCount,
+                                             final boolean greaterOrEqual) throws JMSException {
+      RegionBroker regionBroker = (RegionBroker) BrokerRegistry.getInstance().lookup("localhost").getRegionBroker();
+      for (org.apache.activemq.broker.region.Destination dest : regionBroker.getTopicRegion().getDestinationMap().values()) {
+         final org.apache.activemq.broker.region.Destination target = dest;
+         if (dest.getName().equals(destination)) {
+            try {
+               Wait.waitFor(new Condition() {
+                  public boolean isSatisified() throws Exception {
+                     DestinationStatistics stats = target.getDestinationStatistics();
+                     LOG.info("inflight for : " + target.getName() + ": " + stats.getInflight().getCount());
+                     if (greaterOrEqual) {
+                        return stats.getInflight().getCount() >= expectedCount;
+                     }
+                     else {
+                        return stats.getInflight().getCount() == expectedCount;
+                     }
+                  }
+               });
             }
-        }
-    }
+            catch (Exception e) {
+               throw new JMSException(e.toString());
+            }
+            DestinationStatistics stats = dest.getDestinationStatistics();
+            LOG.info("inflight for : " + dest.getName() + ": " + stats.getInflight().getCount());
+            if (greaterOrEqual) {
+               assertTrue("inflight for: " + dest.getName() + ": " + stats.getInflight().getCount() + " > " + stats.getInflight().getCount(), stats.getInflight().getCount() >= expectedCount);
+            }
+            else {
+               assertEquals("inflight for: " + dest.getName() + ": " + stats.getInflight().getCount() + " matches", expectedCount, stats.getInflight().getCount());
+            }
+         }
+      }
+   }
 }

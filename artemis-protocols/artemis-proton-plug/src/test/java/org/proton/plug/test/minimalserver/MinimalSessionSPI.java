@@ -32,118 +32,99 @@ import org.proton.plug.context.server.ProtonServerSessionContext;
 import org.proton.plug.SASLResult;
 import org.proton.plug.util.ProtonServerMessage;
 
-public class MinimalSessionSPI implements AMQPSessionCallback
-{
+public class MinimalSessionSPI implements AMQPSessionCallback {
 
    private SASLResult result;
    ProtonServerSessionContext session;
 
    @Override
-   public void init(AMQPSessionContext session, SASLResult result)
-   {
+   public void init(AMQPSessionContext session, SASLResult result) {
       this.session = (ProtonServerSessionContext) session;
       this.result = result;
    }
 
    @Override
-   public void start()
-   {
+   public void start() {
    }
 
    static AtomicInteger tempQueueGenerator = new AtomicInteger(0);
 
-   public String tempQueueName()
-   {
+   public String tempQueueName() {
       return "TempQueueName" + tempQueueGenerator.incrementAndGet();
    }
 
    @Override
-   public Object createSender(ProtonPlugSender plugSender, String queue, String filer, boolean browserOnly)
-   {
+   public Object createSender(ProtonPlugSender plugSender, String queue, String filer, boolean browserOnly) {
       Consumer consumer = new Consumer(DumbServer.getQueue(queue));
       return consumer;
    }
 
    @Override
-   public void startSender(Object brokerConsumer)
-   {
+   public void startSender(Object brokerConsumer) {
       ((Consumer) brokerConsumer).start();
    }
 
    @Override
-   public void createTemporaryQueue(String queueName)
-   {
+   public void createTemporaryQueue(String queueName) {
 
    }
 
    @Override
-   public void onFlowConsumer(Object consumer, int credits)
-   {
+   public void onFlowConsumer(Object consumer, int credits) {
    }
 
    @Override
-   public boolean queueQuery(String queueName)
-   {
+   public boolean queueQuery(String queueName) {
       return true;
    }
 
    @Override
-   public void closeSender(Object brokerConsumer)
-   {
+   public void closeSender(Object brokerConsumer) {
       ((Consumer) brokerConsumer).close();
    }
 
    @Override
-   public ProtonJMessage encodeMessage(Object message, int deliveryCount)
-   {
+   public ProtonJMessage encodeMessage(Object message, int deliveryCount) {
       // We are storing internally as EncodedMessage on this minimalserver server
       return (ProtonServerMessage) message;
    }
 
    @Override
-   public Binary getCurrentTXID()
-   {
+   public Binary getCurrentTXID() {
       return new Binary(new byte[]{1});
    }
 
    @Override
-   public void commitCurrentTX()
-   {
+   public void commitCurrentTX() {
    }
 
    @Override
-   public void rollbackCurrentTX()
-   {
+   public void rollbackCurrentTX() {
    }
 
    @Override
-   public void close()
-   {
-
-   }
-
-   @Override
-   public void ack(Object brokerConsumer, Object message)
-   {
+   public void close() {
 
    }
 
    @Override
-   public void cancel(Object brokerConsumer, Object message, boolean updateCounts)
-   {
+   public void ack(Object brokerConsumer, Object message) {
 
    }
 
    @Override
-   public void resumeDelivery(Object consumer)
-   {
+   public void cancel(Object brokerConsumer, Object message, boolean updateCounts) {
+
+   }
+
+   @Override
+   public void resumeDelivery(Object consumer) {
       System.out.println("Resume delivery!!!");
       ((Consumer) consumer).start();
    }
 
    @Override
-   public void serverSend(Receiver receiver, Delivery delivery, String address, int messageFormat, ByteBuf buffer)
-   {
+   public void serverSend(Receiver receiver, Delivery delivery, String address, int messageFormat, ByteBuf buffer) {
       ProtonServerMessage serverMessage = new ProtonServerMessage();
       serverMessage.decode(buffer.nioBuffer());
 
@@ -151,61 +132,47 @@ public class MinimalSessionSPI implements AMQPSessionCallback
       queue.add(serverMessage);
    }
 
+   class Consumer {
 
-   class Consumer
-   {
       final BlockingDeque<Object> queue;
 
-      Consumer(BlockingDeque<Object> queue)
-      {
+      Consumer(BlockingDeque<Object> queue) {
          this.queue = queue;
       }
 
       boolean running = false;
       volatile Thread thread;
 
-      public void close()
-      {
+      public void close() {
          System.out.println("Closing!!!");
          running = false;
-         if (thread != null)
-         {
-            try
-            {
+         if (thread != null) {
+            try {
                thread.join();
             }
-            catch (Throwable ignored)
-            {
+            catch (Throwable ignored) {
             }
          }
 
          thread = null;
       }
 
-      public synchronized void start()
-      {
+      public synchronized void start() {
          running = true;
-         if (thread == null)
-         {
+         if (thread == null) {
             System.out.println("Start!!!");
-            thread = new Thread()
-            {
-               public void run()
-               {
-                  try
-                  {
-                     while (running)
-                     {
+            thread = new Thread() {
+               public void run() {
+                  try {
+                     while (running) {
                         Object msg = queue.poll(1, TimeUnit.SECONDS);
 
-                        if (msg != null)
-                        {
+                        if (msg != null) {
                            session.serverDelivery(msg, Consumer.this, 1);
                         }
                      }
                   }
-                  catch (Exception e)
-                  {
+                  catch (Exception e) {
                      e.printStackTrace();
                   }
                }

@@ -33,60 +33,61 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class UnreliableUdpTransportTest extends UdpTransportTest {
-    private static final Logger LOG = LoggerFactory.getLogger(UnreliableUdpTransportTest.class);
 
-    protected DropCommandStrategy dropStrategy = new DropCommandStrategy() {
+   private static final Logger LOG = LoggerFactory.getLogger(UnreliableUdpTransportTest.class);
 
-        @Override
-        public boolean shouldDropCommand(int commandId, SocketAddress address, boolean redelivery) {
-            if (redelivery) {
-                return false;
-            }
-            return commandId % 3 == 2;
-        }
-    };
+   protected DropCommandStrategy dropStrategy = new DropCommandStrategy() {
 
-    @Override
-    protected Transport createProducer() throws Exception {
-        LOG.info("Producer using URI: " + producerURI);
+      @Override
+      public boolean shouldDropCommand(int commandId, SocketAddress address, boolean redelivery) {
+         if (redelivery) {
+            return false;
+         }
+         return commandId % 3 == 2;
+      }
+   };
 
-        OpenWireFormat wireFormat = createWireFormat();
-        UnreliableUdpTransport transport = new UnreliableUdpTransport(wireFormat, new URI(producerURI));
-        transport.setDropCommandStrategy(dropStrategy);
+   @Override
+   protected Transport createProducer() throws Exception {
+      LOG.info("Producer using URI: " + producerURI);
 
-        ReliableTransport reliableTransport = new ReliableTransport(transport, transport);
-        Replayer replayer = reliableTransport.getReplayer();
-        reliableTransport.setReplayStrategy(createReplayStrategy(replayer));
+      OpenWireFormat wireFormat = createWireFormat();
+      UnreliableUdpTransport transport = new UnreliableUdpTransport(wireFormat, new URI(producerURI));
+      transport.setDropCommandStrategy(dropStrategy);
 
-        return new CommandJoiner(reliableTransport, wireFormat);
-    }
+      ReliableTransport reliableTransport = new ReliableTransport(transport, transport);
+      Replayer replayer = reliableTransport.getReplayer();
+      reliableTransport.setReplayStrategy(createReplayStrategy(replayer));
 
-    @Override
-    protected Transport createConsumer() throws Exception {
-        LOG.info("Consumer on port: " + consumerPort);
-        OpenWireFormat wireFormat = createWireFormat();
-        UdpTransport transport = new UdpTransport(wireFormat, consumerPort);
+      return new CommandJoiner(reliableTransport, wireFormat);
+   }
 
-        ReliableTransport reliableTransport = new ReliableTransport(transport, transport);
-        Replayer replayer = reliableTransport.getReplayer();
-        reliableTransport.setReplayStrategy(createReplayStrategy(replayer));
+   @Override
+   protected Transport createConsumer() throws Exception {
+      LOG.info("Consumer on port: " + consumerPort);
+      OpenWireFormat wireFormat = createWireFormat();
+      UdpTransport transport = new UdpTransport(wireFormat, consumerPort);
 
-        ResponseRedirectInterceptor redirectInterceptor = new ResponseRedirectInterceptor(reliableTransport, transport);
-        return new CommandJoiner(redirectInterceptor, wireFormat);
-    }
+      ReliableTransport reliableTransport = new ReliableTransport(transport, transport);
+      Replayer replayer = reliableTransport.getReplayer();
+      reliableTransport.setReplayStrategy(createReplayStrategy(replayer));
 
-    protected ReplayStrategy createReplayStrategy(Replayer replayer) {
-        assertNotNull("Should have a replayer!", replayer);
-        return new DefaultReplayStrategy(1);
-    }
+      ResponseRedirectInterceptor redirectInterceptor = new ResponseRedirectInterceptor(reliableTransport, transport);
+      return new CommandJoiner(redirectInterceptor, wireFormat);
+   }
 
-    @Override
-    public void testSendingMediumMessage() throws Exception {
-        // Ignoring, see AMQ-4973
-    }
+   protected ReplayStrategy createReplayStrategy(Replayer replayer) {
+      assertNotNull("Should have a replayer!", replayer);
+      return new DefaultReplayStrategy(1);
+   }
 
-    @Override
-    public void testSendingLargeMessage() throws Exception {
-        // Ignoring, see AMQ-4973
-    }
+   @Override
+   public void testSendingMediumMessage() throws Exception {
+      // Ignoring, see AMQ-4973
+   }
+
+   @Override
+   public void testSendingLargeMessage() throws Exception {
+      // Ignoring, see AMQ-4973
+   }
 }

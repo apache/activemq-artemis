@@ -19,8 +19,8 @@ package org.apache.activemq.artemis.api.core.management;
 import org.apache.activemq.artemis.utils.json.JSONObject;
 
 // XXX no javadocs
-public final class AddressSettingsInfo
-{
+public final class AddressSettingsInfo {
+
    private final String addressFullMessagePolicy;
 
    private final long maxSizeBytes;
@@ -59,27 +59,9 @@ public final class AddressSettingsInfo
 
    // Static --------------------------------------------------------
 
-   public static AddressSettingsInfo from(final String jsonString) throws Exception
-   {
+   public static AddressSettingsInfo from(final String jsonString) throws Exception {
       JSONObject object = new JSONObject(jsonString);
-      return new AddressSettingsInfo(object.getString("addressFullMessagePolicy"),
-                                     object.getLong("maxSizeBytes"),
-                                     object.getInt("pageSizeBytes"),
-                                     object.getInt("pageCacheMaxSize"),
-                                     object.getInt("maxDeliveryAttempts"),
-                                     object.getLong("redeliveryDelay"),
-                                     object.getDouble("redeliveryMultiplier"),
-                                     object.getLong("maxRedeliveryDelay"),
-                                     object.getString("DLA"),
-                                     object.getString("expiryAddress"),
-                                     object.getBoolean("lastValueQueue"),
-                                     object.getLong("redistributionDelay"),
-                                     object.getBoolean("sendToDLAOnNoRoute"),
-                                     object.getLong("slowConsumerThreshold"),
-                                     object.getLong("slowConsumerCheckPeriod"),
-                                     object.getString("slowConsumerPolicy"),
-                                     object.getBoolean("autoCreateJmsQueues"),
-                                     object.getBoolean("autoDeleteJmsQueues"));
+      return new AddressSettingsInfo(object.getString("addressFullMessagePolicy"), object.getLong("maxSizeBytes"), object.getInt("pageSizeBytes"), object.getInt("pageCacheMaxSize"), object.getInt("maxDeliveryAttempts"), object.getLong("redeliveryDelay"), object.getDouble("redeliveryMultiplier"), object.getLong("maxRedeliveryDelay"), object.getString("DLA"), object.getString("expiryAddress"), object.getBoolean("lastValueQueue"), object.getLong("redistributionDelay"), object.getBoolean("sendToDLAOnNoRoute"), object.getLong("slowConsumerThreshold"), object.getLong("slowConsumerCheckPeriod"), object.getString("slowConsumerPolicy"), object.getBoolean("autoCreateJmsQueues"), object.getBoolean("autoDeleteJmsQueues"));
    }
 
    // Constructors --------------------------------------------------
@@ -101,8 +83,7 @@ public final class AddressSettingsInfo
                               long slowConsumerCheckPeriod,
                               String slowConsumerPolicy,
                               boolean autoCreateJmsQueues,
-                              boolean autoDeleteJmsQueues)
-   {
+                              boolean autoDeleteJmsQueues) {
       this.addressFullMessagePolicy = addressFullMessagePolicy;
       this.maxSizeBytes = maxSizeBytes;
       this.pageSizeBytes = pageSizeBytes;
@@ -125,98 +106,79 @@ public final class AddressSettingsInfo
 
    // Public --------------------------------------------------------
 
-   public int getPageCacheMaxSize()
-   {
+   public int getPageCacheMaxSize() {
       return pageCacheMaxSize;
    }
 
-   public void setPageCacheMaxSize(int pageCacheMaxSize)
-   {
+   public void setPageCacheMaxSize(int pageCacheMaxSize) {
       this.pageCacheMaxSize = pageCacheMaxSize;
    }
 
-   public String getAddressFullMessagePolicy()
-   {
+   public String getAddressFullMessagePolicy() {
       return addressFullMessagePolicy;
    }
 
-   public long getMaxSizeBytes()
-   {
+   public long getMaxSizeBytes() {
       return maxSizeBytes;
    }
 
-   public int getPageSizeBytes()
-   {
+   public int getPageSizeBytes() {
       return pageSizeBytes;
    }
 
-   public int getMaxDeliveryAttempts()
-   {
+   public int getMaxDeliveryAttempts() {
       return maxDeliveryAttempts;
    }
 
-   public long getRedeliveryDelay()
-   {
+   public long getRedeliveryDelay() {
       return redeliveryDelay;
    }
 
-   public String getDeadLetterAddress()
-   {
+   public String getDeadLetterAddress() {
       return deadLetterAddress;
    }
 
-   public String getExpiryAddress()
-   {
+   public String getExpiryAddress() {
       return expiryAddress;
    }
 
-   public boolean isLastValueQueue()
-   {
+   public boolean isLastValueQueue() {
       return lastValueQueue;
    }
 
-   public long getRedistributionDelay()
-   {
+   public long getRedistributionDelay() {
       return redistributionDelay;
    }
 
-   public boolean isSendToDLAOnNoRoute()
-   {
+   public boolean isSendToDLAOnNoRoute() {
       return sendToDLAOnNoRoute;
    }
 
-   public double getRedeliveryMultiplier()
-   {
+   public double getRedeliveryMultiplier() {
       return redeliveryMultiplier;
    }
 
-   public long getMaxRedeliveryDelay()
-   {
+   public long getMaxRedeliveryDelay() {
       return maxRedeliveryDelay;
    }
 
-   public long getSlowConsumerThreshold()
-   {
+   public long getSlowConsumerThreshold() {
       return slowConsumerThreshold;
    }
 
-   public long getSlowConsumerCheckPeriod()
-   {
+   public long getSlowConsumerCheckPeriod() {
       return slowConsumerCheckPeriod;
    }
 
-   public String getSlowConsumerPolicy()
-   {
+   public String getSlowConsumerPolicy() {
       return slowConsumerPolicy;
    }
 
-   public boolean isAutoCreateJmsQueues()
-   {
+   public boolean isAutoCreateJmsQueues() {
       return autoCreateJmsQueues;
    }
 
-   public boolean isAutoDeleteJmsQueues()
-   {
+   public boolean isAutoDeleteJmsQueues() {
       return autoDeleteJmsQueues;
    }
 }

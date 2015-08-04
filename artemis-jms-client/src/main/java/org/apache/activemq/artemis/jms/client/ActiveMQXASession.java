@@ -21,8 +21,7 @@ import javax.jms.XATopicSession;
 
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 
-public class ActiveMQXASession extends ActiveMQSession implements XAQueueSession, XATopicSession
-{
+public class ActiveMQXASession extends ActiveMQSession implements XAQueueSession, XATopicSession {
 
    /**
     * @param connection
@@ -37,8 +36,7 @@ public class ActiveMQXASession extends ActiveMQSession implements XAQueueSession
                                boolean xa,
                                int ackMode,
                                ClientSession session,
-                               int sessionType)
-   {
+                               int sessionType) {
       super(connection, transacted, xa, ackMode, session, sessionType);
    }
 }

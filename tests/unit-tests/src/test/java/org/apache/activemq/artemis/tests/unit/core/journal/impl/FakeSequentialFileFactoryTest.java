@@ -19,12 +19,10 @@ package org.apache.activemq.artemis.tests.unit.core.journal.impl;
 import org.apache.activemq.artemis.tests.unit.core.journal.impl.fakes.FakeSequentialFileFactory;
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 
-public class FakeSequentialFileFactoryTest extends SequentialFileFactoryTestBase
-{
+public class FakeSequentialFileFactoryTest extends SequentialFileFactoryTestBase {
 
    @Override
-   protected SequentialFileFactory createFactory(String folder)
-   {
+   protected SequentialFileFactory createFactory(String folder) {
       return new FakeSequentialFileFactory();
    }
 

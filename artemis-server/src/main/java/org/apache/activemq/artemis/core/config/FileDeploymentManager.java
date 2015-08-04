@@ -35,41 +35,36 @@ import org.w3c.dom.NodeList;
 /**
  * ised to build a set of ActiveMQComponents from a set of Deployables pulled out of the configuration file
  */
-public class FileDeploymentManager
-{
+public class FileDeploymentManager {
+
    private static final String DEFAULT_CONFIGURATION_URL = "broker.xml";
 
    private final String configurationUrl;
 
    LinkedHashMap<String, Deployable> deployables = new LinkedHashMap<>();
 
-   public FileDeploymentManager()
-   {
+   public FileDeploymentManager() {
       this.configurationUrl = DEFAULT_CONFIGURATION_URL;
    }
 
-   public FileDeploymentManager(String configurationUrl)
-   {
+   public FileDeploymentManager(String configurationUrl) {
       this.configurationUrl = configurationUrl;
    }
 
    /*
    * parse a set of configuration with the Deployables that were given.
    */
-   public void readConfiguration() throws Exception
-   {
+   public void readConfiguration() throws Exception {
       URL url;
 
       url = Thread.currentThread().getContextClassLoader().getResource(configurationUrl);
 
-      if (url == null)
-      {
+      if (url == null) {
          // trying a different classloader now
          url = getClass().getClassLoader().getResource(configurationUrl);
       }
 
-      if (url == null)
-      {
+      if (url == null) {
          // The URL is outside of the classloader. Trying a pure url now
          url = new URL(configurationUrl);
       }
@@ -81,13 +76,11 @@ public class FileDeploymentManager
       Element e = XMLUtil.stringToElement(xml);
 
       //iterate around all the deployables
-      for (Deployable deployable : deployables.values())
-      {
+      for (Deployable deployable : deployables.values()) {
          String root = deployable.getRootElement();
          NodeList children = e.getElementsByTagName(root);
          //if the root element exists then parse it
-         if (root != null && children.getLength() > 0)
-         {
+         if (root != null && children.getLength() > 0) {
             Node item = children.item(0);
             XMLUtil.validate(item, deployable.getSchema());
             deployable.parse((Element) item);
@@ -98,14 +91,12 @@ public class FileDeploymentManager
    /*
    * Build a set of ActiveMQComponents from the Deployables configured
    */
-   public Map<String, ActiveMQComponent> buildService(ActiveMQSecurityManager securityManager, MBeanServer mBeanServer) throws Exception
-   {
+   public Map<String, ActiveMQComponent> buildService(ActiveMQSecurityManager securityManager,
+                                                      MBeanServer mBeanServer) throws Exception {
       Map<String, ActiveMQComponent> components = new HashMap<>();
-      for (Deployable deployable : deployables.values())
-      {
+      for (Deployable deployable : deployables.values()) {
          // if the deployable was parsed then build the service
-         if (deployable.isParsed())
-         {
+         if (deployable.isParsed()) {
             deployable.buildService(securityManager, mBeanServer, deployables, components);
          }
       }
@@ -115,8 +106,7 @@ public class FileDeploymentManager
    /*
    * add a Deployable to be configured
    */
-   public FileDeploymentManager addDeployable(Deployable deployable)
-   {
+   public FileDeploymentManager addDeployable(Deployable deployable) {
       deployables.put(deployable.getRootElement(), deployable);
       return this;
    }

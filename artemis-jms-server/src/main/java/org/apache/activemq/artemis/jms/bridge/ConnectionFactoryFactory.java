@@ -16,7 +16,7 @@
  */
 package org.apache.activemq.artemis.jms.bridge;
 
-public interface ConnectionFactoryFactory
-{
+public interface ConnectionFactoryFactory {
+
    Object createConnectionFactory() throws Exception;
 }

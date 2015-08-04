@@ -34,61 +34,63 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class AMQ2751Test extends EmbeddedBrokerTestSupport {
-    private static final Logger LOG = LoggerFactory.getLogger(AMQ2751Test.class);
 
-    private static String clientIdPrefix = "consumer";
-    private static String queueName = "FOO";
+   private static final Logger LOG = LoggerFactory.getLogger(AMQ2751Test.class);
 
-    public void testRecoverRedelivery() throws Exception {
+   private static String clientIdPrefix = "consumer";
+   private static String queueName = "FOO";
 
-        final CountDownLatch redelivery = new CountDownLatch(6);
-        final ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(
-                "failover:(" + broker.getTransportConnectors().get(0).getConnectUri() + ")");
-        try {
+   public void testRecoverRedelivery() throws Exception {
 
-            Connection connection = factory.createConnection();
-            String clientId = clientIdPrefix;
-            connection.setClientID(clientId);
+      final CountDownLatch redelivery = new CountDownLatch(6);
+      final ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("failover:(" + broker.getTransportConnectors().get(0).getConnectUri() + ")");
+      try {
 
-            final Session session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
+         Connection connection = factory.createConnection();
+         String clientId = clientIdPrefix;
+         connection.setClientID(clientId);
 
-            Queue queue = session.createQueue(queueName);
+         final Session session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
 
-            MessageConsumer consumer = session.createConsumer(queue);
+         Queue queue = session.createQueue(queueName);
 
-            consumer.setMessageListener(new MessageListener() {
-                public void onMessage(Message message) {
-                    try {
-                        LOG.info("Got message: " + message.getJMSMessageID());
-                        if (message.getJMSRedelivered()) {
-                            LOG.info("It's a redelivery.");
-                            redelivery.countDown();
-                        }
-                        LOG.info("calling recover() on the session to force redelivery.");
-                        session.recover();
-                    } catch (JMSException e) {
-                        e.printStackTrace();
-                    }
-                }
-            });
+         MessageConsumer consumer = session.createConsumer(queue);
 
-            System.out.println("Created queue consumer with clientId " + clientId);
-            connection.start();
+         consumer.setMessageListener(new MessageListener() {
+            public void onMessage(Message message) {
+               try {
+                  LOG.info("Got message: " + message.getJMSMessageID());
+                  if (message.getJMSRedelivered()) {
+                     LOG.info("It's a redelivery.");
+                     redelivery.countDown();
+                  }
+                  LOG.info("calling recover() on the session to force redelivery.");
+                  session.recover();
+               }
+               catch (JMSException e) {
+                  e.printStackTrace();
+               }
+            }
+         });
 
-            MessageProducer producer = session.createProducer(queue);
-            producer.send(session.createTextMessage("test"));
+         System.out.println("Created queue consumer with clientId " + clientId);
+         connection.start();
 
-            assertTrue("we got 6 redeliveries", redelivery.await(20, TimeUnit.SECONDS));
+         MessageProducer producer = session.createProducer(queue);
+         producer.send(session.createTextMessage("test"));
 
-        } finally {
-            broker.stop();
-        }
+         assertTrue("we got 6 redeliveries", redelivery.await(20, TimeUnit.SECONDS));
 
-    }
+      }
+      finally {
+         broker.stop();
+      }
 
-    @Override
-    protected void setUp() throws Exception {
-        bindAddress = "tcp://localhost:0";
-        super.setUp();
-    }
+   }
+
+   @Override
+   protected void setUp() throws Exception {
+      bindAddress = "tcp://localhost:0";
+      super.setUp();
+   }
 }

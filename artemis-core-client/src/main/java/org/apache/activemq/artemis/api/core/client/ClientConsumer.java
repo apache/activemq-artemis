@@ -31,22 +31,23 @@ import org.apache.activemq.artemis.spi.core.remoting.ConsumerContext;
  *
  * @see ClientSession#createConsumer(String)
  */
-public interface ClientConsumer extends AutoCloseable
-{
+public interface ClientConsumer extends AutoCloseable {
 
    /**
     * The server's ID associated with this consumer.
     * ActiveMQ Artemis implements this as a long but this could be protocol dependent.
+    *
     * @return
     */
    ConsumerContext getConsumerContext();
 
    /**
     * Receives a message from a queue.
-    * <p>
+    * <br>
     * This call will block indefinitely until a message is received.
-    * <p>
+    * <br>
     * Calling this method on a closed consumer will throw an ActiveMQException.
+    *
     * @return a ClientMessage
     * @throws ActiveMQException if an exception occurs while waiting to receive a message
     */
@@ -54,10 +55,11 @@ public interface ClientConsumer extends AutoCloseable
 
    /**
     * Receives a message from a queue.
-    * <p>
+    * <br>
     * This call will block until a message is received or the given timeout expires.
-    * <p>
+    * <br>
     * Calling this method on a closed consumer will throw an ActiveMQException.
+    *
     * @param timeout time (in milliseconds) to wait to receive a message
     * @return a message or {@code null} if the time out expired
     * @throws ActiveMQException if an exception occurs while waiting to receive a message
@@ -67,14 +69,15 @@ public interface ClientConsumer extends AutoCloseable
    /**
     * Receives a message from a queue. This call will force a network trip to ActiveMQ Artemis server to
     * ensure that there are no messages in the queue which can be delivered to this consumer.
-    * <p>
+    * <br>
     * This call will never wait indefinitely for a message, it will return {@code null} if no
     * messages are available for this consumer.
-    * <p>
+    * <br>
     * Note however that there is a performance cost as an additional network trip to the server may
     * required to check the queue status.
-    * <p>
+    * <br>
     * Calling this method on a closed consumer will throw an ActiveMQException.
+    *
     * @return a message or {@code null} if there are no messages in the queue for this consumer
     * @throws ActiveMQException if an exception occurs while waiting to receive a message
     */
@@ -82,8 +85,9 @@ public interface ClientConsumer extends AutoCloseable
 
    /**
     * Returns the MessageHandler associated to this consumer.
-    * <p>
+    * <br>
     * Calling this method on a closed consumer will throw an ActiveMQException.
+    *
     * @return the MessageHandler associated to this consumer or {@code null}
     * @throws ActiveMQException if an exception occurs while getting the MessageHandler
     */
@@ -91,8 +95,9 @@ public interface ClientConsumer extends AutoCloseable
 
    /**
     * Sets the MessageHandler for this consumer to consume messages asynchronously.
-    * <p>
+    * <br>
     * Calling this method on a closed consumer will throw a ActiveMQException.
+    *
     * @param handler a MessageHandler
     * @throws ActiveMQException if an exception occurs while setting the MessageHandler
     */
@@ -100,9 +105,10 @@ public interface ClientConsumer extends AutoCloseable
 
    /**
     * Closes the consumer.
-    * <p>
+    * <br>
     * Once this consumer is closed, it can not receive messages, whether synchronously or
     * asynchronously.
+    *
     * @throws ActiveMQException
     */
    void close() throws ActiveMQException;

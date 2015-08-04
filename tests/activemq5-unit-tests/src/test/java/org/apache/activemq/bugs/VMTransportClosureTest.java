@@ -33,99 +33,98 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 public class VMTransportClosureTest extends EmbeddedBrokerTestSupport {
-	private static final Log LOG = LogFactory
-			.getLog(VMTransportClosureTest.class);
-	private static final long MAX_TEST_TIME_MILLIS = 300000; // 5min
-	private static final int NUM_ATTEMPTS = 100000;
 
-	public void setUp() throws Exception {
-		setAutoFail(true);
-		setMaxTestTime(MAX_TEST_TIME_MILLIS);
-		super.setUp();
-	}
+   private static final Log LOG = LogFactory.getLog(VMTransportClosureTest.class);
+   private static final long MAX_TEST_TIME_MILLIS = 300000; // 5min
+   private static final int NUM_ATTEMPTS = 100000;
 
-	/**
-	 * EmbeddedBrokerTestSupport.createBroker() binds the broker to a VM
-	 * transport address, which results in a call to
-	 * VMTransportFactory.doBind(location):
-	 * <p>
-	 * <code>
-	 *     public TransportServer doBind(URI location) throws IOException {
-	 *        return bind(location, false);
-	 *}
-	 *</code>
-	 * </p>
-	 * As a result, VMTransportServer.disposeOnDisconnect is <code>false</code>.
-	 * To expose the bug, we need to have VMTransportServer.disposeOnDisconnect
-	 * <code>true</code>, which is the case when the VMTransportServer is not
-	 * already bound when the first connection is made.
-	 */
-	@Override
-	protected BrokerService createBroker() throws Exception {
-		BrokerService answer = new BrokerService();
-		answer.setPersistent(isPersistent());
-		// answer.addConnector(bindAddress);
-		return answer;
-	}
+   public void setUp() throws Exception {
+      setAutoFail(true);
+      setMaxTestTime(MAX_TEST_TIME_MILLIS);
+      super.setUp();
+   }
 
-	/**
-	 * This test demonstrates how the "disposeOnDisonnect" feature of
-	 * VMTransportServer can incorrectly close all VM connections to the local
-	 * broker.
-	 */
-	public void testPrematureClosure() throws Exception {
+   /**
+    * EmbeddedBrokerTestSupport.createBroker() binds the broker to a VM
+    * transport address, which results in a call to
+    * VMTransportFactory.doBind(location):
+    * <p>
+    * <code>
+    * public TransportServer doBind(URI location) throws IOException {
+    * return bind(location, false);
+    * }
+    * </code>
+    * </p>
+    * As a result, VMTransportServer.disposeOnDisconnect is <code>false</code>.
+    * To expose the bug, we need to have VMTransportServer.disposeOnDisconnect
+    * <code>true</code>, which is the case when the VMTransportServer is not
+    * already bound when the first connection is made.
+    */
+   @Override
+   protected BrokerService createBroker() throws Exception {
+      BrokerService answer = new BrokerService();
+      answer.setPersistent(isPersistent());
+      // answer.addConnector(bindAddress);
+      return answer;
+   }
 
-		// Open a persistent connection to the local broker. The persistent
-		// connection is maintained through the test and should prevent the
-		// VMTransportServer from stopping itself when the local transport is
-		// closed.
-		ActiveMQConnection persistentConn = (ActiveMQConnection) createConnection();
-		persistentConn.start();
-		Session session = persistentConn.createSession(true,
-				Session.SESSION_TRANSACTED);
-		MessageProducer producer = session.createProducer(destination);
+   /**
+    * This test demonstrates how the "disposeOnDisonnect" feature of
+    * VMTransportServer can incorrectly close all VM connections to the local
+    * broker.
+    */
+   public void testPrematureClosure() throws Exception {
 
-		for (int i = 0; i < NUM_ATTEMPTS; i++) {
-			LOG.info("Attempt: " + i);
+      // Open a persistent connection to the local broker. The persistent
+      // connection is maintained through the test and should prevent the
+      // VMTransportServer from stopping itself when the local transport is
+      // closed.
+      ActiveMQConnection persistentConn = (ActiveMQConnection) createConnection();
+      persistentConn.start();
+      Session session = persistentConn.createSession(true, Session.SESSION_TRANSACTED);
+      MessageProducer producer = session.createProducer(destination);
 
-			// Open and close a local transport connection. As is done by by
-			// most users of the transport, ensure that the transport is stopped
-			// when closed by the peer (via ShutdownInfo). Closing the local
-			// transport should not affect the persistent connection.
-			final Transport localTransport = TransportFactory.connect(broker
-					.getVmConnectorURI());
-			localTransport.setTransportListener(new TransportListener() {
-				public void onCommand(Object command) {
-					if (command instanceof ShutdownInfo) {
-						try {
-							localTransport.stop();
-						} catch (Exception ex) {
-							throw new RuntimeException(ex);
-						}
-					}
-				}
+      for (int i = 0; i < NUM_ATTEMPTS; i++) {
+         LOG.info("Attempt: " + i);
 
-				public void onException(IOException error) {
-					// ignore
-				}
+         // Open and close a local transport connection. As is done by by
+         // most users of the transport, ensure that the transport is stopped
+         // when closed by the peer (via ShutdownInfo). Closing the local
+         // transport should not affect the persistent connection.
+         final Transport localTransport = TransportFactory.connect(broker.getVmConnectorURI());
+         localTransport.setTransportListener(new TransportListener() {
+            public void onCommand(Object command) {
+               if (command instanceof ShutdownInfo) {
+                  try {
+                     localTransport.stop();
+                  }
+                  catch (Exception ex) {
+                     throw new RuntimeException(ex);
+                  }
+               }
+            }
 
-				public void transportInterupted() {
-					// ignore
-				}
+            public void onException(IOException error) {
+               // ignore
+            }
 
-				public void transportResumed() {
-					// ignore
-				}
-			});
+            public void transportInterupted() {
+               // ignore
+            }
 
-			localTransport.start();
-			localTransport.stop();
+            public void transportResumed() {
+               // ignore
+            }
+         });
 
-			// Ensure that the persistent connection is still usable.
-			producer.send(session.createMessage());
-			session.rollback();
-		}
+         localTransport.start();
+         localTransport.stop();
 
-		persistentConn.close();
-	}
+         // Ensure that the persistent connection is still usable.
+         producer.send(session.createMessage());
+         session.rollback();
+      }
+
+      persistentConn.close();
+   }
 }

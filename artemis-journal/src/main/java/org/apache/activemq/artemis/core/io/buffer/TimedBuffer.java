@@ -33,8 +33,7 @@ import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.core.journal.impl.dataformat.ByteArrayEncoding;
 import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
 
-public class TimedBuffer
-{
+public class TimedBuffer {
    // Constants -----------------------------------------------------
 
    // The number of tries on sleep before switching to spin
@@ -96,14 +95,12 @@ public class TimedBuffer
 
    // Public --------------------------------------------------------
 
-   public TimedBuffer(final int size, final int timeout, final boolean logRates)
-   {
+   public TimedBuffer(final int size, final int timeout, final boolean logRates) {
       bufferSize = size;
 
       this.logRates = logRates;
 
-      if (logRates)
-      {
+      if (logRates) {
          logRatesTimer = new Timer(true);
       }
       // Setting the interval for nano-sleeps
@@ -120,30 +117,24 @@ public class TimedBuffer
    }
 
    // for Debug purposes
-   public synchronized boolean isUseSleep()
-   {
+   public synchronized boolean isUseSleep() {
       return useSleep;
    }
 
-   public synchronized void setUseSleep(boolean useSleep)
-   {
+   public synchronized void setUseSleep(boolean useSleep) {
       this.useSleep = useSleep;
    }
 
-   public synchronized void start()
-   {
-      if (started)
-      {
+   public synchronized void start() {
+      if (started) {
          return;
       }
 
       // Need to start with the spin limiter acquired
-      try
-      {
+      try {
          spinLimiter.acquire();
       }
-      catch (InterruptedException e)
-      {
+      catch (InterruptedException e) {
          throw new ActiveMQInterruptedException(e);
       }
 
@@ -153,8 +144,7 @@ public class TimedBuffer
 
       timerThread.start();
 
-      if (logRates)
-      {
+      if (logRates) {
          logRatesTimerTask = new LogRatesTimerTask();
 
          logRatesTimer.scheduleAtFixedRate(logRatesTimerTask, 2000, 2000);
@@ -163,10 +153,8 @@ public class TimedBuffer
       started = true;
    }
 
-   public void stop()
-   {
-      if (!started)
-      {
+   public void stop() {
+      if (!started) {
          return;
       }
 
@@ -178,19 +166,15 @@ public class TimedBuffer
 
       spinLimiter.release();
 
-      if (logRates)
-      {
+      if (logRates) {
          logRatesTimerTask.cancel();
       }
 
-      while (timerThread.isAlive())
-      {
-         try
-         {
+      while (timerThread.isAlive()) {
+         try {
             timerThread.join();
          }
-         catch (InterruptedException e)
-         {
+         catch (InterruptedException e) {
             throw new ActiveMQInterruptedException(e);
          }
       }
@@ -198,10 +182,8 @@ public class TimedBuffer
       started = false;
    }
 
-   public synchronized void setObserver(final TimedBufferObserver observer)
-   {
-      if (bufferObserver != null)
-      {
+   public synchronized void setObserver(final TimedBufferObserver observer) {
+      if (bufferObserver != null) {
          flush();
       }
 
@@ -213,21 +195,17 @@ public class TimedBuffer
     *
     * @param sizeChecked
     */
-   public synchronized boolean checkSize(final int sizeChecked)
-   {
-      if (!started)
-      {
+   public synchronized boolean checkSize(final int sizeChecked) {
+      if (!started) {
          throw new IllegalStateException("TimedBuffer is not started");
       }
 
-      if (sizeChecked > bufferSize)
-      {
+      if (sizeChecked > bufferSize) {
          throw new IllegalStateException("Can't write records bigger than the bufferSize(" + bufferSize +
                                             ") on the journal");
       }
 
-      if (bufferLimit == 0 || buffer.writerIndex() + sizeChecked > bufferLimit)
-      {
+      if (bufferLimit == 0 || buffer.writerIndex() + sizeChecked > bufferLimit) {
          // Either there is not enough space left in the buffer for the sized record
          // Or a flush has just been performed and we need to re-calcualate bufferLimit
 
@@ -237,12 +215,10 @@ public class TimedBuffer
 
          final int remainingInFile = bufferObserver.getRemainingBytes();
 
-         if (sizeChecked > remainingInFile)
-         {
+         if (sizeChecked > remainingInFile) {
             return false;
          }
-         else
-         {
+         else {
             // There is enough space in the file for this size
 
             // Need to re-calculate buffer limit
@@ -252,23 +228,19 @@ public class TimedBuffer
             return true;
          }
       }
-      else
-      {
+      else {
          delayFlush = true;
 
          return true;
       }
    }
 
-   public synchronized void addBytes(final ActiveMQBuffer bytes, final boolean sync, final IOCallback callback)
-   {
+   public synchronized void addBytes(final ActiveMQBuffer bytes, final boolean sync, final IOCallback callback) {
       addBytes(new ByteArrayEncoding(bytes.toByteBuffer().array()), sync, callback);
    }
 
-   public synchronized void addBytes(final EncodingSupport bytes, final boolean sync, final IOCallback callback)
-   {
-      if (!started)
-      {
+   public synchronized void addBytes(final EncodingSupport bytes, final boolean sync, final IOCallback callback) {
+      if (!started) {
          throw new IllegalStateException("TimedBuffer is not started");
       }
 
@@ -278,8 +250,7 @@ public class TimedBuffer
 
       callbacks.add(callback);
 
-      if (sync)
-      {
+      if (sync) {
          pendingSync = true;
 
          startSpin();
@@ -287,8 +258,7 @@ public class TimedBuffer
 
    }
 
-   public void flush()
-   {
+   public void flush() {
       flush(false);
    }
 
@@ -296,21 +266,16 @@ public class TimedBuffer
     * force means the Journal is moving to a new file. Any pending write need to be done immediately
     * or data could be lost
     */
-   public void flush(final boolean force)
-   {
-      synchronized (this)
-      {
-         if (!started)
-         {
+   public void flush(final boolean force) {
+      synchronized (this) {
+         if (!started) {
             throw new IllegalStateException("TimedBuffer is not started");
          }
 
-         if ((force || !delayFlush) && buffer.writerIndex() > 0)
-         {
+         if ((force || !delayFlush) && buffer.writerIndex() > 0) {
             int pos = buffer.writerIndex();
 
-            if (logRates)
-            {
+            if (logRates) {
                bytesFlushed.addAndGet(pos);
             }
 
@@ -348,8 +313,8 @@ public class TimedBuffer
 
    // Inner classes -------------------------------------------------
 
-   private class LogRatesTimerTask extends TimerTask
-   {
+   private class LogRatesTimerTask extends TimerTask {
+
       private boolean closed;
 
       private long lastExecution;
@@ -359,17 +324,14 @@ public class TimedBuffer
       private long lastFlushesDone;
 
       @Override
-      public synchronized void run()
-      {
-         if (!closed)
-         {
+      public synchronized void run() {
+         if (!closed) {
             long now = System.currentTimeMillis();
 
             long bytesF = bytesFlushed.get();
             long flushesD = flushesDone.get();
 
-            if (lastExecution != 0)
-            {
+            if (lastExecution != 0) {
                double rate = 1000 * (double) (bytesF - lastBytesFlushed) / (now - lastExecution);
                ActiveMQJournalLogger.LOGGER.writeRate(rate, (long) (rate / (1024 * 1024)));
                double flushRate = 1000 * (double) (flushesD - lastFlushesDone) / (now - lastExecution);
@@ -385,16 +347,15 @@ public class TimedBuffer
       }
 
       @Override
-      public synchronized boolean cancel()
-      {
+      public synchronized boolean cancel() {
          closed = true;
 
          return super.cancel();
       }
    }
 
-   private class CheckTimer implements Runnable
-   {
+   private class CheckTimer implements Runnable {
+
       private volatile boolean closed = false;
 
       int checks = 0;
@@ -404,28 +365,22 @@ public class TimedBuffer
       final int sleepMillis = timeout / 1000000; // truncates
       final int sleepNanos = timeout % 1000000;
 
-
-      public void run()
-      {
+      public void run() {
          long lastFlushTime = 0;
 
-         while (!closed)
-         {
+         while (!closed) {
             // We flush on the timer if there are pending syncs there and we've waited at least one
             // timeout since the time of the last flush.
             // Effectively flushing "resets" the timer
             // On the timeout verification, notice that we ignore the timeout check if we are using sleep
 
-            if (pendingSync)
-            {
-               if (isUseSleep())
-               {
+            if (pendingSync) {
+               if (isUseSleep()) {
                   // if using sleep, we will always flush
                   flush();
                   lastFlushTime = System.nanoTime();
                }
-               else if (bufferObserver != null && System.nanoTime() > lastFlushTime + timeout)
-               {
+               else if (bufferObserver != null && System.nanoTime() > lastFlushTime + timeout) {
                   // if not using flush we will spin and do the time checks manually
                   flush();
                   lastFlushTime = System.nanoTime();
@@ -435,16 +390,14 @@ public class TimedBuffer
 
             sleepIfPossible();
 
-            try
-            {
+            try {
                spinLimiter.acquire();
 
                Thread.yield();
 
                spinLimiter.release();
             }
-            catch (InterruptedException e)
-            {
+            catch (InterruptedException e) {
                throw new ActiveMQInterruptedException(e);
             }
          }
@@ -455,43 +408,33 @@ public class TimedBuffer
        * we will on that case verify up to MAX_CHECKS if nano sleep is behaving well.
        * if more than 50% of the checks have failed we will cancel the sleep and just use regular spin
        */
-      private void sleepIfPossible()
-      {
-         if (isUseSleep())
-         {
-            if (checks < MAX_CHECKS_ON_SLEEP)
-            {
+      private void sleepIfPossible() {
+         if (isUseSleep()) {
+            if (checks < MAX_CHECKS_ON_SLEEP) {
                timeBefore = System.nanoTime();
             }
 
-            try
-            {
+            try {
                sleep(sleepMillis, sleepNanos);
             }
-            catch (InterruptedException e)
-            {
+            catch (InterruptedException e) {
                throw new ActiveMQInterruptedException(e);
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                setUseSleep(false);
                ActiveMQJournalLogger.LOGGER.warn(e.getMessage() + ", disabling sleep on TimedBuffer, using spin now", e);
             }
 
-            if (checks < MAX_CHECKS_ON_SLEEP)
-            {
+            if (checks < MAX_CHECKS_ON_SLEEP) {
                long realTimeSleep = System.nanoTime() - timeBefore;
 
                // I'm letting the real time to be up to 50% than the requested sleep.
-               if (realTimeSleep > timeout * 1.5)
-               {
+               if (realTimeSleep > timeout * 1.5) {
                   failedChecks++;
                }
 
-               if (++checks >= MAX_CHECKS_ON_SLEEP)
-               {
-                  if (failedChecks > MAX_CHECKS_ON_SLEEP * 0.5)
-                  {
+               if (++checks >= MAX_CHECKS_ON_SLEEP) {
+                  if (failedChecks > MAX_CHECKS_ON_SLEEP * 0.5) {
                      ActiveMQJournalLogger.LOGGER.debug("Thread.sleep with nano seconds is not working as expected, Your kernel possibly doesn't support real time. the Journal TimedBuffer will spin for timeouts");
                      setUseSleep(false);
                   }
@@ -500,8 +443,7 @@ public class TimedBuffer
          }
       }
 
-      public void close()
-      {
+      public void close() {
          closed = true;
       }
    }
@@ -513,26 +455,21 @@ public class TimedBuffer
     * @param sleepNanos
     * @throws InterruptedException
     */
-   protected void sleep(int sleepMillis, int sleepNanos) throws InterruptedException
-   {
+   protected void sleep(int sleepMillis, int sleepNanos) throws InterruptedException {
       Thread.sleep(sleepMillis, sleepNanos);
    }
 
    /**
     * Sub classes (tests basically) can use this to override disabling spinning
     */
-   protected void stopSpin()
-   {
-      if (spinning)
-      {
-         try
-         {
+   protected void stopSpin() {
+      if (spinning) {
+         try {
             // We acquire the spinLimiter semaphore - this prevents the timer flush thread unnecessarily spinning
             // when the buffer is inactive
             spinLimiter.acquire();
          }
-         catch (InterruptedException e)
-         {
+         catch (InterruptedException e) {
             throw new ActiveMQInterruptedException(e);
          }
 
@@ -540,19 +477,15 @@ public class TimedBuffer
       }
    }
 
-
    /**
     * Sub classes (tests basically) can use this to override disabling spinning
     */
-   protected void startSpin()
-   {
-      if (!spinning)
-      {
+   protected void startSpin() {
+      if (!spinning) {
          spinLimiter.release();
 
          spinning = true;
       }
    }
-
 
 }

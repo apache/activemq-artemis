@@ -23,8 +23,8 @@ import org.apache.activemq.broker.scheduler.JobSchedulerManagementTest;
  */
 public class InMemoryJobSchedulerManagementTest extends JobSchedulerManagementTest {
 
-    @Override
-    protected boolean isPersistent() {
-        return false;
-    }
+   @Override
+   protected boolean isPersistent() {
+      return false;
+   }
 }

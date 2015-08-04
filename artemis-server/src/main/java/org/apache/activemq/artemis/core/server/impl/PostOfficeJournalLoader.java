@@ -60,8 +60,8 @@ import org.apache.activemq.artemis.core.transaction.ResourceManager;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
 
-public class PostOfficeJournalLoader implements JournalLoader
-{
+public class PostOfficeJournalLoader implements JournalLoader {
+
    protected final PostOffice postOffice;
    protected final PagingManager pagingManager;
    private StorageManager storageManager;
@@ -79,8 +79,7 @@ public class PostOfficeJournalLoader implements JournalLoader
                                   NodeManager nodeManager,
                                   ManagementService managementService,
                                   GroupingHandler groupingHandler,
-                                  Configuration configuration)
-   {
+                                  Configuration configuration) {
 
       this.postOffice = postOffice;
       this.pagingManager = pagingManager;
@@ -101,39 +100,33 @@ public class PostOfficeJournalLoader implements JournalLoader
                                   ManagementService managementService,
                                   GroupingHandler groupingHandler,
                                   Configuration configuration,
-                                  Map<Long, Queue> queues)
-   {
+                                  Map<Long, Queue> queues) {
 
       this(postOffice, pagingManager, storageManager, queueFactory, nodeManager, managementService, groupingHandler, configuration);
       this.queues = queues;
    }
 
    @Override
-   public void initQueues(Map<Long, QueueBindingInfo> queueBindingInfosMap, List<QueueBindingInfo> queueBindingInfos) throws Exception
-   {
+   public void initQueues(Map<Long, QueueBindingInfo> queueBindingInfosMap,
+                          List<QueueBindingInfo> queueBindingInfos) throws Exception {
       int duplicateID = 0;
-      for (QueueBindingInfo queueBindingInfo : queueBindingInfos)
-      {
+      for (QueueBindingInfo queueBindingInfo : queueBindingInfos) {
          queueBindingInfosMap.put(queueBindingInfo.getId(), queueBindingInfo);
 
          Filter filter = FilterImpl.createFilter(queueBindingInfo.getFilterString());
 
-         boolean isTopicIdentification =
-            filter != null && filter.getFilterString() != null &&
-               filter.getFilterString().toString().equals(ActiveMQServerImpl.GENERIC_IGNORED_FILTER);
+         boolean isTopicIdentification = filter != null && filter.getFilterString() != null &&
+            filter.getFilterString().toString().equals(ActiveMQServerImpl.GENERIC_IGNORED_FILTER);
 
-         if (postOffice.getBinding(queueBindingInfo.getQueueName()) != null)
-         {
+         if (postOffice.getBinding(queueBindingInfo.getQueueName()) != null) {
 
-            if (isTopicIdentification)
-            {
+            if (isTopicIdentification) {
                long tx = storageManager.generateID();
                storageManager.deleteQueueBinding(tx, queueBindingInfo.getId());
                storageManager.commitBindings(tx);
                continue;
             }
-            else
-            {
+            else {
 
                SimpleString newName = queueBindingInfo.getQueueName().concat("-" + (duplicateID++));
                ActiveMQServerLogger.LOGGER.queueDuplicatedRenaming(queueBindingInfo.getQueueName().toString(), newName.toString());
@@ -143,26 +136,14 @@ public class PostOfficeJournalLoader implements JournalLoader
 
          PageSubscription subscription = null;
 
-         if (!isTopicIdentification)
-         {
-            subscription = pagingManager.getPageStore(queueBindingInfo.getAddress())
-               .getCursorProvider()
-               .createSubscription(queueBindingInfo.getId(), filter, true);
+         if (!isTopicIdentification) {
+            subscription = pagingManager.getPageStore(queueBindingInfo.getAddress()).getCursorProvider().createSubscription(queueBindingInfo.getId(), filter, true);
          }
 
-         Queue queue = queueFactory.createQueue(queueBindingInfo.getId(),
-                                                queueBindingInfo.getAddress(),
-                                                queueBindingInfo.getQueueName(),
-                                                filter,
-                                                subscription,
-                                                queueBindingInfo.getUser(),
-                                                true,
-                                                false,
-                                                queueBindingInfo.isAutoCreated());
+         Queue queue = queueFactory.createQueue(queueBindingInfo.getId(), queueBindingInfo.getAddress(), queueBindingInfo.getQueueName(), filter, subscription, queueBindingInfo.getUser(), true, false, queueBindingInfo.isAutoCreated());
 
-         if (queueBindingInfo.isAutoCreated())
-         {
-            queue.setConsumersRefCount(new AutoCreatedQueueManagerImpl(((PostOfficeImpl)postOffice).getServer(), queueBindingInfo.getQueueName()));
+         if (queueBindingInfo.isAutoCreated()) {
+            queue.setConsumersRefCount(new AutoCreatedQueueManagerImpl(((PostOfficeImpl) postOffice).getServer(), queueBindingInfo.getQueueName()));
          }
 
          Binding binding = new LocalQueueBinding(queueBindingInfo.getAddress(), queue, nodeManager.getNodeId());
@@ -177,20 +158,16 @@ public class PostOfficeJournalLoader implements JournalLoader
       }
    }
 
-   public void handleAddMessage(Map<Long, Map<Long, AddMessageRecord>> queueMap) throws Exception
-   {
-      for (Map.Entry<Long, Map<Long, AddMessageRecord>> entry : queueMap.entrySet())
-      {
+   public void handleAddMessage(Map<Long, Map<Long, AddMessageRecord>> queueMap) throws Exception {
+      for (Map.Entry<Long, Map<Long, AddMessageRecord>> entry : queueMap.entrySet()) {
          long queueID = entry.getKey();
 
          Map<Long, AddMessageRecord> queueRecords = entry.getValue();
 
          Queue queue = this.queues.get(queueID);
 
-         if (queue == null)
-         {
-            if (queueRecords.values().size() != 0)
-            {
+         if (queue == null) {
+            if (queueRecords.values().size() != 0) {
                ActiveMQServerLogger.LOGGER.journalCannotFindQueueForMessage(queueID);
             }
 
@@ -206,18 +183,15 @@ public class PostOfficeJournalLoader implements JournalLoader
 
          long currentTime = System.currentTimeMillis();
 
-         for (AddMessageRecord record : valueRecords)
-         {
+         for (AddMessageRecord record : valueRecords) {
             long scheduledDeliveryTime = record.getScheduledDeliveryTime();
 
-            if (scheduledDeliveryTime != 0 && scheduledDeliveryTime <= currentTime)
-            {
+            if (scheduledDeliveryTime != 0 && scheduledDeliveryTime <= currentTime) {
                scheduledDeliveryTime = 0;
                record.getMessage().removeProperty(Message.HDR_SCHEDULED_DELIVERY_TIME);
             }
 
-            if (scheduledDeliveryTime != 0)
-            {
+            if (scheduledDeliveryTime != 0) {
                record.getMessage().putLongProperty(Message.HDR_SCHEDULED_DELIVERY_TIME, scheduledDeliveryTime);
             }
 
@@ -225,27 +199,21 @@ public class PostOfficeJournalLoader implements JournalLoader
 
             ref.setDeliveryCount(record.getDeliveryCount());
 
-            if (scheduledDeliveryTime != 0)
-            {
+            if (scheduledDeliveryTime != 0) {
                record.getMessage().removeProperty(Message.HDR_SCHEDULED_DELIVERY_TIME);
             }
          }
       }
    }
 
-   public void handleNoMessageReferences(Map<Long, ServerMessage> messages)
-   {
-      for (ServerMessage msg : messages.values())
-      {
-         if (msg.getRefCount() == 0)
-         {
+   public void handleNoMessageReferences(Map<Long, ServerMessage> messages) {
+      for (ServerMessage msg : messages.values()) {
+         if (msg.getRefCount() == 0) {
             ActiveMQServerLogger.LOGGER.journalUnreferencedMessage(msg.getMessageID());
-            try
-            {
+            try {
                storageManager.deleteMessage(msg.getMessageID());
             }
-            catch (Exception ignored)
-            {
+            catch (Exception ignored) {
                ActiveMQServerLogger.LOGGER.journalErrorDeletingMessage(ignored, msg.getMessageID());
             }
          }
@@ -253,56 +221,45 @@ public class PostOfficeJournalLoader implements JournalLoader
    }
 
    @Override
-   public void handleGroupingBindings(List<GroupingInfo> groupingInfos)
-   {
-      for (GroupingInfo groupingInfo : groupingInfos)
-      {
-         if (groupingHandler != null)
-         {
-            groupingHandler.addGroupBinding(new GroupBinding(groupingInfo.getId(),
-                                                             groupingInfo.getGroupId(),
-                                                             groupingInfo.getClusterName()));
+   public void handleGroupingBindings(List<GroupingInfo> groupingInfos) {
+      for (GroupingInfo groupingInfo : groupingInfos) {
+         if (groupingHandler != null) {
+            groupingHandler.addGroupBinding(new GroupBinding(groupingInfo.getId(), groupingInfo.getGroupId(), groupingInfo.getClusterName()));
          }
       }
    }
 
    @Override
-   public void handleDuplicateIds(Map<SimpleString, List<Pair<byte[], Long>>> duplicateIDMap) throws Exception
-   {
-      for (Map.Entry<SimpleString, List<Pair<byte[], Long>>> entry : duplicateIDMap.entrySet())
-      {
+   public void handleDuplicateIds(Map<SimpleString, List<Pair<byte[], Long>>> duplicateIDMap) throws Exception {
+      for (Map.Entry<SimpleString, List<Pair<byte[], Long>>> entry : duplicateIDMap.entrySet()) {
          SimpleString address = entry.getKey();
 
          DuplicateIDCache cache = postOffice.getDuplicateIDCache(address);
 
-         if (configuration.isPersistIDCache())
-         {
+         if (configuration.isPersistIDCache()) {
             cache.load(entry.getValue());
          }
       }
    }
 
    @Override
-   public void postLoad(Journal messageJournal, ResourceManager resourceManager, Map<SimpleString, List<Pair<byte[], Long>>> duplicateIDMap) throws Exception
-   {
-      for (Queue queue : queues.values())
-      {
+   public void postLoad(Journal messageJournal,
+                        ResourceManager resourceManager,
+                        Map<SimpleString, List<Pair<byte[], Long>>> duplicateIDMap) throws Exception {
+      for (Queue queue : queues.values()) {
          queue.resume();
       }
 
-      if (System.getProperty("org.apache.activemq.opt.directblast") != null)
-      {
+      if (System.getProperty("org.apache.activemq.opt.directblast") != null) {
          messageJournal.runDirectJournalBlast();
       }
    }
 
    @Override
-   public void handlePreparedSendMessage(ServerMessage message, Transaction tx, long queueID) throws Exception
-   {
+   public void handlePreparedSendMessage(ServerMessage message, Transaction tx, long queueID) throws Exception {
       Queue queue = queues.get(queueID);
 
-      if (queue == null)
-      {
+      if (queue == null) {
          ActiveMQServerLogger.LOGGER.journalMessageInPreparedTX(queueID);
          return;
       }
@@ -310,32 +267,31 @@ public class PostOfficeJournalLoader implements JournalLoader
    }
 
    @Override
-   public void handlePreparedAcknowledge(long messageID, List<MessageReference> referencesToAck, long queueID) throws Exception
-   {
+   public void handlePreparedAcknowledge(long messageID,
+                                         List<MessageReference> referencesToAck,
+                                         long queueID) throws Exception {
       Queue queue = queues.get(queueID);
 
-      if (queue == null)
-      {
+      if (queue == null) {
          throw new IllegalStateException("Cannot find queue with id " + queueID);
       }
 
       MessageReference removed = queue.removeReferenceWithID(messageID);
 
-      if (removed == null)
-      {
+      if (removed == null) {
          ActiveMQServerLogger.LOGGER.journalErrorRemovingRef(messageID);
       }
-      else
-      {
+      else {
          referencesToAck.add(removed);
       }
    }
 
    @Override
-   public void handlePreparedTransaction(Transaction tx, List<MessageReference> referencesToAck, Xid xid, ResourceManager resourceManager) throws Exception
-   {
-      for (MessageReference ack : referencesToAck)
-      {
+   public void handlePreparedTransaction(Transaction tx,
+                                         List<MessageReference> referencesToAck,
+                                         Xid xid,
+                                         ResourceManager resourceManager) throws Exception {
+      for (MessageReference ack : referencesToAck) {
          ack.getQueue().reacknowledge(tx, ack);
       }
 
@@ -350,8 +306,7 @@ public class PostOfficeJournalLoader implements JournalLoader
     * @param pendingNonTXPageCounter
     * @throws Exception
     */
-   public void recoverPendingPageCounters(List<PageCountPending> pendingNonTXPageCounter) throws Exception
-   {
+   public void recoverPendingPageCounters(List<PageCountPending> pendingNonTXPageCounter) throws Exception {
       // We need a structure of the following
       // Address -> PageID -> QueueID -> List<PageCountPending>
       // The following loop will sort the records according to the hierarchy we need
@@ -360,23 +315,20 @@ public class PostOfficeJournalLoader implements JournalLoader
 
       Map<SimpleString, Map<Long, Map<Long, List<PageCountPending>>>> perAddressMap = generateMapsOnPendingCount(queues, pendingNonTXPageCounter, txRecoverCounter);
 
-      for (SimpleString address : perAddressMap.keySet())
-      {
+      for (SimpleString address : perAddressMap.keySet()) {
          PagingStore store = pagingManager.getPageStore(address);
          Map<Long, Map<Long, List<PageCountPending>>> perPageMap = perAddressMap.get(address);
 
          // We have already generated this before, so it can't be null
          assert (perPageMap != null);
 
-         for (Long pageId : perPageMap.keySet())
-         {
+         for (Long pageId : perPageMap.keySet()) {
             Map<Long, List<PageCountPending>> perQueue = perPageMap.get(pageId);
 
             // This can't be true!
             assert (perQueue != null);
 
-            if (store.checkPageFileExists(pageId.intValue()))
-            {
+            if (store.checkPageFileExists(pageId.intValue())) {
                // on this case we need to recalculate the records
                Page pg = store.createPage(pageId.intValue());
                pg.open();
@@ -384,15 +336,11 @@ public class PostOfficeJournalLoader implements JournalLoader
                List<PagedMessage> pgMessages = pg.read(storageManager);
                Map<Long, AtomicInteger> countsPerQueueOnPage = new HashMap<Long, AtomicInteger>();
 
-               for (PagedMessage pgd : pgMessages)
-               {
-                  if (pgd.getTransactionID() <= 0)
-                  {
-                     for (long q : pgd.getQueueIDs())
-                     {
+               for (PagedMessage pgd : pgMessages) {
+                  if (pgd.getTransactionID() <= 0) {
+                     for (long q : pgd.getQueueIDs()) {
                         AtomicInteger countQ = countsPerQueueOnPage.get(q);
-                        if (countQ == null)
-                        {
+                        if (countQ == null) {
                            countQ = new AtomicInteger(0);
                            countsPerQueueOnPage.put(q, countQ);
                         }
@@ -401,10 +349,8 @@ public class PostOfficeJournalLoader implements JournalLoader
                   }
                }
 
-               for (Map.Entry<Long, List<PageCountPending>> entry : perQueue.entrySet())
-               {
-                  for (PageCountPending record : entry.getValue())
-                  {
+               for (Map.Entry<Long, List<PageCountPending>> entry : perQueue.entrySet()) {
+                  for (PageCountPending record : entry.getValue()) {
                      ActiveMQServerLogger.LOGGER.debug("Deleting pg tempCount " + record.getID());
                      storageManager.deletePendingPageCounter(txRecoverCounter.getID(), record.getID());
                   }
@@ -413,25 +359,20 @@ public class PostOfficeJournalLoader implements JournalLoader
 
                   AtomicInteger value = countsPerQueueOnPage.get(entry.getKey());
 
-                  if (value == null)
-                  {
+                  if (value == null) {
                      ActiveMQServerLogger.LOGGER.debug("Page " + entry.getKey() + " wasn't open, so we will just ignore");
                   }
-                  else
-                  {
+                  else {
                      ActiveMQServerLogger.LOGGER.debug("Replacing counter " + value.get());
                      counter.increment(txRecoverCounter, value.get());
                   }
                }
             }
-            else
-            {
+            else {
                // on this case the page file didn't exist, we just remove all the records since the page is already gone
                ActiveMQServerLogger.LOGGER.debug("Page " + pageId + " didn't exist on address " + address + ", so we are just removing records");
-               for (List<PageCountPending> records : perQueue.values())
-               {
-                  for (PageCountPending record : records)
-                  {
+               for (List<PageCountPending> records : perQueue.values()) {
+                  for (PageCountPending record : records) {
                      ActiveMQServerLogger.LOGGER.debug("Removing pending page counter " + record.getID());
                      storageManager.deletePendingPageCounter(txRecoverCounter.getID(), record.getID());
                      txRecoverCounter.setContainsPersistent();
@@ -445,8 +386,7 @@ public class PostOfficeJournalLoader implements JournalLoader
    }
 
    @Override
-   public void cleanUp()
-   {
+   public void cleanUp() {
       queues.clear();
    }
 
@@ -459,21 +399,18 @@ public class PostOfficeJournalLoader implements JournalLoader
     * @return
     * @throws Exception
     */
-   private Map<SimpleString, Map<Long, Map<Long, List<PageCountPending>>>>
-   generateMapsOnPendingCount(Map<Long, Queue> queues, List<PageCountPending>
-      pendingNonTXPageCounter, Transaction txRecoverCounter) throws Exception
-   {
+   private Map<SimpleString, Map<Long, Map<Long, List<PageCountPending>>>> generateMapsOnPendingCount(Map<Long, Queue> queues,
+                                                                                                      List<PageCountPending> pendingNonTXPageCounter,
+                                                                                                      Transaction txRecoverCounter) throws Exception {
       Map<SimpleString, Map<Long, Map<Long, List<PageCountPending>>>> perAddressMap = new HashMap<SimpleString, Map<Long, Map<Long, List<PageCountPending>>>>();
-      for (PageCountPending pgCount : pendingNonTXPageCounter)
-      {
+      for (PageCountPending pgCount : pendingNonTXPageCounter) {
          long queueID = pgCount.getQueueID();
          long pageID = pgCount.getPageID();
 
          // We first figure what Queue is based on the queue id
          Queue queue = queues.get(queueID);
 
-         if (queue == null)
-         {
+         if (queue == null) {
             ActiveMQServerLogger.LOGGER.debug("removing pending page counter id = " + pgCount.getID() + " as queueID=" + pgCount.getID() + " no longer exists");
             // this means the queue doesn't exist any longer, we will remove it from the storage
             storageManager.deletePendingPageCounter(txRecoverCounter.getID(), pgCount.getID());
@@ -486,25 +423,21 @@ public class PostOfficeJournalLoader implements JournalLoader
 
          Map<Long, Map<Long, List<PageCountPending>>> perPageMap = perAddressMap.get(address);
 
-         if (perPageMap == null)
-         {
+         if (perPageMap == null) {
             perPageMap = new HashMap();
             perAddressMap.put(address, perPageMap);
          }
 
-
          Map<Long, List<PageCountPending>> perQueueMap = perPageMap.get(pageID);
 
-         if (perQueueMap == null)
-         {
+         if (perQueueMap == null) {
             perQueueMap = new HashMap();
             perPageMap.put(pageID, perQueueMap);
          }
 
          List<PageCountPending> pendingCounters = perQueueMap.get(queueID);
 
-         if (pendingCounters == null)
-         {
+         if (pendingCounters == null) {
             pendingCounters = new LinkedList<PageCountPending>();
             perQueueMap.put(queueID, pendingCounters);
          }

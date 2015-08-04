@@ -41,93 +41,89 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class AMQ3145Test {
-    private static final Logger LOG = LoggerFactory.getLogger(AMQ3145Test.class);
-    private final String MESSAGE_TEXT = new String(new byte[1024]);
-    BrokerService broker;
-    ConnectionFactory factory;
-    Connection connection;
-    Session session;
-    Queue queue;
-    MessageConsumer consumer;
 
-    @Before
-    public void createBroker() throws Exception {
-        createBroker(true);
-    }
+   private static final Logger LOG = LoggerFactory.getLogger(AMQ3145Test.class);
+   private final String MESSAGE_TEXT = new String(new byte[1024]);
+   BrokerService broker;
+   ConnectionFactory factory;
+   Connection connection;
+   Session session;
+   Queue queue;
+   MessageConsumer consumer;
 
-    public void createBroker(boolean deleteAll) throws Exception {
-        broker = new BrokerService();
-        broker.setDeleteAllMessagesOnStartup(deleteAll);
-        broker.setDataDirectory("target/AMQ3145Test");
-        broker.setUseJmx(true);
-        broker.getManagementContext().setCreateConnector(false);
-        broker.addConnector("tcp://localhost:0");
-        broker.start();
-        broker.waitUntilStarted();
-        factory = new ActiveMQConnectionFactory(broker.getTransportConnectors().get(0).getConnectUri().toString());
-        connection = factory.createConnection();
-        connection.start();
-        session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
-    }
+   @Before
+   public void createBroker() throws Exception {
+      createBroker(true);
+   }
 
-    @After
-    public void tearDown() throws Exception {
-        if (consumer != null) {
-            consumer.close();
-        }
-        session.close();
-        connection.stop();
-        connection.close();
-        broker.stop();
-    }
+   public void createBroker(boolean deleteAll) throws Exception {
+      broker = new BrokerService();
+      broker.setDeleteAllMessagesOnStartup(deleteAll);
+      broker.setDataDirectory("target/AMQ3145Test");
+      broker.setUseJmx(true);
+      broker.getManagementContext().setCreateConnector(false);
+      broker.addConnector("tcp://localhost:0");
+      broker.start();
+      broker.waitUntilStarted();
+      factory = new ActiveMQConnectionFactory(broker.getTransportConnectors().get(0).getConnectUri().toString());
+      connection = factory.createConnection();
+      connection.start();
+      session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
+   }
 
-    @Test
-    public void testCacheDisableReEnable() throws Exception {
-        createProducerAndSendMessages(1);
-        QueueViewMBean proxy = getProxyToQueueViewMBean();
-        assertTrue("cache is enabled", proxy.isCacheEnabled());
-        tearDown();
-        createBroker(false);
-        proxy = getProxyToQueueViewMBean();
-        assertEquals("one pending message", 1, proxy.getQueueSize());
-        assertTrue("cache is disabled when there is a pending message", !proxy.isCacheEnabled());
+   @After
+   public void tearDown() throws Exception {
+      if (consumer != null) {
+         consumer.close();
+      }
+      session.close();
+      connection.stop();
+      connection.close();
+      broker.stop();
+   }
 
-        createConsumer(1);
-        createProducerAndSendMessages(1);
-        assertTrue("cache is enabled again on next send when there are no messages", proxy.isCacheEnabled());
-    }
+   @Test
+   public void testCacheDisableReEnable() throws Exception {
+      createProducerAndSendMessages(1);
+      QueueViewMBean proxy = getProxyToQueueViewMBean();
+      assertTrue("cache is enabled", proxy.isCacheEnabled());
+      tearDown();
+      createBroker(false);
+      proxy = getProxyToQueueViewMBean();
+      assertEquals("one pending message", 1, proxy.getQueueSize());
+      assertTrue("cache is disabled when there is a pending message", !proxy.isCacheEnabled());
 
-    private QueueViewMBean getProxyToQueueViewMBean()
-            throws MalformedObjectNameException, JMSException {
-        ObjectName queueViewMBeanName = new ObjectName("org.apache.activemq"
-                + ":destinationType=Queue,destinationName=" + queue.getQueueName()
-                + ",type=Broker,brokerName=localhost");
-        QueueViewMBean proxy = (QueueViewMBean) broker.getManagementContext()
-                .newProxyInstance(queueViewMBeanName,
-                        QueueViewMBean.class, true);
-        return proxy;
-    }
+      createConsumer(1);
+      createProducerAndSendMessages(1);
+      assertTrue("cache is enabled again on next send when there are no messages", proxy.isCacheEnabled());
+   }
 
-    private void createProducerAndSendMessages(int numToSend) throws Exception {
-        queue = session.createQueue("test1");
-        MessageProducer producer = session.createProducer(queue);
-        for (int i = 0; i < numToSend; i++) {
-            TextMessage message = session.createTextMessage(MESSAGE_TEXT + i);
-            if (i  != 0 && i % 50000 == 0) {
-                LOG.info("sent: " + i);
-            }
-            producer.send(message);
-        }
-        producer.close();
-    }
+   private QueueViewMBean getProxyToQueueViewMBean() throws MalformedObjectNameException, JMSException {
+      ObjectName queueViewMBeanName = new ObjectName("org.apache.activemq" + ":destinationType=Queue,destinationName=" + queue.getQueueName() + ",type=Broker,brokerName=localhost");
+      QueueViewMBean proxy = (QueueViewMBean) broker.getManagementContext().newProxyInstance(queueViewMBeanName, QueueViewMBean.class, true);
+      return proxy;
+   }
 
-    private void createConsumer(int numToConsume) throws Exception {
-        consumer = session.createConsumer(queue);
-        // wait for buffer fill out
-        for (int i = 0; i < numToConsume; ++i) {
-            Message message = consumer.receive(2000);
-            message.acknowledge();
-        }
-        consumer.close();
-    }
+   private void createProducerAndSendMessages(int numToSend) throws Exception {
+      queue = session.createQueue("test1");
+      MessageProducer producer = session.createProducer(queue);
+      for (int i = 0; i < numToSend; i++) {
+         TextMessage message = session.createTextMessage(MESSAGE_TEXT + i);
+         if (i != 0 && i % 50000 == 0) {
+            LOG.info("sent: " + i);
+         }
+         producer.send(message);
+      }
+      producer.close();
+   }
+
+   private void createConsumer(int numToConsume) throws Exception {
+      consumer = session.createConsumer(queue);
+      // wait for buffer fill out
+      for (int i = 0; i < numToConsume; ++i) {
+         Message message = consumer.receive(2000);
+         message.acknowledge();
+      }
+      consumer.close();
+   }
 }

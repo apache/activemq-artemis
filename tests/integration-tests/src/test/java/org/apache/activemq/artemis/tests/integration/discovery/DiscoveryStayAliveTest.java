@@ -34,56 +34,38 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class DiscoveryStayAliveTest extends DiscoveryBaseTest
-{
-
+public class DiscoveryStayAliveTest extends DiscoveryBaseTest {
 
    ScheduledExecutorService scheduledExecutorService;
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
-      scheduledExecutorService = new ScheduledThreadPoolExecutor(1,
-                                                                 new ActiveMQThreadFactory("ActiveMQ-scheduled-threads",
-                                                                                           false,
-                                                                                           Thread.currentThread().getContextClassLoader()));
+      scheduledExecutorService = new ScheduledThreadPoolExecutor(1, new ActiveMQThreadFactory("ActiveMQ-scheduled-threads", false, Thread.currentThread().getContextClassLoader()));
 
    }
 
-   public void tearDown() throws Exception
-   {
+   public void tearDown() throws Exception {
       scheduledExecutorService.shutdown();
       super.tearDown();
    }
 
    @Test
-   public void testDiscoveryRunning() throws Throwable
-   {
+   public void testDiscoveryRunning() throws Throwable {
       final InetAddress groupAddress = InetAddress.getByName(address1);
       final int groupPort = getUDPDiscoveryPort();
       final int timeout = 500;
 
-
-      final DiscoveryGroup dg = newDiscoveryGroup(RandomUtil.randomString(),
-                                                  RandomUtil.randomString(),
-                                                  null,
-                                                  groupAddress,
-                                                  groupPort,
-                                                  timeout);
+      final DiscoveryGroup dg = newDiscoveryGroup(RandomUtil.randomString(), RandomUtil.randomString(), null, groupAddress, groupPort, timeout);
 
       final AtomicInteger errors = new AtomicInteger(0);
-      Thread t = new Thread()
-      {
-         public void run()
-         {
-            try
-            {
+      Thread t = new Thread() {
+         public void run() {
+            try {
                dg.internalRunning();
             }
-            catch (Throwable e)
-            {
+            catch (Throwable e) {
                e.printStackTrace();
                errors.incrementAndGet();
             }
@@ -92,19 +74,14 @@ public class DiscoveryStayAliveTest extends DiscoveryBaseTest
       };
       t.start();
 
-
-      BroadcastGroupImpl bg = new BroadcastGroupImpl(new FakeNodeManager("test-nodeID"),
-                                                     RandomUtil.randomString(),
-                                                     1, scheduledExecutorService, new UDPBroadcastEndpointFactory().setGroupAddress(address1).
-                                                        setGroupPort(groupPort));
+      BroadcastGroupImpl bg = new BroadcastGroupImpl(new FakeNodeManager("test-nodeID"), RandomUtil.randomString(), 1, scheduledExecutorService, new UDPBroadcastEndpointFactory().setGroupAddress(address1).
+         setGroupPort(groupPort));
 
       bg.start();
 
       bg.addConnector(generateTC());
 
-
-      for (int i = 0; i < 10; i++)
-      {
+      for (int i = 0; i < 10; i++) {
          BroadcastEndpointFactory factoryEndpoint = new UDPBroadcastEndpointFactory().setGroupAddress(address1).
             setGroupPort(groupPort);
          sendBadData(factoryEndpoint);
@@ -123,28 +100,22 @@ public class DiscoveryStayAliveTest extends DiscoveryBaseTest
 
    }
 
-
-   private static void sendBadData(BroadcastEndpointFactory factoryEndpoint) throws Exception
-   {
+   private static void sendBadData(BroadcastEndpointFactory factoryEndpoint) throws Exception {
       BroadcastEndpoint endpoint = factoryEndpoint.createBroadcastEndpoint();
-
 
       ActiveMQBuffer buffer = ActiveMQBuffers.dynamicBuffer(500);
 
       buffer.writeString("This is a test1!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
       buffer.writeString("This is a test2!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 
-
       byte[] bytes = new byte[buffer.writerIndex()];
 
       buffer.readBytes(bytes);
 
       // messing up with the string!!!
-      for (int i = bytes.length - 10; i < bytes.length; i++)
-      {
+      for (int i = bytes.length - 10; i < bytes.length; i++) {
          bytes[i] = 0;
       }
-
 
       endpoint.openBroadcaster();
 

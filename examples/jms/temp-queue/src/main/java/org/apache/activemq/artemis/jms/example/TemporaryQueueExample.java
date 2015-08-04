@@ -29,19 +29,17 @@ import javax.naming.InitialContext;
 /**
  * A simple JMS example that shows how to use temporary queues.
  */
-public class TemporaryQueueExample
-{
-   public static void main(final String[] args) throws Exception
-   {
+public class TemporaryQueueExample {
+
+   public static void main(final String[] args) throws Exception {
       Connection connection = null;
       InitialContext initialContext = null;
-      try
-      {
+      try {
          // Step 1. Create an initial context to perform the JNDI lookup.
          initialContext = new InitialContext();
 
          // Step 2. Look-up the JMS connection factory
-         ConnectionFactory cf = (ConnectionFactory)initialContext.lookup("ConnectionFactory");
+         ConnectionFactory cf = (ConnectionFactory) initialContext.lookup("ConnectionFactory");
 
          // Step 3. Create a JMS Connection
          connection = cf.createConnection();
@@ -72,7 +70,7 @@ public class TemporaryQueueExample
          MessageConsumer messageConsumer = session.createConsumer(tempQueue);
 
          // Step 12. Receive the message from the queue
-         message = (TextMessage)messageConsumer.receive(5000);
+         message = (TextMessage) messageConsumer.receive(5000);
 
          System.out.println("Received message: " + message.getText());
 
@@ -98,25 +96,20 @@ public class TemporaryQueueExample
          session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
          // Step 19. Try to access the tempQueue2 outside its lifetime
-         try
-         {
+         try {
             messageConsumer = session.createConsumer(tempQueue2);
             throw new Exception("Temporary queue cannot be accessed outside its lifecycle!");
          }
-         catch (JMSException e)
-         {
+         catch (JMSException e) {
             System.out.println("Exception got when trying to access a temp queue outside its scope: " + e);
          }
       }
-      finally
-      {
-         if (connection != null)
-         {
+      finally {
+         if (connection != null) {
             // Step 20. Be sure to close our JMS resources!
             connection.close();
          }
-         if (initialContext != null)
-         {
+         if (initialContext != null) {
             // Step 21. Also close the initialContext!
             initialContext.close();
          }

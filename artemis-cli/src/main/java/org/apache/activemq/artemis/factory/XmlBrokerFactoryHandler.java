@@ -23,14 +23,12 @@ import org.apache.activemq.artemis.dto.XmlUtil;
 import java.io.File;
 import java.net.URI;
 
-public class XmlBrokerFactoryHandler implements BrokerFactoryHandler
-{
+public class XmlBrokerFactoryHandler implements BrokerFactoryHandler {
+
    @Override
-   public BrokerDTO createBroker(URI brokerURI) throws Exception
-   {
+   public BrokerDTO createBroker(URI brokerURI) throws Exception {
       File file = new File(brokerURI.getSchemeSpecificPart());
-      if (!file.exists())
-      {
+      if (!file.exists()) {
          throw new ConfigurationException("Invalid configuration URI, can't find file: " + file.getName());
       }
       return XmlUtil.decode(BrokerDTO.class, file);

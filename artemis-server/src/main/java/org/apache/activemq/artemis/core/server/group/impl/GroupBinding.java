@@ -21,8 +21,8 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 /**
  * A group binding
  */
-public class GroupBinding
-{
+public class GroupBinding {
+
    private long id;
 
    private final SimpleString groupId;
@@ -31,54 +31,45 @@ public class GroupBinding
 
    volatile long timeUsed;
 
-   public GroupBinding(final SimpleString groupId, final SimpleString clusterName)
-   {
+   public GroupBinding(final SimpleString groupId, final SimpleString clusterName) {
       this.groupId = groupId;
       this.clusterName = clusterName;
       use();
    }
 
-   public GroupBinding(final long id, final SimpleString groupId, final SimpleString clusterName)
-   {
+   public GroupBinding(final long id, final SimpleString groupId, final SimpleString clusterName) {
       this.id = id;
       this.groupId = groupId;
       this.clusterName = clusterName;
       use();
    }
 
-   public long getId()
-   {
+   public long getId() {
       return id;
    }
 
-   public void setId(final long id)
-   {
+   public void setId(final long id) {
       this.id = id;
    }
 
-   public SimpleString getGroupId()
-   {
+   public SimpleString getGroupId() {
       return groupId;
    }
 
-   public SimpleString getClusterName()
-   {
+   public SimpleString getClusterName() {
       return clusterName;
    }
 
-   public long getTimeUsed()
-   {
+   public long getTimeUsed() {
       return timeUsed;
    }
 
-   public void use()
-   {
+   public void use() {
       timeUsed = System.currentTimeMillis();
    }
 
    @Override
-   public String toString()
-   {
+   public String toString() {
       return id + ":" + groupId + ":" + clusterName;
    }
 }

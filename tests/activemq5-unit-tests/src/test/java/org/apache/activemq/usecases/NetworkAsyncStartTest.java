@@ -19,6 +19,7 @@ package org.apache.activemq.usecases;
 import java.net.URI;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+
 import org.apache.activemq.JmsMultipleBrokersTestSupport;
 import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.network.DiscoveryNetworkConnector;
@@ -28,93 +29,95 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class NetworkAsyncStartTest extends JmsMultipleBrokersTestSupport {
-    private static final Logger LOG = LoggerFactory.getLogger(NetworkAsyncStartTest.class);
 
-    private String brokerBUri = "tcp://localhost:61617";
-    private String brokerCUri = "tcp://localhost:61618";
-    int bridgeCount=0;
+   private static final Logger LOG = LoggerFactory.getLogger(NetworkAsyncStartTest.class);
 
-    public void testAsyncNetworkStartup() throws Exception {
+   private String brokerBUri = "tcp://localhost:61617";
+   private String brokerCUri = "tcp://localhost:61618";
+   int bridgeCount = 0;
 
-        BrokerService brokerA = brokers.get("BrokerA").broker;
-        bridgeBroker(brokerA, brokerBUri);
-        bridgeBroker(brokerA, brokerCUri);
+   public void testAsyncNetworkStartup() throws Exception {
 
-        LOG.info("starting A, no blocking on failed network connectors");
-        brokerA.start();
+      BrokerService brokerA = brokers.get("BrokerA").broker;
+      bridgeBroker(brokerA, brokerBUri);
+      bridgeBroker(brokerA, brokerCUri);
 
-        LOG.info("starting C transport connector");
-        BrokerService brokerC = brokers.get("BrokerC").broker;
-        brokerC.addConnector(brokerCUri);
-        brokerC.start();
+      LOG.info("starting A, no blocking on failed network connectors");
+      brokerA.start();
 
-        assertTrue("got bridge to C", waitForBridgeFormation(brokerA, 1, 1));
-        LOG.info("Got bridge A->C");
+      LOG.info("starting C transport connector");
+      BrokerService brokerC = brokers.get("BrokerC").broker;
+      brokerC.addConnector(brokerCUri);
+      brokerC.start();
 
-        LOG.info("starting B transport connector");
-        BrokerService brokerB = brokers.get("BrokerB").broker;
-        brokerB.addConnector(brokerBUri);
-        brokerB.start();
+      assertTrue("got bridge to C", waitForBridgeFormation(brokerA, 1, 1));
+      LOG.info("Got bridge A->C");
 
-        assertTrue("got bridge to B", waitForBridgeFormation(brokerA, 1, 0));
-        assertTrue("got bridge to B&C", waitForBridgeFormation(brokerA, 1, 1));
-    }
+      LOG.info("starting B transport connector");
+      BrokerService brokerB = brokers.get("BrokerB").broker;
+      brokerB.addConnector(brokerBUri);
+      brokerB.start();
 
-    public void testAsyncNetworkStartupWithSlowConnectionCreation() throws Exception {
+      assertTrue("got bridge to B", waitForBridgeFormation(brokerA, 1, 0));
+      assertTrue("got bridge to B&C", waitForBridgeFormation(brokerA, 1, 1));
+   }
 
-        final BrokerService brokerA = brokers.get("BrokerA").broker;
+   public void testAsyncNetworkStartupWithSlowConnectionCreation() throws Exception {
 
-        SocketProxy proxyToB = new SocketProxy();
-        // don't accept any connections so limited to one connection with backlog
-        proxyToB.setPauseAtStart(true);
-        proxyToB.setAcceptBacklog(1);
-        proxyToB.setTarget(new URI(brokerBUri));
-        proxyToB.open();
-        bridgeBroker(brokerA, proxyToB.getUrl().toString());
-        bridgeBroker(brokerA, proxyToB.getUrl().toString());
-        bridgeBroker(brokerA, proxyToB.getUrl().toString());
-        bridgeBroker(brokerA, proxyToB.getUrl().toString());
-        bridgeBroker(brokerA, proxyToB.getUrl().toString());
-        bridgeBroker(brokerA, proxyToB.getUrl().toString());
-        bridgeBroker(brokerA, proxyToB.getUrl().toString());
-        bridgeBroker(brokerA, brokerCUri);
+      final BrokerService brokerA = brokers.get("BrokerA").broker;
 
-        Executor e = Executors.newCachedThreadPool();
-        e.execute(new Runnable() {
-            public void run() {
-                LOG.info("starting A");
-                try {
-                    brokerA.setNetworkConnectorStartAsync(true);
-                    brokerA.start();
-                } catch (Exception e) {
-                    LOG.error("start failed", e);
-                }
+      SocketProxy proxyToB = new SocketProxy();
+      // don't accept any connections so limited to one connection with backlog
+      proxyToB.setPauseAtStart(true);
+      proxyToB.setAcceptBacklog(1);
+      proxyToB.setTarget(new URI(brokerBUri));
+      proxyToB.open();
+      bridgeBroker(brokerA, proxyToB.getUrl().toString());
+      bridgeBroker(brokerA, proxyToB.getUrl().toString());
+      bridgeBroker(brokerA, proxyToB.getUrl().toString());
+      bridgeBroker(brokerA, proxyToB.getUrl().toString());
+      bridgeBroker(brokerA, proxyToB.getUrl().toString());
+      bridgeBroker(brokerA, proxyToB.getUrl().toString());
+      bridgeBroker(brokerA, proxyToB.getUrl().toString());
+      bridgeBroker(brokerA, brokerCUri);
+
+      Executor e = Executors.newCachedThreadPool();
+      e.execute(new Runnable() {
+         public void run() {
+            LOG.info("starting A");
+            try {
+               brokerA.setNetworkConnectorStartAsync(true);
+               brokerA.start();
             }
-        });
+            catch (Exception e) {
+               LOG.error("start failed", e);
+            }
+         }
+      });
 
-        LOG.info("starting transport connector on C");
-        BrokerService brokerC = brokers.get("BrokerC").broker;
-        brokerC.addConnector(brokerCUri);
-        brokerC.start();
+      LOG.info("starting transport connector on C");
+      BrokerService brokerC = brokers.get("BrokerC").broker;
+      brokerC.addConnector(brokerCUri);
+      brokerC.start();
 
-        final long maxWaitMillis = 20*1000;
-        assertTrue("got bridge to C in 10 seconds", waitForBridgeFormation(brokerA, 1, 7, maxWaitMillis));
-    }
+      final long maxWaitMillis = 20 * 1000;
+      assertTrue("got bridge to C in 10 seconds", waitForBridgeFormation(brokerA, 1, 7, maxWaitMillis));
+   }
 
-    private void bridgeBroker(BrokerService localBroker, String remoteURI) throws Exception {
-        String uri = "static:(" + remoteURI + ")";
-        NetworkConnector connector = new DiscoveryNetworkConnector(new URI(uri));
-        connector.setName("bridge-" + bridgeCount++);
-        localBroker.addNetworkConnector(connector);
-    }
+   private void bridgeBroker(BrokerService localBroker, String remoteURI) throws Exception {
+      String uri = "static:(" + remoteURI + ")";
+      NetworkConnector connector = new DiscoveryNetworkConnector(new URI(uri));
+      connector.setName("bridge-" + bridgeCount++);
+      localBroker.addNetworkConnector(connector);
+   }
 
-    @Override
-    public void setUp() throws Exception {
-        super.setAutoFail(true);
-        super.setUp();
-        // initially with no tcp transport connector
-        createBroker(new URI("broker:()BrokerA?persistent=false&useJmx=false"));
-        createBroker(new URI("broker:()BrokerB?persistent=false&useJmx=false"));
-        createBroker(new URI("broker:()BrokerC?persistent=false&useJmx=false"));
-    }
+   @Override
+   public void setUp() throws Exception {
+      super.setAutoFail(true);
+      super.setUp();
+      // initially with no tcp transport connector
+      createBroker(new URI("broker:()BrokerA?persistent=false&useJmx=false"));
+      createBroker(new URI("broker:()BrokerB?persistent=false&useJmx=false"));
+      createBroker(new URI("broker:()BrokerC?persistent=false&useJmx=false"));
+   }
 }

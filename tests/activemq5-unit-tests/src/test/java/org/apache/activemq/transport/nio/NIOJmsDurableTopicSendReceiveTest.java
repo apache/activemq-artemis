@@ -21,36 +21,37 @@ import org.apache.activemq.JmsDurableTopicSendReceiveTest;
 import org.apache.activemq.broker.BrokerService;
 
 public class NIOJmsDurableTopicSendReceiveTest extends JmsDurableTopicSendReceiveTest {
-    protected BrokerService broker;
 
-    protected void setUp() throws Exception {
-        if (broker == null) {
-            broker = createBroker();
-            broker.start();
-        }
-        super.setUp();
-    }
+   protected BrokerService broker;
 
-    protected void tearDown() throws Exception {
-        super.tearDown();
-        if (broker != null) {
-            broker.stop();
-        }
-    }
+   protected void setUp() throws Exception {
+      if (broker == null) {
+         broker = createBroker();
+         broker.start();
+      }
+      super.setUp();
+   }
 
-    protected ActiveMQConnectionFactory createConnectionFactory() {
-        ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(getBrokerURL());
-        return connectionFactory;
-    }
+   protected void tearDown() throws Exception {
+      super.tearDown();
+      if (broker != null) {
+         broker.stop();
+      }
+   }
 
-    protected String getBrokerURL() {
-        return "nio://localhost:61616";
-    }
+   protected ActiveMQConnectionFactory createConnectionFactory() {
+      ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(getBrokerURL());
+      return connectionFactory;
+   }
 
-    protected BrokerService createBroker() throws Exception {
-        BrokerService answer = new BrokerService();
-        answer.setPersistent(false);
-        answer.addConnector(getBrokerURL());
-        return answer;
-    }
+   protected String getBrokerURL() {
+      return "nio://localhost:61616";
+   }
+
+   protected BrokerService createBroker() throws Exception {
+      BrokerService answer = new BrokerService();
+      answer.setPersistent(false);
+      answer.addConnector(getBrokerURL());
+      return answer;
+   }
 }

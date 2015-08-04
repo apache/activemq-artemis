@@ -17,6 +17,7 @@
 package org.apache.activemq.selector;
 
 import javax.jms.InvalidSelectorException;
+
 import junit.framework.TestCase;
 
 import org.apache.activemq.filter.BooleanExpression;
@@ -33,56 +34,59 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class SelectorParserTest extends TestCase {
-    private static final Logger LOG = LoggerFactory.getLogger(SelectorParserTest.class);
 
-    public void testFunctionCall() throws Exception {
-        Object filter = parse("REGEX('sales.*', group)");
-        assertTrue("expected type", filter instanceof BooleanFunctionCallExpr);
-        LOG.info("function exp:" + filter);
+   private static final Logger LOG = LoggerFactory.getLogger(SelectorParserTest.class);
 
-        // non existent function
-        try {
-            parse("DoesNotExist('sales.*', group)");
-            fail("expect ex on non existent function");
-        } catch (InvalidSelectorException expected) {}
+   public void testFunctionCall() throws Exception {
+      Object filter = parse("REGEX('sales.*', group)");
+      assertTrue("expected type", filter instanceof BooleanFunctionCallExpr);
+      LOG.info("function exp:" + filter);
 
-    }
+      // non existent function
+      try {
+         parse("DoesNotExist('sales.*', group)");
+         fail("expect ex on non existent function");
+      }
+      catch (InvalidSelectorException expected) {
+      }
 
-    public void testParseXPath() throws Exception {
-        BooleanExpression filter = parse("XPATH '//title[@lang=''eng'']'");
-        assertTrue("Created XPath expression", filter instanceof XPathExpression);
-        LOG.info("Expression: " + filter);
-    }
+   }
 
-    public void testParseWithParensAround() throws Exception {
-        String[] values = {"x = 1 and y = 2", "(x = 1) and (y = 2)", "((x = 1) and (y = 2))"};
+   public void testParseXPath() throws Exception {
+      BooleanExpression filter = parse("XPATH '//title[@lang=''eng'']'");
+      assertTrue("Created XPath expression", filter instanceof XPathExpression);
+      LOG.info("Expression: " + filter);
+   }
 
-        for (int i = 0; i < values.length; i++) {
-            String value = values[i];
-            LOG.info("Parsing: " + value);
+   public void testParseWithParensAround() throws Exception {
+      String[] values = {"x = 1 and y = 2", "(x = 1) and (y = 2)", "((x = 1) and (y = 2))"};
 
-            BooleanExpression andExpression = parse(value);
-            assertTrue("Created LogicExpression expression", andExpression instanceof LogicExpression);
-            LogicExpression logicExpression = (LogicExpression)andExpression;
-            Expression left = logicExpression.getLeft();
-            Expression right = logicExpression.getRight();
+      for (int i = 0; i < values.length; i++) {
+         String value = values[i];
+         LOG.info("Parsing: " + value);
 
-            assertTrue("Left is a binary filter", left instanceof ComparisonExpression);
-            assertTrue("Right is a binary filter", right instanceof ComparisonExpression);
-            ComparisonExpression leftCompare = (ComparisonExpression)left;
-            ComparisonExpression rightCompare = (ComparisonExpression)right;
-            assertPropertyExpression("left", leftCompare.getLeft(), "x");
-            assertPropertyExpression("right", rightCompare.getLeft(), "y");
-        }
-    }
+         BooleanExpression andExpression = parse(value);
+         assertTrue("Created LogicExpression expression", andExpression instanceof LogicExpression);
+         LogicExpression logicExpression = (LogicExpression) andExpression;
+         Expression left = logicExpression.getLeft();
+         Expression right = logicExpression.getRight();
 
-    protected void assertPropertyExpression(String message, Expression expression, String expected) {
-        assertTrue(message + ". Must be PropertyExpression", expression instanceof PropertyExpression);
-        PropertyExpression propExp = (PropertyExpression)expression;
-        assertEquals(message + ". Property name", expected, propExp.getName());
-    }
+         assertTrue("Left is a binary filter", left instanceof ComparisonExpression);
+         assertTrue("Right is a binary filter", right instanceof ComparisonExpression);
+         ComparisonExpression leftCompare = (ComparisonExpression) left;
+         ComparisonExpression rightCompare = (ComparisonExpression) right;
+         assertPropertyExpression("left", leftCompare.getLeft(), "x");
+         assertPropertyExpression("right", rightCompare.getLeft(), "y");
+      }
+   }
 
-    protected BooleanExpression parse(String text) throws Exception {
-        return SelectorParser.parse(text);
-    }
+   protected void assertPropertyExpression(String message, Expression expression, String expected) {
+      assertTrue(message + ". Must be PropertyExpression", expression instanceof PropertyExpression);
+      PropertyExpression propExp = (PropertyExpression) expression;
+      assertEquals(message + ". Property name", expected, propExp.getName());
+   }
+
+   protected BooleanExpression parse(String text) throws Exception {
+      return SelectorParser.parse(text);
+   }
 }

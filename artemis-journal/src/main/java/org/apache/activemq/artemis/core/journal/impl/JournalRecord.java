@@ -24,19 +24,18 @@ import org.apache.activemq.artemis.api.core.Pair;
 /**
  * This holds the relationship a record has with other files in regard to reference counting.
  * Note: This class used to be called PosFiles
- *
+ * <br>
  * Used on the ref-count for reclaiming
- * */
-public class JournalRecord
-{
+ */
+public class JournalRecord {
+
    private final JournalFile addFile;
 
    private final int size;
 
    private List<Pair<JournalFile, Integer>> updateFiles;
 
-   public JournalRecord(final JournalFile addFile, final int size)
-   {
+   public JournalRecord(final JournalFile addFile, final int size) {
       this.addFile = addFile;
 
       this.size = size;
@@ -46,10 +45,8 @@ public class JournalRecord
       addFile.addSize(size);
    }
 
-   void addUpdateFile(final JournalFile updateFile, final int size)
-   {
-      if (updateFiles == null)
-      {
+   void addUpdateFile(final JournalFile updateFile, final int size) {
+      if (updateFiles == null) {
          updateFiles = new ArrayList<Pair<JournalFile, Integer>>();
       }
 
@@ -60,15 +57,12 @@ public class JournalRecord
       updateFile.addSize(size);
    }
 
-   void delete(final JournalFile file)
-   {
+   void delete(final JournalFile file) {
       file.incNegCount(addFile);
       addFile.decSize(size);
 
-      if (updateFiles != null)
-      {
-         for (Pair<JournalFile, Integer> updFile : updateFiles)
-         {
+      if (updateFiles != null) {
+         for (Pair<JournalFile, Integer> updFile : updateFiles) {
             file.incNegCount(updFile.getA());
             updFile.getA().decSize(updFile.getB());
          }
@@ -76,16 +70,13 @@ public class JournalRecord
    }
 
    @Override
-   public String toString()
-   {
+   public String toString() {
       StringBuilder buffer = new StringBuilder();
       buffer.append("JournalRecord(add=" + addFile.getFile().getFileName());
 
-      if (updateFiles != null)
-      {
+      if (updateFiles != null) {
 
-         for (Pair<JournalFile, Integer> update : updateFiles)
-         {
+         for (Pair<JournalFile, Integer> update : updateFiles) {
             buffer.append(", update=" + update.getA().getFile().getFileName());
          }
 

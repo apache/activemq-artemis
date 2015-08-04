@@ -35,93 +35,104 @@ import org.junit.Test;
  */
 public class FailoverBackupLeakTest {
 
-    private static BrokerService s1, s2;
+   private static BrokerService s1, s2;
 
-    @BeforeClass
-    public static void setUp() throws Exception {
-        s1 = buildBroker("broker1");
-        s2 = buildBroker("broker2");
+   @BeforeClass
+   public static void setUp() throws Exception {
+      s1 = buildBroker("broker1");
+      s2 = buildBroker("broker2");
 
-        s1.start();
-        s1.waitUntilStarted();
-        s2.start();
-        s2.waitUntilStarted();
-    }
+      s1.start();
+      s1.waitUntilStarted();
+      s2.start();
+      s2.waitUntilStarted();
+   }
 
-    @AfterClass
-    public static void tearDown() throws Exception {
-        if (s2 != null) {
-            s2.stop();
-            s2.waitUntilStopped();
-        }
-        if (s1 != null) {
-            s1.stop();
-            s1.waitUntilStopped();
-        }
-    }
+   @AfterClass
+   public static void tearDown() throws Exception {
+      if (s2 != null) {
+         s2.stop();
+         s2.waitUntilStopped();
+      }
+      if (s1 != null) {
+         s1.stop();
+         s1.waitUntilStopped();
+      }
+   }
 
-    private static String getConnectString(BrokerService service) throws Exception {
-        return service.getTransportConnectors().get(0).getPublishableConnectString();
-    }
+   private static String getConnectString(BrokerService service) throws Exception {
+      return service.getTransportConnectors().get(0).getPublishableConnectString();
+   }
 
-    private static BrokerService buildBroker(String brokerName) throws Exception {
-        BrokerService service = new BrokerService();
-        service.setBrokerName(brokerName);
-        service.setUseJmx(false);
-        service.setPersistent(false);
-        service.setUseShutdownHook(false);
-        service.addConnector("tcp://0.0.0.0:0?transport.closeAsync=false");
-        return service;
-    }
+   private static BrokerService buildBroker(String brokerName) throws Exception {
+      BrokerService service = new BrokerService();
+      service.setBrokerName(brokerName);
+      service.setUseJmx(false);
+      service.setPersistent(false);
+      service.setUseShutdownHook(false);
+      service.addConnector("tcp://0.0.0.0:0?transport.closeAsync=false");
+      return service;
+   }
 
-    @Test
-    public void backupNoRandomize() throws Exception {
-        check("backup=true&randomize=false");
-    }
+   @Test
+   public void backupNoRandomize() throws Exception {
+      check("backup=true&randomize=false");
+   }
 
-    @Test
-    public void priorityBackupNoRandomize() throws Exception {
-        check("priorityBackup=true&randomize=false");
-    }
+   @Test
+   public void priorityBackupNoRandomize() throws Exception {
+      check("priorityBackup=true&randomize=false");
+   }
 
-    private void check(String connectionProperties) throws Exception {
-        String s1URL = getConnectString(s1), s2URL = getConnectString(s2);
-        String uri = "failover://(" + s1URL + "," + s2URL + ")?" + connectionProperties;
-        ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(uri);
-        for (int i = 0; i < 10; i++) {
-            buildConnection(factory);
-        }
+   private void check(String connectionProperties) throws Exception {
+      String s1URL = getConnectString(s1), s2URL = getConnectString(s2);
+      String uri = "failover://(" + s1URL + "," + s2URL + ")?" + connectionProperties;
+      ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(uri);
+      for (int i = 0; i < 10; i++) {
+         buildConnection(factory);
+      }
 
-        assertTrue(connectionProperties +  " broker1 connection count not zero: was["+getConnectionCount(s1)+"]", Wait.waitFor(new Wait.Condition() {
+      assertTrue(connectionProperties + " broker1 connection count not zero: was[" + getConnectionCount(s1) + "]", Wait.waitFor(new Wait.Condition() {
 
-            @Override
-            public boolean isSatisified() throws Exception {
-                return getConnectionCount(s1) == 0;
-            }
-        }));
+         @Override
+         public boolean isSatisified() throws Exception {
+            return getConnectionCount(s1) == 0;
+         }
+      }));
 
-        assertTrue(connectionProperties +  " broker2 connection count not zero: was["+getConnectionCount(s2)+"]", Wait.waitFor(new Wait.Condition() {
+      assertTrue(connectionProperties + " broker2 connection count not zero: was[" + getConnectionCount(s2) + "]", Wait.waitFor(new Wait.Condition() {
 
-            @Override
-            public boolean isSatisified() throws Exception {
-                return getConnectionCount(s2) == 0;
-            }
-        }));
-    }
+         @Override
+         public boolean isSatisified() throws Exception {
+            return getConnectionCount(s2) == 0;
+         }
+      }));
+   }
 
-    private int getConnectionCount(BrokerService service) {
-        return service.getTransportConnectors().get(0).getConnections().size();
-    }
+   private int getConnectionCount(BrokerService service) {
+      return service.getTransportConnectors().get(0).getConnections().size();
+   }
 
-    private void buildConnection(ConnectionFactory local) throws JMSException {
-        Connection conn = null;
-        Session sess = null;
-        try {
-            conn = local.createConnection();
-            sess =  conn.createSession(false, Session.CLIENT_ACKNOWLEDGE);
-        } finally {
-            try { if (sess != null) sess.close(); } catch (JMSException ignore) { }
-            try { if (conn != null) conn.close(); } catch (JMSException ignore) { }
-        }
-    }
+   private void buildConnection(ConnectionFactory local) throws JMSException {
+      Connection conn = null;
+      Session sess = null;
+      try {
+         conn = local.createConnection();
+         sess = conn.createSession(false, Session.CLIENT_ACKNOWLEDGE);
+      }
+      finally {
+         try {
+            if (sess != null)
+               sess.close();
+         }
+         catch (JMSException ignore) {
+         }
+         try {
+            if (conn != null)
+               conn.close();
+         }
+         catch (JMSException ignore) {
+         }
+      }
+   }
 }

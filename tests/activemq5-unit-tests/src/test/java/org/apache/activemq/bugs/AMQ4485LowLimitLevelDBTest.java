@@ -17,22 +17,23 @@
 package org.apache.activemq.bugs;
 
 import java.io.File;
+
 import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.leveldb.LevelDBStore;
 
 public class AMQ4485LowLimitLevelDBTest extends AMQ4485LowLimitTest {
 
-    public AMQ4485LowLimitLevelDBTest() {
-        super();
-        numBrokers = 2;
-    }
+   public AMQ4485LowLimitLevelDBTest() {
+      super();
+      numBrokers = 2;
+   }
 
-    protected BrokerService createBroker(int brokerid, boolean addToNetwork) throws Exception {
-        BrokerService broker = super.createBroker(brokerid, addToNetwork);
+   protected BrokerService createBroker(int brokerid, boolean addToNetwork) throws Exception {
+      BrokerService broker = super.createBroker(brokerid, addToNetwork);
 
-        LevelDBStore levelDBStore = new LevelDBStore();
-        levelDBStore.setDirectory(new File(broker.getBrokerDataDirectory(),"levelDB"));
-        broker.setPersistenceAdapter(levelDBStore);
-        return broker;
-    }
+      LevelDBStore levelDBStore = new LevelDBStore();
+      levelDBStore.setDirectory(new File(broker.getBrokerDataDirectory(), "levelDB"));
+      broker.setPersistenceAdapter(levelDBStore);
+      return broker;
+   }
 }

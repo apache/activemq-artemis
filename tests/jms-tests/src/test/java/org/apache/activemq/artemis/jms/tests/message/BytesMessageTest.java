@@ -27,8 +27,7 @@ import org.junit.Before;
 /**
  * A test that sends/receives bytes messages to the JMS provider and verifies their integrity.
  */
-public class BytesMessageTest extends MessageTestBase
-{
+public class BytesMessageTest extends MessageTestBase {
    // Constants -----------------------------------------------------
 
    // Static --------------------------------------------------------
@@ -41,16 +40,14 @@ public class BytesMessageTest extends MessageTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
       message = session.createBytesMessage();
    }
 
    @Override
    @After
-   public void tearDown() throws Exception
-   {
+   public void tearDown() throws Exception {
       message = null;
       super.tearDown();
    }
@@ -58,8 +55,7 @@ public class BytesMessageTest extends MessageTestBase
    // Protected -----------------------------------------------------
 
    @Override
-   protected void prepareMessage(final Message m) throws JMSException
-   {
+   protected void prepareMessage(final Message m) throws JMSException {
       super.prepareMessage(m);
 
       BytesMessage bm = (BytesMessage) m;
@@ -78,8 +74,7 @@ public class BytesMessageTest extends MessageTestBase
    }
 
    @Override
-   protected void assertEquivalent(final Message m, final int mode, final boolean redelivered) throws JMSException
-   {
+   protected void assertEquivalent(final Message m, final int mode, final boolean redelivered) throws JMSException {
       super.assertEquivalent(m, mode, redelivered);
 
       BytesMessage bm = (BytesMessage) m;

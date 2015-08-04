@@ -17,26 +17,26 @@
 package org.apache.activemq.store.kahadb.perf;
 
 import java.io.File;
+
 import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.perf.SimpleDurableTopicTest;
 import org.apache.activemq.store.kahadb.KahaDBStore;
 
 /**
- * 
+ *
  */
 public class KahaStoreDurableTopicTest extends SimpleDurableTopicTest {
 
-    protected void configureBroker(BrokerService answer,String uri) throws Exception {
-        File dataFileDir = new File("target/test-amq-data/perfTest/amqdb");
-        dataFileDir.mkdirs();
-        // answer.setDeleteAllMessagesOnStartup(true);
-               
-         KahaDBStore adaptor = new KahaDBStore();
-         adaptor.setDirectory(dataFileDir);
-         
-        
-        answer.setDataDirectoryFile(dataFileDir);
-        answer.setPersistenceAdapter(adaptor);
-        answer.addConnector(uri);
-    }
+   protected void configureBroker(BrokerService answer, String uri) throws Exception {
+      File dataFileDir = new File("target/test-amq-data/perfTest/amqdb");
+      dataFileDir.mkdirs();
+      // answer.setDeleteAllMessagesOnStartup(true);
+
+      KahaDBStore adaptor = new KahaDBStore();
+      adaptor.setDirectory(dataFileDir);
+
+      answer.setDataDirectoryFile(dataFileDir);
+      answer.setPersistenceAdapter(adaptor);
+      answer.addConnector(uri);
+   }
 }

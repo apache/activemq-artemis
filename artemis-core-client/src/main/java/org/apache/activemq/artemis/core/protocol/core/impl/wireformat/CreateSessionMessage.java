@@ -19,8 +19,8 @@ package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 
-public class CreateSessionMessage extends PacketImpl
-{
+public class CreateSessionMessage extends PacketImpl {
+
    private String name;
 
    private long sessionChannelID;
@@ -56,8 +56,7 @@ public class CreateSessionMessage extends PacketImpl
                                final boolean autoCommitAcks,
                                final boolean preAcknowledge,
                                final int windowSize,
-                               final String defaultAddress)
-   {
+                               final String defaultAddress) {
       super(CREATESESSION);
 
       this.name = name;
@@ -85,71 +84,58 @@ public class CreateSessionMessage extends PacketImpl
       this.defaultAddress = defaultAddress;
    }
 
-   public CreateSessionMessage()
-   {
+   public CreateSessionMessage() {
       super(CREATESESSION);
    }
 
    // Public --------------------------------------------------------
 
-   public String getName()
-   {
+   public String getName() {
       return name;
    }
 
-   public long getSessionChannelID()
-   {
+   public long getSessionChannelID() {
       return sessionChannelID;
    }
 
-   public int getVersion()
-   {
+   public int getVersion() {
       return version;
    }
 
-   public String getUsername()
-   {
+   public String getUsername() {
       return username;
    }
 
-   public String getPassword()
-   {
+   public String getPassword() {
       return password;
    }
 
-   public boolean isXA()
-   {
+   public boolean isXA() {
       return xa;
    }
 
-   public boolean isAutoCommitSends()
-   {
+   public boolean isAutoCommitSends() {
       return autoCommitSends;
    }
 
-   public boolean isAutoCommitAcks()
-   {
+   public boolean isAutoCommitAcks() {
       return autoCommitAcks;
    }
 
-   public boolean isPreAcknowledge()
-   {
+   public boolean isPreAcknowledge() {
       return preAcknowledge;
    }
 
-   public int getWindowSize()
-   {
+   public int getWindowSize() {
       return windowSize;
    }
 
-   public String getDefaultAddress()
-   {
+   public String getDefaultAddress() {
       return defaultAddress;
    }
 
    @Override
-   public void encodeRest(final ActiveMQBuffer buffer)
-   {
+   public void encodeRest(final ActiveMQBuffer buffer) {
       buffer.writeString(name);
       buffer.writeLong(sessionChannelID);
       buffer.writeInt(version);
@@ -165,8 +151,7 @@ public class CreateSessionMessage extends PacketImpl
    }
 
    @Override
-   public void decodeRest(final ActiveMQBuffer buffer)
-   {
+   public void decodeRest(final ActiveMQBuffer buffer) {
       name = buffer.readString();
       sessionChannelID = buffer.readLong();
       version = buffer.readInt();
@@ -182,19 +167,16 @@ public class CreateSessionMessage extends PacketImpl
    }
 
    @Override
-   public final boolean isRequiresConfirmations()
-   {
+   public final boolean isRequiresConfirmations() {
       return false;
    }
 
-   public int getMinLargeMessageSize()
-   {
+   public int getMinLargeMessageSize() {
       return minLargeMessageSize;
    }
 
    @Override
-   public int hashCode()
-   {
+   public int hashCode() {
       final int prime = 31;
       int result = super.hashCode();
       result = prime * result + (autoCommitAcks ? 1231 : 1237);
@@ -204,7 +186,7 @@ public class CreateSessionMessage extends PacketImpl
       result = prime * result + ((name == null) ? 0 : name.hashCode());
       result = prime * result + ((password == null) ? 0 : password.hashCode());
       result = prime * result + (preAcknowledge ? 1231 : 1237);
-      result = prime * result + (int)(sessionChannelID ^ (sessionChannelID >>> 32));
+      result = prime * result + (int) (sessionChannelID ^ (sessionChannelID >>> 32));
       result = prime * result + ((username == null) ? 0 : username.hashCode());
       result = prime * result + version;
       result = prime * result + windowSize;
@@ -213,21 +195,19 @@ public class CreateSessionMessage extends PacketImpl
    }
 
    @Override
-   public boolean equals(Object obj)
-   {
+   public boolean equals(Object obj) {
       if (this == obj)
          return true;
       if (!super.equals(obj))
          return false;
       if (!(obj instanceof CreateSessionMessage))
          return false;
-      CreateSessionMessage other = (CreateSessionMessage)obj;
+      CreateSessionMessage other = (CreateSessionMessage) obj;
       if (autoCommitAcks != other.autoCommitAcks)
          return false;
       if (autoCommitSends != other.autoCommitSends)
          return false;
-      if (defaultAddress == null)
-      {
+      if (defaultAddress == null) {
          if (other.defaultAddress != null)
             return false;
       }
@@ -235,15 +215,13 @@ public class CreateSessionMessage extends PacketImpl
          return false;
       if (minLargeMessageSize != other.minLargeMessageSize)
          return false;
-      if (name == null)
-      {
+      if (name == null) {
          if (other.name != null)
             return false;
       }
       else if (!name.equals(other.name))
          return false;
-      if (password == null)
-      {
+      if (password == null) {
          if (other.password != null)
             return false;
       }
@@ -253,8 +231,7 @@ public class CreateSessionMessage extends PacketImpl
          return false;
       if (sessionChannelID != other.sessionChannelID)
          return false;
-      if (username == null)
-      {
+      if (username == null) {
          if (other.username != null)
             return false;
       }

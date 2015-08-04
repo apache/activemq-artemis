@@ -23,8 +23,8 @@ import org.apache.activemq.command.Message;
 import org.apache.activemq.command.MessageId;
 import org.apache.activemq.state.ProducerState;
 
-public class AMQProducerBrokerExchange
-{
+public class AMQProducerBrokerExchange {
+
    private AMQConnectionContext connectionContext;
    private AMQDestination regionDestination;
    private ProducerState producerState;
@@ -34,12 +34,10 @@ public class AMQProducerBrokerExchange
    private boolean isNetworkProducer;
    private final FlowControlInfo flowControlInfo = new FlowControlInfo();
 
-   public AMQProducerBrokerExchange()
-   {
+   public AMQProducerBrokerExchange() {
    }
 
-   public AMQProducerBrokerExchange copy()
-   {
+   public AMQProducerBrokerExchange copy() {
       AMQProducerBrokerExchange rc = new AMQProducerBrokerExchange();
       rc.connectionContext = connectionContext.copy();
       rc.regionDestination = regionDestination;
@@ -51,68 +49,56 @@ public class AMQProducerBrokerExchange
    /**
     * @return the connectionContext
     */
-   public AMQConnectionContext getConnectionContext()
-   {
+   public AMQConnectionContext getConnectionContext() {
       return this.connectionContext;
    }
 
    /**
-    * @param connectionContext
-    *           the connectionContext to set
+    * @param connectionContext the connectionContext to set
     */
-   public void setConnectionContext(AMQConnectionContext connectionContext)
-   {
+   public void setConnectionContext(AMQConnectionContext connectionContext) {
       this.connectionContext = connectionContext;
    }
 
    /**
     * @return the mutable
     */
-   public boolean isMutable()
-   {
+   public boolean isMutable() {
       return this.mutable;
    }
 
    /**
-    * @param mutable
-    *           the mutable to set
+    * @param mutable the mutable to set
     */
-   public void setMutable(boolean mutable)
-   {
+   public void setMutable(boolean mutable) {
       this.mutable = mutable;
    }
 
    /**
     * @return the regionDestination
     */
-   public AMQDestination getRegionDestination()
-   {
+   public AMQDestination getRegionDestination() {
       return this.regionDestination;
    }
 
    /**
-    * @param regionDestination
-    *           the regionDestination to set
+    * @param regionDestination the regionDestination to set
     */
-   public void setRegionDestination(AMQDestination regionDestination)
-   {
+   public void setRegionDestination(AMQDestination regionDestination) {
       this.regionDestination = regionDestination;
    }
 
    /**
     * @return the producerState
     */
-   public ProducerState getProducerState()
-   {
+   public ProducerState getProducerState() {
       return this.producerState;
    }
 
    /**
-    * @param producerState
-    *           the producerState to set
+    * @param producerState the producerState to set
     */
-   public void setProducerState(ProducerState producerState)
-   {
+   public void setProducerState(ProducerState producerState) {
       this.producerState = producerState;
    }
 
@@ -121,36 +107,26 @@ public class AMQProducerBrokerExchange
     *
     * @return false if message should be ignored as a duplicate
     */
-   public boolean canDispatch(Message messageSend)
-   {
+   public boolean canDispatch(Message messageSend) {
       boolean canDispatch = true;
-      if (auditProducerSequenceIds && messageSend.isPersistent())
-      {
-         final long producerSequenceId = messageSend.getMessageId()
-               .getProducerSequenceId();
-         if (isNetworkProducer)
-         {
+      if (auditProducerSequenceIds && messageSend.isPersistent()) {
+         final long producerSequenceId = messageSend.getMessageId().getProducerSequenceId();
+         if (isNetworkProducer) {
             // messages are multiplexed on this producer so we need to query the
             // persistenceAdapter
-            long lastStoredForMessageProducer = getStoredSequenceIdForMessage(messageSend
-                  .getMessageId());
-            if (producerSequenceId <= lastStoredForMessageProducer)
-            {
+            long lastStoredForMessageProducer = getStoredSequenceIdForMessage(messageSend.getMessageId());
+            if (producerSequenceId <= lastStoredForMessageProducer) {
                canDispatch = false;
             }
          }
-         else if (producerSequenceId <= lastSendSequenceNumber.get())
-         {
+         else if (producerSequenceId <= lastSendSequenceNumber.get()) {
             canDispatch = false;
-            if (messageSend.isInTransaction())
-            {
+            if (messageSend.isInTransaction()) {
             }
-            else
-            {
+            else {
             }
          }
-         else
-         {
+         else {
             // track current so we can suppress duplicates later in the stream
             lastSendSequenceNumber.set(producerSequenceId);
          }
@@ -158,105 +134,85 @@ public class AMQProducerBrokerExchange
       return canDispatch;
    }
 
-   private long getStoredSequenceIdForMessage(MessageId messageId)
-   {
+   private long getStoredSequenceIdForMessage(MessageId messageId) {
       return -1;
    }
 
-   public void setLastStoredSequenceId(long l)
-   {
+   public void setLastStoredSequenceId(long l) {
    }
 
-   public void incrementSend()
-   {
+   public void incrementSend() {
       flowControlInfo.incrementSend();
    }
 
-   public void blockingOnFlowControl(boolean blockingOnFlowControl)
-   {
+   public void blockingOnFlowControl(boolean blockingOnFlowControl) {
       flowControlInfo.setBlockingOnFlowControl(blockingOnFlowControl);
    }
 
-   public void incrementTimeBlocked(AMQDestination destination, long timeBlocked)
-   {
+   public void incrementTimeBlocked(AMQDestination destination, long timeBlocked) {
       flowControlInfo.incrementTimeBlocked(timeBlocked);
    }
 
-   public boolean isBlockedForFlowControl()
-   {
+   public boolean isBlockedForFlowControl() {
       return flowControlInfo.isBlockingOnFlowControl();
    }
 
-   public void resetFlowControl()
-   {
+   public void resetFlowControl() {
       flowControlInfo.reset();
    }
 
-   public long getTotalTimeBlocked()
-   {
+   public long getTotalTimeBlocked() {
       return flowControlInfo.getTotalTimeBlocked();
    }
 
-   public int getPercentageBlocked()
-   {
-      double value = flowControlInfo.getSendsBlocked()
-            / flowControlInfo.getTotalSends();
+   public int getPercentageBlocked() {
+      double value = flowControlInfo.getSendsBlocked() / flowControlInfo.getTotalSends();
       return (int) value * 100;
    }
 
-   public static class FlowControlInfo
-   {
+   public static class FlowControlInfo {
+
       private AtomicBoolean blockingOnFlowControl = new AtomicBoolean();
       private AtomicLong totalSends = new AtomicLong();
       private AtomicLong sendsBlocked = new AtomicLong();
       private AtomicLong totalTimeBlocked = new AtomicLong();
 
-      public boolean isBlockingOnFlowControl()
-      {
+      public boolean isBlockingOnFlowControl() {
          return blockingOnFlowControl.get();
       }
 
-      public void setBlockingOnFlowControl(boolean blockingOnFlowControl)
-      {
+      public void setBlockingOnFlowControl(boolean blockingOnFlowControl) {
          this.blockingOnFlowControl.set(blockingOnFlowControl);
-         if (blockingOnFlowControl)
-         {
+         if (blockingOnFlowControl) {
             incrementSendBlocked();
          }
       }
 
-      public long getTotalSends()
-      {
+      public long getTotalSends() {
          return totalSends.get();
       }
 
-      public void incrementSend()
-      {
+      public void incrementSend() {
          this.totalSends.incrementAndGet();
       }
 
-      public long getSendsBlocked()
-      {
+      public long getSendsBlocked() {
          return sendsBlocked.get();
       }
 
-      public void incrementSendBlocked()
-      {
+      public void incrementSendBlocked() {
          this.sendsBlocked.incrementAndGet();
       }
 
-      public long getTotalTimeBlocked()
-      {
+      public long getTotalTimeBlocked() {
          return totalTimeBlocked.get();
       }
 
-      public void incrementTimeBlocked(long time)
-      {
+      public void incrementTimeBlocked(long time) {
          this.totalTimeBlocked.addAndGet(time);
       }
 
-      public void reset()
-      {
+      public void reset() {
          blockingOnFlowControl.set(false);
          totalSends.set(0);
          sendsBlocked.set(0);

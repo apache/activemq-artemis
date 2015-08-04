@@ -16,14 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.distribution;
 
-
-
-public class NettyOneWayTwoNodeClusterTest extends OnewayTwoNodeClusterTest
-{
+public class NettyOneWayTwoNodeClusterTest extends OnewayTwoNodeClusterTest {
 
    @Override
-   protected boolean isNetty()
-   {
+   protected boolean isNetty() {
       return true;
    }
 

@@ -17,12 +17,12 @@
 package org.apache.activemq.usecases;
 
 /**
- * 
+ *
  */
 public class PublishOnDurableTopicConsumedMessageTest extends PublishOnTopicConsumedMessageTest {
 
-    protected void setUp() throws Exception {
-        this.durable = true;
-        super.setUp();
-    }
+   protected void setUp() throws Exception {
+      this.durable = true;
+      super.setUp();
+   }
 }

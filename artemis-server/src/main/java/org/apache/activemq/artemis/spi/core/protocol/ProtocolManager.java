@@ -25,8 +25,8 @@ import org.apache.activemq.artemis.core.remoting.impl.netty.NettyServerConnectio
 import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 
-public interface ProtocolManager<P extends BaseInterceptor>
-{
+public interface ProtocolManager<P extends BaseInterceptor> {
+
    ProtocolManagerFactory<P> getFactory();
 
    /**

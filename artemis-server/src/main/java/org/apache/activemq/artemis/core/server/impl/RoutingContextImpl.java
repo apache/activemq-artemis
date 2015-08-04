@@ -27,8 +27,7 @@ import org.apache.activemq.artemis.core.server.RouteContextList;
 import org.apache.activemq.artemis.core.server.RoutingContext;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 
-public final class RoutingContextImpl implements RoutingContext
-{
+public final class RoutingContextImpl implements RoutingContext {
 
    // The pair here is Durable and NonDurable
    private final Map<SimpleString, RouteContextList> map = new HashMap<SimpleString, RouteContextList>();
@@ -37,13 +36,11 @@ public final class RoutingContextImpl implements RoutingContext
 
    private int queueCount;
 
-   public RoutingContextImpl(final Transaction transaction)
-   {
+   public RoutingContextImpl(final Transaction transaction) {
       this.transaction = transaction;
    }
 
-   public void clear()
-   {
+   public void clear() {
       transaction = null;
 
       map.clear();
@@ -51,17 +48,14 @@ public final class RoutingContextImpl implements RoutingContext
       queueCount = 0;
    }
 
-   public void addQueue(final SimpleString address, final Queue queue)
-   {
+   public void addQueue(final SimpleString address, final Queue queue) {
 
       RouteContextList listing = getContextListing(address);
 
-      if (queue.isDurable())
-      {
+      if (queue.isDurable()) {
          listing.getDurableQueues().add(queue);
       }
-      else
-      {
+      else {
          listing.getNonDurableQueues().add(queue);
       }
 
@@ -69,101 +63,84 @@ public final class RoutingContextImpl implements RoutingContext
    }
 
    @Override
-   public void addQueueWithAck(SimpleString address, Queue queue)
-   {
+   public void addQueueWithAck(SimpleString address, Queue queue) {
       addQueue(address, queue);
       RouteContextList listing = getContextListing(address);
       listing.addAckedQueue(queue);
    }
 
    @Override
-   public boolean isAlreadyAcked(SimpleString address, Queue queue)
-   {
+   public boolean isAlreadyAcked(SimpleString address, Queue queue) {
       RouteContextList listing = map.get(address);
       return listing == null ? false : listing.isAlreadyAcked(queue);
    }
 
-   public RouteContextList getContextListing(SimpleString address)
-   {
+   public RouteContextList getContextListing(SimpleString address) {
       RouteContextList listing = map.get(address);
-      if (listing == null)
-      {
+      if (listing == null) {
          listing = new ContextListing();
          map.put(address, listing);
       }
       return listing;
    }
 
-   public Transaction getTransaction()
-   {
+   public Transaction getTransaction() {
       return transaction;
    }
 
-   public void setTransaction(final Transaction tx)
-   {
+   public void setTransaction(final Transaction tx) {
       transaction = tx;
    }
 
-   public List<Queue> getNonDurableQueues(SimpleString address)
-   {
+   public List<Queue> getNonDurableQueues(SimpleString address) {
       return getContextListing(address).getNonDurableQueues();
    }
 
-   public List<Queue> getDurableQueues(SimpleString address)
-   {
+   public List<Queue> getDurableQueues(SimpleString address) {
       return getContextListing(address).getDurableQueues();
    }
 
-   public int getQueueCount()
-   {
+   public int getQueueCount() {
       return queueCount;
    }
 
-   public Map<SimpleString, RouteContextList> getContexListing()
-   {
+   public Map<SimpleString, RouteContextList> getContexListing() {
       return this.map;
    }
 
+   private static class ContextListing implements RouteContextList {
 
-   private static class ContextListing implements RouteContextList
-   {
       private final List<Queue> durableQueue = new ArrayList<Queue>(1);
 
       private final List<Queue> nonDurableQueue = new ArrayList<Queue>(1);
 
       private final List<Queue> ackedQueues = new ArrayList<>();
 
-      public int getNumberOfDurableQueues()
-      {
+      public int getNumberOfDurableQueues() {
          return durableQueue.size();
       }
 
-      public int getNumberOfNonDurableQueues()
-      {
+      public int getNumberOfNonDurableQueues() {
          return nonDurableQueue.size();
       }
 
       @Override
-      public List<Queue> getDurableQueues()
-      {
+      public List<Queue> getDurableQueues() {
          return durableQueue;
       }
 
       @Override
-      public List<Queue> getNonDurableQueues()
-      {
+      public List<Queue> getNonDurableQueues() {
          return nonDurableQueue;
       }
 
       @Override
-      public void addAckedQueue(Queue queue)
-      {
+      public void addAckedQueue(Queue queue) {
          ackedQueues.add(queue);
       }
 
       @Override
-      public boolean isAlreadyAcked(Queue queue)
-      {
+      public boolean isAlreadyAcked(Queue queue) {
          return ackedQueues.contains(queue);
       }
    }

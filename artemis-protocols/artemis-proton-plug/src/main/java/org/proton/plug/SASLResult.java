@@ -16,8 +16,8 @@
  */
 package org.proton.plug;
 
-public interface SASLResult
-{
+public interface SASLResult {
+
    String getUser();
 
    boolean isSuccess();

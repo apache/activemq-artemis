@@ -31,10 +31,11 @@ import org.apache.activemq.artemis.utils.IDGenerator;
 /**
  * An ID generator that allocates a batch of IDs of size {@link #checkpointSize} and records the ID
  * in the journal only when starting a new batch.
+ *
  * @see IDGenerator
  */
-public final class BatchingIDGenerator implements IDGenerator
-{
+public final class BatchingIDGenerator implements IDGenerator {
+
    private final AtomicLong counter;
 
    private final long checkpointSize;
@@ -45,8 +46,7 @@ public final class BatchingIDGenerator implements IDGenerator
 
    private List<Long> cleanupRecords = null;
 
-   public BatchingIDGenerator(final long start, final long checkpointSize, final StorageManager storageManager)
-   {
+   public BatchingIDGenerator(final long start, final long checkpointSize, final StorageManager storageManager) {
       counter = new AtomicLong(start);
 
       // as soon as you generate the first ID, the nextID should be updated
@@ -57,8 +57,7 @@ public final class BatchingIDGenerator implements IDGenerator
       this.storageManager = storageManager;
    }
 
-   public void persistCurrentID()
-   {
+   public void persistCurrentID() {
       final long recordID = counter.incrementAndGet();
       storeID(recordID, recordID);
    }
@@ -66,16 +65,12 @@ public final class BatchingIDGenerator implements IDGenerator
    /**
     * A method to cleanup old records after started
     */
-   public void cleanup()
-   {
-      if (cleanupRecords != null)
-      {
+   public void cleanup() {
+      if (cleanupRecords != null) {
          Iterator<Long> iterRecord = cleanupRecords.iterator();
-         while (iterRecord.hasNext())
-         {
+         while (iterRecord.hasNext()) {
             Long record = iterRecord.next();
-            if (iterRecord.hasNext())
-            {
+            if (iterRecord.hasNext()) {
                // we don't want to remove the last record
                deleteID(record.longValue());
             }
@@ -85,8 +80,7 @@ public final class BatchingIDGenerator implements IDGenerator
       }
    }
 
-   public void loadState(final long journalID, final ActiveMQBuffer buffer)
-   {
+   public void loadState(final long journalID, final ActiveMQBuffer buffer) {
       addCleanupRecord(journalID);
       IDCounterEncoding encoding = new IDCounterEncoding();
 
@@ -98,116 +92,93 @@ public final class BatchingIDGenerator implements IDGenerator
       counter.set(nextID);
    }
 
-   public long generateID()
-   {
+   public long generateID() {
       long id = counter.getAndIncrement();
 
-      if (id >= nextID)
-      {
+      if (id >= nextID) {
          saveCheckPoint(id);
       }
       return id;
    }
 
-   public long getCurrentID()
-   {
+   public long getCurrentID() {
       return counter.get();
    }
 
-   private synchronized void saveCheckPoint(final long id)
-   {
-      if (id >= nextID)
-      {
+   private synchronized void saveCheckPoint(final long id) {
+      if (id >= nextID) {
          nextID += checkpointSize;
 
-         if (!storageManager.isStarted())
-         {
+         if (!storageManager.isStarted()) {
             // This could happen after the server is stopped
             // while notifications are being sent and ID gerated.
             // If the ID is intended to the journal you would know soon enough
             // so we just ignore this for now
-            ActiveMQServerLogger.LOGGER.debug("The journalStorageManager is not loaded. " +
-                                                 "This is probably ok as long as it's a notification being sent after shutdown");
+            ActiveMQServerLogger.LOGGER.debug("The journalStorageManager is not loaded. " + "This is probably ok as long as it's a notification being sent after shutdown");
          }
-         else
-         {
+         else {
             storeID(counter.getAndIncrement(), nextID);
          }
       }
    }
 
-   private void addCleanupRecord(long id)
-   {
-      if (cleanupRecords == null)
-      {
+   private void addCleanupRecord(long id) {
+      if (cleanupRecords == null) {
          cleanupRecords = new LinkedList<>();
       }
 
       cleanupRecords.add(id);
    }
 
-   private void storeID(final long journalID, final long id)
-   {
-      try
-      {
+   private void storeID(final long journalID, final long id) {
+      try {
          storageManager.storeID(journalID, id);
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          ActiveMQServerLogger.LOGGER.batchingIdError(e);
       }
    }
 
-   private void deleteID(final long journalID)
-   {
-      try
-      {
+   private void deleteID(final long journalID) {
+      try {
          storageManager.deleteID(journalID);
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          ActiveMQServerLogger.LOGGER.batchingIdError(e);
       }
    }
 
-   public static EncodingSupport createIDEncodingSupport(final long id)
-   {
+   public static EncodingSupport createIDEncodingSupport(final long id) {
       return new IDCounterEncoding(id);
    }
 
    // Inner classes -------------------------------------------------
 
-   protected static final class IDCounterEncoding implements EncodingSupport
-   {
+   protected static final class IDCounterEncoding implements EncodingSupport {
+
       private long id;
 
       @Override
-      public String toString()
-      {
+      public String toString() {
          return "IDCounterEncoding [id=" + id + "]";
       }
 
-      private IDCounterEncoding(final long id)
-      {
+      private IDCounterEncoding(final long id) {
          this.id = id;
       }
 
-      IDCounterEncoding()
-      {
+      IDCounterEncoding() {
       }
 
-      public void decode(final ActiveMQBuffer buffer)
-      {
+      public void decode(final ActiveMQBuffer buffer) {
          id = buffer.readLong();
       }
 
-      public void encode(final ActiveMQBuffer buffer)
-      {
+      public void encode(final ActiveMQBuffer buffer) {
          buffer.writeLong(id);
       }
 
-      public int getEncodeSize()
-      {
+      public int getEncodeSize() {
          return DataConstants.SIZE_LONG;
       }
    }

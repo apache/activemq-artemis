@@ -29,70 +29,71 @@ import org.apache.activemq.jaas.GroupPrincipal;
 import org.apache.activemq.jaas.UserPrincipal;
 
 public class StubLoginModule implements LoginModule {
-    public static final String ALLOW_LOGIN_PROPERTY = "org.apache.activemq.jaas.stubproperties.allow_login";
-    public static final String USERS_PROPERTY = "org.apache.activemq.jaas.stubproperties.users";
-    public static final String GROUPS_PROPERTY = "org.apache.activemq.jaas.stubproperties.groups";
 
-    private Subject subject;
+   public static final String ALLOW_LOGIN_PROPERTY = "org.apache.activemq.jaas.stubproperties.allow_login";
+   public static final String USERS_PROPERTY = "org.apache.activemq.jaas.stubproperties.users";
+   public static final String GROUPS_PROPERTY = "org.apache.activemq.jaas.stubproperties.groups";
 
-    private String userNames[];
-    private String groupNames[];
-    private boolean allowLogin;
+   private Subject subject;
 
-    @Override
-    @SuppressWarnings("rawtypes")
-    public void initialize(Subject subject, CallbackHandler callbackHandler, Map sharedState, Map options) {
-        String allowLoginString = (String)(options.get(ALLOW_LOGIN_PROPERTY));
-        String usersString = (String)(options.get(USERS_PROPERTY));
-        String groupsString = (String)(options.get(GROUPS_PROPERTY));
+   private String userNames[];
+   private String groupNames[];
+   private boolean allowLogin;
 
-        this.subject = subject;
+   @Override
+   @SuppressWarnings("rawtypes")
+   public void initialize(Subject subject, CallbackHandler callbackHandler, Map sharedState, Map options) {
+      String allowLoginString = (String) (options.get(ALLOW_LOGIN_PROPERTY));
+      String usersString = (String) (options.get(USERS_PROPERTY));
+      String groupsString = (String) (options.get(GROUPS_PROPERTY));
 
-        allowLogin = Boolean.parseBoolean(allowLoginString);
-        userNames = usersString.split(",");
-        groupNames = groupsString.split(",");
-    }
+      this.subject = subject;
 
-    @Override
-    public boolean login() throws LoginException {
-        if (!allowLogin) {
-            throw new FailedLoginException("Login was not allowed (as specified in configuration).");
-        }
+      allowLogin = Boolean.parseBoolean(allowLoginString);
+      userNames = usersString.split(",");
+      groupNames = groupsString.split(",");
+   }
 
-        return true;
-    }
+   @Override
+   public boolean login() throws LoginException {
+      if (!allowLogin) {
+         throw new FailedLoginException("Login was not allowed (as specified in configuration).");
+      }
 
-    @Override
-    public boolean commit() throws LoginException {
-        if (!allowLogin) {
-            throw new FailedLoginException("Login was not allowed (as specified in configuration).");
-        }
+      return true;
+   }
 
-        for (int i = 0; i < userNames.length; ++i) {
-            if (userNames[i].length() > 0) {
-                subject.getPrincipals().add(new UserPrincipal(userNames[i]));
-            }
-        }
+   @Override
+   public boolean commit() throws LoginException {
+      if (!allowLogin) {
+         throw new FailedLoginException("Login was not allowed (as specified in configuration).");
+      }
 
-        for (int i = 0; i < groupNames.length; ++i) {
-            if (groupNames[i].length() > 0) {
-                subject.getPrincipals().add(new GroupPrincipal(groupNames[i]));
-            }
-        }
+      for (int i = 0; i < userNames.length; ++i) {
+         if (userNames[i].length() > 0) {
+            subject.getPrincipals().add(new UserPrincipal(userNames[i]));
+         }
+      }
 
-        return true;
-    }
+      for (int i = 0; i < groupNames.length; ++i) {
+         if (groupNames[i].length() > 0) {
+            subject.getPrincipals().add(new GroupPrincipal(groupNames[i]));
+         }
+      }
 
-    @Override
-    public boolean abort() throws LoginException {
-        return true;
-    }
+      return true;
+   }
 
-    @Override
-    public boolean logout() throws LoginException {
-        subject.getPrincipals().clear();
+   @Override
+   public boolean abort() throws LoginException {
+      return true;
+   }
 
-        return true;
-    }
+   @Override
+   public boolean logout() throws LoginException {
+      subject.getPrincipals().clear();
+
+      return true;
+   }
 
 }

@@ -29,16 +29,17 @@ import java.util.List;
 /**
  * HornetQ Protocol Manager
  */
-class HornetQProtocolManager extends CoreProtocolManager
-{
-   HornetQProtocolManager(CoreProtocolManagerFactory factory, ActiveMQServer server, List<Interceptor> incomingInterceptors, List<Interceptor> outgoingInterceptors)
-   {
+class HornetQProtocolManager extends CoreProtocolManager {
+
+   HornetQProtocolManager(CoreProtocolManagerFactory factory,
+                          ActiveMQServer server,
+                          List<Interceptor> incomingInterceptors,
+                          List<Interceptor> outgoingInterceptors) {
       super(factory, server, incomingInterceptors, outgoingInterceptors);
    }
 
    @Override
-   public void handshake(NettyServerConnection connection, ActiveMQBuffer buffer)
-   {
+   public void handshake(NettyServerConnection connection, ActiveMQBuffer buffer) {
       //if we are not an old client then handshake
       if (buffer.getByte(0) == 'H' &&
          buffer.getByte(1) == 'O' &&
@@ -46,16 +47,14 @@ class HornetQProtocolManager extends CoreProtocolManager
          buffer.getByte(3) == 'N' &&
          buffer.getByte(4) == 'E' &&
          buffer.getByte(5) == 'T' &&
-         buffer.getByte(6) == 'Q')
-      {
+         buffer.getByte(6) == 'Q') {
          //todo add some handshaking
          buffer.readBytes(7);
       }
    }
 
    @Override
-   public boolean isProtocol(byte[] array)
-   {
+   public boolean isProtocol(byte[] array) {
       String frameStart = new String(array, StandardCharsets.US_ASCII);
       return frameStart.startsWith("HORNETQ");
    }

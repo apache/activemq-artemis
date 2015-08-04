@@ -20,43 +20,42 @@ import javax.jms.JMSException;
 import javax.jms.Queue;
 import javax.jms.QueueReceiver;
 
-
 /**
  * A wrapper for a queue receiver
  */
-public class ActiveMQRAQueueReceiver extends ActiveMQRAMessageConsumer implements QueueReceiver
-{
-   /** Whether trace is enabled */
+public class ActiveMQRAQueueReceiver extends ActiveMQRAMessageConsumer implements QueueReceiver {
+
+   /**
+    * Whether trace is enabled
+    */
    private static boolean trace = ActiveMQRALogger.LOGGER.isTraceEnabled();
 
    /**
     * Create a new wrapper
+    *
     * @param consumer the queue receiver
-    * @param session the session
+    * @param session  the session
     */
-   public ActiveMQRAQueueReceiver(final QueueReceiver consumer, final ActiveMQRASession session)
-   {
+   public ActiveMQRAQueueReceiver(final QueueReceiver consumer, final ActiveMQRASession session) {
       super(consumer, session);
 
-      if (ActiveMQRAQueueReceiver.trace)
-      {
+      if (ActiveMQRAQueueReceiver.trace) {
          ActiveMQRALogger.LOGGER.trace("constructor(" + consumer + ", " + session + ")");
       }
    }
 
    /**
     * Get queue
+    *
     * @return The queue
-    * @exception JMSException Thrown if an error occurs
+    * @throws JMSException Thrown if an error occurs
     */
-   public Queue getQueue() throws JMSException
-   {
-      if (ActiveMQRAQueueReceiver.trace)
-      {
+   public Queue getQueue() throws JMSException {
+      if (ActiveMQRAQueueReceiver.trace) {
          ActiveMQRALogger.LOGGER.trace("getQueue()");
       }
 
       checkState();
-      return ((QueueReceiver)consumer).getQueue();
+      return ((QueueReceiver) consumer).getQueue();
    }
 }

@@ -27,10 +27,9 @@ import org.apache.activemq.artemis.core.server.impl.RefsOperation;
 /**
  * An ActiveMQ Artemis internal transaction
  */
-public interface Transaction
-{
-   static enum State
-   {
+public interface Transaction {
+
+   static enum State {
       ACTIVE, PREPARED, COMMITTED, ROLLEDBACK, SUSPENDED, ROLLBACK_ONLY
    }
 

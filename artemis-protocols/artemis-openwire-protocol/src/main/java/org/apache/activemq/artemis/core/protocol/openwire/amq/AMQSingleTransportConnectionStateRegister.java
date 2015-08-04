@@ -32,32 +32,24 @@ import org.apache.activemq.command.SessionId;
  * We just copy this structure from amq, but what's the purpose
  * and can it be removed ?
  */
-public class AMQSingleTransportConnectionStateRegister implements
-      AMQTransportConnectionStateRegister
-{
+public class AMQSingleTransportConnectionStateRegister implements AMQTransportConnectionStateRegister {
 
    private AMQTransportConnectionState connectionState;
    private ConnectionId connectionId;
 
-   public AMQTransportConnectionState registerConnectionState(
-         ConnectionId connectionId, AMQTransportConnectionState state)
-   {
+   public AMQTransportConnectionState registerConnectionState(ConnectionId connectionId,
+                                                              AMQTransportConnectionState state) {
       AMQTransportConnectionState rc = connectionState;
       connectionState = state;
       this.connectionId = connectionId;
       return rc;
    }
 
-   public synchronized AMQTransportConnectionState unregisterConnectionState(
-         ConnectionId connectionId)
-   {
+   public synchronized AMQTransportConnectionState unregisterConnectionState(ConnectionId connectionId) {
       AMQTransportConnectionState rc = null;
 
-      if (connectionId != null && connectionState != null
-            && this.connectionId != null)
-      {
-         if (this.connectionId.equals(connectionId))
-         {
+      if (connectionId != null && connectionState != null && this.connectionId != null) {
+         if (this.connectionId.equals(connectionId)) {
             rc = connectionState;
             connectionState = null;
             connectionId = null;
@@ -66,116 +58,83 @@ public class AMQSingleTransportConnectionStateRegister implements
       return rc;
    }
 
-   public synchronized List<AMQTransportConnectionState> listConnectionStates()
-   {
+   public synchronized List<AMQTransportConnectionState> listConnectionStates() {
       List<AMQTransportConnectionState> rc = new ArrayList<AMQTransportConnectionState>();
-      if (connectionState != null)
-      {
+      if (connectionState != null) {
          rc.add(connectionState);
       }
       return rc;
    }
 
-   public synchronized AMQTransportConnectionState lookupConnectionState(
-         String connectionId)
-   {
+   public synchronized AMQTransportConnectionState lookupConnectionState(String connectionId) {
       AMQTransportConnectionState cs = connectionState;
-      if (cs == null)
-      {
-         throw new IllegalStateException(
-               "Cannot lookup a connectionId for a connection that had not been registered: "
-                     + connectionId);
+      if (cs == null) {
+         throw new IllegalStateException("Cannot lookup a connectionId for a connection that had not been registered: " + connectionId);
       }
       return cs;
    }
 
-   public synchronized AMQTransportConnectionState lookupConnectionState(
-         ConsumerId id)
-   {
+   public synchronized AMQTransportConnectionState lookupConnectionState(ConsumerId id) {
       AMQTransportConnectionState cs = connectionState;
-      if (cs == null)
-      {
-         throw new IllegalStateException(
-               "Cannot lookup a consumer from a connection that had not been registered: "
-                     + id.getParentId().getParentId());
+      if (cs == null) {
+         throw new IllegalStateException("Cannot lookup a consumer from a connection that had not been registered: " + id.getParentId().getParentId());
       }
       return cs;
    }
 
-   public synchronized AMQTransportConnectionState lookupConnectionState(
-         ProducerId id)
-   {
+   public synchronized AMQTransportConnectionState lookupConnectionState(ProducerId id) {
       AMQTransportConnectionState cs = connectionState;
-      if (cs == null)
-      {
-         throw new IllegalStateException(
-               "Cannot lookup a producer from a connection that had not been registered: "
-                     + id.getParentId().getParentId());
+      if (cs == null) {
+         throw new IllegalStateException("Cannot lookup a producer from a connection that had not been registered: " + id.getParentId().getParentId());
       }
       return cs;
    }
 
-   public synchronized AMQTransportConnectionState lookupConnectionState(
-         SessionId id)
-   {
+   public synchronized AMQTransportConnectionState lookupConnectionState(SessionId id) {
       AMQTransportConnectionState cs = connectionState;
-      if (cs == null)
-      {
-         throw new IllegalStateException(
-               "Cannot lookup a session from a connection that had not been registered: "
-                     + id.getParentId());
+      if (cs == null) {
+         throw new IllegalStateException("Cannot lookup a session from a connection that had not been registered: " + id.getParentId());
       }
       return cs;
    }
 
-   public synchronized AMQTransportConnectionState lookupConnectionState(
-         ConnectionId connectionId)
-   {
+   public synchronized AMQTransportConnectionState lookupConnectionState(ConnectionId connectionId) {
       AMQTransportConnectionState cs = connectionState;
       return cs;
    }
 
-   public synchronized boolean doesHandleMultipleConnectionStates()
-   {
+   public synchronized boolean doesHandleMultipleConnectionStates() {
       return false;
    }
 
-   public synchronized boolean isEmpty()
-   {
+   public synchronized boolean isEmpty() {
       return connectionState == null;
    }
 
-   public void intialize(AMQTransportConnectionStateRegister other)
-   {
+   public void intialize(AMQTransportConnectionStateRegister other) {
 
-      if (other.isEmpty())
-      {
+      if (other.isEmpty()) {
          clear();
       }
-      else
-      {
+      else {
          Map map = other.mapStates();
          Iterator i = map.entrySet().iterator();
-         Map.Entry<ConnectionId, AMQTransportConnectionState> entry = (Entry<ConnectionId, AMQTransportConnectionState>) i
-               .next();
+         Map.Entry<ConnectionId, AMQTransportConnectionState> entry = (Entry<ConnectionId, AMQTransportConnectionState>) i.next();
          connectionId = entry.getKey();
          connectionState = entry.getValue();
       }
 
    }
 
-   public Map<ConnectionId, AMQTransportConnectionState> mapStates()
-   {
+   public Map<ConnectionId, AMQTransportConnectionState> mapStates() {
       Map<ConnectionId, AMQTransportConnectionState> map = new HashMap<ConnectionId, AMQTransportConnectionState>();
-      if (!isEmpty())
-      {
+      if (!isEmpty()) {
          map.put(connectionId, connectionState);
       }
       return map;
    }
 
-   public void clear()
-   {
+   public void clear() {
       connectionState = null;
       connectionId = null;
 

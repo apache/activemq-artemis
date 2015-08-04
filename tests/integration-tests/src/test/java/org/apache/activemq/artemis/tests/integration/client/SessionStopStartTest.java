@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.integration.client;
+
 import org.junit.Before;
 
 import org.junit.Test;
@@ -36,8 +37,8 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 
-public class SessionStopStartTest extends ActiveMQTestBase
-{
+public class SessionStopStartTest extends ActiveMQTestBase {
+
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    private ActiveMQServer server;
@@ -48,8 +49,7 @@ public class SessionStopStartTest extends ActiveMQTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       server = createServer(false);
@@ -58,8 +58,7 @@ public class SessionStopStartTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testStopStartConsumerSyncReceiveImmediate() throws Exception
-   {
+   public void testStopStartConsumerSyncReceiveImmediate() throws Exception {
       ClientSessionFactory sf = createSessionFactory(locator);
 
       final ClientSession session = sf.createSession(false, true, true);
@@ -70,8 +69,7 @@ public class SessionStopStartTest extends ActiveMQTestBase
 
       final int numMessages = 100;
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = createTextMessage(session, "m" + i);
          message.putIntProperty(new SimpleString("i"), i);
          producer.send(message);
@@ -81,8 +79,7 @@ public class SessionStopStartTest extends ActiveMQTestBase
 
       session.start();
 
-      for (int i = 0; i < numMessages / 2; i++)
-      {
+      for (int i = 0; i < numMessages / 2; i++) {
          ClientMessage cm = consumer.receive(5000);
          Assert.assertNotNull(cm);
          cm.acknowledge();
@@ -92,8 +89,7 @@ public class SessionStopStartTest extends ActiveMQTestBase
       Assert.assertNull(cm);
 
       session.start();
-      for (int i = 0; i < numMessages / 2; i++)
-      {
+      for (int i = 0; i < numMessages / 2; i++) {
          cm = consumer.receive(5000);
          Assert.assertNotNull(cm);
          cm.acknowledge();
@@ -103,8 +99,7 @@ public class SessionStopStartTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testStopStartConsumerSyncReceive() throws Exception
-   {
+   public void testStopStartConsumerSyncReceive() throws Exception {
       ClientSessionFactory sf = createSessionFactory(locator);
 
       final ClientSession session = sf.createSession(false, true, true);
@@ -115,8 +110,7 @@ public class SessionStopStartTest extends ActiveMQTestBase
 
       final int numMessages = 100;
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = createTextMessage(session, "m" + i);
          message.putIntProperty(new SimpleString("i"), i);
          producer.send(message);
@@ -126,8 +120,7 @@ public class SessionStopStartTest extends ActiveMQTestBase
 
       session.start();
 
-      for (int i = 0; i < numMessages / 2; i++)
-      {
+      for (int i = 0; i < numMessages / 2; i++) {
          ClientMessage cm = consumer.receive(5000);
          Assert.assertNotNull(cm);
          cm.acknowledge();
@@ -140,8 +133,7 @@ public class SessionStopStartTest extends ActiveMQTestBase
       Assert.assertNull(cm);
 
       session.start();
-      for (int i = 0; i < numMessages / 2; i++)
-      {
+      for (int i = 0; i < numMessages / 2; i++) {
          cm = consumer.receive(5000);
          Assert.assertNotNull(cm);
          cm.acknowledge();
@@ -151,8 +143,7 @@ public class SessionStopStartTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testStopStartConsumerAsyncSyncStoppedByHandler() throws Exception
-   {
+   public void testStopStartConsumerAsyncSyncStoppedByHandler() throws Exception {
       ClientSessionFactory sf = createSessionFactory(locator);
 
       final ClientSession session = sf.createSession(false, true, true);
@@ -163,8 +154,7 @@ public class SessionStopStartTest extends ActiveMQTestBase
 
       final int numMessages = 100;
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = createTextMessage(session, "m" + i);
          message.putIntProperty(new SimpleString("i"), i);
          producer.send(message);
@@ -178,28 +168,24 @@ public class SessionStopStartTest extends ActiveMQTestBase
 
       // Message should be in consumer
 
-      class MyHandler implements MessageHandler
-      {
+      class MyHandler implements MessageHandler {
+
          boolean failed;
 
          boolean started = true;
 
          int count = 0;
 
-         public void onMessage(final ClientMessage message)
-         {
+         public void onMessage(final ClientMessage message) {
 
-            try
-            {
-               if (!started)
-               {
+            try {
+               if (!started) {
                   failed = true;
                }
 
                count++;
 
-               if (count == 10)
-               {
+               if (count == 10) {
                   message.acknowledge();
                   session.stop();
                   started = false;
@@ -207,8 +193,7 @@ public class SessionStopStartTest extends ActiveMQTestBase
 
                latch.countDown();
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
             }
          }
       }
@@ -225,11 +210,9 @@ public class SessionStopStartTest extends ActiveMQTestBase
       Assert.assertNull(consumer.getLastException());
       consumer.setMessageHandler(null);
       session.start();
-      for (int i = 0; i < 90; i++)
-      {
+      for (int i = 0; i < 90; i++) {
          ClientMessage msg = consumer.receive(1000);
-         if (msg == null)
-         {
+         if (msg == null) {
             System.out.println("ClientConsumerTest.testStopConsumer");
          }
          Assert.assertNotNull("message " + i, msg);
@@ -242,8 +225,7 @@ public class SessionStopStartTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testStopStartConsumerAsyncSync() throws Exception
-   {
+   public void testStopStartConsumerAsyncSync() throws Exception {
       ClientSessionFactory sf = createSessionFactory(locator);
 
       final ClientSession session = sf.createSession(false, true, true);
@@ -254,8 +236,7 @@ public class SessionStopStartTest extends ActiveMQTestBase
 
       final int numMessages = 100;
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = createTextMessage(session, "m" + i);
          message.putIntProperty(new SimpleString("i"), i);
          producer.send(message);
@@ -269,26 +250,22 @@ public class SessionStopStartTest extends ActiveMQTestBase
 
       // Message should be in consumer
 
-      class MyHandler implements MessageHandler
-      {
+      class MyHandler implements MessageHandler {
+
          boolean failed;
 
          boolean started = true;
 
-         public void onMessage(final ClientMessage message)
-         {
+         public void onMessage(final ClientMessage message) {
 
-            try
-            {
-               if (!started)
-               {
+            try {
+               if (!started) {
                   failed = true;
                }
 
                latch.countDown();
 
-               if (latch.getCount() == 0)
-               {
+               if (latch.getCount() == 0) {
 
                   message.acknowledge();
                   started = false;
@@ -296,8 +273,7 @@ public class SessionStopStartTest extends ActiveMQTestBase
                }
 
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
             }
          }
       }
@@ -308,12 +284,10 @@ public class SessionStopStartTest extends ActiveMQTestBase
 
       waitForLatch(latch);
 
-      try
-      {
+      try {
          session.stop();
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          SessionStopStartTest.log.warn(e.getMessage(), e);
          throw e;
       }
@@ -324,11 +298,9 @@ public class SessionStopStartTest extends ActiveMQTestBase
       Assert.assertNull(consumer.getLastException());
       consumer.setMessageHandler(null);
       session.start();
-      for (int i = 0; i < 90; i++)
-      {
+      for (int i = 0; i < 90; i++) {
          ClientMessage msg = consumer.receive(1000);
-         if (msg == null)
-         {
+         if (msg == null) {
             System.out.println("ClientConsumerTest.testStopConsumer");
          }
          Assert.assertNotNull("message " + i, msg);
@@ -341,8 +313,7 @@ public class SessionStopStartTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testStopStartConsumerAsyncASyncStoppeeByHandler() throws Exception
-   {
+   public void testStopStartConsumerAsyncASyncStoppeeByHandler() throws Exception {
       ClientSessionFactory sf = createSessionFactory(locator);
 
       final ClientSession session = sf.createSession(false, true, true);
@@ -353,8 +324,7 @@ public class SessionStopStartTest extends ActiveMQTestBase
 
       final int numMessages = 100;
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = createTextMessage(session, "m" + i);
          message.putIntProperty(new SimpleString("i"), i);
          producer.send(message);
@@ -368,8 +338,8 @@ public class SessionStopStartTest extends ActiveMQTestBase
 
       // Message should be in consumer
 
-      class MyHandler implements MessageHandler
-      {
+      class MyHandler implements MessageHandler {
+
          int messageReceived = 0;
 
          boolean failed;
@@ -380,31 +350,25 @@ public class SessionStopStartTest extends ActiveMQTestBase
 
          private boolean stop = true;
 
-         public MyHandler(final CountDownLatch latch)
-         {
+         public MyHandler(final CountDownLatch latch) {
             this.latch = latch;
          }
 
-         public MyHandler(final CountDownLatch latch, final boolean stop)
-         {
+         public MyHandler(final CountDownLatch latch, final boolean stop) {
             this(latch);
             this.stop = stop;
          }
 
-         public void onMessage(final ClientMessage message)
-         {
+         public void onMessage(final ClientMessage message) {
 
-            try
-            {
-               if (!started)
-               {
+            try {
+               if (!started) {
                   failed = true;
                }
                messageReceived++;
                latch.countDown();
 
-               if (stop && latch.getCount() == 0)
-               {
+               if (stop && latch.getCount() == 0) {
 
                   message.acknowledge();
                   session.stop();
@@ -412,8 +376,7 @@ public class SessionStopStartTest extends ActiveMQTestBase
                }
 
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
             }
          }
       }
@@ -444,8 +407,7 @@ public class SessionStopStartTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testStopStartConsumerAsyncASync() throws Exception
-   {
+   public void testStopStartConsumerAsyncASync() throws Exception {
       ClientSessionFactory sf = createSessionFactory(locator);
 
       final ClientSession session = sf.createSession(false, true, true);
@@ -456,8 +418,7 @@ public class SessionStopStartTest extends ActiveMQTestBase
 
       final int numMessages = 100;
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = createTextMessage(session, "m" + i);
          message.putIntProperty(new SimpleString("i"), i);
          producer.send(message);
@@ -471,8 +432,8 @@ public class SessionStopStartTest extends ActiveMQTestBase
 
       // Message should be in consumer
 
-      class MyHandler implements MessageHandler
-      {
+      class MyHandler implements MessageHandler {
+
          int messageReceived = 0;
 
          boolean failed;
@@ -483,31 +444,25 @@ public class SessionStopStartTest extends ActiveMQTestBase
 
          private boolean stop = true;
 
-         public MyHandler(final CountDownLatch latch)
-         {
+         public MyHandler(final CountDownLatch latch) {
             this.latch = latch;
          }
 
-         public MyHandler(final CountDownLatch latch, final boolean stop)
-         {
+         public MyHandler(final CountDownLatch latch, final boolean stop) {
             this(latch);
             this.stop = stop;
          }
 
-         public void onMessage(final ClientMessage message)
-         {
+         public void onMessage(final ClientMessage message) {
 
-            try
-            {
-               if (!started)
-               {
+            try {
+               if (!started) {
                   failed = true;
                }
                messageReceived++;
                latch.countDown();
 
-               if (stop && latch.getCount() == 0)
-               {
+               if (stop && latch.getCount() == 0) {
 
                   message.acknowledge();
                   consumer.setMessageHandler(null);
@@ -515,8 +470,7 @@ public class SessionStopStartTest extends ActiveMQTestBase
                }
 
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
             }
          }
       }
@@ -546,8 +500,7 @@ public class SessionStopStartTest extends ActiveMQTestBase
       session.close();
    }
 
-   private int getMessageEncodeSize(final SimpleString address) throws Exception
-   {
+   private int getMessageEncodeSize(final SimpleString address) throws Exception {
       ServerLocator locator = createInVMNonHALocator();
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession session = cf.createSession(false, true, true);
@@ -561,8 +514,7 @@ public class SessionStopStartTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testStopStartMultipleConsumers() throws Exception
-   {
+   public void testStopStartMultipleConsumers() throws Exception {
       locator.setConsumerWindowSize(getMessageEncodeSize(QUEUE) * 33);
       ClientSessionFactory sf = createSessionFactory(locator);
 
@@ -574,8 +526,7 @@ public class SessionStopStartTest extends ActiveMQTestBase
 
       final int numMessages = 100;
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = createTextMessage(session, "m" + i);
          message.putIntProperty(new SimpleString("i"), i);
          producer.send(message);
@@ -616,8 +567,7 @@ public class SessionStopStartTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testStopStartAlreadyStartedSession() throws Exception
-   {
+   public void testStopStartAlreadyStartedSession() throws Exception {
       ClientSessionFactory sf = createSessionFactory(locator);
 
       final ClientSession session = sf.createSession(false, true, true);
@@ -628,8 +578,7 @@ public class SessionStopStartTest extends ActiveMQTestBase
 
       final int numMessages = 100;
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = createTextMessage(session, "m" + i);
          message.putIntProperty(new SimpleString("i"), i);
          producer.send(message);
@@ -639,16 +588,14 @@ public class SessionStopStartTest extends ActiveMQTestBase
 
       session.start();
 
-      for (int i = 0; i < numMessages / 2; i++)
-      {
+      for (int i = 0; i < numMessages / 2; i++) {
          ClientMessage cm = consumer.receive(5000);
          Assert.assertNotNull(cm);
          cm.acknowledge();
       }
 
       session.start();
-      for (int i = 0; i < numMessages / 2; i++)
-      {
+      for (int i = 0; i < numMessages / 2; i++) {
          ClientMessage cm = consumer.receive(5000);
          Assert.assertNotNull(cm);
          cm.acknowledge();
@@ -658,8 +605,7 @@ public class SessionStopStartTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testStopAlreadyStoppedSession() throws Exception
-   {
+   public void testStopAlreadyStoppedSession() throws Exception {
       ClientSessionFactory sf = createSessionFactory(locator);
 
       final ClientSession session = sf.createSession(false, true, true);
@@ -670,8 +616,7 @@ public class SessionStopStartTest extends ActiveMQTestBase
 
       final int numMessages = 100;
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = createTextMessage(session, "m" + i);
          message.putIntProperty(new SimpleString("i"), i);
          producer.send(message);
@@ -681,8 +626,7 @@ public class SessionStopStartTest extends ActiveMQTestBase
 
       session.start();
 
-      for (int i = 0; i < numMessages / 2; i++)
-      {
+      for (int i = 0; i < numMessages / 2; i++) {
          ClientMessage cm = consumer.receive(5000);
          Assert.assertNotNull(cm);
          cm.acknowledge();
@@ -696,8 +640,7 @@ public class SessionStopStartTest extends ActiveMQTestBase
       Assert.assertNull(cm);
 
       session.start();
-      for (int i = 0; i < numMessages / 2; i++)
-      {
+      for (int i = 0; i < numMessages / 2; i++) {
          cm = consumer.receive(5000);
          Assert.assertNotNull(cm);
          cm.acknowledge();

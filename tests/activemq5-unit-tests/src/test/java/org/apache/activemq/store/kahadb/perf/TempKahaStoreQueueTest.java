@@ -23,23 +23,22 @@ import org.apache.activemq.perf.SimpleQueueTest;
 import org.apache.activemq.store.kahadb.TempKahaDBStore;
 
 /**
- * 
+ *
  */
 public class TempKahaStoreQueueTest extends SimpleQueueTest {
 
-    protected void configureBroker(BrokerService answer,String uri) throws Exception {
-        File dataFileDir = new File("target/test-amq-data/perfTest/temp-amqdb");
-        dataFileDir.mkdirs();
-        answer.setDeleteAllMessagesOnStartup(true);
-               
-         TempKahaDBStore adaptor = new TempKahaDBStore();
-         adaptor.setDirectory(dataFileDir);
-         
-        
-        answer.setDataDirectoryFile(dataFileDir);
-        answer.setPersistenceAdapter(adaptor);
-        answer.addConnector(uri);
-    }
+   protected void configureBroker(BrokerService answer, String uri) throws Exception {
+      File dataFileDir = new File("target/test-amq-data/perfTest/temp-amqdb");
+      dataFileDir.mkdirs();
+      answer.setDeleteAllMessagesOnStartup(true);
+
+      TempKahaDBStore adaptor = new TempKahaDBStore();
+      adaptor.setDirectory(dataFileDir);
+
+      answer.setDataDirectoryFile(dataFileDir);
+      answer.setPersistenceAdapter(adaptor);
+      answer.addConnector(uri);
+   }
 
 }
 

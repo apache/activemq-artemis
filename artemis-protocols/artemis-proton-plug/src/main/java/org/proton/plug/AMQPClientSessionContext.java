@@ -18,8 +18,8 @@ package org.proton.plug;
 
 import org.proton.plug.exceptions.ActiveMQAMQPException;
 
-public interface AMQPClientSessionContext extends AMQPSessionContext
-{
+public interface AMQPClientSessionContext extends AMQPSessionContext {
+
    AMQPClientSenderContext createSender(String address, boolean preSettled) throws ActiveMQAMQPException;
 
    AMQPClientReceiverContext createReceiver(String address) throws ActiveMQAMQPException;

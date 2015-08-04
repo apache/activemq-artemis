@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.integration.client;
+
 import org.junit.Before;
 
 import org.junit.Test;
@@ -35,8 +36,7 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 
-public class MessageExpirationTest extends ActiveMQTestBase
-{
+public class MessageExpirationTest extends ActiveMQTestBase {
 
    private static final int EXPIRATION = 1000;
 
@@ -49,8 +49,7 @@ public class MessageExpirationTest extends ActiveMQTestBase
    private ServerLocator locator;
 
    @Test
-   public void testMessageExpiredWithoutExpiryAddress() throws Exception
-   {
+   public void testMessageExpiredWithoutExpiryAddress() throws Exception {
       SimpleString address = RandomUtil.randomSimpleString();
       SimpleString queue = RandomUtil.randomSimpleString();
 
@@ -74,14 +73,13 @@ public class MessageExpirationTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testMessageExpiredWithoutExpiryAddressWithExpiryDelayOverride() throws Exception
-   {
+   public void testMessageExpiredWithoutExpiryAddressWithExpiryDelayOverride() throws Exception {
       SimpleString address = RandomUtil.randomSimpleString();
       SimpleString queue = RandomUtil.randomSimpleString();
 
       session.close();
 
-      session =  addClientSession(sf.createSession(false, false, false));
+      session = addClientSession(sf.createSession(false, false, false));
       session.createQueue(address, queue, false);
 
       ClientProducer producer = session.createProducer(address);
@@ -110,8 +108,6 @@ public class MessageExpirationTest extends ActiveMQTestBase
       // we receive the message and then rollback...   then we wait some time > expiration, the message must be gone
       session.rollback();
 
-
-
       Thread.sleep(MessageExpirationTest.EXPIRATION * 2);
       session.start();
 
@@ -133,8 +129,7 @@ public class MessageExpirationTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testMessageExpirationOnServer() throws Exception
-   {
+   public void testMessageExpirationOnServer() throws Exception {
       SimpleString address = RandomUtil.randomSimpleString();
       SimpleString queue = RandomUtil.randomSimpleString();
 
@@ -152,8 +147,8 @@ public class MessageExpirationTest extends ActiveMQTestBase
 
       Thread.sleep(500);
 
-      Assert.assertEquals(0, ((Queue)server.getPostOffice().getBinding(queue).getBindable()).getDeliveringCount());
-      Assert.assertEquals(0, getMessageCount(((Queue)server.getPostOffice().getBinding(queue).getBindable())));
+      Assert.assertEquals(0, ((Queue) server.getPostOffice().getBinding(queue).getBindable()).getDeliveringCount());
+      Assert.assertEquals(0, getMessageCount(((Queue) server.getPostOffice().getBinding(queue).getBindable())));
 
       ClientMessage message2 = consumer.receiveImmediate();
       Assert.assertNull(message2);
@@ -163,8 +158,7 @@ public class MessageExpirationTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testMessageExpirationOnClient() throws Exception
-   {
+   public void testMessageExpirationOnClient() throws Exception {
       SimpleString address = RandomUtil.randomSimpleString();
       SimpleString queue = RandomUtil.randomSimpleString();
 
@@ -183,28 +177,25 @@ public class MessageExpirationTest extends ActiveMQTestBase
       ClientMessage message2 = consumer.receiveImmediate();
       Assert.assertNull(message2);
 
-      Assert.assertEquals(0, ((Queue)server.getPostOffice().getBinding(queue).getBindable()).getDeliveringCount());
-      Assert.assertEquals(0, getMessageCount(((Queue)server.getPostOffice().getBinding(queue).getBindable())));
+      Assert.assertEquals(0, ((Queue) server.getPostOffice().getBinding(queue).getBindable()).getDeliveringCount());
+      Assert.assertEquals(0, getMessageCount(((Queue) server.getPostOffice().getBinding(queue).getBindable())));
 
       consumer.close();
       session.deleteQueue(queue);
    }
 
    @Test
-   public void testMessageExpiredWithExpiryAddress() throws Exception
-   {
+   public void testMessageExpiredWithExpiryAddress() throws Exception {
       SimpleString address = RandomUtil.randomSimpleString();
       SimpleString queue = RandomUtil.randomSimpleString();
       final SimpleString expiryAddress = RandomUtil.randomSimpleString();
       SimpleString expiryQueue = RandomUtil.randomSimpleString();
 
-      server.getAddressSettingsRepository().addMatch(address.toString(), new AddressSettings()
-      {
+      server.getAddressSettingsRepository().addMatch(address.toString(), new AddressSettings() {
          private static final long serialVersionUID = -6476053400596299130L;
 
          @Override
-         public SimpleString getExpiryAddress()
-         {
+         public SimpleString getExpiryAddress() {
             return expiryAddress;
          }
       });
@@ -243,8 +234,7 @@ public class MessageExpirationTest extends ActiveMQTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       server = createServer(false);

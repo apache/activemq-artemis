@@ -22,45 +22,38 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.utils.XidCodecSupport;
 
-public class SessionXARollbackMessage extends PacketImpl
-{
+public class SessionXARollbackMessage extends PacketImpl {
+
    private Xid xid;
 
-   public SessionXARollbackMessage(final Xid xid)
-   {
+   public SessionXARollbackMessage(final Xid xid) {
       super(SESS_XA_ROLLBACK);
 
       this.xid = xid;
    }
 
-   public SessionXARollbackMessage()
-   {
+   public SessionXARollbackMessage() {
       super(SESS_XA_ROLLBACK);
    }
 
    // Public --------------------------------------------------------
 
-   public Xid getXid()
-   {
+   public Xid getXid() {
       return xid;
    }
 
-
    @Override
-   public void encodeRest(final ActiveMQBuffer buffer)
-   {
+   public void encodeRest(final ActiveMQBuffer buffer) {
       XidCodecSupport.encodeXid(xid, buffer);
    }
 
    @Override
-   public void decodeRest(final ActiveMQBuffer buffer)
-   {
+   public void decodeRest(final ActiveMQBuffer buffer) {
       xid = XidCodecSupport.decodeXid(buffer);
    }
 
    @Override
-   public int hashCode()
-   {
+   public int hashCode() {
       final int prime = 31;
       int result = super.hashCode();
       result = prime * result + ((xid == null) ? 0 : xid.hashCode());
@@ -68,17 +61,15 @@ public class SessionXARollbackMessage extends PacketImpl
    }
 
    @Override
-   public boolean equals(Object obj)
-   {
+   public boolean equals(Object obj) {
       if (this == obj)
          return true;
       if (!super.equals(obj))
          return false;
       if (!(obj instanceof SessionXARollbackMessage))
          return false;
-      SessionXARollbackMessage other = (SessionXARollbackMessage)obj;
-      if (xid == null)
-      {
+      SessionXARollbackMessage other = (SessionXARollbackMessage) obj;
+      if (xid == null) {
          if (other.xid != null)
             return false;
       }

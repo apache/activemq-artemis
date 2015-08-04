@@ -42,94 +42,94 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class RawRollbackTests {
-	
-	private static ConnectionFactory connectionFactory;
-	private static Destination queue;
-	private static BrokerService broker;
 
-	@BeforeClass
-	public static void clean() throws Exception {
-		broker = new BrokerService();
-		broker.setDeleteAllMessagesOnStartup(true);
-		broker.setUseJmx(true);
-		broker.start();
-		ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory();
-		connectionFactory.setBrokerURL("vm://localhost?async=false&waitForStart=5000&jms.prefetchPolicy.all=0");
-		RawRollbackTests.connectionFactory = connectionFactory;
-		queue = new ActiveMQQueue("queue");
-	}
+   private static ConnectionFactory connectionFactory;
+   private static Destination queue;
+   private static BrokerService broker;
 
-	@AfterClass
-	public static void close() throws Exception {
-		broker.stop();
-	}
+   @BeforeClass
+   public static void clean() throws Exception {
+      broker = new BrokerService();
+      broker.setDeleteAllMessagesOnStartup(true);
+      broker.setUseJmx(true);
+      broker.start();
+      ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory();
+      connectionFactory.setBrokerURL("vm://localhost?async=false&waitForStart=5000&jms.prefetchPolicy.all=0");
+      RawRollbackTests.connectionFactory = connectionFactory;
+      queue = new ActiveMQQueue("queue");
+   }
 
-	@Before
-	public void clearData() throws Exception {
-		getMessages(false); // drain queue
-		convertAndSend("foo");
-		convertAndSend("bar");
-	}
+   @AfterClass
+   public static void close() throws Exception {
+      broker.stop();
+   }
 
+   @Before
+   public void clearData() throws Exception {
+      getMessages(false); // drain queue
+      convertAndSend("foo");
+      convertAndSend("bar");
+   }
 
-	@After
-	public void checkPostConditions() throws Exception {
+   @After
+   public void checkPostConditions() throws Exception {
 
-		Thread.sleep(1000L);
-		List<String> list = getMessages(false);
-		assertEquals(2, list.size());
+      Thread.sleep(1000L);
+      List<String> list = getMessages(false);
+      assertEquals(2, list.size());
 
-	}
+   }
 
-	@Test
-	public void testReceiveMessages() throws Exception {
+   @Test
+   public void testReceiveMessages() throws Exception {
 
-		List<String> list = getMessages(true);
-		assertEquals(2, list.size());
-		assertTrue(list.contains("foo"));
+      List<String> list = getMessages(true);
+      assertEquals(2, list.size());
+      assertTrue(list.contains("foo"));
 
-	}
-	
-	private void convertAndSend(String msg) throws Exception {
-		Connection connection = connectionFactory.createConnection();
-		connection.start();
-		Session session = connection.createSession(true, Session.AUTO_ACKNOWLEDGE);
-		MessageProducer producer = session.createProducer(queue);
-		producer.send(session.createTextMessage(msg));
-		producer.close();
-		session.commit();
-		session.close();
-		connection.close();
-	}
+   }
 
-	private List<String> getMessages(boolean rollback) throws Exception {
-		Connection connection = connectionFactory.createConnection();
-		connection.start();
-		Session session = connection.createSession(true, Session.AUTO_ACKNOWLEDGE);
-		String next = "";
-		List<String> msgs = new ArrayList<String>();
-		while (next != null) {
-			next = (String) receiveAndConvert(session);
-			if (next != null)
-				msgs.add(next);
-		}
-		if (rollback) {
-			session.rollback();
-		} else {
-			session.commit();
-		}
-		session.close();
-		connection.close();
-		return msgs;
-	}
+   private void convertAndSend(String msg) throws Exception {
+      Connection connection = connectionFactory.createConnection();
+      connection.start();
+      Session session = connection.createSession(true, Session.AUTO_ACKNOWLEDGE);
+      MessageProducer producer = session.createProducer(queue);
+      producer.send(session.createTextMessage(msg));
+      producer.close();
+      session.commit();
+      session.close();
+      connection.close();
+   }
 
-	private String receiveAndConvert(Session session) throws Exception {
-		MessageConsumer consumer = session.createConsumer(queue);
-		Message message = consumer.receive(100L);
-		consumer.close();
-		if (message==null) {
-			return null;
-		}
-		return ((TextMessage)message).getText();
-	}
+   private List<String> getMessages(boolean rollback) throws Exception {
+      Connection connection = connectionFactory.createConnection();
+      connection.start();
+      Session session = connection.createSession(true, Session.AUTO_ACKNOWLEDGE);
+      String next = "";
+      List<String> msgs = new ArrayList<String>();
+      while (next != null) {
+         next = (String) receiveAndConvert(session);
+         if (next != null)
+            msgs.add(next);
+      }
+      if (rollback) {
+         session.rollback();
+      }
+      else {
+         session.commit();
+      }
+      session.close();
+      connection.close();
+      return msgs;
+   }
+
+   private String receiveAndConvert(Session session) throws Exception {
+      MessageConsumer consumer = session.createConsumer(queue);
+      Message message = consumer.receive(100L);
+      consumer.close();
+      if (message == null) {
+         return null;
+      }
+      return ((TextMessage) message).getText();
+   }
 }

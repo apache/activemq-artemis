@@ -25,7 +25,7 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 
 public class StubDoNothingCallbackHandler implements CallbackHandler {
 
-    public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
-    }
+   public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
+   }
 
 }

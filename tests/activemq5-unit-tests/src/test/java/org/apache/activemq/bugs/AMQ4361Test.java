@@ -45,113 +45,116 @@ import org.slf4j.LoggerFactory;
 
 public class AMQ4361Test {
 
-    private static final Logger LOG = LoggerFactory.getLogger(AMQ4361Test.class);
+   private static final Logger LOG = LoggerFactory.getLogger(AMQ4361Test.class);
 
-    private BrokerService service;
-    private String brokerUrlString;
+   private BrokerService service;
+   private String brokerUrlString;
 
-    @Before
-    public void setUp() throws Exception {
-        service = new BrokerService();
-        service.setDeleteAllMessagesOnStartup(true);
-        service.setUseJmx(false);
+   @Before
+   public void setUp() throws Exception {
+      service = new BrokerService();
+      service.setDeleteAllMessagesOnStartup(true);
+      service.setUseJmx(false);
 
-        PolicyMap policyMap = new PolicyMap();
-        PolicyEntry policy = new PolicyEntry();
-        policy.setMemoryLimit(1);
-        policy.setPendingSubscriberPolicy(new VMPendingSubscriberMessageStoragePolicy());
-        policy.setPendingQueuePolicy(new VMPendingQueueMessageStoragePolicy());
-        policy.setProducerFlowControl(true);
-        policyMap.setDefaultEntry(policy);
-        service.setDestinationPolicy(policyMap);
+      PolicyMap policyMap = new PolicyMap();
+      PolicyEntry policy = new PolicyEntry();
+      policy.setMemoryLimit(1);
+      policy.setPendingSubscriberPolicy(new VMPendingSubscriberMessageStoragePolicy());
+      policy.setPendingQueuePolicy(new VMPendingQueueMessageStoragePolicy());
+      policy.setProducerFlowControl(true);
+      policyMap.setDefaultEntry(policy);
+      service.setDestinationPolicy(policyMap);
 
-        service.setAdvisorySupport(false);
-        brokerUrlString = service.addConnector("tcp://localhost:0").getPublishableConnectString();
-        service.start();
-        service.waitUntilStarted();
-    }
+      service.setAdvisorySupport(false);
+      brokerUrlString = service.addConnector("tcp://localhost:0").getPublishableConnectString();
+      service.start();
+      service.waitUntilStarted();
+   }
 
-    @After
-    public void tearDown() throws Exception {
-        if (service != null) {
-            service.stop();
-            service.waitUntilStopped();
-        }
-    }
+   @After
+   public void tearDown() throws Exception {
+      if (service != null) {
+         service.stop();
+         service.waitUntilStopped();
+      }
+   }
 
-    @Test
-    public void testCloseWhenHunk() throws Exception {
+   @Test
+   public void testCloseWhenHunk() throws Exception {
 
-        ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(brokerUrlString);
-        connectionFactory.setProducerWindowSize(1024);
+      ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(brokerUrlString);
+      connectionFactory.setProducerWindowSize(1024);
 
-        // TINY QUEUE is flow controlled after 1024 bytes
-        final ActiveMQDestination destination =
-            ActiveMQDestination.createDestination("queue://TINY_QUEUE", (byte) 0xff);
+      // TINY QUEUE is flow controlled after 1024 bytes
+      final ActiveMQDestination destination = ActiveMQDestination.createDestination("queue://TINY_QUEUE", (byte) 0xff);
 
-        Connection connection = connectionFactory.createConnection();
-        connection.start();
-        final Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        final MessageProducer producer = session.createProducer(destination);
-        producer.setTimeToLive(0);
-        producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
+      Connection connection = connectionFactory.createConnection();
+      connection.start();
+      final Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      final MessageProducer producer = session.createProducer(destination);
+      producer.setTimeToLive(0);
+      producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
 
-        final AtomicReference<Exception> publishException = new AtomicReference<Exception>(null);
-        final AtomicReference<Exception> closeException = new AtomicReference<Exception>(null);
-        final AtomicLong lastLoop = new AtomicLong(System.currentTimeMillis() + 100);
+      final AtomicReference<Exception> publishException = new AtomicReference<Exception>(null);
+      final AtomicReference<Exception> closeException = new AtomicReference<Exception>(null);
+      final AtomicLong lastLoop = new AtomicLong(System.currentTimeMillis() + 100);
 
-        Thread pubThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    byte[] data = new byte[1000];
-                    new Random(0xdeadbeef).nextBytes(data);
-                    for (int i = 0; i < 10000; i++) {
-                        lastLoop.set(System.currentTimeMillis());
-                        ObjectMessage objMsg = session.createObjectMessage();
-                        objMsg.setObject(data);
-                        producer.send(destination, objMsg);
-                    }
-                } catch (Exception e) {
-                    publishException.set(e);
-                }
+      Thread pubThread = new Thread(new Runnable() {
+         @Override
+         public void run() {
+            try {
+               byte[] data = new byte[1000];
+               new Random(0xdeadbeef).nextBytes(data);
+               for (int i = 0; i < 10000; i++) {
+                  lastLoop.set(System.currentTimeMillis());
+                  ObjectMessage objMsg = session.createObjectMessage();
+                  objMsg.setObject(data);
+                  producer.send(destination, objMsg);
+               }
             }
-        }, "PublishingThread");
-        pubThread.start();
-
-        // wait for publisher to deadlock
-        while (System.currentTimeMillis() - lastLoop.get() < 2000) {
-            Thread.sleep(100);
-        }
-        LOG.info("Publisher deadlock detected.");
-
-        Thread closeThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    LOG.info("Attempting close..");
-                    producer.close();
-                } catch (Exception e) {
-                    closeException.set(e);
-                }
+            catch (Exception e) {
+               publishException.set(e);
             }
-        }, "ClosingThread");
-        closeThread.start();
+         }
+      }, "PublishingThread");
+      pubThread.start();
 
-        try {
-            closeThread.join(30000);
-        } catch (InterruptedException ie) {
-            assertFalse("Closing thread didn't complete in 10 seconds", true);
-        }
+      // wait for publisher to deadlock
+      while (System.currentTimeMillis() - lastLoop.get() < 2000) {
+         Thread.sleep(100);
+      }
+      LOG.info("Publisher deadlock detected.");
 
-        try {
-            pubThread.join(30000);
-        } catch (InterruptedException ie) {
-            assertFalse("Publishing thread didn't complete in 10 seconds", true);
-        }
+      Thread closeThread = new Thread(new Runnable() {
+         @Override
+         public void run() {
+            try {
+               LOG.info("Attempting close..");
+               producer.close();
+            }
+            catch (Exception e) {
+               closeException.set(e);
+            }
+         }
+      }, "ClosingThread");
+      closeThread.start();
 
-        assertNull(closeException.get());
-        assertNotNull(publishException.get());
-    }
+      try {
+         closeThread.join(30000);
+      }
+      catch (InterruptedException ie) {
+         assertFalse("Closing thread didn't complete in 10 seconds", true);
+      }
+
+      try {
+         pubThread.join(30000);
+      }
+      catch (InterruptedException ie) {
+         assertFalse("Publishing thread didn't complete in 10 seconds", true);
+      }
+
+      assertNull(closeException.get());
+      assertNotNull(publishException.get());
+   }
 }
 

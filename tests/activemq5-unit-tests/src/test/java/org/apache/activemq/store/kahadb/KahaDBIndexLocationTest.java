@@ -45,121 +45,122 @@ import org.slf4j.LoggerFactory;
  */
 public class KahaDBIndexLocationTest {
 
-    private static final Logger LOG = LoggerFactory.getLogger(KahaDBIndexLocationTest.class);
+   private static final Logger LOG = LoggerFactory.getLogger(KahaDBIndexLocationTest.class);
 
-    @Rule public TestName name = new TestName();
+   @Rule
+   public TestName name = new TestName();
 
-    private BrokerService broker;
+   private BrokerService broker;
 
-    private final File testDataDir = new File("target/activemq-data/QueuePurgeTest");
-    private final File kahaDataDir = new File(testDataDir, "kahadb");
-    private final File kahaIndexDir = new File(testDataDir, "kahadb/index");
+   private final File testDataDir = new File("target/activemq-data/QueuePurgeTest");
+   private final File kahaDataDir = new File(testDataDir, "kahadb");
+   private final File kahaIndexDir = new File(testDataDir, "kahadb/index");
 
-    /**
-     * @throws java.lang.Exception
-     */
-    @Before
-    public void setUp() throws Exception {
-        startBroker();
-    }
+   /**
+    * @throws java.lang.Exception
+    */
+   @Before
+   public void setUp() throws Exception {
+      startBroker();
+   }
 
-    @After
-    public void tearDown() throws Exception {
-        stopBroker();
-    }
+   @After
+   public void tearDown() throws Exception {
+      stopBroker();
+   }
 
-    private void startBroker() throws Exception {
-        createBroker();
-        broker.start();
-        broker.waitUntilStarted();
-    }
+   private void startBroker() throws Exception {
+      createBroker();
+      broker.start();
+      broker.waitUntilStarted();
+   }
 
-    private void stopBroker() throws Exception {
-        if (broker != null) {
-            broker.stop();
-            broker.waitUntilStopped();
-        }
-    }
+   private void stopBroker() throws Exception {
+      if (broker != null) {
+         broker.stop();
+         broker.waitUntilStopped();
+      }
+   }
 
-    private void restartBroker() throws Exception {
-        stopBroker();
-        createBroker();
-        broker.start();
-        broker.waitUntilStarted();
-    }
+   private void restartBroker() throws Exception {
+      stopBroker();
+      createBroker();
+      broker.start();
+      broker.waitUntilStarted();
+   }
 
-    private void createBroker() throws Exception {
-        broker = new BrokerService();
+   private void createBroker() throws Exception {
+      broker = new BrokerService();
 
-        KahaDBPersistenceAdapter persistenceAdapter = new KahaDBPersistenceAdapter();
-        persistenceAdapter.setDirectory(kahaDataDir);
-        persistenceAdapter.setIndexDirectory(kahaIndexDir);
+      KahaDBPersistenceAdapter persistenceAdapter = new KahaDBPersistenceAdapter();
+      persistenceAdapter.setDirectory(kahaDataDir);
+      persistenceAdapter.setIndexDirectory(kahaIndexDir);
 
-        broker.setDataDirectoryFile(testDataDir);
-        broker.setUseJmx(false);
-        broker.setAdvisorySupport(false);
-        broker.setSchedulerSupport(false);
-        broker.setDeleteAllMessagesOnStartup(true);
-        broker.setPersistenceAdapter(persistenceAdapter);
-    }
+      broker.setDataDirectoryFile(testDataDir);
+      broker.setUseJmx(false);
+      broker.setAdvisorySupport(false);
+      broker.setSchedulerSupport(false);
+      broker.setDeleteAllMessagesOnStartup(true);
+      broker.setPersistenceAdapter(persistenceAdapter);
+   }
 
-    @Test
-    public void testIndexDirExists() throws Exception {
-        LOG.info("Index dir is configured as: {}", kahaIndexDir);
-        assertTrue(kahaDataDir.exists());
-        assertTrue(kahaIndexDir.exists());
+   @Test
+   public void testIndexDirExists() throws Exception {
+      LOG.info("Index dir is configured as: {}", kahaIndexDir);
+      assertTrue(kahaDataDir.exists());
+      assertTrue(kahaIndexDir.exists());
 
-        String[] index = kahaIndexDir.list(new FilenameFilter() {
+      String[] index = kahaIndexDir.list(new FilenameFilter() {
 
-            @Override
-            public boolean accept(File dir, String name) {
-                LOG.info("Testing filename: {}", name);
-                return name.endsWith("data") || name.endsWith("redo");
-            }
-        });
+         @Override
+         public boolean accept(File dir, String name) {
+            LOG.info("Testing filename: {}", name);
+            return name.endsWith("data") || name.endsWith("redo");
+         }
+      });
 
-        String[] journal = kahaDataDir.list(new FilenameFilter() {
+      String[] journal = kahaDataDir.list(new FilenameFilter() {
 
-            @Override
-            public boolean accept(File dir, String name) {
-                LOG.info("Testing filename: {}", name);
-                return name.endsWith("log") || name.equals("lock");
-            }
-        });
+         @Override
+         public boolean accept(File dir, String name) {
+            LOG.info("Testing filename: {}", name);
+            return name.endsWith("log") || name.equals("lock");
+         }
+      });
 
-        produceMessages();
+      produceMessages();
 
-        // Should be db.data and db.redo and nothing else.
-        assertNotNull(index);
-        assertEquals(2, index.length);
+      // Should be db.data and db.redo and nothing else.
+      assertNotNull(index);
+      assertEquals(2, index.length);
 
-        // Should contain the initial log for the journal and the lock.
-        assertNotNull(journal);
-        assertEquals(2, journal.length);
-    }
+      // Should contain the initial log for the journal and the lock.
+      assertNotNull(journal);
+      assertEquals(2, journal.length);
+   }
 
-    @Test
-    public void testRestartWithDeleteWorksWhenIndexIsSeparate() throws Exception {
-        produceMessages();
-        restartBroker();
+   @Test
+   public void testRestartWithDeleteWorksWhenIndexIsSeparate() throws Exception {
+      produceMessages();
+      restartBroker();
 
-        ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory("vm://localhost?create=false");
-        Connection connection = cf.createConnection();
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        Queue queue = session.createQueue(name.getMethodName());
-        MessageConsumer consumer = session.createConsumer(queue);
-        assertNull(consumer.receive(2000));
-    }
+      ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory("vm://localhost?create=false");
+      Connection connection = cf.createConnection();
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      Queue queue = session.createQueue(name.getMethodName());
+      MessageConsumer consumer = session.createConsumer(queue);
+      assertNull(consumer.receive(2000));
+   }
 
-    private void produceMessages() throws Exception {
-        ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory("vm://localhost?create=false");
-        Connection connection = cf.createConnection();
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        Queue queue = session.createQueue(name.getMethodName());
-        MessageProducer producer = session.createProducer(queue);
-        for (int i = 0; i < 5; ++i) {
-            producer.send(session.createTextMessage("test:" + i));
-        }
-        connection.close();
-    }
+   private void produceMessages() throws Exception {
+      ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory("vm://localhost?create=false");
+      Connection connection = cf.createConnection();
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      Queue queue = session.createQueue(name.getMethodName());
+      MessageProducer producer = session.createProducer(queue);
+      for (int i = 0; i < 5; ++i) {
+         producer.send(session.createTextMessage("test:" + i));
+      }
+      connection.close();
+   }
 }

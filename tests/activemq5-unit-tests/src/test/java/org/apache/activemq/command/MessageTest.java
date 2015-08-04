@@ -19,82 +19,83 @@ package org.apache.activemq.command;
 import java.io.IOException;
 
 import junit.framework.Test;
+
 import junit.textui.TestRunner;
 
 public class MessageTest extends DataStructureTestSupport {
 
-    public boolean cacheEnabled;
+   public boolean cacheEnabled;
 
-    public static Test suite() {
-        return suite(MessageTest.class);
-    }
+   public static Test suite() {
+      return suite(MessageTest.class);
+   }
 
-    public static void main(String[] args) {
-        TestRunner.run(suite());
-    }
+   public static void main(String[] args) {
+      TestRunner.run(suite());
+   }
 
-    public void initCombosForTestActiveMQMessageMarshaling() {
-        addCombinationValues("cacheEnabled", new Object[] {Boolean.TRUE, Boolean.FALSE});
-    }
+   public void initCombosForTestActiveMQMessageMarshaling() {
+      addCombinationValues("cacheEnabled", new Object[]{Boolean.TRUE, Boolean.FALSE});
+   }
 
-    public void testActiveMQMessageMarshaling() throws IOException {
-        ActiveMQMessage message = new ActiveMQMessage();
-        message.setCommandId((short)1);
-        message.setOriginalDestination(new ActiveMQQueue("queue"));
-        message.setGroupID("group");
-        message.setGroupSequence(4);
-        message.setCorrelationId("correlation");
-        message.setMessageId(new MessageId("c1:1:1", 1));
-        assertBeanMarshalls(message);
-    }
+   public void testActiveMQMessageMarshaling() throws IOException {
+      ActiveMQMessage message = new ActiveMQMessage();
+      message.setCommandId((short) 1);
+      message.setOriginalDestination(new ActiveMQQueue("queue"));
+      message.setGroupID("group");
+      message.setGroupSequence(4);
+      message.setCorrelationId("correlation");
+      message.setMessageId(new MessageId("c1:1:1", 1));
+      assertBeanMarshalls(message);
+   }
 
-    public void testActiveMQMessageMarshalingBigMessageId() throws IOException {
-        ActiveMQMessage message = new ActiveMQMessage();
-        message.setCommandId((short)1);
-        message.setOriginalDestination(new ActiveMQQueue("queue"));
-        message.setGroupID("group");
-        message.setGroupSequence(4);
-        message.setCorrelationId("correlation");
-        message.setMessageId(new MessageId("c1:1:1", Short.MAX_VALUE));
-        assertBeanMarshalls(message);
-    }
+   public void testActiveMQMessageMarshalingBigMessageId() throws IOException {
+      ActiveMQMessage message = new ActiveMQMessage();
+      message.setCommandId((short) 1);
+      message.setOriginalDestination(new ActiveMQQueue("queue"));
+      message.setGroupID("group");
+      message.setGroupSequence(4);
+      message.setCorrelationId("correlation");
+      message.setMessageId(new MessageId("c1:1:1", Short.MAX_VALUE));
+      assertBeanMarshalls(message);
+   }
 
-    public void testActiveMQMessageMarshalingBiggerMessageId() throws IOException {
-        ActiveMQMessage message = new ActiveMQMessage();
-        message.setCommandId((short)1);
-        message.setOriginalDestination(new ActiveMQQueue("queue"));
-        message.setGroupID("group");
-        message.setGroupSequence(4);
-        message.setCorrelationId("correlation");
-        message.setMessageId(new MessageId("c1:1:1", Integer.MAX_VALUE));
-        assertBeanMarshalls(message);
-    }
+   public void testActiveMQMessageMarshalingBiggerMessageId() throws IOException {
+      ActiveMQMessage message = new ActiveMQMessage();
+      message.setCommandId((short) 1);
+      message.setOriginalDestination(new ActiveMQQueue("queue"));
+      message.setGroupID("group");
+      message.setGroupSequence(4);
+      message.setCorrelationId("correlation");
+      message.setMessageId(new MessageId("c1:1:1", Integer.MAX_VALUE));
+      assertBeanMarshalls(message);
+   }
 
-    public void testActiveMQMessageMarshalingBiggestMessageId() throws IOException {
-        ActiveMQMessage message = new ActiveMQMessage();
-        message.setCommandId((short)1);
-        message.setOriginalDestination(new ActiveMQQueue("queue"));
-        message.setGroupID("group");
-        message.setGroupSequence(4);
-        message.setCorrelationId("correlation");
-        message.setMessageId(new MessageId("c1:1:1", Long.MAX_VALUE));
-        assertBeanMarshalls(message);
-    }
+   public void testActiveMQMessageMarshalingBiggestMessageId() throws IOException {
+      ActiveMQMessage message = new ActiveMQMessage();
+      message.setCommandId((short) 1);
+      message.setOriginalDestination(new ActiveMQQueue("queue"));
+      message.setGroupID("group");
+      message.setGroupSequence(4);
+      message.setCorrelationId("correlation");
+      message.setMessageId(new MessageId("c1:1:1", Long.MAX_VALUE));
+      assertBeanMarshalls(message);
+   }
 
-    public void testMessageIdMarshaling() throws IOException {
-        assertBeanMarshalls(new MessageId("c1:1:1", 1));
-    }
+   public void testMessageIdMarshaling() throws IOException {
+      assertBeanMarshalls(new MessageId("c1:1:1", 1));
+   }
 
-    public void testPropRemove() throws Exception {
-        ActiveMQMessage message = new ActiveMQMessage();
-        message.setStringProperty("RM","RM");
+   public void testPropRemove() throws Exception {
+      ActiveMQMessage message = new ActiveMQMessage();
+      message.setStringProperty("RM", "RM");
 
-        ActiveMQMessage unMarshalled = (ActiveMQMessage) marshalAndUnmarshall(message, wireFormat);
+      ActiveMQMessage unMarshalled = (ActiveMQMessage) marshalAndUnmarshall(message, wireFormat);
 
-        unMarshalled.getBooleanProperty("NA");
-        unMarshalled.removeProperty("RM");
+      unMarshalled.getBooleanProperty("NA");
+      unMarshalled.removeProperty("RM");
 
-        ActiveMQMessage unMarshalledAgain = (ActiveMQMessage) marshalAndUnmarshall(unMarshalled, wireFormat);
-        assertNull("Prop is gone", unMarshalledAgain.getProperty("RM"));
-    }
+      ActiveMQMessage unMarshalledAgain = (ActiveMQMessage) marshalAndUnmarshall(unMarshalled, wireFormat);
+      assertNull("Prop is gone", unMarshalledAgain.getProperty("RM"));
+   }
 }

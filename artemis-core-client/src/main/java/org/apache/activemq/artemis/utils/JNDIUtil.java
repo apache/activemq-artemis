@@ -24,8 +24,7 @@ import javax.naming.NameNotFoundException;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 
-public class JNDIUtil
-{
+public class JNDIUtil {
    // Constants -----------------------------------------------------
 
    // Static --------------------------------------------------------
@@ -33,25 +32,20 @@ public class JNDIUtil
    /**
     * Create a context path recursively.
     */
-   public static Context createContext(final Context c, final String path) throws NamingException
-   {
+   public static Context createContext(final Context c, final String path) throws NamingException {
       Context crtContext = c;
-      for (StringTokenizer st = new StringTokenizer(path, "/"); st.hasMoreTokens();)
-      {
+      for (StringTokenizer st = new StringTokenizer(path, "/"); st.hasMoreTokens(); ) {
          String tok = st.nextToken();
 
-         try
-         {
+         try {
             Object o = crtContext.lookup(tok);
-            if (!(o instanceof Context))
-            {
+            if (!(o instanceof Context)) {
                throw new NamingException("Path " + path + " overwrites and already bound object");
             }
-            crtContext = (Context)o;
+            crtContext = (Context) o;
             continue;
          }
-         catch (NameNotFoundException e)
-         {
+         catch (NameNotFoundException e) {
             // OK
          }
          crtContext = crtContext.createSubcontext(tok);
@@ -59,16 +53,13 @@ public class JNDIUtil
       return crtContext;
    }
 
-   public static void tearDownRecursively(final Context c) throws Exception
-   {
-      for (NamingEnumeration<Binding> ne = c.listBindings(""); ne.hasMore();)
-      {
+   public static void tearDownRecursively(final Context c) throws Exception {
+      for (NamingEnumeration<Binding> ne = c.listBindings(""); ne.hasMore(); ) {
          Binding b = ne.next();
          String name = b.getName();
          Object object = b.getObject();
-         if (object instanceof Context)
-         {
-            JNDIUtil.tearDownRecursively((Context)object);
+         if (object instanceof Context) {
+            JNDIUtil.tearDownRecursively((Context) object);
          }
          c.unbind(name);
       }
@@ -80,28 +71,23 @@ public class JNDIUtil
     * NameNotFoundException is thrown. This method behaves similar to Context.rebind(), but creates
     * intermediate contexts, if necessary.
     */
-   public static void rebind(final Context c, final String jndiName, final Object o) throws NamingException
-   {
+   public static void rebind(final Context c, final String jndiName, final Object o) throws NamingException {
       Context context = c;
       String name = jndiName;
 
       int idx = jndiName.lastIndexOf('/');
-      if (idx != -1)
-      {
+      if (idx != -1) {
          context = JNDIUtil.createContext(c, jndiName.substring(0, idx));
          name = jndiName.substring(idx + 1);
       }
       boolean failed = false;
-      try
-      {
+      try {
          context.rebind(name, o);
       }
-      catch (Exception ignored)
-      {
+      catch (Exception ignored) {
          failed = true;
       }
-      if (failed)
-      {
+      if (failed) {
          context.bind(name, o);
       }
    }

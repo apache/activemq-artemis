@@ -22,103 +22,88 @@ import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQConnector;
 import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQConnectorStatistics;
 import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 
-public class AMQConnectorImpl implements AMQConnector
-{
+public class AMQConnectorImpl implements AMQConnector {
+
    private Acceptor acceptor;
 
-   public AMQConnectorImpl(Acceptor acceptorUsed)
-   {
+   public AMQConnectorImpl(Acceptor acceptorUsed) {
       this.acceptor = acceptorUsed;
    }
 
    @Override
-   public BrokerInfo getBrokerInfo()
-   {
+   public BrokerInfo getBrokerInfo() {
       // TODO Auto-generated method stub
       return null;
    }
 
    @Override
-   public AMQConnectorStatistics getStatistics()
-   {
+   public AMQConnectorStatistics getStatistics() {
       // TODO Auto-generated method stub
       return null;
    }
 
    @Override
-   public boolean isUpdateClusterClients()
-   {
+   public boolean isUpdateClusterClients() {
       // TODO Auto-generated method stub
       return false;
    }
 
    @Override
-   public boolean isRebalanceClusterClients()
-   {
+   public boolean isRebalanceClusterClients() {
       // TODO Auto-generated method stub
       return false;
    }
 
    @Override
-   public void updateClientClusterInfo()
-   {
+   public void updateClientClusterInfo() {
       // TODO Auto-generated method stub
 
    }
 
    @Override
-   public boolean isUpdateClusterClientsOnRemove()
-   {
+   public boolean isUpdateClusterClientsOnRemove() {
       // TODO Auto-generated method stub
       return false;
    }
 
    @Override
-   public int connectionCount()
-   {
+   public int connectionCount() {
       // TODO Auto-generated method stub
       return 0;
    }
 
    @Override
-   public boolean isAllowLinkStealing()
-   {
+   public boolean isAllowLinkStealing() {
       // TODO Auto-generated method stub
       return true;
    }
 
    @Override
-   public ConnectionControl getConnectionControl()
-   {
+   public ConnectionControl getConnectionControl() {
       return new ConnectionControl();
    }
 
    @Override
-   public void onStarted(OpenWireConnection connection)
-   {
+   public void onStarted(OpenWireConnection connection) {
       // TODO Auto-generated method stub
 
    }
 
    @Override
-   public void onStopped(OpenWireConnection connection)
-   {
+   public void onStopped(OpenWireConnection connection) {
       // TODO Auto-generated method stub
 
    }
 
-   public int getMaximumConsumersAllowedPerConnection()
-   {
+   public int getMaximumConsumersAllowedPerConnection() {
       return 1000000;//this belongs to configuration, now hardcoded
    }
 
-   public int getMaximumProducersAllowedPerConnection()
-   {
+   public int getMaximumProducersAllowedPerConnection() {
       return 1000000;//this belongs to configuration, now hardcoded
    }
 
-   public boolean isAuditNetworkProducers()
-   {
+   public boolean isAuditNetworkProducers() {
       return false;
    }
 

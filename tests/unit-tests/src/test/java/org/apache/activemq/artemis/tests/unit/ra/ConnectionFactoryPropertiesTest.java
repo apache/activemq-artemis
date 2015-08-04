@@ -28,14 +28,12 @@ import org.junit.Test;
 
 import static java.beans.Introspector.getBeanInfo;
 
-public class ConnectionFactoryPropertiesTest extends ActiveMQTestBase
-{
+public class ConnectionFactoryPropertiesTest extends ActiveMQTestBase {
 
    private static final SortedSet<String> UNSUPPORTED_CF_PROPERTIES;
    private static final SortedSet<String> UNSUPPORTED_RA_PROPERTIES;
 
-   static
-   {
+   static {
       UNSUPPORTED_CF_PROPERTIES = new TreeSet<String>();
       UNSUPPORTED_CF_PROPERTIES.add("discoveryGroupName");
 
@@ -68,42 +66,33 @@ public class ConnectionFactoryPropertiesTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testCompareConnectionFactoryAndResourceAdapterProperties() throws Exception
-   {
+   public void testCompareConnectionFactoryAndResourceAdapterProperties() throws Exception {
       SortedSet<String> connectionFactoryProperties = findAllPropertyNames(ActiveMQConnectionFactory.class);
       connectionFactoryProperties.removeAll(UNSUPPORTED_CF_PROPERTIES);
       SortedSet<String> raProperties = findAllPropertyNames(ActiveMQResourceAdapter.class);
       raProperties.removeAll(UNSUPPORTED_RA_PROPERTIES);
 
-      compare("ActiveMQ Connection Factory", connectionFactoryProperties,
-              "ActiveMQ Resource Adapter", raProperties);
+      compare("ActiveMQ Connection Factory", connectionFactoryProperties, "ActiveMQ Resource Adapter", raProperties);
    }
 
-   private static void compare(String name1, SortedSet<String> set1,
-                               String name2, SortedSet<String> set2)
-   {
+   private static void compare(String name1, SortedSet<String> set1, String name2, SortedSet<String> set2) {
       Set<String> onlyInSet1 = new TreeSet<String>(set1);
       onlyInSet1.removeAll(set2);
 
       Set<String> onlyInSet2 = new TreeSet<String>(set2);
       onlyInSet2.removeAll(set1);
 
-      if (!onlyInSet1.isEmpty() || !onlyInSet2.isEmpty())
-      {
+      if (!onlyInSet1.isEmpty() || !onlyInSet2.isEmpty()) {
          fail(String.format("in %s only: %s\nin %s only: %s", name1, onlyInSet1, name2, onlyInSet2));
       }
 
       assertEquals(set2, set1);
    }
 
-   private SortedSet<String> findAllPropertyNames(Class<?> clazz) throws Exception
-   {
+   private SortedSet<String> findAllPropertyNames(Class<?> clazz) throws Exception {
       SortedSet<String> names = new TreeSet<String>();
-      for (PropertyDescriptor propDesc : getBeanInfo(clazz).getPropertyDescriptors())
-      {
-         if (propDesc == null
-            || propDesc.getWriteMethod() == null)
-         {
+      for (PropertyDescriptor propDesc : getBeanInfo(clazz).getPropertyDescriptors()) {
+         if (propDesc == null || propDesc.getWriteMethod() == null) {
             continue;
          }
          names.add(propDesc.getDisplayName());

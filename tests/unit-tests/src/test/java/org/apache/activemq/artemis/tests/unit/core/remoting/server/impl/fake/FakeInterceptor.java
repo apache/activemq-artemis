@@ -21,12 +21,10 @@ import org.apache.activemq.artemis.api.core.Interceptor;
 import org.apache.activemq.artemis.core.protocol.core.Packet;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 
-public class FakeInterceptor implements Interceptor
-{
+public class FakeInterceptor implements Interceptor {
 
    @Override
-   public boolean intercept(Packet packet, RemotingConnection connection) throws ActiveMQException
-   {
+   public boolean intercept(Packet packet, RemotingConnection connection) throws ActiveMQException {
       return false;
    }
 }

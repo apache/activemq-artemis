@@ -20,9 +20,8 @@ import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.replication.ReplicatedLargeMessage;
 
+public interface LargeServerMessage extends ServerMessage, ReplicatedLargeMessage {
 
-public interface LargeServerMessage extends ServerMessage, ReplicatedLargeMessage
-{
    void addBytes(byte[] bytes) throws Exception;
 
    void setPendingRecordID(long pendingRecordID);
@@ -35,7 +34,9 @@ public interface LargeServerMessage extends ServerMessage, ReplicatedLargeMessag
     */
    void setPaged();
 
-   /** Close the files if opened */
+   /**
+    * Close the files if opened
+    */
    void releaseResources();
 
    void deleteFile() throws Exception;

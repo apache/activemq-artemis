@@ -27,40 +27,37 @@ import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.utils.uri.SchemaConstants;
 import org.apache.activemq.artemis.utils.uri.URISchema;
 
-public class UDPSchema extends AbstractCFSchema
-{
+public class UDPSchema extends AbstractCFSchema {
+
    @Override
-   public String getSchemaName()
-   {
+   public String getSchemaName() {
       return SchemaConstants.UDP;
    }
 
    @Override
-   public ActiveMQConnectionFactory internalNewObject(URI uri, Map<String, String> query, String name) throws Exception
-   {
+   public ActiveMQConnectionFactory internalNewObject(URI uri,
+                                                      Map<String, String> query,
+                                                      String name) throws Exception {
       JMSConnectionOptions options = newConectionOptions(uri, query);
 
       DiscoveryGroupConfiguration dgc = UDPServerLocatorSchema.getDiscoveryGroupConfiguration(uri, query, getHost(uri), getPort(uri), name);
 
       ActiveMQConnectionFactory factory;
-      if (options.isHa())
-      {
+      if (options.isHa()) {
          factory = ActiveMQJMSClient.createConnectionFactoryWithHA(dgc, options.getFactoryTypeEnum());
       }
-      else
-      {
-         factory =  ActiveMQJMSClient.createConnectionFactoryWithoutHA(dgc, options.getFactoryTypeEnum());
+      else {
+         factory = ActiveMQJMSClient.createConnectionFactoryWithoutHA(dgc, options.getFactoryTypeEnum());
       }
       return URISchema.setData(uri, factory, query);
    }
 
    @Override
-   protected URI internalNewURI(ActiveMQConnectionFactory bean) throws Exception
-   {
+   protected URI internalNewURI(ActiveMQConnectionFactory bean) throws Exception {
       DiscoveryGroupConfiguration dgc = bean.getDiscoveryGroupConfiguration();
       UDPBroadcastEndpointFactory endpoint = (UDPBroadcastEndpointFactory) dgc.getBroadcastEndpointFactory();
       String query = URISchema.getData(UDPServerLocatorSchema.IGNORED, bean, dgc, endpoint);
       dgc.setBroadcastEndpointFactory(endpoint);
-      return new URI(SchemaConstants.UDP, null,  endpoint.getGroupAddress(), endpoint.getGroupPort(), null, query, null);
+      return new URI(SchemaConstants.UDP, null, endpoint.getGroupAddress(), endpoint.getGroupPort(), null, query, null);
    }
 }

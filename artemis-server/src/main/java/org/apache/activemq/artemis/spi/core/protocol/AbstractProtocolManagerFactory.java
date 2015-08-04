@@ -23,8 +23,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.apache.activemq.artemis.api.core.BaseInterceptor;
 
-public abstract class AbstractProtocolManagerFactory<P extends BaseInterceptor> implements ProtocolManagerFactory<P>
-{
+public abstract class AbstractProtocolManagerFactory<P extends BaseInterceptor> implements ProtocolManagerFactory<P> {
 
    /**
     * This method exists because java templates won't store the type of P at runtime.
@@ -35,19 +34,14 @@ public abstract class AbstractProtocolManagerFactory<P extends BaseInterceptor> 
     * @param listIn
     * @return
     */
-   protected List<P> filterInterceptors(Class<P> type, List<? extends BaseInterceptor> listIn)
-   {
-      if (listIn == null)
-      {
+   protected List<P> filterInterceptors(Class<P> type, List<? extends BaseInterceptor> listIn) {
+      if (listIn == null) {
          return Collections.emptyList();
       }
-      else
-      {
+      else {
          CopyOnWriteArrayList<P> listOut = new CopyOnWriteArrayList();
-         for (BaseInterceptor<?> in : listIn)
-         {
-            if (type.isInstance(in))
-            {
+         for (BaseInterceptor<?> in : listIn) {
+            if (type.isInstance(in)) {
                listOut.add((P) in);
             }
          }

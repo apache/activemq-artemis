@@ -29,40 +29,41 @@ import org.apache.commons.io.FileUtils;
  * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
 public class LevelDBXARecoveryBrokerTest extends XARecoveryBrokerTest {
-    public static final String LEVELDB_DIR_BASE = "target/activemq-data/xahaleveldb";
-    public static String levelDbDirectoryName;
 
-    @Override
-    protected void setUp() throws Exception {
-        levelDbDirectoryName = LEVELDB_DIR_BASE + "/" + System.currentTimeMillis();
-        super.setUp();
-    }
+   public static final String LEVELDB_DIR_BASE = "target/activemq-data/xahaleveldb";
+   public static String levelDbDirectoryName;
 
-    @Override
-    protected void tearDown() throws Exception {
-        super.tearDown();
-        try {
-            File levelDbDir = new File(levelDbDirectoryName);
-            FileUtils.deleteDirectory(levelDbDir);
-        } catch (IOException e) {
-        }
-    }
+   @Override
+   protected void setUp() throws Exception {
+      levelDbDirectoryName = LEVELDB_DIR_BASE + "/" + System.currentTimeMillis();
+      super.setUp();
+   }
 
+   @Override
+   protected void tearDown() throws Exception {
+      super.tearDown();
+      try {
+         File levelDbDir = new File(levelDbDirectoryName);
+         FileUtils.deleteDirectory(levelDbDir);
+      }
+      catch (IOException e) {
+      }
+   }
 
-    public static Test suite() {
-        return suite(LevelDBXARecoveryBrokerTest.class);
-    }
+   public static Test suite() {
+      return suite(LevelDBXARecoveryBrokerTest.class);
+   }
 
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(suite());
-    }
+   public static void main(String[] args) {
+      junit.textui.TestRunner.run(suite());
+   }
 
-    @Override
-    protected void configureBroker(BrokerService broker) throws Exception {
-        super.configureBroker(broker);
-        LevelDBStore store = new LevelDBStore();
-        store.setDirectory(new File(levelDbDirectoryName));
-        broker.setPersistenceAdapter(store);
-    }
+   @Override
+   protected void configureBroker(BrokerService broker) throws Exception {
+      super.configureBroker(broker);
+      LevelDBStore store = new LevelDBStore();
+      store.setDirectory(new File(levelDbDirectoryName));
+      broker.setPersistenceAdapter(store);
+   }
 
 }

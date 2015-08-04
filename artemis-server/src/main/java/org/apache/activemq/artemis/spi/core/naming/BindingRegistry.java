@@ -19,8 +19,8 @@ package org.apache.activemq.artemis.spi.core.naming;
 /**
  * Abstract interface for a registry to store endpoints like connection factories into.
  */
-public interface BindingRegistry
-{
+public interface BindingRegistry {
+
    Object lookup(String name);
 
    boolean bind(String name, Object obj);

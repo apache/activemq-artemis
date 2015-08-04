@@ -27,12 +27,10 @@ import org.apache.activemq.artemis.core.persistence.impl.journal.OperationContex
 import org.apache.activemq.artemis.jms.server.config.ConnectionFactoryConfiguration;
 import org.apache.activemq.artemis.jms.server.config.impl.ConnectionFactoryConfigurationImpl;
 
-public class JMSDynamicConfigTest extends JMSTestBase
-{
+public class JMSDynamicConfigTest extends JMSTestBase {
 
    @Override
-   protected boolean usePersistence()
-   {
+   protected boolean usePersistence() {
       return true;
    }
 
@@ -47,28 +45,22 @@ public class JMSDynamicConfigTest extends JMSTestBase
    // Public --------------------------------------------------------
 
    @Test
-   public void testStart() throws Exception
-   {
+   public void testStart() throws Exception {
       ArrayList<String> connectors = new ArrayList<String>();
 
       connectors.add("invm");
 
-      ConnectionFactoryConfiguration cfg = new ConnectionFactoryConfigurationImpl()
-         .setName("tst")
-         .setConnectorNames(connectors)
-         .setBindings("tt");
+      ConnectionFactoryConfiguration cfg = new ConnectionFactoryConfigurationImpl().setName("tst").setConnectorNames(connectors).setBindings("tt");
       jmsServer.createConnectionFactory(true, cfg, "tst");
 
       assertNotNull(namingContext.lookup("tst"));
       jmsServer.removeConnectionFactoryFromBindingRegistry("tst");
 
-      try
-      {
+      try {
          namingContext.lookup("tst");
          fail("failure expected");
       }
-      catch (NamingException excepted)
-      {
+      catch (NamingException excepted) {
       }
 
       jmsServer.stop();
@@ -76,13 +68,11 @@ public class JMSDynamicConfigTest extends JMSTestBase
       OperationContextImpl.clearContext();
       jmsServer.start();
 
-      try
-      {
+      try {
          namingContext.lookup("tst");
          fail("failure expected");
       }
-      catch (NamingException excepted)
-      {
+      catch (NamingException excepted) {
       }
    }
 

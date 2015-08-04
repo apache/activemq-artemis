@@ -33,25 +33,23 @@ import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.junit.Test;
 
-public class NewQueueRequestorTest extends JMSTestBase
-{
+public class NewQueueRequestorTest extends JMSTestBase {
+
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    @Test
-   public void testQueueRequestor() throws Exception
-   {
+   public void testQueueRequestor() throws Exception {
       QueueConnection conn1 = null, conn2 = null;
 
-      try
-      {
+      try {
          Queue queue1 = createQueue(true, "myQueue");
-         conn1 = (QueueConnection)cf.createConnection();
+         conn1 = (QueueConnection) cf.createConnection();
          QueueSession sess1 = conn1.createQueueSession(false, Session.AUTO_ACKNOWLEDGE);
          QueueRequestor requestor = new QueueRequestor(sess1, queue1);
          conn1.start();
 
          // And the responder
-         conn2 = (QueueConnection)cf.createConnection();
+         conn2 = (QueueConnection) cf.createConnection();
          QueueSession sess2 = conn2.createQueueSession(false, Session.AUTO_ACKNOWLEDGE);
          TestMessageListener listener = new TestMessageListener(sess2);
          QueueReceiver receiver = sess2.createReceiver(queue1);
@@ -60,15 +58,14 @@ public class NewQueueRequestorTest extends JMSTestBase
 
          Message m1 = sess1.createMessage();
          log.trace("Sending request message");
-         TextMessage m2 = (TextMessage)requestor.request(m1);
+         TextMessage m2 = (TextMessage) requestor.request(m1);
          assertNotNull(m2);
 
          assertEquals("This is the response", m2.getText());
 
          requestor.close();
       }
-      finally
-      {
+      finally {
          conn1.close();
          conn2.close();
       }
@@ -82,28 +79,24 @@ public class NewQueueRequestorTest extends JMSTestBase
 
    // Inner classes -------------------------------------------------
 
-   class TestMessageListener implements MessageListener
-   {
+   class TestMessageListener implements MessageListener {
+
       private final QueueSession sess;
 
       private final QueueSender sender;
 
-      public TestMessageListener(final QueueSession sess) throws JMSException
-      {
+      public TestMessageListener(final QueueSession sess) throws JMSException {
          this.sess = sess;
          sender = sess.createSender(null);
       }
 
-      public void onMessage(final Message m)
-      {
-         try
-         {
+      public void onMessage(final Message m) {
+         try {
             Destination queue = m.getJMSReplyTo();
             Message m2 = sess.createTextMessage("This is the response");
             sender.send(queue, m2);
          }
-         catch (JMSException e)
-         {
+         catch (JMSException e) {
             log.error(e);
          }
       }

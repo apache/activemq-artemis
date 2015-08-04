@@ -24,33 +24,31 @@ import org.apache.activemq.command.DestinationInfo;
  * is auto generated - do not modify! if you need to make a change, please see
  * the modify the groovy scripts in the under src/gram/script and then use maven
  * openwire:generate to regenerate this file.
- * 
- * 
  */
 public class DestinationInfoTest extends BaseCommandTestSupport {
 
-    public static final DestinationInfoTest SINGLETON = new DestinationInfoTest();
+   public static final DestinationInfoTest SINGLETON = new DestinationInfoTest();
 
-    public Object createObject() throws Exception {
-        DestinationInfo info = new DestinationInfo();
-        populateObject(info);
-        return info;
-    }
+   public Object createObject() throws Exception {
+      DestinationInfo info = new DestinationInfo();
+      populateObject(info);
+      return info;
+   }
 
-    protected void populateObject(Object object) throws Exception {
-        super.populateObject(object);
-        DestinationInfo info = (DestinationInfo)object;
+   protected void populateObject(Object object) throws Exception {
+      super.populateObject(object);
+      DestinationInfo info = (DestinationInfo) object;
 
-        info.setConnectionId(createConnectionId("ConnectionId:1"));
-        info.setDestination(createActiveMQDestination("Destination:2"));
-        info.setOperationType((byte)1);
-        info.setTimeout(1);
-        {
-            BrokerId value[] = new BrokerId[2];
-            for (int i = 0; i < 2; i++) {
-                value[i] = createBrokerId("BrokerPath:3");
-            }
-            info.setBrokerPath(value);
-        }
-    }
+      info.setConnectionId(createConnectionId("ConnectionId:1"));
+      info.setDestination(createActiveMQDestination("Destination:2"));
+      info.setOperationType((byte) 1);
+      info.setTimeout(1);
+      {
+         BrokerId value[] = new BrokerId[2];
+         for (int i = 0; i < 2; i++) {
+            value[i] = createBrokerId("BrokerPath:3");
+         }
+         info.setBrokerPath(value);
+      }
+   }
 }

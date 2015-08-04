@@ -23,34 +23,32 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.spi.core.protocol.AbstractProtocolManagerFactory;
 import org.apache.activemq.artemis.spi.core.protocol.ProtocolManager;
 
-public class StompProtocolManagerFactory extends AbstractProtocolManagerFactory<StompFrameInterceptor>
-{
+public class StompProtocolManagerFactory extends AbstractProtocolManagerFactory<StompFrameInterceptor> {
+
    public static final String STOMP_PROTOCOL_NAME = "STOMP";
 
    private static final String MODULE_NAME = "artemis-stomp-protocol";
 
    private static final String[] SUPPORTED_PROTOCOLS = {STOMP_PROTOCOL_NAME};
 
-   public ProtocolManager createProtocolManager(final ActiveMQServer server, final List<StompFrameInterceptor> incomingInterceptors, List<StompFrameInterceptor> outgoingInterceptors)
-   {
+   public ProtocolManager createProtocolManager(final ActiveMQServer server,
+                                                final List<StompFrameInterceptor> incomingInterceptors,
+                                                List<StompFrameInterceptor> outgoingInterceptors) {
       return new StompProtocolManager(this, server, incomingInterceptors, outgoingInterceptors);
    }
 
    @Override
-   public List<StompFrameInterceptor> filterInterceptors(List<BaseInterceptor> interceptors)
-   {
+   public List<StompFrameInterceptor> filterInterceptors(List<BaseInterceptor> interceptors) {
       return filterInterceptors(StompFrameInterceptor.class, interceptors);
    }
 
    @Override
-   public String[] getProtocols()
-   {
+   public String[] getProtocols() {
       return SUPPORTED_PROTOCOLS;
    }
 
    @Override
-   public String getModuleName()
-   {
+   public String getModuleName() {
       return MODULE_NAME;
    }
 

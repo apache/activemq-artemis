@@ -47,8 +47,8 @@ import org.junit.rules.TestName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class MQTTTestSupport extends ActiveMQTestBase
-{
+public class MQTTTestSupport extends ActiveMQTestBase {
+
    private ActiveMQServer server;
 
    private static final Logger LOG = LoggerFactory.getLogger(MQTTTestSupport.class);
@@ -68,34 +68,28 @@ public class MQTTTestSupport extends ActiveMQTestBase
    @Rule
    public TestName name = new TestName();
 
-   public MQTTTestSupport()
-   {
+   public MQTTTestSupport() {
       this.protocolScheme = "mqtt";
       this.useSSL = false;
       cf = new ActiveMQConnectionFactory(false, new TransportConfiguration(ActiveMQTestBase.NETTY_CONNECTOR_FACTORY));
    }
 
-   public File basedir() throws IOException
-   {
+   public File basedir() throws IOException {
       ProtectionDomain protectionDomain = getClass().getProtectionDomain();
       return new File(new File(protectionDomain.getCodeSource().getLocation().getPath()), "../..").getCanonicalFile();
    }
 
-
-   public MQTTTestSupport(String connectorScheme, boolean useSSL)
-   {
+   public MQTTTestSupport(String connectorScheme, boolean useSSL) {
       this.protocolScheme = connectorScheme;
       this.useSSL = useSSL;
    }
 
-   public String getName()
-   {
+   public String getName() {
       return name.getMethodName();
    }
 
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       String basedir = basedir().getPath();
       System.setProperty("javax.net.ssl.trustStore", basedir + "/src/test/resources/client.keystore");
       System.setProperty("javax.net.ssl.trustStorePassword", "password");
@@ -109,8 +103,7 @@ public class MQTTTestSupport extends ActiveMQTestBase
    }
 
    @After
-   public void tearDown() throws Exception
-   {
+   public void tearDown() throws Exception {
       System.clearProperty("javax.net.ssl.trustStore");
       System.clearProperty("javax.net.ssl.trustStorePassword");
       System.clearProperty("javax.net.ssl.trustStoreType");
@@ -120,8 +113,7 @@ public class MQTTTestSupport extends ActiveMQTestBase
       stopBroker();
    }
 
-   public void startBroker() throws Exception
-   {
+   public void startBroker() throws Exception {
       // TODO Add SSL
       super.setUp();
       server = createServer(true, true);
@@ -134,8 +126,7 @@ public class MQTTTestSupport extends ActiveMQTestBase
       server.waitForActivation(10, TimeUnit.SECONDS);
    }
 
-   protected void addCoreConnector() throws Exception
-   {
+   protected void addCoreConnector() throws Exception {
       // Overrides of this method can add additional configuration options or add multiple
       // MQTT transport connectors as needed, the port variable is always supposed to be
       // assigned the primary MQTT connector's port.
@@ -149,8 +140,7 @@ public class MQTTTestSupport extends ActiveMQTestBase
       LOG.info("Added connector {} to broker", getProtocolScheme());
    }
 
-   protected void addMQTTConnector() throws Exception
-   {
+   protected void addMQTTConnector() throws Exception {
       // Overrides of this method can add additional configuration options or add multiple
       // MQTT transport connectors as needed, the port variable is always supposed to be
       // assigned the primary MQTT connector's port.
@@ -164,22 +154,18 @@ public class MQTTTestSupport extends ActiveMQTestBase
       LOG.info("Added connector {} to broker", getProtocolScheme());
    }
 
-   public void stopBroker() throws Exception
-   {
-      if (server.isStarted())
-      {
+   public void stopBroker() throws Exception {
+      if (server.isStarted()) {
          server.stop();
          server = null;
       }
    }
 
-   protected String getQueueName()
-   {
+   protected String getQueueName() {
       return getClass().getName() + "." + name.getMethodName();
    }
 
-   protected String getTopicName()
-   {
+   protected String getTopicName() {
       return getClass().getName() + "." + name.getMethodName();
    }
 
@@ -191,14 +177,11 @@ public class MQTTTestSupport extends ActiveMQTestBase
     * @param provider the MQTTClientProvider instance to initialize.
     * @throws Exception if an error occurs during initialization.
     */
-   protected void initializeConnection(MQTTClientProvider provider) throws Exception
-   {
-      if (!isUseSSL())
-      {
+   protected void initializeConnection(MQTTClientProvider provider) throws Exception {
+      if (!isUseSSL()) {
          provider.connect("tcp://localhost:" + port);
       }
-      else
-      {
+      else {
          SSLContext ctx = SSLContext.getInstance("TLS");
          ctx.init(new KeyManager[0], new TrustManager[]{new DefaultTrustManager()}, new SecureRandom());
          provider.setSslContext(ctx);
@@ -206,68 +189,54 @@ public class MQTTTestSupport extends ActiveMQTestBase
       }
    }
 
-   public String getProtocolScheme()
-   {
+   public String getProtocolScheme() {
       return protocolScheme;
    }
 
-   public void setProtocolScheme(String scheme)
-   {
+   public void setProtocolScheme(String scheme) {
       this.protocolScheme = scheme;
    }
 
-   public boolean isUseSSL()
-   {
+   public boolean isUseSSL() {
       return this.useSSL;
    }
 
-   public void setUseSSL(boolean useSSL)
-   {
+   public void setUseSSL(boolean useSSL) {
       this.useSSL = useSSL;
    }
 
-   public boolean isPersistent()
-   {
+   public boolean isPersistent() {
       return persistent;
    }
 
-   public int getPort()
-   {
+   public int getPort() {
       return this.port;
    }
 
-   public boolean isSchedulerSupportEnabled()
-   {
+   public boolean isSchedulerSupportEnabled() {
       return false;
    }
 
-   protected interface Task
-   {
+   protected interface Task {
+
       void run() throws Exception;
    }
 
-   protected void within(int time, TimeUnit unit, Task task) throws InterruptedException
-   {
+   protected void within(int time, TimeUnit unit, Task task) throws InterruptedException {
       long timeMS = unit.toMillis(time);
       long deadline = System.currentTimeMillis() + timeMS;
-      while (true)
-      {
-         try
-         {
+      while (true) {
+         try {
             task.run();
             return;
          }
-         catch (Throwable e)
-         {
+         catch (Throwable e) {
             long remaining = deadline - System.currentTimeMillis();
-            if (remaining <= 0)
-            {
-               if (e instanceof RuntimeException)
-               {
+            if (remaining <= 0) {
+               if (e instanceof RuntimeException) {
                   throw (RuntimeException) e;
                }
-               if (e instanceof Error)
-               {
+               if (e instanceof Error) {
                   throw (Error) e;
                }
                throw new RuntimeException(e);
@@ -277,39 +246,32 @@ public class MQTTTestSupport extends ActiveMQTestBase
       }
    }
 
-   protected MQTTClientProvider getMQTTClientProvider()
-   {
+   protected MQTTClientProvider getMQTTClientProvider() {
       return new FuseMQTTClientProvider();
    }
 
-   protected MQTT createMQTTConnection() throws Exception
-   {
+   protected MQTT createMQTTConnection() throws Exception {
       MQTT client = createMQTTConnection(null, false);
       client.setVersion("3.1.1");
       return client;
    }
 
-   protected MQTT createMQTTConnection(String clientId, boolean clean) throws Exception
-   {
-      if (isUseSSL())
-      {
+   protected MQTT createMQTTConnection(String clientId, boolean clean) throws Exception {
+      if (isUseSSL()) {
          return createMQTTSslConnection(clientId, clean);
       }
-      else
-      {
+      else {
          return createMQTTTcpConnection(clientId, clean);
       }
    }
 
-   private MQTT createMQTTTcpConnection(String clientId, boolean clean) throws Exception
-   {
+   private MQTT createMQTTTcpConnection(String clientId, boolean clean) throws Exception {
       MQTT mqtt = new MQTT();
       mqtt.setConnectAttemptsMax(1);
       mqtt.setReconnectAttemptsMax(0);
       mqtt.setTracer(createTracer());
       mqtt.setVersion("3.1.1");
-      if (clientId != null)
-      {
+      if (clientId != null) {
          mqtt.setClientId(clientId);
       }
       mqtt.setCleanSession(clean);
@@ -317,15 +279,13 @@ public class MQTTTestSupport extends ActiveMQTestBase
       return mqtt;
    }
 
-   private MQTT createMQTTSslConnection(String clientId, boolean clean) throws Exception
-   {
+   private MQTT createMQTTSslConnection(String clientId, boolean clean) throws Exception {
       MQTT mqtt = new MQTT();
       mqtt.setConnectAttemptsMax(1);
       mqtt.setReconnectAttemptsMax(0);
       mqtt.setTracer(createTracer());
       mqtt.setHost("ssl://localhost:" + port);
-      if (clientId != null)
-      {
+      if (clientId != null) {
          mqtt.setClientId(clientId);
       }
       mqtt.setCleanSession(clean);
@@ -336,46 +296,37 @@ public class MQTTTestSupport extends ActiveMQTestBase
       return mqtt;
    }
 
-   protected Tracer createTracer()
-   {
-      return new Tracer()
-      {
+   protected Tracer createTracer() {
+      return new Tracer() {
          @Override
-         public void onReceive(MQTTFrame frame)
-         {
+         public void onReceive(MQTTFrame frame) {
             LOG.info("Client Received:\n" + frame);
          }
 
          @Override
-         public void onSend(MQTTFrame frame)
-         {
+         public void onSend(MQTTFrame frame) {
             LOG.info("Client Sent:\n" + frame);
          }
 
          @Override
-         public void debug(String message, Object... args)
-         {
+         public void debug(String message, Object... args) {
             LOG.info(String.format(message, args));
          }
       };
    }
 
-   static class DefaultTrustManager implements X509TrustManager
-   {
+   static class DefaultTrustManager implements X509TrustManager {
 
       @Override
-      public void checkClientTrusted(X509Certificate[] x509Certificates, String s) throws CertificateException
-      {
+      public void checkClientTrusted(X509Certificate[] x509Certificates, String s) throws CertificateException {
       }
 
       @Override
-      public void checkServerTrusted(X509Certificate[] x509Certificates, String s) throws CertificateException
-      {
+      public void checkServerTrusted(X509Certificate[] x509Certificates, String s) throws CertificateException {
       }
 
       @Override
-      public X509Certificate[] getAcceptedIssuers()
-      {
+      public X509Certificate[] getAcceptedIssuers() {
          return new X509Certificate[0];
       }
    }

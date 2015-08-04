@@ -22,11 +22,10 @@ import org.apache.activemq.artemis.core.message.impl.MessageInternal;
 import org.apache.activemq.artemis.core.paging.PagingStore;
 
 /**
- *
  * A ServerMessage
  */
-public interface ServerMessage extends MessageInternal, EncodingSupport
-{
+public interface ServerMessage extends MessageInternal, EncodingSupport {
+
    ServerMessage setMessageID(long id);
 
    MessageReference createReference(Queue queue);
@@ -34,6 +33,7 @@ public interface ServerMessage extends MessageInternal, EncodingSupport
    /**
     * This will force encoding of the address, and will re-check the buffer
     * This is to avoid setMessageTransient which set the address without changing the buffer
+    *
     * @param address
     */
    void forceAddress(SimpleString address);
@@ -56,7 +56,10 @@ public interface ServerMessage extends MessageInternal, EncodingSupport
 
    int getRefCount();
 
-   ServerMessage makeCopyForExpiryOrDLA(long newID, MessageReference originalReference, boolean expiry, boolean copyOriginalHeaders) throws Exception;
+   ServerMessage makeCopyForExpiryOrDLA(long newID,
+                                        MessageReference originalReference,
+                                        boolean expiry,
+                                        boolean copyOriginalHeaders) throws Exception;
 
    void setOriginalHeaders(ServerMessage other, MessageReference originalReference, boolean expiry);
 
@@ -71,7 +74,7 @@ public interface ServerMessage extends MessageInternal, EncodingSupport
 
    void encodeMessageIDToBuffer();
 
-   byte [] getDuplicateIDBytes();
+   byte[] getDuplicateIDBytes();
 
    Object getDuplicateProperty();
 }

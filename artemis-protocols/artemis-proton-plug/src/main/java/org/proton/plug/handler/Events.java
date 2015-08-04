@@ -22,18 +22,14 @@ import org.apache.qpid.proton.engine.Transport;
 /**
  * TODO : this needs a better home
  */
-public final class Events
-{
+public final class Events {
 
-   public static void dispatchTransport(Transport transport, EventHandler handler) throws Exception
-   {
+   public static void dispatchTransport(Transport transport, EventHandler handler) throws Exception {
       handler.onTransport(transport);
    }
 
-   public static void dispatch(Event event, EventHandler handler) throws Exception
-   {
-      switch (event.getType())
-      {
+   public static void dispatch(Event event, EventHandler handler) throws Exception {
+      switch (event.getType()) {
          case CONNECTION_INIT:
             handler.onInit(event.getConnection());
             break;

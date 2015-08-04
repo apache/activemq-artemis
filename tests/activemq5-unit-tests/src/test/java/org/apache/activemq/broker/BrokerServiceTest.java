@@ -17,68 +17,68 @@
 package org.apache.activemq.broker;
 
 import junit.framework.TestCase;
+
 import org.apache.activemq.network.NetworkConnector;
 
 /**
  * Tests for the BrokerService class
- * 
+ *
  * @author chirino
  */
 public class BrokerServiceTest extends TestCase {
 
-    public void testAddRemoveTransportsWithJMX() throws Exception {
-        BrokerService service = new BrokerService();
-        service.setUseJmx(true);
-        service.setPersistent(false);
-        TransportConnector connector = service.addConnector("tcp://localhost:0");
-        service.start();
+   public void testAddRemoveTransportsWithJMX() throws Exception {
+      BrokerService service = new BrokerService();
+      service.setUseJmx(true);
+      service.setPersistent(false);
+      TransportConnector connector = service.addConnector("tcp://localhost:0");
+      service.start();
 
-        service.removeConnector(connector);
-        connector.stop();
-        service.stop();
-    }
+      service.removeConnector(connector);
+      connector.stop();
+      service.stop();
+   }
 
-    public void testAddRemoveTransportsWithoutJMX() throws Exception {
-        BrokerService service = new BrokerService();
-        service.setPersistent(false);
-        service.setUseJmx(false);
-        TransportConnector connector = service.addConnector("tcp://localhost:0");
-        service.start();
+   public void testAddRemoveTransportsWithoutJMX() throws Exception {
+      BrokerService service = new BrokerService();
+      service.setPersistent(false);
+      service.setUseJmx(false);
+      TransportConnector connector = service.addConnector("tcp://localhost:0");
+      service.start();
 
-        service.removeConnector(connector);
-        connector.stop();
-        service.stop();
-    }
+      service.removeConnector(connector);
+      connector.stop();
+      service.stop();
+   }
 
-    public void testAddRemoveNetworkWithJMX() throws Exception {
-        BrokerService service = new BrokerService();
-        service.setPersistent(false);
-        service.setUseJmx(true);
-        NetworkConnector connector = service.addNetworkConnector("multicast://default?group=group-"+System.currentTimeMillis());
-        service.start();
+   public void testAddRemoveNetworkWithJMX() throws Exception {
+      BrokerService service = new BrokerService();
+      service.setPersistent(false);
+      service.setUseJmx(true);
+      NetworkConnector connector = service.addNetworkConnector("multicast://default?group=group-" + System.currentTimeMillis());
+      service.start();
 
-        service.removeNetworkConnector(connector);
-        connector.stop();
-        service.stop();
-    }
+      service.removeNetworkConnector(connector);
+      connector.stop();
+      service.stop();
+   }
 
-    public void testAddRemoveNetworkWithoutJMX() throws Exception {
-        BrokerService service = new BrokerService();
-        service.setPersistent(false);
-        service.setUseJmx(false);
-        NetworkConnector connector = service.addNetworkConnector("multicast://default?group=group-"+System.currentTimeMillis());
-        service.start();
+   public void testAddRemoveNetworkWithoutJMX() throws Exception {
+      BrokerService service = new BrokerService();
+      service.setPersistent(false);
+      service.setUseJmx(false);
+      NetworkConnector connector = service.addNetworkConnector("multicast://default?group=group-" + System.currentTimeMillis());
+      service.start();
 
-        service.removeNetworkConnector(connector);
-        connector.stop();
-        service.stop();
-    }
-    
-    public void testSystemUsage()
-    {
-        BrokerService service = new BrokerService();
-        assertEquals( 1024 * 1024 * 1024, service.getSystemUsage().getMemoryUsage().getLimit() );
-        assertEquals( 1024L * 1024 * 1024 * 50, service.getSystemUsage().getTempUsage().getLimit() );
-        assertEquals( 1024L * 1024 * 1024 * 100, service.getSystemUsage().getStoreUsage().getLimit() );
-    }
+      service.removeNetworkConnector(connector);
+      connector.stop();
+      service.stop();
+   }
+
+   public void testSystemUsage() {
+      BrokerService service = new BrokerService();
+      assertEquals(1024 * 1024 * 1024, service.getSystemUsage().getMemoryUsage().getLimit());
+      assertEquals(1024L * 1024 * 1024 * 50, service.getSystemUsage().getTempUsage().getLimit());
+      assertEquals(1024L * 1024 * 1024 * 100, service.getSystemUsage().getStoreUsage().getLimit());
+   }
 }

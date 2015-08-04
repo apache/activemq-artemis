@@ -19,56 +19,54 @@ package org.apache.activemq.memory.buffer;
 import org.apache.activemq.memory.buffer.MessageBuffer;
 import org.apache.activemq.memory.buffer.OrderBasedMessageBuffer;
 
-
 /**
  *
- * 
+ *
  */
 public class OrderBasedMemoryBufferTest extends MemoryBufferTestSupport {
 
-    public void testSizeWorks() throws Exception {
-        qA.add(createMessage(10));
-        qB.add(createMessage(10));
-        qB.add(createMessage(10));
-        qC.add(createMessage(10));
-        
-        dump();
-        
-        assertEquals("buffer size", 40, buffer.getSize());
-        assertEquals("qA", 10, qA.getSize());
-        assertEquals("qB", 20, qB.getSize());
-        assertEquals("qC", 10, qC.getSize());
-        
-        qC.add(createMessage(10));
-        
-        dump();
-        
-        assertEquals("buffer size", 40, buffer.getSize());
-        assertEquals("qA", 0, qA.getSize());
-        assertEquals("qB", 20, qB.getSize());
-        assertEquals("qC", 20, qC.getSize());
+   public void testSizeWorks() throws Exception {
+      qA.add(createMessage(10));
+      qB.add(createMessage(10));
+      qB.add(createMessage(10));
+      qC.add(createMessage(10));
 
-        qB.add(createMessage(10));
-        
-        dump();
-        
-        assertEquals("buffer size", 40, buffer.getSize());
-        assertEquals("qA", 0, qA.getSize());
-        assertEquals("qB", 20, qB.getSize());
-        assertEquals("qC", 20, qC.getSize());
+      dump();
 
-        qA.add(createMessage(10));
+      assertEquals("buffer size", 40, buffer.getSize());
+      assertEquals("qA", 10, qA.getSize());
+      assertEquals("qB", 20, qB.getSize());
+      assertEquals("qC", 10, qC.getSize());
 
-        dump();
-        
-        assertEquals("buffer size", 40, buffer.getSize());
-        assertEquals("qA", 10, qA.getSize());
-        assertEquals("qB", 10, qB.getSize());
-        assertEquals("qC", 20, qC.getSize());
-    }
+      qC.add(createMessage(10));
 
-    
-    protected MessageBuffer createMessageBuffer() {
-        return new OrderBasedMessageBuffer(40);
-    }
+      dump();
+
+      assertEquals("buffer size", 40, buffer.getSize());
+      assertEquals("qA", 0, qA.getSize());
+      assertEquals("qB", 20, qB.getSize());
+      assertEquals("qC", 20, qC.getSize());
+
+      qB.add(createMessage(10));
+
+      dump();
+
+      assertEquals("buffer size", 40, buffer.getSize());
+      assertEquals("qA", 0, qA.getSize());
+      assertEquals("qB", 20, qB.getSize());
+      assertEquals("qC", 20, qC.getSize());
+
+      qA.add(createMessage(10));
+
+      dump();
+
+      assertEquals("buffer size", 40, buffer.getSize());
+      assertEquals("qA", 10, qA.getSize());
+      assertEquals("qB", 10, qB.getSize());
+      assertEquals("qC", 20, qC.getSize());
+   }
+
+   protected MessageBuffer createMessageBuffer() {
+      return new OrderBasedMessageBuffer(40);
+   }
 }

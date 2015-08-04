@@ -45,104 +45,104 @@ import org.slf4j.LoggerFactory;
 
 public class AMQ3324Test {
 
-    private static final transient Logger LOG = LoggerFactory.getLogger(AMQ3324Test.class);
+   private static final transient Logger LOG = LoggerFactory.getLogger(AMQ3324Test.class);
 
-    private static final String bindAddress = "tcp://0.0.0.0:0";
-    private BrokerService broker;
-    private ActiveMQConnectionFactory cf;
+   private static final String bindAddress = "tcp://0.0.0.0:0";
+   private BrokerService broker;
+   private ActiveMQConnectionFactory cf;
 
-    private static final int MESSAGE_COUNT = 100;
+   private static final int MESSAGE_COUNT = 100;
 
-    @Before
-    public void setUp() throws Exception {
-        broker = this.createBroker();
-        String address = broker.getTransportConnectors().get(0).getPublishableConnectString();
-        broker.start();
-        broker.waitUntilStarted();
+   @Before
+   public void setUp() throws Exception {
+      broker = this.createBroker();
+      String address = broker.getTransportConnectors().get(0).getPublishableConnectString();
+      broker.start();
+      broker.waitUntilStarted();
 
-        cf = new ActiveMQConnectionFactory(address);
-    }
+      cf = new ActiveMQConnectionFactory(address);
+   }
 
-    @After
-    public void tearDown() throws Exception {
-        if (broker != null) {
-            broker.stop();
-            broker.waitUntilStopped();
-        }
-    }
+   @After
+   public void tearDown() throws Exception {
+      if (broker != null) {
+         broker.stop();
+         broker.waitUntilStopped();
+      }
+   }
 
-    @Test
-    public void testTempMessageConsumedAdvisoryConnectionClose() throws Exception {
+   @Test
+   public void testTempMessageConsumedAdvisoryConnectionClose() throws Exception {
 
-        Connection connection = cf.createConnection();
-        connection.start();
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      Connection connection = cf.createConnection();
+      connection.start();
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-        final TemporaryQueue queue = session.createTemporaryQueue();
-        MessageConsumer consumer = session.createConsumer(queue);
+      final TemporaryQueue queue = session.createTemporaryQueue();
+      MessageConsumer consumer = session.createConsumer(queue);
 
-        final Topic advisoryTopic = AdvisorySupport.getMessageConsumedAdvisoryTopic((ActiveMQDestination) queue);
+      final Topic advisoryTopic = AdvisorySupport.getMessageConsumedAdvisoryTopic((ActiveMQDestination) queue);
 
-        MessageConsumer advisoryConsumer = session.createConsumer(advisoryTopic);
-        MessageProducer producer = session.createProducer(queue);
+      MessageConsumer advisoryConsumer = session.createConsumer(advisoryTopic);
+      MessageProducer producer = session.createProducer(queue);
 
-        // send lots of messages to the tempQueue
-        for (int i = 0; i < MESSAGE_COUNT; i++) {
-            BytesMessage m = session.createBytesMessage();
-            m.writeBytes(new byte[1024]);
-            producer.send(m);
-        }
+      // send lots of messages to the tempQueue
+      for (int i = 0; i < MESSAGE_COUNT; i++) {
+         BytesMessage m = session.createBytesMessage();
+         m.writeBytes(new byte[1024]);
+         producer.send(m);
+      }
 
-        // consume one message from tempQueue
-        Message msg = consumer.receive(5000);
-        assertNotNull(msg);
+      // consume one message from tempQueue
+      Message msg = consumer.receive(5000);
+      assertNotNull(msg);
 
-        // check one advisory message has produced on the advisoryTopic
-        Message advCmsg = advisoryConsumer.receive(5000);
-        assertNotNull(advCmsg);
+      // check one advisory message has produced on the advisoryTopic
+      Message advCmsg = advisoryConsumer.receive(5000);
+      assertNotNull(advCmsg);
 
-        connection.close();
-        LOG.debug("Connection closed, destinations should now become inactive.");
+      connection.close();
+      LOG.debug("Connection closed, destinations should now become inactive.");
 
-        assertTrue("The destination " + advisoryTopic + "was not removed. ", Wait.waitFor(new Wait.Condition() {
-            @Override
-            public boolean isSatisified() throws Exception {
-                return broker.getAdminView().getTopics().length == 0;
-            }
-        }));
+      assertTrue("The destination " + advisoryTopic + "was not removed. ", Wait.waitFor(new Wait.Condition() {
+         @Override
+         public boolean isSatisified() throws Exception {
+            return broker.getAdminView().getTopics().length == 0;
+         }
+      }));
 
-        assertTrue("The destination " + queue + " was not removed. ", Wait.waitFor(new Wait.Condition() {
-            @Override
-            public boolean isSatisified() throws Exception {
-                return broker.getAdminView().getTemporaryQueues().length == 0;
-            }
-        }));
-    }
+      assertTrue("The destination " + queue + " was not removed. ", Wait.waitFor(new Wait.Condition() {
+         @Override
+         public boolean isSatisified() throws Exception {
+            return broker.getAdminView().getTemporaryQueues().length == 0;
+         }
+      }));
+   }
 
-    protected BrokerService createBroker() throws Exception {
-        BrokerService answer = new BrokerService();
-        answer.setUseMirroredQueues(true);
-        answer.setPersistent(false);
-        answer.setSchedulePeriodForDestinationPurge(1000);
+   protected BrokerService createBroker() throws Exception {
+      BrokerService answer = new BrokerService();
+      answer.setUseMirroredQueues(true);
+      answer.setPersistent(false);
+      answer.setSchedulePeriodForDestinationPurge(1000);
 
-        PolicyEntry entry = new PolicyEntry();
-        entry.setGcInactiveDestinations(true);
-        entry.setInactiveTimoutBeforeGC(2000);
-        entry.setProducerFlowControl(true);
-        entry.setAdvisoryForConsumed(true);
-        entry.setAdvisoryForFastProducers(true);
-        entry.setAdvisoryForDelivery(true);
-        PolicyMap map = new PolicyMap();
-        map.setDefaultEntry(entry);
+      PolicyEntry entry = new PolicyEntry();
+      entry.setGcInactiveDestinations(true);
+      entry.setInactiveTimoutBeforeGC(2000);
+      entry.setProducerFlowControl(true);
+      entry.setAdvisoryForConsumed(true);
+      entry.setAdvisoryForFastProducers(true);
+      entry.setAdvisoryForDelivery(true);
+      PolicyMap map = new PolicyMap();
+      map.setDefaultEntry(entry);
 
-        MirroredQueue mirrorQ = new MirroredQueue();
-        mirrorQ.setCopyMessage(true);
-        DestinationInterceptor[] destinationInterceptors = new DestinationInterceptor[]{mirrorQ};
-        answer.setDestinationInterceptors(destinationInterceptors);
+      MirroredQueue mirrorQ = new MirroredQueue();
+      mirrorQ.setCopyMessage(true);
+      DestinationInterceptor[] destinationInterceptors = new DestinationInterceptor[]{mirrorQ};
+      answer.setDestinationInterceptors(destinationInterceptors);
 
-        answer.setDestinationPolicy(map);
-        answer.addConnector(bindAddress);
+      answer.setDestinationPolicy(map);
+      answer.addConnector(bindAddress);
 
-        return answer;
-    }
+      return answer;
+   }
 }

@@ -45,69 +45,69 @@ import org.apache.activemq.transport.ResponseCorrelator;
 import org.apache.activemq.transport.failover.FailoverTransport;
 import org.junit.Test;
 
-
 public class AMQ2364Test {
 
-    @SuppressWarnings("unchecked")
-    @Test
-    public void testRollbackLeak() throws Exception {
+   @SuppressWarnings("unchecked")
+   @Test
+   public void testRollbackLeak() throws Exception {
 
-        int messageCount = 1000;
-        URI failoverUri = new URI("failover:(vm://localhost)?jms.redeliveryPolicy.maximumRedeliveries=0");
+      int messageCount = 1000;
+      URI failoverUri = new URI("failover:(vm://localhost)?jms.redeliveryPolicy.maximumRedeliveries=0");
 
-        Destination dest = new ActiveMQQueue("Failover.Leak");
+      Destination dest = new ActiveMQQueue("Failover.Leak");
 
-        ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory(failoverUri);
-        ActiveMQConnection connection = (ActiveMQConnection) cf.createConnection();
-        connection.start();
-        final Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
+      ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory(failoverUri);
+      ActiveMQConnection connection = (ActiveMQConnection) cf.createConnection();
+      connection.start();
+      final Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
 
-        MessageProducer producer = session.createProducer(dest);
+      MessageProducer producer = session.createProducer(dest);
 
-        for (int i = 0; i < messageCount; ++i)
-            producer.send(session.createTextMessage("Test message #" + i));
-        producer.close();
-        session.commit();
+      for (int i = 0; i < messageCount; ++i)
+         producer.send(session.createTextMessage("Test message #" + i));
+      producer.close();
+      session.commit();
 
-        MessageConsumer consumer = session.createConsumer(dest);
+      MessageConsumer consumer = session.createConsumer(dest);
 
-        final CountDownLatch latch = new CountDownLatch(messageCount);
-        consumer.setMessageListener(new MessageListener() {
+      final CountDownLatch latch = new CountDownLatch(messageCount);
+      consumer.setMessageListener(new MessageListener() {
 
-            @Override
-            public void onMessage(Message msg) {
-                try {
-                    session.rollback();
-                } catch (JMSException e) {
-                    e.printStackTrace();
-                } finally {
-                    latch.countDown();
-                }
+         @Override
+         public void onMessage(Message msg) {
+            try {
+               session.rollback();
             }
-        });
+            catch (JMSException e) {
+               e.printStackTrace();
+            }
+            finally {
+               latch.countDown();
+            }
+         }
+      });
 
-        latch.await();
-        consumer.close();
-        session.close();
+      latch.await();
+      consumer.close();
+      session.close();
 
-        ResponseCorrelator respCorr = (ResponseCorrelator) connection.getTransport();
-        MutexTransport mutexTrans = (MutexTransport) respCorr.getNext();
-        FailoverTransport failoverTrans = (FailoverTransport) mutexTrans.getNext();
-        Field stateTrackerField = FailoverTransport.class.getDeclaredField("stateTracker");
-        stateTrackerField.setAccessible(true);
-        ConnectionStateTracker stateTracker = (ConnectionStateTracker) stateTrackerField.get(failoverTrans);
-        Field statesField = ConnectionStateTracker.class.getDeclaredField("connectionStates");
-        statesField.setAccessible(true);
-        ConcurrentHashMap<ConnectionId, ConnectionState> states =
-                (ConcurrentHashMap<ConnectionId, ConnectionState>) statesField.get(stateTracker);
+      ResponseCorrelator respCorr = (ResponseCorrelator) connection.getTransport();
+      MutexTransport mutexTrans = (MutexTransport) respCorr.getNext();
+      FailoverTransport failoverTrans = (FailoverTransport) mutexTrans.getNext();
+      Field stateTrackerField = FailoverTransport.class.getDeclaredField("stateTracker");
+      stateTrackerField.setAccessible(true);
+      ConnectionStateTracker stateTracker = (ConnectionStateTracker) stateTrackerField.get(failoverTrans);
+      Field statesField = ConnectionStateTracker.class.getDeclaredField("connectionStates");
+      statesField.setAccessible(true);
+      ConcurrentHashMap<ConnectionId, ConnectionState> states = (ConcurrentHashMap<ConnectionId, ConnectionState>) statesField.get(stateTracker);
 
-        ConnectionState state = states.get(connection.getConnectionInfo().getConnectionId());
+      ConnectionState state = states.get(connection.getConnectionInfo().getConnectionId());
 
-        Collection<TransactionState> transactionStates = state.getTransactionStates();
+      Collection<TransactionState> transactionStates = state.getTransactionStates();
 
-        connection.stop();
-        connection.close();
+      connection.stop();
+      connection.close();
 
-        assertEquals("Transaction states not cleaned up", 0,transactionStates.size());
-    }
+      assertEquals("Transaction states not cleaned up", 0, transactionStates.size());
+   }
 }

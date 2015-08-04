@@ -18,8 +18,7 @@ package org.apache.activemq.artemis.tests.timing.util;
 
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 
-public class UUIDTest extends org.apache.activemq.artemis.tests.unit.util.UUIDTest
-{
+public class UUIDTest extends org.apache.activemq.artemis.tests.unit.util.UUIDTest {
 
    // Constants -----------------------------------------------------
 
@@ -27,12 +26,10 @@ public class UUIDTest extends org.apache.activemq.artemis.tests.unit.util.UUIDTe
 
    // Static --------------------------------------------------------
 
-   public static void main(String[] args)
-   {
+   public static void main(String[] args) {
       long start = System.currentTimeMillis();
       int count = 10000;
-      for (int i = 0; i < count; i++)
-      {
+      for (int i = 0; i < count; i++) {
          // System.out.println(i + " " + UUIDGenerator.asString(UUIDGenerator.getHardwareAddress()));
          byte[] address = UUIDGenerator.getHardwareAddress();
       }
@@ -41,8 +38,7 @@ public class UUIDTest extends org.apache.activemq.artemis.tests.unit.util.UUIDTe
    }
 
    @Override
-   protected int getTimes()
-   {
+   protected int getTimes() {
       return 1000000;
    }
 }

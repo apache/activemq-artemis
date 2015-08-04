@@ -34,8 +34,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
-public class ClientSoakTest extends ActiveMQTestBase
-{
+public class ClientSoakTest extends ActiveMQTestBase {
 
    // Constants -----------------------------------------------------
 
@@ -51,8 +50,7 @@ public class ClientSoakTest extends ActiveMQTestBase
 
    public static final int MIN_MESSAGES_ON_QUEUE = 5000;
 
-   protected boolean isNetty()
-   {
+   protected boolean isNetty() {
       return true;
    }
 
@@ -66,29 +64,17 @@ public class ClientSoakTest extends ActiveMQTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
       clearDataRecreateServerDirs();
 
-      Configuration config = createDefaultConfig(isNetty())
-         .setJournalFileSize(10 * 1024 * 1024);
+      Configuration config = createDefaultConfig(isNetty()).setJournalFileSize(10 * 1024 * 1024);
 
       server = createServer(IS_JOURNAL, config, -1, -1, new HashMap<String, AddressSettings>());
 
-      DivertConfiguration divert1 = new DivertConfiguration()
-         .setName("dv1")
-         .setRoutingName("nm1")
-         .setAddress(ClientSoakTest.ADDRESS.toString())
-         .setForwardingAddress(ClientSoakTest.DIVERTED_AD1.toString())
-         .setExclusive(true);
+      DivertConfiguration divert1 = new DivertConfiguration().setName("dv1").setRoutingName("nm1").setAddress(ClientSoakTest.ADDRESS.toString()).setForwardingAddress(ClientSoakTest.DIVERTED_AD1.toString()).setExclusive(true);
 
-      DivertConfiguration divert2 = new DivertConfiguration()
-         .setName("dv2")
-         .setRoutingName("nm2")
-         .setAddress(ClientSoakTest.ADDRESS.toString())
-         .setForwardingAddress(ClientSoakTest.DIVERTED_AD2.toString())
-         .setExclusive(true);
+      DivertConfiguration divert2 = new DivertConfiguration().setName("dv2").setRoutingName("nm2").setAddress(ClientSoakTest.ADDRESS.toString()).setForwardingAddress(ClientSoakTest.DIVERTED_AD2.toString()).setExclusive(true);
 
       ArrayList<DivertConfiguration> divertList = new ArrayList<DivertConfiguration>();
       divertList.add(divert1);
@@ -119,8 +105,7 @@ public class ClientSoakTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testSoakClient() throws Exception
-   {
+   public void testSoakClient() throws Exception {
       final ServerLocator locator = createFactory(isNetty());
       final ClientSessionFactory sf = createSessionFactory(locator);
 
@@ -128,15 +113,13 @@ public class ClientSoakTest extends ActiveMQTestBase
 
       ClientProducer producer = session.createProducer(ADDRESS);
 
-      for (int i = 0; i < MIN_MESSAGES_ON_QUEUE; i++)
-      {
+      for (int i = 0; i < MIN_MESSAGES_ON_QUEUE; i++) {
          ClientMessage msg = session.createMessage(true);
          msg.putLongProperty("count", i);
          msg.getBodyBuffer().writeBytes(new byte[10 * 1024]);
          producer.send(msg);
 
-         if (i % 1000 == 0)
-         {
+         if (i % 1000 == 0) {
             System.out.println("Sent " + i + " messages");
             session.commit();
          }
@@ -157,10 +140,8 @@ public class ClientSoakTest extends ActiveMQTestBase
       rec2.start();
 
       long timeEnd = System.currentTimeMillis() + TimeUnit.HOURS.toMillis(1);
-      while (timeEnd > System.currentTimeMillis())
-      {
-         if (send.getErrorsCount() != 0 || rec1.getErrorsCount() != 0 || rec2.getErrorsCount() != 0)
-         {
+      while (timeEnd > System.currentTimeMillis()) {
+         if (send.getErrorsCount() != 0 || rec1.getErrorsCount() != 0 || rec2.getErrorsCount() != 0) {
             System.out.println("There are sequence errors in some of the clients, please look at the logs");
             break;
          }

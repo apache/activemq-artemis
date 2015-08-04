@@ -18,7 +18,7 @@ package org.apache.activemq.artemis.api.core.management;
 
 /**
  * Types of notification emitted by ActiveMQ Artemis servers.
- * <p>
+ * <br>
  * These notifications can be received through:
  * <ul>
  * <li>JMX' MBeans subscriptions
@@ -27,7 +27,7 @@ package org.apache.activemq.artemis.api.core.management;
  * </ul>
  * see the ActiveMQ Artemis user manual section on "Management Notifications"
  */
-public interface NotificationType
-{
+public interface NotificationType {
+
    int getType();
 }

@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.jms.tests;
+
 import java.util.Enumeration;
 
 import javax.jms.Connection;
@@ -34,8 +35,7 @@ import org.junit.Test;
 /**
  * Various use cases, added here while trying things or fixing forum issues.
  */
-public class MiscellaneousTest extends JMSTestCase
-{
+public class MiscellaneousTest extends JMSTestCase {
    // Constants -----------------------------------------------------
 
    // Static --------------------------------------------------------
@@ -46,8 +46,7 @@ public class MiscellaneousTest extends JMSTestCase
 
    @Override
    @After
-   public void tearDown() throws Exception
-   {
+   public void tearDown() throws Exception {
       removeAllMessages(queue1.getQueueName(), true);
 
       super.tearDown();
@@ -55,14 +54,11 @@ public class MiscellaneousTest extends JMSTestCase
 
    // Public --------------------------------------------------------
 
-
    @Test
-   public void testBrowser() throws Exception
-   {
+   public void testBrowser() throws Exception {
       Connection conn = null;
 
-      try
-      {
+      try {
          conn = createConnection();
          Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
          MessageProducer prod = session.createProducer(queue1);
@@ -80,14 +76,12 @@ public class MiscellaneousTest extends JMSTestCase
 
          Enumeration e = browser.getEnumeration();
 
-         TextMessage bm = (TextMessage)e.nextElement();
+         TextMessage bm = (TextMessage) e.nextElement();
 
          ProxyAssertSupport.assertEquals("message one", bm.getText());
       }
-      finally
-      {
-         if (conn != null)
-         {
+      finally {
+         if (conn != null) {
             conn.close();
          }
 
@@ -99,22 +93,18 @@ public class MiscellaneousTest extends JMSTestCase
     * Test case for http://jira.jboss.org/jira/browse/JBMESSAGING-542
     */
    @Test
-   public void testClosingConsumerFromMessageListenerAutoAck() throws Exception
-   {
+   public void testClosingConsumerFromMessageListenerAutoAck() throws Exception {
       Connection c = null;
 
-      try
-      {
+      try {
          c = createConnection();
          Session s = c.createSession(false, Session.AUTO_ACKNOWLEDGE);
          MessageProducer prod = s.createProducer(queue1);
          Message m = s.createMessage();
          prod.send(m);
       }
-      finally
-      {
-         if (c != null)
-         {
+      finally {
+         if (c != null) {
             c.close();
          }
       }
@@ -123,18 +113,14 @@ public class MiscellaneousTest extends JMSTestCase
       Connection conn = createConnection();
       Session s = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
       final MessageConsumer cons = s.createConsumer(queue1);
-      cons.setMessageListener(new MessageListener()
-      {
-         public void onMessage(final Message m)
-         {
+      cons.setMessageListener(new MessageListener() {
+         public void onMessage(final Message m) {
             // close the connection on the same thread that processed the message
-            try
-            {
+            try {
                cons.close();
                result.setSuccess();
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                result.setFailure(e);
             }
          }
@@ -160,22 +146,18 @@ public class MiscellaneousTest extends JMSTestCase
     * Test case for http://jira.jboss.org/jira/browse/JBMESSAGING-542
     */
    @Test
-   public void testClosingConsumerFromMessageListenerTransacted() throws Exception
-   {
+   public void testClosingConsumerFromMessageListenerTransacted() throws Exception {
       Connection c = null;
 
-      try
-      {
+      try {
          c = createConnection();
          Session s = c.createSession(false, Session.AUTO_ACKNOWLEDGE);
          MessageProducer prod = s.createProducer(queue1);
          Message m = s.createMessage();
          prod.send(m);
       }
-      finally
-      {
-         if (c != null)
-         {
+      finally {
+         if (c != null) {
             c.close();
          }
       }
@@ -184,18 +166,14 @@ public class MiscellaneousTest extends JMSTestCase
       Connection conn = createConnection();
       Session s = conn.createSession(true, Session.SESSION_TRANSACTED);
       final MessageConsumer cons = s.createConsumer(queue1);
-      cons.setMessageListener(new MessageListener()
-      {
-         public void onMessage(final Message m)
-         {
+      cons.setMessageListener(new MessageListener() {
+         public void onMessage(final Message m) {
             // close the connection on the same thread that processed the message
-            try
-            {
+            try {
                cons.close();
                result.setSuccess();
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                result.setFailure(e);
             }
          }
@@ -217,12 +195,10 @@ public class MiscellaneousTest extends JMSTestCase
 
    // Test case for http://jira.jboss.com/jira/browse/JBMESSAGING-788
    @Test
-   public void testGetDeliveriesForSession() throws Exception
-   {
+   public void testGetDeliveriesForSession() throws Exception {
       Connection conn = null;
 
-      try
-      {
+      try {
          conn = createConnection();
 
          Session session1 = conn.createSession(true, Session.SESSION_TRANSACTED);
@@ -239,10 +215,8 @@ public class MiscellaneousTest extends JMSTestCase
 
          session2.commit();
       }
-      finally
-      {
-         if (conn != null)
-         {
+      finally {
+         if (conn != null) {
             conn.close();
          }
 
@@ -258,22 +232,20 @@ public class MiscellaneousTest extends JMSTestCase
 
    // Inner classes -------------------------------------------------
 
-   private class Result
-   {
+   private class Result {
+
       private boolean success;
 
       private Exception e;
 
       private boolean resultSet;
 
-      public Result()
-      {
+      public Result() {
          success = false;
          e = null;
       }
 
-      public synchronized void setSuccess()
-      {
+      public synchronized void setSuccess() {
          success = true;
 
          resultSet = true;
@@ -281,13 +253,11 @@ public class MiscellaneousTest extends JMSTestCase
          notify();
       }
 
-      public synchronized boolean isSuccess()
-      {
+      public synchronized boolean isSuccess() {
          return success;
       }
 
-      public synchronized void setFailure(final Exception e)
-      {
+      public synchronized void setFailure(final Exception e) {
          this.e = e;
 
          resultSet = true;
@@ -295,15 +265,12 @@ public class MiscellaneousTest extends JMSTestCase
          notify();
       }
 
-      public synchronized Exception getFailure()
-      {
+      public synchronized Exception getFailure() {
          return e;
       }
 
-      public synchronized void waitForResult() throws Exception
-      {
-         while (!resultSet)
-         {
+      public synchronized void waitForResult() throws Exception {
+         while (!resultSet) {
             this.wait();
          }
       }

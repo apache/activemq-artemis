@@ -25,56 +25,58 @@ import org.apache.activemq.xbean.BrokerFactoryBean;
 import org.springframework.core.io.ClassPathResource;
 
 /**
- * 
+ *
  */
 public class TwoBrokerTopicSendReceiveUsingTcpTest extends TwoBrokerTopicSendReceiveTest {
-    private BrokerService receiverBroker;
-    private BrokerService senderBroker;
 
-    protected void setUp() throws Exception {
-        BrokerFactoryBean brokerFactory;
+   private BrokerService receiverBroker;
+   private BrokerService senderBroker;
 
-        brokerFactory = new BrokerFactoryBean(new ClassPathResource("org/apache/activemq/usecases/receiver.xml"));
-        brokerFactory.afterPropertiesSet();
-        receiverBroker = brokerFactory.getBroker();
+   protected void setUp() throws Exception {
+      BrokerFactoryBean brokerFactory;
 
-        brokerFactory = new BrokerFactoryBean(new ClassPathResource("org/apache/activemq/usecases/sender.xml"));
-        brokerFactory.afterPropertiesSet();
-        senderBroker = brokerFactory.getBroker();
+      brokerFactory = new BrokerFactoryBean(new ClassPathResource("org/apache/activemq/usecases/receiver.xml"));
+      brokerFactory.afterPropertiesSet();
+      receiverBroker = brokerFactory.getBroker();
 
-        super.setUp();
-    }
+      brokerFactory = new BrokerFactoryBean(new ClassPathResource("org/apache/activemq/usecases/sender.xml"));
+      brokerFactory.afterPropertiesSet();
+      senderBroker = brokerFactory.getBroker();
 
-    protected void tearDown() throws Exception {
-        super.tearDown();
+      super.setUp();
+   }
 
-        if (receiverBroker != null) {
-            receiverBroker.stop();
-        }
-        if (senderBroker != null) {
-            senderBroker.stop();
-        }
-    }
+   protected void tearDown() throws Exception {
+      super.tearDown();
 
-    
-    protected ActiveMQConnectionFactory createReceiverConnectionFactory() throws JMSException {
-        try {
-            ActiveMQConnectionFactory fac =  new ActiveMQConnectionFactory(((TransportConnector)receiverBroker.getTransportConnectors().get(0)).getConnectUri());
-            return fac;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
+      if (receiverBroker != null) {
+         receiverBroker.stop();
+      }
+      if (senderBroker != null) {
+         senderBroker.stop();
+      }
+   }
 
-    protected ActiveMQConnectionFactory createSenderConnectionFactory() throws JMSException {
-        try {
-            ActiveMQConnectionFactory fac = new ActiveMQConnectionFactory(((TransportConnector)senderBroker.getTransportConnectors().get(0)).getConnectUri());
-            return fac;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
+   protected ActiveMQConnectionFactory createReceiverConnectionFactory() throws JMSException {
+      try {
+         ActiveMQConnectionFactory fac = new ActiveMQConnectionFactory(((TransportConnector) receiverBroker.getTransportConnectors().get(0)).getConnectUri());
+         return fac;
+      }
+      catch (Exception e) {
+         e.printStackTrace();
+         return null;
+      }
+   }
 
-    }
+   protected ActiveMQConnectionFactory createSenderConnectionFactory() throws JMSException {
+      try {
+         ActiveMQConnectionFactory fac = new ActiveMQConnectionFactory(((TransportConnector) senderBroker.getTransportConnectors().get(0)).getConnectUri());
+         return fac;
+      }
+      catch (Exception e) {
+         e.printStackTrace();
+         return null;
+      }
+
+   }
 }

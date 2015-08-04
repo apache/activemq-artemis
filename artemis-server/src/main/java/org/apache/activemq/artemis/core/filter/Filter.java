@@ -19,8 +19,8 @@ package org.apache.activemq.artemis.core.filter;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.ServerMessage;
 
-public interface Filter
-{
+public interface Filter {
+
    boolean match(ServerMessage message);
 
    SimpleString getFilterString();

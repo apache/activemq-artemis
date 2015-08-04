@@ -19,17 +19,15 @@ package org.apache.activemq.artemis.api.core;
 /**
  * A transaction was rolled back.
  */
-public final class ActiveMQTransactionRolledBackException extends ActiveMQException
-{
+public final class ActiveMQTransactionRolledBackException extends ActiveMQException {
+
    private static final long serialVersionUID = 5823412198677126300L;
 
-   public ActiveMQTransactionRolledBackException()
-   {
+   public ActiveMQTransactionRolledBackException() {
       super(ActiveMQExceptionType.TRANSACTION_ROLLED_BACK);
    }
 
-   public ActiveMQTransactionRolledBackException(String msg)
-   {
+   public ActiveMQTransactionRolledBackException(String msg) {
       super(ActiveMQExceptionType.TRANSACTION_ROLLED_BACK, msg);
    }
 }

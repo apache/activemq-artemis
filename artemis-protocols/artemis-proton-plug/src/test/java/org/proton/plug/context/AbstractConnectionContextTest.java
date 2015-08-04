@@ -29,12 +29,10 @@ import org.proton.plug.ServerSASL;
 import org.proton.plug.exceptions.ActiveMQAMQPException;
 import org.proton.plug.handler.EventHandler;
 
-public class AbstractConnectionContextTest
-{
+public class AbstractConnectionContextTest {
 
    @Test
-   public void testListenerDoesntThrowNPEWhenClosingLinkWithNullContext() throws Exception
-   {
+   public void testListenerDoesntThrowNPEWhenClosingLinkWithNullContext() throws Exception {
       TestConnectionContext connectionContext = new TestConnectionContext(new TestConnectionCallback());
       EventHandler listener = connectionContext.getListener();
 
@@ -47,67 +45,56 @@ public class AbstractConnectionContextTest
       listener.onRemoteClose(link);
    }
 
-   private class TestConnectionContext extends AbstractConnectionContext
-   {
+   private class TestConnectionContext extends AbstractConnectionContext {
 
-      public TestConnectionContext(AMQPConnectionCallback connectionCallback)
-      {
+      public TestConnectionContext(AMQPConnectionCallback connectionCallback) {
          super(connectionCallback);
       }
 
       @Override
-      protected void remoteLinkOpened(Link link) throws Exception
-      {
+      protected void remoteLinkOpened(Link link) throws Exception {
 
       }
 
       @Override
-      protected AbstractProtonSessionContext newSessionExtension(Session realSession) throws ActiveMQAMQPException
-      {
+      protected AbstractProtonSessionContext newSessionExtension(Session realSession) throws ActiveMQAMQPException {
          return null;
       }
 
-      public EventHandler getListener()
-      {
+      public EventHandler getListener() {
          return listener;
       }
    }
 
-   private class TestConnectionCallback implements AMQPConnectionCallback
-   {
+   private class TestConnectionCallback implements AMQPConnectionCallback {
+
       @Override
-      public void close()
-      {
+      public void close() {
 
       }
 
       @Override
-      public void onTransport(ByteBuf bytes, AMQPConnectionContext connection)
-      {
+      public void onTransport(ByteBuf bytes, AMQPConnectionContext connection) {
 
       }
 
       @Override
-      public AMQPSessionCallback createSessionCallback(AMQPConnectionContext connection)
-      {
+      public AMQPSessionCallback createSessionCallback(AMQPConnectionContext connection) {
          return null;
       }
 
       @Override
-      public void setConnection(AMQPConnectionContext connection)
-      {
+      public void setConnection(AMQPConnectionContext connection) {
 
       }
 
       @Override
-      public AMQPConnectionContext getConnection()
-      {
+      public AMQPConnectionContext getConnection() {
          return null;
       }
 
       @Override
-      public ServerSASL[] getSASLMechnisms()
-      {
+      public ServerSASL[] getSASLMechnisms() {
          return null;
       }
    }

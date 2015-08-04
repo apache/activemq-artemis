@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.performance.journal;
+
 import java.io.File;
 
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
@@ -23,26 +24,23 @@ import org.apache.activemq.artemis.tests.unit.UnitTestLogger;
 import org.junit.Before;
 import org.junit.BeforeClass;
 
-public class RealJournalImplAIOTest extends JournalImplTestUnit
-{
+public class RealJournalImplAIOTest extends JournalImplTestUnit {
+
    private static final UnitTestLogger log = UnitTestLogger.LOGGER;
 
    @BeforeClass
-   public static void hasAIO()
-   {
+   public static void hasAIO() {
       org.junit.Assume.assumeTrue("Test case needs AIO to run", AIOSequentialFileFactory.isSupported());
    }
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
    }
 
    @Override
-   protected SequentialFileFactory getFileFactory() throws Exception
-   {
+   protected SequentialFileFactory getFileFactory() throws Exception {
       File file = new File(getTestDir());
 
       RealJournalImplAIOTest.log.debug("deleting directory " + file);

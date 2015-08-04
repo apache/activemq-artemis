@@ -16,46 +16,39 @@
  */
 package org.apache.activemq.artemis.rest.queue;
 
-public class DestinationSettings
-{
+public class DestinationSettings {
+
    protected boolean duplicatesAllowed;
    private boolean durableSend;
    private int consumerSessionTimeoutSeconds = 1000;
 
-   public boolean isDuplicatesAllowed()
-   {
+   public boolean isDuplicatesAllowed() {
       return duplicatesAllowed;
    }
 
-   public void setDuplicatesAllowed(boolean duplicatesAllowed)
-   {
+   public void setDuplicatesAllowed(boolean duplicatesAllowed) {
       this.duplicatesAllowed = duplicatesAllowed;
    }
 
-   public int getConsumerSessionTimeoutSeconds()
-   {
+   public int getConsumerSessionTimeoutSeconds() {
       return consumerSessionTimeoutSeconds;
    }
 
-   public void setConsumerSessionTimeoutSeconds(int consumerSessionTimeoutSeconds)
-   {
+   public void setConsumerSessionTimeoutSeconds(int consumerSessionTimeoutSeconds) {
       this.consumerSessionTimeoutSeconds = consumerSessionTimeoutSeconds;
    }
 
-   public boolean isDurableSend()
-   {
+   public boolean isDurableSend() {
       return durableSend;
    }
 
-   public void setDurableSend(boolean durableSend)
-   {
+   public void setDurableSend(boolean durableSend) {
       this.durableSend = durableSend;
    }
 
    public static final DestinationSettings defaultSettings;
 
-   static
-   {
+   static {
       defaultSettings = new DestinationSettings();
       defaultSettings.setDuplicatesAllowed(true);
       defaultSettings.setDurableSend(false);

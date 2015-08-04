@@ -34,23 +34,19 @@ import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 
-public class ReconnectTest extends ActiveMQTestBase
-{
+public class ReconnectTest extends ActiveMQTestBase {
 
    @Test
-   public void testReconnectNetty() throws Exception
-   {
+   public void testReconnectNetty() throws Exception {
       internalTestReconnect(true);
    }
 
    @Test
-   public void testReconnectInVM() throws Exception
-   {
+   public void testReconnectInVM() throws Exception {
       internalTestReconnect(false);
    }
 
-   public void internalTestReconnect(final boolean isNetty) throws Exception
-   {
+   public void internalTestReconnect(final boolean isNetty) throws Exception {
       final int pingPeriod = 1000;
 
       ActiveMQServer server = createServer(false, isNetty);
@@ -59,40 +55,29 @@ public class ReconnectTest extends ActiveMQTestBase
 
       ClientSessionInternal session = null;
 
-      try
-      {
-         ServerLocator locator = createFactory(isNetty)
-                 .setClientFailureCheckPeriod(pingPeriod)
-                 .setRetryInterval(500)
-                 .setRetryIntervalMultiplier(1d)
-                 .setReconnectAttempts(-1)
-                 .setConfirmationWindowSize(1024 * 1024);
+      try {
+         ServerLocator locator = createFactory(isNetty).setClientFailureCheckPeriod(pingPeriod).setRetryInterval(500).setRetryIntervalMultiplier(1d).setReconnectAttempts(-1).setConfirmationWindowSize(1024 * 1024);
          ClientSessionFactory factory = createSessionFactory(locator);
 
-
-         session = (ClientSessionInternal)factory.createSession();
+         session = (ClientSessionInternal) factory.createSession();
 
          final AtomicInteger count = new AtomicInteger(0);
 
          final CountDownLatch latch = new CountDownLatch(1);
 
-         session.addFailureListener(new SessionFailureListener()
-         {
+         session.addFailureListener(new SessionFailureListener() {
             @Override
-            public void connectionFailed(final ActiveMQException me, boolean failedOver)
-            {
+            public void connectionFailed(final ActiveMQException me, boolean failedOver) {
                count.incrementAndGet();
                latch.countDown();
             }
 
             @Override
-            public void connectionFailed(final ActiveMQException me, boolean failedOver, String scaleDownTargetNodeID)
-            {
+            public void connectionFailed(final ActiveMQException me, boolean failedOver, String scaleDownTargetNodeID) {
                connectionFailed(me, failedOver);
             }
 
-            public void beforeReconnect(final ActiveMQException exception)
-            {
+            public void beforeReconnect(final ActiveMQException exception) {
             }
 
          });
@@ -112,14 +97,11 @@ public class ReconnectTest extends ActiveMQTestBase
 
          locator.close();
       }
-      finally
-      {
-         try
-         {
+      finally {
+         try {
             session.close();
          }
-         catch (Throwable e)
-         {
+         catch (Throwable e) {
          }
 
          server.stop();
@@ -128,116 +110,93 @@ public class ReconnectTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testInterruptReconnectNetty() throws Exception
-   {
+   public void testInterruptReconnectNetty() throws Exception {
       internalTestInterruptReconnect(true, false);
    }
 
    @Test
-   public void testInterruptReconnectInVM() throws Exception
-   {
+   public void testInterruptReconnectInVM() throws Exception {
       internalTestInterruptReconnect(false, false);
    }
 
    @Test
-   public void testInterruptReconnectNettyInterruptMainThread() throws Exception
-   {
+   public void testInterruptReconnectNettyInterruptMainThread() throws Exception {
       internalTestInterruptReconnect(true, true);
    }
 
    @Test
-   public void testInterruptReconnectInVMInterruptMainThread() throws Exception
-   {
+   public void testInterruptReconnectInVMInterruptMainThread() throws Exception {
       internalTestInterruptReconnect(false, true);
    }
 
-   public void internalTestInterruptReconnect(final boolean isNetty, final boolean interruptMainThread) throws Exception
-   {
+   public void internalTestInterruptReconnect(final boolean isNetty,
+                                              final boolean interruptMainThread) throws Exception {
       final int pingPeriod = 1000;
 
       ActiveMQServer server = createServer(false, isNetty);
 
       server.start();
 
-      try
-      {
-         ServerLocator locator = createFactory(isNetty)
-                 .setClientFailureCheckPeriod(pingPeriod)
-                 .setRetryInterval(500)
-                 .setRetryIntervalMultiplier(1d)
-                 .setReconnectAttempts(-1)
-                 .setConfirmationWindowSize(1024 * 1024);
-         ClientSessionFactoryInternal factory = (ClientSessionFactoryInternal)locator.createSessionFactory();
+      try {
+         ServerLocator locator = createFactory(isNetty).setClientFailureCheckPeriod(pingPeriod).setRetryInterval(500).setRetryIntervalMultiplier(1d).setReconnectAttempts(-1).setConfirmationWindowSize(1024 * 1024);
+         ClientSessionFactoryInternal factory = (ClientSessionFactoryInternal) locator.createSessionFactory();
 
          // One for beforeReconnecto from the Factory, and one for the commit about to be done
          final CountDownLatch latchCommit = new CountDownLatch(2);
 
          final ArrayList<Thread> threadToBeInterrupted = new ArrayList<Thread>();
 
-         factory.addFailureListener(new SessionFailureListener()
-         {
+         factory.addFailureListener(new SessionFailureListener() {
 
             @Override
-            public void connectionFailed(ActiveMQException exception, boolean failedOver)
-            {
+            public void connectionFailed(ActiveMQException exception, boolean failedOver) {
             }
 
             @Override
-            public void connectionFailed(final ActiveMQException me, boolean failedOver, String scaleDownTargetNodeID)
-            {
+            public void connectionFailed(final ActiveMQException me, boolean failedOver, String scaleDownTargetNodeID) {
                connectionFailed(me, failedOver);
             }
 
             @Override
-            public void beforeReconnect(ActiveMQException exception)
-            {
+            public void beforeReconnect(ActiveMQException exception) {
                latchCommit.countDown();
                threadToBeInterrupted.add(Thread.currentThread());
                System.out.println("Thread " + Thread.currentThread() + " reconnecting now");
             }
          });
 
-
-         final ClientSessionInternal session = (ClientSessionInternal)factory.createSession();
+         final ClientSessionInternal session = (ClientSessionInternal) factory.createSession();
 
          final AtomicInteger count = new AtomicInteger(0);
 
          final CountDownLatch latch = new CountDownLatch(1);
 
-         session.addFailureListener(new SessionFailureListener()
-         {
+         session.addFailureListener(new SessionFailureListener() {
 
-            public void connectionFailed(final ActiveMQException me, boolean failedOver)
-            {
+            public void connectionFailed(final ActiveMQException me, boolean failedOver) {
                count.incrementAndGet();
                latch.countDown();
             }
 
             @Override
-            public void connectionFailed(final ActiveMQException me, boolean failedOver, String scaleDownTargetNodeID)
-            {
+            public void connectionFailed(final ActiveMQException me, boolean failedOver, String scaleDownTargetNodeID) {
                connectionFailed(me, failedOver);
             }
 
-            public void beforeReconnect(final ActiveMQException exception)
-            {
+            public void beforeReconnect(final ActiveMQException exception) {
             }
 
          });
 
          server.stop();
 
-         Thread tcommitt = new Thread()
-         {
-            public void run()
-            {
+         Thread tcommitt = new Thread() {
+            public void run() {
                latchCommit.countDown();
-               try
-               {
+               try {
                   session.commit();
                }
-               catch (ActiveMQException e)
-               {
+               catch (ActiveMQException e) {
                   e.printStackTrace();
                }
             }
@@ -249,14 +208,11 @@ public class ReconnectTest extends ActiveMQTestBase
          // There should be only one thread
          assertEquals(1, threadToBeInterrupted.size());
 
-         if (interruptMainThread)
-         {
+         if (interruptMainThread) {
             tcommitt.interrupt();
          }
-         else
-         {
-            for (Thread tint: threadToBeInterrupted)
-            {
+         else {
+            for (Thread tint : threadToBeInterrupted) {
                tint.interrupt();
             }
          }
@@ -266,8 +222,7 @@ public class ReconnectTest extends ActiveMQTestBase
 
          locator.close();
       }
-      finally
-      {
+      finally {
       }
 
    }

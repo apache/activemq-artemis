@@ -35,8 +35,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class DeliveryOrderTest extends ActiveMQTestBase
-{
+public class DeliveryOrderTest extends ActiveMQTestBase {
+
    public final SimpleString addressA = new SimpleString("addressA");
 
    public final SimpleString queueA = new SimpleString("queueA");
@@ -53,8 +53,7 @@ public class DeliveryOrderTest extends ActiveMQTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
       locator = createInVMNonHALocator();
       server = createServer(false);
@@ -63,27 +62,23 @@ public class DeliveryOrderTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testSendDeliveryOrderOnCommit() throws Exception
-   {
+   public void testSendDeliveryOrderOnCommit() throws Exception {
       ClientSession sendSession = cf.createSession(false, false, true);
       ClientProducer cp = sendSession.createProducer(addressA);
       int numMessages = 1000;
       sendSession.createQueue(addressA, queueA, false);
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage cm = sendSession.createMessage(false);
          cm.getBodyBuffer().writeInt(i);
          cp.send(cm);
-         if (i % 10 == 0)
-         {
+         if (i % 10 == 0) {
             sendSession.commit();
          }
          sendSession.commit();
       }
       ClientConsumer c = sendSession.createConsumer(queueA);
       sendSession.start();
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage cm = c.receive(5000);
          Assert.assertNotNull(cm);
          Assert.assertEquals(i, cm.getBodyBuffer().readInt());
@@ -92,30 +87,26 @@ public class DeliveryOrderTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testReceiveDeliveryOrderOnRollback() throws Exception
-   {
+   public void testReceiveDeliveryOrderOnRollback() throws Exception {
       ClientSession sendSession = cf.createSession(false, true, false);
       ClientProducer cp = sendSession.createProducer(addressA);
       int numMessages = 1000;
       sendSession.createQueue(addressA, queueA, false);
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage cm = sendSession.createMessage(false);
          cm.getBodyBuffer().writeInt(i);
          cp.send(cm);
       }
       ClientConsumer c = sendSession.createConsumer(queueA);
       sendSession.start();
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage cm = c.receive(5000);
          Assert.assertNotNull(cm);
          cm.acknowledge();
          Assert.assertEquals(i, cm.getBodyBuffer().readInt());
       }
       sendSession.rollback();
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage cm = c.receive(5000);
          Assert.assertNotNull(cm);
          cm.acknowledge();
@@ -125,8 +116,7 @@ public class DeliveryOrderTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testMultipleConsumersMessageOrder() throws Exception
-   {
+   public void testMultipleConsumersMessageOrder() throws Exception {
       ClientSession sendSession = cf.createSession(false, true, true);
       ClientSession recSession = cf.createSession(false, true, true);
       sendSession.createQueue(addressA, queueA, false);
@@ -136,55 +126,47 @@ public class DeliveryOrderTest extends ActiveMQTestBase
       ClientConsumer[] clientConsumers = new ClientConsumer[numReceivers];
       Receiver[] receivers = new Receiver[numReceivers];
       CountDownLatch latch = new CountDownLatch(numMessage);
-      for (int i = 0; i < numReceivers; i++)
-      {
+      for (int i = 0; i < numReceivers; i++) {
          clientConsumers[i] = recSession.createConsumer(queueA);
          receivers[i] = new Receiver(latch);
          clientConsumers[i].setMessageHandler(receivers[i]);
       }
       recSession.start();
       ClientProducer clientProducer = sendSession.createProducer(addressA);
-      for (int i = 0; i < numMessage; i++)
-      {
+      for (int i = 0; i < numMessage; i++) {
          ClientMessage cm = sendSession.createMessage(false);
          cm.getBodyBuffer().writeInt(count.getAndIncrement());
          clientProducer.send(cm);
       }
       Assert.assertTrue(latch.await(10, TimeUnit.SECONDS));
-      for (Receiver receiver : receivers)
-      {
+      for (Receiver receiver : receivers) {
          Assert.assertFalse("" + receiver.lastMessage, receiver.failed);
       }
       sendSession.close();
       recSession.close();
    }
 
-   class Receiver implements MessageHandler
-   {
+   class Receiver implements MessageHandler {
+
       final CountDownLatch latch;
 
       int lastMessage = -1;
 
       boolean failed = false;
 
-      public Receiver(final CountDownLatch latch)
-      {
+      public Receiver(final CountDownLatch latch) {
          this.latch = latch;
       }
 
-      public void onMessage(final ClientMessage message)
-      {
+      public void onMessage(final ClientMessage message) {
          int i = message.getBodyBuffer().readInt();
-         try
-         {
+         try {
             message.acknowledge();
          }
-         catch (ActiveMQException e)
-         {
+         catch (ActiveMQException e) {
             e.printStackTrace();
          }
-         if (i <= lastMessage)
-         {
+         if (i <= lastMessage) {
             failed = true;
          }
          lastMessage = i;

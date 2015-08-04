@@ -20,17 +20,17 @@ import org.apache.activemq.test.TestSupport;
 
 public class DestinationPathTest extends TestSupport {
 
-    public void testPathParse() {
-        assertParse("FOO", new String[]{"FOO"});
-        assertParse("FOO.BAR", new String[]{"FOO", "BAR"});
-        assertParse("FOO.*", new String[]{"FOO", "*"});
-        assertParse("FOO.>", new String[]{"FOO", ">"});
-        assertParse("FOO.BAR.XYZ", new String[]{"FOO", "BAR", "XYZ"});
-        assertParse("FOO.BAR.", new String[]{"FOO", "BAR", ""});
-    }
+   public void testPathParse() {
+      assertParse("FOO", new String[]{"FOO"});
+      assertParse("FOO.BAR", new String[]{"FOO", "BAR"});
+      assertParse("FOO.*", new String[]{"FOO", "*"});
+      assertParse("FOO.>", new String[]{"FOO", ">"});
+      assertParse("FOO.BAR.XYZ", new String[]{"FOO", "BAR", "XYZ"});
+      assertParse("FOO.BAR.", new String[]{"FOO", "BAR", ""});
+   }
 
-    protected void assertParse(String subject, String[] expected) {
-        String[] path = DestinationPath.getDestinationPaths(subject);
-        assertArrayEqual(subject, expected, path);
-    }
+   protected void assertParse(String subject, String[] expected) {
+      String[] path = DestinationPath.getDestinationPaths(subject);
+      assertArrayEqual(subject, expected, path);
+   }
 }

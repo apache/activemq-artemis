@@ -28,8 +28,7 @@ import org.apache.activemq.artemis.core.persistence.OperationContext;
 /**
  * This will batch multiple calls waiting to perform a sync in a single call.
  */
-final class PageSyncTimer
-{
+final class PageSyncTimer {
 
    // Constants -----------------------------------------------------
 
@@ -43,10 +42,8 @@ final class PageSyncTimer
 
    private final long timeSync;
 
-   private final Runnable runnable = new Runnable()
-   {
-      public void run()
-      {
+   private final Runnable runnable = new Runnable() {
+      public void run() {
          tick();
       }
    };
@@ -57,8 +54,7 @@ final class PageSyncTimer
 
    // Constructors --------------------------------------------------
 
-   PageSyncTimer(PagingStore store, ScheduledExecutorService scheduledExecutor, long timeSync)
-   {
+   PageSyncTimer(PagingStore store, ScheduledExecutorService scheduledExecutor, long timeSync) {
       this.store = store;
       this.scheduledExecutor = scheduledExecutor;
       this.timeSync = timeSync;
@@ -66,22 +62,18 @@ final class PageSyncTimer
 
    // Public --------------------------------------------------------
 
-   synchronized void addSync(OperationContext ctx)
-   {
+   synchronized void addSync(OperationContext ctx) {
       ctx.pageSyncLineUp();
-      if (!pendingSync)
-      {
+      if (!pendingSync) {
          pendingSync = true;
          scheduledExecutor.schedule(runnable, timeSync, TimeUnit.NANOSECONDS);
       }
       syncOperations.add(ctx);
    }
 
-   private void tick()
-   {
-      OperationContext [] pendingSyncsArray;
-      synchronized (this)
-      {
+   private void tick() {
+      OperationContext[] pendingSyncsArray;
+      synchronized (this) {
 
          pendingSync = false;
          pendingSyncsArray = new OperationContext[syncOperations.size()];
@@ -89,27 +81,21 @@ final class PageSyncTimer
          syncOperations.clear();
       }
 
-      try
-      {
-         if (pendingSyncsArray.length != 0)
-         {
+      try {
+         if (pendingSyncsArray.length != 0) {
             store.ioSync();
          }
       }
-      catch (Exception e)
-      {
-         for (OperationContext ctx : pendingSyncsArray)
-         {
+      catch (Exception e) {
+         for (OperationContext ctx : pendingSyncsArray) {
             ctx.onError(ActiveMQExceptionType.IO_ERROR.getCode(), e.getMessage());
          }
       }
-      finally
-      {
+      finally {
          // In case of failure, The context should propagate an exception to the client
          // We send an exception to the client even on the case of a failure
          // to avoid possible locks and the client not getting the exception back
-         for (OperationContext ctx : pendingSyncsArray)
-         {
+         for (OperationContext ctx : pendingSyncsArray) {
             ctx.pageSyncDone();
          }
       }

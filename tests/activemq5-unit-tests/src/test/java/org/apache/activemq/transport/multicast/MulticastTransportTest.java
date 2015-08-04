@@ -28,44 +28,43 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * 
+ *
  */
 public class MulticastTransportTest extends UdpTransportTest {
-    
-    private static final Logger LOG = LoggerFactory.getLogger(MulticastTransportTest.class);
 
-    private String multicastURI = "multicast://224.1.2.3:6255";
-    
+   private static final Logger LOG = LoggerFactory.getLogger(MulticastTransportTest.class);
 
-    protected Transport createProducer() throws Exception {
-        LOG.info("Producer using URI: " + multicastURI);
-        
-        // we are not using the TransportFactory as this assumes that
-        // transports talk to a server using a WireFormat Negotiation step
-        // rather than talking directly to each other
-        
-        OpenWireFormat wireFormat = createWireFormat();
-        MulticastTransport transport = new MulticastTransport(wireFormat, new URI(multicastURI));
-        transport.setLoopBackMode(false);
-        transport.setSequenceGenerator(new IntSequenceGenerator());
-        return new CommandJoiner(transport, wireFormat);
-    }
+   private String multicastURI = "multicast://224.1.2.3:6255";
 
-    protected Transport createConsumer() throws Exception {
-        OpenWireFormat wireFormat = createWireFormat();
-        MulticastTransport transport = new MulticastTransport(wireFormat, new URI(multicastURI));
-        transport.setLoopBackMode(false);
-        transport.setSequenceGenerator(new IntSequenceGenerator());
-        return new CommandJoiner(transport, wireFormat);
-    }
+   protected Transport createProducer() throws Exception {
+      LOG.info("Producer using URI: " + multicastURI);
 
-    @Override
-    public void testSendingMediumMessage() throws Exception {
-        // Ignoring, see AMQ-4973
-    }
+      // we are not using the TransportFactory as this assumes that
+      // transports talk to a server using a WireFormat Negotiation step
+      // rather than talking directly to each other
 
-    @Override
-    public void testSendingLargeMessage() throws Exception {
-        // Ignoring, see AMQ-4973
-    }
+      OpenWireFormat wireFormat = createWireFormat();
+      MulticastTransport transport = new MulticastTransport(wireFormat, new URI(multicastURI));
+      transport.setLoopBackMode(false);
+      transport.setSequenceGenerator(new IntSequenceGenerator());
+      return new CommandJoiner(transport, wireFormat);
+   }
+
+   protected Transport createConsumer() throws Exception {
+      OpenWireFormat wireFormat = createWireFormat();
+      MulticastTransport transport = new MulticastTransport(wireFormat, new URI(multicastURI));
+      transport.setLoopBackMode(false);
+      transport.setSequenceGenerator(new IntSequenceGenerator());
+      return new CommandJoiner(transport, wireFormat);
+   }
+
+   @Override
+   public void testSendingMediumMessage() throws Exception {
+      // Ignoring, see AMQ-4973
+   }
+
+   @Override
+   public void testSendingLargeMessage() throws Exception {
+      // Ignoring, see AMQ-4973
+   }
 }

@@ -22,8 +22,7 @@ import javax.jms.Message;
 
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
 
-public class JMSTypeHeaderTest extends MessageHeaderTestBase
-{
+public class JMSTypeHeaderTest extends MessageHeaderTestBase {
    // Constants -----------------------------------------------------
 
    // Static --------------------------------------------------------
@@ -35,8 +34,7 @@ public class JMSTypeHeaderTest extends MessageHeaderTestBase
    // Public --------------------------------------------------------
 
    @Test
-   public void testJMSType() throws Exception
-   {
+   public void testJMSType() throws Exception {
       Message m = queueProducerSession.createMessage();
       String originalType = "TYPE1";
       m.setJMSType(originalType);
@@ -46,8 +44,7 @@ public class JMSTypeHeaderTest extends MessageHeaderTestBase
    }
 
    @Test
-   public void testNULLJMSType() throws Exception
-   {
+   public void testNULLJMSType() throws Exception {
       Message m = queueProducerSession.createMessage();
       queueProducer.send(m);
       ProxyAssertSupport.assertEquals(null, queueConsumer.receive(1000).getJMSType());

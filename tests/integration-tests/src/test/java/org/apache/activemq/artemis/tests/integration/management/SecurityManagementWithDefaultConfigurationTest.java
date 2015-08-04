@@ -22,26 +22,20 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.junit.Test;
 
-public class SecurityManagementWithDefaultConfigurationTest extends SecurityManagementTestBase
-{
+public class SecurityManagementWithDefaultConfigurationTest extends SecurityManagementTestBase {
 
    @Test
-   public void testSendManagementMessageWithDefaultClusterAdminUser() throws Exception
-   {
-      doSendManagementMessage(ActiveMQDefaultConfiguration.getDefaultClusterUser(),
-                              ActiveMQDefaultConfiguration.getDefaultClusterPassword(),
-                              true);
+   public void testSendManagementMessageWithDefaultClusterAdminUser() throws Exception {
+      doSendManagementMessage(ActiveMQDefaultConfiguration.getDefaultClusterUser(), ActiveMQDefaultConfiguration.getDefaultClusterPassword(), true);
    }
 
    @Test
-   public void testSendManagementMessageWithGuest() throws Exception
-   {
+   public void testSendManagementMessageWithGuest() throws Exception {
       doSendManagementMessage("guest", "guest", false);
    }
 
    @Test
-   public void testSendManagementMessageWithoutUserCredentials() throws Exception
-   {
+   public void testSendManagementMessageWithoutUserCredentials() throws Exception {
       doSendManagementMessage(null, null, false);
    }
 
@@ -50,11 +44,8 @@ public class SecurityManagementWithDefaultConfigurationTest extends SecurityMana
    // Protected -----------------------------------------------------
 
    @Override
-   protected ActiveMQServer setupAndStartActiveMQServer() throws Exception
-   {
-      Configuration config = createDefaultInVMConfig()
-         .setClusterPassword(ActiveMQDefaultConfiguration.getDefaultClusterPassword())
-         .setSecurityEnabled(true);
+   protected ActiveMQServer setupAndStartActiveMQServer() throws Exception {
+      Configuration config = createDefaultInVMConfig().setClusterPassword(ActiveMQDefaultConfiguration.getDefaultClusterPassword()).setSecurityEnabled(true);
       ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(config, false));
       server.start();
 

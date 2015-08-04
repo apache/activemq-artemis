@@ -54,409 +54,418 @@ import org.junit.Test;
  */
 
 public class AMQ3167Test {
-    protected BrokerService embeddedBroker;
 
-    protected static final int MEMORY_LIMIT = 16 * 1024;
+   protected BrokerService embeddedBroker;
 
-    protected static boolean Debug_f = false;
+   protected static final int MEMORY_LIMIT = 16 * 1024;
 
-    protected long Producer_stop_time = 0;
-    protected long Consumer_stop_time = 0;
-    protected long Consumer_startup_delay_ms = 2000;
-    protected boolean Stop_after_error = true;
+   protected static boolean Debug_f = false;
 
-    protected Connection JMS_conn;
-    protected long Num_error = 0;
+   protected long Producer_stop_time = 0;
+   protected long Consumer_stop_time = 0;
+   protected long Consumer_startup_delay_ms = 2000;
+   protected boolean Stop_after_error = true;
 
-    // // ////
-    // // UTILITIES ////
-    // // ////
+   protected Connection JMS_conn;
+   protected long Num_error = 0;
 
-    /**
-     * Create a new, unsecured, client connection to the test broker using the given username and password. This
-     * connection bypasses all security.
-     * <br>
-     * Don't forget to start the connection or no messages will be received by consumers even though producers will work
-     * fine.
-     *
-     * @username name of the JMS user for the connection; may be null.
-     * @password Password for the JMS user; may be null.
-     */
+   // // ////
+   // // UTILITIES ////
+   // // ////
 
-    protected Connection createUnsecuredConnection(String username, String password) throws javax.jms.JMSException {
-        ActiveMQConnectionFactory conn_fact;
+   /**
+    * Create a new, unsecured, client connection to the test broker using the given username and password. This
+    * connection bypasses all security.
+    * <br>
+    * Don't forget to start the connection or no messages will be received by consumers even though producers will work
+    * fine.
+    *
+    * @username name of the JMS user for the connection; may be null.
+    * @password Password for the JMS user; may be null.
+    */
 
-        conn_fact = new ActiveMQConnectionFactory(embeddedBroker.getVmConnectorURI());
+   protected Connection createUnsecuredConnection(String username, String password) throws javax.jms.JMSException {
+      ActiveMQConnectionFactory conn_fact;
 
-        return conn_fact.createConnection(username, password);
-    }
+      conn_fact = new ActiveMQConnectionFactory(embeddedBroker.getVmConnectorURI());
 
-    // // ////
-    // // TEST FUNCTIONALITY ////
-    // // ////
+      return conn_fact.createConnection(username, password);
+   }
 
-    @Before
-    public void testPrep() throws Exception {
-        embeddedBroker = new BrokerService();
-        configureBroker(embeddedBroker);
-        embeddedBroker.start();
-        embeddedBroker.waitUntilStarted();
+   // // ////
+   // // TEST FUNCTIONALITY ////
+   // // ////
 
-        // Prepare the connection
-        JMS_conn = createUnsecuredConnection(null, null);
-        JMS_conn.start();
-    }
+   @Before
+   public void testPrep() throws Exception {
+      embeddedBroker = new BrokerService();
+      configureBroker(embeddedBroker);
+      embeddedBroker.start();
+      embeddedBroker.waitUntilStarted();
 
-    @After
-    public void testCleanup() throws java.lang.Exception {
-        JMS_conn.stop();
-        embeddedBroker.stop();
-    }
+      // Prepare the connection
+      JMS_conn = createUnsecuredConnection(null, null);
+      JMS_conn.start();
+   }
 
-    protected void configureBroker(BrokerService broker_svc) throws Exception {
+   @After
+   public void testCleanup() throws java.lang.Exception {
+      JMS_conn.stop();
+      embeddedBroker.stop();
+   }
 
-        broker_svc.setBrokerName("testbroker1");
+   protected void configureBroker(BrokerService broker_svc) throws Exception {
 
-        broker_svc.setUseJmx(false);
-        broker_svc.setPersistent(true);
-        broker_svc.setDataDirectory("target/AMQ3167Test");
-        configureDestinationPolicy(broker_svc);
-    }
+      broker_svc.setBrokerName("testbroker1");
 
-    /**
-     * NOTE: overrides any prior policy map defined for the broker service.
-     */
+      broker_svc.setUseJmx(false);
+      broker_svc.setPersistent(true);
+      broker_svc.setDataDirectory("target/AMQ3167Test");
+      configureDestinationPolicy(broker_svc);
+   }
 
-    protected void configureDestinationPolicy(BrokerService broker_svc) {
-        PolicyMap pol_map;
-        PolicyEntry pol_ent;
-        ArrayList<PolicyEntry> ent_list;
+   /**
+    * NOTE: overrides any prior policy map defined for the broker service.
+    */
 
-        ent_list = new ArrayList<PolicyEntry>();
+   protected void configureDestinationPolicy(BrokerService broker_svc) {
+      PolicyMap pol_map;
+      PolicyEntry pol_ent;
+      ArrayList<PolicyEntry> ent_list;
 
-        //
-        // QUEUES
-        //
+      ent_list = new ArrayList<PolicyEntry>();
 
-        pol_ent = new PolicyEntry();
-        pol_ent.setQueue(">");
-        pol_ent.setMemoryLimit(MEMORY_LIMIT);
-        pol_ent.setProducerFlowControl(false);
-        ent_list.add(pol_ent);
+      //
+      // QUEUES
+      //
 
-        //
-        // COMPLETE POLICY MAP
-        //
+      pol_ent = new PolicyEntry();
+      pol_ent.setQueue(">");
+      pol_ent.setMemoryLimit(MEMORY_LIMIT);
+      pol_ent.setProducerFlowControl(false);
+      ent_list.add(pol_ent);
 
-        pol_map = new PolicyMap();
-        pol_map.setPolicyEntries(ent_list);
+      //
+      // COMPLETE POLICY MAP
+      //
 
-        broker_svc.setDestinationPolicy(pol_map);
-    }
+      pol_map = new PolicyMap();
+      pol_map.setPolicyEntries(ent_list);
 
-    // // ////
-    // // TEST ////
-    // // ////
+      broker_svc.setDestinationPolicy(pol_map);
+   }
 
-    @Test
-    public void testQueueLostMessage() throws Exception {
-        Destination dest;
+   // // ////
+   // // TEST ////
+   // // ////
 
-        dest = ActiveMQDestination.createDestination("lostmsgtest.queue", ActiveMQDestination.QUEUE_TYPE);
+   @Test
+   public void testQueueLostMessage() throws Exception {
+      Destination dest;
 
-        // 10 seconds from now
-        Producer_stop_time = java.lang.System.nanoTime() + (10L * 1000000000L);
+      dest = ActiveMQDestination.createDestination("lostmsgtest.queue", ActiveMQDestination.QUEUE_TYPE);
 
-        // 15 seconds from now
-        Consumer_stop_time = Producer_stop_time + (5L * 1000000000L);
+      // 10 seconds from now
+      Producer_stop_time = java.lang.System.nanoTime() + (10L * 1000000000L);
 
-        runLostMsgTest(dest, 1000000, 1, 1, false);
+      // 15 seconds from now
+      Consumer_stop_time = Producer_stop_time + (5L * 1000000000L);
 
-        // Make sure failures in the threads are thoroughly reported in the JUnit framework.
-        assertTrue(Num_error == 0);
-    }
+      runLostMsgTest(dest, 1000000, 1, 1, false);
 
-    /**
-     *
-     */
+      // Make sure failures in the threads are thoroughly reported in the JUnit framework.
+      assertTrue(Num_error == 0);
+   }
 
-    protected static void log(String msg) {
-        if (Debug_f)
-            java.lang.System.err.println(msg);
-    }
+   /**
+    *
+    */
 
-    /**
-     * Main body of the lost-message test.
-     */
+   protected static void log(String msg) {
+      if (Debug_f)
+         java.lang.System.err.println(msg);
+   }
 
-    protected void runLostMsgTest(Destination dest, int num_msg, int num_send_per_sess, int num_recv_per_sess, boolean topic_f) throws Exception {
-        Thread prod_thread;
-        Thread cons_thread;
-        String tag;
-        Session sess;
-        MessageProducer prod;
-        MessageConsumer cons;
-        int ack_mode;
+   /**
+    * Main body of the lost-message test.
+    */
 
-        //
-        // Start the producer
-        //
+   protected void runLostMsgTest(Destination dest,
+                                 int num_msg,
+                                 int num_send_per_sess,
+                                 int num_recv_per_sess,
+                                 boolean topic_f) throws Exception {
+      Thread prod_thread;
+      Thread cons_thread;
+      String tag;
+      Session sess;
+      MessageProducer prod;
+      MessageConsumer cons;
+      int ack_mode;
 
-        tag = "prod";
-        log(">> Starting producer " + tag);
+      //
+      // Start the producer
+      //
 
-        sess = JMS_conn.createSession((num_send_per_sess > 1), Session.AUTO_ACKNOWLEDGE);
-        prod = sess.createProducer(dest);
+      tag = "prod";
+      log(">> Starting producer " + tag);
 
-        prod_thread = new producerThread(sess, prod, tag, num_msg, num_send_per_sess);
-        prod_thread.start();
-        log("Started producer " + tag);
+      sess = JMS_conn.createSession((num_send_per_sess > 1), Session.AUTO_ACKNOWLEDGE);
+      prod = sess.createProducer(dest);
 
-        //
-        // Delay before starting consumers
-        //
+      prod_thread = new producerThread(sess, prod, tag, num_msg, num_send_per_sess);
+      prod_thread.start();
+      log("Started producer " + tag);
 
-        log("Waiting before starting consumers");
-        java.lang.Thread.sleep(Consumer_startup_delay_ms);
+      //
+      // Delay before starting consumers
+      //
 
-        //
-        // Now create and start the consumer
-        //
+      log("Waiting before starting consumers");
+      java.lang.Thread.sleep(Consumer_startup_delay_ms);
 
-        tag = "cons";
-        log(">> Starting consumer");
+      //
+      // Now create and start the consumer
+      //
 
-        if (num_recv_per_sess > 1)
-            ack_mode = Session.CLIENT_ACKNOWLEDGE;
-        else
-            ack_mode = Session.AUTO_ACKNOWLEDGE;
+      tag = "cons";
+      log(">> Starting consumer");
 
-        sess = JMS_conn.createSession(false, ack_mode);
-        cons = sess.createConsumer(dest);
+      if (num_recv_per_sess > 1)
+         ack_mode = Session.CLIENT_ACKNOWLEDGE;
+      else
+         ack_mode = Session.AUTO_ACKNOWLEDGE;
 
-        cons_thread = new consumerThread(sess, cons, tag, num_msg, num_recv_per_sess);
-        cons_thread.start();
-        log("Started consumer " + tag);
+      sess = JMS_conn.createSession(false, ack_mode);
+      cons = sess.createConsumer(dest);
 
-        //
-        // Wait for the producer and consumer to finish.
-        //
+      cons_thread = new consumerThread(sess, cons, tag, num_msg, num_recv_per_sess);
+      cons_thread.start();
+      log("Started consumer " + tag);
 
-        log("< waiting for producer.");
-        prod_thread.join();
+      //
+      // Wait for the producer and consumer to finish.
+      //
 
-        log("< waiting for consumer.");
-        cons_thread.join();
+      log("< waiting for producer.");
+      prod_thread.join();
 
-        log("Shutting down");
-    }
+      log("< waiting for consumer.");
+      cons_thread.join();
 
-    // // ////
-    // // INTERNAL CLASSES ////
-    // // ////
+      log("Shutting down");
+   }
 
-    /**
-     * Producer thread - runs a single producer until the maximum number of messages is sent, the producer stop time is
-     * reached, or a test error is detected.
-     */
+   // // ////
+   // // INTERNAL CLASSES ////
+   // // ////
 
-    protected class producerThread extends Thread {
-        protected Session msgSess;
-        protected MessageProducer msgProd;
-        protected String producerTag;
-        protected int numMsg;
-        protected int numPerSess;
-        protected long producer_stop_time;
+   /**
+    * Producer thread - runs a single producer until the maximum number of messages is sent, the producer stop time is
+    * reached, or a test error is detected.
+    */
 
-        producerThread(Session sess, MessageProducer prod, String tag, int num_msg, int sess_size) {
-            super();
+   protected class producerThread extends Thread {
 
-            producer_stop_time = 0;
-            msgSess = sess;
-            msgProd = prod;
-            producerTag = tag;
-            numMsg = num_msg;
-            numPerSess = sess_size;
-        }
+      protected Session msgSess;
+      protected MessageProducer msgProd;
+      protected String producerTag;
+      protected int numMsg;
+      protected int numPerSess;
+      protected long producer_stop_time;
 
-        public void execTest() throws Exception {
-            Message msg;
-            int sess_start;
-            int cur;
+      producerThread(Session sess, MessageProducer prod, String tag, int num_msg, int sess_size) {
+         super();
 
-            sess_start = 0;
-            cur = 0;
-            while ((cur < numMsg) && (!didTimeOut()) && ((!Stop_after_error) || (Num_error == 0))) {
-                msg = msgSess.createTextMessage("test message from " + producerTag);
-                msg.setStringProperty("testprodtag", producerTag);
-                msg.setIntProperty("seq", cur);
+         producer_stop_time = 0;
+         msgSess = sess;
+         msgProd = prod;
+         producerTag = tag;
+         numMsg = num_msg;
+         numPerSess = sess_size;
+      }
 
-                if (msg instanceof ActiveMQMessage) {
-                    ((ActiveMQMessage) msg).setResponseRequired(true);
-                }
+      public void execTest() throws Exception {
+         Message msg;
+         int sess_start;
+         int cur;
 
-                //
-                // Send the message.
-                //
+         sess_start = 0;
+         cur = 0;
+         while ((cur < numMsg) && (!didTimeOut()) && ((!Stop_after_error) || (Num_error == 0))) {
+            msg = msgSess.createTextMessage("test message from " + producerTag);
+            msg.setStringProperty("testprodtag", producerTag);
+            msg.setIntProperty("seq", cur);
 
-                msgProd.send(msg);
-                cur++;
-
-                //
-                // Commit if the number of messages per session has been reached, and
-                // transactions are being used (only when > 1 msg per sess).
-                //
-
-                if ((numPerSess > 1) && ((cur - sess_start) >= numPerSess)) {
-                    msgSess.commit();
-                    sess_start = cur;
-                }
+            if (msg instanceof ActiveMQMessage) {
+               ((ActiveMQMessage) msg).setResponseRequired(true);
             }
 
-            // Make sure to send the final commit, if there were sends since the last commit.
-            if ((numPerSess > 1) && ((cur - sess_start) > 0))
-                msgSess.commit();
+            //
+            // Send the message.
+            //
 
-            if (cur < numMsg)
-                log("* Producer " + producerTag + " timed out at " + java.lang.System.nanoTime() + " (stop time " + producer_stop_time + ")");
-        }
+            msgProd.send(msg);
+            cur++;
 
-        /**
-         * Check whether it is time for the producer to terminate.
-         */
+            //
+            // Commit if the number of messages per session has been reached, and
+            // transactions are being used (only when > 1 msg per sess).
+            //
 
-        protected boolean didTimeOut() {
-            if ((Producer_stop_time > 0) && (java.lang.System.nanoTime() >= Producer_stop_time))
-                return true;
-
-            return false;
-        }
-
-        /**
-         * Run the producer.
-         */
-
-        @Override
-        public void run() {
-            try {
-                log("- running producer " + producerTag);
-                execTest();
-                log("- finished running producer " + producerTag);
-            } catch (Throwable thrown) {
-                Num_error++;
-                fail("producer " + producerTag + " failed: " + thrown.getMessage());
-                throw new Error("producer " + producerTag + " failed", thrown);
+            if ((numPerSess > 1) && ((cur - sess_start) >= numPerSess)) {
+               msgSess.commit();
+               sess_start = cur;
             }
-        }
+         }
 
-        @Override
-        public String toString() {
-            return producerTag;
-        }
-    }
+         // Make sure to send the final commit, if there were sends since the last commit.
+         if ((numPerSess > 1) && ((cur - sess_start) > 0))
+            msgSess.commit();
 
-    /**
-     * Producer thread - runs a single consumer until the maximum number of messages is received, the consumer stop time
-     * is reached, or a test error is detected.
-     */
+         if (cur < numMsg)
+            log("* Producer " + producerTag + " timed out at " + java.lang.System.nanoTime() + " (stop time " + producer_stop_time + ")");
+      }
 
-    protected class consumerThread extends Thread {
-        protected Session msgSess;
-        protected MessageConsumer msgCons;
-        protected String consumerTag;
-        protected int numMsg;
-        protected int numPerSess;
+      /**
+       * Check whether it is time for the producer to terminate.
+       */
 
-        consumerThread(Session sess, MessageConsumer cons, String tag, int num_msg, int sess_size) {
-            super();
+      protected boolean didTimeOut() {
+         if ((Producer_stop_time > 0) && (java.lang.System.nanoTime() >= Producer_stop_time))
+            return true;
 
-            msgSess = sess;
-            msgCons = cons;
-            consumerTag = tag;
-            numMsg = num_msg;
-            numPerSess = sess_size;
-        }
+         return false;
+      }
 
-        public void execTest() throws Exception {
-            Message msg;
-            int sess_start;
-            int cur;
+      /**
+       * Run the producer.
+       */
 
-            msg = null;
-            sess_start = 0;
-            cur = 0;
+      @Override
+      public void run() {
+         try {
+            log("- running producer " + producerTag);
+            execTest();
+            log("- finished running producer " + producerTag);
+         }
+         catch (Throwable thrown) {
+            Num_error++;
+            fail("producer " + producerTag + " failed: " + thrown.getMessage());
+            throw new Error("producer " + producerTag + " failed", thrown);
+         }
+      }
 
-            while ((cur < numMsg) && (!didTimeOut()) && ((!Stop_after_error) || (Num_error == 0))) {
-                //
-                // Use a timeout of 1 second to periodically check the consumer timeout.
-                //
-                msg = msgCons.receive(1000);
-                if (msg != null) {
-                    checkMessage(msg, cur);
-                    cur++;
+      @Override
+      public String toString() {
+         return producerTag;
+      }
+   }
 
-                    if ((numPerSess > 1) && ((cur - sess_start) >= numPerSess)) {
-                        msg.acknowledge();
-                        sess_start = cur;
-                    }
-                }
+   /**
+    * Producer thread - runs a single consumer until the maximum number of messages is received, the consumer stop time
+    * is reached, or a test error is detected.
+    */
+
+   protected class consumerThread extends Thread {
+
+      protected Session msgSess;
+      protected MessageConsumer msgCons;
+      protected String consumerTag;
+      protected int numMsg;
+      protected int numPerSess;
+
+      consumerThread(Session sess, MessageConsumer cons, String tag, int num_msg, int sess_size) {
+         super();
+
+         msgSess = sess;
+         msgCons = cons;
+         consumerTag = tag;
+         numMsg = num_msg;
+         numPerSess = sess_size;
+      }
+
+      public void execTest() throws Exception {
+         Message msg;
+         int sess_start;
+         int cur;
+
+         msg = null;
+         sess_start = 0;
+         cur = 0;
+
+         while ((cur < numMsg) && (!didTimeOut()) && ((!Stop_after_error) || (Num_error == 0))) {
+            //
+            // Use a timeout of 1 second to periodically check the consumer timeout.
+            //
+            msg = msgCons.receive(1000);
+            if (msg != null) {
+               checkMessage(msg, cur);
+               cur++;
+
+               if ((numPerSess > 1) && ((cur - sess_start) >= numPerSess)) {
+                  msg.acknowledge();
+                  sess_start = cur;
+               }
             }
+         }
 
-            // Acknowledge the last messages, if they were not yet acknowledged.
-            if ((numPerSess > 1) && ((cur - sess_start) > 0))
-                msg.acknowledge();
+         // Acknowledge the last messages, if they were not yet acknowledged.
+         if ((numPerSess > 1) && ((cur - sess_start) > 0))
+            msg.acknowledge();
 
-            if (cur < numMsg)
-                log("* Consumer " + consumerTag + " timed out");
-        }
+         if (cur < numMsg)
+            log("* Consumer " + consumerTag + " timed out");
+      }
 
-        /**
-         * Check whether it is time for the consumer to terminate.
-         */
+      /**
+       * Check whether it is time for the consumer to terminate.
+       */
 
-        protected boolean didTimeOut() {
-            if ((Consumer_stop_time > 0) && (java.lang.System.nanoTime() >= Consumer_stop_time))
-                return true;
+      protected boolean didTimeOut() {
+         if ((Consumer_stop_time > 0) && (java.lang.System.nanoTime() >= Consumer_stop_time))
+            return true;
 
-            return false;
-        }
+         return false;
+      }
 
-        /**
-         * Verify the message received. Sequence numbers are checked and are expected to exactly match the message
-         * number (starting at 0).
-         */
+      /**
+       * Verify the message received. Sequence numbers are checked and are expected to exactly match the message
+       * number (starting at 0).
+       */
 
-        protected void checkMessage(Message msg, int exp_seq) throws javax.jms.JMSException {
-            int seq;
+      protected void checkMessage(Message msg, int exp_seq) throws javax.jms.JMSException {
+         int seq;
 
-            seq = msg.getIntProperty("seq");
+         seq = msg.getIntProperty("seq");
 
-            if (exp_seq != seq) {
-                Num_error++;
-                fail("*** Consumer " + consumerTag + " expected seq " + exp_seq + "; received " + seq);
-            }
-        }
+         if (exp_seq != seq) {
+            Num_error++;
+            fail("*** Consumer " + consumerTag + " expected seq " + exp_seq + "; received " + seq);
+         }
+      }
 
-        /**
-         * Run the consumer.
-         */
+      /**
+       * Run the consumer.
+       */
 
-        @Override
-        public void run() {
-            try {
-                log("- running consumer " + consumerTag);
-                execTest();
-                log("- running consumer " + consumerTag);
-            } catch (Throwable thrown) {
-                Num_error++;
-                fail("consumer " + consumerTag + " failed: " + thrown.getMessage());
-                throw new Error("consumer " + consumerTag + " failed", thrown);
-            }
-        }
+      @Override
+      public void run() {
+         try {
+            log("- running consumer " + consumerTag);
+            execTest();
+            log("- running consumer " + consumerTag);
+         }
+         catch (Throwable thrown) {
+            Num_error++;
+            fail("consumer " + consumerTag + " failed: " + thrown.getMessage());
+            throw new Error("consumer " + consumerTag + " failed", thrown);
+         }
+      }
 
-        @Override
-        public String toString() {
-            return consumerTag;
-        }
-    }
+      @Override
+      public String toString() {
+         return consumerTag;
+      }
+   }
 }

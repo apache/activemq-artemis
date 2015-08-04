@@ -22,13 +22,12 @@ import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
 import org.apache.activemq.artemis.tests.unit.UnitTestLogger;
 
-public class NIOJournalImplTest extends JournalImplTestUnit
-{
+public class NIOJournalImplTest extends JournalImplTestUnit {
+
    private static final UnitTestLogger log = UnitTestLogger.LOGGER;
 
    @Override
-   protected SequentialFileFactory getFileFactory() throws Exception
-   {
+   protected SequentialFileFactory getFileFactory() throws Exception {
       File file = new File(getTemporaryDir());
 
       return new NIOSequentialFileFactory(file, 1);

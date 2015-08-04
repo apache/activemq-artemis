@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.net.URI;
 
 import junit.framework.TestCase;
+
 import org.apache.activemq.command.ActiveMQMessage;
 import org.apache.activemq.transport.Transport;
 import org.apache.activemq.transport.TransportFactory;
@@ -28,50 +29,51 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * 
+ *
  */
 public class BadConnectionTest extends TestCase {
 
-    private static final Logger LOG = LoggerFactory.getLogger(BadConnectionTest.class);
+   private static final Logger LOG = LoggerFactory.getLogger(BadConnectionTest.class);
 
-    protected Transport transport;
+   protected Transport transport;
 
-    public void testConnectingToUnavailableServer() throws Exception {
-        try {
-            transport.asyncRequest(new ActiveMQMessage(), null);
-            fail("This should never succeed");
-        } catch (IOException e) {
-            LOG.info("Caught expected exception: " + e, e);
-        }
-    }
+   public void testConnectingToUnavailableServer() throws Exception {
+      try {
+         transport.asyncRequest(new ActiveMQMessage(), null);
+         fail("This should never succeed");
+      }
+      catch (IOException e) {
+         LOG.info("Caught expected exception: " + e, e);
+      }
+   }
 
-    protected Transport createTransport() throws Exception {
-        return TransportFactory.connect(new URI("failover://(tcp://doesNotExist:1234)?useExponentialBackOff=false&maxReconnectAttempts=3&initialReconnectDelay=100"));
-    }
+   protected Transport createTransport() throws Exception {
+      return TransportFactory.connect(new URI("failover://(tcp://doesNotExist:1234)?useExponentialBackOff=false&maxReconnectAttempts=3&initialReconnectDelay=100"));
+   }
 
-    protected void setUp() throws Exception {
-        transport = createTransport();
-        transport.setTransportListener(new TransportListener() {
+   protected void setUp() throws Exception {
+      transport = createTransport();
+      transport.setTransportListener(new TransportListener() {
 
-            public void onCommand(Object command) {
-            }
+         public void onCommand(Object command) {
+         }
 
-            public void onException(IOException error) {
-            }
+         public void onException(IOException error) {
+         }
 
-            public void transportInterupted() {
-            }
+         public void transportInterupted() {
+         }
 
-            public void transportResumed() {
-            }
-        });
-        transport.start();
-    }
+         public void transportResumed() {
+         }
+      });
+      transport.start();
+   }
 
-    protected void tearDown() throws Exception {
-        if (transport != null) {
-            transport.stop();
-        }
-    }
+   protected void tearDown() throws Exception {
+      if (transport != null) {
+         transport.stop();
+      }
+   }
 
 }

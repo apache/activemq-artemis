@@ -19,8 +19,8 @@ package org.apache.activemq.artemis.api.core.management;
 /**
  * A DivertControl is used to manage a divert.
  */
-public interface DivertControl
-{
+public interface DivertControl {
+
    /**
     * Returns the filter used by this divert.
     */

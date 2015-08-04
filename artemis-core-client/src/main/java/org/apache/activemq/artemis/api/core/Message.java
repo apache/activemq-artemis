@@ -21,15 +21,14 @@ import java.util.Set;
 
 import org.apache.activemq.artemis.utils.UUID;
 
-
 /**
  * A Message is a routable instance that has a payload.
- * <p>
+ * <br>
  * The payload (the "body") is opaque to the messaging system. A Message also has a fixed set of
  * headers (required by the messaging system) and properties (defined by the users) that can be used
  * by the messaging system to route the message (e.g. to ensure it matches a queue filter).
  * <h2>Message Properties</h2>
- * <p>
+ * <br>
  * Message can contain properties specified by the users. It is possible to convert from some types
  * to other types as specified by the following table:
  * <pre>
@@ -46,12 +45,12 @@ import org.apache.activemq.artemis.utils.UUID;
  * |byte[]  |                                                   X
  * |-----------------------------------------------------------------
  * </pre>
- * <p>
+ * <br>
  * If conversion is not allowed (for example calling {@code getFloatProperty} on a property set a
  * {@code boolean}), a {@link ActiveMQPropertyConversionException} will be thrown.
  */
-public interface Message
-{
+public interface Message {
+
    SimpleString HDR_ACTUAL_EXPIRY_TIME = new SimpleString("_AMQ_ACTUAL_EXPIRY");
 
    SimpleString HDR_ORIGINAL_ADDRESS = new SimpleString("_AMQ_ORIG_ADDRESS");
@@ -120,7 +119,7 @@ public interface Message
 
    /**
     * Returns this message type.
-    * <p>
+    * <br>
     * See fields {@literal *_TYPE} for possible values.
     */
    byte getType();
@@ -171,14 +170,14 @@ public interface Message
 
    /**
     * Returns the message priority.
-    * <p>
+    * <br>
     * Values range from 0 (less priority) to 9 (more priority) inclusive.
     */
    byte getPriority();
 
    /**
     * Sets the message priority.
-    * <p>
+    * <br>
     * Value must be between 0 and 9 inclusive.
     *
     * @param priority the new message priority
@@ -372,7 +371,7 @@ public interface Message
     * @param key   property name
     * @param value property value
     * @throws ActiveMQPropertyConversionException if the value is not one of the accepted property
-    *                                            types.
+    *                                             types.
     */
    Message putObjectProperty(SimpleString key, Object value) throws ActiveMQPropertyConversionException;
 
@@ -388,7 +387,6 @@ public interface Message
     * @return the value corresponding to the specified key or @{code null}
     */
    Object removeProperty(SimpleString key);
-
 
    /**
     * @see #removeProperty(SimpleString)

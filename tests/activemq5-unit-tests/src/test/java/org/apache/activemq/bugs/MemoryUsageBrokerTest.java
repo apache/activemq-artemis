@@ -29,62 +29,63 @@ import javax.jms.*;
 import java.io.File;
 
 public class MemoryUsageBrokerTest extends BrokerTestSupport {
-    private static final Logger LOG = LoggerFactory.getLogger(MemoryUsageBrokerTest.class);
 
-    protected void setUp() throws Exception {
-        this.setAutoFail(true);
-        super.setUp();
-    }
+   private static final Logger LOG = LoggerFactory.getLogger(MemoryUsageBrokerTest.class);
 
-    @Override
-    protected PolicyEntry getDefaultPolicy() {
-        PolicyEntry policy = super.getDefaultPolicy();
-        // Disable PFC and assign a large memory limit that's larger than the default broker memory limit for queues
-        policy.setProducerFlowControl(false);
-        policy.setQueue(">");
-        policy.setMemoryLimit(128 * 1024 * 1024);
-        return policy;
-    }
+   protected void setUp() throws Exception {
+      this.setAutoFail(true);
+      super.setUp();
+   }
 
-    protected BrokerService createBroker() throws Exception {
-        BrokerService broker = new BrokerService();
-        KahaDBStore kaha = new KahaDBStore();
-        File directory = new File("target/activemq-data/kahadb");
-        IOHelper.deleteChildren(directory);
-        kaha.setDirectory(directory);
-        kaha.deleteAllMessages();
-        broker.setPersistenceAdapter(kaha);
-        return broker;
-    }
+   @Override
+   protected PolicyEntry getDefaultPolicy() {
+      PolicyEntry policy = super.getDefaultPolicy();
+      // Disable PFC and assign a large memory limit that's larger than the default broker memory limit for queues
+      policy.setProducerFlowControl(false);
+      policy.setQueue(">");
+      policy.setMemoryLimit(128 * 1024 * 1024);
+      return policy;
+   }
 
-    protected ConnectionFactory createConnectionFactory() {
-        return new ActiveMQConnectionFactory(broker.getVmConnectorURI());
-    }
+   protected BrokerService createBroker() throws Exception {
+      BrokerService broker = new BrokerService();
+      KahaDBStore kaha = new KahaDBStore();
+      File directory = new File("target/activemq-data/kahadb");
+      IOHelper.deleteChildren(directory);
+      kaha.setDirectory(directory);
+      kaha.deleteAllMessages();
+      broker.setPersistenceAdapter(kaha);
+      return broker;
+   }
 
-    protected Connection createJmsConnection() throws JMSException {
-        return createConnectionFactory().createConnection();
-    }
+   protected ConnectionFactory createConnectionFactory() {
+      return new ActiveMQConnectionFactory(broker.getVmConnectorURI());
+   }
 
-    public void testMemoryUsage() throws Exception {
-        Connection conn = createJmsConnection();
-        Session session = conn.createSession(true, Session.AUTO_ACKNOWLEDGE);
-        Queue queue = session.createQueue("queue.a.b");
-        MessageProducer producer = session.createProducer(queue);
-        for (int i = 0; i < 100000; i++) {
-            BytesMessage bm = session.createBytesMessage();
-            bm.writeBytes(new byte[1024]);
-            producer.send(bm);
-            if ((i + 1) % 100 == 0) {
-                session.commit();
-                int memoryUsagePercent = broker.getSystemUsage().getMemoryUsage().getPercentUsage();
-                LOG.info((i + 1) + " messages have been sent; broker memory usage " + memoryUsagePercent + "%");
-                assertTrue("Used more than available broker memory", memoryUsagePercent <= 100);
-            }
-        }
-        session.commit();
-        producer.close();
-        session.close();
-        conn.close();
-    }
+   protected Connection createJmsConnection() throws JMSException {
+      return createConnectionFactory().createConnection();
+   }
+
+   public void testMemoryUsage() throws Exception {
+      Connection conn = createJmsConnection();
+      Session session = conn.createSession(true, Session.AUTO_ACKNOWLEDGE);
+      Queue queue = session.createQueue("queue.a.b");
+      MessageProducer producer = session.createProducer(queue);
+      for (int i = 0; i < 100000; i++) {
+         BytesMessage bm = session.createBytesMessage();
+         bm.writeBytes(new byte[1024]);
+         producer.send(bm);
+         if ((i + 1) % 100 == 0) {
+            session.commit();
+            int memoryUsagePercent = broker.getSystemUsage().getMemoryUsage().getPercentUsage();
+            LOG.info((i + 1) + " messages have been sent; broker memory usage " + memoryUsagePercent + "%");
+            assertTrue("Used more than available broker memory", memoryUsagePercent <= 100);
+         }
+      }
+      session.commit();
+      producer.close();
+      session.close();
+      conn.close();
+   }
 
 }

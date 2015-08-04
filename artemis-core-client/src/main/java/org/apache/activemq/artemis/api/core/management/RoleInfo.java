@@ -23,8 +23,8 @@ import org.apache.activemq.artemis.utils.json.JSONObject;
  * Helper class to create Java Objects from the
  * JSON serialization returned by {@link AddressControl#getRolesAsJSON()}.
  */
-public final class RoleInfo
-{
+public final class RoleInfo {
+
    private final String name;
 
    private final boolean send;
@@ -45,21 +45,12 @@ public final class RoleInfo
     * Returns an array of RoleInfo corresponding to the JSON serialization returned
     * by {@link AddressControl#getRolesAsJSON()}.
     */
-   public static RoleInfo[] from(final String jsonString) throws Exception
-   {
+   public static RoleInfo[] from(final String jsonString) throws Exception {
       JSONArray array = new JSONArray(jsonString);
       RoleInfo[] roles = new RoleInfo[array.length()];
-      for (int i = 0; i < array.length(); i++)
-      {
+      for (int i = 0; i < array.length(); i++) {
          JSONObject r = array.getJSONObject(i);
-         RoleInfo role = new RoleInfo(r.getString("name"),
-                                      r.getBoolean("send"),
-                                      r.getBoolean("consume"),
-                                      r.getBoolean("createDurableQueue"),
-                                      r.getBoolean("deleteDurableQueue"),
-                                      r.getBoolean("createNonDurableQueue"),
-                                      r.getBoolean("deleteNonDurableQueue"),
-                                      r.getBoolean("manage"));
+         RoleInfo role = new RoleInfo(r.getString("name"), r.getBoolean("send"), r.getBoolean("consume"), r.getBoolean("createDurableQueue"), r.getBoolean("deleteDurableQueue"), r.getBoolean("createNonDurableQueue"), r.getBoolean("deleteNonDurableQueue"), r.getBoolean("manage"));
          roles[i] = role;
       }
       return roles;
@@ -72,8 +63,7 @@ public final class RoleInfo
                     final boolean deleteDurableQueue,
                     final boolean createNonDurableQueue,
                     final boolean deleteNonDurableQueue,
-                    final boolean manage)
-   {
+                    final boolean manage) {
       this.name = name;
       this.send = send;
       this.consume = consume;
@@ -87,64 +77,56 @@ public final class RoleInfo
    /**
     * Returns the name of the role.
     */
-   public String getName()
-   {
+   public String getName() {
       return name;
    }
 
    /**
     * Returns whether this role can send messages to the address.
     */
-   public boolean isSend()
-   {
+   public boolean isSend() {
       return send;
    }
 
    /**
     * Returns whether this role can consume messages from queues bound to the address.
     */
-   public boolean isConsume()
-   {
+   public boolean isConsume() {
       return consume;
    }
 
    /**
     * Returns whether this role can create durable queues bound to the address.
     */
-   public boolean isCreateDurableQueue()
-   {
+   public boolean isCreateDurableQueue() {
       return createDurableQueue;
    }
 
    /**
     * Returns whether this role can delete durable queues bound to the address.
     */
-   public boolean isDeleteDurableQueue()
-   {
+   public boolean isDeleteDurableQueue() {
       return deleteDurableQueue;
    }
 
    /**
     * Returns whether this role can create non-durable queues bound to the address.
     */
-   public boolean isCreateNonDurableQueue()
-   {
+   public boolean isCreateNonDurableQueue() {
       return createNonDurableQueue;
    }
 
    /**
     * Returns whether this role can delete non-durable queues bound to the address.
     */
-   public boolean isDeleteNonDurableQueue()
-   {
+   public boolean isDeleteNonDurableQueue() {
       return deleteNonDurableQueue;
    }
 
    /**
     * Returns whether this role can send management messages to the address.
     */
-   public boolean isManage()
-   {
+   public boolean isManage() {
       return manage;
    }
 }

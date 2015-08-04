@@ -36,201 +36,204 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class WireformatNegociationTest extends CombinationTestSupport {
-    private static final Logger LOG = LoggerFactory.getLogger(WireformatNegociationTest.class);
 
-    private TransportServer server;
-    private Transport clientTransport;
-    private Transport serverTransport;
+   private static final Logger LOG = LoggerFactory.getLogger(WireformatNegociationTest.class);
 
-    private final AtomicReference<WireFormatInfo> clientWF = new AtomicReference<WireFormatInfo>();
-    private final AtomicReference<WireFormatInfo> serverWF = new AtomicReference<WireFormatInfo>();
-    private final AtomicReference<Exception> asyncError = new AtomicReference<Exception>();
-    private final AtomicBoolean ignoreAsycError = new AtomicBoolean();
+   private TransportServer server;
+   private Transport clientTransport;
+   private Transport serverTransport;
 
-    private final CountDownLatch negotiationCounter = new CountDownLatch(2);
+   private final AtomicReference<WireFormatInfo> clientWF = new AtomicReference<WireFormatInfo>();
+   private final AtomicReference<WireFormatInfo> serverWF = new AtomicReference<WireFormatInfo>();
+   private final AtomicReference<Exception> asyncError = new AtomicReference<Exception>();
+   private final AtomicBoolean ignoreAsycError = new AtomicBoolean();
 
-    protected void setUp() throws Exception {
-        super.setUp();
-    }
+   private final CountDownLatch negotiationCounter = new CountDownLatch(2);
 
-    /**
-     * @throws Exception
-     * @throws URISyntaxException
-     */
-    private void startClient(String uri) throws Exception, URISyntaxException {
-        clientTransport = TransportFactory.connect(new URI(uri));
-        clientTransport.setTransportListener(new TransportListener() {
-            public void onCommand(Object command) {
-                if (command instanceof WireFormatInfo) {
-                    clientWF.set((WireFormatInfo)command);
-                    negotiationCounter.countDown();
-                }
+   protected void setUp() throws Exception {
+      super.setUp();
+   }
+
+   /**
+    * @throws Exception
+    * @throws URISyntaxException
+    */
+   private void startClient(String uri) throws Exception, URISyntaxException {
+      clientTransport = TransportFactory.connect(new URI(uri));
+      clientTransport.setTransportListener(new TransportListener() {
+         public void onCommand(Object command) {
+            if (command instanceof WireFormatInfo) {
+               clientWF.set((WireFormatInfo) command);
+               negotiationCounter.countDown();
             }
+         }
 
-            public void onException(IOException error) {
-                if (!ignoreAsycError.get()) {
-                    LOG.info("Client transport error: ", error);
-                    asyncError.set(error);
-                    negotiationCounter.countDown();
-                }
+         public void onException(IOException error) {
+            if (!ignoreAsycError.get()) {
+               LOG.info("Client transport error: ", error);
+               asyncError.set(error);
+               negotiationCounter.countDown();
             }
+         }
 
-            public void transportInterupted() {
+         public void transportInterupted() {
+         }
+
+         public void transportResumed() {
+         }
+      });
+      clientTransport.start();
+   }
+
+   /**
+    * @throws IOException
+    * @throws URISyntaxException
+    * @throws Exception
+    */
+   private void startServer(String uri) throws IOException, URISyntaxException, Exception {
+      server = TransportFactory.bind(new URI(uri));
+      server.setAcceptListener(new TransportAcceptListener() {
+         public void onAccept(Transport transport) {
+            try {
+               LOG.info("[" + getName() + "] Server Accepted a Connection");
+               serverTransport = transport;
+               serverTransport.setTransportListener(new TransportListener() {
+                  public void onCommand(Object command) {
+                     if (command instanceof WireFormatInfo) {
+                        serverWF.set((WireFormatInfo) command);
+                        negotiationCounter.countDown();
+                     }
+                  }
+
+                  public void onException(IOException error) {
+                     if (!ignoreAsycError.get()) {
+                        LOG.info("Server transport error: ", error);
+                        asyncError.set(error);
+                        negotiationCounter.countDown();
+                     }
+                  }
+
+                  public void transportInterupted() {
+                  }
+
+                  public void transportResumed() {
+                  }
+               });
+               serverTransport.start();
             }
-
-            public void transportResumed() {
+            catch (Exception e) {
+               e.printStackTrace();
             }
-        });
-        clientTransport.start();
-    }
+         }
 
-    /**
-     * @throws IOException
-     * @throws URISyntaxException
-     * @throws Exception
-     */
-    private void startServer(String uri) throws IOException, URISyntaxException, Exception {
-        server = TransportFactory.bind(new URI(uri));
-        server.setAcceptListener(new TransportAcceptListener() {
-            public void onAccept(Transport transport) {
-                try {
-                    LOG.info("[" + getName() + "] Server Accepted a Connection");
-                    serverTransport = transport;
-                    serverTransport.setTransportListener(new TransportListener() {
-                        public void onCommand(Object command) {
-                            if (command instanceof WireFormatInfo) {
-                                serverWF.set((WireFormatInfo)command);
-                                negotiationCounter.countDown();
-                            }
-                        }
+         public void onAcceptError(Exception error) {
+            error.printStackTrace();
+         }
+      });
+      server.start();
+   }
 
-                        public void onException(IOException error) {
-                            if (!ignoreAsycError.get()) {
-                                LOG.info("Server transport error: ", error);
-                                asyncError.set(error);
-                                negotiationCounter.countDown();
-                            }
-                        }
+   protected void tearDown() throws Exception {
+      ignoreAsycError.set(true);
+      try {
+         if (clientTransport != null) {
+            clientTransport.stop();
+         }
+         if (serverTransport != null) {
+            serverTransport.stop();
+         }
+         if (server != null) {
+            server.stop();
+         }
+      }
+      catch (Throwable e) {
+         e.printStackTrace();
+      }
+      super.tearDown();
+   }
 
-                        public void transportInterupted() {
-                        }
+   /**
+    * @throws Exception
+    */
+   public void testWireFormatInfoSeverVersion1() throws Exception {
 
-                        public void transportResumed() {
-                        }
-                    });
-                    serverTransport.start();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
+      startServer("tcp://localhost:61616?wireFormat.version=1");
+      startClient("tcp://localhost:61616");
 
-            public void onAcceptError(Exception error) {
-                error.printStackTrace();
-            }
-        });
-        server.start();
-    }
+      assertTrue("Connect timeout", negotiationCounter.await(10, TimeUnit.SECONDS));
+      assertNull("Async error: " + asyncError, asyncError.get());
 
-    protected void tearDown() throws Exception {
-        ignoreAsycError.set(true);
-        try {
-            if (clientTransport != null) {
-                clientTransport.stop();
-            }
-            if (serverTransport != null) {
-                serverTransport.stop();
-            }
-            if (server != null) {
-                server.stop();
-            }
-        } catch (Throwable e) {
-            e.printStackTrace();
-        }
-        super.tearDown();
-    }
+      assertNotNull(clientWF.get());
+      assertEquals(1, clientWF.get().getVersion());
 
-    /**
-     * @throws Exception
-     */
-    public void testWireFormatInfoSeverVersion1() throws Exception {
+      assertNotNull(serverWF.get());
+      assertEquals(1, serverWF.get().getVersion());
+   }
 
-        startServer("tcp://localhost:61616?wireFormat.version=1");
-        startClient("tcp://localhost:61616");
+   /**
+    * @throws Exception
+    */
+   public void testWireFormatInfoClientVersion1() throws Exception {
 
-        assertTrue("Connect timeout", negotiationCounter.await(10, TimeUnit.SECONDS));
-        assertNull("Async error: " + asyncError, asyncError.get());
+      startServer("tcp://localhost:61616");
+      startClient("tcp://localhost:61616?wireFormat.version=1");
 
-        assertNotNull(clientWF.get());
-        assertEquals(1, clientWF.get().getVersion());
+      assertTrue("Connect timeout", negotiationCounter.await(10, TimeUnit.SECONDS));
+      assertNull("Async error: " + asyncError, asyncError.get());
 
-        assertNotNull(serverWF.get());
-        assertEquals(1, serverWF.get().getVersion());
-    }
+      assertNotNull(clientWF.get());
+      assertEquals(1, clientWF.get().getVersion());
 
-    /**
-     * @throws Exception
-     */
-    public void testWireFormatInfoClientVersion1() throws Exception {
+      assertNotNull(serverWF.get());
+      assertEquals(1, serverWF.get().getVersion());
+   }
 
-        startServer("tcp://localhost:61616");
-        startClient("tcp://localhost:61616?wireFormat.version=1");
+   /**
+    * @throws Exception
+    */
+   public void testWireFormatInfoCurrentVersion() throws Exception {
 
-        assertTrue("Connect timeout", negotiationCounter.await(10, TimeUnit.SECONDS));
-        assertNull("Async error: " + asyncError, asyncError.get());
+      startServer("tcp://localhost:61616");
+      startClient("tcp://localhost:61616");
 
-        assertNotNull(clientWF.get());
-        assertEquals(1, clientWF.get().getVersion());
+      assertTrue("Connect timeout", negotiationCounter.await(10, TimeUnit.SECONDS));
+      assertNull("Async error: " + asyncError, asyncError.get());
 
-        assertNotNull(serverWF.get());
-        assertEquals(1, serverWF.get().getVersion());
-    }
+      assertNotNull(clientWF.get());
+      assertEquals(CommandTypes.PROTOCOL_VERSION, clientWF.get().getVersion());
 
-    /**
-     * @throws Exception
-     */
-    public void testWireFormatInfoCurrentVersion() throws Exception {
+      assertNotNull(serverWF.get());
+      assertEquals(CommandTypes.PROTOCOL_VERSION, serverWF.get().getVersion());
+   }
 
-        startServer("tcp://localhost:61616");
-        startClient("tcp://localhost:61616");
+   public void testWireFormatInactivityDurationInitialDelay() throws Exception {
 
-        assertTrue("Connect timeout", negotiationCounter.await(10, TimeUnit.SECONDS));
-        assertNull("Async error: " + asyncError, asyncError.get());
+      startServer("tcp://localhost:61616");
+      startClient("tcp://localhost:61616?wireFormat.maxInactivityDurationInitalDelay=60000");
 
-        assertNotNull(clientWF.get());
-        assertEquals(CommandTypes.PROTOCOL_VERSION, clientWF.get().getVersion());
+      assertTrue("Connect timeout", negotiationCounter.await(10, TimeUnit.SECONDS));
+      assertNull("Async error: " + asyncError, asyncError.get());
 
-        assertNotNull(serverWF.get());
-        assertEquals(CommandTypes.PROTOCOL_VERSION, serverWF.get().getVersion());
-    }
-    
-    public void testWireFormatInactivityDurationInitialDelay() throws Exception {
+      assertNotNull(clientWF.get());
+      assertEquals(CommandTypes.PROTOCOL_VERSION, clientWF.get().getVersion());
 
-        startServer("tcp://localhost:61616");
-        startClient("tcp://localhost:61616?wireFormat.maxInactivityDurationInitalDelay=60000");
+      assertNotNull(serverWF.get());
+      assertEquals(CommandTypes.PROTOCOL_VERSION, serverWF.get().getVersion());
+   }
 
-        assertTrue("Connect timeout", negotiationCounter.await(10, TimeUnit.SECONDS));
-        assertNull("Async error: " + asyncError, asyncError.get());
+   public void testWireFormatMaxFrameSize() throws Exception {
 
-        assertNotNull(clientWF.get());
-        assertEquals(CommandTypes.PROTOCOL_VERSION, clientWF.get().getVersion());
+      startServer("tcp://localhost:61616");
+      startClient("tcp://localhost:61616?wireFormat.maxFrameSize=1048576");
 
-        assertNotNull(serverWF.get());
-        assertEquals(CommandTypes.PROTOCOL_VERSION, serverWF.get().getVersion());
-    }
+      assertTrue("Connect timeout", negotiationCounter.await(10, TimeUnit.SECONDS));
+      assertNull("Async error: " + asyncError, asyncError.get());
 
-    public void testWireFormatMaxFrameSize() throws Exception {
+      assertNotNull(clientWF.get());
+      assertEquals(1048576, clientWF.get().getMaxFrameSize());
 
-        startServer("tcp://localhost:61616");
-        startClient("tcp://localhost:61616?wireFormat.maxFrameSize=1048576");
-
-        assertTrue("Connect timeout", negotiationCounter.await(10, TimeUnit.SECONDS));
-        assertNull("Async error: " + asyncError, asyncError.get());
-
-        assertNotNull(clientWF.get());
-        assertEquals(1048576, clientWF.get().getMaxFrameSize());
-
-        assertNotNull(serverWF.get());
-        assertEquals(1048576, serverWF.get().getMaxFrameSize());
-    }
+      assertNotNull(serverWF.get());
+      assertEquals(1048576, serverWF.get().getMaxFrameSize());
+   }
 
 }

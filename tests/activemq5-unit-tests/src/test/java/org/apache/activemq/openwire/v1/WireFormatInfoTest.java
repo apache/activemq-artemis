@@ -24,28 +24,26 @@ import org.apache.activemq.openwire.DataFileGeneratorTestSupport;
  * auto generated - do not modify! if you need to make a change, please see the
  * modify the groovy scripts in the under src/gram/script and then use maven
  * openwire:generate to regenerate this file.
- * 
- * 
  */
 public class WireFormatInfoTest extends DataFileGeneratorTestSupport {
 
-    public static final WireFormatInfoTest SINGLETON = new WireFormatInfoTest();
+   public static final WireFormatInfoTest SINGLETON = new WireFormatInfoTest();
 
-    public Object createObject() throws Exception {
-        WireFormatInfo info = new WireFormatInfo();
-        populateObject(info);
-        return info;
-    }
+   public Object createObject() throws Exception {
+      WireFormatInfo info = new WireFormatInfo();
+      populateObject(info);
+      return info;
+   }
 
-    protected void populateObject(Object object) throws Exception {
-        super.populateObject(object);
-        WireFormatInfo info = (WireFormatInfo)object;
-        info.setVersion(1);
+   protected void populateObject(Object object) throws Exception {
+      super.populateObject(object);
+      WireFormatInfo info = (WireFormatInfo) object;
+      info.setVersion(1);
 
-        {
-            byte data[] = "MarshalledProperties:1".getBytes();
-            info.setMarshalledProperties(new org.apache.activemq.util.ByteSequence(data, 0, data.length));
-        }
+      {
+         byte data[] = "MarshalledProperties:1".getBytes();
+         info.setMarshalledProperties(new org.apache.activemq.util.ByteSequence(data, 0, data.length));
+      }
 
-    }
+   }
 }

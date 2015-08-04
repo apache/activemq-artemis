@@ -38,8 +38,8 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-public class ExpiryRunnerTest extends ActiveMQTestBase
-{
+public class ExpiryRunnerTest extends ActiveMQTestBase {
+
    private ActiveMQServer server;
 
    private ClientSession clientSession;
@@ -54,25 +54,22 @@ public class ExpiryRunnerTest extends ActiveMQTestBase
    private ServerLocator locator;
 
    @Test
-   public void testBasicExpire() throws Exception
-   {
+   public void testBasicExpire() throws Exception {
       ClientProducer producer = clientSession.createProducer(qName);
       int numMessages = 100;
       long expiration = System.currentTimeMillis();
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage m = createTextMessage(clientSession, "m" + i);
          m.setExpiration(expiration);
          producer.send(m);
       }
       Thread.sleep(1600);
-      Assert.assertEquals(0, ((Queue)server.getPostOffice().getBinding(qName).getBindable()).getMessageCount());
-      Assert.assertEquals(0, ((Queue)server.getPostOffice().getBinding(qName).getBindable()).getDeliveringCount());
+      Assert.assertEquals(0, ((Queue) server.getPostOffice().getBinding(qName).getBindable()).getMessageCount());
+      Assert.assertEquals(0, ((Queue) server.getPostOffice().getBinding(qName).getBindable()).getDeliveringCount());
    }
 
    @Test
-   public void testExpireFromMultipleQueues() throws Exception
-   {
+   public void testExpireFromMultipleQueues() throws Exception {
       ClientProducer producer = clientSession.createProducer(qName);
       clientSession.createQueue(qName2, qName2, null, false);
       AddressSettings addressSettings = new AddressSettings().setExpiryAddress(expiryAddress);
@@ -80,8 +77,7 @@ public class ExpiryRunnerTest extends ActiveMQTestBase
       ClientProducer producer2 = clientSession.createProducer(qName2);
       int numMessages = 100;
       long expiration = System.currentTimeMillis();
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage m = createTextMessage(clientSession, "m" + i);
          m.setExpiration(expiration);
          producer.send(m);
@@ -90,47 +86,40 @@ public class ExpiryRunnerTest extends ActiveMQTestBase
          producer2.send(m);
       }
       Thread.sleep(1600);
-      Assert.assertEquals(0, ((Queue)server.getPostOffice().getBinding(qName).getBindable()).getMessageCount());
-      Assert.assertEquals(0, ((Queue)server.getPostOffice().getBinding(qName).getBindable()).getDeliveringCount());
+      Assert.assertEquals(0, ((Queue) server.getPostOffice().getBinding(qName).getBindable()).getMessageCount());
+      Assert.assertEquals(0, ((Queue) server.getPostOffice().getBinding(qName).getBindable()).getDeliveringCount());
    }
 
    @Test
-   public void testExpireHalf() throws Exception
-   {
+   public void testExpireHalf() throws Exception {
       ClientProducer producer = clientSession.createProducer(qName);
       int numMessages = 100;
       long expiration = System.currentTimeMillis();
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage m = createTextMessage(clientSession, "m" + i);
-         if (i % 2 == 0)
-         {
+         if (i % 2 == 0) {
             m.setExpiration(expiration);
          }
          producer.send(m);
       }
       Thread.sleep(1600);
-      Assert.assertEquals(numMessages / 2,
-                          ((Queue)server.getPostOffice().getBinding(qName).getBindable()).getMessageCount());
-      Assert.assertEquals(0, ((Queue)server.getPostOffice().getBinding(qName).getBindable()).getDeliveringCount());
+      Assert.assertEquals(numMessages / 2, ((Queue) server.getPostOffice().getBinding(qName).getBindable()).getMessageCount());
+      Assert.assertEquals(0, ((Queue) server.getPostOffice().getBinding(qName).getBindable()).getDeliveringCount());
    }
 
    @Test
-   public void testExpireConsumeHalf() throws Exception
-   {
+   public void testExpireConsumeHalf() throws Exception {
       ClientProducer producer = clientSession.createProducer(qName);
       int numMessages = 100;
       long expiration = System.currentTimeMillis() + 1000;
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage m = createTextMessage(clientSession, "m" + i);
          m.setExpiration(expiration);
          producer.send(m);
       }
       ClientConsumer consumer = clientSession.createConsumer(qName);
       clientSession.start();
-      for (int i = 0; i < numMessages / 2; i++)
-      {
+      for (int i = 0; i < numMessages / 2; i++) {
          ClientMessage cm = consumer.receive(500);
          Assert.assertNotNull("message not received " + i, cm);
          cm.acknowledge();
@@ -138,13 +127,12 @@ public class ExpiryRunnerTest extends ActiveMQTestBase
       }
       consumer.close();
       Thread.sleep(2100);
-      Assert.assertEquals(0, ((Queue)server.getPostOffice().getBinding(qName).getBindable()).getMessageCount());
-      Assert.assertEquals(0, ((Queue)server.getPostOffice().getBinding(qName).getBindable()).getDeliveringCount());
+      Assert.assertEquals(0, ((Queue) server.getPostOffice().getBinding(qName).getBindable()).getMessageCount());
+      Assert.assertEquals(0, ((Queue) server.getPostOffice().getBinding(qName).getBindable()).getDeliveringCount());
    }
 
    @Test
-   public void testExpireToExpiryQueue() throws Exception
-   {
+   public void testExpireToExpiryQueue() throws Exception {
       AddressSettings addressSettings = new AddressSettings().setExpiryAddress(expiryAddress);
       server.getAddressSettingsRepository().addMatch(qName2.toString(), addressSettings);
       clientSession.deleteQueue(qName);
@@ -153,26 +141,23 @@ public class ExpiryRunnerTest extends ActiveMQTestBase
       ClientProducer producer = clientSession.createProducer(qName);
       int numMessages = 100;
       long expiration = System.currentTimeMillis();
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage m = createTextMessage(clientSession, "m" + i);
          m.setExpiration(expiration);
          producer.send(m);
       }
       Thread.sleep(1600);
-      Assert.assertEquals(0, ((Queue)server.getPostOffice().getBinding(qName).getBindable()).getMessageCount());
-      Assert.assertEquals(0, ((Queue)server.getPostOffice().getBinding(qName).getBindable()).getDeliveringCount());
+      Assert.assertEquals(0, ((Queue) server.getPostOffice().getBinding(qName).getBindable()).getMessageCount());
+      Assert.assertEquals(0, ((Queue) server.getPostOffice().getBinding(qName).getBindable()).getDeliveringCount());
 
       ClientConsumer consumer = clientSession.createConsumer(expiryQueue);
       clientSession.start();
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage cm = consumer.receive(500);
          Assert.assertNotNull(cm);
          // assertEquals("m" + i, cm.getBody().getString());
       }
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage cm = consumer.receive(500);
          Assert.assertNotNull(cm);
          // assertEquals("m" + i, cm.getBody().getString());
@@ -181,8 +166,7 @@ public class ExpiryRunnerTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testExpireWhilstConsumingMessagesStillInOrder() throws Exception
-   {
+   public void testExpireWhilstConsumingMessagesStillInOrder() throws Exception {
       ClientProducer producer = clientSession.createProducer(qName);
       ClientConsumer consumer = clientSession.createConsumer(qName);
       CountDownLatch latch = new CountDownLatch(1);
@@ -193,36 +177,29 @@ public class ExpiryRunnerTest extends ActiveMQTestBase
       long expiration = System.currentTimeMillis() + 1000;
       int numMessages = 0;
       long sendMessagesUntil = System.currentTimeMillis() + 2000;
-      do
-      {
+      do {
          ClientMessage m = createTextMessage(clientSession, "m" + numMessages++);
          m.setExpiration(expiration);
          producer.send(m);
          Thread.sleep(100);
-      }
-      while (System.currentTimeMillis() < sendMessagesUntil);
+      } while (System.currentTimeMillis() < sendMessagesUntil);
       Assert.assertTrue(latch.await(10000, TimeUnit.MILLISECONDS));
       consumer.close();
 
       consumer = clientSession.createConsumer(expiryQueue);
-      do
-      {
+      do {
          ClientMessage cm = consumer.receive(2000);
-         if (cm == null)
-         {
+         if (cm == null) {
             break;
          }
          String text = cm.getBodyBuffer().readString();
          cm.acknowledge();
          Assert.assertFalse(dummyMessageHandler.payloads.contains(text));
          dummyMessageHandler.payloads.add(text);
-      }
-      while (true);
+      } while (true);
 
-      for (int i = 0; i < numMessages; i++)
-      {
-         if (dummyMessageHandler.payloads.isEmpty())
-         {
+      for (int i = 0; i < numMessages; i++) {
+         if (dummyMessageHandler.payloads.isEmpty()) {
             break;
          }
          Assert.assertTrue("m" + i, dummyMessageHandler.payloads.remove("m" + i));
@@ -231,38 +208,35 @@ public class ExpiryRunnerTest extends ActiveMQTestBase
       thr.join();
    }
 
-//
-//   public static void main(final String[] args) throws Exception
-//   {
-//      for (int i = 0; i < 1000; i++)
-//      {
-//         TestSuite suite = new TestSuite();
-//         ExpiryRunnerTest expiryRunnerTest = new ExpiryRunnerTest();
-//         expiryRunnerTest.setName("testExpireWhilstConsuming");
-//         suite.addTest(expiryRunnerTest);
-//
-//         TestResult result = TestRunner.run(suite);
-//         if (result.errorCount() > 0 || result.failureCount() > 0)
-//         {
-//            System.exit(1);
-//         }
-//      }
-//   }
+   //
+   //   public static void main(final String[] args) throws Exception
+   //   {
+   //      for (int i = 0; i < 1000; i++)
+   //      {
+   //         TestSuite suite = new TestSuite();
+   //         ExpiryRunnerTest expiryRunnerTest = new ExpiryRunnerTest();
+   //         expiryRunnerTest.setName("testExpireWhilstConsuming");
+   //         suite.addTest(expiryRunnerTest);
+   //
+   //         TestResult result = TestRunner.run(suite);
+   //         if (result.errorCount() > 0 || result.failureCount() > 0)
+   //         {
+   //            System.exit(1);
+   //         }
+   //      }
+   //   }
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
-      ConfigurationImpl configuration = (ConfigurationImpl) createDefaultInVMConfig()
-         .setMessageExpiryScanPeriod(1000);
+      ConfigurationImpl configuration = (ConfigurationImpl) createDefaultInVMConfig().setMessageExpiryScanPeriod(1000);
       server = addServer(ActiveMQServers.newActiveMQServer(configuration, false));
       // start the server
       server.start();
       // then we create a client as normal
-      locator = createInVMNonHALocator()
-              .setBlockOnAcknowledge(true);
+      locator = createInVMNonHALocator().setBlockOnAcknowledge(true);
 
       ClientSessionFactory sessionFactory = createSessionFactory(locator);
 
@@ -276,29 +250,24 @@ public class ExpiryRunnerTest extends ActiveMQTestBase
       clientSession.createQueue(expiryAddress, expiryQueue, null, false);
    }
 
-   private static class DummyMessageHandler implements Runnable
-   {
+   private static class DummyMessageHandler implements Runnable {
+
       List<String> payloads = new ArrayList<String>();
 
       private final ClientConsumer consumer;
 
       private final CountDownLatch latch;
 
-      public DummyMessageHandler(final ClientConsumer consumer, final CountDownLatch latch)
-      {
+      public DummyMessageHandler(final ClientConsumer consumer, final CountDownLatch latch) {
          this.consumer = consumer;
          this.latch = latch;
       }
 
-      public void run()
-      {
-         while (true)
-         {
-            try
-            {
+      public void run() {
+         while (true) {
+            try {
                ClientMessage message = consumer.receive(5000);
-               if (message == null)
-               {
+               if (message == null) {
                   break;
                }
                message.acknowledge();
@@ -306,8 +275,7 @@ public class ExpiryRunnerTest extends ActiveMQTestBase
 
                Thread.sleep(110);
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                e.printStackTrace();
             }
          }

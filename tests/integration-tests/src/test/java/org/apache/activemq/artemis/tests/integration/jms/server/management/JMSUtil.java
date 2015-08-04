@@ -56,8 +56,7 @@ import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQJMSConnectionFactory;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
 
-public class JMSUtil
-{
+public class JMSUtil {
 
    // Constants -----------------------------------------------------
 
@@ -65,10 +64,8 @@ public class JMSUtil
 
    // Static --------------------------------------------------------
 
-   public static Connection createConnection(final String connectorFactory) throws JMSException
-   {
-      ActiveMQJMSConnectionFactory cf = (ActiveMQJMSConnectionFactory) ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF,
-                                                                                                                        new TransportConfiguration(connectorFactory));
+   public static Connection createConnection(final String connectorFactory) throws JMSException {
+      ActiveMQJMSConnectionFactory cf = (ActiveMQJMSConnectionFactory) ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration(connectorFactory));
 
       cf.setBlockOnNonDurableSend(true);
       cf.setBlockOnDurableSend(true);
@@ -79,10 +76,8 @@ public class JMSUtil
 
    public static ConnectionFactory createFactory(final String connectorFactory,
                                                  final long connectionTTL,
-                                                 final long clientFailureCheckPeriod) throws JMSException
-   {
-      ActiveMQJMSConnectionFactory cf = (ActiveMQJMSConnectionFactory) ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF,
-                                                                                                                        new TransportConfiguration(connectorFactory));
+                                                 final long clientFailureCheckPeriod) throws JMSException {
+      ActiveMQJMSConnectionFactory cf = (ActiveMQJMSConnectionFactory) ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration(connectorFactory));
 
       cf.setBlockOnNonDurableSend(true);
       cf.setBlockOnDurableSend(true);
@@ -93,13 +88,14 @@ public class JMSUtil
       return cf;
    }
 
-   static MessageConsumer createConsumer(final Connection connection, final Destination destination) throws JMSException
-   {
+   static MessageConsumer createConsumer(final Connection connection,
+                                         final Destination destination) throws JMSException {
       return createConsumer(connection, destination, Session.AUTO_ACKNOWLEDGE);
    }
 
-   static MessageConsumer createConsumer(final Connection connection, final Destination destination, int ackMode) throws JMSException
-   {
+   static MessageConsumer createConsumer(final Connection connection,
+                                         final Destination destination,
+                                         int ackMode) throws JMSException {
       Session s = connection.createSession(false, ackMode);
 
       return s.createConsumer(destination);
@@ -108,8 +104,7 @@ public class JMSUtil
    static TopicSubscriber createDurableSubscriber(final Connection connection,
                                                   final Topic topic,
                                                   final String clientID,
-                                                  final String subscriptionName) throws JMSException
-   {
+                                                  final String subscriptionName) throws JMSException {
       return createDurableSubscriber(connection, topic, clientID, subscriptionName, Session.AUTO_ACKNOWLEDGE);
    }
 
@@ -117,25 +112,21 @@ public class JMSUtil
                                                   final Topic topic,
                                                   final String clientID,
                                                   final String subscriptionName,
-                                                  final int ackMode) throws JMSException
-   {
+                                                  final int ackMode) throws JMSException {
       connection.setClientID(clientID);
       Session s = connection.createSession(false, ackMode);
 
       return s.createDurableSubscriber(topic, subscriptionName);
    }
 
-   public static String[] sendMessages(final Destination destination, final int messagesToSend) throws Exception
-   {
-      ActiveMQJMSConnectionFactory cf = (ActiveMQJMSConnectionFactory) ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF,
-                                                                                                                        new TransportConfiguration(InVMConnectorFactory.class.getName()));
+   public static String[] sendMessages(final Destination destination, final int messagesToSend) throws Exception {
+      ActiveMQJMSConnectionFactory cf = (ActiveMQJMSConnectionFactory) ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration(InVMConnectorFactory.class.getName()));
       return JMSUtil.sendMessages(cf, destination, messagesToSend);
    }
 
    public static String[] sendMessages(final ConnectionFactory cf,
                                        final Destination destination,
-                                       final int messagesToSend) throws Exception
-   {
+                                       final int messagesToSend) throws Exception {
       String[] messageIDs = new String[messagesToSend];
 
       Connection conn = cf.createConnection();
@@ -143,8 +134,7 @@ public class JMSUtil
       Session s = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
       MessageProducer producer = s.createProducer(destination);
 
-      for (int i = 0; i < messagesToSend; i++)
-      {
+      for (int i = 0; i < messagesToSend; i++) {
          Message m = s.createTextMessage(RandomUtil.randomString());
          producer.send(m);
          messageIDs[i] = m.getJMSMessageID();
@@ -158,8 +148,7 @@ public class JMSUtil
    public static Message sendMessageWithProperty(final Session session,
                                                  final Destination destination,
                                                  final String key,
-                                                 final long value) throws JMSException
-   {
+                                                 final long value) throws JMSException {
       MessageProducer producer = session.createProducer(destination);
       Message message = session.createMessage();
       message.setLongProperty(key, value);
@@ -167,76 +156,62 @@ public class JMSUtil
       return message;
    }
 
-   public static void consumeMessages(final int expected, final Destination dest) throws JMSException
-   {
+   public static void consumeMessages(final int expected, final Destination dest) throws JMSException {
       Connection connection = JMSUtil.createConnection(InVMConnectorFactory.class.getName());
-      try
-      {
+      try {
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
          MessageConsumer consumer = session.createConsumer(dest);
 
          connection.start();
 
          Message m = null;
-         for (int i = 0; i < expected; i++)
-         {
+         for (int i = 0; i < expected; i++) {
             m = consumer.receive(500);
             Assert.assertNotNull("expected to received " + expected + " messages, got only " + (i + 1), m);
          }
          m = consumer.receiveNoWait();
          Assert.assertNull("received one more message than expected (" + expected + ")", m);
       }
-      finally
-      {
-         if (connection != null)
-         {
+      finally {
+         if (connection != null) {
             connection.close();
          }
       }
    }
 
-   public static void waitForServer(ActiveMQServer server) throws InterruptedException
-   {
+   public static void waitForServer(ActiveMQServer server) throws InterruptedException {
       long timetowait = System.currentTimeMillis() + 5000;
-      while (!server.isStarted())
-      {
+      while (!server.isStarted()) {
          Thread.sleep(100);
-         if (server.isStarted())
-         {
+         if (server.isStarted()) {
             break;
          }
-         else if (System.currentTimeMillis() > timetowait)
-         {
+         else if (System.currentTimeMillis() > timetowait) {
             throw new IllegalStateException("server didn't start");
          }
       }
    }
 
-   public static void crash(ActiveMQServer server, ClientSession... sessions) throws Exception
-   {
+   public static void crash(ActiveMQServer server, ClientSession... sessions) throws Exception {
       final CountDownLatch latch = new CountDownLatch(sessions.length);
 
-      class MyListener implements SessionFailureListener
-      {
+      class MyListener implements SessionFailureListener {
+
          @Override
-         public void connectionFailed(final ActiveMQException me, boolean failedOver)
-         {
+         public void connectionFailed(final ActiveMQException me, boolean failedOver) {
             latch.countDown();
          }
 
          @Override
-         public void connectionFailed(final ActiveMQException me, boolean failedOver, String scaleDownTargetNodeID)
-         {
+         public void connectionFailed(final ActiveMQException me, boolean failedOver, String scaleDownTargetNodeID) {
             connectionFailed(me, failedOver);
          }
 
-         public void beforeReconnect(ActiveMQException exception)
-         {
+         public void beforeReconnect(ActiveMQException exception) {
             System.out.println("MyListener.beforeReconnect");
          }
       }
-      for (ClientSession session : sessions)
-      {
+      for (ClientSession session : sessions) {
          session.addFailureListener(new MyListener());
       }
 
@@ -263,9 +238,8 @@ public class JMSUtil
    // Inner classes -------------------------------------------------
 
    public static ActiveMQConnection createConnectionAndWaitForTopology(ActiveMQConnectionFactory factory,
-                                                                      int topologyMembers,
-                                                                      int timeout) throws Exception
-   {
+                                                                       int topologyMembers,
+                                                                       int timeout) throws Exception {
       ActiveMQConnection conn;
       CountDownLatch countDownLatch = new CountDownLatch(topologyMembers);
 
@@ -276,59 +250,49 @@ public class JMSUtil
       conn = (ActiveMQConnection) factory.createConnection();
 
       boolean ok = countDownLatch.await(timeout, TimeUnit.SECONDS);
-      if (!ok)
-      {
+      if (!ok) {
          throw new IllegalStateException("timed out waiting for topology");
       }
       return conn;
    }
 
-   public static void waitForFailoverTopology(final int timeToWait, final ActiveMQServer backupServer, final ActiveMQServer... liveServers) throws Exception
-   {
+   public static void waitForFailoverTopology(final int timeToWait,
+                                              final ActiveMQServer backupServer,
+                                              final ActiveMQServer... liveServers) throws Exception {
       long start = System.currentTimeMillis();
 
       final int waitMillis = 2000;
       final int sleepTime = 50;
       int nWaits = 0;
-      while ((backupServer.getClusterManager() == null || backupServer.getClusterManager().getClusterConnections().size() != 1) && nWaits++ < waitMillis / sleepTime)
-      {
+      while ((backupServer.getClusterManager() == null || backupServer.getClusterManager().getClusterConnections().size() != 1) && nWaits++ < waitMillis / sleepTime) {
          Thread.sleep(sleepTime);
       }
       Set<ClusterConnection> ccs = backupServer.getClusterManager().getClusterConnections();
 
-      if (ccs.size() != 1)
-      {
+      if (ccs.size() != 1) {
          throw new IllegalStateException("You need a single cluster connection on this version of waitForTopology on ServiceTestBase");
       }
 
       boolean exists = false;
 
-      for (ActiveMQServer liveServer : liveServers)
-      {
+      for (ActiveMQServer liveServer : liveServers) {
          ClusterConnectionImpl clusterConnection = (ClusterConnectionImpl) ccs.iterator().next();
          Topology topology = clusterConnection.getTopology();
-         TransportConfiguration nodeConnector =
-            liveServer.getClusterManager().getClusterConnections().iterator().next().getConnector();
-         do
-         {
+         TransportConfiguration nodeConnector = liveServer.getClusterManager().getClusterConnections().iterator().next().getConnector();
+         do {
             Collection<TopologyMemberImpl> members = topology.getMembers();
-            for (TopologyMemberImpl member : members)
-            {
-               if (member.getConnector().getA() != null && member.getConnector().getA().equals(nodeConnector))
-               {
+            for (TopologyMemberImpl member : members) {
+               if (member.getConnector().getA() != null && member.getConnector().getA().equals(nodeConnector)) {
                   exists = true;
                   break;
                }
             }
-            if (exists)
-            {
+            if (exists) {
                break;
             }
             Thread.sleep(10);
-         }
-         while (System.currentTimeMillis() - start < timeToWait);
-         if (!exists)
-         {
+         } while (System.currentTimeMillis() - start < timeToWait);
+         if (!exists) {
             String msg = "Timed out waiting for cluster topology of " + backupServer +
                " (received " +
                topology.getMembers().size() +
@@ -343,18 +307,16 @@ public class JMSUtil
       }
    }
 
-   public static class JMXListener implements NotificationListener
-   {
+   public static class JMXListener implements NotificationListener {
+
       private Notification notif;
 
       @Override
-      public void handleNotification(Notification notification, Object handback)
-      {
+      public void handleNotification(Notification notification, Object handback) {
          notif = notification;
       }
 
-      public Notification getNotification()
-      {
+      public Notification getNotification() {
          return notif;
       }
    }

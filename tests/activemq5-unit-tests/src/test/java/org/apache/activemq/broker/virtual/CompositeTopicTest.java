@@ -23,23 +23,23 @@ import org.apache.activemq.command.ActiveMQTopic;
 
 /**
  *
- * 
+ *
  */
 public class CompositeTopicTest extends CompositeQueueTest {
-    
-    protected Destination getConsumer1Dsetination() {
-        return new ActiveMQQueue("FOO");
-    }
 
-    protected Destination getConsumer2Dsetination() {
-        return new ActiveMQTopic("BAR");
-    }
+   protected Destination getConsumer1Dsetination() {
+      return new ActiveMQQueue("FOO");
+   }
 
-    protected Destination getProducerDestination() {
-        return new ActiveMQTopic("MY.TOPIC");
-    }
+   protected Destination getConsumer2Dsetination() {
+      return new ActiveMQTopic("BAR");
+   }
 
-    protected String getBrokerConfigUri() {
-        return "org/apache/activemq/broker/virtual/composite-topic.xml";
-    }
+   protected Destination getProducerDestination() {
+      return new ActiveMQTopic("MY.TOPIC");
+   }
+
+   protected String getBrokerConfigUri() {
+      return "org/apache/activemq/broker/virtual/composite-topic.xml";
+   }
 }

@@ -45,65 +45,52 @@ import static io.netty.handler.codec.http.HttpMethod.GET;
 import static io.netty.handler.codec.http.HttpResponseStatus.FORBIDDEN;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
-public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object>
-{
+public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> {
+
    private static final String WEBSOCKET_PATH = "/stomp";
 
    private WebSocketServerHandshaker handshaker;
    private static final BinaryWebSocketEncoder BINARY_WEBSOCKET_ENCODER = new BinaryWebSocketEncoder();
 
    @Override
-   public void channelRead0(ChannelHandlerContext ctx, Object msg) throws Exception
-   {
-      if (msg instanceof FullHttpRequest)
-      {
+   public void channelRead0(ChannelHandlerContext ctx, Object msg) throws Exception {
+      if (msg instanceof FullHttpRequest) {
          handleHttpRequest(ctx, (FullHttpRequest) msg);
       }
-      else if (msg instanceof WebSocketFrame)
-      {
+      else if (msg instanceof WebSocketFrame) {
          WebSocketFrame frame = (WebSocketFrame) msg;
          boolean handle = handleWebSocketFrame(ctx, frame);
-         if (handle)
-         {
+         if (handle) {
             ctx.fireChannelRead(frame.content().retain());
          }
       }
    }
 
-   private void handleHttpRequest(ChannelHandlerContext ctx, FullHttpRequest req) throws Exception
-   {
+   private void handleHttpRequest(ChannelHandlerContext ctx, FullHttpRequest req) throws Exception {
       // Allow only GET methods.
-      if (req.getMethod() != GET)
-      {
+      if (req.getMethod() != GET) {
          sendHttpResponse(ctx, req, new DefaultFullHttpResponse(HTTP_1_1, FORBIDDEN));
          return;
       }
 
       // Handshake
-      WebSocketServerHandshakerFactory wsFactory = new WebSocketServerHandshakerFactory(
-         this.getWebSocketLocation(req), "v10.stomp,v11.stomp", false);
+      WebSocketServerHandshakerFactory wsFactory = new WebSocketServerHandshakerFactory(this.getWebSocketLocation(req), "v10.stomp,v11.stomp", false);
       this.handshaker = wsFactory.newHandshaker(req);
-      if (this.handshaker == null)
-      {
+      if (this.handshaker == null) {
          WebSocketServerHandshakerFactory.sendUnsupportedWebSocketVersionResponse(ctx.channel());
       }
-      else
-      {
+      else {
          ChannelFuture handshake = this.handshaker.handshake(ctx.channel(), req);
-         handshake.addListener(new ChannelFutureListener()
-         {
+         handshake.addListener(new ChannelFutureListener() {
 
             @Override
-            public void operationComplete(ChannelFuture future) throws Exception
-            {
-               if (future.isSuccess())
-               {
+            public void operationComplete(ChannelFuture future) throws Exception {
+               if (future.isSuccess()) {
                   // we need to insert an encoder that takes the underlying ChannelBuffer of a StompFrame.toActiveMQBuffer and
                   // wrap it in a binary web socket frame before letting the wsencoder send it on the wire
                   future.channel().pipeline().addAfter("wsencoder", "binary-websocket-encoder", BINARY_WEBSOCKET_ENCODER);
                }
-               else
-               {
+               else {
                   // Handshake failed, fire an exceptionCaught event
                   future.channel().pipeline().fireExceptionCaught(future.cause());
                }
@@ -112,66 +99,53 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object>
       }
    }
 
-   private boolean handleWebSocketFrame(ChannelHandlerContext ctx, WebSocketFrame frame)
-   {
+   private boolean handleWebSocketFrame(ChannelHandlerContext ctx, WebSocketFrame frame) {
 
       // Check for closing frame
-      if (frame instanceof CloseWebSocketFrame)
-      {
+      if (frame instanceof CloseWebSocketFrame) {
          this.handshaker.close(ctx.channel(), ((CloseWebSocketFrame) frame).retain());
          return false;
       }
-      else if (frame instanceof PingWebSocketFrame)
-      {
+      else if (frame instanceof PingWebSocketFrame) {
          ctx.writeAndFlush(new PongWebSocketFrame(frame.content().retain()));
          return false;
       }
-      else if (!(frame instanceof TextWebSocketFrame))
-      {
-         throw new UnsupportedOperationException(String.format("%s frame types not supported", frame.getClass()
-            .getName()));
+      else if (!(frame instanceof TextWebSocketFrame)) {
+         throw new UnsupportedOperationException(String.format("%s frame types not supported", frame.getClass().getName()));
       }
       return true;
    }
 
-   private void sendHttpResponse(ChannelHandlerContext ctx, HttpRequest req, FullHttpResponse res)
-   {
+   private void sendHttpResponse(ChannelHandlerContext ctx, HttpRequest req, FullHttpResponse res) {
       // Generate an error page if response status code is not OK (200).
-      if (res.getStatus().code() != 200)
-      {
+      if (res.getStatus().code() != 200) {
          res.content().writeBytes(res.getStatus().toString().getBytes(StandardCharsets.UTF_8));
          setContentLength(res, res.content().readableBytes());
       }
 
       // Send the response and close the connection if necessary.
       ChannelFuture f = ctx.writeAndFlush(res);
-      if (!isKeepAlive(req) || res.getStatus().code() != 200)
-      {
+      if (!isKeepAlive(req) || res.getStatus().code() != 200) {
          f.addListener(ChannelFutureListener.CLOSE);
       }
    }
 
    @Override
-   public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception
-   {
+   public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
       cause.printStackTrace();
       ctx.close();
    }
 
-   private String getWebSocketLocation(HttpRequest req)
-   {
+   private String getWebSocketLocation(HttpRequest req) {
       return "ws://" + req.headers().get(HttpHeaders.Names.HOST) + WEBSOCKET_PATH;
    }
 
    @Sharable
-   private static final class BinaryWebSocketEncoder extends ChannelOutboundHandlerAdapter
-   {
+   private static final class BinaryWebSocketEncoder extends ChannelOutboundHandlerAdapter {
 
       @Override
-      public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception
-      {
-         if (msg instanceof ByteBuf)
-         {
+      public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
+         if (msg instanceof ByteBuf) {
             msg = new BinaryWebSocketFrame((ByteBuf) msg);
          }
 

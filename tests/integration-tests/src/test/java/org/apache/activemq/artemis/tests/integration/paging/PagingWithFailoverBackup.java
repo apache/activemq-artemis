@@ -22,10 +22,9 @@ import org.apache.activemq.artemis.tests.util.SpawnedVMSupport;
  * There is no difference between this class and {@link PagingWithFailoverServer}
  * other than helping us identify it on the logs, as it will show with a different name through spawned logs
  */
-public class PagingWithFailoverBackup extends PagingWithFailoverServer
-{
-   public static Process spawnVM(final String testDir, final int thisPort, final int otherPort) throws Exception
-   {
+public class PagingWithFailoverBackup extends PagingWithFailoverServer {
+
+   public static Process spawnVM(final String testDir, final int thisPort, final int otherPort) throws Exception {
       return SpawnedVMSupport.spawnVM(PagingWithFailoverBackup.class.getName(), testDir, Integer.toString(thisPort), Integer.toString(otherPort), Boolean.toString(true));
    }
 }

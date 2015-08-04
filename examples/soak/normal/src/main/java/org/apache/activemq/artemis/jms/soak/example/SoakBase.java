@@ -22,56 +22,48 @@ import java.util.Properties;
 import java.util.Random;
 import java.util.logging.Logger;
 
-public class SoakBase
-{
+public class SoakBase {
+
    private static final Logger log = Logger.getLogger(SoakBase.class.getName());
 
    private static final String DEFAULT_SOAK_PROPERTIES_FILE_NAME = "soak.properties";
 
    public static final int TO_MILLIS = 60 * 1000; // from minute to milliseconds
 
-   public static byte[] randomByteArray(final int length)
-   {
+   public static byte[] randomByteArray(final int length) {
       byte[] bytes = new byte[length];
 
       Random random = new Random();
 
-      for (int i = 0; i < length; i++)
-      {
+      for (int i = 0; i < length; i++) {
          bytes[i] = Integer.valueOf(random.nextInt()).byteValue();
       }
 
       return bytes;
    }
 
-   protected static String getPerfFileName()
-   {
+   protected static String getPerfFileName() {
       String fileName = System.getProperty("soak.props");
-      if (fileName == null)
-      {
+      if (fileName == null) {
          fileName = SoakBase.DEFAULT_SOAK_PROPERTIES_FILE_NAME;
       }
       return fileName;
    }
 
-   protected static SoakParams getParams(final String fileName) throws Exception
-   {
+   protected static SoakParams getParams(final String fileName) throws Exception {
       Properties props = null;
 
       InputStream is = null;
 
-      try
-      {
+      try {
          is = new FileInputStream(fileName);
 
          props = new Properties();
 
          props.load(is);
       }
-      finally
-      {
-         if (is != null)
-         {
+      finally {
+         if (is != null) {
             is.close();
          }
       }

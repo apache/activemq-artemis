@@ -40,24 +40,22 @@ import org.apache.activemq.artemis.api.jms.management.JMSQueueControl;
 /**
  * An example that shows how to manage ActiveMQ Artemis using JMX.
  */
-public class JMXExample
-{
+public class JMXExample {
+
    private static final String JMX_URL = "service:jmx:rmi:///jndi/rmi://localhost:3000/jmxrmi";
 
-   public static void main(final String[] args) throws Exception
-   {
+   public static void main(final String[] args) throws Exception {
       QueueConnection connection = null;
       InitialContext initialContext = null;
-      try
-      {
+      try {
          // Step 1. Create an initial context to perform the JNDI lookup.
          initialContext = new InitialContext();
 
          // Step 2. Perfom a lookup on the queue
-         Queue queue = (Queue)initialContext.lookup("queue/exampleQueue");
+         Queue queue = (Queue) initialContext.lookup("queue/exampleQueue");
 
          // Step 3. Perform a lookup on the Connection Factory
-         QueueConnectionFactory cf = (QueueConnectionFactory)initialContext.lookup("ConnectionFactory");
+         QueueConnectionFactory cf = (QueueConnectionFactory) initialContext.lookup("ConnectionFactory");
 
          // Step 4.Create a JMS Connection
          connection = cf.createQueueConnection();
@@ -85,10 +83,7 @@ public class JMXExample
          MBeanServerConnection mbsc = connector.getMBeanServerConnection();
 
          // Step 12. Create a JMSQueueControl proxy to manage the queue on the server
-         JMSQueueControl queueControl = MBeanServerInvocationHandler.newProxyInstance(mbsc,
-                                                                                      on,
-                                                                                      JMSQueueControl.class,
-                                                                                      false);
+         JMSQueueControl queueControl = MBeanServerInvocationHandler.newProxyInstance(mbsc, on, JMSQueueControl.class, false);
          // Step 13. Display the number of messages in the queue
          System.out.println(queueControl.getName() + " contains " + queueControl.getMessageCount() + " messages");
 
@@ -110,18 +105,15 @@ public class JMXExample
          // Step 19. Trying to receive a message. Since the only message in the queue was removed by a management
          // operation, there is none to consume.
          // The call will timeout after 5000ms and messageReceived will be null
-         TextMessage messageReceived = (TextMessage)messageConsumer.receive(5000);
+         TextMessage messageReceived = (TextMessage) messageConsumer.receive(5000);
          System.out.println("Received message: " + messageReceived);
       }
-      finally
-      {
+      finally {
          // Step 20. Be sure to close the resources!
-         if (initialContext != null)
-         {
+         if (initialContext != null) {
             initialContext.close();
          }
-         if (connection != null)
-         {
+         if (connection != null) {
             connection.close();
          }
       }

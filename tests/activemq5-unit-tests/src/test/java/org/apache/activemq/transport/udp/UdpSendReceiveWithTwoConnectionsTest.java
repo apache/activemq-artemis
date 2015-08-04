@@ -25,32 +25,32 @@ import org.apache.activemq.test.JmsTopicSendReceiveWithTwoConnectionsTest;
  */
 public class UdpSendReceiveWithTwoConnectionsTest extends JmsTopicSendReceiveWithTwoConnectionsTest {
 
-    protected String brokerURI = "udp://localhost:8891";
-    protected BrokerService broker;
+   protected String brokerURI = "udp://localhost:8891";
+   protected BrokerService broker;
 
-    protected void setUp() throws Exception {
-        broker = createBroker();
-        broker.start();
+   protected void setUp() throws Exception {
+      broker = createBroker();
+      broker.start();
 
-        super.setUp();
-    }
+      super.setUp();
+   }
 
-    protected void tearDown() throws Exception {
-        super.tearDown();
-        if (broker != null) {
-            broker.stop();
-        }
-    }
+   protected void tearDown() throws Exception {
+      super.tearDown();
+      if (broker != null) {
+         broker.stop();
+      }
+   }
 
-    protected BrokerService createBroker() throws Exception {
-        BrokerService answer = new BrokerService();
-        answer.setPersistent(false);
-        answer.setUseJmx(false);
-        answer.addConnector(brokerURI);
-        return answer;
-    }
+   protected BrokerService createBroker() throws Exception {
+      BrokerService answer = new BrokerService();
+      answer.setPersistent(false);
+      answer.setUseJmx(false);
+      answer.addConnector(brokerURI);
+      return answer;
+   }
 
-    protected ActiveMQConnectionFactory createConnectionFactory() throws Exception {
-        return new ActiveMQConnectionFactory(brokerURI);
-    }
+   protected ActiveMQConnectionFactory createConnectionFactory() throws Exception {
+      return new ActiveMQConnectionFactory(brokerURI);
+   }
 }

@@ -26,84 +26,71 @@ import org.apache.activemq.artemis.utils.TokenBucketLimiterImpl;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class TokenBucketLimiterImplTest extends ActiveMQTestBase
-{
+public class TokenBucketLimiterImplTest extends ActiveMQTestBase {
+
    private static final UnitTestLogger log = UnitTestLogger.LOGGER;
 
    @Test
-   public void testRateWithSpin1() throws Exception
-   {
+   public void testRateWithSpin1() throws Exception {
       testRate(1, true);
    }
 
    @Test
-   public void testRateWithSpin10() throws Exception
-   {
+   public void testRateWithSpin10() throws Exception {
       testRate(10, true);
    }
 
    @Test
-   public void testRateWithSpin100() throws Exception
-   {
+   public void testRateWithSpin100() throws Exception {
       testRate(100, true);
    }
 
    @Test
-   public void testRateWithSpin1000() throws Exception
-   {
+   public void testRateWithSpin1000() throws Exception {
       testRate(1000, true);
    }
 
    @Test
-   public void testRateWithSpin10000() throws Exception
-   {
+   public void testRateWithSpin10000() throws Exception {
       testRate(10000, true);
    }
 
    @Test
-   public void testRateWithSpin100000() throws Exception
-   {
+   public void testRateWithSpin100000() throws Exception {
       testRate(100000, true);
    }
 
    @Test
-   public void testRateWithoutSpin1() throws Exception
-   {
+   public void testRateWithoutSpin1() throws Exception {
       testRate(1, false);
    }
 
    @Test
-   public void testRateWithoutSpin10() throws Exception
-   {
+   public void testRateWithoutSpin10() throws Exception {
       testRate(10, false);
    }
 
    @Test
-   public void testRateWithoutSpin100() throws Exception
-   {
+   public void testRateWithoutSpin100() throws Exception {
       testRate(100, false);
    }
 
    @Test
-   public void testRateWithoutSpin1000() throws Exception
-   {
+   public void testRateWithoutSpin1000() throws Exception {
       testRate(1000, false);
    }
 
    @Test
-   public void testRateWithoutSpin10000() throws Exception
-   {
+   public void testRateWithoutSpin10000() throws Exception {
       testRate(10000, false);
    }
 
    @Test
-   public void testRateWithoutSpin100000() throws Exception
-   {
+   public void testRateWithoutSpin100000() throws Exception {
       testRate(100000, false);
    }
 
-   private void testRate(final int rate, final boolean spin) throws Exception
-   {
+   private void testRate(final int rate, final boolean spin) throws Exception {
       final double error = 0.05; // Allow for 5% error
 
       TokenBucketLimiterImpl tbl = new TokenBucketLimiterImpl(rate, spin);
@@ -115,20 +102,17 @@ public class TokenBucketLimiterImplTest extends ActiveMQTestBase
       final long measureTime = 5000;
 
       // Do some initial testing ..   to ramp up the calculations
-      while (System.currentTimeMillis() - start < measureTime)
-      {
+      while (System.currentTimeMillis() - start < measureTime) {
          tbl.limit();
       }
 
       // wait some time
       Thread.sleep(2000);
 
-
       // start measuring again
       start = System.currentTimeMillis();
 
-      while (System.currentTimeMillis() - start < measureTime)
-      {
+      while (System.currentTimeMillis() - start < measureTime) {
          tbl.limit();
 
          // when using a low rate (1 for instance), the very last could come after or very close to 5 seconds
@@ -138,8 +122,7 @@ public class TokenBucketLimiterImplTest extends ActiveMQTestBase
 
       long end = System.currentTimeMillis();
 
-      if (rate == 1)
-      {
+      if (rate == 1) {
          // in 5 seconds you may get exactly 6 buckets..
          // Count... 1, 2, 3, 4, 5, 6
          // Time.... 0, 1, 2, 3, 4, 5
@@ -148,8 +131,7 @@ public class TokenBucketLimiterImplTest extends ActiveMQTestBase
 
          Assert.assertTrue(count == 5 || count == 6);
       }
-      else
-      {
+      else {
          double actualRate = (double) (1000 * count) / measureTime;
 
          Assert.assertTrue("actual rate = " + actualRate + " expected=" + rate, actualRate > rate * (1 - error));
@@ -159,32 +141,26 @@ public class TokenBucketLimiterImplTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testVerifyMaxRate1() throws Exception
-   {
+   public void testVerifyMaxRate1() throws Exception {
       testVerifyRate(1, 1, 5000);
    }
 
    @Test
-   public void testVerifyMaxRate5() throws Exception
-   {
+   public void testVerifyMaxRate5() throws Exception {
       testVerifyRate(5, 1, 5000);
    }
 
    @Test
-   public void testVerifyMaxRate50() throws Exception
-   {
+   public void testVerifyMaxRate50() throws Exception {
       testVerifyRate(50, 1, 5000);
    }
 
    @Test
-   public void testVerifyMaxRate50_per_5seconds() throws Exception
-   {
+   public void testVerifyMaxRate50_per_5seconds() throws Exception {
       testVerifyRate(50, 5, 20000);
    }
 
-
-   public void testVerifyRate(final int rate, final int window, final int timeRunning) throws Exception
-   {
+   public void testVerifyRate(final int rate, final int window, final int timeRunning) throws Exception {
       final double error = 1.05; // Allow for 5% error
 
       final AtomicBoolean running = new AtomicBoolean(true);
@@ -195,28 +171,22 @@ public class TokenBucketLimiterImplTest extends ActiveMQTestBase
 
       TokenBucketLimiterImpl tbl = new TokenBucketLimiterImpl(rate, false, TimeUnit.SECONDS, window);
 
-      Thread t = new Thread()
-      {
-         public void run()
-         {
+      Thread t = new Thread() {
+         public void run() {
             int lastRun = 0;
             long lastTime = System.currentTimeMillis();
-            while (running.get())
-            {
+            while (running.get()) {
                int tmpValue = iterations.get();
-               if (lastRun != 0)
-               {
+               if (lastRun != 0) {
                   int consumed = tmpValue - lastRun;
 
                   double calculatedRate = consumed * window * 1000 / ((System.currentTimeMillis() - lastTime));
 
-                  if (calculatedRate > rate * error)
-                  {
+                  if (calculatedRate > rate * error) {
                      System.out.println("got more than " + rate + " tokens / second");
                      rateError.set(true);
                   }
-                  else if (calculatedRate > rate)
-                  {
+                  else if (calculatedRate > rate) {
                      System.out.println("got more than " + rate + " tokens / second but still on the error marging" +
                                            "make sure it's ok though, if you see to many of this message it's an issue");
                   }
@@ -224,12 +194,10 @@ public class TokenBucketLimiterImplTest extends ActiveMQTestBase
                }
                lastTime = System.currentTimeMillis();
                lastRun = tmpValue;
-               try
-               {
+               try {
                   Thread.sleep(window * 1000);
                }
-               catch (Exception e)
-               {
+               catch (Exception e) {
                   e.printStackTrace();
                }
             }
@@ -238,14 +206,11 @@ public class TokenBucketLimiterImplTest extends ActiveMQTestBase
 
       t.start();
 
-
       long timeout;
 
       timeout = System.currentTimeMillis() + 3000;
 
-
-      while (timeout > System.currentTimeMillis())
-      {
+      while (timeout > System.currentTimeMillis()) {
          tbl.limit();
          iterations.incrementAndGet();
       }
@@ -254,13 +219,10 @@ public class TokenBucketLimiterImplTest extends ActiveMQTestBase
 
       timeout = System.currentTimeMillis() + timeRunning;
 
-
-      while (timeout > System.currentTimeMillis())
-      {
+      while (timeout > System.currentTimeMillis()) {
          tbl.limit();
          iterations.incrementAndGet();
       }
-
 
       running.set(false);
 

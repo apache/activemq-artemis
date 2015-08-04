@@ -16,21 +16,18 @@
  */
 package org.apache.activemq.artemis.api.core;
 
-
 /**
  */
 // XXX
-public class ActiveMQLargeMessageInterruptedException extends ActiveMQException
-{
+public class ActiveMQLargeMessageInterruptedException extends ActiveMQException {
+
    private static final long serialVersionUID = 0;
 
-   public ActiveMQLargeMessageInterruptedException(String message)
-   {
+   public ActiveMQLargeMessageInterruptedException(String message) {
       super(ActiveMQExceptionType.LARGE_MESSAGE_INTERRUPTED, message);
    }
 
-   public ActiveMQLargeMessageInterruptedException()
-   {
+   public ActiveMQLargeMessageInterruptedException() {
       super(ActiveMQExceptionType.LARGE_MESSAGE_INTERRUPTED);
    }
 }

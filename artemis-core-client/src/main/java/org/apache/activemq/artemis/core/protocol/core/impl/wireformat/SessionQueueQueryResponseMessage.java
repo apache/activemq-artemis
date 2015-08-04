@@ -23,8 +23,8 @@ import org.apache.activemq.artemis.core.client.impl.QueueQueryImpl;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.core.server.QueueQueryResult;
 
-public class SessionQueueQueryResponseMessage extends PacketImpl
-{
+public class SessionQueueQueryResponseMessage extends PacketImpl {
+
    protected SimpleString name;
 
    protected boolean exists;
@@ -41,19 +41,15 @@ public class SessionQueueQueryResponseMessage extends PacketImpl
 
    protected boolean temporary;
 
-   public SessionQueueQueryResponseMessage(final QueueQueryResult result)
-   {
-      this(result.getName(), result.getAddress(), result.isDurable(), result.isTemporary(),
-           result.getFilterString(), result.getConsumerCount(), result.getMessageCount(), result.isExists());
+   public SessionQueueQueryResponseMessage(final QueueQueryResult result) {
+      this(result.getName(), result.getAddress(), result.isDurable(), result.isTemporary(), result.getFilterString(), result.getConsumerCount(), result.getMessageCount(), result.isExists());
    }
 
-   public SessionQueueQueryResponseMessage()
-   {
+   public SessionQueueQueryResponseMessage() {
       this(null, null, false, false, null, 0, 0, false);
    }
 
-   public SessionQueueQueryResponseMessage(byte v2)
-   {
+   public SessionQueueQueryResponseMessage(byte v2) {
       super(v2);
    }
 
@@ -64,8 +60,7 @@ public class SessionQueueQueryResponseMessage extends PacketImpl
                                             final SimpleString filterString,
                                             final int consumerCount,
                                             final long messageCount,
-                                            final boolean exists)
-   {
+                                            final boolean exists) {
       super(SESS_QUEUEQUERY_RESP);
 
       this.durable = durable;
@@ -86,54 +81,44 @@ public class SessionQueueQueryResponseMessage extends PacketImpl
    }
 
    @Override
-   public boolean isResponse()
-   {
+   public boolean isResponse() {
       return true;
    }
 
-   public boolean isExists()
-   {
+   public boolean isExists() {
       return exists;
    }
 
-   public boolean isDurable()
-   {
+   public boolean isDurable() {
       return durable;
    }
 
-   public int getConsumerCount()
-   {
+   public int getConsumerCount() {
       return consumerCount;
    }
 
-   public long getMessageCount()
-   {
+   public long getMessageCount() {
       return messageCount;
    }
 
-   public SimpleString getFilterString()
-   {
+   public SimpleString getFilterString() {
       return filterString;
    }
 
-   public SimpleString getAddress()
-   {
+   public SimpleString getAddress() {
       return address;
    }
 
-   public SimpleString getName()
-   {
+   public SimpleString getName() {
       return name;
    }
 
-   public boolean isTemporary()
-   {
+   public boolean isTemporary() {
       return temporary;
    }
 
    @Override
-   public void encodeRest(final ActiveMQBuffer buffer)
-   {
+   public void encodeRest(final ActiveMQBuffer buffer) {
       buffer.writeBoolean(exists);
       buffer.writeBoolean(durable);
       buffer.writeBoolean(temporary);
@@ -145,8 +130,7 @@ public class SessionQueueQueryResponseMessage extends PacketImpl
    }
 
    @Override
-   public void decodeRest(final ActiveMQBuffer buffer)
-   {
+   public void decodeRest(final ActiveMQBuffer buffer) {
       exists = buffer.readBoolean();
       durable = buffer.readBoolean();
       temporary = buffer.readBoolean();
@@ -158,8 +142,7 @@ public class SessionQueueQueryResponseMessage extends PacketImpl
    }
 
    @Override
-   public int hashCode()
-   {
+   public int hashCode() {
       final int prime = 31;
       int result = super.hashCode();
       result = prime * result + ((address == null) ? 0 : address.hashCode());
@@ -167,36 +150,26 @@ public class SessionQueueQueryResponseMessage extends PacketImpl
       result = prime * result + (durable ? 1231 : 1237);
       result = prime * result + (exists ? 1231 : 1237);
       result = prime * result + ((filterString == null) ? 0 : filterString.hashCode());
-      result = prime * result + (int)(messageCount ^ (messageCount >>> 32));
+      result = prime * result + (int) (messageCount ^ (messageCount >>> 32));
       result = prime * result + ((name == null) ? 0 : name.hashCode());
       result = prime * result + (temporary ? 1231 : 1237);
       return result;
    }
 
-   public ClientSession.QueueQuery toQueueQuery()
-   {
-      return new QueueQueryImpl(isDurable(),
-                                isTemporary(),
-                                getConsumerCount(),
-                                getMessageCount(),
-                                getFilterString(),
-                                getAddress(),
-                                getName(),
-                                isExists());
+   public ClientSession.QueueQuery toQueueQuery() {
+      return new QueueQueryImpl(isDurable(), isTemporary(), getConsumerCount(), getMessageCount(), getFilterString(), getAddress(), getName(), isExists());
    }
 
    @Override
-   public boolean equals(Object obj)
-   {
+   public boolean equals(Object obj) {
       if (this == obj)
          return true;
       if (!super.equals(obj))
          return false;
       if (!(obj instanceof SessionQueueQueryResponseMessage))
          return false;
-      SessionQueueQueryResponseMessage other = (SessionQueueQueryResponseMessage)obj;
-      if (address == null)
-      {
+      SessionQueueQueryResponseMessage other = (SessionQueueQueryResponseMessage) obj;
+      if (address == null) {
          if (other.address != null)
             return false;
       }
@@ -208,8 +181,7 @@ public class SessionQueueQueryResponseMessage extends PacketImpl
          return false;
       if (exists != other.exists)
          return false;
-      if (filterString == null)
-      {
+      if (filterString == null) {
          if (other.filterString != null)
             return false;
       }
@@ -217,8 +189,7 @@ public class SessionQueueQueryResponseMessage extends PacketImpl
          return false;
       if (messageCount != other.messageCount)
          return false;
-      if (name == null)
-      {
+      if (name == null) {
          if (other.name != null)
             return false;
       }
@@ -228,6 +199,5 @@ public class SessionQueueQueryResponseMessage extends PacketImpl
          return false;
       return true;
    }
-
 
 }

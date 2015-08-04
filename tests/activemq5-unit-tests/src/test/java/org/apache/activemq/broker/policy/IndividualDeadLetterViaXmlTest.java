@@ -27,22 +27,22 @@ import org.springframework.core.io.ClassPathResource;
 
 /**
  *
- * 
+ *
  */
 public class IndividualDeadLetterViaXmlTest extends DeadLetterTest {
-    private static final Logger LOG = LoggerFactory.getLogger(IndividualDeadLetterViaXmlTest.class);
 
+   private static final Logger LOG = LoggerFactory.getLogger(IndividualDeadLetterViaXmlTest.class);
 
-    protected BrokerService createBroker() throws Exception {
-        BrokerFactoryBean factory = new BrokerFactoryBean(new ClassPathResource("org/apache/activemq/broker/policy/individual-dlq.xml"));
-        factory.afterPropertiesSet();
-        BrokerService answer = factory.getBroker();
-        return answer;
-    }
+   protected BrokerService createBroker() throws Exception {
+      BrokerFactoryBean factory = new BrokerFactoryBean(new ClassPathResource("org/apache/activemq/broker/policy/individual-dlq.xml"));
+      factory.afterPropertiesSet();
+      BrokerService answer = factory.getBroker();
+      return answer;
+   }
 
-    protected Destination createDlqDestination() {
-        String queueName = "Test.DLQ." + getClass().getName() + "." + getName();
-        LOG.info("Using queue name: " + queueName);
-        return new ActiveMQQueue(queueName);
-    }
+   protected Destination createDlqDestination() {
+      String queueName = "Test.DLQ." + getClass().getName() + "." + getName();
+      LOG.info("Using queue name: " + queueName);
+      return new ActiveMQQueue(queueName);
+   }
 }

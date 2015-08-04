@@ -26,113 +26,113 @@ import java.util.Set;
 
 public class StubX509Certificate extends X509Certificate {
 
-    private final Principal id;
+   private final Principal id;
 
-    public StubX509Certificate(Principal id) {
-        this.id = id;
-    }
+   public StubX509Certificate(Principal id) {
+      this.id = id;
+   }
 
-    public Principal getSubjectDN() {
-        return this.id;
-    }
+   public Principal getSubjectDN() {
+      return this.id;
+   }
 
-    // --- Stubbed Methods ---
-    public void checkValidity() {
-    }
+   // --- Stubbed Methods ---
+   public void checkValidity() {
+   }
 
-    public void checkValidity(Date arg0) {
-    }
+   public void checkValidity(Date arg0) {
+   }
 
-    public int getVersion() {
-        return 0;
-    }
+   public int getVersion() {
+      return 0;
+   }
 
-    public BigInteger getSerialNumber() {
-        return null;
-    }
+   public BigInteger getSerialNumber() {
+      return null;
+   }
 
-    public Principal getIssuerDN() {
-        return null;
-    }
+   public Principal getIssuerDN() {
+      return null;
+   }
 
-    public Date getNotBefore() {
-        return null;
-    }
+   public Date getNotBefore() {
+      return null;
+   }
 
-    public Date getNotAfter() {
-        return null;
-    }
+   public Date getNotAfter() {
+      return null;
+   }
 
-    public byte[] getTBSCertificate() {
-        return null;
-    }
+   public byte[] getTBSCertificate() {
+      return null;
+   }
 
-    public byte[] getSignature() {
-        return null;
-    }
+   public byte[] getSignature() {
+      return null;
+   }
 
-    public String getSigAlgName() {
-        return null;
-    }
+   public String getSigAlgName() {
+      return null;
+   }
 
-    public String getSigAlgOID() {
-        return null;
-    }
+   public String getSigAlgOID() {
+      return null;
+   }
 
-    public byte[] getSigAlgParams() {
-        return null;
-    }
+   public byte[] getSigAlgParams() {
+      return null;
+   }
 
-    public boolean[] getIssuerUniqueID() {
-        return null;
-    }
+   public boolean[] getIssuerUniqueID() {
+      return null;
+   }
 
-    public boolean[] getSubjectUniqueID() {
-        return null;
-    }
+   public boolean[] getSubjectUniqueID() {
+      return null;
+   }
 
-    public boolean[] getKeyUsage() {
-        return null;
-    }
+   public boolean[] getKeyUsage() {
+      return null;
+   }
 
-    public int getBasicConstraints() {
-        return 0;
-    }
+   public int getBasicConstraints() {
+      return 0;
+   }
 
-    public byte[] getEncoded() {
-        return null;
-    }
+   public byte[] getEncoded() {
+      return null;
+   }
 
-    public void verify(PublicKey arg0) {
-    }
+   public void verify(PublicKey arg0) {
+   }
 
-    public void verify(PublicKey arg0, String arg1) {
-    }
+   public void verify(PublicKey arg0, String arg1) {
+   }
 
-    public String toString() {
-        return null;
-    }
+   public String toString() {
+      return null;
+   }
 
-    public PublicKey getPublicKey() {
-        return null;
-    }
+   public PublicKey getPublicKey() {
+      return null;
+   }
 
-    public boolean hasUnsupportedCriticalExtension() {
-        return false;
-    }
+   public boolean hasUnsupportedCriticalExtension() {
+      return false;
+   }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    public Set getCriticalExtensionOIDs() {
-        return null;
-    }
+   @SuppressWarnings({"unchecked", "rawtypes"})
+   public Set getCriticalExtensionOIDs() {
+      return null;
+   }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    public Set getNonCriticalExtensionOIDs() {
-        return null;
-    }
+   @SuppressWarnings({"unchecked", "rawtypes"})
+   public Set getNonCriticalExtensionOIDs() {
+      return null;
+   }
 
-    public byte[] getExtensionValue(String arg0) {
-        return null;
-    }
+   public byte[] getExtensionValue(String arg0) {
+      return null;
+   }
 
 }

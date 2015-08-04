@@ -30,13 +30,10 @@ import org.apache.activemq.artemis.core.server.ActiveMQServers;
 /**
  * An EmbeddedServer
  */
-public class EmbeddedServer
-{
+public class EmbeddedServer {
 
-	public static void main(final String arg[]) throws Exception
-   {
-      try
-      {
+   public static void main(final String arg[]) throws Exception {
+      try {
          // Step 1. Create the Configuration, and set the properties accordingly
          Configuration configuration = new ConfigurationImpl();
          //we only need this for the server lock file
@@ -52,7 +49,7 @@ public class EmbeddedServer
          map.put("host", "localhost");
          map.put("port", 61616);
 
-         TransportConfiguration transpConf = new TransportConfiguration(NettyAcceptorFactory.class.getName(),map);
+         TransportConfiguration transpConf = new TransportConfiguration(NettyAcceptorFactory.class.getName(), map);
 
          HashSet<TransportConfiguration> setTransp = new HashSet<TransportConfiguration>();
          setTransp.add(transpConf);
@@ -63,8 +60,7 @@ public class EmbeddedServer
          ActiveMQServer server = ActiveMQServers.newActiveMQServer(configuration);
          server.start();
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          e.printStackTrace();
          throw e;
       }

@@ -46,203 +46,211 @@ import org.slf4j.LoggerFactory;
 
 public class AMQ4368Test {
 
-    private static final Logger LOG = LoggerFactory.getLogger(AMQ4368Test.class);
+   private static final Logger LOG = LoggerFactory.getLogger(AMQ4368Test.class);
 
-    private BrokerService broker;
-    private ActiveMQConnectionFactory connectionFactory;
-    private final Destination destination = new ActiveMQQueue("large_message_queue");
-    private String connectionUri;
+   private BrokerService broker;
+   private ActiveMQConnectionFactory connectionFactory;
+   private final Destination destination = new ActiveMQQueue("large_message_queue");
+   private String connectionUri;
 
-    @Before
-    public void setUp() throws Exception {
-        broker = createBroker();
-        connectionUri = broker.addConnector("tcp://localhost:0").getPublishableConnectString();
-        broker.start();
-        connectionFactory = new ActiveMQConnectionFactory(connectionUri);
-    }
+   @Before
+   public void setUp() throws Exception {
+      broker = createBroker();
+      connectionUri = broker.addConnector("tcp://localhost:0").getPublishableConnectString();
+      broker.start();
+      connectionFactory = new ActiveMQConnectionFactory(connectionUri);
+   }
 
-    @After
-    public void tearDown() throws Exception {
-        broker.stop();
-        broker.waitUntilStopped();
-    }
+   @After
+   public void tearDown() throws Exception {
+      broker.stop();
+      broker.waitUntilStopped();
+   }
 
-    protected BrokerService createBroker() throws Exception {
-        BrokerService broker = new BrokerService();
+   protected BrokerService createBroker() throws Exception {
+      BrokerService broker = new BrokerService();
 
-        PolicyEntry policy = new PolicyEntry();
-        policy.setUseCache(false);
-        broker.setDestinationPolicy(new PolicyMap());
-        broker.getDestinationPolicy().setDefaultEntry(policy);
+      PolicyEntry policy = new PolicyEntry();
+      policy.setUseCache(false);
+      broker.setDestinationPolicy(new PolicyMap());
+      broker.getDestinationPolicy().setDefaultEntry(policy);
 
-        KahaDBPersistenceAdapter kahadb = new KahaDBPersistenceAdapter();
-        kahadb.setCheckForCorruptJournalFiles(true);
-        kahadb.setCleanupInterval(1000);
+      KahaDBPersistenceAdapter kahadb = new KahaDBPersistenceAdapter();
+      kahadb.setCheckForCorruptJournalFiles(true);
+      kahadb.setCleanupInterval(1000);
 
-        kahadb.deleteAllMessages();
-        broker.setPersistenceAdapter(kahadb);
-        broker.getSystemUsage().getMemoryUsage().setLimit(1024*1024*100);
-        broker.setUseJmx(false);
+      kahadb.deleteAllMessages();
+      broker.setPersistenceAdapter(kahadb);
+      broker.getSystemUsage().getMemoryUsage().setLimit(1024 * 1024 * 100);
+      broker.setUseJmx(false);
 
-        return broker;
-    }
+      return broker;
+   }
 
-    abstract class Client implements Runnable   {
-        private final String name;
-        final AtomicBoolean done = new AtomicBoolean();
-        CountDownLatch startedLatch;
-        CountDownLatch doneLatch = new CountDownLatch(1);
-        Connection connection;
-        Session session;
-        final AtomicLong size = new AtomicLong();
+   abstract class Client implements Runnable {
 
-        Client(String name, CountDownLatch startedLatch) {
-            this.name = name;
-            this.startedLatch = startedLatch;
-        }
+      private final String name;
+      final AtomicBoolean done = new AtomicBoolean();
+      CountDownLatch startedLatch;
+      CountDownLatch doneLatch = new CountDownLatch(1);
+      Connection connection;
+      Session session;
+      final AtomicLong size = new AtomicLong();
 
-        public void start() {
-            LOG.info("Starting: " + name);
-            new Thread(this, name).start();
-        }
+      Client(String name, CountDownLatch startedLatch) {
+         this.name = name;
+         this.startedLatch = startedLatch;
+      }
 
-        public void stopAsync() {
-            done.set(true);
-        }
+      public void start() {
+         LOG.info("Starting: " + name);
+         new Thread(this, name).start();
+      }
 
-        public void stop() throws InterruptedException {
-            stopAsync();
-            if (!doneLatch.await(20, TimeUnit.MILLISECONDS)) {
-                try {
-                    connection.close();
-                    doneLatch.await();
-                } catch (Exception e) {
-                }
-            }
-        }
+      public void stopAsync() {
+         done.set(true);
+      }
 
-        @Override
-        public void run() {
+      public void stop() throws InterruptedException {
+         stopAsync();
+         if (!doneLatch.await(20, TimeUnit.MILLISECONDS)) {
             try {
-                connection = createConnection();
-                connection.start();
-                try {
-                    session = createSession();
-                    work();
-                } finally {
-                    try {
-                        connection.close();
-                    } catch (JMSException ignore) {
-                    }
-                    LOG.info("Stopped: " + name);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-                done.set(true);
-            } finally {
-                doneLatch.countDown();
+               connection.close();
+               doneLatch.await();
             }
-        }
-
-        protected Session createSession() throws JMSException {
-            return connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        }
-
-        protected Connection createConnection() throws JMSException {
-            return connectionFactory.createConnection();
-        }
-
-        abstract protected void work() throws Exception;
-    }
-
-    class ProducingClient extends Client {
-
-        ProducingClient(String name, CountDownLatch startedLatch) {
-            super(name, startedLatch);
-        }
-
-        private String createMessage() {
-            StringBuffer stringBuffer = new StringBuffer();
-            for (long i = 0; i < 1000000; i++) {
-                stringBuffer.append("1234567890");
+            catch (Exception e) {
             }
-            return stringBuffer.toString();
-        }
+         }
+      }
 
-        @Override
-        protected void work() throws Exception {
-            String data = createMessage();
-            MessageProducer producer = session.createProducer(destination);
-            startedLatch.countDown();
-            while (!done.get()) {
-                producer.send(session.createTextMessage(data));
-                long i = size.incrementAndGet();
-                if ((i % 1000) == 0) {
-                    LOG.info("produced " + i + ".");
-                }
+      @Override
+      public void run() {
+         try {
+            connection = createConnection();
+            connection.start();
+            try {
+               session = createSession();
+               work();
             }
-        }
-    }
-
-    class ConsumingClient extends Client {
-        public ConsumingClient(String name, CountDownLatch startedLatch) {
-            super(name, startedLatch);
-        }
-
-        @Override
-        protected void work() throws Exception {
-            MessageConsumer consumer = session.createConsumer(destination);
-            startedLatch.countDown();
-            while (!done.get()) {
-                Message msg = consumer.receive(100);
-                if (msg != null) {
-                    size.incrementAndGet();
-                }
+            finally {
+               try {
+                  connection.close();
+               }
+               catch (JMSException ignore) {
+               }
+               LOG.info("Stopped: " + name);
             }
-        }
-    }
+         }
+         catch (Exception e) {
+            e.printStackTrace();
+            done.set(true);
+         }
+         finally {
+            doneLatch.countDown();
+         }
+      }
 
-    @Test
-    public void testENTMQ220() throws Exception {
-        LOG.info("Start test.");
-        CountDownLatch producer1Started = new CountDownLatch(1);
-        CountDownLatch producer2Started = new CountDownLatch(1);
-        CountDownLatch listener1Started = new CountDownLatch(1);
+      protected Session createSession() throws JMSException {
+         return connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      }
 
-        final ProducingClient producer1 = new ProducingClient("1", producer1Started);
-        final ProducingClient producer2 = new ProducingClient("2", producer2Started);
-        final ConsumingClient listener1 = new ConsumingClient("subscriber-1", listener1Started);
-        final AtomicLong lastSize = new AtomicLong();
+      protected Connection createConnection() throws JMSException {
+         return connectionFactory.createConnection();
+      }
 
-        try {
+      abstract protected void work() throws Exception;
+   }
 
-            producer1.start();
-            producer2.start();
-            listener1.start();
+   class ProducingClient extends Client {
 
-            producer1Started.await(15, TimeUnit.SECONDS);
-            producer2Started.await(15, TimeUnit.SECONDS);
-            listener1Started.await(15, TimeUnit.SECONDS);
+      ProducingClient(String name, CountDownLatch startedLatch) {
+         super(name, startedLatch);
+      }
 
-            lastSize.set(listener1.size.get());
-            for (int i = 0; i < 10; i++) {
-                Wait.waitFor(new Wait.Condition() {
+      private String createMessage() {
+         StringBuffer stringBuffer = new StringBuffer();
+         for (long i = 0; i < 1000000; i++) {
+            stringBuffer.append("1234567890");
+         }
+         return stringBuffer.toString();
+      }
 
-                    @Override
-                    public boolean isSatisified() throws Exception {
-                        return listener1.size.get() > lastSize.get();
-                    }
-                });
-                long size = listener1.size.get();
-                LOG.info("Listener 1: consumed: " + (size - lastSize.get()));
-                assertTrue("No messages received on iteration: " + i, size > lastSize.get());
-                lastSize.set(size);
+      @Override
+      protected void work() throws Exception {
+         String data = createMessage();
+         MessageProducer producer = session.createProducer(destination);
+         startedLatch.countDown();
+         while (!done.get()) {
+            producer.send(session.createTextMessage(data));
+            long i = size.incrementAndGet();
+            if ((i % 1000) == 0) {
+               LOG.info("produced " + i + ".");
             }
-        } finally {
-            LOG.info("Stopping clients");
-            producer1.stop();
-            producer2.stop();
-            listener1.stop();
-        }
-    }
+         }
+      }
+   }
+
+   class ConsumingClient extends Client {
+
+      public ConsumingClient(String name, CountDownLatch startedLatch) {
+         super(name, startedLatch);
+      }
+
+      @Override
+      protected void work() throws Exception {
+         MessageConsumer consumer = session.createConsumer(destination);
+         startedLatch.countDown();
+         while (!done.get()) {
+            Message msg = consumer.receive(100);
+            if (msg != null) {
+               size.incrementAndGet();
+            }
+         }
+      }
+   }
+
+   @Test
+   public void testENTMQ220() throws Exception {
+      LOG.info("Start test.");
+      CountDownLatch producer1Started = new CountDownLatch(1);
+      CountDownLatch producer2Started = new CountDownLatch(1);
+      CountDownLatch listener1Started = new CountDownLatch(1);
+
+      final ProducingClient producer1 = new ProducingClient("1", producer1Started);
+      final ProducingClient producer2 = new ProducingClient("2", producer2Started);
+      final ConsumingClient listener1 = new ConsumingClient("subscriber-1", listener1Started);
+      final AtomicLong lastSize = new AtomicLong();
+
+      try {
+
+         producer1.start();
+         producer2.start();
+         listener1.start();
+
+         producer1Started.await(15, TimeUnit.SECONDS);
+         producer2Started.await(15, TimeUnit.SECONDS);
+         listener1Started.await(15, TimeUnit.SECONDS);
+
+         lastSize.set(listener1.size.get());
+         for (int i = 0; i < 10; i++) {
+            Wait.waitFor(new Wait.Condition() {
+
+               @Override
+               public boolean isSatisified() throws Exception {
+                  return listener1.size.get() > lastSize.get();
+               }
+            });
+            long size = listener1.size.get();
+            LOG.info("Listener 1: consumed: " + (size - lastSize.get()));
+            assertTrue("No messages received on iteration: " + i, size > lastSize.get());
+            lastSize.set(size);
+         }
+      }
+      finally {
+         LOG.info("Stopping clients");
+         producer1.stop();
+         producer2.stop();
+         listener1.stop();
+      }
+   }
 }

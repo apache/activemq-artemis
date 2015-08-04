@@ -23,11 +23,10 @@ import org.apache.activemq.artemis.core.protocol.openwire.AMQTransactionImpl;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.core.transaction.TransactionFactory;
 
-public class AMQTransactionFactory implements TransactionFactory
-{
+public class AMQTransactionFactory implements TransactionFactory {
+
    @Override
-   public Transaction newTransaction(Xid xid, StorageManager storageManager, int timeoutSeconds)
-   {
+   public Transaction newTransaction(Xid xid, StorageManager storageManager, int timeoutSeconds) {
       return new AMQTransactionImpl(xid, storageManager, timeoutSeconds);
    }
 }

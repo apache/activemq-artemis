@@ -32,109 +32,85 @@ import org.apache.activemq.artemis.utils.DataConstants;
 
 import static org.apache.activemq.artemis.core.protocol.stomp.ActiveMQStompProtocolMessageBundle.BUNDLE;
 
-public abstract class VersionedStompFrameHandler
-{
+public abstract class VersionedStompFrameHandler {
+
    protected StompConnection connection;
    protected StompDecoder decoder;
 
-   public static VersionedStompFrameHandler getHandler(StompConnection connection, StompVersions version)
-   {
-      if (version == StompVersions.V1_0)
-      {
+   public static VersionedStompFrameHandler getHandler(StompConnection connection, StompVersions version) {
+      if (version == StompVersions.V1_0) {
          return new StompFrameHandlerV10(connection);
       }
-      if (version == StompVersions.V1_1)
-      {
+      if (version == StompVersions.V1_1) {
          return new StompFrameHandlerV11(connection);
       }
-      if (version == StompVersions.V1_2)
-      {
+      if (version == StompVersions.V1_2) {
          return new StompFrameHandlerV12(connection);
       }
       return null;
    }
 
-   protected VersionedStompFrameHandler(StompConnection connection)
-   {
+   protected VersionedStompFrameHandler(StompConnection connection) {
       this.connection = connection;
    }
 
-   public StompFrame decode(ActiveMQBuffer buffer) throws ActiveMQStompException
-   {
+   public StompFrame decode(ActiveMQBuffer buffer) throws ActiveMQStompException {
       return decoder.decode(buffer);
    }
 
-   public boolean hasBytes()
-   {
+   public boolean hasBytes() {
       return decoder.hasBytes();
    }
 
-   public StompDecoder getDecoder()
-   {
+   public StompDecoder getDecoder() {
       return decoder;
    }
 
-   public StompFrame handleFrame(StompFrame request)
-   {
+   public StompFrame handleFrame(StompFrame request) {
       StompFrame response = null;
 
-      if (Stomp.Commands.SEND.equals(request.getCommand()))
-      {
+      if (Stomp.Commands.SEND.equals(request.getCommand())) {
          response = onSend(request);
       }
-      else if (Stomp.Commands.ACK.equals(request.getCommand()))
-      {
+      else if (Stomp.Commands.ACK.equals(request.getCommand())) {
          response = onAck(request);
       }
-      else if (Stomp.Commands.NACK.equals(request.getCommand()))
-      {
+      else if (Stomp.Commands.NACK.equals(request.getCommand())) {
          response = onNack(request);
       }
-      else if (Stomp.Commands.BEGIN.equals(request.getCommand()))
-      {
+      else if (Stomp.Commands.BEGIN.equals(request.getCommand())) {
          response = onBegin(request);
       }
-      else if (Stomp.Commands.COMMIT.equals(request.getCommand()))
-      {
+      else if (Stomp.Commands.COMMIT.equals(request.getCommand())) {
          response = onCommit(request);
       }
-      else if (Stomp.Commands.ABORT.equals(request.getCommand()))
-      {
+      else if (Stomp.Commands.ABORT.equals(request.getCommand())) {
          response = onAbort(request);
       }
-      else if (Stomp.Commands.SUBSCRIBE.equals(request.getCommand()))
-      {
+      else if (Stomp.Commands.SUBSCRIBE.equals(request.getCommand())) {
          response = onSubscribe(request);
       }
-      else if (Stomp.Commands.UNSUBSCRIBE.equals(request.getCommand()))
-      {
+      else if (Stomp.Commands.UNSUBSCRIBE.equals(request.getCommand())) {
          response = onUnsubscribe(request);
       }
-      else if (Stomp.Commands.CONNECT.equals(request.getCommand()))
-      {
+      else if (Stomp.Commands.CONNECT.equals(request.getCommand())) {
          response = onConnect(request);
       }
-      else if (Stomp.Commands.STOMP.equals(request.getCommand()))
-      {
+      else if (Stomp.Commands.STOMP.equals(request.getCommand())) {
          response = onStomp(request);
       }
-      else if (Stomp.Commands.DISCONNECT.equals(request.getCommand()))
-      {
+      else if (Stomp.Commands.DISCONNECT.equals(request.getCommand())) {
          response = onDisconnect(request);
       }
-      else
-      {
+      else {
          response = onUnknown(request.getCommand());
       }
 
-      if (response == null)
-      {
+      if (response == null) {
          response = postprocess(request);
       }
-      else
-      {
-         if (request.hasHeader(Stomp.Headers.RECEIPT_REQUESTED))
-         {
+      else {
+         if (request.hasHeader(Stomp.Headers.RECEIPT_REQUESTED)) {
             response.addHeader(Stomp.Headers.Response.RECEIPT_ID, request.getHeader(Stomp.Headers.RECEIPT_REQUESTED));
          }
       }
@@ -156,49 +132,41 @@ public abstract class VersionedStompFrameHandler
 
    public abstract StompFrame createStompFrame(String command);
 
-   public StompFrame onUnknown(String command)
-   {
+   public StompFrame onUnknown(String command) {
       ActiveMQStompException error = BUNDLE.unknownCommand(command).setHandler(this);
       StompFrame response = error.getFrame();
       return response;
    }
 
-   public StompFrame handleReceipt(String receiptID)
-   {
+   public StompFrame handleReceipt(String receiptID) {
       StompFrame receipt = createStompFrame(Stomp.Responses.RECEIPT);
       receipt.addHeader(Stomp.Headers.Response.RECEIPT_ID, receiptID);
 
       return receipt;
    }
 
-   public StompFrame onCommit(StompFrame request)
-   {
+   public StompFrame onCommit(StompFrame request) {
       StompFrame response = null;
 
       String txID = request.getHeader(Stomp.Headers.TRANSACTION);
-      if (txID == null)
-      {
+      if (txID == null) {
          ActiveMQStompException error = BUNDLE.needTxIDHeader().setHandler(this);
          response = error.getFrame();
          return response;
       }
 
-      try
-      {
+      try {
          connection.commitTransaction(txID);
       }
-      catch (ActiveMQStompException e)
-      {
+      catch (ActiveMQStompException e) {
          response = e.getFrame();
       }
       return response;
    }
 
-   public StompFrame onSend(StompFrame frame)
-   {
+   public StompFrame onSend(StompFrame frame) {
       StompFrame response = null;
-      try
-      {
+      try {
          connection.validate();
          String destination = frame.getHeader(Stomp.Headers.Send.DESTINATION);
          checkDestination(destination);
@@ -210,13 +178,11 @@ public abstract class VersionedStompFrameHandler
          message.setTimestamp(timestamp);
          message.setAddress(SimpleString.toSimpleString(destination));
          StompUtils.copyStandardHeadersFromFrameToMessage(frame, message);
-         if (frame.hasHeader(Stomp.Headers.CONTENT_LENGTH))
-         {
+         if (frame.hasHeader(Stomp.Headers.CONTENT_LENGTH)) {
             message.setType(Message.BYTES_TYPE);
             message.getBodyBuffer().writeBytes(frame.getBodyAsBytes());
          }
-         else
-         {
+         else {
             message.setType(Message.TEXT_TYPE);
             String text = frame.getBody();
             message.getBodyBuffer().writeNullableSimpleString(SimpleString.toSimpleString(text));
@@ -224,12 +190,10 @@ public abstract class VersionedStompFrameHandler
 
          connection.sendServerMessage(message, txID);
       }
-      catch (ActiveMQStompException e)
-      {
+      catch (ActiveMQStompException e) {
          response = e.getFrame();
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          ActiveMQStompException error = BUNDLE.errorHandleSend(e).setHandler(this);
          response = error.getFrame();
       }
@@ -237,60 +201,49 @@ public abstract class VersionedStompFrameHandler
       return response;
    }
 
-   private void checkDestination(String destination) throws ActiveMQStompException
-   {
+   private void checkDestination(String destination) throws ActiveMQStompException {
       connection.checkDestination(destination);
    }
 
-   public StompFrame onBegin(StompFrame frame)
-   {
+   public StompFrame onBegin(StompFrame frame) {
       StompFrame response = null;
       String txID = frame.getHeader(Stomp.Headers.TRANSACTION);
-      if (txID == null)
-      {
+      if (txID == null) {
          ActiveMQStompException error = BUNDLE.beginTxNoID().setHandler(this);
          response = error.getFrame();
       }
-      else
-      {
-         try
-         {
+      else {
+         try {
             connection.beginTransaction(txID);
          }
-         catch (ActiveMQStompException e)
-         {
+         catch (ActiveMQStompException e) {
             response = e.getFrame();
          }
       }
       return response;
    }
 
-   public StompFrame onAbort(StompFrame request)
-   {
+   public StompFrame onAbort(StompFrame request) {
       StompFrame response = null;
       String txID = request.getHeader(Stomp.Headers.TRANSACTION);
 
-      if (txID == null)
-      {
+      if (txID == null) {
          ActiveMQStompException error = BUNDLE.abortTxNoID().setHandler(this);
          response = error.getFrame();
          return response;
       }
 
-      try
-      {
+      try {
          connection.abortTransaction(txID);
       }
-      catch (ActiveMQStompException e)
-      {
+      catch (ActiveMQStompException e) {
          response = e.getFrame();
       }
 
       return response;
    }
 
-   public StompFrame onSubscribe(StompFrame request)
-   {
+   public StompFrame onSubscribe(StompFrame request) {
       StompFrame response = null;
       String destination = request.getHeader(Stomp.Headers.Subscribe.DESTINATION);
 
@@ -300,39 +253,31 @@ public abstract class VersionedStompFrameHandler
       String durableSubscriptionName = request.getHeader(Stomp.Headers.Subscribe.DURABLE_SUBSCRIBER_NAME);
       boolean noLocal = false;
 
-      if (request.hasHeader(Stomp.Headers.Subscribe.NO_LOCAL))
-      {
+      if (request.hasHeader(Stomp.Headers.Subscribe.NO_LOCAL)) {
          noLocal = Boolean.parseBoolean(request.getHeader(Stomp.Headers.Subscribe.NO_LOCAL));
       }
 
-      try
-      {
+      try {
          connection.subscribe(destination, selector, ack, id, durableSubscriptionName, noLocal);
       }
-      catch (ActiveMQStompException e)
-      {
+      catch (ActiveMQStompException e) {
          response = e.getFrame();
       }
 
       return response;
    }
 
-   public StompFrame postprocess(StompFrame request)
-   {
+   public StompFrame postprocess(StompFrame request) {
       StompFrame response = null;
-      if (request.hasHeader(Stomp.Headers.RECEIPT_REQUESTED))
-      {
+      if (request.hasHeader(Stomp.Headers.RECEIPT_REQUESTED)) {
          response = handleReceipt(request.getHeader(Stomp.Headers.RECEIPT_REQUESTED));
-         if (request.getCommand().equals(Stomp.Commands.DISCONNECT))
-         {
+         if (request.getCommand().equals(Stomp.Commands.DISCONNECT)) {
             response.setNeedsDisconnect(true);
          }
       }
-      else
-      {
+      else {
          //request null, disconnect if so.
-         if (request.getCommand().equals(Stomp.Commands.DISCONNECT))
-         {
+         if (request.getCommand().equals(Stomp.Commands.DISCONNECT)) {
             this.connection.disconnect(false);
          }
       }
@@ -340,50 +285,40 @@ public abstract class VersionedStompFrameHandler
    }
 
    public StompFrame createMessageFrame(ServerMessage serverMessage,
-                                        StompSubscription subscription, int deliveryCount) throws Exception
-   {
+                                        StompSubscription subscription,
+                                        int deliveryCount) throws Exception {
       StompFrame frame = createStompFrame(Stomp.Responses.MESSAGE);
 
-      if (subscription.getID() != null)
-      {
-         frame.addHeader(Stomp.Headers.Message.SUBSCRIPTION,
-                         subscription.getID());
+      if (subscription.getID() != null) {
+         frame.addHeader(Stomp.Headers.Message.SUBSCRIPTION, subscription.getID());
       }
 
       ActiveMQBuffer buffer = serverMessage.getBodyBufferCopy();
 
-      int bodyPos = serverMessage.getEndOfBodyPosition() == -1 ? buffer
-         .writerIndex() : serverMessage.getEndOfBodyPosition();
+      int bodyPos = serverMessage.getEndOfBodyPosition() == -1 ? buffer.writerIndex() : serverMessage.getEndOfBodyPosition();
 
-      buffer.readerIndex(MessageImpl.BUFFER_HEADER_SPACE
-                            + DataConstants.SIZE_INT);
+      buffer.readerIndex(MessageImpl.BUFFER_HEADER_SPACE + DataConstants.SIZE_INT);
 
       int size = bodyPos - buffer.readerIndex();
 
       byte[] data = new byte[size];
 
-      if (serverMessage.containsProperty(Stomp.Headers.CONTENT_LENGTH)
-         || serverMessage.getType() == Message.BYTES_TYPE)
-      {
+      if (serverMessage.containsProperty(Stomp.Headers.CONTENT_LENGTH) || serverMessage.getType() == Message.BYTES_TYPE) {
          frame.addHeader(Headers.CONTENT_LENGTH, String.valueOf(data.length));
          buffer.readBytes(data);
       }
-      else
-      {
+      else {
          SimpleString text = buffer.readNullableSimpleString();
-         if (text != null)
-         {
+         if (text != null) {
             data = text.toString().getBytes(StandardCharsets.UTF_8);
          }
-         else
-         {
+         else {
             data = new byte[0];
          }
       }
       frame.setByteBody(data);
 
-      StompUtils.copyStandardHeadersFromMessageToFrame(serverMessage, frame,
-                                                       deliveryCount);
+      StompUtils.copyStandardHeadersFromMessageToFrame(serverMessage, frame, deliveryCount);
 
       return frame;
    }
@@ -395,14 +330,12 @@ public abstract class VersionedStompFrameHandler
     *
     * @param existingHandler
     */
-   public void initDecoder(VersionedStompFrameHandler existingHandler)
-   {
+   public void initDecoder(VersionedStompFrameHandler existingHandler) {
       throw BUNDLE.invalidCall();
    }
 
    //sends an ERROR frame back to client if possible then close the connection
-   public void onError(ActiveMQStompException e)
-   {
+   public void onError(ActiveMQStompException e) {
       this.connection.sendFrame(e.getFrame());
       connection.destroy();
    }

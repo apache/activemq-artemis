@@ -19,8 +19,8 @@ package org.apache.activemq.artemis.api.core.client.loadbalance;
 /**
  * A ConnectionLoadBalancingPolicy defines a policy to load balance between connections.
  */
-public interface ConnectionLoadBalancingPolicy
-{
+public interface ConnectionLoadBalancingPolicy {
+
    /**
     * Returns the selected index according to the policy implementation.
     *

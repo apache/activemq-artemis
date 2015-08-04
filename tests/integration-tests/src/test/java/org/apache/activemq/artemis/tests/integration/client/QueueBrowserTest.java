@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.integration.client;
+
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Before;
 
@@ -32,8 +33,8 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
 
-public class QueueBrowserTest extends ActiveMQTestBase
-{
+public class QueueBrowserTest extends ActiveMQTestBase {
+
    private ActiveMQServer server;
 
    private final SimpleString QUEUE = new SimpleString("ConsumerTestQueue");
@@ -42,8 +43,7 @@ public class QueueBrowserTest extends ActiveMQTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       server = createServer(false);
@@ -56,8 +56,7 @@ public class QueueBrowserTest extends ActiveMQTestBase
    private ClientSessionFactory sf;
 
    @Test
-   public void testSimpleConsumerBrowser() throws Exception
-   {
+   public void testSimpleConsumerBrowser() throws Exception {
       locator.setBlockOnNonDurableSend(true);
 
       sf = createSessionFactory(locator);
@@ -69,16 +68,14 @@ public class QueueBrowserTest extends ActiveMQTestBase
 
       final int numMessages = 100;
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = createTextMessage(session, "m" + i);
          producer.send(message);
       }
 
       ClientConsumer consumer = session.createConsumer(QUEUE, null, true);
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message2 = consumer.receive(1000);
 
          Assert.assertEquals("m" + i, message2.getBodyBuffer().readString());
@@ -88,8 +85,7 @@ public class QueueBrowserTest extends ActiveMQTestBase
 
       consumer = session.createConsumer(QUEUE, null, true);
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message2 = consumer.receive(1000);
 
          Assert.assertEquals("m" + i, message2.getBodyBuffer().readString());
@@ -99,12 +95,10 @@ public class QueueBrowserTest extends ActiveMQTestBase
 
       session.close();
 
-
    }
 
    @Test
-   public void testConsumerBrowserWithSelector() throws Exception
-   {
+   public void testConsumerBrowserWithSelector() throws Exception {
 
       ClientSessionFactory sf = createSessionFactory(locator);
 
@@ -116,8 +110,7 @@ public class QueueBrowserTest extends ActiveMQTestBase
 
       final int numMessages = 100;
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = createTextMessage(session, "m" + i);
          message.putIntProperty(new SimpleString("x"), i);
          producer.send(message);
@@ -125,8 +118,7 @@ public class QueueBrowserTest extends ActiveMQTestBase
 
       ClientConsumer consumer = session.createConsumer(QUEUE, new SimpleString("x >= 50"), true);
 
-      for (int i = 50; i < numMessages; i++)
-      {
+      for (int i = 50; i < numMessages; i++) {
          ClientMessage message2 = consumer.receive(1000);
 
          Assert.assertEquals("m" + i, message2.getBodyBuffer().readString());
@@ -136,8 +128,7 @@ public class QueueBrowserTest extends ActiveMQTestBase
 
       consumer = session.createConsumer(QUEUE, null, true);
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message2 = consumer.receive(1000);
 
          Assert.assertEquals("m" + i, message2.getBodyBuffer().readString());
@@ -149,8 +140,7 @@ public class QueueBrowserTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testConsumerBrowserWithStringSelector() throws Exception
-   {
+   public void testConsumerBrowserWithStringSelector() throws Exception {
 
       ClientSessionFactory sf = createSessionFactory(locator);
 
@@ -162,11 +152,9 @@ public class QueueBrowserTest extends ActiveMQTestBase
 
       final int numMessages = 100;
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = createTextMessage(session, "m" + i);
-         if (i % 2 == 0)
-         {
+         if (i % 2 == 0) {
             message.putStringProperty(new SimpleString("color"), new SimpleString("RED"));
          }
          producer.send(message);
@@ -174,8 +162,7 @@ public class QueueBrowserTest extends ActiveMQTestBase
 
       ClientConsumer consumer = session.createConsumer(QUEUE, new SimpleString("color = 'RED'"), true);
 
-      for (int i = 0; i < numMessages; i += 2)
-      {
+      for (int i = 0; i < numMessages; i += 2) {
          ClientMessage message2 = consumer.receive(1000);
 
          Assert.assertEquals("m" + i, message2.getBodyBuffer().readString());
@@ -183,12 +170,10 @@ public class QueueBrowserTest extends ActiveMQTestBase
 
       session.close();
 
-
    }
 
    @Test
-   public void testConsumerMultipleBrowser() throws Exception
-   {
+   public void testConsumerMultipleBrowser() throws Exception {
 
       ClientSessionFactory sf = createSessionFactory(locator);
 
@@ -200,8 +185,7 @@ public class QueueBrowserTest extends ActiveMQTestBase
 
       final int numMessages = 100;
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = createTextMessage(session, "m" + i);
          producer.send(message);
       }
@@ -210,8 +194,7 @@ public class QueueBrowserTest extends ActiveMQTestBase
       ClientConsumer consumer2 = session.createConsumer(QUEUE, null, true);
       ClientConsumer consumer3 = session.createConsumer(QUEUE, null, true);
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message2 = consumer.receive(1000);
          Assert.assertEquals("m" + i, message2.getBodyBuffer().readString());
          message2 = consumer2.receive(1000);
@@ -225,8 +208,7 @@ public class QueueBrowserTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testConsumerMultipleBrowserWithSelector() throws Exception
-   {
+   public void testConsumerMultipleBrowserWithSelector() throws Exception {
 
       ClientSessionFactory sf = createSessionFactory(locator);
 
@@ -238,8 +220,7 @@ public class QueueBrowserTest extends ActiveMQTestBase
 
       final int numMessages = 100;
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = createTextMessage(session, "m" + i);
          message.putIntProperty(new SimpleString("x"), i);
          producer.send(message);
@@ -249,41 +230,34 @@ public class QueueBrowserTest extends ActiveMQTestBase
       ClientConsumer consumer2 = session.createConsumer(QUEUE, new SimpleString("x >= 50"), true);
       ClientConsumer consumer3 = session.createConsumer(QUEUE, null, true);
 
-      for (int i = 0; i < 50; i++)
-      {
+      for (int i = 0; i < 50; i++) {
          ClientMessage message2 = consumer.receive(1000);
          Assert.assertEquals("m" + i, message2.getBodyBuffer().readString());
       }
-      for (int i = 50; i < numMessages; i++)
-      {
+      for (int i = 50; i < numMessages; i++) {
          ClientMessage message2 = consumer2.receive(1000);
          Assert.assertEquals("m" + i, message2.getBodyBuffer().readString());
       }
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message2 = consumer3.receive(1000);
          Assert.assertEquals("m" + i, message2.getBodyBuffer().readString());
       }
 
       session.close();
 
-
    }
 
    @Test
-   public void testConsumerBrowserMessages() throws Exception
-   {
+   public void testConsumerBrowserMessages() throws Exception {
       testConsumerBrowserMessagesArentAcked(false);
    }
 
    @Test
-   public void testConsumerBrowserMessagesPreACK() throws Exception
-   {
+   public void testConsumerBrowserMessagesPreACK() throws Exception {
       testConsumerBrowserMessagesArentAcked(false);
    }
 
-   private void testConsumerBrowserMessagesArentAcked(final boolean preACK) throws Exception
-   {
+   private void testConsumerBrowserMessagesArentAcked(final boolean preACK) throws Exception {
       ClientSessionFactory sf = createSessionFactory(locator);
 
       ClientSession session = sf.createSession(null, null, false, true, true, preACK, 0);
@@ -294,31 +268,28 @@ public class QueueBrowserTest extends ActiveMQTestBase
 
       final int numMessages = 100;
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = createTextMessage(session, "m" + i);
          producer.send(message);
       }
 
       ClientConsumer consumer = session.createConsumer(QUEUE, null, true);
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message2 = consumer.receive(1000);
 
          Assert.assertEquals("m" + i, message2.getBodyBuffer().readString());
       }
       // assert that all the messages are there and none have been acked
-      Assert.assertEquals(0, ((Queue)server.getPostOffice().getBinding(QUEUE).getBindable()).getDeliveringCount());
-      Assert.assertEquals(100, getMessageCount(((Queue)server.getPostOffice().getBinding(QUEUE).getBindable())));
+      Assert.assertEquals(0, ((Queue) server.getPostOffice().getBinding(QUEUE).getBindable()).getDeliveringCount());
+      Assert.assertEquals(100, getMessageCount(((Queue) server.getPostOffice().getBinding(QUEUE).getBindable())));
 
       session.close();
 
    }
 
    @Test
-   public void testConsumerBrowserMessageAckDoesNothing() throws Exception
-   {
+   public void testConsumerBrowserMessageAckDoesNothing() throws Exception {
       ClientSessionFactory sf = createSessionFactory(locator);
 
       ClientSession session = sf.createSession(false, true, true);
@@ -329,16 +300,14 @@ public class QueueBrowserTest extends ActiveMQTestBase
 
       final int numMessages = 100;
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = createTextMessage(session, "m" + i);
          producer.send(message);
       }
 
       ClientConsumer consumer = session.createConsumer(QUEUE, null, true);
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message2 = consumer.receive(1000);
 
          message2.acknowledge();
@@ -346,16 +315,15 @@ public class QueueBrowserTest extends ActiveMQTestBase
          Assert.assertEquals("m" + i, message2.getBodyBuffer().readString());
       }
       // assert that all the messages are there and none have been acked
-      Assert.assertEquals(0, ((Queue)server.getPostOffice().getBinding(QUEUE).getBindable()).getDeliveringCount());
-      Assert.assertEquals(100, getMessageCount(((Queue)server.getPostOffice().getBinding(QUEUE).getBindable())));
+      Assert.assertEquals(0, ((Queue) server.getPostOffice().getBinding(QUEUE).getBindable()).getDeliveringCount());
+      Assert.assertEquals(100, getMessageCount(((Queue) server.getPostOffice().getBinding(QUEUE).getBindable())));
 
       session.close();
 
    }
 
    @Test
-   public void testBrowseWithZeroConsumerWindowSize() throws Exception
-   {
+   public void testBrowseWithZeroConsumerWindowSize() throws Exception {
       locator.setConsumerWindowSize(0);
 
       ClientSessionFactory sf = createSessionFactory(locator);
@@ -370,8 +338,7 @@ public class QueueBrowserTest extends ActiveMQTestBase
 
       byte[] bytes = new byte[240];
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session.createMessage(false);
 
          message.getBodyBuffer().writeBytes(bytes);
@@ -388,8 +355,7 @@ public class QueueBrowserTest extends ActiveMQTestBase
 
       ClientConsumer browser = session.createConsumer(QUEUE, true);
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message2 = browser.receive(1000);
 
          assertEquals(i, message2.getIntProperty("foo").intValue());

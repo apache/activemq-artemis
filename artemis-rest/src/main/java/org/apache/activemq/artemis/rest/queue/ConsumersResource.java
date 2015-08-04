@@ -38,8 +38,8 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.rest.ActiveMQRestLogger;
 import org.apache.activemq.artemis.rest.util.TimeoutTask;
 
-public class ConsumersResource implements TimeoutTask.Callback
-{
+public class ConsumersResource implements TimeoutTask.Callback {
+
    protected ConcurrentMap<String, QueueConsumer> queueConsumers = new ConcurrentHashMap<String, QueueConsumer>();
    protected ClientSessionFactory sessionFactory;
    protected String destination;
@@ -51,85 +51,70 @@ public class ConsumersResource implements TimeoutTask.Callback
    protected static final int ACKNOWLEDGED = 0x01;
    protected static final int SELECTOR_SET = 0x02;
 
-   public DestinationServiceManager getServiceManager()
-   {
+   public DestinationServiceManager getServiceManager() {
       return serviceManager;
    }
 
-   public void setServiceManager(DestinationServiceManager serviceManager)
-   {
+   public void setServiceManager(DestinationServiceManager serviceManager) {
       this.serviceManager = serviceManager;
    }
 
-   public ClientSessionFactory getSessionFactory()
-   {
+   public ClientSessionFactory getSessionFactory() {
       return sessionFactory;
    }
 
-   public void setSessionFactory(ClientSessionFactory sessionFactory)
-   {
+   public void setSessionFactory(ClientSessionFactory sessionFactory) {
       this.sessionFactory = sessionFactory;
    }
 
-   public String getDestination()
-   {
+   public String getDestination() {
       return destination;
    }
 
-   public void setDestination(String destination)
-   {
+   public void setDestination(String destination) {
       this.destination = destination;
    }
 
-   public int getConsumerTimeoutSeconds()
-   {
+   public int getConsumerTimeoutSeconds() {
       return consumerTimeoutSeconds;
    }
 
-   public void setConsumerTimeoutSeconds(int consumerTimeoutSeconds)
-   {
+   public void setConsumerTimeoutSeconds(int consumerTimeoutSeconds) {
       this.consumerTimeoutSeconds = consumerTimeoutSeconds;
    }
 
-   public boolean testTimeout(String target, boolean autoShutdown)
-   {
+   public boolean testTimeout(String target, boolean autoShutdown) {
       QueueConsumer consumer = queueConsumers.get(target);
-      if (consumer == null) return false;
-      if (System.currentTimeMillis() - consumer.getLastPingTime() > consumerTimeoutSeconds * 1000)
-      {
+      if (consumer == null)
+         return false;
+      if (System.currentTimeMillis() - consumer.getLastPingTime() > consumerTimeoutSeconds * 1000) {
          ActiveMQRestLogger.LOGGER.shutdownRestConsumer(consumer.getId());
-         if (autoShutdown)
-         {
+         if (autoShutdown) {
             shutdown(consumer);
          }
          return true;
       }
-      else
-      {
+      else {
          return false;
       }
    }
 
-   public void shutdown(String target)
-   {
+   public void shutdown(String target) {
       QueueConsumer consumer = queueConsumers.get(target);
-      if (consumer == null) return;
+      if (consumer == null)
+         return;
       shutdown(consumer);
    }
 
-   private void shutdown(QueueConsumer consumer)
-   {
-      synchronized (consumer)
-      {
+   private void shutdown(QueueConsumer consumer) {
+      synchronized (consumer) {
          consumer.shutdown();
          queueConsumers.remove(consumer.getId());
       }
    }
 
-   public void stop()
-   {
-      for (QueueConsumer consumer : queueConsumers.values())
-      {
+   public void stop() {
+      for (QueueConsumer consumer : queueConsumers.values()) {
          consumer.shutdown();
       }
    }
@@ -137,25 +122,20 @@ public class ConsumersResource implements TimeoutTask.Callback
    @POST
    public Response createSubscription(@FormParam("autoAck") @DefaultValue("true") boolean autoAck,
                                       @FormParam("selector") String selector,
-                                      @Context UriInfo uriInfo)
-   {
+                                      @Context UriInfo uriInfo) {
       ActiveMQRestLogger.LOGGER.debug("Handling POST request for \"" + uriInfo.getPath() + "\"");
 
-      try
-      {
+      try {
          QueueConsumer consumer = null;
          int attributes = 0;
-         if (selector != null)
-         {
+         if (selector != null) {
             attributes = attributes | SELECTOR_SET;
          }
 
-         if (autoAck)
-         {
+         if (autoAck) {
             consumer = createConsumer(selector);
          }
-         else
-         {
+         else {
             attributes |= ACKNOWLEDGED;
             consumer = createAcknowledgedConsumer(selector);
          }
@@ -166,43 +146,36 @@ public class ConsumersResource implements TimeoutTask.Callback
          location.path(consumer.getId());
          Response.ResponseBuilder builder = Response.created(location.build());
 
-         if (autoAck)
-         {
+         if (autoAck) {
             QueueConsumer.setConsumeNextLink(serviceManager.getLinkStrategy(), builder, uriInfo, uriInfo.getMatchedURIs().get(0) + "/" + attributesSegment + "/" + consumer.getId(), "-1");
          }
-         else
-         {
+         else {
             AcknowledgedQueueConsumer.setAcknowledgeNextLink(serviceManager.getLinkStrategy(), builder, uriInfo, uriInfo.getMatchedURIs().get(0) + "/" + attributesSegment + "/" + consumer.getId(), "-1");
 
          }
          return builder.build();
 
       }
-      catch (ActiveMQException e)
-      {
+      catch (ActiveMQException e) {
          throw new RuntimeException(e);
       }
-      finally
-      {
+      finally {
       }
    }
 
-   protected void addConsumer(QueueConsumer consumer)
-   {
+   protected void addConsumer(QueueConsumer consumer) {
       queueConsumers.put(consumer.getId(), consumer);
       serviceManager.getTimeoutTask().add(this, consumer.getId());
    }
 
-   public QueueConsumer createConsumer(String selector) throws ActiveMQException
-   {
+   public QueueConsumer createConsumer(String selector) throws ActiveMQException {
       String genId = sessionCounter.getAndIncrement() + "-queue-" + destination + "-" + startup;
       QueueConsumer consumer = new QueueConsumer(sessionFactory, destination, genId, serviceManager, selector);
       addConsumer(consumer);
       return consumer;
    }
 
-   public QueueConsumer createAcknowledgedConsumer(String selector) throws ActiveMQException
-   {
+   public QueueConsumer createAcknowledgedConsumer(String selector) throws ActiveMQException {
       String genId = sessionCounter.getAndIncrement() + "-queue-" + destination + "-" + startup;
       QueueConsumer consumer = new AcknowledgedQueueConsumer(sessionFactory, destination, genId, serviceManager, selector);
       addConsumer(consumer);
@@ -213,8 +186,7 @@ public class ConsumersResource implements TimeoutTask.Callback
    @GET
    public Response getConsumer(@PathParam("attributes") int attributes,
                                @PathParam("consumer-id") String consumerId,
-                               @Context UriInfo uriInfo) throws Exception
-   {
+                               @Context UriInfo uriInfo) throws Exception {
       ActiveMQRestLogger.LOGGER.debug("Handling GET request for \"" + uriInfo.getPath() + "\"");
 
       return headConsumer(attributes, consumerId, uriInfo);
@@ -224,31 +196,25 @@ public class ConsumersResource implements TimeoutTask.Callback
    @HEAD
    public Response headConsumer(@PathParam("attributes") int attributes,
                                 @PathParam("consumer-id") String consumerId,
-                                @Context UriInfo uriInfo) throws Exception
-   {
+                                @Context UriInfo uriInfo) throws Exception {
       ActiveMQRestLogger.LOGGER.debug("Handling HEAD request for \"" + uriInfo.getPath() + "\"");
 
       QueueConsumer consumer = findConsumer(attributes, consumerId, uriInfo);
       Response.ResponseBuilder builder = Response.noContent();
       // we synchronize just in case a failed request is still processing
-      synchronized (consumer)
-      {
-         if ((attributes & ACKNOWLEDGED) > 0)
-         {
+      synchronized (consumer) {
+         if ((attributes & ACKNOWLEDGED) > 0) {
             AcknowledgedQueueConsumer ackedConsumer = (AcknowledgedQueueConsumer) consumer;
             Acknowledgement ack = ackedConsumer.getAck();
-            if (ack == null || ack.wasSet())
-            {
+            if (ack == null || ack.wasSet()) {
                AcknowledgedQueueConsumer.setAcknowledgeNextLink(serviceManager.getLinkStrategy(), builder, uriInfo, uriInfo.getMatchedURIs().get(1) + "/attributes-" + attributes + "/" + consumer.getId(), Long.toString(consumer.getConsumeIndex()));
             }
-            else
-            {
+            else {
                ackedConsumer.setAcknowledgementLink(builder, uriInfo, uriInfo.getMatchedURIs().get(1) + "/attributes-" + attributes + "/" + consumer.getId());
             }
 
          }
-         else
-         {
+         else {
             QueueConsumer.setConsumeNextLink(serviceManager.getLinkStrategy(), builder, uriInfo, uriInfo.getMatchedURIs().get(1) + "/attributes-" + attributes + "/" + consumer.getId(), Long.toString(consumer.getConsumeIndex()));
          }
       }
@@ -256,34 +222,26 @@ public class ConsumersResource implements TimeoutTask.Callback
    }
 
    @Path("attributes-{attributes}/{consumer-id}")
-   public QueueConsumer findConsumer(
-      @PathParam("attributes") int attributes,
-      @PathParam("consumer-id") String consumerId,
-      @Context UriInfo uriInfo) throws Exception
-   {
+   public QueueConsumer findConsumer(@PathParam("attributes") int attributes,
+                                     @PathParam("consumer-id") String consumerId,
+                                     @Context UriInfo uriInfo) throws Exception {
       QueueConsumer consumer = queueConsumers.get(consumerId);
-      if (consumer == null)
-      {
-         if ((attributes & SELECTOR_SET) > 0)
-         {
+      if (consumer == null) {
+         if ((attributes & SELECTOR_SET) > 0) {
 
-            Response.ResponseBuilder builder = Response.status(Response.Status.GONE)
-               .entity("Cannot reconnect to selector-based consumer.  You must recreate the consumer session.")
-               .type("text/plain");
+            Response.ResponseBuilder builder = Response.status(Response.Status.GONE).entity("Cannot reconnect to selector-based consumer.  You must recreate the consumer session.").type("text/plain");
             UriBuilder uriBuilder = uriInfo.getBaseUriBuilder();
             uriBuilder.path(uriInfo.getMatchedURIs().get(1));
             serviceManager.getLinkStrategy().setLinkHeader(builder, "pull-consumers", "pull-consumers", uriBuilder.build().toString(), null);
             throw new WebApplicationException(builder.build());
 
          }
-         if ((attributes & ACKNOWLEDGED) > 0)
-         {
+         if ((attributes & ACKNOWLEDGED) > 0) {
             QueueConsumer tmp = new AcknowledgedQueueConsumer(sessionFactory, destination, consumerId, serviceManager, null);
             consumer = addReconnectedConsumerToMap(consumerId, tmp);
 
          }
-         else
-         {
+         else {
             QueueConsumer tmp = new QueueConsumer(sessionFactory, destination, consumerId, serviceManager, null);
             consumer = addReconnectedConsumerToMap(consumerId, tmp);
          }
@@ -291,37 +249,27 @@ public class ConsumersResource implements TimeoutTask.Callback
       return consumer;
    }
 
-   private QueueConsumer addReconnectedConsumerToMap(String consumerId, QueueConsumer tmp)
-   {
+   private QueueConsumer addReconnectedConsumerToMap(String consumerId, QueueConsumer tmp) {
       QueueConsumer consumer;
       consumer = queueConsumers.putIfAbsent(consumerId, tmp);
-      if (consumer != null)
-      {
+      if (consumer != null) {
          tmp.shutdown();
       }
-      else
-      {
+      else {
          consumer = tmp;
          serviceManager.getTimeoutTask().add(this, consumer.getId());
       }
       return consumer;
    }
 
-
    @Path("attributes-{attributes}/{consumer-id}")
    @DELETE
-   public void closeSession(
-      @PathParam("consumer-id") String consumerId,
-      @Context UriInfo uriInfo)
-   {
+   public void closeSession(@PathParam("consumer-id") String consumerId, @Context UriInfo uriInfo) {
       ActiveMQRestLogger.LOGGER.debug("Handling DELETE request for \"" + uriInfo.getPath() + "\"");
 
       QueueConsumer consumer = queueConsumers.remove(consumerId);
-      if (consumer == null)
-      {
-         throw new WebApplicationException(Response.status(Response.Status.NOT_FOUND)
-                                              .entity("Failed to match a consumer to URL" + consumerId)
-                                              .type("text/plain").build());
+      if (consumer == null) {
+         throw new WebApplicationException(Response.status(Response.Status.NOT_FOUND).entity("Failed to match a consumer to URL" + consumerId).type("text/plain").build());
       }
       consumer.shutdown();
    }

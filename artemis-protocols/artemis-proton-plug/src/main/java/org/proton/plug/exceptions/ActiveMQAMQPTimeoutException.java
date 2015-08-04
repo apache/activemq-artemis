@@ -18,10 +18,9 @@ package org.proton.plug.exceptions;
 
 import org.apache.qpid.proton.amqp.transport.AmqpError;
 
-public class ActiveMQAMQPTimeoutException extends ActiveMQAMQPException
-{
-   public ActiveMQAMQPTimeoutException(String message)
-   {
+public class ActiveMQAMQPTimeoutException extends ActiveMQAMQPException {
+
+   public ActiveMQAMQPTimeoutException(String message) {
       super(AmqpError.ILLEGAL_STATE, message);
    }
 

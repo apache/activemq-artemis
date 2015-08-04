@@ -22,15 +22,12 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ActiveMQBufferInputStream;
 import org.junit.Test;
 
-public class ActiveMQBufferInputStreamTest extends ActiveMQTestBase
-{
+public class ActiveMQBufferInputStreamTest extends ActiveMQTestBase {
 
    @Test
-   public void testReadBytes() throws Exception
-   {
+   public void testReadBytes() throws Exception {
       byte[] bytes = new byte[10 * 1024];
-      for (int i = 0; i < bytes.length; i++)
-      {
+      for (int i = 0; i < bytes.length; i++) {
          bytes[i] = getSamplebyte(i);
       }
 
@@ -38,25 +35,21 @@ public class ActiveMQBufferInputStreamTest extends ActiveMQTestBase
       ActiveMQBufferInputStream is = new ActiveMQBufferInputStream(buffer);
 
       // First read byte per byte
-      for (int i = 0; i < 1024; i++)
-      {
+      for (int i = 0; i < 1024; i++) {
          assertEquals(getSamplebyte(i), is.read());
       }
 
       // Second, read in chunks
-      for (int i = 1; i < 10; i++)
-      {
+      for (int i = 1; i < 10; i++) {
          bytes = new byte[1024];
          is.read(bytes);
-         for (int j = 0; j < bytes.length; j++)
-         {
+         for (int j = 0; j < bytes.length; j++) {
             assertEquals(getSamplebyte(i * 1024 + j), bytes[j]);
          }
 
       }
 
       assertEquals(-1, is.read());
-
 
       bytes = new byte[1024];
 

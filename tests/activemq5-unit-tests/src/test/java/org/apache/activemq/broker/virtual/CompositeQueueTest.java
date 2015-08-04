@@ -36,97 +36,97 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * 
- * 
+ *
+ *
  */
 public class CompositeQueueTest extends EmbeddedBrokerTestSupport {
 
-    private static final Logger LOG = LoggerFactory.getLogger(CompositeQueueTest.class);
-    
-    protected int total = 10;
-    protected Connection connection;
-    public String messageSelector1, messageSelector2 = null;
+   private static final Logger LOG = LoggerFactory.getLogger(CompositeQueueTest.class);
 
+   protected int total = 10;
+   protected Connection connection;
+   public String messageSelector1, messageSelector2 = null;
 
-    public void testVirtualTopicCreation() throws Exception {
-        if (connection == null) {
-            connection = createConnection();
-        }
-        connection.start();
+   public void testVirtualTopicCreation() throws Exception {
+      if (connection == null) {
+         connection = createConnection();
+      }
+      connection.start();
 
-        ConsumerBean messageList1 = new ConsumerBean();
-        ConsumerBean messageList2 = new ConsumerBean();
-        messageList1.setVerbose(true);
-        messageList2.setVerbose(true);
+      ConsumerBean messageList1 = new ConsumerBean();
+      ConsumerBean messageList2 = new ConsumerBean();
+      messageList1.setVerbose(true);
+      messageList2.setVerbose(true);
 
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        
-        Destination producerDestination = getProducerDestination();
-        Destination destination1 = getConsumer1Dsetination();
-        Destination destination2 = getConsumer2Dsetination();
-        
-        LOG.info("Sending to: " + producerDestination);
-        LOG.info("Consuming from: " + destination1 + " and " + destination2);
-        
-        MessageConsumer c1 = session.createConsumer(destination1, messageSelector1);
-        MessageConsumer c2 = session.createConsumer(destination2, messageSelector2);
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-        c1.setMessageListener(messageList1);
-        c2.setMessageListener(messageList2);
+      Destination producerDestination = getProducerDestination();
+      Destination destination1 = getConsumer1Dsetination();
+      Destination destination2 = getConsumer2Dsetination();
 
-        // create topic producer
-        MessageProducer producer = session.createProducer(producerDestination);
-        assertNotNull(producer);
+      LOG.info("Sending to: " + producerDestination);
+      LOG.info("Consuming from: " + destination1 + " and " + destination2);
 
-        for (int i = 0; i < total; i++) {
-            producer.send(createMessage(session, i));
-        }
+      MessageConsumer c1 = session.createConsumer(destination1, messageSelector1);
+      MessageConsumer c2 = session.createConsumer(destination2, messageSelector2);
 
-        assertMessagesArrived(messageList1, messageList2);
-    }
+      c1.setMessageListener(messageList1);
+      c2.setMessageListener(messageList2);
 
-    protected void assertMessagesArrived(ConsumerBean messageList1, ConsumerBean messageList2) {
-        messageList1.assertMessagesArrived(total);
-        messageList2.assertMessagesArrived(total);
-    }
+      // create topic producer
+      MessageProducer producer = session.createProducer(producerDestination);
+      assertNotNull(producer);
 
-    protected TextMessage createMessage(Session session, int i) throws JMSException {
-        TextMessage textMessage = session.createTextMessage("message: " + i);
-        if (i % 2 != 0) {
-            textMessage.setStringProperty("odd", "yes");
-        } else {
-            textMessage.setStringProperty("odd", "no");
-        }
-        textMessage.setIntProperty("i", i);
-        return textMessage;
-    }
+      for (int i = 0; i < total; i++) {
+         producer.send(createMessage(session, i));
+      }
 
-    protected Destination getConsumer1Dsetination() {
-        return new ActiveMQQueue("FOO");
-    }
+      assertMessagesArrived(messageList1, messageList2);
+   }
 
-    protected Destination getConsumer2Dsetination() {
-        return new ActiveMQTopic("BAR");
-    }
+   protected void assertMessagesArrived(ConsumerBean messageList1, ConsumerBean messageList2) {
+      messageList1.assertMessagesArrived(total);
+      messageList2.assertMessagesArrived(total);
+   }
 
-    protected Destination getProducerDestination() {
-        return new ActiveMQQueue("MY.QUEUE");
-    }
+   protected TextMessage createMessage(Session session, int i) throws JMSException {
+      TextMessage textMessage = session.createTextMessage("message: " + i);
+      if (i % 2 != 0) {
+         textMessage.setStringProperty("odd", "yes");
+      }
+      else {
+         textMessage.setStringProperty("odd", "no");
+      }
+      textMessage.setIntProperty("i", i);
+      return textMessage;
+   }
 
-    protected void tearDown() throws Exception {
-        if (connection != null) {
-            connection.close();
-        }
-        super.tearDown();
-    }
+   protected Destination getConsumer1Dsetination() {
+      return new ActiveMQQueue("FOO");
+   }
 
-    protected BrokerService createBroker() throws Exception {
-        XBeanBrokerFactory factory = new XBeanBrokerFactory();
-        BrokerService answer = factory.createBroker(new URI(getBrokerConfigUri()));
-        return answer;
-    }
+   protected Destination getConsumer2Dsetination() {
+      return new ActiveMQTopic("BAR");
+   }
 
-    protected String getBrokerConfigUri() {
-        return "org/apache/activemq/broker/virtual/composite-queue.xml";
-    }
+   protected Destination getProducerDestination() {
+      return new ActiveMQQueue("MY.QUEUE");
+   }
+
+   protected void tearDown() throws Exception {
+      if (connection != null) {
+         connection.close();
+      }
+      super.tearDown();
+   }
+
+   protected BrokerService createBroker() throws Exception {
+      XBeanBrokerFactory factory = new XBeanBrokerFactory();
+      BrokerService answer = factory.createBroker(new URI(getBrokerConfigUri()));
+      return answer;
+   }
+
+   protected String getBrokerConfigUri() {
+      return "org/apache/activemq/broker/virtual/composite-queue.xml";
+   }
 }

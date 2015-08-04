@@ -19,8 +19,8 @@ package org.apache.activemq.artemis.core.security;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.ServerSession;
 
-public interface SecurityStore
-{
+public interface SecurityStore {
+
    void authenticate(String user, String password) throws Exception;
 
    void check(SimpleString address, CheckType checkType, ServerSession session) throws Exception;

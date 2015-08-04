@@ -21,9 +21,11 @@ import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
 
-public interface SessionCallback
-{
-   /** This one gives a chance for Proton to have its own flow control. */
+public interface SessionCallback {
+
+   /**
+    * This one gives a chance for Proton to have its own flow control.
+    */
    boolean hasCredits(ServerConsumer consumerID);
 
    void sendProducerCreditsMessage(int credits, SimpleString address);
@@ -34,7 +36,10 @@ public interface SessionCallback
 
    int sendLargeMessage(ServerMessage message, ServerConsumer consumerID, long bodySize, int deliveryCount);
 
-   int sendLargeMessageContinuation(ServerConsumer consumerID, byte[] body, boolean continues, boolean requiresResponse);
+   int sendLargeMessageContinuation(ServerConsumer consumerID,
+                                    byte[] body,
+                                    boolean continues,
+                                    boolean requiresResponse);
 
    void closed();
 

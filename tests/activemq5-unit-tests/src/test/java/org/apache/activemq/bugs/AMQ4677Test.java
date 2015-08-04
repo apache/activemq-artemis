@@ -45,140 +45,140 @@ import org.slf4j.LoggerFactory;
 
 public class AMQ4677Test {
 
-    private static final transient Logger LOG = LoggerFactory.getLogger(AMQ4677Test.class);
-    private static BrokerService brokerService;
+   private static final transient Logger LOG = LoggerFactory.getLogger(AMQ4677Test.class);
+   private static BrokerService brokerService;
 
-    @Rule public TestName name = new TestName();
+   @Rule
+   public TestName name = new TestName();
 
-    private File dataDirFile;
+   private File dataDirFile;
 
-    @Before
-    public void setUp() throws Exception {
+   @Before
+   public void setUp() throws Exception {
 
-        dataDirFile = new File("target/LevelDBCleanupTest");
+      dataDirFile = new File("target/LevelDBCleanupTest");
 
-        brokerService = new BrokerService();
-        brokerService.setBrokerName("LevelDBBroker");
-        brokerService.setPersistent(true);
-        brokerService.setUseJmx(true);
-        brokerService.setAdvisorySupport(false);
-        brokerService.setDeleteAllMessagesOnStartup(true);
-        brokerService.setDataDirectoryFile(dataDirFile);
+      brokerService = new BrokerService();
+      brokerService.setBrokerName("LevelDBBroker");
+      brokerService.setPersistent(true);
+      brokerService.setUseJmx(true);
+      brokerService.setAdvisorySupport(false);
+      brokerService.setDeleteAllMessagesOnStartup(true);
+      brokerService.setDataDirectoryFile(dataDirFile);
 
-        LevelDBStore persistenceFactory = new LevelDBStore();
-        persistenceFactory.setDirectory(dataDirFile);
-        brokerService.setPersistenceAdapter(persistenceFactory);
-        brokerService.start();
-        brokerService.waitUntilStarted();
-    }
+      LevelDBStore persistenceFactory = new LevelDBStore();
+      persistenceFactory.setDirectory(dataDirFile);
+      brokerService.setPersistenceAdapter(persistenceFactory);
+      brokerService.start();
+      brokerService.waitUntilStarted();
+   }
 
-    @After
-    public void tearDown() throws Exception {
-        brokerService.stop();
-        brokerService.waitUntilStopped();
-    }
+   @After
+   public void tearDown() throws Exception {
+      brokerService.stop();
+      brokerService.waitUntilStopped();
+   }
 
-    @Test
-    public void testSendAndReceiveAllMessages() throws Exception {
-        ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("vm://LevelDBBroker");
+   @Test
+   public void testSendAndReceiveAllMessages() throws Exception {
+      ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("vm://LevelDBBroker");
 
-        Connection connection = connectionFactory.createConnection();
-        connection.setClientID(getClass().getName());
-        connection.start();
+      Connection connection = connectionFactory.createConnection();
+      connection.setClientID(getClass().getName());
+      connection.start();
 
-        final Session session = connection.createSession(true, Session.AUTO_ACKNOWLEDGE);
-        Destination destination = session.createQueue(name.toString());
-        MessageProducer producer = session.createProducer(destination);
-        producer.setDeliveryMode(DeliveryMode.PERSISTENT);
+      final Session session = connection.createSession(true, Session.AUTO_ACKNOWLEDGE);
+      Destination destination = session.createQueue(name.toString());
+      MessageProducer producer = session.createProducer(destination);
+      producer.setDeliveryMode(DeliveryMode.PERSISTENT);
 
-        final LevelDBStoreViewMBean levelDBView = getLevelDBStoreMBean();
-        assertNotNull(levelDBView);
-        levelDBView.compact();
+      final LevelDBStoreViewMBean levelDBView = getLevelDBStoreMBean();
+      assertNotNull(levelDBView);
+      levelDBView.compact();
 
-        final int SIZE = 6 * 1024 * 5;
-        final int MSG_COUNT = 60000;
-        final CountDownLatch done = new CountDownLatch(MSG_COUNT);
+      final int SIZE = 6 * 1024 * 5;
+      final int MSG_COUNT = 60000;
+      final CountDownLatch done = new CountDownLatch(MSG_COUNT);
 
-        byte buffer[] = new byte[SIZE];
-        for (int i = 0; i < SIZE; ++i) {
-            buffer[i] = (byte) 128;
-        }
+      byte buffer[] = new byte[SIZE];
+      for (int i = 0; i < SIZE; ++i) {
+         buffer[i] = (byte) 128;
+      }
 
-        for (int i = 0; i < MSG_COUNT; ++i) {
-            BytesMessage message = session.createBytesMessage();
-            message.writeBytes(buffer);
-            producer.send(message);
+      for (int i = 0; i < MSG_COUNT; ++i) {
+         BytesMessage message = session.createBytesMessage();
+         message.writeBytes(buffer);
+         producer.send(message);
 
-            if ((i % 1000) == 0) {
-                LOG.info("Sent message #{}", i);
-                session.commit();
+         if ((i % 1000) == 0) {
+            LOG.info("Sent message #{}", i);
+            session.commit();
+         }
+      }
+
+      session.commit();
+
+      LOG.info("Finished sending all messages.");
+
+      MessageConsumer consumer = session.createConsumer(destination);
+      consumer.setMessageListener(new MessageListener() {
+
+         @Override
+         public void onMessage(Message message) {
+            if ((done.getCount() % 1000) == 0) {
+               try {
+                  LOG.info("Received message #{}", MSG_COUNT - done.getCount());
+                  session.commit();
+               }
+               catch (JMSException e) {
+               }
             }
-        }
+            done.countDown();
+         }
+      });
 
-        session.commit();
+      done.await(15, TimeUnit.MINUTES);
+      session.commit();
+      LOG.info("Finished receiving all messages.");
 
-        LOG.info("Finished sending all messages.");
+      assertTrue("Should < 3 logfiles left.", Wait.waitFor(new Wait.Condition() {
 
-        MessageConsumer consumer = session.createConsumer(destination);
-        consumer.setMessageListener(new MessageListener() {
+         @Override
+         public boolean isSatisified() throws Exception {
+            levelDBView.compact();
+            return countLogFiles() < 3;
+         }
+      }, TimeUnit.MINUTES.toMillis(5), (int) TimeUnit.SECONDS.toMillis(30)));
 
-            @Override
-            public void onMessage(Message message) {
-                if ((done.getCount() % 1000) == 0) {
-                    try {
-                        LOG.info("Received message #{}", MSG_COUNT - done.getCount());
-                        session.commit();
-                    } catch (JMSException e) {
-                    }
-                }
-                done.countDown();
+      levelDBView.compact();
+      LOG.info("Current number of logs {}", countLogFiles());
+   }
+
+   protected long countLogFiles() {
+      String[] logFiles = dataDirFile.list(new FilenameFilter() {
+
+         @Override
+         public boolean accept(File dir, String name) {
+            if (name.endsWith("log")) {
+               return true;
             }
-        });
+            return false;
+         }
+      });
 
-        done.await(15, TimeUnit.MINUTES);
-        session.commit();
-        LOG.info("Finished receiving all messages.");
+      LOG.info("Current number of logs {}", logFiles.length);
+      return logFiles.length;
+   }
 
-        assertTrue("Should < 3 logfiles left.", Wait.waitFor(new Wait.Condition() {
+   protected LevelDBStoreViewMBean getLevelDBStoreMBean() throws Exception {
+      ObjectName levelDbViewMBeanQuery = new ObjectName("org.apache.activemq:type=Broker,brokerName=LevelDBBroker,service=PersistenceAdapter,instanceName=LevelDB*");
 
-            @Override
-            public boolean isSatisified() throws Exception {
-                levelDBView.compact();
-                return countLogFiles() < 3;
-            }
-        }, TimeUnit.MINUTES.toMillis(5), (int)TimeUnit.SECONDS.toMillis(30)));
+      Set<ObjectName> names = brokerService.getManagementContext().queryNames(null, levelDbViewMBeanQuery);
+      if (names.isEmpty() || names.size() > 1) {
+         throw new java.lang.IllegalStateException("Can't find levelDB store name.");
+      }
 
-        levelDBView.compact();
-        LOG.info("Current number of logs {}", countLogFiles());
-    }
-
-    protected long countLogFiles() {
-        String[] logFiles = dataDirFile.list(new FilenameFilter() {
-
-            @Override
-            public boolean accept(File dir, String name) {
-                if (name.endsWith("log")) {
-                    return true;
-                }
-                return false;
-            }
-        });
-
-        LOG.info("Current number of logs {}", logFiles.length);
-        return logFiles.length;
-    }
-
-    protected LevelDBStoreViewMBean getLevelDBStoreMBean() throws Exception {
-        ObjectName levelDbViewMBeanQuery = new ObjectName(
-            "org.apache.activemq:type=Broker,brokerName=LevelDBBroker,service=PersistenceAdapter,instanceName=LevelDB*");
-
-        Set<ObjectName> names = brokerService.getManagementContext().queryNames(null, levelDbViewMBeanQuery);
-        if (names.isEmpty() || names.size() > 1) {
-            throw new java.lang.IllegalStateException("Can't find levelDB store name.");
-        }
-
-        LevelDBStoreViewMBean proxy = (LevelDBStoreViewMBean) brokerService.getManagementContext()
-                .newProxyInstance(names.iterator().next(), LevelDBStoreViewMBean.class, true);
-        return proxy;
-    }
+      LevelDBStoreViewMBean proxy = (LevelDBStoreViewMBean) brokerService.getManagementContext().newProxyInstance(names.iterator().next(), LevelDBStoreViewMBean.class, true);
+      return proxy;
+   }
 }

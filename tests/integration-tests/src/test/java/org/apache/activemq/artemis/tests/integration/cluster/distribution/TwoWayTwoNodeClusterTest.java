@@ -21,40 +21,35 @@ import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.junit.Before;
 import org.junit.Test;
 
-public class TwoWayTwoNodeClusterTest extends ClusterTestBase
-{
+public class TwoWayTwoNodeClusterTest extends ClusterTestBase {
+
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       setupServers();
       setupClusters();
    }
 
-   protected void setupServers() throws Exception
-   {
+   protected void setupServers() throws Exception {
       setupServer(0, isFileStorage(), isNetty());
       setupServer(1, isFileStorage(), isNetty());
    }
 
-   protected void setupClusters()
-   {
+   protected void setupClusters() {
       setupClusterConnection("cluster0", 0, 1, "queues", MessageLoadBalancingType.ON_DEMAND, 1, isNetty(), false);
       setupClusterConnection("cluster1", 1, 0, "queues", MessageLoadBalancingType.ON_DEMAND, 1, isNetty(), false);
    }
 
-   protected boolean isNetty()
-   {
+   protected boolean isNetty() {
       return false;
    }
 
    @Test
-   public void testStartStop() throws Exception
-   {
+   public void testStartStop() throws Exception {
 
       startServers(0, 1);
 
@@ -81,8 +76,7 @@ public class TwoWayTwoNodeClusterTest extends ClusterTestBase
    }
 
    @Test
-   public void testStartPauseStartOther() throws Exception
-   {
+   public void testStartPauseStartOther() throws Exception {
 
       startServers(0);
 
@@ -110,19 +104,16 @@ public class TwoWayTwoNodeClusterTest extends ClusterTestBase
    }
 
    @Test
-   public void testRestartServers() throws Throwable
-   {
+   public void testRestartServers() throws Throwable {
       String name = Thread.currentThread().getName();
-      try
-      {
+      try {
          Thread.currentThread().setName("ThreadOnTestRestartTest");
          startServers(0, 1);
          waitForTopology(servers[0], 2);
 
          waitForTopology(servers[1], 2);
 
-         for (int i = 0; i < 10; i++)
-         {
+         for (int i = 0; i < 10; i++) {
             log.info("Sleep #test " + i);
             log.info("#stop #test #" + i);
             Thread.sleep(500);
@@ -135,16 +126,14 @@ public class TwoWayTwoNodeClusterTest extends ClusterTestBase
             waitForTopology(servers[1], 2, -1, 2000);
          }
       }
-      finally
-      {
+      finally {
          Thread.currentThread().setName(name);
       }
 
    }
 
    @Test
-   public void testStopStart() throws Exception
-   {
+   public void testStopStart() throws Exception {
       startServers(0, 1);
 
       setupSessionFactory(0, isNetty());
@@ -184,7 +173,7 @@ public class TwoWayTwoNodeClusterTest extends ClusterTestBase
 
       setupSessionFactory(1, isNetty());
 
-     // createQueue(1, "queues", "queue0", null, false);
+      // createQueue(1, "queues", "queue0", null, false);
 
       addConsumer(1, 1, "queue0", null);
 

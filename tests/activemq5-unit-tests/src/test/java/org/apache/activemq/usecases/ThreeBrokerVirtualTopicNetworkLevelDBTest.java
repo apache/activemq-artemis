@@ -22,13 +22,12 @@ import java.io.IOException;
 import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.leveldb.LevelDBStore;
 
-
 public class ThreeBrokerVirtualTopicNetworkLevelDBTest extends ThreeBrokerVirtualTopicNetworkTest {
-    
-     protected void configurePersistenceAdapter(BrokerService broker) throws IOException {
-        File dataFileDir = new File("target/test-data/leveldb/" + broker.getBrokerName());
-        LevelDBStore adapter = new LevelDBStore();
-        adapter.setDirectory(dataFileDir);
-        broker.setPersistenceAdapter(adapter);
-    }
+
+   protected void configurePersistenceAdapter(BrokerService broker) throws IOException {
+      File dataFileDir = new File("target/test-data/leveldb/" + broker.getBrokerName());
+      LevelDBStore adapter = new LevelDBStore();
+      adapter.setDirectory(dataFileDir);
+      broker.setPersistenceAdapter(adapter);
+   }
 }

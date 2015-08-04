@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.extras.byteman;
 
-
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -36,25 +35,19 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(BMUnitRunner.class)
-public class OrphanedConsumerTest extends ActiveMQTestBase
-{
+public class OrphanedConsumerTest extends ActiveMQTestBase {
 
    private static boolean conditionActive = true;
 
-   public static final boolean isConditionActive()
-   {
+   public static final boolean isConditionActive() {
       return conditionActive;
    }
 
-
-   public static final void setConditionActive(boolean _conditionActive)
-   {
+   public static final void setConditionActive(boolean _conditionActive) {
       conditionActive = _conditionActive;
    }
 
-
-   public static void throwException() throws Exception
-   {
+   public static void throwException() throws Exception {
       throw new InterruptedException("nice.. I interrupted this!");
    }
 
@@ -72,25 +65,20 @@ public class OrphanedConsumerTest extends ActiveMQTestBase
 
    /**
     * This static method is an entry point for the byteman rules on {@link #testOrphanedConsumers()}
-    * */
-   public static void leavingCloseOnTestCountersWhileClosing()
-   {
-      if (staticServer.getConnectionCount() == 0)
-      {
+    */
+   public static void leavingCloseOnTestCountersWhileClosing() {
+      if (staticServer.getConnectionCount() == 0) {
          verification = new AssertionError("The connection was closed before the consumers and sessions, this may cause issues on management leaving Orphaned Consumers!");
       }
 
-      if (staticServer.getSessions().size() == 0)
-      {
+      if (staticServer.getSessions().size() == 0) {
          verification = new AssertionError("The session was closed before the consumers, this may cause issues on management leaving Orphaned Consumers!");
       }
    }
 
-
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
       setConditionActive(true);
       /** I'm using the internal method here because closing
@@ -99,102 +87,78 @@ public class OrphanedConsumerTest extends ActiveMQTestBase
       locator = internalCreateNonHALocator(true);
    }
 
-
    @Override
    @After
-   public void tearDown() throws Exception
-   {
+   public void tearDown() throws Exception {
       super.tearDown();
       setConditionActive(false);
 
       staticServer = null;
    }
 
-
    /**
     * This is like being two tests in one:
     * I - validating that any exception during the close wouldn't stop connection from being closed
     * II - validating that the connection is only removed at the end of the process and you wouldn't see
-    *      inconsistencies on management
+    * inconsistencies on management
+    *
     * @throws Exception
     */
    @Test
-   @BMRules
-      (
-         rules =
-            {
-               @BMRule
-                  (
-                     name = "closeExit",
-                     targetClass = "org.apache.activemq.artemis.core.server.impl.ServerConsumerImpl",
-                     targetMethod = "close",
-                     targetLocation = "AT EXIT",
-                     condition = "org.apache.activemq.artemis.tests.extras.byteman.OrphanedConsumerTest.isConditionActive()",
-                     action = "System.out.println(\"throwing stuff\");throw new InterruptedException()"
-                  ),
-               @BMRule
-                  (
-                     name = "closeEnter",
-                     targetClass = "org.apache.activemq.artemis.core.server.impl.ServerConsumerImpl",
-                     targetMethod = "close",
-                     targetLocation = "ENTRY",
-                     condition = "org.apache.activemq.artemis.tests.extras.byteman.OrphanedConsumerTest.isConditionActive()",
-                     action = "org.apache.activemq.artemis.tests.extras.byteman.OrphanedConsumerTest.leavingCloseOnTestCountersWhileClosing()"
-                  )
+   @BMRules(
+      rules = {@BMRule(
+         name = "closeExit",
+         targetClass = "org.apache.activemq.artemis.core.server.impl.ServerConsumerImpl",
+         targetMethod = "close",
+         targetLocation = "AT EXIT",
+         condition = "org.apache.activemq.artemis.tests.extras.byteman.OrphanedConsumerTest.isConditionActive()",
+         action = "System.out.println(\"throwing stuff\");throw new InterruptedException()"), @BMRule(
+         name = "closeEnter",
+         targetClass = "org.apache.activemq.artemis.core.server.impl.ServerConsumerImpl",
+         targetMethod = "close",
+         targetLocation = "ENTRY",
+         condition = "org.apache.activemq.artemis.tests.extras.byteman.OrphanedConsumerTest.isConditionActive()",
+         action = "org.apache.activemq.artemis.tests.extras.byteman.OrphanedConsumerTest.leavingCloseOnTestCountersWhileClosing()")
 
-            }
-      )
-   public void testOrphanedConsumers() throws Exception
-   {
+      })
+   public void testOrphanedConsumers() throws Exception {
       internalTestOrphanedConsumers(false);
    }
 
-
    /**
     * This is like being two tests in one:
     * I - validating that any exception during the close wouldn't stop connection from being closed
     * II - validating that the connection is only removed at the end of the process and you wouldn't see
-    *      inconsistencies on management
+    * inconsistencies on management
+    *
     * @throws Exception
     */
    @Test
-   @BMRules
-      (
-         rules =
-            {
-               @BMRule
-                  (
-                     name = "closeExit",
-                     targetClass = "org.apache.activemq.artemis.core.server.impl.ServerConsumerImpl",
-                     targetMethod = "close",
-                     targetLocation = "AT EXIT",
-                     condition = "org.apache.activemq.artemis.tests.extras.byteman.OrphanedConsumerTest.isConditionActive()",
-                     action = "System.out.println(\"throwing stuff\");throw new InterruptedException()"
-                  ),
-               @BMRule
-                  (
-                     name = "closeEnter",
-                     targetClass = "org.apache.activemq.artemis.core.server.impl.ServerConsumerImpl",
-                     targetMethod = "close",
-                     targetLocation = "ENTRY",
-                     condition = "org.apache.activemq.artemis.tests.extras.byteman.OrphanedConsumerTest.isConditionActive()",
-                     action = "org.apache.activemq.artemis.tests.extras.byteman.OrphanedConsumerTest.leavingCloseOnTestCountersWhileClosing()"
-                  )
+   @BMRules(
+      rules = {@BMRule(
+         name = "closeExit",
+         targetClass = "org.apache.activemq.artemis.core.server.impl.ServerConsumerImpl",
+         targetMethod = "close",
+         targetLocation = "AT EXIT",
+         condition = "org.apache.activemq.artemis.tests.extras.byteman.OrphanedConsumerTest.isConditionActive()",
+         action = "System.out.println(\"throwing stuff\");throw new InterruptedException()"), @BMRule(
+         name = "closeEnter",
+         targetClass = "org.apache.activemq.artemis.core.server.impl.ServerConsumerImpl",
+         targetMethod = "close",
+         targetLocation = "ENTRY",
+         condition = "org.apache.activemq.artemis.tests.extras.byteman.OrphanedConsumerTest.isConditionActive()",
+         action = "org.apache.activemq.artemis.tests.extras.byteman.OrphanedConsumerTest.leavingCloseOnTestCountersWhileClosing()")
 
-            }
-      )
-   public void testOrphanedConsumersByManagement() throws Exception
-   {
+      })
+   public void testOrphanedConsumersByManagement() throws Exception {
       internalTestOrphanedConsumers(true);
    }
 
    /**
-    *
     * @param useManagement true = it will use a management operation to make the connection failure, false through ping
     * @throws Exception
     */
-   private void internalTestOrphanedConsumers(boolean useManagement) throws Exception
-   {
+   private void internalTestOrphanedConsumers(boolean useManagement) throws Exception {
       final int NUMBER_OF_MESSAGES = 2;
       server = createServer(true, true);
       server.start();
@@ -203,15 +167,9 @@ public class OrphanedConsumerTest extends ActiveMQTestBase
       // We are not interested on consumer-window-size on this test
       // We want that every message is delivered
       // as we asserting for number of consumers available and round-robin on delivery
-      locator.setConsumerWindowSize(-1)
-              .setBlockOnNonDurableSend(false)
-              .setBlockOnDurableSend(false)
-              .setBlockOnAcknowledge(true)
-              .setConnectionTTL(1000)
-              .setClientFailureCheckPeriod(100)
-              .setReconnectAttempts(0);
+      locator.setConsumerWindowSize(-1).setBlockOnNonDurableSend(false).setBlockOnDurableSend(false).setBlockOnAcknowledge(true).setConnectionTTL(1000).setClientFailureCheckPeriod(100).setReconnectAttempts(0);
 
-      ClientSessionFactoryImpl sf = (ClientSessionFactoryImpl)createSessionFactory(locator);
+      ClientSessionFactoryImpl sf = (ClientSessionFactoryImpl) createSessionFactory(locator);
 
       ClientSession session = sf.createSession(true, true, 0);
 
@@ -223,33 +181,27 @@ public class OrphanedConsumerTest extends ActiveMQTestBase
       ClientConsumer consumer = session.createConsumer("queue1");
       ClientConsumer consumer2 = session.createConsumer("queue2");
 
-
       Queue queue1 = server.locateQueue(new SimpleString("queue1"));
 
       Queue queue2 = server.locateQueue(new SimpleString("queue2"));
 
       session.start();
 
-
-      if (!useManagement)
-      {
+      if (!useManagement) {
          sf.stopPingingAfterOne();
 
-         for (long timeout = System.currentTimeMillis() + 6000; timeout > System.currentTimeMillis() && server.getConnectionCount() != 0; )
-         {
+         for (long timeout = System.currentTimeMillis() + 6000; timeout > System.currentTimeMillis() && server.getConnectionCount() != 0; ) {
             Thread.sleep(100);
          }
 
          // an extra second to avoid races of something closing the session while we are asserting it
          Thread.sleep(1000);
       }
-      else
-      {
+      else {
          server.getActiveMQServerControl().closeConnectionsForAddress("127.0.0.1");
       }
 
-      if (verification != null)
-      {
+      if (verification != null) {
          throw verification;
       }
 
@@ -258,24 +210,16 @@ public class OrphanedConsumerTest extends ActiveMQTestBase
 
       setConditionActive(false);
 
-      locator = internalCreateNonHALocator(true)
-              .setBlockOnNonDurableSend(false)
-              .setBlockOnDurableSend(false)
-              .setBlockOnAcknowledge(true)
-              .setReconnectAttempts(0)
-              .setConsumerWindowSize(-1);
+      locator = internalCreateNonHALocator(true).setBlockOnNonDurableSend(false).setBlockOnDurableSend(false).setBlockOnAcknowledge(true).setReconnectAttempts(0).setConsumerWindowSize(-1);
 
-      sf = (ClientSessionFactoryImpl)locator.createSessionFactory();
+      sf = (ClientSessionFactoryImpl) locator.createSessionFactory();
       session = sf.createSession(true, true, 0);
-
 
       session.start();
 
-
       prod = session.createProducer("queue");
 
-      for (int i = 0; i < NUMBER_OF_MESSAGES; i++)
-      {
+      for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
          ClientMessage message = session.createMessage(true);
          message.putIntProperty("i", i);
          prod.send(message);
@@ -284,14 +228,12 @@ public class OrphanedConsumerTest extends ActiveMQTestBase
       consumer = session.createConsumer("queue1");
       consumer2 = session.createConsumer("queue2");
 
-      for (int i = 0; i < NUMBER_OF_MESSAGES; i++)
-      {
+      for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
          assertNotNull(consumer.receive(5000));
          assertNotNull(consumer2.receive(5000));
       }
 
       session.close();
    }
-
 
 }

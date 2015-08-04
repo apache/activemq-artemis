@@ -56,8 +56,8 @@ import org.apache.activemq.artemis.utils.SensitiveDataCodec;
 /**
  * The activation.
  */
-public class ActiveMQActivation
-{
+public class ActiveMQActivation {
+
    /**
     * Trace enabled
     */
@@ -113,14 +113,11 @@ public class ActiveMQActivation
    private final AtomicBoolean inFailure = new AtomicBoolean(false);
    private XARecoveryConfig resourceRecovery;
 
-   static
-   {
-      try
-      {
+   static {
+      try {
          ONMESSAGE = MessageListener.class.getMethod("onMessage", new Class[]{Message.class});
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          throw new RuntimeException(e);
       }
    }
@@ -135,28 +132,22 @@ public class ActiveMQActivation
     */
    public ActiveMQActivation(final ActiveMQResourceAdapter ra,
                              final MessageEndpointFactory endpointFactory,
-                             final ActiveMQActivationSpec spec) throws ResourceException
-   {
+                             final ActiveMQActivationSpec spec) throws ResourceException {
       spec.validate();
 
-      if (ActiveMQActivation.trace)
-      {
+      if (ActiveMQActivation.trace) {
          ActiveMQRALogger.LOGGER.trace("constructor(" + ra + ", " + endpointFactory + ", " + spec + ")");
       }
 
-      if (ra.isUseMaskedPassword())
-      {
+      if (ra.isUseMaskedPassword()) {
          String pass = spec.getOwnPassword();
-         if (pass != null)
-         {
+         if (pass != null) {
             SensitiveDataCodec<String> codec = ra.getCodecInstance();
 
-            try
-            {
+            try {
                spec.setPassword(codec.decode(pass));
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                throw new ResourceException(e);
             }
          }
@@ -165,12 +156,10 @@ public class ActiveMQActivation
       this.ra = ra;
       this.endpointFactory = endpointFactory;
       this.spec = spec;
-      try
-      {
+      try {
          isDeliveryTransacted = endpointFactory.isDeliveryTransacted(ActiveMQActivation.ONMESSAGE);
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          throw new ResourceException(e);
       }
    }
@@ -180,10 +169,8 @@ public class ActiveMQActivation
     *
     * @return The value
     */
-   public ActiveMQActivationSpec getActivationSpec()
-   {
-      if (ActiveMQActivation.trace)
-      {
+   public ActiveMQActivationSpec getActivationSpec() {
+      if (ActiveMQActivation.trace) {
          ActiveMQRALogger.LOGGER.trace("getActivationSpec()");
       }
 
@@ -195,10 +182,8 @@ public class ActiveMQActivation
     *
     * @return The value
     */
-   public MessageEndpointFactory getMessageEndpointFactory()
-   {
-      if (ActiveMQActivation.trace)
-      {
+   public MessageEndpointFactory getMessageEndpointFactory() {
+      if (ActiveMQActivation.trace) {
          ActiveMQRALogger.LOGGER.trace("getMessageEndpointFactory()");
       }
 
@@ -210,10 +195,8 @@ public class ActiveMQActivation
     *
     * @return The value
     */
-   public boolean isDeliveryTransacted()
-   {
-      if (ActiveMQActivation.trace)
-      {
+   public boolean isDeliveryTransacted() {
+      if (ActiveMQActivation.trace) {
          ActiveMQRALogger.LOGGER.trace("isDeliveryTransacted()");
       }
 
@@ -225,10 +208,8 @@ public class ActiveMQActivation
     *
     * @return The value
     */
-   public WorkManager getWorkManager()
-   {
-      if (ActiveMQActivation.trace)
-      {
+   public WorkManager getWorkManager() {
+      if (ActiveMQActivation.trace) {
          ActiveMQRALogger.LOGGER.trace("getWorkManager()");
       }
 
@@ -240,10 +221,8 @@ public class ActiveMQActivation
     *
     * @return The value
     */
-   public boolean isTopic()
-   {
-      if (ActiveMQActivation.trace)
-      {
+   public boolean isTopic() {
+      if (ActiveMQActivation.trace) {
          ActiveMQRALogger.LOGGER.trace("isTopic()");
       }
 
@@ -255,10 +234,8 @@ public class ActiveMQActivation
     *
     * @throws ResourceException Thrown if an error occurs
     */
-   public void start() throws ResourceException
-   {
-      if (ActiveMQActivation.trace)
-      {
+   public void start() throws ResourceException {
+      if (ActiveMQActivation.trace) {
          ActiveMQRALogger.LOGGER.trace("start()");
       }
       deliveryActive.set(true);
@@ -268,30 +245,25 @@ public class ActiveMQActivation
    /**
     * @return the topicTemporaryQueue
     */
-   public SimpleString getTopicTemporaryQueue()
-   {
+   public SimpleString getTopicTemporaryQueue() {
       return topicTemporaryQueue;
    }
 
    /**
     * @param topicTemporaryQueue the topicTemporaryQueue to set
     */
-   public void setTopicTemporaryQueue(SimpleString topicTemporaryQueue)
-   {
+   public void setTopicTemporaryQueue(SimpleString topicTemporaryQueue) {
       this.topicTemporaryQueue = topicTemporaryQueue;
    }
 
    /**
     * @return the list of XAResources for this activation endpoint
     */
-   public List<XAResource> getXAResources()
-   {
+   public List<XAResource> getXAResources() {
       List<XAResource> xaresources = new ArrayList<XAResource>();
-      for (ActiveMQMessageHandler handler : handlers)
-      {
+      for (ActiveMQMessageHandler handler : handlers) {
          XAResource xares = handler.getXAResource();
-         if (xares != null)
-         {
+         if (xares != null) {
             xaresources.add(xares);
          }
       }
@@ -301,10 +273,8 @@ public class ActiveMQActivation
    /**
     * Stop the activation
     */
-   public void stop()
-   {
-      if (ActiveMQActivation.trace)
-      {
+   public void stop() {
+      if (ActiveMQActivation.trace) {
          ActiveMQRALogger.LOGGER.trace("stop()");
       }
 
@@ -317,8 +287,7 @@ public class ActiveMQActivation
     *
     * @throws Exception Thrown if an error occurs
     */
-   protected synchronized void setup() throws Exception
-   {
+   protected synchronized void setup() throws Exception {
       ActiveMQRALogger.LOGGER.debug("Setting up " + spec);
 
       setupCF();
@@ -327,49 +296,40 @@ public class ActiveMQActivation
 
       Exception firstException = null;
 
-      for (int i = 0; i < spec.getMaxSession(); i++)
-      {
+      for (int i = 0; i < spec.getMaxSession(); i++) {
          ClientSessionFactory cf = null;
          ClientSession session = null;
 
-         try
-         {
+         try {
             cf = factory.getServerLocator().createSessionFactory();
             session = setupSession(cf);
             ActiveMQMessageHandler handler = new ActiveMQMessageHandler(this, ra.getTM(), (ClientSessionInternal) session, cf, i);
             handler.setup();
             handlers.add(handler);
          }
-         catch (Exception e)
-         {
-            if (cf != null)
-            {
+         catch (Exception e) {
+            if (cf != null) {
                cf.close();
             }
-            if (session != null)
-            {
+            if (session != null) {
                session.close();
             }
-            if (firstException == null)
-            {
+            if (firstException == null) {
                firstException = e;
             }
          }
       }
       //if we have any exceptions close all the handlers and throw the first exception.
       //we don't want partially configured activations, i.e. only 8 out of 15 sessions started so best to stop and log the error.
-      if (firstException != null)
-      {
-         for (ActiveMQMessageHandler handler : handlers)
-         {
+      if (firstException != null) {
+         for (ActiveMQMessageHandler handler : handlers) {
             handler.teardown();
          }
          throw firstException;
       }
 
       //now start them all together.
-      for (ActiveMQMessageHandler handler : handlers)
-      {
+      for (ActiveMQMessageHandler handler : handlers) {
          handler.start();
       }
 
@@ -381,12 +341,10 @@ public class ActiveMQActivation
    /**
     * Teardown the activation
     */
-   protected synchronized void teardown()
-   {
+   protected synchronized void teardown() {
       ActiveMQRALogger.LOGGER.debug("Tearing down " + spec);
 
-      if (resourceRecovery != null)
-      {
+      if (resourceRecovery != null) {
          ra.getRecoveryManager().unRegister(resourceRecovery);
       }
 
@@ -394,8 +352,7 @@ public class ActiveMQActivation
 
       // We need to do from last to first as any temporary queue will have been created on the first handler
       // So we invert the handlers here
-      for (int i = 0; i < handlers.size(); i++)
-      {
+      for (int i = 0; i < handlers.size(); i++) {
          // The index here is the complimentary so it's inverting the array
          handlersCopy[i] = handlers.get(handlers.size() - i - 1);
       }
@@ -404,11 +361,9 @@ public class ActiveMQActivation
 
       FutureLatch future = new FutureLatch(handlersCopy.length);
       List<Thread> interruptThreads = new ArrayList<>();
-      for (ActiveMQMessageHandler handler : handlersCopy)
-      {
+      for (ActiveMQMessageHandler handler : handlersCopy) {
          Thread thread = handler.interruptConsumer(future);
-         if (thread != null)
-         {
+         if (thread != null) {
             interruptThreads.add(thread);
          }
       }
@@ -416,27 +371,20 @@ public class ActiveMQActivation
       //wait for all the consumers to complete any onmessage calls
       boolean stuckThreads = !future.await(factory.getCallTimeout());
       //if any are stuck then we need to interrupt them
-      if (stuckThreads)
-      {
-         for (Thread interruptThread : interruptThreads)
-         {
-            try
-            {
+      if (stuckThreads) {
+         for (Thread interruptThread : interruptThreads) {
+            try {
                interruptThread.interrupt();
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                //ok
             }
          }
       }
 
-      Thread threadTearDown = new Thread("TearDown/ActiveMQActivation")
-      {
-         public void run()
-         {
-            for (ActiveMQMessageHandler handler : handlersCopy)
-            {
+      Thread threadTearDown = new Thread("TearDown/ActiveMQActivation") {
+         public void run() {
+            for (ActiveMQMessageHandler handler : handlersCopy) {
                handler.teardown();
             }
          }
@@ -447,91 +395,71 @@ public class ActiveMQActivation
       // if that failed we will then close the connection factory, and interrupt the thread
       threadTearDown.start();
 
-      try
-      {
+      try {
          threadTearDown.join(factory.getCallTimeout());
       }
-      catch (InterruptedException e)
-      {
+      catch (InterruptedException e) {
          // nothing to be done on this context.. we will just keep going as we need to send an interrupt to threadTearDown and give up
       }
 
-      if (threadTearDown.isAlive())
-      {
-         if (factory != null)
-         {
+      if (threadTearDown.isAlive()) {
+         if (factory != null) {
             // This will interrupt any threads waiting on reconnect
             factory.close();
             factory = null;
          }
          threadTearDown.interrupt();
 
-         try
-         {
+         try {
             threadTearDown.join(5000);
          }
-         catch (InterruptedException e)
-         {
+         catch (InterruptedException e) {
             // nothing to be done here.. we are going down anyways
          }
 
-         if (threadTearDown.isAlive())
-         {
+         if (threadTearDown.isAlive()) {
             ActiveMQRALogger.LOGGER.threadCouldNotFinish(threadTearDown.toString());
          }
       }
 
-      if (spec.isHasBeenUpdated() && factory != null)
-      {
+      if (spec.isHasBeenUpdated() && factory != null) {
          factory.close();
          factory = null;
       }
 
-
       ActiveMQRALogger.LOGGER.debug("Tearing down complete " + this);
    }
 
-   protected void setupCF() throws Exception
-   {
-      if (spec.getConnectionFactoryLookup() != null)
-      {
+   protected void setupCF() throws Exception {
+      if (spec.getConnectionFactoryLookup() != null) {
          Context ctx;
-         if (spec.getParsedJndiParams() == null)
-         {
+         if (spec.getParsedJndiParams() == null) {
             ctx = new InitialContext();
          }
-         else
-         {
+         else {
             ctx = new InitialContext(spec.getParsedJndiParams());
          }
          Object fac = ctx.lookup(spec.getConnectionFactoryLookup());
-         if (fac instanceof ActiveMQConnectionFactory)
-         {
+         if (fac instanceof ActiveMQConnectionFactory) {
             factory = (ActiveMQConnectionFactory) fac;
          }
-         else
-         {
+         else {
             ActiveMQRAConnectionFactory raFact = (ActiveMQRAConnectionFactory) fac;
-            if (spec.isHasBeenUpdated())
-            {
+            if (spec.isHasBeenUpdated()) {
                factory = raFact.getResourceAdapter().createActiveMQConnectionFactory(spec);
             }
-            else
-            {
+            else {
                factory = raFact.getDefaultFactory();
-               if (factory != ra.getDefaultActiveMQConnectionFactory())
-               {
+               if (factory != ra.getDefaultActiveMQConnectionFactory()) {
                   ActiveMQRALogger.LOGGER.warnDifferentConnectionfactory();
                }
             }
          }
       }
-      else if (spec.isHasBeenUpdated())
-      {
+      else if (spec.isHasBeenUpdated()) {
          factory = ra.createActiveMQConnectionFactory(spec);
       }
-      else
-      {
+      else {
          factory = ra.getDefaultActiveMQConnectionFactory();
       }
    }
@@ -543,28 +471,16 @@ public class ActiveMQActivation
     * @return The connection
     * @throws Exception Thrown if an error occurs
     */
-   protected ClientSession setupSession(ClientSessionFactory cf) throws Exception
-   {
+   protected ClientSession setupSession(ClientSessionFactory cf) throws Exception {
       ClientSession result = null;
 
-      try
-      {
-         result = ra.createSession(cf,
-                                   spec.getAcknowledgeModeInt(),
-                                   spec.getUser(),
-                                   spec.getPassword(),
-                                   ra.getPreAcknowledge(),
-                                   ra.getDupsOKBatchSize(),
-                                   ra.getTransactionBatchSize(),
-                                   isDeliveryTransacted,
-                                   spec.isUseLocalTx(),
-                                   spec.getTransactionTimeout());
+      try {
+         result = ra.createSession(cf, spec.getAcknowledgeModeInt(), spec.getUser(), spec.getPassword(), ra.getPreAcknowledge(), ra.getDupsOKBatchSize(), ra.getTransactionBatchSize(), isDeliveryTransacted, spec.isUseLocalTx(), spec.getTransactionTimeout());
 
          result.addMetaData("resource-adapter", "inbound");
          result.addMetaData(ClientSession.JMS_SESSION_IDENTIFIER_PROPERTY, "");
          String clientID = ra.getClientID() == null ? spec.getClientID() : ra.getClientID();
-         if (clientID != null)
-         {
+         if (clientID != null) {
             result.addMetaData(ClientSession.JMS_SESSION_CLIENT_ID_PROPERTY, clientID);
          }
 
@@ -572,123 +488,99 @@ public class ActiveMQActivation
 
          return result;
       }
-      catch (Throwable t)
-      {
-         try
-         {
-            if (result != null)
-            {
+      catch (Throwable t) {
+         try {
+            if (result != null) {
                result.close();
             }
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             ActiveMQRALogger.LOGGER.trace("Ignored error closing connection", e);
          }
-         if (t instanceof Exception)
-         {
+         if (t instanceof Exception) {
             throw (Exception) t;
          }
          throw new RuntimeException("Error configuring connection", t);
       }
    }
 
-   public SimpleString getAddress()
-   {
+   public SimpleString getAddress() {
       return destination.getSimpleAddress();
    }
 
-   protected void setupDestination() throws Exception
-   {
+   protected void setupDestination() throws Exception {
 
       String destinationName = spec.getDestination();
 
-      if (spec.isUseJNDI())
-      {
+      if (spec.isUseJNDI()) {
          Context ctx;
-         if (spec.getParsedJndiParams() == null)
-         {
+         if (spec.getParsedJndiParams() == null) {
             ctx = new InitialContext();
          }
-         else
-         {
+         else {
             ctx = new InitialContext(spec.getParsedJndiParams());
          }
          ActiveMQRALogger.LOGGER.debug("Using context " + ctx.getEnvironment() + " for " + spec);
-         if (ActiveMQActivation.trace)
-         {
+         if (ActiveMQActivation.trace) {
             ActiveMQRALogger.LOGGER.trace("setupDestination(" + ctx + ")");
          }
 
          String destinationTypeString = spec.getDestinationType();
-         if (destinationTypeString != null && !destinationTypeString.trim().equals(""))
-         {
+         if (destinationTypeString != null && !destinationTypeString.trim().equals("")) {
             ActiveMQRALogger.LOGGER.debug("Destination type defined as " + destinationTypeString);
 
             Class<?> destinationType;
-            if (Topic.class.getName().equals(destinationTypeString))
-            {
+            if (Topic.class.getName().equals(destinationTypeString)) {
                destinationType = Topic.class;
                isTopic = true;
             }
-            else
-            {
+            else {
                destinationType = Queue.class;
             }
 
             ActiveMQRALogger.LOGGER.debug("Retrieving " + destinationType.getName() + " \"" + destinationName + "\" from JNDI");
 
-            try
-            {
+            try {
                destination = (ActiveMQDestination) ActiveMQRaUtils.lookup(ctx, destinationName, destinationType);
             }
-            catch (Exception e)
-            {
-               if (destinationName == null)
-               {
+            catch (Exception e) {
+               if (destinationName == null) {
                   throw ActiveMQRABundle.BUNDLE.noDestinationName();
                }
 
                String calculatedDestinationName = destinationName.substring(destinationName.lastIndexOf('/') + 1);
 
                ActiveMQRALogger.LOGGER.debug("Unable to retrieve " + destinationName +
-                                               " from JNDI. Creating a new " + destinationType.getName() +
-                                               " named " + calculatedDestinationName + " to be used by the MDB.");
+                                                " from JNDI. Creating a new " + destinationType.getName() +
+                                                " named " + calculatedDestinationName + " to be used by the MDB.");
 
                // If there is no binding on naming, we will just create a new instance
-               if (isTopic)
-               {
+               if (isTopic) {
                   destination = (ActiveMQDestination) ActiveMQJMSClient.createTopic(calculatedDestinationName);
                }
-               else
-               {
+               else {
                   destination = (ActiveMQDestination) ActiveMQJMSClient.createQueue(calculatedDestinationName);
                }
             }
          }
-         else
-         {
+         else {
             ActiveMQRALogger.LOGGER.debug("Destination type not defined in MDB activation configuration.");
             ActiveMQRALogger.LOGGER.debug("Retrieving " + Destination.class.getName() + " \"" + destinationName + "\" from JNDI");
 
             destination = (ActiveMQDestination) ActiveMQRaUtils.lookup(ctx, destinationName, Destination.class);
-            if (destination instanceof Topic)
-            {
+            if (destination instanceof Topic) {
                isTopic = true;
             }
          }
       }
-      else
-      {
+      else {
          ActiveMQRALogger.LOGGER.instantiatingDestination(spec.getDestinationType(), spec.getDestination());
 
-         if (Topic.class.getName().equals(spec.getDestinationType()))
-         {
+         if (Topic.class.getName().equals(spec.getDestinationType())) {
             destination = (ActiveMQDestination) ActiveMQJMSClient.createTopic(spec.getDestination());
             isTopic = true;
          }
-         else
-         {
+         else {
             destination = (ActiveMQDestination) ActiveMQJMSClient.createQueue(spec.getDestination());
          }
       }
@@ -700,15 +592,13 @@ public class ActiveMQActivation
     * @return The value
     */
    @Override
-   public String toString()
-   {
+   public String toString() {
       StringBuffer buffer = new StringBuffer();
       buffer.append(ActiveMQActivation.class.getName()).append('(');
       buffer.append("spec=").append(spec.getClass().getName());
       buffer.append(" mepf=").append(endpointFactory.getClass().getName());
       buffer.append(" active=").append(deliveryActive.get());
-      if (spec.getDestination() != null)
-      {
+      if (spec.getDestination() != null) {
          buffer.append(" destination=").append(spec.getDestination());
       }
       buffer.append(" transacted=").append(isDeliveryTransacted);
@@ -721,18 +611,14 @@ public class ActiveMQActivation
     *
     * @param failure the reason for the failure
     */
-   public void handleFailure(Throwable failure)
-   {
-      if (failure instanceof ActiveMQException && ((ActiveMQException) failure).getType() == ActiveMQExceptionType.QUEUE_DOES_NOT_EXIST)
-      {
+   public void handleFailure(Throwable failure) {
+      if (failure instanceof ActiveMQException && ((ActiveMQException) failure).getType() == ActiveMQExceptionType.QUEUE_DOES_NOT_EXIST) {
          ActiveMQRALogger.LOGGER.awaitingTopicQueueCreation(getActivationSpec().getDestination());
       }
-      else if (failure instanceof ActiveMQException && ((ActiveMQException) failure).getType() == ActiveMQExceptionType.NOT_CONNECTED)
-      {
+      else if (failure instanceof ActiveMQException && ((ActiveMQException) failure).getType() == ActiveMQExceptionType.NOT_CONNECTED) {
          ActiveMQRALogger.LOGGER.awaitingJMSServerCreation();
       }
-      else
-      {
+      else {
          ActiveMQRALogger.LOGGER.failureInActivation(failure, spec);
       }
       int reconnectCount = 0;
@@ -742,90 +628,72 @@ public class ActiveMQActivation
       // Only enter the failure loop once
       if (inFailure.getAndSet(true))
          return;
-      try
-      {
+      try {
          Throwable lastException = failure;
-         while (deliveryActive.get() && (setupAttempts == -1 || reconnectCount < setupAttempts))
-         {
+         while (deliveryActive.get() && (setupAttempts == -1 || reconnectCount < setupAttempts)) {
             teardown();
 
-            try
-            {
+            try {
                Thread.sleep(setupInterval);
             }
-            catch (InterruptedException e)
-            {
+            catch (InterruptedException e) {
                ActiveMQRALogger.LOGGER.debug("Interrupted trying to reconnect " + spec, e);
                break;
             }
 
-            if (reconnectCount < 1)
-            {
+            if (reconnectCount < 1) {
                ActiveMQRALogger.LOGGER.attemptingReconnect(spec);
             }
-            try
-            {
+            try {
                setup();
                ActiveMQRALogger.LOGGER.reconnected();
                break;
             }
-            catch (Throwable t)
-            {
-               if (failure instanceof ActiveMQException && ((ActiveMQException) failure).getType() == ActiveMQExceptionType.QUEUE_DOES_NOT_EXIST)
-               {
-                  if (lastException == null || !(t instanceof ActiveMQNonExistentQueueException))
-                  {
+            catch (Throwable t) {
+               if (failure instanceof ActiveMQException && ((ActiveMQException) failure).getType() == ActiveMQExceptionType.QUEUE_DOES_NOT_EXIST) {
+                  if (lastException == null || !(t instanceof ActiveMQNonExistentQueueException)) {
                      lastException = t;
                      ActiveMQRALogger.LOGGER.awaitingTopicQueueCreation(getActivationSpec().getDestination());
                   }
                }
-               else if (failure instanceof ActiveMQException && ((ActiveMQException) failure).getType() == ActiveMQExceptionType.NOT_CONNECTED)
-               {
-                  if (lastException == null || !(t instanceof ActiveMQNotConnectedException))
-                  {
+               else if (failure instanceof ActiveMQException && ((ActiveMQException) failure).getType() == ActiveMQExceptionType.NOT_CONNECTED) {
+                  if (lastException == null || !(t instanceof ActiveMQNotConnectedException)) {
                      lastException = t;
                      ActiveMQRALogger.LOGGER.awaitingJMSServerCreation();
                   }
                }
-               else
-               {
+               else {
                   ActiveMQRALogger.LOGGER.errorReconnecting(t, spec);
                }
             }
             ++reconnectCount;
          }
       }
-      finally
-      {
+      finally {
          // Leaving failure recovery loop
          inFailure.set(false);
       }
    }
 
-   public ActiveMQConnectionFactory getConnectionFactory()
-   {
+   public ActiveMQConnectionFactory getConnectionFactory() {
       return this.factory;
    }
 
    /**
     * Handles the setup
     */
-   private class SetupActivation implements Work
-   {
-      public void run()
-      {
-         try
-         {
+   private class SetupActivation implements Work {
+
+      public void run() {
+         try {
             setup();
          }
-         catch (Throwable t)
-         {
+         catch (Throwable t) {
             handleFailure(t);
          }
       }
 
-      public void release()
-      {
+      public void release() {
       }
    }
 }

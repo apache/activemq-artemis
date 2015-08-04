@@ -41,16 +41,15 @@ import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
 import org.junit.Before;
 import org.junit.Test;
 
-public class FailoverListenerTest extends FailoverTestBase
-{
+public class FailoverListenerTest extends FailoverTestBase {
+
    private final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
    private ServerLocatorInternal locator;
    private ClientSessionFactoryInternal sf;
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
       locator = getServerLocator();
    }
@@ -62,8 +61,7 @@ public class FailoverListenerTest extends FailoverTestBase
     * @throws Exception
     */
    @Test
-   public void testFailoverListenerCall() throws Exception
-   {
+   public void testFailoverListenerCall() throws Exception {
       createSessionFactory(2);
       CountDownLatch failureLatch = new CountDownLatch(1);
       CountDownLatch failureDoneLatch = new CountDownLatch(1);
@@ -78,7 +76,6 @@ public class FailoverListenerTest extends FailoverTestBase
       log.info("backup (nowLive) topology = " + backupServer.getServer().getClusterManager().getDefaultConnection(null).getTopology().describe());
 
       log.info("Server Crash!!!");
-
 
       assertTrue(failureDoneLatch.await(5, TimeUnit.SECONDS));
       //the backup server should be online by now
@@ -122,15 +119,13 @@ public class FailoverListenerTest extends FailoverTestBase
    /**
     * @throws Exception
     */
-   private void verifyMessageOnServer(final int server, final int numberOfMessages) throws Exception
-   {
+   private void verifyMessageOnServer(final int server, final int numberOfMessages) throws Exception {
       ServerLocator backupLocator = createInVMLocator(server);
       ClientSessionFactory factorybkp = addSessionFactory(createSessionFactory(backupLocator));
       ClientSession sessionbkp = factorybkp.createSession(false, false);
       sessionbkp.start();
       ClientConsumer consumerbkp = sessionbkp.createConsumer(ADDRESS);
-      for (int i = 0; i < numberOfMessages; i++)
-      {
+      for (int i = 0; i < numberOfMessages; i++) {
          ClientMessage msg = consumerbkp.receive(1000);
          assertNotNull(msg);
          msg.acknowledge();
@@ -148,12 +143,9 @@ public class FailoverListenerTest extends FailoverTestBase
     * @throws Exception
     */
    @Test
-   public void testFailoverFailed() throws Exception
-   {
-      locator.setBlockOnNonDurableSend(true)
-              .setBlockOnDurableSend(true)
-              .setFailoverOnInitialConnection(true) // unnecessary?
-              .setReconnectAttempts(1);
+   public void testFailoverFailed() throws Exception {
+      locator.setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setFailoverOnInitialConnection(true) // unnecessary?
+         .setReconnectAttempts(1);
       sf = createSessionFactoryAndWaitForTopology(locator, 2);
 
       //make sure no backup server is running
@@ -177,71 +169,47 @@ public class FailoverListenerTest extends FailoverTestBase
       wrapUpSessionFactory();
    }
 
-   private void createSessionFactory(int members) throws Exception
-   {
-      locator.setBlockOnNonDurableSend(true)
-              .setBlockOnDurableSend(true)
-              .setFailoverOnInitialConnection(true) // unnecessary?
-              .setReconnectAttempts(-1);
+   private void createSessionFactory(int members) throws Exception {
+      locator.setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setFailoverOnInitialConnection(true) // unnecessary?
+         .setReconnectAttempts(-1);
       sf = createSessionFactoryAndWaitForTopology(locator, members);
    }
 
-   private void wrapUpSessionFactory()
-   {
+   private void wrapUpSessionFactory() {
       sf.close();
       assertEquals("Expecting 0 sessions", 0, sf.numSessions());
       assertEquals("Expecting 0 connections", 0, sf.numConnections());
    }
 
    @Override
-   protected void createConfigs() throws Exception
-   {
+   protected void createConfigs() throws Exception {
       nodeManager = new InVMNodeManager(false);
       TransportConfiguration liveConnector = getConnectorTransportConfiguration(true);
       TransportConfiguration backupConnector = getConnectorTransportConfiguration(false);
 
-      backupConfig = super.createDefaultInVMConfig()
-         .clearAcceptorConfigurations()
-         .addAcceptorConfiguration(getAcceptorTransportConfiguration(false))
-         .setHAPolicyConfiguration(new SharedStoreSlavePolicyConfiguration()
-                                      .setFailbackDelay(1000))
-         .addConnectorConfiguration(liveConnector.getName(), liveConnector)
-         .addConnectorConfiguration(backupConnector.getName(), backupConnector)
-         .addClusterConfiguration(basicClusterConnectionConfig(backupConnector.getName(), liveConnector.getName()));
+      backupConfig = super.createDefaultInVMConfig().clearAcceptorConfigurations().addAcceptorConfiguration(getAcceptorTransportConfiguration(false)).setHAPolicyConfiguration(new SharedStoreSlavePolicyConfiguration().setFailbackDelay(1000)).addConnectorConfiguration(liveConnector.getName(), liveConnector).addConnectorConfiguration(backupConnector.getName(), backupConnector).addClusterConfiguration(basicClusterConnectionConfig(backupConnector.getName(), liveConnector.getName()));
 
       backupServer = createTestableServer(backupConfig);
 
-      liveConfig = super.createDefaultInVMConfig()
-         .clearAcceptorConfigurations()
-         .addAcceptorConfiguration(getAcceptorTransportConfiguration(true))
-         .setHAPolicyConfiguration(new SharedStoreMasterPolicyConfiguration()
-                                      .setFailbackDelay(1000))
-         .addClusterConfiguration(basicClusterConnectionConfig(liveConnector.getName(), backupConnector.getName()))
-         .addConnectorConfiguration(liveConnector.getName(), liveConnector)
-         .addConnectorConfiguration(backupConnector.getName(), backupConnector);
+      liveConfig = super.createDefaultInVMConfig().clearAcceptorConfigurations().addAcceptorConfiguration(getAcceptorTransportConfiguration(true)).setHAPolicyConfiguration(new SharedStoreMasterPolicyConfiguration().setFailbackDelay(1000)).addClusterConfiguration(basicClusterConnectionConfig(liveConnector.getName(), backupConnector.getName())).addConnectorConfiguration(liveConnector.getName(), liveConnector).addConnectorConfiguration(backupConnector.getName(), backupConnector);
 
       liveServer = createTestableServer(liveConfig);
    }
 
    @Override
-   protected TransportConfiguration getAcceptorTransportConfiguration(final boolean live)
-   {
+   protected TransportConfiguration getAcceptorTransportConfiguration(final boolean live) {
       return TransportConfigurationUtils.getInVMAcceptor(live);
    }
 
    @Override
-   protected TransportConfiguration getConnectorTransportConfiguration(final boolean live)
-   {
+   protected TransportConfiguration getConnectorTransportConfiguration(final boolean live) {
       return TransportConfigurationUtils.getInVMConnector(live);
    }
 
-
-   private ClientSession sendAndConsume(final ClientSessionFactory sf, final boolean createQueue) throws Exception
-   {
+   private ClientSession sendAndConsume(final ClientSessionFactory sf, final boolean createQueue) throws Exception {
       ClientSession session = sf.createSession(false, true, true);
 
-      if (createQueue)
-      {
+      if (createQueue) {
          session.createQueue(ADDRESS, ADDRESS, null, true);
       }
 
@@ -249,13 +217,8 @@ public class FailoverListenerTest extends FailoverTestBase
 
       final int numMessages = 1000;
 
-      for (int i = 0; i < numMessages; i++)
-      {
-         ClientMessage message = session.createMessage(ActiveMQTextMessage.TYPE,
-                                                       false,
-                                                       0,
-                                                       System.currentTimeMillis(),
-                                                       (byte) 1);
+      for (int i = 0; i < numMessages; i++) {
+         ClientMessage message = session.createMessage(ActiveMQTextMessage.TYPE, false, 0, System.currentTimeMillis(), (byte) 1);
          message.putIntProperty(new SimpleString("count"), i);
          message.getBodyBuffer().writeString("aardvarks");
          producer.send(message);
@@ -265,8 +228,7 @@ public class FailoverListenerTest extends FailoverTestBase
 
       session.start();
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message2 = consumer.receive();
 
          assertEquals("aardvarks", message2.getBodyBuffer().readString());
@@ -285,9 +247,7 @@ public class FailoverListenerTest extends FailoverTestBase
       return session;
    }
 
-
-   public class SessionFactoryFailoverListener implements FailoverEventListener
-   {
+   public class SessionFactoryFailoverListener implements FailoverEventListener {
 
       private final ArrayList<FailoverEventType> failoverTypeEvent = new ArrayList<FailoverEventType>();
 
@@ -295,28 +255,23 @@ public class FailoverListenerTest extends FailoverTestBase
 
       private final CountDownLatch failureDoneLatch;
 
-      public SessionFactoryFailoverListener(CountDownLatch failureLatch, CountDownLatch failureDoneLatch)
-      {
+      public SessionFactoryFailoverListener(CountDownLatch failureLatch, CountDownLatch failureDoneLatch) {
          this.failureLatch = failureLatch;
          this.failureDoneLatch = failureDoneLatch;
       }
 
-      public ArrayList<FailoverEventType> getFailoverEventType()
-      {
+      public ArrayList<FailoverEventType> getFailoverEventType() {
          return this.failoverTypeEvent;
       }
 
       @Override
-      public void failoverEvent(FailoverEventType eventType)
-      {
+      public void failoverEvent(FailoverEventType eventType) {
          this.failoverTypeEvent.add(eventType);
          log.info("Failover event just happen : " + eventType.toString());
-         if (eventType == FailoverEventType.FAILURE_DETECTED)
-         {
+         if (eventType == FailoverEventType.FAILURE_DETECTED) {
             failureLatch.countDown();
          }
-         else if (eventType == FailoverEventType.FAILOVER_COMPLETED || eventType == FailoverEventType.FAILOVER_FAILED)
-         {
+         else if (eventType == FailoverEventType.FAILOVER_COMPLETED || eventType == FailoverEventType.FAILOVER_FAILED) {
             failureDoneLatch.countDown();
          }
       }

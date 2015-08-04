@@ -35,8 +35,8 @@ import org.apache.activemq.artemis.service.extensions.xa.recovery.XARecoveryConf
 /**
  * ActiveMQ Artemis ManagedConnectionFactory
  */
-public final class ActiveMQRAManagedConnectionFactory implements ManagedConnectionFactory, ResourceAdapterAssociation
-{
+public final class ActiveMQRAManagedConnectionFactory implements ManagedConnectionFactory, ResourceAdapterAssociation {
+
    /**
     * Serial version UID
     */
@@ -74,10 +74,8 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
    /**
     * Constructor
     */
-   public ActiveMQRAManagedConnectionFactory()
-   {
-      if (ActiveMQRAManagedConnectionFactory.trace)
-      {
+   public ActiveMQRAManagedConnectionFactory() {
+      if (ActiveMQRAManagedConnectionFactory.trace) {
          ActiveMQRALogger.LOGGER.trace("constructor()");
       }
 
@@ -92,10 +90,8 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
     * @return javax.resource.cci.ConnectionFactory instance
     * @throws ResourceException Thrown if a connection factory can't be created
     */
-   public Object createConnectionFactory() throws ResourceException
-   {
-      if (ActiveMQRAManagedConnectionFactory.trace)
-      {
+   public Object createConnectionFactory() throws ResourceException {
+      if (ActiveMQRAManagedConnectionFactory.trace) {
          ActiveMQRALogger.LOGGER.debug("createConnectionFactory()");
       }
 
@@ -109,10 +105,8 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
     * @return javax.resource.cci.ConnectionFactory instance
     * @throws ResourceException Thrown if a connection factory can't be created
     */
-   public Object createConnectionFactory(final ConnectionManager cxManager) throws ResourceException
-   {
-      if (ActiveMQRAManagedConnectionFactory.trace)
-      {
+   public Object createConnectionFactory(final ConnectionManager cxManager) throws ResourceException {
+      if (ActiveMQRAManagedConnectionFactory.trace) {
          ActiveMQRALogger.LOGGER.trace("createConnectionFactory(" + cxManager + ")");
       }
 
@@ -120,11 +114,10 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
 
       ActiveMQRAConnectionFactory cf = new ActiveMQRAConnectionFactoryImpl(this, cm);
 
-      if (ActiveMQRAManagedConnectionFactory.trace)
-      {
+      if (ActiveMQRAManagedConnectionFactory.trace) {
          ActiveMQRALogger.LOGGER.trace("Created connection factory: " + cf +
-                                         ", using connection manager: " +
-                                         cm);
+                                          ", using connection manager: " +
+                                          cm);
       }
       return cf;
    }
@@ -137,10 +130,9 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
     * @return The managed connection
     * @throws ResourceException Thrown if a managed connection can't be created
     */
-   public ManagedConnection createManagedConnection(final Subject subject, final ConnectionRequestInfo cxRequestInfo) throws ResourceException
-   {
-      if (ActiveMQRAManagedConnectionFactory.trace)
-      {
+   public ManagedConnection createManagedConnection(final Subject subject,
+                                                    final ConnectionRequestInfo cxRequestInfo) throws ResourceException {
+      if (ActiveMQRAManagedConnectionFactory.trace) {
          ActiveMQRALogger.LOGGER.trace("createManagedConnection(" + subject + ", " + cxRequestInfo + ")");
       }
 
@@ -148,19 +140,13 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
 
       ActiveMQRACredential credential = ActiveMQRACredential.getCredential(this, subject, cri);
 
-      if (ActiveMQRAManagedConnectionFactory.trace)
-      {
+      if (ActiveMQRAManagedConnectionFactory.trace) {
          ActiveMQRALogger.LOGGER.trace("jms credential: " + credential);
       }
 
-      ActiveMQRAManagedConnection mc = new ActiveMQRAManagedConnection(this,
-                                                                     cri,
-                                                                     ra,
-                                                                     credential.getUserName(),
-                                                                     credential.getPassword());
+      ActiveMQRAManagedConnection mc = new ActiveMQRAManagedConnection(this, cri, ra, credential.getUserName(), credential.getPassword());
 
-      if (ActiveMQRAManagedConnectionFactory.trace)
-      {
+      if (ActiveMQRAManagedConnectionFactory.trace) {
          ActiveMQRALogger.LOGGER.trace("created new managed connection: " + mc);
       }
 
@@ -169,17 +155,14 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
       return mc;
    }
 
-   private synchronized void registerRecovery()
-   {
-      if (recoveryConnectionFactory == null)
-      {
+   private synchronized void registerRecovery() {
+      if (recoveryConnectionFactory == null) {
          recoveryConnectionFactory = ra.createRecoveryActiveMQConnectionFactory(mcfProperties);
          resourceRecovery = ra.getRecoveryManager().register(recoveryConnectionFactory, null, null);
       }
    }
 
-   public XARecoveryConfig getResourceRecovery()
-   {
+   public XARecoveryConfig getResourceRecovery() {
       return resourceRecovery;
    }
 
@@ -192,44 +175,37 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
     * @return The managed connection
     * @throws ResourceException Thrown if the managed connection can not be found
     */
-   public ManagedConnection matchManagedConnections(@SuppressWarnings("rawtypes") final Set connectionSet, final Subject subject, final ConnectionRequestInfo cxRequestInfo) throws ResourceException
-   {
-      if (ActiveMQRAManagedConnectionFactory.trace)
-      {
+   public ManagedConnection matchManagedConnections(@SuppressWarnings("rawtypes") final Set connectionSet,
+                                                    final Subject subject,
+                                                    final ConnectionRequestInfo cxRequestInfo) throws ResourceException {
+      if (ActiveMQRAManagedConnectionFactory.trace) {
          ActiveMQRALogger.LOGGER.trace("matchManagedConnections(" + connectionSet +
-                                         ", " +
-                                         subject +
-                                         ", " +
-                                         cxRequestInfo +
-                                         ")");
+                                          ", " +
+                                          subject +
+                                          ", " +
+                                          cxRequestInfo +
+                                          ")");
       }
 
       ActiveMQRAConnectionRequestInfo cri = getCRI((ActiveMQRAConnectionRequestInfo) cxRequestInfo);
       ActiveMQRACredential credential = ActiveMQRACredential.getCredential(this, subject, cri);
 
-      if (ActiveMQRAManagedConnectionFactory.trace)
-      {
+      if (ActiveMQRAManagedConnectionFactory.trace) {
          ActiveMQRALogger.LOGGER.trace("Looking for connection matching credentials: " + credential);
       }
 
       Iterator<?> connections = connectionSet.iterator();
 
-      while (connections.hasNext())
-      {
+      while (connections.hasNext()) {
          Object obj = connections.next();
 
-         if (obj instanceof ActiveMQRAManagedConnection)
-         {
+         if (obj instanceof ActiveMQRAManagedConnection) {
             ActiveMQRAManagedConnection mc = (ActiveMQRAManagedConnection) obj;
             ManagedConnectionFactory mcf = mc.getManagedConnectionFactory();
 
-            if ((mc.getUserName() == null || mc.getUserName() != null && mc.getUserName()
-               .equals(credential.getUserName())) && mcf.equals(this))
-            {
-               if (cri.equals(mc.getCRI()))
-               {
-                  if (ActiveMQRAManagedConnectionFactory.trace)
-                  {
+            if ((mc.getUserName() == null || mc.getUserName() != null && mc.getUserName().equals(credential.getUserName())) && mcf.equals(this)) {
+               if (cri.equals(mc.getCRI())) {
+                  if (ActiveMQRAManagedConnectionFactory.trace) {
                      ActiveMQRALogger.LOGGER.trace("Found matching connection: " + mc);
                   }
 
@@ -239,8 +215,7 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
          }
       }
 
-      if (ActiveMQRAManagedConnectionFactory.trace)
-      {
+      if (ActiveMQRAManagedConnectionFactory.trace) {
          ActiveMQRALogger.LOGGER.trace("No matching connection was found");
       }
 
@@ -253,10 +228,8 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
     * @param out The writer
     * @throws ResourceException Thrown if the writer can't be set
     */
-   public void setLogWriter(final PrintWriter out) throws ResourceException
-   {
-      if (ActiveMQRAManagedConnectionFactory.trace)
-      {
+   public void setLogWriter(final PrintWriter out) throws ResourceException {
+      if (ActiveMQRAManagedConnectionFactory.trace) {
          ActiveMQRALogger.LOGGER.trace("setLogWriter(" + out + ")");
       }
    }
@@ -267,10 +240,8 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
     * @return The writer
     * @throws ResourceException Thrown if the writer can't be retrieved
     */
-   public PrintWriter getLogWriter() throws ResourceException
-   {
-      if (ActiveMQRAManagedConnectionFactory.trace)
-      {
+   public PrintWriter getLogWriter() throws ResourceException {
+      if (ActiveMQRAManagedConnectionFactory.trace) {
          ActiveMQRALogger.LOGGER.trace("getLogWriter()");
       }
 
@@ -282,10 +253,8 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
     *
     * @return The resource adapter
     */
-   public ResourceAdapter getResourceAdapter()
-   {
-      if (ActiveMQRAManagedConnectionFactory.trace)
-      {
+   public ResourceAdapter getResourceAdapter() {
+      if (ActiveMQRAManagedConnectionFactory.trace) {
          ActiveMQRALogger.LOGGER.trace("getResourceAdapter()");
       }
 
@@ -300,15 +269,12 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
     * @param ra The resource adapter
     * @throws ResourceException Thrown if incorrect resource adapter
     */
-   public void setResourceAdapter(final ResourceAdapter ra) throws ResourceException
-   {
-      if (ActiveMQRAManagedConnectionFactory.trace)
-      {
+   public void setResourceAdapter(final ResourceAdapter ra) throws ResourceException {
+      if (ActiveMQRAManagedConnectionFactory.trace) {
          ActiveMQRALogger.LOGGER.trace("setResourceAdapter(" + ra + ")");
       }
 
-      if (ra == null || !(ra instanceof ActiveMQResourceAdapter))
-      {
+      if (ra == null || !(ra instanceof ActiveMQResourceAdapter)) {
          throw new ResourceException("Resource adapter is " + ra);
       }
 
@@ -323,26 +289,21 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
     * @return True if this object is the same as the obj argument; false otherwise.
     */
    @Override
-   public boolean equals(final Object obj)
-   {
-      if (ActiveMQRAManagedConnectionFactory.trace)
-      {
+   public boolean equals(final Object obj) {
+      if (ActiveMQRAManagedConnectionFactory.trace) {
          ActiveMQRALogger.LOGGER.trace("equals(" + obj + ")");
       }
 
-      if (obj == null)
-      {
+      if (obj == null) {
          return false;
       }
 
-      if (obj instanceof ActiveMQRAManagedConnectionFactory)
-      {
+      if (obj instanceof ActiveMQRAManagedConnectionFactory) {
          ActiveMQRAManagedConnectionFactory other = (ActiveMQRAManagedConnectionFactory) obj;
 
          return mcfProperties.equals(other.getProperties()) && ra.equals(other.getResourceAdapter());
       }
-      else
-      {
+      else {
          return false;
       }
    }
@@ -353,10 +314,8 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
     * @return The hash code
     */
    @Override
-   public int hashCode()
-   {
-      if (ActiveMQRAManagedConnectionFactory.trace)
-      {
+   public int hashCode() {
+      if (ActiveMQRAManagedConnectionFactory.trace) {
          ActiveMQRALogger.LOGGER.trace("hashCode()");
       }
 
@@ -371,10 +330,8 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
     *
     * @return The value
     */
-   public String getSessionDefaultType()
-   {
-      if (ActiveMQRAManagedConnectionFactory.trace)
-      {
+   public String getSessionDefaultType() {
+      if (ActiveMQRAManagedConnectionFactory.trace) {
          ActiveMQRALogger.LOGGER.trace("getSessionDefaultType()");
       }
 
@@ -386,10 +343,8 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
     *
     * @param type either javax.jms.Topic or javax.jms.Queue
     */
-   public void setSessionDefaultType(final String type)
-   {
-      if (ActiveMQRAManagedConnectionFactory.trace)
-      {
+   public void setSessionDefaultType(final String type) {
+      if (ActiveMQRAManagedConnectionFactory.trace) {
          ActiveMQRALogger.LOGGER.trace("setSessionDefaultType(" + type + ")");
       }
 
@@ -399,306 +354,246 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
    /**
     * @return the connectionParameters
     */
-   public String getConnectionParameters()
-   {
+   public String getConnectionParameters() {
       return mcfProperties.getStrConnectionParameters();
    }
 
-   public void setConnectionParameters(final String configuration)
-   {
+   public void setConnectionParameters(final String configuration) {
       mcfProperties.setConnectionParameters(configuration);
    }
 
    /**
     * @return the transportType
     */
-   public String getConnectorClassName()
-   {
+   public String getConnectorClassName() {
       return mcfProperties.getConnectorClassName();
    }
 
-   public void setConnectorClassName(final String value)
-   {
+   public void setConnectorClassName(final String value) {
       mcfProperties.setConnectorClassName(value);
    }
 
-   public String getConnectionLoadBalancingPolicyClassName()
-   {
+   public String getConnectionLoadBalancingPolicyClassName() {
       return mcfProperties.getConnectionLoadBalancingPolicyClassName();
    }
 
-   public void setConnectionLoadBalancingPolicyClassName(final String connectionLoadBalancingPolicyClassName)
-   {
+   public void setConnectionLoadBalancingPolicyClassName(final String connectionLoadBalancingPolicyClassName) {
       mcfProperties.setConnectionLoadBalancingPolicyClassName(connectionLoadBalancingPolicyClassName);
    }
 
-   public String getDiscoveryAddress()
-   {
+   public String getDiscoveryAddress() {
       return mcfProperties.getDiscoveryAddress();
    }
 
-   public void setDiscoveryAddress(final String discoveryAddress)
-   {
+   public void setDiscoveryAddress(final String discoveryAddress) {
       mcfProperties.setDiscoveryAddress(discoveryAddress);
    }
 
-   public Integer getDiscoveryPort()
-   {
+   public Integer getDiscoveryPort() {
       return mcfProperties.getDiscoveryPort();
    }
 
-   public void setDiscoveryPort(final Integer discoveryPort)
-   {
+   public void setDiscoveryPort(final Integer discoveryPort) {
       mcfProperties.setDiscoveryPort(discoveryPort);
    }
 
-   public Long getDiscoveryRefreshTimeout()
-   {
+   public Long getDiscoveryRefreshTimeout() {
       return mcfProperties.getDiscoveryRefreshTimeout();
    }
 
-   public void setDiscoveryRefreshTimeout(final Long discoveryRefreshTimeout)
-   {
+   public void setDiscoveryRefreshTimeout(final Long discoveryRefreshTimeout) {
       mcfProperties.setDiscoveryRefreshTimeout(discoveryRefreshTimeout);
    }
 
-   public Long getDiscoveryInitialWaitTimeout()
-   {
+   public Long getDiscoveryInitialWaitTimeout() {
       return mcfProperties.getDiscoveryInitialWaitTimeout();
    }
 
-   public void setDiscoveryInitialWaitTimeout(final Long discoveryInitialWaitTimeout)
-   {
+   public void setDiscoveryInitialWaitTimeout(final Long discoveryInitialWaitTimeout) {
       mcfProperties.setDiscoveryInitialWaitTimeout(discoveryInitialWaitTimeout);
    }
 
-   public String getClientID()
-   {
+   public String getClientID() {
       return mcfProperties.getClientID();
    }
 
-   public void setClientID(final String clientID)
-   {
+   public void setClientID(final String clientID) {
       mcfProperties.setClientID(clientID);
    }
 
-   public Integer getDupsOKBatchSize()
-   {
+   public Integer getDupsOKBatchSize() {
       return mcfProperties.getDupsOKBatchSize();
    }
 
-   public void setDupsOKBatchSize(final Integer dupsOKBatchSize)
-   {
+   public void setDupsOKBatchSize(final Integer dupsOKBatchSize) {
       mcfProperties.setDupsOKBatchSize(dupsOKBatchSize);
    }
 
-   public Integer getTransactionBatchSize()
-   {
+   public Integer getTransactionBatchSize() {
       return mcfProperties.getTransactionBatchSize();
    }
 
-   public void setTransactionBatchSize(final Integer transactionBatchSize)
-   {
+   public void setTransactionBatchSize(final Integer transactionBatchSize) {
       mcfProperties.setTransactionBatchSize(transactionBatchSize);
    }
 
-   public Long getClientFailureCheckPeriod()
-   {
+   public Long getClientFailureCheckPeriod() {
       return mcfProperties.getClientFailureCheckPeriod();
    }
 
-   public void setClientFailureCheckPeriod(final Long clientFailureCheckPeriod)
-   {
+   public void setClientFailureCheckPeriod(final Long clientFailureCheckPeriod) {
       mcfProperties.setClientFailureCheckPeriod(clientFailureCheckPeriod);
    }
 
-   public Long getConnectionTTL()
-   {
+   public Long getConnectionTTL() {
       return mcfProperties.getConnectionTTL();
    }
 
-   public void setConnectionTTL(final Long connectionTTL)
-   {
+   public void setConnectionTTL(final Long connectionTTL) {
       mcfProperties.setConnectionTTL(connectionTTL);
    }
 
-   public Long getCallTimeout()
-   {
+   public Long getCallTimeout() {
       return mcfProperties.getCallTimeout();
    }
 
-   public void setCallTimeout(final Long callTimeout)
-   {
+   public void setCallTimeout(final Long callTimeout) {
       mcfProperties.setCallTimeout(callTimeout);
    }
 
-   public Integer getConsumerWindowSize()
-   {
+   public Integer getConsumerWindowSize() {
       return mcfProperties.getConsumerWindowSize();
    }
 
-   public void setConsumerWindowSize(final Integer consumerWindowSize)
-   {
+   public void setConsumerWindowSize(final Integer consumerWindowSize) {
       mcfProperties.setConsumerWindowSize(consumerWindowSize);
    }
 
-   public Integer getConsumerMaxRate()
-   {
+   public Integer getConsumerMaxRate() {
       return mcfProperties.getConsumerMaxRate();
    }
 
-   public void setConsumerMaxRate(final Integer consumerMaxRate)
-   {
+   public void setConsumerMaxRate(final Integer consumerMaxRate) {
       mcfProperties.setConsumerMaxRate(consumerMaxRate);
    }
 
-   public Integer getConfirmationWindowSize()
-   {
+   public Integer getConfirmationWindowSize() {
       return mcfProperties.getConfirmationWindowSize();
    }
 
-   public void setConfirmationWindowSize(final Integer confirmationWindowSize)
-   {
+   public void setConfirmationWindowSize(final Integer confirmationWindowSize) {
       mcfProperties.setConfirmationWindowSize(confirmationWindowSize);
    }
 
-   public Integer getProducerMaxRate()
-   {
+   public Integer getProducerMaxRate() {
       return mcfProperties.getProducerMaxRate();
    }
 
-   public void setProducerMaxRate(final Integer producerMaxRate)
-   {
+   public void setProducerMaxRate(final Integer producerMaxRate) {
       mcfProperties.setProducerMaxRate(producerMaxRate);
    }
 
-   public Integer getMinLargeMessageSize()
-   {
+   public Integer getMinLargeMessageSize() {
       return mcfProperties.getMinLargeMessageSize();
    }
 
-   public void setMinLargeMessageSize(final Integer minLargeMessageSize)
-   {
+   public void setMinLargeMessageSize(final Integer minLargeMessageSize) {
       mcfProperties.setMinLargeMessageSize(minLargeMessageSize);
    }
 
-   public Boolean isBlockOnAcknowledge()
-   {
+   public Boolean isBlockOnAcknowledge() {
       return mcfProperties.isBlockOnAcknowledge();
    }
 
-   public void setBlockOnAcknowledge(final Boolean blockOnAcknowledge)
-   {
+   public void setBlockOnAcknowledge(final Boolean blockOnAcknowledge) {
       mcfProperties.setBlockOnAcknowledge(blockOnAcknowledge);
    }
 
-   public Boolean isBlockOnNonDurableSend()
-   {
+   public Boolean isBlockOnNonDurableSend() {
       return mcfProperties.isBlockOnNonDurableSend();
    }
 
-   public void setBlockOnNonDurableSend(final Boolean blockOnNonDurableSend)
-   {
+   public void setBlockOnNonDurableSend(final Boolean blockOnNonDurableSend) {
       mcfProperties.setBlockOnNonDurableSend(blockOnNonDurableSend);
    }
 
-   public Boolean isBlockOnDurableSend()
-   {
+   public Boolean isBlockOnDurableSend() {
       return mcfProperties.isBlockOnDurableSend();
    }
 
-   public void setBlockOnDurableSend(final Boolean blockOnDurableSend)
-   {
+   public void setBlockOnDurableSend(final Boolean blockOnDurableSend) {
       mcfProperties.setBlockOnDurableSend(blockOnDurableSend);
    }
 
-   public Boolean isAutoGroup()
-   {
+   public Boolean isAutoGroup() {
       return mcfProperties.isAutoGroup();
    }
 
-   public void setAutoGroup(final Boolean autoGroup)
-   {
+   public void setAutoGroup(final Boolean autoGroup) {
       mcfProperties.setAutoGroup(autoGroup);
    }
 
-   public Boolean isPreAcknowledge()
-   {
+   public Boolean isPreAcknowledge() {
       return mcfProperties.isPreAcknowledge();
    }
 
-   public void setPreAcknowledge(final Boolean preAcknowledge)
-   {
+   public void setPreAcknowledge(final Boolean preAcknowledge) {
       mcfProperties.setPreAcknowledge(preAcknowledge);
    }
 
-   public Long getRetryInterval()
-   {
+   public Long getRetryInterval() {
       return mcfProperties.getRetryInterval();
    }
 
-   public void setRetryInterval(final Long retryInterval)
-   {
+   public void setRetryInterval(final Long retryInterval) {
       mcfProperties.setRetryInterval(retryInterval);
    }
 
-   public Double getRetryIntervalMultiplier()
-   {
+   public Double getRetryIntervalMultiplier() {
       return mcfProperties.getRetryIntervalMultiplier();
    }
 
-   public void setRetryIntervalMultiplier(final Double retryIntervalMultiplier)
-   {
+   public void setRetryIntervalMultiplier(final Double retryIntervalMultiplier) {
       mcfProperties.setRetryIntervalMultiplier(retryIntervalMultiplier);
    }
 
-   public Integer getReconnectAttempts()
-   {
+   public Integer getReconnectAttempts() {
       return mcfProperties.getReconnectAttempts();
    }
 
-   public void setReconnectAttempts(final Integer reconnectAttempts)
-   {
+   public void setReconnectAttempts(final Integer reconnectAttempts) {
       mcfProperties.setReconnectAttempts(reconnectAttempts);
    }
 
-   public Boolean isUseGlobalPools()
-   {
+   public Boolean isUseGlobalPools() {
       return mcfProperties.isUseGlobalPools();
    }
 
-   public void setUseGlobalPools(final Boolean useGlobalPools)
-   {
+   public void setUseGlobalPools(final Boolean useGlobalPools) {
       mcfProperties.setUseGlobalPools(useGlobalPools);
    }
 
-   public Integer getScheduledThreadPoolMaxSize()
-   {
+   public Integer getScheduledThreadPoolMaxSize() {
       return mcfProperties.getScheduledThreadPoolMaxSize();
    }
 
-   public void setScheduledThreadPoolMaxSize(final Integer scheduledThreadPoolMaxSize)
-   {
+   public void setScheduledThreadPoolMaxSize(final Integer scheduledThreadPoolMaxSize) {
       mcfProperties.setScheduledThreadPoolMaxSize(scheduledThreadPoolMaxSize);
    }
 
-   public Integer getThreadPoolMaxSize()
-   {
+   public Integer getThreadPoolMaxSize() {
       return mcfProperties.getThreadPoolMaxSize();
    }
 
-   public void setThreadPoolMaxSize(final Integer threadPoolMaxSize)
-   {
+   public void setThreadPoolMaxSize(final Integer threadPoolMaxSize) {
       mcfProperties.setThreadPoolMaxSize(threadPoolMaxSize);
    }
 
-   public Boolean isHA()
-   {
+   public Boolean isHA() {
       return mcfProperties.isHA();
    }
 
-   public void setHA(Boolean ha)
-   {
+   public void setHA(Boolean ha) {
       mcfProperties.setHA(ha);
    }
 
@@ -707,10 +602,8 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
     *
     * @return the useTryLock.
     */
-   public Integer getUseTryLock()
-   {
-      if (ActiveMQRAManagedConnectionFactory.trace)
-      {
+   public Integer getUseTryLock() {
+      if (ActiveMQRAManagedConnectionFactory.trace) {
          ActiveMQRALogger.LOGGER.trace("getUseTryLock()");
       }
 
@@ -722,10 +615,8 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
     *
     * @param useTryLock the useTryLock.
     */
-   public void setUseTryLock(final Integer useTryLock)
-   {
-      if (ActiveMQRAManagedConnectionFactory.trace)
-      {
+   public void setUseTryLock(final Integer useTryLock) {
+      if (ActiveMQRAManagedConnectionFactory.trace) {
          ActiveMQRALogger.LOGGER.trace("setUseTryLock(" + useTryLock + ")");
       }
 
@@ -737,10 +628,8 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
     *
     * @return The metadata
     */
-   public ConnectionMetaData getMetaData()
-   {
-      if (ActiveMQRAManagedConnectionFactory.trace)
-      {
+   public ConnectionMetaData getMetaData() {
+      if (ActiveMQRAManagedConnectionFactory.trace) {
          ActiveMQRALogger.LOGGER.trace("getMetadata()");
       }
 
@@ -752,10 +641,8 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
     *
     * @return The properties
     */
-   protected ActiveMQRAMCFProperties getProperties()
-   {
-      if (ActiveMQRAManagedConnectionFactory.trace)
-      {
+   protected ActiveMQRAMCFProperties getProperties() {
+      if (ActiveMQRAManagedConnectionFactory.trace) {
          ActiveMQRALogger.LOGGER.trace("getProperties()");
       }
 
@@ -768,20 +655,16 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
     * @param info The instance that should be updated; may be <code>null</code>
     * @return The instance
     */
-   private ActiveMQRAConnectionRequestInfo getCRI(final ActiveMQRAConnectionRequestInfo info)
-   {
-      if (ActiveMQRAManagedConnectionFactory.trace)
-      {
+   private ActiveMQRAConnectionRequestInfo getCRI(final ActiveMQRAConnectionRequestInfo info) {
+      if (ActiveMQRAManagedConnectionFactory.trace) {
          ActiveMQRALogger.LOGGER.trace("getCRI(" + info + ")");
       }
 
-      if (info == null)
-      {
+      if (info == null) {
          // Create a default one
          return new ActiveMQRAConnectionRequestInfo(ra.getProperties(), mcfProperties.getType());
       }
-      else
-      {
+      else {
          // Fill the one with any defaults
          info.setDefaults(ra.getProperties());
          return info;
@@ -789,15 +672,12 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
    }
 
    // this should be called when ActiveMQResourceAdapter.stop() is called since this MCF is registered with it
-   public void stop()
-   {
-      if (resourceRecovery != null)
-      {
+   public void stop() {
+      if (resourceRecovery != null) {
          ra.getRecoveryManager().unRegister(resourceRecovery);
       }
 
-      if (recoveryConnectionFactory != null)
-      {
+      if (recoveryConnectionFactory != null) {
          recoveryConnectionFactory.close();
          recoveryConnectionFactory = null;
       }

@@ -25,8 +25,7 @@ import org.junit.Test;
 import java.net.URI;
 import java.util.Map;
 
-public class URIParserTest
-{
+public class URIParserTest {
 
    /**
     * this is just a simple test to validate the model
@@ -34,10 +33,9 @@ public class URIParserTest
     * @throws Throwable
     */
    @Test
-   public void testSchemaFruit() throws Throwable
-   {
+   public void testSchemaFruit() throws Throwable {
       FruitParser parser = new FruitParser();
-      Fruit fruit = (Fruit)parser.newObject(new URI("fruit://some:guy@fair-market:3030?color=green&fluentName=something"), null);
+      Fruit fruit = (Fruit) parser.newObject(new URI("fruit://some:guy@fair-market:3030?color=green&fluentName=something"), null);
 
       Assert.assertEquals("fruit", fruit.getName());
       Assert.assertEquals(3030, fruit.getPort());
@@ -45,7 +43,6 @@ public class URIParserTest
       Assert.assertEquals("some:guy", fruit.getUserInfo());
       Assert.assertEquals("green", fruit.getColor());
       Assert.assertEquals("something", fruit.getFluentName());
-
 
    }
 
@@ -55,8 +52,7 @@ public class URIParserTest
     * @throws Throwable
     */
    @Test
-   public void testSchemaNoHosPropertyt() throws Throwable
-   {
+   public void testSchemaNoHosPropertyt() throws Throwable {
       FruitParser parser = new FruitParser();
       FruitBase fruit = parser.newObject(new URI("base://some:guy@fair-market:3030?color=green&fluentName=something"), null);
       Assert.assertEquals("base", fruit.getName());
@@ -70,10 +66,9 @@ public class URIParserTest
     * @throws Throwable
     */
    @Test
-   public void testSchemaNoHostOnURL() throws Throwable
-   {
+   public void testSchemaNoHostOnURL() throws Throwable {
       FruitParser parser = new FruitParser();
-      Fruit fruit = (Fruit)parser.newObject(new URI("fruit://some:guy@port?color=green&fluentName=something"), null);
+      Fruit fruit = (Fruit) parser.newObject(new URI("fruit://some:guy@port?color=green&fluentName=something"), null);
 
       System.out.println("fruit:" + fruit);
       Assert.assertEquals("fruit", fruit.getName());
@@ -81,104 +76,84 @@ public class URIParserTest
       Assert.assertEquals("something", fruit.getFluentName());
    }
 
+   class FruitParser extends URIFactory<FruitBase, String> {
 
-   class FruitParser extends URIFactory<FruitBase, String>
-   {
-      FruitParser()
-      {
+      FruitParser() {
          this.registerSchema(new FruitSchema());
          this.registerSchema(new FruitBaseSchema());
       }
    }
 
-   class FruitSchema extends URISchema<FruitBase, String>
-   {
+   class FruitSchema extends URISchema<FruitBase, String> {
+
       @Override
-      public String getSchemaName()
-      {
+      public String getSchemaName() {
          return "fruit";
       }
 
-
       @Override
-      public FruitBase internalNewObject(URI uri, Map<String, String> query, String fruitName) throws Exception
-      {
+      public FruitBase internalNewObject(URI uri, Map<String, String> query, String fruitName) throws Exception {
          return setData(uri, new Fruit(getSchemaName()), query);
       }
 
       @Override
-      protected URI internalNewURI(FruitBase bean)
-      {
+      protected URI internalNewURI(FruitBase bean) {
          return null;
       }
    }
 
-   class FruitBaseSchema extends URISchema<FruitBase, String>
-   {
+   class FruitBaseSchema extends URISchema<FruitBase, String> {
+
       @Override
-      public String getSchemaName()
-      {
+      public String getSchemaName() {
          return "base";
       }
 
-
       @Override
-      public FruitBase internalNewObject(URI uri, Map<String, String> query, String fruitName) throws Exception
-      {
+      public FruitBase internalNewObject(URI uri, Map<String, String> query, String fruitName) throws Exception {
          return setData(uri, new FruitBase(getSchemaName()), query);
       }
 
       @Override
-      protected URI internalNewURI(FruitBase bean)
-      {
+      protected URI internalNewURI(FruitBase bean) {
          return null;
       }
    }
 
+   public static class FruitBase {
 
-   public static class FruitBase
-   {
       final String name;
       String fluentName;
       String color;
 
-      FruitBase(final String name)
-      {
+      FruitBase(final String name) {
          this.name = name;
       }
 
-
-      public String getName()
-      {
+      public String getName() {
          return name;
       }
 
-
-      public String getColor()
-      {
+      public String getColor() {
          return color;
       }
 
-      public void setColor(String color)
-      {
+      public void setColor(String color) {
          this.color = color;
       }
 
-      public String getFluentName()
-      {
+      public String getFluentName() {
          return fluentName;
       }
 
-      public FruitBase setFluentName(String name)
-      {
+      public FruitBase setFluentName(String name) {
          this.fluentName = name;
 
          return this;
       }
 
       @Override
-      public String toString()
-      {
+      public String toString() {
          return "FruitBase{" +
             "name='" + name + '\'' +
             ", fluentName='" + fluentName + '\'' +
@@ -187,12 +162,9 @@ public class URIParserTest
       }
    }
 
-   public static class Fruit extends FruitBase
-   {
+   public static class Fruit extends FruitBase {
 
-
-      public Fruit(String name)
-      {
+      public Fruit(String name) {
          super(name);
       }
 
@@ -200,41 +172,32 @@ public class URIParserTest
       int port;
       String userInfo;
 
-
-
-      public void setHost(String host)
-      {
+      public void setHost(String host) {
          this.host = host;
       }
 
-      public String getHost()
-      {
+      public String getHost() {
          return host;
       }
 
-      public void setPort(int port)
-      {
+      public void setPort(int port) {
          this.port = port;
       }
 
-      public int getPort()
-      {
+      public int getPort() {
          return port;
       }
 
-      public void setUserInfo(String userInfo)
-      {
+      public void setUserInfo(String userInfo) {
          this.userInfo = userInfo;
       }
 
-      public String getUserInfo()
-      {
+      public String getUserInfo() {
          return userInfo;
       }
 
       @Override
-      public String toString()
-      {
+      public String toString() {
          return "Fruit{" +
             "host='" + host + '\'' +
             ", port=" + port +

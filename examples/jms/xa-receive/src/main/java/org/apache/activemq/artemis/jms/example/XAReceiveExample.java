@@ -34,22 +34,20 @@ import org.apache.activemq.artemis.utils.UUIDGenerator;
 /**
  * A simple JMS example showing the usage of XA support in JMS.
  */
-public class XAReceiveExample
-{
-   public static void main(final String[] args) throws Exception
-   {
+public class XAReceiveExample {
+
+   public static void main(final String[] args) throws Exception {
       XAConnection connection = null;
       InitialContext initialContext = null;
-      try
-      {
+      try {
          // Step 1. Create an initial context to perform the JNDI lookup.
          initialContext = new InitialContext();
 
          // Step 2. Lookup on the queue
-         Queue queue = (Queue)initialContext.lookup("queue/exampleQueue");
+         Queue queue = (Queue) initialContext.lookup("queue/exampleQueue");
 
          // Step 3. Perform a lookup on the XA Connection Factory
-         XAConnectionFactory cf = (XAConnectionFactory)initialContext.lookup("XAConnectionFactory");
+         XAConnectionFactory cf = (XAConnectionFactory) initialContext.lookup("XAConnectionFactory");
 
          // Step 4.Create a JMS XAConnection
          connection = cf.createXAConnection();
@@ -77,9 +75,7 @@ public class XAReceiveExample
          TextMessage worldMessage = session.createTextMessage("world");
 
          // Step 12. create a transaction
-         Xid xid1 = new DummyXid("xa-example1".getBytes(StandardCharsets.US_ASCII), 1, UUIDGenerator.getInstance()
-                 .generateStringUUID()
-                 .getBytes());
+         Xid xid1 = new DummyXid("xa-example1".getBytes(StandardCharsets.US_ASCII), 1, UUIDGenerator.getInstance().generateStringUUID().getBytes());
 
          // Step 13. Get the JMS XAResource
          XAResource xaRes = xaSession.getXAResource();
@@ -92,9 +88,9 @@ public class XAReceiveExample
          normalProducer.send(worldMessage);
 
          // Step 16. Receive the message
-         TextMessage rm1 = (TextMessage)xaConsumer.receive();
+         TextMessage rm1 = (TextMessage) xaConsumer.receive();
          System.out.println("Message received: " + rm1.getText());
-         TextMessage rm2 = (TextMessage)xaConsumer.receive();
+         TextMessage rm2 = (TextMessage) xaConsumer.receive();
          System.out.println("Message received: " + rm2.getText());
 
          // Step 17. Stop the work
@@ -107,17 +103,15 @@ public class XAReceiveExample
          xaRes.rollback(xid1);
 
          // Step 20. Create another transaction
-         Xid xid2 = new DummyXid("xa-example2".getBytes(), 1, UUIDGenerator.getInstance()
-                 .generateStringUUID()
-                 .getBytes());
+         Xid xid2 = new DummyXid("xa-example2".getBytes(), 1, UUIDGenerator.getInstance().generateStringUUID().getBytes());
 
          // Step 21. Start the transaction
          xaRes.start(xid2, XAResource.TMNOFLAGS);
 
          // Step 22. receive those messages again
-         rm1 = (TextMessage)xaConsumer.receive();
+         rm1 = (TextMessage) xaConsumer.receive();
          System.out.println("Message received again: " + rm1.getText());
-         rm2 = (TextMessage)xaConsumer.receive();
+         rm2 = (TextMessage) xaConsumer.receive();
          System.out.println("Message received again: " + rm2.getText());
 
          // Step 23. Stop the work
@@ -130,25 +124,20 @@ public class XAReceiveExample
          xaRes.commit(xid2, false);
 
          // Step 26. Check no more messages are received.
-         TextMessage rm3 = (TextMessage)xaConsumer.receive(2000);
-         if (rm3 == null)
-         {
+         TextMessage rm3 = (TextMessage) xaConsumer.receive(2000);
+         if (rm3 == null) {
             System.out.println("No message received after commit.");
          }
-         else
-         {
+         else {
             throw new IllegalStateException();
          }
       }
-      finally
-      {
+      finally {
          // Step 27. Be sure to close our JMS resources!
-         if (initialContext != null)
-         {
+         if (initialContext != null) {
             initialContext.close();
          }
-         if (connection != null)
-         {
+         if (connection != null) {
             connection.close();
          }
       }

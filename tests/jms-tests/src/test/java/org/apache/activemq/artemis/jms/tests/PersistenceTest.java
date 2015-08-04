@@ -26,25 +26,22 @@ import javax.jms.TextMessage;
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
 import org.junit.Test;
 
-public class PersistenceTest extends JMSTestCase
-{
+public class PersistenceTest extends JMSTestCase {
+
    /**
     * Test that the messages in a persistent queue survive starting and stopping and server,
     */
    @Test
-   public void testQueuePersistence() throws Exception
-   {
+   public void testQueuePersistence() throws Exception {
       Connection conn = null;
 
-      try
-      {
+      try {
          conn = createConnection();
          Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
          MessageProducer prod = sess.createProducer(queue1);
          prod.setDeliveryMode(DeliveryMode.PERSISTENT);
 
-         for (int i = 0; i < 10; i++)
-         {
+         for (int i = 0; i < 10; i++) {
             TextMessage tm = sess.createTextMessage("message" + i);
             prod.send(tm);
          }
@@ -62,22 +59,18 @@ public class PersistenceTest extends JMSTestCase
          sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
          conn.start();
          MessageConsumer cons = sess.createConsumer(queue1);
-         for (int i = 0; i < 10; i++)
-         {
-            TextMessage tm = (TextMessage)cons.receive(3000);
+         for (int i = 0; i < 10; i++) {
+            TextMessage tm = (TextMessage) cons.receive(3000);
 
             ProxyAssertSupport.assertNotNull(tm);
-            if (tm == null)
-            {
+            if (tm == null) {
                break;
             }
             ProxyAssertSupport.assertEquals("message" + i, tm.getText());
          }
       }
-      finally
-      {
-         if (conn != null)
-         {
+      finally {
+         if (conn != null) {
             conn.close();
          }
       }
@@ -85,22 +78,18 @@ public class PersistenceTest extends JMSTestCase
 
    /**
     * Test that the JMSRedelivered and delivery count survives a restart
-    *
     */
    @Test
-   public void testJMSRedeliveredRestart() throws Exception
-   {
+   public void testJMSRedeliveredRestart() throws Exception {
       Connection conn = null;
 
-      try
-      {
+      try {
          conn = createConnection();
          Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
          MessageProducer prod = sess.createProducer(queue1);
          prod.setDeliveryMode(DeliveryMode.PERSISTENT);
 
-         for (int i = 0; i < 10; i++)
-         {
+         for (int i = 0; i < 10; i++) {
             TextMessage tm = sess.createTextMessage("message" + i);
             prod.send(tm);
          }
@@ -111,9 +100,8 @@ public class PersistenceTest extends JMSTestCase
 
          conn.start();
 
-         for (int i = 0; i < 10; i++)
-         {
-            TextMessage tm = (TextMessage)cons.receive(1000);
+         for (int i = 0; i < 10; i++) {
+            TextMessage tm = (TextMessage) cons.receive(1000);
 
             ProxyAssertSupport.assertNotNull(tm);
 
@@ -127,9 +115,8 @@ public class PersistenceTest extends JMSTestCase
          // rollback
          sess2.rollback();
 
-         for (int i = 0; i < 10; i++)
-         {
-            TextMessage tm = (TextMessage)cons.receive(1000);
+         for (int i = 0; i < 10; i++) {
+            TextMessage tm = (TextMessage) cons.receive(1000);
 
             ProxyAssertSupport.assertNotNull(tm);
 
@@ -153,9 +140,8 @@ public class PersistenceTest extends JMSTestCase
          sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
          conn.start();
          cons = sess.createConsumer(queue1);
-         for (int i = 0; i < 10; i++)
-         {
-            TextMessage tm = (TextMessage)cons.receive(3000);
+         for (int i = 0; i < 10; i++) {
+            TextMessage tm = (TextMessage) cons.receive(3000);
 
             ProxyAssertSupport.assertNotNull(tm);
 
@@ -166,10 +152,8 @@ public class PersistenceTest extends JMSTestCase
             ProxyAssertSupport.assertEquals(3, tm.getIntProperty("JMSXDeliveryCount"));
          }
       }
-      finally
-      {
-         if (conn != null)
-         {
+      finally {
+         if (conn != null) {
             conn.close();
          }
       }
@@ -179,12 +163,10 @@ public class PersistenceTest extends JMSTestCase
     * First test that message order survives a restart
     */
    @Test
-   public void testMessageOrderPersistence_1() throws Exception
-   {
+   public void testMessageOrderPersistence_1() throws Exception {
       Connection conn = null;
 
-      try
-      {
+      try {
          conn = createConnection();
          Session sessSend = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
          MessageProducer prod = sessSend.createProducer(queue1);
@@ -226,64 +208,62 @@ public class PersistenceTest extends JMSTestCase
          MessageConsumer cons = sessReceive.createConsumer(queue1);
 
          {
-            TextMessage t = (TextMessage)cons.receive(1000);
+            TextMessage t = (TextMessage) cons.receive(1000);
             ProxyAssertSupport.assertNotNull(t);
             ProxyAssertSupport.assertEquals("j", t.getText());
          }
          {
-            TextMessage t = (TextMessage)cons.receive(1000);
+            TextMessage t = (TextMessage) cons.receive(1000);
             ProxyAssertSupport.assertNotNull(t);
             ProxyAssertSupport.assertEquals("i", t.getText());
          }
          {
-            TextMessage t = (TextMessage)cons.receive(1000);
+            TextMessage t = (TextMessage) cons.receive(1000);
             ProxyAssertSupport.assertNotNull(t);
             ProxyAssertSupport.assertEquals("h", t.getText());
          }
          {
-            TextMessage t = (TextMessage)cons.receive(1000);
+            TextMessage t = (TextMessage) cons.receive(1000);
             ProxyAssertSupport.assertNotNull(t);
             ProxyAssertSupport.assertEquals("g", t.getText());
          }
          {
-            TextMessage t = (TextMessage)cons.receive(1000);
+            TextMessage t = (TextMessage) cons.receive(1000);
             ProxyAssertSupport.assertNotNull(t);
             ProxyAssertSupport.assertEquals("f", t.getText());
          }
          {
-            TextMessage t = (TextMessage)cons.receive(1000);
+            TextMessage t = (TextMessage) cons.receive(1000);
             ProxyAssertSupport.assertNotNull(t);
             ProxyAssertSupport.assertEquals("e", t.getText());
          }
          {
-            TextMessage t = (TextMessage)cons.receive(1000);
+            TextMessage t = (TextMessage) cons.receive(1000);
             ProxyAssertSupport.assertNotNull(t);
             ProxyAssertSupport.assertEquals("d", t.getText());
          }
          {
-            TextMessage t = (TextMessage)cons.receive(1000);
+            TextMessage t = (TextMessage) cons.receive(1000);
             ProxyAssertSupport.assertNotNull(t);
             ProxyAssertSupport.assertEquals("c", t.getText());
          }
          {
-            TextMessage t = (TextMessage)cons.receive(1000);
+            TextMessage t = (TextMessage) cons.receive(1000);
             ProxyAssertSupport.assertNotNull(t);
             ProxyAssertSupport.assertEquals("b", t.getText());
          }
          {
-            TextMessage t = (TextMessage)cons.receive(1000);
+            TextMessage t = (TextMessage) cons.receive(1000);
             ProxyAssertSupport.assertNotNull(t);
             ProxyAssertSupport.assertEquals("a", t.getText());
          }
          {
-            TextMessage t = (TextMessage)cons.receive(500);
+            TextMessage t = (TextMessage) cons.receive(500);
             ProxyAssertSupport.assertNull(t);
          }
       }
-      finally
-      {
-         if (conn != null)
-         {
+      finally {
+         if (conn != null) {
             conn.close();
          }
       }
@@ -293,12 +273,10 @@ public class PersistenceTest extends JMSTestCase
     * Second test that message order survives a restart
     */
    @Test
-   public void testMessageOrderPersistence_2() throws Exception
-   {
+   public void testMessageOrderPersistence_2() throws Exception {
       Connection conn = null;
 
-      try
-      {
+      try {
          conn = createConnection();
          Session sessSend = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
          MessageProducer prod = sessSend.createProducer(queue1);
@@ -339,64 +317,62 @@ public class PersistenceTest extends JMSTestCase
          MessageConsumer cons = sessReceive.createConsumer(queue1);
 
          {
-            TextMessage t = (TextMessage)cons.receive(1000);
+            TextMessage t = (TextMessage) cons.receive(1000);
             ProxyAssertSupport.assertNotNull(t);
             ProxyAssertSupport.assertEquals("j", t.getText());
          }
          {
-            TextMessage t = (TextMessage)cons.receive(1000);
+            TextMessage t = (TextMessage) cons.receive(1000);
             ProxyAssertSupport.assertNotNull(t);
             ProxyAssertSupport.assertEquals("h", t.getText());
          }
          {
-            TextMessage t = (TextMessage)cons.receive(1000);
+            TextMessage t = (TextMessage) cons.receive(1000);
             ProxyAssertSupport.assertNotNull(t);
             ProxyAssertSupport.assertEquals("i", t.getText());
          }
          {
-            TextMessage t = (TextMessage)cons.receive(1000);
+            TextMessage t = (TextMessage) cons.receive(1000);
             ProxyAssertSupport.assertNotNull(t);
             ProxyAssertSupport.assertEquals("f", t.getText());
          }
          {
-            TextMessage t = (TextMessage)cons.receive(1000);
+            TextMessage t = (TextMessage) cons.receive(1000);
             ProxyAssertSupport.assertNotNull(t);
             ProxyAssertSupport.assertEquals("g", t.getText());
          }
          {
-            TextMessage t = (TextMessage)cons.receive(1000);
+            TextMessage t = (TextMessage) cons.receive(1000);
             ProxyAssertSupport.assertNotNull(t);
             ProxyAssertSupport.assertEquals("d", t.getText());
          }
          {
-            TextMessage t = (TextMessage)cons.receive(1000);
+            TextMessage t = (TextMessage) cons.receive(1000);
             ProxyAssertSupport.assertNotNull(t);
             ProxyAssertSupport.assertEquals("e", t.getText());
          }
          {
-            TextMessage t = (TextMessage)cons.receive(1000);
+            TextMessage t = (TextMessage) cons.receive(1000);
             ProxyAssertSupport.assertNotNull(t);
             ProxyAssertSupport.assertEquals("a", t.getText());
          }
          {
-            TextMessage t = (TextMessage)cons.receive(1000);
+            TextMessage t = (TextMessage) cons.receive(1000);
             ProxyAssertSupport.assertNotNull(t);
             ProxyAssertSupport.assertEquals("b", t.getText());
          }
          {
-            TextMessage t = (TextMessage)cons.receive(1000);
+            TextMessage t = (TextMessage) cons.receive(1000);
             ProxyAssertSupport.assertNotNull(t);
             ProxyAssertSupport.assertEquals("c", t.getText());
          }
          {
-            TextMessage t = (TextMessage)cons.receiveNoWait();
+            TextMessage t = (TextMessage) cons.receiveNoWait();
             ProxyAssertSupport.assertNull(t);
          }
       }
-      finally
-      {
-         if (conn != null)
-         {
+      finally {
+         if (conn != null) {
             conn.close();
          }
       }
@@ -406,12 +382,10 @@ public class PersistenceTest extends JMSTestCase
     * Test durable subscription state survives a server crash
     */
    @Test
-   public void testDurableSubscriptionPersistence_1() throws Exception
-   {
+   public void testDurableSubscriptionPersistence_1() throws Exception {
       Connection conn = null;
 
-      try
-      {
+      try {
          conn = createConnection();
          conn.setClientID("five");
 
@@ -442,7 +416,7 @@ public class PersistenceTest extends JMSTestCase
 
          ds = s.createDurableSubscriber(ActiveMQServerTestCase.topic1, "sub", null, false);
 
-         TextMessage rm = (TextMessage)ds.receive(3000);
+         TextMessage rm = (TextMessage) ds.receive(3000);
          ProxyAssertSupport.assertNotNull(rm);
          ProxyAssertSupport.assertEquals("thebody", rm.getText());
 
@@ -450,10 +424,8 @@ public class PersistenceTest extends JMSTestCase
 
          s.unsubscribe("sub");
       }
-      finally
-      {
-         if (conn != null)
-         {
+      finally {
+         if (conn != null) {
             conn.close();
          }
       }
@@ -463,12 +435,10 @@ public class PersistenceTest extends JMSTestCase
     * Test durable subscription state survives a restart
     */
    @Test
-   public void testDurableSubscriptionPersistence_2() throws Exception
-   {
+   public void testDurableSubscriptionPersistence_2() throws Exception {
       Connection conn = null;
 
-      try
-      {
+      try {
          conn = createConnection();
          conn.setClientID("Sausages");
 
@@ -482,8 +452,7 @@ public class PersistenceTest extends JMSTestCase
          MessageProducer prod = sessSend.createProducer(ActiveMQServerTestCase.topic1);
          prod.setDeliveryMode(DeliveryMode.PERSISTENT);
 
-         for (int i = 0; i < 10; i++)
-         {
+         for (int i = 0; i < 10; i++) {
             TextMessage tm = sessSend.createTextMessage("message" + i);
             prod.send(tm);
          }
@@ -507,28 +476,24 @@ public class PersistenceTest extends JMSTestCase
          sub2 = sessConsume.createDurableSubscriber(ActiveMQServerTestCase.topic1, "sub2", null, false);
          sub3 = sessConsume.createDurableSubscriber(ActiveMQServerTestCase.topic1, "sub3", null, false);
 
-         for (int i = 0; i < 10; i++)
-         {
-            TextMessage tm1 = (TextMessage)sub1.receive(3000);
+         for (int i = 0; i < 10; i++) {
+            TextMessage tm1 = (TextMessage) sub1.receive(3000);
             ProxyAssertSupport.assertNotNull(tm1);
-            if (tm1 == null)
-            {
+            if (tm1 == null) {
                break;
             }
             ProxyAssertSupport.assertEquals("message" + i, tm1.getText());
 
-            TextMessage tm2 = (TextMessage)sub2.receive(3000);
+            TextMessage tm2 = (TextMessage) sub2.receive(3000);
             ProxyAssertSupport.assertNotNull(tm2);
-            if (tm2 == null)
-            {
+            if (tm2 == null) {
                break;
             }
             ProxyAssertSupport.assertEquals("message" + i, tm2.getText());
 
-            TextMessage tm3 = (TextMessage)sub3.receive(3000);
+            TextMessage tm3 = (TextMessage) sub3.receive(3000);
             ProxyAssertSupport.assertNotNull(tm3);
-            if (tm3 == null)
-            {
+            if (tm3 == null) {
                break;
             }
             ProxyAssertSupport.assertEquals("message" + i, tm3.getText());
@@ -542,10 +507,8 @@ public class PersistenceTest extends JMSTestCase
          sessConsume.unsubscribe("sub2");
          sessConsume.unsubscribe("sub3");
       }
-      finally
-      {
-         if (conn != null)
-         {
+      finally {
+         if (conn != null) {
             conn.close();
          }
       }

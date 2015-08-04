@@ -21,24 +21,21 @@ import javax.jms.DeliveryMode;
 /**
  * adapted from: org.apache.activemq.JmsDurableQueueWildcardSendReceiveTest
  */
-public class JmsDurableQueueWildcardSendReceiveTest extends JmsTopicSendReceiveTest
-{
-   public void setUp() throws Exception
-   {
+public class JmsDurableQueueWildcardSendReceiveTest extends JmsTopicSendReceiveTest {
+
+   public void setUp() throws Exception {
       topic = false;
       deliveryMode = DeliveryMode.PERSISTENT;
       super.setUp();
    }
 
    @Override
-   protected String getConsumerSubject()
-   {
+   protected String getConsumerSubject() {
       return "FOO.>";
    }
 
    @Override
-   protected String getProducerSubject()
-   {
+   protected String getProducerSubject() {
       return "FOO.BAR.HUMBUG";
    }
 }

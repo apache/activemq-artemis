@@ -16,17 +16,16 @@
  */
 package org.apache.activemq.artemis.spring;
 
-
 import org.jboss.logging.annotations.MessageBundle;
 
 /**
  * Logger Code 17
- *
+ * <br>
  * each message id must be 6 digits long starting with 17, the 3rd digit should be 9
- *
+ * <br>
  * so 179000 to 179999
  */
 @MessageBundle(projectCode = "AMQ")
-public class ActiveMQSpringBundle
-{
+public class ActiveMQSpringBundle {
+
 }

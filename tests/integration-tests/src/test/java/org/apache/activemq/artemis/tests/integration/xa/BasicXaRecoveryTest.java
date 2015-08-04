@@ -47,8 +47,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-public class BasicXaRecoveryTest extends ActiveMQTestBase
-{
+public class BasicXaRecoveryTest extends ActiveMQTestBase {
+
    private static IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    private final Map<String, AddressSettings> addressSettings = new HashMap<String, AddressSettings>();
@@ -73,13 +73,11 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       addressSettings.clear();
-      configuration = createDefaultInVMConfig()
-         .setJMXManagementEnabled(true);
+      configuration = createDefaultInVMConfig().setJMXManagementEnabled(true);
 
       mbeanServer = MBeanServerFactory.createMBeanServer();
 
@@ -95,166 +93,138 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase
 
    @Override
    @After
-   public void tearDown() throws Exception
-   {
+   public void tearDown() throws Exception {
       MBeanServerFactory.releaseMBeanServer(mbeanServer);
       super.tearDown();
    }
 
    @Test
-   public void testBasicSendWithCommit() throws Exception
-   {
+   public void testBasicSendWithCommit() throws Exception {
 
       testBasicSendWithCommit(false);
    }
 
    @Test
-   public void testBasicSendWithCommitWithServerStopped() throws Exception
-   {
+   public void testBasicSendWithCommitWithServerStopped() throws Exception {
       testBasicSendWithCommit(true);
    }
 
    @Test
-   public void testBasicSendWithRollback() throws Exception
-   {
+   public void testBasicSendWithRollback() throws Exception {
       testBasicSendWithRollback(false);
    }
 
    @Test
-   public void testBasicSendWithRollbackWithServerStopped() throws Exception
-   {
+   public void testBasicSendWithRollbackWithServerStopped() throws Exception {
       testBasicSendWithRollback(true);
    }
 
    @Test
-   public void testMultipleBeforeSendWithCommit() throws Exception
-   {
+   public void testMultipleBeforeSendWithCommit() throws Exception {
       testMultipleBeforeSendWithCommit(false);
    }
 
    @Test
-   public void testMultipleBeforeSendWithCommitWithServerStopped() throws Exception
-   {
+   public void testMultipleBeforeSendWithCommitWithServerStopped() throws Exception {
       testMultipleBeforeSendWithCommit(true);
    }
 
    @Test
-   public void testMultipleTxSendWithCommit() throws Exception
-   {
+   public void testMultipleTxSendWithCommit() throws Exception {
       testMultipleTxSendWithCommit(false);
    }
 
    @Test
-   public void testMultipleTxSendWithCommitWithServerStopped() throws Exception
-   {
+   public void testMultipleTxSendWithCommitWithServerStopped() throws Exception {
       testMultipleTxSendWithCommit(true);
    }
 
    @Test
-   public void testMultipleTxSendWithRollback() throws Exception
-   {
+   public void testMultipleTxSendWithRollback() throws Exception {
       testMultipleTxSendWithRollback(false);
    }
 
    @Test
-   public void testMultipleTxSendWithRollbackWithServerStopped() throws Exception
-   {
+   public void testMultipleTxSendWithRollbackWithServerStopped() throws Exception {
       testMultipleTxSendWithRollback(true);
    }
 
    @Test
-   public void testMultipleTxSendWithCommitAndRollback() throws Exception
-   {
+   public void testMultipleTxSendWithCommitAndRollback() throws Exception {
       testMultipleTxSendWithCommitAndRollback(false);
    }
 
    @Test
-   public void testMultipleTxSendWithCommitAndRollbackWithServerStopped() throws Exception
-   {
+   public void testMultipleTxSendWithCommitAndRollbackWithServerStopped() throws Exception {
       testMultipleTxSendWithCommitAndRollback(true);
    }
 
    @Test
-   public void testMultipleTxSameXidSendWithCommit() throws Exception
-   {
+   public void testMultipleTxSameXidSendWithCommit() throws Exception {
       testMultipleTxSameXidSendWithCommit(false);
    }
 
    @Test
-   public void testMultipleTxSameXidSendWithCommitWithServerStopped() throws Exception
-   {
+   public void testMultipleTxSameXidSendWithCommitWithServerStopped() throws Exception {
       testMultipleTxSameXidSendWithCommit(true);
    }
 
    @Test
-   public void testBasicReceiveWithCommit() throws Exception
-   {
+   public void testBasicReceiveWithCommit() throws Exception {
       testBasicReceiveWithCommit(false);
    }
 
    @Test
-   public void testBasicReceiveWithCommitWithServerStopped() throws Exception
-   {
+   public void testBasicReceiveWithCommitWithServerStopped() throws Exception {
       testBasicReceiveWithCommit(true);
    }
 
    @Test
-   public void testBasicReceiveWithRollback() throws Exception
-   {
+   public void testBasicReceiveWithRollback() throws Exception {
       testBasicReceiveWithRollback(false);
    }
 
    @Test
-   public void testBasicReceiveWithRollbackWithServerStopped() throws Exception
-   {
+   public void testBasicReceiveWithRollbackWithServerStopped() throws Exception {
       testBasicReceiveWithRollback(true);
    }
 
    @Test
-   public void testMultipleTxReceiveWithCommit() throws Exception
-   {
+   public void testMultipleTxReceiveWithCommit() throws Exception {
       testMultipleTxReceiveWithCommit(false);
    }
 
    @Test
-   public void testMultipleTxReceiveWithCommitWithServerStopped() throws Exception
-   {
+   public void testMultipleTxReceiveWithCommitWithServerStopped() throws Exception {
       testMultipleTxReceiveWithCommit(true);
    }
 
    @Test
-   public void testMultipleTxReceiveWithRollback() throws Exception
-   {
+   public void testMultipleTxReceiveWithRollback() throws Exception {
       testMultipleTxReceiveWithRollback(false);
    }
 
    @Test
-   public void testMultipleTxReceiveWithRollbackWithServerStopped() throws Exception
-   {
+   public void testMultipleTxReceiveWithRollbackWithServerStopped() throws Exception {
       testMultipleTxReceiveWithRollback(true);
    }
 
    @Test
-   public void testPagingServerRestarted() throws Exception
-   {
+   public void testPagingServerRestarted() throws Exception {
       verifyPaging(true);
    }
 
    @Test
-   public void testPaging() throws Exception
-   {
+   public void testPaging() throws Exception {
       verifyPaging(false);
    }
 
-   public void verifyPaging(final boolean restartServer) throws Exception
-   {
+   public void verifyPaging(final boolean restartServer) throws Exception {
       Xid xid = new XidImpl("xa1".getBytes(), 1, UUIDGenerator.getInstance().generateStringUUID().getBytes());
 
       SimpleString pageQueue = new SimpleString("pagequeue");
 
-      AddressSettings pageAddressSettings = new AddressSettings()
-              .setMaxSizeBytes(100 * 1024)
-              .setPageSizeBytes(10 * 1024);
+      AddressSettings pageAddressSettings = new AddressSettings().setMaxSizeBytes(100 * 1024).setPageSizeBytes(10 * 1024);
 
       addressSettings.put(pageQueue.toString(), pageAddressSettings);
 
@@ -266,8 +236,7 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase
 
       ClientProducer pageProducer = clientSession.createProducer(pageQueue);
 
-      for (int i = 0; i < 1000; i++)
-      {
+      for (int i = 0; i < 1000; i++) {
          ClientMessage m = createBytesMessage(new byte[512], true);
          pageProducer.send(m);
       }
@@ -279,12 +248,10 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase
 
       BasicXaRecoveryTest.log.info("*** stopping and restarting");
 
-      if (restartServer)
-      {
+      if (restartServer) {
          stopAndRestartServer();
       }
-      else
-      {
+      else {
          recreateClients();
       }
 
@@ -304,8 +271,7 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase
 
       ClientConsumer pageConsumer = clientSession.createConsumer(pageQueue);
 
-      for (int i = 0; i < 1000; i++)
-      {
+      for (int i = 0; i < 1000; i++) {
          ClientMessage m = pageConsumer.receive(10000);
 
          Assert.assertNotNull(m);
@@ -318,26 +284,21 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testRollbackPaging() throws Exception
-   {
+   public void testRollbackPaging() throws Exception {
       testRollbackPaging(false);
    }
 
    @Test
-   public void testRollbackPagingServerRestarted() throws Exception
-   {
+   public void testRollbackPagingServerRestarted() throws Exception {
       testRollbackPaging(true);
    }
 
-   public void testRollbackPaging(final boolean restartServer) throws Exception
-   {
+   public void testRollbackPaging(final boolean restartServer) throws Exception {
       Xid xid = new XidImpl("xa1".getBytes(), 1, UUIDGenerator.getInstance().generateStringUUID().getBytes());
 
       SimpleString pageQueue = new SimpleString("pagequeue");
 
-      AddressSettings pageAddressSettings = new AddressSettings()
-              .setMaxSizeBytes(100 * 1024)
-              .setPageSizeBytes(10 * 1024);
+      AddressSettings pageAddressSettings = new AddressSettings().setMaxSizeBytes(100 * 1024).setPageSizeBytes(10 * 1024);
 
       addressSettings.put(pageQueue.toString(), pageAddressSettings);
 
@@ -349,8 +310,7 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase
 
       ClientProducer pageProducer = clientSession.createProducer(pageQueue);
 
-      for (int i = 0; i < 1000; i++)
-      {
+      for (int i = 0; i < 1000; i++) {
          ClientMessage m = createBytesMessage(new byte[512], true);
          pageProducer.send(m);
       }
@@ -358,12 +318,10 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase
       clientSession.end(xid, XAResource.TMSUCCESS);
       clientSession.prepare(xid);
 
-      if (restartServer)
-      {
+      if (restartServer) {
          stopAndRestartServer();
       }
-      else
-      {
+      else {
          recreateClients();
       }
 
@@ -386,14 +344,12 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testNonPersistent() throws Exception
-   {
+   public void testNonPersistent() throws Exception {
       testNonPersistent(true);
       testNonPersistent(false);
    }
 
-   public void testNonPersistent(final boolean commit) throws Exception
-   {
+   public void testNonPersistent(final boolean commit) throws Exception {
       Xid xid = new XidImpl("xa1".getBytes(), 1, UUIDGenerator.getInstance().generateStringUUID().getBytes());
 
       ClientMessage m1 = createTextMessage("m1", false);
@@ -419,21 +375,17 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase
       ActiveMQTestBase.assertEqualsByteArrays(xids[0].getGlobalTransactionId(), xid.getGlobalTransactionId());
       xids = clientSession.recover(XAResource.TMENDRSCAN);
       Assert.assertEquals(xids.length, 0);
-      if (commit)
-      {
+      if (commit) {
          clientSession.commit(xid, false);
       }
-      else
-      {
+      else {
          clientSession.rollback(xid);
       }
    }
 
    @Test
-   public void testNonPersistentMultipleIDs() throws Exception
-   {
-      for (int i = 0; i < 10; i++)
-      {
+   public void testNonPersistentMultipleIDs() throws Exception {
+      for (int i = 0; i < 10; i++) {
          Xid xid = new XidImpl("xa1".getBytes(), 1, UUIDGenerator.getInstance().generateStringUUID().getBytes());
 
          ClientMessage m1 = createTextMessage("m1", false);
@@ -449,8 +401,7 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase
          clientSession.end(xid, XAResource.TMSUCCESS);
          clientSession.prepare(xid);
 
-         if (i == 2)
-         {
+         if (i == 2) {
             clientSession.commit(xid, false);
          }
 
@@ -465,8 +416,7 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase
       Assert.assertEquals(9, xids.length);
    }
 
-   public void testBasicSendWithCommit(final boolean stopServer) throws Exception
-   {
+   public void testBasicSendWithCommit(final boolean stopServer) throws Exception {
       Xid xid = new XidImpl("xa1".getBytes(), 1, UUIDGenerator.getInstance().generateStringUUID().getBytes());
 
       ClientMessage m1 = createTextMessage("m1");
@@ -482,12 +432,10 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase
       clientSession.end(xid, XAResource.TMSUCCESS);
       clientSession.prepare(xid);
 
-      if (stopServer)
-      {
+      if (stopServer) {
          stopAndRestartServer();
       }
-      else
-      {
+      else {
          recreateClients();
       }
 
@@ -516,8 +464,7 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase
       Assert.assertEquals(m.getBodyBuffer().readString(), "m4");
    }
 
-   public void testBasicSendWithRollback(final boolean stopServer) throws Exception
-   {
+   public void testBasicSendWithRollback(final boolean stopServer) throws Exception {
       Xid xid = new XidImpl("xa1".getBytes(), 1, UUIDGenerator.getInstance().generateStringUUID().getBytes());
 
       ClientMessage m1 = createTextMessage("m1");
@@ -535,12 +482,10 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase
 
       BasicXaRecoveryTest.log.info("shutting down server");
 
-      if (stopServer)
-      {
+      if (stopServer) {
          stopAndRestartServer();
       }
-      else
-      {
+      else {
          recreateClients();
       }
 
@@ -560,8 +505,7 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase
       Assert.assertNull(m);
    }
 
-   public void testMultipleBeforeSendWithCommit(final boolean stopServer) throws Exception
-   {
+   public void testMultipleBeforeSendWithCommit(final boolean stopServer) throws Exception {
       Xid xid = new XidImpl("xa1".getBytes(), 1, UUIDGenerator.getInstance().generateStringUUID().getBytes());
       ClientMessage m1 = createTextMessage("m1");
       ClientMessage m2 = createTextMessage("m2");
@@ -586,12 +530,10 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase
       clientSession.end(xid, XAResource.TMSUCCESS);
       clientSession.prepare(xid);
 
-      if (stopServer)
-      {
+      if (stopServer) {
          stopAndRestartServer();
       }
-      else
-      {
+      else {
          recreateClients();
       }
 
@@ -619,8 +561,7 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase
       Assert.assertEquals(m.getBodyBuffer().readString(), "m8");
    }
 
-   public void testMultipleTxSendWithCommit(final boolean stopServer) throws Exception
-   {
+   public void testMultipleTxSendWithCommit(final boolean stopServer) throws Exception {
       Xid xid = new XidImpl("xa1".getBytes(), 1, UUIDGenerator.getInstance().generateStringUUID().getBytes());
       Xid xid2 = new XidImpl("xa2".getBytes(), 1, UUIDGenerator.getInstance().generateStringUUID().getBytes());
       ClientMessage m1 = createTextMessage("m1");
@@ -649,12 +590,10 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase
       clientSession.end(xid, XAResource.TMSUCCESS);
       clientSession.prepare(xid);
 
-      if (stopServer)
-      {
+      if (stopServer) {
          stopAndRestartServer();
       }
-      else
-      {
+      else {
          recreateClients();
       }
 
@@ -693,8 +632,7 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase
       Assert.assertEquals(m.getBodyBuffer().readString(), "m4");
    }
 
-   public void testMultipleTxSendWithRollback(final boolean stopServer) throws Exception
-   {
+   public void testMultipleTxSendWithRollback(final boolean stopServer) throws Exception {
       Xid xid = new XidImpl("xa1".getBytes(), 1, UUIDGenerator.getInstance().generateStringUUID().getBytes());
       Xid xid2 = new XidImpl("xa2".getBytes(), 1, UUIDGenerator.getInstance().generateStringUUID().getBytes());
       ClientMessage m1 = createTextMessage("m1");
@@ -723,12 +661,10 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase
       clientSession.end(xid, XAResource.TMSUCCESS);
       clientSession.prepare(xid);
 
-      if (stopServer)
-      {
+      if (stopServer) {
          stopAndRestartServer();
       }
-      else
-      {
+      else {
          recreateClients();
       }
 
@@ -745,8 +681,7 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase
       Assert.assertNull(m);
    }
 
-   public void testMultipleTxSendWithCommitAndRollback(final boolean stopServer) throws Exception
-   {
+   public void testMultipleTxSendWithCommitAndRollback(final boolean stopServer) throws Exception {
       Xid xid = new XidImpl("xa1".getBytes(), 1, UUIDGenerator.getInstance().generateStringUUID().getBytes());
       Xid xid2 = new XidImpl("xa2".getBytes(), 1, UUIDGenerator.getInstance().generateStringUUID().getBytes());
       ClientMessage m1 = createTextMessage("m1");
@@ -775,12 +710,10 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase
       clientSession.end(xid, XAResource.TMSUCCESS);
       clientSession.prepare(xid);
 
-      if (stopServer)
-      {
+      if (stopServer) {
          stopAndRestartServer();
       }
-      else
-      {
+      else {
          recreateClients();
       }
 
@@ -809,8 +742,7 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase
       Assert.assertNull(m);
    }
 
-   public void testMultipleTxSameXidSendWithCommit(final boolean stopServer) throws Exception
-   {
+   public void testMultipleTxSameXidSendWithCommit(final boolean stopServer) throws Exception {
       Xid xid = new XidImpl("xa1".getBytes(), 1, UUIDGenerator.getInstance().generateStringUUID().getBytes());
       ClientMessage m1 = createTextMessage("m1");
       ClientMessage m2 = createTextMessage("m2");
@@ -837,12 +769,10 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase
       clientSession.end(xid, XAResource.TMSUCCESS);
       clientSession.prepare(xid);
 
-      if (stopServer)
-      {
+      if (stopServer) {
          stopAndRestartServer();
       }
-      else
-      {
+      else {
          recreateClients();
       }
 
@@ -882,8 +812,7 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase
       Assert.assertEquals(m.getBodyBuffer().readString(), "m8");
    }
 
-   public void testBasicReceiveWithCommit(final boolean stopServer) throws Exception
-   {
+   public void testBasicReceiveWithCommit(final boolean stopServer) throws Exception {
       Xid xid = new XidImpl("xa1".getBytes(), 1, UUIDGenerator.getInstance().generateStringUUID().getBytes());
       ClientMessage m1 = createTextMessage("m1");
       ClientMessage m2 = createTextMessage("m2");
@@ -917,12 +846,10 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase
       clientSession.end(xid, XAResource.TMSUCCESS);
       Assert.assertEquals("Expected XA_OK", XAResource.XA_OK, clientSession.prepare(xid));
 
-      if (stopServer)
-      {
+      if (stopServer) {
          stopAndRestartServer();
       }
-      else
-      {
+      else {
          recreateClients();
       }
 
@@ -943,8 +870,7 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase
       checkQueueDeliveryCount(atestq, 0);
    }
 
-   private void checkQueueDeliveryCount(SimpleString thequeue, int expectedCount) throws Exception
-   {
+   private void checkQueueDeliveryCount(SimpleString thequeue, int expectedCount) throws Exception {
       QueueControl queueControl = ManagementControlHelper.createQueueControl(thequeue, thequeue, mbeanServer);
 
       int actualCount = queueControl.getDeliveringCount();
@@ -952,8 +878,7 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase
       assertEquals(expectedCount, actualCount);
    }
 
-   public void testBasicReceiveWithRollback(final boolean stopServer) throws Exception
-   {
+   public void testBasicReceiveWithRollback(final boolean stopServer) throws Exception {
       Xid xid = new XidImpl("xa1".getBytes(), 1, UUIDGenerator.getInstance().generateStringUUID().getBytes());
       ClientMessage m1 = createTextMessage("m1");
       ClientMessage m2 = createTextMessage("m2");
@@ -989,12 +914,10 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase
 
       BasicXaRecoveryTest.log.info("stopping and restarting");
 
-      if (stopServer)
-      {
+      if (stopServer) {
          stopAndRestartServer();
       }
-      else
-      {
+      else {
          recreateClients();
       }
 
@@ -1024,8 +947,7 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase
       Assert.assertEquals(m.getBodyBuffer().readString(), "m4");
    }
 
-   public void testMultipleTxReceiveWithCommit(final boolean stopServer) throws Exception
-   {
+   public void testMultipleTxReceiveWithCommit(final boolean stopServer) throws Exception {
       Xid xid = new XidImpl("xa1".getBytes(), 1, UUIDGenerator.getInstance().generateStringUUID().getBytes());
       Xid xid2 = new XidImpl("xa2".getBytes(), 1, UUIDGenerator.getInstance().generateStringUUID().getBytes());
       ClientMessage m1 = createTextMessage("m1");
@@ -1095,12 +1017,10 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase
       clientSession.end(xid, XAResource.TMSUCCESS);
       clientSession.prepare(xid);
 
-      if (stopServer)
-      {
+      if (stopServer) {
          stopAndRestartServer();
       }
-      else
-      {
+      else {
          recreateClients();
       }
 
@@ -1114,8 +1034,7 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase
       Assert.assertNull(m);
    }
 
-   public void testMultipleTxReceiveWithRollback(final boolean stopServer) throws Exception
-   {
+   public void testMultipleTxReceiveWithRollback(final boolean stopServer) throws Exception {
       Xid xid = new XidImpl("xa1".getBytes(), 1, UUIDGenerator.getInstance().generateStringUUID().getBytes());
       Xid xid2 = new XidImpl("xa2".getBytes(), 1, UUIDGenerator.getInstance().generateStringUUID().getBytes());
       ClientMessage m1 = createTextMessage("m1");
@@ -1185,12 +1104,10 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase
       clientSession.end(xid, XAResource.TMSUCCESS);
       clientSession.prepare(xid);
 
-      if (stopServer)
-      {
+      if (stopServer) {
          stopAndRestartServer();
       }
-      else
-      {
+      else {
          recreateClients();
       }
 
@@ -1218,8 +1135,7 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase
       Assert.assertEquals(m.getBodyBuffer().readString(), "m4");
    }
 
-   protected void stopAndRestartServer() throws Exception
-   {
+   protected void stopAndRestartServer() throws Exception {
       // now stop and start the server
       clientSession.close();
       clientSession = null;
@@ -1232,85 +1148,63 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase
       createClients();
    }
 
-   private void addSettings()
-   {
-      for (Map.Entry<String, AddressSettings> setting : addressSettings.entrySet())
-      {
+   private void addSettings() {
+      for (Map.Entry<String, AddressSettings> setting : addressSettings.entrySet()) {
          server.getAddressSettingsRepository().addMatch(setting.getKey(), setting.getValue());
       }
    }
 
-   protected void recreateClients() throws Exception
-   {
+   protected void recreateClients() throws Exception {
       clientSession.close();
       clientSession = null;
       createClients();
    }
 
-   private ClientMessage createTextMessage(final String s)
-   {
+   private ClientMessage createTextMessage(final String s) {
       return createTextMessage(s, true);
    }
 
-   private ClientMessage createTextMessage(final String s, final boolean durable)
-   {
-      ClientMessage message = clientSession.createMessage(ActiveMQTextMessage.TYPE,
-                                                                durable,
-                                                                0,
-                                                                System.currentTimeMillis(),
-                                                                (byte)1);
+   private ClientMessage createTextMessage(final String s, final boolean durable) {
+      ClientMessage message = clientSession.createMessage(ActiveMQTextMessage.TYPE, durable, 0, System.currentTimeMillis(), (byte) 1);
       message.getBodyBuffer().writeString(s);
       return message;
    }
 
-   private ClientMessage createBytesMessage(final byte[] b, final boolean durable)
-   {
-      ClientMessage message = clientSession.createMessage(ActiveMQBytesMessage.TYPE,
-                                                                durable,
-                                                                0,
-                                                                System.currentTimeMillis(),
-                                                                (byte)1);
+   private ClientMessage createBytesMessage(final byte[] b, final boolean durable) {
+      ClientMessage message = clientSession.createMessage(ActiveMQBytesMessage.TYPE, durable, 0, System.currentTimeMillis(), (byte) 1);
       message.getBodyBuffer().writeBytes(b);
       return message;
    }
 
-   private void createClients() throws Exception
-   {
+   private void createClients() throws Exception {
       createClients(false, true);
    }
 
-   private void createClients(final boolean createQueue, final boolean commitACKs) throws Exception
-   {
+   private void createClients(final boolean createQueue, final boolean commitACKs) throws Exception {
       locator = createInVMNonHALocator();
       sessionFactory = createSessionFactory(locator);
       clientSession = sessionFactory.createSession(true, false, commitACKs);
-      if (createQueue)
-      {
+      if (createQueue) {
          clientSession.createQueue(atestq, atestq, null, true);
       }
       clientProducer = clientSession.createProducer(atestq);
       clientConsumer = clientSession.createConsumer(atestq);
    }
 
-   private void assertEqualXids(final Xid[] xids, final Xid... origXids)
-   {
+   private void assertEqualXids(final Xid[] xids, final Xid... origXids) {
       Assert.assertEquals(xids.length, origXids.length);
-      for (Xid xid : xids)
-      {
+      for (Xid xid : xids) {
          boolean found = false;
-         for (Xid origXid : origXids)
-         {
+         for (Xid origXid : origXids) {
             found = Arrays.equals(origXid.getBranchQualifier(), xid.getBranchQualifier());
-            if (found)
-            {
+            if (found) {
                Assert.assertEquals(xid.getFormatId(), origXid.getFormatId());
                ActiveMQTestBase.assertEqualsByteArrays(xid.getBranchQualifier(), origXid.getBranchQualifier());
                ActiveMQTestBase.assertEqualsByteArrays(xid.getGlobalTransactionId(), origXid.getGlobalTransactionId());
                break;
             }
          }
-         if (!found)
-         {
+         if (!found) {
             Assert.fail("correct xid not found: " + xid);
          }
       }

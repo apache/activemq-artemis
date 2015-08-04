@@ -22,8 +22,7 @@ import org.apache.activemq.artemis.api.core.client.ClientRequestor;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 
-public class CoreMessagingProxy
-{
+public class CoreMessagingProxy {
 
    // Constants -----------------------------------------------------
 
@@ -39,8 +38,7 @@ public class CoreMessagingProxy
 
    // Constructors --------------------------------------------------
 
-   public CoreMessagingProxy(final ClientSession session, final String resourceName) throws Exception
-   {
+   public CoreMessagingProxy(final ClientSession session, final String resourceName) throws Exception {
       this.session = session;
 
       this.resourceName = resourceName;
@@ -55,27 +53,22 @@ public class CoreMessagingProxy
 
    // Protected -----------------------------------------------------
 
-   public Object retrieveAttributeValue(final String attributeName)
-   {
+   public Object retrieveAttributeValue(final String attributeName) {
       return retrieveAttributeValue(attributeName, null);
    }
 
-   public Object retrieveAttributeValue(final String attributeName, final Class desiredType)
-   {
+   public Object retrieveAttributeValue(final String attributeName, final Class desiredType) {
       ClientMessage m = session.createMessage(false);
       ManagementHelper.putAttribute(m, resourceName, attributeName);
       ClientMessage reply;
-      try
-      {
+      try {
          reply = requestor.request(m);
          Object result = ManagementHelper.getResult(reply);
 
-         if (desiredType != null && desiredType != result.getClass())
-         {
+         if (desiredType != null && desiredType != result.getClass()) {
             // Conversions
-            if (desiredType == Long.class && result.getClass() == Integer.class)
-            {
-               Integer in = (Integer)result;
+            if (desiredType == Long.class && result.getClass() == Integer.class) {
+               Integer in = (Integer) result;
 
                result = new Long(in.intValue());
             }
@@ -83,30 +76,24 @@ public class CoreMessagingProxy
 
          return result;
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          throw new IllegalStateException(e);
       }
    }
 
-   public Object invokeOperation(final String operationName, final Object... args) throws Exception
-   {
+   public Object invokeOperation(final String operationName, final Object... args) throws Exception {
       ClientMessage m = session.createMessage(false);
       ManagementHelper.putOperationInvocation(m, resourceName, operationName, args);
       ClientMessage reply = requestor.request(m);
-      if (reply != null)
-      {
-         if (ManagementHelper.hasOperationSucceeded(reply))
-         {
+      if (reply != null) {
+         if (ManagementHelper.hasOperationSucceeded(reply)) {
             return ManagementHelper.getResult(reply);
          }
-         else
-         {
+         else {
             throw new Exception((String) ManagementHelper.getResult(reply));
          }
       }
-      else
-      {
+      else {
          return null;
       }
    }

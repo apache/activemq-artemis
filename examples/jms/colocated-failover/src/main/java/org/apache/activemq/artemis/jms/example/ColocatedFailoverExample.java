@@ -31,16 +31,14 @@ import java.util.Hashtable;
 
 /**
  * A simple example that demonstrates a colocated server
- *
  */
-public class ColocatedFailoverExample
-{
+public class ColocatedFailoverExample {
+
    private static Process server0;
 
    private static Process server1;
 
-   public static void main(final String[] args) throws Exception
-   {
+   public static void main(final String[] args) throws Exception {
       final int numMessages = 30;
 
       Connection connection = null;
@@ -49,8 +47,7 @@ public class ColocatedFailoverExample
       InitialContext initialContext = null;
       InitialContext initialContext1 = null;
 
-      try
-      {
+      try {
          server0 = ServerUtil.startServer(args[0], ColocatedFailoverExample.class.getSimpleName() + "0", 0, 5000);
          server1 = ServerUtil.startServer(args[1], ColocatedFailoverExample.class.getSimpleName() + "1", 1, 5000);
 
@@ -67,9 +64,9 @@ public class ColocatedFailoverExample
          initialContext1 = new InitialContext(properties);
 
          // Step 2. Look up the JMS resources from JNDI
-         Queue queue = (Queue)initialContext.lookup("queue/exampleQueue");
-         ConnectionFactory connectionFactory = (ConnectionFactory)initialContext.lookup("ConnectionFactory");
-         ConnectionFactory connectionFactory1 = (ConnectionFactory)initialContext1.lookup("ConnectionFactory");
+         Queue queue = (Queue) initialContext.lookup("queue/exampleQueue");
+         ConnectionFactory connectionFactory = (ConnectionFactory) initialContext.lookup("ConnectionFactory");
+         ConnectionFactory connectionFactory1 = (ConnectionFactory) initialContext1.lookup("ConnectionFactory");
 
          // Step 3. Create a JMS Connections
          connection = connectionFactory.createConnection();
@@ -84,8 +81,7 @@ public class ColocatedFailoverExample
          MessageProducer producer1 = session1.createProducer(queue);
 
          // Step 6. Send some messages to both servers
-         for (int i = 0; i < numMessages; i++)
-         {
+         for (int i = 0; i < numMessages; i++) {
             TextMessage message = session.createTextMessage("This is text message " + i);
             producer.send(message);
             System.out.println("Sent message: " + message.getText());
@@ -109,11 +105,9 @@ public class ColocatedFailoverExample
          // Step 10. Receive and acknowledge all of the sent messages, the backup server that is colocated with server 1
          // will have become live and is now handling messages for server 0.
          TextMessage message0 = null;
-         for (int i = 0; i < numMessages; i++)
-         {
-            message0 = (TextMessage)consumer.receive(5000);
-            if (message0 == null)
-            {
+         for (int i = 0; i < numMessages; i++) {
+            message0 = (TextMessage) consumer.receive(5000);
+            if (message0 == null) {
                throw new IllegalStateException("Message not received!");
             }
             System.out.println("Got message: " + message0.getText());
@@ -123,33 +117,27 @@ public class ColocatedFailoverExample
          MessageConsumer consumer1 = session.createConsumer(queue);
 
          // Step 11. Receive and acknowledge the rest of the sent messages from server 1.
-         for (int i = 0; i < numMessages; i++)
-         {
-            message0 = (TextMessage)consumer1.receive(5000);
+         for (int i = 0; i < numMessages; i++) {
+            message0 = (TextMessage) consumer1.receive(5000);
             System.out.println("Got message: " + message0.getText());
          }
          message0.acknowledge();
       }
-      finally
-      {
+      finally {
          // Step 11. Be sure to close our resources!
 
-         if (connection != null)
-         {
+         if (connection != null) {
             connection.close();
          }
 
-         if (initialContext != null)
-         {
+         if (initialContext != null) {
             initialContext.close();
          }
-         if (connection1 != null)
-         {
+         if (connection1 != null) {
             connection1.close();
          }
 
-         if (initialContext1 != null)
-         {
+         if (initialContext1 != null) {
             initialContext1.close();
          }
 

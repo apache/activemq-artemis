@@ -33,14 +33,14 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class SuppliedThreadPoolTest extends ActiveMQTestBase
-{
+public class SuppliedThreadPoolTest extends ActiveMQTestBase {
+
    private ActiveMQServer server;
 
    private ServiceRegistry serviceRegistry;
+
    @Before
-   public void setup() throws Exception
-   {
+   public void setup() throws Exception {
       serviceRegistry = new ServiceRegistryImpl();
       serviceRegistry.setExecutorService(Executors.newFixedThreadPool(1));
       serviceRegistry.setScheduledExecutorService(Executors.newScheduledThreadPool(1));
@@ -50,17 +50,14 @@ public class SuppliedThreadPoolTest extends ActiveMQTestBase
    }
 
    @After
-   public void tearDown() throws Exception
-   {
-      if (server.isActive())
-      {
+   public void tearDown() throws Exception {
+      if (server.isActive()) {
          server.stop();
       }
    }
 
    @Test
-   public void testSuppliedThreadPoolsAreCorrectlySet() throws Exception
-   {
+   public void testSuppliedThreadPoolsAreCorrectlySet() throws Exception {
       assertEquals(serviceRegistry.getScheduledExecutorService(), server.getScheduledPool());
 
       // To check the Executor is what we expect we must reflectively inspect the OrderedExecutorFactory.
@@ -70,11 +67,10 @@ public class SuppliedThreadPoolTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testServerDoesNotShutdownSuppliedThreadPoolsOnStop() throws Exception
-   {
+   public void testServerDoesNotShutdownSuppliedThreadPoolsOnStop() throws Exception {
       server.stop();
 
-      ScheduledExecutorService scheduledExecutorService =  server.getScheduledPool();
+      ScheduledExecutorService scheduledExecutorService = server.getScheduledPool();
 
       Field field = server.getExecutorFactory().getClass().getDeclaredField("parent");
       field.setAccessible(true);
@@ -90,8 +86,7 @@ public class SuppliedThreadPoolTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testCanRestartWithSuppliedThreadPool() throws Exception
-   {
+   public void testCanRestartWithSuppliedThreadPool() throws Exception {
       server.stop();
       server.start();
       server.waitForActivation(100, TimeUnit.MILLISECONDS);
@@ -99,11 +94,10 @@ public class SuppliedThreadPoolTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testJobsGetScheduledToSuppliedThreadPool() throws Exception
-   {
+   public void testJobsGetScheduledToSuppliedThreadPool() throws Exception {
       server.stop();
 
-      ScheduledThreadPoolExecutor scheduledExecutorService =  (ScheduledThreadPoolExecutor) server.getScheduledPool();
+      ScheduledThreadPoolExecutor scheduledExecutorService = (ScheduledThreadPoolExecutor) server.getScheduledPool();
 
       Field field = server.getExecutorFactory().getClass().getDeclaredField("parent");
       field.setAccessible(true);

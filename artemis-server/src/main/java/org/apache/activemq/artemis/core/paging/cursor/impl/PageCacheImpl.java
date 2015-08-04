@@ -26,8 +26,7 @@ import org.apache.activemq.artemis.core.paging.impl.Page;
 /**
  * The caching associated to a single page.
  */
-class PageCacheImpl implements PageCache
-{
+class PageCacheImpl implements PageCache {
 
    // Constants -----------------------------------------------------
 
@@ -43,86 +42,69 @@ class PageCacheImpl implements PageCache
 
    // Constructors --------------------------------------------------
 
-   public PageCacheImpl(final Page page)
-   {
+   public PageCacheImpl(final Page page) {
       this.page = page;
    }
 
    // Public --------------------------------------------------------
 
    @Override
-   public PagedMessage getMessage(final int messageNumber)
-   {
+   public PagedMessage getMessage(final int messageNumber) {
       lock.readLock().lock();
-      try
-      {
-         if (messageNumber < messages.length)
-         {
+      try {
+         if (messageNumber < messages.length) {
             return messages[messageNumber];
          }
-         else
-         {
+         else {
             return null;
          }
       }
-      finally
-      {
+      finally {
          lock.readLock().unlock();
       }
    }
 
-   public long getPageId()
-   {
+   public long getPageId() {
       return page.getPageId();
    }
 
-   public void lock()
-   {
+   public void lock() {
       lock.writeLock().lock();
    }
 
-   public void unlock()
-   {
+   public void unlock() {
       lock.writeLock().unlock();
    }
 
-   public void setMessages(final PagedMessage[] messages)
-   {
+   public void setMessages(final PagedMessage[] messages) {
       this.messages = messages;
    }
 
-   public int getNumberOfMessages()
-   {
+   public int getNumberOfMessages() {
       lock.readLock().lock();
-      try
-      {
+      try {
          return messages.length;
       }
-      finally
-      {
+      finally {
          lock.readLock().unlock();
       }
    }
 
-   public void close()
-   {
+   public void close() {
    }
 
    @Override
-   public boolean isLive()
-   {
+   public boolean isLive() {
       return false;
    }
 
    @Override
-   public String toString()
-   {
+   public String toString() {
       return "PageCacheImpl::page=" + page.getPageId() + " numberOfMessages = " + messages.length;
    }
 
    @Override
-   public PagedMessage[] getMessages()
-   {
+   public PagedMessage[] getMessages() {
       return messages;
    }
 }

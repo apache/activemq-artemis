@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.dto;
 
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -24,8 +23,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "app")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class AppDTO
-{
+public class AppDTO {
+
    @XmlAttribute
    public String url;
 

@@ -30,10 +30,9 @@ import java.util.Hashtable;
  * A simple example that demonstrates server side load-balancing of messages between the queue instances on different
  * nodes of the cluster.
  */
-public class ClusteredQueueExample
-{
-   public static void main(final String[] args) throws Exception
-   {
+public class ClusteredQueueExample {
+
+   public static void main(final String[] args) throws Exception {
       Connection connection0 = null;
 
       Connection connection1 = null;
@@ -42,8 +41,7 @@ public class ClusteredQueueExample
 
       InitialContext ic1 = null;
 
-      try
-      {
+      try {
          // Step 1. Get an initial context for looking up JNDI from server 0
          Hashtable<String, Object> properties = new Hashtable<String, Object>();
          properties.put("java.naming.factory.initial", "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
@@ -52,10 +50,10 @@ public class ClusteredQueueExample
          ic0 = new InitialContext(properties);
 
          // Step 2. Look-up the JMS Queue object from JNDI
-         Queue queue = (Queue)ic0.lookup("queue/exampleQueue");
+         Queue queue = (Queue) ic0.lookup("queue/exampleQueue");
 
          // Step 3. Look-up a JMS Connection Factory object from JNDI on server 0
-         ConnectionFactory cf0 = (ConnectionFactory)ic0.lookup("ConnectionFactory");
+         ConnectionFactory cf0 = (ConnectionFactory) ic0.lookup("ConnectionFactory");
 
          // Step 4. Get an initial context for looking up JNDI from server 1
          properties = new Hashtable<String, Object>();
@@ -64,7 +62,7 @@ public class ClusteredQueueExample
          ic1 = new InitialContext(properties);
 
          // Step 5. Look-up a JMS Connection Factory object from JNDI on server 1
-         ConnectionFactory cf1 = (ConnectionFactory)ic1.lookup("ConnectionFactory");
+         ConnectionFactory cf1 = (ConnectionFactory) ic1.lookup("ConnectionFactory");
 
          // Step 6. We create a JMS Connection connection0 which is a connection to server 0
          connection0 = cf0.createConnection();
@@ -97,8 +95,7 @@ public class ClusteredQueueExample
 
          final int numMessages = 10;
 
-         for (int i = 0; i < numMessages; i++)
-         {
+         for (int i = 0; i < numMessages; i++) {
             TextMessage message = session0.createTextMessage("This is text message " + i);
 
             producer.send(message);
@@ -111,38 +108,32 @@ public class ClusteredQueueExample
          // JMS Queues implement point-to-point message where each message is only ever consumed by a
          // maximum of one consumer
 
-         for (int i = 0; i < numMessages; i += 2)
-         {
-            TextMessage message0 = (TextMessage)consumer0.receive(5000);
+         for (int i = 0; i < numMessages; i += 2) {
+            TextMessage message0 = (TextMessage) consumer0.receive(5000);
 
             System.out.println("Got message: " + message0.getText() + " from node 0");
 
-            TextMessage message1 = (TextMessage)consumer1.receive(5000);
+            TextMessage message1 = (TextMessage) consumer1.receive(5000);
 
             System.out.println("Got message: " + message1.getText() + " from node 1");
          }
       }
-      finally
-      {
+      finally {
          // Step 15. Be sure to close our resources!
 
-         if (connection0 != null)
-         {
+         if (connection0 != null) {
             connection0.close();
          }
 
-         if (connection1 != null)
-         {
+         if (connection1 != null) {
             connection1.close();
          }
 
-         if (ic0 != null)
-         {
+         if (ic0 != null) {
             ic0.close();
          }
 
-         if (ic1 != null)
-         {
+         if (ic1 != null) {
             ic1.close();
          }
       }

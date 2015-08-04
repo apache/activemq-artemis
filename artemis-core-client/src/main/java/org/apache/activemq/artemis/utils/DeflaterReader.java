@@ -26,8 +26,8 @@ import java.util.zip.Deflater;
  * The reader takes an inputstream and compress it.
  * Not for concurrent use.
  */
-public class DeflaterReader extends InputStream
-{
+public class DeflaterReader extends InputStream {
+
    private final Deflater deflater = new Deflater();
    private boolean isFinished = false;
    private boolean compressDone = false;
@@ -36,23 +36,19 @@ public class DeflaterReader extends InputStream
 
    private final AtomicLong bytesRead;
 
-   public DeflaterReader(final InputStream inData, final AtomicLong bytesRead)
-   {
+   public DeflaterReader(final InputStream inData, final AtomicLong bytesRead) {
       input = inData;
       this.bytesRead = bytesRead;
    }
 
    @Override
-   public int read() throws IOException
-   {
+   public int read() throws IOException {
       byte[] buffer = new byte[1];
       int n = read(buffer, 0, 1);
-      if (n == 1)
-      {
+      if (n == 1) {
          return buffer[0] & 0xFF;
       }
-      if (n == -1 || n == 0)
-      {
+      if (n == -1 || n == 0) {
          return -1;
       }
       throw new IOException("Error reading data, invalid n: " + n);
@@ -67,10 +63,8 @@ public class DeflaterReader extends InputStream
     * @throws IOException
     */
    @Override
-   public int read(final byte[] buffer, int offset, int len) throws IOException
-   {
-      if (compressDone)
-      {
+   public int read(final byte[] buffer, int offset, int len) throws IOException {
+      if (compressDone) {
          return -1;
       }
 
@@ -80,44 +74,35 @@ public class DeflaterReader extends InputStream
       int n = 0;
       int read = 0;
 
-      while (len > 0)
-      {
+      while (len > 0) {
          n = deflater.deflate(buffer, offset, len);
-         if (n == 0)
-         {
-            if (isFinished)
-            {
+         if (n == 0) {
+            if (isFinished) {
                deflater.end();
                compressDone = true;
                break;
             }
-            else if (deflater.needsInput())
-            {
+            else if (deflater.needsInput()) {
                // read some data from inputstream
                int m = input.read(readBuffer);
 
-               if (m == -1)
-               {
+               if (m == -1) {
                   deflater.finish();
                   isFinished = true;
                }
-               else
-               {
-                  if (bytesRead != null)
-                  {
+               else {
+                  if (bytesRead != null) {
                      bytesRead.addAndGet(m);
                   }
                   deflater.setInput(readBuffer, 0, m);
                }
             }
-            else
-            {
+            else {
                deflater.finish();
                isFinished = true;
             }
          }
-         else
-         {
+         else {
             read += n;
             offset += n;
             len -= n;
@@ -126,14 +111,12 @@ public class DeflaterReader extends InputStream
       return read;
    }
 
-   public void closeStream() throws IOException
-   {
+   public void closeStream() throws IOException {
       super.close();
       input.close();
    }
 
-   public long getTotalSize()
-   {
+   public long getTotalSize() {
       return bytesRead.get();
    }
 

@@ -44,8 +44,7 @@ import org.apache.activemq.artemis.utils.PriorityLinkedListImpl;
 import org.apache.activemq.artemis.utils.ReusableLatch;
 import org.apache.activemq.artemis.utils.TokenBucketLimiter;
 
-public final class ClientConsumerImpl implements ClientConsumerInternal
-{
+public final class ClientConsumerImpl implements ClientConsumerInternal {
    // Constants
    // ------------------------------------------------------------------------------------
 
@@ -145,8 +144,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal
                              final Executor flowControlExecutor,
                              final SessionContext sessionContext,
                              final ClientSession.QueueQuery queueInfo,
-                             final ClassLoader contextClassLoader)
-   {
+                             final ClassLoader contextClassLoader) {
       this.consumerContext = consumerContext;
 
       this.queueName = queueName;
@@ -177,34 +175,28 @@ public final class ClientConsumerImpl implements ClientConsumerInternal
    // ClientConsumer implementation
    // -----------------------------------------------------------------
 
-   public ConsumerContext getConsumerContext()
-   {
+   public ConsumerContext getConsumerContext() {
       return consumerContext;
    }
 
-   private ClientMessage receive(final long timeout, final boolean forcingDelivery) throws ActiveMQException
-   {
+   private ClientMessage receive(final long timeout, final boolean forcingDelivery) throws ActiveMQException {
       checkClosed();
 
-      if (largeMessageReceived != null)
-      {
+      if (largeMessageReceived != null) {
          // Check if there are pending packets to be received
          largeMessageReceived.discardBody();
          largeMessageReceived = null;
       }
 
-      if (rateLimiter != null)
-      {
+      if (rateLimiter != null) {
          rateLimiter.limit();
       }
 
-      if (handler != null)
-      {
+      if (handler != null) {
          throw ActiveMQClientMessageBundle.BUNDLE.messageHandlerSet();
       }
 
-      if (clientWindowSize == 0)
-      {
+      if (clientWindowSize == 0) {
          startSlowConsumer();
       }
 
@@ -219,47 +211,36 @@ public final class ClientConsumerImpl implements ClientConsumerInternal
 
       long toWait = timeout == 0 ? Long.MAX_VALUE : timeout;
 
-      try
-      {
-         while (true)
-         {
+      try {
+         while (true) {
             ClientMessageInternal m = null;
 
-            synchronized (this)
-            {
-               while ((stopped || (m = buffer.poll()) == null) && !closed && toWait > 0)
-               {
-                  if (start == -1)
-                  {
+            synchronized (this) {
+               while ((stopped || (m = buffer.poll()) == null) && !closed && toWait > 0) {
+                  if (start == -1) {
                      start = System.currentTimeMillis();
                   }
 
-                  if (m == null && forcingDelivery)
-                  {
-                     if (stopped)
-                     {
+                  if (m == null && forcingDelivery) {
+                     if (stopped) {
                         break;
                      }
 
                      // we only force delivery once per call to receive
-                     if (!deliveryForced)
-                     {
+                     if (!deliveryForced) {
                         callForceDelivery = true;
                         break;
                      }
                   }
 
-                  try
-                  {
+                  try {
                      wait(toWait);
                   }
-                  catch (InterruptedException e)
-                  {
+                  catch (InterruptedException e) {
                      throw new ActiveMQInterruptedException(e);
                   }
 
-                  if (m != null || closed)
-                  {
+                  if (m != null || closed) {
                      break;
                   }
 
@@ -271,26 +252,21 @@ public final class ClientConsumerImpl implements ClientConsumerInternal
                }
             }
 
-            if (failedOver)
-            {
-               if (m == null)
-               {
+            if (failedOver) {
+               if (m == null) {
                   // if failed over and the buffer is null, we reset the state and try it again
                   failedOver = false;
                   deliveryForced = false;
                   toWait = timeout == 0 ? Long.MAX_VALUE : timeout;
                   continue;
                }
-               else
-               {
+               else {
                   failedOver = false;
                }
             }
 
-            if (callForceDelivery)
-            {
-               if (isTrace)
-               {
+            if (callForceDelivery) {
+               if (isTrace) {
                   ActiveMQClientLogger.LOGGER.trace("Forcing delivery");
                }
                // JBPAPP-6030 - Calling forceDelivery outside of the lock to avoid distributed dead locks
@@ -300,32 +276,26 @@ public final class ClientConsumerImpl implements ClientConsumerInternal
                continue;
             }
 
-            if (m != null)
-            {
+            if (m != null) {
                session.workDone();
 
-               if (m.containsProperty(ClientConsumerImpl.FORCED_DELIVERY_MESSAGE))
-               {
+               if (m.containsProperty(ClientConsumerImpl.FORCED_DELIVERY_MESSAGE)) {
                   long seq = m.getLongProperty(ClientConsumerImpl.FORCED_DELIVERY_MESSAGE);
 
                   // Need to check if forceDelivery was called at this call
                   // As we could be receiving a message that came from a previous call
-                  if (forcingDelivery && deliveryForced && seq == forceDeliveryCount - 1)
-                  {
+                  if (forcingDelivery && deliveryForced && seq == forceDeliveryCount - 1) {
                      // forced delivery messages are discarded, nothing has been delivered by the queue
                      resetIfSlowConsumer();
 
-                     if (isTrace)
-                     {
+                     if (isTrace) {
                         ActiveMQClientLogger.LOGGER.trace("There was nothing on the queue, leaving it now:: returning null");
                      }
 
                      return null;
                   }
-                  else
-                  {
-                     if (isTrace)
-                     {
+                  else {
+                     if (isTrace) {
                         ActiveMQClientLogger.LOGGER.trace("Ignored force delivery answer as it belonged to another call");
                      }
                      // Ignore the message
@@ -337,43 +307,35 @@ public final class ClientConsumerImpl implements ClientConsumerInternal
 
                flowControlBeforeConsumption(m);
 
-               if (expired)
-               {
+               if (expired) {
                   m.discardBody();
 
                   session.expire(this, m);
 
-                  if (clientWindowSize == 0)
-                  {
+                  if (clientWindowSize == 0) {
                      startSlowConsumer();
                   }
 
-                  if (toWait > 0)
-                  {
+                  if (toWait > 0) {
                      continue;
                   }
-                  else
-                  {
+                  else {
                      return null;
                   }
                }
 
-               if (m.isLargeMessage())
-               {
+               if (m.isLargeMessage()) {
                   largeMessageReceived = m;
                }
 
-               if (isTrace)
-               {
+               if (isTrace) {
                   ActiveMQClientLogger.LOGGER.trace("Returning " + m);
                }
 
                return m;
             }
-            else
-            {
-               if (isTrace)
-               {
+            else {
+               if (isTrace) {
                   ActiveMQClientLogger.LOGGER.trace("Returning null");
                }
                resetIfSlowConsumer();
@@ -381,36 +343,30 @@ public final class ClientConsumerImpl implements ClientConsumerInternal
             }
          }
       }
-      finally
-      {
+      finally {
          receiverThread = null;
       }
    }
 
-   public ClientMessage receive(final long timeout) throws ActiveMQException
-   {
+   public ClientMessage receive(final long timeout) throws ActiveMQException {
       ClientMessage msg = receive(timeout, false);
 
-      if (msg == null && !closed)
-      {
+      if (msg == null && !closed) {
          msg = receive(0, true);
       }
 
       return msg;
    }
 
-   public ClientMessage receive() throws ActiveMQException
-   {
+   public ClientMessage receive() throws ActiveMQException {
       return receive(0, false);
    }
 
-   public ClientMessage receiveImmediate() throws ActiveMQException
-   {
+   public ClientMessage receiveImmediate() throws ActiveMQException {
       return receive(0, true);
    }
 
-   public MessageHandler getMessageHandler() throws ActiveMQException
-   {
+   public MessageHandler getMessageHandler() throws ActiveMQException {
       checkClosed();
 
       return handler;
@@ -418,61 +374,52 @@ public final class ClientConsumerImpl implements ClientConsumerInternal
 
    // Must be synchronized since messages may be arriving while handler is being set and might otherwise end
    // up not queueing enough executors - so messages get stranded
-   public synchronized ClientConsumerImpl setMessageHandler(final MessageHandler theHandler) throws ActiveMQException
-   {
+   public synchronized ClientConsumerImpl setMessageHandler(final MessageHandler theHandler) throws ActiveMQException {
       checkClosed();
 
-      if (receiverThread != null)
-      {
+      if (receiverThread != null) {
          throw ActiveMQClientMessageBundle.BUNDLE.inReceive();
       }
 
       boolean noPreviousHandler = handler == null;
 
-      if (handler != theHandler && clientWindowSize == 0)
-      {
+      if (handler != theHandler && clientWindowSize == 0) {
          startSlowConsumer();
       }
 
       handler = theHandler;
 
       // if no previous handler existed queue up messages for delivery
-      if (handler != null && noPreviousHandler)
-      {
+      if (handler != null && noPreviousHandler) {
          requeueExecutors();
       }
       // if unsetting a previous handler may be in onMessage so wait for completion
-      else if (handler == null && !noPreviousHandler)
-      {
+      else if (handler == null && !noPreviousHandler) {
          waitForOnMessageToComplete(true);
       }
 
       return this;
    }
 
-   public void close() throws ActiveMQException
-   {
+   public void close() throws ActiveMQException {
       doCleanUp(true);
    }
 
    /**
     * To be used by MDBs to stop any more handling of messages.
     *
-    * @throws ActiveMQException
     * @param future the future to run once the onMessage Thread has completed
+    * @throws ActiveMQException
     */
-   public Thread prepareForClose(final FutureLatch future) throws ActiveMQException
-   {
+   public Thread prepareForClose(final FutureLatch future) throws ActiveMQException {
       closing = true;
 
       resetLargeMessageController();
 
       //execute the future after the last onMessage call
-      sessionExecutor.execute(new Runnable()
-      {
+      sessionExecutor.execute(new Runnable() {
          @Override
-         public void run()
-         {
+         public void run() {
             future.run();
          }
       });
@@ -480,37 +427,29 @@ public final class ClientConsumerImpl implements ClientConsumerInternal
       return onMessageThread;
    }
 
-   public void cleanUp()
-   {
-      try
-      {
+   public void cleanUp() {
+      try {
          doCleanUp(false);
       }
-      catch (ActiveMQException e)
-      {
+      catch (ActiveMQException e) {
          ActiveMQClientLogger.LOGGER.warn("problem cleaning up: " + this);
       }
    }
 
-   public boolean isClosed()
-   {
+   public boolean isClosed() {
       return closed;
    }
 
-   public void stop(final boolean waitForOnMessage) throws ActiveMQException
-   {
+   public void stop(final boolean waitForOnMessage) throws ActiveMQException {
       waitForOnMessageToComplete(waitForOnMessage);
 
-      if (browseOnly)
-      {
+      if (browseOnly) {
          // stop shouldn't affect browser delivery
          return;
       }
 
-      synchronized (this)
-      {
-         if (stopped)
-         {
+      synchronized (this) {
+         if (stopped) {
             return;
          }
 
@@ -518,8 +457,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal
       }
    }
 
-   public void clearAtFailover()
-   {
+   public void clearAtFailover() {
       clearBuffer();
 
       // failover will issue a start later
@@ -536,70 +474,57 @@ public final class ClientConsumerImpl implements ClientConsumerInternal
       ackIndividually = false;
    }
 
-   public synchronized void start()
-   {
+   public synchronized void start() {
       stopped = false;
 
       requeueExecutors();
    }
 
-   public Exception getLastException()
-   {
+   public Exception getLastException() {
       return lastException;
    }
 
    // ClientConsumerInternal implementation
    // --------------------------------------------------------------
 
-   public ClientSession.QueueQuery getQueueInfo()
-   {
+   public ClientSession.QueueQuery getQueueInfo() {
       return queueInfo;
    }
 
-   public SimpleString getFilterString()
-   {
+   public SimpleString getFilterString() {
       return filterString;
    }
 
-   public SimpleString getQueueName()
-   {
+   public SimpleString getQueueName() {
       return queueName;
    }
 
-   public boolean isBrowseOnly()
-   {
+   public boolean isBrowseOnly() {
       return browseOnly;
    }
 
-   public synchronized void handleMessage(final ClientMessageInternal message) throws Exception
-   {
-      if (closing)
-      {
+   public synchronized void handleMessage(final ClientMessageInternal message) throws Exception {
+      if (closing) {
          // This is ok - we just ignore the message
          return;
       }
 
-      if (message.getBooleanProperty(Message.HDR_LARGE_COMPRESSED))
-      {
+      if (message.getBooleanProperty(Message.HDR_LARGE_COMPRESSED)) {
          handleCompressedMessage(message);
       }
-      else
-      {
+      else {
          handleRegularMessage(message);
       }
    }
 
-   private void handleRegularMessage(ClientMessageInternal message)
-   {
-      if (message.getAddress() == null)
-      {
+   private void handleRegularMessage(ClientMessageInternal message) {
+      if (message.getAddress() == null) {
          message.setAddressTransient(queueInfo.getAddress());
       }
 
       message.onReceipt(this);
 
-      if (!ackIndividually && message.getPriority() != 4 && !message.containsProperty(ClientConsumerImpl.FORCED_DELIVERY_MESSAGE))
-      {
+      if (!ackIndividually && message.getPriority() != 4 && !message.containsProperty(ClientConsumerImpl.FORCED_DELIVERY_MESSAGE)) {
          // We have messages of different priorities so we need to ack them individually since the order
          // of them in the ServerConsumerImpl delivery list might not be the same as the order they are
          // consumed in, which means that acking all up to won't work
@@ -609,16 +534,13 @@ public final class ClientConsumerImpl implements ClientConsumerInternal
       // Add it to the buffer
       buffer.addTail(message, message.getPriority());
 
-      if (handler != null)
-      {
+      if (handler != null) {
          // Execute using executor
-         if (!stopped)
-         {
+         if (!stopped) {
             queueExecutor();
          }
       }
-      else
-      {
+      else {
          notify();
       }
    }
@@ -635,17 +557,14 @@ public final class ClientConsumerImpl implements ClientConsumerInternal
     * Say that you sent a 1G message full of spaces. That could be just bellow 100K compressed but you wouldn't have
     * enough memory to decompress it
     */
-   private void handleCompressedMessage(final ClientMessageInternal clMessage) throws Exception
-   {
+   private void handleCompressedMessage(final ClientMessageInternal clMessage) throws Exception {
       ClientLargeMessageImpl largeMessage = new ClientLargeMessageImpl();
       largeMessage.retrieveExistingData(clMessage);
 
       File largeMessageCache = null;
 
-      if (session.isCacheLargeMessageClient())
-      {
-         largeMessageCache = File.createTempFile("tmp-large-message-" + largeMessage.getMessageID() + "-",
-                                                 ".tmp");
+      if (session.isCacheLargeMessageClient()) {
+         largeMessageCache = File.createTempFile("tmp-large-message-" + largeMessage.getMessageID() + "-", ".tmp");
          largeMessageCache.deleteOnExit();
       }
 
@@ -667,10 +586,9 @@ public final class ClientConsumerImpl implements ClientConsumerInternal
       handleRegularMessage(largeMessage);
    }
 
-   public synchronized void handleLargeMessage(final ClientLargeMessageInternal clientLargeMessage, long largeMessageSize) throws Exception
-   {
-      if (closing)
-      {
+   public synchronized void handleLargeMessage(final ClientLargeMessageInternal clientLargeMessage,
+                                               long largeMessageSize) throws Exception {
+      if (closing) {
          // This is ok - we just ignore the message
          return;
       }
@@ -678,10 +596,8 @@ public final class ClientConsumerImpl implements ClientConsumerInternal
       // Flow control for the first packet, we will have others
       File largeMessageCache = null;
 
-      if (session.isCacheLargeMessageClient())
-      {
-         largeMessageCache = File.createTempFile("tmp-large-message-" + clientLargeMessage.getMessageID() + "-",
-                                                 ".tmp");
+      if (session.isCacheLargeMessageClient()) {
+         largeMessageCache = File.createTempFile("tmp-large-message-" + clientLargeMessage.getMessageID() + "-", ".tmp");
          largeMessageCache.deleteOnExit();
       }
 
@@ -691,74 +607,61 @@ public final class ClientConsumerImpl implements ClientConsumerInternal
 
       currentLargeMessageController = new LargeMessageControllerImpl(this, largeMessageSize, callTimeout, largeMessageCache);
 
-      if (clientLargeMessage.isCompressed())
-      {
+      if (clientLargeMessage.isCompressed()) {
          clientLargeMessage.setLargeMessageController(new CompressedLargeMessageControllerImpl(currentLargeMessageController));
       }
-      else
-      {
+      else {
          clientLargeMessage.setLargeMessageController(currentLargeMessageController);
       }
 
       handleRegularMessage(clientLargeMessage);
    }
 
-   public synchronized void handleLargeMessageContinuation(final byte[] chunk, final int flowControlSize, final boolean isContinues) throws Exception
-   {
-      if (closing)
-      {
+   public synchronized void handleLargeMessageContinuation(final byte[] chunk,
+                                                           final int flowControlSize,
+                                                           final boolean isContinues) throws Exception {
+      if (closing) {
          return;
       }
-      if (currentLargeMessageController == null)
-      {
-         if (isTrace)
-         {
+      if (currentLargeMessageController == null) {
+         if (isTrace) {
             ActiveMQClientLogger.LOGGER.trace("Sending back credits for largeController = null " + flowControlSize);
          }
          flowControl(flowControlSize, false);
       }
-      else
-      {
+      else {
          currentLargeMessageController.addPacket(chunk, flowControlSize, isContinues);
       }
    }
 
-   public void clear(boolean waitForOnMessage) throws ActiveMQException
-   {
-      synchronized (this)
-      {
+   public void clear(boolean waitForOnMessage) throws ActiveMQException {
+      synchronized (this) {
          // Need to send credits for the messages in the buffer
 
          Iterator<ClientMessageInternal> iter = buffer.iterator();
 
-         while (iter.hasNext())
-         {
-            try
-            {
+         while (iter.hasNext()) {
+            try {
                ClientMessageInternal message = iter.next();
 
-               if (message.isLargeMessage())
-               {
+               if (message.isLargeMessage()) {
                   ClientLargeMessageInternal largeMessage = (ClientLargeMessageInternal) message;
                   largeMessage.getLargeMessageController().cancel();
                }
 
                flowControlBeforeConsumption(message);
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                ActiveMQClientLogger.LOGGER.errorClearingMessages(e);
             }
          }
 
          clearBuffer();
 
-         try
-         {
+         try {
             resetLargeMessageController();
          }
-         catch (Throwable e)
-         {
+         catch (Throwable e) {
             // nothing that could be done here
             ActiveMQClientLogger.LOGGER.errorClearingMessages(e);
          }
@@ -769,64 +672,51 @@ public final class ClientConsumerImpl implements ClientConsumerInternal
       waitForOnMessageToComplete(waitForOnMessage);
    }
 
-   private void resetLargeMessageController()
-   {
+   private void resetLargeMessageController() {
 
       LargeMessageController controller = currentLargeMessageController;
-      if (controller != null)
-      {
+      if (controller != null) {
          controller.cancel();
          currentLargeMessageController = null;
       }
    }
 
-   public int getClientWindowSize()
-   {
+   public int getClientWindowSize() {
       return clientWindowSize;
    }
 
-   public int getBufferSize()
-   {
+   public int getBufferSize() {
       return buffer.size();
    }
 
-   public void acknowledge(final ClientMessage message) throws ActiveMQException
-   {
+   public void acknowledge(final ClientMessage message) throws ActiveMQException {
       ClientMessageInternal cmi = (ClientMessageInternal) message;
 
-      if (ackIndividually)
-      {
+      if (ackIndividually) {
          individualAcknowledge(message);
       }
-      else
-      {
+      else {
          ackBytes += message.getEncodeSize();
 
-         if (ackBytes >= ackBatchSize)
-         {
+         if (ackBytes >= ackBatchSize) {
             doAck(cmi);
          }
-         else
-         {
+         else {
             lastAckedMessage = cmi;
          }
       }
    }
 
-   public void individualAcknowledge(ClientMessage message) throws ActiveMQException
-   {
-      if (lastAckedMessage != null)
-      {
+   public void individualAcknowledge(ClientMessage message) throws ActiveMQException {
+      if (lastAckedMessage != null) {
          flushAcks();
       }
 
       session.individualAcknowledge(this, message);
    }
 
-   public void flushAcks() throws ActiveMQException
-   {
-      if (lastAckedMessage != null)
-      {
+   public void flushAcks() throws ActiveMQException {
+      if (lastAckedMessage != null) {
          doAck(lastAckedMessage);
       }
    }
@@ -837,18 +727,13 @@ public final class ClientConsumerImpl implements ClientConsumerInternal
     *
     * @param discountSlowConsumer When dealing with slowConsumers, we need to discount one credit that was pre-sent when the first receive was called. For largeMessage that is only done at the latest packet
     */
-   public void flowControl(final int messageBytes, final boolean discountSlowConsumer) throws ActiveMQException
-   {
-      if (clientWindowSize >= 0)
-      {
+   public void flowControl(final int messageBytes, final boolean discountSlowConsumer) throws ActiveMQException {
+      if (clientWindowSize >= 0) {
          creditsToSend += messageBytes;
 
-         if (creditsToSend >= clientWindowSize)
-         {
-            if (clientWindowSize == 0 && discountSlowConsumer)
-            {
-               if (isTrace)
-               {
+         if (creditsToSend >= clientWindowSize) {
+            if (clientWindowSize == 0 && discountSlowConsumer) {
+               if (isTrace) {
                   ActiveMQClientLogger.LOGGER.trace("FlowControl::Sending " + creditsToSend + " -1, for slow consumer");
                }
 
@@ -858,15 +743,12 @@ public final class ClientConsumerImpl implements ClientConsumerInternal
 
                creditsToSend = 0;
 
-               if (credits > 0)
-               {
+               if (credits > 0) {
                   sendCredits(credits);
                }
             }
-            else
-            {
-               if (ActiveMQClientLogger.LOGGER.isDebugEnabled())
-               {
+            else {
+               if (ActiveMQClientLogger.LOGGER.isDebugEnabled()) {
                   ActiveMQClientLogger.LOGGER.debug("Sending " + messageBytes + " from flow-control");
                }
 
@@ -874,8 +756,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal
 
                creditsToSend = 0;
 
-               if (credits > 0)
-               {
+               if (credits > 0) {
                   sendCredits(credits);
                }
             }
@@ -898,66 +779,52 @@ public final class ClientConsumerImpl implements ClientConsumerInternal
    /**
     * Sending an initial credit for slow consumers
     */
-   private void startSlowConsumer()
-   {
-      if (isTrace)
-      {
+   private void startSlowConsumer() {
+      if (isTrace) {
          ActiveMQClientLogger.LOGGER.trace("Sending 1 credit to start delivering of one message to slow consumer");
       }
       sendCredits(1);
-      try
-      {
+      try {
          // We use an executor here to guarantee the messages will arrive in order.
          // However when starting a slow consumer, we have to guarantee the credit was sent before we can perform any
          // operations like forceDelivery
          pendingFlowControl.await(10, TimeUnit.SECONDS);
       }
-      catch (InterruptedException e)
-      {
+      catch (InterruptedException e) {
          // will just ignore and forward the ignored
          Thread.currentThread().interrupt();
       }
    }
 
-   private void resetIfSlowConsumer()
-   {
-      if (clientWindowSize == 0)
-      {
+   private void resetIfSlowConsumer() {
+      if (clientWindowSize == 0) {
          sendCredits(0);
 
          // If resetting a slow consumer, we need to wait the execution
          final CountDownLatch latch = new CountDownLatch(1);
-         flowControlExecutor.execute(new Runnable()
-         {
-            public void run()
-            {
+         flowControlExecutor.execute(new Runnable() {
+            public void run() {
                latch.countDown();
             }
          });
 
-         try
-         {
+         try {
             latch.await(10, TimeUnit.SECONDS);
          }
-         catch (InterruptedException e)
-         {
+         catch (InterruptedException e) {
             throw new ActiveMQInterruptedException(e);
          }
       }
    }
 
-   private void requeueExecutors()
-   {
-      for (int i = 0; i < buffer.size(); i++)
-      {
+   private void requeueExecutors() {
+      for (int i = 0; i < buffer.size(); i++) {
          queueExecutor();
       }
    }
 
-   private void queueExecutor()
-   {
-      if (isTrace)
-      {
+   private void queueExecutor() {
+      if (isTrace) {
          ActiveMQClientLogger.LOGGER.trace("Adding Runner on Executor for delivery");
       }
 
@@ -967,34 +834,26 @@ public final class ClientConsumerImpl implements ClientConsumerInternal
    /**
     * @param credits
     */
-   private void sendCredits(final int credits)
-   {
+   private void sendCredits(final int credits) {
       pendingFlowControl.countUp();
-      flowControlExecutor.execute(new Runnable()
-      {
-         public void run()
-         {
-            try
-            {
+      flowControlExecutor.execute(new Runnable() {
+         public void run() {
+            try {
                sessionContext.sendConsumerCredits(ClientConsumerImpl.this, credits);
             }
-            finally
-            {
+            finally {
                pendingFlowControl.countDown();
             }
          }
       });
    }
 
-   private void waitForOnMessageToComplete(boolean waitForOnMessage)
-   {
-      if (handler == null)
-      {
+   private void waitForOnMessageToComplete(boolean waitForOnMessage) {
+      if (handler == null) {
          return;
       }
 
-      if (!waitForOnMessage || Thread.currentThread() == onMessageThread)
-      {
+      if (!waitForOnMessage || Thread.currentThread() == onMessageThread) {
          // If called from inside onMessage then return immediately - otherwise would block
          return;
       }
@@ -1005,24 +864,19 @@ public final class ClientConsumerImpl implements ClientConsumerInternal
 
       boolean ok = future.await(ClientConsumerImpl.CLOSE_TIMEOUT_MILLISECONDS);
 
-      if (!ok)
-      {
+      if (!ok) {
          ActiveMQClientLogger.LOGGER.timeOutWaitingForProcessing();
       }
    }
 
-   private void checkClosed() throws ActiveMQException
-   {
-      if (closed)
-      {
+   private void checkClosed() throws ActiveMQException {
+      if (closed) {
          throw ActiveMQClientMessageBundle.BUNDLE.consumerClosed();
       }
    }
 
-   private void callOnMessage() throws Exception
-   {
-      if (closing || stopped)
-      {
+   private void callOnMessage() throws Exception {
+      if (closing || stopped) {
          return;
       }
 
@@ -1038,43 +892,33 @@ public final class ClientConsumerImpl implements ClientConsumerInternal
       // otherwise while this is executing and give NPE when calling onMessage
       MessageHandler theHandler = handler;
 
-      if (theHandler != null)
-      {
-         if (rateLimiter != null)
-         {
+      if (theHandler != null) {
+         if (rateLimiter != null) {
             rateLimiter.limit();
          }
 
          failedOver = false;
 
-         synchronized (this)
-         {
+         synchronized (this) {
             message = buffer.poll();
          }
 
-         if (message != null)
-         {
-            if (message.containsProperty(ClientConsumerImpl.FORCED_DELIVERY_MESSAGE))
-            {
+         if (message != null) {
+            if (message.containsProperty(ClientConsumerImpl.FORCED_DELIVERY_MESSAGE)) {
                //Ignore, this could be a relic from a previous receiveImmediate();
                return;
             }
-
 
             boolean expired = message.isExpired();
 
             flowControlBeforeConsumption(message);
 
-            if (!expired)
-            {
-               if (isTrace)
-               {
+            if (!expired) {
+               if (isTrace) {
                   ActiveMQClientLogger.LOGGER.trace("Calling handler.onMessage");
                }
-               final ClassLoader originalLoader = AccessController.doPrivileged(new PrivilegedAction<ClassLoader>()
-               {
-                  public ClassLoader run()
-                  {
+               final ClassLoader originalLoader = AccessController.doPrivileged(new PrivilegedAction<ClassLoader>() {
+                  public ClassLoader run() {
                      ClassLoader originalLoader = Thread.currentThread().getContextClassLoader();
 
                      Thread.currentThread().setContextClassLoader(contextClassLoader);
@@ -1084,49 +928,39 @@ public final class ClientConsumerImpl implements ClientConsumerInternal
                });
 
                onMessageThread = Thread.currentThread();
-               try
-               {
+               try {
                   theHandler.onMessage(message);
                }
-               finally
-               {
-                  try
-                  {
-                     AccessController.doPrivileged(new PrivilegedAction<Object>()
-                     {
-                        public Object run()
-                        {
+               finally {
+                  try {
+                     AccessController.doPrivileged(new PrivilegedAction<Object>() {
+                        public Object run() {
                            Thread.currentThread().setContextClassLoader(originalLoader);
                            return null;
                         }
                      });
                   }
-                  catch (Exception e)
-                  {
+                  catch (Exception e) {
                      ActiveMQClientLogger.LOGGER.warn(e.getMessage(), e);
                   }
 
                   onMessageThread = null;
                }
 
-               if (isTrace)
-               {
+               if (isTrace) {
                   ActiveMQClientLogger.LOGGER.trace("Handler.onMessage done");
                }
 
-               if (message.isLargeMessage())
-               {
+               if (message.isLargeMessage()) {
                   message.discardBody();
                }
             }
-            else
-            {
+            else {
                session.expire(this, message);
             }
 
             // If slow consumer, we need to send 1 credit to make sure we get another message
-            if (clientWindowSize == 0)
-            {
+            if (clientWindowSize == 0) {
                startSlowConsumer();
             }
          }
@@ -1137,22 +971,17 @@ public final class ClientConsumerImpl implements ClientConsumerInternal
     * @param message
     * @throws ActiveMQException
     */
-   private void flowControlBeforeConsumption(final ClientMessageInternal message) throws ActiveMQException
-   {
+   private void flowControlBeforeConsumption(final ClientMessageInternal message) throws ActiveMQException {
       // Chunk messages will execute the flow control while receiving the chunks
-      if (message.getFlowControlSize() != 0)
-      {
+      if (message.getFlowControlSize() != 0) {
          // on large messages we should discount 1 on the first packets as we need continuity until the last packet
          flowControl(message.getFlowControlSize(), !message.isLargeMessage());
       }
    }
 
-   private void doCleanUp(final boolean sendCloseMessage) throws ActiveMQException
-   {
-      try
-      {
-         if (closed)
-         {
+   private void doCleanUp(final boolean sendCloseMessage) throws ActiveMQException {
+      try {
+         if (closed) {
             return;
          }
 
@@ -1168,10 +997,8 @@ public final class ClientConsumerImpl implements ClientConsumerInternal
 
          closed = true;
 
-         synchronized (this)
-         {
-            if (receiverThread != null)
-            {
+         synchronized (this) {
+            if (receiverThread != null) {
                // Wake up any receive() thread that might be waiting
                notify();
             }
@@ -1185,26 +1012,22 @@ public final class ClientConsumerImpl implements ClientConsumerInternal
 
          clearBuffer();
 
-         if (sendCloseMessage)
-         {
+         if (sendCloseMessage) {
             sessionContext.closeConsumer(this);
          }
       }
-      catch (Throwable t)
-      {
+      catch (Throwable t) {
          // Consumer close should always return without exception
       }
 
       session.removeConsumer(this);
    }
 
-   private void clearBuffer()
-   {
+   private void clearBuffer() {
       buffer.clear();
    }
 
-   private void doAck(final ClientMessageInternal message) throws ActiveMQException
-   {
+   private void doAck(final ClientMessageInternal message) throws ActiveMQException {
       ackBytes = 0;
 
       lastAckedMessage = null;
@@ -1215,16 +1038,13 @@ public final class ClientConsumerImpl implements ClientConsumerInternal
    // Inner classes
    // --------------------------------------------------------------------------------
 
-   private class Runner implements Runnable
-   {
-      public void run()
-      {
-         try
-         {
+   private class Runner implements Runnable {
+
+      public void run() {
+         try {
             callOnMessage();
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             ActiveMQClientLogger.LOGGER.onMessageError(e);
 
             lastException = e;

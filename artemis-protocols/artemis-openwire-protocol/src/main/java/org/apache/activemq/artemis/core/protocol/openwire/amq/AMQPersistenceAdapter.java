@@ -23,8 +23,7 @@ import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.command.ActiveMQQueue;
 import org.apache.activemq.command.ProducerId;
 
-public class AMQPersistenceAdapter
-{
+public class AMQPersistenceAdapter {
 
    /**
     * Returns a set of all the {@link org.apache.activemq.command.ActiveMQDestination}
@@ -32,19 +31,18 @@ public class AMQPersistenceAdapter
     *
     * @return active destinations
     */
-   Set<ActiveMQDestination> getDestinations()
-   {
+   Set<ActiveMQDestination> getDestinations() {
       return null;
    }
 
    /**
     * Factory method to create a new queue message store with the given destination name
+    *
     * @param destination
     * @return the message store
     * @throws IOException
     */
-   AMQMessageStore createQueueMessageStore(ActiveMQQueue destination) throws IOException
-   {
+   AMQMessageStore createQueueMessageStore(ActiveMQQueue destination) throws IOException {
       return null;
    }
 
@@ -52,11 +50,11 @@ public class AMQPersistenceAdapter
     * return the last stored producer sequenceId for this producer Id
     * used to suppress duplicate sends on failover reconnect at the transport
     * when a reconnect occurs
+    *
     * @param id the producerId to find a sequenceId for
     * @return the last stored sequence id or -1 if no suppression needed
     */
-   public long getLastProducerSequenceId(ProducerId id)
-   {
+   public long getLastProducerSequenceId(ProducerId id) {
       return 0;
    }
 }

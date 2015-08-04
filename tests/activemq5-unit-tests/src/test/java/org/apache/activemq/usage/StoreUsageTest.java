@@ -29,43 +29,43 @@ import javax.jms.Session;
 
 public class StoreUsageTest extends EmbeddedBrokerTestSupport {
 
-    final int WAIT_TIME_MILLS = 20*1000;
+   final int WAIT_TIME_MILLS = 20 * 1000;
 
-    @Override
-    protected BrokerService createBroker() throws Exception {
-        BrokerService broker = super.createBroker();
-        broker.getSystemUsage().getStoreUsage().setLimit(10 * 1024);
-        broker.deleteAllMessages();
-        return broker;
-    }
+   @Override
+   protected BrokerService createBroker() throws Exception {
+      BrokerService broker = super.createBroker();
+      broker.getSystemUsage().getStoreUsage().setLimit(10 * 1024);
+      broker.deleteAllMessages();
+      return broker;
+   }
 
-    protected boolean isPersistent() {
-        return true;
-    }
+   protected boolean isPersistent() {
+      return true;
+   }
 
-    public void testJmx() throws Exception {
-        ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("vm://localhost");
-        Connection conn = factory.createConnection();
-        conn.start();
-        Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        Destination dest = sess.createQueue(this.getClass().getName());
-        final ProducerThread producer = new ProducerThread(sess, dest);
-        producer.start();
+   public void testJmx() throws Exception {
+      ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("vm://localhost");
+      Connection conn = factory.createConnection();
+      conn.start();
+      Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      Destination dest = sess.createQueue(this.getClass().getName());
+      final ProducerThread producer = new ProducerThread(sess, dest);
+      producer.start();
 
-        // wait for the producer to block
-        Thread.sleep(WAIT_TIME_MILLS / 2);
+      // wait for the producer to block
+      Thread.sleep(WAIT_TIME_MILLS / 2);
 
-        broker.getAdminView().setStoreLimit(1024 * 1024);
+      broker.getAdminView().setStoreLimit(1024 * 1024);
 
-        Thread.sleep(WAIT_TIME_MILLS);
+      Thread.sleep(WAIT_TIME_MILLS);
 
-        Wait.waitFor(new Wait.Condition() {
-            public boolean isSatisified() throws Exception {
-                return producer.getSentCount() == producer.getMessageCount();
-            }
-        }, WAIT_TIME_MILLS * 2);
+      Wait.waitFor(new Wait.Condition() {
+         public boolean isSatisified() throws Exception {
+            return producer.getSentCount() == producer.getMessageCount();
+         }
+      }, WAIT_TIME_MILLS * 2);
 
-        assertEquals("Producer didn't send all messages", producer.getMessageCount(), producer.getSentCount());
+      assertEquals("Producer didn't send all messages", producer.getMessageCount(), producer.getSentCount());
 
-    }
+   }
 }

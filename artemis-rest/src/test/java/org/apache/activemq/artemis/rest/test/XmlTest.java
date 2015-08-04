@@ -22,21 +22,20 @@ import org.junit.Test;
 import javax.xml.bind.JAXBContext;
 import java.io.StringReader;
 
-public class XmlTest
-{
+public class XmlTest {
+
    @Test
-   public void testPush() throws Exception
-   {
+   public void testPush() throws Exception {
       String xml = "<push-registration id=\"111\">\n" +
-              "   <destination>jms.queue.bar</destination>\n" +
-              "   <durable>true</durable>\n" +
-              "   <session-count>10</session-count>\n" +
-              "   <link rel=\"template\" href=\"http://somewhere.com/resources/{id}/messages\" method=\"PUT\"/>\n" +
-              "   <authentication>\n" +
-              "      <basic-auth><username>guest</username><password>geheim</password></basic-auth>" +
-              "   </authentication>\n" +
-              "   <header name=\"foo\">bar</header>" +
-              "</push-registration>";
+         "   <destination>jms.queue.bar</destination>\n" +
+         "   <durable>true</durable>\n" +
+         "   <session-count>10</session-count>\n" +
+         "   <link rel=\"template\" href=\"http://somewhere.com/resources/{id}/messages\" method=\"PUT\"/>\n" +
+         "   <authentication>\n" +
+         "      <basic-auth><username>guest</username><password>geheim</password></basic-auth>" +
+         "   </authentication>\n" +
+         "   <header name=\"foo\">bar</header>" +
+         "</push-registration>";
 
       JAXBContext ctx = JAXBContext.newInstance(PushRegistration.class);
       PushRegistration reg = (PushRegistration) ctx.createUnmarshaller().unmarshal(new StringReader(xml));

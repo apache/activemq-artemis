@@ -20,6 +20,7 @@ import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
+
 import org.apache.activemq.JmsTestSupport;
 import org.apache.activemq.command.ActiveMQDestination;
 import org.slf4j.Logger;
@@ -27,55 +28,54 @@ import org.slf4j.LoggerFactory;
 
 public class BatchedMessagePriorityConsumerTest extends JmsTestSupport {
 
-    private static final Logger LOG = LoggerFactory.getLogger(BatchedMessagePriorityConsumerTest.class);
+   private static final Logger LOG = LoggerFactory.getLogger(BatchedMessagePriorityConsumerTest.class);
 
-    public void testBatchWithLowPriorityFirstAndClientSupport() throws Exception {
-        doTestBatchWithLowPriorityFirst(true);
-    }
+   public void testBatchWithLowPriorityFirstAndClientSupport() throws Exception {
+      doTestBatchWithLowPriorityFirst(true);
+   }
 
-    public void testBatchWithLowPriorityFirstAndClientSupportOff() throws Exception {
-        doTestBatchWithLowPriorityFirst(false);
-    }
+   public void testBatchWithLowPriorityFirstAndClientSupportOff() throws Exception {
+      doTestBatchWithLowPriorityFirst(false);
+   }
 
-    public void doTestBatchWithLowPriorityFirst(boolean clientPrioritySupport) throws Exception {
+   public void doTestBatchWithLowPriorityFirst(boolean clientPrioritySupport) throws Exception {
 
-        connection.start();
-        connection.setMessagePrioritySupported(clientPrioritySupport);
+      connection.start();
+      connection.setMessagePrioritySupported(clientPrioritySupport);
 
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        ActiveMQDestination destination = createDestination(session, ActiveMQDestination.QUEUE_TYPE);
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      ActiveMQDestination destination = createDestination(session, ActiveMQDestination.QUEUE_TYPE);
 
+      MessageProducer producer = session.createProducer(destination);
+      producer.setPriority(0);
+      sendMessages(session, producer, 2);
+      producer.close();
 
-        MessageProducer producer = session.createProducer(destination);
-        producer.setPriority(0);
-        sendMessages(session, producer, 2);
-        producer.close();
+      MessageProducer producer2 = session.createProducer(destination);
+      producer2.setPriority(9);
+      sendMessages(session, producer2, 3);
+      producer2.close();
 
-        MessageProducer producer2 = session.createProducer(destination);
-        producer2.setPriority(9);
-        sendMessages(session, producer2, 3);
-        producer2.close();
+      session.close();
 
-        session.close();
+      Session consumerSession = connection.createSession(true, Session.SESSION_TRANSACTED);
+      MessageConsumer messageConsumer = consumerSession.createConsumer(destination);
 
-        Session consumerSession = connection.createSession(true, Session.SESSION_TRANSACTED);
-        MessageConsumer messageConsumer = consumerSession.createConsumer(destination);
+      for (int i = 0; i < 5; i++) {
+         Message message = messageConsumer.receive(4000);
+         LOG.info("MessageID: " + message.getJMSMessageID());
+      }
 
-        for (int i = 0; i < 5; i++) {
-            Message message = messageConsumer.receive(4000);
-            LOG.info("MessageID: " + message.getJMSMessageID());
-        }
+      consumerSession.commit();
+      consumerSession.close();
 
-        consumerSession.commit();
-        consumerSession.close();
+      // should be nothing left
+      consumerSession = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      messageConsumer = consumerSession.createConsumer(destination);
 
-        // should be nothing left
-        consumerSession = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        messageConsumer = consumerSession.createConsumer(destination);
+      assertNull("No message left", messageConsumer.receive(1000));
 
-        assertNull("No message left", messageConsumer.receive(1000));
+      consumerSession.close();
 
-        consumerSession.close();
-
-    }
+   }
 }

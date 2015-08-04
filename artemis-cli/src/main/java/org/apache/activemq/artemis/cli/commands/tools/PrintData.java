@@ -57,35 +57,29 @@ import org.apache.activemq.artemis.core.settings.impl.HierarchicalObjectReposito
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 
 @Command(name = "print", description = "Print data records information (WARNING: don't use while a production server is running)")
-public class PrintData extends DataAbstract implements Action
-{
+public class PrintData extends DataAbstract implements Action {
+
    @Override
-   public Object execute(ActionContext context) throws Exception
-   {
+   public Object execute(ActionContext context) throws Exception {
       super.execute(context);
-      try
-      {
+      try {
          printData(new File(getBinding()), new File(getJournal()), new File(getPaging()));
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          treatError(e, "data", "print");
       }
       return null;
    }
 
-   public static void printData(File bindingsDirectory, File messagesDirectory, File pagingDirectory) throws Exception
-   {
+   public static void printData(File bindingsDirectory, File messagesDirectory, File pagingDirectory) throws Exception {
       // Having the version on the data report is an information very useful to understand what happened
       // When debugging stuff
       Artemis.printBanner();
 
       File serverLockFile = new File(messagesDirectory, "server.lock");
 
-      if (serverLockFile.isFile())
-      {
-         try
-         {
+      if (serverLockFile.isFile()) {
+         try {
             FileLockNodeManager fileLock = new FileLockNodeManager(messagesDirectory, false);
             fileLock.start();
             System.out.println("********************************************");
@@ -93,8 +87,7 @@ public class PrintData extends DataAbstract implements Action
             System.out.println("********************************************");
             fileLock.stop();
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             e.printStackTrace();
          }
       }
@@ -103,12 +96,10 @@ public class PrintData extends DataAbstract implements Action
       System.out.println("B I N D I N G S  J O U R N A L");
       System.out.println("********************************************");
 
-      try
-      {
+      try {
          DescribeJournal.describeBindingsJournal(bindingsDirectory);
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          e.printStackTrace();
       }
 
@@ -118,19 +109,15 @@ public class PrintData extends DataAbstract implements Action
       System.out.println("********************************************");
 
       DescribeJournal describeJournal = null;
-      try
-      {
+      try {
          describeJournal = DescribeJournal.describeMessagesJournal(messagesDirectory);
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          e.printStackTrace();
          return;
       }
 
-
-      try
-      {
+      try {
          System.out.println();
          System.out.println("********************************************");
          System.out.println("P A G I N G");
@@ -138,20 +125,15 @@ public class PrintData extends DataAbstract implements Action
 
          printPages(pagingDirectory, describeJournal);
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          e.printStackTrace();
          return;
       }
 
-
    }
 
-
-   private static void printPages(File pageDirectory, DescribeJournal describeJournal)
-   {
-      try
-      {
+   private static void printPages(File pageDirectory, DescribeJournal describeJournal) {
+      try {
 
          PageCursorsInfo cursorACKs = calculateCursorsInfo(describeJournal.getRecords());
 
@@ -159,17 +141,14 @@ public class PrintData extends DataAbstract implements Action
 
          ScheduledExecutorService scheduled = Executors.newScheduledThreadPool(1);
          final ExecutorService executor = Executors.newFixedThreadPool(10);
-         ExecutorFactory execfactory = new ExecutorFactory()
-         {
+         ExecutorFactory execfactory = new ExecutorFactory() {
             @Override
-            public Executor getExecutor()
-            {
+            public Executor getExecutor() {
                return executor;
             }
          };
          final StorageManager sm = new NullStorageManager();
-         PagingStoreFactory pageStoreFactory =
-            new PagingStoreFactoryNIO(sm, pageDirectory, 1000L, scheduled, execfactory, false, null);
+         PagingStoreFactory pageStoreFactory = new PagingStoreFactoryNIO(sm, pageDirectory, 1000L, scheduled, execfactory, false, null);
          HierarchicalRepository<AddressSettings> addressSettingsRepository = new HierarchicalObjectRepository<AddressSettings>();
          addressSettingsRepository.setDefault(new AddressSettings());
          PagingManager manager = new PagingManagerImpl(pageStoreFactory, addressSettingsRepository);
@@ -178,20 +157,17 @@ public class PrintData extends DataAbstract implements Action
 
          SimpleString[] stores = manager.getStoreNames();
 
-         for (SimpleString store : stores)
-         {
+         for (SimpleString store : stores) {
             PagingStore pgStore = manager.getPageStore(store);
             File folder = null;
 
-            if (pgStore != null)
-            {
+            if (pgStore != null) {
                folder = pgStore.getFolder();
             }
             System.out.println("####################################################################################################");
             System.out.println("Exploring store " + store + " folder = " + folder);
             int pgid = (int) pgStore.getFirstPage();
-            for (int pg = 0; pg < pgStore.getNumberOfPages(); pg++)
-            {
+            for (int pg = 0; pg < pgStore.getNumberOfPages(); pg++) {
                System.out.println("*******   Page " + pgid);
                Page page = pgStore.createPage(pgid);
                page.open();
@@ -200,14 +176,12 @@ public class PrintData extends DataAbstract implements Action
 
                int msgID = 0;
 
-               for (PagedMessage msg : msgs)
-               {
+               for (PagedMessage msg : msgs) {
                   msg.initMessage(sm);
                   System.out.print("pg=" + pgid + ", msg=" + msgID + ",pgTX=" + msg.getTransactionID() + ",userMessageID=" + (msg.getMessage().getUserID() != null ? msg.getMessage().getUserID() : "") + ", msg=" + msg.getMessage());
                   System.out.print(",Queues = ");
                   long[] q = msg.getQueueIDs();
-                  for (int i = 0; i < q.length; i++)
-                  {
+                  for (int i = 0; i < q.length; i++) {
                      System.out.print(q[i]);
 
                      PagePosition posCheck = new PagePositionImpl(pgid, msgID);
@@ -215,29 +189,23 @@ public class PrintData extends DataAbstract implements Action
                      boolean acked = false;
 
                      Set<PagePosition> positions = cursorACKs.getCursorRecords().get(q[i]);
-                     if (positions != null)
-                     {
+                     if (positions != null) {
                         acked = positions.contains(posCheck);
                      }
 
-                     if (acked)
-                     {
+                     if (acked) {
                         System.out.print(" (ACK)");
                      }
 
-                     if (cursorACKs.getCompletePages(q[i]).contains(Long.valueOf(pgid)))
-                     {
+                     if (cursorACKs.getCompletePages(q[i]).contains(Long.valueOf(pgid))) {
                         System.out.println(" (PG-COMPLETE)");
                      }
 
-
-                     if (i + 1 < q.length)
-                     {
+                     if (i + 1 < q.length) {
                         System.out.print(",");
                      }
                   }
-                  if (msg.getTransactionID() >= 0 && !pgTXs.contains(msg.getTransactionID()))
-                  {
+                  if (msg.getTransactionID() >= 0 && !pgTXs.contains(msg.getTransactionID())) {
                      System.out.print(", **PG_TX_NOT_FOUND**");
                   }
                   System.out.println();
@@ -250,65 +218,55 @@ public class PrintData extends DataAbstract implements Action
          }
 
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          e.printStackTrace();
       }
    }
 
-
-   /** Calculate the acks on the page system */
-   protected static PageCursorsInfo calculateCursorsInfo(List<RecordInfo> records) throws Exception
-   {
+   /**
+    * Calculate the acks on the page system
+    */
+   protected static PageCursorsInfo calculateCursorsInfo(List<RecordInfo> records) throws Exception {
 
       PageCursorsInfo cursorInfo = new PageCursorsInfo();
 
-
-      for (RecordInfo record : records)
-      {
+      for (RecordInfo record : records) {
          byte[] data = record.data;
 
          ActiveMQBuffer buff = ActiveMQBuffers.wrappedBuffer(data);
 
-         if (record.userRecordType == JournalRecordIds.ACKNOWLEDGE_CURSOR)
-         {
+         if (record.userRecordType == JournalRecordIds.ACKNOWLEDGE_CURSOR) {
             JournalStorageManager.CursorAckRecordEncoding encoding = new JournalStorageManager.CursorAckRecordEncoding();
             encoding.decode(buff);
 
             Set<PagePosition> set = cursorInfo.getCursorRecords().get(encoding.queueID);
 
-            if (set == null)
-            {
+            if (set == null) {
                set = new HashSet<PagePosition>();
                cursorInfo.getCursorRecords().put(encoding.queueID, set);
             }
 
             set.add(encoding.position);
          }
-         else if (record.userRecordType == JournalRecordIds.PAGE_CURSOR_COMPLETE)
-         {
+         else if (record.userRecordType == JournalRecordIds.PAGE_CURSOR_COMPLETE) {
             JournalStorageManager.CursorAckRecordEncoding encoding = new JournalStorageManager.CursorAckRecordEncoding();
             encoding.decode(buff);
 
             Long queueID = Long.valueOf(encoding.queueID);
             Long pageNR = Long.valueOf(encoding.position.getPageNr());
 
-            if (!cursorInfo.getCompletePages(queueID).add(pageNR))
-            {
+            if (!cursorInfo.getCompletePages(queueID).add(pageNR)) {
                System.err.println("Page " + pageNR + " has been already set as complete on queue " + queueID);
             }
          }
-         else if (record.userRecordType == JournalRecordIds.PAGE_TRANSACTION)
-         {
-            if (record.isUpdate)
-            {
+         else if (record.userRecordType == JournalRecordIds.PAGE_TRANSACTION) {
+            if (record.isUpdate) {
                JournalStorageManager.PageUpdateTXEncoding pageUpdate = new JournalStorageManager.PageUpdateTXEncoding();
 
                pageUpdate.decode(buff);
                cursorInfo.getPgTXs().add(pageUpdate.pageTX);
             }
-            else
-            {
+            else {
                PageTransactionInfoImpl pageTransactionInfo = new PageTransactionInfoImpl();
 
                pageTransactionInfo.decode(buff);
@@ -322,52 +280,42 @@ public class PrintData extends DataAbstract implements Action
       return cursorInfo;
    }
 
+   private static class PageCursorsInfo {
 
-   private static class PageCursorsInfo
-   {
       private final Map<Long, Set<PagePosition>> cursorRecords = new HashMap<Long, Set<PagePosition>>();
 
       private final Set<Long> pgTXs = new HashSet<Long>();
 
       private final Map<Long, Set<Long>> completePages = new HashMap<Long, Set<Long>>();
 
-      public PageCursorsInfo()
-      {
+      public PageCursorsInfo() {
       }
-
 
       /**
        * @return the pgTXs
        */
-      public Set<Long> getPgTXs()
-      {
+      public Set<Long> getPgTXs() {
          return pgTXs;
       }
-
 
       /**
        * @return the cursorRecords
        */
-      public Map<Long, Set<PagePosition>> getCursorRecords()
-      {
+      public Map<Long, Set<PagePosition>> getCursorRecords() {
          return cursorRecords;
       }
-
 
       /**
        * @return the completePages
        */
-      public Map<Long, Set<Long>> getCompletePages()
-      {
+      public Map<Long, Set<Long>> getCompletePages() {
          return completePages;
       }
 
-      public Set<Long> getCompletePages(Long queueID)
-      {
+      public Set<Long> getCompletePages(Long queueID) {
          Set<Long> completePagesSet = completePages.get(queueID);
 
-         if (completePagesSet == null)
-         {
+         if (completePagesSet == null) {
             completePagesSet = new HashSet<Long>();
             completePages.put(queueID, completePagesSet);
          }
@@ -376,6 +324,5 @@ public class PrintData extends DataAbstract implements Action
       }
 
    }
-
 
 }

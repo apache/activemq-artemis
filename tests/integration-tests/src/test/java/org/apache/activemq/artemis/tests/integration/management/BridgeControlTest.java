@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.integration.management;
+
 import org.apache.activemq.artemis.tests.integration.SimpleNotificationService;
 import org.junit.Before;
 import org.junit.Test;
@@ -44,16 +45,15 @@ import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.server.management.Notification;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
 
-public class BridgeControlTest extends ManagementTestBase
-{
+public class BridgeControlTest extends ManagementTestBase {
+
    private ActiveMQServer server_0;
    private ActiveMQServer server_1;
 
    private BridgeConfiguration bridgeConfig;
 
    @Test
-   public void testAttributes() throws Exception
-   {
+   public void testAttributes() throws Exception {
       checkResource(ObjectNameBuilder.DEFAULT.getBridgeObjectName(bridgeConfig.getName()));
       BridgeControl bridgeControl = createBridgeControl(bridgeConfig.getName(), mbeanServer);
 
@@ -63,8 +63,7 @@ public class BridgeControlTest extends ManagementTestBase
       Assert.assertEquals(bridgeConfig.getForwardingAddress(), bridgeControl.getForwardingAddress());
       Assert.assertEquals(bridgeConfig.getFilterString(), bridgeControl.getFilterString());
       Assert.assertEquals(bridgeConfig.getRetryInterval(), bridgeControl.getRetryInterval());
-      Assert.assertEquals(bridgeConfig.getRetryIntervalMultiplier(), bridgeControl.getRetryIntervalMultiplier(),
-                          0.000001);
+      Assert.assertEquals(bridgeConfig.getRetryIntervalMultiplier(), bridgeControl.getRetryIntervalMultiplier(), 0.000001);
       Assert.assertEquals(bridgeConfig.getReconnectAttempts(), bridgeControl.getReconnectAttempts());
       Assert.assertEquals(bridgeConfig.isUseDuplicateDetection(), bridgeControl.isUseDuplicateDetection());
 
@@ -75,8 +74,7 @@ public class BridgeControlTest extends ManagementTestBase
    }
 
    @Test
-   public void testStartStop() throws Exception
-   {
+   public void testStartStop() throws Exception {
       checkResource(ObjectNameBuilder.DEFAULT.getBridgeObjectName(bridgeConfig.getName()));
       BridgeControl bridgeControl = createBridgeControl(bridgeConfig.getName(), mbeanServer);
 
@@ -91,8 +89,7 @@ public class BridgeControlTest extends ManagementTestBase
    }
 
    @Test
-   public void testNotifications() throws Exception
-   {
+   public void testNotifications() throws Exception {
       SimpleNotificationService.Listener notifListener = new SimpleNotificationService.Listener();
       BridgeControl bridgeControl = createBridgeControl(bridgeConfig.getName(), mbeanServer);
 
@@ -105,71 +102,37 @@ public class BridgeControlTest extends ManagementTestBase
       Assert.assertEquals(1, notifListener.getNotifications().size());
       Notification notif = notifListener.getNotifications().get(0);
       Assert.assertEquals(CoreNotificationType.BRIDGE_STOPPED, notif.getType());
-      Assert.assertEquals(bridgeControl.getName(), notif.getProperties()
-                                                        .getSimpleStringProperty(new SimpleString("name"))
-                                                        .toString());
+      Assert.assertEquals(bridgeControl.getName(), notif.getProperties().getSimpleStringProperty(new SimpleString("name")).toString());
 
       bridgeControl.start();
 
       Assert.assertEquals(2, notifListener.getNotifications().size());
       notif = notifListener.getNotifications().get(1);
       Assert.assertEquals(CoreNotificationType.BRIDGE_STARTED, notif.getType());
-      Assert.assertEquals(bridgeControl.getName(), notif.getProperties()
-                                                        .getSimpleStringProperty(new SimpleString("name"))
-                                                        .toString());
+      Assert.assertEquals(bridgeControl.getName(), notif.getProperties().getSimpleStringProperty(new SimpleString("name")).toString());
    }
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       Map<String, Object> acceptorParams = new HashMap<String, Object>();
       acceptorParams.put(TransportConstants.SERVER_ID_PROP_NAME, 1);
-      TransportConfiguration acceptorConfig = new TransportConfiguration(InVMAcceptorFactory.class.getName(),
-                                                                         acceptorParams,
-                                                                         RandomUtil.randomString());
+      TransportConfiguration acceptorConfig = new TransportConfiguration(InVMAcceptorFactory.class.getName(), acceptorParams, RandomUtil.randomString());
 
-      TransportConfiguration connectorConfig = new TransportConfiguration(InVMConnectorFactory.class.getName(),
-                                                                          acceptorParams,
-                                                                          RandomUtil.randomString());
+      TransportConfiguration connectorConfig = new TransportConfiguration(InVMConnectorFactory.class.getName(), acceptorParams, RandomUtil.randomString());
 
-      CoreQueueConfiguration sourceQueueConfig = new CoreQueueConfiguration()
-         .setAddress(RandomUtil.randomString())
-         .setName(RandomUtil.randomString())
-         .setDurable(false);
-      CoreQueueConfiguration targetQueueConfig = new CoreQueueConfiguration()
-         .setAddress(RandomUtil.randomString())
-         .setName(RandomUtil.randomString())
-         .setDurable(false);
+      CoreQueueConfiguration sourceQueueConfig = new CoreQueueConfiguration().setAddress(RandomUtil.randomString()).setName(RandomUtil.randomString()).setDurable(false);
+      CoreQueueConfiguration targetQueueConfig = new CoreQueueConfiguration().setAddress(RandomUtil.randomString()).setName(RandomUtil.randomString()).setDurable(false);
       List<String> connectors = new ArrayList<String>();
       connectors.add(connectorConfig.getName());
 
+      Configuration conf_1 = createBasicConfig().addAcceptorConfiguration(acceptorConfig).addQueueConfiguration(targetQueueConfig);
 
-      Configuration conf_1 = createBasicConfig()
-         .addAcceptorConfiguration(acceptorConfig)
-         .addQueueConfiguration(targetQueueConfig);
+      bridgeConfig = new BridgeConfiguration().setName(RandomUtil.randomString()).setQueueName(sourceQueueConfig.getName()).setForwardingAddress(targetQueueConfig.getAddress()).setRetryInterval(RandomUtil.randomPositiveLong()).setRetryIntervalMultiplier(RandomUtil.randomDouble()).setInitialConnectAttempts(RandomUtil.randomPositiveInt()).setReconnectAttempts(RandomUtil.randomPositiveInt()).setReconnectAttemptsOnSameNode(RandomUtil.randomPositiveInt()).setUseDuplicateDetection(RandomUtil.randomBoolean()).setConfirmationWindowSize(RandomUtil.randomPositiveInt()).setStaticConnectors(connectors).setPassword(CLUSTER_PASSWORD);
 
-      bridgeConfig = new BridgeConfiguration()
-         .setName(RandomUtil.randomString())
-         .setQueueName(sourceQueueConfig.getName())
-         .setForwardingAddress(targetQueueConfig.getAddress())
-         .setRetryInterval(RandomUtil.randomPositiveLong())
-         .setRetryIntervalMultiplier(RandomUtil.randomDouble())
-         .setInitialConnectAttempts(RandomUtil.randomPositiveInt())
-         .setReconnectAttempts(RandomUtil.randomPositiveInt())
-         .setReconnectAttemptsOnSameNode(RandomUtil.randomPositiveInt())
-         .setUseDuplicateDetection(RandomUtil.randomBoolean())
-         .setConfirmationWindowSize(RandomUtil.randomPositiveInt())
-         .setStaticConnectors(connectors)
-         .setPassword(CLUSTER_PASSWORD);
-
-      Configuration conf_0 = createBasicConfig()
-         .addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName()))
-         .addConnectorConfiguration(connectorConfig.getName(), connectorConfig)
-         .addQueueConfiguration(sourceQueueConfig)
-         .addBridgeConfiguration(bridgeConfig);
+      Configuration conf_0 = createBasicConfig().addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName())).addConnectorConfiguration(connectorConfig.getName(), connectorConfig).addQueueConfiguration(sourceQueueConfig).addBridgeConfiguration(bridgeConfig);
 
       server_1 = addServer(ActiveMQServers.newActiveMQServer(conf_1, MBeanServerFactory.createMBeanServer(), false));
       addServer(server_1);
@@ -180,8 +143,7 @@ public class BridgeControlTest extends ManagementTestBase
       server_0.start();
    }
 
-   protected BridgeControl createBridgeControl(final String name, final MBeanServer mbeanServer1) throws Exception
-   {
+   protected BridgeControl createBridgeControl(final String name, final MBeanServer mbeanServer1) throws Exception {
       return ManagementControlHelper.createBridgeControl(name, mbeanServer1);
    }
 }

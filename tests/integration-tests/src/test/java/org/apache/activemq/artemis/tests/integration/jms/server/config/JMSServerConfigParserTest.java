@@ -26,8 +26,7 @@ import org.apache.activemq.artemis.jms.server.config.JMSQueueConfiguration;
 import org.apache.activemq.artemis.jms.server.config.TopicConfiguration;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 
-public class JMSServerConfigParserTest extends ActiveMQTestBase
-{
+public class JMSServerConfigParserTest extends ActiveMQTestBase {
 
    // Constants -----------------------------------------------------
 
@@ -39,10 +38,8 @@ public class JMSServerConfigParserTest extends ActiveMQTestBase
 
    // Public --------------------------------------------------------
 
-
    @Test
-   public void testParsing() throws Exception
-   {
+   public void testParsing() throws Exception {
       Configuration config = createDefaultInVMConfig()
          // anything so the parsing will work
          .addConnectorConfiguration("netty", new TransportConfiguration());
@@ -59,11 +56,9 @@ public class JMSServerConfigParserTest extends ActiveMQTestBase
       JMSQueueConfiguration queueConfig = jmsconfig.getQueueConfigurations().get(0);
       assertEquals("fullConfigurationQueue", queueConfig.getName());
 
-
       assertEquals(1, jmsconfig.getTopicConfigurations().size());
       TopicConfiguration topicConfig = jmsconfig.getTopicConfigurations().get(0);
       assertEquals("fullConfigurationTopic", topicConfig.getName());
-
 
    }
 

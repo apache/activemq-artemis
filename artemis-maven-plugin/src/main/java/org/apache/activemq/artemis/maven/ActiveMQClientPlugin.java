@@ -30,8 +30,7 @@ import java.util.Properties;
  * Allows a Java Client to be run which must hve a static main(String[] args) method
  */
 @Mojo(name = "runClient", defaultPhase = LifecyclePhase.VERIFY)
-public class ActiveMQClientPlugin extends AbstractMojo
-{
+public class ActiveMQClientPlugin extends AbstractMojo {
 
    @Parameter
    String clientClass;
@@ -44,20 +43,16 @@ public class ActiveMQClientPlugin extends AbstractMojo
     */
    private Properties systemProperties;
 
-   public void execute() throws MojoExecutionException, MojoFailureException
-   {
-      try
-      {
-         if (systemProperties != null && !systemProperties.isEmpty())
-         {
+   public void execute() throws MojoExecutionException, MojoFailureException {
+      try {
+         if (systemProperties != null && !systemProperties.isEmpty()) {
             System.getProperties().putAll(systemProperties);
          }
          Class aClass = Class.forName(clientClass);
          Method method = aClass.getDeclaredMethod("main", new Class[]{String[].class});
          method.invoke(null, new Object[]{args});
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          getLog().error(e);
          throw new MojoFailureException(e.getMessage());
       }

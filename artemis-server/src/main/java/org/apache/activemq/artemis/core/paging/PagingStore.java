@@ -41,8 +41,8 @@ import org.apache.activemq.artemis.core.transaction.Transaction;
  *
  * @see PagingManager
  */
-public interface PagingStore extends ActiveMQComponent
-{
+public interface PagingStore extends ActiveMQComponent {
+
    SimpleString getAddress();
 
    int getNumberOfPages();
@@ -111,7 +111,6 @@ public interface PagingStore extends ActiveMQComponent
     */
    Page depage() throws Exception;
 
-
    void forceAnotherPage() throws Exception;
 
    Page getCurrentPage();
@@ -157,7 +156,7 @@ public interface PagingStore extends ActiveMQComponent
 
    /**
     * Sends the pages with given IDs to the {@link ReplicationManager}.
-    * <p>
+    * <br>
     * Sending is done here to avoid exposing the internal {@link SequentialFile}s.
     *
     * @param replicator

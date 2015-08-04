@@ -37,25 +37,20 @@ import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
 import org.junit.Before;
 import org.junit.Test;
 
-public class FailBackManualTest extends FailoverTestBase
-{
+public class FailBackManualTest extends FailoverTestBase {
+
    private ServerLocatorInternal locator;
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
       locator = getServerLocator();
    }
 
    @Test
-   public void testNoAutoFailback() throws Exception
-   {
-      locator.setBlockOnNonDurableSend(true)
-              .setBlockOnDurableSend(true)
-              .setFailoverOnInitialConnection(true)
-              .setReconnectAttempts(-1);
+   public void testNoAutoFailback() throws Exception {
+      locator.setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setFailoverOnInitialConnection(true).setReconnectAttempts(-1);
 
       ClientSessionFactoryInternal sf = createSessionFactoryAndWaitForTopology(locator, 2);
 
@@ -71,8 +66,7 @@ public class FailBackManualTest extends FailoverTestBase
 
       backupServer.start();
 
-      assertTrue(listener.getLatch()
-                    .await(5, TimeUnit.SECONDS));
+      assertTrue(listener.getLatch().await(5, TimeUnit.SECONDS));
 
       ClientProducer producer = session.createProducer(ADDRESS);
 
@@ -105,55 +99,35 @@ public class FailBackManualTest extends FailoverTestBase
       assertEquals(0, sf.numConnections());
    }
 
-
    @Override
-   protected void createConfigs() throws Exception
-   {
+   protected void createConfigs() throws Exception {
       nodeManager = new InVMNodeManager(false);
       TransportConfiguration liveConnector = getConnectorTransportConfiguration(true);
       TransportConfiguration backupConnector = getConnectorTransportConfiguration(false);
 
-      backupConfig = super.createDefaultInVMConfig()
-         .clearAcceptorConfigurations()
-         .addAcceptorConfiguration(getAcceptorTransportConfiguration(false))
-         .setHAPolicyConfiguration(new SharedStoreSlavePolicyConfiguration()
-                                      .setAllowFailBack(false))
-         .addConnectorConfiguration(liveConnector.getName(), liveConnector)
-         .addConnectorConfiguration(backupConnector.getName(), backupConnector)
-         .addClusterConfiguration(basicClusterConnectionConfig(backupConnector.getName(), liveConnector.getName()));
+      backupConfig = super.createDefaultInVMConfig().clearAcceptorConfigurations().addAcceptorConfiguration(getAcceptorTransportConfiguration(false)).setHAPolicyConfiguration(new SharedStoreSlavePolicyConfiguration().setAllowFailBack(false)).addConnectorConfiguration(liveConnector.getName(), liveConnector).addConnectorConfiguration(backupConnector.getName(), backupConnector).addClusterConfiguration(basicClusterConnectionConfig(backupConnector.getName(), liveConnector.getName()));
 
       backupServer = createTestableServer(backupConfig);
 
-      liveConfig = super.createDefaultInVMConfig()
-         .clearAcceptorConfigurations()
-         .addAcceptorConfiguration(getAcceptorTransportConfiguration(true))
-         .setHAPolicyConfiguration(new SharedStoreMasterPolicyConfiguration())
-         .addConnectorConfiguration(liveConnector.getName(), liveConnector)
-         .addConnectorConfiguration(backupConnector.getName(), backupConnector)
-         .addClusterConfiguration(basicClusterConnectionConfig(liveConnector.getName(), backupConnector.getName()));
+      liveConfig = super.createDefaultInVMConfig().clearAcceptorConfigurations().addAcceptorConfiguration(getAcceptorTransportConfiguration(true)).setHAPolicyConfiguration(new SharedStoreMasterPolicyConfiguration()).addConnectorConfiguration(liveConnector.getName(), liveConnector).addConnectorConfiguration(backupConnector.getName(), backupConnector).addClusterConfiguration(basicClusterConnectionConfig(liveConnector.getName(), backupConnector.getName()));
 
       liveServer = createTestableServer(liveConfig);
    }
 
    @Override
-   protected TransportConfiguration getAcceptorTransportConfiguration(final boolean live)
-   {
+   protected TransportConfiguration getAcceptorTransportConfiguration(final boolean live) {
       return TransportConfigurationUtils.getInVMAcceptor(live);
    }
 
    @Override
-   protected TransportConfiguration getConnectorTransportConfiguration(final boolean live)
-   {
+   protected TransportConfiguration getConnectorTransportConfiguration(final boolean live) {
       return TransportConfigurationUtils.getInVMConnector(live);
    }
 
-
-   private ClientSession sendAndConsume(final ClientSessionFactory sf, final boolean createQueue) throws Exception
-   {
+   private ClientSession sendAndConsume(final ClientSessionFactory sf, final boolean createQueue) throws Exception {
       ClientSession session = sf.createSession(false, true, true);
 
-      if (createQueue)
-      {
+      if (createQueue) {
          session.createQueue(ADDRESS, ADDRESS, null, false);
       }
 
@@ -161,16 +135,10 @@ public class FailBackManualTest extends FailoverTestBase
 
       final int numMessages = 1000;
 
-      for (int i = 0; i < numMessages; i++)
-      {
-         ClientMessage message = session.createMessage(ActiveMQTextMessage.TYPE,
-                                                       false,
-                                                       0,
-                                                       System.currentTimeMillis(),
-                                                       (byte) 1);
+      for (int i = 0; i < numMessages; i++) {
+         ClientMessage message = session.createMessage(ActiveMQTextMessage.TYPE, false, 0, System.currentTimeMillis(), (byte) 1);
          message.putIntProperty(new SimpleString("count"), i);
-         message.getBodyBuffer()
-            .writeString("aardvarks");
+         message.getBodyBuffer().writeString("aardvarks");
          producer.send(message);
       }
 
@@ -178,12 +146,10 @@ public class FailBackManualTest extends FailoverTestBase
 
       session.start();
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message2 = consumer.receive();
 
-         assertEquals("aardvarks", message2.getBodyBuffer()
-            .readString());
+         assertEquals("aardvarks", message2.getBodyBuffer().readString());
 
          assertEquals(i, message2.getObjectProperty(new SimpleString("count")));
 
@@ -203,29 +169,23 @@ public class FailBackManualTest extends FailoverTestBase
     * @throws Exception
     */
    @Override
-   protected void setBody(final int i, final ClientMessage message)
-   {
-      message.getBodyBuffer()
-         .writeString("message" + i);
+   protected void setBody(final int i, final ClientMessage message) {
+      message.getBodyBuffer().writeString("message" + i);
    }
 
-   static class ServerStarter implements Runnable
-   {
+   static class ServerStarter implements Runnable {
+
       private final TestableServer server;
 
-      public ServerStarter(TestableServer server)
-      {
+      public ServerStarter(TestableServer server) {
          this.server = server;
       }
 
-      public void run()
-      {
-         try
-         {
+      public void run() {
+         try {
             server.start();
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             e.printStackTrace();
          }
       }

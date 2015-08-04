@@ -34,33 +34,30 @@ import org.junit.Assert;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 
-public final class SpawnedVMSupport
-{
+public final class SpawnedVMSupport {
+
    private static final UnitTestLogger log = UnitTestLogger.LOGGER;
 
-   public static Process spawnVM(final String className, final String... args) throws Exception
-   {
+   public static Process spawnVM(final String className, final String... args) throws Exception {
       return SpawnedVMSupport.spawnVM(className, new String[0], true, args);
    }
 
-   public static Process spawnVM(final String className, final boolean logOutput, final String... args) throws Exception
-   {
+   public static Process spawnVM(final String className,
+                                 final boolean logOutput,
+                                 final String... args) throws Exception {
       return SpawnedVMSupport.spawnVM(className, new String[0], logOutput, args);
    }
 
-   public static Process spawnVM(final String className, final String[] vmargs, final String... args) throws Exception
-   {
+   public static Process spawnVM(final String className, final String[] vmargs, final String... args) throws Exception {
       return SpawnedVMSupport.spawnVM(className, vmargs, true, args);
    }
 
    public static Process spawnVM(final String className,
                                  final String[] vmargs,
                                  final boolean logOutput,
-                                 final String... args) throws Exception
-   {
+                                 final String... args) throws Exception {
       return SpawnedVMSupport.spawnVM(className, "-Xms512m", "-Xmx512m", vmargs, logOutput, true, args);
    }
-
 
    public static Process spawnVM(final String className,
                                  final String memoryArg1,
@@ -68,18 +65,15 @@ public final class SpawnedVMSupport
                                  final String[] vmargs,
                                  final boolean logOutput,
                                  final boolean logErrorOutput,
-                                 final String... args) throws Exception
-   {
+                                 final String... args) throws Exception {
       ProcessBuilder builder = new ProcessBuilder();
       final String javaPath = Paths.get(System.getProperty("java.home"), "bin", "java").toAbsolutePath().toString();
       builder.command(javaPath, memoryArg1, memoryArg2, "-cp", System.getProperty("java.class.path"));
 
       List<String> commandList = builder.command();
 
-      if (vmargs != null)
-      {
-         for (String arg : vmargs)
-         {
+      if (vmargs != null) {
+         for (String arg : vmargs) {
             commandList.add(arg);
          }
       }
@@ -87,30 +81,25 @@ public final class SpawnedVMSupport
       commandList.add("-Djava.io.tmpdir=" + System.getProperty("java.io.tmpdir", "./tmp"));
       commandList.add("-Djava.library.path=" + System.getProperty("java.library.path", "./native/bin"));
 
-
       String loggingConfigFile = System.getProperty("java.util.logging.config.file");
 
-      if (loggingConfigFile != null)
-      {
+      if (loggingConfigFile != null) {
          commandList.add("-Djava.util.logging.config.file=" + loggingConfigFile + " ");
       }
 
       String loggingPlugin = System.getProperty("org.jboss.logging.Logger.pluginClass");
-      if (loggingPlugin != null)
-      {
+      if (loggingPlugin != null) {
          commandList.add("-Dorg.jboss.logging.Logger.pluginClass=" + loggingPlugin + " ");
       }
 
       commandList.add(className);
-      for (String arg : args)
-      {
+      for (String arg : args) {
          commandList.add(arg);
       }
 
       Process process = builder.start();
 
-      if (logOutput)
-      {
+      if (logOutput) {
          SpawnedVMSupport.startLogger(className, process);
 
       }
@@ -122,7 +111,6 @@ public final class SpawnedVMSupport
 
       return process;
 
-
    }
 
    /**
@@ -130,8 +118,7 @@ public final class SpawnedVMSupport
     * @param process
     * @throws ClassNotFoundException
     */
-   public static void startLogger(final String className, final Process process) throws ClassNotFoundException
-   {
+   public static void startLogger(final String className, final Process process) throws ClassNotFoundException {
       ProcessLogger outputLogger = new ProcessLogger(true, process.getInputStream(), className);
       outputLogger.start();
    }
@@ -142,34 +129,27 @@ public final class SpawnedVMSupport
     * seconds for the process to exit, then an Exception is thrown. In any case,
     * the process is destroyed before the method returns.
     */
-   public static void assertProcessExits(final boolean sameValue, final int value, final Process p) throws InterruptedException,
-      ExecutionException,
-      TimeoutException
-   {
+   public static void assertProcessExits(final boolean sameValue,
+                                         final int value,
+                                         final Process p) throws InterruptedException, ExecutionException, TimeoutException {
       ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
-      Future<Integer> future = executor.submit(new Callable<Integer>()
-      {
+      Future<Integer> future = executor.submit(new Callable<Integer>() {
 
-         public Integer call() throws Exception
-         {
+         public Integer call() throws Exception {
             p.waitFor();
             return p.exitValue();
          }
       });
-      try
-      {
+      try {
          int exitValue = future.get(10, SECONDS);
-         if (sameValue)
-         {
+         if (sameValue) {
             Assert.assertSame(value, exitValue);
          }
-         else
-         {
+         else {
             Assert.assertNotSame(value, exitValue);
          }
       }
-      finally
-      {
+      finally {
          p.destroy();
       }
    }
@@ -177,16 +157,15 @@ public final class SpawnedVMSupport
    /**
     * Redirect the input stream to a logger (as debug logs)
     */
-   static class ProcessLogger extends Thread
-   {
+   static class ProcessLogger extends Thread {
+
       private final InputStream is;
 
       private final String className;
 
       private final boolean print;
 
-      ProcessLogger(final boolean print, final InputStream is, final String className) throws ClassNotFoundException
-      {
+      ProcessLogger(final boolean print, final InputStream is, final String className) throws ClassNotFoundException {
          this.is = is;
          this.print = print;
          this.className = className;
@@ -194,23 +173,18 @@ public final class SpawnedVMSupport
       }
 
       @Override
-      public void run()
-      {
-         try
-         {
+      public void run() {
+         try {
             InputStreamReader isr = new InputStreamReader(is);
             BufferedReader br = new BufferedReader(isr);
             String line = null;
-            while ((line = br.readLine()) != null)
-            {
-               if (print)
-               {
+            while ((line = br.readLine()) != null) {
+               if (print) {
                   System.out.println(className + ":" + line);
                }
             }
          }
-         catch (IOException ioe)
-         {
+         catch (IOException ioe) {
             ioe.printStackTrace();
          }
       }

@@ -21,58 +21,59 @@ import java.net.URI;
 import javax.jms.JMSException;
 
 import junit.framework.TestCase;
+
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.broker.BrokerFactory;
 import org.apache.activemq.broker.BrokerService;
 
 /**
  * @author Oliver Belikan
- * 
  */
 public class StartAndStopBrokerTest extends TestCase {
-    public void testStartupShutdown() throws Exception {
-        // This systemproperty is used if we dont want to
-        // have persistence messages as a default
-        System.setProperty("activemq.persistenceAdapter",
-                "org.apache.activemq.store.vm.VMPersistenceAdapter");
 
-        // configuration of container and all protocolls
-        BrokerService broker = createBroker();
+   public void testStartupShutdown() throws Exception {
+      // This systemproperty is used if we dont want to
+      // have persistence messages as a default
+      System.setProperty("activemq.persistenceAdapter", "org.apache.activemq.store.vm.VMPersistenceAdapter");
 
-        // start a client
-        ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("tcp://localhost:9100");
-        factory.createConnection();
+      // configuration of container and all protocolls
+      BrokerService broker = createBroker();
 
-        // stop activemq broker
-        broker.stop();
+      // start a client
+      ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("tcp://localhost:9100");
+      factory.createConnection();
 
-        // start activemq broker again
-        broker = createBroker();
+      // stop activemq broker
+      broker.stop();
 
-        // start a client again
-        factory = new ActiveMQConnectionFactory("tcp://localhost:9100");
-        factory.createConnection();
+      // start activemq broker again
+      broker = createBroker();
 
-        // stop activemq broker
-        broker.stop();
+      // start a client again
+      factory = new ActiveMQConnectionFactory("tcp://localhost:9100");
+      factory.createConnection();
 
-    }
+      // stop activemq broker
+      broker.stop();
 
-    protected BrokerService createBroker() throws JMSException {
-        BrokerService broker = null;
+   }
 
-        try {
-            broker = BrokerFactory.createBroker(new URI("broker://()/localhost"));
-            broker.setBrokerName("DefaultBroker");
-            broker.addConnector("tcp://localhost:9100");
-            broker.setUseShutdownHook(false);
-            
-            broker.start();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+   protected BrokerService createBroker() throws JMSException {
+      BrokerService broker = null;
 
-        return broker;
-    }
+      try {
+         broker = BrokerFactory.createBroker(new URI("broker://()/localhost"));
+         broker.setBrokerName("DefaultBroker");
+         broker.addConnector("tcp://localhost:9100");
+         broker.setUseShutdownHook(false);
+
+         broker.start();
+      }
+      catch (Exception e) {
+         e.printStackTrace();
+      }
+
+      return broker;
+   }
 
 }

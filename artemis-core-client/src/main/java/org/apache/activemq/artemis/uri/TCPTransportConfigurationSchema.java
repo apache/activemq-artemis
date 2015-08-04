@@ -29,67 +29,60 @@ import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactor
 import org.apache.activemq.artemis.utils.uri.SchemaConstants;
 import org.apache.activemq.artemis.utils.uri.URISchema;
 
-public class TCPTransportConfigurationSchema extends AbstractTransportConfigurationSchema
-{
+public class TCPTransportConfigurationSchema extends AbstractTransportConfigurationSchema {
+
    private final Set<String> allowableProperties;
 
-   public TCPTransportConfigurationSchema(Set<String> allowableProperties)
-   {
+   public TCPTransportConfigurationSchema(Set<String> allowableProperties) {
       this.allowableProperties = allowableProperties;
    }
 
    @Override
-   public String getSchemaName()
-   {
+   public String getSchemaName() {
       return SchemaConstants.TCP;
    }
 
    @Override
-   protected List<TransportConfiguration> internalNewObject(URI uri, Map<String, String> query, String name) throws Exception
-   {
+   protected List<TransportConfiguration> internalNewObject(URI uri,
+                                                            Map<String, String> query,
+                                                            String name) throws Exception {
       return getTransportConfigurations(uri, query, allowableProperties, name, getFactoryName(uri));
    }
 
    @Override
-   protected URI internalNewURI(List<TransportConfiguration> bean) throws Exception
-   {
+   protected URI internalNewURI(List<TransportConfiguration> bean) throws Exception {
       return null;
    }
 
-   public static List<TransportConfiguration> getTransportConfigurations(URI uri, Map<String, String> query, Set<String> allowableProperties, String name, String factoryName) throws URISyntaxException
-   {
+   public static List<TransportConfiguration> getTransportConfigurations(URI uri,
+                                                                         Map<String, String> query,
+                                                                         Set<String> allowableProperties,
+                                                                         String name,
+                                                                         String factoryName) throws URISyntaxException {
       HashMap<String, Object> props = new HashMap<>();
 
       URISchema.setData(uri, props, allowableProperties, query);
       List<TransportConfiguration> transportConfigurations = new ArrayList<>();
 
-      transportConfigurations.add(new TransportConfiguration(factoryName,
-                                                             props,
-                                                             name));
+      transportConfigurations.add(new TransportConfiguration(factoryName, props, name));
       String connectors = uri.getFragment();
 
-      if (connectors != null && !connectors.trim().isEmpty())
-      {
+      if (connectors != null && !connectors.trim().isEmpty()) {
          String[] split = connectors.split(",");
-         for (String s : split)
-         {
+         for (String s : split) {
             URI extraUri = new URI(s);
             HashMap<String, Object> newProps = new HashMap<>();
             URISchema.setData(extraUri, newProps, allowableProperties, query);
             URISchema.setData(extraUri, newProps, allowableProperties, URISchema.parseQuery(extraUri.getQuery(), null));
-            transportConfigurations.add(new TransportConfiguration(factoryName,
-                                                                   newProps,
-                                                                   name + ":" + extraUri.toString()));
+            transportConfigurations.add(new TransportConfiguration(factoryName, newProps, name + ":" + extraUri.toString()));
          }
       }
       return transportConfigurations;
    }
 
-   protected String getFactoryName(URI uri)
-   {
+   protected String getFactoryName(URI uri) {
       //here for backwards compatibility
-      if (uri.getPath() != null && uri.getPath().contains("hornetq"))
-      {
+      if (uri.getPath() != null && uri.getPath().contains("hornetq")) {
          return "org.hornetq.core.remoting.impl.netty.NettyConnectorFactory";
       }
       return NettyConnectorFactory.class.getName();

@@ -30,53 +30,47 @@ import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.utils.uri.SchemaConstants;
 import org.apache.activemq.artemis.utils.uri.URISchema;
 
-public class JGroupsSchema extends AbstractCFSchema
-{
+public class JGroupsSchema extends AbstractCFSchema {
+
    @Override
-   public String getSchemaName()
-   {
+   public String getSchemaName() {
       return SchemaConstants.JGROUPS;
    }
 
    @Override
-   public ActiveMQConnectionFactory internalNewObject(URI uri, Map<String, String> query, String name) throws Exception
-   {
+   public ActiveMQConnectionFactory internalNewObject(URI uri,
+                                                      Map<String, String> query,
+                                                      String name) throws Exception {
       JMSConnectionOptions options = newConectionOptions(uri, query);
 
       DiscoveryGroupConfiguration dcConfig = JGroupsServerLocatorSchema.getDiscoveryGroupConfiguration(uri, query, name);
 
       ActiveMQConnectionFactory factory;
-      if (options.isHa())
-      {
+      if (options.isHa()) {
          factory = ActiveMQJMSClient.createConnectionFactoryWithHA(dcConfig, options.getFactoryTypeEnum());
       }
-      else
-      {
-         factory =  ActiveMQJMSClient.createConnectionFactoryWithoutHA(dcConfig, options.getFactoryTypeEnum());
+      else {
+         factory = ActiveMQJMSClient.createConnectionFactoryWithoutHA(dcConfig, options.getFactoryTypeEnum());
       }
       return URISchema.setData(uri, factory, query);
    }
 
    @Override
-   protected URI internalNewURI(ActiveMQConnectionFactory bean) throws Exception
-   {
+   protected URI internalNewURI(ActiveMQConnectionFactory bean) throws Exception {
       DiscoveryGroupConfiguration dgc = bean.getDiscoveryGroupConfiguration();
-      BroadcastEndpointFactory endpoint =  dgc.getBroadcastEndpointFactory();
+      BroadcastEndpointFactory endpoint = dgc.getBroadcastEndpointFactory();
       String auth;
-      if (endpoint instanceof JGroupsFileBroadcastEndpointFactory)
-      {
+      if (endpoint instanceof JGroupsFileBroadcastEndpointFactory) {
          auth = ((JGroupsFileBroadcastEndpointFactory) endpoint).getChannelName();
       }
-      else if (endpoint instanceof JGroupsPropertiesBroadcastEndpointFactory)
-      {
+      else if (endpoint instanceof JGroupsPropertiesBroadcastEndpointFactory) {
          auth = ((JGroupsPropertiesBroadcastEndpointFactory) endpoint).getChannelName();
       }
-      else
-      {
+      else {
          throw new NotSerializableException(endpoint + "not serializable");
       }
       String query = URISchema.getData(null, bean, dgc, endpoint);
       dgc.setBroadcastEndpointFactory(endpoint);
-      return new URI(SchemaConstants.JGROUPS, null,  auth, -1, null, query, null);
+      return new URI(SchemaConstants.JGROUPS, null, auth, -1, null, query, null);
    }
 }

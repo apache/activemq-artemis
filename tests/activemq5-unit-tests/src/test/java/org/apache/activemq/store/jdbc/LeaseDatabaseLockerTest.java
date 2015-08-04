@@ -27,6 +27,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+
 import org.apache.activemq.broker.AbstractLocker;
 import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.store.jdbc.adapter.DefaultJDBCAdapter;
@@ -40,231 +41,233 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class LeaseDatabaseLockerTest {
 
-    private static final Logger LOG = LoggerFactory.getLogger(LeaseDatabaseLockerTest.class);
+   private static final Logger LOG = LoggerFactory.getLogger(LeaseDatabaseLockerTest.class);
 
-    JDBCPersistenceAdapter jdbc;
-    BrokerService brokerService;
-    EmbeddedDataSource dataSource;
+   JDBCPersistenceAdapter jdbc;
+   BrokerService brokerService;
+   EmbeddedDataSource dataSource;
 
-    @Before
-    public void setUpStore() throws Exception {
-        dataSource = new EmbeddedDataSource();
-        dataSource.setDatabaseName("derbyDb");
-        dataSource.setCreateDatabase("create");
-        jdbc = new JDBCPersistenceAdapter();
-        jdbc.setDataSource(dataSource);
-        brokerService = new BrokerService();
-        jdbc.setBrokerService(brokerService);
-        jdbc.getAdapter().doCreateTables(jdbc.getTransactionContext());
-    }
+   @Before
+   public void setUpStore() throws Exception {
+      dataSource = new EmbeddedDataSource();
+      dataSource.setDatabaseName("derbyDb");
+      dataSource.setCreateDatabase("create");
+      jdbc = new JDBCPersistenceAdapter();
+      jdbc.setDataSource(dataSource);
+      brokerService = new BrokerService();
+      jdbc.setBrokerService(brokerService);
+      jdbc.getAdapter().doCreateTables(jdbc.getTransactionContext());
+   }
 
-    @Test
-    public void testLockInterleave() throws Exception {
+   @Test
+   public void testLockInterleave() throws Exception {
 
-        LeaseDatabaseLocker lockerA = new LeaseDatabaseLocker();
-        lockerA.setLeaseHolderId("First");
-        jdbc.setLocker(lockerA);
+      LeaseDatabaseLocker lockerA = new LeaseDatabaseLocker();
+      lockerA.setLeaseHolderId("First");
+      jdbc.setLocker(lockerA);
 
-        final LeaseDatabaseLocker lockerB = new LeaseDatabaseLocker();
-        lockerB.setLeaseHolderId("Second");
-        jdbc.setLocker(lockerB);
-        final AtomicBoolean blocked = new AtomicBoolean(true);
+      final LeaseDatabaseLocker lockerB = new LeaseDatabaseLocker();
+      lockerB.setLeaseHolderId("Second");
+      jdbc.setLocker(lockerB);
+      final AtomicBoolean blocked = new AtomicBoolean(true);
 
-        final Connection connection = dataSource.getConnection();
-        printLockTable(connection);
-        lockerA.start();
-        printLockTable(connection);
+      final Connection connection = dataSource.getConnection();
+      printLockTable(connection);
+      lockerA.start();
+      printLockTable(connection);
 
-        assertTrue("First has lock", lockerA.keepAlive());
+      assertTrue("First has lock", lockerA.keepAlive());
 
-        final CountDownLatch lockerBStarting = new CountDownLatch(1);
-        ExecutorService executor = Executors.newCachedThreadPool();
-        executor.execute(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    lockerBStarting.countDown();
-                    lockerB.start();
-                    blocked.set(false);
-                    printLockTable(connection);
+      final CountDownLatch lockerBStarting = new CountDownLatch(1);
+      ExecutorService executor = Executors.newCachedThreadPool();
+      executor.execute(new Runnable() {
+         @Override
+         public void run() {
+            try {
+               lockerBStarting.countDown();
+               lockerB.start();
+               blocked.set(false);
+               printLockTable(connection);
 
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
             }
-        });
-
-        Wait.waitFor(new Wait.Condition() {
-            @Override
-            public boolean isSatisified() throws Exception {
-                return lockerBStarting.await(1, TimeUnit.SECONDS);
+            catch (Exception e) {
+               e.printStackTrace();
             }
-        });
+         }
+      });
 
-        TimeUnit.MILLISECONDS.sleep(lockerB.getLockAcquireSleepInterval() / 2);
-        assertTrue("B is blocked", blocked.get());
+      Wait.waitFor(new Wait.Condition() {
+         @Override
+         public boolean isSatisified() throws Exception {
+            return lockerBStarting.await(1, TimeUnit.SECONDS);
+         }
+      });
 
-        assertTrue("A is good", lockerA.keepAlive());
-        printLockTable(connection);
+      TimeUnit.MILLISECONDS.sleep(lockerB.getLockAcquireSleepInterval() / 2);
+      assertTrue("B is blocked", blocked.get());
 
-        lockerA.stop();
-        printLockTable(connection);
+      assertTrue("A is good", lockerA.keepAlive());
+      printLockTable(connection);
 
-        TimeUnit.MILLISECONDS.sleep(2 * lockerB.getLockAcquireSleepInterval());
-        assertFalse("lockerB has the lock", blocked.get());
-        lockerB.stop();
-        printLockTable(connection);
-    }
+      lockerA.stop();
+      printLockTable(connection);
 
-    @Test
-    public void testLockAcquireRace() throws Exception {
+      TimeUnit.MILLISECONDS.sleep(2 * lockerB.getLockAcquireSleepInterval());
+      assertFalse("lockerB has the lock", blocked.get());
+      lockerB.stop();
+      printLockTable(connection);
+   }
 
-        // build a fake lock
-        final String fakeId = "Anon";
-        final Connection connection = dataSource.getConnection();
-        printLockTable(connection);
-        PreparedStatement statement = connection.prepareStatement(jdbc.getStatements().getLeaseObtainStatement());
+   @Test
+   public void testLockAcquireRace() throws Exception {
 
-        final long now = System.currentTimeMillis();
-        statement.setString(1,fakeId);
-        statement.setLong(2, now + 30000);
-        statement.setLong(3, now);
+      // build a fake lock
+      final String fakeId = "Anon";
+      final Connection connection = dataSource.getConnection();
+      printLockTable(connection);
+      PreparedStatement statement = connection.prepareStatement(jdbc.getStatements().getLeaseObtainStatement());
 
-        assertEquals("we got the lease", 1, statement.executeUpdate());
-        printLockTable(connection);
+      final long now = System.currentTimeMillis();
+      statement.setString(1, fakeId);
+      statement.setLong(2, now + 30000);
+      statement.setLong(3, now);
 
-        final LeaseDatabaseLocker lockerA = new LeaseDatabaseLocker();
-        lockerA.setLeaseHolderId("A");
-        jdbc.setLocker(lockerA);
+      assertEquals("we got the lease", 1, statement.executeUpdate());
+      printLockTable(connection);
 
-        final LeaseDatabaseLocker lockerB = new LeaseDatabaseLocker();
-        lockerB.setLeaseHolderId("B");
-        jdbc.setLocker(lockerB);
+      final LeaseDatabaseLocker lockerA = new LeaseDatabaseLocker();
+      lockerA.setLeaseHolderId("A");
+      jdbc.setLocker(lockerA);
 
-        final Set<LeaseDatabaseLocker> lockedSet = new HashSet<LeaseDatabaseLocker>();
-        ExecutorService executor = Executors.newCachedThreadPool();
-        executor.execute(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    lockerA.start();
-                    lockedSet.add(lockerA);
-                    printLockTable(connection);
+      final LeaseDatabaseLocker lockerB = new LeaseDatabaseLocker();
+      lockerB.setLeaseHolderId("B");
+      jdbc.setLocker(lockerB);
 
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+      final Set<LeaseDatabaseLocker> lockedSet = new HashSet<LeaseDatabaseLocker>();
+      ExecutorService executor = Executors.newCachedThreadPool();
+      executor.execute(new Runnable() {
+         @Override
+         public void run() {
+            try {
+               lockerA.start();
+               lockedSet.add(lockerA);
+               printLockTable(connection);
+
             }
-        });
-
-        executor.execute(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    lockerB.start();
-                    lockedSet.add(lockerB);
-                    printLockTable(connection);
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+            catch (Exception e) {
+               e.printStackTrace();
             }
-        });
+         }
+      });
 
-        // sleep for a bit till both are alive
-        TimeUnit.SECONDS.sleep(2);
-        assertTrue("no start", lockedSet.isEmpty());
-        assertFalse("A is blocked", lockerA.keepAlive());
-        assertFalse("B is blocked", lockerB.keepAlive());
+      executor.execute(new Runnable() {
+         @Override
+         public void run() {
+            try {
+               lockerB.start();
+               lockedSet.add(lockerB);
+               printLockTable(connection);
 
-        LOG.info("releasing phony lock " + fakeId);
+            }
+            catch (Exception e) {
+               e.printStackTrace();
+            }
+         }
+      });
 
-        statement = connection.prepareStatement(jdbc.getStatements().getLeaseUpdateStatement());
-        statement.setString(1, null);
-        statement.setLong(2, 0L);
-        statement.setString(3, fakeId);
-        assertEquals("we released " + fakeId, 1, statement.executeUpdate());
-        LOG.info("released " + fakeId);
-        printLockTable(connection);
+      // sleep for a bit till both are alive
+      TimeUnit.SECONDS.sleep(2);
+      assertTrue("no start", lockedSet.isEmpty());
+      assertFalse("A is blocked", lockerA.keepAlive());
+      assertFalse("B is blocked", lockerB.keepAlive());
 
-        TimeUnit.MILLISECONDS.sleep(AbstractLocker.DEFAULT_LOCK_ACQUIRE_SLEEP_INTERVAL);
-        assertEquals("one locker started", 1, lockedSet.size());
+      LOG.info("releasing phony lock " + fakeId);
 
-        assertTrue("one isAlive", lockerA.keepAlive() || lockerB.keepAlive());
+      statement = connection.prepareStatement(jdbc.getStatements().getLeaseUpdateStatement());
+      statement.setString(1, null);
+      statement.setLong(2, 0L);
+      statement.setString(3, fakeId);
+      assertEquals("we released " + fakeId, 1, statement.executeUpdate());
+      LOG.info("released " + fakeId);
+      printLockTable(connection);
 
-        LeaseDatabaseLocker winner = lockedSet.iterator().next();
-        winner.stop();
-        lockedSet.remove(winner);
+      TimeUnit.MILLISECONDS.sleep(AbstractLocker.DEFAULT_LOCK_ACQUIRE_SLEEP_INTERVAL);
+      assertEquals("one locker started", 1, lockedSet.size());
 
-        TimeUnit.MILLISECONDS.sleep(AbstractLocker.DEFAULT_LOCK_ACQUIRE_SLEEP_INTERVAL);
-        assertEquals("one locker started", 1, lockedSet.size());
+      assertTrue("one isAlive", lockerA.keepAlive() || lockerB.keepAlive());
 
-        lockedSet.iterator().next().stop();
-        printLockTable(connection);
-    }
+      LeaseDatabaseLocker winner = lockedSet.iterator().next();
+      winner.stop();
+      lockedSet.remove(winner);
 
-    @Test
-    public void testDiffOffsetAhead() throws Exception {
-        LeaseDatabaseLocker underTest = new LeaseDatabaseLocker();
-        assertTrue("when ahead of db adjustment is negative", callDiffOffset(underTest, System.currentTimeMillis() - 60000) < 0);
-    }
+      TimeUnit.MILLISECONDS.sleep(AbstractLocker.DEFAULT_LOCK_ACQUIRE_SLEEP_INTERVAL);
+      assertEquals("one locker started", 1, lockedSet.size());
 
-    @Test
-    public void testDiffOffsetBehind() throws Exception {
-        LeaseDatabaseLocker underTest = new LeaseDatabaseLocker();
-        assertTrue("when behind db adjustment is positive", callDiffOffset(underTest, System.currentTimeMillis() + 60000) > 0);
-    }
+      lockedSet.iterator().next().stop();
+      printLockTable(connection);
+   }
 
-    @Test
-    public void testDiffIngoredIfLessthanMaxAllowableDiffFromDBTime() throws Exception {
-        LeaseDatabaseLocker underTest = new LeaseDatabaseLocker();
-        underTest.setMaxAllowableDiffFromDBTime(60000);
-        assertEquals("no adjust when under limit", 0, callDiffOffset(underTest,System.currentTimeMillis() - 40000 ));
-    }
+   @Test
+   public void testDiffOffsetAhead() throws Exception {
+      LeaseDatabaseLocker underTest = new LeaseDatabaseLocker();
+      assertTrue("when ahead of db adjustment is negative", callDiffOffset(underTest, System.currentTimeMillis() - 60000) < 0);
+   }
 
-    public long callDiffOffset(LeaseDatabaseLocker underTest, final long dbTime) throws Exception {
+   @Test
+   public void testDiffOffsetBehind() throws Exception {
+      LeaseDatabaseLocker underTest = new LeaseDatabaseLocker();
+      assertTrue("when behind db adjustment is positive", callDiffOffset(underTest, System.currentTimeMillis() + 60000) > 0);
+   }
 
-        Mockery context = new Mockery() {{
-            setImposteriser(ClassImposteriser.INSTANCE);
-        }};
-        final Statements statements = context.mock(Statements.class);
-        final JDBCPersistenceAdapter jdbcPersistenceAdapter = context.mock(JDBCPersistenceAdapter.class);
-        final Connection connection = context.mock(Connection.class);
-        final PreparedStatement preparedStatement = context.mock(PreparedStatement.class);
-        final ResultSet resultSet = context.mock(ResultSet.class);
-        final Timestamp timestamp = context.mock(Timestamp.class);
+   @Test
+   public void testDiffIngoredIfLessthanMaxAllowableDiffFromDBTime() throws Exception {
+      LeaseDatabaseLocker underTest = new LeaseDatabaseLocker();
+      underTest.setMaxAllowableDiffFromDBTime(60000);
+      assertEquals("no adjust when under limit", 0, callDiffOffset(underTest, System.currentTimeMillis() - 40000));
+   }
 
-        context.checking(new Expectations() {{
-            allowing(jdbcPersistenceAdapter).getStatements();
-            will(returnValue(statements));
-            allowing(jdbcPersistenceAdapter);
-            allowing(statements);
-            allowing(connection).prepareStatement(with(any(String.class)));
-            will(returnValue(preparedStatement));
-            allowing(connection);
-            allowing(preparedStatement).executeQuery();
-            will(returnValue(resultSet));
-            allowing(resultSet).next();
-            will(returnValue(true));
-            allowing(resultSet).getTimestamp(1);
-            will(returnValue(timestamp));
-            allowing(timestamp).getTime();
-            will(returnValue(dbTime));
-        }});
+   public long callDiffOffset(LeaseDatabaseLocker underTest, final long dbTime) throws Exception {
 
-        underTest.configure(jdbcPersistenceAdapter);
-        underTest.setLockable(jdbcPersistenceAdapter);
-        return underTest.determineTimeDifference(connection);
-    }
+      Mockery context = new Mockery() {{
+         setImposteriser(ClassImposteriser.INSTANCE);
+      }};
+      final Statements statements = context.mock(Statements.class);
+      final JDBCPersistenceAdapter jdbcPersistenceAdapter = context.mock(JDBCPersistenceAdapter.class);
+      final Connection connection = context.mock(Connection.class);
+      final PreparedStatement preparedStatement = context.mock(PreparedStatement.class);
+      final ResultSet resultSet = context.mock(ResultSet.class);
+      final Timestamp timestamp = context.mock(Timestamp.class);
 
-    private void printLockTable(Connection connection) throws Exception {
-        DefaultJDBCAdapter.printQuery(connection, "SELECT * from ACTIVEMQ_LOCK", System.err);
-    }
+      context.checking(new Expectations() {{
+         allowing(jdbcPersistenceAdapter).getStatements();
+         will(returnValue(statements));
+         allowing(jdbcPersistenceAdapter);
+         allowing(statements);
+         allowing(connection).prepareStatement(with(any(String.class)));
+         will(returnValue(preparedStatement));
+         allowing(connection);
+         allowing(preparedStatement).executeQuery();
+         will(returnValue(resultSet));
+         allowing(resultSet).next();
+         will(returnValue(true));
+         allowing(resultSet).getTimestamp(1);
+         will(returnValue(timestamp));
+         allowing(timestamp).getTime();
+         will(returnValue(dbTime));
+      }});
+
+      underTest.configure(jdbcPersistenceAdapter);
+      underTest.setLockable(jdbcPersistenceAdapter);
+      return underTest.determineTimeDifference(connection);
+   }
+
+   private void printLockTable(Connection connection) throws Exception {
+      DefaultJDBCAdapter.printQuery(connection, "SELECT * from ACTIVEMQ_LOCK", System.err);
+   }
 }

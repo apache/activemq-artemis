@@ -24,15 +24,12 @@ import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.utils.uri.URISchema;
 
-public abstract class AbstractCFSchema extends URISchema<ActiveMQConnectionFactory, String>
-{
+public abstract class AbstractCFSchema extends URISchema<ActiveMQConnectionFactory, String> {
 
-   protected JMSConnectionOptions newConectionOptions(URI uri, Map<String, String> query) throws Exception
-   {
+   protected JMSConnectionOptions newConectionOptions(URI uri, Map<String, String> query) throws Exception {
       String type = query.get("type");
       // We do this check here to guarantee proper logging
-      if (JMSConnectionOptions.convertCFType(type) == null)
-      {
+      if (JMSConnectionOptions.convertCFType(type) == null) {
          ActiveMQClientLogger.LOGGER.invalidCFType(type, uri.toString());
       }
       return setData(uri, new JMSConnectionOptions(), query);

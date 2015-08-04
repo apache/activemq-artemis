@@ -19,14 +19,14 @@ package org.apache.activemq.usecases;
 import javax.jms.DeliveryMode;
 
 /**
- * 
+ *
  */
 public class TransientQueueRedeliverTest extends TopicRedeliverTest {
 
-    protected void setUp() throws Exception {
-        super.setUp();
-        topic = false;
-        deliveryMode = DeliveryMode.NON_PERSISTENT;
-    }
+   protected void setUp() throws Exception {
+      super.setUp();
+      topic = false;
+      deliveryMode = DeliveryMode.NON_PERSISTENT;
+   }
 
 }

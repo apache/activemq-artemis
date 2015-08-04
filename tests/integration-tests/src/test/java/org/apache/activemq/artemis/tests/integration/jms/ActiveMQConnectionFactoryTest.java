@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.integration.jms;
+
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.core.config.ha.SharedStoreMasterPolicyConfiguration;
@@ -47,11 +48,10 @@ import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
 
 /**
- *
  * ActiveMQConnectionFactoryTest
  */
-public class ActiveMQConnectionFactoryTest extends ActiveMQTestBase
-{
+public class ActiveMQConnectionFactoryTest extends ActiveMQTestBase {
+
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    private final String groupAddress = getUDPDiscoveryAddress();
@@ -63,53 +63,22 @@ public class ActiveMQConnectionFactoryTest extends ActiveMQTestBase
    private TransportConfiguration liveTC;
 
    @Test
-   public void testDefaultConstructor() throws Exception
-   {
+   public void testDefaultConstructor() throws Exception {
       ActiveMQConnectionFactory cf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF);
-      assertFactoryParams(cf,
-                          null,
-                          null,
-                          null,
-                          ActiveMQClient.DEFAULT_CLIENT_FAILURE_CHECK_PERIOD,
-                          ActiveMQClient.DEFAULT_CONNECTION_TTL,
-                          ActiveMQClient.DEFAULT_CALL_TIMEOUT,
-                          ActiveMQClient.DEFAULT_CALL_FAILOVER_TIMEOUT,
-                          ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE,
-                          ActiveMQClient.DEFAULT_CONSUMER_WINDOW_SIZE,
-                          ActiveMQClient.DEFAULT_CONSUMER_MAX_RATE,
-                          ActiveMQClient.DEFAULT_CONFIRMATION_WINDOW_SIZE,
-                          ActiveMQClient.DEFAULT_PRODUCER_MAX_RATE,
-                          ActiveMQClient.DEFAULT_BLOCK_ON_ACKNOWLEDGE,
-                          ActiveMQClient.DEFAULT_BLOCK_ON_DURABLE_SEND,
-                          ActiveMQClient.DEFAULT_BLOCK_ON_NON_DURABLE_SEND,
-                          ActiveMQClient.DEFAULT_AUTO_GROUP,
-                          ActiveMQClient.DEFAULT_PRE_ACKNOWLEDGE,
-                          ActiveMQClient.DEFAULT_CONNECTION_LOAD_BALANCING_POLICY_CLASS_NAME,
-                          ActiveMQClient.DEFAULT_ACK_BATCH_SIZE,
-                          ActiveMQClient.DEFAULT_ACK_BATCH_SIZE,
-                          ActiveMQClient.DEFAULT_DISCOVERY_INITIAL_WAIT_TIMEOUT,
-                          ActiveMQClient.DEFAULT_USE_GLOBAL_POOLS,
-                          ActiveMQClient.DEFAULT_SCHEDULED_THREAD_POOL_MAX_SIZE,
-                          ActiveMQClient.DEFAULT_THREAD_POOL_MAX_SIZE,
-                          ActiveMQClient.DEFAULT_RETRY_INTERVAL,
-                          ActiveMQClient.DEFAULT_RETRY_INTERVAL_MULTIPLIER,
-                          ActiveMQClient.DEFAULT_RECONNECT_ATTEMPTS);
+      assertFactoryParams(cf, null, null, null, ActiveMQClient.DEFAULT_CLIENT_FAILURE_CHECK_PERIOD, ActiveMQClient.DEFAULT_CONNECTION_TTL, ActiveMQClient.DEFAULT_CALL_TIMEOUT, ActiveMQClient.DEFAULT_CALL_FAILOVER_TIMEOUT, ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, ActiveMQClient.DEFAULT_CONSUMER_WINDOW_SIZE, ActiveMQClient.DEFAULT_CONSUMER_MAX_RATE, ActiveMQClient.DEFAULT_CONFIRMATION_WINDOW_SIZE, ActiveMQClient.DEFAULT_PRODUCER_MAX_RATE, ActiveMQClient.DEFAULT_BLOCK_ON_ACKNOWLEDGE, ActiveMQClient.DEFAULT_BLOCK_ON_DURABLE_SEND, ActiveMQClient.DEFAULT_BLOCK_ON_NON_DURABLE_SEND, ActiveMQClient.DEFAULT_AUTO_GROUP, ActiveMQClient.DEFAULT_PRE_ACKNOWLEDGE, ActiveMQClient.DEFAULT_CONNECTION_LOAD_BALANCING_POLICY_CLASS_NAME, ActiveMQClient.DEFAULT_ACK_BATCH_SIZE, ActiveMQClient.DEFAULT_ACK_BATCH_SIZE, ActiveMQClient.DEFAULT_DISCOVERY_INITIAL_WAIT_TIMEOUT, ActiveMQClient.DEFAULT_USE_GLOBAL_POOLS, ActiveMQClient.DEFAULT_SCHEDULED_THREAD_POOL_MAX_SIZE, ActiveMQClient.DEFAULT_THREAD_POOL_MAX_SIZE, ActiveMQClient.DEFAULT_RETRY_INTERVAL, ActiveMQClient.DEFAULT_RETRY_INTERVAL_MULTIPLIER, ActiveMQClient.DEFAULT_RECONNECT_ATTEMPTS);
       Connection conn = null;
 
-      try
-      {
+      try {
          conn = cf.createConnection();
 
          conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
          Assert.fail("Should throw exception");
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          // Ok
       }
-      if (conn != null)
-      {
+      if (conn != null) {
          conn.close();
       }
 
@@ -119,38 +88,10 @@ public class ActiveMQConnectionFactoryTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testDefaultConstructorAndSetConnectorPairs() throws Exception
-   {
+   public void testDefaultConstructorAndSetConnectorPairs() throws Exception {
       ActiveMQConnectionFactory cf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, liveTC);
 
-      assertFactoryParams(cf,
-                          new TransportConfiguration[]{liveTC},
-                          null,
-                          null,
-                          ActiveMQClient.DEFAULT_CLIENT_FAILURE_CHECK_PERIOD,
-                          ActiveMQClient.DEFAULT_CONNECTION_TTL,
-                          ActiveMQClient.DEFAULT_CALL_TIMEOUT,
-                          ActiveMQClient.DEFAULT_CALL_FAILOVER_TIMEOUT,
-                          ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE,
-                          ActiveMQClient.DEFAULT_CONSUMER_WINDOW_SIZE,
-                          ActiveMQClient.DEFAULT_CONSUMER_MAX_RATE,
-                          ActiveMQClient.DEFAULT_CONFIRMATION_WINDOW_SIZE,
-                          ActiveMQClient.DEFAULT_PRODUCER_MAX_RATE,
-                          ActiveMQClient.DEFAULT_BLOCK_ON_ACKNOWLEDGE,
-                          ActiveMQClient.DEFAULT_BLOCK_ON_DURABLE_SEND,
-                          ActiveMQClient.DEFAULT_BLOCK_ON_NON_DURABLE_SEND,
-                          ActiveMQClient.DEFAULT_AUTO_GROUP,
-                          ActiveMQClient.DEFAULT_PRE_ACKNOWLEDGE,
-                          ActiveMQClient.DEFAULT_CONNECTION_LOAD_BALANCING_POLICY_CLASS_NAME,
-                          ActiveMQClient.DEFAULT_ACK_BATCH_SIZE,
-                          ActiveMQClient.DEFAULT_ACK_BATCH_SIZE,
-                          ActiveMQClient.DEFAULT_DISCOVERY_INITIAL_WAIT_TIMEOUT,
-                          ActiveMQClient.DEFAULT_USE_GLOBAL_POOLS,
-                          ActiveMQClient.DEFAULT_SCHEDULED_THREAD_POOL_MAX_SIZE,
-                          ActiveMQClient.DEFAULT_THREAD_POOL_MAX_SIZE,
-                          ActiveMQClient.DEFAULT_RETRY_INTERVAL,
-                          ActiveMQClient.DEFAULT_RETRY_INTERVAL_MULTIPLIER,
-                          ActiveMQClient.DEFAULT_RECONNECT_ATTEMPTS);
+      assertFactoryParams(cf, new TransportConfiguration[]{liveTC}, null, null, ActiveMQClient.DEFAULT_CLIENT_FAILURE_CHECK_PERIOD, ActiveMQClient.DEFAULT_CONNECTION_TTL, ActiveMQClient.DEFAULT_CALL_TIMEOUT, ActiveMQClient.DEFAULT_CALL_FAILOVER_TIMEOUT, ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, ActiveMQClient.DEFAULT_CONSUMER_WINDOW_SIZE, ActiveMQClient.DEFAULT_CONSUMER_MAX_RATE, ActiveMQClient.DEFAULT_CONFIRMATION_WINDOW_SIZE, ActiveMQClient.DEFAULT_PRODUCER_MAX_RATE, ActiveMQClient.DEFAULT_BLOCK_ON_ACKNOWLEDGE, ActiveMQClient.DEFAULT_BLOCK_ON_DURABLE_SEND, ActiveMQClient.DEFAULT_BLOCK_ON_NON_DURABLE_SEND, ActiveMQClient.DEFAULT_AUTO_GROUP, ActiveMQClient.DEFAULT_PRE_ACKNOWLEDGE, ActiveMQClient.DEFAULT_CONNECTION_LOAD_BALANCING_POLICY_CLASS_NAME, ActiveMQClient.DEFAULT_ACK_BATCH_SIZE, ActiveMQClient.DEFAULT_ACK_BATCH_SIZE, ActiveMQClient.DEFAULT_DISCOVERY_INITIAL_WAIT_TIMEOUT, ActiveMQClient.DEFAULT_USE_GLOBAL_POOLS, ActiveMQClient.DEFAULT_SCHEDULED_THREAD_POOL_MAX_SIZE, ActiveMQClient.DEFAULT_THREAD_POOL_MAX_SIZE, ActiveMQClient.DEFAULT_RETRY_INTERVAL, ActiveMQClient.DEFAULT_RETRY_INTERVAL_MULTIPLIER, ActiveMQClient.DEFAULT_RECONNECT_ATTEMPTS);
 
       Connection conn = cf.createConnection();
 
@@ -162,41 +103,10 @@ public class ActiveMQConnectionFactoryTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testDiscoveryConstructor() throws Exception
-   {
-      DiscoveryGroupConfiguration groupConfiguration = new DiscoveryGroupConfiguration()
-         .setBroadcastEndpointFactory(new UDPBroadcastEndpointFactory()
-                                            .setGroupAddress(groupAddress)
-                                            .setGroupPort(groupPort));
+   public void testDiscoveryConstructor() throws Exception {
+      DiscoveryGroupConfiguration groupConfiguration = new DiscoveryGroupConfiguration().setBroadcastEndpointFactory(new UDPBroadcastEndpointFactory().setGroupAddress(groupAddress).setGroupPort(groupPort));
       ActiveMQConnectionFactory cf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(groupConfiguration, JMSFactoryType.CF);
-      assertFactoryParams(cf,
-                          null,
-                          groupConfiguration,
-                          null,
-                          ActiveMQClient.DEFAULT_CLIENT_FAILURE_CHECK_PERIOD,
-                          ActiveMQClient.DEFAULT_CONNECTION_TTL,
-                          ActiveMQClient.DEFAULT_CALL_TIMEOUT,
-                          ActiveMQClient.DEFAULT_CALL_FAILOVER_TIMEOUT,
-                          ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE,
-                          ActiveMQClient.DEFAULT_CONSUMER_WINDOW_SIZE,
-                          ActiveMQClient.DEFAULT_CONSUMER_MAX_RATE,
-                          ActiveMQClient.DEFAULT_CONFIRMATION_WINDOW_SIZE,
-                          ActiveMQClient.DEFAULT_PRODUCER_MAX_RATE,
-                          ActiveMQClient.DEFAULT_BLOCK_ON_ACKNOWLEDGE,
-                          ActiveMQClient.DEFAULT_BLOCK_ON_DURABLE_SEND,
-                          ActiveMQClient.DEFAULT_BLOCK_ON_NON_DURABLE_SEND,
-                          ActiveMQClient.DEFAULT_AUTO_GROUP,
-                          ActiveMQClient.DEFAULT_PRE_ACKNOWLEDGE,
-                          ActiveMQClient.DEFAULT_CONNECTION_LOAD_BALANCING_POLICY_CLASS_NAME,
-                          ActiveMQClient.DEFAULT_ACK_BATCH_SIZE,
-                          ActiveMQClient.DEFAULT_ACK_BATCH_SIZE,
-                          ActiveMQClient.DEFAULT_DISCOVERY_INITIAL_WAIT_TIMEOUT,
-                          ActiveMQClient.DEFAULT_USE_GLOBAL_POOLS,
-                          ActiveMQClient.DEFAULT_SCHEDULED_THREAD_POOL_MAX_SIZE,
-                          ActiveMQClient.DEFAULT_THREAD_POOL_MAX_SIZE,
-                          ActiveMQClient.DEFAULT_RETRY_INTERVAL,
-                          ActiveMQClient.DEFAULT_RETRY_INTERVAL_MULTIPLIER,
-                          ActiveMQClient.DEFAULT_RECONNECT_ATTEMPTS);
+      assertFactoryParams(cf, null, groupConfiguration, null, ActiveMQClient.DEFAULT_CLIENT_FAILURE_CHECK_PERIOD, ActiveMQClient.DEFAULT_CONNECTION_TTL, ActiveMQClient.DEFAULT_CALL_TIMEOUT, ActiveMQClient.DEFAULT_CALL_FAILOVER_TIMEOUT, ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, ActiveMQClient.DEFAULT_CONSUMER_WINDOW_SIZE, ActiveMQClient.DEFAULT_CONSUMER_MAX_RATE, ActiveMQClient.DEFAULT_CONFIRMATION_WINDOW_SIZE, ActiveMQClient.DEFAULT_PRODUCER_MAX_RATE, ActiveMQClient.DEFAULT_BLOCK_ON_ACKNOWLEDGE, ActiveMQClient.DEFAULT_BLOCK_ON_DURABLE_SEND, ActiveMQClient.DEFAULT_BLOCK_ON_NON_DURABLE_SEND, ActiveMQClient.DEFAULT_AUTO_GROUP, ActiveMQClient.DEFAULT_PRE_ACKNOWLEDGE, ActiveMQClient.DEFAULT_CONNECTION_LOAD_BALANCING_POLICY_CLASS_NAME, ActiveMQClient.DEFAULT_ACK_BATCH_SIZE, ActiveMQClient.DEFAULT_ACK_BATCH_SIZE, ActiveMQClient.DEFAULT_DISCOVERY_INITIAL_WAIT_TIMEOUT, ActiveMQClient.DEFAULT_USE_GLOBAL_POOLS, ActiveMQClient.DEFAULT_SCHEDULED_THREAD_POOL_MAX_SIZE, ActiveMQClient.DEFAULT_THREAD_POOL_MAX_SIZE, ActiveMQClient.DEFAULT_RETRY_INTERVAL, ActiveMQClient.DEFAULT_RETRY_INTERVAL_MULTIPLIER, ActiveMQClient.DEFAULT_RECONNECT_ATTEMPTS);
       Connection conn = cf.createConnection();
 
       conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -207,37 +117,9 @@ public class ActiveMQConnectionFactoryTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testStaticConnectorListConstructor() throws Exception
-   {
+   public void testStaticConnectorListConstructor() throws Exception {
       ActiveMQConnectionFactory cf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, liveTC);
-      assertFactoryParams(cf,
-                          new TransportConfiguration[]{liveTC},
-                          null,
-                          null,
-                          ActiveMQClient.DEFAULT_CLIENT_FAILURE_CHECK_PERIOD,
-                          ActiveMQClient.DEFAULT_CONNECTION_TTL,
-                          ActiveMQClient.DEFAULT_CALL_TIMEOUT,
-                          ActiveMQClient.DEFAULT_CALL_FAILOVER_TIMEOUT,
-                          ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE,
-                          ActiveMQClient.DEFAULT_CONSUMER_WINDOW_SIZE,
-                          ActiveMQClient.DEFAULT_CONSUMER_MAX_RATE,
-                          ActiveMQClient.DEFAULT_CONFIRMATION_WINDOW_SIZE,
-                          ActiveMQClient.DEFAULT_PRODUCER_MAX_RATE,
-                          ActiveMQClient.DEFAULT_BLOCK_ON_ACKNOWLEDGE,
-                          ActiveMQClient.DEFAULT_BLOCK_ON_DURABLE_SEND,
-                          ActiveMQClient.DEFAULT_BLOCK_ON_NON_DURABLE_SEND,
-                          ActiveMQClient.DEFAULT_AUTO_GROUP,
-                          ActiveMQClient.DEFAULT_PRE_ACKNOWLEDGE,
-                          ActiveMQClient.DEFAULT_CONNECTION_LOAD_BALANCING_POLICY_CLASS_NAME,
-                          ActiveMQClient.DEFAULT_ACK_BATCH_SIZE,
-                          ActiveMQClient.DEFAULT_ACK_BATCH_SIZE,
-                          ActiveMQClient.DEFAULT_DISCOVERY_INITIAL_WAIT_TIMEOUT,
-                          ActiveMQClient.DEFAULT_USE_GLOBAL_POOLS,
-                          ActiveMQClient.DEFAULT_SCHEDULED_THREAD_POOL_MAX_SIZE,
-                          ActiveMQClient.DEFAULT_THREAD_POOL_MAX_SIZE,
-                          ActiveMQClient.DEFAULT_RETRY_INTERVAL,
-                          ActiveMQClient.DEFAULT_RETRY_INTERVAL_MULTIPLIER,
-                          ActiveMQClient.DEFAULT_RECONNECT_ATTEMPTS);
+      assertFactoryParams(cf, new TransportConfiguration[]{liveTC}, null, null, ActiveMQClient.DEFAULT_CLIENT_FAILURE_CHECK_PERIOD, ActiveMQClient.DEFAULT_CONNECTION_TTL, ActiveMQClient.DEFAULT_CALL_TIMEOUT, ActiveMQClient.DEFAULT_CALL_FAILOVER_TIMEOUT, ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, ActiveMQClient.DEFAULT_CONSUMER_WINDOW_SIZE, ActiveMQClient.DEFAULT_CONSUMER_MAX_RATE, ActiveMQClient.DEFAULT_CONFIRMATION_WINDOW_SIZE, ActiveMQClient.DEFAULT_PRODUCER_MAX_RATE, ActiveMQClient.DEFAULT_BLOCK_ON_ACKNOWLEDGE, ActiveMQClient.DEFAULT_BLOCK_ON_DURABLE_SEND, ActiveMQClient.DEFAULT_BLOCK_ON_NON_DURABLE_SEND, ActiveMQClient.DEFAULT_AUTO_GROUP, ActiveMQClient.DEFAULT_PRE_ACKNOWLEDGE, ActiveMQClient.DEFAULT_CONNECTION_LOAD_BALANCING_POLICY_CLASS_NAME, ActiveMQClient.DEFAULT_ACK_BATCH_SIZE, ActiveMQClient.DEFAULT_ACK_BATCH_SIZE, ActiveMQClient.DEFAULT_DISCOVERY_INITIAL_WAIT_TIMEOUT, ActiveMQClient.DEFAULT_USE_GLOBAL_POOLS, ActiveMQClient.DEFAULT_SCHEDULED_THREAD_POOL_MAX_SIZE, ActiveMQClient.DEFAULT_THREAD_POOL_MAX_SIZE, ActiveMQClient.DEFAULT_RETRY_INTERVAL, ActiveMQClient.DEFAULT_RETRY_INTERVAL_MULTIPLIER, ActiveMQClient.DEFAULT_RECONNECT_ATTEMPTS);
       Connection conn = cf.createConnection();
 
       conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -249,37 +131,9 @@ public class ActiveMQConnectionFactoryTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testStaticConnectorLiveConstructor() throws Exception
-   {
+   public void testStaticConnectorLiveConstructor() throws Exception {
       ActiveMQConnectionFactory cf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, liveTC);
-      assertFactoryParams(cf,
-                          new TransportConfiguration[]{liveTC},
-                          null,
-                          null,
-                          ActiveMQClient.DEFAULT_CLIENT_FAILURE_CHECK_PERIOD,
-                          ActiveMQClient.DEFAULT_CONNECTION_TTL,
-                          ActiveMQClient.DEFAULT_CALL_TIMEOUT,
-                          ActiveMQClient.DEFAULT_CALL_FAILOVER_TIMEOUT,
-                          ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE,
-                          ActiveMQClient.DEFAULT_CONSUMER_WINDOW_SIZE,
-                          ActiveMQClient.DEFAULT_CONSUMER_MAX_RATE,
-                          ActiveMQClient.DEFAULT_CONFIRMATION_WINDOW_SIZE,
-                          ActiveMQClient.DEFAULT_PRODUCER_MAX_RATE,
-                          ActiveMQClient.DEFAULT_BLOCK_ON_ACKNOWLEDGE,
-                          ActiveMQClient.DEFAULT_BLOCK_ON_DURABLE_SEND,
-                          ActiveMQClient.DEFAULT_BLOCK_ON_NON_DURABLE_SEND,
-                          ActiveMQClient.DEFAULT_AUTO_GROUP,
-                          ActiveMQClient.DEFAULT_PRE_ACKNOWLEDGE,
-                          ActiveMQClient.DEFAULT_CONNECTION_LOAD_BALANCING_POLICY_CLASS_NAME,
-                          ActiveMQClient.DEFAULT_ACK_BATCH_SIZE,
-                          ActiveMQClient.DEFAULT_ACK_BATCH_SIZE,
-                          ActiveMQClient.DEFAULT_DISCOVERY_INITIAL_WAIT_TIMEOUT,
-                          ActiveMQClient.DEFAULT_USE_GLOBAL_POOLS,
-                          ActiveMQClient.DEFAULT_SCHEDULED_THREAD_POOL_MAX_SIZE,
-                          ActiveMQClient.DEFAULT_THREAD_POOL_MAX_SIZE,
-                          ActiveMQClient.DEFAULT_RETRY_INTERVAL,
-                          ActiveMQClient.DEFAULT_RETRY_INTERVAL_MULTIPLIER,
-                          ActiveMQClient.DEFAULT_RECONNECT_ATTEMPTS);
+      assertFactoryParams(cf, new TransportConfiguration[]{liveTC}, null, null, ActiveMQClient.DEFAULT_CLIENT_FAILURE_CHECK_PERIOD, ActiveMQClient.DEFAULT_CONNECTION_TTL, ActiveMQClient.DEFAULT_CALL_TIMEOUT, ActiveMQClient.DEFAULT_CALL_FAILOVER_TIMEOUT, ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, ActiveMQClient.DEFAULT_CONSUMER_WINDOW_SIZE, ActiveMQClient.DEFAULT_CONSUMER_MAX_RATE, ActiveMQClient.DEFAULT_CONFIRMATION_WINDOW_SIZE, ActiveMQClient.DEFAULT_PRODUCER_MAX_RATE, ActiveMQClient.DEFAULT_BLOCK_ON_ACKNOWLEDGE, ActiveMQClient.DEFAULT_BLOCK_ON_DURABLE_SEND, ActiveMQClient.DEFAULT_BLOCK_ON_NON_DURABLE_SEND, ActiveMQClient.DEFAULT_AUTO_GROUP, ActiveMQClient.DEFAULT_PRE_ACKNOWLEDGE, ActiveMQClient.DEFAULT_CONNECTION_LOAD_BALANCING_POLICY_CLASS_NAME, ActiveMQClient.DEFAULT_ACK_BATCH_SIZE, ActiveMQClient.DEFAULT_ACK_BATCH_SIZE, ActiveMQClient.DEFAULT_DISCOVERY_INITIAL_WAIT_TIMEOUT, ActiveMQClient.DEFAULT_USE_GLOBAL_POOLS, ActiveMQClient.DEFAULT_SCHEDULED_THREAD_POOL_MAX_SIZE, ActiveMQClient.DEFAULT_THREAD_POOL_MAX_SIZE, ActiveMQClient.DEFAULT_RETRY_INTERVAL, ActiveMQClient.DEFAULT_RETRY_INTERVAL_MULTIPLIER, ActiveMQClient.DEFAULT_RECONNECT_ATTEMPTS);
       Connection conn = cf.createConnection();
 
       conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -291,10 +145,8 @@ public class ActiveMQConnectionFactoryTest extends ActiveMQTestBase
       conn.close();
    }
 
-
    @Test
-   public void testGettersAndSetters()
-   {
+   public void testGettersAndSetters() {
       ActiveMQConnectionFactory cf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, liveTC);
 
       long clientFailureCheckPeriod = RandomUtil.randomPositiveLong();
@@ -361,8 +213,7 @@ public class ActiveMQConnectionFactoryTest extends ActiveMQTestBase
       cf.close();
    }
 
-   private void testSettersThrowException(final ActiveMQConnectionFactory cf)
-   {
+   private void testSettersThrowException(final ActiveMQConnectionFactory cf) {
 
       String discoveryAddress = RandomUtil.randomString();
       int discoveryPort = RandomUtil.randomPositiveInt();
@@ -393,211 +244,165 @@ public class ActiveMQConnectionFactoryTest extends ActiveMQTestBase
       int reconnectAttempts = RandomUtil.randomPositiveInt();
       boolean failoverOnServerShutdown = RandomUtil.randomBoolean();
 
-      try
-      {
+      try {
          cf.setClientID(clientID);
          Assert.fail("Should throw exception");
       }
-      catch (IllegalStateException e)
-      {
+      catch (IllegalStateException e) {
          // OK
       }
-      try
-      {
+      try {
          cf.setClientFailureCheckPeriod(clientFailureCheckPeriod);
          Assert.fail("Should throw exception");
       }
-      catch (IllegalStateException e)
-      {
+      catch (IllegalStateException e) {
          // OK
       }
-      try
-      {
+      try {
          cf.setConnectionTTL(connectionTTL);
          Assert.fail("Should throw exception");
       }
-      catch (IllegalStateException e)
-      {
+      catch (IllegalStateException e) {
          // OK
       }
-      try
-      {
+      try {
          cf.setCallTimeout(callTimeout);
          Assert.fail("Should throw exception");
       }
-      catch (IllegalStateException e)
-      {
+      catch (IllegalStateException e) {
          // OK
       }
-      try
-      {
+      try {
          cf.setMinLargeMessageSize(minLargeMessageSize);
          Assert.fail("Should throw exception");
       }
-      catch (IllegalStateException e)
-      {
+      catch (IllegalStateException e) {
          // OK
       }
-      try
-      {
+      try {
          cf.setConsumerWindowSize(consumerWindowSize);
          Assert.fail("Should throw exception");
       }
-      catch (IllegalStateException e)
-      {
+      catch (IllegalStateException e) {
          // OK
       }
-      try
-      {
+      try {
          cf.setConsumerMaxRate(consumerMaxRate);
          Assert.fail("Should throw exception");
       }
-      catch (IllegalStateException e)
-      {
+      catch (IllegalStateException e) {
          // OK
       }
-      try
-      {
+      try {
          cf.setConfirmationWindowSize(confirmationWindowSize);
          Assert.fail("Should throw exception");
       }
-      catch (IllegalStateException e)
-      {
+      catch (IllegalStateException e) {
          // OK
       }
-      try
-      {
+      try {
          cf.setProducerMaxRate(producerMaxRate);
          Assert.fail("Should throw exception");
       }
-      catch (IllegalStateException e)
-      {
+      catch (IllegalStateException e) {
          // OK
       }
-      try
-      {
+      try {
          cf.setBlockOnAcknowledge(blockOnAcknowledge);
          Assert.fail("Should throw exception");
       }
-      catch (IllegalStateException e)
-      {
+      catch (IllegalStateException e) {
          // OK
       }
-      try
-      {
+      try {
          cf.setBlockOnDurableSend(blockOnDurableSend);
          Assert.fail("Should throw exception");
       }
-      catch (IllegalStateException e)
-      {
+      catch (IllegalStateException e) {
          // OK
       }
-      try
-      {
+      try {
          cf.setBlockOnNonDurableSend(blockOnNonDurableSend);
          Assert.fail("Should throw exception");
       }
-      catch (IllegalStateException e)
-      {
+      catch (IllegalStateException e) {
          // OK
       }
-      try
-      {
+      try {
          cf.setAutoGroup(autoGroup);
          Assert.fail("Should throw exception");
       }
-      catch (IllegalStateException e)
-      {
+      catch (IllegalStateException e) {
          // OK
       }
-      try
-      {
+      try {
          cf.setPreAcknowledge(preAcknowledge);
          Assert.fail("Should throw exception");
       }
-      catch (IllegalStateException e)
-      {
+      catch (IllegalStateException e) {
          // OK
       }
-      try
-      {
+      try {
          cf.setConnectionLoadBalancingPolicyClassName(loadBalancingPolicyClassName);
          Assert.fail("Should throw exception");
       }
-      catch (IllegalStateException e)
-      {
+      catch (IllegalStateException e) {
          // OK
       }
-      try
-      {
+      try {
          cf.setDupsOKBatchSize(dupsOKBatchSize);
          Assert.fail("Should throw exception");
       }
-      catch (IllegalStateException e)
-      {
+      catch (IllegalStateException e) {
          // OK
       }
-      try
-      {
+      try {
          cf.setTransactionBatchSize(transactionBatchSize);
          Assert.fail("Should throw exception");
       }
-      catch (IllegalStateException e)
-      {
+      catch (IllegalStateException e) {
          // OK
       }
-      try
-      {
+      try {
          cf.setUseGlobalPools(useGlobalPools);
          Assert.fail("Should throw exception");
       }
-      catch (IllegalStateException e)
-      {
+      catch (IllegalStateException e) {
          // OK
       }
-      try
-      {
+      try {
          cf.setScheduledThreadPoolMaxSize(scheduledThreadPoolMaxSize);
          Assert.fail("Should throw exception");
       }
-      catch (IllegalStateException e)
-      {
+      catch (IllegalStateException e) {
          // OK
       }
-      try
-      {
+      try {
          cf.setThreadPoolMaxSize(threadPoolMaxSize);
          Assert.fail("Should throw exception");
       }
-      catch (IllegalStateException e)
-      {
+      catch (IllegalStateException e) {
          // OK
       }
-      try
-      {
+      try {
          cf.setRetryInterval(retryInterval);
          Assert.fail("Should throw exception");
       }
-      catch (IllegalStateException e)
-      {
+      catch (IllegalStateException e) {
          // OK
       }
-      try
-      {
+      try {
          cf.setRetryIntervalMultiplier(retryIntervalMultiplier);
          Assert.fail("Should throw exception");
       }
-      catch (IllegalStateException e)
-      {
+      catch (IllegalStateException e) {
          // OK
       }
-      try
-      {
+      try {
          cf.setReconnectAttempts(reconnectAttempts);
          Assert.fail("Should throw exception");
       }
-      catch (IllegalStateException e)
-      {
+      catch (IllegalStateException e) {
          // OK
       }
 
@@ -656,19 +461,15 @@ public class ActiveMQConnectionFactoryTest extends ActiveMQTestBase
                                     final int threadPoolMaxSize,
                                     final long retryInterval,
                                     final double retryIntervalMultiplier,
-                                    final int reconnectAttempts)
-   {
+                                    final int reconnectAttempts) {
       TransportConfiguration[] cfStaticConnectors = cf.getStaticConnectors();
-      if (staticConnectors == null)
-      {
+      if (staticConnectors == null) {
          Assert.assertNull(staticConnectors);
       }
-      else
-      {
+      else {
          Assert.assertEquals(staticConnectors.length, cfStaticConnectors.length);
 
-         for (int i = 0; i < staticConnectors.length; i++)
-         {
+         for (int i = 0; i < staticConnectors.length; i++) {
             Assert.assertEquals(staticConnectors[i], cfStaticConnectors[i]);
          }
       }
@@ -700,25 +501,20 @@ public class ActiveMQConnectionFactoryTest extends ActiveMQTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       startServer();
    }
 
-   private void startServer() throws Exception
-   {
+   private void startServer() throws Exception {
       liveTC = new TransportConfiguration(INVM_CONNECTOR_FACTORY);
       Map<String, TransportConfiguration> connectors = new HashMap<String, TransportConfiguration>();
       connectors.put(liveTC.getName(), liveTC);
       List<String> connectorNames = new ArrayList<String>();
       connectorNames.add(liveTC.getName());
 
-      Configuration liveConf = createBasicConfig()
-         .addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY))
-         .setConnectorConfigurations(connectors)
-         .setHAPolicyConfiguration(new SharedStoreMasterPolicyConfiguration());
+      Configuration liveConf = createBasicConfig().addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY)).setConnectorConfigurations(connectors).setHAPolicyConfiguration(new SharedStoreMasterPolicyConfiguration());
 
       final long broadcastPeriod = 250;
 
@@ -726,14 +522,7 @@ public class ActiveMQConnectionFactoryTest extends ActiveMQTestBase
 
       final int localBindPort = 5432;
 
-      BroadcastGroupConfiguration bcConfig1 = new BroadcastGroupConfiguration()
-         .setName(bcGroupName)
-         .setBroadcastPeriod(broadcastPeriod)
-         .setConnectorInfos(connectorNames)
-         .setEndpointFactory(new UDPBroadcastEndpointFactory()
-                                   .setGroupAddress(groupAddress)
-                                   .setGroupPort(groupPort)
-                                   .setLocalBindPort(localBindPort));
+      BroadcastGroupConfiguration bcConfig1 = new BroadcastGroupConfiguration().setName(bcGroupName).setBroadcastPeriod(broadcastPeriod).setConnectorInfos(connectorNames).setEndpointFactory(new UDPBroadcastEndpointFactory().setGroupAddress(groupAddress).setGroupPort(groupPort).setLocalBindPort(localBindPort));
 
       List<BroadcastGroupConfiguration> bcConfigs1 = new ArrayList<BroadcastGroupConfiguration>();
       bcConfigs1.add(bcConfig1);

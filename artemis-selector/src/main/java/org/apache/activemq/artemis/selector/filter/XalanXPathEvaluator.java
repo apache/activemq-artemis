@@ -27,36 +27,28 @@ import org.w3c.dom.Document;
 import org.w3c.dom.traversal.NodeIterator;
 import org.xml.sax.InputSource;
 
-
-public class XalanXPathEvaluator implements XPathExpression.XPathEvaluator
-{
+public class XalanXPathEvaluator implements XPathExpression.XPathEvaluator {
 
    private final String xpath;
 
-   public XalanXPathEvaluator(String xpath)
-   {
+   public XalanXPathEvaluator(String xpath) {
       this.xpath = xpath;
    }
 
-   public boolean evaluate(Filterable m) throws FilterException
-   {
+   public boolean evaluate(Filterable m) throws FilterException {
       String stringBody = m.getBodyAs(String.class);
-      if (stringBody != null)
-      {
+      if (stringBody != null) {
          return evaluate(stringBody);
       }
       return false;
    }
 
-   protected boolean evaluate(String text)
-   {
+   protected boolean evaluate(String text) {
       return evaluate(new InputSource(new StringReader(text)));
    }
 
-   protected boolean evaluate(InputSource inputSource)
-   {
-      try
-      {
+   protected boolean evaluate(InputSource inputSource) {
+      try {
          DocumentBuilder dbuilder = createDocumentBuilder();
          Document doc = dbuilder.parse(inputSource);
 
@@ -69,20 +61,17 @@ public class XalanXPathEvaluator implements XPathExpression.XPathEvaluator
          XObject result = cachedXPathAPI.eval(doc, xpath);
          if (result.bool())
             return true;
-         else
-         {
+         else {
             NodeIterator iterator = cachedXPathAPI.selectNodeIterator(doc, xpath);
             return (iterator.nextNode() != null);
          }
       }
-      catch (Throwable e)
-      {
+      catch (Throwable e) {
          return false;
       }
    }
 
-   private DocumentBuilder createDocumentBuilder() throws ParserConfigurationException
-   {
+   private DocumentBuilder createDocumentBuilder() throws ParserConfigurationException {
       DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
       factory.setNamespaceAware(true);
 

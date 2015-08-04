@@ -21,8 +21,8 @@ import java.io.IOException;
 /**
  * pls use factory to create frames.
  */
-public interface StompClientConnection
-{
+public interface StompClientConnection {
+
    ClientStompFrame sendFrame(ClientStompFrame frame) throws IOException, InterruptedException;
 
    ClientStompFrame receiveFrame() throws InterruptedException;

@@ -22,26 +22,22 @@ import java.nio.channels.FileLock;
 
 import org.apache.activemq.artemis.jlibaio.LibaioFile;
 
-public class ActiveMQFileLock extends FileLock
-{
+public class ActiveMQFileLock extends FileLock {
 
    private final LibaioFile file;
 
-   public ActiveMQFileLock(final LibaioFile handle)
-   {
-      super((FileChannel)null, 0, 0, false);
+   public ActiveMQFileLock(final LibaioFile handle) {
+      super((FileChannel) null, 0, 0, false);
       this.file = handle;
    }
 
    @Override
-   public boolean isValid()
-   {
+   public boolean isValid() {
       return true;
    }
 
    @Override
-   public void release() throws IOException
-   {
+   public void release() throws IOException {
       file.close();
    }
 }

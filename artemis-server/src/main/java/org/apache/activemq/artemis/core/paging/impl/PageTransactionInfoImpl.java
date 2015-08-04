@@ -35,8 +35,7 @@ import org.apache.activemq.artemis.core.transaction.TransactionOperationAbstract
 import org.apache.activemq.artemis.core.transaction.TransactionPropertyIndexes;
 import org.apache.activemq.artemis.utils.DataConstants;
 
-public final class PageTransactionInfoImpl implements PageTransactionInfo
-{
+public final class PageTransactionInfoImpl implements PageTransactionInfo {
    // Constants -----------------------------------------------------
 
    // Attributes ----------------------------------------------------
@@ -61,44 +60,35 @@ public final class PageTransactionInfoImpl implements PageTransactionInfo
 
    // Constructors --------------------------------------------------
 
-   public PageTransactionInfoImpl(final long transactionID)
-   {
+   public PageTransactionInfoImpl(final long transactionID) {
       this();
       this.transactionID = transactionID;
    }
 
-   public PageTransactionInfoImpl()
-   {
+   public PageTransactionInfoImpl() {
    }
 
    // Public --------------------------------------------------------
 
-   public long getRecordID()
-   {
+   public long getRecordID() {
       return recordID;
    }
 
-   public void setRecordID(final long recordID)
-   {
+   public void setRecordID(final long recordID) {
       this.recordID = recordID;
    }
 
-   public long getTransactionID()
-   {
+   public long getTransactionID() {
       return transactionID;
    }
 
-   public void onUpdate(final int update, final StorageManager storageManager, PagingManager pagingManager)
-   {
+   public void onUpdate(final int update, final StorageManager storageManager, PagingManager pagingManager) {
       int sizeAfterUpdate = numberOfMessages.addAndGet(-update);
-      if (sizeAfterUpdate == 0 && storageManager != null)
-      {
-         try
-         {
+      if (sizeAfterUpdate == 0 && storageManager != null) {
+         try {
             storageManager.deletePageTransactional(this.recordID);
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             ActiveMQServerLogger.LOGGER.pageTxDeleteError(e, recordID);
          }
 
@@ -106,45 +96,37 @@ public final class PageTransactionInfoImpl implements PageTransactionInfo
       }
    }
 
-   public void increment(final int durableSize, final int nonDurableSize)
-   {
+   public void increment(final int durableSize, final int nonDurableSize) {
       numberOfPersistentMessages.addAndGet(durableSize);
       numberOfMessages.addAndGet(durableSize + nonDurableSize);
    }
 
-   public int getNumberOfMessages()
-   {
+   public int getNumberOfMessages() {
       return numberOfMessages.get();
    }
 
    // EncodingSupport implementation
 
-   public synchronized void decode(final ActiveMQBuffer buffer)
-   {
+   public synchronized void decode(final ActiveMQBuffer buffer) {
       transactionID = buffer.readLong();
       numberOfMessages.set(buffer.readInt());
       numberOfPersistentMessages.set(numberOfMessages.get());
       committed = true;
    }
 
-   public synchronized void encode(final ActiveMQBuffer buffer)
-   {
+   public synchronized void encode(final ActiveMQBuffer buffer) {
       buffer.writeLong(transactionID);
       buffer.writeInt(numberOfPersistentMessages.get());
    }
 
-   public synchronized int getEncodeSize()
-   {
+   public synchronized int getEncodeSize() {
       return DataConstants.SIZE_LONG + DataConstants.SIZE_INT;
    }
 
-   public synchronized void commit()
-   {
-      if (lateDeliveries != null)
-      {
+   public synchronized void commit() {
+      if (lateDeliveries != null) {
          // This is to make sure deliveries that were touched before the commit arrived will be delivered
-         for (LateDelivery pos : lateDeliveries)
-         {
+         for (LateDelivery pos : lateDeliveries) {
             pos.getSubscription().redeliver(pos.getIterator(), pos.getPagePosition());
          }
          lateDeliveries.clear();
@@ -153,8 +135,9 @@ public final class PageTransactionInfoImpl implements PageTransactionInfo
       lateDeliveries = null;
    }
 
-   public void store(final StorageManager storageManager, PagingManager pagingManager, final Transaction tx) throws Exception
-   {
+   public void store(final StorageManager storageManager,
+                     PagingManager pagingManager,
+                     final Transaction tx) throws Exception {
       storageManager.storePageTransaction(tx.getID(), this);
    }
 
@@ -163,13 +146,16 @@ public final class PageTransactionInfoImpl implements PageTransactionInfo
     * (non-Javadoc)
     * @see org.apache.activemq.artemis.core.paging.PageTransactionInfo#storeUpdate(org.apache.activemq.artemis.core.persistence.StorageManager, org.apache.activemq.artemis.core.transaction.Transaction, int)
     */
-   public void storeUpdate(final StorageManager storageManager, final PagingManager pagingManager, final Transaction tx) throws Exception
-   {
+   public void storeUpdate(final StorageManager storageManager,
+                           final PagingManager pagingManager,
+                           final Transaction tx) throws Exception {
       internalUpdatePageManager(storageManager, pagingManager, tx, 1);
    }
 
-   public void reloadUpdate(final StorageManager storageManager, final PagingManager pagingManager, final Transaction tx, final int increment) throws Exception
-   {
+   public void reloadUpdate(final StorageManager storageManager,
+                            final PagingManager pagingManager,
+                            final Transaction tx,
+                            final int increment) throws Exception {
       UpdatePageTXOperation updt = internalUpdatePageManager(storageManager, pagingManager, tx, increment);
       updt.setStored();
    }
@@ -182,12 +168,10 @@ public final class PageTransactionInfoImpl implements PageTransactionInfo
    protected UpdatePageTXOperation internalUpdatePageManager(final StorageManager storageManager,
                                                              final PagingManager pagingManager,
                                                              final Transaction tx,
-                                                             final int increment)
-   {
+                                                             final int increment) {
       UpdatePageTXOperation pgtxUpdate = (UpdatePageTXOperation) tx.getProperty(TransactionPropertyIndexes.PAGE_TRANSACTION_UPDATE);
 
-      if (pgtxUpdate == null)
-      {
+      if (pgtxUpdate == null) {
          pgtxUpdate = new UpdatePageTXOperation(storageManager, pagingManager);
          tx.putProperty(TransactionPropertyIndexes.PAGE_TRANSACTION_UPDATE, pgtxUpdate);
          tx.addOperation(pgtxUpdate);
@@ -200,30 +184,24 @@ public final class PageTransactionInfoImpl implements PageTransactionInfo
       return pgtxUpdate;
    }
 
-   public boolean isCommit()
-   {
+   public boolean isCommit() {
       return committed;
    }
 
-   public void setCommitted(final boolean committed)
-   {
+   public void setCommitted(final boolean committed) {
       this.committed = committed;
    }
 
-   public boolean isRollback()
-   {
+   public boolean isRollback() {
       return rolledback;
    }
 
-   public synchronized void rollback()
-   {
+   public synchronized void rollback() {
       rolledback = true;
       committed = false;
 
-      if (lateDeliveries != null)
-      {
-         for (LateDelivery pos : lateDeliveries)
-         {
+      if (lateDeliveries != null) {
+         for (LateDelivery pos : lateDeliveries) {
             pos.getSubscription().lateDeliveryRollback(pos.getPagePosition());
          }
          lateDeliveries = null;
@@ -231,8 +209,7 @@ public final class PageTransactionInfoImpl implements PageTransactionInfo
    }
 
    @Override
-   public String toString()
-   {
+   public String toString() {
       return "PageTransactionInfoImpl(transactionID=" + transactionID +
          ",id=" +
          recordID +
@@ -242,28 +219,24 @@ public final class PageTransactionInfoImpl implements PageTransactionInfo
    }
 
    @Override
-   public synchronized boolean deliverAfterCommit(PageIterator iterator, PageSubscription cursor, PagePosition cursorPos)
-   {
-      if (committed && useRedelivery)
-      {
+   public synchronized boolean deliverAfterCommit(PageIterator iterator,
+                                                  PageSubscription cursor,
+                                                  PagePosition cursorPos) {
+      if (committed && useRedelivery) {
          cursor.addPendingDelivery(cursorPos);
          cursor.redeliver(iterator, cursorPos);
          return true;
       }
-      else if (committed)
-      {
+      else if (committed) {
          return false;
       }
-      else if (rolledback)
-      {
+      else if (rolledback) {
          cursor.positionIgnored(cursorPos);
          return true;
       }
-      else
-      {
+      else {
          useRedelivery = true;
-         if (lateDeliveries == null)
-         {
+         if (lateDeliveries == null) {
             lateDeliveries = new LinkedList<>();
          }
          cursor.addPendingDelivery(cursorPos);
@@ -280,44 +253,40 @@ public final class PageTransactionInfoImpl implements PageTransactionInfo
 
    // Inner classes -------------------------------------------------
 
-   /** a Message shouldn't be delivered until it's committed
-    *  For that reason the page-reference will be written right away
-    *  But in certain cases we can only deliver after the commit
-    *  For that reason we will perform a late delivery
-    *  through the method redeliver.
+   /**
+    * a Message shouldn't be delivered until it's committed
+    * For that reason the page-reference will be written right away
+    * But in certain cases we can only deliver after the commit
+    * For that reason we will perform a late delivery
+    * through the method redeliver.
     */
-   private static class LateDelivery
-   {
+   private static class LateDelivery {
+
       final PageSubscription subscription;
       final PagePosition pagePosition;
       final PageIterator iterator;
 
-      public LateDelivery(PageSubscription subscription, PagePosition pagePosition, PageIterator iterator)
-      {
+      public LateDelivery(PageSubscription subscription, PagePosition pagePosition, PageIterator iterator) {
          this.subscription = subscription;
          this.pagePosition = pagePosition;
          this.iterator = iterator;
       }
 
-      public PageSubscription getSubscription()
-      {
+      public PageSubscription getSubscription() {
          return subscription;
       }
 
-      public PagePosition getPagePosition()
-      {
+      public PagePosition getPagePosition() {
          return pagePosition;
       }
 
-      public PageIterator getIterator()
-      {
+      public PageIterator getIterator() {
          return iterator;
       }
    }
 
+   private static class UpdatePageTXOperation extends TransactionOperationAbstract {
 
-   private static class UpdatePageTXOperation extends TransactionOperationAbstract
-   {
       private final HashMap<PageTransactionInfo, AtomicInteger> countsToUpdate = new HashMap<PageTransactionInfo, AtomicInteger>();
 
       private boolean stored = false;
@@ -326,23 +295,19 @@ public final class PageTransactionInfoImpl implements PageTransactionInfo
 
       private final PagingManager pagingManager;
 
-      public UpdatePageTXOperation(final StorageManager storageManager, final PagingManager pagingManager)
-      {
+      public UpdatePageTXOperation(final StorageManager storageManager, final PagingManager pagingManager) {
          this.storageManager = storageManager;
          this.pagingManager = pagingManager;
       }
 
-      public void setStored()
-      {
+      public void setStored() {
          stored = true;
       }
 
-      public void addUpdate(final PageTransactionInfo info, final int increment)
-      {
+      public void addUpdate(final PageTransactionInfo info, final int increment) {
          AtomicInteger counter = countsToUpdate.get(info);
 
-         if (counter == null)
-         {
+         if (counter == null) {
             counter = new AtomicInteger(0);
             countsToUpdate.put(info, counter);
          }
@@ -351,38 +316,30 @@ public final class PageTransactionInfoImpl implements PageTransactionInfo
       }
 
       @Override
-      public void beforePrepare(Transaction tx) throws Exception
-      {
+      public void beforePrepare(Transaction tx) throws Exception {
          storeUpdates(tx);
       }
 
       @Override
-      public void beforeCommit(Transaction tx) throws Exception
-      {
+      public void beforeCommit(Transaction tx) throws Exception {
          storeUpdates(tx);
       }
 
       @Override
-      public void afterCommit(Transaction tx)
-      {
-         for (Map.Entry<PageTransactionInfo, AtomicInteger> entry : countsToUpdate.entrySet())
-         {
+      public void afterCommit(Transaction tx) {
+         for (Map.Entry<PageTransactionInfo, AtomicInteger> entry : countsToUpdate.entrySet()) {
             entry.getKey().onUpdate(entry.getValue().intValue(), storageManager, pagingManager);
          }
       }
 
-      private void storeUpdates(Transaction tx) throws Exception
-      {
-         if (!stored)
-         {
+      private void storeUpdates(Transaction tx) throws Exception {
+         if (!stored) {
             stored = true;
-            for (Map.Entry<PageTransactionInfo, AtomicInteger> entry : countsToUpdate.entrySet())
-            {
+            for (Map.Entry<PageTransactionInfo, AtomicInteger> entry : countsToUpdate.entrySet()) {
                storageManager.updatePageTransaction(tx.getID(), entry.getKey(), entry.getValue().get());
             }
          }
       }
-
 
    }
 }

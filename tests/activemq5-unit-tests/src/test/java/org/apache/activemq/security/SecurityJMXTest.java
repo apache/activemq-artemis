@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.security;
 
-
 import java.net.URI;
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
@@ -44,65 +43,63 @@ import org.slf4j.LoggerFactory;
 
 public class SecurityJMXTest extends TestCase {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SimpleAuthenticationPluginTest.class);
-    private BrokerService broker;
+   private static final Logger LOG = LoggerFactory.getLogger(SimpleAuthenticationPluginTest.class);
+   private BrokerService broker;
 
-    @Override
-    public void setUp() throws Exception {
-        broker = createBroker();
-        broker.waitUntilStarted();
-    }
+   @Override
+   public void setUp() throws Exception {
+      broker = createBroker();
+      broker.waitUntilStarted();
+   }
 
-    @Override
-    public void tearDown() throws Exception {
-        broker.stop();
-    }
+   @Override
+   public void tearDown() throws Exception {
+      broker.stop();
+   }
 
-    public void testMoveMessages() throws Exception {
-        JMXServiceURL url = new JMXServiceURL("service:jmx:rmi:///jndi/rmi://localhost:1199/jmxrmi");
-        JMXConnector connector = JMXConnectorFactory.connect(url, null);
-        connector.connect();
-        MBeanServerConnection connection = connector.getMBeanServerConnection();
-        ObjectName name = new ObjectName("org.apache.activemq:type=Broker,brokerName=localhost," +
-                "destinationType=Queue,destinationName=TEST.Q");
-        QueueViewMBean queueMbean = MBeanServerInvocationHandler.newProxyInstance(connection, name, QueueViewMBean.class, true);
-        String msgId = queueMbean.sendTextMessage("test", "system", "manager");
-        queueMbean.moveMessageTo(msgId, "TEST1.Q");
-    }
+   public void testMoveMessages() throws Exception {
+      JMXServiceURL url = new JMXServiceURL("service:jmx:rmi:///jndi/rmi://localhost:1199/jmxrmi");
+      JMXConnector connector = JMXConnectorFactory.connect(url, null);
+      connector.connect();
+      MBeanServerConnection connection = connector.getMBeanServerConnection();
+      ObjectName name = new ObjectName("org.apache.activemq:type=Broker,brokerName=localhost," + "destinationType=Queue,destinationName=TEST.Q");
+      QueueViewMBean queueMbean = MBeanServerInvocationHandler.newProxyInstance(connection, name, QueueViewMBean.class, true);
+      String msgId = queueMbean.sendTextMessage("test", "system", "manager");
+      queueMbean.moveMessageTo(msgId, "TEST1.Q");
+   }
 
-    public void testBrowseExpiredMessages() throws Exception {
-        JMXServiceURL url = new JMXServiceURL("service:jmx:rmi:///jndi/rmi://localhost:1199/jmxrmi");
-        JMXConnector connector = JMXConnectorFactory.connect(url, null);
-        connector.connect();
-        MBeanServerConnection connection = connector.getMBeanServerConnection();
-        ObjectName name = new ObjectName("org.apache.activemq:type=Broker,brokerName=localhost," +
-                "destinationType=Queue,destinationName=TEST.Q");
-        QueueViewMBean queueMbean = MBeanServerInvocationHandler.newProxyInstance(connection, name, QueueViewMBean.class, true);
-        HashMap<String, String> headers = new HashMap<String, String>();
-        headers.put("timeToLive", Long.toString(2000));
-        headers.put("JMSDeliveryMode", Integer.toString(DeliveryMode.PERSISTENT));
-        queueMbean.sendTextMessage(headers, "test", "system", "manager");
-        // allow message to expire on the queue
-        TimeUnit.SECONDS.sleep(4);
+   public void testBrowseExpiredMessages() throws Exception {
+      JMXServiceURL url = new JMXServiceURL("service:jmx:rmi:///jndi/rmi://localhost:1199/jmxrmi");
+      JMXConnector connector = JMXConnectorFactory.connect(url, null);
+      connector.connect();
+      MBeanServerConnection connection = connector.getMBeanServerConnection();
+      ObjectName name = new ObjectName("org.apache.activemq:type=Broker,brokerName=localhost," + "destinationType=Queue,destinationName=TEST.Q");
+      QueueViewMBean queueMbean = MBeanServerInvocationHandler.newProxyInstance(connection, name, QueueViewMBean.class, true);
+      HashMap<String, String> headers = new HashMap<String, String>();
+      headers.put("timeToLive", Long.toString(2000));
+      headers.put("JMSDeliveryMode", Integer.toString(DeliveryMode.PERSISTENT));
+      queueMbean.sendTextMessage(headers, "test", "system", "manager");
+      // allow message to expire on the queue
+      TimeUnit.SECONDS.sleep(4);
 
-        Connection c = new ActiveMQConnectionFactory("vm://localhost").createConnection("system", "manager");
-        c.start();
+      Connection c = new ActiveMQConnectionFactory("vm://localhost").createConnection("system", "manager");
+      c.start();
 
-        // browser consumer will force expriation check on addConsumer
-        QueueBrowser browser = c.createSession(false, Session.AUTO_ACKNOWLEDGE).createBrowser(new ActiveMQQueue("TEST.Q"));
-        assertTrue("no message in the q", !browser.getEnumeration().hasMoreElements());
+      // browser consumer will force expriation check on addConsumer
+      QueueBrowser browser = c.createSession(false, Session.AUTO_ACKNOWLEDGE).createBrowser(new ActiveMQQueue("TEST.Q"));
+      assertTrue("no message in the q", !browser.getEnumeration().hasMoreElements());
 
-        // verify dlq got the message, no security exception as brokers context is now used
-        browser = c.createSession(false, Session.AUTO_ACKNOWLEDGE).createBrowser(new ActiveMQQueue("ActiveMQ.DLQ"));
-        assertTrue("one message in the dlq", browser.getEnumeration().hasMoreElements());
-    }
+      // verify dlq got the message, no security exception as brokers context is now used
+      browser = c.createSession(false, Session.AUTO_ACKNOWLEDGE).createBrowser(new ActiveMQQueue("ActiveMQ.DLQ"));
+      assertTrue("one message in the dlq", browser.getEnumeration().hasMoreElements());
+   }
 
-    protected BrokerService createBroker() throws Exception {
-        return createBroker("org/apache/activemq/security/simple-auth-broker.xml");
-    }
+   protected BrokerService createBroker() throws Exception {
+      return createBroker("org/apache/activemq/security/simple-auth-broker.xml");
+   }
 
-    protected BrokerService createBroker(String uri) throws Exception {
-        LOG.info("Loading broker configuration from the classpath with URI: " + uri);
-        return BrokerFactory.createBroker(new URI("xbean:" + uri));
-    }
+   protected BrokerService createBroker(String uri) throws Exception {
+      LOG.info("Loading broker configuration from the classpath with URI: " + uri);
+      return BrokerFactory.createBroker(new URI("xbean:" + uri));
+   }
 }

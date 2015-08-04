@@ -25,8 +25,7 @@ import org.junit.Test;
 
 import java.util.Map;
 
-public class AcceptorControlUsingCoreTest extends AcceptorControlTest
-{
+public class AcceptorControlUsingCoreTest extends AcceptorControlTest {
 
    // Constants -----------------------------------------------------
 
@@ -41,8 +40,7 @@ public class AcceptorControlUsingCoreTest extends AcceptorControlTest
    private ClientSession session;
 
    @Override
-   protected AcceptorControl createManagementControl(final String name) throws Exception
-   {
+   protected AcceptorControl createManagementControl(final String name) throws Exception {
       ServerLocator locator = createInVMNonHALocator();
       addServerLocator(locator);
       ClientSessionFactory sf = createSessionFactory(locator);
@@ -50,39 +48,32 @@ public class AcceptorControlUsingCoreTest extends AcceptorControlTest
       addClientSession(session);
       session.start();
 
-      return new AcceptorControl()
-      {
+      return new AcceptorControl() {
 
          private final CoreMessagingProxy proxy = new CoreMessagingProxy(session, ResourceNames.CORE_ACCEPTOR + name);
 
-         public String getFactoryClassName()
-         {
-            return (String)proxy.retrieveAttributeValue("factoryClassName");
+         public String getFactoryClassName() {
+            return (String) proxy.retrieveAttributeValue("factoryClassName");
          }
 
-         public String getName()
-         {
-            return (String)proxy.retrieveAttributeValue("name");
+         public String getName() {
+            return (String) proxy.retrieveAttributeValue("name");
          }
 
          @SuppressWarnings("unchecked")
-         public Map<String, Object> getParameters()
-         {
-            return (Map<String, Object>)proxy.retrieveAttributeValue("parameters");
+         public Map<String, Object> getParameters() {
+            return (Map<String, Object>) proxy.retrieveAttributeValue("parameters");
          }
 
-         public boolean isStarted()
-         {
-            return (Boolean)proxy.retrieveAttributeValue("started");
+         public boolean isStarted() {
+            return (Boolean) proxy.retrieveAttributeValue("started");
          }
 
-         public void start() throws Exception
-         {
+         public void start() throws Exception {
             proxy.invokeOperation("start");
          }
 
-         public void stop() throws Exception
-         {
+         public void stop() throws Exception {
             proxy.invokeOperation("stop");
          }
 
@@ -93,8 +84,7 @@ public class AcceptorControlUsingCoreTest extends AcceptorControlTest
 
    @Override
    @Test
-   public void testStartStop() throws Exception
-   {
+   public void testStartStop() throws Exception {
       // this test does not make sense when using core messages:
       // the acceptor must be started to receive the management messages
    }

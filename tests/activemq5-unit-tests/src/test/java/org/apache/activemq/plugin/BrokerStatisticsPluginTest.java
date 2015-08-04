@@ -39,176 +39,176 @@ import org.slf4j.LoggerFactory;
 /**
  * A BrokerStatisticsPluginTest
  * A testcase for https://issues.apache.org/activemq/browse/AMQ-2379
- *
  */
-public class BrokerStatisticsPluginTest extends TestCase{
-    private static final Logger LOG = LoggerFactory.getLogger(BrokerStatisticsPluginTest.class);
+public class BrokerStatisticsPluginTest extends TestCase {
 
-    private Connection connection;
-    private BrokerService broker;
+   private static final Logger LOG = LoggerFactory.getLogger(BrokerStatisticsPluginTest.class);
 
-    public void testBrokerStats() throws Exception{
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        Queue replyTo = session.createTemporaryQueue();
-        MessageConsumer consumer = session.createConsumer(replyTo);
-        Queue query = session.createQueue(StatisticsBroker.STATS_BROKER_PREFIX);
-        MessageProducer producer = session.createProducer(query);
-        Message msg = session.createMessage();
-        msg.setJMSReplyTo(replyTo);
-        producer.send(msg);
-        MapMessage reply = (MapMessage) consumer.receive(10*1000);
-        assertNotNull(reply);
-        assertTrue(reply.getMapNames().hasMoreElements());
-        assertTrue(reply.getJMSTimestamp() > 0);
-        assertEquals(Message.DEFAULT_PRIORITY, reply.getJMSPriority());
+   private Connection connection;
+   private BrokerService broker;
+
+   public void testBrokerStats() throws Exception {
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      Queue replyTo = session.createTemporaryQueue();
+      MessageConsumer consumer = session.createConsumer(replyTo);
+      Queue query = session.createQueue(StatisticsBroker.STATS_BROKER_PREFIX);
+      MessageProducer producer = session.createProducer(query);
+      Message msg = session.createMessage();
+      msg.setJMSReplyTo(replyTo);
+      producer.send(msg);
+      MapMessage reply = (MapMessage) consumer.receive(10 * 1000);
+      assertNotNull(reply);
+      assertTrue(reply.getMapNames().hasMoreElements());
+      assertTrue(reply.getJMSTimestamp() > 0);
+      assertEquals(Message.DEFAULT_PRIORITY, reply.getJMSPriority());
         /*
         for (Enumeration e = reply.getMapNames();e.hasMoreElements();) {
             String name = e.nextElement().toString();
             System.err.println(name+"="+reply.getObject(name));
         }
         */
-    }
+   }
 
-    public void testBrokerStatsReset() throws Exception{
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        Queue replyTo = session.createTemporaryQueue();
-        MessageConsumer consumer = session.createConsumer(replyTo);
-        Queue testQueue = session.createQueue("Test.Queue");
-        Queue query = session.createQueue(StatisticsBroker.STATS_BROKER_PREFIX);
-        MessageProducer producer = session.createProducer(null);
+   public void testBrokerStatsReset() throws Exception {
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      Queue replyTo = session.createTemporaryQueue();
+      MessageConsumer consumer = session.createConsumer(replyTo);
+      Queue testQueue = session.createQueue("Test.Queue");
+      Queue query = session.createQueue(StatisticsBroker.STATS_BROKER_PREFIX);
+      MessageProducer producer = session.createProducer(null);
 
-        producer.send(testQueue, session.createMessage());
+      producer.send(testQueue, session.createMessage());
 
-        Message msg = session.createMessage();
-        msg.setJMSReplyTo(replyTo);
-        producer.send(query, msg);
-        MapMessage reply = (MapMessage) consumer.receive(10*1000);
-        assertNotNull(reply);
-        assertTrue(reply.getMapNames().hasMoreElements());
-        assertTrue(reply.getLong("enqueueCount") >= 1);
+      Message msg = session.createMessage();
+      msg.setJMSReplyTo(replyTo);
+      producer.send(query, msg);
+      MapMessage reply = (MapMessage) consumer.receive(10 * 1000);
+      assertNotNull(reply);
+      assertTrue(reply.getMapNames().hasMoreElements());
+      assertTrue(reply.getLong("enqueueCount") >= 1);
 
-        msg = session.createMessage();
-        msg.setBooleanProperty(StatisticsBroker.STATS_BROKER_RESET_HEADER, true);
-        msg.setJMSReplyTo(replyTo);
-        producer.send(query, msg);
-        reply = (MapMessage) consumer.receive(10*1000);
-        assertNotNull(reply);
-        assertTrue(reply.getMapNames().hasMoreElements());
-        assertEquals(0, reply.getLong("enqueueCount"));
-        assertTrue(reply.getJMSTimestamp() > 0);
-        assertEquals(Message.DEFAULT_PRIORITY, reply.getJMSPriority());
-    }
+      msg = session.createMessage();
+      msg.setBooleanProperty(StatisticsBroker.STATS_BROKER_RESET_HEADER, true);
+      msg.setJMSReplyTo(replyTo);
+      producer.send(query, msg);
+      reply = (MapMessage) consumer.receive(10 * 1000);
+      assertNotNull(reply);
+      assertTrue(reply.getMapNames().hasMoreElements());
+      assertEquals(0, reply.getLong("enqueueCount"));
+      assertTrue(reply.getJMSTimestamp() > 0);
+      assertEquals(Message.DEFAULT_PRIORITY, reply.getJMSPriority());
+   }
 
-    public void testDestinationStats() throws Exception{
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        Queue replyTo = session.createTemporaryQueue();
-        MessageConsumer consumer = session.createConsumer(replyTo);
-        Queue testQueue = session.createQueue("Test.Queue");
-        MessageProducer producer = session.createProducer(null);
-        Queue query = session.createQueue(StatisticsBroker.STATS_DESTINATION_PREFIX + testQueue.getQueueName());
-        Message msg = session.createMessage();
+   public void testDestinationStats() throws Exception {
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      Queue replyTo = session.createTemporaryQueue();
+      MessageConsumer consumer = session.createConsumer(replyTo);
+      Queue testQueue = session.createQueue("Test.Queue");
+      MessageProducer producer = session.createProducer(null);
+      Queue query = session.createQueue(StatisticsBroker.STATS_DESTINATION_PREFIX + testQueue.getQueueName());
+      Message msg = session.createMessage();
 
-        producer.send(testQueue,msg);
+      producer.send(testQueue, msg);
 
-        msg.setJMSReplyTo(replyTo);
-        producer.send(query,msg);
-        MapMessage reply = (MapMessage) consumer.receive(10 * 1000);
-        assertNotNull(reply);
-        assertTrue(reply.getMapNames().hasMoreElements());
-        assertTrue(reply.getJMSTimestamp() > 0);
-        assertEquals(Message.DEFAULT_PRIORITY, reply.getJMSPriority());
+      msg.setJMSReplyTo(replyTo);
+      producer.send(query, msg);
+      MapMessage reply = (MapMessage) consumer.receive(10 * 1000);
+      assertNotNull(reply);
+      assertTrue(reply.getMapNames().hasMoreElements());
+      assertTrue(reply.getJMSTimestamp() > 0);
+      assertEquals(Message.DEFAULT_PRIORITY, reply.getJMSPriority());
         /*
         for (Enumeration e = reply.getMapNames();e.hasMoreElements();) {
             String name = e.nextElement().toString();
             System.err.println(name+"="+reply.getObject(name));
         }
         */
-    }
+   }
 
-    public void testDestinationStatsWithDot() throws Exception{
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        Queue replyTo = session.createTemporaryQueue();
-        MessageConsumer consumer = session.createConsumer(replyTo);
-        Queue testQueue = session.createQueue("Test.Queue");
-        MessageProducer producer = session.createProducer(null);
-        Queue query = session.createQueue(StatisticsBroker.STATS_DESTINATION_PREFIX + "." + testQueue.getQueueName());
-        Message msg = session.createMessage();
+   public void testDestinationStatsWithDot() throws Exception {
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      Queue replyTo = session.createTemporaryQueue();
+      MessageConsumer consumer = session.createConsumer(replyTo);
+      Queue testQueue = session.createQueue("Test.Queue");
+      MessageProducer producer = session.createProducer(null);
+      Queue query = session.createQueue(StatisticsBroker.STATS_DESTINATION_PREFIX + "." + testQueue.getQueueName());
+      Message msg = session.createMessage();
 
-        producer.send(testQueue,msg);
+      producer.send(testQueue, msg);
 
-        msg.setJMSReplyTo(replyTo);
-        producer.send(query,msg);
-        MapMessage reply = (MapMessage) consumer.receive(10 * 1000);
-        assertNotNull(reply);
-        assertTrue(reply.getMapNames().hasMoreElements());
-        assertTrue(reply.getJMSTimestamp() > 0);
-        assertEquals(Message.DEFAULT_PRIORITY, reply.getJMSPriority());
+      msg.setJMSReplyTo(replyTo);
+      producer.send(query, msg);
+      MapMessage reply = (MapMessage) consumer.receive(10 * 1000);
+      assertNotNull(reply);
+      assertTrue(reply.getMapNames().hasMoreElements());
+      assertTrue(reply.getJMSTimestamp() > 0);
+      assertEquals(Message.DEFAULT_PRIORITY, reply.getJMSPriority());
         /*
         for (Enumeration e = reply.getMapNames();e.hasMoreElements();) {
             String name = e.nextElement().toString();
             System.err.println(name+"="+reply.getObject(name));
         }
         */
-    }
+   }
 
-    @SuppressWarnings("unused")
-    public void testSubscriptionStats() throws Exception{
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        Queue replyTo = session.createTemporaryQueue();
-        MessageConsumer consumer = session.createConsumer(replyTo);
-        Queue testQueue = session.createQueue("Test.Queue");
-        MessageConsumer testConsumer = session.createConsumer(testQueue);
-        MessageProducer producer = session.createProducer(null);
-        Queue query = session.createQueue(StatisticsBroker.STATS_SUBSCRIPTION_PREFIX);
-        Message msg = session.createMessage();
+   @SuppressWarnings("unused")
+   public void testSubscriptionStats() throws Exception {
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      Queue replyTo = session.createTemporaryQueue();
+      MessageConsumer consumer = session.createConsumer(replyTo);
+      Queue testQueue = session.createQueue("Test.Queue");
+      MessageConsumer testConsumer = session.createConsumer(testQueue);
+      MessageProducer producer = session.createProducer(null);
+      Queue query = session.createQueue(StatisticsBroker.STATS_SUBSCRIPTION_PREFIX);
+      Message msg = session.createMessage();
 
-        producer.send(testQueue,msg);
+      producer.send(testQueue, msg);
 
-        msg.setJMSReplyTo(replyTo);
-        producer.send(query,msg);
-        MapMessage reply = (MapMessage) consumer.receive(10 * 1000);
-        assertNotNull(reply);
-        assertTrue(reply.getMapNames().hasMoreElements());
-        assertTrue(reply.getJMSTimestamp() > 0);
-        assertEquals(Message.DEFAULT_PRIORITY, reply.getJMSPriority());
+      msg.setJMSReplyTo(replyTo);
+      producer.send(query, msg);
+      MapMessage reply = (MapMessage) consumer.receive(10 * 1000);
+      assertNotNull(reply);
+      assertTrue(reply.getMapNames().hasMoreElements());
+      assertTrue(reply.getJMSTimestamp() > 0);
+      assertEquals(Message.DEFAULT_PRIORITY, reply.getJMSPriority());
 
         /*for (Enumeration e = reply.getMapNames();e.hasMoreElements();) {
             String name = e.nextElement().toString();
             System.err.println(name+"="+reply.getObject(name));
         }*/
-    }
+   }
 
-    @Override
-    protected void setUp() throws Exception {
-        broker = createBroker();
-        ConnectionFactory factory = new ActiveMQConnectionFactory(broker.getTransportConnectorURIsAsMap().get("tcp"));
-        connection = factory.createConnection();
-        connection.start();
-    }
+   @Override
+   protected void setUp() throws Exception {
+      broker = createBroker();
+      ConnectionFactory factory = new ActiveMQConnectionFactory(broker.getTransportConnectorURIsAsMap().get("tcp"));
+      connection = factory.createConnection();
+      connection.start();
+   }
 
-    @Override
-    protected void tearDown() throws Exception{
-        if (this.connection != null) {
-            this.connection.close();
-        }
-        if (this.broker!=null) {
-            this.broker.stop();
-        }
-    }
+   @Override
+   protected void tearDown() throws Exception {
+      if (this.connection != null) {
+         this.connection.close();
+      }
+      if (this.broker != null) {
+         this.broker.stop();
+      }
+   }
 
-    protected BrokerService createBroker() throws Exception {
-        BrokerService answer = new BrokerService();
-        BrokerPlugin[] plugins = new BrokerPlugin[1];
-        plugins[0] = new StatisticsBrokerPlugin();
-        answer.setPlugins(plugins);
-        answer.setDeleteAllMessagesOnStartup(true);
-        answer.addConnector("tcp://localhost:0");
-        answer.start();
-        return answer;
-    }
+   protected BrokerService createBroker() throws Exception {
+      BrokerService answer = new BrokerService();
+      BrokerPlugin[] plugins = new BrokerPlugin[1];
+      plugins[0] = new StatisticsBrokerPlugin();
+      answer.setPlugins(plugins);
+      answer.setDeleteAllMessagesOnStartup(true);
+      answer.addConnector("tcp://localhost:0");
+      answer.start();
+      return answer;
+   }
 
-    protected BrokerService createBroker(String uri) throws Exception {
-        LOG.info("Loading broker configuration from the classpath with URI: " + uri);
-        return BrokerFactory.createBroker(new URI("xbean:" + uri));
-    }
+   protected BrokerService createBroker(String uri) throws Exception {
+      LOG.info("Loading broker configuration from the classpath with URI: " + uri);
+      return BrokerFactory.createBroker(new URI("xbean:" + uri));
+   }
 }

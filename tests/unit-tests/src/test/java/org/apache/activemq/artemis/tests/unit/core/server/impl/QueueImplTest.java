@@ -54,8 +54,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class QueueImplTest extends ActiveMQTestBase
-{
+public class QueueImplTest extends ActiveMQTestBase {
    // The tests ----------------------------------------------------------------
 
    private ScheduledExecutorService scheduledExecutor;
@@ -64,8 +63,7 @@ public class QueueImplTest extends ActiveMQTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
       scheduledExecutor = Executors.newSingleThreadScheduledExecutor();
       executor = Executors.newSingleThreadExecutor();
@@ -73,8 +71,7 @@ public class QueueImplTest extends ActiveMQTestBase
 
    @Override
    @After
-   public void tearDown() throws Exception
-   {
+   public void tearDown() throws Exception {
       scheduledExecutor.shutdownNow();
       executor.shutdownNow();
       super.tearDown();
@@ -85,8 +82,7 @@ public class QueueImplTest extends ActiveMQTestBase
    private static final SimpleString address1 = new SimpleString("address1");
 
    @Test
-   public void testName()
-   {
+   public void testName() {
       final SimpleString name = new SimpleString("oobblle");
 
       QueueImpl queue = getNamedQueue(name);
@@ -95,8 +91,7 @@ public class QueueImplTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testDurable()
-   {
+   public void testDurable() {
       QueueImpl queue = getNonDurableQueue();
 
       Assert.assertFalse(queue.isDurable());
@@ -107,8 +102,7 @@ public class QueueImplTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testAddRemoveConsumer() throws Exception
-   {
+   public void testAddRemoveConsumer() throws Exception {
       Consumer cons1 = new FakeConsumer();
 
       Consumer cons2 = new FakeConsumer();
@@ -155,21 +149,17 @@ public class QueueImplTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testGetFilter()
-   {
+   public void testGetFilter() {
       QueueImpl queue = getTemporaryQueue();
 
       Assert.assertNull(queue.getFilter());
 
-      Filter filter = new Filter()
-      {
-         public boolean match(final ServerMessage message)
-         {
+      Filter filter = new Filter() {
+         public boolean match(final ServerMessage message) {
             return false;
          }
 
-         public SimpleString getFilterString()
-         {
+         public SimpleString getFilterString() {
             return null;
          }
       };
@@ -181,14 +171,12 @@ public class QueueImplTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testSimpleadd()
-   {
+   public void testSimpleadd() {
       QueueImpl queue = getTemporaryQueue();
 
       final int numMessages = 10;
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          MessageReference ref = generateReference(queue, i);
 
          queue.addTail(ref);
@@ -201,14 +189,12 @@ public class QueueImplTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testRate() throws InterruptedException
-   {
+   public void testRate() throws InterruptedException {
       QueueImpl queue = getTemporaryQueue();
 
       final int numMessages = 10;
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          MessageReference ref = generateReference(queue, i);
 
          queue.addTail(ref);
@@ -222,16 +208,14 @@ public class QueueImplTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testSimpleNonDirectDelivery() throws Exception
-   {
+   public void testSimpleNonDirectDelivery() throws Exception {
       QueueImpl queue = getTemporaryQueue();
 
       final int numMessages = 10;
 
       List<MessageReference> refs = new ArrayList<MessageReference>();
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          MessageReference ref = generateReference(queue, i);
 
          refs.add(ref);
@@ -261,8 +245,7 @@ public class QueueImplTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testBusyConsumer() throws Exception
-   {
+   public void testBusyConsumer() throws Exception {
       QueueImpl queue = getTemporaryQueue();
 
       FakeConsumer consumer = new FakeConsumer();
@@ -275,8 +258,7 @@ public class QueueImplTest extends ActiveMQTestBase
 
       List<MessageReference> refs = new ArrayList<MessageReference>();
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          MessageReference ref = generateReference(queue, i);
 
          refs.add(ref);
@@ -306,8 +288,7 @@ public class QueueImplTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testBusyConsumerThenAddMoreMessages() throws Exception
-   {
+   public void testBusyConsumerThenAddMoreMessages() throws Exception {
       QueueImpl queue = getTemporaryQueue();
 
       FakeConsumer consumer = new FakeConsumer();
@@ -320,8 +301,7 @@ public class QueueImplTest extends ActiveMQTestBase
 
       List<MessageReference> refs = new ArrayList<MessageReference>();
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          MessageReference ref = generateReference(queue, i);
 
          refs.add(ref);
@@ -340,8 +320,7 @@ public class QueueImplTest extends ActiveMQTestBase
       Assert.assertEquals(0, queue.getDeliveringCount());
       Assert.assertTrue(consumer.getReferences().isEmpty());
 
-      for (int i = numMessages; i < numMessages * 2; i++)
-      {
+      for (int i = numMessages; i < numMessages * 2; i++) {
          MessageReference ref = generateReference(queue, i);
 
          refs.add(ref);
@@ -356,8 +335,7 @@ public class QueueImplTest extends ActiveMQTestBase
 
       consumer.setStatusImmediate(HandleStatus.HANDLED);
 
-      for (int i = numMessages * 2; i < numMessages * 3; i++)
-      {
+      for (int i = numMessages * 2; i < numMessages * 3; i++) {
          MessageReference ref = generateReference(queue, i);
 
          refs.add(ref);
@@ -374,16 +352,14 @@ public class QueueImplTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testaddHeadadd() throws Exception
-   {
+   public void testaddHeadadd() throws Exception {
       QueueImpl queue = getTemporaryQueue();
 
       final int numMessages = 10;
 
       List<MessageReference> refs1 = new ArrayList<MessageReference>();
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          MessageReference ref = generateReference(queue, i);
 
          refs1.add(ref);
@@ -393,8 +369,7 @@ public class QueueImplTest extends ActiveMQTestBase
 
       LinkedList<MessageReference> refs2 = new LinkedList<MessageReference>();
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          MessageReference ref = generateReference(queue, i + numMessages);
 
          refs2.addFirst(ref);
@@ -404,8 +379,7 @@ public class QueueImplTest extends ActiveMQTestBase
 
       List<MessageReference> refs3 = new ArrayList<MessageReference>();
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          MessageReference ref = generateReference(queue, i + 2 * numMessages);
 
          refs3.add(ref);
@@ -429,16 +403,14 @@ public class QueueImplTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testChangeConsumersAndDeliver() throws Exception
-   {
+   public void testChangeConsumersAndDeliver() throws Exception {
       QueueImpl queue = getTemporaryQueue();
 
       final int numMessages = 10;
 
       List<MessageReference> refs = new ArrayList<MessageReference>();
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          MessageReference ref = generateReference(queue, i);
 
          refs.add(ref);
@@ -470,15 +442,13 @@ public class QueueImplTest extends ActiveMQTestBase
 
       cons1.getReferences().clear();
 
-      for (MessageReference ref : refs)
-      {
+      for (MessageReference ref : refs) {
          queue.acknowledge(ref);
       }
 
       refs.clear();
 
-      for (int i = 0; i < 2 * numMessages; i++)
-      {
+      for (int i = 0; i < 2 * numMessages; i++) {
          MessageReference ref = generateReference(queue, i);
 
          refs.add(ref);
@@ -499,8 +469,7 @@ public class QueueImplTest extends ActiveMQTestBase
       cons1.getReferences().clear();
       cons2.getReferences().clear();
 
-      for (MessageReference ref : refs)
-      {
+      for (MessageReference ref : refs) {
          queue.acknowledge(ref);
       }
       refs.clear();
@@ -511,8 +480,7 @@ public class QueueImplTest extends ActiveMQTestBase
 
       Assert.assertEquals(3, queue.getConsumerCount());
 
-      for (int i = 0; i < 3 * numMessages; i++)
-      {
+      for (int i = 0; i < 3 * numMessages; i++) {
          MessageReference ref = generateReference(queue, i);
 
          refs.add(ref);
@@ -537,14 +505,12 @@ public class QueueImplTest extends ActiveMQTestBase
       cons3.getReferences().clear();
       cons2.getReferences().clear();
 
-      for (MessageReference ref : refs)
-      {
+      for (MessageReference ref : refs) {
          queue.acknowledge(ref);
       }
       refs.clear();
 
-      for (int i = 0; i < 2 * numMessages; i++)
-      {
+      for (int i = 0; i < 2 * numMessages; i++) {
          MessageReference ref = generateReference(queue, i);
 
          refs.add(ref);
@@ -566,14 +532,12 @@ public class QueueImplTest extends ActiveMQTestBase
 
       cons2.getReferences().clear();
 
-      for (MessageReference ref : refs)
-      {
+      for (MessageReference ref : refs) {
          queue.acknowledge(ref);
       }
       refs.clear();
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          MessageReference ref = generateReference(queue, i);
 
          refs.add(ref);
@@ -591,10 +555,8 @@ public class QueueImplTest extends ActiveMQTestBase
 
    }
 
-
    @Test
-   public void testRoundRobinWithQueueing() throws Exception
-   {
+   public void testRoundRobinWithQueueing() throws Exception {
       QueueImpl queue = getTemporaryQueue();
 
       final int numMessages = 10;
@@ -605,8 +567,7 @@ public class QueueImplTest extends ActiveMQTestBase
 
       // Test first with queueing
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          MessageReference ref = generateReference(queue, i);
 
          refs.add(ref);
@@ -626,13 +587,11 @@ public class QueueImplTest extends ActiveMQTestBase
 
       // Need to make sure the consumers will receive the messages before we do these assertions
       long timeout = System.currentTimeMillis() + 5000;
-      while (cons1.getReferences().size() != numMessages / 2 && timeout > System.currentTimeMillis())
-      {
+      while (cons1.getReferences().size() != numMessages / 2 && timeout > System.currentTimeMillis()) {
          Thread.sleep(1);
       }
 
-      while (cons2.getReferences().size() != numMessages / 2 && timeout > System.currentTimeMillis())
-      {
+      while (cons2.getReferences().size() != numMessages / 2 && timeout > System.currentTimeMillis()) {
          Thread.sleep(1);
       }
 
@@ -640,8 +599,7 @@ public class QueueImplTest extends ActiveMQTestBase
 
       Assert.assertEquals(numMessages / 2, cons2.getReferences().size());
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          MessageReference ref;
 
          ref = i % 2 == 0 ? cons1.getReferences().get(i / 2) : cons2.getReferences().get(i / 2);
@@ -651,16 +609,14 @@ public class QueueImplTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testWithPriorities() throws Exception
-   {
+   public void testWithPriorities() throws Exception {
       QueueImpl queue = getTemporaryQueue();
 
       final int numMessages = 10;
 
       List<MessageReference> refs = new ArrayList<MessageReference>();
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          MessageReference ref = generateReference(queue, i);
 
          ref.getMessage().setPriority((byte) i);
@@ -684,28 +640,24 @@ public class QueueImplTest extends ActiveMQTestBase
 
       Assert.assertEquals(refs.size(), receivedRefs.size());
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          Assert.assertEquals(refs.get(i), receivedRefs.get(9 - i));
       }
 
    }
 
    @Test
-   public void testConsumerWithFiltersDirect() throws Exception
-   {
+   public void testConsumerWithFiltersDirect() throws Exception {
       testConsumerWithFilters(true);
    }
 
    @Test
-   public void testConsumerWithFiltersQueueing() throws Exception
-   {
+   public void testConsumerWithFiltersQueueing() throws Exception {
       testConsumerWithFilters(false);
    }
 
    @Test
-   public void testConsumerWithFilterAddAndRemove()
-   {
+   public void testConsumerWithFilterAddAndRemove() {
       QueueImpl queue = getTemporaryQueue();
 
       Filter filter = new FakeFilter("fruit", "orange");
@@ -714,16 +666,14 @@ public class QueueImplTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testIterator()
-   {
+   public void testIterator() {
       QueueImpl queue = getTemporaryQueue();
 
       final int numMessages = 20;
 
       List<MessageReference> refs = new ArrayList<MessageReference>();
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          MessageReference ref = generateReference(queue, i);
 
          queue.addTail(ref);
@@ -735,15 +685,13 @@ public class QueueImplTest extends ActiveMQTestBase
 
       Iterator<MessageReference> iterator = queue.iterator();
       List<MessageReference> list = new ArrayList<MessageReference>();
-      while (iterator.hasNext())
-      {
+      while (iterator.hasNext()) {
          list.add(iterator.next());
       }
       assertRefListsIdenticalRefs(refs, list);
    }
 
-   private void awaitExecution()
-   {
+   private void awaitExecution() {
       FutureLatch future = new FutureLatch();
 
       executor.execute(future);
@@ -752,8 +700,7 @@ public class QueueImplTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testConsumeWithFiltersAddAndRemoveConsumer() throws Exception
-   {
+   public void testConsumeWithFiltersAddAndRemoveConsumer() throws Exception {
 
       QueueImpl queue = getTemporaryQueue();
 
@@ -827,8 +774,7 @@ public class QueueImplTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testBusyConsumerWithFilterFirstCallBusy() throws Exception
-   {
+   public void testBusyConsumerWithFilterFirstCallBusy() throws Exception {
       QueueImpl queue = getTemporaryQueue();
 
       FakeConsumer consumer = new FakeConsumer(FilterImpl.createFilter("color = 'green'"));
@@ -841,8 +787,7 @@ public class QueueImplTest extends ActiveMQTestBase
 
       List<MessageReference> refs = new ArrayList<MessageReference>();
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          MessageReference ref = generateReference(queue, i);
          ref.getMessage().putStringProperty("color", "green");
          refs.add(ref);
@@ -862,15 +807,13 @@ public class QueueImplTest extends ActiveMQTestBase
 
       List<MessageReference> receeivedRefs = consumer.getReferences();
       int currId = 0;
-      for (MessageReference receeivedRef : receeivedRefs)
-      {
+      for (MessageReference receeivedRef : receeivedRefs) {
          Assert.assertEquals("messages received out of order", receeivedRef.getMessage().getMessageID(), currId++);
       }
    }
 
    @Test
-   public void testBusyConsumerWithFilterThenAddMoreMessages() throws Exception
-   {
+   public void testBusyConsumerWithFilterThenAddMoreMessages() throws Exception {
       QueueImpl queue = getTemporaryQueue();
 
       FakeConsumer consumer = new FakeConsumer(FilterImpl.createFilter("color = 'green'"));
@@ -883,8 +826,7 @@ public class QueueImplTest extends ActiveMQTestBase
 
       List<MessageReference> refs = new ArrayList<MessageReference>();
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          MessageReference ref = generateReference(queue, i);
          ref.getMessage().putStringProperty("color", "red");
          refs.add(ref);
@@ -903,8 +845,7 @@ public class QueueImplTest extends ActiveMQTestBase
       Assert.assertEquals(0, queue.getDeliveringCount());
       Assert.assertTrue(consumer.getReferences().isEmpty());
 
-      for (int i = numMessages; i < numMessages * 2; i++)
-      {
+      for (int i = numMessages; i < numMessages * 2; i++) {
          MessageReference ref = generateReference(queue, i);
 
          refs.add(ref);
@@ -919,8 +860,7 @@ public class QueueImplTest extends ActiveMQTestBase
 
       consumer.setStatusImmediate(null);
 
-      for (int i = numMessages * 2; i < numMessages * 3; i++)
-      {
+      for (int i = numMessages * 2; i < numMessages * 3; i++) {
          MessageReference ref = generateReference(queue, i);
 
          refs.add(ref);
@@ -937,22 +877,19 @@ public class QueueImplTest extends ActiveMQTestBase
 
       List<MessageReference> receeivedRefs = consumer.getReferences();
       int currId = 10;
-      for (MessageReference receeivedRef : receeivedRefs)
-      {
+      for (MessageReference receeivedRef : receeivedRefs) {
          Assert.assertEquals("messages received out of order", receeivedRef.getMessage().getMessageID(), currId++);
       }
    }
 
    @Test
-   public void testConsumerWithFilterThenAddMoreMessages() throws Exception
-   {
+   public void testConsumerWithFilterThenAddMoreMessages() throws Exception {
       QueueImpl queue = getTemporaryQueue();
 
       final int numMessages = 10;
       List<MessageReference> refs = new ArrayList<MessageReference>();
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          MessageReference ref = generateReference(queue, i);
          ref.getMessage().putStringProperty("color", "red");
          refs.add(ref);
@@ -970,8 +907,7 @@ public class QueueImplTest extends ActiveMQTestBase
       Assert.assertEquals(0, queue.getScheduledCount());
       Assert.assertEquals(0, queue.getDeliveringCount());
 
-      for (int i = numMessages; i < numMessages * 2; i++)
-      {
+      for (int i = numMessages; i < numMessages * 2; i++) {
          MessageReference ref = generateReference(queue, i);
 
          refs.add(ref);
@@ -989,8 +925,7 @@ public class QueueImplTest extends ActiveMQTestBase
       Assert.assertEquals(0, queue.getScheduledCount());
       Assert.assertEquals(10, queue.getDeliveringCount());
 
-      for (int i = numMessages * 2; i < numMessages * 3; i++)
-      {
+      for (int i = numMessages * 2; i < numMessages * 3; i++) {
          MessageReference ref = generateReference(queue, i);
 
          refs.add(ref);
@@ -1008,16 +943,14 @@ public class QueueImplTest extends ActiveMQTestBase
 
    // Private ------------------------------------------------------------------------------
 
-   private void testConsumerWithFilters(final boolean direct) throws Exception
-   {
+   private void testConsumerWithFilters(final boolean direct) throws Exception {
       QueueImpl queue = getTemporaryQueue();
 
       Filter filter = new FakeFilter("fruit", "orange");
 
       FakeConsumer consumer = new FakeConsumer(filter);
 
-      if (direct)
-      {
+      if (direct) {
          queue.addConsumer(consumer);
       }
 
@@ -1063,13 +996,11 @@ public class QueueImplTest extends ActiveMQTestBase
 
       queue.addTail(ref6);
 
-      if (!direct)
-      {
+      if (!direct) {
          queue.addConsumer(consumer);
 
          queue.deliverNow();
       }
-
 
       Assert.assertEquals(6, getMessageCount(queue));
 
@@ -1100,8 +1031,7 @@ public class QueueImplTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testMessageOrder() throws Exception
-   {
+   public void testMessageOrder() throws Exception {
       FakeConsumer consumer = new FakeConsumer();
       QueueImpl queue = getTemporaryQueue();
       MessageReference messageReference = generateReference(queue, 1);
@@ -1122,8 +1052,7 @@ public class QueueImplTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testMessagesAdded() throws Exception
-   {
+   public void testMessagesAdded() throws Exception {
       QueueImpl queue = getTemporaryQueue();
       MessageReference messageReference = generateReference(queue, 1);
       MessageReference messageReference2 = generateReference(queue, 2);
@@ -1135,8 +1064,7 @@ public class QueueImplTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testGetReference() throws Exception
-   {
+   public void testGetReference() throws Exception {
       QueueImpl queue = getTemporaryQueue();
       MessageReference messageReference = generateReference(queue, 1);
       MessageReference messageReference2 = generateReference(queue, 2);
@@ -1149,8 +1077,7 @@ public class QueueImplTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testGetNonExistentReference() throws Exception
-   {
+   public void testGetNonExistentReference() throws Exception {
       QueueImpl queue = getTemporaryQueue();
       MessageReference messageReference = generateReference(queue, 1);
       MessageReference messageReference2 = generateReference(queue, 2);
@@ -1168,8 +1095,7 @@ public class QueueImplTest extends ActiveMQTestBase
     * @throws Exception
     */
    @Test
-   public void testPauseAndResumeWithAsync() throws Exception
-   {
+   public void testPauseAndResumeWithAsync() throws Exception {
       QueueImpl queue = getTemporaryQueue();
 
       // pauses the queue
@@ -1179,8 +1105,7 @@ public class QueueImplTest extends ActiveMQTestBase
 
       List<MessageReference> refs = new ArrayList<MessageReference>();
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          MessageReference ref = generateReference(queue, i);
 
          refs.add(ref);
@@ -1226,8 +1151,7 @@ public class QueueImplTest extends ActiveMQTestBase
     */
 
    @Test
-   public void testPauseAndResumeWithDirect() throws Exception
-   {
+   public void testPauseAndResumeWithDirect() throws Exception {
       QueueImpl queue = getTemporaryQueue();
 
       // Now add a consumer
@@ -1242,8 +1166,7 @@ public class QueueImplTest extends ActiveMQTestBase
 
       List<MessageReference> refs = new ArrayList<MessageReference>();
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          MessageReference ref = generateReference(queue, i);
          refs.add(ref);
          queue.addTail(ref);
@@ -1260,7 +1183,6 @@ public class QueueImplTest extends ActiveMQTestBase
       // brings the queue to resumed state.
       queue.resume();
 
-
       awaitExecution();
 
       // resuming delivery of messages
@@ -1271,8 +1193,7 @@ public class QueueImplTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testResetMessagesAdded() throws Exception
-   {
+   public void testResetMessagesAdded() throws Exception {
       QueueImpl queue = getTemporaryQueue();
       MessageReference messageReference = generateReference(queue, 1);
       MessageReference messageReference2 = generateReference(queue, 2);
@@ -1283,8 +1204,8 @@ public class QueueImplTest extends ActiveMQTestBase
       Assert.assertEquals(0, getMessagesAdded(queue));
    }
 
-   class AddtoQueueRunner implements Runnable
-   {
+   class AddtoQueueRunner implements Runnable {
+
       QueueImpl queue;
 
       MessageReference messageReference;
@@ -1298,22 +1219,18 @@ public class QueueImplTest extends ActiveMQTestBase
       public AddtoQueueRunner(final boolean first,
                               final QueueImpl queue,
                               final MessageReference messageReference,
-                              final CountDownLatch countDownLatch)
-      {
+                              final CountDownLatch countDownLatch) {
          this.queue = queue;
          this.messageReference = messageReference;
          this.countDownLatch = countDownLatch;
          this.first = first;
       }
 
-      public void run()
-      {
-         if (first)
-         {
+      public void run() {
+         if (first) {
             queue.addHead(messageReference);
          }
-         else
-         {
+         else {
             queue.addTail(messageReference);
          }
          added = true;
@@ -1322,23 +1239,17 @@ public class QueueImplTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testTotalIteratorOrder() throws Exception
-   {
+   public void testTotalIteratorOrder() throws Exception {
       final String MY_ADDRESS = "myAddress";
       final String MY_QUEUE = "myQueue";
 
       ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig(), true));
 
-      AddressSettings defaultSetting = new AddressSettings()
-              .setPageSizeBytes(10 * 1024)
-              .setMaxSizeBytes(20 * 1024);
+      AddressSettings defaultSetting = new AddressSettings().setPageSizeBytes(10 * 1024).setMaxSizeBytes(20 * 1024);
       server.getAddressSettingsRepository().addMatch("#", defaultSetting);
       server.start();
 
-      ServerLocator locator = createInVMNonHALocator()
-              .setBlockOnNonDurableSend(true)
-              .setBlockOnDurableSend(true)
-              .setBlockOnAcknowledge(true);
+      ServerLocator locator = createInVMNonHALocator().setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setBlockOnAcknowledge(true);
 
       ClientSessionFactory factory = createSessionFactory(locator);
       ClientSession session = addClientSession(factory.createSession(false, true, true));
@@ -1347,8 +1258,7 @@ public class QueueImplTest extends ActiveMQTestBase
 
       ClientProducer producer = addClientProducer(session.createProducer(MY_ADDRESS));
 
-      for (int i = 0; i < 50; i++)
-      {
+      for (int i = 0; i < 50; i++) {
          ClientMessage message = session.createMessage(true);
          message.getBodyBuffer().writeBytes(new byte[1024]);
          message.putIntProperty("order", i);
@@ -1363,61 +1273,40 @@ public class QueueImplTest extends ActiveMQTestBase
       Queue queue = ((LocalQueueBinding) server.getPostOffice().getBinding(new SimpleString(MY_QUEUE))).getQueue();
       LinkedListIterator<MessageReference> totalIterator = queue.totalIterator();
 
-      try
-      {
+      try {
          int i = 0;
-         while (totalIterator.hasNext())
-         {
+         while (totalIterator.hasNext()) {
             MessageReference ref = totalIterator.next();
             Assert.assertEquals(i++, ref.getMessage().getIntProperty("order").intValue());
          }
       }
-      finally
-      {
+      finally {
          totalIterator.close();
          server.stop();
       }
    }
 
-   private QueueImpl getNonDurableQueue()
-   {
+   private QueueImpl getNonDurableQueue() {
       return getQueue(QueueImplTest.queue1, false, false, null);
    }
 
-   private QueueImpl getDurableQueue()
-   {
+   private QueueImpl getDurableQueue() {
       return getQueue(QueueImplTest.queue1, true, false, null);
    }
 
-   private QueueImpl getNamedQueue(SimpleString name)
-   {
+   private QueueImpl getNamedQueue(SimpleString name) {
       return getQueue(name, false, true, null);
    }
 
-   private QueueImpl getFilteredQueue(Filter filter)
-   {
+   private QueueImpl getFilteredQueue(Filter filter) {
       return getQueue(QueueImplTest.queue1, false, true, filter);
    }
 
-   private QueueImpl getTemporaryQueue()
-   {
+   private QueueImpl getTemporaryQueue() {
       return getQueue(QueueImplTest.queue1, false, true, null);
    }
 
-   private QueueImpl getQueue(SimpleString name, boolean durable, boolean temporary, Filter filter)
-   {
-      return new QueueImpl(1,
-                           QueueImplTest.address1,
-                           name,
-                           filter,
-                           null,
-                           durable,
-                           temporary,
-                           false,
-                           scheduledExecutor,
-                           new FakePostOffice(),
-                           null,
-                           null,
-                           executor);
+   private QueueImpl getQueue(SimpleString name, boolean durable, boolean temporary, Filter filter) {
+      return new QueueImpl(1, QueueImplTest.address1, name, filter, null, durable, temporary, false, scheduledExecutor, new FakePostOffice(), null, null, executor);
    }
 }

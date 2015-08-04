@@ -113,8 +113,8 @@ import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 
-public class ServerSessionPacketHandler implements ChannelHandler
-{
+public class ServerSessionPacketHandler implements ChannelHandler {
+
    private final ServerSession session;
 
    private final StorageManager storageManager;
@@ -127,8 +127,7 @@ public class ServerSessionPacketHandler implements ChannelHandler
 
    public ServerSessionPacketHandler(final ServerSession session,
                                      final StorageManager storageManager,
-                                     final Channel channel)
-   {
+                                     final Channel channel) {
       this.session = session;
 
       this.storageManager = storageManager;
@@ -140,63 +139,51 @@ public class ServerSessionPacketHandler implements ChannelHandler
       //TODO think of a better way of doing this
       Connection conn = remotingConnection.getTransportConnection();
 
-      if (conn instanceof NettyConnection)
-      {
-         direct = ((NettyConnection)conn).isDirectDeliver();
+      if (conn instanceof NettyConnection) {
+         direct = ((NettyConnection) conn).isDirectDeliver();
       }
-      else
-      {
+      else {
          direct = false;
       }
    }
 
-   public ServerSession getSession()
-   {
+   public ServerSession getSession() {
       return session;
    }
 
-   public long getID()
-   {
+   public long getID() {
       return channel.getID();
    }
 
-   public void connectionFailed(final ActiveMQException exception, boolean failedOver)
-   {
+   public void connectionFailed(final ActiveMQException exception, boolean failedOver) {
       ActiveMQServerLogger.LOGGER.clientConnectionFailed(session.getName());
 
-      try
-      {
+      try {
          session.close(true);
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          ActiveMQServerLogger.LOGGER.errorClosingSession(e);
       }
 
       ActiveMQServerLogger.LOGGER.clearingUpSession(session.getName());
    }
 
-   public void close()
-   {
+   public void close() {
       channel.flushConfirmations();
 
-      try
-      {
+      try {
          session.close(false);
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          ActiveMQServerLogger.LOGGER.errorClosingSession(e);
       }
    }
 
-   public Channel getChannel()
-   {
+   public Channel getChannel() {
       return channel;
    }
 
-   public void handlePacket(final Packet packet)
-   {
+   public void handlePacket(final Packet packet) {
       byte type = packet.getType();
 
       storageManager.setContext(session.getSessionContext());
@@ -206,405 +193,327 @@ public class ServerSessionPacketHandler implements ChannelHandler
       boolean closeChannel = false;
       boolean requiresResponse = false;
 
-      try
-      {
-         try
-         {
-            switch (type)
-            {
-               case SESS_CREATECONSUMER:
-               {
-                  SessionCreateConsumerMessage request = (SessionCreateConsumerMessage)packet;
+      try {
+         try {
+            switch (type) {
+               case SESS_CREATECONSUMER: {
+                  SessionCreateConsumerMessage request = (SessionCreateConsumerMessage) packet;
                   requiresResponse = request.isRequiresResponse();
-                  session.createConsumer(request.getID(),
-                        request.getQueueName(),
-                        request.getFilterString(),
-                        request.isBrowseOnly());
-                  if (requiresResponse)
-                  {
+                  session.createConsumer(request.getID(), request.getQueueName(), request.getFilterString(), request.isBrowseOnly());
+                  if (requiresResponse) {
                      // We send back queue information on the queue as a response- this allows the queue to
                      // be automatically recreated on failover
                      QueueQueryResult queueQueryResult = session.executeQueueQuery(request.getQueueName());
-                     if (channel.supports(PacketImpl.SESS_QUEUEQUERY_RESP_V2))
-                     {
+                     if (channel.supports(PacketImpl.SESS_QUEUEQUERY_RESP_V2)) {
                         response = new SessionQueueQueryResponseMessage_V2(queueQueryResult);
                      }
-                     else
-                     {
+                     else {
                         response = new SessionQueueQueryResponseMessage(queueQueryResult);
                      }
                   }
 
                   break;
                }
-               case CREATE_QUEUE:
-               {
-                  CreateQueueMessage request = (CreateQueueMessage)packet;
+               case CREATE_QUEUE: {
+                  CreateQueueMessage request = (CreateQueueMessage) packet;
                   requiresResponse = request.isRequiresResponse();
-                  session.createQueue(request.getAddress(),
-                        request.getQueueName(),
-                        request.getFilterString(),
-                        request.isTemporary(),
-                        request.isDurable());
-                  if (requiresResponse)
-                  {
+                  session.createQueue(request.getAddress(), request.getQueueName(), request.getFilterString(), request.isTemporary(), request.isDurable());
+                  if (requiresResponse) {
                      response = new NullResponseMessage();
                   }
                   break;
                }
-               case CREATE_SHARED_QUEUE:
-               {
-                  CreateSharedQueueMessage request = (CreateSharedQueueMessage)packet;
+               case CREATE_SHARED_QUEUE: {
+                  CreateSharedQueueMessage request = (CreateSharedQueueMessage) packet;
                   requiresResponse = request.isRequiresResponse();
-                  session.createSharedQueue(request.getAddress(),
-                        request.getQueueName(),
-                        request.isDurable(),
-                        request.getFilterString());
-                  if (requiresResponse)
-                  {
+                  session.createSharedQueue(request.getAddress(), request.getQueueName(), request.isDurable(), request.getFilterString());
+                  if (requiresResponse) {
                      response = new NullResponseMessage();
                   }
                   break;
                }
-               case DELETE_QUEUE:
-               {
+               case DELETE_QUEUE: {
                   requiresResponse = true;
-                  SessionDeleteQueueMessage request = (SessionDeleteQueueMessage)packet;
+                  SessionDeleteQueueMessage request = (SessionDeleteQueueMessage) packet;
                   session.deleteQueue(request.getQueueName());
                   response = new NullResponseMessage();
                   break;
                }
-               case SESS_QUEUEQUERY:
-               {
+               case SESS_QUEUEQUERY: {
                   requiresResponse = true;
-                  SessionQueueQueryMessage request = (SessionQueueQueryMessage)packet;
+                  SessionQueueQueryMessage request = (SessionQueueQueryMessage) packet;
                   QueueQueryResult result = session.executeQueueQuery(request.getQueueName());
-                  if (channel.supports(PacketImpl.SESS_QUEUEQUERY_RESP_V2))
-                  {
+                  if (channel.supports(PacketImpl.SESS_QUEUEQUERY_RESP_V2)) {
                      response = new SessionQueueQueryResponseMessage_V2(result);
                   }
-                  else
-                  {
+                  else {
                      response = new SessionQueueQueryResponseMessage(result);
                   }
                   break;
                }
-               case SESS_BINDINGQUERY:
-               {
+               case SESS_BINDINGQUERY: {
                   requiresResponse = true;
-                  SessionBindingQueryMessage request = (SessionBindingQueryMessage)packet;
+                  SessionBindingQueryMessage request = (SessionBindingQueryMessage) packet;
                   BindingQueryResult result = session.executeBindingQuery(request.getAddress());
-                  if (channel.supports(PacketImpl.SESS_BINDINGQUERY_RESP_V2))
-                  {
+                  if (channel.supports(PacketImpl.SESS_BINDINGQUERY_RESP_V2)) {
                      response = new SessionBindingQueryResponseMessage_V2(result.isExists(), result.getQueueNames(), result.isAutoCreateJmsQueues());
                   }
-                  else
-                  {
+                  else {
                      response = new SessionBindingQueryResponseMessage(result.isExists(), result.getQueueNames());
                   }
                   break;
                }
-               case SESS_ACKNOWLEDGE:
-               {
-                  SessionAcknowledgeMessage message = (SessionAcknowledgeMessage)packet;
+               case SESS_ACKNOWLEDGE: {
+                  SessionAcknowledgeMessage message = (SessionAcknowledgeMessage) packet;
                   requiresResponse = message.isRequiresResponse();
                   session.acknowledge(message.getConsumerID(), message.getMessageID());
-                  if (requiresResponse)
-                  {
+                  if (requiresResponse) {
                      response = new NullResponseMessage();
                   }
                   break;
                }
-               case SESS_EXPIRED:
-               {
-                  SessionExpireMessage message = (SessionExpireMessage)packet;
+               case SESS_EXPIRED: {
+                  SessionExpireMessage message = (SessionExpireMessage) packet;
                   session.expire(message.getConsumerID(), message.getMessageID());
                   break;
                }
-               case SESS_COMMIT:
-               {
+               case SESS_COMMIT: {
                   requiresResponse = true;
                   session.commit();
                   response = new NullResponseMessage();
                   break;
                }
-               case SESS_ROLLBACK:
-               {
+               case SESS_ROLLBACK: {
                   requiresResponse = true;
                   session.rollback(((RollbackMessage) packet).isConsiderLastMessageAsDelivered());
                   response = new NullResponseMessage();
                   break;
                }
-               case SESS_XA_COMMIT:
-               {
+               case SESS_XA_COMMIT: {
                   requiresResponse = true;
-                  SessionXACommitMessage message = (SessionXACommitMessage)packet;
+                  SessionXACommitMessage message = (SessionXACommitMessage) packet;
                   session.xaCommit(message.getXid(), message.isOnePhase());
                   response = new SessionXAResponseMessage(false, XAResource.XA_OK, null);
                   break;
                }
-               case SESS_XA_END:
-               {
+               case SESS_XA_END: {
                   requiresResponse = true;
-                  SessionXAEndMessage message = (SessionXAEndMessage)packet;
+                  SessionXAEndMessage message = (SessionXAEndMessage) packet;
                   session.xaEnd(message.getXid());
                   response = new SessionXAResponseMessage(false, XAResource.XA_OK, null);
                   break;
                }
-               case SESS_XA_FORGET:
-               {
+               case SESS_XA_FORGET: {
                   requiresResponse = true;
-                  SessionXAForgetMessage message = (SessionXAForgetMessage)packet;
+                  SessionXAForgetMessage message = (SessionXAForgetMessage) packet;
                   session.xaForget(message.getXid());
                   response = new SessionXAResponseMessage(false, XAResource.XA_OK, null);
                   break;
                }
-               case SESS_XA_JOIN:
-               {
+               case SESS_XA_JOIN: {
                   requiresResponse = true;
-                  SessionXAJoinMessage message = (SessionXAJoinMessage)packet;
+                  SessionXAJoinMessage message = (SessionXAJoinMessage) packet;
                   session.xaJoin(message.getXid());
                   response = new SessionXAResponseMessage(false, XAResource.XA_OK, null);
                   break;
                }
-               case SESS_XA_RESUME:
-               {
+               case SESS_XA_RESUME: {
                   requiresResponse = true;
-                  SessionXAResumeMessage message = (SessionXAResumeMessage)packet;
+                  SessionXAResumeMessage message = (SessionXAResumeMessage) packet;
                   session.xaResume(message.getXid());
                   response = new SessionXAResponseMessage(false, XAResource.XA_OK, null);
                   break;
                }
-               case SESS_XA_ROLLBACK:
-               {
+               case SESS_XA_ROLLBACK: {
                   requiresResponse = true;
-                  SessionXARollbackMessage message = (SessionXARollbackMessage)packet;
+                  SessionXARollbackMessage message = (SessionXARollbackMessage) packet;
                   session.xaRollback(message.getXid());
                   response = new SessionXAResponseMessage(false, XAResource.XA_OK, null);
                   break;
                }
-               case SESS_XA_START:
-               {
+               case SESS_XA_START: {
                   requiresResponse = true;
-                  SessionXAStartMessage message = (SessionXAStartMessage)packet;
+                  SessionXAStartMessage message = (SessionXAStartMessage) packet;
                   session.xaStart(message.getXid());
                   response = new SessionXAResponseMessage(false, XAResource.XA_OK, null);
                   break;
                }
-               case SESS_XA_FAILED:
-               {
+               case SESS_XA_FAILED: {
                   requiresResponse = true;
-                  SessionXAAfterFailedMessage message = (SessionXAAfterFailedMessage)packet;
+                  SessionXAAfterFailedMessage message = (SessionXAAfterFailedMessage) packet;
                   session.xaFailed(message.getXid());
                   // no response on this case
                   break;
                }
-               case SESS_XA_SUSPEND:
-               {
+               case SESS_XA_SUSPEND: {
                   requiresResponse = true;
                   session.xaSuspend();
                   response = new SessionXAResponseMessage(false, XAResource.XA_OK, null);
                   break;
                }
-               case SESS_XA_PREPARE:
-               {
+               case SESS_XA_PREPARE: {
                   requiresResponse = true;
-                  SessionXAPrepareMessage message = (SessionXAPrepareMessage)packet;
+                  SessionXAPrepareMessage message = (SessionXAPrepareMessage) packet;
                   session.xaPrepare(message.getXid());
                   response = new SessionXAResponseMessage(false, XAResource.XA_OK, null);
                   break;
                }
-               case SESS_XA_INDOUBT_XIDS:
-               {
+               case SESS_XA_INDOUBT_XIDS: {
                   requiresResponse = true;
                   List<Xid> xids = session.xaGetInDoubtXids();
                   response = new SessionXAGetInDoubtXidsResponseMessage(xids);
                   break;
                }
-               case SESS_XA_GET_TIMEOUT:
-               {
+               case SESS_XA_GET_TIMEOUT: {
                   requiresResponse = true;
                   int timeout = session.xaGetTimeout();
                   response = new SessionXAGetTimeoutResponseMessage(timeout);
                   break;
                }
-               case SESS_XA_SET_TIMEOUT:
-               {
+               case SESS_XA_SET_TIMEOUT: {
                   requiresResponse = true;
-                  SessionXASetTimeoutMessage message = (SessionXASetTimeoutMessage)packet;
+                  SessionXASetTimeoutMessage message = (SessionXASetTimeoutMessage) packet;
                   session.xaSetTimeout(message.getTimeoutSeconds());
                   response = new SessionXASetTimeoutResponseMessage(true);
                   break;
                }
-               case SESS_START:
-               {
+               case SESS_START: {
                   session.start();
                   break;
                }
-               case SESS_STOP:
-               {
+               case SESS_STOP: {
                   requiresResponse = true;
                   session.stop();
                   response = new NullResponseMessage();
                   break;
                }
-               case SESS_CLOSE:
-               {
+               case SESS_CLOSE: {
                   requiresResponse = true;
                   session.close(false);
-                 // removeConnectionListeners();
+                  // removeConnectionListeners();
                   response = new NullResponseMessage();
                   flush = true;
                   closeChannel = true;
                   break;
                }
-               case SESS_INDIVIDUAL_ACKNOWLEDGE:
-               {
-                  SessionIndividualAcknowledgeMessage message = (SessionIndividualAcknowledgeMessage)packet;
+               case SESS_INDIVIDUAL_ACKNOWLEDGE: {
+                  SessionIndividualAcknowledgeMessage message = (SessionIndividualAcknowledgeMessage) packet;
                   requiresResponse = message.isRequiresResponse();
                   session.individualAcknowledge(message.getConsumerID(), message.getMessageID());
-                  if (requiresResponse)
-                  {
+                  if (requiresResponse) {
                      response = new NullResponseMessage();
                   }
                   break;
                }
-               case SESS_CONSUMER_CLOSE:
-               {
+               case SESS_CONSUMER_CLOSE: {
                   requiresResponse = true;
-                  SessionConsumerCloseMessage message = (SessionConsumerCloseMessage)packet;
+                  SessionConsumerCloseMessage message = (SessionConsumerCloseMessage) packet;
                   session.closeConsumer(message.getConsumerID());
                   response = new NullResponseMessage();
                   break;
                }
-               case SESS_FLOWTOKEN:
-               {
-                  SessionConsumerFlowCreditMessage message = (SessionConsumerFlowCreditMessage)packet;
+               case SESS_FLOWTOKEN: {
+                  SessionConsumerFlowCreditMessage message = (SessionConsumerFlowCreditMessage) packet;
                   session.receiveConsumerCredits(message.getConsumerID(), message.getCredits());
                   break;
                }
-               case SESS_SEND:
-               {
-                  SessionSendMessage message = (SessionSendMessage)packet;
+               case SESS_SEND: {
+                  SessionSendMessage message = (SessionSendMessage) packet;
                   requiresResponse = message.isRequiresResponse();
-                  session.send((ServerMessage)message.getMessage(), direct);
-                  if (requiresResponse)
-                  {
+                  session.send((ServerMessage) message.getMessage(), direct);
+                  if (requiresResponse) {
                      response = new NullResponseMessage();
                   }
                   break;
                }
-               case SESS_SEND_LARGE:
-               {
-                  SessionSendLargeMessage message = (SessionSendLargeMessage)packet;
+               case SESS_SEND_LARGE: {
+                  SessionSendLargeMessage message = (SessionSendLargeMessage) packet;
                   session.sendLarge(message.getLargeMessage());
                   break;
                }
-               case SESS_SEND_CONTINUATION:
-               {
-                  SessionSendContinuationMessage message = (SessionSendContinuationMessage)packet;
+               case SESS_SEND_CONTINUATION: {
+                  SessionSendContinuationMessage message = (SessionSendContinuationMessage) packet;
                   requiresResponse = message.isRequiresResponse();
                   session.sendContinuations(message.getPacketSize(), message.getMessageBodySize(), message.getBody(), message.isContinues());
-                  if (requiresResponse)
-                  {
+                  if (requiresResponse) {
                      response = new NullResponseMessage();
                   }
                   break;
                }
-               case SESS_FORCE_CONSUMER_DELIVERY:
-               {
-                  SessionForceConsumerDelivery message = (SessionForceConsumerDelivery)packet;
+               case SESS_FORCE_CONSUMER_DELIVERY: {
+                  SessionForceConsumerDelivery message = (SessionForceConsumerDelivery) packet;
                   session.forceConsumerDelivery(message.getConsumerID(), message.getSequence());
                   break;
                }
-               case PacketImpl.SESS_PRODUCER_REQUEST_CREDITS:
-               {
-                  SessionRequestProducerCreditsMessage message = (SessionRequestProducerCreditsMessage)packet;
+               case PacketImpl.SESS_PRODUCER_REQUEST_CREDITS: {
+                  SessionRequestProducerCreditsMessage message = (SessionRequestProducerCreditsMessage) packet;
                   session.requestProducerCredits(message.getAddress(), message.getCredits());
                   break;
                }
-               case PacketImpl.SESS_ADD_METADATA:
-               {
+               case PacketImpl.SESS_ADD_METADATA: {
                   response = new NullResponseMessage();
-                  SessionAddMetaDataMessage message = (SessionAddMetaDataMessage)packet;
+                  SessionAddMetaDataMessage message = (SessionAddMetaDataMessage) packet;
                   session.addMetaData(message.getKey(), message.getData());
                   break;
                }
-               case PacketImpl.SESS_ADD_METADATA2:
-               {
-                  SessionAddMetaDataMessageV2 message = (SessionAddMetaDataMessageV2)packet;
-                  if (message.isRequiresConfirmations())
-                  {
+               case PacketImpl.SESS_ADD_METADATA2: {
+                  SessionAddMetaDataMessageV2 message = (SessionAddMetaDataMessageV2) packet;
+                  if (message.isRequiresConfirmations()) {
                      response = new NullResponseMessage();
                   }
                   session.addMetaData(message.getKey(), message.getData());
                   break;
                }
-               case PacketImpl.SESS_UNIQUE_ADD_METADATA:
-               {
-                  SessionUniqueAddMetaDataMessage message = (SessionUniqueAddMetaDataMessage)packet;
-                  if (session.addUniqueMetaData(message.getKey(), message.getData()))
-                  {
+               case PacketImpl.SESS_UNIQUE_ADD_METADATA: {
+                  SessionUniqueAddMetaDataMessage message = (SessionUniqueAddMetaDataMessage) packet;
+                  if (session.addUniqueMetaData(message.getKey(), message.getData())) {
                      response = new NullResponseMessage();
                   }
-                  else
-                  {
+                  else {
                      response = new ActiveMQExceptionMessage(ActiveMQMessageBundle.BUNDLE.duplicateMetadata(message.getKey(), message.getData()));
                   }
                   break;
                }
             }
          }
-         catch (ActiveMQXAException e)
-         {
-            if (requiresResponse)
-            {
+         catch (ActiveMQXAException e) {
+            if (requiresResponse) {
                ActiveMQServerLogger.LOGGER.debug("Sending exception to client", e);
                response = new SessionXAResponseMessage(true, e.errorCode, e.getMessage());
             }
-            else
-            {
+            else {
                ActiveMQServerLogger.LOGGER.caughtXaException(e);
             }
          }
-         catch (ActiveMQException e)
-         {
-            if (requiresResponse)
-            {
+         catch (ActiveMQException e) {
+            if (requiresResponse) {
                ActiveMQServerLogger.LOGGER.debug("Sending exception to client", e);
                response = new ActiveMQExceptionMessage(e);
             }
-            else
-            {
-               if (e.getType() == ActiveMQExceptionType.QUEUE_EXISTS)
-               {
+            else {
+               if (e.getType() == ActiveMQExceptionType.QUEUE_EXISTS) {
                   ActiveMQServerLogger.LOGGER.debug("Caught exception", e);
                }
-               else
-               {
+               else {
                   ActiveMQServerLogger.LOGGER.caughtException(e);
                }
             }
          }
-         catch (Throwable t)
-         {
-            if (requiresResponse)
-            {
+         catch (Throwable t) {
+            if (requiresResponse) {
                ActiveMQServerLogger.LOGGER.warn("Sending unexpected exception to the client", t);
                ActiveMQException activeMQInternalErrorException = new ActiveMQInternalErrorException();
                activeMQInternalErrorException.initCause(t);
                response = new ActiveMQExceptionMessage(activeMQInternalErrorException);
             }
-            else
-            {
+            else {
                ActiveMQServerLogger.LOGGER.caughtException(t);
             }
          }
 
          sendResponse(packet, response, flush, closeChannel);
       }
-      finally
-      {
+      finally {
          storageManager.clearContext();
       }
    }
@@ -612,21 +521,17 @@ public class ServerSessionPacketHandler implements ChannelHandler
    private void sendResponse(final Packet confirmPacket,
                              final Packet response,
                              final boolean flush,
-                             final boolean closeChannel)
-   {
-      storageManager.afterCompleteOperations(new IOCallback()
-      {
-         public void onError(final int errorCode, final String errorMessage)
-         {
+                             final boolean closeChannel) {
+      storageManager.afterCompleteOperations(new IOCallback() {
+         public void onError(final int errorCode, final String errorMessage) {
             ActiveMQServerLogger.LOGGER.errorProcessingIOCallback(errorCode, errorMessage);
 
-            ActiveMQExceptionMessage exceptionMessage = new ActiveMQExceptionMessage( ActiveMQExceptionType.createException(errorCode, errorMessage));
+            ActiveMQExceptionMessage exceptionMessage = new ActiveMQExceptionMessage(ActiveMQExceptionType.createException(errorCode, errorMessage));
 
             doConfirmAndResponse(confirmPacket, exceptionMessage, flush, closeChannel);
          }
 
-         public void done()
-         {
+         public void done() {
             doConfirmAndResponse(confirmPacket, response, flush, closeChannel);
          }
       });
@@ -635,45 +540,36 @@ public class ServerSessionPacketHandler implements ChannelHandler
    private void doConfirmAndResponse(final Packet confirmPacket,
                                      final Packet response,
                                      final boolean flush,
-                                     final boolean closeChannel)
-   {
-      if (confirmPacket != null)
-      {
+                                     final boolean closeChannel) {
+      if (confirmPacket != null) {
          channel.confirm(confirmPacket);
 
-         if (flush)
-         {
+         if (flush) {
             channel.flushConfirmations();
          }
       }
 
-      if (response != null)
-      {
+      if (response != null) {
          channel.send(response);
       }
 
-      if (closeChannel)
-      {
+      if (closeChannel) {
          channel.close();
       }
    }
 
-   public void closeListeners()
-   {
+   public void closeListeners() {
       List<CloseListener> listeners = remotingConnection.removeCloseListeners();
 
-      for (CloseListener closeListener: listeners)
-      {
+      for (CloseListener closeListener : listeners) {
          closeListener.connectionClosed();
-         if (closeListener instanceof FailureListener)
-         {
-            remotingConnection.removeFailureListener((FailureListener)closeListener);
+         if (closeListener instanceof FailureListener) {
+            remotingConnection.removeFailureListener((FailureListener) closeListener);
          }
       }
    }
 
-   public int transferConnection(final CoreRemotingConnection newConnection, final int lastReceivedCommandID)
-   {
+   public int transferConnection(final CoreRemotingConnection newConnection, final int lastReceivedCommandID) {
       // We need to disable delivery on all the consumers while the transfer is occurring- otherwise packets might get
       // delivered
       // after the channel has transferred but *before* packets have been replayed - this will give the client the wrong

@@ -21,21 +21,17 @@ import org.apache.activemq.artemis.core.paging.PagedMessage;
 import org.apache.activemq.artemis.core.paging.impl.PagedMessageImpl;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 
-public class ReplicationPageWriteMessage extends PacketImpl
-{
+public class ReplicationPageWriteMessage extends PacketImpl {
 
    private int pageNumber;
 
    private PagedMessage pagedMessage;
 
-
-   public ReplicationPageWriteMessage()
-   {
+   public ReplicationPageWriteMessage() {
       super(PacketImpl.REPLICATION_PAGE_WRITE);
    }
 
-   public ReplicationPageWriteMessage(final PagedMessage pagedMessage, final int pageNumber)
-   {
+   public ReplicationPageWriteMessage(final PagedMessage pagedMessage, final int pageNumber) {
       this();
       this.pageNumber = pageNumber;
       this.pagedMessage = pagedMessage;
@@ -44,15 +40,13 @@ public class ReplicationPageWriteMessage extends PacketImpl
    // Public --------------------------------------------------------
 
    @Override
-   public void encodeRest(final ActiveMQBuffer buffer)
-   {
+   public void encodeRest(final ActiveMQBuffer buffer) {
       buffer.writeInt(pageNumber);
       pagedMessage.encode(buffer);
    }
 
    @Override
-   public void decodeRest(final ActiveMQBuffer buffer)
-   {
+   public void decodeRest(final ActiveMQBuffer buffer) {
       pageNumber = buffer.readInt();
       pagedMessage = new PagedMessageImpl();
       pagedMessage.decode(buffer);
@@ -61,22 +55,19 @@ public class ReplicationPageWriteMessage extends PacketImpl
    /**
     * @return the pageNumber
     */
-   public int getPageNumber()
-   {
+   public int getPageNumber() {
       return pageNumber;
    }
 
    /**
     * @return the pagedMessage
     */
-   public PagedMessage getPagedMessage()
-   {
+   public PagedMessage getPagedMessage() {
       return pagedMessage;
    }
 
    @Override
-   public int hashCode()
-   {
+   public int hashCode() {
       final int prime = 31;
       int result = super.hashCode();
       result = prime * result + pageNumber;
@@ -85,19 +76,17 @@ public class ReplicationPageWriteMessage extends PacketImpl
    }
 
    @Override
-   public boolean equals(Object obj)
-   {
+   public boolean equals(Object obj) {
       if (this == obj)
          return true;
       if (!super.equals(obj))
          return false;
       if (getClass() != obj.getClass())
          return false;
-      ReplicationPageWriteMessage other = (ReplicationPageWriteMessage)obj;
+      ReplicationPageWriteMessage other = (ReplicationPageWriteMessage) obj;
       if (pageNumber != other.pageNumber)
          return false;
-      if (pagedMessage == null)
-      {
+      if (pagedMessage == null) {
          if (other.pagedMessage != null)
             return false;
       }

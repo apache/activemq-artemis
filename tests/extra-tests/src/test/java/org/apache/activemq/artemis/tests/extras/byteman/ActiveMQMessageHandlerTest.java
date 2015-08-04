@@ -51,38 +51,26 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(BMUnitRunner.class)
-public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase
-{
+public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase {
 
-   protected boolean usePersistence()
-   {
+   protected boolean usePersistence() {
       return true;
    }
 
-
    @Override
-   public boolean useSecurity()
-   {
+   public boolean useSecurity() {
       return false;
    }
 
    @Test
-   @BMRules
-   (
-      rules =
-            {
-               @BMRule
-                     (
-                           name = "interrupt",
-                           targetClass = "org.apache.activemq.artemis.core.protocol.core.impl.ActiveMQSessionContext",
-                           targetMethod = "xaEnd",
-                           targetLocation = "ENTRY",
-                           action = "org.apache.activemq.artemis.tests.extras.byteman.ActiveMQMessageHandlerTest.interrupt();"
-                     )
-            }
-   )
-   public void testSimpleMessageReceivedOnQueue() throws Exception
-   {
+   @BMRules(
+      rules = {@BMRule(
+         name = "interrupt",
+         targetClass = "org.apache.activemq.artemis.core.protocol.core.impl.ActiveMQSessionContext",
+         targetMethod = "xaEnd",
+         targetLocation = "ENTRY",
+         action = "org.apache.activemq.artemis.tests.extras.byteman.ActiveMQMessageHandlerTest.interrupt();")})
+   public void testSimpleMessageReceivedOnQueue() throws Exception {
       ActiveMQResourceAdapter qResourceAdapter = newResourceAdapter();
       resourceAdapter = qResourceAdapter;
 
@@ -144,22 +132,14 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase
    }
 
    @Test
-   @BMRules
-         (
-               rules =
-                     {
-                           @BMRule
-                                 (
-                                       name = "interrupt",
-                                       targetClass = "org.apache.activemq.artemis.core.protocol.core.impl.ActiveMQSessionContext",
-                                       targetMethod = "xaEnd",
-                                       targetLocation = "ENTRY",
-                                       action = "org.apache.activemq.artemis.tests.extras.byteman.ActiveMQMessageHandlerTest.interrupt();"
-                                 )
-                     }
-         )
-   public void testSimpleMessageReceivedOnQueueTwoPhase() throws Exception
-   {
+   @BMRules(
+      rules = {@BMRule(
+         name = "interrupt",
+         targetClass = "org.apache.activemq.artemis.core.protocol.core.impl.ActiveMQSessionContext",
+         targetMethod = "xaEnd",
+         targetLocation = "ENTRY",
+         action = "org.apache.activemq.artemis.tests.extras.byteman.ActiveMQMessageHandlerTest.interrupt();")})
+   public void testSimpleMessageReceivedOnQueueTwoPhase() throws Exception {
       ActiveMQResourceAdapter qResourceAdapter = newResourceAdapter();
       resourceAdapter = qResourceAdapter;
 
@@ -208,7 +188,6 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase
       Binding binding = server.getPostOffice().getBinding(SimpleString.toSimpleString(MDBQUEUEPREFIXED));
       assertEquals(1, getMessageCount(((Queue) binding.getBindable())));
 
-
       server.stop();
       server.start();
 
@@ -223,11 +202,10 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase
 
    static volatile ActiveMQResourceAdapter resourceAdapter;
    static boolean resourceAdapterStopped = false;
-   public static void interrupt() throws InterruptedException
-   {
+
+   public static void interrupt() throws InterruptedException {
       //Thread.currentThread().interrupt();
-      if (!resourceAdapterStopped)
-      {
+      if (!resourceAdapterStopped) {
          resourceAdapter.stop();
          resourceAdapterStopped = true;
          throw new InterruptedException("foo");
@@ -237,75 +215,61 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase
 
    Transaction currentTX;
 
-   public class XADummyEndpoint extends DummyMessageEndpoint
-   {
+   public class XADummyEndpoint extends DummyMessageEndpoint {
+
       final boolean twoPhase;
       ClientSession session;
       int afterDeliveryCounts = 0;
 
-      public XADummyEndpoint(CountDownLatch latch, boolean twoPhase) throws SystemException
-      {
+      public XADummyEndpoint(CountDownLatch latch, boolean twoPhase) throws SystemException {
          super(latch);
          this.twoPhase = twoPhase;
-         try
-         {
+         try {
             session = locator.createSessionFactory().createSession(true, false, false);
          }
-         catch (Throwable e)
-         {
+         catch (Throwable e) {
             throw new RuntimeException(e);
          }
       }
 
       @Override
-      public void beforeDelivery(Method method) throws NoSuchMethodException, ResourceException
-      {
+      public void beforeDelivery(Method method) throws NoSuchMethodException, ResourceException {
          super.beforeDelivery(method);
-         try
-         {
+         try {
             DummyTMLocator.tm.begin();
             currentTX = DummyTMLocator.tm.getTransaction();
             currentTX.enlistResource(xaResource);
-            if (twoPhase)
-            {
+            if (twoPhase) {
                currentTX.enlistResource(new DummyXAResource());
             }
          }
-         catch (Throwable e)
-         {
+         catch (Throwable e) {
             throw new RuntimeException(e.getMessage(), e);
          }
       }
 
-      public void onMessage(Message message)
-      {
+      public void onMessage(Message message) {
          super.onMessage(message);
-//         try
-//         {
-//            lastMessage = (ActiveMQMessage) message;
-//            currentTX.enlistResource(session);
-//            ClientProducer prod = session.createProducer()
-//         }
-//         catch (Exception e)
-//         {
-//            e.printStackTrace();
-//         }
-
+         //         try
+         //         {
+         //            lastMessage = (ActiveMQMessage) message;
+         //            currentTX.enlistResource(session);
+         //            ClientProducer prod = session.createProducer()
+         //         }
+         //         catch (Exception e)
+         //         {
+         //            e.printStackTrace();
+         //         }
 
       }
 
-
-
       @Override
-      public void afterDelivery() throws ResourceException
-      {
+      public void afterDelivery() throws ResourceException {
          afterDeliveryCounts++;
-         try
-         {
+         try {
             currentTX.commit();
          }
-         catch (Throwable e)
-         {
+         catch (Throwable e) {
             //its unsure as to whether the EJB/JCA layer will handle this or throw it to us,
             // either way we don't do anything else so its fine just to throw.
             // NB this will only happen with 2 phase commit
@@ -316,108 +280,93 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase
    }
 
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       resourceAdapter = null;
       resourceAdapterStopped = false;
       super.setUp();
       DummyTMLocator.startTM();
    }
 
-
    @After
-   public void tearDown() throws Exception
-   {
+   public void tearDown() throws Exception {
       DummyTMLocator.stopTM();
       super.tearDown();
    }
 
-   public static class DummyTMLocator
-   {
+   public static class DummyTMLocator {
+
       public static TransactionManagerImple tm;
-      public static void stopTM()
-      {
-         try
-         {
+
+      public static void stopTM() {
+         try {
             TransactionReaper.terminate(true);
             TxControl.disable(true);
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             e.printStackTrace();
          }
          tm = null;
       }
-      public static void startTM()
-      {
+
+      public static void startTM() {
          tm = new TransactionManagerImple();
          TxControl.enable();
       }
-      public TransactionManager getTM()
-      {
+
+      public TransactionManager getTM() {
          return tm;
       }
    }
 
-   static class DummyXAResource implements XAResource
-   {
+   static class DummyXAResource implements XAResource {
+
       @Override
-      public void commit(Xid xid, boolean b) throws XAException
-      {
+      public void commit(Xid xid, boolean b) throws XAException {
 
       }
 
       @Override
-      public void end(Xid xid, int i) throws XAException
-      {
+      public void end(Xid xid, int i) throws XAException {
 
       }
 
       @Override
-      public void forget(Xid xid) throws XAException
-      {
+      public void forget(Xid xid) throws XAException {
 
       }
 
       @Override
-      public int getTransactionTimeout() throws XAException
-      {
+      public int getTransactionTimeout() throws XAException {
          return 0;
       }
 
       @Override
-      public boolean isSameRM(XAResource xaResource) throws XAException
-      {
+      public boolean isSameRM(XAResource xaResource) throws XAException {
          return false;
       }
 
       @Override
-      public int prepare(Xid xid) throws XAException
-      {
+      public int prepare(Xid xid) throws XAException {
          return 0;
       }
 
       @Override
-      public Xid[] recover(int i) throws XAException
-      {
+      public Xid[] recover(int i) throws XAException {
          return new Xid[0];
       }
 
       @Override
-      public void rollback(Xid xid) throws XAException
-      {
+      public void rollback(Xid xid) throws XAException {
 
       }
 
       @Override
-      public boolean setTransactionTimeout(int i) throws XAException
-      {
+      public boolean setTransactionTimeout(int i) throws XAException {
          return false;
       }
 
       @Override
-      public void start(Xid xid, int i) throws XAException
-      {
+      public void start(Xid xid, int i) throws XAException {
 
       }
    }

@@ -26,8 +26,7 @@ import org.apache.activemq.artemis.selector.strict.StrictParser;
 
 /**
  */
-public class SelectorParser
-{
+public class SelectorParser {
 
    private static final LRUCache cache = new LRUCache(100);
    private static final String CONVERT_STRING_EXPRESSIONS_PREFIX = "convert_string_expressions:";
@@ -35,44 +34,35 @@ public class SelectorParser
    private static final String NO_CONVERT_STRING_EXPRESSIONS_PREFIX = "no_convert_string_expressions:";
    private static final String NO_HYPHENATED_PROPS_PREFIX = "no_hyphenated_props:";
 
-   public static BooleanExpression parse(String sql) throws FilterException
-   {
+   public static BooleanExpression parse(String sql) throws FilterException {
       Object result = cache.get(sql);
-      if (result instanceof FilterException)
-      {
+      if (result instanceof FilterException) {
          throw (FilterException) result;
       }
-      else if (result instanceof BooleanExpression)
-      {
+      else if (result instanceof BooleanExpression) {
          return (BooleanExpression) result;
       }
-      else
-      {
+      else {
          String actual = sql;
          boolean convertStringExpressions = false;
          boolean hyphenatedProps = false;
-         while (true)
-         {
-            if (actual.startsWith(CONVERT_STRING_EXPRESSIONS_PREFIX))
-            {
+         while (true) {
+            if (actual.startsWith(CONVERT_STRING_EXPRESSIONS_PREFIX)) {
                convertStringExpressions = true;
                actual = actual.substring(CONVERT_STRING_EXPRESSIONS_PREFIX.length());
                continue;
             }
-            if (actual.startsWith(HYPHENATED_PROPS_PREFIX))
-            {
+            if (actual.startsWith(HYPHENATED_PROPS_PREFIX)) {
                hyphenatedProps = true;
                actual = actual.substring(HYPHENATED_PROPS_PREFIX.length());
                continue;
             }
-            if (actual.startsWith(NO_CONVERT_STRING_EXPRESSIONS_PREFIX))
-            {
+            if (actual.startsWith(NO_CONVERT_STRING_EXPRESSIONS_PREFIX)) {
                convertStringExpressions = false;
                actual = actual.substring(NO_CONVERT_STRING_EXPRESSIONS_PREFIX.length());
                continue;
             }
-            if (actual.startsWith(NO_HYPHENATED_PROPS_PREFIX))
-            {
+            if (actual.startsWith(NO_HYPHENATED_PROPS_PREFIX)) {
                hyphenatedProps = false;
                actual = actual.substring(NO_HYPHENATED_PROPS_PREFIX.length());
                continue;
@@ -80,44 +70,36 @@ public class SelectorParser
             break;
          }
 
-         if (convertStringExpressions)
-         {
+         if (convertStringExpressions) {
             ComparisonExpression.CONVERT_STRING_EXPRESSIONS.set(true);
          }
-         try
-         {
+         try {
             BooleanExpression e = null;
-            if (hyphenatedProps)
-            {
+            if (hyphenatedProps) {
                HyphenatedParser parser = new HyphenatedParser(new StringReader(actual));
                e = parser.JmsSelector();
             }
-            else
-            {
+            else {
                StrictParser parser = new StrictParser(new StringReader(actual));
                e = parser.JmsSelector();
             }
             cache.put(sql, e);
             return e;
          }
-         catch (Throwable e)
-         {
+         catch (Throwable e) {
             FilterException fe = new FilterException(actual, e);
             cache.put(sql, fe);
             throw fe;
          }
-         finally
-         {
-            if (convertStringExpressions)
-            {
+         finally {
+            if (convertStringExpressions) {
                ComparisonExpression.CONVERT_STRING_EXPRESSIONS.remove();
             }
          }
       }
    }
 
-   public static void clearCache()
-   {
+   public static void clearCache() {
       cache.clear();
    }
 }

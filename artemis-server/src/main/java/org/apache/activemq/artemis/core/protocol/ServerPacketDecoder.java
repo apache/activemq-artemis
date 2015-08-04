@@ -71,158 +71,128 @@ import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionSen
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionSendMessage;
 import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
 
-public class ServerPacketDecoder extends ClientPacketDecoder
-{
+public class ServerPacketDecoder extends ClientPacketDecoder {
+
    private static final long serialVersionUID = 3348673114388400766L;
    public static final ServerPacketDecoder INSTANCE = new ServerPacketDecoder();
 
    @Override
-   public Packet decode(final ActiveMQBuffer in)
-   {
+   public Packet decode(final ActiveMQBuffer in) {
       final byte packetType = in.readByte();
 
       Packet packet;
 
-      switch (packetType)
-      {
+      switch (packetType) {
 
-         case SESS_SEND:
-         {
+         case SESS_SEND: {
             packet = new SessionSendMessage(new ServerMessageImpl());
             break;
          }
-         case SESS_SEND_LARGE:
-         {
+         case SESS_SEND_LARGE: {
             packet = new SessionSendLargeMessage(new ServerMessageImpl());
             break;
          }
-         case REPLICATION_APPEND:
-         {
+         case REPLICATION_APPEND: {
             packet = new ReplicationAddMessage();
             break;
          }
-         case REPLICATION_APPEND_TX:
-         {
+         case REPLICATION_APPEND_TX: {
             packet = new ReplicationAddTXMessage();
             break;
          }
-         case REPLICATION_DELETE:
-         {
+         case REPLICATION_DELETE: {
             packet = new ReplicationDeleteMessage();
             break;
          }
-         case REPLICATION_DELETE_TX:
-         {
+         case REPLICATION_DELETE_TX: {
             packet = new ReplicationDeleteTXMessage();
             break;
          }
-         case REPLICATION_PREPARE:
-         {
+         case REPLICATION_PREPARE: {
             packet = new ReplicationPrepareMessage();
             break;
          }
-         case REPLICATION_COMMIT_ROLLBACK:
-         {
+         case REPLICATION_COMMIT_ROLLBACK: {
             packet = new ReplicationCommitMessage();
             break;
          }
-         case REPLICATION_RESPONSE:
-         {
+         case REPLICATION_RESPONSE: {
             packet = new ReplicationResponseMessage();
             break;
          }
-         case REPLICATION_PAGE_WRITE:
-         {
+         case REPLICATION_PAGE_WRITE: {
             packet = new ReplicationPageWriteMessage();
             break;
          }
-         case REPLICATION_PAGE_EVENT:
-         {
+         case REPLICATION_PAGE_EVENT: {
             packet = new ReplicationPageEventMessage();
             break;
          }
-         case REPLICATION_LARGE_MESSAGE_BEGIN:
-         {
+         case REPLICATION_LARGE_MESSAGE_BEGIN: {
             packet = new ReplicationLargeMessageBeginMessage();
             break;
          }
-         case REPLICATION_LARGE_MESSAGE_END:
-         {
+         case REPLICATION_LARGE_MESSAGE_END: {
             packet = new ReplicationLargeMessageEndMessage();
             break;
          }
-         case REPLICATION_LARGE_MESSAGE_WRITE:
-         {
+         case REPLICATION_LARGE_MESSAGE_WRITE: {
             packet = new ReplicationLargeMessageWriteMessage();
             break;
          }
-         case PacketImpl.BACKUP_REGISTRATION:
-         {
+         case PacketImpl.BACKUP_REGISTRATION: {
             packet = new BackupRegistrationMessage();
             break;
          }
-         case PacketImpl.BACKUP_REGISTRATION_FAILED:
-         {
+         case PacketImpl.BACKUP_REGISTRATION_FAILED: {
             packet = new BackupReplicationStartFailedMessage();
             break;
          }
-         case PacketImpl.REPLICATION_START_FINISH_SYNC:
-         {
+         case PacketImpl.REPLICATION_START_FINISH_SYNC: {
             packet = new ReplicationStartSyncMessage();
             break;
          }
-         case PacketImpl.REPLICATION_SYNC_FILE:
-         {
+         case PacketImpl.REPLICATION_SYNC_FILE: {
             packet = new ReplicationSyncFileMessage();
             break;
          }
-         case PacketImpl.REPLICATION_SCHEDULED_FAILOVER:
-         {
+         case PacketImpl.REPLICATION_SCHEDULED_FAILOVER: {
             packet = new ReplicationLiveIsStoppingMessage();
             break;
          }
-         case CLUSTER_CONNECT:
-         {
+         case CLUSTER_CONNECT: {
             packet = new ClusterConnectMessage();
             break;
          }
-         case CLUSTER_CONNECT_REPLY:
-         {
+         case CLUSTER_CONNECT_REPLY: {
             packet = new ClusterConnectReplyMessage();
             break;
          }
-         case NODE_ANNOUNCE:
-         {
+         case NODE_ANNOUNCE: {
             packet = new NodeAnnounceMessage();
             break;
          }
-         case BACKUP_REQUEST:
-         {
+         case BACKUP_REQUEST: {
             packet = new BackupRequestMessage();
             break;
          }
-         case BACKUP_REQUEST_RESPONSE:
-         {
+         case BACKUP_REQUEST_RESPONSE: {
             packet = new BackupResponseMessage();
             break;
          }
-         case QUORUM_VOTE:
-         {
+         case QUORUM_VOTE: {
             packet = new QuorumVoteMessage();
             break;
          }
-         case QUORUM_VOTE_REPLY:
-         {
+         case QUORUM_VOTE_REPLY: {
             packet = new QuorumVoteReplyMessage();
             break;
          }
-         case SCALEDOWN_ANNOUNCEMENT:
-         {
+         case SCALEDOWN_ANNOUNCEMENT: {
             packet = new ScaleDownAnnounceMessage();
             break;
          }
-         default:
-         {
+         default: {
             packet = super.decode(packetType);
          }
       }

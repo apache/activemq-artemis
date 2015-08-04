@@ -33,17 +33,15 @@ import java.lang.Exception;
  * A simple JMS Queue example that creates a producer and consumer on a queue
  * and sends then receives a message.
  */
-public class OpenWireExample
-{
+public class OpenWireExample {
+
    public static final String OWHOST = "localhost";
    public static final int OWPORT = 61616;
 
-   public static void main(final String[] args) throws Exception
-   {
+   public static void main(final String[] args) throws Exception {
       Connection connection = null;
 
-      try
-      {
+      try {
          String urlString = "tcp://" + OWHOST + ":" + OWPORT;
 
          // Step 1. Create an ActiveMQ Artemis Connection Factory
@@ -80,10 +78,8 @@ public class OpenWireExample
 
          System.out.println("Received message: " + messageReceived.getText());
       }
-      finally
-      {
-         if (connection != null)
-         {
+      finally {
+         if (connection != null) {
             connection.close();
          }
       }

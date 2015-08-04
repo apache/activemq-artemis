@@ -16,14 +16,12 @@
  */
 package org.apache.activemq.artemis.selector.filter;
 
-
 /**
  * An expression which performs an operation on two expression values
  *
  * @version $Revision: 1.2 $
  */
-public abstract class ArithmeticExpression extends BinaryExpression
-{
+public abstract class ArithmeticExpression extends BinaryExpression {
 
    protected static final int INTEGER = 1;
    protected static final int LONG = 2;
@@ -34,108 +32,83 @@ public abstract class ArithmeticExpression extends BinaryExpression
     * @param left
     * @param right
     */
-   public ArithmeticExpression(Expression left, Expression right)
-   {
+   public ArithmeticExpression(Expression left, Expression right) {
       super(left, right);
       convertStringExpressions = ComparisonExpression.CONVERT_STRING_EXPRESSIONS.get() != null;
    }
 
-   public static Expression createPlus(Expression left, Expression right)
-   {
-      return new ArithmeticExpression(left, right)
-      {
-         protected Object evaluate(Object lvalue, Object rvalue)
-         {
-            if (lvalue instanceof String)
-            {
+   public static Expression createPlus(Expression left, Expression right) {
+      return new ArithmeticExpression(left, right) {
+         protected Object evaluate(Object lvalue, Object rvalue) {
+            if (lvalue instanceof String) {
                String text = (String) lvalue;
                String answer = text + rvalue;
                return answer;
             }
-            else
-            {
+            else {
                return plus(asNumber(lvalue), asNumber(rvalue));
             }
          }
 
-         public String getExpressionSymbol()
-         {
+         public String getExpressionSymbol() {
             return "+";
          }
       };
    }
 
-   public static Expression createMinus(Expression left, Expression right)
-   {
-      return new ArithmeticExpression(left, right)
-      {
-         protected Object evaluate(Object lvalue, Object rvalue)
-         {
+   public static Expression createMinus(Expression left, Expression right) {
+      return new ArithmeticExpression(left, right) {
+         protected Object evaluate(Object lvalue, Object rvalue) {
             return minus(asNumber(lvalue), asNumber(rvalue));
          }
 
-         public String getExpressionSymbol()
-         {
+         public String getExpressionSymbol() {
             return "-";
          }
       };
    }
 
-   public static Expression createMultiply(Expression left, Expression right)
-   {
-      return new ArithmeticExpression(left, right)
-      {
+   public static Expression createMultiply(Expression left, Expression right) {
+      return new ArithmeticExpression(left, right) {
 
-         protected Object evaluate(Object lvalue, Object rvalue)
-         {
+         protected Object evaluate(Object lvalue, Object rvalue) {
             return multiply(asNumber(lvalue), asNumber(rvalue));
          }
 
-         public String getExpressionSymbol()
-         {
+         public String getExpressionSymbol() {
             return "*";
          }
       };
    }
 
-   public static Expression createDivide(Expression left, Expression right)
-   {
-      return new ArithmeticExpression(left, right)
-      {
+   public static Expression createDivide(Expression left, Expression right) {
+      return new ArithmeticExpression(left, right) {
 
-         protected Object evaluate(Object lvalue, Object rvalue)
-         {
+         protected Object evaluate(Object lvalue, Object rvalue) {
             return divide(asNumber(lvalue), asNumber(rvalue));
          }
 
-         public String getExpressionSymbol()
-         {
+         public String getExpressionSymbol() {
             return "/";
          }
       };
    }
 
-   public static Expression createMod(Expression left, Expression right)
-   {
-      return new ArithmeticExpression(left, right)
-      {
+   public static Expression createMod(Expression left, Expression right) {
+      return new ArithmeticExpression(left, right) {
 
-         protected Object evaluate(Object lvalue, Object rvalue)
-         {
+         protected Object evaluate(Object lvalue, Object rvalue) {
             return mod(asNumber(lvalue), asNumber(rvalue));
          }
 
-         public String getExpressionSymbol()
-         {
+         public String getExpressionSymbol() {
             return "%";
          }
       };
    }
 
-   protected Number plus(Number left, Number right)
-   {
-      switch (numberType(left, right))
-      {
+   protected Number plus(Number left, Number right) {
+      switch (numberType(left, right)) {
          case INTEGER:
             return new Integer(left.intValue() + right.intValue());
          case LONG:
@@ -145,10 +118,8 @@ public abstract class ArithmeticExpression extends BinaryExpression
       }
    }
 
-   protected Number minus(Number left, Number right)
-   {
-      switch (numberType(left, right))
-      {
+   protected Number minus(Number left, Number right) {
+      switch (numberType(left, right)) {
          case INTEGER:
             return new Integer(left.intValue() - right.intValue());
          case LONG:
@@ -158,10 +129,8 @@ public abstract class ArithmeticExpression extends BinaryExpression
       }
    }
 
-   protected Number multiply(Number left, Number right)
-   {
-      switch (numberType(left, right))
-      {
+   protected Number multiply(Number left, Number right) {
+      switch (numberType(left, right)) {
          case INTEGER:
             return new Integer(left.intValue() * right.intValue());
          case LONG:
@@ -171,61 +140,46 @@ public abstract class ArithmeticExpression extends BinaryExpression
       }
    }
 
-   protected Number divide(Number left, Number right)
-   {
+   protected Number divide(Number left, Number right) {
       return new Double(left.doubleValue() / right.doubleValue());
    }
 
-   protected Number mod(Number left, Number right)
-   {
+   protected Number mod(Number left, Number right) {
       return new Double(left.doubleValue() % right.doubleValue());
    }
 
-   private int numberType(Number left, Number right)
-   {
-      if (isDouble(left) || isDouble(right))
-      {
+   private int numberType(Number left, Number right) {
+      if (isDouble(left) || isDouble(right)) {
          return DOUBLE;
       }
-      else if (left instanceof Long || right instanceof Long)
-      {
+      else if (left instanceof Long || right instanceof Long) {
          return LONG;
       }
-      else
-      {
+      else {
          return INTEGER;
       }
    }
 
-   private boolean isDouble(Number n)
-   {
+   private boolean isDouble(Number n) {
       return n instanceof Float || n instanceof Double;
    }
 
-   protected Number asNumber(Object value)
-   {
-      if (value instanceof Number)
-      {
+   protected Number asNumber(Object value) {
+      if (value instanceof Number) {
          return (Number) value;
       }
-      else
-      {
-         if (convertStringExpressions && value instanceof String)
-         {
+      else {
+         if (convertStringExpressions && value instanceof String) {
             String v = (String) value;
-            try
-            {
-               if (v.contains("."))
-               {
+            try {
+               if (v.contains(".")) {
                   return new Double(v);
                }
-               else
-               {
+               else {
                   return new Long(v);
                }
             }
-            catch (NumberFormatException e)
-            {
+            catch (NumberFormatException e) {
                throw new RuntimeException("Cannot convert value: " + value + " into a number");
             }
          }
@@ -233,16 +187,13 @@ public abstract class ArithmeticExpression extends BinaryExpression
       }
    }
 
-   public Object evaluate(Filterable message) throws FilterException
-   {
+   public Object evaluate(Filterable message) throws FilterException {
       Object lvalue = left.evaluate(message);
-      if (lvalue == null)
-      {
+      if (lvalue == null) {
          return null;
       }
       Object rvalue = right.evaluate(message);
-      if (rvalue == null)
-      {
+      if (rvalue == null) {
          return null;
       }
       return evaluate(lvalue, rvalue);

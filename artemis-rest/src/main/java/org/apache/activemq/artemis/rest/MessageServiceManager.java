@@ -42,8 +42,8 @@ import org.apache.activemq.artemis.rest.util.TimeoutTask;
 import org.apache.activemq.artemis.spi.core.naming.BindingRegistry;
 import org.apache.activemq.artemis.utils.XMLUtil;
 
-public class MessageServiceManager
-{
+public class MessageServiceManager {
+
    protected ExecutorService threadPool;
    protected QueueServiceManager queueManager = new QueueServiceManager();
    protected TopicServiceManager topicManager = new TopicServiceManager();
@@ -54,85 +54,67 @@ public class MessageServiceManager
    protected String configResourcePath;
    protected BindingRegistry registry;
 
-   public BindingRegistry getRegistry()
-   {
+   public BindingRegistry getRegistry() {
       return registry;
    }
 
-   public void setRegistry(BindingRegistry registry)
-   {
+   public void setRegistry(BindingRegistry registry) {
       this.registry = registry;
    }
 
-   public int getTimeoutTaskInterval()
-   {
+   public int getTimeoutTaskInterval() {
       return timeoutTaskInterval;
    }
 
-   public void setTimeoutTaskInterval(int timeoutTaskInterval)
-   {
+   public void setTimeoutTaskInterval(int timeoutTaskInterval) {
       this.timeoutTaskInterval = timeoutTaskInterval;
-      if (timeoutTask != null)
-      {
+      if (timeoutTask != null) {
          timeoutTask.setInterval(timeoutTaskInterval);
       }
    }
 
-   public ExecutorService getThreadPool()
-   {
+   public ExecutorService getThreadPool() {
       return threadPool;
    }
 
-   public void setThreadPool(ExecutorService threadPool)
-   {
+   public void setThreadPool(ExecutorService threadPool) {
       this.threadPool = threadPool;
    }
 
-   public QueueServiceManager getQueueManager()
-   {
+   public QueueServiceManager getQueueManager() {
       return queueManager;
    }
 
-   public TopicServiceManager getTopicManager()
-   {
+   public TopicServiceManager getTopicManager() {
       return topicManager;
    }
 
-   public MessageServiceConfiguration getConfiguration()
-   {
+   public MessageServiceConfiguration getConfiguration() {
       return configuration;
    }
 
-   public String getConfigResourcePath()
-   {
+   public String getConfigResourcePath() {
       return configResourcePath;
    }
 
-   public void setConfigResourcePath(String configResourcePath)
-   {
+   public void setConfigResourcePath(String configResourcePath) {
       this.configResourcePath = configResourcePath;
    }
 
-   public void setConfiguration(MessageServiceConfiguration configuration)
-   {
+   public void setConfiguration(MessageServiceConfiguration configuration) {
       this.configuration = configuration;
       this.configSet = true;
    }
 
-   public void start() throws Exception
-   {
-      if (configuration == null || configSet == false)
-      {
-         if (configResourcePath == null)
-         {
+   public void start() throws Exception {
+      if (configuration == null || configSet == false) {
+         if (configResourcePath == null) {
             configuration = new MessageServiceConfiguration();
          }
-         else
-         {
+         else {
             URL url = getClass().getClassLoader().getResource(configResourcePath);
 
-            if (url == null)
-            {
+            if (url == null) {
                // The URL is outside of the classloader. Trying a pure url now
                url = new URL(configResourcePath);
             }
@@ -140,11 +122,11 @@ public class MessageServiceManager
             Reader reader = new InputStreamReader(url.openStream());
             String xml = XMLUtil.readerToString(reader);
             xml = XMLUtil.replaceSystemProps(xml);
-            configuration = (MessageServiceConfiguration) jaxb.createUnmarshaller().unmarshal(
-                    new StringReader(xml));
+            configuration = (MessageServiceConfiguration) jaxb.createUnmarshaller().unmarshal(new StringReader(xml));
          }
       }
-      if (threadPool == null) threadPool = Executors.newCachedThreadPool();
+      if (threadPool == null)
+         threadPool = Executors.newCachedThreadPool();
       timeoutTaskInterval = configuration.getTimeoutTaskInterval();
       timeoutTask = new TimeoutTask(timeoutTaskInterval);
       threadPool.execute(timeoutTask);
@@ -157,29 +139,25 @@ public class MessageServiceManager
       HashMap<String, Object> transportConfig = new HashMap<String, Object>();
       transportConfig.put(TransportConstants.SERVER_ID_PROP_NAME, configuration.getInVmId());
 
-
       ServerLocator consumerLocator = new ServerLocatorImpl(false, new TransportConfiguration(InVMConnectorFactory.class.getName(), transportConfig));
       ActiveMQRestLogger.LOGGER.debug("Created ServerLocator: " + consumerLocator);
 
-      if (configuration.getConsumerWindowSize() != -1)
-      {
+      if (configuration.getConsumerWindowSize() != -1) {
          consumerLocator.setConsumerWindowSize(configuration.getConsumerWindowSize());
       }
 
       ClientSessionFactory consumerSessionFactory = consumerLocator.createSessionFactory();
       ActiveMQRestLogger.LOGGER.debug("Created ClientSessionFactory: " + consumerSessionFactory);
 
-      ServerLocator defaultLocator =  new ServerLocatorImpl(false, new TransportConfiguration(InVMConnectorFactory.class.getName(), transportConfig));
+      ServerLocator defaultLocator = new ServerLocatorImpl(false, new TransportConfiguration(InVMConnectorFactory.class.getName(), transportConfig));
 
       ClientSessionFactory sessionFactory = defaultLocator.createSessionFactory();
 
       LinkStrategy linkStrategy = new LinkHeaderLinkStrategy();
-      if (configuration.isUseLinkHeaders())
-      {
+      if (configuration.isUseLinkHeaders()) {
          linkStrategy = new LinkHeaderLinkStrategy();
       }
-      else
-      {
+      else {
          linkStrategy = new CustomHeaderLinkStrategy();
       }
 
@@ -211,11 +189,12 @@ public class MessageServiceManager
       topicManager.start();
    }
 
-   public void stop()
-   {
-      if (queueManager != null) queueManager.stop();
+   public void stop() {
+      if (queueManager != null)
+         queueManager.stop();
       queueManager = null;
-      if (topicManager != null) topicManager.stop();
+      if (topicManager != null)
+         topicManager.stop();
       topicManager = null;
    }
 }

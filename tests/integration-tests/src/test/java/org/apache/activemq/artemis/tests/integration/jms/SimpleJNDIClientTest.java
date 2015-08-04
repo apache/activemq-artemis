@@ -53,11 +53,10 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- *
  * ActiveMQConnectionFactoryTest
  */
-public class SimpleJNDIClientTest extends ActiveMQTestBase
-{
+public class SimpleJNDIClientTest extends ActiveMQTestBase {
+
    private final String groupAddress = getUDPDiscoveryAddress();
 
    private final int groupPort = getUDPDiscoveryPort();
@@ -67,8 +66,7 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase
    private TransportConfiguration liveTC;
 
    @Test
-   public void testMultipleConnectionFactories() throws NamingException, JMSException
-   {
+   public void testMultipleConnectionFactories() throws NamingException, JMSException {
       Hashtable<String, Object> props = new Hashtable<>();
       props.put(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
       props.put("connectionFactory.VmConnectionFactory", "vm://0");
@@ -83,8 +81,7 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testVMCF0() throws NamingException, JMSException
-   {
+   public void testVMCF0() throws NamingException, JMSException {
       Hashtable props = new Hashtable<>();
       props.put(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
       props.put("connectionFactory.ConnectionFactory", "vm://0");
@@ -96,8 +93,7 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testVMCF1() throws NamingException, JMSException
-   {
+   public void testVMCF1() throws NamingException, JMSException {
       Hashtable props = new Hashtable<>();
       props.put(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
       props.put("connectionFactory.ConnectionFactory", "vm://1");
@@ -109,8 +105,7 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testXACF() throws NamingException, JMSException
-   {
+   public void testXACF() throws NamingException, JMSException {
       Hashtable props = new Hashtable<>();
       props.put(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
       props.put("connectionFactory.myConnectionFactory", "vm://0?type=XA_CF");
@@ -122,8 +117,7 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testQueueCF() throws NamingException, JMSException
-   {
+   public void testQueueCF() throws NamingException, JMSException {
       Hashtable props = new Hashtable<>();
       props.put(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
       props.put("connectionFactory.myConnectionFactory", "vm://0?type=QUEUE_CF");
@@ -135,8 +129,7 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testQueueXACF() throws NamingException, JMSException
-   {
+   public void testQueueXACF() throws NamingException, JMSException {
       Hashtable props = new Hashtable<>();
       props.put(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
       props.put("connectionFactory.myConnectionFactory", "vm://0?type=QUEUE_XA_CF");
@@ -148,8 +141,7 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testTopicCF() throws NamingException, JMSException
-   {
+   public void testTopicCF() throws NamingException, JMSException {
       Hashtable props = new Hashtable<>();
       props.put(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
       props.put("connectionFactory.myConnectionFactory", "vm://0?type=TOPIC_CF");
@@ -161,8 +153,7 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testTopicXACF() throws NamingException, JMSException
-   {
+   public void testTopicXACF() throws NamingException, JMSException {
       Hashtable props = new Hashtable<>();
       props.put(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
       props.put("connectionFactory.myConnectionFactory", "vm://0?type=TOPIC_XA_CF");
@@ -174,8 +165,7 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testRemoteCFWithTCP() throws NamingException, JMSException
-   {
+   public void testRemoteCFWithTCP() throws NamingException, JMSException {
       Hashtable props = new Hashtable<>();
       props.put(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
       props.put("connectionFactory.myConnectionFactory", "tcp://127.0.0.1:61616");
@@ -187,8 +177,7 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testRemoteCFWithTCPandHA() throws NamingException, JMSException
-   {
+   public void testRemoteCFWithTCPandHA() throws NamingException, JMSException {
       Hashtable props = new Hashtable<>();
       props.put(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
       props.put("connectionFactory.myConnectionFactory", "tcp://127.0.0.1:61616?ha=true");
@@ -200,8 +189,7 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testRemoteCFWithJGroups() throws Exception
-   {
+   public void testRemoteCFWithJGroups() throws Exception {
       Hashtable props = new Hashtable<>();
       props.put(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
       props.put("connectionFactory.myConnectionFactory", "jgroups://mychannelid?file=test-jgroups-file_ping.xml");
@@ -212,8 +200,7 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testRemoteCFWithJgroupsWithTransportConfigFile() throws Exception
-   {
+   public void testRemoteCFWithJgroupsWithTransportConfigFile() throws Exception {
       Hashtable props = new Hashtable<>();
       props.put(Context.INITIAL_CONTEXT_FACTORY, org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory.class.getCanonicalName());
       props.put("connectionFactory.myConnectionFactory", "jgroups://testChannelName?file=test-jgroups-file_ping.xml&" +
@@ -233,13 +220,12 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testRemoteCFWithJgroupsWithTransportConfigProps() throws Exception
-   {
+   public void testRemoteCFWithJgroupsWithTransportConfigProps() throws Exception {
       Hashtable props = new Hashtable<>();
       props.put(Context.INITIAL_CONTEXT_FACTORY, ActiveMQInitialContextFactory.class.getCanonicalName());
       props.put("connectionFactory.ConnectionFactory", "jgroups://testChannelName?properties=param=value&" +
-                                      ActiveMQInitialContextFactory.REFRESH_TIMEOUT + "=5000&" +
-                                      ActiveMQInitialContextFactory.DISCOVERY_INITIAL_WAIT_TIMEOUT + "=6000");
+         ActiveMQInitialContextFactory.REFRESH_TIMEOUT + "=5000&" +
+         ActiveMQInitialContextFactory.DISCOVERY_INITIAL_WAIT_TIMEOUT + "=6000");
       Context ctx = new InitialContext(props);
 
       ActiveMQConnectionFactory cf = (ActiveMQConnectionFactory) ctx.lookup("ConnectionFactory");
@@ -250,21 +236,18 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase
 
       BroadcastEndpointFactory broadcastEndpointFactory = cf.getDiscoveryGroupConfiguration().getBroadcastEndpointFactory();
       Assert.assertTrue(broadcastEndpointFactory instanceof JGroupsPropertiesBroadcastEndpointFactory);
-      JGroupsPropertiesBroadcastEndpointFactory endpointFactory =  (JGroupsPropertiesBroadcastEndpointFactory) broadcastEndpointFactory;
+      JGroupsPropertiesBroadcastEndpointFactory endpointFactory = (JGroupsPropertiesBroadcastEndpointFactory) broadcastEndpointFactory;
       Assert.assertEquals(endpointFactory.getProperties(), "param=value");
       Assert.assertEquals(endpointFactory.getChannelName(), "testChannelName");
    }
 
-
-
    @Test
-   public void testRemoteCFWithJgroupsWithTransportConfigNullProps() throws Exception
-   {
+   public void testRemoteCFWithJgroupsWithTransportConfigNullProps() throws Exception {
       Hashtable props = new Hashtable<>();
       props.put(Context.INITIAL_CONTEXT_FACTORY, ActiveMQInitialContextFactory.class.getCanonicalName());
       props.put("connectionFactory.ConnectionFactory", "jgroups://testChannelName?" +
-                                      ActiveMQInitialContextFactory.REFRESH_TIMEOUT + "=5000&" +
-                                      ActiveMQInitialContextFactory.DISCOVERY_INITIAL_WAIT_TIMEOUT + "=6000");
+         ActiveMQInitialContextFactory.REFRESH_TIMEOUT + "=5000&" +
+         ActiveMQInitialContextFactory.DISCOVERY_INITIAL_WAIT_TIMEOUT + "=6000");
       Context ctx = new InitialContext(props);
 
       ActiveMQConnectionFactory cf = (ActiveMQConnectionFactory) ctx.lookup("ConnectionFactory");
@@ -275,15 +258,13 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase
 
       BroadcastEndpointFactory broadcastEndpointFactory = cf.getDiscoveryGroupConfiguration().getBroadcastEndpointFactory();
       Assert.assertTrue(broadcastEndpointFactory instanceof JGroupsPropertiesBroadcastEndpointFactory);
-      JGroupsPropertiesBroadcastEndpointFactory endpointFactory =  (JGroupsPropertiesBroadcastEndpointFactory) broadcastEndpointFactory;
+      JGroupsPropertiesBroadcastEndpointFactory endpointFactory = (JGroupsPropertiesBroadcastEndpointFactory) broadcastEndpointFactory;
       Assert.assertEquals(endpointFactory.getProperties(), null);
       Assert.assertEquals(endpointFactory.getChannelName(), "testChannelName");
    }
 
-
    @Test
-   public void testRemoteCFWithUDP() throws NamingException, JMSException
-   {
+   public void testRemoteCFWithUDP() throws NamingException, JMSException {
       Hashtable props = new Hashtable<>();
       props.put(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
       props.put("connectionFactory.myConnectionFactory", "udp://" + getUDPDiscoveryAddress() + ":" + getUDPDiscoveryPort());
@@ -295,8 +276,7 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testRemoteCFWithUDPWithTransportConfig() throws NamingException, JMSException
-   {
+   public void testRemoteCFWithUDPWithTransportConfig() throws NamingException, JMSException {
       Hashtable props = new Hashtable<>();
       props.put(Context.INITIAL_CONTEXT_FACTORY, ActiveMQInitialContextFactory.class.getCanonicalName());
       props.put("connectionFactory.myConnectionFactory", "udp://" + getUDPDiscoveryAddress() + ":" + getUDPDiscoveryPort() + "?" +
@@ -321,8 +301,7 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testRemoteCFWithMultipleHosts() throws NamingException, JMSException
-   {
+   public void testRemoteCFWithMultipleHosts() throws NamingException, JMSException {
       Hashtable props = new Hashtable<>();
       props.put(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
       props.put("connectionFactory.myConnectionFactory", "tcp://127.0.0.1:61616/httpEnabled=true&foo=bar,tcp://127.0.0.2:61617?httpEnabled=false?clientID=myClientID");
@@ -334,8 +313,7 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testRemoteCFWithTransportConfig() throws NamingException, JMSException
-   {
+   public void testRemoteCFWithTransportConfig() throws NamingException, JMSException {
       Hashtable props = new Hashtable<>();
       props.put(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
       props.put("connectionFactory.myConnectionFactory", "tcp://127.0.0.1:61616?" +
@@ -407,15 +385,13 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       startServer();
    }
 
-   private void startServer() throws Exception
-   {
+   private void startServer() throws Exception {
       liveTC = new TransportConfiguration(INVM_CONNECTOR_FACTORY);
       Map<String, TransportConfiguration> connectors = new HashMap<String, TransportConfiguration>();
       connectors.put(liveTC.getName(), liveTC);
@@ -425,12 +401,7 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase
       Map params = new HashMap();
       params.put(org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants.SERVER_ID_PROP_NAME, 1);
 
-      Configuration liveConf = createBasicConfig()
-         .addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY))
-         .addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY, params))
-         .addAcceptorConfiguration(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY))
-         .setConnectorConfigurations(connectors)
-         .setHAPolicyConfiguration(new SharedStoreMasterPolicyConfiguration());
+      Configuration liveConf = createBasicConfig().addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY)).addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY, params)).addAcceptorConfiguration(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY)).setConnectorConfigurations(connectors).setHAPolicyConfiguration(new SharedStoreMasterPolicyConfiguration());
 
       final long broadcastPeriod = 250;
 
@@ -438,14 +409,7 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase
 
       final int localBindPort = 5432;
 
-      BroadcastGroupConfiguration bcConfig1 = new BroadcastGroupConfiguration()
-         .setName(bcGroupName)
-         .setBroadcastPeriod(broadcastPeriod)
-         .setConnectorInfos(connectorNames)
-         .setEndpointFactory(new UDPBroadcastEndpointFactory()
-                                   .setGroupAddress(groupAddress)
-                                   .setGroupPort(groupPort)
-                                   .setLocalBindPort(localBindPort));
+      BroadcastGroupConfiguration bcConfig1 = new BroadcastGroupConfiguration().setName(bcGroupName).setBroadcastPeriod(broadcastPeriod).setConnectorInfos(connectorNames).setEndpointFactory(new UDPBroadcastEndpointFactory().setGroupAddress(groupAddress).setGroupPort(groupPort).setLocalBindPort(localBindPort));
 
       List<BroadcastGroupConfiguration> bcConfigs1 = new ArrayList<BroadcastGroupConfiguration>();
       bcConfigs1.add(bcConfig1);
@@ -456,8 +420,7 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testQueue() throws NamingException, JMSException
-   {
+   public void testQueue() throws NamingException, JMSException {
       Hashtable props = new Hashtable<>();
       props.put(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
       props.put("queue.myQueue", "myQueue");
@@ -472,8 +435,7 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testDynamicQueue() throws NamingException, JMSException
-   {
+   public void testDynamicQueue() throws NamingException, JMSException {
       Hashtable props = new Hashtable<>();
       props.put(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
       Context ctx = new InitialContext(props);
@@ -483,8 +445,7 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testTopic() throws NamingException, JMSException
-   {
+   public void testTopic() throws NamingException, JMSException {
       Hashtable props = new Hashtable<>();
       props.put(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
       props.put("topic.myTopic", "myTopic");
@@ -499,8 +460,7 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testDynamicTopic() throws NamingException, JMSException
-   {
+   public void testDynamicTopic() throws NamingException, JMSException {
       Hashtable props = new Hashtable<>();
       props.put(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
       Context ctx = new InitialContext(props);

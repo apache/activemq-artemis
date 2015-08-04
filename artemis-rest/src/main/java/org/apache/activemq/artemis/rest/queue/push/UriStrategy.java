@@ -48,8 +48,8 @@ import org.jboss.resteasy.client.ClientResponse;
 import org.jboss.resteasy.client.core.executors.ApacheHttpClient4Executor;
 import org.jboss.resteasy.specimpl.ResteasyUriBuilder;
 
-public class UriStrategy implements PushStrategy
-{
+public class UriStrategy implements PushStrategy {
+
    ThreadSafeClientConnManager connManager = new ThreadSafeClientConnManager();
    protected HttpClient client = new DefaultHttpClient(connManager);
    protected BasicHttpContext localContext;
@@ -59,32 +59,27 @@ public class UriStrategy implements PushStrategy
    protected String method;
    protected String contentType;
 
-   UriStrategy()
-   {
+   UriStrategy() {
       connManager.setDefaultMaxPerRoute(100);
       connManager.setMaxTotal(1000);
    }
 
-   public void setRegistration(PushRegistration reg)
-   {
+   public void setRegistration(PushRegistration reg) {
       this.registration = reg;
    }
 
-   public void start() throws Exception
-   {
+   public void start() throws Exception {
       initAuthentication();
       method = registration.getTarget().getMethod();
-      if (method == null) method = "POST";
+      if (method == null)
+         method = "POST";
       contentType = registration.getTarget().getType();
       targetUri = ResteasyUriBuilder.fromTemplate(registration.getTarget().getHref());
    }
 
-   protected void initAuthentication()
-   {
-      if (registration.getAuthenticationMechanism() != null)
-      {
-         if (registration.getAuthenticationMechanism().getType() instanceof BasicAuth)
-         {
+   protected void initAuthentication() {
+      if (registration.getAuthenticationMechanism() != null) {
+         if (registration.getAuthenticationMechanism().getType() instanceof BasicAuth) {
             BasicAuth basic = (BasicAuth) registration.getAuthenticationMechanism().getType();
             UsernamePasswordCredentials creds = new UsernamePasswordCredentials(basic.getUsername(), basic.getPassword());
             AuthScope authScope = new AuthScope(AuthScope.ANY);
@@ -103,58 +98,47 @@ public class UriStrategy implements PushStrategy
       }
    }
 
-   public void stop()
-   {
+   public void stop() {
       connManager.shutdown();
    }
 
-   public boolean push(ClientMessage message)
-   {
+   public boolean push(ClientMessage message) {
       ActiveMQRestLogger.LOGGER.debug("Pushing " + message);
       String uri = createUri(message);
-      for (int i = 0; i < registration.getMaxRetries(); i++)
-      {
+      for (int i = 0; i < registration.getMaxRetries(); i++) {
          long wait = registration.getRetryWaitMillis();
          System.out.println("Creating request from " + uri);
          ClientRequest request = executor.createRequest(uri);
          request.followRedirects(false);
          ActiveMQRestLogger.LOGGER.debug("Created request " + request);
 
-         for (XmlHttpHeader header : registration.getHeaders())
-         {
+         for (XmlHttpHeader header : registration.getHeaders()) {
             ActiveMQRestLogger.LOGGER.debug("Setting XmlHttpHeader: " + header.getName() + "=" + header.getValue());
             request.header(header.getName(), header.getValue());
          }
          HttpMessageHelper.buildMessage(message, request, contentType);
          ClientResponse<?> res = null;
-         try
-         {
+         try {
             ActiveMQRestLogger.LOGGER.debug(method + " " + uri);
             res = request.httpMethod(method);
             int status = res.getStatus();
             ActiveMQRestLogger.LOGGER.debug("Status of push: " + status);
-            if (status == 503)
-            {
+            if (status == 503) {
                String retryAfter = res.getStringHeaders().getFirst("Retry-After");
-               if (retryAfter != null)
-               {
+               if (retryAfter != null) {
                   wait = Long.parseLong(retryAfter) * 1000;
                }
             }
-            else if (status == 307)
-            {
+            else if (status == 307) {
                uri = res.getLocation().toString();
                wait = 0;
             }
-            else if ((status >= 200 && status < 299) || status == 303 || status == 304)
-            {
+            else if ((status >= 200 && status < 299) || status == 303 || status == 304) {
                ActiveMQRestLogger.LOGGER.debug("Success");
                return true;
             }
-            else if (status >= 400)
-            {
-               switch (status)
-               {
+            else if (status >= 400) {
+               switch (status) {
                   case 400: // these usually mean the message you are trying to send is crap, let dead letter logic take over
                   case 411:
                   case 412:
@@ -182,52 +166,44 @@ public class UriStrategy implements PushStrategy
                }
             }
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             ActiveMQRestLogger.LOGGER.debug("failed to push message to " + uri, e);
             e.printStackTrace();
             return false;
          }
-         finally
-         {
+         finally {
             if (res != null)
                res.releaseConnection();
          }
-         try
-         {
-            if (wait > 0) Thread.sleep(wait);
+         try {
+            if (wait > 0)
+               Thread.sleep(wait);
          }
-         catch (InterruptedException e)
-         {
+         catch (InterruptedException e) {
             throw new RuntimeException("Interrupted");
          }
       }
       return false;
    }
 
-   protected String createUri(ClientMessage message)
-   {
+   protected String createUri(ClientMessage message) {
       String uri = targetUri.build().toString();
       return uri;
    }
 
-   static class PreemptiveAuth implements HttpRequestInterceptor
-   {
-      public void process(final HttpRequest request, final HttpContext context) throws HttpException, IOException
-      {
+   static class PreemptiveAuth implements HttpRequestInterceptor {
+
+      public void process(final HttpRequest request, final HttpContext context) throws HttpException, IOException {
          AuthState authState = (AuthState) context.getAttribute(ClientContext.TARGET_AUTH_STATE);
 
          // If no auth scheme available yet, try to initialize it preemptively
-         if (authState.getAuthScheme() == null)
-         {
+         if (authState.getAuthScheme() == null) {
             AuthScheme authScheme = (AuthScheme) context.getAttribute("preemptive-auth");
             CredentialsProvider credsProvider = (CredentialsProvider) context.getAttribute(ClientContext.CREDS_PROVIDER);
             HttpHost targetHost = (HttpHost) context.getAttribute(ExecutionContext.HTTP_TARGET_HOST);
-            if (authScheme != null)
-            {
+            if (authScheme != null) {
                Credentials creds = credsProvider.getCredentials(new AuthScope(targetHost.getHostName(), targetHost.getPort()));
-               if (creds == null)
-               {
+               if (creds == null) {
                   throw new HttpException("No credentials for preemptive authentication");
                }
                authState.setAuthScheme(authScheme);

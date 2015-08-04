@@ -27,6 +27,7 @@ import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.broker.BrokerPlugin;
@@ -40,123 +41,121 @@ import org.slf4j.LoggerFactory;
 import org.junit.After;
 import org.junit.Test;
 
-
 import static org.junit.Assert.assertTrue;
 
 // see: https://issues.apache.org/activemq/browse/AMQ-2877
 public class FailoverPrefetchZeroTest {
 
-    private static final Logger LOG = LoggerFactory.getLogger(FailoverPrefetchZeroTest.class);
-    private static final String QUEUE_NAME = "FailoverPrefetchZero";
-    private static final String TRANSPORT_URI = "tcp://localhost:0";
-    private String url;
-    final int prefetch = 0;
-    BrokerService broker;
+   private static final Logger LOG = LoggerFactory.getLogger(FailoverPrefetchZeroTest.class);
+   private static final String QUEUE_NAME = "FailoverPrefetchZero";
+   private static final String TRANSPORT_URI = "tcp://localhost:0";
+   private String url;
+   final int prefetch = 0;
+   BrokerService broker;
 
-    @After
-    public void stopBroker() throws Exception {
-        if (broker != null) {
-            broker.stop();
-        }
-    }
+   @After
+   public void stopBroker() throws Exception {
+      if (broker != null) {
+         broker.stop();
+      }
+   }
 
-    public void startBroker(boolean deleteAllMessagesOnStartup) throws Exception {
-        broker = createBroker(deleteAllMessagesOnStartup);
-        broker.start();
-    }
+   public void startBroker(boolean deleteAllMessagesOnStartup) throws Exception {
+      broker = createBroker(deleteAllMessagesOnStartup);
+      broker.start();
+   }
 
-    public BrokerService createBroker(boolean deleteAllMessagesOnStartup) throws Exception {
-        return createBroker(deleteAllMessagesOnStartup, TRANSPORT_URI);
-    }
+   public BrokerService createBroker(boolean deleteAllMessagesOnStartup) throws Exception {
+      return createBroker(deleteAllMessagesOnStartup, TRANSPORT_URI);
+   }
 
-    public BrokerService createBroker(boolean deleteAllMessagesOnStartup, String bindAddress) throws Exception {
-        broker = new BrokerService();
-        broker.addConnector(bindAddress);
-        broker.setDeleteAllMessagesOnStartup(deleteAllMessagesOnStartup);
+   public BrokerService createBroker(boolean deleteAllMessagesOnStartup, String bindAddress) throws Exception {
+      broker = new BrokerService();
+      broker.addConnector(bindAddress);
+      broker.setDeleteAllMessagesOnStartup(deleteAllMessagesOnStartup);
 
-        url = broker.getTransportConnectors().get(0).getConnectUri().toString();
+      url = broker.getTransportConnectors().get(0).getConnectUri().toString();
 
-        return broker;
-    }
+      return broker;
+   }
 
-    @SuppressWarnings("unchecked")
-    @Test
-    public void testPrefetchZeroConsumerThroughRestart() throws Exception {
-        broker = createBroker(true);
+   @SuppressWarnings("unchecked")
+   @Test
+   public void testPrefetchZeroConsumerThroughRestart() throws Exception {
+      broker = createBroker(true);
 
-        final CountDownLatch pullDone = new CountDownLatch(1);
-        broker.setPlugins(new BrokerPlugin[]{
-                new BrokerPluginSupport() {
-                    @Override
-                    public Response messagePull(ConnectionContext context, final MessagePull pull) throws Exception {
-                        context.setDontSendReponse(true);
-                        pullDone.countDown();
-                        Executors.newSingleThreadExecutor().execute(new Runnable() {
-                            public void run() {
-                                LOG.info("Stopping broker on pull: " + pull);
-                                try {
-                                    broker.stop();
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        });
-                        return null;
-                    }
-                }
-        });
-        broker.start();
+      final CountDownLatch pullDone = new CountDownLatch(1);
+      broker.setPlugins(new BrokerPlugin[]{new BrokerPluginSupport() {
+         @Override
+         public Response messagePull(ConnectionContext context, final MessagePull pull) throws Exception {
+            context.setDontSendReponse(true);
+            pullDone.countDown();
+            Executors.newSingleThreadExecutor().execute(new Runnable() {
+               public void run() {
+                  LOG.info("Stopping broker on pull: " + pull);
+                  try {
+                     broker.stop();
+                  }
+                  catch (Exception e) {
+                     e.printStackTrace();
+                  }
+               }
+            });
+            return null;
+         }
+      }});
+      broker.start();
 
-        ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory("failover:(" + url + ")");
-        cf.setWatchTopicAdvisories(false);
+      ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory("failover:(" + url + ")");
+      cf.setWatchTopicAdvisories(false);
 
-        final ActiveMQConnection connection = (ActiveMQConnection) cf.createConnection();
-        connection.start();
+      final ActiveMQConnection connection = (ActiveMQConnection) cf.createConnection();
+      connection.start();
 
-        final Session consumerSession = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        final Queue destination = consumerSession.createQueue(QUEUE_NAME + "?consumer.prefetchSize=" + prefetch);
+      final Session consumerSession = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      final Queue destination = consumerSession.createQueue(QUEUE_NAME + "?consumer.prefetchSize=" + prefetch);
 
-        final MessageConsumer consumer = consumerSession.createConsumer(destination);
-        produceMessage(consumerSession, destination, 1);
+      final MessageConsumer consumer = consumerSession.createConsumer(destination);
+      produceMessage(consumerSession, destination, 1);
 
-        final CountDownLatch receiveDone = new CountDownLatch(1);
-        final Vector<Message> received = new Vector<Message>();
-        Executors.newSingleThreadExecutor().execute(new Runnable() {
-            public void run() {
-                try {
-                    LOG.info("receive one...");
-                    Message msg = consumer.receive(30000);
-                    if (msg != null) {
-                        received.add(msg);
-                    }
-                    receiveDone.countDown();
-                    LOG.info("done receive");
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+      final CountDownLatch receiveDone = new CountDownLatch(1);
+      final Vector<Message> received = new Vector<Message>();
+      Executors.newSingleThreadExecutor().execute(new Runnable() {
+         public void run() {
+            try {
+               LOG.info("receive one...");
+               Message msg = consumer.receive(30000);
+               if (msg != null) {
+                  received.add(msg);
+               }
+               receiveDone.countDown();
+               LOG.info("done receive");
             }
-        });
+            catch (Exception e) {
+               e.printStackTrace();
+            }
+         }
+      });
 
-        // will be stopped by the plugin
-        assertTrue("pull completed on broker", pullDone.await(30, TimeUnit.SECONDS));
-        broker.waitUntilStopped();
-        broker = createBroker(false, url);
-        broker.start();
+      // will be stopped by the plugin
+      assertTrue("pull completed on broker", pullDone.await(30, TimeUnit.SECONDS));
+      broker.waitUntilStopped();
+      broker = createBroker(false, url);
+      broker.start();
 
-        assertTrue("receive completed through failover", receiveDone.await(30, TimeUnit.SECONDS));
+      assertTrue("receive completed through failover", receiveDone.await(30, TimeUnit.SECONDS));
 
-        assertTrue("we got our message:", !received.isEmpty());
+      assertTrue("we got our message:", !received.isEmpty());
 
-        connection.close();
-    }
+      connection.close();
+   }
 
-    private void produceMessage(final Session producerSession, Queue destination, long count)
-            throws JMSException {
-        MessageProducer producer = producerSession.createProducer(destination);
-        for (int i = 0; i < count; i++) {
-            TextMessage message = producerSession.createTextMessage("Test message " + i);
-            producer.send(message);
-        }
-        producer.close();
-    }
+   private void produceMessage(final Session producerSession, Queue destination, long count) throws JMSException {
+      MessageProducer producer = producerSession.createProducer(destination);
+      for (int i = 0; i < count; i++) {
+         TextMessage message = producerSession.createTextMessage("Test message " + i);
+         producer.send(message);
+      }
+      producer.close();
+   }
 }

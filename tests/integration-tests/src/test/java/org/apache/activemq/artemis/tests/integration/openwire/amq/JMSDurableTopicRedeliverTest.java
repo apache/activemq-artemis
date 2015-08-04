@@ -26,13 +26,11 @@ import org.junit.Test;
 /**
  * adapted from: org.apache.activemq.JMSDurableTopicRedeliverTest
  */
-public class JMSDurableTopicRedeliverTest extends JmsTopicRedeliverTest
-{
+public class JMSDurableTopicRedeliverTest extends JmsTopicRedeliverTest {
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       durable = true;
       super.setUp();
    }
@@ -43,15 +41,12 @@ public class JMSDurableTopicRedeliverTest extends JmsTopicRedeliverTest
     * @throws Exception
     */
    @Test
-   public void testRedeliverNewSession() throws Exception
-   {
+   public void testRedeliverNewSession() throws Exception {
       String text = "TEST: " + System.currentTimeMillis();
       Message sendMessage = session.createTextMessage(text);
 
-      if (verbose)
-      {
-         System.out.println("About to send a message: " + sendMessage
-               + " with text: " + text);
+      if (verbose) {
+         System.out.println("About to send a message: " + sendMessage + " with text: " + text);
       }
       producer.send(producerDestination, sendMessage);
 
@@ -66,8 +61,7 @@ public class JMSDurableTopicRedeliverTest extends JmsTopicRedeliverTest
       consumer.close();
 
       // receive then acknowledge
-      consumeSession = connection.createSession(false,
-            Session.CLIENT_ACKNOWLEDGE);
+      consumeSession = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
       consumer = createConsumer(getName());
       Message ackMessage = consumer.receive(1000);
       assertNotNull(ackMessage);
@@ -81,16 +75,13 @@ public class JMSDurableTopicRedeliverTest extends JmsTopicRedeliverTest
       consumeSession.close();
       consumer.close();
 
-      consumeSession = connection.createSession(false,
-            Session.CLIENT_ACKNOWLEDGE);
+      consumeSession = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
       consumer = createConsumer(getName());
       assertNull(consumer.receive(1000));
    }
 
-   protected String getName()
-   {
+   protected String getName() {
       return "JMSDurableTopicRedeliverTest";
    }
-
 
 }

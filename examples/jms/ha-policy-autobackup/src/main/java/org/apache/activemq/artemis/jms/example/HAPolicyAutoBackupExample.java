@@ -40,14 +40,13 @@ import java.util.concurrent.TimeUnit;
  * A simple example that demonstrates server side load-balancing of messages between the queue instances on different
  * nodes of the cluster.
  */
-public class HAPolicyAutoBackupExample
-{
+public class HAPolicyAutoBackupExample {
+
    private static Process server0;
 
    private static Process server1;
 
-   public static void main(final String[] args) throws Exception
-   {
+   public static void main(final String[] args) throws Exception {
       Connection connection0 = null;
 
       Connection connection1 = null;
@@ -56,8 +55,7 @@ public class HAPolicyAutoBackupExample
 
       InitialContext ic1 = null;
 
-      try
-      {
+      try {
          server0 = ServerUtil.startServer(args[0], HAPolicyAutoBackupExample.class.getSimpleName() + "0", 0, 5000);
          server1 = ServerUtil.startServer(args[1], HAPolicyAutoBackupExample.class.getSimpleName() + "1", 1, 5000);
 
@@ -106,8 +104,7 @@ public class HAPolicyAutoBackupExample
 
          final int numMessages = 10;
 
-         for (int i = 0; i < numMessages; i++)
-         {
+         for (int i = 0; i < numMessages; i++) {
             TextMessage message = session0.createTextMessage("This is text message " + i);
 
             producer.send(message);
@@ -117,8 +114,7 @@ public class HAPolicyAutoBackupExample
 
          // Step 13. We now consume half the messages on consumer0
          // note that the other half of the messages will have been sent to server1 for consumer1
-         for (int i = 0; i < numMessages / 2; i++)
-         {
+         for (int i = 0; i < numMessages / 2; i++) {
             TextMessage message0 = (TextMessage) consumer0.receive(5000);
 
             System.out.println("Got message: " + message0.getText() + " from node 0");
@@ -132,24 +128,20 @@ public class HAPolicyAutoBackupExample
          Thread.sleep(40000);
 
          // Step 16. we now receive the messages that were on server1 but were scaled down to server0
-         for (int i = 0; i < numMessages / 2; i++)
-         {
+         for (int i = 0; i < numMessages / 2; i++) {
             TextMessage message0 = (TextMessage) consumer0.receive(5000);
 
             System.out.println("Got message: " + message0.getText() + " from node 1");
          }
       }
-      finally
-      {
+      finally {
          // Step 17. Be sure to close our resources!
 
-         if (connection0 != null)
-         {
+         if (connection0 != null) {
             connection0.close();
          }
 
-         if (connection1 != null)
-         {
+         if (connection1 != null) {
             connection1.close();
          }
 
@@ -158,25 +150,21 @@ public class HAPolicyAutoBackupExample
       }
    }
 
-   private static void waitForBackups(ConnectionFactory cf0, int backups) throws InterruptedException
-   {
+   private static void waitForBackups(ConnectionFactory cf0, int backups) throws InterruptedException {
       final CountDownLatch latch = new CountDownLatch(backups);
-         ((ActiveMQConnectionFactory) cf0).getServerLocator().addClusterTopologyListener(new ClusterTopologyListener()
-      {
+      ((ActiveMQConnectionFactory) cf0).getServerLocator().addClusterTopologyListener(new ClusterTopologyListener() {
          List<TransportConfiguration> backups = new ArrayList<TransportConfiguration>();
+
          @Override
-         public void nodeUP(TopologyMember member, boolean last)
-         {
-            if (member.getBackup() != null && !backups.contains(member.getBackup()))
-            {
+         public void nodeUP(TopologyMember member, boolean last) {
+            if (member.getBackup() != null && !backups.contains(member.getBackup())) {
                backups.add(member.getBackup());
                latch.countDown();
             }
          }
 
          @Override
-         public void nodeDown(long eventUID, String nodeID)
-         {
+         public void nodeDown(long eventUID, String nodeID) {
          }
       });
       latch.await(30000, TimeUnit.MILLISECONDS);

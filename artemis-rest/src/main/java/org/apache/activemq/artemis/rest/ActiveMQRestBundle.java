@@ -16,17 +16,16 @@
  */
 package org.apache.activemq.artemis.rest;
 
-
 import org.jboss.logging.annotations.MessageBundle;
 
 /**
  * Logger Code 19
- *
+ * <br>
  * each message id must be 6 digits long starting with 19, the 3rd digit should be 9
- *
+ * <br>
  * so 199000 to 199999
  */
 @MessageBundle(projectCode = "AMQ")
-public class ActiveMQRestBundle
-{
+public class ActiveMQRestBundle {
+
 }

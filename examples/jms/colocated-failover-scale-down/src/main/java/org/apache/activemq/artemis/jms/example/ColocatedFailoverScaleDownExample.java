@@ -33,14 +33,13 @@ import java.util.Hashtable;
  * A simple example that demonstrates server side load-balancing of messages between the queue instances on different
  * nodes of the cluster.
  */
-public class ColocatedFailoverScaleDownExample
-{
+public class ColocatedFailoverScaleDownExample {
+
    private static Process server0;
 
    private static Process server1;
 
-   public static void main(final String[] args) throws Exception
-   {
+   public static void main(final String[] args) throws Exception {
       final int numMessages = 30;
 
       Connection connection = null;
@@ -49,8 +48,7 @@ public class ColocatedFailoverScaleDownExample
       InitialContext initialContext = null;
       InitialContext initialContext1 = null;
 
-      try
-      {
+      try {
          server0 = ServerUtil.startServer(args[0], ColocatedFailoverScaleDownExample.class.getSimpleName() + "0", 0, 5000);
          server1 = ServerUtil.startServer(args[1], ColocatedFailoverScaleDownExample.class.getSimpleName() + "1", 1, 5000);
 
@@ -67,9 +65,9 @@ public class ColocatedFailoverScaleDownExample
          initialContext = new InitialContext(properties);
 
          // Step 2. Look up the JMS resources from JNDI
-         Queue queue = (Queue)initialContext.lookup("queue/exampleQueue");
-         ConnectionFactory connectionFactory = (ConnectionFactory)initialContext.lookup("ConnectionFactory");
-         ConnectionFactory connectionFactory1 = (ConnectionFactory)initialContext1.lookup("ConnectionFactory");
+         Queue queue = (Queue) initialContext.lookup("queue/exampleQueue");
+         ConnectionFactory connectionFactory = (ConnectionFactory) initialContext.lookup("ConnectionFactory");
+         ConnectionFactory connectionFactory1 = (ConnectionFactory) initialContext1.lookup("ConnectionFactory");
 
          // Step 3. Create a JMS Connections
          connection = connectionFactory.createConnection();
@@ -84,8 +82,7 @@ public class ColocatedFailoverScaleDownExample
          MessageProducer producer1 = session1.createProducer(queue);
 
          // Step 6. Send some messages to both servers
-         for (int i = 0; i < numMessages; i++)
-         {
+         for (int i = 0; i < numMessages; i++) {
             TextMessage message = session.createTextMessage("This is text message " + i);
             producer.send(message);
             System.out.println("Sent message: " + message.getText());
@@ -110,37 +107,30 @@ public class ColocatedFailoverScaleDownExample
          // because they were initially round robined to both nodes then when the server failed were reloaded into the
          // live server.
          TextMessage message0 = null;
-         for (int i = 0; i < numMessages * 2; i++)
-         {
-            message0 = (TextMessage)consumer.receive(5000);
-            if (message0 == null)
-            {
+         for (int i = 0; i < numMessages * 2; i++) {
+            message0 = (TextMessage) consumer.receive(5000);
+            if (message0 == null) {
                throw new IllegalStateException("Message not received!");
             }
             System.out.println("Got message: " + message0.getText());
          }
          message0.acknowledge();
       }
-      finally
-      {
+      finally {
          // Step 11. Be sure to close our resources!
 
-         if (connection != null)
-         {
+         if (connection != null) {
             connection.close();
          }
 
-         if (initialContext != null)
-         {
+         if (initialContext != null) {
             initialContext.close();
          }
-         if (connection1 != null)
-         {
+         if (connection1 != null) {
             connection1.close();
          }
 
-         if (initialContext1 != null)
-         {
+         if (initialContext1 != null) {
             initialContext1.close();
          }
 

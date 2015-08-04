@@ -28,17 +28,14 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class ConfigurationImplTest extends ActiveMQTestBase
-{
+public class ConfigurationImplTest extends ActiveMQTestBase {
+
    protected Configuration conf;
 
    @Test
-   public void testDefaults()
-   {
-      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultScheduledThreadPoolMaxSize(),
-                          conf.getScheduledThreadPoolMaxSize());
-      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultSecurityInvalidationInterval(),
-                          conf.getSecurityInvalidationInterval());
+   public void testDefaults() {
+      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultScheduledThreadPoolMaxSize(), conf.getScheduledThreadPoolMaxSize());
+      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultSecurityInvalidationInterval(), conf.getSecurityInvalidationInterval());
       Assert.assertEquals(ActiveMQDefaultConfiguration.isDefaultSecurityEnabled(), conf.isSecurityEnabled());
       Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultBindingsDirectory(), conf.getBindingsDirectory());
       Assert.assertEquals(ActiveMQDefaultConfiguration.isDefaultCreateBindingsDir(), conf.isCreateBindingsDir());
@@ -46,8 +43,7 @@ public class ConfigurationImplTest extends ActiveMQTestBase
       Assert.assertEquals(ActiveMQDefaultConfiguration.isDefaultCreateJournalDir(), conf.isCreateJournalDir());
       Assert.assertEquals(ConfigurationImpl.DEFAULT_JOURNAL_TYPE, conf.getJournalType());
       Assert.assertEquals(ActiveMQDefaultConfiguration.isDefaultJournalSyncTransactional(), conf.isJournalSyncTransactional());
-      Assert.assertEquals(ActiveMQDefaultConfiguration.isDefaultJournalSyncNonTransactional(),
-                          conf.isJournalSyncNonTransactional());
+      Assert.assertEquals(ActiveMQDefaultConfiguration.isDefaultJournalSyncNonTransactional(), conf.isJournalSyncNonTransactional());
       Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultJournalFileSize(), conf.getJournalFileSize());
       Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultJournalMinFiles(), conf.getJournalMinFiles());
       Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultJournalMaxIoAio(), conf.getJournalMaxIO_AIO());
@@ -55,24 +51,19 @@ public class ConfigurationImplTest extends ActiveMQTestBase
       Assert.assertEquals(ActiveMQDefaultConfiguration.isDefaultWildcardRoutingEnabled(), conf.isWildcardRoutingEnabled());
       Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultTransactionTimeout(), conf.getTransactionTimeout());
       Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultMessageExpiryScanPeriod(), conf.getMessageExpiryScanPeriod()); // OK
-      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultMessageExpiryThreadPriority(),
-                          conf.getMessageExpiryThreadPriority()); // OK
-      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultTransactionTimeoutScanPeriod(),
-                          conf.getTransactionTimeoutScanPeriod()); // OK
+      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultMessageExpiryThreadPriority(), conf.getMessageExpiryThreadPriority()); // OK
+      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultTransactionTimeoutScanPeriod(), conf.getTransactionTimeoutScanPeriod()); // OK
       Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultManagementAddress(), conf.getManagementAddress()); // OK
-      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultManagementNotificationAddress(),
-                          conf.getManagementNotificationAddress()); // OK
+      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultManagementNotificationAddress(), conf.getManagementNotificationAddress()); // OK
       Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultClusterUser(), conf.getClusterUser()); // OK
       Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultClusterPassword(), conf.getClusterPassword()); // OK
       Assert.assertEquals(ActiveMQDefaultConfiguration.isDefaultPersistenceEnabled(), conf.isPersistenceEnabled());
-      Assert.assertEquals(ActiveMQDefaultConfiguration.isDefaultPersistDeliveryCountBeforeDelivery(),
-                          conf.isPersistDeliveryCountBeforeDelivery());
+      Assert.assertEquals(ActiveMQDefaultConfiguration.isDefaultPersistDeliveryCountBeforeDelivery(), conf.isPersistDeliveryCountBeforeDelivery());
       Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultFileDeployerScanPeriod(), conf.getFileDeployerScanPeriod());
       Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultThreadPoolMaxSize(), conf.getThreadPoolMaxSize());
       Assert.assertEquals(ActiveMQDefaultConfiguration.isDefaultJmxManagementEnabled(), conf.isJMXManagementEnabled());
       Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultConnectionTtlOverride(), conf.getConnectionTTLOverride());
-      Assert.assertEquals(ActiveMQDefaultConfiguration.isDefaultAsyncConnectionExecutionEnabled(),
-                          conf.isAsyncConnectionExecutionEnabled());
+      Assert.assertEquals(ActiveMQDefaultConfiguration.isDefaultAsyncConnectionExecutionEnabled(), conf.isAsyncConnectionExecutionEnabled());
       Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultPagingDir(), conf.getPagingDirectory());
       Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultLargeMessagesDir(), conf.getLargeMessagesDirectory());
       Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultJournalCompactPercentage(), conf.getJournalCompactPercentage());
@@ -83,8 +74,7 @@ public class ConfigurationImplTest extends ActiveMQTestBase
       Assert.assertEquals(ActiveMQDefaultConfiguration.isDefaultJournalLogWriteRate(), conf.isLogJournalWriteRate());
       Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultJournalPerfBlastPages(), conf.getJournalPerfBlastPages());
       Assert.assertEquals(ActiveMQDefaultConfiguration.isDefaultMessageCounterEnabled(), conf.isMessageCounterEnabled());
-      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultMessageCounterMaxDayHistory(),
-                          conf.getMessageCounterMaxDayHistory());
+      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultMessageCounterMaxDayHistory(), conf.getMessageCounterMaxDayHistory());
       Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultMessageCounterSamplePeriod(), conf.getMessageCounterSamplePeriod());
       Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultIdCacheSize(), conf.getIDCacheSize());
       Assert.assertEquals(ActiveMQDefaultConfiguration.isDefaultPersistIdCache(), conf.isPersistIDCache());
@@ -94,10 +84,8 @@ public class ConfigurationImplTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testSetGetAttributes() throws Exception
-   {
-      for (int j = 0; j < 100; j++)
-      {
+   public void testSetGetAttributes() throws Exception {
+      for (int j = 0; j < 100; j++) {
          int i = RandomUtil.randomInt();
          conf.setScheduledThreadPoolMaxSize(i);
          Assert.assertEquals(i, conf.getScheduledThreadPoolMaxSize());
@@ -286,8 +274,7 @@ public class ConfigurationImplTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testGetSetInterceptors()
-   {
+   public void testGetSetInterceptors() {
       final String name1 = "uqwyuqywuy";
       final String name2 = "yugyugyguyg";
 
@@ -300,8 +287,7 @@ public class ConfigurationImplTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testSerialize() throws Exception
-   {
+   public void testSerialize() throws Exception {
       boolean b = RandomUtil.randomBoolean();
 
       conf.setHAPolicyConfiguration(new LiveOnlyPolicyConfiguration());
@@ -403,7 +389,6 @@ public class ConfigurationImplTest extends ActiveMQTestBase
       conf.setThreadPoolMaxSize(i);
       Assert.assertEquals(i, conf.getThreadPoolMaxSize());
 
-
       SimpleString ss = RandomUtil.randomSimpleString();
       conf.setManagementNotificationAddress(ss);
       Assert.assertEquals(ss, conf.getManagementNotificationAddress());
@@ -495,21 +480,18 @@ public class ConfigurationImplTest extends ActiveMQTestBase
       // This will use serialization to perform a deep copy of the object
       Configuration conf2 = conf.copy();
 
-
       Assert.assertTrue(conf.equals(conf2));
    }
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       conf = createConfiguration();
    }
 
-   protected Configuration createConfiguration() throws Exception
-   {
+   protected Configuration createConfiguration() throws Exception {
       return new ConfigurationImpl();
    }
 }

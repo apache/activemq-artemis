@@ -23,93 +23,81 @@ import org.apache.activemq.artemis.core.server.impl.SharedStoreLiveActivation;
 
 import java.util.Map;
 
-public class SharedStoreMasterPolicy implements HAPolicy<LiveActivation>
-{
+public class SharedStoreMasterPolicy implements HAPolicy<LiveActivation> {
+
    private long failbackDelay = ActiveMQDefaultConfiguration.getDefaultFailbackDelay();
 
    private boolean failoverOnServerShutdown = ActiveMQDefaultConfiguration.isDefaultFailoverOnServerShutdown();
 
    private SharedStoreSlavePolicy sharedStoreSlavePolicy;
 
-   public SharedStoreMasterPolicy()
-   {
+   public SharedStoreMasterPolicy() {
    }
 
-   public SharedStoreMasterPolicy(long failbackDelay, boolean failoverOnServerShutdown)
-   {
+   public SharedStoreMasterPolicy(long failbackDelay, boolean failoverOnServerShutdown) {
       this.failbackDelay = failbackDelay;
       this.failoverOnServerShutdown = failoverOnServerShutdown;
    }
 
-   public long getFailbackDelay()
-   {
+   public long getFailbackDelay() {
       return failbackDelay;
    }
 
-   public void setFailbackDelay(long failbackDelay)
-   {
+   public void setFailbackDelay(long failbackDelay) {
       this.failbackDelay = failbackDelay;
    }
 
-   public boolean isFailoverOnServerShutdown()
-   {
+   public boolean isFailoverOnServerShutdown() {
       return failoverOnServerShutdown;
    }
 
-   public void setFailoverOnServerShutdown(boolean failoverOnServerShutdown)
-   {
+   public void setFailoverOnServerShutdown(boolean failoverOnServerShutdown) {
       this.failoverOnServerShutdown = failoverOnServerShutdown;
    }
 
-   public SharedStoreSlavePolicy getSharedStoreSlavePolicy()
-   {
+   public SharedStoreSlavePolicy getSharedStoreSlavePolicy() {
       return sharedStoreSlavePolicy;
    }
 
-   public void setSharedStoreSlavePolicy(SharedStoreSlavePolicy sharedStoreSlavePolicy)
-   {
+   public void setSharedStoreSlavePolicy(SharedStoreSlavePolicy sharedStoreSlavePolicy) {
       this.sharedStoreSlavePolicy = sharedStoreSlavePolicy;
    }
 
    @Override
-   public boolean isSharedStore()
-   {
+   public boolean isSharedStore() {
       return true;
    }
 
    @Override
-   public boolean isBackup()
-   {
+   public boolean isBackup() {
       return false;
    }
 
    @Override
-   public boolean canScaleDown()
-   {
+   public boolean canScaleDown() {
       return false;
    }
 
    @Override
-   public LiveActivation createActivation(ActiveMQServerImpl server, boolean wasLive, Map<String, Object> activationParams, ActiveMQServerImpl.ShutdownOnCriticalErrorListener shutdownOnCriticalIO)
-   {
-      return  new SharedStoreLiveActivation(server, this);
+   public LiveActivation createActivation(ActiveMQServerImpl server,
+                                          boolean wasLive,
+                                          Map<String, Object> activationParams,
+                                          ActiveMQServerImpl.ShutdownOnCriticalErrorListener shutdownOnCriticalIO) {
+      return new SharedStoreLiveActivation(server, this);
    }
 
    @Override
-   public String getBackupGroupName()
-   {
+   public String getBackupGroupName() {
       return null;
    }
 
    @Override
-   public String getScaleDownGroupName()
-   {
+   public String getScaleDownGroupName() {
       return null;
    }
 
    @Override
-   public String getScaleDownClustername()
-   {
+   public String getScaleDownClustername() {
       return null;
    }
 }

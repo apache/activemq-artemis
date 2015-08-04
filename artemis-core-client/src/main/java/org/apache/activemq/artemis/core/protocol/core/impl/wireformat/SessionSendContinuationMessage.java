@@ -23,8 +23,8 @@ import org.apache.activemq.artemis.core.message.impl.MessageInternal;
 /**
  * A SessionSendContinuationMessage<br>
  */
-public class SessionSendContinuationMessage extends SessionContinuationMessage
-{
+public class SessionSendContinuationMessage extends SessionContinuationMessage {
+
    private boolean requiresResponse;
 
    // Used on confirmation handling
@@ -48,8 +48,7 @@ public class SessionSendContinuationMessage extends SessionContinuationMessage
 
    // Constructors --------------------------------------------------
 
-   public SessionSendContinuationMessage()
-   {
+   public SessionSendContinuationMessage() {
       super(SESS_SEND_CONTINUATION);
       handler = null;
    }
@@ -59,10 +58,12 @@ public class SessionSendContinuationMessage extends SessionContinuationMessage
     * @param continues
     * @param requiresResponse
     */
-   public SessionSendContinuationMessage(final MessageInternal message, final byte[] body, final boolean continues,
-                                         final boolean requiresResponse, final long messageBodySize,
-                                         SendAcknowledgementHandler handler)
-   {
+   public SessionSendContinuationMessage(final MessageInternal message,
+                                         final byte[] body,
+                                         final boolean continues,
+                                         final boolean requiresResponse,
+                                         final long messageBodySize,
+                                         SendAcknowledgementHandler handler) {
       super(SESS_SEND_CONTINUATION, body, continues);
       this.requiresResponse = requiresResponse;
       this.message = message;
@@ -75,50 +76,41 @@ public class SessionSendContinuationMessage extends SessionContinuationMessage
    /**
     * @return the requiresResponse
     */
-   public boolean isRequiresResponse()
-   {
+   public boolean isRequiresResponse() {
       return requiresResponse;
    }
 
-   public long getMessageBodySize()
-   {
+   public long getMessageBodySize() {
       return messageBodySize;
    }
-
 
    /**
     * @return the message
     */
-   public MessageInternal getMessage()
-   {
+   public MessageInternal getMessage() {
       return message;
    }
 
    @Override
-   public void encodeRest(final ActiveMQBuffer buffer)
-   {
+   public void encodeRest(final ActiveMQBuffer buffer) {
       super.encodeRest(buffer);
-      if (!continues)
-      {
+      if (!continues) {
          buffer.writeLong(messageBodySize);
       }
       buffer.writeBoolean(requiresResponse);
    }
 
    @Override
-   public void decodeRest(final ActiveMQBuffer buffer)
-   {
+   public void decodeRest(final ActiveMQBuffer buffer) {
       super.decodeRest(buffer);
-      if (!continues)
-      {
+      if (!continues) {
          messageBodySize = buffer.readLong();
       }
       requiresResponse = buffer.readBoolean();
    }
 
    @Override
-   public int hashCode()
-   {
+   public int hashCode() {
       final int prime = 31;
       int result = super.hashCode();
       result = prime * result + ((message == null) ? 0 : message.hashCode());
@@ -128,8 +120,7 @@ public class SessionSendContinuationMessage extends SessionContinuationMessage
    }
 
    @Override
-   public boolean equals(Object obj)
-   {
+   public boolean equals(Object obj) {
       if (this == obj)
          return true;
       if (!super.equals(obj))
@@ -137,8 +128,7 @@ public class SessionSendContinuationMessage extends SessionContinuationMessage
       if (!(obj instanceof SessionSendContinuationMessage))
          return false;
       SessionSendContinuationMessage other = (SessionSendContinuationMessage) obj;
-      if (message == null)
-      {
+      if (message == null) {
          if (other.message != null)
             return false;
       }
@@ -151,8 +141,7 @@ public class SessionSendContinuationMessage extends SessionContinuationMessage
       return true;
    }
 
-   public SendAcknowledgementHandler getHandler()
-   {
+   public SendAcknowledgementHandler getHandler() {
       return handler;
    }
 }

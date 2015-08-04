@@ -34,43 +34,32 @@ import org.apache.activemq.artemis.spi.core.remoting.BufferHandler;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.spi.core.remoting.ConnectionLifeCycleListener;
 
-public class NettyConnectorTest extends ActiveMQTestBase
-{
+public class NettyConnectorTest extends ActiveMQTestBase {
 
    @Test
-   public void testStartStop() throws Exception
-   {
-      BufferHandler handler = new BufferHandler()
-      {
-         public void bufferReceived(final Object connectionID, final ActiveMQBuffer buffer)
-         {
+   public void testStartStop() throws Exception {
+      BufferHandler handler = new BufferHandler() {
+         public void bufferReceived(final Object connectionID, final ActiveMQBuffer buffer) {
          }
       };
       Map<String, Object> params = new HashMap<String, Object>();
-      ConnectionLifeCycleListener listener = new ConnectionLifeCycleListener()
-      {
-         public void connectionException(final Object connectionID, final ActiveMQException me)
-         {
+      ConnectionLifeCycleListener listener = new ConnectionLifeCycleListener() {
+         public void connectionException(final Object connectionID, final ActiveMQException me) {
          }
 
-         public void connectionDestroyed(final Object connectionID)
-         {
+         public void connectionDestroyed(final Object connectionID) {
          }
 
-         public void connectionCreated(final ActiveMQComponent component, final Connection connection, final String protocol)
-         {
+         public void connectionCreated(final ActiveMQComponent component,
+                                       final Connection connection,
+                                       final String protocol) {
          }
-         public void connectionReadyForWrites(Object connectionID, boolean ready)
-         {
+
+         public void connectionReadyForWrites(Object connectionID, boolean ready) {
          }
       };
 
-      NettyConnector connector = new NettyConnector(params,
-                                                    handler,
-                                                    listener,
-                                                    Executors.newCachedThreadPool(),
-                                                    Executors.newCachedThreadPool(),
-                                                    Executors.newScheduledThreadPool(5));
+      NettyConnector connector = new NettyConnector(params, handler, listener, Executors.newCachedThreadPool(), Executors.newCachedThreadPool(), Executors.newScheduledThreadPool(5));
 
       connector.start();
       Assert.assertTrue(connector.isStarted());
@@ -79,73 +68,51 @@ public class NettyConnectorTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testNullParams() throws Exception
-   {
-      BufferHandler handler = new BufferHandler()
-      {
-         public void bufferReceived(final Object connectionID, final ActiveMQBuffer buffer)
-         {
+   public void testNullParams() throws Exception {
+      BufferHandler handler = new BufferHandler() {
+         public void bufferReceived(final Object connectionID, final ActiveMQBuffer buffer) {
          }
       };
       Map<String, Object> params = new HashMap<String, Object>();
-      ConnectionLifeCycleListener listener = new ConnectionLifeCycleListener()
-      {
-         public void connectionException(final Object connectionID, final ActiveMQException me)
-         {
+      ConnectionLifeCycleListener listener = new ConnectionLifeCycleListener() {
+         public void connectionException(final Object connectionID, final ActiveMQException me) {
          }
 
-         public void connectionDestroyed(final Object connectionID)
-         {
+         public void connectionDestroyed(final Object connectionID) {
          }
 
-         public void connectionCreated(final ActiveMQComponent component, final Connection connection, final String protocol)
-         {
+         public void connectionCreated(final ActiveMQComponent component,
+                                       final Connection connection,
+                                       final String protocol) {
          }
 
-         public void connectionReadyForWrites(Object connectionID, boolean ready)
-         {
+         public void connectionReadyForWrites(Object connectionID, boolean ready) {
          }
       };
 
-      try
-      {
-         new NettyConnector(params,
-                            null,
-                            listener,
-                            Executors.newCachedThreadPool(),
-                            Executors.newCachedThreadPool(),
-                            Executors.newScheduledThreadPool(5));
+      try {
+         new NettyConnector(params, null, listener, Executors.newCachedThreadPool(), Executors.newCachedThreadPool(), Executors.newScheduledThreadPool(5));
 
          Assert.fail("Should throw Exception");
       }
-      catch (IllegalArgumentException e)
-      {
+      catch (IllegalArgumentException e) {
          // Ok
       }
 
-      try
-      {
-         new NettyConnector(params,
-                            handler,
-                            null,
-                            Executors.newCachedThreadPool(),
-                            Executors.newCachedThreadPool(),
-                            Executors.newScheduledThreadPool(5));
+      try {
+         new NettyConnector(params, handler, null, Executors.newCachedThreadPool(), Executors.newCachedThreadPool(), Executors.newScheduledThreadPool(5));
 
          Assert.fail("Should throw Exception");
       }
-      catch (IllegalArgumentException e)
-      {
+      catch (IllegalArgumentException e) {
          // Ok
       }
    }
+
    @Test
-   public void testJavaSystemPropertyOverrides() throws Exception
-   {
-      BufferHandler handler = new BufferHandler()
-      {
-         public void bufferReceived(final Object connectionID, final ActiveMQBuffer buffer)
-         {
+   public void testJavaSystemPropertyOverrides() throws Exception {
+      BufferHandler handler = new BufferHandler() {
+         public void bufferReceived(final Object connectionID, final ActiveMQBuffer buffer) {
          }
       };
       Map<String, Object> params = new HashMap<String, Object>();
@@ -154,31 +121,23 @@ public class NettyConnectorTest extends ActiveMQTestBase
       params.put(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, "bad password");
       params.put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, "bad path");
       params.put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, "bad password");
-      ConnectionLifeCycleListener listener = new ConnectionLifeCycleListener()
-      {
-         public void connectionException(final Object connectionID, final ActiveMQException me)
-         {
+      ConnectionLifeCycleListener listener = new ConnectionLifeCycleListener() {
+         public void connectionException(final Object connectionID, final ActiveMQException me) {
          }
 
-         public void connectionDestroyed(final Object connectionID)
-         {
+         public void connectionDestroyed(final Object connectionID) {
          }
 
-         public void connectionCreated(final ActiveMQComponent component, final Connection connection, final String protocol)
-         {
+         public void connectionCreated(final ActiveMQComponent component,
+                                       final Connection connection,
+                                       final String protocol) {
          }
-         public void connectionReadyForWrites(Object connectionID, boolean ready)
-         {
+
+         public void connectionReadyForWrites(Object connectionID, boolean ready) {
          }
       };
 
-      NettyConnector connector = new NettyConnector(params,
-            handler,
-            listener,
-            Executors.newCachedThreadPool(),
-            Executors.newCachedThreadPool(),
-            Executors.newScheduledThreadPool(5));
-
+      NettyConnector connector = new NettyConnector(params, handler, listener, Executors.newCachedThreadPool(), Executors.newCachedThreadPool(), Executors.newScheduledThreadPool(5));
 
       System.setProperty(NettyConnector.JAVAX_KEYSTORE_PATH_PROP_NAME, "client-side-keystore.jks");
       System.setProperty(NettyConnector.JAVAX_KEYSTORE_PASSWORD_PROP_NAME, "secureexample");
@@ -190,13 +149,11 @@ public class NettyConnectorTest extends ActiveMQTestBase
       connector.close();
       Assert.assertFalse(connector.isStarted());
    }
+
    @Test
-   public void testActiveMQSystemPropertyOverrides() throws Exception
-   {
-      BufferHandler handler = new BufferHandler()
-      {
-         public void bufferReceived(final Object connectionID, final ActiveMQBuffer buffer)
-         {
+   public void testActiveMQSystemPropertyOverrides() throws Exception {
+      BufferHandler handler = new BufferHandler() {
+         public void bufferReceived(final Object connectionID, final ActiveMQBuffer buffer) {
          }
       };
       Map<String, Object> params = new HashMap<String, Object>();
@@ -205,31 +162,23 @@ public class NettyConnectorTest extends ActiveMQTestBase
       params.put(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, "bad password");
       params.put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, "bad path");
       params.put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, "bad password");
-      ConnectionLifeCycleListener listener = new ConnectionLifeCycleListener()
-      {
-         public void connectionException(final Object connectionID, final ActiveMQException me)
-         {
+      ConnectionLifeCycleListener listener = new ConnectionLifeCycleListener() {
+         public void connectionException(final Object connectionID, final ActiveMQException me) {
          }
 
-         public void connectionDestroyed(final Object connectionID)
-         {
+         public void connectionDestroyed(final Object connectionID) {
          }
 
-         public void connectionCreated(final ActiveMQComponent component, final Connection connection, final String protocol)
-         {
+         public void connectionCreated(final ActiveMQComponent component,
+                                       final Connection connection,
+                                       final String protocol) {
          }
-         public void connectionReadyForWrites(Object connectionID, boolean ready)
-         {
+
+         public void connectionReadyForWrites(Object connectionID, boolean ready) {
          }
       };
 
-      NettyConnector connector = new NettyConnector(params,
-            handler,
-            listener,
-            Executors.newCachedThreadPool(),
-            Executors.newCachedThreadPool(),
-            Executors.newScheduledThreadPool(5));
-
+      NettyConnector connector = new NettyConnector(params, handler, listener, Executors.newCachedThreadPool(), Executors.newCachedThreadPool(), Executors.newScheduledThreadPool(5));
 
       System.setProperty(NettyConnector.JAVAX_KEYSTORE_PATH_PROP_NAME, "bad path");
       System.setProperty(NettyConnector.JAVAX_KEYSTORE_PASSWORD_PROP_NAME, "bad password");
@@ -241,7 +190,6 @@ public class NettyConnectorTest extends ActiveMQTestBase
       System.setProperty(NettyConnector.ACTIVEMQ_TRUSTSTORE_PATH_PROP_NAME, "client-side-truststore.jks");
       System.setProperty(NettyConnector.ACTIVEMQ_TRUSTSTORE_PASSWORD_PROP_NAME, "secureexample");
 
-
       connector.start();
       Assert.assertTrue(connector.isStarted());
       connector.close();
@@ -249,42 +197,31 @@ public class NettyConnectorTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testBadCipherSuite() throws Exception
-   {
-      BufferHandler handler = new BufferHandler()
-      {
-         public void bufferReceived(final Object connectionID, final ActiveMQBuffer buffer)
-         {
+   public void testBadCipherSuite() throws Exception {
+      BufferHandler handler = new BufferHandler() {
+         public void bufferReceived(final Object connectionID, final ActiveMQBuffer buffer) {
          }
       };
       Map<String, Object> params = new HashMap<String, Object>();
       params.put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
       params.put(TransportConstants.ENABLED_CIPHER_SUITES_PROP_NAME, "myBadCipherSuite");
-      ConnectionLifeCycleListener listener = new ConnectionLifeCycleListener()
-      {
-         public void connectionException(final Object connectionID, final ActiveMQException me)
-         {
+      ConnectionLifeCycleListener listener = new ConnectionLifeCycleListener() {
+         public void connectionException(final Object connectionID, final ActiveMQException me) {
          }
 
-         public void connectionDestroyed(final Object connectionID)
-         {
+         public void connectionDestroyed(final Object connectionID) {
          }
 
-         public void connectionCreated(final ActiveMQComponent component, final Connection connection, final String protocol)
-         {
+         public void connectionCreated(final ActiveMQComponent component,
+                                       final Connection connection,
+                                       final String protocol) {
          }
-         public void connectionReadyForWrites(Object connectionID, boolean ready)
-         {
+
+         public void connectionReadyForWrites(Object connectionID, boolean ready) {
          }
       };
 
-      NettyConnector connector = new NettyConnector(params,
-            handler,
-            listener,
-            Executors.newCachedThreadPool(),
-            Executors.newCachedThreadPool(),
-            Executors.newScheduledThreadPool(5));
-
+      NettyConnector connector = new NettyConnector(params, handler, listener, Executors.newCachedThreadPool(), Executors.newCachedThreadPool(), Executors.newScheduledThreadPool(5));
 
       connector.start();
       Assert.assertTrue(connector.isStarted());
@@ -294,42 +231,31 @@ public class NettyConnectorTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testBadProtocol() throws Exception
-   {
-      BufferHandler handler = new BufferHandler()
-      {
-         public void bufferReceived(final Object connectionID, final ActiveMQBuffer buffer)
-         {
+   public void testBadProtocol() throws Exception {
+      BufferHandler handler = new BufferHandler() {
+         public void bufferReceived(final Object connectionID, final ActiveMQBuffer buffer) {
          }
       };
       Map<String, Object> params = new HashMap<String, Object>();
       params.put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
       params.put(TransportConstants.ENABLED_PROTOCOLS_PROP_NAME, "myBadProtocol");
-      ConnectionLifeCycleListener listener = new ConnectionLifeCycleListener()
-      {
-         public void connectionException(final Object connectionID, final ActiveMQException me)
-         {
+      ConnectionLifeCycleListener listener = new ConnectionLifeCycleListener() {
+         public void connectionException(final Object connectionID, final ActiveMQException me) {
          }
 
-         public void connectionDestroyed(final Object connectionID)
-         {
+         public void connectionDestroyed(final Object connectionID) {
          }
 
-         public void connectionCreated(final ActiveMQComponent component, final Connection connection, final String protocol)
-         {
+         public void connectionCreated(final ActiveMQComponent component,
+                                       final Connection connection,
+                                       final String protocol) {
          }
-         public void connectionReadyForWrites(Object connectionID, boolean ready)
-         {
+
+         public void connectionReadyForWrites(Object connectionID, boolean ready) {
          }
       };
 
-      NettyConnector connector = new NettyConnector(params,
-            handler,
-            listener,
-            Executors.newCachedThreadPool(),
-            Executors.newCachedThreadPool(),
-            Executors.newScheduledThreadPool(5));
-
+      NettyConnector connector = new NettyConnector(params, handler, listener, Executors.newCachedThreadPool(), Executors.newCachedThreadPool(), Executors.newScheduledThreadPool(5));
 
       connector.start();
       Assert.assertTrue(connector.isStarted());

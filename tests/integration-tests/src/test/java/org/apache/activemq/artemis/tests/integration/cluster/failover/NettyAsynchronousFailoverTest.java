@@ -18,17 +18,15 @@ package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 
-public class NettyAsynchronousFailoverTest extends AsynchronousFailoverTest
-{
+public class NettyAsynchronousFailoverTest extends AsynchronousFailoverTest {
+
    @Override
-   protected TransportConfiguration getAcceptorTransportConfiguration(final boolean live)
-   {
+   protected TransportConfiguration getAcceptorTransportConfiguration(final boolean live) {
       return getNettyAcceptorTransportConfiguration(live);
    }
 
    @Override
-   protected TransportConfiguration getConnectorTransportConfiguration(final boolean live)
-   {
+   protected TransportConfiguration getConnectorTransportConfiguration(final boolean live) {
       return getNettyConnectorTransportConfiguration(live);
    }
 }

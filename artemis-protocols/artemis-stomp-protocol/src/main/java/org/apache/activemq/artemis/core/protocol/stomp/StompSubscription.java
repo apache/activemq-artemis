@@ -16,8 +16,7 @@
  */
 package org.apache.activemq.artemis.core.protocol.stomp;
 
-public class StompSubscription
-{
+public class StompSubscription {
    // Constants -----------------------------------------------------
 
    // Attributes ----------------------------------------------------
@@ -30,27 +29,23 @@ public class StompSubscription
 
    // Constructors --------------------------------------------------
 
-   public StompSubscription(String subID, String ack)
-   {
+   public StompSubscription(String subID, String ack) {
       this.subID = subID;
       this.ack = ack;
    }
 
    // Public --------------------------------------------------------
 
-   public String getAck()
-   {
+   public String getAck() {
       return ack;
    }
 
-   public String getID()
-   {
+   public String getID() {
       return subID;
    }
 
    @Override
-   public String toString()
-   {
+   public String toString() {
       return "StompSubscription[id=" + subID + ", ack=" + ack + "]";
    }
 

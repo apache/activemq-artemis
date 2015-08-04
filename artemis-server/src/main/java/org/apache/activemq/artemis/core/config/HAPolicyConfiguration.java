@@ -18,10 +18,9 @@ package org.apache.activemq.artemis.core.config;
 
 import java.io.Serializable;
 
-public interface HAPolicyConfiguration extends Serializable
-{
-   public enum TYPE
-   {
+public interface HAPolicyConfiguration extends Serializable {
+
+   public enum TYPE {
       LIVE_ONLY,
       REPLICATED,
       REPLICA,

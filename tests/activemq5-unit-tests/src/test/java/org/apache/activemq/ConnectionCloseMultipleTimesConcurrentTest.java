@@ -26,71 +26,72 @@ import javax.jms.Session;
 import junit.framework.TestCase;
 
 /**
- * 
+ *
  */
 public class ConnectionCloseMultipleTimesConcurrentTest extends TestCase {
 
-    private ActiveMQConnection connection;
-    private ExecutorService executor;
-    private int size = 200;
+   private ActiveMQConnection connection;
+   private ExecutorService executor;
+   private int size = 200;
 
-    protected void setUp() throws Exception {
-        executor = Executors.newFixedThreadPool(20);
+   protected void setUp() throws Exception {
+      executor = Executors.newFixedThreadPool(20);
 
-        ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("vm://localhost");
-        connection = (ActiveMQConnection)factory.createConnection();
-        connection.start();
-    }
+      ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("vm://localhost");
+      connection = (ActiveMQConnection) factory.createConnection();
+      connection.start();
+   }
 
-    /**
-     * @see junit.framework.TestCase#tearDown()
-     */
-    protected void tearDown() throws Exception {
-        if (connection.isStarted()) {
-            connection.stop();
-        }
-        if (executor != null) {
-            executor.shutdownNow();
-        }
-    }
+   /**
+    * @see junit.framework.TestCase#tearDown()
+    */
+   protected void tearDown() throws Exception {
+      if (connection.isStarted()) {
+         connection.stop();
+      }
+      if (executor != null) {
+         executor.shutdownNow();
+      }
+   }
 
-    /**
-     * @throws javax.jms.JMSException
-     */
-    public void testCloseMultipleTimes() throws Exception {
-        connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+   /**
+    * @throws javax.jms.JMSException
+    */
+   public void testCloseMultipleTimes() throws Exception {
+      connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-        assertTrue(connection.isStarted());
-        assertFalse(connection.isClosed());
+      assertTrue(connection.isStarted());
+      assertFalse(connection.isClosed());
 
-        final CountDownLatch latch = new CountDownLatch(size);
+      final CountDownLatch latch = new CountDownLatch(size);
 
-        for (int i = 0; i < size; i++) {
-            executor.submit(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        connection.close();
+      for (int i = 0; i < size; i++) {
+         executor.submit(new Runnable() {
+            @Override
+            public void run() {
+               try {
+                  connection.close();
 
-                        assertFalse(connection.isStarted());
-                        assertTrue(connection.isClosed());
+                  assertFalse(connection.isStarted());
+                  assertTrue(connection.isClosed());
 
-                        latch.countDown();
-                    } catch (JMSException e) {
-                        // ignore
-                    }
-                }
-            });
-        }
+                  latch.countDown();
+               }
+               catch (JMSException e) {
+                  // ignore
+               }
+            }
+         });
+      }
 
-        boolean zero = latch.await(20, TimeUnit.SECONDS);
-        assertTrue("Should complete all", zero);
+      boolean zero = latch.await(20, TimeUnit.SECONDS);
+      assertTrue("Should complete all", zero);
 
-        // should not fail calling again
-        connection.close();
+      // should not fail calling again
+      connection.close();
 
-        assertFalse(connection.isStarted());
-        assertTrue(connection.isClosed());
-    }
+      assertFalse(connection.isStarted());
+      assertTrue(connection.isClosed());
+   }
 
 }

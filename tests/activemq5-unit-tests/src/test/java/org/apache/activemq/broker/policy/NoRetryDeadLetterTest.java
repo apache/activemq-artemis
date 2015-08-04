@@ -21,13 +21,13 @@ import org.apache.activemq.RedeliveryPolicy;
 
 public class NoRetryDeadLetterTest extends DeadLetterTest {
 
-    @Override
-    protected ActiveMQConnectionFactory createConnectionFactory() throws Exception {
-        ActiveMQConnectionFactory connectionFactory = super.createConnectionFactory();
-        RedeliveryPolicy redeliveryPolicy = new RedeliveryPolicy();
-        redeliveryPolicy.setMaximumRedeliveries(0);
-        connectionFactory.setRedeliveryPolicy(redeliveryPolicy);
-        return connectionFactory;
-    }
+   @Override
+   protected ActiveMQConnectionFactory createConnectionFactory() throws Exception {
+      ActiveMQConnectionFactory connectionFactory = super.createConnectionFactory();
+      RedeliveryPolicy redeliveryPolicy = new RedeliveryPolicy();
+      redeliveryPolicy.setMaximumRedeliveries(0);
+      connectionFactory.setRedeliveryPolicy(redeliveryPolicy);
+      return connectionFactory;
+   }
 
 }

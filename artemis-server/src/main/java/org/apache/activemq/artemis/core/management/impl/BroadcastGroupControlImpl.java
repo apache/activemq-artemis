@@ -25,8 +25,7 @@ import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.server.cluster.BroadcastGroup;
 import org.apache.activemq.artemis.utils.json.JSONArray;
 
-public class BroadcastGroupControlImpl extends AbstractControl implements BroadcastGroupControl
-{
+public class BroadcastGroupControlImpl extends AbstractControl implements BroadcastGroupControl {
 
    // Constants -----------------------------------------------------
 
@@ -42,8 +41,7 @@ public class BroadcastGroupControlImpl extends AbstractControl implements Broadc
 
    public BroadcastGroupControlImpl(final BroadcastGroup broadcastGroup,
                                     final StorageManager storageManager,
-                                    final BroadcastGroupConfiguration configuration) throws Exception
-   {
+                                    final BroadcastGroupConfiguration configuration) throws Exception {
       super(BroadcastGroupControl.class, storageManager);
       this.broadcastGroup = broadcastGroup;
       this.configuration = configuration;
@@ -51,168 +49,132 @@ public class BroadcastGroupControlImpl extends AbstractControl implements Broadc
 
    // BroadcastGroupControlMBean implementation ---------------------
 
-   public String getName()
-   {
+   public String getName() {
       clearIO();
-      try
-      {
+      try {
          return configuration.getName();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public long getBroadcastPeriod()
-   {
+   public long getBroadcastPeriod() {
       clearIO();
-      try
-      {
+      try {
          return configuration.getBroadcastPeriod();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public Object[] getConnectorPairs()
-   {
+   public Object[] getConnectorPairs() {
       clearIO();
-      try
-      {
+      try {
          Object[] ret = new Object[configuration.getConnectorInfos().size()];
 
          int i = 0;
-         for (String connector : configuration.getConnectorInfos())
-         {
+         for (String connector : configuration.getConnectorInfos()) {
             ret[i++] = connector;
          }
 
          return ret;
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public String getConnectorPairsAsJSON() throws Exception
-   {
+   public String getConnectorPairsAsJSON() throws Exception {
       clearIO();
-      try
-      {
+      try {
          JSONArray array = new JSONArray();
 
-         for (String connector : configuration.getConnectorInfos())
-         {
+         for (String connector : configuration.getConnectorInfos()) {
             array.put(connector);
          }
          return array.toString();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
    //todo ghoward we should deal with this properly
-   public String getGroupAddress() throws Exception
-   {
+   public String getGroupAddress() throws Exception {
       clearIO();
-      try
-      {
-         if (configuration.getEndpointFactory() instanceof UDPBroadcastEndpointFactory)
-         {
-            return ((UDPBroadcastEndpointFactory)configuration.getEndpointFactory()).getGroupAddress();
+      try {
+         if (configuration.getEndpointFactory() instanceof UDPBroadcastEndpointFactory) {
+            return ((UDPBroadcastEndpointFactory) configuration.getEndpointFactory()).getGroupAddress();
          }
          throw new Exception("Invalid request because this is not a UDP Broadcast configuration.");
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public int getGroupPort() throws Exception
-   {
+   public int getGroupPort() throws Exception {
       clearIO();
-      try
-      {
-         if (configuration.getEndpointFactory() instanceof UDPBroadcastEndpointFactory)
-         {
-            return ((UDPBroadcastEndpointFactory)configuration.getEndpointFactory()).getGroupPort();
+      try {
+         if (configuration.getEndpointFactory() instanceof UDPBroadcastEndpointFactory) {
+            return ((UDPBroadcastEndpointFactory) configuration.getEndpointFactory()).getGroupPort();
          }
          throw new Exception("Invalid request because this is not a UDP Broadcast configuration.");
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public int getLocalBindPort() throws Exception
-   {
+   public int getLocalBindPort() throws Exception {
       clearIO();
-      try
-      {
-         if (configuration.getEndpointFactory() instanceof UDPBroadcastEndpointFactory)
-         {
-            return ((UDPBroadcastEndpointFactory)configuration.getEndpointFactory()).getLocalBindPort();
+      try {
+         if (configuration.getEndpointFactory() instanceof UDPBroadcastEndpointFactory) {
+            return ((UDPBroadcastEndpointFactory) configuration.getEndpointFactory()).getLocalBindPort();
          }
          throw new Exception("Invalid request because this is not a UDP Broadcast configuration.");
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
    // MessagingComponentControlMBean implementation -----------------
 
-   public boolean isStarted()
-   {
+   public boolean isStarted() {
       clearIO();
-      try
-      {
+      try {
          return broadcastGroup.isStarted();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public void start() throws Exception
-   {
+   public void start() throws Exception {
       clearIO();
-      try
-      {
+      try {
          broadcastGroup.start();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public void stop() throws Exception
-   {
+   public void stop() throws Exception {
       clearIO();
-      try
-      {
+      try {
          broadcastGroup.stop();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
    @Override
-   protected MBeanOperationInfo[] fillMBeanOperationInfo()
-   {
+   protected MBeanOperationInfo[] fillMBeanOperationInfo() {
       return MBeanInfoHelper.getMBeanOperationsInfo(BroadcastGroupControl.class);
    }
 

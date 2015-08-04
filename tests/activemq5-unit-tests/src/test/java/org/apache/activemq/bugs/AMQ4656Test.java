@@ -17,6 +17,7 @@
 package org.apache.activemq.bugs;
 
 import java.util.Arrays;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -48,106 +49,105 @@ import org.slf4j.LoggerFactory;
 @RunWith(value = Parameterized.class)
 public class AMQ4656Test {
 
-    private static final transient Logger LOG = LoggerFactory.getLogger(AMQ4656Test.class);
-    private static BrokerService brokerService;
-    private static String BROKER_ADDRESS = "tcp://localhost:0";
+   private static final transient Logger LOG = LoggerFactory.getLogger(AMQ4656Test.class);
+   private static BrokerService brokerService;
+   private static String BROKER_ADDRESS = "tcp://localhost:0";
 
-    private String connectionUri;
+   private String connectionUri;
 
-    @Parameterized.Parameter
-    public PendingDurableSubscriberMessageStoragePolicy pendingDurableSubPolicy;
+   @Parameterized.Parameter
+   public PendingDurableSubscriberMessageStoragePolicy pendingDurableSubPolicy;
 
-    @Parameterized.Parameters(name="{0}")
-    public static Iterable<Object[]> getTestParameters() {
-        return Arrays.asList(new Object[][]{{new FilePendingDurableSubscriberMessageStoragePolicy()},{new StorePendingDurableSubscriberMessageStoragePolicy()}});
-    }
+   @Parameterized.Parameters(name = "{0}")
+   public static Iterable<Object[]> getTestParameters() {
+      return Arrays.asList(new Object[][]{{new FilePendingDurableSubscriberMessageStoragePolicy()}, {new StorePendingDurableSubscriberMessageStoragePolicy()}});
+   }
 
-    @Before
-    public void setUp() throws Exception {
-        brokerService = new BrokerService();
-        PolicyMap policyMap = new PolicyMap();
-        PolicyEntry defaultEntry = new PolicyEntry();
-        defaultEntry.setPendingDurableSubscriberPolicy(pendingDurableSubPolicy);
-        policyMap.setDefaultEntry(defaultEntry);
-        brokerService.setDestinationPolicy(policyMap);
-        brokerService.setPersistent(false);
-        brokerService.setUseJmx(true);
-        brokerService.setDeleteAllMessagesOnStartup(true);
-        connectionUri = brokerService.addConnector(BROKER_ADDRESS).getPublishableConnectString();
-        brokerService.start();
-        brokerService.waitUntilStarted();
-    }
+   @Before
+   public void setUp() throws Exception {
+      brokerService = new BrokerService();
+      PolicyMap policyMap = new PolicyMap();
+      PolicyEntry defaultEntry = new PolicyEntry();
+      defaultEntry.setPendingDurableSubscriberPolicy(pendingDurableSubPolicy);
+      policyMap.setDefaultEntry(defaultEntry);
+      brokerService.setDestinationPolicy(policyMap);
+      brokerService.setPersistent(false);
+      brokerService.setUseJmx(true);
+      brokerService.setDeleteAllMessagesOnStartup(true);
+      connectionUri = brokerService.addConnector(BROKER_ADDRESS).getPublishableConnectString();
+      brokerService.start();
+      brokerService.waitUntilStarted();
+   }
 
-    @After
-    public void tearDown() throws Exception {
-        brokerService.stop();
-        brokerService.waitUntilStopped();
-    }
+   @After
+   public void tearDown() throws Exception {
+      brokerService.stop();
+      brokerService.waitUntilStopped();
+   }
 
-    @Test
-    public void testDurableConsumerEnqueueCountWithZeroPrefetch() throws Exception {
+   @Test
+   public void testDurableConsumerEnqueueCountWithZeroPrefetch() throws Exception {
 
-        ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(connectionUri);
+      ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(connectionUri);
 
-        Connection connection = connectionFactory.createConnection();
-        connection.setClientID(getClass().getName());
-        connection.start();
+      Connection connection = connectionFactory.createConnection();
+      connection.setClientID(getClass().getName());
+      connection.start();
 
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        Destination destination = session.createTopic("DurableTopic");
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      Destination destination = session.createTopic("DurableTopic");
 
-        MessageConsumer consumer = session.createDurableSubscriber((Topic) destination, "EnqueueSub");
+      MessageConsumer consumer = session.createDurableSubscriber((Topic) destination, "EnqueueSub");
 
-        BrokerView view = brokerService.getAdminView();
-        view.getDurableTopicSubscribers();
+      BrokerView view = brokerService.getAdminView();
+      view.getDurableTopicSubscribers();
 
-        ObjectName subName = view.getDurableTopicSubscribers()[0];
+      ObjectName subName = view.getDurableTopicSubscribers()[0];
 
-        DurableSubscriptionViewMBean sub = (DurableSubscriptionViewMBean)
-            brokerService.getManagementContext().newProxyInstance(subName, DurableSubscriptionViewMBean.class, true);
+      DurableSubscriptionViewMBean sub = (DurableSubscriptionViewMBean) brokerService.getManagementContext().newProxyInstance(subName, DurableSubscriptionViewMBean.class, true);
 
-        assertEquals(0, sub.getEnqueueCounter());
-        assertEquals(0, sub.getDequeueCounter());
-        assertEquals(0, sub.getPendingQueueSize());
-        assertEquals(0, sub.getDispatchedCounter());
-        assertEquals(0, sub.getDispatchedQueueSize());
+      assertEquals(0, sub.getEnqueueCounter());
+      assertEquals(0, sub.getDequeueCounter());
+      assertEquals(0, sub.getPendingQueueSize());
+      assertEquals(0, sub.getDispatchedCounter());
+      assertEquals(0, sub.getDispatchedQueueSize());
 
-        consumer.close();
+      consumer.close();
 
-        MessageProducer producer = session.createProducer(destination);
-        for (int i = 0; i < 20; i++) {
-            producer.send(session.createMessage());
-        }
-        producer.close();
+      MessageProducer producer = session.createProducer(destination);
+      for (int i = 0; i < 20; i++) {
+         producer.send(session.createMessage());
+      }
+      producer.close();
 
-        consumer = session.createDurableSubscriber((Topic) destination, "EnqueueSub");
+      consumer = session.createDurableSubscriber((Topic) destination, "EnqueueSub");
 
-        Thread.sleep(1000);
+      Thread.sleep(1000);
 
-        assertEquals(20, sub.getEnqueueCounter());
-        assertEquals(0, sub.getDequeueCounter());
-        assertEquals(0, sub.getPendingQueueSize());
-        assertEquals(20, sub.getDispatchedCounter());
-        assertEquals(20, sub.getDispatchedQueueSize());
+      assertEquals(20, sub.getEnqueueCounter());
+      assertEquals(0, sub.getDequeueCounter());
+      assertEquals(0, sub.getPendingQueueSize());
+      assertEquals(20, sub.getDispatchedCounter());
+      assertEquals(20, sub.getDispatchedQueueSize());
 
-        LOG.info("Pending Queue Size with no receives: {}", sub.getPendingQueueSize());
+      LOG.info("Pending Queue Size with no receives: {}", sub.getPendingQueueSize());
 
-        assertNotNull(consumer.receive(1000));
-        assertNotNull(consumer.receive(1000));
+      assertNotNull(consumer.receive(1000));
+      assertNotNull(consumer.receive(1000));
 
-        consumer.close();
+      consumer.close();
 
-        Thread.sleep(2000);
+      Thread.sleep(2000);
 
-        LOG.info("Pending Queue Size with two receives: {}", sub.getPendingQueueSize());
+      LOG.info("Pending Queue Size with two receives: {}", sub.getPendingQueueSize());
 
-        assertEquals(20, sub.getEnqueueCounter());
-        assertEquals(2, sub.getDequeueCounter());
-        assertEquals(18, sub.getPendingQueueSize());
-        assertEquals(20, sub.getDispatchedCounter());
-        assertEquals(0, sub.getDispatchedQueueSize());
+      assertEquals(20, sub.getEnqueueCounter());
+      assertEquals(2, sub.getDequeueCounter());
+      assertEquals(18, sub.getPendingQueueSize());
+      assertEquals(20, sub.getDispatchedCounter());
+      assertEquals(0, sub.getDispatchedQueueSize());
 
-        session.close();
-        connection.close();
-    }
+      session.close();
+      connection.close();
+   }
 }

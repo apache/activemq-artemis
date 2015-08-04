@@ -19,35 +19,35 @@ package org.apache.activemq.security;
 import java.net.URI;
 
 import junit.framework.Test;
+
 import org.apache.activemq.broker.BrokerFactory;
 import org.apache.activemq.broker.BrokerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * 
- * 
+ *
+ *
  */
 public class XBeanSecurityTest extends SecurityTestSupport {
 
-    private static final Logger LOG = LoggerFactory.getLogger(XBeanSecurityTest.class);
-    
-    public static Test suite() {
-        return suite(XBeanSecurityTest.class);
-    }
+   private static final Logger LOG = LoggerFactory.getLogger(XBeanSecurityTest.class);
 
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(suite());
-    }
+   public static Test suite() {
+      return suite(XBeanSecurityTest.class);
+   }
 
+   public static void main(String[] args) {
+      junit.textui.TestRunner.run(suite());
+   }
 
-    protected BrokerService createBroker() throws Exception {
-        return createBroker("org/apache/activemq/security/jaas-broker.xml");
-    }
+   protected BrokerService createBroker() throws Exception {
+      return createBroker("org/apache/activemq/security/jaas-broker.xml");
+   }
 
-    protected BrokerService createBroker(String uri) throws Exception {
-        LOG.info("Loading broker configuration from the classpath with URI: " + uri);
-        return BrokerFactory.createBroker(new URI("xbean:" + uri));
-    }
+   protected BrokerService createBroker(String uri) throws Exception {
+      LOG.info("Loading broker configuration from the classpath with URI: " + uri);
+      return BrokerFactory.createBroker(new URI("xbean:" + uri));
+   }
 
 }

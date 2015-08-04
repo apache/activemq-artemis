@@ -26,40 +26,35 @@ import javax.xml.bind.annotation.XmlValue;
 
 @XmlRootElement(name = "header")
 @XmlAccessorType(XmlAccessType.PROPERTY)
-public class XmlHttpHeader implements Serializable
-{
+public class XmlHttpHeader implements Serializable {
+
    private static final long serialVersionUID = -3900391946161818601L;
    private String name;
    private String value;
 
    @XmlAttribute
-   public String getName()
-   {
+   public String getName() {
       return name;
    }
 
-   public void setName(String name)
-   {
+   public void setName(String name) {
       this.name = name;
    }
 
    @XmlValue
-   public String getValue()
-   {
+   public String getValue() {
       return value;
    }
 
-   public void setValue(String value)
-   {
+   public void setValue(String value) {
       this.value = value;
    }
 
    @Override
-   public String toString()
-   {
+   public String toString() {
       return "XmlHttpHeader{" +
-              "name='" + name + '\'' +
-              ", value='" + value + '\'' +
-              '}';
+         "name='" + name + '\'' +
+         ", value='" + value + '\'' +
+         '}';
    }
 }

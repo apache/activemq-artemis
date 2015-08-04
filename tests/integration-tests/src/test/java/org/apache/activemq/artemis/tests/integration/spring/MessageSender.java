@@ -23,35 +23,29 @@ import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 
-public class MessageSender
-{
+public class MessageSender {
+
    private ConnectionFactory connectionFactory;
    private Destination destination;
 
-   public ConnectionFactory getConnectionFactory()
-   {
+   public ConnectionFactory getConnectionFactory() {
       return connectionFactory;
    }
 
-   public void setConnectionFactory(ConnectionFactory connectionFactory)
-   {
+   public void setConnectionFactory(ConnectionFactory connectionFactory) {
       this.connectionFactory = connectionFactory;
    }
 
-   public Destination getDestination()
-   {
+   public Destination getDestination() {
       return destination;
    }
 
-   public void setDestination(Destination destination)
-   {
+   public void setDestination(Destination destination) {
       this.destination = destination;
    }
 
-   public void send(String msg)
-   {
-      try
-      {
+   public void send(String msg) {
+      try {
          Connection conn = connectionFactory.createConnection();
          Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
          MessageProducer producer = session.createProducer(destination);
@@ -59,8 +53,7 @@ public class MessageSender
          producer.send(message);
          conn.close();
       }
-      catch (Exception ex)
-      {
+      catch (Exception ex) {
          ex.printStackTrace();
       }
    }

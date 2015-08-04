@@ -20,33 +20,27 @@ import javax.naming.InitialContext;
 import javax.naming.Name;
 import javax.naming.NamingException;
 
-public class NullInitialContext extends InitialContext
-{
+public class NullInitialContext extends InitialContext {
 
    @Override
-   public Object lookup(final Name name) throws NamingException
-   {
+   public Object lookup(final Name name) throws NamingException {
       return null;
    }
 
    @Override
-   public Object lookup(final String name) throws NamingException
-   {
+   public Object lookup(final String name) throws NamingException {
       return null;
    }
 
    @Override
-   public void rebind(final Name name, final Object obj) throws NamingException
-   {
+   public void rebind(final Name name, final Object obj) throws NamingException {
    }
 
    @Override
-   public void rebind(final String name, final Object obj) throws NamingException
-   {
+   public void rebind(final String name, final Object obj) throws NamingException {
    }
 
-   public NullInitialContext() throws NamingException
-   {
+   public NullInitialContext() throws NamingException {
       super();
    }
 

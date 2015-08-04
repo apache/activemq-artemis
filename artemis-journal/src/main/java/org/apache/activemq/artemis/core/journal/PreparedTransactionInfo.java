@@ -19,8 +19,8 @@ package org.apache.activemq.artemis.core.journal;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PreparedTransactionInfo
-{
+public class PreparedTransactionInfo {
+
    public final long id;
 
    public final byte[] extraData;
@@ -29,8 +29,7 @@ public class PreparedTransactionInfo
 
    public final List<RecordInfo> recordsToDelete = new ArrayList<RecordInfo>();
 
-   public PreparedTransactionInfo(final long id, final byte[] extraData)
-   {
+   public PreparedTransactionInfo(final long id, final byte[] extraData) {
       this.id = id;
 
       this.extraData = extraData;

@@ -16,11 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.distribution;
 
-public class LargeMessageRedistributionTest extends MessageRedistributionTest
-{
+public class LargeMessageRedistributionTest extends MessageRedistributionTest {
 
-   public boolean isLargeMessage()
-   {
+   public boolean isLargeMessage() {
       return true;
    }
 

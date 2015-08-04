@@ -21,12 +21,13 @@ import java.util.List;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
 
-public class SessionBindingQueryResponseMessage_V2 extends SessionBindingQueryResponseMessage
-{
+public class SessionBindingQueryResponseMessage_V2 extends SessionBindingQueryResponseMessage {
+
    private boolean autoCreateJmsQueues;
 
-   public SessionBindingQueryResponseMessage_V2(final boolean exists, final List<SimpleString> queueNames, final boolean autoCreateJmsQueues)
-   {
+   public SessionBindingQueryResponseMessage_V2(final boolean exists,
+                                                final List<SimpleString> queueNames,
+                                                final boolean autoCreateJmsQueues) {
       super(SESS_BINDINGQUERY_RESP_V2);
 
       this.exists = exists;
@@ -36,33 +37,28 @@ public class SessionBindingQueryResponseMessage_V2 extends SessionBindingQueryRe
       this.autoCreateJmsQueues = autoCreateJmsQueues;
    }
 
-   public SessionBindingQueryResponseMessage_V2()
-   {
+   public SessionBindingQueryResponseMessage_V2() {
       super(SESS_BINDINGQUERY_RESP_V2);
    }
 
-   public boolean isAutoCreateJmsQueues()
-   {
+   public boolean isAutoCreateJmsQueues() {
       return autoCreateJmsQueues;
    }
 
    @Override
-   public void encodeRest(final ActiveMQBuffer buffer)
-   {
+   public void encodeRest(final ActiveMQBuffer buffer) {
       super.encodeRest(buffer);
       buffer.writeBoolean(autoCreateJmsQueues);
    }
 
    @Override
-   public void decodeRest(final ActiveMQBuffer buffer)
-   {
+   public void decodeRest(final ActiveMQBuffer buffer) {
       super.decodeRest(buffer);
       autoCreateJmsQueues = buffer.readBoolean();
    }
 
    @Override
-   public int hashCode()
-   {
+   public int hashCode() {
       final int prime = 31;
       int result = super.hashCode();
       result = prime * result + (autoCreateJmsQueues ? 1231 : 1237);
@@ -70,15 +66,14 @@ public class SessionBindingQueryResponseMessage_V2 extends SessionBindingQueryRe
    }
 
    @Override
-   public boolean equals(Object obj)
-   {
+   public boolean equals(Object obj) {
       if (this == obj)
          return true;
       if (!super.equals(obj))
          return false;
       if (!(obj instanceof SessionBindingQueryResponseMessage_V2))
          return false;
-      SessionBindingQueryResponseMessage_V2 other = (SessionBindingQueryResponseMessage_V2)obj;
+      SessionBindingQueryResponseMessage_V2 other = (SessionBindingQueryResponseMessage_V2) obj;
       if (autoCreateJmsQueues != other.autoCreateJmsQueues)
          return false;
       return true;

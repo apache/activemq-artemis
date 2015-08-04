@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.unit.core.persistence.impl;
+
 import java.io.File;
 import java.util.ArrayList;
 
@@ -33,12 +34,10 @@ import org.apache.activemq.artemis.core.persistence.impl.nullpm.NullStorageManag
 import org.junit.Assert;
 import org.junit.Test;
 
-public class BatchIDGeneratorUnitTest extends ActiveMQTestBase
-{
+public class BatchIDGeneratorUnitTest extends ActiveMQTestBase {
 
    @Test
-   public void testSequence() throws Exception
-   {
+   public void testSequence() throws Exception {
       NIOSequentialFileFactory factory = new NIOSequentialFileFactory(new File(getTestDir()), 1);
       Journal journal = new JournalImpl(10 * 1024, 2, 0, 0, factory, "activemq-bindings", "bindings", 1);
 
@@ -76,13 +75,10 @@ public class BatchIDGeneratorUnitTest extends ActiveMQTestBase
       long lastId = id5;
 
       boolean close = true;
-      for (int i = 0; i < 100000; i++)
-      {
-         if (i % 1000 == 0)
-         {
+      for (int i = 0; i < 100000; i++) {
+         if (i % 1000 == 0) {
             // interchanging closes and simulated crashes
-            if (close)
-            {
+            if (close) {
                batch.persistCurrentID();
             }
 
@@ -111,16 +107,13 @@ public class BatchIDGeneratorUnitTest extends ActiveMQTestBase
       batch = new BatchingIDGenerator(0, 1000, getJournalStorageManager(journal));
       loadIDs(journal, batch);
 
-      Assert.assertEquals("No Ids were generated, so the currentID was supposed to stay the same",
-                          lastId,
-                          batch.getCurrentID());
+      Assert.assertEquals("No Ids were generated, so the currentID was supposed to stay the same", lastId, batch.getCurrentID());
 
       journal.stop();
 
    }
 
-   protected void loadIDs(final Journal journal, final BatchingIDGenerator batch) throws Exception
-   {
+   protected void loadIDs(final Journal journal, final BatchingIDGenerator batch) throws Exception {
       ArrayList<RecordInfo> records = new ArrayList<RecordInfo>();
       ArrayList<PreparedTransactionInfo> tx = new ArrayList<PreparedTransactionInfo>();
 
@@ -129,36 +122,28 @@ public class BatchIDGeneratorUnitTest extends ActiveMQTestBase
 
       Assert.assertEquals(0, tx.size());
 
-      Assert.assertTrue("Contains " + records.size(),  records.size() > 0);
+      Assert.assertTrue("Contains " + records.size(), records.size() > 0);
 
-      for (RecordInfo record : records)
-      {
-         if (record.userRecordType == JournalRecordIds.ID_COUNTER_RECORD)
-         {
+      for (RecordInfo record : records) {
+         if (record.userRecordType == JournalRecordIds.ID_COUNTER_RECORD) {
             ActiveMQBuffer buffer = ActiveMQBuffers.wrappedBuffer(record.data);
             batch.loadState(record.id, buffer);
          }
       }
    }
 
-   private StorageManager getJournalStorageManager(final Journal bindingsJournal)
-   {
-      NullStorageManager storageManager = new NullStorageManager()
-      {
+   private StorageManager getJournalStorageManager(final Journal bindingsJournal) {
+      NullStorageManager storageManager = new NullStorageManager() {
          @Override
-         public synchronized void storeID(long journalID, long id) throws Exception
-         {
-            bindingsJournal.appendAddRecord(journalID, JournalRecordIds.ID_COUNTER_RECORD,
-                                            BatchingIDGenerator.createIDEncodingSupport(id), true);
+         public synchronized void storeID(long journalID, long id) throws Exception {
+            bindingsJournal.appendAddRecord(journalID, JournalRecordIds.ID_COUNTER_RECORD, BatchingIDGenerator.createIDEncodingSupport(id), true);
          }
       };
 
-      try
-      {
+      try {
          storageManager.start();
       }
-      catch (Throwable ignored)
-      {
+      catch (Throwable ignored) {
       }
 
       return storageManager;

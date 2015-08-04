@@ -21,18 +21,15 @@ import javax.resource.spi.endpoint.MessageEndpoint;
 import javax.transaction.xa.XAResource;
 import java.lang.reflect.Method;
 
-public class MessageEndpointFactory implements javax.resource.spi.endpoint.MessageEndpointFactory
-{
+public class MessageEndpointFactory implements javax.resource.spi.endpoint.MessageEndpointFactory {
 
    @Override
-   public MessageEndpoint createEndpoint(final XAResource arg0) throws UnavailableException
-   {
+   public MessageEndpoint createEndpoint(final XAResource arg0) throws UnavailableException {
       return null;
    }
 
    @Override
-   public boolean isDeliveryTransacted(final Method arg0) throws NoSuchMethodException
-   {
+   public boolean isDeliveryTransacted(final Method arg0) throws NoSuchMethodException {
       return false;
    }
 

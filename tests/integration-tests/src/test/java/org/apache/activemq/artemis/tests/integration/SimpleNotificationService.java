@@ -23,8 +23,7 @@ import org.apache.activemq.artemis.core.server.management.Notification;
 import org.apache.activemq.artemis.core.server.management.NotificationListener;
 import org.apache.activemq.artemis.core.server.management.NotificationService;
 
-public class SimpleNotificationService implements NotificationService
-{
+public class SimpleNotificationService implements NotificationService {
 
    // Constants -----------------------------------------------------
 
@@ -38,24 +37,19 @@ public class SimpleNotificationService implements NotificationService
 
    // NotificationService implementation ----------------------------
 
-   public void addNotificationListener(final NotificationListener listener)
-   {
+   public void addNotificationListener(final NotificationListener listener) {
       listeners.add(listener);
    }
 
-   public void enableNotifications(final boolean enable)
-   {
+   public void enableNotifications(final boolean enable) {
    }
 
-   public void removeNotificationListener(final NotificationListener listener)
-   {
+   public void removeNotificationListener(final NotificationListener listener) {
       listeners.remove(listener);
    }
 
-   public void sendNotification(final Notification notification) throws Exception
-   {
-      for (NotificationListener listener : listeners)
-      {
+   public void sendNotification(final Notification notification) throws Exception {
+      for (NotificationListener listener : listeners) {
          listener.onNotification(notification);
       }
    }
@@ -70,19 +64,16 @@ public class SimpleNotificationService implements NotificationService
 
    // Inner classes -------------------------------------------------
 
-   public static class Listener implements NotificationListener
-   {
+   public static class Listener implements NotificationListener {
 
       private final List<Notification> notifications = new ArrayList<Notification>();
 
-      public void onNotification(final Notification notification)
-      {
+      public void onNotification(final Notification notification) {
          System.out.println(">>>>>>>>" + notification);
          notifications.add(notification);
       }
 
-      public List<Notification> getNotifications()
-      {
+      public List<Notification> getNotifications() {
          return notifications;
       }
 

@@ -21,18 +21,15 @@ import javax.jms.Message;
 import javax.jms.MessageListener;
 import javax.jms.TextMessage;
 
-public class ExampleListener implements MessageListener
-{
+public class ExampleListener implements MessageListener {
+
    protected static String lastMessage = null;
 
-   public void onMessage(Message message)
-   {
-      try
-      {
-         lastMessage = ((TextMessage)message).getText();
+   public void onMessage(Message message) {
+      try {
+         lastMessage = ((TextMessage) message).getText();
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          throw new RuntimeException(e);
       }
       System.out.println("MESSAGE RECEIVED: " + lastMessage);

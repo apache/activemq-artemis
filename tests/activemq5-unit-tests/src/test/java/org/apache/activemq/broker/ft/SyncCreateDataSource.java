@@ -22,65 +22,67 @@ import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
 import java.util.logging.Logger;
 import javax.sql.DataSource;
+
 import org.apache.derby.jdbc.EmbeddedDataSource;
 
 // prevent concurrent calls from attempting to create the db at the same time
 // can result in "already exists in this jvm" errors
 
 public class SyncCreateDataSource implements DataSource {
-    final EmbeddedDataSource delegate;
 
-    SyncCreateDataSource(EmbeddedDataSource dataSource) {
-        this.delegate = dataSource;
-    }
+   final EmbeddedDataSource delegate;
 
-    @Override
-    public Connection getConnection() throws SQLException {
-        synchronized (this) {
-            return delegate.getConnection();
-        }
-    }
+   SyncCreateDataSource(EmbeddedDataSource dataSource) {
+      this.delegate = dataSource;
+   }
 
-    @Override
-    public Connection getConnection(String username, String password) throws SQLException {
-        synchronized (this) {
-            return delegate.getConnection();
-        }
-    }
+   @Override
+   public Connection getConnection() throws SQLException {
+      synchronized (this) {
+         return delegate.getConnection();
+      }
+   }
 
-    @Override
-    public PrintWriter getLogWriter() throws SQLException {
-        return null;
-    }
+   @Override
+   public Connection getConnection(String username, String password) throws SQLException {
+      synchronized (this) {
+         return delegate.getConnection();
+      }
+   }
 
-    @Override
-    public void setLogWriter(PrintWriter out) throws SQLException {
-    }
+   @Override
+   public PrintWriter getLogWriter() throws SQLException {
+      return null;
+   }
 
-    @Override
-    public int getLoginTimeout() throws SQLException {
-        return 0;
-    }
+   @Override
+   public void setLogWriter(PrintWriter out) throws SQLException {
+   }
 
-    @Override
-    public void setLoginTimeout(int seconds) throws SQLException {
-    }
+   @Override
+   public int getLoginTimeout() throws SQLException {
+      return 0;
+   }
 
-    @Override
-    public <T> T unwrap(Class<T> iface) throws SQLException {
-        return null;
-    }
+   @Override
+   public void setLoginTimeout(int seconds) throws SQLException {
+   }
 
-    @Override
-    public boolean isWrapperFor(Class<?> iface) throws SQLException {
-        return false;
-    }
+   @Override
+   public <T> T unwrap(Class<T> iface) throws SQLException {
+      return null;
+   }
 
-    EmbeddedDataSource getDelegate() {
-        return delegate;
-    }
+   @Override
+   public boolean isWrapperFor(Class<?> iface) throws SQLException {
+      return false;
+   }
 
-    public Logger getParentLogger() throws SQLFeatureNotSupportedException {
-        return null;
-    }
+   EmbeddedDataSource getDelegate() {
+      return delegate;
+   }
+
+   public Logger getParentLogger() throws SQLFeatureNotSupportedException {
+      return null;
+   }
 }

@@ -30,19 +30,14 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 @RunWith(value = Parameterized.class)
-public class SSLSupportTest extends ActiveMQTestBase
-{
+public class SSLSupportTest extends ActiveMQTestBase {
+
    @Parameterized.Parameters(name = "storeType={0}")
-   public static Collection getParameters()
-   {
-      return Arrays.asList(new Object[][]{
-         {"JCEKS"},
-         {"JKS"}
-      });
+   public static Collection getParameters() {
+      return Arrays.asList(new Object[][]{{"JCEKS"}, {"JKS"}});
    }
 
-   public SSLSupportTest(String storeType)
-   {
+   public SSLSupportTest(String storeType) {
       this.storeType = storeType;
       keyStorePath = "server-side-keystore." + storeType.toLowerCase();
       trustStorePath = "server-side-truststore." + storeType.toLowerCase();
@@ -70,75 +65,62 @@ public class SSLSupportTest extends ActiveMQTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
       keyStorePassword = "secureexample";
       trustStorePassword = keyStorePassword;
    }
 
    @Test
-   public void testContextWithRightParameters() throws Exception
-   {
+   public void testContextWithRightParameters() throws Exception {
       SSLSupport.createContext(storeType, keyStorePath, keyStorePassword, storeType, trustStorePath, trustStorePassword);
    }
 
    // This is valid as it will create key and trust managers with system defaults
    @Test
-   public void testContextWithNullParameters() throws Exception
-   {
+   public void testContextWithNullParameters() throws Exception {
       SSLSupport.createContext(null, null, null, null, null, null);
    }
 
    @Test
-   public void testContextWithKeyStorePathAsURL() throws Exception
-   {
+   public void testContextWithKeyStorePathAsURL() throws Exception {
       URL url = Thread.currentThread().getContextClassLoader().getResource(keyStorePath);
       SSLSupport.createContext(storeType, url.toString(), keyStorePassword, storeType, trustStorePath, trustStorePassword);
    }
 
    @Test
-   public void testContextWithKeyStorePathAsFile() throws Exception
-   {
+   public void testContextWithKeyStorePathAsFile() throws Exception {
       URL url = Thread.currentThread().getContextClassLoader().getResource(keyStorePath);
       File file = new File(url.toURI());
       SSLSupport.createContext(storeType, file.getAbsolutePath(), keyStorePassword, storeType, trustStorePath, trustStorePassword);
    }
 
    @Test
-   public void testContextWithBadKeyStorePath() throws Exception
-   {
-      try
-      {
+   public void testContextWithBadKeyStorePath() throws Exception {
+      try {
          SSLSupport.createContext(storeType, "not a keystore", keyStorePassword, storeType, trustStorePath, trustStorePassword);
          Assert.fail();
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
       }
    }
 
    @Test
-   public void testContextWithNullKeyStorePath() throws Exception
-   {
-      try
-      {
+   public void testContextWithNullKeyStorePath() throws Exception {
+      try {
          SSLSupport.createContext(storeType, null, keyStorePassword, storeType, trustStorePath, trustStorePassword);
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          Assert.fail();
       }
    }
 
    @Test
-   public void testContextWithKeyStorePathAsRelativePath() throws Exception
-   {
+   public void testContextWithKeyStorePathAsRelativePath() throws Exception {
       // this test is dependent on a path relative to the tests directory.
       // it will fail if launch from somewhere else (or from an IDE)
       File currentDir = new File(System.getProperty("user.dir"));
-      if (!currentDir.getAbsolutePath().endsWith("tests"))
-      {
+      if (!currentDir.getAbsolutePath().endsWith("tests")) {
          return;
       }
 
@@ -146,41 +128,32 @@ public class SSLSupportTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testContextWithBadKeyStorePassword() throws Exception
-   {
-      try
-      {
+   public void testContextWithBadKeyStorePassword() throws Exception {
+      try {
          SSLSupport.createContext(storeType, keyStorePath, "bad password", storeType, trustStorePath, trustStorePassword);
          Assert.fail();
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
       }
    }
 
    @Test
-   public void testContextWithBadTrustStorePath() throws Exception
-   {
-      try
-      {
+   public void testContextWithBadTrustStorePath() throws Exception {
+      try {
          SSLSupport.createContext(storeType, keyStorePath, keyStorePassword, storeType, "not a trust store", trustStorePassword);
          Assert.fail();
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
       }
    }
 
    @Test
-   public void testContextWithBadTrustStorePassword() throws Exception
-   {
-      try
-      {
+   public void testContextWithBadTrustStorePassword() throws Exception {
+      try {
          SSLSupport.createContext(storeType, keyStorePath, keyStorePassword, storeType, trustStorePath, "bad passord");
          Assert.fail();
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
       }
    }
 }

@@ -50,12 +50,10 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class ClusteredGroupingTest extends ClusterTestBase
-{
+public class ClusteredGroupingTest extends ClusterTestBase {
 
    @Test
-   public void testGroupingGroupTimeoutWithUnproposal() throws Exception
-   {
+   public void testGroupingGroupTimeoutWithUnproposal() throws Exception {
       setupServer(0, isFileStorage(), isNetty());
       setupServer(1, isFileStorage(), isNetty());
       setupServer(2, isFileStorage(), isNetty());
@@ -92,26 +90,22 @@ public class ClusteredGroupingTest extends ClusterTestBase
 
       final CountDownLatch latch = new CountDownLatch(4);
 
-      getServer(1).getManagementService().addNotificationListener(new NotificationListener()
-      {
+      getServer(1).getManagementService().addNotificationListener(new NotificationListener() {
          @Override
-         public void onNotification(Notification notification)
-         {
-            if (!(notification.getType() instanceof CoreNotificationType)) return;
-            if (notification.getType() == CoreNotificationType.UNPROPOSAL)
-            {
+         public void onNotification(Notification notification) {
+            if (!(notification.getType() instanceof CoreNotificationType))
+               return;
+            if (notification.getType() == CoreNotificationType.UNPROPOSAL) {
                latch.countDown();
             }
          }
       });
-      getServer(2).getManagementService().addNotificationListener(new NotificationListener()
-      {
+      getServer(2).getManagementService().addNotificationListener(new NotificationListener() {
          @Override
-         public void onNotification(Notification notification)
-         {
-            if (!(notification.getType() instanceof CoreNotificationType)) return;
-            if (notification.getType() == CoreNotificationType.UNPROPOSAL)
-            {
+         public void onNotification(Notification notification) {
+            if (!(notification.getType() instanceof CoreNotificationType))
+               return;
+            if (notification.getType() == CoreNotificationType.UNPROPOSAL) {
                latch.countDown();
             }
          }
@@ -131,14 +125,11 @@ public class ClusteredGroupingTest extends ClusterTestBase
       assertTrue(latch.await(5, TimeUnit.SECONDS));
 
       long timeLimit = System.currentTimeMillis() + 5000;
-      while (timeLimit > System.currentTimeMillis() && queue0Server2.getGroupsUsed().size() != 0)
-      {
+      while (timeLimit > System.currentTimeMillis() && queue0Server2.getGroupsUsed().size() != 0) {
          Thread.sleep(10);
       }
 
-
       assertEquals("Unproposal should cleanup the queue group as well", 0, queue0Server2.getGroupsUsed().size());
-
 
       removeConsumer(0);
 
@@ -163,8 +154,7 @@ public class ClusteredGroupingTest extends ClusterTestBase
    }
 
    @Test
-   public void testGroupingGroupTimeoutSendRemote() throws Exception
-   {
+   public void testGroupingGroupTimeoutSendRemote() throws Exception {
       setupServer(0, isFileStorage(), isNetty());
       setupServer(1, isFileStorage(), isNetty());
       setupServer(2, isFileStorage(), isNetty());
@@ -201,26 +191,22 @@ public class ClusteredGroupingTest extends ClusterTestBase
 
       final CountDownLatch latch = new CountDownLatch(4);
 
-      getServer(1).getManagementService().addNotificationListener(new NotificationListener()
-      {
+      getServer(1).getManagementService().addNotificationListener(new NotificationListener() {
          @Override
-         public void onNotification(Notification notification)
-         {
-            if (!(notification.getType() instanceof CoreNotificationType)) return;
-            if (notification.getType() == CoreNotificationType.UNPROPOSAL)
-            {
+         public void onNotification(Notification notification) {
+            if (!(notification.getType() instanceof CoreNotificationType))
+               return;
+            if (notification.getType() == CoreNotificationType.UNPROPOSAL) {
                latch.countDown();
             }
          }
       });
-      getServer(2).getManagementService().addNotificationListener(new NotificationListener()
-      {
+      getServer(2).getManagementService().addNotificationListener(new NotificationListener() {
          @Override
-         public void onNotification(Notification notification)
-         {
-            if (!(notification.getType() instanceof CoreNotificationType)) return;
-            if (notification.getType() == CoreNotificationType.UNPROPOSAL)
-            {
+         public void onNotification(Notification notification) {
+            if (!(notification.getType() instanceof CoreNotificationType))
+               return;
+            if (notification.getType() == CoreNotificationType.UNPROPOSAL) {
                latch.countDown();
             }
          }
@@ -256,8 +242,7 @@ public class ClusteredGroupingTest extends ClusterTestBase
    }
 
    @Test
-   public void testGroupingSimple() throws Exception
-   {
+   public void testGroupingSimple() throws Exception {
       setupServer(0, isFileStorage(), isNetty());
       setupServer(1, isFileStorage(), isNetty());
       setupServer(2, isFileStorage(), isNetty());
@@ -298,13 +283,11 @@ public class ClusteredGroupingTest extends ClusterTestBase
 
       verifyReceiveAll(10, 0);
 
-
    }
 
    // Fail a node where there's a consumer only.. with messages being sent by a node that is not the local
    @Test
-   public void testGroupingSimpleFail2nd() throws Exception
-   {
+   public void testGroupingSimpleFail2nd() throws Exception {
       setupServer(0, isFileStorage(), isNetty());
       setupServer(1, isFileStorage(), isNetty());
       setupServer(2, isFileStorage(), isNetty());
@@ -364,13 +347,11 @@ public class ClusteredGroupingTest extends ClusterTestBase
       msg.acknowledge();
       assertNull(consumers[2].getConsumer().receiveImmediate());
 
-
       // it should be bound to server1 as we used the group from server1
       sendWithProperty(2, "queues.testaddress", 1, false, Message.HDR_GROUP_ID, groupIDOnConsumer1);
       msg = consumers[1].getConsumer().receive(1000);
       assertNotNull(msg);
       msg.acknowledge();
-
 
       closeAllConsumers();
       closeAllSessionFactories();
@@ -387,13 +368,11 @@ public class ClusteredGroupingTest extends ClusterTestBase
       startServers(2, 0);
       assertTrue("The group start should have waited the timeout on groups", System.currentTimeMillis() >= time + TIMEOUT_GROUPS);
 
-
       setupSessionFactory(0, isNetty());
       setupSessionFactory(2, isNetty());
 
       addConsumer(0, 0, "queue0", null);
       addConsumer(2, 2, "queue0", null);
-
 
       waitForBindings(0, "queues.testaddress", 1, 1, false);
 
@@ -403,8 +382,7 @@ public class ClusteredGroupingTest extends ClusterTestBase
 
       // server1 is dead, so either 0 or 2 should receive since the group is now dead
       msg = consumers[0].getConsumer().receive(500);
-      if (msg == null)
-      {
+      if (msg == null) {
          msg = consumers[2].getConsumer().receive(500);
       }
 
@@ -415,12 +393,10 @@ public class ClusteredGroupingTest extends ClusterTestBase
       assertNotNull(msg);
       msg.acknowledge();
 
-
    }
 
    @Test
-   public void testGroupTimeout() throws Exception
-   {
+   public void testGroupTimeout() throws Exception {
       setupServer(0, isFileStorage(), isNetty());
       setupServer(1, isFileStorage(), isNetty());
       setupServer(2, isFileStorage(), isNetty());
@@ -461,15 +437,13 @@ public class ClusteredGroupingTest extends ClusterTestBase
       sendWithProperty(0, "queues.testaddress", 1, false, Message.HDR_GROUP_ID, new SimpleString("id2"));
       sendWithProperty(0, "queues.testaddress", 1, false, Message.HDR_GROUP_ID, new SimpleString("id3"));
 
-
       assertNotNull(servers[0].getGroupingHandler().getProposal(SimpleString.toSimpleString("id1.queue0"), false));
 
       // Group timeout
       Thread.sleep(1000);
 
       long timeLimit = System.currentTimeMillis() + 5000;
-      while (timeLimit > System.currentTimeMillis() && servers[0].getGroupingHandler().getProposal(SimpleString.toSimpleString("id1.queue0"), false) != null)
-      {
+      while (timeLimit > System.currentTimeMillis() && servers[0].getGroupingHandler().getProposal(SimpleString.toSimpleString("id1.queue0"), false) != null) {
          Thread.sleep(10);
       }
       Thread.sleep(1000);
@@ -479,17 +453,14 @@ public class ClusteredGroupingTest extends ClusterTestBase
       sendWithProperty(0, "queues.testaddress", 1, false, Message.HDR_GROUP_ID, new SimpleString("id1"));
       sendWithProperty(1, "queues.testaddress", 1, false, Message.HDR_GROUP_ID, new SimpleString("id1"));
 
-
       // Verify why this is failing... whyt it's creating a new one here????
       assertNotNull(servers[0].getGroupingHandler().getProposal(SimpleString.toSimpleString("id1.queue0"), false));
       assertNotNull(servers[1].getGroupingHandler().getProposal(SimpleString.toSimpleString("id1.queue0"), false));
 
-
       timeLimit = System.currentTimeMillis() + 1500;
 
       // We will keep bothering server1 as it will ping server0 eventually
-      while (timeLimit > System.currentTimeMillis() && servers[1].getGroupingHandler().getProposal(SimpleString.toSimpleString("id1.queue0"), true) != null)
-      {
+      while (timeLimit > System.currentTimeMillis() && servers[1].getGroupingHandler().getProposal(SimpleString.toSimpleString("id1.queue0"), true) != null) {
          assertNotNull(servers[0].getGroupingHandler().getProposal(SimpleString.toSimpleString("id1.queue0"), false));
          Thread.sleep(10);
       }
@@ -498,8 +469,7 @@ public class ClusteredGroupingTest extends ClusterTestBase
       Thread.sleep(1000);
 
       timeLimit = System.currentTimeMillis() + 5000;
-      while (timeLimit > System.currentTimeMillis() && servers[0].getGroupingHandler().getProposal(SimpleString.toSimpleString("id1.queue0"), false) != null)
-      {
+      while (timeLimit > System.currentTimeMillis() && servers[0].getGroupingHandler().getProposal(SimpleString.toSimpleString("id1.queue0"), false) != null) {
          Thread.sleep(10);
       }
 
@@ -507,8 +477,7 @@ public class ClusteredGroupingTest extends ClusterTestBase
    }
 
    @Test
-   public void testGroupingWith3Nodes() throws Exception
-   {
+   public void testGroupingWith3Nodes() throws Exception {
       final String ADDRESS = "queues.testaddress";
       final String QUEUE = "queue0";
 
@@ -562,15 +531,13 @@ public class ClusteredGroupingTest extends ClusterTestBase
       final AtomicInteger totalMessageProduced = new AtomicInteger(0);
 
       // create a bunch of groups and save a few group IDs for use later
-      for (int i = 0; i < 500; i++)
-      {
+      for (int i = 0; i < 500; i++) {
          ClientMessage message = session.createMessage(true);
          String group = UUID.randomUUID().toString();
          message.putStringProperty(Message.HDR_GROUP_ID, new SimpleString(group));
          SimpleString dupID = new SimpleString(UUID.randomUUID().toString());
          message.putStringProperty(Message.HDR_DUPLICATE_DETECTION_ID, dupID);
-         if (i % 100 == 0)
-         {
+         if (i % 100 == 0) {
             groups.add(group);
          }
          producer.send(message);
@@ -593,13 +560,10 @@ public class ClusteredGroupingTest extends ClusterTestBase
       final long timeToRun = System.currentTimeMillis() + 5000;
 
       // spin up a bunch of threads to pump messages into some of the groups
-      for (final String groupx : groups)
-      {
-         final Runnable r = new Runnable()
-         {
+      for (final String groupx : groups) {
+         final Runnable r = new Runnable() {
             @Override
-            public void run()
-            {
+            public void run() {
 
                String group = groupx;
 
@@ -610,30 +574,25 @@ public class ClusteredGroupingTest extends ClusterTestBase
                ClientProducer producer = null;
                int targetServer = 0;
 
-               try
-               {
+               try {
 
                   int count = producerCounter.incrementAndGet();
-                  if (count % 3 == 0)
-                  {
+                  if (count % 3 == 0) {
                      factory = sf2;
                      targetServer = 2;
                   }
-                  else if (count % 2 == 0)
-                  {
+                  else if (count % 2 == 0) {
                      factory = sf1;
                      targetServer = 1;
                   }
-                  else
-                  {
+                  else {
                      factory = sf0;
                   }
                   IntegrationTestLogger.LOGGER.debug("Creating producer session factory to node " + targetServer);
                   session = addClientSession(factory.createSession(false, true, true));
                   producer = addClientProducer(session.createProducer(ADDRESS));
                }
-               catch (Exception e)
-               {
+               catch (Exception e) {
                   errors.incrementAndGet();
                   IntegrationTestLogger.LOGGER.warn("Producer thread couldn't establish connection", e);
                   return;
@@ -641,26 +600,22 @@ public class ClusteredGroupingTest extends ClusterTestBase
 
                int messageCount = 0;
 
-               while (timeToRun > System.currentTimeMillis())
-               {
+               while (timeToRun > System.currentTimeMillis()) {
                   ClientMessage message = session.createMessage(true);
                   message.putStringProperty(Message.HDR_GROUP_ID, new SimpleString(group));
                   SimpleString dupID = new SimpleString(basicID + ":" + messageCount);
                   message.putStringProperty(Message.HDR_DUPLICATE_DETECTION_ID, dupID);
-                  try
-                  {
+                  try {
                      producer.send(message);
                      totalMessageProduced.incrementAndGet();
                      messageCount++;
                   }
-                  catch (ActiveMQException e)
-                  {
+                  catch (ActiveMQException e) {
                      IntegrationTestLogger.LOGGER.warn("Producer thread threw exception while sending messages to " + targetServer + ": " + e.getMessage());
                      // in case of a failure we change the group to make possible errors more likely
                      group = group + "afterFail";
                   }
-                  catch (Exception e)
-                  {
+                  catch (Exception e) {
                      IntegrationTestLogger.LOGGER.warn("Producer thread threw unexpected exception while sending messages to " + targetServer + ": " + e.getMessage());
                      group = group + "afterFail";
                      break;
@@ -674,28 +629,21 @@ public class ClusteredGroupingTest extends ClusterTestBase
          executorService.execute(r);
       }
 
-
-      Runnable r = new Runnable()
-      {
+      Runnable r = new Runnable() {
          @Override
-         public void run()
-         {
-            try
-            {
-               try
-               {
+         public void run() {
+            try {
+               try {
                   Thread.sleep(2000);
                }
-               catch (InterruptedException e)
-               {
+               catch (InterruptedException e) {
                   e.printStackTrace();
                   // ignore
                }
                System.out.println("Cycling server");
                cycleServer(1);
             }
-            finally
-            {
+            finally {
                okToConsume.countDown();
             }
          }
@@ -708,20 +656,15 @@ public class ClusteredGroupingTest extends ClusterTestBase
       final CountDownLatch okToEndTest = new CountDownLatch(groups.size());
 
       // spin up a bunch of threads to consume messages
-      for (final String group : groups)
-      {
-         r = new Runnable()
-         {
+      for (final String group : groups) {
+         r = new Runnable() {
             @Override
-            public void run()
-            {
-               try
-               {
+            public void run() {
+               try {
                   IntegrationTestLogger.LOGGER.info("Waiting to start consumer thread...");
                   okToConsume.await(20, TimeUnit.SECONDS);
                }
-               catch (InterruptedException e)
-               {
+               catch (InterruptedException e) {
                   e.printStackTrace();
                   return;
                }
@@ -731,22 +674,17 @@ public class ClusteredGroupingTest extends ClusterTestBase
                ClientConsumer consumer = null;
                int targetServer = 0;
 
-               try
-               {
-                  synchronized (consumerCounter)
-                  {
-                     if (consumerCounter.get() % 3 == 0)
-                     {
+               try {
+                  synchronized (consumerCounter) {
+                     if (consumerCounter.get() % 3 == 0) {
                         factory = sf2;
                         targetServer = 2;
                      }
-                     else if (consumerCounter.get() % 2 == 0)
-                     {
+                     else if (consumerCounter.get() % 2 == 0) {
                         factory = sf1;
                         targetServer = 1;
                      }
-                     else
-                     {
+                     else {
                         factory = sf0;
                      }
                      IntegrationTestLogger.LOGGER.info("Creating consumer session factory to node " + targetServer);
@@ -756,33 +694,27 @@ public class ClusteredGroupingTest extends ClusterTestBase
                      consumerCounter.incrementAndGet();
                   }
                }
-               catch (Exception e)
-               {
+               catch (Exception e) {
                   IntegrationTestLogger.LOGGER.info("Consumer thread couldn't establish connection", e);
                   errors.incrementAndGet();
                   return;
                }
 
-               while (true)
-               {
-                  try
-                  {
+               while (true) {
+                  try {
                      ClientMessage m = consumer.receive(1000);
-                     if (m == null)
-                     {
+                     if (m == null) {
                         okToEndTest.countDown();
                         return;
                      }
                      m.acknowledge();
                      IntegrationTestLogger.LOGGER.trace("Consumed message " + m.getStringProperty(Message.HDR_DUPLICATE_DETECTION_ID) + " from server " + targetServer + ". Total consumed: " + totalMessagesConsumed.incrementAndGet());
                   }
-                  catch (ActiveMQException e)
-                  {
+                  catch (ActiveMQException e) {
                      errors.incrementAndGet();
                      IntegrationTestLogger.LOGGER.warn("Consumer thread threw exception while receiving messages from server " + targetServer + ".: " + e.getMessage());
                   }
-                  catch (Exception e)
-                  {
+                  catch (Exception e) {
                      errors.incrementAndGet();
                      IntegrationTestLogger.LOGGER.warn("Consumer thread threw unexpected exception while receiving messages from server " + targetServer + ".: " + e.getMessage());
                      return;
@@ -804,22 +736,18 @@ public class ClusteredGroupingTest extends ClusterTestBase
       assertEquals(totalMessageProduced.longValue(), totalMessagesConsumed.longValue());
    }
 
-   private void cycleServer(int node)
-   {
-      try
-      {
+   private void cycleServer(int node) {
+      try {
          stopServers(node);
          startServers(node);
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          e.printStackTrace();
       }
    }
 
    @Test
-   public void testGroupingBindingNotPresentAtStart() throws Exception
-   {
+   public void testGroupingBindingNotPresentAtStart() throws Exception {
       setupServer(0, isFileStorage(), isNetty());
       setupServer(1, isFileStorage(), isNetty());
       setupServer(2, isFileStorage(), isNetty());
@@ -897,10 +825,8 @@ public class ClusteredGroupingTest extends ClusterTestBase
       verifyReceiveAll(1, 0, 1, 2);
    }
 
-
    @Test
-   public void testGroupingBindingsRemoved() throws Exception
-   {
+   public void testGroupingBindingsRemoved() throws Exception {
       setupServer(0, isFileStorage(), isNetty());
       setupServer(1, isFileStorage(), isNetty());
       setupServer(2, isFileStorage(), isNetty());
@@ -978,8 +904,7 @@ public class ClusteredGroupingTest extends ClusterTestBase
    }
 
    @Test
-   public void testTimeoutOnSending() throws Exception
-   {
+   public void testTimeoutOnSending() throws Exception {
       setupServer(0, isFileStorage(), isNetty());
       setupServer(1, isFileStorage(), isNetty());
       setupServer(2, isFileStorage(), isNetty());
@@ -996,102 +921,83 @@ public class ClusteredGroupingTest extends ClusterTestBase
 
       final CountDownLatch latch = new CountDownLatch(BindingsImpl.MAX_GROUP_RETRY);
 
-      setUpGroupHandler(new GroupingHandler()
-      {
-
+      setUpGroupHandler(new GroupingHandler() {
 
          @Override
-         public void awaitBindings() throws Exception
-         {
+         public void awaitBindings() throws Exception {
 
          }
 
          @Override
-         public void addListener(UnproposalListener listener)
-         {
+         public void addListener(UnproposalListener listener) {
 
          }
 
          @Override
-         public void resendPending() throws Exception
-         {
+         public void resendPending() throws Exception {
 
          }
 
          @Override
-         public void remove(SimpleString groupid, SimpleString clusterName) throws Exception
-         {
+         public void remove(SimpleString groupid, SimpleString clusterName) throws Exception {
 
          }
 
          @Override
-         public void forceRemove(SimpleString groupid, SimpleString clusterName) throws Exception
-         {
+         public void forceRemove(SimpleString groupid, SimpleString clusterName) throws Exception {
 
          }
 
-         public SimpleString getName()
-         {
+         public SimpleString getName() {
             return null;
          }
 
          @Override
-         public void remove(SimpleString id, SimpleString groupId, int distance)
-         {
+         public void remove(SimpleString id, SimpleString groupId, int distance) {
             //To change body of implemented methods use File | Settings | File Templates.
          }
 
          @Override
-         public void start() throws Exception
-         {
+         public void start() throws Exception {
             //To change body of implemented methods use File | Settings | File Templates.
          }
 
          @Override
-         public void stop() throws Exception
-         {
+         public void stop() throws Exception {
             //To change body of implemented methods use File | Settings | File Templates.
          }
 
          @Override
-         public boolean isStarted()
-         {
+         public boolean isStarted() {
             return false;
          }
 
-         public Response propose(final Proposal proposal) throws Exception
-         {
+         public Response propose(final Proposal proposal) throws Exception {
             return null;
          }
 
-         public void proposed(final Response response) throws Exception
-         {
+         public void proposed(final Response response) throws Exception {
             System.out.println("ClusteredGroupingTest.proposed");
          }
 
-         public void sendProposalResponse(final Response response, final int distance) throws Exception
-         {
+         public void sendProposalResponse(final Response response, final int distance) throws Exception {
             System.out.println("ClusteredGroupingTest.send");
          }
 
-         public Response receive(final Proposal proposal, final int distance) throws Exception
-         {
+         public Response receive(final Proposal proposal, final int distance) throws Exception {
             latch.countDown();
             return null;
          }
 
-         public void onNotification(final Notification notification)
-         {
+         public void onNotification(final Notification notification) {
             System.out.println("ClusteredGroupingTest.onNotification " + notification);
          }
 
-         public void addGroupBinding(final GroupBinding groupBinding)
-         {
+         public void addGroupBinding(final GroupBinding groupBinding) {
             System.out.println("ClusteredGroupingTest.addGroupBinding");
          }
 
-         public Response getProposal(final SimpleString fullID, boolean touchTime)
-         {
+         public Response getProposal(final SimpleString fullID, boolean touchTime) {
             return null;
          }
 
@@ -1119,24 +1025,20 @@ public class ClusteredGroupingTest extends ClusterTestBase
       waitForBindings(1, "queues.testaddress", 2, 2, false);
       waitForBindings(2, "queues.testaddress", 2, 2, false);
 
-      try
-      {
+      try {
          sendWithProperty(1, "queues.testaddress", 1, false, Message.HDR_GROUP_ID, new SimpleString("id1"));
 
          // it should get the Retries on the latch
          assertTrue(latch.await(10, TimeUnit.SECONDS));
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          e.printStackTrace(); // To change body of catch statement use File | Settings | File Templates.
       }
 
    }
 
-
    @Test
-   public void testGroupingSendTo2queues() throws Exception
-   {
+   public void testGroupingSendTo2queues() throws Exception {
       setupServer(0, isFileStorage(), isNetty());
       setupServer(1, isFileStorage(), isNetty());
       setupServer(2, isFileStorage(), isNetty());
@@ -1182,8 +1084,7 @@ public class ClusteredGroupingTest extends ClusterTestBase
    }
 
    @Test
-   public void testGroupingSendTo3queues() throws Exception
-   {
+   public void testGroupingSendTo3queues() throws Exception {
       setupServer(0, isFileStorage(), isNetty());
       setupServer(1, isFileStorage(), isNetty());
       setupServer(2, isFileStorage(), isNetty());
@@ -1233,8 +1134,7 @@ public class ClusteredGroupingTest extends ClusterTestBase
    }
 
    @Test
-   public void testGroupingSendTo3queuesRemoteArbitrator() throws Exception
-   {
+   public void testGroupingSendTo3queuesRemoteArbitrator() throws Exception {
       setupServer(0, isFileStorage(), isNetty());
       setupServer(1, isFileStorage(), isNetty());
       setupServer(2, isFileStorage(), isNetty());
@@ -1280,8 +1180,7 @@ public class ClusteredGroupingTest extends ClusterTestBase
    }
 
    @Test
-   public void testGroupingSendTo3queuesNoConsumerOnLocalQueue() throws Exception
-   {
+   public void testGroupingSendTo3queuesNoConsumerOnLocalQueue() throws Exception {
       setupServer(0, isFileStorage(), isNetty());
       setupServer(1, isFileStorage(), isNetty());
       setupServer(2, isFileStorage(), isNetty());
@@ -1330,8 +1229,7 @@ public class ClusteredGroupingTest extends ClusterTestBase
    }
 
    @Test
-   public void testGroupingRoundRobin() throws Exception
-   {
+   public void testGroupingRoundRobin() throws Exception {
       setupServer(0, isFileStorage(), isNetty());
       setupServer(1, isFileStorage(), isNetty());
       setupServer(2, isFileStorage(), isNetty());
@@ -1376,8 +1274,7 @@ public class ClusteredGroupingTest extends ClusterTestBase
    }
 
    @Test
-   public void testGroupingSendTo3queuesQueueRemoved() throws Exception
-   {
+   public void testGroupingSendTo3queuesQueueRemoved() throws Exception {
       setupServer(0, isFileStorage(), isNetty());
       setupServer(1, isFileStorage(), isNetty());
       setupServer(2, isFileStorage(), isNetty());
@@ -1446,8 +1343,7 @@ public class ClusteredGroupingTest extends ClusterTestBase
    }
 
    @Test
-   public void testGroupingSendTo3queuesPinnedNodeGoesDown() throws Exception
-   {
+   public void testGroupingSendTo3queuesPinnedNodeGoesDown() throws Exception {
       setupServer(0, isFileStorage(), isNetty());
       setupServer(1, isFileStorage(), isNetty());
       setupServer(2, isFileStorage(), isNetty());
@@ -1509,8 +1405,7 @@ public class ClusteredGroupingTest extends ClusterTestBase
    }
 
    @Test
-   public void testGroupingSendTo3queuesPinnedNodeGoesDownSendBeforeStop() throws Exception
-   {
+   public void testGroupingSendTo3queuesPinnedNodeGoesDownSendBeforeStop() throws Exception {
       setupServer(0, isFileStorage(), isNetty());
       setupServer(1, isFileStorage(), isNetty());
       setupServer(2, isFileStorage(), isNetty());
@@ -1572,8 +1467,7 @@ public class ClusteredGroupingTest extends ClusterTestBase
    }
 
    @Test
-   public void testGroupingSendTo3queuesPinnedNodeGoesDownSendAfterRestart() throws Exception
-   {
+   public void testGroupingSendTo3queuesPinnedNodeGoesDownSendAfterRestart() throws Exception {
       setupServer(0, isFileStorage(), isNetty());
       setupServer(1, isFileStorage(), isNetty());
       setupServer(2, isFileStorage(), isNetty());
@@ -1630,8 +1524,7 @@ public class ClusteredGroupingTest extends ClusterTestBase
    }
 
    @Test
-   public void testGroupingMultipleQueuesOnAddress() throws Exception
-   {
+   public void testGroupingMultipleQueuesOnAddress() throws Exception {
       setupServer(0, isFileStorage(), isNetty());
       setupServer(1, isFileStorage(), isNetty());
       setupServer(2, isFileStorage(), isNetty());
@@ -1681,8 +1574,7 @@ public class ClusteredGroupingTest extends ClusterTestBase
 
    }
 
-   public void testGroupingMultipleSending() throws Exception
-   {
+   public void testGroupingMultipleSending() throws Exception {
       setupServer(0, isFileStorage(), isNetty());
       setupServer(1, isFileStorage(), isNetty());
       setupServer(2, isFileStorage(), isNetty());
@@ -1721,25 +1613,22 @@ public class ClusteredGroupingTest extends ClusterTestBase
       CountDownLatch latch = new CountDownLatch(1);
       Thread[] threads = new Thread[9];
       int range = 0;
-      for (int i = 0; i < 9; i++, range += 10)
-      {
+      for (int i = 0; i < 9; i++, range += 10) {
          threads[i] = new Thread(new ThreadSender(range, range + 10, 1, new SimpleString("id" + i), latch, i < 8));
       }
-      for (Thread thread : threads)
-      {
+      for (Thread thread : threads) {
          thread.start();
       }
 
       verifyReceiveAllWithGroupIDRoundRobin(0, 30, 0, 1, 2);
    }
 
-   public boolean isNetty()
-   {
+   public boolean isNetty() {
       return true;
    }
 
-   class ThreadSender implements Runnable
-   {
+   class ThreadSender implements Runnable {
+
       private final int msgStart;
 
       private final int msgEnd;
@@ -1757,8 +1646,7 @@ public class ClusteredGroupingTest extends ClusterTestBase
                           final int node,
                           final SimpleString id,
                           final CountDownLatch latch,
-                          final boolean wait)
-      {
+                          final boolean wait) {
          this.msgStart = msgStart;
          this.msgEnd = msgEnd;
          this.node = node;
@@ -1767,29 +1655,22 @@ public class ClusteredGroupingTest extends ClusterTestBase
          this.wait = wait;
       }
 
-      public void run()
-      {
-         if (wait)
-         {
-            try
-            {
+      public void run() {
+         if (wait) {
+            try {
                latch.await(5, TimeUnit.SECONDS);
             }
-            catch (InterruptedException e)
-            {
+            catch (InterruptedException e) {
                e.printStackTrace(); // To change body of catch statement use File | Settings | File Templates.
             }
          }
-         else
-         {
+         else {
             latch.countDown();
          }
-         try
-         {
+         try {
             sendInRange(node, "queues.testaddress", msgStart, msgEnd, false, Message.HDR_GROUP_ID, id);
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             e.printStackTrace(); // To change body of catch statement use File | Settings | File Templates.
          }
       }

@@ -40,15 +40,14 @@ import javax.management.MBeanServerFactory;
 /**
  * test Written to replicate https://issues.jboss.org/browse/HORNETQ-1312
  */
-public class RemoteConnectionStressTest extends ActiveMQTestBase
-{
+public class RemoteConnectionStressTest extends ActiveMQTestBase {
+
    ActiveMQServer server;
    MBeanServer mbeanServer;
    JMSServerManagerImpl jmsServer;
 
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       mbeanServer = MBeanServerFactory.createMBeanServer();
@@ -65,11 +64,8 @@ public class RemoteConnectionStressTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testSimpleRemoteConnections() throws Exception
-   {
-      for (int i = 0; i < 1000; i++)
-      {
-
+   public void testSimpleRemoteConnections() throws Exception {
+      for (int i = 0; i < 1000; i++) {
 
          TransportConfiguration config = new TransportConfiguration(NETTY_CONNECTOR_FACTORY);
          ActiveMQConnectionFactory cf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, config);

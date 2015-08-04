@@ -34,31 +34,27 @@ import org.junit.Test;
 /**
  * A test that sends/receives object messages to the JMS provider and verifies their integrity.
  */
-public class ObjectMessageTest extends MessageTestBase
-{
+public class ObjectMessageTest extends MessageTestBase {
+
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
       message = session.createObjectMessage();
    }
 
    @Override
    @After
-   public void tearDown() throws Exception
-   {
+   public void tearDown() throws Exception {
       message = null;
       super.tearDown();
    }
 
    @Test
-   public void testClassLoaderIsolation() throws Exception
-   {
+   public void testClassLoaderIsolation() throws Exception {
 
       ClassLoader originalClassLoader = Thread.currentThread().getContextClassLoader();
-      try
-      {
+      try {
          queueProd.setDeliveryMode(DeliveryMode.PERSISTENT);
 
          ObjectMessage om = (ObjectMessage) message;
@@ -80,20 +76,17 @@ public class ObjectMessageTest extends MessageTestBase
          ProxyAssertSupport.assertEquals("org.apache.activemq.artemis.jms.tests.message.SomeObject", testObject2.getClass().getName());
          ProxyAssertSupport.assertNotSame(testObject, testObject2);
          ProxyAssertSupport.assertNotSame(testObject.getClass(), testObject2.getClass());
-         ProxyAssertSupport.assertNotSame(testObject.getClass().getClassLoader(), testObject2.getClass()
-            .getClassLoader());
+         ProxyAssertSupport.assertNotSame(testObject.getClass().getClassLoader(), testObject2.getClass().getClassLoader());
          ProxyAssertSupport.assertSame(testClassLoader, testObject2.getClass().getClassLoader());
       }
-      finally
-      {
+      finally {
          Thread.currentThread().setContextClassLoader(originalClassLoader);
       }
 
    }
 
    @Test
-   public void testVectorOnObjectMessage() throws Exception
-   {
+   public void testVectorOnObjectMessage() throws Exception {
       java.util.Vector<String> vectorOnMessage = new java.util.Vector<String>();
       vectorOnMessage.add("world!");
       ((ObjectMessage) message).setObject(vectorOnMessage);
@@ -109,8 +102,7 @@ public class ObjectMessageTest extends MessageTestBase
    }
 
    @Test
-   public void testObjectIsolation() throws Exception
-   {
+   public void testObjectIsolation() throws Exception {
       ObjectMessage msgTest = session.createObjectMessage();
       ArrayList<String> list = new ArrayList<String>();
       list.add("hello");
@@ -163,8 +155,7 @@ public class ObjectMessageTest extends MessageTestBase
    }
 
    @Test
-   public void testReadOnEmptyObjectMessage() throws Exception
-   {
+   public void testReadOnEmptyObjectMessage() throws Exception {
       ObjectMessage obm = (ObjectMessage) message;
       ProxyAssertSupport.assertNull(obm.getObject());
 
@@ -178,8 +169,7 @@ public class ObjectMessageTest extends MessageTestBase
    // Protected ------------------------------------------------------------------------------------
 
    @Override
-   protected void prepareMessage(final Message m) throws JMSException
-   {
+   protected void prepareMessage(final Message m) throws JMSException {
       super.prepareMessage(m);
 
       ObjectMessage om = (ObjectMessage) m;
@@ -188,31 +178,26 @@ public class ObjectMessageTest extends MessageTestBase
    }
 
    @Override
-   protected void assertEquivalent(final Message m, final int mode, final boolean redelivery) throws JMSException
-   {
+   protected void assertEquivalent(final Message m, final int mode, final boolean redelivery) throws JMSException {
       super.assertEquivalent(m, mode, redelivery);
 
       ObjectMessage om = (ObjectMessage) m;
       ProxyAssertSupport.assertEquals("this is the serializable object", om.getObject());
    }
 
-   protected static ClassLoader newClassLoader(final Class anyUserClass) throws Exception
-   {
+   protected static ClassLoader newClassLoader(final Class anyUserClass) throws Exception {
       URL classLocation = anyUserClass.getProtectionDomain().getCodeSource().getLocation();
       StringTokenizer tokenString = new StringTokenizer(System.getProperty("java.class.path"), File.pathSeparator);
       String pathIgnore = System.getProperty("java.home");
-      if (pathIgnore == null)
-      {
+      if (pathIgnore == null) {
          pathIgnore = classLocation.toString();
       }
 
       ArrayList<URL> urls = new ArrayList<URL>();
-      while (tokenString.hasMoreElements())
-      {
+      while (tokenString.hasMoreElements()) {
          String value = tokenString.nextToken();
          URL itemLocation = new File(value).toURI().toURL();
-         if (!itemLocation.equals(classLocation) && itemLocation.toString().indexOf(pathIgnore) >= 0)
-         {
+         if (!itemLocation.equals(classLocation) && itemLocation.toString().indexOf(pathIgnore) >= 0) {
             urls.add(itemLocation);
          }
       }

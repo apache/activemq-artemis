@@ -31,107 +31,107 @@ import org.apache.activemq.usage.SystemUsage;
 
 public class ProxyTestSupport extends BrokerTestSupport {
 
-    protected ArrayList<StubConnection> connections = new ArrayList<StubConnection>();
+   protected ArrayList<StubConnection> connections = new ArrayList<StubConnection>();
 
-    protected TransportConnector connector;
+   protected TransportConnector connector;
 
-    protected PersistenceAdapter remotePersistenceAdapter;
-    protected BrokerService remoteBroker;
-    protected SystemUsage remoteMemoryManager;
-    protected TransportConnector remoteConnector;
-    private ProxyConnector proxyConnector;
-    private ProxyConnector remoteProxyConnector;
+   protected PersistenceAdapter remotePersistenceAdapter;
+   protected BrokerService remoteBroker;
+   protected SystemUsage remoteMemoryManager;
+   protected TransportConnector remoteConnector;
+   private ProxyConnector proxyConnector;
+   private ProxyConnector remoteProxyConnector;
 
-    protected BrokerService createBroker() throws Exception {
-        BrokerService service = new BrokerService();
-        service.setBrokerName("broker1");
-        service.setPersistent(false);
-        service.setUseJmx(false);
+   protected BrokerService createBroker() throws Exception {
+      BrokerService service = new BrokerService();
+      service.setBrokerName("broker1");
+      service.setPersistent(false);
+      service.setUseJmx(false);
 
-        connector = service.addConnector(getLocalURI());
-        proxyConnector = new ProxyConnector();
-        proxyConnector.setName("proxy");
-        proxyConnector.setBind(new URI(getLocalProxyURI()));
-        proxyConnector.setRemote(new URI("fanout:static://" + getRemoteURI()));
-        service.addProxyConnector(proxyConnector);
+      connector = service.addConnector(getLocalURI());
+      proxyConnector = new ProxyConnector();
+      proxyConnector.setName("proxy");
+      proxyConnector.setBind(new URI(getLocalProxyURI()));
+      proxyConnector.setRemote(new URI("fanout:static://" + getRemoteURI()));
+      service.addProxyConnector(proxyConnector);
 
-        return service;
-    }
+      return service;
+   }
 
-    protected BrokerService createRemoteBroker() throws Exception {
-        BrokerService service = new BrokerService();
-        service.setBrokerName("broker2");
-        service.setPersistent(false);
-        service.setUseJmx(false);
+   protected BrokerService createRemoteBroker() throws Exception {
+      BrokerService service = new BrokerService();
+      service.setBrokerName("broker2");
+      service.setPersistent(false);
+      service.setUseJmx(false);
 
-        remoteConnector = service.addConnector(getRemoteURI());
-        remoteProxyConnector = new ProxyConnector();
-        remoteProxyConnector.setName("remoteProxy");
-        remoteProxyConnector.setBind(new URI(getRemoteProxyURI()));
-        remoteProxyConnector.setRemote(new URI("fanout:static://" + getLocalURI()));
-        service.addProxyConnector(remoteProxyConnector);
+      remoteConnector = service.addConnector(getRemoteURI());
+      remoteProxyConnector = new ProxyConnector();
+      remoteProxyConnector.setName("remoteProxy");
+      remoteProxyConnector.setBind(new URI(getRemoteProxyURI()));
+      remoteProxyConnector.setRemote(new URI("fanout:static://" + getLocalURI()));
+      service.addProxyConnector(remoteProxyConnector);
 
-        return service;
-    }
+      return service;
+   }
 
-    protected void setUp() throws Exception {
-        super.setUp();
-        remoteBroker = createRemoteBroker();
-        remoteBroker.start();
-    }
+   protected void setUp() throws Exception {
+      super.setUp();
+      remoteBroker = createRemoteBroker();
+      remoteBroker.start();
+   }
 
-    protected void tearDown() throws Exception {
-        for (Iterator<StubConnection> iter = connections.iterator(); iter.hasNext();) {
-            StubConnection connection = iter.next();
-            connection.stop();
-            iter.remove();
-        }
-        remoteBroker.stop();
-        super.tearDown();
-    }
+   protected void tearDown() throws Exception {
+      for (Iterator<StubConnection> iter = connections.iterator(); iter.hasNext(); ) {
+         StubConnection connection = iter.next();
+         connection.stop();
+         iter.remove();
+      }
+      remoteBroker.stop();
+      super.tearDown();
+   }
 
-    protected String getRemoteURI() {
-        return "tcp://localhost:6171";
-    }
+   protected String getRemoteURI() {
+      return "tcp://localhost:6171";
+   }
 
-    protected String getLocalURI() {
-        return "tcp://localhost:6161";
-    }
+   protected String getLocalURI() {
+      return "tcp://localhost:6161";
+   }
 
-    protected String getRemoteProxyURI() {
-        return "tcp://localhost:6162";
-    }
+   protected String getRemoteProxyURI() {
+      return "tcp://localhost:6162";
+   }
 
-    protected String getLocalProxyURI() {
-        return "tcp://localhost:6172";
-    }
+   protected String getLocalProxyURI() {
+      return "tcp://localhost:6172";
+   }
 
-    protected StubConnection createConnection() throws Exception {
-        Transport transport = TransportFactory.connect(connector.getServer().getConnectURI());
-        StubConnection connection = new StubConnection(transport);
-        connections.add(connection);
-        return connection;
-    }
+   protected StubConnection createConnection() throws Exception {
+      Transport transport = TransportFactory.connect(connector.getServer().getConnectURI());
+      StubConnection connection = new StubConnection(transport);
+      connections.add(connection);
+      return connection;
+   }
 
-    protected StubConnection createRemoteConnection() throws Exception {
-        Transport transport = TransportFactory.connect(remoteConnector.getServer().getConnectURI());
-        StubConnection connection = new StubConnection(transport);
-        connections.add(connection);
-        return connection;
-    }
+   protected StubConnection createRemoteConnection() throws Exception {
+      Transport transport = TransportFactory.connect(remoteConnector.getServer().getConnectURI());
+      StubConnection connection = new StubConnection(transport);
+      connections.add(connection);
+      return connection;
+   }
 
-    protected StubConnection createProxyConnection() throws Exception {
-        Transport transport = TransportFactory.connect(proxyConnector.getServer().getConnectURI());
-        StubConnection connection = new StubConnection(transport);
-        connections.add(connection);
-        return connection;
-    }
+   protected StubConnection createProxyConnection() throws Exception {
+      Transport transport = TransportFactory.connect(proxyConnector.getServer().getConnectURI());
+      StubConnection connection = new StubConnection(transport);
+      connections.add(connection);
+      return connection;
+   }
 
-    protected StubConnection createRemoteProxyConnection() throws Exception {
-        Transport transport = TransportFactory.connect(remoteProxyConnector.getServer().getConnectURI());
-        StubConnection connection = new StubConnection(transport);
-        connections.add(connection);
-        return connection;
-    }
+   protected StubConnection createRemoteProxyConnection() throws Exception {
+      Transport transport = TransportFactory.connect(remoteProxyConnector.getServer().getConnectURI());
+      StubConnection connection = new StubConnection(transport);
+      connections.add(connection);
+      return connection;
+   }
 
 }

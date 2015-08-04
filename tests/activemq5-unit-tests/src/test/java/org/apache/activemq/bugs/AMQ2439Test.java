@@ -32,61 +32,61 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class AMQ2439Test extends JmsMultipleBrokersTestSupport {
-    private static final Logger LOG = LoggerFactory.getLogger(AMQ2439Test.class);
-    Destination dest;
 
-    
-    public void testDuplicatesThroughNetwork() throws Exception {
-        assertEquals("received expected amount", 500, receiveExactMessages("BrokerB", 500));
-        assertEquals("received expected amount", 500, receiveExactMessages("BrokerB", 500));
-        validateQueueStats();
-    }
-    
-    private void validateQueueStats() throws Exception {
-       final BrokerView brokerView = brokers.get("BrokerA").broker.getAdminView();
-       assertEquals("enequeue is correct", 1000, brokerView.getTotalEnqueueCount());
-       
-       assertTrue("dequeue is correct", Wait.waitFor(new Wait.Condition() {
-           public boolean isSatisified() throws Exception {
-               LOG.info("dequeue count (want 1000), is : " + brokerView.getTotalDequeueCount());
-               return 1000 == brokerView.getTotalDequeueCount();
-           }
-       }));
-    }
+   private static final Logger LOG = LoggerFactory.getLogger(AMQ2439Test.class);
+   Destination dest;
 
-    protected int receiveExactMessages(String brokerName, int msgCount) throws Exception {
-        
-        BrokerItem brokerItem = brokers.get(brokerName);
-        Connection connection = brokerItem.createConnection();
-        connection.start();
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);       
-        MessageConsumer consumer = session.createConsumer(dest);
-        
-        Message msg;
-        int i;
-        for (i = 0; i < msgCount; i++) {
-            msg = consumer.receive(1000);
-            if (msg == null) {
-                break;
-            }
-        }
+   public void testDuplicatesThroughNetwork() throws Exception {
+      assertEquals("received expected amount", 500, receiveExactMessages("BrokerB", 500));
+      assertEquals("received expected amount", 500, receiveExactMessages("BrokerB", 500));
+      validateQueueStats();
+   }
 
-        connection.close();
-        brokerItem.connections.remove(connection);
-        
-        return i;
-    }
-    
-    public void setUp() throws Exception {
-        super.setUp();
-        createBroker(new URI("broker:(tcp://localhost:61616)/BrokerA?persistent=true&deleteAllMessagesOnStartup=true&advisorySupport=false"));
-        createBroker(new URI("broker:(tcp://localhost:61617)/BrokerB?persistent=true&deleteAllMessagesOnStartup=true&useJmx=false"));
-        bridgeBrokers("BrokerA", "BrokerB");
-        
-        startAllBrokers();
-        
-        // Create queue
-        dest = createDestination("TEST.FOO", false);
-        sendMessages("BrokerA", dest, 1000);
-    }   
+   private void validateQueueStats() throws Exception {
+      final BrokerView brokerView = brokers.get("BrokerA").broker.getAdminView();
+      assertEquals("enequeue is correct", 1000, brokerView.getTotalEnqueueCount());
+
+      assertTrue("dequeue is correct", Wait.waitFor(new Wait.Condition() {
+         public boolean isSatisified() throws Exception {
+            LOG.info("dequeue count (want 1000), is : " + brokerView.getTotalDequeueCount());
+            return 1000 == brokerView.getTotalDequeueCount();
+         }
+      }));
+   }
+
+   protected int receiveExactMessages(String brokerName, int msgCount) throws Exception {
+
+      BrokerItem brokerItem = brokers.get(brokerName);
+      Connection connection = brokerItem.createConnection();
+      connection.start();
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      MessageConsumer consumer = session.createConsumer(dest);
+
+      Message msg;
+      int i;
+      for (i = 0; i < msgCount; i++) {
+         msg = consumer.receive(1000);
+         if (msg == null) {
+            break;
+         }
+      }
+
+      connection.close();
+      brokerItem.connections.remove(connection);
+
+      return i;
+   }
+
+   public void setUp() throws Exception {
+      super.setUp();
+      createBroker(new URI("broker:(tcp://localhost:61616)/BrokerA?persistent=true&deleteAllMessagesOnStartup=true&advisorySupport=false"));
+      createBroker(new URI("broker:(tcp://localhost:61617)/BrokerB?persistent=true&deleteAllMessagesOnStartup=true&useJmx=false"));
+      bridgeBrokers("BrokerA", "BrokerB");
+
+      startAllBrokers();
+
+      // Create queue
+      dest = createDestination("TEST.FOO", false);
+      sendMessages("BrokerA", dest, 1000);
+   }
 }

@@ -29,95 +29,95 @@ import java.util.concurrent.CountDownLatch;
 
 public class TryJmsManager {
 
-    private final BrokerService broker = new BrokerService();
+   private final BrokerService broker = new BrokerService();
 
-    public static void main(String[] args) throws Exception {
-        new TryJmsManager().start();
-    }
+   public static void main(String[] args) throws Exception {
+      new TryJmsManager().start();
+   }
 
-    private void start() throws Exception {
+   private void start() throws Exception {
 
-        broker.setUseJmx(false);
-        broker.setPersistent(true);
-        broker.setBrokerName("TestBroker");
-        broker.getSystemUsage().setSendFailIfNoSpace(true);
+      broker.setUseJmx(false);
+      broker.setPersistent(true);
+      broker.setBrokerName("TestBroker");
+      broker.getSystemUsage().setSendFailIfNoSpace(true);
 
-        broker.getSystemUsage().getMemoryUsage().setLimit(10 * 1024 * 1024);
+      broker.getSystemUsage().getMemoryUsage().setLimit(10 * 1024 * 1024);
 
-        LevelDBStore persist = new LevelDBStore();
-        persist.setDirectory(new File("/tmp/broker1"));
-        persist.setLogSize(20 * 1024 * 1024);
-        broker.setPersistenceAdapter(persist);
+      LevelDBStore persist = new LevelDBStore();
+      persist.setDirectory(new File("/tmp/broker1"));
+      persist.setLogSize(20 * 1024 * 1024);
+      broker.setPersistenceAdapter(persist);
 
-        String brokerUrl = "tcp://localhost:4500";
-        broker.addConnector(brokerUrl);
+      String brokerUrl = "tcp://localhost:4500";
+      broker.addConnector(brokerUrl);
 
-        broker.start();
+      broker.start();
 
-        addNetworkBroker();
+      addNetworkBroker();
 
-        startUsageMonitor(broker);
+      startUsageMonitor(broker);
 
-        startMessageConsumer();
+      startMessageConsumer();
 
-        new CountDownLatch(1).await();
-    }
+      new CountDownLatch(1).await();
+   }
 
-    private void startUsageMonitor(final BrokerService brokerService) {
-        new Thread(new Runnable() {
-            public void run() {
-                while (true) {
-                    try {
-                        Thread.sleep(10000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
+   private void startUsageMonitor(final BrokerService brokerService) {
+      new Thread(new Runnable() {
+         public void run() {
+            while (true) {
+               try {
+                  Thread.sleep(10000);
+               }
+               catch (InterruptedException e) {
+                  e.printStackTrace();
+               }
 
-                    System.out.println("ActiveMQ memeory " + brokerService.getSystemUsage().getMemoryUsage().getPercentUsage()
-                            + " " + brokerService.getSystemUsage().getMemoryUsage().getUsage());
-                    System.out.println("ActiveMQ message store " + brokerService.getSystemUsage().getStoreUsage().getPercentUsage());
-                    System.out.println("ActiveMQ temp space " + brokerService.getSystemUsage().getTempUsage().getPercentUsage());
-                }
+               System.out.println("ActiveMQ memeory " + brokerService.getSystemUsage().getMemoryUsage().getPercentUsage() + " " + brokerService.getSystemUsage().getMemoryUsage().getUsage());
+               System.out.println("ActiveMQ message store " + brokerService.getSystemUsage().getStoreUsage().getPercentUsage());
+               System.out.println("ActiveMQ temp space " + brokerService.getSystemUsage().getTempUsage().getPercentUsage());
             }
-        }).start();
-    }
+         }
+      }).start();
+   }
 
-    private void addNetworkBroker() throws Exception {
-        DiscoveryNetworkConnector dnc = new DiscoveryNetworkConnector();
-        dnc.setNetworkTTL(1);
-        dnc.setBrokerName("TestBroker");
-        dnc.setName("Broker1Connector");
-        dnc.setDynamicOnly(true);
+   private void addNetworkBroker() throws Exception {
+      DiscoveryNetworkConnector dnc = new DiscoveryNetworkConnector();
+      dnc.setNetworkTTL(1);
+      dnc.setBrokerName("TestBroker");
+      dnc.setName("Broker1Connector");
+      dnc.setDynamicOnly(true);
 
-        SimpleDiscoveryAgent discoveryAgent = new SimpleDiscoveryAgent();
-        String remoteUrl = "tcp://localhost:4501";
-        discoveryAgent.setServices(remoteUrl);
+      SimpleDiscoveryAgent discoveryAgent = new SimpleDiscoveryAgent();
+      String remoteUrl = "tcp://localhost:4501";
+      discoveryAgent.setServices(remoteUrl);
 
-        dnc.setDiscoveryAgent(discoveryAgent);
+      dnc.setDiscoveryAgent(discoveryAgent);
 
-        broker.addNetworkConnector(dnc);
-        dnc.start();
-    }
+      broker.addNetworkConnector(dnc);
+      dnc.start();
+   }
 
-    private void startMessageConsumer() throws JMSException, URISyntaxException {
-        String url = "vm://TestBroker";
-        ActiveMQConnection connection = ActiveMQConnection.makeConnection(url);
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        Destination dest = session.createTopic("TestDestination");
+   private void startMessageConsumer() throws JMSException, URISyntaxException {
+      String url = "vm://TestBroker";
+      ActiveMQConnection connection = ActiveMQConnection.makeConnection(url);
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      Destination dest = session.createTopic("TestDestination");
 
-        MessageConsumer consumer = session.createConsumer(dest);
-        consumer.setMessageListener(new MessageListener() {
+      MessageConsumer consumer = session.createConsumer(dest);
+      consumer.setMessageListener(new MessageListener() {
 
-            public void onMessage(Message message) {
-                try {
-                    System.out.println("got message " + message.getJMSMessageID());
-                } catch (JMSException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-        );
+                                     public void onMessage(Message message) {
+                                        try {
+                                           System.out.println("got message " + message.getJMSMessageID());
+                                        }
+                                        catch (JMSException e) {
+                                           e.printStackTrace();
+                                        }
+                                     }
+                                  });
 
-        connection.start();
-    }
+      connection.start();
+   }
 }

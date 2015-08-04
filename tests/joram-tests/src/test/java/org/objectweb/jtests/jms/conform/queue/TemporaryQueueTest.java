@@ -30,8 +30,7 @@ import org.objectweb.jtests.jms.framework.TestConfig;
 /**
  * Test the <code>javax.jms.TemporaryQueue</code> features.
  */
-public class TemporaryQueueTest extends PTPTestCase
-{
+public class TemporaryQueueTest extends PTPTestCase {
 
    private TemporaryQueue tempQueue;
 
@@ -41,10 +40,8 @@ public class TemporaryQueueTest extends PTPTestCase
     * Test a TemporaryQueue
     */
    @Test
-   public void testTemporaryQueue()
-   {
-      try
-      {
+   public void testTemporaryQueue() {
+      try {
          // we stop both sender and receiver connections
          senderConnection.stop();
          receiverConnection.stop();
@@ -64,11 +61,10 @@ public class TemporaryQueueTest extends PTPTestCase
 
          Message m = tempReceiver.receive(TestConfig.TIMEOUT);
          Assert.assertTrue(m instanceof TextMessage);
-         TextMessage msg = (TextMessage)m;
+         TextMessage msg = (TextMessage) m;
          Assert.assertEquals("testTemporaryQueue", msg.getText());
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          fail(e);
       }
    }

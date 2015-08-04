@@ -29,19 +29,17 @@ import org.junit.Test;
 /**
  * adapted from: org.apache.activemq.JmsClientAckTest
  */
-public class JmsClientAckTest extends BasicOpenWireTest
-{
+public class JmsClientAckTest extends BasicOpenWireTest {
+
    /**
     * Tests if acknowledged messages are being consumed.
     *
     * @throws JMSException
     */
    @Test
-   public void testAckedMessageAreConsumed() throws JMSException
-   {
+   public void testAckedMessageAreConsumed() throws JMSException {
       connection.start();
-      Session session = connection.createSession(false,
-            Session.CLIENT_ACKNOWLEDGE);
+      Session session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
       Queue queue = session.createQueue(getQueueName());
       MessageProducer producer = session.createProducer(queue);
       producer.send(session.createTextMessage("Hello"));
@@ -70,11 +68,9 @@ public class JmsClientAckTest extends BasicOpenWireTest
     * @throws JMSException
     */
    @Test
-   public void testLastMessageAcked() throws JMSException
-   {
+   public void testLastMessageAcked() throws JMSException {
       connection.start();
-      Session session = connection.createSession(false,
-            Session.CLIENT_ACKNOWLEDGE);
+      Session session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
       Queue queue = session.createQueue(getQueueName());
       MessageProducer producer = session.createProducer(queue);
       producer.send(session.createTextMessage("Hello"));
@@ -109,11 +105,9 @@ public class JmsClientAckTest extends BasicOpenWireTest
     * @throws JMSException
     */
    @Test
-   public void testUnAckedMessageAreNotConsumedOnSessionClose() throws JMSException
-   {
+   public void testUnAckedMessageAreNotConsumedOnSessionClose() throws JMSException {
       connection.start();
-      Session session = connection.createSession(false,
-            Session.CLIENT_ACKNOWLEDGE);
+      Session session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
       Queue queue = session.createQueue(getQueueName());
       MessageProducer producer = session.createProducer(queue);
       producer.send(session.createTextMessage("Hello"));
@@ -138,8 +132,7 @@ public class JmsClientAckTest extends BasicOpenWireTest
       session.close();
    }
 
-   protected String getQueueName()
-   {
+   protected String getQueueName() {
       return queueName;
    }
 

@@ -16,42 +16,41 @@
  */
 package org.apache.activemq.management;
 
-
 public class CountStatisticTest extends StatisticTestSupport {
-    
-    private static final org.apache.commons.logging.Log LOG = org.apache.commons.logging.LogFactory
-            .getLog(CountStatisticTest.class);
 
-    /**
-     * Use case for CountStatisticImple class.
-     * @throws Exception
-     */
-    public void testStatistic() throws Exception {
-        CountStatisticImpl stat = new CountStatisticImpl("myCounter", "seconds", "myDescription");
-        stat.setEnabled(true);
-        assertStatistic(stat, "myCounter", "seconds", "myDescription");
+   private static final org.apache.commons.logging.Log LOG = org.apache.commons.logging.LogFactory.getLog(CountStatisticTest.class);
 
-        assertEquals(0, stat.getCount());
+   /**
+    * Use case for CountStatisticImple class.
+    *
+    * @throws Exception
+    */
+   public void testStatistic() throws Exception {
+      CountStatisticImpl stat = new CountStatisticImpl("myCounter", "seconds", "myDescription");
+      stat.setEnabled(true);
+      assertStatistic(stat, "myCounter", "seconds", "myDescription");
 
-        stat.increment();
-        assertEquals(1, stat.getCount());
+      assertEquals(0, stat.getCount());
 
-        stat.increment();
-        assertEquals(2, stat.getCount());
+      stat.increment();
+      assertEquals(1, stat.getCount());
 
-        stat.decrement();
-        assertEquals(1, stat.getCount());
+      stat.increment();
+      assertEquals(2, stat.getCount());
 
-        Thread.sleep(500);
+      stat.decrement();
+      assertEquals(1, stat.getCount());
 
-        stat.increment();
+      Thread.sleep(500);
 
-        assertLastTimeNotStartTime(stat);
+      stat.increment();
 
-        LOG.info("Counter is: " + stat);
+      assertLastTimeNotStartTime(stat);
 
-        stat.reset();
+      LOG.info("Counter is: " + stat);
 
-        assertEquals(0, stat.getCount());
-    }
+      stat.reset();
+
+      assertEquals(0, stat.getCount());
+   }
 }

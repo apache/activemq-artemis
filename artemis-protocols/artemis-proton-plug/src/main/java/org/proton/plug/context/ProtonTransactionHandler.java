@@ -39,28 +39,23 @@ import static org.proton.plug.util.DeliveryUtil.readDelivery;
 /**
  * handles an amqp Coordinator to deal with transaction boundaries etc
  */
-public class ProtonTransactionHandler implements ProtonDeliveryHandler
-{
+public class ProtonTransactionHandler implements ProtonDeliveryHandler {
 
    final AMQPSessionCallback sessionSPI;
 
-   public ProtonTransactionHandler(AMQPSessionCallback sessionSPI)
-   {
+   public ProtonTransactionHandler(AMQPSessionCallback sessionSPI) {
       this.sessionSPI = sessionSPI;
    }
 
    @Override
-   public void onMessage(Delivery delivery) throws ActiveMQAMQPException
-   {
+   public void onMessage(Delivery delivery) throws ActiveMQAMQPException {
       ByteBuf buffer = PooledByteBufAllocator.DEFAULT.heapBuffer(1024);
 
       final Receiver receiver;
-      try
-      {
+      try {
          receiver = ((Receiver) delivery.getLink());
 
-         if (!delivery.isReadable())
-         {
+         if (!delivery.isReadable()) {
             return;
          }
 
@@ -72,36 +67,28 @@ public class ProtonTransactionHandler implements ProtonDeliveryHandler
 
          Object action = ((AmqpValue) msg.getBody()).getValue();
 
-         if (action instanceof Declare)
-         {
+         if (action instanceof Declare) {
             Binary txID = sessionSPI.getCurrentTXID();
             Declared declared = new Declared();
             declared.setTxnId(txID);
             delivery.disposition(declared);
             delivery.settle();
          }
-         else if (action instanceof Discharge)
-         {
+         else if (action instanceof Discharge) {
             Discharge discharge = (Discharge) action;
-            if (discharge.getFail())
-            {
-               try
-               {
+            if (discharge.getFail()) {
+               try {
                   sessionSPI.rollbackCurrentTX();
                }
-               catch (Exception e)
-               {
+               catch (Exception e) {
                   throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.errorRollingbackCoordinator(e.getMessage());
                }
             }
-            else
-            {
-               try
-               {
+            else {
+               try {
                   sessionSPI.commitCurrentTX();
                }
-               catch (Exception e)
-               {
+               catch (Exception e) {
                   throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.errorCommittingCoordinator(e.getMessage());
                }
             }
@@ -109,8 +96,7 @@ public class ProtonTransactionHandler implements ProtonDeliveryHandler
          }
 
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          e.printStackTrace();
          Rejected rejected = new Rejected();
          ErrorCondition condition = new ErrorCondition();
@@ -119,20 +105,17 @@ public class ProtonTransactionHandler implements ProtonDeliveryHandler
          rejected.setError(condition);
          delivery.disposition(rejected);
       }
-      finally
-      {
+      finally {
          buffer.release();
       }
    }
 
-   public void onFlow(int credits)
-   {
+   public void onFlow(int credits) {
 
    }
 
    @Override
-   public void close() throws ActiveMQAMQPException
-   {
+   public void close() throws ActiveMQAMQPException {
       //noop
    }
 }

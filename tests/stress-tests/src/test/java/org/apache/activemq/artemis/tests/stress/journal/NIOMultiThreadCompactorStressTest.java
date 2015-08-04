@@ -45,8 +45,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class NIOMultiThreadCompactorStressTest extends ActiveMQTestBase
-{
+public class NIOMultiThreadCompactorStressTest extends ActiveMQTestBase {
 
    // Constants -----------------------------------------------------
 
@@ -62,28 +61,22 @@ public class NIOMultiThreadCompactorStressTest extends ActiveMQTestBase
 
    private ServerLocator locator;
 
-   protected int getNumberOfIterations()
-   {
+   protected int getNumberOfIterations() {
       return 3;
    }
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
-      locator = createInVMNonHALocator()
-              .setBlockOnNonDurableSend(false)
-              .setBlockOnAcknowledge(false);
+      locator = createInVMNonHALocator().setBlockOnNonDurableSend(false).setBlockOnAcknowledge(false);
    }
 
    @Test
-   public void testMultiThreadCompact() throws Throwable
-   {
+   public void testMultiThreadCompact() throws Throwable {
       setupServer(getJournalType());
-      for (int i = 0; i < getNumberOfIterations(); i++)
-      {
+      for (int i = 0; i < getNumberOfIterations(); i++) {
          System.out.println("######################################");
          System.out.println("test # " + i);
 
@@ -91,14 +84,7 @@ public class NIOMultiThreadCompactorStressTest extends ActiveMQTestBase
          stopServer();
 
          NIOSequentialFileFactory factory = new NIOSequentialFileFactory(new File(getJournalDir()), 1);
-         JournalImpl journal = new JournalImpl(ActiveMQDefaultConfiguration.getDefaultJournalFileSize(),
-                                               2,
-                                               0,
-                                               0,
-                                               factory,
-                                               "activemq-data",
-                                               "amq",
-                                               100);
+         JournalImpl journal = new JournalImpl(ActiveMQDefaultConfiguration.getDefaultJournalFileSize(), 2, 0, 0, factory, "activemq-data", "amq", 100);
 
          List<RecordInfo> committedRecords = new ArrayList<RecordInfo>();
          List<PreparedTransactionInfo> preparedTransactions = new ArrayList<PreparedTransactionInfo>();
@@ -111,16 +97,14 @@ public class NIOMultiThreadCompactorStressTest extends ActiveMQTestBase
 
          System.out.println("DataFiles = " + journal.getDataFilesCount());
 
-         if (i % 2 == 0 && i > 0)
-         {
+         if (i % 2 == 0 && i > 0) {
             System.out.println("DataFiles = " + journal.getDataFilesCount());
 
             journal.forceMoveNextFile();
             journal.debugWait();
             journal.checkReclaimStatus();
 
-            if (journal.getDataFilesCount() != 0)
-            {
+            if (journal.getDataFilesCount() != 0) {
                System.out.println("DebugJournal:" + journal.debug());
             }
             Assert.assertEquals(0, journal.getDataFilesCount());
@@ -137,8 +121,7 @@ public class NIOMultiThreadCompactorStressTest extends ActiveMQTestBase
    /**
     * @return
     */
-   protected JournalType getJournalType()
-   {
+   protected JournalType getJournalType() {
       return JournalType.NIO;
    }
 
@@ -146,8 +129,7 @@ public class NIOMultiThreadCompactorStressTest extends ActiveMQTestBase
     * @param xid
     * @throws ActiveMQException
     */
-   private void addEmptyTransaction(final Xid xid) throws Exception
-   {
+   private void addEmptyTransaction(final Xid xid) throws Exception {
       ClientSessionFactory sf = createSessionFactory(locator);
       ClientSession session = sf.createSession(true, false, false);
       session.start(xid, XAResource.TMNOFLAGS);
@@ -157,8 +139,7 @@ public class NIOMultiThreadCompactorStressTest extends ActiveMQTestBase
       sf.close();
    }
 
-   private void checkEmptyXID(final Xid xid) throws Exception
-   {
+   private void checkEmptyXID(final Xid xid) throws Exception {
       ClientSessionFactory sf = createSessionFactory(locator);
       ClientSession session = sf.createSession(true, false, false);
 
@@ -172,8 +153,7 @@ public class NIOMultiThreadCompactorStressTest extends ActiveMQTestBase
       sf.close();
    }
 
-   public void internalTestProduceAndConsume() throws Throwable
-   {
+   public void internalTestProduceAndConsume() throws Throwable {
 
       addBogusData(100, "LAZY-QUEUE");
 
@@ -204,28 +184,16 @@ public class NIOMultiThreadCompactorStressTest extends ActiveMQTestBase
       ArrayList<BaseThread> threads = new ArrayList<BaseThread>();
 
       ProducerThread[] prod = new ProducerThread[numberOfProducers];
-      for (int i = 0; i < numberOfProducers; i++)
-      {
-         prod[i] = new ProducerThread(i,
-                                      latchReady,
-                                      latchStart,
-                                      transactionalOnConsume,
-                                      produceMessage,
-                                      commitIntervalProduce);
+      for (int i = 0; i < numberOfProducers; i++) {
+         prod[i] = new ProducerThread(i, latchReady, latchStart, transactionalOnConsume, produceMessage, commitIntervalProduce);
          prod[i].start();
          threads.add(prod[i]);
       }
 
       ConsumerThread[] cons = new ConsumerThread[numberOfConsumers];
 
-      for (int i = 0; i < numberOfConsumers; i++)
-      {
-         cons[i] = new ConsumerThread(i,
-                                      latchReady,
-                                      latchStart,
-                                      transactionalOnProduce,
-                                      consumeMessage,
-                                      commitIntervalConsume);
+      for (int i = 0; i < numberOfConsumers; i++) {
+         cons[i] = new ConsumerThread(i, latchReady, latchStart, transactionalOnProduce, consumeMessage, commitIntervalConsume);
          cons[i].start();
          threads.add(cons[i]);
       }
@@ -233,11 +201,9 @@ public class NIOMultiThreadCompactorStressTest extends ActiveMQTestBase
       ActiveMQTestBase.waitForLatch(latchReady);
       latchStart.countDown();
 
-      for (BaseThread t : threads)
-      {
+      for (BaseThread t : threads) {
          t.join();
-         if (t.e != null)
-         {
+         if (t.e != null) {
             throw t.e;
          }
       }
@@ -264,21 +230,18 @@ public class NIOMultiThreadCompactorStressTest extends ActiveMQTestBase
     * @param queue
     * @throws ActiveMQException
     */
-   private void drainQueue(final int numberOfMessagesExpected, final SimpleString queue) throws ActiveMQException
-   {
+   private void drainQueue(final int numberOfMessagesExpected, final SimpleString queue) throws ActiveMQException {
       ClientSession sess = sf.createSession(true, true);
 
       ClientConsumer consumer = sess.createConsumer(queue);
 
       sess.start();
 
-      for (int i = 0; i < numberOfMessagesExpected; i++)
-      {
+      for (int i = 0; i < numberOfMessagesExpected; i++) {
          ClientMessage msg = consumer.receive(5000);
          Assert.assertNotNull(msg);
 
-         if (i % 100 == 0)
-         {
+         if (i % 100 == 0) {
             // System.out.println("Received #" + i + "  on thread after start");
          }
          msg.acknowledge();
@@ -292,20 +255,16 @@ public class NIOMultiThreadCompactorStressTest extends ActiveMQTestBase
    /**
     * @throws ActiveMQException
     */
-   private void addBogusData(final int nmessages, final String queue) throws ActiveMQException
-   {
+   private void addBogusData(final int nmessages, final String queue) throws ActiveMQException {
       ClientSession session = sf.createSession(false, false);
-      try
-      {
+      try {
          session.createQueue(queue, queue, true);
       }
-      catch (Exception ignored)
-      {
+      catch (Exception ignored) {
       }
 
       ClientProducer prod = session.createProducer(queue);
-      for (int i = 0; i < nmessages; i++)
-      {
+      for (int i = 0; i < nmessages; i++) {
          ClientMessage msg = session.createMessage(true);
          msg.getBodyBuffer().writeBytes(new byte[1024]);
          prod.send(msg);
@@ -320,39 +279,25 @@ public class NIOMultiThreadCompactorStressTest extends ActiveMQTestBase
       session.close();
    }
 
-   protected void stopServer() throws Exception
-   {
-      try
-      {
-         if (server != null && server.isStarted())
-         {
+   protected void stopServer() throws Exception {
+      try {
+         if (server != null && server.isStarted()) {
             server.stop();
          }
       }
-      catch (Throwable e)
-      {
+      catch (Throwable e) {
          e.printStackTrace(System.out); // System.out => junit reports
       }
 
       sf = null;
    }
 
-   private void setupServer(JournalType journalType) throws Exception
-   {
-      if (!LibaioContext.isLoaded())
-      {
+   private void setupServer(JournalType journalType) throws Exception {
+      if (!LibaioContext.isLoaded()) {
          journalType = JournalType.NIO;
       }
-      if (server == null)
-      {
-         Configuration config = createDefaultNettyConfig()
-            .setJournalFileSize(ActiveMQDefaultConfiguration.getDefaultJournalFileSize())
-            .setJournalType(journalType)
-            .setJMXManagementEnabled(false)
-            .setJournalFileSize(ActiveMQDefaultConfiguration.getDefaultJournalFileSize())
-            .setJournalMinFiles(ActiveMQDefaultConfiguration.getDefaultJournalMinFiles())
-            .setJournalCompactMinFiles(ActiveMQDefaultConfiguration.getDefaultJournalCompactMinFiles())
-            .setJournalCompactPercentage(ActiveMQDefaultConfiguration.getDefaultJournalCompactPercentage())
+      if (server == null) {
+         Configuration config = createDefaultNettyConfig().setJournalFileSize(ActiveMQDefaultConfiguration.getDefaultJournalFileSize()).setJournalType(journalType).setJMXManagementEnabled(false).setJournalFileSize(ActiveMQDefaultConfiguration.getDefaultJournalFileSize()).setJournalMinFiles(ActiveMQDefaultConfiguration.getDefaultJournalMinFiles()).setJournalCompactMinFiles(ActiveMQDefaultConfiguration.getDefaultJournalCompactMinFiles()).setJournalCompactPercentage(ActiveMQDefaultConfiguration.getDefaultJournalCompactPercentage())
             // This test is supposed to not sync.. All the ACKs are async, and it was supposed to not sync
             .setJournalSyncNonTransactional(false);
 
@@ -364,20 +309,16 @@ public class NIOMultiThreadCompactorStressTest extends ActiveMQTestBase
 
       server.start();
 
-      ServerLocator locator = createNettyNonHALocator()
-              .setBlockOnDurableSend(false)
-              .setBlockOnAcknowledge(false);
+      ServerLocator locator = createNettyNonHALocator().setBlockOnDurableSend(false).setBlockOnAcknowledge(false);
 
       sf = createSessionFactory(locator);
 
       ClientSession sess = sf.createSession();
 
-      try
-      {
+      try {
          sess.createQueue(ADDRESS, QUEUE, true);
       }
-      catch (Exception ignored)
-      {
+      catch (Exception ignored) {
       }
 
       sess.close();
@@ -389,8 +330,8 @@ public class NIOMultiThreadCompactorStressTest extends ActiveMQTestBase
 
    // Public --------------------------------------------------------
 
-   class BaseThread extends Thread
-   {
+   class BaseThread extends Thread {
+
       Throwable e;
 
       final CountDownLatch latchReady;
@@ -408,8 +349,7 @@ public class NIOMultiThreadCompactorStressTest extends ActiveMQTestBase
                  final CountDownLatch latchStart,
                  final boolean transactional,
                  final int numberOfMessages,
-                 final int commitInterval)
-      {
+                 final int commitInterval) {
          super(name);
          this.transactional = transactional;
          this.latchReady = latchReady;
@@ -420,39 +360,32 @@ public class NIOMultiThreadCompactorStressTest extends ActiveMQTestBase
 
    }
 
-   class ProducerThread extends BaseThread
-   {
+   class ProducerThread extends BaseThread {
+
       ProducerThread(final int id,
                      final CountDownLatch latchReady,
                      final CountDownLatch latchStart,
                      final boolean transactional,
                      final int numberOfMessages,
-                     final int commitInterval)
-      {
+                     final int commitInterval) {
          super("ClientProducer:" + id, latchReady, latchStart, transactional, numberOfMessages, commitInterval);
       }
 
       @Override
-      public void run()
-      {
+      public void run() {
          ClientSession session = null;
          latchReady.countDown();
-         try
-         {
+         try {
             ActiveMQTestBase.waitForLatch(latchStart);
             session = sf.createSession(!transactional, !transactional);
             ClientProducer prod = session.createProducer(ADDRESS);
-            for (int i = 0; i < numberOfMessages; i++)
-            {
-               if (transactional)
-               {
-                  if (i % commitInterval == 0)
-                  {
+            for (int i = 0; i < numberOfMessages; i++) {
+               if (transactional) {
+                  if (i % commitInterval == 0) {
                      session.commit();
                   }
                }
-               if (i % 100 == 0)
-               {
+               if (i % 100 == 0) {
                   // System.out.println(Thread.currentThread().getName() + "::sent #" + i);
                }
                ClientMessage msg = session.createMessage(true);
@@ -460,8 +393,7 @@ public class NIOMultiThreadCompactorStressTest extends ActiveMQTestBase
                prod.send(msg);
             }
 
-            if (transactional)
-            {
+            if (transactional) {
                session.commit();
             }
 
@@ -470,58 +402,48 @@ public class NIOMultiThreadCompactorStressTest extends ActiveMQTestBase
                                   numberOfMessages +
                                   "  messages");
          }
-         catch (Throwable e)
-         {
+         catch (Throwable e) {
             e.printStackTrace();
             this.e = e;
          }
-         finally
-         {
-            try
-            {
+         finally {
+            try {
                session.close();
             }
-            catch (Throwable e)
-            {
+            catch (Throwable e) {
                this.e = e;
             }
          }
       }
    }
 
-   class ConsumerThread extends BaseThread
-   {
+   class ConsumerThread extends BaseThread {
+
       ConsumerThread(final int id,
                      final CountDownLatch latchReady,
                      final CountDownLatch latchStart,
                      final boolean transactional,
                      final int numberOfMessages,
-                     final int commitInterval)
-      {
+                     final int commitInterval) {
          super("ClientConsumer:" + id, latchReady, latchStart, transactional, numberOfMessages, commitInterval);
       }
 
       @Override
-      public void run()
-      {
+      public void run() {
          ClientSession session = null;
          latchReady.countDown();
-         try
-         {
+         try {
             ActiveMQTestBase.waitForLatch(latchStart);
             session = sf.createSession(!transactional, !transactional);
             session.start();
             ClientConsumer cons = session.createConsumer(QUEUE);
-            for (int i = 0; i < numberOfMessages; i++)
-            {
+            for (int i = 0; i < numberOfMessages; i++) {
                ClientMessage msg = cons.receive(60 * 1000);
                msg.acknowledge();
-               if (i % commitInterval == 0)
-               {
+               if (i % commitInterval == 0) {
                   session.commit();
                }
-               if (i % 100 == 0)
-               {
+               if (i % 100 == 0) {
                   // System.out.println(Thread.currentThread().getName() + "::received #" + i);
                }
             }
@@ -533,18 +455,14 @@ public class NIOMultiThreadCompactorStressTest extends ActiveMQTestBase
 
             session.commit();
          }
-         catch (Throwable e)
-         {
+         catch (Throwable e) {
             this.e = e;
          }
-         finally
-         {
-            try
-            {
+         finally {
+            try {
                session.close();
             }
-            catch (Throwable e)
-            {
+            catch (Throwable e) {
                this.e = e;
             }
          }

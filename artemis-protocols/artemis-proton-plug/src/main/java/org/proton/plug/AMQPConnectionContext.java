@@ -18,8 +18,7 @@ package org.proton.plug;
 
 import io.netty.buffer.ByteBuf;
 
-public interface AMQPConnectionContext
-{
+public interface AMQPConnectionContext {
 
    void close();
 
@@ -35,9 +34,9 @@ public interface AMQPConnectionContext
     * Even though we are currently always sending packets asynchronsouly
     * we have a possibility to start trusting on the network flow control
     * and always sync on the send of the packet
-    *
+    * <br>
     * This is for future use and should be kept returning false.
-    *
+    * <br>
     * We will have to do some testing before we make this return true
     */
    boolean isSyncOnFlush();
@@ -58,6 +57,5 @@ public interface AMQPConnectionContext
     * @param numberOfBytes
     */
    void outputDone(int numberOfBytes);
-
 
 }

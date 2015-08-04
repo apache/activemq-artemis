@@ -42,11 +42,9 @@ import org.apache.activemq.artemis.jms.server.embedded.EmbeddedJMS;
 /**
  * This example demonstrates how to run an ActiveMQ Artemis embedded with JMS
  */
-public final class EmbeddedExample
-{
+public final class EmbeddedExample {
 
-   public static void main(final String[] args) throws Exception
-   {
+   public static void main(final String[] args) throws Exception {
       // Step 1. Create ActiveMQ Artemis core configuration, and set the properties accordingly
       Configuration configuration = new ConfigurationImpl();
       configuration.setPersistenceEnabled(false);
@@ -58,24 +56,17 @@ public final class EmbeddedExample
 
       configuration.getConnectorConfigurations().put("connector", connectorConfig);
 
-
       // Step 2. Create the JMS configuration
       JMSConfiguration jmsConfig = new JMSConfigurationImpl();
 
       // Step 3. Configure the JMS ConnectionFactory
       ArrayList<String> connectorNames = new ArrayList<String>();
       connectorNames.add("connector");
-      ConnectionFactoryConfiguration cfConfig = new ConnectionFactoryConfigurationImpl()
-              .setName("cf")
-              .setConnectorNames(connectorNames)
-              .setBindings("cf");
+      ConnectionFactoryConfiguration cfConfig = new ConnectionFactoryConfigurationImpl().setName("cf").setConnectorNames(connectorNames).setBindings("cf");
       jmsConfig.getConnectionFactoryConfigurations().add(cfConfig);
 
       // Step 4. Configure the JMS Queue
-      JMSQueueConfiguration queueConfig = new JMSQueueConfigurationImpl()
-              .setName("queue1")
-              .setDurable(false)
-              .setBindings("queue/queue1");
+      JMSQueueConfiguration queueConfig = new JMSQueueConfigurationImpl().setName("queue1").setDurable(false).setBindings("queue/queue1");
       jmsConfig.getQueueConfigurations().add(queueConfig);
 
       // Step 5. Start the JMS Server using the ActiveMQ Artemis core server and the JMS configuration
@@ -91,8 +82,7 @@ public final class EmbeddedExample
 
       // Step 7. Send and receive a message using JMS API
       Connection connection = null;
-      try
-      {
+      try {
          connection = cf.createConnection();
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
          MessageProducer producer = session.createProducer(queue);
@@ -104,10 +94,8 @@ public final class EmbeddedExample
          TextMessage messageReceived = (TextMessage) messageConsumer.receive(1000);
          System.out.println("Received message:" + messageReceived.getText());
       }
-      finally
-      {
-         if (connection != null)
-         {
+      finally {
+         if (connection != null) {
             connection.close();
          }
 

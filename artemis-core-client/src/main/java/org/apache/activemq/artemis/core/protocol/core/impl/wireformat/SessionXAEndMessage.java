@@ -22,14 +22,13 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.utils.XidCodecSupport;
 
-public class SessionXAEndMessage extends PacketImpl
-{
+public class SessionXAEndMessage extends PacketImpl {
+
    private Xid xid;
 
    private boolean failed;
 
-   public SessionXAEndMessage(final Xid xid, final boolean failed)
-   {
+   public SessionXAEndMessage(final Xid xid, final boolean failed) {
       super(SESS_XA_END);
 
       this.xid = xid;
@@ -37,44 +36,37 @@ public class SessionXAEndMessage extends PacketImpl
       this.failed = failed;
    }
 
-   public SessionXAEndMessage()
-   {
+   public SessionXAEndMessage() {
       super(SESS_XA_END);
    }
 
-   public boolean isFailed()
-   {
+   public boolean isFailed() {
       return failed;
    }
 
-   public Xid getXid()
-   {
+   public Xid getXid() {
       return xid;
    }
 
    @Override
-   public void encodeRest(final ActiveMQBuffer buffer)
-   {
+   public void encodeRest(final ActiveMQBuffer buffer) {
       XidCodecSupport.encodeXid(xid, buffer);
       buffer.writeBoolean(failed);
    }
 
    @Override
-   public void decodeRest(final ActiveMQBuffer buffer)
-   {
+   public void decodeRest(final ActiveMQBuffer buffer) {
       xid = XidCodecSupport.decodeXid(buffer);
       failed = buffer.readBoolean();
    }
 
    @Override
-   public String toString()
-   {
+   public String toString() {
       return getParentString() + ", xid=" + xid + ", failed=" + failed + "]";
    }
 
    @Override
-   public int hashCode()
-   {
+   public int hashCode() {
       final int prime = 31;
       int result = super.hashCode();
       result = prime * result + (failed ? 1231 : 1237);
@@ -83,19 +75,17 @@ public class SessionXAEndMessage extends PacketImpl
    }
 
    @Override
-   public boolean equals(Object obj)
-   {
+   public boolean equals(Object obj) {
       if (this == obj)
          return true;
       if (!super.equals(obj))
          return false;
       if (!(obj instanceof SessionXAEndMessage))
          return false;
-      SessionXAEndMessage other = (SessionXAEndMessage)obj;
+      SessionXAEndMessage other = (SessionXAEndMessage) obj;
       if (failed != other.failed)
          return false;
-      if (xid == null)
-      {
+      if (xid == null) {
          if (other.xid != null)
             return false;
       }

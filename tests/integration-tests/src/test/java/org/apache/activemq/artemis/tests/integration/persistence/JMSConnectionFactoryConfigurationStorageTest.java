@@ -32,44 +32,36 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class JMSConnectionFactoryConfigurationStorageTest extends StorageManagerTestBase
-{
+public class JMSConnectionFactoryConfigurationStorageTest extends StorageManagerTestBase {
 
    private Map<String, PersistedConnectionFactory> mapExpectedCFs;
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       mapExpectedCFs = new HashMap<String, PersistedConnectionFactory>();
    }
 
-   protected void addSetting(PersistedConnectionFactory setting) throws Exception
-   {
+   protected void addSetting(PersistedConnectionFactory setting) throws Exception {
       mapExpectedCFs.put(setting.getName(), setting);
       jmsJournal.storeConnectionFactory(setting);
    }
 
    @Test
-   public void testSettings() throws Exception
-   {
+   public void testSettings() throws Exception {
 
       createJMSStorage();
 
       List<String> transportConfigs = new ArrayList<String>();
 
-      for (int i = 0; i < 5; i++)
-      {
+      for (int i = 0; i < 5; i++) {
          transportConfigs.add("c1-" + i);
          transportConfigs.add("c2-" + i);
       }
 
-
-      ConnectionFactoryConfiguration config = new ConnectionFactoryConfigurationImpl()
-         .setName("some-name")
-         .setConnectorNames(transportConfigs);
+      ConnectionFactoryConfiguration config = new ConnectionFactoryConfigurationImpl().setName("some-name").setConnectorNames(transportConfigs);
 
       addSetting(new PersistedConnectionFactory(config));
 
@@ -88,27 +80,21 @@ public class JMSConnectionFactoryConfigurationStorageTest extends StorageManager
       assertEquals(10, cf1.getConfig().getConnectorNames().size());
 
       List<String> configs = cf1.getConfig().getConnectorNames();
-      for (int i = 0, j = 0; i < 10; i += 2, j++)
-      {
+      for (int i = 0, j = 0; i < 10; i += 2, j++) {
          assertEquals(configs.get(i), "c1-" + j);
          assertEquals(configs.get(i + 1), "c2-" + j);
       }
    }
 
    @Test
-   public void testSizeOfCF() throws Exception
-   {
+   public void testSizeOfCF() throws Exception {
 
       String[] str = new String[5];
-      for (int i = 0; i < 5; i++)
-      {
+      for (int i = 0; i < 5; i++) {
          str[i] = "str" + i;
       }
 
-      ConnectionFactoryConfiguration config = new ConnectionFactoryConfigurationImpl()
-         .setName("some-name")
-         .setConnectorNames(new ArrayList<String>())
-         .setBindings("");
+      ConnectionFactoryConfiguration config = new ConnectionFactoryConfigurationImpl().setName("some-name").setConnectorNames(new ArrayList<String>()).setBindings("");
 
       int size = config.getEncodeSize();
 
@@ -131,14 +117,12 @@ public class JMSConnectionFactoryConfigurationStorageTest extends StorageManager
    }
 
    @Test
-   public void testSettingsWithConnectorConfigs() throws Exception
-   {
+   public void testSettingsWithConnectorConfigs() throws Exception {
 
       createJMSStorage();
 
       String[] str = new String[5];
-      for (int i = 0; i < 5; i++)
-      {
+      for (int i = 0; i < 5; i++) {
          str[i] = "str" + i;
       }
 
@@ -150,11 +134,7 @@ public class JMSConnectionFactoryConfigurationStorageTest extends StorageManager
       Map<String, Object> liveParams2 = new HashMap<String, Object>();
       liveParams2.put(TransportConstants.PORT_PROP_NAME, 6665);
 
-      ConnectionFactoryConfiguration config = new ConnectionFactoryConfigurationImpl()
-         .setName("some-name")
-         .setConnectorNames(connectorConfigs)
-         .setBindings(str)
-         .setCallTimeout(RandomUtil.randomPositiveLong());
+      ConnectionFactoryConfiguration config = new ConnectionFactoryConfigurationImpl().setName("some-name").setConnectorNames(connectorConfigs).setBindings(str).setCallTimeout(RandomUtil.randomPositiveLong());
       List<Pair<String, String>> connectors = new ArrayList<Pair<String, String>>();
       connectors.add(new Pair<String, String>(RandomUtil.randomString(), null));
       //config.setConnectorNames(connectors);

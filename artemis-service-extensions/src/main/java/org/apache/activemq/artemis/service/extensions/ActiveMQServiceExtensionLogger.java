@@ -25,22 +25,22 @@ import org.jboss.logging.annotations.MessageLogger;
 
 /**
  * Logger Code 34
- *
+ * <br>
  * each message id must be 6 digits long starting with 20, the 3rd digit donates the level so
- *
+ * <br>
  * INF0  1
  * WARN  2
  * DEBUG 3
  * ERROR 4
  * TRACE 5
  * FATAL 6
- *
+ * <br>
  * so an INFO message would be 341000 to 341999
  */
 
 @MessageLogger(projectCode = "AMQ")
-public interface ActiveMQServiceExtensionLogger extends BasicLogger
-{
+public interface ActiveMQServiceExtensionLogger extends BasicLogger {
+
    /**
     * The default logger.
     */

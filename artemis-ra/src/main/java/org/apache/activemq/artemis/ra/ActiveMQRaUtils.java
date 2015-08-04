@@ -31,13 +31,12 @@ import org.jgroups.JChannel;
 /**
  * Various utility functions
  */
-public final class ActiveMQRaUtils
-{
+public final class ActiveMQRaUtils {
+
    /**
     * Private constructor
     */
-   private ActiveMQRaUtils()
-   {
+   private ActiveMQRaUtils() {
    }
 
    /**
@@ -48,17 +47,14 @@ public final class ActiveMQRaUtils
     * @return True if object equals else false.
     */
    @SuppressWarnings("StringEquality")
-   public static boolean compare(final String me, final String you)
-   {
+   public static boolean compare(final String me, final String you) {
       // If both null or intern equals
-      if (me == you)
-      {
+      if (me == you) {
          return true;
       }
 
       // if me null and you are not
-      if (me == null)
-      {
+      if (me == null) {
          return false;
       }
 
@@ -73,17 +69,14 @@ public final class ActiveMQRaUtils
     * @param you Second value
     * @return True if object equals else false.
     */
-   public static boolean compare(final Integer me, final Integer you)
-   {
+   public static boolean compare(final Integer me, final Integer you) {
       // If both null or intern equals
-      if (me == you)
-      {
+      if (me == you) {
          return true;
       }
 
       // if me null and you are not
-      if (me == null)
-      {
+      if (me == null) {
          return false;
       }
 
@@ -98,17 +91,14 @@ public final class ActiveMQRaUtils
     * @param you Second value
     * @return True if object equals else false.
     */
-   public static boolean compare(final Long me, final Long you)
-   {
+   public static boolean compare(final Long me, final Long you) {
       // If both null or intern equals
-      if (me == you)
-      {
+      if (me == you) {
          return true;
       }
 
       // if me null and you are not
-      if (me == null)
-      {
+      if (me == null) {
          return false;
       }
 
@@ -123,17 +113,14 @@ public final class ActiveMQRaUtils
     * @param you Second value
     * @return True if object equals else false.
     */
-   public static boolean compare(final Double me, final Double you)
-   {
+   public static boolean compare(final Double me, final Double you) {
       // If both null or intern equals
-      if (me == you)
-      {
+      if (me == you) {
          return true;
       }
 
       // if me null and you are not
-      if (me == null)
-      {
+      if (me == null) {
          return false;
       }
 
@@ -148,17 +135,14 @@ public final class ActiveMQRaUtils
     * @param you Second value
     * @return True if object equals else false.
     */
-   public static boolean compare(final Boolean me, final Boolean you)
-   {
+   public static boolean compare(final Boolean me, final Boolean you) {
       // If both null or intern equals
-      if (me == you)
-      {
+      if (me == you) {
          return true;
       }
 
       // if me null and you are not
-      if (me == null)
-      {
+      if (me == null) {
          return false;
       }
 
@@ -175,8 +159,7 @@ public final class ActiveMQRaUtils
     * @return the object
     * @throws Exception for any error
     */
-   public static Object lookup(final Context context, final String name, final Class<?> clazz) throws Exception
-   {
+   public static Object lookup(final Context context, final String name, final Class<?> clazz) throws Exception {
       return context.lookup(name);
    }
 
@@ -186,18 +169,15 @@ public final class ActiveMQRaUtils
     * @param config
     * @return hash-table with configuration option pairs
     */
-   public static Hashtable<String, String> parseHashtableConfig(final String config)
-   {
+   public static Hashtable<String, String> parseHashtableConfig(final String config) {
       Hashtable<String, String> hashtable = new Hashtable<String, String>();
 
       String[] topElements = config.split(";");
 
-      for (String element : topElements)
-      {
+      for (String element : topElements) {
          String[] expression = element.split("=");
 
-         if (expression.length != 2)
-         {
+         if (expression.length != 2) {
             throw new IllegalArgumentException("Invalid expression " + element + " at " + config);
          }
 
@@ -207,25 +187,21 @@ public final class ActiveMQRaUtils
       return hashtable;
    }
 
-   public static List<Map<String, Object>> parseConfig(final String config)
-   {
+   public static List<Map<String, Object>> parseConfig(final String config) {
       List<Map<String, Object>> result = new ArrayList<Map<String, Object>>();
 
       String[] topElements = config.split(",");
 
-      for (String topElement : topElements)
-      {
+      for (String topElement : topElements) {
          HashMap<String, Object> map = new HashMap<String, Object>();
          result.add(map);
 
          String[] elements = topElement.split(";");
 
-         for (String element : elements)
-         {
+         for (String element : elements) {
             String[] expression = element.split("=");
 
-            if (expression.length != 2)
-            {
+            if (expression.length != 2) {
                throw new IllegalArgumentException("Invalid expression " + element + " at " + config);
             }
 
@@ -233,18 +209,15 @@ public final class ActiveMQRaUtils
          }
       }
 
-
       return result;
    }
 
-   public static List<String> parseConnectorConnectorConfig(String config)
-   {
+   public static List<String> parseConnectorConnectorConfig(String config) {
       List<String> res = new ArrayList<String>();
 
       String[] elements = config.split(",");
 
-      for (String element : elements)
-      {
+      for (String element : elements) {
          res.add(element.trim());
       }
 
@@ -256,22 +229,17 @@ public final class ActiveMQRaUtils
     * RA is configured using jgroups stack, we need to pass a Channel object. As is impossible with
     * JCA, we use this method to allow a JChannel object to be located.
     */
-   public static JChannel locateJGroupsChannel(final String locatorClass, final String name)
-   {
-      return AccessController.doPrivileged(new PrivilegedAction<JChannel>()
-      {
-         public JChannel run()
-         {
-            try
-            {
+   public static JChannel locateJGroupsChannel(final String locatorClass, final String name) {
+      return AccessController.doPrivileged(new PrivilegedAction<JChannel>() {
+         public JChannel run() {
+            try {
                ClassLoader loader = Thread.currentThread().getContextClassLoader();
                Class<?> aClass = loader.loadClass(locatorClass);
                Object o = aClass.newInstance();
                Method m = aClass.getMethod("locateChannel", new Class[]{String.class});
                return (JChannel) m.invoke(o, name);
             }
-            catch (Throwable e)
-            {
+            catch (Throwable e) {
                ActiveMQRALogger.LOGGER.debug(e.getMessage(), e);
                return null;
             }
@@ -284,32 +252,24 @@ public final class ActiveMQRaUtils
     * utility class, as it would be a door to load anything you like in a safe VM.
     * For that reason any class trying to do a privileged block should do with the AccessController directly.
     */
-   private static Object safeInitNewInstance(final String className)
-   {
-      return AccessController.doPrivileged(new PrivilegedAction<Object>()
-      {
-         public Object run()
-         {
+   private static Object safeInitNewInstance(final String className) {
+      return AccessController.doPrivileged(new PrivilegedAction<Object>() {
+         public Object run() {
             ClassLoader loader = getClass().getClassLoader();
-            try
-            {
+            try {
                Class<?> clazz = loader.loadClass(className);
                return clazz.newInstance();
             }
-            catch (Throwable t)
-            {
-               try
-               {
+            catch (Throwable t) {
+               try {
                   loader = Thread.currentThread().getContextClassLoader();
                   if (loader != null)
                      return loader.loadClass(className).newInstance();
                }
-               catch (RuntimeException e)
-               {
+               catch (RuntimeException e) {
                   throw e;
                }
-               catch (Exception e)
-               {
+               catch (Exception e) {
                }
 
                throw new IllegalArgumentException("Could not find class " + className);
@@ -317,6 +277,5 @@ public final class ActiveMQRaUtils
          }
       });
    }
-
 
 }

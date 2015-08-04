@@ -20,13 +20,16 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 
-public class ClusterTopologyChangeMessage_V3 extends ClusterTopologyChangeMessage_V2
-{
+public class ClusterTopologyChangeMessage_V3 extends ClusterTopologyChangeMessage_V2 {
+
    private String scaleDownGroupName;
 
-   public ClusterTopologyChangeMessage_V3(final long uniqueEventID, final String nodeID, final String backupGroupName, final String scaleDownGroupName,
-                                          final Pair<TransportConfiguration, TransportConfiguration> pair, final boolean last)
-   {
+   public ClusterTopologyChangeMessage_V3(final long uniqueEventID,
+                                          final String nodeID,
+                                          final String backupGroupName,
+                                          final String scaleDownGroupName,
+                                          final Pair<TransportConfiguration, TransportConfiguration> pair,
+                                          final boolean last) {
       super(CLUSTER_TOPOLOGY_V3);
 
       this.nodeID = nodeID;
@@ -44,33 +47,28 @@ public class ClusterTopologyChangeMessage_V3 extends ClusterTopologyChangeMessag
       this.scaleDownGroupName = scaleDownGroupName;
    }
 
-   public ClusterTopologyChangeMessage_V3()
-   {
+   public ClusterTopologyChangeMessage_V3() {
       super(CLUSTER_TOPOLOGY_V3);
    }
 
-   public String getScaleDownGroupName()
-   {
+   public String getScaleDownGroupName() {
       return scaleDownGroupName;
    }
 
    @Override
-   public void encodeRest(final ActiveMQBuffer buffer)
-   {
+   public void encodeRest(final ActiveMQBuffer buffer) {
       super.encodeRest(buffer);
       buffer.writeNullableString(scaleDownGroupName);
    }
 
    @Override
-   public void decodeRest(final ActiveMQBuffer buffer)
-   {
+   public void decodeRest(final ActiveMQBuffer buffer) {
       super.decodeRest(buffer);
       scaleDownGroupName = buffer.readNullableString();
    }
 
    @Override
-   public int hashCode()
-   {
+   public int hashCode() {
       final int prime = 31;
       int result = super.hashCode();
       result = prime * result + ((scaleDownGroupName == null) ? 0 : scaleDownGroupName.hashCode());
@@ -78,30 +76,23 @@ public class ClusterTopologyChangeMessage_V3 extends ClusterTopologyChangeMessag
    }
 
    @Override
-   public boolean equals(Object obj)
-   {
-      if (this == obj)
-      {
+   public boolean equals(Object obj) {
+      if (this == obj) {
          return true;
       }
-      if (!super.equals(obj))
-      {
+      if (!super.equals(obj)) {
          return false;
       }
-      if (!(obj instanceof ClusterTopologyChangeMessage_V3))
-      {
+      if (!(obj instanceof ClusterTopologyChangeMessage_V3)) {
          return false;
       }
       ClusterTopologyChangeMessage_V3 other = (ClusterTopologyChangeMessage_V3) obj;
-      if (scaleDownGroupName == null)
-      {
-         if (other.scaleDownGroupName != null)
-         {
+      if (scaleDownGroupName == null) {
+         if (other.scaleDownGroupName != null) {
             return false;
          }
       }
-      else if (!scaleDownGroupName.equals(other.scaleDownGroupName))
-      {
+      else if (!scaleDownGroupName.equals(other.scaleDownGroupName)) {
          return false;
       }
       return true;

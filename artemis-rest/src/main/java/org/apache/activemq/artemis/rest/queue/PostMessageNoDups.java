@@ -26,12 +26,10 @@ import javax.ws.rs.core.UriInfo;
 /**
  * implements reliable "create", "create-next" pattern defined by REST-* Messaging specificaiton
  */
-public class PostMessageNoDups extends PostMessage
-{
+public class PostMessageNoDups extends PostMessage {
 
    @POST
-   public Response redirectCreation(@Context UriInfo uriInfo)
-   {
+   public Response redirectCreation(@Context UriInfo uriInfo) {
       ActiveMQRestLogger.LOGGER.debug("Handling POST request for \"" + uriInfo.getPath() + "\"");
 
       String id = generateDupId();

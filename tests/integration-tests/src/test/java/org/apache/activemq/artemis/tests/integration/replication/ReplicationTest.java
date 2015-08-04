@@ -92,8 +92,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public final class ReplicationTest extends ActiveMQTestBase
-{
+public final class ReplicationTest extends ActiveMQTestBase {
 
    private ThreadFactory tFactory;
    private ExecutorService executor;
@@ -111,29 +110,25 @@ public final class ReplicationTest extends ActiveMQTestBase
    private ReplicationManager manager;
    private static final SimpleString ADDRESS = new SimpleString("foobar123");
 
-
-   private void setupServer(boolean backup, String... interceptors) throws Exception
-   {
+   private void setupServer(boolean backup, String... interceptors) throws Exception {
       this.setupServer(false, backup, null, interceptors);
    }
 
-   private void setupServer(boolean useNetty, boolean backup,
+   private void setupServer(boolean useNetty,
+                            boolean backup,
                             ExtraConfigurer extraConfig,
-                            String... incomingInterceptors) throws Exception
-   {
+                            String... incomingInterceptors) throws Exception {
       TransportConfiguration liveConnector = null;
       TransportConfiguration liveAcceptor = null;
       TransportConfiguration backupConnector = null;
       TransportConfiguration backupAcceptor = null;
-      if (useNetty)
-      {
+      if (useNetty) {
          liveConnector = TransportConfigurationUtils.getNettyConnector(true, 0);
          liveAcceptor = TransportConfigurationUtils.getNettyAcceptor(true, 0);
          backupConnector = TransportConfigurationUtils.getNettyConnector(false, 0);
          backupAcceptor = TransportConfigurationUtils.getNettyAcceptor(false, 0);
       }
-      else
-      {
+      else {
          liveConnector = TransportConfigurationUtils.getInVMConnector(true);
          backupConnector = TransportConfigurationUtils.getInVMConnector(false);
          backupAcceptor = TransportConfigurationUtils.getInVMAcceptor(false);
@@ -141,96 +136,76 @@ public final class ReplicationTest extends ActiveMQTestBase
 
       Configuration liveConfig = createDefaultInVMConfig();
 
-      Configuration backupConfig = createDefaultInVMConfig()
-         .setHAPolicyConfiguration(new SharedStoreSlavePolicyConfiguration())
-         .setBindingsDirectory(getBindingsDir(0, true))
-         .setJournalDirectory(getJournalDir(0, true))
-         .setPagingDirectory(getPageDir(0, true))
-         .setLargeMessagesDirectory(getLargeMessagesDir(0, true))
-         .setIncomingInterceptorClassNames(incomingInterceptors.length > 0 ? Arrays.asList(incomingInterceptors) : new ArrayList<String>());
+      Configuration backupConfig = createDefaultInVMConfig().setHAPolicyConfiguration(new SharedStoreSlavePolicyConfiguration()).setBindingsDirectory(getBindingsDir(0, true)).setJournalDirectory(getJournalDir(0, true)).setPagingDirectory(getPageDir(0, true)).setLargeMessagesDirectory(getLargeMessagesDir(0, true)).setIncomingInterceptorClassNames(incomingInterceptors.length > 0 ? Arrays.asList(incomingInterceptors) : new ArrayList<String>());
 
       ReplicatedBackupUtils.configureReplicationPair(backupConfig, backupConnector, backupAcceptor, liveConfig, liveConnector, liveAcceptor);
 
-      if (extraConfig != null)
-      {
+      if (extraConfig != null) {
          extraConfig.config(liveConfig, backupConfig);
       }
 
-      if (backup)
-      {
+      if (backup) {
          liveServer = createServer(liveConfig);
          liveServer.start();
          waitForComponent(liveServer);
       }
 
       backupServer = createServer(backupConfig);
-      if (useNetty)
-      {
+      if (useNetty) {
          locator = createNettyNonHALocator();
       }
-      else
-      {
+      else {
          locator = createInVMNonHALocator();
       }
 
       backupServer.start();
-      if (backup)
-      {
+      if (backup) {
          ActiveMQTestBase.waitForRemoteBackup(null, 5, true, backupServer);
       }
       int count = 0;
       waitForReplication(count);
    }
 
-   private void waitForReplication(int count) throws InterruptedException
-   {
+   private void waitForReplication(int count) throws InterruptedException {
       if (liveServer == null)
          return;
 
-      while (liveServer.getReplicationManager() == null && count < 10)
-      {
+      while (liveServer.getReplicationManager() == null && count < 10) {
          Thread.sleep(50);
          count++;
       }
    }
 
-   private static void waitForComponent(ActiveMQComponent component) throws Exception
-   {
+   private static void waitForComponent(ActiveMQComponent component) throws Exception {
       waitForComponent(component, 3);
    }
 
    @Test
-   public void testBasicConnection() throws Exception
-   {
+   public void testBasicConnection() throws Exception {
       setupServer(true);
       waitForComponent(liveServer.getReplicationManager());
    }
 
    @Test
-   public void testConnectIntoNonBackup() throws Exception
-   {
+   public void testConnectIntoNonBackup() throws Exception {
       setupServer(false);
-      try
-      {
+      try {
          ClientSessionFactory sf = createSessionFactory(locator);
          manager = new ReplicationManager((CoreRemotingConnection) sf.getConnection(), factory);
          addActiveMQComponent(manager);
          manager.start();
          Assert.fail("Exception was expected");
       }
-      catch (ActiveMQNotConnectedException nce)
-      {
+      catch (ActiveMQNotConnectedException nce) {
          // ok
       }
-      catch (ActiveMQException expected)
-      {
+      catch (ActiveMQException expected) {
          fail("Invalid Exception type:" + expected.getType());
       }
    }
 
    @Test
-   public void testSendPackets() throws Exception
-   {
+   public void testSendPackets() throws Exception {
       setupServer(true);
 
       StorageManager storage = getStorage();
@@ -272,9 +247,7 @@ public final class ReplicationTest extends ActiveMQTestBase
 
       blockOnReplication(storage, manager);
 
-      PagingManager pagingManager =
-         createPageManager(backupServer.getStorageManager(), backupServer.getConfiguration(),
-                           backupServer.getExecutorFactory(), backupServer.getAddressSettingsRepository());
+      PagingManager pagingManager = createPageManager(backupServer.getStorageManager(), backupServer.getConfiguration(), backupServer.getExecutorFactory(), backupServer.getAddressSettingsRepository());
 
       PagingStore store = pagingManager.getPageStore(dummy);
       store.start();
@@ -311,8 +284,7 @@ public final class ReplicationTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testSendPacketsWithFailure() throws Exception
-   {
+   public void testSendPacketsWithFailure() throws Exception {
       final int nMsg = 100;
       final int stop = 37;
       setupServer(true, TestInterceptor.class.getName());
@@ -328,18 +300,15 @@ public final class ReplicationTest extends ActiveMQTestBase
 
       session.start();
       session2.start();
-      try
-      {
+      try {
          final ClientConsumer consumer = session2.createConsumer(ADDRESS);
-         for (int i = 0; i < nMsg; i++)
-         {
+         for (int i = 0; i < nMsg; i++) {
 
             ClientMessage message = session.createMessage(true);
             setBody(i, message);
             message.putIntProperty("counter", i);
             producer.send(message);
-            if (i == stop)
-            {
+            if (i == stop) {
                // Now we start intercepting the communication with the backup
                TestInterceptor.value.set(false);
             }
@@ -350,8 +319,7 @@ public final class ReplicationTest extends ActiveMQTestBase
             msgRcvd.acknowledge();
          }
       }
-      finally
-      {
+      finally {
          TestInterceptor.value.set(false);
          if (!session.isClosed())
             session.close();
@@ -361,8 +329,7 @@ public final class ReplicationTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testExceptionSettingActionBefore() throws Exception
-   {
+   public void testExceptionSettingActionBefore() throws Exception {
       OperationContext ctx = OperationContextImpl.getContext(factory);
 
       ctx.storeLineUp();
@@ -377,17 +344,14 @@ public final class ReplicationTest extends ActiveMQTestBase
 
       final CountDownLatch latch = new CountDownLatch(1);
 
-      ctx.executeOnCompletion(new IOCallback()
-      {
-         public void onError(final int errorCode, final String errorMessage)
-         {
+      ctx.executeOnCompletion(new IOCallback() {
+         public void onError(final int errorCode, final String errorMessage) {
             lastError.set(errorCode);
             msgsResult.add(errorMessage);
             latch.countDown();
          }
 
-         public void done()
-         {
+         public void done() {
          }
       });
 
@@ -402,17 +366,14 @@ public final class ReplicationTest extends ActiveMQTestBase
       final CountDownLatch latch2 = new CountDownLatch(1);
 
       // Adding the Task after the exception should still throw an exception
-      ctx.executeOnCompletion(new IOCallback()
-      {
-         public void onError(final int errorCode, final String errorMessage)
-         {
+      ctx.executeOnCompletion(new IOCallback() {
+         public void onError(final int errorCode, final String errorMessage) {
             lastError.set(errorCode);
             msgsResult.add(errorMessage);
             latch2.countDown();
          }
 
-         public void done()
-         {
+         public void done() {
          }
       });
 
@@ -426,14 +387,11 @@ public final class ReplicationTest extends ActiveMQTestBase
 
       final CountDownLatch latch3 = new CountDownLatch(1);
 
-      ctx.executeOnCompletion(new IOCallback()
-      {
-         public void onError(final int errorCode, final String errorMessage)
-         {
+      ctx.executeOnCompletion(new IOCallback() {
+         public void onError(final int errorCode, final String errorMessage) {
          }
 
-         public void done()
-         {
+         public void done() {
             latch3.countDown();
          }
       });
@@ -443,16 +401,14 @@ public final class ReplicationTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testClusterConnectionConfigs() throws Exception
-   {
+   public void testClusterConnectionConfigs() throws Exception {
       final long ttlOverride = 123456789;
       final long checkPeriodOverride = 987654321;
 
       ExtraConfigurer configurer = new ExtraConfigurer() {
 
          @Override
-         public void config(Configuration liveConfig, Configuration backupConfig)
-         {
+         public void config(Configuration liveConfig, Configuration backupConfig) {
             List<ClusterConnectionConfiguration> ccList = backupConfig.getClusterConfigurations();
             assertTrue(ccList.size() > 0);
             ClusterConnectionConfiguration cc = ccList.get(0);
@@ -477,26 +433,21 @@ public final class ReplicationTest extends ActiveMQTestBase
     * @return
     * @throws Exception
     */
-   private JournalStorageManager getStorage() throws Exception
-   {
+   private JournalStorageManager getStorage() throws Exception {
       return new JournalStorageManager(createDefaultInVMConfig(), factory, null);
    }
 
    /**
     * @param manager1
     */
-   private void blockOnReplication(final StorageManager storage, final ReplicationManager manager1) throws Exception
-   {
+   private void blockOnReplication(final StorageManager storage, final ReplicationManager manager1) throws Exception {
       final CountDownLatch latch = new CountDownLatch(1);
-      storage.afterCompleteOperations(new IOCallback()
-      {
+      storage.afterCompleteOperations(new IOCallback() {
 
-         public void onError(final int errorCode, final String errorMessage)
-         {
+         public void onError(final int errorCode, final String errorMessage) {
          }
 
-         public void done()
-         {
+         public void done() {
             latch.countDown();
          }
       });
@@ -505,8 +456,7 @@ public final class ReplicationTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testNoActions() throws Exception
-   {
+   public void testNoActions() throws Exception {
 
       setupServer(true);
       StorageManager storage = getStorage();
@@ -518,15 +468,12 @@ public final class ReplicationTest extends ActiveMQTestBase
       replicatedJournal.appendPrepareRecord(1, new FakeData(), false);
 
       final CountDownLatch latch = new CountDownLatch(1);
-      storage.afterCompleteOperations(new IOCallback()
-      {
+      storage.afterCompleteOperations(new IOCallback() {
 
-         public void onError(final int errorCode, final String errorMessage)
-         {
+         public void onError(final int errorCode, final String errorMessage) {
          }
 
-         public void done()
-         {
+         public void done() {
             latch.countDown();
          }
       });
@@ -537,8 +484,7 @@ public final class ReplicationTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testOrderOnNonPersistency() throws Exception
-   {
+   public void testOrderOnNonPersistency() throws Exception {
 
       setupServer(true);
 
@@ -554,24 +500,19 @@ public final class ReplicationTest extends ActiveMQTestBase
 
       OperationContext ctx = storage.getContext();
 
-      for (int i = 0; i < numberOfAdds; i++)
-      {
+      for (int i = 0; i < numberOfAdds; i++) {
          final int nAdd = i;
 
-         if (i % 2 == 0)
-         {
+         if (i % 2 == 0) {
             replicatedJournal.appendPrepareRecord(i, new FakeData(), false);
          }
 
-         ctx.executeOnCompletion(new IOCallback()
-         {
+         ctx.executeOnCompletion(new IOCallback() {
 
-            public void onError(final int errorCode, final String errorMessage)
-            {
+            public void onError(final int errorCode, final String errorMessage) {
             }
 
-            public void done()
-            {
+            public void done() {
                executions.add(nAdd);
                latch.countDown();
             }
@@ -580,28 +521,23 @@ public final class ReplicationTest extends ActiveMQTestBase
 
       Assert.assertTrue(latch.await(10, TimeUnit.SECONDS));
 
-      for (int i = 0; i < numberOfAdds; i++)
-      {
+      for (int i = 0; i < numberOfAdds; i++) {
          Assert.assertEquals(i, executions.get(i).intValue());
       }
 
       Assert.assertEquals(0, manager.getActiveTokens().size());
    }
 
-   class FakeData implements EncodingSupport
-   {
+   class FakeData implements EncodingSupport {
 
-      public void decode(final ActiveMQBuffer buffer)
-      {
+      public void decode(final ActiveMQBuffer buffer) {
       }
 
-      public void encode(final ActiveMQBuffer buffer)
-      {
+      public void encode(final ActiveMQBuffer buffer) {
          buffer.writeBytes(new byte[5]);
       }
 
-      public int getEncodeSize()
-      {
+      public int getEncodeSize() {
          return 5;
       }
 
@@ -609,8 +545,7 @@ public final class ReplicationTest extends ActiveMQTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       tFactory = new ActiveMQThreadFactory("ActiveMQ-ReplicationTest", false, this.getClass().getClassLoader());
@@ -628,8 +563,7 @@ public final class ReplicationTest extends ActiveMQTestBase
     */
    @Override
    @After
-   public void tearDown() throws Exception
-   {
+   public void tearDown() throws Exception {
       stopComponent(manager);
       manager = null;
       closeServerLocator(locator);
@@ -650,13 +584,9 @@ public final class ReplicationTest extends ActiveMQTestBase
    protected PagingManager createPageManager(final StorageManager storageManager,
                                              final Configuration configuration,
                                              final ExecutorFactory executorFactory,
-                                             final HierarchicalRepository<AddressSettings> addressSettingsRepository) throws Exception
-   {
+                                             final HierarchicalRepository<AddressSettings> addressSettingsRepository) throws Exception {
 
-      PagingManager paging = new PagingManagerImpl(new PagingStoreFactoryNIO(storageManager, configuration.getPagingLocation(),
-                                                                             1000, null,
-                                                                             executorFactory, false, null),
-                                                   addressSettingsRepository);
+      PagingManager paging = new PagingManagerImpl(new PagingStoreFactoryNIO(storageManager, configuration.getPagingLocation(), 1000, null, executorFactory, false, null), addressSettingsRepository);
 
       paging.start();
       return paging;
@@ -665,171 +595,153 @@ public final class ReplicationTest extends ActiveMQTestBase
    // Private -------------------------------------------------------
 
    // Inner classes -------------------------------------------------
-   public static final class TestInterceptor implements Interceptor
-   {
+   public static final class TestInterceptor implements Interceptor {
+
       static AtomicBoolean value = new AtomicBoolean(true);
 
-      public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException
-      {
+      public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException {
          return TestInterceptor.value.get();
       }
 
    }
 
-   static final class FakeJournal implements Journal
-   {
+   static final class FakeJournal implements Journal {
 
-      public void
-      appendAddRecord(final long id, final byte recordType, final byte[] record, final boolean sync) throws Exception
-      {
+      public void appendAddRecord(final long id,
+                                  final byte recordType,
+                                  final byte[] record,
+                                  final boolean sync) throws Exception {
 
       }
 
       public void appendAddRecord(final long id,
                                   final byte recordType,
                                   final EncodingSupport record,
-                                  final boolean sync) throws Exception
-      {
+                                  final boolean sync) throws Exception {
 
       }
 
       public void appendAddRecordTransactional(final long txID,
                                                final long id,
                                                final byte recordType,
-                                               final byte[] record) throws Exception
-      {
+                                               final byte[] record) throws Exception {
 
       }
 
       public void appendAddRecordTransactional(final long txID,
                                                final long id,
                                                final byte recordType,
-                                               final EncodingSupport record) throws Exception
-      {
+                                               final EncodingSupport record) throws Exception {
 
       }
 
-      public void appendCommitRecord(final long txID, final boolean sync) throws Exception
-      {
+      public void appendCommitRecord(final long txID, final boolean sync) throws Exception {
 
       }
 
-      public void appendDeleteRecord(final long id, final boolean sync) throws Exception
-      {
+      public void appendDeleteRecord(final long id, final boolean sync) throws Exception {
 
       }
 
-      public void appendDeleteRecordTransactional(final long txID, final long id, final byte[] record) throws Exception
-      {
+      public void appendDeleteRecordTransactional(final long txID,
+                                                  final long id,
+                                                  final byte[] record) throws Exception {
 
       }
 
-      public void
-      appendDeleteRecordTransactional(final long txID, final long id, final EncodingSupport record) throws Exception
-      {
+      public void appendDeleteRecordTransactional(final long txID,
+                                                  final long id,
+                                                  final EncodingSupport record) throws Exception {
 
       }
 
-      public void appendDeleteRecordTransactional(final long txID, final long id) throws Exception
-      {
+      public void appendDeleteRecordTransactional(final long txID, final long id) throws Exception {
 
       }
 
-      public void
-      appendPrepareRecord(final long txID, final EncodingSupport transactionData, final boolean sync) throws Exception
-      {
+      public void appendPrepareRecord(final long txID,
+                                      final EncodingSupport transactionData,
+                                      final boolean sync) throws Exception {
 
       }
 
-      public void
-      appendPrepareRecord(final long txID, final byte[] transactionData, final boolean sync) throws Exception
-      {
+      public void appendPrepareRecord(final long txID,
+                                      final byte[] transactionData,
+                                      final boolean sync) throws Exception {
 
       }
 
-      public void appendRollbackRecord(final long txID, final boolean sync) throws Exception
-      {
+      public void appendRollbackRecord(final long txID, final boolean sync) throws Exception {
 
       }
 
-      public void
-      appendUpdateRecord(final long id, final byte recordType, final byte[] record, final boolean sync) throws Exception
-      {
+      public void appendUpdateRecord(final long id,
+                                     final byte recordType,
+                                     final byte[] record,
+                                     final boolean sync) throws Exception {
 
       }
 
       public void appendUpdateRecord(final long id,
                                      final byte recordType,
                                      final EncodingSupport record,
-                                     final boolean sync) throws Exception
-      {
+                                     final boolean sync) throws Exception {
 
       }
 
       public void appendUpdateRecordTransactional(final long txID,
                                                   final long id,
                                                   final byte recordType,
-                                                  final byte[] record) throws Exception
-      {
+                                                  final byte[] record) throws Exception {
 
       }
 
       public void appendUpdateRecordTransactional(final long txID,
                                                   final long id,
                                                   final byte recordType,
-                                                  final EncodingSupport record) throws Exception
-      {
+                                                  final EncodingSupport record) throws Exception {
 
       }
 
-      public int getAlignment() throws Exception
-      {
+      public int getAlignment() throws Exception {
 
          return 0;
       }
 
-      public JournalLoadInformation load(final LoaderCallback reloadManager) throws Exception
-      {
+      public JournalLoadInformation load(final LoaderCallback reloadManager) throws Exception {
 
          return new JournalLoadInformation();
       }
 
       public JournalLoadInformation load(final List<RecordInfo> committedRecords,
                                          final List<PreparedTransactionInfo> preparedTransactions,
-                                         final TransactionFailureCallback transactionFailure) throws Exception
-      {
+                                         final TransactionFailureCallback transactionFailure) throws Exception {
 
          return new JournalLoadInformation();
       }
 
-      public void perfBlast(final int pages)
-      {
+      public void perfBlast(final int pages) {
 
       }
 
-      public boolean isStarted()
-      {
+      public boolean isStarted() {
 
          return false;
       }
 
-      public void start() throws Exception
-      {
+      public void start() throws Exception {
 
       }
 
-      public void stop() throws Exception
-      {
+      public void stop() throws Exception {
 
       }
 
-      public JournalLoadInformation loadInternalOnly() throws Exception
-      {
+      public JournalLoadInformation loadInternalOnly() throws Exception {
          return new JournalLoadInformation();
       }
 
-      public int getNumberOfRecords()
-      {
+      public int getNumberOfRecords() {
          return 0;
       }
 
@@ -837,133 +749,117 @@ public final class ReplicationTest extends ActiveMQTestBase
                                   final byte recordType,
                                   final EncodingSupport record,
                                   final boolean sync,
-                                  final IOCompletion completionCallback) throws Exception
-      {
+                                  final IOCompletion completionCallback) throws Exception {
       }
 
-      public void appendCommitRecord(final long txID, final boolean sync, final IOCompletion callback) throws Exception
-      {
+      public void appendCommitRecord(final long txID,
+                                     final boolean sync,
+                                     final IOCompletion callback) throws Exception {
       }
 
-      public void
-      appendDeleteRecord(final long id, final boolean sync, final IOCompletion completionCallback) throws Exception
-      {
+      public void appendDeleteRecord(final long id,
+                                     final boolean sync,
+                                     final IOCompletion completionCallback) throws Exception {
       }
 
       public void appendPrepareRecord(final long txID,
                                       final EncodingSupport transactionData,
                                       final boolean sync,
-                                      final IOCompletion callback) throws Exception
-      {
+                                      final IOCompletion callback) throws Exception {
       }
 
-      public void
-      appendRollbackRecord(final long txID, final boolean sync, final IOCompletion callback) throws Exception
-      {
+      public void appendRollbackRecord(final long txID,
+                                       final boolean sync,
+                                       final IOCompletion callback) throws Exception {
       }
 
       public void appendUpdateRecord(final long id,
                                      final byte recordType,
                                      final EncodingSupport record,
                                      final boolean sync,
-                                     final IOCompletion completionCallback) throws Exception
-      {
+                                     final IOCompletion completionCallback) throws Exception {
       }
 
-      public void sync(final IOCompletion callback)
-      {
+      public void sync(final IOCompletion callback) {
       }
 
-      public void runDirectJournalBlast() throws Exception
-      {
+      public void runDirectJournalBlast() throws Exception {
       }
 
-      public int getUserVersion()
-      {
+      public int getUserVersion() {
          return 0;
       }
 
       @Override
-      public void
-      appendCommitRecord(long txID, boolean sync, IOCompletion callback, boolean lineUpContext) throws Exception
-      {
+      public void appendCommitRecord(long txID,
+                                     boolean sync,
+                                     IOCompletion callback,
+                                     boolean lineUpContext) throws Exception {
 
       }
 
       @Override
-      public void lineUpContext(IOCompletion callback)
-      {
+      public void lineUpContext(IOCompletion callback) {
 
       }
 
       @Override
-      public JournalLoadInformation loadSyncOnly(JournalState s) throws Exception
-      {
+      public JournalLoadInformation loadSyncOnly(JournalState s) throws Exception {
          return null;
       }
 
       @Override
-      public Map<Long, JournalFile> createFilesForBackupSync(long[] fileIds) throws Exception
-      {
+      public Map<Long, JournalFile> createFilesForBackupSync(long[] fileIds) throws Exception {
          return null;
       }
 
       @Override
-      public void synchronizationLock()
-      {
+      public void synchronizationLock() {
 
       }
 
       @Override
-      public void synchronizationUnlock()
-      {
+      public void synchronizationUnlock() {
 
       }
 
       @Override
-      public void forceMoveNextFile() throws Exception
-      {
+      public void forceMoveNextFile() throws Exception {
 
       }
 
       @Override
-      public JournalFile[] getDataFiles()
-      {
+      public JournalFile[] getDataFiles() {
          return null;
       }
 
       @Override
-      public SequentialFileFactory getFileFactory()
-      {
+      public SequentialFileFactory getFileFactory() {
          return null;
       }
 
       @Override
-      public int getFileSize()
-      {
+      public int getFileSize() {
          return 0;
       }
 
       @Override
-      public void scheduleCompactAndBlock(int timeout) throws Exception
-      {
+      public void scheduleCompactAndBlock(int timeout) throws Exception {
       }
 
       @Override
-      public void replicationSyncPreserveOldFiles()
-      {
+      public void replicationSyncPreserveOldFiles() {
          // no-op
       }
 
       @Override
-      public void replicationSyncFinished()
-      {
+      public void replicationSyncFinished() {
          // no-op
       }
    }
 
-   private interface ExtraConfigurer
-   {
+   private interface ExtraConfigurer {
+
       void config(Configuration liveConfig, Configuration backupConfig);
    }
 }

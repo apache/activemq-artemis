@@ -16,9 +16,7 @@
  */
 package org.apache.activemq.artemis.core.config;
 
-
-public enum BackupStrategy
-{
+public enum BackupStrategy {
    FULL,
    SCALE_DOWN
 }

@@ -24,56 +24,45 @@ import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 
-public class MessageSender
-{
+public class MessageSender {
+
    private ConnectionFactory connectionFactory;
    private Destination destination;
 
-   public ConnectionFactory getConnectionFactory()
-   {
+   public ConnectionFactory getConnectionFactory() {
       return connectionFactory;
    }
 
-   public void setConnectionFactory(ConnectionFactory connectionFactory)
-   {
+   public void setConnectionFactory(ConnectionFactory connectionFactory) {
       this.connectionFactory = connectionFactory;
    }
 
-   public Destination getDestination()
-   {
+   public Destination getDestination() {
       return destination;
    }
 
-   public void setDestination(Destination destination)
-   {
+   public void setDestination(Destination destination) {
       this.destination = destination;
    }
 
-   public void send(String msg)
-   {
+   public void send(String msg) {
       Connection conn = null;
-      try
-      {
+      try {
          conn = connectionFactory.createConnection();
          Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
          MessageProducer producer = session.createProducer(destination);
          TextMessage message = session.createTextMessage(msg);
          producer.send(message);
       }
-      catch (Exception ex)
-      {
+      catch (Exception ex) {
          ex.printStackTrace();
       }
-      finally
-      {
-         if (conn != null)
-         {
-            try
-            {
+      finally {
+         if (conn != null) {
+            try {
                conn.close();
             }
-            catch (JMSException e)
-            {
+            catch (JMSException e) {
                e.printStackTrace();
             }
          }

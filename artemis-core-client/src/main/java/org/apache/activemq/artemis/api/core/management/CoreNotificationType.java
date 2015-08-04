@@ -19,8 +19,7 @@ package org.apache.activemq.artemis.api.core.management;
 /**
  * This enum defines all core notification types
  */
-public enum CoreNotificationType implements NotificationType
-{
+public enum CoreNotificationType implements NotificationType {
    BINDING_ADDED(0),
    BINDING_REMOVED(1),
    CONSUMER_CREATED(2),
@@ -44,13 +43,11 @@ public enum CoreNotificationType implements NotificationType
 
    private final int value;
 
-   private CoreNotificationType(final int value)
-   {
+   private CoreNotificationType(final int value) {
       this.value = value;
    }
 
-   public int getType()
-   {
+   public int getType() {
       return value;
    }
 }

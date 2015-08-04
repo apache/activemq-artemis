@@ -27,49 +27,49 @@ import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.ActiveMQSession;
 import org.apache.activemq.command.ActiveMQBlobMessage;
 
-
 public class FTPBlobUploadStrategyTest extends FTPTestSupport {
 
-    public void testFileUpload() throws Exception {
-        setConnection();
-        File file = File.createTempFile("amq-data-file-", ".dat");
-        // lets write some data
-        BufferedWriter writer = new BufferedWriter(new FileWriter(file));
-        writer.append("hello world");
-        writer.close();
+   public void testFileUpload() throws Exception {
+      setConnection();
+      File file = File.createTempFile("amq-data-file-", ".dat");
+      // lets write some data
+      BufferedWriter writer = new BufferedWriter(new FileWriter(file));
+      writer.append("hello world");
+      writer.close();
 
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        ((ActiveMQConnection)connection).setCopyMessageOnSend(false);
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      ((ActiveMQConnection) connection).setCopyMessageOnSend(false);
 
-        ActiveMQBlobMessage message = (ActiveMQBlobMessage) ((ActiveMQSession)session).createBlobMessage(file);
-        message.setJMSMessageID("testmessage");
-        message.onSend();
-        assertEquals(ftpUrl + "ID_testmessage", message.getURL().toString());
-        File uploaded = new File(ftpHomeDirFile, "ID_testmessage");
-        assertTrue("File doesn't exists", uploaded.exists());
-    }
+      ActiveMQBlobMessage message = (ActiveMQBlobMessage) ((ActiveMQSession) session).createBlobMessage(file);
+      message.setJMSMessageID("testmessage");
+      message.onSend();
+      assertEquals(ftpUrl + "ID_testmessage", message.getURL().toString());
+      File uploaded = new File(ftpHomeDirFile, "ID_testmessage");
+      assertTrue("File doesn't exists", uploaded.exists());
+   }
 
-    public void testWriteDenied() throws Exception {
-        userNamePass = "guest";
-        setConnection();
-        File file = File.createTempFile("amq-data-file-", ".dat");
-        // lets write some data
-        BufferedWriter writer = new BufferedWriter(new FileWriter(file));
-        writer.append("hello world");
-        writer.close();
+   public void testWriteDenied() throws Exception {
+      userNamePass = "guest";
+      setConnection();
+      File file = File.createTempFile("amq-data-file-", ".dat");
+      // lets write some data
+      BufferedWriter writer = new BufferedWriter(new FileWriter(file));
+      writer.append("hello world");
+      writer.close();
 
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        ((ActiveMQConnection)connection).setCopyMessageOnSend(false);
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      ((ActiveMQConnection) connection).setCopyMessageOnSend(false);
 
-        ActiveMQBlobMessage message = (ActiveMQBlobMessage) ((ActiveMQSession)session).createBlobMessage(file);
-        message.setJMSMessageID("testmessage");
-        try {
-            message.onSend();
-        } catch (JMSException e) {
-            e.printStackTrace();
-            return;
-        }
-        fail("Should have failed with permission denied exception!");
-    }
+      ActiveMQBlobMessage message = (ActiveMQBlobMessage) ((ActiveMQSession) session).createBlobMessage(file);
+      message.setJMSMessageID("testmessage");
+      try {
+         message.onSend();
+      }
+      catch (JMSException e) {
+         e.printStackTrace();
+         return;
+      }
+      fail("Should have failed with permission denied exception!");
+   }
 
 }

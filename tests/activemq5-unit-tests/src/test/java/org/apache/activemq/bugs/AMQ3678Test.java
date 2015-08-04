@@ -31,6 +31,7 @@ import javax.jms.Message;
 import javax.jms.MessageListener;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
+
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.ActiveMQTopicSubscriber;
 import org.apache.activemq.broker.BrokerService;
@@ -39,182 +40,176 @@ import org.apache.activemq.command.ActiveMQTopic;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.fail;
 
+import static org.junit.Assert.fail;
 
 public class AMQ3678Test implements MessageListener {
 
-    public int deliveryMode = DeliveryMode.NON_PERSISTENT;
+   public int deliveryMode = DeliveryMode.NON_PERSISTENT;
 
+   private BrokerService broker;
 
-    private BrokerService broker;
+   AtomicInteger messagesSent = new AtomicInteger(0);
+   AtomicInteger messagesReceived = new AtomicInteger(0);
 
-    AtomicInteger messagesSent = new AtomicInteger(0);
-    AtomicInteger messagesReceived = new AtomicInteger(0);
+   ActiveMQTopic destination = new ActiveMQTopic("XYZ");
 
-    ActiveMQTopic destination = new ActiveMQTopic("XYZ");
+   int port;
+   int jmxport;
 
-    int port;
-    int jmxport;
+   final CountDownLatch latch = new CountDownLatch(2);
 
+   public static void main(String[] args) throws Exception {
 
-    final CountDownLatch latch = new CountDownLatch(2);
+   }
 
+   public static int findFreePort() throws IOException {
+      ServerSocket socket = null;
 
-    public static void main(String[] args) throws Exception {
+      try {
+         // 0 is open a socket on any free port
+         socket = new ServerSocket(0);
+         return socket.getLocalPort();
+      }
+      finally {
+         if (socket != null) {
+            socket.close();
+         }
+      }
+   }
 
-    }
+   @Test
+   public void countConsumers() throws JMSException {
+      ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("tcp://localhost:" + port);
+      factory.setAlwaysSyncSend(true);
+      factory.setDispatchAsync(false);
 
+      final Connection producerConnection = factory.createConnection();
+      producerConnection.start();
 
-    public static int findFreePort() throws IOException {
-        ServerSocket socket = null;
+      final Connection consumerConnection = factory.createConnection();
 
-        try {
-            // 0 is open a socket on any free port
-            socket = new ServerSocket(0);
-            return socket.getLocalPort();
-        } finally {
-            if (socket != null) {
-                socket.close();
+      consumerConnection.setClientID("subscriber1");
+      Session consumerMQSession = consumerConnection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
+
+      ActiveMQTopicSubscriber activeConsumer = (ActiveMQTopicSubscriber) consumerMQSession.createDurableSubscriber(destination, "myTopic?consumer.prefetchSize=1");
+
+      activeConsumer.setMessageListener(this);
+
+      consumerConnection.start();
+
+      final Session producerSession = producerConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      final MessageProducer producer = producerSession.createProducer(destination);
+      producer.setDeliveryMode(deliveryMode);
+
+      Thread t = new Thread(new Runnable() {
+
+         private boolean done = false;
+
+         public void run() {
+            while (!done) {
+               if (messagesSent.get() == 50) {
+                  try {
+                     broker.getAdminView().removeTopic(destination.getTopicName());
+                  }
+                  catch (Exception e1) {
+                     // TODO Auto-generated catch block
+                     e1.printStackTrace();
+                     System.err.flush();
+                     fail("Unable to remove destination:" + destination.getPhysicalName());
+                  }
+               }
+
+               try {
+                  producer.send(producerSession.createTextMessage());
+                  int val = messagesSent.incrementAndGet();
+
+                  System.out.println("sent message (" + val + ")");
+                  System.out.flush();
+
+                  if (val == 100) {
+                     done = true;
+                     latch.countDown();
+                     producer.close();
+                     producerSession.close();
+
+                  }
+               }
+               catch (JMSException e) {
+                  // TODO Auto-generated catch block
+                  e.printStackTrace();
+               }
             }
-        }
-    }
+         }
+      });
 
+      t.start();
 
-    @Test
-    public void countConsumers() throws JMSException {
-        ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("tcp://localhost:" + port);
-        factory.setAlwaysSyncSend(true);
-        factory.setDispatchAsync(false);
+      try {
+         if (!latch.await(10, TimeUnit.SECONDS)) {
+            fail("did not receive all the messages");
+         }
+      }
+      catch (InterruptedException e) {
+         // TODO Auto-generated catch block
+         fail("did not receive all the messages, exception waiting for latch");
+         e.printStackTrace();
+      }
 
-        final Connection producerConnection = factory.createConnection();
-        producerConnection.start();
+      //
 
-        final Connection consumerConnection = factory.createConnection();
+   }
 
-        consumerConnection.setClientID("subscriber1");
-        Session consumerMQSession = consumerConnection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
+   @Before
+   public void setUp() throws Exception {
 
-        ActiveMQTopicSubscriber activeConsumer = (ActiveMQTopicSubscriber) consumerMQSession.createDurableSubscriber(destination, "myTopic?consumer.prefetchSize=1");
+      try {
+         port = findFreePort();
+         jmxport = findFreePort();
+      }
+      catch (Exception e) {
+         fail("Unable to obtain a free port on which to start the broker");
+      }
 
-        activeConsumer.setMessageListener(this);
+      System.out.println("Starting broker");
+      System.out.flush();
+      broker = new BrokerService();
+      broker.setPersistent(false);
+      ManagementContext ctx = new ManagementContext(ManagementFactory.getPlatformMBeanServer());
+      ctx.setConnectorPort(jmxport);
+      broker.setManagementContext(ctx);
+      broker.setUseJmx(true);
+      //        broker.setAdvisorySupport(false);
+      //        broker.setDeleteAllMessagesOnStartup(true);
 
-        consumerConnection.start();
+      broker.addConnector("tcp://localhost:" + port).setName("Default");
+      broker.start();
 
+      System.out.println("End of Broker Setup");
+      System.out.flush();
+   }
 
-        final Session producerSession = producerConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        final MessageProducer producer = producerSession.createProducer(destination);
-        producer.setDeliveryMode(deliveryMode);
+   @After
+   public void tearDown() throws Exception {
+      broker.stop();
+   }
 
-        Thread t = new Thread(new Runnable() {
+   @Override
+   public void onMessage(Message message) {
+      try {
+         message.acknowledge();
+         int val = messagesReceived.incrementAndGet();
+         System.out.println("received message (" + val + ")");
+         System.out.flush();
+         if (messagesReceived.get() == 100) {
+            latch.countDown();
+         }
+      }
+      catch (JMSException e) {
+         // TODO Auto-generated catch block
+         e.printStackTrace();
+      }
 
-            private boolean done = false;
-
-            public void run() {
-                while (!done) {
-                    if (messagesSent.get() == 50) {
-                        try {
-                            broker.getAdminView().removeTopic(destination.getTopicName());
-                        } catch (Exception e1) {
-                            // TODO Auto-generated catch block
-                            e1.printStackTrace();
-                            System.err.flush();
-                            fail("Unable to remove destination:"
-                                    + destination.getPhysicalName());
-                        }
-                    }
-
-                    try {
-                        producer.send(producerSession.createTextMessage());
-                        int val = messagesSent.incrementAndGet();
-
-                        System.out.println("sent message (" + val + ")");
-                        System.out.flush();
-
-                        if (val == 100) {
-                            done = true;
-                            latch.countDown();
-                            producer.close();
-                            producerSession.close();
-
-                        }
-                    } catch (JMSException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    }
-                }
-            }
-        });
-
-        t.start();
-
-        try {
-            if (!latch.await(10, TimeUnit.SECONDS)) {
-                fail("did not receive all the messages");
-            }
-        } catch (InterruptedException e) {
-            // TODO Auto-generated catch block
-            fail("did not receive all the messages, exception waiting for latch");
-            e.printStackTrace();
-        }
-
-
-//   
-
-
-    }
-
-    @Before
-    public void setUp() throws Exception {
-
-        try {
-            port = findFreePort();
-            jmxport = findFreePort();
-        } catch (Exception e) {
-            fail("Unable to obtain a free port on which to start the broker");
-        }
-
-        System.out.println("Starting broker");
-        System.out.flush();
-        broker = new BrokerService();
-        broker.setPersistent(false);
-        ManagementContext ctx = new ManagementContext(ManagementFactory.getPlatformMBeanServer());
-        ctx.setConnectorPort(jmxport);
-        broker.setManagementContext(ctx);
-        broker.setUseJmx(true);
-//        broker.setAdvisorySupport(false);
-//        broker.setDeleteAllMessagesOnStartup(true);
-
-        broker.addConnector("tcp://localhost:" + port).setName("Default");
-        broker.start();
-
-
-        System.out.println("End of Broker Setup");
-        System.out.flush();
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        broker.stop();
-    }
-
-
-    @Override
-    public void onMessage(Message message) {
-        try {
-            message.acknowledge();
-            int val = messagesReceived.incrementAndGet();
-            System.out.println("received message (" + val + ")");
-            System.out.flush();
-            if (messagesReceived.get() == 100) {
-                latch.countDown();
-            }
-        } catch (JMSException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-
-    }
-
+   }
 
 }

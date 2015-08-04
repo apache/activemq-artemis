@@ -16,8 +16,8 @@
  */
 package org.apache.activemq.artemis.rest;
 
-public class HttpHeaderProperty
-{
+public class HttpHeaderProperty {
+
    public static final String CONTENT_TYPE = "http_content$type";
 
    /**
@@ -28,8 +28,7 @@ public class HttpHeaderProperty
     * @param httpHeader
     * @return
     */
-   public static String toPropertyName(String httpHeader)
-   {
+   public static String toPropertyName(String httpHeader) {
       httpHeader = httpHeader.replace('-', '$');
       return "http_" + httpHeader.toLowerCase();
    }
@@ -40,9 +39,9 @@ public class HttpHeaderProperty
     * @param name
     * @return null if property name isn't an HTTP header name.
     */
-   public static String fromPropertyName(String name)
-   {
-      if (!name.startsWith("http_")) return null;
+   public static String fromPropertyName(String name) {
+      if (!name.startsWith("http_"))
+         return null;
       return name.substring("http_".length()).replace('$', '-');
    }
 }

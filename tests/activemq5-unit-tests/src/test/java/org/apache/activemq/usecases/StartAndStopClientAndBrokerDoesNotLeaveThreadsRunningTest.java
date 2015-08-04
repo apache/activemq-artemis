@@ -24,70 +24,72 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 
 import junit.framework.TestCase;
+
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.spring.ConsumerBean;
 
 /**
- * 
- * 
+ *
+ *
  */
 public class StartAndStopClientAndBrokerDoesNotLeaveThreadsRunningTest extends TestCase {
 
-    public static interface Task {
-        void execute() throws Exception;
-    }
+   public static interface Task {
 
-    public void setUp() throws Exception {
-    }
+      void execute() throws Exception;
+   }
 
-    public void testStartAndStopClientAndBrokerAndCheckNoThreadsAreLeft() throws Exception {
-        runTest(new Task() {
+   public void setUp() throws Exception {
+   }
 
-            public void execute() throws Exception {
-                BrokerService broker = new BrokerService();
-                broker.setPersistent(false);
-                broker.start();
+   public void testStartAndStopClientAndBrokerAndCheckNoThreadsAreLeft() throws Exception {
+      runTest(new Task() {
 
-                ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("vm://localhost");
-                Connection connection = factory.createConnection();
-                connection.start();
-                Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-                Queue destination = session.createQueue(getName());
+         public void execute() throws Exception {
+            BrokerService broker = new BrokerService();
+            broker.setPersistent(false);
+            broker.start();
 
-                // consumer
-                MessageConsumer consumer = session.createConsumer(destination);
-                ConsumerBean listener = new ConsumerBean();
-                consumer.setMessageListener(listener);
+            ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("vm://localhost");
+            Connection connection = factory.createConnection();
+            connection.start();
+            Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+            Queue destination = session.createQueue(getName());
 
-                // producer
-                MessageProducer producer = session.createProducer(destination);
-                TextMessage message = session.createTextMessage("Hello World!");
-                producer.send(message);
-                producer.close();
+            // consumer
+            MessageConsumer consumer = session.createConsumer(destination);
+            ConsumerBean listener = new ConsumerBean();
+            consumer.setMessageListener(listener);
 
-                listener.assertMessagesArrived(1);
+            // producer
+            MessageProducer producer = session.createProducer(destination);
+            TextMessage message = session.createTextMessage("Hello World!");
+            producer.send(message);
+            producer.close();
 
-                consumer.close();
-                session.close();
-                connection.close();
+            listener.assertMessagesArrived(1);
 
-                broker.stop();
-            }
-        });
-    }
+            consumer.close();
+            session.close();
+            connection.close();
 
-    public void runTest(Task task) throws Exception {
-        int before = Thread.currentThread().getThreadGroup().activeCount();
+            broker.stop();
+         }
+      });
+   }
 
-        task.execute();
+   public void runTest(Task task) throws Exception {
+      int before = Thread.currentThread().getThreadGroup().activeCount();
 
-        Thread.yield();
-        // need to wait for slow servers
-        Thread.sleep(5000);
+      task.execute();
 
-        int after = Thread.currentThread().getThreadGroup().activeCount();
-        int diff = Math.abs(before - after);
-        assertTrue("Should be at most one more thread. Diff = " + diff, diff + 1 <= after);
-    }
+      Thread.yield();
+      // need to wait for slow servers
+      Thread.sleep(5000);
+
+      int after = Thread.currentThread().getThreadGroup().activeCount();
+      int diff = Math.abs(before - after);
+      assertTrue("Should be at most one more thread. Diff = " + diff, diff + 1 <= after);
+   }
 }

@@ -19,7 +19,7 @@ package org.apache.activemq.artemis.core.io;
 /**
  * TODO Merge this with IOExceptionListener
  */
-public interface IOCriticalErrorListener
-{
+public interface IOCriticalErrorListener {
+
    void onIOException(Exception code, String message, SequentialFile file);
 }

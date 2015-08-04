@@ -20,42 +20,35 @@ import java.util.Hashtable;
 
 import javax.naming.InitialContext;
 
-public abstract class JNDIFactorySupport
-{
+public abstract class JNDIFactorySupport {
+
    protected Hashtable jndiProperties;
 
    protected String lookup;
 
-   protected JNDIFactorySupport(final Hashtable jndiProperties, final String lookup)
-   {
+   protected JNDIFactorySupport(final Hashtable jndiProperties, final String lookup) {
       this.jndiProperties = jndiProperties;
 
       this.lookup = lookup;
    }
 
-   protected Object createObject() throws Exception
-   {
+   protected Object createObject() throws Exception {
       InitialContext ic = null;
 
       Object obj = null;
 
-      try
-      {
-         if (jndiProperties == null)
-         {
+      try {
+         if (jndiProperties == null) {
             ic = new InitialContext();
          }
-         else
-         {
+         else {
             ic = new InitialContext(jndiProperties);
          }
 
          obj = ic.lookup(lookup);
       }
-      finally
-      {
-         if (ic != null)
-         {
+      finally {
+         if (ic != null) {
             ic.close();
          }
       }

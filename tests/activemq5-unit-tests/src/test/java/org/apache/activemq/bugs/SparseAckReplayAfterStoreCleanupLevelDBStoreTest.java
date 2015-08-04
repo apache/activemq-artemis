@@ -19,12 +19,12 @@ package org.apache.activemq.bugs;
 import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.leveldb.LevelDBStore;
 
-
 public class SparseAckReplayAfterStoreCleanupLevelDBStoreTest extends AMQ2832Test {
-    @Override
-    protected void configurePersistence(BrokerService brokerService, boolean deleteAllOnStart) throws Exception {
-        LevelDBStore store = new LevelDBStore();
-        store.setFlushDelay(0);
-        brokerService.setPersistenceAdapter(store);
-    }
+
+   @Override
+   protected void configurePersistence(BrokerService brokerService, boolean deleteAllOnStart) throws Exception {
+      LevelDBStore store = new LevelDBStore();
+      store.setFlushDelay(0);
+      brokerService.setPersistenceAdapter(store);
+   }
 }

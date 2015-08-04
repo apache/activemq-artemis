@@ -20,8 +20,7 @@ import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 
-public class Sender extends ClientAbstract
-{
+public class Sender extends ClientAbstract {
 
    // Constants -----------------------------------------------------
 
@@ -43,29 +42,23 @@ public class Sender extends ClientAbstract
 
    // Public --------------------------------------------------------
 
-   public Sender(final ClientSessionFactory sf, String queue, final Receiver[] receivers)
-   {
+   public Sender(final ClientSessionFactory sf, String queue, final Receiver[] receivers) {
       super(sf);
       this.receivers = receivers;
       this.queue = queue;
    }
 
    @Override
-   protected void connectClients() throws Exception
-   {
+   protected void connectClients() throws Exception {
       producer = session.createProducer(queue);
    }
 
-   public void run()
-   {
+   public void run() {
       super.run();
-      while (running)
-      {
-         try
-         {
+      while (running) {
+         try {
             beginTX();
-            for (int i = 0; i < 1000; i++)
-            {
+            for (int i = 0; i < 1000; i++) {
                ClientMessage msg = session.createMessage(true);
                msg.putLongProperty("count", pendingMsgs + msgs);
                msg.getBodyBuffer().writeBytes(new byte[10 * 1024]);
@@ -74,8 +67,7 @@ public class Sender extends ClientAbstract
             }
             endTX();
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             connect();
          }
       }
@@ -85,11 +77,9 @@ public class Sender extends ClientAbstract
     * @see org.apache.activemq.artemis.jms.example.ClientAbstract#onCommit()
     */
    @Override
-   protected void onCommit()
-   {
+   protected void onCommit() {
       this.msgs += pendingMsgs;
-      for (Receiver rec : receivers)
-      {
+      for (Receiver rec : receivers) {
          rec.messageProduced(pendingMsgs);
       }
 
@@ -100,13 +90,11 @@ public class Sender extends ClientAbstract
     * @see org.apache.activemq.artemis.jms.example.ClientAbstract#onRollback()
     */
    @Override
-   protected void onRollback()
-   {
+   protected void onRollback() {
       pendingMsgs = 0;
    }
 
-   public String toString()
-   {
+   public String toString() {
       return "Sender, msgs=" + msgs + ", pending=" + pendingMsgs;
 
    }

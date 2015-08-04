@@ -18,8 +18,8 @@ package org.apache.activemq.artemis.core.journal;
 
 import org.apache.activemq.artemis.core.journal.impl.JournalFile;
 
-public interface TestableJournal extends Journal
-{
+public interface TestableJournal extends Journal {
+
    int getDataFilesCount();
 
    int getFreeFilesCount();
@@ -54,10 +54,11 @@ public interface TestableJournal extends Journal
 
    /**
     * This method is called automatically when a new file is opened.
-    * <p>
+    * <br>
     * It will among other things, remove stale files and make them available for reuse.
-    * <p>
+    * <br>
     * This method locks the journal.
+    *
     * @return true if it needs to re-check due to cleanup or other factors
     */
    boolean checkReclaimStatus() throws Exception;

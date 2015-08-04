@@ -23,6 +23,7 @@ import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.Queue;
 import javax.jms.Session;
+
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.TestSupport;
 import org.apache.activemq.broker.BrokerService;
@@ -44,159 +45,160 @@ import org.slf4j.LoggerFactory;
 
 @RunWith(value = Parameterized.class)
 public class MemoryLimitTest extends TestSupport {
-    private static final Logger LOG = LoggerFactory.getLogger(MemoryLimitTest.class);
-    final byte[] payload = new byte[10 * 1024]; //10KB
-    protected BrokerService broker;
 
-    @Parameterized.Parameter
-    public TestSupport.PersistenceAdapterChoice persistenceAdapterChoice;
+   private static final Logger LOG = LoggerFactory.getLogger(MemoryLimitTest.class);
+   final byte[] payload = new byte[10 * 1024]; //10KB
+   protected BrokerService broker;
 
-    @Parameterized.Parameters(name="store={0}")
-    public static Iterable<Object[]> getTestParameters() {
-        return Arrays.asList(new Object[][]{{TestSupport.PersistenceAdapterChoice.KahaDB}, {PersistenceAdapterChoice.LevelDB}, {PersistenceAdapterChoice.JDBC}});
-    }
+   @Parameterized.Parameter
+   public TestSupport.PersistenceAdapterChoice persistenceAdapterChoice;
 
-    protected BrokerService createBroker() throws Exception {
-        BrokerService broker = new BrokerService();
-        broker.getSystemUsage().getMemoryUsage().setLimit(1 * 1024 * 1024); //1MB
-        broker.deleteAllMessages();
+   @Parameterized.Parameters(name = "store={0}")
+   public static Iterable<Object[]> getTestParameters() {
+      return Arrays.asList(new Object[][]{{TestSupport.PersistenceAdapterChoice.KahaDB}, {PersistenceAdapterChoice.LevelDB}, {PersistenceAdapterChoice.JDBC}});
+   }
 
-        PolicyMap policyMap = new PolicyMap();
-        PolicyEntry policyEntry = new PolicyEntry();
-        policyEntry.setProducerFlowControl(false);
-        policyMap.put(new ActiveMQQueue(">"), policyEntry);
-        broker.setDestinationPolicy(policyMap);
+   protected BrokerService createBroker() throws Exception {
+      BrokerService broker = new BrokerService();
+      broker.getSystemUsage().getMemoryUsage().setLimit(1 * 1024 * 1024); //1MB
+      broker.deleteAllMessages();
 
-        LOG.info("Starting broker with persistenceAdapterChoice " + persistenceAdapterChoice.toString());
-        setPersistenceAdapter(broker, persistenceAdapterChoice);
-        broker.getPersistenceAdapter().deleteAllMessages();
+      PolicyMap policyMap = new PolicyMap();
+      PolicyEntry policyEntry = new PolicyEntry();
+      policyEntry.setProducerFlowControl(false);
+      policyMap.put(new ActiveMQQueue(">"), policyEntry);
+      broker.setDestinationPolicy(policyMap);
 
-        return broker;
-    }
+      LOG.info("Starting broker with persistenceAdapterChoice " + persistenceAdapterChoice.toString());
+      setPersistenceAdapter(broker, persistenceAdapterChoice);
+      broker.getPersistenceAdapter().deleteAllMessages();
 
-    @Override
-    @Before
-    public void setUp() throws Exception {
-        if (broker == null) {
-            broker = createBroker();
-        }
-        broker.start();
-        broker.waitUntilStarted();
-    }
+      return broker;
+   }
 
-    @Override
-    @After
-    public void tearDown() throws Exception {
-        if (broker != null) {
-            broker.stop();
-            broker.waitUntilStopped();
-        }
-    }
+   @Override
+   @Before
+   public void setUp() throws Exception {
+      if (broker == null) {
+         broker = createBroker();
+      }
+      broker.start();
+      broker.waitUntilStarted();
+   }
 
-    @Test(timeout = 120000)
-    public void testCursorBatch() throws Exception {
+   @Override
+   @After
+   public void tearDown() throws Exception {
+      if (broker != null) {
+         broker.stop();
+         broker.waitUntilStopped();
+      }
+   }
 
-        ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("vm://localhost?jms.prefetchPolicy.all=10");
-        factory.setOptimizeAcknowledge(true);
-        Connection conn = factory.createConnection();
-        conn.start();
-        Session sess = conn.createSession(false, Session.CLIENT_ACKNOWLEDGE);
-        Queue queue = sess.createQueue("STORE");
-        final ProducerThread producer = new ProducerThread(sess, queue) {
-            @Override
-            protected Message createMessage(int i) throws Exception {
-                BytesMessage bytesMessage = sess.createBytesMessage();
-                bytesMessage.writeBytes(payload);
-                return bytesMessage;
-            }
-        };
-        producer.setMessageCount(2000);
-        producer.start();
-        producer.join();
+   @Test(timeout = 120000)
+   public void testCursorBatch() throws Exception {
 
-        Thread.sleep(1000);
+      ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("vm://localhost?jms.prefetchPolicy.all=10");
+      factory.setOptimizeAcknowledge(true);
+      Connection conn = factory.createConnection();
+      conn.start();
+      Session sess = conn.createSession(false, Session.CLIENT_ACKNOWLEDGE);
+      Queue queue = sess.createQueue("STORE");
+      final ProducerThread producer = new ProducerThread(sess, queue) {
+         @Override
+         protected Message createMessage(int i) throws Exception {
+            BytesMessage bytesMessage = sess.createBytesMessage();
+            bytesMessage.writeBytes(payload);
+            return bytesMessage;
+         }
+      };
+      producer.setMessageCount(2000);
+      producer.start();
+      producer.join();
 
-        // assert we didn't break high watermark (70%) usage
-        final Destination dest = broker.getDestination((ActiveMQQueue) queue);
-        LOG.info("Destination usage: " + dest.getMemoryUsage());
-        int percentUsage = dest.getMemoryUsage().getPercentUsage();
-        assertTrue("Should be less than 70% of limit but was: " + percentUsage, percentUsage <= 71);
-        LOG.info("Broker usage: " + broker.getSystemUsage().getMemoryUsage());
-        assertTrue(broker.getSystemUsage().getMemoryUsage().getPercentUsage() <= 71);
+      Thread.sleep(1000);
 
-        // consume one message
-        MessageConsumer consumer = sess.createConsumer(queue);
-        Message msg = consumer.receive(5000);
-        msg.acknowledge();
+      // assert we didn't break high watermark (70%) usage
+      final Destination dest = broker.getDestination((ActiveMQQueue) queue);
+      LOG.info("Destination usage: " + dest.getMemoryUsage());
+      int percentUsage = dest.getMemoryUsage().getPercentUsage();
+      assertTrue("Should be less than 70% of limit but was: " + percentUsage, percentUsage <= 71);
+      LOG.info("Broker usage: " + broker.getSystemUsage().getMemoryUsage());
+      assertTrue(broker.getSystemUsage().getMemoryUsage().getPercentUsage() <= 71);
 
-        // this should free some space and allow us to get new batch of messages in the memory
-        // exceeding the limit
-        assertTrue("Limit is exceeded", Wait.waitFor(new Wait.Condition() {
-            @Override
-            public boolean isSatisified() throws Exception {
-                LOG.info("Destination usage: " + dest.getMemoryUsage());
-                return dest.getMemoryUsage().getPercentUsage() >= 200;
-            }
-        }));
+      // consume one message
+      MessageConsumer consumer = sess.createConsumer(queue);
+      Message msg = consumer.receive(5000);
+      msg.acknowledge();
 
-        LOG.info("Broker usage: " + broker.getSystemUsage().getMemoryUsage());
-        assertTrue(broker.getSystemUsage().getMemoryUsage().getPercentUsage() >= 200);
+      // this should free some space and allow us to get new batch of messages in the memory
+      // exceeding the limit
+      assertTrue("Limit is exceeded", Wait.waitFor(new Wait.Condition() {
+         @Override
+         public boolean isSatisified() throws Exception {
+            LOG.info("Destination usage: " + dest.getMemoryUsage());
+            return dest.getMemoryUsage().getPercentUsage() >= 200;
+         }
+      }));
 
-        // let's make sure we can consume all messages
-        for (int i = 1; i < 2000; i++) {
-            msg = consumer.receive(5000);
-            if (msg == null) {
-               dumpAllThreads("NoMessage");
-            }
-            assertNotNull("Didn't receive message " + i, msg);
-            msg.acknowledge();
-        }
-    }
+      LOG.info("Broker usage: " + broker.getSystemUsage().getMemoryUsage());
+      assertTrue(broker.getSystemUsage().getMemoryUsage().getPercentUsage() >= 200);
 
-    /**
-     * Handy test for manually checking what's going on
-     */
-    @Ignore
-    @Test(timeout = 120000)
-    public void testLimit() throws Exception {
+      // let's make sure we can consume all messages
+      for (int i = 1; i < 2000; i++) {
+         msg = consumer.receive(5000);
+         if (msg == null) {
+            dumpAllThreads("NoMessage");
+         }
+         assertNotNull("Didn't receive message " + i, msg);
+         msg.acknowledge();
+      }
+   }
 
-        ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("vm://localhost?jms.prefetchPolicy.all=10");
-        factory.setOptimizeAcknowledge(true);
-        Connection conn = factory.createConnection();
-        conn.start();
-        Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        final ProducerThread producer = new ProducerThread(sess, sess.createQueue("STORE.1")) {
-            @Override
-            protected Message createMessage(int i) throws Exception {
-                return sess.createTextMessage(Arrays.toString(payload) + "::" + i);
-            }
-        };
-        producer.setMessageCount(1000);
+   /**
+    * Handy test for manually checking what's going on
+    */
+   @Ignore
+   @Test(timeout = 120000)
+   public void testLimit() throws Exception {
 
-        final ProducerThread producer2 = new ProducerThread(sess, sess.createQueue("STORE.2")) {
-            @Override
-            protected Message createMessage(int i) throws Exception {
-                return sess.createTextMessage(Arrays.toString(payload) + "::" + i);
-            }
-        };
-        producer2.setMessageCount(1000);
+      ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("vm://localhost?jms.prefetchPolicy.all=10");
+      factory.setOptimizeAcknowledge(true);
+      Connection conn = factory.createConnection();
+      conn.start();
+      Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      final ProducerThread producer = new ProducerThread(sess, sess.createQueue("STORE.1")) {
+         @Override
+         protected Message createMessage(int i) throws Exception {
+            return sess.createTextMessage(Arrays.toString(payload) + "::" + i);
+         }
+      };
+      producer.setMessageCount(1000);
 
-        ConsumerThread consumer = new ConsumerThread(sess, sess.createQueue("STORE.1"));
-        consumer.setBreakOnNull(false);
-        consumer.setMessageCount(1000);
+      final ProducerThread producer2 = new ProducerThread(sess, sess.createQueue("STORE.2")) {
+         @Override
+         protected Message createMessage(int i) throws Exception {
+            return sess.createTextMessage(Arrays.toString(payload) + "::" + i);
+         }
+      };
+      producer2.setMessageCount(1000);
 
-        producer.start();
-        producer.join();
+      ConsumerThread consumer = new ConsumerThread(sess, sess.createQueue("STORE.1"));
+      consumer.setBreakOnNull(false);
+      consumer.setMessageCount(1000);
 
-        producer2.start();
+      producer.start();
+      producer.join();
 
-        Thread.sleep(300);
+      producer2.start();
 
-        consumer.start();
+      Thread.sleep(300);
 
-        consumer.join();
-        producer2.join();
+      consumer.start();
 
-        assertEquals("consumer got all produced messages", producer.getMessageCount(), consumer.getReceived());
-    }
+      consumer.join();
+      producer2.join();
+
+      assertEquals("consumer got all produced messages", producer.getMessageCount(), consumer.getReceived());
+   }
 }

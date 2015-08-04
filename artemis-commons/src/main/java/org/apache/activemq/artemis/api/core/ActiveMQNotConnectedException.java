@@ -19,17 +19,15 @@ package org.apache.activemq.artemis.api.core;
 /**
  * A client is not able to connect to ActiveMQ Artemis server.
  */
-public final class ActiveMQNotConnectedException extends ActiveMQException
-{
+public final class ActiveMQNotConnectedException extends ActiveMQException {
+
    private static final long serialVersionUID = -3489189971813613325L;
 
-   public ActiveMQNotConnectedException(String message)
-   {
+   public ActiveMQNotConnectedException(String message) {
       super(ActiveMQExceptionType.NOT_CONNECTED, message);
    }
 
-   public ActiveMQNotConnectedException()
-   {
+   public ActiveMQNotConnectedException() {
       super(ActiveMQExceptionType.NOT_CONNECTED);
    }
 }

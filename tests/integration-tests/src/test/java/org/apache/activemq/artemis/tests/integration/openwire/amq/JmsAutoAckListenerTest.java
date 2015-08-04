@@ -32,13 +32,12 @@ import org.junit.Test;
 /**
  * adapted from: org.apache.activemq.JmsAutoAckListenerTest
  */
-public class JmsAutoAckListenerTest extends BasicOpenWireTest implements MessageListener
-{
+public class JmsAutoAckListenerTest extends BasicOpenWireTest implements MessageListener {
+
    private final CountDownLatch latch = new CountDownLatch(1);
 
    @Test
-   public void testAckedMessageAreConsumed() throws Exception
-   {
+   public void testAckedMessageAreConsumed() throws Exception {
       connection.start();
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       Queue queue = session.createQueue(queueName);
@@ -59,8 +58,7 @@ public class JmsAutoAckListenerTest extends BasicOpenWireTest implements Message
       session.close();
    }
 
-   public void onMessage(Message message)
-   {
+   public void onMessage(Message message) {
       System.out.println("Received message: " + message);
       assertNotNull(message);
       latch.countDown();

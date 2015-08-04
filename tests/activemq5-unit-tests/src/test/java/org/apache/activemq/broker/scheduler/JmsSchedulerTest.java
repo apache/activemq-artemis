@@ -41,248 +41,248 @@ import org.junit.Test;
 
 public class JmsSchedulerTest extends JobSchedulerTestSupport {
 
-    @Test
-    public void testCron() throws Exception {
-        final int COUNT = 10;
-        final AtomicInteger count = new AtomicInteger();
-        Connection connection = createConnection();
+   @Test
+   public void testCron() throws Exception {
+      final int COUNT = 10;
+      final AtomicInteger count = new AtomicInteger();
+      Connection connection = createConnection();
 
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-        MessageConsumer consumer = session.createConsumer(destination);
+      MessageConsumer consumer = session.createConsumer(destination);
 
-        final CountDownLatch latch = new CountDownLatch(COUNT);
-        consumer.setMessageListener(new MessageListener() {
-            @Override
-            public void onMessage(Message message) {
-                latch.countDown();
-                count.incrementAndGet();
+      final CountDownLatch latch = new CountDownLatch(COUNT);
+      consumer.setMessageListener(new MessageListener() {
+         @Override
+         public void onMessage(Message message) {
+            latch.countDown();
+            count.incrementAndGet();
+         }
+      });
+
+      connection.start();
+      MessageProducer producer = session.createProducer(destination);
+      TextMessage message = session.createTextMessage("test msg");
+      long time = 1000;
+      message.setStringProperty(ScheduledMessage.AMQ_SCHEDULED_CRON, "* * * * *");
+      message.setLongProperty(ScheduledMessage.AMQ_SCHEDULED_DELAY, time);
+      message.setLongProperty(ScheduledMessage.AMQ_SCHEDULED_PERIOD, 500);
+      message.setIntProperty(ScheduledMessage.AMQ_SCHEDULED_REPEAT, COUNT - 1);
+
+      producer.send(message);
+      producer.close();
+
+      Thread.sleep(500);
+      SchedulerBroker sb = (SchedulerBroker) this.broker.getBroker().getAdaptor(SchedulerBroker.class);
+      JobScheduler js = sb.getJobScheduler();
+      List<Job> list = js.getAllJobs();
+      assertEquals(1, list.size());
+      latch.await(240, TimeUnit.SECONDS);
+      assertEquals(COUNT, count.get());
+   }
+
+   @Test
+   public void testSchedule() throws Exception {
+      final int COUNT = 1;
+      Connection connection = createConnection();
+
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+
+      MessageConsumer consumer = session.createConsumer(destination);
+
+      final CountDownLatch latch = new CountDownLatch(COUNT);
+      consumer.setMessageListener(new MessageListener() {
+         @Override
+         public void onMessage(Message message) {
+            latch.countDown();
+         }
+      });
+
+      connection.start();
+      long time = 5000;
+      MessageProducer producer = session.createProducer(destination);
+      TextMessage message = session.createTextMessage("test msg");
+
+      message.setLongProperty(ScheduledMessage.AMQ_SCHEDULED_DELAY, time);
+
+      producer.send(message);
+      producer.close();
+      // make sure the message isn't delivered early
+      Thread.sleep(2000);
+      assertEquals(latch.getCount(), COUNT);
+      latch.await(5, TimeUnit.SECONDS);
+      assertEquals(latch.getCount(), 0);
+   }
+
+   @Test
+   public void testTransactedSchedule() throws Exception {
+      final int COUNT = 1;
+      Connection connection = createConnection();
+
+      final Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
+
+      MessageConsumer consumer = session.createConsumer(destination);
+
+      final CountDownLatch latch = new CountDownLatch(COUNT);
+      consumer.setMessageListener(new MessageListener() {
+         @Override
+         public void onMessage(Message message) {
+            try {
+               session.commit();
             }
-        });
-
-        connection.start();
-        MessageProducer producer = session.createProducer(destination);
-        TextMessage message = session.createTextMessage("test msg");
-        long time = 1000;
-        message.setStringProperty(ScheduledMessage.AMQ_SCHEDULED_CRON, "* * * * *");
-        message.setLongProperty(ScheduledMessage.AMQ_SCHEDULED_DELAY, time);
-        message.setLongProperty(ScheduledMessage.AMQ_SCHEDULED_PERIOD, 500);
-        message.setIntProperty(ScheduledMessage.AMQ_SCHEDULED_REPEAT, COUNT - 1);
-
-        producer.send(message);
-        producer.close();
-
-        Thread.sleep(500);
-        SchedulerBroker sb = (SchedulerBroker) this.broker.getBroker().getAdaptor(SchedulerBroker.class);
-        JobScheduler js = sb.getJobScheduler();
-        List<Job> list = js.getAllJobs();
-        assertEquals(1, list.size());
-        latch.await(240, TimeUnit.SECONDS);
-        assertEquals(COUNT, count.get());
-    }
-
-    @Test
-    public void testSchedule() throws Exception {
-        final int COUNT = 1;
-        Connection connection = createConnection();
-
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-
-        MessageConsumer consumer = session.createConsumer(destination);
-
-        final CountDownLatch latch = new CountDownLatch(COUNT);
-        consumer.setMessageListener(new MessageListener() {
-            @Override
-            public void onMessage(Message message) {
-                latch.countDown();
+            catch (JMSException e) {
+               e.printStackTrace();
             }
-        });
+            latch.countDown();
+         }
+      });
 
-        connection.start();
-        long time = 5000;
-        MessageProducer producer = session.createProducer(destination);
-        TextMessage message = session.createTextMessage("test msg");
+      connection.start();
+      long time = 5000;
+      MessageProducer producer = session.createProducer(destination);
+      TextMessage message = session.createTextMessage("test msg");
 
-        message.setLongProperty(ScheduledMessage.AMQ_SCHEDULED_DELAY, time);
+      message.setLongProperty(ScheduledMessage.AMQ_SCHEDULED_DELAY, time);
 
-        producer.send(message);
-        producer.close();
-        // make sure the message isn't delivered early
-        Thread.sleep(2000);
-        assertEquals(latch.getCount(), COUNT);
-        latch.await(5, TimeUnit.SECONDS);
-        assertEquals(latch.getCount(), 0);
-    }
+      producer.send(message);
+      session.commit();
+      producer.close();
+      // make sure the message isn't delivered early
+      Thread.sleep(2000);
+      assertEquals(latch.getCount(), COUNT);
+      latch.await(5, TimeUnit.SECONDS);
+      assertEquals(latch.getCount(), 0);
+   }
 
-    @Test
-    public void testTransactedSchedule() throws Exception {
-        final int COUNT = 1;
-        Connection connection = createConnection();
+   @Test
+   public void testScheduleRepeated() throws Exception {
+      final int NUMBER = 10;
+      final AtomicInteger count = new AtomicInteger();
+      Connection connection = createConnection();
 
-        final Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-        MessageConsumer consumer = session.createConsumer(destination);
+      MessageConsumer consumer = session.createConsumer(destination);
 
-        final CountDownLatch latch = new CountDownLatch(COUNT);
-        consumer.setMessageListener(new MessageListener() {
-            @Override
-            public void onMessage(Message message) {
-                try {
-                    session.commit();
-                } catch (JMSException e) {
-                    e.printStackTrace();
-                }
-                latch.countDown();
-            }
-        });
+      final CountDownLatch latch = new CountDownLatch(NUMBER);
+      consumer.setMessageListener(new MessageListener() {
+         @Override
+         public void onMessage(Message message) {
+            latch.countDown();
+            count.incrementAndGet();
+         }
+      });
 
-        connection.start();
-        long time = 5000;
-        MessageProducer producer = session.createProducer(destination);
-        TextMessage message = session.createTextMessage("test msg");
+      connection.start();
+      MessageProducer producer = session.createProducer(destination);
+      TextMessage message = session.createTextMessage("test msg");
+      long time = 1000;
+      message.setLongProperty(ScheduledMessage.AMQ_SCHEDULED_DELAY, time);
+      message.setLongProperty(ScheduledMessage.AMQ_SCHEDULED_PERIOD, 500);
+      message.setIntProperty(ScheduledMessage.AMQ_SCHEDULED_REPEAT, NUMBER - 1);
+      producer.send(message);
+      producer.close();
+      assertEquals(latch.getCount(), NUMBER);
+      latch.await(10, TimeUnit.SECONDS);
+      assertEquals(0, latch.getCount());
+      // wait a little longer - make sure we only get NUMBER of replays
+      Thread.sleep(1000);
+      assertEquals(NUMBER, count.get());
+   }
 
-        message.setLongProperty(ScheduledMessage.AMQ_SCHEDULED_DELAY, time);
+   @Test
+   public void testScheduleRestart() throws Exception {
+      // send a message
+      Connection connection = createConnection();
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      connection.start();
+      MessageProducer producer = session.createProducer(destination);
+      TextMessage message = session.createTextMessage("test msg");
+      long time = 5000;
+      message.setLongProperty(ScheduledMessage.AMQ_SCHEDULED_DELAY, time);
+      producer.send(message);
+      producer.close();
 
-        producer.send(message);
-        session.commit();
-        producer.close();
-        // make sure the message isn't delivered early
-        Thread.sleep(2000);
-        assertEquals(latch.getCount(), COUNT);
-        latch.await(5, TimeUnit.SECONDS);
-        assertEquals(latch.getCount(), 0);
-    }
+      //restart broker
+      broker.stop();
+      broker.waitUntilStopped();
 
-    @Test
-    public void testScheduleRepeated() throws Exception {
-        final int NUMBER = 10;
-        final AtomicInteger count = new AtomicInteger();
-        Connection connection = createConnection();
+      broker = createBroker(false);
+      broker.start();
+      broker.waitUntilStarted();
 
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      // consume the message
+      connection = createConnection();
+      connection.start();
+      session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      MessageConsumer consumer = session.createConsumer(destination);
+      Message msg = consumer.receive(5000);
+      assertNotNull("Didn't receive the message", msg);
 
-        MessageConsumer consumer = session.createConsumer(destination);
+      //send another message
+      producer = session.createProducer(destination);
+      message.setLongProperty(ScheduledMessage.AMQ_SCHEDULED_DELAY, time);
+      producer.send(message);
+      producer.close();
+   }
 
-        final CountDownLatch latch = new CountDownLatch(NUMBER);
-        consumer.setMessageListener(new MessageListener() {
-            @Override
-            public void onMessage(Message message) {
-                latch.countDown();
-                count.incrementAndGet();
-            }
-        });
+   @Test
+   public void testJobSchedulerStoreUsage() throws Exception {
 
-        connection.start();
-        MessageProducer producer = session.createProducer(destination);
-        TextMessage message = session.createTextMessage("test msg");
-        long time = 1000;
-        message.setLongProperty(ScheduledMessage.AMQ_SCHEDULED_DELAY, time);
-        message.setLongProperty(ScheduledMessage.AMQ_SCHEDULED_PERIOD, 500);
-        message.setIntProperty(ScheduledMessage.AMQ_SCHEDULED_REPEAT, NUMBER - 1);
-        producer.send(message);
-        producer.close();
-        assertEquals(latch.getCount(), NUMBER);
-        latch.await(10, TimeUnit.SECONDS);
-        assertEquals(0, latch.getCount());
-        // wait a little longer - make sure we only get NUMBER of replays
-        Thread.sleep(1000);
-        assertEquals(NUMBER, count.get());
-    }
+      // Shrink the store limit down so we get the producer to block
+      broker.getSystemUsage().getJobSchedulerUsage().setLimit(10 * 1024);
 
-    @Test
-    public void testScheduleRestart() throws Exception {
-        // send a message
-        Connection connection = createConnection();
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        connection.start();
-        MessageProducer producer = session.createProducer(destination);
-        TextMessage message = session.createTextMessage("test msg");
-        long time = 5000;
-        message.setLongProperty(ScheduledMessage.AMQ_SCHEDULED_DELAY, time);
-        producer.send(message);
-        producer.close();
+      ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("vm://localhost");
+      Connection conn = factory.createConnection();
+      conn.start();
+      Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      final long time = 5000;
+      final ProducerThread producer = new ProducerThread(sess, destination) {
+         @Override
+         protected Message createMessage(int i) throws Exception {
+            Message message = super.createMessage(i);
+            message.setLongProperty(ScheduledMessage.AMQ_SCHEDULED_DELAY, time);
+            return message;
+         }
+      };
+      producer.setMessageCount(100);
+      producer.start();
 
-        //restart broker
-        broker.stop();
-        broker.waitUntilStopped();
+      MessageConsumer consumer = sess.createConsumer(destination);
+      final CountDownLatch latch = new CountDownLatch(100);
+      consumer.setMessageListener(new MessageListener() {
+         @Override
+         public void onMessage(Message message) {
+            latch.countDown();
+         }
+      });
 
-        broker = createBroker(false);
-        broker.start();
-        broker.waitUntilStarted();
+      // wait for the producer to block, which should happen immediately, and also wait long
+      // enough for the delay to elapse.  We should see no deliveries as the send should block
+      // on the first message.
+      Thread.sleep(10000L);
 
+      assertEquals(100, latch.getCount());
 
-        // consume the message
-        connection = createConnection();
-        connection.start();
-        session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        MessageConsumer consumer = session.createConsumer(destination);
-        Message msg = consumer.receive(5000);
-        assertNotNull("Didn't receive the message", msg);
+      // Increase the store limit so the producer unblocks.  Everything should enqueue at this point.
+      broker.getSystemUsage().getJobSchedulerUsage().setLimit(1024 * 1024 * 33);
 
-        //send another message
-        producer = session.createProducer(destination);
-        message.setLongProperty(ScheduledMessage.AMQ_SCHEDULED_DELAY, time);
-        producer.send(message);
-        producer.close();
-    }
+      // Wait long enough that the messages are enqueued and the delivery delay has elapsed.
+      Thread.sleep(10000L);
 
-    @Test
-    public void testJobSchedulerStoreUsage() throws Exception {
+      // Make sure we sent all the messages we expected to send
+      Wait.waitFor(new Wait.Condition() {
+         @Override
+         public boolean isSatisified() throws Exception {
+            return producer.getSentCount() == producer.getMessageCount();
+         }
+      }, 20000L);
 
-        // Shrink the store limit down so we get the producer to block
-        broker.getSystemUsage().getJobSchedulerUsage().setLimit(10 * 1024);
+      assertEquals("Producer didn't send all messages", producer.getMessageCount(), producer.getSentCount());
 
-        ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("vm://localhost");
-        Connection conn = factory.createConnection();
-        conn.start();
-        Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        final long time = 5000;
-        final ProducerThread producer = new ProducerThread(sess, destination) {
-            @Override
-            protected Message createMessage(int i) throws Exception {
-                Message message = super.createMessage(i);
-                message.setLongProperty(ScheduledMessage.AMQ_SCHEDULED_DELAY, time);
-                return message;
-            }
-        };
-        producer.setMessageCount(100);
-        producer.start();
+      // Make sure we got all the messages we expected to get
+      latch.await(20000L, TimeUnit.MILLISECONDS);
 
-        MessageConsumer consumer = sess.createConsumer(destination);
-        final CountDownLatch latch = new CountDownLatch(100);
-        consumer.setMessageListener(new MessageListener() {
-            @Override
-            public void onMessage(Message message) {
-                latch.countDown();
-            }
-        });
-
-        // wait for the producer to block, which should happen immediately, and also wait long
-        // enough for the delay to elapse.  We should see no deliveries as the send should block
-        // on the first message.
-        Thread.sleep(10000L);
-
-        assertEquals(100, latch.getCount());
-
-        // Increase the store limit so the producer unblocks.  Everything should enqueue at this point.
-        broker.getSystemUsage().getJobSchedulerUsage().setLimit(1024 * 1024 * 33);
-
-        // Wait long enough that the messages are enqueued and the delivery delay has elapsed.
-        Thread.sleep(10000L);
-
-        // Make sure we sent all the messages we expected to send
-        Wait.waitFor(new Wait.Condition() {
-            @Override
-            public boolean isSatisified() throws Exception {
-                return producer.getSentCount() == producer.getMessageCount();
-            }
-        }, 20000L);
-
-        assertEquals("Producer didn't send all messages", producer.getMessageCount(), producer.getSentCount());
-
-        // Make sure we got all the messages we expected to get
-        latch.await(20000L, TimeUnit.MILLISECONDS);
-
-        assertEquals("Consumer did not receive all messages.", 0, latch.getCount());
-    }
+      assertEquals("Consumer did not receive all messages.", 0, latch.getCount());
+   }
 }

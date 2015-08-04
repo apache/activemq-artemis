@@ -31,25 +31,22 @@ import org.apache.activemq.artemis.spi.core.naming.BindingRegistry;
 /**
  * Simple bootstrap class that parses activemq config files (server and jms and security) and starts
  * an ActiveMQServer instance and populates it with configured JMS endpoints.
- * <p>
+ * <br>
  * JMS Endpoints are registered with a simple MapBindingRegistry.  If you want to use a different registry
  * you must set the registry property of this class or call the setRegistry() method if you want to use JNDI
  */
-public class EmbeddedJMS extends EmbeddedActiveMQ
-{
+public class EmbeddedJMS extends EmbeddedActiveMQ {
+
    protected JMSServerManagerImpl serverManager;
    protected BindingRegistry registry;
    protected JMSConfiguration jmsConfiguration;
    protected Context context;
 
-
-   public BindingRegistry getRegistry()
-   {
+   public BindingRegistry getRegistry() {
       return registry;
    }
 
-   public JMSServerManager getJMSServerManager()
-   {
+   public JMSServerManager getJMSServerManager() {
       return serverManager;
    }
 
@@ -58,8 +55,7 @@ public class EmbeddedJMS extends EmbeddedActiveMQ
     *
     * @param registry
     */
-   public void setRegistry(BindingRegistry registry)
-   {
+   public void setRegistry(BindingRegistry registry) {
       this.registry = registry;
    }
 
@@ -68,8 +64,7 @@ public class EmbeddedJMS extends EmbeddedActiveMQ
     *
     * @param jmsConfiguration
     */
-   public void setJmsConfiguration(JMSConfiguration jmsConfiguration)
-   {
+   public void setJmsConfiguration(JMSConfiguration jmsConfiguration) {
       this.jmsConfiguration = jmsConfiguration;
    }
 
@@ -78,40 +73,34 @@ public class EmbeddedJMS extends EmbeddedActiveMQ
     *
     * @param context
     */
-   public void setContext(Context context)
-   {
+   public void setContext(Context context) {
       this.context = context;
    }
 
    /**
     * Lookup in the registry for registered object, i.e. a ConnectionFactory.
-    * <p>
+    * <br>
     * This is a convenience method.
+    *
     * @param name
     */
-   public Object lookup(String name)
-   {
+   public Object lookup(String name) {
       return serverManager.getRegistry().lookup(name);
    }
 
    @Override
-   public void start() throws Exception
-   {
+   public void start() throws Exception {
       super.initStart();
-      if (jmsConfiguration != null)
-      {
+      if (jmsConfiguration != null) {
          serverManager = new JMSServerManagerImpl(activeMQServer, jmsConfiguration);
       }
-      else
-      {
+      else {
          FileJMSConfiguration fileConfiguration = new FileJMSConfiguration();
          FileDeploymentManager deploymentManager;
-         if (configResourcePath != null)
-         {
+         if (configResourcePath != null) {
             deploymentManager = new FileDeploymentManager(configResourcePath);
          }
-         else
-         {
+         else {
             deploymentManager = new FileDeploymentManager();
          }
          deploymentManager.addDeployable(fileConfiguration);
@@ -119,18 +108,18 @@ public class EmbeddedJMS extends EmbeddedActiveMQ
          serverManager = new JMSServerManagerImpl(activeMQServer, fileConfiguration);
       }
 
-      if (registry == null)
-      {
-         if (context != null) registry = new JndiBindingRegistry(context);
-         else registry = new MapBindingRegistry();
+      if (registry == null) {
+         if (context != null)
+            registry = new JndiBindingRegistry(context);
+         else
+            registry = new MapBindingRegistry();
       }
       serverManager.setRegistry(registry);
       serverManager.start();
    }
 
    @Override
-   public void stop() throws Exception
-   {
+   public void stop() throws Exception {
       serverManager.stop();
    }
 

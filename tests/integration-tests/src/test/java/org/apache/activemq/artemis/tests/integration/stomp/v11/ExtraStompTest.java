@@ -28,16 +28,14 @@ import org.junit.Test;
 /*
  * Some Stomp tests against server with persistence enabled are put here.
  */
-public class ExtraStompTest extends StompV11TestBase
-{
+public class ExtraStompTest extends StompV11TestBase {
 
    private StompClientConnection connV10;
    private StompClientConnection connV11;
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       persistenceEnabled = true;
       super.setUp();
       connV10 = StompClientConnectionFactory.createClientConnection("1.0", hostname, port);
@@ -48,22 +46,18 @@ public class ExtraStompTest extends StompV11TestBase
 
    @Override
    @After
-   public void tearDown() throws Exception
-   {
-      try
-      {
+   public void tearDown() throws Exception {
+      try {
          connV10.disconnect();
          connV11.disconnect();
       }
-      finally
-      {
+      finally {
          super.tearDown();
       }
    }
 
    @Test
-   public void testSendAndReceive10() throws Exception
-   {
+   public void testSendAndReceive10() throws Exception {
       String msg1 = "Hello World 1!";
       String msg2 = "Hello World 2!";
 
@@ -126,8 +120,7 @@ public class ExtraStompTest extends StompV11TestBase
    }
 
    @Test
-   public void testSendAndReceive11() throws Exception
-   {
+   public void testSendAndReceive11() throws Exception {
       String msg1 = "Hello World 1!";
       String msg2 = "Hello World 2!";
 
@@ -189,8 +182,7 @@ public class ExtraStompTest extends StompV11TestBase
    }
 
    @Test
-   public void testNoGarbageAfterPersistentMessageV10() throws Exception
-   {
+   public void testNoGarbageAfterPersistentMessageV10() throws Exception {
       ClientStompFrame subFrame = connV10.createFrame("SUBSCRIBE");
       subFrame.addHeader("id", "a-sub");
       subFrame.addHeader("destination", getQueuePrefix() + getQueueName());
@@ -236,9 +228,7 @@ public class ExtraStompTest extends StompV11TestBase
    }
 
    @Test
-   public void testNoGarbageOnPersistentRedeliveryV10() throws Exception
-   {
-
+   public void testNoGarbageOnPersistentRedeliveryV10() throws Exception {
 
       ClientStompFrame frame = connV10.createFrame("SEND");
       frame.addHeader("destination", getQueuePrefix() + getQueueName());
@@ -296,8 +286,7 @@ public class ExtraStompTest extends StompV11TestBase
    }
 
    @Test
-   public void testNoGarbageAfterPersistentMessageV11() throws Exception
-   {
+   public void testNoGarbageAfterPersistentMessageV11() throws Exception {
       ClientStompFrame subFrame = connV11.createFrame("SUBSCRIBE");
       subFrame.addHeader("id", "a-sub");
       subFrame.addHeader("destination", getQueuePrefix() + getQueueName());
@@ -340,8 +329,7 @@ public class ExtraStompTest extends StompV11TestBase
    }
 
    @Test
-   public void testNoGarbageOnPersistentRedeliveryV11() throws Exception
-   {
+   public void testNoGarbageOnPersistentRedeliveryV11() throws Exception {
       ClientStompFrame frame = connV11.createFrame("SEND");
       frame.addHeader("destination", getQueuePrefix() + getQueueName());
       frame.addHeader("content-length", "11");

@@ -37,40 +37,31 @@ import org.junit.runners.Parameterized;
  * adapted from: org.apache.activemq.JMSConsumerTest
  */
 @RunWith(Parameterized.class)
-public class JMSConsumer4Test extends BasicOpenWireTest
-{
+public class JMSConsumer4Test extends BasicOpenWireTest {
+
    @Parameterized.Parameters(name = "deliveryMode={0} destinationType={1}")
-   public static Collection<Object[]> getParams()
-   {
-      return Arrays.asList(new Object[][] {
-         {DeliveryMode.NON_PERSISTENT, ActiveMQDestination.TOPIC_TYPE},
-         {DeliveryMode.PERSISTENT, ActiveMQDestination.TOPIC_TYPE}
-      });
+   public static Collection<Object[]> getParams() {
+      return Arrays.asList(new Object[][]{{DeliveryMode.NON_PERSISTENT, ActiveMQDestination.TOPIC_TYPE}, {DeliveryMode.PERSISTENT, ActiveMQDestination.TOPIC_TYPE}});
    }
 
    public int deliveryMode;
    public byte destinationType;
 
-   public JMSConsumer4Test(int deliveryMode, byte destinationType)
-   {
+   public JMSConsumer4Test(int deliveryMode, byte destinationType) {
       this.deliveryMode = deliveryMode;
       this.destinationType = destinationType;
    }
 
    @Test
-   public void testDurableConsumerSelectorChange() throws Exception
-   {
+   public void testDurableConsumerSelectorChange() throws Exception {
       // Receive a message with the JMS API
       connection.setClientID("test");
       connection.start();
-      Session session = connection.createSession(false,
-            Session.AUTO_ACKNOWLEDGE);
-      ActiveMQDestination destination = createDestination(session,
-            destinationType);
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      ActiveMQDestination destination = createDestination(session, destinationType);
       MessageProducer producer = session.createProducer(destination);
       producer.setDeliveryMode(deliveryMode);
-      MessageConsumer consumer = session.createDurableSubscriber(
-            (Topic) destination, "test", "color='red'", false);
+      MessageConsumer consumer = session.createDurableSubscriber((Topic) destination, "test", "color='red'", false);
 
       // Send the messages
       TextMessage message = session.createTextMessage("1st");
@@ -83,8 +74,7 @@ public class JMSConsumer4Test extends BasicOpenWireTest
 
       // Change the subscription.
       consumer.close();
-      consumer = session.createDurableSubscriber((Topic) destination, "test",
-            "color='blue'", false);
+      consumer = session.createDurableSubscriber((Topic) destination, "test", "color='blue'", false);
 
       message = session.createTextMessage("2nd");
       message.setStringProperty("color", "red");

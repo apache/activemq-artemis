@@ -36,82 +36,84 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class HealthViewMBeanTest extends EmbeddedBrokerTestSupport {
-    private static final Logger LOG = LoggerFactory.getLogger(MBeanTest.class);
-    protected MBeanServer mbeanServer;
-    protected String domain = "org.apache.activemq";
 
-    @Override
-    protected void setUp() throws Exception {
-        bindAddress = "tcp://localhost:0";
-        useTopic = false;
-        super.setUp();
-        mbeanServer = broker.getManagementContext().getMBeanServer();
-    }
+   private static final Logger LOG = LoggerFactory.getLogger(MBeanTest.class);
+   protected MBeanServer mbeanServer;
+   protected String domain = "org.apache.activemq";
 
-    @Override
-    protected void tearDown() throws Exception {
-        super.tearDown();
-    }
+   @Override
+   protected void setUp() throws Exception {
+      bindAddress = "tcp://localhost:0";
+      useTopic = false;
+      super.setUp();
+      mbeanServer = broker.getManagementContext().getMBeanServer();
+   }
 
-    @Override
-    protected ConnectionFactory createConnectionFactory() throws Exception {
-        return new ActiveMQConnectionFactory(broker.getTransportConnectors().get(0).getPublishableConnectString());
-    }
+   @Override
+   protected void tearDown() throws Exception {
+      super.tearDown();
+   }
 
-    @Override
-    protected BrokerService createBroker() throws Exception {
-        BrokerService answer = new BrokerService();
-        answer.setPersistent(true);
-        answer.setDeleteAllMessagesOnStartup(true);
-        answer.getSystemUsage().getMemoryUsage().setLimit(1024 * 1024 * 64);
-        answer.getSystemUsage().getTempUsage().setLimit(1024 * 1024 * 64);
-        answer.getSystemUsage().getStoreUsage().setLimit(1024 * 1024 * 64);
-        answer.setUseJmx(true);
-        answer.setSchedulerSupport(true);
+   @Override
+   protected ConnectionFactory createConnectionFactory() throws Exception {
+      return new ActiveMQConnectionFactory(broker.getTransportConnectors().get(0).getPublishableConnectString());
+   }
 
-        // allow options to be visible via jmx
+   @Override
+   protected BrokerService createBroker() throws Exception {
+      BrokerService answer = new BrokerService();
+      answer.setPersistent(true);
+      answer.setDeleteAllMessagesOnStartup(true);
+      answer.getSystemUsage().getMemoryUsage().setLimit(1024 * 1024 * 64);
+      answer.getSystemUsage().getTempUsage().setLimit(1024 * 1024 * 64);
+      answer.getSystemUsage().getStoreUsage().setLimit(1024 * 1024 * 64);
+      answer.setUseJmx(true);
+      answer.setSchedulerSupport(true);
 
-        answer.addConnector(bindAddress);
-        return answer;
-    }
+      // allow options to be visible via jmx
 
-    public void testHealthView() throws Exception{
-        Connection connection = connectionFactory.createConnection();
+      answer.addConnector(bindAddress);
+      return answer;
+   }
 
-        connection.start();
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        destination = createDestination();
-        MessageProducer producer = session.createProducer(destination);
-        producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
+   public void testHealthView() throws Exception {
+      Connection connection = connectionFactory.createConnection();
 
-        for (int i = 0; i < 60; i++) {
-            BytesMessage message = session.createBytesMessage();
-            message.writeBytes(new byte[1024 *1024]);
-            producer.send(message);
-        }
+      connection.start();
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      destination = createDestination();
+      MessageProducer producer = session.createProducer(destination);
+      producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
 
-        Thread.sleep(1000);
+      for (int i = 0; i < 60; i++) {
+         BytesMessage message = session.createBytesMessage();
+         message.writeBytes(new byte[1024 * 1024]);
+         producer.send(message);
+      }
 
-        String objectNameStr = broker.getBrokerObjectName().toString();
-        objectNameStr += ",service=Health";
-        ObjectName brokerName = assertRegisteredObjectName(objectNameStr);
-        HealthViewMBean health =  MBeanServerInvocationHandler.newProxyInstance(mbeanServer, brokerName, HealthViewMBean.class, true);
-        List<HealthStatus> list = health.healthList();
+      Thread.sleep(1000);
 
-        for (HealthStatus status : list) {
-            LOG.info("Health status: {}", status);
-        }
+      String objectNameStr = broker.getBrokerObjectName().toString();
+      objectNameStr += ",service=Health";
+      ObjectName brokerName = assertRegisteredObjectName(objectNameStr);
+      HealthViewMBean health = MBeanServerInvocationHandler.newProxyInstance(mbeanServer, brokerName, HealthViewMBean.class, true);
+      List<HealthStatus> list = health.healthList();
 
-        assertEquals(2, list.size());
-    }
+      for (HealthStatus status : list) {
+         LOG.info("Health status: {}", status);
+      }
 
-    protected ObjectName assertRegisteredObjectName(String name) throws MalformedObjectNameException, NullPointerException {
-        ObjectName objectName = new ObjectName(name);
-        if (mbeanServer.isRegistered(objectName)) {
-            LOG.info("Bean Registered: " + objectName);
-        } else {
-            fail("Could not find MBean!: " + objectName);
-        }
-        return objectName;
-    }
+      assertEquals(2, list.size());
+   }
+
+   protected ObjectName assertRegisteredObjectName(String name) throws MalformedObjectNameException, NullPointerException {
+      ObjectName objectName = new ObjectName(name);
+      if (mbeanServer.isRegistered(objectName)) {
+         LOG.info("Bean Registered: " + objectName);
+      }
+      else {
+         fail("Could not find MBean!: " + objectName);
+      }
+      return objectName;
+   }
 }

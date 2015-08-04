@@ -34,74 +34,74 @@ import org.junit.Test;
 
 public class AMQ4133Test {
 
-    protected String java_security_auth_login_config = "java.security.auth.login.config";
-    protected String xbean = "xbean:";
-    protected String confBase = "src/test/resources/org/apache/activemq/bugs/amq4126";
-    protected String certBase = "src/test/resources/org/apache/activemq/security";
-    protected String activemqXml = "InconsistentConnectorPropertiesBehaviour.xml";
-    protected BrokerService broker;
+   protected String java_security_auth_login_config = "java.security.auth.login.config";
+   protected String xbean = "xbean:";
+   protected String confBase = "src/test/resources/org/apache/activemq/bugs/amq4126";
+   protected String certBase = "src/test/resources/org/apache/activemq/security";
+   protected String activemqXml = "InconsistentConnectorPropertiesBehaviour.xml";
+   protected BrokerService broker;
 
-    protected String oldLoginConf = null;
+   protected String oldLoginConf = null;
 
-    @Before
-    public void before() throws Exception {
-        if (System.getProperty(java_security_auth_login_config) != null) {
-            oldLoginConf = System.getProperty(java_security_auth_login_config);
-        }
-        System.setProperty(java_security_auth_login_config, confBase + "/" + "login.config");
-        broker = BrokerFactory.createBroker(xbean + confBase + "/" + activemqXml);
+   @Before
+   public void before() throws Exception {
+      if (System.getProperty(java_security_auth_login_config) != null) {
+         oldLoginConf = System.getProperty(java_security_auth_login_config);
+      }
+      System.setProperty(java_security_auth_login_config, confBase + "/" + "login.config");
+      broker = BrokerFactory.createBroker(xbean + confBase + "/" + activemqXml);
 
-        broker.start();
-        broker.waitUntilStarted();
-    }
+      broker.start();
+      broker.waitUntilStarted();
+   }
 
-    @After
-    public void after() throws Exception {
-        if (broker != null) {
-            broker.stop();
-            broker.waitUntilStopped();
-        }
-    }
+   @After
+   public void after() throws Exception {
+      if (broker != null) {
+         broker.stop();
+         broker.waitUntilStopped();
+      }
+   }
 
-    @Test
-    public void stompSSLTransportNeedClientAuthTrue() throws Exception {
-        stompConnectTo("localhost", broker.getConnectorByName("stomp+ssl").getConnectUri().getPort());
-    }
+   @Test
+   public void stompSSLTransportNeedClientAuthTrue() throws Exception {
+      stompConnectTo("localhost", broker.getConnectorByName("stomp+ssl").getConnectUri().getPort());
+   }
 
-    @Test
-    public void stompSSLNeedClientAuthTrue() throws Exception {
-        stompConnectTo("localhost", broker.getConnectorByName("stomp+ssl+special").getConnectUri().getPort());
-    }
+   @Test
+   public void stompSSLNeedClientAuthTrue() throws Exception {
+      stompConnectTo("localhost", broker.getConnectorByName("stomp+ssl+special").getConnectUri().getPort());
+   }
 
-    @Test
-    public void stompNIOSSLTransportNeedClientAuthTrue() throws Exception {
-        stompConnectTo("localhost", broker.getConnectorByName("stomp+nio+ssl").getConnectUri().getPort());
-    }
+   @Test
+   public void stompNIOSSLTransportNeedClientAuthTrue() throws Exception {
+      stompConnectTo("localhost", broker.getConnectorByName("stomp+nio+ssl").getConnectUri().getPort());
+   }
 
-    @Test
-    public void stompNIOSSLNeedClientAuthTrue() throws Exception {
-        stompConnectTo("localhost", broker.getConnectorByName("stomp+nio+ssl+special").getConnectUri().getPort());
-    }
+   @Test
+   public void stompNIOSSLNeedClientAuthTrue() throws Exception {
+      stompConnectTo("localhost", broker.getConnectorByName("stomp+nio+ssl+special").getConnectUri().getPort());
+   }
 
-    public Socket createSocket(String host, int port) throws Exception {
-        System.setProperty("javax.net.ssl.trustStore", certBase + "/" + "broker1.ks");
-        System.setProperty("javax.net.ssl.trustStorePassword", "password");
-        System.setProperty("javax.net.ssl.trustStoreType", "jks");
-        System.setProperty("javax.net.ssl.keyStore", certBase + "/" + "client.ks");
-        System.setProperty("javax.net.ssl.keyStorePassword", "password");
-        System.setProperty("javax.net.ssl.keyStoreType", "jks");
+   public Socket createSocket(String host, int port) throws Exception {
+      System.setProperty("javax.net.ssl.trustStore", certBase + "/" + "broker1.ks");
+      System.setProperty("javax.net.ssl.trustStorePassword", "password");
+      System.setProperty("javax.net.ssl.trustStoreType", "jks");
+      System.setProperty("javax.net.ssl.keyStore", certBase + "/" + "client.ks");
+      System.setProperty("javax.net.ssl.keyStorePassword", "password");
+      System.setProperty("javax.net.ssl.keyStoreType", "jks");
 
-        SocketFactory factory = SSLSocketFactory.getDefault();
-        return factory.createSocket(host, port);
-    }
+      SocketFactory factory = SSLSocketFactory.getDefault();
+      return factory.createSocket(host, port);
+   }
 
-    public void stompConnectTo(String host, int port) throws Exception {
-        StompConnection stompConnection = new StompConnection();
-        stompConnection.open(createSocket(host, port));
-        stompConnection.sendFrame("CONNECT\n" + "\n" + Stomp.NULL);
-        StompFrame f = stompConnection.receive();
-        TestCase.assertEquals(f.getBody(), "CONNECTED", f.getAction());
-        stompConnection.close();
-    }
+   public void stompConnectTo(String host, int port) throws Exception {
+      StompConnection stompConnection = new StompConnection();
+      stompConnection.open(createSocket(host, port));
+      stompConnection.sendFrame("CONNECT\n" + "\n" + Stomp.NULL);
+      StompFrame f = stompConnection.receive();
+      TestCase.assertEquals(f.getBody(), "CONNECTED", f.getAction());
+      stompConnection.close();
+   }
 
 }

@@ -24,33 +24,31 @@ import org.apache.activemq.command.ProducerInfo;
  * auto generated - do not modify! if you need to make a change, please see the
  * modify the groovy scripts in the under src/gram/script and then use maven
  * openwire:generate to regenerate this file.
- * 
- * 
  */
 public class ProducerInfoTest extends BaseCommandTestSupport {
 
-    public static final ProducerInfoTest SINGLETON = new ProducerInfoTest();
+   public static final ProducerInfoTest SINGLETON = new ProducerInfoTest();
 
-    public Object createObject() throws Exception {
-        ProducerInfo info = new ProducerInfo();
-        populateObject(info);
-        return info;
-    }
+   public Object createObject() throws Exception {
+      ProducerInfo info = new ProducerInfo();
+      populateObject(info);
+      return info;
+   }
 
-    protected void populateObject(Object object) throws Exception {
-        super.populateObject(object);
-        ProducerInfo info = (ProducerInfo)object;
+   protected void populateObject(Object object) throws Exception {
+      super.populateObject(object);
+      ProducerInfo info = (ProducerInfo) object;
 
-        info.setProducerId(createProducerId("ProducerId:1"));
-        info.setDestination(createActiveMQDestination("Destination:2"));
-        {
-            BrokerId value[] = new BrokerId[2];
-            for (int i = 0; i < 2; i++) {
-                value[i] = createBrokerId("BrokerPath:3");
-            }
-            info.setBrokerPath(value);
-        }
-        info.setDispatchAsync(true);
-        info.setWindowSize(1);
-    }
+      info.setProducerId(createProducerId("ProducerId:1"));
+      info.setDestination(createActiveMQDestination("Destination:2"));
+      {
+         BrokerId value[] = new BrokerId[2];
+         for (int i = 0; i < 2; i++) {
+            value[i] = createBrokerId("BrokerPath:3");
+         }
+         info.setBrokerPath(value);
+      }
+      info.setDispatchAsync(true);
+      info.setWindowSize(1);
+   }
 }

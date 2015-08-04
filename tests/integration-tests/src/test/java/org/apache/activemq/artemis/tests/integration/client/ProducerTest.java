@@ -39,16 +39,15 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class ProducerTest extends ActiveMQTestBase
-{
+public class ProducerTest extends ActiveMQTestBase {
+
    private ActiveMQServer server;
 
    private final SimpleString QUEUE = new SimpleString("ConsumerTestQueue");
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       server = createServer(false);
@@ -57,22 +56,17 @@ public class ProducerTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testProducerWithSmallWindowSizeAndLargeMessage() throws Exception
-   {
+   public void testProducerWithSmallWindowSizeAndLargeMessage() throws Exception {
       final CountDownLatch latch = new CountDownLatch(1);
-      server.getRemotingService().addIncomingInterceptor(new Interceptor()
-      {
-         public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException
-         {
-            if (packet.getType() == PacketImpl.SESS_SEND)
-            {
+      server.getRemotingService().addIncomingInterceptor(new Interceptor() {
+         public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException {
+            if (packet.getType() == PacketImpl.SESS_SEND) {
                latch.countDown();
             }
             return true;
          }
       });
-      ServerLocator locator = createInVMNonHALocator()
-              .setConfirmationWindowSize(100);
+      ServerLocator locator = createInVMNonHALocator().setConfirmationWindowSize(100);
       ClientSessionFactory cf = locator.createSessionFactory();
       ClientSession session = cf.createSession(false, true, true);
       ClientProducer producer = session.createProducer(QUEUE);
@@ -85,14 +79,10 @@ public class ProducerTest extends ActiveMQTestBase
       locator.close();
    }
 
-
    @Test
-   public void testProducerMultiThread() throws Exception
-   {
+   public void testProducerMultiThread() throws Exception {
       final ServerLocator locator = createInVMNonHALocator();
-      AddressSettings setting = new AddressSettings()
-              .setAddressFullMessagePolicy(AddressFullMessagePolicy.BLOCK)
-              .setMaxSizeBytes(10 * 1024);
+      AddressSettings setting = new AddressSettings().setAddressFullMessagePolicy(AddressFullMessagePolicy.BLOCK).setMaxSizeBytes(10 * 1024);
       server.stop();
       server.getConfiguration().getAddressesSettings().clear();
       server.getConfiguration().getAddressesSettings().put(QUEUE.toString(), setting);
@@ -100,26 +90,19 @@ public class ProducerTest extends ActiveMQTestBase
 
       server.createQueue(QUEUE, QUEUE, null, true, false);
 
-
-      for (int i = 0; i < 100; i++)
-      {
+      for (int i = 0; i < 100; i++) {
          final CountDownLatch latch = new CountDownLatch(1);
          System.out.println("Try " + i);
          ClientSessionFactory cf = locator.createSessionFactory();
          final ClientSession session = cf.createSession(false, true, true);
 
-         Thread t = new Thread()
-         {
-            public void run()
-            {
-               try
-               {
+         Thread t = new Thread() {
+            public void run() {
+               try {
                   ClientProducer producer = session.createProducer();
 
-                  for (int i = 0; i < 62; i++)
-                  {
-                     if (i == 61)
-                     {
+                  for (int i = 0; i < 62; i++) {
+                     if (i == 61) {
                         // the point where the send would block
                         latch.countDown();
                      }
@@ -128,8 +111,7 @@ public class ProducerTest extends ActiveMQTestBase
                      producer.send(QUEUE, msg);
                   }
                }
-               catch (Exception e)
-               {
+               catch (Exception e) {
                   e.printStackTrace();
                }
             }
@@ -141,8 +123,7 @@ public class ProducerTest extends ActiveMQTestBase
 
          t.join(5000);
 
-         if (!t.isAlive())
-         {
+         if (!t.isAlive()) {
             t.interrupt();
          }
 
@@ -151,11 +132,9 @@ public class ProducerTest extends ActiveMQTestBase
          ClientSession sessionConsumer = cf.createSession();
          sessionConsumer.start();
          ClientConsumer cons = sessionConsumer.createConsumer(QUEUE);
-         while (true)
-         {
+         while (true) {
             ClientMessage msg = cons.receiveImmediate();
-            if (msg == null)
-            {
+            if (msg == null) {
                break;
             }
             msg.acknowledge();

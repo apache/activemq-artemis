@@ -31,8 +31,8 @@ import javax.ws.rs.ext.Providers;
 import java.io.ByteArrayInputStream;
 import java.lang.reflect.Type;
 
-public class Jms
-{
+public class Jms {
+
    /**
     * Set a JMS Message property to the value of an HTTP header
     *
@@ -40,32 +40,27 @@ public class Jms
     * @param name
     * @param value
     */
-   public static void setHttpHeader(Message message, String name, String value)
-   {
-      try
-      {
+   public static void setHttpHeader(Message message, String name, String value) {
+      try {
          message.setStringProperty(HttpHeaderProperty.toPropertyName(name), value);
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          throw new RuntimeException(e);
       }
    }
 
    /**
     * Get an HTTP header value from a JMS Message
+    *
     * @param message
     * @param name
     * @return the header or {@code null} if not present
     */
-   public static String getHttpHeader(Message message, String name)
-   {
-      try
-      {
+   public static String getHttpHeader(Message message, String name) {
+      try {
          return message.getStringProperty(HttpHeaderProperty.toPropertyName(name));
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          throw new RuntimeException(e);
       }
    }
@@ -78,8 +73,7 @@ public class Jms
     * @param <T>
     * @return
     */
-   public static <T> T getEntity(Message message, Class<T> type)
-   {
+   public static <T> T getEntity(Message message, Class<T> type) {
       return getEntity(message, type, null, ResteasyProviderFactory.getInstance());
    }
 
@@ -92,8 +86,7 @@ public class Jms
     * @param <T>
     * @return
     */
-   public static <T> T getEntity(Message message, Class<T> type, ResteasyProviderFactory factory)
-   {
+   public static <T> T getEntity(Message message, Class<T> type, ResteasyProviderFactory factory) {
       return getEntity(message, type, null, factory);
    }
 
@@ -108,20 +101,18 @@ public class Jms
     * @throws UnknownMediaType
     * @throws UnmarshalException
     */
-   public static <T> T getEntity(Message message, GenericType<T> type, ResteasyProviderFactory factory) throws UnknownMediaType
-   {
+   public static <T> T getEntity(Message message,
+                                 GenericType<T> type,
+                                 ResteasyProviderFactory factory) throws UnknownMediaType {
       return getEntity(message, type.getType(), type.getGenericType(), factory);
    }
 
-   public static boolean isHttpMessage(Message message)
-   {
-      try
-      {
+   public static boolean isHttpMessage(Message message) {
+      try {
          Boolean aBoolean = message.getBooleanProperty(HttpMessageHelper.POSTED_AS_HTTP_MESSAGE);
          return aBoolean != null && aBoolean.booleanValue() == true;
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          return false;
       }
    }
@@ -138,26 +129,23 @@ public class Jms
     * @throws UnknownMediaType
     * @throws UnmarshalException
     */
-   public static <T> T getEntity(Message message, Class<T> type, Type genericType, ResteasyProviderFactory factory) throws UnknownMediaType
-   {
-      if (!isHttpMessage(message))
-      {
-         try
-         {
+   public static <T> T getEntity(Message message,
+                                 Class<T> type,
+                                 Type genericType,
+                                 ResteasyProviderFactory factory) throws UnknownMediaType {
+      if (!isHttpMessage(message)) {
+         try {
             return (T) ((ObjectMessage) message).getObject();
          }
-         catch (JMSException e)
-         {
+         catch (JMSException e) {
             throw new RuntimeException(e);
          }
       }
       BytesMessage bytesMessage = (BytesMessage) message;
 
-      try
-      {
+      try {
          long size = bytesMessage.getBodyLength();
-         if (size <= 0)
-         {
+         if (size <= 0) {
             return null;
          }
 
@@ -165,31 +153,27 @@ public class Jms
          bytesMessage.readBytes(body);
 
          String contentType = message.getStringProperty(HttpHeaderProperty.CONTENT_TYPE);
-         if (contentType == null)
-         {
+         if (contentType == null) {
             throw new UnknownMediaType("Message did not have a Content-Type header cannot extract entity");
          }
          MediaType ct = MediaType.valueOf(contentType);
          MessageBodyReader<T> reader = factory.getMessageBodyReader(type, genericType, null, ct);
-         if (reader == null)
-         {
+         if (reader == null) {
             throw new UnmarshalException("Unable to find a JAX-RS reader for type " + type.getName() + " and media type " + contentType);
          }
 
          Providers current = ResteasyProviderFactory.getContextData(Providers.class);
          ResteasyProviderFactory.pushContext(Providers.class, factory);
-         try
-         {
+         try {
             return reader.readFrom(type, genericType, null, ct, new Headers<String>(), new ByteArrayInputStream(body));
          }
-         finally
-         {
+         finally {
             ResteasyProviderFactory.popContextData(Providers.class);
-            if (current != null) ResteasyProviderFactory.pushContext(Providers.class, current);
+            if (current != null)
+               ResteasyProviderFactory.pushContext(Providers.class, current);
          }
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          throw new RuntimeException(e);
       }
    }

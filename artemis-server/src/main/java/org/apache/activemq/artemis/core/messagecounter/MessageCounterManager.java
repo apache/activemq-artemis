@@ -16,8 +16,8 @@
  */
 package org.apache.activemq.artemis.core.messagecounter;
 
-public interface MessageCounterManager
-{
+public interface MessageCounterManager {
+
    void start();
 
    void stop();

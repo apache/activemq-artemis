@@ -26,8 +26,8 @@ import java.util.zip.Inflater;
  * It takes a compressed input stream and decompressed it as it is being read.
  * Not for concurrent use.
  */
-public class InflaterReader extends InputStream
-{
+public class InflaterReader extends InputStream {
+
    private Inflater inflater = new Inflater();
 
    private InputStream input;
@@ -36,33 +36,26 @@ public class InflaterReader extends InputStream
    private int pointer;
    private int length;
 
-   public InflaterReader(InputStream input)
-   {
+   public InflaterReader(InputStream input) {
       this(input, 1024);
    }
 
-   public InflaterReader(InputStream input, int bufferSize)
-   {
+   public InflaterReader(InputStream input, int bufferSize) {
       this.input = input;
       this.readBuffer = new byte[bufferSize];
       this.pointer = -1;
    }
 
-   public int read() throws IOException
-   {
-      if (pointer == -1)
-      {
-         try
-         {
+   public int read() throws IOException {
+      if (pointer == -1) {
+         try {
             length = doRead(readBuffer, 0, readBuffer.length);
-            if (length == 0)
-            {
+            if (length == 0) {
                return -1;
             }
             pointer = 0;
          }
-         catch (DataFormatException e)
-         {
+         catch (DataFormatException e) {
             IOException e2 = new IOException(e.getMessage());
             e2.initCause(e);
             throw e2;
@@ -71,8 +64,7 @@ public class InflaterReader extends InputStream
 
       int value = readBuffer[pointer] & 0xFF;
       pointer++;
-      if (pointer == length)
-      {
+      if (pointer == length) {
          pointer = -1;
       }
 
@@ -84,52 +76,42 @@ public class InflaterReader extends InputStream
     * decompressed output.
     * returns number of bytes actually got
     */
-   private int doRead(byte[] buf, int offset, int len) throws DataFormatException, IOException
-   {
+   private int doRead(byte[] buf, int offset, int len) throws DataFormatException, IOException {
       int read = 0;
       int n = 0;
       byte[] inputBuffer = new byte[len];
 
-      while (len > 0)
-      {
+      while (len > 0) {
          n = inflater.inflate(buf, offset, len);
-         if (n == 0)
-         {
-            if (inflater.finished())
-            {
+         if (n == 0) {
+            if (inflater.finished()) {
                break;
             }
-            else if (inflater.needsInput())
-            {
+            else if (inflater.needsInput()) {
                //feeding
                int m = input.read(inputBuffer);
 
-               if (m == -1)
-               {
+               if (m == -1) {
                   //it shouldn't be here, throw exception
                   throw new DataFormatException("Input is over while inflater still expecting data");
                }
-               else
-               {
+               else {
                   //feed the data in
                   inflater.setInput(inputBuffer, 0, m);
                   n = inflater.inflate(buf, offset, len);
-                  if (n > 0)
-                  {
+                  if (n > 0) {
                      read += n;
                      offset += n;
                      len -= n;
                   }
                }
             }
-            else
-            {
+            else {
                //it shouldn't be here, throw
                throw new DataFormatException("Inflater is neither finished nor needing input.");
             }
          }
-         else
-         {
+         else {
             read += n;
             offset += n;
             len -= n;

@@ -25,8 +25,7 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.cluster.impl.RemoteQueueBindingImpl;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
 
-public class RemoteQueueBindImplTest extends ActiveMQTestBase
-{
+public class RemoteQueueBindImplTest extends ActiveMQTestBase {
 
    // Constants -----------------------------------------------------
 
@@ -39,8 +38,7 @@ public class RemoteQueueBindImplTest extends ActiveMQTestBase
    // Public --------------------------------------------------------
 
    @Test
-   public void testAddRemoveConsumer() throws Exception
-   {
+   public void testAddRemoveConsumer() throws Exception {
 
       final long id = RandomUtil.randomLong();
       final SimpleString address = RandomUtil.randomSimpleString();
@@ -51,25 +49,15 @@ public class RemoteQueueBindImplTest extends ActiveMQTestBase
       final Queue storeAndForwardQueue = new FakeQueue(null);
       final SimpleString bridgeName = RandomUtil.randomSimpleString();
       final int distance = 0;
-      RemoteQueueBindingImpl binding = new RemoteQueueBindingImpl(id,
-                                                                  address,
-                                                                  uniqueName,
-                                                                  routingName,
-                                                                  remoteQueueID,
-                                                                  filterString,
-                                                                  storeAndForwardQueue,
-                                                                  bridgeName,
-                                                                  distance);
+      RemoteQueueBindingImpl binding = new RemoteQueueBindingImpl(id, address, uniqueName, routingName, remoteQueueID, filterString, storeAndForwardQueue, bridgeName, distance);
 
-      for (int i = 0; i < 100; i++)
-      {
+      for (int i = 0; i < 100; i++) {
          binding.addConsumer(new SimpleString("B" + i + "<A"));
       }
 
       assertEquals(100, binding.getFilters().size());
 
-      for (int i = 0; i < 100; i++)
-      {
+      for (int i = 0; i < 100; i++) {
          binding.removeConsumer(new SimpleString("B" + i + "<A"));
       }
 

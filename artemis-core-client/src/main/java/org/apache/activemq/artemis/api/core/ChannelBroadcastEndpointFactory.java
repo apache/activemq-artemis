@@ -20,34 +20,30 @@ import org.jgroups.JChannel;
 
 /**
  * An implementation of BroadcastEndpointFactory that uses an externally managed JChannel for JGroups clustering.
- *
+ * <br>
  * Note - the underlying JChannel is not closed in this implementation.
  */
-public class ChannelBroadcastEndpointFactory implements BroadcastEndpointFactory
-{
+public class ChannelBroadcastEndpointFactory implements BroadcastEndpointFactory {
+
    private final JChannel channel;
 
    private final String channelName;
 
-   public ChannelBroadcastEndpointFactory(JChannel channel, String channelName)
-   {
+   public ChannelBroadcastEndpointFactory(JChannel channel, String channelName) {
       this.channel = channel;
       this.channelName = channelName;
    }
 
-   public JChannel getChannel()
-   {
+   public JChannel getChannel() {
       return channel;
    }
 
-   public String getChannelName()
-   {
+   public String getChannelName() {
       return channelName;
    }
 
    @Override
-   public BroadcastEndpoint createBroadcastEndpoint() throws Exception
-   {
+   public BroadcastEndpoint createBroadcastEndpoint() throws Exception {
       return new JGroupsChannelBroadcastEndpoint(channel, channelName).initChannel();
    }
 }

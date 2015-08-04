@@ -20,6 +20,7 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import junit.framework.Test;
+
 import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.command.ActiveMQQueue;
 import org.apache.activemq.command.ActiveMQTopic;
@@ -41,153 +42,159 @@ import org.slf4j.LoggerFactory;
  * Queue vs. Topic, 1 vs. 10 producer threads, 1 vs. 10 consumer threads, and
  * Persistent vs. Non-Persistent messages. Message Acking uses client ack style
  * batch acking since that typically has the best ack performance.
- * 
- * 
  */
 public class BrokerBenchmark extends BrokerTestSupport {
-    private static final transient Logger LOG = LoggerFactory.getLogger(BrokerBenchmark.class);
 
-    public int produceCount = Integer.parseInt(System.getProperty("PRODUCE_COUNT", "10000"));
-    public ActiveMQDestination destination;
-    public int prodcuerCount;
-    public int consumerCount;
-    public boolean deliveryMode;
+   private static final transient Logger LOG = LoggerFactory.getLogger(BrokerBenchmark.class);
 
-    public void initCombosForTestPerformance() {
-        addCombinationValues("destination", new Object[] {new ActiveMQQueue("TEST"), new ActiveMQTopic("TEST")});
-        addCombinationValues("PRODUCER_COUNT", new Object[] {new Integer("1"), new Integer("10")});
-        addCombinationValues("CONSUMER_COUNT", new Object[] {new Integer("1"), new Integer("10")});
-        addCombinationValues("CONSUMER_COUNT", new Object[] {new Integer("1"), new Integer("10")});
-        addCombinationValues("deliveryMode", new Object[] {Boolean.TRUE});
-    }
+   public int produceCount = Integer.parseInt(System.getProperty("PRODUCE_COUNT", "10000"));
+   public ActiveMQDestination destination;
+   public int prodcuerCount;
+   public int consumerCount;
+   public boolean deliveryMode;
 
-    public void testPerformance() throws Exception {
+   public void initCombosForTestPerformance() {
+      addCombinationValues("destination", new Object[]{new ActiveMQQueue("TEST"), new ActiveMQTopic("TEST")});
+      addCombinationValues("PRODUCER_COUNT", new Object[]{new Integer("1"), new Integer("10")});
+      addCombinationValues("CONSUMER_COUNT", new Object[]{new Integer("1"), new Integer("10")});
+      addCombinationValues("CONSUMER_COUNT", new Object[]{new Integer("1"), new Integer("10")});
+      addCombinationValues("deliveryMode", new Object[]{Boolean.TRUE});
+   }
 
-        LOG.info("Running Benchmark for destination=" + destination + ", producers=" + prodcuerCount + ", consumers=" + consumerCount + ", deliveryMode=" + deliveryMode);
-        final int consumeCount = destination.isTopic() ? consumerCount * produceCount : produceCount;
+   public void testPerformance() throws Exception {
 
-        final Semaphore consumersStarted = new Semaphore(1 - consumerCount);
-        final Semaphore producersFinished = new Semaphore(1 - prodcuerCount);
-        final Semaphore consumersFinished = new Semaphore(1 - consumerCount);
-        final ProgressPrinter printer = new ProgressPrinter(produceCount + consumeCount, 10);
+      LOG.info("Running Benchmark for destination=" + destination + ", producers=" + prodcuerCount + ", consumers=" + consumerCount + ", deliveryMode=" + deliveryMode);
+      final int consumeCount = destination.isTopic() ? consumerCount * produceCount : produceCount;
 
-        // Start a producer and consumer
+      final Semaphore consumersStarted = new Semaphore(1 - consumerCount);
+      final Semaphore producersFinished = new Semaphore(1 - prodcuerCount);
+      final Semaphore consumersFinished = new Semaphore(1 - consumerCount);
+      final ProgressPrinter printer = new ProgressPrinter(produceCount + consumeCount, 10);
 
-        profilerPause("Benchmark ready.  Start profiler ");
+      // Start a producer and consumer
 
-        long start = System.currentTimeMillis();
+      profilerPause("Benchmark ready.  Start profiler ");
 
-        final AtomicInteger receiveCounter = new AtomicInteger(0);
-        for (int i = 0; i < consumerCount; i++) {
-            new Thread() {
-                public void run() {
-                    try {
+      long start = System.currentTimeMillis();
 
-                        // Consume the messages
-                        StubConnection connection = new StubConnection(broker);
-                        ConnectionInfo connectionInfo = createConnectionInfo();
-                        connection.send(connectionInfo);
+      final AtomicInteger receiveCounter = new AtomicInteger(0);
+      for (int i = 0; i < consumerCount; i++) {
+         new Thread() {
+            public void run() {
+               try {
 
-                        SessionInfo sessionInfo = createSessionInfo(connectionInfo);
-                        ConsumerInfo consumerInfo = createConsumerInfo(sessionInfo, destination);
-                        consumerInfo.setPrefetchSize(1000);
-                        connection.send(sessionInfo);
-                        connection.send(consumerInfo);
+                  // Consume the messages
+                  StubConnection connection = new StubConnection(broker);
+                  ConnectionInfo connectionInfo = createConnectionInfo();
+                  connection.send(connectionInfo);
 
-                        consumersStarted.release();
+                  SessionInfo sessionInfo = createSessionInfo(connectionInfo);
+                  ConsumerInfo consumerInfo = createConsumerInfo(sessionInfo, destination);
+                  consumerInfo.setPrefetchSize(1000);
+                  connection.send(sessionInfo);
+                  connection.send(consumerInfo);
 
-                        while (receiveCounter.get() < consumeCount) {
+                  consumersStarted.release();
 
-                            int counter = 0;
-                            // Get a least 1 message.
-                            Message msg = receiveMessage(connection, 2000);
-                            if (msg != null) {
-                                printer.increment();
-                                receiveCounter.incrementAndGet();
+                  while (receiveCounter.get() < consumeCount) {
 
-                                counter++;
+                     int counter = 0;
+                     // Get a least 1 message.
+                     Message msg = receiveMessage(connection, 2000);
+                     if (msg != null) {
+                        printer.increment();
+                        receiveCounter.incrementAndGet();
 
-                                // Try to piggy back a few extra message acks if
-                                // they are ready.
-                                Message extra = null;
-                                while ((extra = receiveMessage(connection, 0)) != null) {
-                                    msg = extra;
-                                    printer.increment();
-                                    receiveCounter.incrementAndGet();
-                                    counter++;
-                                }
-                            }
+                        counter++;
 
-                            if (msg != null) {
-                                connection.send(createAck(consumerInfo, msg, counter, MessageAck.STANDARD_ACK_TYPE));
-                            } else if (receiveCounter.get() < consumeCount) {
-                                LOG.info("Consumer stall, waiting for message #" + receiveCounter.get() + 1);
-                            }
+                        // Try to piggy back a few extra message acks if
+                        // they are ready.
+                        Message extra = null;
+                        while ((extra = receiveMessage(connection, 0)) != null) {
+                           msg = extra;
+                           printer.increment();
+                           receiveCounter.incrementAndGet();
+                           counter++;
                         }
+                     }
 
-                        connection.send(closeConsumerInfo(consumerInfo));
-                    } catch (Throwable e) {
-                        e.printStackTrace();
-                    } finally {
-                        consumersFinished.release();
-                    }
-                }
+                     if (msg != null) {
+                        connection.send(createAck(consumerInfo, msg, counter, MessageAck.STANDARD_ACK_TYPE));
+                     }
+                     else if (receiveCounter.get() < consumeCount) {
+                        LOG.info("Consumer stall, waiting for message #" + receiveCounter.get() + 1);
+                     }
+                  }
 
-            }.start();
-        }
+                  connection.send(closeConsumerInfo(consumerInfo));
+               }
+               catch (Throwable e) {
+                  e.printStackTrace();
+               }
+               finally {
+                  consumersFinished.release();
+               }
+            }
 
-        // Make sure that the consumers are started first to avoid sending
-        // messages
-        // before a topic is subscribed so that those messages are not missed.
-        consumersStarted.acquire();
+         }.start();
+      }
 
-        // Send the messages in an async thread.
-        for (int i = 0; i < prodcuerCount; i++) {
-            new Thread() {
-                public void run() {
-                    try {
-                        StubConnection connection = new StubConnection(broker);
-                        ConnectionInfo connectionInfo = createConnectionInfo();
-                        connection.send(connectionInfo);
+      // Make sure that the consumers are started first to avoid sending
+      // messages
+      // before a topic is subscribed so that those messages are not missed.
+      consumersStarted.acquire();
 
-                        SessionInfo sessionInfo = createSessionInfo(connectionInfo);
-                        ProducerInfo producerInfo = createProducerInfo(sessionInfo);
-                        connection.send(sessionInfo);
-                        connection.send(producerInfo);
+      // Send the messages in an async thread.
+      for (int i = 0; i < prodcuerCount; i++) {
+         new Thread() {
+            public void run() {
+               try {
+                  StubConnection connection = new StubConnection(broker);
+                  ConnectionInfo connectionInfo = createConnectionInfo();
+                  connection.send(connectionInfo);
 
-                        for (int i = 0; i < produceCount / prodcuerCount; i++) {
-                            Message message = createMessage(producerInfo, destination);
-                            message.setPersistent(deliveryMode);
-                            message.setResponseRequired(false);
-                            connection.send(message);
-                            printer.increment();
-                        }
-                    } catch (Throwable e) {
-                        e.printStackTrace();
-                    } finally {
-                        producersFinished.release();
-                    }
-                };
-            }.start();
-        }
+                  SessionInfo sessionInfo = createSessionInfo(connectionInfo);
+                  ProducerInfo producerInfo = createProducerInfo(sessionInfo);
+                  connection.send(sessionInfo);
+                  connection.send(producerInfo);
 
-        producersFinished.acquire();
-        long end1 = System.currentTimeMillis();
-        consumersFinished.acquire();
-        long end2 = System.currentTimeMillis();
+                  for (int i = 0; i < produceCount / prodcuerCount; i++) {
+                     Message message = createMessage(producerInfo, destination);
+                     message.setPersistent(deliveryMode);
+                     message.setResponseRequired(false);
+                     connection.send(message);
+                     printer.increment();
+                  }
+               }
+               catch (Throwable e) {
+                  e.printStackTrace();
+               }
+               finally {
+                  producersFinished.release();
+               }
+            }
 
-        LOG.info("Results for destination=" + destination + ", producers=" + prodcuerCount + ", consumers=" + consumerCount + ", deliveryMode=" + deliveryMode);
-        LOG.info("Produced at messages/sec: " + (produceCount * 1000.0 / (end1 - start)));
-        LOG.info("Consumed at messages/sec: " + (consumeCount * 1000.0 / (end2 - start)));
-        profilerPause("Benchmark done.  Stop profiler ");
-    }
+            ;
+         }.start();
+      }
 
-    public static Test suite() {
-        return suite(BrokerBenchmark.class);
-    }
+      producersFinished.acquire();
+      long end1 = System.currentTimeMillis();
+      consumersFinished.acquire();
+      long end2 = System.currentTimeMillis();
 
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(suite());
-    }
+      LOG.info("Results for destination=" + destination + ", producers=" + prodcuerCount + ", consumers=" + consumerCount + ", deliveryMode=" + deliveryMode);
+      LOG.info("Produced at messages/sec: " + (produceCount * 1000.0 / (end1 - start)));
+      LOG.info("Consumed at messages/sec: " + (consumeCount * 1000.0 / (end2 - start)));
+      profilerPause("Benchmark done.  Stop profiler ");
+   }
+
+   public static Test suite() {
+      return suite(BrokerBenchmark.class);
+   }
+
+   public static void main(String[] args) {
+      junit.textui.TestRunner.run(suite());
+   }
 
 }

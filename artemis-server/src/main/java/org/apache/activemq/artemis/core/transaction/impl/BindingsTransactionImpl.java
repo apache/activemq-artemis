@@ -20,38 +20,31 @@ import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.impl.RefsOperation;
 
-public class BindingsTransactionImpl extends TransactionImpl
-{
+public class BindingsTransactionImpl extends TransactionImpl {
 
-   public BindingsTransactionImpl(StorageManager storage)
-   {
+   public BindingsTransactionImpl(StorageManager storage) {
       super(storage, 0);
    }
 
    /**
     * @throws Exception
     */
-   protected void doCommit() throws Exception
-   {
-      if (isContainsPersistent())
-      {
+   protected void doCommit() throws Exception {
+      if (isContainsPersistent()) {
          storageManager.commitBindings(getID());
          setState(State.COMMITTED);
       }
    }
 
-   protected void doRollback() throws Exception
-   {
-      if (isContainsPersistent())
-      {
+   protected void doRollback() throws Exception {
+      if (isContainsPersistent()) {
          storageManager.rollbackBindings(getID());
          setState(State.ROLLEDBACK);
       }
    }
 
    @Override
-   public RefsOperation createRefsOperation(Queue queue)
-   {
+   public RefsOperation createRefsOperation(Queue queue) {
       return null;
    }
 }

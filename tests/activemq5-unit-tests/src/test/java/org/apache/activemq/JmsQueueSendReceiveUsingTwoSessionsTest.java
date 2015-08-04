@@ -17,17 +17,17 @@
 package org.apache.activemq;
 
 /**
- * 
+ *
  */
 public class JmsQueueSendReceiveUsingTwoSessionsTest extends JmsQueueSendReceiveTest {
 
-    /**
-     * Set up the test using two sessions.
-     * 
-     * @see junit.framework.TestCase#setUp()
-     */
-    protected void setUp() throws Exception {
-        useSeparateSession = true;
-        super.setUp();
-    }
+   /**
+    * Set up the test using two sessions.
+    *
+    * @see junit.framework.TestCase#setUp()
+    */
+   protected void setUp() throws Exception {
+      useSeparateSession = true;
+      super.setUp();
+   }
 }

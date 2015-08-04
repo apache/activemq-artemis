@@ -20,17 +20,15 @@ package org.apache.activemq.artemis.api.core;
  * An ActiveMQ Artemis resource is not in a legal state (e.g. calling ClientConsumer.receive() if a
  * MessageHandler is set).
  */
-public final class ActiveMQIllegalStateException extends ActiveMQException
-{
+public final class ActiveMQIllegalStateException extends ActiveMQException {
+
    private static final long serialVersionUID = -4480125401057788511L;
 
-   public ActiveMQIllegalStateException()
-   {
+   public ActiveMQIllegalStateException() {
       super(ActiveMQExceptionType.ILLEGAL_STATE);
    }
 
-   public ActiveMQIllegalStateException(String message)
-   {
+   public ActiveMQIllegalStateException(String message) {
       super(ActiveMQExceptionType.ILLEGAL_STATE, message);
    }
 }

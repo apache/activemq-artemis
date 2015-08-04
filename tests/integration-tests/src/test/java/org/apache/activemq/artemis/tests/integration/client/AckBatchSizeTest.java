@@ -29,8 +29,8 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class AckBatchSizeTest extends ActiveMQTestBase
-{
+public class AckBatchSizeTest extends ActiveMQTestBase {
+
    public final SimpleString addressA = new SimpleString("addressA");
 
    public final SimpleString queueA = new SimpleString("queueA");
@@ -45,8 +45,7 @@ public class AckBatchSizeTest extends ActiveMQTestBase
    * tests that wed don't acknowledge until the correct ackBatchSize is reached
    * */
 
-   private int getMessageEncodeSize(final SimpleString address) throws Exception
-   {
+   private int getMessageEncodeSize(final SimpleString address) throws Exception {
       ServerLocator locator = createInVMNonHALocator();
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession session = cf.createSession(false, true, true);
@@ -60,29 +59,24 @@ public class AckBatchSizeTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testAckBatchSize() throws Exception
-   {
+   public void testAckBatchSize() throws Exception {
       ActiveMQServer server = createServer(false);
       server.start();
       int numMessages = 100;
-      ServerLocator locator = createInVMNonHALocator()
-              .setAckBatchSize(numMessages * getMessageEncodeSize(addressA))
-              .setBlockOnAcknowledge(true);
+      ServerLocator locator = createInVMNonHALocator().setAckBatchSize(numMessages * getMessageEncodeSize(addressA)).setBlockOnAcknowledge(true);
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession sendSession = cf.createSession(false, true, true);
 
       ClientSession session = cf.createSession(false, true, true);
       session.createQueue(addressA, queueA, false);
       ClientProducer cp = sendSession.createProducer(addressA);
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          cp.send(sendSession.createMessage(false));
       }
 
       ClientConsumer consumer = session.createConsumer(queueA);
       session.start();
-      for (int i = 0; i < numMessages - 1; i++)
-      {
+      for (int i = 0; i < numMessages - 1; i++) {
          ClientMessage m = consumer.receive(5000);
 
          m.acknowledge();
@@ -101,14 +95,11 @@ public class AckBatchSizeTest extends ActiveMQTestBase
    * tests that when the ackBatchSize is 0 we ack every message directly
    * */
    @Test
-   public void testAckBatchSizeZero() throws Exception
-   {
+   public void testAckBatchSizeZero() throws Exception {
       ActiveMQServer server = createServer(false);
 
       server.start();
-      ServerLocator locator = createInVMNonHALocator()
-              .setAckBatchSize(0)
-              .setBlockOnAcknowledge(true);
+      ServerLocator locator = createInVMNonHALocator().setAckBatchSize(0).setBlockOnAcknowledge(true);
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession sendSession = cf.createSession(false, true, true);
       int numMessages = 100;
@@ -116,8 +107,7 @@ public class AckBatchSizeTest extends ActiveMQTestBase
       ClientSession session = cf.createSession(false, true, true);
       session.createQueue(addressA, queueA, false);
       ClientProducer cp = sendSession.createProducer(addressA);
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          cp.send(sendSession.createMessage(false));
       }
 
@@ -125,13 +115,11 @@ public class AckBatchSizeTest extends ActiveMQTestBase
       session.start();
       Queue q = (Queue) server.getPostOffice().getBinding(queueA).getBindable();
       ClientMessage[] messages = new ClientMessage[numMessages];
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          messages[i] = consumer.receive(5000);
          Assert.assertNotNull(messages[i]);
       }
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          messages[i].acknowledge();
          Assert.assertEquals(numMessages - i - 1, q.getDeliveringCount());
       }

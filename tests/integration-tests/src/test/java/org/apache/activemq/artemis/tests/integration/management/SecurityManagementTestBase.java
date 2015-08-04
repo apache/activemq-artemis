@@ -29,8 +29,7 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Before;
 
-public abstract class SecurityManagementTestBase extends ActiveMQTestBase
-{
+public abstract class SecurityManagementTestBase extends ActiveMQTestBase {
 
    // Constants -----------------------------------------------------
 
@@ -50,8 +49,7 @@ public abstract class SecurityManagementTestBase extends ActiveMQTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       server = setupAndStartActiveMQServer();
@@ -59,19 +57,17 @@ public abstract class SecurityManagementTestBase extends ActiveMQTestBase
 
    protected abstract ActiveMQServer setupAndStartActiveMQServer() throws Exception;
 
-   protected void doSendManagementMessage(final String user, final String password, final boolean expectSuccess) throws Exception
-   {
+   protected void doSendManagementMessage(final String user,
+                                          final String password,
+                                          final boolean expectSuccess) throws Exception {
       ServerLocator locator = createInVMNonHALocator();
       ClientSessionFactory sf = locator.createSessionFactory();
-      try
-      {
+      try {
          ClientSession session = null;
-         if (user == null)
-         {
+         if (user == null) {
             session = sf.createSession(false, true, true);
          }
-         else
-         {
+         else {
             session = sf.createSession(user, password, false, true, true, false, 1);
          }
 
@@ -82,28 +78,23 @@ public abstract class SecurityManagementTestBase extends ActiveMQTestBase
          ClientMessage mngmntMessage = session.createMessage(false);
          ManagementHelper.putAttribute(mngmntMessage, ResourceNames.CORE_SERVER, "started");
          ClientMessage reply = requestor.request(mngmntMessage, 500);
-         if (expectSuccess)
-         {
+         if (expectSuccess) {
             Assert.assertNotNull(reply);
-            Assert.assertTrue((Boolean)ManagementHelper.getResult(reply));
+            Assert.assertTrue((Boolean) ManagementHelper.getResult(reply));
          }
-         else
-         {
+         else {
             Assert.assertNull(reply);
          }
 
          requestor.close();
       }
-      catch (Exception e)
-      {
-         if (expectSuccess)
-         {
+      catch (Exception e) {
+         if (expectSuccess) {
             Assert.fail("got unexpected exception " + e.getClass() + ": " + e.getMessage());
             e.printStackTrace();
          }
       }
-      finally
-      {
+      finally {
          sf.close();
       }
    }

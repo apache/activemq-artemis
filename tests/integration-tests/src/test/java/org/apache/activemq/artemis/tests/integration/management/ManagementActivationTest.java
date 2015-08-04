@@ -39,21 +39,19 @@ import java.util.List;
  * then JMS management operations (e.g. create connection factory, create queue, etc.) should be stored in a cache
  * and then executed once the server becomes active.  The normal use-case for this involves a live/backup pair.
  */
-public class ManagementActivationTest extends FailoverTestBase
-{
+public class ManagementActivationTest extends FailoverTestBase {
+
    private JMSServerManagerImpl backupJmsServer;
    private InVMNamingContext context;
    private String connectorName;
 
    @Override
-   protected TransportConfiguration getAcceptorTransportConfiguration(boolean live)
-   {
+   protected TransportConfiguration getAcceptorTransportConfiguration(boolean live) {
       return TransportConfigurationUtils.getInVMAcceptor(live);
    }
 
    @Override
-   protected TransportConfiguration getConnectorTransportConfiguration(boolean live)
-   {
+   protected TransportConfiguration getConnectorTransportConfiguration(boolean live) {
       TransportConfiguration inVMConnector = TransportConfigurationUtils.getInVMConnector(live);
       connectorName = inVMConnector.getName();
       return inVMConnector;
@@ -61,8 +59,7 @@ public class ManagementActivationTest extends FailoverTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
       backupJmsServer = new JMSServerManagerImpl(backupServer.getServer());
       context = new InVMNamingContext();
@@ -71,24 +68,18 @@ public class ManagementActivationTest extends FailoverTestBase
    }
 
    @Test
-   public void testCreateConnectionFactory() throws Exception
-   {
+   public void testCreateConnectionFactory() throws Exception {
       List<String> connectorNames = new ArrayList<String>();
       connectorNames.add(connectorName);
 
-      ConnectionFactoryConfiguration config = new ConnectionFactoryConfigurationImpl()
-         .setName("test")
-         .setConnectorNames(connectorNames)
-         .setBindings("/myConnectionFactory");
+      ConnectionFactoryConfiguration config = new ConnectionFactoryConfigurationImpl().setName("test").setConnectorNames(connectorNames).setBindings("/myConnectionFactory");
       backupJmsServer.createConnectionFactory(true, config, "/myConnectionFactory");
 
       boolean exception = false;
-      try
-      {
+      try {
          context.lookup("/myConnectionFactory");
       }
-      catch (NameNotFoundException e)
-      {
+      catch (NameNotFoundException e) {
          exception = true;
       }
 
@@ -99,22 +90,17 @@ public class ManagementActivationTest extends FailoverTestBase
       long timeout = System.currentTimeMillis() + 5000;
 
       ConnectionFactory factory = null;
-      while (timeout > System.currentTimeMillis())
-      {
-         try
-         {
+      while (timeout > System.currentTimeMillis()) {
+         try {
             factory = (ConnectionFactory) context.lookup("/myConnectionFactory");
          }
-         catch (Exception ignored)
-         {
+         catch (Exception ignored) {
             // ignored.printStackTrace();
          }
-         if (factory == null)
-         {
+         if (factory == null) {
             Thread.sleep(100);
          }
-         else
-         {
+         else {
             break;
          }
       }
@@ -123,17 +109,14 @@ public class ManagementActivationTest extends FailoverTestBase
    }
 
    @Test
-   public void testCreateQueue() throws Exception
-   {
+   public void testCreateQueue() throws Exception {
       backupJmsServer.createQueue(false, "myQueue", null, false, "/myQueue");
 
       boolean exception = false;
-      try
-      {
+      try {
          context.lookup("/myQueue");
       }
-      catch (NameNotFoundException e)
-      {
+      catch (NameNotFoundException e) {
          exception = true;
       }
 
@@ -144,22 +127,17 @@ public class ManagementActivationTest extends FailoverTestBase
       long timeout = System.currentTimeMillis() + 5000;
 
       Queue queue = null;
-      while (timeout > System.currentTimeMillis())
-      {
-         try
-         {
+      while (timeout > System.currentTimeMillis()) {
+         try {
             queue = (Queue) context.lookup("/myQueue");
          }
-         catch (Exception ignored)
-         {
+         catch (Exception ignored) {
             // ignored.printStackTrace();
          }
-         if (queue == null)
-         {
+         if (queue == null) {
             Thread.sleep(100);
          }
-         else
-         {
+         else {
             break;
          }
       }
@@ -168,17 +146,14 @@ public class ManagementActivationTest extends FailoverTestBase
    }
 
    @Test
-   public void testCreateTopic() throws Exception
-   {
+   public void testCreateTopic() throws Exception {
       backupJmsServer.createTopic(false, "myTopic", "/myTopic");
 
       boolean exception = false;
-      try
-      {
+      try {
          context.lookup("/myTopic");
       }
-      catch (NameNotFoundException e)
-      {
+      catch (NameNotFoundException e) {
          exception = true;
       }
 
@@ -189,22 +164,17 @@ public class ManagementActivationTest extends FailoverTestBase
       long timeout = System.currentTimeMillis() + 5000;
 
       Topic topic = null;
-      while (timeout > System.currentTimeMillis())
-      {
-         try
-         {
+      while (timeout > System.currentTimeMillis()) {
+         try {
             topic = (Topic) context.lookup("/myTopic");
          }
-         catch (Exception ignored)
-         {
+         catch (Exception ignored) {
             // ignored.printStackTrace();
          }
-         if (topic == null)
-         {
+         if (topic == null) {
             Thread.sleep(100);
          }
-         else
-         {
+         else {
             break;
          }
       }
@@ -219,19 +189,15 @@ public class ManagementActivationTest extends FailoverTestBase
     * @throws Exception
     */
    @Test
-   public void testDestroyConnectionFactory() throws Exception
-   {
+   public void testDestroyConnectionFactory() throws Exception {
 
       // This test was deadlocking one in 10, so running it a couple times to make sure that won't happen any longer
-      for (int testrun = 0; testrun < 50; testrun++)
-      {
+      for (int testrun = 0; testrun < 50; testrun++) {
          boolean exception = false;
-         try
-         {
+         try {
             backupJmsServer.destroyConnectionFactory("fakeConnectionFactory");
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             exception = true;
          }
 
@@ -249,15 +215,12 @@ public class ManagementActivationTest extends FailoverTestBase
     * @throws Exception
     */
    @Test
-   public void testRemoveQueue() throws Exception
-   {
+   public void testRemoveQueue() throws Exception {
       boolean exception = false;
-      try
-      {
+      try {
          backupJmsServer.removeQueueFromBindingRegistry("fakeQueue");
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          exception = true;
       }
 
@@ -271,20 +234,16 @@ public class ManagementActivationTest extends FailoverTestBase
     * @throws Exception
     */
    @Test
-   public void testRemoveTopic() throws Exception
-   {
+   public void testRemoveTopic() throws Exception {
       boolean exception = false;
-      try
-      {
+      try {
          backupJmsServer.removeTopicFromBindingRegistry("fakeTopic");
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          exception = true;
       }
 
       assertFalse(exception);
    }
-
 
 }

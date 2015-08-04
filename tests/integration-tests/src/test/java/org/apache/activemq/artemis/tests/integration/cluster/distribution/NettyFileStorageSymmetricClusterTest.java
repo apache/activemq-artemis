@@ -16,21 +16,18 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.distribution;
 
-
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 
-public class NettyFileStorageSymmetricClusterTest extends SymmetricClusterTest
-{
+public class NettyFileStorageSymmetricClusterTest extends SymmetricClusterTest {
+
    IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    @Override
-   protected boolean isNetty()
-   {
+   protected boolean isNetty() {
       return true;
    }
 
-   protected boolean isFileStorage()
-   {
+   protected boolean isFileStorage() {
       return true;
    }
 

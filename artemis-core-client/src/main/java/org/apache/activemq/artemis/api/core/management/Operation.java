@@ -26,15 +26,15 @@ import javax.management.MBeanOperationInfo;
 
 /**
  * Info for a MBean Operation.
- * <p>
+ * <br>
  * This annotation is used only for methods which can be invoked
  * through a GUI.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 @Inherited
-public @interface Operation
-{
+public @interface Operation {
+
    String desc();
 
    int impact() default MBeanOperationInfo.INFO;

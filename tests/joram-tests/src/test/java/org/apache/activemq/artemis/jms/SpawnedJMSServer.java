@@ -29,8 +29,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.jms.server.JMSServerManager;
 import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
 
-public class SpawnedJMSServer
-{
+public class SpawnedJMSServer {
 
    // Constants -----------------------------------------------------
 
@@ -38,14 +37,9 @@ public class SpawnedJMSServer
 
    // Static --------------------------------------------------------
 
-   public static void main(final String[] args) throws Exception
-   {
-      try
-      {
-         Configuration config = new ConfigurationImpl()
-                 .addAcceptorConfiguration(new TransportConfiguration(NettyAcceptorFactory.class.getName()))
-                 .setSecurityEnabled(false)
-                 .addConnectorConfiguration("netty", new TransportConfiguration(NettyConnectorFactory.class.getName()));
+   public static void main(final String[] args) throws Exception {
+      try {
+         Configuration config = new ConfigurationImpl().addAcceptorConfiguration(new TransportConfiguration(NettyAcceptorFactory.class.getName())).setSecurityEnabled(false).addConnectorConfiguration("netty", new TransportConfiguration(NettyConnectorFactory.class.getName()));
 
          // disable server persistence since JORAM tests do not restart server
          final ActiveMQServer server = ActiveMQServers.newActiveMQServer(config, false);
@@ -63,28 +57,23 @@ public class SpawnedJMSServer
          System.out.println("OK");
 
          String line = null;
-         while ((line = br.readLine()) != null)
-         {
-            if ("STOP".equals(line.trim()))
-            {
+         while ((line = br.readLine()) != null) {
+            if ("STOP".equals(line.trim())) {
                server.stop();
                System.out.println("Server stopped");
                System.exit(0);
             }
-            else
-            {
+            else {
                // stop anyway but with an error status
                System.exit(1);
             }
          }
       }
-      catch (Throwable t)
-      {
+      catch (Throwable t) {
          t.printStackTrace();
          String allStack = t.getCause().getMessage() + "|";
          StackTraceElement[] stackTrace = t.getCause().getStackTrace();
-         for (StackTraceElement stackTraceElement : stackTrace)
-         {
+         for (StackTraceElement stackTraceElement : stackTrace) {
             allStack += stackTraceElement.toString() + "|";
          }
          System.out.println(allStack);

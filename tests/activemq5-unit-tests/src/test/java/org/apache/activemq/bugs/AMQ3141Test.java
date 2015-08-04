@@ -40,78 +40,78 @@ import org.junit.Test;
 
 public class AMQ3141Test {
 
-    private static final int MAX_MESSAGES = 100;
+   private static final int MAX_MESSAGES = 100;
 
-    private static final long DELAY_IN_MS = 100;
+   private static final long DELAY_IN_MS = 100;
 
-    private static final String QUEUE_NAME = "target.queue";
+   private static final String QUEUE_NAME = "target.queue";
 
-    private BrokerService broker;
+   private BrokerService broker;
 
-    private final CountDownLatch messageCountDown = new CountDownLatch(MAX_MESSAGES);
+   private final CountDownLatch messageCountDown = new CountDownLatch(MAX_MESSAGES);
 
-    private ConnectionFactory factory;
+   private ConnectionFactory factory;
 
-    @Before
-    public void setup() throws Exception {
+   @Before
+   public void setup() throws Exception {
 
-        broker = new BrokerService();
-        broker.setPersistent(true);
-        broker.setSchedulerSupport(true);
-        broker.setDataDirectory("target");
-        broker.setUseJmx(false);
-        broker.addConnector("vm://localhost");
+      broker = new BrokerService();
+      broker.setPersistent(true);
+      broker.setSchedulerSupport(true);
+      broker.setDataDirectory("target");
+      broker.setUseJmx(false);
+      broker.addConnector("vm://localhost");
 
-        File schedulerDirectory = new File("target/test/ScheduledDB");
-        IOHelper.mkdirs(schedulerDirectory);
-        IOHelper.deleteChildren(schedulerDirectory);
-        broker.setSchedulerDirectoryFile(schedulerDirectory);
+      File schedulerDirectory = new File("target/test/ScheduledDB");
+      IOHelper.mkdirs(schedulerDirectory);
+      IOHelper.deleteChildren(schedulerDirectory);
+      broker.setSchedulerDirectoryFile(schedulerDirectory);
 
-        broker.start();
-        broker.waitUntilStarted();
+      broker.start();
+      broker.waitUntilStarted();
 
-        factory = new ActiveMQConnectionFactory("vm://localhost");
-    }
+      factory = new ActiveMQConnectionFactory("vm://localhost");
+   }
 
-    private void sendMessages() throws Exception {
-        Connection connection = factory.createConnection();
-        connection.start();
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        MessageProducer producer = session.createProducer(session.createQueue(QUEUE_NAME));
-        for (int i = 0; i < MAX_MESSAGES; i++) {
-            Message message = session.createTextMessage();
-            message.setLongProperty(ScheduledMessage.AMQ_SCHEDULED_DELAY, DELAY_IN_MS);
-            producer.send(message);
-        }
-        connection.close();
-    }
+   private void sendMessages() throws Exception {
+      Connection connection = factory.createConnection();
+      connection.start();
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      MessageProducer producer = session.createProducer(session.createQueue(QUEUE_NAME));
+      for (int i = 0; i < MAX_MESSAGES; i++) {
+         Message message = session.createTextMessage();
+         message.setLongProperty(ScheduledMessage.AMQ_SCHEDULED_DELAY, DELAY_IN_MS);
+         producer.send(message);
+      }
+      connection.close();
+   }
 
-    @Test
-    public void testNoMissingMessagesOnShortScheduleDelay() throws Exception {
+   @Test
+   public void testNoMissingMessagesOnShortScheduleDelay() throws Exception {
 
-        Connection connection = factory.createConnection();
-        connection.start();
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        MessageConsumer consumer = session.createConsumer(session.createQueue(QUEUE_NAME));
+      Connection connection = factory.createConnection();
+      connection.start();
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      MessageConsumer consumer = session.createConsumer(session.createQueue(QUEUE_NAME));
 
-        consumer.setMessageListener(new MessageListener() {
-            @Override
-            public void onMessage(Message message) {
-                messageCountDown.countDown();
-            }
-        });
-        sendMessages();
+      consumer.setMessageListener(new MessageListener() {
+         @Override
+         public void onMessage(Message message) {
+            messageCountDown.countDown();
+         }
+      });
+      sendMessages();
 
-        boolean receiveComplete = messageCountDown.await(5, TimeUnit.SECONDS);
+      boolean receiveComplete = messageCountDown.await(5, TimeUnit.SECONDS);
 
-        connection.close();
+      connection.close();
 
-        assertTrue("expect all messages received but " + messageCountDown.getCount() + " are missing", receiveComplete);
-    }
+      assertTrue("expect all messages received but " + messageCountDown.getCount() + " are missing", receiveComplete);
+   }
 
-    @After
-    public void tearDown() throws Exception {
-        broker.stop();
-    }
+   @After
+   public void tearDown() throws Exception {
+      broker.stop();
+   }
 
 }

@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 package org.objectweb.jtests.jms.framework;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
@@ -46,8 +47,7 @@ import org.junit.Before;
  *
  * @since JMS 1.1
  */
-public abstract class UnifiedTestCase extends JMSTestCase
-{
+public abstract class UnifiedTestCase extends JMSTestCase {
 
    protected Context ctx;
 
@@ -152,12 +152,10 @@ public abstract class UnifiedTestCase extends JMSTestCase
     */
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
-      try
-      {
+      try {
          // ...and creates administrated objects and binds them
          admin.createConnectionFactory(UnifiedTestCase.CF_NAME);
          admin.createQueueConnectionFactory(UnifiedTestCase.QCF_NAME);
@@ -177,47 +175,44 @@ public abstract class UnifiedTestCase extends JMSTestCase
          props.put("topic." + UnifiedTestCase.TOPIC_NAME, UnifiedTestCase.TOPIC_NAME);
          Context ctx = new InitialContext(props);
 
-         producerCF = (ConnectionFactory)ctx.lookup(UnifiedTestCase.CF_NAME);
+         producerCF = (ConnectionFactory) ctx.lookup(UnifiedTestCase.CF_NAME);
          // we see destination of the unified domain as a javax.jms.Destination
          // instead of a javax.jms.Queue to be more generic
-         producerDestination = (Destination)ctx.lookup(UnifiedTestCase.DESTINATION_NAME);
+         producerDestination = (Destination) ctx.lookup(UnifiedTestCase.DESTINATION_NAME);
          producerConnection = producerCF.createConnection();
          producerSession = producerConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
          producer = producerSession.createProducer(producerDestination);
 
-         consumerCF = (ConnectionFactory)ctx.lookup(UnifiedTestCase.CF_NAME);
+         consumerCF = (ConnectionFactory) ctx.lookup(UnifiedTestCase.CF_NAME);
          // we see destination of the unified domain as a javax.jms.Destination
          // instead of a javax.jms.Queue to be more generic
-         consumerDestination = (Destination)ctx.lookup(UnifiedTestCase.DESTINATION_NAME);
+         consumerDestination = (Destination) ctx.lookup(UnifiedTestCase.DESTINATION_NAME);
          consumerConnection = consumerCF.createConnection();
          consumerSession = consumerConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
          consumer = consumerSession.createConsumer(consumerDestination);
 
-         queueConnectionFactory = (QueueConnectionFactory)ctx.lookup(UnifiedTestCase.QCF_NAME);
-         queue = (Queue)ctx.lookup(UnifiedTestCase.QUEUE_NAME);
+         queueConnectionFactory = (QueueConnectionFactory) ctx.lookup(UnifiedTestCase.QCF_NAME);
+         queue = (Queue) ctx.lookup(UnifiedTestCase.QUEUE_NAME);
 
-         topicConnectionFactory = (TopicConnectionFactory)ctx.lookup(UnifiedTestCase.TCF_NAME);
-         topic = (Topic)ctx.lookup(UnifiedTestCase.TOPIC_NAME);
+         topicConnectionFactory = (TopicConnectionFactory) ctx.lookup(UnifiedTestCase.TCF_NAME);
+         topic = (Topic) ctx.lookup(UnifiedTestCase.TOPIC_NAME);
 
          producerConnection.start();
          consumerConnection.start();
          // end of client step
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          throw new RuntimeException(e);
       }
    }
 
    /**
-    *  Close connections and delete administrated objects
+    * Close connections and delete administrated objects
     */
    @Override
    @After
-   public void tearDown() throws Exception
-   {
-      try
-      {
+   public void tearDown() throws Exception {
+      try {
          consumerConnection.close();
          producerConnection.close();
 
@@ -228,11 +223,9 @@ public abstract class UnifiedTestCase extends JMSTestCase
          admin.deleteQueue(UnifiedTestCase.QUEUE_NAME);
          admin.deleteTopic(UnifiedTestCase.TOPIC_NAME);
       }
-      catch (Exception ignored)
-      {
+      catch (Exception ignored) {
       }
-      finally
-      {
+      finally {
          producerDestination = null;
          producer = null;
          producerCF = null;

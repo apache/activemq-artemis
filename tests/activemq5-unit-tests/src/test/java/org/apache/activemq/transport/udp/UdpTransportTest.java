@@ -26,39 +26,39 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * 
- * 
+ *
+ *
  */
 public class UdpTransportTest extends UdpTestSupport {
 
-    private static final Logger LOG = LoggerFactory.getLogger(UdpTransportTest.class);
+   private static final Logger LOG = LoggerFactory.getLogger(UdpTransportTest.class);
 
-    protected int consumerPort = 9123;
-    protected String producerURI = "udp://localhost:" + consumerPort;
+   protected int consumerPort = 9123;
+   protected String producerURI = "udp://localhost:" + consumerPort;
 
-    protected Transport createProducer() throws Exception {
-        LOG.info("Producer using URI: " + producerURI);
-        
-        // we are not using the TransportFactory as this assumes that
-        // UDP transports talk to a server using a WireFormat Negotiation step
-        // rather than talking directly to each other
-        
-        OpenWireFormat wireFormat = createWireFormat();
-        UdpTransport transport = new UdpTransport(wireFormat, new URI(producerURI));
-        transport.setSequenceGenerator(new IntSequenceGenerator());
-        return new CommandJoiner(transport, wireFormat);
-    }
+   protected Transport createProducer() throws Exception {
+      LOG.info("Producer using URI: " + producerURI);
 
-    protected Transport createConsumer() throws Exception {
-        LOG.info("Consumer on port: " + consumerPort);
-        OpenWireFormat wireFormat = createWireFormat();
-        UdpTransport transport = new UdpTransport(wireFormat, consumerPort);
-        transport.setSequenceGenerator(new IntSequenceGenerator());
-        return new CommandJoiner(transport, wireFormat);
-    }
+      // we are not using the TransportFactory as this assumes that
+      // UDP transports talk to a server using a WireFormat Negotiation step
+      // rather than talking directly to each other
 
-    protected OpenWireFormat createWireFormat() {
-        return new OpenWireFormat();
-    }
+      OpenWireFormat wireFormat = createWireFormat();
+      UdpTransport transport = new UdpTransport(wireFormat, new URI(producerURI));
+      transport.setSequenceGenerator(new IntSequenceGenerator());
+      return new CommandJoiner(transport, wireFormat);
+   }
+
+   protected Transport createConsumer() throws Exception {
+      LOG.info("Consumer on port: " + consumerPort);
+      OpenWireFormat wireFormat = createWireFormat();
+      UdpTransport transport = new UdpTransport(wireFormat, consumerPort);
+      transport.setSequenceGenerator(new IntSequenceGenerator());
+      return new CommandJoiner(transport, wireFormat);
+   }
+
+   protected OpenWireFormat createWireFormat() {
+      return new OpenWireFormat();
+   }
 
 }

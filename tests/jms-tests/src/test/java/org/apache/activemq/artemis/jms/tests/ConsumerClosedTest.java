@@ -24,8 +24,7 @@ import javax.naming.InitialContext;
 
 import org.junit.Test;
 
-public class ConsumerClosedTest extends JMSTestCase
-{
+public class ConsumerClosedTest extends JMSTestCase {
    // Constants -----------------------------------------------------
 
    public static final int NUMBER_OF_MESSAGES = 10;
@@ -41,20 +40,17 @@ public class ConsumerClosedTest extends JMSTestCase
    // Public --------------------------------------------------------
 
    @Test
-   public void testMessagesSentDuringClose() throws Exception
-   {
+   public void testMessagesSentDuringClose() throws Exception {
       Connection c = null;
 
-      try
-      {
+      try {
          c = createConnection();
          c.start();
 
          Session s = c.createSession(false, Session.AUTO_ACKNOWLEDGE);
          MessageProducer p = s.createProducer(queue1);
 
-         for (int i = 0; i < ConsumerClosedTest.NUMBER_OF_MESSAGES; i++)
-         {
+         for (int i = 0; i < ConsumerClosedTest.NUMBER_OF_MESSAGES; i++) {
             p.send(s.createTextMessage("message" + i));
          }
 
@@ -69,10 +65,8 @@ public class ConsumerClosedTest extends JMSTestCase
 
          assertRemainingMessages(ConsumerClosedTest.NUMBER_OF_MESSAGES);
       }
-      finally
-      {
-         if (c != null)
-         {
+      finally {
+         if (c != null) {
             c.close();
          }
 

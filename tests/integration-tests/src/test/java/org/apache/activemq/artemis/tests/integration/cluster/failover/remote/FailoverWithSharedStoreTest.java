@@ -25,24 +25,19 @@ import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactor
 import org.apache.activemq.artemis.tests.integration.cluster.distribution.ClusterTestBase;
 import org.junit.Test;
 
-public class FailoverWithSharedStoreTest extends ClusterTestBase
-{
+public class FailoverWithSharedStoreTest extends ClusterTestBase {
 
    @Test
-   public void testNoConnection() throws Exception
-   {
+   public void testNoConnection() throws Exception {
       ServerLocator locator = ActiveMQClient.createServerLocatorWithHA(new TransportConfiguration(NettyConnectorFactory.class.getName()));
-      try
-      {
+      try {
          createSessionFactory(locator);
          fail();
       }
-      catch (ActiveMQNotConnectedException nce)
-      {
+      catch (ActiveMQNotConnectedException nce) {
          //ok
       }
-      catch (ActiveMQException e)
-      {
+      catch (ActiveMQException e) {
          fail("Invalid Exception type:" + e.getType());
       }
    }

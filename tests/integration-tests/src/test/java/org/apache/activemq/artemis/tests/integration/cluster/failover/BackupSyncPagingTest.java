@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
+
 import org.junit.Before;
 
 import org.junit.Test;
@@ -28,33 +29,28 @@ import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 
-public class BackupSyncPagingTest extends BackupSyncJournalTest
-{
+public class BackupSyncPagingTest extends BackupSyncJournalTest {
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
       setNumberOfMessages(100);
    }
 
    @Override
-   protected ActiveMQServer createInVMFailoverServer(final boolean realFiles, final Configuration configuration,
-            final NodeManager nodeManager, int id)
-   {
+   protected ActiveMQServer createInVMFailoverServer(final boolean realFiles,
+                                                     final Configuration configuration,
+                                                     final NodeManager nodeManager,
+                                                     int id) {
       Map<String, AddressSettings> conf = new HashMap<String, AddressSettings>();
-      AddressSettings as = new AddressSettings()
-              .setMaxSizeBytes(PAGE_MAX)
-              .setPageSizeBytes(PAGE_SIZE)
-              .setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE);
+      AddressSettings as = new AddressSettings().setMaxSizeBytes(PAGE_MAX).setPageSizeBytes(PAGE_SIZE).setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE);
       conf.put(ADDRESS.toString(), as);
       return createInVMFailoverServer(realFiles, configuration, PAGE_SIZE, PAGE_MAX, conf, nodeManager, id);
    }
 
    @Test
-   public void testReplicationWithPageFileComplete() throws Exception
-   {
+   public void testReplicationWithPageFileComplete() throws Exception {
       // we could get a first page complete easier with this number
       setNumberOfMessages(20);
       createProducerSendSomeMessages();

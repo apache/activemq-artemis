@@ -25,54 +25,55 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class MessageSendTest extends DataStructureTestSupport {
-    private static final Logger LOG = LoggerFactory.getLogger(MessageSendTest.class);
 
-    public static Test suite() {
-        return suite(MessageSendTest.class);
-    }
+   private static final Logger LOG = LoggerFactory.getLogger(MessageSendTest.class);
 
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(suite());
-    }
+   public static Test suite() {
+      return suite(MessageSendTest.class);
+   }
 
-    public void initCombosForTestMessageSendMarshaling() {
-        addCombinationValues("cacheEnabled", new Object[] {Boolean.TRUE, Boolean.FALSE});
-    }
+   public static void main(String[] args) {
+      junit.textui.TestRunner.run(suite());
+   }
 
-    public void testMessageSendMarshaling() throws IOException {
-        ActiveMQMessage message = new ActiveMQMessage();
-        message.setCommandId((short)1);
-        message.setDestination(new ActiveMQQueue("queue"));
-        message.setGroupID("group");
-        message.setGroupSequence(4);
-        message.setCorrelationId("correlation");
-        message.setMessageId(new MessageId("c1:1:1", 1));
+   public void initCombosForTestMessageSendMarshaling() {
+      addCombinationValues("cacheEnabled", new Object[]{Boolean.TRUE, Boolean.FALSE});
+   }
 
-        assertBeanMarshalls(message);
-        assertBeanMarshalls(message);
+   public void testMessageSendMarshaling() throws IOException {
+      ActiveMQMessage message = new ActiveMQMessage();
+      message.setCommandId((short) 1);
+      message.setDestination(new ActiveMQQueue("queue"));
+      message.setGroupID("group");
+      message.setGroupSequence(4);
+      message.setCorrelationId("correlation");
+      message.setMessageId(new MessageId("c1:1:1", 1));
 
-    }
+      assertBeanMarshalls(message);
+      assertBeanMarshalls(message);
 
-    public void xtestPerformance() throws IOException {
-        ActiveMQMessage message = new ActiveMQMessage();
-        message.setProducerId(new ProducerId(new SessionId(new ConnectionId(new ConnectionId("test")), 1), 1));
-        message.setMessageId(new MessageId(message.getProducerId(), 1));
-        message.setCommandId((short)1);
-        message.setGroupID("group");
-        message.setGroupSequence(4);
-        message.setCorrelationId("correlation");
-        message.setContent(new ByteSequence(new byte[1024], 0, 1024));
-        message.setTimestamp(System.currentTimeMillis());
-        message.setDestination(new ActiveMQQueue("TEST"));
+   }
 
-        int p = 1000000;
+   public void xtestPerformance() throws IOException {
+      ActiveMQMessage message = new ActiveMQMessage();
+      message.setProducerId(new ProducerId(new SessionId(new ConnectionId(new ConnectionId("test")), 1), 1));
+      message.setMessageId(new MessageId(message.getProducerId(), 1));
+      message.setCommandId((short) 1);
+      message.setGroupID("group");
+      message.setGroupSequence(4);
+      message.setCorrelationId("correlation");
+      message.setContent(new ByteSequence(new byte[1024], 0, 1024));
+      message.setTimestamp(System.currentTimeMillis());
+      message.setDestination(new ActiveMQQueue("TEST"));
 
-        long start = System.currentTimeMillis();
-        for (int i = 0; i < p; i++) {
-            marshalAndUnmarshall(message, wireFormat);
-        }
-        long end = System.currentTimeMillis();
+      int p = 1000000;
 
-        LOG.info("marshaled/unmarshaled: " + p + " msgs at " + (p * 1000f / (end - start)) + " msgs/sec");
-    }
+      long start = System.currentTimeMillis();
+      for (int i = 0; i < p; i++) {
+         marshalAndUnmarshall(message, wireFormat);
+      }
+      long end = System.currentTimeMillis();
+
+      LOG.info("marshaled/unmarshaled: " + p + " msgs at " + (p * 1000f / (end - start)) + " msgs/sec");
+   }
 }

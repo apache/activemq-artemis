@@ -36,8 +36,7 @@ import java.util.Set;
 
 import static org.apache.activemq.artemis.tests.util.RandomUtil.randomString;
 
-public class AddressControlUsingCoreTest extends ManagementTestBase
-{
+public class AddressControlUsingCoreTest extends ManagementTestBase {
 
    // Constants -----------------------------------------------------
 
@@ -54,8 +53,7 @@ public class AddressControlUsingCoreTest extends ManagementTestBase
    // Public --------------------------------------------------------
 
    @Test
-   public void testGetAddress() throws Exception
-   {
+   public void testGetAddress() throws Exception {
       SimpleString address = RandomUtil.randomSimpleString();
       SimpleString queue = RandomUtil.randomSimpleString();
 
@@ -69,8 +67,7 @@ public class AddressControlUsingCoreTest extends ManagementTestBase
    }
 
    @Test
-   public void testGetQueueNames() throws Exception
-   {
+   public void testGetQueueNames() throws Exception {
       SimpleString address = RandomUtil.randomSimpleString();
       SimpleString queue = RandomUtil.randomSimpleString();
       SimpleString anotherQueue = RandomUtil.randomSimpleString();
@@ -78,17 +75,17 @@ public class AddressControlUsingCoreTest extends ManagementTestBase
       session.createQueue(address, queue, true);
 
       CoreMessagingProxy proxy = createProxy(address);
-      Object[] queueNames = (Object[])proxy.retrieveAttributeValue("queueNames");
+      Object[] queueNames = (Object[]) proxy.retrieveAttributeValue("queueNames");
       Assert.assertEquals(1, queueNames.length);
       Assert.assertEquals(queue.toString(), queueNames[0]);
 
       session.createQueue(address, anotherQueue, false);
-      queueNames = (Object[])proxy.retrieveAttributeValue("queueNames");
+      queueNames = (Object[]) proxy.retrieveAttributeValue("queueNames");
       Assert.assertEquals(2, queueNames.length);
 
       session.deleteQueue(queue);
 
-      queueNames = (Object[])proxy.retrieveAttributeValue("queueNames");
+      queueNames = (Object[]) proxy.retrieveAttributeValue("queueNames");
       Assert.assertEquals(1, queueNames.length);
       Assert.assertEquals(anotherQueue.toString(), queueNames[0]);
 
@@ -96,8 +93,7 @@ public class AddressControlUsingCoreTest extends ManagementTestBase
    }
 
    @Test
-   public void testGetBindingNames() throws Exception
-   {
+   public void testGetBindingNames() throws Exception {
       SimpleString address = RandomUtil.randomSimpleString();
       SimpleString queue = RandomUtil.randomSimpleString();
       String divertName = RandomUtil.randomString();
@@ -105,43 +101,34 @@ public class AddressControlUsingCoreTest extends ManagementTestBase
       session.createQueue(address, queue, false);
 
       CoreMessagingProxy proxy = createProxy(address);
-      Object[] bindingNames = (Object[])proxy.retrieveAttributeValue("bindingNames");
+      Object[] bindingNames = (Object[]) proxy.retrieveAttributeValue("bindingNames");
       assertEquals(1, bindingNames.length);
       assertEquals(queue.toString(), bindingNames[0]);
 
       server.getActiveMQServerControl().createDivert(divertName, randomString(), address.toString(), RandomUtil.randomString(), false, null, null);
 
-      bindingNames = (Object[])proxy.retrieveAttributeValue("bindingNames");
+      bindingNames = (Object[]) proxy.retrieveAttributeValue("bindingNames");
       assertEquals(2, bindingNames.length);
 
       session.deleteQueue(queue);
 
-      bindingNames = (Object[])proxy.retrieveAttributeValue("bindingNames");
+      bindingNames = (Object[]) proxy.retrieveAttributeValue("bindingNames");
       assertEquals(1, bindingNames.length);
       assertEquals(divertName.toString(), bindingNames[0]);
    }
 
    @Test
-   public void testGetRoles() throws Exception
-   {
+   public void testGetRoles() throws Exception {
       SimpleString address = RandomUtil.randomSimpleString();
       SimpleString queue = RandomUtil.randomSimpleString();
-      Role role = new Role(RandomUtil.randomString(),
-                           RandomUtil.randomBoolean(),
-                           RandomUtil.randomBoolean(),
-                           RandomUtil.randomBoolean(),
-                           RandomUtil.randomBoolean(),
-                           RandomUtil.randomBoolean(),
-                           RandomUtil.randomBoolean(),
-                           RandomUtil.randomBoolean());
+      Role role = new Role(RandomUtil.randomString(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean());
 
       session.createQueue(address, queue, true);
 
       CoreMessagingProxy proxy = createProxy(address);
-      Object[] roles = (Object[])proxy.retrieveAttributeValue("roles");
-      for (Object role2 : roles)
-      {
-         System.out.println(((Object[])role2)[0]);
+      Object[] roles = (Object[]) proxy.retrieveAttributeValue("roles");
+      for (Object role2 : roles) {
+         System.out.println(((Object[]) role2)[0]);
       }
       Assert.assertEquals(0, roles.length);
 
@@ -149,9 +136,9 @@ public class AddressControlUsingCoreTest extends ManagementTestBase
       newRoles.add(role);
       server.getSecurityRepository().addMatch(address.toString(), newRoles);
 
-      roles = (Object[])proxy.retrieveAttributeValue("roles");
+      roles = (Object[]) proxy.retrieveAttributeValue("roles");
       Assert.assertEquals(1, roles.length);
-      Object[] r = (Object[])roles[0];
+      Object[] r = (Object[]) roles[0];
       Assert.assertEquals(role.getName(), r[0]);
       Assert.assertEquals(CheckType.SEND.hasRole(role), r[1]);
       Assert.assertEquals(CheckType.CONSUME.hasRole(role), r[2]);
@@ -170,32 +157,27 @@ public class AddressControlUsingCoreTest extends ManagementTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
-      Configuration config = createDefaultInVMConfig()
-         .setJMXManagementEnabled(true);
+      Configuration config = createDefaultInVMConfig().setJMXManagementEnabled(true);
       server = createServer(false, config);
       server.setMBeanServer(mbeanServer);
       server.start();
 
-      ServerLocator locator = createInVMNonHALocator()
-              .setBlockOnNonDurableSend(true);
+      ServerLocator locator = createInVMNonHALocator().setBlockOnNonDurableSend(true);
       ClientSessionFactory sf = createSessionFactory(locator);
       session = sf.createSession(false, true, false);
       session.start();
    }
 
-   protected CoreMessagingProxy createProxy(final SimpleString address) throws Exception
-   {
+   protected CoreMessagingProxy createProxy(final SimpleString address) throws Exception {
       CoreMessagingProxy proxy = new CoreMessagingProxy(session, ResourceNames.CORE_ADDRESS + address);
 
       return proxy;
    }
 
-   protected AddressControl createManagementControl(final SimpleString address) throws Exception
-   {
+   protected AddressControl createManagementControl(final SimpleString address) throws Exception {
       return ManagementControlHelper.createAddressControl(address, mbeanServer);
    }
 

@@ -21,8 +21,8 @@ import java.util.Map;
 /**
  * An AcceptorControl is used to manage Acceptors.
  */
-public interface AcceptorControl extends ActiveMQComponentControl
-{
+public interface AcceptorControl extends ActiveMQComponentControl {
+
    /**
     * Returns the name of the acceptor
     */

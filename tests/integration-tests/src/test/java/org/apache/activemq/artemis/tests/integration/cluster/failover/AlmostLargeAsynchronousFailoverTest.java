@@ -22,28 +22,22 @@ import org.apache.activemq.artemis.core.client.impl.ServerLocatorInternal;
 /**
  * Validating failover when the size of the message Size > flow Control && message Size < minLargeMessageSize
  */
-public class AlmostLargeAsynchronousFailoverTest extends AsynchronousFailoverTest
-{
+public class AlmostLargeAsynchronousFailoverTest extends AsynchronousFailoverTest {
 
    @Override
-   protected void createConfigs() throws Exception
-   {
+   protected void createConfigs() throws Exception {
       super.createConfigs();
       liveServer.getServer().getConfiguration().setJournalFileSize(1024 * 1024);
       backupServer.getServer().getConfiguration().setJournalFileSize(1024 * 1024);
    }
 
    @Override
-   protected ServerLocatorInternal getServerLocator() throws Exception
-   {
-      return (ServerLocatorInternal) super.getServerLocator()
-              .setMinLargeMessageSize(1024 * 1024)
-              .setProducerWindowSize(10 * 1024);
+   protected ServerLocatorInternal getServerLocator() throws Exception {
+      return (ServerLocatorInternal) super.getServerLocator().setMinLargeMessageSize(1024 * 1024).setProducerWindowSize(10 * 1024);
    }
 
    @Override
-   protected void addPayload(ClientMessage message)
-   {
+   protected void addPayload(ClientMessage message) {
       message.putBytesProperty("payload", new byte[20 * 1024]);
    }
 

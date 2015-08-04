@@ -23,8 +23,8 @@ import org.apache.activemq.artemis.core.server.impl.SharedNothingLiveActivation;
 
 import java.util.Map;
 
-public class ReplicatedPolicy implements HAPolicy<LiveActivation>
-{
+public class ReplicatedPolicy implements HAPolicy<LiveActivation> {
+
    private boolean checkForLiveServer = ActiveMQDefaultConfiguration.isDefaultCheckForLiveServer();
 
    private String groupName = null;
@@ -44,13 +44,10 @@ public class ReplicatedPolicy implements HAPolicy<LiveActivation>
    * */
    private ReplicaPolicy replicaPolicy;
 
-
-   public ReplicatedPolicy()
-   {
+   public ReplicatedPolicy() {
    }
 
-   public ReplicatedPolicy(boolean checkForLiveServer, String groupName, String clusterName)
-   {
+   public ReplicatedPolicy(boolean checkForLiveServer, String groupName, String clusterName) {
       this.checkForLiveServer = checkForLiveServer;
       this.groupName = groupName;
       this.clusterName = clusterName;
@@ -60,8 +57,12 @@ public class ReplicatedPolicy implements HAPolicy<LiveActivation>
       replicaPolicy = new ReplicaPolicy(clusterName, -1, groupName, this);
    }
 
-   public ReplicatedPolicy(boolean checkForLiveServer, boolean allowAutoFailBack, long failbackDelay, String groupName, String clusterName, ReplicaPolicy replicaPolicy)
-   {
+   public ReplicatedPolicy(boolean checkForLiveServer,
+                           boolean allowAutoFailBack,
+                           long failbackDelay,
+                           String groupName,
+                           String clusterName,
+                           ReplicaPolicy replicaPolicy) {
       this.checkForLiveServer = checkForLiveServer;
       this.clusterName = clusterName;
       this.groupName = groupName;
@@ -70,102 +71,87 @@ public class ReplicatedPolicy implements HAPolicy<LiveActivation>
       this.replicaPolicy = replicaPolicy;
    }
 
-   public boolean isCheckForLiveServer()
-   {
+   public boolean isCheckForLiveServer() {
       return checkForLiveServer;
    }
 
-   public void setCheckForLiveServer(boolean checkForLiveServer)
-   {
+   public void setCheckForLiveServer(boolean checkForLiveServer) {
       this.checkForLiveServer = checkForLiveServer;
    }
 
-   public boolean isAllowAutoFailBack()
-   {
+   public boolean isAllowAutoFailBack() {
       return allowAutoFailBack;
    }
 
-   public long getFailbackDelay()
-   {
+   public long getFailbackDelay() {
       return failbackDelay;
    }
 
-   public void setFailbackDelay(long failbackDelay)
-   {
+   public void setFailbackDelay(long failbackDelay) {
       this.failbackDelay = failbackDelay;
    }
 
-   public String getClusterName()
-   {
+   public String getClusterName() {
       return clusterName;
    }
 
-   public void setClusterName(String clusterName)
-   {
+   public void setClusterName(String clusterName) {
       this.clusterName = clusterName;
    }
 
-   public ReplicaPolicy getReplicaPolicy()
-   {
+   public ReplicaPolicy getReplicaPolicy() {
       return replicaPolicy;
    }
 
-   public void setReplicaPolicy(ReplicaPolicy replicaPolicy)
-   {
+   public void setReplicaPolicy(ReplicaPolicy replicaPolicy) {
       this.replicaPolicy = replicaPolicy;
    }
 
    /*
    * these 2 methods are the same, leaving both as the second is correct but the first is needed until more refactoring is done
    * */
-   public String getBackupGroupName()
-   {
+   public String getBackupGroupName() {
       return groupName;
    }
 
-   public String getGroupName()
-   {
+   public String getGroupName() {
       return groupName;
    }
 
    @Override
-   public String getScaleDownGroupName()
-   {
+   public String getScaleDownGroupName() {
       return null;
    }
 
-   public void setGroupName(String groupName)
-   {
+   public void setGroupName(String groupName) {
       this.groupName = groupName;
    }
 
    @Override
-   public boolean isSharedStore()
-   {
+   public boolean isSharedStore() {
       return false;
    }
 
    @Override
-   public boolean isBackup()
-   {
+   public boolean isBackup() {
       return false;
    }
 
    @Override
-   public boolean canScaleDown()
-   {
+   public boolean canScaleDown() {
       return false;
    }
 
    @Override
-   public String getScaleDownClustername()
-   {
+   public String getScaleDownClustername() {
       return null;
    }
 
    @Override
-   public LiveActivation createActivation(ActiveMQServerImpl server, boolean wasLive, Map<String, Object> activationParams, ActiveMQServerImpl.ShutdownOnCriticalErrorListener shutdownOnCriticalIO)
-   {
+   public LiveActivation createActivation(ActiveMQServerImpl server,
+                                          boolean wasLive,
+                                          Map<String, Object> activationParams,
+                                          ActiveMQServerImpl.ShutdownOnCriticalErrorListener shutdownOnCriticalIO) {
       return new SharedNothingLiveActivation(server, this);
    }
 }

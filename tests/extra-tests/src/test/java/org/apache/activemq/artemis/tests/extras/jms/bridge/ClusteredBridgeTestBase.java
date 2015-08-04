@@ -62,20 +62,18 @@ import org.junit.Before;
  * This class serves as a base class for jms bridge tests in
  * clustered scenarios.
  */
-public abstract class ClusteredBridgeTestBase extends ActiveMQTestBase
-{
+public abstract class ClusteredBridgeTestBase extends ActiveMQTestBase {
+
    private static int index = 0;
 
    protected Map<String, ServerGroup> groups = new HashMap<String, ServerGroup>();
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
       Iterator<ServerGroup> iter = groups.values().iterator();
-      while (iter.hasNext())
-      {
+      while (iter.hasNext()) {
          iter.next().start();
       }
       TxControl.enable();
@@ -83,11 +81,9 @@ public abstract class ClusteredBridgeTestBase extends ActiveMQTestBase
 
    @Override
    @After
-   public void tearDown() throws Exception
-   {
+   public void tearDown() throws Exception {
       Iterator<ServerGroup> iter = groups.values().iterator();
-      while (iter.hasNext())
-      {
+      while (iter.hasNext()) {
          iter.next().stop();
       }
 
@@ -99,11 +95,9 @@ public abstract class ClusteredBridgeTestBase extends ActiveMQTestBase
    }
 
    //create a live/backup pair.
-   protected ServerGroup createServerGroup(String name) throws Exception
-   {
+   protected ServerGroup createServerGroup(String name) throws Exception {
       ServerGroup server = groups.get(name);
-      if (server == null)
-      {
+      if (server == null) {
          server = new ServerGroup(name, groups.size());
          server.create();
          groups.put(name, server);
@@ -112,8 +106,8 @@ public abstract class ClusteredBridgeTestBase extends ActiveMQTestBase
    }
 
    //each ServerGroup represents a live/backup pair
-   protected class ServerGroup
-   {
+   protected class ServerGroup {
+
       private static final int ID_OFFSET = 100;
       private String name;
       private int id;
@@ -133,19 +127,16 @@ public abstract class ClusteredBridgeTestBase extends ActiveMQTestBase
        * @param name - name of the group
        * @param id   - id of the live (should be < 100)
        */
-      public ServerGroup(String name, int id)
-      {
+      public ServerGroup(String name, int id) {
          this.name = name;
          this.id = id;
       }
 
-      public String getName()
-      {
+      public String getName() {
          return name;
       }
 
-      public void create() throws Exception
-      {
+      public void create() throws Exception {
          Map<String, Object> params0 = new HashMap<String, Object>();
          params0.put(TransportConstants.SERVER_ID_PROP_NAME, id);
          liveConnector = new TransportConfiguration(INVM_CONNECTOR_FACTORY, params0, "in-vm-live");
@@ -155,13 +146,7 @@ public abstract class ClusteredBridgeTestBase extends ActiveMQTestBase
          backupConnector = new TransportConfiguration(INVM_CONNECTOR_FACTORY, params, "in-vm-backup");
 
          //live
-         Configuration conf0 = createBasicConfig()
-            .setJournalDirectory(getJournalDir(id, false))
-            .setBindingsDirectory(getBindingsDir(id, false))
-            .addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY, params0))
-            .addConnectorConfiguration(liveConnector.getName(), liveConnector)
-            .setHAPolicyConfiguration(new ReplicatedPolicyConfiguration())
-            .addClusterConfiguration(basicClusterConnectionConfig(liveConnector.getName()));
+         Configuration conf0 = createBasicConfig().setJournalDirectory(getJournalDir(id, false)).setBindingsDirectory(getBindingsDir(id, false)).addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY, params0)).addConnectorConfiguration(liveConnector.getName(), liveConnector).setHAPolicyConfiguration(new ReplicatedPolicyConfiguration()).addClusterConfiguration(basicClusterConnectionConfig(liveConnector.getName()));
 
          ActiveMQServer server0 = addServer(ActiveMQServers.newActiveMQServer(conf0, true));
 
@@ -170,14 +155,7 @@ public abstract class ClusteredBridgeTestBase extends ActiveMQTestBase
          liveNode.setRegistry(new JndiBindingRegistry(liveContext));
 
          //backup
-         Configuration config = createBasicConfig()
-            .setJournalDirectory(getJournalDir(id, true))
-            .setBindingsDirectory(getBindingsDir(id, true))
-            .addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY, params))
-            .addConnectorConfiguration(backupConnector.getName(), backupConnector)
-            .addConnectorConfiguration(liveConnector.getName(), liveConnector)
-            .setHAPolicyConfiguration(new ReplicaPolicyConfiguration())
-            .addClusterConfiguration(basicClusterConnectionConfig(backupConnector.getName(), liveConnector.getName()));
+         Configuration config = createBasicConfig().setJournalDirectory(getJournalDir(id, true)).setBindingsDirectory(getBindingsDir(id, true)).addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY, params)).addConnectorConfiguration(backupConnector.getName(), backupConnector).addConnectorConfiguration(liveConnector.getName(), liveConnector).setHAPolicyConfiguration(new ReplicaPolicyConfiguration()).addClusterConfiguration(basicClusterConnectionConfig(backupConnector.getName(), liveConnector.getName()));
 
          ActiveMQServer backup = addServer(ActiveMQServers.newActiveMQServer(config, true));
 
@@ -187,39 +165,31 @@ public abstract class ClusteredBridgeTestBase extends ActiveMQTestBase
          backupNode.setRegistry(new JndiBindingRegistry(context));
       }
 
-      public void start() throws Exception
-      {
+      public void start() throws Exception {
          liveNode.start();
          waitForServerToStart(liveNode.getActiveMQServer());
          backupNode.start();
          waitForRemoteBackupSynchronization(backupNode.getActiveMQServer());
 
-         locator = ActiveMQClient.createServerLocatorWithHA(liveConnector)
-                 .setReconnectAttempts(-1);
+         locator = ActiveMQClient.createServerLocatorWithHA(liveConnector).setReconnectAttempts(-1);
          sessionFactory = locator.createSessionFactory();
       }
 
-      public void stop() throws Exception
-      {
+      public void stop() throws Exception {
          sessionFactory.close();
          locator.close();
          liveNode.stop();
          backupNode.stop();
       }
 
-      public void createQueue(String queueName) throws Exception
-      {
+      public void createQueue(String queueName) throws Exception {
          liveNode.createQueue(true, queueName, null, true, "/queue/" + queueName);
       }
 
-      public ConnectionFactoryFactory getConnectionFactoryFactory()
-      {
-         ConnectionFactoryFactory cff = new ConnectionFactoryFactory()
-         {
-            public ConnectionFactory createConnectionFactory() throws Exception
-            {
-               ActiveMQConnectionFactory cf = ActiveMQJMSClient.createConnectionFactoryWithHA(JMSFactoryType.XA_CF,
-                                                                                              liveConnector);
+      public ConnectionFactoryFactory getConnectionFactoryFactory() {
+         ConnectionFactoryFactory cff = new ConnectionFactoryFactory() {
+            public ConnectionFactory createConnectionFactory() throws Exception {
+               ActiveMQConnectionFactory cf = ActiveMQJMSClient.createConnectionFactoryWithHA(JMSFactoryType.XA_CF, liveConnector);
                cf.getServerLocator().setReconnectAttempts(-1);
                return cf;
             }
@@ -228,25 +198,20 @@ public abstract class ClusteredBridgeTestBase extends ActiveMQTestBase
          return cff;
       }
 
-      public DestinationFactory getDestinationFactory(final String queueName)
-      {
+      public DestinationFactory getDestinationFactory(final String queueName) {
 
-         DestinationFactory destFactory = new DestinationFactory()
-         {
-            public Destination createDestination() throws Exception
-            {
+         DestinationFactory destFactory = new DestinationFactory() {
+            public Destination createDestination() throws Exception {
                return (Destination) liveContext.lookup("/queue/" + queueName);
             }
          };
          return destFactory;
       }
 
-      public void sendMessages(String queueName, int num) throws ActiveMQException
-      {
+      public void sendMessages(String queueName, int num) throws ActiveMQException {
          ClientSession session = sessionFactory.createSession();
          ClientProducer producer = session.createProducer("jms.queue." + queueName);
-         for (int i = 0; i < num; i++)
-         {
+         for (int i = 0; i < num; i++) {
             ClientMessage m = session.createMessage(true);
             m.putStringProperty("bridge-message", "hello " + index);
             index++;
@@ -255,13 +220,11 @@ public abstract class ClusteredBridgeTestBase extends ActiveMQTestBase
          session.close();
       }
 
-      public void receiveMessages(String queueName, int num, boolean checkDup) throws ActiveMQException
-      {
+      public void receiveMessages(String queueName, int num, boolean checkDup) throws ActiveMQException {
          ClientSession session = sessionFactory.createSession();
          session.start();
          ClientConsumer consumer = session.createConsumer("jms.queue." + queueName);
-         for (int i = 0; i < num; i++)
-         {
+         for (int i = 0; i < num; i++) {
             ClientMessage m = consumer.receive(30000);
             assertNotNull("i=" + i, m);
             assertNotNull(m.getStringProperty("bridge-message"));
@@ -269,15 +232,12 @@ public abstract class ClusteredBridgeTestBase extends ActiveMQTestBase
          }
 
          ClientMessage m = consumer.receive(500);
-         if (checkDup)
-         {
+         if (checkDup) {
             assertNull(m);
          }
-         else
-         {
+         else {
             //drain messages
-            while (m != null)
-            {
+            while (m != null) {
                m = consumer.receive(200);
             }
          }
@@ -285,17 +245,13 @@ public abstract class ClusteredBridgeTestBase extends ActiveMQTestBase
          session.close();
       }
 
-      public void crashLive() throws Exception
-      {
+      public void crashLive() throws Exception {
          final CountDownLatch latch = new CountDownLatch(1);
-         sessionFactory.addFailoverListener(new FailoverEventListener()
-         {
+         sessionFactory.addFailoverListener(new FailoverEventListener() {
 
             @Override
-            public void failoverEvent(FailoverEventType eventType)
-            {
-               if (eventType == FailoverEventType.FAILOVER_COMPLETED)
-               {
+            public void failoverEvent(FailoverEventType eventType) {
+               if (eventType == FailoverEventType.FAILOVER_COMPLETED) {
                   latch.countDown();
                }
             }

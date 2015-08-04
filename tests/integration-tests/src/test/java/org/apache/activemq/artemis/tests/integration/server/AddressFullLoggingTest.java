@@ -40,11 +40,10 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class AddressFullLoggingTest extends ActiveMQTestBase
-{
+public class AddressFullLoggingTest extends ActiveMQTestBase {
+
    @BeforeClass
-   public static void prepareLogger()
-   {
+   public static void prepareLogger() {
       AssertionLoggerHandler.startCapture();
    }
 
@@ -53,26 +52,18 @@ public class AddressFullLoggingTest extends ActiveMQTestBase
     * When running this test from an IDE add this to the test command line so that the AssertionLoggerHandler works properly:
     *
     *   -Djava.util.logging.manager=org.jboss.logmanager.LogManager  -Dlogging.configuration=file:<path_to_source>/tests/config/logging.properties
-    */
-   public void testBlockLogging() throws Exception
-   {
+    */ public void testBlockLogging() throws Exception {
       final int MAX_MESSAGES = 200;
       final String MY_ADDRESS = "myAddress";
       final String MY_QUEUE = "myQueue";
 
       ActiveMQServer server = createServer(false);
 
-      AddressSettings defaultSetting = new AddressSettings()
-              .setPageSizeBytes(10 * 1024)
-              .setMaxSizeBytes(20 * 1024)
-              .setAddressFullMessagePolicy(AddressFullMessagePolicy.BLOCK);
+      AddressSettings defaultSetting = new AddressSettings().setPageSizeBytes(10 * 1024).setMaxSizeBytes(20 * 1024).setAddressFullMessagePolicy(AddressFullMessagePolicy.BLOCK);
       server.getAddressSettingsRepository().addMatch("#", defaultSetting);
       server.start();
 
-      ServerLocator locator = createInVMNonHALocator()
-              .setBlockOnNonDurableSend(true)
-              .setBlockOnDurableSend(true)
-              .setBlockOnAcknowledge(true);
+      ServerLocator locator = createInVMNonHALocator().setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setBlockOnAcknowledge(true);
 
       ClientSessionFactory factory = createSessionFactory(locator);
       ClientSession session = factory.createSession(false, true, true);
@@ -85,10 +76,8 @@ public class AddressFullLoggingTest extends ActiveMQTestBase
       message.getBodyBuffer().writeBytes(new byte[1024]);
 
       ExecutorService executor = Executors.newFixedThreadPool(1);
-      Callable<Object> sendMessageTask = new Callable<Object>()
-      {
-         public Object call() throws ActiveMQException
-         {
+      Callable<Object> sendMessageTask = new Callable<Object>() {
+         public Object call() throws ActiveMQException {
             producer.send(message);
             return null;
          }
@@ -96,21 +85,17 @@ public class AddressFullLoggingTest extends ActiveMQTestBase
 
       int sendCount = 0;
 
-      for (int i = 0; i < MAX_MESSAGES; i++)
-      {
+      for (int i = 0; i < MAX_MESSAGES; i++) {
          Future<Object> future = executor.submit(sendMessageTask);
-         try
-         {
+         try {
             future.get(3, TimeUnit.SECONDS);
             sendCount++;
          }
-         catch (TimeoutException ex)
-         {
+         catch (TimeoutException ex) {
             // message sending has been blocked
             break;
          }
-         finally
-         {
+         finally {
             future.cancel(true); // may or may not desire this
          }
       }
@@ -121,8 +106,7 @@ public class AddressFullLoggingTest extends ActiveMQTestBase
       session = factory.createSession(false, true, true);
       session.start();
       ClientConsumer consumer = session.createConsumer(MY_QUEUE);
-      for (int i = 0; i < sendCount; i++)
-      {
+      for (int i = 0; i < sendCount; i++) {
          ClientMessage msg = consumer.receive(250);
          if (msg == null)
             break;
@@ -139,8 +123,7 @@ public class AddressFullLoggingTest extends ActiveMQTestBase
    }
 
    @AfterClass
-   public static void clearLogger()
-   {
+   public static void clearLogger() {
       AssertionLoggerHandler.stopCapture();
    }
 }

@@ -34,8 +34,8 @@ import org.junit.Test;
 /**
  * adapted from: org.apache.activemq.JmsTopicRedeliverTest
  */
-public class JmsTopicRedeliverTest extends BasicOpenWireTest
-{
+public class JmsTopicRedeliverTest extends BasicOpenWireTest {
+
    protected Session session;
    protected Session consumeSession;
    protected MessageConsumer consumer;
@@ -49,23 +49,19 @@ public class JmsTopicRedeliverTest extends BasicOpenWireTest
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
-      initRedeliveryDelay = ((ActiveMQConnection) connection)
-            .getRedeliveryPolicy().getInitialRedeliveryDelay();
+      initRedeliveryDelay = ((ActiveMQConnection) connection).getRedeliveryPolicy().getInitialRedeliveryDelay();
 
-      if (durable)
-      {
+      if (durable) {
          connection.setClientID(getClass().getName());
       }
 
       System.out.println("Created connection: " + connection);
 
       session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
-      consumeSession = connection.createSession(false,
-            Session.CLIENT_ACKNOWLEDGE);
+      consumeSession = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
 
       System.out.println("Created session: " + session);
       System.out.println("Created consumeSession: " + consumeSession);
@@ -74,27 +70,17 @@ public class JmsTopicRedeliverTest extends BasicOpenWireTest
 
       System.out.println("Created producer: " + producer);
 
-      if (topic)
-      {
-         consumerDestination = this.createDestination(session,
-               ActiveMQDestination.TOPIC_TYPE);
-         producerDestination = this.createDestination(session,
-               ActiveMQDestination.TOPIC_TYPE);
+      if (topic) {
+         consumerDestination = this.createDestination(session, ActiveMQDestination.TOPIC_TYPE);
+         producerDestination = this.createDestination(session, ActiveMQDestination.TOPIC_TYPE);
       }
-      else
-      {
-         consumerDestination = this.createDestination(session,
-               ActiveMQDestination.QUEUE_TYPE);
-         producerDestination = this.createDestination(session,
-               ActiveMQDestination.QUEUE_TYPE);
+      else {
+         consumerDestination = this.createDestination(session, ActiveMQDestination.QUEUE_TYPE);
+         producerDestination = this.createDestination(session, ActiveMQDestination.QUEUE_TYPE);
       }
 
-      System.out.println("Created  consumer destination: "
-            + consumerDestination + " of type: "
-            + consumerDestination.getClass());
-      System.out.println("Created  producer destination: "
-            + producerDestination + " of type: "
-            + producerDestination.getClass());
+      System.out.println("Created  consumer destination: " + consumerDestination + " of type: " + consumerDestination.getClass());
+      System.out.println("Created  producer destination: " + producerDestination + " of type: " + producerDestination.getClass());
       consumer = createConsumer(getName());
       connection.start();
 
@@ -107,15 +93,12 @@ public class JmsTopicRedeliverTest extends BasicOpenWireTest
     * @throws Exception
     */
    @Test
-   public void testRecover() throws Exception
-   {
+   public void testRecover() throws Exception {
       String text = "TEST";
       Message sendMessage = session.createTextMessage(text);
 
-      if (verbose)
-      {
-         System.out.println("About to send a message: " + sendMessage + " with text: "
-               + text);
+      if (verbose) {
+         System.out.println("About to send a message: " + sendMessage + " with text: " + text);
       }
       producer.send(producerDestination, sendMessage);
 
@@ -141,13 +124,10 @@ public class JmsTopicRedeliverTest extends BasicOpenWireTest
       assertNull(consumer.receiveNoWait());
    }
 
-   protected MessageConsumer createConsumer(String durableName) throws JMSException
-   {
-      if (durable)
-      {
+   protected MessageConsumer createConsumer(String durableName) throws JMSException {
+      if (durable) {
          System.out.println("Creating durable consumer " + durableName);
-         return consumeSession.createDurableSubscriber(
-               (Topic) consumerDestination, durableName);
+         return consumeSession.createDurableSubscriber((Topic) consumerDestination, durableName);
       }
       return consumeSession.createConsumer(consumerDestination);
    }

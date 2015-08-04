@@ -21,9 +21,7 @@ import java.util.List;
 
 import org.apache.activemq.artemis.core.io.IOCallback;
 
-
-public interface TimedBufferObserver
-{
+public interface TimedBufferObserver {
 
    // Constants -----------------------------------------------------
 
@@ -37,7 +35,9 @@ public interface TimedBufferObserver
 
    void flushBuffer(ByteBuffer buffer, boolean syncRequested, List<IOCallback> callbacks);
 
-   /** Return the number of remaining bytes that still fit on the observer (file) */
+   /**
+    * Return the number of remaining bytes that still fit on the observer (file)
+    */
    int getRemainingBytes();
 
    ByteBuffer newBuffer(int size, int limit);

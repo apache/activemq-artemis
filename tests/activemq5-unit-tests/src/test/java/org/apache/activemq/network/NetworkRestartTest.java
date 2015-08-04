@@ -30,158 +30,154 @@ import javax.jms.*;
 
 public class NetworkRestartTest extends TestSupport {
 
-    private static final Logger LOG = LoggerFactory.getLogger(NetworkRestartTest.class);
+   private static final Logger LOG = LoggerFactory.getLogger(NetworkRestartTest.class);
 
-    protected Connection localConnection;
-    protected Connection remoteConnection;
-    protected BrokerService localBroker;
-    protected BrokerService remoteBroker;
-    protected Session localSession;
-    protected Session remoteSession;
+   protected Connection localConnection;
+   protected Connection remoteConnection;
+   protected BrokerService localBroker;
+   protected BrokerService remoteBroker;
+   protected Session localSession;
+   protected Session remoteSession;
 
-    protected ActiveMQQueue included=new ActiveMQQueue("include.test.foo");
+   protected ActiveMQQueue included = new ActiveMQQueue("include.test.foo");
 
+   public void testConnectorRestart() throws Exception {
+      MessageConsumer remoteConsumer = remoteSession.createConsumer(included);
+      MessageProducer localProducer = localSession.createProducer(included);
 
-    public void testConnectorRestart() throws Exception {
-        MessageConsumer remoteConsumer = remoteSession.createConsumer(included);
-        MessageProducer localProducer = localSession.createProducer(included);
+      localProducer.send(localSession.createTextMessage("before"));
+      Message before = remoteConsumer.receive(1000);
+      assertNotNull(before);
+      assertEquals("before", ((TextMessage) before).getText());
 
-        localProducer.send(localSession.createTextMessage("before"));
-        Message before = remoteConsumer.receive(1000);
-        assertNotNull(before);
-        assertEquals("before", ((TextMessage)before).getText());
+      // restart connector
 
-        // restart connector
+      // wait for ack back to localbroker with concurrent store and dispatch, dispatch occurs first
+      Thread.sleep(1000);
 
-        // wait for ack back to localbroker with concurrent store and dispatch, dispatch occurs first
-        Thread.sleep(1000);
+      NetworkConnector connector = localBroker.getNetworkConnectorByName("networkConnector");
 
-        NetworkConnector connector = localBroker.getNetworkConnectorByName("networkConnector");
+      LOG.info("Stopping connector");
+      connector.stop();
 
-        LOG.info("Stopping connector");
-        connector.stop();
+      Thread.sleep(5000);
+      LOG.info("Starting connector");
+      connector.start();
 
-        Thread.sleep(5000);
-        LOG.info("Starting connector");
-        connector.start();
+      Thread.sleep(5000);
 
-        Thread.sleep(5000);
+      localProducer.send(localSession.createTextMessage("after"));
+      Message after = remoteConsumer.receive(3000);
+      assertNotNull(after);
+      assertEquals("after", ((TextMessage) after).getText());
 
+   }
 
-        localProducer.send(localSession.createTextMessage("after"));
-        Message after = remoteConsumer.receive(3000);
-        assertNotNull(after);
-        assertEquals("after", ((TextMessage)after).getText());
+   public void testConnectorReAdd() throws Exception {
+      MessageConsumer remoteConsumer = remoteSession.createConsumer(included);
+      MessageProducer localProducer = localSession.createProducer(included);
 
-    }
+      localProducer.send(localSession.createTextMessage("before"));
+      Message before = remoteConsumer.receive(1000);
+      assertNotNull(before);
+      assertEquals("before", ((TextMessage) before).getText());
 
-    public void testConnectorReAdd() throws Exception {
-        MessageConsumer remoteConsumer = remoteSession.createConsumer(included);
-        MessageProducer localProducer = localSession.createProducer(included);
+      // restart connector
 
-        localProducer.send(localSession.createTextMessage("before"));
-        Message before = remoteConsumer.receive(1000);
-        assertNotNull(before);
-        assertEquals("before", ((TextMessage)before).getText());
+      // wait for ack back to localbroker with concurrent store and dispatch, dispatch occurs first
+      Thread.sleep(1000);
 
-        // restart connector
+      NetworkConnector connector = localBroker.getNetworkConnectorByName("networkConnector");
 
-        // wait for ack back to localbroker with concurrent store and dispatch, dispatch occurs first
-        Thread.sleep(1000);
+      LOG.info("Removing connector");
+      connector.stop();
+      localBroker.removeNetworkConnector(connector);
 
-        NetworkConnector connector = localBroker.getNetworkConnectorByName("networkConnector");
+      Thread.sleep(5000);
+      LOG.info("Re-adding connector");
+      localBroker.addNetworkConnector(connector);
+      connector.start();
 
-        LOG.info("Removing connector");
-        connector.stop();
-        localBroker.removeNetworkConnector(connector);
+      Thread.sleep(5000);
 
-        Thread.sleep(5000);
-        LOG.info("Re-adding connector");
-        localBroker.addNetworkConnector(connector);
-        connector.start();
+      localProducer.send(localSession.createTextMessage("after"));
+      Message after = remoteConsumer.receive(3000);
+      assertNotNull(after);
+      assertEquals("after", ((TextMessage) after).getText());
+   }
 
-        Thread.sleep(5000);
+   protected void setUp() throws Exception {
+      setAutoFail(true);
+      super.setUp();
+      doSetUp();
+   }
 
+   protected void tearDown() throws Exception {
+      localBroker.deleteAllMessages();
+      remoteBroker.deleteAllMessages();
+      doTearDown();
+      super.tearDown();
+   }
 
-        localProducer.send(localSession.createTextMessage("after"));
-        Message after = remoteConsumer.receive(3000);
-        assertNotNull(after);
-        assertEquals("after", ((TextMessage)after).getText());
-    }
+   protected void doTearDown() throws Exception {
+      localConnection.close();
+      remoteConnection.close();
+      localBroker.stop();
+      localBroker.waitUntilStopped();
+      remoteBroker.stop();
+      remoteBroker.waitUntilStopped();
+   }
 
+   protected void doSetUp() throws Exception {
 
-    protected void setUp() throws Exception {
-        setAutoFail(true);
-        super.setUp();
-        doSetUp();
-    }
+      remoteBroker = createRemoteBroker();
+      remoteBroker.start();
+      remoteBroker.waitUntilStarted();
+      localBroker = createLocalBroker();
+      localBroker.start();
+      localBroker.waitUntilStarted();
 
-    protected void tearDown() throws Exception {
-        localBroker.deleteAllMessages();
-        remoteBroker.deleteAllMessages();
-        doTearDown();
-        super.tearDown();
-    }
+      String localURI = "tcp://localhost:61616";
+      String remoteURI = "tcp://localhost:61617";
+      ActiveMQConnectionFactory fac = new ActiveMQConnectionFactory(localURI);
+      localConnection = fac.createConnection();
+      localConnection.setClientID("local");
+      localConnection.start();
 
-    protected void doTearDown() throws Exception {
-        localConnection.close();
-        remoteConnection.close();
-        localBroker.stop();
-        localBroker.waitUntilStopped();
-        remoteBroker.stop();
-        remoteBroker.waitUntilStopped();
-    }
+      fac = new ActiveMQConnectionFactory(remoteURI);
+      fac.setWatchTopicAdvisories(false);
+      remoteConnection = fac.createConnection();
+      remoteConnection.setClientID("remote");
+      remoteConnection.start();
 
-    protected void doSetUp() throws Exception {
+      localSession = localConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      remoteSession = remoteConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+   }
 
-        remoteBroker = createRemoteBroker();
-        remoteBroker.start();
-        remoteBroker.waitUntilStarted();
-        localBroker = createLocalBroker();
-        localBroker.start();
-        localBroker.waitUntilStarted();
+   protected String getRemoteBrokerURI() {
+      return "org/apache/activemq/network/remoteBroker.xml";
+   }
 
-        String localURI = "tcp://localhost:61616";
-        String remoteURI = "tcp://localhost:61617";
-        ActiveMQConnectionFactory fac = new ActiveMQConnectionFactory(localURI);
-        localConnection = fac.createConnection();
-        localConnection.setClientID("local");
-        localConnection.start();
+   protected String getLocalBrokerURI() {
+      return "org/apache/activemq/network/localBroker.xml";
+   }
 
-        fac = new ActiveMQConnectionFactory(remoteURI);
-        fac.setWatchTopicAdvisories(false);
-        remoteConnection = fac.createConnection();
-        remoteConnection.setClientID("remote");
-        remoteConnection.start();
+   protected BrokerService createBroker(String uri) throws Exception {
+      Resource resource = new ClassPathResource(uri);
+      BrokerFactoryBean factory = new BrokerFactoryBean(resource);
+      resource = new ClassPathResource(uri);
+      factory = new BrokerFactoryBean(resource);
+      factory.afterPropertiesSet();
+      BrokerService result = factory.getBroker();
+      return result;
+   }
 
-        localSession = localConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        remoteSession = remoteConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-    }
+   protected BrokerService createLocalBroker() throws Exception {
+      return createBroker(getLocalBrokerURI());
+   }
 
-    protected String getRemoteBrokerURI() {
-        return "org/apache/activemq/network/remoteBroker.xml";
-    }
-
-    protected String getLocalBrokerURI() {
-        return "org/apache/activemq/network/localBroker.xml";
-    }
-
-    protected BrokerService createBroker(String uri) throws Exception {
-        Resource resource = new ClassPathResource(uri);
-        BrokerFactoryBean factory = new BrokerFactoryBean(resource);
-        resource = new ClassPathResource(uri);
-        factory = new BrokerFactoryBean(resource);
-        factory.afterPropertiesSet();
-        BrokerService result = factory.getBroker();
-        return result;
-    }
-
-    protected BrokerService createLocalBroker() throws Exception {
-        return createBroker(getLocalBrokerURI());
-    }
-
-    protected BrokerService createRemoteBroker() throws Exception {
-        return createBroker(getRemoteBrokerURI());
-    }
+   protected BrokerService createRemoteBroker() throws Exception {
+      return createBroker(getRemoteBrokerURI());
+   }
 
 }

@@ -35,8 +35,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class ExpiryAddressTest extends ActiveMQTestBase
-{
+public class ExpiryAddressTest extends ActiveMQTestBase {
+
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    private ActiveMQServer server;
@@ -45,8 +45,7 @@ public class ExpiryAddressTest extends ActiveMQTestBase
    private ServerLocator locator;
 
    @Test
-   public void testBasicSend() throws Exception
-   {
+   public void testBasicSend() throws Exception {
       SimpleString ea = new SimpleString("EA");
       SimpleString adSend = new SimpleString("a1");
       SimpleString qName = new SimpleString("q1");
@@ -79,8 +78,7 @@ public class ExpiryAddressTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testBasicSendWithRetroActiveAddressSettings() throws Exception
-   {
+   public void testBasicSendWithRetroActiveAddressSettings() throws Exception {
       // apply "original" address settings
       SimpleString expiryAddress1 = new SimpleString("expiryAddress1");
       SimpleString qName = new SimpleString("q1");
@@ -130,8 +128,7 @@ public class ExpiryAddressTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testBasicSendToMultipleQueues() throws Exception
-   {
+   public void testBasicSendToMultipleQueues() throws Exception {
       SimpleString ea = new SimpleString("EA");
       SimpleString qName = new SimpleString("q1");
       SimpleString eq = new SimpleString("EQ1");
@@ -191,8 +188,7 @@ public class ExpiryAddressTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testBasicSendToNoQueue() throws Exception
-   {
+   public void testBasicSendToNoQueue() throws Exception {
       SimpleString ea = new SimpleString("EA");
       SimpleString qName = new SimpleString("q1");
       SimpleString eq = new SimpleString("EQ1");
@@ -213,8 +209,7 @@ public class ExpiryAddressTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testHeadersSet() throws Exception
-   {
+   public void testHeadersSet() throws Exception {
       final int NUM_MESSAGES = 5;
       SimpleString ea = new SimpleString("DLA");
       SimpleString qName = new SimpleString("q1");
@@ -231,8 +226,7 @@ public class ExpiryAddressTest extends ActiveMQTestBase
       ClientProducer producer = sendSession.createProducer(qName);
 
       long expiration = System.currentTimeMillis();
-      for (int i = 0; i < NUM_MESSAGES; i++)
-      {
+      for (int i = 0; i < NUM_MESSAGES; i++) {
          ClientMessage tm = createTextMessage(clientSession, "Message:" + i);
          tm.setExpiration(expiration);
          producer.send(tm);
@@ -246,8 +240,7 @@ public class ExpiryAddressTest extends ActiveMQTestBase
 
       ClientConsumer cc3 = clientSession.createConsumer(eq);
 
-      for (int i = 0; i < NUM_MESSAGES; i++)
-      {
+      for (int i = 0; i < NUM_MESSAGES; i++) {
          ClientMessage tm = cc3.receive(1000);
 
          Assert.assertNotNull(tm);
@@ -256,7 +249,7 @@ public class ExpiryAddressTest extends ActiveMQTestBase
          Assert.assertEquals("Message:" + i, text);
 
          // Check the headers
-         Long actualExpiryTime = (Long)tm.getObjectProperty(Message.HDR_ACTUAL_EXPIRY_TIME);
+         Long actualExpiryTime = (Long) tm.getObjectProperty(Message.HDR_ACTUAL_EXPIRY_TIME);
          Assert.assertTrue(actualExpiryTime >= expiration);
       }
 
@@ -267,8 +260,7 @@ public class ExpiryAddressTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testExpireWithDefaultAddressSettings() throws Exception
-   {
+   public void testExpireWithDefaultAddressSettings() throws Exception {
       SimpleString ea = new SimpleString("EA");
       SimpleString qName = new SimpleString("q1");
       SimpleString eq = new SimpleString("EA1");
@@ -296,8 +288,7 @@ public class ExpiryAddressTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testExpireWithWildcardAddressSettings() throws Exception
-   {
+   public void testExpireWithWildcardAddressSettings() throws Exception {
       SimpleString ea = new SimpleString("EA");
       SimpleString qName = new SimpleString("q1");
       SimpleString eq = new SimpleString("EA1");
@@ -325,8 +316,7 @@ public class ExpiryAddressTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testExpireWithOverridenSublevelAddressSettings() throws Exception
-   {
+   public void testExpireWithOverridenSublevelAddressSettings() throws Exception {
       SimpleString address = new SimpleString("prefix.address");
       SimpleString queue = RandomUtil.randomSimpleString();
       SimpleString defaultExpiryAddress = RandomUtil.randomSimpleString();
@@ -368,14 +358,12 @@ public class ExpiryAddressTest extends ActiveMQTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
       server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig(), false));
       server.start();
       // then we create a client as normal
-      locator = createInVMNonHALocator()
-              .setBlockOnAcknowledge(true);
+      locator = createInVMNonHALocator().setBlockOnAcknowledge(true);
       ClientSessionFactory sessionFactory = createSessionFactory(locator);
       // There are assertions over sizes that needs to be done after the ACK
       // was received on server

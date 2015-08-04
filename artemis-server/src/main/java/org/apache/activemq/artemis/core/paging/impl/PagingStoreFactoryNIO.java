@@ -43,11 +43,9 @@ import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 
 /**
- *
  * Integration point between Paging and NIO
  */
-public class PagingStoreFactoryNIO implements PagingStoreFactory
-{
+public class PagingStoreFactoryNIO implements PagingStoreFactory {
 
    // Constants -----------------------------------------------------
 
@@ -71,13 +69,13 @@ public class PagingStoreFactoryNIO implements PagingStoreFactory
 
    private final IOCriticalErrorListener critialErrorListener;
 
-   public PagingStoreFactoryNIO(final StorageManager storageManager, final File directory,
+   public PagingStoreFactoryNIO(final StorageManager storageManager,
+                                final File directory,
                                 final long syncTimeout,
                                 final ScheduledExecutorService scheduledExecutor,
                                 final ExecutorFactory executorFactory,
                                 final boolean syncNonTransactional,
-                                final IOCriticalErrorListener critialErrorListener)
-   {
+                                final IOCriticalErrorListener critialErrorListener) {
       this.storageManager = storageManager;
       this.directory = directory;
       this.executorFactory = executorFactory;
@@ -89,28 +87,15 @@ public class PagingStoreFactoryNIO implements PagingStoreFactory
 
    // Public --------------------------------------------------------
 
-   public void stop()
-   {
+   public void stop() {
    }
 
-   public synchronized PagingStore newStore(final SimpleString address, final AddressSettings settings)
-   {
+   public synchronized PagingStore newStore(final SimpleString address, final AddressSettings settings) {
 
-      return new PagingStoreImpl(address,
-                                 scheduledExecutor,
-                                 syncTimeout,
-                                 pagingManager,
-                                 storageManager,
-                                 null,
-                                 this,
-                                 address,
-                                 settings,
-                                 executorFactory.getExecutor(),
-                                 syncNonTransactional);
+      return new PagingStoreImpl(address, scheduledExecutor, syncTimeout, pagingManager, storageManager, null, this, address, settings, executorFactory.getExecutor(), syncNonTransactional);
    }
 
-   public synchronized SequentialFileFactory newFileFactory(final SimpleString address) throws Exception
-   {
+   public synchronized SequentialFileFactory newFileFactory(final SimpleString address) throws Exception {
 
       String guid = UUIDGenerator.getInstance().generateStringUUID();
 
@@ -118,52 +103,43 @@ public class PagingStoreFactoryNIO implements PagingStoreFactory
 
       factory.createDirs();
 
-      File fileWithID = new File(directory,
-                                 guid +
-                                 File.separatorChar +
-                                 PagingStoreFactoryNIO.ADDRESS_FILE);
+      File fileWithID = new File(directory, guid +
+         File.separatorChar +
+         PagingStoreFactoryNIO.ADDRESS_FILE);
 
       BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fileWithID)));
 
-      try
-      {
+      try {
          writer.write(address.toString());
          writer.newLine();
       }
-      finally
-      {
+      finally {
          writer.close();
       }
 
       return factory;
    }
 
-   public void setPagingManager(final PagingManager pagingManager)
-   {
+   public void setPagingManager(final PagingManager pagingManager) {
       this.pagingManager = pagingManager;
    }
 
-   public List<PagingStore> reloadStores(final HierarchicalRepository<AddressSettings> addressSettingsRepository) throws Exception
-   {
+   public List<PagingStore> reloadStores(final HierarchicalRepository<AddressSettings> addressSettingsRepository) throws Exception {
       File[] files = directory.listFiles();
 
-      if (files == null)
-      {
+      if (files == null) {
          return Collections.<PagingStore>emptyList();
       }
-      else
-      {
+      else {
          ArrayList<PagingStore> storesReturn = new ArrayList<PagingStore>(files.length);
 
-         for (File file : files)
-         {
+         for (File file : files) {
 
             final String guid = file.getName();
 
             final File addressFile = new File(file, PagingStoreFactoryNIO.ADDRESS_FILE);
 
-            if (!addressFile.exists())
-            {
+            if (!addressFile.exists()) {
                ActiveMQServerLogger.LOGGER.pageStoreFactoryNoIdFile(file.toString(), PagingStoreFactoryNIO.ADDRESS_FILE);
                continue;
             }
@@ -172,12 +148,10 @@ public class PagingStoreFactoryNIO implements PagingStoreFactory
 
             String addressString;
 
-            try
-            {
+            try {
                addressString = reader.readLine();
             }
-            finally
-            {
+            finally {
                reader.close();
             }
 
@@ -187,17 +161,7 @@ public class PagingStoreFactoryNIO implements PagingStoreFactory
 
             AddressSettings settings = addressSettingsRepository.getMatch(address.toString());
 
-            PagingStore store = new PagingStoreImpl(address,
-                                                    scheduledExecutor,
-                                                    syncTimeout,
-                                                    pagingManager,
-                                                    storageManager,
-                                                    factory,
-                                                    this,
-                                                    address,
-                                                    settings,
-                                                    executorFactory.getExecutor(),
-                                                    syncNonTransactional);
+            PagingStore store = new PagingStoreImpl(address, scheduledExecutor, syncTimeout, pagingManager, storageManager, factory, this, address, settings, executorFactory.getExecutor(), syncNonTransactional);
 
             storesReturn.add(store);
          }
@@ -206,8 +170,7 @@ public class PagingStoreFactoryNIO implements PagingStoreFactory
       }
    }
 
-   private SequentialFileFactory newFileFactory(final String directoryName)
-   {
+   private SequentialFileFactory newFileFactory(final String directoryName) {
       return new NIOSequentialFileFactory(new File(directory, directoryName), false, critialErrorListener, 1);
    }
 }

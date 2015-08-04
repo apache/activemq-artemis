@@ -24,8 +24,8 @@ import org.apache.activemq.artemis.utils.BufferHelper;
 
 import java.io.Serializable;
 
-public class ResourceLimitSettings implements Serializable, EncodingSupport
-{
+public class ResourceLimitSettings implements Serializable, EncodingSupport {
+
    private static final long serialVersionUID = -110638321333856932L;
 
    public static final SimpleString DEFAULT_MATCH = null;
@@ -34,9 +34,9 @@ public class ResourceLimitSettings implements Serializable, EncodingSupport
 
    public static final Integer DEFAULT_MAX_QUEUES = -1;
 
-//   public static final Long DEFAULT_MAX_QUEUE_SIZE_BYTES = -1L;
+   //   public static final Long DEFAULT_MAX_QUEUE_SIZE_BYTES = -1L;
 
-//   public static final SimpleString DEFAULT_QUEUE_NAME_REGEX = new SimpleString(".+");
+   //   public static final SimpleString DEFAULT_QUEUE_NAME_REGEX = new SimpleString(".+");
 
    SimpleString match = null;
 
@@ -44,112 +44,101 @@ public class ResourceLimitSettings implements Serializable, EncodingSupport
 
    Integer maxQueues = null;
 
-//   Long maxQueueSizeBytes = null;
+   //   Long maxQueueSizeBytes = null;
 
-//   SimpleString queueNameRegex = null;
+   //   SimpleString queueNameRegex = null;
 
-   public SimpleString getMatch()
-   {
+   public SimpleString getMatch() {
       return match != null ? match : DEFAULT_MATCH;
    }
 
-   public int getMaxConnections()
-   {
+   public int getMaxConnections() {
       return maxConnections != null ? maxConnections : DEFAULT_MAX_CONNECTIONS;
    }
 
-   public int getMaxQueues()
-   {
+   public int getMaxQueues() {
       return maxQueues != null ? maxQueues : DEFAULT_MAX_QUEUES;
    }
 
-//   public long getMaxQueueSizeBytes()
-//   {
-//      return maxQueueSizeBytes != null ? maxQueueSizeBytes : DEFAULT_MAX_QUEUE_SIZE_BYTES;
-//   }
-//
-//   public SimpleString getQueueNameRegex()
-//   {
-//      return queueNameRegex != null ? queueNameRegex : DEFAULT_QUEUE_NAME_REGEX;
-//   }
+   //   public long getMaxQueueSizeBytes()
+   //   {
+   //      return maxQueueSizeBytes != null ? maxQueueSizeBytes : DEFAULT_MAX_QUEUE_SIZE_BYTES;
+   //   }
+   //
+   //   public SimpleString getQueueNameRegex()
+   //   {
+   //      return queueNameRegex != null ? queueNameRegex : DEFAULT_QUEUE_NAME_REGEX;
+   //   }
 
-   public void setMatch(SimpleString match)
-   {
+   public void setMatch(SimpleString match) {
       this.match = match;
    }
 
-   public void setMaxConnections(int maxConnections)
-   {
+   public void setMaxConnections(int maxConnections) {
       this.maxConnections = maxConnections;
    }
 
-   public void setMaxQueues(int maxQueues)
-   {
+   public void setMaxQueues(int maxQueues) {
       this.maxQueues = maxQueues;
    }
 
-//   public void setMaxQueueSizeBytes(long maxQueueSizeBytes)
-//   {
-//      this.maxQueueSizeBytes = maxQueueSizeBytes;
-//   }
-//
-//   public void setQueueNameRegex(SimpleString queueNameRegex)
-//   {
-//      this.queueNameRegex = queueNameRegex;
-//   }
+   //   public void setMaxQueueSizeBytes(long maxQueueSizeBytes)
+   //   {
+   //      this.maxQueueSizeBytes = maxQueueSizeBytes;
+   //   }
+   //
+   //   public void setQueueNameRegex(SimpleString queueNameRegex)
+   //   {
+   //      this.queueNameRegex = queueNameRegex;
+   //   }
 
    @Override
-   public int getEncodeSize()
-   {
+   public int getEncodeSize() {
       return SimpleString.sizeofNullableString(match) +
-              BufferHelper.sizeOfNullableInteger(maxConnections) +
-              BufferHelper.sizeOfNullableInteger(maxQueues);
-//              BufferHelper.sizeOfNullableLong(maxQueueSizeBytes) +
-//              SimpleString.sizeofNullableString(queueNameRegex);
+         BufferHelper.sizeOfNullableInteger(maxConnections) +
+         BufferHelper.sizeOfNullableInteger(maxQueues);
+      //              BufferHelper.sizeOfNullableLong(maxQueueSizeBytes) +
+      //              SimpleString.sizeofNullableString(queueNameRegex);
    }
 
    @Override
-   public void encode(ActiveMQBuffer buffer)
-   {
+   public void encode(ActiveMQBuffer buffer) {
       buffer.writeNullableSimpleString(match);
 
       BufferHelper.writeNullableInteger(buffer, maxConnections);
 
       BufferHelper.writeNullableInteger(buffer, maxQueues);
 
-//      BufferHelper.writeNullableLong(buffer, maxQueueSizeBytes);
+      //      BufferHelper.writeNullableLong(buffer, maxQueueSizeBytes);
 
-//      buffer.writeNullableSimpleString(queueNameRegex);
+      //      buffer.writeNullableSimpleString(queueNameRegex);
    }
 
    @Override
-   public void decode(ActiveMQBuffer buffer)
-   {
+   public void decode(ActiveMQBuffer buffer) {
       match = buffer.readNullableSimpleString();
 
       maxConnections = BufferHelper.readNullableInteger(buffer);
 
       maxQueues = BufferHelper.readNullableInteger(buffer);
 
-//      maxQueueSizeBytes = BufferHelper.readNullableLong(buffer);
+      //      maxQueueSizeBytes = BufferHelper.readNullableLong(buffer);
 
-//      queueNameRegex = buffer.readNullableSimpleString();
+      //      queueNameRegex = buffer.readNullableSimpleString();
    }
-
 
    /* (non-Javadoc)
     * @see java.lang.Object#hashCode()
     */
    @Override
-   public int hashCode()
-   {
+   public int hashCode() {
       final int prime = 31;
       int result = 1;
       result = prime * result + ((match == null) ? 0 : match.hashCode());
       result = prime * result + ((maxConnections == null) ? 0 : maxConnections.hashCode());
       result = prime * result + ((maxQueues == null) ? 0 : maxQueues.hashCode());
-//      result = prime * result + ((maxQueueSizeBytes == null) ? 0 : maxQueueSizeBytes.hashCode());
-//      result = prime * result + ((queueNameRegex == null) ? 0 : queueNameRegex.hashCode());
+      //      result = prime * result + ((maxQueueSizeBytes == null) ? 0 : maxQueueSizeBytes.hashCode());
+      //      result = prime * result + ((queueNameRegex == null) ? 0 : queueNameRegex.hashCode());
       return result;
    }
 
@@ -157,17 +146,16 @@ public class ResourceLimitSettings implements Serializable, EncodingSupport
     * @see java.lang.Object#toString()
     */
    @Override
-   public String toString()
-   {
+   public String toString() {
       return "ResourceLimitSettings [match=" + match +
-              ", maxConnections=" +
-              maxConnections +
-              ", maxQueues=" +
-              maxQueues +
-//              ", maxQueueSizeBytes=" +
-//              maxQueueSizeBytes +
-//              ", queueNameRegex=" +
-//              queueNameRegex +
-              "]";
+         ", maxConnections=" +
+         maxConnections +
+         ", maxQueues=" +
+         maxQueues +
+         //              ", maxQueueSizeBytes=" +
+         //              maxQueueSizeBytes +
+         //              ", queueNameRegex=" +
+         //              queueNameRegex +
+         "]";
    }
 }

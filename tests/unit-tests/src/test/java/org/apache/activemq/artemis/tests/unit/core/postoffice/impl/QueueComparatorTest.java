@@ -26,11 +26,10 @@ import org.apache.activemq.artemis.core.server.impl.ScaleDownHandler;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class QueueComparatorTest
-{
+public class QueueComparatorTest {
+
    @Test
-   public void testQueueSorting()
-   {
+   public void testQueueSorting() {
       FakeQueue queue1 = new FakeQueue(new SimpleString("1"));
       queue1.setMessageCount(1);
       FakeQueue queue2 = new FakeQueue(new SimpleString("2"));

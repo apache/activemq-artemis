@@ -23,8 +23,7 @@ import org.junit.Assert;
 
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 
-public class TransportConfigurationTest extends ActiveMQTestBase
-{
+public class TransportConfigurationTest extends ActiveMQTestBase {
 
    // Constants -----------------------------------------------------
 
@@ -37,8 +36,7 @@ public class TransportConfigurationTest extends ActiveMQTestBase
    // Public --------------------------------------------------------
 
    @Test
-   public void testSplitNullAddress() throws Exception
-   {
+   public void testSplitNullAddress() throws Exception {
       String[] addresses = TransportConfiguration.splitHosts(null);
 
       Assert.assertNotNull(addresses);
@@ -46,8 +44,7 @@ public class TransportConfigurationTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testSplitSingleAddress() throws Exception
-   {
+   public void testSplitSingleAddress() throws Exception {
       String[] addresses = TransportConfiguration.splitHosts("localhost");
 
       Assert.assertNotNull(addresses);
@@ -56,8 +53,7 @@ public class TransportConfigurationTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testSplitManyAddresses() throws Exception
-   {
+   public void testSplitManyAddresses() throws Exception {
       String[] addresses = TransportConfiguration.splitHosts("localhost, 127.0.0.1, 192.168.0.10");
 
       Assert.assertNotNull(addresses);

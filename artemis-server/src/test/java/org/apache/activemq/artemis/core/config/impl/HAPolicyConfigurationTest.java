@@ -39,15 +39,13 @@ import org.junit.Test;
 
 import java.util.List;
 
-public class HAPolicyConfigurationTest extends ActiveMQTestBase
-{
+public class HAPolicyConfigurationTest extends ActiveMQTestBase {
+
    @Test
-   public void liveOnlyTest() throws Exception
-   {
+   public void liveOnlyTest() throws Exception {
       Configuration configuration = createConfiguration("live-only-hapolicy-config.xml");
       ActiveMQServerImpl server = new ActiveMQServerImpl(configuration);
-      try
-      {
+      try {
          server.start();
          Activation activation = server.getActivation();
          assertTrue(activation instanceof LiveOnlyActivation);
@@ -62,19 +60,16 @@ public class HAPolicyConfigurationTest extends ActiveMQTestBase
          assertNotNull(connectors);
          assertEquals(connectors.size(), 0);
       }
-      finally
-      {
+      finally {
          server.stop();
       }
    }
 
    @Test
-   public void liveOnlyTest2() throws Exception
-   {
+   public void liveOnlyTest2() throws Exception {
       Configuration configuration = createConfiguration("live-only-hapolicy-config2.xml");
       ActiveMQServerImpl server = new ActiveMQServerImpl(configuration);
-      try
-      {
+      try {
          server.start();
          Activation activation = server.getActivation();
          assertTrue(activation instanceof LiveOnlyActivation);
@@ -92,36 +87,31 @@ public class HAPolicyConfigurationTest extends ActiveMQTestBase
          assertTrue(connectors.contains("sd-connector1"));
          assertTrue(connectors.contains("sd-connector2"));
       }
-      finally
-      {
+      finally {
          server.stop();
       }
    }
 
    @Test
-   public void liveOnlyTest3() throws Exception
-   {
+   public void liveOnlyTest3() throws Exception {
       liveOnlyTest("live-only-hapolicy-config3.xml");
    }
 
    @Test
-   public void liveOnlyTest4() throws Exception
-   {
+   public void liveOnlyTest4() throws Exception {
       liveOnlyTest("live-only-hapolicy-config4.xml");
    }
+
    @Test
-   public void liveOnlyTest5() throws Exception
-   {
+   public void liveOnlyTest5() throws Exception {
       liveOnlyTest("live-only-hapolicy-config5.xml");
    }
 
    @Test
-   public void ReplicatedTest() throws Exception
-   {
+   public void ReplicatedTest() throws Exception {
       Configuration configuration = createConfiguration("replicated-hapolicy-config.xml");
       ActiveMQServerImpl server = new ActiveMQServerImpl(configuration);
-      try
-      {
+      try {
          server.start();
          Activation activation = server.getActivation();
          assertTrue(activation instanceof SharedNothingLiveActivation);
@@ -132,19 +122,16 @@ public class HAPolicyConfigurationTest extends ActiveMQTestBase
          assertTrue(replicatedPolicy.isCheckForLiveServer());
          assertEquals(replicatedPolicy.getClusterName(), "abcdefg");
       }
-      finally
-      {
+      finally {
          server.stop();
       }
    }
 
    @Test
-   public void ReplicaTest() throws Exception
-   {
+   public void ReplicaTest() throws Exception {
       Configuration configuration = createConfiguration("replica-hapolicy-config.xml");
       ActiveMQServerImpl server = new ActiveMQServerImpl(configuration);
-      try
-      {
+      try {
          server.start();
          Activation activation = server.getActivation();
          assertTrue(activation instanceof SharedNothingBackupActivation);
@@ -163,19 +150,16 @@ public class HAPolicyConfigurationTest extends ActiveMQTestBase
          assertNotNull(connectors);
          assertEquals(connectors.size(), 0);
       }
-      finally
-      {
+      finally {
          server.stop();
       }
    }
 
    @Test
-   public void ReplicaTest2() throws Exception
-   {
+   public void ReplicaTest2() throws Exception {
       Configuration configuration = createConfiguration("replica-hapolicy-config2.xml");
       ActiveMQServerImpl server = new ActiveMQServerImpl(configuration);
-      try
-      {
+      try {
          server.start();
          Activation activation = server.getActivation();
          assertTrue(activation instanceof SharedNothingBackupActivation);
@@ -196,19 +180,16 @@ public class HAPolicyConfigurationTest extends ActiveMQTestBase
          assertTrue(connectors.contains("sd-connector1"));
          assertTrue(connectors.contains("sd-connector2"));
       }
-      finally
-      {
+      finally {
          server.stop();
       }
    }
 
    @Test
-   public void ReplicaTest3() throws Exception
-   {
+   public void ReplicaTest3() throws Exception {
       Configuration configuration = createConfiguration("replica-hapolicy-config3.xml");
       ActiveMQServerImpl server = new ActiveMQServerImpl(configuration);
-      try
-      {
+      try {
          server.start();
          Activation activation = server.getActivation();
          assertTrue(activation instanceof SharedNothingBackupActivation);
@@ -222,19 +203,16 @@ public class HAPolicyConfigurationTest extends ActiveMQTestBase
          ScaleDownPolicy scaleDownPolicy = replicaPolicy.getScaleDownPolicy();
          assertNull(scaleDownPolicy);
       }
-      finally
-      {
+      finally {
          server.stop();
       }
    }
 
    @Test
-   public void SharedStoreMasterTest() throws Exception
-   {
+   public void SharedStoreMasterTest() throws Exception {
       Configuration configuration = createConfiguration("shared-store-master-hapolicy-config.xml");
       ActiveMQServerImpl server = new ActiveMQServerImpl(configuration);
-      try
-      {
+      try {
          server.start();
          Activation activation = server.getActivation();
          assertTrue(activation instanceof SharedStoreLiveActivation);
@@ -244,19 +222,16 @@ public class HAPolicyConfigurationTest extends ActiveMQTestBase
          assertEquals(masterPolicy.getFailbackDelay(), 3456);
          assertFalse(masterPolicy.isFailoverOnServerShutdown());
       }
-      finally
-      {
+      finally {
          server.stop();
       }
    }
 
    @Test
-   public void SharedStoreSlaveTest() throws Exception
-   {
+   public void SharedStoreSlaveTest() throws Exception {
       Configuration configuration = createConfiguration("shared-store-slave-hapolicy-config.xml");
       ActiveMQServerImpl server = new ActiveMQServerImpl(configuration);
-      try
-      {
+      try {
          server.start();
          Activation activation = server.getActivation();
          assertTrue(activation instanceof SharedStoreBackupActivation);
@@ -274,19 +249,16 @@ public class HAPolicyConfigurationTest extends ActiveMQTestBase
          assertNotNull(connectors);
          assertEquals(connectors.size(), 0);
       }
-      finally
-      {
+      finally {
          server.stop();
       }
    }
 
    @Test
-   public void SharedStoreSlaveTest2() throws Exception
-   {
+   public void SharedStoreSlaveTest2() throws Exception {
       Configuration configuration = createConfiguration("shared-store-slave-hapolicy-config2.xml");
       ActiveMQServerImpl server = new ActiveMQServerImpl(configuration);
-      try
-      {
+      try {
          server.start();
          Activation activation = server.getActivation();
          assertTrue(activation instanceof SharedStoreBackupActivation);
@@ -306,19 +278,16 @@ public class HAPolicyConfigurationTest extends ActiveMQTestBase
          assertTrue(connectors.contains("sd-connector1"));
          assertTrue(connectors.contains("sd-connector2"));
       }
-      finally
-      {
+      finally {
          server.stop();
       }
    }
 
    @Test
-   public void SharedStoreSlaveTest3() throws Exception
-   {
+   public void SharedStoreSlaveTest3() throws Exception {
       Configuration configuration = createConfiguration("shared-store-slave-hapolicy-config3.xml");
       ActiveMQServerImpl server = new ActiveMQServerImpl(configuration);
-      try
-      {
+      try {
          server.start();
          Activation activation = server.getActivation();
          assertTrue(activation instanceof SharedStoreBackupActivation);
@@ -331,19 +300,16 @@ public class HAPolicyConfigurationTest extends ActiveMQTestBase
          ScaleDownPolicy scaleDownPolicy = replicaPolicy.getScaleDownPolicy();
          assertNull(scaleDownPolicy);
       }
-      finally
-      {
+      finally {
          server.stop();
       }
    }
 
    @Test
-   public void colocatedTest() throws Exception
-   {
+   public void colocatedTest() throws Exception {
       Configuration configuration = createConfiguration("colocated-hapolicy-config.xml");
       ActiveMQServerImpl server = new ActiveMQServerImpl(configuration);
-      try
-      {
+      try {
          server.start();
          Activation activation = server.getActivation();
          assertTrue(activation instanceof ColocatedActivation);
@@ -363,20 +329,16 @@ public class HAPolicyConfigurationTest extends ActiveMQTestBase
          assertEquals(backupPolicy.getClusterName(), "33rrrrr");
          assertFalse(backupPolicy.isRestartBackup());
       }
-      finally
-      {
+      finally {
          server.stop();
       }
    }
 
-
    @Test
-   public void colocatedTest2() throws Exception
-   {
+   public void colocatedTest2() throws Exception {
       Configuration configuration = createConfiguration("colocated-hapolicy-config2.xml");
       ActiveMQServerImpl server = new ActiveMQServerImpl(configuration);
-      try
-      {
+      try {
          server.start();
          Activation activation = server.getActivation();
          assertTrue(activation instanceof ColocatedActivation);
@@ -394,18 +356,15 @@ public class HAPolicyConfigurationTest extends ActiveMQTestBase
          assertFalse(backupPolicy.isFailoverOnServerShutdown());
          assertFalse(backupPolicy.isRestartBackup());
       }
-      finally
-      {
+      finally {
          server.stop();
       }
    }
 
-   private void liveOnlyTest(String file) throws Exception
-   {
+   private void liveOnlyTest(String file) throws Exception {
       Configuration configuration = createConfiguration(file);
       ActiveMQServerImpl server = new ActiveMQServerImpl(configuration);
-      try
-      {
+      try {
          server.start();
          Activation activation = server.getActivation();
          assertTrue(activation instanceof LiveOnlyActivation);
@@ -415,15 +374,12 @@ public class HAPolicyConfigurationTest extends ActiveMQTestBase
          ScaleDownPolicy scaleDownPolicy = liveOnlyPolicy.getScaleDownPolicy();
          assertNull(scaleDownPolicy);
       }
-      finally
-      {
+      finally {
          server.stop();
       }
    }
 
-
-   protected Configuration createConfiguration(String fileName) throws Exception
-   {
+   protected Configuration createConfiguration(String fileName) throws Exception {
       FileConfiguration fc = new FileConfiguration();
       FileDeploymentManager deploymentManager = new FileDeploymentManager(fileName);
       deploymentManager.addDeployable(fc);

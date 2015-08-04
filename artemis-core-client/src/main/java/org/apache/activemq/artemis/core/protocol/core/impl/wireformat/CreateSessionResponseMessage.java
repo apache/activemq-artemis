@@ -19,54 +19,46 @@ package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 
-public class CreateSessionResponseMessage extends PacketImpl
-{
+public class CreateSessionResponseMessage extends PacketImpl {
+
    private int serverVersion;
 
-   public CreateSessionResponseMessage(final int serverVersion)
-   {
+   public CreateSessionResponseMessage(final int serverVersion) {
       super(CREATESESSION_RESP);
 
       this.serverVersion = serverVersion;
    }
 
-   public CreateSessionResponseMessage()
-   {
+   public CreateSessionResponseMessage() {
       super(CREATESESSION_RESP);
    }
 
    @Override
-   public boolean isResponse()
-   {
+   public boolean isResponse() {
       return true;
    }
 
-   public int getServerVersion()
-   {
+   public int getServerVersion() {
       return serverVersion;
    }
 
    @Override
-   public void encodeRest(final ActiveMQBuffer buffer)
-   {
+   public void encodeRest(final ActiveMQBuffer buffer) {
       buffer.writeInt(serverVersion);
    }
 
    @Override
-   public void decodeRest(final ActiveMQBuffer buffer)
-   {
+   public void decodeRest(final ActiveMQBuffer buffer) {
       serverVersion = buffer.readInt();
    }
 
    @Override
-   public final boolean isRequiresConfirmations()
-   {
+   public final boolean isRequiresConfirmations() {
       return false;
    }
 
    @Override
-   public int hashCode()
-   {
+   public int hashCode() {
       final int prime = 31;
       int result = super.hashCode();
       result = prime * result + serverVersion;
@@ -74,15 +66,14 @@ public class CreateSessionResponseMessage extends PacketImpl
    }
 
    @Override
-   public boolean equals(Object obj)
-   {
+   public boolean equals(Object obj) {
       if (this == obj)
          return true;
       if (!super.equals(obj))
          return false;
       if (!(obj instanceof CreateSessionResponseMessage))
          return false;
-      CreateSessionResponseMessage other = (CreateSessionResponseMessage)obj;
+      CreateSessionResponseMessage other = (CreateSessionResponseMessage) obj;
       if (serverVersion != other.serverVersion)
          return false;
       return true;

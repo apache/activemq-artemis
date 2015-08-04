@@ -20,7 +20,7 @@ import org.apache.activemq.artemis.dto.ServerDTO;
 import org.apache.activemq.artemis.integration.Broker;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 
-public interface BrokerHandler
-{
+public interface BrokerHandler {
+
    Broker createServer(ServerDTO brokerDTO, ActiveMQSecurityManager security);
 }

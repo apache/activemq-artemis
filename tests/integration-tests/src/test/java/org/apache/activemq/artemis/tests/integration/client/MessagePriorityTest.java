@@ -33,13 +33,11 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class MessagePriorityTest extends ActiveMQTestBase
-{
+public class MessagePriorityTest extends ActiveMQTestBase {
 
    // Constants -----------------------------------------------------
 
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
-
 
    // Attributes ----------------------------------------------------
 
@@ -57,8 +55,7 @@ public class MessagePriorityTest extends ActiveMQTestBase
    // Public --------------------------------------------------------
 
    @Test
-   public void testMessagePriority() throws Exception
-   {
+   public void testMessagePriority() throws Exception {
       SimpleString queue = RandomUtil.randomSimpleString();
       SimpleString address = RandomUtil.randomSimpleString();
 
@@ -66,8 +63,7 @@ public class MessagePriorityTest extends ActiveMQTestBase
 
       ClientProducer producer = session.createProducer(address);
 
-      for (int i = 0; i < 10; i++)
-      {
+      for (int i = 0; i < 10; i++) {
          ClientMessage m = createTextMessage(session, Integer.toString(i));
          m.setPriority((byte) i);
          producer.send(m);
@@ -78,8 +74,7 @@ public class MessagePriorityTest extends ActiveMQTestBase
       session.start();
 
       // expect to consumer message with higher priority first
-      for (int i = 9; i >= 0; i--)
-      {
+      for (int i = 9; i >= 0; i--) {
          ClientMessage m = consumer.receive(500);
          Assert.assertNotNull(m);
          Assert.assertEquals(i, m.getPriority());
@@ -96,8 +91,7 @@ public class MessagePriorityTest extends ActiveMQTestBase
     * We need to implement client-side message priority to handle this case: https://jira.jboss.org/jira/browse/JBMESSAGING-1560
     */
    @Test
-   public void testMessagePriorityWithClientSidePrioritization() throws Exception
-   {
+   public void testMessagePriorityWithClientSidePrioritization() throws Exception {
       SimpleString queue = RandomUtil.randomSimpleString();
       SimpleString address = RandomUtil.randomSimpleString();
 
@@ -109,8 +103,7 @@ public class MessagePriorityTest extends ActiveMQTestBase
 
       ClientConsumer consumer = session.createConsumer(queue);
 
-      for (int i = 0; i < 10; i++)
-      {
+      for (int i = 0; i < 10; i++) {
          ClientMessage m = createTextMessage(session, Integer.toString(i));
          m.setPriority((byte) i);
          producer.send(m);
@@ -121,8 +114,7 @@ public class MessagePriorityTest extends ActiveMQTestBase
       Thread.sleep(1000);
 
       // expect to consume message with higher priority first
-      for (int i = 9; i >= 0; i--)
-      {
+      for (int i = 9; i >= 0; i--) {
          ClientMessage m = consumer.receive(500);
 
          log.info("received msg " + m.getPriority());
@@ -136,8 +128,7 @@ public class MessagePriorityTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testMessageOrderWithSamePriority() throws Exception
-   {
+   public void testMessageOrderWithSamePriority() throws Exception {
       SimpleString queue = RandomUtil.randomSimpleString();
       SimpleString address = RandomUtil.randomSimpleString();
 
@@ -175,8 +166,7 @@ public class MessagePriorityTest extends ActiveMQTestBase
       messages[9] = createTextMessage(session, "j");
       messages[9].setPriority((byte) 9);
 
-      for (int i = 0; i < 10; i++)
-      {
+      for (int i = 0; i < 10; i++) {
          producer.send(messages[i]);
       }
 
@@ -206,8 +196,7 @@ public class MessagePriorityTest extends ActiveMQTestBase
 
    // https://jira.jboss.org/jira/browse/HORNETQ-275
    @Test
-   public void testOutOfOrderAcknowledgement() throws Exception
-   {
+   public void testOutOfOrderAcknowledgement() throws Exception {
       SimpleString queue = RandomUtil.randomSimpleString();
       SimpleString address = RandomUtil.randomSimpleString();
 
@@ -219,8 +208,7 @@ public class MessagePriorityTest extends ActiveMQTestBase
 
       session.start();
 
-      for (int i = 0; i < 10; i++)
-      {
+      for (int i = 0; i < 10; i++) {
          ClientMessage m = createTextMessage(session, Integer.toString(i));
          m.setPriority((byte) i);
          producer.send(m);
@@ -252,8 +240,7 @@ public class MessagePriorityTest extends ActiveMQTestBase
       // then if received in priority order, and acked
       // the ack would ack all messages up to the one received - resulting in acking
       // messages that hadn't been delivered yet
-      for (int i = 8; i >= 0; i--)
-      {
+      for (int i = 8; i >= 0; i--) {
          m = consumer.receive(500);
          Assert.assertNotNull(m);
          Assert.assertEquals(i, m.getPriority());
@@ -266,10 +253,8 @@ public class MessagePriorityTest extends ActiveMQTestBase
       session.deleteQueue(queue);
    }
 
-
    @Test
-   public void testManyMessages() throws Exception
-   {
+   public void testManyMessages() throws Exception {
       SimpleString queue = RandomUtil.randomSimpleString();
       SimpleString address = RandomUtil.randomSimpleString();
 
@@ -277,16 +262,14 @@ public class MessagePriorityTest extends ActiveMQTestBase
 
       ClientProducer producer = session.createProducer(address);
 
-      for (int i = 0; i < 777; i++)
-      {
+      for (int i = 0; i < 777; i++) {
          ClientMessage msg = session.createMessage(true);
          msg.setPriority((byte) 5);
          msg.putBooleanProperty("fast", false);
          producer.send(msg);
       }
 
-      for (int i = 0; i < 333; i++)
-      {
+      for (int i = 0; i < 333; i++) {
          ClientMessage msg = session.createMessage(true);
          msg.setPriority((byte) 6);
          msg.putBooleanProperty("fast", true);
@@ -297,17 +280,14 @@ public class MessagePriorityTest extends ActiveMQTestBase
 
       session.start();
 
-
-      for (int i = 0; i < 333; i++)
-      {
+      for (int i = 0; i < 333; i++) {
          ClientMessage msg = consumer.receive(5000);
          assertNotNull(msg);
          msg.acknowledge();
          assertTrue(msg.getBooleanProperty("fast"));
       }
 
-      for (int i = 0; i < 777; i++)
-      {
+      for (int i = 0; i < 777; i++) {
          ClientMessage msg = consumer.receive(5000);
          assertNotNull(msg);
          msg.acknowledge();
@@ -321,22 +301,18 @@ public class MessagePriorityTest extends ActiveMQTestBase
       session.close();
    }
 
-
    // Package protected ---------------------------------------------
 
    // Protected -----------------------------------------------------
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
       Configuration config = createDefaultInVMConfig();
       server = addServer(ActiveMQServers.newActiveMQServer(config, false));
       server.start();
-      locator = createInVMNonHALocator()
-              .setBlockOnNonDurableSend(true)
-              .setBlockOnDurableSend(true);
+      locator = createInVMNonHALocator().setBlockOnNonDurableSend(true).setBlockOnDurableSend(true);
       sf = createSessionFactory(locator);
       session = addClientSession(sf.createSession(false, true, true));
    }
@@ -345,8 +321,7 @@ public class MessagePriorityTest extends ActiveMQTestBase
 
    private static void expectMessage(final byte expectedPriority,
                                      final String expectedStringInBody,
-                                     final ClientConsumer consumer) throws Exception
-   {
+                                     final ClientConsumer consumer) throws Exception {
       ClientMessage m = consumer.receive(500);
       Assert.assertNotNull(m);
       Assert.assertEquals(expectedPriority, m.getPriority());

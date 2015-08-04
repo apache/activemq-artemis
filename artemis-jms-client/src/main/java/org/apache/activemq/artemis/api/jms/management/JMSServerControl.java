@@ -24,8 +24,7 @@ import org.apache.activemq.artemis.api.core.management.Parameter;
 /**
  * A JMSSserverControl is used to manage ActiveMQ Artemis JMS server.
  */
-public interface JMSServerControl
-{
+public interface JMSServerControl {
    // Attributes ----------------------------------------------------
 
    /**
@@ -107,7 +106,8 @@ public interface JMSServerControl
     * @return {@code true} if the queue was destroyed, {@code false} else
     */
    @Operation(desc = "Destroy a JMS Queue", impact = MBeanOperationInfo.ACTION)
-   boolean destroyQueue(@Parameter(name = "name", desc = "Name of the queue to destroy") String name, @Parameter(name = "removeConsumers", desc = "disconnect any consumers connected to this queue") boolean removeConsumers) throws Exception;
+   boolean destroyQueue(@Parameter(name = "name", desc = "Name of the queue to destroy") String name,
+                        @Parameter(name = "removeConsumers", desc = "disconnect any consumers connected to this queue") boolean removeConsumers) throws Exception;
 
    /**
     * Creates a JMS Topic.
@@ -132,7 +132,8 @@ public interface JMSServerControl
     * @return {@code true} if the topic was destroyed, {@code false} else
     */
    @Operation(desc = "Destroy a JMS Topic", impact = MBeanOperationInfo.ACTION)
-   boolean destroyTopic(@Parameter(name = "name", desc = "Name of the topic to destroy") String name, @Parameter(name = "removeConsumers", desc = "disconnect any consumers connected to this queue") boolean removeConsumers) throws Exception;
+   boolean destroyTopic(@Parameter(name = "name", desc = "Name of the topic to destroy") String name,
+                        @Parameter(name = "removeConsumers", desc = "disconnect any consumers connected to this queue") boolean removeConsumers) throws Exception;
 
    /**
     * Destroys a JMS Topic with the specified name.
@@ -208,7 +209,6 @@ public interface JMSServerControl
                                 @Parameter(name = "failoverOnInitialConnection", desc = "failoverOnInitialConnection") boolean failoverOnInitialConnection,
                                 @Parameter(name = "groupId", desc = "groupId") String groupId) throws Exception;
 
-
    @Operation(desc = "Create a JMS ConnectionFactory", impact = MBeanOperationInfo.ACTION)
    void createConnectionFactory(@Parameter(name = "name") String name,
                                 @Parameter(name = "ha") boolean ha,
@@ -245,7 +245,6 @@ public interface JMSServerControl
                                 @Parameter(name = "reconnectAttempts", desc = "reconnectAttempts") int reconnectAttempts,
                                 @Parameter(name = "failoverOnInitialConnection", desc = "failoverOnInitialConnection") boolean failoverOnInitialConnection,
                                 @Parameter(name = "groupId", desc = "groupId") String groupId) throws Exception;
-
 
    @Operation(desc = "Destroy a JMS ConnectionFactory", impact = MBeanOperationInfo.ACTION)
    void destroyConnectionFactory(@Parameter(name = "name", desc = "Name of the ConnectionFactory to destroy") String name) throws Exception;
@@ -357,7 +356,6 @@ public interface JMSServerControl
     */
    @Operation(desc = "List all the prepared transaction, sorted by date, oldest first, with details, in HTML format", impact = MBeanOperationInfo.INFO)
    String listPreparedTransactionDetailsAsHTML() throws Exception;
-
 
    /**
     * List all the prepared transaction, sorted by date,

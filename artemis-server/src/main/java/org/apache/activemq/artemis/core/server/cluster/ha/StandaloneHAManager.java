@@ -24,37 +24,33 @@ import java.util.Map;
 /*
 * this implementation doesn't really do anything at the minute but this may change so Im leaving it here, Andy...
 * */
-public class StandaloneHAManager implements HAManager
-{
+public class StandaloneHAManager implements HAManager {
+
    Map<String, ActiveMQServer> servers = new HashMap<>();
 
    boolean isStarted = false;
 
    @Override
-   public Map<String, ActiveMQServer> getBackupServers()
-   {
+   public Map<String, ActiveMQServer> getBackupServers() {
       return servers;
    }
 
    @Override
-   public void start() throws Exception
-   {
+   public void start() throws Exception {
       if (isStarted)
          return;
       isStarted = true;
    }
 
    @Override
-   public void stop() throws Exception
-   {
+   public void stop() throws Exception {
       if (!isStarted)
          return;
       isStarted = false;
    }
 
    @Override
-   public boolean isStarted()
-   {
+   public boolean isStarted() {
       return isStarted;
    }
 }

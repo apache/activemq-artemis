@@ -20,13 +20,11 @@ package org.apache.activemq.artemis.api.core;
  * A PropertyConversionException is thrown by {@code org.apache.activemq.artemis.api.core.Message} methods when a
  * property can not be converted to the expected type.
  */
-public final class ActiveMQPropertyConversionException extends RuntimeException
-{
+public final class ActiveMQPropertyConversionException extends RuntimeException {
 
    private static final long serialVersionUID = -3010008708334904332L;
 
-   public ActiveMQPropertyConversionException(final String message)
-   {
+   public ActiveMQPropertyConversionException(final String message) {
       super(message);
    }
 }

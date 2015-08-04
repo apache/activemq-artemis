@@ -19,44 +19,38 @@ package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 
-public class SessionXASetTimeoutMessage extends PacketImpl
-{
+public class SessionXASetTimeoutMessage extends PacketImpl {
+
    private int timeoutSeconds;
 
-   public SessionXASetTimeoutMessage(final int timeoutSeconds)
-   {
+   public SessionXASetTimeoutMessage(final int timeoutSeconds) {
       super(SESS_XA_SET_TIMEOUT);
 
       this.timeoutSeconds = timeoutSeconds;
    }
 
-   public SessionXASetTimeoutMessage()
-   {
+   public SessionXASetTimeoutMessage() {
       super(SESS_XA_SET_TIMEOUT);
    }
 
    // Public --------------------------------------------------------
 
-   public int getTimeoutSeconds()
-   {
+   public int getTimeoutSeconds() {
       return timeoutSeconds;
    }
 
    @Override
-   public void encodeRest(final ActiveMQBuffer buffer)
-   {
+   public void encodeRest(final ActiveMQBuffer buffer) {
       buffer.writeInt(timeoutSeconds);
    }
 
    @Override
-   public void decodeRest(final ActiveMQBuffer buffer)
-   {
+   public void decodeRest(final ActiveMQBuffer buffer) {
       timeoutSeconds = buffer.readInt();
    }
 
    @Override
-   public int hashCode()
-   {
+   public int hashCode() {
       final int prime = 31;
       int result = super.hashCode();
       result = prime * result + timeoutSeconds;
@@ -64,15 +58,14 @@ public class SessionXASetTimeoutMessage extends PacketImpl
    }
 
    @Override
-   public boolean equals(Object obj)
-   {
+   public boolean equals(Object obj) {
       if (this == obj)
          return true;
       if (!super.equals(obj))
          return false;
       if (!(obj instanceof SessionXASetTimeoutMessage))
          return false;
-      SessionXASetTimeoutMessage other = (SessionXASetTimeoutMessage)obj;
+      SessionXASetTimeoutMessage other = (SessionXASetTimeoutMessage) obj;
       if (timeoutSeconds != other.timeoutSeconds)
          return false;
       return true;

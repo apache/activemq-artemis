@@ -50,160 +50,161 @@ import org.slf4j.LoggerFactory;
  * same destination. Make sure you run with jvm option -server (makes a big
  * difference). The tests simulate storing 1000 1k jms messages to see the rate
  * of processing msg/sec.
- *
- *
  */
 public class JmsBenchmark extends JmsTestSupport {
-    private static final transient Logger LOG = LoggerFactory.getLogger(JmsBenchmark.class);
 
-    private static final long SAMPLE_DELAY = Integer.parseInt(System.getProperty("SAMPLE_DELAY", "" + 1000 * 5));
-    private static final long SAMPLES = Integer.parseInt(System.getProperty("SAMPLES", "10"));
-    private static final long SAMPLE_DURATION = Integer.parseInt(System.getProperty("SAMPLES_DURATION", "" + 1000 * 60));
-    private static final int PRODUCER_COUNT = Integer.parseInt(System.getProperty("PRODUCER_COUNT", "10"));
-    private static final int CONSUMER_COUNT = Integer.parseInt(System.getProperty("CONSUMER_COUNT", "10"));
+   private static final transient Logger LOG = LoggerFactory.getLogger(JmsBenchmark.class);
 
-    public ActiveMQDestination destination;
+   private static final long SAMPLE_DELAY = Integer.parseInt(System.getProperty("SAMPLE_DELAY", "" + 1000 * 5));
+   private static final long SAMPLES = Integer.parseInt(System.getProperty("SAMPLES", "10"));
+   private static final long SAMPLE_DURATION = Integer.parseInt(System.getProperty("SAMPLES_DURATION", "" + 1000 * 60));
+   private static final int PRODUCER_COUNT = Integer.parseInt(System.getProperty("PRODUCER_COUNT", "10"));
+   private static final int CONSUMER_COUNT = Integer.parseInt(System.getProperty("CONSUMER_COUNT", "10"));
 
-    public static Test suite() {
-        return suite(JmsBenchmark.class);
-    }
+   public ActiveMQDestination destination;
 
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(JmsBenchmark.class);
-    }
+   public static Test suite() {
+      return suite(JmsBenchmark.class);
+   }
 
-    public void initCombos() {
-        addCombinationValues("destination", new Object[] {new ActiveMQQueue("TEST")});
-    }
+   public static void main(String[] args) {
+      junit.textui.TestRunner.run(JmsBenchmark.class);
+   }
 
-    @Override
-    protected BrokerService createBroker() throws Exception {
-        return BrokerFactory.createBroker(new URI("broker://(tcp://localhost:0)?persistent=false"));
-    }
+   public void initCombos() {
+      addCombinationValues("destination", new Object[]{new ActiveMQQueue("TEST")});
+   }
 
-    @Override
-    protected ConnectionFactory createConnectionFactory() throws URISyntaxException, IOException {
-        return new ActiveMQConnectionFactory(broker.getTransportConnectors().get(0).getServer().getConnectURI());
-    }
+   @Override
+   protected BrokerService createBroker() throws Exception {
+      return BrokerFactory.createBroker(new URI("broker://(tcp://localhost:0)?persistent=false"));
+   }
 
-    /**
-     * @throws Throwable
-     */
-    public void testConcurrentSendReceive() throws Throwable {
+   @Override
+   protected ConnectionFactory createConnectionFactory() throws URISyntaxException, IOException {
+      return new ActiveMQConnectionFactory(broker.getTransportConnectors().get(0).getServer().getConnectURI());
+   }
 
-        final Semaphore connectionsEstablished = new Semaphore(1 - (CONSUMER_COUNT + PRODUCER_COUNT));
-        final Semaphore workerDone = new Semaphore(1 - (CONSUMER_COUNT + PRODUCER_COUNT));
-        final CountDownLatch sampleTimeDone = new CountDownLatch(1);
+   /**
+    * @throws Throwable
+    */
+   public void testConcurrentSendReceive() throws Throwable {
 
-        final AtomicInteger producedMessages = new AtomicInteger(0);
-        final AtomicInteger receivedMessages = new AtomicInteger(0);
+      final Semaphore connectionsEstablished = new Semaphore(1 - (CONSUMER_COUNT + PRODUCER_COUNT));
+      final Semaphore workerDone = new Semaphore(1 - (CONSUMER_COUNT + PRODUCER_COUNT));
+      final CountDownLatch sampleTimeDone = new CountDownLatch(1);
 
-        final Callable<Object> producer = new Callable<Object>() {
-            @Override
-            public Object call() throws JMSException, InterruptedException {
-                Connection connection = factory.createConnection();
-                connections.add(connection);
-                Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-                MessageProducer producer = session.createProducer(destination);
-                producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
-                BytesMessage message = session.createBytesMessage();
-                message.writeBytes(new byte[1024]);
-                connection.start();
-                connectionsEstablished.release();
+      final AtomicInteger producedMessages = new AtomicInteger(0);
+      final AtomicInteger receivedMessages = new AtomicInteger(0);
 
-                while (!sampleTimeDone.await(0, TimeUnit.MILLISECONDS)) {
-                    producer.send(message);
-                    producedMessages.incrementAndGet();
-                }
+      final Callable<Object> producer = new Callable<Object>() {
+         @Override
+         public Object call() throws JMSException, InterruptedException {
+            Connection connection = factory.createConnection();
+            connections.add(connection);
+            Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+            MessageProducer producer = session.createProducer(destination);
+            producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
+            BytesMessage message = session.createBytesMessage();
+            message.writeBytes(new byte[1024]);
+            connection.start();
+            connectionsEstablished.release();
 
-                connection.close();
-                workerDone.release();
-                return null;
+            while (!sampleTimeDone.await(0, TimeUnit.MILLISECONDS)) {
+               producer.send(message);
+               producedMessages.incrementAndGet();
             }
-        };
 
-        final Callable<Object> consumer = new Callable<Object>() {
+            connection.close();
+            workerDone.release();
+            return null;
+         }
+      };
+
+      final Callable<Object> consumer = new Callable<Object>() {
+         @Override
+         public Object call() throws JMSException, InterruptedException {
+            Connection connection = factory.createConnection();
+            connections.add(connection);
+            Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+            MessageConsumer consumer = session.createConsumer(destination);
+
+            consumer.setMessageListener(new MessageListener() {
+               @Override
+               public void onMessage(Message msg) {
+                  receivedMessages.incrementAndGet();
+               }
+            });
+            connection.start();
+
+            connectionsEstablished.release();
+            sampleTimeDone.await();
+
+            connection.close();
+            workerDone.release();
+            return null;
+         }
+      };
+
+      final Throwable workerError[] = new Throwable[1];
+      for (int i = 0; i < PRODUCER_COUNT; i++) {
+         new Thread("Producer:" + i) {
             @Override
-            public Object call() throws JMSException, InterruptedException {
-                Connection connection = factory.createConnection();
-                connections.add(connection);
-                Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-                MessageConsumer consumer = session.createConsumer(destination);
-
-                consumer.setMessageListener(new MessageListener() {
-                    @Override
-                    public void onMessage(Message msg) {
-                        receivedMessages.incrementAndGet();
-                    }
-                });
-                connection.start();
-
-                connectionsEstablished.release();
-                sampleTimeDone.await();
-
-                connection.close();
-                workerDone.release();
-                return null;
+            public void run() {
+               try {
+                  producer.call();
+               }
+               catch (Throwable e) {
+                  e.printStackTrace();
+                  workerError[0] = e;
+               }
             }
-        };
+         }.start();
+      }
 
-        final Throwable workerError[] = new Throwable[1];
-        for (int i = 0; i < PRODUCER_COUNT; i++) {
-            new Thread("Producer:" + i) {
-                @Override
-                public void run() {
-                    try {
-                        producer.call();
-                    } catch (Throwable e) {
-                        e.printStackTrace();
-                        workerError[0] = e;
-                    }
-                }
-            }.start();
-        }
+      for (int i = 0; i < CONSUMER_COUNT; i++) {
+         new Thread("Consumer:" + i) {
+            @Override
+            public void run() {
+               try {
+                  consumer.call();
+               }
+               catch (Throwable e) {
+                  e.printStackTrace();
+                  workerError[0] = e;
+               }
+            }
+         }.start();
+      }
 
-        for (int i = 0; i < CONSUMER_COUNT; i++) {
-            new Thread("Consumer:" + i) {
-                @Override
-                public void run() {
-                    try {
-                        consumer.call();
-                    } catch (Throwable e) {
-                        e.printStackTrace();
-                        workerError[0] = e;
-                    }
-                }
-            }.start();
-        }
+      LOG.info(getName() + ": Waiting for Producers and Consumers to startup.");
+      connectionsEstablished.acquire();
+      LOG.info("Producers and Consumers are now running.  Waiting for system to reach steady state: " + (SAMPLE_DELAY / 1000.0f) + " seconds");
+      Thread.sleep(1000 * 10);
 
-        LOG.info(getName() + ": Waiting for Producers and Consumers to startup.");
-        connectionsEstablished.acquire();
-        LOG.info("Producers and Consumers are now running.  Waiting for system to reach steady state: " + (SAMPLE_DELAY / 1000.0f) + " seconds");
-        Thread.sleep(1000 * 10);
+      LOG.info("Starting sample: " + SAMPLES + " each lasting " + (SAMPLE_DURATION / 1000.0f) + " seconds");
 
-        LOG.info("Starting sample: " + SAMPLES + " each lasting " + (SAMPLE_DURATION / 1000.0f) + " seconds");
+      for (int i = 0; i < SAMPLES; i++) {
 
-        for (int i = 0; i < SAMPLES; i++) {
+         long start = System.currentTimeMillis();
+         producedMessages.set(0);
+         receivedMessages.set(0);
 
-            long start = System.currentTimeMillis();
-            producedMessages.set(0);
-            receivedMessages.set(0);
+         Thread.sleep(SAMPLE_DURATION);
 
-            Thread.sleep(SAMPLE_DURATION);
+         long end = System.currentTimeMillis();
+         int r = receivedMessages.get();
+         int p = producedMessages.get();
 
-            long end = System.currentTimeMillis();
-            int r = receivedMessages.get();
-            int p = producedMessages.get();
+         LOG.info("published: " + p + " msgs at " + (p * 1000f / (end - start)) + " msgs/sec, " + "consumed: " + r + " msgs at " + (r * 1000f / (end - start)) + " msgs/sec");
+      }
 
-            LOG.info("published: " + p + " msgs at " + (p * 1000f / (end - start)) + " msgs/sec, " + "consumed: " + r + " msgs at " + (r * 1000f / (end - start)) + " msgs/sec");
-        }
+      LOG.info("Sample done.");
+      sampleTimeDone.countDown();
 
-        LOG.info("Sample done.");
-        sampleTimeDone.countDown();
-
-        workerDone.acquire();
-        if (workerError[0] != null) {
-            throw workerError[0];
-        }
-    }
+      workerDone.acquire();
+      if (workerError[0] != null) {
+         throw workerError[0];
+      }
+   }
 }

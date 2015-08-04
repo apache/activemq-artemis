@@ -34,31 +34,27 @@ import java.net.URI;
 /**
  * Implements simple "create" link.  Returns 201 with Location of created resource as per HTTP
  */
-public class PostMessageDupsOk extends PostMessage
-{
+public class PostMessageDupsOk extends PostMessage {
 
-   public void publish(HttpHeaders headers, byte[] body, boolean durable,
+   public void publish(HttpHeaders headers,
+                       byte[] body,
+                       boolean durable,
                        Long ttl,
                        Long expiration,
-                       Integer priority) throws Exception
-   {
+                       Integer priority) throws Exception {
       Pooled pooled = getPooled();
-      try
-      {
+      try {
          ClientProducer producer = pooled.producer;
          ClientMessage message = createActiveMQMessage(headers, body, durable, ttl, expiration, priority, pooled.session);
          producer.send(message);
          ActiveMQRestLogger.LOGGER.debug("Sent message: " + message);
          pool.add(pooled);
       }
-      catch (Exception ex)
-      {
-         try
-         {
+      catch (Exception ex) {
+         try {
             pooled.session.close();
          }
-         catch (ActiveMQException e)
-         {
+         catch (ActiveMQException e) {
          }
          addPooled();
          throw ex;
@@ -72,25 +68,18 @@ public class PostMessageDupsOk extends PostMessage
                           @QueryParam("expiration") Long expiration,
                           @QueryParam("priority") Integer priority,
                           @Context UriInfo uriInfo,
-                          byte[] body)
-   {
+                          byte[] body) {
       ActiveMQRestLogger.LOGGER.debug("Handling POST request for \"" + uriInfo.getRequestUri() + "\"");
 
-      try
-      {
+      try {
          boolean isDurable = defaultDurable;
-         if (durable != null)
-         {
+         if (durable != null) {
             isDurable = durable.booleanValue();
          }
          publish(headers, body, isDurable, ttl, expiration, priority);
       }
-      catch (Exception e)
-      {
-         Response error = Response.serverError()
-                 .entity("Problem posting message: " + e.getMessage())
-                 .type("text/plain")
-                 .build();
+      catch (Exception e) {
+         Response error = Response.serverError().entity("Problem posting message: " + e.getMessage()).type("text/plain").build();
          throw new WebApplicationException(e, error);
       }
       Response.ResponseBuilder builder = Response.status(201);

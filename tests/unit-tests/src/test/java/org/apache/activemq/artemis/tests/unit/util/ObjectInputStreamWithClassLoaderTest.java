@@ -40,33 +40,28 @@ import org.junit.Assert;
 
 import org.apache.activemq.artemis.utils.ObjectInputStreamWithClassLoader;
 
-public class ObjectInputStreamWithClassLoaderTest extends ActiveMQTestBase
-{
+public class ObjectInputStreamWithClassLoaderTest extends ActiveMQTestBase {
    // Constants -----------------------------------------------------
 
    // Attributes ----------------------------------------------------
 
    // Static --------------------------------------------------------
 
-   public static ClassLoader newClassLoader(final Class anyUserClass) throws Exception
-   {
+   public static ClassLoader newClassLoader(final Class anyUserClass) throws Exception {
       ProtectionDomain protectionDomain = anyUserClass.getProtectionDomain();
       CodeSource codeSource = protectionDomain.getCodeSource();
       URL classLocation = codeSource.getLocation();
       StringTokenizer tokenString = new StringTokenizer(System.getProperty("java.class.path"), File.pathSeparator);
       String pathIgnore = System.getProperty("java.home");
-      if (pathIgnore == null)
-      {
+      if (pathIgnore == null) {
          pathIgnore = classLocation.toString();
       }
 
       List<URL> urls = new ArrayList<URL>();
-      while (tokenString.hasMoreElements())
-      {
+      while (tokenString.hasMoreElements()) {
          String value = tokenString.nextToken();
          URL itemLocation = new File(value).toURI().toURL();
-         if (!itemLocation.equals(classLocation) && itemLocation.toString().indexOf(pathIgnore) >= 0)
-         {
+         if (!itemLocation.equals(classLocation) && itemLocation.toString().indexOf(pathIgnore) >= 0) {
             urls.add(itemLocation);
          }
       }
@@ -83,12 +78,10 @@ public class ObjectInputStreamWithClassLoaderTest extends ActiveMQTestBase
    // Public --------------------------------------------------------
 
    @Test
-   public void testClassLoaderIsolation() throws Exception
-   {
+   public void testClassLoaderIsolation() throws Exception {
 
       ClassLoader originalClassLoader = Thread.currentThread().getContextClassLoader();
-      try
-      {
+      try {
          AnObject obj = new AnObjectImpl();
          byte[] bytes = ObjectInputStreamWithClassLoaderTest.toBytes(obj);
 
@@ -105,49 +98,35 @@ public class ObjectInputStreamWithClassLoaderTest extends ActiveMQTestBase
          Assert.assertNotSame(obj.getClass().getClassLoader(), deserializedObj.getClass().getClassLoader());
          Assert.assertSame(testClassLoader, deserializedObj.getClass().getClassLoader());
       }
-      finally
-      {
+      finally {
          Thread.currentThread().setContextClassLoader(originalClassLoader);
       }
 
    }
 
    @Test
-   public void testClassLoaderIsolationWithProxy() throws Exception
-   {
+   public void testClassLoaderIsolationWithProxy() throws Exception {
 
-      ClassLoader originalClassLoader = Thread.currentThread()
-            .getContextClassLoader();
-      try
-      {
-         AnObject originalProxy = (AnObject) Proxy.newProxyInstance(
-               AnObject.class.getClassLoader(),
-               new Class[]{AnObject.class},
-               new AnObjectInvocationHandler());
+      ClassLoader originalClassLoader = Thread.currentThread().getContextClassLoader();
+      try {
+         AnObject originalProxy = (AnObject) Proxy.newProxyInstance(AnObject.class.getClassLoader(), new Class[]{AnObject.class}, new AnObjectInvocationHandler());
          originalProxy.setMyInt(100);
-         byte[] bytes = ObjectInputStreamWithClassLoaderTest
-               .toBytes(originalProxy);
+         byte[] bytes = ObjectInputStreamWithClassLoaderTest.toBytes(originalProxy);
 
-         ClassLoader testClassLoader = ObjectInputStreamWithClassLoaderTest
-               .newClassLoader(this.getClass());
+         ClassLoader testClassLoader = ObjectInputStreamWithClassLoaderTest.newClassLoader(this.getClass());
          Thread.currentThread().setContextClassLoader(testClassLoader);
          ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
-         ObjectInputStreamWithClassLoader ois = new ObjectInputStreamWithClassLoader(
-               bais);
+         ObjectInputStreamWithClassLoader ois = new ObjectInputStreamWithClassLoader(bais);
 
-         Runnable toRun = (Runnable) testClassLoader.loadClass(
-               ProxyReader.class.getName()).newInstance();
+         Runnable toRun = (Runnable) testClassLoader.loadClass(ProxyReader.class.getName()).newInstance();
          toRun.getClass().getField("ois").set(toRun, ois);
-         toRun.getClass().getField("testClassLoader")
-               .set(toRun, testClassLoader);
-         toRun.getClass().getField("originalProxy")
-               .set(toRun, originalProxy);
+         toRun.getClass().getField("testClassLoader").set(toRun, testClassLoader);
+         toRun.getClass().getField("originalProxy").set(toRun, originalProxy);
 
          toRun.run();
 
       }
-      finally
-      {
+      finally {
          Thread.currentThread().setContextClassLoader(originalClassLoader);
       }
 
@@ -159,68 +138,55 @@ public class ObjectInputStreamWithClassLoaderTest extends ActiveMQTestBase
 
    // Private -------------------------------------------------------
 
-   public static class ProxyReader implements Runnable
-   {
+   public static class ProxyReader implements Runnable {
+
       public java.io.ObjectInputStream ois;
       public Object originalProxy;
       public ClassLoader testClassLoader;
 
       // We don't have access to the junit framework on the classloader where this is running
-      void myAssertNotSame(Object obj, Object obj2)
-      {
-         if (obj == obj2)
-         {
+      void myAssertNotSame(Object obj, Object obj2) {
+         if (obj == obj2) {
             throw new RuntimeException("Expected to be different objects");
          }
       }
 
       // We don't have access to the junit framework on the classloader where this is running
-      void myAssertSame(Object obj, Object obj2)
-      {
-         if (obj != obj2)
-         {
+      void myAssertSame(Object obj, Object obj2) {
+         if (obj != obj2) {
             throw new RuntimeException("Expected to be the same objects");
          }
       }
 
-      public void run()
-      {
+      public void run() {
 
-         try
-         {
+         try {
             Object deserializedObj = ois.readObject();
 
             System.out.println("Deserialized Object " + deserializedObj);
 
             myAssertNotSame(originalProxy, deserializedObj);
-            myAssertNotSame(originalProxy.getClass(),
-                  deserializedObj.getClass());
-            myAssertNotSame(originalProxy.getClass().getClassLoader(),
-                  deserializedObj.getClass().getClassLoader());
-            myAssertSame(testClassLoader, deserializedObj.getClass()
-                  .getClassLoader());
+            myAssertNotSame(originalProxy.getClass(), deserializedObj.getClass());
+            myAssertNotSame(originalProxy.getClass().getClassLoader(), deserializedObj.getClass().getClassLoader());
+            myAssertSame(testClassLoader, deserializedObj.getClass().getClassLoader());
 
             AnObject myInterface = (AnObject) deserializedObj;
 
-            if (myInterface.getMyInt() != 200)
-            {
+            if (myInterface.getMyInt() != 200) {
                throw new RuntimeException("invalid result");
             }
          }
-         catch (ClassNotFoundException e)
-         {
+         catch (ClassNotFoundException e) {
             throw new RuntimeException(e.getMessage(), e);
          }
-         catch (IOException e)
-         {
+         catch (IOException e) {
             throw new RuntimeException(e.getMessage(), e);
          }
 
       }
    }
 
-   private static byte[] toBytes(final Object obj) throws IOException
-   {
+   private static byte[] toBytes(final Object obj) throws IOException {
       Assert.assertTrue(obj instanceof Serializable);
       ByteArrayOutputStream baos = new ByteArrayOutputStream();
       ObjectOutputStream oos = new ObjectOutputStream(baos);
@@ -231,8 +197,8 @@ public class ObjectInputStreamWithClassLoaderTest extends ActiveMQTestBase
 
    // Inner classes -------------------------------------------------
 
-   private interface AnObject extends Serializable
-   {
+   private interface AnObject extends Serializable {
+
       int getMyInt();
 
       void setMyInt(int value);
@@ -242,53 +208,46 @@ public class ObjectInputStreamWithClassLoaderTest extends ActiveMQTestBase
       void setMyLong(long value);
    }
 
-   private static class AnObjectImpl implements AnObject
-   {
+   private static class AnObjectImpl implements AnObject {
+
       private static final long serialVersionUID = -5172742084489525256L;
 
       int myInt = 0;
       long myLong = 0L;
 
       @Override
-      public int getMyInt()
-      {
+      public int getMyInt() {
          return myInt;
       }
 
       @Override
-      public void setMyInt(int value)
-      {
+      public void setMyInt(int value) {
          this.myInt = value;
       }
 
       @Override
-      public long getMyLong()
-      {
+      public long getMyLong() {
          return myLong;
       }
 
       @Override
-      public void setMyLong(long value)
-      {
+      public void setMyLong(long value) {
          this.myLong = value;
       }
    }
 
-   private static class AnObjectInvocationHandler implements InvocationHandler, Serializable
-   {
+   private static class AnObjectInvocationHandler implements InvocationHandler, Serializable {
+
       private static final long serialVersionUID = -3875973764178767452L;
       private final AnObject anObject = new AnObjectImpl();
 
       @Override
-      public Object invoke(Object proxy, Method method, Object[] args) throws Throwable
-      {
+      public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
          Object obj = method.invoke(anObject, args);
-         if (obj instanceof Integer)
-         {
+         if (obj instanceof Integer) {
             return ((Integer) obj).intValue() * 2;
          }
-         else
-         {
+         else {
             return obj;
          }
 

@@ -16,8 +16,8 @@
  */
 package org.apache.activemq.artemis.utils.uri;
 
-public class SchemaConstants
-{
+public class SchemaConstants {
+
    public static final String TCP = "tcp";
 
    public static final String UDP = "udp";

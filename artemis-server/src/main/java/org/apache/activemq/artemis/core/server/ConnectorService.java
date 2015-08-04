@@ -16,7 +16,7 @@
  */
 package org.apache.activemq.artemis.core.server;
 
-public interface ConnectorService extends ActiveMQComponent
-{
+public interface ConnectorService extends ActiveMQComponent {
+
    String getName();
 }

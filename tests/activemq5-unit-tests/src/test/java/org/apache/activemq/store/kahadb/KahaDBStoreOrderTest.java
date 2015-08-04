@@ -23,13 +23,12 @@ import org.apache.activemq.store.StoreOrderTest;
 
 //  https://issues.apache.org/activemq/browse/AMQ-2594
 public class KahaDBStoreOrderTest extends StoreOrderTest {
-    
-    @Override
-    protected void setPersistentAdapter(BrokerService brokerService)
-             throws Exception {
-        KahaDBStore kaha = new KahaDBStore();
-        File directory = new File("target/activemq-data/kahadb/storeOrder");
-        kaha.setDirectory(directory);
-        brokerService.setPersistenceAdapter(kaha);
-    }
+
+   @Override
+   protected void setPersistentAdapter(BrokerService brokerService) throws Exception {
+      KahaDBStore kaha = new KahaDBStore();
+      File directory = new File("target/activemq-data/kahadb/storeOrder");
+      kaha.setDirectory(directory);
+      brokerService.setPersistenceAdapter(kaha);
+   }
 }

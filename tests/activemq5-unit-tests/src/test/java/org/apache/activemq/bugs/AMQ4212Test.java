@@ -50,309 +50,308 @@ import org.slf4j.LoggerFactory;
 
 public class AMQ4212Test {
 
-    private static final Logger LOG = LoggerFactory.getLogger(AMQ4212Test.class);
+   private static final Logger LOG = LoggerFactory.getLogger(AMQ4212Test.class);
 
-    private BrokerService service;
-    private String connectionUri;
-    private ActiveMQConnectionFactory cf;
+   private BrokerService service;
+   private String connectionUri;
+   private ActiveMQConnectionFactory cf;
 
-    private final int MSG_COUNT = 256;
+   private final int MSG_COUNT = 256;
 
-    @Before
-    public void setUp() throws IOException, Exception {
-        createBroker(true, false);
-    }
+   @Before
+   public void setUp() throws IOException, Exception {
+      createBroker(true, false);
+   }
 
-    public void createBroker(boolean deleteAllMessages, boolean recover) throws Exception {
-        service = new BrokerService();
-        service.setBrokerName("InactiveSubTest");
-        service.setDeleteAllMessagesOnStartup(deleteAllMessages);
-        service.setAdvisorySupport(false);
-        service.setPersistent(true);
-        service.setUseJmx(true);
-        service.setKeepDurableSubsActive(false);
+   public void createBroker(boolean deleteAllMessages, boolean recover) throws Exception {
+      service = new BrokerService();
+      service.setBrokerName("InactiveSubTest");
+      service.setDeleteAllMessagesOnStartup(deleteAllMessages);
+      service.setAdvisorySupport(false);
+      service.setPersistent(true);
+      service.setUseJmx(true);
+      service.setKeepDurableSubsActive(false);
 
-        KahaDBPersistenceAdapter pa=new KahaDBPersistenceAdapter();
-        File dataFile=new File("KahaDB");
-        pa.setDirectory(dataFile);
-        pa.setJournalMaxFileLength(10*1024);
-        pa.setCheckpointInterval(TimeUnit.SECONDS.toMillis(5));
-        pa.setCleanupInterval(TimeUnit.SECONDS.toMillis(5));
-        pa.setForceRecoverIndex(recover);
+      KahaDBPersistenceAdapter pa = new KahaDBPersistenceAdapter();
+      File dataFile = new File("KahaDB");
+      pa.setDirectory(dataFile);
+      pa.setJournalMaxFileLength(10 * 1024);
+      pa.setCheckpointInterval(TimeUnit.SECONDS.toMillis(5));
+      pa.setCleanupInterval(TimeUnit.SECONDS.toMillis(5));
+      pa.setForceRecoverIndex(recover);
 
-        service.setPersistenceAdapter(pa);
-        service.start();
-        service.waitUntilStarted();
+      service.setPersistenceAdapter(pa);
+      service.start();
+      service.waitUntilStarted();
 
-        connectionUri = "vm://InactiveSubTest?create=false";
-        cf = new ActiveMQConnectionFactory(connectionUri);
-    }
+      connectionUri = "vm://InactiveSubTest?create=false";
+      cf = new ActiveMQConnectionFactory(connectionUri);
+   }
 
-    private void restartBroker() throws Exception {
-        stopBroker();
-        createBroker(false, false);
-    }
+   private void restartBroker() throws Exception {
+      stopBroker();
+      createBroker(false, false);
+   }
 
-    private void recoverBroker() throws Exception {
-        stopBroker();
-        createBroker(false, true);
-    }
+   private void recoverBroker() throws Exception {
+      stopBroker();
+      createBroker(false, true);
+   }
 
-    @After
-    public void stopBroker() throws Exception {
-        if (service != null) {
-            service.stop();
-            service.waitUntilStopped();
-            service = null;
-        }
-    }
+   @After
+   public void stopBroker() throws Exception {
+      if (service != null) {
+         service.stop();
+         service.waitUntilStopped();
+         service = null;
+      }
+   }
 
-    @Test
-    public void testDirableSubPrefetchRecovered() throws Exception {
+   @Test
+   public void testDirableSubPrefetchRecovered() throws Exception {
 
-        ActiveMQQueue queue = new ActiveMQQueue("MyQueue");
-        ActiveMQTopic topic = new ActiveMQTopic("MyDurableTopic");
+      ActiveMQQueue queue = new ActiveMQQueue("MyQueue");
+      ActiveMQTopic topic = new ActiveMQTopic("MyDurableTopic");
 
-        // Send to a Queue to create some journal files
-        sendMessages(queue);
+      // Send to a Queue to create some journal files
+      sendMessages(queue);
 
-        LOG.info("There are currently [{}] journal log files.", getNumberOfJournalFiles());
+      LOG.info("There are currently [{}] journal log files.", getNumberOfJournalFiles());
 
-        createInactiveDurableSub(topic);
+      createInactiveDurableSub(topic);
 
-        assertTrue("Should have an inactive durable sub", Wait.waitFor(new Wait.Condition() {
-            @Override
-            public boolean isSatisified() throws Exception {
-                ObjectName[] subs = service.getAdminView().getInactiveDurableTopicSubscribers();
-                return subs != null && subs.length == 1 ? true : false;
-            }
-        }));
+      assertTrue("Should have an inactive durable sub", Wait.waitFor(new Wait.Condition() {
+         @Override
+         public boolean isSatisified() throws Exception {
+            ObjectName[] subs = service.getAdminView().getInactiveDurableTopicSubscribers();
+            return subs != null && subs.length == 1 ? true : false;
+         }
+      }));
 
-        // Now send some more to the queue to create even more files.
-        sendMessages(queue);
+      // Now send some more to the queue to create even more files.
+      sendMessages(queue);
 
-        LOG.info("There are currently [{}] journal log files.", getNumberOfJournalFiles());
-        assertTrue(getNumberOfJournalFiles() > 1);
+      LOG.info("There are currently [{}] journal log files.", getNumberOfJournalFiles());
+      assertTrue(getNumberOfJournalFiles() > 1);
 
-        LOG.info("Restarting the broker.");
-        restartBroker();
-        LOG.info("Restarted the broker.");
+      LOG.info("Restarting the broker.");
+      restartBroker();
+      LOG.info("Restarted the broker.");
 
-        LOG.info("There are currently [{}] journal log files.", getNumberOfJournalFiles());
-        assertTrue(getNumberOfJournalFiles() > 1);
+      LOG.info("There are currently [{}] journal log files.", getNumberOfJournalFiles());
+      assertTrue(getNumberOfJournalFiles() > 1);
 
-        assertTrue("Should have an inactive durable sub", Wait.waitFor(new Wait.Condition() {
-            @Override
-            public boolean isSatisified() throws Exception {
-                ObjectName[] subs = service.getAdminView().getInactiveDurableTopicSubscribers();
-                return subs != null && subs.length == 1 ? true : false;
-            }
-        }));
+      assertTrue("Should have an inactive durable sub", Wait.waitFor(new Wait.Condition() {
+         @Override
+         public boolean isSatisified() throws Exception {
+            ObjectName[] subs = service.getAdminView().getInactiveDurableTopicSubscribers();
+            return subs != null && subs.length == 1 ? true : false;
+         }
+      }));
 
-        // Clear out all queue data
-        service.getAdminView().removeQueue(queue.getQueueName());
+      // Clear out all queue data
+      service.getAdminView().removeQueue(queue.getQueueName());
 
-        assertTrue("Less than two journal files expected, was " + getNumberOfJournalFiles(), Wait.waitFor(new Wait.Condition() {
-            @Override
-            public boolean isSatisified() throws Exception {
-                return getNumberOfJournalFiles() <= 2;
-            }
-        }, TimeUnit.MINUTES.toMillis(2)));
+      assertTrue("Less than two journal files expected, was " + getNumberOfJournalFiles(), Wait.waitFor(new Wait.Condition() {
+         @Override
+         public boolean isSatisified() throws Exception {
+            return getNumberOfJournalFiles() <= 2;
+         }
+      }, TimeUnit.MINUTES.toMillis(2)));
 
-        LOG.info("Sending {} Messages to the Topic.", MSG_COUNT);
-        // Send some messages to the inactive destination
-        sendMessages(topic);
+      LOG.info("Sending {} Messages to the Topic.", MSG_COUNT);
+      // Send some messages to the inactive destination
+      sendMessages(topic);
 
-        LOG.info("Attempt to consume {} messages from the Topic.", MSG_COUNT);
-        assertEquals(MSG_COUNT, consumeFromInactiveDurableSub(topic));
+      LOG.info("Attempt to consume {} messages from the Topic.", MSG_COUNT);
+      assertEquals(MSG_COUNT, consumeFromInactiveDurableSub(topic));
 
-        LOG.info("Recovering the broker.");
-        recoverBroker();
-        LOG.info("Recovering the broker.");
+      LOG.info("Recovering the broker.");
+      recoverBroker();
+      LOG.info("Recovering the broker.");
 
-        assertTrue("Should have an inactive durable sub", Wait.waitFor(new Wait.Condition() {
-            @Override
-            public boolean isSatisified() throws Exception {
-                ObjectName[] subs = service.getAdminView().getInactiveDurableTopicSubscribers();
-                return subs != null && subs.length == 1 ? true : false;
-            }
-        }));
-    }
+      assertTrue("Should have an inactive durable sub", Wait.waitFor(new Wait.Condition() {
+         @Override
+         public boolean isSatisified() throws Exception {
+            ObjectName[] subs = service.getAdminView().getInactiveDurableTopicSubscribers();
+            return subs != null && subs.length == 1 ? true : false;
+         }
+      }));
+   }
 
-    @Test
-    public void testDurableAcksNotDropped() throws Exception {
+   @Test
+   public void testDurableAcksNotDropped() throws Exception {
 
-        ActiveMQQueue queue = new ActiveMQQueue("MyQueue");
-        ActiveMQTopic topic = new ActiveMQTopic("MyDurableTopic");
+      ActiveMQQueue queue = new ActiveMQQueue("MyQueue");
+      ActiveMQTopic topic = new ActiveMQTopic("MyDurableTopic");
 
-        // Create durable sub in first data file.
-        createInactiveDurableSub(topic);
+      // Create durable sub in first data file.
+      createInactiveDurableSub(topic);
 
-        assertTrue("Should have an inactive durable sub", Wait.waitFor(new Wait.Condition() {
-            @Override
-            public boolean isSatisified() throws Exception {
-                ObjectName[] subs = service.getAdminView().getInactiveDurableTopicSubscribers();
-                return subs != null && subs.length == 1 ? true : false;
-            }
-        }));
+      assertTrue("Should have an inactive durable sub", Wait.waitFor(new Wait.Condition() {
+         @Override
+         public boolean isSatisified() throws Exception {
+            ObjectName[] subs = service.getAdminView().getInactiveDurableTopicSubscribers();
+            return subs != null && subs.length == 1 ? true : false;
+         }
+      }));
 
-        // Send to a Topic
-        sendMessages(topic, 1);
+      // Send to a Topic
+      sendMessages(topic, 1);
 
-        // Send to a Queue to create some journal files
-        sendMessages(queue);
+      // Send to a Queue to create some journal files
+      sendMessages(queue);
 
-        LOG.info("Before consume there are currently [{}] journal log files.", getNumberOfJournalFiles());
+      LOG.info("Before consume there are currently [{}] journal log files.", getNumberOfJournalFiles());
 
-        // Consume all the Messages leaving acks behind.
-        consumeDurableMessages(topic, 1);
+      // Consume all the Messages leaving acks behind.
+      consumeDurableMessages(topic, 1);
 
-        LOG.info("After consume there are currently [{}] journal log files.", getNumberOfJournalFiles());
+      LOG.info("After consume there are currently [{}] journal log files.", getNumberOfJournalFiles());
 
-        // Now send some more to the queue to create even more files.
-        sendMessages(queue);
+      // Now send some more to the queue to create even more files.
+      sendMessages(queue);
 
-        LOG.info("More Queued. There are currently [{}] journal log files.", getNumberOfJournalFiles());
-        assertTrue(getNumberOfJournalFiles() > 1);
+      LOG.info("More Queued. There are currently [{}] journal log files.", getNumberOfJournalFiles());
+      assertTrue(getNumberOfJournalFiles() > 1);
 
-        LOG.info("Restarting the broker.");
-        restartBroker();
-        LOG.info("Restarted the broker.");
+      LOG.info("Restarting the broker.");
+      restartBroker();
+      LOG.info("Restarted the broker.");
 
-        LOG.info("There are currently [{}] journal log files.", getNumberOfJournalFiles());
-        assertTrue(getNumberOfJournalFiles() > 1);
+      LOG.info("There are currently [{}] journal log files.", getNumberOfJournalFiles());
+      assertTrue(getNumberOfJournalFiles() > 1);
 
-        assertTrue("Should have an inactive durable sub", Wait.waitFor(new Wait.Condition() {
-            @Override
-            public boolean isSatisified() throws Exception {
-                ObjectName[] subs = service.getAdminView().getInactiveDurableTopicSubscribers();
-                return subs != null && subs.length == 1 ? true : false;
-            }
-        }));
+      assertTrue("Should have an inactive durable sub", Wait.waitFor(new Wait.Condition() {
+         @Override
+         public boolean isSatisified() throws Exception {
+            ObjectName[] subs = service.getAdminView().getInactiveDurableTopicSubscribers();
+            return subs != null && subs.length == 1 ? true : false;
+         }
+      }));
 
-        // Clear out all queue data
-        service.getAdminView().removeQueue(queue.getQueueName());
+      // Clear out all queue data
+      service.getAdminView().removeQueue(queue.getQueueName());
 
-        assertTrue("Less than three journal file expected, was " + getNumberOfJournalFiles(), Wait.waitFor(new Wait.Condition() {
-            @Override
-            public boolean isSatisified() throws Exception {
-                return getNumberOfJournalFiles() <= 3;
-            }
-        }, TimeUnit.MINUTES.toMillis(3)));
+      assertTrue("Less than three journal file expected, was " + getNumberOfJournalFiles(), Wait.waitFor(new Wait.Condition() {
+         @Override
+         public boolean isSatisified() throws Exception {
+            return getNumberOfJournalFiles() <= 3;
+         }
+      }, TimeUnit.MINUTES.toMillis(3)));
 
-        // See if we receive any message they should all be acked.
-        tryConsumeExpectNone(topic);
+      // See if we receive any message they should all be acked.
+      tryConsumeExpectNone(topic);
 
-        LOG.info("There are currently [{}] journal log files.", getNumberOfJournalFiles());
+      LOG.info("There are currently [{}] journal log files.", getNumberOfJournalFiles());
 
-        LOG.info("Recovering the broker.");
-        recoverBroker();
-        LOG.info("Recovering the broker.");
+      LOG.info("Recovering the broker.");
+      recoverBroker();
+      LOG.info("Recovering the broker.");
 
-        LOG.info("There are currently [{}] journal log files.", getNumberOfJournalFiles());
+      LOG.info("There are currently [{}] journal log files.", getNumberOfJournalFiles());
 
-        assertTrue("Should have an inactive durable sub", Wait.waitFor(new Wait.Condition() {
-            @Override
-            public boolean isSatisified() throws Exception {
-                ObjectName[] subs = service.getAdminView().getInactiveDurableTopicSubscribers();
-                return subs != null && subs.length == 1 ? true : false;
-            }
-        }));
+      assertTrue("Should have an inactive durable sub", Wait.waitFor(new Wait.Condition() {
+         @Override
+         public boolean isSatisified() throws Exception {
+            ObjectName[] subs = service.getAdminView().getInactiveDurableTopicSubscribers();
+            return subs != null && subs.length == 1 ? true : false;
+         }
+      }));
 
-        // See if we receive any message they should all be acked.
-        tryConsumeExpectNone(topic);
+      // See if we receive any message they should all be acked.
+      tryConsumeExpectNone(topic);
 
-        assertTrue("Less than three journal file expected, was " + getNumberOfJournalFiles(), Wait.waitFor(new Wait.Condition() {
-            @Override
-            public boolean isSatisified() throws Exception {
-                return getNumberOfJournalFiles() == 1;
-            }
-        }, TimeUnit.MINUTES.toMillis(1)));
-    }
+      assertTrue("Less than three journal file expected, was " + getNumberOfJournalFiles(), Wait.waitFor(new Wait.Condition() {
+         @Override
+         public boolean isSatisified() throws Exception {
+            return getNumberOfJournalFiles() == 1;
+         }
+      }, TimeUnit.MINUTES.toMillis(1)));
+   }
 
-    private int getNumberOfJournalFiles() throws IOException {
-        Collection<DataFile> files =
-            ((KahaDBPersistenceAdapter) service.getPersistenceAdapter()).getStore().getJournal().getFileMap().values();
-        int reality = 0;
-        for (DataFile file : files) {
-            if (file != null) {
-                reality++;
-            }
-        }
+   private int getNumberOfJournalFiles() throws IOException {
+      Collection<DataFile> files = ((KahaDBPersistenceAdapter) service.getPersistenceAdapter()).getStore().getJournal().getFileMap().values();
+      int reality = 0;
+      for (DataFile file : files) {
+         if (file != null) {
+            reality++;
+         }
+      }
 
-        return reality;
-    }
+      return reality;
+   }
 
-    private void createInactiveDurableSub(Topic topic) throws Exception {
-        Connection connection = cf.createConnection();
-        connection.setClientID("Inactive");
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        MessageConsumer consumer = session.createDurableSubscriber(topic, "Inactive");
-        consumer.close();
-        connection.close();
-    }
+   private void createInactiveDurableSub(Topic topic) throws Exception {
+      Connection connection = cf.createConnection();
+      connection.setClientID("Inactive");
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      MessageConsumer consumer = session.createDurableSubscriber(topic, "Inactive");
+      consumer.close();
+      connection.close();
+   }
 
-    private void consumeDurableMessages(Topic topic, int count) throws Exception {
-        Connection connection = cf.createConnection();
-        connection.setClientID("Inactive");
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        MessageConsumer consumer = session.createDurableSubscriber(topic, "Inactive");
-        connection.start();
-        for (int i = 0; i < count; ++i) {
-           if (consumer.receive(TimeUnit.SECONDS.toMillis(10)) == null) {
-               fail("should have received a message");
-           }
-        }
-        consumer.close();
-        connection.close();
-    }
+   private void consumeDurableMessages(Topic topic, int count) throws Exception {
+      Connection connection = cf.createConnection();
+      connection.setClientID("Inactive");
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      MessageConsumer consumer = session.createDurableSubscriber(topic, "Inactive");
+      connection.start();
+      for (int i = 0; i < count; ++i) {
+         if (consumer.receive(TimeUnit.SECONDS.toMillis(10)) == null) {
+            fail("should have received a message");
+         }
+      }
+      consumer.close();
+      connection.close();
+   }
 
-    private void tryConsumeExpectNone(Topic topic) throws Exception {
-        Connection connection = cf.createConnection();
-        connection.setClientID("Inactive");
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        MessageConsumer consumer = session.createDurableSubscriber(topic, "Inactive");
-        connection.start();
-        if (consumer.receive(TimeUnit.SECONDS.toMillis(10)) != null) {
-            fail("Should be no messages for this durable.");
-        }
-        consumer.close();
-        connection.close();
-    }
+   private void tryConsumeExpectNone(Topic topic) throws Exception {
+      Connection connection = cf.createConnection();
+      connection.setClientID("Inactive");
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      MessageConsumer consumer = session.createDurableSubscriber(topic, "Inactive");
+      connection.start();
+      if (consumer.receive(TimeUnit.SECONDS.toMillis(10)) != null) {
+         fail("Should be no messages for this durable.");
+      }
+      consumer.close();
+      connection.close();
+   }
 
-    private int consumeFromInactiveDurableSub(Topic topic) throws Exception {
-        Connection connection = cf.createConnection();
-        connection.setClientID("Inactive");
-        connection.start();
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        MessageConsumer consumer = session.createDurableSubscriber(topic, "Inactive");
+   private int consumeFromInactiveDurableSub(Topic topic) throws Exception {
+      Connection connection = cf.createConnection();
+      connection.setClientID("Inactive");
+      connection.start();
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      MessageConsumer consumer = session.createDurableSubscriber(topic, "Inactive");
 
-        int count = 0;
+      int count = 0;
 
-        while (consumer.receive(10000) != null) {
-            count++;
-        }
+      while (consumer.receive(10000) != null) {
+         count++;
+      }
 
-        consumer.close();
-        connection.close();
+      consumer.close();
+      connection.close();
 
-        return count;
-    }
+      return count;
+   }
 
-    private void sendMessages(Destination destination) throws Exception {
-        sendMessages(destination, MSG_COUNT);
-    }
+   private void sendMessages(Destination destination) throws Exception {
+      sendMessages(destination, MSG_COUNT);
+   }
 
-    private void sendMessages(Destination destination, int count) throws Exception {
-        Connection connection = cf.createConnection();
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        MessageProducer producer = session.createProducer(destination);
-        producer.setDeliveryMode(DeliveryMode.PERSISTENT);
-        for (int i = 0; i < count; ++i) {
-            TextMessage message = session.createTextMessage("Message #" + i + " for destination: " + destination);
-            producer.send(message);
-        }
-        connection.close();
-    }
+   private void sendMessages(Destination destination, int count) throws Exception {
+      Connection connection = cf.createConnection();
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      MessageProducer producer = session.createProducer(destination);
+      producer.setDeliveryMode(DeliveryMode.PERSISTENT);
+      for (int i = 0; i < count; ++i) {
+         TextMessage message = session.createTextMessage("Message #" + i + " for destination: " + destination);
+         producer.send(message);
+      }
+      connection.close();
+   }
 
 }

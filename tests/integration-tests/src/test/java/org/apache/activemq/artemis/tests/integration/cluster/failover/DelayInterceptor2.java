@@ -25,16 +25,14 @@ import org.apache.activemq.artemis.core.protocol.core.Packet;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 
-public class DelayInterceptor2 implements Interceptor
-{
+public class DelayInterceptor2 implements Interceptor {
+
    private volatile boolean loseResponse = true;
 
    private final CountDownLatch latch = new CountDownLatch(1);
 
-   public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException
-   {
-      if (packet.getType() == PacketImpl.NULL_RESPONSE && loseResponse)
-      {
+   public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException {
+      if (packet.getType() == PacketImpl.NULL_RESPONSE && loseResponse) {
          // Lose the response from the commit - only lose the first one
 
          loseResponse = false;
@@ -43,14 +41,12 @@ public class DelayInterceptor2 implements Interceptor
 
          return false;
       }
-      else
-      {
+      else {
          return true;
       }
    }
 
-   public boolean await() throws InterruptedException
-   {
+   public boolean await() throws InterruptedException {
       return latch.await(10, TimeUnit.SECONDS);
    }
 }

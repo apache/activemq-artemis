@@ -27,49 +27,49 @@ import org.apache.activemq.wireformat.WireFormat;
 
 /**
  * Runs against the broker but marshals all request and response commands.
- * 
- * 
  */
 public class MarshallingBrokerTest extends BrokerTest {
 
-    public WireFormat wireFormat = new OpenWireFormat();
+   public WireFormat wireFormat = new OpenWireFormat();
 
-    public void initCombos() {
+   public void initCombos() {
 
-        OpenWireFormat wf1 = new OpenWireFormat();
-        wf1.setCacheEnabled(false);
-        OpenWireFormat wf2 = new OpenWireFormat();
-        wf2.setCacheEnabled(true);
+      OpenWireFormat wf1 = new OpenWireFormat();
+      wf1.setCacheEnabled(false);
+      OpenWireFormat wf2 = new OpenWireFormat();
+      wf2.setCacheEnabled(true);
 
-        addCombinationValues("wireFormat", new Object[] {wf1, wf2, });
-    }
+      addCombinationValues("wireFormat", new Object[]{wf1, wf2,});
+   }
 
-    protected StubConnection createConnection() throws Exception {
-        return new StubConnection(broker) {
-            public Response request(Command command) throws Exception {
-                Response r = super.request((Command)wireFormat.unmarshal(wireFormat.marshal(command)));
-                if (r != null) {
-                    r = (Response)wireFormat.unmarshal(wireFormat.marshal(r));
-                }
-                return r;
+   protected StubConnection createConnection() throws Exception {
+      return new StubConnection(broker) {
+         public Response request(Command command) throws Exception {
+            Response r = super.request((Command) wireFormat.unmarshal(wireFormat.marshal(command)));
+            if (r != null) {
+               r = (Response) wireFormat.unmarshal(wireFormat.marshal(r));
             }
+            return r;
+         }
 
-            public void send(Command command) throws Exception {
-                super.send((Command)wireFormat.unmarshal(wireFormat.marshal(command)));
-            }
+         public void send(Command command) throws Exception {
+            super.send((Command) wireFormat.unmarshal(wireFormat.marshal(command)));
+         }
 
-            protected void dispatch(Command command) throws InterruptedException, IOException {
-                super.dispatch((Command)wireFormat.unmarshal(wireFormat.marshal(command)));
-            };
-        };
-    }
+         protected void dispatch(Command command) throws InterruptedException, IOException {
+            super.dispatch((Command) wireFormat.unmarshal(wireFormat.marshal(command)));
+         }
 
-    public static Test suite() {
-        return suite(MarshallingBrokerTest.class);
-    }
+         ;
+      };
+   }
 
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(suite());
-    }
+   public static Test suite() {
+      return suite(MarshallingBrokerTest.class);
+   }
+
+   public static void main(String[] args) {
+      junit.textui.TestRunner.run(suite());
+   }
 
 }

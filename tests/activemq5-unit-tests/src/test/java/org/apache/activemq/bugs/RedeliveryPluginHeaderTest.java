@@ -25,7 +25,9 @@ import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+
 import junit.framework.TestCase;
+
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.RedeliveryPolicy;
 import org.apache.activemq.broker.BrokerPlugin;
@@ -44,124 +46,121 @@ import org.slf4j.LoggerFactory;
 
 public class RedeliveryPluginHeaderTest extends TestCase {
 
-    private static final String TEST_QUEUE_ONE = "TEST_QUEUE_ONE";
-    private static final String TEST_QUEUE_TWO = "TEST_QUEUE_TWO";
-    private static final Logger LOG = LoggerFactory
-            .getLogger(RedeliveryPluginHeaderTest.class);
-    private String transportURL;
-    private BrokerService broker;
+   private static final String TEST_QUEUE_ONE = "TEST_QUEUE_ONE";
+   private static final String TEST_QUEUE_TWO = "TEST_QUEUE_TWO";
+   private static final Logger LOG = LoggerFactory.getLogger(RedeliveryPluginHeaderTest.class);
+   private String transportURL;
+   private BrokerService broker;
 
-    /**
-     * Test
-     * - consumes message from Queue1
-     * - rolls back message to Queue1 and message is scheduled for redelivery to Queue1 by brokers plugin
-     * - consumes message from Queue1 again
-     * - sends same message to Queue2
-     * - expects to consume message from Queue2 immediately
-     */
+   /**
+    * Test
+    * - consumes message from Queue1
+    * - rolls back message to Queue1 and message is scheduled for redelivery to Queue1 by brokers plugin
+    * - consumes message from Queue1 again
+    * - sends same message to Queue2
+    * - expects to consume message from Queue2 immediately
+    */
 
-    public void testSendAfterRedelivery() throws Exception {
-        broker = this.createBroker(false);
-        broker.start();
-        broker.waitUntilStarted();
+   public void testSendAfterRedelivery() throws Exception {
+      broker = this.createBroker(false);
+      broker.start();
+      broker.waitUntilStarted();
 
-        LOG.info("***Broker started...");
+      LOG.info("***Broker started...");
 
-        //pushed message to broker
+      //pushed message to broker
 
-        ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(
-                transportURL + "?trace=true&jms.redeliveryPolicy.maximumRedeliveries=0");
+      ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(transportURL + "?trace=true&jms.redeliveryPolicy.maximumRedeliveries=0");
 
-        Connection connection = factory.createConnection();
-        connection.start();
+      Connection connection = factory.createConnection();
+      connection.start();
 
-        try {
+      try {
 
-            Session session = connection.createSession(true,
-                    Session.SESSION_TRANSACTED);
+         Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
 
-            Destination destinationQ1 = session.createQueue(TEST_QUEUE_ONE);
-            Destination destinationQ2 = session.createQueue(TEST_QUEUE_TWO);
+         Destination destinationQ1 = session.createQueue(TEST_QUEUE_ONE);
+         Destination destinationQ2 = session.createQueue(TEST_QUEUE_TWO);
 
-            MessageProducer producerQ1 = session.createProducer(destinationQ1);
-            producerQ1.setDeliveryMode(DeliveryMode.PERSISTENT);
+         MessageProducer producerQ1 = session.createProducer(destinationQ1);
+         producerQ1.setDeliveryMode(DeliveryMode.PERSISTENT);
 
-            Message m = session.createTextMessage("testMessage");
-            LOG.info("*** send message to broker...");
-            producerQ1.send(m);
-            session.commit();
+         Message m = session.createTextMessage("testMessage");
+         LOG.info("*** send message to broker...");
+         producerQ1.send(m);
+         session.commit();
 
-            //consume message from Q1 and rollback to get it redelivered
-            MessageConsumer consumerQ1 = session.createConsumer(destinationQ1);
+         //consume message from Q1 and rollback to get it redelivered
+         MessageConsumer consumerQ1 = session.createConsumer(destinationQ1);
 
-            LOG.info("*** consume message from Q1 and rolled back..");
+         LOG.info("*** consume message from Q1 and rolled back..");
 
-            TextMessage textMessage = (TextMessage) consumerQ1.receive();
-            LOG.info("got redelivered: " + textMessage);
-            assertFalse("JMSRedelivered flag is not set", textMessage.getJMSRedelivered());
-            session.rollback();
+         TextMessage textMessage = (TextMessage) consumerQ1.receive();
+         LOG.info("got redelivered: " + textMessage);
+         assertFalse("JMSRedelivered flag is not set", textMessage.getJMSRedelivered());
+         session.rollback();
 
-            LOG.info("*** consumed message from Q1 again and sending to Q2..");
-            TextMessage textMessage2 = (TextMessage) consumerQ1.receive();
-            LOG.info("got: " + textMessage2);
-            session.commit();
-            assertTrue("JMSRedelivered flag is set", textMessage2.getJMSRedelivered());
+         LOG.info("*** consumed message from Q1 again and sending to Q2..");
+         TextMessage textMessage2 = (TextMessage) consumerQ1.receive();
+         LOG.info("got: " + textMessage2);
+         session.commit();
+         assertTrue("JMSRedelivered flag is set", textMessage2.getJMSRedelivered());
 
-            //send message to Q2 and consume from Q2
-            MessageConsumer consumerQ2 = session.createConsumer(destinationQ2);
-            MessageProducer producer_two = session.createProducer(destinationQ2);
-            producer_two.send(textMessage2);
-            session.commit();
+         //send message to Q2 and consume from Q2
+         MessageConsumer consumerQ2 = session.createConsumer(destinationQ2);
+         MessageProducer producer_two = session.createProducer(destinationQ2);
+         producer_two.send(textMessage2);
+         session.commit();
 
-            //Message should be available straight away on the queue_two
-            Message textMessage3 = consumerQ2.receive(1000);
-            assertNotNull("should have consumed a message from TEST_QUEUE_TWO", textMessage3);
-            assertFalse("JMSRedelivered flag is not set", textMessage3.getJMSRedelivered());
-            session.commit();
+         //Message should be available straight away on the queue_two
+         Message textMessage3 = consumerQ2.receive(1000);
+         assertNotNull("should have consumed a message from TEST_QUEUE_TWO", textMessage3);
+         assertFalse("JMSRedelivered flag is not set", textMessage3.getJMSRedelivered());
+         session.commit();
 
-        } finally {
+      }
+      finally {
 
-            if (connection != null) {
-                connection.close();
-            }
+         if (connection != null) {
+            connection.close();
+         }
 
-            if (broker != null) {
-                broker.stop();
-            }
+         if (broker != null) {
+            broker.stop();
+         }
 
-        }
+      }
 
-    }
+   }
 
-    protected BrokerService createBroker(boolean withJMX) throws Exception {
-        File schedulerDirectory = new File("target/scheduler");
-        IOHelper.mkdirs(schedulerDirectory);
-        IOHelper.deleteChildren(schedulerDirectory);
+   protected BrokerService createBroker(boolean withJMX) throws Exception {
+      File schedulerDirectory = new File("target/scheduler");
+      IOHelper.mkdirs(schedulerDirectory);
+      IOHelper.deleteChildren(schedulerDirectory);
 
-        BrokerService answer = new BrokerService();
-        answer.setAdvisorySupport(false);
-        answer.setDataDirectory("target");
-        answer.setSchedulerDirectoryFile(schedulerDirectory);
-        answer.setSchedulerSupport(true);
-        answer.setPersistent(true);
-        answer.setDeleteAllMessagesOnStartup(true);
-        answer.setUseJmx(withJMX);
+      BrokerService answer = new BrokerService();
+      answer.setAdvisorySupport(false);
+      answer.setDataDirectory("target");
+      answer.setSchedulerDirectoryFile(schedulerDirectory);
+      answer.setSchedulerSupport(true);
+      answer.setPersistent(true);
+      answer.setDeleteAllMessagesOnStartup(true);
+      answer.setUseJmx(withJMX);
 
-        RedeliveryPlugin redeliveryPlugin = new RedeliveryPlugin();
-        RedeliveryPolicyMap redeliveryPolicyMap = new RedeliveryPolicyMap();
-        RedeliveryPolicy defaultEntry = new RedeliveryPolicy();
-        defaultEntry.setInitialRedeliveryDelay(5000);
-        defaultEntry.setMaximumRedeliveries(5);
-        redeliveryPolicyMap.setDefaultEntry(defaultEntry);
-        redeliveryPlugin.setRedeliveryPolicyMap(redeliveryPolicyMap);
+      RedeliveryPlugin redeliveryPlugin = new RedeliveryPlugin();
+      RedeliveryPolicyMap redeliveryPolicyMap = new RedeliveryPolicyMap();
+      RedeliveryPolicy defaultEntry = new RedeliveryPolicy();
+      defaultEntry.setInitialRedeliveryDelay(5000);
+      defaultEntry.setMaximumRedeliveries(5);
+      redeliveryPolicyMap.setDefaultEntry(defaultEntry);
+      redeliveryPlugin.setRedeliveryPolicyMap(redeliveryPolicyMap);
 
-        answer.setPlugins(new BrokerPlugin[] {redeliveryPlugin});
-        TransportConnector transportConnector =
-                answer.addConnector("tcp://localhost:0");
+      answer.setPlugins(new BrokerPlugin[]{redeliveryPlugin});
+      TransportConnector transportConnector = answer.addConnector("tcp://localhost:0");
 
-        transportURL = transportConnector.getConnectUri().toASCIIString();
+      transportURL = transportConnector.getConnectUri().toASCIIString();
 
-        return answer;
-    }
+      return answer;
+   }
 
 }

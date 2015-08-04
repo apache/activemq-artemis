@@ -28,6 +28,7 @@ import javax.jms.JMSException;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
+
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.command.ActiveMQQueue;
@@ -47,263 +48,267 @@ import org.slf4j.LoggerFactory;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class StorePerDestinationTest  {
-    static final Logger LOG = LoggerFactory.getLogger(StorePerDestinationTest.class);
-    final static int maxFileLength = 1024*100;
-    final static int numToSend = 5000;
-    final Vector<Throwable> exceptions = new Vector<Throwable>();
-    BrokerService brokerService;
+public class StorePerDestinationTest {
 
-    protected BrokerService createBroker(PersistenceAdapter kaha) throws Exception {
+   static final Logger LOG = LoggerFactory.getLogger(StorePerDestinationTest.class);
+   final static int maxFileLength = 1024 * 100;
+   final static int numToSend = 5000;
+   final Vector<Throwable> exceptions = new Vector<Throwable>();
+   BrokerService brokerService;
 
-        BrokerService broker = new BrokerService();
-        broker.setUseJmx(false);
-        broker.setPersistenceAdapter(kaha);
-        return broker;
-    }
+   protected BrokerService createBroker(PersistenceAdapter kaha) throws Exception {
 
-    protected PersistenceAdapter createStore(boolean delete) throws IOException {
-        KahaDBPersistenceAdapter kaha = new KahaDBPersistenceAdapter();
-        kaha.setJournalMaxFileLength(maxFileLength);
-        kaha.setCleanupInterval(5000);
-        if (delete) {
-            kaha.deleteAllMessages();
-        }
-        return kaha;
-    }
+      BrokerService broker = new BrokerService();
+      broker.setUseJmx(false);
+      broker.setPersistenceAdapter(kaha);
+      return broker;
+   }
 
-    @Before
-    public void prepareCleanBrokerWithMultiStore() throws Exception {
-           prepareBrokerWithMultiStore(true);
-    }
+   protected PersistenceAdapter createStore(boolean delete) throws IOException {
+      KahaDBPersistenceAdapter kaha = new KahaDBPersistenceAdapter();
+      kaha.setJournalMaxFileLength(maxFileLength);
+      kaha.setCleanupInterval(5000);
+      if (delete) {
+         kaha.deleteAllMessages();
+      }
+      return kaha;
+   }
 
-    public void prepareBrokerWithMultiStore(boolean deleteAllMessages) throws Exception {
+   @Before
+   public void prepareCleanBrokerWithMultiStore() throws Exception {
+      prepareBrokerWithMultiStore(true);
+   }
 
-        MultiKahaDBPersistenceAdapter multiKahaDBPersistenceAdapter = new MultiKahaDBPersistenceAdapter();
-        if (deleteAllMessages) {
-            multiKahaDBPersistenceAdapter.deleteAllMessages();
-        }
-        ArrayList<FilteredKahaDBPersistenceAdapter> adapters = new ArrayList<FilteredKahaDBPersistenceAdapter>();
+   public void prepareBrokerWithMultiStore(boolean deleteAllMessages) throws Exception {
 
-        FilteredKahaDBPersistenceAdapter theRest = new FilteredKahaDBPersistenceAdapter();
-        theRest.setPersistenceAdapter(createStore(deleteAllMessages));
-        // default destination when not set is a match for all
-        adapters.add(theRest);
+      MultiKahaDBPersistenceAdapter multiKahaDBPersistenceAdapter = new MultiKahaDBPersistenceAdapter();
+      if (deleteAllMessages) {
+         multiKahaDBPersistenceAdapter.deleteAllMessages();
+      }
+      ArrayList<FilteredKahaDBPersistenceAdapter> adapters = new ArrayList<FilteredKahaDBPersistenceAdapter>();
 
-        // separate store for FastQ
-        FilteredKahaDBPersistenceAdapter fastQStore = new FilteredKahaDBPersistenceAdapter();
-        fastQStore.setPersistenceAdapter(createStore(deleteAllMessages));
-        fastQStore.setDestination(new ActiveMQQueue("FastQ"));
-        adapters.add(fastQStore);
+      FilteredKahaDBPersistenceAdapter theRest = new FilteredKahaDBPersistenceAdapter();
+      theRest.setPersistenceAdapter(createStore(deleteAllMessages));
+      // default destination when not set is a match for all
+      adapters.add(theRest);
 
-        multiKahaDBPersistenceAdapter.setFilteredPersistenceAdapters(adapters);
-        brokerService  = createBroker(multiKahaDBPersistenceAdapter);
-    }
+      // separate store for FastQ
+      FilteredKahaDBPersistenceAdapter fastQStore = new FilteredKahaDBPersistenceAdapter();
+      fastQStore.setPersistenceAdapter(createStore(deleteAllMessages));
+      fastQStore.setDestination(new ActiveMQQueue("FastQ"));
+      adapters.add(fastQStore);
 
-    @After
-    public void tearDown() throws Exception {
-        brokerService.stop();
-    }
+      multiKahaDBPersistenceAdapter.setFilteredPersistenceAdapters(adapters);
+      brokerService = createBroker(multiKahaDBPersistenceAdapter);
+   }
 
-    @Test
-    public void testTransactedSendReceive() throws Exception {
-        brokerService.start();
-        sendMessages(true, "SlowQ", 1, 0);
-        assertEquals("got one", 1, receiveMessages(true, "SlowQ", 1));
-    }
+   @After
+   public void tearDown() throws Exception {
+      brokerService.stop();
+   }
 
-    @Test
-    public void testTransactedSendReceiveAcrossStores() throws Exception {
-        brokerService.start();
-        sendMessages(true, "SlowQ,FastQ", 1, 0);
-        assertEquals("got one", 2, receiveMessages(true, "SlowQ,FastQ", 2));
-    }
+   @Test
+   public void testTransactedSendReceive() throws Exception {
+      brokerService.start();
+      sendMessages(true, "SlowQ", 1, 0);
+      assertEquals("got one", 1, receiveMessages(true, "SlowQ", 1));
+   }
 
-    @Test
-    public void testCommitRecovery() throws Exception {
-        doTestRecovery(true);
-    }
+   @Test
+   public void testTransactedSendReceiveAcrossStores() throws Exception {
+      brokerService.start();
+      sendMessages(true, "SlowQ,FastQ", 1, 0);
+      assertEquals("got one", 2, receiveMessages(true, "SlowQ,FastQ", 2));
+   }
 
-     @Test
-    public void testRollbackRecovery() throws Exception {
-        doTestRecovery(false);
-    }
+   @Test
+   public void testCommitRecovery() throws Exception {
+      doTestRecovery(true);
+   }
 
-    public void doTestRecovery(final boolean haveOutcome) throws Exception {
-        final MultiKahaDBPersistenceAdapter persistenceAdapter =
-                (MultiKahaDBPersistenceAdapter) brokerService.getPersistenceAdapter();
-        MultiKahaDBTransactionStore transactionStore =
-                new MultiKahaDBTransactionStore(persistenceAdapter) {
-                    @Override
-                    public void persistOutcome(Tx tx, TransactionId txid) throws IOException {
-                        if (haveOutcome) {
-                            super.persistOutcome(tx, txid);
-                        }
-                        try {
-                            // IOExceptions will stop the broker
-                            persistenceAdapter.stop();
-                        } catch (Exception e) {
-                            LOG.error("ex on stop ", e);
-                            exceptions.add(e);
-                        }
-                    }
-                };
-        persistenceAdapter.setTransactionStore(transactionStore);
-        brokerService.start();
+   @Test
+   public void testRollbackRecovery() throws Exception {
+      doTestRecovery(false);
+   }
 
-        ExecutorService executorService = Executors.newCachedThreadPool();
-        executorService.execute(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    // commit will block
-                    sendMessages(true, "SlowQ,FastQ", 1, 0);
-                } catch(Exception expected) {
-                    LOG.info("expected", expected);
-                }
+   public void doTestRecovery(final boolean haveOutcome) throws Exception {
+      final MultiKahaDBPersistenceAdapter persistenceAdapter = (MultiKahaDBPersistenceAdapter) brokerService.getPersistenceAdapter();
+      MultiKahaDBTransactionStore transactionStore = new MultiKahaDBTransactionStore(persistenceAdapter) {
+         @Override
+         public void persistOutcome(Tx tx, TransactionId txid) throws IOException {
+            if (haveOutcome) {
+               super.persistOutcome(tx, txid);
             }
-        });
-
-        brokerService.waitUntilStopped();
-        // interrupt the send thread
-        executorService.shutdownNow();
-
-        // verify auto recovery
-        prepareBrokerWithMultiStore(false);
-        brokerService.start();
-
-        assertEquals("expect to get the recovered message", haveOutcome ? 2 : 0, receiveMessages(false, "SlowQ,FastQ", 2));
-        assertEquals("all transactions are complete", 0, brokerService.getBroker().getPreparedTransactions(null).length);
-    }
-
-    @Test
-    public void testDirectoryDefault() throws Exception {
-        MultiKahaDBPersistenceAdapter multiKahaDBPersistenceAdapter = new MultiKahaDBPersistenceAdapter();
-        ArrayList<FilteredKahaDBPersistenceAdapter> adapters = new ArrayList<FilteredKahaDBPersistenceAdapter>();
-
-        FilteredKahaDBPersistenceAdapter otherFilteredKahaDBPersistenceAdapter =
-                new FilteredKahaDBPersistenceAdapter();
-        PersistenceAdapter otherStore = createStore(false);
-        File someOtherDisk = new File("target" + File.separator + "someOtherDisk");
-        otherStore.setDirectory(someOtherDisk);
-        otherFilteredKahaDBPersistenceAdapter.setPersistenceAdapter(otherStore);
-        otherFilteredKahaDBPersistenceAdapter.setDestination(new ActiveMQQueue("Other"));
-        adapters.add(otherFilteredKahaDBPersistenceAdapter);
-
-        FilteredKahaDBPersistenceAdapter filteredKahaDBPersistenceAdapterDefault =
-                new FilteredKahaDBPersistenceAdapter();
-        PersistenceAdapter storeDefault = createStore(false);
-        filteredKahaDBPersistenceAdapterDefault.setPersistenceAdapter(storeDefault);
-        adapters.add(filteredKahaDBPersistenceAdapterDefault);
-
-        multiKahaDBPersistenceAdapter.setFilteredPersistenceAdapters(adapters);
-
-        assertEquals(multiKahaDBPersistenceAdapter.getDirectory(), storeDefault.getDirectory().getParentFile());
-        assertEquals(someOtherDisk, otherStore.getDirectory().getParentFile());
-    }
-
-    @Test
-    public void testSlowFastDestinationsStoreUsage() throws Exception {
-        brokerService.start();
-        ExecutorService executorService = Executors.newCachedThreadPool();
-        executorService.execute(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    sendMessages(false, "SlowQ", 50, 500);
-                } catch (Exception e) {
-                    exceptions.add(e);
-                }
+            try {
+               // IOExceptions will stop the broker
+               persistenceAdapter.stop();
             }
-        });
-
-        executorService.execute(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    sendMessages(false, "FastQ", numToSend, 0);
-                } catch (Exception e) {
-                    exceptions.add(e);
-                }
+            catch (Exception e) {
+               LOG.error("ex on stop ", e);
+               exceptions.add(e);
             }
-        });
+         }
+      };
+      persistenceAdapter.setTransactionStore(transactionStore);
+      brokerService.start();
 
-        executorService.execute(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    assertEquals("Got all sent", numToSend, receiveMessages(false, "FastQ", numToSend));
-                } catch (Exception e) {
-                    exceptions.add(e);
-                }
+      ExecutorService executorService = Executors.newCachedThreadPool();
+      executorService.execute(new Runnable() {
+         @Override
+         public void run() {
+            try {
+               // commit will block
+               sendMessages(true, "SlowQ,FastQ", 1, 0);
             }
-        });
-
-        executorService.shutdown();
-        assertTrue("consumers executor finished on time", executorService.awaitTermination(5*60, TimeUnit.SECONDS));
-        final SystemUsage usage = brokerService.getSystemUsage();
-        assertTrue("Store is not hogged", Wait.waitFor(new Wait.Condition() {
-
-            @Override
-            public boolean isSatisified() throws Exception {
-                long storeUsage = usage.getStoreUsage().getUsage();
-                LOG.info("Store Usage: " + storeUsage);
-                return storeUsage < 5 * maxFileLength;
+            catch (Exception expected) {
+               LOG.info("expected", expected);
             }
-        }));
-        assertTrue("no exceptions", exceptions.isEmpty());
-    }
+         }
+      });
 
-    private void sendMessages(boolean transacted, String destName, int count, long sleep) throws Exception {
-        ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory("vm://localhost");
-        Connection connection = cf.createConnection();
-        try {
-            Session session = transacted ? connection.createSession(true, Session.SESSION_TRANSACTED) : connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-            MessageProducer producer = session.createProducer(new ActiveMQQueue(destName));
-            for (int i = 0; i < count; i++) {
-                if (sleep > 0) {
-                    TimeUnit.MILLISECONDS.sleep(sleep);
-                }
-                producer.send(session.createTextMessage(createContent(i)));
-            }
-            if (transacted) {
-                session.commit();
-            }
-        } finally {
-            connection.close();
-        }
-    }
+      brokerService.waitUntilStopped();
+      // interrupt the send thread
+      executorService.shutdownNow();
 
-    private int receiveMessages(boolean transacted, String destName, int max) throws JMSException {
-        int rc = 0;
-        ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory("vm://localhost");
-        Connection connection = cf.createConnection();
-        try {
-            connection.start();
-            Session session = transacted ? connection.createSession(true, Session.SESSION_TRANSACTED) : connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-            MessageConsumer messageConsumer = session.createConsumer(new ActiveMQQueue(destName));
-            while (rc < max && messageConsumer.receive(4000) != null) {
-                rc++;
+      // verify auto recovery
+      prepareBrokerWithMultiStore(false);
+      brokerService.start();
 
-                if (transacted && rc % 200 == 0) {
-                    session.commit();
-                }
-            }
-            if (transacted) {
-                session.commit();
-            }
-            return rc;
-        } finally {
-            connection.close();
-        }
-    }
+      assertEquals("expect to get the recovered message", haveOutcome ? 2 : 0, receiveMessages(false, "SlowQ,FastQ", 2));
+      assertEquals("all transactions are complete", 0, brokerService.getBroker().getPreparedTransactions(null).length);
+   }
 
-    private String createContent(int i) {
-        StringBuilder sb = new StringBuilder(i + ":");
-        while (sb.length() < 1024) {
-            sb.append("*");
-        }
-        return sb.toString();
-    }
+   @Test
+   public void testDirectoryDefault() throws Exception {
+      MultiKahaDBPersistenceAdapter multiKahaDBPersistenceAdapter = new MultiKahaDBPersistenceAdapter();
+      ArrayList<FilteredKahaDBPersistenceAdapter> adapters = new ArrayList<FilteredKahaDBPersistenceAdapter>();
+
+      FilteredKahaDBPersistenceAdapter otherFilteredKahaDBPersistenceAdapter = new FilteredKahaDBPersistenceAdapter();
+      PersistenceAdapter otherStore = createStore(false);
+      File someOtherDisk = new File("target" + File.separator + "someOtherDisk");
+      otherStore.setDirectory(someOtherDisk);
+      otherFilteredKahaDBPersistenceAdapter.setPersistenceAdapter(otherStore);
+      otherFilteredKahaDBPersistenceAdapter.setDestination(new ActiveMQQueue("Other"));
+      adapters.add(otherFilteredKahaDBPersistenceAdapter);
+
+      FilteredKahaDBPersistenceAdapter filteredKahaDBPersistenceAdapterDefault = new FilteredKahaDBPersistenceAdapter();
+      PersistenceAdapter storeDefault = createStore(false);
+      filteredKahaDBPersistenceAdapterDefault.setPersistenceAdapter(storeDefault);
+      adapters.add(filteredKahaDBPersistenceAdapterDefault);
+
+      multiKahaDBPersistenceAdapter.setFilteredPersistenceAdapters(adapters);
+
+      assertEquals(multiKahaDBPersistenceAdapter.getDirectory(), storeDefault.getDirectory().getParentFile());
+      assertEquals(someOtherDisk, otherStore.getDirectory().getParentFile());
+   }
+
+   @Test
+   public void testSlowFastDestinationsStoreUsage() throws Exception {
+      brokerService.start();
+      ExecutorService executorService = Executors.newCachedThreadPool();
+      executorService.execute(new Runnable() {
+         @Override
+         public void run() {
+            try {
+               sendMessages(false, "SlowQ", 50, 500);
+            }
+            catch (Exception e) {
+               exceptions.add(e);
+            }
+         }
+      });
+
+      executorService.execute(new Runnable() {
+         @Override
+         public void run() {
+            try {
+               sendMessages(false, "FastQ", numToSend, 0);
+            }
+            catch (Exception e) {
+               exceptions.add(e);
+            }
+         }
+      });
+
+      executorService.execute(new Runnable() {
+         @Override
+         public void run() {
+            try {
+               assertEquals("Got all sent", numToSend, receiveMessages(false, "FastQ", numToSend));
+            }
+            catch (Exception e) {
+               exceptions.add(e);
+            }
+         }
+      });
+
+      executorService.shutdown();
+      assertTrue("consumers executor finished on time", executorService.awaitTermination(5 * 60, TimeUnit.SECONDS));
+      final SystemUsage usage = brokerService.getSystemUsage();
+      assertTrue("Store is not hogged", Wait.waitFor(new Wait.Condition() {
+
+         @Override
+         public boolean isSatisified() throws Exception {
+            long storeUsage = usage.getStoreUsage().getUsage();
+            LOG.info("Store Usage: " + storeUsage);
+            return storeUsage < 5 * maxFileLength;
+         }
+      }));
+      assertTrue("no exceptions", exceptions.isEmpty());
+   }
+
+   private void sendMessages(boolean transacted, String destName, int count, long sleep) throws Exception {
+      ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory("vm://localhost");
+      Connection connection = cf.createConnection();
+      try {
+         Session session = transacted ? connection.createSession(true, Session.SESSION_TRANSACTED) : connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         MessageProducer producer = session.createProducer(new ActiveMQQueue(destName));
+         for (int i = 0; i < count; i++) {
+            if (sleep > 0) {
+               TimeUnit.MILLISECONDS.sleep(sleep);
+            }
+            producer.send(session.createTextMessage(createContent(i)));
+         }
+         if (transacted) {
+            session.commit();
+         }
+      }
+      finally {
+         connection.close();
+      }
+   }
+
+   private int receiveMessages(boolean transacted, String destName, int max) throws JMSException {
+      int rc = 0;
+      ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory("vm://localhost");
+      Connection connection = cf.createConnection();
+      try {
+         connection.start();
+         Session session = transacted ? connection.createSession(true, Session.SESSION_TRANSACTED) : connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         MessageConsumer messageConsumer = session.createConsumer(new ActiveMQQueue(destName));
+         while (rc < max && messageConsumer.receive(4000) != null) {
+            rc++;
+
+            if (transacted && rc % 200 == 0) {
+               session.commit();
+            }
+         }
+         if (transacted) {
+            session.commit();
+         }
+         return rc;
+      }
+      finally {
+         connection.close();
+      }
+   }
+
+   private String createContent(int i) {
+      StringBuilder sb = new StringBuilder(i + ":");
+      while (sb.length() < 1024) {
+         sb.append("*");
+      }
+      return sb.toString();
+   }
 
 }

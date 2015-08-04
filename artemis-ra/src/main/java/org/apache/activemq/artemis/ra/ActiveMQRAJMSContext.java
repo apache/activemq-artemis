@@ -23,39 +23,35 @@ import org.apache.activemq.artemis.jms.client.ThreadAwareContext;
 import javax.jms.ExceptionListener;
 import javax.jms.JMSContext;
 
-public class ActiveMQRAJMSContext extends ActiveMQJMSContext
-{
-   public ActiveMQRAJMSContext(ActiveMQConnectionForContext connection, int ackMode, ThreadAwareContext threadAwareContext)
-   {
+public class ActiveMQRAJMSContext extends ActiveMQJMSContext {
+
+   public ActiveMQRAJMSContext(ActiveMQConnectionForContext connection,
+                               int ackMode,
+                               ThreadAwareContext threadAwareContext) {
       super(connection, ackMode, threadAwareContext);
    }
 
-   public ActiveMQRAJMSContext(ActiveMQConnectionForContext connection, ThreadAwareContext threadAwareContext)
-   {
+   public ActiveMQRAJMSContext(ActiveMQConnectionForContext connection, ThreadAwareContext threadAwareContext) {
       super(connection, threadAwareContext);
    }
 
    @Override
-   public JMSContext createContext(int sessionMode)
-   {
+   public JMSContext createContext(int sessionMode) {
       throw ActiveMQRABundle.BUNDLE.illegalJEEMethod();
    }
 
    @Override
-   public void stop()
-   {
+   public void stop() {
       throw ActiveMQRABundle.BUNDLE.illegalJEEMethod();
    }
 
    @Override
-   public void setClientID(String clientID)
-   {
+   public void setClientID(String clientID) {
       throw ActiveMQRABundle.BUNDLE.illegalJEEMethod();
    }
 
    @Override
-   public void setExceptionListener(ExceptionListener listener)
-   {
+   public void setExceptionListener(ExceptionListener listener) {
       throw ActiveMQRABundle.BUNDLE.illegalJEEMethod();
    }
 }

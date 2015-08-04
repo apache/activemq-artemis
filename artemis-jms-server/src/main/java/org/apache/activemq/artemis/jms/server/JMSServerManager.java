@@ -31,8 +31,8 @@ import org.apache.activemq.artemis.spi.core.naming.BindingRegistry;
 /**
  * The JMS Management interface.
  */
-public interface JMSServerManager extends ActiveMQComponent
-{
+public interface JMSServerManager extends ActiveMQComponent {
+
    String getVersion();
 
    /**
@@ -45,16 +45,18 @@ public interface JMSServerManager extends ActiveMQComponent
    /**
     * Creates a JMS Queue.
     *
-    * @param queueName
-    *           The name of the queue to create
+    * @param queueName      The name of the queue to create
     * @param selectorString
     * @param durable
     * @return true if the queue is created or if it existed and was added to
-    *         the Binding Registry
-    * @throws Exception
-    *            if problems were encountered creating the queue.
+    * the Binding Registry
+    * @throws Exception if problems were encountered creating the queue.
     */
-   boolean createQueue(boolean storeConfig, String queueName, String selectorString, boolean durable, String ...bindings) throws Exception;
+   boolean createQueue(boolean storeConfig,
+                       String queueName,
+                       String selectorString,
+                       boolean durable,
+                       String... bindings) throws Exception;
 
    boolean addTopicToBindingRegistry(final String topicName, final String binding) throws Exception;
 
@@ -65,26 +67,21 @@ public interface JMSServerManager extends ActiveMQComponent
    /**
     * Creates a JMS Topic
     *
-    * @param topicName
-    *           the name of the topic
-    * @param bindings
-    *           the names of the binding for the Binding Registry or BindingRegistry
+    * @param topicName the name of the topic
+    * @param bindings  the names of the binding for the Binding Registry or BindingRegistry
     * @return true if the topic was created or if it existed and was added to
-    *         the Binding Registry
-    * @throws Exception
-    *            if a problem occurred creating the topic
+    * the Binding Registry
+    * @throws Exception if a problem occurred creating the topic
     */
-   boolean createTopic(boolean storeConfig, String topicName, String ... bindings) throws Exception;
+   boolean createTopic(boolean storeConfig, String topicName, String... bindings) throws Exception;
 
    /**
     * Remove the topic from the Binding Registry or BindingRegistry.
     * Calling this method does <em>not</em> destroy the destination.
     *
-    * @param name
-    *           the name of the destination to remove from the BindingRegistry
+    * @param name the name of the destination to remove from the BindingRegistry
     * @return true if removed
-    * @throws Exception
-    *            if a problem occurred removing the destination
+    * @throws Exception if a problem occurred removing the destination
     */
    boolean removeTopicFromBindingRegistry(String name, String binding) throws Exception;
 
@@ -92,11 +89,9 @@ public interface JMSServerManager extends ActiveMQComponent
     * Remove the topic from the BindingRegistry.
     * Calling this method does <em>not</em> destroy the destination.
     *
-    * @param name
-    *           the name of the destination to remove from the BindingRegistry
+    * @param name the name of the destination to remove from the BindingRegistry
     * @return true if removed
-    * @throws Exception
-    *            if a problem occurred removing the destination
+    * @throws Exception if a problem occurred removing the destination
     */
    boolean removeTopicFromBindingRegistry(String name) throws Exception;
 
@@ -104,11 +99,9 @@ public interface JMSServerManager extends ActiveMQComponent
     * Remove the queue from the BindingRegistry.
     * Calling this method does <em>not</em> destroy the destination.
     *
-    * @param name
-    *           the name of the destination to remove from the BindingRegistry
+    * @param name the name of the destination to remove from the BindingRegistry
     * @return true if removed
-    * @throws Exception
-    *            if a problem occurred removing the destination
+    * @throws Exception if a problem occurred removing the destination
     */
    boolean removeQueueFromBindingRegistry(String name, String binding) throws Exception;
 
@@ -116,11 +109,9 @@ public interface JMSServerManager extends ActiveMQComponent
     * Remove the queue from the BindingRegistry.
     * Calling this method does <em>not</em> destroy the destination.
     *
-    * @param name
-    *           the name of the destination to remove from the BindingRegistry
+    * @param name the name of the destination to remove from the BindingRegistry
     * @return true if removed
-    * @throws Exception
-    *            if a problem occurred removing the destination
+    * @throws Exception if a problem occurred removing the destination
     */
    boolean removeQueueFromBindingRegistry(String name) throws Exception;
 
@@ -131,11 +122,9 @@ public interface JMSServerManager extends ActiveMQComponent
    /**
     * destroys a queue and removes it from the BindingRegistry
     *
-    * @param name
-    *           the name of the queue to destroy
+    * @param name the name of the queue to destroy
     * @return true if destroyed
-    * @throws Exception
-    *            if a problem occurred destroying the queue
+    * @throws Exception if a problem occurred destroying the queue
     */
    boolean destroyQueue(String name) throws Exception;
 
@@ -143,11 +132,9 @@ public interface JMSServerManager extends ActiveMQComponent
     * destroys a queue and removes it from the BindingRegistry.
     * disconnects any consumers connected to the queue.
     *
-    * @param name
-    *           the name of the queue to destroy
+    * @param name the name of the queue to destroy
     * @return true if destroyed
-    * @throws Exception
-    *            if a problem occurred destroying the queue
+    * @throws Exception if a problem occurred destroying the queue
     */
    boolean destroyQueue(String name, boolean removeConsumers) throws Exception;
 
@@ -160,36 +147,39 @@ public interface JMSServerManager extends ActiveMQComponent
    /**
     * destroys a topic and removes it from the BindingRegistry
     *
-    * @param name
-    *           the name of the topic to destroy
+    * @param name the name of the topic to destroy
     * @return true if the topic was destroyed
-    * @throws Exception
-    *            if a problem occurred destroying the topic
+    * @throws Exception if a problem occurred destroying the topic
     */
    boolean destroyTopic(String name, boolean removeConsumers) throws Exception;
 
    /**
     * destroys a topic and removes it from theBindingRegistry
     *
-    * @param name
-    *           the name of the topic to destroy
+    * @param name the name of the topic to destroy
     * @return true if the topic was destroyed
-    * @throws Exception
-    *            if a problem occurred destroying the topic
+    * @throws Exception if a problem occurred destroying the topic
     */
    boolean destroyTopic(String name) throws Exception;
 
-   /** Call this method to have a CF rebound to the Binding Registry and stored on the Journal
-    * @throws Exception */
-   ActiveMQConnectionFactory recreateCF(String name,  ConnectionFactoryConfiguration cf) throws Exception;
+   /**
+    * Call this method to have a CF rebound to the Binding Registry and stored on the Journal
+    *
+    * @throws Exception
+    */
+   ActiveMQConnectionFactory recreateCF(String name, ConnectionFactoryConfiguration cf) throws Exception;
 
-   void createConnectionFactory(String name, boolean ha, JMSFactoryType cfType, String discoveryGroupName, String ... bindings) throws Exception;
+   void createConnectionFactory(String name,
+                                boolean ha,
+                                JMSFactoryType cfType,
+                                String discoveryGroupName,
+                                String... bindings) throws Exception;
 
    void createConnectionFactory(String name,
                                 boolean ha,
                                 JMSFactoryType cfType,
                                 List<String> connectorNames,
-                                String ... bindings) throws Exception;
+                                String... bindings) throws Exception;
 
    void createConnectionFactory(String name,
                                 boolean ha,
@@ -225,7 +215,7 @@ public interface JMSServerManager extends ActiveMQComponent
                                 int reconnectAttempts,
                                 boolean failoverOnInitialConnection,
                                 String groupId,
-                                String ... bindings) throws Exception;
+                                String... bindings) throws Exception;
 
    void createConnectionFactory(String name,
                                 boolean ha,
@@ -261,18 +251,18 @@ public interface JMSServerManager extends ActiveMQComponent
                                 int reconnectAttempts,
                                 boolean failoverOnInitialConnection,
                                 String groupId,
-                                String ... bindings) throws Exception;
+                                String... bindings) throws Exception;
 
-   void createConnectionFactory(boolean storeConfig, ConnectionFactoryConfiguration cfConfig, String... bindings) throws Exception;
+   void createConnectionFactory(boolean storeConfig,
+                                ConnectionFactoryConfiguration cfConfig,
+                                String... bindings) throws Exception;
 
    /**
     * destroys a connection factory.
     *
-    * @param name
-    *           the name of the connection factory to destroy
+    * @param name the name of the connection factory to destroy
     * @return true if the connection factory was destroyed
-    * @throws Exception
-    *            if a problem occurred destroying the connection factory
+    * @throws Exception if a problem occurred destroying the connection factory
     */
    boolean destroyConnectionFactory(String name) throws Exception;
 

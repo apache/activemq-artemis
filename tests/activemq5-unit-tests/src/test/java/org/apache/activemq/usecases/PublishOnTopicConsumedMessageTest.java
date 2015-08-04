@@ -26,42 +26,44 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * 
+ *
  */
 public class PublishOnTopicConsumedMessageTest extends JmsTopicSendReceiveWithTwoConnectionsTest {
 
-    private static final Logger LOG = LoggerFactory.getLogger(PublishOnTopicConsumedMessageTest.class);
+   private static final Logger LOG = LoggerFactory.getLogger(PublishOnTopicConsumedMessageTest.class);
 
-    private MessageProducer replyProducer;
+   private MessageProducer replyProducer;
 
-    public synchronized void onMessage(Message message) {
+   public synchronized void onMessage(Message message) {
 
-        // lets resend the message somewhere else
-        try {
-            Message msgCopy = (Message)((org.apache.activemq.command.Message)message).copy();
-            replyProducer.send(msgCopy);
+      // lets resend the message somewhere else
+      try {
+         Message msgCopy = (Message) ((org.apache.activemq.command.Message) message).copy();
+         replyProducer.send(msgCopy);
 
-            // log.info("Sending reply: " + message);
-            super.onMessage(message);
-        } catch (JMSException e) {
-            LOG.info("Failed to send message: " + e);
-            e.printStackTrace();
-        }
-    }
+         // log.info("Sending reply: " + message);
+         super.onMessage(message);
+      }
+      catch (JMSException e) {
+         LOG.info("Failed to send message: " + e);
+         e.printStackTrace();
+      }
+   }
 
-    protected void setUp() throws Exception {
-        super.setUp();
+   protected void setUp() throws Exception {
+      super.setUp();
 
-        Destination replyDestination = null;
+      Destination replyDestination = null;
 
-        if (topic) {
-            replyDestination = receiveSession.createTopic("REPLY." + getSubject());
-        } else {
-            replyDestination = receiveSession.createQueue("REPLY." + getSubject());
-        }
+      if (topic) {
+         replyDestination = receiveSession.createTopic("REPLY." + getSubject());
+      }
+      else {
+         replyDestination = receiveSession.createQueue("REPLY." + getSubject());
+      }
 
-        replyProducer = receiveSession.createProducer(replyDestination);
-        LOG.info("Created replyProducer: " + replyProducer);
+      replyProducer = receiveSession.createProducer(replyDestination);
+      LOG.info("Created replyProducer: " + replyProducer);
 
-    }
+   }
 }

@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.timing.util;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.junit.After;
@@ -26,35 +27,23 @@ import org.junit.Assert;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.UTF8Util;
 
-public class UTF8Test extends ActiveMQTestBase
-{
+public class UTF8Test extends ActiveMQTestBase {
 
-   private final String str = "abcdef&^*&!^ghijkl\uB5E2\uCAC7\uB2BB\uB7DD\uB7C7\uB3A3\uBCE4\uB5A5" + "abcdef&^*&!^ghijkl\uB5E2\uCAC7\uB2BB\uB7DD\uB7C7\uB3A3\uBCE4\uB5A5"
-                              + "abcdef&^*&!^ghijkl\uB5E2\uCAC7\uB2BB\uB7DD\uB7C7\uB3A3\uBCE4\uB5A5"
-                              + "abcdef&^*&!^ghijkl\uB5E2\uCAC7\uB2BB\uB7DD\uB7C7\uB3A3\uBCE4\uB5A5"
-                              + "abcdef&^*&!^ghijkl\uB5E2\uCAC7\uB2BB\uB7DD\uB7C7\uB3A3\uBCE4\uB5A5"
-                              + "abcdef&^*&!^ghijkl\uB5E2\uCAC7\uB2BB\uB7DD\uB7C7\uB3A3\uBCE4\uB5A5"
-                              + "abcdef&^*&!^ghijkl\uB5E2\uCAC7\uB2BB\uB7DD\uB7C7\uB3A3\uBCE4\uB5A5"
-                              + "abcdef&^*&!^ghijkl\uB5E2\uCAC7\uB2BB\uB7DD\uB7C7\uB3A3\uBCE4\uB5A5"
-                              + "abcdef&^*&!^ghijkl\uB5E2\uCAC7\uB2BB\uB7DD\uB7C7\uB3A3\uBCE4\uB5A5";
+   private final String str = "abcdef&^*&!^ghijkl\uB5E2\uCAC7\uB2BB\uB7DD\uB7C7\uB3A3\uBCE4\uB5A5" + "abcdef&^*&!^ghijkl\uB5E2\uCAC7\uB2BB\uB7DD\uB7C7\uB3A3\uBCE4\uB5A5" + "abcdef&^*&!^ghijkl\uB5E2\uCAC7\uB2BB\uB7DD\uB7C7\uB3A3\uBCE4\uB5A5" + "abcdef&^*&!^ghijkl\uB5E2\uCAC7\uB2BB\uB7DD\uB7C7\uB3A3\uBCE4\uB5A5" + "abcdef&^*&!^ghijkl\uB5E2\uCAC7\uB2BB\uB7DD\uB7C7\uB3A3\uBCE4\uB5A5" + "abcdef&^*&!^ghijkl\uB5E2\uCAC7\uB2BB\uB7DD\uB7C7\uB3A3\uBCE4\uB5A5" + "abcdef&^*&!^ghijkl\uB5E2\uCAC7\uB2BB\uB7DD\uB7C7\uB3A3\uBCE4\uB5A5" + "abcdef&^*&!^ghijkl\uB5E2\uCAC7\uB2BB\uB7DD\uB7C7\uB3A3\uBCE4\uB5A5" + "abcdef&^*&!^ghijkl\uB5E2\uCAC7\uB2BB\uB7DD\uB7C7\uB3A3\uBCE4\uB5A5";
 
    final int TIMES = 5;
 
    final long numberOfIteractions = 1000000;
 
    @Test
-   public void testWriteUTF() throws Exception
-   {
+   public void testWriteUTF() throws Exception {
       ActiveMQBuffer buffer = ActiveMQBuffers.fixedBuffer(10 * 1024);
 
       long start = System.currentTimeMillis();
 
-      for (int c = 0; c < TIMES; c++)
-      {
-         for (long i = 0; i < numberOfIteractions; i++)
-         {
-            if (i == 10000)
-            {
+      for (int c = 0; c < TIMES; c++) {
+         for (long i = 0; i < numberOfIteractions; i++) {
+            if (i == 10000) {
                start = System.currentTimeMillis();
             }
 
@@ -69,20 +58,16 @@ public class UTF8Test extends ActiveMQTestBase
    }
 
    @Test
-   public void testReadUTF() throws Exception
-   {
+   public void testReadUTF() throws Exception {
       ActiveMQBuffer buffer = ActiveMQBuffers.fixedBuffer(10 * 1024);
 
       buffer.writeUTF(str);
 
       long start = System.currentTimeMillis();
 
-      for (int c = 0; c < TIMES; c++)
-      {
-         for (long i = 0; i < numberOfIteractions; i++)
-         {
-            if (i == 10000)
-            {
+      for (int c = 0; c < TIMES; c++) {
+         for (long i = 0; i < numberOfIteractions; i++) {
+            if (i == 10000) {
                start = System.currentTimeMillis();
             }
 
@@ -100,8 +85,7 @@ public class UTF8Test extends ActiveMQTestBase
 
    @Override
    @After
-   public void tearDown() throws Exception
-   {
+   public void tearDown() throws Exception {
       UTF8Util.clearBuffer();
       super.tearDown();
    }

@@ -32,66 +32,67 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
  *
  */
 public class SpringTestSupport extends TestCase {
-    private static final Logger LOG = LoggerFactory.getLogger(SpringTest.class);
-    protected AbstractApplicationContext context;
-    protected SpringConsumer consumer;
-    protected SpringProducer producer;
 
-    /**
-     * assert method that is used by all the test method to send and receive messages
-     * based on each spring configuration.
-     *
-     * @param config
-     * @throws Exception
-     */
-    protected void assertSenderConfig(String config) throws Exception {
-        Thread.currentThread().setContextClassLoader(SpringTest.class.getClassLoader());
-        context = new ClassPathXmlApplicationContext(config);
+   private static final Logger LOG = LoggerFactory.getLogger(SpringTest.class);
+   protected AbstractApplicationContext context;
+   protected SpringConsumer consumer;
+   protected SpringProducer producer;
 
-        consumer = (SpringConsumer) context.getBean("consumer");
-        assertTrue("Found a valid consumer", consumer != null);
+   /**
+    * assert method that is used by all the test method to send and receive messages
+    * based on each spring configuration.
+    *
+    * @param config
+    * @throws Exception
+    */
+   protected void assertSenderConfig(String config) throws Exception {
+      Thread.currentThread().setContextClassLoader(SpringTest.class.getClassLoader());
+      context = new ClassPathXmlApplicationContext(config);
 
-        consumer.start();
+      consumer = (SpringConsumer) context.getBean("consumer");
+      assertTrue("Found a valid consumer", consumer != null);
 
-        // Wait a little to drain any left over messages.
-        Thread.sleep(1000);
-        consumer.flushMessages();
+      consumer.start();
 
-        producer = (SpringProducer) context.getBean("producer");
-        assertTrue("Found a valid producer", producer != null);
+      // Wait a little to drain any left over messages.
+      Thread.sleep(1000);
+      consumer.flushMessages();
 
-        producer.start();
+      producer = (SpringProducer) context.getBean("producer");
+      assertTrue("Found a valid producer", producer != null);
 
-        // lets sleep a little to give the JMS time to dispatch stuff
-        consumer.waitForMessagesToArrive(producer.getMessageCount());
+      producer.start();
 
-        // now lets check that the consumer has received some messages
-        List<Message> messages = consumer.flushMessages();
-        LOG.info("Consumer has received messages....");
-        for (Iterator<Message> iter = messages.iterator(); iter.hasNext();) {
-            Object message = iter.next();
-            LOG.info("Received: " + message);
-        }
+      // lets sleep a little to give the JMS time to dispatch stuff
+      consumer.waitForMessagesToArrive(producer.getMessageCount());
 
-        assertEquals("Message count", producer.getMessageCount(), messages.size());
-    }
+      // now lets check that the consumer has received some messages
+      List<Message> messages = consumer.flushMessages();
+      LOG.info("Consumer has received messages....");
+      for (Iterator<Message> iter = messages.iterator(); iter.hasNext(); ) {
+         Object message = iter.next();
+         LOG.info("Received: " + message);
+      }
 
-    /**
-     * Clean up method.
-     *
-     * @throws Exception
-     */
-    @Override
-    protected void tearDown() throws Exception {
-        if (consumer != null) {
-            consumer.stop();
-        }
-        if (producer != null) {
-            producer.stop();
-        }
+      assertEquals("Message count", producer.getMessageCount(), messages.size());
+   }
 
-        if (context != null) {
-            context.destroy();
-        }
-    }
+   /**
+    * Clean up method.
+    *
+    * @throws Exception
+    */
+   @Override
+   protected void tearDown() throws Exception {
+      if (consumer != null) {
+         consumer.stop();
+      }
+      if (producer != null) {
+         producer.stop();
+      }
+
+      if (context != null) {
+         context.destroy();
+      }
+   }
 }

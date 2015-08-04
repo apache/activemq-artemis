@@ -20,6 +20,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import junit.framework.Test;
+
 import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.command.ActiveMQQueue;
 import org.apache.activemq.store.kahadb.FilteredKahaDBPersistenceAdapter;
@@ -28,35 +29,35 @@ import org.apache.activemq.store.kahadb.MultiKahaDBPersistenceAdapter;
 
 public class mKahaDBXARecoveryBrokerTest extends XARecoveryBrokerTest {
 
-    @Override
-    protected void configureBroker(BrokerService broker) throws Exception {
-        super.configureBroker(broker);
+   @Override
+   protected void configureBroker(BrokerService broker) throws Exception {
+      super.configureBroker(broker);
 
-        MultiKahaDBPersistenceAdapter mKahaDB = new MultiKahaDBPersistenceAdapter();
-        List adapters = new LinkedList<FilteredKahaDBPersistenceAdapter>();
-        FilteredKahaDBPersistenceAdapter defaultEntry = new FilteredKahaDBPersistenceAdapter();
-        defaultEntry.setPersistenceAdapter(new KahaDBPersistenceAdapter());
-        adapters.add(defaultEntry);
+      MultiKahaDBPersistenceAdapter mKahaDB = new MultiKahaDBPersistenceAdapter();
+      List adapters = new LinkedList<FilteredKahaDBPersistenceAdapter>();
+      FilteredKahaDBPersistenceAdapter defaultEntry = new FilteredKahaDBPersistenceAdapter();
+      defaultEntry.setPersistenceAdapter(new KahaDBPersistenceAdapter());
+      adapters.add(defaultEntry);
 
-        FilteredKahaDBPersistenceAdapter special = new FilteredKahaDBPersistenceAdapter();
-        special.setDestination(new ActiveMQQueue("special"));
-        special.setPersistenceAdapter(new KahaDBPersistenceAdapter());
-        adapters.add(special);
+      FilteredKahaDBPersistenceAdapter special = new FilteredKahaDBPersistenceAdapter();
+      special.setDestination(new ActiveMQQueue("special"));
+      special.setPersistenceAdapter(new KahaDBPersistenceAdapter());
+      adapters.add(special);
 
-        mKahaDB.setFilteredPersistenceAdapters(adapters);
-        broker.setPersistenceAdapter(mKahaDB);
-    }
+      mKahaDB.setFilteredPersistenceAdapters(adapters);
+      broker.setPersistenceAdapter(mKahaDB);
+   }
 
-    public static Test suite() {
-        return suite(mKahaDBXARecoveryBrokerTest.class);
-    }
+   public static Test suite() {
+      return suite(mKahaDBXARecoveryBrokerTest.class);
+   }
 
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(suite());
-    }
+   public static void main(String[] args) {
+      junit.textui.TestRunner.run(suite());
+   }
 
-    protected ActiveMQDestination createDestination() {
-        return new ActiveMQQueue("test,special");
-    }
+   protected ActiveMQDestination createDestination() {
+      return new ActiveMQQueue("test,special");
+   }
 
 }

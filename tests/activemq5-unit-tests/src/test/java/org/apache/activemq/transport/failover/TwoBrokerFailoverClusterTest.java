@@ -18,75 +18,81 @@ package org.apache.activemq.transport.failover;
 
 public class TwoBrokerFailoverClusterTest extends FailoverClusterTestSupport {
 
-    private static final String BROKER_A_CLIENT_TC_ADDRESS = "tcp://127.0.0.1:61616";
-    private static final String BROKER_B_CLIENT_TC_ADDRESS = "tcp://127.0.0.1:61617";
-    private static final String BROKER_A_NOB_TC_ADDRESS = "tcp://127.0.0.1:61626";
-    private static final String BROKER_B_NOB_TC_ADDRESS = "tcp://127.0.0.1:61627";
-    private static final String BROKER_A_NAME = "BROKERA";
-    private static final String BROKER_B_NAME = "BROKERB";
+   private static final String BROKER_A_CLIENT_TC_ADDRESS = "tcp://127.0.0.1:61616";
+   private static final String BROKER_B_CLIENT_TC_ADDRESS = "tcp://127.0.0.1:61617";
+   private static final String BROKER_A_NOB_TC_ADDRESS = "tcp://127.0.0.1:61626";
+   private static final String BROKER_B_NOB_TC_ADDRESS = "tcp://127.0.0.1:61627";
+   private static final String BROKER_A_NAME = "BROKERA";
+   private static final String BROKER_B_NAME = "BROKERB";
 
-    public void testTwoBrokersRestart() throws Exception {
-        createBrokerA(false, "", null, null);
-        createBrokerB(false, "", null, null);
-        getBroker(BROKER_B_NAME).waitUntilStarted();
+   public void testTwoBrokersRestart() throws Exception {
+      createBrokerA(false, "", null, null);
+      createBrokerB(false, "", null, null);
+      getBroker(BROKER_B_NAME).waitUntilStarted();
 
-        Thread.sleep(2000);
-        setClientUrl("failover://(" + BROKER_A_CLIENT_TC_ADDRESS + "," + BROKER_B_CLIENT_TC_ADDRESS + ")");
-        createClients();
+      Thread.sleep(2000);
+      setClientUrl("failover://(" + BROKER_A_CLIENT_TC_ADDRESS + "," + BROKER_B_CLIENT_TC_ADDRESS + ")");
+      createClients();
 
-        Thread.sleep(5000);
+      Thread.sleep(5000);
 
-        assertClientsConnectedToTwoBrokers();
-        assertClientsConnectionsEvenlyDistributed(.35);
+      assertClientsConnectedToTwoBrokers();
+      assertClientsConnectionsEvenlyDistributed(.35);
 
+      getBroker(BROKER_A_NAME).stop();
+      getBroker(BROKER_A_NAME).waitUntilStopped();
+      removeBroker(BROKER_A_NAME);
 
-        getBroker(BROKER_A_NAME).stop();
-        getBroker(BROKER_A_NAME).waitUntilStopped();
-        removeBroker(BROKER_A_NAME);
+      Thread.sleep(1000);
 
-        Thread.sleep(1000);
+      assertAllConnectedTo(BROKER_B_CLIENT_TC_ADDRESS);
 
-        assertAllConnectedTo(BROKER_B_CLIENT_TC_ADDRESS);
+      Thread.sleep(5000);
 
-        Thread.sleep(5000);
+      createBrokerA(false, "", null, null);
+      getBroker(BROKER_A_NAME).waitUntilStarted();
+      Thread.sleep(5000);
 
-        createBrokerA(false, "", null, null);
-        getBroker(BROKER_A_NAME).waitUntilStarted();
-        Thread.sleep(5000);
+      assertClientsConnectedToTwoBrokers();
+      assertClientsConnectionsEvenlyDistributed(.35);
+   }
 
-        assertClientsConnectedToTwoBrokers();
-        assertClientsConnectionsEvenlyDistributed(.35);
-    }
+   private void createBrokerA(boolean multi,
+                              String params,
+                              String clusterFilter,
+                              String destinationFilter) throws Exception {
+      final String tcParams = (params == null) ? "" : params;
+      if (getBroker(BROKER_A_NAME) == null) {
+         addBroker(BROKER_A_NAME, createBroker(BROKER_A_NAME));
+         addTransportConnector(getBroker(BROKER_A_NAME), "openwire", BROKER_A_CLIENT_TC_ADDRESS + tcParams, true);
+         if (multi) {
+            addTransportConnector(getBroker(BROKER_A_NAME), "network", BROKER_A_NOB_TC_ADDRESS + tcParams, false);
+            addNetworkBridge(getBroker(BROKER_A_NAME), "A_2_B_Bridge", "static://(" + BROKER_B_NOB_TC_ADDRESS + ")?useExponentialBackOff=false", false, clusterFilter);
+         }
+         else {
+            addNetworkBridge(getBroker(BROKER_A_NAME), "A_2_B_Bridge", "static://(" + BROKER_B_CLIENT_TC_ADDRESS + ")?useExponentialBackOff=false", false, clusterFilter);
+         }
+         getBroker(BROKER_A_NAME).start();
+      }
+   }
 
-
-    private void createBrokerA(boolean multi, String params, String clusterFilter, String destinationFilter) throws Exception {
-    	final String tcParams = (params == null)?"":params;
-        if (getBroker(BROKER_A_NAME) == null) {
-            addBroker(BROKER_A_NAME, createBroker(BROKER_A_NAME));
-            addTransportConnector(getBroker(BROKER_A_NAME), "openwire", BROKER_A_CLIENT_TC_ADDRESS + tcParams, true);
-            if (multi) {
-                addTransportConnector(getBroker(BROKER_A_NAME), "network", BROKER_A_NOB_TC_ADDRESS + tcParams, false);
-                addNetworkBridge(getBroker(BROKER_A_NAME), "A_2_B_Bridge", "static://(" + BROKER_B_NOB_TC_ADDRESS + ")?useExponentialBackOff=false", false, clusterFilter);
-            } else {
-                addNetworkBridge(getBroker(BROKER_A_NAME), "A_2_B_Bridge", "static://(" + BROKER_B_CLIENT_TC_ADDRESS + ")?useExponentialBackOff=false", false, clusterFilter);
-            }
-            getBroker(BROKER_A_NAME).start();
-        }
-    }
-
-    private void createBrokerB(boolean multi, String params, String clusterFilter, String destinationFilter) throws Exception {
-    	final String tcParams = (params == null)?"":params;
-        if (getBroker(BROKER_B_NAME) == null) {
-            addBroker(BROKER_B_NAME, createBroker(BROKER_B_NAME));
-            addTransportConnector(getBroker(BROKER_B_NAME), "openwire", BROKER_B_CLIENT_TC_ADDRESS + tcParams, true);
-            if (multi) {
-                addTransportConnector(getBroker(BROKER_B_NAME), "network", BROKER_B_NOB_TC_ADDRESS + tcParams, false);
-                addNetworkBridge(getBroker(BROKER_B_NAME), "B_2_A_Bridge", "static://(" + BROKER_A_NOB_TC_ADDRESS + ")?useExponentialBackOff=false", false, clusterFilter);
-            } else {
-                addNetworkBridge(getBroker(BROKER_B_NAME), "B_2_A_Bridge", "static://(" + BROKER_A_CLIENT_TC_ADDRESS + ")?useExponentialBackOff=false", false, clusterFilter);
-            }
-            getBroker(BROKER_B_NAME).start();
-        }
-    }
+   private void createBrokerB(boolean multi,
+                              String params,
+                              String clusterFilter,
+                              String destinationFilter) throws Exception {
+      final String tcParams = (params == null) ? "" : params;
+      if (getBroker(BROKER_B_NAME) == null) {
+         addBroker(BROKER_B_NAME, createBroker(BROKER_B_NAME));
+         addTransportConnector(getBroker(BROKER_B_NAME), "openwire", BROKER_B_CLIENT_TC_ADDRESS + tcParams, true);
+         if (multi) {
+            addTransportConnector(getBroker(BROKER_B_NAME), "network", BROKER_B_NOB_TC_ADDRESS + tcParams, false);
+            addNetworkBridge(getBroker(BROKER_B_NAME), "B_2_A_Bridge", "static://(" + BROKER_A_NOB_TC_ADDRESS + ")?useExponentialBackOff=false", false, clusterFilter);
+         }
+         else {
+            addNetworkBridge(getBroker(BROKER_B_NAME), "B_2_A_Bridge", "static://(" + BROKER_A_CLIENT_TC_ADDRESS + ")?useExponentialBackOff=false", false, clusterFilter);
+         }
+         getBroker(BROKER_B_NAME).start();
+      }
+   }
 
 }

@@ -31,6 +31,7 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 
 import junit.framework.TestCase;
+
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.command.ActiveMQQueue;
 import org.slf4j.Logger;
@@ -38,122 +39,126 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Test case for AMQ-268
- * 
+ *
  * @author Paul Smith
- * 
  */
 public final class TransactionRollbackOrderTest extends TestCase {
-    private static final Logger LOG = LoggerFactory.getLogger(TransactionRollbackOrderTest.class);
 
-    private volatile String receivedText;
+   private static final Logger LOG = LoggerFactory.getLogger(TransactionRollbackOrderTest.class);
 
-    private Session producerSession;
-    private Session consumerSession;
-    private Destination queue;
+   private volatile String receivedText;
 
-    private MessageProducer producer;
-    private MessageConsumer consumer;
-    private Connection connection;
-    private CountDownLatch latch = new CountDownLatch(1);
-    private int numMessages = 5;
-    private List<String> msgSent = new ArrayList<String>();
-    private List<String> msgCommitted = new ArrayList<String>();
-    private List<String> msgRolledBack = new ArrayList<String>();
-    private List<String> msgRedelivered = new ArrayList<String>();
+   private Session producerSession;
+   private Session consumerSession;
+   private Destination queue;
 
-    public void testTransaction() throws Exception {
+   private MessageProducer producer;
+   private MessageConsumer consumer;
+   private Connection connection;
+   private CountDownLatch latch = new CountDownLatch(1);
+   private int numMessages = 5;
+   private List<String> msgSent = new ArrayList<String>();
+   private List<String> msgCommitted = new ArrayList<String>();
+   private List<String> msgRolledBack = new ArrayList<String>();
+   private List<String> msgRedelivered = new ArrayList<String>();
 
-        ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("vm://localhost?broker.persistent=false");
+   public void testTransaction() throws Exception {
 
-        connection = factory.createConnection();
-        queue = new ActiveMQQueue(getClass().getName() + "." + getName());
+      ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("vm://localhost?broker.persistent=false");
 
-        producerSession = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        consumerSession = connection.createSession(true, 0);
+      connection = factory.createConnection();
+      queue = new ActiveMQQueue(getClass().getName() + "." + getName());
 
-        producer = producerSession.createProducer(queue);
+      producerSession = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      consumerSession = connection.createSession(true, 0);
 
-        consumer = consumerSession.createConsumer(queue);
-        consumer.setMessageListener(new MessageListener() {
+      producer = producerSession.createProducer(queue);
 
-            int msgCount;
-            int msgCommittedCount;
+      consumer = consumerSession.createConsumer(queue);
+      consumer.setMessageListener(new MessageListener() {
 
-            public void onMessage(Message m) {
-                try {
-                    msgCount++;
-                    TextMessage tm = (TextMessage)m;
-                    receivedText = tm.getText();
+         int msgCount;
+         int msgCommittedCount;
 
-                    if (tm.getJMSRedelivered()) {
-                        msgRedelivered.add(receivedText);
-                    }
+         public void onMessage(Message m) {
+            try {
+               msgCount++;
+               TextMessage tm = (TextMessage) m;
+               receivedText = tm.getText();
 
-                    LOG.info("consumer received message: " + receivedText + (tm.getJMSRedelivered() ? " ** Redelivered **" : ""));
-                    if (msgCount == 3) {
-                        msgRolledBack.add(receivedText);
-                        consumerSession.rollback();
-                        LOG.info("[msg: " + receivedText + "] ** rolled back **");
-                    } else {
-                        msgCommittedCount++;
-                        msgCommitted.add(receivedText);
-                        consumerSession.commit();
-                        LOG.info("[msg: " + receivedText + "] committed transaction ");
-                    }
-                    if (msgCommittedCount == numMessages) {
-                        latch.countDown();
-                    }
-                } catch (JMSException e) {
-                    try {
-                        consumerSession.rollback();
-                        LOG.info("rolled back transaction");
-                    } catch (JMSException e1) {
-                        LOG.info(e1.toString());
-                        e1.printStackTrace();
-                    }
-                    LOG.info(e.toString());
-                    e.printStackTrace();
-                }
+               if (tm.getJMSRedelivered()) {
+                  msgRedelivered.add(receivedText);
+               }
+
+               LOG.info("consumer received message: " + receivedText + (tm.getJMSRedelivered() ? " ** Redelivered **" : ""));
+               if (msgCount == 3) {
+                  msgRolledBack.add(receivedText);
+                  consumerSession.rollback();
+                  LOG.info("[msg: " + receivedText + "] ** rolled back **");
+               }
+               else {
+                  msgCommittedCount++;
+                  msgCommitted.add(receivedText);
+                  consumerSession.commit();
+                  LOG.info("[msg: " + receivedText + "] committed transaction ");
+               }
+               if (msgCommittedCount == numMessages) {
+                  latch.countDown();
+               }
             }
-        });
-        connection.start();
-
-        TextMessage tm = null;
-        try {
-            for (int i = 1; i <= numMessages; i++) {
-                tm = producerSession.createTextMessage();
-                tm.setText("Hello " + i);
-                msgSent.add(tm.getText());
-                producer.send(tm);
-                LOG.info("producer sent message: " + tm.getText());
+            catch (JMSException e) {
+               try {
+                  consumerSession.rollback();
+                  LOG.info("rolled back transaction");
+               }
+               catch (JMSException e1) {
+                  LOG.info(e1.toString());
+                  e1.printStackTrace();
+               }
+               LOG.info(e.toString());
+               e.printStackTrace();
             }
-        } catch (JMSException e) {
-            e.printStackTrace();
-        }
+         }
+      });
+      connection.start();
 
-        LOG.info("Waiting for latch");
-        latch.await();
+      TextMessage tm = null;
+      try {
+         for (int i = 1; i <= numMessages; i++) {
+            tm = producerSession.createTextMessage();
+            tm.setText("Hello " + i);
+            msgSent.add(tm.getText());
+            producer.send(tm);
+            LOG.info("producer sent message: " + tm.getText());
+         }
+      }
+      catch (JMSException e) {
+         e.printStackTrace();
+      }
 
-        assertEquals(1, msgRolledBack.size());
-        assertEquals(1, msgRedelivered.size());
+      LOG.info("Waiting for latch");
+      latch.await();
 
-        LOG.info("msg RolledBack = " + msgRolledBack.get(0));
-        LOG.info("msg Redelivered = " + msgRedelivered.get(0));
+      assertEquals(1, msgRolledBack.size());
+      assertEquals(1, msgRedelivered.size());
 
-        assertEquals(msgRolledBack.get(0), msgRedelivered.get(0));
+      LOG.info("msg RolledBack = " + msgRolledBack.get(0));
+      LOG.info("msg Redelivered = " + msgRedelivered.get(0));
 
-        assertEquals(numMessages, msgSent.size());
-        assertEquals(numMessages, msgCommitted.size());
+      assertEquals(msgRolledBack.get(0), msgRedelivered.get(0));
 
-        assertEquals(msgSent, msgCommitted);
+      assertEquals(numMessages, msgSent.size());
+      assertEquals(numMessages, msgCommitted.size());
 
-    }
+      assertEquals(msgSent, msgCommitted);
 
-    protected void tearDown() throws Exception {
-        if (connection != null) {
-            LOG.info("Closing the connection");
-            connection.close();
-        }
-        super.tearDown();
-    }
+   }
+
+   protected void tearDown() throws Exception {
+      if (connection != null) {
+         LOG.info("Closing the connection");
+         connection.close();
+      }
+      super.tearDown();
+   }
 }

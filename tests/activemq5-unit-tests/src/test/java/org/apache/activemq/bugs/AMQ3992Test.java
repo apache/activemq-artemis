@@ -37,71 +37,70 @@ import org.slf4j.LoggerFactory;
 
 public class AMQ3992Test {
 
-    private static final transient Logger LOG = LoggerFactory.getLogger(AMQ3992Test.class);
-    private static BrokerService brokerService;
-    private static String BROKER_ADDRESS = "tcp://localhost:0";
+   private static final transient Logger LOG = LoggerFactory.getLogger(AMQ3992Test.class);
+   private static BrokerService brokerService;
+   private static String BROKER_ADDRESS = "tcp://localhost:0";
 
-    private String connectionUri;
+   private String connectionUri;
 
-    @Before
-    public void setUp() throws Exception {
-        brokerService = new BrokerService();
-        brokerService.setPersistent(false);
-        brokerService.setUseJmx(true);
-        brokerService.setDeleteAllMessagesOnStartup(true);
-        connectionUri = brokerService.addConnector(BROKER_ADDRESS).getPublishableConnectString();
-        brokerService.start();
-        brokerService.waitUntilStarted();
-    }
+   @Before
+   public void setUp() throws Exception {
+      brokerService = new BrokerService();
+      brokerService.setPersistent(false);
+      brokerService.setUseJmx(true);
+      brokerService.setDeleteAllMessagesOnStartup(true);
+      connectionUri = brokerService.addConnector(BROKER_ADDRESS).getPublishableConnectString();
+      brokerService.start();
+      brokerService.waitUntilStarted();
+   }
 
-    @After
-    public void tearDown() throws Exception {
-        brokerService.stop();
-        brokerService.waitUntilStopped();
-    }
+   @After
+   public void tearDown() throws Exception {
+      brokerService.stop();
+      brokerService.waitUntilStopped();
+   }
 
-    @Test
-    public void testDurableConsumerEnqueueCountWithZeroPrefetch() throws Exception {
+   @Test
+   public void testDurableConsumerEnqueueCountWithZeroPrefetch() throws Exception {
 
-        ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(connectionUri);
-        connectionFactory.getPrefetchPolicy().setAll(0);
+      ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(connectionUri);
+      connectionFactory.getPrefetchPolicy().setAll(0);
 
-        Connection connection = connectionFactory.createConnection();
-        connection.setClientID(getClass().getName());
-        connection.start();
+      Connection connection = connectionFactory.createConnection();
+      connection.setClientID(getClass().getName());
+      connection.start();
 
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        Destination destination = session.createTopic("DurableTopic");
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      Destination destination = session.createTopic("DurableTopic");
 
-        MessageConsumer consumer = session.createDurableSubscriber((Topic) destination, "EnqueueSub");
+      MessageConsumer consumer = session.createDurableSubscriber((Topic) destination, "EnqueueSub");
 
-        BrokerView view = brokerService.getAdminView();
-        view.getDurableTopicSubscribers();
+      BrokerView view = brokerService.getAdminView();
+      view.getDurableTopicSubscribers();
 
-        ObjectName subName = view.getDurableTopicSubscribers()[0];
+      ObjectName subName = view.getDurableTopicSubscribers()[0];
 
-        DurableSubscriptionViewMBean sub = (DurableSubscriptionViewMBean)
-            brokerService.getManagementContext().newProxyInstance(subName, DurableSubscriptionViewMBean.class, true);
+      DurableSubscriptionViewMBean sub = (DurableSubscriptionViewMBean) brokerService.getManagementContext().newProxyInstance(subName, DurableSubscriptionViewMBean.class, true);
 
-        assertEquals(0, sub.getEnqueueCounter());
+      assertEquals(0, sub.getEnqueueCounter());
 
-        LOG.info("Enqueue counter for sub before pull requests: " + sub.getEnqueueCounter());
+      LOG.info("Enqueue counter for sub before pull requests: " + sub.getEnqueueCounter());
 
-        // Trigger some pull Timeouts.
-        consumer.receive(500);
-        consumer.receive(500);
-        consumer.receive(500);
-        consumer.receive(500);
-        consumer.receive(500);
+      // Trigger some pull Timeouts.
+      consumer.receive(500);
+      consumer.receive(500);
+      consumer.receive(500);
+      consumer.receive(500);
+      consumer.receive(500);
 
-        // Let them all timeout.
-        Thread.sleep(600);
+      // Let them all timeout.
+      Thread.sleep(600);
 
-        LOG.info("Enqueue counter for sub after pull requests: " + sub.getEnqueueCounter());
-        assertEquals(0, sub.getEnqueueCounter());
+      LOG.info("Enqueue counter for sub after pull requests: " + sub.getEnqueueCounter());
+      assertEquals(0, sub.getEnqueueCounter());
 
-        consumer.close();
-        session.close();
-        connection.close();
-    }
+      consumer.close();
+      session.close();
+      connection.close();
+   }
 }

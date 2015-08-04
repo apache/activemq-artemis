@@ -27,107 +27,108 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * 
+ *
  */
 public class JmsTopicSendReceiveWithTwoConnectionsTest extends JmsSendReceiveTestSupport {
 
-    private static final Logger LOG = LoggerFactory.getLogger(JmsTopicSendReceiveWithTwoConnectionsTest.class);
+   private static final Logger LOG = LoggerFactory.getLogger(JmsTopicSendReceiveWithTwoConnectionsTest.class);
 
-    protected Connection sendConnection;
-    protected Connection receiveConnection;
-    protected Session receiveSession;
+   protected Connection sendConnection;
+   protected Connection receiveConnection;
+   protected Session receiveSession;
 
-    /**
-     * Sets up a test where the producer and consumer have their own connection.
-     * 
-     * @see junit.framework.TestCase#setUp()
-     */
-    protected void setUp() throws Exception {
-        super.setUp();
+   /**
+    * Sets up a test where the producer and consumer have their own connection.
+    *
+    * @see junit.framework.TestCase#setUp()
+    */
+   protected void setUp() throws Exception {
+      super.setUp();
 
-        connectionFactory = createConnectionFactory();
+      connectionFactory = createConnectionFactory();
 
-        LOG.info("Creating send connection");
-        sendConnection = createSendConnection();
-        LOG.info("Starting send connection");
-        sendConnection.start();
+      LOG.info("Creating send connection");
+      sendConnection = createSendConnection();
+      LOG.info("Starting send connection");
+      sendConnection.start();
 
-        LOG.info("Creating receive connection");
-        receiveConnection = createReceiveConnection();
-        LOG.info("Starting receive connection");
-        receiveConnection.start();
+      LOG.info("Creating receive connection");
+      receiveConnection = createReceiveConnection();
+      LOG.info("Starting receive connection");
+      receiveConnection.start();
 
-        LOG.info("Created sendConnection: " + sendConnection);
-        LOG.info("Created receiveConnection: " + receiveConnection);
+      LOG.info("Created sendConnection: " + sendConnection);
+      LOG.info("Created receiveConnection: " + receiveConnection);
 
-        session = sendConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        receiveSession = receiveConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      session = sendConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      receiveSession = receiveConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-        LOG.info("Created sendSession: " + session);
-        LOG.info("Created receiveSession: " + receiveSession);
+      LOG.info("Created sendSession: " + session);
+      LOG.info("Created receiveSession: " + receiveSession);
 
-        producer = session.createProducer(null);
-        producer.setDeliveryMode(deliveryMode);
+      producer = session.createProducer(null);
+      producer.setDeliveryMode(deliveryMode);
 
-        LOG.info("Created producer: " + producer + " delivery mode = " + (deliveryMode == DeliveryMode.PERSISTENT ? "PERSISTENT" : "NON_PERSISTENT"));
+      LOG.info("Created producer: " + producer + " delivery mode = " + (deliveryMode == DeliveryMode.PERSISTENT ? "PERSISTENT" : "NON_PERSISTENT"));
 
-        if (topic) {
-            consumerDestination = session.createTopic(getConsumerSubject());
-            producerDestination = session.createTopic(getProducerSubject());
-        } else {
-            consumerDestination = session.createQueue(getConsumerSubject());
-            producerDestination = session.createQueue(getProducerSubject());
-        }
+      if (topic) {
+         consumerDestination = session.createTopic(getConsumerSubject());
+         producerDestination = session.createTopic(getProducerSubject());
+      }
+      else {
+         consumerDestination = session.createQueue(getConsumerSubject());
+         producerDestination = session.createQueue(getProducerSubject());
+      }
 
-        LOG.info("Created  consumer destination: " + consumerDestination + " of type: " + consumerDestination.getClass());
-        LOG.info("Created  producer destination: " + producerDestination + " of type: " + producerDestination.getClass());
+      LOG.info("Created  consumer destination: " + consumerDestination + " of type: " + consumerDestination.getClass());
+      LOG.info("Created  producer destination: " + producerDestination + " of type: " + producerDestination.getClass());
 
-        consumer = createConsumer();
-        consumer.setMessageListener(this);
+      consumer = createConsumer();
+      consumer.setMessageListener(this);
 
-        LOG.info("Started connections");
-    }
+      LOG.info("Started connections");
+   }
 
-    protected MessageConsumer createConsumer() throws JMSException {
-        return receiveSession.createConsumer(consumerDestination);
-    }
+   protected MessageConsumer createConsumer() throws JMSException {
+      return receiveSession.createConsumer(consumerDestination);
+   }
 
-    /*
-     * @see junit.framework.TestCase#tearDown()
-     */
-    protected void tearDown() throws Exception {
-        session.close();
-        receiveSession.close();
-        sendConnection.close();
-        receiveConnection.close();
-    }
+   /*
+    * @see junit.framework.TestCase#tearDown()
+    */
+   protected void tearDown() throws Exception {
+      session.close();
+      receiveSession.close();
+      sendConnection.close();
+      receiveConnection.close();
+   }
 
-    /**
-     * Creates a connection.
-     * 
-     * @return Connection
-     * @throws Exception
-     */
-    protected Connection createReceiveConnection() throws Exception {
-        return createConnection();
-    }
+   /**
+    * Creates a connection.
+    *
+    * @return Connection
+    * @throws Exception
+    */
+   protected Connection createReceiveConnection() throws Exception {
+      return createConnection();
+   }
 
-    /**
-     * Creates a connection.
-     * 
-     * @return Connection
-     * @throws Exception
-     */
-    protected Connection createSendConnection() throws Exception {
-        return createConnection();
-    }
+   /**
+    * Creates a connection.
+    *
+    * @return Connection
+    * @throws Exception
+    */
+   protected Connection createSendConnection() throws Exception {
+      return createConnection();
+   }
 
-    /**
-     * Creates an ActiveMQConnectionFactory.
-     * 
-     * @see org.apache.activemq.test.TestSupport#createConnectionFactory()
-     */
-    protected ActiveMQConnectionFactory createConnectionFactory() throws Exception {
-        return new ActiveMQConnectionFactory("vm://localhost?broker.persistent=false");
-    }
+   /**
+    * Creates an ActiveMQConnectionFactory.
+    *
+    * @see org.apache.activemq.test.TestSupport#createConnectionFactory()
+    */
+   protected ActiveMQConnectionFactory createConnectionFactory() throws Exception {
+      return new ActiveMQConnectionFactory("vm://localhost?broker.persistent=false");
+   }
 }

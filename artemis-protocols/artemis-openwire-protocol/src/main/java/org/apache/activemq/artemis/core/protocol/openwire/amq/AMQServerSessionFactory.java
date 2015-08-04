@@ -30,26 +30,31 @@ import org.apache.activemq.artemis.core.transaction.ResourceManager;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.protocol.SessionCallback;
 
-public class AMQServerSessionFactory implements ServerSessionFactory
-{
+public class AMQServerSessionFactory implements ServerSessionFactory {
 
    @Override
-   public ServerSessionImpl createCoreSession(String name, String username,
-         String password, int minLargeMessageSize, boolean autoCommitSends,
-         boolean autoCommitAcks, boolean preAcknowledge,
-         boolean persistDeliveryCountBeforeDelivery, boolean xa,
-         RemotingConnection connection, StorageManager storageManager,
-         PostOffice postOffice, ResourceManager resourceManager,
-         SecurityStore securityStore, ManagementService managementService,
-         ActiveMQServerImpl activeMQServerImpl, SimpleString managementAddress,
-         SimpleString simpleString, SessionCallback callback, QueueCreator queueCreator,
-         OperationContext context) throws Exception
-   {
-      return new AMQServerSession(name, username, password, minLargeMessageSize, autoCommitSends,
-            autoCommitAcks, preAcknowledge, persistDeliveryCountBeforeDelivery, xa,
-            connection, storageManager, postOffice, resourceManager, securityStore,
-            managementService, activeMQServerImpl, managementAddress, simpleString, callback, queueCreator,
-            context);
+   public ServerSessionImpl createCoreSession(String name,
+                                              String username,
+                                              String password,
+                                              int minLargeMessageSize,
+                                              boolean autoCommitSends,
+                                              boolean autoCommitAcks,
+                                              boolean preAcknowledge,
+                                              boolean persistDeliveryCountBeforeDelivery,
+                                              boolean xa,
+                                              RemotingConnection connection,
+                                              StorageManager storageManager,
+                                              PostOffice postOffice,
+                                              ResourceManager resourceManager,
+                                              SecurityStore securityStore,
+                                              ManagementService managementService,
+                                              ActiveMQServerImpl activeMQServerImpl,
+                                              SimpleString managementAddress,
+                                              SimpleString simpleString,
+                                              SessionCallback callback,
+                                              QueueCreator queueCreator,
+                                              OperationContext context) throws Exception {
+      return new AMQServerSession(name, username, password, minLargeMessageSize, autoCommitSends, autoCommitAcks, preAcknowledge, persistDeliveryCountBeforeDelivery, xa, connection, storageManager, postOffice, resourceManager, securityStore, managementService, activeMQServerImpl, managementAddress, simpleString, callback, queueCreator, context);
    }
 
 }

@@ -21,7 +21,7 @@ import java.util.Map;
 /**
  * Helper interface for specifying default parameters on Transport Configurations.
  */
-public interface TransportConfigurationHelper
-{
+public interface TransportConfigurationHelper {
+
    Map<String, Object> getDefaults();
 }

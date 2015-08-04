@@ -38,8 +38,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class NonExistentQueueTest extends JMSTestBase
-{
+public class NonExistentQueueTest extends JMSTestBase {
 
    private JMSContext context;
    private final Random random = new Random();
@@ -47,32 +46,26 @@ public class NonExistentQueueTest extends JMSTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
       context = createContext();
       queue = createQueue(JmsContextTest.class.getSimpleName() + "Queue1");
    }
 
-
    @Test
-   public void sendToNonExistentDestination() throws Exception
-   {
+   public void sendToNonExistentDestination() throws Exception {
       Destination destination = ActiveMQJMSClient.createTopic("DoesNotExist");
       TransportConfiguration transportConfiguration = new TransportConfiguration(InVMConnectorFactory.class.getName());
-      ConnectionFactory localConnectionFactory = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF,
-                                                                                                    transportConfiguration);
+      ConnectionFactory localConnectionFactory = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, transportConfiguration);
       // Using JMS 1 API
       Connection connection = localConnectionFactory.createConnection();
       Session session = connection.createSession();
-      try
-      {
+      try {
          MessageProducer messageProducer = session.createProducer(null);
          messageProducer.send(destination, session.createMessage());
          Assert.fail("Succeeded in sending message to a non-existent destination using JMS 1 API!");
       }
-      catch (JMSException e)
-      { // Expected }
+      catch (JMSException e) { // Expected }
 
       }
 
@@ -80,15 +73,12 @@ public class NonExistentQueueTest extends JMSTestBase
       JMSContext context = localConnectionFactory.createContext();
       JMSProducer jmsProducer = context.createProducer().setDeliveryMode(DeliveryMode.PERSISTENT);
 
-      try
-      {
+      try {
          jmsProducer.send(destination, context.createMessage());
          Assert.fail("Succeeded in sending message to a non-existent destination using JMS 2 API!");
       }
-      catch (JMSRuntimeException e)
-      { // Expected }
+      catch (JMSRuntimeException e) { // Expected }
       }
-
 
    }
 }

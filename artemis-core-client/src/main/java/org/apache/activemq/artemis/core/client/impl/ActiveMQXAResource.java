@@ -18,7 +18,7 @@ package org.apache.activemq.artemis.core.client.impl;
 
 import javax.transaction.xa.XAResource;
 
-public interface ActiveMQXAResource extends XAResource
-{
+public interface ActiveMQXAResource extends XAResource {
+
    XAResource getResource();
 }

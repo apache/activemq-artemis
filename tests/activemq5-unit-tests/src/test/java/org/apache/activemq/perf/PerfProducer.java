@@ -27,103 +27,110 @@ import javax.jms.MessageProducer;
 import javax.jms.Session;
 
 /**
- * 
+ *
  */
 public class PerfProducer implements Runnable {
-    protected Connection connection;
-    protected MessageProducer producer;
-    protected PerfRate rate = new PerfRate();
-    private final byte[] payload;
-    private Session session;
-    private final CountDownLatch stopped = new CountDownLatch(1);
-    private boolean running;
-    private final boolean transacted;
-    private int sleep = 0;
 
-    public PerfProducer(ConnectionFactory fac, Destination dest, byte[] payload) throws JMSException {
-        this(fac, dest, payload, false);
-    }
-    public PerfProducer(ConnectionFactory fac, Destination dest, byte[] payload, boolean transacted)
-            throws JMSException {
-        connection = fac.createConnection();
-        this.transacted = transacted;
-        if (transacted) {
-            session = connection.createSession(true, Session.SESSION_TRANSACTED);
-        } else {
-            session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        }
-        producer = session.createProducer(dest);
-        this.payload = payload;
-       
-    }
+   protected Connection connection;
+   protected MessageProducer producer;
+   protected PerfRate rate = new PerfRate();
+   private final byte[] payload;
+   private Session session;
+   private final CountDownLatch stopped = new CountDownLatch(1);
+   private boolean running;
+   private final boolean transacted;
+   private int sleep = 0;
 
-    public void setDeliveryMode(int mode) throws JMSException {
-        producer.setDeliveryMode(mode);
-    }
+   public PerfProducer(ConnectionFactory fac, Destination dest, byte[] payload) throws JMSException {
+      this(fac, dest, payload, false);
+   }
 
-    public void setTimeToLive(int ttl) throws JMSException {
-        producer.setTimeToLive(ttl);
-    }
+   public PerfProducer(ConnectionFactory fac,
+                       Destination dest,
+                       byte[] payload,
+                       boolean transacted) throws JMSException {
+      connection = fac.createConnection();
+      this.transacted = transacted;
+      if (transacted) {
+         session = connection.createSession(true, Session.SESSION_TRANSACTED);
+      }
+      else {
+         session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      }
+      producer = session.createProducer(dest);
+      this.payload = payload;
 
-    public void shutDown() throws JMSException {
-        connection.close();
-    }
+   }
 
-    public PerfRate getRate() {
-        return rate;
-    }
+   public void setDeliveryMode(int mode) throws JMSException {
+      producer.setDeliveryMode(mode);
+   }
 
-    public synchronized void start() throws JMSException {
-        if (!running) {
-            rate.reset();
-            running = true;
-            connection.start();
-            Thread t = new Thread(this);
-            t.setName("Producer");
-            t.start();
-        }
-    }
+   public void setTimeToLive(int ttl) throws JMSException {
+      producer.setTimeToLive(ttl);
+   }
 
-    public void stop() throws JMSException, InterruptedException {
-        synchronized (this) {
-            running = false;
-        }
-        stopped.await(1, TimeUnit.SECONDS);
-        connection.stop();
-    }
+   public void shutDown() throws JMSException {
+      connection.close();
+   }
 
-    public synchronized boolean isRunning() {
-        return running;
-    }
+   public PerfRate getRate() {
+      return rate;
+   }
 
-    public void run() {
-        try {
-            while (isRunning()) {
-                BytesMessage msg;
-                msg = session.createBytesMessage();
-                msg.writeBytes(payload);
-                producer.send(msg);
-                if(this.transacted) {
-                    this.session.commit();
-                }
-                rate.increment();
-                if (sleep > 0) {
-                    Thread.sleep(sleep);
-                }
+   public synchronized void start() throws JMSException {
+      if (!running) {
+         rate.reset();
+         running = true;
+         connection.start();
+         Thread t = new Thread(this);
+         t.setName("Producer");
+         t.start();
+      }
+   }
+
+   public void stop() throws JMSException, InterruptedException {
+      synchronized (this) {
+         running = false;
+      }
+      stopped.await(1, TimeUnit.SECONDS);
+      connection.stop();
+   }
+
+   public synchronized boolean isRunning() {
+      return running;
+   }
+
+   public void run() {
+      try {
+         while (isRunning()) {
+            BytesMessage msg;
+            msg = session.createBytesMessage();
+            msg.writeBytes(payload);
+            producer.send(msg);
+            if (this.transacted) {
+               this.session.commit();
             }
-        } catch (Throwable e) {
-            e.printStackTrace();
-        } finally {
-            stopped.countDown();
-        }
-    }
+            rate.increment();
+            if (sleep > 0) {
+               Thread.sleep(sleep);
+            }
+         }
+      }
+      catch (Throwable e) {
+         e.printStackTrace();
+      }
+      finally {
+         stopped.countDown();
+      }
+   }
 
-    public int getSleep() {
-        return sleep;
-    }
+   public int getSleep() {
+      return sleep;
+   }
 
-    public void setSleep(int sleep) {
-        this.sleep = sleep;
-    }
+   public void setSleep(int sleep) {
+      this.sleep = sleep;
+   }
 
 }

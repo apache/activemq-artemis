@@ -17,15 +17,16 @@
 package org.apache.activemq.store.kahadb;
 
 import junit.framework.TestCase;
+
 import org.apache.activemq.broker.BrokerFactory;
 import org.apache.activemq.broker.BrokerService;
 
 public class CustomLockerTest extends TestCase {
 
-    public void testCustomLocker() throws Exception {
-        BrokerService broker = BrokerFactory.createBroker("xbean:org/apache/activemq/store/kahadb/shared.xml");
-        broker.waitUntilStarted();
-        broker.stop();
-        broker.waitUntilStopped();
-    }
+   public void testCustomLocker() throws Exception {
+      BrokerService broker = BrokerFactory.createBroker("xbean:org/apache/activemq/store/kahadb/shared.xml");
+      broker.waitUntilStarted();
+      broker.stop();
+      broker.waitUntilStopped();
+   }
 }

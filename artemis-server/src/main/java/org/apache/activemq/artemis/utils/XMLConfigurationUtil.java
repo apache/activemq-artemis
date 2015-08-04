@@ -21,16 +21,13 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-public class XMLConfigurationUtil
-{
+public class XMLConfigurationUtil {
 
-   public static final String getAttributeValue(Node element, String attribute)
-   {
+   public static final String getAttributeValue(Node element, String attribute) {
       return element.getAttributes().getNamedItem(attribute).getNodeValue();
    }
 
-   public static final String getTrimmedTextContent(Node element)
-   {
+   public static final String getTrimmedTextContent(Node element) {
       String content = element.getTextContent();
       if (content == null)
          return null;
@@ -38,101 +35,85 @@ public class XMLConfigurationUtil
    }
 
    public static final Double getDouble(final Element e,
-                                  final String name,
-                                  final double def,
-                                  final Validators.Validator validator)
-   {
+                                        final String name,
+                                        final double def,
+                                        final Validators.Validator validator) {
       NodeList nl = e.getElementsByTagName(name);
-      if (nl.getLength() > 0)
-      {
+      if (nl.getLength() > 0) {
          double val = XMLUtil.parseDouble(nl.item(0));
          validator.validate(name, val);
          return val;
       }
-      else
-      {
+      else {
          validator.validate(name, def);
          return def;
       }
    }
 
    public static final String getString(final Element e,
-                                  final String name,
-                                  final String def,
-                                  final Validators.Validator validator)
-   {
+                                        final String name,
+                                        final String def,
+                                        final Validators.Validator validator) {
       NodeList nl = e.getElementsByTagName(name);
-      if (nl.getLength() > 0)
-      {
+      if (nl.getLength() > 0) {
          String val = nl.item(0).getTextContent().trim();
          validator.validate(name, val);
          return val;
       }
-      else
-      {
+      else {
          validator.validate(name, def);
          return def;
       }
    }
 
-   public static final Long getLong(final Element e, final String name, final long def,
-                                    final Validators.Validator validator)
-   {
+   public static final Long getLong(final Element e,
+                                    final String name,
+                                    final long def,
+                                    final Validators.Validator validator) {
       NodeList nl = e.getElementsByTagName(name);
-      if (nl.getLength() > 0)
-      {
+      if (nl.getLength() > 0) {
          long val = XMLUtil.parseLong(nl.item(0));
          validator.validate(name, val);
          return val;
       }
-      else
-      {
+      else {
          validator.validate(name, def);
          return def;
       }
    }
 
    public static final Integer getInteger(final Element e,
-                                    final String name,
-                                    final int def,
-                                    final Validators.Validator validator)
-   {
+                                          final String name,
+                                          final int def,
+                                          final Validators.Validator validator) {
       NodeList nl = e.getElementsByTagName(name);
-      if (nl.getLength() > 0)
-      {
+      if (nl.getLength() > 0) {
          int val = XMLUtil.parseInt(nl.item(0));
          validator.validate(name, val);
          return val;
       }
-      else
-      {
+      else {
          validator.validate(name, def);
          return def;
       }
    }
 
-   public static final Boolean getBoolean(final Element e, final String name, final boolean def)
-   {
+   public static final Boolean getBoolean(final Element e, final String name, final boolean def) {
       NodeList nl = e.getElementsByTagName(name);
-      if (nl.getLength() > 0)
-      {
+      if (nl.getLength() > 0) {
          return XMLUtil.parseBoolean(nl.item(0));
       }
-      else
-      {
+      else {
          return def;
       }
    }
 
-   public static final Boolean parameterExists(final Element e, final String name)
-   {
+   public static final Boolean parameterExists(final Element e, final String name) {
       NodeList nl = e.getElementsByTagName(name);
-      if (nl.getLength() > 0)
-      {
+      if (nl.getLength() > 0) {
          return true;
       }
-      else
-      {
+      else {
          return false;
       }
    }

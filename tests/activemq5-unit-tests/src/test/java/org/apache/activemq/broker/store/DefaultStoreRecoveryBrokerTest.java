@@ -25,26 +25,24 @@ import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.broker.RecoveryBrokerTest;
 
 /**
- * Used to verify that recovery works correctly against 
- * 
- * 
+ * Used to verify that recovery works correctly against
  */
 public class DefaultStoreRecoveryBrokerTest extends RecoveryBrokerTest {
 
-    protected BrokerService createBroker() throws Exception {
-        return BrokerFactory.createBroker(new URI("broker://()/localhost?deleteAllMessagesOnStartup=true"));
-    }
-    
-    protected BrokerService createRestartedBroker() throws Exception {
-        return BrokerFactory.createBroker(new URI("broker://()/localhost"));
-    }
-    
-    public static Test suite() {
-        return suite(DefaultStoreRecoveryBrokerTest.class);
-    }
-    
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(suite());
-    }
+   protected BrokerService createBroker() throws Exception {
+      return BrokerFactory.createBroker(new URI("broker://()/localhost?deleteAllMessagesOnStartup=true"));
+   }
+
+   protected BrokerService createRestartedBroker() throws Exception {
+      return BrokerFactory.createBroker(new URI("broker://()/localhost"));
+   }
+
+   public static Test suite() {
+      return suite(DefaultStoreRecoveryBrokerTest.class);
+   }
+
+   public static void main(String[] args) {
+      junit.textui.TestRunner.run(suite());
+   }
 
 }

@@ -35,94 +35,94 @@ import javax.jms.*;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
-
-@RunWith( FrameworkRunner.class )
+@RunWith(FrameworkRunner.class)
 @CreateLdapServer(transports = {@CreateTransport(protocol = "LDAP")})
 @ApplyLdifFiles(
-        "org/apache/activemq/security/activemq-apacheds-legacy.ldif"
-)
+   "org/apache/activemq/security/activemq-apacheds-legacy.ldif")
 public class CachedLDAPSecurityLegacyTest extends AbstractLdapTestUnit {
 
-    public BrokerService broker;
+   public BrokerService broker;
 
-    public static LdapServer ldapServer;
+   public static LdapServer ldapServer;
 
-    @Before
-    public void setup() throws Exception {
-        System.setProperty("ldapPort", String.valueOf(getLdapServer().getPort()));
-        
-        broker = BrokerFactory.createBroker("xbean:org/apache/activemq/security/activemq-apacheds-legacy.xml");
-        broker.start();
-        broker.waitUntilStarted();
-    }
+   @Before
+   public void setup() throws Exception {
+      System.setProperty("ldapPort", String.valueOf(getLdapServer().getPort()));
 
-    @After
-    public void shutdown() throws Exception {
-        broker.stop();
-        broker.waitUntilStopped();
-    }
+      broker = BrokerFactory.createBroker("xbean:org/apache/activemq/security/activemq-apacheds-legacy.xml");
+      broker.start();
+      broker.waitUntilStarted();
+   }
 
-    @Test
-    public void testSendReceive() throws Exception {
-        ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("vm://localhost");
-        Connection conn = factory.createQueueConnection("jdoe", "sunflower");
-        Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        conn.start();
-        Queue queue = sess.createQueue("TEST.FOO");
+   @After
+   public void shutdown() throws Exception {
+      broker.stop();
+      broker.waitUntilStopped();
+   }
 
-        MessageProducer producer = sess.createProducer(queue);
-        MessageConsumer consumer = sess.createConsumer(queue);
+   @Test
+   public void testSendReceive() throws Exception {
+      ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("vm://localhost");
+      Connection conn = factory.createQueueConnection("jdoe", "sunflower");
+      Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      conn.start();
+      Queue queue = sess.createQueue("TEST.FOO");
 
-        producer.send(sess.createTextMessage("test"));
-        Message msg = consumer.receive(1000);
-        assertNotNull(msg);
-    }
+      MessageProducer producer = sess.createProducer(queue);
+      MessageConsumer consumer = sess.createConsumer(queue);
 
-    @Test
-    public void testSendDenied() throws Exception {
-        ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("vm://localhost");
-        Connection conn = factory.createQueueConnection("jdoe", "sunflower");
-        Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        conn.start();
-        Queue queue = sess.createQueue("ADMIN.FOO");
+      producer.send(sess.createTextMessage("test"));
+      Message msg = consumer.receive(1000);
+      assertNotNull(msg);
+   }
 
-        try {
-            sess.createProducer(queue);
-            fail("expect auth exception");
-        } catch (JMSException expected) {
-        }
-    }
+   @Test
+   public void testSendDenied() throws Exception {
+      ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("vm://localhost");
+      Connection conn = factory.createQueueConnection("jdoe", "sunflower");
+      Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      conn.start();
+      Queue queue = sess.createQueue("ADMIN.FOO");
 
-    @Test
-    public void testCompositeSendDenied() throws Exception {
-        ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("vm://localhost");
-        Connection conn = factory.createQueueConnection("jdoe", "sunflower");
-        Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        conn.start();
-        Queue queue = sess.createQueue("TEST.FOO,ADMIN.FOO");
+      try {
+         sess.createProducer(queue);
+         fail("expect auth exception");
+      }
+      catch (JMSException expected) {
+      }
+   }
 
-        try {
-            sess.createProducer(queue);
-            fail("expect auth exception");
-        } catch (JMSException expected) {
-        }
-    }
+   @Test
+   public void testCompositeSendDenied() throws Exception {
+      ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("vm://localhost");
+      Connection conn = factory.createQueueConnection("jdoe", "sunflower");
+      Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      conn.start();
+      Queue queue = sess.createQueue("TEST.FOO,ADMIN.FOO");
 
-    @Test
-    public void testTempDestinations() throws Exception {
-        ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("vm://localhost");
-        Connection conn = factory.createQueueConnection("jdoe", "sunflower");
-        Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        conn.start();
-        Queue queue = sess.createTemporaryQueue();
+      try {
+         sess.createProducer(queue);
+         fail("expect auth exception");
+      }
+      catch (JMSException expected) {
+      }
+   }
 
-        MessageProducer producer = sess.createProducer(queue);
-        MessageConsumer consumer = sess.createConsumer(queue);
+   @Test
+   public void testTempDestinations() throws Exception {
+      ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("vm://localhost");
+      Connection conn = factory.createQueueConnection("jdoe", "sunflower");
+      Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      conn.start();
+      Queue queue = sess.createTemporaryQueue();
 
-        producer.send(sess.createTextMessage("test"));
-        Message msg = consumer.receive(1000);
-        assertNotNull(msg);
-    }
+      MessageProducer producer = sess.createProducer(queue);
+      MessageConsumer consumer = sess.createConsumer(queue);
+
+      producer.send(sess.createTextMessage("test"));
+      Message msg = consumer.receive(1000);
+      assertNotNull(msg);
+   }
 
 }
 

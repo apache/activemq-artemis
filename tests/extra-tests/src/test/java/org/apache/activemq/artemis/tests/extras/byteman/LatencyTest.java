@@ -28,36 +28,25 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(BMUnitRunner.class)
-public class LatencyTest extends ActiveMQTestBase
-{
+public class LatencyTest extends ActiveMQTestBase {
+
    /*
    * simple test to make sure connect still works with some network latency  built into netty
    * */
    @Test
-   @BMRules
-      (
-         rules =
-            {
-               @BMRule
-                  (
-                     name = "trace ClientBootstrap.connect",
-                     targetClass = "org.jboss.netty.bootstrap.ClientBootstrap",
-                     targetMethod = "connect",
-                     targetLocation = "ENTRY",
-                     action = "System.out.println(\"netty connecting\")"
-                  ),
-               @BMRule
-                  (
-                     name = "sleep OioWorker.run",
-                     targetClass = "org.jboss.netty.channel.socket.oio.OioWorker",
-                     targetMethod = "run",
-                     targetLocation = "ENTRY",
-                     action = "Thread.sleep(500)"
-                  )
-            }
-      )
-   public void testLatency() throws Exception
-   {
+   @BMRules(
+      rules = {@BMRule(
+         name = "trace ClientBootstrap.connect",
+         targetClass = "org.jboss.netty.bootstrap.ClientBootstrap",
+         targetMethod = "connect",
+         targetLocation = "ENTRY",
+         action = "System.out.println(\"netty connecting\")"), @BMRule(
+         name = "sleep OioWorker.run",
+         targetClass = "org.jboss.netty.channel.socket.oio.OioWorker",
+         targetMethod = "run",
+         targetLocation = "ENTRY",
+         action = "Thread.sleep(500)")})
+   public void testLatency() throws Exception {
       ActiveMQServer server = createServer(createDefaultNettyConfig());
       server.start();
       ServerLocator locator = createNettyNonHALocator();

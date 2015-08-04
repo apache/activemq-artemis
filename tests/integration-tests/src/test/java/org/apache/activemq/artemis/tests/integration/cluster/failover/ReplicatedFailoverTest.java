@@ -26,33 +26,28 @@ import org.junit.rules.TestRule;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 
-public class ReplicatedFailoverTest extends FailoverTest
-{
+public class ReplicatedFailoverTest extends FailoverTest {
+
    boolean isReplicatedFailbackTest = false;
    @Rule
-   public TestRule watcher = new TestWatcher()
-   {
+   public TestRule watcher = new TestWatcher() {
       @Override
-      protected void starting(Description description)
-      {
+      protected void starting(Description description) {
          isReplicatedFailbackTest = description.getMethodName().equals("testReplicatedFailback");
       }
 
    };
 
-   protected void beforeWaitForRemoteBackupSynchronization()
-   {
+   protected void beforeWaitForRemoteBackupSynchronization() {
    }
+
    @Test
    /*
    * default maxSavedReplicatedJournalsSize is 2, this means the backup will fall back to replicated only twice, after this
    * it is stopped permanently
    *
-   * */
-   public void testReplicatedFailback() throws Exception
-   {
-      try
-      {
+   * */ public void testReplicatedFailback() throws Exception {
+      try {
          beforeWaitForRemoteBackupSynchronization();
 
          waitForRemoteBackupSynchronization(backupServer.getServer());
@@ -115,68 +110,50 @@ public class ReplicatedFailoverTest extends FailoverTest
          //the server wouldnt have reset to backup
          assertFalse(backupServer.getServer().getHAPolicy().isBackup());
       }
-      finally
-      {
-         if (sf != null)
-         {
+      finally {
+         if (sf != null) {
             sf.close();
          }
       }
    }
 
    @Override
-   protected void createConfigs() throws Exception
-   {
+   protected void createConfigs() throws Exception {
       createReplicatedConfigs();
    }
 
    @Override
-   protected void setupHAPolicyConfiguration()
-   {
-      if (isReplicatedFailbackTest)
-      {
-         ((ReplicatedPolicyConfiguration) liveConfig.getHAPolicyConfiguration())
-            .setCheckForLiveServer(true);
-         ((ReplicaPolicyConfiguration) backupConfig.getHAPolicyConfiguration())
-            .setMaxSavedReplicatedJournalsSize(2)
-            .setAllowFailBack(true)
-            .setFailbackDelay(2000);
+   protected void setupHAPolicyConfiguration() {
+      if (isReplicatedFailbackTest) {
+         ((ReplicatedPolicyConfiguration) liveConfig.getHAPolicyConfiguration()).setCheckForLiveServer(true);
+         ((ReplicaPolicyConfiguration) backupConfig.getHAPolicyConfiguration()).setMaxSavedReplicatedJournalsSize(2).setAllowFailBack(true).setFailbackDelay(2000);
       }
-      else
-      {
+      else {
          super.setupHAPolicyConfiguration();
       }
    }
 
    @Override
-   protected void crash(boolean waitFailure, ClientSession... sessions) throws Exception
-   {
-      if (sessions.length > 0)
-      {
-         for (ClientSession session : sessions)
-         {
+   protected void crash(boolean waitFailure, ClientSession... sessions) throws Exception {
+      if (sessions.length > 0) {
+         for (ClientSession session : sessions) {
             waitForRemoteBackup(session.getSessionFactory(), 5, true, backupServer.getServer());
          }
       }
-      else
-      {
+      else {
          waitForRemoteBackup(null, 5, true, backupServer.getServer());
       }
       super.crash(waitFailure, sessions);
    }
 
    @Override
-   protected void crash(ClientSession... sessions) throws Exception
-   {
-      if (sessions.length > 0)
-      {
-         for (ClientSession session : sessions)
-         {
+   protected void crash(ClientSession... sessions) throws Exception {
+      if (sessions.length > 0) {
+         for (ClientSession session : sessions) {
             waitForRemoteBackup(session.getSessionFactory(), 5, true, backupServer.getServer());
          }
       }
-      else
-      {
+      else {
          waitForRemoteBackup(null, 5, true, backupServer.getServer());
       }
       super.crash(sessions);

@@ -36,129 +36,133 @@ import org.apache.activemq.util.ServiceSupport;
 
 public class StubConnection implements Service {
 
-    private final BlockingQueue<Object> dispatchQueue = new LinkedBlockingQueue<Object>();
-    private Connection connection;
-    private Transport transport;
-    private boolean shuttingDown;
-    private TransportListener listener;
-    public AtomicReference<Throwable> error = new AtomicReference<Throwable>();
+   private final BlockingQueue<Object> dispatchQueue = new LinkedBlockingQueue<Object>();
+   private Connection connection;
+   private Transport transport;
+   private boolean shuttingDown;
+   private TransportListener listener;
+   public AtomicReference<Throwable> error = new AtomicReference<Throwable>();
 
-    public StubConnection(BrokerService broker) throws Exception {
-        this(TransportFactory.connect(broker.getVmConnectorURI()));
-    }
+   public StubConnection(BrokerService broker) throws Exception {
+      this(TransportFactory.connect(broker.getVmConnectorURI()));
+   }
 
-    public StubConnection(Connection connection) {
-        this.connection = connection;
-    }
+   public StubConnection(Connection connection) {
+      this.connection = connection;
+   }
 
-    public StubConnection(Transport transport) throws Exception {
-        this(transport, null);
-    }
+   public StubConnection(Transport transport) throws Exception {
+      this(transport, null);
+   }
 
-    public StubConnection(Transport transport, TransportListener transportListener) throws Exception {
-        listener = transportListener;
-        this.transport = transport;
-        transport.setTransportListener(new DefaultTransportListener() {
-            public void onCommand(Object command) {
-                try {
-                    if (command.getClass() == ShutdownInfo.class) {
-                        shuttingDown = true;
-                    }
-                    StubConnection.this.dispatch(command);
-                } catch (Exception e) {
-                    onException(new IOException("" + e));
-                }
-            }
-
-            public void onException(IOException e) {
-                if (listener != null) {
-                    listener.onException(e);
-                }
-                error.set(e);
-            }
-        });
-        transport.start();
-    }
-
-    protected void dispatch(Object command) throws InterruptedException, IOException {
-        if (listener != null) {
-            listener.onCommand(command);
-        }
-        dispatchQueue.put(command);
-    }
-
-    public BlockingQueue<Object> getDispatchQueue() {
-        return dispatchQueue;
-    }
-
-    public void send(Command command) throws Exception {
-        if (command instanceof Message) {
-            Message message = (Message)command;
-            message.setProducerId(message.getMessageId().getProducerId());
-        }
-        command.setResponseRequired(false);
-        if (connection != null) {
-            Response response = connection.service(command);
-            if (response != null && response.isException()) {
-                ExceptionResponse er = (ExceptionResponse)response;
-                throw JMSExceptionSupport.create(er.getException());
-            }
-        } else if (transport != null) {
-            transport.oneway(command);
-        }
-    }
-
-    public Response request(Command command) throws Exception {
-        if (command instanceof Message) {
-            Message message = (Message)command;
-            message.setProducerId(message.getMessageId().getProducerId());
-        }
-        command.setResponseRequired(true);
-        if (connection != null) {
-            Response response = connection.service(command);
-            if (response != null && response.isException()) {
-                ExceptionResponse er = (ExceptionResponse)response;
-                throw JMSExceptionSupport.create(er.getException());
-            }
-            return response;
-        } else if (transport != null) {
-            Response response = (Response)transport.request(command);
-            if (response != null && response.isException()) {
-                ExceptionResponse er = (ExceptionResponse)response;
-                throw JMSExceptionSupport.create(er.getException());
-            }
-            return response;
-        }
-        return null;
-    }
-
-    public Connection getConnection() {
-        return connection;
-    }
-
-    public Transport getTransport() {
-        return transport;
-    }
-
-    public void start() throws Exception {
-    }
-
-    public void stop() throws Exception {
-        shuttingDown = true;
-        if (transport != null) {
+   public StubConnection(Transport transport, TransportListener transportListener) throws Exception {
+      listener = transportListener;
+      this.transport = transport;
+      transport.setTransportListener(new DefaultTransportListener() {
+         public void onCommand(Object command) {
             try {
-                transport.oneway(new ShutdownInfo());
-            } catch (IOException e) {
+               if (command.getClass() == ShutdownInfo.class) {
+                  shuttingDown = true;
+               }
+               StubConnection.this.dispatch(command);
             }
-            ServiceSupport.dispose(transport);
-        }
-    }
+            catch (Exception e) {
+               onException(new IOException("" + e));
+            }
+         }
 
-    public TransportListener getListener() {
-        return listener;
-    }
+         public void onException(IOException e) {
+            if (listener != null) {
+               listener.onException(e);
+            }
+            error.set(e);
+         }
+      });
+      transport.start();
+   }
 
-    public void setListener(TransportListener listener) {
-        this.listener = listener;
-    }
+   protected void dispatch(Object command) throws InterruptedException, IOException {
+      if (listener != null) {
+         listener.onCommand(command);
+      }
+      dispatchQueue.put(command);
+   }
+
+   public BlockingQueue<Object> getDispatchQueue() {
+      return dispatchQueue;
+   }
+
+   public void send(Command command) throws Exception {
+      if (command instanceof Message) {
+         Message message = (Message) command;
+         message.setProducerId(message.getMessageId().getProducerId());
+      }
+      command.setResponseRequired(false);
+      if (connection != null) {
+         Response response = connection.service(command);
+         if (response != null && response.isException()) {
+            ExceptionResponse er = (ExceptionResponse) response;
+            throw JMSExceptionSupport.create(er.getException());
+         }
+      }
+      else if (transport != null) {
+         transport.oneway(command);
+      }
+   }
+
+   public Response request(Command command) throws Exception {
+      if (command instanceof Message) {
+         Message message = (Message) command;
+         message.setProducerId(message.getMessageId().getProducerId());
+      }
+      command.setResponseRequired(true);
+      if (connection != null) {
+         Response response = connection.service(command);
+         if (response != null && response.isException()) {
+            ExceptionResponse er = (ExceptionResponse) response;
+            throw JMSExceptionSupport.create(er.getException());
+         }
+         return response;
+      }
+      else if (transport != null) {
+         Response response = (Response) transport.request(command);
+         if (response != null && response.isException()) {
+            ExceptionResponse er = (ExceptionResponse) response;
+            throw JMSExceptionSupport.create(er.getException());
+         }
+         return response;
+      }
+      return null;
+   }
+
+   public Connection getConnection() {
+      return connection;
+   }
+
+   public Transport getTransport() {
+      return transport;
+   }
+
+   public void start() throws Exception {
+   }
+
+   public void stop() throws Exception {
+      shuttingDown = true;
+      if (transport != null) {
+         try {
+            transport.oneway(new ShutdownInfo());
+         }
+         catch (IOException e) {
+         }
+         ServiceSupport.dispose(transport);
+      }
+   }
+
+   public TransportListener getListener() {
+      return listener;
+   }
+
+   public void setListener(TransportListener listener) {
+      this.listener = listener;
+   }
 }

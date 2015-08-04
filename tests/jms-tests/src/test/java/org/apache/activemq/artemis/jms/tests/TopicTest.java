@@ -31,8 +31,7 @@ import java.io.Serializable;
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
 import org.junit.Test;
 
-public class TopicTest extends JMSTestCase
-{
+public class TopicTest extends JMSTestCase {
    // Constants -----------------------------------------------------
 
    // Static --------------------------------------------------------
@@ -47,8 +46,7 @@ public class TopicTest extends JMSTestCase
     * The simplest possible topic test.
     */
    @Test
-   public void testTopic() throws Exception
-   {
+   public void testTopic() throws Exception {
       Connection conn = createConnection();
 
       Session s = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -63,8 +61,7 @@ public class TopicTest extends JMSTestCase
    }
 
    @Test
-   public void testTopic2() throws Exception
-   {
+   public void testTopic2() throws Exception {
       Connection conn = createConnection();
 
       Session s = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -79,8 +76,7 @@ public class TopicTest extends JMSTestCase
    }
 
    @Test
-   public void testTopicName() throws Exception
-   {
+   public void testTopicName() throws Exception {
       Topic topic = (Topic) ic.lookup("/topic/Topic1");
       ProxyAssertSupport.assertEquals("Topic1", topic.getTopicName());
    }
@@ -89,8 +85,7 @@ public class TopicTest extends JMSTestCase
    * See http://jira.jboss.com/jira/browse/JBMESSAGING-399
    */
    @Test
-   public void testRace() throws Exception
-   {
+   public void testRace() throws Exception {
       Connection conn = createConnection();
 
       Session sSend = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -118,8 +113,7 @@ public class TopicTest extends JMSTestCase
 
       conn.start();
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          byte[] blah = new byte[10000];
          String str = new String(blah);
 
@@ -147,51 +141,44 @@ public class TopicTest extends JMSTestCase
 
    // Inner classes -------------------------------------------------
 
-   static class Wibble2 implements Serializable
-   {
+   static class Wibble2 implements Serializable {
+
       private static final long serialVersionUID = -5146179676719808756L;
 
       String s;
    }
 
-   static class TestListener implements MessageListener
-   {
+   static class TestListener implements MessageListener {
+
       boolean failed;
 
       int count;
 
       int num;
 
-      TestListener(final int num)
-      {
+      TestListener(final int num) {
          this.num = num;
       }
 
-      public synchronized void onMessage(final Message m)
-      {
+      public synchronized void onMessage(final Message m) {
          ObjectMessage om = (ObjectMessage) m;
 
-         try
-         {
+         try {
             Wibble2 w = (Wibble2) om.getObject();
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             failed = true;
          }
 
          count++;
 
-         if (count == num)
-         {
+         if (count == num) {
             notify();
          }
       }
 
-      synchronized void waitForMessages() throws Exception
-      {
-         while (count < num)
-         {
+      synchronized void waitForMessages() throws Exception {
+         while (count < num) {
             this.wait();
          }
       }

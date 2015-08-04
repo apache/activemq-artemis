@@ -17,8 +17,8 @@
 
 package org.apache.activemq.artemis.tests.integration.mqtt.imported;
 
-public interface MQTTClientProvider
-{
+public interface MQTTClientProvider {
+
    void connect(String host) throws Exception;
 
    void disconnect() throws Exception;

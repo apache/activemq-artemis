@@ -16,8 +16,8 @@
  */
 package org.apache.activemq.artemis.jms.server.config;
 
-public interface TopicConfiguration
-{
+public interface TopicConfiguration {
+
    String getName();
 
    TopicConfiguration setName(String name);

@@ -24,16 +24,14 @@ import org.apache.activemq.openwire.DataFileGeneratorTestSupport;
  * auto generated - do not modify! if you need to make a change, please see the
  * modify the groovy scripts in the under src/gram/script and then use maven
  * openwire:generate to regenerate this file.
- * 
- * 
  */
 public abstract class BaseCommandTestSupport extends DataFileGeneratorTestSupport {
 
-    protected void populateObject(Object object) throws Exception {
-        super.populateObject(object);
-        BaseCommand info = (BaseCommand)object;
-        info.setCommandId(1);
-        info.setResponseRequired(true);
+   protected void populateObject(Object object) throws Exception {
+      super.populateObject(object);
+      BaseCommand info = (BaseCommand) object;
+      info.setCommandId(1);
+      info.setResponseRequired(true);
 
-    }
+   }
 }

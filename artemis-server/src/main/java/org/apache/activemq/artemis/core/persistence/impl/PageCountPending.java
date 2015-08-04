@@ -16,10 +16,12 @@
  */
 package org.apache.activemq.artemis.core.persistence.impl;
 
-public interface PageCountPending
-{
+public interface PageCountPending {
+
    long getID();
+
    long getQueueID();
+
    long getPageID();
 
 }

@@ -28,36 +28,32 @@ import org.apache.activemq.artemis.utils.LinkedListIterator;
 import org.junit.Before;
 import org.junit.Test;
 
-public class LinkedListTest extends ActiveMQTestBase
-{
+public class LinkedListTest extends ActiveMQTestBase {
+
    private LinkedListImpl<Integer> list;
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       list = new LinkedListImpl<Integer>();
    }
 
    @Test
-   public void testAddAndRemove()
-   {
+   public void testAddAndRemove() {
       final AtomicInteger count = new AtomicInteger(0);
-      class MyObject
-      {
+      class MyObject {
+
          private final byte[] payload;
 
-         MyObject()
-         {
+         MyObject() {
             count.incrementAndGet();
             payload = new byte[10 * 1024];
          }
 
          @Override
-         protected void finalize() throws Exception
-         {
+         protected void finalize() throws Exception {
             count.decrementAndGet();
          }
       }
@@ -65,37 +61,31 @@ public class LinkedListTest extends ActiveMQTestBase
       LinkedListImpl<MyObject> objs = new LinkedListImpl<MyObject>();
 
       // Initial add
-      for (int i = 0; i < 1000; i++)
-      {
+      for (int i = 0; i < 1000; i++) {
          objs.addTail(new MyObject());
       }
 
       LinkedListIterator<MyObject> iter = objs.iterator();
 
-      for (int i = 0; i < 5000; i++)
-      {
+      for (int i = 0; i < 5000; i++) {
 
-         for (int add = 0; add < 1000; add++)
-         {
+         for (int add = 0; add < 1000; add++) {
             objs.addTail(new MyObject());
          }
 
-         for (int remove = 0; remove < 1000; remove++)
-         {
+         for (int remove = 0; remove < 1000; remove++) {
             assertNotNull(iter.next());
             iter.remove();
          }
 
-         if (i % 1000 == 0)
-         {
+         if (i % 1000 == 0) {
             assertCount(1000, count);
          }
       }
 
       assertCount(1000, count);
 
-      while (iter.hasNext())
-      {
+      while (iter.hasNext()) {
          iter.next();
          iter.remove();
       }
@@ -105,29 +95,24 @@ public class LinkedListTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testAddHeadAndRemove()
-   {
+   public void testAddHeadAndRemove() {
       final AtomicInteger count = new AtomicInteger(0);
-      class MyObject
-      {
+      class MyObject {
 
          public int payload;
 
-         MyObject(int payloadcount)
-         {
+         MyObject(int payloadcount) {
             count.incrementAndGet();
             this.payload = payloadcount;
          }
 
          @Override
-         protected void finalize() throws Exception
-         {
+         protected void finalize() throws Exception {
             count.decrementAndGet();
          }
 
          @Override
-         public String toString()
-         {
+         public String toString() {
             return "" + payload;
          }
       }
@@ -135,8 +120,7 @@ public class LinkedListTest extends ActiveMQTestBase
       LinkedListImpl<MyObject> objs = new LinkedListImpl<MyObject>();
 
       // Initial add
-      for (int i = 1000; i >= 0; i--)
-      {
+      for (int i = 1000; i >= 0; i--) {
          objs.addHead(new MyObject(i));
       }
       assertCount(1001, count);
@@ -144,12 +128,10 @@ public class LinkedListTest extends ActiveMQTestBase
       LinkedListIterator<MyObject> iter = objs.iterator();
 
       int countLoop = 0;
-      for (countLoop = 0; countLoop <= 1000; countLoop++)
-      {
+      for (countLoop = 0; countLoop <= 1000; countLoop++) {
          MyObject obj = iter.next();
          assertEquals(countLoop, obj.payload);
-         if (countLoop == 500 || countLoop == 1000)
-         {
+         if (countLoop == 500 || countLoop == 1000) {
             iter.remove();
          }
       }
@@ -159,10 +141,8 @@ public class LinkedListTest extends ActiveMQTestBase
       iter = objs.iterator();
 
       countLoop = 0;
-      while (iter.hasNext())
-      {
-         if (countLoop == 500 || countLoop == 1000)
-         {
+      while (iter.hasNext()) {
+         if (countLoop == 500 || countLoop == 1000) {
             System.out.println("Jumping " + countLoop);
             countLoop++;
          }
@@ -170,7 +150,6 @@ public class LinkedListTest extends ActiveMQTestBase
          assertEquals(countLoop, obj.payload);
          countLoop++;
       }
-
 
       assertCount(999, count);
 
@@ -183,28 +162,22 @@ public class LinkedListTest extends ActiveMQTestBase
    /**
     * @param count
     */
-   private void assertCount(final int expected, final AtomicInteger count)
-   {
+   private void assertCount(final int expected, final AtomicInteger count) {
       long timeout = System.currentTimeMillis() + 15000;
 
       int seqCount = 0;
-      while (timeout > System.currentTimeMillis() && count.get() != expected)
-      {
+      while (timeout > System.currentTimeMillis() && count.get() != expected) {
          seqCount++;
-         if (seqCount > 5)
-         {
+         if (seqCount > 5) {
             LinkedList<String> toOME = new LinkedList<String>();
             int someCount = 0;
-            try
-            {
+            try {
                WeakReference<Object> ref = new WeakReference<Object>(new Object());
-               while (ref.get() != null)
-               {
+               while (ref.get() != null) {
                   toOME.add("sdlfkjshadlfkjhas dlfkjhas dlfkjhads lkjfhads lfkjhads flkjashdf " + someCount++);
                }
             }
-            catch (Throwable expectedThrowable)
-            {
+            catch (Throwable expectedThrowable) {
             }
 
             toOME.clear();
@@ -216,21 +189,18 @@ public class LinkedListTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testAddTail()
-   {
+   public void testAddTail() {
       int num = 10;
 
       assertEquals(0, list.size());
 
-      for (int i = 0; i < num; i++)
-      {
+      for (int i = 0; i < num; i++) {
          list.addTail(i);
 
          assertEquals(i + 1, list.size());
       }
 
-      for (int i = 0; i < num; i++)
-      {
+      for (int i = 0; i < num; i++) {
          assertEquals(i, list.poll().intValue());
 
          assertEquals(num - i - 1, list.size());
@@ -238,21 +208,18 @@ public class LinkedListTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testAddHead()
-   {
+   public void testAddHead() {
       int num = 10;
 
       assertEquals(0, list.size());
 
-      for (int i = 0; i < num; i++)
-      {
+      for (int i = 0; i < num; i++) {
          list.addHead(i);
 
          assertEquals(i + 1, list.size());
       }
 
-      for (int i = num - 1; i >= 0; i--)
-      {
+      for (int i = num - 1; i >= 0; i--) {
          assertEquals(i, list.poll().intValue());
 
          assertEquals(i, list.size());
@@ -260,68 +227,56 @@ public class LinkedListTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testAddHeadAndTail()
-   {
+   public void testAddHeadAndTail() {
       int num = 10;
 
-      for (int i = 0; i < num; i++)
-      {
+      for (int i = 0; i < num; i++) {
          list.addHead(i);
       }
 
-      for (int i = num; i < num * 2; i++)
-      {
+      for (int i = num; i < num * 2; i++) {
          list.addTail(i);
       }
 
-      for (int i = num * 2; i < num * 3; i++)
-      {
+      for (int i = num * 2; i < num * 3; i++) {
          list.addHead(i);
       }
 
-      for (int i = num * 3; i < num * 4; i++)
-      {
+      for (int i = num * 3; i < num * 4; i++) {
          list.addTail(i);
       }
 
-      for (int i = num * 3 - 1; i >= num * 2; i--)
-      {
+      for (int i = num * 3 - 1; i >= num * 2; i--) {
          assertEquals(i, list.poll().intValue());
       }
 
-      for (int i = num - 1; i >= 0; i--)
-      {
+      for (int i = num - 1; i >= 0; i--) {
          assertEquals(i, list.poll().intValue());
       }
 
-      for (int i = num; i < num * 2; i++)
-      {
+      for (int i = num; i < num * 2; i++) {
          assertEquals(i, list.poll().intValue());
       }
 
-      for (int i = num * 3; i < num * 4; i++)
-      {
+      for (int i = num * 3; i < num * 4; i++) {
          assertEquals(i, list.poll().intValue());
       }
 
    }
 
    @Test
-   public void testPoll()
-   {
+   public void testPoll() {
       int num = 10;
 
       assertNull(list.poll());
       assertNull(list.poll());
       assertNull(list.poll());
 
-      for (int i = 0; i < num; i++)
-      {
+      for (int i = 0; i < num; i++) {
          list.addTail(i);
       }
 
-      for (int i = 0; i < num; i++)
-      {
+      for (int i = 0; i < num; i++) {
          assertEquals(i, list.poll().intValue());
       }
 
@@ -329,13 +284,11 @@ public class LinkedListTest extends ActiveMQTestBase
       assertNull(list.poll());
       assertNull(list.poll());
 
-      for (int i = num; i < num * 2; i++)
-      {
+      for (int i = num; i < num * 2; i++) {
          list.addHead(i);
       }
 
-      for (int i = num * 2 - 1; i >= num; i--)
-      {
+      for (int i = num * 2 - 1; i >= num; i--) {
          assertEquals(i, list.poll().intValue());
       }
 
@@ -346,37 +299,32 @@ public class LinkedListTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testIterateNoElements()
-   {
+   public void testIterateNoElements() {
       LinkedListIterator<Integer> iter = list.iterator();
 
       assertNotNull(iter);
 
       assertNoSuchElementIsThrown(iter);
 
-      try
-      {
+      try {
          iter.remove();
 
          fail("Should throw NoSuchElementException");
       }
-      catch (NoSuchElementException e)
-      {
+      catch (NoSuchElementException e) {
          // OK
       }
    }
 
    @Test
-   public void testCreateIteratorBeforeAddElements()
-   {
+   public void testCreateIteratorBeforeAddElements() {
       int num = 10;
 
       LinkedListIterator<Integer> iter = list.iterator();
 
       assertNotNull(iter);
 
-      for (int i = 0; i < num; i++)
-      {
+      for (int i = 0; i < num; i++) {
          list.addTail(i);
       }
 
@@ -384,12 +332,10 @@ public class LinkedListTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testCreateIteratorAfterAddElements()
-   {
+   public void testCreateIteratorAfterAddElements() {
       int num = 10;
 
-      for (int i = 0; i < num; i++)
-      {
+      for (int i = 0; i < num; i++) {
          list.addTail(i);
       }
 
@@ -401,12 +347,10 @@ public class LinkedListTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testIterateThenAddMoreAndIterateAgain()
-   {
+   public void testIterateThenAddMoreAndIterateAgain() {
       int num = 10;
 
-      for (int i = 0; i < num; i++)
-      {
+      for (int i = 0; i < num; i++) {
          list.addTail(i);
       }
 
@@ -414,8 +358,7 @@ public class LinkedListTest extends ActiveMQTestBase
 
       assertNotNull(iter);
 
-      for (int i = 0; i < num; i++)
-      {
+      for (int i = 0; i < num; i++) {
          assertTrue(iter.hasNext());
          assertEquals(i, iter.next().intValue());
       }
@@ -425,13 +368,11 @@ public class LinkedListTest extends ActiveMQTestBase
 
       // Add more
 
-      for (int i = num; i < num * 2; i++)
-      {
+      for (int i = num; i < num * 2; i++) {
          list.addTail(i);
       }
 
-      for (int i = num; i < num * 2; i++)
-      {
+      for (int i = num; i < num * 2; i++) {
          assertTrue(iter.hasNext());
          assertEquals(i, iter.next().intValue());
       }
@@ -441,30 +382,25 @@ public class LinkedListTest extends ActiveMQTestBase
 
       // Add some more at head
 
-      for (int i = num * 2; i < num * 3; i++)
-      {
+      for (int i = num * 2; i < num * 3; i++) {
          list.addHead(i);
       }
 
       iter = list.iterator();
 
-      for (int i = num * 3 - 1; i >= num * 2; i--)
-      {
+      for (int i = num * 3 - 1; i >= num * 2; i--) {
          assertTrue(iter.hasNext());
          assertEquals(i, iter.next().intValue());
       }
-      for (int i = 0; i < num * 2; i++)
-      {
+      for (int i = 0; i < num * 2; i++) {
          assertTrue(iter.hasNext());
          assertEquals(i, iter.next().intValue());
       }
       assertFalse(iter.hasNext());
    }
 
-   private void testIterate1(int num, LinkedListIterator<Integer> iter)
-   {
-      for (int i = 0; i < num; i++)
-      {
+   private void testIterate1(int num, LinkedListIterator<Integer> iter) {
+      for (int i = 0; i < num; i++) {
          assertTrue(iter.hasNext());
          assertEquals(i, iter.next().intValue());
       }
@@ -476,58 +412,48 @@ public class LinkedListTest extends ActiveMQTestBase
    /**
     * @param iter
     */
-   private void assertNoSuchElementIsThrown(LinkedListIterator<Integer> iter)
-   {
-      try
-      {
+   private void assertNoSuchElementIsThrown(LinkedListIterator<Integer> iter) {
+      try {
          iter.next();
 
          fail("Should throw NoSuchElementException");
       }
-      catch (NoSuchElementException e)
-      {
+      catch (NoSuchElementException e) {
          // OK
       }
    }
 
    @Test
-   public void testRemoveAll()
-   {
+   public void testRemoveAll() {
       int num = 10;
 
       LinkedListIterator<Integer> iter = list.iterator();
 
-      try
-      {
+      try {
          iter.remove();
 
          fail("Should throw NoSuchElementException");
       }
-      catch (NoSuchElementException e)
-      {
+      catch (NoSuchElementException e) {
          // OK
       }
 
-      for (int i = 0; i < num; i++)
-      {
+      for (int i = 0; i < num; i++) {
          list.addTail(i);
       }
 
       assertEquals(num, list.size());
 
-      try
-      {
+      try {
          iter.remove();
 
          fail("Should throw NoSuchElementException");
       }
-      catch (NoSuchElementException e)
-      {
+      catch (NoSuchElementException e) {
          // OK
       }
 
-      for (int i = 0; i < num; i++)
-      {
+      for (int i = 0; i < num; i++) {
          assertTrue(iter.hasNext());
          assertEquals(i, iter.next().intValue());
          iter.remove();
@@ -538,46 +464,38 @@ public class LinkedListTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testRemoveOdd()
-   {
+   public void testRemoveOdd() {
       int num = 10;
 
       LinkedListIterator<Integer> iter = list.iterator();
 
-      try
-      {
+      try {
          iter.remove();
 
          fail("Should throw NoSuchElementException");
       }
-      catch (NoSuchElementException e)
-      {
+      catch (NoSuchElementException e) {
          // OK
       }
 
-      for (int i = 0; i < num; i++)
-      {
+      for (int i = 0; i < num; i++) {
          list.addTail(i);
       }
 
-      try
-      {
+      try {
          iter.remove();
 
          fail("Should throw NoSuchElementException");
       }
-      catch (NoSuchElementException e)
-      {
+      catch (NoSuchElementException e) {
          // OK
       }
 
       int size = num;
-      for (int i = 0; i < num; i++)
-      {
+      for (int i = 0; i < num; i++) {
          assertTrue(iter.hasNext());
          assertEquals(i, iter.next().intValue());
-         if (i % 2 == 0)
-         {
+         if (i % 2 == 0) {
             iter.remove();
             size--;
          }
@@ -585,10 +503,8 @@ public class LinkedListTest extends ActiveMQTestBase
       }
 
       iter = list.iterator();
-      for (int i = 0; i < num; i++)
-      {
-         if (i % 2 == 1)
-         {
+      for (int i = 0; i < num; i++) {
+         if (i % 2 == 1) {
             assertTrue(iter.hasNext());
             assertEquals(i, iter.next().intValue());
          }
@@ -598,22 +514,19 @@ public class LinkedListTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testRemoveHead1()
-   {
+   public void testRemoveHead1() {
       int num = 10;
 
       LinkedListIterator<Integer> iter = list.iterator();
 
-      for (int i = 0; i < num; i++)
-      {
+      for (int i = 0; i < num; i++) {
          list.addTail(i);
       }
 
       iter.next();
       iter.remove();
 
-      for (int i = 1; i < num; i++)
-      {
+      for (int i = 1; i < num; i++) {
          assertTrue(iter.hasNext());
          assertEquals(i, iter.next().intValue());
       }
@@ -622,12 +535,10 @@ public class LinkedListTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testRemoveHead2()
-   {
+   public void testRemoveHead2() {
       int num = 10;
 
-      for (int i = 0; i < num; i++)
-      {
+      for (int i = 0; i < num; i++) {
          list.addTail(i);
       }
 
@@ -638,8 +549,7 @@ public class LinkedListTest extends ActiveMQTestBase
 
       iter = list.iterator();
 
-      for (int i = 1; i < num; i++)
-      {
+      for (int i = 1; i < num; i++) {
          assertTrue(iter.hasNext());
          assertEquals(i, iter.next().intValue());
       }
@@ -648,31 +558,26 @@ public class LinkedListTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testRemoveHead3()
-   {
+   public void testRemoveHead3() {
       int num = 10;
 
       LinkedListIterator<Integer> iter = list.iterator();
 
-      for (int i = 0; i < num; i++)
-      {
+      for (int i = 0; i < num; i++) {
          list.addTail(i);
       }
 
-      for (int i = 0; i < num; i++)
-      {
+      for (int i = 0; i < num; i++) {
          assertTrue(iter.hasNext());
          assertEquals(i, iter.next().intValue());
          iter.remove();
       }
 
-      for (int i = num; i < num * 2; i++)
-      {
+      for (int i = num; i < num * 2; i++) {
          list.addTail(i);
       }
 
-      for (int i = num; i < num * 2; i++)
-      {
+      for (int i = num; i < num * 2; i++) {
          assertTrue(iter.hasNext());
          assertEquals(i, iter.next().intValue());
          iter.remove();
@@ -681,19 +586,16 @@ public class LinkedListTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testRemoveTail1()
-   {
+   public void testRemoveTail1() {
       int num = 10;
 
       LinkedListIterator<Integer> iter = list.iterator();
 
-      for (int i = 0; i < num; i++)
-      {
+      for (int i = 0; i < num; i++) {
          list.addTail(i);
       }
 
-      for (int i = 0; i < num; i++)
-      {
+      for (int i = 0; i < num; i++) {
          assertTrue(iter.hasNext());
          assertEquals(i, iter.next().intValue());
       }
@@ -705,8 +607,7 @@ public class LinkedListTest extends ActiveMQTestBase
 
       iter = list.iterator();
 
-      for (int i = 0; i < num - 1; i++)
-      {
+      for (int i = 0; i < num - 1; i++) {
          assertTrue(iter.hasNext());
          assertEquals(i, iter.next().intValue());
       }
@@ -715,19 +616,16 @@ public class LinkedListTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testRemoveMiddle()
-   {
+   public void testRemoveMiddle() {
       int num = 10;
 
-      for (int i = 0; i < num; i++)
-      {
+      for (int i = 0; i < num; i++) {
          list.addTail(i);
       }
 
       LinkedListIterator<Integer> iter = list.iterator();
 
-      for (int i = 0; i < num / 2; i++)
-      {
+      for (int i = 0; i < num / 2; i++) {
          assertTrue(iter.hasNext());
          assertEquals(i, iter.next().intValue());
       }
@@ -737,10 +635,8 @@ public class LinkedListTest extends ActiveMQTestBase
 
       iter = list.iterator();
 
-      for (int i = 0; i < num; i++)
-      {
-         if (i != num / 2 - 1)
-         {
+      for (int i = 0; i < num; i++) {
+         if (i != num / 2 - 1) {
             assertTrue(iter.hasNext());
             assertEquals(i, iter.next().intValue());
          }
@@ -750,19 +646,16 @@ public class LinkedListTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testRemoveTail2()
-   {
+   public void testRemoveTail2() {
       int num = 10;
 
-      for (int i = 0; i < num; i++)
-      {
+      for (int i = 0; i < num; i++) {
          list.addTail(i);
       }
 
       LinkedListIterator<Integer> iter = list.iterator();
 
-      for (int i = 0; i < num; i++)
-      {
+      for (int i = 0; i < num; i++) {
          assertTrue(iter.hasNext());
          assertEquals(i, iter.next().intValue());
       }
@@ -772,19 +665,16 @@ public class LinkedListTest extends ActiveMQTestBase
       // Remove the last one, that's element 9
       iter.remove();
 
-      try
-      {
+      try {
          iter.remove();
          fail("Should throw exception");
       }
-      catch (NoSuchElementException e)
-      {
+      catch (NoSuchElementException e) {
       }
 
       iter = list.iterator();
 
-      for (int i = 0; i < num - 1; i++)
-      {
+      for (int i = 0; i < num - 1; i++) {
          assertTrue(iter.hasNext());
          assertEquals(i, iter.next().intValue());
       }
@@ -793,19 +683,16 @@ public class LinkedListTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testRemoveTail3()
-   {
+   public void testRemoveTail3() {
       int num = 10;
 
       LinkedListIterator<Integer> iter = list.iterator();
 
-      for (int i = 0; i < num; i++)
-      {
+      for (int i = 0; i < num; i++) {
          list.addTail(i);
       }
 
-      for (int i = 0; i < num; i++)
-      {
+      for (int i = 0; i < num; i++) {
          assertTrue(iter.hasNext());
          assertEquals(i, iter.next().intValue());
       }
@@ -815,30 +702,26 @@ public class LinkedListTest extends ActiveMQTestBase
       // This should remove the 9th element and move the iterator back to position 8
       iter.remove();
 
-      for (int i = num; i < num * 2; i++)
-      {
+      for (int i = num; i < num * 2; i++) {
          list.addTail(i);
       }
 
       assertTrue(iter.hasNext());
       assertEquals(8, iter.next().intValue());
 
-      for (int i = num; i < num * 2; i++)
-      {
+      for (int i = num; i < num * 2; i++) {
          assertTrue(iter.hasNext());
          assertEquals(i, iter.next().intValue());
       }
    }
 
    @Test
-   public void testRemoveHeadAndTail1()
-   {
+   public void testRemoveHeadAndTail1() {
       LinkedListIterator<Integer> iter = list.iterator();
 
       int num = 10;
 
-      for (int i = 0; i < num; i++)
-      {
+      for (int i = 0; i < num; i++) {
          list.addTail(i);
          assertTrue(iter.hasNext());
          assertEquals(i, iter.next().intValue());
@@ -848,14 +731,12 @@ public class LinkedListTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testRemoveHeadAndTail2()
-   {
+   public void testRemoveHeadAndTail2() {
       LinkedListIterator<Integer> iter = list.iterator();
 
       int num = 10;
 
-      for (int i = 0; i < num; i++)
-      {
+      for (int i = 0; i < num; i++) {
          list.addHead(i);
          assertEquals(1, list.size());
          assertTrue(iter.hasNext());
@@ -866,20 +747,16 @@ public class LinkedListTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testRemoveHeadAndTail3()
-   {
+   public void testRemoveHeadAndTail3() {
       LinkedListIterator<Integer> iter = list.iterator();
 
       int num = 10;
 
-      for (int i = 0; i < num; i++)
-      {
-         if (i % 2 == 0)
-         {
+      for (int i = 0; i < num; i++) {
+         if (i % 2 == 0) {
             list.addHead(i);
          }
-         else
-         {
+         else {
             list.addTail(i);
          }
          assertEquals(1, list.size());
@@ -891,19 +768,16 @@ public class LinkedListTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testRemoveInTurn()
-   {
+   public void testRemoveInTurn() {
       LinkedListIterator<Integer> iter = list.iterator();
 
       int num = 10;
 
-      for (int i = 0; i < num; i++)
-      {
+      for (int i = 0; i < num; i++) {
          list.addTail(i);
       }
 
-      for (int i = 0; i < num; i++)
-      {
+      for (int i = 0; i < num; i++) {
          assertTrue(iter.hasNext());
          assertEquals(i, iter.next().intValue());
          iter.remove();
@@ -915,13 +789,11 @@ public class LinkedListTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testClear()
-   {
+   public void testClear() {
 
       int num = 10;
 
-      for (int i = 0; i < num; i++)
-      {
+      for (int i = 0; i < num; i++) {
          list.addTail(i);
       }
 
@@ -937,16 +809,13 @@ public class LinkedListTest extends ActiveMQTestBase
 
       assertFalse(iter.hasNext());
 
-      try
-      {
+      try {
          iter.next();
       }
-      catch (NoSuchElementException e)
-      {
+      catch (NoSuchElementException e) {
       }
 
-      for (int i = 0; i < num; i++)
-      {
+      for (int i = 0; i < num; i++) {
          list.addTail(i);
       }
 
@@ -954,15 +823,13 @@ public class LinkedListTest extends ActiveMQTestBase
 
       iter = list.iterator();
 
-      for (int i = 0; i < num; i++)
-      {
+      for (int i = 0; i < num; i++) {
          assertTrue(iter.hasNext());
          assertEquals(i, iter.next().intValue());
       }
       assertFalse(iter.hasNext());
 
-      for (int i = 0; i < num; i++)
-      {
+      for (int i = 0; i < num; i++) {
          assertEquals(i, list.poll().intValue());
       }
       assertNull(list.poll());
@@ -971,12 +838,10 @@ public class LinkedListTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testMultipleIterators1()
-   {
+   public void testMultipleIterators1() {
       int num = 10;
 
-      for (int i = 0; i < num; i++)
-      {
+      for (int i = 0; i < num; i++) {
          list.addTail(i);
       }
 
@@ -984,14 +849,12 @@ public class LinkedListTest extends ActiveMQTestBase
       LinkedListIterator<Integer> iter2 = list.iterator();
       LinkedListIterator<Integer> iter3 = list.iterator();
 
-      for (int i = 0; i < num; )
-      {
+      for (int i = 0; i < num; ) {
          assertTrue(iter1.hasNext());
          assertEquals(i++, iter1.next().intValue());
          iter1.remove();
 
-         if (i == 10)
-         {
+         if (i == 10) {
             break;
          }
 
@@ -1006,12 +869,10 @@ public class LinkedListTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testRepeat()
-   {
+   public void testRepeat() {
       int num = 10;
 
-      for (int i = 0; i < num; i++)
-      {
+      for (int i = 0; i < num; i++) {
          list.addTail(i);
       }
 
@@ -1048,12 +909,10 @@ public class LinkedListTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testRepeatAndRemove()
-   {
+   public void testRepeatAndRemove() {
       int num = 10;
 
-      for (int i = 0; i < num; i++)
-      {
+      for (int i = 0; i < num; i++) {
          list.addTail(i);
       }
 
@@ -1105,12 +964,10 @@ public class LinkedListTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testMultipleIterators2()
-   {
+   public void testMultipleIterators2() {
       int num = 10;
 
-      for (int i = 0; i < num; i++)
-      {
+      for (int i = 0; i < num; i++) {
          list.addTail(i);
       }
 
@@ -1243,27 +1100,23 @@ public class LinkedListTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testResizing()
-   {
+   public void testResizing() {
       int numIters = 1000;
 
       List<LinkedListIterator<Integer>> iters = new java.util.LinkedList<LinkedListIterator<Integer>>();
 
       int num = 10;
 
-      for (int i = 0; i < num; i++)
-      {
+      for (int i = 0; i < num; i++) {
          list.addTail(i);
       }
 
-      for (int i = 0; i < numIters; i++)
-      {
+      for (int i = 0; i < numIters; i++) {
          LinkedListIterator<Integer> iter = list.iterator();
 
          iters.add(iter);
 
-         for (int j = 0; j < num / 2; j++)
-         {
+         for (int j = 0; j < num / 2; j++) {
             assertTrue(iter.hasNext());
 
             assertEquals(j, iter.next().intValue());
@@ -1275,10 +1128,8 @@ public class LinkedListTest extends ActiveMQTestBase
       // Close the odd ones
 
       boolean b = false;
-      for (LinkedListIterator<Integer> iter : iters)
-      {
-         if (b)
-         {
+      for (LinkedListIterator<Integer> iter : iters) {
+         if (b) {
             iter.close();
          }
          b = !b;
@@ -1289,10 +1140,8 @@ public class LinkedListTest extends ActiveMQTestBase
       // close the even ones
 
       b = true;
-      for (LinkedListIterator<Integer> iter : iters)
-      {
-         if (b)
-         {
+      for (LinkedListIterator<Integer> iter : iters) {
+         if (b) {
             iter.close();
          }
          b = !b;

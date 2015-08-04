@@ -35,99 +35,98 @@ import static org.junit.Assert.*;
 @RunWith(BlockJUnit4ClassRunner.class)
 public class StrictOrderDispatchPolicyTest extends TopicSubscriptionTest {
 
-    @Override
-    protected BrokerService createBroker() throws Exception {
-        BrokerService broker = super.createBroker();
+   @Override
+   protected BrokerService createBroker() throws Exception {
+      BrokerService broker = super.createBroker();
 
-        PolicyEntry policy = new PolicyEntry();
-        policy.setDispatchPolicy(new StrictOrderDispatchPolicy());
+      PolicyEntry policy = new PolicyEntry();
+      policy.setDispatchPolicy(new StrictOrderDispatchPolicy());
 
-        PolicyMap pMap = new PolicyMap();
-        pMap.setDefaultEntry(policy);
+      PolicyMap pMap = new PolicyMap();
+      pMap.setDefaultEntry(policy);
 
-        broker.setDestinationPolicy(pMap);
+      broker.setDestinationPolicy(pMap);
 
-        return broker;
-    }
+      return broker;
+   }
 
-    @Test
-    @Override
-    public void testOneProducerTwoConsumersLargeMessagesOnePrefetch() throws Exception {
-        super.testOneProducerTwoConsumersLargeMessagesOnePrefetch();
+   @Test
+   @Override
+   public void testOneProducerTwoConsumersLargeMessagesOnePrefetch() throws Exception {
+      super.testOneProducerTwoConsumersLargeMessagesOnePrefetch();
 
-        assertReceivedMessagesAreOrdered();
-    }
+      assertReceivedMessagesAreOrdered();
+   }
 
-    @Test
-    @Override
-    public void testOneProducerTwoConsumersSmallMessagesOnePrefetch() throws Exception {
-        super.testOneProducerTwoConsumersSmallMessagesOnePrefetch();
+   @Test
+   @Override
+   public void testOneProducerTwoConsumersSmallMessagesOnePrefetch() throws Exception {
+      super.testOneProducerTwoConsumersSmallMessagesOnePrefetch();
 
-        assertReceivedMessagesAreOrdered();
-    }
+      assertReceivedMessagesAreOrdered();
+   }
 
-    @Test
-    @Override
-    public void testOneProducerTwoConsumersSmallMessagesLargePrefetch() throws Exception {
-        super.testOneProducerTwoConsumersSmallMessagesLargePrefetch();
+   @Test
+   @Override
+   public void testOneProducerTwoConsumersSmallMessagesLargePrefetch() throws Exception {
+      super.testOneProducerTwoConsumersSmallMessagesLargePrefetch();
 
-        assertReceivedMessagesAreOrdered();
-    }
+      assertReceivedMessagesAreOrdered();
+   }
 
-    @Test
-    @Override
-    public void testOneProducerTwoConsumersLargeMessagesLargePrefetch() throws Exception {
-        super.testOneProducerTwoConsumersLargeMessagesLargePrefetch();
+   @Test
+   @Override
+   public void testOneProducerTwoConsumersLargeMessagesLargePrefetch() throws Exception {
+      super.testOneProducerTwoConsumersLargeMessagesLargePrefetch();
 
-        assertReceivedMessagesAreOrdered();
-    }
+      assertReceivedMessagesAreOrdered();
+   }
 
-    @Test
-    @Override
-    public void testOneProducerManyConsumersFewMessages() throws Exception {
-        super.testOneProducerManyConsumersFewMessages();
+   @Test
+   @Override
+   public void testOneProducerManyConsumersFewMessages() throws Exception {
+      super.testOneProducerManyConsumersFewMessages();
 
-        assertReceivedMessagesAreOrdered();
-    }
+      assertReceivedMessagesAreOrdered();
+   }
 
+   @Test
+   @Override
+   public void testOneProducerManyConsumersManyMessages() throws Exception {
+      super.testOneProducerManyConsumersManyMessages();
 
-    @Test
-    @Override
-    public void testOneProducerManyConsumersManyMessages() throws Exception {
-        super.testOneProducerManyConsumersManyMessages();
+      assertReceivedMessagesAreOrdered();
+   }
 
-        assertReceivedMessagesAreOrdered();
-    }
+   @Test
+   @Override
+   public void testManyProducersOneConsumer() throws Exception {
+      super.testManyProducersOneConsumer();
 
-    @Test
-    @Override
-    public void testManyProducersOneConsumer() throws Exception {
-        super.testManyProducersOneConsumer();
+      assertReceivedMessagesAreOrdered();
+   }
 
-        assertReceivedMessagesAreOrdered();
-    }
+   @Test
+   @Override
+   public void testManyProducersManyConsumers() throws Exception {
+      super.testManyProducersManyConsumers();
 
-    @Test
-    @Override
-    public void testManyProducersManyConsumers() throws Exception {
-        super.testManyProducersManyConsumers();
+      assertReceivedMessagesAreOrdered();
+   }
 
-        assertReceivedMessagesAreOrdered();
-    }
+   public void assertReceivedMessagesAreOrdered() throws Exception {
+      // If there is only one consumer, messages is definitely ordered
+      if (consumers.size() <= 1) {
+         return;
+      }
 
-    public void assertReceivedMessagesAreOrdered() throws Exception {
-        // If there is only one consumer, messages is definitely ordered
-        if (consumers.size() <= 1) {
-            return;
-        }
+      // Get basis of order
+      Iterator<MessageConsumer> i = consumers.keySet().iterator();
+      MessageIdList messageOrder = (MessageIdList) consumers.get(i.next());
 
-        // Get basis of order
-        Iterator<MessageConsumer> i = consumers.keySet().iterator();
-        MessageIdList messageOrder = (MessageIdList)consumers.get(i.next());
-
-        for (; i.hasNext();) {
-            MessageIdList messageIdList = (MessageIdList)consumers.get(i.next());
-            assertTrue("Messages are not ordered.", messageOrder.equals(messageIdList));
-        }
-    }
+      for (; i.hasNext(); ) {
+         MessageIdList messageIdList = (MessageIdList) consumers.get(i.next());
+         assertTrue("Messages are not ordered.", messageOrder.equals(messageIdList));
+      }
+   }
 }

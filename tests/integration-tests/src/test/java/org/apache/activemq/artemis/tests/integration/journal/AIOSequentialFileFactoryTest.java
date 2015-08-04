@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.integration.journal;
+
 import java.io.File;
 import java.nio.ByteBuffer;
 
@@ -26,24 +27,20 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class AIOSequentialFileFactoryTest extends SequentialFileFactoryTestBase
-{
+public class AIOSequentialFileFactoryTest extends SequentialFileFactoryTestBase {
 
    @BeforeClass
-   public static void hasAIO()
-   {
+   public static void hasAIO() {
       org.junit.Assume.assumeTrue("Test case needs AIO to run", AIOSequentialFileFactory.isSupported());
    }
 
    @Override
-   protected SequentialFileFactory createFactory(String folder)
-   {
+   protected SequentialFileFactory createFactory(String folder) {
       return new AIOSequentialFileFactory(new File(folder), 10);
    }
 
    @Test
-   public void testBuffer() throws Exception
-   {
+   public void testBuffer() throws Exception {
       SequentialFile file = factory.createSequentialFile("filtetmp.log");
       file.open();
       ByteBuffer buff = factory.newBuffer(10);

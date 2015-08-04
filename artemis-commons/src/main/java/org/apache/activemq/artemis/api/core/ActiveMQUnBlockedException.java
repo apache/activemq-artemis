@@ -19,17 +19,15 @@ package org.apache.activemq.artemis.api.core;
 /**
  * A blocking call from a client was unblocked during failover.
  */
-public final class ActiveMQUnBlockedException extends ActiveMQException
-{
+public final class ActiveMQUnBlockedException extends ActiveMQException {
+
    private static final long serialVersionUID = -4507889261891160608L;
 
-   public ActiveMQUnBlockedException()
-   {
+   public ActiveMQUnBlockedException() {
       super(ActiveMQExceptionType.UNBLOCKED);
    }
 
-   public ActiveMQUnBlockedException(String msg)
-   {
+   public ActiveMQUnBlockedException(String msg) {
       super(ActiveMQExceptionType.UNBLOCKED, msg);
    }
 }

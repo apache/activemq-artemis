@@ -55,31 +55,24 @@ import org.proton.plug.util.ByteUtil;
  * This is simulating a JMS client against a simple server
  */
 @RunWith(Parameterized.class)
-public class ProtonTest extends AbstractJMSTest
-{
+public class ProtonTest extends AbstractJMSTest {
 
    protected Connection connection;
 
    @Parameterized.Parameters(name = "useHawt={0} sasl={1}")
-   public static Collection<Object[]> data()
-   {
-      List<Object[]> list = Arrays.asList(new Object[][]{
-         {Boolean.FALSE, Boolean.TRUE},
-         {Boolean.FALSE, Boolean.FALSE}});
+   public static Collection<Object[]> data() {
+      List<Object[]> list = Arrays.asList(new Object[][]{{Boolean.FALSE, Boolean.TRUE}, {Boolean.FALSE, Boolean.FALSE}});
 
       System.out.println("Size = " + list.size());
       return list;
    }
 
-   public ProtonTest(boolean useHawtJMS, boolean useSASL)
-   {
+   public ProtonTest(boolean useHawtJMS, boolean useSASL) {
       super(useHawtJMS, useSASL);
    }
 
-
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       DumbServer.clear();
       AbstractJMSTest.forceGC();
       server.start("127.0.0.1", Constants.PORT, true);
@@ -87,10 +80,8 @@ public class ProtonTest extends AbstractJMSTest
    }
 
    @After
-   public void tearDown() throws Exception
-   {
-      if (connection != null)
-      {
+   public void tearDown() throws Exception {
+      if (connection != null) {
          connection.close();
       }
 
@@ -98,64 +89,51 @@ public class ProtonTest extends AbstractJMSTest
    }
 
    @Test
-   public void testMessagesReceivedInParallel() throws Throwable
-   {
+   public void testMessagesReceivedInParallel() throws Throwable {
       final int numMessages = getNumberOfMessages();
       long time = System.currentTimeMillis();
       final Queue queue = createQueue();
 
       final ArrayList<Throwable> exceptions = new ArrayList<>();
 
-      Thread t = new Thread(new Runnable()
-      {
+      Thread t = new Thread(new Runnable() {
          @Override
-         public void run()
-         {
+         public void run() {
             Connection connectionConsumer = null;
-            try
-            {
+            try {
                connectionConsumer = createConnection();
-//               connectionConsumer = connection;
+               //               connectionConsumer = connection;
                connectionConsumer.start();
                Session sessionConsumer = connectionConsumer.createSession(false, Session.AUTO_ACKNOWLEDGE);
                final MessageConsumer consumer = sessionConsumer.createConsumer(queue);
 
                int count = numMessages;
-               while (count > 0)
-               {
-                  try
-                  {
+               while (count > 0) {
+                  try {
                      BytesMessage m = (BytesMessage) consumer.receive(1000);
-                     if (count % 1000 == 0)
-                     {
+                     if (count % 1000 == 0) {
                         System.out.println("Count = " + count + ", property=" + m.getStringProperty("XX"));
                      }
                      Assert.assertNotNull("Could not receive message count=" + count + " on consumer", m);
                      count--;
                   }
-                  catch (JMSException e)
-                  {
+                  catch (JMSException e) {
                      break;
                   }
                }
             }
-            catch (Throwable e)
-            {
+            catch (Throwable e) {
                exceptions.add(e);
                e.printStackTrace();
             }
-            finally
-            {
-               try
-               {
+            finally {
+               try {
                   // if the createconnecion wasn't commented out
-                  if (connectionConsumer != connection)
-                  {
+                  if (connectionConsumer != connection) {
                      connectionConsumer.close();
                   }
                }
-               catch (Throwable ignored)
-               {
+               catch (Throwable ignored) {
                   // NO OP
                }
             }
@@ -168,8 +146,7 @@ public class ProtonTest extends AbstractJMSTest
 
       MessageProducer p = session.createProducer(queue);
       p.setDeliveryMode(DeliveryMode.PERSISTENT);
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          BytesMessage message = session.createBytesMessage();
          // TODO: this will break stuff if I use a large number
          message.writeBytes(new byte[5]);
@@ -182,21 +159,18 @@ public class ProtonTest extends AbstractJMSTest
       System.out.println("taken on send = " + taken + " usehawt = " + useHawtJMS + " sasl = " + useSASL);
       t.join();
 
-      for (Throwable e : exceptions)
-      {
+      for (Throwable e : exceptions) {
          throw e;
       }
       taken = (System.currentTimeMillis() - time);
       System.out.println("taken = " + taken + " usehawt = " + useHawtJMS + " sasl = " + useSASL);
 
       connection.close();
-//      assertEquals(0, q.getMessageCount());
+      //      assertEquals(0, q.getMessageCount());
    }
 
-
    @Test
-   public void testSimpleCreateSessionAndClose() throws Throwable
-   {
+   public void testSimpleCreateSessionAndClose() throws Throwable {
       final QueueImpl queue = new QueueImpl(address);
 
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -206,8 +180,7 @@ public class ProtonTest extends AbstractJMSTest
    }
 
    @Test
-   public void testSimpleBinary() throws Throwable
-   {
+   public void testSimpleBinary() throws Throwable {
       final int numMessages = 5;
       long time = System.currentTimeMillis();
       final QueueImpl queue = new QueueImpl(address);
@@ -215,15 +188,12 @@ public class ProtonTest extends AbstractJMSTest
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
       byte[] bytes = new byte[0xf + 1];
-      for (int i = 0; i <= 0xf; i++)
-      {
+      for (int i = 0; i <= 0xf; i++) {
          bytes[i] = (byte) i;
       }
 
-
       MessageProducer p = session.createProducer(queue);
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          BytesMessage message = session.createBytesMessage();
 
          message.writeBytes(bytes);
@@ -231,15 +201,12 @@ public class ProtonTest extends AbstractJMSTest
          p.send(message);
       }
 
-
       session.close();
-
 
       Session sessionConsumer = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       final MessageConsumer consumer = sessionConsumer.createConsumer(queue);
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          BytesMessage m = (BytesMessage) consumer.receive(5000);
 
          System.out.println("length " + m.getBodyLength());
@@ -251,33 +218,29 @@ public class ProtonTest extends AbstractJMSTest
          byte[] bytesReceived = new byte[(int) size];
          m.readBytes(bytesReceived);
 
-
          System.out.println("Received " + ByteUtil.bytesToHex(bytesReceived, 1));
 
          Assert.assertArrayEquals(bytes, bytesReceived);
       }
 
-//      assertEquals(0, q.getMessageCount());
+      //      assertEquals(0, q.getMessageCount());
       long taken = (System.currentTimeMillis() - time) / 1000;
       System.out.println("taken = " + taken);
    }
 
    @Test
-   public void testMapMessage() throws Exception
-   {
+   public void testMapMessage() throws Exception {
       Queue queue = createQueue();
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       MessageProducer p = session.createProducer(queue);
-      for (int i = 0; i < 10; i++)
-      {
+      for (int i = 0; i < 10; i++) {
          MapMessage message = session.createMapMessage();
          message.setInt("x", i);
          message.setString("str", "str" + i);
          p.send(message);
       }
       MessageConsumer messageConsumer = session.createConsumer(queue);
-      for (int i = 0; i < 10; i++)
-      {
+      for (int i = 0; i < 10; i++) {
          MapMessage m = (MapMessage) messageConsumer.receive(5000);
          Assert.assertNotNull(m);
          Assert.assertEquals(i, m.getInt("x"));
@@ -288,8 +251,7 @@ public class ProtonTest extends AbstractJMSTest
    }
 
    @Test
-   public void testProperties() throws Exception
-   {
+   public void testProperties() throws Exception {
       Queue queue = createQueue();
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       MessageProducer p = session.createProducer(queue);
@@ -322,8 +284,7 @@ public class ProtonTest extends AbstractJMSTest
    }
 
    //   @Test
-   public void testSendWithSimpleClient() throws Exception
-   {
+   public void testSendWithSimpleClient() throws Exception {
       SimpleAMQPConnector connector = new SimpleAMQPConnector();
       connector.start();
       AMQPClientConnectionContext clientConnection = connector.connect("127.0.0.1", Constants.PORT);
@@ -333,10 +294,8 @@ public class ProtonTest extends AbstractJMSTest
       AMQPClientSessionContext session = clientConnection.createClientSession();
       AMQPClientSenderContext clientSender = session.createSender(address, true);
 
-
       Properties props = new Properties();
-      for (int i = 0; i < 1; i++)
-      {
+      for (int i = 0; i < 1; i++) {
          MessageImpl message = (MessageImpl) Message.Factory.create();
 
          HashMap map = new HashMap();
@@ -352,8 +311,7 @@ public class ProtonTest extends AbstractJMSTest
       connection.start();
 
       MessageConsumer consumer = clientSession.createConsumer(createQueue());
-      for (int i = 0; i < 1; i++)
-      {
+      for (int i = 0; i < 1; i++) {
          MapMessage msg = (MapMessage) consumer.receive(5000);
          System.out.println("Msg " + msg);
          Assert.assertNotNull(msg);
@@ -364,9 +322,7 @@ public class ProtonTest extends AbstractJMSTest
       }
    }
 
-
-   protected int getNumberOfMessages()
-   {
+   protected int getNumberOfMessages() {
       return 10000;
    }
 

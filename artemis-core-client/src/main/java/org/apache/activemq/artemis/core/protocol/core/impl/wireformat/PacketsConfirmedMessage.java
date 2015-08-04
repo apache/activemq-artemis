@@ -19,58 +19,48 @@ package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 
-public class PacketsConfirmedMessage extends PacketImpl
-{
+public class PacketsConfirmedMessage extends PacketImpl {
 
    private int commandID;
 
-   public PacketsConfirmedMessage(final int commandID)
-   {
+   public PacketsConfirmedMessage(final int commandID) {
       super(PACKETS_CONFIRMED);
 
       this.commandID = commandID;
    }
 
-   public PacketsConfirmedMessage()
-   {
+   public PacketsConfirmedMessage() {
       super(PACKETS_CONFIRMED);
    }
 
    // Public --------------------------------------------------------
 
-   public int getCommandID()
-   {
+   public int getCommandID() {
       return commandID;
    }
 
    @Override
-   public void encodeRest(final ActiveMQBuffer buffer)
-   {
+   public void encodeRest(final ActiveMQBuffer buffer) {
       buffer.writeInt(commandID);
    }
 
    @Override
-   public void decodeRest(final ActiveMQBuffer buffer)
-   {
+   public void decodeRest(final ActiveMQBuffer buffer) {
       commandID = buffer.readInt();
    }
 
-
    @Override
-   public final boolean isRequiresConfirmations()
-   {
+   public final boolean isRequiresConfirmations() {
       return false;
    }
 
    @Override
-   public String toString()
-   {
+   public String toString() {
       return getParentString() + ", commandID=" + commandID + "]";
    }
 
    @Override
-   public int hashCode()
-   {
+   public int hashCode() {
       final int prime = 31;
       int result = super.hashCode();
       result = prime * result + commandID;
@@ -78,23 +68,18 @@ public class PacketsConfirmedMessage extends PacketImpl
    }
 
    @Override
-   public boolean equals(Object obj)
-   {
-      if (this == obj)
-      {
+   public boolean equals(Object obj) {
+      if (this == obj) {
          return true;
       }
-      if (!super.equals(obj))
-      {
+      if (!super.equals(obj)) {
          return false;
       }
-      if (!(obj instanceof PacketsConfirmedMessage))
-      {
+      if (!(obj instanceof PacketsConfirmedMessage)) {
          return false;
       }
-      PacketsConfirmedMessage other = (PacketsConfirmedMessage)obj;
-      if (commandID != other.commandID)
-      {
+      PacketsConfirmedMessage other = (PacketsConfirmedMessage) obj;
+      if (commandID != other.commandID) {
          return false;
       }
       return true;

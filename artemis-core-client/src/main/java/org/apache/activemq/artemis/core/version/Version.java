@@ -16,8 +16,8 @@
  */
 package org.apache.activemq.artemis.core.version;
 
-public interface Version
-{
+public interface Version {
+
    String getFullVersion();
 
    String getVersionName();

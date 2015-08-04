@@ -20,27 +20,21 @@ import org.junit.Test;
 
 import org.junit.Assert;
 
-
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
 
-public class ValidatorsTest extends Assert
-{
+public class ValidatorsTest extends Assert {
 
-   private static void success(final Validators.Validator validator, final Object value)
-   {
+   private static void success(final Validators.Validator validator, final Object value) {
       validator.validate(RandomUtil.randomString(), value);
    }
 
-   private static void failure(final Validators.Validator validator, final Object value)
-   {
-      try
-      {
+   private static void failure(final Validators.Validator validator, final Object value) {
+      try {
          validator.validate(RandomUtil.randomString(), value);
          Assert.fail(validator + " must not validate " + value);
       }
-      catch (IllegalArgumentException e)
-      {
+      catch (IllegalArgumentException e) {
 
       }
    }
@@ -50,8 +44,7 @@ public class ValidatorsTest extends Assert
    // Public --------------------------------------------------------
 
    @Test
-   public void testGE_ZERO() throws Exception
-   {
+   public void testGE_ZERO() throws Exception {
       ValidatorsTest.failure(Validators.GE_ZERO, -1);
       ValidatorsTest.success(Validators.GE_ZERO, 0);
       ValidatorsTest.success(Validators.GE_ZERO, 0.1);
@@ -59,8 +52,7 @@ public class ValidatorsTest extends Assert
    }
 
    @Test
-   public void testGT_ZERO() throws Exception
-   {
+   public void testGT_ZERO() throws Exception {
       ValidatorsTest.failure(Validators.GT_ZERO, -1);
       ValidatorsTest.failure(Validators.GT_ZERO, 0);
       ValidatorsTest.success(Validators.GT_ZERO, 0.1);
@@ -68,8 +60,7 @@ public class ValidatorsTest extends Assert
    }
 
    @Test
-   public void testMINUS_ONE_OR_GE_ZERO() throws Exception
-   {
+   public void testMINUS_ONE_OR_GE_ZERO() throws Exception {
       ValidatorsTest.failure(Validators.MINUS_ONE_OR_GE_ZERO, -2);
       ValidatorsTest.success(Validators.MINUS_ONE_OR_GE_ZERO, -1);
       ValidatorsTest.success(Validators.MINUS_ONE_OR_GE_ZERO, 0);
@@ -78,8 +69,7 @@ public class ValidatorsTest extends Assert
    }
 
    @Test
-   public void testMINUS_ONE_OR_GT_ZERO() throws Exception
-   {
+   public void testMINUS_ONE_OR_GT_ZERO() throws Exception {
       ValidatorsTest.failure(Validators.MINUS_ONE_OR_GT_ZERO, -2);
       ValidatorsTest.success(Validators.MINUS_ONE_OR_GT_ZERO, -1);
       ValidatorsTest.failure(Validators.MINUS_ONE_OR_GT_ZERO, 0);
@@ -88,8 +78,7 @@ public class ValidatorsTest extends Assert
    }
 
    @Test
-   public void testNO_CHECK() throws Exception
-   {
+   public void testNO_CHECK() throws Exception {
       ValidatorsTest.success(Validators.NO_CHECK, -1);
       ValidatorsTest.success(Validators.NO_CHECK, null);
       ValidatorsTest.success(Validators.NO_CHECK, "");
@@ -98,18 +87,15 @@ public class ValidatorsTest extends Assert
    }
 
    @Test
-   public void testNOT_NULL_OR_EMPTY() throws Exception
-   {
+   public void testNOT_NULL_OR_EMPTY() throws Exception {
       ValidatorsTest.failure(Validators.NOT_NULL_OR_EMPTY, null);
       ValidatorsTest.failure(Validators.NOT_NULL_OR_EMPTY, "");
       ValidatorsTest.success(Validators.NOT_NULL_OR_EMPTY, RandomUtil.randomString());
    }
 
    @Test
-   public void testJOURNAL_TYPE() throws Exception
-   {
-      for (JournalType type : JournalType.values())
-      {
+   public void testJOURNAL_TYPE() throws Exception {
+      for (JournalType type : JournalType.values()) {
          ValidatorsTest.success(Validators.JOURNAL_TYPE, type.toString());
       }
       ValidatorsTest.failure(Validators.JOURNAL_TYPE, null);
@@ -118,8 +104,7 @@ public class ValidatorsTest extends Assert
    }
 
    @Test
-   public void testPERCENTAGE()
-   {
+   public void testPERCENTAGE() {
       ValidatorsTest.success(Validators.PERCENTAGE, 99);
       ValidatorsTest.success(Validators.PERCENTAGE, 100);
       ValidatorsTest.success(Validators.PERCENTAGE, 0);

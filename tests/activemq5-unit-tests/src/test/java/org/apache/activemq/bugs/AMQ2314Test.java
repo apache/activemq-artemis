@@ -40,136 +40,137 @@ import org.slf4j.LoggerFactory;
 
 public class AMQ2314Test extends CombinationTestSupport {
 
-    public boolean consumeAll = false;
-    public int deliveryMode = DeliveryMode.NON_PERSISTENT;
+   public boolean consumeAll = false;
+   public int deliveryMode = DeliveryMode.NON_PERSISTENT;
 
-    private static final Logger LOG = LoggerFactory.getLogger(AMQ2314Test.class);
-    private static final int MESSAGES_COUNT = 30000;
-    private static byte[]  buf = new byte[1024];
-    private BrokerService broker;
-    private String connectionUri;
+   private static final Logger LOG = LoggerFactory.getLogger(AMQ2314Test.class);
+   private static final int MESSAGES_COUNT = 30000;
+   private static byte[] buf = new byte[1024];
+   private BrokerService broker;
+   private String connectionUri;
 
-    private static final long messageReceiveTimeout = 500L;
+   private static final long messageReceiveTimeout = 500L;
 
-    Destination destination = new ActiveMQTopic("FooTwo");
+   Destination destination = new ActiveMQTopic("FooTwo");
 
-    public void testRemoveSlowSubscriberWhacksTempStore() throws Exception {
-        runProducerWithHungConsumer();
-    }
+   public void testRemoveSlowSubscriberWhacksTempStore() throws Exception {
+      runProducerWithHungConsumer();
+   }
 
-    public void testMemoryUsageReleasedOnAllConsumed() throws Exception {
-        consumeAll = true;
-        runProducerWithHungConsumer();
-        // do it again to ensure memory limits are decreased
-        runProducerWithHungConsumer();
-    }
+   public void testMemoryUsageReleasedOnAllConsumed() throws Exception {
+      consumeAll = true;
+      runProducerWithHungConsumer();
+      // do it again to ensure memory limits are decreased
+      runProducerWithHungConsumer();
+   }
 
-    public void runProducerWithHungConsumer() throws Exception {
+   public void runProducerWithHungConsumer() throws Exception {
 
-        final CountDownLatch consumerContinue = new CountDownLatch(1);
-        final CountDownLatch consumerReady = new CountDownLatch(1);
+      final CountDownLatch consumerContinue = new CountDownLatch(1);
+      final CountDownLatch consumerReady = new CountDownLatch(1);
 
-        final long origTempUsage = broker.getSystemUsage().getTempUsage().getUsage();
+      final long origTempUsage = broker.getSystemUsage().getTempUsage().getUsage();
 
-        ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(connectionUri);
-        factory.setAlwaysSyncSend(true);
+      ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(connectionUri);
+      factory.setAlwaysSyncSend(true);
 
-        // ensure messages are spooled to disk for this consumer
-        ActiveMQPrefetchPolicy prefetch = new ActiveMQPrefetchPolicy();
-        prefetch.setTopicPrefetch(500);
-        factory.setPrefetchPolicy(prefetch);
-        final Connection connection = factory.createConnection();
-        connection.start();
+      // ensure messages are spooled to disk for this consumer
+      ActiveMQPrefetchPolicy prefetch = new ActiveMQPrefetchPolicy();
+      prefetch.setTopicPrefetch(500);
+      factory.setPrefetchPolicy(prefetch);
+      final Connection connection = factory.createConnection();
+      connection.start();
 
-        Thread producingThread = new Thread("Producing thread") {
-            public void run() {
-                try {
-                    Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-                    MessageProducer producer = session.createProducer(destination);
-                    producer.setDeliveryMode(deliveryMode);
-                    for (int idx = 0; idx < MESSAGES_COUNT; ++idx) {
-                        Message message = session.createTextMessage(new String(buf) + idx);
-                        producer.send(message);
-                    }
-                    producer.close();
-                    session.close();
-                } catch (Throwable ex) {
-                    ex.printStackTrace();
-                }
+      Thread producingThread = new Thread("Producing thread") {
+         public void run() {
+            try {
+               Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+               MessageProducer producer = session.createProducer(destination);
+               producer.setDeliveryMode(deliveryMode);
+               for (int idx = 0; idx < MESSAGES_COUNT; ++idx) {
+                  Message message = session.createTextMessage(new String(buf) + idx);
+                  producer.send(message);
+               }
+               producer.close();
+               session.close();
             }
-        };
-
-        Thread consumingThread = new Thread("Consuming thread") {
-            public void run() {
-                try {
-                    int count = 0;
-                    Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-                    MessageConsumer consumer = session.createConsumer(destination);
-
-                    while (consumer.receive(messageReceiveTimeout) == null) {
-                        consumerReady.countDown();
-                    }
-                    count++;
-                    LOG.info("Received one... waiting");
-                    consumerContinue.await();
-                    if (consumeAll) {
-                        LOG.info("Consuming the rest of the messages...");
-                        while (consumer.receive(messageReceiveTimeout) != null) {
-                            count++;
-                        }
-                    }
-                    LOG.info("consumer session closing: consumed count: " + count);
-                    session.close();
-                } catch (Throwable ex) {
-                    ex.printStackTrace();
-                }
+            catch (Throwable ex) {
+               ex.printStackTrace();
             }
-        };
-        consumingThread.start();
-        consumerReady.await();
+         }
+      };
 
-        producingThread.start();
-        producingThread.join();
+      Thread consumingThread = new Thread("Consuming thread") {
+         public void run() {
+            try {
+               int count = 0;
+               Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+               MessageConsumer consumer = session.createConsumer(destination);
 
-        final long tempUsageBySubscription = broker.getSystemUsage().getTempUsage().getUsage();
-        LOG.info("Orig Usage: " + origTempUsage + ", currentUsage: " + tempUsageBySubscription);
-        assertTrue("some temp store has been used", tempUsageBySubscription != origTempUsage);
-        consumerContinue.countDown();
-        consumingThread.join();
-        connection.close();
-
-        LOG.info("Subscription Usage: " + tempUsageBySubscription + ", endUsage: "
-                + broker.getSystemUsage().getTempUsage().getUsage());
-
-        assertTrue("temp usage decreased with removed sub", Wait.waitFor(new Wait.Condition(){
-            public boolean isSatisified() throws Exception {
-                return broker.getSystemUsage().getTempUsage().getUsage()  < tempUsageBySubscription;
+               while (consumer.receive(messageReceiveTimeout) == null) {
+                  consumerReady.countDown();
+               }
+               count++;
+               LOG.info("Received one... waiting");
+               consumerContinue.await();
+               if (consumeAll) {
+                  LOG.info("Consuming the rest of the messages...");
+                  while (consumer.receive(messageReceiveTimeout) != null) {
+                     count++;
+                  }
+               }
+               LOG.info("consumer session closing: consumed count: " + count);
+               session.close();
             }
-        }));
-    }
+            catch (Throwable ex) {
+               ex.printStackTrace();
+            }
+         }
+      };
+      consumingThread.start();
+      consumerReady.await();
 
-    public void setUp() throws Exception {
-        super.setAutoFail(true);
-        super.setUp();
-        broker = new BrokerService();
-        broker.setDataDirectory("target" + File.separator + "activemq-data");
-        broker.setPersistent(true);
-        broker.setUseJmx(true);
-        broker.setAdvisorySupport(false);
-        broker.setDeleteAllMessagesOnStartup(true);
-        broker.getSystemUsage().getMemoryUsage().setLimit(1024L*1024*64);
+      producingThread.start();
+      producingThread.join();
 
-        broker.addConnector("tcp://localhost:0").setName("Default");
-        broker.start();
+      final long tempUsageBySubscription = broker.getSystemUsage().getTempUsage().getUsage();
+      LOG.info("Orig Usage: " + origTempUsage + ", currentUsage: " + tempUsageBySubscription);
+      assertTrue("some temp store has been used", tempUsageBySubscription != origTempUsage);
+      consumerContinue.countDown();
+      consumingThread.join();
+      connection.close();
 
-        connectionUri = broker.getTransportConnectors().get(0).getPublishableConnectString();
-    }
+      LOG.info("Subscription Usage: " + tempUsageBySubscription + ", endUsage: " + broker.getSystemUsage().getTempUsage().getUsage());
 
-    public void tearDown() throws Exception {
-        broker.stop();
-    }
+      assertTrue("temp usage decreased with removed sub", Wait.waitFor(new Wait.Condition() {
+         public boolean isSatisified() throws Exception {
+            return broker.getSystemUsage().getTempUsage().getUsage() < tempUsageBySubscription;
+         }
+      }));
+   }
 
-    public static Test suite() {
-        return suite(AMQ2314Test.class);
-    }
+   public void setUp() throws Exception {
+      super.setAutoFail(true);
+      super.setUp();
+      broker = new BrokerService();
+      broker.setDataDirectory("target" + File.separator + "activemq-data");
+      broker.setPersistent(true);
+      broker.setUseJmx(true);
+      broker.setAdvisorySupport(false);
+      broker.setDeleteAllMessagesOnStartup(true);
+      broker.getSystemUsage().getMemoryUsage().setLimit(1024L * 1024 * 64);
+
+      broker.addConnector("tcp://localhost:0").setName("Default");
+      broker.start();
+
+      connectionUri = broker.getTransportConnectors().get(0).getPublishableConnectString();
+   }
+
+   public void tearDown() throws Exception {
+      broker.stop();
+   }
+
+   public static Test suite() {
+      return suite(AMQ2314Test.class);
+   }
 }

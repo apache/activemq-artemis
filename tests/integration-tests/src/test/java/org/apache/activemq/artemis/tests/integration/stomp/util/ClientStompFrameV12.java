@@ -18,10 +18,9 @@ package org.apache.activemq.artemis.tests.integration.stomp.util;
 
 /**
  */
-public class ClientStompFrameV12 extends AbstractClientStompFrame
-{
-   static
-   {
+public class ClientStompFrameV12 extends AbstractClientStompFrame {
+
+   static {
       validCommands.add("NACK");
       validCommands.add("STOMP");
    }
@@ -29,55 +28,47 @@ public class ClientStompFrameV12 extends AbstractClientStompFrame
    boolean forceOneway = false;
    boolean isPing = false;
 
-   public ClientStompFrameV12(String command)
-   {
+   public ClientStompFrameV12(String command) {
       this(command, true, true);
    }
 
-   public ClientStompFrameV12(String command, boolean newEol, boolean validate)
-   {
+   public ClientStompFrameV12(String command, boolean newEol, boolean validate) {
       super(command, validate);
       /**
        * Stomp 1.2 frames allow a carriage return (octet 13) to optionally
        * precedes the required line feed (octet 10) as their internal line breaks.
        * Stomp 1.0 and 1.1 only allow line feeds.
        */
-      if (newEol)
-      {
+      if (newEol) {
          EOL = "\r\n";
       }
    }
 
-   public void setForceOneway()
-   {
+   public void setForceOneway() {
       forceOneway = true;
    }
 
    @Override
-   public boolean needsReply()
-   {
-      if (forceOneway) return false;
+   public boolean needsReply() {
+      if (forceOneway)
+         return false;
 
-      if ("CONNECT".equals(command) || "STOMP".equals(command) || headerKeys.contains(HEADER_RECEIPT))
-      {
+      if ("CONNECT".equals(command) || "STOMP".equals(command) || headerKeys.contains(HEADER_RECEIPT)) {
          return true;
       }
       return false;
    }
 
-   public void setPing(boolean b)
-   {
+   public void setPing(boolean b) {
       isPing = b;
    }
 
-   public boolean isPing()
-   {
+   public boolean isPing() {
       return isPing;
    }
 
    @Override
-   public String toString()
-   {
+   public String toString() {
       return "[1.2]" + super.toString();
    }
 

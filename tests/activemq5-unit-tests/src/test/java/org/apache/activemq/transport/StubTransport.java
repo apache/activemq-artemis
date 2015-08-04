@@ -24,35 +24,35 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.activemq.util.ServiceStopper;
 
 /**
- * 
- * 
+ *
+ *
  */
 public class StubTransport extends TransportSupport {
 
-    private Queue<Object> queue = new ConcurrentLinkedQueue<Object>();
-    private AtomicInteger receiveCounter;
+   private Queue<Object> queue = new ConcurrentLinkedQueue<Object>();
+   private AtomicInteger receiveCounter;
 
-    protected void doStop(ServiceStopper stopper) throws Exception {
-    }
+   protected void doStop(ServiceStopper stopper) throws Exception {
+   }
 
-    protected void doStart() throws Exception {
-    }
+   protected void doStart() throws Exception {
+   }
 
-    public void oneway(Object command) throws IOException {
-        receiveCounter.incrementAndGet();
-        queue.add(command);
-    }
+   public void oneway(Object command) throws IOException {
+      receiveCounter.incrementAndGet();
+      queue.add(command);
+   }
 
-    public Queue<Object> getQueue() {
-        return queue;
-    }
+   public Queue<Object> getQueue() {
+      return queue;
+   }
 
-    public String getRemoteAddress() {
-        return null;
-    }
+   public String getRemoteAddress() {
+      return null;
+   }
 
-    public int getReceiveCounter() {
-        return receiveCounter.get();
-    }
+   public int getReceiveCounter() {
+      return receiveCounter.get();
+   }
 
 }

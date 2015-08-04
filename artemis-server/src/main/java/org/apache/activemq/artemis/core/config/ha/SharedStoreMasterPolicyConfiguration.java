@@ -19,40 +19,34 @@ package org.apache.activemq.artemis.core.config.ha;
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.core.config.HAPolicyConfiguration;
 
-public class SharedStoreMasterPolicyConfiguration implements HAPolicyConfiguration
-{
+public class SharedStoreMasterPolicyConfiguration implements HAPolicyConfiguration {
+
    private long failbackDelay = ActiveMQDefaultConfiguration.getDefaultFailbackDelay();
 
    private boolean failoverOnServerShutdown = ActiveMQDefaultConfiguration.isDefaultFailoverOnServerShutdown();
 
-   public SharedStoreMasterPolicyConfiguration()
-   {
+   public SharedStoreMasterPolicyConfiguration() {
    }
 
    @Override
-   public TYPE getType()
-   {
+   public TYPE getType() {
       return TYPE.SHARED_STORE_MASTER;
    }
 
-   public long getFailbackDelay()
-   {
+   public long getFailbackDelay() {
       return failbackDelay;
    }
 
-   public SharedStoreMasterPolicyConfiguration setFailbackDelay(long failbackDelay)
-   {
+   public SharedStoreMasterPolicyConfiguration setFailbackDelay(long failbackDelay) {
       this.failbackDelay = failbackDelay;
       return this;
    }
 
-   public boolean isFailoverOnServerShutdown()
-   {
+   public boolean isFailoverOnServerShutdown() {
       return failoverOnServerShutdown;
    }
 
-   public SharedStoreMasterPolicyConfiguration setFailoverOnServerShutdown(boolean failoverOnServerShutdown)
-   {
+   public SharedStoreMasterPolicyConfiguration setFailoverOnServerShutdown(boolean failoverOnServerShutdown) {
       this.failoverOnServerShutdown = failoverOnServerShutdown;
       return this;
    }

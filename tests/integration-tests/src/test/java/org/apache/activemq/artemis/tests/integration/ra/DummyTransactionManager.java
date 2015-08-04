@@ -25,57 +25,48 @@ import javax.transaction.SystemException;
 import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
 
-public class DummyTransactionManager implements TransactionManager
-{
+public class DummyTransactionManager implements TransactionManager {
+
    protected static DummyTransactionManager tm = new DummyTransactionManager();
 
    public Transaction tx;
 
    @Override
-   public void begin() throws NotSupportedException, SystemException
-   {
+   public void begin() throws NotSupportedException, SystemException {
    }
 
    @Override
-   public void commit() throws RollbackException, HeuristicMixedException, HeuristicRollbackException, SecurityException, IllegalStateException, SystemException
-   {
+   public void commit() throws RollbackException, HeuristicMixedException, HeuristicRollbackException, SecurityException, IllegalStateException, SystemException {
    }
 
    @Override
-   public void rollback() throws IllegalStateException, SecurityException, SystemException
-   {
+   public void rollback() throws IllegalStateException, SecurityException, SystemException {
    }
 
    @Override
-   public void setRollbackOnly() throws IllegalStateException, SystemException
-   {
+   public void setRollbackOnly() throws IllegalStateException, SystemException {
    }
 
    @Override
-   public int getStatus() throws SystemException
-   {
+   public int getStatus() throws SystemException {
       return 0;
    }
 
    @Override
-   public Transaction getTransaction() throws SystemException
-   {
+   public Transaction getTransaction() throws SystemException {
       return tx;
    }
 
    @Override
-   public void setTransactionTimeout(int i) throws SystemException
-   {
+   public void setTransactionTimeout(int i) throws SystemException {
    }
 
    @Override
-   public Transaction suspend() throws SystemException
-   {
+   public Transaction suspend() throws SystemException {
       return null;
    }
 
    @Override
-   public void resume(Transaction transaction) throws InvalidTransactionException, IllegalStateException, SystemException
-   {
+   public void resume(Transaction transaction) throws InvalidTransactionException, IllegalStateException, SystemException {
    }
 }

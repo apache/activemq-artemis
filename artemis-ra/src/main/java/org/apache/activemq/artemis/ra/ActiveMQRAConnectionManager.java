@@ -24,24 +24,25 @@ import javax.resource.spi.ManagedConnectionFactory;
 
 import org.apache.activemq.artemis.utils.ConcurrentHashSet;
 
-
 /**
  * The connection manager used in non-managed environments.
  */
-public class ActiveMQRAConnectionManager implements ConnectionManager
-{
-   /** Serial version UID */
+public class ActiveMQRAConnectionManager implements ConnectionManager {
+
+   /**
+    * Serial version UID
+    */
    static final long serialVersionUID = 4409118162975011014L;
-   /** Trace enabled */
+   /**
+    * Trace enabled
+    */
    private static boolean trace = ActiveMQRALogger.LOGGER.isTraceEnabled();
 
    /**
     * Constructor
     */
-   public ActiveMQRAConnectionManager()
-   {
-      if (ActiveMQRAConnectionManager.trace)
-      {
+   public ActiveMQRAConnectionManager() {
+      if (ActiveMQRAConnectionManager.trace) {
          ActiveMQRALogger.LOGGER.trace("constructor()");
       }
    }
@@ -50,23 +51,22 @@ public class ActiveMQRAConnectionManager implements ConnectionManager
 
    /**
     * Allocates a connection
-    * @param mcf The managed connection factory
+    *
+    * @param mcf           The managed connection factory
     * @param cxRequestInfo The connection request information
     * @return The connection
-    * @exception ResourceException Thrown if there is a problem obtaining the connection
+    * @throws ResourceException Thrown if there is a problem obtaining the connection
     */
-   public Object allocateConnection(final ManagedConnectionFactory mcf, final ConnectionRequestInfo cxRequestInfo) throws ResourceException
-   {
-      if (ActiveMQRAConnectionManager.trace)
-      {
+   public Object allocateConnection(final ManagedConnectionFactory mcf,
+                                    final ConnectionRequestInfo cxRequestInfo) throws ResourceException {
+      if (ActiveMQRAConnectionManager.trace) {
          ActiveMQRALogger.LOGGER.trace("allocateConnection(" + mcf + ", " + cxRequestInfo + ")");
       }
 
       ManagedConnection mc = mcf.createManagedConnection(null, cxRequestInfo);
       Object c = mc.getConnection(null, cxRequestInfo);
 
-      if (ActiveMQRAConnectionManager.trace)
-      {
+      if (ActiveMQRAConnectionManager.trace) {
          ActiveMQRALogger.LOGGER.trace("Allocated connection: " + c + ", with managed connection: " + mc);
       }
 
@@ -74,16 +74,12 @@ public class ActiveMQRAConnectionManager implements ConnectionManager
       return c;
    }
 
-   public void stop()
-   {
-      for (ManagedConnection conn : connections)
-      {
-         try
-         {
+   public void stop() {
+      for (ManagedConnection conn : connections) {
+         try {
             conn.destroy();
          }
-         catch (Throwable e)
-         {
+         catch (Throwable e) {
 
          }
       }

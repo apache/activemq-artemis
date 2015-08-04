@@ -29,14 +29,13 @@ import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer
 import org.apache.activemq.artemis.core.config.ha.ReplicaPolicyConfiguration;
 import org.junit.Test;
 
-public class ReplicatedMultipleServerFailoverExtraBackupsTest extends ReplicatedMultipleServerFailoverTest
-{
+public class ReplicatedMultipleServerFailoverExtraBackupsTest extends ReplicatedMultipleServerFailoverTest {
+
    @Override
    @Test
-   public void testStartLiveFirst() throws Exception
-   {
-      ((ReplicaPolicyConfiguration)backupServers.get(2).getServer().getConfiguration().getHAPolicyConfiguration()).setGroupName(getNodeGroupName() + "-0");
-      ((ReplicaPolicyConfiguration)backupServers.get(3).getServer().getConfiguration().getHAPolicyConfiguration()).setGroupName(getNodeGroupName() + "-1");
+   public void testStartLiveFirst() throws Exception {
+      ((ReplicaPolicyConfiguration) backupServers.get(2).getServer().getConfiguration().getHAPolicyConfiguration()).setGroupName(getNodeGroupName() + "-0");
+      ((ReplicaPolicyConfiguration) backupServers.get(3).getServer().getConfiguration().getHAPolicyConfiguration()).setGroupName(getNodeGroupName() + "-1");
 
       startServers(liveServers);
       startServers(backupServers);
@@ -48,28 +47,23 @@ public class ReplicatedMultipleServerFailoverExtraBackupsTest extends Replicated
       sendCrashBackupReceive();
    }
 
-   private void waitForBackups() throws InterruptedException
-   {
-      for (TestableServer backupServer : backupServers)
-      {
+   private void waitForBackups() throws InterruptedException {
+      for (TestableServer backupServer : backupServers) {
          waitForComponent(backupServer.getServer(), 5);
       }
    }
 
-   private void startServers(List<TestableServer> servers) throws Exception
-   {
-      for (TestableServer testableServer : servers)
-      {
+   private void startServers(List<TestableServer> servers) throws Exception {
+      for (TestableServer testableServer : servers) {
          testableServer.start();
       }
    }
 
    @Override
    @Test
-   public void testStartBackupFirst() throws Exception
-   {
-      ((ReplicaPolicyConfiguration)backupServers.get(2).getServer().getConfiguration().getHAPolicyConfiguration()).setGroupName(getNodeGroupName() + "-0");
-      ((ReplicaPolicyConfiguration)backupServers.get(3).getServer().getConfiguration().getHAPolicyConfiguration()).setGroupName(getNodeGroupName() + "-1");
+   public void testStartBackupFirst() throws Exception {
+      ((ReplicaPolicyConfiguration) backupServers.get(2).getServer().getConfiguration().getHAPolicyConfiguration()).setGroupName(getNodeGroupName() + "-0");
+      ((ReplicaPolicyConfiguration) backupServers.get(3).getServer().getConfiguration().getHAPolicyConfiguration()).setGroupName(getNodeGroupName() + "-1");
 
       startServers(backupServers);
       startServers(liveServers);
@@ -79,8 +73,7 @@ public class ReplicatedMultipleServerFailoverExtraBackupsTest extends Replicated
       sendCrashReceive();
    }
 
-   protected void sendCrashBackupReceive() throws Exception
-   {
+   protected void sendCrashBackupReceive() throws Exception {
       ServerLocator locator0 = getBackupServerLocator(0);
       ServerLocator locator1 = getBackupServerLocator(1);
 
@@ -92,8 +85,7 @@ public class ReplicatedMultipleServerFailoverExtraBackupsTest extends Replicated
 
       ClientProducer producer = session0.createProducer(ADDRESS);
 
-      for (int i = 0; i < 200; i++)
-      {
+      for (int i = 0; i < 200; i++) {
          ClientMessage message = session0.createMessage(true);
 
          setBody(i, message);
@@ -109,16 +101,13 @@ public class ReplicatedMultipleServerFailoverExtraBackupsTest extends Replicated
       waitForDistribution(ADDRESS, backupServers.get(1).getServer(), 100);
 
       List<TestableServer> toCrash = new ArrayList<TestableServer>();
-      for (TestableServer backupServer : backupServers)
-      {
-         if (!backupServer.getServer().getHAPolicy().isBackup())
-         {
+      for (TestableServer backupServer : backupServers) {
+         if (!backupServer.getServer().getHAPolicy().isBackup()) {
             toCrash.add(backupServer);
          }
       }
 
-      for (TestableServer testableServer : toCrash)
-      {
+      for (TestableServer testableServer : toCrash) {
          testableServer.crash();
       }
 
@@ -127,9 +116,7 @@ public class ReplicatedMultipleServerFailoverExtraBackupsTest extends Replicated
       session0.start();
       session1.start();
 
-
-      for (int i = 0; i < 100; i++)
-      {
+      for (int i = 0; i < 100; i++) {
          ClientMessage message = consumer0.receive(1000);
          assertNotNull("expecting durable msg " + i, message);
          message.acknowledge();
@@ -140,10 +127,8 @@ public class ReplicatedMultipleServerFailoverExtraBackupsTest extends Replicated
       }
    }
 
-
    @Override
-   public int getBackupServerCount()
-   {
+   public int getBackupServerCount() {
       return 4;
    }
 }

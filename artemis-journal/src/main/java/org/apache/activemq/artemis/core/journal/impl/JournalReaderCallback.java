@@ -18,8 +18,8 @@ package org.apache.activemq.artemis.core.journal.impl;
 
 import org.apache.activemq.artemis.core.journal.RecordInfo;
 
-public interface JournalReaderCallback
-{
+public interface JournalReaderCallback {
+
    void onReadAddRecord(RecordInfo info) throws Exception;
 
    /**

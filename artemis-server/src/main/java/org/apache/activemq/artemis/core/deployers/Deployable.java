@@ -27,8 +27,8 @@ import java.util.Map;
  * A Deployable is an object that can be configured via an xml configuration element in the main configuration file "broker.xml"
  * It holds all the information needed by the FileDeploymentManager to parse the configuration and build the component
  */
-public interface Deployable
-{
+public interface Deployable {
+
    /*
    * parse the element from the xml configuration
    */
@@ -52,6 +52,9 @@ public interface Deployable
    /*
    * builds the service. The implementation should add a component to the components map passed in if it needs to.
    */
-   void buildService(ActiveMQSecurityManager securityManager, MBeanServer mBeanServer, Map<String, Deployable> deployables, Map<String, ActiveMQComponent> components) throws Exception;
+   void buildService(ActiveMQSecurityManager securityManager,
+                     MBeanServer mBeanServer,
+                     Map<String, Deployable> deployables,
+                     Map<String, ActiveMQComponent> components) throws Exception;
 
 }

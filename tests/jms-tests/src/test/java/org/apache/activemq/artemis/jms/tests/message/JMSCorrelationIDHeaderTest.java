@@ -21,8 +21,7 @@ import javax.jms.Message;
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
 import org.junit.Test;
 
-public class JMSCorrelationIDHeaderTest extends MessageHeaderTestBase
-{
+public class JMSCorrelationIDHeaderTest extends MessageHeaderTestBase {
    // Constants -----------------------------------------------------
 
    // Static --------------------------------------------------------
@@ -34,8 +33,7 @@ public class JMSCorrelationIDHeaderTest extends MessageHeaderTestBase
    // Public --------------------------------------------------------
 
    @Test
-   public void testJMSDestination() throws Exception
-   {
+   public void testJMSDestination() throws Exception {
       Message m1 = queueProducerSession.createMessage();
 
       // Test with correlation id containing a message id
@@ -66,27 +64,22 @@ public class JMSCorrelationIDHeaderTest extends MessageHeaderTestBase
 
    }
 
-
    // Package protected ---------------------------------------------
 
    // Protected -----------------------------------------------------
 
    // Private -------------------------------------------------------
 
-   private void assertByteArraysEqual(final byte[] bytes1, final byte[] bytes2)
-   {
-      if (bytes1 == null | bytes2 == null)
-      {
+   private void assertByteArraysEqual(final byte[] bytes1, final byte[] bytes2) {
+      if (bytes1 == null | bytes2 == null) {
          ProxyAssertSupport.fail();
       }
 
-      if (bytes1.length != bytes2.length)
-      {
+      if (bytes1.length != bytes2.length) {
          ProxyAssertSupport.fail();
       }
 
-      for (int i = 0; i < bytes1.length; i++)
-      {
+      for (int i = 0; i < bytes1.length; i++) {
          ProxyAssertSupport.assertEquals(bytes1[i], bytes2[i]);
       }
 

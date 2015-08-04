@@ -32,18 +32,16 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.rest.queue.push.PushConsumerResource;
 import org.apache.activemq.artemis.rest.ActiveMQRestLogger;
 
-public class QueueResource extends DestinationResource
-{
+public class QueueResource extends DestinationResource {
+
    protected ConsumersResource consumers;
    protected PushConsumerResource pushConsumers;
    private QueueDestinationsResource queueDestinationsResource;
 
-   public void start() throws Exception
-   {
+   public void start() throws Exception {
    }
 
-   public void stop()
-   {
+   public void stop() {
       consumers.stop();
       pushConsumers.stop();
       sender.cleanup();
@@ -51,17 +49,11 @@ public class QueueResource extends DestinationResource
 
    @GET
    @Produces("application/xml")
-   public Response get(@Context UriInfo uriInfo, @Context HttpServletRequest requestContext)
-   {
+   public Response get(@Context UriInfo uriInfo, @Context HttpServletRequest requestContext) {
       ActiveMQRestLogger.LOGGER.debug("Handling GET request for \"" + destination + "\" from " + requestContext.getRemoteAddr() + ":" + requestContext.getRemotePort());
 
       StringBuilder msg = new StringBuilder();
-      msg.append("<queue>")
-         .append("<name>").append(destination).append("</name>")
-         .append("<atom:link rel=\"create\" href=\"").append(createSenderLink(uriInfo)).append("\"/>")
-         .append("<atom:link rel=\"create-with-id\" href=\"").append(createSenderWithIdLink(uriInfo)).append("\"/>")
-         .append("<atom:link rel=\"pull-consumers\" href=\"").append(createConsumersLink(uriInfo)).append("\"/>")
-         .append("<atom:link rel=\"push-consumers\" href=\"").append(createPushConsumersLink(uriInfo)).append("\"/>")
+      msg.append("<queue>").append("<name>").append(destination).append("</name>").append("<atom:link rel=\"create\" href=\"").append(createSenderLink(uriInfo)).append("\"/>").append("<atom:link rel=\"create-with-id\" href=\"").append(createSenderWithIdLink(uriInfo)).append("\"/>").append("<atom:link rel=\"pull-consumers\" href=\"").append(createConsumersLink(uriInfo)).append("\"/>").append("<atom:link rel=\"push-consumers\" href=\"").append(createPushConsumersLink(uriInfo)).append("\"/>")
 
          .append("</queue>");
 
@@ -75,8 +67,7 @@ public class QueueResource extends DestinationResource
 
    @HEAD
    @Produces("application/xml")
-   public Response head(@Context UriInfo uriInfo)
-   {
+   public Response head(@Context UriInfo uriInfo) {
       ActiveMQRestLogger.LOGGER.debug("Handling HEAD request for \"" + uriInfo.getRequestUri() + "\"");
 
       Response.ResponseBuilder builder = Response.ok();
@@ -87,28 +78,24 @@ public class QueueResource extends DestinationResource
       return builder.build();
    }
 
-   protected void setSenderLink(Response.ResponseBuilder response, UriInfo info)
-   {
+   protected void setSenderLink(Response.ResponseBuilder response, UriInfo info) {
       String uri = createSenderLink(info);
       serviceManager.getLinkStrategy().setLinkHeader(response, "create", "create", uri, null);
    }
 
-   protected String createSenderLink(UriInfo info)
-   {
+   protected String createSenderLink(UriInfo info) {
       UriBuilder builder = info.getRequestUriBuilder();
       builder.path("create");
       String uri = builder.build().toString();
       return uri;
    }
 
-   protected void setSenderWithIdLink(Response.ResponseBuilder response, UriInfo info)
-   {
+   protected void setSenderWithIdLink(Response.ResponseBuilder response, UriInfo info) {
       String uri = createSenderWithIdLink(info);
       serviceManager.getLinkStrategy().setLinkHeader(response, "create-with-id", "create-with-id", uri, null);
    }
 
-   protected String createSenderWithIdLink(UriInfo info)
-   {
+   protected String createSenderWithIdLink(UriInfo info) {
       UriBuilder builder = info.getRequestUriBuilder();
       builder.path("create");
       String uri = builder.build().toString();
@@ -116,92 +103,74 @@ public class QueueResource extends DestinationResource
       return uri;
    }
 
-   protected void setConsumersLink(Response.ResponseBuilder response, UriInfo info)
-   {
+   protected void setConsumersLink(Response.ResponseBuilder response, UriInfo info) {
       String uri = createConsumersLink(info);
       serviceManager.getLinkStrategy().setLinkHeader(response, "pull-consumers", "pull-consumers", uri, null);
    }
 
-   protected String createConsumersLink(UriInfo info)
-   {
+   protected String createConsumersLink(UriInfo info) {
       UriBuilder builder = info.getRequestUriBuilder();
       builder.path("pull-consumers");
       String uri = builder.build().toString();
       return uri;
    }
 
-   protected void setPushConsumersLink(Response.ResponseBuilder response, UriInfo info)
-   {
+   protected void setPushConsumersLink(Response.ResponseBuilder response, UriInfo info) {
       String uri = createPushConsumersLink(info);
       serviceManager.getLinkStrategy().setLinkHeader(response, "push-consumers", "push-consumers", uri, null);
    }
 
-   protected String createPushConsumersLink(UriInfo info)
-   {
+   protected String createPushConsumersLink(UriInfo info) {
       UriBuilder builder = info.getRequestUriBuilder();
       builder.path("push-consumers");
       String uri = builder.build().toString();
       return uri;
    }
 
-
-   public void setConsumers(ConsumersResource consumers)
-   {
+   public void setConsumers(ConsumersResource consumers) {
       this.consumers = consumers;
    }
 
    @Path("create")
-   public PostMessage post() throws Exception
-   {
+   public PostMessage post() throws Exception {
       return sender;
    }
 
-
    @Path("pull-consumers")
-   public ConsumersResource getConsumers()
-   {
+   public ConsumersResource getConsumers() {
       return consumers;
    }
 
-   public void setPushConsumers(PushConsumerResource pushConsumers)
-   {
+   public void setPushConsumers(PushConsumerResource pushConsumers) {
       this.pushConsumers = pushConsumers;
    }
 
    @Path("push-consumers")
-   public PushConsumerResource getPushConsumers()
-   {
+   public PushConsumerResource getPushConsumers() {
       return pushConsumers;
    }
 
-   public void setQueueDestinationsResource(QueueDestinationsResource queueDestinationsResource)
-   {
+   public void setQueueDestinationsResource(QueueDestinationsResource queueDestinationsResource) {
       this.queueDestinationsResource = queueDestinationsResource;
    }
 
-
    @DELETE
-   public void deleteQueue(@Context UriInfo uriInfo) throws Exception
-   {
+   public void deleteQueue(@Context UriInfo uriInfo) throws Exception {
       ActiveMQRestLogger.LOGGER.debug("Handling DELETE request for \"" + uriInfo.getPath() + "\"");
 
       queueDestinationsResource.getQueues().remove(destination);
       stop();
 
       ClientSession session = serviceManager.getSessionFactory().createSession(false, false, false);
-      try
-      {
+      try {
          SimpleString queueName = new SimpleString(destination);
          session.deleteQueue(queueName);
       }
-      finally
-      {
-         try
-         {
+      finally {
+         try {
             session.close();
          }
-         catch (Exception ignored)
-         {
+         catch (Exception ignored) {
          }
       }
    }

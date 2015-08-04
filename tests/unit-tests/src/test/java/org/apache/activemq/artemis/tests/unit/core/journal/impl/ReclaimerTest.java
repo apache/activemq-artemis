@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.unit.core.journal.impl;
+
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Before;
 
@@ -32,24 +33,22 @@ import org.apache.activemq.artemis.core.journal.impl.JournalFile;
 import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
 import org.apache.activemq.artemis.core.journal.impl.Reclaimer;
 
-public class ReclaimerTest extends ActiveMQTestBase
-{
+public class ReclaimerTest extends ActiveMQTestBase {
+
    private JournalFile[] files;
 
    private Reclaimer reclaimer;
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       reclaimer = new Reclaimer();
    }
 
    @Test
-   public void testOneFilePosNegAll() throws Exception
-   {
+   public void testOneFilePosNegAll() throws Exception {
       setup(1);
 
       setupPosNeg(0, 10, 10);
@@ -60,8 +59,7 @@ public class ReclaimerTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testOneFilePosNegNotAll() throws Exception
-   {
+   public void testOneFilePosNegNotAll() throws Exception {
       setup(1);
 
       setupPosNeg(0, 10, 7);
@@ -72,8 +70,7 @@ public class ReclaimerTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testOneFilePosOnly() throws Exception
-   {
+   public void testOneFilePosOnly() throws Exception {
       setup(1);
 
       setupPosNeg(0, 10);
@@ -84,8 +81,7 @@ public class ReclaimerTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testOneFileNegOnly() throws Exception
-   {
+   public void testOneFileNegOnly() throws Exception {
       setup(1);
 
       setupPosNeg(0, 0, 10);
@@ -96,8 +92,7 @@ public class ReclaimerTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testTwoFilesPosNegAllDifferentFiles() throws Exception
-   {
+   public void testTwoFilesPosNegAllDifferentFiles() throws Exception {
       setup(2);
 
       setupPosNeg(0, 10);
@@ -111,8 +106,7 @@ public class ReclaimerTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testTwoFilesPosNegAllSameFiles() throws Exception
-   {
+   public void testTwoFilesPosNegAllSameFiles() throws Exception {
       setup(2);
 
       setupPosNeg(0, 10, 10);
@@ -126,8 +120,7 @@ public class ReclaimerTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testTwoFilesPosNegMixedFiles() throws Exception
-   {
+   public void testTwoFilesPosNegMixedFiles() throws Exception {
       setup(2);
 
       setupPosNeg(0, 10, 7);
@@ -140,8 +133,7 @@ public class ReclaimerTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testTwoFilesPosNegAllFirstFile() throws Exception
-   {
+   public void testTwoFilesPosNegAllFirstFile() throws Exception {
       setup(2);
 
       setupPosNeg(0, 10, 10);
@@ -154,8 +146,7 @@ public class ReclaimerTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testTwoFilesPosNegAllSecondFile() throws Exception
-   {
+   public void testTwoFilesPosNegAllSecondFile() throws Exception {
       setup(2);
 
       setupPosNeg(0, 10);
@@ -168,8 +159,7 @@ public class ReclaimerTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testTwoFilesPosOnly() throws Exception
-   {
+   public void testTwoFilesPosOnly() throws Exception {
       setup(2);
 
       setupPosNeg(0, 10);
@@ -182,8 +172,7 @@ public class ReclaimerTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testTwoFilesxyz() throws Exception
-   {
+   public void testTwoFilesxyz() throws Exception {
       setup(2);
 
       setupPosNeg(0, 10);
@@ -198,8 +187,7 @@ public class ReclaimerTest extends ActiveMQTestBase
    // Can-can-can
 
    @Test
-   public void testThreeFiles1() throws Exception
-   {
+   public void testThreeFiles1() throws Exception {
       setup(3);
 
       setupPosNeg(0, 10, 10, 0, 0);
@@ -214,8 +202,7 @@ public class ReclaimerTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testThreeFiles2() throws Exception
-   {
+   public void testThreeFiles2() throws Exception {
       setup(3);
 
       setupPosNeg(0, 10, 7, 0, 0);
@@ -230,8 +217,7 @@ public class ReclaimerTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testThreeFiles3() throws Exception
-   {
+   public void testThreeFiles3() throws Exception {
       setup(3);
 
       setupPosNeg(0, 10, 1, 0, 0);
@@ -246,8 +232,7 @@ public class ReclaimerTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testThreeFiles3_1() throws Exception
-   {
+   public void testThreeFiles3_1() throws Exception {
       setup(3);
 
       setupPosNeg(0, 10, 1, 0, 0);
@@ -262,8 +247,7 @@ public class ReclaimerTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testThreeFiles3_2() throws Exception
-   {
+   public void testThreeFiles3_2() throws Exception {
       setup(3);
 
       setupPosNeg(0, 10, 1, 0, 0);
@@ -280,8 +264,7 @@ public class ReclaimerTest extends ActiveMQTestBase
    // Cant-can-can
 
    @Test
-   public void testThreeFiles4() throws Exception
-   {
+   public void testThreeFiles4() throws Exception {
       setup(3);
 
       setupPosNeg(0, 10, 3, 0, 0);
@@ -296,8 +279,7 @@ public class ReclaimerTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testThreeFiles5() throws Exception
-   {
+   public void testThreeFiles5() throws Exception {
       setup(3);
 
       setupPosNeg(0, 10, 3, 0, 0);
@@ -312,8 +294,7 @@ public class ReclaimerTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testThreeFiles6() throws Exception
-   {
+   public void testThreeFiles6() throws Exception {
       setup(3);
 
       setupPosNeg(0, 10, 0, 0, 0);
@@ -328,8 +309,7 @@ public class ReclaimerTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testThreeFiles7() throws Exception
-   {
+   public void testThreeFiles7() throws Exception {
       setup(3);
 
       setupPosNeg(0, 10, 0, 0, 0);
@@ -346,8 +326,7 @@ public class ReclaimerTest extends ActiveMQTestBase
    // Cant can cant
 
    @Test
-   public void testThreeFiles8() throws Exception
-   {
+   public void testThreeFiles8() throws Exception {
       setup(3);
 
       setupPosNeg(0, 10, 3, 0, 0);
@@ -362,8 +341,7 @@ public class ReclaimerTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testThreeFiles9() throws Exception
-   {
+   public void testThreeFiles9() throws Exception {
       setup(3);
 
       setupPosNeg(0, 10, 3, 0, 0);
@@ -378,8 +356,7 @@ public class ReclaimerTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testThreeFiles10() throws Exception
-   {
+   public void testThreeFiles10() throws Exception {
       setup(3);
 
       setupPosNeg(0, 10, 3, 0, 0);
@@ -394,8 +371,7 @@ public class ReclaimerTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testThreeFiles11() throws Exception
-   {
+   public void testThreeFiles11() throws Exception {
       setup(3);
 
       setupPosNeg(0, 10, 0, 0, 0);
@@ -410,8 +386,7 @@ public class ReclaimerTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testThreeFiles12() throws Exception
-   {
+   public void testThreeFiles12() throws Exception {
       setup(3);
 
       setupPosNeg(0, 10, 0, 0, 0);
@@ -428,8 +403,7 @@ public class ReclaimerTest extends ActiveMQTestBase
    // Cant-cant-cant
 
    @Test
-   public void testThreeFiles13() throws Exception
-   {
+   public void testThreeFiles13() throws Exception {
       setup(3);
 
       setupPosNeg(0, 10, 3, 0, 0);
@@ -444,8 +418,7 @@ public class ReclaimerTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testThreeFiles14() throws Exception
-   {
+   public void testThreeFiles14() throws Exception {
       setup(3);
 
       setupPosNeg(0, 10, 3, 0, 0);
@@ -460,8 +433,7 @@ public class ReclaimerTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testThreeFiles15() throws Exception
-   {
+   public void testThreeFiles15() throws Exception {
       setup(3);
 
       setupPosNeg(0, 10, 3, 0, 0);
@@ -476,8 +448,7 @@ public class ReclaimerTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testThreeFiles16() throws Exception
-   {
+   public void testThreeFiles16() throws Exception {
       setup(3);
 
       setupPosNeg(0, 10, 3, 0, 0);
@@ -492,8 +463,7 @@ public class ReclaimerTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testThreeFiles17() throws Exception
-   {
+   public void testThreeFiles17() throws Exception {
       setup(3);
 
       setupPosNeg(0, 10, 3, 0, 0);
@@ -508,8 +478,7 @@ public class ReclaimerTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testThreeFiles18() throws Exception
-   {
+   public void testThreeFiles18() throws Exception {
       setup(3);
 
       setupPosNeg(0, 10, 3, 0, 0);
@@ -524,8 +493,7 @@ public class ReclaimerTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testThreeFiles19() throws Exception
-   {
+   public void testThreeFiles19() throws Exception {
       setup(3);
 
       setupPosNeg(0, 10, 3, 0, 0);
@@ -540,8 +508,7 @@ public class ReclaimerTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testThreeFiles20() throws Exception
-   {
+   public void testThreeFiles20() throws Exception {
       setup(3);
 
       setupPosNeg(0, 10, 3, 0, 0);
@@ -556,8 +523,7 @@ public class ReclaimerTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testThreeFiles21() throws Exception
-   {
+   public void testThreeFiles21() throws Exception {
       setup(3);
 
       setupPosNeg(0, 10, 0, 0, 0);
@@ -574,8 +540,7 @@ public class ReclaimerTest extends ActiveMQTestBase
    // Can-can-cant
 
    @Test
-   public void testThreeFiles22() throws Exception
-   {
+   public void testThreeFiles22() throws Exception {
       setup(3);
 
       setupPosNeg(0, 10, 10, 0, 0);
@@ -590,8 +555,7 @@ public class ReclaimerTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testThreeFiles23() throws Exception
-   {
+   public void testThreeFiles23() throws Exception {
       setup(3);
 
       setupPosNeg(0, 10, 10, 0, 0);
@@ -606,8 +570,7 @@ public class ReclaimerTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testThreeFiles24() throws Exception
-   {
+   public void testThreeFiles24() throws Exception {
       setup(3);
 
       setupPosNeg(0, 10, 7, 0, 0);
@@ -622,8 +585,7 @@ public class ReclaimerTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testThreeFiles25() throws Exception
-   {
+   public void testThreeFiles25() throws Exception {
       setup(3);
 
       setupPosNeg(0, 10, 7, 0, 0);
@@ -638,8 +600,7 @@ public class ReclaimerTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testThreeFiles26() throws Exception
-   {
+   public void testThreeFiles26() throws Exception {
       setup(3);
 
       setupPosNeg(0, 10, 7, 0, 0);
@@ -656,8 +617,7 @@ public class ReclaimerTest extends ActiveMQTestBase
    // Can-cant-cant
 
    @Test
-   public void testThreeFiles27() throws Exception
-   {
+   public void testThreeFiles27() throws Exception {
       setup(3);
 
       setupPosNeg(0, 10, 10, 0, 0);
@@ -672,8 +632,7 @@ public class ReclaimerTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testThreeFiles28() throws Exception
-   {
+   public void testThreeFiles28() throws Exception {
       setup(3);
 
       setupPosNeg(0, 10, 10, 0, 0);
@@ -688,8 +647,7 @@ public class ReclaimerTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testThreeFiles29() throws Exception
-   {
+   public void testThreeFiles29() throws Exception {
       setup(3);
 
       setupPosNeg(0, 10, 10, 0, 0);
@@ -704,8 +662,7 @@ public class ReclaimerTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testThreeFiles30() throws Exception
-   {
+   public void testThreeFiles30() throws Exception {
       setup(3);
 
       setupPosNeg(0, 10, 10, 0, 0);
@@ -722,33 +679,27 @@ public class ReclaimerTest extends ActiveMQTestBase
    // Private
    // ------------------------------------------------------------------------
 
-   private void setup(final int numFiles)
-   {
+   private void setup(final int numFiles) {
       files = new JournalFile[numFiles];
 
-      for (int i = 0; i < numFiles; i++)
-      {
+      for (int i = 0; i < numFiles; i++) {
          files[i] = new MockJournalFile();
       }
    }
 
-   private void setupPosNeg(final int fileNumber, final int pos, final int... neg)
-   {
+   private void setupPosNeg(final int fileNumber, final int pos, final int... neg) {
       JournalFile file = files[fileNumber];
 
       int totalDep = file.getTotalNegativeToOthers();
 
-      for (int i = 0; i < pos; i++)
-      {
+      for (int i = 0; i < pos; i++) {
          file.incPosCount();
       }
 
-      for (int i = 0; i < neg.length; i++)
-      {
+      for (int i = 0; i < neg.length; i++) {
          JournalFile reclaimable2 = files[i];
 
-         for (int j = 0; j < neg[i]; j++)
-         {
+         for (int j = 0; j < neg[i]; j++) {
             file.incNegCount(reclaimable2);
             totalDep++;
          }
@@ -757,24 +708,20 @@ public class ReclaimerTest extends ActiveMQTestBase
       assertEquals(totalDep, file.getTotalNegativeToOthers());
    }
 
-   private void assertCanDelete(final int... fileNumber)
-   {
-      for (int num : fileNumber)
-      {
+   private void assertCanDelete(final int... fileNumber) {
+      for (int num : fileNumber) {
          Assert.assertTrue(files[num].isCanReclaim());
       }
    }
 
-   private void assertCantDelete(final int... fileNumber)
-   {
-      for (int num : fileNumber)
-      {
+   private void assertCantDelete(final int... fileNumber) {
+      for (int num : fileNumber) {
          Assert.assertFalse(files[num].isCanReclaim());
       }
    }
 
-   static final class MockJournalFile implements JournalFile
-   {
+   static final class MockJournalFile implements JournalFile {
+
       private final Set<Long> transactionIDs = new HashSet<Long>();
 
       private final Set<Long> transactionTerminationIDs = new HashSet<Long>();
@@ -791,45 +738,36 @@ public class ReclaimerTest extends ActiveMQTestBase
 
       private int totalDep;
 
-      public void extendOffset(final int delta)
-      {
+      public void extendOffset(final int delta) {
       }
 
-      public SequentialFile getFile()
-      {
+      public SequentialFile getFile() {
          return null;
       }
 
-      public long getOffset()
-      {
+      public long getOffset() {
          return 0;
       }
 
-      public long getFileID()
-      {
+      public long getFileID() {
          return 0;
       }
 
-      public void setOffset(final long offset)
-      {
+      public void setOffset(final long offset) {
       }
 
-      public int getNegCount(final JournalFile file)
-      {
+      public int getNegCount(final JournalFile file) {
          Integer count = negCounts.get(file);
 
-         if (count != null)
-         {
+         if (count != null) {
             return count.intValue();
          }
-         else
-         {
+         else {
             return 0;
          }
       }
 
-      public void incNegCount(final JournalFile file)
-      {
+      public void incNegCount(final JournalFile file) {
          Integer count = negCounts.get(file);
 
          int c = count == null ? 1 : count.intValue() + 1;
@@ -839,144 +777,120 @@ public class ReclaimerTest extends ActiveMQTestBase
          totalDep++;
       }
 
-      public int getPosCount()
-      {
+      public int getPosCount() {
          return posCount;
       }
 
-      public void incPosCount()
-      {
+      public void incPosCount() {
          posCount++;
       }
 
-      public void decPosCount()
-      {
+      public void decPosCount() {
          posCount--;
       }
 
-      public boolean isCanReclaim()
-      {
+      public boolean isCanReclaim() {
          return canDelete;
       }
 
-      public void setCanReclaim(final boolean canDelete)
-      {
+      public void setCanReclaim(final boolean canDelete) {
          this.canDelete = canDelete;
       }
 
-      public void addTransactionID(final long id)
-      {
+      public void addTransactionID(final long id) {
          transactionIDs.add(id);
       }
 
-      public void addTransactionPrepareID(final long id)
-      {
+      public void addTransactionPrepareID(final long id) {
          transactionPrepareIDs.add(id);
       }
 
-      public void addTransactionTerminationID(final long id)
-      {
+      public void addTransactionTerminationID(final long id) {
          transactionTerminationIDs.add(id);
       }
 
-      public boolean containsTransactionID(final long id)
-      {
+      public boolean containsTransactionID(final long id) {
          return transactionIDs.contains(id);
       }
 
-      public boolean containsTransactionPrepareID(final long id)
-      {
+      public boolean containsTransactionPrepareID(final long id) {
          return transactionPrepareIDs.contains(id);
       }
 
-      public boolean containsTransactionTerminationID(final long id)
-      {
+      public boolean containsTransactionTerminationID(final long id) {
          return transactionTerminationIDs.contains(id);
       }
 
-      public Set<Long> getTranactionTerminationIDs()
-      {
+      public Set<Long> getTranactionTerminationIDs() {
          return transactionTerminationIDs;
       }
 
-      public Set<Long> getTransactionPrepareIDs()
-      {
+      public Set<Long> getTransactionPrepareIDs() {
          return transactionPrepareIDs;
       }
 
-      public Set<Long> getTransactionsIDs()
-      {
+      public Set<Long> getTransactionsIDs() {
          return transactionIDs;
       }
 
       /* (non-Javadoc)
        * @see org.apache.activemq.artemis.core.journal.impl.JournalFile#decPendingTransaction()
        */
-      public void decPendingTransaction()
-      {
+      public void decPendingTransaction() {
       }
 
       /* (non-Javadoc)
        * @see org.apache.activemq.artemis.core.journal.impl.JournalFile#getPendingTransactions()
        */
-      public int getPendingTransactions()
-      {
+      public int getPendingTransactions() {
          return 0;
       }
 
       /* (non-Javadoc)
        * @see org.apache.activemq.artemis.core.journal.impl.JournalFile#incPendingTransaction()
        */
-      public void incPendingTransaction()
-      {
+      public void incPendingTransaction() {
       }
 
       /* (non-Javadoc)
        * @see org.apache.activemq.artemis.core.journal.impl.JournalFile#getOrderingID()
        */
-      public int getOrderingID()
-      {
+      public int getOrderingID() {
          return 0;
       }
 
-      public void addSize(final int bytes)
-      {
+      public void addSize(final int bytes) {
       }
 
       @Override
-      public void decSize(final int bytes)
-      {
+      public void decSize(final int bytes) {
       }
 
       /* (non-Javadoc)
        * @see org.apache.activemq.artemis.core.journal.impl.JournalFile#getSize()
        */
-      public int getLiveSize()
-      {
+      public int getLiveSize() {
          return 0;
       }
 
       /* (non-Javadoc)
        * @see org.apache.activemq.artemis.core.journal.impl.JournalFile#isNeedCleanup()
        */
-      public boolean isNeedCleanup()
-      {
+      public boolean isNeedCleanup() {
          return needCleanup;
       }
 
       /* (non-Javadoc)
        * @see org.apache.activemq.artemis.core.journal.impl.JournalFile#resetNegCount(org.apache.activemq.artemis.core.journal.impl.JournalFile)
        */
-      public boolean resetNegCount(final JournalFile file)
-      {
+      public boolean resetNegCount(final JournalFile file) {
          return false;
       }
 
       /* (non-Javadoc)
        * @see org.apache.activemq.artemis.core.journal.impl.JournalFile#setNeedCleanup(boolean)
        */
-      public void setNeedCleanup(final boolean needCleanup)
-      {
+      public void setNeedCleanup(final boolean needCleanup) {
          this.needCleanup = needCleanup;
 
       }
@@ -984,32 +898,28 @@ public class ReclaimerTest extends ActiveMQTestBase
       /* (non-Javadoc)
        * @see org.apache.activemq.artemis.core.journal.impl.JournalFile#getRecordID()
        */
-      public int getRecordID()
-      {
+      public int getRecordID() {
          return 0;
       }
 
       /* (non-Javadoc)
        * @see org.apache.activemq.artemis.core.journal.impl.JournalFile#getTotalNegativeToOthers()
        */
-      public int getTotalNegativeToOthers()
-      {
+      public int getTotalNegativeToOthers() {
          return totalDep;
       }
 
       /* (non-Javadoc)
        * @see org.apache.activemq.artemis.core.journal.impl.JournalFile#getJournalVersion()
        */
-      public int getJournalVersion()
-      {
+      public int getJournalVersion() {
          return JournalImpl.FORMAT_VERSION;
       }
 
       /* (non-Javadoc)
        * @see org.apache.activemq.artemis.core.journal.impl.JournalFile#getTotNeg()
        */
-      public int getTotNeg()
-      {
+      public int getTotNeg() {
          // TODO Auto-generated method stub
          return 0;
       }
@@ -1017,8 +927,7 @@ public class ReclaimerTest extends ActiveMQTestBase
       /* (non-Javadoc)
        * @see org.apache.activemq.artemis.core.journal.impl.JournalFile#setTotNeg(int)
        */
-      public void setTotNeg(int totNeg)
-      {
+      public void setTotNeg(int totNeg) {
          // TODO Auto-generated method stub
 
       }

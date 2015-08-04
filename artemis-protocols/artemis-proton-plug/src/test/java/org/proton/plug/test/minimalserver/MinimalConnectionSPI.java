@@ -34,117 +34,99 @@ import org.proton.plug.util.ByteUtil;
 import org.proton.plug.util.DebugInfo;
 import org.proton.plug.util.ReusableLatch;
 
-public class MinimalConnectionSPI implements AMQPConnectionCallback
-{
+public class MinimalConnectionSPI implements AMQPConnectionCallback {
+
    Channel channel;
 
    private AMQPConnectionContext connection;
 
-   public MinimalConnectionSPI(Channel channel)
-   {
+   public MinimalConnectionSPI(Channel channel) {
       this.channel = channel;
    }
 
    ExecutorService executorService = Executors.newSingleThreadExecutor();
 
    @Override
-   public void close()
-   {
+   public void close() {
       executorService.shutdown();
    }
 
-   public void setConnection(AMQPConnectionContext connection)
-   {
+   public void setConnection(AMQPConnectionContext connection) {
       this.connection = connection;
    }
 
-   public AMQPConnectionContext getConnection()
-   {
+   public AMQPConnectionContext getConnection() {
       return connection;
    }
 
    final ReusableLatch latch = new ReusableLatch(0);
 
    @Override
-   public ServerSASL[] getSASLMechnisms()
-   {
+   public ServerSASL[] getSASLMechnisms() {
       return new ServerSASL[]{new AnonymousServerSASL(), new ServerSASLPlain()};
    }
 
    @Override
-   public void onTransport(final ByteBuf bytes, final AMQPConnectionContext connection)
-   {
+   public void onTransport(final ByteBuf bytes, final AMQPConnectionContext connection) {
       final int bufferSize = bytes.writerIndex();
 
-      if (DebugInfo.debug)
-      {
+      if (DebugInfo.debug) {
          // some debug
          byte[] frame = new byte[bytes.writerIndex()];
          int readerOriginalPos = bytes.readerIndex();
 
          bytes.getBytes(0, frame);
 
-         try
-         {
+         try {
             System.err.println("Buffer Outgoing: " + "\n" + ByteUtil.formatGroup(ByteUtil.bytesToHex(frame), 4, 16));
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             e.printStackTrace();
          }
 
          bytes.readerIndex(readerOriginalPos);
       }
 
-
       latch.countUp();
       // ^^ debug
 
-      channel.writeAndFlush(bytes).addListener(new ChannelFutureListener()
-      {
+      channel.writeAndFlush(bytes).addListener(new ChannelFutureListener() {
          @Override
-         public void operationComplete(ChannelFuture future) throws Exception
-         {
+         public void operationComplete(ChannelFuture future) throws Exception {
             latch.countDown();
 
             //   https://issues.apache.org/jira/browse/PROTON-645
-//            connection.outputDone(bufferSize);
-//            if (connection.capacity() > 0)
-//            {
-//               channel.read();
-//            }
+            //            connection.outputDone(bufferSize);
+            //            if (connection.capacity() > 0)
+            //            {
+            //               channel.read();
+            //            }
          }
       });
 
       channel.flush();
 
-      if (connection.isSyncOnFlush())
-      {
-         try
-         {
-            if (!latch.await(5, TimeUnit.SECONDS))
-            {
+      if (connection.isSyncOnFlush()) {
+         try {
+            if (!latch.await(5, TimeUnit.SECONDS)) {
                // TODO logs
                System.err.println("Flush took longer than 5 seconds!!!");
             }
          }
-         catch (Throwable e)
-         {
+         catch (Throwable e) {
             e.printStackTrace();
          }
       }
       connection.outputDone(bufferSize);
 
-
-//      if (connection.capacity() > 0)
-//      {
-//         channel.read();
-//      }
+      //      if (connection.capacity() > 0)
+      //      {
+      //         channel.read();
+      //      }
    }
 
    @Override
-   public AMQPSessionCallback createSessionCallback(AMQPConnectionContext connection)
-   {
+   public AMQPSessionCallback createSessionCallback(AMQPConnectionContext connection) {
       return new MinimalSessionSPI();
    }
 }

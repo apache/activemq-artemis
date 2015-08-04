@@ -21,8 +21,7 @@ import javax.jms.Message;
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
 import org.junit.Test;
 
-public class JMSDestinationHeaderTest extends MessageHeaderTestBase
-{
+public class JMSDestinationHeaderTest extends MessageHeaderTestBase {
    // Constants -----------------------------------------------------
 
    // Static --------------------------------------------------------
@@ -34,8 +33,7 @@ public class JMSDestinationHeaderTest extends MessageHeaderTestBase
    // Public --------------------------------------------------------
 
    @Test
-   public void testJMSDestination() throws Exception
-   {
+   public void testJMSDestination() throws Exception {
       queueProducer.send(queueProducerSession.createMessage());
       Message m = queueConsumer.receive();
       ProxyAssertSupport.assertEquals(queue1, m.getJMSDestination());

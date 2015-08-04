@@ -19,7 +19,7 @@ package org.apache.activemq.artemis.core.server;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.utils.ReferenceCounter;
 
-public interface TransientQueueManager extends ReferenceCounter
-{
+public interface TransientQueueManager extends ReferenceCounter {
+
    SimpleString getQueueName();
 }

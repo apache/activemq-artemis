@@ -22,8 +22,8 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 
-public final class ReplicationPrepareMessage extends PacketImpl
-{
+public final class ReplicationPrepareMessage extends PacketImpl {
+
    private long txId;
 
    /**
@@ -35,13 +35,11 @@ public final class ReplicationPrepareMessage extends PacketImpl
 
    private byte[] recordData;
 
-   public ReplicationPrepareMessage()
-   {
+   public ReplicationPrepareMessage() {
       super(PacketImpl.REPLICATION_PREPARE);
    }
 
-   public ReplicationPrepareMessage(final byte journalID, final long txId, final EncodingSupport encodingData)
-   {
+   public ReplicationPrepareMessage(final byte journalID, final long txId, final EncodingSupport encodingData) {
       this();
       this.journalID = journalID;
       this.txId = txId;
@@ -51,8 +49,7 @@ public final class ReplicationPrepareMessage extends PacketImpl
    // Public --------------------------------------------------------
 
    @Override
-   public void encodeRest(final ActiveMQBuffer buffer)
-   {
+   public void encodeRest(final ActiveMQBuffer buffer) {
       buffer.writeByte(journalID);
       buffer.writeLong(txId);
       buffer.writeInt(encodingData.getEncodeSize());
@@ -60,8 +57,7 @@ public final class ReplicationPrepareMessage extends PacketImpl
    }
 
    @Override
-   public void decodeRest(final ActiveMQBuffer buffer)
-   {
+   public void decodeRest(final ActiveMQBuffer buffer) {
       journalID = buffer.readByte();
       txId = buffer.readLong();
       int size = buffer.readInt();
@@ -69,30 +65,26 @@ public final class ReplicationPrepareMessage extends PacketImpl
       buffer.readBytes(recordData);
    }
 
-   public long getTxId()
-   {
+   public long getTxId() {
       return txId;
    }
 
    /**
     * @return the journalID
     */
-   public byte getJournalID()
-   {
+   public byte getJournalID() {
       return journalID;
    }
 
    /**
     * @return the recordData
     */
-   public byte[] getRecordData()
-   {
+   public byte[] getRecordData() {
       return recordData;
    }
 
    @Override
-   public int hashCode()
-   {
+   public int hashCode() {
       final int prime = 31;
       int result = super.hashCode();
       result = prime * result + ((encodingData == null) ? 0 : encodingData.hashCode());
@@ -103,42 +95,32 @@ public final class ReplicationPrepareMessage extends PacketImpl
    }
 
    @Override
-   public boolean equals(Object obj)
-   {
-      if (this == obj)
-      {
+   public boolean equals(Object obj) {
+      if (this == obj) {
          return true;
       }
-      if (!super.equals(obj))
-      {
+      if (!super.equals(obj)) {
          return false;
       }
-      if (!(obj instanceof ReplicationPrepareMessage))
-      {
+      if (!(obj instanceof ReplicationPrepareMessage)) {
          return false;
       }
       ReplicationPrepareMessage other = (ReplicationPrepareMessage) obj;
-      if (encodingData == null)
-      {
-         if (other.encodingData != null)
-         {
+      if (encodingData == null) {
+         if (other.encodingData != null) {
             return false;
          }
       }
-      else if (!encodingData.equals(other.encodingData))
-      {
+      else if (!encodingData.equals(other.encodingData)) {
          return false;
       }
-      if (journalID != other.journalID)
-      {
+      if (journalID != other.journalID) {
          return false;
       }
-      if (!Arrays.equals(recordData, other.recordData))
-      {
+      if (!Arrays.equals(recordData, other.recordData)) {
          return false;
       }
-      if (txId != other.txId)
-      {
+      if (txId != other.txId) {
          return false;
       }
       return true;

@@ -18,17 +18,14 @@ package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 
-public class NullResponseMessage extends PacketImpl
-{
+public class NullResponseMessage extends PacketImpl {
 
-   public NullResponseMessage()
-   {
+   public NullResponseMessage() {
       super(NULL_RESPONSE);
    }
 
    @Override
-   public boolean isResponse()
-   {
+   public boolean isResponse() {
       return true;
    }
 }

@@ -46,8 +46,8 @@ import javax.jms.TextMessage;
 import java.util.Enumeration;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class ConsumerTest extends JMSTestBase
-{
+public class ConsumerTest extends JMSTestBase {
+
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    private static final String Q_NAME = "ConsumerTestQueue";
@@ -62,8 +62,7 @@ public class ConsumerTest extends JMSTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       topic = ActiveMQJMSClient.createTopic(T_NAME);
@@ -76,8 +75,7 @@ public class ConsumerTest extends JMSTestBase
    }
 
    @Test
-   public void testTransactionalSessionRollback() throws Exception
-   {
+   public void testTransactionalSessionRollback() throws Exception {
       conn = cf.createConnection();
       Session sess = conn.createSession(true, Session.SESSION_TRANSACTED);
 
@@ -117,22 +115,19 @@ public class ConsumerTest extends JMSTestBase
    }
 
    @Test
-   public void testPreCommitAcks() throws Exception
-   {
+   public void testPreCommitAcks() throws Exception {
       conn = cf.createConnection();
       Session session = conn.createSession(false, ActiveMQJMSConstants.PRE_ACKNOWLEDGE);
       jBossQueue = ActiveMQJMSClient.createQueue(ConsumerTest.Q_NAME);
       MessageProducer producer = session.createProducer(jBossQueue);
       MessageConsumer consumer = session.createConsumer(jBossQueue);
       int noOfMessages = 100;
-      for (int i = 0; i < noOfMessages; i++)
-      {
+      for (int i = 0; i < noOfMessages; i++) {
          producer.send(session.createTextMessage("m" + i));
       }
 
       conn.start();
-      for (int i = 0; i < noOfMessages; i++)
-      {
+      for (int i = 0; i < noOfMessages; i++) {
          Message m = consumer.receive(500);
          Assert.assertNotNull(m);
       }
@@ -143,28 +138,24 @@ public class ConsumerTest extends JMSTestBase
    }
 
    @Test
-   public void testIndividualACK() throws Exception
-   {
+   public void testIndividualACK() throws Exception {
       Connection conn = cf.createConnection();
       Session session = conn.createSession(false, ActiveMQJMSConstants.INDIVIDUAL_ACKNOWLEDGE);
       jBossQueue = ActiveMQJMSClient.createQueue(ConsumerTest.Q_NAME);
       MessageProducer producer = session.createProducer(jBossQueue);
       MessageConsumer consumer = session.createConsumer(jBossQueue);
       int noOfMessages = 100;
-      for (int i = 0; i < noOfMessages; i++)
-      {
+      for (int i = 0; i < noOfMessages; i++) {
          producer.send(session.createTextMessage("m" + i));
       }
 
       conn.start();
 
       // Consume even numbers first
-      for (int i = 0; i < noOfMessages; i++)
-      {
+      for (int i = 0; i < noOfMessages; i++) {
          Message m = consumer.receive(500);
          Assert.assertNotNull(m);
-         if (i % 2 == 0)
-         {
+         if (i % 2 == 0) {
             m.acknowledge();
          }
       }
@@ -176,10 +167,8 @@ public class ConsumerTest extends JMSTestBase
       consumer = session.createConsumer(jBossQueue);
 
       // Consume odd numbers first
-      for (int i = 0; i < noOfMessages; i++)
-      {
-         if (i % 2 == 0)
-         {
+      for (int i = 0; i < noOfMessages; i++) {
+         if (i % 2 == 0) {
             continue;
          }
 
@@ -196,16 +185,14 @@ public class ConsumerTest extends JMSTestBase
    }
 
    @Test
-   public void testIndividualACKMessageConsumer() throws Exception
-   {
+   public void testIndividualACKMessageConsumer() throws Exception {
       Connection conn = cf.createConnection();
       Session session = conn.createSession(false, ActiveMQJMSConstants.INDIVIDUAL_ACKNOWLEDGE);
       jBossQueue = ActiveMQJMSClient.createQueue(ConsumerTest.Q_NAME);
       MessageProducer producer = session.createProducer(jBossQueue);
       MessageConsumer consumer = session.createConsumer(jBossQueue);
       int noOfMessages = 100;
-      for (int i = 0; i < noOfMessages; i++)
-      {
+      for (int i = 0; i < noOfMessages; i++) {
          producer.setPriority(2);
          producer.send(session.createTextMessage("m" + i));
       }
@@ -216,34 +203,28 @@ public class ConsumerTest extends JMSTestBase
       final ReusableLatch latch = new ReusableLatch();
       latch.setCount(noOfMessages);
 
-      class MessageAckEven implements MessageListener
-      {
+      class MessageAckEven implements MessageListener {
+
          int count = 0;
 
-         public void onMessage(Message msg)
-         {
-            try
-            {
+         public void onMessage(Message msg) {
+            try {
                TextMessage txtmsg = (TextMessage) msg;
-               if (!txtmsg.getText().equals("m" + count))
-               {
+               if (!txtmsg.getText().equals("m" + count)) {
 
                   errors.incrementAndGet();
                }
 
-               if (count % 2 == 0)
-               {
+               if (count % 2 == 0) {
                   msg.acknowledge();
                }
 
                count++;
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                errors.incrementAndGet();
             }
-            finally
-            {
+            finally {
                latch.countDown();
             }
          }
@@ -261,10 +242,8 @@ public class ConsumerTest extends JMSTestBase
       consumer = session.createConsumer(jBossQueue);
 
       // Consume odd numbers first
-      for (int i = 0; i < noOfMessages; i++)
-      {
-         if (i % 2 == 0)
-         {
+      for (int i = 0; i < noOfMessages; i++) {
+         if (i % 2 == 0) {
             continue;
          }
 
@@ -281,8 +260,7 @@ public class ConsumerTest extends JMSTestBase
    }
 
    @Test
-   public void testPreCommitAcksSetOnConnectionFactory() throws Exception
-   {
+   public void testPreCommitAcksSetOnConnectionFactory() throws Exception {
       ((ActiveMQConnectionFactory) cf).setPreAcknowledge(true);
       conn = cf.createConnection();
 
@@ -291,14 +269,12 @@ public class ConsumerTest extends JMSTestBase
       MessageProducer producer = session.createProducer(jBossQueue);
       MessageConsumer consumer = session.createConsumer(jBossQueue);
       int noOfMessages = 100;
-      for (int i = 0; i < noOfMessages; i++)
-      {
+      for (int i = 0; i < noOfMessages; i++) {
          producer.send(session.createTextMessage("m" + i));
       }
 
       conn.start();
-      for (int i = 0; i < noOfMessages; i++)
-      {
+      for (int i = 0; i < noOfMessages; i++) {
          Message m = consumer.receive(500);
          Assert.assertNotNull(m);
       }
@@ -310,8 +286,7 @@ public class ConsumerTest extends JMSTestBase
    }
 
    @Test
-   public void testPreCommitAcksWithMessageExpiry() throws Exception
-   {
+   public void testPreCommitAcksWithMessageExpiry() throws Exception {
       ConsumerTest.log.info("starting test");
 
       conn = cf.createConnection();
@@ -320,8 +295,7 @@ public class ConsumerTest extends JMSTestBase
       MessageProducer producer = session.createProducer(jBossQueue);
       MessageConsumer consumer = session.createConsumer(jBossQueue);
       int noOfMessages = 1000;
-      for (int i = 0; i < noOfMessages; i++)
-      {
+      for (int i = 0; i < noOfMessages; i++) {
          TextMessage textMessage = session.createTextMessage("m" + i);
          producer.setTimeToLive(1);
          producer.send(textMessage);
@@ -341,8 +315,7 @@ public class ConsumerTest extends JMSTestBase
    }
 
    @Test
-   public void testPreCommitAcksWithMessageExpirySetOnConnectionFactory() throws Exception
-   {
+   public void testPreCommitAcksWithMessageExpirySetOnConnectionFactory() throws Exception {
       ((ActiveMQConnectionFactory) cf).setPreAcknowledge(true);
       conn = cf.createConnection();
       Session session = conn.createSession(false, Session.CLIENT_ACKNOWLEDGE);
@@ -350,8 +323,7 @@ public class ConsumerTest extends JMSTestBase
       MessageProducer producer = session.createProducer(jBossQueue);
       MessageConsumer consumer = session.createConsumer(jBossQueue);
       int noOfMessages = 1000;
-      for (int i = 0; i < noOfMessages; i++)
-      {
+      for (int i = 0; i < noOfMessages; i++) {
          TextMessage textMessage = session.createTextMessage("m" + i);
          producer.setTimeToLive(1);
          producer.send(textMessage);
@@ -368,10 +340,8 @@ public class ConsumerTest extends JMSTestBase
       // which can cause delivering count to flip to 1
    }
 
-
    @Test
-   public void testBrowserAndConsumerSimultaneous() throws Exception
-   {
+   public void testBrowserAndConsumerSimultaneous() throws Exception {
       ((ActiveMQConnectionFactory) cf).setConsumerWindowSize(0);
       conn = cf.createConnection();
 
@@ -382,19 +352,16 @@ public class ConsumerTest extends JMSTestBase
       QueueBrowser browser = session.createBrowser(jBossQueue);
       Enumeration enumMessages = browser.getEnumeration();
 
-
       MessageConsumer consumer = session.createConsumer(jBossQueue);
       int noOfMessages = 10;
-      for (int i = 0; i < noOfMessages; i++)
-      {
+      for (int i = 0; i < noOfMessages; i++) {
          TextMessage textMessage = session.createTextMessage("m" + i);
          textMessage.setIntProperty("i", i);
          producer.send(textMessage);
       }
 
       conn.start();
-      for (int i = 0; i < noOfMessages; i++)
-      {
+      for (int i = 0; i < noOfMessages; i++) {
          TextMessage msg = (TextMessage) enumMessages.nextElement();
          Assert.assertNotNull(msg);
          Assert.assertEquals(i, msg.getIntProperty("i"));
@@ -417,8 +384,7 @@ public class ConsumerTest extends JMSTestBase
    }
 
    @Test
-   public void testBrowserAndConsumerSimultaneousDifferentConnections() throws Exception
-   {
+   public void testBrowserAndConsumerSimultaneousDifferentConnections() throws Exception {
       ((ActiveMQConnectionFactory) cf).setConsumerWindowSize(0);
       conn = cf.createConnection();
 
@@ -430,8 +396,7 @@ public class ConsumerTest extends JMSTestBase
       MessageProducer producer = session.createProducer(jBossQueue);
       MessageConsumer consumer = sessionConsumer.createConsumer(jBossQueue);
       int noOfMessages = 1000;
-      for (int i = 0; i < noOfMessages; i++)
-      {
+      for (int i = 0; i < noOfMessages; i++) {
          TextMessage textMessage = session.createTextMessage("m" + i);
          textMessage.setIntProperty("i", i);
          producer.send(textMessage);
@@ -442,8 +407,7 @@ public class ConsumerTest extends JMSTestBase
       QueueBrowser browser = session.createBrowser(jBossQueue);
       Enumeration enumMessages = browser.getEnumeration();
 
-      for (int i = 0; i < noOfMessages; i++)
-      {
+      for (int i = 0; i < noOfMessages; i++) {
          TextMessage msg = (TextMessage) enumMessages.nextElement();
          Assert.assertNotNull(msg);
          Assert.assertEquals(i, msg.getIntProperty("i"));
@@ -461,8 +425,7 @@ public class ConsumerTest extends JMSTestBase
    }
 
    @Test
-   public void testBrowserOnly() throws Exception
-   {
+   public void testBrowserOnly() throws Exception {
       ((ActiveMQConnectionFactory) cf).setConsumerWindowSize(0);
       conn = cf.createConnection();
 
@@ -470,8 +433,7 @@ public class ConsumerTest extends JMSTestBase
       jBossQueue = ActiveMQJMSClient.createQueue(ConsumerTest.Q_NAME);
       MessageProducer producer = session.createProducer(jBossQueue);
       int noOfMessages = 10;
-      for (int i = 0; i < noOfMessages; i++)
-      {
+      for (int i = 0; i < noOfMessages; i++) {
          TextMessage textMessage = session.createTextMessage("m" + i);
          textMessage.setIntProperty("i", i);
          producer.send(textMessage);
@@ -480,8 +442,7 @@ public class ConsumerTest extends JMSTestBase
       QueueBrowser browser = session.createBrowser(jBossQueue);
       Enumeration enumMessages = browser.getEnumeration();
 
-      for (int i = 0; i < noOfMessages; i++)
-      {
+      for (int i = 0; i < noOfMessages; i++) {
          Assert.assertTrue(enumMessages.hasMoreElements());
          TextMessage msg = (TextMessage) enumMessages.nextElement();
          Assert.assertNotNull(msg);
@@ -499,16 +460,13 @@ public class ConsumerTest extends JMSTestBase
    }
 
    @Test
-   public void testClearExceptionListener() throws Exception
-   {
+   public void testClearExceptionListener() throws Exception {
       conn = cf.createConnection();
       Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
       jBossQueue = ActiveMQJMSClient.createQueue(ConsumerTest.Q_NAME);
       MessageConsumer consumer = session.createConsumer(jBossQueue);
-      consumer.setMessageListener(new MessageListener()
-      {
-         public void onMessage(final Message msg)
-         {
+      consumer.setMessageListener(new MessageListener() {
+         public void onMessage(final Message msg) {
          }
       });
 
@@ -517,38 +475,31 @@ public class ConsumerTest extends JMSTestBase
    }
 
    @Test
-   public void testCantReceiveWhenListenerIsSet() throws Exception
-   {
+   public void testCantReceiveWhenListenerIsSet() throws Exception {
       conn = cf.createConnection();
       Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
       jBossQueue = ActiveMQJMSClient.createQueue(ConsumerTest.Q_NAME);
       MessageConsumer consumer = session.createConsumer(jBossQueue);
-      consumer.setMessageListener(new MessageListener()
-      {
-         public void onMessage(final Message msg)
-         {
+      consumer.setMessageListener(new MessageListener() {
+         public void onMessage(final Message msg) {
          }
       });
 
-      try
-      {
+      try {
          consumer.receiveNoWait();
          Assert.fail("Should throw exception");
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          // Ok
       }
    }
 
    @Test
-   public void testSharedConsumer() throws Exception
-   {
+   public void testSharedConsumer() throws Exception {
       conn = cf.createConnection();
       conn.start();
       Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
       topic = ActiveMQJMSClient.createTopic(T_NAME);
-
 
       MessageConsumer cons = session.createSharedConsumer(topic, "test1");
 
@@ -562,13 +513,11 @@ public class ConsumerTest extends JMSTestBase
    }
 
    @Test
-   public void testSharedDurableConsumer() throws Exception
-   {
+   public void testSharedDurableConsumer() throws Exception {
       conn = cf.createConnection();
       conn.start();
       Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
       topic = ActiveMQJMSClient.createTopic(T_NAME);
-
 
       MessageConsumer cons = session.createSharedDurableConsumer(topic, "test1");
 
@@ -582,8 +531,7 @@ public class ConsumerTest extends JMSTestBase
    }
 
    @Test
-   public void testSharedDurableConsumerWithClientID() throws Exception
-   {
+   public void testSharedDurableConsumerWithClientID() throws Exception {
       conn = cf.createConnection();
       conn.setClientID("C1");
       conn.start();
@@ -597,12 +545,10 @@ public class ConsumerTest extends JMSTestBase
          Connection conn3 = cf.createConnection();
 
          boolean exception = false;
-         try
-         {
+         try {
             conn3.setClientID("C2");
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             exception = true;
          }
 
@@ -611,7 +557,6 @@ public class ConsumerTest extends JMSTestBase
       }
 
       topic = ActiveMQJMSClient.createTopic(T_NAME);
-
 
       MessageConsumer cons = session.createSharedDurableConsumer(topic, "test1");
 
@@ -625,8 +570,7 @@ public class ConsumerTest extends JMSTestBase
    }
 
    @Test
-   public void testValidateExceptionsThroughSharedConsumers() throws Exception
-   {
+   public void testValidateExceptionsThroughSharedConsumers() throws Exception {
       conn = cf.createConnection();
       conn.setClientID("C1");
       conn.start();
@@ -634,20 +578,16 @@ public class ConsumerTest extends JMSTestBase
       Connection conn2 = cf.createConnection();
       conn2.setClientID("C2");
 
-
       MessageConsumer cons = session.createSharedConsumer(topic, "cons1");
       boolean exceptionHappened = false;
-      try
-      {
+      try {
          MessageConsumer cons2Error = session.createSharedConsumer(topic2, "cons1");
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          exceptionHappened = true;
       }
 
       Assert.assertTrue(exceptionHappened);
-
 
       MessageProducer producer = session.createProducer(topic2);
 
@@ -656,23 +596,18 @@ public class ConsumerTest extends JMSTestBase
 
       conn.start();
 
-
       producer.send(session.createTextMessage("hello!"));
 
       TextMessage msg = (TextMessage) cons2.receive(5000);
       Assert.assertNotNull(msg);
 
-
       exceptionHappened = false;
-      try
-      {
+      try {
          session.unsubscribe("cons1");
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          exceptionHappened = true;
       }
-
 
       Assert.assertTrue(exceptionHappened);
       cons2.close();
@@ -682,8 +617,7 @@ public class ConsumerTest extends JMSTestBase
    }
 
    @Test
-   public void testUnsubscribeDurable() throws Exception
-   {
+   public void testUnsubscribeDurable() throws Exception {
       conn = cf.createConnection();
       conn.setClientID("C1");
       conn.start();
@@ -693,8 +627,7 @@ public class ConsumerTest extends JMSTestBase
 
       MessageProducer prod = session.createProducer(topic);
 
-      for (int i = 0; i < 100; i++)
-      {
+      for (int i = 0; i < 100; i++) {
          prod.send(session.createTextMessage("msg" + i));
       }
 
@@ -711,8 +644,7 @@ public class ConsumerTest extends JMSTestBase
    }
 
    @Test
-   public void testShareDurale() throws Exception
-   {
+   public void testShareDurale() throws Exception {
       ((ActiveMQConnectionFactory) cf).setConsumerWindowSize(0);
       conn = cf.createConnection();
       conn.start();
@@ -724,14 +656,11 @@ public class ConsumerTest extends JMSTestBase
 
       MessageProducer prod = session.createProducer(topic);
 
-      for (int i = 0; i < 100; i++)
-      {
+      for (int i = 0; i < 100; i++) {
          prod.send(session.createTextMessage("msg" + i));
       }
 
-
-      for (int i = 0; i < 50; i++)
-      {
+      for (int i = 0; i < 50; i++) {
          Message msg = cons.receive(5000);
          Assert.assertNotNull(msg);
          msg = cons2.receive(5000);
@@ -745,12 +674,10 @@ public class ConsumerTest extends JMSTestBase
 
       boolean exceptionHappened = false;
 
-      try
-      {
+      try {
          session.unsubscribe("c1");
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          exceptionHappened = true;
       }
 
@@ -758,11 +685,9 @@ public class ConsumerTest extends JMSTestBase
 
       cons2.close();
 
-      for (int i = 0; i < 100; i++)
-      {
+      for (int i = 0; i < 100; i++) {
          prod.send(session.createTextMessage("msg" + i));
       }
-
 
       session.unsubscribe("c1");
 
@@ -772,10 +697,8 @@ public class ConsumerTest extends JMSTestBase
       Assert.assertNull(cons.receiveNoWait());
    }
 
-
    @Test
-   public void testShareDuraleWithJMSContext() throws Exception
-   {
+   public void testShareDuraleWithJMSContext() throws Exception {
       ((ActiveMQConnectionFactory) cf).setConsumerWindowSize(0);
       JMSContext conn = cf.createContext(JMSContext.AUTO_ACKNOWLEDGE);
 
@@ -783,17 +706,14 @@ public class ConsumerTest extends JMSTestBase
 
       JMSProducer producer = conn.createProducer();
 
-      for (int i = 0; i < 100; i++)
-      {
+      for (int i = 0; i < 100; i++) {
          producer.setProperty("count", i).send(topic, "test" + i);
       }
-
 
       JMSContext conn2 = conn.createContext(JMSContext.AUTO_ACKNOWLEDGE);
       JMSConsumer consumer2 = conn2.createSharedDurableConsumer(topic, "c1");
 
-      for (int i = 0; i < 50; i++)
-      {
+      for (int i = 0; i < 50; i++) {
          String txt = consumer.receiveBody(String.class, 5000);
          System.out.println("TXT:" + txt);
          Assert.assertNotNull(txt);
@@ -808,13 +728,10 @@ public class ConsumerTest extends JMSTestBase
 
       boolean exceptionHappened = false;
 
-
-      try
-      {
+      try {
          conn.unsubscribe("c1");
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          e.printStackTrace();
          exceptionHappened = true;
       }

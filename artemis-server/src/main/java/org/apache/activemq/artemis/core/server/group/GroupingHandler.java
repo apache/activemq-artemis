@@ -23,8 +23,8 @@ import org.apache.activemq.artemis.core.server.group.impl.Proposal;
 import org.apache.activemq.artemis.core.server.group.impl.Response;
 import org.apache.activemq.artemis.core.server.management.NotificationListener;
 
-public interface GroupingHandler extends NotificationListener, ActiveMQComponent
-{
+public interface GroupingHandler extends NotificationListener, ActiveMQComponent {
+
    // this method should maintain a WeakHash list, no need to remove the elements
    void addListener(UnproposalListener listener);
 

@@ -17,6 +17,7 @@
 package org.apache.activemq;
 
 import javax.jms.ConnectionFactory;
+
 import junit.framework.Test;
 
 /*
@@ -25,26 +26,26 @@ import junit.framework.Test;
  */
 public class JMSXAConsumerTest extends JMSConsumerTest {
 
-    public static Test suite() {
-        return suite(JMSXAConsumerTest.class);
-    }
+   public static Test suite() {
+      return suite(JMSXAConsumerTest.class);
+   }
 
-    @Override
-    protected ConnectionFactory createConnectionFactory() throws Exception {
-        return new ActiveMQXAConnectionFactory("vm://localhost");
-    }
+   @Override
+   protected ConnectionFactory createConnectionFactory() throws Exception {
+      return new ActiveMQXAConnectionFactory("vm://localhost");
+   }
 
-    // some tests use transactions, these will not work unless an XA transaction is in place
-    // slip these
-    public void testPrefetch1MessageNotDispatched() throws Exception {
-    }
+   // some tests use transactions, these will not work unless an XA transaction is in place
+   // slip these
+   public void testPrefetch1MessageNotDispatched() throws Exception {
+   }
 
-    public void testRedispatchOfUncommittedTx() throws Exception {
-    }
+   public void testRedispatchOfUncommittedTx() throws Exception {
+   }
 
-    public void testRedispatchOfRolledbackTx() throws Exception {
-    }
+   public void testRedispatchOfRolledbackTx() throws Exception {
+   }
 
-    public void testMessageListenerOnMessageCloseUnackedWithPrefetch1StayInQueue() throws Exception {
-    }
+   public void testMessageListenerOnMessageCloseUnackedWithPrefetch1StayInQueue() throws Exception {
+   }
 }

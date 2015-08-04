@@ -32,80 +32,80 @@ import org.slf4j.LoggerFactory;
 
 /**
  * @author Paul Smith
- * 
  */
 public class SubscribeClosePublishThenConsumeTest extends TestSupport {
-    private static final Logger LOG = LoggerFactory.getLogger(SubscribeClosePublishThenConsumeTest.class);
 
-    public void testDurableTopic() throws Exception {
-        ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("vm://locahost");
+   private static final Logger LOG = LoggerFactory.getLogger(SubscribeClosePublishThenConsumeTest.class);
 
-        String topicName = "TestTopic";
-        String clientID = getName();
-        String subscriberName = "MySubscriber:" + System.currentTimeMillis();
+   public void testDurableTopic() throws Exception {
+      ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("vm://locahost");
 
-        Connection connection = connectionFactory.createConnection();
-        connection.setClientID(clientID);
+      String topicName = "TestTopic";
+      String clientID = getName();
+      String subscriberName = "MySubscriber:" + System.currentTimeMillis();
 
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        Topic topic = session.createTopic(topicName);
+      Connection connection = connectionFactory.createConnection();
+      connection.setClientID(clientID);
 
-        // this should register a durable subscriber, we then close it to
-        // test that we get messages from the producer later on
-        TopicSubscriber subscriber = session.createDurableSubscriber(topic, subscriberName);
-        connection.start();
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      Topic topic = session.createTopic(topicName);
 
-        topic = null;
-        subscriber.close();
-        subscriber = null;
-        session.close();
-        session = null;
+      // this should register a durable subscriber, we then close it to
+      // test that we get messages from the producer later on
+      TopicSubscriber subscriber = session.createDurableSubscriber(topic, subscriberName);
+      connection.start();
 
-        // Create the new connection before closing to avoid the broker shutting
-        // down.
-        // now create a new Connection, Session & Producer, send some messages &
-        // then close
-        Connection t = connectionFactory.createConnection();
-        connection.close();
-        connection = t;
+      topic = null;
+      subscriber.close();
+      subscriber = null;
+      session.close();
+      session = null;
 
-        session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        topic = session.createTopic(topicName);
-        MessageProducer producer = session.createProducer(topic);
-        producer.setDeliveryMode(DeliveryMode.PERSISTENT);
-        TextMessage textMessage = session.createTextMessage("Hello World");
-        producer.send(textMessage);
-        textMessage = null;
+      // Create the new connection before closing to avoid the broker shutting
+      // down.
+      // now create a new Connection, Session & Producer, send some messages &
+      // then close
+      Connection t = connectionFactory.createConnection();
+      connection.close();
+      connection = t;
 
-        topic = null;
-        session.close();
-        session = null;
+      session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      topic = session.createTopic(topicName);
+      MessageProducer producer = session.createProducer(topic);
+      producer.setDeliveryMode(DeliveryMode.PERSISTENT);
+      TextMessage textMessage = session.createTextMessage("Hello World");
+      producer.send(textMessage);
+      textMessage = null;
 
-        // Now (re)register the Durable subscriber, setup a listener and wait
-        // for messages that should
-        // have been published by the previous producer
-        t = connectionFactory.createConnection();
-        connection.close();
-        connection = t;
+      topic = null;
+      session.close();
+      session = null;
 
-        connection.setClientID(clientID);
-        session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        topic = session.createTopic(topicName);
+      // Now (re)register the Durable subscriber, setup a listener and wait
+      // for messages that should
+      // have been published by the previous producer
+      t = connectionFactory.createConnection();
+      connection.close();
+      connection = t;
 
-        subscriber = session.createDurableSubscriber(topic, subscriberName);
-        connection.start();
+      connection.setClientID(clientID);
+      session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      topic = session.createTopic(topicName);
 
-        LOG.info("Started connection - now about to try receive the textMessage");
+      subscriber = session.createDurableSubscriber(topic, subscriberName);
+      connection.start();
 
-        long time = System.currentTimeMillis();
-        Message message = subscriber.receive(15000L);
-        long elapsed = System.currentTimeMillis() - time;
+      LOG.info("Started connection - now about to try receive the textMessage");
 
-        LOG.info("Waited for: " + elapsed + " millis");
+      long time = System.currentTimeMillis();
+      Message message = subscriber.receive(15000L);
+      long elapsed = System.currentTimeMillis() - time;
 
-        assertNotNull("Should have received the message we published by now", message);
-        assertTrue("should be text textMessage", message instanceof TextMessage);
-        textMessage = (TextMessage)message;
-        assertEquals("Hello World", textMessage.getText());
-    }
+      LOG.info("Waited for: " + elapsed + " millis");
+
+      assertNotNull("Should have received the message we published by now", message);
+      assertTrue("should be text textMessage", message instanceof TextMessage);
+      textMessage = (TextMessage) message;
+      assertEquals("Hello World", textMessage.getText());
+   }
 }

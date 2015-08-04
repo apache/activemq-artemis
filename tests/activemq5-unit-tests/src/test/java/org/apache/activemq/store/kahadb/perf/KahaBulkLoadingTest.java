@@ -41,112 +41,110 @@ import org.slf4j.LoggerFactory;
 
 /**
  * This tests bulk loading and unloading of messages to a Queue.s
- *
- *
  */
 public class KahaBulkLoadingTest extends JmsTestSupport {
 
-    private static final Logger LOG = LoggerFactory.getLogger(KahaBulkLoadingTest.class);
+   private static final Logger LOG = LoggerFactory.getLogger(KahaBulkLoadingTest.class);
 
-    protected int messageSize = 1024 * 4;
+   protected int messageSize = 1024 * 4;
 
-    @Override
-    protected BrokerService createBroker() throws Exception {
-        BrokerService broker = new BrokerService();
-        KahaDBStore kaha = new KahaDBStore();
-        kaha.setDirectory(new File("target/activemq-data/kahadb"));
-        // kaha.deleteAllMessages();
-        broker.setPersistenceAdapter(kaha);
-        broker.addConnector("tcp://localhost:0");
-        return broker;
-    }
+   @Override
+   protected BrokerService createBroker() throws Exception {
+      BrokerService broker = new BrokerService();
+      KahaDBStore kaha = new KahaDBStore();
+      kaha.setDirectory(new File("target/activemq-data/kahadb"));
+      // kaha.deleteAllMessages();
+      broker.setPersistenceAdapter(kaha);
+      broker.addConnector("tcp://localhost:0");
+      return broker;
+   }
 
-    @Override
-    protected ConnectionFactory createConnectionFactory() throws URISyntaxException, IOException {
-        ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(broker.getTransportConnectors().get(0).getServer().getConnectURI());
-        factory.setUseAsyncSend(true);
-        return factory;
-    }
+   @Override
+   protected ConnectionFactory createConnectionFactory() throws URISyntaxException, IOException {
+      ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(broker.getTransportConnectors().get(0).getServer().getConnectURI());
+      factory.setUseAsyncSend(true);
+      return factory;
+   }
 
-    public void testQueueSendThenAddConsumer() throws Exception {
-        long start;
-        long end;
-        ActiveMQDestination destination = new ActiveMQQueue("TEST");
+   public void testQueueSendThenAddConsumer() throws Exception {
+      long start;
+      long end;
+      ActiveMQDestination destination = new ActiveMQQueue("TEST");
 
-        connection.setUseCompression(false);
-        connection.getPrefetchPolicy().setAll(10);
-        connection.start();
+      connection.setUseCompression(false);
+      connection.getPrefetchPolicy().setAll(10);
+      connection.start();
 
-        Session session = connection.createSession(false, Session.DUPS_OK_ACKNOWLEDGE);
+      Session session = connection.createSession(false, Session.DUPS_OK_ACKNOWLEDGE);
 
-        LOG.info("Receiving messages that are in the queue");
-        MessageConsumer consumer = session.createConsumer(destination);
-        BytesMessage msg = (BytesMessage)consumer.receive(2000);
-        int consumed = 0;
-        if( msg!=null ) {
-            consumed++;
-        }
-        while (true) {
-            int counter = 0;
+      LOG.info("Receiving messages that are in the queue");
+      MessageConsumer consumer = session.createConsumer(destination);
+      BytesMessage msg = (BytesMessage) consumer.receive(2000);
+      int consumed = 0;
+      if (msg != null) {
+         consumed++;
+      }
+      while (true) {
+         int counter = 0;
+         if (msg == null) {
+            break;
+         }
+         end = start = System.currentTimeMillis();
+         int size = 0;
+         while ((end - start) < 5000) {
+            msg = (BytesMessage) consumer.receive(5000);
             if (msg == null) {
-                break;
+               break;
             }
-            end = start = System.currentTimeMillis();
-            int size = 0;
-            while ((end - start) < 5000) {
-                msg = (BytesMessage)consumer.receive(5000);
-                if (msg == null) {
-                    break;
-                }
-                counter++;
-                consumed++;
-                end = System.currentTimeMillis();
-                size += msg.getBodyLength();
-            }
-            LOG.info("Consumed: " + (counter * 1000.0 / (end - start)) + " " + " messages/sec, " + (1.0 * size / (1024.0 * 1024.0)) * ((1000.0 / (end - start))) + " megs/sec ");
-        }
-        consumer.close();
-        LOG.info("Consumed " + consumed + " messages from the queue.");
+            counter++;
+            consumed++;
+            end = System.currentTimeMillis();
+            size += msg.getBodyLength();
+         }
+         LOG.info("Consumed: " + (counter * 1000.0 / (end - start)) + " " + " messages/sec, " + (1.0 * size / (1024.0 * 1024.0)) * ((1000.0 / (end - start))) + " megs/sec ");
+      }
+      consumer.close();
+      LOG.info("Consumed " + consumed + " messages from the queue.");
 
-        MessageProducer producer = session.createProducer(destination);
-        producer.setDeliveryMode(DeliveryMode.PERSISTENT);
+      MessageProducer producer = session.createProducer(destination);
+      producer.setDeliveryMode(DeliveryMode.PERSISTENT);
 
-        LOG.info("Sending messages that are " + (messageSize / 1024.0) + "k large");
-        // Send a message to the broker.
-        start = System.currentTimeMillis();
+      LOG.info("Sending messages that are " + (messageSize / 1024.0) + "k large");
+      // Send a message to the broker.
+      start = System.currentTimeMillis();
 
-        final AtomicBoolean stop = new AtomicBoolean();
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            @Override
-            public void run() {
-                stop.set(true);
-            }
-        });
+      final AtomicBoolean stop = new AtomicBoolean();
+      Runtime.getRuntime().addShutdownHook(new Thread() {
+         @Override
+         public void run() {
+            stop.set(true);
+         }
+      });
 
-        int produced = 0;
-        while (!stop.get()) {
-            end = start = System.currentTimeMillis();
-            int produceCount = 0;
-            while ((end - start) < 5000 && !stop.get()) {
-                BytesMessage bm = session.createBytesMessage();
-                bm.writeBytes(new byte[messageSize]);
-                producer.send(bm);
-                produceCount++;
-                produced++;
-                end = System.currentTimeMillis();
-            }
-            LOG.info("Produced: " + (produceCount * 1000.0 / (end - start)) + " messages/sec, " + (1.0 * produceCount * messageSize / (1024.0 * 1024.0)) * ((1000.0 / (end - start))) + " megs/sec");
-        }
-        LOG.info("Prodcued " + produced + " messages to the queue.");
+      int produced = 0;
+      while (!stop.get()) {
+         end = start = System.currentTimeMillis();
+         int produceCount = 0;
+         while ((end - start) < 5000 && !stop.get()) {
+            BytesMessage bm = session.createBytesMessage();
+            bm.writeBytes(new byte[messageSize]);
+            producer.send(bm);
+            produceCount++;
+            produced++;
+            end = System.currentTimeMillis();
+         }
+         LOG.info("Produced: " + (produceCount * 1000.0 / (end - start)) + " messages/sec, " + (1.0 * produceCount * messageSize / (1024.0 * 1024.0)) * ((1000.0 / (end - start))) + " megs/sec");
+      }
+      LOG.info("Prodcued " + produced + " messages to the queue.");
 
-    }
+   }
 
-    public static Test suite() {
-        return suite(KahaBulkLoadingTest.class);
-    }
+   public static Test suite() {
+      return suite(KahaBulkLoadingTest.class);
+   }
 
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(suite());
-    }
+   public static void main(String[] args) {
+      junit.textui.TestRunner.run(suite());
+   }
 
 }

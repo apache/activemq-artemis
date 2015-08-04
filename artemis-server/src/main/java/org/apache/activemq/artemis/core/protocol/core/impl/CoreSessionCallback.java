@@ -32,23 +32,21 @@ import org.apache.activemq.artemis.spi.core.protocol.ProtocolManager;
 import org.apache.activemq.artemis.spi.core.protocol.SessionCallback;
 import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
 
-public final class CoreSessionCallback implements SessionCallback
-{
+public final class CoreSessionCallback implements SessionCallback {
+
    private final Channel channel;
 
    private ProtocolManager protocolManager;
 
    private String name;
 
-   public CoreSessionCallback(String name, ProtocolManager protocolManager, Channel channel)
-   {
+   public CoreSessionCallback(String name, ProtocolManager protocolManager, Channel channel) {
       this.name = name;
       this.protocolManager = protocolManager;
       this.channel = channel;
    }
 
-   public int sendLargeMessage(ServerMessage message, ServerConsumer consumer, long bodySize, int deliveryCount)
-   {
+   public int sendLargeMessage(ServerMessage message, ServerConsumer consumer, long bodySize, int deliveryCount) {
       Packet packet = new SessionReceiveLargeMessage(consumer.getID(), message, bodySize, deliveryCount);
 
       channel.send(packet);
@@ -58,8 +56,10 @@ public final class CoreSessionCallback implements SessionCallback
       return size;
    }
 
-   public int sendLargeMessageContinuation(ServerConsumer consumer, byte[] body, boolean continues, boolean requiresResponse)
-   {
+   public int sendLargeMessageContinuation(ServerConsumer consumer,
+                                           byte[] body,
+                                           boolean continues,
+                                           boolean requiresResponse) {
       Packet packet = new SessionReceiveContinuationMessage(consumer.getID(), body, continues, requiresResponse);
 
       channel.send(packet);
@@ -67,67 +67,55 @@ public final class CoreSessionCallback implements SessionCallback
       return packet.getPacketSize();
    }
 
-   public int sendMessage(ServerMessage message, ServerConsumer consumer, int deliveryCount)
-   {
+   public int sendMessage(ServerMessage message, ServerConsumer consumer, int deliveryCount) {
       Packet packet = new SessionReceiveMessage(consumer.getID(), message, deliveryCount);
 
       int size = 0;
 
-      if (channel.sendBatched(packet))
-      {
+      if (channel.sendBatched(packet)) {
          size = packet.getPacketSize();
       }
 
       return size;
    }
 
-   public void sendProducerCreditsMessage(int credits, SimpleString address)
-   {
+   public void sendProducerCreditsMessage(int credits, SimpleString address) {
       Packet packet = new SessionProducerCreditsMessage(credits, address);
 
       channel.send(packet);
    }
 
    @Override
-   public void sendProducerCreditsFailMessage(int credits, SimpleString address)
-   {
+   public void sendProducerCreditsFailMessage(int credits, SimpleString address) {
       Packet packet = new SessionProducerCreditsFailMessage(credits, address);
 
       channel.send(packet);
    }
 
-   public void closed()
-   {
+   public void closed() {
       protocolManager.removeHandler(name);
    }
 
-   public void addReadyListener(final ReadyListener listener)
-   {
+   public void addReadyListener(final ReadyListener listener) {
       channel.getConnection().getTransportConnection().addReadyListener(listener);
    }
 
-   public void removeReadyListener(final ReadyListener listener)
-   {
+   public void removeReadyListener(final ReadyListener listener) {
       channel.getConnection().getTransportConnection().removeReadyListener(listener);
    }
 
    @Override
-   public void disconnect(ServerConsumer consumerId, String queueName)
-   {
-      if (channel.supports(PacketImpl.DISCONNECT_CONSUMER))
-      {
+   public void disconnect(ServerConsumer consumerId, String queueName) {
+      if (channel.supports(PacketImpl.DISCONNECT_CONSUMER)) {
          channel.send(new DisconnectConsumerMessage(consumerId.getID()));
       }
-      else
-      {
+      else {
          ActiveMQServerLogger.LOGGER.warnDisconnectOldClient(queueName);
       }
    }
 
-
    @Override
-   public boolean hasCredits(ServerConsumer consumer)
-   {
+   public boolean hasCredits(ServerConsumer consumer) {
       // This one will always return has credits
       // as the flow control is done by activemq
       return true;

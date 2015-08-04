@@ -24,25 +24,21 @@ import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.core.protocol.core.Packet;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 
-public class DummyInterceptorB implements Interceptor
-{
+public class DummyInterceptorB implements Interceptor {
 
    protected IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    static AtomicInteger syncCounter = new AtomicInteger(0);
 
-   public static int getCounter()
-   {
+   public static int getCounter() {
       return DummyInterceptorB.syncCounter.get();
    }
 
-   public static void clearCounter()
-   {
+   public static void clearCounter() {
       DummyInterceptorB.syncCounter.set(0);
    }
 
-   public boolean intercept(final Packet packet, final RemotingConnection conn) throws ActiveMQException
-   {
+   public boolean intercept(final Packet packet, final RemotingConnection conn) throws ActiveMQException {
       DummyInterceptorB.syncCounter.addAndGet(1);
       log.debug("DummyFilter packet = " + packet);
       return true;

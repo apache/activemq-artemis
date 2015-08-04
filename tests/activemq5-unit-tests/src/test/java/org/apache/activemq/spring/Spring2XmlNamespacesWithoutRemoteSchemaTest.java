@@ -17,7 +17,8 @@
 package org.apache.activemq.spring;
 
 public class Spring2XmlNamespacesWithoutRemoteSchemaTest extends SpringTestSupport {
-    public void testUsingSpring2NamespacesForANonExistingXsdDocument() throws Exception {
-        assertSenderConfig("spring-embedded-xbean-noversion.xml");
-    }
+
+   public void testUsingSpring2NamespacesForANonExistingXsdDocument() throws Exception {
+      assertSenderConfig("spring-embedded-xbean-noversion.xml");
+   }
 }

@@ -21,8 +21,7 @@ import java.io.Serializable;
 import javax.jms.JMSException;
 import javax.jms.ObjectMessage;
 
-public class SimpleJMSObjectMessage extends SimpleJMSMessage implements ObjectMessage
-{
+public class SimpleJMSObjectMessage extends SimpleJMSMessage implements ObjectMessage {
    // Constants -----------------------------------------------------
 
    // Static --------------------------------------------------------
@@ -35,13 +34,11 @@ public class SimpleJMSObjectMessage extends SimpleJMSMessage implements ObjectMe
 
    // ObjectMessage implementation ----------------------------------
 
-   public void setObject(final Serializable object) throws JMSException
-   {
+   public void setObject(final Serializable object) throws JMSException {
       this.object = object;
    }
 
-   public Serializable getObject() throws JMSException
-   {
+   public Serializable getObject() throws JMSException {
       return object;
    }
 

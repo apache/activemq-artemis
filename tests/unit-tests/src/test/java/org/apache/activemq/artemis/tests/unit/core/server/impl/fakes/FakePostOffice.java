@@ -35,159 +35,141 @@ import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.impl.MessageReferenceImpl;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 
-public class FakePostOffice implements PostOffice
-{
+public class FakePostOffice implements PostOffice {
 
    @Override
-   public boolean isStarted()
-   {
+   public boolean isStarted() {
 
       return false;
    }
 
    @Override
-   public Set<SimpleString> getAddresses()
-   {
+   public Set<SimpleString> getAddresses() {
       return null;
    }
 
    @Override
-   public void start() throws Exception
-   {
-
+   public void start() throws Exception {
 
    }
 
    @Override
-   public void stop() throws Exception
-   {
-
+   public void stop() throws Exception {
 
    }
 
    @Override
-   public void addBinding(final Binding binding) throws Exception
-   {
-
+   public void addBinding(final Binding binding) throws Exception {
 
    }
 
    @Override
-   public Binding getBinding(final SimpleString uniqueName)
-   {
+   public Binding getBinding(final SimpleString uniqueName) {
 
       return null;
    }
 
    @Override
-   public Bindings getBindingsForAddress(final SimpleString address) throws Exception
-   {
+   public Bindings getBindingsForAddress(final SimpleString address) throws Exception {
 
       return null;
    }
 
    @Override
-   public Map<SimpleString, Binding> getAllBindings()
-   {
+   public Map<SimpleString, Binding> getAllBindings() {
       return null;
    }
 
-   public Bindings lookupBindingsForAddress(final SimpleString address) throws Exception
-   {
+   public Bindings lookupBindingsForAddress(final SimpleString address) throws Exception {
 
       return null;
    }
 
    @Override
-   public DuplicateIDCache getDuplicateIDCache(final SimpleString address)
-   {
+   public DuplicateIDCache getDuplicateIDCache(final SimpleString address) {
       return new DuplicateIDCacheImpl(address, 2000, new NullStorageManager(), false);
    }
 
    @Override
-   public Bindings getMatchingBindings(final SimpleString address)
-   {
+   public Bindings getMatchingBindings(final SimpleString address) {
 
       return null;
    }
 
    @Override
-   public Object getNotificationLock()
-   {
+   public Object getNotificationLock() {
 
       return null;
    }
 
    @Override
-   public void startExpiryScanner()
-   {
+   public void startExpiryScanner() {
    }
 
    @Override
-   public boolean isAddressBound(SimpleString address) throws Exception
-   {
+   public boolean isAddressBound(SimpleString address) throws Exception {
       return false;
    }
 
    @Override
-   public Binding removeBinding(final SimpleString uniqueName, final Transaction tx) throws Exception
-   {
+   public Binding removeBinding(final SimpleString uniqueName, final Transaction tx) throws Exception {
 
       return null;
    }
 
    @Override
-   public void sendQueueInfoToQueue(final SimpleString queueName, final SimpleString address) throws Exception
-   {
-
+   public void sendQueueInfoToQueue(final SimpleString queueName, final SimpleString address) throws Exception {
 
    }
 
-   public Pair<RoutingContext, ServerMessage> redistribute(final ServerMessage message, final Queue originatingQueue, final Transaction tx) throws Exception
-   {
+   public Pair<RoutingContext, ServerMessage> redistribute(final ServerMessage message,
+                                                           final Queue originatingQueue,
+                                                           final Transaction tx) throws Exception {
       return null;
    }
 
-   public MessageReference reroute(final ServerMessage message, final Queue queue, final Transaction tx) throws Exception
-   {
+   public MessageReference reroute(final ServerMessage message,
+                                   final Queue queue,
+                                   final Transaction tx) throws Exception {
       message.incrementRefCount();
       return new MessageReferenceImpl();
    }
 
-   public void route(ServerMessage message, QueueCreator creator, RoutingContext context, boolean direct) throws Exception
-   {
-
-
-   }
-
-   public void route(ServerMessage message, QueueCreator creator, Transaction tx, boolean direct) throws Exception
-   {
-
+   public void route(ServerMessage message,
+                     QueueCreator creator,
+                     RoutingContext context,
+                     boolean direct) throws Exception {
 
    }
 
-   @Override
-   public void route(ServerMessage message, QueueCreator creator, RoutingContext context, boolean direct, boolean rejectDuplicates) throws Exception
-   {
-
+   public void route(ServerMessage message, QueueCreator creator, Transaction tx, boolean direct) throws Exception {
 
    }
 
    @Override
-   public void route(ServerMessage message, QueueCreator creator, Transaction tx, boolean direct, boolean rejectDuplicates) throws Exception
-   {
-
+   public void route(ServerMessage message,
+                     QueueCreator creator,
+                     RoutingContext context,
+                     boolean direct,
+                     boolean rejectDuplicates) throws Exception {
 
    }
 
    @Override
-   public void processRoute(ServerMessage message, RoutingContext context, boolean direct) throws Exception
-   {
+   public void route(ServerMessage message,
+                     QueueCreator creator,
+                     Transaction tx,
+                     boolean direct,
+                     boolean rejectDuplicates) throws Exception {
+
    }
 
    @Override
-   public void route(ServerMessage message, QueueCreator queueCreator, boolean direct) throws Exception
-   {
+   public void processRoute(ServerMessage message, RoutingContext context, boolean direct) throws Exception {
+   }
+
+   @Override
+   public void route(ServerMessage message, QueueCreator queueCreator, boolean direct) throws Exception {
 
    }
 }

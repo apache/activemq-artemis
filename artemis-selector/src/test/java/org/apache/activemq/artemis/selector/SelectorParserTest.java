@@ -29,29 +29,24 @@ import org.junit.Test;
 /**
  * @version $Revision: 1.2 $
  */
-public class SelectorParserTest
-{
+public class SelectorParserTest {
 
-   public void info(String msg)
-   {
+   public void info(String msg) {
       System.out.println(msg);
    }
 
    @Test
-   public void testParseXPath() throws Exception
-   {
+   public void testParseXPath() throws Exception {
       BooleanExpression filter = parse("XPATH '//title[@lang=''eng'']'");
       Assert.assertTrue("Created XPath expression", filter instanceof XPathExpression);
       info("Expression: " + filter);
    }
 
    @Test
-   public void testParseWithParensAround() throws Exception
-   {
+   public void testParseWithParensAround() throws Exception {
       String[] values = {"x = 1 and y = 2", "(x = 1) and (y = 2)", "((x = 1) and (y = 2))"};
 
-      for (int i = 0; i < values.length; i++)
-      {
+      for (int i = 0; i < values.length; i++) {
          String value = values[i];
          info("Parsing: " + value);
 
@@ -70,15 +65,13 @@ public class SelectorParserTest
       }
    }
 
-   protected void assertPropertyExpression(String message, Expression expression, String expected)
-   {
+   protected void assertPropertyExpression(String message, Expression expression, String expected) {
       Assert.assertTrue(message + ". Must be PropertyExpression", expression instanceof PropertyExpression);
       PropertyExpression propExp = (PropertyExpression) expression;
       Assert.assertEquals(message + ". Property name", expected, propExp.getName());
    }
 
-   protected BooleanExpression parse(String text) throws Exception
-   {
+   protected BooleanExpression parse(String text) throws Exception {
       return SelectorParser.parse(text);
    }
 }

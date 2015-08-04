@@ -23,8 +23,8 @@ import org.apache.activemq.artemis.core.server.RoutingContext;
 import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.group.UnproposalListener;
 
-public interface Binding extends UnproposalListener
-{
+public interface Binding extends UnproposalListener {
+
    SimpleString getAddress();
 
    Bindable getBindable();
@@ -55,7 +55,7 @@ public interface Binding extends UnproposalListener
 
    /**
     * This method will create a string representation meant for management operations.
-    * <p>
+    * <br>
     * This is different from the toString() method that is meant for debugging and will
     * contain information that regular users won't understand well.
     *

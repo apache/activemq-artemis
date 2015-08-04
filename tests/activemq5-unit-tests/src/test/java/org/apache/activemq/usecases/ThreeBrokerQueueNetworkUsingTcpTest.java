@@ -30,41 +30,44 @@ import org.apache.activemq.transport.TransportFactory;
  *
  */
 public class ThreeBrokerQueueNetworkUsingTcpTest extends ThreeBrokerQueueNetworkTest {
-    protected List<DemandForwardingBridge> bridges;
 
-    protected void bridgeBrokers(BrokerService localBroker, BrokerService remoteBroker) throws Exception {
-        List<TransportConnector> remoteTransports = remoteBroker.getTransportConnectors();
-        List<TransportConnector> localTransports = localBroker.getTransportConnectors();
+   protected List<DemandForwardingBridge> bridges;
 
-        URI remoteURI;
-        URI localURI;
-        if (!remoteTransports.isEmpty() && !localTransports.isEmpty()) {
-            remoteURI = remoteTransports.get(0).getConnectUri();
-            localURI = localTransports.get(0).getConnectUri();
+   protected void bridgeBrokers(BrokerService localBroker, BrokerService remoteBroker) throws Exception {
+      List<TransportConnector> remoteTransports = remoteBroker.getTransportConnectors();
+      List<TransportConnector> localTransports = localBroker.getTransportConnectors();
 
-            // Ensure that we are connecting using tcp
-            if (remoteURI.toString().startsWith("tcp:") && localURI.toString().startsWith("tcp:")) {
-                NetworkBridgeConfiguration config = new NetworkBridgeConfiguration();
-                config.setBrokerName(localBroker.getBrokerName());
-                DemandForwardingBridge bridge = new DemandForwardingBridge(config, TransportFactory.connect(localURI), TransportFactory.connect(remoteURI));
-                bridge.setBrokerService(localBroker);
-                bridges.add(bridge);
+      URI remoteURI;
+      URI localURI;
+      if (!remoteTransports.isEmpty() && !localTransports.isEmpty()) {
+         remoteURI = remoteTransports.get(0).getConnectUri();
+         localURI = localTransports.get(0).getConnectUri();
 
-                bridge.start();
-            } else {
-                throw new Exception("Remote broker or local broker is not using tcp connectors");
-            }
-        } else {
-            throw new Exception("Remote broker or local broker has no registered connectors.");
-        }
+         // Ensure that we are connecting using tcp
+         if (remoteURI.toString().startsWith("tcp:") && localURI.toString().startsWith("tcp:")) {
+            NetworkBridgeConfiguration config = new NetworkBridgeConfiguration();
+            config.setBrokerName(localBroker.getBrokerName());
+            DemandForwardingBridge bridge = new DemandForwardingBridge(config, TransportFactory.connect(localURI), TransportFactory.connect(remoteURI));
+            bridge.setBrokerService(localBroker);
+            bridges.add(bridge);
 
-        maxSetupTime = 2000;
-    }
+            bridge.start();
+         }
+         else {
+            throw new Exception("Remote broker or local broker is not using tcp connectors");
+         }
+      }
+      else {
+         throw new Exception("Remote broker or local broker has no registered connectors.");
+      }
 
-    @Override
-    public void setUp() throws Exception {
-        super.setUp();
+      maxSetupTime = 2000;
+   }
 
-        bridges = new ArrayList<DemandForwardingBridge>();
-    }
+   @Override
+   public void setUp() throws Exception {
+      super.setUp();
+
+      bridges = new ArrayList<DemandForwardingBridge>();
+   }
 }

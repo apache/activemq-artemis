@@ -21,8 +21,7 @@ import javax.transaction.xa.Xid;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
 
-public class XidCodecSupport
-{
+public class XidCodecSupport {
 
    // Constants -----------------------------------------------------
 
@@ -30,8 +29,7 @@ public class XidCodecSupport
 
    // Static --------------------------------------------------------
 
-   public static void encodeXid(final Xid xid, final ActiveMQBuffer out)
-   {
+   public static void encodeXid(final Xid xid, final ActiveMQBuffer out) {
       out.writeInt(xid.getFormatId());
       out.writeInt(xid.getBranchQualifier().length);
       out.writeBytes(xid.getBranchQualifier());
@@ -39,8 +37,7 @@ public class XidCodecSupport
       out.writeBytes(xid.getGlobalTransactionId());
    }
 
-   public static Xid decodeXid(final ActiveMQBuffer in)
-   {
+   public static Xid decodeXid(final ActiveMQBuffer in) {
       int formatID = in.readInt();
       byte[] bq = new byte[in.readInt()];
       in.readBytes(bq);
@@ -50,8 +47,7 @@ public class XidCodecSupport
       return xid;
    }
 
-   public static int getXidEncodeLength(final Xid xid)
-   {
+   public static int getXidEncodeLength(final Xid xid) {
       return DataConstants.SIZE_INT * 3 + xid.getBranchQualifier().length + xid.getGlobalTransactionId().length;
    }
 

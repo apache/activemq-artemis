@@ -24,14 +24,10 @@ import org.apache.activemq.artemis.dto.SecurityDTO;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManagerImpl;
 
-public class BasicSecurityHandler implements SecurityHandler
-{
+public class BasicSecurityHandler implements SecurityHandler {
 
-
-   static String fixupFileURI(String value)
-   {
-      if (value != null && value.startsWith("file:"))
-      {
+   static String fixupFileURI(String value) {
+      if (value != null && value.startsWith("file:")) {
          value = value.substring("file:".length());
          value = new File(value).toURI().toString();
       }
@@ -39,15 +35,10 @@ public class BasicSecurityHandler implements SecurityHandler
    }
 
    @Override
-   public ActiveMQSecurityManager createSecurityManager(SecurityDTO security) throws Exception
-   {
+   public ActiveMQSecurityManager createSecurityManager(SecurityDTO security) throws Exception {
       BasicSecurityDTO fileSecurity = (BasicSecurityDTO) security;
       String home = System.getProperty("activemq.home");
-      FileSecurityConfiguration securityConfiguration = new FileSecurityConfiguration(fixupFileURI(fileSecurity.users),
-                                                                                      fixupFileURI(fileSecurity.roles),
-                                                                                      fileSecurity.defaultUser,
-                                                                                      fileSecurity.maskPassword,
-                                                                                      fileSecurity.passwordCodec);
+      FileSecurityConfiguration securityConfiguration = new FileSecurityConfiguration(fixupFileURI(fileSecurity.users), fixupFileURI(fileSecurity.roles), fileSecurity.defaultUser, fileSecurity.maskPassword, fileSecurity.passwordCodec);
       securityConfiguration.start();
       return new ActiveMQSecurityManagerImpl(securityConfiguration);
    }

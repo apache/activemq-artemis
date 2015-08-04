@@ -28,17 +28,15 @@ import org.apache.activemq.artemis.ra.inflow.ActiveMQActivationSpec;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManagerImpl;
 import org.junit.Test;
 
-public class ActiveMQMessageHandlerSecurityTest extends ActiveMQRATestBase
-{
+public class ActiveMQMessageHandlerSecurityTest extends ActiveMQRATestBase {
+
    @Override
-   public boolean useSecurity()
-   {
+   public boolean useSecurity() {
       return true;
    }
 
    @Test
-   public void testSimpleMessageReceivedOnQueueWithSecurityFails() throws Exception
-   {
+   public void testSimpleMessageReceivedOnQueueWithSecurityFails() throws Exception {
       ActiveMQResourceAdapter qResourceAdapter = newResourceAdapter();
       MyBootstrapContext ctx = new MyBootstrapContext();
       qResourceAdapter.start(ctx);
@@ -62,8 +60,7 @@ public class ActiveMQMessageHandlerSecurityTest extends ActiveMQRATestBase
    }
 
    @Test
-   public void testSimpleMessageReceivedOnQueueWithSecuritySucceeds() throws Exception
-   {
+   public void testSimpleMessageReceivedOnQueueWithSecuritySucceeds() throws Exception {
       ActiveMQSecurityManagerImpl securityManager = (ActiveMQSecurityManagerImpl) server.getSecurityManager();
       securityManager.getConfiguration().addUser("testuser", "testpassword");
       securityManager.getConfiguration().addRole("testuser", "arole");

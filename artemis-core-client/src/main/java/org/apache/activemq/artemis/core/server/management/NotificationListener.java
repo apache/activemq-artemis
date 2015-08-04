@@ -16,8 +16,7 @@
  */
 package org.apache.activemq.artemis.core.server.management;
 
+public interface NotificationListener {
 
-public interface NotificationListener
-{
    void onNotification(Notification notification);
 }

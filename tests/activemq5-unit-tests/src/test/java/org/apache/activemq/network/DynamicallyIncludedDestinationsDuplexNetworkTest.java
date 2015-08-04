@@ -37,81 +37,78 @@ import org.junit.Test;
  */
 public class DynamicallyIncludedDestinationsDuplexNetworkTest extends SimpleNetworkTest {
 
-    private static final int REMOTE_BROKER_TCP_PORT = 61617;
+   private static final int REMOTE_BROKER_TCP_PORT = 61617;
 
-    @Override
-    protected String getLocalBrokerURI() {
-        return "org/apache/activemq/network/duplexDynamicIncludedDestLocalBroker.xml";
-    }
+   @Override
+   protected String getLocalBrokerURI() {
+      return "org/apache/activemq/network/duplexDynamicIncludedDestLocalBroker.xml";
+   }
 
-    @Override
-    protected BrokerService createRemoteBroker() throws Exception {
-        BrokerService broker = new BrokerService();
-        broker.setBrokerName("remoteBroker");
-        broker.addConnector("tcp://localhost:" + REMOTE_BROKER_TCP_PORT);
-        return broker;
-    }
+   @Override
+   protected BrokerService createRemoteBroker() throws Exception {
+      BrokerService broker = new BrokerService();
+      broker.setBrokerName("remoteBroker");
+      broker.addConnector("tcp://localhost:" + REMOTE_BROKER_TCP_PORT);
+      return broker;
+   }
 
-    // we have to override this, because with dynamicallyIncludedDestinations working properly
-    // (see https://issues.apache.org/jira/browse/AMQ-4209) you can't get request/response
-    // with temps working (there is no wild card like there is for staticallyIncludedDest)
-    //
-    @Override
-    public void testRequestReply() throws Exception {
+   // we have to override this, because with dynamicallyIncludedDestinations working properly
+   // (see https://issues.apache.org/jira/browse/AMQ-4209) you can't get request/response
+   // with temps working (there is no wild card like there is for staticallyIncludedDest)
+   //
+   @Override
+   public void testRequestReply() throws Exception {
 
-    }
+   }
 
-    @Test
-    public void testTempQueues() throws Exception {
-        TemporaryQueue temp = localSession.createTemporaryQueue();
-        MessageProducer producer = localSession.createProducer(temp);
-        producer.send(localSession.createTextMessage("test"));
-        Thread.sleep(100);
-        assertEquals("Destination not created", 1, remoteBroker.getAdminView().getTemporaryQueues().length);
-        temp.delete();
-        Thread.sleep(100);
-        assertEquals("Destination not deleted", 0, remoteBroker.getAdminView().getTemporaryQueues().length);
-    }
+   @Test
+   public void testTempQueues() throws Exception {
+      TemporaryQueue temp = localSession.createTemporaryQueue();
+      MessageProducer producer = localSession.createProducer(temp);
+      producer.send(localSession.createTextMessage("test"));
+      Thread.sleep(100);
+      assertEquals("Destination not created", 1, remoteBroker.getAdminView().getTemporaryQueues().length);
+      temp.delete();
+      Thread.sleep(100);
+      assertEquals("Destination not deleted", 0, remoteBroker.getAdminView().getTemporaryQueues().length);
+   }
 
-    @Test
-    public void testDynamicallyIncludedDestinationsForDuplex()  throws Exception{
-        // Once the bridge is set up, we should see the filter used for the duplex end of the bridge
-        // only subscribe to the specific destinations included in the <dynamicallyIncludedDestinations> list
-        // so let's test that the filter is correct, let's also test the subscription on the localbroker
-        // is correct
+   @Test
+   public void testDynamicallyIncludedDestinationsForDuplex() throws Exception {
+      // Once the bridge is set up, we should see the filter used for the duplex end of the bridge
+      // only subscribe to the specific destinations included in the <dynamicallyIncludedDestinations> list
+      // so let's test that the filter is correct, let's also test the subscription on the localbroker
+      // is correct
 
-        // the bridge on the remote broker has the correct filter
-        TransportConnection bridgeConnection = getDuplexBridgeConnectionFromRemote();
-        assertNotNull(bridgeConnection);
-        DemandForwardingBridge duplexBridge = getDuplexBridgeFromConnection(bridgeConnection);
-        assertNotNull(duplexBridge);
-        NetworkBridgeConfiguration configuration = getConfigurationFromNetworkBridge(duplexBridge);
-        assertNotNull(configuration);
-        assertFalse("This destinationFilter does not include ONLY the destinations specified in dynamicallyIncludedDestinations",
-                configuration.getDestinationFilter().equals(AdvisorySupport.CONSUMER_ADVISORY_TOPIC_PREFIX + ">"));
-        assertEquals("There are other patterns in the destinationFilter that shouldn't be there",
-                "ActiveMQ.Advisory.Consumer.Queue.include.test.foo,ActiveMQ.Advisory.Consumer.Topic.include.test.bar",
-                configuration.getDestinationFilter());
-    }
+      // the bridge on the remote broker has the correct filter
+      TransportConnection bridgeConnection = getDuplexBridgeConnectionFromRemote();
+      assertNotNull(bridgeConnection);
+      DemandForwardingBridge duplexBridge = getDuplexBridgeFromConnection(bridgeConnection);
+      assertNotNull(duplexBridge);
+      NetworkBridgeConfiguration configuration = getConfigurationFromNetworkBridge(duplexBridge);
+      assertNotNull(configuration);
+      assertFalse("This destinationFilter does not include ONLY the destinations specified in dynamicallyIncludedDestinations", configuration.getDestinationFilter().equals(AdvisorySupport.CONSUMER_ADVISORY_TOPIC_PREFIX + ">"));
+      assertEquals("There are other patterns in the destinationFilter that shouldn't be there", "ActiveMQ.Advisory.Consumer.Queue.include.test.foo,ActiveMQ.Advisory.Consumer.Topic.include.test.bar", configuration.getDestinationFilter());
+   }
 
-    private NetworkBridgeConfiguration getConfigurationFromNetworkBridge(DemandForwardingBridgeSupport duplexBridge) throws NoSuchFieldException, IllegalAccessException {
-        Field f = DemandForwardingBridgeSupport.class.getDeclaredField("configuration");
-        f.setAccessible(true);
-        NetworkBridgeConfiguration configuration = (NetworkBridgeConfiguration) f.get(duplexBridge);
-        return configuration;
-    }
+   private NetworkBridgeConfiguration getConfigurationFromNetworkBridge(DemandForwardingBridgeSupport duplexBridge) throws NoSuchFieldException, IllegalAccessException {
+      Field f = DemandForwardingBridgeSupport.class.getDeclaredField("configuration");
+      f.setAccessible(true);
+      NetworkBridgeConfiguration configuration = (NetworkBridgeConfiguration) f.get(duplexBridge);
+      return configuration;
+   }
 
-    private DemandForwardingBridge getDuplexBridgeFromConnection(TransportConnection bridgeConnection) throws NoSuchFieldException, IllegalAccessException {
-        Field f = TransportConnection.class.getDeclaredField("duplexBridge");
-        f.setAccessible(true);
-        DemandForwardingBridge bridge = (DemandForwardingBridge) f.get(bridgeConnection);
-        return bridge;
-    }
+   private DemandForwardingBridge getDuplexBridgeFromConnection(TransportConnection bridgeConnection) throws NoSuchFieldException, IllegalAccessException {
+      Field f = TransportConnection.class.getDeclaredField("duplexBridge");
+      f.setAccessible(true);
+      DemandForwardingBridge bridge = (DemandForwardingBridge) f.get(bridgeConnection);
+      return bridge;
+   }
 
-    public TransportConnection getDuplexBridgeConnectionFromRemote() {
-        TransportConnector transportConnector = remoteBroker.getTransportConnectorByScheme("tcp");
-        CopyOnWriteArrayList<TransportConnection> transportConnections = transportConnector.getConnections();
-        TransportConnection duplexBridgeConnectionFromRemote = transportConnections.get(0);
-        return duplexBridgeConnectionFromRemote;
-    }
+   public TransportConnection getDuplexBridgeConnectionFromRemote() {
+      TransportConnector transportConnector = remoteBroker.getTransportConnectorByScheme("tcp");
+      CopyOnWriteArrayList<TransportConnection> transportConnections = transportConnector.getConnections();
+      TransportConnection duplexBridgeConnectionFromRemote = transportConnections.get(0);
+      return duplexBridgeConnectionFromRemote;
+   }
 }

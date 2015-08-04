@@ -31,8 +31,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class SessionCreateAndDeleteQueueTest extends ActiveMQTestBase
-{
+public class SessionCreateAndDeleteQueueTest extends ActiveMQTestBase {
+
    private ActiveMQServer server;
 
    private final SimpleString address = new SimpleString("address");
@@ -41,10 +41,8 @@ public class SessionCreateAndDeleteQueueTest extends ActiveMQTestBase
 
    private ServerLocator locator;
 
-
    @Test
-   public void testDurableFalse() throws Exception
-   {
+   public void testDurableFalse() throws Exception {
       ClientSession session = createSessionFactory(locator).createSession(false, true, true);
       session.createQueue(address, queueName, false);
       Binding binding = server.getPostOffice().getBinding(queueName);
@@ -55,8 +53,7 @@ public class SessionCreateAndDeleteQueueTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testDurableTrue() throws Exception
-   {
+   public void testDurableTrue() throws Exception {
       ClientSession session = createSessionFactory(locator).createSession(false, true, true);
       session.createQueue(address, queueName, true);
       Binding binding = server.getPostOffice().getBinding(queueName);
@@ -67,8 +64,7 @@ public class SessionCreateAndDeleteQueueTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testTemporaryFalse() throws Exception
-   {
+   public void testTemporaryFalse() throws Exception {
       ClientSession session = createSessionFactory(locator).createSession(false, true, true);
       session.createQueue(address, queueName, false);
       Binding binding = server.getPostOffice().getBinding(queueName);
@@ -79,8 +75,7 @@ public class SessionCreateAndDeleteQueueTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testTemporaryTrue() throws Exception
-   {
+   public void testTemporaryTrue() throws Exception {
       ClientSession session = createSessionFactory(locator).createSession(false, true, true);
       session.createTemporaryQueue(address, queueName);
       Binding binding = server.getPostOffice().getBinding(queueName);
@@ -91,8 +86,7 @@ public class SessionCreateAndDeleteQueueTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testcreateWithFilter() throws Exception
-   {
+   public void testcreateWithFilter() throws Exception {
       ClientSession session = createSessionFactory(locator).createSession(false, true, true);
       SimpleString filterString = new SimpleString("x=y");
       session.createQueue(address, queueName, filterString, false);
@@ -104,8 +98,7 @@ public class SessionCreateAndDeleteQueueTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testAddressSettingUSed() throws Exception
-   {
+   public void testAddressSettingUSed() throws Exception {
       server.getAddressSettingsRepository().addMatch(address.toString(), new AddressSettings().setLastValueQueue(true));
       ClientSession session = createSessionFactory(locator).createSession(false, true, true);
       SimpleString filterString = new SimpleString("x=y");
@@ -117,8 +110,7 @@ public class SessionCreateAndDeleteQueueTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testDeleteQueue() throws Exception
-   {
+   public void testDeleteQueue() throws Exception {
       ClientSession session = createSessionFactory(locator).createSession(false, true, true);
       session.createQueue(address, queueName, false);
       Binding binding = server.getPostOffice().getBinding(queueName);
@@ -130,20 +122,16 @@ public class SessionCreateAndDeleteQueueTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testDeleteQueueNotExist() throws Exception
-   {
+   public void testDeleteQueueNotExist() throws Exception {
       ClientSession session = createSessionFactory(locator).createSession(false, true, true);
-      try
-      {
+      try {
          session.deleteQueue(queueName);
          Assert.fail("should throw exception");
       }
-      catch (ActiveMQNonExistentQueueException neqe)
-      {
+      catch (ActiveMQNonExistentQueueException neqe) {
          //ok
       }
-      catch (ActiveMQException e)
-      {
+      catch (ActiveMQException e) {
          fail("Invalid Exception type:" + e.getType());
       }
       session.close();
@@ -151,8 +139,7 @@ public class SessionCreateAndDeleteQueueTest extends ActiveMQTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
       server = createServer(false);
       server.start();

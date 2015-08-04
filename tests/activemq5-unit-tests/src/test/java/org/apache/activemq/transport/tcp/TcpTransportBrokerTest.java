@@ -17,25 +17,26 @@
 package org.apache.activemq.transport.tcp;
 
 import junit.framework.Test;
+
 import org.apache.activemq.transport.TransportBrokerTestSupport;
 
 public class TcpTransportBrokerTest extends TransportBrokerTestSupport {
 
-    protected String getBindLocation() {
-        return "tcp://localhost:0";
-    }
+   protected String getBindLocation() {
+      return "tcp://localhost:0";
+   }
 
-    protected void setUp() throws Exception {
-        maxWait = 2000;
-        super.setUp();
-    }
+   protected void setUp() throws Exception {
+      maxWait = 2000;
+      super.setUp();
+   }
 
-    public static Test suite() {
-        return suite(TcpTransportBrokerTest.class);
-    }
+   public static Test suite() {
+      return suite(TcpTransportBrokerTest.class);
+   }
 
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(suite());
-    }
+   public static void main(String[] args) {
+      junit.textui.TestRunner.run(suite());
+   }
 
 }

@@ -16,48 +16,37 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
-
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
 
-public class ReplicatedLargeMessageFailoverTest extends LargeMessageFailoverTest
-{
+public class ReplicatedLargeMessageFailoverTest extends LargeMessageFailoverTest {
 
    @Override
-   protected void createConfigs() throws Exception
-   {
+   protected void createConfigs() throws Exception {
       createReplicatedConfigs();
    }
 
    @Override
-   protected void crash(boolean waitFailure, ClientSession... sessions) throws Exception
-   {
-      if (sessions.length > 0)
-      {
-         for (ClientSession session : sessions)
-         {
-            waitForRemoteBackup(((ClientSessionInternal)session).getSessionFactory(), 5, true, backupServer.getServer());
+   protected void crash(boolean waitFailure, ClientSession... sessions) throws Exception {
+      if (sessions.length > 0) {
+         for (ClientSession session : sessions) {
+            waitForRemoteBackup(((ClientSessionInternal) session).getSessionFactory(), 5, true, backupServer.getServer());
          }
       }
-      else
-      {
+      else {
          waitForRemoteBackup(null, 5, true, backupServer.getServer());
       }
       super.crash(waitFailure, sessions);
    }
 
    @Override
-   protected void crash(ClientSession... sessions) throws Exception
-   {
-      if (sessions.length > 0)
-      {
-         for (ClientSession session : sessions)
-         {
-            waitForRemoteBackup(((ClientSessionInternal)session).getSessionFactory(), 5, true, backupServer.getServer());
+   protected void crash(ClientSession... sessions) throws Exception {
+      if (sessions.length > 0) {
+         for (ClientSession session : sessions) {
+            waitForRemoteBackup(((ClientSessionInternal) session).getSessionFactory(), 5, true, backupServer.getServer());
          }
       }
-      else
-      {
+      else {
          waitForRemoteBackup(null, 5, true, backupServer.getServer());
       }
       super.crash(sessions);

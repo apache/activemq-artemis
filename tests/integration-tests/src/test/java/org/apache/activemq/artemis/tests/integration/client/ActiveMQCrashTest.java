@@ -38,12 +38,10 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- *
  * From https://jira.jboss.org/jira/browse/HORNETQ-144
- *
  */
-public class ActiveMQCrashTest extends ActiveMQTestBase
-{
+public class ActiveMQCrashTest extends ActiveMQTestBase {
+
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    public ActiveMQServer server;
@@ -52,10 +50,8 @@ public class ActiveMQCrashTest extends ActiveMQTestBase
    private ServerLocator locator;
 
    @Test
-   public void testHang() throws Exception
-   {
-      Configuration configuration = createDefaultInVMConfig()
-         .setPersistenceEnabled(false);
+   public void testHang() throws Exception {
+      Configuration configuration = createDefaultInVMConfig().setPersistenceEnabled(false);
 
       server = addServer(ActiveMQServers.newActiveMQServer(configuration));
 
@@ -70,10 +66,8 @@ public class ActiveMQCrashTest extends ActiveMQTestBase
 
       ClientSession session = clientSessionFactory.createSession();
 
-      session.setSendAcknowledgementHandler(new SendAcknowledgementHandler()
-      {
-         public void sendAcknowledged(final Message message)
-         {
+      session.setSendAcknowledgementHandler(new SendAcknowledgementHandler() {
+         public void sendAcknowledged(final Message message) {
             ackReceived = true;
          }
       });
@@ -93,43 +87,34 @@ public class ActiveMQCrashTest extends ActiveMQTestBase
       session.close();
    }
 
-   public static class AckInterceptor implements Interceptor
-   {
+   public static class AckInterceptor implements Interceptor {
+
       private final ActiveMQServer server;
 
-      AckInterceptor(final ActiveMQServer server)
-      {
+      AckInterceptor(final ActiveMQServer server) {
          this.server = server;
       }
 
-      public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException
-      {
+      public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException {
          ActiveMQCrashTest.log.info("AckInterceptor.intercept " + packet);
 
-         if (packet.getType() == PacketImpl.SESS_SEND)
-         {
-            try
-            {
+         if (packet.getType() == PacketImpl.SESS_SEND) {
+            try {
                ActiveMQCrashTest.log.info("Stopping server");
 
-               new Thread()
-               {
+               new Thread() {
                   @Override
-                  public void run()
-                  {
-                     try
-                     {
+                  public void run() {
+                     try {
                         server.stop();
                      }
-                     catch (Exception e)
-                     {
+                     catch (Exception e) {
                         e.printStackTrace();
                      }
                   }
                }.start();
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                e.printStackTrace();
             }
 
@@ -142,8 +127,7 @@ public class ActiveMQCrashTest extends ActiveMQTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
       locator = createInVMNonHALocator();
    }

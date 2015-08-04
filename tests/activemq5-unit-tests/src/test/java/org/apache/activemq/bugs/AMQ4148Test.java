@@ -38,58 +38,56 @@ import org.junit.Assert;
  */
 public class AMQ4148Test extends JmsMultipleBrokersTestSupport {
 
-    public void test() throws Exception {
-        // Create a hub-and-spoke network where each hub-spoke pair share
-        // messages on a test queue.
-        BrokerService hub = createBroker(new URI("broker:(vm://hub)/hub?persistent=false"));
+   public void test() throws Exception {
+      // Create a hub-and-spoke network where each hub-spoke pair share
+      // messages on a test queue.
+      BrokerService hub = createBroker(new URI("broker:(vm://hub)/hub?persistent=false"));
 
-        final BrokerService[] spokes = new BrokerService[4];
-        for (int i = 0; i < spokes.length; i++) {
-            spokes[i] = createBroker(new URI("broker:(vm://spoke" + i + ")/spoke" + i + "?persistent=false"));
+      final BrokerService[] spokes = new BrokerService[4];
+      for (int i = 0; i < spokes.length; i++) {
+         spokes[i] = createBroker(new URI("broker:(vm://spoke" + i + ")/spoke" + i + "?persistent=false"));
 
-        }
-        startAllBrokers();
+      }
+      startAllBrokers();
 
-        ActiveMQDestination testQueue = createDestination(AMQ4148Test.class.getSimpleName() + ".queue", false);
+      ActiveMQDestination testQueue = createDestination(AMQ4148Test.class.getSimpleName() + ".queue", false);
 
-        NetworkConnector[] ncs = new NetworkConnector[spokes.length];
-        for (int i = 0; i < spokes.length; i++) {
-            NetworkConnector nc = bridgeBrokers("hub", "spoke" + i);
-            nc.setNetworkTTL(1);
-            nc.setDuplex(true);
-            nc.setConduitSubscriptions(false);
-            nc.setStaticallyIncludedDestinations(Arrays.asList(testQueue));
-            nc.start();
+      NetworkConnector[] ncs = new NetworkConnector[spokes.length];
+      for (int i = 0; i < spokes.length; i++) {
+         NetworkConnector nc = bridgeBrokers("hub", "spoke" + i);
+         nc.setNetworkTTL(1);
+         nc.setDuplex(true);
+         nc.setConduitSubscriptions(false);
+         nc.setStaticallyIncludedDestinations(Arrays.asList(testQueue));
+         nc.start();
 
-            ncs[i] = nc;
-        }
+         ncs[i] = nc;
+      }
 
-        waitForBridgeFormation();
+      waitForBridgeFormation();
 
-        // Pause to allow subscriptions to be created.
-        TimeUnit.SECONDS.sleep(5);
+      // Pause to allow subscriptions to be created.
+      TimeUnit.SECONDS.sleep(5);
 
-        // Verify that the hub has a subscription from each spoke, but that each
-        // spoke has a single subscription from the hub (since the network TTL is 1).
-        final Destination hubTestQueue = hub.getDestination(testQueue);
-        assertTrue("Expecting {" + spokes.length + "} consumer but was {" + hubTestQueue.getConsumers().size() + "}",
-            Wait.waitFor(new Wait.Condition() {
+      // Verify that the hub has a subscription from each spoke, but that each
+      // spoke has a single subscription from the hub (since the network TTL is 1).
+      final Destination hubTestQueue = hub.getDestination(testQueue);
+      assertTrue("Expecting {" + spokes.length + "} consumer but was {" + hubTestQueue.getConsumers().size() + "}", Wait.waitFor(new Wait.Condition() {
 
-                @Override
-                public boolean isSatisified() throws Exception {
-                    return spokes.length == hubTestQueue.getConsumers().size();
-                }
-            })
-        );
+                    @Override
+                    public boolean isSatisified() throws Exception {
+                       return spokes.length == hubTestQueue.getConsumers().size();
+                    }
+                 }));
 
-        // Now check each spoke has exactly one consumer on the Queue.
-        for (int i = 0; i < 4; i++) {
-            Destination spokeTestQueue = spokes[i].getDestination(testQueue);
-            Assert.assertEquals(1, spokeTestQueue.getConsumers().size());
-        }
+      // Now check each spoke has exactly one consumer on the Queue.
+      for (int i = 0; i < 4; i++) {
+         Destination spokeTestQueue = spokes[i].getDestination(testQueue);
+         Assert.assertEquals(1, spokeTestQueue.getConsumers().size());
+      }
 
-        for (NetworkConnector nc : ncs) {
-            nc.stop();
-        }
-    }
+      for (NetworkConnector nc : ncs) {
+         nc.stop();
+      }
+   }
 }

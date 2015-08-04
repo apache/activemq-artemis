@@ -25,19 +25,16 @@ import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.core.transaction.TransactionDetail;
 
-public class CoreTransactionDetail extends TransactionDetail
-{
-   public CoreTransactionDetail(Xid xid, Transaction tx, Long creation) throws Exception
-   {
-      super(xid,tx,creation);
+public class CoreTransactionDetail extends TransactionDetail {
+
+   public CoreTransactionDetail(Xid xid, Transaction tx, Long creation) throws Exception {
+      super(xid, tx, creation);
    }
 
    @Override
-   public String decodeMessageType(ServerMessage msg)
-   {
+   public String decodeMessageType(ServerMessage msg) {
       int type = msg.getType();
-      switch (type)
-      {
+      switch (type) {
          case Message.DEFAULT_TYPE: // 0
             return "Default";
          case Message.OBJECT_TYPE: // 2
@@ -56,8 +53,7 @@ public class CoreTransactionDetail extends TransactionDetail
    }
 
    @Override
-   public Map<String, Object> decodeMessageProperties(ServerMessage msg)
-   {
+   public Map<String, Object> decodeMessageProperties(ServerMessage msg) {
       return msg.toMap();
    }
 }

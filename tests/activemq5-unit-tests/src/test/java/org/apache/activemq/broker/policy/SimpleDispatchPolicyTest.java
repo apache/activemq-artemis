@@ -36,56 +36,57 @@ import static org.junit.Assert.fail;
 @RunWith(BlockJUnit4ClassRunner.class)
 public class SimpleDispatchPolicyTest extends QueueSubscriptionTest {
 
-    @Override
-    protected BrokerService createBroker() throws Exception {
-        BrokerService broker = super.createBroker();
+   @Override
+   protected BrokerService createBroker() throws Exception {
+      BrokerService broker = super.createBroker();
 
-        PolicyEntry policy = new PolicyEntry();
-        policy.setDispatchPolicy(new SimpleDispatchPolicy());
-        policy.setSubscriptionRecoveryPolicy(new FixedCountSubscriptionRecoveryPolicy());
-        PolicyMap pMap = new PolicyMap();
-        pMap.setDefaultEntry(policy);
+      PolicyEntry policy = new PolicyEntry();
+      policy.setDispatchPolicy(new SimpleDispatchPolicy());
+      policy.setSubscriptionRecoveryPolicy(new FixedCountSubscriptionRecoveryPolicy());
+      PolicyMap pMap = new PolicyMap();
+      pMap.setDefaultEntry(policy);
 
-        broker.setDestinationPolicy(pMap);
+      broker.setDestinationPolicy(pMap);
 
-        return broker;
-    }
+      return broker;
+   }
 
-    @Override
-    @Test(timeout = 60 * 1000)
-    public void testOneProducerTwoConsumersSmallMessagesLargePrefetch() throws Exception {
-        super.testOneProducerTwoConsumersSmallMessagesLargePrefetch();
+   @Override
+   @Test(timeout = 60 * 1000)
+   public void testOneProducerTwoConsumersSmallMessagesLargePrefetch() throws Exception {
+      super.testOneProducerTwoConsumersSmallMessagesLargePrefetch();
 
-        // One consumer should have received all messages, and the rest none
-        // assertOneConsumerReceivedAllMessages(messageCount);
-    }
+      // One consumer should have received all messages, and the rest none
+      // assertOneConsumerReceivedAllMessages(messageCount);
+   }
 
-    @Override
-    @Test(timeout = 60 * 1000)
-    public void testOneProducerTwoConsumersLargeMessagesLargePrefetch() throws Exception {
-        super.testOneProducerTwoConsumersLargeMessagesLargePrefetch();
+   @Override
+   @Test(timeout = 60 * 1000)
+   public void testOneProducerTwoConsumersLargeMessagesLargePrefetch() throws Exception {
+      super.testOneProducerTwoConsumersLargeMessagesLargePrefetch();
 
-        // One consumer should have received all messages, and the rest none
-        // assertOneConsumerReceivedAllMessages(messageCount);
-    }
+      // One consumer should have received all messages, and the rest none
+      // assertOneConsumerReceivedAllMessages(messageCount);
+   }
 
-    public void assertOneConsumerReceivedAllMessages(int messageCount) throws Exception {
-        boolean found = false;
-        for (Iterator<MessageConsumer> i = consumers.keySet().iterator(); i.hasNext();) {
-            MessageIdList messageIdList = consumers.get(i.next());
-            int count = messageIdList.getMessageCount();
-            if (count > 0) {
-                if (found) {
-                    fail("No other consumers should have received any messages");
-                } else {
-                    assertEquals("Consumer should have received all messages.", messageCount, count);
-                    found = true;
-                }
+   public void assertOneConsumerReceivedAllMessages(int messageCount) throws Exception {
+      boolean found = false;
+      for (Iterator<MessageConsumer> i = consumers.keySet().iterator(); i.hasNext(); ) {
+         MessageIdList messageIdList = consumers.get(i.next());
+         int count = messageIdList.getMessageCount();
+         if (count > 0) {
+            if (found) {
+               fail("No other consumers should have received any messages");
             }
-        }
+            else {
+               assertEquals("Consumer should have received all messages.", messageCount, count);
+               found = true;
+            }
+         }
+      }
 
-        if (!found) {
-            fail("At least one consumer should have received all messages");
-        }
-    }
+      if (!found) {
+         fail("At least one consumer should have received all messages");
+      }
+   }
 }

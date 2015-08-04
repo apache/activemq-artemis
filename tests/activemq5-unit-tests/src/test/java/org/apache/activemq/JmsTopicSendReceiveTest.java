@@ -27,66 +27,68 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * 
+ *
  */
 public class JmsTopicSendReceiveTest extends JmsSendReceiveTestSupport {
-    private static final Logger LOG = LoggerFactory.getLogger(JmsTopicSendReceiveTest.class);
 
-    protected Connection connection;
+   private static final Logger LOG = LoggerFactory.getLogger(JmsTopicSendReceiveTest.class);
 
-    protected void setUp() throws Exception {
-        super.setUp();
+   protected Connection connection;
 
-        connectionFactory = createConnectionFactory();
-        connection = createConnection();
-        if (durable) {
-            connection.setClientID(getClass().getName());
-        }
+   protected void setUp() throws Exception {
+      super.setUp();
 
-        LOG.info("Created connection: " + connection);
+      connectionFactory = createConnectionFactory();
+      connection = createConnection();
+      if (durable) {
+         connection.setClientID(getClass().getName());
+      }
 
-        session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      LOG.info("Created connection: " + connection);
 
-        LOG.info("Created session: " + session);
-        producer = session.createProducer(null);
-        producer.setDeliveryMode(deliveryMode);
+      session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-        LOG.info("Created producer: " + producer + " delivery mode = " + (deliveryMode == DeliveryMode.PERSISTENT ? "PERSISTENT" : "NON_PERSISTENT"));
+      LOG.info("Created session: " + session);
+      producer = session.createProducer(null);
+      producer.setDeliveryMode(deliveryMode);
 
-        if (topic) {
-            consumerDestination = session.createTopic(getConsumerSubject());
-            producerDestination = session.createTopic(getProducerSubject());
-        } else {
-            consumerDestination = session.createQueue(getConsumerSubject());
-            producerDestination = session.createQueue(getProducerSubject());
-        }
+      LOG.info("Created producer: " + producer + " delivery mode = " + (deliveryMode == DeliveryMode.PERSISTENT ? "PERSISTENT" : "NON_PERSISTENT"));
 
-        LOG.info("Created  consumer destination: " + consumerDestination + " of type: " + consumerDestination.getClass());
-        LOG.info("Created  producer destination: " + producerDestination + " of type: " + producerDestination.getClass());
-        consumer = createConsumer();
-        consumer.setMessageListener(this);
-        connection.start();
+      if (topic) {
+         consumerDestination = session.createTopic(getConsumerSubject());
+         producerDestination = session.createTopic(getProducerSubject());
+      }
+      else {
+         consumerDestination = session.createQueue(getConsumerSubject());
+         producerDestination = session.createQueue(getProducerSubject());
+      }
 
-        // log.info("Created connection: " + connection);
-    }
+      LOG.info("Created  consumer destination: " + consumerDestination + " of type: " + consumerDestination.getClass());
+      LOG.info("Created  producer destination: " + producerDestination + " of type: " + producerDestination.getClass());
+      consumer = createConsumer();
+      consumer.setMessageListener(this);
+      connection.start();
 
-    protected MessageConsumer createConsumer() throws JMSException {
-        if (durable) {
-            LOG.info("Creating durable consumer");
-            return session.createDurableSubscriber((Topic)consumerDestination, getName());
-        }
-        return session.createConsumer(consumerDestination);
-    }
+      // log.info("Created connection: " + connection);
+   }
 
-    protected void tearDown() throws Exception {
-        LOG.info("Dumping stats...");
-        // connectionFactory.getStats().reset();
+   protected MessageConsumer createConsumer() throws JMSException {
+      if (durable) {
+         LOG.info("Creating durable consumer");
+         return session.createDurableSubscriber((Topic) consumerDestination, getName());
+      }
+      return session.createConsumer(consumerDestination);
+   }
 
-        LOG.info("Closing down connection");
+   protected void tearDown() throws Exception {
+      LOG.info("Dumping stats...");
+      // connectionFactory.getStats().reset();
 
-        /** TODO we should be able to shut down properly */
-        session.close();
-        connection.close();
-    }
+      LOG.info("Closing down connection");
+
+      /** TODO we should be able to shut down properly */
+      session.close();
+      connection.close();
+   }
 
 }

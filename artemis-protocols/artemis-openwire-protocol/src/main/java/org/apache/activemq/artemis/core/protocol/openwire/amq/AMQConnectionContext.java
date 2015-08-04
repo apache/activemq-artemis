@@ -31,8 +31,8 @@ import org.apache.activemq.state.ConnectionState;
 import org.apache.activemq.artemis.core.protocol.openwire.OpenWireConnection;
 import org.apache.activemq.artemis.core.protocol.openwire.OpenWireProtocolManager;
 
-public class AMQConnectionContext
-{
+public class AMQConnectionContext {
+
    private OpenWireConnection connection;
    private AMQConnector connector;
    private OpenWireProtocolManager broker; //use protocol manager to represent the broker
@@ -57,28 +57,23 @@ public class AMQConnectionContext
    private ConnectionState connectionState;
    private XATransactionId xid;
 
-   public AMQConnectionContext()
-   {
+   public AMQConnectionContext() {
       this.messageEvaluationContext = new MessageEvaluationContext();
    }
 
-   public AMQConnectionContext(MessageEvaluationContext messageEvaluationContext)
-   {
+   public AMQConnectionContext(MessageEvaluationContext messageEvaluationContext) {
       this.messageEvaluationContext = messageEvaluationContext;
    }
 
-   public AMQConnectionContext(ConnectionInfo info)
-   {
+   public AMQConnectionContext(ConnectionInfo info) {
       this();
       setClientId(info.getClientId());
       setUserName(info.getUserName());
       setConnectionId(info.getConnectionId());
    }
 
-   public AMQConnectionContext copy()
-   {
-      AMQConnectionContext rc = new AMQConnectionContext(
-            this.messageEvaluationContext);
+   public AMQConnectionContext copy() {
+      AMQConnectionContext rc = new AMQConnectionContext(this.messageEvaluationContext);
       rc.connection = this.connection;
       rc.connector = this.connector;
       rc.broker = this.broker;
@@ -102,20 +97,16 @@ public class AMQConnectionContext
       return rc;
    }
 
-   public AMQSecurityContext getSecurityContext()
-   {
+   public AMQSecurityContext getSecurityContext() {
       return securityContext;
    }
 
-   public void setSecurityContext(AMQSecurityContext subject)
-   {
+   public void setSecurityContext(AMQSecurityContext subject) {
       this.securityContext = subject;
-      if (subject != null)
-      {
+      if (subject != null) {
          setUserName(subject.getUserName());
       }
-      else
-      {
+      else {
          setUserName(null);
       }
    }
@@ -123,73 +114,60 @@ public class AMQConnectionContext
    /**
     * @return the broker being used.
     */
-   public OpenWireProtocolManager getBroker()
-   {
+   public OpenWireProtocolManager getBroker() {
       return broker;
    }
 
    /**
-    * @param broker
-    *           being used
+    * @param broker being used
     */
-   public void setBroker(OpenWireProtocolManager broker)
-   {
+   public void setBroker(OpenWireProtocolManager broker) {
       this.broker = broker;
    }
 
    /**
     * @return the connection being used
     */
-   public OpenWireConnection getConnection()
-   {
+   public OpenWireConnection getConnection() {
       return connection;
    }
 
    /**
-    * @param connection
-    *           being used
+    * @param connection being used
     */
-   public void setConnection(OpenWireConnection connection)
-   {
+   public void setConnection(OpenWireConnection connection) {
       this.connection = connection;
    }
 
    /**
     * @return the transaction being used.
     */
-   public AMQTransaction getTransaction()
-   {
+   public AMQTransaction getTransaction() {
       return transaction;
    }
 
    /**
-    * @param transaction
-    *           being used.
+    * @param transaction being used.
     */
-   public void setTransaction(AMQTransaction transaction)
-   {
+   public void setTransaction(AMQTransaction transaction) {
       this.transaction = transaction;
    }
 
    /**
     * @return the connector being used.
     */
-   public AMQConnector getConnector()
-   {
+   public AMQConnector getConnector() {
       return connector;
    }
 
    /**
-    * @param connector
-    *           being used.
+    * @param connector being used.
     */
-   public void setConnector(AMQConnector connector)
-   {
+   public void setConnector(AMQConnector connector) {
       this.connector = connector;
    }
 
-   public AMQMessageAuthorizationPolicy getMessageAuthorizationPolicy()
-   {
+   public AMQMessageAuthorizationPolicy getMessageAuthorizationPolicy() {
       return messageAuthorizationPolicy;
    }
 
@@ -197,200 +175,159 @@ public class AMQConnectionContext
     * Sets the policy used to decide if the current connection is authorized to
     * consume a given message
     */
-   public void setMessageAuthorizationPolicy(
-         AMQMessageAuthorizationPolicy messageAuthorizationPolicy)
-   {
+   public void setMessageAuthorizationPolicy(AMQMessageAuthorizationPolicy messageAuthorizationPolicy) {
       this.messageAuthorizationPolicy = messageAuthorizationPolicy;
    }
 
    /**
     * @return
     */
-   public boolean isInRecoveryMode()
-   {
+   public boolean isInRecoveryMode() {
       return inRecoveryMode;
    }
 
-   public void setInRecoveryMode(boolean inRecoveryMode)
-   {
+   public void setInRecoveryMode(boolean inRecoveryMode) {
       this.inRecoveryMode = inRecoveryMode;
    }
 
-   public ConcurrentMap<TransactionId, AMQTransaction> getTransactions()
-   {
+   public ConcurrentMap<TransactionId, AMQTransaction> getTransactions() {
       return transactions;
    }
 
-   public void setTransactions(
-         ConcurrentMap<TransactionId, AMQTransaction> transactions)
-   {
+   public void setTransactions(ConcurrentMap<TransactionId, AMQTransaction> transactions) {
       this.transactions = transactions;
    }
 
-   public boolean isInTransaction()
-   {
+   public boolean isInTransaction() {
       return transaction != null;
    }
 
-   public String getClientId()
-   {
+   public String getClientId() {
       return clientId;
    }
 
-   public void setClientId(String clientId)
-   {
+   public void setClientId(String clientId) {
       this.clientId = clientId;
    }
 
-   public boolean isReconnect()
-   {
+   public boolean isReconnect() {
       return reconnect;
    }
 
-   public void setReconnect(boolean reconnect)
-   {
+   public void setReconnect(boolean reconnect) {
       this.reconnect = reconnect;
    }
 
-   public WireFormatInfo getWireFormatInfo()
-   {
+   public WireFormatInfo getWireFormatInfo() {
       return wireFormatInfo;
    }
 
-   public void setWireFormatInfo(WireFormatInfo wireFormatInfo)
-   {
+   public void setWireFormatInfo(WireFormatInfo wireFormatInfo) {
       this.wireFormatInfo = wireFormatInfo;
    }
 
-   public ConnectionId getConnectionId()
-   {
+   public ConnectionId getConnectionId() {
       return connectionId;
    }
 
-   public void setConnectionId(ConnectionId connectionId)
-   {
+   public void setConnectionId(ConnectionId connectionId) {
       this.connectionId = connectionId;
    }
 
-   public String getUserName()
-   {
+   public String getUserName() {
       return userName;
    }
 
-   public void setUserName(String userName)
-   {
+   public void setUserName(String userName) {
       this.userName = userName;
    }
 
-   public MessageEvaluationContext getMessageEvaluationContext()
-   {
+   public MessageEvaluationContext getMessageEvaluationContext() {
       return messageEvaluationContext;
    }
 
-   public Object getLongTermStoreContext()
-   {
+   public Object getLongTermStoreContext() {
       return longTermStoreContext;
    }
 
-   public void setLongTermStoreContext(Object longTermStoreContext)
-   {
+   public void setLongTermStoreContext(Object longTermStoreContext) {
       this.longTermStoreContext = longTermStoreContext;
    }
 
-   public boolean isProducerFlowControl()
-   {
+   public boolean isProducerFlowControl() {
       return producerFlowControl;
    }
 
-   public void setProducerFlowControl(boolean disableProducerFlowControl)
-   {
+   public void setProducerFlowControl(boolean disableProducerFlowControl) {
       this.producerFlowControl = disableProducerFlowControl;
    }
 
-   public boolean isAllowedToConsume(MessageReference n) throws IOException
-   {
-      if (messageAuthorizationPolicy != null)
-      {
-         return messageAuthorizationPolicy.isAllowedToConsume(this,
-               n.getMessage());
+   public boolean isAllowedToConsume(MessageReference n) throws IOException {
+      if (messageAuthorizationPolicy != null) {
+         return messageAuthorizationPolicy.isAllowedToConsume(this, n.getMessage());
       }
       return true;
    }
 
-   public synchronized boolean isNetworkConnection()
-   {
+   public synchronized boolean isNetworkConnection() {
       return networkConnection;
    }
 
-   public synchronized void setNetworkConnection(boolean networkConnection)
-   {
+   public synchronized void setNetworkConnection(boolean networkConnection) {
       this.networkConnection = networkConnection;
    }
 
-   public AtomicBoolean getStopping()
-   {
+   public AtomicBoolean getStopping() {
       return stopping;
    }
 
-   public void setDontSendReponse(boolean b)
-   {
+   public void setDontSendReponse(boolean b) {
       this.dontSendResponse = b;
    }
 
-   public boolean isDontSendReponse()
-   {
+   public boolean isDontSendReponse() {
       return dontSendResponse;
    }
 
    /**
     * @return the clientMaster
     */
-   public boolean isClientMaster()
-   {
+   public boolean isClientMaster() {
       return this.clientMaster;
    }
 
    /**
-    * @param clientMaster
-    *           the clientMaster to set
+    * @param clientMaster the clientMaster to set
     */
-   public void setClientMaster(boolean clientMaster)
-   {
+   public void setClientMaster(boolean clientMaster) {
       this.clientMaster = clientMaster;
    }
 
-   public boolean isFaultTolerant()
-   {
+   public boolean isFaultTolerant() {
       return faultTolerant;
    }
 
-   public void setFaultTolerant(boolean faultTolerant)
-   {
+   public void setFaultTolerant(boolean faultTolerant) {
       this.faultTolerant = faultTolerant;
    }
 
-   public void setConnectionState(ConnectionState connectionState)
-   {
+   public void setConnectionState(ConnectionState connectionState) {
       this.connectionState = connectionState;
    }
 
-   public ConnectionState getConnectionState()
-   {
+   public ConnectionState getConnectionState() {
       return this.connectionState;
    }
 
-   public void setXid(XATransactionId id)
-   {
+   public void setXid(XATransactionId id) {
       this.xid = id;
    }
 
-   public XATransactionId getXid()
-   {
+   public XATransactionId getXid() {
       return xid;
    }
 
-   public boolean isAllowLinkStealing()
-   {
+   public boolean isAllowLinkStealing() {
       return connector != null && connector.isAllowLinkStealing();
    }
 

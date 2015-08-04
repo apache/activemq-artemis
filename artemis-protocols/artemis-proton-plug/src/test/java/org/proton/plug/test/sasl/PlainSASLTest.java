@@ -22,11 +22,10 @@ import org.proton.plug.sasl.ClientSASLPlain;
 import org.proton.plug.sasl.PlainSASLResult;
 import org.proton.plug.sasl.ServerSASLPlain;
 
-public class PlainSASLTest
-{
+public class PlainSASLTest {
+
    @Test
-   public void testPlain()
-   {
+   public void testPlain() {
       ClientSASLPlain plainSASL = new ClientSASLPlain("user-me", "password-secret");
       byte[] bytesResult = plainSASL.getBytes();
 

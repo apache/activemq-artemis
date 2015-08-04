@@ -21,7 +21,9 @@ import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
+
 import junit.framework.Test;
+
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.ActiveMQSession;
 import org.apache.activemq.broker.BrokerTestSupport;
@@ -34,96 +36,96 @@ import org.apache.activemq.command.ActiveMQTextMessage;
 import org.apache.activemq.usecases.MyObject;
 
 public class AMQ2103Test extends BrokerTestSupport {
-    static PolicyEntry reduceMemoryFootprint = new PolicyEntry();
-    static {
-        reduceMemoryFootprint.setReduceMemoryFootprint(true);
-    }
 
-    public PolicyEntry defaultPolicy = reduceMemoryFootprint;
+   static PolicyEntry reduceMemoryFootprint = new PolicyEntry();
 
-    @Override
-    protected PolicyEntry getDefaultPolicy() {
-        return defaultPolicy;
-    }
+   static {
+      reduceMemoryFootprint.setReduceMemoryFootprint(true);
+   }
 
-    public void initCombosForTestVerifyMarshalledStateIsCleared() throws Exception {
-        addCombinationValues("defaultPolicy", new Object[]{defaultPolicy, null});    
-    }
+   public PolicyEntry defaultPolicy = reduceMemoryFootprint;
 
-    public static Test suite() {
-        return suite(AMQ2103Test.class);
-    }
+   @Override
+   protected PolicyEntry getDefaultPolicy() {
+      return defaultPolicy;
+   }
 
-    /**
-     * use mem persistence so no marshaling,
-     * reduceMemoryFootprint on/off that will reduce memory by whacking the marshaled state
-     * With vm transport and deferred serialisation and no persistence (mem persistence),
-     * we see the message as sent by the client so we can validate the contents against
-     * the policy
-     * @throws Exception
-     */
-    public void testVerifyMarshalledStateIsCleared() throws Exception {
+   public void initCombosForTestVerifyMarshalledStateIsCleared() throws Exception {
+      addCombinationValues("defaultPolicy", new Object[]{defaultPolicy, null});
+   }
 
-        ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("vm://localhost");
-        factory.setOptimizedMessageDispatch(true);
-        factory.setObjectMessageSerializationDefered(true);
-        factory.setCopyMessageOnSend(false);
+   public static Test suite() {
+      return suite(AMQ2103Test.class);
+   }
 
-        Connection connection = factory.createConnection();
-        Session session = (ActiveMQSession)connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        ActiveMQDestination destination = new ActiveMQQueue("testQ");
-		MessageConsumer consumer = session.createConsumer(destination);
-		connection.start();
+   /**
+    * use mem persistence so no marshaling,
+    * reduceMemoryFootprint on/off that will reduce memory by whacking the marshaled state
+    * With vm transport and deferred serialisation and no persistence (mem persistence),
+    * we see the message as sent by the client so we can validate the contents against
+    * the policy
+    *
+    * @throws Exception
+    */
+   public void testVerifyMarshalledStateIsCleared() throws Exception {
 
-        MessageProducer producer = session.createProducer(destination);
-        final MyObject obj = new MyObject("A message");
-        ActiveMQObjectMessage m1 = (ActiveMQObjectMessage)session.createObjectMessage();
-        m1.setObject(obj);
-        producer.send(m1);
+      ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("vm://localhost");
+      factory.setOptimizedMessageDispatch(true);
+      factory.setObjectMessageSerializationDefered(true);
+      factory.setCopyMessageOnSend(false);
 
-        ActiveMQTextMessage m2 = new ActiveMQTextMessage();
-        m2.setText("Test Message Payload.");
-        producer.send(m2);
+      Connection connection = factory.createConnection();
+      Session session = (ActiveMQSession) connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      ActiveMQDestination destination = new ActiveMQQueue("testQ");
+      MessageConsumer consumer = session.createConsumer(destination);
+      connection.start();
 
-        ActiveMQMapMessage m3 = new ActiveMQMapMessage();
-        m3.setString("text", "my message");
-        producer.send(m3);
+      MessageProducer producer = session.createProducer(destination);
+      final MyObject obj = new MyObject("A message");
+      ActiveMQObjectMessage m1 = (ActiveMQObjectMessage) session.createObjectMessage();
+      m1.setObject(obj);
+      producer.send(m1);
 
-        Message m = consumer.receive(maxWait);
-        assertNotNull(m);
-        assertEquals(m1.getMessageId().toString(), m.getJMSMessageID());
-        assertTrue(m instanceof ActiveMQObjectMessage);
+      ActiveMQTextMessage m2 = new ActiveMQTextMessage();
+      m2.setText("Test Message Payload.");
+      producer.send(m2);
 
-        if (getDefaultPolicy() != null) {
-            assertNull("object data cleared by reduceMemoryFootprint (and never marshalled as using mem persistence)",
-                ((ActiveMQObjectMessage)m).getObject());
-        }
+      ActiveMQMapMessage m3 = new ActiveMQMapMessage();
+      m3.setString("text", "my message");
+      producer.send(m3);
 
-        // verify no serialisation via vm transport
-        assertEquals("writeObject called", 0, obj.getWriteObjectCalled());
-        assertEquals("readObject called", 0, obj.getReadObjectCalled());
-        assertEquals("readObjectNoData called", 0, obj.getReadObjectNoDataCalled());
+      Message m = consumer.receive(maxWait);
+      assertNotNull(m);
+      assertEquals(m1.getMessageId().toString(), m.getJMSMessageID());
+      assertTrue(m instanceof ActiveMQObjectMessage);
 
-        m = consumer.receive(maxWait);
-        assertNotNull(m);
-        assertEquals(m2.getMessageId().toString(), m.getJMSMessageID());
-        assertTrue(m instanceof ActiveMQTextMessage);
+      if (getDefaultPolicy() != null) {
+         assertNull("object data cleared by reduceMemoryFootprint (and never marshalled as using mem persistence)", ((ActiveMQObjectMessage) m).getObject());
+      }
 
-        if (getDefaultPolicy() != null) {
-            assertNull("text cleared by reduceMemoryFootprint (and never marshalled as using mem persistence)",
-                ((ActiveMQTextMessage)m).getText());
-        }
+      // verify no serialisation via vm transport
+      assertEquals("writeObject called", 0, obj.getWriteObjectCalled());
+      assertEquals("readObject called", 0, obj.getReadObjectCalled());
+      assertEquals("readObjectNoData called", 0, obj.getReadObjectNoDataCalled());
 
-        m = consumer.receive(maxWait);
-        assertNotNull(m);
-        assertEquals(m3.getMessageId().toString(), m.getJMSMessageID());
-        assertTrue(m instanceof ActiveMQMapMessage);
+      m = consumer.receive(maxWait);
+      assertNotNull(m);
+      assertEquals(m2.getMessageId().toString(), m.getJMSMessageID());
+      assertTrue(m instanceof ActiveMQTextMessage);
 
-        if (getDefaultPolicy() != null) {
-            assertNull("text cleared by reduceMemoryFootprint (and never marshalled as using mem persistence)",
-                ((ActiveMQMapMessage)m).getStringProperty("text"));
-        }
+      if (getDefaultPolicy() != null) {
+         assertNull("text cleared by reduceMemoryFootprint (and never marshalled as using mem persistence)", ((ActiveMQTextMessage) m).getText());
+      }
 
-        connection.close();
-    }
+      m = consumer.receive(maxWait);
+      assertNotNull(m);
+      assertEquals(m3.getMessageId().toString(), m.getJMSMessageID());
+      assertTrue(m instanceof ActiveMQMapMessage);
+
+      if (getDefaultPolicy() != null) {
+         assertNull("text cleared by reduceMemoryFootprint (and never marshalled as using mem persistence)", ((ActiveMQMapMessage) m).getStringProperty("text"));
+      }
+
+      connection.close();
+   }
 }

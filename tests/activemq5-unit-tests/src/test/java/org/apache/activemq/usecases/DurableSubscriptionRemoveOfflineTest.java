@@ -31,88 +31,88 @@ import org.slf4j.LoggerFactory;
 
 public class DurableSubscriptionRemoveOfflineTest extends EmbeddedBrokerTestSupport {
 
-    private static final Logger LOG = LoggerFactory.getLogger(DurableSubscriptionRemoveOfflineTest.class);
+   private static final Logger LOG = LoggerFactory.getLogger(DurableSubscriptionRemoveOfflineTest.class);
 
-    protected void setUp() throws Exception {
-        useTopic = true;
-        super.setUp();
-    }
+   protected void setUp() throws Exception {
+      useTopic = true;
+      super.setUp();
+   }
 
-    protected void tearDown() throws Exception {
-        super.tearDown();
-    }
+   protected void tearDown() throws Exception {
+      super.tearDown();
+   }
 
-    @Override
-    protected BrokerService createBroker() throws Exception {
-        BrokerService answer = super.createBroker();
-        answer.setOfflineDurableSubscriberTaskSchedule(3 * 1000);
-        answer.setOfflineDurableSubscriberTimeout(5 * 1000);
-        answer.setDeleteAllMessagesOnStartup(true);
-        return answer;
-    }
+   @Override
+   protected BrokerService createBroker() throws Exception {
+      BrokerService answer = super.createBroker();
+      answer.setOfflineDurableSubscriberTaskSchedule(3 * 1000);
+      answer.setOfflineDurableSubscriberTimeout(5 * 1000);
+      answer.setDeleteAllMessagesOnStartup(true);
+      return answer;
+   }
 
-    protected BrokerService restartBroker() throws Exception {
-        broker.stop();
-        broker.waitUntilStopped();
-        broker = null;
+   protected BrokerService restartBroker() throws Exception {
+      broker.stop();
+      broker.waitUntilStopped();
+      broker = null;
 
-        broker = super.createBroker();
-        broker.setOfflineDurableSubscriberTaskSchedule(3 * 1000);
-        broker.setOfflineDurableSubscriberTimeout(5 * 1000);
+      broker = super.createBroker();
+      broker.setOfflineDurableSubscriberTaskSchedule(3 * 1000);
+      broker.setOfflineDurableSubscriberTimeout(5 * 1000);
 
-        broker.start();
-        broker.waitUntilStarted();
+      broker.start();
+      broker.waitUntilStarted();
 
-        return broker;
-    }
+      return broker;
+   }
 
-    public void testRemove() throws Exception {
-        Connection connection = createConnection();
-        connection.setClientID("cliID");
-        connection.start();
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        TopicSubscriber subscriber = session.createDurableSubscriber((Topic) createDestination(), "subName");
-        subscriber.close();
-        connection.close();
+   public void testRemove() throws Exception {
+      Connection connection = createConnection();
+      connection.setClientID("cliID");
+      connection.start();
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      TopicSubscriber subscriber = session.createDurableSubscriber((Topic) createDestination(), "subName");
+      subscriber.close();
+      connection.close();
 
-        assertTrue(Wait.waitFor(new Wait.Condition() {
-            @Override
-            public boolean isSatisified() throws Exception {
-                 return broker.getAdminView().getInactiveDurableTopicSubscribers().length == 0;
-            }
-        }, 15000));
-    }
+      assertTrue(Wait.waitFor(new Wait.Condition() {
+         @Override
+         public boolean isSatisified() throws Exception {
+            return broker.getAdminView().getInactiveDurableTopicSubscribers().length == 0;
+         }
+      }, 15000));
+   }
 
-    public void testRemoveAfterRestart() throws Exception {
-        Connection connection = createConnection();
-        connection.setClientID("cliID");
-        connection.start();
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        TopicSubscriber subscriber = session.createDurableSubscriber((Topic) createDestination(), "subName");
-        subscriber.close();
-        connection.close();
+   public void testRemoveAfterRestart() throws Exception {
+      Connection connection = createConnection();
+      connection.setClientID("cliID");
+      connection.start();
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      TopicSubscriber subscriber = session.createDurableSubscriber((Topic) createDestination(), "subName");
+      subscriber.close();
+      connection.close();
 
-        LOG.info("Broker restarting, wait for inactive cleanup afterwards.");
+      LOG.info("Broker restarting, wait for inactive cleanup afterwards.");
 
-        restartBroker();
+      restartBroker();
 
-        LOG.info("Broker restarted, wait for inactive cleanup now.");
+      LOG.info("Broker restarted, wait for inactive cleanup now.");
 
-        assertTrue(broker.getAdminView().getInactiveDurableTopicSubscribers().length == 1);
+      assertTrue(broker.getAdminView().getInactiveDurableTopicSubscribers().length == 1);
 
-        assertTrue(Wait.waitFor(new Wait.Condition() {
-            @Override
-            public boolean isSatisified() throws Exception {
-                 return broker.getAdminView().getInactiveDurableTopicSubscribers().length == 0;
-            }
-        }, 20000));
-    }
+      assertTrue(Wait.waitFor(new Wait.Condition() {
+         @Override
+         public boolean isSatisified() throws Exception {
+            return broker.getAdminView().getInactiveDurableTopicSubscribers().length == 0;
+         }
+      }, 20000));
+   }
 
-    protected boolean isPersistent() {
-        return true;
-    }
+   protected boolean isPersistent() {
+      return true;
+   }
 
-    public static Test suite() {
-        return suite(DurableSubscriptionRemoveOfflineTest.class);
-     }
+   public static Test suite() {
+      return suite(DurableSubscriptionRemoveOfflineTest.class);
+   }
 }

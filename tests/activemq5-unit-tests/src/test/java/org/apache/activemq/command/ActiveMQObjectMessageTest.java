@@ -25,102 +25,108 @@ import javax.jms.MessageNotWriteableException;
 import junit.framework.TestCase;
 
 /**
- * 
+ *
  */
 public class ActiveMQObjectMessageTest extends TestCase {
 
-    /**
-     * Constructor for ActiveMQObjectMessageTest.
-     *
-     * @param name
-     */
-    public ActiveMQObjectMessageTest(String name) {
-        super(name);
-    }
+   /**
+    * Constructor for ActiveMQObjectMessageTest.
+    *
+    * @param name
+    */
+   public ActiveMQObjectMessageTest(String name) {
+      super(name);
+   }
 
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(ActiveMQObjectMessageTest.class);
-    }
+   public static void main(String[] args) {
+      junit.textui.TestRunner.run(ActiveMQObjectMessageTest.class);
+   }
 
-    /*
-     * @see TestCase#setUp()
-     */
-    protected void setUp() throws Exception {
-        super.setUp();
-    }
+   /*
+    * @see TestCase#setUp()
+    */
+   protected void setUp() throws Exception {
+      super.setUp();
+   }
 
-    /*
-     * @see TestCase#tearDown()
-     */
-    protected void tearDown() throws Exception {
-        super.tearDown();
-    }
+   /*
+    * @see TestCase#tearDown()
+    */
+   protected void tearDown() throws Exception {
+      super.tearDown();
+   }
 
-    public void testBytes() throws JMSException, IOException {
-        ActiveMQObjectMessage msg = new ActiveMQObjectMessage();
-        String str = "testText";
-        msg.setObject(str);
-        
-        msg = (ActiveMQObjectMessage) msg.copy();
-        assertEquals(msg.getObject(), str);
+   public void testBytes() throws JMSException, IOException {
+      ActiveMQObjectMessage msg = new ActiveMQObjectMessage();
+      String str = "testText";
+      msg.setObject(str);
 
-    }
+      msg = (ActiveMQObjectMessage) msg.copy();
+      assertEquals(msg.getObject(), str);
 
-    public void testSetObject() throws JMSException {
-        ActiveMQObjectMessage msg = new ActiveMQObjectMessage();
-        String str = "testText";
-        msg.setObject(str);
-        assertTrue(msg.getObject() == str);
-    }
+   }
 
-    public void testClearBody() throws JMSException {
-        ActiveMQObjectMessage objectMessage = new ActiveMQObjectMessage();
-        try {
-            objectMessage.setObject("String");
-            objectMessage.clearBody();
-            assertFalse(objectMessage.isReadOnlyBody());
-            assertNull(objectMessage.getObject());
-            objectMessage.setObject("String");
-            objectMessage.getObject();
-        } catch (MessageNotWriteableException mnwe) {
-            fail("should be writeable");
-        }
-    }
+   public void testSetObject() throws JMSException {
+      ActiveMQObjectMessage msg = new ActiveMQObjectMessage();
+      String str = "testText";
+      msg.setObject(str);
+      assertTrue(msg.getObject() == str);
+   }
 
-    public void testReadOnlyBody() throws JMSException {
-        ActiveMQObjectMessage msg = new ActiveMQObjectMessage();
-        msg.setObject("test");
-        msg.setReadOnlyBody(true);
-        try {
-            msg.getObject();
-        } catch (MessageNotReadableException e) {
-            fail("should be readable");
-        }
-        try {
-            msg.setObject("test");
-            fail("should throw exception");
-        } catch (MessageNotWriteableException e) {
-        }
-    }
+   public void testClearBody() throws JMSException {
+      ActiveMQObjectMessage objectMessage = new ActiveMQObjectMessage();
+      try {
+         objectMessage.setObject("String");
+         objectMessage.clearBody();
+         assertFalse(objectMessage.isReadOnlyBody());
+         assertNull(objectMessage.getObject());
+         objectMessage.setObject("String");
+         objectMessage.getObject();
+      }
+      catch (MessageNotWriteableException mnwe) {
+         fail("should be writeable");
+      }
+   }
 
-    public void testWriteOnlyBody() throws JMSException { // should always be readable
-        ActiveMQObjectMessage msg = new ActiveMQObjectMessage();
-        msg.setReadOnlyBody(false);
-        try {
-            msg.setObject("test");
-            msg.getObject();
-        } catch (MessageNotReadableException e) {
-            fail("should be readable");
-        }
-        msg.setReadOnlyBody(true);
-        try {
-            msg.getObject();
-            msg.setObject("test");
-            fail("should throw exception");
-        } catch (MessageNotReadableException e) {
-            fail("should be readable");
-        } catch (MessageNotWriteableException mnwe) {
-        }
-    }
+   public void testReadOnlyBody() throws JMSException {
+      ActiveMQObjectMessage msg = new ActiveMQObjectMessage();
+      msg.setObject("test");
+      msg.setReadOnlyBody(true);
+      try {
+         msg.getObject();
+      }
+      catch (MessageNotReadableException e) {
+         fail("should be readable");
+      }
+      try {
+         msg.setObject("test");
+         fail("should throw exception");
+      }
+      catch (MessageNotWriteableException e) {
+      }
+   }
+
+   public void testWriteOnlyBody() throws JMSException { // should always be readable
+      ActiveMQObjectMessage msg = new ActiveMQObjectMessage();
+      msg.setReadOnlyBody(false);
+      try {
+         msg.setObject("test");
+         msg.getObject();
+      }
+      catch (MessageNotReadableException e) {
+         fail("should be readable");
+      }
+      msg.setReadOnlyBody(true);
+      try {
+         msg.getObject();
+         msg.setObject("test");
+         fail("should throw exception");
+      }
+      catch (MessageNotReadableException e) {
+         fail("should be readable");
+      }
+      catch (MessageNotWriteableException mnwe) {
+      }
+   }
 
 }

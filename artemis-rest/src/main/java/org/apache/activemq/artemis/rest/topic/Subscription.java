@@ -16,8 +16,8 @@
  */
 package org.apache.activemq.artemis.rest.topic;
 
-public interface Subscription
-{
+public interface Subscription {
+
    boolean isDurable();
 
    void setDurable(boolean isDurable);

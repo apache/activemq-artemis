@@ -19,39 +19,37 @@ package org.apache.activemq.memory.buffer;
 import org.apache.activemq.memory.buffer.MessageBuffer;
 import org.apache.activemq.memory.buffer.SizeBasedMessageBuffer;
 
-
 /**
  *
- * 
+ *
  */
 public class SizeBasedMessageBufferTest extends MemoryBufferTestSupport {
 
-    public void testSizeWorks() throws Exception {
-        qA.add(createMessage(10));
-        qB.add(createMessage(10));
-        qB.add(createMessage(10));
-        qC.add(createMessage(10));
-        
-        dump();
-        
-        assertEquals("buffer size", 40, buffer.getSize());
-        assertEquals("qA", 10, qA.getSize());
-        assertEquals("qB", 20, qB.getSize());
-        assertEquals("qC", 10, qC.getSize());
-        
-        // now lets force an eviction
-        qC.add(createMessage(10));
+   public void testSizeWorks() throws Exception {
+      qA.add(createMessage(10));
+      qB.add(createMessage(10));
+      qB.add(createMessage(10));
+      qC.add(createMessage(10));
 
-        dump();
-        
-        assertEquals("buffer size", 40, buffer.getSize());
-        assertEquals("qA", 10, qA.getSize());
-        assertEquals("qB", 10, qB.getSize());
-        assertEquals("qC", 20, qC.getSize());
-    }
+      dump();
 
-    
-    protected MessageBuffer createMessageBuffer() {
-        return new SizeBasedMessageBuffer(40);
-    }
+      assertEquals("buffer size", 40, buffer.getSize());
+      assertEquals("qA", 10, qA.getSize());
+      assertEquals("qB", 20, qB.getSize());
+      assertEquals("qC", 10, qC.getSize());
+
+      // now lets force an eviction
+      qC.add(createMessage(10));
+
+      dump();
+
+      assertEquals("buffer size", 40, buffer.getSize());
+      assertEquals("qA", 10, qA.getSize());
+      assertEquals("qB", 10, qB.getSize());
+      assertEquals("qC", 20, qC.getSize());
+   }
+
+   protected MessageBuffer createMessageBuffer() {
+      return new SizeBasedMessageBuffer(40);
+   }
 }

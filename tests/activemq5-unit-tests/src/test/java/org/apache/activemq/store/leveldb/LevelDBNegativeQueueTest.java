@@ -25,14 +25,14 @@ import java.io.File;
 
 public class LevelDBNegativeQueueTest extends NegativeQueueTest {
 
-    @Override
-    protected void configureBroker(BrokerService answer) throws Exception {
-        super.configureBroker(answer);
-        LevelDBStore levelDBStore = new LevelDBStore();
-        File directory = new File("target/activemq-data/leveldb");
-        IOHelper.deleteChildren(directory);
-        levelDBStore.setDirectory(directory);
-        levelDBStore.deleteAllMessages();
-        answer.setPersistenceAdapter(levelDBStore);
-    }
+   @Override
+   protected void configureBroker(BrokerService answer) throws Exception {
+      super.configureBroker(answer);
+      LevelDBStore levelDBStore = new LevelDBStore();
+      File directory = new File("target/activemq-data/leveldb");
+      IOHelper.deleteChildren(directory);
+      levelDBStore.setDirectory(directory);
+      levelDBStore.deleteAllMessages();
+      answer.setPersistenceAdapter(levelDBStore);
+   }
 }

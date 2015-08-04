@@ -31,8 +31,7 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class SelfExpandingBufferTest extends ActiveMQTestBase
-{
+public class SelfExpandingBufferTest extends ActiveMQTestBase {
 
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
@@ -41,31 +40,26 @@ public class SelfExpandingBufferTest extends ActiveMQTestBase
    SimpleString ADDRESS = new SimpleString("Address");
 
    @Test
-   public void testSelfExpandingBufferNettyPersistent() throws Exception
-   {
+   public void testSelfExpandingBufferNettyPersistent() throws Exception {
       testSelfExpandingBuffer(true, true);
    }
 
    @Test
-   public void testSelfExpandingBufferInVMPersistent() throws Exception
-   {
+   public void testSelfExpandingBufferInVMPersistent() throws Exception {
       testSelfExpandingBuffer(false, true);
    }
 
    @Test
-   public void testSelfExpandingBufferNettyNonPersistent() throws Exception
-   {
+   public void testSelfExpandingBufferNettyNonPersistent() throws Exception {
       testSelfExpandingBuffer(true, false);
    }
 
    @Test
-   public void testSelfExpandingBufferInVMNonPersistent() throws Exception
-   {
+   public void testSelfExpandingBufferInVMNonPersistent() throws Exception {
       testSelfExpandingBuffer(false, false);
    }
 
-   private void testSelfExpandingBuffer(final boolean netty, final boolean persistent) throws Exception
-   {
+   private void testSelfExpandingBuffer(final boolean netty, final boolean persistent) throws Exception {
       setUpService(netty, persistent);
 
       ClientSessionFactory factory;
@@ -76,8 +70,7 @@ public class SelfExpandingBufferTest extends ActiveMQTestBase
 
       ClientSession session = factory.createSession(false, true, true);
 
-      try
-      {
+      try {
 
          session.createQueue(ADDRESS, ADDRESS, true);
 
@@ -127,8 +120,7 @@ public class SelfExpandingBufferTest extends ActiveMQTestBase
 
          ActiveMQTestBase.assertEqualsByteArrays(bytes, receivedBytes);
       }
-      finally
-      {
+      finally {
          session.close();
       }
    }
@@ -137,8 +129,7 @@ public class SelfExpandingBufferTest extends ActiveMQTestBase
 
    // Protected -----------------------------------------------------
 
-   protected void setUpService(final boolean netty, final boolean persistent) throws Exception
-   {
+   protected void setUpService(final boolean netty, final boolean persistent) throws Exception {
       service = createServer(persistent, createDefaultConfig(netty));
       service.start();
    }

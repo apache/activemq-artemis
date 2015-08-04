@@ -37,8 +37,7 @@ import org.junit.Test;
 /**
  * This test will send large messages in page-mode, DLQ then, expiry then, and they should be received fine
  */
-public class ExpiryLargeMessageTest extends ActiveMQTestBase
-{
+public class ExpiryLargeMessageTest extends ActiveMQTestBase {
 
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
@@ -63,19 +62,12 @@ public class ExpiryLargeMessageTest extends ActiveMQTestBase
    // Public --------------------------------------------------------
 
    @Test
-   public void testExpiryMessagesThenDLQ() throws Exception
-   {
+   public void testExpiryMessagesThenDLQ() throws Exception {
       ActiveMQServer server = createServer(true);
 
       server.getConfiguration().setMessageExpiryScanPeriod(600000);
 
-      AddressSettings setting = new AddressSettings()
-              .setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE)
-              .setMaxDeliveryAttempts(5)
-              .setMaxSizeBytes(50 * 1024)
-              .setPageSizeBytes(10 * 1024)
-              .setExpiryAddress(EXPIRY)
-              .setDeadLetterAddress(DLQ);
+      AddressSettings setting = new AddressSettings().setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE).setMaxDeliveryAttempts(5).setMaxSizeBytes(50 * 1024).setPageSizeBytes(10 * 1024).setExpiryAddress(EXPIRY).setDeadLetterAddress(DLQ);
       server.getAddressSettingsRepository().addMatch(MY_QUEUE.toString(), setting);
       server.getAddressSettingsRepository().addMatch(EXPIRY.toString(), setting);
 
@@ -95,28 +87,24 @@ public class ExpiryLargeMessageTest extends ActiveMQTestBase
 
       byte[] bufferSample = new byte[messageSize];
 
-      for (int i = 0; i < bufferSample.length; i++)
-      {
+      for (int i = 0; i < bufferSample.length; i++) {
          bufferSample[i] = getSamplebyte(i);
       }
 
       ClientProducer producer = session.createProducer(MY_QUEUE);
 
       long timeToExpiry = System.currentTimeMillis() + 1000;
-      for (int i = 0; i < numberOfMessages; i++)
-      {
+      for (int i = 0; i < numberOfMessages; i++) {
          ClientMessage message = session.createMessage(true);
 
          message.putIntProperty("count", i);
 
          // Send a few regular messages first, then all is just large messages
-         if (i % 2 == 0)
-         {
+         if (i % 2 == 0) {
             message.putBooleanProperty("tst-large", false);
             message.getBodyBuffer().writeBytes(bufferSample);
          }
-         else
-         {
+         else {
             message.putBooleanProperty("tst-large", true);
             message.setBodyInputStream(createFakeLargeStream(messageSize));
          }
@@ -139,8 +127,7 @@ public class ExpiryLargeMessageTest extends ActiveMQTestBase
       Thread.sleep(1500);
 
       long timeout = System.currentTimeMillis() + 5000;
-      while (timeout > System.currentTimeMillis() && getMessageCount(queueExpiry) != numberOfMessages)
-      {
+      while (timeout > System.currentTimeMillis() && getMessageCount(queueExpiry) != numberOfMessages) {
          // What the Expiry Scan would be doing
          myQueue.expireReferences();
          Thread.sleep(50);
@@ -154,8 +141,7 @@ public class ExpiryLargeMessageTest extends ActiveMQTestBase
       session.start();
 
       // Consume half of the messages to make sure all the messages are paging (on the second try)
-      for (int i = 0; i < numberOfMessages / 2; i++)
-      {
+      for (int i = 0; i < numberOfMessages / 2; i++) {
          ClientMessage msg = cons.receive(5000);
          assertNotNull(msg);
          msg.acknowledge();
@@ -165,24 +151,20 @@ public class ExpiryLargeMessageTest extends ActiveMQTestBase
 
       cons.close();
 
-      for (int rep = 0; rep < 6; rep++)
-      {
+      for (int rep = 0; rep < 6; rep++) {
          cons = session.createConsumer(EXPIRY);
          session.start();
 
          log.info("Trying " + rep);
-         for (int i = 0; i < numberOfMessages / 2; i++)
-         {
+         for (int i = 0; i < numberOfMessages / 2; i++) {
             ClientMessage message = cons.receive(5000);
             assertNotNull(message);
 
-            if (i % 10 == 0)
-            {
+            if (i % 10 == 0) {
                System.out.println("Received " + i);
             }
 
-            for (int location = 0; location < messageSize; location++)
-            {
+            for (int location = 0; location < messageSize; location++) {
                assertEquals(getSamplebyte(location), message.getBodyBuffer().readByte());
             }
             message.acknowledge();
@@ -195,8 +177,7 @@ public class ExpiryLargeMessageTest extends ActiveMQTestBase
          session.close();
          sf.close();
 
-         if (rep == 0)
-         {
+         if (rep == 0) {
             // restart the server at the first try
             server.stop();
             server.start();
@@ -216,8 +197,7 @@ public class ExpiryLargeMessageTest extends ActiveMQTestBase
       session.close();
       sf.close();
 
-      for (int rep = 0; rep < 2; rep++)
-      {
+      for (int rep = 0; rep < 2; rep++) {
          sf = createSessionFactory(locator);
 
          session = sf.createSession(false, false);
@@ -226,24 +206,20 @@ public class ExpiryLargeMessageTest extends ActiveMQTestBase
 
          session.start();
 
-         for (int i = 0; i < numberOfMessages / 2; i++)
-         {
+         for (int i = 0; i < numberOfMessages / 2; i++) {
             ClientMessage message = cons.receive(5000);
             assertNotNull(message);
 
-            if (i % 10 == 0)
-            {
+            if (i % 10 == 0) {
                System.out.println("Received " + i);
             }
 
-            for (int location = 0; location < messageSize; location++)
-            {
+            for (int location = 0; location < messageSize; location++) {
                assertEquals(getSamplebyte(location), message.getBodyBuffer().readByte());
             }
             message.acknowledge();
          }
-         if (rep == 0)
-         {
+         if (rep == 0) {
             session.rollback();
             session.close();
             sf.close();
@@ -269,19 +245,12 @@ public class ExpiryLargeMessageTest extends ActiveMQTestBase
     * @throws Exception
     */
    @Test
-   public void testCompatilityWithLinks() throws Exception
-   {
+   public void testCompatilityWithLinks() throws Exception {
       ActiveMQServer server = createServer(true);
 
       server.getConfiguration().setMessageExpiryScanPeriod(600000);
 
-      AddressSettings setting = new AddressSettings()
-              .setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE)
-              .setMaxDeliveryAttempts(5)
-              .setMaxSizeBytes(-1)
-              .setPageSizeBytes(10 * 1024)
-              .setExpiryAddress(EXPIRY)
-              .setDeadLetterAddress(DLQ);
+      AddressSettings setting = new AddressSettings().setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE).setMaxDeliveryAttempts(5).setMaxSizeBytes(-1).setPageSizeBytes(10 * 1024).setExpiryAddress(EXPIRY).setDeadLetterAddress(DLQ);
       server.getAddressSettingsRepository().addMatch(MY_QUEUE.toString(), setting);
       server.getAddressSettingsRepository().addMatch(EXPIRY.toString(), setting);
 
@@ -301,16 +270,14 @@ public class ExpiryLargeMessageTest extends ActiveMQTestBase
 
       byte[] bufferSample = new byte[messageSize];
 
-      for (int i = 0; i < bufferSample.length; i++)
-      {
+      for (int i = 0; i < bufferSample.length; i++) {
          bufferSample[i] = getSamplebyte(i);
       }
 
       ClientProducer producer = session.createProducer(MY_QUEUE);
 
       long timeToExpiry = System.currentTimeMillis() + 1000;
-      for (int i = 0; i < numberOfMessages; i++)
-      {
+      for (int i = 0; i < numberOfMessages; i++) {
          ClientMessage message = session.createMessage(true);
 
          message.putIntProperty("count", i);
@@ -369,18 +336,15 @@ public class ExpiryLargeMessageTest extends ActiveMQTestBase
 
       cons = session.createConsumer(EXPIRY);
 
-      for (int i = 0; i < numberOfMessages; i++)
-      {
+      for (int i = 0; i < numberOfMessages; i++) {
          ClientMessage message = cons.receive(5000);
          assertNotNull(message);
 
-         if (i % 10 == 0)
-         {
+         if (i % 10 == 0) {
             System.out.println("Received " + i);
          }
 
-         for (int location = 0; location < messageSize; location++)
-         {
+         for (int location = 0; location < messageSize; location++) {
             assertEquals(getSamplebyte(location), message.getBodyBuffer().readByte());
          }
          message.acknowledge();

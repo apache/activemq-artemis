@@ -32,11 +32,9 @@ import org.apache.activemq.artemis.core.journal.impl.dataformat.JournalInternalR
 import org.apache.activemq.artemis.utils.ConcurrentHashSet;
 
 /**
- *
  * Super class for Journal maintenances such as clean up and Compactor
  */
-public abstract class AbstractJournalUpdateTask implements JournalReaderCallback
-{
+public abstract class AbstractJournalUpdateTask implements JournalReaderCallback {
 
    // Constants -----------------------------------------------------
 
@@ -69,8 +67,7 @@ public abstract class AbstractJournalUpdateTask implements JournalReaderCallback
                                        final JournalImpl journal,
                                        final JournalFilesRepository filesRepository,
                                        final Set<Long> recordsSnapshot,
-                                       final long nextOrderingID)
-   {
+                                       final long nextOrderingID) {
       super();
       this.journal = journal;
       this.filesRepository = filesRepository;
@@ -84,13 +81,11 @@ public abstract class AbstractJournalUpdateTask implements JournalReaderCallback
    public static SequentialFile writeControlFile(final SequentialFileFactory fileFactory,
                                                  final List<JournalFile> files,
                                                  final List<JournalFile> newFiles,
-                                                 final List<Pair<String, String>> renames) throws Exception
-   {
+                                                 final List<Pair<String, String>> renames) throws Exception {
 
       SequentialFile controlFile = fileFactory.createSequentialFile(AbstractJournalUpdateTask.FILE_COMPACT_CONTROL);
 
-      try
-      {
+      try {
          controlFile.open(1, false);
 
          JournalImpl.initFileHeader(fileFactory, controlFile, 0, 0);
@@ -99,56 +94,43 @@ public abstract class AbstractJournalUpdateTask implements JournalReaderCallback
 
          // DataFiles first
 
-         if (files == null)
-         {
+         if (files == null) {
             filesToRename.writeInt(0);
          }
-         else
-         {
+         else {
             filesToRename.writeInt(files.size());
 
-            for (JournalFile file : files)
-            {
+            for (JournalFile file : files) {
                filesToRename.writeUTF(file.getFile().getFileName());
             }
          }
 
          // New Files second
 
-         if (newFiles == null)
-         {
+         if (newFiles == null) {
             filesToRename.writeInt(0);
          }
-         else
-         {
+         else {
             filesToRename.writeInt(newFiles.size());
 
-            for (JournalFile file : newFiles)
-            {
+            for (JournalFile file : newFiles) {
                filesToRename.writeUTF(file.getFile().getFileName());
             }
          }
 
          // Renames from clean up third
-         if (renames == null)
-         {
+         if (renames == null) {
             filesToRename.writeInt(0);
          }
-         else
-         {
+         else {
             filesToRename.writeInt(renames.size());
-            for (Pair<String, String> rename : renames)
-            {
+            for (Pair<String, String> rename : renames) {
                filesToRename.writeUTF(rename.getA());
                filesToRename.writeUTF(rename.getB());
             }
          }
 
-         JournalInternalRecord controlRecord = new JournalAddRecord(true,
-                                                                    1,
-                                                                    (byte)0,
-                                                                    new ByteArrayEncoding(filesToRename.toByteBuffer()
-                                                                                                       .array()));
+         JournalInternalRecord controlRecord = new JournalAddRecord(true, 1, (byte) 0, new ByteArrayEncoding(filesToRename.toByteBuffer().array()));
 
          ActiveMQBuffer renameBuffer = ActiveMQBuffers.dynamicBuffer(filesToRename.writerIndex());
 
@@ -166,17 +148,16 @@ public abstract class AbstractJournalUpdateTask implements JournalReaderCallback
 
          return controlFile;
       }
-      finally
-      {
+      finally {
          controlFile.close();
       }
    }
 
-   /** Write pending output into file */
-   public void flush() throws Exception
-   {
-      if (writingChannel != null)
-      {
+   /**
+    * Write pending output into file
+    */
+   public void flush() throws Exception {
+      if (writingChannel != null) {
          sequentialFile.position(0);
 
          // To Fix the size of the file
@@ -190,20 +171,19 @@ public abstract class AbstractJournalUpdateTask implements JournalReaderCallback
       writingChannel = null;
    }
 
-   public boolean lookupRecord(final long id)
-   {
+   public boolean lookupRecord(final long id) {
       return recordsSnapshot.contains(id);
    }
 
    // Package protected ---------------------------------------------
 
    // Protected -----------------------------------------------------
+
    /**
     * @throws Exception
     */
 
-   protected void openFile() throws Exception
-   {
+   protected void openFile() throws Exception {
       flush();
 
       ByteBuffer bufferWrite = fileFactory.newBuffer(journal.getFileSize());
@@ -221,27 +201,23 @@ public abstract class AbstractJournalUpdateTask implements JournalReaderCallback
       JournalImpl.writeHeader(writingChannel, journal.getUserVersion(), currentFile.getFileID());
    }
 
-   protected void addToRecordsSnaptshot(final long id)
-   {
+   protected void addToRecordsSnaptshot(final long id) {
       recordsSnapshot.add(id);
    }
 
    /**
     * @return the writingChannel
     */
-   protected ActiveMQBuffer getWritingChannel()
-   {
+   protected ActiveMQBuffer getWritingChannel() {
       return writingChannel;
    }
 
-   protected void writeEncoder(final JournalInternalRecord record) throws Exception
-   {
+   protected void writeEncoder(final JournalInternalRecord record) throws Exception {
       record.setFileID(currentFile.getRecordID());
       record.encode(getWritingChannel());
    }
 
-   protected void writeEncoder(final JournalInternalRecord record, final int txcounter) throws Exception
-   {
+   protected void writeEncoder(final JournalInternalRecord record, final int txcounter) throws Exception {
       record.setNumberOfRecords(txcounter);
       writeEncoder(record);
    }

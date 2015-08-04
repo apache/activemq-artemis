@@ -27,8 +27,7 @@ import org.junit.Test;
 
 import java.util.Set;
 
-public class SecurityManagementWithConfiguredAdminUserTest extends SecurityManagementTestBase
-{
+public class SecurityManagementWithConfiguredAdminUserTest extends SecurityManagementTestBase {
 
    // Constants -----------------------------------------------------
 
@@ -49,30 +48,26 @@ public class SecurityManagementWithConfiguredAdminUserTest extends SecurityManag
    // Public --------------------------------------------------------
 
    /**
-    *  default CLUSTER_ADMIN_USER must work even when there are other
-    *  configured admin users
+    * default CLUSTER_ADMIN_USER must work even when there are other
+    * configured admin users
     */
    @Test
-   public void testSendManagementMessageWithClusterAdminUser() throws Exception
-   {
+   public void testSendManagementMessageWithClusterAdminUser() throws Exception {
       doSendManagementMessage(ActiveMQDefaultConfiguration.getDefaultClusterUser(), CLUSTER_PASSWORD, true);
    }
 
    @Test
-   public void testSendManagementMessageWithAdminRole() throws Exception
-   {
+   public void testSendManagementMessageWithAdminRole() throws Exception {
       doSendManagementMessage(validAdminUser, validAdminPassword, true);
    }
 
    @Test
-   public void testSendManagementMessageWithoutAdminRole() throws Exception
-   {
+   public void testSendManagementMessageWithoutAdminRole() throws Exception {
       doSendManagementMessage(invalidAdminUser, invalidAdminPassword, false);
    }
 
    @Test
-   public void testSendManagementMessageWithoutUserCredentials() throws Exception
-   {
+   public void testSendManagementMessageWithoutUserCredentials() throws Exception {
       doSendManagementMessage(null, null, false);
    }
 
@@ -81,14 +76,12 @@ public class SecurityManagementWithConfiguredAdminUserTest extends SecurityManag
    // Protected -----------------------------------------------------
 
    @Override
-   protected ActiveMQServer setupAndStartActiveMQServer() throws Exception
-   {
-      Configuration config = createDefaultInVMConfig()
-         .setSecurityEnabled(true);
+   protected ActiveMQServer setupAndStartActiveMQServer() throws Exception {
+      Configuration config = createDefaultInVMConfig().setSecurityEnabled(true);
       ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(config, false));
       server.start();
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
-      ActiveMQSecurityManagerImpl securityManager = (ActiveMQSecurityManagerImpl)server.getSecurityManager();
+      ActiveMQSecurityManagerImpl securityManager = (ActiveMQSecurityManagerImpl) server.getSecurityManager();
       securityManager.getConfiguration().addUser(validAdminUser, validAdminPassword);
       securityManager.getConfiguration().addUser(invalidAdminUser, invalidAdminPassword);
 

@@ -34,64 +34,52 @@ import org.proton.plug.logger.ActiveMQAMQPProtocolMessageBundle;
 
 import static org.proton.plug.util.DeliveryUtil.readDelivery;
 
-public class ProtonServerReceiverContext extends AbstractProtonReceiverContext
-{
+public class ProtonServerReceiverContext extends AbstractProtonReceiverContext {
 
    private final int numberOfCredits = 100;
 
-   public ProtonServerReceiverContext(AMQPSessionCallback sessionSPI, AbstractConnectionContext connection, AbstractProtonSessionContext protonSession, Receiver receiver)
-   {
+   public ProtonServerReceiverContext(AMQPSessionCallback sessionSPI,
+                                      AbstractConnectionContext connection,
+                                      AbstractProtonSessionContext protonSession,
+                                      Receiver receiver) {
       super(sessionSPI, connection, protonSession, receiver);
    }
 
-   public void onFlow(int credits)
-   {
+   public void onFlow(int credits) {
    }
 
-
    @Override
-   public void initialise() throws Exception
-   {
+   public void initialise() throws Exception {
       super.initialise();
       org.apache.qpid.proton.amqp.messaging.Target target = (org.apache.qpid.proton.amqp.messaging.Target) receiver.getRemoteTarget();
 
-      if (target != null)
-      {
-         if (target.getDynamic())
-         {
+      if (target != null) {
+         if (target.getDynamic()) {
             //if dynamic we have to create the node (queue) and set the address on the target, the node is temporary and
             // will be deleted on closing of the session
             String queue = sessionSPI.tempQueueName();
 
-
-            try
-            {
+            try {
                sessionSPI.createTemporaryQueue(queue);
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                throw new ActiveMQAMQPInternalErrorException(e.getMessage(), e);
             }
             target.setAddress(queue.toString());
          }
-         else
-         {
+         else {
             //if not dynamic then we use the targets address as the address to forward the messages to, however there has to
             //be a queue bound to it so we nee to check this.
             String address = target.getAddress();
-            if (address == null)
-            {
+            if (address == null) {
                throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.targetAddressNotSet();
             }
-            try
-            {
-               if (!sessionSPI.queueQuery(address))
-               {
+            try {
+               if (!sessionSPI.queueQuery(address)) {
                   throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.addressDoesntExist();
                }
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.errorFindingTemporaryQueue(e.getMessage());
             }
          }
@@ -106,24 +94,19 @@ public class ProtonServerReceiverContext extends AbstractProtonReceiverContext
    * This may be called more than once per deliver so we have to cache the buffer until we have received it all.
    *
    * */
-   public void onMessage(Delivery delivery) throws ActiveMQAMQPException
-   {
+   public void onMessage(Delivery delivery) throws ActiveMQAMQPException {
       Receiver receiver;
-      try
-      {
+      try {
          receiver = ((Receiver) delivery.getLink());
 
-         if (!delivery.isReadable())
-         {
+         if (!delivery.isReadable()) {
             System.err.println("!!!!! Readable!!!!!!!");
             return;
          }
 
          ByteBuf buffer = PooledByteBufAllocator.DEFAULT.heapBuffer(10 * 1024);
-         try
-         {
-            synchronized (connection.getLock())
-            {
+         try {
+            synchronized (connection.getLock()) {
                readDelivery(receiver, buffer);
 
                receiver.advance();
@@ -132,19 +115,16 @@ public class ProtonServerReceiverContext extends AbstractProtonReceiverContext
                delivery.disposition(Accepted.getInstance());
                delivery.settle();
 
-               if (receiver.getRemoteCredit() < numberOfCredits / 2)
-               {
+               if (receiver.getRemoteCredit() < numberOfCredits / 2) {
                   flow(numberOfCredits);
                }
             }
          }
-         finally
-         {
+         finally {
             buffer.release();
          }
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          e.printStackTrace();
          Rejected rejected = new Rejected();
          ErrorCondition condition = new ErrorCondition();

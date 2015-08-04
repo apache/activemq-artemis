@@ -23,32 +23,28 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class MessageLoadBalancingTest extends ClusterTestBase
-{
+public class MessageLoadBalancingTest extends ClusterTestBase {
+
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       start();
    }
 
-   private void start() throws Exception
-   {
+   private void start() throws Exception {
       setupServers();
 
       setRedistributionDelay(0);
    }
 
-   protected boolean isNetty()
-   {
+   protected boolean isNetty() {
       return false;
    }
 
    @Test
-   public void testMessageLoadBalancingOff() throws Exception
-   {
+   public void testMessageLoadBalancingOff() throws Exception {
       setupCluster(MessageLoadBalancingType.OFF);
 
       startServers(0, 1);
@@ -80,8 +76,7 @@ public class MessageLoadBalancingTest extends ClusterTestBase
       ClientMessage message = getConsumer(1).receive(1000);
       Assert.assertNull(message);
 
-      for (int i = 0; i < 10; i++)
-      {
+      for (int i = 0; i < 10; i++) {
          message = getConsumer(0).receive(5000);
          Assert.assertNotNull("" + i, message);
          message.acknowledge();
@@ -91,29 +86,25 @@ public class MessageLoadBalancingTest extends ClusterTestBase
       Assert.assertNull(clientMessage);
    }
 
-   protected void setupCluster(final MessageLoadBalancingType messageLoadBalancingType) throws Exception
-   {
+   protected void setupCluster(final MessageLoadBalancingType messageLoadBalancingType) throws Exception {
       setupClusterConnection("cluster0", "queues", messageLoadBalancingType, 1, isNetty(), 0, 1);
 
       setupClusterConnection("cluster1", "queues", messageLoadBalancingType, 1, isNetty(), 1, 0);
    }
 
-   protected void setRedistributionDelay(final long delay)
-   {
+   protected void setRedistributionDelay(final long delay) {
       AddressSettings as = new AddressSettings().setRedistributionDelay(delay);
 
       getServer(0).getAddressSettingsRepository().addMatch("queues.*", as);
       getServer(1).getAddressSettingsRepository().addMatch("queues.*", as);
    }
 
-   protected void setupServers() throws Exception
-   {
+   protected void setupServers() throws Exception {
       setupServer(0, isFileStorage(), isNetty());
       setupServer(1, isFileStorage(), isNetty());
    }
 
-   protected void stopServers() throws Exception
-   {
+   protected void stopServers() throws Exception {
       closeAllConsumers();
 
       closeAllSessionFactories();

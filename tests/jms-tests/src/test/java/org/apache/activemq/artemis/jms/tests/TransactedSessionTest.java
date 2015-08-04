@@ -32,16 +32,14 @@ import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class TransactedSessionTest extends JMSTestCase
-{
+public class TransactedSessionTest extends JMSTestCase {
+
    @Test
-   public void testSimpleRollback() throws Exception
-   {
+   public void testSimpleRollback() throws Exception {
       // send a message
       Connection conn = null;
 
-      try
-      {
+      try {
          conn = createConnection();
          Session s = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
          s.createProducer(queue1).send(s.createTextMessage("one"));
@@ -73,10 +71,8 @@ public class TransactedSessionTest extends JMSTestCase
 
          ProxyAssertSupport.assertEquals(1, i.intValue());
       }
-      finally
-      {
-         if (conn != null)
-         {
+      finally {
+         if (conn != null) {
             conn.close();
          }
          removeAllMessages(queue1.getQueueName(), true);
@@ -84,12 +80,10 @@ public class TransactedSessionTest extends JMSTestCase
    }
 
    @Test
-   public void testRedeliveredFlagTopic() throws Exception
-   {
+   public void testRedeliveredFlagTopic() throws Exception {
       Connection conn = null;
 
-      try
-      {
+      try {
          conn = createConnection();
 
          Session sessSend = conn.createSession(true, Session.SESSION_TRANSACTED);
@@ -117,10 +111,8 @@ public class TransactedSessionTest extends JMSTestCase
 
          sess1.commit();
       }
-      finally
-      {
-         if (conn != null)
-         {
+      finally {
+         if (conn != null) {
             conn.close();
          }
       }
@@ -130,12 +122,10 @@ public class TransactedSessionTest extends JMSTestCase
     * Test redelivery works ok for Topic
     */
    @Test
-   public void testRedeliveredTopic() throws Exception
-   {
+   public void testRedeliveredTopic() throws Exception {
       Connection conn = null;
 
-      try
-      {
+      try {
          conn = createConnection();
 
          Session sess = conn.createSession(true, Session.SESSION_TRANSACTED);
@@ -164,22 +154,18 @@ public class TransactedSessionTest extends JMSTestCase
 
          sess.commit();
       }
-      finally
-      {
-         if (conn != null)
-         {
+      finally {
+         if (conn != null) {
             conn.close();
          }
       }
    }
 
    @Test
-   public void testReceivedRollbackTopic() throws Exception
-   {
+   public void testReceivedRollbackTopic() throws Exception {
       Connection conn = null;
 
-      try
-      {
+      try {
          conn = createConnection();
 
          Session sess = conn.createSession(true, Session.SESSION_TRANSACTED);
@@ -219,10 +205,8 @@ public class TransactedSessionTest extends JMSTestCase
 
          ProxyAssertSupport.assertEquals(mRec.getText(), mRec2.getText());
       }
-      finally
-      {
-         if (conn != null)
-         {
+      finally {
+         if (conn != null) {
             conn.close();
          }
       }
@@ -233,12 +217,10 @@ public class TransactedSessionTest extends JMSTestCase
     * Verify message are not received by consumer.
     */
    @Test
-   public void testSendNoCommitTopic() throws Exception
-   {
+   public void testSendNoCommitTopic() throws Exception {
       Connection conn = null;
 
-      try
-      {
+      try {
          conn = createConnection();
 
          Session producerSess = conn.createSession(true, Session.SESSION_TRANSACTED);
@@ -251,8 +233,7 @@ public class TransactedSessionTest extends JMSTestCase
          final int NUM_MESSAGES = 10;
 
          // Send some messages
-         for (int i = 0; i < NUM_MESSAGES; i++)
-         {
+         for (int i = 0; i < NUM_MESSAGES; i++) {
             Message m = producerSess.createMessage();
             producer.send(m);
          }
@@ -260,10 +241,8 @@ public class TransactedSessionTest extends JMSTestCase
          Message m = consumer.receive(500);
          ProxyAssertSupport.assertNull(m);
       }
-      finally
-      {
-         if (conn != null)
-         {
+      finally {
+         if (conn != null) {
             conn.close();
          }
       }
@@ -274,12 +253,10 @@ public class TransactedSessionTest extends JMSTestCase
     * Verify message are received by consumer.
     */
    @Test
-   public void testSendCommitTopic() throws Exception
-   {
+   public void testSendCommitTopic() throws Exception {
       Connection conn = null;
 
-      try
-      {
+      try {
          conn = createConnection();
 
          Session producerSess = conn.createSession(true, Session.SESSION_TRANSACTED);
@@ -292,8 +269,7 @@ public class TransactedSessionTest extends JMSTestCase
          final int NUM_MESSAGES = 10;
 
          // Send some messages
-         for (int i = 0; i < NUM_MESSAGES; i++)
-         {
+         for (int i = 0; i < NUM_MESSAGES; i++) {
             Message m = producerSess.createMessage();
             producer.send(m);
          }
@@ -301,11 +277,9 @@ public class TransactedSessionTest extends JMSTestCase
          producerSess.commit();
 
          int count = 0;
-         while (true)
-         {
+         while (true) {
             Message m = consumer.receive(500);
-            if (m == null)
-            {
+            if (m == null) {
                break;
             }
             count++;
@@ -313,10 +287,8 @@ public class TransactedSessionTest extends JMSTestCase
 
          ProxyAssertSupport.assertEquals(NUM_MESSAGES, count);
       }
-      finally
-      {
-         if (conn != null)
-         {
+      finally {
+         if (conn != null) {
             conn.close();
          }
       }
@@ -330,12 +302,10 @@ public class TransactedSessionTest extends JMSTestCase
     * Create a new connection, session and consumer - verify messages are not redelivered
     */
    @Test
-   public void testAckCommitTopic() throws Exception
-   {
+   public void testAckCommitTopic() throws Exception {
       Connection conn = null;
 
-      try
-      {
+      try {
          conn = createConnection();
 
          Session producerSess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -348,17 +318,14 @@ public class TransactedSessionTest extends JMSTestCase
          final int NUM_MESSAGES = 10;
 
          // Send some messages
-         for (int i = 0; i < NUM_MESSAGES; i++)
-         {
+         for (int i = 0; i < NUM_MESSAGES; i++) {
             Message m = producerSess.createMessage();
             producer.send(m);
          }
          int count = 0;
-         while (true)
-         {
+         while (true) {
             Message m = consumer.receive(500);
-            if (m == null)
-            {
+            if (m == null) {
                break;
             }
             count++;
@@ -383,10 +350,8 @@ public class TransactedSessionTest extends JMSTestCase
 
          ProxyAssertSupport.assertNull(m);
       }
-      finally
-      {
-         if (conn != null)
-         {
+      finally {
+         if (conn != null) {
             conn.close();
          }
       }
@@ -400,12 +365,10 @@ public class TransactedSessionTest extends JMSTestCase
     */
 
    @Test
-   public void testSendRollbackTopic() throws Exception
-   {
+   public void testSendRollbackTopic() throws Exception {
       Connection conn = null;
 
-      try
-      {
+      try {
          conn = createConnection();
 
          Session producerSess = conn.createSession(true, Session.SESSION_TRANSACTED);
@@ -418,8 +381,7 @@ public class TransactedSessionTest extends JMSTestCase
          final int NUM_MESSAGES = 10;
 
          // Send some messages
-         for (int i = 0; i < NUM_MESSAGES; i++)
-         {
+         for (int i = 0; i < NUM_MESSAGES; i++) {
             Message m = producerSess.createMessage();
             producer.send(m);
          }
@@ -430,10 +392,8 @@ public class TransactedSessionTest extends JMSTestCase
 
          ProxyAssertSupport.assertNull(m);
       }
-      finally
-      {
-         if (conn != null)
-         {
+      finally {
+         if (conn != null) {
             conn.close();
          }
       }
@@ -443,12 +403,10 @@ public class TransactedSessionTest extends JMSTestCase
     * Make sure redelivered flag is set on redelivery via rollback
     */
    @Test
-   public void testRedeliveredQueue() throws Exception
-   {
+   public void testRedeliveredQueue() throws Exception {
       Connection conn = null;
 
-      try
-      {
+      try {
          conn = createConnection();
 
          Session sess = conn.createSession(true, Session.SESSION_TRANSACTED);
@@ -473,10 +431,8 @@ public class TransactedSessionTest extends JMSTestCase
 
          sess.commit();
       }
-      finally
-      {
-         if (conn != null)
-         {
+      finally {
+         if (conn != null) {
             conn.close();
          }
       }
@@ -489,12 +445,10 @@ public class TransactedSessionTest extends JMSTestCase
     * session.
     */
    @Test
-   public void testRedeliveredQueue2() throws Exception
-   {
+   public void testRedeliveredQueue2() throws Exception {
       Connection conn = null;
 
-      try
-      {
+      try {
          conn = createConnection();
 
          Session sendSession = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -535,18 +489,15 @@ public class TransactedSessionTest extends JMSTestCase
 
          ProxyAssertSupport.assertTrue(tm.getJMSRedelivered());
       }
-      finally
-      {
-         if (conn != null)
-         {
+      finally {
+         if (conn != null) {
             conn.close();
          }
       }
    }
 
    @Test
-   public void testReceivedRollbackQueue() throws Exception
-   {
+   public void testReceivedRollbackQueue() throws Exception {
       Connection conn = createConnection();
 
       Session sess = conn.createSession(true, Session.SESSION_TRANSACTED);
@@ -600,12 +551,10 @@ public class TransactedSessionTest extends JMSTestCase
     * Verify message are not received by consumer.
     */
    @Test
-   public void testSendNoCommitQueue() throws Exception
-   {
+   public void testSendNoCommitQueue() throws Exception {
       Connection conn = null;
 
-      try
-      {
+      try {
          conn = createConnection();
 
          Session producerSess = conn.createSession(true, Session.CLIENT_ACKNOWLEDGE);
@@ -618,18 +567,15 @@ public class TransactedSessionTest extends JMSTestCase
          final int NUM_MESSAGES = 10;
 
          // Send some messages
-         for (int i = 0; i < NUM_MESSAGES; i++)
-         {
+         for (int i = 0; i < NUM_MESSAGES; i++) {
             Message m = producerSess.createMessage();
             producer.send(m);
          }
 
          checkEmpty(queue1);
       }
-      finally
-      {
-         if (conn != null)
-         {
+      finally {
+         if (conn != null) {
             conn.close();
          }
       }
@@ -640,12 +586,10 @@ public class TransactedSessionTest extends JMSTestCase
     * Verify message are received by consumer.
     */
    @Test
-   public void testSendCommitQueue() throws Exception
-   {
+   public void testSendCommitQueue() throws Exception {
       Connection conn = null;
 
-      try
-      {
+      try {
          conn = createConnection();
 
          Session producerSess = conn.createSession(true, Session.CLIENT_ACKNOWLEDGE);
@@ -658,8 +602,7 @@ public class TransactedSessionTest extends JMSTestCase
          final int NUM_MESSAGES = 10;
 
          // Send some messages
-         for (int i = 0; i < NUM_MESSAGES; i++)
-         {
+         for (int i = 0; i < NUM_MESSAGES; i++) {
             Message m = producerSess.createMessage();
             producer.send(m);
          }
@@ -667,11 +610,9 @@ public class TransactedSessionTest extends JMSTestCase
          producerSess.commit();
 
          int count = 0;
-         while (true)
-         {
+         while (true) {
             Message m = consumer.receive(500);
-            if (m == null)
-            {
+            if (m == null) {
                break;
             }
             count++;
@@ -679,10 +620,8 @@ public class TransactedSessionTest extends JMSTestCase
 
          ProxyAssertSupport.assertEquals(NUM_MESSAGES, count);
       }
-      finally
-      {
-         if (conn != null)
-         {
+      finally {
+         if (conn != null) {
             conn.close();
          }
          removeAllMessages(queue1.getQueueName(), true);
@@ -690,12 +629,10 @@ public class TransactedSessionTest extends JMSTestCase
 
    }
 
-   public void _testSendCommitQueueCommitsInOrder() throws Exception
-   {
+   public void _testSendCommitQueueCommitsInOrder() throws Exception {
       Connection conn = null;
 
-      try
-      {
+      try {
          conn = createConnection();
 
          Session producerSess = conn.createSession(true, Session.CLIENT_ACKNOWLEDGE);
@@ -712,47 +649,37 @@ public class TransactedSessionTest extends JMSTestCase
          int sentId = 0;
          boolean started = false;
          // Send some messages
-         while (true)
-         {
-            try
-            {
+         while (true) {
+            try {
                Message m = producerSess.createMessage();
                m.setIntProperty("foo", sentId);
                sentId++;
                producer.send(m);
 
-               if (sentId == 1 || System.currentTimeMillis() - lastBatchTime > 50)
-               {
+               if (sentId == 1 || System.currentTimeMillis() - lastBatchTime > 50) {
                   lastBatchTime = System.currentTimeMillis();
                   producerSess.commit();
                }
             }
-            catch (JMSException e)
-            {
+            catch (JMSException e) {
                //ignore connection closed by consumer
             }
 
             // wait for the first message to be received before we continue sending
-            if (!started)
-            {
+            if (!started) {
                Assert.assertTrue(latch.await(5, TimeUnit.SECONDS));
                started = true;
             }
-            else
-            {
-               if (myReceiver.failed)
-               {
+            else {
+               if (myReceiver.failed) {
                   throw myReceiver.e;
                }
             }
          }
 
-
       }
-      finally
-      {
-         if (conn != null)
-         {
+      finally {
+         if (conn != null) {
             conn.close();
          }
          removeAllMessages(queue1.getQueueName(), true);
@@ -760,8 +687,8 @@ public class TransactedSessionTest extends JMSTestCase
 
    }
 
-   class myReceiver implements MessageListener
-   {
+   class myReceiver implements MessageListener {
+
       int count = 0;
       boolean started = false;
       private final CountDownLatch startLatch;
@@ -770,41 +697,33 @@ public class TransactedSessionTest extends JMSTestCase
 
       private final Connection conn;
 
-      public myReceiver(CountDownLatch startLatch, Connection conn)
-      {
+      public myReceiver(CountDownLatch startLatch, Connection conn) {
          this.startLatch = startLatch;
          this.conn = conn;
       }
 
-      public void onMessage(Message message)
-      {
-         if (!started)
-         {
+      public void onMessage(Message message) {
+         if (!started) {
             startLatch.countDown();
             started = true;
          }
-         try
-         {
+         try {
             int foo = message.getIntProperty("foo");
-            if (foo != count)
-            {
+            if (foo != count) {
                e = new Exception("received out of order expected " + count + " received " + foo);
                failed = true;
                conn.close();
             }
             count++;
          }
-         catch (JMSException e)
-         {
+         catch (JMSException e) {
 
             this.e = e;
             failed = true;
-            try
-            {
+            try {
                conn.close();
             }
-            catch (JMSException e1)
-            {
+            catch (JMSException e1) {
                e1.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
             }
          }
@@ -815,32 +734,26 @@ public class TransactedSessionTest extends JMSTestCase
     * Test IllegateStateException is thrown if commit is called on a non-transacted session
     */
    @Test
-   public void testCommitIllegalState() throws Exception
-   {
+   public void testCommitIllegalState() throws Exception {
       Connection conn = null;
 
-      try
-      {
+      try {
          conn = createConnection();
 
          Session producerSess = conn.createSession(false, Session.CLIENT_ACKNOWLEDGE);
 
          boolean thrown = false;
-         try
-         {
+         try {
             producerSess.commit();
          }
-         catch (javax.jms.IllegalStateException e)
-         {
+         catch (javax.jms.IllegalStateException e) {
             thrown = true;
          }
 
          ProxyAssertSupport.assertTrue(thrown);
       }
-      finally
-      {
-         if (conn != null)
-         {
+      finally {
+         if (conn != null) {
             conn.close();
          }
       }
@@ -854,12 +767,10 @@ public class TransactedSessionTest extends JMSTestCase
     * Create a new connection, session and consumer - verify messages are redelivered
     */
    @Test
-   public void testAckNoCommitQueue() throws Exception
-   {
+   public void testAckNoCommitQueue() throws Exception {
       Connection conn = null;
 
-      try
-      {
+      try {
 
          conn = createConnection();
 
@@ -873,18 +784,15 @@ public class TransactedSessionTest extends JMSTestCase
          final int NUM_MESSAGES = 10;
 
          // Send some messages
-         for (int i = 0; i < NUM_MESSAGES; i++)
-         {
+         for (int i = 0; i < NUM_MESSAGES; i++) {
             Message m = producerSess.createMessage();
             producer.send(m);
          }
 
          int count = 0;
-         while (true)
-         {
+         while (true) {
             Message m = consumer.receive(500);
-            if (m == null)
-            {
+            if (m == null) {
                break;
             }
             count++;
@@ -905,11 +813,9 @@ public class TransactedSessionTest extends JMSTestCase
 
          count = 0;
 
-         while (true)
-         {
+         while (true) {
             Message m = consumer.receive(500);
-            if (m == null)
-            {
+            if (m == null) {
                break;
             }
             count++;
@@ -917,10 +823,8 @@ public class TransactedSessionTest extends JMSTestCase
 
          ProxyAssertSupport.assertEquals(NUM_MESSAGES, count);
       }
-      finally
-      {
-         if (conn != null)
-         {
+      finally {
+         if (conn != null) {
             conn.close();
          }
          removeAllMessages(queue1.getQueueName(), true);
@@ -935,12 +839,10 @@ public class TransactedSessionTest extends JMSTestCase
     * Create a new connection, session and consumer - verify messages are not redelivered
     */
    @Test
-   public void testAckCommitQueue() throws Exception
-   {
+   public void testAckCommitQueue() throws Exception {
       Connection conn = null;
 
-      try
-      {
+      try {
          conn = createConnection();
 
          Session producerSess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -953,18 +855,15 @@ public class TransactedSessionTest extends JMSTestCase
          final int NUM_MESSAGES = 10;
 
          // Send some messages
-         for (int i = 0; i < NUM_MESSAGES; i++)
-         {
+         for (int i = 0; i < NUM_MESSAGES; i++) {
             Message m = producerSess.createMessage();
             producer.send(m);
          }
 
          int count = 0;
-         while (true)
-         {
+         while (true) {
             Message m = consumer.receive(500);
-            if (m == null)
-            {
+            if (m == null) {
                break;
             }
             count++;
@@ -989,10 +888,8 @@ public class TransactedSessionTest extends JMSTestCase
 
          ProxyAssertSupport.assertNull(m);
       }
-      finally
-      {
-         if (conn != null)
-         {
+      finally {
+         if (conn != null) {
             conn.close();
          }
       }
@@ -1006,12 +903,10 @@ public class TransactedSessionTest extends JMSTestCase
     */
 
    @Test
-   public void testSendRollbackQueue() throws Exception
-   {
+   public void testSendRollbackQueue() throws Exception {
       Connection conn = null;
 
-      try
-      {
+      try {
          conn = createConnection();
 
          Session producerSess = conn.createSession(true, Session.AUTO_ACKNOWLEDGE);
@@ -1024,8 +919,7 @@ public class TransactedSessionTest extends JMSTestCase
          final int NUM_MESSAGES = 10;
 
          // Send some messages
-         for (int i = 0; i < NUM_MESSAGES; i++)
-         {
+         for (int i = 0; i < NUM_MESSAGES; i++) {
             Message m = producerSess.createMessage();
             producer.send(m);
          }
@@ -1036,10 +930,8 @@ public class TransactedSessionTest extends JMSTestCase
 
          ProxyAssertSupport.assertNull(m);
       }
-      finally
-      {
-         if (conn != null)
-         {
+      finally {
+         if (conn != null) {
             conn.close();
          }
       }
@@ -1052,19 +944,16 @@ public class TransactedSessionTest extends JMSTestCase
     */
 
    @Test
-   public void testRollbackIllegalState() throws Exception
-   {
+   public void testRollbackIllegalState() throws Exception {
       Connection conn = createConnection();
 
       Session producerSess = conn.createSession(false, Session.CLIENT_ACKNOWLEDGE);
 
       boolean thrown = false;
-      try
-      {
+      try {
          producerSess.rollback();
       }
-      catch (javax.jms.IllegalStateException e)
-      {
+      catch (javax.jms.IllegalStateException e) {
          thrown = true;
       }
 
@@ -1081,12 +970,10 @@ public class TransactedSessionTest extends JMSTestCase
     */
 
    @Test
-   public void testAckRollbackQueue() throws Exception
-   {
+   public void testAckRollbackQueue() throws Exception {
       Connection conn = null;
 
-      try
-      {
+      try {
          conn = createConnection();
 
          Session producerSess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -1099,18 +986,15 @@ public class TransactedSessionTest extends JMSTestCase
          final int NUM_MESSAGES = 10;
 
          // Send some messages
-         for (int i = 0; i < NUM_MESSAGES; i++)
-         {
+         for (int i = 0; i < NUM_MESSAGES; i++) {
             Message m = producerSess.createMessage();
             producer.send(m);
          }
 
          int count = 0;
-         while (true)
-         {
+         while (true) {
             Message m = consumer.receive(500);
-            if (m == null)
-            {
+            if (m == null) {
                break;
             }
             count++;
@@ -1132,11 +1016,9 @@ public class TransactedSessionTest extends JMSTestCase
          conn.start();
 
          count = 0;
-         while (true)
-         {
+         while (true) {
             Message m = consumer.receive(500);
-            if (m == null)
-            {
+            if (m == null) {
                break;
             }
             count++;
@@ -1145,10 +1027,8 @@ public class TransactedSessionTest extends JMSTestCase
          ProxyAssertSupport.assertEquals(NUM_MESSAGES, count);
 
       }
-      finally
-      {
-         if (conn != null)
-         {
+      finally {
+         if (conn != null) {
             conn.close();
          }
          removeAllMessages(queue1.getQueueName(), true);
@@ -1161,8 +1041,7 @@ public class TransactedSessionTest extends JMSTestCase
     */
 
    @Test
-   public void testSendMultipleQueue() throws Exception
-   {
+   public void testSendMultipleQueue() throws Exception {
       Connection conn = createConnection();
 
       Session producerSess = conn.createSession(true, Session.AUTO_ACKNOWLEDGE);
@@ -1177,10 +1056,8 @@ public class TransactedSessionTest extends JMSTestCase
 
       // Send some messages
 
-      for (int j = 0; j < NUM_TX; j++)
-      {
-         for (int i = 0; i < NUM_MESSAGES; i++)
-         {
+      for (int j = 0; j < NUM_TX; j++) {
+         for (int i = 0; i < NUM_MESSAGES; i++) {
             Message m = producerSess.createMessage();
             producer.send(m);
          }
@@ -1189,11 +1066,9 @@ public class TransactedSessionTest extends JMSTestCase
       }
 
       int count = 0;
-      while (true)
-      {
+      while (true) {
          Message m = consumer.receive(500);
-         if (m == null)
-         {
+         if (m == null) {
             break;
          }
          count++;

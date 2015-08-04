@@ -19,35 +19,33 @@ package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 
-public final class ReplicationDeleteMessage extends PacketImpl
-{
+public final class ReplicationDeleteMessage extends PacketImpl {
+
    private long id;
 
-   /** 0 - BindingsImpl, 1 - MessagesJournal */
+   /**
+    * 0 - BindingsImpl, 1 - MessagesJournal
+    */
    private byte journalID;
 
-   public ReplicationDeleteMessage()
-   {
+   public ReplicationDeleteMessage() {
       super(PacketImpl.REPLICATION_DELETE);
    }
 
-   public ReplicationDeleteMessage(final byte journalID, final long id)
-   {
+   public ReplicationDeleteMessage(final byte journalID, final long id) {
       this();
       this.journalID = journalID;
       this.id = id;
    }
 
    @Override
-   public void encodeRest(final ActiveMQBuffer buffer)
-   {
+   public void encodeRest(final ActiveMQBuffer buffer) {
       buffer.writeByte(journalID);
       buffer.writeLong(id);
    }
 
    @Override
-   public void decodeRest(final ActiveMQBuffer buffer)
-   {
+   public void decodeRest(final ActiveMQBuffer buffer) {
       journalID = buffer.readByte();
       id = buffer.readLong();
    }
@@ -55,39 +53,35 @@ public final class ReplicationDeleteMessage extends PacketImpl
    /**
     * @return the id
     */
-   public long getId()
-   {
+   public long getId() {
       return id;
    }
 
    /**
     * @return the journalID
     */
-   public byte getJournalID()
-   {
+   public byte getJournalID() {
       return journalID;
    }
 
    @Override
-   public int hashCode()
-   {
+   public int hashCode() {
       final int prime = 31;
       int result = super.hashCode();
-      result = prime * result + (int)(id ^ (id >>> 32));
+      result = prime * result + (int) (id ^ (id >>> 32));
       result = prime * result + journalID;
       return result;
    }
 
    @Override
-   public boolean equals(Object obj)
-   {
+   public boolean equals(Object obj) {
       if (this == obj)
          return true;
       if (!super.equals(obj))
          return false;
       if (!(obj instanceof ReplicationDeleteMessage))
          return false;
-      ReplicationDeleteMessage other = (ReplicationDeleteMessage)obj;
+      ReplicationDeleteMessage other = (ReplicationDeleteMessage) obj;
       if (id != other.id)
          return false;
       if (journalID != other.journalID)

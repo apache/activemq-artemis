@@ -30,8 +30,8 @@ import org.apache.activemq.artemis.utils.DataConstants;
 /**
  * This class represents a paged message
  */
-public class PagedMessageImpl implements PagedMessage
-{
+public class PagedMessageImpl implements PagedMessage {
+
    /**
     * Large messages will need to be instantiated lazily during getMessage when the StorageManager
     * is available
@@ -44,31 +44,25 @@ public class PagedMessageImpl implements PagedMessage
 
    private long transactionID = 0;
 
-   public PagedMessageImpl(final ServerMessage message, final long[] queueIDs, final long transactionID)
-   {
+   public PagedMessageImpl(final ServerMessage message, final long[] queueIDs, final long transactionID) {
       this(message, queueIDs);
       this.transactionID = transactionID;
    }
 
-   public PagedMessageImpl(final ServerMessage message, final long[] queueIDs)
-   {
+   public PagedMessageImpl(final ServerMessage message, final long[] queueIDs) {
       this.queueIDs = queueIDs;
       this.message = message;
    }
 
-   public PagedMessageImpl()
-   {
+   public PagedMessageImpl() {
    }
 
-   public ServerMessage getMessage()
-   {
+   public ServerMessage getMessage() {
       return message;
    }
 
-   public void initMessage(StorageManager storage)
-   {
-      if (largeMessageLazyData != null)
-      {
+   public void initMessage(StorageManager storage) {
+      if (largeMessageLazyData != null) {
          LargeServerMessage lgMessage = storage.createLargeMessage();
          ActiveMQBuffer buffer = ActiveMQBuffers.dynamicBuffer(largeMessageLazyData);
          lgMessage.decodeHeadersAndProperties(buffer);
@@ -79,34 +73,29 @@ public class PagedMessageImpl implements PagedMessage
       }
    }
 
-   public long getTransactionID()
-   {
+   public long getTransactionID() {
       return transactionID;
    }
 
-   public long[] getQueueIDs()
-   {
+   public long[] getQueueIDs() {
       return queueIDs;
    }
 
    // EncodingSupport implementation --------------------------------
 
-   public void decode(final ActiveMQBuffer buffer)
-   {
+   public void decode(final ActiveMQBuffer buffer) {
       transactionID = buffer.readLong();
 
       boolean isLargeMessage = buffer.readBoolean();
 
-      if (isLargeMessage)
-      {
+      if (isLargeMessage) {
          int largeMessageHeaderSize = buffer.readInt();
 
          largeMessageLazyData = new byte[largeMessageHeaderSize];
 
          buffer.readBytes(largeMessageLazyData);
       }
-      else
-      {
+      else {
          buffer.readInt(); // This value is only used on LargeMessages for now
 
          message = new ServerMessageImpl(-1, 50);
@@ -118,14 +107,12 @@ public class PagedMessageImpl implements PagedMessage
 
       queueIDs = new long[queueIDsSize];
 
-      for (int i = 0; i < queueIDsSize; i++)
-      {
+      for (int i = 0; i < queueIDsSize; i++) {
          queueIDs[i] = buffer.readLong();
       }
    }
 
-   public void encode(final ActiveMQBuffer buffer)
-   {
+   public void encode(final ActiveMQBuffer buffer) {
       buffer.writeLong(transactionID);
 
       buffer.writeBoolean(message instanceof LargeServerMessage);
@@ -136,21 +123,18 @@ public class PagedMessageImpl implements PagedMessage
 
       buffer.writeInt(queueIDs.length);
 
-      for (long queueID : queueIDs)
-      {
+      for (long queueID : queueIDs) {
          buffer.writeLong(queueID);
       }
    }
 
-   public int getEncodeSize()
-   {
+   public int getEncodeSize() {
       return DataConstants.SIZE_LONG + DataConstants.SIZE_BYTE + DataConstants.SIZE_INT + message.getEncodeSize() +
          DataConstants.SIZE_INT + queueIDs.length * DataConstants.SIZE_LONG;
    }
 
    @Override
-   public String toString()
-   {
+   public String toString() {
       return "PagedMessageImpl [queueIDs=" + Arrays.toString(queueIDs) +
          ", transactionID=" +
          transactionID +

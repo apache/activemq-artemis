@@ -40,8 +40,8 @@ import org.apache.activemq.artemis.jms.server.JMSServerManager;
 import org.apache.activemq.artemis.utils.json.JSONArray;
 import org.apache.activemq.artemis.utils.json.JSONObject;
 
-public class JMSTopicControlImpl extends StandardMBean implements TopicControl
-{
+public class JMSTopicControlImpl extends StandardMBean implements TopicControl {
+
    private final ActiveMQDestination managedTopic;
 
    private final AddressControl addressControl;
@@ -52,10 +52,8 @@ public class JMSTopicControlImpl extends StandardMBean implements TopicControl
 
    // Static --------------------------------------------------------
 
-   public static String createFilterFromJMSSelector(final String selectorStr) throws ActiveMQException
-   {
-      return selectorStr == null || selectorStr.trim().length() == 0 ? null
-                                                                    : SelectorTranslator.convertToActiveMQFilterString(selectorStr);
+   public static String createFilterFromJMSSelector(final String selectorStr) throws ActiveMQException {
+      return selectorStr == null || selectorStr.trim().length() == 0 ? null : SelectorTranslator.convertToActiveMQFilterString(selectorStr);
    }
 
    // Constructors --------------------------------------------------
@@ -63,8 +61,7 @@ public class JMSTopicControlImpl extends StandardMBean implements TopicControl
    public JMSTopicControlImpl(final ActiveMQDestination topic,
                               final JMSServerManager jmsServerManager,
                               final AddressControl addressControl,
-                              final ManagementService managementService) throws Exception
-   {
+                              final ManagementService managementService) throws Exception {
       super(TopicControl.class);
       this.jmsServerManager = jmsServerManager;
       managedTopic = topic;
@@ -75,118 +72,95 @@ public class JMSTopicControlImpl extends StandardMBean implements TopicControl
    // TopicControlMBean implementation ------------------------------
 
    @Override
-   public void addBinding(String binding) throws Exception
-   {
+   public void addBinding(String binding) throws Exception {
       jmsServerManager.addTopicToBindingRegistry(managedTopic.getName(), binding);
    }
 
-   public String[] getRegistryBindings()
-   {
+   public String[] getRegistryBindings() {
       return jmsServerManager.getBindingsOnTopic(managedTopic.getName());
    }
 
-   public String getName()
-   {
+   public String getName() {
       return managedTopic.getName();
    }
 
-   public boolean isTemporary()
-   {
+   public boolean isTemporary() {
       return managedTopic.isTemporary();
    }
 
-   public String getAddress()
-   {
+   public String getAddress() {
       return managedTopic.getAddress();
    }
 
-   public long getMessageCount()
-   {
+   public long getMessageCount() {
       return getMessageCount(DurabilityType.ALL);
    }
 
-   public int getDeliveringCount()
-   {
+   public int getDeliveringCount() {
       List<QueueControl> queues = getQueues(DurabilityType.ALL);
       int count = 0;
-      for (QueueControl queue : queues)
-      {
+      for (QueueControl queue : queues) {
          count += queue.getDeliveringCount();
       }
       return count;
    }
 
-   public long getMessagesAdded()
-   {
+   public long getMessagesAdded() {
       List<QueueControl> queues = getQueues(DurabilityType.ALL);
       int count = 0;
-      for (QueueControl queue : queues)
-      {
+      for (QueueControl queue : queues) {
          count += queue.getMessagesAdded();
       }
       return count;
    }
 
-   public int getDurableMessageCount()
-   {
+   public int getDurableMessageCount() {
       return getMessageCount(DurabilityType.DURABLE);
    }
 
-   public int getNonDurableMessageCount()
-   {
+   public int getNonDurableMessageCount() {
       return getMessageCount(DurabilityType.NON_DURABLE);
    }
 
-   public int getSubscriptionCount()
-   {
+   public int getSubscriptionCount() {
       return getQueues(DurabilityType.ALL).size();
    }
 
-   public int getDurableSubscriptionCount()
-   {
+   public int getDurableSubscriptionCount() {
       return getQueues(DurabilityType.DURABLE).size();
    }
 
-   public int getNonDurableSubscriptionCount()
-   {
+   public int getNonDurableSubscriptionCount() {
       return getQueues(DurabilityType.NON_DURABLE).size();
    }
 
-   public Object[] listAllSubscriptions()
-   {
+   public Object[] listAllSubscriptions() {
       return listSubscribersInfos(DurabilityType.ALL);
    }
 
-   public String listAllSubscriptionsAsJSON() throws Exception
-   {
+   public String listAllSubscriptionsAsJSON() throws Exception {
       return listSubscribersInfosAsJSON(DurabilityType.ALL);
    }
 
-   public Object[] listDurableSubscriptions()
-   {
+   public Object[] listDurableSubscriptions() {
       return listSubscribersInfos(DurabilityType.DURABLE);
    }
 
-   public String listDurableSubscriptionsAsJSON() throws Exception
-   {
+   public String listDurableSubscriptionsAsJSON() throws Exception {
       return listSubscribersInfosAsJSON(DurabilityType.DURABLE);
    }
 
-   public Object[] listNonDurableSubscriptions()
-   {
+   public Object[] listNonDurableSubscriptions() {
       return listSubscribersInfos(DurabilityType.NON_DURABLE);
    }
 
-   public String listNonDurableSubscriptionsAsJSON() throws Exception
-   {
+   public String listNonDurableSubscriptionsAsJSON() throws Exception {
       return listSubscribersInfosAsJSON(DurabilityType.NON_DURABLE);
    }
 
-   public Map<String, Object>[] listMessagesForSubscription(final String queueName) throws Exception
-   {
-      QueueControl coreQueueControl = (QueueControl)managementService.getResource(ResourceNames.CORE_QUEUE + queueName);
-      if (coreQueueControl == null)
-      {
+   public Map<String, Object>[] listMessagesForSubscription(final String queueName) throws Exception {
+      QueueControl coreQueueControl = (QueueControl) managementService.getResource(ResourceNames.CORE_QUEUE + queueName);
+      if (coreQueueControl == null) {
          throw new IllegalArgumentException("No subscriptions with name " + queueName);
       }
 
@@ -196,40 +170,35 @@ public class JMSTopicControlImpl extends StandardMBean implements TopicControl
 
       int i = 0;
 
-      for (Map<String, Object> coreMessage : coreMessages)
-      {
+      for (Map<String, Object> coreMessage : coreMessages) {
          jmsMessages[i++] = ActiveMQMessage.coreMaptoJMSMap(coreMessage);
       }
       return jmsMessages;
    }
 
-   public String listMessagesForSubscriptionAsJSON(final String queueName) throws Exception
-   {
+   public String listMessagesForSubscriptionAsJSON(final String queueName) throws Exception {
       return JMSQueueControlImpl.toJSON(listMessagesForSubscription(queueName));
    }
 
-   public int countMessagesForSubscription(final String clientID, final String subscriptionName, final String filterStr) throws Exception
-   {
+   public int countMessagesForSubscription(final String clientID,
+                                           final String subscriptionName,
+                                           final String filterStr) throws Exception {
       String queueName = ActiveMQDestination.createQueueNameForDurableSubscription(true, clientID, subscriptionName);
-      QueueControl coreQueueControl = (QueueControl)managementService.getResource(ResourceNames.CORE_QUEUE + queueName);
-      if (coreQueueControl == null)
-      {
+      QueueControl coreQueueControl = (QueueControl) managementService.getResource(ResourceNames.CORE_QUEUE + queueName);
+      if (coreQueueControl == null) {
          throw new IllegalArgumentException("No subscriptions with name " + queueName + " for clientID " + clientID);
       }
       String filter = JMSTopicControlImpl.createFilterFromJMSSelector(filterStr);
       return coreQueueControl.listMessages(filter).length;
    }
 
-   public int removeMessages(final String filterStr) throws Exception
-   {
+   public int removeMessages(final String filterStr) throws Exception {
       String filter = JMSTopicControlImpl.createFilterFromJMSSelector(filterStr);
       int count = 0;
       String[] queues = addressControl.getQueueNames();
-      for (String queue : queues)
-      {
-         QueueControl coreQueueControl = (QueueControl)managementService.getResource(ResourceNames.CORE_QUEUE + queue);
-         if (coreQueueControl != null)
-         {
+      for (String queue : queues) {
+         QueueControl coreQueueControl = (QueueControl) managementService.getResource(ResourceNames.CORE_QUEUE + queue);
+         if (coreQueueControl != null) {
             count += coreQueueControl.removeMessages(filter);
          }
       }
@@ -237,28 +206,23 @@ public class JMSTopicControlImpl extends StandardMBean implements TopicControl
       return count;
    }
 
-   public void dropDurableSubscription(final String clientID, final String subscriptionName) throws Exception
-   {
+   public void dropDurableSubscription(final String clientID, final String subscriptionName) throws Exception {
       String queueName = ActiveMQDestination.createQueueNameForDurableSubscription(true, clientID, subscriptionName);
-      QueueControl coreQueueControl = (QueueControl)managementService.getResource(ResourceNames.CORE_QUEUE + queueName);
-      if (coreQueueControl == null)
-      {
+      QueueControl coreQueueControl = (QueueControl) managementService.getResource(ResourceNames.CORE_QUEUE + queueName);
+      if (coreQueueControl == null) {
          throw new IllegalArgumentException("No subscriptions with name " + queueName + " for clientID " + clientID);
       }
-      ActiveMQServerControl serverControl = (ActiveMQServerControl)managementService.getResource(ResourceNames.CORE_SERVER);
+      ActiveMQServerControl serverControl = (ActiveMQServerControl) managementService.getResource(ResourceNames.CORE_SERVER);
       serverControl.destroyQueue(queueName);
    }
 
-   public void dropAllSubscriptions() throws Exception
-   {
-      ActiveMQServerControl serverControl = (ActiveMQServerControl)managementService.getResource(ResourceNames.CORE_SERVER);
+   public void dropAllSubscriptions() throws Exception {
+      ActiveMQServerControl serverControl = (ActiveMQServerControl) managementService.getResource(ResourceNames.CORE_SERVER);
       String[] queues = addressControl.getQueueNames();
-      for (String queue : queues)
-      {
+      for (String queue : queues) {
          // Drop all subscription shouldn't delete the dummy queue used to identify if the topic exists on the core queues.
          // we will just ignore this queue
-         if (!queue.equals(managedTopic.getAddress()))
-         {
+         if (!queue.equals(managedTopic.getAddress())) {
             serverControl.destroyQueue(queue);
          }
       }
@@ -270,20 +234,16 @@ public class JMSTopicControlImpl extends StandardMBean implements TopicControl
 
    // Private -------------------------------------------------------
 
-   private Object[] listSubscribersInfos(final DurabilityType durability)
-   {
+   private Object[] listSubscribersInfos(final DurabilityType durability) {
       List<QueueControl> queues = getQueues(durability);
       List<Object[]> subInfos = new ArrayList<Object[]>(queues.size());
 
-      for (QueueControl queue : queues)
-      {
+      for (QueueControl queue : queues) {
          String clientID = null;
          String subName = null;
 
-         if (queue.isDurable())
-         {
-            Pair<String, String> pair = ActiveMQDestination.decomposeQueueNameForDurableSubscription(queue.getName()
-                                                                                                        .toString());
+         if (queue.isDurable()) {
+            Pair<String, String> pair = ActiveMQDestination.decomposeQueueNameForDurableSubscription(queue.getName().toString());
             clientID = pair.getA();
             subName = pair.getB();
          }
@@ -302,27 +262,21 @@ public class JMSTopicControlImpl extends StandardMBean implements TopicControl
       return subInfos.toArray(new Object[subInfos.size()]);
    }
 
-   private String listSubscribersInfosAsJSON(final DurabilityType durability) throws Exception
-   {
-      try
-      {
+   private String listSubscribersInfosAsJSON(final DurabilityType durability) throws Exception {
+      try {
          List<QueueControl> queues = getQueues(durability);
          JSONArray array = new JSONArray();
 
-         for (QueueControl queue : queues)
-         {
+         for (QueueControl queue : queues) {
             String clientID = null;
             String subName = null;
 
-            if (queue.isDurable() && !queue.getName().startsWith(ResourceNames.JMS_TOPIC))
-            {
-               Pair<String, String> pair = ActiveMQDestination.decomposeQueueNameForDurableSubscription(queue.getName()
-                                                                                                           .toString());
+            if (queue.isDurable() && !queue.getName().startsWith(ResourceNames.JMS_TOPIC)) {
+               Pair<String, String> pair = ActiveMQDestination.decomposeQueueNameForDurableSubscription(queue.getName().toString());
                clientID = pair.getA();
                subName = pair.getB();
             }
-            else if (queue.getName().startsWith(ResourceNames.JMS_TOPIC))
-            {
+            else if (queue.getName().startsWith(ResourceNames.JMS_TOPIC)) {
                // in the case of heirarchical topics the queue name will not follow the <part>.<part> pattern of normal
                // durable subscribers so skip decomposing the name for the client ID and subscription name and just
                // hard-code it
@@ -341,76 +295,58 @@ public class JMSTopicControlImpl extends StandardMBean implements TopicControl
             info.put("durable", queue.isDurable());
             info.put("messageCount", queue.getMessageCount());
             info.put("deliveringCount", queue.getDeliveringCount());
-            info.put("consumers", new JSONArray(queue.listConsumersAsJSON()) );
+            info.put("consumers", new JSONArray(queue.listConsumersAsJSON()));
             array.put(info);
          }
 
          return array.toString();
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          e.printStackTrace();
          return e.toString();
       }
    }
 
-   private int getMessageCount(final DurabilityType durability)
-   {
+   private int getMessageCount(final DurabilityType durability) {
       List<QueueControl> queues = getQueues(durability);
       int count = 0;
-      for (QueueControl queue : queues)
-      {
+      for (QueueControl queue : queues) {
          count += queue.getMessageCount();
       }
       return count;
    }
 
-   private List<QueueControl> getQueues(final DurabilityType durability)
-   {
-      try
-      {
+   private List<QueueControl> getQueues(final DurabilityType durability) {
+      try {
          List<QueueControl> matchingQueues = new ArrayList<QueueControl>();
          String[] queues = addressControl.getQueueNames();
-         for (String queue : queues)
-         {
-            QueueControl coreQueueControl = (QueueControl)managementService.getResource(ResourceNames.CORE_QUEUE + queue);
+         for (String queue : queues) {
+            QueueControl coreQueueControl = (QueueControl) managementService.getResource(ResourceNames.CORE_QUEUE + queue);
 
             // Ignore the "special" subscription
-            if (coreQueueControl != null && !coreQueueControl.getName().equals(addressControl.getAddress()))
-            {
-               if (durability == DurabilityType.ALL || durability == DurabilityType.DURABLE &&
-                   coreQueueControl.isDurable() ||
-                   durability == DurabilityType.NON_DURABLE &&
-                   !coreQueueControl.isDurable())
-               {
+            if (coreQueueControl != null && !coreQueueControl.getName().equals(addressControl.getAddress())) {
+               if (durability == DurabilityType.ALL || durability == DurabilityType.DURABLE && coreQueueControl.isDurable() ||
+                  durability == DurabilityType.NON_DURABLE && !coreQueueControl.isDurable()) {
                   matchingQueues.add(coreQueueControl);
                }
             }
          }
          return matchingQueues;
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          return Collections.emptyList();
       }
    }
 
    @Override
-   public MBeanInfo getMBeanInfo()
-   {
+   public MBeanInfo getMBeanInfo() {
       MBeanInfo info = super.getMBeanInfo();
-      return new MBeanInfo(info.getClassName(),
-                           info.getDescription(),
-                           info.getAttributes(),
-                           info.getConstructors(),
-                           MBeanInfoHelper.getMBeanOperationsInfo(TopicControl.class),
-                           info.getNotifications());
+      return new MBeanInfo(info.getClassName(), info.getDescription(), info.getAttributes(), info.getConstructors(), MBeanInfoHelper.getMBeanOperationsInfo(TopicControl.class), info.getNotifications());
    }
 
    // Inner classes -------------------------------------------------
 
-   private enum DurabilityType
-   {
+   private enum DurabilityType {
       ALL, DURABLE, NON_DURABLE
    }
 }

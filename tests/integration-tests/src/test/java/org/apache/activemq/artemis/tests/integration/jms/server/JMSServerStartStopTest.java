@@ -44,8 +44,8 @@ import javax.jms.TextMessage;
 import java.util.HashSet;
 import java.util.Set;
 
-public class JMSServerStartStopTest extends ActiveMQTestBase
-{
+public class JMSServerStartStopTest extends ActiveMQTestBase {
+
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    private JMSServerManager jmsServer;
@@ -57,8 +57,7 @@ public class JMSServerStartStopTest extends ActiveMQTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       FileConfiguration fc = new FileConfiguration();
       FileJMSConfiguration fileConfiguration = new FileJMSConfiguration();
       FileDeploymentManager deploymentManager = new FileDeploymentManager("server-start-stop-config1.xml");
@@ -75,12 +74,10 @@ public class JMSServerStartStopTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testStopStart1() throws Exception
-   {
+   public void testStopStart1() throws Exception {
       final int numMessages = 5;
 
-      for (int j = 0; j < numMessages; j++)
-      {
+      for (int j = 0; j < numMessages; j++) {
          JMSServerStartStopTest.log.info("Iteration " + j);
 
          jmsServer.start();
@@ -91,8 +88,7 @@ public class JMSServerStartStopTest extends ActiveMQTestBase
          jbcf.setBlockOnNonDurableSend(true);
 
          Connection conn = jbcf.createConnection();
-         try
-         {
+         try {
             Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
             Queue queue = sess.createQueue("myJMSQueue");
@@ -103,8 +99,7 @@ public class JMSServerStartStopTest extends ActiveMQTestBase
 
             producer.send(tm);
          }
-         finally
-         {
+         finally {
             conn.close();
 
             jbcf.close();
@@ -130,8 +125,7 @@ public class JMSServerStartStopTest extends ActiveMQTestBase
 
       conn.start();
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          TextMessage tm = (TextMessage) consumer.receive(10000);
 
          Assert.assertNotNull("not null", tm);
@@ -146,8 +140,7 @@ public class JMSServerStartStopTest extends ActiveMQTestBase
 
    // https://jira.jboss.org/jira/browse/HORNETQ-315
    @Test
-   public void testCloseConnectionAfterServerIsShutdown() throws Exception
-   {
+   public void testCloseConnectionAfterServerIsShutdown() throws Exception {
       jmsServer.start();
 
       jbcf = createConnectionFactory();
@@ -165,11 +158,8 @@ public class JMSServerStartStopTest extends ActiveMQTestBase
    /**
     * @return
     */
-   private ActiveMQConnectionFactory createConnectionFactory()
-   {
-      ActiveMQConnectionFactory cf =
-         ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF,
-                                                            new TransportConfiguration(NETTY_CONNECTOR_FACTORY));
+   private ActiveMQConnectionFactory createConnectionFactory() {
+      ActiveMQConnectionFactory cf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration(NETTY_CONNECTOR_FACTORY));
 
       connectionFactories.add(cf);
       return cf;

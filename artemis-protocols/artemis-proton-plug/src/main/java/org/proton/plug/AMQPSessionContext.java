@@ -20,8 +20,8 @@ import org.apache.qpid.proton.engine.Receiver;
 import org.apache.qpid.proton.engine.Sender;
 import org.proton.plug.exceptions.ActiveMQAMQPException;
 
-public interface AMQPSessionContext
-{
+public interface AMQPSessionContext {
+
    byte[] getTag();
 
    void replaceTag(byte[] tag);

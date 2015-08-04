@@ -26,12 +26,10 @@ import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
 /**
  * Tests the delivery/receipt of a foreign stream message
  */
-public class ForeignStreamMessageTest extends ForeignMessageTest
-{
+public class ForeignStreamMessageTest extends ForeignMessageTest {
 
    @Override
-   protected Message createForeignMessage() throws Exception
-   {
+   protected Message createForeignMessage() throws Exception {
       SimpleJMSStreamMessage m = new SimpleJMSStreamMessage();
 
       log.debug("creating JMS Message type " + m.getClass().getName());
@@ -44,18 +42,17 @@ public class ForeignStreamMessageTest extends ForeignMessageTest
       m.writeInt(3);
       m.writeLong(4L);
       m.writeObject("object");
-      m.writeShort((short)5);
+      m.writeShort((short) 5);
       m.writeString("stringvalue");
 
       return m;
    }
 
    @Override
-   protected void assertEquivalent(final Message m, final int mode, final boolean redelivery) throws JMSException
-   {
+   protected void assertEquivalent(final Message m, final int mode, final boolean redelivery) throws JMSException {
       super.assertEquivalent(m, mode, redelivery);
 
-      StreamMessage sm = (StreamMessage)m;
+      StreamMessage sm = (StreamMessage) m;
 
       ProxyAssertSupport.assertTrue(sm.readBoolean());
 
@@ -71,7 +68,7 @@ public class ForeignStreamMessageTest extends ForeignMessageTest
       ProxyAssertSupport.assertEquals(sm.readInt(), 3);
       ProxyAssertSupport.assertEquals(sm.readLong(), 4L);
       ProxyAssertSupport.assertEquals(sm.readObject(), "object");
-      ProxyAssertSupport.assertEquals(sm.readShort(), (short)5);
+      ProxyAssertSupport.assertEquals(sm.readShort(), (short) 5);
       ProxyAssertSupport.assertEquals(sm.readString(), "stringvalue");
    }
 

@@ -19,8 +19,8 @@ package org.apache.activemq.artemis.core.config;
 import java.io.Serializable;
 import java.util.Map;
 
-public class ConnectorServiceConfiguration implements Serializable
-{
+public class ConnectorServiceConfiguration implements Serializable {
+
    private static final long serialVersionUID = -641207073030767325L;
 
    private String name;
@@ -29,51 +29,42 @@ public class ConnectorServiceConfiguration implements Serializable
 
    private Map<String, Object> params;
 
-   public ConnectorServiceConfiguration()
-   {
+   public ConnectorServiceConfiguration() {
    }
 
-   public String getConnectorName()
-   {
+   public String getConnectorName() {
       return name;
    }
 
-   public String getFactoryClassName()
-   {
+   public String getFactoryClassName() {
       return factoryClassName;
    }
 
-   public Map<String, Object> getParams()
-   {
+   public Map<String, Object> getParams() {
       return params;
    }
 
-   public String getName()
-   {
+   public String getName() {
       return name;
    }
 
-   public ConnectorServiceConfiguration setName(String name)
-   {
+   public ConnectorServiceConfiguration setName(String name) {
       this.name = name;
       return this;
    }
 
-   public ConnectorServiceConfiguration setFactoryClassName(String factoryClassName)
-   {
+   public ConnectorServiceConfiguration setFactoryClassName(String factoryClassName) {
       this.factoryClassName = factoryClassName;
       return this;
    }
 
-   public ConnectorServiceConfiguration setParams(Map<String, Object> params)
-   {
+   public ConnectorServiceConfiguration setParams(Map<String, Object> params) {
       this.params = params;
       return this;
    }
 
    @Override
-   public boolean equals(Object o)
-   {
+   public boolean equals(Object o) {
       if (this == o)
          return true;
       if (o == null || getClass() != o.getClass())
@@ -92,8 +83,7 @@ public class ConnectorServiceConfiguration implements Serializable
    }
 
    @Override
-   public int hashCode()
-   {
+   public int hashCode() {
       int result = getConnectorName() != null ? getConnectorName().hashCode() : 0;
       result = 31 * result + (getFactoryClassName() != null ? getFactoryClassName().hashCode() : 0);
       result = 31 * result + (getParams() != null ? getParams().hashCode() : 0);

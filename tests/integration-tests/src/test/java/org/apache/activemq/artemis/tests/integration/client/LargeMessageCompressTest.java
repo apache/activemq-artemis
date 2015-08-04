@@ -42,30 +42,25 @@ import org.junit.Test;
  * <br>
  * Just extend the LargeMessageTest
  */
-public class LargeMessageCompressTest extends LargeMessageTest
-{
+public class LargeMessageCompressTest extends LargeMessageTest {
+
    // Constructors --------------------------------------------------
-   public LargeMessageCompressTest()
-   {
+   public LargeMessageCompressTest() {
       isCompressedTest = true;
    }
 
    @Override
-   protected boolean isNetty()
-   {
+   protected boolean isNetty() {
       return false;
    }
 
    @Override
-   protected ServerLocator createFactory(final boolean isNetty) throws Exception
-   {
-      return super.createFactory(isNetty)
-              .setCompressLargeMessage(true);
+   protected ServerLocator createFactory(final boolean isNetty) throws Exception {
+      return super.createFactory(isNetty).setCompressLargeMessage(true);
    }
 
    @Test
-   public void testLargeMessageCompression() throws Exception
-   {
+   public void testLargeMessageCompression() throws Exception {
       final int messageSize = (int) (3.5 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
 
       ActiveMQServer server = createServer(true, isNetty());
@@ -92,8 +87,7 @@ public class LargeMessageCompressTest extends LargeMessageTest
       ClientMessage msg1 = consumer.receive(1000);
       Assert.assertNotNull(msg1);
 
-      for (int i = 0; i < messageSize; i++)
-      {
+      for (int i = 0; i < messageSize; i++) {
          byte b = msg1.getBodyBuffer().readByte();
          assertEquals("position = " + i, getSamplebyte(i), b);
       }
@@ -109,8 +103,7 @@ public class LargeMessageCompressTest extends LargeMessageTest
    }
 
    @Test
-   public void testLargeMessageCompression2() throws Exception
-   {
+   public void testLargeMessageCompression2() throws Exception {
       final int messageSize = (int) (3.5 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
 
       ActiveMQServer server = createServer(true, isNetty());
@@ -157,8 +150,7 @@ public class LargeMessageCompressTest extends LargeMessageTest
 
       //verify
       FileInputStream input = new FileInputStream(testFile);
-      for (int i = 0; i < messageSize; i++)
-      {
+      for (int i = 0; i < messageSize; i++) {
          byte b = (byte) input.read();
          assertEquals("position = " + i, getSamplebyte(i), b);
       }
@@ -169,8 +161,7 @@ public class LargeMessageCompressTest extends LargeMessageTest
    }
 
    @Test
-   public void testLargeMessageCompression3() throws Exception
-   {
+   public void testLargeMessageCompression3() throws Exception {
       final int messageSize = (int) (3.5 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
 
       ActiveMQServer server = createServer(true, isNetty());
@@ -215,8 +206,7 @@ public class LargeMessageCompressTest extends LargeMessageTest
 
       //verify
       FileInputStream input = new FileInputStream(testFile);
-      for (int i = 0; i < messageSize; i++)
-      {
+      for (int i = 0; i < messageSize; i++) {
          byte b = (byte) input.read();
          assertEquals("position = " + i, getSamplebyte(i), b);
       }
@@ -226,12 +216,10 @@ public class LargeMessageCompressTest extends LargeMessageTest
       validateNoFilesOnLargeDir();
    }
 
-
    // This test will send 1 Gig of spaces. There shouldn't be enough memory to uncompress the file in memory
    // but this will make sure we can work through compressed channels on saving it to stream
    @Test
-   public void testHugeStreamingSpacesCompressed() throws Exception
-   {
+   public void testHugeStreamingSpacesCompressed() throws Exception {
       final long messageSize = 1024L * 1024L * 1024L;
 
       System.out.println("Message size = " + messageSize);
@@ -253,33 +241,27 @@ public class LargeMessageCompressTest extends LargeMessageTest
 
       ClientMessage clientMessage = session.createMessage(true);
 
-      clientMessage.setBodyInputStream(new InputStream()
-      {
+      clientMessage.setBodyInputStream(new InputStream() {
          private long count;
 
          private boolean closed = false;
 
          @Override
-         public void close() throws IOException
-         {
+         public void close() throws IOException {
             super.close();
             closed = true;
          }
 
          @Override
-         public int read() throws IOException
-         {
-            if (closed)
-            {
+         public int read() throws IOException {
+            if (closed) {
                throw new IOException("Stream was closed");
             }
 
-            if (count++ < messageSize)
-            {
+            if (count++ < messageSize) {
                return ' ';
             }
-            else
-            {
+            else {
                return -1;
             }
          }
@@ -300,18 +282,14 @@ public class LargeMessageCompressTest extends LargeMessageTest
 
       final AtomicLong numberOfSpaces = new AtomicLong();
 
-      msg1.saveToOutputStream(new OutputStream()
-      {
+      msg1.saveToOutputStream(new OutputStream() {
          @Override
-         public void write(int content)
-         {
-            if (content == ' ')
-            {
+         public void write(int content) {
+            if (content == ' ') {
                numberOfSpaces.incrementAndGet();
             }
          }
       });
-
 
       assertEquals(messageSize, numberOfSpaces.get());
 
@@ -322,12 +300,9 @@ public class LargeMessageCompressTest extends LargeMessageTest
       session.close();
    }
 
-
    @Test
-   public void testLargeMessageCompressionRestartAndCheckSize() throws Exception
-   {
+   public void testLargeMessageCompressionRestartAndCheckSize() throws Exception {
       final int messageSize = 1024 * 1024;
-
 
       ActiveMQServer server = createServer(true, isNetty());
 
@@ -342,8 +317,7 @@ public class LargeMessageCompressTest extends LargeMessageTest
       ClientProducer producer = session.createProducer(ADDRESS);
 
       byte[] msgs = new byte[1024 * 1024];
-      for (int i = 0; i < msgs.length; i++)
-      {
+      for (int i = 0; i < msgs.length; i++) {
          msgs[i] = RandomUtil.randomByte();
       }
 
@@ -395,8 +369,7 @@ public class LargeMessageCompressTest extends LargeMessageTest
 
       //verify
       FileInputStream input = new FileInputStream(testFile);
-      for (int i = 0; i < messageSize; i++)
-      {
+      for (int i = 0; i < messageSize; i++) {
          byte b = (byte) input.read();
          assertEquals("position = " + i, msgs[i], b);
       }
@@ -406,11 +379,9 @@ public class LargeMessageCompressTest extends LargeMessageTest
       validateNoFilesOnLargeDir();
    }
 
-
    @Override
    @Test
-   public void testSendServerMessage() throws Exception
-   {
+   public void testSendServerMessage() throws Exception {
       // doesn't make sense as compressed
    }
 }

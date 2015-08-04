@@ -24,8 +24,7 @@ import org.apache.activemq.artemis.jms.persistence.config.PersistedDestination;
 import org.apache.activemq.artemis.jms.persistence.config.PersistedBindings;
 import org.apache.activemq.artemis.jms.persistence.config.PersistedType;
 
-public interface JMSStorageManager extends ActiveMQComponent
-{
+public interface JMSStorageManager extends ActiveMQComponent {
 
    void load() throws Exception;
 

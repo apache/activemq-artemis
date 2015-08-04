@@ -21,45 +21,39 @@ import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.core.server.cluster.ha.SharedStoreMasterPolicy;
 
 /**
-* Created by andy on 04/09/14.
-*/
-public final class SharedStoreLiveActivation extends LiveActivation
-{
+ * Created by andy on 04/09/14.
+ */
+public final class SharedStoreLiveActivation extends LiveActivation {
+
    //this is how we act when we initially start as live
    private SharedStoreMasterPolicy sharedStoreMasterPolicy;
 
    private ActiveMQServerImpl activeMQServer;
 
-   public SharedStoreLiveActivation(ActiveMQServerImpl server, SharedStoreMasterPolicy sharedStoreMasterPolicy)
-   {
+   public SharedStoreLiveActivation(ActiveMQServerImpl server, SharedStoreMasterPolicy sharedStoreMasterPolicy) {
       this.activeMQServer = server;
       this.sharedStoreMasterPolicy = sharedStoreMasterPolicy;
    }
 
-   public void run()
-   {
-      try
-      {
+   public void run() {
+      try {
          ActiveMQServerLogger.LOGGER.awaitingLiveLock();
 
          activeMQServer.checkJournalDirectory();
 
-         if (ActiveMQServerLogger.LOGGER.isDebugEnabled())
-         {
+         if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
             ActiveMQServerLogger.LOGGER.debug("First part initialization on " + this);
          }
 
          if (!activeMQServer.initialisePart1(false))
             return;
 
-         if (activeMQServer.getNodeManager().isBackupLive())
-         {
+         if (activeMQServer.getNodeManager().isBackupLive()) {
             /*
              * looks like we've failed over at some point need to inform that we are the backup
              * so when the current live goes down they failover to us
              */
-            if (ActiveMQServerLogger.LOGGER.isDebugEnabled())
-            {
+            if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
                ActiveMQServerLogger.LOGGER.debug("announcing backup to the former live" + this);
             }
             activeMQServer.getBackupManager().start();
@@ -69,8 +63,7 @@ public final class SharedStoreLiveActivation extends LiveActivation
 
          activeMQServer.getNodeManager().startLiveNode();
 
-         if (activeMQServer.getState() == ActiveMQServerImpl.SERVER_STATE.STOPPED || activeMQServer.getState() == ActiveMQServerImpl.SERVER_STATE.STOPPING)
-         {
+         if (activeMQServer.getState() == ActiveMQServerImpl.SERVER_STATE.STOPPED || activeMQServer.getState() == ActiveMQServerImpl.SERVER_STATE.STOPPING) {
             return;
          }
 
@@ -80,25 +73,20 @@ public final class SharedStoreLiveActivation extends LiveActivation
 
          ActiveMQServerLogger.LOGGER.serverIsLive();
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          ActiveMQServerLogger.LOGGER.initializationError(e);
       }
    }
 
-   public void close(boolean permanently, boolean restarting) throws Exception
-   {
+   public void close(boolean permanently, boolean restarting) throws Exception {
       // TO avoid a NPE from stop
       NodeManager nodeManagerInUse = activeMQServer.getNodeManager();
 
-      if (nodeManagerInUse != null)
-      {
-         if (sharedStoreMasterPolicy.isFailoverOnServerShutdown() || permanently)
-         {
+      if (nodeManagerInUse != null) {
+         if (sharedStoreMasterPolicy.isFailoverOnServerShutdown() || permanently) {
             nodeManagerInUse.crashLiveServer();
          }
-         else
-         {
+         else {
             nodeManagerInUse.pauseLiveServer();
          }
       }

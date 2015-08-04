@@ -29,8 +29,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class DivertControlTest extends ManagementTestBase
-{
+public class DivertControlTest extends ManagementTestBase {
 
    // Constants -----------------------------------------------------
 
@@ -45,8 +44,7 @@ public class DivertControlTest extends ManagementTestBase
    // Public --------------------------------------------------------
 
    @Test
-   public void testAttributes() throws Exception
-   {
+   public void testAttributes() throws Exception {
       checkResource(ObjectNameBuilder.DEFAULT.getDivertObjectName(divertConfig.getName()));
 
       DivertControl divertControl = createManagementControl(divertConfig.getName());
@@ -72,41 +70,23 @@ public class DivertControlTest extends ManagementTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
-      CoreQueueConfiguration queueConfig = new CoreQueueConfiguration()
-         .setAddress(RandomUtil.randomString())
-         .setName(RandomUtil.randomString())
-         .setDurable(false);
-      CoreQueueConfiguration forwardQueueConfig = new CoreQueueConfiguration()
-         .setAddress(RandomUtil.randomString())
-         .setName(RandomUtil.randomString())
-         .setDurable(false);
+      CoreQueueConfiguration queueConfig = new CoreQueueConfiguration().setAddress(RandomUtil.randomString()).setName(RandomUtil.randomString()).setDurable(false);
+      CoreQueueConfiguration forwardQueueConfig = new CoreQueueConfiguration().setAddress(RandomUtil.randomString()).setName(RandomUtil.randomString()).setDurable(false);
 
-      divertConfig = new DivertConfiguration()
-         .setName(RandomUtil.randomString())
-         .setRoutingName(RandomUtil.randomString())
-         .setAddress(queueConfig.getAddress())
-         .setForwardingAddress(forwardQueueConfig.getAddress())
-         .setExclusive(RandomUtil.randomBoolean());
+      divertConfig = new DivertConfiguration().setName(RandomUtil.randomString()).setRoutingName(RandomUtil.randomString()).setAddress(queueConfig.getAddress()).setForwardingAddress(forwardQueueConfig.getAddress()).setExclusive(RandomUtil.randomBoolean());
 
       TransportConfiguration connectorConfig = new TransportConfiguration(INVM_CONNECTOR_FACTORY);
 
-      Configuration config = createDefaultInVMConfig()
-              .setJMXManagementEnabled(true)
-              .addQueueConfiguration(queueConfig)
-              .addQueueConfiguration(forwardQueueConfig)
-              .addDivertConfiguration(divertConfig)
-              .addConnectorConfiguration(connectorConfig.getName(), connectorConfig);
+      Configuration config = createDefaultInVMConfig().setJMXManagementEnabled(true).addQueueConfiguration(queueConfig).addQueueConfiguration(forwardQueueConfig).addDivertConfiguration(divertConfig).addConnectorConfiguration(connectorConfig.getName(), connectorConfig);
 
       server = addServer(ActiveMQServers.newActiveMQServer(config, mbeanServer, false));
       server.start();
    }
 
-   protected DivertControl createManagementControl(final String name) throws Exception
-   {
+   protected DivertControl createManagementControl(final String name) throws Exception {
       return ManagementControlHelper.createDivertControl(name, mbeanServer);
    }
 }

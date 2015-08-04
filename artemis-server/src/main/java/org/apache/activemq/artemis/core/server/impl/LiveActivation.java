@@ -16,6 +16,6 @@
  */
 package org.apache.activemq.artemis.core.server.impl;
 
-public abstract class LiveActivation extends Activation
-{
+public abstract class LiveActivation extends Activation {
+
 }
