@@ -62,7 +62,7 @@ public class ArtemisBrokerWrapper extends ArtemisBrokerBase
       server.getConfiguration().getAcceptorConfigurations().clear();
       HashMap<String, Object> params = new HashMap<String, Object>();
       params.put(TransportConstants.PORT_PROP_NAME, "61616");
-      params.put(TransportConstants.PROTOCOLS_PROP_NAME, "OPENWIRE");
+      params.put(TransportConstants.PROTOCOLS_PROP_NAME, "OPENWIRE,CORE");
       TransportConfiguration transportConfiguration = new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params);
 
       Configuration serverConfig = server.getConfiguration();
