@@ -20,26 +20,24 @@ import javax.jms.DeliveryMode;
 import javax.jms.Destination;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
-import javax.jms.Session;
 import javax.jms.Topic;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
-import org.apache.activemq.artemis.jms.client.ActiveMQSession;
-import org.apache.activemq.artemis.uri.ConnectionFactoryParser;
+import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
+import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.core.client.impl.ServerLocatorImpl;
 import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.test.JmsTopicSendReceiveTest;
 
-import java.net.URI;
-
 
 /**
- * 
+ *
  */
 public class JmsQueueCompositeSendReceiveTest extends JmsTopicSendReceiveTest {
     private static final org.apache.commons.logging.Log LOG = org.apache.commons.logging.LogFactory
             .getLog(JmsQueueCompositeSendReceiveTest.class);
-    
+
     /**
      * Sets a test to have a queue destination and non-persistent delivery mode.
      *
@@ -70,7 +68,7 @@ public class JmsQueueCompositeSendReceiveTest extends JmsTopicSendReceiveTest {
     protected String getProducerSubject() {
         return "FOO.BAR.HUMBUG,FOO.BAR.HUMBUG2";
     }
-   
+
     /**
      * Test if all the messages sent are being received.
      *
@@ -93,7 +91,7 @@ public class JmsQueueCompositeSendReceiveTest extends JmsTopicSendReceiveTest {
         assertMessagesAreReceived();
         LOG.info("" + data.length + " messages(s) received, closing down connections");
     }
-    
+
     public void testDuplicate() throws Exception {
         ActiveMQDestination queue = (ActiveMQDestination)session.createQueue("TEST,TEST");
         for (int i = 0; i < data.length; i++) {
@@ -104,18 +102,15 @@ public class JmsQueueCompositeSendReceiveTest extends JmsTopicSendReceiveTest {
             }
             producer.send(queue, message);
         }
-        
+
         Thread.sleep(200); // wait for messages to be queue;
 
-        org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory factory = new org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory("tcp://localhost:61616?type=CF");
-        org.apache.activemq.artemis.jms.client.ActiveMQConnection conn = (org.apache.activemq.artemis.jms.client.ActiveMQConnection) factory.createConnection();
-        try {
-            ActiveMQSession session = (ActiveMQSession) conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-            ClientSession.QueueQuery query = session.getCoreSession().queueQuery(new SimpleString("jms.queue.TEST"));
+        try (ServerLocator locator = ServerLocatorImpl.newLocator("tcp://localhost:61616");
+             ClientSessionFactory factory = locator.createSessionFactory();
+             ClientSession session = factory.createSession()) {
+            ClientSession.QueueQuery query = session.queueQuery(new SimpleString("jms.queue.TEST"));
             assertNotNull(query);
             assertEquals(data.length, query.getMessageCount());
-        } finally {
-            conn.close();
         }
     }
 }
