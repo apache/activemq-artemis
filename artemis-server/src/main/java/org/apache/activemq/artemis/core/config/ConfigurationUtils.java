@@ -24,6 +24,7 @@ import org.apache.activemq.artemis.core.config.ha.ReplicatedPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.SharedStoreMasterPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.SharedStoreSlavePolicyConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
+import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.cluster.ha.BackupPolicy;
 import org.apache.activemq.artemis.core.server.cluster.ha.ColocatedPolicy;
 import org.apache.activemq.artemis.core.server.cluster.ha.HAPolicy;
@@ -142,5 +143,30 @@ public final class ConfigurationUtils
          }
       }
       return null;
+   }
+
+   // A method to check the passed Configuration object and warn users if semantically unwise parameters are present
+   public static void validateConfiguration(Configuration configuration)
+   {
+      // Warn if connection-ttl-override/connection-ttl == check-period
+      compareTTLWithCheckPeriod(configuration);
+   }
+
+   private static void compareTTLWithCheckPeriod(Configuration configuration)
+   {
+      for (ClusterConnectionConfiguration c : configuration.getClusterConfigurations())
+         compareTTLWithCheckPeriod(c.getName(), c.getConnectionTTL(), configuration.getConnectionTTLOverride(), c.getClientFailureCheckPeriod());
+
+      for (BridgeConfiguration c : configuration.getBridgeConfigurations())
+         compareTTLWithCheckPeriod(c.getName(), c.getConnectionTTL(), configuration.getConnectionTTLOverride(), c.getClientFailureCheckPeriod());
+   }
+
+   private static void compareTTLWithCheckPeriod(String name, long connectionTTL, long connectionTTLOverride, long checkPeriod)
+   {
+      if (connectionTTLOverride == checkPeriod)
+         ActiveMQServerLogger.LOGGER.connectionTTLEqualsCheckPeriod(name, "connection-ttl-override", "check-period");
+
+      if (connectionTTL == checkPeriod)
+         ActiveMQServerLogger.LOGGER.connectionTTLEqualsCheckPeriod(name, "connection-ttl", "check-period");
    }
 }

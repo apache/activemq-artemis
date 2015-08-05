@@ -316,6 +316,11 @@ public class ActiveMQServerImpl implements ActiveMQServer
       {
          configuration = new ConfigurationImpl();
       }
+      else
+      {
+         ConfigurationUtils.validateConfiguration(configuration);
+      }
+
       if (mbeanServer == null)
       {
          // Just use JVM mbean server
