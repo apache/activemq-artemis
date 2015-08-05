@@ -1428,7 +1428,9 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
       ActiveMQServerLogger.LOGGER.debug("Removing record for: " + targetNodeID);
       MessageFlowRecord record = records.remove(targetNodeID);
       try {
-         record.close();
+         if (record != null) {
+            record.close();
+         }
       }
       catch (Exception e) {
          e.printStackTrace();
