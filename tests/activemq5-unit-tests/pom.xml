@@ -84,6 +84,12 @@
          <groupId>org.apache.activemq</groupId>
          <artifactId>activemq-leveldb-store</artifactId>
          <version>${activemq5.project.version}</version>
+         <exclusions>
+             <exclusion>
+                 <groupId>commons-beanutils</groupId>
+                 <artifactId>commons-beanutils-core</artifactId>
+             </exclusion>
+         </exclusions>
       </dependency>
 
       <dependency>
