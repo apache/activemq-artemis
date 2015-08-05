@@ -22,23 +22,22 @@ import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.Topic;
 
-import org.apache.activemq.broker.BrokerRegistry;
-import org.apache.activemq.broker.BrokerService;
-import org.apache.activemq.broker.region.Queue;
-import org.apache.activemq.broker.region.RegionBroker;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
+import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.core.client.impl.ServerLocatorImpl;
 import org.apache.activemq.command.ActiveMQDestination;
-import org.apache.activemq.command.ActiveMQQueue;
 import org.apache.activemq.test.JmsTopicSendReceiveTest;
-import org.apache.activemq.util.Wait;
 
 
 /**
- * 
+ *
  */
 public class JmsQueueCompositeSendReceiveTest extends JmsTopicSendReceiveTest {
     private static final org.apache.commons.logging.Log LOG = org.apache.commons.logging.LogFactory
             .getLog(JmsQueueCompositeSendReceiveTest.class);
-    
+
     /**
      * Sets a test to have a queue destination and non-persistent delivery mode.
      *
@@ -69,7 +68,7 @@ public class JmsQueueCompositeSendReceiveTest extends JmsTopicSendReceiveTest {
     protected String getProducerSubject() {
         return "FOO.BAR.HUMBUG,FOO.BAR.HUMBUG2";
     }
-   
+
     /**
      * Test if all the messages sent are being received.
      *
@@ -92,9 +91,9 @@ public class JmsQueueCompositeSendReceiveTest extends JmsTopicSendReceiveTest {
         assertMessagesAreReceived();
         LOG.info("" + data.length + " messages(s) received, closing down connections");
     }
-    
+
     public void testDuplicate() throws Exception {
-    	ActiveMQDestination queue = (ActiveMQDestination)session.createQueue("TEST,TEST");
+        ActiveMQDestination queue = (ActiveMQDestination)session.createQueue("TEST,TEST");
         for (int i = 0; i < data.length; i++) {
             Message message = createMessage(i);
             configureMessage(message);
@@ -103,17 +102,15 @@ public class JmsQueueCompositeSendReceiveTest extends JmsTopicSendReceiveTest {
             }
             producer.send(queue, message);
         }
-        
-        Thread.sleep(200); // wait for messages to be queued
-        
-        BrokerService broker = BrokerRegistry.getInstance().lookup("localhost");
-        final Queue dest = (Queue)((RegionBroker)broker.getRegionBroker()).getQueueRegion().getDestinationMap().get(new ActiveMQQueue("TEST"));
-        assertTrue("all messages were received", Wait.waitFor(new Wait.Condition(){
-            public boolean isSatisified() throws Exception {
-                return data.length == dest.getDestinationStatistics().getMessages().getCount();
-            }}));
-        
-        dest.purge();
-        assertEquals(0, dest.getDestinationStatistics().getMessages().getCount());
+
+        Thread.sleep(200); // wait for messages to be queue;
+
+        try (ServerLocator locator = ServerLocatorImpl.newLocator("tcp://localhost:61616");
+             ClientSessionFactory factory = locator.createSessionFactory();
+             ClientSession session = factory.createSession()) {
+            ClientSession.QueueQuery query = session.queueQuery(new SimpleString("jms.queue.TEST"));
+            assertNotNull(query);
+            assertEquals(data.length, query.getMessageCount());
+        }
     }
 }
