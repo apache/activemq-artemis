@@ -28,6 +28,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ScheduledExecutorService;
 
 import io.netty.channel.ChannelPipeline;
 import org.apache.activemq.advisory.AdvisorySupport;
@@ -55,6 +56,7 @@ import org.apache.activemq.command.ConsumerInfo;
 import org.apache.activemq.command.DestinationInfo;
 import org.apache.activemq.command.MessageDispatch;
 import org.apache.activemq.command.MessageId;
+import org.apache.activemq.command.MessagePull;
 import org.apache.activemq.command.ProducerId;
 import org.apache.activemq.command.ProducerInfo;
 import org.apache.activemq.command.RemoveSubscriptionInfo;
@@ -69,7 +71,6 @@ import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQPersistenceAdap
 import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQProducerBrokerExchange;
 import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQServerSession;
 import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQSession;
-import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQTransportConnectionState;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyServerConnection;
 import org.apache.activemq.artemis.core.security.CheckType;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -114,8 +115,8 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, No
    protected final ProducerId advisoryProducerId = new ProducerId();
 
    // from broker
-   protected final Map<ConnectionId, ConnectionState> brokerConnectionStates = Collections
-      .synchronizedMap(new HashMap<ConnectionId, ConnectionState>());
+   protected final Map<ConnectionId, OpenWireConnection> brokerConnectionStates = Collections
+      .synchronizedMap(new HashMap<ConnectionId, OpenWireConnection>());
 
    private final CopyOnWriteArrayList<OpenWireConnection> connections = new CopyOnWriteArrayList<OpenWireConnection>();
 
@@ -131,6 +132,8 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, No
 
    private Map<String, SessionId> sessionIdMap = new ConcurrentHashMap<String, SessionId>();
 
+   private final ScheduledExecutorService scheduledPool;
+
    public OpenWireProtocolManager(OpenWireProtocolManagerFactory factory, ActiveMQServer server)
    {
       this.factory = factory;
@@ -141,6 +144,7 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, No
       brokerState = new BrokerState();
       advisoryProducerId.setConnectionId(ID_GENERATOR.generateId());
       ManagementService service = server.getManagementService();
+      scheduledPool = server.getScheduledPool();
       if (service != null)
       {
          service.addNotificationListener(this);
@@ -239,7 +243,7 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, No
    }
 
    public void handleCommand(OpenWireConnection openWireConnection,
-                             Object command)
+                             Object command) throws Exception
    {
       Command amqCmd = (Command) command;
       byte type = amqCmd.getDataStructureType();
@@ -251,6 +255,10 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, No
             /** The ConnectionControl packet sent from client informs the broker that is capable of supporting dynamic
              * failover and load balancing.  These features are not yet implemented for Artemis OpenWire.  Instead we
              * simply drop the packet.  See: ACTIVEMQ6-108 */
+            break;
+         case CommandTypes.MESSAGE_PULL:
+            MessagePull messagePull = (MessagePull) amqCmd;
+            openWireConnection.processMessagePull(messagePull);
             break;
          case CommandTypes.CONSUMER_CONTROL:
             break;
@@ -304,11 +312,6 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, No
          }
          return true;
       }
-   }
-
-   public Map<ConnectionId, ConnectionState> getConnectionStates()
-   {
-      return this.brokerConnectionStates;
    }
 
    public void addConnection(AMQConnectionContext context, ConnectionInfo info) throws Exception
@@ -483,8 +486,7 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, No
    {
       SessionId sessionId = info.getProducerId().getParentId();
       ConnectionId connectionId = sessionId.getParentId();
-      AMQTransportConnectionState cs = theConn
-         .lookupConnectionState(connectionId);
+      ConnectionState cs = theConn.getState();
       if (cs == null)
       {
          throw new IllegalStateException(
@@ -505,7 +507,7 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, No
          if (destination != null
             && !AdvisorySupport.isAdvisoryTopic(destination))
          {
-            if (theConn.getProducerCount(connectionId) >= theConn
+            if (theConn.getProducerCount() >= theConn
                .getMaximumProducersAllowedPerConnection())
             {
                throw new IllegalStateException(
@@ -541,8 +543,7 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, No
       // Todo: add a destination interceptors holder here (amq supports this)
       SessionId sessionId = info.getConsumerId().getParentId();
       ConnectionId connectionId = sessionId.getParentId();
-      AMQTransportConnectionState cs = theConn
-         .lookupConnectionState(connectionId);
+      ConnectionState cs = theConn.getState();
       if (cs == null)
       {
          throw new IllegalStateException(
@@ -564,7 +565,7 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, No
          if (destination != null
             && !AdvisorySupport.isAdvisoryTopic(destination))
          {
-            if (theConn.getConsumerCount(connectionId) >= theConn
+            if (theConn.getConsumerCount() >= theConn
                .getMaximumConsumersAllowedPerConnection())
             {
                throw new IllegalStateException(
@@ -580,17 +581,9 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, No
             throw new IllegalStateException("Session not exist! : " + sessionId);
          }
 
-         amqSession.createConsumer(info);
+         amqSession.createConsumer(info, amqSession);
 
-         try
-         {
-            ss.addConsumer(info);
-            theConn.addConsumerBrokerExchange(info.getConsumerId());
-         }
-         catch (IllegalStateException e)
-         {
-            amqSession.removeConsumer(info);
-         }
+         ss.addConsumer(info);
       }
    }
 
@@ -614,7 +607,7 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, No
                                 boolean internal)
    {
       AMQSession amqSession = new AMQSession(theConn.getState().getInfo(), ss,
-                                             server, theConn, this);
+                                             server, theConn, scheduledPool, this);
       amqSession.initialize();
       amqSession.setInternal(internal);
       sessions.put(ss.getSessionId(), amqSession);
@@ -644,13 +637,6 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, No
       }
    }
 
-   public void removeConsumer(AMQConnectionContext context, ConsumerInfo info) throws Exception
-   {
-      SessionId sessionId = info.getConsumerId().getParentId();
-      AMQSession session = sessions.get(sessionId);
-      session.removeConsumer(info);
-   }
-
    public void removeProducer(ProducerId id)
    {
       SessionId sessionId = id.getParentId();
@@ -677,7 +663,7 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, No
       {
          SimpleString qName = new SimpleString("jms.queue."
                                                   + dest.getPhysicalName());
-         ConnectionState state = connection.brokerConnectionStates.get(info.getConnectionId());
+         ConnectionState state = connection.getState();
          ConnectionInfo connInfo = state.getInfo();
          if (connInfo != null)
          {
@@ -849,12 +835,11 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, No
       {
          ActiveMQTopic topic = AdvisorySupport.getSlowConsumerAdvisoryTopic(destination);
          ConnectionId connId = sessionId.getParentId();
-         AMQTransportConnectionState cc = (AMQTransportConnectionState)this.brokerConnectionStates.get(connId);
-         OpenWireConnection conn = cc.getConnection();
+         OpenWireConnection cc = this.brokerConnectionStates.get(connId);
          ActiveMQMessage advisoryMessage = new ActiveMQMessage();
          advisoryMessage.setStringProperty(AdvisorySupport.MSG_PROPERTY_CONSUMER_ID, consumer.getId().toString());
 
-         fireAdvisory(conn.getConext(), topic, advisoryMessage, consumer.getId());
+         fireAdvisory(cc.getConext(), topic, advisoryMessage, consumer.getId());
       }
    }
 
