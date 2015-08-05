@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.core.client.impl;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.lang.reflect.Array;
+import java.net.URI;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
@@ -48,6 +49,7 @@ import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ClusterTopologyListener;
+import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.api.core.client.TopologyMember;
 import org.apache.activemq.artemis.api.core.client.loadbalance.ConnectionLoadBalancingPolicy;
 import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
@@ -60,6 +62,7 @@ import org.apache.activemq.artemis.core.remoting.FailureListener;
 import org.apache.activemq.artemis.spi.core.remoting.ClientProtocolManager;
 import org.apache.activemq.artemis.spi.core.remoting.ClientProtocolManagerFactory;
 import org.apache.activemq.artemis.spi.core.remoting.Connector;
+import org.apache.activemq.artemis.uri.ServerLocatorParser;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.ClassloadingUtil;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
@@ -469,6 +472,31 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       compressLargeMessage = ActiveMQClient.DEFAULT_COMPRESS_LARGE_MESSAGES;
 
       clusterConnection = false;
+   }
+
+   public static ServerLocator newLocator(String uri)
+   {
+      try
+      {
+         return newLocator(new URI(uri));
+      }
+      catch (Exception e)
+      {
+         throw new RuntimeException(e);
+      }
+   }
+
+   public static ServerLocator newLocator(URI uri)
+   {
+      try
+      {
+         ServerLocatorParser parser = new ServerLocatorParser();
+         return parser.newObject(uri, null);
+      }
+      catch (Exception e)
+      {
+         throw new RuntimeException(e);
+      }
    }
 
    /**

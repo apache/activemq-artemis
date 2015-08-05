@@ -47,6 +47,7 @@ import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.api.jms.JMSFactoryType;
+import org.apache.activemq.artemis.core.client.impl.ServerLocatorImpl;
 import org.apache.activemq.artemis.jms.referenceable.ConnectionFactoryObjectFactory;
 import org.apache.activemq.artemis.jms.referenceable.SerializableObjectRefAddr;
 import org.apache.activemq.artemis.uri.ConnectionFactoryParser;
@@ -162,11 +163,10 @@ public class ActiveMQConnectionFactory implements Externalizable, Referenceable,
    public ActiveMQConnectionFactory(String url)
    {
       ConnectionFactoryParser cfParser = new ConnectionFactoryParser();
-      ServerLocatorParser locatorParser = new ServerLocatorParser();
       try
       {
          URI uri = new URI(url);
-         serverLocator = locatorParser.newObject(uri, null);
+         serverLocator = ServerLocatorImpl.newLocator(uri);
          cfParser.populateObject(uri, this);
       }
       catch (Exception e)
