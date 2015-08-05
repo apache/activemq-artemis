@@ -26,6 +26,7 @@ under the License.
   </head>
   <body onload="prettyPrint()">
      <h1>JMS Expiration Example</h1>
+     <pre>To run the example, simply type <b>mvn verify</b> from this directory, <br>or <b>mvn -PnoServer verify</b> if you want to start and create the server manually.</pre>
 
      <p>This example shows you how to configure ActiveMQ Artemis so messages are expipired after a certain time.</p>
      <p>Messages can be retained in the messaging system for a limited period of time before being removed.
@@ -44,7 +45,7 @@ under the License.
             &lt;expiry-address&gt;jms.queue.expiryQueue&lt;/expiry-address&gt;
          &lt;/address-setting&gt;
          </code>
-     </pre>          
+     </pre>
      <p>This configuration will moved expired messages from the <code>exampleQueue</code> to the <code>expiryQueue</code></p>
      <p>ActiveMQ Artemis allows to specify either a <code>Queue</code> by prefixing the <code>expiry-address</code> with <code>jms.queue.</code>
          or a <code>Topic</code> by prefixing with <code>jms.topic.</code>.<br />
@@ -56,151 +57,5 @@ under the License.
             &lt;entry name="/queue/expiryQueue"/&gt;
          &lt;/queue&gt;</code>
      </pre>
-     </p>
-     <h2>Example step-by-step</h2>
-     <p><i>To run the example, simply type <code>mvn verify -Pexample</code> from this directory</i></p>
-     <ol>
-        <li>First we need to get an initial context so we can look-up the JMS connection factory and destination objects from JNDI. This initial context will get it's properties from the <code>client-jndi.properties</code> file in the directory <code>../common/config</code></li>
-        <pre class="prettyprint">
-           <code>InitialContext initialContext = getContext();</code>
-        </pre>
-
-        <li>We look up the JMS queue object from JNDI</li>
-        <pre class="prettyprint">
-           <code>Queue queue = (Queue) initialContext.lookup("/queue/exampleQueue");</code>
-        </pre>
-
-        <li>We look up the JMS connection factory object from JNDI</li>
-        <pre class="prettyprint">
-           <code>ConnectionFactory cf = (ConnectionFactory) initialContext.lookup("/ConnectionFactory");</code>
-        </pre>
-
-        <li>We create a JMS connection</li>
-        <pre class="prettyprint">
-           <code>connection = cf.createConnection();</code>
-        </pre>
-
-        <li>We create a JMS session. The session is created as non transacted and will auto acknowledge messages</li>
-        <pre class="prettyprint">
-           <code>Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);</code>
-        </pre>
-
-        <li>We create a JMS message producer on the session. This will be used to send the messages</li>
-        <pre class="prettyprint">
-          <code>MessageProducer messageProducer = session.createProducer(topic);</code>
-       </pre>
-       
-       <li>Messages sent by this producer will be retained for 1s (1000ms) before expiration</li>
-       <pre class="prettyprint">
-           <code>producer.setTimeToLive(1000);</code>
-       </pre>
-
-        <li>We create a text messages</li>
-        <pre class="prettyprint">
-            <code>TextMessage message = session.createTextMessage("this is a text message");</code>
-        </pre>
-
-        <li>We send the message to the queue</li>
-        <pre class="prettyprint">
-            <code>producer.send(message);</code>
-        </pre>
-        
-       <li>We sleep a little bit to let the message expire</li>
-        <pre class="prettyprint">
-            <code>Thread.sleep(5000);</code>
-        </pre>
-
-        <p>We will now try to consume the message from the queue but it won't be there since it has expired</p>
-
-        <li>We create a JMS message consumer on the queue</li>
-        <pre class="prettyprint">
-            <code>MessageConsumer messageConsumer = session.createConsumer(queue);</code>
-        </pre>
-        
-        <li>We start the connection. In order for delivery to occur on any consumers or subscribers on a connection, the connection must be started</li>
-        <pre class="prettyprint">
-           <code>connection.start();</code>
-        </pre>
-
-        <li>We try to receive a message from the queue. Since there is none, the call will timeout after 5000ms and <code>messageReceived</code> will be <code>null</code>
-        <pre class="prettyprint">
-           <code>TextMessage messageReceived = (TextMessage) messageConsumer.receive(5000);
-           System.out.println("Received message from " + queue.getQueueName() + ": " + messageReceived);</code>
-        </pre>
-        
-        <p>However, we have configured ActiveMQ Artemis to send any expired messages to the <code>expiryQueue</code>.
-            We will now consume messages from this expiry queue and receives the <em>expired</em> message.</p>
-            
-        <li>We look up the JMS <em>expiry queue</em> object from JNDI</li>
-        <pre class="prettyprint">
-           <code>Queue expiryQueue = (Queue)initialContext.lookup("/queue/expiryQueue");</code>
-        </pre>
-                  
-        <li>We create a JMS message consumer on the expiry queue</li>
-        <pre class="prettyprint">
-            <code>MessageConsumer expiryConsumer = session.createConsumer(expiryQueue);</code>
-        </pre>
-        
-        <li>We consume a message from the expiry queue:</li>
-        <pre class="prettyprint">
-            <code>messageReceived = (TextMessage)expiryConsumer.receive(5000);</code>
-        </pre>
-        
-        <li>The message consumed from the <em>expiry queue</em> has the <em>same content</em> than the message which was sent to the <em>queue</em>
-        <pre class="prettyprint">
-            <code>System.out.println("Received message from " + expiryQueue.getQueueName() + ": " + messageReceived.getText());</code>
-        </pre>    
-            
-        <p>JMS does not specify the notion of expiry queue. From JMS point of view, the message received from the expiry queue
-            is a <strong>different</strong> message than the message expired from the queue: the two messages have the same content (properties and body) but
-            their JMS headers differ.<br />
-            ActiveMQ Artemis defines additional properties to correlate the message received from the expiry queue with the 
-            message expired from the queue</p>
-            
-        <li>The expired message's destination is the expiry queue</li>
-        <pre class="prettyprint">
-            <code>System.out.println("Destination of the expired message: " + ((Queue)messageReceived.getJMSDestination()).getQueueName());</code>
-        </pre>
-
-        <li>The expired message has its own <em>expiration time</em> (its time to live in the <strong>expiry queue</strong>)</li>
-        <pre class="prettyprint">
-            <code>System.out.println("Expiration time of the expired message (relative to the expiry queue): " + messageReceived.getJMSExpiration());</code>
-        </pre>
-        
-        <p>As we have not defined a time-to-live for the expiry queue, messages sent to the expiry queue will be kept forever (their JMS Expiration value is 0)</p>
-
-        <li>The <strong>origin destination</strong> is stored in the <code>_HORNETQ_ORIG_DESTINATION</code> property
-        <pre class="prettyprint">
-            <code>System.out.println("*Origin destination* of the expired message: " + messageReceived.getStringProperty("_HORNETQ_ORIG_DESTINATION"));</code>
-        </pre>
-
-        <li>The <strong>actual expiration time</strong> (when the message was expired from the queue) is stored in the <code>_HORNETQ_ACTUAL_EXPIRY</code> property
-        <pre class="prettyprint">
-            <code>System.out.println("*Actual expiration time* of the expired message: " + messageReceived.getLongProperty("_HORNETQ_ACTUAL_EXPIRY"));</code>
-        </pre>
-
-        </p>    
-        <li>And finally, <b>always</b> remember to close your JMS connections and resources after use, in a <code>finally</code> block. Closing a JMS connection will automatically close all of its sessions, consumers, producer and browser objects</li>
-
-        <pre class="prettyprint">
-           <code>finally
-           {
-              if (initialContext != null)
-              {
-                initialContext.close();
-              }
-              if (connection != null)
-              {
-                 connection.close();
-              }
-           }</code>
-        </pre>
-     </ol>
-     
-     <h2>More information</h2>
-     
-     <ul>
-         <li>User Manual's <a href="../../../docs/user-manual/en/html_single/index.html#message-expiry">Message Expiry chapter</a></li>
-     </ul>
   </body>
 </html>

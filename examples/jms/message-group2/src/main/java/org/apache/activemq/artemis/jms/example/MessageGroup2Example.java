@@ -16,11 +16,7 @@
  */
 package org.apache.activemq.artemis.jms.example;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 import javax.jms.Connection;
-import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
@@ -29,7 +25,11 @@ import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
-import javax.naming.InitialContext;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 
 /**
  * A simple JMS Queue example that sends and receives message groups.
@@ -42,17 +42,13 @@ public class MessageGroup2Example
    {
       final Map<String, String> messageReceiverMap = new ConcurrentHashMap<String, String>();
       Connection connection = null;
-      InitialContext initialContext = null;
       try
       {
-         //Step 1. Create an initial context to perform the JNDI lookup.
-         initialContext = new InitialContext();
-
          //Step 2. Perform a lookup on the queue
-         Queue queue = (Queue) initialContext.lookup("queue/exampleQueue");
+         Queue queue = ActiveMQJMSClient.createQueue("exampleQueue");
 
          //Step 3. Perform a lookup on the Connection Factory
-         ConnectionFactory cf = (ConnectionFactory) initialContext.lookup("ConnectionFactory");
+         ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory("tcp://localhost:61616?groupID=Group-0");
 
          //Step 4. Create a JMS Connection
          connection = cf.createConnection();
@@ -110,10 +106,6 @@ public class MessageGroup2Example
       finally
       {
          //Step 11. Be sure to close our JMS resources!
-         if (initialContext != null)
-         {
-            initialContext.close();
-         }
          if(connection != null)
          {
             connection.close();

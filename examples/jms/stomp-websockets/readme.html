@@ -27,13 +27,16 @@ under the License.
   <body onload="prettyPrint()">
      <h1>Stomp WebSockets Example</h1>
 
+     <pre>To run the example, simply type <b>mvn verify</b> from this directory, <br>or <b>mvn -PnoServer verify</b> if you want to start and create the server manually.</pre>
+
+
      <p>This example shows you how to configure ActiveMQ Artemis to send and receive Stomp messages from modern web browser using Web Sockets.</p>
 
      <p>The example will start a ActiveMQ Artemis server configured with Stomp over Web Sockets and JMS. Web browsers clients and
        Java application will exchange message using a JMS Topic.</p></para>
      <pre class="prettyprint">
 &lt;acceptor name="stomp-websocket">tcp://localhost:61614&lt;/acceptor></pre>
-     
+
      <h2>Example step-by-step</h2>
 
      <p><i>To run the example, simply type <code>mvn verify -Pexample</code> from this directory</i></p>
@@ -44,7 +47,7 @@ under the License.
     </p>
     <p>You can open as many Web clients as you want and they will all exchange messages through the topic</p>
     <p>If you run again the Java application (with <code>./build.sh</code>), the web clients will also receive its message</p>
-    
+
     <h2>Documentation</h2>
     <p>A JavaScript library is used on the browser side to be able to use Stomp Over Web Sockets (please see its <a href="http://jmesnil.net/stomp-websocket/doc/">documentation</a>
       for a complete description).</p>

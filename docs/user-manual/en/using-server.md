@@ -93,7 +93,7 @@ For a full list of updated properties always use:
                  [--clustered] [--data <data>] [--encoding <encoding>] [--force]
                  [--home <home>] [--host <host>] [--java-options <javaOptions>]
                  [--password <password>] [--port-offset <portOffset>] [--replicated]
-                 [--role <role>] [--shared-store] [--silent-input] [--user <user>] [--]
+                 [--role <role>] [--shared-store] [--silent] [--user <user>] [--]
                  <directory>
 
  OPTIONS
@@ -143,7 +143,7 @@ For a full list of updated properties always use:
          --shared-store
              Enable broker shared store
 
-         --silent-input
+         --silent
              It will disable all the inputs, and it would make a best guess for
              any required input
 

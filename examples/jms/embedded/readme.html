@@ -26,78 +26,13 @@ under the License.
    </head>
    <body onload="prettyPrint()">
       <h1>Embedded JMS Server Example</h1>
-      
+      <pre>To run the example, simply type <b>mvn verify</b> from this directory</pre>
+
       <p>This examples shows how to setup and run an embedded JMS server using ActiveMQ Artemis.</p>
       <p>ActiveMQ Artemis was designed using POJOs (Plain Old Java Objects) which means embedding ActiveMQ Artemis in your own application
           is as simple as instantiating a few objects.</p>
-      <p>This example does not use any configuration files. The server is configured using POJOs and can be easily ported to any dependency injection framework.<br /> 
+      <p>This example does not use any configuration files. The server is configured using POJOs and can be easily ported to any dependency injection framework.<br />
          We will setup and run a full-fledged JMS server which binds its JMS resources to JNDI and can be accessed by remote clients.</p>
-     
-      <h2>Example step-by-step</h2>     
-      <p><i>To run the example, simply type <code>mvn verify -Pexample</code> from this directory</i></p>
 
-      <ol>
-         <li>Create ActiveMQ Artemis core configuration, and set the properties accordingly</li>
-         <pre class="prettyprint">
-            <code>Configuration configuration = new ConfigurationImpl();
-            configuration.setPersistenceEnabled(false);
-            configuration.setSecurityEnabled(false);
-            configuration.getAcceptorConfigurations().add(new TransportConfiguration(NettyAcceptorFactory.class.getName()));</code>
-            Configuration configuration = new ConfigurationImpl();</pre>
-
-         <li>Create the ActiveMQ Artemis core server</li>
-         <pre class="prettyprint">
-            <code>ActiveMQServer activemqServer = ActiveMQ Artemis.newActiveMQServer(configuration);</code>
-         </pre>
-
-         <li>Create the JMS configuration</li>
-         <pre class="prettyprint">
-            <code>JMSConfiguration jmsConfig = new JMSConfigurationImpl();</code>
-         </pre>
-
-         <li>Configure the JMS ConnectionFactory</li>
-         <pre class="prettyprint">
-            <code>TransportConfiguration connectorConfig = new TransportConfiguration(NettyConnectorFactory.class.getName());
-            ConnectionFactoryConfiguration cfConfig = new ConnectionFactoryConfigurationImpl("cf", connectorConfig, "/cf");
-            jmsConfig.getConnectionFactoryConfigurations().add(cfConfig);</code>
-         </pre>
-         
-         <li>Configure the JMS Queue</li>
-         <pre class="prettyprint">
-            <code>QueueConfiguration queueConfig = new QueueConfigurationImpl("queue1", null, false, "/queue/queue1");
-            jmsConfig.getQueueConfigurations().add(queueConfig);</code>
-         </pre>
-     
-         <li>Start the JMS Server using the ActiveMQ Artemis core server and the JMS configuration</li>
-         <pre class="prettyprint">
-            <code>JMSServerManager jmsServer = new JMSServerManagerImpl(activemqServer, jmsConfig);
-            jmsServer.start();</code>
-         </pre>
-
-         <p>At this point the JMS server is started and any JMS clients can look up JMS resources from JNDI to send/receive 
-            messages from the server. To keep the example simple, we will send and receive a JMS message from the same JVM 
-            used to run the JMS server.</p>
-              
-         <li>Lookup JMS resources defined in the configuration </li>
-         <pre class="prettyprint">
-            <code>ConnectionFactory cf = (ConnectionFactory)context.lookup("/cf");
-            Queue queue = (Queue)context.lookup("/queue/queue1");</code>
-         </pre>
-         
-         <li>Send and receive a message using JMS API</li>
-         <p>See the <a href="../../queue/readme.html">Queue Example</a> for detailed steps to send and receive a JMS message</p>
-           
-         <p>Finally, we stop the JMS server and its associated resources.</p>
-        
-         <li>Stop the JMS server</li>
-         <pre class="prettyprint">
-            <code>jmsServer.stop();</code>
-         </pre>
-        
-         <li>Stop the JNDI server</li>
-         <pre class="prettyprint">
-            <code>naming.stop();</code>
-         </pre>
-      </ol>
    </body>
 </html>

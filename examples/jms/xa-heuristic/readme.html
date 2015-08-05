@@ -26,222 +26,23 @@ under the License.
   </head>
   <body onload="prettyPrint()">
      <h1>JMS XA Heuristic Example</h1>
+
+     <pre>To run the example, simply type <b>mvn verify</b> from this directory, <br>or <b>mvn -PnoServer verify</b> if you want to start and create the server manually.</pre>
+
      <p>This example shows you how to make an XA heuristic decision through the ActiveMQ Artemis Management Interface.</p>
-     
-     <p>A heuristic decision is a unilateral decision to commit or rollback an XA transaction branch after it has 
+
+     <p>A heuristic decision is a unilateral decision to commit or rollback an XA transaction branch after it has
      been prepared. </p>
-     
+
      <p>In this example we simulate a transaction manager to control the transactions. First we create an XASession
      and enlist it in a transaction through its XAResource. We then send a text message, 'hello' and end/prepare the transaction
      on the XAResource, but neither commit nor roll back the transaction. Another transaction is created and
      associated with the same XAResource, and a second message, 'world' is sent on behalf of the second transaction. Again we leave
-     the second transaction in prepare state. 
-     Then we get the MBeanServerConnection object to manipulate the prepared transactions. To illustrate, we roll back the first 
+     the second transaction in prepare state.
+     Then we get the MBeanServerConnection object to manipulate the prepared transactions. To illustrate, we roll back the first
      transaction but commit the second. This will result in that only the message 'world' is received. </p>
 
      <p>This example uses JMX to manipulate transactions in a ActiveMQ Artemis Server. For details on JMX facilities with ActiveMQ Artemis,
      please look at the JMX Example.</p>
-     
-     <h2>Example step-by-step</h2>
-     <p><i>To run the example, simply type <code>mvn verify -Pexample</code> from this directory</i></p>
-     <ol>
-        <li>First we need to get an initial context so we can look-up the JMS connection factory and destination objects from JNDI. This initial context will get it's properties from the <code>client-jndi.properties</code> file in the directory <code>../common/config</code></li>
-        <pre class="prettyprint">
-           <code>InitialContext initialContext = getContext(0);</code>
-        </pre>
-
-        <li>We look-up the JMS queue object from JNDI</li>
-        <pre class="prettyprint">
-           <code>Queue queue = (Queue) initialContext.lookup("/queue/exampleQueue");</code>
-        </pre>
-
-        <li>We perform a lookup on the XA Connection Factory</li>
-        <pre class="prettyprint">
-           <code>XAConnectionFactory cf = (XAConnectionFactory) initialContext.lookup("/XAConnectionFactory");</code>
-        </pre>
-
-        <li>We create a JMS XAConnection</li>
-        <pre class="prettyprint">
-           <code>connection = cf.createXAConnection();</code>
-        </pre>
-
-        <li>We Start the connection</li>
-        <pre class="prettyprint">
-           <code>connection.start();</code>
-        </pre>
-
-        <li>We create a JMS XASession</li>
-        <pre class="prettyprint">
-          <code>XASession xaSession = connection.createXASession();</code>
-       </pre>
-
-        <li>We create a normal session</li>
-        <pre class="prettyprint">
-          <code>Session normalSession = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);</code>
-       </pre>
-
-        <li>We create a normal Message Consumer</li>
-        <pre class="prettyprint">
-           <code>
-           MessageConsumer normalConsumer = normalSession.createConsumer(queue);
-           normalConsumer.setMessageListener(new SimpleMessageListener());
-           </code>
-       </pre>
-
-        <li>We get the JMS Session</li>
-        <pre class="prettyprint">
-          <code>Session session = xaSession.getSession();</code>
-       </pre>
-
-        <li>We create a message producer</li>
-        <pre class="prettyprint">
-          <code>MessageProducer producer = session.createProducer(queue); </code>
-       </pre>
-
-        <li>We create two Text Messages</li>
-        <pre class="prettyprint">
-          <code>
-          TextMessage helloMessage = session.createTextMessage("hello");
-          TextMessage worldMessage = session.createTextMessage("world");
-          </code>
-       </pre>
-
-        <li>We create a transaction</li>
-        <pre class="prettyprint">
-          <code>Xid xid1 = new XidImpl("xa-example1".getBytes(), 1, UUIDGenerator.getInstance().generateStringUUID().getBytes());</code>
-       </pre>
-
-        <li>We get the JMS XAResource</li>
-        <pre class="prettyprint">
-          <code>XAResource xaRes = xaSession.getXAResource();</code>
-       </pre>
-
-        <li>We begin the Transaction work</li>
-        <pre class="prettyprint">
-          <code>xaRes.start(xid1, XAResource.TMNOFLAGS);</code>
-       </pre>
-
-        <li>We do work, sending hello message.</li>
-        <pre class="prettyprint">
-          <code>
-          normalProducer.send(helloMessage);
-          </code>
-       </pre>
-
-        <li>We stop the work for xid1</li>
-        <pre class="prettyprint">
-          <code>xaRes.end(xid1, XAResource.TMSUCCESS);</code>
-       </pre>
-
-        <li>We prepare xid1</li>
-        <pre class="prettyprint">
-          <code>xaRes.prepare(xid1);</code>
-       </pre>
-
-        <li>We check the none should be received.</li>
-        <pre class="prettyprint">
-          <code>checkNoMessageReceived();</code>
-       </pre>
-
-        <li>We create another transaction </li>
-        <pre class="prettyprint">
-          <code>Xid xid2 = new XidImpl("xa-example2".getBytes(), 1, UUIDGenerator.getInstance().generateStringUUID().getBytes());</code>
-       </pre>
-
-        <li>We begin the transaction work</li>
-        <pre class="prettyprint">
-          <code>xaRes.start(xid2, XAResource.TMNOFLAGS);</code>
-       </pre>
-
-        <li>We send the second message</li>
-        <pre class="prettyprint">
-           <code>producer.send(worldMessage);</code>
-       </pre>
-
-        <li>We stop the work for xid2</li>
-        <pre class="prettyprint">
-          <code>xaRes.end(xid2, XAResource.TMSUCCESS);</code>
-       </pre>
-
-        <li>We prepare xid2</li>
-        <pre class="prettyprint">
-          <code>xaRes.prepare(xid2);</code>
-       </pre>
-
-       <li>Again, no messages should be received!</li>
-       <pre class="prettyprint">
-          <code>checkNoMessageReceived();</code>
-       </pre>
-
-        <li>We create JMX Connector to connect to the server's MBeanServer.</li>
-        <pre class="prettyprint">
-          <code>
-          JMXConnector connector = JMXConnectorFactory.connect(new JMXServiceURL(JMX_URL), new HashMap<String, String>());
-          </code>
-       </pre>
-
-        <li>We retrieve the MBeanServerConnection</li>
-        <pre class="prettyprint">
-          <code>MBeanServerConnection mbsc = connector.getMBeanServerConnection();</code>
-       </pre>
-
-        <li>We list the prepared transactions</li>
-        <pre class="prettyprint">
-          <code>
-          ObjectName serverObject = ObjectNameBuilder.DEFAULT.getMessagingServerObjectName();
-          String[] infos = (String[])mbsc.invoke(serverObject, "listPreparedTransactions", null, null);
-         
-          System.out.println("Prepared transactions: ");
-          for (String i : infos)
-          {
-             System.out.println(i);
-          }
-          </code>
-       </pre>
-
-        <li>We roll back the first transaction</li>
-        <pre class="prettyprint">
-          <code>mbsc.invoke(serverObject, "rollbackPreparedTransaction", new String[] {XidImpl.toBase64String(xid1)}, new String[]{"java.lang.String"});</code>
-       </pre>
-
-        <li>We commit the second one</li>
-        <pre class="prettyprint">
-          <code>mbsc.invoke(serverObject, "commitPreparedTransaction", new String[] {XidImpl.toBase64String(xid2)}, new String[]{"java.lang.String"});</code>
-       </pre>
-
-        <li>We check the result, only the 'world' message received</li>
-        <pre class="prettyprint">
-          <code>checkMessageReceived("world");</code>
-       </pre>
-
-        <li>We check the prepared transaction again, should have none.</li>
-        <pre class="prettyprint">
-          <code>
-          infos = (String[])mbsc.invoke(serverObject, "listPreparedTransactions", null, null);
-          System.out.println("No. of prepared transactions now: " + infos.length);
-          </code>
-       </pre>
-
-        <li>We close the JMX connector.</li>
-        <pre class="prettyprint">
-          <code>connector.close();</code>
-       </pre>
-       
-        <li>And finally, <b>always</b> remember to close your JMS connections and resources after use, in a <code>finally</code> block. Closing a JMS connection will automatically close all of its sessions, consumers, producer and browser objects</li>
-
-        <pre class="prettyprint">
-           <code>finally
-           {
-              if (initialContext != null)
-              {
-                initialContext.close();
-              }
-              if (connection != null)
-              {
-                 connection.close();
-              }
-           }</code>
-        </pre>
-     </ol>
   </body>
 </html>

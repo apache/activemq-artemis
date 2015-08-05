@@ -24,6 +24,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.attribute.PosixFilePermission;
 import java.text.DecimalFormat;
@@ -160,6 +162,12 @@ public class Create extends InputAbstract
 
    @Option(name = "--no-web", description = "This will remove the web server definition from bootstrap.xml")
    boolean noWeb;
+
+   @Option(name = "--queues", description = "comma separated list of jms queues.")
+   String queues;
+
+   @Option(name = "--topics", description = "comma separated list of jms topics ")
+   String topics;
 
    boolean IS_WINDOWS;
 
@@ -564,7 +572,6 @@ public class Create extends InputAbstract
       filters.put("${password}", getPassword());
       filters.put("${role}", getRole());
 
-
       if (clustered)
       {
          filters.put("${host}", getHostForClustered());
@@ -587,6 +594,7 @@ public class Create extends InputAbstract
          filters.put("${cluster-password}", "");
       }
 
+      applyJMSObjects(filters);
 
       if (home != null)
       {
@@ -706,6 +714,24 @@ public class Create extends InputAbstract
       return null;
    }
 
+   /** It will create the jms configurations */
+   private void applyJMSObjects(HashMap<String, String> filters)
+   {
+      StringWriter writer = new StringWriter();
+      PrintWriter printWriter = new PrintWriter(writer);
+      printWriter.println();
+
+      for (String str : getQueueList())
+      {
+         printWriter.println("      <queue name=\"" + str + "\"/>");
+      }
+      for (String str : getTopicList())
+      {
+         printWriter.println("      <topic name=\"" + str + "\"/>");
+      }
+      filters.put("${jms-list.settings}", writer.toString());
+   }
+
    private void performAutoTune(HashMap<String, String> filters, boolean aio, File dataFolder)
    {
       if (noAutoTune)
@@ -790,6 +816,31 @@ public class Create extends InputAbstract
       catch (Throwable ignore)
       {
          // Our best effort was not good enough :)
+      }
+   }
+
+
+   private String[] getQueueList()
+   {
+      if (queues == null)
+      {
+         return new String[0];
+      }
+      else
+      {
+         return queues.split(",");
+      }
+   }
+
+   private String[] getTopicList()
+   {
+      if (topics == null)
+      {
+         return new String[0];
+      }
+      else
+      {
+         return topics.split(",");
       }
    }
 

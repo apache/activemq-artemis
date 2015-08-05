@@ -27,11 +27,14 @@ under the License.
   <body onload="prettyPrint()">
      <h1>JMS Scheduled Message Example</h1>
 
+     <pre>To run the example, simply type <b>mvn verify</b> from this directory, <br>or <b>mvn -PnoServer verify</b> if you want to start and create the server manually.</pre>
+
+
      <p>This example shows you how to send a scheduled message to a JMS Queue using ActiveMQ Artemis.</p>
-     <p>A Scheduled Message is a message that will be delivered at a time specified by the sender. To do this, 
-     simply set a HDR_SCHEDULED_DELIVERY_TIME header property. The value of the property should be the time of 
+     <p>A Scheduled Message is a message that will be delivered at a time specified by the sender. To do this,
+     simply set a HDR_SCHEDULED_DELIVERY_TIME header property. The value of the property should be the time of
      delivery in milliseconds. </p>
-     
+
      <p>In this example, a message is created with the scheduled delivery time set to 5 seconds after the current time.</p>
 
 
@@ -120,12 +123,12 @@ under the License.
         </pre>
 
      </ol>
-     
+
      <h2>More information</h2>
-     
+
      <ul>
          <li>User Manual's <a href="../../../docs/user-manual/en/html_single/index.html#scheduled-messages">Scheduled Messages chapter</a></li>
      </ul>
-     
+
   </body>
 </html>

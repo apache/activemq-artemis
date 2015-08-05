@@ -26,197 +26,23 @@ under the License.
   </head>
   <body onload="prettyPrint()">
      <h1>JMS XA Receive Example</h1>
+
+     <pre>To run the example, simply type <b>mvn verify</b> from this directory, <br>or <b>mvn -PnoServer verify</b> if you want to start and create the server manually.</pre>
+
+
      <p>This example demonstrates receiving a message within the scope of an XA transaction. When using an XA transaction
          the message will only be acknowledged and removed from the queue when the transaction is committed.
      If the transaction is not committed the message maybe redelivered after rollback or during XA recovery.</p>
-     
+
      <p>ActiveMQ Artemis is JTA aware, meaning you can use ActiveMQ Artemis in an XA transactional environment
      and participate in XA transactions. It provides the javax.transaction.xa.XAResource interface for that
      purpose. Users can get a XAConnectionFactory to create XAConnections and XASessions.</p>
-     
+
      <p>In this example we simulate a transaction manager to control the transactions. First we create an XASession
       for receiving and a normal session for sending. Then we start a new xa transaction and enlist the receiving
-      XASession through its XAResource. We then send two words, 'hello' and 'world', receive them, and let the 
+      XASession through its XAResource. We then send two words, 'hello' and 'world', receive them, and let the
       transaction roll back. The received messages are cancelled back to the queue. Next we start
-      a new transaction with the same XAResource enlisted, but this time we commit the transaction after receiving the 
+      a new transaction with the same XAResource enlisted, but this time we commit the transaction after receiving the
       messages. Then we check that no more messages are to be received.</p>
-
-     <h2>Example step-by-step</h2>
-     <p><i>To run the example, simply type <code>mvn verify -Pexample</code> from this directory</i></p>
-     <ol>
-        <li>First we need to get an initial context so we can look-up the JMS connection factory and destination objects from JNDI. This initial context will get it's properties from the <code>client-jndi.properties</code> file in the directory <code>../common/config</code></li>
-        <pre class="prettyprint">
-           <code>InitialContext initialContext = getContext(0);</code>
-        </pre>
-
-        <li>We look-up the JMS queue object from JNDI</li>
-        <pre class="prettyprint">
-           <code>Queue queue = (Queue) initialContext.lookup("/queue/exampleQueue");</code>
-        </pre>
-
-        <li>We perform a lookup on the XA Connection Factory</li>
-        <pre class="prettyprint">
-           <code>XAConnectionFactory cf = (XAConnectionFactory) initialContext.lookup("/XAConnectionFactory");</code>
-        </pre>
-
-        <li>We create a JMS XAConnection</li>
-        <pre class="prettyprint">
-           <code>connection = cf.createXAConnection();</code>
-        </pre>
-
-        <li>We Start the connection</li>
-        <pre class="prettyprint">
-           <code>connection.start();</code>
-        </pre>
-
-        <li>We create a JMS XASession</li>
-        <pre class="prettyprint">
-          <code>XASession xaSession = connection.createXASession();</code>
-       </pre>
-
-        <li>We create a normal session</li>
-        <pre class="prettyprint">
-          <code>Session normalSession = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);</code>
-       </pre>
-
-        <li>We create a normal Message Producer</li>
-        <pre class="prettyprint">
-           <code>
-           MessageProducer normalProducer = normalSession.createProducer(queue);
-           </code>
-       </pre>
-
-        <li>We get the JMS Session</li>
-        <pre class="prettyprint">
-          <code>Session session = xaSession.getSession();</code>
-       </pre>
-
-        <li>We create a message consumer</li>
-        <pre class="prettyprint">
-          <code>MessageConsumer xaConsumer = session.createConsumer(queue); </code>
-       </pre>
-
-        <li>We create two Text Messages</li>
-        <pre class="prettyprint">
-          <code>
-          TextMessage helloMessage = session.createTextMessage("hello");
-          TextMessage worldMessage = session.createTextMessage("world");
-          </code>
-       </pre>
-
-        <li>We create a transaction</li>
-        <pre class="prettyprint">
-          <code>Xid xid1 = new XidImpl("xa-example1".getBytes(), 1, UUIDGenerator.getInstance().generateStringUUID().getBytes());</code>
-       </pre>
-
-        <li>We get the JMS XAResource</li>
-        <pre class="prettyprint">
-          <code>XAResource xaRes = xaSession.getXAResource();</code>
-       </pre>
-
-        <li>We begin the Transaction work</li>
-        <pre class="prettyprint">
-          <code>xaRes.start(xid1, XAResource.TMNOFLAGS);</code>
-       </pre>
-
-        <li>We send two messages.</li>
-        <pre class="prettyprint">
-          <code>
-         normalProducer.send(helloMessage);
-         normalProducer.send(worldMessage);
-          </code>
-       </pre>
-
-        <li>We receive the messages</li>
-        <pre class="prettyprint">
-          <code>
-          TextMessage rm1 = (TextMessage)xaConsumer.receive();
-          System.out.println("Message received: " + rm1.getText());
-          TextMessage rm2 = (TextMessage)xaConsumer.receive();
-          System.out.println("Message received: " + rm2.getText());
-          </code>
-       </pre>
-
-        <li>We stop the work</li>
-        <pre class="prettyprint">
-          <code>xaRes.end(xid1, XAResource.TMSUCCESS);</code>
-       </pre>
-
-        <li>We prepare</li>
-        <pre class="prettyprint">
-          <code>xaRes.prepare(xid1);</code>
-       </pre>
-
-        <li>We roll back the transaction </li>
-        <pre class="prettyprint">
-          <code>xaRes.rollback(xid1);</code>
-       </pre>
-
-        <li>We create another transaction </li>
-        <pre class="prettyprint">
-          <code>Xid xid2 = new XidImpl("xa-example2".getBytes(), 1, UUIDGenerator.getInstance().generateStringUUID().getBytes());</code>
-       </pre>
-
-        <li>We start the transaction</li>
-        <pre class="prettyprint">
-          <code>xaRes.start(xid2, XAResource.TMNOFLAGS);</code>
-       </pre>
-
-        <li>We receive those messages again</li>
-        <pre class="prettyprint">
-           <code>
-           rm1 = (TextMessage)xaConsumer.receive();
-           System.out.println("Message received again: " + rm1.getText());
-           rm2 = (TextMessage)xaConsumer.receive();
-           System.out.println("Message received again: " + rm2.getText());
-            </code>
-       </pre>
-
-        <li>We stop the work</li>
-        <pre class="prettyprint">
-          <code>xaRes.end(xid2, XAResource.TMSUCCESS);</code>
-       </pre>
-
-        <li>We prepare</li>
-        <pre class="prettyprint">
-          <code>xaRes.prepare(xid2);</code>
-       </pre>
-
-       <li>We commit!</li>
-       <pre class="prettyprint">
-          <code>xaRes.commit(xid2, false);</code>
-       </pre>
-
-        <li>We check that no more messages are received.</li>
-        <pre class="prettyprint">
-          <code>
-          TextMessage rm3 = (TextMessage)xaConsumer.receive(2000);
-          if (rm3 == null)
-          {
-             System.out.println("No message received after commit.");
-          }
-          else
-          {
-             result = false;
-          }
-          </code>
-       </pre>
-
-        <li>And finally, <b>always</b> remember to close your JMS connections and resources after use, in a <code>finally</code> block. Closing a JMS connection will automatically close all of its sessions, consumers, producer and browser objects</li>
-
-        <pre class="prettyprint">
-           <code>finally
-           {
-              if (initialContext != null)
-              {
-                initialContext.close();
-              }
-              if (connection != null)
-              {
-                 connection.close();
-              }
-           }</code>
-        </pre>
-     </ol>
   </body>
 </html>

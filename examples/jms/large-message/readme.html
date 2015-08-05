@@ -27,6 +27,9 @@ under the License.
   <body onload="prettyPrint()">
      <h1>Large Message Example</h1>
 
+     <pre>To run the example, simply type <b>mvn verify</b> from this directory, This example will start and stop the server since it will look for a failure.</pre>
+
+
      <p>This example shows you how to send and receive very large messages with ActiveMQ Artemis.</p>
      <p>ActiveMQ Artemis supports the sending and receiving of huge messages, much larger than can fit in available RAM
      on the client or server. Effectively the only limit to message size is the amount of disk space you have on the server.</p>
@@ -35,8 +38,7 @@ under the License.
      <p>In order to do this ActiveMQ Artemis provides an extension to JMS where you can use an InputStream or OutputStream as the source and destination for your messages. You can send messages as large as it would fit in your disk.</p>
      <p>You may also choose to read LargeMessages using the regular ByteStream or ByteMessage methods, but using the InputStream and OutputStream will provide you a much better performance</p>
 
-     <h2>Example step-by-step</h2>     
-     <p><i>To run the example, simply type <code>mvn verify -Pexample</code> from this directory</i></p>
+     <h2>Example step-by-step</h2>
      <p>In this example we limit both the server and the client to be running in a maximum of 50MB of RAM,
      and we send a message with a body of size 256MB.</p>
      <p>ActiveMQ Artemis can support much large message sizes but we
@@ -95,17 +97,17 @@ under the License.
         file, however we could use any InputStream not just a FileInputStream.</li>
         <pre class="prettyprint"><code>
          FileInputStream fileInputStream = new FileInputStream(fileInput);
-         
+
          BufferedInputStream bufferedInput = new BufferedInputStream(fileInputStream);
-         
+
          message.setObjectProperty("JMS_AMQ_InputStream", bufferedInput);
         </code></pre>
-        
+
         <li>Send the Message.</li>
         <pre class="prettyprint"><code>
          producer.send(message);
          </code></pre>
-        
+
 
         <li>We send message to the queue. After the send completion the message file will be located at ./build/data/largeMessages</li>
         <pre class="prettyprint">
@@ -116,7 +118,7 @@ under the License.
         To demonstrate that that we're not simply streaming the message from sending to consumer, we stop
         the server and restart it before consuming the message. This demonstrates that the large message gets persisted, like a
         normal persistent message, on the server. If you look at ./build/data/largeMessages you will see the largeMessage
-        stored on disk the server.        
+        stored on disk the server.
         </li>
           <pre class="prettyprint">
            <code>
@@ -149,7 +151,7 @@ under the License.
         MessageConsumer messageConsumer = session.createConsumer(queue);
 
         connection.start();
-           
+
            </code>
         </pre>
 
@@ -157,7 +159,7 @@ under the License.
         an empty body.</li>
         <pre class="prettyprint"><code>BytesMessage messageReceived = (BytesMessage)messageConsumer.receive(120000);
         </code></pre>
-        
+
         <li>We set an OutputStream on the message. This causes the message body to be written to the
          OutputStream until there are no more bytes to be written.
          You don't have to use a FileOutputStream, you can use any OutputStream.
@@ -169,14 +171,14 @@ under the License.
          FileOutputStream fileOutputStream = new FileOutputStream(outputFile);
 
          BufferedOutputStream bufferedOutput = new BufferedOutputStream(fileOutputStream);
-         
+
         </code></pre>
-         
-         <li>This will save the stream and wait until the entire message is written before continuing.</li> 
+
+         <li>This will save the stream and wait until the entire message is written before continuing.</li>
         <pre class="prettyprint"><code>
          messageReceived.setObjectProperty("JMS_AMQ_SaveStream", bufferedOutput);
         </code></pre>
-        
+
         <li>Be sure to close our resources!</li>
 
         <pre class="prettyprint">

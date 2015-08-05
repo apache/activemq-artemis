@@ -23,8 +23,10 @@ import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
-import javax.naming.InitialContext;
-import java.util.Hashtable;
+
+import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.jms.client.ActiveMQQueue;
 
 /**
  * A simple example that demonstrates server side load-balancing of messages between the queue instances on different
@@ -38,33 +40,16 @@ public class ClusteredQueueExample
 
       Connection connection1 = null;
 
-      InitialContext ic0 = null;
-
-      InitialContext ic1 = null;
-
       try
       {
-         // Step 1. Get an initial context for looking up JNDI from server 0
-         Hashtable<String, Object> properties = new Hashtable<String, Object>();
-         properties.put("java.naming.factory.initial", "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
-         properties.put("connectionFactory.ConnectionFactory", "tcp://localhost:61616");
-         properties.put("queue.queue/exampleQueue", "exampleQueue");
-         ic0 = new InitialContext(properties);
+         // Step 2. Instantiate the Queue
+         Queue queue = ActiveMQJMSClient.createQueue("exampleQueue");
 
-         // Step 2. Look-up the JMS Queue object from JNDI
-         Queue queue = (Queue)ic0.lookup("queue/exampleQueue");
-
-         // Step 3. Look-up a JMS Connection Factory object from JNDI on server 0
-         ConnectionFactory cf0 = (ConnectionFactory)ic0.lookup("ConnectionFactory");
-
-         // Step 4. Get an initial context for looking up JNDI from server 1
-         properties = new Hashtable<String, Object>();
-         properties.put("java.naming.factory.initial", "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
-         properties.put("connectionFactory.ConnectionFactory", "tcp://localhost:61617");
-         ic1 = new InitialContext(properties);
+         // Instantiate connection towards server 0
+         ConnectionFactory cf0 = new ActiveMQConnectionFactory("tcp://localhost:61616");
 
          // Step 5. Look-up a JMS Connection Factory object from JNDI on server 1
-         ConnectionFactory cf1 = (ConnectionFactory)ic1.lookup("ConnectionFactory");
+         ConnectionFactory cf1 = new ActiveMQConnectionFactory("tcp://localhost:61617");
 
          // Step 6. We create a JMS Connection connection0 which is a connection to server 0
          connection0 = cf0.createConnection();
@@ -134,16 +119,6 @@ public class ClusteredQueueExample
          if (connection1 != null)
          {
             connection1.close();
-         }
-
-         if (ic0 != null)
-         {
-            ic0.close();
-         }
-
-         if (ic1 != null)
-         {
-            ic1.close();
          }
       }
    }

@@ -29,9 +29,9 @@ public class ActionContext
       this.err = err;
    }
 
-   InputStream in;
-   PrintStream out;
-   PrintStream err;
+   public InputStream in;
+   public PrintStream out;
+   public PrintStream err;
 
    public static ActionContext system()
    {

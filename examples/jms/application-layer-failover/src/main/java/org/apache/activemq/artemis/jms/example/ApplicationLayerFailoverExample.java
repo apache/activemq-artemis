@@ -16,14 +16,6 @@
  */
 package org.apache.activemq.artemis.jms.example;
 
-import org.apache.activemq.artemis.util.ServerUtil;
-
-import java.lang.Object;
-import java.lang.String;
-import java.util.Hashtable;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.ExceptionListener;
@@ -35,6 +27,11 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
+import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.util.ServerUtil;
 
 /**
  * A simple example that demonstrates application-layer failover of the JMS connection from one node to another
@@ -144,32 +141,25 @@ public class ApplicationLayerFailoverExample
 
    private static void createJMSObjects(final int server) throws Exception
    {
-      // Step 1. Get an initial context for looking up JNDI from the server
-      Hashtable<String, Object> properties = new Hashtable<String, Object>();
-      properties.put("java.naming.factory.initial", "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
-      properties.put("connectionFactory.ConnectionFactory", "tcp://127.0.0.1:" + (61616 + server));
-      properties.put("queue.queue/exampleQueue", "exampleQueue");
-      initialContext = new InitialContext(properties);
+      // Step 1. Instantiate a JMS Connection Factory object from JNDI on server 1
+      ConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://127.0.0.1:" + (61616 + server));
 
-      // Step 2. Look-up the JMS Queue object from JNDI
-      Queue queue = (Queue)initialContext.lookup("queue/exampleQueue");
-
-      // Step 3. Look-up a JMS Connection Factory object from JNDI on server 1
-      ConnectionFactory connectionFactory = (ConnectionFactory)initialContext.lookup("ConnectionFactory");
-
-      // Step 4. We create a JMS Connection connection
+      // Step 2. We create a JMS Connection connection
       connection = connectionFactory.createConnection();
 
-      // Step 6. We start the connection to ensure delivery occurs
+      // Step 3. We start the connection to ensure delivery occurs
       connection.start();
 
-      // Step 5. We create a JMS Session
+      // Step 4. We create a JMS Session
       session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-      // Step 7. We create a JMS MessageConsumer object
+      // Step 5. Look-up the JMS Queue object from JNDI
+      Queue queue = session.createQueue("exampleQueue");
+
+      // Step 6. We create a JMS MessageConsumer object
       consumer = session.createConsumer(queue);
 
-      // Step 8. We create a JMS MessageProducer object
+      // Step 7. We create a JMS MessageProducer object
       producer = session.createProducer(queue);
    }
 

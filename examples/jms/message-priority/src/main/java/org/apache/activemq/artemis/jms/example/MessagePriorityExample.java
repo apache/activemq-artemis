@@ -32,6 +32,9 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.naming.InitialContext;
 
+import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+
 /**
  * A simple JMS example that shows the delivery order of messages with priorities.
  */
@@ -42,17 +45,14 @@ public class MessagePriorityExample
       AtomicBoolean result = new AtomicBoolean(true);
       final ArrayList<TextMessage> msgReceived = new ArrayList<TextMessage>();
       Connection connection = null;
-      InitialContext initialContext = null;
       try
       {
-         // Step 1. Create an initial context to perform the JNDI lookup.
-         initialContext = new InitialContext();
 
          // Step 2. look-up the JMS queue object from JNDI
-         Queue queue = (Queue)initialContext.lookup("queue/exampleQueue");
+         Queue queue = ActiveMQJMSClient.createQueue("exampleQueue");
 
          // Step 3. look-up the JMS connection factory object from JNDI
-         ConnectionFactory cf = (ConnectionFactory)initialContext.lookup("ConnectionFactory");
+         ConnectionFactory cf = new ActiveMQConnectionFactory();
 
          // Step 4. Create a JMS Connection
          connection = cf.createConnection();
@@ -109,10 +109,6 @@ public class MessagePriorityExample
       finally
       {
          // Step 13. Be sure to close our JMS resources!
-         if (initialContext != null)
-         {
-            initialContext.close();
-         }
          if (connection != null)
          {
             connection.close();

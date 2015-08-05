@@ -39,7 +39,8 @@ under the License.
 
    <profiles>
       <profile>
-         <id>release</id>
+         <!-- You need to activate -Pexamples to run all the examples -->
+         <id>examples</id>
          <modules>
             <module>embedded</module>
             <module>embedded-remote</module>

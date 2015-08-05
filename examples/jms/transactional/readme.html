@@ -27,122 +27,14 @@ under the License.
   <body onload="prettyPrint()">
      <h1>JMS Transactional Session Example</h1>
 
+     <pre>To run the example, simply type <b>mvn verify</b> from this directory, <br>or <b>mvn -PnoServer verify</b> if you want to start and create the server manually.</pre>
+
+
      <p>This example shows you how to use a transacted Session with ActiveMQ Artemis.</p>
      <p>Firstly 2 messages are sent via the transacted sending session before being committed. This ensures that both message
      are sent</p>
      <p>Secondly the receiving session receives the messages firstly demonstrating a message being redelivered after the session
      being rolled back and then acknowledging receipt of the messages via the commit method.</p>
-    
 
-     <h2>Example step-by-step</h2>
-     <p><i>To run the example, simply type <code>mvn verify -Pexample</code> from this directory</i></p>
-
-     <ol>
-        <li>First we need to get an initial context so we can look-up the JMS connection factory and destination objects from JNDI. This initial context will get it's properties from the <code>client-jndi.properties</code> file in the directory <code>../common/config</code></li>
-        <pre class="prettyprint">
-           <code>initialContext = getContext();</code>
-        </pre>
-
-        <li>We look-up the JMS queue object from JNDI</li>
-        <pre class="prettyprint">
-           <code>Queue queue = (Queue) initialContext.lookup("/queue/exampleQueue");</code>
-        </pre>
-
-        <li>We look-up the JMS connection factory object from JNDI</li>
-        <pre class="prettyprint">
-           <code>ConnectionFactory cf = (ConnectionFactory) initialContext.lookup("/ConnectionFactory");</code>
-        </pre>
-
-        <li>We create a JMS connection</li>
-        <pre class="prettyprint">
-           <code>connection = cf.createConnection();</code>
-        </pre>
-         
-        <li>We start the connection. In order for delivery to occur on any consumers or subscribers on a connection, the connection must be started</li>
-        <pre class="prettyprint">
-           <code>connection.start();</code>
-        </pre>
-         
-        <li>We create a JMS session. The session is created as transacted.</li>
-        <pre class="prettyprint">
-           <code>Session session = connection.createSession(true, Session.SESSION_TRANSACTED);</code>
-        </pre>
-
-        <li>We create a JMS message producer on the session. This will be used to send the messages.</li>
-	<pre class="prettyprint">
-	   <code>MessageProducer messageProducer = session.createProducer(queue);</code>
-        </pre>
-
-        <li>We create a message consumer</li>
-	<pre class="prettyprint">
-	   <code>MessageConsumer messageConsumer = session.createConsumer(queue);</code>
-        </pre>
-
-        <li>We create 2 text messages</li>
-	<pre class="prettyprint">
-           <code>TextMessage message1 = session.createTextMessage("This is a text message1");</code>
-           <code>TextMessage message2 = session.createTextMessage("This is a text message2");</code>
-        </pre>
-   
-        <li>We send the text messages to the queue</li>
-        <pre class="prettyprint">
-           <code>messageProducer.send(message1);</code>
-           <code>messageProducer.send(message2);</code>
-        </pre>
-
-        <li>We receive the message, it will return null as the transaction is not committed.</li>
-        <pre class="prettyprint">
-           <code>TextMessage receivedMessage = (TextMessage) messageConsumer.receive(5000);</code>
-        </pre>
-
-        <li>We commit the session</li>
-	<pre class="prettyprint">
-           <code>session.commit();</code>
-        </pre>
-         
-        <li>We receive the messages again</li>
-        <pre class="prettyprint">
-           <code>receivedMessage = (TextMessage) messageConsumer.receive(5000);</code>
-        </pre>
-
-        <li>We roll back the session, this will cause the received message canceled and redelivered again</li>
-        <pre class="prettyprint"> 
-           <code>session.rollback();</code>
-        </pre>
-
-        <li>We receive the message again, we will get two messages. Nothing more, nothing less</li>
-        <pre class="prettyprint"> 
-           <code>receivedMessage = (TextMessage) messageConsumer.receive(5000);</code>
-           <code>receivedMessage = (TextMessage) messageConsumer.receive(5000);</code>
-        </pre>
-
-        <li>We commit the session</li>
-        <pre class="prettyprint"> 
-           <code>session.commit();</code>
-        </pre>
-
-        <li>We receive the message again. Nothing should be received</li>
-        <pre class="prettyprint"> 
-           <code>receivedMessage = (TextMessage) messageConsumer.receive(5000);</code>
-        </pre>
-
-
-        <li>And finally, <b>always</b> remember to close your JMS connections and resources after use, in a <code>finally</code> block. Closing a JMS connection will automatically close all of its sessions, consumers, producer and browser objects</li>
-
-        <pre class="prettyprint">
-           <code>finally
-           {
-              if (initialContext != null)
-              {
-                initialContext.close();
-              }
-              if (connection != null)
-              {
-                 connection.close();
-              }
-           }</code>
-        </pre>
-         
-     </ol>
   </body>
 </html>

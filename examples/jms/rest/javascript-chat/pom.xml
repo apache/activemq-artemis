@@ -22,7 +22,7 @@ under the License.
    <modelVersion>4.0.0</modelVersion>
    <parent>
       <groupId>org.apache.activemq.examples.rest</groupId>
-      <artifactId>artemis-rest-examples-pom</artifactId>
+      <artifactId>artemis-rests-pom</artifactId>
       <version>1.0.1-SNAPSHOT</version>
    </parent>
    <artifactId>javascript-chat</artifactId>

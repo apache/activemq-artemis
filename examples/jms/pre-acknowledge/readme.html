@@ -27,6 +27,9 @@ under the License.
   <body onload="prettyPrint()">
      <h1>JMS Pre-Acknowledge Example</h1>
 
+     <pre>To run the example, simply type <b>mvn verify</b> from this directory, <br>or <b>mvn -PnoServer verify</b> if you want to start and create the server manually.</pre>
+
+
      <p>Standard JMS supports three acknowledgement modes: AUTO_ACKNOWLEDGE, CLIENT_ACKNOWLEDGE, and
      DUPS_OK_ACKNOWLEDGE. For a full description on these modes please consult the JMS specification, or any
      JMS tutorial.</p>
@@ -44,9 +47,8 @@ under the License.
      update message will arrive soon, overriding the previous price.</p>
      <p>In order to use pre-acknowledge functionality with ActiveMQ Artemis the session has to be created with
      a special, ActiveMQ Artemis specific acknowledgement mode, given by the value of
-     <code>ActiveMQJMSConstants.PRE_ACKNOWLEDGE</code>.     
+     <code>ActiveMQJMSConstants.PRE_ACKNOWLEDGE</code>.
      <h2>Example step-by-step</h2>
-     <p><i>To run the example, simply type <code>mvn verify -Pexample</code> from this directory</i></p>
 
      <ol>
         <li>Create an initial context to perform the JNDI lookup.</li>
@@ -61,7 +63,7 @@ under the License.
            <code>
      Queue queue = (Queue)initialContext.lookup("/queue/exampleQueue");
 
-     ConnectionFactory cf = (ConnectionFactory)initialContext.lookup("/ConnectionFactory");                      
+     ConnectionFactory cf = (ConnectionFactory)initialContext.lookup("/ConnectionFactory");
            </code>
         </pre>
 
@@ -73,8 +75,8 @@ under the License.
      Session session = connection.createSession(false, ActiveMQSession.PRE_ACKNOWLEDGE);
 
      MessageProducer producer = session.createProducer(queue);
-         
-     MessageConsumer messageConsumer = session.createConsumer(queue);           
+
+     MessageConsumer messageConsumer = session.createConsumer(queue);
            </code>
         </pre>
 
@@ -85,7 +87,7 @@ under the License.
 
      producer.send(message1);
 
-     System.out.println("Sent message: " + message1.getText());           
+     System.out.println("Sent message: " + message1.getText());
            </code>
         </pre>
 
@@ -94,8 +96,8 @@ under the License.
         <pre class="prettyprint">
            <code>
      int count = getMessageCount(connection);
-       
-     System.out.println("Queue message count is " + count);           
+
+     System.out.println("Queue message count is " + count);
            </code>
         </pre>
 
@@ -104,16 +106,16 @@ under the License.
           <code>
      connection.start();
 
-     Thread.sleep(1000);          
+     Thread.sleep(1000);
           </code>
        </pre>
 
         <li>Print out the message count of the queue. It should now be zero, since the message has
-         already been acknowledged even before the consumer has received it.</li>         
+         already been acknowledged even before the consumer has received it.</li>
         <pre class="prettyprint">
            <code>
-     count = getMessageCount(connection);         
-     
+     count = getMessageCount(connection);
+
      System.out.println("Queue message count is now " + count);
            </code>
         </pre>
@@ -123,7 +125,7 @@ under the License.
            <code>
      TextMessage messageReceived = (TextMessage)messageConsumer.receive(5000);
 
-     System.out.println("Received message: " + messageReceived.getText());           
+     System.out.println("Received message: " + messageReceived.getText());
            </code>
         </pre>
 
@@ -137,16 +139,16 @@ under the License.
      if (connection != null)
      {
         connection.close();
-     }           
+     }
            </code>
         </pre>
      </ol>
-     
+
      <h2>More information</h2>
-     
+
      <ul>
          <li>User Manual's <a href="../../../docs/user-manual/en/html_single/index.html#pre-acknowledge">Pre-acknowledgement Mode chapter</a></li>
      </ul>
-     
+
   </body>
 </html>

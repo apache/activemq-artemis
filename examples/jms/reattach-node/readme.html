@@ -27,6 +27,9 @@ under the License.
   <body onload="prettyPrint()">
      <h1>JMS Reattach Example</h1>
 
+     <pre>To run the example, simply type <b>mvn verify</b> from this directory, <br>or <b>mvn -PnoServer verify</b> if you want to start and create the server manually.</pre>
+
+
      <p>This example demonstrates how ActiveMQ Artemis connections can be configured to be resilient to
      temporary network failures.</p>
      <p>In the case of a network failure being detected, either as a result of a failure to read/write to the connection,
@@ -48,104 +51,5 @@ under the License.
 
      <p>For more details on how to configure this and for clustering in general
      please consult the ActiveMQ Artemis user manual.</p>
-
-     <h2>Example step-by-step</h2>
-     <p><i>To run the example, simply type <code>mvn verify -Pexample</code> from this directory</i></p>
-
-     <ol>
-        <li>Create an initial context to perform the JNDI lookup.</li>
-        <pre class="prettyprint">
-           <code>initialContext = getContext(0);</code>
-        </pre>
-
-        <li>Perform a lookup on the queue</li>
-        <pre class="prettyprint">
-           <code>Queue queue = (Queue) initialContext.lookup("/queue/exampleQueue");</code>
-        </pre>
-
-        <li>Perform a lookup on the Connection Factory</li>
-        <pre class="prettyprint">
-           <code>ConnectionFactory cf = (ConnectionFactory)initialContext.lookup("/ConnectionFactory");</code>
-        </pre>
-
-        <li>We create a JMS connection</li>
-        <pre class="prettyprint">
-           <code>connection = cf.createConnection();</code>
-        </pre>
-
-        <li>We create a JMS session. </li>
-        <pre class="prettyprint">
-           <code>Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);</code>
-        </pre>
-
-        <li>We create a JMS message producer.</li>
-        <pre class="prettyprint">
-          <code>MessageProducer messageProducer = session.createProducer(topic);</code>
-       </pre>
-
-        <li>We create a JMS text message that we are going to send.</li>
-        <pre class="prettyprint">
-           <code>TextMessage message = session.createTextMessage("This is a text message");</code>
-        </pre>
-
-        <li>We send message to the queue</li>
-        <pre class="prettyprint">
-           <code>messageProducer.send(message);</code>
-        </pre>
-
-        <li>We create a JMS Message Consumer to receive the message.</li>
-          <pre class="prettyprint">
-           <code>MessageConsumer messageConsumer = session.createConsumer(queue);</code>
-        </pre>
-
-        <li>We start the connection. In order for delivery to occur on any consumers or subscribers on a connection, the connection must be started</li>
-        <pre class="prettyprint">
-           <code>connection.start();</code>
-        </pre>
-
-        <li>To simulate a temporary problem on the network, we stop the remoting acceptor on the
-         server which will cause all client connections to fail.</li>
-        <pre class="prettyprint">
-           <code>stopAcceptor(initialContext);</code>
-        </pre>
-
-        <li>We wait 10 seconds, before restarting the acceptor. During this period the client will be retrying
-        to connect. When the acceptor is restarted it will be successful in reconnecting.</li>
-
-        <pre class="prettyprint">
-           <code>
-            Thread.sleep(10000);
-
-            startAcceptor(initialContext);
-           </code>
-        </pre>
-
-        <li>We receive the message after reattachment! Note that no exceptions were received by the client.</li>
-
-        <pre class="prettyprint">
-           <code>
-           TextMessage messageReceived = (TextMessage)messageConsumer.receive(5000);
-           </code>
-        </pre>
-
-        <li>And finally, <b>always</b> remember to close your JMS connections and resources after use, in a <code>finally</code> block. Closing a JMS connection will automatically close all of its sessions, consumers, producer and browser objects</li>
-
-        <pre class="prettyprint">
-           <code>finally
-           {
-              if (initialContext != null)
-              {
-                initialContext.close();
-              }
-              if (connection != null)
-              {
-                 connection.close();
-              }
-           }</code>
-        </pre>
-
-
-
-     </ol>
   </body>
 </html>

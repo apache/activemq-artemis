@@ -16,12 +16,6 @@
  */
 package org.apache.activemq.artemis.jms.example;
 
-import org.apache.activemq.artemis.api.core.TransportConfiguration;
-import org.apache.activemq.artemis.api.core.client.ClusterTopologyListener;
-import org.apache.activemq.artemis.api.core.client.TopologyMember;
-import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
-import org.apache.activemq.artemis.util.ServerUtil;
-
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -29,12 +23,17 @@ import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
-import javax.naming.InitialContext;
 import java.util.ArrayList;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.ClusterTopologyListener;
+import org.apache.activemq.artemis.api.core.client.TopologyMember;
+import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.util.ServerUtil;
 
 /**
  * A simple example that demonstrates server side load-balancing of messages between the queue instances on different
@@ -52,33 +51,17 @@ public class HAPolicyAutoBackupExample
 
       Connection connection1 = null;
 
-      InitialContext ic0 = null;
-
-      InitialContext ic1 = null;
-
       try
       {
          server0 = ServerUtil.startServer(args[0], HAPolicyAutoBackupExample.class.getSimpleName() + "0", 0, 5000);
          server1 = ServerUtil.startServer(args[1], HAPolicyAutoBackupExample.class.getSimpleName() + "1", 1, 5000);
 
-         // Step 1. Get an initial context for looking up JNDI from server 0 and 1
-         Hashtable<String, Object> properties = new Hashtable<String, Object>();
-         properties.put("java.naming.factory.initial", "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
-         properties.put("connectionFactory.ConnectionFactory", "tcp://localhost:61616?ha=true&retryInterval=1000&retryIntervalMultiplier=1.0&reconnectAttempts=-1");
-         properties.put("queue.queue/exampleQueue", "exampleQueue");
-         ic0 = new InitialContext(properties);
-
-         properties = new Hashtable<String, Object>();
-         properties.put("java.naming.factory.initial", "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
-         properties.put("connectionFactory.ConnectionFactory", "tcp://localhost:61617?ha=true&retryInterval=1000&retryIntervalMultiplier=1.0&reconnectAttempts=-1");
-         ic1 = new InitialContext(properties);
-
          // Step 2. Look-up the JMS Queue object from JNDI
-         Queue queue = (Queue) ic0.lookup("queue/exampleQueue");
+         Queue queue = ActiveMQJMSClient.createQueue("exampleQueue");
 
-         // Step 3. Look-up a JMS Connection Factory object from JNDI on server 0 and 1
-         ConnectionFactory cf0 = (ConnectionFactory) ic0.lookup("ConnectionFactory");
-         ConnectionFactory cf1 = (ConnectionFactory) ic1.lookup("ConnectionFactory");
+         // Step 3. new connection factories towards server 0 and 1
+         ConnectionFactory cf0 = new ActiveMQConnectionFactory("tcp://localhost:61616?ha=true&retryInterval=1000&retryIntervalMultiplier=1.0&reconnectAttempts=-1");
+         ConnectionFactory cf1 = new ActiveMQConnectionFactory("tcp://localhost:61617?ha=true&retryInterval=1000&retryIntervalMultiplier=1.0&reconnectAttempts=-1");
 
          // Step 6. We create JMS Connections to server 0 and 1
          connection0 = cf0.createConnection();
@@ -129,7 +112,7 @@ public class HAPolicyAutoBackupExample
 
          // Step 15.now kill server1, messages will be scaled down to server0
          ServerUtil.killServer(server1);
-         Thread.sleep(40000);
+         Thread.sleep(5000);
 
          // Step 16. we now receive the messages that were on server1 but were scaled down to server0
          for (int i = 0; i < numMessages / 2; i++)

@@ -27,133 +27,13 @@ under the License.
   <body onload="prettyPrint()">
      <h1>JMS Durable Subscription Example</h1>
 
+     <pre>To run the example, simply type <b>mvn verify</b> from this directory, <br>or <b>mvn -PnoServer verify</b> if you want to start and create the server manually.</pre>
      <p>This example demonstrates how to use a durable subscription with ActiveMQ Artemis.</p>
      <p>Durable subscriptions are a standard part of JMS, please consult the JMS 1.1 specification for full details.</p>
      <p>Unlike non durable subscriptions, the key function of durable subscriptions is that the messages contained in them
          persist longer than the lifetime of the subscriber - i.e. they will accumulate messages sent to the topic even
-         if the subscriber is not currently connected. They will also survive server restarts. Note that for the messages to 
+         if the subscriber is not currently connected. They will also survive server restarts. Note that for the messages to
          be persisted, the messages sent to them must be marked as persistent messages.</p>
 
-     <h2>Example step-by-step</h2>
-     <p><i>To run the example, simply type <code>mvn verify -Pexample</code> from this directory</i></p>
-
-     <ol>
-        <li>First we need to get an initial context so we can look-up the JMS connection factory and destination objects from JNDI. This initial context will get it's properties from the <code>client-jndi.properties</code> file in the directory <code>../common/config</code></li>
-        <pre class="prettyprint">
-           <code>initialContext = getContext();</code>
-        </pre>
-
-        <li>We look-up the JMS topic object from JNDI</li>
-        <pre class="prettyprint">
-           <code>Topic topic = (Topic) initialContext.lookup("/topic/exampleTopic");</code>
-        </pre>
-
-        <li>We look-up the JMS connection factory object from JNDI</li>
-        <pre class="prettyprint">
-           <code>ConnectionFactory cf = (ConnectionFactory) initialContext.lookup("/ConnectionFactory");</code>
-        </pre>
-
-        <li>We create a JMS connection</li>
-        <pre class="prettyprint">
-           <code>connection = cf.createConnection();</code>
-        </pre>
-         
-        <li>We set the client-id on the connection. This must be the <b>first operation</b> performed on the connection object.
-        The combination of client-id and durable subscription name uniquely identifies the durable subscription. Maybe different durable subscritions can have the same name if they belong to different client-id values</li>
-        <pre class="prettyprint">
-           <code>connection.setClientID("durable-client");</code>
-        </pre>
-         
-        <li>We start the connection. In order for delivery to occur on any consumers or subscribers on a connection, the connection must be started</li>
-        <pre class="prettyprint">
-           <code>connection.start();</code>
-        </pre>
-         
-        <li>We create a JMS session. The session is created as non transacted and will auto acknowledge messages.</li>
-        <pre class="prettyprint">
-           <code>Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);</code>
-        </pre>
-
-        <li>We create a JMS message producer on the session. This will be used to send the messages.</li>
-	<pre class="prettyprint">
-	   <code>MessageProducer messageProducer = session.createProducer(topic);</code>
-        </pre>
-
-        <li>We create the durable subscriber on the topic, specifying it's name. Since this is the first time the subscriber is created and a subscription with that name and for this client-id does not already exist, then the underlying durable subscription will be created, and a subscriber will be created and returned for that subscription.</li>
-	<pre class="prettyprint">
-           <code>TopicSubscriber subscriber = session.createDurableSubscriber(topic, "subscriber-1");</code>
-        </pre>
-         
-        <li>We create a JMS text message, message 1, that we are going to send. Note that it must be a persistent message in order to survive server restart.</li>
-        <pre class="prettyprint">
-           <code>TextMessage message1 = session.createTextMessage("This is a text message 1");</code>
-        </pre>
-   
-        <li>We send message 1 to the topic</li>
-        <pre class="prettyprint">
-           <code>messageProducer.send(message1);</code>
-        </pre>
-
-        <li>The message arrives in the subscription, and we consume the message from the subscription.</li>
-        <pre class="prettyprint">
-           <code>TextMessage messageReceived = (TextMessage)subscriber.receive();</code>
-        </pre>
-
-        <li>We create and send another text message, message 2, to the same topic</li>
-        <pre class="prettyprint">
-           <code>TextMessage message2 = session.createTextMessage("This is a text message 2");
-              
-           messageProducer.send(message2);</code>
-        </pre>
-         
-        <li>Now we close the subscriber. Since the subscription is durable it will continue to survive even though there is no subscriber attached to it. At this point you could even stop and restart the server and the subscription would survive!</li>
-
-        <pre class="prettyprint">
-           <code>subscriber.close();</code>
-        </pre>
-         
-        <li>We now create another durable subscriber, with the same name and same client-id on the same topic. Since the durable subscrition already exists, it will simply return a new subscriber consuming from the <i>same</i> durable subscription instance as before</li>
-
-        <pre class="prettyprint"> 
-           <code>subscriber = session.createDurableSubscriber(topic, "subscriber-1");</code>
-        </pre>
-         
-        <li>We consume message 2 which was sent before the first subscriber was closed.</li>
-
-        <pre class="prettyprint">
-           <code>messageReceived = (TextMessage)subscriber.receive();</code>
-        </pre>
-
-        <li>We close the second subscriber.</li>
-
-        <pre class="prettyprint">
-           <code>subscriber.close();</code>
-        </pre>
-
-        <li>Now we <i>delete</i> the underlying durable subscription. This will delete any remaining unacknowledged messages in the subscription and a new subscriber will not be able to access them</li>
-
-        <pre class="prettyprint">
-           <code>session.unsubscribe("subscriber-1");</code>
-        </pre>
-
-        <li>And finally, <b>always</b> remember to close your JMS connections and resources after use, in a <code>finally</code> block. Closing a JMS connection will automatically close all of its sessions, consumers, producer and browser objects</li>
-
-        <pre class="prettyprint">
-           <code>finally
-           {
-              if (initialContext != null)
-              {
-                initialContext.close();
-              }
-              if (connection != null)
-              {
-                 connection.close();
-              }
-           }</code>
-        </pre>
-
-
-         
-     </ol>
   </body>
 </html>

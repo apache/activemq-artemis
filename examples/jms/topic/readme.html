@@ -27,97 +27,10 @@ under the License.
   <body onload="prettyPrint()">
      <h1>JMS Topic Example</h1>
 
+     <pre>To run the example, simply type <b>mvn verify</b> from this directory, <br>or <b>mvn -PnoServer verify</b> if you want to start and create the server manually.</pre>
+
      <p>This example shows you how to send and receive a message to a JMS Topic with ActiveMQ Artemis.</p>
      <p>Topics are a standard part of JMS, please consult the JMS 1.1 specification for full details.</p>
      <p>A Topic is used to send messages using the publish-subscribe model, from a producer to 1 or more consumers.</p>
-
-     <h2>Example step-by-step</h2>
-     <p><i>To run the example, simply type <code>mvn verify -Pexample</code> from this directory</i></p>
-
-     <ol>
-        <li>First we need to get an initial context so we can look-up the JMS connection factory and destination objects from JNDI. This initial context will get it's properties from the <code>client-jndi.properties</code> file in the directory <code>../common/config</code></li>
-        <pre class="prettyprint">
-           <code>InitialContext initialContext = getContext();</code>
-        </pre>
-
-        <li>We look-up the JMS topic object from JNDI</li>
-        <pre class="prettyprint">
-           <code>Topic topic = (Topic) initialContext.lookup("/topic/exampleTopic");</code>
-        </pre>
-
-        <li>We look-up the JMS connection factory object from JNDI</li>
-        <pre class="prettyprint">
-           <code>ConnectionFactory cf = (ConnectionFactory) initialContext.lookup("/ConnectionFactory");</code>
-        </pre>
-
-        <li>We create a JMS connection</li>
-        <pre class="prettyprint">
-           <code>connection = cf.createConnection();</code>
-        </pre>
-
-        <li>We create a JMS session. The session is created as non transacted and will auto acknowledge messages.</li>
-        <pre class="prettyprint">
-           <code>Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);</code>
-        </pre>
-
-        <li>We create a JMS message producer on the session. This will be used to send the messages.</li>
-        <pre class="prettyprint">
-          <code>MessageProducer messageProducer = session.createProducer(topic);</code>
-       </pre>
-
-        <li>We create a JMS Message Consumer, messageConsumer1, to receive the message.</li>
-         <pre class="prettyprint">
-           <code>MessageConsumer messageConsumer = session.createConsumer(topic);</code>
-         </pre>
-
-        <li>We create a JMS Message Consumer, messageConsumer2, to also receive the message.</li>
-        <pre class="prettyprint">
-          <code>MessageConsumer messageConsumer2 = session.createConsumer(topic);</code>
-        </pre>
-
-        <li>We create a JMS text message that we are going to send.</li>
-        <pre class="prettyprint">
-           <code>TextMessage message = session.createTextMessage("This is a text message");</code>
-        </pre>
-
-        <li>We send message to the topic</li>
-        <pre class="prettyprint">
-           <code>messageProducer.send(message);</code>
-        </pre>
-
-        <li>We start the connection. In order for delivery to occur on any consumers or subscribers on a connection, the connection must be started</li>
-        <pre class="prettyprint">
-           <code>connection.start();</code>
-        </pre>
-
-        <li>The message arrives at the first consumer</li>
-        <pre class="prettyprint">
-           <code>TextMessage messageReceived = (TextMessage) messageConsumer1.receive();</code>
-        </pre>
-
-        <li>The message arrives at the second consumer</li>
-        <pre class="prettyprint">
-           <code>messageReceived = (TextMessage) messageConsumer2.receive();</code>
-        </pre>
-        
-        <li>And finally, <b>always</b> remember to close your JMS connections and resources after use, in a <code>finally</code> block. Closing a JMS connection will automatically close all of its sessions, consumers, producer and browser objects</li>
-
-        <pre class="prettyprint">
-           <code>finally
-           {
-              if (initialContext != null)
-              {
-                initialContext.close();
-              }
-              if (connection != null)
-              {
-                 connection.close();
-              }
-           }</code>
-        </pre>
-
-
-
-     </ol>
   </body>
 </html>

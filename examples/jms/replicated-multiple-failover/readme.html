@@ -26,7 +26,10 @@ under the License.
   </head>
   <body onload="prettyPrint()">
      <h1>JMS Multiple Failover using Replication Example</h1>
-     
+
+     <pre>To run the example, simply type <b>mvn verify</b> from this directory.</pre>
+
+
      <p>This example demonstrates three servers coupled as a live-backup-backup group for high availability (HA) using replication, and a client
      connection failing over from live to backup when the live server is crashed and then to the second backup once the new live fails.</p>
 
@@ -38,133 +41,5 @@ under the License.
      <p>In this example, the live server is server 1, and the backup server is server 0</p>
      <p>The connection will initially be created to server1, server 1 will crash, and the client will carry on
      seamlessly on server 0, the backup server.</p>
-
-     <ol>
-        <li>Get an initial context for looking up JNDI from server #0.</li>
-        <pre class="prettyprint">
-           initialContext = getContext(0);
-        </pre>
-
-        <li>Look up the JMS resources from JNDI on server #0.</li>
-        <pre class="prettyprint">
-           Queue queue = (Queue)initialContext.lookup("/queue/exampleQueue");
-           ConnectionFactory connectionFactory = (ConnectionFactory)initialContext.lookup("/ConnectionFactory");
-        </pre>
-
-        <li>Create a JMS Connection</li>
-        <pre class="prettyprint">
-           connection = connectionFactory.createConnection();
-        </pre>
-        
-        <li>Create a client acknowledged Session</li>
-        <pre class="prettyprint">
-           Session session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
-        </pre>
-        
-        <li>Start the connection to ensure delivery occurs</li>
-        <pre class="prettyprint">
-           connection.start();
-        </pre>
-
-        <li>Create a JMS MessageProducer</li>
-        <pre class="prettyprint">
-           MessageProducer producer = session.createProducer(queue);
-        </pre>
-
-        <li>Create a JMS MessageConsumer</li>
-        <pre class="prettyprint">
-           MessageConsumer consumer = session.createConsumer(queue);
-        </pre>
-
-        <li>Send some messages to server #0, the live server</li>
-        <pre class="prettyprint">
-           for (int i = 0; i < numMessages; i++)
-            {
-                TextMessage message = session.createTextMessage("This is text message " + i);
-                producer.send(message);
-                System.out.println("Sent message: " + message.getText());
-            }
-        </pre>
-
-        <li>Receive and acknowledge a third of the sent messages</li>
-        <pre class="prettyprint">
-           TextMessage message0 = null;
-            for (int i = 0; i < numMessages / 3; i++)
-            {
-               message0 = (TextMessage)consumer.receive(5000);
-               System.out.println("Got message: " + message0.getText());
-            }
-            message0.acknowledge();
-        </pre>
-
-        <p>When server #0 crashes, the client automatically detects the failure and automatically
-            fails over from server #0 to server #1 (in your real program you wouldn't need to sleep).
-        </p>
-        
-        <li>Acknowledging the 2nd third of the sent messages will fail as failover to the backup server has occurred</li>
-        <pre class="prettyprint">
-           try
-             {
-               message0.acknowledge();
-            }
-             catch (JMSException e)
-            {
-               System.err.println("Got exception while acknowledging message: " + e.getMessage());
-            }
-        </pre>
-        
-        <li>Consume again the 2nd third of the messages again. Note that they are not considered as redelivered.</li>
-        <pre class="prettyprint">
-           for (int i = numMessages / 3; i < (numMessages / 3) * 2; i++)
-            {
-              message0 = (TextMessage)consumer.receive(5000);
-             System.out.printf("Got message: %s (redelivered?: %s)\n", message0.getText(), message0.getJMSRedelivered());
-             }
-         message0.acknowledge();
-        </pre>
-
-         <p>now we Kill server #1 and wait for the server #2 to take over the responsibilities.</p>
-
-        <li>Acknowledging the 3rd third of the sent messages will fail as failover to the backup server has occurred</li>
-        <pre class="prettyprint">
-           try
-            {
-               message0.acknowledge();
-           }
-           catch (JMSException e)
-          {
-                System.err.println("Got exception while acknowledging message: " + e.getMessage());
-             }
-        </pre>
-        
-
-        <li>Consume again the 3rd third of the messages again. Note that they are not considered as redelivered</li>
-        <pre class="prettyprint">
-            for (int i = (numMessages / 3) * 2; i < numMessages; i++)
-             {
-               message0 = (TextMessage)consumer.receive(5000);
-               System.out.printf("Got message: %s (redelivered?: %s)\n", message0.getText(), message0.getJMSRedelivered());
-            }
-             message0.acknowledge();
-        </pre>
-        
-        <li>And finally, <strong>always</strong> remember to close your resources after use, in a <code>finally</code> block. Closing a JMS connection will automatically close all of its sessions, consumers, producer and browser objects</li>
-
-        <pre class="prettyprint">
-           finally
-           {
-              if (connection != null)
-              {
-                 connection.close();
-              }
-
-              if (initialContext != null)
-              {
-                 initialContext.close();
-              }
-           }
-        </pre>
-
-     </ol>
   </body>
 </html>

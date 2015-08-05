@@ -27,6 +27,8 @@ under the License.
   <body onload="prettyPrint()">
      <h1>JMS Durable Subscription Example</h1>
 
+     <pre>To run the example, simply type <b>mvn verify</b> from this directory, <br>or <b>mvn -PnoServer verify</b> if you want to start and create the server manually.</pre>
+
      <p>This example demonstrates a clustered JMS durable subscription.
      Normally durable subscriptions exist on a single node and can only have one subscriber at any one time,
      however, with ActiveMQ Artemis it's possible to create durable subscription instances with the same name and client-id
@@ -45,6 +47,7 @@ under the License.
      JNDI, these could be instantiated directly.
      <p>Here's the relevant snippet from the server configuration, which tells the server to form a cluster between the two nodes
      and to load balance the messages between the nodes.</p>
+     <p>The cli create method will define this section by default if you use --clustered as a parameter</p>
      <pre class="prettyprint">
      <code>&lt;cluster-connection name="my-cluster"&gt;
         &lt;address&gt;jms&lt;/address&gt;
@@ -59,155 +62,5 @@ under the License.
      <p>For more information on ActiveMQ Artemis load balancing, and clustering in general, please see the clustering
      section of the user manual.</p>
 
-     <h2>Example step-by-step</h2>
-     <p><i>To run the example, simply type <code>mvn verify -Pexample</code> from this directory</i></p>
-
-     <ol>
-        <li> Get an initial context for looking up JNDI from server 0.</li>
-        <pre class="prettyprint">
-           <code>
-   ic0 = getContext(0);
-   </code>
-        </pre>
-
-        <li>Look-up the JMS Topic object from JNDI</li>
-        <pre class="prettyprint">
-           <code>Topic topic = (Topic)ic0.lookup("/topic/exampleTopic");</code>
-        </pre>
-
-        <li>Look-up a JMS Connection Factory object from JNDI on server 0</li>
-        <pre class="prettyprint">
-           <code>ConnectionFactory cf0 = (ConnectionFactory)ic0.lookup("/ConnectionFactory");</code>
-        </pre>
-
-        <li>Get an initial context for looking up JNDI from server 1.</li>
-        <pre class="prettyprint">
-           <code>ic1 = getContext(1);</code>
-        </pre>
-
-        <li>Look-up a JMS Connection Factory object from JNDI on server 1</li>
-        <pre class="prettyprint">
-           <code>ConnectionFactory cf1 = (ConnectionFactory)ic1.lookup("/ConnectionFactory");
-           </code>
-        </pre>
-
-        <li>We create a JMS Connection connection0 which is a connection to server 0
-        and set the same client-id.</li>
-        <pre class="prettyprint">
-          <code>
-   connection0 = cf0.createConnection();
-   final String clientID = "my-client-id";
-   connection0.setClientID(clientID);
-          </code>
-        </pre>
-
-        <li>We create a JMS Connection connection1 which is a connection to server 1
-        and set the same client-id.</li>
-        <pre class="prettyprint">
-          <code>
-   connection1 = cf1.createConnection();
-   connection1.setClientID(clientID);
-          </code>
-        </pre>
-
-        <li>We create a JMS Session on server 0</li>
-        <pre class="prettyprint">
-           <code>
-   Session session0 = connection0.createSession(false, Session.AUTO_ACKNOWLEDGE);
-           </code>
-        </pre>
-
-        <li>We create a JMS Session on server 1</li>
-        <pre class="prettyprint">
-           <code>
-   Session session1 = connection1.createSession(false, Session.AUTO_ACKNOWLEDGE);
-            </code>
-        </pre>
-
-        <li>We start the connections to ensure delivery occurs on them</li>
-        <pre class="prettyprint">
-           <code>
-   connection0.start();
-
-   connection1.start();
-           </code>
-        </pre>
-
-        <li>We create JMS durable subscriptions with the same name and client-id on both nodes
-        of the cluster
-        </li>
-        <pre class="prettyprint">
-           <code>
-   final String subscriptionName = "my-subscription";
-
-   MessageConsumer subscriber0 = session0.createDurableSubscriber(topic, subscriptionName);
-
-   MessageConsumer subscriber1 = session1.createDurableSubscriber(topic, subscriptionName);
-           </code>
-        </pre>
-
-        <li>We create a JMS MessageProducer object on server 0.</li>
-        <pre class="prettyprint">
-           <code>
-   MessageProducer producer = session0.createProducer(topic);</code>
-        </pre>
-
-        <li>We send some messages to server 0.</li>
-        <pre class="prettyprint">
-           <code>
-	final int numMessages = 10;
-
-	for (int i = 0; i < numMessages; i++)
-	{
-	   TextMessage message = session0.createTextMessage("This is text message " + i);
-
-	   producer.send(message);
-
-	   System.out.println("Sent message: " + message.getText());
-	}
-           </code>
-        </pre>
-
-        <li>
-        We now consume those messages on *both* server 0 and server 1.
-        Note that the messages have been load-balanced between the two nodes, with some
-        messages on node 0 and others on node 1.
-        The "logical" subscription is distributed across the cluster and contains exactly one copy of all the messages sent.
-         </li>
-        <pre class="prettyprint">
-           <code>
-	for (int i = 0; i < numMessages; i += 2)
-	{
-	   TextMessage message0 = (TextMessage)consumer0.receive(5000);
-
-	   System.out.println("Got message: " + message0.getText() + " from node 0");
-
-	   TextMessage message1 = (TextMessage)consumer1.receive(5000);
-
-	   System.out.println("Got message: " + message1.getText() + " from node 1");
-	}
-           </code>
-        </pre>
-
-        <li>And finally (no pun intended), <b>always</b> remember to close your JMS resources after use, in a <code>finally</code> block. Closing a JMS connection will automatically close all of its sessions, consumers, producer and browser objects</li>
-
-        <pre class="prettyprint">
-           <code>
-	finally
-	{
-	   if (connection0 != null)
-	   {
-	      connection0.close();
-	   }
-
-	   if (connection1 != null)
-	   {
-	      connection1.close();
-	   }
-	}
-           </code>
-        </pre>
-
-     </ol>
-  </body>
+   </body>
 </html>

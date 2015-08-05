@@ -23,8 +23,10 @@ import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
-import javax.naming.InitialContext;
-import java.util.Hashtable;
+
+import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.jms.client.ActiveMQQueue;
 
 /**
  * A simple example that demonstrates server side load-balancing of messages between the queue instances on different
@@ -40,82 +42,58 @@ public class ClusteredGroupingExample
 
       Connection connection2 = null;
 
-      InitialContext ic0 = null;
-
-      InitialContext ic1 = null;
-
-      InitialContext ic2 = null;
-
       try
       {
-         // Step 1. Get an initial context for looking up JNDI from server 0
-         Hashtable<String, Object> properties = new Hashtable<String, Object>();
-         properties.put("java.naming.factory.initial", "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
-         properties.put("connectionFactory.ConnectionFactory", "tcp://localhost:61616");
-         properties.put("queue.queue/exampleQueue", "exampleQueue");
-         ic0 = new InitialContext(properties);
+         // Step 1. We will instantiate the queue object directly on this example
+         //         This could be done through JNDI or JMSession.createQueue
+         Queue queue =  ActiveMQJMSClient.createQueue("exampleQueue");
 
-         // Step 2. Look-up the JMS Queue object from JNDI
-         Queue queue = (Queue)ic0.lookup("queue/exampleQueue");
+         // Step 2. create a connection factory towards server 0.
+         ConnectionFactory cf0 = new ActiveMQConnectionFactory("tcp://localhost:61616");
 
-         // Step 3. Look-up a JMS Connection Factory object from JNDI on server 0
-         ConnectionFactory cf0 = (ConnectionFactory)ic0.lookup("ConnectionFactory");
+         // Step 3. create a connection factory towards server 1.
+         ConnectionFactory cf1 = new ActiveMQConnectionFactory("tcp://localhost:61617");
 
-         // Step 4. Get an initial context for looking up JNDI from server 1
-         properties = new Hashtable<String, Object>();
-         properties.put("java.naming.factory.initial", "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
-         properties.put("connectionFactory.ConnectionFactory", "tcp://localhost:61617");
-         ic1 = new InitialContext(properties);
+         // Step 4.  create a connection factory towards server 2.
+         ConnectionFactory cf2 = new ActiveMQConnectionFactory("tcp://localhost:61618");
 
-         // Step 5. Look-up a JMS Connection Factory object from JNDI on server 1
-         ConnectionFactory cf1 = (ConnectionFactory)ic1.lookup("ConnectionFactory");
-
-         // Step 4. Get an initial context for looking up JNDI from server 2
-         properties = new Hashtable<String, Object>();
-         properties.put("java.naming.factory.initial", "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
-         properties.put("connectionFactory.ConnectionFactory", "tcp://localhost:61618");
-         ic2 = new InitialContext(properties);
-
-         // Step 5. Look-up a JMS Connection Factory object from JNDI on server 2
-         ConnectionFactory cf2 = (ConnectionFactory)ic2.lookup("ConnectionFactory");
-
-         // Step 6. We create a JMS Connection connection0 which is a connection to server 0
+         // Step 5. We create a JMS Connection connection0 which is a connection to server 0
          connection0 = cf0.createConnection();
 
-         // Step 7. We create a JMS Connection connection1 which is a connection to server 1
+         // Step 6. We create a JMS Connection connection1 which is a connection to server 1
          connection1 = cf1.createConnection();
 
-         // Step 8. We create a JMS Connection connection2 which is a connection to server 2
+         // Step 7. We create a JMS Connection connection2 which is a connection to server 2
          connection2 = cf2.createConnection();
 
-         // Step 9. We create a JMS Session on server 0
+         // Step 8. We create a JMS Session on server 0
          Session session0 = connection0.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-         // Step 10. We create a JMS Session on server 1
+         // Step 9. We create a JMS Session on server 1
          Session session1 = connection1.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-         // Step 11. We create a JMS Session on server 2
+         // Step 10. We create a JMS Session on server 2
          Session session2 = connection1.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-         // Step 12. We start the connections to ensure delivery occurs on them
+         // Step 11. We start the connections to ensure delivery occurs on them
          connection0.start();
 
          connection1.start();
 
          connection2.start();
 
-         // Step 13. We create JMS MessageConsumer objects on server 0
+         // Step 12. We create JMS MessageConsumer objects on server 0
          MessageConsumer consumer = session0.createConsumer(queue);
 
 
-         // Step 14. We create a JMS MessageProducer object on server 0, 1 and 2
+         // Step 13. We create a JMS MessageProducer object on server 0, 1 and 2
          MessageProducer producer0 = session0.createProducer(queue);
 
          MessageProducer producer1 = session1.createProducer(queue);
 
          MessageProducer producer2 = session2.createProducer(queue);
 
-         // Step 15. We send some messages to server 0, 1 and 2 with the same groupid set
+         // Step 14. We send some messages to server 0, 1 and 2 with the same groupid set
 
          final int numMessages = 10;
 
@@ -153,7 +131,7 @@ public class ClusteredGroupingExample
             System.out.println("Sent messages: " + message.getText() + " to node 2");
          }
 
-         // Step 16. We now consume those messages from server 0
+         // Step 15. We now consume those messages from server 0
          // We note the messages have all been sent to the same consumer on the same node
 
          for (int i = 0; i < numMessages * 3; i++)
@@ -181,21 +159,6 @@ public class ClusteredGroupingExample
          if (connection2 != null)
          {
             connection2.close();
-         }
-
-         if (ic0 != null)
-         {
-            ic0.close();
-         }
-
-         if (ic1 != null)
-         {
-            ic1.close();
-         }
-
-         if (ic2 != null)
-         {
-            ic2.close();
          }
       }
    }

@@ -27,104 +27,12 @@ under the License.
   <body onload="prettyPrint()">
      <h1>Stomp Example</h1>
 
+     <pre>To run the example, simply type <b>mvn verify</b> from this directory, <br>or <b>mvn -PnoServer verify</b> if you want to start and create the server manually.</pre>
+
+
      <p>This example shows you how to configure ActiveMQ Artemis to send and receive Stomp messages.</p>
      <p>The example will start a ActiveMQ Artemis server configured with Stomp and JMS.</p>
-     <p>The client will open a socket to send one Stomp message (using TCP directly). 
+     <p>The client will open a socket to send one Stomp message (using TCP directly).
        The client will then consume a message from a JMS Queue and check it is the message sent with Stomp.</p>
-
-     <h2>Example step-by-step</h2>
-     <p><i>To run the example, simply type <code>mvn verify -Pexample</code> from this directory</i></p>
-
-     <ol>
-        <li>We create a TCP socket to connect to the Stomp port
-        <pre class="prettyprint">
-          Socket socket = new Socket("localhost", 61613); 
-        </pre>
-
-        <li>We send a CONNECT frame to connect to the server</li>
-        <pre class="prettyprint">
-          String connectFrame = "CONNECT\n" +
-             "login: guest\n" + 
-             "passcode: guest\n" + 
-             "request-id: 1\n" + 
-             "\n" +
-             Stomp.NULL;
-          sendFrame(socket, connectFrame);
-        </pre>
-
-        <li>We send a SEND frame (a Stomp message) to the destination <code>jms.queue.exampleQueue</code> 
-          (which corresponds to the ActiveMQ Artemis address for the JMS Queue <code>exampleQueue</code>) with a text body</li>
-        <pre class="prettyprint">
-          String text = "Hello, world from Stomp!";
-          String message = "SEND\n" + 
-             "destination: jms.queue.exampleQueue\n" +
-             "\n" +
-             text +
-             Stomp.NULL;
-          sendFrame(socket, message);
-          System.out.println("Sent Stomp message: " + text);
-        </pre>
-
-        <li>We send a DISCONNECT frame to disconnect from the server</li>
-        <pre class="prettyprint">
-          String disconnectFrame = "DISCONNECT\n" +
-             "\n" +
-             Stomp.NULL;
-          sendFrame(socket, disconnectFrame);
-        </pre>
-
-        <li>We close the TCP socket</li>
-        <pre class="prettyprint">
-          socket.close();
-        </pre>
-
-        <li>We create an initial context to perform the JNDI lookup.</li>
-        <pre class="prettyprint">
-          initialContext = getContext(0);
-       </pre>
-
-        <li>We perform a lookup on the queue and the connection factory</li>
-        <pre class="prettyprint">
-          Queue queue = (Queue)initialContext.lookup("/queue/exampleQueue");
-          ConnectionFactory cf = (ConnectionFactory)initialContext.lookup("/ConnectionFactory");
-        </pre>
-
-        <li>We create a JMS Connection, Session and a MessageConsumer on the queue</li>
-        <pre class="prettyprint">
-          connection = cf.createConnection();
-          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-          MessageConsumer consumer = session.createConsumer(queue);
-        </pre>
-
-        <li>We start the connection</li>
-        <pre class="prettyprint">
-           <code>connection.start();</code>
-        </pre>
-
-        <li>We receive the message. Stomp messages are mapped to JMS TextMessage.</li>
-        <pre class="prettyprint">
-          TextMessage messageReceived = (TextMessage)consumer.receive(5000);
-          System.out.println("Received JMS message: " + messageReceived.getText());
-        </pre>
-
-        <li>And finally, <b>always</b> remember to close your JMS connections and resources after use, in a <code>finally</code> block. Closing a JMS connection will automatically close all of its sessions, consumers, producer and browser objects</li>
-
-        <pre class="prettyprint">
-           <code>finally
-           {
-              if (initialContext != null)
-              {
-                initialContext.close();
-              }
-              if (connection != null)
-              {
-                 connection.close();
-              }
-           }</code>
-        </pre>
-
-
-
-     </ol>
   </body>
 </html>

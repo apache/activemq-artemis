@@ -23,14 +23,9 @@ import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
-import java.util.HashMap;
-import java.util.Map;
 
-import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
-import org.apache.activemq.artemis.api.jms.JMSFactoryType;
-import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory;
-import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 
 /**
  *
@@ -49,17 +44,8 @@ public class InstantiateConnectionFactoryExample
          // Step 1. Directly instantiate the JMS Queue object.
          Queue queue = ActiveMQJMSClient.createQueue("exampleQueue");
 
-         // Step 2. Instantiate the TransportConfiguration object which contains the knowledge of what transport to use,
-         // The server port etc.
-
-         Map<String, Object> connectionParams = new HashMap<String, Object>();
-         connectionParams.put(TransportConstants.PORT_PROP_NAME, 61616);
-
-         TransportConfiguration transportConfiguration = new TransportConfiguration(NettyConnectorFactory.class.getName(),
-                                                                                    connectionParams);
-
-         // Step 3 Directly instantiate the JMS ConnectionFactory object using that TransportConfiguration
-         ConnectionFactory cf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, transportConfiguration);
+         // Starting with Artemis 1.0.1 you can just use the URI to instantiate the object directly
+         ConnectionFactory cf = new ActiveMQConnectionFactory("tcp://localhost:61616");
 
          // Step 4.Create a JMS Connection
          connection = cf.createConnection();

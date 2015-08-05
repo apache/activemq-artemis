@@ -24,7 +24,7 @@ under the License.
 
    <jms xmlns="urn:activemq:jms">
       <queue name="DLQ"/>
-      <queue name="ExpiryQueue"/>
+      <queue name="ExpiryQueue"/>${jms-list.settings}
    </jms>
 
    <core xmlns="urn:activemq:core">

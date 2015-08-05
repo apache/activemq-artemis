@@ -27,7 +27,7 @@ under the License.
       <version>1.0.1-SNAPSHOT</version>
    </parent>
 
-   <artifactId>artemis-static-selector-example</artifactId>
+   <artifactId>static-selector</artifactId>
    <packaging>jar</packaging>
    <name>ActiveMQ Artemis Static Selector Example</name>
 
@@ -37,15 +37,22 @@ under the License.
 
    <dependencies>
       <dependency>
-         <groupId>org.apache.geronimo.specs</groupId>
-         <artifactId>geronimo-jms_2.0_spec</artifactId>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-jms-client</artifactId>
+         <version>${project.version}</version>
       </dependency>
    </dependencies>
 
    <profiles>
       <profile>
-         <id>example</id>
-         <build>
+         <!-- specify -PnoServer if you don't want to start the server -->
+         <id>noServer</id>
+         <properties>
+            <noServer>true</noServer>
+         </properties>
+      </profile>
+   </profiles>
+   <build>
             <plugins>
                <plugin>
                   <groupId>org.apache.activemq</groupId>
@@ -56,6 +63,9 @@ under the License.
                         <goals>
                            <goal>create</goal>
                         </goals>
+                        <configuration>
+                           <ignore>${noServer}</ignore>
+                        </configuration>
                      </execution>
                      <execution>
                         <id>start</id>
@@ -63,6 +73,7 @@ under the License.
                            <goal>cli</goal>
                         </goals>
                         <configuration>
+                           <ignore>${noServer}</ignore>
                            <spawn>true</spawn>
                            <testURI>tcp://localhost:61616</testURI>
                            <args>
@@ -85,6 +96,7 @@ under the License.
                            <goal>cli</goal>
                         </goals>
                         <configuration>
+                           <ignore>${noServer}</ignore>
                            <args>
                               <param>stop</param>
                            </args>
@@ -94,14 +106,12 @@ under the License.
                   <dependencies>
                      <dependency>
                         <groupId>org.apache.activemq.examples.jms</groupId>
-                        <artifactId>artemis-static-selector-example</artifactId>
+                        <artifactId>static-selector</artifactId>
                         <version>${project.version}</version>
                      </dependency>
                   </dependencies>
                </plugin>
             </plugins>
          </build>
-      </profile>
-   </profiles>
 
 </project>

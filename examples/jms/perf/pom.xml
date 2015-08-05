@@ -27,7 +27,7 @@ under the License.
       <version>1.0.1-SNAPSHOT</version>
    </parent>
 
-   <artifactId>artemis-jms-perf-example</artifactId>
+   <artifactId>perf</artifactId>
    <packaging>jar</packaging>
    <name>ActiveMQ Artemis JMS PerfExample Example</name>
 
@@ -95,7 +95,7 @@ under the License.
                      <dependencies>
                         <dependency>
                            <groupId>org.apache.activemq.examples.jms</groupId>
-                           <artifactId>artemis-jms-perf-example</artifactId>
+                           <artifactId>perf</artifactId>
                            <version>${project.version}</version>
                         </dependency>
                         <dependency>

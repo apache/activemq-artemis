@@ -27,11 +27,14 @@ under the License.
   <body onload="prettyPrint()">
      <h1>JMS SSL Example</h1>
 
+     <pre>To run the example, simply type <b>mvn verify</b> from this directory, <br>or <b>mvn -PnoServer verify</b> if you want to start and create the server manually.</pre>
+
+
      <p>This example shows you how to configure SSL with ActiveMQ Artemis to send and receive message. </p>
-     
+
      <p>Using SSL can make your messaging applications interact with ActiveMQ Artemis securely. An application can
      be secured transparently without extra coding effort. To secure your messaging application with SSL, you need to configure connector and acceptor as follows:</p>
-     
+
      <p>
         <pre class="prettyprint">
            <code>
@@ -46,98 +49,8 @@ under the License.
            </code>
         </pre>
      </p>
-     
+
      <p>In the configuration, the activemq.example.keystore is the key store file holding the server's certificate. The activemq.example.truststore
      is the file holding the certificates which the client trusts (i.e. the server's certificate exported from activemq.example.keystore). They are pre-generated for illustration purpose<a id="fnr1" href="readme.html#fn1"><sup>1</sup></a>.</p>
-     
-
-     <h2>Example step-by-step</h2>
-     <p><i>To run the example, simply type <code>mvn verify -Pexample</code> from this directory</i></p>
-
-     <ol>
-        <li>First we need to get an initial context so we can look-up the JMS connection factory and destination objects from JNDI. This initial context will get it's properties from the <code>client-jndi.properties</code> file in the directory <code>../common/config</code></li>
-        <pre class="prettyprint">
-           <code>InitialContext initialContext = getContext();</code>
-        </pre>
-
-        <li>We look-up the JMS queue object from JNDI</li>
-        <pre class="prettyprint">
-           <code>Queue queue = (Queue) initialContext.lookup("/queue/exampleQueue");</code>
-        </pre>
-
-        <li>We look-up the JMS connection factory object from JNDI</li>
-        <pre class="prettyprint">
-           <code>ConnectionFactory cf = (ConnectionFactory) initialContext.lookup("/ConnectionFactory");</code>
-        </pre>
-
-        <li>We create a JMS connection</li>
-        <pre class="prettyprint">
-           <code>connection = cf.createConnection();</code>
-        </pre>
-
-        <li>We create a JMS session. The session is created as non transacted and will auto acknowledge messages.</li>
-        <pre class="prettyprint">
-           <code>Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);</code>
-        </pre>
-
-        <li>We create a JMS message producer on the session. This will be used to send the messages.</li>
-        <pre class="prettyprint">
-          <code>MessageProducer messageProducer = session.createProducer(topic);</code>
-       </pre>
-
-        <li>We create a JMS text message that we are going to send.</li>
-        <pre class="prettyprint">
-           <code>TextMessage message = session.createTextMessage("This is a text message");</code>
-        </pre>
-
-        <li>We send message to the queue</li>
-        <pre class="prettyprint">
-           <code>messageProducer.send(message);</code>
-        </pre>
-
-        <li>We create a JMS Message Consumer to receive the message.</li>
-          <pre class="prettyprint">
-           <code>MessageConsumer messageConsumer = session.createConsumer(queue);</code>
-        </pre>
-
-        <li>We start the connection. In order for delivery to occur on any consumers or subscribers on a connection, the connection must be started</li>
-        <pre class="prettyprint">
-           <code>connection.start();</code>
-        </pre>
-
-        <li>The message arrives at the consumer. In this case we use a timeout of 5000 milliseconds but we could use a blocking 'receive()'</li>
-        <pre class="prettyprint">
-           <code>TextMessage messageReceived = (TextMessage) messageConsumer.receive(5000);</code>
-        </pre>
-
-        <li>And finally, <b>always</b> remember to close your JMS connections and resources after use, in a <code>finally</code> block. Closing a JMS connection will automatically close all of its sessions, consumers, producer and browser objects</li>
-
-        <pre class="prettyprint">
-           <code>finally
-           {
-              if (initialContext != null)
-              {
-                initialContext.close();
-              }
-              if (connection != null)
-              {
-                 connection.close();
-              }
-           }</code>
-        </pre>
-     </ol>
-     
-     <hr>
-     
-     <ol>
-         <li><a id="fn1"/>The stores were generating using the following commands&nbsp;<a href="readme.html#fnr1">&#8617;</a>:
-             <ul>
-                 <li>create the keystore: <code>keytool -genkey -keystore activemq.example.keystore -storepass activemqexample</code></li>
-                 <li>export the certificate: <code>keytool -export -keystore activemq.example.keystore -file activemq.cer</code></li>
-                 <li>create the truststore: <code>keytool -import -file activemq.cer -keystore activemq.example.truststore -storepass activemqexample</code></li>
-            </ul>
-         </li>
-    </ol>
-         
   </body>
 </html>

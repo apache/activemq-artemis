@@ -563,7 +563,6 @@
             <module>integration/activemq-spring-integration</module>
             <module>integration/activemq-aerogear-integration</module>
             <module>integration/activemq-vertx-integration</module>
-            <module>examples</module>
             <module>tests</module>
             <module>artemis-distribution</module>
          </modules>

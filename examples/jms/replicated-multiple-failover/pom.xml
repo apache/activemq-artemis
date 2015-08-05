@@ -18,7 +18,8 @@ specific language governing permissions and limitations
 under the License.
 -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
    <modelVersion>4.0.0</modelVersion>
 
    <parent>
@@ -27,7 +28,7 @@ under the License.
       <version>1.0.1-SNAPSHOT</version>
    </parent>
 
-   <artifactId>artemis-jms-replicated-multiple-failover-example</artifactId>
+   <artifactId>replicated-multiple-failover</artifactId>
    <packaging>jar</packaging>
    <name>ActiveMQ Artemis JMS Replicated Multiple Failover Example</name>
 
@@ -42,79 +43,76 @@ under the License.
          <version>${project.version}</version>
       </dependency>
       <dependency>
-         <groupId>org.apache.geronimo.specs</groupId>
-         <artifactId>geronimo-jms_2.0_spec</artifactId>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-jms-client</artifactId>
+         <version>${project.version}</version>
       </dependency>
    </dependencies>
 
-   <profiles>
-      <profile>
-         <id>example</id>
-         <build>
-            <plugins>
-               <plugin>
-                  <groupId>org.apache.activemq</groupId>
-                  <artifactId>artemis-maven-plugin</artifactId>
-                  <executions>
-                     <execution>
-                        <id>create0</id>
-                        <goals>
-                           <goal>create</goal>
-                        </goals>
-                        <configuration>
-                           <instance>${basedir}/target/server0</instance>
-                           <configuration>${basedir}/target/classes/activemq/server0</configuration>
-                           <javaOptions>-Dudp-address=${udp-address}</javaOptions>
-                        </configuration>
-                     </execution>
-                     <execution>
-                        <id>create1</id>
-                        <goals>
-                           <goal>create</goal>
-                        </goals>
-                        <configuration>
-                           <instance>${basedir}/target/server1</instance>
-                           <configuration>${basedir}/target/classes/activemq/server1</configuration>
-                           <javaOptions>-Dudp-address=${udp-address}</javaOptions>
-                        </configuration>
-                     </execution>
-                     <execution>
-                        <id>create2</id>
-                        <goals>
-                           <goal>create</goal>
-                        </goals>
-                        <configuration>
-                           <instance>${basedir}/target/server2</instance>
-                           <configuration>${basedir}/target/classes/activemq/server2</configuration>
-                           <javaOptions>-Dudp-address=${udp-address}</javaOptions>
-                        </configuration>
-                     </execution>
-                     <execution>
-                        <id>runClient</id>
-                        <goals>
-                           <goal>runClient</goal>
-                        </goals>
-                        <configuration>
-                           <clientClass>org.apache.activemq.artemis.jms.example.ReplicatedMultipleFailoverExample</clientClass>
-                           <args>
-                              <param>${basedir}/target/server0</param>
-                              <param>${basedir}/target/server1</param>
-                              <param>${basedir}/target/server2</param>
-                           </args>
-                        </configuration>
-                     </execution>
-                  </executions>
-                  <dependencies>
-                     <dependency>
-                        <groupId>org.apache.activemq.examples.jms</groupId>
-                        <artifactId>artemis-jms-replicated-multiple-failover-example</artifactId>
-                        <version>${project.version}</version>
-                     </dependency>
-                  </dependencies>
-               </plugin>
-            </plugins>
-         </build>
-      </profile>
-   </profiles>
+   <build>
+      <plugins>
+         <plugin>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>artemis-maven-plugin</artifactId>
+            <executions>
+               <execution>
+                  <id>create0</id>
+                  <goals>
+                     <goal>create</goal>
+                  </goals>
+                  <configuration>
+                     <instance>${basedir}/target/server0</instance>
+                     <configuration>${basedir}/target/classes/activemq/server0</configuration>
+                     <javaOptions>-Dudp-address=${udp-address}</javaOptions>
+                  </configuration>
+               </execution>
+               <execution>
+                  <id>create1</id>
+                  <goals>
+                     <goal>create</goal>
+                  </goals>
+                  <configuration>
+                     <instance>${basedir}/target/server1</instance>
+                     <configuration>${basedir}/target/classes/activemq/server1</configuration>
+                     <javaOptions>-Dudp-address=${udp-address}</javaOptions>
+                  </configuration>
+               </execution>
+               <execution>
+                  <id>create2</id>
+                  <goals>
+                     <goal>create</goal>
+                  </goals>
+                  <configuration>
+                     <instance>${basedir}/target/server2</instance>
+                     <configuration>${basedir}/target/classes/activemq/server2</configuration>
+                     <javaOptions>-Dudp-address=${udp-address}</javaOptions>
+                  </configuration>
+               </execution>
+               <execution>
+                  <id>runClient</id>
+                  <goals>
+                     <goal>runClient</goal>
+                  </goals>
+                  <configuration>
+                     <clientClass>org.apache.activemq.artemis.jms.example.ReplicatedMultipleFailoverExample
+                     </clientClass>
+                     <args>
+                        <param>${basedir}/target/server0</param>
+                        <param>${basedir}/target/server1</param>
+                        <param>${basedir}/target/server2</param>
+                     </args>
+                  </configuration>
+               </execution>
+            </executions>
+            <dependencies>
+               <dependency>
+                  <groupId>org.apache.activemq.examples.jms</groupId>
+                  <artifactId>replicated-multiple-failover</artifactId>
+                  <version>${project.version}</version>
+               </dependency>
+            </dependencies>
+         </plugin>
+      </plugins>
+   </build>
 
 </project>
