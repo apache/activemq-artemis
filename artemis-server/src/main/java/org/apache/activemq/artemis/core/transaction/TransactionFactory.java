@@ -20,9 +20,6 @@ import org.apache.activemq.artemis.core.persistence.StorageManager;
 
 import javax.transaction.xa.Xid;
 
-/**
- * Created by andy on 22/07/14.
- */
 public interface TransactionFactory
 {
    Transaction newTransaction(Xid xid, StorageManager storageManager, int timeoutSeconds);

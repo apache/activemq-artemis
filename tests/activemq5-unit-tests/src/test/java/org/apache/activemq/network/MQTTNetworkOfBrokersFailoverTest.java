@@ -47,10 +47,6 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Created by ceposta
- * <a href="http://christianposta.com/blog>http://christianposta.com/blog</a>.
- */
 public class MQTTNetworkOfBrokersFailoverTest extends NetworkTestSupport {
 
     private static final Logger LOG = LoggerFactory.getLogger(MQTTNetworkOfBrokersFailoverTest.class);
