@@ -32,7 +32,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.command.ConnectionInfo;
-import org.apache.activemq.command.ConsumerId;
 import org.apache.activemq.command.ConsumerInfo;
 import org.apache.activemq.command.ExceptionResponse;
 import org.apache.activemq.command.Message;
@@ -69,12 +68,10 @@ public class AMQSession implements SessionCallback
    private SessionInfo sessInfo;
    private ActiveMQServer server;
    private OpenWireConnection connection;
-   //native id -> consumer
-   private Map<Long, AMQConsumer> consumers = new ConcurrentHashMap<Long, AMQConsumer>();
-   //amq id -> native id
-   private Map<Long, Long> consumerIdMap = new HashMap<Long, Long>();
 
-   private Map<Long, AMQProducer> producers = new HashMap<Long, AMQProducer>();
+   private Map<Long, AMQConsumer> consumers = new ConcurrentHashMap<>();
+
+   private Map<Long, AMQProducer> producers = new HashMap<>();
 
    private AtomicBoolean started = new AtomicBoolean(false);
 
@@ -82,15 +79,18 @@ public class AMQSession implements SessionCallback
 
    private boolean isTx;
 
+   private final ScheduledExecutorService scheduledPool;
+
    private OpenWireProtocolManager manager;
 
    public AMQSession(ConnectionInfo connInfo, SessionInfo sessInfo,
-         ActiveMQServer server, OpenWireConnection connection, OpenWireProtocolManager manager)
+                     ActiveMQServer server, OpenWireConnection connection, ScheduledExecutorService scheduledPool, OpenWireProtocolManager manager)
    {
       this.connInfo = connInfo;
       this.sessInfo = sessInfo;
       this.server = server;
       this.connection = connection;
+      this.scheduledPool = scheduledPool;
       this.manager = manager;
    }
 
@@ -123,7 +123,7 @@ public class AMQSession implements SessionCallback
 
    }
 
-   public void createConsumer(ConsumerInfo info) throws Exception
+   public void createConsumer(ConsumerInfo info, AMQSession amqSession) throws Exception
    {
       //check destination
       ActiveMQDestination dest = info.getDestination();
@@ -136,7 +136,7 @@ public class AMQSession implements SessionCallback
       {
          dests = new ActiveMQDestination[] {dest};
       }
-
+      Map<ActiveMQDestination, AMQConsumer> consumerMap = new HashMap<>();
       for (ActiveMQDestination d : dests)
       {
          if (d.isQueue())
@@ -144,11 +144,13 @@ public class AMQSession implements SessionCallback
             SimpleString queueName = OpenWireUtil.toCoreAddress(d);
             getCoreServer().getJMSQueueCreator().create(queueName);
          }
-         AMQConsumer consumer = new AMQConsumer(this, d, info);
+         AMQConsumer consumer = new AMQConsumer(this, d, info, scheduledPool);
          consumer.init();
+         consumerMap.put(d, consumer);
          consumers.put(consumer.getNativeId(), consumer);
-         this.consumerIdMap.put(info.getConsumerId().getValue(), consumer.getNativeId());
       }
+      connection.addConsumerBrokerExchange(info.getConsumerId(), amqSession, consumerMap);
+
       coreSession.start();
       started.set(true);
    }
@@ -214,7 +216,8 @@ public class AMQSession implements SessionCallback
    @Override
    public boolean hasCredits(ServerConsumer consumerID)
    {
-      return true;
+      AMQConsumer amqConsumer = consumers.get(consumerID.getID());
+      return amqConsumer.hasCredits();
    }
 
    @Override
@@ -234,19 +237,12 @@ public class AMQSession implements SessionCallback
       return this.server;
    }
 
-   public void removeConsumer(ConsumerInfo info) throws Exception
+   public void removeConsumer(long consumerId) throws Exception
    {
-      long consumerId = info.getConsumerId().getValue();
-      long nativeId = this.consumerIdMap.remove(consumerId);
-      if (this.txId != null || this.isTx)
-      {
-         ((AMQServerSession)coreSession).amqCloseConsumer(nativeId, false);
-      }
-      else
-      {
-         ((AMQServerSession)coreSession).amqCloseConsumer(nativeId, true);
-      }
-      AMQConsumer consumer = consumers.remove(nativeId);
+      boolean failed = !(this.txId != null || this.isTx);
+
+      coreSession.amqCloseConsumer(consumerId, failed);
+      consumers.remove(consumerId);
    }
 
    public void createProducer(ProducerInfo info) throws Exception
@@ -331,16 +327,13 @@ public class AMQSession implements SessionCallback
       return this.connection.getMarshaller();
    }
 
-   public void acknowledge(MessageAck ack) throws Exception
+   public void acknowledge(MessageAck ack, AMQConsumer consumer) throws Exception
    {
       TransactionId tid = ack.getTransactionId();
       if (tid != null)
       {
          this.resetSessionTx(ack.getTransactionId());
       }
-      ConsumerId consumerId = ack.getConsumerId();
-      long nativeConsumerId = consumerIdMap.get(consumerId.getValue());
-      AMQConsumer consumer = consumers.get(nativeConsumerId);
       consumer.acknowledge(ack);
 
       if (tid == null && ack.getAckType() == MessageAck.STANDARD_ACK_TYPE)

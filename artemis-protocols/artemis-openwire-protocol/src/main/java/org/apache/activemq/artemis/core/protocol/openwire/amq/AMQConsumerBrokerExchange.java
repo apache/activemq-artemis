@@ -16,12 +16,21 @@
  */
 package org.apache.activemq.artemis.core.protocol.openwire.amq;
 
-public class AMQConsumerBrokerExchange
+import org.apache.activemq.command.MessageAck;
+import org.apache.activemq.command.MessagePull;
+
+public abstract class AMQConsumerBrokerExchange
 {
+   protected final AMQSession amqSession;
    private AMQConnectionContext connectionContext;
    private AMQDestination regionDestination;
    private AMQSubscription subscription;
    private boolean wildcard;
+
+   public AMQConsumerBrokerExchange(AMQSession amqSession)
+   {
+      this.amqSession = amqSession;
+   }
 
    /**
     * @return the connectionContext
@@ -90,4 +99,10 @@ public class AMQConsumerBrokerExchange
    {
       this.wildcard = wildcard;
    }
+
+   public abstract void acknowledge(MessageAck ack) throws Exception;
+
+   public abstract void processMessagePull(MessagePull messagePull) throws Exception;
+
+   public abstract void removeConsumer() throws Exception;
 }

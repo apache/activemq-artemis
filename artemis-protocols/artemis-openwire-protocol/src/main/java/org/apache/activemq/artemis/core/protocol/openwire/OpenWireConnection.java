@@ -40,6 +40,9 @@ import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQNonExistentQueueException;
 import org.apache.activemq.artemis.api.core.ActiveMQSecurityException;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQCompositeConsumerBrokerExchange;
+import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQConsumer;
+import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQSingleConsumerBrokerExchange;
 import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.command.ActiveMQMessage;
 import org.apache.activemq.command.BrokerInfo;
@@ -77,14 +80,10 @@ import org.apache.activemq.command.WireFormatInfo;
 import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQBrokerStoppedException;
 import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQConnectionContext;
 import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQConsumerBrokerExchange;
-import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQMapTransportConnectionStateRegister;
 import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQMessageAuthorizationPolicy;
 import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQProducerBrokerExchange;
 import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQSession;
-import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQSingleTransportConnectionStateRegister;
 import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQTransaction;
-import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQTransportConnectionState;
-import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQTransportConnectionStateRegister;
 import org.apache.activemq.artemis.core.remoting.CloseListener;
 import org.apache.activemq.artemis.core.remoting.FailureListener;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
@@ -128,8 +127,6 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor
    private boolean dataReceived;
 
    private OpenWireFormat wireFormat;
-
-   private AMQTransportConnectionStateRegister connectionStateRegister = new AMQSingleTransportConnectionStateRegister();
 
    private boolean faultTolerantConnection;
 
@@ -175,11 +172,9 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor
    private final Map<ConsumerId, AMQConsumerBrokerExchange> consumerExchanges = new HashMap<ConsumerId, AMQConsumerBrokerExchange>();
    private final Map<ProducerId, AMQProducerBrokerExchange> producerExchanges = new HashMap<ProducerId, AMQProducerBrokerExchange>();
 
-   private AMQTransportConnectionState state;
+   private ConnectionState state;
 
    private final Set<String> tempQueues = new ConcurrentHashSet<String>();
-
-   protected final Map<ConnectionId, ConnectionState> brokerConnectionStates;
 
    private DataInputWrapper dataInput = new DataInputWrapper();
 
@@ -194,7 +189,6 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor
       this.transportConnection = connection;
       this.acceptorUsed = new AMQConnectorImpl(acceptorUsed);
       this.wireFormat = wf;
-      brokerConnectionStates = protocolManager.getConnectionStates();
       this.creationTime = System.currentTimeMillis();
    }
 
@@ -299,7 +293,6 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor
                      context.setDontSendReponse(false);
                      response = null;
                   }
-                  context = null;
                }
 
                if (response != null && !protocolManager.isStopping())
@@ -621,38 +614,16 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor
          info.setClientMaster(true);
       }
 
-      // Make sure 2 concurrent connections by the same ID only generate 1
-      // TransportConnectionState object.
-      synchronized (brokerConnectionStates)
-      {
-         state = (AMQTransportConnectionState) brokerConnectionStates.get(info
-               .getConnectionId());
-         if (state == null)
-         {
-            state = new AMQTransportConnectionState(info, this);
-            brokerConnectionStates.put(info.getConnectionId(), state);
-         }
-         state.incrementReference();
-      }
-      // If there are 2 concurrent connections for the same connection id,
-      // then last one in wins, we need to sync here
-      // to figure out the winner.
-      synchronized (state.getConnectionMutex())
-      {
-         if (state.getConnection() != this)
-         {
-            state.getConnection().disconnect(true);
-            state.setConnection(this);
-            state.reset(info);
-         }
-      }
+      state = new ConnectionState(info);
 
-      registerConnectionState(info.getConnectionId(), state);
+      context = new AMQConnectionContext();
+
+      state.reset(info);
+
 
       this.faultTolerantConnection = info.isFaultTolerant();
       // Setup the context.
       String clientId = info.getClientId();
-      context = new AMQConnectionContext();
       context.setBroker(protocolManager);
       context.setClientId(clientId);
       context.setClientMaster(info.isClientMaster());
@@ -671,8 +642,6 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor
       context.setReconnect(info.isFailoverReconnect());
       this.manageable = info.isManageable();
       context.setConnectionState(state);
-      state.setContext(context);
-      state.setConnection(this);
       if (info.getClientIp() == null)
       {
          info.setClientIp(getRemoteAddress());
@@ -684,12 +653,6 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor
       }
       catch (Exception e)
       {
-         synchronized (brokerConnectionStates)
-         {
-            brokerConnectionStates.remove(info.getConnectionId());
-         }
-         unregisterConnectionState(info.getConnectionId());
-
          if (e instanceof SecurityException)
          {
             // close this down - in case the peer of this transport doesn't play
@@ -926,28 +889,6 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor
       return this.messageAuthorizationPolicy;
    }
 
-   protected synchronized AMQTransportConnectionState unregisterConnectionState(
-         ConnectionId connectionId)
-   {
-      return connectionStateRegister.unregisterConnectionState(connectionId);
-   }
-
-   protected synchronized AMQTransportConnectionState registerConnectionState(
-         ConnectionId connectionId, AMQTransportConnectionState state)
-   {
-      AMQTransportConnectionState cs = null;
-      if (!connectionStateRegister.isEmpty()
-            && !connectionStateRegister.doesHandleMultipleConnectionStates())
-      {
-         // swap implementations
-         AMQTransportConnectionStateRegister newRegister = new AMQMapTransportConnectionStateRegister();
-         newRegister.intialize(connectionStateRegister);
-         connectionStateRegister = newRegister;
-      }
-      cs = connectionStateRegister.registerConnectionState(connectionId, state);
-      return cs;
-   }
-
    public void delayedStop(final int waitTime, final String reason,
          Throwable cause)
    {
@@ -997,16 +938,9 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor
       }
       if (stopping.compareAndSet(false, true))
       {
-         // Let all the connection contexts know we are shutting down
-         // so that in progress operations can notice and unblock.
-         List<AMQTransportConnectionState> connectionStates = listConnectionStates();
-         for (AMQTransportConnectionState cs : connectionStates)
+         if (context != null)
          {
-            AMQConnectionContext connectionContext = cs.getContext();
-            if (connectionContext != null)
-            {
-               connectionContext.getStopping().set(true);
-            }
+            context.getStopping().set(true);
          }
          try
          {
@@ -1038,11 +972,6 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor
             stopped.countDown();
          }
       }
-   }
-
-   protected synchronized List<AMQTransportConnectionState> listConnectionStates()
-   {
-      return connectionStateRegister.listConnectionStates();
    }
 
    protected void doStop() throws Exception
@@ -1095,19 +1024,14 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor
       // from the broker.
       if (!protocolManager.isStopped())
       {
-         List<AMQTransportConnectionState> connectionStates = listConnectionStates();
-         connectionStates = listConnectionStates();
-         for (AMQTransportConnectionState cs : connectionStates)
+         context.getStopping().set(true);
+         try
          {
-            cs.getContext().getStopping().set(true);
-            try
-            {
-               processRemoveConnection(cs.getInfo().getConnectionId(), 0L);
-            }
-            catch (Throwable ignore)
-            {
-               ignore.printStackTrace();
-            }
+            processRemoveConnection(state.getInfo().getConnectionId(), 0L);
+         }
+         catch (Throwable ignore)
+         {
+            ignore.printStackTrace();
          }
       }
    }
@@ -1134,16 +1058,21 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor
       return resp;
    }
 
-   AMQConsumerBrokerExchange addConsumerBrokerExchange(ConsumerId id)
+   public void addConsumerBrokerExchange(ConsumerId id, AMQSession amqSession, Map<ActiveMQDestination, AMQConsumer> consumerMap)
    {
       AMQConsumerBrokerExchange result = consumerExchanges.get(id);
       if (result == null)
       {
+         if (consumerMap.size() == 1)
+         {
+            result = new AMQSingleConsumerBrokerExchange(amqSession, consumerMap.values().iterator().next());
+         }
+         else
+         {
+            result = new AMQCompositeConsumerBrokerExchange(amqSession, consumerMap);
+         }
          synchronized (consumerExchanges)
          {
-            result = new AMQConsumerBrokerExchange();
-            AMQTransportConnectionState state = lookupConnectionState(id);
-            context = state.getContext();
             result.setConnectionContext(context);
             SessionState ss = state.getSessionState(id.getParentId());
             if (ss != null)
@@ -1165,61 +1094,34 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor
             consumerExchanges.put(id, result);
          }
       }
-      return result;
    }
 
-   protected synchronized AMQTransportConnectionState lookupConnectionState(
-         ConsumerId id)
-   {
-      return connectionStateRegister.lookupConnectionState(id);
-   }
-
-   protected synchronized AMQTransportConnectionState lookupConnectionState(
-         ProducerId id)
-   {
-      return connectionStateRegister.lookupConnectionState(id);
-   }
-
-   public int getConsumerCount(ConnectionId connectionId)
+   public int getConsumerCount()
    {
       int result = 0;
-      AMQTransportConnectionState cs = lookupConnectionState(connectionId);
-      if (cs != null)
+      for (SessionId sessionId : state.getSessionIds())
       {
-         for (SessionId sessionId : cs.getSessionIds())
+         SessionState sessionState = state.getSessionState(sessionId);
+         if (sessionState != null)
          {
-            SessionState sessionState = cs.getSessionState(sessionId);
-            if (sessionState != null)
-            {
-               result += sessionState.getConsumerIds().size();
-            }
+            result += sessionState.getConsumerIds().size();
          }
       }
       return result;
    }
 
-   public int getProducerCount(ConnectionId connectionId)
+   public int getProducerCount()
    {
       int result = 0;
-      AMQTransportConnectionState cs = lookupConnectionState(connectionId);
-      if (cs != null)
+      for (SessionId sessionId : state.getSessionIds())
       {
-         for (SessionId sessionId : cs.getSessionIds())
+         SessionState sessionState = state.getSessionState(sessionId);
+         if (sessionState != null)
          {
-            SessionState sessionState = cs.getSessionState(sessionId);
-            if (sessionState != null)
-            {
-               result += sessionState.getProducerIds().size();
-            }
+            result += sessionState.getProducerIds().size();
          }
       }
       return result;
-   }
-
-   public synchronized AMQTransportConnectionState lookupConnectionState(
-         ConnectionId connectionId)
-   {
-      return connectionStateRegister.lookupConnectionState(connectionId);
    }
 
    @Override
@@ -1273,20 +1175,18 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor
    @Override
    public Response processAddSession(SessionInfo info) throws Exception
    {
-      ConnectionId connectionId = info.getSessionId().getParentId();
-      AMQTransportConnectionState cs = lookupConnectionState(connectionId);
       // Avoid replaying dup commands
-      if (cs != null && !cs.getSessionIds().contains(info.getSessionId()))
+      if (!state.getSessionIds().contains(info.getSessionId()))
       {
          protocolManager.addSession(this, info);
          try
          {
-            cs.addSession(info);
+            state.addSession(info);
          }
          catch (IllegalStateException e)
          {
             e.printStackTrace();
-            protocolManager.removeSession(cs.getContext(), info);
+            protocolManager.removeSession(context, info);
          }
       }
       return null;
@@ -1422,10 +1322,6 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor
                   //in that case don't send the response
                   //this will force the client to wait until
                   //the response is got.
-                  if (context == null)
-                  {
-                     this.context = new AMQConnectionContext();
-                  }
                   context.setDontSendReponse(true);
                }
                else
@@ -1463,9 +1359,8 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor
          synchronized (producerExchanges)
          {
             result = new AMQProducerBrokerExchange();
-            AMQTransportConnectionState state = lookupConnectionState(id);
-            context = state.getContext();
             result.setConnectionContext(context);
+            //todo implement reconnect https://issues.apache.org/jira/browse/ARTEMIS-194
             if (context.isReconnect()
                   || (context.isNetworkConnection() && this.acceptorUsed
                         .isAuditNetworkProducers()))
@@ -1490,20 +1385,14 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor
             producerExchanges.put(id, result);
          }
       }
-      else
-      {
-         context = result.getConnectionContext();
-      }
       return result;
    }
 
    @Override
    public Response processMessageAck(MessageAck ack) throws Exception
    {
-      ConsumerId consumerId = ack.getConsumerId();
-      SessionId sessionId = consumerId.getParentId();
-      AMQSession session = protocolManager.getSession(sessionId);
-      session.acknowledge(ack);
+      AMQConsumerBrokerExchange consumerBrokerExchange = consumerExchanges.get(ack.getConsumerId());
+      consumerBrokerExchange.acknowledge(ack);
       return null;
    }
 
@@ -1523,7 +1412,13 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor
    @Override
    public Response processMessagePull(MessagePull arg0) throws Exception
    {
-      throw new IllegalStateException("not implemented! ");
+      AMQConsumerBrokerExchange amqConsumerBrokerExchange = consumerExchanges.get(arg0.getConsumerId());
+      if (amqConsumerBrokerExchange == null)
+      {
+         throw new IllegalStateException("Consumer does not exist");
+      }
+      amqConsumerBrokerExchange.processMessagePull(arg0);
+      return null;
    }
 
    @Override
@@ -1542,8 +1437,7 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor
    @Override
    public Response processRecoverTransactions(TransactionInfo info) throws Exception
    {
-      AMQTransportConnectionState cs = lookupConnectionState(info.getConnectionId());
-      Set<SessionId> sIds = cs.getSessionIds();
+      Set<SessionId> sIds = state.getSessionIds();
       TransactionId[] recovered = protocolManager.recoverTransactions(sIds);
       return new DataArrayResponse(recovered);
    }
@@ -1552,47 +1446,30 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor
    public Response processRemoveConnection(ConnectionId id,
          long lastDeliveredSequenceId) throws Exception
    {
-      AMQTransportConnectionState cs = lookupConnectionState(id);
-      if (cs != null)
+      // Don't allow things to be added to the connection state while we
+      // are shutting down.
+      state.shutdown();
+      // Cascade the connection stop to the sessions.
+      for (SessionId sessionId : state.getSessionIds())
       {
-         // Don't allow things to be added to the connection state while we
-         // are shutting down.
-         cs.shutdown();
-         // Cascade the connection stop to the sessions.
-         for (SessionId sessionId : cs.getSessionIds())
-         {
-            try
-            {
-               processRemoveSession(sessionId, lastDeliveredSequenceId);
-            }
-            catch (Throwable e)
-            {
-               // LOG
-            }
-         }
-
          try
          {
-            protocolManager.removeConnection(cs.getContext(), cs.getInfo(),
-                  null);
+            processRemoveSession(sessionId, lastDeliveredSequenceId);
          }
          catch (Throwable e)
          {
-            // log
+            // LOG
          }
-         AMQTransportConnectionState state = unregisterConnectionState(id);
-         if (state != null)
-         {
-            synchronized (brokerConnectionStates)
-            {
-               // If we are the last reference, we should remove the state
-               // from the broker.
-               if (state.decrementReference() == 0)
-               {
-                  brokerConnectionStates.remove(id);
-               }
-            }
-         }
+      }
+
+      try
+      {
+         protocolManager.removeConnection(context, state.getInfo(),
+               null);
+      }
+      catch (Throwable e)
+      {
+         // log
       }
       return null;
    }
@@ -1602,15 +1479,7 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor
          long lastDeliveredSequenceId) throws Exception
    {
       SessionId sessionId = id.getParentId();
-      ConnectionId connectionId = sessionId.getParentId();
-      AMQTransportConnectionState cs = lookupConnectionState(connectionId);
-      if (cs == null)
-      {
-         throw new IllegalStateException(
-               "Cannot remove a consumer from a connection that had not been registered: "
-                     + connectionId);
-      }
-      SessionState ss = cs.getSessionState(sessionId);
+      SessionState ss = state.getSessionState(sessionId);
       if (ss == null)
       {
          throw new IllegalStateException(
@@ -1625,8 +1494,13 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor
       }
       ConsumerInfo info = consumerState.getInfo();
       info.setLastDeliveredSequenceId(lastDeliveredSequenceId);
-      protocolManager.removeConsumer(cs.getContext(), consumerState.getInfo());
+
+      AMQConsumerBrokerExchange consumerBrokerExchange = consumerExchanges.get(id);
+
+      consumerBrokerExchange.removeConsumer();
+
       removeConsumerBrokerExchange(id);
+
       return null;
    }
 
@@ -1661,15 +1535,7 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor
    public Response processRemoveSession(SessionId id,
          long lastDeliveredSequenceId) throws Exception
    {
-      ConnectionId connectionId = id.getParentId();
-      AMQTransportConnectionState cs = lookupConnectionState(connectionId);
-      if (cs == null)
-      {
-         throw new IllegalStateException(
-               "Cannot remove session from connection that had not been registered: "
-                     + connectionId);
-      }
-      SessionState session = cs.getSessionState(id);
+      SessionState session = state.getSessionState(id);
       if (session == null)
       {
          throw new IllegalStateException(
@@ -1701,8 +1567,8 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor
             // LOG.warn("Failed to remove producer: {}", producerId, e);
          }
       }
-      cs.removeSession(id);
-      protocolManager.removeSession(cs.getContext(), session.getInfo());
+      state.removeSession(id);
+      protocolManager.removeSession(context, session.getInfo());
       return null;
    }
 
@@ -1790,7 +1656,7 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor
 
    public AMQConnectionContext getConext()
    {
-      return this.state.getContext();
+      return this.context;
    }
 
 }

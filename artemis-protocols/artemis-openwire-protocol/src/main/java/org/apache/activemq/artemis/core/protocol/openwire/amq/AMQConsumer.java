@@ -21,13 +21,19 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.activemq.artemis.core.client.impl.ClientConsumerImpl;
 import org.apache.activemq.command.ConsumerId;
 import org.apache.activemq.command.ConsumerInfo;
 import org.apache.activemq.command.MessageAck;
 import org.apache.activemq.command.MessageDispatch;
 import org.apache.activemq.command.MessageId;
+import org.apache.activemq.command.MessagePull;
 import org.apache.activemq.command.TransactionId;
 import org.apache.activemq.wireformat.WireFormat;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -42,20 +48,28 @@ public class AMQConsumer implements BrowserListener
    private AMQSession session;
    private org.apache.activemq.command.ActiveMQDestination actualDest;
    private ConsumerInfo info;
+   private final ScheduledExecutorService scheduledPool;
    private long nativeId = -1;
    private SimpleString subQueueName = null;
 
    private final int prefetchSize;
-   private AtomicInteger currentSize;
+   private AtomicInteger windowAvailable;
    private final java.util.Queue<MessageInfo> deliveringRefs = new ConcurrentLinkedQueue<MessageInfo>();
+   private long messagePullSequence = 0;
+   private MessagePullHandler messagePullHandler;
 
-   public AMQConsumer(AMQSession amqSession, org.apache.activemq.command.ActiveMQDestination d, ConsumerInfo info)
+   public AMQConsumer(AMQSession amqSession, org.apache.activemq.command.ActiveMQDestination d, ConsumerInfo info, ScheduledExecutorService scheduledPool)
    {
       this.session = amqSession;
       this.actualDest = d;
       this.info = info;
+      this.scheduledPool = scheduledPool;
       this.prefetchSize = info.getPrefetchSize();
-      this.currentSize = new AtomicInteger(0);
+      this.windowAvailable = new AtomicInteger(prefetchSize);
+      if (prefetchSize == 0)
+      {
+         messagePullHandler = new MessagePullHandler();
+      }
    }
 
    public void init() throws Exception
@@ -130,12 +144,12 @@ public class AMQConsumer implements BrowserListener
             coreSession.createQueue(address, subQueueName, selector, true, false);
          }
 
-         coreSession.createConsumer(nativeId, subQueueName, null, info.isBrowser(), false, Integer.MAX_VALUE);
+         coreSession.createConsumer(nativeId, subQueueName, null, info.isBrowser(), false, -1);
       }
       else
       {
          SimpleString queueName = new SimpleString("jms.queue." + this.actualDest.getPhysicalName());
-         coreSession.createConsumer(nativeId, queueName, selector, info.isBrowser(), false, Integer.MAX_VALUE);
+         coreSession.createConsumer(nativeId, queueName, selector, info.isBrowser(), false, -1);
       }
 
       if (info.isBrowser())
@@ -163,23 +177,14 @@ public class AMQConsumer implements BrowserListener
 
    public void acquireCredit(int n) throws Exception
    {
-      this.currentSize.addAndGet(-n);
-      if (currentSize.get() < prefetchSize)
+      boolean promptDelivery = windowAvailable.get() == 0;
+      if (windowAvailable.get() < prefetchSize)
       {
-         AtomicInteger credits = session.getCoreSession().getConsumerCredits(nativeId);
-         credits.set(0);
-         session.getCoreSession().receiveConsumerCredits(nativeId, Integer.MAX_VALUE);
+         this.windowAvailable.addAndGet(n);
       }
-   }
-
-   public void checkCreditOnDelivery() throws Exception
-   {
-      this.currentSize.incrementAndGet();
-
-      if (currentSize.get() == prefetchSize)
+      if (promptDelivery)
       {
-         //stop because reach prefetchSize
-         session.getCoreSession().receiveConsumerCredits(nativeId, 0);
+         session.getCoreSession().promptDelivery(nativeId);
       }
    }
 
@@ -188,12 +193,16 @@ public class AMQConsumer implements BrowserListener
       MessageDispatch dispatch;
       try
       {
+         if (messagePullHandler != null && !messagePullHandler.checkForcedConsumer(message))
+         {
+            return 0;
+         }
          //decrement deliveryCount as AMQ client tends to add 1.
          dispatch = OpenWireMessageConverter.createMessageDispatch(message, deliveryCount - 1, this);
          int size = dispatch.getMessage().getSize();
          this.deliveringRefs.add(new MessageInfo(dispatch.getMessage().getMessageId(), message.getMessageID(), size));
          session.deliverMessage(dispatch);
-         checkCreditOnDelivery();
+         windowAvailable.decrementAndGet();
          return size;
       }
       catch (IOException e)
@@ -205,6 +214,16 @@ public class AMQConsumer implements BrowserListener
          return 0;
       }
    }
+
+   public void handleDeliverNullDispatch()
+   {
+      MessageDispatch md = new MessageDispatch();
+      md.setConsumerId(getId());
+      md.setDestination(actualDest);
+      session.deliverMessage(md);
+      windowAvailable.decrementAndGet();
+   }
+
 
    public void acknowledge(MessageAck ack) throws Exception
    {
@@ -399,5 +418,91 @@ public class AMQConsumer implements BrowserListener
    public ConsumerInfo getInfo()
    {
       return info;
+   }
+
+   public boolean hasCredits()
+   {
+      return windowAvailable.get() > 0;
+   }
+
+   public void processMessagePull(MessagePull messagePull) throws Exception
+   {
+      windowAvailable.incrementAndGet();
+
+      if (messagePullHandler != null)
+      {
+         messagePullHandler.nextSequence(messagePullSequence++, messagePull.getTimeout());
+      }
+   }
+
+   public void removeConsumer() throws Exception
+   {
+      session.removeConsumer(nativeId);
+   }
+
+   private class MessagePullHandler
+   {
+      private long next = -1;
+      private long timeout;
+      private CountDownLatch latch = new CountDownLatch(1);
+      private ScheduledFuture<?> messagePullFuture;
+
+      public void nextSequence(long next, long timeout) throws Exception
+      {
+         this.next = next;
+         this.timeout = timeout;
+         latch = new CountDownLatch(1);
+         session.getCoreSession().forceConsumerDelivery(nativeId, messagePullSequence);
+         //if we are 0 timeout or less we need to wait to get either the forced message or a real message.
+         if (timeout <= 0)
+         {
+            latch.await(10, TimeUnit.SECONDS);
+            //this means we have received no message just the forced delivery message
+            if (this.next >= 0)
+            {
+               handleDeliverNullDispatch();
+            }
+         }
+      }
+
+      public boolean checkForcedConsumer(ServerMessage message)
+      {
+         if (message.containsProperty(ClientConsumerImpl.FORCED_DELIVERY_MESSAGE))
+         {
+            System.out.println("MessagePullHandler.checkForcedConsumer");
+            if (next >= 0)
+            {
+               if (timeout <= 0)
+               {
+                  latch.countDown();
+               }
+               else
+               {
+                  messagePullFuture = scheduledPool.schedule(new Runnable()
+                  {
+                     @Override
+                     public void run()
+                     {
+                        if (next >= 0)
+                        {
+                           handleDeliverNullDispatch();
+                        }
+                     }
+                  }, timeout, TimeUnit.MILLISECONDS);
+               }
+            }
+            return false;
+         }
+         else
+         {
+            next = -1;
+            if (messagePullFuture != null)
+            {
+               messagePullFuture.cancel(true);
+            }
+            latch.countDown();
+            return true;
+         }
+      }
    }
 }

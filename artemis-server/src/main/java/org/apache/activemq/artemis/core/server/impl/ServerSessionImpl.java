@@ -788,6 +788,18 @@ public class ServerSessionImpl implements ServerSession, FailureListener
       }
    }
 
+
+   public void promptDelivery(long consumerID)
+   {
+      ServerConsumer consumer = consumers.get(consumerID);
+
+      // this would be possible if the server consumer was closed by pings/pongs.. etc
+      if (consumer != null)
+      {
+         consumer.promptDelivery();
+      }
+   }
+
    public void acknowledge(final long consumerID, final long messageID) throws Exception
    {
       ServerConsumer consumer = consumers.get(consumerID);
