@@ -565,7 +565,7 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
       catch (Throwable dontCare) {
       }
 
-      if (scaleDownTargetNodeID != null && !scaleDownTargetNodeID.equals(nodeUUID)) {
+      if (scaleDownTargetNodeID != null && !scaleDownTargetNodeID.equals(nodeUUID.toString())) {
          synchronized (this) {
             try {
                ActiveMQServerLogger.LOGGER.debug("Moving " + queue.getMessageCount() + " messages from " + queue.getName() + " to " + scaleDownTargetNodeID);
