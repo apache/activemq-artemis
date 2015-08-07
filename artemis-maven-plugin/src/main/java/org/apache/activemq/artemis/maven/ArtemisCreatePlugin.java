@@ -28,7 +28,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.activemq.artemis.cli.Artemis;
-import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.descriptor.PluginDescriptor;
@@ -47,7 +46,7 @@ import org.eclipse.aether.resolution.ArtifactResolutionException;
 import org.eclipse.aether.resolution.ArtifactResult;
 
 @Mojo(name = "create", defaultPhase = LifecyclePhase.VERIFY)
-public class ActiveMQCreatePlugin extends AbstractMojo
+public class ArtemisCreatePlugin extends ArtemisAbstractPlugin
 
 {
 
@@ -59,6 +58,7 @@ public class ActiveMQCreatePlugin extends AbstractMojo
     */
    private PluginDescriptor descriptor;
 
+   /** Directory to replace the configuration with */
    @Parameter(defaultValue = "${basedir}/target/classes/activemq/server0", required = true)
    private File configuration;
 
@@ -98,7 +98,7 @@ public class ActiveMQCreatePlugin extends AbstractMojo
    @Parameter(defaultValue = "false")
    private boolean sharedStore;
 
-   @Parameter(defaultValue = "true")
+   @Parameter(defaultValue = "false")
    private boolean clustered;
 
    @Parameter(defaultValue = "false")
@@ -109,6 +109,10 @@ public class ActiveMQCreatePlugin extends AbstractMojo
 
    @Parameter(defaultValue = "false")
    private boolean failoverOnShutdown;
+
+   /** it will disable auto-tune*/
+   @Parameter(defaultValue = "true")
+   private boolean noAutoTune;
 
    @Parameter(defaultValue = "ON_DEMAND")
    private String messageLoadBalancing;
@@ -121,6 +125,13 @@ public class ActiveMQCreatePlugin extends AbstractMojo
 
    @Parameter(defaultValue = "${project.remoteProjectRepositories}")
    private List<RemoteRepository> remoteRepos;
+
+   /**
+    * For extra stuff not covered by the properties
+    */
+   @Parameter
+   ArrayList<String> args = new ArrayList<>();
+
 
 
    @Parameter
@@ -166,7 +177,8 @@ public class ActiveMQCreatePlugin extends AbstractMojo
       }
    }
 
-   public void execute() throws MojoExecutionException, MojoFailureException
+   @Override
+   protected void doExecute() throws MojoExecutionException, MojoFailureException
    {
       if (System.getProperty("bypassAddress") != null)
       {
@@ -205,7 +217,8 @@ public class ActiveMQCreatePlugin extends AbstractMojo
       }
 
       ArrayList<String> listCommands = new ArrayList<>();
-      add(listCommands, "create", "--allow-anonymous", "--silent-input", "--force", "--no-web", "--user", user, "--password", password,
+
+      add(listCommands, "create", "--allow-anonymous", "--silent", "--force", "--no-web", "--user", user, "--password", password,
                         "--role", role,
                         "--port-offset", "" + portOffset,
                         "--data", dataFolder);
@@ -250,37 +263,45 @@ public class ActiveMQCreatePlugin extends AbstractMojo
          add(listCommands, "--failover-on-shutdown");
       }
 
-      add(listCommands, "--no-autotune");
+      if (noAutoTune)
+      {
+         add(listCommands, "--no-autotune");
+      }
+
       add(listCommands, "--verbose");
+
+      for (String str : args)
+      {
+         add(listCommands, str);
+      }
 
       add(listCommands, instance.getAbsolutePath());
 
-      getLog().info("************************************************");
-      getLog().info("Calling create server at " + instance + " home= " + home);
+      getLog().debug("***** Server created at " + instance + " with home=" + home + " *****");
 
       try
       {
          Artemis.execute(home, null, listCommands);
 
-         String[] list = configuration.list();
-
-         if (list != null)
+         if (configuration != null)
          {
-            getLog().debug("************************************************");
-            getLog().debug("Replacing configuration files:");
+            String[] list = configuration.list();
 
-            for (String file : configuration.list())
+            if (list != null)
             {
-               Path target = instance.toPath().resolve("etc").resolve(file);
-               getLog().debug("Replacing " + file + " into " + target);
+               getLog().debug("************************************************");
+               getLog().debug("Replacing configuration files:");
+
+               for (String file : configuration.list())
+               {
+                  Path target = instance.toPath().resolve("etc").resolve(file);
+                  getLog().debug("Replacing " + file + " into " + target);
 
 
-               Files.copy(configuration.toPath().resolve(file), target, StandardCopyOption.REPLACE_EXISTING);
+                  Files.copy(configuration.toPath().resolve(file), target, StandardCopyOption.REPLACE_EXISTING);
+               }
             }
          }
-
-         File projectLib = project.getArtifact().getFile();
-         copyToLib(projectLib);
 
          if (libList != null)
          {

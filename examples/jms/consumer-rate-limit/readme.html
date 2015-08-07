@@ -26,6 +26,7 @@ under the License.
   </head>
   <body onload="prettyPrint()">
      <h1>JMS Message Consumer Rate Limiting</h1>
+     <pre>To run the example, simply type <b>mvn verify</b> from this directory, <br>or <b>mvn -PnoServer verify</b> if you want to start and create the server manually.</pre>
 
      <p>With ActiveMQ Artemis you can specify a maximum consume rate at which a JMS MessageConsumer will consume messages.
      This can be specified when creating or configuring the connection factory. See <code>jndi.properties</code>.</p>
@@ -42,131 +43,5 @@ connectionFactory.ConnectionFactory=tcp://localhost:61616?consumerMaxRate=10
      <p>We then simply consume as many messages as we can in 10 seconds and note how many messages are actually consumed.</p>
      <p>We note that the number of messages consumed per second never exceeds the specified value of <code>10</code> messages per second.</p>
 
-     <p><i>To run the example, simply type <code>mvn verify -Pexample</code> from this directory</i></p>
-
-     <ol>
-        <li>Create an initial context to perform the JNDI lookup.</li>
-        <pre class="prettyprint">
-           <code>initialContext = getContext(0);</code>
-        </pre>
-
-        <li>Perfom a lookup on the queue</li>
-        <pre class="prettyprint">
-           <code>Queue queue = (Queue)initialContext.lookup("/queue/exampleQueue");</code>
-        </pre>
-
-        <li>Perform a lookup on the Connection Factory</li>
-        <pre class="prettyprint">
-           <code>ConnectionFactory cf = (ConnectionFactory)initialContext.lookup("/ConnectionFactory");</code>
-        </pre>
-
-        <li>Create a JMS Connection</li>
-        <pre class="prettyprint">
-           <code>connection = cf.createConnection();</code>
-        </pre>
-
-        <li>Create a JMS Session</li>
-        <pre class="prettyprint">
-           <code>Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);</code>
-        </pre>
-
-        <li>Create a JMS MessageProducer</li>
-        <pre class="prettyprint">
-          <code>MessageProducer producer = session.createProducer(queue);</code>
-        </pre>
-
-        <li>Create a JMS MessageConsumer</li>
-        <pre class="prettyprint">
-           <code>MessageConsumer consumer = session.createConsumer(queue);</code>
-        </pre>
-
-        <li>Start the connection</li>
-
-        <pre class="prettyprint">
-           <code>
-     connection.start();
-           </code>
-        </pre>
-
-
-        <li>Send a bunch of messages</li>
-        <pre class="prettyprint">
-           <code>
-     final int numMessages = 150;
-
-     for (int i = 0; i < numMessages; i++)
-     {
-        TextMessage message = session.createTextMessage("This is text message: " + i);
-
-        producer.send(message);
-     }
-           </code>
-        </pre>
-
-        <li>Consume as many messages as we can in 10 seconds</li>
-
-        <pre class="prettyprint">
-           <code>
-   final long duration = 10000;
-
-   int i = 0;
-
-   long start = System.currentTimeMillis();
-
-   while (System.currentTimeMillis() - start <= duration)
-   {
-      TextMessage message = (TextMessage)consumer.receive(2000);
-
-      if (message == null)
-      {
-         return false;
-      }
-
-      i++;
-   }
-
-   long end = System.currentTimeMillis();
-
-   double rate = 1000 * (double)i / (end - start);
-
-   System.out.println("We consumed " + i + " messages in " + (end - start) + " milliseconds");
-
-   System.out.println("Actual consume rate was " + rate + " messages per second");
-           </code>
-        </pre>
-
-        <li>This should produce output something like:</li>
-
-        <pre class="prettyprint">
-           <code>
-    [java] Sent messages
-    [java] Will now try and consume as many as we can in 10 seconds ...
-    [java] We consumed 100 messages in 10001 milliseconds
-    [java] Actual consume rate was 9.99900009999 messages per second
-
-           </code>
-        </pre>
-
-        <li>Be sure to close our resources!</li>
-
-        <pre class="prettyprint">
-           <code>
-           finally
-           {
-              if (initialContext != null)
-              {
-                initialContext.close();
-              }
-
-              if (connection != null)
-              {
-                 connection.close();
-              }
-           }</code>
-        </pre>
-
-
-
-     </ol>
   </body>
 </html>

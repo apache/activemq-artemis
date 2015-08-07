@@ -26,88 +26,12 @@ under the License.
   </head>
   <body onload="prettyPrint()">
      <h1>Client Side Kickoff Example</h1>
+     <pre>To run the example, simply type <b>mvn verify</b> from this directory. This example will always spawn and stop multiple servers.</pre>
 
      <p>This example demonstrates how you can listen on failover event on the client side.</p>
 
      <p>In this example there are two nodes running in a cluster, both server will be running for start,
         but after a while the first server will crash. This will trigger a fail-over event.</p>
-         
-     <h2>Example step-by-step</h2>
-     <p><em>To run the example, simply type <code>mvn verify -Pexample</code> from this directory</em></p>
-     <ol>
-        <li>First we need to get an initial context so we can look-up the JMS connection factory and destination objects from JNDI. This initial context will get its properties from <a href="src/main/resources/activemq/server0/client-jndi.properties">client-jndi.properties</a></li>
-        <pre class="prettyprint">
-            <code>InitialContext initialContext = getContext(0);</code>
-        </pre>
 
-        <li>We look up the JMS Queue object from JNDI</li>
-        <pre class="prettyprint">
-            <code>Queue queue = (Queue)initialContext.lookup("/queue/exampleQueue");</code>
-        </pre>
-
-        <li>We look up a JMS Connection Factory object from JNDI on server 0</li>
-        <pre class="prettyprint">
-            <code>ConnectionFactory connectionFactory = (ConnectionFactory)initialContext.lookup("/ConnectionFactory");</code>
-        </pre>
-        
-        <li>We create a JMS connection from the same connection factory, wait a little while to make sure broadcasts from all nodes have reached the client</li>
-        <pre class="prettyprint">
-            <code>
-            Thread.sleep(5000);
-            connectionA = connectionFactory.createConnection();
-            ((ActiveMQConnection)connectionA).setFailoverListener(new FailoverListenerImpl());
-			</code>
-        </pre>
-
-        <li>We create JMS Sessions</li>
-        <pre class="prettyprint">
-            <code>Session sessionA = connectionA.createSession(false, Session.AUTO_ACKNOWLEDGE);</code>
-       </pre>
-
-        <li>We create JMS MessageProducer objects on the sessions</li>
-        <pre class="prettyprint">
-            <code>MessageProducer producerA = sessionA.createProducer(queue);</code>
-        </pre>
-
-        <li>We send some messages on each producer</li>
-        <pre class="prettyprint">
-            <code>
-            final int numMessages = 10;
-
-            for (int i = 0; i < numMessages; i++)
-            {
-               TextMessage messageA = sessionA.createTextMessage("A:This is text message " + i);
-               producerA.send(messageA);
-               System.out.println("Sent message: " + messageA.getText());
-            }
-		 </code>
-        </pre>
-            
-        <li>We start the connection to consume messages</li>
-        <pre class="prettyprint">
-              <code>connectionA.start();</code>
-        </pre>
-
-        <li>We consume messages from the session A, one at a time. We reached message no 5 the first server will crash</li>
-        <pre class="prettyprint">
-            <code>consume(sessionA, queue, numMessages, "A");</code>
-        </pre>
-        
-        <li>And finally, <b>always</b> remember to close your JMS connections and resources after use, in a <code>finally</code> block. Closing a JMS connection will automatically close all of its sessions, consumers, producer and browser objects</li>
-
-        <pre class="prettyprint">
-           <code>
-           if (connectionA != null)
-           {
-              connectionA.close();
-           }
-
-           if (initialContext != null)
-           {
-              initialContext.close();
-           }
-		 </code>
-        </pre>
-     </ol>
   </body>
 </html>

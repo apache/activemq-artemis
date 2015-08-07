@@ -27,17 +27,19 @@ under the License.
   <body onload="prettyPrint()">
      <h1>Paging Example</h1>
 
+     <pre>To run the example, simply type <b>mvn verify</b> from this directory, <br>or <b>mvn -PnoServer verify</b> if you want to start and create the server manually.</pre>
+
+
      <p>This example shows how ActiveMQ Artemis would avoid running out of memory resources by paging messages.</p>
      <p>A maxSize can be specified per Destination via the destinations settings configuration file (broker.xml).</p>
      <p>When messages routed to an address exceed the specified maxSize the server will begin to write messages to the file
      system, this is called paging. This will continue to occur until messages have been delivered to consumers and subsequently
      acknowledged freeing up memory. Messages will then be read from the file system , i.e. depaged, and routed as normal. </p>
      <p>Acknowledgement plays an important factor on paging as messages will stay on the file system until the memory is released
-     so it is important to make sure that the client acknowledges its messages.</p> 
+     so it is important to make sure that the client acknowledges its messages.</p>
 
 
      <h2>Example step-by-step</h2>
-     <p><i>To run the example, simply type <code>mvn verify -Pexample</code> from this directory</i></p>
 
      <ol>
         <li>First we need to get an initial context so we can look-up the JMS connection factory and destination objects from JNDI. This initial context will get it's properties from the <code>client-jndi.properties</code> file in the directory <code>../common/config</code></li>
@@ -75,32 +77,32 @@ under the License.
          <pre class="prettyprint"><code>
          MessageProducer pageMessageProducer = session.createProducer(pageQueue);
          </pre></code>
-         
+
          <li>We don't need persistent messages in order to use paging. (This step is optional)</li>
          <pre class="prettyprint"><code>
          pageMessageProducer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
          </pre></code>
-         
+
          <li>Create a Binary Bytes Message with 10K arbitrary bytes</li>
          <pre class="prettyprint"><code>
          BytesMessage message = session.createBytesMessage();
          message.writeBytes(new byte[10 * 1024]);
          </pre></code>
-         
+
 
          <li>Send only 20 messages to the Queue. This will be already enough for pagingQueue. Look at ./paging/config/activemq-queues.xml for the config.</li>
          <pre class="prettyprint"><code>
          for (int i = 0; i < 20; i++)
          {
             pageMessageProducer.send(message);
-         }         
+         }
          </pre></code>
-         
+
          <li>Create a JMS Message Producer</li>
          <pre class="prettyprint"><code>
          MessageProducer messageProducer = session.createProducer(queue);
          </pre></code>
-         
+
          <li>We don't need persistent messages in order to use paging. (This step is optional)</li>
          <pre class="prettyprint"><code>
          messageProducer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
@@ -115,26 +117,26 @@ under the License.
          </pre></code>
 
          <li>if you pause the example here, you will several files under ./build/data/paging</li>
-         
+
          <pre class="prettyprint"><code>
-         // Thread.sleep(30000); // if you want to just our of curiosity, you can sleep here and inspect the created files just for 
+         // Thread.sleep(30000); // if you want to just our of curiosity, you can sleep here and inspect the created files just for
          </pre></code>
-         
-         
+
+
          <li>Create a JMS Message Consumer</li>
          <pre class="prettyprint"><code>
          MessageConsumer messageConsumer = session.createConsumer(queue);
          </pre></code>
-         
+
 
          <li>Start the JMS Connection. This step will activate the subscribers to receive messages.</li>
          <pre class="prettyprint"><code>
          connection.start();
          </pre></code>
-         
-         
+
+
          <li>Receive the messages. It's important to ACK for messages as ActiveMQ Artemis will not read messages from paging until messages are ACKed</li>
-         
+
          <pre class="prettyprint"><code>
          for (int i = 0; i < 30000; i++)
          {
@@ -143,12 +145,12 @@ under the License.
             if (i % 1000 == 0)
             {
                System.out.println("Received " + i + " messages");
-               
+
                message.acknowledge();
             }
          }
          </pre></code>
-         
+
          <li>Receive the messages from the Queue names pageQueue. Create the proper consumer for that.</li>
          <pre class="prettyprint"><code>
          messageConsumer.close();
@@ -157,7 +159,7 @@ under the License.
          for (int i = 0; i < 20; i++)
          {
             message = (BytesMessage)messageConsumer.receive(1000);
-            
+
             System.out.println("Received message " + i + " from pageQueue");
 
             message.acknowledge();

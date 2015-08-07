@@ -39,106 +39,8 @@ under the License.
 
    <profiles>
       <profile>
-         <id>release</id>
-         <modules>
-            <module>aerogear</module>
-            <module>application-layer-failover</module>
-            <module>artemis-ra-rar</module>
-            <module>bridge</module>
-            <module>browser</module>
-            <module>client-kickoff</module>
-            <module>client-side-load-balancing</module>
-            <module>client-side-failoverlistener</module>
-            <module>clustered-durable-subscription</module>
-            <module>clustered-grouping</module>
-            <module>clustered-jgroups</module>
-            <module>clustered-queue</module>
-            <module>clustered-standalone</module>
-            <module>clustered-static-oneway</module>
-            <module>clustered-static-discovery</module>
-            <module>clustered-topic</module>
-            <module>colocated-failover</module>
-            <module>colocated-failover-scale-down</module>
-            <module>consumer-rate-limit</module>
-            <module>dead-letter</module>
-            <module>delayed-redelivery</module>
-            <module>divert</module>
-            <module>durable-subscription</module>
-            <module>embedded</module>
-            <module>embedded-simple</module>
-            <module>expiry</module>
-            <module>http-transport</module>
-            <module>interceptor</module>
-            <module>instantiate-connection-factory</module>
-            <module>ha-policy-autobackup</module>
-            <module>jms-auto-closeable</module>
-            <module>jms-bridge</module>
-            <module>jms-completion-listener</module>
-            <module>jms-context</module>
-            <module>jms-shared-consumer</module>
-            <module>jmx</module>
-            <module>large-message</module>
-            <module>last-value-queue</module>
-            <module>management</module>
-            <module>management-notifications</module>
-            <module>message-counters</module>
-            <module>message-group</module>
-            <module>message-group2</module>
-            <module>message-priority</module>
-            <module>multiple-failover</module>
-            <module>multiple-failover-failback</module>
-            <module>no-consumer-buffering</module>
-            <module>non-transaction-failover</module>
-            <module>openwire</module>
-            <module>paging</module>
-            <module>perf</module>
-            <module>pre-acknowledge</module>
-            <module>producer-rate-limit</module>
-            <module>proton-cpp</module>
-            <module>proton-j</module>
-            <module>proton-ruby</module>
-            <module>queue</module>
-            <module>queue-message-redistribution</module>
-            <module>queue-requestor</module>
-            <module>queue-selector</module>
-            <module>reattach-node</module>
-            <module>rest</module>
-            <module>replicated-failback</module>
-            <module>replicated-failback-static</module>
-            <module>replicated-multiple-failover</module>
-            <module>replicated-transaction-failover</module>
-            <module>request-reply</module>
-            <module>scale-down</module>
-            <module>scheduled-message</module>
-            <module>security</module>
-            <module>send-acknowledgements</module>
-            <module>spring-integration</module>
-            <module>ssl-enabled</module>
-            <module>static-selector</module>
-            <module>static-selector-jms</module>
-            <module>stomp</module>
-            <module>stomp-websockets</module>
-            <module>stomp1.1</module>
-            <module>stomp1.2</module>
-            <module>stop-server-failover</module>
-            <module>symmetric-cluster</module>
-            <module>temp-queue</module>
-            <module>topic</module>
-            <module>topic-hierarchies</module>
-            <module>topic-selector-example1</module>
-            <module>topic-selector-example2</module>
-            <module>transactional</module>
-            <module>transaction-failover</module>
-            <module>xa-heuristic</module>
-            <module>xa-receive</module>
-            <module>xa-send</module>
-         </modules>
-      </profile>
-      <profile>
-         <id>example</id>
-         <activation>
-            <activeByDefault>true</activeByDefault>
-         </activation>
+         <!-- You need to activate -Pexamples to run all the examples -->
+         <id>examples</id>
          <modules>
             <module>application-layer-failover</module>
             <module>bridge</module>
@@ -150,12 +52,14 @@ under the License.
             <module>clustered-grouping</module>
             <module>clustered-jgroups</module>
             <module>clustered-queue</module>
-            <module>clustered-standalone</module>
             <module>clustered-static-oneway</module>
             <module>clustered-static-discovery</module>
             <module>clustered-topic</module>
+
+            <!-- ARTEMIS-197 FIX ME:
             <module>colocated-failover</module>
-            <module>colocated-failover-scale-down</module>
+            <module>colocated-failover-scale-down</module> -->
+
             <module>consumer-rate-limit</module>
             <module>dead-letter</module>
             <module>delayed-redelivery</module>
@@ -186,7 +90,6 @@ under the License.
             <module>multiple-failover-failback</module>
             <module>no-consumer-buffering</module>
             <module>non-transaction-failover</module>
-            <module>openwire</module>
             <module>paging</module>
             <!--run this standalone-->
             <!--<module>perf</module>-->
@@ -200,8 +103,11 @@ under the License.
             <module>queue-requestor</module>
             <module>queue-selector</module>
             <module>reattach-node</module>
+
+            <!-- ARTEMIS-197 FIX ME:
             <module>replicated-failback</module>
-            <module>replicated-failback-static</module>
+            <module>replicated-failback-static</module> -->
+
             <module>replicated-multiple-failover</module>
             <module>replicated-transaction-failover</module>
             <module>request-reply</module>
@@ -211,9 +117,13 @@ under the License.
             <module>security</module>
             <module>send-acknowledgements</module>
             <module>spring-integration</module>
-            <module>ssl-enabled</module>
+
+            <!-- ARTEMIS-197 FIX ME
+                 this one could be the case of leaving it out for good
+                 as it may require to be run manually
+            <module>ssl-enabled</module> -->
+
             <module>static-selector</module>
-            <module>static-selector-jms</module>
             <module>stomp</module>
             <!--this should be run standalone-->
             <!--<module>stomp-websockets</module>-->

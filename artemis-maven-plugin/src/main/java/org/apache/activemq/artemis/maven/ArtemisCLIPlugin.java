@@ -16,10 +16,14 @@
  */
 package org.apache.activemq.artemis.maven;
 
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.Path;
+
 import org.apache.activemq.artemis.cli.Artemis;
 import org.apache.activemq.artemis.cli.commands.Run;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
-import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.descriptor.PluginDescriptor;
@@ -28,13 +32,8 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
-import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.LinkOption;
-import java.nio.file.Path;
-
 @Mojo(name = "cli", defaultPhase = LifecyclePhase.VERIFY)
-public class ArtemisCLIPlugin extends AbstractMojo
+public class ArtemisCLIPlugin extends ArtemisAbstractPlugin
 {
    private PluginDescriptor descriptor;
 
@@ -98,7 +97,8 @@ public class ArtemisCLIPlugin extends AbstractMojo
 
    }
 
-   public void execute() throws MojoExecutionException, MojoFailureException
+   @Override
+   protected void doExecute() throws MojoExecutionException, MojoFailureException
    {
       // This is to avoid the Run issuing a kill at any point
       Run.setEmbedded(true);

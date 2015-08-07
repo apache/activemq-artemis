@@ -25,8 +25,9 @@ import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.jms.Topic;
-import javax.naming.InitialContext;
-import java.util.Hashtable;
+
+import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 
 /**
  * This examples demonstrates the use of ActiveMQ Artemis "Diverts" to transparently divert or copy messages
@@ -41,37 +42,17 @@ public class DivertExample
       Connection connectionLondon = null;
 
       Connection connectionNewYork = null;
-
-      InitialContext initialContextLondon = null;
-
-      InitialContext initialContextNewYork = null;
       try
       {
-         // Step 1. Create an initial context to perform the JNDI lookup on the London server
-         Hashtable<String, Object> properties = new Hashtable<String, Object>();
-         properties.put("java.naming.factory.initial", "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
-         properties.put("connectionFactory.ConnectionFactory", "tcp://localhost:61616");
-         properties.put("queue.queue/orders", "orders");
-         properties.put("topic.topic/priceUpdates", "priceUpdates");
-         properties.put("topic.topic/spyTopic", "spyTopic");
-         initialContextLondon = new InitialContext(properties);
-
          // Step 2. Look-up the queue orderQueue on the London server - this is the queue any orders are sent to
-         Queue orderQueue = (Queue)initialContextLondon.lookup("queue/orders");
+         Queue orderQueue = ActiveMQJMSClient.createQueue("orders");
 
          // Step 3. Look-up the topic priceUpdates on the London server- this is the topic that any price updates are
          // sent to
-         Topic priceUpdates = (Topic)initialContextLondon.lookup("topic/priceUpdates");
+         Topic priceUpdates = ActiveMQJMSClient.createTopic("priceUpdates");
 
          // Step 4. Look-up the spy topic on the London server- this is what we will use to snoop on any orders
-         Topic spyTopic = (Topic)initialContextLondon.lookup("topic/spyTopic");
-
-         // Step 6. Create an initial context to perform the JNDI lookup on the New York server
-         properties = new Hashtable<String, Object>();
-         properties.put("java.naming.factory.initial", "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
-         properties.put("connectionFactory.ConnectionFactory2", "tcp://localhost:61617");
-         properties.put("topic.topic/newYorkPriceUpdates", "newYorkPriceUpdates");
-         initialContextNewYork = new InitialContext(properties);
+         Topic spyTopic = ActiveMQJMSClient.createTopic("spyTopic");
 
          // Step 7. Look-up the topic newYorkPriceUpdates on the New York server - any price updates sent to
          // priceUpdates on the London server will
@@ -80,13 +61,13 @@ public class DivertExample
          // them to the address newYorkPriceUpdates on the New York server where they will be distributed to the topic
          // subscribers on
          // the New York server
-         Topic newYorkPriceUpdates = (Topic)initialContextNewYork.lookup("topic/newYorkPriceUpdates");
+         Topic newYorkPriceUpdates = ActiveMQJMSClient.createTopic("newYorkPriceUpdates");
 
          // Step 8. Perform a lookup on the Connection Factory on the London server
-         ConnectionFactory cfLondon = (ConnectionFactory)initialContextLondon.lookup("ConnectionFactory");
+         ConnectionFactory cfLondon = new ActiveMQConnectionFactory("tcp://localhost:61616");
 
          // Step 9. Perform a lookup on the Connection Factory on the New York server
-         ConnectionFactory cfNewYork = (ConnectionFactory)initialContextNewYork.lookup("ConnectionFactory2");
+         ConnectionFactory cfNewYork =  new ActiveMQConnectionFactory("tcp://localhost:61617");
 
          // Step 10. Create a JMS Connection on the London server
          connectionLondon = cfLondon.createConnection();
@@ -226,15 +207,6 @@ public class DivertExample
       }
       finally
       {
-         // Step 12. Be sure to close our resources!
-         if (initialContextLondon != null)
-         {
-            initialContextLondon.close();
-         }
-         if (initialContextNewYork != null)
-         {
-            initialContextNewYork.close();
-         }
          if (connectionLondon != null)
          {
             connectionLondon.close();

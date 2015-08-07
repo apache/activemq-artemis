@@ -23,9 +23,14 @@ import javax.jms.TextMessage;
 import java.io.File;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
+import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.cli.Artemis;
 import org.apache.activemq.artemis.cli.commands.Run;
 import org.apache.activemq.artemis.cli.commands.util.SyncCalculation;
+import org.apache.activemq.artemis.core.client.impl.ServerLocatorImpl;
 import org.apache.activemq.artemis.jlibaio.LibaioContext;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
@@ -83,15 +88,35 @@ public class ArtemisTest
       Assert.assertEquals(0, LibaioContext.getTotalMaxIO());
 
    }
-
    @Test
    public void testSimpleRun() throws Exception
    {
+      String queues = "q1,t2";
+      String topics = "t1,t2";
       Run.setEmbedded(true);
-      Artemis.main("create", temporaryFolder.getRoot().getAbsolutePath(), "--force", "--silent-input", "--no-web");
+      Artemis.main("create", temporaryFolder.getRoot().getAbsolutePath(), "--force", "--silent", "--no-web", "--queues", queues, "--topics", topics);
       System.setProperty("artemis.instance", temporaryFolder.getRoot().getAbsolutePath());
       // Some exceptions may happen on the initialization, but they should be ok on start the basic core protocol
       Artemis.execute("run");
+
+
+      try (ServerLocator locator = ServerLocatorImpl.newLocator("tcp://localhost:61616");
+           ClientSessionFactory factory = locator.createSessionFactory();
+           ClientSession coreSession = factory.createSession())
+      {
+         for (String str: queues.split(","))
+         {
+            ClientSession.QueueQuery queryResult = coreSession.queueQuery(SimpleString.toSimpleString("jms.queue." + str));
+            Assert.assertTrue("Couldn't find queue " + str, queryResult.isExists());
+         }
+         for (String str: topics.split(","))
+         {
+            ClientSession.QueueQuery queryResult = coreSession.queueQuery(SimpleString.toSimpleString("jms.topic." + str));
+            Assert.assertTrue("Couldn't find topic " + str, queryResult.isExists());
+         }
+      }
+
+
       Assert.assertEquals(Integer.valueOf(1000), Artemis.execute("producer", "--message-count", "1000", "--verbose"));
       Assert.assertEquals(Integer.valueOf(1000), Artemis.execute("consumer", "--verbose", "--break-on-null", "--receive-timeout", "100"));
 
@@ -99,6 +124,7 @@ public class ArtemisTest
       Connection connection = cf.createConnection();
       Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
       MessageProducer producer = session.createProducer(ActiveMQDestination.createDestination("queue://TEST", ActiveMQDestination.QUEUE_TYPE));
+
 
       TextMessage message = session.createTextMessage("Banana");
       message.setStringProperty("fruit", "banana");

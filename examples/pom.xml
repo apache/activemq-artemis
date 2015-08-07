@@ -60,6 +60,7 @@ under the License.
       </pluginRepository>
    </pluginRepositories>
 
+   <!-- You need to activate -Pexamples to run all the examples -->
    <modules>
       <module>core</module>
       <module>jms</module>

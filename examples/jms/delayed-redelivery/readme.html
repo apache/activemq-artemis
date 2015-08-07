@@ -26,7 +26,8 @@ under the License.
   </head>
   <body onload="prettyPrint()">
      <h1>Delayed Redelivery Example</h1>
-     
+     <pre>To run the example, simply type <b>mvn verify</b> from this directory, <br>or <b>mvn -PnoServer verify</b> if you want to start and create the server manually.</pre>
+
      <p>This example demonstrates how ActiveMQ Artemis can be configured to provide a delayed redelivery in the case
      where a message needs to be redelivered.</p>
      <p>Delaying redelivery can often be useful in the case that clients regularly fail or roll-back. Without a delayed
@@ -46,142 +47,10 @@ under the License.
      <p>We then consume a message in a transacted session, and rollback, and note that the message is not redelivered until
      after 5 seconds.</p>
      <pre class="prettyprint">
-         <code>&lt;address-setting match="jms.queue.exampleQueue"&gt;           
+         <code>&lt;address-setting match="jms.queue.exampleQueue"&gt;
             &lt;redelivery-delay&gt;5000&lt;/redelivery-delay&gt;
          &lt;/address-setting&gt;
          </code>
-     </pre>                 
-     <p><i>To run the example, simply type <code>mvn verify -Pexample</code> from this directory</i></p>
-     <ol>
-        <li>Create an initial context to perform the JNDI lookup.</li>
-        <pre class="prettyprint">
-           <code>initialContext = getContext(0);</code>
-        </pre>
-
-        <li>Perform a lookup on the queue</li>
-        <pre class="prettyprint">
-           <code>Queue queue = (Queue)initialContext.lookup("/queue/exampleQueue");</code>
-        </pre>
-
-        <li>Perform a lookup on the Connection Factory</li>
-        <pre class="prettyprint">
-           <code>ConnectionFactory cf = (ConnectionFactory)initialContext.lookup("/ConnectionFactory");</code>
-        </pre>
-
-        <li>Create a JMS Connection</li>
-        <pre class="prettyprint">
-           <code>connection = cf.createConnection();</code>
-        </pre>
-
-        <li>Create a transacted JMS Session
-        <pre class="prettyprint">
-           <code>Session session = connection.createSession(true, 0);</code>
-        </pre>
-
-        <li>Create a JMS Message Producer</li>
-        <pre class="prettyprint">
-          <code>MessageProducer producer = session.createProducer(queue);</code>
-       </pre>
-       
-        <li>Create a Text Message</li>
-        <pre class="prettyprint">
-            <code>TextMessage message = session.createTextMessage("this is a text message");</code>
-        </pre>
-
-        <li>Send the Message</li>
-        <pre class="prettyprint">
-            <code>producer.send(message);</code>
-        </pre>
-        
-       <li>We commit the session to effectively send the message to the queue</li>
-        <pre class="prettyprint">
-            <code>session.commit();</code>
-        </pre>
-
-        <li>We create a JMS message consumer on the queue</li>
-        <pre class="prettyprint">
-            <code>MessageConsumer messageConsumer = session.createConsumer(queue);</code>
-        </pre>
-        
-        <li>We start the connection. In order for delivery to occur on any consumers or subscribers on a connection, the connection must be started</li>
-        <pre class="prettyprint">
-           <code>connection.start();</code>
-        </pre>
-        
-        <li>We receive the message...</li>
-        <pre class="prettyprint">
-            <code>TextMessage messageReceived = (TextMessage)messageConsumer.receive(5000);
-            System.out.println("1st delivery from " + queue.getQueueName() + ": " + messageReceived.getText());</code>            
-        </pre>
-        
-        <li>...but we roll back the session. the message returns to the queue, but only after a 
-            5 second delay</li>
-        <pre class="prettyprint">
-            <code>session.rollback();</code>
-        </pre>
-        
-        <li>We try to receive the message but it's being delayed</li>
-        <pre class="prettyprint">
-            <code>
-         messageReceived = (TextMessage)messageConsumer.receive(3000);
-         
-         if (messageReceived != null)
-         {
-            return false;
-         }
-         
-         System.out.println("Redelivery has been delayed so received message is " + messageReceived);
-            
-            </code>
-        </pre>
-  
-       <li>We try and receive the message again, this time we should get it</li>
-       <pre class="prettyprint">
-           <code>             
-         messageReceived = (TextMessage)messageConsumer.receive(3000);
-         
-         System.out.println("2nd delivery from " + queue.getQueueName() + ": " + messageReceived.getText());
-           </code>
-       </pre>
-              
-        <li>We rollback the session again to cause another redelivery, and we time how long this one takes</code>
-        <pre class="prettyprint">
-           <code>
-         long start = System.currentTimeMillis();
-         
-         session.rollback();
-                         
-         messageReceived = (TextMessage)messageConsumer.receive(8000);
-         
-         long end = System.currentTimeMillis();
-         
-         System.out.println("3nd delivery from " + queue.getQueueName() + ": " + messageReceived.getText() +
-                            " after " + (end - start) + " milliseconds.");           
-           </code>
-        </pre>
-        
-        <li>And finally, <b>always</b> remember to close your JMS connections and resources after use, in a <code>finally</code> block. Closing a JMS connection will automatically close all of its sessions, consumers, producer and browser objects</li>
-
-        <pre class="prettyprint">
-           <code>finally
-           {
-              if (initialContext != null)
-              {
-                initialContext.close();
-              }
-              if (connection != null)
-              {
-                 connection.close();
-              }
-           }</code>
-        </pre>
-     </ol>
-    
-     <h2>More information</h2>
-     
-     <ul>
-        <li>User Manual's <a href="../../../docs/user-manual/en/html_single/index.html#undelivered-messages">Undelivered Messages chapter</a></li>
-     </ul>
-    
+     </pre>
   </body>
 </html>

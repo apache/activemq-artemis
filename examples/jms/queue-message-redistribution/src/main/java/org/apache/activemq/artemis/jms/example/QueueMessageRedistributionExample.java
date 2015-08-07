@@ -26,6 +26,9 @@ import javax.jms.TextMessage;
 import javax.naming.InitialContext;
 import java.util.Hashtable;
 
+import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+
 /**
  * This example demonstrates a queue with the same name deployed on two nodes of a cluster.
  * Messages are initially round robin'd between both nodes of the cluster.
@@ -40,33 +43,16 @@ public class QueueMessageRedistributionExample
 
       Connection connection1 = null;
 
-      InitialContext ic0 = null;
-
-      InitialContext ic1 = null;
-
       try
       {
-         // Step 1. Get an initial context for looking up JNDI from server 0
-         Hashtable<String, Object> properties = new Hashtable<String, Object>();
-         properties.put("java.naming.factory.initial", "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
-         properties.put("connectionFactory.ConnectionFactory", "tcp://localhost:61616");
-         properties.put("queue.queue/exampleQueue", "exampleQueue");
-         ic0 = new InitialContext(properties);
-
          // Step 2. Look-up the JMS Queue object from JNDI
-         Queue queue = (Queue)ic0.lookup("queue/exampleQueue");
+         Queue queue = ActiveMQJMSClient.createQueue("exampleQueue");
 
          // Step 3. Look-up a JMS Connection Factory object from JNDI on server 0
-         ConnectionFactory cf0 = (ConnectionFactory)ic0.lookup("ConnectionFactory");
-
-         // Step 4. Get an initial context for looking up JNDI from server 1
-         properties = new Hashtable<String, Object>();
-         properties.put("java.naming.factory.initial", "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
-         properties.put("connectionFactory.ConnectionFactory", "tcp://localhost:61617");
-         ic1 = new InitialContext(properties);
+         ConnectionFactory cf0 = new ActiveMQConnectionFactory("tcp://localhost:61616");
 
          // Step 5. Look-up a JMS Connection Factory object from JNDI on server 1
-         ConnectionFactory cf1 = (ConnectionFactory)ic1.lookup("ConnectionFactory");
+         ConnectionFactory cf1 = new ActiveMQConnectionFactory("tcp://localhost:61617");
 
          // Step 6. We create a JMS Connection connection0 which is a connection to server 0
          connection0 = cf0.createConnection();
@@ -163,16 +149,6 @@ public class QueueMessageRedistributionExample
          if (connection1 != null)
          {
             connection1.close();
-         }
-
-         if (ic0 != null)
-         {
-            ic0.close();
-         }
-
-         if (ic1 != null)
-         {
-            ic1.close();
          }
       }
    }

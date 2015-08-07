@@ -18,7 +18,8 @@ specific language governing permissions and limitations
 under the License.
 -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
    <modelVersion>4.0.0</modelVersion>
 
    <parent>
@@ -27,7 +28,7 @@ under the License.
       <version>1.0.1-SNAPSHOT</version>
    </parent>
 
-   <artifactId>artemis-jms-completion-listener-example</artifactId>
+   <artifactId>completion-listener</artifactId>
    <packaging>jar</packaging>
    <name>ActiveMQ Artemis JMS Completion Listener Example</name>
 
@@ -37,71 +38,82 @@ under the License.
 
    <dependencies>
       <dependency>
-         <groupId>org.apache.geronimo.specs</groupId>
-         <artifactId>geronimo-jms_2.0_spec</artifactId>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-jms-client</artifactId>
+         <version>${project.version}</version>
       </dependency>
    </dependencies>
 
    <profiles>
       <profile>
-         <id>example</id>
-         <build>
-            <plugins>
-               <plugin>
-                  <groupId>org.apache.activemq</groupId>
-                  <artifactId>artemis-maven-plugin</artifactId>
-                  <executions>
-                     <execution>
-                        <id>create</id>
-                        <goals>
-                           <goal>create</goal>
-                        </goals>
-                     </execution>
-                     <execution>
-                        <id>start</id>
-                        <goals>
-                           <goal>cli</goal>
-                        </goals>
-                        <configuration>
-                           <spawn>true</spawn>
-                           <testURI>tcp://localhost:61616</testURI>
-                           <args>
-                              <param>run</param>
-                           </args>
-                        </configuration>
-                     </execution>
-                     <execution>
-                        <id>runClient</id>
-                        <goals>
-                           <goal>runClient</goal>
-                        </goals>
-                        <configuration>
-                           <clientClass>org.apache.activemq.artemis.jms.example.JMSCompletionListenerExample</clientClass>
-                        </configuration>
-                     </execution>
-                     <execution>
-                        <id>stop</id>
-                        <goals>
-                           <goal>cli</goal>
-                        </goals>
-                        <configuration>
-                           <args>
-                              <param>stop</param>
-                           </args>
-                        </configuration>
-                     </execution>
-                  </executions>
-                  <dependencies>
-                     <dependency>
-                        <groupId>org.apache.activemq.examples.jms</groupId>
-                        <artifactId>artemis-jms-completion-listener-example</artifactId>
-                        <version>${project.version}</version>
-                     </dependency>
-                   </dependencies>
-               </plugin>
-            </plugins>
-         </build>
+         <!-- specify -PnoServer if you don't want to start the server -->
+         <id>noServer</id>
+         <properties>
+            <noServer>true</noServer>
+         </properties>
       </profile>
    </profiles>
+   <build>
+      <plugins>
+         <plugin>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>artemis-maven-plugin</artifactId>
+            <executions>
+               <execution>
+                  <id>create</id>
+                  <goals>
+                     <goal>create</goal>
+                  </goals>
+                  <configuration>
+                     <ignore>${noServer}</ignore>
+                     <configuration>${basedir}/target/classes/activemq/server0</configuration>
+                  </configuration>
+               </execution>
+               <execution>
+                  <id>start</id>
+                  <goals>
+                     <goal>cli</goal>
+                  </goals>
+                  <configuration>
+                     <ignore>${noServer}</ignore>
+                     <spawn>true</spawn>
+                     <testURI>tcp://localhost:61616</testURI>
+                     <args>
+                        <param>run</param>
+                     </args>
+                  </configuration>
+               </execution>
+               <execution>
+                  <id>runClient</id>
+                  <goals>
+                     <goal>runClient</goal>
+                  </goals>
+                  <configuration>
+                     <clientClass>org.apache.activemq.artemis.jms.example.JMSCompletionListenerExample</clientClass>
+                  </configuration>
+               </execution>
+               <execution>
+                  <id>stop</id>
+                  <goals>
+                     <goal>cli</goal>
+                  </goals>
+                  <configuration>
+                     <ignore>${noServer}</ignore>
+                     <args>
+                        <param>stop</param>
+                     </args>
+                  </configuration>
+               </execution>
+            </executions>
+            <dependencies>
+               <dependency>
+                  <groupId>org.apache.activemq.examples.jms</groupId>
+                  <artifactId>completion-listener</artifactId>
+                  <version>${project.version}</version>
+               </dependency>
+            </dependencies>
+         </plugin>
+      </plugins>
+   </build>
 
 </project>

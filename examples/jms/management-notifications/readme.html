@@ -26,6 +26,9 @@ under the License.
   </head>
   <body onload="prettyPrint()">
      <h1>Management Notification Example</h1>
+
+     <pre>To run the example, simply type <b>mvn verify</b> from this directory, <br>or <b>mvn -PnoServer verify</b> if you want to start and create the server manually.</pre>
+
      <p>This example shows how to receive management notifications from ActiveMQ Artemis using JMS Messages.</p>
      <p>ActiveMQ Artemis servers emit management notifications when events of interest occur (consumers are created or closed,
          destinations are created or deleted, security authentication fails, etc.).<br />
@@ -33,7 +36,7 @@ under the License.
          from a well-known destination.</p>
      <p>This example will setup a JMS MessageListener to receive management notifications. We will also perform normal JMS operations to see the kind
          of notifications they trigger.</p>
-     
+
      <h2>Example configuration</h2>
 
      <p>ActiveMQ Artemis can configured to send JMS messages when management notifications are emitted on the server.</p>
@@ -42,7 +45,7 @@ under the License.
       <pre class="prettyprint">
          <code>&lt;management-notification-address&gt;jms.topic.notificationsTopic&lt;/management-notification-address&gt;</code>
      </pre>
-     
+
      <p>Since we want to lookup the notifications topic using JNDI, we also declare it in  <a href="server0/activemq-jms.xml">activemq-jms.xml</a>
      <pre class="prettyprint">
          <code>&lt;topic name="notificationsTopic"&gt;
@@ -59,10 +62,9 @@ under the License.
             &lt;permission type="deleteNonDurableQueue" roles="guest"/&gt;
          &lt;/security-setting&gt;</code>
      </pre>
-     
+
      <h2>Example step-by-step</h2>
-     <p><em>To run the example, simply type <code>mvn verify -Pexample</code> from this directory</em></p>
-     <ol>
+x     <ol>
         <li>First we need to get an initial context so we can look-up the JMS connection factory and destination objects from JNDI. This initial context will get its properties from <a href="server0/client-jndi.properties">client-jndi.properties</a></li>
         <pre class="prettyprint">
             <code>InitialContext initialContext = getContext(0);</code>
@@ -84,7 +86,7 @@ under the License.
             Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
             MessageProducer producer = session.createProducer(queue);</code>
         </pre>
-        
+
         <li>We look up the JMS Topic used to receive the notifications from JNDI</li>
         <pre class="prettyprint">
             <code>Topic notificationsTopic = (Topic) initialContext.lookup("/topic/notificationsTopic");</code>
@@ -112,23 +114,23 @@ under the License.
                  {
                  }
                  System.out.println("------------------------");
-              }            
+              }
            });</code>
         </pre>
-        
+
         <li>We start the connection to receive messages</li>
         <pre class="prettyprint">
             <code>connection.start();</code>
         </pre>
-        
-        <p><em>Now that a message listener is setup to receive management notifications, we will perform regular JMS operations to 
+
+        <p><em>Now that a message listener is setup to receive management notifications, we will perform regular JMS operations to
             see what kind of notifications are triggered</em></p>
-            
+
         <li>We create a JMS message consumer on the example queue</li>
         <pre class="prettyprint">
             <code>MessageConsumer consumer = session.createConsumer(queue);</code>
         </pre>
-        
+
         <p>This will generate a <code>CONSUMER_CREATED</code> notification:
         <pre class="prettyprint">
             <code>------------------------
@@ -143,7 +145,7 @@ under the License.
         </pre>
         <p>The notification tells us that a consumer was created for the JMS queue <code>exampleQueue</code>. When the notification
             was emitted, this consumer was the only one for the queue</p>
-            
+
         <li>We close this consumer</li>
         <pre class="prettyprint">
             <code>consumer.close();</code>
@@ -170,10 +172,10 @@ under the License.
             {
                cf.createConnection("not.a.valid.user", "not.a.valid.password");
             } catch (JMSException e)
-            {            
+            {
             }</code>
         </pre>
-        
+
         <p>This will generate a <code>SECURITY_AUTHENTICATION_VIOLATION</code> notification:
         <pre class="prettyprint">
             <code>------------------------
@@ -185,7 +187,7 @@ under the License.
             </code>
         </pre>
         <p>The notification tells us that a user named <code>not.a.valid.user</code> failed to authenticate when creating a connection to ActiveMQ Artemis.</p>
-        
+
         <li>And finally, <b>always</b> remember to close your JMS connections and resources after use, in a <code>finally</code> block. Closing a JMS connection will automatically close all of its sessions, consumers, producer and browser objects</li>
 
         <pre class="prettyprint">
@@ -202,12 +204,12 @@ under the License.
            }</code>
         </pre>
      </ol>
-     
+
      <h2>More information</h2>
-     
+
      <ul>
          <li>User Manual's <a href="../../../docs/user-manual/en/html_single/index.html#management.notifications">Management Notifications chapter</a></li>
-     </ul>         
+     </ul>
 
   </body>
 </html>

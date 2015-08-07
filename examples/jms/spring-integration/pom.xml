@@ -18,7 +18,8 @@ specific language governing permissions and limitations
 under the License.
 -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
    <modelVersion>4.0.0</modelVersion>
 
    <parent>
@@ -27,7 +28,7 @@ under the License.
       <version>1.0.1-SNAPSHOT</version>
    </parent>
 
-   <artifactId>artemis-jms-spring-integration-example</artifactId>
+   <artifactId>spring-integration</artifactId>
    <packaging>jar</packaging>
    <name>ActiveMQ Artemis JMS Spring Integration Example</name>
 
@@ -51,36 +52,31 @@ under the License.
       </dependency>
    </dependencies>
 
-   <profiles>
-      <profile>
-         <id>example</id>
-         <build>
-            <plugins>
-               <plugin>
-                  <groupId>org.apache.activemq</groupId>
-                  <artifactId>artemis-maven-plugin</artifactId>
-                  <executions>
-                     <execution>
-                        <id>runClient</id>
-                        <goals>
-                           <goal>runClient</goal>
-                        </goals>
-                        <configuration>
-                           <clientClass>org.apache.activemq.artemis.jms.example.SpringExample</clientClass>
-                        </configuration>
-                     </execution>
-                  </executions>
-                  <dependencies>
-                     <dependency>
-                        <groupId>org.apache.activemq.examples.jms</groupId>
-                        <artifactId>artemis-jms-spring-integration-example</artifactId>
-                        <version>${project.version}</version>
-                     </dependency>
-                  </dependencies>
-               </plugin>
-            </plugins>
-         </build>
-      </profile>
-   </profiles>
+   <build>
+      <plugins>
+         <plugin>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>artemis-maven-plugin</artifactId>
+            <executions>
+               <execution>
+                  <id>runClient</id>
+                  <goals>
+                     <goal>runClient</goal>
+                  </goals>
+                  <configuration>
+                     <clientClass>org.apache.activemq.artemis.jms.example.SpringExample</clientClass>
+                  </configuration>
+               </execution>
+            </executions>
+            <dependencies>
+               <dependency>
+                  <groupId>org.apache.activemq.examples.jms</groupId>
+                  <artifactId>spring-integration</artifactId>
+                  <version>${project.version}</version>
+               </dependency>
+            </dependencies>
+         </plugin>
+      </plugins>
+   </build>
 
 </project>

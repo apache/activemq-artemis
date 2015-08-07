@@ -26,9 +26,10 @@ under the License.
   </head>
   <body onload="prettyPrint()">
      <h1>Dead Letter Example</h1>
+     <pre>To run the example, simply type <b>mvn verify</b> from this directory, <br>or <b>mvn -PnoServer verify</b> if you want to start and create the server manually.</pre>
 
      <p>This example shows you how to define and deal with dead letter messages.</p>
-     <p>Messages can be delivered unsuccessfully (e.g. if the transacted session used to consume them is rolled back). 
+     <p>Messages can be delivered unsuccessfully (e.g. if the transacted session used to consume them is rolled back).
          Such a message goes back to the JMS destination ready to be redelivered.
          However, this means it is possible for a message to be delivered again and again without any success and remain in the destination, clogging the system.</p>
      <p>To prevent this, messaging systems define dead letter messages: after a specified unsuccessful delivery attempts, the message is removed from the destination
@@ -47,12 +48,12 @@ under the License.
             &lt;max-delivery-attempts&gt;3&lt;/max-delivery-attempts&gt;
          &lt;/address-setting&gt;
          </code>
-     </pre>          
+     </pre>
      <p>This configuration will moved dead letter messages from <code>exampleQueue</code> to the <code>deadLetterQueue</code>.</p>
      <p>ActiveMQ Artemis allows to specify either a <code>Queue</code> by prefixing the <code>dead-letter-address</code> with <code>jms.queue.</code>
          or a <code>Topic</code> by prefixing with <code>jms.topic.</code>.<br />
          In this example, we will use a <code>Queue</code> to hold the dead letter messages.</p>
-     <p>The maximum attempts of delivery is <code>3</code>. Once this figure is reached, a message is considered a dead letter message and is moved to 
+     <p>The maximum attempts of delivery is <code>3</code>. Once this figure is reached, a message is considered a dead letter message and is moved to
          the <code>deadLetterQueue</code>.
      <p>Since we want to consume messages from this deadLetterQueue, we also need to add a JNDI binding to perform a lookup.
          This is configured in <a href="src/main/resources/activemq/server0/activemq-jms.xml">activemq-jms.xml</a></p>
@@ -61,166 +62,5 @@ under the License.
             &lt;entry name="/queue/deadLetterQueue"/&gt;
          &lt;/queue&gt;</code>
      </pre>
-     </p>
-     <h2>Example step-by-step</h2>
-     <p><i>To run the example, simply type <code>mvn verify -Pexample</code> from this directory</i></p>
-     <ol>
-        <li>First we need to get an initial context so we can look-up the JMS connection factory and destination objects from JNDI. This initial context will get it's properties from the <code>client-jndi.properties</code> file in the directory <code>../common/config</code></li>
-        <pre class="prettyprint">
-           <code>InitialContext initialContext = getContext();</code>
-        </pre>
-
-        <li>We look up the JMS queue object from JNDI</li>
-        <pre class="prettyprint">
-           <code>Queue queue = (Queue) initialContext.lookup("/queue/exampleQueue");</code>
-        </pre>
-
-        <li>We look up the JMS connection factory object from JNDI</li>
-        <pre class="prettyprint">
-           <code>ConnectionFactory cf = (ConnectionFactory) initialContext.lookup("/ConnectionFactory");</code>
-        </pre>
-
-        <li>We create a JMS connection</li>
-        <pre class="prettyprint">
-           <code>connection = cf.createConnection();</code>
-        </pre>
-
-        <li>We create a JMS <em>transacted</em> session
-        <pre class="prettyprint">
-           <code>Session session = connection.createSession(true, 0);</code>
-        </pre>
-
-        <li>We create a JMS message producer on the session. This will be used to send the messages</li>
-        <pre class="prettyprint">
-          <code>MessageProducer messageProducer = session.createProducer(topic);</code>
-       </pre>
-       
-        <li>We create a text messages</li>
-        <pre class="prettyprint">
-            <code>TextMessage message = session.createTextMessage("this is a text message");</code>
-        </pre>
-
-        <li>We send the message to the queue</li>
-        <pre class="prettyprint">
-            <code>producer.send(message);</code>
-        </pre>
-        
-       <li>We commit the session to effectively send the message to the queue</li>
-        <pre class="prettyprint">
-            <code>session.commit();</code>
-        </pre>
-
-        <p>We will now consume the message from the queue 3 times and roll back the session every time</p>
-        
-        <li>We create a JMS message consumer on the queue</li>
-        <pre class="prettyprint">
-            <code>MessageConsumer messageConsumer = session.createConsumer(queue);</code>
-        </pre>
-        
-        <li>We start the connection. In order for delivery to occur on any consumers or subscribers on a connection, the connection must be started</li>
-        <pre class="prettyprint">
-           <code>connection.start();</code>
-        </pre>
-        
-        <li>We receive the message a 1<sup>st</sup> time</li>
-        <pre class="prettyprint">
-            <code>TextMessage messageReceived = (TextMessage)messageConsumer.receive(5000);
-            System.out.println("1st delivery from " + queue.getQueueName() + ": " + messageReceived.getText());</code>            
-        </pre>
-        
-        <li>We roll back the session. The message we received is undelivered and goes back to the queue</li>
-        <pre class="prettyprint">
-            <code>session.rollback();</code>
-        </pre>
-        
-        <li>We receive a message and roll back the session a 2<sup>nd</sup> time
-        <pre class="prettyprint">
-            <code>messageReceived = (TextMessage)messageConsumer.receive(5000);
-            System.out.println("2nd delivery from " + queue.getQueueName() + ": " + messageReceived.getText());
-            session.rollback();</code>
-        </pre>
-  
-        <li>We do it againt a 3<sup>rd</sup> time
-       <pre class="prettyprint">
-           <code>messageReceived = (TextMessage)messageConsumer.receive(5000);
-           System.out.println("3rd delivery from " + queue.getQueueName() + ": " + messageReceived.getText());
-           session.rollback();</code>
-       </pre>
-  
-       <p>Since the queue was configured to move messages to the <code>deadLetterQueue</code> after <code>3</code> unsuccessful delivery attempts,
-           the message won't be in the <code>queue</code> anymore</p>
-           
-        <li>We try to receive a message from the queue for a 4<sup>th</sup>. Since there is none, the call will timeout after 5000ms and <code>messageReceived</code> will be <code>null</code>
-        <pre class="prettyprint">
-           <code>messageReceived = (TextMessage)messageConsumer.receive(5000);
-           System.out.println("4th delivery from " + queue.getQueueName() + ": " + messageReceived);</code>
-        </pre>
-        
-        <p>We have configured ActiveMQ Artemis to send any dead letter messages to the <code>deadLetterQueue</code>.
-            We will now consume messages from this queue and receives the <em>dead letter messages</em>.</p>
-            
-        <li>We look up the JMS <em>dead letter queue</em> object from JNDI</li>
-        <pre class="prettyprint">
-           <code>Queue deadLetterQueue = (Queue)initialContext.lookup("/queue/deadLetterQueue");</code>
-        </pre>
-                  
-        <li>We create a JMS message consumer on the dead letter queue</li>
-        <pre class="prettyprint">
-            <code>MessageConsumer deadLetterConsumer = session.createConsumer(expiryQueue);</code>
-        </pre>
-        
-        <li>We consume a message from the dead letter queue:</li>
-        <pre class="prettyprint">
-            <code>messageReceived = (TextMessage)deadLetterConsumer.receive(5000);</code>
-        </pre>
-        
-        <li>The message consumed from the <em>dead letter queue</em> has the <em>same content</em> than the message which was sent to the <em>queue</em>
-        <pre class="prettyprint">
-            <code>System.out.println("Received message from " + deadLetterQueue.getQueueName() + ": " + messageReceived.getText());</code>
-        </pre>    
-            
-        <p>JMS does not specify the notion of dead letter destinations and messages. From JMS point of view, the message received from the dead letter queue
-            is a <strong>different</strong> message than the message removed from the queue after the unsuccessful delivery attempts:
-            the messages have the same content (properties and body) but their JMS headers differ.<br />
-            ActiveMQ Artemis defines additional properties for messages received from a dead letter destination</p>
-            
-        <li>The message's destination is the dead letter queue</li>
-        <pre class="prettyprint">
-            <code>System.out.println("Destination of the message: " + ((Queue)messageReceived.getJMSDestination()).getQueueName());</code>
-        </pre>
-
-        <li>The <strong>origin destination</strong> is stored in the <code>_AMQ_ORIG_ADDRESS</code> property
-        <pre class="prettyprint">
-            <code>System.out.println("*Origin destination* of the message: " + messageReceived.getStringProperty("_AMQ_ORIG_ADDRESS"));</code>
-        </pre>
-
-        <li>We do not forget to commit the session to acknowledge that we have received the message from the dead letter queue</li>
-        <pre class="prettyprint">
-            <code>session.commit();</code>
-        </pre>
-
-        </p>    
-        <li>And finally, <b>always</b> remember to close your JMS connections and resources after use, in a <code>finally</code> block. Closing a JMS connection will automatically close all of its sessions, consumers, producer and browser objects</li>
-
-        <pre class="prettyprint">
-           <code>finally
-           {
-              if (initialContext != null)
-              {
-                initialContext.close();
-              }
-              if (connection != null)
-              {
-                 connection.close();
-              }
-           }</code>
-        </pre>
-     </ol>
-     
-     <h2>More information</h2>
-     
-     <ul>
-        <li>User Manual's <a href="../../../docs/user-manual/en/html_single/index.html#undelivered-messages">Undelivered Messages chapter</a></li>
-     </ul>
   </body>
 </html>

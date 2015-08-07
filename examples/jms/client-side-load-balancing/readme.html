@@ -26,6 +26,7 @@ under the License.
   </head>
   <body onload="prettyPrint()">
      <h1>JMS Client-Side Load-Balancing Example</h1>
+     <pre>To run the example, simply type <b>mvn verify</b> from this directory, <br>or <b>mvn -PnoServer verify</b> if you want to start and create the server manually.</pre>
 
      <p>This example demonstrates how connnections created from a single JMS Connection factory can be created
      to different nodes of the cluster. In other words it demonstrates how ActiveMQ Artemis does <b>client side load balancing</b> of
@@ -40,129 +41,9 @@ under the License.
      <p>This example starts three servers which all broadcast their location using UDP discovery. The UDP broadcast configuration
      can be seen in the <code>broker.xml</code> file.</p>
      <p>A JMS ConnectionFactory is deployed on each server specifying the discovery group that will be used by that
-     connection factory.</p>      
+     connection factory.</p>
      <p>For more information on ActiveMQ Artemis load balancing, and clustering in general, please see the clustering
-     section of the user manual.</p>      
+     section of the user manual.</p>
 
-     <h2>Example step-by-step</h2>
-     <p><i>To run the example, simply type <code>mvn verify -Pexample</code> from this directory</i></p>
-
-     <ol>
-        <li> Get an initial context for looking up JNDI from server 0.</li>
-        <pre class="prettyprint">
-           <code>initialContext = getContext(0);</code>
-        </pre>
-
-        <li>Look-up the JMS Queue object from JNDI</li>
-        <pre class="prettyprint">
-           <code>Queue queue = (Queue)initialContext.lookup("/queue/exampleQueue");</code>
-        </pre>
-
-        <li>Look-up a JMS Connection Factory object from JNDI on server 0</li>
-        <pre class="prettyprint">
-           <code>ConnectionFactory connectionFactory = (ConnectionFactory)initialContext.lookup("/ConnectionFactory");</code>
-        </pre>
-
-        <li> We create 3 JMS connections from the same connection factory. Since we are using round-robin
-         load-balancing this should result in each sessions being connected to a different node of the cluster</li>
-        <pre class="prettyprint">
-           <code>
-        Connection conn = connectionFactory.createConnection();
-        connectionA = connectionFactory.createConnection();
-        connectionB = connectionFactory.createConnection();
-        connectionC = connectionFactory.createConnection();
-        conn.close();
-           </code>
-        </pre>
-
-        <li>We create JMS Sessions</li>
-        <pre class="prettyprint">
-           <code>
-         Session sessionA = connectionA.createSession(false, Session.AUTO_ACKNOWLEDGE);
-         Session sessionB = connectionB.createSession(false, Session.AUTO_ACKNOWLEDGE);
-         Session sessionC = connectionC.createSession(false, Session.AUTO_ACKNOWLEDGE);
-           </code>
-        </pre>
-
-        <li>We create JMS MessageProducer objects on the sessions</li>
-        <pre class="prettyprint">
-           <code>
-        MessageProducer producerA = sessionA.createProducer(queue);
-        MessageProducer producerB = sessionB.createProducer(queue);
-        MessageProducer producerC = sessionC.createProducer(queue);
-           </code>
-        </pre>
-        
-        <li>We send some messages on each producer</li>
-        <pre class="prettyprint">
-           <code>
-         final int numMessages = 10;
-
-         for (int i = 0; i < numMessages; i++)
-         {
-            TextMessage messageA = sessionA.createTextMessage("A:This is text message " + i);
-            producerA.send(messageA);
-            System.out.println("Sent message: " + messageA.getText());
-            
-            TextMessage messageB = sessionB.createTextMessage("B:This is text message " + i);
-            producerB.send(messageB);
-            System.out.println("Sent message: " + messageB.getText());
-            
-            TextMessage messageC = sessionC.createTextMessage("C:This is text message " + i);
-            producerC.send(messageC);
-            System.out.println("Sent message: " + messageC.getText());            
-         }
-            </code>
-        </pre>
-        
-        <li>We start the connection to consume messages</li>
-        <pre class="prettyprint">
-           <code>
-       connectionA.start();
-       connectionB.start();
-       connectionC.start();
-           </code>
-        </pre>
-
-         <li>We consume messages from the 3 session, one at a time.<br>
-            We try to consume one more message than expected from each session. If
-            the session were not properly load-balanced, we would be missing a 
-            message from one of the sessions at the end.</li>
-         <pre class="prettyprint">
-            <code>
-         consume(sessionA, queue, numMessages, "A");
-         consume(sessionB, queue, numMessages, "B");
-         consume(sessionC, queue, numMessages, "C");
-            </code>
-         </pre>
-
-        <li>And finally (no pun intended), <b>always</b> remember to close your JMS resources after use, in a <code>finally</code> block. Closing a JMS connection will automatically close all of its sessions, consumers, producer and browser objects</li>
-
-        <pre class="prettyprint">
-           <code>
-	finally
-	{
-	     if (connectionA != null)
-         {
-            connectionA.close();
-         }
-         if (connectionB != null)
-         {
-            connectionB.close();
-         }
-         if (connectionC != null)
-         {
-            connectionC.close();
-         }
-
-         if (initialContext != null)
-         {
-            initialContext.close();
-         }
-	}
-           </code>
-        </pre>
-
-     </ol>
-  </body>
+   </body>
 </html>

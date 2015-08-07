@@ -16,9 +16,12 @@
  */
 package org.apache.activemq.artemis.jms.example;
 
-import javax.jms.*;
-import javax.naming.InitialContext;
-import java.lang.Exception;
+import javax.jms.JMSContext;
+import javax.jms.JMSProducer;
+import javax.jms.Queue;
+
+import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 
 /**
  * A simple JMS example that shows how AutoCloseable is used by JMS 2 resources.
@@ -27,45 +30,24 @@ public class JMSAutoCloseableExample
 {
    public static void main(final String[] args) throws Exception
    {
-      InitialContext initialContext = null;
+      // Step 2. Perfom a lookup on the queue
+      Queue queue = ActiveMQJMSClient.createQueue("exampleQueue");
+
+      // Step 4.Create a JMS Context using the try-with-resources statement
       try
+         (
+            // Even though ConnectionFactory is not closeable it would be nice to close an ActiveMQConnectionFactory
+            ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory();
+            JMSContext jmsContext = cf.createContext()
+         )
       {
-         // Step 1. Create an initial context to perform the JNDI lookup.
-         initialContext = new InitialContext();
+         // Step 5. create a jms producer
+         JMSProducer jmsProducer = jmsContext.createProducer();
 
-         // Step 2. Perfom a lookup on the queue
-         Queue queue = (Queue)initialContext.lookup("queue/exampleQueue");
+         // Step 6. Try sending a message, we don't have the appropriate privileges to do this so this will throw an exception
+         jmsProducer.send(queue, "A Message from JMS2!");
 
-         // Step 3. Perform a lookup on the Connection Factory
-         ConnectionFactory cf = (ConnectionFactory)initialContext.lookup("ConnectionFactory");
-
-         // Step 4.Create a JMS Context using the try-with-resources statement
-         try
-                 (
-                         JMSContext jmsContext = cf.createContext()
-                 )
-         {
-            // Step 5. create a jms producer
-            JMSProducer jmsProducer = jmsContext.createProducer();
-
-            // Step 6. Try sending a message, we don't have the appropriate privileges to do this so this will throw an exception
-            jmsProducer.send(queue, "this message will fail security!");
-         }
-         catch(JMSRuntimeException e)
-         {
-            //Step 7. we can handle the new JMSRuntimeException if we want or let the exception get handled elsewhere, the
-            //JMSCcontext will have been closed by the time we get to this point
-            System.out.println("expected exception from jmsProducer.send: " + e.getMessage());
-         }
-      }
-      finally
-      {
-         // Step 8. Be sure to close our Initial Context, note that we don't have to close the JMSContext as it is auto closeable
-         //and closed by the vm
-         if (initialContext != null)
-         {
-            initialContext.close();
-         }
+         System.out.println("Received:" + jmsContext.createConsumer(queue).receiveBody(String.class));
       }
    }
 }

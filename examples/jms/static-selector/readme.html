@@ -27,134 +27,34 @@ under the License.
   <body onload="prettyPrint()">
      <h1>Static Message Selector Example</h1>
 
+     <pre>To run the example, simply type <b>mvn verify</b> from this directory, <br>or <b>mvn -PnoServer verify</b> if you want to start and create the server manually.</pre>
+
+
      <p>This example shows you how to configure a ActiveMQ Artemis queue with static message selectors (filters)
         (to configure a static selector directly on a <em>JMS</em> queue, please see the
         <a href="../static-selector-jms/readme.html">static-selector-jms example</a>).</p>
-     
+
      <p>Static message selectors are ActiveMQ's extension to message selectors as defined in JMS spec 1.1.
-     Rather than specifying the selector in the application code, static message selectors are defined in one of 
+     Rather than specifying the selector in the application code, static message selectors are defined in one of
      ActiveMQ's configuration files, broker.xml, as an element called 'filter' inside each queue
      definition, like</p>
-     
+
      <pre class="prettyprint"><code>
-      &lt;queues&gt;     
+      &lt;queues&gt;
       	&lt;queue name=&quot;jms.queue.selectorQueue&quot;&gt;
       	    &lt;address&gt;jms.queue.selectorQueue&lt;/address&gt;
       	    &lt;filter string=&quot;color='red'&quot;/&gt;
       	&lt;/queue&gt;
       &lt;/queues&gt;
      </code></pre>
-     
+
      <p>Once configured the queue 'selectorQueue' only delivers messages that are selected against the filter, i.e.,
      only the messages whose 'color' properties are of 'red' values can be received by its consumers. Those that don't match
      the filter will be dropped by the queue and therefore will never be delivered to any of its consumers.</p>
-      
+
      <p>In the example code, five messages with different 'color' property values are sent to queue 'selectorQueue'. One consumer
-     is created to receive messages from the queue. Of the five sent messages, two are of 'red' color properties, one is 'blue', 
+     is created to receive messages from the queue. Of the five sent messages, two are of 'red' color properties, one is 'blue',
      one is 'green' and one has not the 'color' property at all. The result is that the consumer only gets the two 'red' messages.</p>
-     
 
-     <h2>Example step-by-step</h2>
-     <p><i>To run the example, simply type <code>mvn verify -Pexample</code> from this directory</i></p>
-
-     <ol>
-        <li>First we need to get an initial context so we can look-up the JMS connection factory and destination objects from JNDI. This initial context will get it's properties from the <code>client-jndi.properties</code> file in the directory <code>../common/config</code></li>
-        <pre class="prettyprint">
-           <code>InitialContext initialContext = getContext();</code>
-        </pre>
-
-        <li>We look-up the JMS queue object from JNDI, this is the queue that has filter configured with it.</li>
-        <pre class="prettyprint">
-           <code>Queue queue = (Queue) initialContext.lookup("/queue/selectorQueue");</code>
-        </pre>
-
-        <li>We look-up the JMS connection factory object from JNDI</li>
-        <pre class="prettyprint">
-           <code>ConnectionFactory cf = (ConnectionFactory) initialContext.lookup("/ConnectionFactory");</code>
-        </pre>
-
-        <li>We create a JMS connection</li>
-        <pre class="prettyprint">
-           <code>connection = cf.createConnection();</code>
-        </pre>
-
-        <li>We start the connection</li>
-        <pre class="prettyprint">
-           <code>connection.start();</code>
-        </pre>
-
-        <li>We create a JMS session. The session is created as non transacted and will auto acknowledge messages.</li>
-        <pre class="prettyprint">
-           <code>Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);</code>
-        </pre>
-
-        <li>We create a JMS message producer on the session. This will be used to send the messages.</li>
-        <pre class="prettyprint">
-          <code>MessageProducer producer = session.createProducer(queue);</code>
-       </pre>
-
-        <li>We create a JMS message consumer that receives 'red' messages. The message listener will
-            check the 'color' property on each received message.</li>
-         <pre class="prettyprint">
-           <code>
-         MessageConsumer redConsumer = session.createConsumer(queue);
-         redConsumer.setMessageListener(new SimpleMessageListener("red"));
-           </code>
-         </pre>
-
-        <li>We reate five messages with different 'color' properties.</li>
-        <pre class="prettyprint">
-          <code>
-         TextMessage redMessage1 = session.createTextMessage("Red-1");
-         redMessage1.setStringProperty("color", "red");
-         TextMessage redMessage2 = session.createTextMessage("Red-2");
-         redMessage2.setStringProperty("color", "red");
-         TextMessage greenMessage = session.createTextMessage("Green");
-         greenMessage.setStringProperty("color", "green");
-         TextMessage blueMessage = session.createTextMessage("Blue");
-         blueMessage.setStringProperty("color", "blue");
-         TextMessage normalMessage = session.createTextMessage("No color");
-         </code>
-        </pre>
-
-        <li>We send those messages.</li>
-        <pre class="prettyprint">
-          <code>
-         producer.send(redMessage1);
-         System.out.println("Message sent: " + redMessage1.getText());
-         producer.send(greenMessage);
-         System.out.println("Message sent: " + greenMessage.getText());
-         producer.send(blueMessage);
-         System.out.println("Message sent: " + blueMessage.getText());
-         producer.send(redMessage2);
-         System.out.println("Message sent: " + redMessage2.getText());
-         producer.send(normalMessage);
-         System.out.println("Message sent: " + normalMessage.getText());
-          </code>
-        </pre>
-
-        <li>Waiting for the message listener to check the received messages.</li>
-        <pre class="prettyprint">
-          <code>
-          Thread.sleep(5000);
-         </code>
-        </pre>
-        
-        <li>And finally, <b>always</b> remember to close your JMS connections and resources after use, in a <code>finally</code> block. Closing a JMS connection will automatically close all of its sessions, consumers, producer and browser objects</li>
-
-        <pre class="prettyprint">
-           <code>finally
-           {
-              if (initialContext != null)
-              {
-                initialContext.close();
-              }
-              if (connection != null)
-              {
-                 connection.close();
-              }
-           }</code>
-        </pre>
-     </ol>
   </body>
 </html>

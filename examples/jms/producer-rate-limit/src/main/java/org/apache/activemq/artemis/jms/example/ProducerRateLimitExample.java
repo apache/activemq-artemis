@@ -23,7 +23,9 @@ import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
-import javax.naming.InitialContext;
+
+import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 
 /**
  * This example demonstrates how a message producer can be limited to produce messages at a maximum rate
@@ -34,17 +36,13 @@ public class ProducerRateLimitExample
    public static void main(final String[] args) throws Exception
    {
       Connection connection = null;
-      InitialContext initialContext = null;
       try
       {
-         // Step 1. Create an initial context to perform the JNDI lookup.
-         initialContext = new InitialContext();
-
          // Step 2. Perfom a lookup on the queue
-         Queue queue = (Queue)initialContext.lookup("queue/exampleQueue");
+         Queue queue = ActiveMQJMSClient.createQueue("exampleQueue");
 
          // Step 3. Perform a lookup on the Connection Factory
-         ConnectionFactory cf = (ConnectionFactory)initialContext.lookup("ConnectionFactory");
+         ConnectionFactory cf = new ActiveMQConnectionFactory("tcp://localhost:61616?producerMaxRate=50");
 
          // Step 4. Create a JMS Connection
          connection = cf.createConnection();
@@ -106,10 +104,6 @@ public class ProducerRateLimitExample
       finally
       {
          // Step 9. Be sure to close our resources!
-         if (initialContext != null)
-         {
-            initialContext.close();
-         }
          if (connection != null)
          {
             connection.close();

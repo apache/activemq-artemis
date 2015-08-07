@@ -27,9 +27,12 @@ under the License.
   <body onload="prettyPrint()">
      <h1>Asynchronous Send Acknowledgements Example</h1>
 
+     <pre>To run the example, simply type <b>mvn verify</b> from this directory, <br>or <b>mvn -PnoServer verify</b> if you want to start and create the server manually.</pre>
+
+
      <p>Asynchronous Send Acknowledgements are an advanced feature of ActiveMQ Artemis which allow you to
      receive acknowledgements that messages were successfully received at the server in a separate thread to the sending thread<p/>
-     <p>In this example we create a normal JMS session, then set a SendAcknowledgementHandler on the JMS 
+     <p>In this example we create a normal JMS session, then set a SendAcknowledgementHandler on the JMS
      session's underlying core session. We send many messages to the server without blocking and asynchronously
      receive send acknowledgements via the SendAcknowledgementHandler.
 
@@ -64,12 +67,12 @@ under the License.
          class MySendAcknowledgementsHandler implements SendAcknowledgementHandler
          {
             int count = 0;
-            
+
             public void sendAcknowledged(final Message message)
             {
                System.out.println("Received send acknowledgement for message " + count++);
-            }            
-         }           
+            }
+         }
            </code>
         </pre>
 
@@ -82,9 +85,9 @@ under the License.
         <pre class="prettyprint">
            <code>
          ClientSession coreSession = ((ActiveMQSession)session).getCoreSession();
-         
+
          coreSession.setSendAcknowledgementHandler(new MySendAcknowledgementsHandler());
-           
+
            </code>
         </pre>
 
@@ -92,8 +95,8 @@ under the License.
         <pre class="prettyprint">
            <code>
          MessageProducer producer = session.createProducer(queue);
-         
-         producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);           
+
+         producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
            </code>
         </pre>
 
@@ -101,19 +104,19 @@ under the License.
           <pre class="prettyprint">
            <code>
          final int numMessages = 5000;
-         
+
          for (int i = 0; i < numMessages; i++)
          {
             javax.jms.Message jmsMessage = session.createMessage();
-            
+
             producer.send(jmsMessage);
-            
+
             System.out.println("Sent message " + i);
-         }           
+         }
            </code>
         </pre>
 
-       
+
         <li>And finally, <b>always</b> remember to close your JMS connections and resources after use, in a <code>finally</code> block. Closing a JMS connection will automatically close all of its sessions, consumers, producer and browser objects</li>
 
         <pre class="prettyprint">

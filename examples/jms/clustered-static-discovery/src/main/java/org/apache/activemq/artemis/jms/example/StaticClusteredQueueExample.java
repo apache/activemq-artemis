@@ -16,8 +16,6 @@
  */
 package org.apache.activemq.artemis.jms.example;
 
-import org.apache.activemq.artemis.util.ServerUtil;
-
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -25,8 +23,10 @@ import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
-import javax.naming.InitialContext;
-import java.util.Hashtable;
+
+import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.util.ServerUtil;
 
 /**
  * A simple example that demonstrates server side load-balancing of messages between the queue instances on different
@@ -46,22 +46,13 @@ public class StaticClusteredQueueExample
 
       Connection connection3 = null;
 
-      InitialContext ic0 = null;
-
       try
       {
-         // Step 1. Get an initial context for looking up JNDI from server 3
-         Hashtable<String, Object> properties = new Hashtable<String, Object>();
-         properties.put("java.naming.factory.initial", "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
-         properties.put("connectionFactory.ConnectionFactory", "tcp://localhost:61619");
-         properties.put("queue.queue/exampleQueue", "exampleQueue");
-         ic0 = new InitialContext(properties);
+         // Step 2. Use direct instantiation (or JNDI if you like)
+         Queue queue = ActiveMQJMSClient.createQueue("exampleQueue");
 
-         // Step 2. Look-up the JMS Queue object from JNDI
-         Queue queue = (Queue)ic0.lookup("queue/exampleQueue");
-
-         // Step 3. Look-up a JMS Connection Factory object from JNDI on server 0
-         ConnectionFactory cf0 = (ConnectionFactory)ic0.lookup("ConnectionFactory");
+         // Step 3. new JMS Connection Factory object from JNDI on server 3
+         ConnectionFactory cf0 = new ActiveMQConnectionFactory("tcp://localhost:61619");
 
          //grab an initial connection and wait, in reality you wouldn't do it this way but since we want to ensure an
          // equal load balance we do this and then create 4 connections round robined
@@ -188,11 +179,6 @@ public class StaticClusteredQueueExample
          if (connection3 != null)
          {
             connection3.close();
-         }
-
-         if (ic0 != null)
-         {
-            ic0.close();
          }
       }
    }

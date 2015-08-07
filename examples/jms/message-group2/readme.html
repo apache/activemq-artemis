@@ -27,13 +27,16 @@ under the License.
   <body onload="prettyPrint()">
      <h1>Message Group Example</h1>
 
+     <pre>To run the example, simply type <b>mvn verify</b> from this directory, <br>or <b>mvn -PnoServer verify</b> if you want to start and create the server manually.</pre>
+
+
      <p>This example shows you how to configure and use message groups via a connection factory with ActiveMQ Artemis.</p>
-     
+
      <p>Message groups are sets of messages that has the following characteristics: </p>
      <li>Messages in a message group share the same group id, i.e. they have same JMSXGroupID string property values.</li>
      <li>Messages in a message group will be all delivered to no more than one of the queue's consumers. The consumer that receives the
      first message of a group will receive all the messages that belongs to the group.</li>
-     
+
      <p>You can make any message belong to a message group by setting a 'group-id' on the connection factory. All producers created via this connection factory will set that group id on its messages.
      In this example we set the group id 'Group-0'on a connection factory and send messages via 2 different producers and check that only 1 consumer receives them. </p>
 
@@ -43,7 +46,6 @@ under the License.
         be part of this message group.</p>
 
      <h2>Example step-by-step</h2>
-     <p><i>To run the example, simply type <code>mvn verify -Pexample</code> from this directory</i></p>
      <ol>
         <li>First we need to get an initial context so we can look-up the JMS connection factory and destination objects from JNDI. This initial context will get it's properties from the <code>client-jndi.properties</code> file in the directory <code>../common/config</code></li>
         <pre class="prettyprint">
@@ -148,12 +150,12 @@ under the License.
            }</code>
         </pre>
      </ol>
-     
+
      <h2>More information</h2>
-     
+
      <ul>
          <li>User Manual's <a href="../../../docs/user-manual/en/html_single/index.html#message-grouping2">Message Grouping chapter</a></li>
      </ul>
-     
+
   </body>
 </html>

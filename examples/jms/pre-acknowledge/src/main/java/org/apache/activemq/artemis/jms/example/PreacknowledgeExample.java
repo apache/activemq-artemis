@@ -27,11 +27,11 @@ import javax.jms.QueueRequestor;
 import javax.jms.QueueSession;
 import javax.jms.Session;
 import javax.jms.TextMessage;
-import javax.naming.InitialContext;
 
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSConstants;
 import org.apache.activemq.artemis.api.jms.management.JMSManagementHelper;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 
 /**
  * This example demonstrates the use of ActiveMQ Artemis "pre-acknowledge" functionality where
@@ -44,17 +44,14 @@ public class PreacknowledgeExample
    public static void main(final String[] args) throws Exception
    {
       Connection connection = null;
-
-      InitialContext initialContext = null;
       try
       {
-         // Step 1. Create an initial context to perform the JNDI lookup.
-         initialContext = new InitialContext();
 
-         // Step 2. Perform the look-ups
-         Queue queue = (Queue)initialContext.lookup("queue/exampleQueue");
+         // Step 2. instantiate the queue object
+         Queue queue = ActiveMQJMSClient.createQueue("exampleQueue");
 
-         ConnectionFactory cf = (ConnectionFactory)initialContext.lookup("ConnectionFactory");
+         // new connection factory
+         ConnectionFactory cf = new ActiveMQConnectionFactory();
 
          // Step 3. Create a the JMS objects
          connection = cf.createConnection();
@@ -102,10 +99,6 @@ public class PreacknowledgeExample
       finally
       {
          // Step 9. Be sure to close our resources!
-         if (initialContext != null)
-         {
-            initialContext.close();
-         }
          if (connection != null)
          {
             connection.close();

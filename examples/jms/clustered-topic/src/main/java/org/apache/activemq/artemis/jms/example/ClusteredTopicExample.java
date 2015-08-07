@@ -24,7 +24,9 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.jms.Topic;
 import javax.naming.InitialContext;
-import java.util.Hashtable;
+
+import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 
 /**
  * A simple example that shows a JMS Topic clustered across two nodes of a cluster.
@@ -44,56 +46,44 @@ public class ClusteredTopicExample
 
       try
       {
-         // Step 1. Get an initial context for looking up JNDI from server 0
-         Hashtable<String, Object> properties = new Hashtable<String, Object>();
-         properties.put("java.naming.factory.initial", "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
-         properties.put("connectionFactory.ConnectionFactory", "tcp://localhost:61616");
-         properties.put("topic.topic/exampleTopic", "exampleTopic");
-         ic0 = new InitialContext(properties);
 
-         // Step 2. Look-up the JMS Topic object from JNDI
-         Topic topic = (Topic)ic0.lookup("topic/exampleTopic");
+         // Step 1. Instantiate topic
+         Topic topic = ActiveMQJMSClient.createTopic("exampleTopic");
 
-         // Step 3. Look-up a JMS Connection Factory object from JNDI on server 0
-         ConnectionFactory cf0 = (ConnectionFactory)ic0.lookup("ConnectionFactory");
+         // Step 2. Look-up a JMS Connection Factory object from JNDI on server 0
+         ConnectionFactory cf0 = new ActiveMQConnectionFactory("tcp://localhost:61616");
 
-         // Step 4. Get an initial context for looking up JNDI from server 1
-         properties = new Hashtable<String, Object>();
-         properties.put("java.naming.factory.initial", "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
-         properties.put("connectionFactory.ConnectionFactory", "tcp://localhost:61617");
-         ic1 = new InitialContext(properties);
+         // Step 3. Look-up a JMS Connection Factory object from JNDI on server 1
+         ConnectionFactory cf1 = new ActiveMQConnectionFactory("tcp://localhost:61617");
 
-         // Step 5. Look-up a JMS Connection Factory object from JNDI on server 1
-         ConnectionFactory cf1 = (ConnectionFactory)ic1.lookup("ConnectionFactory");
-
-         // Step 6. We create a JMS Connection connection0 which is a connection to server 0
+         // Step 4. We create a JMS Connection connection0 which is a connection to server 0
          connection0 = cf0.createConnection();
 
-         // Step 7. We create a JMS Connection connection1 which is a connection to server 1
+         // Step 5. We create a JMS Connection connection1 which is a connection to server 1
          connection1 = cf1.createConnection();
 
-         // Step 8. We create a JMS Session on server 0
+         // Step 6. We create a JMS Session on server 0
          Session session0 = connection0.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-         // Step 9. We create a JMS Session on server 1
+         // Step 7. We create a JMS Session on server 1
          Session session1 = connection1.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-         // Step 10. We start the connections to ensure delivery occurs on them
+         // Step 8. We start the connections to ensure delivery occurs on them
          connection0.start();
 
          connection1.start();
 
-         // Step 11. We create JMS MessageConsumer objects on server 0 and server 1
+         // Step 9. We create JMS MessageConsumer objects on server 0 and server 1
          MessageConsumer consumer0 = session0.createConsumer(topic);
 
          MessageConsumer consumer1 = session1.createConsumer(topic);
 
          Thread.sleep(1000);
 
-         // Step 12. We create a JMS MessageProducer object on server 0
+         // Step 10. We create a JMS MessageProducer object on server 0
          MessageProducer producer = session0.createProducer(topic);
 
-         // Step 13. We send some messages to server 0
+         // Step 11. We send some messages to server 0
 
          final int numMessages = 10;
 
@@ -106,7 +96,7 @@ public class ClusteredTopicExample
             System.out.println("Sent message: " + message.getText());
          }
 
-         // Step 14. We now consume those messages on *both* server 0 and server 1.
+         // Step 12. We now consume those messages on *both* server 0 and server 1.
          // We note that all messages have been consumed by *both* consumers.
          // JMS Topics implement *publish-subscribe* messaging where all consumers get a copy of all messages
 

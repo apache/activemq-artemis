@@ -26,11 +26,14 @@ under the License.
   </head>
   <body onload="prettyPrint()">
      <h1>JMS Failover Without Transactions Example</h1>
-     
+
+     <pre>To run the example, simply type <b>mvn verify</b> from this directory.</pre>
+
+
      <p>This example demonstrates two servers coupled as a live-backup pair for high availability (HA), and a client
      connection failing over from live to backup when the live server is crashed.</p>
      <p>Failover behavior differs whether the JMS session is transacted or not.</p>
-     <p>When a <em>non-transacted</em> JMS session is used, once and only once delivery is not guaranteed 
+     <p>When a <em>non-transacted</em> JMS session is used, once and only once delivery is not guaranteed
         and it is possible some messages will be lost or delivered twice, depending when the failover to the backup server occurs.</p>
      <p>It is up to the client to deal with such cases. To ensure once and only once delivery, the client must
         use transacted JMS sessions (as shown in the example for <a href="../transaction-failover/readme.html">failover with transactions</a>).</p>
@@ -38,7 +41,6 @@ under the License.
      section of the user manual.</p>
 
      <h2>Example step-by-step</h2>
-     <p><i>To run the example, simply type <code>mvn verify -Pexample</code> from this directory</i></p>
      <p>In this example, the live server is server 1, and the backup server is server 0</p>
      <p>The connection will initially be created to server1, server 1 will crash, and the client will carry on
      seamlessly on server 0, the backup server.</p>
@@ -58,12 +60,12 @@ under the License.
         <pre class="prettyprint">
            connection = connectionFactory.createConnection();
         </pre>
-        
+
         <li>Create a JMS <em>non-transacted</em> Session with client acknowledgement</li>
         <pre class="prettyprint">
            Session session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
         </pre>
-        
+
         <li>Start the connection to ensure delivery occurs</li>
         <pre class="prettyprint">
            connection.start();
@@ -84,7 +86,7 @@ under the License.
               System.out.println("Sent message: " + message.getText());
            }
         </pre>
-        
+
         <li>Receive and acknowledge half of the sent messages</li>
         <pre class="prettyprint">
            TextMessage message0 = null;
@@ -95,7 +97,7 @@ under the License.
            }
            message0.acknowledge();
         </pre>
-        
+
         <li>Receive the second half of the sent messages but <em>do not acknowledge them yet</em></li>
         <pre class="prettyprint">
            for (int i = numMessages / 2; i &lt; numMessages; i++)
@@ -104,7 +106,7 @@ under the License.
               System.out.println("Got message: " + message0.getText());
            }
         </pre>
-              
+
         <li>Crash server #1, the live server, and wait a little while to make sure it has really crashed.</li>
         <pre class="prettyprint">
            killServer(1);
@@ -122,7 +124,7 @@ under the License.
               System.err.println("Got exception while acknowledging message: " + e.getMessage());
            }
         </pre>
-           
+
          <li>Consume again the second half of the messages againg. Note that they are not considered as redelivered</li>
         <pre class="prettyprint">
            for (int i = numMessages / 2; i &lt; numMessages; i++)
@@ -132,7 +134,7 @@ under the License.
            }
            message0.acknowledge();
         </pre>
-        
+
         <li>And finally, <strong>always</strong> remember to close your resources after use, in a <code>finally</code> block. Closing a JMS connection will automatically close all of its sessions, consumers, producer and browser objects</li>
 
         <pre class="prettyprint">

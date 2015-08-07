@@ -26,7 +26,7 @@ public class InputAbstract extends ActionAbstract
 
    private Scanner scanner;
 
-   @Option(name = "--silent-input", description = "It will disable all the inputs, and it would make a best guess for any required input")
+   @Option(name = "--silent", description = "It will disable all the inputs, and it would make a best guess for any required input")
    private boolean silentInput = false;
 
    public boolean isSilentInput()

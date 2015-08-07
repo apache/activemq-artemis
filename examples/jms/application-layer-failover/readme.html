@@ -27,6 +27,8 @@ under the License.
   <body onload="prettyPrint()">
      <h1>Application-Layer Failover Example</h1>
 
+     <pre>To run the example, simply type <b>mvn verify</b> from this directory. This example will always spawn and stop multiple servers.</pre>
+
      <p>ActiveMQ Artemis implements fully transparent <b>automatic</b> failover of connections from a live node to a backup node which requires
      no special coding. This is described in a different example and requires server replication.</p>
      <p>However, ActiveMQ Artemis also supports <b>Application-Layer</b> failover which is useful in the case where replication is not enabled.</p>
@@ -37,12 +39,11 @@ under the License.
      <p>Application-Layer failover is an alternative approach to High Availabilty (HA).</p>
      <p>Application-Layer failover differs from automatic failover in that some client side coding is required in order
      to implement this. Also, with Application-Layer failover, since the old Session object dies and a new is created, any uncommitted
-     work in the old Session will be lost, and any unacknowledged messages might be redelivered.</p>    
+     work in the old Session will be lost, and any unacknowledged messages might be redelivered.</p>
      <p>For more information on ActiveMQ Artemis failover and HA, and clustering in general, please see the clustering
-     section of the user manual.</p>      
+     section of the user manual.</p>
 
      <h2>Example step-by-step</h2>
-     <p><i>To run the example, simply type <code>mvn verify -Pexample</code> from this directory</i></p>
      <p>In this example, the live server is server 1, which will failover onto server 0.</p>
      <p>The connection will initially be created to server1, server 1 will crash, and the client will carry on
      on server 0, the new  server. With Application-Layer failover the node that is failed over onto, does not need to
@@ -87,13 +88,13 @@ under the License.
          }
           </code>
         </pre>
-        
+
         <li>We now cause server 1, the live server to crash. After a little while the connection's
             ExceptionListener will register the failure and reconnection will occur.</li>
         <pre class="prettyprint">
            <code>killServer(1);</code>
         </pre>
-        
+
         <li>The connection's ExceptionListener gets called, and we lookup the JMS objects and
         recreate the connection, session, etc on the other node 0.</li>
         <pre class="prettyprint">
@@ -121,7 +122,7 @@ under the License.
             e.printStackTrace();
          }
       }
-   }   
+   }
            </code>
         </pre>
 
@@ -138,7 +139,7 @@ under the License.
          }
            </code>
         </pre>
-        
+
         <li>And consume them.</li>
         <pre class="prettyprint">
            <code>

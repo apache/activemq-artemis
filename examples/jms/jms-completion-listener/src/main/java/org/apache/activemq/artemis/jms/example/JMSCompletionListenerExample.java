@@ -29,6 +29,9 @@ import java.lang.IllegalStateException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+
 /**
  * A JMS Completion Listener Example.
  */
@@ -36,18 +39,14 @@ public class JMSCompletionListenerExample
 {
    public static void main(final String[] args) throws Exception
    {
-      InitialContext initialContext = null;
       JMSContext jmsContext = null;
       try
       {
-         // Step 1. Create an initial context to perform the JNDI lookup.
-         initialContext = new InitialContext();
-
          // Step 2. Perfom a lookup on the queue
-         Queue queue = (Queue)initialContext.lookup("queue/exampleQueue");
+         Queue queue = ActiveMQJMSClient.createQueue("exampleQueue");
 
          // Step 3. Perform a lookup on the Connection Factory
-         ConnectionFactory cf = (ConnectionFactory)initialContext.lookup("ConnectionFactory");
+         ConnectionFactory cf = new ActiveMQConnectionFactory("tcp://localhost:61616?confirmationWindowSize=10240");
 
          // Step 4.Create a JMS Context
          jmsContext = cf.createContext();
@@ -85,11 +84,6 @@ public class JMSCompletionListenerExample
       }
       finally
       {
-         // Step 8. Be sure to close our JMS resources!
-         if (initialContext != null)
-         {
-            initialContext.close();
-         }
          if (jmsContext != null)
          {
             jmsContext.close();

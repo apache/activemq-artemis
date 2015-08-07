@@ -16,8 +16,6 @@
  */
 package org.apache.activemq.artemis.jms.example;
 
-import java.util.Hashtable;
-
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Message;
@@ -30,6 +28,7 @@ import javax.naming.InitialContext;
 
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.api.jms.management.JMSManagementHelper;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 
 /**
  * This examples demonstrates a connection created to a server. Failure of the network connection is then simulated
@@ -127,11 +126,7 @@ public class ReattachExample
    // when the main connection has been stopped
    private static void stopStartAcceptor(final boolean stop) throws Exception
    {
-      Hashtable<String, Object> properties = new Hashtable<String, Object>();
-      properties.put("java.naming.factory.initial", "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
-      properties.put("connectionFactory.ConnectionFactory", "tcp://localhost:61617");
-      InitialContext initialContext = new InitialContext(properties);
-      ConnectionFactory cf = (ConnectionFactory)initialContext.lookup("ConnectionFactory");
+      ConnectionFactory cf = new ActiveMQConnectionFactory("tcp://localhost:61617");
 
       Connection connection = null;
       try

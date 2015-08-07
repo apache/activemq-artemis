@@ -27,10 +27,13 @@ under the License.
   <body onload="prettyPrint()">
      <h1>JMS Message Producer Rate Limiting</h1>
 
+     <pre>To run the example, simply type <b>mvn verify</b> from this directory, <br>or <b>mvn -PnoServer verify</b> if you want to start and create the server manually.</pre>
+
+
      <p>With ActiveMQ Artemis you can specify a maximum send rate at which a JMS MessageProducer will send messages.
      This can be specified when creating or deploying the connection factory. See <code>activemq-jms.xml</code></p>
      <p>If this value is specified then ActiveMQ Artemis will ensure that messages are never produced at a rate higher than
-     specified. This is a form of producer <i>throttling</i>.</p>     
+     specified. This is a form of producer <i>throttling</i>.</p>
      <h2>Example step-by-step</h2>
      <p>In this example we specify a <code>producer-max-rate</code> of <code>50</code> messages per second in the <code>activemq-jms.xml</code>
      file when deploying the connection factory:</p>
@@ -39,20 +42,18 @@ under the License.
    &lt;connection-factory name="ConnectionFactory"&gt;
       &lt;connector-ref connector-name="netty-connector"/&gt;
       &lt;entries&gt;
-         &lt;entry name="ConnectionFactory"/&gt;       
+         &lt;entry name="ConnectionFactory"/&gt;
       &lt;/entries&gt;
-      
+
       &lt;!-- We limit producers created on this connection factory to produce messages at a maximum rate
       of 50 messages per sec --&gt;
       &lt;producer-max-rate&gt;50&lt;/producer-max-rate&gt;
-      
+
    &lt;/connection-factory&gt;
      </code>
      </pre>
      <p>We then simply send as many messages as we can in 10 seconds and note how many messages are actually sent.</p>
      <p>We note that the number of messages sent per second never exceeds the specified value of <code>50</code> messages per second.</p>
-
-     <p><i>To run the example, simply type <code>mvn verify -Pexample</code> from this directory</i></p>
 
      <ol>
         <li>Create an initial context to perform the JNDI lookup.</li>
@@ -107,13 +108,13 @@ under the License.
 
         System.out.println("We sent " + i + " messages in " + (end - start) + " milliseconds");
 
-        System.out.println("Actual send rate was " + rate + " messages per second");                      
+        System.out.println("Actual send rate was " + rate + " messages per second");
            </code>
         </pre>
-        
+
         <li>We note that the sending rate doesn't exceed 50 messages per second. Here's some example output from a real
         run</li>
-        
+
         <pre class="prettyprint">
            <code>
      [java] Will now send as many messages as we can in 10 seconds...
@@ -121,7 +122,7 @@ under the License.
      [java] Actual send rate was 49.64257347100874 messages per second
            </code>
         </pre>
-           
+
 
         <li>For good measure we consumer the messages we produced.</li>
         <pre class="prettyprint">
@@ -145,8 +146,8 @@ under the License.
            i++;
         }
 
-        System.out.println("Received " + i + " messages");           
-           
+        System.out.println("Received " + i + " messages");
+
            </code>
         </pre>
 
@@ -160,7 +161,7 @@ under the License.
               {
                 initialContext.close();
               }
-              
+
               if (connection != null)
               {
                  connection.close();

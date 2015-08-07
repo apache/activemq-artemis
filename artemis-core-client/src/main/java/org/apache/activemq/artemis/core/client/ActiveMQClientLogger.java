@@ -181,7 +181,7 @@ public interface ActiveMQClientLogger extends BasicLogger
    @Message(id = 212028, value = "error starting server locator", format = Message.Format.MESSAGE_FORMAT)
    void errorStartingLocator(@Cause Exception e);
 
-   @LogMessage(level = Logger.Level.WARN)
+   @LogMessage(level = Logger.Level.DEBUG)
    @Message(id = 212029,
             value = "Closing a Server Locator left open. Please make sure you close all Server Locators explicitly before letting them go out of scope! {0}",
             format = Message.Format.MESSAGE_FORMAT)

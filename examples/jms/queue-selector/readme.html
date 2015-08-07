@@ -27,139 +27,26 @@ under the License.
   <body onload="prettyPrint()">
      <h1>JMS Queue Selector Example</h1>
 
+     <pre>To run the example, simply type <b>mvn verify</b> from this directory, <br>or <b>mvn -PnoServer verify</b> if you want to start and create the server manually.</pre>
+
      <p>This example shows you how to selectively consume messages using message selectors with queue consumers.</p>
-     
+
      <p>Message selectors are strings with special syntax that can be used in creating consumers. Message consumers
      created with a message selector will only receive messages that match its selector. On message delivery, the JBoss Message
      Server evaluates the corresponding message headers of the messages against each selector, if any, and then delivers
      the 'matched' messages to its consumer. Please consult the JMS 1.1 specification for full details.</p>
-     
+
      <p>In this example, three message consumers are created on a queue. The first consumer is created with selector
      <code>'color=red'</code>, it only receives messages that
-     have a 'color' string property of 'red' value; the second is created with selector <code>'color=green'</code>, it 
-     only receives messages who have a 'color' string property of 
+     have a 'color' string property of 'red' value; the second is created with selector <code>'color=green'</code>, it
+     only receives messages who have a 'color' string property of
      'green' value; and the third without a selector, which means it receives all messages. To illustrate, three messages
      with different 'color' property values are created and sent.</p>
 
      <p>Selectors can be used with both queue consumers and topic consumers. The difference is that with queue consumers,
      a message is only delivered to one consumer on the queue, while topic consumers the message will be delivered to every
-     matching consumers. In this example, if the third consumer (anyConsumer) were the first consumer created, it will 
+     matching consumers. In this example, if the third consumer (anyConsumer) were the first consumer created, it will
      consume the first message delivered, therefore there is no chance for the next consumer to get the message, even if it
      matches the selector.</p>
-     
-
-     <h2>Example step-by-step</h2>
-     <p><i>To run the example, simply type <code>mvn verify -Pexample</code> from this directory</i></p>
-
-     <ol>
-        <li>First we need to get an initial context so we can look-up the JMS connection factory and destination objects from JNDI. This initial context will get it's properties from the <code>client-jndi.properties</code> file in the directory <code>../common/config</code></li>
-        <pre class="prettyprint">
-           <code>InitialContext initialContext = getContext();</code>
-        </pre>
-
-        <li>We look-up the JMS queue object from JNDI</li>
-        <pre class="prettyprint">
-           <code>Queue queue = (Queue) initialContext.lookup("/queue/exampleQueue");</code>
-        </pre>
-
-        <li>We look-up the JMS connection factory object from JNDI</li>
-        <pre class="prettyprint">
-           <code>ConnectionFactory cf = (ConnectionFactory) initialContext.lookup("/ConnectionFactory");</code>
-        </pre>
-
-        <li>We create a JMS connection</li>
-        <pre class="prettyprint">
-           <code>connection = cf.createConnection();</code>
-        </pre>
-
-        <li>We start the connection</li>
-        <pre class="prettyprint">
-           <code>connection.start();</code>
-        </pre>
-
-        <li>We create a JMS session. The session is created as non transacted and will auto acknowledge messages.</li>
-        <pre class="prettyprint">
-           <code>Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);</code>
-        </pre>
-
-        <li>We create a JMS message producer on the session. This will be used to send the messages.</li>
-        <pre class="prettyprint">
-          <code>MessageProducer messageProducer = session.createProducer(queue);</code>
-       </pre>
-
-        <li>We create two selectors.</li>
-         <pre class="prettyprint">
-           <code>
-           String redSelector = "color='red'";
-           String greenSelector = "color='green'";
-           </code>
-         </pre>
-
-        <li>We Create a JMS Message Consumer that receives 'red' messages.</li>
-        <pre class="prettyprint">
-          <code>
-          MessageConsumer redConsumer = session.createConsumer(queue, redSelector);
-          redConsumer.setMessageListener(new SimpleMessageListener("red"));
-         </code>
-        </pre>
-
-        <li>We Create a second JMS Message Consumer that receives 'green' messages.</li>
-        <pre class="prettyprint">
-          <code>
-          MessageConsumer greenConsumer = session.createConsumer(queue, greenSelector);
-          greenConsumer.setMessageListener(new SimpleMessageListener("green"));
-         </code>
-        </pre>
-
-        <li>We Create another JMS Message Consumer that receives all messages. Please not that the order
-        of consumers on a queue is of significance. If the anyConsumer is created before the above two, the 
-        result will be totally different.</li>
-        <pre class="prettyprint">
-          <code>
-          MessageConsumer anyConsumer = session.createConsumer(queue);
-          anyConsumer.setMessageListener(new SimpleMessageListener("any"));
-         </code>
-        </pre>
-
-        <li>We Create three messages, each has a different color property.</li>
-        <pre class="prettyprint">
-           <code>
-           TextMessage redMessage = session.createTextMessage("Red");
-           redMessage.setStringProperty("color", "red");
-           TextMessage greenMessage = session.createTextMessage("Green");
-           greenMessage.setStringProperty("color", "green");
-           TextMessage blueMessage = session.createTextMessage("Blue");
-           blueMessage.setStringProperty("color", "blue");
-           </code>
-        </pre>
-
-        <li>We send the messages to the topic</li>
-        <pre class="prettyprint">
-           <code>
-           producer.send(redMessage);
-           System.out.println("Message sent: " + redMessage.getText());
-           producer.send(greenMessage);
-           System.out.println("Message sent: " + greenMessage.getText());
-           producer.send(blueMessage);
-           System.out.println("Message sent: " + blueMessage.getText());
-           </code>
-        </pre>
-        
-        <li>And finally, <b>always</b> remember to close your JMS connections and resources after use, in a <code>finally</code> block. Closing a JMS connection will automatically close all of its sessions, consumers, producer and browser objects</li>
-
-        <pre class="prettyprint">
-           <code>finally
-           {
-              if (initialContext != null)
-              {
-                initialContext.close();
-              }
-              if (connection != null)
-              {
-                 connection.close();
-              }
-           }</code>
-        </pre>
-     </ol>
   </body>
 </html>

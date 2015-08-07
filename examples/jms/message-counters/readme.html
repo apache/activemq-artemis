@@ -27,6 +27,8 @@ under the License.
   <body onload="prettyPrint()">
      <h1>JMS Message Counter Example</h1>
 
+     <pre>To run the example, simply type <b>mvn verify</b> from this directory, <br>or <b>mvn -PnoServer verify</b> if you want to start and create the server manually.</pre>
+
      <p>This example shows you how to use message counters to obtain message information for a JMS queue.</p>
      <p>The example will show how to configure sampling of message counters.<br />
          We will produce and consume 1 message from a queue. Interleaved with the JMS operation, we will retrieve the queue's message counters
@@ -45,9 +47,8 @@ under the License.
          the <code>message-counter-max-day-history</code> parameter.</p>
      <p>The sample period and the max day history parameters have a small impact on the performance of ActiveMQ Artemis (the resources taken to sample a queue are not available to the system's
          normal use). You should set these parameters accordingly to the use and throughput of your messages.</p>
-         
+
      <h2>Example step-by-step</h2>
-     <p><i>To run the example, simply type <code>mvn verify -Pexample</code> from this directory</i></p>
      <ol>
         <li>First we need to get an initial context so we can look-up the JMS connection factory and destination objects from JNDI. This initial context will get it's properties from the <code>client-jndi.properties</code> file in the directory <code>../common/config</code></li>
         <pre class="prettyprint">
@@ -70,7 +71,7 @@ under the License.
             QueueSession session = connection.createQueueSession(false, Session.AUTO_ACKNOWLEDGE);
             MessageProducer producer = session.createProducer(queue);</code>
        </pre>
-       
+
         <li>We create and send a JMS text message</li>
         <pre class="prettyprint">
             <code>TextMessage message = session.createTextMessage("This is a text message");
@@ -84,7 +85,7 @@ under the License.
             <code>System.out.println("Sleep a little bit to have the queue sampled...");
             Thread.sleep(3000);</code>
         </pre>
-        
+
         <p>We now need to retrieve the message counters. They're available from the JMS Queue management resource. In this example, we
             will retrieve them using JMX (see the <a href="../jmx/readme.html">JMX example</a> for a more complete description). You can also use JMS message to retrieve them (see the <a href="../management/readme.html">Management example</a> to
             learn about managing ActiveMQ Artemis using JMS messages).</p>
@@ -106,12 +107,12 @@ under the License.
             <code>String counters = queueControl.listMessageCounter();
             MessageCounterInfo messageCounter = MessageCounterInfo.fromJSON(counters);</code>>
         </pre>
-        
+
         <li>We display the message counters</li>
         <pre class="prettyprint">
             <code>displayMessageCounter(messageCounter);</code>
         </pre>
-        
+
         <p>The message counter contains a variety of metrics on the queue which is sampled (total messages added to the queue, current depth of the queue, deltas since the last sample, timestamp
             of the last message added, timestamp of the last sample, etc.)</p>
         <pre class="prettyprint">
@@ -119,34 +120,34 @@ under the License.
             private void displayMessageCounter(MessageCounterInfo counter)
             {
                System.out.format("%s (sample updated at %s)\n",  counter.getName(), counter.getUdpateTimestamp());
-               System.out.format("   %s message(s) added to the queue (since last sample: %s)\n", counter.getCount(), 
+               System.out.format("   %s message(s) added to the queue (since last sample: %s)\n", counter.getCount(),
                                                                                                   counter.getCountDelta());
                System.out.format("   %s message(s) in the queue (since last sample: %s)\n", counter.getDepth(),
                                                                                             counter.getDepthDelta());
                System.out.format("   last message added at %s\n\n", counter.getLastAddTimestamp());
             }</code>
         </pre>
-                
+
         <li>We sleep again to have the queue sampled</li>
         <pre class="prettyprint">
             <code>System.out.println("Sleep a little bit again...");
             Thread.sleep(3000);</code>
         </pre>
-        
+
         <li>We list the message counters again</li>
         <pre class="prettyprint">
             <code>counters = queueControl.listMessageCounter();
             messageCounter = MessageCounterInfo.fromJSON(counters);
             displayMessageCounter(messageCounter);</code>
         </pre>
-        
+
         <p>We will now consume a message from the queue before listing a last time the message counters</p>
-        
+
         <li>We create a consumer for the queue</li>
         <pre class="prettyprint">
             <code>MessageConsumer consumer = session.createConsumer(queue);</code>
         </pre>
-        
+
         <li>We start the connection to receive messages on the consumer</li>
         <pre class="prettyprint">
            <code>connection.start();</code>
@@ -157,13 +158,13 @@ under the License.
            <code>TextMessage messageReceived = (TextMessage)consumer.receive(5000);
            System.out.format("Received message: %s\n\n", messageReceived.getText());</code>
         </pre>
-        
+
         <li>We sleep one last time to have the queue sampled</li>
         <pre class="prettyprint">
             <code>System.out.println("Sleep a little bit one last time...");
             Thread.sleep(3000);</code>
         </pre>
-        
+
         <li>We list the message counters a final time (this time with no message in the queue)</li>
         <pre class="prettyprint">
             <code>counters = queueControl.listMessageCounter();
@@ -171,7 +172,7 @@ under the License.
             displayMessageCounter(messageCounter);</code>
         </pre>
 
-        </p>    
+        </p>
         <li>And finally, <b>always</b> remember to close your JMS connections and resources after use, in a <code>finally</code> block. Closing a JMS connection will automatically close all of its sessions, consumers, producer and browser objects</li>
 
         <pre class="prettyprint">
@@ -188,9 +189,9 @@ under the License.
            }</code>
         </pre>
      </ol>
-     
+
      <li>User Manual's <a href="../../../docs/user-manual/en/html_single/index.html#management.message-counters">Message Counters chapter</a></li>
-     <li><a href="../../../docs/api/org/jboss/messaging/core/management/MessageCounterInfo.html">MessageCounterInfo</a> is a helper class used 
+     <li><a href="../../../docs/api/org/jboss/messaging/core/management/MessageCounterInfo.html">MessageCounterInfo</a> is a helper class used
         to create a MessageCounterInfo object from the JSON String which represents message counters</li>
   </body>
 </html>

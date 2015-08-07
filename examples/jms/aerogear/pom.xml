@@ -18,7 +18,8 @@ specific language governing permissions and limitations
 under the License.
 -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
    <modelVersion>4.0.0</modelVersion>
 
    <parent>
@@ -34,7 +35,7 @@ under the License.
       <activemq.basedir>${project.basedir}/../../..</activemq.basedir>
    </properties>
 
-   <artifactId>artemis-jms-aerogear-example</artifactId>
+   <artifactId>aerogear</artifactId>
    <packaging>jar</packaging>
    <name>ActiveMQ Artemis JMS AeroGear Example</name>
 
@@ -48,80 +49,86 @@ under the License.
 
    <profiles>
       <profile>
-         <id>example</id>
-         <build>
-            <plugins>
-               <plugin>
-                  <groupId>org.apache.activemq</groupId>
-                  <artifactId>artemis-maven-plugin</artifactId>
-                  <executions>
-                     <execution>
-                        <id>create</id>
-                        <goals>
-                           <goal>create</goal>
-                           <!-- todo add integration layer -->
-                        </goals>
-                        <configuration>
-                           <!-- this list was extracted from mvn dependency:tree on integration/aerogear -->
-                           <libList>
-                              <param>org.apache.activemq:artemis-aerogear-integration:${project.version}</param>
-                              <param>org.jboss.aerogear:unifiedpush-java-client:1.0.0</param>
-                              <param>net.iharder:base64:2.3.8</param>
-                              <param>com.fasterxml.jackson.core:jackson-annotations:2.3.0</param>
-                              <param>com.fasterxml.jackson.core:jackson-core:2.3.0</param>
-                              <param>org.jboss.resteasy:resteasy-jackson-provider:2.3.2.Final</param>
-                              <param>org.codehaus.jackson:jackson-core-asl:1.8.5</param>
-                              <param>org.codehaus.jackson:jackson-mapper-asl:1.8.5</param>
-                              <param>org.codehaus.jackson:jackson-jaxrs:1.8.5</param>
-                              <param>org.codehaus.jackson:jackson-xc:1.8.5</param>
-                           </libList>
-                        </configuration>
-                     </execution>
-                     <execution>
-                        <id>start</id>
-                        <goals>
-                           <goal>cli</goal>
-                        </goals>
-                        <configuration>
-                           <spawn>true</spawn>
-                           <testURI>tcp://localhost:61616</testURI>
-                           <args>
-                              <param>run</param>
-                           </args>
-                        </configuration>
-                     </execution>
-                     <execution>
-                        <id>runClient</id>
-                        <goals>
-                           <goal>runClient</goal>
-                        </goals>
-                        <configuration>
-                           <clientClass>org.apache.activemq.artemis.jms.example.AerogearExample</clientClass>
-                        </configuration>
-                     </execution>
-                     <execution>
-                        <id>stop</id>
-                        <goals>
-                           <goal>cli</goal>
-                        </goals>
-                        <configuration>
-                           <args>
-                              <param>stop</param>
-                           </args>
-                        </configuration>
-                     </execution>
-                  </executions>
-                  <dependencies>
-                     <dependency>
-                        <groupId>org.apache.activemq.examples.jms</groupId>
-                        <artifactId>artemis-jms-aerogear-example</artifactId>
-                        <version>${project.version}</version>
-                     </dependency>
-                  </dependencies>
-               </plugin>
-            </plugins>
-         </build>
+         <!-- specify -PnoServer if you don't want to start the server -->
+         <id>noServer</id>
+         <properties>
+            <noServer>true</noServer>
+         </properties>
       </profile>
    </profiles>
+   <build>
+      <plugins>
+         <plugin>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>artemis-maven-plugin</artifactId>
+            <executions>
+               <execution>
+                  <id>create</id>
+                  <goals>
+                     <goal>create</goal>
+                  </goals>
+                  <configuration>
+                     <ignore>${noServer}</ignore>
+                     <!-- this list was extracted from mvn dependency:tree on integration/aerogear -->
+                     <libList>
+                        <param>org.apache.activemq:artemis-aerogear-integration:${project.version}</param>
+                        <param>org.jboss.aerogear:unifiedpush-java-client:1.0.0</param>
+                        <param>net.iharder:base64:2.3.8</param>
+                        <param>com.fasterxml.jackson.core:jackson-annotations:2.3.0</param>
+                        <param>com.fasterxml.jackson.core:jackson-core:2.3.0</param>
+                        <param>org.jboss.resteasy:resteasy-jackson-provider:2.3.2.Final</param>
+                        <param>org.codehaus.jackson:jackson-core-asl:1.8.5</param>
+                        <param>org.codehaus.jackson:jackson-mapper-asl:1.8.5</param>
+                        <param>org.codehaus.jackson:jackson-jaxrs:1.8.5</param>
+                        <param>org.codehaus.jackson:jackson-xc:1.8.5</param>
+                     </libList>
+                  </configuration>
+               </execution>
+               <execution>
+                  <id>start</id>
+                  <goals>
+                     <goal>cli</goal>
+                  </goals>
+                  <configuration>
+                     <ignore>${noServer}</ignore>
+                     <spawn>true</spawn>
+                     <testURI>tcp://localhost:61616</testURI>
+                     <args>
+                        <param>run</param>
+                     </args>
+                  </configuration>
+               </execution>
+               <execution>
+                  <id>runClient</id>
+                  <goals>
+                     <goal>runClient</goal>
+                  </goals>
+                  <configuration>
+                     <clientClass>org.apache.activemq.artemis.jms.example.AerogearExample</clientClass>
+                  </configuration>
+               </execution>
+               <execution>
+                  <id>stop</id>
+                  <goals>
+                     <goal>cli</goal>
+                  </goals>
+                  <configuration>
+                     <ignore>${noServer}</ignore>
+                     <args>
+                        <param>stop</param>
+                     </args>
+                  </configuration>
+               </execution>
+            </executions>
+            <dependencies>
+               <dependency>
+                  <groupId>org.apache.activemq.examples.jms</groupId>
+                  <artifactId>aerogear</artifactId>
+                  <version>${project.version}</version>
+               </dependency>
+            </dependencies>
+         </plugin>
+      </plugins>
+   </build>
 
 </project>

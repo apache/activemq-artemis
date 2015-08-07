@@ -26,6 +26,8 @@ import javax.jms.Topic;
 import javax.naming.InitialContext;
 import java.util.Hashtable;
 
+import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+
 /**
  * A simple example that shows a JMS Durable Subscription across two nodes of a cluster.
  *
@@ -40,36 +42,15 @@ public class ClusteredDurableSubscriptionExample
 
       Connection connection1 = null;
 
-      InitialContext ic0 = null;
-
-      InitialContext ic1 = null;
-
       try
       {
-         // Step 1. Get an initial context for looking up JNDI from server 0
-         Hashtable<String, Object> properties = new Hashtable<String, Object>();
-         properties.put("java.naming.factory.initial", "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
-         properties.put("connectionFactory.ConnectionFactory", "tcp://localhost:61616");
-         properties.put("topic.topic/exampleTopic", "exampleTopic");
-         ic0 = new InitialContext(properties);
+         // Step 1. Instantiate the connection factory on server 0
+         ConnectionFactory cf0 = new ActiveMQConnectionFactory("tcp://localhost:61616");
 
-         // Step 2. Look-up the JMS Topic object from JNDI
-         Topic topic = (Topic)ic0.lookup("topic/exampleTopic");
+         // Step 2. nstantiate the connection factory on server 1
+         ConnectionFactory cf1 = new ActiveMQConnectionFactory("tcp://localhost:61617");
 
-         // Step 3. Look-up a JMS Connection Factory object from JNDI on server 0
-         ConnectionFactory cf0 = (ConnectionFactory)ic0.lookup("ConnectionFactory");
-
-         // Step 4. Get an initial context for looking up JNDI from server 1
-
-         properties = new Hashtable<String, Object>();
-         properties.put("java.naming.factory.initial", "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
-         properties.put("connectionFactory.ConnectionFactory", "tcp://localhost:61617");
-         ic1 = new InitialContext(properties);
-
-         // Step 5. Look-up a JMS Connection Factory object from JNDI on server 1
-         ConnectionFactory cf1 = (ConnectionFactory)ic1.lookup("ConnectionFactory");
-
-         // Step 6. We create a JMS Connection connection0 which is a connection to server 0
+         // Step 3. We create a JMS Connection connection0 which is a connection to server 0
          // and set the client-id
          connection0 = cf0.createConnection();
 
@@ -77,27 +58,30 @@ public class ClusteredDurableSubscriptionExample
 
          connection0.setClientID(clientID);
 
-         // Step 7. We create a JMS Connection connection1 which is a connection to server 1
+         // Step 4. We create a JMS Connection connection1 which is a connection to server 1
          // and set the same client-id
          connection1 = cf1.createConnection();
 
          connection1.setClientID(clientID);
 
-         // Step 8. We create a JMS Session on server 0
+         // Step 5. We create a JMS Session on server 0
          Session session0 = connection0.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-         // Step 9. We create a JMS Session on server 1
+         // Step 6. We create a JMS Session on server 1
          Session session1 = connection1.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-         // Step 10. We start the connections to ensure delivery occurs on them
+         // Step 7. We start the connections to ensure delivery occurs on them
          connection0.start();
 
          connection1.start();
 
-         // Step 11. We create JMS durable subscriptions with the same name and client-id on both nodes
+         // Step 8. We create JMS durable subscriptions with the same name and client-id on both nodes
          // of the cluster
 
          final String subscriptionName = "my-subscription";
+
+         // Step 9. lookup the topic
+         Topic topic = session0.createTopic("exampleTopic");
 
          MessageConsumer subscriber0 = session0.createDurableSubscriber(topic, subscriptionName);
 
@@ -105,10 +89,10 @@ public class ClusteredDurableSubscriptionExample
 
          Thread.sleep(1000);
 
-         // Step 12. We create a JMS MessageProducer object on server 0
+         // Step 10. We create a JMS MessageProducer object on server 0
          MessageProducer producer = session0.createProducer(topic);
 
-         // Step 13. We send some messages to server 0
+         // Step 11. We send some messages to server 0
 
          final int numMessages = 10;
 
@@ -121,7 +105,7 @@ public class ClusteredDurableSubscriptionExample
             System.out.println("Sent message: " + message.getText());
          }
 
-         // Step 14. We now consume those messages on *both* server 0 and server 1.
+         // Step 12. We now consume those messages on *both* server 0 and server 1.
          // Note that the messages have been load-balanced between the two nodes, with some
          // messages on node 0 and others on node 1.
          // The "logical" subscription is distributed across the cluster and contains exactly one copy of all the
@@ -149,16 +133,6 @@ public class ClusteredDurableSubscriptionExample
          if (connection1 != null)
          {
             connection1.close();
-         }
-
-         if (ic0 != null)
-         {
-            ic0.close();
-         }
-
-         if (ic1 != null)
-         {
-            ic1.close();
          }
       }
    }

@@ -27,12 +27,13 @@ under the License.
   <body onload="prettyPrint()">
      <h1>JMS Shared Consumer Example</h1>
 
+     <pre>To run the example, simply type <b>mvn verify</b> from this directory, <br>or <b>mvn -PnoServer verify</b> if you want to start and create the server manually.</pre>
+
      <p>This example shows you how can use shared consumers to share a subscription on a topic. In JMS 1.1 this was not allowed
      and so caused a scalability issue. In JMS 2 this restriction has been lifted so you can share the load across different
          threads and connections.</p>
 
      <h2>Example step-by-step</h2>
-     <p><i>To run the example, simply type <code>mvn verify -Pexample</code> from this directory</i></p>
 
      <ol>
         <li>First we need to get an initial context so we can look-up the JMS connection factory and destination objects from JNDI. This initial context will get it's properties from the <code>client-jndi.properties</code> file in the directory <code>../common/config</code></li>

@@ -20,9 +20,6 @@ import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.core.server.cluster.ha.SharedStoreMasterPolicy;
 
-/**
-* Created by andy on 04/09/14.
-*/
 public final class SharedStoreLiveActivation extends LiveActivation
 {
    //this is how we act when we initially start as live

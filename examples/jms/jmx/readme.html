@@ -27,6 +27,8 @@ under the License.
   <body onload="prettyPrint()">
      <h1>JMX Management Example</h1>
 
+     <pre>To run the example, simply type <b>mvn verify</b> from this directory, <br>or <b>mvn -PnoServer verify</b> if you want to start and create the server manually.</pre>
+
      <p>This example shows how to manage ActiveMQ Artemis using <a href="http://java.sun.com/javase/technologies/core/mntr-mgmt/javamanagement/">JMX</a></p>
 
      <h2>Example configuration</h2>
@@ -40,12 +42,11 @@ under the License.
              -Dcom.sun.management.jmxremote.authenticate=false</code>
         </pre>
         <p>These properties are explained in the Java 5 <a href="http://java.sun.com/j2se/1.5.0/docs/guide/management/agent.html#remote">Management guide</a>
-            (please note that for this example, we will disable user authentication for simplicity sake).</p>        
-        <p>With these properties, ActiveMQ Artemis server will be manageable remotely using standard JMX URL on port <code>3000</code>.</p> 
+            (please note that for this example, we will disable user authentication for simplicity sake).</p>
+        <p>With these properties, ActiveMQ Artemis server will be manageable remotely using standard JMX URL on port <code>3000</code>.</p>
      </p>
-         
+
      <h2>Example step-by-step</h2>
-     <p><em>To run the example, simply type <code>mvn verify -Pexample</code> from this directory</em></p>
      <ol>
         <li>First we need to get an initial context so we can look-up the JMS connection factory and destination objects from JNDI. This initial context will get its properties from <a href="server0/client-jndi.properties">client-jndi.properties</a></li>
         <pre class="prettyprint">
@@ -66,7 +67,7 @@ under the License.
         <pre class="prettyprint">
             <code>connection = cf.createConnection();</code>
         </pre>
-        
+
         <li>We create a JMS session. The session is created as non transacted and will auto acknowledge messages.</li>
         <pre class="prettyprint">
             <code>Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);</code>
@@ -89,7 +90,7 @@ under the License.
 
         <p><em>Now that we have a message in the queue, we will manage the queue by retrieving the number of messages in the queue
             (i.e. 1) and by removing the message which has been sent in step 8.</em></p>
-            
+
         <li>We retrieve the <code>ObjectName</code> corresponding to the queue using a helper class <code>ObjectNameBuilder</code></li>
         <pre class="prettyprint">
               <code>ObjectName on = ObjectNameBuilder.DEFAULT.getJMSQueueObjectName(queue.getQueueName());</code>
@@ -104,7 +105,7 @@ under the License.
         <pre class="prettyprint">
            <code>TextMessage messageReceived = (TextMessage) messageConsumer.receive(5000);</code>
         </pre>
-        
+
         <li>We create a <code>JMSQueueControl</code> proxy to manage the queue on the server</li>
         <pre class="prettyprint">
             <code>JMSQueueControl queueControl = (JMSQueueControl)MBeanServerInvocationHandler.newProxyInstance(mbsc,
@@ -113,7 +114,7 @@ under the License.
                                                                                               false);
              </code>
         </pre>
-                
+
         <li>We use this mbean proxy to retrieve the number of messages in the queue using the <code>getMessageCount</code> method</li>
         <pre class="prettyprint">
             <code>System.out.println(queueControl.getName() + " contains " + queueControl.getMessageCount() + " messages");</code>
@@ -123,36 +124,36 @@ under the License.
         <pre class="prettyprint">
             <code>System.out.println("message has been removed: " + queueControl.removeMessage(message.getJMSMessageID()));</code>
         </pre>
-        
+
         <li>We use again the mbean proxy to retrieve the number of messages. This time, it will display <code>0</code> messages</li>
         <pre class="prettyprint">
             <code>System.out.println(queueControl.getName() + " contains " + queueControl.getMessageCount() + " messages");</code>
         </pre>
-        
+
         <li>Now we have finish the management operations, we close the JMX connector</li>
         <pre class="prettyprint">
             <code>connector.close()</code>
         </pre>
 
         <p><em>We will now try to consume the message sent to the queue but it won't be there: it has been removed by the management operation</em></p>
-        
+
         <li>We create a JMS message consumer on the queue</li>
         <pre class="prettyprint">
             <code>MessageConsumer messageConsumer = session.createConsumer(queue);</code>
         </pre>
-        
+
         <li>We start the connection. In order for delivery to occur on any consumers or subscribers on a connection, the connection must be started</li>
         <pre class="prettyprint">
             <code>connection.start();</code>
         </pre>
-        
+
         <li>We try to receive a message from the queue. Since there is none, the call will timeout after 5000ms and messageReceived will be null
         </li>
         <pre class="prettyprint">
             <code>TextMessage messageReceived = (TextMessage) messageConsumer.receive(5000);
             System.out.println("Received message: " + messageReceived);</code>
         </pre>
-        
+
         <li>And finally, <b>always</b> remember to close your JMS connections and resources after use, in a <code>finally</code> block. Closing a JMS connection will automatically close all of its sessions, consumers, producer and browser objects</li>
 
         <pre class="prettyprint">
@@ -169,9 +170,9 @@ under the License.
            }</code>
         </pre>
      </ol>
-     
+
      <h2>More information</h2>
-     
+
      <ul>
         <li>User Manual's <a href="../../../docs/user-manual/en/html_single/index.html#management.jmx">Using Management Via JMX chapter</a></li>
         <li><a href="http://java.sun.com/j2se/1.5.0/docs/guide/management/agent.html">Java 5 Management guide</a></li>
