@@ -32,6 +32,7 @@ import org.apache.activemq.artemis.core.config.impl.SecurityConfiguration;
 import org.apache.activemq.artemis.core.registry.JndiBindingRegistry;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.security.Role;
+import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.settings.impl.SlowConsumerPolicy;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
@@ -196,12 +197,12 @@ public class ArtemisBrokerWrapper extends ArtemisBrokerBase
    private void translatePolicyMap(Configuration serverConfig, PolicyMap policyMap)
    {
       List allEntries = policyMap.getAllEntries();
+      Map<String, AddressSettings> settingsMap = serverConfig.getAddressesSettings();
       for (Object o : allEntries)
       {
          PolicyEntry entry = (PolicyEntry)o;
          org.apache.activemq.command.ActiveMQDestination targetDest = entry.getDestination();
          String match = getCorePattern(targetDest);
-         Map<String, AddressSettings> settingsMap = serverConfig.getAddressesSettings();
          AddressSettings settings = settingsMap.get(match);
          if (settings == null)
          {
@@ -214,6 +215,25 @@ public class ArtemisBrokerWrapper extends ArtemisBrokerBase
             settings.setSlowConsumerThreshold(1000);
             settings.setSlowConsumerCheckPeriod(1);
             settings.setSlowConsumerPolicy(SlowConsumerPolicy.NOTIFY);
+         }
+      }
+
+      PolicyEntry defaultEntry = policyMap.getDefaultEntry();
+      if (defaultEntry != null)
+      {
+         AddressSettings defSettings = settingsMap.get("#");
+         if (defSettings == null)
+         {
+            defSettings = new AddressSettings();
+            settingsMap.put("#", defSettings);
+         }
+         if (defaultEntry.isProducerFlowControl())
+         {
+            defSettings.setMaxSizeBytes(1).setAddressFullMessagePolicy(AddressFullMessagePolicy.BLOCK);
+            if (bservice.getSystemUsage().isSendFailIfNoSpace())
+            {
+               defSettings.setAddressFullMessagePolicy(AddressFullMessagePolicy.FAIL);
+            }
          }
       }
    }
@@ -237,9 +257,20 @@ public class ArtemisBrokerWrapper extends ArtemisBrokerBase
    @Override
    public void stop() throws Exception
    {
-      server.stop();
-      testQueues.clear();
-      stopped = true;
+      try
+      {
+         server.stop();
+         testQueues.clear();
+         stopped = true;
+      }
+      catch (Throwable t)
+      {
+         //ignore
+      }
+      finally
+      {
+         server = null;
+      }
    }
 
    public void makeSureQueueExists(String qname) throws Exception
