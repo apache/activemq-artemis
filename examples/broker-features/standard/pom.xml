@@ -1,0 +1,171 @@
+<?xml version='1.0'?>
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+   <modelVersion>4.0.0</modelVersion>
+
+   <parent>
+      <groupId>org.apache.activemq.examples.clustered</groupId>
+      <artifactId>broker-features</artifactId>
+      <version>1.0.1-SNAPSHOT</version>
+   </parent>
+
+   <groupId>org.apache.activemq.examples.broker</groupId>
+   <artifactId>jms-examples</artifactId>
+   <packaging>pom</packaging>
+   <name>ActiveMQ Artemis Standard Examples</name>
+
+   <properties>
+      <udp-address>231.7.7.7</udp-address>
+      <activemq.basedir>${project.basedir}/../../..</activemq.basedir>
+   </properties>
+
+   <profiles>
+      <profile>
+         <id>release</id>
+         <modules>
+            <module>bridge</module>
+            <module>browser</module>
+            <module>client-kickoff</module>
+            <module>consumer-rate-limit</module>
+            <module>dead-letter</module>
+            <module>delayed-redelivery</module>
+            <module>divert</module>
+            <module>durable-subscription</module>
+            <module>embedded</module>
+            <module>embedded-simple</module>
+            <module>expiry</module>
+            <module>http-transport</module>
+            <module>interceptor</module>
+            <module>instantiate-connection-factory</module>
+            <module>jms-auto-closeable</module>
+            <module>jms-bridge</module>
+            <module>jms-completion-listener</module>
+            <module>jms-context</module>
+            <module>jms-shared-consumer</module>
+            <module>jmx</module>
+            <module>large-message</module>
+            <module>last-value-queue</module>
+            <module>management</module>
+            <module>management-notifications</module>
+            <module>message-counters</module>
+            <module>message-group</module>
+            <module>message-group2</module>
+            <module>message-priority</module>
+            <module>no-consumer-buffering</module>
+            <module>paging</module>
+            <module>pre-acknowledge</module>
+            <module>producer-rate-limit</module>
+            <module>queue</module>
+            <module>queue-requestor</module>
+            <module>queue-selector</module>
+            <module>reattach-node</module>
+            <module>rest</module>
+            <module>request-reply</module>
+            <module>scheduled-message</module>
+            <module>security</module>
+            <module>send-acknowledgements</module>
+            <module>spring-integration</module>
+            <module>ssl-enabled</module>
+            <module>static-selector</module>
+            <module>temp-queue</module>
+            <module>topic</module>
+            <module>topic-hierarchies</module>
+            <module>topic-selector-example1</module>
+            <module>topic-selector-example2</module>
+            <module>transactional</module>
+            <module>xa-heuristic</module>
+            <module>xa-receive</module>
+            <module>xa-send</module>
+         </modules>
+      </profile>
+      <profile>
+         <id>examples</id>
+         <modules>
+            <module>bridge</module>
+            <module>browser</module>
+            <module>client-kickoff</module>
+            <module>consumer-rate-limit</module>
+            <module>dead-letter</module>
+            <module>delayed-redelivery</module>
+            <module>divert</module>
+            <module>durable-subscription</module>
+            <module>embedded</module>
+            <module>embedded-simple</module>
+            <module>expiry</module>
+            <module>http-transport</module>
+            <module>interceptor</module>
+            <module>jms-auto-closeable</module>
+            <module>instantiate-connection-factory</module>
+            <module>jms-bridge</module>
+            <module>jms-completion-listener</module>
+            <module>jms-context</module>
+            <module>jms-shared-consumer</module>
+            <module>jmx</module>
+            <module>large-message</module>
+            <module>last-value-queue</module>
+            <module>management</module>
+            <module>management-notifications</module>
+            <module>message-counters</module>
+            <module>message-group</module>
+            <module>message-group2</module>
+            <module>message-priority</module>
+            <module>no-consumer-buffering</module>
+            <module>paging</module>
+            <module>pre-acknowledge</module>
+            <module>producer-rate-limit</module>
+            <module>queue</module>
+            <module>queue-requestor</module>
+            <module>queue-selector</module>
+            <module>reattach-node</module>
+
+            <module>request-reply</module>
+            <module>rest</module>
+            <module>scheduled-message</module>
+            <module>security</module>
+            <module>send-acknowledgements</module>
+            <module>spring-integration</module>
+
+            <!-- ARTEMIS-197 FIX ME
+                 this one could be the case of leaving it out for good
+                 as it may require to be run manually
+            <module>ssl-enabled</module> -->
+
+            <module>static-selector</module>
+
+            <!--this needs to be run standalone as it needs manual intervention-->
+            <!--<module>stop-server-failover</module>-->
+
+            <module>temp-queue</module>
+            <module>topic</module>
+            <module>topic-hierarchies</module>
+            <module>topic-selector-example1</module>
+            <module>topic-selector-example2</module>
+            <module>transactional</module>
+            <module>xa-heuristic</module>
+            <module>xa-receive</module>
+            <module>xa-send</module>
+         </modules>
+      </profile>
+
+   </profiles>
+
+
+</project>

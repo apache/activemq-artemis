@@ -26,12 +26,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.nio.file.Files;
-import java.nio.file.attribute.PosixFilePermission;
 import java.text.DecimalFormat;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -43,15 +39,7 @@ import org.apache.activemq.artemis.cli.commands.util.SyncCalculation;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.jlibaio.LibaioContext;
 import org.apache.activemq.artemis.jlibaio.LibaioFile;
-
-import static java.nio.file.attribute.PosixFilePermission.GROUP_EXECUTE;
-import static java.nio.file.attribute.PosixFilePermission.GROUP_READ;
-import static java.nio.file.attribute.PosixFilePermission.GROUP_WRITE;
-import static java.nio.file.attribute.PosixFilePermission.OTHERS_EXECUTE;
-import static java.nio.file.attribute.PosixFilePermission.OTHERS_READ;
-import static java.nio.file.attribute.PosixFilePermission.OWNER_EXECUTE;
-import static java.nio.file.attribute.PosixFilePermission.OWNER_READ;
-import static java.nio.file.attribute.PosixFilePermission.OWNER_WRITE;
+import org.apache.activemq.artemis.utils.FileUtil;
 
 /**
  * CLI action that creates a broker instance directory.
@@ -701,13 +689,7 @@ public class Create extends InputAbstract {
    }
 
    private void makeExec(String path) throws IOException {
-      try {
-         File file = new File(directory, path);
-         Files.setPosixFilePermissions(file.toPath(), new HashSet<PosixFilePermission>(Arrays.asList(OWNER_READ, OWNER_WRITE, OWNER_EXECUTE, GROUP_READ, GROUP_WRITE, GROUP_EXECUTE, OTHERS_READ, OTHERS_EXECUTE)));
-      }
-      catch (Throwable ignore) {
-         // Our best effort was not good enough :)
-      }
+      FileUtil.makeExec(new File(directory, path));
    }
 
    private String[] getQueueList() {

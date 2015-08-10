@@ -17,7 +17,9 @@
 package org.apache.activemq.artemis.maven;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
@@ -28,6 +30,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.activemq.artemis.cli.Artemis;
+import org.apache.activemq.artemis.utils.FileUtil;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.descriptor.PluginDescriptor;
@@ -140,6 +143,9 @@ public class ArtemisCreatePlugin extends ArtemisAbstractPlugin {
    @Parameter(defaultValue = "${localRepository}")
    private org.apache.maven.artifact.repository.ArtifactRepository localRepository;
 
+   @Parameter(defaultValue = "${noServer}")
+   boolean ignore;
+
    /**
     * Validate if the directory is a artemis.home *
     *
@@ -171,10 +177,12 @@ public class ArtemisCreatePlugin extends ArtemisAbstractPlugin {
    }
 
    @Override
+   protected boolean isIgnore() {
+      return ignore;
+   }
+
+   @Override
    protected void doExecute() throws MojoExecutionException, MojoFailureException {
-      if (System.getProperty("bypassAddress") != null) {
-         System.out.println("BYPASSADDRESS");
-      }
       getLog().info("Local " + localRepository);
       MavenProject project = (MavenProject) getPluginContext().get("project");
 
@@ -251,6 +259,20 @@ public class ArtemisCreatePlugin extends ArtemisAbstractPlugin {
 
       getLog().debug("***** Server created at " + instance + " with home=" + home + " *****");
 
+      File commandLine = new File(instance.getParentFile(), "create-" + instance.getName() + ".sh");
+      FileOutputStream outputStream;
+      try {
+         outputStream = new FileOutputStream(commandLine);
+      }
+      catch (Exception e) {
+         e.printStackTrace();
+         throw new MojoExecutionException(e.getMessage(), e);
+      }
+
+      PrintStream commandLineStream = new PrintStream(outputStream);
+      commandLineStream.println("# These are the commands used to create " + instance.getName());
+      commandLineStream.println(getCommandline(listCommands));
+
       try {
          Artemis.execute(home, null, listCommands);
 
@@ -265,12 +287,20 @@ public class ArtemisCreatePlugin extends ArtemisAbstractPlugin {
                   Path target = instance.toPath().resolve("etc").resolve(file);
                   getLog().debug("Replacing " + file + " into " + target);
 
-                  Files.copy(configuration.toPath().resolve(file), target, StandardCopyOption.REPLACE_EXISTING);
+                  Path originalFile = configuration.toPath().resolve(file);
+                  Files.copy(originalFile, target, StandardCopyOption.REPLACE_EXISTING);
+
+                  commandLineStream.println("");
+                  commandLineStream.println("# replacing " + originalFile.getFileName() + " on the default configuration");
+                  commandLineStream.println("cp " + originalFile + " " + target);
                }
             }
          }
 
          if (libList != null) {
+            commandLineStream.println();
+            commandLineStream.println("# This is a list of files that need to be installed under ./lib.");
+            commandLineStream.println("# We are copying them from your maven lib home");
             for (int i = 0; i < libList.length; i++) {
                String[] splitString = libList[i].split(":");
 
@@ -302,10 +332,19 @@ public class ArtemisCreatePlugin extends ArtemisAbstractPlugin {
 
                getLog().debug("Artifact:: " + artifact + " file = " + artifactFile);
 
-               copyToLib(artifactFile);
+               copyToLib(artifactFile, commandLineStream);
 
             }
          }
+
+         commandLineStream.close();
+
+         FileUtil.makeExec(commandLine);
+
+         getLog().info("###################################################################################################");
+         getLog().info(commandLine.getName() + " created with commands to reproduce " + instance.getName());
+         getLog().info("under " + commandLine.getParent());
+         getLog().info("###################################################################################################");
 
       }
       catch (Exception e) {
@@ -314,9 +353,20 @@ public class ArtemisCreatePlugin extends ArtemisAbstractPlugin {
       }
    }
 
-   private void copyToLib(File projectLib) throws IOException {
+   private String getCommandline(ArrayList<String> listCommands) {
+      StringBuffer buffer = new StringBuffer();
+      buffer.append(home.getAbsolutePath() + "/bin/artemis ");
+      for (String string : listCommands) {
+         buffer.append(string + " ");
+      }
+      return buffer.toString();
+   }
+
+   private void copyToLib(File projectLib, PrintStream commandLineStream) throws IOException {
       Path target = instance.toPath().resolve("lib").resolve(projectLib.getName());
       target.toFile().mkdirs();
+
+      commandLineStream.println("cp " + projectLib.getAbsolutePath() + " " + target);
       getLog().debug("Copying " + projectLib.getName() + " as " + target.toFile().getAbsolutePath());
       Files.copy(projectLib.toPath(), target, StandardCopyOption.REPLACE_EXISTING);
    }

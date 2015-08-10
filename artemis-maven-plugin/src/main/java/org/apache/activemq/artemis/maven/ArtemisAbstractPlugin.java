@@ -20,18 +20,12 @@ package org.apache.activemq.artemis.maven;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Parameter;
 
 public abstract class ArtemisAbstractPlugin extends AbstractMojo {
 
-   /**
-    * It will ignore executioni if ignore has been set to true. This is useful as a property from the build.
-    */
-   @Parameter(defaultValue = "")
-   private boolean ignore;
 
    public void execute() throws MojoExecutionException, MojoFailureException {
-      if (ignore) {
+      if (isIgnore()) {
          getLog().debug("******************************************************************************************************");
          getLog().debug("Execution of " + getClass().getSimpleName() + " is being ignored as ignore has been set to true");
          getLog().debug("******************************************************************************************************");
@@ -40,6 +34,8 @@ public abstract class ArtemisAbstractPlugin extends AbstractMojo {
          doExecute();
       }
    }
+
+   protected abstract boolean isIgnore();
 
    protected abstract void doExecute() throws MojoExecutionException, MojoFailureException;
 }

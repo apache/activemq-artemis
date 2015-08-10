@@ -1,0 +1,95 @@
+<?xml version='1.0'?>
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+   <modelVersion>4.0.0</modelVersion>
+
+   <parent>
+      <groupId>org.apache.activemq.examples.clustered</groupId>
+      <artifactId>broker-features</artifactId>
+      <version>1.0.1-SNAPSHOT</version>
+   </parent>
+
+   <groupId>org.apache.activemq.examples.failover</groupId>
+   <artifactId>broker-failover</artifactId>
+   <packaging>pom</packaging>
+   <name>ActiveMQ Artemis Failover Examples</name>
+
+   <!-- Properties -->
+   <properties>
+      <!--
+      Explicitly declaring the source encoding eliminates the following
+      message: [WARNING] Using platform encoding (UTF-8 actually) to copy
+      filtered resources, i.e. build is platform dependent!
+      -->
+      <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+      <activemq.basedir>${project.basedir}/../../..</activemq.basedir>
+   </properties>
+
+   <profiles>
+      <profile>
+         <id>release</id>
+         <modules>
+            <module>application-layer-failover</module>
+            <module>client-side-failoverlistener</module>
+            <module>colocated-failover</module>
+            <module>colocated-failover-scale-down</module>
+            <module>ha-policy-autobackup</module>
+            <module>multiple-failover</module>
+            <module>multiple-failover-failback</module>
+            <module>non-transaction-failover</module>
+            <module>replicated-failback</module>
+            <module>replicated-failback-static</module>
+            <module>replicated-multiple-failover</module>
+            <module>replicated-transaction-failover</module>
+            <module>scale-down</module>
+            <module>stop-server-failover</module>
+            <module>transaction-failover</module>
+         </modules>
+      </profile>
+      <profile>
+         <id>examples</id>
+         <modules>
+            <module>application-layer-failover</module>
+            <module>client-side-failoverlistener</module>
+
+            <!-- ARTEMIS-197 FIX ME:
+            <module>colocated-failover</module>
+            <module>colocated-failover-scale-down</module> -->
+
+            <module>ha-policy-autobackup</module>
+            <module>multiple-failover</module>
+            <module>multiple-failover-failback</module>
+            <module>non-transaction-failover</module>
+
+            <!-- ARTEMIS-197 FIX ME:
+            <module>replicated-failback</module>
+            <module>replicated-failback-static</module> -->
+
+            <module>replicated-multiple-failover</module>
+            <module>replicated-transaction-failover</module>
+            <module>scale-down</module>
+            <module>transaction-failover</module>
+         </modules>
+      </profile>
+   </profiles>
+
+</project>

@@ -33,8 +33,7 @@ under the License.
    <name>ActiveMQ Artemis Examples</name>
 
    <properties>
-      <skipLicenseCheck>true</skipLicenseCheck>
-      <skipStyleCheck>true</skipStyleCheck>
+      <udp-address>231.7.7.7</udp-address>
       <activemq.basedir>${project.basedir}/..</activemq.basedir>
    </properties>
 
@@ -60,12 +59,43 @@ under the License.
       </pluginRepository>
    </pluginRepositories>
 
-   <!-- You need to activate -Pexamples to run all the examples -->
+   <profiles>
+      <profile>
+         <!-- specify -PnoServer if you don't want to start the servers on the tests -->
+         <id>noServer</id>
+         <properties>
+            <noServer>true</noServer>
+         </properties>
+      </profile>
+      <profile>
+         <!-- specify -PnoClient if you don't want to run the client part -->
+         <id>noClient</id>
+         <properties>
+            <noClient>true</noClient>
+         </properties>
+      </profile>
+      <profile>
+         <!-- the profile release won't execute anything. just compile and whatever else is needed -->
+         <id>release</id>
+         <properties>
+            <noServer>true</noServer>
+            <noClient>true</noClient>
+         </properties>
+      </profile>
+      <profile>
+         <!-- the profile release won't execute anything. just compile and whatever else is needed -->
+         <id>noRun</id>
+         <properties>
+            <noServer>true</noServer>
+            <noClient>true</noClient>
+         </properties>
+      </profile>
+   </profiles>
+
    <modules>
-      <module>core</module>
-      <module>jms</module>
-      <module>soak</module>
-      <module>mqtt</module>
+      <module>broker-features</module>
+      <module>perf</module>
+      <module>protocols</module>
    </modules>
 
 </project>
