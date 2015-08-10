@@ -31,23 +31,21 @@ import javax.naming.InitialContext;
  *
  * Please see the readme.html for more information
  */
-public class DelayedRedeliveryExample
-{
-   public static void main(final String[] args) throws Exception
-   {
+public class DelayedRedeliveryExample {
+
+   public static void main(final String[] args) throws Exception {
       Connection connection = null;
       InitialContext initialContext = null;
 
-      try
-      {
+      try {
          // Step 1. Create an initial context to perform the JNDI lookup.
          initialContext = new InitialContext();
 
          // Step 2. Perform a lookup on the queue
-         Queue queue = (Queue)initialContext.lookup("queue/exampleQueue");
+         Queue queue = (Queue) initialContext.lookup("queue/exampleQueue");
 
          // Step 3. Perform a lookup on the Connection Factory
-         ConnectionFactory cf = (ConnectionFactory)initialContext.lookup("ConnectionFactory");
+         ConnectionFactory cf = (ConnectionFactory) initialContext.lookup("ConnectionFactory");
 
          // Step 4. Create a JMS Connection
          connection = cf.createConnection();
@@ -76,7 +74,7 @@ public class DelayedRedeliveryExample
          connection.start();
 
          // Step 12. We receive a message...
-         TextMessage messageReceived = (TextMessage)messageConsumer.receive(5000);
+         TextMessage messageReceived = (TextMessage) messageConsumer.receive(5000);
          System.out.println("1st delivery from " + queue.getQueueName() + ": " + messageReceived.getText());
 
          // Step 13. ... but we roll back the session. the message returns to the queue, but only after a
@@ -84,10 +82,9 @@ public class DelayedRedeliveryExample
          session.rollback();
 
          // Step 14. We try to receive the message but it's being delayed
-         messageReceived = (TextMessage)messageConsumer.receive(3000);
+         messageReceived = (TextMessage) messageConsumer.receive(3000);
 
-         if (messageReceived != null)
-         {
+         if (messageReceived != null) {
             throw new IllegalStateException("Expected to recieve message.");
          }
 
@@ -95,7 +92,7 @@ public class DelayedRedeliveryExample
 
          // Step 15. We try and receive the message again, this time we should get it
 
-         messageReceived = (TextMessage)messageConsumer.receive(3000);
+         messageReceived = (TextMessage) messageConsumer.receive(3000);
 
          System.out.println("2nd delivery from " + queue.getQueueName() + ": " + messageReceived.getText());
 
@@ -105,26 +102,23 @@ public class DelayedRedeliveryExample
 
          session.rollback();
 
-         messageReceived = (TextMessage)messageConsumer.receive(8000);
+         messageReceived = (TextMessage) messageConsumer.receive(8000);
 
          long end = System.currentTimeMillis();
 
          System.out.println("3nd delivery from " + queue.getQueueName() +
-                                    ": " +
-                                    messageReceived.getText() +
-                                    " after " +
-                                    (end - start) +
-                                    " milliseconds.");
+                               ": " +
+                               messageReceived.getText() +
+                               " after " +
+                               (end - start) +
+                               " milliseconds.");
       }
-      finally
-      {
+      finally {
          // Step 17. Be sure to close our JMS resources!
-         if (initialContext != null)
-         {
+         if (initialContext != null) {
             initialContext.close();
          }
-         if (connection != null)
-         {
+         if (connection != null) {
             connection.close();
          }
       }

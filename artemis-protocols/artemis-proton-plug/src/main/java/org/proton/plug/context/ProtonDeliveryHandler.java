@@ -20,10 +20,10 @@ import org.apache.qpid.proton.engine.Delivery;
 import org.proton.plug.exceptions.ActiveMQAMQPException;
 
 /**
- *         An interface to handle deliveries, either messages, acks or transaction calls
+ * An interface to handle deliveries, either messages, acks or transaction calls
  */
-public interface ProtonDeliveryHandler
-{
+public interface ProtonDeliveryHandler {
+
    void onFlow(int currentCredits);
 
    void onMessage(Delivery delivery) throws ActiveMQAMQPException;

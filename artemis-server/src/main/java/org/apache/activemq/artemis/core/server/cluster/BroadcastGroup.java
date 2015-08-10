@@ -20,8 +20,8 @@ import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.core.server.management.NotificationService;
 
-public interface BroadcastGroup extends ActiveMQComponent
-{
+public interface BroadcastGroup extends ActiveMQComponent {
+
    void setNotificationService(NotificationService notificationService);
 
    String getName();

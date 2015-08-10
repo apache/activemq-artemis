@@ -17,8 +17,9 @@
 package org.apache.activemq.network;
 
 public class NetworkRestartPlainTest extends NetworkRestartTest {
-    @Override
-    protected String getLocalBrokerURI() {
-        return "org/apache/activemq/network/localBroker-plain.xml";
-    }
+
+   @Override
+   protected String getLocalBrokerURI() {
+      return "org/apache/activemq/network/localBroker-plain.xml";
+   }
 }

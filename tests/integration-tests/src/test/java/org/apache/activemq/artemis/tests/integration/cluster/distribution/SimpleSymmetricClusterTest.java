@@ -20,8 +20,7 @@ import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancing
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.junit.Test;
 
-public class SimpleSymmetricClusterTest extends ClusterTestBase
-{
+public class SimpleSymmetricClusterTest extends ClusterTestBase {
 
    // Constants -----------------------------------------------------
 
@@ -35,14 +34,12 @@ public class SimpleSymmetricClusterTest extends ClusterTestBase
 
    // Public --------------------------------------------------------
 
-   public boolean isNetty()
-   {
+   public boolean isNetty() {
       return false;
    }
 
    @Test
-   public void testSimpleWithBackup() throws Exception
-   {
+   public void testSimpleWithBackup() throws Exception {
       // The backups
       setupBackupServer(0, 3, isFileStorage(), true, isNetty());
       setupBackupServer(1, 4, isFileStorage(), true, isNetty());
@@ -65,34 +62,28 @@ public class SimpleSymmetricClusterTest extends ClusterTestBase
 
       setupClusterConnection("cluster2", "queues", MessageLoadBalancingType.ON_DEMAND, 1, isNetty(), 2, 3, 4);
 
-
       startServers(0, 1, 2, 3, 4, 5);
 
       log.info("");
-      for (int i = 0; i <= 5; i++)
-      {
+      for (int i = 0; i <= 5; i++) {
          log.info(servers[i].describe());
          log.info(debugBindings(servers[i], servers[i].getConfiguration().getManagementNotificationAddress().toString()));
       }
       log.info("");
 
       log.info("");
-      for (int i = 0; i <= 5; i++)
-      {
+      for (int i = 0; i <= 5; i++) {
          log.info(servers[i].describe());
          log.info(debugBindings(servers[i], servers[i].getConfiguration().getManagementNotificationAddress().toString()));
       }
       log.info("");
-
 
       stopServers(0, 1, 2, 3, 4, 5);
 
    }
 
-
    @Test
-   public void testSimple() throws Exception
-   {
+   public void testSimple() throws Exception {
       setupServer(0, true, isNetty());
       setupServer(1, true, isNetty());
       setupServer(2, true, isNetty());
@@ -130,8 +121,7 @@ public class SimpleSymmetricClusterTest extends ClusterTestBase
    }
 
    @Test
-   public void testSimple_TwoNodes() throws Exception
-   {
+   public void testSimple_TwoNodes() throws Exception {
       setupServer(0, false, isNetty());
       setupServer(1, false, isNetty());
 
@@ -161,10 +151,8 @@ public class SimpleSymmetricClusterTest extends ClusterTestBase
 
    static int loopNumber;
 
-   public void _testLoop() throws Throwable
-   {
-      for (int i = 0; i < 10; i++)
-      {
+   public void _testLoop() throws Throwable {
+      for (int i = 0; i < 10; i++) {
          loopNumber = i;
          log.info("#test " + i);
          testSimple();
@@ -173,10 +161,8 @@ public class SimpleSymmetricClusterTest extends ClusterTestBase
       }
    }
 
-
    @Test
-   public void testSimple2() throws Exception
-   {
+   public void testSimple2() throws Exception {
       setupServer(0, true, isNetty());
       setupServer(1, true, isNetty());
       setupServer(2, true, isNetty());
@@ -195,25 +181,21 @@ public class SimpleSymmetricClusterTest extends ClusterTestBase
 
       startServers(0, 1, 2, 3, 4);
 
-      for (int i = 0; i <= 4; i++)
-      {
+      for (int i = 0; i <= 4; i++) {
          waitForTopology(servers[i], 5);
       }
 
       log.info("All the servers have been started already!");
 
-      for (int i = 0; i <= 4; i++)
-      {
+      for (int i = 0; i <= 4; i++) {
          setupSessionFactory(i, isNetty());
       }
 
-      for (int i = 0; i <= 4; i++)
-      {
+      for (int i = 0; i <= 4; i++) {
          createQueue(i, "queues.testaddress", "queue0", null, false);
       }
 
-      for (int i = 0; i <= 4; i++)
-      {
+      for (int i = 0; i <= 4; i++) {
          addConsumer(i, i, "queue0", null);
       }
 
@@ -228,8 +210,7 @@ public class SimpleSymmetricClusterTest extends ClusterTestBase
    }
 
    @Test
-   public void testSimpleRoundRobbin() throws Exception
-   {
+   public void testSimpleRoundRobbin() throws Exception {
 
       //TODO make this test to crash a node
       setupServer(0, true, isNetty());
@@ -271,10 +252,8 @@ public class SimpleSymmetricClusterTest extends ClusterTestBase
 
       stopServers(2);
 
-
       waitForBindings(0, "queues.testaddress", 1, 1, false);
       waitForBindings(1, "queues.testaddress", 1, 1, false);
-
 
       send(0, "queues.testaddress", 100, true, null);
 
@@ -282,7 +261,6 @@ public class SimpleSymmetricClusterTest extends ClusterTestBase
 
       sfs[2] = null;
       consumers[2] = null;
-
 
       startServers(2);
 
@@ -304,9 +282,7 @@ public class SimpleSymmetricClusterTest extends ClusterTestBase
       verifyReceiveRoundRobinInSomeOrder(33, 2, 0, 1);
    }
 
-
-   public void _testSimpleRoundRobbinNoFailure() throws Exception
-   {
+   public void _testSimpleRoundRobbinNoFailure() throws Exception {
       //TODO make this test to crash a node
       setupServer(0, true, isNetty());
       setupServer(1, true, isNetty());
@@ -344,7 +320,6 @@ public class SimpleSymmetricClusterTest extends ClusterTestBase
 
       stopServers(2);
 
-
       send(0, "queues.testaddress", 100, true, null);
 
       verifyReceiveRoundRobin(100, 0, 1, -1);
@@ -367,7 +342,6 @@ public class SimpleSymmetricClusterTest extends ClusterTestBase
       waitForBindings(2, "queues.testaddress", 2, 2, false);
 
       verifyReceiveRoundRobin(100, -1, -1, 2);
-
 
    }
 

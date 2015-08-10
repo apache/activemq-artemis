@@ -17,7 +17,9 @@
 package org.apache.activemq.config;
 
 import javax.jms.Connection;
+
 import junit.framework.TestCase;
+
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.broker.BrokerFactory;
 import org.apache.activemq.broker.BrokerRegistry;
@@ -26,35 +28,35 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * 
+ *
  */
 public class BrokerPropertiesTest extends TestCase {
-    private static final transient Logger LOG = LoggerFactory.getLogger(BrokerPropertiesTest.class);
-    
-    public void testPropertiesFile() throws Exception {
-        BrokerService broker = BrokerFactory.createBroker("properties:org/apache/activemq/config/broker.properties");
 
-        LOG.info("Created broker: " + broker);
-        assertNotNull(broker);
+   private static final transient Logger LOG = LoggerFactory.getLogger(BrokerPropertiesTest.class);
 
-        assertEquals("isUseJmx()", false, broker.isUseJmx());
-        assertEquals("isPersistent()", false, broker.isPersistent());
-        assertEquals("getBrokerName()", "Cheese", broker.getBrokerName());
-        broker.stop();
-    }
+   public void testPropertiesFile() throws Exception {
+      BrokerService broker = BrokerFactory.createBroker("properties:org/apache/activemq/config/broker.properties");
 
+      LOG.info("Created broker: " + broker);
+      assertNotNull(broker);
 
-    public void testVmBrokerPropertiesFile() throws Exception {
-        ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("vm://localhost?brokerConfig=properties:org/apache/activemq/config/broker.properties");
-        Connection connection = factory.createConnection();
-        BrokerService broker = BrokerRegistry.getInstance().lookup("Cheese");
-        LOG.info("Found broker : " + broker);
-        assertNotNull(broker);
+      assertEquals("isUseJmx()", false, broker.isUseJmx());
+      assertEquals("isPersistent()", false, broker.isPersistent());
+      assertEquals("getBrokerName()", "Cheese", broker.getBrokerName());
+      broker.stop();
+   }
 
-        assertEquals("isUseJmx()", false, broker.isUseJmx());
-        assertEquals("isPersistent()", false, broker.isPersistent());
-        assertEquals("getBrokerName()", "Cheese", broker.getBrokerName());
-        connection.close();
-        broker.stop();
-    }
+   public void testVmBrokerPropertiesFile() throws Exception {
+      ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("vm://localhost?brokerConfig=properties:org/apache/activemq/config/broker.properties");
+      Connection connection = factory.createConnection();
+      BrokerService broker = BrokerRegistry.getInstance().lookup("Cheese");
+      LOG.info("Found broker : " + broker);
+      assertNotNull(broker);
+
+      assertEquals("isUseJmx()", false, broker.isUseJmx());
+      assertEquals("isPersistent()", false, broker.isPersistent());
+      assertEquals("getBrokerName()", "Cheese", broker.getBrokerName());
+      connection.close();
+      broker.stop();
+   }
 }

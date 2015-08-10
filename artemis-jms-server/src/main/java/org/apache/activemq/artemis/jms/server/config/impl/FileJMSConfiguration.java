@@ -36,8 +36,8 @@ import javax.management.MBeanServer;
 import java.util.ArrayList;
 import java.util.Map;
 
-public class FileJMSConfiguration extends JMSConfigurationImpl implements Deployable
-{
+public class FileJMSConfiguration extends JMSConfigurationImpl implements Deployable {
+
    private static final String CONFIGURATION_SCHEMA_URL = "schema/artemis-jms.xsd";
 
    private static final String CONFIGURATION_SCHEMA_ROOT_ELEMENT = "jms";
@@ -57,43 +57,39 @@ public class FileJMSConfiguration extends JMSConfigurationImpl implements Deploy
    private boolean parsed = false;
 
    @Override
-   public void parse(Element config) throws Exception
-   {
+   public void parse(Element config) throws Exception {
       parseConfiguration(config);
       parsed = true;
    }
 
    @Override
-   public boolean isParsed()
-   {
+   public boolean isParsed() {
       return parsed;
    }
 
    @Override
-   public String getRootElement()
-   {
+   public String getRootElement() {
       return CONFIGURATION_SCHEMA_ROOT_ELEMENT;
    }
 
    @Override
-   public void buildService(ActiveMQSecurityManager securityManager, MBeanServer mBeanServer, Map<String, Deployable> deployables, Map<String, ActiveMQComponent> components) throws Exception
-   {
+   public void buildService(ActiveMQSecurityManager securityManager,
+                            MBeanServer mBeanServer,
+                            Map<String, Deployable> deployables,
+                            Map<String, ActiveMQComponent> components) throws Exception {
       ActiveMQServerImpl server = (ActiveMQServerImpl) components.get("core");
       components.put(CONFIGURATION_SCHEMA_ROOT_ELEMENT, new JMSServerManagerImpl(server, this));
    }
 
    @Override
-   public String getSchema()
-   {
+   public String getSchema() {
       return CONFIGURATION_SCHEMA_URL;
    }
-
 
    /**
     * Parse the JMS Configuration XML
     */
-   public void parseConfiguration(final Node rootnode) throws Exception
-   {
+   public void parseConfiguration(final Node rootnode) throws Exception {
 
       ArrayList<JMSQueueConfiguration> queues = new ArrayList<>();
       ArrayList<TopicConfiguration> topics = new ArrayList<>();
@@ -101,25 +97,20 @@ public class FileJMSConfiguration extends JMSConfigurationImpl implements Deploy
       Element e = (Element) rootnode;
 
       String[] elements = new String[]{QUEUE_NODE_NAME, TOPIC_NODE_NAME};
-      for (String element : elements)
-      {
+      for (String element : elements) {
          NodeList children = e.getElementsByTagName(element);
-         for (int i = 0; i < children.getLength(); i++)
-         {
+         for (int i = 0; i < children.getLength(); i++) {
             Node node = children.item(i);
             Node keyNode = node.getAttributes().getNamedItem(NAME_ATTR);
-            if (keyNode == null)
-            {
+            if (keyNode == null) {
                ActiveMQJMSServerLogger.LOGGER.jmsConfigMissingKey(node);
                continue;
             }
 
-            if (node.getNodeName().equals(TOPIC_NODE_NAME))
-            {
+            if (node.getNodeName().equals(TOPIC_NODE_NAME)) {
                topics.add(parseTopicConfiguration(node));
             }
-            else if (node.getNodeName().equals(QUEUE_NODE_NAME))
-            {
+            else if (node.getNodeName().equals(QUEUE_NODE_NAME)) {
                queues.add(parseQueueConfiguration(node));
             }
          }
@@ -137,8 +128,7 @@ public class FileJMSConfiguration extends JMSConfigurationImpl implements Deploy
     * @return topic configuration
     * @throws Exception
     */
-   public static TopicConfiguration parseTopicConfiguration(final Node node) throws Exception
-   {
+   public static TopicConfiguration parseTopicConfiguration(final Node node) throws Exception {
       String topicName = node.getAttributes().getNamedItem(NAME_ATTR).getNodeValue();
 
       return newTopic(topicName);
@@ -151,20 +141,17 @@ public class FileJMSConfiguration extends JMSConfigurationImpl implements Deploy
     * @return jms queue configuration
     * @throws Exception
     */
-   public static JMSQueueConfiguration parseQueueConfiguration(final Node node) throws Exception
-   {
+   public static JMSQueueConfiguration parseQueueConfiguration(final Node node) throws Exception {
       Element e = (Element) node;
       NamedNodeMap atts = node.getAttributes();
       String queueName = atts.getNamedItem(NAME_ATTR).getNodeValue();
       String selectorString = null;
       boolean durable = XMLConfigurationUtil.getBoolean(e, "durable", DEFAULT_QUEUE_DURABILITY);
       NodeList children = node.getChildNodes();
-      for (int i = 0; i < children.getLength(); i++)
-      {
+      for (int i = 0; i < children.getLength(); i++) {
          Node child = children.item(i);
 
-         if (QUEUE_SELECTOR_NODE_NAME.equals(children.item(i).getNodeName()))
-         {
+         if (QUEUE_SELECTOR_NODE_NAME.equals(children.item(i).getNodeName())) {
             Node selectorNode = children.item(i);
             Node attNode = selectorNode.getAttributes().getNamedItem("string");
             selectorString = attNode.getNodeValue();
@@ -178,10 +165,8 @@ public class FileJMSConfiguration extends JMSConfigurationImpl implements Deploy
     * @param topicName
     * @return
     */
-   protected static TopicConfiguration newTopic(final String topicName)
-   {
-      return new TopicConfigurationImpl()
-         .setName(topicName);
+   protected static TopicConfiguration newTopic(final String topicName) {
+      return new TopicConfigurationImpl().setName(topicName);
    }
 
    /**
@@ -191,9 +176,8 @@ public class FileJMSConfiguration extends JMSConfigurationImpl implements Deploy
     * @return
     */
    protected static JMSQueueConfiguration newQueue(final String queueName,
-                                            final String selectorString,
-                                            final boolean durable)
-   {
+                                                   final String selectorString,
+                                                   final boolean durable) {
       return new JMSQueueConfigurationImpl().
          setName(queueName).
          setSelector(selectorString).
@@ -206,10 +190,8 @@ public class FileJMSConfiguration extends JMSConfigurationImpl implements Deploy
     * @param domain
     */
    protected void newConfig(final ArrayList<JMSQueueConfiguration> queues,
-                            final ArrayList<TopicConfiguration> topics, String domain)
-   {
-      setQueueConfigurations(queues)
-            .setTopicConfigurations(topics)
-            .setDomain(domain);
+                            final ArrayList<TopicConfiguration> topics,
+                            String domain) {
+      setQueueConfigurations(queues).setTopicConfigurations(topics).setDomain(domain);
    }
 }

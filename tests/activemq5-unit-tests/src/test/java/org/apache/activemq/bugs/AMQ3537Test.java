@@ -45,60 +45,61 @@ import org.junit.Test;
  * See AMQ-3537
  *
  * @author jason.yankus
- *
  */
-@SuppressWarnings({ "rawtypes", "unchecked" })
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class AMQ3537Test implements InvocationHandler, Serializable {
 
-    private static final long serialVersionUID = 1L;
+   private static final long serialVersionUID = 1L;
 
-    /**
-     * If the first and second element in this array are swapped, the test will
-     * fail.
-     */
-    public static final Class[] TEST_CLASSES = new Class[] { List.class, NonJDKList.class, Serializable.class };
+   /**
+    * If the first and second element in this array are swapped, the test will
+    * fail.
+    */
+   public static final Class[] TEST_CLASSES = new Class[]{List.class, NonJDKList.class, Serializable.class};
 
-    /** Underlying list */
-    private final List l = new ArrayList<String>();
+   /**
+    * Underlying list
+    */
+   private final List l = new ArrayList<String>();
 
-    @Before
-    public void setUp() throws Exception {
-        l.add("foo");
-    }
+   @Before
+   public void setUp() throws Exception {
+      l.add("foo");
+   }
 
-    @Test
-    public void testDeserializeProxy() throws Exception {
-        // create the proxy
-        List proxy = (List) java.lang.reflect.Proxy.newProxyInstance(this.getClass().getClassLoader(), TEST_CLASSES, this);
+   @Test
+   public void testDeserializeProxy() throws Exception {
+      // create the proxy
+      List proxy = (List) java.lang.reflect.Proxy.newProxyInstance(this.getClass().getClassLoader(), TEST_CLASSES, this);
 
-        // serialize it
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ObjectOutputStream oos = new ObjectOutputStream(baos);
-        oos.writeObject(proxy);
-        byte[] serializedProxy = baos.toByteArray();
-        oos.close();
-        baos.close();
+      // serialize it
+      ByteArrayOutputStream baos = new ByteArrayOutputStream();
+      ObjectOutputStream oos = new ObjectOutputStream(baos);
+      oos.writeObject(proxy);
+      byte[] serializedProxy = baos.toByteArray();
+      oos.close();
+      baos.close();
 
-        // deserialize the proxy
-        ClassLoadingAwareObjectInputStream claois =
-            new ClassLoadingAwareObjectInputStream(new ByteArrayInputStream(serializedProxy));
+      // deserialize the proxy
+      ClassLoadingAwareObjectInputStream claois = new ClassLoadingAwareObjectInputStream(new ByteArrayInputStream(serializedProxy));
 
-        // this is where it fails due to the rudimentary classloader selection
-        // in ClassLoadingAwareObjectInputStream
-        List deserializedProxy = (List) claois.readObject();
+      // this is where it fails due to the rudimentary classloader selection
+      // in ClassLoadingAwareObjectInputStream
+      List deserializedProxy = (List) claois.readObject();
 
-        claois.close();
+      claois.close();
 
-        // assert the invocation worked
-        assertEquals("foo", deserializedProxy.get(0));
-    }
+      // assert the invocation worked
+      assertEquals("foo", deserializedProxy.get(0));
+   }
 
-    @Override
-    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        return method.invoke(l, args);
-    }
+   @Override
+   public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+      return method.invoke(l, args);
+   }
 
-    public interface NonJDKList {
-        int size();
-    }
+   public interface NonJDKList {
+
+      int size();
+   }
 }

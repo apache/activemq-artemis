@@ -34,8 +34,8 @@ import org.apache.activemq.artemis.core.server.LiveNodeLocator;
 /**
  * NamedLiveNodeLocatorForScaleDown looks for a live server in the cluster with a specific scaleDownGroupName
  */
-public class NamedLiveNodeLocatorForScaleDown extends LiveNodeLocator
-{
+public class NamedLiveNodeLocatorForScaleDown extends LiveNodeLocator {
+
    private final Lock lock = new ReentrantLock();
    private final Condition condition = lock.newCondition();
    private final String scaleDownGroupName;
@@ -45,8 +45,7 @@ public class NamedLiveNodeLocatorForScaleDown extends LiveNodeLocator
    private String nodeID;
    private String myNodeID;
 
-   public NamedLiveNodeLocatorForScaleDown(String scaleDownGroupName, ActiveMQServerImpl server)
-   {
+   public NamedLiveNodeLocatorForScaleDown(String scaleDownGroupName, ActiveMQServerImpl server) {
       super();
       this.server = server;
       this.scaleDownGroupName = scaleDownGroupName;
@@ -54,131 +53,102 @@ public class NamedLiveNodeLocatorForScaleDown extends LiveNodeLocator
    }
 
    @Override
-   public void locateNode() throws ActiveMQException
-   {
+   public void locateNode() throws ActiveMQException {
       locateNode(-1L);
    }
 
    @Override
-   public void locateNode(long timeout) throws ActiveMQException
-   {
-      try
-      {
+   public void locateNode(long timeout) throws ActiveMQException {
+      try {
          lock.lock();
-         if (connectors.isEmpty())
-         {
-            try
-            {
-               if (timeout != -1L)
-               {
-                  if (!condition.await(timeout, TimeUnit.MILLISECONDS))
-                  {
+         if (connectors.isEmpty()) {
+            try {
+               if (timeout != -1L) {
+                  if (!condition.await(timeout, TimeUnit.MILLISECONDS)) {
                      throw new ActiveMQException("Timeout elapsed while waiting for cluster node");
                   }
                }
-               else
-               {
+               else {
                   condition.await();
                }
             }
-            catch (InterruptedException e)
-            {
+            catch (InterruptedException e) {
                //ignore
             }
          }
       }
-      finally
-      {
+      finally {
          lock.unlock();
       }
    }
 
    @Override
-   public void nodeUP(TopologyMember topologyMember, boolean last)
-   {
-      try
-      {
+   public void nodeUP(TopologyMember topologyMember, boolean last) {
+      try {
          lock.lock();
-         Pair<TransportConfiguration, TransportConfiguration> connector =
-            new Pair<TransportConfiguration, TransportConfiguration>(topologyMember.getLive(), topologyMember.getBackup());
+         Pair<TransportConfiguration, TransportConfiguration> connector = new Pair<TransportConfiguration, TransportConfiguration>(topologyMember.getLive(), topologyMember.getBackup());
 
-         if (topologyMember.getNodeId().equals(myNodeID))
-         {
-            if (ActiveMQServerLogger.LOGGER.isTraceEnabled())
-            {
+         if (topologyMember.getNodeId().equals(myNodeID)) {
+            if (ActiveMQServerLogger.LOGGER.isTraceEnabled()) {
                ActiveMQServerLogger.LOGGER.trace(this + "::informing node about itself, nodeUUID=" +
-                                                   server.getNodeID() + ", connectorPair=" + topologyMember + ", this = " + this);
+                                                    server.getNodeID() + ", connectorPair=" + topologyMember + ", this = " + this);
             }
             return;
          }
 
          if (scaleDownGroupName.equals(topologyMember.getScaleDownGroupName()) && topologyMember.getLive() != null &&
-            server.checkLiveIsNotColocated(topologyMember.getNodeId()))
-         {
+            server.checkLiveIsNotColocated(topologyMember.getNodeId())) {
             connectors.put(topologyMember.getNodeId(), connector);
             condition.signal();
          }
       }
-      finally
-      {
+      finally {
          lock.unlock();
       }
    }
 
    @Override
-   public void nodeDown(long eventUID, String nodeID)
-   {
-      try
-      {
+   public void nodeDown(long eventUID, String nodeID) {
+      try {
          lock.lock();
          connectors.remove(nodeID);
-         if (connectors.size() > 0)
-         {
+         if (connectors.size() > 0) {
             condition.signal();
          }
       }
-      finally
-      {
+      finally {
          lock.unlock();
       }
    }
 
    @Override
-   public String getNodeID()
-   {
+   public String getNodeID() {
       return nodeID;
    }
 
    @Override
-   public Pair<TransportConfiguration, TransportConfiguration> getLiveConfiguration()
-   {
-      try
-      {
+   public Pair<TransportConfiguration, TransportConfiguration> getLiveConfiguration() {
+      try {
          lock.lock();
          Iterator<String> iterator = connectors.keySet().iterator();
          //sanity check but this should never happen
-         if (iterator.hasNext())
-         {
+         if (iterator.hasNext()) {
             nodeID = iterator.next();
          }
          return connectors.get(nodeID);
       }
-      finally
-      {
+      finally {
          lock.unlock();
       }
    }
 
    @Override
-   public void notifyRegistrationFailed(boolean alreadyReplicating)
-   {
-      try
-      {
+   public void notifyRegistrationFailed(boolean alreadyReplicating) {
+      try {
          lock.lock();
          connectors.remove(nodeID);
       }
-      finally
-      {
+      finally {
          lock.unlock();
       }
    }

@@ -26,25 +26,23 @@ import org.apache.activemq.broker.BrokerTest;
 
 /**
  * Once the wire format is completed we can test against real persistence storage.
- * 
- * 
  */
 public class DefaultStoreBrokerTest extends BrokerTest {
 
-    protected BrokerService createBroker() throws Exception {
-        return BrokerFactory.createBroker(new URI("broker://()/localhost?deleteAllMessagesOnStartup=true"));
-    }
-    
-    protected BrokerService createRestartedBroker() throws Exception {
-        return BrokerFactory.createBroker(new URI("broker://()/localhost"));
-    }
-    
-    public static Test suite() {
-        return suite(DefaultStoreBrokerTest.class);
-    }
-    
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(suite());
-    }
+   protected BrokerService createBroker() throws Exception {
+      return BrokerFactory.createBroker(new URI("broker://()/localhost?deleteAllMessagesOnStartup=true"));
+   }
+
+   protected BrokerService createRestartedBroker() throws Exception {
+      return BrokerFactory.createBroker(new URI("broker://()/localhost"));
+   }
+
+   public static Test suite() {
+      return suite(DefaultStoreBrokerTest.class);
+   }
+
+   public static void main(String[] args) {
+      junit.textui.TestRunner.run(suite());
+   }
 
 }

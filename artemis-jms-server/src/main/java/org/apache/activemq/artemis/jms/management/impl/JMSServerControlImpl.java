@@ -57,9 +57,7 @@ import org.apache.activemq.artemis.utils.TypedProperties;
 import org.apache.activemq.artemis.utils.json.JSONArray;
 import org.apache.activemq.artemis.utils.json.JSONObject;
 
-public class JMSServerControlImpl extends AbstractControl implements JMSServerControl, NotificationEmitter,
-                                                                     org.apache.activemq.artemis.core.server.management.NotificationListener
-{
+public class JMSServerControlImpl extends AbstractControl implements JMSServerControl, NotificationEmitter, org.apache.activemq.artemis.core.server.management.NotificationListener {
 
    // Constants -----------------------------------------------------
 
@@ -73,57 +71,46 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
 
    // Static --------------------------------------------------------
 
-   private static String[] convert(final Object[] bindings)
-   {
+   private static String[] convert(final Object[] bindings) {
       String[] theBindings = new String[bindings.length];
-      for (int i = 0, bindingsLength = bindings.length; i < bindingsLength; i++)
-      {
+      for (int i = 0, bindingsLength = bindings.length; i < bindingsLength; i++) {
          theBindings[i] = bindings[i].toString().trim();
       }
       return theBindings;
    }
 
-   private static String[] toArray(final String commaSeparatedString)
-   {
-      if (commaSeparatedString == null || commaSeparatedString.trim().length() == 0)
-      {
+   private static String[] toArray(final String commaSeparatedString) {
+      if (commaSeparatedString == null || commaSeparatedString.trim().length() == 0) {
          return new String[0];
       }
       String[] values = commaSeparatedString.split(",");
       String[] trimmed = new String[values.length];
-      for (int i = 0; i < values.length; i++)
-      {
+      for (int i = 0; i < values.length; i++) {
          trimmed[i] = values[i].trim();
          trimmed[i] = trimmed[i].replace("&comma;", ",");
       }
       return trimmed;
    }
 
-   private static String[] determineJMSDestination(String coreAddress)
-   {
+   private static String[] determineJMSDestination(String coreAddress) {
       String[] result = new String[2]; // destination name & type
-      if (coreAddress.startsWith(ActiveMQDestination.JMS_QUEUE_ADDRESS_PREFIX))
-      {
+      if (coreAddress.startsWith(ActiveMQDestination.JMS_QUEUE_ADDRESS_PREFIX)) {
          result[0] = coreAddress.substring(ActiveMQDestination.JMS_QUEUE_ADDRESS_PREFIX.length());
          result[1] = "queue";
       }
-      else if (coreAddress.startsWith(ActiveMQDestination.JMS_TEMP_QUEUE_ADDRESS_PREFIX))
-      {
+      else if (coreAddress.startsWith(ActiveMQDestination.JMS_TEMP_QUEUE_ADDRESS_PREFIX)) {
          result[0] = coreAddress.substring(ActiveMQDestination.JMS_TEMP_QUEUE_ADDRESS_PREFIX.length());
          result[1] = "tempqueue";
       }
-      else if (coreAddress.startsWith(ActiveMQDestination.JMS_TOPIC_ADDRESS_PREFIX))
-      {
+      else if (coreAddress.startsWith(ActiveMQDestination.JMS_TOPIC_ADDRESS_PREFIX)) {
          result[0] = coreAddress.substring(ActiveMQDestination.JMS_TOPIC_ADDRESS_PREFIX.length());
          result[1] = "topic";
       }
-      else if (coreAddress.startsWith(ActiveMQDestination.JMS_TEMP_TOPIC_ADDRESS_PREFIX))
-      {
+      else if (coreAddress.startsWith(ActiveMQDestination.JMS_TEMP_TOPIC_ADDRESS_PREFIX)) {
          result[0] = coreAddress.substring(ActiveMQDestination.JMS_TEMP_TOPIC_ADDRESS_PREFIX.length());
          result[1] = "temptopic";
       }
-      else
-      {
+      else {
          ActiveMQJMSServerLogger.LOGGER.debug("JMSServerControlImpl.determineJMSDestination()" + coreAddress);
          // not related to JMS
          return null;
@@ -131,23 +118,18 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
       return result;
    }
 
-   public static MBeanNotificationInfo[] getNotificationInfos()
-   {
+   public static MBeanNotificationInfo[] getNotificationInfos() {
       JMSNotificationType[] values = JMSNotificationType.values();
       String[] names = new String[values.length];
-      for (int i = 0; i < values.length; i++)
-      {
+      for (int i = 0; i < values.length; i++) {
          names[i] = values[i].toString();
       }
-      return new MBeanNotificationInfo[]{new MBeanNotificationInfo(names,
-                                                                   JMSServerControl.class.getName(),
-                                                                   "Notifications emitted by a JMS Server")};
+      return new MBeanNotificationInfo[]{new MBeanNotificationInfo(names, JMSServerControl.class.getName(), "Notifications emitted by a JMS Server")};
    }
 
    // Constructors --------------------------------------------------
 
-   public JMSServerControlImpl(final JMSServerManager server) throws Exception
-   {
+   public JMSServerControlImpl(final JMSServerManager server) throws Exception {
       super(JMSServerControl.class, server.getActiveMQServer().getStorageManager());
       this.server = server;
       broadcaster = new NotificationBroadcasterSupport();
@@ -166,44 +148,29 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
                                        boolean useDiscovery,
                                        int cfType,
                                        String[] connectorNames,
-                                       Object[] bindings) throws Exception
-   {
+                                       Object[] bindings) throws Exception {
       checkStarted();
 
       clearIO();
 
-      try
-      {
-         if (useDiscovery)
-         {
-            if (connectorNames == null || connectorNames.length == 0)
-            {
+      try {
+         if (useDiscovery) {
+            if (connectorNames == null || connectorNames.length == 0) {
                throw new IllegalArgumentException("no discovery group name supplied");
             }
-            server.createConnectionFactory(name,
-                                           ha,
-                                           JMSFactoryType.valueOf(cfType),
-                                           connectorNames[0],
-                                           JMSServerControlImpl.convert(bindings));
+            server.createConnectionFactory(name, ha, JMSFactoryType.valueOf(cfType), connectorNames[0], JMSServerControlImpl.convert(bindings));
          }
-         else
-         {
+         else {
             List<String> connectorList = new ArrayList<String>(connectorNames.length);
 
-            for (String str : connectorNames)
-            {
+            for (String str : connectorNames) {
                connectorList.add(str);
             }
 
-            server.createConnectionFactory(name,
-                                           ha,
-                                           JMSFactoryType.valueOf(cfType),
-                                           connectorList,
-                                           JMSServerControlImpl.convert(bindings));
+            server.createConnectionFactory(name, ha, JMSFactoryType.valueOf(cfType), connectorList, JMSServerControlImpl.convert(bindings));
          }
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
@@ -243,43 +210,8 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
                                        long maxRetryInterval,
                                        int reconnectAttempts,
                                        boolean failoverOnInitialConnection,
-                                       String groupId) throws Exception
-   {
-      createConnectionFactory(name,
-                              ha,
-                              useDiscovery,
-                              cfType,
-                              toArray(connectors),
-                              toArray(bindings),
-                              clientID,
-                              clientFailureCheckPeriod,
-                              connectionTTL,
-                              callTimeout,
-                              callFailoverTimeout,
-                              minLargeMessageSize,
-                              compressLargeMessages,
-                              consumerWindowSize,
-                              consumerMaxRate,
-                              confirmationWindowSize,
-                              producerWindowSize,
-                              producerMaxRate,
-                              blockOnAcknowledge,
-                              blockOnDurableSend,
-                              blockOnNonDurableSend,
-                              autoGroup,
-                              preAcknowledge,
-                              loadBalancingPolicyClassName,
-                              transactionBatchSize,
-                              dupsOKBatchSize,
-                              useGlobalPools,
-                              scheduledThreadPoolMaxSize,
-                              threadPoolMaxSize,
-                              retryInterval,
-                              retryIntervalMultiplier,
-                              maxRetryInterval,
-                              reconnectAttempts,
-                              failoverOnInitialConnection,
-                              groupId);
+                                       String groupId) throws Exception {
+      createConnectionFactory(name, ha, useDiscovery, cfType, toArray(connectors), toArray(bindings), clientID, clientFailureCheckPeriod, connectionTTL, callTimeout, callFailoverTimeout, minLargeMessageSize, compressLargeMessages, consumerWindowSize, consumerMaxRate, confirmationWindowSize, producerWindowSize, producerMaxRate, blockOnAcknowledge, blockOnDurableSend, blockOnNonDurableSend, autoGroup, preAcknowledge, loadBalancingPolicyClassName, transactionBatchSize, dupsOKBatchSize, useGlobalPools, scheduledThreadPoolMaxSize, threadPoolMaxSize, retryInterval, retryIntervalMultiplier, maxRetryInterval, reconnectAttempts, failoverOnInitialConnection, groupId);
    }
 
    @Override
@@ -317,71 +249,32 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
                                        long maxRetryInterval,
                                        int reconnectAttempts,
                                        boolean failoverOnInitialConnection,
-                                       String groupId) throws Exception
-   {
+                                       String groupId) throws Exception {
       checkStarted();
 
       clearIO();
 
-      try
-      {
-         ConnectionFactoryConfiguration configuration = new ConnectionFactoryConfigurationImpl()
-            .setName(name)
-            .setHA(ha)
-            .setBindings(bindings)
-            .setFactoryType(JMSFactoryType.valueOf(cfType))
-            .setClientID(clientID)
-            .setClientFailureCheckPeriod(clientFailureCheckPeriod)
-            .setConnectionTTL(connectionTTL)
-            .setCallTimeout(callTimeout)
-            .setCallFailoverTimeout(callFailoverTimeout)
-            .setMinLargeMessageSize(minLargeMessageSize)
-            .setCompressLargeMessages(compressLargeMessages)
-            .setConsumerWindowSize(consumerWindowSize)
-            .setConsumerMaxRate(consumerMaxRate)
-            .setConfirmationWindowSize(confirmationWindowSize)
-            .setProducerWindowSize(producerWindowSize)
-            .setProducerMaxRate(producerMaxRate)
-            .setBlockOnAcknowledge(blockOnAcknowledge)
-            .setBlockOnDurableSend(blockOnDurableSend)
-            .setBlockOnNonDurableSend(blockOnNonDurableSend)
-            .setAutoGroup(autoGroup)
-            .setPreAcknowledge(preAcknowledge)
-            .setTransactionBatchSize(transactionBatchSize)
-            .setDupsOKBatchSize(dupsOKBatchSize)
-            .setUseGlobalPools(useGlobalPools)
-            .setScheduledThreadPoolMaxSize(scheduledThreadPoolMaxSize)
-            .setThreadPoolMaxSize(threadPoolMaxSize)
-            .setRetryInterval(retryInterval)
-            .setRetryIntervalMultiplier(retryIntervalMultiplier)
-            .setMaxRetryInterval(maxRetryInterval)
-            .setReconnectAttempts(reconnectAttempts)
-            .setFailoverOnInitialConnection(failoverOnInitialConnection)
-            .setGroupID(groupId);
+      try {
+         ConnectionFactoryConfiguration configuration = new ConnectionFactoryConfigurationImpl().setName(name).setHA(ha).setBindings(bindings).setFactoryType(JMSFactoryType.valueOf(cfType)).setClientID(clientID).setClientFailureCheckPeriod(clientFailureCheckPeriod).setConnectionTTL(connectionTTL).setCallTimeout(callTimeout).setCallFailoverTimeout(callFailoverTimeout).setMinLargeMessageSize(minLargeMessageSize).setCompressLargeMessages(compressLargeMessages).setConsumerWindowSize(consumerWindowSize).setConsumerMaxRate(consumerMaxRate).setConfirmationWindowSize(confirmationWindowSize).setProducerWindowSize(producerWindowSize).setProducerMaxRate(producerMaxRate).setBlockOnAcknowledge(blockOnAcknowledge).setBlockOnDurableSend(blockOnDurableSend).setBlockOnNonDurableSend(blockOnNonDurableSend).setAutoGroup(autoGroup).setPreAcknowledge(preAcknowledge).setTransactionBatchSize(transactionBatchSize).setDupsOKBatchSize(dupsOKBatchSize).setUseGlobalPools(useGlobalPools).setScheduledThreadPoolMaxSize(scheduledThreadPoolMaxSize).setThreadPoolMaxSize(threadPoolMaxSize).setRetryInterval(retryInterval).setRetryIntervalMultiplier(retryIntervalMultiplier).setMaxRetryInterval(maxRetryInterval).setReconnectAttempts(reconnectAttempts).setFailoverOnInitialConnection(failoverOnInitialConnection).setGroupID(groupId);
 
-         if (useDiscovery)
-         {
+         if (useDiscovery) {
             configuration.setDiscoveryGroupName(connectorNames[0]);
          }
-         else
-         {
+         else {
             ArrayList<String> connectorNamesList = new ArrayList<String>();
-            for (String nameC : connectorNames)
-            {
+            for (String nameC : connectorNames) {
                connectorNamesList.add(nameC);
             }
             configuration.setConnectorNames(connectorNamesList);
          }
 
-         if (loadBalancingPolicyClassName != null && !loadBalancingPolicyClassName.trim().equals(""))
-         {
+         if (loadBalancingPolicyClassName != null && !loadBalancingPolicyClassName.trim().equals("")) {
             configuration.setLoadBalancingPolicyClassName(loadBalancingPolicyClassName);
          }
 
          server.createConnectionFactory(true, configuration, bindings);
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
@@ -396,206 +289,166 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
                                        boolean useDiscovery,
                                        int cfType,
                                        String connectors,
-                                       String bindings) throws Exception
-   {
+                                       String bindings) throws Exception {
       createConnectionFactory(name, ha, useDiscovery, cfType, toArray(connectors), toArray(bindings));
    }
 
-   public boolean createQueue(final String name) throws Exception
-   {
+   public boolean createQueue(final String name) throws Exception {
       return createQueue(name, null, null, true);
    }
 
-   public boolean createQueue(final String name, final String bindings) throws Exception
-   {
+   public boolean createQueue(final String name, final String bindings) throws Exception {
       return createQueue(name, bindings, null, true);
    }
 
    @Override
-   public boolean createQueue(String name, String bindings, String selector) throws Exception
-   {
+   public boolean createQueue(String name, String bindings, String selector) throws Exception {
       return createQueue(name, bindings, selector, true);
    }
 
    public boolean createQueue(@Parameter(name = "name", desc = "Name of the queue to create") String name,
                               @Parameter(name = "bindings", desc = "comma-separated list of Registry bindings (use '&comma;' if u need to use commas in your bindings name)") String bindings,
                               @Parameter(name = "selector", desc = "the jms selector") String selector,
-                              @Parameter(name = "durable", desc = "is the queue persistent and resilient to restart") boolean durable) throws Exception
-   {
+                              @Parameter(name = "durable", desc = "is the queue persistent and resilient to restart") boolean durable) throws Exception {
       checkStarted();
 
       clearIO();
 
-      try
-      {
-         return server.createQueue(true, name, selector, durable,
-               JMSServerControlImpl.toArray(bindings));
+      try {
+         return server.createQueue(true, name, selector, durable, JMSServerControlImpl.toArray(bindings));
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public boolean destroyQueue(final String name) throws Exception
-   {
+   public boolean destroyQueue(final String name) throws Exception {
       return destroyQueue(name, false);
    }
 
-   public boolean destroyQueue(final String name, final boolean removeConsumers) throws Exception
-   {
+   public boolean destroyQueue(final String name, final boolean removeConsumers) throws Exception {
       checkStarted();
 
       clearIO();
 
-      try
-      {
+      try {
          return server.destroyQueue(name, removeConsumers);
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public boolean createTopic(String name) throws Exception
-   {
+   public boolean createTopic(String name) throws Exception {
       return createTopic(name, null);
    }
 
-   public boolean createTopic(final String topicName, final String bindings) throws Exception
-   {
+   public boolean createTopic(final String topicName, final String bindings) throws Exception {
       checkStarted();
 
       clearIO();
 
-      try
-      {
+      try {
          return server.createTopic(true, topicName, JMSServerControlImpl.toArray(bindings));
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public boolean destroyTopic(final String name) throws Exception
-   {
+   public boolean destroyTopic(final String name) throws Exception {
       return destroyTopic(name, true);
    }
 
-
-   public boolean destroyTopic(final String name, final boolean removeConsumers) throws Exception
-   {
+   public boolean destroyTopic(final String name, final boolean removeConsumers) throws Exception {
       checkStarted();
 
       clearIO();
 
-      try
-      {
+      try {
          return server.destroyTopic(name, removeConsumers);
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public void destroyConnectionFactory(final String name) throws Exception
-   {
+   public void destroyConnectionFactory(final String name) throws Exception {
       checkStarted();
 
       clearIO();
 
-      try
-      {
+      try {
          server.destroyConnectionFactory(name);
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public boolean isStarted()
-   {
+   public boolean isStarted() {
       return server.isStarted();
    }
 
-   public String getVersion()
-   {
+   public String getVersion() {
       checkStarted();
 
       return server.getVersion();
    }
 
-   public String[] getQueueNames()
-   {
+   public String[] getQueueNames() {
       checkStarted();
 
       clearIO();
 
-      try
-      {
+      try {
          Object[] queueControls = server.getActiveMQServer().getManagementService().getResources(JMSQueueControl.class);
          String[] names = new String[queueControls.length];
-         for (int i = 0; i < queueControls.length; i++)
-         {
+         for (int i = 0; i < queueControls.length; i++) {
             JMSQueueControl queueControl = (JMSQueueControl) queueControls[i];
             names[i] = queueControl.getName();
          }
          return names;
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public String[] getTopicNames()
-   {
+   public String[] getTopicNames() {
       checkStarted();
 
       clearIO();
 
-      try
-      {
+      try {
          Object[] topicControls = server.getActiveMQServer().getManagementService().getResources(TopicControl.class);
          String[] names = new String[topicControls.length];
-         for (int i = 0; i < topicControls.length; i++)
-         {
+         for (int i = 0; i < topicControls.length; i++) {
             TopicControl topicControl = (TopicControl) topicControls[i];
             names[i] = topicControl.getName();
          }
          return names;
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public String[] getConnectionFactoryNames()
-   {
+   public String[] getConnectionFactoryNames() {
       checkStarted();
 
       clearIO();
 
-      try
-      {
-         Object[] cfControls = server.getActiveMQServer()
-            .getManagementService()
-            .getResources(ConnectionFactoryControl.class);
+      try {
+         Object[] cfControls = server.getActiveMQServer().getManagementService().getResources(ConnectionFactoryControl.class);
          String[] names = new String[cfControls.length];
-         for (int i = 0; i < cfControls.length; i++)
-         {
+         for (int i = 0; i < cfControls.length; i++) {
             ConnectionFactoryControl cfControl = (ConnectionFactoryControl) cfControls[i];
             names[i] = cfControl.getName();
          }
          return names;
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
@@ -604,132 +457,108 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
 
    public void removeNotificationListener(final NotificationListener listener,
                                           final NotificationFilter filter,
-                                          final Object handback) throws ListenerNotFoundException
-   {
+                                          final Object handback) throws ListenerNotFoundException {
       broadcaster.removeNotificationListener(listener, filter, handback);
    }
 
-   public void removeNotificationListener(final NotificationListener listener) throws ListenerNotFoundException
-   {
+   public void removeNotificationListener(final NotificationListener listener) throws ListenerNotFoundException {
       broadcaster.removeNotificationListener(listener);
    }
 
    public void addNotificationListener(final NotificationListener listener,
                                        final NotificationFilter filter,
-                                       final Object handback) throws IllegalArgumentException
-   {
+                                       final Object handback) throws IllegalArgumentException {
       broadcaster.addNotificationListener(listener, filter, handback);
    }
 
-   public MBeanNotificationInfo[] getNotificationInfo()
-   {
+   public MBeanNotificationInfo[] getNotificationInfo() {
       return JMSServerControlImpl.getNotificationInfos();
    }
 
-   public String[] listRemoteAddresses() throws Exception
-   {
+   public String[] listRemoteAddresses() throws Exception {
       checkStarted();
 
       clearIO();
 
-      try
-      {
+      try {
          return server.listRemoteAddresses();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public String[] listRemoteAddresses(final String ipAddress) throws Exception
-   {
+   public String[] listRemoteAddresses(final String ipAddress) throws Exception {
       checkStarted();
 
       clearIO();
 
-      try
-      {
+      try {
          return server.listRemoteAddresses(ipAddress);
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public boolean closeConnectionsForAddress(final String ipAddress) throws Exception
-   {
+   public boolean closeConnectionsForAddress(final String ipAddress) throws Exception {
       checkStarted();
 
       clearIO();
 
-      try
-      {
+      try {
          return server.closeConnectionsForAddress(ipAddress);
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public boolean closeConsumerConnectionsForAddress(final String address) throws Exception
-   {
+   public boolean closeConsumerConnectionsForAddress(final String address) throws Exception {
       checkStarted();
 
       clearIO();
 
-      try
-      {
+      try {
          return server.closeConsumerConnectionsForAddress(address);
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public boolean closeConnectionsForUser(final String userName) throws Exception
-   {
+   public boolean closeConnectionsForUser(final String userName) throws Exception {
       checkStarted();
 
       clearIO();
 
-      try
-      {
+      try {
          return server.closeConnectionsForUser(userName);
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public String[] listConnectionIDs() throws Exception
-   {
+   public String[] listConnectionIDs() throws Exception {
       checkStarted();
 
       clearIO();
 
-      try
-      {
+      try {
          return server.listConnectionIDs();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public String listConnectionsAsJSON() throws Exception
-   {
+   public String listConnectionsAsJSON() throws Exception {
       checkStarted();
 
       clearIO();
 
-      try
-      {
+      try {
          JSONArray array = new JSONArray();
 
          Set<RemotingConnection> connections = server.getActiveMQServer().getRemotingService().getConnections();
@@ -739,19 +568,15 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
          Map<Object, ServerSession> jmsSessions = new HashMap<Object, ServerSession>();
 
          // First separate the real jms sessions, after all we are only interested in those here on the *jms* server controller
-         for (ServerSession session : sessions)
-         {
-            if (session.getMetaData(ClientSession.JMS_SESSION_IDENTIFIER_PROPERTY) != null)
-            {
+         for (ServerSession session : sessions) {
+            if (session.getMetaData(ClientSession.JMS_SESSION_IDENTIFIER_PROPERTY) != null) {
                jmsSessions.put(session.getConnectionID(), session);
             }
          }
 
-         for (RemotingConnection connection : connections)
-         {
+         for (RemotingConnection connection : connections) {
             ServerSession session = jmsSessions.get(connection.getID());
-            if (session != null)
-            {
+            if (session != null) {
                JSONObject obj = new JSONObject();
                obj.put("connectionID", connection.getID().toString());
                obj.put("clientAddress", connection.getRemoteAddress());
@@ -764,36 +589,28 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
          }
          return array.toString();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public String listConsumersAsJSON(String connectionID) throws Exception
-   {
+   public String listConsumersAsJSON(String connectionID) throws Exception {
       checkStarted();
 
       clearIO();
 
-      try
-      {
+      try {
          JSONArray array = new JSONArray();
 
          Set<RemotingConnection> connections = server.getActiveMQServer().getRemotingService().getConnections();
-         for (RemotingConnection connection : connections)
-         {
-            if (connectionID.equals(connection.getID().toString()))
-            {
+         for (RemotingConnection connection : connections) {
+            if (connectionID.equals(connection.getID().toString())) {
                List<ServerSession> sessions = server.getActiveMQServer().getSessions(connectionID);
-               for (ServerSession session : sessions)
-               {
+               for (ServerSession session : sessions) {
                   Set<ServerConsumer> consumers = session.getServerConsumers();
-                  for (ServerConsumer consumer : consumers)
-                  {
+                  for (ServerConsumer consumer : consumers) {
                      JSONObject obj = toJSONObject(consumer);
-                     if (obj != null)
-                     {
+                     if (obj != null) {
                         array.put(obj);
                      }
                   }
@@ -802,87 +619,71 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
          }
          return array.toString();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public String listAllConsumersAsJSON() throws Exception
-   {
+   public String listAllConsumersAsJSON() throws Exception {
       checkStarted();
 
       clearIO();
 
-      try
-      {
+      try {
          JSONArray array = new JSONArray();
 
          Set<ServerSession> sessions = server.getActiveMQServer().getSessions();
-         for (ServerSession session : sessions)
-         {
+         for (ServerSession session : sessions) {
             Set<ServerConsumer> consumers = session.getServerConsumers();
-            for (ServerConsumer consumer : consumers)
-            {
+            for (ServerConsumer consumer : consumers) {
                JSONObject obj = toJSONObject(consumer);
-               if (obj != null)
-               {
+               if (obj != null) {
                   array.put(obj);
                }
             }
          }
          return array.toString();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public String[] listSessions(final String connectionID) throws Exception
-   {
+   public String[] listSessions(final String connectionID) throws Exception {
       checkStarted();
 
       clearIO();
 
-      try
-      {
+      try {
          return server.listSessions(connectionID);
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public String listPreparedTransactionDetailsAsJSON() throws Exception
-   {
+   public String listPreparedTransactionDetailsAsJSON() throws Exception {
       checkStarted();
 
       clearIO();
 
-      try
-      {
+      try {
          return server.listPreparedTransactionDetailsAsJSON();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public String listPreparedTransactionDetailsAsHTML() throws Exception
-   {
+   public String listPreparedTransactionDetailsAsHTML() throws Exception {
       checkStarted();
 
       clearIO();
 
-      try
-      {
+      try {
          return server.listPreparedTransactionDetailsAsHTML();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
@@ -894,106 +695,88 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
     * @see org.apache.activemq.artemis.core.management.impl.AbstractControl#fillMBeanOperationInfo()
     */
    @Override
-   protected MBeanOperationInfo[] fillMBeanOperationInfo()
-   {
+   protected MBeanOperationInfo[] fillMBeanOperationInfo() {
       return MBeanInfoHelper.getMBeanOperationsInfo(JMSServerControl.class);
    }
 
    // Private -------------------------------------------------------
 
-   private void checkStarted()
-   {
-      if (!server.isStarted())
-      {
+   private void checkStarted() {
+      if (!server.isStarted()) {
          throw new IllegalStateException("ActiveMQ Artemis JMS Server is not started. It can not be managed yet");
       }
    }
 
    // Inner classes -------------------------------------------------
 
-   public String[] listTargetDestinations(String sessionID) throws Exception
-   {
+   public String[] listTargetDestinations(String sessionID) throws Exception {
       String[] addresses = server.getActiveMQServer().getActiveMQServerControl().listTargetAddresses(sessionID);
       Map<String, DestinationControl> allDests = new HashMap<String, DestinationControl>();
 
       Object[] queueControls = server.getActiveMQServer().getManagementService().getResources(JMSQueueControl.class);
-      for (Object queueControl2 : queueControls)
-      {
+      for (Object queueControl2 : queueControls) {
          JMSQueueControl queueControl = (JMSQueueControl) queueControl2;
          allDests.put(queueControl.getAddress(), queueControl);
       }
 
       Object[] topicControls = server.getActiveMQServer().getManagementService().getResources(TopicControl.class);
-      for (Object topicControl2 : topicControls)
-      {
+      for (Object topicControl2 : topicControls) {
          TopicControl topicControl = (TopicControl) topicControl2;
          allDests.put(topicControl.getAddress(), topicControl);
       }
 
       List<String> destinations = new ArrayList<String>();
-      for (String addresse : addresses)
-      {
+      for (String addresse : addresses) {
          DestinationControl control = allDests.get(addresse);
-         if (control != null)
-         {
+         if (control != null) {
             destinations.add(control.getAddress());
          }
       }
       return destinations.toArray(new String[0]);
    }
 
-   public String getLastSentMessageID(String sessionID, String address) throws Exception
-   {
+   public String getLastSentMessageID(String sessionID, String address) throws Exception {
       ServerSession session = server.getActiveMQServer().getSessionByID(sessionID);
-      if (session != null)
-      {
+      if (session != null) {
          return session.getLastSentMessageID(address);
       }
       return null;
    }
 
-   public String getSessionCreationTime(String sessionID) throws Exception
-   {
+   public String getSessionCreationTime(String sessionID) throws Exception {
       ServerSession session = server.getActiveMQServer().getSessionByID(sessionID);
-      if (session != null)
-      {
+      if (session != null) {
          return String.valueOf(session.getCreationTime());
       }
       return null;
    }
 
-   public String listSessionsAsJSON(final String connectionID) throws Exception
-   {
+   public String listSessionsAsJSON(final String connectionID) throws Exception {
       checkStarted();
 
       clearIO();
 
       JSONArray array = new JSONArray();
-      try
-      {
+      try {
          List<ServerSession> sessions = server.getActiveMQServer().getSessions(connectionID);
-         for (ServerSession sess : sessions)
-         {
+         for (ServerSession sess : sessions) {
             JSONObject obj = new JSONObject();
             obj.put("sessionID", sess.getName());
             obj.put("creationTime", sess.getCreationTime());
             array.put(obj);
          }
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
       return array.toString();
    }
 
-   public String closeConnectionWithClientID(final String clientID) throws Exception
-   {
+   public String closeConnectionWithClientID(final String clientID) throws Exception {
       return server.getActiveMQServer().destroyConnectionWithSessionMetadata(ClientSession.JMS_SESSION_CLIENT_ID_PROPERTY, clientID);
    }
 
-   private JSONObject toJSONObject(ServerConsumer consumer) throws Exception
-   {
+   private JSONObject toJSONObject(ServerConsumer consumer) throws Exception {
       JSONObject obj = new JSONObject();
       obj.put("consumerID", consumer.getID());
       obj.put("connectionID", consumer.getConnectionID());
@@ -1003,37 +786,28 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
       obj.put("creationTime", consumer.getCreationTime());
       // JMS consumer with message filter use the queue's filter
       Filter queueFilter = consumer.getQueue().getFilter();
-      if (queueFilter != null)
-      {
+      if (queueFilter != null) {
          obj.put("filter", queueFilter.getFilterString().toString());
       }
       String[] destinationInfo = determineJMSDestination(consumer.getQueue().getAddress().toString());
-      if (destinationInfo == null)
-      {
+      if (destinationInfo == null) {
          return null;
       }
       obj.put("destinationName", destinationInfo[0]);
       obj.put("destinationType", destinationInfo[1]);
-      if (destinationInfo[1].equals("topic"))
-      {
-         try
-         {
-            ActiveMQDestination.decomposeQueueNameForDurableSubscription(consumer.getQueue()
-                                                                            .getName()
-                                                                            .toString());
+      if (destinationInfo[1].equals("topic")) {
+         try {
+            ActiveMQDestination.decomposeQueueNameForDurableSubscription(consumer.getQueue().getName().toString());
             obj.put("durable", true);
          }
-         catch (IllegalArgumentException e)
-         {
+         catch (IllegalArgumentException e) {
             obj.put("durable", false);
          }
-         catch (JMSRuntimeException e)
-         {
+         catch (JMSRuntimeException e) {
             obj.put("durable", false);
          }
       }
-      else
-      {
+      else {
          obj.put("durable", false);
       }
 
@@ -1041,14 +815,13 @@ public class JMSServerControlImpl extends AbstractControl implements JMSServerCo
    }
 
    @Override
-   public void onNotification(org.apache.activemq.artemis.core.server.management.Notification notification)
-   {
-      if (!(notification.getType() instanceof JMSNotificationType)) return;
+   public void onNotification(org.apache.activemq.artemis.core.server.management.Notification notification) {
+      if (!(notification.getType() instanceof JMSNotificationType))
+         return;
       JMSNotificationType type = (JMSNotificationType) notification.getType();
       TypedProperties prop = notification.getProperties();
 
-      this.broadcaster.sendNotification(new Notification(type.toString(), this,
-            notifSeq.incrementAndGet(), prop.getSimpleStringProperty(JMSNotificationType.MESSAGE).toString()));
+      this.broadcaster.sendNotification(new Notification(type.toString(), this, notifSeq.incrementAndGet(), prop.getSimpleStringProperty(JMSNotificationType.MESSAGE).toString()));
    }
 
 }

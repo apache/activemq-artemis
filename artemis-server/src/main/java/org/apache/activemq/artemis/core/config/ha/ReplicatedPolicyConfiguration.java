@@ -19,53 +19,45 @@ package org.apache.activemq.artemis.core.config.ha;
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.core.config.HAPolicyConfiguration;
 
-public class ReplicatedPolicyConfiguration implements HAPolicyConfiguration
-{
+public class ReplicatedPolicyConfiguration implements HAPolicyConfiguration {
+
    private boolean checkForLiveServer = ActiveMQDefaultConfiguration.isDefaultCheckForLiveServer();
 
    private String groupName = null;
 
    private String clusterName = null;
 
-   public ReplicatedPolicyConfiguration()
-   {
+   public ReplicatedPolicyConfiguration() {
    }
 
    @Override
-   public TYPE getType()
-   {
+   public TYPE getType() {
       return TYPE.REPLICATED;
    }
 
-   public boolean isCheckForLiveServer()
-   {
+   public boolean isCheckForLiveServer() {
       return checkForLiveServer;
    }
 
-   public ReplicatedPolicyConfiguration setCheckForLiveServer(boolean checkForLiveServer)
-   {
+   public ReplicatedPolicyConfiguration setCheckForLiveServer(boolean checkForLiveServer) {
       this.checkForLiveServer = checkForLiveServer;
       return this;
    }
 
-   public String getGroupName()
-   {
+   public String getGroupName() {
       return groupName;
    }
 
-   public ReplicatedPolicyConfiguration setGroupName(String groupName)
-   {
+   public ReplicatedPolicyConfiguration setGroupName(String groupName) {
       this.groupName = groupName;
       return this;
    }
 
-   public String getClusterName()
-   {
+   public String getClusterName() {
       return clusterName;
    }
 
-   public ReplicatedPolicyConfiguration setClusterName(String clusterName)
-   {
+   public ReplicatedPolicyConfiguration setClusterName(String clusterName) {
       this.clusterName = clusterName;
       return this;
    }

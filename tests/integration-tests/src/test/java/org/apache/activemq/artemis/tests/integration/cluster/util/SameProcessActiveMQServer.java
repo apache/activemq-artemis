@@ -26,62 +26,51 @@ import org.junit.Assert;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-public class SameProcessActiveMQServer implements TestableServer
-{
+public class SameProcessActiveMQServer implements TestableServer {
+
    private final ActiveMQServer server;
 
-   public SameProcessActiveMQServer(ActiveMQServer server)
-   {
+   public SameProcessActiveMQServer(ActiveMQServer server) {
       this.server = server;
    }
 
    @Override
-   public boolean isActive()
-   {
+   public boolean isActive() {
       return server.isActive();
    }
 
-   public void setIdentity(String identity)
-   {
+   public void setIdentity(String identity) {
       server.setIdentity(identity);
    }
 
-   public boolean isStarted()
-   {
+   public boolean isStarted() {
       return server.isStarted();
    }
 
-   public void addInterceptor(Interceptor interceptor)
-   {
+   public void addInterceptor(Interceptor interceptor) {
       server.getRemotingService().addIncomingInterceptor(interceptor);
    }
 
-   public void removeInterceptor(Interceptor interceptor)
-   {
+   public void removeInterceptor(Interceptor interceptor) {
       server.getRemotingService().removeIncomingInterceptor(interceptor);
    }
 
-   public void start() throws Exception
-   {
+   public void start() throws Exception {
       server.start();
    }
 
-   public void stop() throws Exception
-   {
+   public void stop() throws Exception {
       server.stop();
    }
 
-   public CountDownLatch crash(ClientSession... sessions) throws Exception
-   {
+   public CountDownLatch crash(ClientSession... sessions) throws Exception {
       return crash(true, sessions);
    }
 
-   public CountDownLatch crash(boolean waitFailure, ClientSession... sessions) throws Exception
-   {
+   public CountDownLatch crash(boolean waitFailure, ClientSession... sessions) throws Exception {
       CountDownLatch latch = new CountDownLatch(sessions.length);
       CountDownSessionFailureListener[] listeners = new CountDownSessionFailureListener[sessions.length];
-      for (int i = 0; i < sessions.length; i++)
-      {
+      for (int i = 0; i < sessions.length; i++) {
          listeners[i] = new CountDownSessionFailureListener(latch, sessions[i]);
          sessions[i].addFailureListener(listeners[i]);
       }
@@ -92,19 +81,17 @@ public class SameProcessActiveMQServer implements TestableServer
       Assert.assertTrue("server should be running!", server.isStarted());
       server.stop(true);
 
-      if (waitFailure)
-      {
+      if (waitFailure) {
          // Wait to be informed of failure
          boolean ok = latch.await(10000, TimeUnit.MILLISECONDS);
          Assert.assertTrue("Failed to stop the server! Latch count is " + latch.getCount() + " out of " +
-                  sessions.length, ok);
+                              sessions.length, ok);
       }
 
       return latch;
    }
 
-   public ActiveMQServer getServer()
-   {
+   public ActiveMQServer getServer() {
       return server;
    }
 }

@@ -25,51 +25,43 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.utils.XidCodecSupport;
 
-public class SessionXAGetInDoubtXidsResponseMessage extends PacketImpl
-{
+public class SessionXAGetInDoubtXidsResponseMessage extends PacketImpl {
+
    private List<Xid> xids;
 
-   public SessionXAGetInDoubtXidsResponseMessage(final List<Xid> xids)
-   {
+   public SessionXAGetInDoubtXidsResponseMessage(final List<Xid> xids) {
       super(SESS_XA_INDOUBT_XIDS_RESP);
 
       this.xids = xids;
    }
 
-   public SessionXAGetInDoubtXidsResponseMessage()
-   {
+   public SessionXAGetInDoubtXidsResponseMessage() {
       super(SESS_XA_INDOUBT_XIDS_RESP);
    }
 
    @Override
-   public boolean isResponse()
-   {
+   public boolean isResponse() {
       return true;
    }
 
-   public List<Xid> getXids()
-   {
+   public List<Xid> getXids() {
       return xids;
    }
 
    @Override
-   public void encodeRest(final ActiveMQBuffer buffer)
-   {
+   public void encodeRest(final ActiveMQBuffer buffer) {
       buffer.writeInt(xids.size());
 
-      for (Xid xid : xids)
-      {
+      for (Xid xid : xids) {
          XidCodecSupport.encodeXid(xid, buffer);
       }
    }
 
    @Override
-   public void decodeRest(final ActiveMQBuffer buffer)
-   {
+   public void decodeRest(final ActiveMQBuffer buffer) {
       int len = buffer.readInt();
       xids = new ArrayList<Xid>(len);
-      for (int i = 0; i < len; i++)
-      {
+      for (int i = 0; i < len; i++) {
          Xid xid = XidCodecSupport.decodeXid(buffer);
 
          xids.add(xid);
@@ -77,8 +69,7 @@ public class SessionXAGetInDoubtXidsResponseMessage extends PacketImpl
    }
 
    @Override
-   public int hashCode()
-   {
+   public int hashCode() {
       final int prime = 31;
       int result = super.hashCode();
       result = prime * result + ((xids == null) ? 0 : xids.hashCode());
@@ -86,17 +77,15 @@ public class SessionXAGetInDoubtXidsResponseMessage extends PacketImpl
    }
 
    @Override
-   public boolean equals(Object obj)
-   {
+   public boolean equals(Object obj) {
       if (this == obj)
          return true;
       if (!super.equals(obj))
          return false;
       if (!(obj instanceof SessionXAGetInDoubtXidsResponseMessage))
          return false;
-      SessionXAGetInDoubtXidsResponseMessage other = (SessionXAGetInDoubtXidsResponseMessage)obj;
-      if (xids == null)
-      {
+      SessionXAGetInDoubtXidsResponseMessage other = (SessionXAGetInDoubtXidsResponseMessage) obj;
+      if (xids == null) {
          if (other.xids != null)
             return false;
       }

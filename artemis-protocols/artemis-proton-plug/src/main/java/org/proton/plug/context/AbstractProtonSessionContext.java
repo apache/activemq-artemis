@@ -35,8 +35,8 @@ import org.proton.plug.exceptions.ActiveMQAMQPInternalErrorException;
  * It has a link between a ProtonSession and a Broker or Client Session
  * The Broker Session is linked through the ProtonSessionSPI
  */
-public abstract class AbstractProtonSessionContext extends ProtonInitializable implements AMQPSessionContext
-{
+public abstract class AbstractProtonSessionContext extends ProtonInitializable implements AMQPSessionContext {
+
    protected final AbstractConnectionContext connection;
 
    protected final AMQPSessionCallback sessionSPI;
@@ -51,33 +51,28 @@ public abstract class AbstractProtonSessionContext extends ProtonInitializable i
 
    protected boolean closed = false;
 
-   public AbstractProtonSessionContext(AMQPSessionCallback sessionSPI, AbstractConnectionContext connection, Session session)
-   {
+   public AbstractProtonSessionContext(AMQPSessionCallback sessionSPI,
+                                       AbstractConnectionContext connection,
+                                       Session session) {
       this.connection = connection;
       this.sessionSPI = sessionSPI;
       this.session = session;
    }
 
-   public void initialise() throws Exception
-   {
-      if (!isInitialized())
-      {
+   public void initialise() throws Exception {
+      if (!isInitialized()) {
          super.initialise();
 
-         if (sessionSPI != null)
-         {
-            try
-            {
+         if (sessionSPI != null) {
+            try {
                sessionSPI.init(this, connection.getSASLResult());
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                throw new ActiveMQAMQPInternalErrorException(e.getMessage(), e);
             }
          }
       }
    }
-
 
    /**
     * TODO: maybe it needs to go?
@@ -85,59 +80,44 @@ public abstract class AbstractProtonSessionContext extends ProtonInitializable i
     * @param consumer
     * @param queueName
     */
-   public void disconnect(Object consumer, String queueName)
-   {
+   public void disconnect(Object consumer, String queueName) {
       AbstractProtonContextSender protonConsumer = senders.remove(consumer);
-      if (protonConsumer != null)
-      {
-         try
-         {
+      if (protonConsumer != null) {
+         try {
             protonConsumer.close();
          }
-         catch (ActiveMQAMQPException e)
-         {
+         catch (ActiveMQAMQPException e) {
             protonConsumer.getSender().setTarget(null);
             protonConsumer.getSender().setCondition(new ErrorCondition(e.getAmqpError(), e.getMessage()));
          }
       }
    }
 
-
    @Override
-   public byte[] getTag()
-   {
+   public byte[] getTag() {
       return Long.toHexString(currentTag++).getBytes();
    }
 
    @Override
-   public void replaceTag(byte[] tag)
-   {
+   public void replaceTag(byte[] tag) {
       // TODO: do we need to reuse this?
    }
 
    @Override
-   public void close()
-   {
-      if (closed)
-      {
+   public void close() {
+      if (closed) {
          return;
       }
-
-
 
       // Making a copy to avoid ConcurrentModificationException during the iteration
       Set<AbstractProtonReceiverContext> receiversCopy = new HashSet<>();
       receiversCopy.addAll(receivers.values());
 
-
-      for (AbstractProtonReceiverContext protonProducer : receiversCopy)
-      {
-         try
-         {
+      for (AbstractProtonReceiverContext protonProducer : receiversCopy) {
+         try {
             protonProducer.close();
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             e.printStackTrace();
             // TODO Logging
          }
@@ -147,29 +127,23 @@ public abstract class AbstractProtonSessionContext extends ProtonInitializable i
       Set<AbstractProtonContextSender> protonSendersClone = new HashSet<>();
       protonSendersClone.addAll(senders.values());
 
-      for (AbstractProtonContextSender protonConsumer : protonSendersClone)
-      {
-         try
-         {
+      for (AbstractProtonContextSender protonConsumer : protonSendersClone) {
+         try {
             protonConsumer.close();
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             e.printStackTrace();
             // TODO Logging
          }
       }
       senders.clear();
-      try
-      {
-         if (sessionSPI != null)
-         {
+      try {
+         if (sessionSPI != null) {
             sessionSPI.rollbackCurrentTX();
             sessionSPI.close();
          }
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          e.printStackTrace();
          // TODO logging
       }
@@ -177,14 +151,12 @@ public abstract class AbstractProtonSessionContext extends ProtonInitializable i
    }
 
    @Override
-   public void removeSender(Sender sender) throws ActiveMQAMQPException
-   {
+   public void removeSender(Sender sender) throws ActiveMQAMQPException {
       senders.remove(sender);
    }
 
    @Override
-   public void removeReceiver(Receiver receiver)
-   {
+   public void removeReceiver(Receiver receiver) {
       receivers.remove(receiver);
    }
 }

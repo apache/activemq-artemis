@@ -20,27 +20,25 @@ import org.apache.activemq.command.ActiveMQBytesMessage;
 
 /**
  * Test case for the OpenWire marshalling for ActiveMQBytesMessage
- * 
- * 
+ *
+ *
  * NOTE!: This file is auto generated - do not modify! if you need to make a
  * change, please see the modify the groovy scripts in the under src/gram/script
  * and then use maven openwire:generate to regenerate this file.
- * 
- * 
  */
 public class ActiveMQBytesMessageTest extends ActiveMQMessageTest {
 
-    public static final ActiveMQBytesMessageTest SINGLETON = new ActiveMQBytesMessageTest();
+   public static final ActiveMQBytesMessageTest SINGLETON = new ActiveMQBytesMessageTest();
 
-    public Object createObject() throws Exception {
-        ActiveMQBytesMessage info = new ActiveMQBytesMessage();
-        populateObject(info);
-        return info;
-    }
+   public Object createObject() throws Exception {
+      ActiveMQBytesMessage info = new ActiveMQBytesMessage();
+      populateObject(info);
+      return info;
+   }
 
-    protected void populateObject(Object object) throws Exception {
-        super.populateObject(object);
-        ActiveMQBytesMessage info = (ActiveMQBytesMessage)object;
+   protected void populateObject(Object object) throws Exception {
+      super.populateObject(object);
+      ActiveMQBytesMessage info = (ActiveMQBytesMessage) object;
 
-    }
+   }
 }

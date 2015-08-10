@@ -33,59 +33,63 @@ import org.slf4j.LoggerFactory;
 
 public class AMQ4582Test {
 
-    private static final transient Logger LOG = LoggerFactory.getLogger(AMQ4582Test.class);
+   private static final transient Logger LOG = LoggerFactory.getLogger(AMQ4582Test.class);
 
-    BrokerService broker;
-    Connection connection;
-    Session session;
+   BrokerService broker;
+   Connection connection;
+   Session session;
 
-    public static final String KEYSTORE_TYPE = "jks";
-    public static final String PASSWORD = "password";
-    public static final String SERVER_KEYSTORE = "src/test/resources/server.keystore";
-    public static final String TRUST_KEYSTORE = "src/test/resources/client.keystore";
+   public static final String KEYSTORE_TYPE = "jks";
+   public static final String PASSWORD = "password";
+   public static final String SERVER_KEYSTORE = "src/test/resources/server.keystore";
+   public static final String TRUST_KEYSTORE = "src/test/resources/client.keystore";
 
-    public static final int PRODUCER_COUNT = 10;
-    public static final int CONSUMER_COUNT = 10;
-    public static final int MESSAGE_COUNT = 1000;
+   public static final int PRODUCER_COUNT = 10;
+   public static final int CONSUMER_COUNT = 10;
+   public static final int MESSAGE_COUNT = 1000;
 
-    final ConsumerThread[] consumers = new ConsumerThread[CONSUMER_COUNT];
+   final ConsumerThread[] consumers = new ConsumerThread[CONSUMER_COUNT];
 
-    @Before
-    public void setUp() throws Exception {
-        System.setProperty("javax.net.ssl.trustStore", TRUST_KEYSTORE);
-        System.setProperty("javax.net.ssl.trustStorePassword", PASSWORD);
-        System.setProperty("javax.net.ssl.trustStoreType", KEYSTORE_TYPE);
-        System.setProperty("javax.net.ssl.keyStore", SERVER_KEYSTORE);
-        System.setProperty("javax.net.ssl.keyStoreType", KEYSTORE_TYPE);
-        System.setProperty("javax.net.ssl.keyStorePassword", PASSWORD);
-    }
+   @Before
+   public void setUp() throws Exception {
+      System.setProperty("javax.net.ssl.trustStore", TRUST_KEYSTORE);
+      System.setProperty("javax.net.ssl.trustStorePassword", PASSWORD);
+      System.setProperty("javax.net.ssl.trustStoreType", KEYSTORE_TYPE);
+      System.setProperty("javax.net.ssl.keyStore", SERVER_KEYSTORE);
+      System.setProperty("javax.net.ssl.keyStoreType", KEYSTORE_TYPE);
+      System.setProperty("javax.net.ssl.keyStorePassword", PASSWORD);
+   }
 
-    @After
-    public void tearDown() throws Exception {
-        if (broker != null) {
-            try {
-                broker.stop();
-            } catch(Exception e) {}
-        }
-    }
+   @After
+   public void tearDown() throws Exception {
+      if (broker != null) {
+         try {
+            broker.stop();
+         }
+         catch (Exception e) {
+         }
+      }
+   }
 
-    @Rule public ExpectedException thrown = ExpectedException.none();
-    @Test
-    public void simpleTest() throws Exception {
-        thrown.expect(IOException.class);
-        thrown.expectMessage("enabledCipherSuites=BADSUITE");
+   @Rule
+   public ExpectedException thrown = ExpectedException.none();
 
-        broker = new BrokerService();
-        broker.setPersistent(false);
-        broker.setUseJmx(false);
-        try {
-            broker.addConnector(
-                "ssl://localhost:0?transport.needClientAuth=true&transport.enabledCipherSuites=BADSUITE");
-            broker.start();
-            broker.waitUntilStarted();
-        } catch (Exception e) {
-            LOG.info("BrokerService threw:", e);
-            throw e;
-        }
-    }
+   @Test
+   public void simpleTest() throws Exception {
+      thrown.expect(IOException.class);
+      thrown.expectMessage("enabledCipherSuites=BADSUITE");
+
+      broker = new BrokerService();
+      broker.setPersistent(false);
+      broker.setUseJmx(false);
+      try {
+         broker.addConnector("ssl://localhost:0?transport.needClientAuth=true&transport.enabledCipherSuites=BADSUITE");
+         broker.start();
+         broker.waitUntilStarted();
+      }
+      catch (Exception e) {
+         LOG.info("BrokerService threw:", e);
+         throw e;
+      }
+   }
 }

@@ -31,48 +31,40 @@ import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class BodyIsAssignableFromTest extends MessageBodyTestCase
-{
+public class BodyIsAssignableFromTest extends MessageBodyTestCase {
 
    @Test
-   public void testText() throws JMSException
-   {
+   public void testText() throws JMSException {
       bodyAssignableFrom(JmsMessageType.TEXT, String.class, CharSequence.class, Comparable.class, Serializable.class);
       bodyNotAssignableFrom(JmsMessageType.TEXT, List.class, StringBuilder.class, Map.class, File.class);
    }
 
    @Test
-   public void testMap() throws JMSException
-   {
+   public void testMap() throws JMSException {
       bodyAssignableFrom(JmsMessageType.MAP, Map.class, Object.class);
       bodyNotAssignableFrom(JmsMessageType.MAP, String.class, CharSequence.class, Comparable.class, Serializable.class);
    }
 
    @Test
-   public void testStream() throws JMSException
-   {
+   public void testStream() throws JMSException {
       bodyNotAssignableFrom(JmsMessageType.STREAM, Object.class, Serializable.class);
    }
 
    @Test
-   public void testByte() throws JMSException
-   {
+   public void testByte() throws JMSException {
       bodyAssignableFrom(JmsMessageType.BYTE, Object.class, byte[].class);
       bodyNotAssignableFrom(JmsMessageType.BYTE, String.class, CharSequence.class, Comparable.class);
    }
 
    @Test
-   public void testObject() throws JMSException
-   {
-      bodyAssignableFrom(JmsMessageType.OBJECT, Object.class, Serializable.class,
-                         Comparable.class, Double.class);
+   public void testObject() throws JMSException {
+      bodyAssignableFrom(JmsMessageType.OBJECT, Object.class, Serializable.class, Comparable.class, Double.class);
       // we are sending a Double in the body, so the de-serialized Object will be an instanceof these:
       bodyAssignableFrom(JmsMessageType.OBJECT, Comparable.class, Double.class);
       bodyNotAssignableFrom(JmsMessageType.OBJECT, String.class, CharSequence.class, List.class);
    }
 
-   private void bodyAssignableFrom(JmsMessageType type, Class... clazz) throws JMSException
-   {
+   private void bodyAssignableFrom(JmsMessageType type, Class... clazz) throws JMSException {
       bodyAssignableFrom(type, true, clazz);
    }
 
@@ -82,40 +74,31 @@ public class BodyIsAssignableFromTest extends MessageBodyTestCase
     * @param bool
     * @throws JMSException
     */
-   private void bodyAssignableFrom(final JmsMessageType type, final boolean bool, Class... clazz) throws JMSException
-   {
+   private void bodyAssignableFrom(final JmsMessageType type, final boolean bool, Class... clazz) throws JMSException {
       Assert.assertNotNull("clazz!=null", clazz);
       Assert.assertTrue("clazz[] not empty", clazz.length > 0);
       Object body = createBodySendAndReceive(type);
       Message msg = queueConsumer.receive(500);
       Assert.assertNotNull("must have a msg", msg);
       Assert.assertEquals(type.toString(), msg.getStringProperty("type"));
-      for (Class<?> c : clazz)
-      {
+      for (Class<?> c : clazz) {
          Assert.assertEquals(msg + " " + type + " & " + c + ": " + bool, bool, msg.isBodyAssignableTo(c));
-         if (bool)
-         {
+         if (bool) {
             Object receivedBody = msg.getBody(c);
             Assert.assertTrue("correct type " + c, c.isInstance(receivedBody));
-            if (body.getClass().isAssignableFrom(byte[].class))
-            {
+            if (body.getClass().isAssignableFrom(byte[].class)) {
                Arrays.equals((byte[]) body, (byte[]) receivedBody);
             }
-            else
-            {
-               Assert.assertEquals("clazz=" + c + ", bodies must match.. " + body.equals(receivedBody), body,
-                                   receivedBody);
+            else {
+               Assert.assertEquals("clazz=" + c + ", bodies must match.. " + body.equals(receivedBody), body, receivedBody);
             }
          }
-         else
-         {
-            try
-            {
+         else {
+            try {
                Object foo = msg.getBody(c);
                Assert.fail("expected a " + MessageFormatException.class);
             }
-            catch (MessageFormatException e)
-            {
+            catch (MessageFormatException e) {
                // expected
             }
          }
@@ -126,18 +109,15 @@ public class BodyIsAssignableFromTest extends MessageBodyTestCase
     * @param type
     * @throws JMSException
     */
-   private Object createBodySendAndReceive(JmsMessageType type) throws JMSException
-   {
+   private Object createBodySendAndReceive(JmsMessageType type) throws JMSException {
       Object res = null;
       Message msg = null;
-      switch (type)
-      {
+      switch (type) {
          case BYTE:
             BytesMessage mByte = queueProducerSession.createBytesMessage();
             final int size = 20;
             byte[] resByte = new byte[size];
-            for (int i = 0; i < size; i++)
-            {
+            for (int i = 0; i < size; i++) {
                resByte[i] = (byte) i;
                mByte.writeByte((byte) i);
             }
@@ -176,8 +156,7 @@ public class BodyIsAssignableFromTest extends MessageBodyTestCase
       return res;
    }
 
-   private void bodyNotAssignableFrom(JmsMessageType type, Class... clazz) throws JMSException
-   {
+   private void bodyNotAssignableFrom(JmsMessageType type, Class... clazz) throws JMSException {
       bodyAssignableFrom(type, false, clazz);
    }
 }

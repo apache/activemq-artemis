@@ -35,8 +35,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 @RunWith(Parameterized.class)
-public class OrderTest extends ActiveMQTestBase
-{
+public class OrderTest extends ActiveMQTestBase {
 
    private boolean persistent;
 
@@ -44,28 +43,21 @@ public class OrderTest extends ActiveMQTestBase
 
    private ServerLocator locator;
 
-   public OrderTest(boolean persistent)
-   {
+   public OrderTest(boolean persistent) {
       this.persistent = persistent;
    }
-   @Parameterized.Parameters(name = "persistent={0}")
-   public static Collection<Object[]> getParams()
-   {
-      return Arrays.asList(new Object[][]{
-         {true},
-         {false}
-      });
-   }
 
+   @Parameterized.Parameters(name = "persistent={0}")
+   public static Collection<Object[]> getParams() {
+      return Arrays.asList(new Object[][]{{true}, {false}});
+   }
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
       locator = createNettyNonHALocator();
    }
-
 
    // Static --------------------------------------------------------
 
@@ -74,14 +66,11 @@ public class OrderTest extends ActiveMQTestBase
    // Public --------------------------------------------------------
 
    @Test
-   public void testSimpleStorage() throws Exception
-   {
+   public void testSimpleStorage() throws Exception {
       server = createServer(persistent, true);
       server.start();
 
-      locator.setBlockOnNonDurableSend(false)
-              .setBlockOnDurableSend(false)
-              .setBlockOnAcknowledge(true);
+      locator.setBlockOnNonDurableSend(false).setBlockOnDurableSend(false).setBlockOnAcknowledge(true);
 
       ClientSessionFactory sf = createSessionFactory(locator);
 
@@ -91,8 +80,7 @@ public class OrderTest extends ActiveMQTestBase
 
       ClientProducer prod = session.createProducer("queue");
 
-      for (int i = 0; i < 100; i++)
-      {
+      for (int i = 0; i < 100; i++) {
          ClientMessage msg = session.createMessage(i % 2 == 0);
          msg.putIntProperty("id", i);
          prod.send(msg);
@@ -102,11 +90,9 @@ public class OrderTest extends ActiveMQTestBase
 
       boolean started = false;
 
-      for (int start = 0; start < 2; start++)
-      {
+      for (int start = 0; start < 2; start++) {
 
-         if (persistent && start == 1)
-         {
+         if (persistent && start == 1) {
             started = true;
             server.stop();
             server.start();
@@ -119,10 +105,8 @@ public class OrderTest extends ActiveMQTestBase
 
          ClientConsumer cons = session.createConsumer("queue");
 
-         for (int i = 0; i < 100; i++)
-         {
-            if (!started || started && i % 2 == 0)
-            {
+         for (int i = 0; i < 100; i++) {
+            if (!started || started && i % 2 == 0) {
                ClientMessage msg = cons.receive(10000);
 
                Assert.assertEquals(i, msg.getIntProperty("id").intValue());
@@ -133,10 +117,8 @@ public class OrderTest extends ActiveMQTestBase
 
          cons = session.createConsumer("queue");
 
-         for (int i = 0; i < 100; i++)
-         {
-            if (!started || started && i % 2 == 0)
-            {
+         for (int i = 0; i < 100; i++) {
+            if (!started || started && i % 2 == 0) {
                ClientMessage msg = cons.receive(10000);
 
                Assert.assertEquals(i, msg.getIntProperty("id").intValue());
@@ -148,15 +130,12 @@ public class OrderTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testOrderOverSessionClose() throws Exception
-   {
+   public void testOrderOverSessionClose() throws Exception {
       server = createServer(persistent, true);
 
       server.start();
 
-      locator.setBlockOnNonDurableSend(false)
-              .setBlockOnDurableSend(false)
-              .setBlockOnAcknowledge(false);
+      locator.setBlockOnNonDurableSend(false).setBlockOnDurableSend(false).setBlockOnAcknowledge(false);
 
       ClientSessionFactory sf = createSessionFactory(locator);
       ClientSession session = sf.createSession(true, true, 0);
@@ -166,8 +145,7 @@ public class OrderTest extends ActiveMQTestBase
 
       ClientProducer prod = session.createProducer("queue");
 
-      for (int i = 0; i < numberOfMessages; i++)
-      {
+      for (int i = 0; i < numberOfMessages; i++) {
          ClientMessage msg = session.createMessage(i % 2 == 0);
          msg.putIntProperty("id", i);
          prod.send(msg);
@@ -175,8 +153,7 @@ public class OrderTest extends ActiveMQTestBase
 
       session.close();
 
-      for (int i = 0; i < numberOfMessages; )
-      {
+      for (int i = 0; i < numberOfMessages; ) {
          session = sf.createSession();
 
          session.start();
@@ -185,8 +162,7 @@ public class OrderTest extends ActiveMQTestBase
 
          int max = i + 10;
 
-         for (; i < max; i++)
-         {
+         for (; i < max; i++) {
             ClientMessage msg = consumer.receive(1000);
 
             msg.acknowledge();
@@ -195,11 +171,9 @@ public class OrderTest extends ActiveMQTestBase
          }
 
          // Receive a few more messages but don't consume them
-         for (int j = 0; j < 10 && i < numberOfMessages; j++)
-         {
+         for (int j = 0; j < 10 && i < numberOfMessages; j++) {
             ClientMessage msg = consumer.receiveImmediate();
-            if (msg == null)
-            {
+            if (msg == null) {
                break;
             }
          }
@@ -209,8 +183,7 @@ public class OrderTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testOrderOverSessionCloseWithRedeliveryDelay() throws Exception
-   {
+   public void testOrderOverSessionCloseWithRedeliveryDelay() throws Exception {
       server = createServer(persistent, true);
 
       server.getAddressSettingsRepository().clear();
@@ -219,9 +192,7 @@ public class OrderTest extends ActiveMQTestBase
 
       server.start();
 
-      locator.setBlockOnNonDurableSend(false)
-              .setBlockOnDurableSend(false)
-              .setBlockOnAcknowledge(false);
+      locator.setBlockOnNonDurableSend(false).setBlockOnDurableSend(false).setBlockOnAcknowledge(false);
 
       ClientSessionFactory sf = createSessionFactory(locator);
       ClientSession session = sf.createSession(true, true, 0);
@@ -232,8 +203,7 @@ public class OrderTest extends ActiveMQTestBase
 
       ClientProducer prod = session.createProducer("queue");
 
-      for (int i = 0; i < numberOfMessages; i++)
-      {
+      for (int i = 0; i < numberOfMessages; i++) {
          ClientMessage msg = session.createMessage(i % 2 == 0);
          msg.putIntProperty("id", i);
          prod.send(msg);
@@ -247,14 +217,12 @@ public class OrderTest extends ActiveMQTestBase
 
       ClientConsumer cons = session.createConsumer("queue");
 
-      for (int i = 0; i < numberOfMessages; i++)
-      {
+      for (int i = 0; i < numberOfMessages; i++) {
          ClientMessage msg = cons.receive(5000);
          msg.acknowledge();
          assertEquals(i, msg.getIntProperty("id").intValue());
       }
       session.close();
-
 
       session = sf.createSession(false, false);
 
@@ -262,9 +230,7 @@ public class OrderTest extends ActiveMQTestBase
 
       cons = session.createConsumer("queue");
 
-
-      for (int i = 0; i < numberOfMessages; i++)
-      {
+      for (int i = 0; i < numberOfMessages; i++) {
          ClientMessage msg = cons.receive(5000);
          assertNotNull(msg);
          msg.acknowledge();

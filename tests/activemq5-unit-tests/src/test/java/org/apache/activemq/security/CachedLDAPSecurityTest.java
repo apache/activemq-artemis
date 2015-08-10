@@ -24,22 +24,21 @@ import org.apache.directory.server.core.integ.FrameworkRunner;
 import org.junit.Before;
 import org.junit.runner.RunWith;
 
-@RunWith( FrameworkRunner.class )
+@RunWith(FrameworkRunner.class)
 @CreateLdapServer(transports = {@CreateTransport(protocol = "LDAP")})
 @ApplyLdifFiles(
-        "org/apache/activemq/security/activemq-apacheds.ldif"
-)
+   "org/apache/activemq/security/activemq-apacheds.ldif")
 public class CachedLDAPSecurityTest extends CachedLDAPSecurityLegacyTest {
 
-    @Before
-    @Override
-    public void setup() throws Exception {
-        System.setProperty("ldapPort", String.valueOf(getLdapServer().getPort()));
-        
-        broker = BrokerFactory.createBroker("xbean:org/apache/activemq/security/activemq-apacheds.xml");
-        broker.start();
-        broker.waitUntilStarted();
-    }
+   @Before
+   @Override
+   public void setup() throws Exception {
+      System.setProperty("ldapPort", String.valueOf(getLdapServer().getPort()));
+
+      broker = BrokerFactory.createBroker("xbean:org/apache/activemq/security/activemq-apacheds.xml");
+      broker.start();
+      broker.waitUntilStarted();
+   }
 }
 
 

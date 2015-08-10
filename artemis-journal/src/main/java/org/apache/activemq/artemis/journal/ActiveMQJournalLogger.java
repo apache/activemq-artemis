@@ -39,8 +39,8 @@ import org.jboss.logging.annotations.MessageLogger;
  * so an INFO message would be 141000 to 141999
  */
 @MessageLogger(projectCode = "AMQ")
-public interface ActiveMQJournalLogger extends BasicLogger
-{
+public interface ActiveMQJournalLogger extends BasicLogger {
+
    /**
     * The journal logger.
     */
@@ -72,9 +72,9 @@ public interface ActiveMQJournalLogger extends BasicLogger
 
    @LogMessage(level = Logger.Level.INFO)
    @Message(id = 141007, value = "Current File on the journal is <= the sequence file.getFileID={0} on the dataFiles" +
-                                 "\nCurrentfile.getFileId={1} while the file.getFileID()={2}" +
-                                 "\nIs same = ({3})",
-            format = Message.Format.MESSAGE_FORMAT)
+      "\nCurrentfile.getFileId={1} while the file.getFileID()={2}" +
+      "\nIs same = ({3})",
+      format = Message.Format.MESSAGE_FORMAT)
    void currentFile(Long fileID, Long id, Long fileFileID, Boolean b);
 
    @LogMessage(level = Logger.Level.INFO)
@@ -91,7 +91,7 @@ public interface ActiveMQJournalLogger extends BasicLogger
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 142001, value = "Could not get lock after 60 seconds on closing Asynchronous File: {0}",
-            format = Message.Format.MESSAGE_FORMAT)
+      format = Message.Format.MESSAGE_FORMAT)
    void couldNotGetLock(String fileName);
 
    @LogMessage(level = Logger.Level.WARN)
@@ -104,121 +104,121 @@ public interface ActiveMQJournalLogger extends BasicLogger
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 142004, value = "Inconsistency during compacting: CommitRecord ID = {0} for an already committed transaction during compacting",
-         format = Message.Format.MESSAGE_FORMAT)
+      format = Message.Format.MESSAGE_FORMAT)
    void inconsistencyDuringCompacting(Long transactionID);
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 142005, value = "Inconsistency during compacting: Delete record being read on an existent record (id={0})",
-         format = Message.Format.MESSAGE_FORMAT)
+      format = Message.Format.MESSAGE_FORMAT)
    void inconsistencyDuringCompactingDelete(Long recordID);
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 142006, value = "Could not find add Record information for record {0} during compacting",
-         format = Message.Format.MESSAGE_FORMAT)
+      format = Message.Format.MESSAGE_FORMAT)
    void compactingWithNoAddRecord(Long id);
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 142007, value = "Can not find record {0} during compact replay",
-         format = Message.Format.MESSAGE_FORMAT)
+      format = Message.Format.MESSAGE_FORMAT)
    void noRecordDuringCompactReplay(Long id);
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 142008, value = "Could not remove file {0} from the list of data files",
-         format = Message.Format.MESSAGE_FORMAT)
+      format = Message.Format.MESSAGE_FORMAT)
    void couldNotRemoveFile(JournalFile file);
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 142009, value = "Deleting {0} as it does not have the configured size",
-         format = Message.Format.MESSAGE_FORMAT)
+      format = Message.Format.MESSAGE_FORMAT)
    void deletingFile(JournalFile file);
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 142010, value = "Failed to add file to opened files queue: {0}. This should NOT happen!",
-         format = Message.Format.MESSAGE_FORMAT)
+      format = Message.Format.MESSAGE_FORMAT)
    void failedToAddFile(JournalFile nextOpenedFile);
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 142011, value = "Error on reading compacting for {0}",
-         format = Message.Format.MESSAGE_FORMAT)
+      format = Message.Format.MESSAGE_FORMAT)
    void compactReadError(JournalFile file);
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 142012, value = "Couldn''t find tx={0} to merge after compacting",
-         format = Message.Format.MESSAGE_FORMAT)
+      format = Message.Format.MESSAGE_FORMAT)
    void compactMergeError(Long id);
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 142013, value = "Prepared transaction {0} was not considered completed, it will be ignored",
-         format = Message.Format.MESSAGE_FORMAT)
+      format = Message.Format.MESSAGE_FORMAT)
    void preparedTXIncomplete(Long id);
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 142014, value = "Transaction {0} is missing elements so the transaction is being ignored",
-         format = Message.Format.MESSAGE_FORMAT)
+      format = Message.Format.MESSAGE_FORMAT)
    void txMissingElements(Long id);
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 142015, value = "Uncommitted transaction with id {0} found and discarded",
-         format = Message.Format.MESSAGE_FORMAT)
+      format = Message.Format.MESSAGE_FORMAT)
    void uncomittedTxFound(Long id);
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 142016, value = "Couldn''t stop compactor executor after 120 seconds",
-         format = Message.Format.MESSAGE_FORMAT)
+      format = Message.Format.MESSAGE_FORMAT)
    void couldNotStopCompactor();
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 142017, value = "Couldn''t stop journal executor after 60 seconds",
-         format = Message.Format.MESSAGE_FORMAT)
+      format = Message.Format.MESSAGE_FORMAT)
    void couldNotStopJournalExecutor();
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 142018, value = "Temporary files were left unnatended after a crash on journal directory, deleting invalid files now",
-         format = Message.Format.MESSAGE_FORMAT)
+      format = Message.Format.MESSAGE_FORMAT)
    void tempFilesLeftOpen();
 
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 142019, value =  "Deleting orphaned file {0}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 142019, value = "Deleting orphaned file {0}", format = Message.Format.MESSAGE_FORMAT)
    void deletingOrphanedFile(String fileToDelete);
 
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 142020, value =  "Couldn''t get lock after 60 seconds on closing Asynchronous File: {0}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 142020, value = "Couldn''t get lock after 60 seconds on closing Asynchronous File: {0}", format = Message.Format.MESSAGE_FORMAT)
    void errorClosingFile(String fileToDelete);
 
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 142021, value =  "Error on IO callback, {0}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 142021, value = "Error on IO callback, {0}", format = Message.Format.MESSAGE_FORMAT)
    void errorOnIOCallback(String errorMessage);
 
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 142022, value =  "Timed out on AIO poller shutdown", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 142022, value = "Timed out on AIO poller shutdown", format = Message.Format.MESSAGE_FORMAT)
    void timeoutOnPollerShutdown(@Cause Exception e);
 
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 142023, value =  "Executor on file {0} couldn''t complete its tasks in 60 seconds.", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 142023, value = "Executor on file {0} couldn''t complete its tasks in 60 seconds.", format = Message.Format.MESSAGE_FORMAT)
    void couldNotCompleteTask(@Cause Exception e, String name);
 
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 142024, value =  "Error completing callback", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 142024, value = "Error completing callback", format = Message.Format.MESSAGE_FORMAT)
    void errorCompletingCallback(@Cause Throwable e);
 
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 142025, value =  "Error calling onError callback", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 142025, value = "Error calling onError callback", format = Message.Format.MESSAGE_FORMAT)
    void errorCallingErrorCallback(@Cause Throwable e);
 
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 142026, value =  "Timed out on AIO writer shutdown", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 142026, value = "Timed out on AIO writer shutdown", format = Message.Format.MESSAGE_FORMAT)
    void timeoutOnWriterShutdown(@Cause Throwable e);
 
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 142027, value =  "Error on writing data! {0} code - {1}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 142027, value = "Error on writing data! {0} code - {1}", format = Message.Format.MESSAGE_FORMAT)
    void errorWritingData(@Cause Throwable e, String errorMessage, Integer errorCode);
 
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 142028, value =  "Error replaying pending commands after compacting", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 142028, value = "Error replaying pending commands after compacting", format = Message.Format.MESSAGE_FORMAT)
    void errorReplayingCommands(@Cause Throwable e);
 
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 142029, value =  "Error closing file", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 142029, value = "Error closing file", format = Message.Format.MESSAGE_FORMAT)
    void errorClosingFile(@Cause Throwable e);
 
    @LogMessage(level = Logger.Level.WARN)
@@ -226,15 +226,15 @@ public interface ActiveMQJournalLogger extends BasicLogger
    void errorOpeningFile(@Cause Throwable e);
 
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 142031, value =  "Error retrieving ID part of the file name {0}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 142031, value = "Error retrieving ID part of the file name {0}", format = Message.Format.MESSAGE_FORMAT)
    void errorRetrievingID(@Cause Throwable e, String fileName);
 
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 142032, value =  "Error reading journal file", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 142032, value = "Error reading journal file", format = Message.Format.MESSAGE_FORMAT)
    void errorReadingFile(@Cause Throwable e);
 
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 142033, value =  "Error reinitializing file {0}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 142033, value = "Error reinitializing file {0}", format = Message.Format.MESSAGE_FORMAT)
    void errorReinitializingFile(@Cause Throwable e, JournalFile file);
 
    @LogMessage(level = Logger.Level.WARN)

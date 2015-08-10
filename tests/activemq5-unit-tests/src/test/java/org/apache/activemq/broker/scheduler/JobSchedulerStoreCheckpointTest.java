@@ -37,89 +37,89 @@ import org.slf4j.LoggerFactory;
 
 public class JobSchedulerStoreCheckpointTest {
 
-    static final Logger LOG = LoggerFactory.getLogger(JobSchedulerStoreCheckpointTest.class);
+   static final Logger LOG = LoggerFactory.getLogger(JobSchedulerStoreCheckpointTest.class);
 
-    private JobSchedulerStoreImpl store;
-    private JobScheduler scheduler;
-    private ByteSequence payload;
+   private JobSchedulerStoreImpl store;
+   private JobScheduler scheduler;
+   private ByteSequence payload;
 
-    @Before
-    public void setUp() throws Exception {
-        File directory = new File("target/test/ScheduledJobsDB");
-        IOHelper.mkdirs(directory);
-        IOHelper.deleteChildren(directory);
-        startStore(directory);
+   @Before
+   public void setUp() throws Exception {
+      File directory = new File("target/test/ScheduledJobsDB");
+      IOHelper.mkdirs(directory);
+      IOHelper.deleteChildren(directory);
+      startStore(directory);
 
-        byte[] data = new byte[8192];
-        for (int i = 0; i < data.length; ++i) {
-            data[i] = (byte) (i % 256);
-        }
+      byte[] data = new byte[8192];
+      for (int i = 0; i < data.length; ++i) {
+         data[i] = (byte) (i % 256);
+      }
 
-        payload = new ByteSequence(data);
-    }
+      payload = new ByteSequence(data);
+   }
 
-    protected void startStore(File directory) throws Exception {
-        store = new JobSchedulerStoreImpl();
-        store.setDirectory(directory);
-        store.setCheckpointInterval(5000);
-        store.setCleanupInterval(10000);
-        store.setJournalMaxFileLength(10 * 1024);
-        store.start();
-        scheduler = store.getJobScheduler("test");
-        scheduler.startDispatching();
-    }
+   protected void startStore(File directory) throws Exception {
+      store = new JobSchedulerStoreImpl();
+      store.setDirectory(directory);
+      store.setCheckpointInterval(5000);
+      store.setCleanupInterval(10000);
+      store.setJournalMaxFileLength(10 * 1024);
+      store.start();
+      scheduler = store.getJobScheduler("test");
+      scheduler.startDispatching();
+   }
 
-    private int getNumJournalFiles() throws IOException {
-        return store.getJournal().getFileMap().size();
-    }
+   private int getNumJournalFiles() throws IOException {
+      return store.getJournal().getFileMap().size();
+   }
 
-    @After
-    public void tearDown() throws Exception {
-        scheduler.stopDispatching();
-        store.stop();
-    }
+   @After
+   public void tearDown() throws Exception {
+      scheduler.stopDispatching();
+      store.stop();
+   }
 
-    @Test
-    public void test() throws Exception {
-        final int COUNT = 10;
-        final CountDownLatch latch = new CountDownLatch(COUNT);
-        scheduler.addListener(new JobListener() {
-            @Override
-            public void scheduledJob(String id, ByteSequence job) {
-                latch.countDown();
-            }
-        });
+   @Test
+   public void test() throws Exception {
+      final int COUNT = 10;
+      final CountDownLatch latch = new CountDownLatch(COUNT);
+      scheduler.addListener(new JobListener() {
+         @Override
+         public void scheduledJob(String id, ByteSequence job) {
+            latch.countDown();
+         }
+      });
 
-        long time = TimeUnit.SECONDS.toMillis(30);
-        for (int i = 0; i < COUNT; i++) {
-            scheduler.schedule("id" + i, payload, "", time, 0, 0);
-        }
+      long time = TimeUnit.SECONDS.toMillis(30);
+      for (int i = 0; i < COUNT; i++) {
+         scheduler.schedule("id" + i, payload, "", time, 0, 0);
+      }
 
-        int size = scheduler.getAllJobs().size();
-        assertEquals(size, COUNT);
+      int size = scheduler.getAllJobs().size();
+      assertEquals(size, COUNT);
 
-        LOG.info("Number of journal log files: {}", getNumJournalFiles());
-        // need a little slack so go over 60 seconds
-        assertTrue(latch.await(70, TimeUnit.SECONDS));
-        assertEquals(0, latch.getCount());
+      LOG.info("Number of journal log files: {}", getNumJournalFiles());
+      // need a little slack so go over 60 seconds
+      assertTrue(latch.await(70, TimeUnit.SECONDS));
+      assertEquals(0, latch.getCount());
 
-        for (int i = 0; i < COUNT; i++) {
-            scheduler.schedule("id" + i, payload, "", time, 0, 0);
-        }
+      for (int i = 0; i < COUNT; i++) {
+         scheduler.schedule("id" + i, payload, "", time, 0, 0);
+      }
 
-        LOG.info("Number of journal log files: {}", getNumJournalFiles());
-        // need a little slack so go over 60 seconds
-        assertTrue(latch.await(70, TimeUnit.SECONDS));
-        assertEquals(0, latch.getCount());
+      LOG.info("Number of journal log files: {}", getNumJournalFiles());
+      // need a little slack so go over 60 seconds
+      assertTrue(latch.await(70, TimeUnit.SECONDS));
+      assertEquals(0, latch.getCount());
 
-        assertTrue("Should be only one log left: " + getNumJournalFiles(), Wait.waitFor(new Wait.Condition() {
+      assertTrue("Should be only one log left: " + getNumJournalFiles(), Wait.waitFor(new Wait.Condition() {
 
-            @Override
-            public boolean isSatisified() throws Exception {
-                return getNumJournalFiles() == 1;
-            }
-        }, TimeUnit.MINUTES.toMillis(2)));
+         @Override
+         public boolean isSatisified() throws Exception {
+            return getNumJournalFiles() == 1;
+         }
+      }, TimeUnit.MINUTES.toMillis(2)));
 
-        LOG.info("Number of journal log files: {}", getNumJournalFiles());
-    }
+      LOG.info("Number of journal log files: {}", getNumJournalFiles());
+   }
 }

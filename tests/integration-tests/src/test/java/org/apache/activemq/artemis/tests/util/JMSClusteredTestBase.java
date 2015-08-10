@@ -39,8 +39,7 @@ import javax.management.MBeanServer;
 import javax.management.MBeanServerFactory;
 import java.util.ArrayList;
 
-public class JMSClusteredTestBase extends ActiveMQTestBase
-{
+public class JMSClusteredTestBase extends ActiveMQTestBase {
 
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
@@ -83,8 +82,7 @@ public class JMSClusteredTestBase extends ActiveMQTestBase
    /**
     * @throws Exception
     */
-   protected Queue createQueue(final String name) throws Exception
-   {
+   protected Queue createQueue(final String name) throws Exception {
       jmsServer2.createQueue(false, name, null, true, "/queue/" + name);
       jmsServer1.createQueue(false, name, null, true, "/queue/" + name);
 
@@ -94,13 +92,11 @@ public class JMSClusteredTestBase extends ActiveMQTestBase
       return (Queue) context1.lookup("/queue/" + name);
    }
 
-   protected Topic createTopic(final String name) throws Exception
-   {
+   protected Topic createTopic(final String name) throws Exception {
       return createTopic(name, false);
    }
 
-   protected Topic createTopic(final String name, boolean durable) throws Exception
-   {
+   protected Topic createTopic(final String name, boolean durable) throws Exception {
       jmsServer2.createTopic(durable, name, "/topic/" + name);
       jmsServer1.createTopic(durable, name, "/topic/" + name);
 
@@ -109,8 +105,7 @@ public class JMSClusteredTestBase extends ActiveMQTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       setupServer2();
@@ -128,17 +123,14 @@ public class JMSClusteredTestBase extends ActiveMQTestBase
 
       waitForTopology(jmsServer2.getActiveMQServer(), 2);
 
-      cf1 = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration(InVMConnectorFactory.class.getName(),
-                                                                                                             generateInVMParams(1)));
-      cf2 = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration(InVMConnectorFactory.class.getName(),
-                                                                                                             generateInVMParams(2)));
+      cf1 = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration(InVMConnectorFactory.class.getName(), generateInVMParams(1)));
+      cf2 = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration(InVMConnectorFactory.class.getName(), generateInVMParams(2)));
    }
 
    /**
     * @throws Exception
     */
-   private void setupServer2() throws Exception
-   {
+   private void setupServer2() throws Exception {
       Configuration configuration = createConfigServer(2, 1);
 
       JMSConfigurationImpl jmsconfig = new JMSConfigurationImpl();
@@ -153,8 +145,7 @@ public class JMSClusteredTestBase extends ActiveMQTestBase
    /**
     * @throws Exception
     */
-   private void setupServer1() throws Exception
-   {
+   private void setupServer1() throws Exception {
       Configuration configuration = createConfigServer(1, 2);
 
       JMSConfigurationImpl jmsconfig = new JMSConfigurationImpl();
@@ -166,39 +157,22 @@ public class JMSClusteredTestBase extends ActiveMQTestBase
       jmsServer1.setRegistry(new JndiBindingRegistry(context1));
    }
 
-   protected boolean enablePersistence()
-   {
+   protected boolean enablePersistence() {
       return false;
    }
 
    /**
     * @return
     */
-   protected Configuration createConfigServer(final int source, final int destination) throws Exception
-   {
+   protected Configuration createConfigServer(final int source, final int destination) throws Exception {
       final String destinationLabel = "toServer" + destination;
       final String sourceLabel = "server" + source;
 
-      Configuration configuration = createDefaultInVMConfig(source)
-              .setSecurityEnabled(false)
-              .setJMXManagementEnabled(true)
-              .setPersistenceEnabled(false)
-              .addConnectorConfiguration(destinationLabel, new TransportConfiguration(InVMConnectorFactory.class.getName(), generateInVMParams(destination)))
-              .addConnectorConfiguration(sourceLabel, new TransportConfiguration(InVMConnectorFactory.class.getName(), generateInVMParams(source)))
-              .addClusterConfiguration(new ClusterConnectionConfiguration()
-                                               .setName(destinationLabel)
-                                               .setAddress("jms")
-                                               .setConnectorName(sourceLabel)
-                                               .setRetryInterval(1000)
-                                               .setMaxHops(MAX_HOPS)
-                                               .setConfirmationWindowSize(1024)
-                                               .setMessageLoadBalancingType(MessageLoadBalancingType.ON_DEMAND)
-                                               .setStaticConnectors(new ArrayList<String>()
-                                               {
-                                                  {
-                                                     add(destinationLabel);
-                                                  }
-                                               }));
+      Configuration configuration = createDefaultInVMConfig(source).setSecurityEnabled(false).setJMXManagementEnabled(true).setPersistenceEnabled(false).addConnectorConfiguration(destinationLabel, new TransportConfiguration(InVMConnectorFactory.class.getName(), generateInVMParams(destination))).addConnectorConfiguration(sourceLabel, new TransportConfiguration(InVMConnectorFactory.class.getName(), generateInVMParams(source))).addClusterConfiguration(new ClusterConnectionConfiguration().setName(destinationLabel).setAddress("jms").setConnectorName(sourceLabel).setRetryInterval(1000).setMaxHops(MAX_HOPS).setConfirmationWindowSize(1024).setMessageLoadBalancingType(MessageLoadBalancingType.ON_DEMAND).setStaticConnectors(new ArrayList<String>() {
+         {
+            add(destinationLabel);
+         }
+      }));
 
       return configuration;
    }
@@ -206,6 +180,5 @@ public class JMSClusteredTestBase extends ActiveMQTestBase
    // Private -------------------------------------------------------
 
    // Inner classes -------------------------------------------------
-
 
 }

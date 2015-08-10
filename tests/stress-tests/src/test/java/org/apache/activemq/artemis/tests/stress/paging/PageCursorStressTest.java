@@ -53,8 +53,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
 
-public class PageCursorStressTest extends ActiveMQTestBase
-{
+public class PageCursorStressTest extends ActiveMQTestBase {
 
    // Constants -----------------------------------------------------
 
@@ -76,8 +75,7 @@ public class PageCursorStressTest extends ActiveMQTestBase
 
    // Read more cache than what would fit on the memory, and validate if the memory would be cleared through soft-caches
    @Test
-   public void testReadCache() throws Exception
-   {
+   public void testReadCache() throws Exception {
 
       final int NUM_MESSAGES = 100;
 
@@ -85,13 +83,9 @@ public class PageCursorStressTest extends ActiveMQTestBase
 
       System.out.println("NumberOfPages = " + numberOfPages);
 
-      PageCursorProviderImpl cursorProvider = new PageCursorProviderImpl(lookupPageStore(ADDRESS),
-                                                                         server.getStorageManager(),
-                                                                         server.getExecutorFactory().getExecutor(),
-                                                                         5);
+      PageCursorProviderImpl cursorProvider = new PageCursorProviderImpl(lookupPageStore(ADDRESS), server.getStorageManager(), server.getExecutorFactory().getExecutor(), 5);
 
-      for (int i = 0; i < numberOfPages; i++)
-      {
+      for (int i = 0; i < numberOfPages; i++) {
          PageCache cache = cursorProvider.getPageCache(i + 1);
          System.out.println("Page " + i + " had " + cache.getNumberOfMessages() + " messages");
 
@@ -105,8 +99,7 @@ public class PageCursorStressTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testSimpleCursor() throws Exception
-   {
+   public void testSimpleCursor() throws Exception {
 
       final int NUM_MESSAGES = 100;
 
@@ -122,8 +115,7 @@ public class PageCursorStressTest extends ActiveMQTestBase
 
       LinkedListIterator<PagedReference> iterator = cursor.iterator();
       int key = 0;
-      while ((msg = iterator.next()) != null)
-      {
+      while ((msg = iterator.next()) != null) {
          assertEquals(key++, msg.getMessage().getIntProperty("key").intValue());
          cursor.confirmPosition(msg.getPosition());
       }
@@ -147,52 +139,41 @@ public class PageCursorStressTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testSimpleCursorWithFilter() throws Exception
-   {
+   public void testSimpleCursorWithFilter() throws Exception {
 
       final int NUM_MESSAGES = 100;
 
-      PageSubscription cursorEven = createNonPersistentCursor(new Filter()
-      {
+      PageSubscription cursorEven = createNonPersistentCursor(new Filter() {
 
-         public boolean match(ServerMessage message)
-         {
+         public boolean match(ServerMessage message) {
             Boolean property = message.getBooleanProperty("even");
-            if (property == null)
-            {
+            if (property == null) {
                return false;
             }
-            else
-            {
+            else {
                return property.booleanValue();
             }
          }
 
-         public SimpleString getFilterString()
-         {
+         public SimpleString getFilterString() {
             return new SimpleString("even=true");
          }
 
       });
 
-      PageSubscription cursorOdd = createNonPersistentCursor(new Filter()
-      {
+      PageSubscription cursorOdd = createNonPersistentCursor(new Filter() {
 
-         public boolean match(ServerMessage message)
-         {
+         public boolean match(ServerMessage message) {
             Boolean property = message.getBooleanProperty("even");
-            if (property == null)
-            {
+            if (property == null) {
                return false;
             }
-            else
-            {
+            else {
                return !property.booleanValue();
             }
          }
 
-         public SimpleString getFilterString()
-         {
+         public SimpleString getFilterString() {
             return new SimpleString("even=true");
          }
 
@@ -211,8 +192,7 @@ public class PageCursorStressTest extends ActiveMQTestBase
       LinkedListIterator<PagedReference> iteratorOdd = cursorOdd.iterator();
 
       int key = 0;
-      while ((msg = iteratorEven.next()) != null)
-      {
+      while ((msg = iteratorEven.next()) != null) {
          System.out.println("Received" + msg);
          assertEquals(key, msg.getMessage().getIntProperty("key").intValue());
          assertTrue(msg.getMessage().getBooleanProperty("even").booleanValue());
@@ -222,8 +202,7 @@ public class PageCursorStressTest extends ActiveMQTestBase
       assertEquals(NUM_MESSAGES, key);
 
       key = 1;
-      while ((msg = iteratorOdd.next()) != null)
-      {
+      while ((msg = iteratorOdd.next()) != null) {
          assertEquals(key, msg.getMessage().getIntProperty("key").intValue());
          assertFalse(msg.getMessage().getBooleanProperty("even").booleanValue());
          key += 2;
@@ -243,8 +222,7 @@ public class PageCursorStressTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testReadNextPage() throws Exception
-   {
+   public void testReadNextPage() throws Exception {
 
       final int NUM_MESSAGES = 1;
 
@@ -260,8 +238,7 @@ public class PageCursorStressTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testRestartWithHoleOnAck() throws Exception
-   {
+   public void testRestartWithHoleOnAck() throws Exception {
 
       final int NUM_MESSAGES = 1000;
 
@@ -272,19 +249,14 @@ public class PageCursorStressTest extends ActiveMQTestBase
       PageCursorProvider cursorProvider = this.server.getPagingManager().getPageStore(ADDRESS).getCursorProvider();
       System.out.println("cursorProvider = " + cursorProvider);
 
-      PageSubscription cursor = this.server.getPagingManager()
-         .getPageStore(ADDRESS)
-         .getCursorProvider()
-         .getSubscription(queue.getID());
+      PageSubscription cursor = this.server.getPagingManager().getPageStore(ADDRESS).getCursorProvider().getSubscription(queue.getID());
 
       System.out.println("Cursor: " + cursor);
       LinkedListIterator<PagedReference> iterator = cursor.iterator();
-      for (int i = 0; i < 100; i++)
-      {
+      for (int i = 0; i < 100; i++) {
          PagedReference msg = iterator.next();
          assertEquals(i, msg.getMessage().getIntProperty("key").intValue());
-         if (i < 10 || i > 20)
-         {
+         if (i < 10 || i > 20) {
             cursor.ack(msg);
          }
       }
@@ -300,15 +272,13 @@ public class PageCursorStressTest extends ActiveMQTestBase
       cursor = this.server.getPagingManager().getPageStore(ADDRESS).getCursorProvider().getSubscription(queue.getID());
       iterator = cursor.iterator();
 
-      for (int i = 10; i <= 20; i++)
-      {
+      for (int i = 10; i <= 20; i++) {
          PagedReference msg = iterator.next();
          assertEquals(i, msg.getMessage().getIntProperty("key").intValue());
          cursor.ack(msg);
       }
 
-      for (int i = 100; i < NUM_MESSAGES; i++)
-      {
+      for (int i = 100; i < NUM_MESSAGES; i++) {
          PagedReference msg = iterator.next();
          assertEquals(i, msg.getMessage().getIntProperty("key").intValue());
          cursor.ack(msg);
@@ -322,8 +292,7 @@ public class PageCursorStressTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testRestartWithHoleOnAckAndTransaction() throws Exception
-   {
+   public void testRestartWithHoleOnAckAndTransaction() throws Exception {
       final int NUM_MESSAGES = 1000;
 
       int numberOfPages = addMessages(NUM_MESSAGES, 10 * 1024);
@@ -333,10 +302,7 @@ public class PageCursorStressTest extends ActiveMQTestBase
       PageCursorProvider cursorProvider = this.server.getPagingManager().getPageStore(ADDRESS).getCursorProvider();
       System.out.println("cursorProvider = " + cursorProvider);
 
-      PageSubscription cursor = this.server.getPagingManager()
-         .getPageStore(ADDRESS)
-         .getCursorProvider()
-         .getSubscription(queue.getID());
+      PageSubscription cursor = this.server.getPagingManager().getPageStore(ADDRESS).getCursorProvider().getSubscription(queue.getID());
 
       System.out.println("Cursor: " + cursor);
 
@@ -344,12 +310,10 @@ public class PageCursorStressTest extends ActiveMQTestBase
 
       LinkedListIterator<PagedReference> iterator = cursor.iterator();
 
-      for (int i = 0; i < 100; i++)
-      {
+      for (int i = 0; i < 100; i++) {
          PagedReference msg = iterator.next();
          assertEquals(i, msg.getMessage().getIntProperty("key").intValue());
-         if (i < 10 || i > 20)
-         {
+         if (i < 10 || i > 20) {
             cursor.ackTx(tx, msg);
          }
       }
@@ -367,15 +331,13 @@ public class PageCursorStressTest extends ActiveMQTestBase
       tx = new TransactionImpl(server.getStorageManager(), 60 * 1000);
       iterator = cursor.iterator();
 
-      for (int i = 10; i <= 20; i++)
-      {
+      for (int i = 10; i <= 20; i++) {
          PagedReference msg = iterator.next();
          assertEquals(i, msg.getMessage().getIntProperty("key").intValue());
          cursor.ackTx(tx, msg);
       }
 
-      for (int i = 100; i < NUM_MESSAGES; i++)
-      {
+      for (int i = 100; i < NUM_MESSAGES; i++) {
          PagedReference msg = iterator.next();
          assertEquals(i, msg.getMessage().getIntProperty("key").intValue());
          cursor.ackTx(tx, msg);
@@ -391,8 +353,7 @@ public class PageCursorStressTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testConsumeLivePage() throws Exception
-   {
+   public void testConsumeLivePage() throws Exception {
       PagingStoreImpl pageStore = lookupPageStore(ADDRESS);
 
       pageStore.startPaging();
@@ -404,10 +365,7 @@ public class PageCursorStressTest extends ActiveMQTestBase
       PageCursorProvider cursorProvider = this.server.getPagingManager().getPageStore(ADDRESS).getCursorProvider();
       System.out.println("cursorProvider = " + cursorProvider);
 
-      PageSubscription cursor = this.server.getPagingManager()
-         .getPageStore(ADDRESS)
-         .getCursorProvider()
-         .getSubscription(queue.getID());
+      PageSubscription cursor = this.server.getPagingManager().getPageStore(ADDRESS).getCursorProvider().getSubscription(queue.getID());
 
       System.out.println("Cursor: " + cursor);
 
@@ -415,8 +373,7 @@ public class PageCursorStressTest extends ActiveMQTestBase
 
       LinkedListIterator<PagedReference> iterator = cursor.iterator();
 
-      for (int i = 0; i < NUM_MESSAGES; i++)
-      {
+      for (int i = 0; i < NUM_MESSAGES; i++) {
          // if (i % 100 == 0)
          System.out.println("read/written " + i);
 
@@ -447,13 +404,11 @@ public class PageCursorStressTest extends ActiveMQTestBase
       cursor = this.server.getPagingManager().getPageStore(ADDRESS).getCursorProvider().getSubscription(queue.getID());
       iterator = cursor.iterator();
 
-      for (int i = 0; i < NUM_MESSAGES * 2; i++)
-      {
+      for (int i = 0; i < NUM_MESSAGES * 2; i++) {
          if (i % 100 == 0)
             System.out.println("Paged " + i);
 
-         if (i >= NUM_MESSAGES)
-         {
+         if (i >= NUM_MESSAGES) {
 
             ActiveMQBuffer buffer = RandomUtil.randomBuffer(messageSize, i + 1L);
 
@@ -479,13 +434,11 @@ public class PageCursorStressTest extends ActiveMQTestBase
       cursor = this.server.getPagingManager().getPageStore(ADDRESS).getCursorProvider().getSubscription(queue.getID());
       iterator = cursor.iterator();
 
-      for (int i = 0; i < NUM_MESSAGES * 3; i++)
-      {
+      for (int i = 0; i < NUM_MESSAGES * 3; i++) {
          if (i % 100 == 0)
             System.out.println("Paged " + i);
 
-         if (i >= NUM_MESSAGES * 2 - 1)
-         {
+         if (i >= NUM_MESSAGES * 2 - 1) {
 
             ActiveMQBuffer buffer = RandomUtil.randomBuffer(messageSize, i + 1L);
 
@@ -529,10 +482,8 @@ public class PageCursorStressTest extends ActiveMQTestBase
 
    }
 
-
    @Test
-   public void testConsumeLivePageMultiThread() throws Exception
-   {
+   public void testConsumeLivePageMultiThread() throws Exception {
       final PagingStoreImpl pageStore = lookupPageStore(ADDRESS);
 
       pageStore.startPaging();
@@ -548,10 +499,7 @@ public class PageCursorStressTest extends ActiveMQTestBase
       PageCursorProvider cursorProvider = this.server.getPagingManager().getPageStore(ADDRESS).getCursorProvider();
       System.out.println("cursorProvider = " + cursorProvider);
 
-      PageSubscription cursor = this.server.getPagingManager()
-         .getPageStore(ADDRESS)
-         .getCursorProvider()
-         .getSubscription(queue.getID());
+      PageSubscription cursor = this.server.getPagingManager().getPageStore(ADDRESS).getCursorProvider().getSubscription(queue.getID());
 
       System.out.println("Cursor: " + cursor);
 
@@ -559,29 +507,23 @@ public class PageCursorStressTest extends ActiveMQTestBase
 
       final AtomicInteger exceptions = new AtomicInteger(0);
 
-      Thread t1 = new Thread()
-      {
+      Thread t1 = new Thread() {
          @Override
-         public void run()
-         {
-            try
-            {
+         public void run() {
+            try {
                int count = 0;
 
-               for (int txCount = 0; txCount < NUM_TX; txCount++)
-               {
+               for (int txCount = 0; txCount < NUM_TX; txCount++) {
 
                   Transaction tx = null;
 
-                  if (txCount % 2 == 0)
-                  {
+                  if (txCount % 2 == 0) {
                      tx = new TransactionImpl(storage);
                   }
 
                   RoutingContext ctx = generateCTX(tx);
 
-                  for (int i = 0; i < MSGS_TX; i++)
-                  {
+                  for (int i = 0; i < MSGS_TX; i++) {
                      //System.out.println("Sending " + count);
                      ActiveMQBuffer buffer = RandomUtil.randomBuffer(messageSize, count);
 
@@ -593,15 +535,13 @@ public class PageCursorStressTest extends ActiveMQTestBase
                      Assert.assertTrue(pageStore.page(msg, ctx.getTransaction(), ctx.getContextListing(ADDRESS), lock));
                   }
 
-                  if (tx != null)
-                  {
+                  if (tx != null) {
                      tx.commit();
                   }
 
                }
             }
-            catch (Throwable e)
-            {
+            catch (Throwable e) {
                e.printStackTrace();
                exceptions.incrementAndGet();
             }
@@ -610,22 +550,17 @@ public class PageCursorStressTest extends ActiveMQTestBase
 
       t1.start();
 
-
       LinkedListIterator<PagedReference> iterator = cursor.iterator();
 
-      for (int i = 0; i < TOTAL_MSG; i++)
-      {
+      for (int i = 0; i < TOTAL_MSG; i++) {
          assertEquals(0, exceptions.get());
          PagedReference ref = null;
-         for (int repeat = 0; repeat < 5; repeat++)
-         {
+         for (int repeat = 0; repeat < 5; repeat++) {
             ref = iterator.next();
-            if (ref == null)
-            {
+            if (ref == null) {
                Thread.sleep(1000);
             }
-            else
-            {
+            else {
                break;
             }
          }
@@ -641,18 +576,15 @@ public class PageCursorStressTest extends ActiveMQTestBase
       assertEquals(0, exceptions.get());
    }
 
-   private RoutingContextImpl generateCTX()
-   {
+   private RoutingContextImpl generateCTX() {
       return generateCTX(null);
    }
 
-   private RoutingContextImpl generateCTX(Transaction tx)
-   {
+   private RoutingContextImpl generateCTX(Transaction tx) {
       RoutingContextImpl ctx = new RoutingContextImpl(tx);
       ctx.addQueue(ADDRESS, queue);
 
-      for (Queue q : this.queueList)
-      {
+      for (Queue q : this.queueList) {
          ctx.addQueue(ADDRESS, q);
       }
 
@@ -662,23 +594,19 @@ public class PageCursorStressTest extends ActiveMQTestBase
    /**
     * @throws Exception
     */
-   private void waitCleanup() throws Exception
-   {
+   private void waitCleanup() throws Exception {
       // The cleanup is done asynchronously, so we need to wait some time
       long timeout = System.currentTimeMillis() + 10000;
 
-      while (System.currentTimeMillis() < timeout && lookupPageStore(ADDRESS).getNumberOfPages() != 1)
-      {
+      while (System.currentTimeMillis() < timeout && lookupPageStore(ADDRESS).getNumberOfPages() != 1) {
          Thread.sleep(100);
       }
 
-      assertTrue("expected " + lookupPageStore(ADDRESS).getNumberOfPages(),
-                 lookupPageStore(ADDRESS).getNumberOfPages() <= 2);
+      assertTrue("expected " + lookupPageStore(ADDRESS).getNumberOfPages(), lookupPageStore(ADDRESS).getNumberOfPages() <= 2);
    }
 
    @Test
-   public void testLazyCommit() throws Exception
-   {
+   public void testLazyCommit() throws Exception {
       PagingStoreImpl pageStore = lookupPageStore(ADDRESS);
 
       pageStore.startPaging();
@@ -690,10 +618,7 @@ public class PageCursorStressTest extends ActiveMQTestBase
       PageCursorProvider cursorProvider = this.server.getPagingManager().getPageStore(ADDRESS).getCursorProvider();
       System.out.println("cursorProvider = " + cursorProvider);
 
-      PageSubscription cursor = this.server.getPagingManager()
-         .getPageStore(ADDRESS)
-         .getCursorProvider()
-         .getSubscription(queue.getID());
+      PageSubscription cursor = this.server.getPagingManager().getPageStore(ADDRESS).getCursorProvider().getSubscription(queue.getID());
       LinkedListIterator<PagedReference> iterator = cursor.iterator();
 
       System.out.println("Cursor: " + cursor);
@@ -709,8 +634,7 @@ public class PageCursorStressTest extends ActiveMQTestBase
       System.out.println("Number of pages - " + pageStore.getNumberOfPages());
 
       // First consume what's already there without any tx as nothing was committed
-      for (int i = 100; i < 200; i++)
-      {
+      for (int i = 100; i < 200; i++) {
          PagedReference pos = iterator.next();
          assertNotNull("Null at position " + i, pos);
          assertEquals(i, pos.getMessage().getIntProperty("key").intValue());
@@ -723,8 +647,7 @@ public class PageCursorStressTest extends ActiveMQTestBase
 
       storage.waitOnOperations();
 
-      for (int i = 0; i < 100; i++)
-      {
+      for (int i = 0; i < 100; i++) {
          PagedReference pos = iterator.next();
          assertNotNull("Null at position " + i, pos);
          assertEquals(i, pos.getMessage().getIntProperty("key").intValue());
@@ -742,14 +665,12 @@ public class PageCursorStressTest extends ActiveMQTestBase
 
    }
 
-   private int tstProperty(ServerMessage msg)
-   {
+   private int tstProperty(ServerMessage msg) {
       return msg.getIntProperty("key").intValue();
    }
 
    @Test
-   public void testMultipleIterators() throws Exception
-   {
+   public void testMultipleIterators() throws Exception {
 
       final int NUM_MESSAGES = 10;
 
@@ -807,24 +728,20 @@ public class PageCursorStressTest extends ActiveMQTestBase
 
       assertTrue(iter2.hasNext());
 
-
    }
 
-   private int addMessages(final int numMessages, final int messageSize) throws Exception
-   {
+   private int addMessages(final int numMessages, final int messageSize) throws Exception {
       return addMessages(0, numMessages, messageSize);
    }
 
-   private int addMessages(final int start, final int numMessages, final int messageSize) throws Exception
-   {
+   private int addMessages(final int start, final int numMessages, final int messageSize) throws Exception {
       PagingStoreImpl pageStore = lookupPageStore(ADDRESS);
 
       pageStore.startPaging();
 
       RoutingContext ctx = generateCTX();
 
-      for (int i = start; i < start + numMessages; i++)
-      {
+      for (int i = start; i < start + numMessages; i++) {
          if (i % 100 == 0)
             System.out.println("Paged " + i);
          ActiveMQBuffer buffer = RandomUtil.randomBuffer(messageSize, i + 1L);
@@ -846,8 +763,7 @@ public class PageCursorStressTest extends ActiveMQTestBase
     * @return
     * @throws Exception
     */
-   private PagingStoreImpl lookupPageStore(SimpleString address) throws Exception
-   {
+   private PagingStoreImpl lookupPageStore(SimpleString address) throws Exception {
       return (PagingStoreImpl) server.getPagingManager().getPageStore(address);
    }
 
@@ -857,8 +773,7 @@ public class PageCursorStressTest extends ActiveMQTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
       OperationContextImpl.clearContext();
       queueList = new ArrayList<Queue>();
@@ -870,12 +785,10 @@ public class PageCursorStressTest extends ActiveMQTestBase
    /**
     * @throws Exception
     */
-   private void createServer() throws Exception
-   {
+   private void createServer() throws Exception {
       OperationContextImpl.clearContext();
 
-      Configuration config = createDefaultInVMConfig()
-         .setJournalSyncNonTransactional(true);
+      Configuration config = createDefaultInVMConfig().setJournalSyncNonTransactional(true);
 
       server = createServer(true, config, PAGE_SIZE, PAGE_MAX, new HashMap<String, AddressSettings>());
 
@@ -883,13 +796,11 @@ public class PageCursorStressTest extends ActiveMQTestBase
 
       queueList.clear();
 
-      try
-      {
+      try {
          queue = server.createQueue(ADDRESS, ADDRESS, null, true, false);
          queue.pause();
       }
-      catch (Exception ignored)
-      {
+      catch (Exception ignored) {
       }
    }
 
@@ -897,8 +808,7 @@ public class PageCursorStressTest extends ActiveMQTestBase
     * @return
     * @throws Exception
     */
-   private PageSubscription createNonPersistentCursor(Filter filter) throws Exception
-   {
+   private PageSubscription createNonPersistentCursor(Filter filter) throws Exception {
       long id = server.getStorageManager().generateID();
       FakeQueue queue = new FakeQueue(new SimpleString(filter.toString()), id);
       queueList.add(queue);
@@ -914,8 +824,7 @@ public class PageCursorStressTest extends ActiveMQTestBase
     * @return
     * @throws Exception
     */
-   private PageCursorProvider lookupCursorProvider() throws Exception
-   {
+   private PageCursorProvider lookupCursorProvider() throws Exception {
       return lookupPageStore(ADDRESS).getCursorProvider();
    }
 
@@ -933,15 +842,13 @@ public class PageCursorStressTest extends ActiveMQTestBase
                                   long pgParameter,
                                   int start,
                                   final int NUM_MESSAGES,
-                                  final int messageSize) throws Exception
-   {
+                                  final int messageSize) throws Exception {
 
       TransactionImpl txImpl = new TransactionImpl(pgParameter, null, storage);
 
       RoutingContext ctx = generateCTX(txImpl);
 
-      for (int i = start; i < start + NUM_MESSAGES; i++)
-      {
+      for (int i = start; i < start + NUM_MESSAGES; i++) {
          ActiveMQBuffer buffer = RandomUtil.randomBuffer(messageSize, i + 1L);
          ServerMessage msg = new ServerMessageImpl(storage.generateID(), buffer.writerIndex());
          msg.getBodyBuffer().writeBytes(buffer, 0, buffer.writerIndex());

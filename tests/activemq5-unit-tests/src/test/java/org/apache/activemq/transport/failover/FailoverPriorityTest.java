@@ -23,204 +23,206 @@ import org.slf4j.LoggerFactory;
 
 public class FailoverPriorityTest extends FailoverClusterTestSupport {
 
-    protected final Logger LOG = LoggerFactory.getLogger(getClass());
+   protected final Logger LOG = LoggerFactory.getLogger(getClass());
 
-    private static final String BROKER_A_CLIENT_TC_ADDRESS = "tcp://127.0.0.1:61616";
-    private static final String BROKER_B_CLIENT_TC_ADDRESS = "tcp://127.0.0.1:61617";
-    private static final String BROKER_C_CLIENT_TC_ADDRESS = "tcp://127.0.0.1:61618";
-    private final HashMap<String,String> urls = new HashMap<String,String>();
+   private static final String BROKER_A_CLIENT_TC_ADDRESS = "tcp://127.0.0.1:61616";
+   private static final String BROKER_B_CLIENT_TC_ADDRESS = "tcp://127.0.0.1:61617";
+   private static final String BROKER_C_CLIENT_TC_ADDRESS = "tcp://127.0.0.1:61618";
+   private final HashMap<String, String> urls = new HashMap<String, String>();
 
-    @Override
-    public void setUp() throws Exception {
-        super.setUp();
-        urls.put(BROKER_A_NAME, BROKER_A_CLIENT_TC_ADDRESS);
-        urls.put(BROKER_B_NAME, BROKER_B_CLIENT_TC_ADDRESS);
-    }
+   @Override
+   public void setUp() throws Exception {
+      super.setUp();
+      urls.put(BROKER_A_NAME, BROKER_A_CLIENT_TC_ADDRESS);
+      urls.put(BROKER_B_NAME, BROKER_B_CLIENT_TC_ADDRESS);
+   }
 
-    private static final String BROKER_A_NAME = "BROKERA";
-    private static final String BROKER_B_NAME = "BROKERB";
-    private static final String BROKER_C_NAME = "BROKERC";
+   private static final String BROKER_A_NAME = "BROKERA";
+   private static final String BROKER_B_NAME = "BROKERB";
+   private static final String BROKER_C_NAME = "BROKERC";
 
+   public void testPriorityBackup() throws Exception {
+      createBrokerA();
+      createBrokerB();
+      getBroker(BROKER_B_NAME).waitUntilStarted();
+      Thread.sleep(1000);
 
-    public void testPriorityBackup() throws Exception {
-        createBrokerA();
-        createBrokerB();
-        getBroker(BROKER_B_NAME).waitUntilStarted();
-        Thread.sleep(1000);
+      setClientUrl("failover:(" + BROKER_A_CLIENT_TC_ADDRESS + "," + BROKER_B_CLIENT_TC_ADDRESS + ")?randomize=false&priorityBackup=true&initialReconnectDelay=1000&useExponentialBackOff=false");
+      createClients(5);
 
-        setClientUrl("failover:(" + BROKER_A_CLIENT_TC_ADDRESS + "," + BROKER_B_CLIENT_TC_ADDRESS + ")?randomize=false&priorityBackup=true&initialReconnectDelay=1000&useExponentialBackOff=false");
-        createClients(5);
+      assertAllConnectedTo(urls.get(BROKER_A_NAME));
 
-        assertAllConnectedTo(urls.get(BROKER_A_NAME));
+      restart(false, BROKER_A_NAME, BROKER_B_NAME);
 
+      for (int i = 0; i < 3; i++) {
+         restart(true, BROKER_A_NAME, BROKER_B_NAME);
+      }
 
-        restart(false, BROKER_A_NAME, BROKER_B_NAME);
+      Thread.sleep(5000);
 
-        for (int i = 0; i < 3; i++) {
-            restart(true, BROKER_A_NAME, BROKER_B_NAME);
-        }
+      restart(false, BROKER_A_NAME, BROKER_B_NAME);
 
-        Thread.sleep(5000);
+   }
 
-        restart(false, BROKER_A_NAME, BROKER_B_NAME);
+   public void testPriorityBackupList() throws Exception {
+      createBrokerA();
+      createBrokerB();
+      getBroker(BROKER_B_NAME).waitUntilStarted();
+      Thread.sleep(1000);
 
-    }
+      setClientUrl("failover:(" + BROKER_A_CLIENT_TC_ADDRESS + "," + BROKER_B_CLIENT_TC_ADDRESS + ")?randomize=false&priorityBackup=true&priorityURIs=tcp://127.0.0.1:61617&initialReconnectDelay=1000&useExponentialBackOff=false");
+      createClients(5);
 
-    public void testPriorityBackupList() throws Exception {
-        createBrokerA();
-        createBrokerB();
-        getBroker(BROKER_B_NAME).waitUntilStarted();
-        Thread.sleep(1000);
+      Thread.sleep(3000);
 
-        setClientUrl("failover:(" + BROKER_A_CLIENT_TC_ADDRESS + "," + BROKER_B_CLIENT_TC_ADDRESS + ")?randomize=false&priorityBackup=true&priorityURIs=tcp://127.0.0.1:61617&initialReconnectDelay=1000&useExponentialBackOff=false");
-        createClients(5);
+      assertAllConnectedTo(urls.get(BROKER_B_NAME));
 
-        Thread.sleep(3000);
+      restart(false, BROKER_B_NAME, BROKER_A_NAME);
 
-        assertAllConnectedTo(urls.get(BROKER_B_NAME));
+      for (int i = 0; i < 3; i++) {
+         restart(true, BROKER_B_NAME, BROKER_A_NAME);
+      }
 
-        restart(false, BROKER_B_NAME, BROKER_A_NAME);
+      restart(false, BROKER_B_NAME, BROKER_A_NAME);
 
-        for (int i = 0; i < 3; i++) {
-            restart(true, BROKER_B_NAME, BROKER_A_NAME);
-        }
+   }
 
-        restart(false, BROKER_B_NAME, BROKER_A_NAME);
+   public void testThreeBrokers() throws Exception {
+      // Broker A
+      addBroker(BROKER_A_NAME, createBroker(BROKER_A_NAME));
+      addTransportConnector(getBroker(BROKER_A_NAME), "openwire", BROKER_A_CLIENT_TC_ADDRESS, false);
+      addNetworkBridge(getBroker(BROKER_A_NAME), "A_2_B_Bridge", "static://(" + BROKER_B_CLIENT_TC_ADDRESS + ")?useExponentialBackOff=false", false, null);
+      addNetworkBridge(getBroker(BROKER_A_NAME), "A_2_C_Bridge", "static://(" + BROKER_C_CLIENT_TC_ADDRESS + ")?useExponentialBackOff=false", false, null);
+      getBroker(BROKER_A_NAME).start();
 
-    }
+      // Broker B
+      addBroker(BROKER_B_NAME, createBroker(BROKER_B_NAME));
+      addTransportConnector(getBroker(BROKER_B_NAME), "openwire", BROKER_B_CLIENT_TC_ADDRESS, false);
+      addNetworkBridge(getBroker(BROKER_B_NAME), "B_2_A_Bridge", "static://(" + BROKER_A_CLIENT_TC_ADDRESS + ")?useExponentialBackOff=false", false, null);
+      addNetworkBridge(getBroker(BROKER_B_NAME), "B_2_C_Bridge", "static://(" + BROKER_C_CLIENT_TC_ADDRESS + ")?useExponentialBackOff=false", false, null);
+      getBroker(BROKER_B_NAME).start();
 
-    public void testThreeBrokers() throws Exception {
-        // Broker A
-        addBroker(BROKER_A_NAME, createBroker(BROKER_A_NAME));
-        addTransportConnector(getBroker(BROKER_A_NAME), "openwire", BROKER_A_CLIENT_TC_ADDRESS, false);
-        addNetworkBridge(getBroker(BROKER_A_NAME), "A_2_B_Bridge", "static://(" + BROKER_B_CLIENT_TC_ADDRESS + ")?useExponentialBackOff=false", false, null);
-        addNetworkBridge(getBroker(BROKER_A_NAME), "A_2_C_Bridge", "static://(" + BROKER_C_CLIENT_TC_ADDRESS + ")?useExponentialBackOff=false", false, null);
-        getBroker(BROKER_A_NAME).start();
+      // Broker C
+      addBroker(BROKER_C_NAME, createBroker(BROKER_C_NAME));
+      addTransportConnector(getBroker(BROKER_C_NAME), "openwire", BROKER_C_CLIENT_TC_ADDRESS, false);
+      addNetworkBridge(getBroker(BROKER_C_NAME), "C_2_A_Bridge", "static://(" + BROKER_A_CLIENT_TC_ADDRESS + ")?useExponentialBackOff=false", false, null);
+      addNetworkBridge(getBroker(BROKER_C_NAME), "C_2_B_Bridge", "static://(" + BROKER_B_CLIENT_TC_ADDRESS + ")?useExponentialBackOff=false", false, null);
+      getBroker(BROKER_C_NAME).start();
 
-        // Broker B
-        addBroker(BROKER_B_NAME, createBroker(BROKER_B_NAME));
-        addTransportConnector(getBroker(BROKER_B_NAME), "openwire", BROKER_B_CLIENT_TC_ADDRESS, false);
-        addNetworkBridge(getBroker(BROKER_B_NAME), "B_2_A_Bridge", "static://(" + BROKER_A_CLIENT_TC_ADDRESS + ")?useExponentialBackOff=false", false, null);
-        addNetworkBridge(getBroker(BROKER_B_NAME), "B_2_C_Bridge", "static://(" + BROKER_C_CLIENT_TC_ADDRESS + ")?useExponentialBackOff=false", false, null);
-        getBroker(BROKER_B_NAME).start();
+      getBroker(BROKER_C_NAME).waitUntilStarted();
+      Thread.sleep(1000);
 
-        // Broker C
-        addBroker(BROKER_C_NAME, createBroker(BROKER_C_NAME));
-        addTransportConnector(getBroker(BROKER_C_NAME), "openwire", BROKER_C_CLIENT_TC_ADDRESS, false);
-        addNetworkBridge(getBroker(BROKER_C_NAME), "C_2_A_Bridge", "static://(" + BROKER_A_CLIENT_TC_ADDRESS + ")?useExponentialBackOff=false", false, null);
-        addNetworkBridge(getBroker(BROKER_C_NAME), "C_2_B_Bridge", "static://(" + BROKER_B_CLIENT_TC_ADDRESS + ")?useExponentialBackOff=false", false, null);
-        getBroker(BROKER_C_NAME).start();
+      setClientUrl("failover:(" + BROKER_A_CLIENT_TC_ADDRESS + "," + BROKER_B_CLIENT_TC_ADDRESS + "," + BROKER_C_CLIENT_TC_ADDRESS + ")?randomize=false&priorityBackup=true&initialReconnectDelay=1000&useExponentialBackOff=false");
 
+      createClients(5);
 
-        getBroker(BROKER_C_NAME).waitUntilStarted();
-        Thread.sleep(1000);
+      assertAllConnectedTo(urls.get(BROKER_A_NAME));
 
-        setClientUrl("failover:(" + BROKER_A_CLIENT_TC_ADDRESS + "," + BROKER_B_CLIENT_TC_ADDRESS + "," + BROKER_C_CLIENT_TC_ADDRESS + ")?randomize=false&priorityBackup=true&initialReconnectDelay=1000&useExponentialBackOff=false");
+      restart(true, BROKER_A_NAME, BROKER_B_NAME);
 
-        createClients(5);
+   }
 
-        assertAllConnectedTo(urls.get(BROKER_A_NAME));
+   public void testPriorityBackupAndUpdateClients() throws Exception {
+      // Broker A
+      addBroker(BROKER_A_NAME, createBroker(BROKER_A_NAME));
+      addTransportConnector(getBroker(BROKER_A_NAME), "openwire", BROKER_A_CLIENT_TC_ADDRESS, true);
+      addNetworkBridge(getBroker(BROKER_A_NAME), "A_2_B_Bridge", "static://(" + BROKER_B_CLIENT_TC_ADDRESS + ")?useExponentialBackOff=false", false, null);
+      getBroker(BROKER_A_NAME).start();
 
-        restart(true, BROKER_A_NAME, BROKER_B_NAME);
+      // Broker B
+      addBroker(BROKER_B_NAME, createBroker(BROKER_B_NAME));
+      addTransportConnector(getBroker(BROKER_B_NAME), "openwire", BROKER_B_CLIENT_TC_ADDRESS, true);
+      addNetworkBridge(getBroker(BROKER_B_NAME), "B_2_A_Bridge", "static://(" + BROKER_A_CLIENT_TC_ADDRESS + ")?useExponentialBackOff=false", false, null);
+      getBroker(BROKER_B_NAME).start();
 
-    }
+      getBroker(BROKER_B_NAME).waitUntilStarted();
+      Thread.sleep(1000);
 
-    public void testPriorityBackupAndUpdateClients() throws Exception {
-        // Broker A
-        addBroker(BROKER_A_NAME, createBroker(BROKER_A_NAME));
-        addTransportConnector(getBroker(BROKER_A_NAME), "openwire", BROKER_A_CLIENT_TC_ADDRESS, true);
-        addNetworkBridge(getBroker(BROKER_A_NAME), "A_2_B_Bridge", "static://(" + BROKER_B_CLIENT_TC_ADDRESS + ")?useExponentialBackOff=false", false, null);
-        getBroker(BROKER_A_NAME).start();
+      setClientUrl("failover:(" + BROKER_A_CLIENT_TC_ADDRESS + "," + BROKER_B_CLIENT_TC_ADDRESS + ")?randomize=false&priorityBackup=true&initialReconnectDelay=1000&useExponentialBackOff=false");
 
-        // Broker B
-        addBroker(BROKER_B_NAME, createBroker(BROKER_B_NAME));
-        addTransportConnector(getBroker(BROKER_B_NAME), "openwire", BROKER_B_CLIENT_TC_ADDRESS, true);
-        addNetworkBridge(getBroker(BROKER_B_NAME), "B_2_A_Bridge", "static://(" + BROKER_A_CLIENT_TC_ADDRESS + ")?useExponentialBackOff=false", false, null);
-        getBroker(BROKER_B_NAME).start();
+      LOG.info("Client URI will be: " + getClientUrl());
 
-        getBroker(BROKER_B_NAME).waitUntilStarted();
-        Thread.sleep(1000);
+      createClients(5);
 
-        setClientUrl("failover:(" + BROKER_A_CLIENT_TC_ADDRESS + "," + BROKER_B_CLIENT_TC_ADDRESS + ")?randomize=false&priorityBackup=true&initialReconnectDelay=1000&useExponentialBackOff=false");
+      // Let's wait a little bit longer just in case it takes a while to realize that the
+      // Broker A is the one with higher priority.
+      Thread.sleep(5000);
 
-        LOG.info("Client URI will be: " + getClientUrl());
+      assertAllConnectedTo(urls.get(BROKER_A_NAME));
+   }
 
-        createClients(5);
+   private void restart(boolean primary, String primaryName, String secondaryName) throws Exception {
 
-        // Let's wait a little bit longer just in case it takes a while to realize that the
-        // Broker A is the one with higher priority.
-        Thread.sleep(5000);
+      Thread.sleep(1000);
 
-        assertAllConnectedTo(urls.get(BROKER_A_NAME));
-    }
+      if (primary) {
+         LOG.info("Stopping " + primaryName);
+         stopBroker(primaryName);
+      }
+      else {
+         LOG.info("Stopping " + secondaryName);
+         stopBroker(secondaryName);
+      }
+      Thread.sleep(5000);
 
-    private void restart(boolean primary, String primaryName, String secondaryName) throws Exception {
+      if (primary) {
+         assertAllConnectedTo(urls.get(secondaryName));
+      }
+      else {
+         assertAllConnectedTo(urls.get(primaryName));
+      }
 
-        Thread.sleep(1000);
+      if (primary) {
+         LOG.info("Starting " + primaryName);
+         createBrokerByName(primaryName);
+         getBroker(primaryName).waitUntilStarted();
+      }
+      else {
+         LOG.info("Starting " + secondaryName);
+         createBrokerByName(secondaryName);
+         getBroker(secondaryName).waitUntilStarted();
+      }
 
-        if (primary) {
-            LOG.info("Stopping " + primaryName);
-            stopBroker(primaryName);
-        } else {
-            LOG.info("Stopping " + secondaryName);
-            stopBroker(secondaryName);
-        }
-        Thread.sleep(5000);
+      Thread.sleep(5000);
 
-        if (primary) {
-            assertAllConnectedTo(urls.get(secondaryName));
-        } else {
-            assertAllConnectedTo(urls.get(primaryName));
-        }
+      assertAllConnectedTo(urls.get(primaryName));
 
-        if (primary) {
-            LOG.info("Starting " + primaryName);
-            createBrokerByName(primaryName);
-            getBroker(primaryName).waitUntilStarted();
-        } else {
-            LOG.info("Starting " + secondaryName);
-            createBrokerByName(secondaryName);
-            getBroker(secondaryName).waitUntilStarted();
-        }
+   }
 
-        Thread.sleep(5000);
+   private void createBrokerByName(String name) throws Exception {
+      if (name.equals(BROKER_A_NAME)) {
+         createBrokerA();
+      }
+      else if (name.equals(BROKER_B_NAME)) {
+         createBrokerB();
+      }
+      else {
+         throw new Exception("Unknown broker " + name);
+      }
+   }
 
-        assertAllConnectedTo(urls.get(primaryName));
+   private void createBrokerA() throws Exception {
+      if (getBroker(BROKER_A_NAME) == null) {
+         addBroker(BROKER_A_NAME, createBroker(BROKER_A_NAME));
+         addTransportConnector(getBroker(BROKER_A_NAME), "openwire", BROKER_A_CLIENT_TC_ADDRESS, false);
+         addNetworkBridge(getBroker(BROKER_A_NAME), "A_2_B_Bridge", "static://(" + BROKER_B_CLIENT_TC_ADDRESS + ")?useExponentialBackOff=false", false, null);
+         getBroker(BROKER_A_NAME).start();
+      }
+   }
 
-    }
+   private void createBrokerB() throws Exception {
+      if (getBroker(BROKER_B_NAME) == null) {
+         addBroker(BROKER_B_NAME, createBroker(BROKER_B_NAME));
+         addTransportConnector(getBroker(BROKER_B_NAME), "openwire", BROKER_B_CLIENT_TC_ADDRESS, false);
+         addNetworkBridge(getBroker(BROKER_B_NAME), "B_2_A_Bridge", "static://(" + BROKER_A_CLIENT_TC_ADDRESS + ")?useExponentialBackOff=false", false, null);
+         getBroker(BROKER_B_NAME).start();
+      }
+   }
 
-    private void createBrokerByName(String name) throws Exception {
-        if (name.equals(BROKER_A_NAME)) {
-            createBrokerA();
-        } else if (name.equals(BROKER_B_NAME)) {
-            createBrokerB();
-        } else {
-            throw new Exception("Unknown broker " + name);
-        }
-    }
-
-    private void createBrokerA() throws Exception {
-        if (getBroker(BROKER_A_NAME) == null) {
-            addBroker(BROKER_A_NAME, createBroker(BROKER_A_NAME));
-            addTransportConnector(getBroker(BROKER_A_NAME), "openwire", BROKER_A_CLIENT_TC_ADDRESS, false);
-            addNetworkBridge(getBroker(BROKER_A_NAME), "A_2_B_Bridge", "static://(" + BROKER_B_CLIENT_TC_ADDRESS + ")?useExponentialBackOff=false", false, null);
-            getBroker(BROKER_A_NAME).start();
-        }
-    }
-
-    private void createBrokerB() throws Exception {
-        if (getBroker(BROKER_B_NAME) == null) {
-            addBroker(BROKER_B_NAME, createBroker(BROKER_B_NAME));
-            addTransportConnector(getBroker(BROKER_B_NAME), "openwire", BROKER_B_CLIENT_TC_ADDRESS, false);
-            addNetworkBridge(getBroker(BROKER_B_NAME), "B_2_A_Bridge", "static://(" + BROKER_A_CLIENT_TC_ADDRESS + ")?useExponentialBackOff=false", false, null);
-            getBroker(BROKER_B_NAME).start();
-        }
-    }
-
-    @Override
-    protected void tearDown() throws Exception {
-        shutdownClients();
-        destroyBrokerCluster();
-    }
+   @Override
+   protected void tearDown() throws Exception {
+      shutdownClients();
+      destroyBrokerCluster();
+   }
 
 }

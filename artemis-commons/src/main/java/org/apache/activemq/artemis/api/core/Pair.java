@@ -23,12 +23,11 @@ import java.io.Serializable;
  * <p>
  * This is a utility class.
  */
-public final class Pair<A, B> implements Serializable
-{
+public final class Pair<A, B> implements Serializable {
+
    private static final long serialVersionUID = -2496357457812368127L;
 
-   public Pair(final A a, final B b)
-   {
+   public Pair(final A a, final B b) {
       this.a = a;
 
       this.b = b;
@@ -41,16 +40,12 @@ public final class Pair<A, B> implements Serializable
    private int hash = -1;
 
    @Override
-   public int hashCode()
-   {
-      if (hash == -1)
-      {
-         if (a == null && b == null)
-         {
+   public int hashCode() {
+      if (hash == -1) {
+         if (a == null && b == null) {
             return super.hashCode();
          }
-         else
-         {
+         else {
             hash = (a == null ? 0 : a.hashCode()) + 37 * (b == null ? 0 : b.hashCode());
          }
       }
@@ -59,49 +54,41 @@ public final class Pair<A, B> implements Serializable
    }
 
    @Override
-   public boolean equals(final Object other)
-   {
-      if (other == this)
-      {
+   public boolean equals(final Object other) {
+      if (other == this) {
          return true;
       }
 
-      if (other instanceof Pair == false)
-      {
+      if (other instanceof Pair == false) {
          return false;
       }
 
-      Pair<A, B> pother = (Pair<A, B>)other;
+      Pair<A, B> pother = (Pair<A, B>) other;
 
       return (pother.a == null ? a == null : pother.a.equals(a)) && (pother.b == null ? b == null : pother.b.equals(b));
 
    }
 
    @Override
-   public String toString()
-   {
+   public String toString() {
       return "Pair[a=" + a + ", b=" + b + "]";
    }
 
-   public void setA(A a)
-   {
+   public void setA(A a) {
       hash = -1;
       this.a = a;
    }
 
-   public A getA()
-   {
+   public A getA() {
       return a;
    }
 
-   public void setB(B b)
-   {
+   public void setB(B b) {
       hash = -1;
       this.b = b;
    }
 
-   public B getB()
-   {
+   public B getB() {
       return b;
    }
 }

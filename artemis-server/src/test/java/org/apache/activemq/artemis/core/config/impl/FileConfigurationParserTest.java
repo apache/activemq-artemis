@@ -29,8 +29,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
-public class FileConfigurationParserTest extends ActiveMQTestBase
-{
+public class FileConfigurationParserTest extends ActiveMQTestBase {
+
    /**
     * These "InvalidConfigurationTest*.xml" files are modified copies of {@value
     * ConfigurationTest-full-config.xml}, so just diff it for changes, e.g.
@@ -42,22 +42,18 @@ public class FileConfigurationParserTest extends ActiveMQTestBase
     * @throws Exception
     */
    @Test
-   public void testSchemaValidation() throws Exception
-   {
-      for (int i = 0; i < 6; i++)
-      {
+   public void testSchemaValidation() throws Exception {
+      for (int i = 0; i < 6; i++) {
          String filename = "InvalidConfigurationTest" + i + ".xml";
          FileConfiguration fc = new FileConfiguration();
          FileDeploymentManager deploymentManager = new FileDeploymentManager(filename);
          deploymentManager.addDeployable(fc);
 
-         try
-         {
+         try {
             deploymentManager.readConfiguration();
             fail("parsing should have failed for " + filename);
          }
-         catch (java.lang.IllegalStateException e)
-         {
+         catch (java.lang.IllegalStateException e) {
             Throwable cause = e.getCause();
             assertTrue("must have been org.xml.sax.SAXParseException", cause instanceof org.xml.sax.SAXParseException);
          }
@@ -65,8 +61,7 @@ public class FileConfigurationParserTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testDivertRoutingNameIsNotRequired() throws Exception
-   {
+   public void testDivertRoutingNameIsNotRequired() throws Exception {
       String filename = "divertRoutingNameNotRequired.xml";
       FileConfiguration fc = new FileConfiguration();
       FileDeploymentManager deploymentManager = new FileDeploymentManager(filename);
@@ -75,8 +70,7 @@ public class FileConfigurationParserTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testParsingDefaultServerConfig() throws Exception
-   {
+   public void testParsingDefaultServerConfig() throws Exception {
       FileConfigurationParser parser = new FileConfigurationParser();
 
       String configStr = firstPart + lastPart;
@@ -130,46 +124,38 @@ public class FileConfigurationParserTest extends ActiveMQTestBase
       assertEquals("newpassword", config.getClusterPassword());
    }
 
-   private static String firstPart =
-      "<core xmlns=\"urn:activemq:core\">" + "\n" +
-         "<name>ActiveMQ.main.config</name>" + "\n" +
-         "<log-delegate-factory-class-name>org.apache.activemq.artemis.integration.logging.Log4jLogDelegateFactory</log-delegate-factory-class-name>" + "\n" +
-         "<bindings-directory>${jboss.server.data.dir}/activemq/bindings</bindings-directory>" + "\n" +
-         "<journal-directory>${jboss.server.data.dir}/activemq/journal</journal-directory>" + "\n" +
-         "<journal-min-files>10</journal-min-files>" + "\n" +
-         "<large-messages-directory>${jboss.server.data.dir}/activemq/largemessages</large-messages-directory>" + "\n" +
-         "<paging-directory>${jboss.server.data.dir}/activemq/paging</paging-directory>" + "\n" +
-         "<connectors>" + "\n" +
-         "<connector name=\"netty\">tcp://localhost:61616</connector>" + "\n" +
-         "<connector name=\"netty-throughput\">tcp://localhost:5545</connector>" + "\n" +
-         "<connector name=\"in-vm\">vm://0</connector>" + "\n" +
-         "</connectors>" + "\n" +
-         "<acceptors>" + "\n" +
-         "<acceptor name=\"netty\">tcp://localhost:5545</acceptor>" + "\n" +
-         "<acceptor name=\"netty-throughput\">tcp://localhost:5545</acceptor>" + "\n" +
-         "<acceptor name=\"in-vm\">vm://0</acceptor>" + "\n" +
-         "</acceptors>" + "\n" +
-         "<security-settings>" + "\n" +
-         "<security-setting match=\"#\">" + "\n" +
-         "<permission type=\"createNonDurableQueue\" roles=\"guest\"/>" + "\n" +
-         "<permission type=\"deleteNonDurableQueue\" roles=\"guest\"/>" + "\n" +
-         "<permission type=\"createDurableQueue\" roles=\"guest\"/>" + "\n" +
-         "<permission type=\"deleteDurableQueue\" roles=\"guest\"/>" + "\n" +
-         "<permission type=\"consume\" roles=\"guest\"/>" + "\n" +
-         "<permission type=\"send\" roles=\"guest\"/>" + "\n" +
-         "</security-setting>" + "\n" +
-         "</security-settings>" + "\n" +
-         "<address-settings>" + "\n" +
-         "<address-setting match=\"#\">"
-         + "\n" + "<dead-letter-address>jms.queue.DLQ\n</dead-letter-address>" + "\n"
-         + "<expiry-address>jms.queue.ExpiryQueue\n</expiry-address>" + "\n"
-         + "<redelivery-delay>0\n</redelivery-delay>" + "\n"
-         + "<max-size-bytes>10485760\n</max-size-bytes>" + "\n"
-         + "<message-counter-history-day-limit>10</message-counter-history-day-limit>" + "\n"
-         + "<address-full-policy>BLOCK</address-full-policy>" + "\n" +
-         "</address-setting>" + "\n" +
-         "</address-settings>" + "\n";
-
+   private static String firstPart = "<core xmlns=\"urn:activemq:core\">" + "\n" +
+      "<name>ActiveMQ.main.config</name>" + "\n" +
+      "<log-delegate-factory-class-name>org.apache.activemq.artemis.integration.logging.Log4jLogDelegateFactory</log-delegate-factory-class-name>" + "\n" +
+      "<bindings-directory>${jboss.server.data.dir}/activemq/bindings</bindings-directory>" + "\n" +
+      "<journal-directory>${jboss.server.data.dir}/activemq/journal</journal-directory>" + "\n" +
+      "<journal-min-files>10</journal-min-files>" + "\n" +
+      "<large-messages-directory>${jboss.server.data.dir}/activemq/largemessages</large-messages-directory>" + "\n" +
+      "<paging-directory>${jboss.server.data.dir}/activemq/paging</paging-directory>" + "\n" +
+      "<connectors>" + "\n" +
+      "<connector name=\"netty\">tcp://localhost:61616</connector>" + "\n" +
+      "<connector name=\"netty-throughput\">tcp://localhost:5545</connector>" + "\n" +
+      "<connector name=\"in-vm\">vm://0</connector>" + "\n" +
+      "</connectors>" + "\n" +
+      "<acceptors>" + "\n" +
+      "<acceptor name=\"netty\">tcp://localhost:5545</acceptor>" + "\n" +
+      "<acceptor name=\"netty-throughput\">tcp://localhost:5545</acceptor>" + "\n" +
+      "<acceptor name=\"in-vm\">vm://0</acceptor>" + "\n" +
+      "</acceptors>" + "\n" +
+      "<security-settings>" + "\n" +
+      "<security-setting match=\"#\">" + "\n" +
+      "<permission type=\"createNonDurableQueue\" roles=\"guest\"/>" + "\n" +
+      "<permission type=\"deleteNonDurableQueue\" roles=\"guest\"/>" + "\n" +
+      "<permission type=\"createDurableQueue\" roles=\"guest\"/>" + "\n" +
+      "<permission type=\"deleteDurableQueue\" roles=\"guest\"/>" + "\n" +
+      "<permission type=\"consume\" roles=\"guest\"/>" + "\n" +
+      "<permission type=\"send\" roles=\"guest\"/>" + "\n" +
+      "</security-setting>" + "\n" +
+      "</security-settings>" + "\n" +
+      "<address-settings>" + "\n" +
+      "<address-setting match=\"#\">" + "\n" + "<dead-letter-address>jms.queue.DLQ\n</dead-letter-address>" + "\n" + "<expiry-address>jms.queue.ExpiryQueue\n</expiry-address>" + "\n" + "<redelivery-delay>0\n</redelivery-delay>" + "\n" + "<max-size-bytes>10485760\n</max-size-bytes>" + "\n" + "<message-counter-history-day-limit>10</message-counter-history-day-limit>" + "\n" + "<address-full-policy>BLOCK</address-full-policy>" + "\n" +
+      "</address-setting>" + "\n" +
+      "</address-settings>" + "\n";
 
    private static String lastPart = "</core>";
 }

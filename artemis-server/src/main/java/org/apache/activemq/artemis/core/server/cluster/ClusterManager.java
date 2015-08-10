@@ -73,8 +73,8 @@ import java.util.concurrent.ScheduledExecutorService;
  * {@link ClusterConnectionImpl}. As a node is discovered a new {@link org.apache.activemq.artemis.core.server.cluster.impl.ClusterConnectionBridge} is
  * deployed.
  */
-public final class ClusterManager implements ActiveMQComponent
-{
+public final class ClusterManager implements ActiveMQComponent {
+
    private ClusterController clusterController;
 
    private HAManager haManager;
@@ -97,28 +97,26 @@ public final class ClusterManager implements ActiveMQComponent
 
    private final Configuration configuration;
 
-   public QuorumManager getQuorumManager()
-   {
+   public QuorumManager getQuorumManager() {
       return clusterController.getQuorumManager();
    }
 
-   public ClusterController getClusterController()
-   {
+   public ClusterController getClusterController() {
       return clusterController;
    }
 
-   public HAManager getHAManager()
-   {
+   public HAManager getHAManager() {
       return haManager;
    }
 
-   public void addClusterChannelHandler(Channel channel, Acceptor acceptorUsed, CoreRemotingConnection remotingConnection, Activation activation)
-   {
+   public void addClusterChannelHandler(Channel channel,
+                                        Acceptor acceptorUsed,
+                                        CoreRemotingConnection remotingConnection,
+                                        Activation activation) {
       clusterController.addClusterChannelHandler(channel, acceptorUsed, remotingConnection, activation);
    }
 
-   enum State
-   {
+   enum State {
       STOPPED,
       /**
        * Used because {@link ClusterManager#stop()} method is not completely synchronized
@@ -152,8 +150,7 @@ public final class ClusterManager implements ActiveMQComponent
                          final ManagementService managementService,
                          final Configuration configuration,
                          final NodeManager nodeManager,
-                         final boolean backup)
-   {
+                         final boolean backup) {
       this.executorFactory = executorFactory;
 
       executor = executorFactory.getExecutor();
@@ -175,16 +172,14 @@ public final class ClusterManager implements ActiveMQComponent
       haManager = server.getActivation().getHAManager();
    }
 
-   public String describe()
-   {
+   public String describe() {
       StringWriter str = new StringWriter();
       PrintWriter out = new PrintWriter(str);
 
       out.println("Information on " + this);
       out.println("*******************************************************");
 
-      for (ClusterConnection conn : cloneClusterConnections())
-      {
+      for (ClusterConnection conn : cloneClusterConnections()) {
          out.println(conn.describe());
       }
 
@@ -198,23 +193,17 @@ public final class ClusterManager implements ActiveMQComponent
     *
     * @return default connection
     */
-   public ClusterConnection getDefaultConnection(TransportConfiguration acceptorConfig)
-   {
-      if (acceptorConfig == null)
-      {
+   public ClusterConnection getDefaultConnection(TransportConfiguration acceptorConfig) {
+      if (acceptorConfig == null) {
          // if the parameter is null, we just return whatever is defined on defaultClusterConnection
          return defaultClusterConnection;
       }
-      else if (defaultClusterConnection != null && defaultClusterConnection.getConnector().isEquivalent(acceptorConfig))
-      {
+      else if (defaultClusterConnection != null && defaultClusterConnection.getConnector().isEquivalent(acceptorConfig)) {
          return defaultClusterConnection;
       }
-      else
-      {
-         for (ClusterConnection conn : cloneClusterConnections())
-         {
-            if (conn.getConnector().isEquivalent(acceptorConfig))
-            {
+      else {
+         for (ClusterConnection conn : cloneClusterConnections()) {
+            if (conn.getConnector().isEquivalent(acceptorConfig)) {
                return conn;
             }
          }
@@ -223,97 +212,76 @@ public final class ClusterManager implements ActiveMQComponent
    }
 
    @Override
-   public String toString()
-   {
+   public String toString() {
       return "ClusterManagerImpl[server=" + server + "]@" + System.identityHashCode(this);
    }
 
-   public String getNodeId()
-   {
+   public String getNodeId() {
       return nodeManager.getNodeId().toString();
    }
 
-   public String getBackupGroupName()
-   {
+   public String getBackupGroupName() {
       return server.getHAPolicy().getBackupGroupName();
    }
 
-   public String getScaleDownGroupName()
-   {
+   public String getScaleDownGroupName() {
       return server.getHAPolicy().getScaleDownGroupName();
    }
 
-   public synchronized void deploy() throws Exception
-   {
-      if (state == State.STOPPED)
-      {
+   public synchronized void deploy() throws Exception {
+      if (state == State.STOPPED) {
          state = State.DEPLOYED;
       }
-      else
-      {
+      else {
          throw new IllegalStateException();
       }
 
-      for (BroadcastGroupConfiguration config : configuration.getBroadcastGroupConfigurations())
-      {
+      for (BroadcastGroupConfiguration config : configuration.getBroadcastGroupConfigurations()) {
          deployBroadcastGroup(config);
       }
 
-      for (ClusterConnectionConfiguration config : configuration.getClusterConfigurations())
-      {
+      for (ClusterConnectionConfiguration config : configuration.getClusterConfigurations()) {
          deployClusterConnection(config);
       }
 
       /*
       * only start if we are actually in a cluster
       * */
-      if (clusterConnections.size() > 0)
-      {
+      if (clusterConnections.size() > 0) {
          clusterController.start();
       }
    }
 
-   public synchronized void start() throws Exception
-   {
-      if (state == State.STARTED)
-      {
+   public synchronized void start() throws Exception {
+      if (state == State.STARTED) {
          return;
       }
 
-      for (BroadcastGroup group : broadcastGroups.values())
-      {
-         try
-         {
+      for (BroadcastGroup group : broadcastGroups.values()) {
+         try {
             group.start();
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             ActiveMQServerLogger.LOGGER.unableToStartBroadcastGroup(e, group.getName());
          }
       }
 
-      for (ClusterConnection conn : clusterConnections.values())
-      {
-         try
-         {
+      for (ClusterConnection conn : clusterConnections.values()) {
+         try {
             conn.start();
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             ActiveMQServerLogger.LOGGER.unableToStartClusterConnection(e, conn.getName());
          }
       }
 
       deployConfiguredBridges();
 
-      for (Bridge bridge : bridges.values())
-      {
-         try
-         {
+      for (Bridge bridge : bridges.values()) {
+         try {
             bridge.start();
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             ActiveMQServerLogger.LOGGER.unableToStartBridge(e, bridge.getName());
          }
       }
@@ -324,43 +292,35 @@ public final class ClusterManager implements ActiveMQComponent
       state = State.STARTED;
    }
 
-   private void deployConfiguredBridges() throws Exception
-   {
-      for (BridgeConfiguration config : configuration.getBridgeConfigurations())
-      {
+   private void deployConfiguredBridges() throws Exception {
+      for (BridgeConfiguration config : configuration.getBridgeConfigurations()) {
          deployBridge(config);
       }
    }
 
-   public void stop() throws Exception
-   {
+   public void stop() throws Exception {
       haManager.stop();
-      synchronized (this)
-      {
-         if (state == State.STOPPED || state == State.STOPPING)
-         {
+      synchronized (this) {
+         if (state == State.STOPPED || state == State.STOPPING) {
             return;
          }
          state = State.STOPPING;
 
          clusterController.stop();
 
-         for (BroadcastGroup group : broadcastGroups.values())
-         {
+         for (BroadcastGroup group : broadcastGroups.values()) {
             group.stop();
             managementService.unregisterBroadcastGroup(group.getName());
          }
 
          broadcastGroups.clear();
 
-         for (ClusterConnection clusterConnection : clusterConnections.values())
-         {
+         for (ClusterConnection clusterConnection : clusterConnections.values()) {
             clusterConnection.stop();
             managementService.unregisterCluster(clusterConnection.getName().toString());
          }
 
-         for (Bridge bridge : bridges.values())
-         {
+         for (Bridge bridge : bridges.values()) {
             bridge.stop();
             managementService.unregisterBridge(bridge.getName().toString());
          }
@@ -368,14 +328,11 @@ public final class ClusterManager implements ActiveMQComponent
          bridges.clear();
       }
 
-      for (ServerLocatorInternal clusterLocator : clusterLocators)
-      {
-         try
-         {
+      for (ServerLocatorInternal clusterLocator : clusterLocators) {
+         try {
             clusterLocator.close();
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             ActiveMQServerLogger.LOGGER.errorClosingServerLocator(e, clusterLocator);
          }
       }
@@ -385,73 +342,57 @@ public final class ClusterManager implements ActiveMQComponent
       clearClusterConnections();
    }
 
-   public void flushExecutor()
-   {
+   public void flushExecutor() {
       FutureLatch future = new FutureLatch();
       executor.execute(future);
-      if (!future.await(10000))
-      {
+      if (!future.await(10000)) {
          ActiveMQServerLogger.LOGGER.couldNotFlushClusterManager(this.toString());
          server.threadDump();
       }
    }
 
-   public boolean isStarted()
-   {
+   public boolean isStarted() {
       return state == State.STARTED;
    }
 
-   public Map<String, Bridge> getBridges()
-   {
+   public Map<String, Bridge> getBridges() {
       return new HashMap<String, Bridge>(bridges);
    }
 
-   public Set<ClusterConnection> getClusterConnections()
-   {
+   public Set<ClusterConnection> getClusterConnections() {
       return new HashSet<ClusterConnection>(clusterConnections.values());
    }
 
-   public Set<BroadcastGroup> getBroadcastGroups()
-   {
+   public Set<BroadcastGroup> getBroadcastGroups() {
       return new HashSet<BroadcastGroup>(broadcastGroups.values());
    }
 
-   public ClusterConnection getClusterConnection(final String name)
-   {
+   public ClusterConnection getClusterConnection(final String name) {
       return clusterConnections.get(name);
    }
 
-
-
-
-   public void removeClusterLocator(final ServerLocatorInternal serverLocator)
-   {
+   public void removeClusterLocator(final ServerLocatorInternal serverLocator) {
       this.clusterLocators.remove(serverLocator);
    }
 
-   public synchronized void deployBridge(final BridgeConfiguration config) throws Exception
-   {
-      if (config.getName() == null)
-      {
+   public synchronized void deployBridge(final BridgeConfiguration config) throws Exception {
+      if (config.getName() == null) {
          ActiveMQServerLogger.LOGGER.bridgeNotUnique();
 
          return;
       }
 
-      if (config.getQueueName() == null)
-      {
+      if (config.getQueueName() == null) {
          ActiveMQServerLogger.LOGGER.bridgeNoQueue(config.getName());
 
          return;
       }
 
-      if (config.getForwardingAddress() == null)
-      {
+      if (config.getForwardingAddress() == null) {
          ActiveMQServerLogger.LOGGER.bridgeNoForwardAddress(config.getName());
       }
 
-      if (bridges.containsKey(config.getName()))
-      {
+      if (bridges.containsKey(config.getName())) {
          ActiveMQServerLogger.LOGGER.bridgeAlreadyDeployed(config.getName());
 
          return;
@@ -461,8 +402,7 @@ public final class ClusterManager implements ActiveMQComponent
 
       Binding binding = postOffice.getBinding(new SimpleString(config.getQueueName()));
 
-      if (binding == null)
-      {
+      if (binding == null) {
          ActiveMQServerLogger.LOGGER.bridgeQueueNotFound(config.getQueueName(), config.getName());
 
          return;
@@ -472,43 +412,34 @@ public final class ClusterManager implements ActiveMQComponent
 
       ServerLocatorInternal serverLocator;
 
-      if (config.getDiscoveryGroupName() != null)
-      {
-         DiscoveryGroupConfiguration discoveryGroupConfiguration = configuration.getDiscoveryGroupConfigurations()
-            .get(config.getDiscoveryGroupName());
-         if (discoveryGroupConfiguration == null)
-         {
+      if (config.getDiscoveryGroupName() != null) {
+         DiscoveryGroupConfiguration discoveryGroupConfiguration = configuration.getDiscoveryGroupConfigurations().get(config.getDiscoveryGroupName());
+         if (discoveryGroupConfiguration == null) {
             ActiveMQServerLogger.LOGGER.bridgeNoDiscoveryGroup(config.getDiscoveryGroupName());
 
             return;
          }
 
-         if (config.isHA())
-         {
+         if (config.isHA()) {
             serverLocator = (ServerLocatorInternal) ActiveMQClient.createServerLocatorWithHA(discoveryGroupConfiguration);
          }
-         else
-         {
+         else {
             serverLocator = (ServerLocatorInternal) ActiveMQClient.createServerLocatorWithoutHA(discoveryGroupConfiguration);
          }
 
       }
-      else
-      {
+      else {
          TransportConfiguration[] tcConfigs = ClusterConfigurationUtil.connectorNameListToArray(config.getStaticConnectors(), configuration);
 
-         if (tcConfigs == null)
-         {
+         if (tcConfigs == null) {
             ActiveMQServerLogger.LOGGER.bridgeCantFindConnectors(config.getName());
             return;
          }
 
-         if (config.isHA())
-         {
+         if (config.isHA()) {
             serverLocator = (ServerLocatorInternal) ActiveMQClient.createServerLocatorWithHA(tcConfigs);
          }
-         else
-         {
+         else {
             serverLocator = (ServerLocatorInternal) ActiveMQClient.createServerLocatorWithoutHA(tcConfigs);
          }
 
@@ -539,33 +470,14 @@ public final class ClusterManager implements ActiveMQComponent
 
       serverLocator.addIncomingInterceptor(new IncomingInterceptorLookingForExceptionMessage(this, executor));
 
-      if (!config.isUseDuplicateDetection())
-      {
+      if (!config.isUseDuplicateDetection()) {
          ActiveMQServerLogger.LOGGER.debug("Bridge " + config.getName() +
-                                             " is configured to not use duplicate detecion, it will send messages synchronously");
+                                              " is configured to not use duplicate detecion, it will send messages synchronously");
       }
 
       clusterLocators.add(serverLocator);
 
-      Bridge bridge = new BridgeImpl(serverLocator,
-                                     config.getInitialConnectAttempts(),
-                                     config.getReconnectAttempts(),
-                                     config.getReconnectAttemptsOnSameNode(),
-                                     config.getRetryInterval(),
-                                     config.getRetryIntervalMultiplier(),
-                                     config.getMaxRetryInterval(),
-                                     nodeManager.getUUID(),
-                                     new SimpleString(config.getName()),
-                                     queue,
-                                     executorFactory.getExecutor(),
-                                     FilterImpl.createFilter(config.getFilterString()),
-                                     SimpleString.toSimpleString(config.getForwardingAddress()),
-                                     scheduledExecutor,
-                                     transformer,
-                                     config.isUseDuplicateDetection(),
-                                     config.getUser(),
-                                     config.getPassword(),
-                                     server.getStorageManager());
+      Bridge bridge = new BridgeImpl(serverLocator, config.getInitialConnectAttempts(), config.getReconnectAttempts(), config.getReconnectAttemptsOnSameNode(), config.getRetryInterval(), config.getRetryIntervalMultiplier(), config.getMaxRetryInterval(), nodeManager.getUUID(), new SimpleString(config.getName()), queue, executorFactory.getExecutor(), FilterImpl.createFilter(config.getFilterString()), SimpleString.toSimpleString(config.getForwardingAddress()), scheduledExecutor, transformer, config.isUseDuplicateDetection(), config.getUser(), config.getPassword(), server.getStorageManager());
 
       bridges.put(config.getName(), bridge);
 
@@ -575,8 +487,8 @@ public final class ClusterManager implements ActiveMQComponent
 
    }
 
-   public static class IncomingInterceptorLookingForExceptionMessage implements Interceptor
-   {
+   public static class IncomingInterceptorLookingForExceptionMessage implements Interceptor {
+
       private final ClusterManager manager;
       private final Executor executor;
 
@@ -584,33 +496,25 @@ public final class ClusterManager implements ActiveMQComponent
        * @param manager
        * @param executor
        */
-      public IncomingInterceptorLookingForExceptionMessage(ClusterManager manager, Executor executor)
-      {
+      public IncomingInterceptorLookingForExceptionMessage(ClusterManager manager, Executor executor) {
          this.manager = manager;
          this.executor = executor;
       }
 
       @Override
-      public boolean intercept(Packet packet, RemotingConnection connection) throws ActiveMQException
-      {
-         if (packet.getType() == PacketImpl.EXCEPTION)
-         {
+      public boolean intercept(Packet packet, RemotingConnection connection) throws ActiveMQException {
+         if (packet.getType() == PacketImpl.EXCEPTION) {
             ActiveMQExceptionMessage msg = (ActiveMQExceptionMessage) packet;
             final ActiveMQException exception = msg.getException();
-            if (exception.getType() == ActiveMQExceptionType.CLUSTER_SECURITY_EXCEPTION)
-            {
+            if (exception.getType() == ActiveMQExceptionType.CLUSTER_SECURITY_EXCEPTION) {
                ActiveMQServerLogger.LOGGER.clusterManagerAuthenticationError(exception.getMessage());
-               executor.execute(new Runnable()
-               {
+               executor.execute(new Runnable() {
                   @Override
-                  public void run()
-                  {
-                     try
-                     {
+                  public void run() {
+                     try {
                         manager.stop();
                      }
-                     catch (Exception e)
-                     {
+                     catch (Exception e) {
                         e.printStackTrace();
                      }
                   }
@@ -622,180 +526,100 @@ public final class ClusterManager implements ActiveMQComponent
       }
    }
 
-   public void destroyBridge(final String name) throws Exception
-   {
+   public void destroyBridge(final String name) throws Exception {
       Bridge bridge;
 
-      synchronized (this)
-      {
+      synchronized (this) {
          bridge = bridges.remove(name);
-         if (bridge != null)
-         {
+         if (bridge != null) {
             bridge.stop();
             managementService.unregisterBridge(name);
          }
       }
-      if (bridge != null)
-      {
+      if (bridge != null) {
          bridge.flushExecutor();
       }
    }
 
    // for testing
-   public void clear()
-   {
-      for (Bridge bridge : bridges.values())
-      {
-         try
-         {
+   public void clear() {
+      for (Bridge bridge : bridges.values()) {
+         try {
             bridge.stop();
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
          }
       }
       bridges.clear();
-      for (ClusterConnection clusterConnection : clusterConnections.values())
-      {
-         try
-         {
+      for (ClusterConnection clusterConnection : clusterConnections.values()) {
+         try {
             clusterConnection.stop();
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             e.printStackTrace();
          }
       }
       clearClusterConnections();
    }
 
-   public void informClusterOfBackup(String name)
-   {
+   public void informClusterOfBackup(String name) {
       ClusterConnection clusterConnection = clusterConnections.get(name);
-      if (clusterConnection != null)
-      {
+      if (clusterConnection != null) {
          clusterConnection.informClusterOfBackup();
       }
    }
 
    // Private methods ----------------------------------------------------------------------------------------------------
 
-
-   private void clearClusterConnections()
-   {
+   private void clearClusterConnections() {
       clusterConnections.clear();
       this.defaultClusterConnection = null;
    }
 
-   private void deployClusterConnection(final ClusterConnectionConfiguration config) throws Exception
-   {
+   private void deployClusterConnection(final ClusterConnectionConfiguration config) throws Exception {
       TransportConfiguration connector = ClusterConfigurationUtil.getTransportConfiguration(config, configuration);
 
-      if (connector == null) return;
+      if (connector == null)
+         return;
 
-      if (clusterConnections.containsKey(config.getName()))
-      {
+      if (clusterConnections.containsKey(config.getName())) {
          ActiveMQServerLogger.LOGGER.clusterConnectionAlreadyExists(config.getConnectorName());
          return;
       }
 
       ClusterConnectionImpl clusterConnection;
 
-      if (config.getDiscoveryGroupName() != null)
-      {
+      if (config.getDiscoveryGroupName() != null) {
          DiscoveryGroupConfiguration dg = ClusterConfigurationUtil.getDiscoveryGroupConfiguration(config, configuration);
 
-         if (dg == null) return;
+         if (dg == null)
+            return;
 
-         if (ActiveMQServerLogger.LOGGER.isDebugEnabled())
-         {
+         if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
             ActiveMQServerLogger.LOGGER.debug(this + " Starting a Discovery Group Cluster Connection, name=" +
-                                                config.getDiscoveryGroupName() +
-                                                ", dg=" +
-                                                dg);
+                                                 config.getDiscoveryGroupName() +
+                                                 ", dg=" +
+                                                 dg);
          }
 
-         clusterConnection = new ClusterConnectionImpl(this,
-                                                       dg,
-                                                       connector,
-                                                       new SimpleString(config.getName()),
-                                                       new SimpleString(config.getAddress()),
-                                                       config.getMinLargeMessageSize(),
-                                                       config.getClientFailureCheckPeriod(),
-                                                       config.getConnectionTTL(),
-                                                       config.getRetryInterval(),
-                                                       config.getRetryIntervalMultiplier(),
-                                                       config.getMaxRetryInterval(),
-                                                       config.getInitialConnectAttempts(),
-                                                       config.getReconnectAttempts(),
-                                                       config.getCallTimeout(),
-                                                       config.getCallFailoverTimeout(),
-                                                       config.isDuplicateDetection(),
-                                                       config.getMessageLoadBalancingType(),
-                                                       config.getConfirmationWindowSize(),
-                                                       executorFactory,
-                                                       server,
-                                                       postOffice,
-                                                       managementService,
-                                                       scheduledExecutor,
-                                                       config.getMaxHops(),
-                                                       nodeManager,
-                                                       server.getConfiguration().getClusterUser(),
-                                                       server.getConfiguration().getClusterPassword(),
-                                                       config.isAllowDirectConnectionsOnly(),
-                                                       config.getClusterNotificationInterval(),
-                                                       config.getClusterNotificationAttempts());
+         clusterConnection = new ClusterConnectionImpl(this, dg, connector, new SimpleString(config.getName()), new SimpleString(config.getAddress()), config.getMinLargeMessageSize(), config.getClientFailureCheckPeriod(), config.getConnectionTTL(), config.getRetryInterval(), config.getRetryIntervalMultiplier(), config.getMaxRetryInterval(), config.getInitialConnectAttempts(), config.getReconnectAttempts(), config.getCallTimeout(), config.getCallFailoverTimeout(), config.isDuplicateDetection(), config.getMessageLoadBalancingType(), config.getConfirmationWindowSize(), executorFactory, server, postOffice, managementService, scheduledExecutor, config.getMaxHops(), nodeManager, server.getConfiguration().getClusterUser(), server.getConfiguration().getClusterPassword(), config.isAllowDirectConnectionsOnly(), config.getClusterNotificationInterval(), config.getClusterNotificationAttempts());
 
          clusterController.addClusterConnection(clusterConnection.getName(), dg, config);
       }
-      else
-      {
+      else {
          TransportConfiguration[] tcConfigs = ClusterConfigurationUtil.getTransportConfigurations(config, configuration);
 
-         if (ActiveMQServerLogger.LOGGER.isDebugEnabled())
-         {
+         if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
             ActiveMQServerLogger.LOGGER.debug(this + " defining cluster connection towards " + Arrays.toString(tcConfigs));
          }
 
-         clusterConnection = new ClusterConnectionImpl(this,
-                                                       tcConfigs,
-                                                       connector,
-                                                       new SimpleString(config.getName()),
-                                                       new SimpleString(config.getAddress()),
-                                                       config.getMinLargeMessageSize(),
-                                                       config.getClientFailureCheckPeriod(),
-                                                       config.getConnectionTTL(),
-                                                       config.getRetryInterval(),
-                                                       config.getRetryIntervalMultiplier(),
-                                                       config.getMaxRetryInterval(),
-                                                       config.getInitialConnectAttempts(),
-                                                       config.getReconnectAttempts(),
-                                                       config.getCallTimeout(),
-                                                       config.getCallFailoverTimeout(),
-                                                       config.isDuplicateDetection(),
-                                                       config.getMessageLoadBalancingType(),
-                                                       config.getConfirmationWindowSize(),
-                                                       executorFactory,
-                                                       server,
-                                                       postOffice,
-                                                       managementService,
-                                                       scheduledExecutor,
-                                                       config.getMaxHops(),
-                                                       nodeManager,
-                                                       server.getConfiguration().getClusterUser(),
-                                                       server.getConfiguration().getClusterPassword(),
-                                                       config.isAllowDirectConnectionsOnly(),
-                                                       config.getClusterNotificationInterval(),
-                                                       config.getClusterNotificationAttempts());
-
+         clusterConnection = new ClusterConnectionImpl(this, tcConfigs, connector, new SimpleString(config.getName()), new SimpleString(config.getAddress()), config.getMinLargeMessageSize(), config.getClientFailureCheckPeriod(), config.getConnectionTTL(), config.getRetryInterval(), config.getRetryIntervalMultiplier(), config.getMaxRetryInterval(), config.getInitialConnectAttempts(), config.getReconnectAttempts(), config.getCallTimeout(), config.getCallFailoverTimeout(), config.isDuplicateDetection(), config.getMessageLoadBalancingType(), config.getConfirmationWindowSize(), executorFactory, server, postOffice, managementService, scheduledExecutor, config.getMaxHops(), nodeManager, server.getConfiguration().getClusterUser(), server.getConfiguration().getClusterPassword(), config.isAllowDirectConnectionsOnly(), config.getClusterNotificationInterval(), config.getClusterNotificationAttempts());
 
          clusterController.addClusterConnection(clusterConnection.getName(), tcConfigs, config);
       }
 
-
-      if (defaultClusterConnection == null)
-      {
+      if (defaultClusterConnection == null) {
          defaultClusterConnection = clusterConnection;
          clusterController.setDefaultClusterConnectionName(defaultClusterConnection.getName());
       }
@@ -804,17 +628,13 @@ public final class ClusterManager implements ActiveMQComponent
 
       clusterConnections.put(config.getName(), clusterConnection);
 
-      if (ActiveMQServerLogger.LOGGER.isTraceEnabled())
-      {
+      if (ActiveMQServerLogger.LOGGER.isTraceEnabled()) {
          ActiveMQServerLogger.LOGGER.trace("ClusterConnection.start at " + clusterConnection, new Exception("trace"));
       }
    }
 
-
-   private synchronized void deployBroadcastGroup(final BroadcastGroupConfiguration config) throws Exception
-   {
-      if (broadcastGroups.containsKey(config.getName()))
-      {
+   private synchronized void deployBroadcastGroup(final BroadcastGroupConfiguration config) throws Exception {
+      if (broadcastGroups.containsKey(config.getName())) {
          ActiveMQServerLogger.LOGGER.broadcastGroupAlreadyExists(config.getName());
 
          return;
@@ -825,21 +645,16 @@ public final class ClusterManager implements ActiveMQComponent
       managementService.registerBroadcastGroup(group, config);
    }
 
-   private BroadcastGroup createBroadcastGroup(BroadcastGroupConfiguration config) throws Exception
-   {
+   private BroadcastGroup createBroadcastGroup(BroadcastGroupConfiguration config) throws Exception {
       BroadcastGroup group = broadcastGroups.get(config.getName());
 
-      if (group == null)
-      {
-         group = new BroadcastGroupImpl(nodeManager, config.getName(),
-                                        config.getBroadcastPeriod(), scheduledExecutor, config.getEndpointFactory());
+      if (group == null) {
+         group = new BroadcastGroupImpl(nodeManager, config.getName(), config.getBroadcastPeriod(), scheduledExecutor, config.getEndpointFactory());
 
-         for (String connectorInfo : config.getConnectorInfos())
-         {
+         for (String connectorInfo : config.getConnectorInfos()) {
             TransportConfiguration connector = configuration.getConnectorConfigurations().get(connectorInfo);
 
-            if (connector == null)
-            {
+            if (connector == null) {
                logWarnNoConnector(connectorInfo, config.getName());
 
                return null;
@@ -849,8 +664,7 @@ public final class ClusterManager implements ActiveMQComponent
          }
       }
 
-      if (group.size() == 0)
-      {
+      if (group.size() == 0) {
          logWarnNoConnector(config.getConnectorInfos().toString(), group.getName());
          return null;
       }
@@ -860,16 +674,13 @@ public final class ClusterManager implements ActiveMQComponent
       return group;
    }
 
-   private void logWarnNoConnector(final String connectorName, final String bgName)
-   {
+   private void logWarnNoConnector(final String connectorName, final String bgName) {
       ActiveMQServerLogger.LOGGER.broadcastGroupNoConnector(connectorName, bgName);
    }
 
-   private synchronized Collection<ClusterConnection> cloneClusterConnections()
-   {
+   private synchronized Collection<ClusterConnection> cloneClusterConnections() {
       ArrayList<ClusterConnection> list = new ArrayList<ClusterConnection>(clusterConnections.values());
       return list;
    }
-
 
 }

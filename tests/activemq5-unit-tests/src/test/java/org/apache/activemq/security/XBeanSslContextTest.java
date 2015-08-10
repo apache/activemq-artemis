@@ -25,17 +25,17 @@ import org.junit.Test;
 
 public class XBeanSslContextTest {
 
-    BrokerService broker;
+   BrokerService broker;
 
-    @Test
-    public void testSslContextElement() throws Exception {
-    broker = BrokerFactory.createBroker(new URI("xbean:org/apache/activemq/security/activemq-sslcontext.xml"));
-    }
+   @Test
+   public void testSslContextElement() throws Exception {
+      broker = BrokerFactory.createBroker(new URI("xbean:org/apache/activemq/security/activemq-sslcontext.xml"));
+   }
 
-    @After
-    public void stopBroker() throws Exception {
-    if (broker != null)
-        broker.stop();
-    }
+   @After
+   public void stopBroker() throws Exception {
+      if (broker != null)
+         broker.stop();
+   }
 
 }

@@ -28,8 +28,8 @@ import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.utils.LinkedListIterator;
 import org.apache.activemq.artemis.utils.ReferenceCounter;
 
-public interface Queue extends Bindable
-{
+public interface Queue extends Bindable {
+
    SimpleString getName();
 
    long getID();
@@ -159,7 +159,10 @@ public interface Queue extends Bindable
 
    int moveReferences(Filter filter, SimpleString toAddress) throws Exception;
 
-   int moveReferences(final int flushLimit, Filter filter, SimpleString toAddress, boolean rejectDuplicates) throws Exception;
+   int moveReferences(final int flushLimit,
+                      Filter filter,
+                      SimpleString toAddress,
+                      boolean rejectDuplicates) throws Exception;
 
    void addRedistributor(long delay);
 
@@ -173,6 +176,7 @@ public interface Queue extends Bindable
 
    /**
     * It will iterate thorugh memory only (not paging)
+    *
     * @return
     */
    LinkedListIterator<MessageReference> iterator();

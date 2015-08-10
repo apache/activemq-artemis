@@ -20,8 +20,8 @@ package org.apache.activemq.artemis.api.core;
  * Constants representing pre-defined message attributes that can be referenced in ActiveMQ Artemis core
  * filter expressions.
  */
-public final class FilterConstants
-{
+public final class FilterConstants {
+
    /**
     * Name of the ActiveMQ Artemis UserID header.
     */
@@ -67,8 +67,7 @@ public final class FilterConstants
     */
    public static final SimpleString ACTIVEMQ_PREFIX = new SimpleString("AMQ");
 
-   private FilterConstants()
-   {
+   private FilterConstants() {
       // Utility class
    }
 }

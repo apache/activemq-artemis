@@ -28,18 +28,20 @@ import org.apache.activemq.artemis.core.settings.HierarchicalRepositoryChangeLis
  * +--------------+      1  +----------------+       N +--------------+       N +--------+       1 +-------------------+
  * | {@link org.apache.activemq.artemis.core.postoffice.PostOffice} |-------&gt; |{@link PagingManager}|-------&gt; |{@link PagingStore} | ------&gt; | {@link org.apache.activemq.artemis.core.paging.impl.Page}  | ------&gt; | {@link SequentialFile} |
  * +--------------+         +----------------+         +--------------+         +--------+         +-------------------+
- *                                                              |                  1 ^
- *                                                              |                    |
- *                                                              |                    |
- *                                                              |                    | 1
- *                                                              |            N +----------+
- *                                                              +------------&gt; | {@link org.apache.activemq.artemis.core.postoffice.Address} |
- *                                                                             +----------+
+ * |                  1 ^
+ * |                    |
+ * |                    |
+ * |                    | 1
+ * |            N +----------+
+ * +------------&gt; | {@link org.apache.activemq.artemis.core.postoffice.Address} |
+ * +----------+
  * </PRE>
  */
-public interface PagingManager extends ActiveMQComponent, HierarchicalRepositoryChangeListener
-{
-   /** Returns the PageStore associated with the address. A new page store is created if necessary. */
+public interface PagingManager extends ActiveMQComponent, HierarchicalRepositoryChangeListener {
+
+   /**
+    * Returns the PageStore associated with the address. A new page store is created if necessary.
+    */
    PagingStore getPageStore(SimpleString address) throws Exception;
 
    /**
@@ -49,7 +51,7 @@ public interface PagingManager extends ActiveMQComponent, HierarchicalRepository
 
    /**
     * Point to inform/restoring Transactions used when the messages were added into paging
-    * */
+    */
    PageTransactionInfo getTransaction(long transactionID);
 
    /**
@@ -61,6 +63,7 @@ public interface PagingManager extends ActiveMQComponent, HierarchicalRepository
 
    /**
     * Reload previously created PagingStores into memory
+    *
     * @throws Exception
     */
    void reloadStores() throws Exception;
@@ -82,6 +85,7 @@ public interface PagingManager extends ActiveMQComponent, HierarchicalRepository
 
    /**
     * Unlock the manager.
+    *
     * @see #lock()
     */
    void unlock();

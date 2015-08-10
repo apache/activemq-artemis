@@ -19,60 +19,50 @@ package org.apache.activemq.artemis.selector.filter;
 /**
  * Used to evaluate an XPath Expression in a JMS selector.
  */
-public final class XPathExpression implements BooleanExpression
-{
+public final class XPathExpression implements BooleanExpression {
 
    public static XPathEvaluatorFactory XPATH_EVALUATOR_FACTORY = null;
 
-   static
-   {
+   static {
       // Install the xalan xpath evaluator if it available.
       new XalanXPathEvaluator("//root").evaluate("<root></root>");
-      try
-      {
-         XPATH_EVALUATOR_FACTORY = new XPathExpression.XPathEvaluatorFactory()
-         {
-            public XPathExpression.XPathEvaluator create(String xpath)
-            {
+      try {
+         XPATH_EVALUATOR_FACTORY = new XPathExpression.XPathEvaluatorFactory() {
+            public XPathExpression.XPathEvaluator create(String xpath) {
                return new XalanXPathEvaluator(xpath);
             }
          };
       }
-      catch (Throwable e)
-      {
+      catch (Throwable e) {
       }
    }
 
    private final String xpath;
    private final XPathEvaluator evaluator;
 
-   public interface XPathEvaluatorFactory
-   {
+   public interface XPathEvaluatorFactory {
+
       XPathEvaluator create(String xpath);
    }
 
-   public interface XPathEvaluator
-   {
+   public interface XPathEvaluator {
+
       boolean evaluate(Filterable message) throws FilterException;
    }
 
-   XPathExpression(String xpath)
-   {
-      if (XPATH_EVALUATOR_FACTORY == null)
-      {
+   XPathExpression(String xpath) {
+      if (XPATH_EVALUATOR_FACTORY == null) {
          throw new IllegalArgumentException("XPATH support not enabled.");
       }
       this.xpath = xpath;
       this.evaluator = XPATH_EVALUATOR_FACTORY.create(xpath);
    }
 
-   public Object evaluate(Filterable message) throws FilterException
-   {
+   public Object evaluate(Filterable message) throws FilterException {
       return evaluator.evaluate(message) ? Boolean.TRUE : Boolean.FALSE;
    }
 
-   public String toString()
-   {
+   public String toString() {
       return "XPATH " + ConstantExpression.encodeString(xpath);
    }
 
@@ -81,8 +71,7 @@ public final class XPathExpression implements BooleanExpression
     * @return true if the expression evaluates to Boolean.TRUE.
     * @throws FilterException
     */
-   public boolean matches(Filterable message) throws FilterException
-   {
+   public boolean matches(Filterable message) throws FilterException {
       Object object = evaluate(message);
       return object != null && object == Boolean.TRUE;
    }

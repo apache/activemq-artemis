@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.soak.client;
+
 import org.junit.Before;
 
 import org.junit.Test;
@@ -33,8 +34,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 
-public class SimpleSendReceiveSoakTest extends ActiveMQTestBase
-{
+public class SimpleSendReceiveSoakTest extends ActiveMQTestBase {
 
    // Constants -----------------------------------------------------
 
@@ -46,8 +46,7 @@ public class SimpleSendReceiveSoakTest extends ActiveMQTestBase
 
    public static final int MIN_MESSAGES_ON_QUEUE = 1000;
 
-   protected boolean isNetty()
-   {
+   protected boolean isNetty() {
       return false;
    }
 
@@ -61,14 +60,12 @@ public class SimpleSendReceiveSoakTest extends ActiveMQTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       clearDataRecreateServerDirs();
 
-      Configuration config = createDefaultConfig(isNetty())
-         .setJournalFileSize(10 * 1024 * 1024);
+      Configuration config = createDefaultConfig(isNetty()).setJournalFileSize(10 * 1024 * 1024);
 
       server = createServer(IS_JOURNAL, config, -1, -1, new HashMap<String, AddressSettings>());
 
@@ -86,8 +83,7 @@ public class SimpleSendReceiveSoakTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testSoakClientTransactions() throws Exception
-   {
+   public void testSoakClientTransactions() throws Exception {
       final ServerLocator locator = createFactory(isNetty());
 
       final ClientSessionFactory sf = createSessionFactory(locator);
@@ -100,8 +96,7 @@ public class SimpleSendReceiveSoakTest extends ActiveMQTestBase
 
       long msgReceivedID = 0;
 
-      for (int i = 0; i < MIN_MESSAGES_ON_QUEUE; i++)
-      {
+      for (int i = 0; i < MIN_MESSAGES_ON_QUEUE; i++) {
          ClientMessage msg = session.createMessage(IS_JOURNAL);
          msg.putLongProperty("count", msgId++);
          msg.getBodyBuffer().writeBytes(new byte[10 * 1024]);
@@ -112,19 +107,16 @@ public class SimpleSendReceiveSoakTest extends ActiveMQTestBase
       ClientConsumer consumer = sessionConsumer.createConsumer(ADDRESS);
       sessionConsumer.start();
 
-      for (int loopNumber = 0; loopNumber < 1000; loopNumber++)
-      {
+      for (int loopNumber = 0; loopNumber < 1000; loopNumber++) {
          System.out.println("Loop " + loopNumber);
-         for (int i = 0; i < MIN_MESSAGES_ON_QUEUE; i++)
-         {
+         for (int i = 0; i < MIN_MESSAGES_ON_QUEUE; i++) {
             ClientMessage msg = session.createMessage(IS_JOURNAL);
             msg.putLongProperty("count", msgId++);
             msg.getBodyBuffer().writeBytes(new byte[10 * 1024]);
             producer.send(msg);
          }
 
-         for (int i = 0; i < MIN_MESSAGES_ON_QUEUE; i++)
-         {
+         for (int i = 0; i < MIN_MESSAGES_ON_QUEUE; i++) {
             ClientMessage msg = consumer.receive(5000);
             assertNotNull(msg);
             msg.acknowledge();

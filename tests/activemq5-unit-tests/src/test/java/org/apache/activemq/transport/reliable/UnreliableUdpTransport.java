@@ -28,41 +28,38 @@ import org.apache.activemq.transport.udp.UdpTransport;
 /**
  * An unreliable UDP transport that will randomly discard packets to simulate a
  * bad network (or UDP buffers being flooded).
- * 
- * 
  */
 public class UnreliableUdpTransport extends UdpTransport {
 
-    private DropCommandStrategy dropCommandStrategy;
+   private DropCommandStrategy dropCommandStrategy;
 
-    public UnreliableUdpTransport(OpenWireFormat wireFormat, int port) throws UnknownHostException, IOException {
-        super(wireFormat, port);
-    }
+   public UnreliableUdpTransport(OpenWireFormat wireFormat, int port) throws UnknownHostException, IOException {
+      super(wireFormat, port);
+   }
 
-    public UnreliableUdpTransport(OpenWireFormat wireFormat, SocketAddress socketAddress) throws IOException {
-        super(wireFormat, socketAddress);
-    }
+   public UnreliableUdpTransport(OpenWireFormat wireFormat, SocketAddress socketAddress) throws IOException {
+      super(wireFormat, socketAddress);
+   }
 
-    public UnreliableUdpTransport(OpenWireFormat wireFormat, URI remoteLocation) throws UnknownHostException,
-            IOException {
-        super(wireFormat, remoteLocation);
-    }
+   public UnreliableUdpTransport(OpenWireFormat wireFormat,
+                                 URI remoteLocation) throws UnknownHostException, IOException {
+      super(wireFormat, remoteLocation);
+   }
 
-    public UnreliableUdpTransport(OpenWireFormat wireFormat) throws IOException {
-        super(wireFormat);
-    }
+   public UnreliableUdpTransport(OpenWireFormat wireFormat) throws IOException {
+      super(wireFormat);
+   }
 
-    public DropCommandStrategy getDropCommandStrategy() {
-        return dropCommandStrategy;
-    }
+   public DropCommandStrategy getDropCommandStrategy() {
+      return dropCommandStrategy;
+   }
 
-    public void setDropCommandStrategy(DropCommandStrategy dropCommandStrategy) {
-        this.dropCommandStrategy = dropCommandStrategy;
-    }
+   public void setDropCommandStrategy(DropCommandStrategy dropCommandStrategy) {
+      this.dropCommandStrategy = dropCommandStrategy;
+   }
 
-    protected CommandChannel createCommandDatagramChannel() {
-        return new UnreliableCommandDatagramChannel(this, getWireFormat(), getDatagramSize(), getTargetAddress(),
-                createDatagramHeaderMarshaller(), getReplayBuffer(), getChannel(), getBufferPool(), dropCommandStrategy);
-    }
+   protected CommandChannel createCommandDatagramChannel() {
+      return new UnreliableCommandDatagramChannel(this, getWireFormat(), getDatagramSize(), getTargetAddress(), createDatagramHeaderMarshaller(), getReplayBuffer(), getChannel(), getBufferPool(), dropCommandStrategy);
+   }
 
 }

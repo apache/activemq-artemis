@@ -35,13 +35,11 @@ import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 /**
  * A JMS Completion Listener Example.
  */
-public class JMSCompletionListenerExample
-{
-   public static void main(final String[] args) throws Exception
-   {
+public class JMSCompletionListenerExample {
+
+   public static void main(final String[] args) throws Exception {
       JMSContext jmsContext = null;
-      try
-      {
+      try {
          // Step 2. Perfom a lookup on the queue
          Queue queue = ActiveMQJMSClient.createQueue("exampleQueue");
 
@@ -57,18 +55,15 @@ public class JMSCompletionListenerExample
          final CountDownLatch latch = new CountDownLatch(1);
 
          //Step 6. We want to send the message Asynchronously and be notified when the Broker receives it so we set a completion handler
-         producer.setAsync(new CompletionListener()
-         {
+         producer.setAsync(new CompletionListener() {
             @Override
-            public void onCompletion(Message message)
-            {
+            public void onCompletion(Message message) {
                System.out.println("message acknowledged by ActiveMQ");
                latch.countDown();
             }
 
             @Override
-            public void onException(Message message, Exception e)
-            {
+            public void onException(Message message, Exception e) {
                e.printStackTrace();
             }
          });
@@ -77,15 +72,12 @@ public class JMSCompletionListenerExample
          producer.send(queue, "this is a string");
 
          //Step 7. wait for the Completion handler
-         if (!latch.await(5, TimeUnit.SECONDS))
-         {
+         if (!latch.await(5, TimeUnit.SECONDS)) {
             throw new IllegalStateException("Completion listener not called as expected.");
          }
       }
-      finally
-      {
-         if (jmsContext != null)
-         {
+      finally {
+         if (jmsContext != null) {
             jmsContext.close();
          }
       }

@@ -21,11 +21,10 @@ import static org.junit.Assert.assertEquals;
 import org.apache.activemq.artemis.core.protocol.openwire.OpenWireUtil;
 import org.junit.Test;
 
-public class OpenWireUtilTest
-{
+public class OpenWireUtilTest {
+
    @Test
-   public void testWildcardConversion() throws Exception
-   {
+   public void testWildcardConversion() throws Exception {
       String amqTarget = "TEST.ONE.>";
       String coreTarget = OpenWireUtil.convertWildcard(amqTarget);
       assertEquals("TEST.ONE.#", coreTarget);

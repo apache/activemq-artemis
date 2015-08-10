@@ -23,35 +23,36 @@ import javax.jms.JMSException;
 import javax.jms.MessageConsumer;
 import javax.jms.Session;
 import javax.jms.Topic;
+
 import org.apache.activemq.broker.BrokerService;
 
 /**
- * 
+ *
  */
 public class CursorDurableTest extends CursorSupport {
 
-    protected Destination getDestination(Session session) throws JMSException {
-        String topicName = getClass().getName();
-        return session.createTopic(topicName);
-    }
+   protected Destination getDestination(Session session) throws JMSException {
+      String topicName = getClass().getName();
+      return session.createTopic(topicName);
+   }
 
-    protected Connection getConsumerConnection(ConnectionFactory fac) throws JMSException {
-        Connection connection = fac.createConnection();
-        connection.setClientID("testConsumer");
-        connection.start();
-        return connection;
-    }
+   protected Connection getConsumerConnection(ConnectionFactory fac) throws JMSException {
+      Connection connection = fac.createConnection();
+      connection.setClientID("testConsumer");
+      connection.start();
+      return connection;
+   }
 
-    protected MessageConsumer getConsumer(Connection connection) throws Exception {
-        Session consumerSession = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        Topic topic = (Topic)getDestination(consumerSession);
-        MessageConsumer consumer = consumerSession.createDurableSubscriber(topic, "testConsumer");
-        return consumer;
-    }
+   protected MessageConsumer getConsumer(Connection connection) throws Exception {
+      Session consumerSession = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      Topic topic = (Topic) getDestination(consumerSession);
+      MessageConsumer consumer = consumerSession.createDurableSubscriber(topic, "testConsumer");
+      return consumer;
+   }
 
-    protected void configureBroker(BrokerService answer) throws Exception {
-        answer.setDeleteAllMessagesOnStartup(true);
-        answer.addConnector(bindAddress);
-        answer.setDeleteAllMessagesOnStartup(true);
-    }
+   protected void configureBroker(BrokerService answer) throws Exception {
+      answer.setDeleteAllMessagesOnStartup(true);
+      answer.addConnector(bindAddress);
+      answer.setDeleteAllMessagesOnStartup(true);
+   }
 }

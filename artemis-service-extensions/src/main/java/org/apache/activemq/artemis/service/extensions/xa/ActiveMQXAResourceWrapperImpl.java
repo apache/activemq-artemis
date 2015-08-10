@@ -21,8 +21,8 @@ import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 import java.util.Map;
 
-public class ActiveMQXAResourceWrapperImpl implements ActiveMQXAResourceWrapper
-{
+public class ActiveMQXAResourceWrapperImpl implements ActiveMQXAResourceWrapper {
+
    private final XAResource xaResource;
 
    // The EIS Name
@@ -42,8 +42,7 @@ public class ActiveMQXAResourceWrapperImpl implements ActiveMQXAResourceWrapper
     * @param xaResource
     * @param properties
     */
-   public ActiveMQXAResourceWrapperImpl(XAResource xaResource, Map<String, Object> properties)
-   {
+   public ActiveMQXAResourceWrapperImpl(XAResource xaResource, Map<String, Object> properties) {
       this.xaResource = xaResource;
       //this.productName = ActiveMQResourceAdapter.PRODUCT_NAME;
       this.productName = (String) properties.get(ACTIVEMQ_PRODUCT_NAME);
@@ -54,83 +53,69 @@ public class ActiveMQXAResourceWrapperImpl implements ActiveMQXAResourceWrapper
          " NodeId:" + properties.get(ACTIVEMQ_NODE_ID);
    }
 
-   public XAResource getResource()
-   {
+   public XAResource getResource() {
       return xaResource;
    }
 
-   public String getProductName()
-   {
+   public String getProductName() {
       return productName;
    }
 
-   public String getProductVersion()
-   {
+   public String getProductVersion() {
       return productVersion;
    }
 
-   public String getJndiName()
-   {
+   public String getJndiName() {
       return jndiNameNodeId;
    }
 
    @Override
-   public void commit(Xid xid, boolean b) throws XAException
-   {
+   public void commit(Xid xid, boolean b) throws XAException {
       getResource().commit(xid, b);
    }
 
    @Override
-   public void end(Xid xid, int i) throws XAException
-   {
+   public void end(Xid xid, int i) throws XAException {
       getResource().end(xid, i);
    }
 
    @Override
-   public void forget(Xid xid) throws XAException
-   {
+   public void forget(Xid xid) throws XAException {
       getResource().forget(xid);
    }
 
    @Override
-   public int getTransactionTimeout() throws XAException
-   {
+   public int getTransactionTimeout() throws XAException {
       return getResource().getTransactionTimeout();
    }
 
    @Override
-   public boolean isSameRM(XAResource xaResource) throws XAException
-   {
+   public boolean isSameRM(XAResource xaResource) throws XAException {
       return getResource().isSameRM(xaResource);
    }
 
    @Override
-   public int prepare(Xid xid) throws XAException
-   {
+   public int prepare(Xid xid) throws XAException {
       return getResource().prepare(xid);
    }
 
    @Override
-   public Xid[] recover(int i) throws XAException
-   {
+   public Xid[] recover(int i) throws XAException {
       return getResource().recover(i);
    }
 
    @Override
-   public void rollback(Xid xid) throws XAException
-   {
+   public void rollback(Xid xid) throws XAException {
       getResource().rollback(xid);
    }
 
    @Override
-   public boolean setTransactionTimeout(int i) throws XAException
-   {
+   public boolean setTransactionTimeout(int i) throws XAException {
       return getResource().setTransactionTimeout(i);
    }
 
    @Override
-   public void start(Xid xid, int i) throws XAException
-   {
+   public void start(Xid xid, int i) throws XAException {
       getResource().start(xid, i);
    }
 

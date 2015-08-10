@@ -17,6 +17,7 @@
 package org.apache.activemq.broker.util;
 
 import junit.framework.TestCase;
+
 import org.apache.activemq.RedeliveryPolicy;
 import org.apache.activemq.broker.Broker;
 import org.apache.activemq.broker.BrokerService;
@@ -26,48 +27,52 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class RedeliveryPluginTest extends TestCase {
-    private static final Logger LOG = LoggerFactory.getLogger(RedeliveryPluginTest.class);
-    RedeliveryPlugin underTest = new RedeliveryPlugin();
 
-    public void testInstallPluginValidation() throws Exception {
-        RedeliveryPolicyMap redeliveryPolicyMap = new RedeliveryPolicyMap();
-        RedeliveryPolicy defaultEntry = new RedeliveryPolicy();
-        defaultEntry.setInitialRedeliveryDelay(500);
-        redeliveryPolicyMap.setDefaultEntry(defaultEntry);
-        underTest.setRedeliveryPolicyMap(redeliveryPolicyMap);
+   private static final Logger LOG = LoggerFactory.getLogger(RedeliveryPluginTest.class);
+   RedeliveryPlugin underTest = new RedeliveryPlugin();
 
-        final BrokerService brokerService = new BrokerService();
-        brokerService.setSchedulerSupport(false);
-        Broker broker = new ErrorBroker("hi") {
-            @Override
-            public BrokerService getBrokerService() {
-                return brokerService;
-            }
-        };
+   public void testInstallPluginValidation() throws Exception {
+      RedeliveryPolicyMap redeliveryPolicyMap = new RedeliveryPolicyMap();
+      RedeliveryPolicy defaultEntry = new RedeliveryPolicy();
+      defaultEntry.setInitialRedeliveryDelay(500);
+      redeliveryPolicyMap.setDefaultEntry(defaultEntry);
+      underTest.setRedeliveryPolicyMap(redeliveryPolicyMap);
 
-        try {
-            underTest.installPlugin(broker);
-            fail("expect exception on no scheduler support");
-        } catch (Exception expected) {
-            LOG.info("expected: " + expected);
-        }
+      final BrokerService brokerService = new BrokerService();
+      brokerService.setSchedulerSupport(false);
+      Broker broker = new ErrorBroker("hi") {
+         @Override
+         public BrokerService getBrokerService() {
+            return brokerService;
+         }
+      };
 
-        brokerService.setSchedulerSupport(true);
-        try {
-            underTest.installPlugin(broker);
-            fail("expect exception on small initial delay");
-        } catch (Exception expected) {
-            LOG.info("expected: " + expected);
-        }
+      try {
+         underTest.installPlugin(broker);
+         fail("expect exception on no scheduler support");
+      }
+      catch (Exception expected) {
+         LOG.info("expected: " + expected);
+      }
 
-        defaultEntry.setInitialRedeliveryDelay(5000);
-        defaultEntry.setRedeliveryDelay(500);
-        brokerService.setSchedulerSupport(true);
-        try {
-            underTest.installPlugin(broker);
-            fail("expect exception on small redelivery delay");
-        } catch (Exception expected) {
-            LOG.info("expected: " + expected);
-        }
-    }
+      brokerService.setSchedulerSupport(true);
+      try {
+         underTest.installPlugin(broker);
+         fail("expect exception on small initial delay");
+      }
+      catch (Exception expected) {
+         LOG.info("expected: " + expected);
+      }
+
+      defaultEntry.setInitialRedeliveryDelay(5000);
+      defaultEntry.setRedeliveryDelay(500);
+      brokerService.setSchedulerSupport(true);
+      try {
+         underTest.installPlugin(broker);
+         fail("expect exception on small redelivery delay");
+      }
+      catch (Exception expected) {
+         LOG.info("expected: " + expected);
+      }
+   }
 }

@@ -27,8 +27,8 @@ import org.apache.activemq.artemis.core.replication.ReplicatedLargeMessage;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.LargeServerMessage;
 
-public final class LargeServerMessageInSync implements ReplicatedLargeMessage
-{
+public final class LargeServerMessageInSync implements ReplicatedLargeMessage {
+
    private final LargeServerMessage mainLM;
    private final StorageManager storageManager;
    private SequentialFile appendFile;
@@ -38,33 +38,27 @@ public final class LargeServerMessageInSync implements ReplicatedLargeMessage
    /**
     * @param storageManager
     */
-   public LargeServerMessageInSync(StorageManager storageManager)
-   {
+   public LargeServerMessageInSync(StorageManager storageManager) {
       mainLM = storageManager.createLargeMessage();
       this.storageManager = storageManager;
    }
 
-   public synchronized void joinSyncedData(ByteBuffer buffer) throws Exception
-   {
+   public synchronized void joinSyncedData(ByteBuffer buffer) throws Exception {
       if (deleted)
          return;
       SequentialFile mainSeqFile = mainLM.getFile();
-      if (!mainSeqFile.isOpen())
-      {
+      if (!mainSeqFile.isOpen()) {
          mainSeqFile.open();
       }
-      if (appendFile != null)
-      {
+      if (appendFile != null) {
          appendFile.close();
          appendFile.open();
-         for (;;)
-         {
+         for (; ; ) {
             buffer.rewind();
             int bytesRead = appendFile.read(buffer);
             if (bytesRead > 0)
                mainSeqFile.writeDirect(buffer, false);
-            if (bytesRead < buffer.capacity())
-            {
+            if (bytesRead < buffer.capacity()) {
                break;
             }
          }
@@ -73,52 +67,42 @@ public final class LargeServerMessageInSync implements ReplicatedLargeMessage
       syncDone = true;
    }
 
-   public SequentialFile getSyncFile() throws ActiveMQException
-   {
+   public SequentialFile getSyncFile() throws ActiveMQException {
       return mainLM.getFile();
    }
 
    @Override
-   public Message setDurable(boolean durable)
-   {
+   public Message setDurable(boolean durable) {
       mainLM.setDurable(durable);
       return mainLM;
    }
 
    @Override
-   public synchronized Message setMessageID(long id)
-   {
+   public synchronized Message setMessageID(long id) {
       mainLM.setMessageID(id);
       return mainLM;
    }
 
    @Override
-   public synchronized void releaseResources()
-   {
+   public synchronized void releaseResources() {
       mainLM.releaseResources();
-      if (appendFile != null && appendFile.isOpen())
-      {
-         try
-         {
+      if (appendFile != null && appendFile.isOpen()) {
+         try {
             appendFile.close();
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             ActiveMQServerLogger.LOGGER.largeMessageErrorReleasingResources(e);
          }
       }
    }
 
    @Override
-   public synchronized void deleteFile() throws Exception
-   {
+   public synchronized void deleteFile() throws Exception {
       deleted = true;
-      try
-      {
+      try {
          mainLM.deleteFile();
       }
-      finally
-      {
+      finally {
          deleteAppendFile();
       }
    }
@@ -126,10 +110,8 @@ public final class LargeServerMessageInSync implements ReplicatedLargeMessage
    /**
     * @throws Exception
     */
-   private void deleteAppendFile() throws Exception
-   {
-      if (appendFile != null)
-      {
+   private void deleteAppendFile() throws Exception {
+      if (appendFile != null) {
          if (appendFile.isOpen())
             appendFile.close();
          appendFile.delete();
@@ -137,23 +119,19 @@ public final class LargeServerMessageInSync implements ReplicatedLargeMessage
    }
 
    @Override
-   public synchronized void addBytes(byte[] bytes) throws Exception
-   {
+   public synchronized void addBytes(byte[] bytes) throws Exception {
       if (deleted)
          return;
-      if (syncDone)
-      {
+      if (syncDone) {
          mainLM.addBytes(bytes);
          return;
       }
 
-      if (appendFile == null)
-      {
+      if (appendFile == null) {
          appendFile = storageManager.createFileForLargeMessage(mainLM.getMessageID(), LargeMessageExtension.SYNC);
       }
 
-      if (!appendFile.isOpen())
-      {
+      if (!appendFile.isOpen()) {
          appendFile.open();
       }
       storageManager.addBytesToLargeMessage(appendFile, mainLM.getMessageID(), bytes);

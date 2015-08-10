@@ -27,17 +27,14 @@ import org.proton.plug.handler.impl.ProtonHandlerImpl;
 /**
  * This is a definition of the public interface for {@link org.proton.plug.handler.impl.ProtonHandlerImpl}
  */
-public interface ProtonHandler
-{
+public interface ProtonHandler {
 
-   public static final class Factory
-   {
-      public static ProtonHandler create()
-      {
+   public static final class Factory {
+
+      public static ProtonHandler create() {
          return new ProtonHandlerImpl();
       }
    }
-
 
    /**
     * It returns true if the transport connection has any capacity available
@@ -122,7 +119,6 @@ public interface ProtonHandler
     * It will close the connection and flush events
     */
    void close();
-
 
    /**
     * Get the object used to lock transport, connection and events operations

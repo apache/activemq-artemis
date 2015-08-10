@@ -24,12 +24,11 @@ import org.apache.activemq.artemis.utils.DefaultSensitiveStringCodec;
 import org.apache.activemq.artemis.utils.PasswordMaskingUtil;
 import org.apache.activemq.artemis.utils.SensitiveDataCodec;
 
-
 /**
  * The RA default properties - these are set in the ra.xml file
  */
-public class ActiveMQRAProperties extends ConnectionFactoryProperties implements Serializable
-{
+public class ActiveMQRAProperties extends ConnectionFactoryProperties implements Serializable {
+
    /**
     * Serial version UID
     */
@@ -87,10 +86,8 @@ public class ActiveMQRAProperties extends ConnectionFactoryProperties implements
    /**
     * Constructor
     */
-   public ActiveMQRAProperties()
-   {
-      if (ActiveMQRAProperties.trace)
-      {
+   public ActiveMQRAProperties() {
+      if (ActiveMQRAProperties.trace) {
          ActiveMQRALogger.LOGGER.trace("constructor()");
       }
    }
@@ -100,10 +97,8 @@ public class ActiveMQRAProperties extends ConnectionFactoryProperties implements
     *
     * @return The value
     */
-   public String getUserName()
-   {
-      if (ActiveMQRAProperties.trace)
-      {
+   public String getUserName() {
+      if (ActiveMQRAProperties.trace) {
          ActiveMQRALogger.LOGGER.trace("getUserName()");
       }
 
@@ -115,10 +110,8 @@ public class ActiveMQRAProperties extends ConnectionFactoryProperties implements
     *
     * @param userName The value
     */
-   public void setUserName(final String userName)
-   {
-      if (ActiveMQRAProperties.trace)
-      {
+   public void setUserName(final String userName) {
+      if (ActiveMQRAProperties.trace) {
          ActiveMQRALogger.LOGGER.trace("setUserName(" + userName + ")");
       }
 
@@ -130,10 +123,8 @@ public class ActiveMQRAProperties extends ConnectionFactoryProperties implements
     *
     * @return The value
     */
-   public String getPassword()
-   {
-      if (ActiveMQRAProperties.trace)
-      {
+   public String getPassword() {
+      if (ActiveMQRAProperties.trace) {
          ActiveMQRALogger.LOGGER.trace("getPassword()");
       }
 
@@ -150,10 +141,8 @@ public class ActiveMQRAProperties extends ConnectionFactoryProperties implements
     *
     * @param password The value
     */
-   public void setPassword(final String password)
-   {
-      if (ActiveMQRAProperties.trace)
-      {
+   public void setPassword(final String password) {
+      if (ActiveMQRAProperties.trace) {
          ActiveMQRALogger.LOGGER.trace("setPassword(****)");
       }
 
@@ -163,30 +152,25 @@ public class ActiveMQRAProperties extends ConnectionFactoryProperties implements
    /**
     * @return the useJNDI
     */
-   public boolean isUseJNDI()
-   {
+   public boolean isUseJNDI() {
       return useJNDI;
    }
 
    /**
     * @param value the useJNDI to set
     */
-   public void setUseJNDI(final Boolean value)
-   {
+   public void setUseJNDI(final Boolean value) {
       useJNDI = value;
    }
 
    /**
     * @return return the jndi params to use
     */
-   public Hashtable<?, ?> getParsedJndiParams()
-   {
+   public Hashtable<?, ?> getParsedJndiParams() {
       return jndiParams;
    }
 
-
-   public void setParsedJndiParams(Hashtable<?, ?> params)
-   {
+   public void setParsedJndiParams(Hashtable<?, ?> params) {
       jndiParams = params;
    }
 
@@ -195,10 +179,8 @@ public class ActiveMQRAProperties extends ConnectionFactoryProperties implements
     *
     * @return The value
     */
-   public Boolean getUseLocalTx()
-   {
-      if (ActiveMQRAProperties.trace)
-      {
+   public Boolean getUseLocalTx() {
+      if (ActiveMQRAProperties.trace) {
          ActiveMQRALogger.LOGGER.trace("getUseLocalTx()");
       }
 
@@ -210,86 +192,69 @@ public class ActiveMQRAProperties extends ConnectionFactoryProperties implements
     *
     * @param localTx The value
     */
-   public void setUseLocalTx(final Boolean localTx)
-   {
-      if (ActiveMQRAProperties.trace)
-      {
+   public void setUseLocalTx(final Boolean localTx) {
+      if (ActiveMQRAProperties.trace) {
          ActiveMQRALogger.LOGGER.trace("setUseLocalTx(" + localTx + ")");
       }
 
       this.localTx = localTx;
    }
 
-   public int getSetupAttempts()
-   {
+   public int getSetupAttempts() {
       return setupAttempts;
    }
 
-   public void setSetupAttempts(Integer setupAttempts)
-   {
+   public void setSetupAttempts(Integer setupAttempts) {
       this.setupAttempts = setupAttempts;
    }
 
-   public long getSetupInterval()
-   {
+   public long getSetupInterval() {
       return setupInterval;
    }
 
-   public void setSetupInterval(Long setupInterval)
-   {
+   public void setSetupInterval(Long setupInterval) {
       this.setupInterval = setupInterval;
    }
 
-   public boolean isUseMaskedPassword()
-   {
+   public boolean isUseMaskedPassword() {
       return useMaskedPassword;
    }
 
-   public void setUseMaskedPassword(boolean useMaskedPassword)
-   {
+   public void setUseMaskedPassword(boolean useMaskedPassword) {
       this.useMaskedPassword = useMaskedPassword;
    }
 
-   public String getPasswordCodec()
-   {
+   public String getPasswordCodec() {
       return passwordCodec;
    }
 
-   public void setPasswordCodec(String codecs)
-   {
+   public void setPasswordCodec(String codecs) {
       passwordCodec = codecs;
    }
 
    @Override
-   public String toString()
-   {
+   public String toString() {
       return "ActiveMQRAProperties[localTx=" + localTx +
          ", userName=" + userName + ", password=****]";
    }
 
-   public synchronized void init() throws ActiveMQException
-   {
+   public synchronized void init() throws ActiveMQException {
       if (initialized)
          return;
 
-      if (useMaskedPassword)
-      {
+      if (useMaskedPassword) {
          codecInstance = new DefaultSensitiveStringCodec();
 
-         if (passwordCodec != null)
-         {
+         if (passwordCodec != null) {
             codecInstance = PasswordMaskingUtil.getCodec(passwordCodec);
          }
 
-         try
-         {
-            if (password != null)
-            {
+         try {
+            if (password != null) {
                password = codecInstance.decode(password);
             }
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             throw ActiveMQRABundle.BUNDLE.errorDecodingPassword(e);
          }
 
@@ -297,28 +262,23 @@ public class ActiveMQRAProperties extends ConnectionFactoryProperties implements
       initialized = true;
    }
 
-   public SensitiveDataCodec<String> getCodecInstance()
-   {
+   public SensitiveDataCodec<String> getCodecInstance() {
       return codecInstance;
    }
 
-   public String getJgroupsChannelLocatorClass()
-   {
+   public String getJgroupsChannelLocatorClass() {
       return jgroupsChannelLocatorClass;
    }
 
-   public void setJgroupsChannelLocatorClass(String jgroupsChannelLocatorClass)
-   {
+   public void setJgroupsChannelLocatorClass(String jgroupsChannelLocatorClass) {
       this.jgroupsChannelLocatorClass = jgroupsChannelLocatorClass;
    }
 
-   public String getJgroupsChannelRefName()
-   {
+   public String getJgroupsChannelRefName() {
       return jgroupsChannelRefName;
    }
 
-   public void setJgroupsChannelRefName(String jgroupsChannelRefName)
-   {
+   public void setJgroupsChannelRefName(String jgroupsChannelRefName) {
       this.jgroupsChannelRefName = jgroupsChannelRefName;
    }
 

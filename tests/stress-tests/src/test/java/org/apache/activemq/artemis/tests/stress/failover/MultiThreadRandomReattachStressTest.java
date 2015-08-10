@@ -18,11 +18,10 @@ package org.apache.activemq.artemis.tests.stress.failover;
 
 import org.apache.activemq.artemis.tests.integration.cluster.reattach.MultiThreadRandomReattachTest;
 
-public class MultiThreadRandomReattachStressTest extends MultiThreadRandomReattachTest
-{
+public class MultiThreadRandomReattachStressTest extends MultiThreadRandomReattachTest {
+
    @Override
-   protected int getNumIterations()
-   {
+   protected int getNumIterations() {
       return 100;
    }
 

@@ -30,8 +30,8 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class AddressSettingsTest extends ActiveMQTestBase
-{
+public class AddressSettingsTest extends ActiveMQTestBase {
+
    private final SimpleString addressA = new SimpleString("addressA");
 
    private final SimpleString addressA2 = new SimpleString("add.addressA");
@@ -61,17 +61,12 @@ public class AddressSettingsTest extends ActiveMQTestBase
    private final SimpleString dlqC = new SimpleString("dlqC");
 
    @Test
-   public void testSimpleHierarchyWithDLA() throws Exception
-   {
+   public void testSimpleHierarchyWithDLA() throws Exception {
       ActiveMQServer server = createServer(false);
 
       server.start();
-      AddressSettings addressSettings = new AddressSettings()
-              .setDeadLetterAddress(dlaA)
-              .setMaxDeliveryAttempts(1);
-      AddressSettings addressSettings2 = new AddressSettings()
-              .setDeadLetterAddress(dlaB)
-              .setMaxDeliveryAttempts(1);
+      AddressSettings addressSettings = new AddressSettings().setDeadLetterAddress(dlaA).setMaxDeliveryAttempts(1);
+      AddressSettings addressSettings2 = new AddressSettings().setDeadLetterAddress(dlaB).setMaxDeliveryAttempts(1);
       HierarchicalRepository<AddressSettings> repos = server.getAddressSettingsRepository();
       repos.addMatch(addressA.toString(), addressSettings);
       repos.addMatch(addressB.toString(), addressSettings2);
@@ -118,17 +113,12 @@ public class AddressSettingsTest extends ActiveMQTestBase
    }
 
    @Test
-   public void test2LevelHierarchyWithDLA() throws Exception
-   {
+   public void test2LevelHierarchyWithDLA() throws Exception {
       ActiveMQServer server = createServer(false);
 
       server.start();
-      AddressSettings addressSettings = new AddressSettings()
-              .setDeadLetterAddress(dlaA)
-              .setMaxDeliveryAttempts(1);
-      AddressSettings addressSettings2 = new AddressSettings()
-              .setDeadLetterAddress(dlaB)
-              .setMaxDeliveryAttempts(1);
+      AddressSettings addressSettings = new AddressSettings().setDeadLetterAddress(dlaA).setMaxDeliveryAttempts(1);
+      AddressSettings addressSettings2 = new AddressSettings().setDeadLetterAddress(dlaB).setMaxDeliveryAttempts(1);
       HierarchicalRepository<AddressSettings> repos = server.getAddressSettingsRepository();
       repos.addMatch(addressA.toString(), addressSettings);
       repos.addMatch("#", addressSettings2);
@@ -175,16 +165,11 @@ public class AddressSettingsTest extends ActiveMQTestBase
    }
 
    @Test
-   public void test2LevelWordHierarchyWithDLA() throws Exception
-   {
+   public void test2LevelWordHierarchyWithDLA() throws Exception {
       ActiveMQServer server = createServer(false);
       server.start();
-      AddressSettings addressSettings = new AddressSettings()
-              .setDeadLetterAddress(dlaA)
-              .setMaxDeliveryAttempts(1);
-      AddressSettings addressSettings2 = new AddressSettings()
-              .setDeadLetterAddress(dlaB)
-              .setMaxDeliveryAttempts(1);
+      AddressSettings addressSettings = new AddressSettings().setDeadLetterAddress(dlaA).setMaxDeliveryAttempts(1);
+      AddressSettings addressSettings2 = new AddressSettings().setDeadLetterAddress(dlaB).setMaxDeliveryAttempts(1);
       HierarchicalRepository<AddressSettings> repos = server.getAddressSettingsRepository();
       repos.addMatch(addressA.toString(), addressSettings);
       repos.addMatch("*", addressSettings2);
@@ -230,20 +215,13 @@ public class AddressSettingsTest extends ActiveMQTestBase
    }
 
    @Test
-   public void test3LevelHierarchyWithDLA() throws Exception
-   {
+   public void test3LevelHierarchyWithDLA() throws Exception {
       ActiveMQServer server = createServer(false);
 
       server.start();
-      AddressSettings addressSettings = new AddressSettings()
-              .setDeadLetterAddress(dlaA)
-              .setMaxDeliveryAttempts(1);
-      AddressSettings addressSettings2 = new AddressSettings()
-              .setDeadLetterAddress(dlaB)
-              .setMaxDeliveryAttempts(1);
-      AddressSettings addressSettings3 = new AddressSettings()
-              .setDeadLetterAddress(dlaC)
-              .setMaxDeliveryAttempts(1);
+      AddressSettings addressSettings = new AddressSettings().setDeadLetterAddress(dlaA).setMaxDeliveryAttempts(1);
+      AddressSettings addressSettings2 = new AddressSettings().setDeadLetterAddress(dlaB).setMaxDeliveryAttempts(1);
+      AddressSettings addressSettings3 = new AddressSettings().setDeadLetterAddress(dlaC).setMaxDeliveryAttempts(1);
       HierarchicalRepository<AddressSettings> repos = server.getAddressSettingsRepository();
       repos.addMatch(addressA2.toString(), addressSettings);
       repos.addMatch("add.*", addressSettings2);
@@ -306,18 +284,13 @@ public class AddressSettingsTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testOverrideHierarchyWithDLA() throws Exception
-   {
+   public void testOverrideHierarchyWithDLA() throws Exception {
       ActiveMQServer server = createServer(false);
 
       server.start();
-      AddressSettings addressSettings = new AddressSettings()
-              .setMaxDeliveryAttempts(1);
-      AddressSettings addressSettings2 = new AddressSettings()
-              .setMaxDeliveryAttempts(1);
-      AddressSettings addressSettings3 = new AddressSettings()
-              .setDeadLetterAddress(dlaC)
-              .setMaxDeliveryAttempts(1);
+      AddressSettings addressSettings = new AddressSettings().setMaxDeliveryAttempts(1);
+      AddressSettings addressSettings2 = new AddressSettings().setMaxDeliveryAttempts(1);
+      AddressSettings addressSettings3 = new AddressSettings().setDeadLetterAddress(dlaC).setMaxDeliveryAttempts(1);
       HierarchicalRepository<AddressSettings> repos = server.getAddressSettingsRepository();
       repos.addMatch(addressA2.toString(), addressSettings);
       repos.addMatch("add.*", addressSettings2);

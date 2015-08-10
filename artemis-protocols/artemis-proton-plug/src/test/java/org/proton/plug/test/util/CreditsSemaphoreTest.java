@@ -24,8 +24,8 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.proton.plug.util.CreditsSemaphore;
 
-public class CreditsSemaphoreTest
-{
+public class CreditsSemaphoreTest {
+
    final CreditsSemaphore semaphore = new CreditsSemaphore(10);
 
    final AtomicInteger errors = new AtomicInteger(0);
@@ -34,34 +34,26 @@ public class CreditsSemaphoreTest
 
    final CountDownLatch waiting = new CountDownLatch(1);
 
-   Thread thread = new Thread()
-   {
-      public void run()
-      {
-         try
-         {
-            for (int i = 0; i < 12; i++)
-            {
-               if (!semaphore.tryAcquire())
-               {
+   Thread thread = new Thread() {
+      public void run() {
+         try {
+            for (int i = 0; i < 12; i++) {
+               if (!semaphore.tryAcquire()) {
                   waiting.countDown();
                   semaphore.acquire();
                }
                acquired.incrementAndGet();
             }
          }
-         catch (Throwable e)
-         {
+         catch (Throwable e) {
             e.printStackTrace();
             errors.incrementAndGet();
          }
       }
    };
 
-
    @Test
-   public void testSetAndRelease() throws Exception
-   {
+   public void testSetAndRelease() throws Exception {
       thread.start();
 
       // 5 seconds would be an eternity here
@@ -70,8 +62,7 @@ public class CreditsSemaphoreTest
       Assert.assertEquals(0, semaphore.getCredits());
 
       long timeout = System.currentTimeMillis() + 1000;
-      while (!semaphore.hasQueuedThreads() && System.currentTimeMillis() < timeout)
-      {
+      while (!semaphore.hasQueuedThreads() && System.currentTimeMillis() < timeout) {
          Thread.sleep(10);
       }
 
@@ -87,8 +78,7 @@ public class CreditsSemaphoreTest
    }
 
    @Test
-   public void testDownAndUp() throws Exception
-   {
+   public void testDownAndUp() throws Exception {
       thread.start();
 
       // 5 seconds would be an eternity here
@@ -97,8 +87,7 @@ public class CreditsSemaphoreTest
       Assert.assertEquals(0, semaphore.getCredits());
 
       long timeout = System.currentTimeMillis() + 1000;
-      while (!semaphore.hasQueuedThreads() && System.currentTimeMillis() < timeout)
-      {
+      while (!semaphore.hasQueuedThreads() && System.currentTimeMillis() < timeout) {
          Thread.sleep(10);
       }
 
@@ -113,10 +102,8 @@ public class CreditsSemaphoreTest
       Assert.assertFalse(semaphore.hasQueuedThreads());
    }
 
-
    @Test
-   public void testStartedZeroedSetLater() throws Exception
-   {
+   public void testStartedZeroedSetLater() throws Exception {
       semaphore.setCredits(0);
 
       thread.start();
@@ -127,8 +114,7 @@ public class CreditsSemaphoreTest
       Assert.assertEquals(0, semaphore.getCredits());
 
       long timeout = System.currentTimeMillis() + 1000;
-      while (!semaphore.hasQueuedThreads() && System.currentTimeMillis() < timeout)
-      {
+      while (!semaphore.hasQueuedThreads() && System.currentTimeMillis() < timeout) {
          Thread.sleep(10);
       }
 

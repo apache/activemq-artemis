@@ -29,8 +29,8 @@ import org.apache.activemq.artemis.core.protocol.stomp.Stomp;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class ConcurrentStompTest extends StompTestBase
-{
+public class ConcurrentStompTest extends StompTestBase {
+
    private Socket stompSocket_2;
 
    private ByteArrayOutputStream inputBuffer_2;
@@ -39,10 +39,8 @@ public class ConcurrentStompTest extends StompTestBase
     * Send messages on 1 socket and receives them concurrently on another socket.
     */
    @Test
-   public void testSendManyMessages() throws Exception
-   {
-      try
-      {
+   public void testSendManyMessages() throws Exception {
+      try {
          String connect = "CONNECT\n" + "login: brianm\n" + "passcode: wombats\n\n" + Stomp.NULL;
 
          sendFrame(connect);
@@ -59,32 +57,26 @@ public class ConcurrentStompTest extends StompTestBase
          final int count = 1000;
          final CountDownLatch latch = new CountDownLatch(count);
 
-         String subscribe =
-            "SUBSCRIBE\n" +
-               "destination:" + getQueuePrefix() + getQueueName() + "\n" +
-               "ack:auto\n\n" +
-               Stomp.NULL;
+         String subscribe = "SUBSCRIBE\n" +
+            "destination:" + getQueuePrefix() + getQueueName() + "\n" +
+            "ack:auto\n\n" +
+            Stomp.NULL;
          sendFrame(stompSocket_2, subscribe);
          Thread.sleep(2000);
 
-         new Thread()
-         {
+         new Thread() {
             @Override
-            public void run()
-            {
+            public void run() {
                int i = 0;
-               while (true)
-               {
-                  try
-                  {
+               while (true) {
+                  try {
                      String frame = receiveFrame(stompSocket_2, inputBuffer_2, 10000);
                      Assert.assertTrue(frame.startsWith("MESSAGE"));
                      Assert.assertTrue(frame.indexOf("destination:") > 0);
                      System.out.println("<<< " + i++);
                      latch.countDown();
                   }
-                  catch (Exception e)
-                  {
+                  catch (Exception e) {
                      break;
                   }
                }
@@ -92,8 +84,7 @@ public class ConcurrentStompTest extends StompTestBase
          }.start();
 
          String send = "SEND\n" + "destination:" + getQueuePrefix() + getQueueName() + "\n";
-         for (int i = 1; i <= count; i++)
-         {
+         for (int i = 1; i <= count; i++) {
             // Thread.sleep(1);
             System.out.println(">>> " + i);
             sendFrame(send + "count:" + i + "\n\n" + Stomp.NULL);
@@ -102,45 +93,36 @@ public class ConcurrentStompTest extends StompTestBase
          assertTrue(latch.await(60, TimeUnit.SECONDS));
 
       }
-      finally
-      {
+      finally {
          stompSocket_2.close();
          inputBuffer_2.close();
       }
-
 
    }
 
    // Implementation methods
    // -------------------------------------------------------------------------
-   public void sendFrame(Socket socket, String data) throws Exception
-   {
+   public void sendFrame(Socket socket, String data) throws Exception {
       byte[] bytes = data.getBytes(StandardCharsets.UTF_8);
       OutputStream outputStream = socket.getOutputStream();
-      for (byte b : bytes)
-      {
+      for (byte b : bytes) {
          outputStream.write(b);
       }
       outputStream.flush();
    }
 
-   public String receiveFrame(Socket socket, ByteArrayOutputStream input, long timeOut) throws Exception
-   {
+   public String receiveFrame(Socket socket, ByteArrayOutputStream input, long timeOut) throws Exception {
       socket.setSoTimeout((int) timeOut);
       InputStream is = socket.getInputStream();
       int c = 0;
-      for (;;)
-      {
+      for (; ; ) {
          c = is.read();
-         if (c < 0)
-         {
+         if (c < 0) {
             throw new IOException("socket closed.");
          }
-         else if (c == 0)
-         {
+         else if (c == 0) {
             c = is.read();
-            if (c != '\n')
-            {
+            if (c != '\n') {
                byte[] ba = input.toByteArray();
                System.out.println(new String(ba, StandardCharsets.UTF_8));
             }
@@ -149,8 +131,7 @@ public class ConcurrentStompTest extends StompTestBase
             input.reset();
             return new String(ba, StandardCharsets.UTF_8);
          }
-         else
-         {
+         else {
             input.write(c);
          }
       }

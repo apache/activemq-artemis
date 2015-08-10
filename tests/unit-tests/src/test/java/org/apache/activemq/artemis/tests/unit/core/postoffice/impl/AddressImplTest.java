@@ -25,11 +25,10 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.postoffice.Address;
 import org.apache.activemq.artemis.core.postoffice.impl.AddressImpl;
 
-public class AddressImplTest extends ActiveMQTestBase
-{
+public class AddressImplTest extends ActiveMQTestBase {
+
    @Test
-   public void testNoDots()
-   {
+   public void testNoDots() {
       SimpleString s1 = new SimpleString("abcde");
       SimpleString s2 = new SimpleString("abcde");
       Address a1 = new AddressImpl(s1);
@@ -38,8 +37,7 @@ public class AddressImplTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testDotsSameLength2()
-   {
+   public void testDotsSameLength2() {
       SimpleString s1 = new SimpleString("a.b");
       SimpleString s2 = new SimpleString("a.b");
       Address a1 = new AddressImpl(s1);
@@ -48,8 +46,7 @@ public class AddressImplTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testA()
-   {
+   public void testA() {
       SimpleString s1 = new SimpleString("a.b.c");
       SimpleString s2 = new SimpleString("a.b.c.d.e.f.g.h.i.j.k.l.m.n.*");
       Address a1 = new AddressImpl(s1);
@@ -58,8 +55,7 @@ public class AddressImplTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testB()
-   {
+   public void testB() {
       SimpleString s1 = new SimpleString("a.b.c.d");
       SimpleString s2 = new SimpleString("a.b.x.e");
       SimpleString s3 = new SimpleString("a.b.c.*");
@@ -71,8 +67,7 @@ public class AddressImplTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testC()
-   {
+   public void testC() {
       SimpleString s1 = new SimpleString("a.b.c.d");
       SimpleString s2 = new SimpleString("a.b.c.x");
       SimpleString s3 = new SimpleString("a.b.*.d");
@@ -84,8 +79,7 @@ public class AddressImplTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testD()
-   {
+   public void testD() {
       SimpleString s1 = new SimpleString("a.b.c.d.e");
       SimpleString s2 = new SimpleString("a.b.c.x.e");
       SimpleString s3 = new SimpleString("a.b.*.d.*");
@@ -97,8 +91,7 @@ public class AddressImplTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testE()
-   {
+   public void testE() {
       SimpleString s1 = new SimpleString("a.b.c.d.e.f");
       SimpleString s2 = new SimpleString("a.b.c.x.e.f");
       SimpleString s3 = new SimpleString("a.b.*.d.*.f");
@@ -110,8 +103,7 @@ public class AddressImplTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testF()
-   {
+   public void testF() {
       SimpleString s1 = new SimpleString("a.b.c.d.e.f");
       SimpleString s2 = new SimpleString("a.b.c.x.e.f");
       SimpleString s3 = new SimpleString("#");
@@ -123,8 +115,7 @@ public class AddressImplTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testG()
-   {
+   public void testG() {
       SimpleString s1 = new SimpleString("a.b.c.d.e.f");
       SimpleString s2 = new SimpleString("a.b.c.x.e.f");
       SimpleString s3 = new SimpleString("a.#");
@@ -136,8 +127,7 @@ public class AddressImplTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testH()
-   {
+   public void testH() {
       SimpleString s1 = new SimpleString("a.b.c.d.e.f");
       SimpleString s2 = new SimpleString("a.b.c.x.e.f");
       SimpleString s3 = new SimpleString("#.b.#");
@@ -149,8 +139,7 @@ public class AddressImplTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testI()
-   {
+   public void testI() {
       SimpleString s1 = new SimpleString("a.b.c.d.e.f");
       SimpleString s2 = new SimpleString("a.b.c.x.e.f");
       SimpleString s3 = new SimpleString("a.#.b.#");
@@ -162,8 +151,7 @@ public class AddressImplTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testJ()
-   {
+   public void testJ() {
       SimpleString s1 = new SimpleString("a.b.c.d.e.f");
       SimpleString s2 = new SimpleString("a.b.c.x.e.f");
       SimpleString s3 = new SimpleString("a.#.c.d.e.f");
@@ -175,8 +163,7 @@ public class AddressImplTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testK()
-   {
+   public void testK() {
       SimpleString s1 = new SimpleString("a.b.c.d.e.f");
       SimpleString s2 = new SimpleString("a.b.c.d.e.x");
       SimpleString s3 = new SimpleString("a.#.c.d.e.*");
@@ -188,8 +175,7 @@ public class AddressImplTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testL()
-   {
+   public void testL() {
       SimpleString s1 = new SimpleString("a.b.c.d.e.f");
       SimpleString s2 = new SimpleString("a.b.c.d.e.x");
       SimpleString s3 = new SimpleString("a.#.c.d.*.f");
@@ -201,8 +187,7 @@ public class AddressImplTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testM()
-   {
+   public void testM() {
       SimpleString s1 = new SimpleString("a.b.c");
       SimpleString s2 = new SimpleString("a.b.x.e");
       SimpleString s3 = new SimpleString("a.b.c.#");
@@ -214,8 +199,7 @@ public class AddressImplTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testN()
-   {
+   public void testN() {
       SimpleString s1 = new SimpleString("usd.stock");
       SimpleString s2 = new SimpleString("a.b.x.e");
       SimpleString s3 = new SimpleString("*.stock.#");
@@ -227,8 +211,7 @@ public class AddressImplTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testO()
-   {
+   public void testO() {
       SimpleString s1 = new SimpleString("a.b.c.d");
       SimpleString s2 = new SimpleString("a.b.x.e");
       SimpleString s3 = new SimpleString("a.b.c.*");
@@ -240,8 +223,7 @@ public class AddressImplTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testP()
-   {
+   public void testP() {
       SimpleString s1 = new SimpleString("a.b.c.d");
       SimpleString s3 = new SimpleString("a.b.c#");
       Address a1 = new AddressImpl(s1);
@@ -250,8 +232,7 @@ public class AddressImplTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testQ()
-   {
+   public void testQ() {
       SimpleString s1 = new SimpleString("a.b.c.d");
       SimpleString s3 = new SimpleString("#a.b.c");
       Address a1 = new AddressImpl(s1);
@@ -260,8 +241,7 @@ public class AddressImplTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testR()
-   {
+   public void testR() {
       SimpleString s1 = new SimpleString("a.b.c.d");
       SimpleString s3 = new SimpleString("#*a.b.c");
       Address a1 = new AddressImpl(s1);
@@ -270,8 +250,7 @@ public class AddressImplTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testS()
-   {
+   public void testS() {
       SimpleString s1 = new SimpleString("a.b.c.d");
       SimpleString s3 = new SimpleString("a.b.c*");
       Address a1 = new AddressImpl(s1);
@@ -280,8 +259,7 @@ public class AddressImplTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testT()
-   {
+   public void testT() {
       SimpleString s1 = new SimpleString("a.b.c.d");
       SimpleString s3 = new SimpleString("*a.b.c");
       Address a1 = new AddressImpl(s1);
@@ -290,8 +268,7 @@ public class AddressImplTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testU()
-   {
+   public void testU() {
       SimpleString s1 = new SimpleString("a.b.c.d");
       SimpleString s3 = new SimpleString("*a.b.c");
       Address a1 = new AddressImpl(s1);

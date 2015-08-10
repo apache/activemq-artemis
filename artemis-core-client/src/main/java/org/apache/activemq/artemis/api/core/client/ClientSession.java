@@ -25,8 +25,7 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 /**
  * A ClientSession is a single-thread object required for producing and consuming messages.
  */
-public interface ClientSession extends XAResource, AutoCloseable
-{
+public interface ClientSession extends XAResource, AutoCloseable {
 
    /**
     * This is used to identify a ClientSession as used by the JMS Layer
@@ -34,7 +33,6 @@ public interface ClientSession extends XAResource, AutoCloseable
     * can identify session created over core API purely or through the JMS Layer
     */
    String JMS_SESSION_IDENTIFIER_PROPERTY = "jms-session";
-
 
    /**
     * Just like {@link ClientSession.AddressQuery#JMS_SESSION_IDENTIFIER_PROPERTY} this is
@@ -44,15 +42,13 @@ public interface ClientSession extends XAResource, AutoCloseable
     */
    String JMS_SESSION_CLIENT_ID_PROPERTY = "jms-client-id";
 
-
-
    /**
     * Information returned by a binding query
     *
     * @see ClientSession#addressQuery(SimpleString)
     */
-   public interface AddressQuery
-   {
+   public interface AddressQuery {
+
       /**
        * Returns <code>true</code> if the binding exists, <code>false</code> else.
        */
@@ -75,8 +71,8 @@ public interface ClientSession extends XAResource, AutoCloseable
     *
     * @see ClientSession#queueQuery(SimpleString)
     */
-   public interface QueueQuery
-   {
+   public interface QueueQuery {
+
       /**
        * Returns <code>true</code> if the queue exists, <code>false</code> else.
        */
@@ -188,7 +184,6 @@ public interface ClientSession extends XAResource, AutoCloseable
     */
    boolean removeFailoverListener(FailoverEventListener listener);
 
-
    /**
     * Returns the server's incrementingVersion.
     *
@@ -231,7 +226,10 @@ public interface ClientSession extends XAResource, AutoCloseable
     * @param durable   if the queue is durable
     * @throws ActiveMQException in an exception occurs while creating the queue
     */
-   void createSharedQueue(SimpleString address, SimpleString queueName, SimpleString filter, boolean durable) throws ActiveMQException;
+   void createSharedQueue(SimpleString address,
+                          SimpleString queueName,
+                          SimpleString filter,
+                          boolean durable) throws ActiveMQException;
 
    /**
     * Creates a <em>non-temporary</em> queue.
@@ -270,7 +268,10 @@ public interface ClientSession extends XAResource, AutoCloseable
     * @param durable   whether the queue is durable or not
     * @throws ActiveMQException in an exception occurs while creating the queue
     */
-   void createQueue(SimpleString address, SimpleString queueName, SimpleString filter, boolean durable) throws ActiveMQException;
+   void createQueue(SimpleString address,
+                    SimpleString queueName,
+                    SimpleString filter,
+                    boolean durable) throws ActiveMQException;
 
    /**
     * Creates a <em>non-temporary</em>queue.
@@ -309,7 +310,9 @@ public interface ClientSession extends XAResource, AutoCloseable
     * @param filter    only messages which match this filter will be put in the queue
     * @throws ActiveMQException in an exception occurs while creating the queue
     */
-   void createTemporaryQueue(SimpleString address, SimpleString queueName, SimpleString filter) throws ActiveMQException;
+   void createTemporaryQueue(SimpleString address,
+                             SimpleString queueName,
+                             SimpleString filter) throws ActiveMQException;
 
    /**
     * Creates a <em>temporary</em> queue with a filter.
@@ -451,7 +454,9 @@ public interface ClientSession extends XAResource, AutoCloseable
     * @return a ClientConsumer
     * @throws ActiveMQException if an exception occurs while creating the ClientConsumer
     */
-   ClientConsumer createConsumer(SimpleString queueName, SimpleString filter, boolean browseOnly) throws ActiveMQException;
+   ClientConsumer createConsumer(SimpleString queueName,
+                                 SimpleString filter,
+                                 boolean browseOnly) throws ActiveMQException;
 
    /**
     * Creates a ClientConsumer to consume or browse messages matching the filter from the queue with
@@ -499,7 +504,11 @@ public interface ClientSession extends XAResource, AutoCloseable
     * @return a ClientConsumer
     * @throws ActiveMQException if an exception occurs while creating the ClientConsumer
     */
-   ClientConsumer createConsumer(String queueName, String filter, int windowSize, int maxRate, boolean browseOnly) throws ActiveMQException;
+   ClientConsumer createConsumer(String queueName,
+                                 String filter,
+                                 int windowSize,
+                                 int maxRate,
+                                 boolean browseOnly) throws ActiveMQException;
 
    // Producer Operations -------------------------------------------
 

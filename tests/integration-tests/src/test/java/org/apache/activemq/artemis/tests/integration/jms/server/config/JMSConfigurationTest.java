@@ -44,11 +44,10 @@ import javax.naming.Context;
 import java.util.ArrayList;
 import java.util.List;
 
-public class JMSConfigurationTest extends ActiveMQTestBase
-{
+public class JMSConfigurationTest extends ActiveMQTestBase {
+
    @Test
-   public void testSetupJMSConfiguration() throws Exception
-   {
+   public void testSetupJMSConfiguration() throws Exception {
       Context context = new InVMNamingContext();
 
       ActiveMQServer coreServer = new ActiveMQServerImpl(createDefaultInVMConfig());
@@ -58,24 +57,12 @@ public class JMSConfigurationTest extends ActiveMQTestBase
       List<TransportConfiguration> transportConfigs = new ArrayList<TransportConfiguration>();
       transportConfigs.add(connectorConfig);
 
-      ConnectionFactoryConfiguration cfConfig = new ConnectionFactoryConfigurationImpl()
-         .setName(RandomUtil.randomString())
-         .setConnectorNames(registerConnectors(coreServer, transportConfigs))
-         .setBindings("/cf/binding1", "/cf/binding2");
+      ConnectionFactoryConfiguration cfConfig = new ConnectionFactoryConfigurationImpl().setName(RandomUtil.randomString()).setConnectorNames(registerConnectors(coreServer, transportConfigs)).setBindings("/cf/binding1", "/cf/binding2");
 
       jmsConfiguration.getConnectionFactoryConfigurations().add(cfConfig);
-      JMSQueueConfigurationImpl queueConfig = new JMSQueueConfigurationImpl()
-         .setName(RandomUtil.randomString())
-         .setDurable(false)
-         .setBindings(
-            "/queue/binding1",
-            "/queue/binding2");
+      JMSQueueConfigurationImpl queueConfig = new JMSQueueConfigurationImpl().setName(RandomUtil.randomString()).setDurable(false).setBindings("/queue/binding1", "/queue/binding2");
       jmsConfiguration.getQueueConfigurations().add(queueConfig);
-      TopicConfiguration topicConfig = new TopicConfigurationImpl()
-         .setName(RandomUtil.randomString())
-         .setBindings(
-            "/topic/binding1",
-            "/topic/binding2");
+      TopicConfiguration topicConfig = new TopicConfigurationImpl().setName(RandomUtil.randomString()).setBindings("/topic/binding1", "/topic/binding2");
       jmsConfiguration.getTopicConfigurations().add(topicConfig);
 
       JMSServerManager server = new JMSServerManagerImpl(coreServer, jmsConfiguration);
@@ -83,31 +70,28 @@ public class JMSConfigurationTest extends ActiveMQTestBase
       server.setRegistry(new JndiBindingRegistry(context));
       server.start();
 
-      for (String binding : cfConfig.getBindings())
-      {
+      for (String binding : cfConfig.getBindings()) {
          Object o = context.lookup(binding);
          Assert.assertNotNull(o);
          Assert.assertTrue(o instanceof ConnectionFactory);
-         ConnectionFactory cf = (ConnectionFactory)o;
+         ConnectionFactory cf = (ConnectionFactory) o;
          Connection connection = cf.createConnection();
          connection.close();
       }
 
-      for (String binding : queueConfig.getBindings())
-      {
+      for (String binding : queueConfig.getBindings()) {
          Object o = context.lookup(binding);
          Assert.assertNotNull(o);
          Assert.assertTrue(o instanceof Queue);
-         Queue queue = (Queue)o;
+         Queue queue = (Queue) o;
          Assert.assertEquals(queueConfig.getName(), queue.getQueueName());
       }
 
-      for (String binding : topicConfig.getBindings())
-      {
+      for (String binding : topicConfig.getBindings()) {
          Object o = context.lookup(binding);
          Assert.assertNotNull(o);
          Assert.assertTrue(o instanceof Topic);
-         Topic topic = (Topic)o;
+         Topic topic = (Topic) o;
          Assert.assertEquals(topicConfig.getName(), topic.getTopicName());
       }
 

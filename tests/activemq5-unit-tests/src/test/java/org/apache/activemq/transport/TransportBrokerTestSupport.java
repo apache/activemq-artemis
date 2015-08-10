@@ -28,51 +28,50 @@ import org.apache.activemq.broker.TransportConnector;
 
 public abstract class TransportBrokerTestSupport extends BrokerTest {
 
-    protected TransportConnector connector;
-    private ArrayList<StubConnection> connections = new ArrayList<StubConnection>();
+   protected TransportConnector connector;
+   private ArrayList<StubConnection> connections = new ArrayList<StubConnection>();
 
-    protected void setUp() throws Exception {
-        super.setUp();
-    }
+   protected void setUp() throws Exception {
+      super.setUp();
+   }
 
-    protected BrokerService createBroker() throws Exception {
-        BrokerService service = super.createBroker();
-        connector = service.addConnector(getBindLocation());
-        return service;
-    }
-    
-    protected abstract String getBindLocation();
+   protected BrokerService createBroker() throws Exception {
+      BrokerService service = super.createBroker();
+      connector = service.addConnector(getBindLocation());
+      return service;
+   }
 
-    protected void tearDown() throws Exception {
-        for (Iterator<StubConnection> iter = connections.iterator(); iter.hasNext();) {
-            StubConnection connection = iter.next();
-            connection.stop();
-            iter.remove();
-        }
-        if( connector!=null ) {
-            connector.stop();
-        }
-        super.tearDown();
-    }
+   protected abstract String getBindLocation();
 
-    protected URI getBindURI() throws URISyntaxException {
-        return new URI(getBindLocation());
-    }
+   protected void tearDown() throws Exception {
+      for (Iterator<StubConnection> iter = connections.iterator(); iter.hasNext(); ) {
+         StubConnection connection = iter.next();
+         connection.stop();
+         iter.remove();
+      }
+      if (connector != null) {
+         connector.stop();
+      }
+      super.tearDown();
+   }
 
-    protected StubConnection createConnection() throws Exception {
-        URI bindURI = getBindURI();
-        
-        // Note: on platforms like OS X we cannot bind to the actual hostname, so we
-        // instead use the original host name (typically localhost) to bind to 
-        
-        URI actualURI = connector.getServer().getConnectURI();
-        URI connectURI = new URI(actualURI.getScheme(), actualURI.getUserInfo(), bindURI.getHost(), actualURI.getPort(), actualURI.getPath(), bindURI
-                .getQuery(), bindURI.getFragment());
+   protected URI getBindURI() throws URISyntaxException {
+      return new URI(getBindLocation());
+   }
 
-        Transport transport = TransportFactory.connect(connectURI);
-        StubConnection connection = new StubConnection(transport);
-        connections.add(connection);
-        return connection;
-    }
+   protected StubConnection createConnection() throws Exception {
+      URI bindURI = getBindURI();
+
+      // Note: on platforms like OS X we cannot bind to the actual hostname, so we
+      // instead use the original host name (typically localhost) to bind to
+
+      URI actualURI = connector.getServer().getConnectURI();
+      URI connectURI = new URI(actualURI.getScheme(), actualURI.getUserInfo(), bindURI.getHost(), actualURI.getPort(), actualURI.getPath(), bindURI.getQuery(), bindURI.getFragment());
+
+      Transport transport = TransportFactory.connect(connectURI);
+      StubConnection connection = new StubConnection(transport);
+      connections.add(connection);
+      return connection;
+   }
 
 }

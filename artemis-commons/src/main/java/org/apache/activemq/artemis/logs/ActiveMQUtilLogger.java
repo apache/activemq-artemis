@@ -37,8 +37,8 @@ import org.jboss.logging.annotations.MessageLogger;
  * so an INFO message would be 201000 to 201999
  */
 @MessageLogger(projectCode = "AMQ")
-public interface ActiveMQUtilLogger extends BasicLogger
-{
+public interface ActiveMQUtilLogger extends BasicLogger {
+
    /**
     * The default logger.
     */
@@ -46,6 +46,6 @@ public interface ActiveMQUtilLogger extends BasicLogger
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 202000, value = "Missing privileges to set Thread Context Class Loader on Thread Factory. Using current Thread Context Class Loader",
-            format = Message.Format.MESSAGE_FORMAT)
+      format = Message.Format.MESSAGE_FORMAT)
    void missingPrivsForClassloader();
 }

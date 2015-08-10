@@ -19,15 +19,15 @@ package org.apache.activemq.artemis.core.protocol.core;
 import org.apache.activemq.artemis.core.security.ActiveMQPrincipal;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 
-
 /**
  * Extension of RemotingConnection for the ActiveMQ Artemis core protocol
  */
-public interface CoreRemotingConnection extends RemotingConnection
-{
+public interface CoreRemotingConnection extends RemotingConnection {
 
-   /** The client protocol used  on the communication.
-    *  This will determine if the client has support for certain packet types */
+   /**
+    * The client protocol used  on the communication.
+    * This will determine if the client has support for certain packet types
+    */
    int getClientVersion();
 
    /**
@@ -40,7 +40,8 @@ public interface CoreRemotingConnection extends RemotingConnection
     * Returns the channel with the channel id specified.
     * <p>
     * If it does not exist create it with the confirmation window size.
-    * @param channelID the channel id
+    *
+    * @param channelID      the channel id
     * @param confWindowSize the confirmation window size
     * @return the channel
     */
@@ -71,36 +72,42 @@ public interface CoreRemotingConnection extends RemotingConnection
 
    /**
     * Resets the id generator used to generate id's.
+    *
     * @param id the first id to set it to
     */
    void syncIDGeneratorSequence(long id);
 
    /**
     * Returns the next id to be chosen.
+    *
     * @return the id
     */
    long getIDGeneratorSequence();
 
    /**
     * Returns the current timeout for blocking calls
+    *
     * @return the timeout in milliseconds
     */
    long getBlockingCallTimeout();
 
    /**
     * Returns the current timeout for blocking calls
+    *
     * @return the timeout in milliseconds
     */
    long getBlockingCallFailoverTimeout();
 
    /**
     * Returns the transfer lock used when transferring connections.
+    *
     * @return the lock
     */
    Object getTransferLock();
 
    /**
     * Returns the default security principal
+    *
     * @return the principal
     */
    ActiveMQPrincipal getDefaultActiveMQPrincipal();

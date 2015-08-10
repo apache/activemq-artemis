@@ -31,8 +31,7 @@ import org.apache.activemq.artemis.api.core.client.ClusterTopologyListener;
 import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
 import org.apache.activemq.artemis.spi.core.remoting.Connector;
 
-public final class Topology
-{
+public final class Topology {
 
    private final Set<ClusterTopologyListener> topologyListeners;
 
@@ -57,75 +56,62 @@ public final class Topology
 
    private Map<String, Long> mapDelete;
 
-   private static final class DirectExecutor implements Executor
-   {
-      public void execute(final Runnable runnable)
-      {
+   private static final class DirectExecutor implements Executor {
+
+      public void execute(final Runnable runnable) {
          runnable.run();
       }
    }
-   public Topology(final Object owner)
-   {
+
+   public Topology(final Object owner) {
       this(owner, new DirectExecutor());
    }
 
-   public Topology(final Object owner, final Executor executor)
-   {
+   public Topology(final Object owner, final Executor executor) {
       this.topologyListeners = new HashSet<>();
       this.topology = new ConcurrentHashMap<>();
-      if (executor == null)
-      {
+      if (executor == null) {
          throw new IllegalArgumentException("Executor is required");
       }
       this.executor = executor;
       this.owner = owner;
-      if (ActiveMQClientLogger.LOGGER.isTraceEnabled())
-      {
-         ActiveMQClientLogger.LOGGER.trace("Topology@" + Integer.toHexString(System.identityHashCode(this)) + " CREATE",
-                            new Exception("trace"));
+      if (ActiveMQClientLogger.LOGGER.isTraceEnabled()) {
+         ActiveMQClientLogger.LOGGER.trace("Topology@" + Integer.toHexString(System.identityHashCode(this)) + " CREATE", new Exception("trace"));
       }
    }
 
    /**
     * It will remove all elements as if it haven't received anyone from the server.
     */
-   public void clear()
-   {
+   public void clear() {
       topology.clear();
    }
 
-   public void addClusterTopologyListener(final ClusterTopologyListener listener)
-   {
-      if (ActiveMQClientLogger.LOGGER.isTraceEnabled())
-      {
+   public void addClusterTopologyListener(final ClusterTopologyListener listener) {
+      if (ActiveMQClientLogger.LOGGER.isTraceEnabled()) {
          ActiveMQClientLogger.LOGGER.trace(this + "::Adding topology listener " + listener, new Exception("Trace"));
       }
-      synchronized (topologyListeners)
-      {
+      synchronized (topologyListeners) {
          topologyListeners.add(listener);
       }
       this.sendTopology(listener);
    }
 
-   public void removeClusterTopologyListener(final ClusterTopologyListener listener)
-   {
-      if (ActiveMQClientLogger.LOGGER.isTraceEnabled())
-      {
+   public void removeClusterTopologyListener(final ClusterTopologyListener listener) {
+      if (ActiveMQClientLogger.LOGGER.isTraceEnabled()) {
          ActiveMQClientLogger.LOGGER.trace(this + "::Removing topology listener " + listener, new Exception("Trace"));
       }
-      synchronized (topologyListeners)
-      {
+      synchronized (topologyListeners) {
          topologyListeners.remove(listener);
       }
    }
 
-   /** This is called by the server when the node is activated from backup state. It will always succeed */
-   public void updateAsLive(final String nodeId, final TopologyMemberImpl memberInput)
-   {
-      synchronized (this)
-      {
-         if (ActiveMQClientLogger.LOGGER.isDebugEnabled())
-         {
+   /**
+    * This is called by the server when the node is activated from backup state. It will always succeed
+    */
+   public void updateAsLive(final String nodeId, final TopologyMemberImpl memberInput) {
+      synchronized (this) {
+         if (ActiveMQClientLogger.LOGGER.isDebugEnabled()) {
             ActiveMQClientLogger.LOGGER.debug(this + "::node " + nodeId + "=" + memberInput);
          }
          memberInput.setUniqueEventID(System.currentTimeMillis());
@@ -137,48 +123,40 @@ public final class Topology
 
    /**
     * After the node is started, it will resend the notifyLive a couple of times to avoid gossip between two servers
+    *
     * @param nodeId
     */
-   public void resendNode(final String nodeId)
-   {
-      synchronized (this)
-      {
+   public void resendNode(final String nodeId) {
+      synchronized (this) {
          TopologyMemberImpl memberInput = topology.get(nodeId);
-         if (memberInput != null)
-         {
+         if (memberInput != null) {
             memberInput.setUniqueEventID(System.currentTimeMillis());
             sendMemberUp(nodeId, memberInput);
          }
       }
    }
 
-   /** This is called by the server when the node is activated from backup state. It will always succeed */
-   public TopologyMemberImpl updateBackup(final TopologyMemberImpl memberInput)
-   {
+   /**
+    * This is called by the server when the node is activated from backup state. It will always succeed
+    */
+   public TopologyMemberImpl updateBackup(final TopologyMemberImpl memberInput) {
       final String nodeId = memberInput.getNodeId();
-      if (ActiveMQClientLogger.LOGGER.isTraceEnabled())
-      {
+      if (ActiveMQClientLogger.LOGGER.isTraceEnabled()) {
          ActiveMQClientLogger.LOGGER.trace(this + "::updateBackup::" + nodeId + ", memberInput=" + memberInput);
       }
 
-      synchronized (this)
-      {
+      synchronized (this) {
          TopologyMemberImpl currentMember = getMember(nodeId);
-         if (currentMember == null)
-         {
-            if (ActiveMQClientLogger.LOGGER.isTraceEnabled())
-            {
-               ActiveMQClientLogger.LOGGER.trace("There's no live to be updated on backup update, node=" + nodeId + " memberInput=" + memberInput,
-                                                new Exception("trace"));
+         if (currentMember == null) {
+            if (ActiveMQClientLogger.LOGGER.isTraceEnabled()) {
+               ActiveMQClientLogger.LOGGER.trace("There's no live to be updated on backup update, node=" + nodeId + " memberInput=" + memberInput, new Exception("trace"));
             }
 
             currentMember = memberInput;
             topology.put(nodeId, currentMember);
          }
 
-         TopologyMemberImpl newMember =
-                  new TopologyMemberImpl(nodeId, currentMember.getBackupGroupName(), currentMember.getScaleDownGroupName(), currentMember.getLive(),
-                                         memberInput.getBackup());
+         TopologyMemberImpl newMember = new TopologyMemberImpl(nodeId, currentMember.getBackupGroupName(), currentMember.getScaleDownGroupName(), currentMember.getLive(), memberInput.getBackup());
          newMember.setUniqueEventID(System.currentTimeMillis());
          topology.remove(nodeId);
          topology.put(nodeId, newMember);
@@ -190,64 +168,51 @@ public final class Topology
 
    /**
     * @param uniqueEventID an unique identifier for when the change was made. We will use current
-    *           time millis for starts, and a ++ of that number for shutdown.
+    *                      time millis for starts, and a ++ of that number for shutdown.
     * @param nodeId
     * @param memberInput
     * @return {@code true} if an update did take place. Note that backups are *always* updated.
     */
-   public boolean updateMember(final long uniqueEventID, final String nodeId, final TopologyMemberImpl memberInput)
-   {
+   public boolean updateMember(final long uniqueEventID, final String nodeId, final TopologyMemberImpl memberInput) {
 
       Long deleteTme = getMapDelete().get(nodeId);
-      if (deleteTme != null && uniqueEventID != 0 && uniqueEventID < deleteTme)
-      {
+      if (deleteTme != null && uniqueEventID != 0 && uniqueEventID < deleteTme) {
          ActiveMQClientLogger.LOGGER.debug("Update uniqueEvent=" + uniqueEventID +
-                   ", nodeId=" +
-                   nodeId +
-                   ", memberInput=" +
-                   memberInput +
-                   " being rejected as there was a delete done after that");
+                                              ", nodeId=" +
+                                              nodeId +
+                                              ", memberInput=" +
+                                              memberInput +
+                                              " being rejected as there was a delete done after that");
          return false;
       }
 
-      synchronized (this)
-      {
+      synchronized (this) {
          TopologyMemberImpl currentMember = topology.get(nodeId);
 
-         if (currentMember == null)
-         {
-            if (ActiveMQClientLogger.LOGGER.isTraceEnabled())
-            {
-               ActiveMQClientLogger.LOGGER.trace(this + "::NewMemberAdd nodeId=" + nodeId + " member = " + memberInput,
-                                          new Exception("trace"));
+         if (currentMember == null) {
+            if (ActiveMQClientLogger.LOGGER.isTraceEnabled()) {
+               ActiveMQClientLogger.LOGGER.trace(this + "::NewMemberAdd nodeId=" + nodeId + " member = " + memberInput, new Exception("trace"));
             }
             memberInput.setUniqueEventID(uniqueEventID);
             topology.put(nodeId, memberInput);
             sendMemberUp(nodeId, memberInput);
             return true;
          }
-         if (uniqueEventID > currentMember.getUniqueEventID())
-         {
-            TopologyMemberImpl newMember =
-                     new TopologyMemberImpl(nodeId, memberInput.getBackupGroupName(), memberInput.getScaleDownGroupName(), memberInput.getLive(),
-                                            memberInput.getBackup());
+         if (uniqueEventID > currentMember.getUniqueEventID()) {
+            TopologyMemberImpl newMember = new TopologyMemberImpl(nodeId, memberInput.getBackupGroupName(), memberInput.getScaleDownGroupName(), memberInput.getLive(), memberInput.getBackup());
 
-            if (newMember.getLive() == null && currentMember.getLive() != null)
-            {
+            if (newMember.getLive() == null && currentMember.getLive() != null) {
                newMember.setLive(currentMember.getLive());
             }
 
-            if (newMember.getBackup() == null && currentMember.getBackup() != null)
-            {
+            if (newMember.getBackup() == null && currentMember.getBackup() != null) {
                newMember.setBackup(currentMember.getBackup());
             }
 
-            if (ActiveMQClientLogger.LOGGER.isTraceEnabled())
-            {
+            if (ActiveMQClientLogger.LOGGER.isTraceEnabled()) {
                ActiveMQClientLogger.LOGGER.trace(this + "::updated currentMember=nodeID=" + nodeId + ", currentMember=" +
-                                                   currentMember + ", memberInput=" + memberInput + "newMember=" +
-                                                   newMember,
-                                          new Exception("trace"));
+                                                    currentMember + ", memberInput=" + memberInput + "newMember=" +
+                                                    newMember, new Exception("trace"));
             }
 
             newMember.setUniqueEventID(uniqueEventID);
@@ -261,8 +226,7 @@ public final class Topology
           * always add the backup, better to try to reconnect to something that's not there then to
           * not know about it at all
           */
-         if (currentMember.getBackup() == null && memberInput.getBackup() != null)
-         {
+         if (currentMember.getBackup() == null && memberInput.getBackup() != null) {
             currentMember.setBackup(memberInput.getBackup());
          }
          return false;
@@ -273,39 +237,30 @@ public final class Topology
     * @param nodeId
     * @param memberToSend
     */
-   private void sendMemberUp(final String nodeId, final TopologyMemberImpl memberToSend)
-   {
+   private void sendMemberUp(final String nodeId, final TopologyMemberImpl memberToSend) {
       final ArrayList<ClusterTopologyListener> copy = copyListeners();
 
-      if (ActiveMQClientLogger.LOGGER.isTraceEnabled())
-      {
+      if (ActiveMQClientLogger.LOGGER.isTraceEnabled()) {
          ActiveMQClientLogger.LOGGER.trace(this + "::prepare to send " + nodeId + " to " + copy.size() + " elements");
       }
 
-      if (copy.size() > 0)
-      {
-         executor.execute(new Runnable()
-         {
-            public void run()
-            {
-               for (ClusterTopologyListener listener : copy)
-               {
-                  if (ActiveMQClientLogger.LOGGER.isTraceEnabled())
-                  {
+      if (copy.size() > 0) {
+         executor.execute(new Runnable() {
+            public void run() {
+               for (ClusterTopologyListener listener : copy) {
+                  if (ActiveMQClientLogger.LOGGER.isTraceEnabled()) {
                      ActiveMQClientLogger.LOGGER.trace(Topology.this + " informing " +
-                                        listener +
-                                        " about node up = " +
-                                        nodeId +
-                                        " connector = " +
-                                        memberToSend.getConnector());
+                                                          listener +
+                                                          " about node up = " +
+                                                          nodeId +
+                                                          " connector = " +
+                                                          memberToSend.getConnector());
                   }
 
-                  try
-                  {
+                  try {
                      listener.nodeUP(memberToSend, false);
                   }
-                  catch (Throwable e)
-                  {
+                  catch (Throwable e) {
                      ActiveMQClientLogger.LOGGER.errorSendingTopology(e);
                   }
                }
@@ -317,69 +272,54 @@ public final class Topology
    /**
     * @return
     */
-   private ArrayList<ClusterTopologyListener> copyListeners()
-   {
+   private ArrayList<ClusterTopologyListener> copyListeners() {
       ArrayList<ClusterTopologyListener> listenersCopy;
-      synchronized (topologyListeners)
-      {
+      synchronized (topologyListeners) {
          listenersCopy = new ArrayList<>(topologyListeners);
       }
       return listenersCopy;
    }
 
-   boolean removeMember(final long uniqueEventID, final String nodeId)
-   {
+   boolean removeMember(final long uniqueEventID, final String nodeId) {
       TopologyMemberImpl member;
 
-      synchronized (this)
-      {
+      synchronized (this) {
          member = topology.get(nodeId);
-         if (member != null)
-         {
-            if (member.getUniqueEventID() > uniqueEventID)
-            {
+         if (member != null) {
+            if (member.getUniqueEventID() > uniqueEventID) {
                ActiveMQClientLogger.LOGGER.debug("The removeMember was issued before the node " + nodeId + " was started, ignoring call");
                member = null;
             }
-            else
-            {
+            else {
                getMapDelete().put(nodeId, uniqueEventID);
                member = topology.remove(nodeId);
             }
          }
       }
 
-      if (ActiveMQClientLogger.LOGGER.isTraceEnabled())
-      {
+      if (ActiveMQClientLogger.LOGGER.isTraceEnabled()) {
          ActiveMQClientLogger.LOGGER.trace("removeMember " + this +
-                            " removing nodeID=" +
-                            nodeId +
-                            ", result=" +
-                            member +
-                            ", size = " +
-                            topology.size(), new Exception("trace"));
+                                              " removing nodeID=" +
+                                              nodeId +
+                                              ", result=" +
+                                              member +
+                                              ", size = " +
+                                              topology.size(), new Exception("trace"));
       }
 
-      if (member != null)
-      {
+      if (member != null) {
          final ArrayList<ClusterTopologyListener> copy = copyListeners();
 
-         executor.execute(new Runnable()
-         {
-            public void run()
-            {
-               for (ClusterTopologyListener listener : copy)
-               {
-                  if (ActiveMQClientLogger.LOGGER.isTraceEnabled())
-                  {
+         executor.execute(new Runnable() {
+            public void run() {
+               for (ClusterTopologyListener listener : copy) {
+                  if (ActiveMQClientLogger.LOGGER.isTraceEnabled()) {
                      ActiveMQClientLogger.LOGGER.trace(this + " informing " + listener + " about node down = " + nodeId);
                   }
-                  try
-                  {
+                  try {
                      listener.nodeDown(uniqueEventID, nodeId);
                   }
-                  catch (Exception e)
-                  {
+                  catch (Exception e) {
                      ActiveMQClientLogger.LOGGER.errorSendingTopologyNodedown(e);
                   }
                }
@@ -389,36 +329,29 @@ public final class Topology
       return member != null;
    }
 
-   public synchronized void sendTopology(final ClusterTopologyListener listener)
-   {
-      if (ActiveMQClientLogger.LOGGER.isDebugEnabled())
-      {
+   public synchronized void sendTopology(final ClusterTopologyListener listener) {
+      if (ActiveMQClientLogger.LOGGER.isDebugEnabled()) {
          ActiveMQClientLogger.LOGGER.debug(this + " is sending topology to " + listener);
       }
 
-      executor.execute(new Runnable()
-      {
-         public void run()
-         {
+      executor.execute(new Runnable() {
+         public void run() {
             int count = 0;
 
             final Map<String, TopologyMemberImpl> copy;
 
-            synchronized (Topology.this)
-            {
+            synchronized (Topology.this) {
                copy = new HashMap<String, TopologyMemberImpl>(topology);
             }
 
-            for (Map.Entry<String, TopologyMemberImpl> entry : copy.entrySet())
-            {
-               if (ActiveMQClientLogger.LOGGER.isDebugEnabled())
-               {
+            for (Map.Entry<String, TopologyMemberImpl> entry : copy.entrySet()) {
+               if (ActiveMQClientLogger.LOGGER.isDebugEnabled()) {
                   ActiveMQClientLogger.LOGGER.debug(Topology.this + " sending " +
-                            entry.getKey() +
-                            " / " +
-                            entry.getValue().getConnector() +
-                            " to " +
-                            listener);
+                                                       entry.getKey() +
+                                                       " / " +
+                                                       entry.getValue().getConnector() +
+                                                       " to " +
+                                                       listener);
                }
                listener.nodeUP(entry.getValue(), ++count == copy.size());
             }
@@ -426,17 +359,13 @@ public final class Topology
       });
    }
 
-   public synchronized TopologyMemberImpl getMember(final String nodeID)
-   {
+   public synchronized TopologyMemberImpl getMember(final String nodeID) {
       return topology.get(nodeID);
    }
 
-   public synchronized TopologyMemberImpl getMember(final TransportConfiguration configuration)
-   {
-      for (TopologyMemberImpl member : topology.values())
-      {
-         if (member.isMember(configuration))
-         {
+   public synchronized TopologyMemberImpl getMember(final TransportConfiguration configuration) {
+      for (TopologyMemberImpl member : topology.values()) {
+         if (member.isMember(configuration)) {
             return member;
          }
       }
@@ -444,77 +373,63 @@ public final class Topology
       return null;
    }
 
-   public synchronized boolean isEmpty()
-   {
+   public synchronized boolean isEmpty() {
       return topology.isEmpty();
    }
 
-   public Collection<TopologyMemberImpl> getMembers()
-   {
+   public Collection<TopologyMemberImpl> getMembers() {
       ArrayList<TopologyMemberImpl> members;
-      synchronized (this)
-      {
+      synchronized (this) {
          members = new ArrayList<>(topology.values());
       }
       return members;
    }
 
-   synchronized int nodes()
-   {
+   synchronized int nodes() {
       int count = 0;
-      for (TopologyMemberImpl member : topology.values())
-      {
-         if (member.getLive() != null)
-         {
+      for (TopologyMemberImpl member : topology.values()) {
+         if (member.getLive() != null) {
             count++;
          }
-         if (member.getBackup() != null)
-         {
+         if (member.getBackup() != null) {
             count++;
          }
       }
       return count;
    }
 
-   public synchronized String describe()
-   {
+   public synchronized String describe() {
       return describe("");
    }
 
-   private synchronized String describe(final String text)
-   {
+   private synchronized String describe(final String text) {
       StringBuilder desc = new StringBuilder(text + "topology on " + this + ":\n");
-      for (Entry<String, TopologyMemberImpl> entry : new HashMap<>(topology).entrySet())
-      {
+      for (Entry<String, TopologyMemberImpl> entry : new HashMap<>(topology).entrySet()) {
          desc.append("\t").append(entry.getKey()).append(" => ").append(entry.getValue()).append("\n");
       }
       desc.append("\t" + "nodes=").append(nodes()).append("\t").append("members=").append(members());
-      if (topology.isEmpty())
-      {
+      if (topology.isEmpty()) {
          desc.append("\tEmpty");
       }
       return desc.toString();
    }
 
-   private int members()
-   {
+   private int members() {
       return topology.size();
    }
 
-   /** The owner exists mainly for debug purposes.
-    *  When enabling logging and tracing, the Topology updates will include the owner, what will enable to identify
-    *  what instances are receiving the updates, what will enable better debugging.*/
-   public void setOwner(final Object owner)
-   {
+   /**
+    * The owner exists mainly for debug purposes.
+    * When enabling logging and tracing, the Topology updates will include the owner, what will enable to identify
+    * what instances are receiving the updates, what will enable better debugging.
+    */
+   public void setOwner(final Object owner) {
       this.owner = owner;
    }
 
-   public TransportConfiguration getBackupForConnector(final Connector connector)
-   {
-      for (TopologyMemberImpl member : topology.values())
-      {
-         if (member.getLive() != null && connector.isEquivalent(member.getLive().getParams()))
-         {
+   public TransportConfiguration getBackupForConnector(final Connector connector) {
+      for (TopologyMemberImpl member : topology.values()) {
+         if (member.getLive() != null && connector.isEquivalent(member.getLive().getParams())) {
             return member.getBackup();
          }
       }
@@ -522,19 +437,15 @@ public final class Topology
    }
 
    @Override
-   public String toString()
-   {
-      if (owner == null)
-      {
+   public String toString() {
+      if (owner == null) {
          return "Topology@" + Integer.toHexString(System.identityHashCode(this));
       }
       return "Topology@" + Integer.toHexString(System.identityHashCode(this)) + "[owner=" + owner + "]";
    }
 
-   private synchronized Map<String, Long> getMapDelete()
-   {
-      if (mapDelete == null)
-      {
+   private synchronized Map<String, Long> getMapDelete() {
+      if (mapDelete == null) {
          mapDelete = new ConcurrentHashMap<>();
       }
       return mapDelete;

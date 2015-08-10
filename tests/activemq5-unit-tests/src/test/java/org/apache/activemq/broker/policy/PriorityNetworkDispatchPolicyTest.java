@@ -38,44 +38,44 @@ import org.junit.Test;
 
 public class PriorityNetworkDispatchPolicyTest {
 
-    PriorityNetworkDispatchPolicy underTest = new PriorityNetworkDispatchPolicy();
-    SystemUsage usageManager = new SystemUsage();
-    ConsumerInfo info = new ConsumerInfo();
-    ActiveMQMessage node = new ActiveMQMessage();
-    ConsumerId id = new ConsumerId();
-    ConnectionContext context = new ConnectionContext();
-    BrokerService brokerService = new BrokerService();
+   PriorityNetworkDispatchPolicy underTest = new PriorityNetworkDispatchPolicy();
+   SystemUsage usageManager = new SystemUsage();
+   ConsumerInfo info = new ConsumerInfo();
+   ActiveMQMessage node = new ActiveMQMessage();
+   ConsumerId id = new ConsumerId();
+   ConnectionContext context = new ConnectionContext();
+   BrokerService brokerService = new BrokerService();
 
-    @Before
-    public void init() throws Exception {
-        info.setDestination(ActiveMQDestination.createDestination("test", ActiveMQDestination.TOPIC_TYPE));
-        info.setConsumerId(id);
-        info.setNetworkSubscription(true);
-        info.setNetworkConsumerPath(new ConsumerId[]{id});
-        node.setMessageId(new MessageId("test:1:1:1:1"));
-    }
+   @Before
+   public void init() throws Exception {
+      info.setDestination(ActiveMQDestination.createDestination("test", ActiveMQDestination.TOPIC_TYPE));
+      info.setConsumerId(id);
+      info.setNetworkSubscription(true);
+      info.setNetworkConsumerPath(new ConsumerId[]{id});
+      node.setMessageId(new MessageId("test:1:1:1:1"));
+   }
 
-    @After
-    public void stopBroker() throws Exception {
-        brokerService.stop();
-    }
+   @After
+   public void stopBroker() throws Exception {
+      brokerService.stop();
+   }
 
-    @Test
-    public void testRemoveLowerPriorityDup() throws Exception {
+   @Test
+   public void testRemoveLowerPriorityDup() throws Exception {
 
-        List<Subscription> consumers = new ArrayList<Subscription>();
+      List<Subscription> consumers = new ArrayList<Subscription>();
 
-        for (int i=0; i<3; i++) {
-            ConsumerInfo instance = info.copy();
-            instance.setPriority((byte)i);
-            consumers.add(new TopicSubscription(brokerService.getBroker(), context, instance, usageManager));
-        }
-        underTest.dispatch(node, null, consumers);
+      for (int i = 0; i < 3; i++) {
+         ConsumerInfo instance = info.copy();
+         instance.setPriority((byte) i);
+         consumers.add(new TopicSubscription(brokerService.getBroker(), context, instance, usageManager));
+      }
+      underTest.dispatch(node, null, consumers);
 
-        long count = 0;
-        for (Subscription consumer : consumers) {
-            count += consumer.getEnqueueCounter();
-        }
-        assertEquals("only one sub got message", 1, count);
-    }
+      long count = 0;
+      for (Subscription consumer : consumers) {
+         count += consumer.getEnqueueCounter();
+      }
+      assertEquals("only one sub got message", 1, count);
+   }
 }

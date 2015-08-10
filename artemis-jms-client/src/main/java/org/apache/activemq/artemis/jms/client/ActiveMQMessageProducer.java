@@ -42,11 +42,12 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.SendAcknowledgementHandler;
 import org.apache.activemq.artemis.utils.UUID;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
+
 /**
  * ActiveMQ Artemis implementation of a JMS MessageProducer.
  */
-public class ActiveMQMessageProducer implements MessageProducer, QueueSender, TopicPublisher
-{
+public class ActiveMQMessageProducer implements MessageProducer, QueueSender, TopicPublisher {
+
    private final ActiveMQConnection connection;
 
    private final SimpleString connID;
@@ -66,9 +67,10 @@ public class ActiveMQMessageProducer implements MessageProducer, QueueSender, To
    private final ActiveMQDestination defaultDestination;
    // Constructors --------------------------------------------------
 
-   protected ActiveMQMessageProducer(final ActiveMQConnection connection, final ClientProducer producer,
-                                     final ActiveMQDestination defaultDestination, final ClientSession clientSession) throws JMSException
-   {
+   protected ActiveMQMessageProducer(final ActiveMQConnection connection,
+                                     final ClientProducer producer,
+                                     final ActiveMQDestination defaultDestination,
+                                     final ClientSession clientSession) throws JMSException {
       this.connection = connection;
 
       connID = connection.getClientID() != null ? new SimpleString(connection.getClientID()) : connection.getUID();
@@ -82,243 +84,228 @@ public class ActiveMQMessageProducer implements MessageProducer, QueueSender, To
 
    // MessageProducer implementation --------------------------------
 
-   public void setDisableMessageID(final boolean value) throws JMSException
-   {
+   public void setDisableMessageID(final boolean value) throws JMSException {
       checkClosed();
 
       disableMessageID = value;
    }
 
-   public boolean getDisableMessageID() throws JMSException
-   {
+   public boolean getDisableMessageID() throws JMSException {
       checkClosed();
 
       return disableMessageID;
    }
 
-   public void setDisableMessageTimestamp(final boolean value) throws JMSException
-   {
+   public void setDisableMessageTimestamp(final boolean value) throws JMSException {
       checkClosed();
 
       disableMessageTimestamp = value;
    }
 
-   public boolean getDisableMessageTimestamp() throws JMSException
-   {
+   public boolean getDisableMessageTimestamp() throws JMSException {
       checkClosed();
 
       return disableMessageTimestamp;
    }
 
-   public void setDeliveryMode(final int deliveryMode) throws JMSException
-   {
+   public void setDeliveryMode(final int deliveryMode) throws JMSException {
       checkClosed();
-      if (deliveryMode != DeliveryMode.NON_PERSISTENT && deliveryMode != DeliveryMode.PERSISTENT)
-      {
+      if (deliveryMode != DeliveryMode.NON_PERSISTENT && deliveryMode != DeliveryMode.PERSISTENT) {
          throw ActiveMQJMSClientBundle.BUNDLE.illegalDeliveryMode(deliveryMode);
       }
 
       defaultDeliveryMode = deliveryMode;
    }
 
-   public int getDeliveryMode() throws JMSException
-   {
+   public int getDeliveryMode() throws JMSException {
       checkClosed();
 
       return defaultDeliveryMode;
    }
 
-   public void setPriority(final int defaultPriority) throws JMSException
-   {
+   public void setPriority(final int defaultPriority) throws JMSException {
       checkClosed();
 
-      if (defaultPriority < 0 || defaultPriority > 9)
-      {
+      if (defaultPriority < 0 || defaultPriority > 9) {
          throw new JMSException("Illegal priority value: " + defaultPriority);
       }
 
       this.defaultPriority = defaultPriority;
    }
 
-   public int getPriority() throws JMSException
-   {
+   public int getPriority() throws JMSException {
       checkClosed();
 
       return defaultPriority;
    }
 
-   public void setTimeToLive(final long timeToLive) throws JMSException
-   {
+   public void setTimeToLive(final long timeToLive) throws JMSException {
       checkClosed();
 
       defaultTimeToLive = timeToLive;
    }
 
-   public long getTimeToLive() throws JMSException
-   {
+   public long getTimeToLive() throws JMSException {
       checkClosed();
 
       return defaultTimeToLive;
    }
 
-   public Destination getDestination() throws JMSException
-   {
+   public Destination getDestination() throws JMSException {
       checkClosed();
 
       return defaultDestination;
    }
 
-   public void close() throws JMSException
-   {
+   public void close() throws JMSException {
       connection.getThreadAwareContext().assertNotCompletionListenerThread();
-      try
-      {
+      try {
          clientProducer.close();
       }
-      catch (ActiveMQException e)
-      {
+      catch (ActiveMQException e) {
          throw JMSExceptionHelper.convertFromActiveMQException(e);
       }
    }
 
-   public void send(final Message message) throws JMSException
-   {
+   public void send(final Message message) throws JMSException {
       checkDefaultDestination();
       doSendx(defaultDestination, message, defaultDeliveryMode, defaultPriority, defaultTimeToLive, null);
    }
 
    public void send(final Message message,
                     final int deliveryMode,
-                    final int priority, final long timeToLive) throws JMSException
-   {
+                    final int priority,
+                    final long timeToLive) throws JMSException {
       checkDefaultDestination();
       doSendx(defaultDestination, message, deliveryMode, priority, timeToLive, null);
    }
 
-   public void send(final Destination destination, final Message message) throws JMSException
-   {
+   public void send(final Destination destination, final Message message) throws JMSException {
       send(destination, message, defaultDeliveryMode, defaultPriority, defaultTimeToLive);
    }
 
-   public void send(final Destination destination, final Message message, final int deliveryMode, final int priority,
-                    final long timeToLive) throws JMSException
-   {
+   public void send(final Destination destination,
+                    final Message message,
+                    final int deliveryMode,
+                    final int priority,
+                    final long timeToLive) throws JMSException {
       checkClosed();
 
       checkDestination(destination);
 
-      doSendx((ActiveMQDestination)destination, message, deliveryMode, priority, timeToLive, null);
+      doSendx((ActiveMQDestination) destination, message, deliveryMode, priority, timeToLive, null);
    }
 
    @Override
-   public void setDeliveryDelay(long deliveryDelay) throws JMSException
-   {
+   public void setDeliveryDelay(long deliveryDelay) throws JMSException {
       this.defaultDeliveryDelay = deliveryDelay;
    }
 
    @Override
-   public long getDeliveryDelay() throws JMSException
-   {
+   public long getDeliveryDelay() throws JMSException {
       return defaultDeliveryDelay;
    }
 
    @Override
-   public void send(Message message, CompletionListener completionListener) throws JMSException
-   {
+   public void send(Message message, CompletionListener completionListener) throws JMSException {
       send(message, defaultDeliveryMode, defaultPriority, defaultTimeToLive, completionListener);
    }
 
    @Override
-   public void send(Message message, int deliveryMode, int priority, long timeToLive,
-                    CompletionListener completionListener) throws JMSException
-   {
+   public void send(Message message,
+                    int deliveryMode,
+                    int priority,
+                    long timeToLive,
+                    CompletionListener completionListener) throws JMSException {
       checkCompletionListener(completionListener);
       checkDefaultDestination();
       doSendx(defaultDestination, message, deliveryMode, priority, timeToLive, completionListener);
    }
 
    @Override
-   public void send(Destination destination, Message message, CompletionListener completionListener) throws JMSException
-   {
+   public void send(Destination destination,
+                    Message message,
+                    CompletionListener completionListener) throws JMSException {
       send(destination, message, defaultDeliveryMode, defaultPriority, defaultTimeToLive, completionListener);
    }
 
    @Override
-   public void send(Destination destination, Message message, int deliveryMode, int priority, long timeToLive,
-                    CompletionListener completionListener) throws JMSException
-   {
+   public void send(Destination destination,
+                    Message message,
+                    int deliveryMode,
+                    int priority,
+                    long timeToLive,
+                    CompletionListener completionListener) throws JMSException {
       checkClosed();
 
       checkCompletionListener(completionListener);
 
       checkDestination(destination);
 
-      doSendx((ActiveMQDestination)destination, message, deliveryMode, priority, timeToLive, completionListener);
+      doSendx((ActiveMQDestination) destination, message, deliveryMode, priority, timeToLive, completionListener);
    }
 
    // TopicPublisher Implementation ---------------------------------
 
-   public Topic getTopic() throws JMSException
-   {
-      return (Topic)getDestination();
+   public Topic getTopic() throws JMSException {
+      return (Topic) getDestination();
    }
 
-   public void publish(final Message message) throws JMSException
-   {
+   public void publish(final Message message) throws JMSException {
       send(message);
    }
 
-   public void publish(final Topic topic, final Message message) throws JMSException
-   {
+   public void publish(final Topic topic, final Message message) throws JMSException {
       send(topic, message);
    }
 
-   public void publish(final Message message, final int deliveryMode, final int priority, final long timeToLive) throws JMSException
-   {
+   public void publish(final Message message,
+                       final int deliveryMode,
+                       final int priority,
+                       final long timeToLive) throws JMSException {
       send(message, deliveryMode, priority, timeToLive);
    }
 
-   public void publish(final Topic topic, final Message message, final int deliveryMode, final int priority,
-                       final long timeToLive) throws JMSException
-   {
+   public void publish(final Topic topic,
+                       final Message message,
+                       final int deliveryMode,
+                       final int priority,
+                       final long timeToLive) throws JMSException {
       checkDestination(topic);
-      doSendx((ActiveMQDestination)topic, message, deliveryMode, priority, timeToLive, null);
+      doSendx((ActiveMQDestination) topic, message, deliveryMode, priority, timeToLive, null);
    }
 
    // QueueSender Implementation ------------------------------------
 
-   public void send(final Queue queue, final Message message) throws JMSException
-   {
-      send((Destination)queue, message);
+   public void send(final Queue queue, final Message message) throws JMSException {
+      send((Destination) queue, message);
    }
 
-   public void send(final Queue queue, final Message message, final int deliveryMode, final int priority,
-                    final long timeToLive) throws JMSException
-   {
+   public void send(final Queue queue,
+                    final Message message,
+                    final int deliveryMode,
+                    final int priority,
+                    final long timeToLive) throws JMSException {
       checkDestination(queue);
-      doSendx((ActiveMQDestination)queue, message, deliveryMode, priority, timeToLive, null);
+      doSendx((ActiveMQDestination) queue, message, deliveryMode, priority, timeToLive, null);
    }
 
-   public Queue getQueue() throws JMSException
-   {
-      return (Queue)getDestination();
+   public Queue getQueue() throws JMSException {
+      return (Queue) getDestination();
    }
 
    // Public --------------------------------------------------------
 
    @Override
-   public String toString()
-   {
+   public String toString() {
       return "ActiveMQMessageProducer->" + clientProducer;
    }
 
    /**
     * Check if the default destination has been set
     */
-   private void checkDefaultDestination()
-   {
-      if (defaultDestination == null)
-      {
+   private void checkDefaultDestination() {
+      if (defaultDestination == null) {
          throw new UnsupportedOperationException("Cannot specify destination if producer has a default destination");
       }
    }
@@ -326,103 +313,81 @@ public class ActiveMQMessageProducer implements MessageProducer, QueueSender, To
    /**
     * Check if the destination is sent correctly
     */
-   private void checkDestination(Destination destination) throws InvalidDestinationException
-   {
-      if (destination != null && !(destination instanceof ActiveMQDestination))
-      {
+   private void checkDestination(Destination destination) throws InvalidDestinationException {
+      if (destination != null && !(destination instanceof ActiveMQDestination)) {
          throw new InvalidDestinationException("Foreign destination:" + destination);
       }
-      if (destination != null && defaultDestination != null)
-      {
+      if (destination != null && defaultDestination != null) {
          throw new UnsupportedOperationException("Cannot specify destination if producer has a default destination");
       }
-      if (destination == null)
-      {
+      if (destination == null) {
          throw ActiveMQJMSClientBundle.BUNDLE.nullTopic();
       }
    }
 
-   private void checkCompletionListener(CompletionListener completionListener)
-   {
-      if (completionListener == null)
-      {
+   private void checkCompletionListener(CompletionListener completionListener) {
+      if (completionListener == null) {
          throw ActiveMQJMSClientBundle.BUNDLE.nullArgumentNotAllowed("CompletionListener");
       }
    }
 
-
-   private void doSendx(ActiveMQDestination destination, final Message jmsMessage, final int deliveryMode,
-                        final int priority, final long timeToLive,
-                        CompletionListener completionListener) throws JMSException
-   {
+   private void doSendx(ActiveMQDestination destination,
+                        final Message jmsMessage,
+                        final int deliveryMode,
+                        final int priority,
+                        final long timeToLive,
+                        CompletionListener completionListener) throws JMSException {
 
       jmsMessage.setJMSDeliveryMode(deliveryMode);
 
       jmsMessage.setJMSPriority(priority);
 
-
-      if (timeToLive == 0)
-      {
+      if (timeToLive == 0) {
          jmsMessage.setJMSExpiration(0);
       }
-      else
-      {
+      else {
          jmsMessage.setJMSExpiration(System.currentTimeMillis() + timeToLive);
       }
 
-      if (!disableMessageTimestamp)
-      {
+      if (!disableMessageTimestamp) {
          jmsMessage.setJMSTimestamp(System.currentTimeMillis());
       }
-      else
-      {
+      else {
          jmsMessage.setJMSTimestamp(0);
       }
 
       SimpleString address = null;
 
-      if (destination == null)
-      {
-         if (defaultDestination == null)
-         {
+      if (destination == null) {
+         if (defaultDestination == null) {
             throw new UnsupportedOperationException("Destination must be specified on send with an anonymous producer");
          }
 
          destination = defaultDestination;
       }
-      else
-      {
-         if (defaultDestination != null)
-         {
-            if (!destination.equals(defaultDestination))
-            {
-               throw new UnsupportedOperationException("Where a default destination is specified " + "for the sender and a destination is "
-                                                          + "specified in the arguments to the send, "
-                                                          + "these destinations must be equal");
+      else {
+         if (defaultDestination != null) {
+            if (!destination.equals(defaultDestination)) {
+               throw new UnsupportedOperationException("Where a default destination is specified " + "for the sender and a destination is " + "specified in the arguments to the send, " + "these destinations must be equal");
             }
          }
 
          address = destination.getSimpleAddress();
 
-         if (!connection.containsKnownDestination(address))
-         {
-            try
-            {
+         if (!connection.containsKnownDestination(address)) {
+            try {
                ClientSession.AddressQuery query = clientSession.addressQuery(address);
 
                // if it's autoCreateJMSQueue we will let the PostOffice.route to execute the creation at the server's side
                // as that's a more efficient path for such operation
-               if (!query.isExists() && !query.isAutoCreateJmsQueues())
-               {
+               if (!query.isExists() && !query.isAutoCreateJmsQueues()) {
                   throw new InvalidDestinationException("Destination " + address + " does not exist");
                }
-               else
-               {
+               else {
                   connection.addKnownDestination(address);
                }
             }
-            catch (ActiveMQException e)
-            {
+            catch (ActiveMQException e) {
                throw JMSExceptionHelper.convertFromActiveMQException(e);
             }
          }
@@ -433,33 +398,26 @@ public class ActiveMQMessageProducer implements MessageProducer, QueueSender, To
       boolean foreign = false;
 
       // First convert from foreign message if appropriate
-      if (!(jmsMessage instanceof ActiveMQMessage))
-      {
+      if (!(jmsMessage instanceof ActiveMQMessage)) {
          // JMS 1.1 Sect. 3.11.4: A provider must be prepared to accept, from a client,
          // a message whose implementation is not one of its own.
 
-         if (jmsMessage instanceof BytesMessage)
-         {
-            activeMQJmsMessage = new ActiveMQBytesMessage((BytesMessage)jmsMessage, clientSession);
+         if (jmsMessage instanceof BytesMessage) {
+            activeMQJmsMessage = new ActiveMQBytesMessage((BytesMessage) jmsMessage, clientSession);
          }
-         else if (jmsMessage instanceof MapMessage)
-         {
-            activeMQJmsMessage = new ActiveMQMapMessage((MapMessage)jmsMessage, clientSession);
+         else if (jmsMessage instanceof MapMessage) {
+            activeMQJmsMessage = new ActiveMQMapMessage((MapMessage) jmsMessage, clientSession);
          }
-         else if (jmsMessage instanceof ObjectMessage)
-         {
-            activeMQJmsMessage = new ActiveMQObjectMessage((ObjectMessage)jmsMessage, clientSession);
+         else if (jmsMessage instanceof ObjectMessage) {
+            activeMQJmsMessage = new ActiveMQObjectMessage((ObjectMessage) jmsMessage, clientSession);
          }
-         else if (jmsMessage instanceof StreamMessage)
-         {
-            activeMQJmsMessage = new ActiveMQStreamMessage((StreamMessage)jmsMessage, clientSession);
+         else if (jmsMessage instanceof StreamMessage) {
+            activeMQJmsMessage = new ActiveMQStreamMessage((StreamMessage) jmsMessage, clientSession);
          }
-         else if (jmsMessage instanceof TextMessage)
-         {
-            activeMQJmsMessage = new ActiveMQTextMessage((TextMessage)jmsMessage, clientSession);
+         else if (jmsMessage instanceof TextMessage) {
+            activeMQJmsMessage = new ActiveMQTextMessage((TextMessage) jmsMessage, clientSession);
          }
-         else
-         {
+         else {
             activeMQJmsMessage = new ActiveMQMessage(jmsMessage, clientSession);
          }
 
@@ -468,13 +426,11 @@ public class ActiveMQMessageProducer implements MessageProducer, QueueSender, To
 
          foreign = true;
       }
-      else
-      {
-         activeMQJmsMessage = (ActiveMQMessage)jmsMessage;
+      else {
+         activeMQJmsMessage = (ActiveMQMessage) jmsMessage;
       }
 
-      if (!disableMessageID)
-      {
+      if (!disableMessageID) {
          // Generate a JMS id
 
          UUID uid = UUIDGenerator.getInstance().generateUUID();
@@ -484,19 +440,16 @@ public class ActiveMQMessageProducer implements MessageProducer, QueueSender, To
          activeMQJmsMessage.resetMessageID(null);
       }
 
-      if (foreign)
-      {
+      if (foreign) {
          jmsMessage.setJMSMessageID(activeMQJmsMessage.getJMSMessageID());
       }
 
       activeMQJmsMessage.setJMSDestination(destination);
 
-      try
-      {
+      try {
          activeMQJmsMessage.doBeforeSend();
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          JMSException je = new JMSException(e.getMessage());
 
          je.initCause(e);
@@ -504,45 +457,38 @@ public class ActiveMQMessageProducer implements MessageProducer, QueueSender, To
          throw je;
       }
 
-      if (defaultDeliveryDelay > 0)
-      {
+      if (defaultDeliveryDelay > 0) {
          activeMQJmsMessage.setJMSDeliveryTime(System.currentTimeMillis() + defaultDeliveryDelay);
       }
 
       ClientMessage coreMessage = activeMQJmsMessage.getCoreMessage();
       coreMessage.putStringProperty(ActiveMQConnection.CONNECTION_ID_PROPERTY_NAME, connID);
 
-      try
-      {
+      try {
          /**
           * Using a completionListener requires wrapping using a {@link CompletionListenerWrapper},
           * so we avoid it if we can.
           */
-         if (completionListener != null)
-         {
+         if (completionListener != null) {
             clientProducer.send(address, coreMessage, new CompletionListenerWrapper(completionListener, jmsMessage, this));
          }
-         else
-         {
+         else {
             clientProducer.send(address, coreMessage);
          }
       }
-      catch (ActiveMQException e)
-      {
+      catch (ActiveMQException e) {
          throw JMSExceptionHelper.convertFromActiveMQException(e);
       }
    }
 
-   private void checkClosed() throws JMSException
-   {
-      if (clientProducer.isClosed() || clientSession.isClosed())
-      {
+   private void checkClosed() throws JMSException {
+      if (clientProducer.isClosed() || clientSession.isClosed()) {
          throw new IllegalStateException("Producer is closed");
       }
    }
 
-   private static final class CompletionListenerWrapper implements SendAcknowledgementHandler
-   {
+   private static final class CompletionListenerWrapper implements SendAcknowledgementHandler {
+
       private final CompletionListener completionListener;
       private final Message jmsMessage;
       private final ActiveMQMessageProducer producer;
@@ -551,53 +497,44 @@ public class ActiveMQMessageProducer implements MessageProducer, QueueSender, To
        * @param jmsMessage
        * @param producer
        */
-      public CompletionListenerWrapper(CompletionListener listener, Message jmsMessage, ActiveMQMessageProducer producer)
-      {
+      public CompletionListenerWrapper(CompletionListener listener,
+                                       Message jmsMessage,
+                                       ActiveMQMessageProducer producer) {
          this.completionListener = listener;
          this.jmsMessage = jmsMessage;
          this.producer = producer;
       }
 
       @Override
-      public void sendAcknowledged(org.apache.activemq.artemis.api.core.Message clientMessage)
-      {
-         if (jmsMessage instanceof StreamMessage)
-         {
-            try
-            {
-               ((StreamMessage)jmsMessage).reset();
+      public void sendAcknowledged(org.apache.activemq.artemis.api.core.Message clientMessage) {
+         if (jmsMessage instanceof StreamMessage) {
+            try {
+               ((StreamMessage) jmsMessage).reset();
             }
-            catch (JMSException e)
-            {
+            catch (JMSException e) {
                // HORNETQ-1209 XXX ignore?
             }
          }
-         if (jmsMessage instanceof BytesMessage)
-         {
-            try
-            {
-               ((BytesMessage)jmsMessage).reset();
+         if (jmsMessage instanceof BytesMessage) {
+            try {
+               ((BytesMessage) jmsMessage).reset();
             }
-            catch (JMSException e)
-            {
+            catch (JMSException e) {
                // HORNETQ-1209 XXX ignore?
             }
          }
 
-         try
-         {
+         try {
             producer.connection.getThreadAwareContext().setCurrentThread(true);
             completionListener.onCompletion(jmsMessage);
          }
-         finally
-         {
+         finally {
             producer.connection.getThreadAwareContext().clearCurrentThread(true);
          }
       }
 
       @Override
-      public String toString()
-      {
+      public String toString() {
          return CompletionListenerWrapper.class.getSimpleName() + "( completionListener=" + completionListener + ")";
       }
    }

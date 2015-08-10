@@ -52,111 +52,119 @@ import org.slf4j.LoggerFactory;
  */
 public final class LargeStreamletTest extends TestCase {
 
-    private static final Logger LOG = LoggerFactory.getLogger(LargeStreamletTest.class);
-    private static final String BROKER_URL = "vm://localhost?broker.persistent=false";
-    private static final int BUFFER_SIZE = 1 * 1024;
-    private static final int MESSAGE_COUNT = 10 * 1024;
+   private static final Logger LOG = LoggerFactory.getLogger(LargeStreamletTest.class);
+   private static final String BROKER_URL = "vm://localhost?broker.persistent=false";
+   private static final int BUFFER_SIZE = 1 * 1024;
+   private static final int MESSAGE_COUNT = 10 * 1024;
 
-    protected Exception writerException;
-    protected Exception readerException;
+   protected Exception writerException;
+   protected Exception readerException;
 
-    private final AtomicInteger totalRead = new AtomicInteger();
-    private final AtomicInteger totalWritten = new AtomicInteger();
-    private final AtomicBoolean stopThreads = new AtomicBoolean(false);
+   private final AtomicInteger totalRead = new AtomicInteger();
+   private final AtomicInteger totalWritten = new AtomicInteger();
+   private final AtomicBoolean stopThreads = new AtomicBoolean(false);
 
-    public void testStreamlets() throws Exception {
-        final ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(BROKER_URL);
+   public void testStreamlets() throws Exception {
+      final ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(BROKER_URL);
 
-        final ActiveMQConnection connection = (ActiveMQConnection)factory.createConnection();
-        connection.start();
-        try {
-            final Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-            try {
-                final Destination destination = session.createQueue("wibble");
-                final Thread readerThread = new Thread(new Runnable() {
+      final ActiveMQConnection connection = (ActiveMQConnection) factory.createConnection();
+      connection.start();
+      try {
+         final Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         try {
+            final Destination destination = session.createQueue("wibble");
+            final Thread readerThread = new Thread(new Runnable() {
 
-                    @Override
-                    public void run() {
-                        totalRead.set(0);
-                        try {
-                            final InputStream inputStream = connection.createInputStream(destination);
-                            try {
-                                int read;
-                                final byte[] buf = new byte[BUFFER_SIZE];
-                                while (!stopThreads.get() && (read = inputStream.read(buf)) != -1) {
-                                    totalRead.addAndGet(read);
-                                }
-                            } finally {
-                                inputStream.close();
-                            }
-                        } catch (Exception e) {
-                            readerException = e;
-                            e.printStackTrace();
-                        } finally {
-                            LOG.info(totalRead + " total bytes read.");
+               @Override
+               public void run() {
+                  totalRead.set(0);
+                  try {
+                     final InputStream inputStream = connection.createInputStream(destination);
+                     try {
+                        int read;
+                        final byte[] buf = new byte[BUFFER_SIZE];
+                        while (!stopThreads.get() && (read = inputStream.read(buf)) != -1) {
+                           totalRead.addAndGet(read);
                         }
-                    }
-                });
+                     }
+                     finally {
+                        inputStream.close();
+                     }
+                  }
+                  catch (Exception e) {
+                     readerException = e;
+                     e.printStackTrace();
+                  }
+                  finally {
+                     LOG.info(totalRead + " total bytes read.");
+                  }
+               }
+            });
 
-                final Thread writerThread = new Thread(new Runnable() {
-                    private final Random random = new Random();
+            final Thread writerThread = new Thread(new Runnable() {
+               private final Random random = new Random();
 
-                    @Override
-                    public void run() {
-                        totalWritten.set(0);
-                        int count = MESSAGE_COUNT;
-                        try {
-                            final OutputStream outputStream = connection.createOutputStream(destination);
-                            try {
-                                final byte[] buf = new byte[BUFFER_SIZE];
-                                random.nextBytes(buf);
-                                while (count > 0 && !stopThreads.get()) {
-                                    outputStream.write(buf);
-                                    totalWritten.addAndGet(buf.length);
-                                    count--;
-                                }
-                            } finally {
-                                outputStream.close();
-                            }
-                        } catch (Exception e) {
-                            writerException = e;
-                            e.printStackTrace();
-                        } finally {
-                            LOG.info(totalWritten + " total bytes written.");
+               @Override
+               public void run() {
+                  totalWritten.set(0);
+                  int count = MESSAGE_COUNT;
+                  try {
+                     final OutputStream outputStream = connection.createOutputStream(destination);
+                     try {
+                        final byte[] buf = new byte[BUFFER_SIZE];
+                        random.nextBytes(buf);
+                        while (count > 0 && !stopThreads.get()) {
+                           outputStream.write(buf);
+                           totalWritten.addAndGet(buf.length);
+                           count--;
                         }
-                    }
-                });
+                     }
+                     finally {
+                        outputStream.close();
+                     }
+                  }
+                  catch (Exception e) {
+                     writerException = e;
+                     e.printStackTrace();
+                  }
+                  finally {
+                     LOG.info(totalWritten + " total bytes written.");
+                  }
+               }
+            });
 
-                readerThread.start();
-                writerThread.start();
+            readerThread.start();
+            writerThread.start();
 
-                // Wait till reader is has finished receiving all the messages
-                // or he has stopped
-                // receiving messages.
-                Thread.sleep(1000);
-                int lastRead = totalRead.get();
-                while (readerThread.isAlive()) {
-                    readerThread.join(1000);
-                    // No progress?? then stop waiting..
-                    if (lastRead == totalRead.get()) {
-                        break;
-                    }
-                    lastRead = totalRead.get();
-                }
-
-                stopThreads.set(true);
-
-                assertTrue("Should not have received a reader exception", readerException == null);
-                assertTrue("Should not have received a writer exception", writerException == null);
-
-                assertEquals("Not all messages accounted for", totalWritten.get(), totalRead.get());
-
-            } finally {
-                session.close();
+            // Wait till reader is has finished receiving all the messages
+            // or he has stopped
+            // receiving messages.
+            Thread.sleep(1000);
+            int lastRead = totalRead.get();
+            while (readerThread.isAlive()) {
+               readerThread.join(1000);
+               // No progress?? then stop waiting..
+               if (lastRead == totalRead.get()) {
+                  break;
+               }
+               lastRead = totalRead.get();
             }
-        } finally {
-            connection.close();
-        }
-    }
+
+            stopThreads.set(true);
+
+            assertTrue("Should not have received a reader exception", readerException == null);
+            assertTrue("Should not have received a writer exception", writerException == null);
+
+            assertEquals("Not all messages accounted for", totalWritten.get(), totalRead.get());
+
+         }
+         finally {
+            session.close();
+         }
+      }
+      finally {
+         connection.close();
+      }
+   }
 
 }

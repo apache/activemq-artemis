@@ -30,32 +30,25 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 @RunWith(Parameterized.class)
-public class ClientACKPerf extends AbstractSendReceivePerfTest
-{
+public class ClientACKPerf extends AbstractSendReceivePerfTest {
 
    @Parameterized.Parameters(name = "batchSize={0}")
-   public static Collection<Object[]> data()
-   {
-      List<Object[]> list = Arrays.asList(new Object[][]{
-         {1},
-         {2000}});
+   public static Collection<Object[]> data() {
+      List<Object[]> list = Arrays.asList(new Object[][]{{1}, {2000}});
 
       System.out.println("Size = " + list.size());
       return list;
    }
 
-   public ClientACKPerf(int batchSize)
-   {
+   public ClientACKPerf(int batchSize) {
       super();
       this.batchSize = batchSize;
    }
 
-
    public final int batchSize;
 
    @Override
-   protected void consumeMessages(Connection c, String qName) throws Exception
-   {
+   protected void consumeMessages(Connection c, String qName) throws Exception {
       int mode = 0;
       mode = Session.CLIENT_ACKNOWLEDGE;
 
@@ -71,45 +64,34 @@ public class ClientACKPerf extends AbstractSendReceivePerfTest
 
       long totalTimeACKTime = 0;
 
-
       long start = System.currentTimeMillis();
 
       long nmessages = 0;
       long timeout = System.currentTimeMillis() + 60 * 1000;
-      while (timeout > System.currentTimeMillis())
-      {
+      while (timeout > System.currentTimeMillis()) {
          m = consumer.receive(5000);
          afterConsume(m);
 
-
-         if (m == null)
-         {
+         if (m == null) {
             throw new Exception("Failed with m = null");
          }
 
-         if (nmessages++ % batchSize == 0)
-         {
+         if (nmessages++ % batchSize == 0) {
             long startACK = System.nanoTime();
             m.acknowledge();
             long endACK = System.nanoTime();
             totalTimeACKTime += (endACK - startACK);
          }
 
-
-         if (nmessages % 10000 == 0)
-         {
+         if (nmessages % 10000 == 0) {
             printMsgsSec(start, nmessages, totalTimeACKTime);
          }
       }
 
-
       printMsgsSec(start, nmessages, totalTimeACKTime);
    }
 
-
-
-   protected void printMsgsSec(final long start, final double nmessages, final double totalTimeACKTime)
-   {
+   protected void printMsgsSec(final long start, final double nmessages, final double totalTimeACKTime) {
 
       long end = System.currentTimeMillis();
       double elapsed = ((double) end - (double) start) / 1000f;
@@ -117,11 +99,9 @@ public class ClientACKPerf extends AbstractSendReceivePerfTest
       double messagesPerSecond = nmessages / elapsed;
       double nAcks = nmessages / batchSize;
 
-      System.out.println("batchSize=" + batchSize + ", numberOfMessages="
-                            + nmessages + ", elapsedTime=" + elapsed + " msgs/sec= " + messagesPerSecond + ",totalTimeAcking=" +  String.format("%10.4f", totalTimeACKTime) +
+      System.out.println("batchSize=" + batchSize + ", numberOfMessages=" + nmessages + ", elapsedTime=" + elapsed + " msgs/sec= " + messagesPerSecond + ",totalTimeAcking=" + String.format("%10.4f", totalTimeACKTime) +
                             ", avgACKTime=" + String.format("%10.4f", (totalTimeACKTime / nAcks)));
 
    }
-
 
 }

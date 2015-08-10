@@ -26,40 +26,33 @@ import org.jboss.resteasy.spi.Link;
 /**
  * Forwarding to an ActiveMQ/REST-* endpoing
  */
-public class ActiveMQPushStrategy extends UriTemplateStrategy
-{
+public class ActiveMQPushStrategy extends UriTemplateStrategy {
+
    protected boolean initialized = false;
 
-   public void start() throws Exception
-   {
+   public void start() throws Exception {
       // initialize();
    }
 
-   protected void initialize() throws Exception
-   {
+   protected void initialize() throws Exception {
       super.start();
       initialized = true;
       initAuthentication();
       ClientRequest request = executor.createRequest(registration.getTarget().getHref());
-      for (XmlHttpHeader header : registration.getHeaders())
-      {
+      for (XmlHttpHeader header : registration.getHeaders()) {
          request.header(header.getName(), header.getValue());
       }
       ClientResponse<?> res = request.head();
-      if (res.getStatus() != 200)
-      {
+      if (res.getStatus() != 200) {
          throw new RuntimeException("Failed to query REST destination for init information.  Status: " + res.getStatus());
       }
-      String url = (String)res.getHeaders().getFirst("msg-create-with-id");
-      if (url == null)
-      {
-         if (res.getLinkHeader() == null)
-         {
+      String url = (String) res.getHeaders().getFirst("msg-create-with-id");
+      if (url == null) {
+         if (res.getLinkHeader() == null) {
             throw new RuntimeException("Could not find create-with-id URL");
          }
          Link link = res.getLinkHeader().getLinkByTitle("create-with-id");
-         if (link == null)
-         {
+         if (link == null) {
             throw new RuntimeException("Could not find create-with-id URL");
          }
          url = link.getHref();
@@ -68,18 +61,14 @@ public class ActiveMQPushStrategy extends UriTemplateStrategy
    }
 
    @Override
-   public boolean push(ClientMessage message)
-   {
+   public boolean push(ClientMessage message) {
       // we initialize lazily just in case target is in same VM
-      if (!initialized)
-      {
-         try
-         {
+      if (!initialized) {
+         try {
             initialize();
             initialized = true;
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             throw new RuntimeException("Failed to initialize.", e);
          }
       }

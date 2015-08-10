@@ -20,21 +20,19 @@ import java.util.List;
 
 /**
  * Represents a destination based policy
- *
- *
  */
 public class DummyPolicy extends DestinationMap {
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    @Override
-    protected Class getEntryClass() {
-        return DummyPolicyEntry.class;
-    }
+   @SuppressWarnings({"rawtypes", "unchecked"})
+   @Override
+   protected Class getEntryClass() {
+      return DummyPolicyEntry.class;
+   }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    @Override
-    public void setEntries(List entries) {
-        super.setEntries(entries);
-    }
+   @SuppressWarnings({"rawtypes", "unchecked"})
+   @Override
+   public void setEntries(List entries) {
+      super.setEntries(entries);
+   }
 
 }

@@ -38,8 +38,7 @@ import org.apache.activemq.artemis.utils.ObjectInputStreamWithClassLoader;
  * <p>
  * Serialization is slooooow!
  */
-public class ActiveMQObjectMessage extends ActiveMQMessage implements ObjectMessage
-{
+public class ActiveMQObjectMessage extends ActiveMQMessage implements ObjectMessage {
    // Constants -----------------------------------------------------
 
    public static final byte TYPE = Message.OBJECT_TYPE;
@@ -53,21 +52,18 @@ public class ActiveMQObjectMessage extends ActiveMQMessage implements ObjectMess
 
    // Constructors --------------------------------------------------
 
-   protected ActiveMQObjectMessage(final ClientSession session)
-   {
+   protected ActiveMQObjectMessage(final ClientSession session) {
       super(ActiveMQObjectMessage.TYPE, session);
    }
 
-   protected ActiveMQObjectMessage(final ClientMessage message, final ClientSession session)
-   {
+   protected ActiveMQObjectMessage(final ClientMessage message, final ClientSession session) {
       super(message, session);
    }
 
    /**
     * A copy constructor for foreign JMS ObjectMessages.
     */
-   public ActiveMQObjectMessage(final ObjectMessage foreign, final ClientSession session) throws JMSException
-   {
+   public ActiveMQObjectMessage(final ObjectMessage foreign, final ClientSession session) throws JMSException {
       super(foreign, ActiveMQObjectMessage.TYPE, session);
 
       setObject(foreign.getObject());
@@ -76,17 +72,14 @@ public class ActiveMQObjectMessage extends ActiveMQMessage implements ObjectMess
    // Public --------------------------------------------------------
 
    @Override
-   public byte getType()
-   {
+   public byte getType() {
       return ActiveMQObjectMessage.TYPE;
    }
 
    @Override
-   public void doBeforeSend() throws Exception
-   {
+   public void doBeforeSend() throws Exception {
       message.getBodyBuffer().clear();
-      if (data != null)
-      {
+      if (data != null) {
          message.getBodyBuffer().writeInt(data.length);
          message.getBodyBuffer().writeBytes(data);
       }
@@ -95,17 +88,14 @@ public class ActiveMQObjectMessage extends ActiveMQMessage implements ObjectMess
    }
 
    @Override
-   public void doBeforeReceive() throws ActiveMQException
-   {
+   public void doBeforeReceive() throws ActiveMQException {
       super.doBeforeReceive();
-      try
-      {
+      try {
          int len = message.getBodyBuffer().readInt();
          data = new byte[len];
          message.getBodyBuffer().readBytes(data);
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          data = null;
       }
 
@@ -113,14 +103,11 @@ public class ActiveMQObjectMessage extends ActiveMQMessage implements ObjectMess
 
    // ObjectMessage implementation ----------------------------------
 
-   public void setObject(final Serializable object) throws JMSException
-   {
+   public void setObject(final Serializable object) throws JMSException {
       checkWrite();
 
-      if (object != null)
-      {
-         try
-         {
+      if (object != null) {
+         try {
             ByteArrayOutputStream baos = new ByteArrayOutputStream(1024);
 
             ObjectOutputStream oos = new ObjectOutputStream(baos);
@@ -131,8 +118,7 @@ public class ActiveMQObjectMessage extends ActiveMQMessage implements ObjectMess
 
             data = baos.toByteArray();
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             JMSException je = new JMSException("Failed to serialize object");
             je.setLinkedException(e);
             je.initCause(e);
@@ -142,22 +128,18 @@ public class ActiveMQObjectMessage extends ActiveMQMessage implements ObjectMess
    }
 
    // lazy deserialize the Object the first time the client requests it
-   public Serializable getObject() throws JMSException
-   {
-      if (data == null || data.length == 0)
-      {
+   public Serializable getObject() throws JMSException {
+      if (data == null || data.length == 0) {
          return null;
       }
 
-      try
-      {
+      try {
          ByteArrayInputStream bais = new ByteArrayInputStream(data);
          ObjectInputStream ois = new ObjectInputStreamWithClassLoader(bais);
-         Serializable object = (Serializable)ois.readObject();
+         Serializable object = (Serializable) ois.readObject();
          return object;
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          JMSException je = new JMSException(e.getMessage());
          je.setStackTrace(e.getStackTrace());
          throw je;
@@ -165,38 +147,30 @@ public class ActiveMQObjectMessage extends ActiveMQMessage implements ObjectMess
    }
 
    @Override
-   public void clearBody() throws JMSException
-   {
+   public void clearBody() throws JMSException {
       super.clearBody();
 
       data = null;
    }
 
    @Override
-   protected <T> T getBodyInternal(Class<T> c) throws MessageFormatException
-   {
-      try
-      {
-         return (T)getObject();
+   protected <T> T getBodyInternal(Class<T> c) throws MessageFormatException {
+      try {
+         return (T) getObject();
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          throw new MessageFormatException("Deserialization error on ActiveMQObjectMessage");
       }
    }
 
    @Override
-   public boolean isBodyAssignableTo(@SuppressWarnings("rawtypes")
-                                     Class c)
-   {
+   public boolean isBodyAssignableTo(@SuppressWarnings("rawtypes") Class c) {
       if (data == null) // we have no body
          return true;
-      try
-      {
+      try {
          return Serializable.class == c || Object.class == c || c.isInstance(getObject());
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          return false;
       }
    }

@@ -28,11 +28,10 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class RelativePathTest extends ActiveMQTestBase
-{
+public class RelativePathTest extends ActiveMQTestBase {
+
    @Test
-   public void testRelativePathOnDefaultConfig() throws Exception
-   {
+   public void testRelativePathOnDefaultConfig() throws Exception {
       Configuration configuration = createDefaultConfig(false);
       ActiveMQServer server = createServer(true, configuration, AddressSettings.DEFAULT_PAGE_SIZE, AddressSettings.DEFAULT_MAX_SIZE_BYTES, new HashMap<String, AddressSettings>());
 
@@ -44,8 +43,7 @@ public class RelativePathTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testDataOutsideHome() throws Exception
-   {
+   public void testDataOutsideHome() throws Exception {
       Configuration configuration = createDefaultConfig(false);
 
       File instanceHome = new File(getTemporaryDir(), "artemisHome");
@@ -61,7 +59,7 @@ public class RelativePathTest extends ActiveMQTestBase
 
       File bindingsInside = new File(instanceHome, "bind");
 
-//      configuration.setJournal
+      //      configuration.setJournal
 
       System.out.println("Journal dir::" + configuration.getJournalDirectory());
       System.out.println("Journal loc::" + configuration.getJournalLocation());
@@ -78,8 +76,7 @@ public class RelativePathTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testRelativePath() throws Exception
-   {
+   public void testRelativePath() throws Exception {
       Configuration configuration = createDefaultConfig(false);
 
       File instanceHome = new File(getTemporaryDir(), "artemisHome");
@@ -106,15 +103,12 @@ public class RelativePathTest extends ActiveMQTestBase
       checkData(bindingsHome, ".bindings");
    }
 
-   public void checkData(File dataHome, final String extension)
-   {
+   public void checkData(File dataHome, final String extension) {
       Assert.assertTrue("Folder " + dataHome + " doesn't exist", dataHome.exists());
 
-      File[] files = dataHome.listFiles(new FileFilter()
-      {
+      File[] files = dataHome.listFiles(new FileFilter() {
          @Override
-         public boolean accept(File pathname)
-         {
+         public boolean accept(File pathname) {
             return (extension == null || pathname.toString().endsWith(extension));
          }
       });

@@ -33,8 +33,8 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
 @Mojo(name = "cli", defaultPhase = LifecyclePhase.VERIFY)
-public class ArtemisCLIPlugin extends ArtemisAbstractPlugin
-{
+public class ArtemisCLIPlugin extends ArtemisAbstractPlugin {
+
    private PluginDescriptor descriptor;
 
    @Parameter(defaultValue = "server")
@@ -67,53 +67,42 @@ public class ArtemisCLIPlugin extends ArtemisAbstractPlugin
    @Parameter
    private String testPassword = null;
 
-
    /**
     * Validate if the directory is a artemis.home *
     *
     * @param path
     * @return
     */
-   private boolean lookupHome(Path path)
-   {
+   private boolean lookupHome(Path path) {
 
-      if (path == null)
-      {
+      if (path == null) {
          return false;
       }
 
       Path binFolder = path.resolve("bin");
 
-      if (binFolder == null && Files.exists(binFolder, LinkOption.NOFOLLOW_LINKS))
-      {
+      if (binFolder == null && Files.exists(binFolder, LinkOption.NOFOLLOW_LINKS)) {
          return false;
       }
 
       Path artemisScript = binFolder.resolve("artemis");
 
-
       return artemisScript != null && Files.exists(artemisScript, LinkOption.NOFOLLOW_LINKS);
-
 
    }
 
    @Override
-   protected void doExecute() throws MojoExecutionException, MojoFailureException
-   {
+   protected void doExecute() throws MojoExecutionException, MojoFailureException {
       // This is to avoid the Run issuing a kill at any point
       Run.setEmbedded(true);
 
       MavenProject project = (MavenProject) getPluginContext().get("project");
 
-
-      if (!lookupHome(home.toPath()))
-      {
-         if (lookupHome(alternateHome.toPath()))
-         {
+      if (!lookupHome(home.toPath())) {
+         if (lookupHome(alternateHome.toPath())) {
             home = alternateHome;
          }
-         else
-         {
+         else {
             getLog().error("********************************************************************************************");
             getLog().error("Could not locate suitable Artemis.home on either " + home + " or " + alternateHome);
             getLog().error("Use the binary distribution or build the distribution before running the examples");
@@ -123,38 +112,28 @@ public class ArtemisCLIPlugin extends ArtemisAbstractPlugin
          }
       }
 
-      try
-      {
-         if (spawn)
-         {
+      try {
+         if (spawn) {
             final Process process = org.apache.activemq.artemis.cli.process.ProcessBuilder.build(name, location, true, args);
-            Runtime.getRuntime().addShutdownHook(new Thread()
-            {
-               public void run()
-               {
+            Runtime.getRuntime().addShutdownHook(new Thread() {
+               public void run() {
                   process.destroy();
                }
             });
 
-            if (testURI != null)
-            {
+            if (testURI != null) {
                long timeout = System.currentTimeMillis() + spawnTimeout;
-               while (System.currentTimeMillis() <= timeout)
-               {
-                  try (ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory(testURI))
-                  {
-                     if (testUser != null && testPassword != null)
-                     {
+               while (System.currentTimeMillis() <= timeout) {
+                  try (ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory(testURI)) {
+                     if (testUser != null && testPassword != null) {
                         cf.createConnection(testUser, testPassword).close();
                      }
-                     else
-                     {
+                     else {
                         cf.createConnection().close();
                      }
                      getLog().info("Server started");
                   }
-                  catch (Exception e)
-                  {
+                  catch (Exception e) {
                      getLog().info("awaiting server to start");
                      Thread.sleep(500);
                      continue;
@@ -163,8 +142,7 @@ public class ArtemisCLIPlugin extends ArtemisAbstractPlugin
                }
             }
          }
-         else
-         {
+         else {
             Artemis.execute(home, location, args);
          }
 
@@ -172,8 +150,7 @@ public class ArtemisCLIPlugin extends ArtemisAbstractPlugin
 
          org.apache.activemq.artemis.cli.process.ProcessBuilder.cleanupProcess();
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          throw new MojoExecutionException(e.getMessage(), e);
       }
    }

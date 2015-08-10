@@ -22,33 +22,31 @@ import java.util.List;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 
-public class AddressQueryImpl implements ClientSession.AddressQuery
-{
+public class AddressQueryImpl implements ClientSession.AddressQuery {
+
    private final boolean exists;
 
    private final ArrayList<SimpleString> queueNames;
 
    private final boolean autoCreateJmsQueues;
 
-   public AddressQueryImpl(final boolean exists, final List<SimpleString> queueNames, final boolean autoCreateJmsQueues)
-   {
+   public AddressQueryImpl(final boolean exists,
+                           final List<SimpleString> queueNames,
+                           final boolean autoCreateJmsQueues) {
       this.exists = exists;
       this.queueNames = new ArrayList<SimpleString>(queueNames);
       this.autoCreateJmsQueues = autoCreateJmsQueues;
    }
 
-   public List<SimpleString> getQueueNames()
-   {
+   public List<SimpleString> getQueueNames() {
       return queueNames;
    }
 
-   public boolean isExists()
-   {
+   public boolean isExists() {
       return exists;
    }
 
-   public boolean isAutoCreateJmsQueues()
-   {
+   public boolean isAutoCreateJmsQueues() {
       return autoCreateJmsQueues;
    }
 }

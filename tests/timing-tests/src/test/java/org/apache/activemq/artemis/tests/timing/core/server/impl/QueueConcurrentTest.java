@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.timing.core.server.impl;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,29 +34,26 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- *
  * A concurrent QueueTest
  *
  * All the concurrent queue tests go in here
  */
-public class QueueConcurrentTest extends ActiveMQTestBase
-{
+public class QueueConcurrentTest extends ActiveMQTestBase {
+
    private static final UnitTestLogger log = UnitTestLogger.LOGGER;
 
    private FakeQueueFactory queueFactory = new FakeQueueFactory();
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
       queueFactory = new FakeQueueFactory();
    }
 
    @Override
    @After
-   public void tearDown() throws Exception
-   {
+   public void tearDown() throws Exception {
       queueFactory.stop();
       super.tearDown();
    }
@@ -64,17 +62,8 @@ public class QueueConcurrentTest extends ActiveMQTestBase
     * Concurrent set consumer not busy, busy then, call deliver while messages are being added and consumed
     */
    @Test
-   public void testConcurrentAddsDeliver() throws Exception
-   {
-      QueueImpl queue = (QueueImpl)queueFactory.createQueue(1,
-                                             new SimpleString("address1"),
-                                             new SimpleString("queue1"),
-                                             null,
-                                             null,
-                                             null,
-                                             false,
-                                             false,
-                                             false);
+   public void testConcurrentAddsDeliver() throws Exception {
+      QueueImpl queue = (QueueImpl) queueFactory.createQueue(1, new SimpleString("address1"), new SimpleString("queue1"), null, null, null, false, false, false);
 
       FakeConsumer consumer = new FakeConsumer();
 
@@ -98,13 +87,11 @@ public class QueueConcurrentTest extends ActiveMQTestBase
 
       queue.deliverNow();
 
-      if (sender.getException() != null)
-      {
+      if (sender.getException() != null) {
          throw sender.getException();
       }
 
-      if (toggler.getException() != null)
-      {
+      if (toggler.getException() != null) {
          throw toggler.getException();
       }
 
@@ -118,8 +105,8 @@ public class QueueConcurrentTest extends ActiveMQTestBase
 
    // Inner classes ---------------------------------------------------------------
 
-   class Sender extends Thread
-   {
+   class Sender extends Thread {
+
       private volatile Exception e;
 
       private final Queue queue;
@@ -128,32 +115,27 @@ public class QueueConcurrentTest extends ActiveMQTestBase
 
       private int i;
 
-      public Exception getException()
-      {
+      public Exception getException() {
          return e;
       }
 
       private final List<MessageReference> refs = new ArrayList<MessageReference>();
 
-      public List<MessageReference> getReferences()
-      {
+      public List<MessageReference> getReferences() {
          return refs;
       }
 
-      Sender(final Queue queue, final long testTime)
-      {
+      Sender(final Queue queue, final long testTime) {
          this.testTime = testTime;
 
          this.queue = queue;
       }
 
       @Override
-      public void run()
-      {
+      public void run() {
          long start = System.currentTimeMillis();
 
-         while (System.currentTimeMillis() - start < testTime)
-         {
+         while (System.currentTimeMillis() - start < testTime) {
             ServerMessage message = generateMessage(i);
 
             MessageReference ref = message.createReference(queue);
@@ -167,8 +149,8 @@ public class QueueConcurrentTest extends ActiveMQTestBase
       }
    }
 
-   class Toggler extends Thread
-   {
+   class Toggler extends Thread {
+
       private volatile Exception e;
 
       private final QueueImpl queue;
@@ -181,18 +163,15 @@ public class QueueConcurrentTest extends ActiveMQTestBase
 
       private int numToggles;
 
-      public int getNumToggles()
-      {
+      public int getNumToggles() {
          return numToggles;
       }
 
-      public Exception getException()
-      {
+      public Exception getException() {
          return e;
       }
 
-      Toggler(final QueueImpl queue, final FakeConsumer consumer, final long testTime)
-      {
+      Toggler(final QueueImpl queue, final FakeConsumer consumer, final long testTime) {
          this.testTime = testTime;
 
          this.queue = queue;
@@ -201,18 +180,14 @@ public class QueueConcurrentTest extends ActiveMQTestBase
       }
 
       @Override
-      public void run()
-      {
+      public void run() {
          long start = System.currentTimeMillis();
 
-         while (System.currentTimeMillis() - start < testTime)
-         {
-            if (toggle)
-            {
+         while (System.currentTimeMillis() - start < testTime) {
+            if (toggle) {
                consumer.setStatusImmediate(HandleStatus.BUSY);
             }
-            else
-            {
+            else {
                consumer.setStatusImmediate(HandleStatus.HANDLED);
 
                queue.deliverNow();

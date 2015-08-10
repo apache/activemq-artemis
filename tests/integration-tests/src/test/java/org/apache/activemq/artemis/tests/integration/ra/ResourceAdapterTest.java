@@ -45,11 +45,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 
-public class ResourceAdapterTest extends ActiveMQRATestBase
-{
+public class ResourceAdapterTest extends ActiveMQRATestBase {
+
    @Test
-   public void testStartStopActivationManyTimes() throws Exception
-   {
+   public void testStartStopActivationManyTimes() throws Exception {
       ServerLocator locator = createInVMNonHALocator();
       ClientSessionFactory factory = locator.createSessionFactory();
       ClientSession session = factory.createSession(false, false, false);
@@ -95,8 +94,7 @@ public class ResourceAdapterTest extends ActiveMQRATestBase
 
       Set<ClientSessionFactoryInternal> factories = (Set<ClientSessionFactoryInternal>) f.get(serverLocator);
 
-      for (int i = 0; i < 10; i++)
-      {
+      for (int i = 0; i < 10; i++) {
          System.out.println(i);
          assertEquals(factories.size(), 0);
          activation.start();
@@ -116,8 +114,7 @@ public class ResourceAdapterTest extends ActiveMQRATestBase
    }
 
    @Test
-   public void testStartStop() throws Exception
-   {
+   public void testStartStop() throws Exception {
       ActiveMQResourceAdapter qResourceAdapter = new ActiveMQResourceAdapter();
       qResourceAdapter.setConnectorClassName(INVM_CONNECTOR_FACTORY);
       ActiveMQRATestBase.MyBootstrapContext ctx = new ActiveMQRATestBase.MyBootstrapContext();
@@ -138,8 +135,7 @@ public class ResourceAdapterTest extends ActiveMQRATestBase
    }
 
    @Test
-   public void testSetters() throws Exception
-   {
+   public void testSetters() throws Exception {
       Boolean b = Boolean.TRUE;
       Long l = (long) 1000;
       Integer i = 1000;
@@ -155,25 +151,11 @@ public class ResourceAdapterTest extends ActiveMQRATestBase
       String testpass = "testpass";
       String testuser = "testuser";
       ActiveMQResourceAdapter qResourceAdapter = new ActiveMQResourceAdapter();
-      testParams(b,
-                 l,
-                 i,
-                 d,
-                 className,
-                 backupConn,
-                 testConfig,
-                 testid,
-                 testBalancer,
-                 testParams,
-                 testaddress,
-                 testpass,
-                 testuser,
-                 qResourceAdapter);
+      testParams(b, l, i, d, className, backupConn, testConfig, testid, testBalancer, testParams, testaddress, testpass, testuser, qResourceAdapter);
    }
 
    @Test
-   public void testSetters2() throws Exception
-   {
+   public void testSetters2() throws Exception {
       Boolean b = Boolean.FALSE;
       Long l = (long) 2000;
       Integer i = 2000;
@@ -189,20 +171,7 @@ public class ResourceAdapterTest extends ActiveMQRATestBase
       String testpass = "testpass2";
       String testuser = "testuser2";
       ActiveMQResourceAdapter qResourceAdapter = new ActiveMQResourceAdapter();
-      testParams(b,
-                 l,
-                 i,
-                 d,
-                 className,
-                 backupConn,
-                 testConfig,
-                 testid,
-                 testBalancer,
-                 testParams,
-                 testaddress,
-                 testpass,
-                 testuser,
-                 qResourceAdapter);
+      testParams(b, l, i, d, className, backupConn, testConfig, testid, testBalancer, testParams, testaddress, testpass, testuser, qResourceAdapter);
    }
 
    private void testParams(Boolean b,
@@ -218,8 +187,7 @@ public class ResourceAdapterTest extends ActiveMQRATestBase
                            String testaddress,
                            String testpass,
                            String testuser,
-                           ActiveMQResourceAdapter qResourceAdapter)
-   {
+                           ActiveMQResourceAdapter qResourceAdapter) {
       qResourceAdapter.setUseLocalTx(b);
       qResourceAdapter.setConnectorClassName(className);
       qResourceAdapter.setAutoGroup(b);
@@ -292,8 +260,7 @@ public class ResourceAdapterTest extends ActiveMQRATestBase
 
    // https://issues.jboss.org/browse/JBPAPP-5790
    @Test
-   public void testResourceAdapterSetup() throws Exception
-   {
+   public void testResourceAdapterSetup() throws Exception {
       ActiveMQResourceAdapter adapter = new ActiveMQResourceAdapter();
       adapter.setDiscoveryAddress("231.1.1.1");
       ActiveMQConnectionFactory factory = adapter.getDefaultActiveMQConnectionFactory();
@@ -346,8 +313,7 @@ public class ResourceAdapterTest extends ActiveMQRATestBase
 
    // https://issues.jboss.org/browse/JBPAPP-5836
    @Test
-   public void testResourceAdapterSetupOverrideCFParams() throws Exception
-   {
+   public void testResourceAdapterSetupOverrideCFParams() throws Exception {
       ActiveMQResourceAdapter qResourceAdapter = new ActiveMQResourceAdapter();
       qResourceAdapter.setConnectorClassName(INVM_CONNECTOR_FACTORY);
       qResourceAdapter.setConnectionParameters("server-id=0");
@@ -372,8 +338,7 @@ public class ResourceAdapterTest extends ActiveMQRATestBase
    }
 
    @Test
-   public void testRecoveryRegistrationOnFailure() throws Exception
-   {
+   public void testRecoveryRegistrationOnFailure() throws Exception {
       ActiveMQResourceAdapter qResourceAdapter = new ActiveMQResourceAdapter();
       qResourceAdapter.setConnectorClassName(INVM_CONNECTOR_FACTORY);
       qResourceAdapter.setConnectionParameters("server-id=0");
@@ -400,8 +365,7 @@ public class ResourceAdapterTest extends ActiveMQRATestBase
    }
 
    @Test
-   public void testResourceAdapterSetupOverrideNoCFParams() throws Exception
-   {
+   public void testResourceAdapterSetupOverrideNoCFParams() throws Exception {
       ActiveMQResourceAdapter qResourceAdapter = new ActiveMQResourceAdapter();
       qResourceAdapter.setConnectorClassName(INVM_CONNECTOR_FACTORY);
       qResourceAdapter.setConnectionParameters("server-id=0");
@@ -424,8 +388,7 @@ public class ResourceAdapterTest extends ActiveMQRATestBase
    }
 
    @Test
-   public void testResourceAdapterSetupNoOverrideDiscovery() throws Exception
-   {
+   public void testResourceAdapterSetupNoOverrideDiscovery() throws Exception {
       ActiveMQResourceAdapter qResourceAdapter = new ActiveMQResourceAdapter();
       qResourceAdapter.setDiscoveryAddress("231.6.6.6");
       qResourceAdapter.setDiscoveryPort(1234);
@@ -450,13 +413,11 @@ public class ResourceAdapterTest extends ActiveMQRATestBase
    }
 
    @Test
-   public void testResourceAdapterSetupOverrideDiscovery() throws Exception
-   {
+   public void testResourceAdapterSetupOverrideDiscovery() throws Exception {
       ActiveMQResourceAdapter qResourceAdapter = new ActiveMQResourceAdapter();
       qResourceAdapter.setDiscoveryAddress("231.7.7.7");
 
       ActiveMQRATestBase.MyBootstrapContext ctx = new ActiveMQRATestBase.MyBootstrapContext();
-
 
       qResourceAdapter.start(ctx);
       ActiveMQActivationSpec spec = new ActiveMQActivationSpec();
@@ -480,8 +441,7 @@ public class ResourceAdapterTest extends ActiveMQRATestBase
    }
 
    @Test
-   public void testResourceAdapterSetupNoHAOverride() throws Exception
-   {
+   public void testResourceAdapterSetupNoHAOverride() throws Exception {
       ActiveMQResourceAdapter qResourceAdapter = new ActiveMQResourceAdapter();
       qResourceAdapter.setConnectorClassName(INVM_CONNECTOR_FACTORY);
       qResourceAdapter.setConnectionParameters("server-id=0");
@@ -504,8 +464,7 @@ public class ResourceAdapterTest extends ActiveMQRATestBase
    }
 
    @Test
-   public void testResourceAdapterSetupNoHADefault() throws Exception
-   {
+   public void testResourceAdapterSetupNoHADefault() throws Exception {
       ActiveMQResourceAdapter qResourceAdapter = new ActiveMQResourceAdapter();
       qResourceAdapter.setConnectorClassName(INVM_CONNECTOR_FACTORY);
       qResourceAdapter.setConnectionParameters("server-id=0");
@@ -527,8 +486,7 @@ public class ResourceAdapterTest extends ActiveMQRATestBase
    }
 
    @Test
-   public void testResourceAdapterSetupHAOverride() throws Exception
-   {
+   public void testResourceAdapterSetupHAOverride() throws Exception {
       ActiveMQResourceAdapter qResourceAdapter = new ActiveMQResourceAdapter();
       qResourceAdapter.setConnectorClassName(INVM_CONNECTOR_FACTORY);
       qResourceAdapter.setConnectionParameters("server-id=0");
@@ -550,8 +508,7 @@ public class ResourceAdapterTest extends ActiveMQRATestBase
    }
 
    @Test
-   public void testResourceAdapterSetupNoReconnectAttemptsOverride() throws Exception
-   {
+   public void testResourceAdapterSetupNoReconnectAttemptsOverride() throws Exception {
       ActiveMQResourceAdapter qResourceAdapter = new ActiveMQResourceAdapter();
       qResourceAdapter.setConnectorClassName(INVM_CONNECTOR_FACTORY);
       qResourceAdapter.setConnectionParameters("server-id=0");
@@ -574,8 +531,7 @@ public class ResourceAdapterTest extends ActiveMQRATestBase
    }
 
    @Test
-   public void testResourceAdapterSetupReconnectAttemptDefault() throws Exception
-   {
+   public void testResourceAdapterSetupReconnectAttemptDefault() throws Exception {
       ActiveMQResourceAdapter qResourceAdapter = new ActiveMQResourceAdapter();
       qResourceAdapter.setConnectorClassName(INVM_CONNECTOR_FACTORY);
       qResourceAdapter.setConnectionParameters("server-id=0");
@@ -597,8 +553,7 @@ public class ResourceAdapterTest extends ActiveMQRATestBase
    }
 
    @Test
-   public void testResourceAdapterSetupReconnectAttemptsOverride() throws Exception
-   {
+   public void testResourceAdapterSetupReconnectAttemptsOverride() throws Exception {
       ActiveMQResourceAdapter qResourceAdapter = new ActiveMQResourceAdapter();
       qResourceAdapter.setConnectorClassName(INVM_CONNECTOR_FACTORY);
       qResourceAdapter.setConnectionParameters("server-id=0");
@@ -620,8 +575,7 @@ public class ResourceAdapterTest extends ActiveMQRATestBase
    }
 
    @Test
-   public void testMaskPassword() throws Exception
-   {
+   public void testMaskPassword() throws Exception {
       ActiveMQResourceAdapter qResourceAdapter = new ActiveMQResourceAdapter();
       qResourceAdapter.setConnectorClassName(INVM_CONNECTOR_FACTORY);
       ActiveMQRATestBase.MyBootstrapContext ctx = new ActiveMQRATestBase.MyBootstrapContext();
@@ -657,8 +611,7 @@ public class ResourceAdapterTest extends ActiveMQRATestBase
    }
 
    @Test
-   public void testMaskPassword2() throws Exception
-   {
+   public void testMaskPassword2() throws Exception {
       ActiveMQResourceAdapter qResourceAdapter = new ActiveMQResourceAdapter();
       qResourceAdapter.setConnectorClassName(INVM_CONNECTOR_FACTORY);
       ActiveMQRATestBase.MyBootstrapContext ctx = new ActiveMQRATestBase.MyBootstrapContext();
@@ -701,25 +654,21 @@ public class ResourceAdapterTest extends ActiveMQRATestBase
    }
 
    @Override
-   public boolean useSecurity()
-   {
+   public boolean useSecurity() {
       return false;
    }
 
-   class DummyEndpoint implements MessageEndpoint
-   {
-      public void beforeDelivery(Method method) throws NoSuchMethodException, ResourceException
-      {
+   class DummyEndpoint implements MessageEndpoint {
+
+      public void beforeDelivery(Method method) throws NoSuchMethodException, ResourceException {
          // To change body of implemented methods use File | Settings | File Templates.
       }
 
-      public void afterDelivery() throws ResourceException
-      {
+      public void afterDelivery() throws ResourceException {
          // To change body of implemented methods use File | Settings | File Templates.
       }
 
-      public void release()
-      {
+      public void release() {
          // To change body of implemented methods use File | Settings | File Templates.
       }
    }

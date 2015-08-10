@@ -32,99 +32,100 @@ import org.apache.activemq.network.DiscoveryNetworkConnector;
 import org.apache.activemq.network.NetworkConnector;
 import org.apache.activemq.util.MessageIdList;
 
-
 public class MulticastDiscoveryOnFaultyNetworkTest extends JmsMultipleBrokersTestSupport {
-    protected static final int MESSAGE_COUNT = 200;
-    private static final String HUB = "HubBroker";
-    private static final String SPOKE = "SpokeBroker";
-    public boolean useDuplexNetworkBridge = true;
-    public boolean useStaticDiscovery = false;
 
-    public void initCombosForTestSendOnAFaultyTransport() {
-        addCombinationValues( "useDuplexNetworkBridge", new Object[]{ Boolean.TRUE , Boolean.FALSE } );
-        addCombinationValues( "useStaticDiscovery", new Object[]{ Boolean.TRUE , Boolean.FALSE } );
-    }
-    
-    public void testSendOnAFaultyTransport() throws Exception {
-        bridgeBrokers(SPOKE, HUB);
+   protected static final int MESSAGE_COUNT = 200;
+   private static final String HUB = "HubBroker";
+   private static final String SPOKE = "SpokeBroker";
+   public boolean useDuplexNetworkBridge = true;
+   public boolean useStaticDiscovery = false;
 
-        startAllBrokers();
+   public void initCombosForTestSendOnAFaultyTransport() {
+      addCombinationValues("useDuplexNetworkBridge", new Object[]{Boolean.TRUE, Boolean.FALSE});
+      addCombinationValues("useStaticDiscovery", new Object[]{Boolean.TRUE, Boolean.FALSE});
+   }
 
-        // Setup destination
-        Destination dest = createDestination("TEST.FOO", false);
-        
-        // Setup consumers
-        MessageConsumer client = createConsumer(HUB, dest);
-        
-        // allow subscription information to flow back to Spoke
-        sleep(600);
-        
-        // Send messages
-        sendMessages(SPOKE, dest, MESSAGE_COUNT);
+   public void testSendOnAFaultyTransport() throws Exception {
+      bridgeBrokers(SPOKE, HUB);
 
-        MessageIdList msgs = getConsumerMessages(HUB, client);
-	msgs.setMaximumDuration(200000L);
-        msgs.waitForMessagesToArrive(MESSAGE_COUNT);
+      startAllBrokers();
 
-        assertTrue("At least message " + MESSAGE_COUNT + 
-                " must be received, duplicates are expected, count=" + msgs.getMessageCount(),
-                MESSAGE_COUNT <= msgs.getMessageCount());
-    }
+      // Setup destination
+      Destination dest = createDestination("TEST.FOO", false);
 
-    
-    @Override
-    protected void startAllBrokers() throws Exception {
-        // Ensure HUB is started first so bridge will be active from the get go
-        BrokerItem brokerItem = brokers.get(HUB);
-        brokerItem.broker.start();
-        brokerItem = brokers.get(SPOKE);
-        brokerItem.broker.start();
-    }
+      // Setup consumers
+      MessageConsumer client = createConsumer(HUB, dest);
 
-    public void setUp() throws Exception {
-        super.setAutoFail(true);
-        super.setUp();
-        final String options = "?persistent=false&useJmx=false&deleteAllMessagesOnStartup=true";
-        createBroker(new URI("broker:(tcpfaulty://localhost:61617)/" + HUB + options));
-        createBroker(new URI("broker:(tcpfaulty://localhost:61616)/" + SPOKE + options));
-    }
-    
-    public static Test suite() {
-        return suite(MulticastDiscoveryOnFaultyNetworkTest.class);
-    }
-       
-    @Override
-    protected void onSend(int i, TextMessage msg) {
-        sleep(50);
-    }
+      // allow subscription information to flow back to Spoke
+      sleep(600);
 
-    private void sleep(int milliSecondTime) {
-        try {
-            Thread.sleep(milliSecondTime);
-        } catch (InterruptedException igonred) {
-        }    
-    }
+      // Send messages
+      sendMessages(SPOKE, dest, MESSAGE_COUNT);
 
+      MessageIdList msgs = getConsumerMessages(HUB, client);
+      msgs.setMaximumDuration(200000L);
+      msgs.waitForMessagesToArrive(MESSAGE_COUNT);
 
-    @Override
-    protected NetworkConnector bridgeBrokers(BrokerService localBroker, BrokerService remoteBroker, boolean dynamicOnly, int networkTTL, boolean conduit, boolean failover) throws Exception {
-        String networkDisoveryUrlString = useStaticDiscovery ?
-                "static:(" + remoteBroker.getTransportConnectors().get(0).getPublishableConnectString() + ")?useExponentialBackOff=false" :
-                "multicast://default?group=TESTERIC&useLocalHost=false";
+      assertTrue("At least message " + MESSAGE_COUNT +
+                    " must be received, duplicates are expected, count=" + msgs.getMessageCount(), MESSAGE_COUNT <= msgs.getMessageCount());
+   }
 
-        DiscoveryNetworkConnector connector = new DiscoveryNetworkConnector(new URI(networkDisoveryUrlString));
-        connector.setDynamicOnly(dynamicOnly);
-        connector.setNetworkTTL(networkTTL);
-        connector.setDuplex(useDuplexNetworkBridge);
-        maxSetupTime = 2000;
-        if (!useStaticDiscovery) {
-            List<TransportConnector> transportConnectors = remoteBroker.getTransportConnectors();
-            if (!transportConnectors.isEmpty()) {
-		        TransportConnector mCastTrpConnector = ((TransportConnector)transportConnectors.get(0));
-		        mCastTrpConnector.setDiscoveryUri(new URI("multicast://default?group=TESTERIC"));
-            }
-        }
-        localBroker.addNetworkConnector(connector);
-	    return connector;
-    }
+   @Override
+   protected void startAllBrokers() throws Exception {
+      // Ensure HUB is started first so bridge will be active from the get go
+      BrokerItem brokerItem = brokers.get(HUB);
+      brokerItem.broker.start();
+      brokerItem = brokers.get(SPOKE);
+      brokerItem.broker.start();
+   }
+
+   public void setUp() throws Exception {
+      super.setAutoFail(true);
+      super.setUp();
+      final String options = "?persistent=false&useJmx=false&deleteAllMessagesOnStartup=true";
+      createBroker(new URI("broker:(tcpfaulty://localhost:61617)/" + HUB + options));
+      createBroker(new URI("broker:(tcpfaulty://localhost:61616)/" + SPOKE + options));
+   }
+
+   public static Test suite() {
+      return suite(MulticastDiscoveryOnFaultyNetworkTest.class);
+   }
+
+   @Override
+   protected void onSend(int i, TextMessage msg) {
+      sleep(50);
+   }
+
+   private void sleep(int milliSecondTime) {
+      try {
+         Thread.sleep(milliSecondTime);
+      }
+      catch (InterruptedException igonred) {
+      }
+   }
+
+   @Override
+   protected NetworkConnector bridgeBrokers(BrokerService localBroker,
+                                            BrokerService remoteBroker,
+                                            boolean dynamicOnly,
+                                            int networkTTL,
+                                            boolean conduit,
+                                            boolean failover) throws Exception {
+      String networkDisoveryUrlString = useStaticDiscovery ? "static:(" + remoteBroker.getTransportConnectors().get(0).getPublishableConnectString() + ")?useExponentialBackOff=false" : "multicast://default?group=TESTERIC&useLocalHost=false";
+
+      DiscoveryNetworkConnector connector = new DiscoveryNetworkConnector(new URI(networkDisoveryUrlString));
+      connector.setDynamicOnly(dynamicOnly);
+      connector.setNetworkTTL(networkTTL);
+      connector.setDuplex(useDuplexNetworkBridge);
+      maxSetupTime = 2000;
+      if (!useStaticDiscovery) {
+         List<TransportConnector> transportConnectors = remoteBroker.getTransportConnectors();
+         if (!transportConnectors.isEmpty()) {
+            TransportConnector mCastTrpConnector = ((TransportConnector) transportConnectors.get(0));
+            mCastTrpConnector.setDiscoveryUri(new URI("multicast://default?group=TESTERIC"));
+         }
+      }
+      localBroker.addNetworkConnector(connector);
+      return connector;
+   }
 }

@@ -42,129 +42,132 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class SoWriteTimeoutTest extends JmsTestSupport {
-    private static final Logger LOG = LoggerFactory.getLogger(SoWriteTimeoutTest.class);
 
-    final int receiveBufferSize = 16*1024;
-    public String brokerTransportScheme = "nio";
+   private static final Logger LOG = LoggerFactory.getLogger(SoWriteTimeoutTest.class);
 
-    protected BrokerService createBroker() throws Exception {
-        BrokerService broker = super.createBroker();
-        broker.setPersistent(true);
-        broker.setDeleteAllMessagesOnStartup(true);
-        KahaDBPersistenceAdapter adapter = new KahaDBPersistenceAdapter();
-        adapter.setConcurrentStoreAndDispatchQueues(false);
-        broker.setPersistenceAdapter(adapter);
-        broker.addConnector(brokerTransportScheme + "://localhost:0?wireFormat.maxInactivityDuration=0&transport.soWriteTimeout=1000&transport.sleep=1000");
-        if ("nio".equals(brokerTransportScheme)) {
-            broker.addConnector("stomp+" + brokerTransportScheme + "://localhost:0?transport.soWriteTimeout=1000&transport.sleep=1000&socketBufferSize=" + receiveBufferSize + "&trace=true");
-        }
-        return broker;
-    }
+   final int receiveBufferSize = 16 * 1024;
+   public String brokerTransportScheme = "nio";
 
-    public void initCombosForTestWriteTimeout() {
-        addCombinationValues("brokerTransportScheme", new Object[]{"tcp", "nio"});
-    }
+   protected BrokerService createBroker() throws Exception {
+      BrokerService broker = super.createBroker();
+      broker.setPersistent(true);
+      broker.setDeleteAllMessagesOnStartup(true);
+      KahaDBPersistenceAdapter adapter = new KahaDBPersistenceAdapter();
+      adapter.setConcurrentStoreAndDispatchQueues(false);
+      broker.setPersistenceAdapter(adapter);
+      broker.addConnector(brokerTransportScheme + "://localhost:0?wireFormat.maxInactivityDuration=0&transport.soWriteTimeout=1000&transport.sleep=1000");
+      if ("nio".equals(brokerTransportScheme)) {
+         broker.addConnector("stomp+" + brokerTransportScheme + "://localhost:0?transport.soWriteTimeout=1000&transport.sleep=1000&socketBufferSize=" + receiveBufferSize + "&trace=true");
+      }
+      return broker;
+   }
 
-    public void testWriteTimeout() throws Exception {
+   public void initCombosForTestWriteTimeout() {
+      addCombinationValues("brokerTransportScheme", new Object[]{"tcp", "nio"});
+   }
 
-        Destination dest = new ActiveMQQueue("testWriteTimeout");
-        messageTextPrefix = initMessagePrefix(8*1024);
-        sendMessages(dest, 500);
+   public void testWriteTimeout() throws Exception {
 
-        URI tcpBrokerUri = URISupport.removeQuery(broker.getTransportConnectors().get(0).getConnectUri());
-        LOG.info("consuming using uri: " + tcpBrokerUri);
+      Destination dest = new ActiveMQQueue("testWriteTimeout");
+      messageTextPrefix = initMessagePrefix(8 * 1024);
+      sendMessages(dest, 500);
 
-        SocketProxy proxy = new SocketProxy();
-        proxy.setTarget(tcpBrokerUri);
-        proxy.setReceiveBufferSize(receiveBufferSize);
-        proxy.open();
+      URI tcpBrokerUri = URISupport.removeQuery(broker.getTransportConnectors().get(0).getConnectUri());
+      LOG.info("consuming using uri: " + tcpBrokerUri);
 
-        ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(proxy.getUrl());
-        Connection c = factory.createConnection();
-        c.start();
-        Session session = c.createSession(true, Session.SESSION_TRANSACTED);
-        MessageConsumer consumer = session.createConsumer(dest);
-        proxy.pause();
-        // writes should back up... writeTimeout will kick in and abort the connection
-        TimeUnit.SECONDS.sleep(10);
-        proxy.goOn();
-        assertNotNull("can receive buffered messages", consumer.receive(500));
-        try {
-            session.commit();
-            fail("expect commit to fail as server has aborted writeTimeout connection");
-        } catch (JMSException expected) {
-        }
-    }
+      SocketProxy proxy = new SocketProxy();
+      proxy.setTarget(tcpBrokerUri);
+      proxy.setReceiveBufferSize(receiveBufferSize);
+      proxy.open();
 
-    public void testWriteTimeoutStompNio() throws Exception {
-        ActiveMQQueue dest = new ActiveMQQueue("testWriteTimeout");
-        messageTextPrefix = initMessagePrefix(8*1024);
-        sendMessages(dest, 500);
+      ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(proxy.getUrl());
+      Connection c = factory.createConnection();
+      c.start();
+      Session session = c.createSession(true, Session.SESSION_TRANSACTED);
+      MessageConsumer consumer = session.createConsumer(dest);
+      proxy.pause();
+      // writes should back up... writeTimeout will kick in and abort the connection
+      TimeUnit.SECONDS.sleep(10);
+      proxy.goOn();
+      assertNotNull("can receive buffered messages", consumer.receive(500));
+      try {
+         session.commit();
+         fail("expect commit to fail as server has aborted writeTimeout connection");
+      }
+      catch (JMSException expected) {
+      }
+   }
 
-        URI stompBrokerUri = URISupport.removeQuery(broker.getTransportConnectors().get(1).getConnectUri());
-        LOG.info("consuming using uri: " + stompBrokerUri);
+   public void testWriteTimeoutStompNio() throws Exception {
+      ActiveMQQueue dest = new ActiveMQQueue("testWriteTimeout");
+      messageTextPrefix = initMessagePrefix(8 * 1024);
+      sendMessages(dest, 500);
 
-        SocketProxy proxy = new SocketProxy();
-        proxy.setTarget(new URI("tcp://localhost:" + stompBrokerUri.getPort()));
-        proxy.setReceiveBufferSize(receiveBufferSize);
-        proxy.open();
+      URI stompBrokerUri = URISupport.removeQuery(broker.getTransportConnectors().get(1).getConnectUri());
+      LOG.info("consuming using uri: " + stompBrokerUri);
 
-        StompConnection stompConnection = new StompConnection();
-        stompConnection.open(new Socket("localhost", proxy.getUrl().getPort()));
-        stompConnection.getStompSocket().setTcpNoDelay(true);
+      SocketProxy proxy = new SocketProxy();
+      proxy.setTarget(new URI("tcp://localhost:" + stompBrokerUri.getPort()));
+      proxy.setReceiveBufferSize(receiveBufferSize);
+      proxy.open();
 
-        String frame = "CONNECT\n" + "login:system\n" + "passcode:manager\n\n" + Stomp.NULL;
-        stompConnection.sendFrame(frame);
-        frame = stompConnection.receiveFrame();
-        assertTrue(frame.startsWith("CONNECTED"));
+      StompConnection stompConnection = new StompConnection();
+      stompConnection.open(new Socket("localhost", proxy.getUrl().getPort()));
+      stompConnection.getStompSocket().setTcpNoDelay(true);
 
-        frame = "SUBSCRIBE\n" + "destination:/queue/" + dest.getQueueName() + "\n" + "ack:client\n\n" + Stomp.NULL;
-        stompConnection.sendFrame(frame);
+      String frame = "CONNECT\n" + "login:system\n" + "passcode:manager\n\n" + Stomp.NULL;
+      stompConnection.sendFrame(frame);
+      frame = stompConnection.receiveFrame();
+      assertTrue(frame.startsWith("CONNECTED"));
 
-        // ensure dispatch has started before pause
-        frame = stompConnection.receiveFrame();
-        assertTrue(frame.startsWith("MESSAGE"));
+      frame = "SUBSCRIBE\n" + "destination:/queue/" + dest.getQueueName() + "\n" + "ack:client\n\n" + Stomp.NULL;
+      stompConnection.sendFrame(frame);
 
-        proxy.pause();
+      // ensure dispatch has started before pause
+      frame = stompConnection.receiveFrame();
+      assertTrue(frame.startsWith("MESSAGE"));
 
-        // writes should back up... writeTimeout will kick in and abort the connection
-        TimeUnit.SECONDS.sleep(1);
+      proxy.pause();
 
-        // see the blocked threads
-        //dumpAllThreads("blocked on write");
+      // writes should back up... writeTimeout will kick in and abort the connection
+      TimeUnit.SECONDS.sleep(1);
 
-        // abort should be done after this
-        TimeUnit.SECONDS.sleep(10);
+      // see the blocked threads
+      //dumpAllThreads("blocked on write");
 
-        proxy.goOn();
+      // abort should be done after this
+      TimeUnit.SECONDS.sleep(10);
 
-        // get a buffered message
-        frame = stompConnection.receiveFrame();
-        assertTrue(frame.startsWith("MESSAGE"));
+      proxy.goOn();
 
-        // verify connection is dead
-        try {
-            for (int i=0; i<200; i++) {
-                stompConnection.send("/queue/" + dest.getPhysicalName(),  "ShouldBeDeadConnectionText" + i);
-            }
-            fail("expected send to fail with timeout out connection");
-        } catch (SocketException expected) {
-            LOG.info("got exception on send after timeout: " + expected);
-        }
-    }
+      // get a buffered message
+      frame = stompConnection.receiveFrame();
+      assertTrue(frame.startsWith("MESSAGE"));
 
-    private String initMessagePrefix(int i) {
-        byte[] content = new byte[i];
-        return new String(content);
-    }
+      // verify connection is dead
+      try {
+         for (int i = 0; i < 200; i++) {
+            stompConnection.send("/queue/" + dest.getPhysicalName(), "ShouldBeDeadConnectionText" + i);
+         }
+         fail("expected send to fail with timeout out connection");
+      }
+      catch (SocketException expected) {
+         LOG.info("got exception on send after timeout: " + expected);
+      }
+   }
 
-    @Override
-    protected void setUp() throws Exception {
-        setAutoFail(true);
-        super.setUp();
-    }
+   private String initMessagePrefix(int i) {
+      byte[] content = new byte[i];
+      return new String(content);
+   }
 
-    public static Test suite() {
-        return suite(SoWriteTimeoutTest.class);
-    }
+   @Override
+   protected void setUp() throws Exception {
+      setAutoFail(true);
+      super.setUp();
+   }
+
+   public static Test suite() {
+      return suite(SoWriteTimeoutTest.class);
+   }
 }

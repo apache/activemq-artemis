@@ -21,12 +21,14 @@ package org.apache.activemq.artemis.utils;
  * href="http://en.wikipedia.org/wiki/Token_bucket">Token Bucket metaphor</a>.
  * <p>
  * The rate is specified in cycles per second (or 'Hertz').
+ *
  * @see <a href="http://en.wikipedia.org/wiki/Token_bucket">Token bucket</a>
  */
-public interface TokenBucketLimiter
-{
+public interface TokenBucketLimiter {
+
    /**
     * Returns the rate in cycles per second (which is the same as saying 'in Hertz').
+    *
     * @see <a href="https://en.wikipedia.org/wiki/Hertz">Hertz</a>
     */
    int getRate();

@@ -36,141 +36,143 @@ import org.apache.activemq.broker.region.policy.VMPendingSubscriberMessageStorag
 
 public class ProducerFlowControlSendFailTest extends ProducerFlowControlTest {
 
-    protected BrokerService createBroker() throws Exception {
-        BrokerService service = new BrokerService();
-        service.setPersistent(false);
-        service.setUseJmx(false);
+   protected BrokerService createBroker() throws Exception {
+      BrokerService service = new BrokerService();
+      service.setPersistent(false);
+      service.setUseJmx(false);
 
-        // Setup a destination policy where it takes only 1 message at a time.
-        PolicyMap policyMap = new PolicyMap();
-        PolicyEntry policy = new PolicyEntry();
-        policy.setMemoryLimit(1);
-        policy.setPendingSubscriberPolicy(new VMPendingSubscriberMessageStoragePolicy());
-        policy.setPendingQueuePolicy(new VMPendingQueueMessageStoragePolicy());
-        policy.setProducerFlowControl(true);
-        policyMap.setDefaultEntry(policy);
-        service.setDestinationPolicy(policyMap);
-        
-        service.getSystemUsage().setSendFailIfNoSpace(true);
+      // Setup a destination policy where it takes only 1 message at a time.
+      PolicyMap policyMap = new PolicyMap();
+      PolicyEntry policy = new PolicyEntry();
+      policy.setMemoryLimit(1);
+      policy.setPendingSubscriberPolicy(new VMPendingSubscriberMessageStoragePolicy());
+      policy.setPendingQueuePolicy(new VMPendingQueueMessageStoragePolicy());
+      policy.setProducerFlowControl(true);
+      policyMap.setDefaultEntry(policy);
+      service.setDestinationPolicy(policyMap);
 
-        connector = service.addConnector("tcp://localhost:0");
-        return service;
-    }
-    
-    @Override
-    public void test2ndPublisherWithStandardConnectionThatIsBlocked() throws Exception {
-        // with sendFailIfNoSpace set, there is no blocking of the connection
-    }
-    
-    @Override
-    public void testAsyncPublisherRecoverAfterBlock() throws Exception {
-        // sendFail means no flowControllwindow as there is no producer ack, just an exception
-    }
-    
-    @Override
-    public void testPublisherRecoverAfterBlock() throws Exception {
-        ActiveMQConnectionFactory factory = (ActiveMQConnectionFactory)createConnectionFactory();
-        // with sendFail, there must be no flowControllwindow
-        // sendFail is an alternative flow control mechanism that does not block
-        factory.setUseAsyncSend(true);
-        connection = (ActiveMQConnection)factory.createConnection();
-        connections.add(connection);
-        connection.start();
+      service.getSystemUsage().setSendFailIfNoSpace(true);
 
-        final Session session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
-        final MessageProducer producer = session.createProducer(queueA);
-        
-        final AtomicBoolean keepGoing = new AtomicBoolean(true);
-   
-        Thread thread = new Thread("Filler") {
-            @Override
-            public void run() {
-                while (keepGoing.get()) {
-                    try {
-                        producer.send(session.createTextMessage("Test message"));
-                        if (gotResourceException.get()) {
-                            // do not flood the broker with requests when full as we are sending async and they 
-                            // will be limited by the network buffers
-                            Thread.sleep(200);
-                        }
-                    } catch (Exception e) {
-                        // with async send, there will be no exceptions
-                        e.printStackTrace();
-                    }
-                }
+      connector = service.addConnector("tcp://localhost:0");
+      return service;
+   }
+
+   @Override
+   public void test2ndPublisherWithStandardConnectionThatIsBlocked() throws Exception {
+      // with sendFailIfNoSpace set, there is no blocking of the connection
+   }
+
+   @Override
+   public void testAsyncPublisherRecoverAfterBlock() throws Exception {
+      // sendFail means no flowControllwindow as there is no producer ack, just an exception
+   }
+
+   @Override
+   public void testPublisherRecoverAfterBlock() throws Exception {
+      ActiveMQConnectionFactory factory = (ActiveMQConnectionFactory) createConnectionFactory();
+      // with sendFail, there must be no flowControllwindow
+      // sendFail is an alternative flow control mechanism that does not block
+      factory.setUseAsyncSend(true);
+      connection = (ActiveMQConnection) factory.createConnection();
+      connections.add(connection);
+      connection.start();
+
+      final Session session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
+      final MessageProducer producer = session.createProducer(queueA);
+
+      final AtomicBoolean keepGoing = new AtomicBoolean(true);
+
+      Thread thread = new Thread("Filler") {
+         @Override
+         public void run() {
+            while (keepGoing.get()) {
+               try {
+                  producer.send(session.createTextMessage("Test message"));
+                  if (gotResourceException.get()) {
+                     // do not flood the broker with requests when full as we are sending async and they
+                     // will be limited by the network buffers
+                     Thread.sleep(200);
+                  }
+               }
+               catch (Exception e) {
+                  // with async send, there will be no exceptions
+                  e.printStackTrace();
+               }
             }
-        };
-        thread.start();
-        waitForBlockedOrResourceLimit(new AtomicBoolean(false));
+         }
+      };
+      thread.start();
+      waitForBlockedOrResourceLimit(new AtomicBoolean(false));
 
-        // resourceException on second message, resumption if we
-        // can receive 10
-        MessageConsumer consumer = session.createConsumer(queueA);
-        TextMessage msg;
-        for (int idx = 0; idx < 10; ++idx) {
-            msg = (TextMessage) consumer.receive(1000);
-            if (msg != null) {
-                msg.acknowledge();
+      // resourceException on second message, resumption if we
+      // can receive 10
+      MessageConsumer consumer = session.createConsumer(queueA);
+      TextMessage msg;
+      for (int idx = 0; idx < 10; ++idx) {
+         msg = (TextMessage) consumer.receive(1000);
+         if (msg != null) {
+            msg.acknowledge();
+         }
+      }
+      keepGoing.set(false);
+   }
+
+   public void testPublisherRecoverAfterBlockWithSyncSend() throws Exception {
+      ActiveMQConnectionFactory factory = (ActiveMQConnectionFactory) createConnectionFactory();
+      factory.setExceptionListener(null);
+      factory.setUseAsyncSend(false);
+      connection = (ActiveMQConnection) factory.createConnection();
+      connections.add(connection);
+      connection.start();
+
+      final Session session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
+      final MessageProducer producer = session.createProducer(queueA);
+
+      final AtomicBoolean keepGoing = new AtomicBoolean(true);
+      final AtomicInteger exceptionCount = new AtomicInteger(0);
+      Thread thread = new Thread("Filler") {
+         @Override
+         public void run() {
+            while (keepGoing.get()) {
+               try {
+                  producer.send(session.createTextMessage("Test message"));
+               }
+               catch (JMSException arg0) {
+                  if (arg0 instanceof ResourceAllocationException) {
+                     gotResourceException.set(true);
+                     exceptionCount.incrementAndGet();
+                  }
+               }
             }
-        }
-        keepGoing.set(false);
-    }
+         }
+      };
+      thread.start();
+      waitForBlockedOrResourceLimit(new AtomicBoolean(false));
 
-    public void testPublisherRecoverAfterBlockWithSyncSend() throws Exception {
-        ActiveMQConnectionFactory factory = (ActiveMQConnectionFactory)createConnectionFactory();
-        factory.setExceptionListener(null);
-        factory.setUseAsyncSend(false);
-        connection = (ActiveMQConnection)factory.createConnection();
-        connections.add(connection);
-        connection.start();
+      // resourceException on second message, resumption if we
+      // can receive 10
+      MessageConsumer consumer = session.createConsumer(queueA);
+      TextMessage msg;
+      for (int idx = 0; idx < 10; ++idx) {
+         msg = (TextMessage) consumer.receive(1000);
+         if (msg != null) {
+            msg.acknowledge();
+         }
+      }
+      assertTrue("we were blocked at least 5 times", 5 < exceptionCount.get());
+      keepGoing.set(false);
+   }
 
-        final Session session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
-        final MessageProducer producer = session.createProducer(queueA);
-        
-        final AtomicBoolean keepGoing = new AtomicBoolean(true);
-        final AtomicInteger exceptionCount = new AtomicInteger(0);
-        Thread thread = new Thread("Filler") {
-            @Override
-            public void run() {
-                while (keepGoing.get()) {
-                    try {
-                        producer.send(session.createTextMessage("Test message"));
-                    } catch (JMSException arg0) {
-                        if (arg0 instanceof ResourceAllocationException) {
-                            gotResourceException.set(true);
-                            exceptionCount.incrementAndGet();
-                        }
-                    }
-                }
+   @Override
+   protected ConnectionFactory createConnectionFactory() throws Exception {
+      ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(connector.getConnectUri());
+      connectionFactory.setExceptionListener(new ExceptionListener() {
+         public void onException(JMSException arg0) {
+            if (arg0 instanceof ResourceAllocationException) {
+               gotResourceException.set(true);
             }
-        };
-        thread.start();
-        waitForBlockedOrResourceLimit(new AtomicBoolean(false));
-
-        // resourceException on second message, resumption if we
-        // can receive 10
-        MessageConsumer consumer = session.createConsumer(queueA);
-        TextMessage msg;
-        for (int idx = 0; idx < 10; ++idx) {
-            msg = (TextMessage) consumer.receive(1000);
-            if (msg != null) {
-                msg.acknowledge();
-            }
-        }
-        assertTrue("we were blocked at least 5 times", 5 < exceptionCount.get());
-        keepGoing.set(false);
-    }
-    
-	@Override
-	protected ConnectionFactory createConnectionFactory() throws Exception {
-		ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(connector.getConnectUri());
-		connectionFactory.setExceptionListener(new ExceptionListener() {
-				public void onException(JMSException arg0) {
-					if (arg0 instanceof ResourceAllocationException) {
-						gotResourceException.set(true);
-					}
-				}
-	        });
-		return connectionFactory;
-	}
+         }
+      });
+      return connectionFactory;
+   }
 }

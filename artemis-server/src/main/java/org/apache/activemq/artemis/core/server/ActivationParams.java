@@ -16,7 +16,7 @@
  */
 package org.apache.activemq.artemis.core.server;
 
-public class ActivationParams
-{
+public class ActivationParams {
+
    public static final String REPLICATION_ENDPOINT = "REPLICATION_ENDPOINT";
 }

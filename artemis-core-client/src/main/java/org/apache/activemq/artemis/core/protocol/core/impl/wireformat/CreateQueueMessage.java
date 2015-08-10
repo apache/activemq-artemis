@@ -20,8 +20,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 
-public class CreateQueueMessage extends PacketImpl
-{
+public class CreateQueueMessage extends PacketImpl {
 
    private SimpleString address;
 
@@ -40,8 +39,7 @@ public class CreateQueueMessage extends PacketImpl
                              final SimpleString filterString,
                              final boolean durable,
                              final boolean temporary,
-                             final boolean requiresResponse)
-   {
+                             final boolean requiresResponse) {
       this();
 
       this.address = address;
@@ -52,16 +50,14 @@ public class CreateQueueMessage extends PacketImpl
       this.requiresResponse = requiresResponse;
    }
 
-   public CreateQueueMessage()
-   {
+   public CreateQueueMessage() {
       super(CREATE_QUEUE);
    }
 
    // Public --------------------------------------------------------
 
    @Override
-   public String toString()
-   {
+   public String toString() {
       StringBuffer buff = new StringBuffer(getParentString());
       buff.append(", address=" + address);
       buff.append(", queueName=" + queueName);
@@ -72,64 +68,52 @@ public class CreateQueueMessage extends PacketImpl
       return buff.toString();
    }
 
-   public SimpleString getAddress()
-   {
+   public SimpleString getAddress() {
       return address;
    }
 
-   public SimpleString getQueueName()
-   {
+   public SimpleString getQueueName() {
       return queueName;
    }
 
-   public SimpleString getFilterString()
-   {
+   public SimpleString getFilterString() {
       return filterString;
    }
 
-   public boolean isDurable()
-   {
+   public boolean isDurable() {
       return durable;
    }
 
-   public boolean isTemporary()
-   {
+   public boolean isTemporary() {
       return temporary;
    }
 
-   public boolean isRequiresResponse()
-   {
+   public boolean isRequiresResponse() {
       return requiresResponse;
    }
 
-   public void setAddress(SimpleString address)
-   {
+   public void setAddress(SimpleString address) {
       this.address = address;
    }
 
-   public void setQueueName(SimpleString queueName)
-   {
+   public void setQueueName(SimpleString queueName) {
       this.queueName = queueName;
    }
 
-   public void setFilterString(SimpleString filterString)
-   {
+   public void setFilterString(SimpleString filterString) {
       this.filterString = filterString;
    }
 
-   public void setDurable(boolean durable)
-   {
+   public void setDurable(boolean durable) {
       this.durable = durable;
    }
 
-   public void setTemporary(boolean temporary)
-   {
+   public void setTemporary(boolean temporary) {
       this.temporary = temporary;
    }
 
    @Override
-   public void encodeRest(final ActiveMQBuffer buffer)
-   {
+   public void encodeRest(final ActiveMQBuffer buffer) {
       buffer.writeSimpleString(address);
       buffer.writeSimpleString(queueName);
       buffer.writeNullableSimpleString(filterString);
@@ -139,8 +123,7 @@ public class CreateQueueMessage extends PacketImpl
    }
 
    @Override
-   public void decodeRest(final ActiveMQBuffer buffer)
-   {
+   public void decodeRest(final ActiveMQBuffer buffer) {
       address = buffer.readSimpleString();
       queueName = buffer.readSimpleString();
       filterString = buffer.readNullableSimpleString();
@@ -150,8 +133,7 @@ public class CreateQueueMessage extends PacketImpl
    }
 
    @Override
-   public int hashCode()
-   {
+   public int hashCode() {
       final int prime = 31;
       int result = super.hashCode();
       result = prime * result + ((address == null) ? 0 : address.hashCode());
@@ -164,17 +146,15 @@ public class CreateQueueMessage extends PacketImpl
    }
 
    @Override
-   public boolean equals(Object obj)
-   {
+   public boolean equals(Object obj) {
       if (this == obj)
          return true;
       if (!super.equals(obj))
          return false;
       if (!(obj instanceof CreateQueueMessage))
          return false;
-      CreateQueueMessage other = (CreateQueueMessage)obj;
-      if (address == null)
-      {
+      CreateQueueMessage other = (CreateQueueMessage) obj;
+      if (address == null) {
          if (other.address != null)
             return false;
       }
@@ -182,15 +162,13 @@ public class CreateQueueMessage extends PacketImpl
          return false;
       if (durable != other.durable)
          return false;
-      if (filterString == null)
-      {
+      if (filterString == null) {
          if (other.filterString != null)
             return false;
       }
       else if (!filterString.equals(other.filterString))
          return false;
-      if (queueName == null)
-      {
+      if (queueName == null) {
          if (other.queueName != null)
             return false;
       }

@@ -41,134 +41,138 @@ import org.slf4j.LoggerFactory;
 
 public class AMQ3732Test {
 
-    private static Logger LOG = LoggerFactory.getLogger(AMQ3732Test.class);
+   private static Logger LOG = LoggerFactory.getLogger(AMQ3732Test.class);
 
-    private ActiveMQConnectionFactory connectionFactory;
-    private Connection connection;
-    private Session session;
-    private BrokerService broker;
-    private String connectionUri;
+   private ActiveMQConnectionFactory connectionFactory;
+   private Connection connection;
+   private Session session;
+   private BrokerService broker;
+   private String connectionUri;
 
-    private final Random pause = new Random();
-    private final long NUM_MESSAGES = 25000;
-    private final AtomicLong totalConsumed = new AtomicLong();
+   private final Random pause = new Random();
+   private final long NUM_MESSAGES = 25000;
+   private final AtomicLong totalConsumed = new AtomicLong();
 
-    @Before
-    public void startBroker() throws Exception {
-        broker = new BrokerService();
-        broker.setDeleteAllMessagesOnStartup(true);
-        broker.setPersistent(false);
-        broker.setUseJmx(false);
-        broker.addConnector("tcp://0.0.0.0:0");
-        broker.start();
-        broker.waitUntilStarted();
+   @Before
+   public void startBroker() throws Exception {
+      broker = new BrokerService();
+      broker.setDeleteAllMessagesOnStartup(true);
+      broker.setPersistent(false);
+      broker.setUseJmx(false);
+      broker.addConnector("tcp://0.0.0.0:0");
+      broker.start();
+      broker.waitUntilStarted();
 
-        connectionUri = broker.getTransportConnectors().get(0).getPublishableConnectString();
+      connectionUri = broker.getTransportConnectors().get(0).getPublishableConnectString();
 
-        connectionFactory = new ActiveMQConnectionFactory(connectionUri);
-        connectionFactory.getPrefetchPolicy().setAll(0);
-    }
+      connectionFactory = new ActiveMQConnectionFactory(connectionUri);
+      connectionFactory.getPrefetchPolicy().setAll(0);
+   }
 
-    @After
-    public void stopBroker() throws Exception {
-        connection.close();
+   @After
+   public void stopBroker() throws Exception {
+      connection.close();
 
-        broker.stop();
-        broker.waitUntilStopped();
-    }
+      broker.stop();
+      broker.waitUntilStopped();
+   }
 
-    @Test(timeout = 1200000)
-    public void testInterruptionAffects() throws Exception {
+   @Test(timeout = 1200000)
+   public void testInterruptionAffects() throws Exception {
 
-        connection = connectionFactory.createConnection();
-        connection.start();
-        session = connection.createSession(false, ActiveMQSession.INDIVIDUAL_ACKNOWLEDGE);
+      connection = connectionFactory.createConnection();
+      connection.start();
+      session = connection.createSession(false, ActiveMQSession.INDIVIDUAL_ACKNOWLEDGE);
 
-        Queue queue = session.createQueue("AMQ3732Test");
+      Queue queue = session.createQueue("AMQ3732Test");
 
-        final LinkedBlockingQueue<Message> workQueue = new LinkedBlockingQueue<Message>();
+      final LinkedBlockingQueue<Message> workQueue = new LinkedBlockingQueue<Message>();
 
-        final MessageConsumer consumer1 = session.createConsumer(queue);
-        final MessageConsumer consumer2 = session.createConsumer(queue);
-        final MessageProducer producer = session.createProducer(queue);
+      final MessageConsumer consumer1 = session.createConsumer(queue);
+      final MessageConsumer consumer2 = session.createConsumer(queue);
+      final MessageProducer producer = session.createProducer(queue);
 
-        Thread consumer1Thread = new Thread(new Runnable() {
+      Thread consumer1Thread = new Thread(new Runnable() {
 
-            @Override
-            public void run() {
-                try {
-                    while (totalConsumed.get() < NUM_MESSAGES) {
-                        Message message = consumer1.receiveNoWait();
-                        if (message != null) {
-                            workQueue.add(message);
-                        }
-                    }
-                } catch(Exception e) {
-                    LOG.error("Caught an unexpected error: ", e);
-                }
+         @Override
+         public void run() {
+            try {
+               while (totalConsumed.get() < NUM_MESSAGES) {
+                  Message message = consumer1.receiveNoWait();
+                  if (message != null) {
+                     workQueue.add(message);
+                  }
+               }
             }
-        });
-        consumer1Thread.start();
-
-        Thread consumer2Thread = new Thread(new Runnable() {
-
-            @Override
-            public void run() {
-                try {
-                    while (totalConsumed.get() < NUM_MESSAGES) {
-                        Message message = consumer2.receive(50);
-                        if (message != null) {
-                            workQueue.add(message);
-                        }
-                    }
-                } catch(Exception e) {
-                    LOG.error("Caught an unexpected error: ", e);
-                }
+            catch (Exception e) {
+               LOG.error("Caught an unexpected error: ", e);
             }
-        });
-        consumer2Thread.start();
+         }
+      });
+      consumer1Thread.start();
 
-        Thread producerThread = new Thread(new Runnable() {
+      Thread consumer2Thread = new Thread(new Runnable() {
 
-            @Override
-            public void run() {
-                try {
-                    for (int i = 0; i < NUM_MESSAGES; ++i) {
-                        producer.send(session.createTextMessage("TEST"));
-                        TimeUnit.MILLISECONDS.sleep(pause.nextInt(10));
-                    }
-                } catch(Exception e) {
-                    LOG.error("Caught an unexpected error: ", e);
-                }
+         @Override
+         public void run() {
+            try {
+               while (totalConsumed.get() < NUM_MESSAGES) {
+                  Message message = consumer2.receive(50);
+                  if (message != null) {
+                     workQueue.add(message);
+                  }
+               }
             }
-        });
-        producerThread.start();
-
-        Thread ackingThread = new Thread(new Runnable() {
-
-            @Override
-            public void run() {
-                try {
-                    while (totalConsumed.get() < NUM_MESSAGES) {
-                        Message message = workQueue.take();
-                        message.acknowledge();
-                        totalConsumed.incrementAndGet();
-                        if ((totalConsumed.get() % 100) == 0) {
-                            LOG.info("Consumed " + totalConsumed.get() + " messages so far.");
-                        }
-                    }
-                } catch(Exception e) {
-                    LOG.error("Caught an unexpected error: ", e);
-                }
+            catch (Exception e) {
+               LOG.error("Caught an unexpected error: ", e);
             }
-        });
-        ackingThread.start();
+         }
+      });
+      consumer2Thread.start();
 
-        producerThread.join();
-        consumer1Thread.join();
-        consumer2Thread.join();
-        ackingThread.join();
+      Thread producerThread = new Thread(new Runnable() {
 
-        assertEquals(NUM_MESSAGES, totalConsumed.get());
-    }
+         @Override
+         public void run() {
+            try {
+               for (int i = 0; i < NUM_MESSAGES; ++i) {
+                  producer.send(session.createTextMessage("TEST"));
+                  TimeUnit.MILLISECONDS.sleep(pause.nextInt(10));
+               }
+            }
+            catch (Exception e) {
+               LOG.error("Caught an unexpected error: ", e);
+            }
+         }
+      });
+      producerThread.start();
+
+      Thread ackingThread = new Thread(new Runnable() {
+
+         @Override
+         public void run() {
+            try {
+               while (totalConsumed.get() < NUM_MESSAGES) {
+                  Message message = workQueue.take();
+                  message.acknowledge();
+                  totalConsumed.incrementAndGet();
+                  if ((totalConsumed.get() % 100) == 0) {
+                     LOG.info("Consumed " + totalConsumed.get() + " messages so far.");
+                  }
+               }
+            }
+            catch (Exception e) {
+               LOG.error("Caught an unexpected error: ", e);
+            }
+         }
+      });
+      ackingThread.start();
+
+      producerThread.join();
+      consumer1Thread.join();
+      consumer2Thread.join();
+      ackingThread.join();
+
+      assertEquals(NUM_MESSAGES, totalConsumed.get());
+   }
 }

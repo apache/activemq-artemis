@@ -25,8 +25,8 @@ import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.logs.ActiveMQUtilBundle;
 
-public class PasswordMaskingUtil
-{
+public class PasswordMaskingUtil {
+
    /*
     * Loading the codec class.
     *
@@ -36,8 +36,7 @@ public class PasswordMaskingUtil
     *
     * Where only <full qualified class name> is required. key/value pairs are optional
     */
-   public static SensitiveDataCodec<String> getCodec(String codecDesc) throws ActiveMQException
-   {
+   public static SensitiveDataCodec<String> getCodec(String codecDesc) throws ActiveMQException {
       SensitiveDataCodec<String> codecInstance = null;
 
       // semi colons
@@ -49,29 +48,23 @@ public class PasswordMaskingUtil
       final String codecClassName = parts[0];
 
       // load class
-      codecInstance = AccessController.doPrivileged(new PrivilegedAction<SensitiveDataCodec<String>>()
-      {
-         public SensitiveDataCodec<String> run()
-         {
+      codecInstance = AccessController.doPrivileged(new PrivilegedAction<SensitiveDataCodec<String>>() {
+         public SensitiveDataCodec<String> run() {
             ClassLoader loader = Thread.currentThread().getContextClassLoader();
-            try
-            {
+            try {
                Class<?> clazz = loader.loadClass(codecClassName);
-               return (SensitiveDataCodec<String>)clazz.newInstance();
+               return (SensitiveDataCodec<String>) clazz.newInstance();
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                throw ActiveMQUtilBundle.BUNDLE.errorCreatingCodec(e, codecClassName);
             }
          }
       });
 
-      if (parts.length > 1)
-      {
+      if (parts.length > 1) {
          Map<String, String> props = new HashMap<String, String>();
 
-         for (int i = 1; i < parts.length; i++)
-         {
+         for (int i = 1; i < parts.length; i++) {
             String[] keyVal = parts[i].split("=");
             if (keyVal.length != 2)
                throw ActiveMQUtilBundle.BUNDLE.invalidProperty(parts[i]);
@@ -83,8 +76,7 @@ public class PasswordMaskingUtil
       return codecInstance;
    }
 
-   public static SensitiveDataCodec<String> getDefaultCodec()
-   {
+   public static SensitiveDataCodec<String> getDefaultCodec() {
       return new DefaultSensitiveStringCodec();
    }
 }

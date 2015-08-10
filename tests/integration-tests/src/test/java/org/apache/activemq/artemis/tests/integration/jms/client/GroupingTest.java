@@ -40,32 +40,28 @@ import javax.jms.TextMessage;
 /**
  * GroupingTest
  */
-public class GroupingTest extends JMSTestBase
-{
+public class GroupingTest extends JMSTestBase {
+
    private Queue queue;
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       queue = createQueue("TestQueue");
    }
 
-   protected void setProperty(Message message)
-   {
-      ((ActiveMQMessage)message).getCoreMessage().putStringProperty(org.apache.activemq.artemis.api.core.Message.HDR_GROUP_ID, new SimpleString("foo"));
+   protected void setProperty(Message message) {
+      ((ActiveMQMessage) message).getCoreMessage().putStringProperty(org.apache.activemq.artemis.api.core.Message.HDR_GROUP_ID, new SimpleString("foo"));
    }
 
-   protected ConnectionFactory getCF() throws Exception
-   {
+   protected ConnectionFactory getCF() throws Exception {
       return cf;
    }
 
    @Test
-   public void testGrouping() throws Exception
-   {
+   public void testGrouping() throws Exception {
       ConnectionFactory fact = getCF();
       Connection connection = fact.createConnection();
 
@@ -81,8 +77,7 @@ public class GroupingTest extends JMSTestBase
 
       String jmsxgroupID = null;
 
-      for (int j = 0; j < 100; j++)
-      {
+      for (int j = 0; j < 100; j++) {
          TextMessage message = session.createTextMessage();
 
          message.setText("Message" + j);
@@ -95,20 +90,17 @@ public class GroupingTest extends JMSTestBase
 
          assertNotNull(prop);
 
-         if (jmsxgroupID != null)
-         {
+         if (jmsxgroupID != null) {
             assertEquals(jmsxgroupID, prop);
          }
-         else
-         {
+         else {
             jmsxgroupID = prop;
          }
       }
 
       //All msgs should go to the first consumer
-      for (int j = 0; j < 100; j++)
-      {
-         TextMessage tm = (TextMessage)consumer1.receive(10000);
+      for (int j = 0; j < 100; j++) {
+         TextMessage tm = (TextMessage) consumer1.receive(10000);
 
          assertNotNull(tm);
 
@@ -119,15 +111,12 @@ public class GroupingTest extends JMSTestBase
 
       connection.close();
 
-
    }
 
-
    @Test
-   public void testManyGroups() throws Exception
-   {
+   public void testManyGroups() throws Exception {
       ConnectionFactory fact = getCF();
-      Assume.assumeFalse("only makes sense withOUT auto-group", ((ActiveMQConnectionFactory)fact).isAutoGroup());
+      Assume.assumeFalse("only makes sense withOUT auto-group", ((ActiveMQConnectionFactory) fact).isAutoGroup());
 
       Connection connection = fact.createConnection();
 
@@ -141,8 +130,7 @@ public class GroupingTest extends JMSTestBase
 
       connection.start();
 
-      for (int j = 0; j < 1000; j++)
-      {
+      for (int j = 0; j < 1000; j++) {
          TextMessage message = session.createTextMessage();
 
          message.setText("Message" + j);
@@ -161,7 +149,6 @@ public class GroupingTest extends JMSTestBase
       int msg2 = flushMessages(consumer2);
       int msg3 = flushMessages(consumer3);
 
-
       assertNotSame(0, msg1);
       assertNotSame(0, msg2);
       assertNotSame(0, msg2);
@@ -170,15 +157,12 @@ public class GroupingTest extends JMSTestBase
       consumer2.close();
       consumer3.close();
 
-
       connection.close();
-
 
    }
 
    @Test
-   public void testGroupingRollbackOnClose() throws Exception
-   {
+   public void testGroupingRollbackOnClose() throws Exception {
       ActiveMQConnectionFactory fact = (ActiveMQConnectionFactory) getCF();
       fact.setConsumerWindowSize(1000);
       fact.setTransactionBatchSize(0);
@@ -199,8 +183,7 @@ public class GroupingTest extends JMSTestBase
 
       String jmsxgroupID = null;
 
-      for (int j = 0; j < 100; j++)
-      {
+      for (int j = 0; j < 100; j++) {
          TextMessage message = session.createTextMessage();
 
          message.setText("Message" + j);
@@ -213,20 +196,17 @@ public class GroupingTest extends JMSTestBase
 
          assertNotNull(prop);
 
-         if (jmsxgroupID != null)
-         {
+         if (jmsxgroupID != null) {
             assertEquals(jmsxgroupID, prop);
          }
-         else
-         {
+         else {
             jmsxgroupID = prop;
          }
       }
       session.commit();
       //consume 5 msgs from 1st first consumer
-      for (int j = 0; j < 1; j++)
-      {
-         TextMessage tm = (TextMessage)consumer1.receive(10000);
+      for (int j = 0; j < 1; j++) {
+         TextMessage tm = (TextMessage) consumer1.receive(10000);
 
          assertNotNull(tm);
 
@@ -238,12 +218,11 @@ public class GroupingTest extends JMSTestBase
       //session.rollback();
       //session.close();
       //consume all msgs from 2nd first consumer
-     // ClientSession amqs = ((ActiveMQSession) session).getCoreSession();
-    //  ((DelegatingSession) amqs).getChannel().close();
+      // ClientSession amqs = ((ActiveMQSession) session).getCoreSession();
+      //  ((DelegatingSession) amqs).getChannel().close();
       rc.fail(new ActiveMQNotConnectedException());
-      for (int j = 0; j < 10; j++)
-      {
-         TextMessage tm = (TextMessage)consumer2.receive(10000);
+      for (int j = 0; j < 10; j++) {
+         TextMessage tm = (TextMessage) consumer2.receive(10000);
 
          assertNotNull(tm);
 
@@ -258,14 +237,11 @@ public class GroupingTest extends JMSTestBase
       connection2.close();
    }
 
-   private int flushMessages(MessageConsumer consumer) throws JMSException
-   {
+   private int flushMessages(MessageConsumer consumer) throws JMSException {
       int received = 0;
-      while (true)
-      {
-         TextMessage msg = (TextMessage)consumer.receiveNoWait();
-         if (msg == null)
-         {
+      while (true) {
+         TextMessage msg = (TextMessage) consumer.receiveNoWait();
+         if (msg == null) {
             break;
          }
          msg.acknowledge();

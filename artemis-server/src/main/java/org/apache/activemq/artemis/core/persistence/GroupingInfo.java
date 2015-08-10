@@ -18,8 +18,8 @@ package org.apache.activemq.artemis.core.persistence;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 
-public interface GroupingInfo
-{
+public interface GroupingInfo {
+
    SimpleString getClusterName();
 
    SimpleString getGroupId();

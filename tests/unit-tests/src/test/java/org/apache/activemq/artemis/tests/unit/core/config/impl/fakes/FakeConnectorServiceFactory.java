@@ -26,39 +26,37 @@ import org.apache.activemq.artemis.core.postoffice.PostOffice;
 import org.apache.activemq.artemis.core.server.ConnectorService;
 import org.apache.activemq.artemis.core.server.ConnectorServiceFactory;
 
-public class FakeConnectorServiceFactory implements ConnectorServiceFactory
-{
+public class FakeConnectorServiceFactory implements ConnectorServiceFactory {
+
    private ConnectorService connectorService;
 
-   public FakeConnectorServiceFactory()
-   {
+   public FakeConnectorServiceFactory() {
       this.connectorService = new FakeConnectorService();
    }
 
    @Override
-   public ConnectorService createConnectorService(String connectorName, Map<String, Object> configuration, StorageManager storageManager, PostOffice postOffice, ScheduledExecutorService scheduledThreadPool)
-   {
-      if (connectorService == null)
-      {
+   public ConnectorService createConnectorService(String connectorName,
+                                                  Map<String, Object> configuration,
+                                                  StorageManager storageManager,
+                                                  PostOffice postOffice,
+                                                  ScheduledExecutorService scheduledThreadPool) {
+      if (connectorService == null) {
          return new FakeConnectorService();
       }
       return connectorService;
    }
 
    @Override
-   public Set<String> getAllowableProperties()
-   {
+   public Set<String> getAllowableProperties() {
       return new HashSet<String>();
    }
 
    @Override
-   public Set<String> getRequiredProperties()
-   {
+   public Set<String> getRequiredProperties() {
       return new HashSet<String>();
    }
 
-   public ConnectorService getConnectorService()
-   {
+   public ConnectorService getConnectorService() {
       return connectorService;
    }
 }

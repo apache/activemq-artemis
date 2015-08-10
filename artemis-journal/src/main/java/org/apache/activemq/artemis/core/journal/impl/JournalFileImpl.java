@@ -23,8 +23,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.core.io.SequentialFile;
 
-public class JournalFileImpl implements JournalFile
-{
+public class JournalFileImpl implements JournalFile {
+
    private final SequentialFile file;
 
    private final long fileID;
@@ -45,130 +45,108 @@ public class JournalFileImpl implements JournalFile
 
    private final Map<JournalFile, AtomicInteger> negCounts = new ConcurrentHashMap<JournalFile, AtomicInteger>();
 
-   public JournalFileImpl(final SequentialFile file, final long fileID, final int version)
-   {
+   public JournalFileImpl(final SequentialFile file, final long fileID, final int version) {
       this.file = file;
 
       this.fileID = fileID;
 
       this.version = version;
 
-      recordID = (int)(fileID & Integer.MAX_VALUE);
+      recordID = (int) (fileID & Integer.MAX_VALUE);
    }
 
-   public int getPosCount()
-   {
+   public int getPosCount() {
       return posCount.intValue();
    }
 
    @Override
-   public boolean isCanReclaim()
-   {
+   public boolean isCanReclaim() {
       return canReclaim;
    }
 
    @Override
-   public void setCanReclaim(final boolean canReclaim)
-   {
+   public void setCanReclaim(final boolean canReclaim) {
       this.canReclaim = canReclaim;
    }
 
-   public void incNegCount(final JournalFile file)
-   {
-      if (file != this)
-      {
+   public void incNegCount(final JournalFile file) {
+      if (file != this) {
          totalNegativeToOthers.incrementAndGet();
       }
       getOrCreateNegCount(file).incrementAndGet();
    }
 
-   public int getNegCount(final JournalFile file)
-   {
+   public int getNegCount(final JournalFile file) {
       AtomicInteger count = negCounts.get(file);
 
-      if (count == null)
-      {
+      if (count == null) {
          return 0;
       }
-      else
-      {
+      else {
          return count.intValue();
       }
    }
 
-   public int getJournalVersion()
-   {
+   public int getJournalVersion() {
       return version;
    }
 
-   public void incPosCount()
-   {
+   public void incPosCount() {
       posCount.incrementAndGet();
    }
 
-   public void decPosCount()
-   {
+   public void decPosCount() {
       posCount.decrementAndGet();
    }
 
-   public long getOffset()
-   {
+   public long getOffset() {
       return offset;
    }
 
-   public long getFileID()
-   {
+   public long getFileID() {
       return fileID;
    }
 
-   public int getRecordID()
-   {
+   public int getRecordID() {
       return recordID;
    }
 
-   public void setOffset(final long offset)
-   {
+   public void setOffset(final long offset) {
       this.offset = offset;
    }
 
-   public SequentialFile getFile()
-   {
+   public SequentialFile getFile() {
       return file;
    }
 
    @Override
-   public String toString()
-   {
-      try
-      {
+   public String toString() {
+      try {
          return "JournalFileImpl: (" + file.getFileName() + " id = " + fileID + ", recordID = " + recordID + ")";
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          e.printStackTrace();
          return "Error:" + e.toString();
       }
    }
 
-   /** Receive debug information about the journal */
-   public String debug()
-   {
+   /**
+    * Receive debug information about the journal
+    */
+   public String debug() {
       StringBuilder builder = new StringBuilder();
 
-      for (Entry<JournalFile, AtomicInteger> entry : negCounts.entrySet())
-      {
+      for (Entry<JournalFile, AtomicInteger> entry : negCounts.entrySet()) {
          builder.append(" file = " + entry.getKey() + " negcount value = " + entry.getValue() + "\n");
       }
 
       return builder.toString();
    }
 
-   private synchronized AtomicInteger getOrCreateNegCount(final JournalFile file)
-   {
+   private synchronized AtomicInteger getOrCreateNegCount(final JournalFile file) {
       AtomicInteger count = negCounts.get(file);
 
-      if (count == null)
-      {
+      if (count == null) {
          count = new AtomicInteger();
          negCounts.put(file, count);
       }
@@ -177,25 +155,21 @@ public class JournalFileImpl implements JournalFile
    }
 
    @Override
-   public void addSize(final int bytes)
-   {
+   public void addSize(final int bytes) {
       liveBytes.addAndGet(bytes);
    }
 
    @Override
-   public void decSize(final int bytes)
-   {
+   public void decSize(final int bytes) {
       liveBytes.addAndGet(-bytes);
    }
 
    @Override
-   public int getLiveSize()
-   {
+   public int getLiveSize() {
       return liveBytes.get();
    }
 
-   public int getTotalNegativeToOthers()
-   {
+   public int getTotalNegativeToOthers() {
       return totalNegativeToOthers.get();
    }
 

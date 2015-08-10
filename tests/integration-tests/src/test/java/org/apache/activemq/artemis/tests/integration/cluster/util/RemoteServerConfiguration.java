@@ -25,11 +25,9 @@ import org.apache.activemq.artemis.core.config.Configuration;
  * Therefore they must have a no argument constructor, and if they are inner classes they must be
  * static.
  */
-public abstract class RemoteServerConfiguration
-{
+public abstract class RemoteServerConfiguration {
 
-   public RemoteServerConfiguration()
-   {
+   public RemoteServerConfiguration() {
    }
 
    public abstract Configuration getConfiguration();

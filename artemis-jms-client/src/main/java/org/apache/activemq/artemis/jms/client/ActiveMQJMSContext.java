@@ -45,8 +45,8 @@ import java.io.Serializable;
 /**
  * ActiveMQ Artemis implementation of a JMSContext.
  */
-public class ActiveMQJMSContext implements JMSContext
-{
+public class ActiveMQJMSContext implements JMSContext {
+
    private static final boolean DEFAULT_AUTO_START = true;
    private final int sessionMode;
 
@@ -64,38 +64,37 @@ public class ActiveMQJMSContext implements JMSContext
    private boolean xa;
    private boolean closed;
 
-   ActiveMQJMSContext(final ActiveMQConnectionForContext connection, final int ackMode, final boolean xa, ThreadAwareContext threadAwareContext)
-   {
+   ActiveMQJMSContext(final ActiveMQConnectionForContext connection,
+                      final int ackMode,
+                      final boolean xa,
+                      ThreadAwareContext threadAwareContext) {
       this.connection = connection;
       this.sessionMode = ackMode;
       this.xa = xa;
       this.threadAwareContext = threadAwareContext;
    }
 
-   public ActiveMQJMSContext(ActiveMQConnectionForContext connection, int ackMode, ThreadAwareContext threadAwareContext)
-   {
+   public ActiveMQJMSContext(ActiveMQConnectionForContext connection,
+                             int ackMode,
+                             ThreadAwareContext threadAwareContext) {
       this(connection, ackMode, false, threadAwareContext);
    }
 
-   public ActiveMQJMSContext(ActiveMQConnectionForContext connection, ThreadAwareContext threadAwareContext)
-   {
+   public ActiveMQJMSContext(ActiveMQConnectionForContext connection, ThreadAwareContext threadAwareContext) {
       this(connection, SESSION_TRANSACTED, true, threadAwareContext);
    }
 
    // XAJMSContext implementation -------------------------------------
 
-   public JMSContext getContext()
-   {
+   public JMSContext getContext() {
       return this;
    }
 
-   public Session getSession()
-   {
+   public Session getSession() {
       return session;
    }
 
-   public XAResource getXAResource()
-   {
+   public XAResource getXAResource() {
       checkSession();
       return ((XASession) session).getXAResource();
    }
@@ -103,29 +102,23 @@ public class ActiveMQJMSContext implements JMSContext
    // JMSContext implementation -------------------------------------
 
    @Override
-   public JMSContext createContext(int sessionMode)
-   {
+   public JMSContext createContext(int sessionMode) {
       return connection.createContext(sessionMode);
    }
 
    @Override
-   public JMSProducer createProducer()
-   {
+   public JMSProducer createProducer() {
       checkSession();
-      try
-      {
+      try {
          return new ActiveMQJMSProducer(this, getInnerProducer());
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          throw JmsExceptionUtils.convertToRuntimeException(e);
       }
    }
 
-   private synchronized MessageProducer getInnerProducer() throws JMSException
-   {
-      if (innerProducer == null)
-      {
+   private synchronized MessageProducer getInnerProducer() throws JMSException {
+      if (innerProducer == null) {
          innerProducer = session.createProducer(null);
       }
 
@@ -135,29 +128,21 @@ public class ActiveMQJMSContext implements JMSContext
    /**
     *
     */
-   private void checkSession()
-   {
-      if (session == null)
-      {
-         synchronized (this)
-         {
+   private void checkSession() {
+      if (session == null) {
+         synchronized (this) {
             if (closed)
                throw new IllegalStateRuntimeException("Context is closed");
-            if (session == null)
-            {
-               try
-               {
-                  if (xa)
-                  {
+            if (session == null) {
+               try {
+                  if (xa) {
                      session = ((XAConnection) connection).createXASession();
                   }
-                  else
-                  {
+                  else {
                      session = connection.createSession(sessionMode);
                   }
                }
-               catch (JMSException e)
-               {
+               catch (JMSException e) {
                   throw JmsExceptionUtils.convertToRuntimeException(e);
                }
             }
@@ -166,567 +151,451 @@ public class ActiveMQJMSContext implements JMSContext
    }
 
    @Override
-   public String getClientID()
-   {
-      try
-      {
+   public String getClientID() {
+      try {
          return connection.getClientID();
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          throw JmsExceptionUtils.convertToRuntimeException(e);
       }
    }
 
    @Override
-   public void setClientID(String clientID)
-   {
-      try
-      {
+   public void setClientID(String clientID) {
+      try {
          connection.setClientID(clientID);
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          throw JmsExceptionUtils.convertToRuntimeException(e);
       }
    }
 
    @Override
-   public ConnectionMetaData getMetaData()
-   {
-      try
-      {
+   public ConnectionMetaData getMetaData() {
+      try {
          return connection.getMetaData();
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          throw JmsExceptionUtils.convertToRuntimeException(e);
       }
    }
 
    @Override
-   public ExceptionListener getExceptionListener()
-   {
-      try
-      {
+   public ExceptionListener getExceptionListener() {
+      try {
          return connection.getExceptionListener();
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          throw JmsExceptionUtils.convertToRuntimeException(e);
       }
    }
 
    @Override
-   public void setExceptionListener(ExceptionListener listener)
-   {
-      try
-      {
+   public void setExceptionListener(ExceptionListener listener) {
+      try {
          connection.setExceptionListener(listener);
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          throw JmsExceptionUtils.convertToRuntimeException(e);
       }
    }
 
    @Override
-   public void start()
-   {
-      try
-      {
+   public void start() {
+      try {
          connection.start();
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          throw JmsExceptionUtils.convertToRuntimeException(e);
       }
    }
 
    @Override
-   public void stop()
-   {
+   public void stop() {
       threadAwareContext.assertNotMessageListenerThreadRuntime();
-      try
-      {
+      try {
          connection.stop();
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          throw JmsExceptionUtils.convertToRuntimeException(e);
       }
    }
 
    @Override
-   public void setAutoStart(boolean autoStart)
-   {
+   public void setAutoStart(boolean autoStart) {
       this.autoStart = autoStart;
    }
 
    @Override
-   public boolean getAutoStart()
-   {
+   public boolean getAutoStart() {
       return autoStart;
    }
 
    @Override
-   public void close()
-   {
+   public void close() {
       threadAwareContext.assertNotCompletionListenerThreadRuntime();
       threadAwareContext.assertNotMessageListenerThreadRuntime();
-      try
-      {
-         synchronized (this)
-         {
+      try {
+         synchronized (this) {
             if (session != null)
                session.close();
             connection.closeFromContext();
             closed = true;
          }
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          throw JmsExceptionUtils.convertToRuntimeException(e);
       }
    }
 
    @Override
-   public BytesMessage createBytesMessage()
-   {
+   public BytesMessage createBytesMessage() {
       checkSession();
-      try
-      {
+      try {
          return session.createBytesMessage();
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          throw JmsExceptionUtils.convertToRuntimeException(e);
       }
    }
 
    @Override
-   public MapMessage createMapMessage()
-   {
+   public MapMessage createMapMessage() {
       checkSession();
-      try
-      {
+      try {
          return session.createMapMessage();
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          throw JmsExceptionUtils.convertToRuntimeException(e);
       }
    }
 
    @Override
-   public Message createMessage()
-   {
+   public Message createMessage() {
       checkSession();
-      try
-      {
+      try {
          return session.createMessage();
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          throw JmsExceptionUtils.convertToRuntimeException(e);
       }
    }
 
    @Override
-   public ObjectMessage createObjectMessage()
-   {
+   public ObjectMessage createObjectMessage() {
       checkSession();
-      try
-      {
+      try {
          return session.createObjectMessage();
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          throw JmsExceptionUtils.convertToRuntimeException(e);
       }
    }
 
    @Override
-   public ObjectMessage createObjectMessage(Serializable object)
-   {
+   public ObjectMessage createObjectMessage(Serializable object) {
       checkSession();
-      try
-      {
+      try {
          return session.createObjectMessage(object);
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          throw JmsExceptionUtils.convertToRuntimeException(e);
       }
    }
 
    @Override
-   public StreamMessage createStreamMessage()
-   {
+   public StreamMessage createStreamMessage() {
       checkSession();
-      try
-      {
+      try {
          return session.createStreamMessage();
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          throw JmsExceptionUtils.convertToRuntimeException(e);
       }
    }
 
    @Override
-   public TextMessage createTextMessage()
-   {
+   public TextMessage createTextMessage() {
       checkSession();
-      try
-      {
+      try {
          return session.createTextMessage();
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          throw JmsExceptionUtils.convertToRuntimeException(e);
       }
    }
 
    @Override
-   public TextMessage createTextMessage(String text)
-   {
+   public TextMessage createTextMessage(String text) {
       checkSession();
-      try
-      {
+      try {
          return session.createTextMessage(text);
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          throw JmsExceptionUtils.convertToRuntimeException(e);
       }
    }
 
    @Override
-   public boolean getTransacted()
-   {
+   public boolean getTransacted() {
       checkSession();
-      try
-      {
+      try {
          return session.getTransacted();
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          throw JmsExceptionUtils.convertToRuntimeException(e);
       }
    }
 
    @Override
-   public int getSessionMode()
-   {
+   public int getSessionMode() {
       return sessionMode;
    }
 
    @Override
-   public void commit()
-   {
+   public void commit() {
       threadAwareContext.assertNotCompletionListenerThreadRuntime();
       checkSession();
-      try
-      {
+      try {
          session.commit();
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          throw JmsExceptionUtils.convertToRuntimeException(e);
       }
    }
 
    @Override
-   public void rollback()
-   {
+   public void rollback() {
       threadAwareContext.assertNotCompletionListenerThreadRuntime();
       checkSession();
-      try
-      {
+      try {
          session.rollback();
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          throw JmsExceptionUtils.convertToRuntimeException(e);
       }
    }
 
    @Override
-   public void recover()
-   {
+   public void recover() {
       checkSession();
-      try
-      {
+      try {
          session.recover();
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          throw JmsExceptionUtils.convertToRuntimeException(e);
       }
    }
 
    @Override
-   public JMSConsumer createConsumer(Destination destination)
-   {
+   public JMSConsumer createConsumer(Destination destination) {
       checkSession();
-      try
-      {
+      try {
          ActiveMQJMSConsumer consumer = new ActiveMQJMSConsumer(this, session.createConsumer(destination));
          checkAutoStart();
          return consumer;
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          throw JmsExceptionUtils.convertToRuntimeException(e);
       }
    }
 
    @Override
-   public JMSConsumer createConsumer(Destination destination, String messageSelector)
-   {
+   public JMSConsumer createConsumer(Destination destination, String messageSelector) {
       checkSession();
-      try
-      {
+      try {
          ActiveMQJMSConsumer consumer = new ActiveMQJMSConsumer(this, session.createConsumer(destination, messageSelector));
          checkAutoStart();
          return consumer;
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          throw JmsExceptionUtils.convertToRuntimeException(e);
       }
    }
 
    @Override
-   public JMSConsumer createConsumer(Destination destination, String messageSelector, boolean noLocal)
-   {
+   public JMSConsumer createConsumer(Destination destination, String messageSelector, boolean noLocal) {
       checkSession();
-      try
-      {
+      try {
          ActiveMQJMSConsumer consumer = new ActiveMQJMSConsumer(this, session.createConsumer(destination, messageSelector, noLocal));
          checkAutoStart();
          return consumer;
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          throw JmsExceptionUtils.convertToRuntimeException(e);
       }
    }
 
    @Override
-   public Queue createQueue(String queueName)
-   {
+   public Queue createQueue(String queueName) {
       checkSession();
-      try
-      {
+      try {
          return session.createQueue(queueName);
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          throw JmsExceptionUtils.convertToRuntimeException(e);
       }
    }
 
    @Override
-   public Topic createTopic(String topicName)
-   {
+   public Topic createTopic(String topicName) {
       checkSession();
-      try
-      {
+      try {
          return session.createTopic(topicName);
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          throw JmsExceptionUtils.convertToRuntimeException(e);
       }
    }
 
    @Override
-   public JMSConsumer createDurableConsumer(Topic topic, String name)
-   {
+   public JMSConsumer createDurableConsumer(Topic topic, String name) {
       checkSession();
-      try
-      {
+      try {
          ActiveMQJMSConsumer consumer = new ActiveMQJMSConsumer(this, session.createDurableConsumer(topic, name));
          checkAutoStart();
          return consumer;
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          throw JmsExceptionUtils.convertToRuntimeException(e);
       }
    }
 
    @Override
-   public JMSConsumer createDurableConsumer(Topic topic, String name, String messageSelector, boolean noLocal)
-   {
+   public JMSConsumer createDurableConsumer(Topic topic, String name, String messageSelector, boolean noLocal) {
       checkSession();
-      try
-      {
+      try {
          ActiveMQJMSConsumer consumer = new ActiveMQJMSConsumer(this, session.createDurableConsumer(topic, name, messageSelector, noLocal));
          checkAutoStart();
          return consumer;
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          throw JmsExceptionUtils.convertToRuntimeException(e);
       }
    }
 
    @Override
-   public JMSConsumer createSharedDurableConsumer(Topic topic, String name)
-   {
+   public JMSConsumer createSharedDurableConsumer(Topic topic, String name) {
       checkSession();
-      try
-      {
+      try {
          ActiveMQJMSConsumer consumer = new ActiveMQJMSConsumer(this, session.createSharedDurableConsumer(topic, name));
          checkAutoStart();
          return consumer;
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          throw JmsExceptionUtils.convertToRuntimeException(e);
       }
    }
 
    @Override
-   public JMSConsumer createSharedDurableConsumer(Topic topic, String name, String messageSelector)
-   {
+   public JMSConsumer createSharedDurableConsumer(Topic topic, String name, String messageSelector) {
       checkSession();
-      try
-      {
+      try {
          ActiveMQJMSConsumer consumer = new ActiveMQJMSConsumer(this, session.createSharedDurableConsumer(topic, name, messageSelector));
          checkAutoStart();
          return consumer;
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          throw JmsExceptionUtils.convertToRuntimeException(e);
       }
    }
 
    @Override
-   public JMSConsumer createSharedConsumer(Topic topic, String sharedSubscriptionName)
-   {
+   public JMSConsumer createSharedConsumer(Topic topic, String sharedSubscriptionName) {
       checkSession();
-      try
-      {
+      try {
          ActiveMQJMSConsumer consumer = new ActiveMQJMSConsumer(this, session.createSharedConsumer(topic, sharedSubscriptionName));
          checkAutoStart();
          return consumer;
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          throw JmsExceptionUtils.convertToRuntimeException(e);
       }
    }
 
    @Override
-   public JMSConsumer createSharedConsumer(Topic topic, String sharedSubscriptionName, String messageSelector)
-   {
+   public JMSConsumer createSharedConsumer(Topic topic, String sharedSubscriptionName, String messageSelector) {
       checkSession();
-      try
-      {
+      try {
          ActiveMQJMSConsumer consumer = new ActiveMQJMSConsumer(this, session.createSharedConsumer(topic, sharedSubscriptionName, messageSelector));
          checkAutoStart();
          return consumer;
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          throw JmsExceptionUtils.convertToRuntimeException(e);
       }
    }
 
    @Override
-   public QueueBrowser createBrowser(Queue queue)
-   {
+   public QueueBrowser createBrowser(Queue queue) {
       checkSession();
-      try
-      {
+      try {
          QueueBrowser browser = session.createBrowser(queue);
          checkAutoStart();
          return browser;
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          throw JmsExceptionUtils.convertToRuntimeException(e);
       }
    }
 
    @Override
-   public QueueBrowser createBrowser(Queue queue, String messageSelector)
-   {
+   public QueueBrowser createBrowser(Queue queue, String messageSelector) {
       checkSession();
-      try
-      {
+      try {
          QueueBrowser browser = session.createBrowser(queue, messageSelector);
          checkAutoStart();
          return browser;
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          throw JmsExceptionUtils.convertToRuntimeException(e);
       }
    }
 
    @Override
-   public TemporaryQueue createTemporaryQueue()
-   {
+   public TemporaryQueue createTemporaryQueue() {
       checkSession();
-      try
-      {
+      try {
          return session.createTemporaryQueue();
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          throw JmsExceptionUtils.convertToRuntimeException(e);
       }
    }
 
    @Override
-   public TemporaryTopic createTemporaryTopic()
-   {
+   public TemporaryTopic createTemporaryTopic() {
       checkSession();
-      try
-      {
+      try {
          return session.createTemporaryTopic();
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          throw JmsExceptionUtils.convertToRuntimeException(e);
       }
    }
 
    @Override
-   public void unsubscribe(String name)
-   {
+   public void unsubscribe(String name) {
       checkSession();
-      try
-      {
+      try {
          session.unsubscribe(name);
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          throw JmsExceptionUtils.convertToRuntimeException(e);
       }
    }
 
    @Override
-   public void acknowledge()
-   {
+   public void acknowledge() {
       checkSession();
       if (closed)
          throw new IllegalStateRuntimeException("Context is closed");
-      try
-      {
-         if (lastMessagesWaitingAck != null)
-         {
+      try {
+         if (lastMessagesWaitingAck != null) {
             lastMessagesWaitingAck.acknowledge();
          }
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          throw JmsExceptionUtils.convertToRuntimeException(e);
       }
    }
@@ -737,17 +606,14 @@ public class ActiveMQJMSContext implements JMSContext
     *
     * @return
     */
-   public Session getUsedSession()
-   {
+   public Session getUsedSession() {
       return this.session;
    }
 
-   private synchronized void checkAutoStart() throws JMSException
-   {
+   private synchronized void checkAutoStart() throws JMSException {
       if (closed)
          throw new IllegalStateRuntimeException("Context is closed");
-      if (autoStart)
-      {
+      if (autoStart) {
          connection.start();
       }
    }
@@ -755,17 +621,14 @@ public class ActiveMQJMSContext implements JMSContext
    /**
     * this is to ensure Context.acknowledge would work on ClientACK
     */
-   Message setLastMessage(final JMSConsumer consumer, final Message lastMessageReceived)
-   {
-      if (sessionMode == CLIENT_ACKNOWLEDGE)
-      {
+   Message setLastMessage(final JMSConsumer consumer, final Message lastMessageReceived) {
+      if (sessionMode == CLIENT_ACKNOWLEDGE) {
          lastMessagesWaitingAck = lastMessageReceived;
       }
       return lastMessageReceived;
    }
 
-   public ThreadAwareContext getThreadAwareContext()
-   {
+   public ThreadAwareContext getThreadAwareContext() {
       return threadAwareContext;
    }
 }

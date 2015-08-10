@@ -28,8 +28,8 @@ import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.Map;
 
-public class FileBroker implements Broker
-{
+public class FileBroker implements Broker {
+
    private final String configurationUrl;
 
    private boolean started;
@@ -38,17 +38,13 @@ public class FileBroker implements Broker
 
    private Map<String, ActiveMQComponent> components;
 
-   public FileBroker(ServerDTO broker, ActiveMQSecurityManager security)
-   {
+   public FileBroker(ServerDTO broker, ActiveMQSecurityManager security) {
       this.securityManager = security;
       this.configurationUrl = broker.configuration;
    }
 
-
-   public synchronized void start() throws Exception
-   {
-      if (started)
-      {
+   public synchronized void start() throws Exception {
+      if (started) {
          return;
       }
 
@@ -64,39 +60,32 @@ public class FileBroker implements Broker
 
       ArrayList<ActiveMQComponent> componentsByStartOrder = getComponentsByStartOrder(components);
       ActiveMQBootstrapLogger.LOGGER.serverStarting();
-      for (ActiveMQComponent component : componentsByStartOrder)
-      {
+      for (ActiveMQComponent component : componentsByStartOrder) {
          component.start();
       }
       started = true;
 
-
    }
 
    @Override
-   public void stop() throws Exception
-   {
-      if (!started)
-      {
+   public void stop() throws Exception {
+      if (!started) {
          return;
       }
       ActiveMQComponent[] mqComponents = new ActiveMQComponent[components.size()];
       components.values().toArray(mqComponents);
-      for (int i = mqComponents.length - 1; i >= 0; i--)
-      {
+      for (int i = mqComponents.length - 1; i >= 0; i--) {
          mqComponents[i].stop();
       }
       started = false;
    }
 
    @Override
-   public boolean isStarted()
-   {
+   public boolean isStarted() {
       return started;
    }
 
-   public Map<String, ActiveMQComponent> getComponents()
-   {
+   public Map<String, ActiveMQComponent> getComponents() {
       return components;
    }
 
@@ -104,12 +93,10 @@ public class FileBroker implements Broker
    * this makes sure the components are started in the correct order. Its simple at the mo as e only have core and jms but
    * will need impproving if we get more.
    * */
-   public ArrayList<ActiveMQComponent> getComponentsByStartOrder(Map<String, ActiveMQComponent> components)
-   {
+   public ArrayList<ActiveMQComponent> getComponentsByStartOrder(Map<String, ActiveMQComponent> components) {
       ArrayList<ActiveMQComponent> activeMQComponents = new ArrayList<ActiveMQComponent>();
       ActiveMQComponent jmsComponent = components.get("jms");
-      if (jmsComponent != null)
-      {
+      if (jmsComponent != null) {
          activeMQComponents.add(jmsComponent);
       }
       activeMQComponents.add(components.get("core"));

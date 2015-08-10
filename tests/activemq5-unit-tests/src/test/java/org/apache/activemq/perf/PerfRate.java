@@ -17,65 +17,65 @@
 package org.apache.activemq.perf;
 
 /**
- * 
+ *
  */
 public class PerfRate {
 
-    protected int totalCount;
-    protected int count;
-    protected long startTime = System.currentTimeMillis();
+   protected int totalCount;
+   protected int count;
+   protected long startTime = System.currentTimeMillis();
 
-    /**
-     * @return Returns the count.
-     */
-    public int getCount() {
-        return totalCount;
-    }
+   /**
+    * @return Returns the count.
+    */
+   public int getCount() {
+      return totalCount;
+   }
 
-    public synchronized void increment() {
-        totalCount++;
-        count++;
-    }
+   public synchronized void increment() {
+      totalCount++;
+      count++;
+   }
 
-    public int getRate() {
-        long endTime = System.currentTimeMillis();
-        long totalTime = endTime - startTime;
-        int result = (int)((count * 1000) / totalTime);
-        return result;
-    }
+   public int getRate() {
+      long endTime = System.currentTimeMillis();
+      long totalTime = endTime - startTime;
+      int result = (int) ((count * 1000) / totalTime);
+      return result;
+   }
 
-    /**
-     * Resets the rate sampling.
-     */
-    public synchronized PerfRate cloneAndReset() {
-        PerfRate rc = new PerfRate();
-        rc.totalCount = totalCount;
-        rc.count = count;
-        rc.startTime = startTime;
-        count = 0;
-        startTime = System.currentTimeMillis();
-        return rc;
-    }
+   /**
+    * Resets the rate sampling.
+    */
+   public synchronized PerfRate cloneAndReset() {
+      PerfRate rc = new PerfRate();
+      rc.totalCount = totalCount;
+      rc.count = count;
+      rc.startTime = startTime;
+      count = 0;
+      startTime = System.currentTimeMillis();
+      return rc;
+   }
 
-    /**
-     * Resets the rate sampling.
-     */
-    public void reset() {
-        count = 0;
-        startTime = System.currentTimeMillis();
-    }
+   /**
+    * Resets the rate sampling.
+    */
+   public void reset() {
+      count = 0;
+      startTime = System.currentTimeMillis();
+   }
 
-    /**
-     * @return Returns the totalCount.
-     */
-    public int getTotalCount() {
-        return totalCount;
-    }
+   /**
+    * @return Returns the totalCount.
+    */
+   public int getTotalCount() {
+      return totalCount;
+   }
 
-    /**
-     * @param totalCount The totalCount to set.
-     */
-    public void setTotalCount(int totalCount) {
-        this.totalCount = totalCount;
-    }
+   /**
+    * @param totalCount The totalCount to set.
+    */
+   public void setTotalCount(int totalCount) {
+      this.totalCount = totalCount;
+   }
 }

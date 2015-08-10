@@ -33,61 +33,56 @@ import org.apache.activemq.artemis.core.server.impl.JournalLoader;
 import org.apache.activemq.artemis.core.transaction.ResourceManager;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 
-public class FakeJournalLoader implements JournalLoader
-{
+public class FakeJournalLoader implements JournalLoader {
+
    @Override
-   public void handleNoMessageReferences(Map<Long, ServerMessage> messages)
-   {
+   public void handleNoMessageReferences(Map<Long, ServerMessage> messages) {
    }
 
    @Override
-   public void handleAddMessage(Map<Long, Map<Long, AddMessageRecord>> queueMap) throws Exception
-   {
+   public void handleAddMessage(Map<Long, Map<Long, AddMessageRecord>> queueMap) throws Exception {
    }
 
    @Override
-   public void initQueues(Map<Long, QueueBindingInfo> queueBindingInfosMap, List<QueueBindingInfo> queueBindingInfos) throws Exception
-   {
+   public void initQueues(Map<Long, QueueBindingInfo> queueBindingInfosMap,
+                          List<QueueBindingInfo> queueBindingInfos) throws Exception {
    }
 
    @Override
-   public void handleGroupingBindings(List<GroupingInfo> groupingInfos)
-   {
+   public void handleGroupingBindings(List<GroupingInfo> groupingInfos) {
    }
 
    @Override
-   public void handleDuplicateIds(Map<SimpleString, List<Pair<byte[], Long>>> duplicateIDMap) throws Exception
-   {
+   public void handleDuplicateIds(Map<SimpleString, List<Pair<byte[], Long>>> duplicateIDMap) throws Exception {
    }
 
    @Override
-   public void postLoad(Journal messageJournal, ResourceManager resourceManager, Map<SimpleString, List<Pair<byte[], Long>>> duplicateIDMap)
-   {
+   public void postLoad(Journal messageJournal,
+                        ResourceManager resourceManager,
+                        Map<SimpleString, List<Pair<byte[], Long>>> duplicateIDMap) {
    }
 
    @Override
-   public void handlePreparedSendMessage(ServerMessage message, Transaction tx, long queueID)
-   {
+   public void handlePreparedSendMessage(ServerMessage message, Transaction tx, long queueID) {
    }
 
    @Override
-   public void handlePreparedAcknowledge(long messageID, List<MessageReference> referencesToAck, long queueID)
-   {
+   public void handlePreparedAcknowledge(long messageID, List<MessageReference> referencesToAck, long queueID) {
    }
 
    @Override
-   public void handlePreparedTransaction(Transaction tx, List<MessageReference> referencesToAck, Xid xid, ResourceManager resourceManager)
-   {
+   public void handlePreparedTransaction(Transaction tx,
+                                         List<MessageReference> referencesToAck,
+                                         Xid xid,
+                                         ResourceManager resourceManager) {
    }
 
    @Override
-   public void recoverPendingPageCounters(List<PageCountPending> pendingNonTXPageCounter) throws Exception
-   {
+   public void recoverPendingPageCounters(List<PageCountPending> pendingNonTXPageCounter) throws Exception {
    }
 
    @Override
-   public void cleanUp()
-   {
+   public void cleanUp() {
 
    }
 }

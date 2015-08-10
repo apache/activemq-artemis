@@ -35,174 +35,176 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class JmsTopicSelectorTest extends TestSupport {
-    private static final Logger LOG = LoggerFactory.getLogger(JmsTopicSelectorTest.class);
 
-    protected Connection connection;
-    protected Session session;
-    protected MessageConsumer consumer;
-    protected MessageProducer producer;
-    protected Destination consumerDestination;
-    protected Destination producerDestination;
-    protected boolean topic = true;
-    protected boolean durable;
-    protected int deliveryMode = DeliveryMode.PERSISTENT;
+   private static final Logger LOG = LoggerFactory.getLogger(JmsTopicSelectorTest.class);
 
-    public void setUp() throws Exception {
-        super.setUp();
+   protected Connection connection;
+   protected Session session;
+   protected MessageConsumer consumer;
+   protected MessageProducer producer;
+   protected Destination consumerDestination;
+   protected Destination producerDestination;
+   protected boolean topic = true;
+   protected boolean durable;
+   protected int deliveryMode = DeliveryMode.PERSISTENT;
 
-        connectionFactory = createConnectionFactory();
-        connection = createConnection();
-        if (durable) {
-            connection.setClientID(getClass().getName());
-        }
+   public void setUp() throws Exception {
+      super.setUp();
 
-        LOG.info("Created connection: " + connection);
+      connectionFactory = createConnectionFactory();
+      connection = createConnection();
+      if (durable) {
+         connection.setClientID(getClass().getName());
+      }
 
-        session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      LOG.info("Created connection: " + connection);
 
-        LOG.info("Created session: " + session);
+      session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-        if (topic) {
-            consumerDestination = session.createTopic(getConsumerSubject());
-            producerDestination = session.createTopic(getProducerSubject());
-        } else {
-            consumerDestination = session.createQueue(getConsumerSubject());
-            producerDestination = session.createQueue(getProducerSubject());
-        }
+      LOG.info("Created session: " + session);
 
-        LOG.info("Created  consumer destination: " + consumerDestination + " of type: " + consumerDestination.getClass());
-        LOG.info("Created  producer destination: " + producerDestination + " of type: " + producerDestination.getClass());
-        producer = session.createProducer(producerDestination);
-        producer.setDeliveryMode(deliveryMode);
+      if (topic) {
+         consumerDestination = session.createTopic(getConsumerSubject());
+         producerDestination = session.createTopic(getProducerSubject());
+      }
+      else {
+         consumerDestination = session.createQueue(getConsumerSubject());
+         producerDestination = session.createQueue(getProducerSubject());
+      }
 
-        LOG.info("Created producer: " + producer + " delivery mode = " + (deliveryMode == DeliveryMode.PERSISTENT ? "PERSISTENT" : "NON_PERSISTENT"));
-        connection.start();
-    }
+      LOG.info("Created  consumer destination: " + consumerDestination + " of type: " + consumerDestination.getClass());
+      LOG.info("Created  producer destination: " + producerDestination + " of type: " + producerDestination.getClass());
+      producer = session.createProducer(producerDestination);
+      producer.setDeliveryMode(deliveryMode);
 
-    public void tearDown() throws Exception {
-        session.close();
-        connection.close();
-    }
+      LOG.info("Created producer: " + producer + " delivery mode = " + (deliveryMode == DeliveryMode.PERSISTENT ? "PERSISTENT" : "NON_PERSISTENT"));
+      connection.start();
+   }
 
-    protected MessageConsumer createConsumer(String selector) throws JMSException {
-        if (durable) {
-            LOG.info("Creating durable consumer");
-            return session.createDurableSubscriber((Topic)consumerDestination, getName(), selector, false);
-        }
-        return session.createConsumer(consumerDestination, selector);
-    }
+   public void tearDown() throws Exception {
+      session.close();
+      connection.close();
+   }
 
-    public void sendMessages() throws Exception {
-        TextMessage message = session.createTextMessage("1");
-        message.setIntProperty("id", 1);
-        message.setJMSType("a");
-        message.setStringProperty("stringProperty", "a");
-        message.setLongProperty("longProperty", 1);
-        message.setBooleanProperty("booleanProperty", true);
-        producer.send(message);
+   protected MessageConsumer createConsumer(String selector) throws JMSException {
+      if (durable) {
+         LOG.info("Creating durable consumer");
+         return session.createDurableSubscriber((Topic) consumerDestination, getName(), selector, false);
+      }
+      return session.createConsumer(consumerDestination, selector);
+   }
 
-        message = session.createTextMessage("2");
-        message.setIntProperty("id", 2);
-        message.setJMSType("a");
-        message.setStringProperty("stringProperty", "a");
-        message.setLongProperty("longProperty", 1);
-        message.setBooleanProperty("booleanProperty", false);
-        producer.send(message);
+   public void sendMessages() throws Exception {
+      TextMessage message = session.createTextMessage("1");
+      message.setIntProperty("id", 1);
+      message.setJMSType("a");
+      message.setStringProperty("stringProperty", "a");
+      message.setLongProperty("longProperty", 1);
+      message.setBooleanProperty("booleanProperty", true);
+      producer.send(message);
 
-        message = session.createTextMessage("3");
-        message.setIntProperty("id", 3);
-        message.setJMSType("a");
-        message.setStringProperty("stringProperty", "a");
-        message.setLongProperty("longProperty", 1);
-        message.setBooleanProperty("booleanProperty", true);
-        producer.send(message);
+      message = session.createTextMessage("2");
+      message.setIntProperty("id", 2);
+      message.setJMSType("a");
+      message.setStringProperty("stringProperty", "a");
+      message.setLongProperty("longProperty", 1);
+      message.setBooleanProperty("booleanProperty", false);
+      producer.send(message);
 
-        message = session.createTextMessage("4");
-        message.setIntProperty("id", 4);
-        message.setJMSType("b");
-        message.setStringProperty("stringProperty", "b");
-        message.setLongProperty("longProperty", 2);
-        message.setBooleanProperty("booleanProperty", false);
-        producer.send(message);
+      message = session.createTextMessage("3");
+      message.setIntProperty("id", 3);
+      message.setJMSType("a");
+      message.setStringProperty("stringProperty", "a");
+      message.setLongProperty("longProperty", 1);
+      message.setBooleanProperty("booleanProperty", true);
+      producer.send(message);
 
-        message = session.createTextMessage("5");
-        message.setIntProperty("id", 5);
-        message.setJMSType("c");
-        message.setStringProperty("stringProperty", "c");
-        message.setLongProperty("longProperty", 3);
-        message.setBooleanProperty("booleanProperty", true);
-        producer.send(message);
-    }
+      message = session.createTextMessage("4");
+      message.setIntProperty("id", 4);
+      message.setJMSType("b");
+      message.setStringProperty("stringProperty", "b");
+      message.setLongProperty("longProperty", 2);
+      message.setBooleanProperty("booleanProperty", false);
+      producer.send(message);
 
-    public void consumeMessages(int remaining) throws Exception {
-        consumer = createConsumer(null);
-        for (int i = 0; i < remaining; i++) {
-            consumer.receive(1000);
-        }
-        consumer.close();
+      message = session.createTextMessage("5");
+      message.setIntProperty("id", 5);
+      message.setJMSType("c");
+      message.setStringProperty("stringProperty", "c");
+      message.setLongProperty("longProperty", 3);
+      message.setBooleanProperty("booleanProperty", true);
+      producer.send(message);
+   }
 
-    }
+   public void consumeMessages(int remaining) throws Exception {
+      consumer = createConsumer(null);
+      for (int i = 0; i < remaining; i++) {
+         consumer.receive(1000);
+      }
+      consumer.close();
 
-    public void testEmptyPropertySelector() throws Exception {
-        int remaining = 5;
-        Message message = null;
-        consumer = createConsumer("");
-        sendMessages();
-        while (true) {
-            message = consumer.receive(1000);
-            if (message == null) {
-                break;
-            }
+   }
 
-            remaining--;
-        }
-        assertEquals(remaining, 0);
-        consumer.close();
-        consumeMessages(remaining);
-    }
+   public void testEmptyPropertySelector() throws Exception {
+      int remaining = 5;
+      Message message = null;
+      consumer = createConsumer("");
+      sendMessages();
+      while (true) {
+         message = consumer.receive(1000);
+         if (message == null) {
+            break;
+         }
 
-    public void testPropertySelector() throws Exception {
-        int remaining = 5;
-        Message message = null;
-        consumer = createConsumer("stringProperty = 'a' and longProperty = 1 and booleanProperty = true");
-        sendMessages();
-        while (true) {
-            message = consumer.receive(1000);
-            if (message == null) {
-                break;
-            }
-            String text = ((TextMessage)message).getText();
-            if (!text.equals("1") && !text.equals("3")) {
-                fail("unexpected message: " + text);
-            }
-            remaining--;
-        }
-        assertEquals(remaining, 3);
-        consumer.close();
-        consumeMessages(remaining);
+         remaining--;
+      }
+      assertEquals(remaining, 0);
+      consumer.close();
+      consumeMessages(remaining);
+   }
 
-    }
+   public void testPropertySelector() throws Exception {
+      int remaining = 5;
+      Message message = null;
+      consumer = createConsumer("stringProperty = 'a' and longProperty = 1 and booleanProperty = true");
+      sendMessages();
+      while (true) {
+         message = consumer.receive(1000);
+         if (message == null) {
+            break;
+         }
+         String text = ((TextMessage) message).getText();
+         if (!text.equals("1") && !text.equals("3")) {
+            fail("unexpected message: " + text);
+         }
+         remaining--;
+      }
+      assertEquals(remaining, 3);
+      consumer.close();
+      consumeMessages(remaining);
 
-    public void testJMSPropertySelector() throws Exception {
-        int remaining = 5;
-        Message message = null;
-        consumer = createConsumer("JMSType = 'a' and stringProperty = 'a'");
-        sendMessages();
-        while (true) {
-            message = consumer.receive(1000);
-            if (message == null) {
-                break;
-            }
-            String text = ((TextMessage)message).getText();
-            if (!text.equals("1") && !text.equals("2") && !text.equals("3")) {
-                fail("unexpected message: " + text);
-            }
-            remaining--;
-        }
-        assertEquals(remaining, 2);
-        consumer.close();
-        consumeMessages(remaining);
+   }
 
-    }
+   public void testJMSPropertySelector() throws Exception {
+      int remaining = 5;
+      Message message = null;
+      consumer = createConsumer("JMSType = 'a' and stringProperty = 'a'");
+      sendMessages();
+      while (true) {
+         message = consumer.receive(1000);
+         if (message == null) {
+            break;
+         }
+         String text = ((TextMessage) message).getText();
+         if (!text.equals("1") && !text.equals("2") && !text.equals("3")) {
+            fail("unexpected message: " + text);
+         }
+         remaining--;
+      }
+      assertEquals(remaining, 2);
+      consumer.close();
+      consumeMessages(remaining);
+
+   }
 
 }

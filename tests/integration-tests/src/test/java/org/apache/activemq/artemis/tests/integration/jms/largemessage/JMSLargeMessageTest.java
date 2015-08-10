@@ -37,8 +37,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class JMSLargeMessageTest extends JMSTestBase
-{
+public class JMSLargeMessageTest extends JMSTestBase {
    // Constants -----------------------------------------------------
 
    // Attributes ----------------------------------------------------
@@ -52,22 +51,19 @@ public class JMSLargeMessageTest extends JMSTestBase
    // Public --------------------------------------------------------
 
    @Override
-   protected boolean usePersistence()
-   {
+   protected boolean usePersistence() {
       return true;
    }
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
       queue1 = createQueue("queue1");
    }
 
    @Test
-   public void testSimpleLargeMessage() throws Exception
-   {
+   public void testSimpleLargeMessage() throws Exception {
 
       conn = cf.createConnection();
 
@@ -97,12 +93,10 @@ public class JMSLargeMessageTest extends JMSTestBase
 
       System.out.println("Message = " + rm);
 
-      for (int i = 0; i < 1024 * 1024; i += 1024)
-      {
+      for (int i = 0; i < 1024 * 1024; i += 1024) {
          int numberOfBytes = rm.readBytes(data);
          Assert.assertEquals(1024, numberOfBytes);
-         for (int j = 0; j < 1024; j++)
-         {
+         for (int j = 0; j < 1024; j++) {
             Assert.assertEquals(ActiveMQTestBase.getSamplebyte(i + j), data[j]);
          }
       }
@@ -111,8 +105,7 @@ public class JMSLargeMessageTest extends JMSTestBase
    }
 
    @Test
-   public void testSimpleLargeMessage2() throws Exception
-   {
+   public void testSimpleLargeMessage2() throws Exception {
       conn = cf.createConnection();
 
       Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -143,8 +136,7 @@ public class JMSLargeMessageTest extends JMSTestBase
 
       int numberOfBytes = rm.readBytes(data);
       Assert.assertEquals(10, numberOfBytes);
-      for (int j = 0; j < numberOfBytes; j++)
-      {
+      for (int j = 0; j < numberOfBytes; j++) {
          Assert.assertEquals(ActiveMQTestBase.getSamplebyte(j), data[j]);
       }
 
@@ -152,21 +144,18 @@ public class JMSLargeMessageTest extends JMSTestBase
    }
 
    @Test
-   public void testExceptionsOnSettingNonStreaming() throws Exception
-   {
+   public void testExceptionsOnSettingNonStreaming() throws Exception {
       conn = cf.createConnection();
 
       Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
       TextMessage msg = session.createTextMessage();
 
-      try
-      {
+      try {
          msg.setObjectProperty("JMS_AMQ_InputStream", ActiveMQTestBase.createFakeLargeStream(10));
          Assert.fail("Exception was expected");
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
       }
 
       msg.setText("hello");
@@ -187,21 +176,17 @@ public class JMSLargeMessageTest extends JMSTestBase
 
       TextMessage rm = (TextMessage) cons.receive(10000);
 
-      try
-      {
-         rm.setObjectProperty("JMS_AMQ_OutputStream", new OutputStream()
-         {
+      try {
+         rm.setObjectProperty("JMS_AMQ_OutputStream", new OutputStream() {
             @Override
-            public void write(final int b) throws IOException
-            {
+            public void write(final int b) throws IOException {
                System.out.println("b = " + b);
             }
 
          });
          Assert.fail("Exception was expected");
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
       }
 
       Assert.assertEquals("hello", rm.getText());
@@ -211,8 +196,7 @@ public class JMSLargeMessageTest extends JMSTestBase
    }
 
    @Test
-   public void testWaitOnOutputStream() throws Exception
-   {
+   public void testWaitOnOutputStream() throws Exception {
       int msgSize = 1024 * 1024;
 
       conn = cf.createConnection();
@@ -244,17 +228,14 @@ public class JMSLargeMessageTest extends JMSTestBase
 
       final AtomicInteger numberOfErrors = new AtomicInteger(0);
 
-      OutputStream out = new OutputStream()
-      {
+      OutputStream out = new OutputStream() {
 
          int position = 0;
 
          @Override
-         public void write(final int b) throws IOException
-         {
+         public void write(final int b) throws IOException {
             numberOfBytes.incrementAndGet();
-            if (ActiveMQTestBase.getSamplebyte(position++) != b)
-            {
+            if (ActiveMQTestBase.getSamplebyte(position++) != b) {
                System.out.println("Wrong byte at position " + position);
                numberOfErrors.incrementAndGet();
             }
@@ -262,13 +243,11 @@ public class JMSLargeMessageTest extends JMSTestBase
 
       };
 
-      try
-      {
+      try {
          rm.setObjectProperty("JMS_AMQ_InputStream", ActiveMQTestBase.createFakeLargeStream(100));
          Assert.fail("Exception expected!");
       }
-      catch (MessageNotWriteableException expected)
-      {
+      catch (MessageNotWriteableException expected) {
       }
 
       rm.setObjectProperty("JMS_AMQ_SaveStream", out);
@@ -279,10 +258,8 @@ public class JMSLargeMessageTest extends JMSTestBase
 
    }
 
-
    @Test
-   public void testHugeString() throws Exception
-   {
+   public void testHugeString() throws Exception {
       int msgSize = 1024 * 1024;
 
       conn = cf.createConnection();
@@ -294,8 +271,7 @@ public class JMSLargeMessageTest extends JMSTestBase
       TextMessage m = session.createTextMessage();
 
       StringBuffer buffer = new StringBuffer();
-      while (buffer.length() < msgSize)
-      {
+      while (buffer.length() < msgSize) {
          buffer.append(UUIDGenerator.getInstance().generateStringUUID());
       }
 
@@ -337,18 +313,16 @@ public class JMSLargeMessageTest extends JMSTestBase
 
    // Inner classes -------------------------------------------------
 
-   class ThreadReader extends Thread
-   {
+   class ThreadReader extends Thread {
+
       CountDownLatch latch;
 
-      ThreadReader(final CountDownLatch latch)
-      {
+      ThreadReader(final CountDownLatch latch) {
          this.latch = latch;
       }
 
       @Override
-      public void run()
-      {
+      public void run() {
       }
    }
 

@@ -27,14 +27,11 @@ import org.apache.activemq.artemis.tests.util.JMSClusteredTestBase;
 import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory;
 import org.junit.Test;
 
-public class MultipleThreadsOpeningTest extends JMSClusteredTestBase
-{
+public class MultipleThreadsOpeningTest extends JMSClusteredTestBase {
 
    @Test
-   public void testMultipleOpen() throws Exception
-   {
-      cf1 = ActiveMQJMSClient.createConnectionFactoryWithHA(JMSFactoryType.CF, new TransportConfiguration(InVMConnectorFactory.class.getName(),
-                                                                                                          generateInVMParams(1)));
+   public void testMultipleOpen() throws Exception {
+      cf1 = ActiveMQJMSClient.createConnectionFactoryWithHA(JMSFactoryType.CF, new TransportConfiguration(InVMConnectorFactory.class.getName(), generateInVMParams(1)));
 
       final int numberOfOpens = 2000;
       int numberOfThreads = 20;
@@ -42,40 +39,35 @@ public class MultipleThreadsOpeningTest extends JMSClusteredTestBase
       final CountDownLatch flagAlignSemaphore = new CountDownLatch(numberOfThreads);
       final CountDownLatch flagStartRace = new CountDownLatch(1);
 
-      class ThreadOpen extends Thread
-      {
+      class ThreadOpen extends Thread {
+
          int errors = 0;
 
-         public void run()
-         {
+         public void run() {
 
-            try
-            {
+            try {
                flagAlignSemaphore.countDown();
                flagStartRace.await();
 
-               for (int i = 0; i < numberOfOpens; i++)
-               {
-                  if (i % 1000 == 0) System.out.println("tests " + i);
+               for (int i = 0; i < numberOfOpens; i++) {
+                  if (i % 1000 == 0)
+                     System.out.println("tests " + i);
                   Connection conn = cf1.createConnection();
                   Session sess = conn.createSession(true, Session.AUTO_ACKNOWLEDGE);
                   sess.close();
                   conn.close();
                }
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                e.printStackTrace();
                errors++;
             }
          }
       }
 
-
       ThreadOpen[] threads = new ThreadOpen[numberOfThreads];
 
-      for (int i = 0; i < numberOfThreads; i++)
-      {
+      for (int i = 0; i < numberOfThreads; i++) {
          threads[i] = new ThreadOpen();
          threads[i].start();
       }
@@ -83,9 +75,7 @@ public class MultipleThreadsOpeningTest extends JMSClusteredTestBase
       flagAlignSemaphore.await();
       flagStartRace.countDown();
 
-
-      for (ThreadOpen t : threads)
-      {
+      for (ThreadOpen t : threads) {
          // 5 minutes seems long but this may take a bit of time in a slower box
          t.join(300000);
          assertFalse(t.isAlive());

@@ -21,8 +21,8 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 /**
  * A response to a proposal
  */
-public class Response
-{
+public class Response {
+
    private final boolean accepted;
 
    private final SimpleString clusterName;
@@ -33,13 +33,13 @@ public class Response
 
    private volatile long timeUsed;
 
-   public Response(final SimpleString groupId, final SimpleString clusterName)
-   {
+   public Response(final SimpleString groupId, final SimpleString clusterName) {
       this(groupId, clusterName, null);
    }
 
-   public Response(final SimpleString groupId, final SimpleString clusterName, final SimpleString alternativeClusterName)
-   {
+   public Response(final SimpleString groupId,
+                   final SimpleString clusterName,
+                   final SimpleString alternativeClusterName) {
       this.groupId = groupId;
       accepted = alternativeClusterName == null;
       this.clusterName = clusterName;
@@ -47,49 +47,41 @@ public class Response
       use();
    }
 
-   public void use()
-   {
+   public void use() {
       timeUsed = System.currentTimeMillis();
    }
 
-   public long getTimeUsed()
-   {
+   public long getTimeUsed() {
       return timeUsed;
    }
 
-   public boolean isAccepted()
-   {
+   public boolean isAccepted() {
       return accepted;
    }
 
-   public SimpleString getClusterName()
-   {
+   public SimpleString getClusterName() {
       return clusterName;
    }
 
-   public SimpleString getAlternativeClusterName()
-   {
+   public SimpleString getAlternativeClusterName() {
       return alternativeClusterName;
    }
 
-   public SimpleString getChosenClusterName()
-   {
+   public SimpleString getChosenClusterName() {
       return alternativeClusterName != null ? alternativeClusterName : clusterName;
    }
 
    @Override
-   public String toString()
-   {
+   public String toString() {
       return "accepted = " + accepted +
-             " groupid = "  + groupId +
-             " clusterName = " +
-             clusterName +
-             " alternativeClusterName = " +
-             alternativeClusterName;
+         " groupid = " + groupId +
+         " clusterName = " +
+         clusterName +
+         " alternativeClusterName = " +
+         alternativeClusterName;
    }
 
-   public SimpleString getGroupId()
-   {
+   public SimpleString getGroupId() {
       return groupId;
    }
 }

@@ -73,31 +73,25 @@ import org.apache.activemq.artemis.utils.ExecutorFactory;
  *
  * @see ReplicationEndpoint
  */
-public final class ReplicationManager implements ActiveMQComponent
-{
-   public enum ADD_OPERATION_TYPE
-   {
-      UPDATE
-      {
+public final class ReplicationManager implements ActiveMQComponent {
+
+   public enum ADD_OPERATION_TYPE {
+      UPDATE {
          @Override
-         public boolean toBoolean()
-         {
+         public boolean toBoolean() {
             return true;
          }
       },
-      ADD
-      {
+      ADD {
          @Override
-         public boolean toBoolean()
-         {
+         public boolean toBoolean() {
             return false;
          }
       };
 
       public abstract boolean toBoolean();
 
-      public static ADD_OPERATION_TYPE toOperation(boolean isUpdate)
-      {
+      public static ADD_OPERATION_TYPE toOperation(boolean isUpdate) {
          return isUpdate ? UPDATE : ADD;
       }
    }
@@ -125,47 +119,44 @@ public final class ReplicationManager implements ActiveMQComponent
    /**
     * @param remotingConnection
     */
-   public ReplicationManager(CoreRemotingConnection remotingConnection, final ExecutorFactory executorFactory)
-   {
+   public ReplicationManager(CoreRemotingConnection remotingConnection, final ExecutorFactory executorFactory) {
       this.executorFactory = executorFactory;
       this.replicatingChannel = remotingConnection.getChannel(CHANNEL_ID.REPLICATION.id, -1);
       this.remotingConnection = remotingConnection;
    }
 
-   public void appendUpdateRecord(final byte journalID, final ADD_OPERATION_TYPE operation, final long id,
+   public void appendUpdateRecord(final byte journalID,
+                                  final ADD_OPERATION_TYPE operation,
+                                  final long id,
                                   final byte recordType,
-                                  final EncodingSupport record) throws Exception
-   {
-      if (enabled)
-      {
+                                  final EncodingSupport record) throws Exception {
+      if (enabled) {
          sendReplicatePacket(new ReplicationAddMessage(journalID, operation, id, recordType, record));
       }
    }
 
-   public void appendDeleteRecord(final byte journalID, final long id) throws Exception
-   {
-      if (enabled)
-      {
+   public void appendDeleteRecord(final byte journalID, final long id) throws Exception {
+      if (enabled) {
          sendReplicatePacket(new ReplicationDeleteMessage(journalID, id));
       }
    }
 
-   public void
-   appendAddRecordTransactional(final byte journalID, final ADD_OPERATION_TYPE operation, final long txID,
-                                final long id,
-                                final byte recordType,
-                                final EncodingSupport record) throws Exception
-   {
-      if (enabled)
-      {
+   public void appendAddRecordTransactional(final byte journalID,
+                                            final ADD_OPERATION_TYPE operation,
+                                            final long txID,
+                                            final long id,
+                                            final byte recordType,
+                                            final EncodingSupport record) throws Exception {
+      if (enabled) {
          sendReplicatePacket(new ReplicationAddTXMessage(journalID, operation, txID, id, recordType, record));
       }
    }
 
-   public void appendCommitRecord(final byte journalID, final long txID, boolean sync, final boolean lineUp) throws Exception
-   {
-      if (enabled)
-      {
+   public void appendCommitRecord(final byte journalID,
+                                  final long txID,
+                                  boolean sync,
+                                  final boolean lineUp) throws Exception {
+      if (enabled) {
          sendReplicatePacket(new ReplicationCommitMessage(journalID, false, txID), lineUp);
       }
    }
@@ -173,35 +164,28 @@ public final class ReplicationManager implements ActiveMQComponent
    public void appendDeleteRecordTransactional(final byte journalID,
                                                final long txID,
                                                final long id,
-                                               final EncodingSupport record) throws Exception
-   {
-      if (enabled)
-      {
+                                               final EncodingSupport record) throws Exception {
+      if (enabled) {
          sendReplicatePacket(new ReplicationDeleteTXMessage(journalID, txID, id, record));
       }
    }
 
-   public void appendDeleteRecordTransactional(final byte journalID, final long txID, final long id) throws Exception
-   {
-      if (enabled)
-      {
+   public void appendDeleteRecordTransactional(final byte journalID, final long txID, final long id) throws Exception {
+      if (enabled) {
          sendReplicatePacket(new ReplicationDeleteTXMessage(journalID, txID, id, NullEncoding.instance));
       }
    }
 
-   public void
-   appendPrepareRecord(final byte journalID, final long txID, final EncodingSupport transactionData) throws Exception
-   {
-      if (enabled)
-      {
+   public void appendPrepareRecord(final byte journalID,
+                                   final long txID,
+                                   final EncodingSupport transactionData) throws Exception {
+      if (enabled) {
          sendReplicatePacket(new ReplicationPrepareMessage(journalID, txID, transactionData));
       }
    }
 
-   public void appendRollbackRecord(final byte journalID, final long txID) throws Exception
-   {
-      if (enabled)
-      {
+   public void appendRollbackRecord(final byte journalID, final long txID) throws Exception {
+      if (enabled) {
          sendReplicatePacket(new ReplicationCommitMessage(journalID, true, txID));
       }
    }
@@ -210,65 +194,50 @@ public final class ReplicationManager implements ActiveMQComponent
     * @param storeName
     * @param pageNumber
     */
-   public void pageClosed(final SimpleString storeName, final int pageNumber)
-   {
-      if (enabled)
-      {
+   public void pageClosed(final SimpleString storeName, final int pageNumber) {
+      if (enabled) {
          sendReplicatePacket(new ReplicationPageEventMessage(storeName, pageNumber, false));
       }
    }
 
-   public void pageDeleted(final SimpleString storeName, final int pageNumber)
-   {
-      if (enabled)
-      {
+   public void pageDeleted(final SimpleString storeName, final int pageNumber) {
+      if (enabled) {
          sendReplicatePacket(new ReplicationPageEventMessage(storeName, pageNumber, true));
       }
    }
 
-   public void pageWrite(final PagedMessage message, final int pageNumber)
-   {
-      if (enabled)
-      {
+   public void pageWrite(final PagedMessage message, final int pageNumber) {
+      if (enabled) {
          sendReplicatePacket(new ReplicationPageWriteMessage(message, pageNumber));
       }
    }
 
-   public void largeMessageBegin(final long messageId)
-   {
-      if (enabled)
-      {
+   public void largeMessageBegin(final long messageId) {
+      if (enabled) {
          sendReplicatePacket(new ReplicationLargeMessageBeginMessage(messageId));
       }
    }
 
-   public void largeMessageDelete(final Long messageId)
-   {
-      if (enabled)
-      {
+   public void largeMessageDelete(final Long messageId) {
+      if (enabled) {
          sendReplicatePacket(new ReplicationLargeMessageEndMessage(messageId));
       }
    }
 
-   public void largeMessageWrite(final long messageId, final byte[] body)
-   {
-      if (enabled)
-      {
+   public void largeMessageWrite(final long messageId, final byte[] body) {
+      if (enabled) {
          sendReplicatePacket(new ReplicationLargeMessageWriteMessage(messageId, body));
       }
    }
 
    @Override
-   public synchronized boolean isStarted()
-   {
+   public synchronized boolean isStarted() {
       return started;
    }
 
    @Override
-   public synchronized void start() throws ActiveMQException
-   {
-      if (started)
-      {
+   public synchronized void start() throws ActiveMQException {
+      if (started) {
          throw new IllegalStateException("ReplicationManager is already started");
       }
 
@@ -281,26 +250,21 @@ public final class ReplicationManager implements ActiveMQComponent
       enabled = true;
    }
 
-   public synchronized void stop() throws Exception
-   {
-      if (!started)
-      {
+   public synchronized void stop() throws Exception {
+      if (!started) {
          return;
       }
 
-      synchronized (replicationLock)
-      {
+      synchronized (replicationLock) {
          enabled = false;
-         if (replicatingChannel != null)
-         {
+         if (replicatingChannel != null) {
             replicatingChannel.close();
          }
          clearReplicationTokens();
       }
 
       RemotingConnection toStop = remotingConnection;
-      if (toStop != null)
-      {
+      if (toStop != null) {
          toStop.removeFailureListener(failureListener);
       }
       remotingConnection = null;
@@ -313,19 +277,14 @@ public final class ReplicationManager implements ActiveMQComponent
     * This can be necessary in case the live loses connection to the backup (network failure, or
     * backup crashing).
     */
-   public void clearReplicationTokens()
-   {
-      synchronized (replicationLock)
-      {
-         while (!pendingTokens.isEmpty())
-         {
+   public void clearReplicationTokens() {
+      synchronized (replicationLock) {
+         while (!pendingTokens.isEmpty()) {
             OperationContext ctx = pendingTokens.poll();
-            try
-            {
+            try {
                ctx.replicationDone();
             }
-            catch (Throwable e)
-            {
+            catch (Throwable e) {
                ActiveMQServerLogger.LOGGER.errorCompletingCallbackOnReplicationManager(e);
             }
          }
@@ -335,16 +294,14 @@ public final class ReplicationManager implements ActiveMQComponent
    /**
     * A list of tokens that are still waiting for replications to be completed
     */
-   public Set<OperationContext> getActiveTokens()
-   {
+   public Set<OperationContext> getActiveTokens() {
 
       LinkedHashSet<OperationContext> activeContexts = new LinkedHashSet<OperationContext>();
 
       // The same context will be replicated on the pending tokens...
       // as the multiple operations will be replicated on the same context
 
-      for (OperationContext ctx : pendingTokens)
-      {
+      for (OperationContext ctx : pendingTokens) {
          activeContexts.add(ctx);
       }
 
@@ -352,32 +309,26 @@ public final class ReplicationManager implements ActiveMQComponent
 
    }
 
-   private OperationContext sendReplicatePacket(final Packet packet)
-   {
+   private OperationContext sendReplicatePacket(final Packet packet) {
       return sendReplicatePacket(packet, true);
    }
 
-   private OperationContext sendReplicatePacket(final Packet packet, boolean lineUp)
-   {
+   private OperationContext sendReplicatePacket(final Packet packet, boolean lineUp) {
       if (!enabled)
          return null;
       boolean runItNow = false;
 
       OperationContext repliToken = OperationContextImpl.getContext(executorFactory);
-      if (lineUp)
-      {
+      if (lineUp) {
          repliToken.replicationLineUp();
       }
 
-      synchronized (replicationLock)
-      {
-         if (enabled)
-         {
+      synchronized (replicationLock) {
+         if (enabled) {
             pendingTokens.add(repliToken);
             replicatingChannel.send(packet);
          }
-         else
-         {
+         else {
             // Already replicating channel failed, so just play the action now
             runItNow = true;
          }
@@ -385,8 +336,7 @@ public final class ReplicationManager implements ActiveMQComponent
 
       // Execute outside lock
 
-      if (runItNow)
-      {
+      if (runItNow) {
          repliToken.replicationDone();
       }
 
@@ -398,12 +348,10 @@ public final class ReplicationManager implements ActiveMQComponent
     *                               response. If your packets are triggering this exception, it may be because the
     *                               packets were not sent with {@link #sendReplicatePacket(Packet)}.
     */
-   private void replicated()
-   {
+   private void replicated() {
       OperationContext ctx = pendingTokens.poll();
 
-      if (ctx == null)
-      {
+      if (ctx == null) {
          throw new IllegalStateException("Missing replication token on the queue.");
       }
 
@@ -412,68 +360,56 @@ public final class ReplicationManager implements ActiveMQComponent
 
    // Inner classes -------------------------------------------------
 
-   private final class ReplicatedSessionFailureListener implements SessionFailureListener
-   {
+   private final class ReplicatedSessionFailureListener implements SessionFailureListener {
+
       @Override
-      public void connectionFailed(final ActiveMQException me, boolean failedOver)
-      {
-         if (me.getType() == ActiveMQExceptionType.DISCONNECTED)
-         {
+      public void connectionFailed(final ActiveMQException me, boolean failedOver) {
+         if (me.getType() == ActiveMQExceptionType.DISCONNECTED) {
             // Backup has shut down - no need to log a stack trace
             ActiveMQServerLogger.LOGGER.replicationStopOnBackupShutdown();
          }
-         else
-         {
+         else {
             ActiveMQServerLogger.LOGGER.replicationStopOnBackupFail(me);
          }
 
-         try
-         {
+         try {
             stop();
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             ActiveMQServerLogger.LOGGER.errorStoppingReplication(e);
          }
       }
 
       @Override
-      public void connectionFailed(final ActiveMQException me, boolean failedOver, String scaleDownTargetNodeID)
-      {
+      public void connectionFailed(final ActiveMQException me, boolean failedOver, String scaleDownTargetNodeID) {
          connectionFailed(me, failedOver);
       }
 
-      public void beforeReconnect(final ActiveMQException me)
-      {
+      public void beforeReconnect(final ActiveMQException me) {
       }
    }
 
-   private final class ResponseHandler implements ChannelHandler
-   {
-      public void handlePacket(final Packet packet)
-      {
-         if (packet.getType() == PacketImpl.REPLICATION_RESPONSE)
-         {
+   private final class ResponseHandler implements ChannelHandler {
+
+      public void handlePacket(final Packet packet) {
+         if (packet.getType() == PacketImpl.REPLICATION_RESPONSE) {
             replicated();
          }
       }
 
    }
 
-   private static final class NullEncoding implements EncodingSupport
-   {
+   private static final class NullEncoding implements EncodingSupport {
+
       static final NullEncoding instance = new NullEncoding();
 
-      public void decode(final ActiveMQBuffer buffer)
-      {
+      public void decode(final ActiveMQBuffer buffer) {
       }
 
-      public void encode(final ActiveMQBuffer buffer)
-      {
+      public void encode(final ActiveMQBuffer buffer) {
       }
 
-      public int getEncodeSize()
-      {
+      public int getEncodeSize() {
          return 0;
       }
    }
@@ -484,35 +420,28 @@ public final class ReplicationManager implements ActiveMQComponent
     * @throws ActiveMQException
     * @throws Exception
     */
-   public void syncJournalFile(JournalFile jf, JournalContent content) throws Exception
-   {
-      if (!enabled)
-      {
+   public void syncJournalFile(JournalFile jf, JournalContent content) throws Exception {
+      if (!enabled) {
          return;
       }
       SequentialFile file = jf.getFile().cloneFile();
-      try
-      {
+      try {
          ActiveMQServerLogger.LOGGER.journalSynch(jf, file.size(), file);
          sendLargeFile(content, null, jf.getFileID(), file, Long.MAX_VALUE);
       }
-      finally
-      {
+      finally {
          if (file.isOpen())
             file.close();
       }
    }
 
-   public void syncLargeMessageFile(SequentialFile file, long size, long id) throws Exception
-   {
-      if (enabled)
-      {
+   public void syncLargeMessageFile(SequentialFile file, long size, long id) throws Exception {
+      if (enabled) {
          sendLargeFile(null, null, id, file, size);
       }
    }
 
-   public void syncPages(SequentialFile file, long id, SimpleString queueName) throws Exception
-   {
+   public void syncPages(SequentialFile file, long id, SimpleString queueName) throws Exception {
       if (enabled)
          sendLargeFile(null, queueName, id, file, Long.MAX_VALUE);
    }
@@ -527,41 +456,35 @@ public final class ReplicationManager implements ActiveMQComponent
     * @param maxBytesToSend maximum number of bytes to read and send from the file
     * @throws Exception
     */
-   private void sendLargeFile(JournalContent content, SimpleString pageStore, final long id, SequentialFile file,
-                              long maxBytesToSend) throws Exception
-   {
+   private void sendLargeFile(JournalContent content,
+                              SimpleString pageStore,
+                              final long id,
+                              SequentialFile file,
+                              long maxBytesToSend) throws Exception {
       if (!enabled)
          return;
-      if (!file.isOpen())
-      {
+      if (!file.isOpen()) {
          file.open();
       }
-      try
-      {
+      try {
          final FileInputStream fis = new FileInputStream(file.getJavaFile());
-         try
-         {
+         try {
             final FileChannel channel = fis.getChannel();
-            try
-            {
+            try {
                // We can afford having a single buffer here for this entire loop
                // because sendReplicatePacket will encode the packet as a NettyBuffer
                // through ActiveMQBuffer class leaving this buffer free to be reused on the next copy
                final ByteBuffer buffer = ByteBuffer.allocate(1 << 17); // 1 << 17 == 131072 == 128 * 1024
-               while (true)
-               {
+               while (true) {
                   buffer.clear();
                   final int bytesRead = channel.read(buffer);
                   int toSend = bytesRead;
-                  if (bytesRead > 0)
-                  {
-                     if (bytesRead >= maxBytesToSend)
-                     {
+                  if (bytesRead > 0) {
+                     if (bytesRead >= maxBytesToSend) {
                         toSend = (int) maxBytesToSend;
                         maxBytesToSend = 0;
                      }
-                     else
-                     {
+                     else {
                         maxBytesToSend = maxBytesToSend - bytesRead;
                      }
                      buffer.limit(toSend);
@@ -574,18 +497,15 @@ public final class ReplicationManager implements ActiveMQComponent
                      break;
                }
             }
-            finally
-            {
+            finally {
                channel.close();
             }
          }
-         finally
-         {
+         finally {
             fis.close();
          }
       }
-      finally
-      {
+      finally {
          if (file.isOpen())
             file.close();
       }
@@ -598,9 +518,10 @@ public final class ReplicationManager implements ActiveMQComponent
     * @param contentType
     * @throws ActiveMQException
     */
-   public void sendStartSyncMessage(JournalFile[] datafiles, JournalContent contentType, String nodeID,
-                                    boolean allowsAutoFailBack) throws ActiveMQException
-   {
+   public void sendStartSyncMessage(JournalFile[] datafiles,
+                                    JournalContent contentType,
+                                    String nodeID,
+                                    boolean allowsAutoFailBack) throws ActiveMQException {
       if (enabled)
          sendReplicatePacket(new ReplicationStartSyncMessage(datafiles, contentType, nodeID, allowsAutoFailBack));
    }
@@ -613,10 +534,8 @@ public final class ReplicationManager implements ActiveMQComponent
     *
     * @param nodeID
     */
-   public void sendSynchronizationDone(String nodeID)
-   {
-      if (enabled)
-      {
+   public void sendSynchronizationDone(String nodeID) {
+      if (enabled) {
          sendReplicatePacket(new ReplicationStartSyncMessage(nodeID));
          inSync = false;
       }
@@ -630,8 +549,7 @@ public final class ReplicationManager implements ActiveMQComponent
     *
     * @param largeMessages
     */
-   public void sendLargeMessageIdListMessage(Map<Long, Pair<String, Long>> largeMessages)
-   {
+   public void sendLargeMessageIdListMessage(Map<Long, Pair<String, Long>> largeMessages) {
       ArrayList<Long> idsToSend;
       idsToSend = new ArrayList<Long>(largeMessages.keySet());
 
@@ -647,11 +565,9 @@ public final class ReplicationManager implements ActiveMQComponent
     *
     * @return
     */
-   public OperationContext sendLiveIsStopping(final LiveStopping finalMessage)
-   {
+   public OperationContext sendLiveIsStopping(final LiveStopping finalMessage) {
       ActiveMQServerLogger.LOGGER.debug("LIVE IS STOPPING?!? message=" + finalMessage + " enabled=" + enabled);
-      if (enabled)
-      {
+      if (enabled) {
          ActiveMQServerLogger.LOGGER.debug("LIVE IS STOPPING?!? message=" + finalMessage + " " + enabled);
          return sendReplicatePacket(new ReplicationLiveIsStoppingMessage(finalMessage));
       }
@@ -663,16 +579,14 @@ public final class ReplicationManager implements ActiveMQComponent
     *
     * @return remoting connection with the backup
     */
-   public CoreRemotingConnection getBackupTransportConnection()
-   {
+   public CoreRemotingConnection getBackupTransportConnection() {
       return remotingConnection;
    }
 
    /**
     * @return
     */
-   public boolean isSynchronizing()
-   {
+   public boolean isSynchronizing() {
       return inSync;
    }
 }

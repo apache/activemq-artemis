@@ -43,11 +43,10 @@ import java.util.concurrent.atomic.AtomicInteger;
  * II - Find the class on the list (you will find it if you already tried running this testcase before)
  * III - Add -Djava.library.path=<your project place>/native/src/.libs
  */
-public class MultiThreadAsynchronousFileTest extends AIOTestBase
-{
+public class MultiThreadAsynchronousFileTest extends AIOTestBase {
+
    @BeforeClass
-   public static void hasAIO()
-   {
+   public static void hasAIO() {
       org.junit.Assume.assumeTrue("Test case needs AIO to run", AIOSequentialFileFactory.isSupported());
    }
 
@@ -63,53 +62,45 @@ public class MultiThreadAsynchronousFileTest extends AIOTestBase
 
    ExecutorService pollerExecutor;
 
-   private static void debug(final String msg)
-   {
+   private static void debug(final String msg) {
       UnitTestLogger.LOGGER.info(msg);
    }
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
-      pollerExecutor = Executors.newCachedThreadPool(new ActiveMQThreadFactory("ActiveMQ-AIO-poller-pool" + System.identityHashCode(this),
-                                                                              false, this.getClass().getClassLoader()));
+      pollerExecutor = Executors.newCachedThreadPool(new ActiveMQThreadFactory("ActiveMQ-AIO-poller-pool" + System.identityHashCode(this), false, this.getClass().getClassLoader()));
       executor = Executors.newSingleThreadExecutor();
    }
 
    @Override
    @After
-   public void tearDown() throws Exception
-   {
+   public void tearDown() throws Exception {
       executor.shutdown();
       pollerExecutor.shutdown();
       super.tearDown();
    }
 
    @Test
-   public void testMultipleASynchronousWrites() throws Throwable
-   {
+   public void testMultipleASynchronousWrites() throws Throwable {
       executeTest(false);
    }
 
    @Test
-   public void testMultipleSynchronousWrites() throws Throwable
-   {
+   public void testMultipleSynchronousWrites() throws Throwable {
       executeTest(true);
    }
 
-   private void executeTest(final boolean sync) throws Throwable
-   {
+   private void executeTest(final boolean sync) throws Throwable {
       MultiThreadAsynchronousFileTest.debug(sync ? "Sync test:" : "Async test");
       AIOSequentialFileFactory factory = new AIOSequentialFileFactory(getTestDirfile(), 21000);
       factory.start();
       factory.disableBufferReuse();
 
-      AIOSequentialFile file = (AIOSequentialFile)factory.createSequentialFile(fileName);
+      AIOSequentialFile file = (AIOSequentialFile) factory.createSequentialFile(fileName);
       file.open();
-      try
-      {
+      try {
          MultiThreadAsynchronousFileTest.debug("Preallocating file");
 
          file.fill(MultiThreadAsynchronousFileTest.NUMBER_OF_THREADS *
@@ -119,8 +110,7 @@ public class MultiThreadAsynchronousFileTest extends AIOTestBase
          CountDownLatch latchStart = new CountDownLatch(MultiThreadAsynchronousFileTest.NUMBER_OF_THREADS + 1);
 
          ArrayList<ThreadProducer> list = new ArrayList<ThreadProducer>(MultiThreadAsynchronousFileTest.NUMBER_OF_THREADS);
-         for (int i = 0; i < MultiThreadAsynchronousFileTest.NUMBER_OF_THREADS; i++)
-         {
+         for (int i = 0; i < MultiThreadAsynchronousFileTest.NUMBER_OF_THREADS; i++) {
             ThreadProducer producer = new ThreadProducer("Thread " + i, latchStart, file, sync);
             list.add(producer);
             producer.start();
@@ -131,11 +121,9 @@ public class MultiThreadAsynchronousFileTest extends AIOTestBase
 
          long startTime = System.currentTimeMillis();
 
-         for (ThreadProducer producer : list)
-         {
+         for (ThreadProducer producer : list) {
             producer.join();
-            if (producer.failed != null)
-            {
+            if (producer.failed != null) {
                throw producer.failed;
             }
          }
@@ -144,29 +132,25 @@ public class MultiThreadAsynchronousFileTest extends AIOTestBase
          MultiThreadAsynchronousFileTest.debug((sync ? "Sync result:" : "Async result:") + " Records/Second = " +
                                                   MultiThreadAsynchronousFileTest.NUMBER_OF_THREADS *
                                                      MultiThreadAsynchronousFileTest.NUMBER_OF_LINES *
-                                                     1000 /
-                                                     (endTime - startTime) +
+                                                     1000 / (endTime - startTime) +
                                                   " total time = " +
                                                   (endTime - startTime) +
                                                   " total number of records = " +
-                                                  MultiThreadAsynchronousFileTest.NUMBER_OF_THREADS *
-                                                     MultiThreadAsynchronousFileTest.NUMBER_OF_LINES);
+                                                  MultiThreadAsynchronousFileTest.NUMBER_OF_THREADS * MultiThreadAsynchronousFileTest.NUMBER_OF_LINES);
       }
-      finally
-      {
+      finally {
          file.close();
          factory.stop();
       }
 
    }
 
-   private int getNewPosition()
-   {
+   private int getNewPosition() {
       return position.addAndGet(1);
    }
 
-   class ThreadProducer extends Thread
-   {
+   class ThreadProducer extends Thread {
+
       Throwable failed = null;
 
       CountDownLatch latchStart;
@@ -178,8 +162,7 @@ public class MultiThreadAsynchronousFileTest extends AIOTestBase
       public ThreadProducer(final String name,
                             final CountDownLatch latchStart,
                             final AIOSequentialFile libaio,
-                            final boolean sync)
-      {
+                            final boolean sync) {
          super(name);
          this.latchStart = latchStart;
          this.libaio = libaio;
@@ -187,24 +170,20 @@ public class MultiThreadAsynchronousFileTest extends AIOTestBase
       }
 
       @Override
-      public void run()
-      {
+      public void run() {
          super.run();
 
          ByteBuffer buffer = null;
 
          buffer = LibaioContext.newAlignedBuffer(MultiThreadAsynchronousFileTest.SIZE, 512);
 
-         try
-         {
+         try {
 
             // I'm always reusing the same buffer, as I don't want any noise from
             // malloc on the measurement
             // Encoding buffer
-            MultiThreadAsynchronousFileTest.addString("Thread name=" + Thread.currentThread().getName() + ";" + "\n",
-                                                      buffer);
-            for (int local = buffer.position(); local < buffer.capacity() - 1; local++)
-            {
+            MultiThreadAsynchronousFileTest.addString("Thread name=" + Thread.currentThread().getName() + ";" + "\n", buffer);
+            for (int local = buffer.position(); local < buffer.capacity() - 1; local++) {
                buffer.put((byte) ' ');
             }
             buffer.put((byte) '\n');
@@ -214,60 +193,49 @@ public class MultiThreadAsynchronousFileTest extends AIOTestBase
 
             CountDownLatch latchFinishThread = null;
 
-            if (!sync)
-            {
+            if (!sync) {
                latchFinishThread = new CountDownLatch(MultiThreadAsynchronousFileTest.NUMBER_OF_LINES);
             }
 
             LinkedList<CountDownCallback> list = new LinkedList<CountDownCallback>();
 
-            for (int i = 0; i < MultiThreadAsynchronousFileTest.NUMBER_OF_LINES; i++)
-            {
+            for (int i = 0; i < MultiThreadAsynchronousFileTest.NUMBER_OF_LINES; i++) {
 
-               if (sync)
-               {
+               if (sync) {
                   latchFinishThread = new CountDownLatch(1);
                }
                CountDownCallback callback = new CountDownCallback(latchFinishThread, null, null, 0);
-               if (!sync)
-               {
+               if (!sync) {
                   list.add(callback);
                }
                addData(libaio, buffer, callback);
-               if (sync)
-               {
+               if (sync) {
                   waitForLatch(latchFinishThread);
                   assertTrue(callback.doneCalled);
                   assertFalse(callback.errorCalled != 0);
                }
             }
-            if (!sync)
-            {
+            if (!sync) {
                waitForLatch(latchFinishThread);
             }
 
-            for (CountDownCallback callback : list)
-            {
+            for (CountDownCallback callback : list) {
                assertTrue(callback.doneCalled);
                assertFalse(callback.errorCalled != 0);
             }
 
-            for (CountDownCallback callback : list)
-            {
+            for (CountDownCallback callback : list) {
                assertTrue(callback.doneCalled);
                assertFalse(callback.errorCalled != 0);
             }
 
          }
-         catch (Throwable e)
-         {
+         catch (Throwable e) {
             e.printStackTrace();
             failed = e;
          }
-         finally
-         {
-            synchronized (MultiThreadAsynchronousFileTest.class)
-            {
+         finally {
+            synchronized (MultiThreadAsynchronousFileTest.class) {
                LibaioContext.freeBuffer(buffer);
             }
          }
@@ -275,14 +243,14 @@ public class MultiThreadAsynchronousFileTest extends AIOTestBase
       }
    }
 
-   private static void addString(final String str, final ByteBuffer buffer)
-   {
+   private static void addString(final String str, final ByteBuffer buffer) {
       byte[] bytes = str.getBytes();
       buffer.put(bytes);
    }
 
-   private void addData(final AIOSequentialFile aio, final ByteBuffer buffer, final IOCallback callback) throws Exception
-   {
+   private void addData(final AIOSequentialFile aio,
+                        final ByteBuffer buffer,
+                        final IOCallback callback) throws Exception {
       aio.writeDirect(buffer, true, callback);
    }
 

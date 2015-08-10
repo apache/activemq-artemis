@@ -40,8 +40,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(BMUnitRunner.class)
-public class ClosingConnectionTest extends ActiveMQTestBase
-{
+public class ClosingConnectionTest extends ActiveMQTestBase {
+
    public static final SimpleString ADDRESS = new SimpleString("SimpleAddress");
 
    private ServerLocator locator;
@@ -52,16 +52,13 @@ public class ClosingConnectionTest extends ActiveMQTestBase
 
    private static boolean readyToKill = false;
 
-   protected boolean isNetty()
-   {
+   protected boolean isNetty() {
       return true;
    }
 
-
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
       mBeanServer = MBeanServerFactory.createMBeanServer();
       server = newActiveMQServer();
@@ -73,24 +70,18 @@ public class ClosingConnectionTest extends ActiveMQTestBase
       readyToKill = false;
    }
 
-   public static void killConnection() throws InterruptedException
-   {
-      if (readyToKill)
-      {
+   public static void killConnection() throws InterruptedException {
+      if (readyToKill) {
          // We have to kill the connection in a new thread otherwise Netty won't interrupt the current thread
-         Thread closeConnectionThread = new Thread(new Runnable()
-         {
+         Thread closeConnectionThread = new Thread(new Runnable() {
             @Override
-            public void run()
-            {
-               try
-               {
+            public void run() {
+               try {
                   ActiveMQServerControl serverControl = ManagementControlHelper.createActiveMQServerControl(mBeanServer);
                   serverControl.closeConnectionsForUser("guest");
                   readyToKill = false;
                }
-               catch (Exception e)
-               {
+               catch (Exception e) {
                   e.printStackTrace();
                }
             }
@@ -98,8 +89,7 @@ public class ClosingConnectionTest extends ActiveMQTestBase
 
          closeConnectionThread.start();
 
-         try
-         {
+         try {
             /* We want to simulate a long-running remoting thread here. If closing the connection in the closeConnectionThread
              * interrupts this thread then it will cause sleep() to throw and InterruptedException. Therefore we catch
              * the InterruptedException and re-interrupt the current thread so the interrupt will be passed properly
@@ -107,8 +97,7 @@ public class ClosingConnectionTest extends ActiveMQTestBase
              */
             Thread.sleep(1500);
          }
-         catch (InterruptedException e)
-         {
+         catch (InterruptedException e) {
             Thread.currentThread().interrupt();
          }
       }
@@ -118,26 +107,17 @@ public class ClosingConnectionTest extends ActiveMQTestBase
    * Test for https://bugzilla.redhat.com/show_bug.cgi?id=1193085
    * */
    @Test
-   @BMRules
-      (
-         rules =
-            {
-               @BMRule
-                  (
-                     name = "rule to kill connection",
-                     targetClass = "org.apache.activemq.artemis.core.io.nio.NIOSequentialFile",
-                     targetMethod = "open(int, boolean)",
-                     targetLocation = "AT INVOKE java.nio.channels.FileChannel.size()",
-                     action = "org.apache.activemq.artemis.tests.extras.byteman.ClosingConnectionTest.killConnection();"
+   @BMRules(
+      rules = {@BMRule(
+         name = "rule to kill connection",
+         targetClass = "org.apache.activemq.artemis.core.io.nio.NIOSequentialFile",
+         targetMethod = "open(int, boolean)",
+         targetLocation = "AT INVOKE java.nio.channels.FileChannel.size()",
+         action = "org.apache.activemq.artemis.tests.extras.byteman.ClosingConnectionTest.killConnection();"
 
-                  )
-            }
-      )
-   public void testKillConnection() throws Exception
-   {
-      locator.setBlockOnNonDurableSend(true)
-              .setBlockOnDurableSend(true)
-              .setBlockOnAcknowledge(true);
+      )})
+   public void testKillConnection() throws Exception {
+      locator.setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setBlockOnAcknowledge(true);
 
       ClientSessionFactory sf = createSessionFactory(locator);
       ClientSession session = sf.createSession("guest", null, false, true, true, false, 0);
@@ -149,24 +129,20 @@ public class ClosingConnectionTest extends ActiveMQTestBase
       ClientMessage message = session.createMessage(true);
       message.getBodyBuffer().writeBytes(new byte[1024]);
 
-      for (int i = 0; i < 200; i++)
-      {
+      for (int i = 0; i < 200; i++) {
          producer.send(message);
       }
 
       assertTrue(server.locateQueue(ADDRESS).getPageSubscription().getPagingStore().isPaging());
 
       readyToKill = true;
-      try
-      {
-         for (int i = 0; i < 8; i++)
-         {
+      try {
+         for (int i = 0; i < 8; i++) {
             producer.send(message);
          }
          fail("Sending message here should result in failure.");
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          IntegrationTestLogger.LOGGER.info("Caught exception: " + e.getMessage());
       }
 
@@ -177,14 +153,11 @@ public class ClosingConnectionTest extends ActiveMQTestBase
       session.close();
    }
 
-   private ActiveMQServer newActiveMQServer() throws Exception
-   {
+   private ActiveMQServer newActiveMQServer() throws Exception {
       ActiveMQServer server = createServer(true, createDefaultConfig(isNetty()));
       server.setMBeanServer(mBeanServer);
 
-      AddressSettings defaultSetting = new AddressSettings()
-              .setPageSizeBytes(10 * 1024)
-              .setMaxSizeBytes(20 * 1024);
+      AddressSettings defaultSetting = new AddressSettings().setPageSizeBytes(10 * 1024).setMaxSizeBytes(20 * 1024);
 
       server.getAddressSettingsRepository().addMatch("#", defaultSetting);
 

@@ -23,8 +23,8 @@ import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
 
-public final class SimpleWaitIOCallback extends SyncIOCompletion
-{
+public final class SimpleWaitIOCallback extends SyncIOCompletion {
+
    private final CountDownLatch latch = new CountDownLatch(1);
 
    private volatile String errorMessage;
@@ -32,18 +32,15 @@ public final class SimpleWaitIOCallback extends SyncIOCompletion
    private volatile int errorCode = 0;
 
    @Override
-   public String toString()
-   {
+   public String toString() {
       return SimpleWaitIOCallback.class.getName();
    }
 
-   public void done()
-   {
+   public void done() {
       latch.countDown();
    }
 
-   public void onError(final int errorCode1, final String errorMessage1)
-   {
+   public void onError(final int errorCode1, final String errorMessage1) {
       this.errorCode = errorCode1;
 
       this.errorMessage = errorMessage1;
@@ -54,28 +51,23 @@ public final class SimpleWaitIOCallback extends SyncIOCompletion
    }
 
    @Override
-   public void waitCompletion() throws InterruptedException, ActiveMQException
-   {
-      while (true)
-      {
+   public void waitCompletion() throws InterruptedException, ActiveMQException {
+      while (true) {
          if (latch.await(2, TimeUnit.SECONDS))
             break;
       }
 
-      if (errorMessage != null)
-      {
+      if (errorMessage != null) {
          throw ActiveMQExceptionType.createException(errorCode, errorMessage);
       }
 
       return;
    }
 
-   public boolean waitCompletion(final long timeout) throws InterruptedException, ActiveMQException
-   {
+   public boolean waitCompletion(final long timeout) throws InterruptedException, ActiveMQException {
       boolean retValue = latch.await(timeout, TimeUnit.MILLISECONDS);
 
-      if (errorMessage != null)
-      {
+      if (errorMessage != null) {
          throw ActiveMQExceptionType.createException(errorCode, errorMessage);
       }
 
@@ -83,7 +75,6 @@ public final class SimpleWaitIOCallback extends SyncIOCompletion
    }
 
    @Override
-   public void storeLineUp()
-   {
+   public void storeLineUp() {
    }
 }

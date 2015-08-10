@@ -24,56 +24,48 @@ import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
  *
  * Packet deprecated: It exists only to support old formats
  */
-public class SessionAddMetaDataMessage extends PacketImpl
-{
+public class SessionAddMetaDataMessage extends PacketImpl {
+
    private String key;
    private String data;
 
-   public SessionAddMetaDataMessage()
-   {
+   public SessionAddMetaDataMessage() {
       super(SESS_ADD_METADATA);
    }
 
-   public SessionAddMetaDataMessage(String k, String d)
-   {
+   public SessionAddMetaDataMessage(String k, String d) {
       this();
       key = k;
       data = d;
    }
 
    @Override
-   public void encodeRest(final ActiveMQBuffer buffer)
-   {
+   public void encodeRest(final ActiveMQBuffer buffer) {
       buffer.writeString(key);
       buffer.writeString(data);
    }
 
    @Override
-   public void decodeRest(final ActiveMQBuffer buffer)
-   {
+   public void decodeRest(final ActiveMQBuffer buffer) {
       key = buffer.readString();
       data = buffer.readString();
    }
 
    @Override
-   public final boolean isRequiresConfirmations()
-   {
+   public final boolean isRequiresConfirmations() {
       return false;
    }
 
-   public String getKey()
-   {
+   public String getKey() {
       return key;
    }
 
-   public String getData()
-   {
+   public String getData() {
       return data;
    }
 
    @Override
-   public int hashCode()
-   {
+   public int hashCode() {
       final int prime = 31;
       int result = super.hashCode();
       result = prime * result + ((data == null) ? 0 : data.hashCode());
@@ -82,24 +74,21 @@ public class SessionAddMetaDataMessage extends PacketImpl
    }
 
    @Override
-   public boolean equals(Object obj)
-   {
+   public boolean equals(Object obj) {
       if (this == obj)
          return true;
       if (!super.equals(obj))
          return false;
       if (!(obj instanceof SessionAddMetaDataMessage))
          return false;
-      SessionAddMetaDataMessage other = (SessionAddMetaDataMessage)obj;
-      if (data == null)
-      {
+      SessionAddMetaDataMessage other = (SessionAddMetaDataMessage) obj;
+      if (data == null) {
          if (other.data != null)
             return false;
       }
       else if (!data.equals(other.data))
          return false;
-      if (key == null)
-      {
+      if (key == null) {
          if (other.key != null)
             return false;
       }

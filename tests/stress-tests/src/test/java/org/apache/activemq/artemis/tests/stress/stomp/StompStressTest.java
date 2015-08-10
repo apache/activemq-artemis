@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.stress.stomp;
+
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Before;
 import org.junit.After;
@@ -43,8 +44,8 @@ import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 
-public class StompStressTest extends ActiveMQTestBase
-{
+public class StompStressTest extends ActiveMQTestBase {
+
    private static final int COUNT = 1000;
 
    private final int port = 61613;
@@ -58,8 +59,7 @@ public class StompStressTest extends ActiveMQTestBase
    private ActiveMQServer server;
 
    @Test
-   public void testSendAndReceiveMessage() throws Exception
-   {
+   public void testSendAndReceiveMessage() throws Exception {
       String frame = "CONNECT\n" + "login: brianm\n" + "passcode: wombats\n\n" + Stomp.NULL;
       sendFrame(frame);
 
@@ -71,14 +71,12 @@ public class StompStressTest extends ActiveMQTestBase
 
       frame = "SEND\n" + "destination:" + destination + "\n";
 
-      for (int i = 0; i < COUNT; i++)
-      {
+      for (int i = 0; i < COUNT; i++) {
          System.out.println(">>> " + i);
          sendFrame(frame + "count:" + i + "\n\n" + Stomp.NULL);
       }
 
-      for (int i = 0; i < COUNT; i++)
-      {
+      for (int i = 0; i < COUNT; i++) {
          System.out.println("<<< " + i);
          frame = receiveFrame(10000);
          Assert.assertTrue(frame.startsWith("MESSAGE"));
@@ -94,8 +92,7 @@ public class StompStressTest extends ActiveMQTestBase
    // -------------------------------------------------------------------------
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       server = createServer();
@@ -105,79 +102,59 @@ public class StompStressTest extends ActiveMQTestBase
       inputBuffer = new ByteArrayOutputStream();
    }
 
-   private ActiveMQServer createServer() throws Exception
-   {
+   private ActiveMQServer createServer() throws Exception {
       Map<String, Object> params = new HashMap<String, Object>();
       params.put(TransportConstants.PROTOCOLS_PROP_NAME, StompProtocolManagerFactory.STOMP_PROTOCOL_NAME);
       params.put(TransportConstants.PORT_PROP_NAME, TransportConstants.DEFAULT_STOMP_PORT);
       TransportConfiguration stompTransport = new TransportConfiguration(NettyAcceptorFactory.class.getName(), params);
 
-      Configuration config = createBasicConfig()
-         .setPersistenceEnabled(false)
-         .addAcceptorConfiguration(stompTransport)
-         .addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName()))
-         .addQueueConfiguration(new CoreQueueConfiguration()
-                                   .setAddress(destination)
-                                   .setName(destination)
-                                   .setDurable(false));
+      Configuration config = createBasicConfig().setPersistenceEnabled(false).addAcceptorConfiguration(stompTransport).addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName())).addQueueConfiguration(new CoreQueueConfiguration().setAddress(destination).setName(destination).setDurable(false));
 
       return addServer(ActiveMQServers.newActiveMQServer(config));
    }
 
    @Override
    @After
-   public void tearDown() throws Exception
-   {
-      if (stompSocket != null)
-      {
+   public void tearDown() throws Exception {
+      if (stompSocket != null) {
          stompSocket.close();
       }
       super.tearDown();
    }
 
-   protected Socket createSocket() throws IOException
-   {
+   protected Socket createSocket() throws IOException {
       return new Socket("127.0.0.1", port);
    }
 
-   public void sendFrame(String data) throws Exception
-   {
+   public void sendFrame(String data) throws Exception {
       byte[] bytes = data.getBytes(StandardCharsets.UTF_8);
       OutputStream outputStream = stompSocket.getOutputStream();
-      for (byte b : bytes)
-      {
+      for (byte b : bytes) {
          outputStream.write(b);
       }
       outputStream.flush();
    }
 
-   public void sendFrame(byte[] data) throws Exception
-   {
+   public void sendFrame(byte[] data) throws Exception {
       OutputStream outputStream = stompSocket.getOutputStream();
-      for (byte element : data)
-      {
+      for (byte element : data) {
          outputStream.write(element);
       }
       outputStream.flush();
    }
 
-   public String receiveFrame(long timeOut) throws Exception
-   {
-      stompSocket.setSoTimeout((int)timeOut);
+   public String receiveFrame(long timeOut) throws Exception {
+      stompSocket.setSoTimeout((int) timeOut);
       InputStream is = stompSocket.getInputStream();
       int c = 0;
-      for (;;)
-      {
+      for (; ; ) {
          c = is.read();
-         if (c < 0)
-         {
+         if (c < 0) {
             throw new IOException("socket closed.");
          }
-         else if (c == 0)
-         {
+         else if (c == 0) {
             c = is.read();
-            if (c != '\n')
-            {
+            if (c != '\n') {
                byte[] ba = inputBuffer.toByteArray();
                System.out.println(new String(ba, StandardCharsets.UTF_8));
             }
@@ -186,8 +163,7 @@ public class StompStressTest extends ActiveMQTestBase
             inputBuffer.reset();
             return new String(ba, StandardCharsets.UTF_8);
          }
-         else
-         {
+         else {
             inputBuffer.write(c);
          }
       }

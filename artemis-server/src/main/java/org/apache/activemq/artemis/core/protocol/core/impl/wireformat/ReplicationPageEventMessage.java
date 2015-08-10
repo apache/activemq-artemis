@@ -20,8 +20,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 
-public class ReplicationPageEventMessage extends PacketImpl
-{
+public class ReplicationPageEventMessage extends PacketImpl {
 
    private int pageNumber;
 
@@ -32,13 +31,11 @@ public class ReplicationPageEventMessage extends PacketImpl
     */
    private boolean isDelete;
 
-   public ReplicationPageEventMessage()
-   {
+   public ReplicationPageEventMessage() {
       super(PacketImpl.REPLICATION_PAGE_EVENT);
    }
 
-   public ReplicationPageEventMessage(final SimpleString storeName, final int pageNumber, final boolean isDelete)
-   {
+   public ReplicationPageEventMessage(final SimpleString storeName, final int pageNumber, final boolean isDelete) {
       this();
       this.pageNumber = pageNumber;
       this.isDelete = isDelete;
@@ -46,16 +43,14 @@ public class ReplicationPageEventMessage extends PacketImpl
    }
 
    @Override
-   public void encodeRest(final ActiveMQBuffer buffer)
-   {
+   public void encodeRest(final ActiveMQBuffer buffer) {
       buffer.writeSimpleString(storeName);
       buffer.writeInt(pageNumber);
       buffer.writeBoolean(isDelete);
    }
 
    @Override
-   public void decodeRest(final ActiveMQBuffer buffer)
-   {
+   public void decodeRest(final ActiveMQBuffer buffer) {
       storeName = buffer.readSimpleString();
       pageNumber = buffer.readInt();
       isDelete = buffer.readBoolean();
@@ -64,37 +59,32 @@ public class ReplicationPageEventMessage extends PacketImpl
    /**
     * @return the pageNumber
     */
-   public int getPageNumber()
-   {
+   public int getPageNumber() {
       return pageNumber;
    }
 
    /**
     * @return the storeName
     */
-   public SimpleString getStoreName()
-   {
+   public SimpleString getStoreName() {
       return storeName;
    }
 
    /**
     * @return the isDelete
     */
-   public boolean isDelete()
-   {
+   public boolean isDelete() {
       return isDelete;
    }
 
    @Override
-   public String toString()
-   {
+   public String toString() {
       return ReplicationPageEventMessage.class.getSimpleName() + "(channel=" + channelID + ", isDelete=" + isDelete +
-               ", storeName=" + storeName + ", pageNumber=" + pageNumber + ")";
+         ", storeName=" + storeName + ", pageNumber=" + pageNumber + ")";
    }
 
    @Override
-   public int hashCode()
-   {
+   public int hashCode() {
       final int prime = 31;
       int result = super.hashCode();
       result = prime * result + (isDelete ? 1231 : 1237);
@@ -104,21 +94,19 @@ public class ReplicationPageEventMessage extends PacketImpl
    }
 
    @Override
-   public boolean equals(Object obj)
-   {
+   public boolean equals(Object obj) {
       if (this == obj)
          return true;
       if (!super.equals(obj))
          return false;
       if (getClass() != obj.getClass())
          return false;
-      ReplicationPageEventMessage other = (ReplicationPageEventMessage)obj;
+      ReplicationPageEventMessage other = (ReplicationPageEventMessage) obj;
       if (isDelete != other.isDelete)
          return false;
       if (pageNumber != other.pageNumber)
          return false;
-      if (storeName == null)
-      {
+      if (storeName == null) {
          if (other.storeName != null)
             return false;
       }

@@ -31,8 +31,7 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.After;
 import org.junit.Test;
 
-public class PagingWithFailoverAndCountersTest extends ActiveMQTestBase
-{
+public class PagingWithFailoverAndCountersTest extends ActiveMQTestBase {
 
    Process liveProcess;
    Process backupProcess;
@@ -42,14 +41,12 @@ public class PagingWithFailoverAndCountersTest extends ActiveMQTestBase
    private static final int PORT1 = 5000;
    private static final int PORT2 = 5001;
 
-   private void startLive() throws Exception
-   {
+   private void startLive() throws Exception {
       assertNull(liveProcess);
       liveProcess = PagingWithFailoverServer.spawnVM(getTestDir(), PORT1, PORT2);
    }
 
-   private void startBackupInProcess() throws Exception
-   {
+   private void startBackupInProcess() throws Exception {
       assertNull(backupProcess);
       assertNull(inProcessBackup);
       inProcessBackup = new PagingWithFailoverServer();
@@ -58,36 +55,27 @@ public class PagingWithFailoverAndCountersTest extends ActiveMQTestBase
 
    @Override
    @After
-   public void tearDown() throws Exception
-   {
+   public void tearDown() throws Exception {
       killLive();
       killBackup();
       super.tearDown();
    }
 
-   private void killBackup()
-   {
-      try
-      {
-         if (backupProcess != null)
-         {
+   private void killBackup() {
+      try {
+         if (backupProcess != null) {
             backupProcess.destroy();
          }
       }
-      catch (Throwable ignored)
-      {
+      catch (Throwable ignored) {
       }
       backupProcess = null;
 
-
-      if (inProcessBackup != null)
-      {
-         try
-         {
+      if (inProcessBackup != null) {
+         try {
             inProcessBackup.getServer().stop(false);
          }
-         catch (Throwable ignored)
-         {
+         catch (Throwable ignored) {
             ignored.printStackTrace();
          }
 
@@ -96,29 +84,23 @@ public class PagingWithFailoverAndCountersTest extends ActiveMQTestBase
 
    }
 
-   private void killLive()
-   {
-      try
-      {
-         if (liveProcess != null)
-         {
+   private void killLive() {
+      try {
+         if (liveProcess != null) {
             liveProcess.destroy();
          }
       }
-      catch (Throwable ignored)
-      {
+      catch (Throwable ignored) {
       }
       liveProcess = null;
    }
 
-   class TestThread extends Thread
-   {
-      public TestThread()
-      {
+   class TestThread extends Thread {
+
+      public TestThread() {
       }
 
-      public TestThread(String name)
-      {
+      public TestThread(String name) {
          super(name);
       }
 
@@ -126,60 +108,45 @@ public class PagingWithFailoverAndCountersTest extends ActiveMQTestBase
       final Object waitNotify = new Object();
       private boolean failed = false;
 
-      public void failed(String message)
-      {
+      public void failed(String message) {
          System.err.println(message);
          failed = true;
       }
 
-      public boolean isFailed()
-      {
+      public boolean isFailed() {
          return failed;
       }
 
-
-      public void stopTest()
-      {
-         synchronized (waitNotify)
-         {
+      public void stopTest() {
+         synchronized (waitNotify) {
             running = false;
             waitNotify.notifyAll();
          }
 
-         while (this.isAlive())
-         {
-            try
-            {
+         while (this.isAlive()) {
+            try {
                this.join(5000);
             }
-            catch (Throwable ignored)
-            {
+            catch (Throwable ignored) {
             }
-            if (this.isAlive())
-            {
+            if (this.isAlive()) {
                this.interrupt();
             }
          }
          assertFalse(failed);
       }
 
-      public boolean isRunning(long timeWait)
-      {
-         synchronized (waitNotify)
-         {
-            try
-            {
-               if (timeWait > 0)
-               {
+      public boolean isRunning(long timeWait) {
+         synchronized (waitNotify) {
+            try {
+               if (timeWait > 0) {
                   long timeout = System.currentTimeMillis() + timeWait;
-                  while (running && timeout > System.currentTimeMillis())
-                  {
+                  while (running && timeout > System.currentTimeMillis()) {
                      waitNotify.wait(timeWait);
                   }
                }
             }
-            catch (InterruptedException e)
-            {
+            catch (InterruptedException e) {
                e.printStackTrace();
                Thread.currentThread().interrupt();
             }
@@ -188,8 +155,8 @@ public class PagingWithFailoverAndCountersTest extends ActiveMQTestBase
       }
    }
 
-   class ConsumerThread extends TestThread
-   {
+   class ConsumerThread extends TestThread {
+
       ClientSessionFactory factory;
 
       String queueName;
@@ -197,26 +164,21 @@ public class PagingWithFailoverAndCountersTest extends ActiveMQTestBase
       final AtomicInteger errors = new AtomicInteger(0);
       final int txSize;
 
-      ConsumerThread(ClientSessionFactory factory, String queueName, long delayEachMessage, int txSize)
-      {
+      ConsumerThread(ClientSessionFactory factory, String queueName, long delayEachMessage, int txSize) {
          this.factory = factory;
          this.queueName = queueName;
          this.txSize = txSize;
       }
 
-      public void run()
-      {
-         try
-         {
+      public void run() {
+         try {
 
             ClientSession session;
 
-            if (txSize == 0)
-            {
+            if (txSize == 0) {
                session = factory.createSession(true, true);
             }
-            else
-            {
+            else {
                session = factory.createSession(false, false);
             }
 
@@ -227,80 +189,62 @@ public class PagingWithFailoverAndCountersTest extends ActiveMQTestBase
 
             int msgcount = 0;
             long currentMsg = 0;
-            while (isRunning(0))
-            {
-               try
-               {
+            while (isRunning(0)) {
+               try {
 
                   ClientMessage msg = cons.receive(100);
-                  if (msg != null)
-                  {
+                  if (msg != null) {
                      currentMsg = msg.getLongProperty("count");
-                     if (currentMsg < lastCommit)
-                     {
+                     if (currentMsg < lastCommit) {
                         failed("Message received in duplicate out of order, LastCommit = " + lastCommit + ", currentMsg = " + currentMsg);
                      }
                      msg.acknowledge();
-                     if (txSize > 0 && msgcount > 0 && (msgcount % txSize == 0))
-                     {
+                     if (txSize > 0 && msgcount > 0 && (msgcount % txSize == 0)) {
                         session.commit();
-                        if (currentMsg > lastCommit)
-                        {
+                        if (currentMsg > lastCommit) {
                            lastCommit = currentMsg;
                         }
-                        else
-                        {
+                        else {
                            System.out.println("Ignoring setting lastCommit (" + lastCommit + ") <= currentMSG (" + currentMsg + ")");
                         }
                      }
                      msgcount++;
                   }
 
-                  if (msgcount % 100 == 0)
-                  {
+                  if (msgcount % 100 == 0) {
                      System.out.println("received " + msgcount + " on " + queueName);
                   }
                }
-               catch (Throwable e)
-               {
+               catch (Throwable e) {
                   System.out.println("=====> expected Error at " + currentMsg + " with lastCommit=" + lastCommit);
                }
             }
 
-
             session.close();
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             e.printStackTrace();
             errors.incrementAndGet();
          }
       }
    }
 
-   class MonitorThread extends TestThread
-   {
+   class MonitorThread extends TestThread {
 
-      public MonitorThread()
-      {
+      public MonitorThread() {
          super("Monitor-thread");
       }
 
-      public void run()
-      {
+      public void run() {
 
          ActiveMQServer server = inProcessBackup.getServer();
-         try
-         {
+         try {
             waitForServerToStart(server);
 
             // The best to way to validate if the server is ready and operating is to send and consume at least one message
             // before we could do valid monitoring
-            try
-            {
-               ServerLocator locator = PagingWithFailoverServer.createLocator(PORT2)
-                       .setInitialConnectAttempts(100)
-                       .setRetryInterval(100);
+            try {
+               ServerLocator locator = PagingWithFailoverServer.createLocator(PORT2).setInitialConnectAttempts(100).setRetryInterval(100);
                ClientSessionFactory factory = locator.createSessionFactory();
                ClientSession session = factory.createSession();
 
@@ -318,8 +262,7 @@ public class PagingWithFailoverAndCountersTest extends ActiveMQTestBase
                locator.close();
 
             }
-            catch (Throwable e)
-            {
+            catch (Throwable e) {
                e.printStackTrace();
                fail(e.getMessage());
             }
@@ -327,17 +270,14 @@ public class PagingWithFailoverAndCountersTest extends ActiveMQTestBase
 
             Queue queue2 = inProcessBackup.getServer().locateQueue(SimpleString.toSimpleString("cons2"));
 
-            while (isRunning(1))
-            {
+            while (isRunning(1)) {
                long count = getMessageCount(queue2);
-               if (count < 0)
-               {
+               if (count < 0) {
                   fail("count < 0 .... being " + count);
                }
             }
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             e.printStackTrace();
          }
 
@@ -345,14 +285,10 @@ public class PagingWithFailoverAndCountersTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testValidateDeliveryAndCounters() throws Exception
-   {
+   public void testValidateDeliveryAndCounters() throws Exception {
       startLive();
 
-      ServerLocator locator = PagingWithFailoverServer.createLocator(PORT1)
-              .setInitialConnectAttempts(100)
-              .setReconnectAttempts(-1)
-              .setRetryInterval(100);
+      ServerLocator locator = PagingWithFailoverServer.createLocator(PORT1).setInitialConnectAttempts(100).setReconnectAttempts(-1).setRetryInterval(100);
 
       ClientSessionFactory factory = locator.createSessionFactory();
 
@@ -376,34 +312,28 @@ public class PagingWithFailoverAndCountersTest extends ActiveMQTestBase
 
       long timeRun = System.currentTimeMillis() + 5000;
       long timeKill = System.currentTimeMillis() + 2000;
-      while (System.currentTimeMillis() < timeRun)
-      {
+      while (System.currentTimeMillis() < timeRun) {
          i++;
-         if (System.currentTimeMillis() > timeKill && liveProcess != null)
-         {
+         if (System.currentTimeMillis() > timeKill && liveProcess != null) {
             killLive();
             monitor.start();
          }
 
-         try
-         {
+         try {
             ClientMessage msg = session.createMessage(true);
             msg.putLongProperty("count", i);
             prod.send(msg);
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             e.printStackTrace();
          }
       }
 
-      try
-      {
+      try {
          tConsumer.stopTest();
          monitor.stopTest();
       }
-      finally
-      {
+      finally {
          killBackup();
          killLive();
       }
@@ -413,8 +343,7 @@ public class PagingWithFailoverAndCountersTest extends ActiveMQTestBase
       verifyServer();
    }
 
-   public void verifyServer() throws Exception
-   {
+   public void verifyServer() throws Exception {
       ServerLocator locator;
       ClientSessionFactory factory;
       ClientSession session;
@@ -426,28 +355,21 @@ public class PagingWithFailoverAndCountersTest extends ActiveMQTestBase
       waitForServerToStart(server);
       Queue queue = server.locateQueue(SimpleString.toSimpleString("cons2"));
 
-
       int messageCount = (int) getMessageCount(queue);
 
       assertTrue(messageCount >= 0);
 
-      locator = PagingWithFailoverServer.createLocator(PORT1)
-              .setInitialConnectAttempts(100)
-              .setReconnectAttempts(-1)
-              .setRetryInterval(100);
+      locator = PagingWithFailoverServer.createLocator(PORT1).setInitialConnectAttempts(100).setReconnectAttempts(-1).setRetryInterval(100);
 
       factory = locator.createSessionFactory();
-
 
       session = factory.createSession();
       session.start();
 
-      try
-      {
+      try {
          drainConsumer(session.createConsumer("cons2"), "cons2", messageCount);
       }
-      finally
-      {
+      finally {
          session.close();
          factory.close();
          locator.close();
@@ -455,10 +377,8 @@ public class PagingWithFailoverAndCountersTest extends ActiveMQTestBase
       }
    }
 
-   private void drainConsumer(ClientConsumer consumer, String name, int expectedCount) throws Exception
-   {
-      for (int i = 0; i < expectedCount; i++)
-      {
+   private void drainConsumer(ClientConsumer consumer, String name, int expectedCount) throws Exception {
+      for (int i = 0; i < expectedCount; i++) {
          ClientMessage msg = consumer.receive(5000);
          assertNotNull(msg);
          msg.acknowledge();

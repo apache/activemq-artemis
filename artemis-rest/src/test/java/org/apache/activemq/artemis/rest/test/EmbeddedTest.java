@@ -41,20 +41,15 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class EmbeddedTest
-{
+public class EmbeddedTest {
+
    public static EmbeddedRestActiveMQJMS server;
 
    @BeforeClass
-   public static void startEmbedded() throws Exception
-   {
+   public static void startEmbedded() throws Exception {
       server = new EmbeddedRestActiveMQJMS();
       server.getManager().setConfigResourcePath("activemq-rest.xml");
-      FileSecurityConfiguration securityConfiguration = new FileSecurityConfiguration("artemis-users.properties",
-                                                                                      "artemis-roles.properties",
-                                                                                      "guest",
-                                                                                      false,
-                                                                                      null);
+      FileSecurityConfiguration securityConfiguration = new FileSecurityConfiguration("artemis-users.properties", "artemis-roles.properties", "guest", false, null);
       securityConfiguration.start();
       server.getEmbeddedJMS().setSecurityManager(new ActiveMQSecurityManagerImpl(securityConfiguration));
       server.start();
@@ -64,44 +59,37 @@ public class EmbeddedTest
    }
 
    @AfterClass
-   public static void stopEmbedded() throws Exception
-   {
+   public static void stopEmbedded() throws Exception {
       server.stop();
       server = null;
    }
 
-   public static void publish(String destination, Serializable object, String contentType) throws Exception
-   {
+   public static void publish(String destination, Serializable object, String contentType) throws Exception {
       BindingRegistry reg = server.getRegistry();
       ConnectionFactory factory = (ConnectionFactory) reg.lookup("ConnectionFactory");
       Connection conn = factory.createConnection();
       Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
       Destination dest = session.createQueue(destination);
 
-      try
-      {
+      try {
          Assert.assertNotNull("Destination was null", dest);
          MessageProducer producer = session.createProducer(dest);
          ObjectMessage message = session.createObjectMessage();
 
-         if (contentType != null)
-         {
+         if (contentType != null) {
             message.setStringProperty(HttpHeaderProperty.CONTENT_TYPE, contentType);
          }
          message.setObject(object);
 
          producer.send(message);
       }
-      finally
-      {
+      finally {
          conn.close();
       }
    }
 
-
    @Test
-   public void testTransform() throws Exception
-   {
+   public void testTransform() throws Exception {
 
       ClientRequest request = new ClientRequest(TestPortProvider.generateURL("/queues/jms.queue.exampleQueue"));
 

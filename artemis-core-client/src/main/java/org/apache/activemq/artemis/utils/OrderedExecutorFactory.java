@@ -22,12 +22,11 @@ import java.util.concurrent.Executor;
 import org.apache.activemq.artemis.api.core.ActiveMQInterruptedException;
 import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
 
-
 /**
  * A factory for producing executors that run all tasks in order, which delegate to a single common executor instance.
  */
-public final class OrderedExecutorFactory implements ExecutorFactory
-{
+public final class OrderedExecutorFactory implements ExecutorFactory {
+
    private final Executor parent;
 
    /**
@@ -35,8 +34,7 @@ public final class OrderedExecutorFactory implements ExecutorFactory
     *
     * @param parent the parent executor
     */
-   public OrderedExecutorFactory(final Executor parent)
-   {
+   public OrderedExecutorFactory(final Executor parent) {
       this.parent = parent;
    }
 
@@ -45,8 +43,7 @@ public final class OrderedExecutorFactory implements ExecutorFactory
     *
     * @return an ordered executor
     */
-   public Executor getExecutor()
-   {
+   public Executor getExecutor() {
       return new OrderedExecutor(parent);
    }
 
@@ -56,8 +53,8 @@ public final class OrderedExecutorFactory implements ExecutorFactory
     * More specifically, any call B to the {@link #execute(Runnable)} method that happens-after another call A to the
     * same method, will result in B's task running after A's.
     */
-   private static final class OrderedExecutor implements Executor
-   {
+   private static final class OrderedExecutor implements Executor {
+
       private final ConcurrentLinkedQueue<Runnable> tasks = new ConcurrentLinkedQueue<Runnable>();
 
       // @protected by tasks
@@ -72,45 +69,35 @@ public final class OrderedExecutorFactory implements ExecutorFactory
        *
        * @param parent the parent executor
        */
-      public OrderedExecutor(final Executor parent)
-      {
+      public OrderedExecutor(final Executor parent) {
          this.parent = parent;
-         runner = new Runnable()
-         {
-            public void run()
-            {
-               for (;;)
-               {
+         runner = new Runnable() {
+            public void run() {
+               for (; ; ) {
                   // Optimization, first try without any locks
                   Runnable task = tasks.poll();
-                  if (task == null)
-                  {
-                     synchronized (tasks)
-                     {
+                  if (task == null) {
+                     synchronized (tasks) {
                         // if it's null we need to retry now holding the lock on tasks
                         // this is because running=false and tasks.empty must be an atomic operation
                         // so we have to retry before setting the tasks to false
                         // this is a different approach to the anti-pattern on synchronize-retry,
                         // as this is just guaranteeing the running=false and tasks.empty being an atomic operation
                         task = tasks.poll();
-                        if (task == null)
-                        {
+                        if (task == null) {
                            running = false;
                            return;
                         }
                      }
                   }
-                  try
-                  {
+                  try {
                      task.run();
                   }
-                  catch (ActiveMQInterruptedException e)
-                  {
+                  catch (ActiveMQInterruptedException e) {
                      // This could happen during shutdowns. Nothing to be concerned about here
                      ActiveMQClientLogger.LOGGER.debug("Interrupted Thread", e);
                   }
-                  catch (Throwable t)
-                  {
+                  catch (Throwable t) {
                      ActiveMQClientLogger.LOGGER.caughtunexpectedThrowable(t);
                   }
                }
@@ -123,21 +110,17 @@ public final class OrderedExecutorFactory implements ExecutorFactory
        *
        * @param command the task to run.
        */
-      public void execute(final Runnable command)
-      {
-         synchronized (tasks)
-         {
+      public void execute(final Runnable command) {
+         synchronized (tasks) {
             tasks.add(command);
-            if (!running)
-            {
+            if (!running) {
                running = true;
                parent.execute(runner);
             }
          }
       }
 
-      public String toString()
-      {
+      public String toString() {
          return "OrderedExecutor(running=" + running + ", tasks=" + tasks + ")";
       }
    }

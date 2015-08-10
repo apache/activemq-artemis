@@ -25,8 +25,8 @@ import org.apache.activemq.artemis.rest.util.LinkStrategy;
 import org.apache.activemq.artemis.rest.util.TimeoutTask;
 import org.apache.activemq.artemis.spi.core.naming.BindingRegistry;
 
-public abstract class DestinationServiceManager
-{
+public abstract class DestinationServiceManager {
+
    protected ServerLocator locator;
    protected ClientSessionFactory sessionFactory;
    protected ServerLocator consumerServerLocator;
@@ -40,143 +40,118 @@ public abstract class DestinationServiceManager
    protected LinkStrategy linkStrategy;
    protected BindingRegistry registry;
 
-   public BindingRegistry getRegistry()
-   {
+   public BindingRegistry getRegistry() {
       return registry;
    }
 
-   public void setRegistry(BindingRegistry registry)
-   {
+   public void setRegistry(BindingRegistry registry) {
       this.registry = registry;
    }
 
-   public LinkStrategy getLinkStrategy()
-   {
+   public LinkStrategy getLinkStrategy() {
       return linkStrategy;
    }
 
-   public void setLinkStrategy(LinkStrategy linkStrategy)
-   {
+   public void setLinkStrategy(LinkStrategy linkStrategy) {
       this.linkStrategy = linkStrategy;
    }
 
-   public long getProducerTimeToLive()
-   {
+   public long getProducerTimeToLive() {
       return producerTimeToLive;
    }
 
-   public void setProducerTimeToLive(long producerTimeToLive)
-   {
+   public void setProducerTimeToLive(long producerTimeToLive) {
       this.producerTimeToLive = producerTimeToLive;
    }
 
-   public int getProducerPoolSize()
-   {
+   public int getProducerPoolSize() {
       return producerPoolSize;
    }
 
-   public void setProducerPoolSize(int producerPoolSize)
-   {
+   public void setProducerPoolSize(int producerPoolSize) {
       this.producerPoolSize = producerPoolSize;
    }
 
-   public ClientSessionFactory getConsumerSessionFactory()
-   {
+   public ClientSessionFactory getConsumerSessionFactory() {
       return consumerSessionFactory;
    }
 
-   public void setConsumerSessionFactory(ClientSessionFactory consumerSessionFactory)
-   {
+   public void setConsumerSessionFactory(ClientSessionFactory consumerSessionFactory) {
       this.consumerSessionFactory = consumerSessionFactory;
    }
 
    /**
     * @return the consumerServerLocator
     */
-   public ServerLocator getConsumerServerLocator()
-   {
+   public ServerLocator getConsumerServerLocator() {
       return consumerServerLocator;
    }
 
    /**
     * @param consumerServerLocator the consumerServerLocator to set
     */
-   public void setConsumerServerLocator(ServerLocator consumerServerLocator)
-   {
+   public void setConsumerServerLocator(ServerLocator consumerServerLocator) {
       this.consumerServerLocator = consumerServerLocator;
    }
 
-   public TimeoutTask getTimeoutTask()
-   {
+   public TimeoutTask getTimeoutTask() {
       return timeoutTask;
    }
 
-   public void setTimeoutTask(TimeoutTask timeoutTask)
-   {
+   public void setTimeoutTask(TimeoutTask timeoutTask) {
       this.timeoutTask = timeoutTask;
    }
 
-   public DestinationSettings getDefaultSettings()
-   {
+   public DestinationSettings getDefaultSettings() {
       return defaultSettings;
    }
 
-   public void setDefaultSettings(DestinationSettings defaultSettings)
-   {
+   public void setDefaultSettings(DestinationSettings defaultSettings) {
       this.defaultSettings = defaultSettings;
    }
 
-   public ServerLocator getServerLocator()
-   {
+   public ServerLocator getServerLocator() {
       return this.locator;
    }
 
-   public void setServerLocator(ServerLocator locator)
-   {
+   public void setServerLocator(ServerLocator locator) {
       this.locator = locator;
    }
 
-   public ClientSessionFactory getSessionFactory()
-   {
+   public ClientSessionFactory getSessionFactory() {
       return sessionFactory;
    }
 
-   public void setSessionFactory(ClientSessionFactory sessionFactory)
-   {
+   public void setSessionFactory(ClientSessionFactory sessionFactory) {
       this.sessionFactory = sessionFactory;
    }
 
-   public String getPushStoreFile()
-   {
+   public String getPushStoreFile() {
       return pushStoreFile;
    }
 
-   public void setPushStoreFile(String pushStoreFile)
-   {
+   public void setPushStoreFile(String pushStoreFile) {
       this.pushStoreFile = pushStoreFile;
    }
 
-   protected void initDefaults()
-   {
-      if (locator == null)
-      {
+   protected void initDefaults() {
+      if (locator == null) {
          locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(InVMConnectorFactory.class.getName()));
       }
-      if (sessionFactory == null)
-      {
-         try
-         {
+      if (sessionFactory == null) {
+         try {
             sessionFactory = locator.createSessionFactory();
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
          }
       }
 
-      if (consumerSessionFactory == null) consumerSessionFactory = sessionFactory;
+      if (consumerSessionFactory == null)
+         consumerSessionFactory = sessionFactory;
 
-      if (timeoutTask == null) throw new RuntimeException("TimeoutTask is not set");
+      if (timeoutTask == null)
+         throw new RuntimeException("TimeoutTask is not set");
    }
 
    public abstract void start() throws Exception;

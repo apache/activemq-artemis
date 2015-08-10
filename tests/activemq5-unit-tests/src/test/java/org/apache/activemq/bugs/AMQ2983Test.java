@@ -45,118 +45,121 @@ import org.junit.Test;
 
 public class AMQ2983Test {
 
-    private static final int MAX_CONSUMER = 10;
+   private static final int MAX_CONSUMER = 10;
 
-    private static final int MAX_MESSAGES = 2000;
+   private static final int MAX_MESSAGES = 2000;
 
-    private static final String QUEUE_NAME = "test.queue";
+   private static final String QUEUE_NAME = "test.queue";
 
-    private BrokerService broker;
+   private BrokerService broker;
 
-    private final CountDownLatch messageCountDown = new CountDownLatch(MAX_MESSAGES);
+   private final CountDownLatch messageCountDown = new CountDownLatch(MAX_MESSAGES);
 
-    private CleanableKahaDBStore kahaDB;
+   private CleanableKahaDBStore kahaDB;
 
-    private static class CleanableKahaDBStore extends KahaDBStore {
-        // make checkpoint cleanup accessible
-        public void forceCleanup() throws IOException {
-            checkpointCleanup(true);
-        }
+   private static class CleanableKahaDBStore extends KahaDBStore {
 
-        public int getFileMapSize() throws IOException {
-            // ensure save memory publishing, use the right lock
-            indexLock.readLock().lock();
-            try {
-                return getJournal().getFileMap().size();
-            } finally {
-                indexLock.readLock().unlock();
-            }
-        }
-    }
+      // make checkpoint cleanup accessible
+      public void forceCleanup() throws IOException {
+         checkpointCleanup(true);
+      }
 
-    private class ConsumerThread extends Thread {
+      public int getFileMapSize() throws IOException {
+         // ensure save memory publishing, use the right lock
+         indexLock.readLock().lock();
+         try {
+            return getJournal().getFileMap().size();
+         }
+         finally {
+            indexLock.readLock().unlock();
+         }
+      }
+   }
 
-        @Override
-        public void run() {
-            try {
-                ConnectionFactory factory = new ActiveMQConnectionFactory("vm://localhost");
-                Connection connection = factory.createConnection();
-                connection.start();
-                Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
-                MessageConsumer consumer = session.createConsumer(session.createQueue(QUEUE_NAME));
-                do {
-                    Message message = consumer.receive(200);
-                    if (message != null) {
-                        session.commit();
-                        messageCountDown.countDown();
-                    }
-                } while (messageCountDown.getCount() != 0);
-                consumer.close();
-                session.close();
-                connection.close();
-            } catch (Exception e) {
-                Assert.fail(e.getMessage());
-            }
-        }
-    }
+   private class ConsumerThread extends Thread {
 
-    @Before
-    public void setup() throws Exception {
+      @Override
+      public void run() {
+         try {
+            ConnectionFactory factory = new ActiveMQConnectionFactory("vm://localhost");
+            Connection connection = factory.createConnection();
+            connection.start();
+            Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
+            MessageConsumer consumer = session.createConsumer(session.createQueue(QUEUE_NAME));
+            do {
+               Message message = consumer.receive(200);
+               if (message != null) {
+                  session.commit();
+                  messageCountDown.countDown();
+               }
+            } while (messageCountDown.getCount() != 0);
+            consumer.close();
+            session.close();
+            connection.close();
+         }
+         catch (Exception e) {
+            Assert.fail(e.getMessage());
+         }
+      }
+   }
 
-        broker = new BrokerService();
-        broker.setDeleteAllMessagesOnStartup(true);
-        broker.setPersistent(true);
+   @Before
+   public void setup() throws Exception {
 
-        kahaDB = new CleanableKahaDBStore();
-        kahaDB.setJournalMaxFileLength(256 * 1024);
-        broker.setPersistenceAdapter(kahaDB);
+      broker = new BrokerService();
+      broker.setDeleteAllMessagesOnStartup(true);
+      broker.setPersistent(true);
 
-        broker.start();
-        broker.waitUntilStarted();
-    }
+      kahaDB = new CleanableKahaDBStore();
+      kahaDB.setJournalMaxFileLength(256 * 1024);
+      broker.setPersistenceAdapter(kahaDB);
 
-    @After
-    public void tearDown() throws Exception {
-        broker.stop();
-    }
+      broker.start();
+      broker.waitUntilStarted();
+   }
 
-    @Test
-    public void testNoStickyKahaDbLogFilesOnConcurrentTransactionalConsumer() throws Exception {
+   @After
+   public void tearDown() throws Exception {
+      broker.stop();
+   }
 
-        List<Thread> consumerThreads = new ArrayList<Thread>();
-        for (int i = 0; i < MAX_CONSUMER; i++) {
-            ConsumerThread thread = new ConsumerThread();
-            thread.start();
-            consumerThreads.add(thread);
-        }
-        sendMessages();
+   @Test
+   public void testNoStickyKahaDbLogFilesOnConcurrentTransactionalConsumer() throws Exception {
 
-        boolean allMessagesReceived = messageCountDown.await(60, TimeUnit.SECONDS);
-        assertTrue(allMessagesReceived);
+      List<Thread> consumerThreads = new ArrayList<Thread>();
+      for (int i = 0; i < MAX_CONSUMER; i++) {
+         ConsumerThread thread = new ConsumerThread();
+         thread.start();
+         consumerThreads.add(thread);
+      }
+      sendMessages();
 
-        for (Thread thread : consumerThreads) {
-            thread.join(TimeUnit.MILLISECONDS.convert(60, TimeUnit.SECONDS));
-            assertFalse(thread.isAlive());
-        }
-        kahaDB.forceCleanup();
-        assertEquals("Expect only one active KahaDB log file after cleanup", 1, kahaDB.getFileMapSize());
-    }
+      boolean allMessagesReceived = messageCountDown.await(60, TimeUnit.SECONDS);
+      assertTrue(allMessagesReceived);
 
-    private void sendMessages() throws Exception {
-        ConnectionFactory factory = new ActiveMQConnectionFactory("vm://localhost");
-        Connection connection = factory.createConnection();
-        connection.start();
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        MessageProducer producer = session.createProducer(session.createQueue(QUEUE_NAME));
-        producer.setDeliveryMode(DeliveryMode.PERSISTENT);
-        for (int i = 0; i < MAX_MESSAGES; i++) {
-            BytesMessage message = session.createBytesMessage();
-            message.writeBytes(new byte[200]);
-            producer.send(message);
-        }
-        producer.close();
-        session.close();
-        connection.close();
-    }
+      for (Thread thread : consumerThreads) {
+         thread.join(TimeUnit.MILLISECONDS.convert(60, TimeUnit.SECONDS));
+         assertFalse(thread.isAlive());
+      }
+      kahaDB.forceCleanup();
+      assertEquals("Expect only one active KahaDB log file after cleanup", 1, kahaDB.getFileMapSize());
+   }
+
+   private void sendMessages() throws Exception {
+      ConnectionFactory factory = new ActiveMQConnectionFactory("vm://localhost");
+      Connection connection = factory.createConnection();
+      connection.start();
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      MessageProducer producer = session.createProducer(session.createQueue(QUEUE_NAME));
+      producer.setDeliveryMode(DeliveryMode.PERSISTENT);
+      for (int i = 0; i < MAX_MESSAGES; i++) {
+         BytesMessage message = session.createBytesMessage();
+         message.writeBytes(new byte[200]);
+         producer.send(message);
+      }
+      producer.close();
+      session.close();
+      connection.close();
+   }
 
 }

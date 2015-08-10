@@ -26,25 +26,22 @@ import javax.naming.NamingException;
 import javax.naming.RefAddr;
 
 /**
- *
  * A SerializableObjectRefAddr.
  *
  * A RefAddr that can be used for any serializable object.
  *
  * Basically the address is the serialized form of the object as a byte[]
  */
-public class SerializableObjectRefAddr extends RefAddr
-{
+public class SerializableObjectRefAddr extends RefAddr {
+
    private static final long serialVersionUID = 9158134548376171898L;
 
    private final byte[] bytes;
 
-   public SerializableObjectRefAddr(final String type, final Object content) throws NamingException
-   {
+   public SerializableObjectRefAddr(final String type, final Object content) throws NamingException {
       super(type);
 
-      try
-      {
+      try {
          // Serialize the object
          ByteArrayOutputStream bos = new ByteArrayOutputStream();
 
@@ -56,20 +53,17 @@ public class SerializableObjectRefAddr extends RefAddr
 
          bytes = bos.toByteArray();
       }
-      catch (IOException e)
-      {
+      catch (IOException e) {
          throw new NamingException("Failed to serialize object:" + content + ", " + e.getMessage());
       }
    }
 
    @Override
-   public Object getContent()
-   {
+   public Object getContent() {
       return bytes;
    }
 
-   public static Object deserialize(final byte[] bytes) throws IOException, ClassNotFoundException
-   {
+   public static Object deserialize(final byte[] bytes) throws IOException, ClassNotFoundException {
       ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
 
       ObjectInputStream ois = new ObjectInputStream(bis);

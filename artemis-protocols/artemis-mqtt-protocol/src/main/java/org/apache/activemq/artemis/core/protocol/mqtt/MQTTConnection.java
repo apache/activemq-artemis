@@ -29,8 +29,8 @@ import org.apache.activemq.artemis.core.remoting.FailureListener;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 
-public class MQTTConnection implements RemotingConnection
-{
+public class MQTTConnection implements RemotingConnection {
+
    private final Connection transportConnection;
 
    private final long creationTime;
@@ -45,60 +45,50 @@ public class MQTTConnection implements RemotingConnection
 
    private final List<CloseListener> closeListeners = Collections.synchronizedList(new ArrayList<CloseListener>());
 
-   public MQTTConnection(Connection transportConnection) throws Exception
-   {
+   public MQTTConnection(Connection transportConnection) throws Exception {
       this.transportConnection = transportConnection;
       this.creationTime = System.currentTimeMillis();
       this.dataReceived = new AtomicBoolean();
       this.destroyed = false;
    }
 
-   public Object getID()
-   {
+   public Object getID() {
       return transportConnection.getID();
    }
 
    @Override
-   public long getCreationTime()
-   {
+   public long getCreationTime() {
       return creationTime;
    }
 
    @Override
-   public String getRemoteAddress()
-   {
+   public String getRemoteAddress() {
       return transportConnection.getRemoteAddress();
    }
 
    @Override
-   public void addFailureListener(FailureListener listener)
-   {
+   public void addFailureListener(FailureListener listener) {
       failureListeners.add(listener);
    }
 
    @Override
-   public boolean removeFailureListener(FailureListener listener)
-   {
+   public boolean removeFailureListener(FailureListener listener) {
       return failureListeners.remove(listener);
    }
 
    @Override
-   public void addCloseListener(CloseListener listener)
-   {
+   public void addCloseListener(CloseListener listener) {
       closeListeners.add(listener);
    }
 
    @Override
-   public boolean removeCloseListener(CloseListener listener)
-   {
+   public boolean removeCloseListener(CloseListener listener) {
       return closeListeners.remove(listener);
    }
 
    @Override
-   public List<CloseListener> removeCloseListeners()
-   {
-      synchronized (closeListeners)
-      {
+   public List<CloseListener> removeCloseListeners() {
+      synchronized (closeListeners) {
          List<CloseListener> deletedCloseListeners = new ArrayList<CloseListener>(closeListeners);
          closeListeners.clear();
          return deletedCloseListeners;
@@ -106,22 +96,18 @@ public class MQTTConnection implements RemotingConnection
    }
 
    @Override
-   public void setCloseListeners(List<CloseListener> listeners)
-   {
+   public void setCloseListeners(List<CloseListener> listeners) {
       closeListeners.addAll(listeners);
    }
 
    @Override
-   public List<FailureListener> getFailureListeners()
-   {
+   public List<FailureListener> getFailureListeners() {
       return failureListeners;
    }
 
    @Override
-   public List<FailureListener> removeFailureListeners()
-   {
-      synchronized (failureListeners)
-      {
+   public List<FailureListener> removeFailureListeners() {
+      synchronized (failureListeners) {
          List<FailureListener> deletedFailureListeners = new ArrayList<FailureListener>(failureListeners);
          failureListeners.clear();
          return deletedFailureListeners;
@@ -129,40 +115,31 @@ public class MQTTConnection implements RemotingConnection
    }
 
    @Override
-   public void setFailureListeners(List<FailureListener> listeners)
-   {
-      synchronized (failureListeners)
-      {
+   public void setFailureListeners(List<FailureListener> listeners) {
+      synchronized (failureListeners) {
          failureListeners.clear();
          failureListeners.addAll(listeners);
       }
    }
 
    @Override
-   public ActiveMQBuffer createTransportBuffer(int size)
-   {
+   public ActiveMQBuffer createTransportBuffer(int size) {
       return transportConnection.createTransportBuffer(size);
    }
 
    @Override
-   public void fail(ActiveMQException me)
-   {
-      synchronized (failureListeners)
-      {
-         for (FailureListener listener : failureListeners)
-         {
+   public void fail(ActiveMQException me) {
+      synchronized (failureListeners) {
+         for (FailureListener listener : failureListeners) {
             listener.connectionFailed(me, false);
          }
       }
    }
 
    @Override
-   public void fail(ActiveMQException me, String scaleDownTargetNodeID)
-   {
-      synchronized (failureListeners)
-      {
-         for (FailureListener listener : failureListeners)
-         {
+   public void fail(ActiveMQException me, String scaleDownTargetNodeID) {
+      synchronized (failureListeners) {
+         for (FailureListener listener : failureListeners) {
             //FIXME(mtaylor) How do we check if the node has failed over?
             listener.connectionFailed(me, false);
          }
@@ -170,72 +147,60 @@ public class MQTTConnection implements RemotingConnection
    }
 
    @Override
-   public void destroy()
-   {
+   public void destroy() {
       //TODO(mtaylor) ensure this properly destroys this connection.
       destroyed = true;
       disconnect(false);
    }
 
    @Override
-   public Connection getTransportConnection()
-   {
+   public Connection getTransportConnection() {
       return transportConnection;
    }
 
    @Override
-   public boolean isClient()
-   {
+   public boolean isClient() {
       return false;
    }
 
    @Override
-   public boolean isDestroyed()
-   {
+   public boolean isDestroyed() {
       return destroyed;
    }
 
    @Override
-   public void disconnect(boolean criticalError)
-   {
+   public void disconnect(boolean criticalError) {
       transportConnection.forceClose();
    }
 
    @Override
-   public void disconnect(String scaleDownNodeID, boolean criticalError)
-   {
+   public void disconnect(String scaleDownNodeID, boolean criticalError) {
       transportConnection.forceClose();
    }
 
-   protected void dataReceived()
-   {
+   protected void dataReceived() {
       dataReceived.set(true);
    }
 
    @Override
-   public boolean checkDataReceived()
-   {
+   public boolean checkDataReceived() {
       return dataReceived.compareAndSet(true, false);
    }
 
    @Override
-   public void flush()
-   {
+   public void flush() {
       transportConnection.checkFlushBatchBuffer();
    }
 
    @Override
-   public void bufferReceived(Object connectionID, ActiveMQBuffer buffer)
-   {
+   public void bufferReceived(Object connectionID, ActiveMQBuffer buffer) {
    }
 
-   public void setConnected(boolean connected)
-   {
+   public void setConnected(boolean connected) {
       this.connected = connected;
    }
 
-   public boolean getConnected()
-   {
+   public boolean getConnected() {
       return connected;
    }
 }

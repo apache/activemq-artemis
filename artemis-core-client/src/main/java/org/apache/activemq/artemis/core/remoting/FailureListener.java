@@ -21,12 +21,12 @@ import org.apache.activemq.artemis.api.core.ActiveMQException;
 /**
  * A FailureListener notifies the user when a connection failure occurred.
  */
-public interface FailureListener
-{
+public interface FailureListener {
+
    /**
     * Notifies that a connection has failed due to the specified exception.
     *
-    * @param exception exception which has caused the connection to fail
+    * @param exception  exception which has caused the connection to fail
     * @param failedOver
     */
    void connectionFailed(ActiveMQException exception, boolean failedOver);
@@ -34,7 +34,7 @@ public interface FailureListener
    /**
     * Notifies that a connection has failed due to the specified exception.
     *
-    * @param exception exception which has caused the connection to fail
+    * @param exception             exception which has caused the connection to fail
     * @param failedOver
     * @param scaleDownTargetNodeID the ID of the node to which messages are scaling down
     */

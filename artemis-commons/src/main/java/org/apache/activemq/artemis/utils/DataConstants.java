@@ -16,8 +16,8 @@
  */
 package org.apache.activemq.artemis.utils;
 
-public final class DataConstants
-{
+public final class DataConstants {
+
    public static final int SIZE_INT = 4;
 
    public static final int SIZE_BOOLEAN = 1;

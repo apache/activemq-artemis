@@ -34,23 +34,20 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.jboss.resteasy.test.TestPortProvider.generateURL;
 
-public class PushQueueConsumerTest extends MessageTestBase
-{
-   enum PushRegistrationType
-   {
+public class PushQueueConsumerTest extends MessageTestBase {
+
+   enum PushRegistrationType {
       CLASS, BRIDGE, URI, TEMPLATE
    }
 
    @Test
-   public void testBridge() throws Exception
-   {
+   public void testBridge() throws Exception {
       Link destinationForConsumption = null;
       ClientResponse consumerResponse = null;
       Link pushSubscription = null;
       String messageContent = "1";
 
-      try
-      {
+      try {
          // The name of the queue used for the test should match the name of the test
          String queue = "testBridge";
          String queueToPushTo = "pushedFrom-" + queue;
@@ -72,17 +69,14 @@ public class PushQueueConsumerTest extends MessageTestBase
 
          consumerResponse = consume(destinationForConsumption, messageContent);
       }
-      finally
-      {
+      finally {
          cleanupConsumer(consumerResponse);
          cleanupSubscription(pushSubscription);
       }
    }
 
-   private void cleanupSubscription(Link pushSubscription) throws Exception
-   {
-      if (pushSubscription != null)
-      {
+   private void cleanupSubscription(Link pushSubscription) throws Exception {
+      if (pushSubscription != null) {
          ClientResponse<?> response = pushSubscription.request().delete();
          response.releaseConnection();
          Assert.assertEquals(204, response.getStatus());
@@ -90,15 +84,13 @@ public class PushQueueConsumerTest extends MessageTestBase
    }
 
    @Test
-   public void testClass() throws Exception
-   {
+   public void testClass() throws Exception {
       Link destinationForConsumption = null;
       ClientResponse consumerResponse = null;
       Link pushSubscription = null;
       String messageContent = "1";
 
-      try
-      {
+      try {
          // The name of the queue used for the test should match the name of the test
          String queue = "testClass";
          String queueToPushTo = "pushedFrom-" + queue;
@@ -121,23 +113,20 @@ public class PushQueueConsumerTest extends MessageTestBase
 
          consumerResponse = consume(destinationForConsumption, messageContent);
       }
-      finally
-      {
+      finally {
          cleanupConsumer(consumerResponse);
          cleanupSubscription(pushSubscription);
       }
    }
 
    @Test
-   public void testTemplate() throws Exception
-   {
+   public void testTemplate() throws Exception {
       Link destinationForConsumption = null;
       ClientResponse consumerResponse = null;
       Link pushSubscription = null;
       String messageContent = "1";
 
-      try
-      {
+      try {
          // The name of the queue used for the test should match the name of the test
          String queue = "testTemplate";
          String queueToPushTo = "pushedFrom-" + queue;
@@ -162,47 +151,41 @@ public class PushQueueConsumerTest extends MessageTestBase
 
          consumerResponse = consume(destinationForConsumption, messageContent);
       }
-      finally
-      {
+      finally {
          cleanupConsumer(consumerResponse);
          cleanupSubscription(pushSubscription);
       }
    }
 
    @Path("/my")
-   public static class MyResource
-   {
+   public static class MyResource {
+
       public static String got_it;
 
       @PUT
-      public void put(String str)
-      {
+      public void put(String str) {
          got_it = str;
       }
    }
 
    @Path("/myConcurrent")
-   public static class MyConcurrentResource
-   {
+   public static class MyConcurrentResource {
+
       public static AtomicInteger concurrentInvocations = new AtomicInteger();
       public static AtomicInteger maxConcurrentInvocations = new AtomicInteger();
 
       @PUT
-      public void put(String str)
-      {
+      public void put(String str) {
          concurrentInvocations.getAndIncrement();
 
-         if (concurrentInvocations.get() > maxConcurrentInvocations.get())
-         {
+         if (concurrentInvocations.get() > maxConcurrentInvocations.get()) {
             maxConcurrentInvocations.set(concurrentInvocations.get());
          }
-         try
-         {
+         try {
             // sleep here so the concurrent invocations can stack up
             Thread.sleep(1000);
          }
-         catch (InterruptedException e)
-         {
+         catch (InterruptedException e) {
             e.printStackTrace();
          }
 
@@ -211,13 +194,11 @@ public class PushQueueConsumerTest extends MessageTestBase
    }
 
    @Test
-   public void testUri() throws Exception
-   {
+   public void testUri() throws Exception {
       Link pushSubscription = null;
       String messageContent = "1";
 
-      try
-      {
+      try {
          // The name of the queue used for the test should match the name of the test
          String queue = "testUri";
          String queueToPushTo = "pushedFrom-" + queue;
@@ -239,21 +220,18 @@ public class PushQueueConsumerTest extends MessageTestBase
 
          Assert.assertEquals(messageContent, MyResource.got_it);
       }
-      finally
-      {
+      finally {
          cleanupSubscription(pushSubscription);
       }
    }
 
    @Test
-   public void testUriWithMultipleSessions() throws Exception
-   {
+   public void testUriWithMultipleSessions() throws Exception {
       Link pushSubscription = null;
       String messageContent = "1";
       final int CONCURRENT = 10;
 
-      try
-      {
+      try {
          // The name of the queue used for the test should match the name of the test
          String queue = "testUriWithMultipleSessions";
          String queueToPushTo = "pushedFrom-" + queue;
@@ -269,27 +247,23 @@ public class PushQueueConsumerTest extends MessageTestBase
 
          pushSubscription = createPushRegistration(generateURL("/myConcurrent"), pushSubscriptions, PushRegistrationType.URI, CONCURRENT);
 
-         for (int i = 0; i < CONCURRENT; i++)
-         {
+         for (int i = 0; i < CONCURRENT; i++) {
             sendMessage(destinationForSend, messageContent);
          }
 
          // wait until all the invocations have completed
-         while (MyConcurrentResource.concurrentInvocations.get() > 0)
-         {
+         while (MyConcurrentResource.concurrentInvocations.get() > 0) {
             Thread.sleep(100);
          }
 
          Assert.assertEquals(CONCURRENT, MyConcurrentResource.maxConcurrentInvocations.get());
       }
-      finally
-      {
+      finally {
          cleanupSubscription(pushSubscription);
       }
    }
 
-   private void deployQueue(String queueName) throws Exception
-   {
+   private void deployQueue(String queueName) throws Exception {
       QueueDeployment deployment = new QueueDeployment();
       deployment.setDuplicatesAllowed(true);
       deployment.setDurableSend(false);
@@ -297,8 +271,7 @@ public class PushQueueConsumerTest extends MessageTestBase
       manager.getQueueManager().deploy(deployment);
    }
 
-   private ClientResponse consume(Link destination, String expectedContent) throws Exception
-   {
+   private ClientResponse consume(Link destination, String expectedContent) throws Exception {
       ClientResponse response;
       response = destination.request().header(Constants.WAIT_HEADER, "1").post(String.class);
       Assert.assertEquals(200, response.getStatus());
@@ -307,15 +280,13 @@ public class PushQueueConsumerTest extends MessageTestBase
       return response;
    }
 
-   private void sendMessage(Link sender, String content) throws Exception
-   {
+   private void sendMessage(Link sender, String content) throws Exception {
       ClientResponse sendMessageResponse = sender.request().body("text/plain", content).post();
       sendMessageResponse.releaseConnection();
       Assert.assertEquals(201, sendMessageResponse.getStatus());
    }
 
-   private ClientResponse setAutoAck(ClientResponse response, boolean ack) throws Exception
-   {
+   private ClientResponse setAutoAck(ClientResponse response, boolean ack) throws Exception {
       Link pullConsumers = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "pull-consumers");
       ClientResponse autoAckResponse = pullConsumers.request().formParameter("autoAck", Boolean.toString(ack)).post();
       autoAckResponse.releaseConnection();
@@ -323,10 +294,8 @@ public class PushQueueConsumerTest extends MessageTestBase
       return autoAckResponse;
    }
 
-   private void cleanupConsumer(ClientResponse consumerResponse) throws Exception
-   {
-      if (consumerResponse != null)
-      {
+   private void cleanupConsumer(ClientResponse consumerResponse) throws Exception {
+      if (consumerResponse != null) {
          Link consumer = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), consumerResponse, "consumer");
          ClientResponse<?> response = consumer.request().delete();
          response.releaseConnection();
@@ -334,33 +303,32 @@ public class PushQueueConsumerTest extends MessageTestBase
       }
    }
 
-   private Link createPushRegistration(String queueToPushTo, Link pushSubscriptions, PushRegistrationType pushRegistrationType) throws Exception
-   {
+   private Link createPushRegistration(String queueToPushTo,
+                                       Link pushSubscriptions,
+                                       PushRegistrationType pushRegistrationType) throws Exception {
       return createPushRegistration(queueToPushTo, pushSubscriptions, pushRegistrationType, 1);
    }
 
-   private Link createPushRegistration(String queueToPushTo, Link pushSubscriptions, PushRegistrationType pushRegistrationType, int sessionCount) throws Exception
-   {
+   private Link createPushRegistration(String queueToPushTo,
+                                       Link pushSubscriptions,
+                                       PushRegistrationType pushRegistrationType,
+                                       int sessionCount) throws Exception {
       PushRegistration reg = new PushRegistration();
       reg.setDurable(false);
       XmlLink target = new XmlLink();
-      if (pushRegistrationType == PushRegistrationType.CLASS)
-      {
+      if (pushRegistrationType == PushRegistrationType.CLASS) {
          target.setHref(generateURL(Util.getUrlPath(queueToPushTo)));
          target.setClassName(ActiveMQPushStrategy.class.getName());
       }
-      else if (pushRegistrationType == PushRegistrationType.BRIDGE)
-      {
+      else if (pushRegistrationType == PushRegistrationType.BRIDGE) {
          target.setHref(generateURL(Util.getUrlPath(queueToPushTo)));
          target.setRelationship("destination");
       }
-      else if (pushRegistrationType == PushRegistrationType.TEMPLATE)
-      {
+      else if (pushRegistrationType == PushRegistrationType.TEMPLATE) {
          target.setHref(queueToPushTo);
          target.setRelationship("template");
       }
-      else if (pushRegistrationType == PushRegistrationType.URI)
-      {
+      else if (pushRegistrationType == PushRegistrationType.URI) {
          target.setMethod("put");
          target.setHref(queueToPushTo);
       }

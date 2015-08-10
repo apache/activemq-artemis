@@ -18,12 +18,12 @@ package org.apache.activemq.xbean;
 
 /**
  *
- * 
+ *
  */
 public class MultipleTestsWithEmbeddedBrokerAndPersistenceTest extends MultipleTestsWithEmbeddedBrokerTest {
 
-    protected boolean isPersistent() {
-        return true;
-    }
+   protected boolean isPersistent() {
+      return true;
+   }
 
 }

@@ -32,75 +32,61 @@ import java.util.Comparator;
  * execution off to the ActiveMQ Artemis cli main.
  * </p>
  */
-public class Artemis
-{
+public class Artemis {
 
-   public static void main(String[] args) throws Throwable
-   {
+   public static void main(String[] args) throws Throwable {
       ArrayList<File> dirs = new ArrayList<File>();
 
       String home = System.getProperty("artemis.home");
-      if (home != null)
-      {
+      if (home != null) {
          dirs.add(new File(new File(home), "lib"));
       }
 
       String instance = System.getProperty("artemis.instance");
       File instanceFile = null;
-      if (instance != null)
-      {
+      if (instance != null) {
          instanceFile = new File(instance);
          dirs.add(new File(instanceFile, "lib"));
       }
 
       ArrayList<URL> urls = new ArrayList<URL>();
-      for (File bootdir : dirs)
-      {
-         if (bootdir.exists() && bootdir.isDirectory())
-         {
+      for (File bootdir : dirs) {
+         if (bootdir.exists() && bootdir.isDirectory()) {
 
             // Find the jar files in the directory..
             ArrayList<File> files = new ArrayList<File>();
-            for (File f : bootdir.listFiles())
-            {
-               if (f.getName().endsWith(".jar") || f.getName().endsWith(".zip"))
-               {
+            for (File f : bootdir.listFiles()) {
+               if (f.getName().endsWith(".jar") || f.getName().endsWith(".zip")) {
                   files.add(f);
                }
             }
 
             // Sort the list by file name..
-            Collections.sort(files, new Comparator<File>()
-            {
-               public int compare(File file, File file1)
-               {
+            Collections.sort(files, new Comparator<File>() {
+               public int compare(File file, File file1) {
                   return file.getName().compareTo(file1.getName());
                }
             });
 
-            for (File f : files)
-            {
+            for (File f : files) {
                add(urls, f);
             }
 
          }
       }
 
-      if (instance != null)
-      {
+      if (instance != null) {
          System.setProperty("java.io.tmpdir", new File(new File(instance), "tmp").getCanonicalPath());
       }
 
       // Lets try to covert the logging.configuration setting to a valid URI
       String loggingConfig = System.getProperty("logging.configuration");
-      if (loggingConfig != null)
-      {
+      if (loggingConfig != null) {
          System.setProperty("logging.configuration", fixupFileURI(loggingConfig));
       }
 
       // Without the etc on the config, things like JGroups configuration wouldn't be loaded
-      if (instanceFile != null)
-      {
+      if (instanceFile != null) {
          File etcFile = new File(instance, "etc");
          // Adding etc to the classLoader so modules can lookup for their configs
          urls.add(etcFile.toURI().toURL());
@@ -111,35 +97,28 @@ public class Artemis
       Thread.currentThread().setContextClassLoader(loader);
       Class<?> clazz = loader.loadClass("org.apache.activemq.artemis.cli.Artemis");
       Method method = clazz.getMethod("main", args.getClass());
-      try
-      {
+      try {
          method.invoke(null, (Object) args);
       }
-      catch (InvocationTargetException e)
-      {
+      catch (InvocationTargetException e) {
          throw e.getTargetException();
       }
 
    }
 
-   static String fixupFileURI(String value)
-   {
-      if (value != null && value.startsWith("file:"))
-      {
+   static String fixupFileURI(String value) {
+      if (value != null && value.startsWith("file:")) {
          value = value.substring("file:".length());
          value = new File(value).toURI().toString();
       }
       return value;
    }
 
-   private static void add(ArrayList<URL> urls, File file)
-   {
-      try
-      {
+   private static void add(ArrayList<URL> urls, File file) {
+      try {
          urls.add(file.toURI().toURL());
       }
-      catch (MalformedURLException e)
-      {
+      catch (MalformedURLException e) {
          e.printStackTrace();
       }
    }

@@ -28,8 +28,7 @@ import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class ManagementHelperTest extends Assert
-{
+public class ManagementHelperTest extends Assert {
 
    // Constants -----------------------------------------------------
 
@@ -44,8 +43,7 @@ public class ManagementHelperTest extends Assert
    // Public --------------------------------------------------------
 
    @Test
-   public void testArrayOfStringParameter() throws Exception
-   {
+   public void testArrayOfStringParameter() throws Exception {
       String resource = RandomUtil.randomString();
       String operationName = RandomUtil.randomString();
       String param = RandomUtil.randomString();
@@ -61,15 +59,13 @@ public class ManagementHelperTest extends Assert
       Assert.assertTrue(parameter_2 instanceof Object[]);
       Object[] retrievedParams = (Object[]) parameter_2;
       Assert.assertEquals(params.length, retrievedParams.length);
-      for (int i = 0; i < retrievedParams.length; i++)
-      {
+      for (int i = 0; i < retrievedParams.length; i++) {
          Assert.assertEquals(params[i], retrievedParams[i]);
       }
    }
 
    @Test
-   public void testParams() throws Exception
-   {
+   public void testParams() throws Exception {
       String resource = RandomUtil.randomString();
       String operationName = RandomUtil.randomString();
 
@@ -185,8 +181,7 @@ public class ManagementHelperTest extends Assert
    }
 
    @Test
-   public void testMapWithArrayValues() throws Exception
-   {
+   public void testMapWithArrayValues() throws Exception {
       String resource = RandomUtil.randomString();
       String operationName = RandomUtil.randomString();
 
@@ -233,8 +228,7 @@ public class ManagementHelperTest extends Assert
    }
 
    @Test
-   public void testFromCommaSeparatedKeyValues() throws Exception
-   {
+   public void testFromCommaSeparatedKeyValues() throws Exception {
       String str = "key1=1, key2=false, key3=2.0, key4=whatever";
 
       Map<String, Object> map = ManagementHelper.fromCommaSeparatedKeyValues(str);
@@ -253,8 +247,7 @@ public class ManagementHelperTest extends Assert
    }
 
    @Test
-   public void testFromCommaSeparatedArrayOfCommaSeparatedKeyValuesForSingleItem() throws Exception
-   {
+   public void testFromCommaSeparatedArrayOfCommaSeparatedKeyValuesForSingleItem() throws Exception {
       // if there is a single item, no need to enclose it in { }
       String str = "k11=1, k12=false, k13=2.0, k14=whatever ";
 
@@ -278,8 +271,7 @@ public class ManagementHelperTest extends Assert
    }
 
    @Test
-   public void testFromCommaSeparatedArrayOfCommaSeparatedKeyValues() throws Exception
-   {
+   public void testFromCommaSeparatedArrayOfCommaSeparatedKeyValues() throws Exception {
       String str = "{ k11=1, k12=false, k13=2.0, k14=whatever },{ k21=2, k22=true, k23=23.0, k24=foo }";
 
       Object[] objects = ManagementHelper.fromCommaSeparatedArrayOfCommaSeparatedKeyValues(str);

@@ -27,11 +27,10 @@ import org.junit.Test;
 
 import static org.jgroups.util.Util.assertEquals;
 
-public class ActiveMQXAResourceWrapperImplTest
-{
+public class ActiveMQXAResourceWrapperImplTest {
+
    @Test
-   public void testXAResourceWrapper()
-   {
+   public void testXAResourceWrapper() {
       String jndiName = "java://jmsXA";
       String nodeId = "0";
       XAResource xaResource = new MockXAResource();

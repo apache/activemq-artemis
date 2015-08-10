@@ -35,16 +35,14 @@ import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
  * The consumer on one of the nodes is then closed, and we demonstrate that the "stranded" messages
  * are redistributed to the other node which has a consumer so they can be consumed.
  */
-public class QueueMessageRedistributionExample
-{
-   public static void main(final String[] args) throws Exception
-   {
+public class QueueMessageRedistributionExample {
+
+   public static void main(final String[] args) throws Exception {
       Connection connection0 = null;
 
       Connection connection1 = null;
 
-      try
-      {
+      try {
          // Step 2. Look-up the JMS Queue object from JNDI
          Queue queue = ActiveMQJMSClient.createQueue("exampleQueue");
 
@@ -85,8 +83,7 @@ public class QueueMessageRedistributionExample
 
          final int numMessages = 10;
 
-         for (int i = 0; i < numMessages; i++)
-         {
+         for (int i = 0; i < numMessages; i++) {
             TextMessage message = session0.createTextMessage("This is text message " + i);
 
             producer.send(message);
@@ -103,13 +100,12 @@ public class QueueMessageRedistributionExample
 
          TextMessage message1 = null;
 
-         for (int i = 0; i < numMessages; i += 2)
-         {
-            message0 = (TextMessage)consumer0.receive(5000);
+         for (int i = 0; i < numMessages; i += 2) {
+            message0 = (TextMessage) consumer0.receive(5000);
 
             System.out.println("Got message: " + message0.getText() + " from node 0");
 
-            message1 = (TextMessage)consumer1.receive(5000);
+            message1 = (TextMessage) consumer1.receive(5000);
 
             System.out.println("Got message: " + message1.getText() + " from node 1");
          }
@@ -127,9 +123,8 @@ public class QueueMessageRedistributionExample
          // consumers)
          // so ActiveMQ Artemis will redistribute them to node 0 so they can be consumed.
 
-         for (int i = 0; i < numMessages; i += 2)
-         {
-            message0 = (TextMessage)consumer0.receive(5000);
+         for (int i = 0; i < numMessages; i += 2) {
+            message0 = (TextMessage) consumer0.receive(5000);
 
             System.out.println("Got message: " + message0.getText() + " from node 0");
          }
@@ -137,17 +132,14 @@ public class QueueMessageRedistributionExample
          // Step 18. We ack the messages.
          message0.acknowledge();
       }
-      finally
-      {
+      finally {
          // Step 18. Be sure to close our resources!
 
-         if (connection0 != null)
-         {
+         if (connection0 != null) {
             connection0.close();
          }
 
-         if (connection1 != null)
-         {
+         if (connection1 != null) {
             connection1.close();
          }
       }

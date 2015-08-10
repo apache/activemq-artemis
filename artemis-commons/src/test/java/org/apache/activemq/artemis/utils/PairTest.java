@@ -21,13 +21,10 @@ import org.junit.Test;
 import org.junit.Assert;
 import org.apache.activemq.artemis.api.core.Pair;
 
-
-public class PairTest extends Assert
-{
+public class PairTest extends Assert {
 
    @Test
-   public void testPair()
-   {
+   public void testPair() {
       Pair<Integer, Integer> p = new Pair<Integer, Integer>(Integer.valueOf(12), Integer.valueOf(13));
       int hash = p.hashCode();
       p.setA(null);

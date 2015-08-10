@@ -23,8 +23,8 @@ import org.apache.activemq.artemis.core.server.impl.SharedNothingBackupActivatio
 
 import java.util.Map;
 
-public class ReplicaPolicy extends BackupPolicy
-{
+public class ReplicaPolicy extends BackupPolicy {
+
    private String clusterName;
 
    private int maxSavedReplicatedJournalsSize = ActiveMQDefaultConfiguration.getDefaultMaxSavedReplicatedJournalsSize();
@@ -35,12 +35,16 @@ public class ReplicaPolicy extends BackupPolicy
 
    private ReplicatedPolicy replicatedPolicy;
 
-   public ReplicaPolicy()
-   {
+   public ReplicaPolicy() {
    }
 
-   public ReplicaPolicy(String clusterName, int maxSavedReplicatedJournalsSize, String groupName, boolean restartBackup, boolean allowFailback, long failbackDelay, ScaleDownPolicy scaleDownPolicy)
-   {
+   public ReplicaPolicy(String clusterName,
+                        int maxSavedReplicatedJournalsSize,
+                        String groupName,
+                        boolean restartBackup,
+                        boolean allowFailback,
+                        long failbackDelay,
+                        ScaleDownPolicy scaleDownPolicy) {
       this.clusterName = clusterName;
       this.maxSavedReplicatedJournalsSize = maxSavedReplicatedJournalsSize;
       this.groupName = groupName;
@@ -50,89 +54,78 @@ public class ReplicaPolicy extends BackupPolicy
       replicatedPolicy = new ReplicatedPolicy(false, allowFailback, failbackDelay, groupName, clusterName, this);
    }
 
-   public ReplicaPolicy(String clusterName, int maxSavedReplicatedJournalsSize, String groupName, ReplicatedPolicy replicatedPolicy)
-   {
+   public ReplicaPolicy(String clusterName,
+                        int maxSavedReplicatedJournalsSize,
+                        String groupName,
+                        ReplicatedPolicy replicatedPolicy) {
       this.clusterName = clusterName;
       this.maxSavedReplicatedJournalsSize = maxSavedReplicatedJournalsSize;
       this.groupName = groupName;
       this.replicatedPolicy = replicatedPolicy;
    }
 
-   public String getClusterName()
-   {
+   public String getClusterName() {
       return clusterName;
    }
 
-   public void setClusterName(String clusterName)
-   {
+   public void setClusterName(String clusterName) {
       this.clusterName = clusterName;
    }
 
-   public int getMaxSavedReplicatedJournalsSize()
-   {
+   public int getMaxSavedReplicatedJournalsSize() {
       return maxSavedReplicatedJournalsSize;
    }
 
-   public void setMaxSavedReplicatedJournalsSize(int maxSavedReplicatedJournalsSize)
-   {
+   public void setMaxSavedReplicatedJournalsSize(int maxSavedReplicatedJournalsSize) {
       this.maxSavedReplicatedJournalsSize = maxSavedReplicatedJournalsSize;
    }
 
-   public ReplicatedPolicy getReplicatedPolicy()
-   {
+   public ReplicatedPolicy getReplicatedPolicy() {
       return replicatedPolicy;
    }
 
-   public void setReplicatedPolicy(ReplicatedPolicy replicatedPolicy)
-   {
+   public void setReplicatedPolicy(ReplicatedPolicy replicatedPolicy) {
       this.replicatedPolicy = replicatedPolicy;
    }
 
    /*
    * these 2 methods are the same, leaving both as the second is correct but the first is needed until more refactoring is done
    * */
-   public String getBackupGroupName()
-   {
+   public String getBackupGroupName() {
       return groupName;
    }
 
-   public String getGroupName()
-   {
+   public String getGroupName() {
       return groupName;
    }
 
-   public void setGroupName(String groupName)
-   {
+   public void setGroupName(String groupName) {
       this.groupName = groupName;
    }
 
-   public boolean isRestartBackup()
-   {
+   public boolean isRestartBackup() {
       return restartBackup;
    }
 
-   public void setRestartBackup(boolean restartBackup)
-   {
+   public void setRestartBackup(boolean restartBackup) {
       this.restartBackup = restartBackup;
    }
 
    @Override
-   public boolean isSharedStore()
-   {
+   public boolean isSharedStore() {
       return false;
    }
 
    @Override
-   public boolean canScaleDown()
-   {
+   public boolean canScaleDown() {
       return scaleDownPolicy != null;
    }
 
    @Override
-   public Activation createActivation(ActiveMQServerImpl server, boolean wasLive,
+   public Activation createActivation(ActiveMQServerImpl server,
+                                      boolean wasLive,
                                       Map<String, Object> activationParams,
-                                      ActiveMQServerImpl.ShutdownOnCriticalErrorListener shutdownOnCriticalIO) throws Exception
-   {
+                                      ActiveMQServerImpl.ShutdownOnCriticalErrorListener shutdownOnCriticalIO) throws Exception {
       SharedNothingBackupActivation backupActivation = new SharedNothingBackupActivation(server, wasLive, activationParams, shutdownOnCriticalIO, this);
       backupActivation.init();
       return backupActivation;

@@ -28,7 +28,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
-
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTConnectionManager;
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTSession;
 import org.apache.activemq.artemis.tests.integration.mqtt.imported.util.Wait;
@@ -50,16 +49,14 @@ import org.vertx.java.core.impl.ConcurrentHashSet;
 /**
  * MQTT Test imported from ActiveMQ MQTT component.
  */
-public class MQTTTest extends MQTTTestSupport
-{
+public class MQTTTest extends MQTTTestSupport {
 
    private static final Logger LOG = LoggerFactory.getLogger(MQTTTest.class);
 
    private static final int NUM_MESSAGES = 250;
 
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       Field sessions = MQTTSession.class.getDeclaredField("SESSIONS");
       sessions.setAccessible(true);
       sessions.set(null, new ConcurrentHashMap<>());
@@ -72,8 +69,7 @@ public class MQTTTest extends MQTTTestSupport
    }
 
    @Test(timeout = 60 * 1000)
-   public void testSendAndReceiveMQTT() throws Exception
-   {
+   public void testSendAndReceiveMQTT() throws Exception {
       final MQTTClientProvider subscriptionProvider = getMQTTClientProvider();
       initializeConnection(subscriptionProvider);
 
@@ -81,21 +77,16 @@ public class MQTTTest extends MQTTTestSupport
 
       final CountDownLatch latch = new CountDownLatch(NUM_MESSAGES);
 
-      Thread thread = new Thread(new Runnable()
-      {
+      Thread thread = new Thread(new Runnable() {
          @Override
-         public void run()
-         {
-            for (int i = 0; i < NUM_MESSAGES; i++)
-            {
-               try
-               {
+         public void run() {
+            for (int i = 0; i < NUM_MESSAGES; i++) {
+               try {
                   byte[] payload = subscriptionProvider.receive(10000);
                   assertNotNull("Should get a message", payload);
                   latch.countDown();
                }
-               catch (Exception e)
-               {
+               catch (Exception e) {
                   e.printStackTrace();
                   break;
                }
@@ -108,8 +99,7 @@ public class MQTTTest extends MQTTTestSupport
       final MQTTClientProvider publishProvider = getMQTTClientProvider();
       initializeConnection(publishProvider);
 
-      for (int i = 0; i < NUM_MESSAGES; i++)
-      {
+      for (int i = 0; i < NUM_MESSAGES; i++) {
          String payload = "Message " + i;
          publishProvider.publish("foo/bah", payload.getBytes(), AT_LEAST_ONCE);
       }
@@ -121,8 +111,7 @@ public class MQTTTest extends MQTTTestSupport
    }
 
    @Test(timeout = 60 * 1000)
-   public void testUnsubscribeMQTT() throws Exception
-   {
+   public void testUnsubscribeMQTT() throws Exception {
       final MQTTClientProvider subscriptionProvider = getMQTTClientProvider();
       initializeConnection(subscriptionProvider);
 
@@ -132,21 +121,16 @@ public class MQTTTest extends MQTTTestSupport
 
       final CountDownLatch latch = new CountDownLatch(NUM_MESSAGES / 2);
 
-      Thread thread = new Thread(new Runnable()
-      {
+      Thread thread = new Thread(new Runnable() {
          @Override
-         public void run()
-         {
-            for (int i = 0; i < NUM_MESSAGES; i++)
-            {
-               try
-               {
+         public void run() {
+            for (int i = 0; i < NUM_MESSAGES; i++) {
+               try {
                   byte[] payload = subscriptionProvider.receive(10000);
                   assertNotNull("Should get a message", payload);
                   latch.countDown();
                }
-               catch (Exception e)
-               {
+               catch (Exception e) {
                   e.printStackTrace();
                   break;
                }
@@ -159,11 +143,9 @@ public class MQTTTest extends MQTTTestSupport
       final MQTTClientProvider publishProvider = getMQTTClientProvider();
       initializeConnection(publishProvider);
 
-      for (int i = 0; i < NUM_MESSAGES; i++)
-      {
+      for (int i = 0; i < NUM_MESSAGES; i++) {
          String payload = "Message " + i;
-         if (i == NUM_MESSAGES / 2)
-         {
+         if (i == NUM_MESSAGES / 2) {
             subscriptionProvider.unsubscribe(topic);
          }
          publishProvider.publish(topic, payload.getBytes(), AT_LEAST_ONCE);
@@ -176,8 +158,7 @@ public class MQTTTest extends MQTTTestSupport
    }
 
    @Test(timeout = 60 * 1000)
-   public void testSendAtMostOnceReceiveExactlyOnce() throws Exception
-   {
+   public void testSendAtMostOnceReceiveExactlyOnce() throws Exception {
       /**
        * Although subscribing with EXACTLY ONCE, the message gets published
        * with AT_MOST_ONCE - in MQTT the QoS is always determined by the
@@ -186,8 +167,7 @@ public class MQTTTest extends MQTTTestSupport
       final MQTTClientProvider provider = getMQTTClientProvider();
       initializeConnection(provider);
       provider.subscribe("foo", EXACTLY_ONCE);
-      for (int i = 0; i < NUM_MESSAGES; i++)
-      {
+      for (int i = 0; i < NUM_MESSAGES; i++) {
          String payload = "Test Message: " + i;
          provider.publish("foo", payload.getBytes(), AT_MOST_ONCE);
          byte[] message = provider.receive(5000);
@@ -198,13 +178,11 @@ public class MQTTTest extends MQTTTestSupport
    }
 
    @Test(timeout = 2 * 60 * 1000)
-   public void testSendAtLeastOnceReceiveExactlyOnce() throws Exception
-   {
+   public void testSendAtLeastOnceReceiveExactlyOnce() throws Exception {
       final MQTTClientProvider provider = getMQTTClientProvider();
       initializeConnection(provider);
       provider.subscribe("foo", EXACTLY_ONCE);
-      for (int i = 0; i < NUM_MESSAGES; i++)
-      {
+      for (int i = 0; i < NUM_MESSAGES; i++) {
          String payload = "Test Message: " + i;
          provider.publish("foo", payload.getBytes(), AT_LEAST_ONCE);
          byte[] message = provider.receive(5000);
@@ -215,13 +193,11 @@ public class MQTTTest extends MQTTTestSupport
    }
 
    @Test(timeout = 2 * 60 * 1000)
-   public void testSendAtLeastOnceReceiveAtMostOnce() throws Exception
-   {
+   public void testSendAtLeastOnceReceiveAtMostOnce() throws Exception {
       final MQTTClientProvider provider = getMQTTClientProvider();
       initializeConnection(provider);
       provider.subscribe("foo", AT_MOST_ONCE);
-      for (int i = 0; i < NUM_MESSAGES; i++)
-      {
+      for (int i = 0; i < NUM_MESSAGES; i++) {
          String payload = "Test Message: " + i;
          provider.publish("foo", payload.getBytes(), AT_LEAST_ONCE);
          byte[] message = provider.receive(5000);
@@ -232,13 +208,11 @@ public class MQTTTest extends MQTTTestSupport
    }
 
    @Test(timeout = 60 * 1000)
-   public void testSendAndReceiveAtMostOnce() throws Exception
-   {
+   public void testSendAndReceiveAtMostOnce() throws Exception {
       final MQTTClientProvider provider = getMQTTClientProvider();
       initializeConnection(provider);
       provider.subscribe("foo", AT_MOST_ONCE);
-      for (int i = 0; i < NUM_MESSAGES; i++)
-      {
+      for (int i = 0; i < NUM_MESSAGES; i++) {
          String payload = "Test Message: " + i;
          provider.publish("foo", payload.getBytes(), AT_MOST_ONCE);
          byte[] message = provider.receive(5000);
@@ -249,13 +223,11 @@ public class MQTTTest extends MQTTTestSupport
    }
 
    @Test(timeout = 2 * 60 * 1000)
-   public void testSendAndReceiveAtLeastOnce() throws Exception
-   {
+   public void testSendAndReceiveAtLeastOnce() throws Exception {
       final MQTTClientProvider provider = getMQTTClientProvider();
       initializeConnection(provider);
       provider.subscribe("foo", AT_LEAST_ONCE);
-      for (int i = 0; i < NUM_MESSAGES; i++)
-      {
+      for (int i = 0; i < NUM_MESSAGES; i++) {
          String payload = "Test Message: " + i;
          provider.publish("foo", payload.getBytes(), AT_LEAST_ONCE);
          byte[] message = provider.receive(5000);
@@ -266,8 +238,7 @@ public class MQTTTest extends MQTTTestSupport
    }
 
    @Test(timeout = 60 * 1000)
-   public void testSendAndReceiveExactlyOnce() throws Exception
-   {
+   public void testSendAndReceiveExactlyOnce() throws Exception {
       final MQTTClientProvider publisher = getMQTTClientProvider();
       initializeConnection(publisher);
 
@@ -275,8 +246,7 @@ public class MQTTTest extends MQTTTestSupport
       initializeConnection(subscriber);
 
       subscriber.subscribe("foo", EXACTLY_ONCE);
-      for (int i = 0; i < NUM_MESSAGES; i++)
-      {
+      for (int i = 0; i < NUM_MESSAGES; i++) {
          String payload = "Test Message: " + i;
          publisher.publish("foo", payload.getBytes(), EXACTLY_ONCE);
          byte[] message = subscriber.receive(5000);
@@ -288,11 +258,9 @@ public class MQTTTest extends MQTTTestSupport
    }
 
    @Test(timeout = 60 * 1000)
-   public void testSendAndReceiveLargeMessages() throws Exception
-   {
+   public void testSendAndReceiveLargeMessages() throws Exception {
       byte[] payload = new byte[1024 * 32];
-      for (int i = 0; i < payload.length; i++)
-      {
+      for (int i = 0; i < payload.length; i++) {
          payload[i] = '2';
       }
       final MQTTClientProvider publisher = getMQTTClientProvider();
@@ -302,8 +270,7 @@ public class MQTTTest extends MQTTTestSupport
       initializeConnection(subscriber);
 
       subscriber.subscribe("foo", AT_LEAST_ONCE);
-      for (int i = 0; i < 10; i++)
-      {
+      for (int i = 0; i < 10; i++) {
          publisher.publish("foo", payload, AT_LEAST_ONCE);
          byte[] message = subscriber.receive(5000);
          assertNotNull("Should get a message", message);
@@ -315,8 +282,7 @@ public class MQTTTest extends MQTTTestSupport
    }
 
    @Test(timeout = 60 * 1000)
-   public void testSendAndReceiveRetainedMessages() throws Exception
-   {
+   public void testSendAndReceiveRetainedMessages() throws Exception {
       final MQTTClientProvider publisher = getMQTTClientProvider();
       initializeConnection(publisher);
 
@@ -327,23 +293,20 @@ public class MQTTTest extends MQTTTestSupport
       publisher.publish("foo", RETAINED.getBytes(), AT_LEAST_ONCE, true);
 
       List<String> messages = new ArrayList<String>();
-      for (int i = 0; i < 10; i++)
-      {
+      for (int i = 0; i < 10; i++) {
          messages.add("TEST MESSAGE:" + i);
       }
 
       subscriber.subscribe("foo", AT_LEAST_ONCE);
 
-      for (int i = 0; i < 10; i++)
-      {
+      for (int i = 0; i < 10; i++) {
          publisher.publish("foo", messages.get(i).getBytes(), AT_LEAST_ONCE);
       }
       byte[] msg = subscriber.receive(5000);
       assertNotNull(msg);
       assertEquals(RETAINED, new String(msg));
 
-      for (int i = 0; i < 10; i++)
-      {
+      for (int i = 0; i < 10; i++) {
          msg = subscriber.receive(5000);
          assertNotNull(msg);
          assertEquals(messages.get(i), new String(msg));
@@ -353,8 +316,7 @@ public class MQTTTest extends MQTTTestSupport
    }
 
    @Test(timeout = 30 * 1000)
-   public void testValidZeroLengthClientId() throws Exception
-   {
+   public void testValidZeroLengthClientId() throws Exception {
       MQTT mqtt = createMQTTConnection();
       mqtt.setClientId("");
       mqtt.setCleanSession(true);
@@ -365,8 +327,7 @@ public class MQTTTest extends MQTTTestSupport
    }
 
    @Test(timeout = 2 * 60 * 1000)
-   public void testMQTTPathPatterns() throws Exception
-   {
+   public void testMQTTPathPatterns() throws Exception {
       MQTT mqtt = createMQTTConnection();
       mqtt.setClientId("");
       mqtt.setCleanSession(true);
@@ -376,8 +337,7 @@ public class MQTTTest extends MQTTTestSupport
 
       final String RETAINED = "RETAINED";
       String[] topics = {"TopicA", "/TopicA", "/", "TopicA/", "//"};
-      for (String topic : topics)
-      {
+      for (String topic : topics) {
          // test retained message
          connection.publish(topic, (RETAINED + topic).getBytes(), QoS.AT_LEAST_ONCE, true);
 
@@ -400,8 +360,7 @@ public class MQTTTest extends MQTTTestSupport
 
       // test wildcard patterns with above topics
       String[] wildcards = {"#", "+", "+/#", "/+", "+/", "+/+", "+/+/", "+/+/+"};
-      for (String wildcard : wildcards)
-      {
+      for (String wildcard : wildcards) {
          final Pattern pattern = Pattern.compile(wildcard.replaceAll("/?#", "(/?.*)*").replaceAll("\\+", "[^/]*"));
 
          connection = mqtt.blockingConnection();
@@ -411,8 +370,7 @@ public class MQTTTest extends MQTTTestSupport
 
          // test retained messages
          Message msg = connection.receive(5, TimeUnit.SECONDS);
-         do
-         {
+         do {
             assertNotNull("RETAINED null " + wildcard, msg);
             assertTrue("RETAINED prefix " + wildcard, new String(msg.getPayload()).startsWith(RETAINED));
             assertTrue("RETAINED matching " + wildcard + " " + msg.getTopic(), pattern.matcher(msg.getTopic()).matches());
@@ -421,13 +379,11 @@ public class MQTTTest extends MQTTTestSupport
          } while (msg != null);
 
          // test non-retained message
-         for (String topic : topics)
-         {
+         for (String topic : topics) {
             connection.publish(topic, topic.getBytes(), QoS.AT_LEAST_ONCE, false);
          }
          msg = connection.receive(1000, TimeUnit.MILLISECONDS);
-         do
-         {
+         do {
             assertNotNull("Non-retained Null " + wildcard, msg);
             assertTrue("Non-retained matching " + wildcard + " " + msg.getTopic(), pattern.matcher(msg.getTopic()).matches());
             msg.ack();
@@ -440,11 +396,9 @@ public class MQTTTest extends MQTTTestSupport
    }
 
    @Test(timeout = 60 * 1000)
-   public void testMQTTRetainQoS() throws Exception
-   {
+   public void testMQTTRetainQoS() throws Exception {
       String[] topics = {"AT_MOST_ONCE", "AT_LEAST_ONCE", "EXACTLY_ONCE"};
-      for (int i = 0; i < topics.length; i++)
-      {
+      for (int i = 0; i < topics.length; i++) {
          final String topic = topics[i];
 
          MQTT mqtt = createMQTTConnection();
@@ -452,14 +406,11 @@ public class MQTTTest extends MQTTTestSupport
          mqtt.setKeepAlive((short) 2);
 
          final int[] actualQoS = {-1};
-         mqtt.setTracer(new Tracer()
-         {
+         mqtt.setTracer(new Tracer() {
             @Override
-            public void onReceive(MQTTFrame frame)
-            {
+            public void onReceive(MQTTFrame frame) {
                // validate the QoS
-               if (frame.messageType() == PUBLISH.TYPE)
-               {
+               if (frame.messageType() == PUBLISH.TYPE) {
                   actualQoS[0] = frame.qos().ordinal();
                }
             }
@@ -474,8 +425,7 @@ public class MQTTTest extends MQTTTestSupport
          assertNotNull(msg);
          assertEquals(topic, new String(msg.getPayload()));
          int waitCount = 0;
-         while (actualQoS[0] == -1 && waitCount < 10)
-         {
+         while (actualQoS[0] == -1 && waitCount < 10) {
             Thread.sleep(1000);
             waitCount++;
          }
@@ -489,21 +439,17 @@ public class MQTTTest extends MQTTTestSupport
    }
 
    @Test(timeout = 60 * 1000)
-   public void testDuplicateSubscriptions() throws Exception
-   {
+   public void testDuplicateSubscriptions() throws Exception {
       MQTT mqtt = createMQTTConnection();
       mqtt.setClientId("foo");
       mqtt.setKeepAlive((short) 20);
 
       final int[] actualQoS = {-1};
-      mqtt.setTracer(new Tracer()
-      {
+      mqtt.setTracer(new Tracer() {
          @Override
-         public void onReceive(MQTTFrame frame)
-         {
+         public void onReceive(MQTTFrame frame) {
             // validate the QoS
-            if (frame.messageType() == PUBLISH.TYPE)
-            {
+            if (frame.messageType() == PUBLISH.TYPE) {
                actualQoS[0] = frame.qos().ordinal();
             }
          }
@@ -516,8 +462,7 @@ public class MQTTTest extends MQTTTestSupport
       connection.publish("TopicA", RETAIN.getBytes(), QoS.EXACTLY_ONCE, true);
 
       QoS[] qoss = {QoS.AT_MOST_ONCE, QoS.AT_MOST_ONCE, QoS.AT_LEAST_ONCE, QoS.EXACTLY_ONCE};
-      for (QoS qos : qoss)
-      {
+      for (QoS qos : qoss) {
          connection.subscribe(new Topic[]{new Topic("TopicA", qos)});
 
          final Message msg = connection.receive(5000, TimeUnit.MILLISECONDS);
@@ -525,8 +470,7 @@ public class MQTTTest extends MQTTTestSupport
          assertEquals(RETAIN, new String(msg.getPayload()));
          msg.ack();
          int waitCount = 0;
-         while (actualQoS[0] == -1 && waitCount < 10)
-         {
+         while (actualQoS[0] == -1 && waitCount < 10) {
             Thread.sleep(1000);
             waitCount++;
          }
@@ -540,8 +484,7 @@ public class MQTTTest extends MQTTTestSupport
    }
 
    @Test(timeout = 120 * 1000)
-   public void testRetainedMessage() throws Exception
-   {
+   public void testRetainedMessage() throws Exception {
       MQTT mqtt = createMQTTConnection();
       mqtt.setKeepAlive((short) 60);
 
@@ -549,8 +492,7 @@ public class MQTTTest extends MQTTTestSupport
       final String TOPICA = "TopicA";
 
       final String[] clientIds = {null, "foo", "durable"};
-      for (String clientId : clientIds)
-      {
+      for (String clientId : clientIds) {
          LOG.info("Testing now with Client ID: {}", clientId);
 
          mqtt.setClientId(clientId);
@@ -611,8 +553,7 @@ public class MQTTTest extends MQTTTestSupport
 
    @Ignore
    @Test(timeout = 120 * 1000)
-   public void testRetainedMessageOnVirtualTopics() throws Exception
-   {
+   public void testRetainedMessageOnVirtualTopics() throws Exception {
       MQTT mqtt = createMQTTConnection();
       mqtt.setKeepAlive((short) 60);
 
@@ -620,8 +561,7 @@ public class MQTTTest extends MQTTTestSupport
       final String TOPICA = "VirtualTopic/TopicA";
 
       final String[] clientIds = {null, "foo", "durable"};
-      for (String clientId : clientIds)
-      {
+      for (String clientId : clientIds) {
          LOG.info("Testing now with Client ID: {}", clientId);
 
          mqtt.setClientId(clientId);
@@ -682,29 +622,23 @@ public class MQTTTest extends MQTTTestSupport
    }
 
    @Test(timeout = 60 * 1000)
-   public void testUniqueMessageIds() throws Exception
-   {
+   public void testUniqueMessageIds() throws Exception {
       MQTT mqtt = createMQTTConnection();
       mqtt.setClientId("foo");
       mqtt.setKeepAlive((short) 2);
       mqtt.setCleanSession(true);
 
       final List<PUBLISH> publishList = new ArrayList<PUBLISH>();
-      mqtt.setTracer(new Tracer()
-      {
+      mqtt.setTracer(new Tracer() {
          @Override
-         public void onReceive(MQTTFrame frame)
-         {
+         public void onReceive(MQTTFrame frame) {
             LOG.info("Client received:\n" + frame);
-            if (frame.messageType() == PUBLISH.TYPE)
-            {
+            if (frame.messageType() == PUBLISH.TYPE) {
                PUBLISH publish = new PUBLISH();
-               try
-               {
+               try {
                   publish.decode(frame);
                }
-               catch (ProtocolException e)
-               {
+               catch (ProtocolException e) {
                   fail("Error decoding publish " + e.getMessage());
                }
                publishList.add(publish);
@@ -712,8 +646,7 @@ public class MQTTTest extends MQTTTestSupport
          }
 
          @Override
-         public void onSend(MQTTFrame frame)
-         {
+         public void onSend(MQTTFrame frame) {
             LOG.info("Client sent:\n" + frame);
          }
       });
@@ -729,8 +662,7 @@ public class MQTTTest extends MQTTTestSupport
       connection.publish(TOPIC, TOPIC.getBytes(), QoS.EXACTLY_ONCE, true);
 
       String[] subs = {TOPIC, "TopicA/#", "TopicA/+"};
-      for (int i = 0; i < qoss.length; i++)
-      {
+      for (int i = 0; i < qoss.length; i++) {
          connection.subscribe(new Topic[]{new Topic(subs[i], qoss[i])});
       }
 
@@ -739,14 +671,12 @@ public class MQTTTest extends MQTTTestSupport
       int received = 0;
 
       Message msg = connection.receive(5000, TimeUnit.MILLISECONDS);
-      do
-      {
+      do {
          assertNotNull(msg);
          assertEquals(TOPIC, new String(msg.getPayload()));
          msg.ack();
          int waitCount = 0;
-         while (publishList.size() <= received && waitCount < 10)
-         {
+         while (publishList.size() <= received && waitCount < 10) {
             Thread.sleep(1000);
             waitCount++;
          }
@@ -756,25 +686,20 @@ public class MQTTTest extends MQTTTestSupport
 
       // make sure we received distinct ids for QoS != AT_MOST_ONCE, and 0 for
       // AT_MOST_ONCE
-      for (int i = 0; i < publishList.size(); i++)
-      {
-         for (int j = i + 1; j < publishList.size(); j++)
-         {
+      for (int i = 0; i < publishList.size(); i++) {
+         for (int j = i + 1; j < publishList.size(); j++) {
             final PUBLISH publish1 = publishList.get(i);
             final PUBLISH publish2 = publishList.get(j);
             boolean qos0 = false;
-            if (publish1.qos() == QoS.AT_MOST_ONCE)
-            {
+            if (publish1.qos() == QoS.AT_MOST_ONCE) {
                qos0 = true;
                assertEquals(0, publish1.messageId());
             }
-            if (publish2.qos() == QoS.AT_MOST_ONCE)
-            {
+            if (publish2.qos() == QoS.AT_MOST_ONCE) {
                qos0 = true;
                assertEquals(0, publish2.messageId());
             }
-            if (!qos0)
-            {
+            if (!qos0) {
                assertNotEquals(publish1.messageId(), publish2.messageId());
             }
          }
@@ -785,27 +710,21 @@ public class MQTTTest extends MQTTTestSupport
    }
 
    @Test(timeout = 60 * 1000)
-   public void testResendMessageId() throws Exception
-   {
+   public void testResendMessageId() throws Exception {
       final MQTT mqtt = createMQTTConnection("resend", false);
       mqtt.setKeepAlive((short) 5);
 
       final List<PUBLISH> publishList = new ArrayList<PUBLISH>();
-      mqtt.setTracer(new Tracer()
-      {
+      mqtt.setTracer(new Tracer() {
          @Override
-         public void onReceive(MQTTFrame frame)
-         {
+         public void onReceive(MQTTFrame frame) {
             LOG.info("Client received:\n" + frame);
-            if (frame.messageType() == PUBLISH.TYPE)
-            {
+            if (frame.messageType() == PUBLISH.TYPE) {
                PUBLISH publish = new PUBLISH();
-               try
-               {
+               try {
                   publish.decode(frame);
                }
-               catch (ProtocolException e)
-               {
+               catch (ProtocolException e) {
                   fail("Error decoding publish " + e.getMessage());
                }
                publishList.add(publish);
@@ -813,8 +732,7 @@ public class MQTTTest extends MQTTTestSupport
          }
 
          @Override
-         public void onSend(MQTTFrame frame)
-         {
+         public void onSend(MQTTFrame frame) {
             LOG.info("Client sent:\n" + frame);
          }
       });
@@ -828,11 +746,9 @@ public class MQTTTest extends MQTTTestSupport
       // publish non-retained message
       connection.publish(TOPIC, TOPIC.getBytes(), QoS.EXACTLY_ONCE, false);
 
-      Wait.waitFor(new Wait.Condition()
-      {
+      Wait.waitFor(new Wait.Condition() {
          @Override
-         public boolean isSatisified() throws Exception
-         {
+         public boolean isSatisified() throws Exception {
             return publishList.size() == 2;
          }
       }, 5000);
@@ -843,11 +759,9 @@ public class MQTTTest extends MQTTTestSupport
       connection = mqtt.blockingConnection();
       connection.connect();
 
-      Wait.waitFor(new Wait.Condition()
-      {
+      Wait.waitFor(new Wait.Condition() {
          @Override
-         public boolean isSatisified() throws Exception
-         {
+         public boolean isSatisified() throws Exception {
             return publishList.size() == 4;
          }
       }, 5000);
@@ -857,41 +771,34 @@ public class MQTTTest extends MQTTTestSupport
       // In Artemis we send a new ID for every copy of the message.
 
       // make sure we received duplicate message ids
-//      assertTrue(publishList.get(0).messageId() == publishList.get(2).messageId() || publishList.get(0).messageId() == publishList.get(3).messageId());
-//      assertTrue(publishList.get(1).messageId() == publishList.get(3).messageId() || publishList.get(1).messageId() == publishList.get(2).messageId());
-//      assertTrue(publishList.get(2).dup() && publishList.get(3).dup());
+      //      assertTrue(publishList.get(0).messageId() == publishList.get(2).messageId() || publishList.get(0).messageId() == publishList.get(3).messageId());
+      //      assertTrue(publishList.get(1).messageId() == publishList.get(3).messageId() || publishList.get(1).messageId() == publishList.get(2).messageId());
+      //      assertTrue(publishList.get(2).dup() && publishList.get(3).dup());
 
       connection.unsubscribe(topics);
       connection.disconnect();
    }
 
    @Test(timeout = 90 * 1000)
-   public void testPacketIdGeneratorNonCleanSession() throws Exception
-   {
+   public void testPacketIdGeneratorNonCleanSession() throws Exception {
       final MQTT mqtt = createMQTTConnection("nonclean-packetid", false);
       mqtt.setKeepAlive((short) 15);
 
       final Map<Short, PUBLISH> publishMap = new ConcurrentHashMap<Short, PUBLISH>();
-      mqtt.setTracer(new Tracer()
-      {
+      mqtt.setTracer(new Tracer() {
          @Override
-         public void onReceive(MQTTFrame frame)
-         {
+         public void onReceive(MQTTFrame frame) {
             LOG.info("Client received:\n" + frame);
-            if (frame.messageType() == PUBLISH.TYPE)
-            {
+            if (frame.messageType() == PUBLISH.TYPE) {
                PUBLISH publish = new PUBLISH();
-               try
-               {
+               try {
                   publish.decode(frame);
                   LOG.info("PUBLISH " + publish);
                }
-               catch (ProtocolException e)
-               {
+               catch (ProtocolException e) {
                   fail("Error decoding publish " + e.getMessage());
                }
-               if (publishMap.get(publish.messageId()) != null)
-               {
+               if (publishMap.get(publish.messageId()) != null) {
                   assertTrue(publish.dup());
                }
                publishMap.put(publish.messageId(), publish);
@@ -899,8 +806,7 @@ public class MQTTTest extends MQTTTestSupport
          }
 
          @Override
-         public void onSend(MQTTFrame frame)
-         {
+         public void onSend(MQTTFrame frame) {
             LOG.info("Client sent:\n" + frame);
          }
       });
@@ -912,14 +818,12 @@ public class MQTTTest extends MQTTTestSupport
 
       // publish non-retained messages
       final int TOTAL_MESSAGES = 10;
-      for (int i = 0; i < TOTAL_MESSAGES; i++)
-      {
+      for (int i = 0; i < TOTAL_MESSAGES; i++) {
          connection.publish(TOPIC, TOPIC.getBytes(), QoS.EXACTLY_ONCE, false);
       }
 
       // receive half the messages in this session
-      for (int i = 0; i < TOTAL_MESSAGES / 2; i++)
-      {
+      for (int i = 0; i < TOTAL_MESSAGES / 2; i++) {
          final Message msg = connection.receive(1000, TimeUnit.MILLISECONDS);
          assertNotNull(msg);
          assertEquals(TOPIC, new String(msg.getPayload()));
@@ -932,19 +836,16 @@ public class MQTTTest extends MQTTTestSupport
       connection.connect();
       // receive rest of the messages
       Message msg = null;
-      do
-      {
+      do {
          msg = connection.receive(1000, TimeUnit.MILLISECONDS);
-         if (msg != null)
-         {
+         if (msg != null) {
             assertEquals(TOPIC, new String(msg.getPayload()));
             msg.ack();
          }
       } while (msg != null);
 
       // make sure we received all message ids
-      for (short id = 1; id <= TOTAL_MESSAGES; id++)
-      {
+      for (short id = 1; id <= TOTAL_MESSAGES; id++) {
          assertNotNull("No message for id " + id, publishMap.get(id));
       }
 
@@ -956,36 +857,28 @@ public class MQTTTest extends MQTTTestSupport
    @Test(timeout = 90 * 1000)
    // TODO ActiveMQ 5.x does not reset the message id generator even after a clean session.  In Artemis we always reset.
    // If there is a good reason for this we should follow ActiveMQ.
-   public void testPacketIdGeneratorCleanSession() throws Exception
-   {
+   public void testPacketIdGeneratorCleanSession() throws Exception {
       final String[] cleanClientIds = new String[]{"", "clean-packetid", null};
       final Map<Short, PUBLISH> publishMap = new ConcurrentHashMap<Short, PUBLISH>();
       MQTT[] mqtts = new MQTT[cleanClientIds.length];
-      for (int i = 0; i < cleanClientIds.length; i++)
-      {
+      for (int i = 0; i < cleanClientIds.length; i++) {
          mqtts[i] = createMQTTConnection("", true);
          mqtts[i].setKeepAlive((short) 15);
 
-         mqtts[i].setTracer(new Tracer()
-         {
+         mqtts[i].setTracer(new Tracer() {
             @Override
-            public void onReceive(MQTTFrame frame)
-            {
+            public void onReceive(MQTTFrame frame) {
                LOG.info("Client received:\n" + frame);
-               if (frame.messageType() == PUBLISH.TYPE)
-               {
+               if (frame.messageType() == PUBLISH.TYPE) {
                   PUBLISH publish = new PUBLISH();
-                  try
-                  {
+                  try {
                      publish.decode(frame);
                      LOG.info("PUBLISH " + publish);
                   }
-                  catch (ProtocolException e)
-                  {
+                  catch (ProtocolException e) {
                      fail("Error decoding publish " + e.getMessage());
                   }
-                  if (publishMap.get(publish.messageId()) != null)
-                  {
+                  if (publishMap.get(publish.messageId()) != null) {
                      assertTrue(publish.dup());
                   }
                   publishMap.put(publish.messageId(), publish);
@@ -993,16 +886,14 @@ public class MQTTTest extends MQTTTestSupport
             }
 
             @Override
-            public void onSend(MQTTFrame frame)
-            {
+            public void onSend(MQTTFrame frame) {
                LOG.info("Client sent:\n" + frame);
             }
          });
       }
 
       final Random random = new Random();
-      for (short i = 0; i < 10; i++)
-      {
+      for (short i = 0; i < 10; i++) {
          BlockingConnection connection = mqtts[random.nextInt(cleanClientIds.length)].blockingConnection();
          connection.connect();
          final String TOPIC = "TopicA/";
@@ -1026,18 +917,15 @@ public class MQTTTest extends MQTTTestSupport
    }
 
    @Test(timeout = 60 * 1000)
-   public void testClientConnectionFailure() throws Exception
-   {
+   public void testClientConnectionFailure() throws Exception {
       MQTT mqtt = createMQTTConnection("reconnect", false);
       mqtt.setKeepAlive((short) 1);
 
       final BlockingConnection connection = mqtt.blockingConnection();
       connection.connect();
-      Wait.waitFor(new Wait.Condition()
-      {
+      Wait.waitFor(new Wait.Condition() {
          @Override
-         public boolean isSatisified() throws Exception
-         {
+         public boolean isSatisified() throws Exception {
             return connection.isConnected();
          }
       });
@@ -1054,11 +942,9 @@ public class MQTTTest extends MQTTTestSupport
 
       final BlockingConnection newConnection = mqtt.blockingConnection();
       newConnection.connect();
-      Wait.waitFor(new Wait.Condition()
-      {
+      Wait.waitFor(new Wait.Condition() {
          @Override
-         public boolean isSatisified() throws Exception
-         {
+         public boolean isSatisified() throws Exception {
             return newConnection.isConnected();
          }
       });
@@ -1072,8 +958,7 @@ public class MQTTTest extends MQTTTestSupport
    }
 
    @Test(timeout = 60 * 1000)
-   public void testCleanSession() throws Exception
-   {
+   public void testCleanSession() throws Exception {
       final String CLIENTID = "cleansession";
       final MQTT mqttNotClean = createMQTTConnection(CLIENTID, false);
       BlockingConnection notClean = mqttNotClean.blockingConnection();
@@ -1115,107 +1000,104 @@ public class MQTTTest extends MQTTTestSupport
    outstanding task to add cross protocol support.  This task should rework these tests.  The tests are included here
    and commented out to ensure ActiveMQ and Artemis tests are in sync. */
 
-//   @Test(timeout = 60 * 1000)
-//   public void testSendMQTTReceiveJMS() throws Exception {
-//      doTestSendMQTTReceiveJMS("foo.*");
-//   }
+   //   @Test(timeout = 60 * 1000)
+   //   public void testSendMQTTReceiveJMS() throws Exception {
+   //      doTestSendMQTTReceiveJMS("foo.*");
+   //   }
 
-//   public void doTestSendMQTTReceiveJMS(String destinationName) throws Exception {
-//      final MQTTClientProvider provider = getMQTTClientProvider();
-//      initializeConnection(provider);
-//
-//      // send retained message
-//      final String RETAINED = "RETAINED";
-//      provider.publish("foo/bah", RETAINED.getBytes(), AT_LEAST_ONCE, true);
-//
-//      ActiveMQConnection activeMQConnection = (ActiveMQConnection) cf.createConnection();
-//      // MUST set to true to receive retained messages
-//      activeMQConnection.setUseRetroactiveConsumer(true);
-//      activeMQConnection.start();
-//      Session s = activeMQConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-//      javax.jms.Topic jmsTopic = s.createTopic(destinationName);
-//      MessageConsumer consumer = s.createConsumer(jmsTopic);
-//
-//      // check whether we received retained message on JMS subscribe
-//      ActiveMQMessage message = (ActiveMQMessage) consumer.receive(5000);
-//      assertNotNull("Should get retained message", message);
-//      ByteSequence bs = message.getContent();
-//      assertEquals(RETAINED, new String(bs.data, bs.offset, bs.length));
-//      assertTrue(message.getBooleanProperty(RetainedMessageSubscriptionRecoveryPolicy.RETAINED_PROPERTY));
-//
-//      for (int i = 0; i < NUM_MESSAGES; i++) {
-//         String payload = "Test Message: " + i;
-//         provider.publish("foo/bah", payload.getBytes(), AT_LEAST_ONCE);
-//         message = (ActiveMQMessage) consumer.receive(5000);
-//         assertNotNull("Should get a message", message);
-//         bs = message.getContent();
-//         assertEquals(payload, new String(bs.data, bs.offset, bs.length));
-//      }
-//
-//      activeMQConnection.close();
-//      provider.disconnect();
-//   }
-
-   // TODO As with other tests, this should be enabled as part of the cross protocol support with MQTT.
-//   @Test(timeout = 2 * 60 * 1000)
-//   public void testSendJMSReceiveMQTT() throws Exception {
-//      doTestSendJMSReceiveMQTT("foo.far");
-//   }
+   //   public void doTestSendMQTTReceiveJMS(String destinationName) throws Exception {
+   //      final MQTTClientProvider provider = getMQTTClientProvider();
+   //      initializeConnection(provider);
+   //
+   //      // send retained message
+   //      final String RETAINED = "RETAINED";
+   //      provider.publish("foo/bah", RETAINED.getBytes(), AT_LEAST_ONCE, true);
+   //
+   //      ActiveMQConnection activeMQConnection = (ActiveMQConnection) cf.createConnection();
+   //      // MUST set to true to receive retained messages
+   //      activeMQConnection.setUseRetroactiveConsumer(true);
+   //      activeMQConnection.start();
+   //      Session s = activeMQConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+   //      javax.jms.Topic jmsTopic = s.createTopic(destinationName);
+   //      MessageConsumer consumer = s.createConsumer(jmsTopic);
+   //
+   //      // check whether we received retained message on JMS subscribe
+   //      ActiveMQMessage message = (ActiveMQMessage) consumer.receive(5000);
+   //      assertNotNull("Should get retained message", message);
+   //      ByteSequence bs = message.getContent();
+   //      assertEquals(RETAINED, new String(bs.data, bs.offset, bs.length));
+   //      assertTrue(message.getBooleanProperty(RetainedMessageSubscriptionRecoveryPolicy.RETAINED_PROPERTY));
+   //
+   //      for (int i = 0; i < NUM_MESSAGES; i++) {
+   //         String payload = "Test Message: " + i;
+   //         provider.publish("foo/bah", payload.getBytes(), AT_LEAST_ONCE);
+   //         message = (ActiveMQMessage) consumer.receive(5000);
+   //         assertNotNull("Should get a message", message);
+   //         bs = message.getContent();
+   //         assertEquals(payload, new String(bs.data, bs.offset, bs.length));
+   //      }
+   //
+   //      activeMQConnection.close();
+   //      provider.disconnect();
+   //   }
 
    // TODO As with other tests, this should be enabled as part of the cross protocol support with MQTT.
-//   public void doTestSendJMSReceiveMQTT(String destinationName) throws Exception {
-//      final MQTTClientProvider provider = getMQTTClientProvider();
-//      initializeConnection(provider);
-//
-//      ActiveMQConnection activeMQConnection = (ActiveMQConnection) cf.createConnection();
-//      activeMQConnection.setUseRetroactiveConsumer(true);
-//      activeMQConnection.start();
-//      Session s = activeMQConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-//      javax.jms.Topic jmsTopic = s.createTopic(destinationName);
-//      MessageProducer producer = s.createProducer(jmsTopic);
-//
-//      // send retained message from JMS
-//      final String RETAINED = "RETAINED";
-//      TextMessage sendMessage = s.createTextMessage(RETAINED);
-//      // mark the message to be retained
-//      sendMessage.setBooleanProperty(RetainedMessageSubscriptionRecoveryPolicy.RETAIN_PROPERTY, true);
-//      // MQTT QoS can be set using MQTTProtocolConverter.QOS_PROPERTY_NAME property
-//      sendMessage.setIntProperty(MQTTProtocolConverter.QOS_PROPERTY_NAME, 0);
-//      producer.send(sendMessage);
-//
-//      provider.subscribe("foo/+", AT_MOST_ONCE);
-//      byte[] message = provider.receive(10000);
-//      assertNotNull("Should get retained message", message);
-//      assertEquals(RETAINED, new String(message));
-//
-//      for (int i = 0; i < NUM_MESSAGES; i++) {
-//         String payload = "This is Test Message: " + i;
-//         sendMessage = s.createTextMessage(payload);
-//         producer.send(sendMessage);
-//         message = provider.receive(5000);
-//         assertNotNull("Should get a message", message);
-//
-//         assertEquals(payload, new String(message));
-//      }
-//      provider.disconnect();
-//      activeMQConnection.close();
-//   }
+   //   @Test(timeout = 2 * 60 * 1000)
+   //   public void testSendJMSReceiveMQTT() throws Exception {
+   //      doTestSendJMSReceiveMQTT("foo.far");
+   //   }
+
+   // TODO As with other tests, this should be enabled as part of the cross protocol support with MQTT.
+   //   public void doTestSendJMSReceiveMQTT(String destinationName) throws Exception {
+   //      final MQTTClientProvider provider = getMQTTClientProvider();
+   //      initializeConnection(provider);
+   //
+   //      ActiveMQConnection activeMQConnection = (ActiveMQConnection) cf.createConnection();
+   //      activeMQConnection.setUseRetroactiveConsumer(true);
+   //      activeMQConnection.start();
+   //      Session s = activeMQConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+   //      javax.jms.Topic jmsTopic = s.createTopic(destinationName);
+   //      MessageProducer producer = s.createProducer(jmsTopic);
+   //
+   //      // send retained message from JMS
+   //      final String RETAINED = "RETAINED";
+   //      TextMessage sendMessage = s.createTextMessage(RETAINED);
+   //      // mark the message to be retained
+   //      sendMessage.setBooleanProperty(RetainedMessageSubscriptionRecoveryPolicy.RETAIN_PROPERTY, true);
+   //      // MQTT QoS can be set using MQTTProtocolConverter.QOS_PROPERTY_NAME property
+   //      sendMessage.setIntProperty(MQTTProtocolConverter.QOS_PROPERTY_NAME, 0);
+   //      producer.send(sendMessage);
+   //
+   //      provider.subscribe("foo/+", AT_MOST_ONCE);
+   //      byte[] message = provider.receive(10000);
+   //      assertNotNull("Should get retained message", message);
+   //      assertEquals(RETAINED, new String(message));
+   //
+   //      for (int i = 0; i < NUM_MESSAGES; i++) {
+   //         String payload = "This is Test Message: " + i;
+   //         sendMessage = s.createTextMessage(payload);
+   //         producer.send(sendMessage);
+   //         message = provider.receive(5000);
+   //         assertNotNull("Should get a message", message);
+   //
+   //         assertEquals(payload, new String(message));
+   //      }
+   //      provider.disconnect();
+   //      activeMQConnection.close();
+   //   }
 
    @Test(timeout = 60 * 1000)
-   public void testPingKeepsInactivityMonitorAlive() throws Exception
-   {
+   public void testPingKeepsInactivityMonitorAlive() throws Exception {
       MQTT mqtt = createMQTTConnection();
       mqtt.setClientId("foo");
       mqtt.setKeepAlive((short) 2);
       final BlockingConnection connection = mqtt.blockingConnection();
       connection.connect();
 
-      assertTrue("KeepAlive didn't work properly", Wait.waitFor(new Wait.Condition()
-      {
+      assertTrue("KeepAlive didn't work properly", Wait.waitFor(new Wait.Condition() {
 
          @Override
-         public boolean isSatisified() throws Exception
-         {
+         public boolean isSatisified() throws Exception {
             return connection.isConnected();
          }
       }));
@@ -1224,8 +1106,7 @@ public class MQTTTest extends MQTTTestSupport
    }
 
    @Test(timeout = 60 * 1000)
-   public void testTurnOffInactivityMonitor() throws Exception
-   {
+   public void testTurnOffInactivityMonitor() throws Exception {
       stopBroker();
       protocolConfig = "transport.useInactivityMonitor=false";
       startBroker();
@@ -1236,12 +1117,10 @@ public class MQTTTest extends MQTTTestSupport
       final BlockingConnection connection = mqtt.blockingConnection();
       connection.connect();
 
-      assertTrue("KeepAlive didn't work properly", Wait.waitFor(new Wait.Condition()
-      {
+      assertTrue("KeepAlive didn't work properly", Wait.waitFor(new Wait.Condition() {
 
          @Override
-         public boolean isSatisified() throws Exception
-         {
+         public boolean isSatisified() throws Exception {
             return connection.isConnected();
          }
       }));
@@ -1252,8 +1131,7 @@ public class MQTTTest extends MQTTTestSupport
    @Ignore
    @Test(timeout = 60 * 1000)
    // TODO Make dollar topics configurable in code base.
-   public void testPublishDollarTopics() throws Exception
-   {
+   public void testPublishDollarTopics() throws Exception {
       MQTT mqtt = createMQTTConnection();
       final String clientId = "publishDollar";
       mqtt.setClientId(clientId);
@@ -1293,8 +1171,7 @@ public class MQTTTest extends MQTTTestSupport
    @Ignore
    @Test(timeout = 60 * 1000)
    // TODO We currently do not support link stealing.  This needs to be enabled for this test to pass.
-   public void testDuplicateClientId() throws Exception
-   {
+   public void testDuplicateClientId() throws Exception {
       // test link stealing enabled by default
       final String clientId = "duplicateClient";
       MQTT mqtt = createMQTTConnection(clientId, false);
@@ -1309,20 +1186,16 @@ public class MQTTTest extends MQTTTestSupport
       final BlockingConnection connection1 = mqtt1.blockingConnection();
       connection1.connect();
 
-      assertTrue("Duplicate client disconnected", Wait.waitFor(new Wait.Condition()
-      {
+      assertTrue("Duplicate client disconnected", Wait.waitFor(new Wait.Condition() {
          @Override
-         public boolean isSatisified() throws Exception
-         {
+         public boolean isSatisified() throws Exception {
             return connection1.isConnected();
          }
       }));
 
-      assertTrue("Old client still connected", Wait.waitFor(new Wait.Condition()
-      {
+      assertTrue("Old client still connected", Wait.waitFor(new Wait.Condition() {
          @Override
-         public boolean isSatisified() throws Exception
-         {
+         public boolean isSatisified() throws Exception {
             return !connection.isConnected();
          }
       }));
@@ -1344,13 +1217,11 @@ public class MQTTTest extends MQTTTestSupport
       mqtt1 = createMQTTConnection(clientId, false);
       mqtt1.setKeepAlive((short) 2);
       final BlockingConnection connection3 = mqtt1.blockingConnection();
-      try
-      {
+      try {
          connection3.connect();
          fail("Duplicate client connected");
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          // ignore
       }
 
@@ -1360,59 +1231,57 @@ public class MQTTTest extends MQTTTestSupport
    }
 
    // TODO As with other tests, this should be enabled as part of the cross protocol support with MQTT.
-//   @Test(timeout = 30 * 10000)
-//   public void testJmsMapping() throws Exception {
-//      doTestJmsMapping("test.foo");
-//   }
+   //   @Test(timeout = 30 * 10000)
+   //   public void testJmsMapping() throws Exception {
+   //      doTestJmsMapping("test.foo");
+   //   }
 
    // TODO As with other tests, this should be enabled as part of the cross protocol support with MQTT.
-//   public void doTestJmsMapping(String destinationName) throws Exception {
-//      // start up jms consumer
-//      Connection jmsConn = cf.createConnection();
-//      Session session = jmsConn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-//      Destination dest = session.createTopic(destinationName);
-//      MessageConsumer consumer = session.createConsumer(dest);
-//      jmsConn.start();
-//
-//      // set up mqtt producer
-//      MQTT mqtt = createMQTTConnection();
-//      mqtt.setClientId("foo3");
-//      mqtt.setKeepAlive((short) 2);
-//      final BlockingConnection connection = mqtt.blockingConnection();
-//      connection.connect();
-//
-//      int messagesToSend = 5;
-//
-//      // publish
-//      for (int i = 0; i < messagesToSend; ++i) {
-//         connection.publish("test/foo", "hello world".getBytes(), QoS.AT_LEAST_ONCE, false);
-//      }
-//
-//      connection.disconnect();
-//
-//      for (int i = 0; i < messagesToSend; i++) {
-//
-//         javax.jms.Message message = consumer.receive(2 * 1000);
-//         assertNotNull(message);
-//         assertTrue(message instanceof BytesMessage);
-//         BytesMessage bytesMessage = (BytesMessage) message;
-//
-//         int length = (int) bytesMessage.getBodyLength();
-//         byte[] buffer = new byte[length];
-//         bytesMessage.readBytes(buffer);
-//         assertEquals("hello world", new String(buffer));
-//      }
-//
-//      jmsConn.close();
-//   }
+   //   public void doTestJmsMapping(String destinationName) throws Exception {
+   //      // start up jms consumer
+   //      Connection jmsConn = cf.createConnection();
+   //      Session session = jmsConn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+   //      Destination dest = session.createTopic(destinationName);
+   //      MessageConsumer consumer = session.createConsumer(dest);
+   //      jmsConn.start();
+   //
+   //      // set up mqtt producer
+   //      MQTT mqtt = createMQTTConnection();
+   //      mqtt.setClientId("foo3");
+   //      mqtt.setKeepAlive((short) 2);
+   //      final BlockingConnection connection = mqtt.blockingConnection();
+   //      connection.connect();
+   //
+   //      int messagesToSend = 5;
+   //
+   //      // publish
+   //      for (int i = 0; i < messagesToSend; ++i) {
+   //         connection.publish("test/foo", "hello world".getBytes(), QoS.AT_LEAST_ONCE, false);
+   //      }
+   //
+   //      connection.disconnect();
+   //
+   //      for (int i = 0; i < messagesToSend; i++) {
+   //
+   //         javax.jms.Message message = consumer.receive(2 * 1000);
+   //         assertNotNull(message);
+   //         assertTrue(message instanceof BytesMessage);
+   //         BytesMessage bytesMessage = (BytesMessage) message;
+   //
+   //         int length = (int) bytesMessage.getBodyLength();
+   //         byte[] buffer = new byte[length];
+   //         bytesMessage.readBytes(buffer);
+   //         assertEquals("hello world", new String(buffer));
+   //      }
+   //
+   //      jmsConn.close();
+   //   }
 
    @Test(timeout = 30 * 10000)
-   public void testSubscribeMultipleTopics() throws Exception
-   {
+   public void testSubscribeMultipleTopics() throws Exception {
 
       byte[] payload = new byte[1024 * 32];
-      for (int i = 0; i < payload.length; i++)
-      {
+      for (int i = 0; i < payload.length; i++) {
          payload[i] = '2';
       }
 
@@ -1427,14 +1296,12 @@ public class MQTTTest extends MQTTTestSupport
       Topic[] wildcardTopic = {new Topic("Topic/#", QoS.AT_LEAST_ONCE)};
       connection.subscribe(wildcardTopic);
 
-      for (Topic topic : topics)
-      {
+      for (Topic topic : topics) {
          connection.publish(topic.name().toString(), payload, QoS.AT_LEAST_ONCE, false);
       }
 
       int received = 0;
-      for (int i = 0; i < topics.length; ++i)
-      {
+      for (int i = 0; i < topics.length; ++i) {
          Message message = connection.receive();
          assertNotNull(message);
          received++;
@@ -1448,11 +1315,9 @@ public class MQTTTest extends MQTTTestSupport
    }
 
    @Test(timeout = 60 * 1000)
-   public void testReceiveMessageSentWhileOffline() throws Exception
-   {
+   public void testReceiveMessageSentWhileOffline() throws Exception {
       final byte[] payload = new byte[1024 * 32];
-      for (int i = 0; i < payload.length; i++)
-      {
+      for (int i = 0; i < payload.length; i++) {
          payload[i] = '2';
       }
 
@@ -1471,14 +1336,12 @@ public class MQTTTest extends MQTTTestSupport
       Topic[] topics = {new Topic("TopicA", QoS.EXACTLY_ONCE)};
       connectionSub.subscribe(topics);
 
-      for (int i = 0; i < messagesPerRun; ++i)
-      {
+      for (int i = 0; i < messagesPerRun; ++i) {
          connectionPub.publish(topics[0].name().toString(), payload, QoS.AT_LEAST_ONCE, false);
       }
 
       int received = 0;
-      for (int i = 0; i < messagesPerRun; ++i)
-      {
+      for (int i = 0; i < messagesPerRun; ++i) {
          Message message = connectionSub.receive(5, TimeUnit.SECONDS);
          assertNotNull(message);
          received++;
@@ -1487,11 +1350,9 @@ public class MQTTTest extends MQTTTestSupport
       }
       connectionSub.disconnect();
 
-      for (int j = 0; j < numberOfRuns; j++)
-      {
+      for (int j = 0; j < numberOfRuns; j++) {
 
-         for (int i = 0; i < messagesPerRun; ++i)
-         {
+         for (int i = 0; i < messagesPerRun; ++i) {
             connectionPub.publish(topics[0].name().toString(), payload, QoS.AT_LEAST_ONCE, false);
          }
 
@@ -1499,8 +1360,7 @@ public class MQTTTest extends MQTTTestSupport
          connectionSub.connect();
          connectionSub.subscribe(topics);
 
-         for (int i = 0; i < messagesPerRun; ++i)
-         {
+         for (int i = 0; i < messagesPerRun; ++i) {
             Message message = connectionSub.receive(5, TimeUnit.SECONDS);
             assertNotNull(message);
             received++;
@@ -1513,8 +1373,7 @@ public class MQTTTest extends MQTTTestSupport
    }
 
    @Test(timeout = 30 * 1000)
-   public void testDefaultKeepAliveWhenClientSpecifiesZero() throws Exception
-   {
+   public void testDefaultKeepAliveWhenClientSpecifiesZero() throws Exception {
       stopBroker();
       protocolConfig = "transport.defaultKeepAlive=2000";
       startBroker();
@@ -1525,20 +1384,17 @@ public class MQTTTest extends MQTTTestSupport
       final BlockingConnection connection = mqtt.blockingConnection();
       connection.connect();
 
-      assertTrue("KeepAlive didn't work properly", Wait.waitFor(new Wait.Condition()
-      {
+      assertTrue("KeepAlive didn't work properly", Wait.waitFor(new Wait.Condition() {
 
          @Override
-         public boolean isSatisified() throws Exception
-         {
+         public boolean isSatisified() throws Exception {
             return connection.isConnected();
          }
       }));
    }
 
    @Test(timeout = 60 * 1000)
-   public void testReuseConnection() throws Exception
-   {
+   public void testReuseConnection() throws Exception {
       MQTT mqtt = createMQTTConnection();
       mqtt.setClientId("Test-Client");
 
@@ -1557,8 +1413,7 @@ public class MQTTTest extends MQTTTestSupport
    }
 
    @Test(timeout = 60 * 1000)
-   public void testNoMessageReceivedAfterUnsubscribeMQTT() throws Exception
-   {
+   public void testNoMessageReceivedAfterUnsubscribeMQTT() throws Exception {
       Topic[] topics = {new Topic("TopicA", QoS.EXACTLY_ONCE)};
 
       MQTT mqttPub = createMQTTConnection("MQTTPub-Client", true);
@@ -1575,8 +1430,7 @@ public class MQTTTest extends MQTTTestSupport
       connectionSub.subscribe(topics);
       connectionSub.disconnect();
 
-      for (int i = 0; i < 5; i++)
-      {
+      for (int i = 0; i < 5; i++) {
          String payload = "Message " + i;
          connectionPub.publish(topics[0].name().toString(), payload.getBytes(), QoS.EXACTLY_ONCE, false);
       }
@@ -1585,8 +1439,7 @@ public class MQTTTest extends MQTTTestSupport
       connectionSub.connect();
 
       int received = 0;
-      for (int i = 0; i < 5; ++i)
-      {
+      for (int i = 0; i < 5; ++i) {
          Message message = connectionSub.receive(5, TimeUnit.SECONDS);
          assertNotNull("Missing message " + i, message);
          LOG.info("Message is " + new String(message.getPayload()));
@@ -1599,8 +1452,7 @@ public class MQTTTest extends MQTTTestSupport
       connectionSub.unsubscribe(new String[]{"TopicA"});
 
       // send more messages
-      for (int i = 0; i < 5; i++)
-      {
+      for (int i = 0; i < 5; i++) {
          String payload = "Message " + i;
          connectionPub.publish(topics[0].name().toString(), payload.getBytes(), QoS.EXACTLY_ONCE, false);
       }
@@ -1613,8 +1465,7 @@ public class MQTTTest extends MQTTTestSupport
    }
 
    @Test(timeout = 60 * 1000)
-   public void testMQTT311Connection() throws Exception
-   {
+   public void testMQTT311Connection() throws Exception {
       MQTT mqtt = createMQTTConnection();
       mqtt.setClientId("foo");
       mqtt.setVersion("3.1.1");
@@ -1624,105 +1475,104 @@ public class MQTTTest extends MQTTTestSupport
    }
 
    // TODO This should be reworked to align with Artemis recovery.
-//   @Test(timeout = 60 * 1000)
-//   public void testActiveMQRecoveryPolicy() throws Exception {
-//      // test with ActiveMQ LastImageSubscriptionRecoveryPolicy
-//      final PolicyMap policyMap = new PolicyMap();
-//      final PolicyEntry policyEntry = new PolicyEntry();
-//      policyEntry.setSubscriptionRecoveryPolicy(new LastImageSubscriptionRecoveryPolicy());
-//      policyMap.put(new ActiveMQTopic(">"), policyEntry);
-//      brokerService.setDestinationPolicy(policyMap);
-//
-//      MQTT mqtt = createMQTTConnection("pub-sub", true);
-//      final int[] retain = new int[1];
-//      final int[] nonretain  = new int[1];
-//      mqtt.setTracer(new Tracer() {
-//         @Override
-//         public void onReceive(MQTTFrame frame) {
-//            if (frame.messageType() == PUBLISH.TYPE) {
-//               LOG.info("Received message with retain=" + frame.retain());
-//               if (frame.retain()) {
-//                  retain[0]++;
-//               } else {
-//                  nonretain[0]++;
-//               }
-//            }
-//         }
-//      });
-//
-//      BlockingConnection connection = mqtt.blockingConnection();
-//      connection.connect();
-//      final String RETAINED = "RETAINED";
-//      connection.publish("one", RETAINED.getBytes(), QoS.AT_LEAST_ONCE, true);
-//      connection.publish("two", RETAINED.getBytes(), QoS.AT_LEAST_ONCE, true);
-//
-//      final String NONRETAINED = "NONRETAINED";
-//      connection.publish("one", NONRETAINED.getBytes(), QoS.AT_LEAST_ONCE, false);
-//      connection.publish("two", NONRETAINED.getBytes(), QoS.AT_LEAST_ONCE, false);
-//
-//      connection.subscribe(new Topic[]{new Topic("#", QoS.AT_LEAST_ONCE)});
-//      for (int i = 0; i < 4; i++) {
-//         final Message message = connection.receive(30, TimeUnit.SECONDS);
-//         assertNotNull("Should receive 4 messages", message);
-//         message.ack();
-//      }
-//      assertEquals("Should receive 2 retained messages", 2, retain[0]);
-//      assertEquals("Should receive 2 non-retained messages", 2, nonretain[0]);
-//   }
+   //   @Test(timeout = 60 * 1000)
+   //   public void testActiveMQRecoveryPolicy() throws Exception {
+   //      // test with ActiveMQ LastImageSubscriptionRecoveryPolicy
+   //      final PolicyMap policyMap = new PolicyMap();
+   //      final PolicyEntry policyEntry = new PolicyEntry();
+   //      policyEntry.setSubscriptionRecoveryPolicy(new LastImageSubscriptionRecoveryPolicy());
+   //      policyMap.put(new ActiveMQTopic(">"), policyEntry);
+   //      brokerService.setDestinationPolicy(policyMap);
+   //
+   //      MQTT mqtt = createMQTTConnection("pub-sub", true);
+   //      final int[] retain = new int[1];
+   //      final int[] nonretain  = new int[1];
+   //      mqtt.setTracer(new Tracer() {
+   //         @Override
+   //         public void onReceive(MQTTFrame frame) {
+   //            if (frame.messageType() == PUBLISH.TYPE) {
+   //               LOG.info("Received message with retain=" + frame.retain());
+   //               if (frame.retain()) {
+   //                  retain[0]++;
+   //               } else {
+   //                  nonretain[0]++;
+   //               }
+   //            }
+   //         }
+   //      });
+   //
+   //      BlockingConnection connection = mqtt.blockingConnection();
+   //      connection.connect();
+   //      final String RETAINED = "RETAINED";
+   //      connection.publish("one", RETAINED.getBytes(), QoS.AT_LEAST_ONCE, true);
+   //      connection.publish("two", RETAINED.getBytes(), QoS.AT_LEAST_ONCE, true);
+   //
+   //      final String NONRETAINED = "NONRETAINED";
+   //      connection.publish("one", NONRETAINED.getBytes(), QoS.AT_LEAST_ONCE, false);
+   //      connection.publish("two", NONRETAINED.getBytes(), QoS.AT_LEAST_ONCE, false);
+   //
+   //      connection.subscribe(new Topic[]{new Topic("#", QoS.AT_LEAST_ONCE)});
+   //      for (int i = 0; i < 4; i++) {
+   //         final Message message = connection.receive(30, TimeUnit.SECONDS);
+   //         assertNotNull("Should receive 4 messages", message);
+   //         message.ack();
+   //      }
+   //      assertEquals("Should receive 2 retained messages", 2, retain[0]);
+   //      assertEquals("Should receive 2 non-retained messages", 2, nonretain[0]);
+   //   }
 
    // TODO As with other tests, this should be enabled as part of the cross protocol support with MQTT.
-//   @Test(timeout = 60 * 1000)
-//   public void testSendMQTTReceiveJMSVirtualTopic() throws Exception {
-//
-//      final MQTTClientProvider provider = getMQTTClientProvider();
-//      initializeConnection(provider);
-//      final String DESTINATION_NAME = "Consumer.jms.VirtualTopic.TopicA";
-//
-//      // send retained message
-//      final String RETAINED = "RETAINED";
-//      final String MQTT_DESTINATION_NAME = "VirtualTopic/TopicA";
-//      provider.publish(MQTT_DESTINATION_NAME, RETAINED.getBytes(), AT_LEAST_ONCE, true);
-//
-//      ActiveMQConnection activeMQConnection = (ActiveMQConnection) new ActiveMQConnectionFactory(jmsUri).createConnection();
-//      // MUST set to true to receive retained messages
-//      activeMQConnection.setUseRetroactiveConsumer(true);
-//      activeMQConnection.start();
-//      Session s = activeMQConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-//      Queue jmsQueue = s.createQueue(DESTINATION_NAME);
-//      MessageConsumer consumer = s.createConsumer(jmsQueue);
-//
-//      // check whether we received retained message on JMS subscribe
-//      ActiveMQMessage message = (ActiveMQMessage) consumer.receive(5000);
-//      assertNotNull("Should get retained message", message);
-//      ByteSequence bs = message.getContent();
-//      assertEquals(RETAINED, new String(bs.data, bs.offset, bs.length));
-//      assertTrue(message.getBooleanProperty(RetainedMessageSubscriptionRecoveryPolicy.RETAINED_PROPERTY));
-//
-//      for (int i = 0; i < NUM_MESSAGES; i++) {
-//         String payload = "Test Message: " + i;
-//         provider.publish(MQTT_DESTINATION_NAME, payload.getBytes(), AT_LEAST_ONCE);
-//         message = (ActiveMQMessage) consumer.receive(5000);
-//         assertNotNull("Should get a message", message);
-//         bs = message.getContent();
-//         assertEquals(payload, new String(bs.data, bs.offset, bs.length));
-//      }
-//
-//      // re-create consumer and check we received retained message again
-//      consumer.close();
-//      consumer = s.createConsumer(jmsQueue);
-//      message = (ActiveMQMessage) consumer.receive(5000);
-//      assertNotNull("Should get retained message", message);
-//      bs = message.getContent();
-//      assertEquals(RETAINED, new String(bs.data, bs.offset, bs.length));
-//      assertTrue(message.getBooleanProperty(RetainedMessageSubscriptionRecoveryPolicy.RETAINED_PROPERTY));
-//
-//      activeMQConnection.close();
-//      provider.disconnect();
-//   }
+   //   @Test(timeout = 60 * 1000)
+   //   public void testSendMQTTReceiveJMSVirtualTopic() throws Exception {
+   //
+   //      final MQTTClientProvider provider = getMQTTClientProvider();
+   //      initializeConnection(provider);
+   //      final String DESTINATION_NAME = "Consumer.jms.VirtualTopic.TopicA";
+   //
+   //      // send retained message
+   //      final String RETAINED = "RETAINED";
+   //      final String MQTT_DESTINATION_NAME = "VirtualTopic/TopicA";
+   //      provider.publish(MQTT_DESTINATION_NAME, RETAINED.getBytes(), AT_LEAST_ONCE, true);
+   //
+   //      ActiveMQConnection activeMQConnection = (ActiveMQConnection) new ActiveMQConnectionFactory(jmsUri).createConnection();
+   //      // MUST set to true to receive retained messages
+   //      activeMQConnection.setUseRetroactiveConsumer(true);
+   //      activeMQConnection.start();
+   //      Session s = activeMQConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+   //      Queue jmsQueue = s.createQueue(DESTINATION_NAME);
+   //      MessageConsumer consumer = s.createConsumer(jmsQueue);
+   //
+   //      // check whether we received retained message on JMS subscribe
+   //      ActiveMQMessage message = (ActiveMQMessage) consumer.receive(5000);
+   //      assertNotNull("Should get retained message", message);
+   //      ByteSequence bs = message.getContent();
+   //      assertEquals(RETAINED, new String(bs.data, bs.offset, bs.length));
+   //      assertTrue(message.getBooleanProperty(RetainedMessageSubscriptionRecoveryPolicy.RETAINED_PROPERTY));
+   //
+   //      for (int i = 0; i < NUM_MESSAGES; i++) {
+   //         String payload = "Test Message: " + i;
+   //         provider.publish(MQTT_DESTINATION_NAME, payload.getBytes(), AT_LEAST_ONCE);
+   //         message = (ActiveMQMessage) consumer.receive(5000);
+   //         assertNotNull("Should get a message", message);
+   //         bs = message.getContent();
+   //         assertEquals(payload, new String(bs.data, bs.offset, bs.length));
+   //      }
+   //
+   //      // re-create consumer and check we received retained message again
+   //      consumer.close();
+   //      consumer = s.createConsumer(jmsQueue);
+   //      message = (ActiveMQMessage) consumer.receive(5000);
+   //      assertNotNull("Should get retained message", message);
+   //      bs = message.getContent();
+   //      assertEquals(RETAINED, new String(bs.data, bs.offset, bs.length));
+   //      assertTrue(message.getBooleanProperty(RetainedMessageSubscriptionRecoveryPolicy.RETAINED_PROPERTY));
+   //
+   //      activeMQConnection.close();
+   //      provider.disconnect();
+   //   }
 
    @Test(timeout = 60 * 1000)
-   public void testPingOnMQTT() throws Exception
-   {
+   public void testPingOnMQTT() throws Exception {
       stopBroker();
       protocolConfig = "maxInactivityDuration=-1";
       startBroker();
@@ -1732,12 +1582,10 @@ public class MQTTTest extends MQTTTestSupport
       mqtt.setKeepAlive((short) 2);
       final BlockingConnection connection = mqtt.blockingConnection();
       connection.connect();
-      assertTrue("KeepAlive didn't work properly", Wait.waitFor(new Wait.Condition()
-      {
+      assertTrue("KeepAlive didn't work properly", Wait.waitFor(new Wait.Condition() {
 
          @Override
-         public boolean isSatisified() throws Exception
-         {
+         public boolean isSatisified() throws Exception {
             return connection.isConnected();
          }
       }));

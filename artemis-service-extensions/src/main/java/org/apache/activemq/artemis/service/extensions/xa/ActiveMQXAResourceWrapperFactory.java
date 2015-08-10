@@ -19,7 +19,7 @@ package org.apache.activemq.artemis.service.extensions.xa;
 import javax.transaction.xa.XAResource;
 import java.util.Map;
 
-public interface ActiveMQXAResourceWrapperFactory
-{
+public interface ActiveMQXAResourceWrapperFactory {
+
    ActiveMQXAResourceWrapper wrap(XAResource xaResource, Map<String, Object> properties);
 }

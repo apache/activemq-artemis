@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.integration.cluster.distribution;
+
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.junit.Before;
 
@@ -26,20 +27,17 @@ import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 
-public class TemporaryQueueClusterTest extends ClusterTestBase
-{
+public class TemporaryQueueClusterTest extends ClusterTestBase {
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       setupServers();
    }
 
-   protected boolean isNetty()
-   {
+   protected boolean isNetty() {
       return false;
    }
 
@@ -50,8 +48,7 @@ public class TemporaryQueueClusterTest extends ClusterTestBase
     * (assuming we wait for the bindings)
     */
    @Test
-   public void testSendToTempQueueFromAnotherClusterNode() throws Exception
-   {
+   public void testSendToTempQueueFromAnotherClusterNode() throws Exception {
       setupCluster();
 
       startServers(0, 1);
@@ -62,7 +59,7 @@ public class TemporaryQueueClusterTest extends ClusterTestBase
       String tempAddress = "queues.tempaddress";
       String tempQueue = "tempqueue";
       // create temp queue on node #0
-      ClientSession session =  sfs[0].createSession(false, true, true);
+      ClientSession session = sfs[0].createSession(false, true, true);
       session.createTemporaryQueue(tempAddress, tempQueue);
       ClientConsumer consumer = session.createConsumer(tempQueue);
 
@@ -75,11 +72,9 @@ public class TemporaryQueueClusterTest extends ClusterTestBase
       session.start();
 
       // check consumer bound to node #0 receives from the temp queue
-      for (int j = 0; j < 10; j++)
-      {
+      for (int j = 0; j < 10; j++) {
          ClientMessage message = consumer.receive(5000);
-         if (message == null)
-         {
+         if (message == null) {
             Assert.assertNotNull("consumer did not receive message on temp queue " + j, message);
          }
          message.acknowledge();
@@ -90,19 +85,16 @@ public class TemporaryQueueClusterTest extends ClusterTestBase
       session.close();
    }
 
-   protected void setupCluster() throws Exception
-   {
+   protected void setupCluster() throws Exception {
       setupCluster(MessageLoadBalancingType.ON_DEMAND);
    }
 
-   protected void setupCluster(final MessageLoadBalancingType messageLoadBalancingType) throws Exception
-   {
+   protected void setupCluster(final MessageLoadBalancingType messageLoadBalancingType) throws Exception {
       setupClusterConnection("cluster0", "queues", messageLoadBalancingType, 1, isNetty(), 0, 1);
       setupClusterConnection("cluster1", "queues", messageLoadBalancingType, 1, isNetty(), 1, 0);
    }
 
-   protected void setupServers() throws Exception
-   {
+   protected void setupServers() throws Exception {
       setupServer(0, isFileStorage(), isNetty());
       setupServer(1, isFileStorage(), isNetty());
    }

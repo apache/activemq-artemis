@@ -20,14 +20,13 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 
-public class SessionProducerCreditsMessage extends PacketImpl
-{
+public class SessionProducerCreditsMessage extends PacketImpl {
+
    private int credits;
 
    private SimpleString address;
 
-   public SessionProducerCreditsMessage(final int credits, final SimpleString address)
-   {
+   public SessionProducerCreditsMessage(final int credits, final SimpleString address) {
       super(SESS_PRODUCER_CREDITS);
 
       this.credits = credits;
@@ -35,38 +34,32 @@ public class SessionProducerCreditsMessage extends PacketImpl
       this.address = address;
    }
 
-   public SessionProducerCreditsMessage()
-   {
+   public SessionProducerCreditsMessage() {
       super(SESS_PRODUCER_CREDITS);
    }
 
-   public int getCredits()
-   {
+   public int getCredits() {
       return credits;
    }
 
-   public SimpleString getAddress()
-   {
+   public SimpleString getAddress() {
       return address;
    }
 
    @Override
-   public void encodeRest(final ActiveMQBuffer buffer)
-   {
+   public void encodeRest(final ActiveMQBuffer buffer) {
       buffer.writeInt(credits);
       buffer.writeSimpleString(address);
    }
 
    @Override
-   public void decodeRest(final ActiveMQBuffer buffer)
-   {
+   public void decodeRest(final ActiveMQBuffer buffer) {
       credits = buffer.readInt();
       address = buffer.readSimpleString();
    }
 
    @Override
-   public int hashCode()
-   {
+   public int hashCode() {
       final int prime = 31;
       int result = super.hashCode();
       result = prime * result + ((address == null) ? 0 : address.hashCode());
@@ -75,17 +68,15 @@ public class SessionProducerCreditsMessage extends PacketImpl
    }
 
    @Override
-   public boolean equals(Object obj)
-   {
+   public boolean equals(Object obj) {
       if (this == obj)
          return true;
       if (!super.equals(obj))
          return false;
       if (!(obj instanceof SessionProducerCreditsMessage))
          return false;
-      SessionProducerCreditsMessage other = (SessionProducerCreditsMessage)obj;
-      if (address == null)
-      {
+      SessionProducerCreditsMessage other = (SessionProducerCreditsMessage) obj;
+      if (address == null) {
          if (other.address != null)
             return false;
       }

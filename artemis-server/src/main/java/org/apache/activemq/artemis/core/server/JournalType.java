@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.core.server;
 
-public enum JournalType
-{
+public enum JournalType {
    NIO, ASYNCIO;
 }

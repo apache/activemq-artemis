@@ -27,39 +27,40 @@ import java.net.URI;
 
 public class DiscoveryUriTest extends EmbeddedBrokerTestSupport {
 
-    @Override
-    protected BrokerService createBroker() throws Exception {
-        bindAddress = "tcp://localhost:0";
-        BrokerService answer = new BrokerService();
-        answer.setPersistent(isPersistent());
-        TransportConnector connector = new TransportConnector();
-        connector.setUri(new URI(bindAddress));
-        connector.setDiscoveryUri(new URI("multicast://default?group=test"));
-        answer.addConnector(connector);
-        return answer;
-    }
+   @Override
+   protected BrokerService createBroker() throws Exception {
+      bindAddress = "tcp://localhost:0";
+      BrokerService answer = new BrokerService();
+      answer.setPersistent(isPersistent());
+      TransportConnector connector = new TransportConnector();
+      connector.setUri(new URI(bindAddress));
+      connector.setDiscoveryUri(new URI("multicast://default?group=test"));
+      answer.addConnector(connector);
+      return answer;
+   }
 
-    public void testConnect() throws Exception {
-        ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("discovery:(multicast://default?group=test)?reconnectDelay=1000&maxReconnectAttempts=30&useExponentialBackOff=false");
-        Connection conn = factory.createConnection();
-        conn.start();
+   public void testConnect() throws Exception {
+      ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("discovery:(multicast://default?group=test)?reconnectDelay=1000&maxReconnectAttempts=30&useExponentialBackOff=false");
+      Connection conn = factory.createConnection();
+      conn.start();
 
-        Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        MessageProducer producer = sess.createProducer(sess.createQueue("test"));
-        producer.send(sess.createTextMessage("test"));
-        MessageConsumer consumer = sess.createConsumer(sess.createQueue("test"));
-        Message msg = consumer.receive(1000);
-        assertNotNull(msg);
-    }
+      Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      MessageProducer producer = sess.createProducer(sess.createQueue("test"));
+      producer.send(sess.createTextMessage("test"));
+      MessageConsumer consumer = sess.createConsumer(sess.createQueue("test"));
+      Message msg = consumer.receive(1000);
+      assertNotNull(msg);
+   }
 
-    public void testFailedConnect() throws Exception {
-        try {
-            ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("discovery:(multicast://default?group=test1)?reconnectDelay=1000&startupMaxReconnectAttempts=3&useExponentialBackOff=false");
-            Connection conn = factory.createConnection();
-            conn.start();
-        } catch (Exception e) {
-            return;
-        }
-        fail("Expected connection failure");
-    }
+   public void testFailedConnect() throws Exception {
+      try {
+         ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("discovery:(multicast://default?group=test1)?reconnectDelay=1000&startupMaxReconnectAttempts=3&useExponentialBackOff=false");
+         Connection conn = factory.createConnection();
+         conn.start();
+      }
+      catch (Exception e) {
+         return;
+      }
+      fail("Expected connection failure");
+   }
 }

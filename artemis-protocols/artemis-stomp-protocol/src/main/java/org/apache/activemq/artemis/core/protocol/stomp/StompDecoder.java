@@ -23,8 +23,8 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 
 import static org.apache.activemq.artemis.core.protocol.stomp.ActiveMQStompProtocolMessageBundle.BUNDLE;
 
-public class StompDecoder
-{
+public class StompDecoder {
+
    public static final boolean TRIM_LEADING_HEADER_VALUE_WHITESPACE = true;
 
    public static final String COMMAND_ABORT = Stomp.Commands.ABORT;
@@ -164,13 +164,11 @@ public class StompDecoder
 
    protected final VersionedStompFrameHandler handler;
 
-   public StompDecoder(VersionedStompFrameHandler handler)
-   {
+   public StompDecoder(VersionedStompFrameHandler handler) {
       this.handler = handler;
    }
 
-   public boolean hasBytes()
-   {
+   public boolean hasBytes() {
       return data > pos;
    }
 
@@ -186,12 +184,10 @@ public class StompDecoder
     * unsupported EOLs ("\r\n" valid for 1.2 only). The StompConnection will switch
     * to proper version decoders on catching such exceptions.
     */
-   public synchronized StompFrame decode(final ActiveMQBuffer buffer) throws ActiveMQStompException
-   {
+   public synchronized StompFrame decode(final ActiveMQBuffer buffer) throws ActiveMQStompException {
       int readable = buffer.readableBytes();
 
-      if (data + readable >= workingBuffer.length)
-      {
+      if (data + readable >= workingBuffer.length) {
          resizeWorking(data + readable);
       }
 
@@ -199,20 +195,16 @@ public class StompDecoder
 
       data += readable;
 
-      if (command == null)
-      {
-         if (!parseCommand())
-         {
+      if (command == null) {
+         if (!parseCommand()) {
             return null;
          }
       }
 
       //if command is not null, should it automatically be in
       //reading headers mode? think of get rid of readingHeaders flag
-      if (readingHeaders)
-      {
-         if (!parseHeaders())
-         {
+      if (readingHeaders) {
+         if (!parseHeaders()) {
             return null;
          }
       }
@@ -223,18 +215,14 @@ public class StompDecoder
       return ret;
    }
 
-   protected StompFrame parseBody() throws ActiveMQStompException
-   {
+   protected StompFrame parseBody() throws ActiveMQStompException {
       byte[] content = null;
 
-      if (contentLength != -1)
-      {
-         if (pos + contentLength + 1 > data)
-         {
+      if (contentLength != -1) {
+         if (pos + contentLength + 1 > data) {
             // Need more bytes
          }
-         else
-         {
+         else {
             content = new byte[contentLength];
 
             System.arraycopy(workingBuffer, pos, content, 0, contentLength);
@@ -242,19 +230,15 @@ public class StompDecoder
             pos += contentLength + 1;
          }
       }
-      else
-      {
+      else {
          // Need to scan for terminating NUL
 
-         if (bodyStart == -1)
-         {
+         if (bodyStart == -1) {
             bodyStart = pos;
          }
 
-         while (pos < data)
-         {
-            if (workingBuffer[pos++] == 0)
-            {
+         while (pos < data) {
+            if (workingBuffer[pos++] == 0) {
                content = new byte[pos - bodyStart - 1];
 
                System.arraycopy(workingBuffer, bodyStart, content, 0, content.length);
@@ -264,11 +248,10 @@ public class StompDecoder
          }
       }
 
-      if (content != null)
-      {
-         if (data > pos)
-         {
-            if (workingBuffer[pos] == NEW_LINE) pos++;
+      if (content != null) {
+         if (data > pos) {
+            if (workingBuffer[pos] == NEW_LINE)
+               pos++;
 
             if (data > pos)
                // More data still in the buffer from the next packet
@@ -287,31 +270,24 @@ public class StompDecoder
 
          return ret;
       }
-      else
-      {
+      else {
          return null;
       }
    }
 
-   protected boolean parseHeaders() throws ActiveMQStompException
-   {
-      if (headerBytesCopyStart == -1)
-      {
+   protected boolean parseHeaders() throws ActiveMQStompException {
+      if (headerBytesCopyStart == -1) {
          headerBytesCopyStart = pos;
       }
 
       // Now the headers
    outer:
-      while (true)
-      {
+      while (true) {
          byte b = workingBuffer[pos++];
 
-         switch (b)
-         {
-            case HEADER_SEPARATOR:
-            {
-               if (inHeaderName)
-               {
+         switch (b) {
+            case HEADER_SEPARATOR: {
+               if (inHeaderName) {
                   headerName = new String(workingBuffer, headerBytesCopyStart, pos - headerBytesCopyStart - 1);
 
                   inHeaderName = false;
@@ -325,10 +301,8 @@ public class StompDecoder
 
                break;
             }
-            case NEW_LINE:
-            {
-               if (whiteSpaceOnly)
-               {
+            case NEW_LINE: {
+               if (whiteSpaceOnly) {
                   // Headers are terminated by a blank line
                   readingHeaders = false;
 
@@ -339,8 +313,7 @@ public class StompDecoder
 
                headers.put(headerName, headerValue);
 
-               if (headerName.equals(Stomp.Headers.CONTENT_LENGTH))
-               {
+               if (headerName.equals(Stomp.Headers.CONTENT_LENGTH)) {
                   contentLength = Integer.parseInt(headerValue.toString());
                }
 
@@ -354,13 +327,10 @@ public class StompDecoder
 
                break;
             }
-            case SPACE:
-            {
+            case SPACE: {
             }
-            case TAB:
-            {
-               if (TRIM_LEADING_HEADER_VALUE_WHITESPACE && headerValueWhitespace)
-               {
+            case TAB: {
+               if (TRIM_LEADING_HEADER_VALUE_WHITESPACE && headerValueWhitespace) {
                   // trim off leading whitespace from header values.
                   // The STOMP spec examples seem to imply that whitespace should be trimmed although it is not
                   // explicit in the spec
@@ -374,15 +344,13 @@ public class StompDecoder
 
                break;
             }
-            default:
-            {
+            default: {
                whiteSpaceOnly = false;
 
                headerValueWhitespace = false;
             }
          }
-         if (pos == data)
-         {
+         if (pos == data) {
             // Run out of data
 
             return false;
@@ -391,8 +359,7 @@ public class StompDecoder
       return true;
    }
 
-   protected boolean parseCommand() throws ActiveMQStompException
-   {
+   protected boolean parseCommand() throws ActiveMQStompException {
       int offset = 0;
       boolean nextChar = false;
 
@@ -401,31 +368,26 @@ public class StompDecoder
       // next STOMP frame is read - we need to deal with this.
       // Besides, Stomp 1.2 allows for extra EOLs after NULL (i.e.
       // either "[\r]\n"s or "\n"s)
-      while (offset < data)
-      {
-         if (workingBuffer[offset] == NEW_LINE)
-         {
+      while (offset < data) {
+         if (workingBuffer[offset] == NEW_LINE) {
             nextChar = false;
          }
-         else if (workingBuffer[offset] == CR)
-         {
-            if (nextChar) throw BUNDLE.invalidTwoCRs().setHandler(handler);
+         else if (workingBuffer[offset] == CR) {
+            if (nextChar)
+               throw BUNDLE.invalidTwoCRs().setHandler(handler);
             nextChar = true;
          }
-         else
-         {
+         else {
             break;
          }
          offset++;
       }
 
-      if (nextChar)
-      {
+      if (nextChar) {
          throw BUNDLE.badCRs().setHandler(handler);
       }
 
-      if (data < 4 + offset)
-      {
+      if (data < 4 + offset) {
          // Need at least four bytes to identify the command
          // - up to 3 bytes for the command name + potentially another byte for a leading \n
          return false;
@@ -433,24 +395,18 @@ public class StompDecoder
 
       byte b = workingBuffer[offset];
 
-      switch (b)
-      {
-         case A:
-         {
-            if (workingBuffer[offset + 1] == B)
-            {
-               if (!tryIncrement(offset + COMMAND_ABORT_LENGTH + 1))
-               {
+      switch (b) {
+         case A: {
+            if (workingBuffer[offset + 1] == B) {
+               if (!tryIncrement(offset + COMMAND_ABORT_LENGTH + 1)) {
                   return false;
                }
 
                // ABORT
                command = COMMAND_ABORT;
             }
-            else
-            {
-               if (!tryIncrement(offset + COMMAND_ACK_LENGTH + 1))
-               {
+            else {
+               if (!tryIncrement(offset + COMMAND_ACK_LENGTH + 1)) {
                   return false;
                }
 
@@ -459,10 +415,8 @@ public class StompDecoder
             }
             break;
          }
-         case B:
-         {
-            if (!tryIncrement(offset + COMMAND_BEGIN_LENGTH + 1))
-            {
+         case B: {
+            if (!tryIncrement(offset + COMMAND_BEGIN_LENGTH + 1)) {
                return false;
             }
 
@@ -471,12 +425,9 @@ public class StompDecoder
 
             break;
          }
-         case C:
-         {
-            if (workingBuffer[offset + 2] == M)
-            {
-               if (!tryIncrement(offset + COMMAND_COMMIT_LENGTH + 1))
-               {
+         case C: {
+            if (workingBuffer[offset + 2] == M) {
+               if (!tryIncrement(offset + COMMAND_COMMIT_LENGTH + 1)) {
                   return false;
                }
 
@@ -484,10 +435,8 @@ public class StompDecoder
                command = COMMAND_COMMIT;
             }
             /**** added by meddy, 27 april 2011, handle header parser for reply to websocket protocol ****/
-            else if (workingBuffer[offset + 7] == E)
-            {
-               if (!tryIncrement(offset + COMMAND_CONNECTED_LENGTH + 1))
-               {
+            else if (workingBuffer[offset + 7] == E) {
+               if (!tryIncrement(offset + COMMAND_CONNECTED_LENGTH + 1)) {
                   return false;
                }
 
@@ -495,10 +444,8 @@ public class StompDecoder
                command = COMMAND_CONNECTED;
             }
             /**** end ****/
-            else
-            {
-               if (!tryIncrement(offset + COMMAND_CONNECT_LENGTH + 1))
-               {
+            else {
+               if (!tryIncrement(offset + COMMAND_CONNECT_LENGTH + 1)) {
                   return false;
                }
 
@@ -507,10 +454,8 @@ public class StompDecoder
             }
             break;
          }
-         case D:
-         {
-            if (!tryIncrement(offset + COMMAND_DISCONNECT_LENGTH + 1))
-            {
+         case D: {
+            if (!tryIncrement(offset + COMMAND_DISCONNECT_LENGTH + 1)) {
                return false;
             }
 
@@ -519,10 +464,8 @@ public class StompDecoder
 
             break;
          }
-         case R:
-         {
-            if (!tryIncrement(offset + COMMAND_RECEIPT_LENGTH + 1))
-            {
+         case R: {
+            if (!tryIncrement(offset + COMMAND_RECEIPT_LENGTH + 1)) {
                return false;
             }
 
@@ -532,10 +475,8 @@ public class StompDecoder
             break;
          }
          /**** added by meddy, 27 april 2011, handle header parser for reply to websocket protocol ****/
-         case E:
-         {
-            if (!tryIncrement(offset + COMMAND_ERROR_LENGTH + 1))
-            {
+         case E: {
+            if (!tryIncrement(offset + COMMAND_ERROR_LENGTH + 1)) {
                return false;
             }
 
@@ -544,10 +485,8 @@ public class StompDecoder
 
             break;
          }
-         case M:
-         {
-            if (!tryIncrement(offset + COMMAND_MESSAGE_LENGTH + 1))
-            {
+         case M: {
+            if (!tryIncrement(offset + COMMAND_MESSAGE_LENGTH + 1)) {
                return false;
             }
 
@@ -557,32 +496,25 @@ public class StompDecoder
             break;
          }
          /**** end ****/
-         case S:
-         {
-            if (workingBuffer[offset + 1] == E)
-            {
-               if (!tryIncrement(offset + COMMAND_SEND_LENGTH + 1))
-               {
+         case S: {
+            if (workingBuffer[offset + 1] == E) {
+               if (!tryIncrement(offset + COMMAND_SEND_LENGTH + 1)) {
                   return false;
                }
 
                // SEND
                command = COMMAND_SEND;
             }
-            else if (workingBuffer[offset + 1] == T)
-            {
-               if (!tryIncrement(offset + COMMAND_STOMP_LENGTH + 1))
-               {
+            else if (workingBuffer[offset + 1] == T) {
+               if (!tryIncrement(offset + COMMAND_STOMP_LENGTH + 1)) {
                   return false;
                }
 
                // STOMP
                command = COMMAND_STOMP;
             }
-            else
-            {
-               if (!tryIncrement(offset + COMMAND_SUBSCRIBE_LENGTH + 1))
-               {
+            else {
+               if (!tryIncrement(offset + COMMAND_SUBSCRIBE_LENGTH + 1)) {
                   return false;
                }
 
@@ -591,10 +523,8 @@ public class StompDecoder
             }
             break;
          }
-         case U:
-         {
-            if (!tryIncrement(offset + COMMAND_UNSUBSCRIBE_LENGTH + 1))
-            {
+         case U: {
+            if (!tryIncrement(offset + COMMAND_UNSUBSCRIBE_LENGTH + 1)) {
                return false;
             }
 
@@ -603,15 +533,13 @@ public class StompDecoder
 
             break;
          }
-         default:
-         {
+         default: {
             throwInvalid();
          }
       }
 
       // Sanity check
-      if (workingBuffer[pos - 1] != NEW_LINE)
-      {
+      if (workingBuffer[pos - 1] != NEW_LINE) {
          //give a signal to try other versions
          ActiveMQStompException error = BUNDLE.notValidNewLine(workingBuffer[pos - 1]).setHandler(handler);
          error.setCode(ActiveMQStompException.INVALID_EOL_V10);
@@ -622,16 +550,14 @@ public class StompDecoder
       return true;
    }
 
-   public void throwInvalid() throws ActiveMQStompException
-   {
+   public void throwInvalid() throws ActiveMQStompException {
       ActiveMQStompException error = BUNDLE.invalidCommand(this.dumpByteArray(workingBuffer)).setHandler(handler);
       error.setCode(ActiveMQStompException.INVALID_COMMAND);
       error.setBody(BUNDLE.invalidFrame(this.dumpByteArray(workingBuffer)));
       throw error;
    }
 
-   public void init()
-   {
+   public void init() {
       pos = 0;
 
       command = null;
@@ -657,8 +583,7 @@ public class StompDecoder
       bodyStart = -1;
    }
 
-   public void resizeWorking(final int newSize)
-   {
+   public void resizeWorking(final int newSize) {
       byte[] oldBuffer = workingBuffer;
 
       workingBuffer = new byte[newSize];
@@ -666,41 +591,33 @@ public class StompDecoder
       System.arraycopy(oldBuffer, 0, workingBuffer, 0, oldBuffer.length);
    }
 
-   public boolean tryIncrement(final int length)
-   {
-      if (pos + length >= data)
-      {
+   public boolean tryIncrement(final int length) {
+      if (pos + length >= data) {
          return false;
       }
-      else
-      {
+      else {
          pos += length;
 
          return true;
       }
    }
 
-   private String dumpByteArray(final byte[] bytes)
-   {
+   private String dumpByteArray(final byte[] bytes) {
       StringBuilder str = new StringBuilder();
 
-      for (int i = 0; i < data; i++)
-      {
+      for (int i = 0; i < data; i++) {
          char b = (char) bytes[i];
 
-         if (b < 33 || b > 136)
-         {
+         if (b < 33 || b > 136) {
             //Unreadable characters
 
             str.append(bytes[i]);
          }
-         else
-         {
+         else {
             str.append(b);
          }
 
-         if (i != bytes.length - 1)
-         {
+         if (i != bytes.length - 1) {
             str.append(",");
          }
       }
@@ -708,8 +625,9 @@ public class StompDecoder
       return str.toString();
    }
 
-   /** This should be overridden by subclasses. */
-   public void init(StompDecoder decoder)
-   {
+   /**
+    * This should be overridden by subclasses.
+    */
+   public void init(StompDecoder decoder) {
    }
 }

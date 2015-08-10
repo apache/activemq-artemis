@@ -28,8 +28,8 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.QueueFactory;
 import org.apache.activemq.artemis.core.server.impl.QueueImpl;
 
-public class FakeQueueFactory implements QueueFactory
-{
+public class FakeQueueFactory implements QueueFactory {
+
    private final ScheduledExecutorService scheduledExecutor = Executors.newSingleThreadScheduledExecutor();
 
    private final ExecutorService executor = Executors.newSingleThreadExecutor();
@@ -44,32 +44,16 @@ public class FakeQueueFactory implements QueueFactory
                             final SimpleString user,
                             final boolean durable,
                             final boolean temporary,
-                            final boolean autoCreated)
-   {
-      return new QueueImpl(persistenceID,
-                           address,
-                           name,
-                           filter,
-                           subscription,
-                           user,
-                           durable,
-                           temporary,
-                           autoCreated,
-                           scheduledExecutor,
-                           postOffice,
-                           null,
-                           null,
-                           executor);
+                            final boolean autoCreated) {
+      return new QueueImpl(persistenceID, address, name, filter, subscription, user, durable, temporary, autoCreated, scheduledExecutor, postOffice, null, null, executor);
    }
 
-   public void setPostOffice(final PostOffice postOffice)
-   {
+   public void setPostOffice(final PostOffice postOffice) {
       this.postOffice = postOffice;
 
    }
 
-   public void stop() throws Exception
-   {
+   public void stop() throws Exception {
       scheduledExecutor.shutdown();
 
       executor.shutdown();

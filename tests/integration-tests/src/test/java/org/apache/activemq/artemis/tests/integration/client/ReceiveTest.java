@@ -33,8 +33,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class ReceiveTest extends ActiveMQTestBase
-{
+public class ReceiveTest extends ActiveMQTestBase {
+
    SimpleString addressA = new SimpleString("addressA");
 
    SimpleString queueA = new SimpleString("queueA");
@@ -45,8 +45,7 @@ public class ReceiveTest extends ActiveMQTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       locator = createInVMNonHALocator();
@@ -55,8 +54,7 @@ public class ReceiveTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testBasicReceive() throws Exception
-   {
+   public void testBasicReceive() throws Exception {
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession sendSession = cf.createSession(false, true, true);
       ClientProducer cp = sendSession.createProducer(addressA);
@@ -71,8 +69,7 @@ public class ReceiveTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testReceiveTimesoutCorrectly() throws Exception
-   {
+   public void testReceiveTimesoutCorrectly() throws Exception {
 
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession session = cf.createSession(false, true, true);
@@ -86,8 +83,7 @@ public class ReceiveTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testReceiveOnClosedException() throws Exception
-   {
+   public void testReceiveOnClosedException() throws Exception {
 
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession session = cf.createSession(false, true, true);
@@ -95,56 +91,46 @@ public class ReceiveTest extends ActiveMQTestBase
       ClientConsumer cc = session.createConsumer(queueA);
       session.start();
       session.close();
-      try
-      {
+      try {
          cc.receive();
          Assert.fail("should throw exception");
       }
-      catch (ActiveMQObjectClosedException oce)
-      {
+      catch (ActiveMQObjectClosedException oce) {
          //ok
       }
-      catch (ActiveMQException e)
-      {
+      catch (ActiveMQException e) {
          Assert.fail("Invalid Exception type:" + e.getType());
       }
       session.close();
    }
 
    @Test
-   public void testReceiveThrowsExceptionWhenHandlerSet() throws Exception
-   {
+   public void testReceiveThrowsExceptionWhenHandlerSet() throws Exception {
 
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession session = cf.createSession(false, true, true);
       session.createQueue(addressA, queueA, false);
       ClientConsumer cc = session.createConsumer(queueA);
       session.start();
-      cc.setMessageHandler(new MessageHandler()
-      {
-         public void onMessage(final ClientMessage message)
-         {
+      cc.setMessageHandler(new MessageHandler() {
+         public void onMessage(final ClientMessage message) {
          }
       });
-      try
-      {
+      try {
          cc.receive();
          Assert.fail("should throw exception");
       }
-      catch (ActiveMQIllegalStateException ise)
-      {
+      catch (ActiveMQIllegalStateException ise) {
          //ok
       }
-      catch (ActiveMQException e)
-      {
+      catch (ActiveMQException e) {
          Assert.fail("Invalid Exception type:" + e.getType());
       }
       session.close();
    }
 
    @Test
-   public void testReceiveImmediate() throws Exception
-   {
+   public void testReceiveImmediate() throws Exception {
 
       // forces perfect round robin
       locator.setConsumerWindowSize(1);
@@ -162,8 +148,7 @@ public class ReceiveTest extends ActiveMQTestBase
 
       Assert.assertNotNull(cc2.receive(5000));
       Assert.assertNotNull(cc.receive(5000));
-      if (cc.receiveImmediate() == null)
-      {
+      if (cc.receiveImmediate() == null) {
          Assert.assertNotNull(cc2.receiveImmediate());
       }
       session.close();

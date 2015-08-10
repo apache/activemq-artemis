@@ -36,8 +36,8 @@ import org.apache.activemq.artemis.core.version.impl.VersionImpl;
 /**
  * This loads the version info in from a version.properties file.
  */
-public final class VersionLoader
-{
+public final class VersionLoader {
+
    public static final String VERSION_PROP_FILE_KEY = "activemq.version.property.filename";
 
    public static final String DEFAULT_PROP_FILE_NAME = "activemq-version.properties";
@@ -46,88 +46,70 @@ public final class VersionLoader
 
    private static Version[] versions;
 
-   static
-   {
-      try
-      {
+   static {
+      try {
 
-         try
-         {
-            PROP_FILE_NAME = AccessController.doPrivileged(new PrivilegedAction<String>()
-            {
-               public String run()
-               {
+         try {
+            PROP_FILE_NAME = AccessController.doPrivileged(new PrivilegedAction<String>() {
+               public String run() {
                   return System.getProperty(VersionLoader.VERSION_PROP_FILE_KEY);
                }
             });
          }
-         catch (Throwable e)
-         {
+         catch (Throwable e) {
             ActiveMQClientLogger.LOGGER.warn(e.getMessage(), e);
             PROP_FILE_NAME = null;
          }
 
-         if (PROP_FILE_NAME == null)
-         {
+         if (PROP_FILE_NAME == null) {
             PROP_FILE_NAME = VersionLoader.DEFAULT_PROP_FILE_NAME;
          }
 
          VersionLoader.versions = VersionLoader.load();
       }
-      catch (Throwable e)
-      {
+      catch (Throwable e) {
          VersionLoader.versions = null;
          ActiveMQClientLogger.LOGGER.error(e.getMessage(), e);
       }
 
    }
 
-   public static Version[] getClientVersions()
-   {
-      if (VersionLoader.versions == null)
-      {
+   public static Version[] getClientVersions() {
+      if (VersionLoader.versions == null) {
          throw new RuntimeException(VersionLoader.PROP_FILE_NAME + " is not available");
       }
 
       return VersionLoader.versions;
    }
 
-   public static Version getVersion()
-   {
-      if (VersionLoader.versions == null)
-      {
+   public static Version getVersion() {
+      if (VersionLoader.versions == null) {
          throw new RuntimeException(VersionLoader.PROP_FILE_NAME + " is not available");
       }
 
       return VersionLoader.versions[0];
    }
 
-   public static String getClasspathString()
-   {
+   public static String getClasspathString() {
       StringBuffer classpath = new StringBuffer();
       ClassLoader applicationClassLoader = VersionImpl.class.getClassLoader();
       URL[] urls = ((URLClassLoader) applicationClassLoader).getURLs();
-      for (URL url : urls)
-      {
+      for (URL url : urls) {
          classpath.append(url.getFile()).append("\r\n");
       }
 
       return classpath.toString();
    }
 
-   private static Version[] load()
-   {
+   private static Version[] load() {
       Properties versionProps = new Properties();
       final InputStream in = VersionImpl.class.getClassLoader().getResourceAsStream(VersionLoader.PROP_FILE_NAME);
-      try
-      {
-         if (in == null)
-         {
+      try {
+         if (in == null) {
             ActiveMQClientLogger.LOGGER.noVersionOnClasspath(getClasspathString());
             throw new RuntimeException(VersionLoader.PROP_FILE_NAME + " is not available");
          }
-         try
-         {
+         try {
             versionProps.load(in);
             String versionName = versionProps.getProperty("activemq.version.versionName");
             int majorVersion = Integer.valueOf(versionProps.getProperty("activemq.version.majorVersion"));
@@ -136,109 +118,84 @@ public final class VersionLoader
             int[] incrementingVersions = parseCompatibleVersionList(versionProps.getProperty("activemq.version.incrementingVersion"));
             int[] compatibleVersionArray = parseCompatibleVersionList(versionProps.getProperty("activemq.version.compatibleVersionList"));
             List<Version> definedVersions = new ArrayList<Version>(incrementingVersions.length);
-            for (int incrementingVersion : incrementingVersions)
-            {
-               definedVersions.add(new VersionImpl(versionName,
-                                                   majorVersion,
-                                                   minorVersion,
-                                                   microVersion,
-                                                   incrementingVersion,
-                                                   compatibleVersionArray));
+            for (int incrementingVersion : incrementingVersions) {
+               definedVersions.add(new VersionImpl(versionName, majorVersion, minorVersion, microVersion, incrementingVersion, compatibleVersionArray));
             }
             //We want the higher version to be the first
-            Collections.sort(definedVersions, new Comparator<Version>()
-            {
+            Collections.sort(definedVersions, new Comparator<Version>() {
                @Override
-               public int compare(Version version1, Version version2)
-               {
+               public int compare(Version version1, Version version2) {
                   return version2.getIncrementingVersion() - version1.getIncrementingVersion();
                }
 
             });
             return definedVersions.toArray(new Version[incrementingVersions.length]);
          }
-         catch (IOException e)
-         {
+         catch (IOException e) {
             // if we get here then the messaging hasn't been built properly and the version.properties is skewed in some
             // way
             throw new RuntimeException("unable to load " + VersionLoader.PROP_FILE_NAME, e);
          }
       }
-      finally
-      {
-         try
-         {
+      finally {
+         try {
             if (in != null)
                in.close();
          }
-         catch (Throwable ignored)
-         {
+         catch (Throwable ignored) {
          }
       }
 
    }
 
-   private static int[] parseCompatibleVersionList(String property) throws IOException
-   {
+   private static int[] parseCompatibleVersionList(String property) throws IOException {
       int[] verArray = new int[0];
       StringTokenizer tokenizer = new StringTokenizer(property, ",");
-      while (tokenizer.hasMoreTokens())
-      {
+      while (tokenizer.hasMoreTokens()) {
          int from = -1, to = -1;
          String token = tokenizer.nextToken();
 
          int cursor = 0;
          char firstChar = token.charAt(0);
-         if (firstChar == '-')
-         {
+         if (firstChar == '-') {
             // "-n" pattern
             from = 0;
             cursor++;
-            for (; cursor < token.length() && Character.isDigit(token.charAt(cursor)); cursor++)
-            {
+            for (; cursor < token.length() && Character.isDigit(token.charAt(cursor)); cursor++) {
                // do nothing
             }
-            if (cursor > 1)
-            {
+            if (cursor > 1) {
                to = Integer.parseInt(token.substring(1, cursor));
             }
          }
-         else if (Character.isDigit(firstChar))
-         {
-            for (; cursor < token.length() && Character.isDigit(token.charAt(cursor)); cursor++)
-            {
+         else if (Character.isDigit(firstChar)) {
+            for (; cursor < token.length() && Character.isDigit(token.charAt(cursor)); cursor++) {
                // do nothing
             }
             from = Integer.parseInt(token.substring(0, cursor));
 
-            if (cursor == token.length())
-            {
+            if (cursor == token.length()) {
                // just "n" pattern
                to = from;
             }
-            else if (token.charAt(cursor) == '-')
-            {
+            else if (token.charAt(cursor) == '-') {
                cursor++;
-               if (cursor == token.length())
-               {
+               if (cursor == token.length()) {
                   // "n-" pattern
                   to = Integer.MAX_VALUE;
                }
-               else
-               {
+               else {
                   // "n-n" pattern
                   to = Integer.parseInt(token.substring(cursor));
                }
             }
          }
 
-         if (from != -1 && to != -1)
-         {
+         if (from != -1 && to != -1) {
             // merge version array
             int[] newArray = new int[verArray.length + to - from + 1];
             System.arraycopy(verArray, 0, newArray, 0, verArray.length);
-            for (int i = 0; i < to - from + 1; i++)
-            {
+            for (int i = 0; i < to - from + 1; i++) {
                newArray[verArray.length + i] = from + i;
             }
             verArray = newArray;

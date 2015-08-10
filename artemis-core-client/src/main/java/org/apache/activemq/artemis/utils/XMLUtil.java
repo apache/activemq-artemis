@@ -43,43 +43,35 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-public final class XMLUtil
-{
+public final class XMLUtil {
 
-   private XMLUtil()
-   {
+   private XMLUtil() {
       // Utility class
    }
 
-   public static Element stringToElement(final String s) throws Exception
-   {
+   public static Element stringToElement(final String s) throws Exception {
       return XMLUtil.readerToElement(new StringReader(s));
    }
 
-   public static Element urlToElement(final URL url) throws Exception
-   {
+   public static Element urlToElement(final URL url) throws Exception {
       return XMLUtil.readerToElement(new InputStreamReader(url.openStream()));
    }
 
-   public static String readerToString(final Reader r) throws Exception
-   {
+   public static String readerToString(final Reader r) throws Exception {
       // Read into string
       StringBuilder buff = new StringBuilder();
       int c;
-      while ((c = r.read()) != -1)
-      {
+      while ((c = r.read()) != -1) {
          buff.append((char) c);
       }
       return buff.toString();
    }
 
-   public static Element readerToElement(final Reader r) throws Exception
-   {
+   public static Element readerToElement(final Reader r) throws Exception {
       // Read into string
       StringBuffer buff = new StringBuffer();
       int c;
-      while ((c = r.read()) != -1)
-      {
+      while ((c = r.read()) != -1) {
          buff.append((char) c);
       }
 
@@ -96,20 +88,17 @@ public final class XMLUtil
       return doc.getDocumentElement();
    }
 
-   public static String elementToString(final Node n)
-   {
+   public static String elementToString(final Node n) {
 
       String name = n.getNodeName();
 
       short type = n.getNodeType();
 
-      if (Node.CDATA_SECTION_NODE == type)
-      {
+      if (Node.CDATA_SECTION_NODE == type) {
          return "<![CDATA[" + n.getNodeValue() + "]]>";
       }
 
-      if (name.startsWith("#"))
-      {
+      if (name.startsWith("#")) {
          return "";
       }
 
@@ -117,10 +106,8 @@ public final class XMLUtil
       sb.append('<').append(name);
 
       NamedNodeMap attrs = n.getAttributes();
-      if (attrs != null)
-      {
-         for (int i = 0; i < attrs.getLength(); i++)
-         {
+      if (attrs != null) {
+         for (int i = 0; i < attrs.getLength(); i++) {
             Node attr = attrs.item(i);
             sb.append(' ').append(attr.getNodeName()).append("=\"").append(attr.getNodeValue()).append("\"");
          }
@@ -129,33 +116,26 @@ public final class XMLUtil
       String textContent = null;
       NodeList children = n.getChildNodes();
 
-      if (children.getLength() == 0)
-      {
-         if ((textContent = XMLUtil.getTextContent(n)) != null && !"".equals(textContent))
-         {
+      if (children.getLength() == 0) {
+         if ((textContent = XMLUtil.getTextContent(n)) != null && !"".equals(textContent)) {
             sb.append(textContent).append("</").append(name).append('>');
          }
-         else
-         {
+         else {
             sb.append("/>").append('\n');
          }
       }
-      else
-      {
+      else {
          sb.append('>').append('\n');
          boolean hasValidChildren = false;
-         for (int i = 0; i < children.getLength(); i++)
-         {
+         for (int i = 0; i < children.getLength(); i++) {
             String childToString = XMLUtil.elementToString(children.item(i));
-            if (!"".equals(childToString))
-            {
+            if (!"".equals(childToString)) {
                sb.append(childToString);
                hasValidChildren = true;
             }
          }
 
-         if (!hasValidChildren && (textContent = XMLUtil.getTextContent(n)) != null)
-         {
+         if (!hasValidChildren && (textContent = XMLUtil.getTextContent(n)) != null) {
             sb.append(textContent);
          }
 
@@ -176,40 +156,31 @@ public final class XMLUtil
     * <p>
     * TODO implementation of this method is a hack. Implement it properly.
     */
-   public static String getTextContent(final Node n)
-   {
-      if (n.hasChildNodes())
-      {
+   public static String getTextContent(final Node n) {
+      if (n.hasChildNodes()) {
          StringBuffer sb = new StringBuffer();
          NodeList nl = n.getChildNodes();
-         for (int i = 0; i < nl.getLength(); i++)
-         {
+         for (int i = 0; i < nl.getLength(); i++) {
             sb.append(XMLUtil.elementToString(nl.item(i)));
-            if (i < nl.getLength() - 1)
-            {
+            if (i < nl.getLength() - 1) {
                sb.append('\n');
             }
          }
 
          String s = sb.toString();
-         if (s.length() != 0)
-         {
+         if (s.length() != 0) {
             return s;
          }
       }
 
       Method[] methods = Node.class.getMethods();
 
-      for (Method getTextContext : methods)
-      {
-         if ("getTextContent".equals(getTextContext.getName()))
-         {
-            try
-            {
+      for (Method getTextContext : methods) {
+         if ("getTextContent".equals(getTextContext.getName())) {
+            try {
                return (String) getTextContext.invoke(n, XMLUtil.EMPTY_ARRAY);
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                ActiveMQClientLogger.LOGGER.errorOnXMLTransform(e, n);
                return null;
             }
@@ -218,31 +189,24 @@ public final class XMLUtil
 
       String textContent = null;
 
-      if (n.hasChildNodes())
-      {
+      if (n.hasChildNodes()) {
          NodeList nl = n.getChildNodes();
-         for (int i = 0; i < nl.getLength(); i++)
-         {
+         for (int i = 0; i < nl.getLength(); i++) {
             Node c = nl.item(i);
-            if (c.getNodeType() == Node.TEXT_NODE)
-            {
+            if (c.getNodeType() == Node.TEXT_NODE) {
                textContent = n.getNodeValue();
-               if (textContent == null)
-               {
+               if (textContent == null) {
                   // TODO This is a hack. Get rid of it and implement this properly
                   String s = c.toString();
                   int idx = s.indexOf("#text:");
-                  if (idx != -1)
-                  {
+                  if (idx != -1) {
                      textContent = s.substring(idx + 6).trim();
-                     if (textContent.endsWith("]"))
-                     {
+                     if (textContent.endsWith("]")) {
                         textContent = textContent.substring(0, textContent.length() - 1);
                      }
                   }
                }
-               if (textContent == null)
-               {
+               if (textContent == null) {
                   break;
                }
             }
@@ -252,8 +216,7 @@ public final class XMLUtil
          String s = n.toString();
          int i = s.indexOf('>');
          int i2 = s.indexOf("</");
-         if (i != -1 && i2 != -1)
-         {
+         if (i != -1 && i2 != -1) {
             textContent = s.substring(i + 1, i2);
          }
       }
@@ -261,57 +224,47 @@ public final class XMLUtil
       return textContent;
    }
 
-   public static void assertEquivalent(final Node node, final Node node2)
-   {
-      if (node == null)
-      {
+   public static void assertEquivalent(final Node node, final Node node2) {
+      if (node == null) {
          throw ActiveMQClientMessageBundle.BUNDLE.firstNodeNull();
       }
 
-      if (node2 == null)
-      {
+      if (node2 == null) {
          throw ActiveMQClientMessageBundle.BUNDLE.secondNodeNull();
       }
 
-      if (!node.getNodeName().equals(node2.getNodeName()))
-      {
+      if (!node.getNodeName().equals(node2.getNodeName())) {
          throw ActiveMQClientMessageBundle.BUNDLE.nodeHaveDifferentNames();
       }
 
       int attrCount = 0;
       NamedNodeMap attrs = node.getAttributes();
-      if (attrs != null)
-      {
+      if (attrs != null) {
          attrCount = attrs.getLength();
       }
 
       int attrCount2 = 0;
       NamedNodeMap attrs2 = node2.getAttributes();
-      if (attrs2 != null)
-      {
+      if (attrs2 != null) {
          attrCount2 = attrs2.getLength();
       }
 
-      if (attrCount != attrCount2)
-      {
+      if (attrCount != attrCount2) {
          throw ActiveMQClientMessageBundle.BUNDLE.nodeHaveDifferentAttNumber();
       }
 
    outer:
-      for (int i = 0; i < attrCount; i++)
-      {
+      for (int i = 0; i < attrCount; i++) {
          Node n = attrs.item(i);
          String name = n.getNodeName();
          String value = n.getNodeValue();
 
-         for (int j = 0; j < attrCount; j++)
-         {
+         for (int j = 0; j < attrCount; j++) {
             Node n2 = attrs2.item(j);
             String name2 = n2.getNodeName();
             String value2 = n2.getNodeValue();
 
-            if (name.equals(name2) && value.equals(value2))
-            {
+            if (name.equals(name2) && value.equals(value2)) {
                continue outer;
             }
          }
@@ -320,13 +273,11 @@ public final class XMLUtil
 
       boolean hasChildren = node.hasChildNodes();
 
-      if (hasChildren != node2.hasChildNodes())
-      {
+      if (hasChildren != node2.hasChildNodes()) {
          throw ActiveMQClientMessageBundle.BUNDLE.oneNodeHasChildren();
       }
 
-      if (hasChildren)
-      {
+      if (hasChildren) {
          NodeList nl = node.getChildNodes();
          NodeList nl2 = node2.getChildNodes();
 
@@ -336,13 +287,11 @@ public final class XMLUtil
 
          int length = nodes.size();
 
-         if (length != nodes2.size())
-         {
+         if (length != nodes2.size()) {
             throw ActiveMQClientMessageBundle.BUNDLE.nodeHasDifferentChildNumber();
          }
 
-         for (int i = 0; i < length; i++)
-         {
+         for (int i = 0; i < length; i++) {
             Node n = nodes.get(i);
             Node n2 = nodes2.get(i);
             XMLUtil.assertEquivalent(n, n2);
@@ -350,15 +299,12 @@ public final class XMLUtil
       }
    }
 
-   public static String stripCDATA(String s)
-   {
+   public static String stripCDATA(String s) {
       s = s.trim();
-      if (s.startsWith("<![CDATA["))
-      {
+      if (s.startsWith("<![CDATA[")) {
          s = s.substring(9);
          int i = s.indexOf("]]>");
-         if (i == -1)
-         {
+         if (i == -1) {
             throw new IllegalStateException("argument starts with <![CDATA[ but cannot find pairing ]]>");
          }
          s = s.substring(0, i);
@@ -382,21 +328,17 @@ public final class XMLUtil
        }
        return xml;
     }*/
-   public static String replaceSystemProps(String xml)
-   {
-      while (xml.contains("${"))
-      {
+   public static String replaceSystemProps(String xml) {
+      while (xml.contains("${")) {
          int start = xml.indexOf("${");
          int end = xml.indexOf("}") + 1;
-         if (end < 0)
-         {
+         if (end < 0) {
             break;
          }
          String subString = xml.substring(start, end);
          String prop = subString.substring(2, subString.length() - 1).trim();
          String val = "";
-         if (prop.contains(":"))
-         {
+         if (prop.contains(":")) {
             String[] parts = prop.split(":", 2);
             prop = parts[0].trim();
             val = parts[1].trim();
@@ -409,95 +351,76 @@ public final class XMLUtil
       return xml;
    }
 
-   public static long parseLong(final Node elem)
-   {
+   public static long parseLong(final Node elem) {
       String value = elem.getTextContent().trim();
 
-      try
-      {
+      try {
          return Long.parseLong(value);
       }
-      catch (NumberFormatException e)
-      {
+      catch (NumberFormatException e) {
          throw ActiveMQClientMessageBundle.BUNDLE.mustBeLong(elem, value);
       }
    }
 
-   public static int parseInt(final Node elem)
-   {
+   public static int parseInt(final Node elem) {
       String value = elem.getTextContent().trim();
 
-      try
-      {
+      try {
          return Integer.parseInt(value);
       }
-      catch (NumberFormatException e)
-      {
+      catch (NumberFormatException e) {
          throw ActiveMQClientMessageBundle.BUNDLE.mustBeInteger(elem, value);
       }
    }
 
-   public static boolean parseBoolean(final Node elem)
-   {
+   public static boolean parseBoolean(final Node elem) {
       String value = elem.getTextContent().trim();
 
-      try
-      {
+      try {
          return Boolean.parseBoolean(value);
       }
-      catch (NumberFormatException e)
-      {
+      catch (NumberFormatException e) {
          throw ActiveMQClientMessageBundle.BUNDLE.mustBeBoolean(elem, value);
       }
    }
 
-   public static double parseDouble(final Node elem)
-   {
+   public static double parseDouble(final Node elem) {
       String value = elem.getTextContent().trim();
 
-      try
-      {
+      try {
          return Double.parseDouble(value);
       }
-      catch (NumberFormatException e)
-      {
+      catch (NumberFormatException e) {
          throw ActiveMQClientMessageBundle.BUNDLE.mustBeDouble(elem, value);
       }
    }
 
-   public static void validate(final Node node, final String schemaFile) throws Exception
-   {
+   public static void validate(final Node node, final String schemaFile) throws Exception {
       SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
 
       Schema schema = factory.newSchema(findResource(schemaFile));
       Validator validator = schema.newValidator();
 
       // validate the DOM tree
-      try
-      {
+      try {
          validator.validate(new DOMSource(node));
       }
-      catch (SAXException e)
-      {
+      catch (SAXException e) {
          ActiveMQClientLogger.LOGGER.errorOnXMLTransformInvalidConf(e);
 
          throw new IllegalStateException("Invalid configuration", e);
       }
    }
 
-   private static List<Node> filter(final NodeList nl, final short[] typesToFilter)
-   {
+   private static List<Node> filter(final NodeList nl, final short[] typesToFilter) {
       List<Node> nodes = new ArrayList<Node>();
 
    outer:
-      for (int i = 0; i < nl.getLength(); i++)
-      {
+      for (int i = 0; i < nl.getLength(); i++) {
          Node n = nl.item(i);
          short type = n.getNodeType();
-         for (int j = 0; j < typesToFilter.length; j++)
-         {
-            if (typesToFilter[j] == type)
-            {
+         for (int j = 0; j < typesToFilter.length; j++) {
+            if (typesToFilter[j] == type) {
                continue outer;
             }
          }
@@ -506,17 +429,13 @@ public final class XMLUtil
       return nodes;
    }
 
-   private static URL findResource(final String resourceName)
-   {
-      return AccessController.doPrivileged(new PrivilegedAction<URL>()
-      {
-         public URL run()
-         {
+   private static URL findResource(final String resourceName) {
+      return AccessController.doPrivileged(new PrivilegedAction<URL>() {
+         public URL run() {
             return ClassloadingUtil.findResource(resourceName);
          }
       });
    }
-
 
    // Inner classes --------------------------------------------------------------------------------
 

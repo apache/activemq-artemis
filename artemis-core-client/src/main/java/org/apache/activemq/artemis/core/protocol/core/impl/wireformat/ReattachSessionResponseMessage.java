@@ -19,14 +19,13 @@ package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 
-public class ReattachSessionResponseMessage extends PacketImpl
-{
+public class ReattachSessionResponseMessage extends PacketImpl {
+
    private int lastConfirmedCommandID;
 
    private boolean reattached;
 
-   public ReattachSessionResponseMessage(final int lastConfirmedCommandID, final boolean reattached)
-   {
+   public ReattachSessionResponseMessage(final int lastConfirmedCommandID, final boolean reattached) {
       super(REATTACH_SESSION_RESP);
 
       this.lastConfirmedCommandID = lastConfirmedCommandID;
@@ -34,52 +33,44 @@ public class ReattachSessionResponseMessage extends PacketImpl
       this.reattached = reattached;
    }
 
-   public ReattachSessionResponseMessage()
-   {
+   public ReattachSessionResponseMessage() {
       super(REATTACH_SESSION_RESP);
    }
 
    // Public --------------------------------------------------------
 
-   public int getLastConfirmedCommandID()
-   {
+   public int getLastConfirmedCommandID() {
       return lastConfirmedCommandID;
    }
 
-   public boolean isReattached()
-   {
+   public boolean isReattached() {
       return reattached;
    }
 
    @Override
-   public void encodeRest(final ActiveMQBuffer buffer)
-   {
+   public void encodeRest(final ActiveMQBuffer buffer) {
       buffer.writeInt(lastConfirmedCommandID);
       buffer.writeBoolean(reattached);
    }
 
    @Override
-   public void decodeRest(final ActiveMQBuffer buffer)
-   {
+   public void decodeRest(final ActiveMQBuffer buffer) {
       lastConfirmedCommandID = buffer.readInt();
       reattached = buffer.readBoolean();
    }
 
    @Override
-   public boolean isResponse()
-   {
+   public boolean isResponse() {
       return true;
    }
 
    @Override
-   public final boolean isRequiresConfirmations()
-   {
+   public final boolean isRequiresConfirmations() {
       return false;
    }
 
    @Override
-   public int hashCode()
-   {
+   public int hashCode() {
       final int prime = 31;
       int result = super.hashCode();
       result = prime * result + lastConfirmedCommandID;
@@ -88,15 +79,14 @@ public class ReattachSessionResponseMessage extends PacketImpl
    }
 
    @Override
-   public boolean equals(Object obj)
-   {
+   public boolean equals(Object obj) {
       if (this == obj)
          return true;
       if (!super.equals(obj))
          return false;
       if (!(obj instanceof ReattachSessionResponseMessage))
          return false;
-      ReattachSessionResponseMessage other = (ReattachSessionResponseMessage)obj;
+      ReattachSessionResponseMessage other = (ReattachSessionResponseMessage) obj;
       if (lastConfirmedCommandID != other.lastConfirmedCommandID)
          return false;
       if (reattached != other.reattached)

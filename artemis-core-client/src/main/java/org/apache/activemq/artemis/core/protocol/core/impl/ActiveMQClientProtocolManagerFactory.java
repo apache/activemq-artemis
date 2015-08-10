@@ -19,23 +19,20 @@ package org.apache.activemq.artemis.core.protocol.core.impl;
 import org.apache.activemq.artemis.spi.core.remoting.ClientProtocolManager;
 import org.apache.activemq.artemis.spi.core.remoting.ClientProtocolManagerFactory;
 
-public class ActiveMQClientProtocolManagerFactory implements ClientProtocolManagerFactory
-{
+public class ActiveMQClientProtocolManagerFactory implements ClientProtocolManagerFactory {
+
    private static final long serialVersionUID = 1;
 
    private static final ActiveMQClientProtocolManagerFactory INSTANCE = new ActiveMQClientProtocolManagerFactory();
 
-   private ActiveMQClientProtocolManagerFactory()
-   {
+   private ActiveMQClientProtocolManagerFactory() {
    }
 
-   public static final ActiveMQClientProtocolManagerFactory getInstance()
-   {
+   public static final ActiveMQClientProtocolManagerFactory getInstance() {
       return INSTANCE;
    }
 
-   public ClientProtocolManager newProtocolManager()
-   {
+   public ClientProtocolManager newProtocolManager() {
       return new ActiveMQClientProtocolManager();
    }
 }

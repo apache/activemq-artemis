@@ -22,10 +22,9 @@ import org.apache.activemq.artemis.utils.uri.URIFactory;
 
 import java.util.List;
 
-public class ConnectorTransportConfigurationParser extends URIFactory<List<TransportConfiguration>, String>
-{
-   public ConnectorTransportConfigurationParser()
-   {
+public class ConnectorTransportConfigurationParser extends URIFactory<List<TransportConfiguration>, String> {
+
+   public ConnectorTransportConfigurationParser() {
       registerSchema(new TCPTransportConfigurationSchema(TransportConstants.ALLOWABLE_CONNECTOR_KEYS));
       registerSchema(new InVMTransportConfigurationSchema());
    }

@@ -20,28 +20,26 @@ import junit.framework.TestCase;
 
 public abstract class StatisticTestSupport extends TestCase {
 
-    /**
-     * assert method used by the management related classes for its usecase.
-     * 
-     * @param counter
-     * @param name
-     * @param unit
-     * @param description
-     */
-    protected void assertStatistic(StatisticImpl counter, String name, String unit, String description) {
-        assertEquals(name, counter.getName());
-        assertEquals(unit, counter.getUnit());
-        assertEquals(description, counter.getDescription());
-    }
+   /**
+    * assert method used by the management related classes for its usecase.
+    *
+    * @param counter
+    * @param name
+    * @param unit
+    * @param description
+    */
+   protected void assertStatistic(StatisticImpl counter, String name, String unit, String description) {
+      assertEquals(name, counter.getName());
+      assertEquals(unit, counter.getUnit());
+      assertEquals(description, counter.getDescription());
+   }
 
-    /**
-     * assert method to determine last time vs the start time.
-     * 
-     * @param counter
-     */
-    protected void assertLastTimeNotStartTime(StatisticImpl counter) {
-        assertTrue("Should not have start time the same as last sample time. Start time: "
-                   + counter.getStartTime() + " lastTime: " + counter.getLastSampleTime(), counter
-            .getStartTime() != counter.getLastSampleTime());
-    }
+   /**
+    * assert method to determine last time vs the start time.
+    *
+    * @param counter
+    */
+   protected void assertLastTimeNotStartTime(StatisticImpl counter) {
+      assertTrue("Should not have start time the same as last sample time. Start time: " + counter.getStartTime() + " lastTime: " + counter.getLastSampleTime(), counter.getStartTime() != counter.getLastSampleTime());
+   }
 }

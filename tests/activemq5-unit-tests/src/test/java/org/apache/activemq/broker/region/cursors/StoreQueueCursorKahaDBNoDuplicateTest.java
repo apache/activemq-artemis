@@ -26,15 +26,15 @@ import org.apache.activemq.store.kahadb.KahaDBStore;
 /**
  * @author gtully
  * @see https://issues.apache.org/activemq/browse/AMQ-2020
- **/
+ */
 public class StoreQueueCursorKahaDBNoDuplicateTest extends StoreQueueCursorNoDuplicateTest {
 
-    @Override
-    protected BrokerService createBroker() throws Exception {
-        BrokerService broker = super.createBroker();
-        PersistenceAdapter persistenceAdapter = new KahaDBStore();
-        persistenceAdapter.setDirectory(new File("target/activemq-data/kahadb"));      
-        broker.setPersistenceAdapter(persistenceAdapter);
-        return broker;
-    }
+   @Override
+   protected BrokerService createBroker() throws Exception {
+      BrokerService broker = super.createBroker();
+      PersistenceAdapter persistenceAdapter = new KahaDBStore();
+      persistenceAdapter.setDirectory(new File("target/activemq-data/kahadb"));
+      broker.setPersistenceAdapter(persistenceAdapter);
+      return broker;
+   }
 }

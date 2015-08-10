@@ -30,25 +30,25 @@ import org.junit.Test;
  */
 public class TempQueueDeleteOnCloseTest {
 
-    @Test
-    public void test() throws Exception {
-        ConnectionFactory connectionFactory = new ActiveMQConnectionFactory("vm://localhost");
+   @Test
+   public void test() throws Exception {
+      ConnectionFactory connectionFactory = new ActiveMQConnectionFactory("vm://localhost");
 
-        // create a connection and session with a temporary queue
-        Connection connectionA = connectionFactory.createConnection();
-        connectionA.setClientID("ConnectionA");
-        Session sessionA = connectionA.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        Destination tempQueueA = sessionA.createTemporaryQueue();
-        MessageConsumer consumer = sessionA.createConsumer(tempQueueA);
-        connectionA.start();
+      // create a connection and session with a temporary queue
+      Connection connectionA = connectionFactory.createConnection();
+      connectionA.setClientID("ConnectionA");
+      Session sessionA = connectionA.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      Destination tempQueueA = sessionA.createTemporaryQueue();
+      MessageConsumer consumer = sessionA.createConsumer(tempQueueA);
+      connectionA.start();
 
-        // start and stop another connection
-        Connection connectionB = connectionFactory.createConnection();
-        connectionB.setClientID("ConnectionB");
-        connectionB.start();
-        connectionB.close();
+      // start and stop another connection
+      Connection connectionB = connectionFactory.createConnection();
+      connectionB.setClientID("ConnectionB");
+      connectionB.start();
+      connectionB.close();
 
-        consumer.close();
-        connectionA.close();
-    }
+      consumer.close();
+      connectionA.close();
+   }
 }

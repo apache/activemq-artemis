@@ -22,48 +22,50 @@ import javax.jms.Session;
 import junit.framework.TestCase;
 
 /**
- * 
+ *
  */
 public class ConnectionCleanupTest extends TestCase {
 
-    private ActiveMQConnection connection;
+   private ActiveMQConnection connection;
 
-    protected void setUp() throws Exception {
-        ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("vm://localhost");
-        connection = (ActiveMQConnection)factory.createConnection();
-    }
+   protected void setUp() throws Exception {
+      ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("vm://localhost");
+      connection = (ActiveMQConnection) factory.createConnection();
+   }
 
-    /**
-     * @see junit.framework.TestCase#tearDown()
-     */
-    protected void tearDown() throws Exception {
-        connection.close();
-    }
+   /**
+    * @see junit.framework.TestCase#tearDown()
+    */
+   protected void tearDown() throws Exception {
+      connection.close();
+   }
 
-    /**
-     * @throws JMSException
-     */
-    public void testChangeClientID() throws JMSException {
+   /**
+    * @throws JMSException
+    */
+   public void testChangeClientID() throws JMSException {
 
-        connection.setClientID("test");
-        connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      connection.setClientID("test");
+      connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-        try {
-            connection.setClientID("test");
-            // fail("Should have received JMSException");
-        } catch (JMSException e) {
-        }
+      try {
+         connection.setClientID("test");
+         // fail("Should have received JMSException");
+      }
+      catch (JMSException e) {
+      }
 
-        connection.cleanup();
-        connection.setClientID("test");
+      connection.cleanup();
+      connection.setClientID("test");
 
-        connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-        try {
-            connection.setClientID("test");
-            // fail("Should have received JMSException");
-        } catch (JMSException e) {
-        }
-    }
+      try {
+         connection.setClientID("test");
+         // fail("Should have received JMSException");
+      }
+      catch (JMSException e) {
+      }
+   }
 
 }

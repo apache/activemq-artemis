@@ -26,34 +26,34 @@ import org.apache.activemq.command.SessionId;
 
 public class ConcurrentConnectSimulationTest extends BrokerTestSupport {
 
-    /*
-     * simulate failover and retry of connection before broker has killed connection
-     * which appears as a concurrent connect request to the broker
-     * see: https://issues.apache.org/activemq/browse/AMQ-2241
-     */
-    public void testConcurrentConnection() throws Exception {
+   /*
+    * simulate failover and retry of connection before broker has killed connection
+    * which appears as a concurrent connect request to the broker
+    * see: https://issues.apache.org/activemq/browse/AMQ-2241
+    */
+   public void testConcurrentConnection() throws Exception {
 
-        StubConnection connection1 = createConnection();
-        StubConnection connection2 = createConnection();
-        
-        // reuse same connection info
-        ConnectionInfo connectionInfo = createConnectionInfo();       
-        connection1.request(connectionInfo);
-        connection2.request(connectionInfo);
-        
-        // second one should win out, verify using consumer on default session (watchAdvisories)
-        ConsumerId consumerId = new ConsumerId(new SessionId(connectionInfo.getConnectionId(), -1), 1);
-        ConsumerInfo consumerInfo = new ConsumerInfo(consumerId);
-        consumerInfo.setDestination(AdvisorySupport.TEMP_DESTINATION_COMPOSITE_ADVISORY_TOPIC);
+      StubConnection connection1 = createConnection();
+      StubConnection connection2 = createConnection();
 
-        connection2.request(consumerInfo);
-    }
-    
-    public static Test suite() {
-        return suite(ConcurrentConnectSimulationTest.class);
-    }
+      // reuse same connection info
+      ConnectionInfo connectionInfo = createConnectionInfo();
+      connection1.request(connectionInfo);
+      connection2.request(connectionInfo);
 
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(suite());
-    }
+      // second one should win out, verify using consumer on default session (watchAdvisories)
+      ConsumerId consumerId = new ConsumerId(new SessionId(connectionInfo.getConnectionId(), -1), 1);
+      ConsumerInfo consumerInfo = new ConsumerInfo(consumerId);
+      consumerInfo.setDestination(AdvisorySupport.TEMP_DESTINATION_COMPOSITE_ADVISORY_TOPIC);
+
+      connection2.request(consumerInfo);
+   }
+
+   public static Test suite() {
+      return suite(ConcurrentConnectSimulationTest.class);
+   }
+
+   public static void main(String[] args) {
+      junit.textui.TestRunner.run(suite());
+   }
 }

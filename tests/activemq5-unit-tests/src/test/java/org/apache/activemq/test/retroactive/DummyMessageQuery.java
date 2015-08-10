@@ -27,24 +27,23 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * 
+ *
  */
 public class DummyMessageQuery implements MessageQuery {
-    
-    public static final int MESSAGE_COUNT = 10;
-    private static final Logger LOG = LoggerFactory.getLogger(DummyMessageQuery.class);
 
-    
-    public void execute(ActiveMQDestination destination, MessageListener listener) throws Exception {
-        LOG.info("Initial query is creating: " + MESSAGE_COUNT + " messages");
-        for (int i = 0; i < MESSAGE_COUNT; i++) {
-            ActiveMQTextMessage message = new ActiveMQTextMessage();
-            message.setText("Initial message: " + i + " loaded from query");
-            listener.onMessage(message);
-        }
-    }
+   public static final int MESSAGE_COUNT = 10;
+   private static final Logger LOG = LoggerFactory.getLogger(DummyMessageQuery.class);
 
-    public boolean validateUpdate(Message message) {
-        return true;
-    }
+   public void execute(ActiveMQDestination destination, MessageListener listener) throws Exception {
+      LOG.info("Initial query is creating: " + MESSAGE_COUNT + " messages");
+      for (int i = 0; i < MESSAGE_COUNT; i++) {
+         ActiveMQTextMessage message = new ActiveMQTextMessage();
+         message.setText("Initial message: " + i + " loaded from query");
+         listener.onMessage(message);
+      }
+   }
+
+   public boolean validateUpdate(Message message) {
+      return true;
+   }
 }

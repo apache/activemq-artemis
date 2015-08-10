@@ -33,19 +33,17 @@ import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
  *
  * For more information please see the readme.html
  */
-public class TopicHierarchyExample
-{
-   public static void main(final String[] args) throws Exception
-   {
+public class TopicHierarchyExample {
+
+   public static void main(final String[] args) throws Exception {
       Connection connection = null;
       InitialContext initialContext = null;
-      try
-      {
+      try {
          // Step 1. Create an initial context to perform the JNDI lookup.
          initialContext = new InitialContext();
 
          // Step 3. Perform a lookup on the Connection Factory
-         ConnectionFactory cf = (ConnectionFactory)initialContext.lookup("ConnectionFactory");
+         ConnectionFactory cf = (ConnectionFactory) initialContext.lookup("ConnectionFactory");
 
          // Step 4. Create a JMS Connection
          connection = cf.createConnection();
@@ -94,32 +92,28 @@ public class TopicHierarchyExample
          // that doesn't match news.usa.wrestling. However we do receive the Europe sport message, and the
          // europe entertainment message, since these match the wildcard.
 
-         TextMessage messageReceived1 = (TextMessage)messageConsumer.receive(5000);
+         TextMessage messageReceived1 = (TextMessage) messageConsumer.receive(5000);
 
          System.out.println("Received message: " + messageReceived1.getText());
 
-         TextMessage messageReceived2 = (TextMessage)messageConsumer.receive(5000);
+         TextMessage messageReceived2 = (TextMessage) messageConsumer.receive(5000);
 
          System.out.println("Received message: " + messageReceived2.getText());
 
          Message message = messageConsumer.receive(1000);
 
-         if (message != null)
-         {
+         if (message != null) {
             throw new IllegalStateException("Message was not null.");
          }
 
          System.out.println("Didn't received any more message: " + message);
       }
-      finally
-      {
+      finally {
          // Step 12. Be sure to close our resources!
-         if (initialContext != null)
-         {
+         if (initialContext != null) {
             initialContext.close();
          }
-         if (connection != null)
-         {
+         if (connection != null) {
             connection.close();
          }
       }

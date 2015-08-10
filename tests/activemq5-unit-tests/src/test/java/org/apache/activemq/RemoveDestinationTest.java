@@ -45,121 +45,121 @@ import org.junit.Test;
 
 public class RemoveDestinationTest {
 
-    private static final String VM_BROKER_URL = "vm://localhost?create=false";
-    private static final String BROKER_URL = "broker:vm://localhost?broker.persistent=false&broker.useJmx=true";
+   private static final String VM_BROKER_URL = "vm://localhost?create=false";
+   private static final String BROKER_URL = "broker:vm://localhost?broker.persistent=false&broker.useJmx=true";
 
-    BrokerService broker;
+   BrokerService broker;
 
-    @Before
-    public void setUp() throws Exception {
-        broker = BrokerFactory.createBroker(new URI(BROKER_URL));
-        broker.start();
-        broker.waitUntilStarted();
-    }
+   @Before
+   public void setUp() throws Exception {
+      broker = BrokerFactory.createBroker(new URI(BROKER_URL));
+      broker.start();
+      broker.waitUntilStarted();
+   }
 
-    @After
-    public void tearDown() throws Exception {
-        broker.stop();
-        broker.waitUntilStopped();
-        broker = null;
-    }
+   @After
+   public void tearDown() throws Exception {
+      broker.stop();
+      broker.waitUntilStopped();
+      broker = null;
+   }
 
-    private Connection createConnection(final boolean start) throws JMSException {
-        ConnectionFactory cf = new ActiveMQConnectionFactory(VM_BROKER_URL);
-        Connection conn = cf.createConnection();
-        if (start) {
-            conn.start();
-        }
-        return conn;
-    }
+   private Connection createConnection(final boolean start) throws JMSException {
+      ConnectionFactory cf = new ActiveMQConnectionFactory(VM_BROKER_URL);
+      Connection conn = cf.createConnection();
+      if (start) {
+         conn.start();
+      }
+      return conn;
+   }
 
-    @Test
-    public void testRemoveDestinationWithoutSubscriber() throws Exception {
+   @Test
+   public void testRemoveDestinationWithoutSubscriber() throws Exception {
 
-        ActiveMQConnection amqConnection = (ActiveMQConnection) createConnection(true);
-        DestinationSource destinationSource = amqConnection.getDestinationSource();
-        Session session = amqConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        Topic topic = session.createTopic("TEST.FOO");
-        MessageProducer producer = session.createProducer(topic);
-        MessageConsumer consumer = session.createConsumer(topic);
+      ActiveMQConnection amqConnection = (ActiveMQConnection) createConnection(true);
+      DestinationSource destinationSource = amqConnection.getDestinationSource();
+      Session session = amqConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      Topic topic = session.createTopic("TEST.FOO");
+      MessageProducer producer = session.createProducer(topic);
+      MessageConsumer consumer = session.createConsumer(topic);
 
-        TextMessage msg = session.createTextMessage("Hellow World");
-        producer.send(msg);
-        assertNotNull(consumer.receive(5000));
-        Thread.sleep(1000);
+      TextMessage msg = session.createTextMessage("Hellow World");
+      producer.send(msg);
+      assertNotNull(consumer.receive(5000));
+      Thread.sleep(1000);
 
-        ActiveMQTopic amqTopic = (ActiveMQTopic) topic;
-        assertTrue(destinationSource.getTopics().contains(amqTopic));
+      ActiveMQTopic amqTopic = (ActiveMQTopic) topic;
+      assertTrue(destinationSource.getTopics().contains(amqTopic));
 
-        consumer.close();
-        producer.close();
-        session.close();
+      consumer.close();
+      producer.close();
+      session.close();
 
-        Thread.sleep(3000);
-        amqConnection.destroyDestination((ActiveMQDestination) topic);
-        Thread.sleep(3000);
-        assertFalse(destinationSource.getTopics().contains(amqTopic));
-    }
+      Thread.sleep(3000);
+      amqConnection.destroyDestination((ActiveMQDestination) topic);
+      Thread.sleep(3000);
+      assertFalse(destinationSource.getTopics().contains(amqTopic));
+   }
 
-    @Test
-    public void testRemoveDestinationWithSubscriber() throws Exception {
-        ActiveMQConnection amqConnection = (ActiveMQConnection) createConnection(true);
-        DestinationSource destinationSource = amqConnection.getDestinationSource();
+   @Test
+   public void testRemoveDestinationWithSubscriber() throws Exception {
+      ActiveMQConnection amqConnection = (ActiveMQConnection) createConnection(true);
+      DestinationSource destinationSource = amqConnection.getDestinationSource();
 
-        Session session = amqConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        Topic topic = session.createTopic("TEST.FOO");
-        MessageProducer producer = session.createProducer(topic);
-        MessageConsumer consumer = session.createConsumer(topic);
+      Session session = amqConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      Topic topic = session.createTopic("TEST.FOO");
+      MessageProducer producer = session.createProducer(topic);
+      MessageConsumer consumer = session.createConsumer(topic);
 
-        TextMessage msg = session.createTextMessage("Hellow World");
-        producer.send(msg);
-        assertNotNull(consumer.receive(5000));
-        Thread.sleep(1000);
+      TextMessage msg = session.createTextMessage("Hellow World");
+      producer.send(msg);
+      assertNotNull(consumer.receive(5000));
+      Thread.sleep(1000);
 
-        ActiveMQTopic amqTopic = (ActiveMQTopic) topic;
+      ActiveMQTopic amqTopic = (ActiveMQTopic) topic;
 
-        assertTrue(destinationPresentInAdminView(broker, amqTopic));
-        assertTrue(destinationSource.getTopics().contains(amqTopic));
+      assertTrue(destinationPresentInAdminView(broker, amqTopic));
+      assertTrue(destinationSource.getTopics().contains(amqTopic));
 
-        // This line generates a broker error since the consumer is still active.
-        try {
-            amqConnection.destroyDestination((ActiveMQDestination) topic);
-            fail("expect exception on destroy if comsumer present");
-        } catch (JMSException expected) {
-            assertTrue(expected.getMessage().indexOf(amqTopic.getTopicName()) != -1);
-        }
+      // This line generates a broker error since the consumer is still active.
+      try {
+         amqConnection.destroyDestination((ActiveMQDestination) topic);
+         fail("expect exception on destroy if comsumer present");
+      }
+      catch (JMSException expected) {
+         assertTrue(expected.getMessage().indexOf(amqTopic.getTopicName()) != -1);
+      }
 
-        Thread.sleep(3000);
+      Thread.sleep(3000);
 
-        assertTrue(destinationSource.getTopics().contains(amqTopic));
-        assertTrue(destinationPresentInAdminView(broker, amqTopic));
+      assertTrue(destinationSource.getTopics().contains(amqTopic));
+      assertTrue(destinationPresentInAdminView(broker, amqTopic));
 
-        consumer.close();
-        producer.close();
-        session.close();
+      consumer.close();
+      producer.close();
+      session.close();
 
-        Thread.sleep(3000);
+      Thread.sleep(3000);
 
-        // The destination will not be removed with this call, but if you remove
-        // the call above that generates the error it will.
-        amqConnection.destroyDestination(amqTopic);
-        Thread.sleep(3000);
-        assertFalse(destinationSource.getTopics().contains(amqTopic));
-        assertFalse(destinationPresentInAdminView(broker, amqTopic));
-    }
+      // The destination will not be removed with this call, but if you remove
+      // the call above that generates the error it will.
+      amqConnection.destroyDestination(amqTopic);
+      Thread.sleep(3000);
+      assertFalse(destinationSource.getTopics().contains(amqTopic));
+      assertFalse(destinationPresentInAdminView(broker, amqTopic));
+   }
 
-    private boolean destinationPresentInAdminView(BrokerService broker2, ActiveMQTopic amqTopic) throws Exception {
-        boolean found = false;
-        for (ObjectName name : broker.getAdminView().getTopics()) {
+   private boolean destinationPresentInAdminView(BrokerService broker2, ActiveMQTopic amqTopic) throws Exception {
+      boolean found = false;
+      for (ObjectName name : broker.getAdminView().getTopics()) {
 
-            DestinationViewMBean proxy = (DestinationViewMBean)
-                broker.getManagementContext().newProxyInstance(name, DestinationViewMBean.class, true);
+         DestinationViewMBean proxy = (DestinationViewMBean) broker.getManagementContext().newProxyInstance(name, DestinationViewMBean.class, true);
 
-            if (proxy.getName().equals(amqTopic.getPhysicalName())) {
-                found = true;
-                break;
-            }
-        }
-        return found;
-    }
+         if (proxy.getName().equals(amqTopic.getPhysicalName())) {
+            found = true;
+            break;
+         }
+      }
+      return found;
+   }
 }

@@ -29,17 +29,15 @@ import javax.jms.Session;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- *
  * A ConcurrentSessionCloseTest
  */
-public class ConcurrentSessionCloseTest extends JMSTestBase
-{
+public class ConcurrentSessionCloseTest extends JMSTestBase {
+
    private ActiveMQConnectionFactory cf;
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       cf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration(INVM_CONNECTOR_FACTORY));
@@ -47,12 +45,10 @@ public class ConcurrentSessionCloseTest extends JMSTestBase
 
    // https://jira.jboss.org/browse/HORNETQ-525
    @Test
-   public void testConcurrentClose() throws Exception
-   {
+   public void testConcurrentClose() throws Exception {
       final Connection con = cf.createConnection();
 
-      for (int j = 0; j < 100; j++)
-      {
+      for (int j = 0; j < 100; j++) {
          final AtomicBoolean failed = new AtomicBoolean(false);
 
          int threadCount = 10;
@@ -61,23 +57,18 @@ public class ConcurrentSessionCloseTest extends JMSTestBase
 
          Thread[] threads = new Thread[threadCount];
 
-         for (int i = 0; i < threadCount; i++)
-         {
-            threads[i] = new Thread(group, "thread " + i)
-            {
+         for (int i = 0; i < threadCount; i++) {
+            threads[i] = new Thread(group, "thread " + i) {
                @Override
-               public void run()
-               {
-                  try
-                  {
+               public void run() {
+                  try {
                      con.start();
 
                      Session session = con.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
                      session.close();
                   }
-                  catch (Exception e)
-                  {
+                  catch (Exception e) {
                      e.printStackTrace();
 
                      failed.set(true);
@@ -88,8 +79,7 @@ public class ConcurrentSessionCloseTest extends JMSTestBase
             threads[i].start();
          }
 
-         for (int i = 0; i < threadCount; i++)
-         {
+         for (int i = 0; i < threadCount; i++) {
             threads[i].join();
          }
 

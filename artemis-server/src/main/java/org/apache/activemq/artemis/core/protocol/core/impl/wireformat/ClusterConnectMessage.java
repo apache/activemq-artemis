@@ -19,46 +19,38 @@ package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 
-public class ClusterConnectMessage extends PacketImpl
-{
+public class ClusterConnectMessage extends PacketImpl {
+
    private String clusterUser;
    private String clusterPassword;
 
-   public ClusterConnectMessage()
-   {
+   public ClusterConnectMessage() {
       super(CLUSTER_CONNECT);
    }
 
-   public ClusterConnectMessage(String clusterUser, String clusterPassword)
-   {
+   public ClusterConnectMessage(String clusterUser, String clusterPassword) {
       super(CLUSTER_CONNECT);
       this.clusterUser = clusterUser;
       this.clusterPassword = clusterPassword;
    }
 
    @Override
-   public void encodeRest(final ActiveMQBuffer buffer)
-   {
+   public void encodeRest(final ActiveMQBuffer buffer) {
       buffer.writeString(clusterUser);
       buffer.writeString(clusterPassword);
    }
 
    @Override
-   public void decodeRest(final ActiveMQBuffer buffer)
-   {
+   public void decodeRest(final ActiveMQBuffer buffer) {
       clusterUser = buffer.readString();
       clusterPassword = buffer.readString();
    }
 
-
-
-   public String getClusterUser()
-   {
+   public String getClusterUser() {
       return clusterUser;
    }
 
-   public String getClusterPassword()
-   {
+   public String getClusterPassword() {
       return clusterPassword;
    }
 }

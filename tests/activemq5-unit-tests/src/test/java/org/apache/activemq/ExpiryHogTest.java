@@ -20,6 +20,7 @@ import java.util.concurrent.TimeUnit;
 import javax.jms.ConnectionFactory;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+
 import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.broker.region.policy.PolicyEntry;
 import org.apache.activemq.broker.region.policy.PolicyMap;
@@ -33,47 +34,48 @@ import org.junit.runners.BlockJUnit4ClassRunner;
  */
 @RunWith(BlockJUnit4ClassRunner.class)
 public class ExpiryHogTest extends JmsMultipleClientsTestSupport {
-    boolean sleep = false;
 
-    int numMessages = 4;
+   boolean sleep = false;
 
-    @Test(timeout = 2 * 60 * 1000)
-    public void testImmediateDispatchWhenCacheDisabled() throws Exception {
-        ConnectionFactory f = createConnectionFactory();
-        destination = createDestination();
-        startConsumers(f, destination);
-        sleep = true;
-        this.startProducers(f, destination, numMessages);
-        allMessagesList.assertMessagesReceived(numMessages);
-    }
+   int numMessages = 4;
 
-    protected BrokerService createBroker() throws Exception {
-        BrokerService bs = new BrokerService();
-        bs.setDeleteAllMessagesOnStartup(true);
-        PolicyMap policyMap = new PolicyMap();
-        PolicyEntry defaultEntry = new PolicyEntry();
-        defaultEntry.setExpireMessagesPeriod(5000);
-        defaultEntry.setUseCache(false);
-        policyMap.setDefaultEntry(defaultEntry);
-        bs.setDestinationPolicy(policyMap);
+   @Test(timeout = 2 * 60 * 1000)
+   public void testImmediateDispatchWhenCacheDisabled() throws Exception {
+      ConnectionFactory f = createConnectionFactory();
+      destination = createDestination();
+      startConsumers(f, destination);
+      sleep = true;
+      this.startProducers(f, destination, numMessages);
+      allMessagesList.assertMessagesReceived(numMessages);
+   }
 
-        return bs;
-    }
+   protected BrokerService createBroker() throws Exception {
+      BrokerService bs = new BrokerService();
+      bs.setDeleteAllMessagesOnStartup(true);
+      PolicyMap policyMap = new PolicyMap();
+      PolicyEntry defaultEntry = new PolicyEntry();
+      defaultEntry.setExpireMessagesPeriod(5000);
+      defaultEntry.setUseCache(false);
+      policyMap.setDefaultEntry(defaultEntry);
+      bs.setDestinationPolicy(policyMap);
 
-    protected TextMessage createTextMessage(Session session, String initText) throws Exception {
-        if (sleep) {
-            TimeUnit.SECONDS.sleep(10);
-        }
-        TextMessage msg = super.createTextMessage(session, initText);
-        msg.setJMSExpiration(4000);
-        return msg;
-    }
+      return bs;
+   }
 
-    @Override
-    @Before
-    public void setUp() throws Exception {
-        autoFail = false;
-        persistent = true;
-        super.setUp();
-    }
+   protected TextMessage createTextMessage(Session session, String initText) throws Exception {
+      if (sleep) {
+         TimeUnit.SECONDS.sleep(10);
+      }
+      TextMessage msg = super.createTextMessage(session, initText);
+      msg.setJMSExpiration(4000);
+      return msg;
+   }
+
+   @Override
+   @Before
+   public void setUp() throws Exception {
+      autoFail = false;
+      persistent = true;
+      super.setUp();
+   }
 }

@@ -36,13 +36,12 @@ import org.apache.activemq.artemis.spi.core.remoting.ConnectionLifeCycleListener
 import org.apache.activemq.artemis.utils.ConfigurationHelper;
 import org.apache.activemq.artemis.utils.OrderedExecutorFactory;
 
-public class InVMConnector extends AbstractConnector
-{
+public class InVMConnector extends AbstractConnector {
+
    public static final Map<String, Object> DEFAULT_CONFIG;
 
-   static
-   {
-      Map<String, Object> config = new HashMap<String , Object>();
+   static {
+      Map<String, Object> config = new HashMap<String, Object>();
       config.put(TransportConstants.SERVER_ID_PROP_NAME, TransportConstants.DEFAULT_SERVER_ID);
       DEFAULT_CONFIG = Collections.unmodifiableMap(config);
    }
@@ -54,18 +53,15 @@ public class InVMConnector extends AbstractConnector
 
    private static volatile int failures;
 
-   public static synchronized void resetFailures()
-   {
+   public static synchronized void resetFailures() {
       InVMConnector.failures = 0;
       InVMConnector.failOnCreateConnection = false;
       InVMConnector.numberOfFailures = -1;
    }
 
-   private static synchronized void incFailures()
-   {
+   private static synchronized void incFailures() {
       InVMConnector.failures++;
-      if (InVMConnector.failures == InVMConnector.numberOfFailures)
-      {
+      if (InVMConnector.failures == InVMConnector.numberOfFailures) {
          InVMConnector.resetFailures();
       }
    }
@@ -93,8 +89,7 @@ public class InVMConnector extends AbstractConnector
                         final ConnectionLifeCycleListener listener,
                         final Executor closeExecutor,
                         final Executor threadPool,
-                        ClientProtocolManager protocolManager)
-   {
+                        ClientProtocolManager protocolManager) {
       super(configuration);
       this.listener = listener;
 
@@ -113,35 +108,28 @@ public class InVMConnector extends AbstractConnector
       this.protocolManager = protocolManager;
    }
 
-   public Acceptor getAcceptor()
-   {
+   public Acceptor getAcceptor() {
       return acceptor;
    }
 
-   public synchronized void close()
-   {
-      if (!started)
-      {
+   public synchronized void close() {
+      if (!started) {
          return;
       }
 
-      for (Connection connection : connections.values())
-      {
+      for (Connection connection : connections.values()) {
          listener.connectionDestroyed(connection.getID());
       }
 
       started = false;
    }
 
-   public boolean isStarted()
-   {
+   public boolean isStarted() {
       return started;
    }
 
-   public Connection createConnection()
-   {
-      if (InVMConnector.failOnCreateConnection)
-      {
+   public Connection createConnection() {
+      if (InVMConnector.failOnCreateConnection) {
          InVMConnector.incFailures();
 
          ActiveMQServerLogger.LOGGER.debug("Returning null on InVMConnector for tests");
@@ -149,49 +137,40 @@ public class InVMConnector extends AbstractConnector
          return null;
       }
 
-      if (acceptor == null)
-      {
+      if (acceptor == null) {
          return null;
       }
 
-      if (acceptor.getConnectionsAllowed() == -1 || acceptor.getConnectionCount() < acceptor.getConnectionsAllowed())
-      {
+      if (acceptor.getConnectionsAllowed() == -1 || acceptor.getConnectionCount() < acceptor.getConnectionsAllowed()) {
          Connection conn = internalCreateConnection(acceptor.getHandler(), new Listener(), acceptor.getExecutorFactory().getExecutor());
 
          acceptor.connect((String) conn.getID(), handler, this, executorFactory.getExecutor());
          return conn;
       }
-      else
-      {
-         if (ActiveMQServerLogger.LOGGER.isDebugEnabled())
-         {
+      else {
+         if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
             ActiveMQServerLogger.LOGGER.debug(new StringBuilder().append("Connection limit of ").append(acceptor.getConnectionsAllowed()).append(" reached. Refusing connection."));
          }
          return null;
       }
    }
 
-   public synchronized void start()
-   {
+   public synchronized void start() {
       started = true;
    }
 
-   public BufferHandler getHandler()
-   {
+   public BufferHandler getHandler() {
       return handler;
    }
 
-   public void disconnect(final String connectionID)
-   {
-      if (!started)
-      {
+   public void disconnect(final String connectionID) {
+      if (!started) {
          return;
       }
 
       Connection conn = connections.get(connectionID);
 
-      if (conn != null)
-      {
+      if (conn != null) {
          conn.close();
       }
    }
@@ -199,66 +178,54 @@ public class InVMConnector extends AbstractConnector
    // This may be an injection point for mocks on tests
    protected Connection internalCreateConnection(final BufferHandler handler,
                                                  final ConnectionLifeCycleListener listener,
-                                                 final Executor serverExecutor)
-   {
+                                                 final Executor serverExecutor) {
       // No acceptor on a client connection
       InVMConnection inVMConnection = new InVMConnection(id, handler, listener, serverExecutor);
       listener.connectionCreated(null, inVMConnection, protocolManager.getName());
       return inVMConnection;
    }
 
-   public boolean isEquivalent(Map<String, Object> configuration)
-   {
-      int serverId = ConfigurationHelper.getIntProperty(TransportConstants.SERVER_ID_PROP_NAME,
-                                            0,
-                                            configuration);
+   public boolean isEquivalent(Map<String, Object> configuration) {
+      int serverId = ConfigurationHelper.getIntProperty(TransportConstants.SERVER_ID_PROP_NAME, 0, configuration);
       return id == serverId;
    }
 
-   private class Listener implements ConnectionLifeCycleListener
-   {
-      public void connectionCreated(final ActiveMQComponent component, final Connection connection, final String protocol)
-      {
-         if (connections.putIfAbsent((String)connection.getID(), connection) != null)
-         {
+   private class Listener implements ConnectionLifeCycleListener {
+
+      public void connectionCreated(final ActiveMQComponent component,
+                                    final Connection connection,
+                                    final String protocol) {
+         if (connections.putIfAbsent((String) connection.getID(), connection) != null) {
             throw ActiveMQMessageBundle.BUNDLE.connectionExists(connection.getID());
          }
 
          listener.connectionCreated(component, connection, protocol);
       }
 
-      public void connectionDestroyed(final Object connectionID)
-      {
-         if (connections.remove(connectionID) != null)
-         {
+      public void connectionDestroyed(final Object connectionID) {
+         if (connections.remove(connectionID) != null) {
             // Close the corresponding connection on the other side
-            acceptor.disconnect((String)connectionID);
+            acceptor.disconnect((String) connectionID);
 
             // Execute on different thread to avoid deadlocks
-            closeExecutor.execute(new Runnable()
-            {
-               public void run()
-               {
+            closeExecutor.execute(new Runnable() {
+               public void run() {
                   listener.connectionDestroyed(connectionID);
                }
             });
          }
       }
 
-      public void connectionException(final Object connectionID, final ActiveMQException me)
-      {
+      public void connectionException(final Object connectionID, final ActiveMQException me) {
          // Execute on different thread to avoid deadlocks
-         closeExecutor.execute(new Runnable()
-         {
-            public void run()
-            {
+         closeExecutor.execute(new Runnable() {
+            public void run() {
                listener.connectionException(connectionID, me);
             }
          });
       }
 
-      public void connectionReadyForWrites(Object connectionID, boolean ready)
-      {
+      public void connectionReadyForWrites(Object connectionID, boolean ready) {
       }
    }
 

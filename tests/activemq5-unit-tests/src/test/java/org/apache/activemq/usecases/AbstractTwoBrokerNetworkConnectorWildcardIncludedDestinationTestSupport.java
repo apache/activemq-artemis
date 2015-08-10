@@ -34,114 +34,121 @@ import org.apache.activemq.util.MessageIdList;
 
 public abstract class AbstractTwoBrokerNetworkConnectorWildcardIncludedDestinationTestSupport extends JmsMultipleBrokersTestSupport {
 
-    protected static final int MESSAGE_COUNT = 1;
-    boolean dynamicOnly = true;
-    int networkTTL = 1;
-    boolean conduit = true;
-    boolean suppressDuplicateQueueSubscriptions = true;
-    boolean decreaseNetworkConsumerPriority = true;
+   protected static final int MESSAGE_COUNT = 1;
+   boolean dynamicOnly = true;
+   int networkTTL = 1;
+   boolean conduit = true;
+   boolean suppressDuplicateQueueSubscriptions = true;
+   boolean decreaseNetworkConsumerPriority = true;
 
-    /**
-     * simple nwob
-     */
-    public void testSimpleNWOB() throws Exception {
+   /**
+    * simple nwob
+    */
+   public void testSimpleNWOB() throws Exception {
 
-        sendReceive("BrokerA", "local.test",  false, "BrokerB", "local.test",  false, 1, 0);
-        sendReceive("BrokerA", "local.test",  true,  "BrokerB", "local.test",  true,  1, 0);
-        sendReceive("BrokerA", "global.test", false, "BrokerB", "global.test", false, 1, 1);
-        sendReceive("BrokerA", "global.test", true,  "BrokerB", "global.test", true,  1, 1);
+      sendReceive("BrokerA", "local.test", false, "BrokerB", "local.test", false, 1, 0);
+      sendReceive("BrokerA", "local.test", true, "BrokerB", "local.test", true, 1, 0);
+      sendReceive("BrokerA", "global.test", false, "BrokerB", "global.test", false, 1, 1);
+      sendReceive("BrokerA", "global.test", true, "BrokerB", "global.test", true, 1, 1);
 
-    }
+   }
 
-    /**
-     * nwob with wild-card subscriptions
-     */
-    public void testSimpleNWOBWithWildcardSubscriptions() throws Exception {
+   /**
+    * nwob with wild-card subscriptions
+    */
+   public void testSimpleNWOBWithWildcardSubscriptions() throws Exception {
 
-        sendReceive("BrokerA", "local.test.1", false, "BrokerB", "local.test.>", false, 1, 0);
-        sendReceive("BrokerA", "local.test.2", true, "BrokerB", "local.test.>", true, 1, 0);
-        sendReceive("BrokerA", "global.test.1", false, "BrokerB", "global.test.>", false, 1, 1);
-        sendReceive("BrokerA", "global.test.2", true, "BrokerB", "global.test.>", true, 1, 1);
+      sendReceive("BrokerA", "local.test.1", false, "BrokerB", "local.test.>", false, 1, 0);
+      sendReceive("BrokerA", "local.test.2", true, "BrokerB", "local.test.>", true, 1, 0);
+      sendReceive("BrokerA", "global.test.1", false, "BrokerB", "global.test.>", false, 1, 1);
+      sendReceive("BrokerA", "global.test.2", true, "BrokerB", "global.test.>", true, 1, 1);
 
-    }
+   }
 
-    /**
-     * nwob with virtual destinations
-     */
-    public void testSimpleNWOBWithVirtualDestinations() throws Exception {
+   /**
+    * nwob with virtual destinations
+    */
+   public void testSimpleNWOBWithVirtualDestinations() throws Exception {
 
-        sendReceive("BrokerA", "local.test",  true, "BrokerB", "Consumer.a.local.test",  false, 1, 0);
-        sendReceive("BrokerA", "global.test", true, "BrokerB", "Consumer.a.global.test", false, 1, 1);
+      sendReceive("BrokerA", "local.test", true, "BrokerB", "Consumer.a.local.test", false, 1, 0);
+      sendReceive("BrokerA", "global.test", true, "BrokerB", "Consumer.a.global.test", false, 1, 1);
 
-    }
+   }
 
-    /**
-     * nwob with virtual destinations and wild-card subscriptions
-     */
-    public void testSimpleNWOBWithVirtualDestinationsAndWildcardSubscriptions() throws Exception {
+   /**
+    * nwob with virtual destinations and wild-card subscriptions
+    */
+   public void testSimpleNWOBWithVirtualDestinationsAndWildcardSubscriptions() throws Exception {
 
-        sendReceive("BrokerA", "local.test.1",  true, "BrokerB", "Consumer.a.local.test.>",  false, 1, 0);
-        sendReceive("BrokerA", "global.test.1", true, "BrokerB", "Consumer.a.global.test.>", false, 1, 1);
+      sendReceive("BrokerA", "local.test.1", true, "BrokerB", "Consumer.a.local.test.>", false, 1, 0);
+      sendReceive("BrokerA", "global.test.1", true, "BrokerB", "Consumer.a.global.test.>", false, 1, 1);
 
-    }
+   }
 
-    public void sendReceive(String broker1, String dest1, boolean topic1, String broker2, String dest2, boolean topic2, int send, int expected) throws Exception{
-        MessageConsumer client = createConsumer(broker2, createDestination(dest2, topic2));
-        Thread.sleep(2000);
-        sendMessages(broker1, createDestination(dest1, topic1), send);
-        MessageIdList msgs = getConsumerMessages(broker2, client);
-        msgs.setMaximumDuration(10000);
-        msgs.waitForMessagesToArrive(send);
-        assertEquals(expected, msgs.getMessageCount());
-        client.close();
-        Thread.sleep(1000);
-    }
+   public void sendReceive(String broker1,
+                           String dest1,
+                           boolean topic1,
+                           String broker2,
+                           String dest2,
+                           boolean topic2,
+                           int send,
+                           int expected) throws Exception {
+      MessageConsumer client = createConsumer(broker2, createDestination(dest2, topic2));
+      Thread.sleep(2000);
+      sendMessages(broker1, createDestination(dest1, topic1), send);
+      MessageIdList msgs = getConsumerMessages(broker2, client);
+      msgs.setMaximumDuration(10000);
+      msgs.waitForMessagesToArrive(send);
+      assertEquals(expected, msgs.getMessageCount());
+      client.close();
+      Thread.sleep(1000);
+   }
 
-    protected abstract void addIncludedDestination(NetworkConnector networkConnector);
+   protected abstract void addIncludedDestination(NetworkConnector networkConnector);
 
-    @Override
-    public void setUp() throws Exception {
-        super.setAutoFail(true);
-        super.setUp();
-        String options = new String("?useJmx=false&deleteAllMessagesOnStartup=true");
-        createAndConfigureBroker(new URI("broker:(tcp://localhost:61616)/BrokerA" + options));
-        createAndConfigureBroker(new URI("broker:(tcp://localhost:61617)/BrokerB" + options));
+   @Override
+   public void setUp() throws Exception {
+      super.setAutoFail(true);
+      super.setUp();
+      String options = new String("?useJmx=false&deleteAllMessagesOnStartup=true");
+      createAndConfigureBroker(new URI("broker:(tcp://localhost:61616)/BrokerA" + options));
+      createAndConfigureBroker(new URI("broker:(tcp://localhost:61617)/BrokerB" + options));
 
-        // Setup broker networks
-        NetworkConnector nc = bridgeBrokers("BrokerA", "BrokerB", dynamicOnly, networkTTL, conduit);
-        nc.setDecreaseNetworkConsumerPriority(decreaseNetworkConsumerPriority);
-        nc.setSuppressDuplicateQueueSubscriptions(suppressDuplicateQueueSubscriptions);
+      // Setup broker networks
+      NetworkConnector nc = bridgeBrokers("BrokerA", "BrokerB", dynamicOnly, networkTTL, conduit);
+      nc.setDecreaseNetworkConsumerPriority(decreaseNetworkConsumerPriority);
+      nc.setSuppressDuplicateQueueSubscriptions(suppressDuplicateQueueSubscriptions);
 
-        addIncludedDestination(nc);
+      addIncludedDestination(nc);
 
-        nc = bridgeBrokers("BrokerB", "BrokerA", dynamicOnly, networkTTL, conduit);
-        nc.setDecreaseNetworkConsumerPriority(decreaseNetworkConsumerPriority);
-        nc.setSuppressDuplicateQueueSubscriptions(suppressDuplicateQueueSubscriptions);
+      nc = bridgeBrokers("BrokerB", "BrokerA", dynamicOnly, networkTTL, conduit);
+      nc.setDecreaseNetworkConsumerPriority(decreaseNetworkConsumerPriority);
+      nc.setSuppressDuplicateQueueSubscriptions(suppressDuplicateQueueSubscriptions);
 
-        addIncludedDestination(nc);
+      addIncludedDestination(nc);
 
-        startAllBrokers();
+      startAllBrokers();
 
-    }
+   }
 
-    private BrokerService createAndConfigureBroker(URI uri) throws Exception {
-        BrokerService broker = createBroker(uri);
+   private BrokerService createAndConfigureBroker(URI uri) throws Exception {
+      BrokerService broker = createBroker(uri);
 
-        configurePersistenceAdapter(broker);
+      configurePersistenceAdapter(broker);
 
-        // make all topics virtual and consumers use the default prefix
-        VirtualDestinationInterceptor virtualDestinationInterceptor = new VirtualDestinationInterceptor();
-        virtualDestinationInterceptor.setVirtualDestinations(new VirtualDestination[]{new VirtualTopic()});
-        DestinationInterceptor[] destinationInterceptors = new DestinationInterceptor[]{virtualDestinationInterceptor};
-        broker.setDestinationInterceptors(destinationInterceptors);
-        return broker;
-    }
+      // make all topics virtual and consumers use the default prefix
+      VirtualDestinationInterceptor virtualDestinationInterceptor = new VirtualDestinationInterceptor();
+      virtualDestinationInterceptor.setVirtualDestinations(new VirtualDestination[]{new VirtualTopic()});
+      DestinationInterceptor[] destinationInterceptors = new DestinationInterceptor[]{virtualDestinationInterceptor};
+      broker.setDestinationInterceptors(destinationInterceptors);
+      return broker;
+   }
 
-    protected void configurePersistenceAdapter(BrokerService broker) throws IOException {
-        File dataFileDir = new File("target/test-amq-data/kahadb/" + broker.getBrokerName());
-        KahaDBStore kaha = new KahaDBStore();
-        kaha.setDirectory(dataFileDir);
-        broker.setPersistenceAdapter(kaha);
-    }
+   protected void configurePersistenceAdapter(BrokerService broker) throws IOException {
+      File dataFileDir = new File("target/test-amq-data/kahadb/" + broker.getBrokerName());
+      KahaDBStore kaha = new KahaDBStore();
+      kaha.setDirectory(dataFileDir);
+      broker.setPersistenceAdapter(kaha);
+   }
 
 }

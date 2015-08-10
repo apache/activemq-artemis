@@ -32,10 +32,9 @@ import org.apache.activemq.artemis.util.ServerUtil;
  * A simple example that demonstrates server side load-balancing of messages between the queue instances on different
  * nodes of the cluster. The cluster is created from a static list of nodes.
  */
-public class ClusterStaticOnewayExample
-{
-   public static void main(final String[] args) throws Exception
-   {
+public class ClusterStaticOnewayExample {
+
+   public static void main(final String[] args) throws Exception {
       Connection initialConnection = null;
 
       Connection connection0 = null;
@@ -44,8 +43,7 @@ public class ClusterStaticOnewayExample
 
       Connection connection2 = null;
 
-      try
-      {
+      try {
          // Step 2. Instantiate Queue
          Queue queue = ActiveMQJMSClient.createQueue("exampleQueue");
 
@@ -99,8 +97,7 @@ public class ClusterStaticOnewayExample
          System.out.println("con1Node = " + con1Node);
          System.out.println("con2Node = " + con2Node);
 
-         if(con0Node + con1Node + con2Node != 3)
-         {
+         if (con0Node + con1Node + con2Node != 3) {
             throw new IllegalStateException("connections not load balanced");
          }
          // Step 13. We create a JMS MessageProducer object on server 0
@@ -112,8 +109,7 @@ public class ClusterStaticOnewayExample
 
          final int numMessages = 18;
 
-         for (int i = 0; i < numMessages; i++)
-         {
+         for (int i = 0; i < numMessages; i++) {
             TextMessage message = session0.createTextMessage("This is text message " + i);
 
             producer.send(message);
@@ -126,42 +122,36 @@ public class ClusterStaticOnewayExample
          // JMS Queues implement point-to-point message where each message is only ever consumed by a
          // maximum of one consumer
 
-         for (int i = 0; i < numMessages; i += 3)
-         {
-            TextMessage message0 = (TextMessage)consumer0.receive(5000);
+         for (int i = 0; i < numMessages; i += 3) {
+            TextMessage message0 = (TextMessage) consumer0.receive(5000);
 
             System.out.println("Got message: " + message0.getText() + " from node " + con0Node);
 
-            TextMessage message1 = (TextMessage)consumer1.receive(5000);
+            TextMessage message1 = (TextMessage) consumer1.receive(5000);
 
             System.out.println("Got message: " + message1.getText() + " from node " + con1Node);
 
-            TextMessage message2 = (TextMessage)consumer2.receive(5000);
+            TextMessage message2 = (TextMessage) consumer2.receive(5000);
 
             System.out.println("Got message: " + message2.getText() + " from node " + con2Node);
          }
       }
-      finally
-      {
+      finally {
          // Step 15. Be sure to close our resources!
 
-         if (initialConnection != null)
-         {
+         if (initialConnection != null) {
             initialConnection.close();
          }
 
-         if (connection0 != null)
-         {
+         if (connection0 != null) {
             connection0.close();
          }
 
-         if (connection1 != null)
-         {
+         if (connection1 != null) {
             connection1.close();
          }
 
-         if (connection2 != null)
-         {
+         if (connection2 != null) {
             connection2.close();
          }
       }

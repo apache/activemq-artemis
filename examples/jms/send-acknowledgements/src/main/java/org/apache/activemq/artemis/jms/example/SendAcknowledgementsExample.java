@@ -30,39 +30,35 @@ import org.apache.activemq.artemis.api.core.client.SendAcknowledgementHandler;
 import org.apache.activemq.artemis.jms.client.ActiveMQSession;
 
 /**
- *
  * Asynchronous Send Acknowledgements are an advanced feature of ActiveMQ Artemis which allow you to
  * receive acknowledgements that messages were successfully received at the server in a separate stream
  * to the stream of messages being sent to the server.
  * For more information please see the readme.html file
  */
-public class SendAcknowledgementsExample
-{
-   public static void main(final String[] args) throws Exception
-   {
+public class SendAcknowledgementsExample {
+
+   public static void main(final String[] args) throws Exception {
       Connection connection = null;
       InitialContext initialContext = null;
-      try
-      {
+      try {
          // Step 1. Create an initial context to perform the JNDI lookup.
          initialContext = new InitialContext();
 
          // Step 2. Perfom a lookup on the queue
-         Queue queue = (Queue)initialContext.lookup("queue/exampleQueue");
+         Queue queue = (Queue) initialContext.lookup("queue/exampleQueue");
 
          // Step 3. Perform a lookup on the Connection Factory
-         ConnectionFactory cf = (ConnectionFactory)initialContext.lookup("ConnectionFactory");
+         ConnectionFactory cf = (ConnectionFactory) initialContext.lookup("ConnectionFactory");
 
          // Step 4. Create a JMS Connection
          connection = cf.createConnection();
 
          // Step 5. Define a SendAcknowledgementHandler which will receive asynchronous acknowledgements
-         class MySendAcknowledgementsHandler implements SendAcknowledgementHandler
-         {
+         class MySendAcknowledgementsHandler implements SendAcknowledgementHandler {
+
             int count = 0;
 
-            public void sendAcknowledged(final Message message)
-            {
+            public void sendAcknowledged(final Message message) {
                System.out.println("Received send acknowledgement for message " + count++);
             }
          }
@@ -72,7 +68,7 @@ public class SendAcknowledgementsExample
 
          // Step 7. Set the handler on the underlying core session
 
-         ClientSession coreSession = ((ActiveMQSession)session).getCoreSession();
+         ClientSession coreSession = ((ActiveMQSession) session).getCoreSession();
 
          coreSession.setSendAcknowledgementHandler(new MySendAcknowledgementsHandler());
 
@@ -86,8 +82,7 @@ public class SendAcknowledgementsExample
 
          final int numMessages = 5000;
 
-         for (int i = 0; i < numMessages; i++)
-         {
+         for (int i = 0; i < numMessages; i++) {
             javax.jms.Message jmsMessage = session.createMessage();
 
             producer.send(jmsMessage);
@@ -95,16 +90,13 @@ public class SendAcknowledgementsExample
             System.out.println("Sent message " + i);
          }
       }
-      finally
-      {
+      finally {
          // Step 12. Be sure to close our JMS resources!
-         if (initialContext != null)
-         {
+         if (initialContext != null) {
             initialContext.close();
          }
 
-         if (connection != null)
-         {
+         if (connection != null) {
             connection.close();
          }
       }

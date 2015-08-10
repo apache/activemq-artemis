@@ -24,66 +24,66 @@ import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.command.ActiveMQQueue;
 
 public class ObjectFactoryTest extends CombinationTestSupport {
-    public void testConnectionFactory() throws Exception {
-        // Create sample connection factory
-        ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory();
-        factory.setDispatchAsync(true);
-        factory.setBrokerURL("vm://test");
-        factory.setClientID("test");
-        factory.setCopyMessageOnSend(false);
-        factory.setDisableTimeStampsByDefault(true);
-        factory.setObjectMessageSerializationDefered(true);
-        factory.setOptimizedMessageDispatch(false);
-        factory.setPassword("pass");
-        factory.setUseAsyncSend(true);
-        factory.setUseCompression(true);
-        factory.setUseRetroactiveConsumer(true);
-        factory.setUserName("user");
-        factory.getPrefetchPolicy().setQueuePrefetch(777);
-        factory.getRedeliveryPolicy().setMaximumRedeliveries(15);
-        factory.getRedeliveryPolicy().setBackOffMultiplier((short) 32);
-        
 
-        // Create reference
-        Reference ref = JNDIReferenceFactory.createReference(factory.getClass().getName(), factory);
+   public void testConnectionFactory() throws Exception {
+      // Create sample connection factory
+      ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory();
+      factory.setDispatchAsync(true);
+      factory.setBrokerURL("vm://test");
+      factory.setClientID("test");
+      factory.setCopyMessageOnSend(false);
+      factory.setDisableTimeStampsByDefault(true);
+      factory.setObjectMessageSerializationDefered(true);
+      factory.setOptimizedMessageDispatch(false);
+      factory.setPassword("pass");
+      factory.setUseAsyncSend(true);
+      factory.setUseCompression(true);
+      factory.setUseRetroactiveConsumer(true);
+      factory.setUserName("user");
+      factory.getPrefetchPolicy().setQueuePrefetch(777);
+      factory.getRedeliveryPolicy().setMaximumRedeliveries(15);
+      factory.getRedeliveryPolicy().setBackOffMultiplier((short) 32);
 
-        // Get object created based on reference
-        ActiveMQConnectionFactory temp;
-        JNDIReferenceFactory refFactory = new JNDIReferenceFactory();
-        temp = (ActiveMQConnectionFactory)refFactory.getObjectInstance(ref, null, null, null);
+      // Create reference
+      Reference ref = JNDIReferenceFactory.createReference(factory.getClass().getName(), factory);
 
-        // Check settings
-        assertEquals(factory.isDispatchAsync(), temp.isDispatchAsync());
-        assertEquals(factory.getBrokerURL(), temp.getBrokerURL());
-        assertEquals(factory.getClientID(), temp.getClientID());
-        assertEquals(factory.isCopyMessageOnSend(), temp.isCopyMessageOnSend());
-        assertEquals(factory.isDisableTimeStampsByDefault(), temp.isDisableTimeStampsByDefault());
-        assertEquals(factory.isObjectMessageSerializationDefered(), temp.isObjectMessageSerializationDefered());
-        assertEquals(factory.isOptimizedMessageDispatch(), temp.isOptimizedMessageDispatch());
-        assertEquals(factory.getPassword(), temp.getPassword());
-        assertEquals(factory.isUseAsyncSend(), temp.isUseAsyncSend());
-        assertEquals(factory.isUseCompression(), temp.isUseCompression());
-        assertEquals(factory.isUseRetroactiveConsumer(), temp.isUseRetroactiveConsumer());
-        assertEquals(factory.getUserName(), temp.getUserName());
-        assertEquals(factory.getPrefetchPolicy().getQueuePrefetch(), temp.getPrefetchPolicy().getQueuePrefetch());
-        assertEquals(factory.getRedeliveryPolicy().getMaximumRedeliveries(), temp.getRedeliveryPolicy().getMaximumRedeliveries());
-        assertEquals(factory.getRedeliveryPolicy().getBackOffMultiplier(), temp.getRedeliveryPolicy().getBackOffMultiplier());
-    }
+      // Get object created based on reference
+      ActiveMQConnectionFactory temp;
+      JNDIReferenceFactory refFactory = new JNDIReferenceFactory();
+      temp = (ActiveMQConnectionFactory) refFactory.getObjectInstance(ref, null, null, null);
 
-    public void testDestination() throws Exception {
-        // Create sample destination
-        ActiveMQDestination dest = new ActiveMQQueue();
-        dest.setPhysicalName("TEST.FOO");
+      // Check settings
+      assertEquals(factory.isDispatchAsync(), temp.isDispatchAsync());
+      assertEquals(factory.getBrokerURL(), temp.getBrokerURL());
+      assertEquals(factory.getClientID(), temp.getClientID());
+      assertEquals(factory.isCopyMessageOnSend(), temp.isCopyMessageOnSend());
+      assertEquals(factory.isDisableTimeStampsByDefault(), temp.isDisableTimeStampsByDefault());
+      assertEquals(factory.isObjectMessageSerializationDefered(), temp.isObjectMessageSerializationDefered());
+      assertEquals(factory.isOptimizedMessageDispatch(), temp.isOptimizedMessageDispatch());
+      assertEquals(factory.getPassword(), temp.getPassword());
+      assertEquals(factory.isUseAsyncSend(), temp.isUseAsyncSend());
+      assertEquals(factory.isUseCompression(), temp.isUseCompression());
+      assertEquals(factory.isUseRetroactiveConsumer(), temp.isUseRetroactiveConsumer());
+      assertEquals(factory.getUserName(), temp.getUserName());
+      assertEquals(factory.getPrefetchPolicy().getQueuePrefetch(), temp.getPrefetchPolicy().getQueuePrefetch());
+      assertEquals(factory.getRedeliveryPolicy().getMaximumRedeliveries(), temp.getRedeliveryPolicy().getMaximumRedeliveries());
+      assertEquals(factory.getRedeliveryPolicy().getBackOffMultiplier(), temp.getRedeliveryPolicy().getBackOffMultiplier());
+   }
 
-        // Create reference
-        Reference ref = JNDIReferenceFactory.createReference(dest.getClass().getName(), dest);
+   public void testDestination() throws Exception {
+      // Create sample destination
+      ActiveMQDestination dest = new ActiveMQQueue();
+      dest.setPhysicalName("TEST.FOO");
 
-        // Get object created based on reference
-        ActiveMQDestination temp;
-        JNDIReferenceFactory refFactory = new JNDIReferenceFactory();
-        temp = (ActiveMQDestination)refFactory.getObjectInstance(ref, null, null, null);
+      // Create reference
+      Reference ref = JNDIReferenceFactory.createReference(dest.getClass().getName(), dest);
 
-        // Check settings
-        assertEquals(dest.getPhysicalName(), temp.getPhysicalName());
-    }
+      // Get object created based on reference
+      ActiveMQDestination temp;
+      JNDIReferenceFactory refFactory = new JNDIReferenceFactory();
+      temp = (ActiveMQDestination) refFactory.getObjectInstance(ref, null, null, null);
+
+      // Check settings
+      assertEquals(dest.getPhysicalName(), temp.getPhysicalName());
+   }
 }

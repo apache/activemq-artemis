@@ -33,22 +33,20 @@ import javax.naming.InitialContext;
 /**
  * An example that shows how to receive management notifications using JMS messages.
  */
-public class ManagementNotificationExample
-{
-   public static void main(final String[] args) throws Exception
-   {
+public class ManagementNotificationExample {
+
+   public static void main(final String[] args) throws Exception {
       Connection connection = null;
       InitialContext initialContext = null;
-      try
-      {
+      try {
          // Step 1. Create an initial context to perform the JNDI lookup.
          initialContext = new InitialContext();
 
          // Step 2. Perform a lookup on the queue
-         Queue queue = (Queue)initialContext.lookup("queue/exampleQueue");
+         Queue queue = (Queue) initialContext.lookup("queue/exampleQueue");
 
          // Step 3. Perform a lookup on the Connection Factory
-         ConnectionFactory cf = (ConnectionFactory)initialContext.lookup("ConnectionFactory");
+         ConnectionFactory cf = (ConnectionFactory) initialContext.lookup("ConnectionFactory");
 
          // Step 4.Create a JMS connection, a session and a producer for the queue
          connection = cf.createConnection();
@@ -56,28 +54,23 @@ public class ManagementNotificationExample
          MessageProducer producer = session.createProducer(queue);
 
          // Step 5. Perform a lookup on the notifications topic
-         Topic notificationsTopic = (Topic)initialContext.lookup("topic/notificationsTopic");
+         Topic notificationsTopic = (Topic) initialContext.lookup("topic/notificationsTopic");
 
          // Step 6. Create a JMS message consumer for the notification queue and set its message listener
          // It will display all the properties of the JMS Message
          MessageConsumer notificationConsumer = session.createConsumer(notificationsTopic);
-         notificationConsumer.setMessageListener(new MessageListener()
-         {
-            public void onMessage(final Message notif)
-            {
+         notificationConsumer.setMessageListener(new MessageListener() {
+            public void onMessage(final Message notif) {
                System.out.println("------------------------");
                System.out.println("Received notification:");
-               try
-               {
+               try {
                   Enumeration propertyNames = notif.getPropertyNames();
-                  while (propertyNames.hasMoreElements())
-                  {
-                     String propertyName = (String)propertyNames.nextElement();
+                  while (propertyNames.hasMoreElements()) {
+                     String propertyName = (String) propertyNames.nextElement();
                      System.out.format("  %s: %s%n", propertyName, notif.getObjectProperty(propertyName));
                   }
                }
-               catch (JMSException e)
-               {
+               catch (JMSException e) {
                }
                System.out.println("------------------------");
             }
@@ -93,27 +86,22 @@ public class ManagementNotificationExample
          consumer.close();
 
          // Step 10. Try to create a connection with unknown user
-         try
-         {
+         try {
             cf.createConnection("not.a.valid.user", "not.a.valid.password");
          }
-         catch (JMSException e)
-         {
+         catch (JMSException e) {
          }
 
          // sleep a little bit to be sure to receive the notification for the security
          // authentication violation before leaving the example
          Thread.sleep(2000);
       }
-      finally
-      {
+      finally {
          // Step 11. Be sure to close the resources!
-         if (initialContext != null)
-         {
+         if (initialContext != null) {
             initialContext.close();
          }
-         if (connection != null)
-         {
+         if (connection != null) {
             connection.close();
          }
       }

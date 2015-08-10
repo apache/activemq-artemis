@@ -21,36 +21,30 @@ import java.io.IOException;
 /**
  * pls use factory to create frames.
  */
-public class StompClientConnectionV10 extends AbstractStompClientConnection
-{
+public class StompClientConnectionV10 extends AbstractStompClientConnection {
 
-   public StompClientConnectionV10(String host, int port) throws IOException
-   {
+   public StompClientConnectionV10(String host, int port) throws IOException {
       super("1.0", host, port);
    }
 
-   public ClientStompFrame connect(String username, String passcode) throws IOException, InterruptedException
-   {
+   public ClientStompFrame connect(String username, String passcode) throws IOException, InterruptedException {
       ClientStompFrame frame = factory.newFrame(CONNECT_COMMAND);
       frame.addHeader(LOGIN_HEADER, username);
       frame.addHeader(PASSCODE_HEADER, passcode);
 
       ClientStompFrame response = this.sendFrame(frame);
 
-      if (response.getCommand().equals(CONNECTED_COMMAND))
-      {
+      if (response.getCommand().equals(CONNECTED_COMMAND)) {
          connected = true;
       }
-      else
-      {
+      else {
          System.out.println("Connection failed with: " + response);
          connected = false;
       }
       return response;
    }
 
-   public void connect(String username, String passcode, String clientID) throws IOException, InterruptedException
-   {
+   public void connect(String username, String passcode, String clientID) throws IOException, InterruptedException {
       ClientStompFrame frame = factory.newFrame(CONNECT_COMMAND);
       frame.addHeader(LOGIN_HEADER, username);
       frame.addHeader(PASSCODE_HEADER, passcode);
@@ -58,20 +52,17 @@ public class StompClientConnectionV10 extends AbstractStompClientConnection
 
       ClientStompFrame response = this.sendFrame(frame);
 
-      if (response.getCommand().equals(CONNECTED_COMMAND))
-      {
+      if (response.getCommand().equals(CONNECTED_COMMAND)) {
          connected = true;
       }
-      else
-      {
+      else {
          System.out.println("Connection failed with: " + response);
          connected = false;
       }
    }
 
    @Override
-   public void disconnect() throws IOException, InterruptedException
-   {
+   public void disconnect() throws IOException, InterruptedException {
       ClientStompFrame frame = factory.newFrame(DISCONNECT_COMMAND);
       this.sendFrame(frame);
 
@@ -81,25 +72,20 @@ public class StompClientConnectionV10 extends AbstractStompClientConnection
    }
 
    @Override
-   public ClientStompFrame createFrame(
-         String command)
-   {
+   public ClientStompFrame createFrame(String command) {
       return new ClientStompFrameV10(command);
    }
 
    @Override
-   public void startPinger(long interval)
-   {
+   public void startPinger(long interval) {
    }
 
    @Override
-   public void stopPinger()
-   {
+   public void stopPinger() {
    }
 
    @Override
-   public int getServerPingNumber()
-   {
+   public int getServerPingNumber() {
       return 0;
    }
 }

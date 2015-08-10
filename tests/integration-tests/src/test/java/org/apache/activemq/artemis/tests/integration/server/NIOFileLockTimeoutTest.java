@@ -18,16 +18,14 @@ package org.apache.activemq.artemis.tests.integration.server;
 
 import org.junit.Test;
 
-public class NIOFileLockTimeoutTest extends FileLockTimeoutTest
-{
+public class NIOFileLockTimeoutTest extends FileLockTimeoutTest {
+
    @Test
    /**
     * When running this test from an IDE add this to the test command line so that the AssertionLoggerHandler works properly:
     *
     *   -Djava.util.logging.manager=org.jboss.logmanager.LogManager -Dlogging.configuration=file:<path_to_source>/tests/config/logging.properties
-    */
-   public void testNIOFileLockExpiration() throws Exception
-   {
+    */ public void testNIOFileLockExpiration() throws Exception {
       doTest(false);
    }
 }

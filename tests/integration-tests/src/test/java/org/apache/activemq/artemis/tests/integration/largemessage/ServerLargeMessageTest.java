@@ -31,8 +31,7 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class ServerLargeMessageTest extends ActiveMQTestBase
-{
+public class ServerLargeMessageTest extends ActiveMQTestBase {
 
    // Constants -----------------------------------------------------
 
@@ -46,8 +45,7 @@ public class ServerLargeMessageTest extends ActiveMQTestBase
 
    // The ClientConsumer should be able to also send ServerLargeMessages as that's done by the CoreBridge
    @Test
-   public void testSendServerMessage() throws Exception
-   {
+   public void testSendServerMessage() throws Exception {
       ActiveMQServer server = createServer(true);
 
       server.start();
@@ -58,19 +56,16 @@ public class ServerLargeMessageTest extends ActiveMQTestBase
 
       ClientSession session = sf.createSession(false, false);
 
-      try
-      {
+      try {
          LargeServerMessageImpl fileMessage = new LargeServerMessageImpl((JournalStorageManager) server.getStorageManager());
 
          fileMessage.setMessageID(1005);
 
-         for (int i = 0; i < 2 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE; i++)
-         {
+         for (int i = 0; i < 2 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE; i++) {
             fileMessage.addBytes(new byte[]{ActiveMQTestBase.getSamplebyte(i)});
          }
          // The server would be doing this
          fileMessage.putLongProperty(Message.HDR_LARGE_BODY_SIZE, 2 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
-
 
          fileMessage.releaseResources();
 
@@ -94,8 +89,7 @@ public class ServerLargeMessageTest extends ActiveMQTestBase
 
          Assert.assertEquals(msg.getBodySize(), 2 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
 
-         for (int i = 0; i < 2 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE; i++)
-         {
+         for (int i = 0; i < 2 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE; i++) {
             Assert.assertEquals(ActiveMQTestBase.getSamplebyte(i), msg.getBodyBuffer().readByte());
          }
 
@@ -104,8 +98,7 @@ public class ServerLargeMessageTest extends ActiveMQTestBase
          session.commit();
 
       }
-      finally
-      {
+      finally {
          sf.close();
          locator.close();
          server.stop();

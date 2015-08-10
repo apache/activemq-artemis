@@ -21,8 +21,7 @@ import java.nio.ByteBuffer;
 /**
  * pls use factory to create frames.
  */
-public interface ClientStompFrame
-{
+public interface ClientStompFrame {
 
    ByteBuffer toByteBuffer();
 

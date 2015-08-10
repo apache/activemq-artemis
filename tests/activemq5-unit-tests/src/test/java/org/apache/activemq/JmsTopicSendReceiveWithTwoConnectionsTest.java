@@ -28,86 +28,83 @@ import javax.jms.Session;
  */
 public class JmsTopicSendReceiveWithTwoConnectionsTest extends JmsSendReceiveTestSupport {
 
-    private static final org.apache.commons.logging.Log LOG = org.apache.commons.logging.LogFactory
-        .getLog(JmsTopicSendReceiveWithTwoConnectionsTest.class);
+   private static final org.apache.commons.logging.Log LOG = org.apache.commons.logging.LogFactory.getLog(JmsTopicSendReceiveWithTwoConnectionsTest.class);
 
-    protected Connection sendConnection;
-    protected Connection receiveConnection;
-    protected Session receiveSession;
+   protected Connection sendConnection;
+   protected Connection receiveConnection;
+   protected Session receiveSession;
 
-    protected void setUp() throws Exception {
-        super.setUp();
+   protected void setUp() throws Exception {
+      super.setUp();
 
-        connectionFactory = createConnectionFactory();
+      connectionFactory = createConnectionFactory();
 
-        sendConnection = createSendConnection();
-        sendConnection.start();
+      sendConnection = createSendConnection();
+      sendConnection.start();
 
-        receiveConnection = createReceiveConnection();
-        receiveConnection.start();
+      receiveConnection = createReceiveConnection();
+      receiveConnection.start();
 
-        LOG.info("Created sendConnection: " + sendConnection);
-        LOG.info("Created receiveConnection: " + receiveConnection);
+      LOG.info("Created sendConnection: " + sendConnection);
+      LOG.info("Created receiveConnection: " + receiveConnection);
 
-        session = createSendSession(sendConnection);
-        receiveSession = createReceiveSession(receiveConnection);
+      session = createSendSession(sendConnection);
+      receiveSession = createReceiveSession(receiveConnection);
 
-        LOG.info("Created sendSession: " + session);
-        LOG.info("Created receiveSession: " + receiveSession);
+      LOG.info("Created sendSession: " + session);
+      LOG.info("Created receiveSession: " + receiveSession);
 
-        producer = session.createProducer(null);
-        producer.setDeliveryMode(deliveryMode);
+      producer = session.createProducer(null);
+      producer.setDeliveryMode(deliveryMode);
 
-        LOG.info("Created producer: " + producer + " delivery mode = "
-                 + (deliveryMode == DeliveryMode.PERSISTENT ? "PERSISTENT" : "NON_PERSISTENT"));
+      LOG.info("Created producer: " + producer + " delivery mode = " + (deliveryMode == DeliveryMode.PERSISTENT ? "PERSISTENT" : "NON_PERSISTENT"));
 
-        if (topic) {
-            consumerDestination = session.createTopic(getConsumerSubject());
-            producerDestination = session.createTopic(getProducerSubject());
-        } else {
-            consumerDestination = session.createQueue(getConsumerSubject());
-            producerDestination = session.createQueue(getProducerSubject());
-        }
+      if (topic) {
+         consumerDestination = session.createTopic(getConsumerSubject());
+         producerDestination = session.createTopic(getProducerSubject());
+      }
+      else {
+         consumerDestination = session.createQueue(getConsumerSubject());
+         producerDestination = session.createQueue(getProducerSubject());
+      }
 
-        LOG.info("Created  consumer destination: " + consumerDestination + " of type: "
-                 + consumerDestination.getClass());
-        LOG.info("Created  producer destination: " + producerDestination + " of type: "
-                 + producerDestination.getClass());
+      LOG.info("Created  consumer destination: " + consumerDestination + " of type: " + consumerDestination.getClass());
+      LOG.info("Created  producer destination: " + producerDestination + " of type: " + producerDestination.getClass());
 
-        consumer = createConsumer(receiveSession, consumerDestination);
-        consumer.setMessageListener(this);
+      consumer = createConsumer(receiveSession, consumerDestination);
+      consumer.setMessageListener(this);
 
-        LOG.info("Started connections");
-    }
+      LOG.info("Started connections");
+   }
 
-    protected Session createReceiveSession(Connection receiveConnection) throws Exception {
-        return receiveConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-    }
+   protected Session createReceiveSession(Connection receiveConnection) throws Exception {
+      return receiveConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+   }
 
-    protected Session createSendSession(Connection sendConnection) throws Exception {
-        return sendConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-    }
+   protected Session createSendSession(Connection sendConnection) throws Exception {
+      return sendConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+   }
 
-    protected Connection createReceiveConnection() throws Exception {
-        return createConnection();
-    }
+   protected Connection createReceiveConnection() throws Exception {
+      return createConnection();
+   }
 
-    protected Connection createSendConnection() throws Exception {
-        return createConnection();
-    }
+   protected Connection createSendConnection() throws Exception {
+      return createConnection();
+   }
 
-    protected MessageConsumer createConsumer(Session session, Destination dest) throws JMSException {
-        return session.createConsumer(dest);
-    }
+   protected MessageConsumer createConsumer(Session session, Destination dest) throws JMSException {
+      return session.createConsumer(dest);
+   }
 
-    protected ActiveMQConnectionFactory createConnectionFactory() throws Exception {
-        return new ActiveMQConnectionFactory("vm://localhost?broker.persistent=false");
-    }
+   protected ActiveMQConnectionFactory createConnectionFactory() throws Exception {
+      return new ActiveMQConnectionFactory("vm://localhost?broker.persistent=false");
+   }
 
-    protected void tearDown() throws Exception {
-        session.close();
-        receiveSession.close();
-        sendConnection.close();
-        receiveConnection.close();
-    }
+   protected void tearDown() throws Exception {
+      session.close();
+      receiveSession.close();
+      sendConnection.close();
+      receiveConnection.close();
+   }
 }

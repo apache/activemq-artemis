@@ -33,32 +33,27 @@ import java.util.logging.Logger;
 import org.apache.activemq.artemis.utils.TokenBucketLimiter;
 import org.apache.activemq.artemis.utils.TokenBucketLimiterImpl;
 
-public class SoakSender
-{
+public class SoakSender {
+
    private static final Logger log = Logger.getLogger(SoakSender.class.getName());
 
-   public static void main(final String[] args)
-   {
-      try
-      {
+   public static void main(final String[] args) {
+      try {
          String fileName = SoakBase.getPerfFileName();
 
          SoakParams params = SoakBase.getParams(fileName);
          final SoakSender sender = new SoakSender(params);
 
-         Runtime.getRuntime().addShutdownHook(new Thread()
-         {
+         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
-            public void run()
-            {
+            public void run() {
                sender.disconnect();
             }
          });
 
          sender.run();
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          e.printStackTrace();
       }
    }
@@ -71,10 +66,8 @@ public class SoakSender
 
    private MessageProducer producer;
 
-   private final ExceptionListener exceptionListener = new ExceptionListener()
-   {
-      public void onException(final JMSException e)
-      {
+   private final ExceptionListener exceptionListener = new ExceptionListener() {
+      public void onException(final JMSException e) {
          System.out.println("SoakReconnectableSender.exceptionListener.new ExceptionListener() {...}.onException()");
          disconnect();
          connect();
@@ -82,13 +75,11 @@ public class SoakSender
 
    };
 
-   private SoakSender(final SoakParams perfParams)
-   {
+   private SoakSender(final SoakParams perfParams) {
       this.perfParams = perfParams;
    }
 
-   public void run() throws Exception
-   {
+   public void run() throws Exception {
       connect();
 
       boolean runInfinitely = perfParams.getDurationInMinutes() == -1;
@@ -101,9 +92,7 @@ public class SoakSender
 
       final int modulo = 10000;
 
-      TokenBucketLimiter tbl = perfParams.getThrottleRate() != -1 ? new TokenBucketLimiterImpl(perfParams.getThrottleRate(),
-                                                                                               false)
-                                                                 : null;
+      TokenBucketLimiter tbl = perfParams.getThrottleRate() != -1 ? new TokenBucketLimiterImpl(perfParams.getThrottleRate(), false) : null;
 
       boolean transacted = perfParams.isSessionTransacted();
       int txBatchSize = perfParams.getBatchSize();
@@ -112,45 +101,34 @@ public class SoakSender
       long start = System.currentTimeMillis();
       long moduleStart = start;
       AtomicLong count = new AtomicLong(0);
-      while (true)
-      {
-         try
-         {
+      while (true) {
+         try {
             producer.send(message);
             count.incrementAndGet();
 
-            if (transacted)
-            {
-               if (count.longValue() % txBatchSize == 0)
-               {
+            if (transacted) {
+               if (count.longValue() % txBatchSize == 0) {
                   session.commit();
                }
             }
 
             long totalDuration = System.currentTimeMillis() - start;
 
-            if (display && count.longValue() % modulo == 0)
-            {
+            if (display && count.longValue() % modulo == 0) {
                double duration = (1.0 * System.currentTimeMillis() - moduleStart) / 1000;
                moduleStart = System.currentTimeMillis();
-               SoakSender.log.info(String.format("sent %s messages in %2.2fs (time: %.0fs)",
-                                                 modulo,
-                                                 duration,
-                                                 totalDuration / 1000.0));
+               SoakSender.log.info(String.format("sent %s messages in %2.2fs (time: %.0fs)", modulo, duration, totalDuration / 1000.0));
             }
 
-            if (tbl != null)
-            {
+            if (tbl != null) {
                tbl.limit();
             }
 
-            if (!runInfinitely && totalDuration > perfParams.getDurationInMinutes() * SoakBase.TO_MILLIS)
-            {
+            if (!runInfinitely && totalDuration > perfParams.getDurationInMinutes() * SoakBase.TO_MILLIS) {
                break;
             }
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             e.printStackTrace();
          }
       }
@@ -158,49 +136,39 @@ public class SoakSender
       SoakSender.log.info(String.format("Sent %s messages in %s minutes", count, perfParams.getDurationInMinutes()));
       SoakSender.log.info("END OF RUN");
 
-      if (connection != null)
-      {
+      if (connection != null) {
          connection.close();
          connection = null;
       }
    }
 
-   private synchronized void disconnect()
-   {
-      if (connection != null)
-      {
-         try
-         {
+   private synchronized void disconnect() {
+      if (connection != null) {
+         try {
             connection.setExceptionListener(null);
             connection.close();
          }
-         catch (JMSException e)
-         {
+         catch (JMSException e) {
             e.printStackTrace();
          }
-         finally
-         {
+         finally {
             connection = null;
          }
       }
    }
 
-   private void connect()
-   {
+   private void connect() {
       InitialContext ic = null;
-      try
-      {
+      try {
          ic = new InitialContext();
 
-         ConnectionFactory factory = (ConnectionFactory)ic.lookup(perfParams.getConnectionFactoryLookup());
+         ConnectionFactory factory = (ConnectionFactory) ic.lookup(perfParams.getConnectionFactoryLookup());
 
-         Destination destination = (Destination)ic.lookup(perfParams.getDestinationLookup());
+         Destination destination = (Destination) ic.lookup(perfParams.getDestinationLookup());
 
          connection = factory.createConnection();
 
-         session = connection.createSession(perfParams.isSessionTransacted(),
-                                            perfParams.isDupsOK() ? Session.DUPS_OK_ACKNOWLEDGE
-                                                                 : Session.AUTO_ACKNOWLEDGE);
+         session = connection.createSession(perfParams.isSessionTransacted(), perfParams.isDupsOK() ? Session.DUPS_OK_ACKNOWLEDGE : Session.AUTO_ACKNOWLEDGE);
 
          producer = session.createProducer(destination);
 
@@ -212,18 +180,14 @@ public class SoakSender
 
          connection.setExceptionListener(exceptionListener);
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          e.printStackTrace();
       }
-      finally
-      {
-         try
-         {
+      finally {
+         try {
             ic.close();
          }
-         catch (NamingException e)
-         {
+         catch (NamingException e) {
             e.printStackTrace();
          }
       }

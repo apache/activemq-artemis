@@ -76,8 +76,7 @@ import org.junit.Test;
  * and it will make sure we can still perform certain operations on the queue such as produce
  * and verify the counters
  */
-public class HangConsumerTest extends ActiveMQTestBase
-{
+public class HangConsumerTest extends ActiveMQTestBase {
 
    private ActiveMQServer server;
 
@@ -89,12 +88,10 @@ public class HangConsumerTest extends ActiveMQTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
-      Configuration config = createDefaultInVMConfig()
-         .setMessageExpiryScanPeriod(10);
+      Configuration config = createDefaultInVMConfig().setMessageExpiryScanPeriod(10);
 
       ActiveMQSecurityManager securityManager = new ActiveMQSecurityManagerImpl();
 
@@ -106,11 +103,9 @@ public class HangConsumerTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testHangOnDelivery() throws Exception
-   {
+   public void testHangOnDelivery() throws Exception {
       queue = server.createQueue(QUEUE, QUEUE, null, true, false);
-      try
-      {
+      try {
 
          ClientSessionFactory factory = locator.createSessionFactory();
          ClientSession sessionProducer = factory.createSession(false, false, false);
@@ -167,8 +162,7 @@ public class HangConsumerTest extends ActiveMQTestBase
          sessionProducer.close();
          sessionConsumer.close();
       }
-      finally
-      {
+      finally {
          releaseConsumers();
       }
    }
@@ -176,38 +170,34 @@ public class HangConsumerTest extends ActiveMQTestBase
    /**
     *
     */
-   protected void releaseConsumers()
-   {
+   protected void releaseConsumers() {
       callbackSemaphore.release();
    }
 
    /**
     * @throws InterruptedException
     */
-   protected void awaitBlocking() throws InterruptedException
-   {
+   protected void awaitBlocking() throws InterruptedException {
       assertTrue(this.inCall.await(5000));
    }
 
    /**
     * @throws InterruptedException
     */
-   protected void blockConsumers() throws InterruptedException
-   {
+   protected void blockConsumers() throws InterruptedException {
       this.callbackSemaphore.acquire();
    }
 
    /**
     * This would recreate the scenario where a queue was duplicated
+    *
     * @throws Exception
     */
    @Test
-   public void testHangDuplicateQueues() throws Exception
-   {
+   public void testHangDuplicateQueues() throws Exception {
       final Semaphore blocked = new Semaphore(1);
       final CountDownLatch latchDelete = new CountDownLatch(1);
-      class MyQueueWithBlocking extends QueueImpl
-      {
+      class MyQueueWithBlocking extends QueueImpl {
 
          /**
           * @param id
@@ -236,27 +226,12 @@ public class HangConsumerTest extends ActiveMQTestBase
                                     final PostOffice postOffice,
                                     final StorageManager storageManager,
                                     final HierarchicalRepository<AddressSettings> addressSettingsRepository,
-                                    final Executor executor)
-         {
-            super(id,
-               address,
-               name,
-               filter,
-               pageSubscription,
-               user,
-               durable,
-               temporary,
-               autoCreated,
-               scheduledExecutor,
-               postOffice,
-               storageManager,
-               addressSettingsRepository,
-               executor);
+                                    final Executor executor) {
+            super(id, address, name, filter, pageSubscription, user, durable, temporary, autoCreated, scheduledExecutor, postOffice, storageManager, addressSettingsRepository, executor);
          }
 
          @Override
-         public synchronized int deleteMatchingReferences(final int flushLimit, final Filter filter) throws Exception
-         {
+         public synchronized int deleteMatchingReferences(final int flushLimit, final Filter filter) throws Exception {
             latchDelete.countDown();
             blocked.acquire();
             blocked.release();
@@ -264,18 +239,16 @@ public class HangConsumerTest extends ActiveMQTestBase
          }
 
          @Override
-         public void deliverScheduledMessages()
-         {
+         public void deliverScheduledMessages() {
          }
       }
 
-      class LocalFactory extends QueueFactoryImpl
-      {
+      class LocalFactory extends QueueFactoryImpl {
+
          public LocalFactory(final ExecutorFactory executorFactory,
                              final ScheduledExecutorService scheduledExecutor,
                              final HierarchicalRepository<AddressSettings> addressSettingsRepository,
-                             final StorageManager storageManager)
-         {
+                             final StorageManager storageManager) {
             super(executorFactory, scheduledExecutor, addressSettingsRepository, storageManager);
          }
 
@@ -288,35 +261,18 @@ public class HangConsumerTest extends ActiveMQTestBase
                                   final SimpleString user,
                                   final boolean durable,
                                   final boolean temporary,
-                                  final boolean autoCreated)
-         {
-            queue = new MyQueueWithBlocking(persistenceID,
-               address,
-               name,
-               filter,
-               user,
-               pageSubscription,
-               durable,
-               temporary,
-               autoCreated,
-               scheduledExecutor,
-               postOffice,
-               storageManager,
-               addressSettingsRepository,
-               executorFactory.getExecutor());
+                                  final boolean autoCreated) {
+            queue = new MyQueueWithBlocking(persistenceID, address, name, filter, user, pageSubscription, durable, temporary, autoCreated, scheduledExecutor, postOffice, storageManager, addressSettingsRepository, executorFactory.getExecutor());
             return queue;
          }
 
       }
 
-      LocalFactory queueFactory = new LocalFactory(server.getExecutorFactory(),
-         server.getScheduledPool(),
-         server.getAddressSettingsRepository(),
-         server.getStorageManager());
+      LocalFactory queueFactory = new LocalFactory(server.getExecutorFactory(), server.getScheduledPool(), server.getAddressSettingsRepository(), server.getStorageManager());
 
       queueFactory.setPostOffice(server.getPostOffice());
 
-      ((ActiveMQServerImpl)server).replaceQueueFactory(queueFactory);
+      ((ActiveMQServerImpl) server).replaceQueueFactory(queueFactory);
 
       queue = server.createQueue(QUEUE, QUEUE, null, true, false);
 
@@ -330,17 +286,13 @@ public class HangConsumerTest extends ActiveMQTestBase
       producer.send(session.createMessage(true));
       session.commit();
 
-      Thread tDelete = new Thread()
-      {
+      Thread tDelete = new Thread() {
          @Override
-         public void run()
-         {
-            try
-            {
+         public void run() {
+            try {
                server.destroyQueue(QUEUE);
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                e.printStackTrace();
             }
          }
@@ -350,12 +302,10 @@ public class HangConsumerTest extends ActiveMQTestBase
 
       Assert.assertTrue(latchDelete.await(10, TimeUnit.SECONDS));
 
-      try
-      {
+      try {
          server.createQueue(QUEUE, QUEUE, null, true, false);
       }
-      catch (Exception expected)
-      {
+      catch (Exception expected) {
       }
 
       blocked.release();
@@ -377,11 +327,11 @@ public class HangConsumerTest extends ActiveMQTestBase
    /**
     * This would force a journal duplication on bindings even with the scenario that generated fixed,
     * the server shouldn't hold of from starting
+    *
     * @throws Exception
     */
    @Test
-   public void testForceDuplicationOnBindings() throws Exception
-   {
+   public void testForceDuplicationOnBindings() throws Exception {
       queue = server.createQueue(QUEUE, QUEUE, null, true, false);
 
       ClientSessionFactory factory = locator.createSessionFactory();
@@ -394,7 +344,6 @@ public class HangConsumerTest extends ActiveMQTestBase
 
       long queueID = server.getStorageManager().generateID();
       long txID = server.getStorageManager().generateID();
-
 
       // Forcing a situation where the server would unexpectedly create a duplicated queue. The server should still start normally
       LocalQueueBinding newBinding = new LocalQueueBinding(QUEUE, new QueueImpl(queueID, QUEUE, QUEUE, null, null, true, false, false, null, null, null, null, null), server.getNodeID());
@@ -413,13 +362,11 @@ public class HangConsumerTest extends ActiveMQTestBase
 
    // An exception during delivery shouldn't make the message disappear
    @Test
-   public void testExceptionWhileDelivering() throws Exception
-   {
+   public void testExceptionWhileDelivering() throws Exception {
       queue = server.createQueue(QUEUE, QUEUE, null, true, false);
 
       HangInterceptor hangInt = new HangInterceptor();
-      try
-      {
+      try {
          locator.addIncomingInterceptor(hangInt);
 
          ClientSessionFactory factory = locator.createSessionFactory();
@@ -455,8 +402,7 @@ public class HangConsumerTest extends ActiveMQTestBase
 
          session.commit();
       }
-      finally
-      {
+      finally {
          hangInt.open();
       }
 
@@ -464,17 +410,14 @@ public class HangConsumerTest extends ActiveMQTestBase
 
    /**
     * This will simulate what would happen with topic creationg where a single record is supposed to be created on the journal
+    *
     * @throws Exception
     */
    @Test
-   public void testDuplicateDestinationsOnTopic() throws Exception
-   {
-      try
-      {
-         for (int i = 0; i < 5; i++)
-         {
-            if (server.locateQueue(SimpleString.toSimpleString("jms.topic.tt")) == null)
-            {
+   public void testDuplicateDestinationsOnTopic() throws Exception {
+      try {
+         for (int i = 0; i < 5; i++) {
+            if (server.locateQueue(SimpleString.toSimpleString("jms.topic.tt")) == null) {
                server.createQueue(SimpleString.toSimpleString("jms.topic.tt"), SimpleString.toSimpleString("jms.topic.tt"), SimpleString.toSimpleString(ActiveMQServerImpl.GENERIC_IGNORED_FILTER), true, false);
             }
 
@@ -482,14 +425,7 @@ public class HangConsumerTest extends ActiveMQTestBase
 
             SequentialFileFactory messagesFF = new NIOSequentialFileFactory(server.getConfiguration().getBindingsLocation(), null, 1);
 
-            JournalImpl messagesJournal = new JournalImpl(1024 * 1024,
-                                                          2,
-                                                          0,
-                                                          0,
-                                                          messagesFF,
-                                                          "activemq-bindings",
-                                                          "bindings",
-                                                          1);
+            JournalImpl messagesJournal = new JournalImpl(1024 * 1024, 2, 0, 0, messagesFF, "activemq-bindings", "bindings", 1);
 
             messagesJournal.start();
 
@@ -498,11 +434,9 @@ public class HangConsumerTest extends ActiveMQTestBase
             messagesJournal.load(infos, null, null);
 
             int bindings = 0;
-            for (RecordInfo info : infos)
-            {
+            for (RecordInfo info : infos) {
                System.out.println("info: " + info);
-               if (info.getUserRecordType() == JournalRecordIds.QUEUE_BINDING_RECORD)
-               {
+               if (info.getUserRecordType() == JournalRecordIds.QUEUE_BINDING_RECORD) {
                   bindings++;
                }
             }
@@ -510,39 +444,32 @@ public class HangConsumerTest extends ActiveMQTestBase
 
             System.out.println("Bindings: " + bindings);
             messagesJournal.stop();
-            if (i < 4) server.start();
+            if (i < 4)
+               server.start();
          }
       }
-      finally
-      {
-         try
-         {
+      finally {
+         try {
             server.stop();
          }
-         catch (Throwable ignored)
-         {
+         catch (Throwable ignored) {
          }
       }
    }
 
-
-
    ReusableLatch inCall = new ReusableLatch(1);
    Semaphore callbackSemaphore = new Semaphore(1);
 
+   class MyCallback implements SessionCallback {
 
-   class MyCallback implements SessionCallback
-   {
       @Override
-      public boolean hasCredits(ServerConsumer consumerID)
-      {
+      public boolean hasCredits(ServerConsumer consumerID) {
          return true;
       }
 
       final SessionCallback targetCallback;
 
-      MyCallback(SessionCallback parameter)
-      {
+      MyCallback(SessionCallback parameter) {
          this.targetCallback = parameter;
       }
 
@@ -550,13 +477,11 @@ public class HangConsumerTest extends ActiveMQTestBase
        * @see SessionCallback#sendProducerCreditsMessage(int, SimpleString)
        */
       @Override
-      public void sendProducerCreditsMessage(int credits, SimpleString address)
-      {
+      public void sendProducerCreditsMessage(int credits, SimpleString address) {
          targetCallback.sendProducerCreditsMessage(credits, address);
       }
 
-      public void sendProducerCreditsFailMessage(int credits, SimpleString address)
-      {
+      public void sendProducerCreditsFailMessage(int credits, SimpleString address) {
          targetCallback.sendProducerCreditsFailMessage(credits, address);
       }
 
@@ -564,25 +489,20 @@ public class HangConsumerTest extends ActiveMQTestBase
        * @see SessionCallback#sendMessage(org.apache.activemq.artemis.core.server.ServerMessage, long, int)
        */
       @Override
-      public int sendMessage(ServerMessage message, ServerConsumer consumer, int deliveryCount)
-      {
+      public int sendMessage(ServerMessage message, ServerConsumer consumer, int deliveryCount) {
          inCall.countDown();
-         try
-         {
+         try {
             callbackSemaphore.acquire();
          }
-         catch (InterruptedException e)
-         {
+         catch (InterruptedException e) {
             inCall.countUp();
             return -1;
          }
 
-         try
-         {
+         try {
             return targetCallback.sendMessage(message, consumer, deliveryCount);
          }
-         finally
-         {
+         finally {
             callbackSemaphore.release();
             inCall.countUp();
          }
@@ -592,8 +512,7 @@ public class HangConsumerTest extends ActiveMQTestBase
        * @see SessionCallback#sendLargeMessage(org.apache.activemq.artemis.core.server.ServerMessage, long, long, int)
        */
       @Override
-      public int sendLargeMessage(ServerMessage message, ServerConsumer consumer, long bodySize, int deliveryCount)
-      {
+      public int sendLargeMessage(ServerMessage message, ServerConsumer consumer, long bodySize, int deliveryCount) {
          return targetCallback.sendLargeMessage(message, consumer, bodySize, deliveryCount);
       }
 
@@ -601,8 +520,10 @@ public class HangConsumerTest extends ActiveMQTestBase
        * @see SessionCallback#sendLargeMessageContinuation(long, byte[], boolean, boolean)
        */
       @Override
-      public int sendLargeMessageContinuation(ServerConsumer consumer, byte[] body, boolean continues, boolean requiresResponse)
-      {
+      public int sendLargeMessageContinuation(ServerConsumer consumer,
+                                              byte[] body,
+                                              boolean continues,
+                                              boolean requiresResponse) {
          return targetCallback.sendLargeMessageContinuation(consumer, body, continues, requiresResponse);
       }
 
@@ -610,8 +531,7 @@ public class HangConsumerTest extends ActiveMQTestBase
        * @see SessionCallback#closed()
        */
       @Override
-      public void closed()
-      {
+      public void closed() {
          targetCallback.closed();
       }
 
@@ -619,8 +539,7 @@ public class HangConsumerTest extends ActiveMQTestBase
        * @see SessionCallback#addReadyListener(ReadyListener)
        */
       @Override
-      public void addReadyListener(ReadyListener listener)
-      {
+      public void addReadyListener(ReadyListener listener) {
          targetCallback.addReadyListener(listener);
       }
 
@@ -628,99 +547,76 @@ public class HangConsumerTest extends ActiveMQTestBase
        * @see SessionCallback#removeReadyListener(ReadyListener)
        */
       @Override
-      public void removeReadyListener(ReadyListener listener)
-      {
+      public void removeReadyListener(ReadyListener listener) {
          targetCallback.removeReadyListener(listener);
       }
 
       @Override
-      public void disconnect(ServerConsumer consumerId, String queueName)
-      {
+      public void disconnect(ServerConsumer consumerId, String queueName) {
          //To change body of implemented methods use File | Settings | File Templates.
       }
 
-
    }
 
-   class MyActiveMQServer extends ActiveMQServerImpl
-   {
-
-
+   class MyActiveMQServer extends ActiveMQServerImpl {
 
       public MyActiveMQServer(Configuration configuration,
                               MBeanServer mbeanServer,
-                              ActiveMQSecurityManager securityManager)
-      {
+                              ActiveMQSecurityManager securityManager) {
          super(configuration, mbeanServer, securityManager);
       }
 
       @Override
-      protected ServerSessionImpl internalCreateSession(String name, String username, String password, int minLargeMessageSize, RemotingConnection connection, boolean autoCommitSends, boolean autoCommitAcks, boolean preAcknowledge, boolean xa, String defaultAddress, SessionCallback callback, OperationContext context, ServerSessionFactory sessionFactory, boolean autoCreateQueue) throws Exception
-      {
-         return new ServerSessionImpl(name,
-            username,
-            password,
-            minLargeMessageSize,
-            autoCommitSends,
-            autoCommitAcks,
-            preAcknowledge,
-            getConfiguration().isPersistDeliveryCountBeforeDelivery(),
-            xa,
-            connection,
-            getStorageManager(),
-            getPostOffice(),
-            getResourceManager(),
-            getSecurityStore(),
-            getManagementService(),
-            this,
-            getConfiguration().getManagementAddress(),
-            defaultAddress == null ? null
-               : new SimpleString(defaultAddress),
-            new MyCallback(callback),
-            context,
-            null);
+      protected ServerSessionImpl internalCreateSession(String name,
+                                                        String username,
+                                                        String password,
+                                                        int minLargeMessageSize,
+                                                        RemotingConnection connection,
+                                                        boolean autoCommitSends,
+                                                        boolean autoCommitAcks,
+                                                        boolean preAcknowledge,
+                                                        boolean xa,
+                                                        String defaultAddress,
+                                                        SessionCallback callback,
+                                                        OperationContext context,
+                                                        ServerSessionFactory sessionFactory,
+                                                        boolean autoCreateQueue) throws Exception {
+         return new ServerSessionImpl(name, username, password, minLargeMessageSize, autoCommitSends, autoCommitAcks, preAcknowledge, getConfiguration().isPersistDeliveryCountBeforeDelivery(), xa, connection, getStorageManager(), getPostOffice(), getResourceManager(), getSecurityStore(), getManagementService(), this, getConfiguration().getManagementAddress(), defaultAddress == null ? null : new SimpleString(defaultAddress), new MyCallback(callback), context, null);
       }
    }
 
-   class HangInterceptor implements Interceptor
-   {
+   class HangInterceptor implements Interceptor {
+
       Semaphore semaphore = new Semaphore(1);
 
       ReusableLatch reusableLatch = new ReusableLatch(1);
 
       volatile ActiveMQException pendingException = null;
 
-      public void close() throws Exception
-      {
+      public void close() throws Exception {
          semaphore.acquire();
       }
 
-      public void open() throws Exception
-      {
+      public void open() throws Exception {
          semaphore.release();
       }
 
       @Override
-      public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException
-      {
-         if (packet instanceof SessionReceiveMessage)
-         {
+      public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException {
+         if (packet instanceof SessionReceiveMessage) {
             System.out.println("Receiving message");
-            try
-            {
+            try {
                reusableLatch.countDown();
                semaphore.acquire();
                semaphore.release();
                reusableLatch.countUp();
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                e.printStackTrace();
             }
          }
 
-         if (pendingException != null)
-         {
+         if (pendingException != null) {
             ActiveMQException exToThrow = pendingException;
             pendingException = null;
             throw exToThrow;

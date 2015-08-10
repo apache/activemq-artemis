@@ -36,8 +36,8 @@ import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-public class MessageGroupingConnectionFactoryTest extends ActiveMQTestBase
-{
+public class MessageGroupingConnectionFactoryTest extends ActiveMQTestBase {
+
    private ActiveMQServer server;
 
    private ClientSession clientSession;
@@ -45,27 +45,23 @@ public class MessageGroupingConnectionFactoryTest extends ActiveMQTestBase
    private final SimpleString qName = new SimpleString("MessageGroupingTestQueue");
 
    @Test
-   public void testBasicGroupingUsingConnection() throws Exception
-   {
+   public void testBasicGroupingUsingConnection() throws Exception {
       doTestBasicGroupingUsingConnectionFactory();
    }
 
    @Test
-   public void testBasicGroupingMultipleProducers() throws Exception
-   {
+   public void testBasicGroupingMultipleProducers() throws Exception {
       doTestBasicGroupingMultipleProducers();
    }
 
-   private void doTestBasicGroupingUsingConnectionFactory() throws Exception
-   {
+   private void doTestBasicGroupingUsingConnectionFactory() throws Exception {
       ClientProducer clientProducer = clientSession.createProducer(qName);
       ClientConsumer consumer = clientSession.createConsumer(qName);
       ClientConsumer consumer2 = clientSession.createConsumer(qName);
       clientSession.start();
 
       int numMessages = 100;
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = createTextMessage(clientSession, "m" + i);
          clientProducer.send(message);
       }
@@ -81,8 +77,7 @@ public class MessageGroupingConnectionFactoryTest extends ActiveMQTestBase
       consumer2.close();
    }
 
-   private void doTestBasicGroupingMultipleProducers() throws Exception
-   {
+   private void doTestBasicGroupingMultipleProducers() throws Exception {
       ClientProducer clientProducer = clientSession.createProducer(qName);
       ClientProducer clientProducer2 = clientSession.createProducer(qName);
       ClientProducer clientProducer3 = clientSession.createProducer(qName);
@@ -91,8 +86,7 @@ public class MessageGroupingConnectionFactoryTest extends ActiveMQTestBase
       clientSession.start();
 
       int numMessages = 100;
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = createTextMessage(clientSession, "m" + i);
          clientProducer.send(message);
          clientProducer2.send(message);
@@ -112,43 +106,36 @@ public class MessageGroupingConnectionFactoryTest extends ActiveMQTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
       server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig(), false));
       server.start();
-      ServerLocator locator = createInVMNonHALocator()
-              .setGroupID("grp1");
+      ServerLocator locator = createInVMNonHALocator().setGroupID("grp1");
       ClientSessionFactory sessionFactory = createSessionFactory(locator);
       clientSession = addClientSession(sessionFactory.createSession(false, true, true));
       clientSession.createQueue(qName, qName, null, false);
    }
 
-   private static class DummyMessageHandler implements MessageHandler
-   {
+   private static class DummyMessageHandler implements MessageHandler {
+
       ArrayList<ClientMessage> list = new ArrayList<ClientMessage>();
 
       private final CountDownLatch latch;
 
       private final boolean acknowledge;
 
-      public DummyMessageHandler(final CountDownLatch latch, final boolean acknowledge)
-      {
+      public DummyMessageHandler(final CountDownLatch latch, final boolean acknowledge) {
          this.latch = latch;
          this.acknowledge = acknowledge;
       }
 
-      public void onMessage(final ClientMessage message)
-      {
+      public void onMessage(final ClientMessage message) {
          list.add(message);
-         if (acknowledge)
-         {
-            try
-            {
+         if (acknowledge) {
+            try {
                message.acknowledge();
             }
-            catch (ActiveMQException e)
-            {
+            catch (ActiveMQException e) {
                // ignore
             }
          }

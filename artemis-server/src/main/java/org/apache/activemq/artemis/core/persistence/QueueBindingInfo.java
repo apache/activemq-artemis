@@ -18,8 +18,8 @@ package org.apache.activemq.artemis.core.persistence;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 
-public interface QueueBindingInfo
-{
+public interface QueueBindingInfo {
+
    long getId();
 
    SimpleString getAddress();
@@ -28,6 +28,7 @@ public interface QueueBindingInfo
 
    /**
     * used to rename the queue in case of a duplication during load time
+    *
     * @param newName
     */
    void replaceQueueName(SimpleString newName);

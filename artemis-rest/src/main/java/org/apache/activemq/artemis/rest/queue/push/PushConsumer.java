@@ -27,8 +27,8 @@ import org.apache.activemq.artemis.rest.queue.push.xml.PushRegistration;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PushConsumer
-{
+public class PushConsumer {
+
    protected PushRegistration registration;
    protected ClientSessionFactory factory;
    protected List<ClientSession> sessions;
@@ -38,8 +38,11 @@ public class PushConsumer
    protected PushStrategy strategy;
    protected PushStore store;
 
-   public PushConsumer(ClientSessionFactory factory, String destination, String id, PushRegistration registration, PushStore store)
-   {
+   public PushConsumer(ClientSessionFactory factory,
+                       String destination,
+                       String id,
+                       PushRegistration registration,
+                       PushStore store) {
       this.factory = factory;
       this.destination = destination;
       this.id = id;
@@ -47,41 +50,32 @@ public class PushConsumer
       this.store = store;
    }
 
-   public PushStrategy getStrategy()
-   {
+   public PushStrategy getStrategy() {
       return strategy;
    }
 
-   public PushRegistration getRegistration()
-   {
+   public PushRegistration getRegistration() {
       return registration;
    }
 
-   public String getDestination()
-   {
+   public String getDestination() {
       return destination;
    }
 
-   public void start() throws Exception
-   {
-      if (registration.getTarget().getClassName() != null)
-      {
+   public void start() throws Exception {
+      if (registration.getTarget().getClassName() != null) {
          Class clazz = Thread.currentThread().getContextClassLoader().loadClass(registration.getTarget().getClassName());
          strategy = (PushStrategy) clazz.newInstance();
       }
-      else if (registration.getTarget().getRelationship() != null)
-      {
-         if (registration.getTarget().getRelationship().equals("destination"))
-         {
+      else if (registration.getTarget().getRelationship() != null) {
+         if (registration.getTarget().getRelationship().equals("destination")) {
             strategy = new ActiveMQPushStrategy();
          }
-         else if (registration.getTarget().getRelationship().equals("template"))
-         {
+         else if (registration.getTarget().getRelationship().equals("template")) {
             strategy = new UriTemplateStrategy();
          }
       }
-      if (strategy == null)
-      {
+      if (strategy == null) {
          strategy = new UriStrategy();
       }
       strategy.setRegistration(registration);
@@ -90,18 +84,15 @@ public class PushConsumer
       sessions = new ArrayList<ClientSession>();
       consumers = new ArrayList<ClientConsumer>();
 
-      for (int i = 0; i < registration.getSessionCount(); i++)
-      {
+      for (int i = 0; i < registration.getSessionCount(); i++) {
          ClientSession session = factory.createSession(false, false, 0);
 
          ClientConsumer consumer;
 
-         if (registration.getSelector() != null)
-         {
+         if (registration.getSelector() != null) {
             consumer = session.createConsumer(destination, SelectorTranslator.convertToActiveMQFilterString(registration.getSelector()));
          }
-         else
-         {
+         else {
             consumer = session.createConsumer(destination);
          }
          consumer.setMessageHandler(new PushConsumerMessageHandler(this, session));
@@ -113,47 +104,35 @@ public class PushConsumer
       }
    }
 
-   public void stop()
-   {
-      for (ClientSession session : sessions)
-      {
-         try
-         {
-            if (session != null)
-            {
+   public void stop() {
+      for (ClientSession session : sessions) {
+         try {
+            if (session != null) {
                session.close();
             }
          }
-         catch (ActiveMQException e)
-         {
+         catch (ActiveMQException e) {
 
          }
       }
 
-      try
-      {
-         if (strategy != null)
-         {
+      try {
+         if (strategy != null) {
             strategy.stop();
          }
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
       }
    }
 
-   public void disableFromFailure()
-   {
+   public void disableFromFailure() {
       registration.setEnabled(false);
-      try
-      {
-         if (registration.isDurable())
-         {
+      try {
+         if (registration.isDurable()) {
             store.update(registration);
          }
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          ActiveMQRestLogger.LOGGER.errorUpdatingStore(e);
       }
       stop();

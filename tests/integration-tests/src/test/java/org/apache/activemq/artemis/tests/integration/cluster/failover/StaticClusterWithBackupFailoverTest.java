@@ -18,69 +18,29 @@ package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 
-public class StaticClusterWithBackupFailoverTest extends ClusterWithBackupFailoverTestBase
-{
+public class StaticClusterWithBackupFailoverTest extends ClusterWithBackupFailoverTestBase {
 
    @Override
-   protected void setupCluster(final MessageLoadBalancingType messageLoadBalancingType) throws Exception
-   {
-      setupClusterConnectionWithBackups("cluster0",
-                                        "queues",
-                                        messageLoadBalancingType,
-                                        1,
-                                        isNetty(),
-                                        0,
-                                        new int[]{1, 2});
+   protected void setupCluster(final MessageLoadBalancingType messageLoadBalancingType) throws Exception {
+      setupClusterConnectionWithBackups("cluster0", "queues", messageLoadBalancingType, 1, isNetty(), 0, new int[]{1, 2});
 
-      setupClusterConnectionWithBackups("cluster1",
-                                        "queues",
-                                        messageLoadBalancingType,
-                                        1,
-                                        isNetty(),
-                                        1,
-                                        new int[]{0, 2});
+      setupClusterConnectionWithBackups("cluster1", "queues", messageLoadBalancingType, 1, isNetty(), 1, new int[]{0, 2});
 
-      setupClusterConnectionWithBackups("cluster2",
-                                        "queues",
-                                        messageLoadBalancingType,
-                                        1,
-                                        isNetty(),
-                                        2,
-                                        new int[]{0, 1});
+      setupClusterConnectionWithBackups("cluster2", "queues", messageLoadBalancingType, 1, isNetty(), 2, new int[]{0, 1});
 
-      setupClusterConnectionWithBackups("cluster0",
-                                        "queues",
-                                        messageLoadBalancingType,
-                                        1,
-                                        isNetty(),
-                                        3,
-                                        new int[]{1, 2});
+      setupClusterConnectionWithBackups("cluster0", "queues", messageLoadBalancingType, 1, isNetty(), 3, new int[]{1, 2});
 
-      setupClusterConnectionWithBackups("cluster1",
-                                        "queues",
-                                        messageLoadBalancingType,
-                                        1,
-                                        isNetty(),
-                                        4,
-                                        new int[]{0, 2});
+      setupClusterConnectionWithBackups("cluster1", "queues", messageLoadBalancingType, 1, isNetty(), 4, new int[]{0, 2});
 
-      setupClusterConnectionWithBackups("cluster2",
-                                        "queues",
-                                        messageLoadBalancingType,
-                                        1,
-                                        isNetty(),
-                                        5,
-                                        new int[]{0, 1});
+      setupClusterConnectionWithBackups("cluster2", "queues", messageLoadBalancingType, 1, isNetty(), 5, new int[]{0, 1});
    }
 
-   protected boolean isSharedStorage()
-   {
+   protected boolean isSharedStorage() {
       return true;
    }
 
    @Override
-   protected void setupServers() throws Exception
-   {
+   protected void setupServers() throws Exception {
       // The backups
       setupBackupServer(3, 0, isFileStorage(), isSharedStorage(), isNetty());
       setupBackupServer(4, 1, isFileStorage(), isSharedStorage(), isNetty());

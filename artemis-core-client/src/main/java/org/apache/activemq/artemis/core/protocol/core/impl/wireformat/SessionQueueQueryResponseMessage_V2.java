@@ -22,18 +22,15 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.core.client.impl.QueueQueryImpl;
 import org.apache.activemq.artemis.core.server.QueueQueryResult;
 
-public class SessionQueueQueryResponseMessage_V2 extends SessionQueueQueryResponseMessage
-{
+public class SessionQueueQueryResponseMessage_V2 extends SessionQueueQueryResponseMessage {
+
    private boolean autoCreationEnabled;
 
-   public SessionQueueQueryResponseMessage_V2(final QueueQueryResult result)
-   {
-      this(result.getName(), result.getAddress(), result.isDurable(), result.isTemporary(),
-           result.getFilterString(), result.getConsumerCount(), result.getMessageCount(), result.isExists(), result.isAutoCreateJmsQueues());
+   public SessionQueueQueryResponseMessage_V2(final QueueQueryResult result) {
+      this(result.getName(), result.getAddress(), result.isDurable(), result.isTemporary(), result.getFilterString(), result.getConsumerCount(), result.getMessageCount(), result.isExists(), result.isAutoCreateJmsQueues());
    }
 
-   public SessionQueueQueryResponseMessage_V2()
-   {
+   public SessionQueueQueryResponseMessage_V2() {
       this(null, null, false, false, null, 0, 0, false, false);
    }
 
@@ -45,8 +42,7 @@ public class SessionQueueQueryResponseMessage_V2 extends SessionQueueQueryRespon
                                                final int consumerCount,
                                                final long messageCount,
                                                final boolean exists,
-                                               final boolean autoCreationEnabled)
-   {
+                                               final boolean autoCreationEnabled) {
       super(SESS_QUEUEQUERY_RESP_V2);
 
       this.durable = durable;
@@ -68,57 +64,43 @@ public class SessionQueueQueryResponseMessage_V2 extends SessionQueueQueryRespon
       this.autoCreationEnabled = autoCreationEnabled;
    }
 
-   public boolean isAutoCreationEnabled()
-   {
+   public boolean isAutoCreationEnabled() {
       return autoCreationEnabled;
    }
 
    @Override
-   public void encodeRest(final ActiveMQBuffer buffer)
-   {
+   public void encodeRest(final ActiveMQBuffer buffer) {
       super.encodeRest(buffer);
       buffer.writeBoolean(autoCreationEnabled);
    }
 
    @Override
-   public void decodeRest(final ActiveMQBuffer buffer)
-   {
+   public void decodeRest(final ActiveMQBuffer buffer) {
       super.decodeRest(buffer);
       autoCreationEnabled = buffer.readBoolean();
    }
 
    @Override
-   public int hashCode()
-   {
+   public int hashCode() {
       final int prime = 31;
       int result = super.hashCode();
       result = prime * result + (autoCreationEnabled ? 1231 : 1237);
       return result;
    }
 
-   public ClientSession.QueueQuery toQueueQuery()
-   {
-      return new QueueQueryImpl(isDurable(),
-                                isTemporary(),
-                                getConsumerCount(),
-                                getMessageCount(),
-                                getFilterString(),
-                                getAddress(),
-                                getName(),
-                                isExists(),
-                                isAutoCreationEnabled());
+   public ClientSession.QueueQuery toQueueQuery() {
+      return new QueueQueryImpl(isDurable(), isTemporary(), getConsumerCount(), getMessageCount(), getFilterString(), getAddress(), getName(), isExists(), isAutoCreationEnabled());
    }
 
    @Override
-   public boolean equals(Object obj)
-   {
+   public boolean equals(Object obj) {
       if (this == obj)
          return true;
       if (!super.equals(obj))
          return false;
       if (!(obj instanceof SessionQueueQueryResponseMessage_V2))
          return false;
-      SessionQueueQueryResponseMessage_V2 other = (SessionQueueQueryResponseMessage_V2)obj;
+      SessionQueueQueryResponseMessage_V2 other = (SessionQueueQueryResponseMessage_V2) obj;
       if (autoCreationEnabled != other.autoCreationEnabled)
          return false;
       return true;

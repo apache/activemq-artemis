@@ -30,150 +30,160 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- *
- *
  * Automatically generated socket.close() calls to simulate network faults
  */
 public class SocketTstFactory extends SocketFactory {
-    private static final Logger LOG = LoggerFactory.getLogger(SocketTstFactory.class);
 
-    private static final ConcurrentMap<InetAddress, Integer> closeIter = new ConcurrentHashMap<InetAddress, Integer>();
+   private static final Logger LOG = LoggerFactory.getLogger(SocketTstFactory.class);
 
-    private class SocketTst {
+   private static final ConcurrentMap<InetAddress, Integer> closeIter = new ConcurrentHashMap<InetAddress, Integer>();
 
-        private class Bagot implements Runnable {
-            private final Thread processus;
-            private final Socket socket;
-            private final InetAddress address;
+   private class SocketTst {
 
-            public Bagot(Random rnd, Socket socket, InetAddress address) {
-                this.processus = new Thread(this, "Network Faults maker : undefined");
-                this.socket = socket;
-                this.address = address;
+      private class Bagot implements Runnable {
+
+         private final Thread processus;
+         private final Socket socket;
+         private final InetAddress address;
+
+         public Bagot(Random rnd, Socket socket, InetAddress address) {
+            this.processus = new Thread(this, "Network Faults maker : undefined");
+            this.socket = socket;
+            this.address = address;
+         }
+
+         public void start() {
+            this.processus.setName("Network Faults maker : " + this.socket.toString());
+            this.processus.start();
+         }
+
+         @Override
+         public void run() {
+            int lastDelayVal;
+            Integer lastDelay;
+            while (!this.processus.isInterrupted()) {
+               if (!this.socket.isClosed()) {
+                  try {
+                     lastDelay = closeIter.get(this.address);
+                     if (lastDelay == null) {
+                        lastDelayVal = 0;
+                     }
+                     else {
+                        lastDelayVal = lastDelay.intValue();
+                        if (lastDelayVal > 10)
+                           lastDelayVal += 20;
+                        else
+                           lastDelayVal += 1;
+                     }
+
+                     lastDelay = new Integer(lastDelayVal);
+
+                     LOG.info("Trying to close client socket " + socket.toString() + " in " + lastDelayVal + " milliseconds");
+
+                     try {
+                        Thread.sleep(lastDelayVal);
+                     }
+                     catch (InterruptedException e) {
+                        this.processus.interrupt();
+                        Thread.currentThread().interrupt();
+                     }
+                     catch (IllegalArgumentException e) {
+                     }
+
+                     this.socket.close();
+                     closeIter.put(this.address, lastDelay);
+                     LOG.info("Client socket " + this.socket.toString() + " is closed.");
+                  }
+                  catch (IOException e) {
+                  }
+               }
+
+               this.processus.interrupt();
             }
+         }
+      }
 
-            public void start() {
-                this.processus.setName("Network Faults maker : " + this.socket.toString());
-                this.processus.start();
-            }
+      private final Bagot bagot;
+      private final Socket socket;
 
-            @Override
-            public void run() {
-                int lastDelayVal;
-                Integer lastDelay;
-                while (!this.processus.isInterrupted()) {
-                    if (!this.socket.isClosed()) {
-                        try {
-                            lastDelay = closeIter.get(this.address);
-                            if (lastDelay == null) {
-                                lastDelayVal = 0;
-                            } else {
-                                lastDelayVal = lastDelay.intValue();
-                                if (lastDelayVal > 10)
-                                    lastDelayVal += 20;
-                                else
-                                    lastDelayVal += 1;
-                            }
+      public SocketTst(InetAddress address, int port, Random rnd) throws IOException {
+         this.socket = new Socket(address, port);
+         bagot = new Bagot(rnd, this.socket, address);
+      }
 
-                            lastDelay = new Integer(lastDelayVal);
+      public SocketTst(InetAddress address,
+                       int port,
+                       InetAddress localAddr,
+                       int localPort,
+                       Random rnd) throws IOException {
+         this.socket = new Socket(address, port, localAddr, localPort);
+         bagot = new Bagot(rnd, this.socket, address);
+      }
 
-                            LOG.info("Trying to close client socket " + socket.toString() + " in " + lastDelayVal + " milliseconds");
+      public SocketTst(String address, int port, Random rnd) throws UnknownHostException, IOException {
+         this.socket = new Socket(address, port);
+         bagot = new Bagot(rnd, this.socket, InetAddress.getByName(address));
+      }
 
-                            try {
-                                Thread.sleep(lastDelayVal);
-                            } catch (InterruptedException e) {
-                                this.processus.interrupt();
-                                Thread.currentThread().interrupt();
-                            } catch (IllegalArgumentException e) {
-                            }
+      public SocketTst(String address, int port, InetAddress localAddr, int localPort, Random rnd) throws IOException {
+         this.socket = new Socket(address, port, localAddr, localPort);
+         bagot = new Bagot(rnd, this.socket, InetAddress.getByName(address));
+      }
 
-                            this.socket.close();
-                            closeIter.put(this.address, lastDelay);
-                            LOG.info("Client socket " + this.socket.toString() + " is closed.");
-                        } catch (IOException e) {
-                        }
-                    }
+      public Socket getSocket() {
+         return this.socket;
+      }
 
-                    this.processus.interrupt();
-                }
-            }
-        }
+      public void startBagot() {
+         bagot.start();
+      }
+   }
 
-        private final Bagot bagot;
-        private final Socket socket;
+   ;
 
-        public SocketTst(InetAddress address, int port, Random rnd) throws IOException {
-            this.socket = new Socket(address, port);
-            bagot = new Bagot(rnd, this.socket, address);
-        }
+   private final Random rnd;
 
-        public SocketTst(InetAddress address, int port, InetAddress localAddr, int localPort, Random rnd) throws IOException {
-            this.socket = new Socket(address, port, localAddr, localPort);
-            bagot = new Bagot(rnd, this.socket, address);
-        }
+   public SocketTstFactory() {
+      super();
+      LOG.info("Creating a new SocketTstFactory");
+      this.rnd = new Random();
+   }
 
-        public SocketTst(String address, int port, Random rnd) throws UnknownHostException, IOException {
-            this.socket = new Socket(address, port);
-            bagot = new Bagot(rnd, this.socket, InetAddress.getByName(address));
-        }
+   @Override
+   public Socket createSocket(InetAddress host, int port) throws IOException {
+      SocketTst sockTst;
+      sockTst = new SocketTst(host, port, this.rnd);
+      sockTst.startBagot();
+      return sockTst.getSocket();
+   }
 
-        public SocketTst(String address, int port, InetAddress localAddr, int localPort, Random rnd) throws IOException {
-            this.socket = new Socket(address, port, localAddr, localPort);
-            bagot = new Bagot(rnd, this.socket, InetAddress.getByName(address));
-        }
+   @Override
+   public Socket createSocket(InetAddress host, int port, InetAddress localAddress, int localPort) throws IOException {
+      SocketTst sockTst;
+      sockTst = new SocketTst(host, port, localAddress, localPort, this.rnd);
+      sockTst.startBagot();
+      return sockTst.getSocket();
+   }
 
-        public Socket getSocket() {
-            return this.socket;
-        }
+   @Override
+   public Socket createSocket(String host, int port) throws IOException {
+      SocketTst sockTst;
+      sockTst = new SocketTst(host, port, this.rnd);
+      sockTst.startBagot();
+      return sockTst.getSocket();
+   }
 
-        public void startBagot() {
-            bagot.start();
-        }
-    };
+   @Override
+   public Socket createSocket(String host, int port, InetAddress localAddress, int localPort) throws IOException {
+      SocketTst sockTst;
+      sockTst = new SocketTst(host, port, localAddress, localPort, this.rnd);
+      sockTst.startBagot();
+      return sockTst.getSocket();
+   }
 
-    private final Random rnd;
+   private final static SocketTstFactory client = new SocketTstFactory();
 
-    public SocketTstFactory() {
-        super();
-        LOG.info("Creating a new SocketTstFactory");
-        this.rnd = new Random();
-    }
-
-    @Override
-    public Socket createSocket(InetAddress host, int port) throws IOException {
-        SocketTst sockTst;
-        sockTst = new SocketTst(host, port, this.rnd);
-        sockTst.startBagot();
-        return sockTst.getSocket();
-    }
-
-    @Override
-    public Socket createSocket(InetAddress host, int port, InetAddress localAddress, int localPort) throws IOException {
-        SocketTst sockTst;
-        sockTst = new SocketTst(host, port, localAddress, localPort, this.rnd);
-        sockTst.startBagot();
-        return sockTst.getSocket();
-    }
-
-    @Override
-    public Socket createSocket(String host, int port) throws IOException {
-        SocketTst sockTst;
-        sockTst = new SocketTst(host, port, this.rnd);
-        sockTst.startBagot();
-        return sockTst.getSocket();
-    }
-
-    @Override
-    public Socket createSocket(String host, int port, InetAddress localAddress, int localPort) throws IOException {
-        SocketTst sockTst;
-        sockTst = new SocketTst(host, port, localAddress, localPort, this.rnd);
-        sockTst.startBagot();
-        return sockTst.getSocket();
-    }
-
-    private final static SocketTstFactory client = new SocketTstFactory();
-
-    public static SocketFactory getDefault() {
-        return client;
-    }
+   public static SocketFactory getDefault() {
+      return client;
+   }
 }

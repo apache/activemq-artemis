@@ -24,33 +24,29 @@ import java.io.IOException;
 import org.apache.activemq.openwire.*;
 import org.apache.activemq.command.*;
 
-
 /**
  * Test case for the OpenWire marshalling for ConnectionId
  *
  *
  * NOTE!: This file is auto generated - do not modify!
- *        if you need to make a change, please see the modify the groovy scripts in the
- *        under src/gram/script and then use maven openwire:generate to regenerate 
- *        this file.
- *
- * 
+ * if you need to make a change, please see the modify the groovy scripts in the
+ * under src/gram/script and then use maven openwire:generate to regenerate
+ * this file.
  */
 public class ConnectionIdTest extends DataFileGeneratorTestSupport {
 
+   public static ConnectionIdTest SINGLETON = new ConnectionIdTest();
 
-    public static ConnectionIdTest SINGLETON = new ConnectionIdTest();
+   public Object createObject() throws Exception {
+      ConnectionId info = new ConnectionId();
+      populateObject(info);
+      return info;
+   }
 
-    public Object createObject() throws Exception {
-        ConnectionId info = new ConnectionId();
-        populateObject(info);
-        return info;
-    }
+   protected void populateObject(Object object) throws Exception {
+      super.populateObject(object);
+      ConnectionId info = (ConnectionId) object;
 
-    protected void populateObject(Object object) throws Exception {
-        super.populateObject(object);
-        ConnectionId info = (ConnectionId) object;
-
-        info.setValue("Value:1");
-    }
+      info.setValue("Value:1");
+   }
 }

@@ -24,10 +24,12 @@ import org.apache.activemq.artemis.core.journal.IOCompletion;
  * <p>
  * When the entire set is done, a group of Runnables can be executed.
  */
-public interface OperationContext extends IOCompletion
-{
-   /** Execute the task when all IO operations are complete,
-    *  Or execute it immediately if nothing is pending.  */
+public interface OperationContext extends IOCompletion {
+
+   /**
+    * Execute the task when all IO operations are complete,
+    * Or execute it immediately if nothing is pending.
+    */
    void executeOnCompletion(IOCallback runnable);
 
    void replicationLineUp();

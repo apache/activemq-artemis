@@ -39,59 +39,64 @@ import org.slf4j.LoggerFactory;
  * Automatically generated socket.close() calls to simulate network faults
  */
 public class TcpFaultyTransportFactory extends TcpTransportFactory {
-    private static final Logger LOG = LoggerFactory.getLogger(TcpFaultyTransportFactory.class);
 
-   protected TcpFaultyTransport createTcpFaultyTransport(WireFormat wf, SocketFactory socketFactory, URI location, URI localLocation) throws UnknownHostException, IOException {
-        return new TcpFaultyTransport(wf, socketFactory, location, localLocation);
-    }
+   private static final Logger LOG = LoggerFactory.getLogger(TcpFaultyTransportFactory.class);
 
-    protected Transport createTransport(URI location, WireFormat wf) throws UnknownHostException, IOException {
-        URI localLocation = null;
-        String path = location.getPath();
-        // see if the path is a local URI location
-        if (path != null && path.length() > 0) {
-            int localPortIndex = path.indexOf(':');
-            try {
-                Integer.parseInt(path.substring(localPortIndex + 1, path.length()));
-                String localString = location.getScheme() + ":/" + path;
-                localLocation = new URI(localString);
-            } catch (Exception e) {
-                LOG.warn("path isn't a valid local location for TcpTransport to use", e);
-            }
-        }
-        SocketFactory socketFactory = createSocketFactory();
-        return createTcpFaultyTransport(wf, socketFactory, location, localLocation);
-    }
+   protected TcpFaultyTransport createTcpFaultyTransport(WireFormat wf,
+                                                         SocketFactory socketFactory,
+                                                         URI location,
+                                                         URI localLocation) throws UnknownHostException, IOException {
+      return new TcpFaultyTransport(wf, socketFactory, location, localLocation);
+   }
 
-    protected TcpFaultyTransportServer createTcpFaultyTransportServer(final URI location, ServerSocketFactory serverSocketFactory) throws IOException, URISyntaxException     {
-        return new TcpFaultyTransportServer(this, location, serverSocketFactory);
-    }
+   protected Transport createTransport(URI location, WireFormat wf) throws UnknownHostException, IOException {
+      URI localLocation = null;
+      String path = location.getPath();
+      // see if the path is a local URI location
+      if (path != null && path.length() > 0) {
+         int localPortIndex = path.indexOf(':');
+         try {
+            Integer.parseInt(path.substring(localPortIndex + 1, path.length()));
+            String localString = location.getScheme() + ":/" + path;
+            localLocation = new URI(localString);
+         }
+         catch (Exception e) {
+            LOG.warn("path isn't a valid local location for TcpTransport to use", e);
+         }
+      }
+      SocketFactory socketFactory = createSocketFactory();
+      return createTcpFaultyTransport(wf, socketFactory, location, localLocation);
+   }
 
-    public TransportServer doBind(final URI location) throws IOException {
-        try {
-            Map<String, String> options = new HashMap<String, String>(URISupport.parseParameters(location));
+   protected TcpFaultyTransportServer createTcpFaultyTransportServer(final URI location,
+                                                                     ServerSocketFactory serverSocketFactory) throws IOException, URISyntaxException {
+      return new TcpFaultyTransportServer(this, location, serverSocketFactory);
+   }
 
-            ServerSocketFactory serverSocketFactory = createServerSocketFactory();
-            TcpFaultyTransportServer server = createTcpFaultyTransportServer(location, serverSocketFactory);
-            server.setWireFormatFactory(createWireFormatFactory(options));
-            IntrospectionSupport.setProperties(server, options);
-            Map<String, Object> transportOptions = IntrospectionSupport.extractProperties(options, "transport.");
-            server.setTransportOption(transportOptions);
-            server.bind();
+   public TransportServer doBind(final URI location) throws IOException {
+      try {
+         Map<String, String> options = new HashMap<String, String>(URISupport.parseParameters(location));
 
-            return server;
-        } catch (URISyntaxException e) {
-            throw IOExceptionSupport.create(e);
-        }
-    }
+         ServerSocketFactory serverSocketFactory = createServerSocketFactory();
+         TcpFaultyTransportServer server = createTcpFaultyTransportServer(location, serverSocketFactory);
+         server.setWireFormatFactory(createWireFormatFactory(options));
+         IntrospectionSupport.setProperties(server, options);
+         Map<String, Object> transportOptions = IntrospectionSupport.extractProperties(options, "transport.");
+         server.setTransportOption(transportOptions);
+         server.bind();
 
-    
-    protected SocketFactory createSocketFactory() throws IOException {
-	return SocketTstFactory.getDefault();
-    }
+         return server;
+      }
+      catch (URISyntaxException e) {
+         throw IOExceptionSupport.create(e);
+      }
+   }
 
-    
-    protected ServerSocketFactory createServerSocketFactory() throws IOException {
-	return ServerSocketTstFactory.getDefault();
-    }
+   protected SocketFactory createSocketFactory() throws IOException {
+      return SocketTstFactory.getDefault();
+   }
+
+   protected ServerSocketFactory createServerSocketFactory() throws IOException {
+      return ServerSocketTstFactory.getDefault();
+   }
 }

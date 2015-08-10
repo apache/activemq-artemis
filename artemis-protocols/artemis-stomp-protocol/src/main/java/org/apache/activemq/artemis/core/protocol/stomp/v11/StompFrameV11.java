@@ -23,26 +23,22 @@ import java.util.Map;
 import org.apache.activemq.artemis.core.protocol.stomp.Stomp;
 import org.apache.activemq.artemis.core.protocol.stomp.StompFrame;
 
-public class StompFrameV11 extends StompFrame
-{
+public class StompFrameV11 extends StompFrame {
+
    //stomp 1.1 talks about repetitive headers.
    protected final List<Header> allHeaders = new ArrayList<Header>();
 
-   public StompFrameV11(String command, Map<String, String> headers, byte[] content)
-   {
+   public StompFrameV11(String command, Map<String, String> headers, byte[] content) {
       super(command, headers, content);
    }
 
-   public StompFrameV11(String command)
-   {
+   public StompFrameV11(String command) {
       super(command);
    }
 
    @Override
-   protected void encodeHeaders(StringBuilder head)
-   {
-      for (Header h : allHeaders)
-      {
+   protected void encodeHeaders(StringBuilder head) {
+      for (Header h : allHeaders) {
          head.append(h.getEncodedKey());
          head.append(Stomp.Headers.SEPARATOR);
          head.append(h.getEncodedValue());
@@ -51,15 +47,12 @@ public class StompFrameV11 extends StompFrame
    }
 
    @Override
-   public void addHeader(String key, String val)
-   {
-      if (!headers.containsKey(key))
-      {
+   public void addHeader(String key, String val) {
+      if (!headers.containsKey(key)) {
          headers.put(key, val);
          allHeaders.add(new Header(key, val));
       }
-      else if (!key.equals(Stomp.Headers.CONTENT_LENGTH))
-      {
+      else if (!key.equals(Stomp.Headers.CONTENT_LENGTH)) {
          allHeaders.add(new Header(key, val));
       }
    }

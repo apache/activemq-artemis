@@ -35,63 +35,62 @@ import static org.junit.Assert.assertFalse;
  */
 public class KahaDBFilePendingMessageCursorTest extends FilePendingMessageCursorTestSupport {
 
-    @Test
-    public void testAddRemoveAddIndexSize() throws Exception {
-        brokerService = new BrokerService();
-        brokerService.setUseJmx(false);
-        SystemUsage usage = brokerService.getSystemUsage();
-        usage.getMemoryUsage().setLimit(1024*150);
-        String body = new String(new byte[1024]);
-        Destination destination = new Queue(brokerService, new ActiveMQQueue("Q"), null, new DestinationStatistics(), null);
+   @Test
+   public void testAddRemoveAddIndexSize() throws Exception {
+      brokerService = new BrokerService();
+      brokerService.setUseJmx(false);
+      SystemUsage usage = brokerService.getSystemUsage();
+      usage.getMemoryUsage().setLimit(1024 * 150);
+      String body = new String(new byte[1024]);
+      Destination destination = new Queue(brokerService, new ActiveMQQueue("Q"), null, new DestinationStatistics(), null);
 
-        underTest = new FilePendingMessageCursor(brokerService.getBroker(), "test", false);
-        underTest.setSystemUsage(usage);
+      underTest = new FilePendingMessageCursor(brokerService.getBroker(), "test", false);
+      underTest.setSystemUsage(usage);
 
-        LOG.info("start");
-        final PageFile pageFile =  ((PListImpl)underTest.getDiskList()).getPageFile();
-        LOG.info("page count: " +pageFile.getPageCount());
-        LOG.info("free count: " + pageFile.getFreePageCount());
-        LOG.info("content size: " +pageFile.getPageContentSize());
+      LOG.info("start");
+      final PageFile pageFile = ((PListImpl) underTest.getDiskList()).getPageFile();
+      LOG.info("page count: " + pageFile.getPageCount());
+      LOG.info("free count: " + pageFile.getFreePageCount());
+      LOG.info("content size: " + pageFile.getPageContentSize());
 
-        final long initialPageCount =  pageFile.getPageCount();
+      final long initialPageCount = pageFile.getPageCount();
 
-        final int numMessages = 1000;
+      final int numMessages = 1000;
 
-        for (int j=0; j<10; j++) {
-            // ensure free pages are reused
-            for (int i=0; i< numMessages; i++) {
-                ActiveMQMessage mqMessage = new ActiveMQMessage();
-                mqMessage.setStringProperty("body", body);
-                mqMessage.setMessageId(new MessageId("1:2:3:" + i));
-                mqMessage.setMemoryUsage(usage.getMemoryUsage());
-                mqMessage.setRegionDestination(destination);
-                underTest.addMessageLast(new IndirectMessageReference(mqMessage));
-            }
-            assertFalse("cursor is not full " + usage.getTempUsage(), underTest.isFull());
+      for (int j = 0; j < 10; j++) {
+         // ensure free pages are reused
+         for (int i = 0; i < numMessages; i++) {
+            ActiveMQMessage mqMessage = new ActiveMQMessage();
+            mqMessage.setStringProperty("body", body);
+            mqMessage.setMessageId(new MessageId("1:2:3:" + i));
+            mqMessage.setMemoryUsage(usage.getMemoryUsage());
+            mqMessage.setRegionDestination(destination);
+            underTest.addMessageLast(new IndirectMessageReference(mqMessage));
+         }
+         assertFalse("cursor is not full " + usage.getTempUsage(), underTest.isFull());
 
-            underTest.reset();
-            long receivedCount = 0;
-            while(underTest.hasNext()) {
-                MessageReference ref = underTest.next();
-                underTest.remove();
-                ref.decrementReferenceCount();
-                assertEquals("id is correct", receivedCount++, ref.getMessageId().getProducerSequenceId());
-            }
-            assertEquals("got all messages back", receivedCount, numMessages);
-            LOG.info("page count: " +pageFile.getPageCount());
-            LOG.info("free count: " + pageFile.getFreePageCount());
-            LOG.info("content size: " + pageFile.getPageContentSize());
-        }
+         underTest.reset();
+         long receivedCount = 0;
+         while (underTest.hasNext()) {
+            MessageReference ref = underTest.next();
+            underTest.remove();
+            ref.decrementReferenceCount();
+            assertEquals("id is correct", receivedCount++, ref.getMessageId().getProducerSequenceId());
+         }
+         assertEquals("got all messages back", receivedCount, numMessages);
+         LOG.info("page count: " + pageFile.getPageCount());
+         LOG.info("free count: " + pageFile.getFreePageCount());
+         LOG.info("content size: " + pageFile.getPageContentSize());
+      }
 
-        assertEquals("expected page usage", initialPageCount, pageFile.getPageCount() - pageFile.getFreePageCount() );
+      assertEquals("expected page usage", initialPageCount, pageFile.getPageCount() - pageFile.getFreePageCount());
 
-        LOG.info("Destroy");
-        underTest.destroy();
-        LOG.info("page count: " + pageFile.getPageCount());
-        LOG.info("free count: " + pageFile.getFreePageCount());
-        LOG.info("content size: " + pageFile.getPageContentSize());
-        assertEquals("expected page usage", initialPageCount -1, pageFile.getPageCount() - pageFile.getFreePageCount() );
-    }
-
+      LOG.info("Destroy");
+      underTest.destroy();
+      LOG.info("page count: " + pageFile.getPageCount());
+      LOG.info("free count: " + pageFile.getFreePageCount());
+      LOG.info("content size: " + pageFile.getPageContentSize());
+      assertEquals("expected page usage", initialPageCount - 1, pageFile.getPageCount() - pageFile.getFreePageCount());
+   }
 
 }

@@ -20,44 +20,37 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.paging.impl.PagingStoreImpl;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 
-public class SendingResult
-{
+public class SendingResult {
+
    private boolean blockNextSend;
    private PagingStoreImpl blockPagingStore;
    private SimpleString blockingAddress;
 
-   public void setBlockNextSend(boolean block)
-   {
+   public void setBlockNextSend(boolean block) {
       this.blockNextSend = block;
    }
 
-   public boolean isBlockNextSend()
-   {
+   public boolean isBlockNextSend() {
       return this.blockNextSend;
    }
 
-   public void setBlockPagingStore(PagingStoreImpl store)
-   {
+   public void setBlockPagingStore(PagingStoreImpl store) {
       this.blockPagingStore = store;
    }
 
-   public PagingStoreImpl getBlockPagingStore()
-   {
+   public PagingStoreImpl getBlockPagingStore() {
       return this.blockPagingStore;
    }
 
-   public void setBlockingAddress(SimpleString address)
-   {
+   public void setBlockingAddress(SimpleString address) {
       this.blockingAddress = address;
    }
 
-   public SimpleString getBlockingAddress()
-   {
+   public SimpleString getBlockingAddress() {
       return this.blockingAddress;
    }
 
-   public boolean isSendFailIfNoSpace()
-   {
+   public boolean isSendFailIfNoSpace() {
       AddressFullMessagePolicy policy = this.blockPagingStore.getAddressFullMessagePolicy();
       return policy == AddressFullMessagePolicy.FAIL;
    }

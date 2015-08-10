@@ -25,8 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class ColocatedPolicy implements HAPolicy<LiveActivation>
-{
+public class ColocatedPolicy implements HAPolicy<LiveActivation> {
 
    /*live stuff*/
    private boolean requestBackup = ActiveMQDefaultConfiguration.isDefaultHapolicyRequestBackup();
@@ -53,8 +52,7 @@ public class ColocatedPolicy implements HAPolicy<LiveActivation>
                           int backupPortOffset,
                           List<String> excludedConnectors,
                           HAPolicy livePolicy,
-                          BackupPolicy backupPolicy)
-   {
+                          BackupPolicy backupPolicy) {
       this.requestBackup = requestBackup;
       this.backupRequestRetries = backupRequestRetries;
       this.backupRequestRetryInterval = backupRequestRetryInterval;
@@ -66,126 +64,104 @@ public class ColocatedPolicy implements HAPolicy<LiveActivation>
    }
 
    @Override
-   public String getBackupGroupName()
-   {
+   public String getBackupGroupName() {
       return null;
    }
 
    @Override
-   public String getScaleDownGroupName()
-   {
+   public String getScaleDownGroupName() {
       return null;
    }
 
    @Override
-   public boolean isSharedStore()
-   {
+   public boolean isSharedStore() {
       return backupPolicy.isSharedStore();
    }
 
    @Override
-   public boolean isBackup()
-   {
+   public boolean isBackup() {
       return false;
    }
 
    @Override
-   public LiveActivation createActivation(ActiveMQServerImpl server, boolean wasLive, Map<String, Object> activationParams, ActiveMQServerImpl.ShutdownOnCriticalErrorListener shutdownOnCriticalIO) throws Exception
-   {
+   public LiveActivation createActivation(ActiveMQServerImpl server,
+                                          boolean wasLive,
+                                          Map<String, Object> activationParams,
+                                          ActiveMQServerImpl.ShutdownOnCriticalErrorListener shutdownOnCriticalIO) throws Exception {
       return new ColocatedActivation(server, this, livePolicy.createActivation(server, wasLive, activationParams, shutdownOnCriticalIO));
    }
 
    @Override
-   public boolean canScaleDown()
-   {
+   public boolean canScaleDown() {
       return false;
    }
 
    @Override
-   public String getScaleDownClustername()
-   {
+   public String getScaleDownClustername() {
       return null;
    }
 
-
-
-   public boolean isRequestBackup()
-   {
+   public boolean isRequestBackup() {
       return requestBackup;
    }
 
-   public void setRequestBackup(boolean requestBackup)
-   {
+   public void setRequestBackup(boolean requestBackup) {
       this.requestBackup = requestBackup;
    }
 
-   public int getBackupRequestRetries()
-   {
+   public int getBackupRequestRetries() {
       return backupRequestRetries;
    }
 
-   public void setBackupRequestRetries(int backupRequestRetries)
-   {
+   public void setBackupRequestRetries(int backupRequestRetries) {
       this.backupRequestRetries = backupRequestRetries;
    }
 
-   public long getBackupRequestRetryInterval()
-   {
+   public long getBackupRequestRetryInterval() {
       return backupRequestRetryInterval;
    }
 
-   public void setBackupRequestRetryInterval(long backupRequestRetryInterval)
-   {
+   public void setBackupRequestRetryInterval(long backupRequestRetryInterval) {
       this.backupRequestRetryInterval = backupRequestRetryInterval;
    }
 
-   public int getMaxBackups()
-   {
+   public int getMaxBackups() {
       return maxBackups;
    }
 
-   public void setMaxBackups(int maxBackups)
-   {
+   public void setMaxBackups(int maxBackups) {
       this.maxBackups = maxBackups;
    }
 
-   public int getBackupPortOffset()
-   {
+   public int getBackupPortOffset() {
       return backupPortOffset;
    }
 
-   public void setBackupPortOffset(int backupPortOffset)
-   {
+   public void setBackupPortOffset(int backupPortOffset) {
       this.backupPortOffset = backupPortOffset;
    }
 
-   public List<String> getExcludedConnectors()
-   {
+   public List<String> getExcludedConnectors() {
       return excludedConnectors;
    }
 
-   public void setExcludedConnectors(List<String> excludedConnectors)
-   {
+   public void setExcludedConnectors(List<String> excludedConnectors) {
       this.excludedConnectors = excludedConnectors;
    }
 
-   public HAPolicy<LiveActivation> getLivePolicy()
-   {
+   public HAPolicy<LiveActivation> getLivePolicy() {
       return livePolicy;
    }
 
-   public void setLivePolicy(HAPolicy<LiveActivation> livePolicy)
-   {
+   public void setLivePolicy(HAPolicy<LiveActivation> livePolicy) {
       this.livePolicy = livePolicy;
    }
 
-   public BackupPolicy getBackupPolicy()
-   {
+   public BackupPolicy getBackupPolicy() {
       return backupPolicy;
    }
 
-   public void setBackupPolicy(BackupPolicy backupPolicy)
-   {
+   public void setBackupPolicy(BackupPolicy backupPolicy) {
       this.backupPolicy = backupPolicy;
    }
 }

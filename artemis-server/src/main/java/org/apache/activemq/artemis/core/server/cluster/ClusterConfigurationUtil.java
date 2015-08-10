@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.core.server.cluster;
 
-
 import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.config.ClusterConnectionConfiguration;
@@ -26,19 +25,17 @@ import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import java.lang.reflect.Array;
 import java.util.List;
 
-public class ClusterConfigurationUtil
-{
-   public static TransportConfiguration getTransportConfiguration(ClusterConnectionConfiguration config, Configuration configuration)
-   {
-      if (config.getName() == null)
-      {
+public class ClusterConfigurationUtil {
+
+   public static TransportConfiguration getTransportConfiguration(ClusterConnectionConfiguration config,
+                                                                  Configuration configuration) {
+      if (config.getName() == null) {
          ActiveMQServerLogger.LOGGER.clusterConnectionNotUnique();
 
          return null;
       }
 
-      if (config.getAddress() == null)
-      {
+      if (config.getAddress() == null) {
          ActiveMQServerLogger.LOGGER.clusterConnectionNoForwardAddress();
 
          return null;
@@ -46,44 +43,37 @@ public class ClusterConfigurationUtil
 
       TransportConfiguration connector = configuration.getConnectorConfigurations().get(config.getConnectorName());
 
-      if (connector == null)
-      {
+      if (connector == null) {
          ActiveMQServerLogger.LOGGER.clusterConnectionNoConnector(config.getConnectorName());
          return null;
       }
       return connector;
    }
 
-   public static DiscoveryGroupConfiguration getDiscoveryGroupConfiguration(ClusterConnectionConfiguration config, Configuration configuration)
-   {
-      DiscoveryGroupConfiguration dg = configuration.getDiscoveryGroupConfigurations()
-            .get(config.getDiscoveryGroupName());
+   public static DiscoveryGroupConfiguration getDiscoveryGroupConfiguration(ClusterConnectionConfiguration config,
+                                                                            Configuration configuration) {
+      DiscoveryGroupConfiguration dg = configuration.getDiscoveryGroupConfigurations().get(config.getDiscoveryGroupName());
 
-      if (dg == null)
-      {
+      if (dg == null) {
          ActiveMQServerLogger.LOGGER.clusterConnectionNoDiscoveryGroup(config.getDiscoveryGroupName());
          return null;
       }
       return dg;
    }
 
-   public static TransportConfiguration[] getTransportConfigurations(ClusterConnectionConfiguration config, Configuration configuration)
-   {
-      return config.getStaticConnectors() != null ? connectorNameListToArray(config.getStaticConnectors(), configuration)
-            : null;
+   public static TransportConfiguration[] getTransportConfigurations(ClusterConnectionConfiguration config,
+                                                                     Configuration configuration) {
+      return config.getStaticConnectors() != null ? connectorNameListToArray(config.getStaticConnectors(), configuration) : null;
    }
 
-   public static TransportConfiguration[] connectorNameListToArray(final List<String> connectorNames, Configuration configuration)
-   {
-      TransportConfiguration[] tcConfigs = (TransportConfiguration[]) Array.newInstance(TransportConfiguration.class,
-            connectorNames.size());
+   public static TransportConfiguration[] connectorNameListToArray(final List<String> connectorNames,
+                                                                   Configuration configuration) {
+      TransportConfiguration[] tcConfigs = (TransportConfiguration[]) Array.newInstance(TransportConfiguration.class, connectorNames.size());
       int count = 0;
-      for (String connectorName : connectorNames)
-      {
+      for (String connectorName : connectorNames) {
          TransportConfiguration connector = configuration.getConnectorConfigurations().get(connectorName);
 
-         if (connector == null)
-         {
+         if (connector == null) {
             ActiveMQServerLogger.LOGGER.bridgeNoConnector(connectorName);
 
             return null;

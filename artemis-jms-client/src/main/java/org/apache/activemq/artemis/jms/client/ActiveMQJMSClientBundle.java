@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.jms.client;
 
-
 import javax.jms.IllegalStateException;
 import javax.jms.IllegalStateRuntimeException;
 import javax.jms.InvalidDestinationException;
@@ -42,35 +41,35 @@ import org.jboss.logging.Messages;
  * so 129000 to 129999
  */
 @MessageBundle(projectCode = "AMQ")
-public interface ActiveMQJMSClientBundle
-{
+public interface ActiveMQJMSClientBundle {
+
    ActiveMQJMSClientBundle BUNDLE = Messages.getBundle(ActiveMQJMSClientBundle.class);
 
-   @Message(id = 129000, value =  "Invalid filter: {0}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 129000, value = "Invalid filter: {0}", format = Message.Format.MESSAGE_FORMAT)
    ActiveMQInvalidFilterExpressionException invalidFilter(@Cause Throwable e, SimpleString filter);
 
-   @Message(id = 129001, value =  "Invalid Subscription Name. It is required to set the subscription name")
+   @Message(id = 129001, value = "Invalid Subscription Name. It is required to set the subscription name")
    ActiveMQIllegalStateException invalidSubscriptionName();
 
-   @Message(id = 129002, value =  "Destination {0} does not exist", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 129002, value = "Destination {0} does not exist", format = Message.Format.MESSAGE_FORMAT)
    ActiveMQNonExistentQueueException destinationDoesNotExist(SimpleString destination);
 
-   @Message(id = 129003, value =  "name cannot be null")
+   @Message(id = 129003, value = "name cannot be null")
    IllegalArgumentException nameCannotBeNull();
 
-   @Message(id = 129004, value =  "name cannot be empty")
+   @Message(id = 129004, value = "name cannot be empty")
    IllegalArgumentException nameCannotBeEmpty();
 
-   @Message(id = 129005, value =  "It is illegal to call this method from within a Message Listener")
+   @Message(id = 129005, value = "It is illegal to call this method from within a Message Listener")
    IllegalStateRuntimeException callingMethodFromListenerRuntime();
 
-   @Message(id = 129006, value =  "It is illegal to call this method from within a Message Listener")
+   @Message(id = 129006, value = "It is illegal to call this method from within a Message Listener")
    IllegalStateException callingMethodFromListener();
 
-   @Message(id = 129007, value =  "It is illegal to call this method from within a Completion Listener")
+   @Message(id = 129007, value = "It is illegal to call this method from within a Completion Listener")
    IllegalStateRuntimeException callingMethodFromCompletionListenerRuntime();
 
-   @Message(id = 129008, value =  "It is illegal to call this method from within a Completion Listener")
+   @Message(id = 129008, value = "It is illegal to call this method from within a Completion Listener")
    IllegalStateException callingMethodFromCompletionListener();
 
    @Message(id = 129009, value = "Null {0} is not allowed", format = Message.Format.MESSAGE_FORMAT)
@@ -83,7 +82,7 @@ public interface ActiveMQJMSClientBundle
    IllegalStateException onlyValidForByteOrStreamMessages();
 
    @Message(id = 129012, value = "The property name ''{0}'' is not a valid java identifier.",
-            format = Message.Format.MESSAGE_FORMAT)
+      format = Message.Format.MESSAGE_FORMAT)
    JMSRuntimeException invalidJavaIdentifier(String propertyName);
 
    @Message(id = 129013, value = "Message is read-only")

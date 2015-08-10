@@ -27,12 +27,10 @@ import org.apache.activemq.artemis.jms.tests.JMSTestCase;
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
 import org.junit.Test;
 
-public class ExpiredMessageTest extends JMSTestCase
-{
+public class ExpiredMessageTest extends JMSTestCase {
 
    @Test
-   public void testSimpleExpiration() throws Exception
-   {
+   public void testSimpleExpiration() throws Exception {
       Connection conn = getConnectionFactory().createConnection();
 
       Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -58,8 +56,7 @@ public class ExpiredMessageTest extends JMSTestCase
    }
 
    @Test
-   public void testExpiredAndLivingMessages() throws Exception
-   {
+   public void testExpiredAndLivingMessages() throws Exception {
       Connection conn = getConnectionFactory().createConnection();
       Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
       MessageProducer prod = session.createProducer(queue1);
@@ -84,7 +81,7 @@ public class ExpiredMessageTest extends JMSTestCase
       Message receivedMessage = cons.receive(1000);
       ProxyAssertSupport.assertNotNull("did not receive living message", receivedMessage);
       ProxyAssertSupport.assertTrue(receivedMessage instanceof TextMessage);
-      ProxyAssertSupport.assertEquals(livingMessage.getText(), ((TextMessage)receivedMessage).getText());
+      ProxyAssertSupport.assertEquals(livingMessage.getText(), ((TextMessage) receivedMessage).getText());
 
       // we do not receive the expiring message
       ProxyAssertSupport.assertNull(cons.receive(1000));
@@ -93,8 +90,7 @@ public class ExpiredMessageTest extends JMSTestCase
    }
 
    @Test
-   public void testManyExpiredMessagesAtOnce() throws Exception
-   {
+   public void testManyExpiredMessagesAtOnce() throws Exception {
       Connection conn = getConnectionFactory().createConnection();
 
       Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -106,8 +102,7 @@ public class ExpiredMessageTest extends JMSTestCase
 
       final int MESSAGE_COUNT = 100;
 
-      for (int i = 0; i < MESSAGE_COUNT; i++)
-      {
+      for (int i = 0; i < MESSAGE_COUNT; i++) {
          prod.send(m);
       }
 

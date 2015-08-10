@@ -31,12 +31,10 @@ import org.junit.Test;
 import java.util.HashMap;
 import java.util.concurrent.CountDownLatch;
 
-public class MeasurePagingMultiThreadTest extends ActiveMQTestBase
-{
+public class MeasurePagingMultiThreadTest extends ActiveMQTestBase {
 
    @Test
-   public void testPagingMultipleSenders() throws Throwable
-   {
+   public void testPagingMultipleSenders() throws Throwable {
 
       final int NUMBER_OF_THREADS = 18;
       final int NUMBER_OF_MESSAGES = 50000;
@@ -47,8 +45,7 @@ public class MeasurePagingMultiThreadTest extends ActiveMQTestBase
       ActiveMQServer messagingService = createServer(true, createDefaultInVMConfig(), 10 * 1024, 20 * 1024, settings);
       messagingService.start();
       ServerLocator locator = createInVMNonHALocator();
-      try
-      {
+      try {
          final ClientSessionFactory factory = createSessionFactory(locator);
          final SimpleString adr = new SimpleString("test-adr");
 
@@ -62,8 +59,7 @@ public class MeasurePagingMultiThreadTest extends ActiveMQTestBase
 
          final CountDownLatch latchStart = new CountDownLatch(1);
 
-         class Sender extends Thread
-         {
+         class Sender extends Thread {
 
             private final ClientSession session;
 
@@ -73,8 +69,7 @@ public class MeasurePagingMultiThreadTest extends ActiveMQTestBase
 
             Throwable e;
 
-            public Sender() throws Exception
-            {
+            public Sender() throws Exception {
                session = factory.createSession(false, true, true);
                producer = session.createProducer(adr);
                msg = session.createMessage(true);
@@ -83,16 +78,13 @@ public class MeasurePagingMultiThreadTest extends ActiveMQTestBase
 
             // run is not going to close sessions or anything, as we don't want to measure that time
             // so this will be done in a second time
-            public void cleanUp() throws Exception
-            {
+            public void cleanUp() throws Exception {
                session.close();
             }
 
             @Override
-            public void run()
-            {
-               try
-               {
+            public void run() {
+               try {
                   latchAlign.countDown();
                   ActiveMQTestBase.waitForLatch(latchStart);
 
@@ -101,12 +93,11 @@ public class MeasurePagingMultiThreadTest extends ActiveMQTestBase
                   long end = System.currentTimeMillis();
 
                   System.out.println("Thread " + Thread.currentThread().getName() +
-                                     " finished sending in " +
-                                     (end - start) +
-                                     " milliseconds");
+                                        " finished sending in " +
+                                        (end - start) +
+                                        " milliseconds");
                }
-               catch (Throwable e)
-               {
+               catch (Throwable e) {
                   this.e = e;
                }
 
@@ -115,8 +106,7 @@ public class MeasurePagingMultiThreadTest extends ActiveMQTestBase
 
          Sender[] senders = new Sender[NUMBER_OF_THREADS];
 
-         for (int i = 0; i < NUMBER_OF_THREADS; i++)
-         {
+         for (int i = 0; i < NUMBER_OF_THREADS; i++) {
             senders[i] = new Sender();
             senders[i].start();
          }
@@ -127,33 +117,28 @@ public class MeasurePagingMultiThreadTest extends ActiveMQTestBase
 
          latchStart.countDown();
 
-         for (Thread t : senders)
-         {
+         for (Thread t : senders) {
             t.join();
          }
 
          long timeEnd = System.currentTimeMillis();
 
          System.out.println("Total Time: " + (timeEnd - timeStart) +
-                            " milliseconds what represented " +
-                            NUMBER_OF_MESSAGES *
-                            NUMBER_OF_THREADS *
-                            1000 /
-                            (timeEnd - timeStart) +
-                            " per second");
+                               " milliseconds what represented " +
+                               NUMBER_OF_MESSAGES *
+                                  NUMBER_OF_THREADS *
+                                  1000 / (timeEnd - timeStart) +
+                               " per second");
 
-         for (Sender s : senders)
-         {
-            if (s.e != null)
-            {
+         for (Sender s : senders) {
+            if (s.e != null) {
                throw s.e;
             }
             s.cleanUp();
          }
 
       }
-      finally
-      {
+      finally {
          locator.close();
          messagingService.stop();
 
@@ -177,8 +162,7 @@ public class MeasurePagingMultiThreadTest extends ActiveMQTestBase
    private void sendInitialBatch(final SimpleString adr,
                                  final int nMessages,
                                  final int messageSize,
-                                 final ClientSessionFactory factory) throws ActiveMQException
-   {
+                                 final ClientSessionFactory factory) throws ActiveMQException {
       ClientSession session = factory.createSession(false, true, true);
       ClientProducer producer = session.createProducer(adr);
       ClientMessage msg = session.createMessage(true);
@@ -194,10 +178,10 @@ public class MeasurePagingMultiThreadTest extends ActiveMQTestBase
     * @param msg
     * @throws ActiveMQException
     */
-   private void sendMessages(final int nMessages, final ClientProducer producer, final ClientMessage msg) throws ActiveMQException
-   {
-      for (int i = 0; i < nMessages; i++)
-      {
+   private void sendMessages(final int nMessages,
+                             final ClientProducer producer,
+                             final ClientMessage msg) throws ActiveMQException {
+      for (int i = 0; i < nMessages; i++) {
          producer.send(msg);
       }
    }
@@ -207,8 +191,7 @@ public class MeasurePagingMultiThreadTest extends ActiveMQTestBase
     * @param adr
     * @throws ActiveMQException
     */
-   private void createDestination(final ClientSessionFactory factory, final SimpleString adr) throws ActiveMQException
-   {
+   private void createDestination(final ClientSessionFactory factory, final SimpleString adr) throws ActiveMQException {
       {
          ClientSession session = factory.createSession(false, false, false);
          session.createQueue(adr, adr, null, true);

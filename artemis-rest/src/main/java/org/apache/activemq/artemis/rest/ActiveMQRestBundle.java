@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.rest;
 
-
 import org.jboss.logging.annotations.MessageBundle;
 
 /**
@@ -27,6 +26,6 @@ import org.jboss.logging.annotations.MessageBundle;
  * so 199000 to 199999
  */
 @MessageBundle(projectCode = "AMQ")
-public class ActiveMQRestBundle
-{
+public class ActiveMQRestBundle {
+
 }

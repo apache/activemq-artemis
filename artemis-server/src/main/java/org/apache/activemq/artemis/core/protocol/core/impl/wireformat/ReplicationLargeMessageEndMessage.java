@@ -19,61 +19,53 @@ package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 
-public class ReplicationLargeMessageEndMessage extends PacketImpl
-{
+public class ReplicationLargeMessageEndMessage extends PacketImpl {
 
    long messageId;
 
-   public ReplicationLargeMessageEndMessage()
-   {
+   public ReplicationLargeMessageEndMessage() {
       super(PacketImpl.REPLICATION_LARGE_MESSAGE_END);
    }
 
-   public ReplicationLargeMessageEndMessage(final long messageId)
-   {
+   public ReplicationLargeMessageEndMessage(final long messageId) {
       this();
       this.messageId = messageId;
    }
 
    @Override
-   public void encodeRest(final ActiveMQBuffer buffer)
-   {
+   public void encodeRest(final ActiveMQBuffer buffer) {
       buffer.writeLong(messageId);
    }
 
    @Override
-   public void decodeRest(final ActiveMQBuffer buffer)
-   {
+   public void decodeRest(final ActiveMQBuffer buffer) {
       messageId = buffer.readLong();
    }
 
    /**
     * @return the messageId
     */
-   public long getMessageId()
-   {
+   public long getMessageId() {
       return messageId;
    }
 
    @Override
-   public int hashCode()
-   {
+   public int hashCode() {
       final int prime = 31;
       int result = super.hashCode();
-      result = prime * result + (int)(messageId ^ (messageId >>> 32));
+      result = prime * result + (int) (messageId ^ (messageId >>> 32));
       return result;
    }
 
    @Override
-   public boolean equals(Object obj)
-   {
+   public boolean equals(Object obj) {
       if (this == obj)
          return true;
       if (!super.equals(obj))
          return false;
       if (getClass() != obj.getClass())
          return false;
-      ReplicationLargeMessageEndMessage other = (ReplicationLargeMessageEndMessage)obj;
+      ReplicationLargeMessageEndMessage other = (ReplicationLargeMessageEndMessage) obj;
       if (messageId != other.messageId)
          return false;
       return true;

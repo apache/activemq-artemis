@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.unit.core.server.impl;
+
 import java.io.File;
 
 import org.apache.activemq.artemis.core.server.impl.AIOFileLockNodeManager;
@@ -24,54 +25,44 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Before;
 import org.junit.Test;
 
-public class FileLockTest extends ActiveMQTestBase
-{
+public class FileLockTest extends ActiveMQTestBase {
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
       File file = new File(getTestDir());
       file.mkdirs();
    }
 
-
    @Test
-   public void testNIOLock() throws Exception
-   {
+   public void testNIOLock() throws Exception {
       doTestLock(new FileLockNodeManager(getTestDirfile(), false), new FileLockNodeManager(getTestDirfile(), false));
 
    }
 
    @Test
-   public void testAIOLock() throws Exception
-   {
-      if (LibaioContext.isLoaded())
-      {
+   public void testAIOLock() throws Exception {
+      if (LibaioContext.isLoaded()) {
          doTestLock(new AIOFileLockNodeManager(getTestDirfile(), false), new AIOFileLockNodeManager(getTestDirfile(), false));
       }
 
    }
 
-   public void doTestLock(final FileLockNodeManager lockManager1, final FileLockNodeManager lockManager2) throws Exception
-   {
+   public void doTestLock(final FileLockNodeManager lockManager1,
+                          final FileLockNodeManager lockManager2) throws Exception {
       lockManager1.start();
       lockManager2.start();
 
       lockManager1.startLiveNode();
 
-      Thread t = new Thread()
-      {
+      Thread t = new Thread() {
          @Override
-         public void run()
-         {
-            try
-            {
+         public void run() {
+            try {
                lockManager2.startLiveNode();
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                e.printStackTrace();
             }
          }
@@ -94,7 +85,6 @@ public class FileLockTest extends ActiveMQTestBase
 
       lockManager1.stop();
       lockManager2.stop();
-
 
    }
 

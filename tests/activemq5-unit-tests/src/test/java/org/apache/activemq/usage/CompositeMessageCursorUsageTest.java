@@ -32,59 +32,59 @@ import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.core.MessageCreator;
 
 public class CompositeMessageCursorUsageTest extends TestCase {
-    
-    BrokerService broker;
-    
-    public void setUp() throws Exception {
-        broker = new BrokerService();
-        broker.setPersistent(false);
-        broker.start();
-    }
-    
-    protected void tearDown() throws Exception {
-        broker.stop();
-    }
 
-    public void testCompositeMessageUsage() throws Exception {
+   BrokerService broker;
 
-        String compositeQueue = "compositeA,compositeB";
+   public void setUp() throws Exception {
+      broker = new BrokerService();
+      broker.setPersistent(false);
+      broker.start();
+   }
 
-        ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory("vm://localhost");
-        JmsTemplate jt = new JmsTemplate(cf);
+   protected void tearDown() throws Exception {
+      broker.stop();
+   }
 
-        jt.send(compositeQueue, new MessageCreator() {
-            public Message createMessage(Session session) throws JMSException {
-                TextMessage tm = session.createTextMessage();
-                tm.setText("test");
-                return tm;
-            }
-        });
+   public void testCompositeMessageUsage() throws Exception {
 
-        jt.send("noCompositeA", new MessageCreator() {
-            public Message createMessage(Session session) throws JMSException {
-                TextMessage tm = session.createTextMessage();
-                tm.setText("test");
-                return tm;
-            }
-        });
+      String compositeQueue = "compositeA,compositeB";
 
-        jt.send("noCompositeB", new MessageCreator() {
-            public Message createMessage(Session session) throws JMSException {
-                TextMessage tm = session.createTextMessage();
-                tm.setText("test");
-                return tm;
-            }
-        });
-        
-        assertEquals("Cursor memory usage wrong for 'noCompositeA' queue", 1032, getQueueView("noCompositeA").getCursorMemoryUsage());
-        assertEquals("Cursor memory usage wrong for 'noCompositeB' queue", 1032, getQueueView("noCompositeB").getCursorMemoryUsage());
-        assertEquals("Cursor memory usage wrong for 'CompositeA' queue", 1032, getQueueView("compositeA").getCursorMemoryUsage());
-        assertEquals("Cursor memory usage wrong for 'CompositeB' queue", 1032, getQueueView("compositeB").getCursorMemoryUsage());
-        
-    }
-    
-    public QueueViewMBean getQueueView(String queueName) throws Exception {
-        ObjectName queueViewMBeanName = new ObjectName("org.apache.activemq" + ":type=Broker,brokerName=localhost,destinationType=Queue,destinationName=" + queueName);
-        return (QueueViewMBean) broker.getManagementContext().newProxyInstance(queueViewMBeanName, QueueViewMBean.class, true);
-    }
+      ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory("vm://localhost");
+      JmsTemplate jt = new JmsTemplate(cf);
+
+      jt.send(compositeQueue, new MessageCreator() {
+         public Message createMessage(Session session) throws JMSException {
+            TextMessage tm = session.createTextMessage();
+            tm.setText("test");
+            return tm;
+         }
+      });
+
+      jt.send("noCompositeA", new MessageCreator() {
+         public Message createMessage(Session session) throws JMSException {
+            TextMessage tm = session.createTextMessage();
+            tm.setText("test");
+            return tm;
+         }
+      });
+
+      jt.send("noCompositeB", new MessageCreator() {
+         public Message createMessage(Session session) throws JMSException {
+            TextMessage tm = session.createTextMessage();
+            tm.setText("test");
+            return tm;
+         }
+      });
+
+      assertEquals("Cursor memory usage wrong for 'noCompositeA' queue", 1032, getQueueView("noCompositeA").getCursorMemoryUsage());
+      assertEquals("Cursor memory usage wrong for 'noCompositeB' queue", 1032, getQueueView("noCompositeB").getCursorMemoryUsage());
+      assertEquals("Cursor memory usage wrong for 'CompositeA' queue", 1032, getQueueView("compositeA").getCursorMemoryUsage());
+      assertEquals("Cursor memory usage wrong for 'CompositeB' queue", 1032, getQueueView("compositeB").getCursorMemoryUsage());
+
+   }
+
+   public QueueViewMBean getQueueView(String queueName) throws Exception {
+      ObjectName queueViewMBeanName = new ObjectName("org.apache.activemq" + ":type=Broker,brokerName=localhost,destinationType=Queue,destinationName=" + queueName);
+      return (QueueViewMBean) broker.getManagementContext().newProxyInstance(queueViewMBeanName, QueueViewMBean.class, true);
+   }
 }

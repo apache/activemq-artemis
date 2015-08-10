@@ -29,33 +29,28 @@ import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
  * A basic implementation of the ActiveMQSecurityManager. This can be used within an appserver and be deployed by
  * BasicUserCredentialsDeployer or used standalone or embedded.
  */
-public class ActiveMQSecurityManagerImpl implements ActiveMQSecurityManager
-{
+public class ActiveMQSecurityManagerImpl implements ActiveMQSecurityManager {
+
    private final SecurityConfiguration configuration;
 
    private ActiveMQServerLogger logger = ActiveMQServerLogger.LOGGER;
 
-   public ActiveMQSecurityManagerImpl()
-   {
+   public ActiveMQSecurityManagerImpl() {
       configuration = new SecurityConfiguration();
    }
 
-   public ActiveMQSecurityManagerImpl(SecurityConfiguration configuration)
-   {
+   public ActiveMQSecurityManagerImpl(SecurityConfiguration configuration) {
       this.configuration = configuration;
    }
 
    // Public ---------------------------------------------------------------------
 
-   public boolean validateUser(final String username, final String password)
-   {
-      if (username != null)
-      {
+   public boolean validateUser(final String username, final String password) {
+      if (username != null) {
          User user = configuration.getUser(username);
          return user != null && user.isValid(username, password);
       }
-      else if (username == null && password == null)
-      {
+      else if (username == null && password == null) {
          return configuration.getDefaultUser() != null;
       }
       else // the only possible case here is user == null, password != null
@@ -70,26 +65,19 @@ public class ActiveMQSecurityManagerImpl implements ActiveMQSecurityManager
    public boolean validateUserAndRole(final String user,
                                       final String password,
                                       final Set<Role> roles,
-                                      final CheckType checkType)
-   {
-      if (validateUser(user, password))
-      {
+                                      final CheckType checkType) {
+      if (validateUser(user, password)) {
          String defaultUser = configuration.getDefaultUser();
          List<String> availableRoles = configuration.getRole(user == null ? defaultUser : user);
 
-         if (availableRoles == null)
-         {
+         if (availableRoles == null) {
             return false;
          }
 
-         for (String availableRole : availableRoles)
-         {
-            if (roles != null)
-            {
-               for (Role role : roles)
-               {
-                  if (role.getName().equals(availableRole) && checkType.hasRole(role))
-                  {
+         for (String availableRole : availableRoles) {
+            if (roles != null) {
+               for (Role role : roles) {
+                  if (role.getName().equals(availableRole) && checkType.hasRole(role)) {
                      return true;
                   }
                }
@@ -100,8 +88,7 @@ public class ActiveMQSecurityManagerImpl implements ActiveMQSecurityManager
       return false;
    }
 
-   public SecurityConfiguration getConfiguration()
-   {
+   public SecurityConfiguration getConfiguration() {
       return configuration;
    }
 }

@@ -33,15 +33,14 @@ import org.apache.activemq.artemis.tests.unit.core.config.impl.fakes.FakeConnect
 import org.junit.Before;
 import org.junit.Test;
 
-public class ConnectorsServiceTest extends ActiveMQTestBase
-{
+public class ConnectorsServiceTest extends ActiveMQTestBase {
+
    private Configuration configuration;
 
    private ServiceRegistry serviceRegistry;
 
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       // Setup Configuration
       configuration = new ConfigurationImpl();
       serviceRegistry = new ServiceRegistryImpl();
@@ -49,15 +48,12 @@ public class ConnectorsServiceTest extends ActiveMQTestBase
 
    /**
     * Test that the connectors added via the service registry are added to the connectorsService,
+    *
     * @throws Exception
     */
    @Test
-   public void testConnectorsServiceUsesInjectedConnectorServiceFactory() throws Exception
-   {
-      ConnectorServiceConfiguration connectorServiceConfiguration = new ConnectorServiceConfiguration()
-         .setFactoryClassName(null)
-         .setParams(new HashMap<String, Object>())
-         .setName("myfact");
+   public void testConnectorsServiceUsesInjectedConnectorServiceFactory() throws Exception {
+      ConnectorServiceConfiguration connectorServiceConfiguration = new ConnectorServiceConfiguration().setFactoryClassName(null).setParams(new HashMap<String, Object>()).setName("myfact");
 
       // Creates a fake connector service factory that returns the fake connector service object
       ConnectorService connectorService = new FakeConnectorService();
@@ -73,15 +69,12 @@ public class ConnectorsServiceTest extends ActiveMQTestBase
 
    /**
     * Test that the connectors added via the config are added to the connectors service.
+    *
     * @throws Exception
     */
    @Test
-   public void testConnectorsServiceUsesConfiguredConnectorServices() throws Exception
-   {
-      ConnectorServiceConfiguration connectorServiceConfiguration = new ConnectorServiceConfiguration()
-         .setFactoryClassName(FakeConnectorServiceFactory.class.getCanonicalName())
-         .setParams(new HashMap<String, Object>())
-         .setName("myfact");
+   public void testConnectorsServiceUsesConfiguredConnectorServices() throws Exception {
+      ConnectorServiceConfiguration connectorServiceConfiguration = new ConnectorServiceConfiguration().setFactoryClassName(FakeConnectorServiceFactory.class.getCanonicalName()).setParams(new HashMap<String, Object>()).setName("myfact");
 
       List<ConnectorServiceConfiguration> connectorServiceConfigurations = new ArrayList<ConnectorServiceConfiguration>();
       connectorServiceConfigurations.add(connectorServiceConfiguration);

@@ -26,8 +26,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class SynchronousCloseTest extends ActiveMQTestBase
-{
+public class SynchronousCloseTest extends ActiveMQTestBase {
 
    private ActiveMQServer server;
 
@@ -43,30 +42,24 @@ public class SynchronousCloseTest extends ActiveMQTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
-      Configuration config = createDefaultConfig(isNetty())
-         .setSecurityEnabled(false);
+      Configuration config = createDefaultConfig(isNetty()).setSecurityEnabled(false);
       server = createServer(false, config);
       server.start();
    }
 
-   protected boolean isNetty()
-   {
+   protected boolean isNetty() {
       return false;
    }
 
-   protected ClientSessionFactory createSessionFactory() throws Exception
-   {
+   protected ClientSessionFactory createSessionFactory() throws Exception {
       ServerLocator locator;
-      if (isNetty())
-      {
+      if (isNetty()) {
          locator = createNettyNonHALocator();
       }
-      else
-      {
+      else {
          locator = createInVMNonHALocator();
       }
 
@@ -78,14 +71,12 @@ public class SynchronousCloseTest extends ActiveMQTestBase
     * DoS attack
     */
    @Test
-   public void testSynchronousClose() throws Exception
-   {
+   public void testSynchronousClose() throws Exception {
       Assert.assertEquals(0, server.getActiveMQServerControl().listRemoteAddresses().length);
 
       ClientSessionFactory sf = createSessionFactory();
 
-      for (int i = 0; i < 2000; i++)
-      {
+      for (int i = 0; i < 2000; i++) {
          ClientSession session = sf.createSession(false, true, true);
 
          session.close();

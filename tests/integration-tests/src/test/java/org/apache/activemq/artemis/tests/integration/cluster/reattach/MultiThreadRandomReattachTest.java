@@ -20,14 +20,12 @@ import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.core.config.Configuration;
 
 /**
- *
  * A MultiThreadRandomReattachTest
  */
-public class MultiThreadRandomReattachTest extends MultiThreadRandomReattachTestBase
-{
+public class MultiThreadRandomReattachTest extends MultiThreadRandomReattachTestBase {
+
    @Override
-   protected void start() throws Exception
-   {
+   protected void start() throws Exception {
       Configuration liveConf = createDefaultInVMConfig();
       server = createServer(false, liveConf);
       server.start();
@@ -35,15 +33,13 @@ public class MultiThreadRandomReattachTest extends MultiThreadRandomReattachTest
    }
 
    @Override
-   protected void setBody(final ClientMessage message) throws Exception
-   {
+   protected void setBody(final ClientMessage message) throws Exception {
       // Give each msg a body
       message.getBodyBuffer().writeBytes(new byte[250]);
    }
 
    @Override
-   protected boolean checkSize(final ClientMessage message)
-   {
+   protected boolean checkSize(final ClientMessage message) {
       return message.getBodyBuffer().readableBytes() == 250;
    }
 

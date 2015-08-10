@@ -42,8 +42,7 @@ import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.core.transaction.TransactionOperation;
 
-public class BindingsImplTest extends ActiveMQTestBase
-{
+public class BindingsImplTest extends ActiveMQTestBase {
    // Constants -----------------------------------------------------
 
    // Attributes ----------------------------------------------------
@@ -55,27 +54,22 @@ public class BindingsImplTest extends ActiveMQTestBase
    // Public --------------------------------------------------------
 
    @Test
-   public void testRemoveWhileRouting() throws Exception
-   {
+   public void testRemoveWhileRouting() throws Exception {
       // It would require many iterations before getting a failure
-      for (int i = 0; i < 500; i++)
-      {
+      for (int i = 0; i < 500; i++) {
          internalTest(true);
       }
    }
 
    @Test
-   public void testRemoveWhileRedistributing() throws Exception
-   {
+   public void testRemoveWhileRedistributing() throws Exception {
       // It would require many iterations before getting a failure
-      for (int i = 0; i < 500; i++)
-      {
+      for (int i = 0; i < 500; i++) {
          internalTest(false);
       }
    }
 
-   private void internalTest(final boolean route) throws Exception
-   {
+   private void internalTest(final boolean route) throws Exception {
       final FakeBinding fake = new FakeBinding(new SimpleString("a"));
 
       final Bindings bind = new BindingsImpl(null, null, null);
@@ -83,17 +77,13 @@ public class BindingsImplTest extends ActiveMQTestBase
       bind.addBinding(new FakeBinding(new SimpleString("a")));
       bind.addBinding(new FakeBinding(new SimpleString("a")));
 
-      Thread t = new Thread()
-      {
+      Thread t = new Thread() {
          @Override
-         public void run()
-         {
-            try
-            {
+         public void run() {
+            try {
                bind.removeBinding(fake);
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                e.printStackTrace();
             }
          }
@@ -102,215 +92,176 @@ public class BindingsImplTest extends ActiveMQTestBase
       Queue queue = new FakeQueue(new SimpleString("a"));
       t.start();
 
-      for (int i = 0; i < 100; i++)
-      {
-         if (route)
-         {
+      for (int i = 0; i < 100; i++) {
+         if (route) {
             bind.route(new ServerMessageImpl(i, 100), new RoutingContextImpl(new FakeTransaction()));
          }
-         else
-         {
+         else {
             bind.redistribute(new ServerMessageImpl(i, 100), queue, new RoutingContextImpl(new FakeTransaction()));
          }
       }
    }
 
-   private final class FakeTransaction implements Transaction
-   {
+   private final class FakeTransaction implements Transaction {
 
-      public void addOperation(final TransactionOperation sync)
-      {
+      public void addOperation(final TransactionOperation sync) {
 
       }
 
-      public boolean hasTimedOut(long currentTime, int defaultTimeout)
-      {
+      public boolean hasTimedOut(long currentTime, int defaultTimeout) {
          return false;
       }
 
-      public void commit() throws Exception
-      {
+      public void commit() throws Exception {
 
       }
 
-      public void commit(final boolean onePhase) throws Exception
-      {
+      public void commit(final boolean onePhase) throws Exception {
 
       }
 
-      public long getCreateTime()
-      {
+      public long getCreateTime() {
 
          return 0;
       }
 
-      public long getID()
-      {
+      public long getID() {
 
          return 0;
       }
 
-      public Object getProperty(final int index)
-      {
+      public Object getProperty(final int index) {
 
          return null;
       }
 
       @Override
-      public boolean isContainsPersistent()
-      {
+      public boolean isContainsPersistent() {
          return false;
       }
 
-      public State getState()
-      {
+      public State getState() {
 
          return null;
       }
 
-      public Xid getXid()
-      {
+      public Xid getXid() {
          return null;
       }
 
-      public void markAsRollbackOnly(final ActiveMQException exception)
-      {
+      public void markAsRollbackOnly(final ActiveMQException exception) {
 
       }
 
-      public void prepare() throws Exception
-      {
+      public void prepare() throws Exception {
 
       }
 
-      public void putProperty(final int index, final Object property)
-      {
+      public void putProperty(final int index, final Object property) {
 
       }
 
-      public void removeOperation(final TransactionOperation sync)
-      {
+      public void removeOperation(final TransactionOperation sync) {
 
       }
 
-      public void resume()
-      {
+      public void resume() {
 
       }
 
       /* (non-Javadoc)
        * @see org.apache.activemq.artemis.core.transaction.Transaction#rollback()
        */
-      public void rollback() throws Exception
-      {
+      public void rollback() throws Exception {
 
       }
 
       /* (non-Javadoc)
        * @see org.apache.activemq.artemis.core.transaction.Transaction#setState(org.apache.activemq.artemis.core.transaction.Transaction.State)
        */
-      public void setState(final State state)
-      {
+      public void setState(final State state) {
 
       }
 
       /* (non-Javadoc)
        * @see org.apache.activemq.artemis.core.transaction.Transaction#suspend()
        */
-      public void suspend()
-      {
+      public void suspend() {
 
       }
 
       /* (non-Javadoc)
        * @see org.apache.activemq.artemis.core.transaction.Transaction#getDistinctQueues()
        */
-      public Set<Queue> getDistinctQueues()
-      {
+      public Set<Queue> getDistinctQueues() {
          return Collections.emptySet();
       }
 
-      public void setContainsPersistent()
-      {
-
+      public void setContainsPersistent() {
 
       }
 
-      public void setTimeout(int timeout)
-      {
+      public void setTimeout(int timeout) {
 
       }
 
-      public List<TransactionOperation> getAllOperations()
-      {
+      public List<TransactionOperation> getAllOperations() {
          return null;
       }
 
-      public void setWaitBeforeCommit(boolean waitBeforeCommit)
-      {
+      public void setWaitBeforeCommit(boolean waitBeforeCommit) {
       }
 
       @Override
-      public RefsOperation createRefsOperation(Queue queue)
-      {
+      public RefsOperation createRefsOperation(Queue queue) {
          // TODO Auto-generated method stub
          return null;
       }
    }
 
-   private final class FakeFilter implements Filter
-   {
+   private final class FakeFilter implements Filter {
 
       /* (non-Javadoc)
        * @see org.apache.activemq.artemis.core.filter.Filter#getFilterString()
        */
-      public SimpleString getFilterString()
-      {
+      public SimpleString getFilterString() {
          return null;
       }
 
       /* (non-Javadoc)
        * @see org.apache.activemq.artemis.core.filter.Filter#match(org.apache.activemq.artemis.core.server.ServerMessage)
        */
-      public boolean match(final ServerMessage message)
-      {
+      public boolean match(final ServerMessage message) {
          return false;
       }
 
    }
 
-   private final class FakeBinding implements Binding
-   {
+   private final class FakeBinding implements Binding {
 
-      public void close() throws Exception
-      {
-
+      public void close() throws Exception {
 
       }
 
       @Override
-      public void unproposed(SimpleString groupID)
-      {
+      public void unproposed(SimpleString groupID) {
 
       }
 
       final SimpleString name;
 
-      FakeBinding(final SimpleString name)
-      {
+      FakeBinding(final SimpleString name) {
          this.name = name;
       }
 
-      public SimpleString getAddress()
-      {
+      public SimpleString getAddress() {
          return null;
       }
 
       /* (non-Javadoc)
        * @see org.apache.activemq.artemis.core.postoffice.Binding#getBindable()
        */
-      public Bindable getBindable()
-      {
+      public Bindable getBindable() {
 
          return null;
       }
@@ -318,8 +269,7 @@ public class BindingsImplTest extends ActiveMQTestBase
       /* (non-Javadoc)
        * @see org.apache.activemq.artemis.core.postoffice.Binding#getClusterName()
        */
-      public SimpleString getClusterName()
-      {
+      public SimpleString getClusterName() {
 
          return null;
       }
@@ -327,37 +277,32 @@ public class BindingsImplTest extends ActiveMQTestBase
       /* (non-Javadoc)
        * @see org.apache.activemq.artemis.core.postoffice.Binding#getDistance()
        */
-      public int getDistance()
-      {
+      public int getDistance() {
          return 0;
       }
 
       /* (non-Javadoc)
        * @see org.apache.activemq.artemis.core.postoffice.Binding#getFilter()
        */
-      public Filter getFilter()
-      {
+      public Filter getFilter() {
          return new FakeFilter();
       }
 
-      public long getID()
-      {
+      public long getID() {
          return 0;
       }
 
       /* (non-Javadoc)
        * @see org.apache.activemq.artemis.core.postoffice.Binding#getRoutingName()
        */
-      public SimpleString getRoutingName()
-      {
+      public SimpleString getRoutingName() {
          return name;
       }
 
       /* (non-Javadoc)
        * @see org.apache.activemq.artemis.core.postoffice.Binding#getType()
        */
-      public BindingType getType()
-      {
+      public BindingType getType() {
 
          return null;
       }
@@ -365,23 +310,19 @@ public class BindingsImplTest extends ActiveMQTestBase
       /* (non-Javadoc)
        * @see org.apache.activemq.artemis.core.postoffice.Binding#getUniqueName()
        */
-      public SimpleString getUniqueName()
-      {
+      public SimpleString getUniqueName() {
          return null;
       }
 
-      public boolean isExclusive()
-      {
+      public boolean isExclusive() {
          return false;
       }
 
-      public boolean isHighAcceptPriority(final ServerMessage message)
-      {
+      public boolean isHighAcceptPriority(final ServerMessage message) {
          return false;
       }
 
-      public void route(final ServerMessage message, final RoutingContext context) throws Exception
-      {
+      public void route(final ServerMessage message, final RoutingContext context) throws Exception {
 
       }
 
@@ -389,23 +330,19 @@ public class BindingsImplTest extends ActiveMQTestBase
        * @see org.apache.activemq.artemis.core.postoffice.Binding#toManagementString()
        */
       @Override
-      public String toManagementString()
-      {
+      public String toManagementString() {
          return null;
       }
 
       @Override
-      public boolean isConnected()
-      {
+      public boolean isConnected() {
          return true;
       }
 
       @Override
-      public void routeWithAck(ServerMessage message, RoutingContext context)
-      {
+      public void routeWithAck(ServerMessage message, RoutingContext context) {
 
       }
-
 
    }
 

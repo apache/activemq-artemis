@@ -23,22 +23,19 @@ import java.net.URL;
 /**
  * This class is the implementation of ActiveMQ Artemis members discovery that will use JGroups.
  */
-public final class JGroupsFileBroadcastEndpoint extends JGroupsBroadcastEndpoint
-{
+public final class JGroupsFileBroadcastEndpoint extends JGroupsBroadcastEndpoint {
+
    private String file;
 
-   public JGroupsFileBroadcastEndpoint(final String file, final String channelName) throws Exception
-   {
+   public JGroupsFileBroadcastEndpoint(final String file, final String channelName) throws Exception {
       super(channelName);
       this.file = file;
    }
 
-   public JChannel createChannel() throws Exception
-   {
+   public JChannel createChannel() throws Exception {
       URL configURL = Thread.currentThread().getContextClassLoader().getResource(file);
 
-      if (configURL == null)
-      {
+      if (configURL == null) {
          throw new RuntimeException("couldn't find JGroups configuration " + file);
       }
 

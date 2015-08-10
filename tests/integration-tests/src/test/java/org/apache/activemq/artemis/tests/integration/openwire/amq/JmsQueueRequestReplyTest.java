@@ -21,8 +21,8 @@ import org.junit.Before;
 /**
  * adapted from: org.apache.activemq.JMSQueueRedeliverTest
  */
-public class JmsQueueRequestReplyTest extends JmsTopicRequestReplyTest
-{
+public class JmsQueueRequestReplyTest extends JmsTopicRequestReplyTest {
+
    /**
     * Set up the test with a queue.
     *
@@ -30,8 +30,7 @@ public class JmsQueueRequestReplyTest extends JmsTopicRequestReplyTest
     */
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       topic = false;
       super.setUp();
    }

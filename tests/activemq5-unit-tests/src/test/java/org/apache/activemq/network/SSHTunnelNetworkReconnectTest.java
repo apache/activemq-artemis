@@ -28,67 +28,66 @@ import org.apache.activemq.broker.BrokerService;
  * Test network reconnects over SSH tunnels. This case can be especially tricky
  * since the SSH tunnels fool the TCP transport into thinking that they are
  * initially connected.
- *
  */
 public class SSHTunnelNetworkReconnectTest extends NetworkReconnectTest {
 
-    ArrayList<Process> processes = new ArrayList<Process>();
+   ArrayList<Process> processes = new ArrayList<Process>();
 
-    @Override
-    protected BrokerService createFirstBroker() throws Exception {
-        return BrokerFactory
-            .createBroker(new URI("xbean:org/apache/activemq/network/ssh-reconnect-broker1.xml"));
-    }
+   @Override
+   protected BrokerService createFirstBroker() throws Exception {
+      return BrokerFactory.createBroker(new URI("xbean:org/apache/activemq/network/ssh-reconnect-broker1.xml"));
+   }
 
-    @Override
-    protected BrokerService createSecondBroker() throws Exception {
-        return BrokerFactory
-            .createBroker(new URI("xbean:org/apache/activemq/network/ssh-reconnect-broker2.xml"));
-    }
+   @Override
+   protected BrokerService createSecondBroker() throws Exception {
+      return BrokerFactory.createBroker(new URI("xbean:org/apache/activemq/network/ssh-reconnect-broker2.xml"));
+   }
 
-    @Override
-    protected void setUp() throws Exception {
-        startProcess("ssh -Nn -L60006:localhost:61616 localhost");
-        startProcess("ssh -Nn -L60007:localhost:61617 localhost");
-        super.setUp();
-    }
+   @Override
+   protected void setUp() throws Exception {
+      startProcess("ssh -Nn -L60006:localhost:61616 localhost");
+      startProcess("ssh -Nn -L60007:localhost:61617 localhost");
+      super.setUp();
+   }
 
-    @Override
-    protected void tearDown() throws Exception {
-        super.tearDown();
-        for (Process p : processes) {
-            p.destroy();
-        }
-    }
+   @Override
+   protected void tearDown() throws Exception {
+      super.tearDown();
+      for (Process p : processes) {
+         p.destroy();
+      }
+   }
 
-    private void startProcess(String command) throws IOException {
-        final Process process = Runtime.getRuntime().exec(command);
-        processes.add(process);
-        new Thread("stdout: " + command) {
-            @Override
-            public void run() {
-                try {
-                    InputStream is = process.getInputStream();
-                    int c;
-                    while ((c = is.read()) >= 0) {
-                        System.out.write(c);
-                    }
-                } catch (IOException e) {
-                }
+   private void startProcess(String command) throws IOException {
+      final Process process = Runtime.getRuntime().exec(command);
+      processes.add(process);
+      new Thread("stdout: " + command) {
+         @Override
+         public void run() {
+            try {
+               InputStream is = process.getInputStream();
+               int c;
+               while ((c = is.read()) >= 0) {
+                  System.out.write(c);
+               }
             }
-        }.start();
-        new Thread("stderr: " + command) {
-            @Override
-            public void run() {
-                try {
-                    InputStream is = process.getErrorStream();
-                    int c;
-                    while ((c = is.read()) >= 0) {
-                        System.err.write(c);
-                    }
-                } catch (IOException e) {
-                }
+            catch (IOException e) {
             }
-        }.start();
-    }
+         }
+      }.start();
+      new Thread("stderr: " + command) {
+         @Override
+         public void run() {
+            try {
+               InputStream is = process.getErrorStream();
+               int c;
+               while ((c = is.read()) >= 0) {
+                  System.err.write(c);
+               }
+            }
+            catch (IOException e) {
+            }
+         }
+      }.start();
+   }
 }

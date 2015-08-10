@@ -27,7 +27,7 @@ package org.apache.activemq.artemis.api.core.management;
  * </ul>
  * see the ActiveMQ Artemis user manual section on "Management Notifications"
  */
-public interface NotificationType
-{
+public interface NotificationType {
+
    int getType();
 }

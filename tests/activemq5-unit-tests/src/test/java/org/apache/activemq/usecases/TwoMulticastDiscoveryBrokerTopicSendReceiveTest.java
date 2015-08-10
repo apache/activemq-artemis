@@ -21,21 +21,21 @@ import javax.jms.JMSException;
 import org.apache.activemq.ActiveMQConnectionFactory;
 
 /**
- *  reproduced: https://issues.apache.org/jira/browse/AMQ-4107
+ * reproduced: https://issues.apache.org/jira/browse/AMQ-4107
  */
 public class TwoMulticastDiscoveryBrokerTopicSendReceiveTest extends TwoBrokerTopicSendReceiveTest {
 
-    protected ActiveMQConnectionFactory createReceiverConnectionFactory() throws JMSException {
-        return createConnectionFactory("org/apache/activemq/usecases/receiver-discovery.xml", "receiver", "vm://receiver");
-    }
+   protected ActiveMQConnectionFactory createReceiverConnectionFactory() throws JMSException {
+      return createConnectionFactory("org/apache/activemq/usecases/receiver-discovery.xml", "receiver", "vm://receiver");
+   }
 
-    protected ActiveMQConnectionFactory createSenderConnectionFactory() throws JMSException {
-        return createConnectionFactory("org/apache/activemq/usecases/sender-discovery.xml", "sender", "vm://sender");
-    }
-    
-    protected void setUp() throws Exception{
-    	System.setProperty("groupId", getClass().getName()+"-"+System.currentTimeMillis());
-        messageCount = 100000;
-        super.setUp();
-    }
+   protected ActiveMQConnectionFactory createSenderConnectionFactory() throws JMSException {
+      return createConnectionFactory("org/apache/activemq/usecases/sender-discovery.xml", "sender", "vm://sender");
+   }
+
+   protected void setUp() throws Exception {
+      System.setProperty("groupId", getClass().getName() + "-" + System.currentTimeMillis());
+      messageCount = 100000;
+      super.setUp();
+   }
 }

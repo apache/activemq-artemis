@@ -17,26 +17,27 @@
 package org.apache.activemq.store.jdbc;
 
 import junit.framework.TestCase;
+
 import org.apache.activemq.broker.BrokerFactory;
 import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.store.PersistenceAdapter;
 
 public class JDBCLockTablePrefixTest extends TestCase {
 
-    public void testLockTable() throws Exception {
-        BrokerService broker = BrokerFactory.createBroker("xbean:org/apache/activemq/store/jdbc/JDBCLockTablePrefix.xml");
-        broker.waitUntilStarted();
+   public void testLockTable() throws Exception {
+      BrokerService broker = BrokerFactory.createBroker("xbean:org/apache/activemq/store/jdbc/JDBCLockTablePrefix.xml");
+      broker.waitUntilStarted();
 
-        PersistenceAdapter pa = broker.getPersistenceAdapter();
-        assertNotNull(pa);
+      PersistenceAdapter pa = broker.getPersistenceAdapter();
+      assertNotNull(pa);
 
-        JDBCPersistenceAdapter jpa = (JDBCPersistenceAdapter) pa;
-        assertEquals("TTT_", jpa.getStatements().getTablePrefix());
-        assertEquals("AMQ_MSGS2", jpa.getStatements().getMessageTableName());
-        assertEquals("AMQ_LOCK2", jpa.getStatements().getLockTableName());
+      JDBCPersistenceAdapter jpa = (JDBCPersistenceAdapter) pa;
+      assertEquals("TTT_", jpa.getStatements().getTablePrefix());
+      assertEquals("AMQ_MSGS2", jpa.getStatements().getMessageTableName());
+      assertEquals("AMQ_LOCK2", jpa.getStatements().getLockTableName());
 
-        broker.stop();
-        broker.waitUntilStopped();
-    }
+      broker.stop();
+      broker.waitUntilStopped();
+   }
 
 }

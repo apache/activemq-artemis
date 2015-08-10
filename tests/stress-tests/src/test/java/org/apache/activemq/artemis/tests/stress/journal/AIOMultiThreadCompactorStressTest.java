@@ -20,12 +20,10 @@ import org.apache.activemq.artemis.core.io.aio.AIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.junit.BeforeClass;
 
-public class AIOMultiThreadCompactorStressTest extends NIOMultiThreadCompactorStressTest
-{
+public class AIOMultiThreadCompactorStressTest extends NIOMultiThreadCompactorStressTest {
 
    @BeforeClass
-   public static void hasAIO()
-   {
+   public static void hasAIO() {
       org.junit.Assume.assumeTrue("Test case needs AIO to run", AIOSequentialFileFactory.isSupported());
    }
 
@@ -33,8 +31,7 @@ public class AIOMultiThreadCompactorStressTest extends NIOMultiThreadCompactorSt
     * @return
     */
    @Override
-   protected JournalType getJournalType()
-   {
+   protected JournalType getJournalType() {
       return JournalType.ASYNCIO;
    }
 

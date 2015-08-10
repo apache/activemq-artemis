@@ -18,8 +18,8 @@ package org.apache.activemq.artemis.core.postoffice;
 
 import org.apache.activemq.artemis.core.server.Queue;
 
-public interface QueueBinding extends Binding
-{
+public interface QueueBinding extends Binding {
+
    int consumerCount();
 
    Queue getQueue();

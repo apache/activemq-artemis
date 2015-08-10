@@ -16,52 +16,44 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
-
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 
-public class BackupResponseMessage extends PacketImpl
-{
+public class BackupResponseMessage extends PacketImpl {
+
    boolean backupStarted;
 
-   public BackupResponseMessage()
-   {
+   public BackupResponseMessage() {
       super(PacketImpl.BACKUP_REQUEST_RESPONSE);
    }
 
-   public BackupResponseMessage(boolean backupStarted)
-   {
+   public BackupResponseMessage(boolean backupStarted) {
       super(PacketImpl.BACKUP_REQUEST_RESPONSE);
       this.backupStarted = backupStarted;
    }
 
    @Override
-   public void encodeRest(ActiveMQBuffer buffer)
-   {
+   public void encodeRest(ActiveMQBuffer buffer) {
       super.encodeRest(buffer);
       buffer.writeBoolean(backupStarted);
    }
 
    @Override
-   public void decodeRest(ActiveMQBuffer buffer)
-   {
+   public void decodeRest(ActiveMQBuffer buffer) {
       super.decodeRest(buffer);
       backupStarted = buffer.readBoolean();
    }
 
    @Override
-   public boolean isResponse()
-   {
+   public boolean isResponse() {
       return true;
    }
 
-   public boolean isBackupStarted()
-   {
+   public boolean isBackupStarted() {
       return backupStarted;
    }
 
-   public void setBackupStarted(boolean backupStarted)
-   {
+   public void setBackupStarted(boolean backupStarted) {
       this.backupStarted = backupStarted;
    }
 }

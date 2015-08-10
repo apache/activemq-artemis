@@ -21,8 +21,7 @@ import java.util.List;
 /**
  * This is a simple datatype containing the list of a routing context
  */
-public interface RouteContextList
-{
+public interface RouteContextList {
 
    int getNumberOfNonDurableQueues();
 

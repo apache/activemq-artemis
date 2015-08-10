@@ -28,48 +28,50 @@ import org.apache.activemq.broker.BrokerService;
 
 public class StoreUsageLimitsTest extends EmbeddedBrokerTestSupport {
 
-    final int WAIT_TIME_MILLS = 20 * 1000;
-    private static final String limitsLogLevel = "warn";
+   final int WAIT_TIME_MILLS = 20 * 1000;
+   private static final String limitsLogLevel = "warn";
 
-    @Override
-    protected BrokerService createBroker() throws Exception {
-        BrokerService broker = super.createBroker();
-        broker.getSystemUsage().getMemoryUsage().setLimit(Long.MAX_VALUE);
-        broker.getSystemUsage().setCheckLimitsLogLevel(limitsLogLevel);
-        broker.deleteAllMessages();
-        return broker;
-    }
+   @Override
+   protected BrokerService createBroker() throws Exception {
+      BrokerService broker = super.createBroker();
+      broker.getSystemUsage().getMemoryUsage().setLimit(Long.MAX_VALUE);
+      broker.getSystemUsage().setCheckLimitsLogLevel(limitsLogLevel);
+      broker.deleteAllMessages();
+      return broker;
+   }
 
-    @Override
-    protected boolean isPersistent() {
-        return true;
-    }
+   @Override
+   protected boolean isPersistent() {
+      return true;
+   }
 
-    public void testCheckLimitsLogLevel() throws Exception {
+   public void testCheckLimitsLogLevel() throws Exception {
 
-        File file = new File("target/activemq-test.log");
-        if (!file.exists()) {
-            fail("target/activemq-test.log was not created.");
-        }
+      File file = new File("target/activemq-test.log");
+      if (!file.exists()) {
+         fail("target/activemq-test.log was not created.");
+      }
 
-        BufferedReader br = null;
-        boolean foundUsage = false;
+      BufferedReader br = null;
+      boolean foundUsage = false;
 
-        try {
-            br = new BufferedReader(new InputStreamReader(new FileInputStream(file), Charset.forName("UTF-8")));
-            String line = null;
-            while ((line = br.readLine()) != null) {
-                if (line.contains(new String(Long.toString(Long.MAX_VALUE / (1024 * 1024)))) && line.contains(limitsLogLevel.toUpperCase())) {
-                    foundUsage = true;
-                }
+      try {
+         br = new BufferedReader(new InputStreamReader(new FileInputStream(file), Charset.forName("UTF-8")));
+         String line = null;
+         while ((line = br.readLine()) != null) {
+            if (line.contains(new String(Long.toString(Long.MAX_VALUE / (1024 * 1024)))) && line.contains(limitsLogLevel.toUpperCase())) {
+               foundUsage = true;
             }
-        } catch (Exception e) {
-            fail(e.getMessage());
-        } finally {
-            br.close();
-        }
+         }
+      }
+      catch (Exception e) {
+         fail(e.getMessage());
+      }
+      finally {
+         br.close();
+      }
 
-        if (!foundUsage)
-            fail("checkLimitsLogLevel message did not write to log target/activemq-test.log");
-    }
+      if (!foundUsage)
+         fail("checkLimitsLogLevel message did not write to log target/activemq-test.log");
+   }
 }

@@ -19,17 +19,15 @@ package org.apache.activemq.artemis.api.core;
 /**
  * A problem occurred while manipulating the body of a large message.
  */
-public final class ActiveMQLargeMessageException extends ActiveMQException
-{
+public final class ActiveMQLargeMessageException extends ActiveMQException {
+
    private static final long serialVersionUID = 1087867463974768491L;
 
-   public ActiveMQLargeMessageException()
-   {
+   public ActiveMQLargeMessageException() {
       super(ActiveMQExceptionType.LARGE_MESSAGE_ERROR_BODY);
    }
 
-   public ActiveMQLargeMessageException(String msg)
-   {
+   public ActiveMQLargeMessageException(String msg) {
       super(ActiveMQExceptionType.LARGE_MESSAGE_ERROR_BODY, msg);
    }
 }

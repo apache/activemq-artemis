@@ -21,15 +21,13 @@ import java.util.Arrays;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 
-public final class ReplicationLargeMessageWriteMessage extends PacketImpl
-{
+public final class ReplicationLargeMessageWriteMessage extends PacketImpl {
 
    private long messageId;
 
    private byte[] body;
 
-   public ReplicationLargeMessageWriteMessage()
-   {
+   public ReplicationLargeMessageWriteMessage() {
       super(PacketImpl.REPLICATION_LARGE_MESSAGE_WRITE);
    }
 
@@ -37,8 +35,7 @@ public final class ReplicationLargeMessageWriteMessage extends PacketImpl
     * @param messageId
     * @param body
     */
-   public ReplicationLargeMessageWriteMessage(final long messageId, final byte[] body)
-   {
+   public ReplicationLargeMessageWriteMessage(final long messageId, final byte[] body) {
       this();
 
       this.messageId = messageId;
@@ -46,16 +43,14 @@ public final class ReplicationLargeMessageWriteMessage extends PacketImpl
    }
 
    @Override
-   public void encodeRest(final ActiveMQBuffer buffer)
-   {
+   public void encodeRest(final ActiveMQBuffer buffer) {
       buffer.writeLong(messageId);
       buffer.writeInt(body.length);
       buffer.writeBytes(body);
    }
 
    @Override
-   public void decodeRest(final ActiveMQBuffer buffer)
-   {
+   public void decodeRest(final ActiveMQBuffer buffer) {
       messageId = buffer.readLong();
       int size = buffer.readInt();
       body = new byte[size];
@@ -65,22 +60,19 @@ public final class ReplicationLargeMessageWriteMessage extends PacketImpl
    /**
     * @return the messageId
     */
-   public long getMessageId()
-   {
+   public long getMessageId() {
       return messageId;
    }
 
    /**
     * @return the body
     */
-   public byte[] getBody()
-   {
+   public byte[] getBody() {
       return body;
    }
 
    @Override
-   public int hashCode()
-   {
+   public int hashCode() {
       final int prime = 31;
       int result = super.hashCode();
       result = prime * result + Arrays.hashCode(body);
@@ -89,8 +81,7 @@ public final class ReplicationLargeMessageWriteMessage extends PacketImpl
    }
 
    @Override
-   public boolean equals(Object obj)
-   {
+   public boolean equals(Object obj) {
       if (this == obj)
          return true;
       if (!super.equals(obj))

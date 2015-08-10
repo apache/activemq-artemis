@@ -22,22 +22,18 @@ import java.util.List;
 import org.apache.activemq.artemis.rest.queue.push.FilePushStore;
 import org.apache.activemq.artemis.rest.queue.push.xml.PushRegistration;
 
-public class FileTopicPushStore extends FilePushStore implements TopicPushStore
-{
-   public FileTopicPushStore(String dirname) throws Exception
-   {
+public class FileTopicPushStore extends FilePushStore implements TopicPushStore {
+
+   public FileTopicPushStore(String dirname) throws Exception {
       super(dirname);
    }
 
    @Override
-   public synchronized List<PushTopicRegistration> getByTopic(String topic)
-   {
+   public synchronized List<PushTopicRegistration> getByTopic(String topic) {
       List<PushTopicRegistration> list = new ArrayList<PushTopicRegistration>();
-      for (PushRegistration reg : map.values())
-      {
-         PushTopicRegistration topicReg = (PushTopicRegistration)reg;
-         if (topicReg.getTopic().equals(topic))
-         {
+      for (PushRegistration reg : map.values()) {
+         PushTopicRegistration topicReg = (PushTopicRegistration) reg;
+         if (topicReg.getTopic().equals(topic)) {
             list.add(topicReg);
          }
       }

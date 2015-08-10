@@ -24,8 +24,8 @@ import org.apache.activemq.artemis.jms.client.ActiveMQTopic;
 import org.apache.activemq.artemis.jms.server.JMSServerManager;
 import org.apache.activemq.artemis.jms.server.config.ConnectionFactoryConfiguration;
 
-public interface JMSManagementService
-{
+public interface JMSManagementService {
+
    JMSServerControl registerJMSServer(JMSServerManager server) throws Exception;
 
    void unregisterJMSServer() throws Exception;
@@ -38,7 +38,9 @@ public interface JMSManagementService
 
    void unregisterTopic(String name) throws Exception;
 
-   void registerConnectionFactory(String name, ConnectionFactoryConfiguration config, ActiveMQConnectionFactory connectionFactory) throws Exception;
+   void registerConnectionFactory(String name,
+                                  ConnectionFactoryConfiguration config,
+                                  ActiveMQConnectionFactory connectionFactory) throws Exception;
 
    void unregisterConnectionFactory(String name) throws Exception;
 

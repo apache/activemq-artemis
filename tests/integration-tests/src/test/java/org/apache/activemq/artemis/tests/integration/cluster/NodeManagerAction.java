@@ -21,8 +21,8 @@ import java.io.File;
 import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.core.server.impl.FileLockNodeManager;
 
-public class NodeManagerAction
-{
+public class NodeManagerAction {
+
    public static final int START_LIVE = 0;
    public static final int START_BACKUP = 1;
    public static final int CRASH_LIVE = 2;
@@ -36,23 +36,18 @@ public class NodeManagerAction
    public static final int DOESNT_HAVE_LIVE = 12;
    public static final int DOESNT_HAVE_BACKUP = 13;
 
-
    private final int[] work;
 
    boolean hasLiveLock = false;
    boolean hasBackupLock = false;
 
-   public NodeManagerAction(int... work)
-   {
+   public NodeManagerAction(int... work) {
       this.work = work;
    }
 
-   public void performWork(NodeManager nodeManager) throws Exception
-   {
-      for (int action : work)
-      {
-         switch (action)
-         {
+   public void performWork(NodeManager nodeManager) throws Exception {
+      for (int action : work) {
+         switch (action) {
             case START_LIVE:
                nodeManager.startLiveNode();
                hasLiveLock = true;
@@ -82,28 +77,24 @@ public class NodeManagerAction
                nodeManager.releaseBackup();
                hasBackupLock = false;
             case HAS_LIVE:
-               if (!hasLiveLock)
-               {
+               if (!hasLiveLock) {
                   throw new IllegalStateException("live lock not held");
                }
                break;
             case HAS_BACKUP:
 
-               if (!hasBackupLock)
-               {
+               if (!hasBackupLock) {
                   throw new IllegalStateException("backup lock not held");
                }
                break;
             case DOESNT_HAVE_LIVE:
-               if (hasLiveLock)
-               {
+               if (hasLiveLock) {
                   throw new IllegalStateException("live lock held");
                }
                break;
             case DOESNT_HAVE_BACKUP:
 
-               if (hasBackupLock)
-               {
+               if (hasBackupLock) {
                   throw new IllegalStateException("backup lock held");
                }
                break;
@@ -111,33 +102,27 @@ public class NodeManagerAction
       }
    }
 
-   public String[] getWork()
-   {
+   public String[] getWork() {
       String[] strings = new String[work.length];
-      for (int i = 0, stringsLength = strings.length; i < stringsLength; i++)
-      {
+      for (int i = 0, stringsLength = strings.length; i < stringsLength; i++) {
          strings[i] = "" + work[i];
       }
       return strings;
    }
 
-   public static void main(String[] args) throws Exception
-   {
+   public static void main(String[] args) throws Exception {
       int[] work1 = new int[args.length];
-      for (int i = 0; i < args.length; i++)
-      {
+      for (int i = 0; i < args.length; i++) {
          work1[i] = Integer.parseInt(args[i]);
 
       }
       NodeManagerAction nodeManagerAction = new NodeManagerAction(work1);
       FileLockNodeManager nodeManager = new FileLockNodeManager(new File("."), false);
       nodeManager.start();
-      try
-      {
+      try {
          nodeManagerAction.performWork(nodeManager);
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          e.printStackTrace();
          System.exit(9);
       }

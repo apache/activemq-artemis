@@ -29,36 +29,29 @@ import org.junit.Test;
 /**
  * adapted from: org.apache.activemq.ReconnectWithSameClientIDTest
  */
-public class ReconnectWithSameClientIDTest extends BasicOpenWireTest
-{
+public class ReconnectWithSameClientIDTest extends BasicOpenWireTest {
+
    protected ActiveMQConnection sameIdConnection;
    protected boolean transacted;
    protected int authMode = Session.AUTO_ACKNOWLEDGE;
 
    @Test
-   public void testReconnectMultipleTimesWithSameClientID() throws Exception
-   {
-      try
-      {
+   public void testReconnectMultipleTimesWithSameClientID() throws Exception {
+      try {
          sameIdConnection = (ActiveMQConnection) this.factory.createConnection();
          useConnection(sameIdConnection);
 
          // now lets create another which should fail
-         for (int i = 1; i < 11; i++)
-         {
+         for (int i = 1; i < 11; i++) {
             Connection connection2 = this.factory.createConnection();
-            try
-            {
+            try {
                useConnection(connection2);
-               fail("Should have thrown InvalidClientIDException on attempt"
-                     + i);
+               fail("Should have thrown InvalidClientIDException on attempt" + i);
             }
-            catch (InvalidClientIDException e)
-            {
+            catch (InvalidClientIDException e) {
                System.err.println("Caught expected: " + e);
             }
-            finally
-            {
+            finally {
                connection2.close();
             }
          }
@@ -69,28 +62,23 @@ public class ReconnectWithSameClientIDTest extends BasicOpenWireTest
          sameIdConnection = (ActiveMQConnection) factory.createConnection();
          useConnection(connection);
       }
-      finally
-      {
-         if (sameIdConnection != null)
-         {
+      finally {
+         if (sameIdConnection != null) {
             sameIdConnection.close();
          }
       }
    }
 
    @After
-   public void tearDown() throws Exception
-   {
-      if (sameIdConnection != null)
-      {
+   public void tearDown() throws Exception {
+      if (sameIdConnection != null) {
          sameIdConnection.close();
          sameIdConnection = null;
       }
       super.tearDown();
    }
 
-   protected void useConnection(Connection connection) throws JMSException
-   {
+   protected void useConnection(Connection connection) throws JMSException {
       connection.setClientID("foo");
       connection.start();
    }

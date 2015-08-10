@@ -22,35 +22,33 @@ import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 
-
 /**
  * Base class for simple test cases using a single connection, session
  * producer and consumer
- *
- * 
  */
 public class ProducerConsumerTestSupport extends TestSupport {
-    protected Connection connection;
-    protected Session session;
-    protected MessageProducer producer;
-    protected MessageConsumer consumer;
-    protected Destination destination;
 
-    protected void setUp() throws Exception {
-        super.setUp();
-        connection = createConnection();
-        session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
-        destination = this.createDestination(getSubject());
-        producer = session.createProducer(destination);
-        consumer = session.createConsumer(destination);
-        connection.start();
-    }
+   protected Connection connection;
+   protected Session session;
+   protected MessageProducer producer;
+   protected MessageConsumer consumer;
+   protected Destination destination;
 
-    protected void tearDown() throws Exception {
-        consumer.close();
-        producer.close();
-        session.close();
-        connection.close();
-        super.tearDown();
-    }
+   protected void setUp() throws Exception {
+      super.setUp();
+      connection = createConnection();
+      session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
+      destination = this.createDestination(getSubject());
+      producer = session.createProducer(destination);
+      consumer = session.createConsumer(destination);
+      connection.start();
+   }
+
+   protected void tearDown() throws Exception {
+      consumer.close();
+      producer.close();
+      session.close();
+      connection.close();
+      super.tearDown();
+   }
 }

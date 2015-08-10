@@ -28,8 +28,8 @@ import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Before;
 
-public class ActiveMQRAClusteredTestBase extends ActiveMQRATestBase
-{
+public class ActiveMQRAClusteredTestBase extends ActiveMQRATestBase {
+
    protected ActiveMQServer secondaryServer;
    protected JMSServerManagerImpl secondaryJmsServer;
    protected TransportConfiguration secondaryConnector;
@@ -37,8 +37,7 @@ public class ActiveMQRAClusteredTestBase extends ActiveMQRATestBase
 
    @Before
    @Override
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       primaryConnector = new TransportConfiguration(INVM_CONNECTOR_FACTORY);
@@ -53,21 +52,18 @@ public class ActiveMQRAClusteredTestBase extends ActiveMQRATestBase
       waitForTopology(secondaryServer, 2);
    }
 
-   protected Configuration createDefaultConfig(boolean netty) throws Exception
-   {
+   protected Configuration createDefaultConfig(boolean netty) throws Exception {
       return createSecondaryDefaultConfig(netty, false);
    }
 
-   protected Configuration createSecondaryDefaultConfig(boolean netty, boolean secondary) throws Exception
-   {
+   protected Configuration createSecondaryDefaultConfig(boolean netty, boolean secondary) throws Exception {
       HashMap invmMap = new HashMap();
       HashMap nettyMap = new HashMap();
       String primaryConnectorName = "invm2";
       String secondaryConnectorName = "invm";
       String directoryPrefix = "first";
 
-      if (secondary)
-      {
+      if (secondary) {
          invmMap.put(TransportConstants.SERVER_ID_PROP_NAME, "1");
          nettyMap.put("port", "5545");
          primaryConnectorName = "invm";
@@ -75,18 +71,7 @@ public class ActiveMQRAClusteredTestBase extends ActiveMQRATestBase
          directoryPrefix = "second";
       }
 
-      ConfigurationImpl configuration = createBasicConfig()
-         .setJMXManagementEnabled(false)
-         .clearAcceptorConfigurations()
-         .addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY, invmMap))
-         .addAcceptorConfiguration(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, nettyMap))
-         .setJournalDirectory(getTestDir() + "/" + directoryPrefix + "Journal/")
-         .setBindingsDirectory(getTestDir() + "/" + directoryPrefix + "Bind/")
-         .setLargeMessagesDirectory(getTestDir() + "/" + directoryPrefix + "Large/")
-         .setPagingDirectory(getTestDir() + "/" + directoryPrefix + "Page/")
-         .addConnectorConfiguration(secondaryConnectorName, secondaryConnector)
-         .addConnectorConfiguration(primaryConnectorName, primaryConnector)
-         .addClusterConfiguration(ActiveMQTestBase.basicClusterConnectionConfig(secondaryConnectorName, primaryConnectorName));
+      ConfigurationImpl configuration = createBasicConfig().setJMXManagementEnabled(false).clearAcceptorConfigurations().addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY, invmMap)).addAcceptorConfiguration(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, nettyMap)).setJournalDirectory(getTestDir() + "/" + directoryPrefix + "Journal/").setBindingsDirectory(getTestDir() + "/" + directoryPrefix + "Bind/").setLargeMessagesDirectory(getTestDir() + "/" + directoryPrefix + "Large/").setPagingDirectory(getTestDir() + "/" + directoryPrefix + "Page/").addConnectorConfiguration(secondaryConnectorName, secondaryConnector).addConnectorConfiguration(primaryConnectorName, primaryConnector).addClusterConfiguration(ActiveMQTestBase.basicClusterConnectionConfig(secondaryConnectorName, primaryConnectorName));
 
       return configuration;
    }

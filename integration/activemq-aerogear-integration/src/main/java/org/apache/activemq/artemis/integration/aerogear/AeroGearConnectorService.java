@@ -44,8 +44,8 @@ import org.jboss.aerogear.unifiedpush.SenderClient;
 import org.jboss.aerogear.unifiedpush.message.MessageResponseCallback;
 import org.jboss.aerogear.unifiedpush.message.UnifiedMessage;
 
-public class AeroGearConnectorService implements ConnectorService, Consumer, MessageResponseCallback
-{
+public class AeroGearConnectorService implements ConnectorService, Consumer, MessageResponseCallback {
+
    private final String connectorName;
 
    private final PostOffice postOffice;
@@ -92,8 +92,10 @@ public class AeroGearConnectorService implements ConnectorService, Consumer, Mes
 
    private boolean reconnecting = false;
 
-   public AeroGearConnectorService(String connectorName, Map<String, Object> configuration, PostOffice postOffice, ScheduledExecutorService scheduledThreadPool)
-   {
+   public AeroGearConnectorService(String connectorName,
+                                   Map<String, Object> configuration,
+                                   PostOffice postOffice,
+                                   ScheduledExecutorService scheduledThreadPool) {
       this.connectorName = connectorName;
       this.postOffice = postOffice;
       this.scheduledThreadPool = scheduledThreadPool;
@@ -110,56 +112,45 @@ public class AeroGearConnectorService implements ConnectorService, Consumer, Mes
       this.retryInterval = ConfigurationHelper.getIntProperty(AeroGearConstants.RETRY_INTERVAL_NAME, AeroGearConstants.DEFAULT_RETRY_INTERVAL, configuration);
       this.retryAttempts = ConfigurationHelper.getIntProperty(AeroGearConstants.RETRY_ATTEMPTS_NAME, AeroGearConstants.DEFAULT_RETRY_ATTEMPTS, configuration);
       String variantsString = ConfigurationHelper.getStringProperty(AeroGearConstants.VARIANTS_NAME, null, configuration);
-      if (variantsString != null)
-      {
+      if (variantsString != null) {
          variants = variantsString.split(",");
       }
       String aliasesString = ConfigurationHelper.getStringProperty(AeroGearConstants.ALIASES_NAME, null, configuration);
-      if (aliasesString != null)
-      {
+      if (aliasesString != null) {
          aliases = aliasesString.split(",");
       }
       String deviceTypeString = ConfigurationHelper.getStringProperty(AeroGearConstants.DEVICE_TYPE_NAME, null, configuration);
-      if (deviceTypeString != null)
-      {
+      if (deviceTypeString != null) {
          deviceTypes = deviceTypeString.split(",");
       }
    }
 
    @Override
-   public String getName()
-   {
+   public String getName() {
       return connectorName;
    }
 
    @Override
-   public void start() throws Exception
-   {
-      if (started)
-      {
+   public void start() throws Exception {
+      if (started) {
          return;
       }
-      if (filterString != null)
-      {
+      if (filterString != null) {
          filter = FilterImpl.createFilter(filterString);
       }
 
-      if (endpoint == null || endpoint.isEmpty())
-      {
+      if (endpoint == null || endpoint.isEmpty()) {
          throw ActiveMQAeroGearBundle.BUNDLE.endpointNull();
       }
-      if (applicationId == null || applicationId.isEmpty())
-      {
+      if (applicationId == null || applicationId.isEmpty()) {
          throw ActiveMQAeroGearBundle.BUNDLE.applicationIdNull();
       }
-      if (applicationMasterSecret == null || applicationMasterSecret.isEmpty())
-      {
+      if (applicationMasterSecret == null || applicationMasterSecret.isEmpty()) {
          throw ActiveMQAeroGearBundle.BUNDLE.masterSecretNull();
       }
 
       Binding b = postOffice.getBinding(new SimpleString(queueName));
-      if (b == null)
-      {
+      if (b == null) {
          throw ActiveMQAeroGearBundle.BUNDLE.noQueue(connectorName, queueName);
       }
 
@@ -171,42 +162,34 @@ public class AeroGearConnectorService implements ConnectorService, Consumer, Mes
    }
 
    @Override
-   public void stop() throws Exception
-   {
-      if (!started)
-      {
+   public void stop() throws Exception {
+      if (!started) {
          return;
       }
       queue.removeConsumer(this);
    }
 
    @Override
-   public boolean isStarted()
-   {
+   public boolean isStarted() {
       return started;
    }
 
    @Override
-   public HandleStatus handle(final MessageReference reference) throws Exception
-   {
-      if (reconnecting)
-      {
+   public HandleStatus handle(final MessageReference reference) throws Exception {
+      if (reconnecting) {
          return HandleStatus.BUSY;
       }
       ServerMessage message = reference.getMessage();
 
-      if (filter != null && !filter.match(message))
-      {
-         if (ActiveMQServerLogger.LOGGER.isTraceEnabled())
-         {
+      if (filter != null && !filter.match(message)) {
+         if (ActiveMQServerLogger.LOGGER.isTraceEnabled()) {
             ActiveMQServerLogger.LOGGER.trace("Reference " + reference + " is a noMatch on consumer " + this);
          }
          return HandleStatus.NO_MATCH;
       }
 
       //we only accept if the alert is set
-      if (!message.containsProperty(AeroGearConstants.AEROGEAR_ALERT))
-      {
+      if (!message.containsProperty(AeroGearConstants.AEROGEAR_ALERT)) {
          return HandleStatus.NO_MATCH;
       }
 
@@ -216,42 +199,35 @@ public class AeroGearConnectorService implements ConnectorService, Consumer, Mes
 
       UnifiedMessage.Builder builder = new UnifiedMessage.Builder();
 
-      builder.pushApplicationId(applicationId)
-         .masterSecret(applicationMasterSecret)
-         .alert(alert);
+      builder.pushApplicationId(applicationId).masterSecret(applicationMasterSecret).alert(alert);
 
       String sound = message.containsProperty(AeroGearConstants.AEROGEAR_SOUND) ? message.getStringProperty(AeroGearConstants.AEROGEAR_SOUND) : this.sound;
 
-      if (sound != null)
-      {
+      if (sound != null) {
          builder.sound(sound);
       }
 
       String badge = message.containsProperty(AeroGearConstants.AEROGEAR_BADGE) ? message.getStringProperty(AeroGearConstants.AEROGEAR_BADGE) : this.badge;
 
-      if (badge != null)
-      {
+      if (badge != null) {
          builder.badge(badge);
       }
 
       boolean contentAvailable = message.containsProperty(AeroGearConstants.AEROGEAR_CONTENT_AVAILABLE) ? message.getBooleanProperty(AeroGearConstants.AEROGEAR_CONTENT_AVAILABLE) : this.contentAvailable;
 
-      if (contentAvailable)
-      {
+      if (contentAvailable) {
          builder.contentAvailable();
       }
 
       String actionCategory = message.containsProperty(AeroGearConstants.AEROGEAR_ACTION_CATEGORY) ? message.getStringProperty(AeroGearConstants.AEROGEAR_ACTION_CATEGORY) : this.actionCategory;
 
-      if (actionCategory != null)
-      {
+      if (actionCategory != null) {
          builder.actionCategory(actionCategory);
       }
 
       Integer ttl = message.containsProperty(AeroGearConstants.AEROGEAR_TTL) ? message.getIntProperty(AeroGearConstants.AEROGEAR_TTL) : this.ttl;
 
-      if (ttl != null)
-      {
+      if (ttl != null) {
          builder.timeToLive(ttl);
       }
 
@@ -259,8 +235,7 @@ public class AeroGearConnectorService implements ConnectorService, Consumer, Mes
 
       String[] variants = variantsString != null ? variantsString.split(",") : this.variants;
 
-      if (variants != null)
-      {
+      if (variants != null) {
          builder.variants(Arrays.asList(variants));
       }
 
@@ -268,8 +243,7 @@ public class AeroGearConnectorService implements ConnectorService, Consumer, Mes
 
       String[] aliases = aliasesString != null ? aliasesString.split(",") : this.aliases;
 
-      if (aliases != null)
-      {
+      if (aliases != null) {
          builder.aliases(Arrays.asList(aliases));
       }
 
@@ -277,17 +251,14 @@ public class AeroGearConnectorService implements ConnectorService, Consumer, Mes
 
       String[] deviceTypes = deviceTypesString != null ? deviceTypesString.split(",") : this.deviceTypes;
 
-      if (deviceTypes != null)
-      {
+      if (deviceTypes != null) {
          builder.deviceType(Arrays.asList(deviceTypes));
       }
 
       Set<SimpleString> propertyNames = message.getPropertyNames();
 
-      for (SimpleString propertyName : propertyNames)
-      {
-         if (propertyName.toString().startsWith("AEROGEAR_") && !AeroGearConstants.ALLOWABLE_PROPERTIES.contains(propertyName))
-         {
+      for (SimpleString propertyName : propertyNames) {
+         if (propertyName.toString().startsWith("AEROGEAR_") && !AeroGearConstants.ALLOWABLE_PROPERTIES.contains(propertyName)) {
             Object property = message.getTypedProperties().getProperty(propertyName);
             builder.attribute(propertyName.toString(), property.toString());
          }
@@ -297,89 +268,72 @@ public class AeroGearConnectorService implements ConnectorService, Consumer, Mes
 
       sender.send(unifiedMessage, this);
 
-      if (handled)
-      {
+      if (handled) {
          reference.acknowledge();
          return HandleStatus.HANDLED;
       }
       //if we have been stopped we must return no match as we have been removed as a consumer,
       // anything else will cause an exception
-      else if (!started)
-      {
+      else if (!started) {
          return HandleStatus.NO_MATCH;
       }
       //we must be reconnecting
       return HandleStatus.BUSY;
    }
 
-
    @Override
-   public void onComplete(int statusCode)
-   {
-      if (statusCode != 200)
-      {
+   public void onComplete(int statusCode) {
+      if (statusCode != 200) {
          handled = false;
-         if (statusCode == 401)
-         {
+         if (statusCode == 401) {
             ActiveMQAeroGearLogger.LOGGER.reply401();
          }
-         else if (statusCode == 404)
-         {
+         else if (statusCode == 404) {
             ActiveMQAeroGearLogger.LOGGER.reply404();
          }
-         else
-         {
+         else {
             ActiveMQAeroGearLogger.LOGGER.replyUnknown(statusCode);
          }
 
          queue.removeConsumer(this);
          started = false;
       }
-      else
-      {
+      else {
          handled = true;
       }
    }
 
    @Override
-   public void onError(Throwable throwable)
-   {
+   public void onError(Throwable throwable) {
       ActiveMQAeroGearLogger.LOGGER.sendFailed(retryInterval);
       handled = false;
       reconnecting = true;
       scheduledThreadPool.schedule(new ReconnectRunnable(0), retryInterval, TimeUnit.SECONDS);
    }
 
-   private class ReconnectRunnable implements Runnable
-   {
+   private class ReconnectRunnable implements Runnable {
 
       private int retryAttempt;
 
-      public ReconnectRunnable(int retryAttempt)
-      {
+      public ReconnectRunnable(int retryAttempt) {
          this.retryAttempt = retryAttempt;
       }
 
       @Override
-      public void run()
-      {
-         try
-         {
+      public void run() {
+         try {
             HttpURLConnection conn = (HttpURLConnection) new URL(endpoint).openConnection();
             conn.connect();
             reconnecting = false;
             ActiveMQAeroGearLogger.LOGGER.connected(endpoint);
             queue.deliverAsync();
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             retryAttempt++;
-            if (retryAttempts == -1 || retryAttempt < retryAttempts)
-            {
+            if (retryAttempts == -1 || retryAttempt < retryAttempts) {
                scheduledThreadPool.schedule(this, retryInterval, TimeUnit.SECONDS);
             }
-            else
-            {
+            else {
                ActiveMQAeroGearLogger.LOGGER.unableToReconnect(retryAttempt);
                started = false;
             }
@@ -388,37 +342,31 @@ public class AeroGearConnectorService implements ConnectorService, Consumer, Mes
    }
 
    @Override
-   public List<MessageReference> getDeliveringMessages()
-   {
+   public List<MessageReference> getDeliveringMessages() {
       return Collections.emptyList();
    }
 
    @Override
-   public void proceedDeliver(MessageReference reference) throws Exception
-   {
+   public void proceedDeliver(MessageReference reference) throws Exception {
       //noop
    }
 
    @Override
-   public Filter getFilter()
-   {
+   public Filter getFilter() {
       return filter;
    }
 
    @Override
-   public String debug()
-   {
+   public String debug() {
       return "aerogear connected to " + endpoint;
    }
 
    @Override
-   public String toManagementString()
-   {
+   public String toManagementString() {
       return "aerogear connected to " + endpoint;
    }
 
    @Override
-   public void disconnect()
-   {
+   public void disconnect() {
    }
 }

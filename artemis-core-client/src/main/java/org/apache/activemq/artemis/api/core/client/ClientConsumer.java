@@ -31,12 +31,12 @@ import org.apache.activemq.artemis.spi.core.remoting.ConsumerContext;
  *
  * @see ClientSession#createConsumer(String)
  */
-public interface ClientConsumer extends AutoCloseable
-{
+public interface ClientConsumer extends AutoCloseable {
 
    /**
     * The server's ID associated with this consumer.
     * ActiveMQ Artemis implements this as a long but this could be protocol dependent.
+    *
     * @return
     */
    ConsumerContext getConsumerContext();
@@ -47,6 +47,7 @@ public interface ClientConsumer extends AutoCloseable
     * This call will block indefinitely until a message is received.
     * <p>
     * Calling this method on a closed consumer will throw an ActiveMQException.
+    *
     * @return a ClientMessage
     * @throws ActiveMQException if an exception occurs while waiting to receive a message
     */
@@ -58,6 +59,7 @@ public interface ClientConsumer extends AutoCloseable
     * This call will block until a message is received or the given timeout expires.
     * <p>
     * Calling this method on a closed consumer will throw an ActiveMQException.
+    *
     * @param timeout time (in milliseconds) to wait to receive a message
     * @return a message or {@code null} if the time out expired
     * @throws ActiveMQException if an exception occurs while waiting to receive a message
@@ -75,6 +77,7 @@ public interface ClientConsumer extends AutoCloseable
     * required to check the queue status.
     * <p>
     * Calling this method on a closed consumer will throw an ActiveMQException.
+    *
     * @return a message or {@code null} if there are no messages in the queue for this consumer
     * @throws ActiveMQException if an exception occurs while waiting to receive a message
     */
@@ -84,6 +87,7 @@ public interface ClientConsumer extends AutoCloseable
     * Returns the MessageHandler associated to this consumer.
     * <p>
     * Calling this method on a closed consumer will throw an ActiveMQException.
+    *
     * @return the MessageHandler associated to this consumer or {@code null}
     * @throws ActiveMQException if an exception occurs while getting the MessageHandler
     */
@@ -93,6 +97,7 @@ public interface ClientConsumer extends AutoCloseable
     * Sets the MessageHandler for this consumer to consume messages asynchronously.
     * <p>
     * Calling this method on a closed consumer will throw a ActiveMQException.
+    *
     * @param handler a MessageHandler
     * @throws ActiveMQException if an exception occurs while setting the MessageHandler
     */
@@ -103,6 +108,7 @@ public interface ClientConsumer extends AutoCloseable
     * <p>
     * Once this consumer is closed, it can not receive messages, whether synchronously or
     * asynchronously.
+    *
     * @throws ActiveMQException
     */
    void close() throws ActiveMQException;

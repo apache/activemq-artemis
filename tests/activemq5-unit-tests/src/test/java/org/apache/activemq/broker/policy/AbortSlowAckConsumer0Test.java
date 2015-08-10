@@ -41,138 +41,142 @@ import org.slf4j.LoggerFactory;
 
 @RunWith(value = Parameterized.class)
 public class AbortSlowAckConsumer0Test extends AbortSlowConsumer0Test {
-    private static final Logger LOG = LoggerFactory.getLogger(AbortSlowAckConsumer0Test.class);
-    protected long maxTimeSinceLastAck = 5 * 1000;
 
-    AbortSlowAckConsumerStrategy strategy;
+   private static final Logger LOG = LoggerFactory.getLogger(AbortSlowAckConsumer0Test.class);
+   protected long maxTimeSinceLastAck = 5 * 1000;
 
-    public AbortSlowAckConsumer0Test(Boolean isTopic) {
-        super(isTopic);
-    }
+   AbortSlowAckConsumerStrategy strategy;
 
-    @Override
-    protected AbortSlowAckConsumerStrategy createSlowConsumerStrategy() {
-        AbortSlowAckConsumerStrategy strategy = new AbortSlowAckConsumerStrategy();
-        strategy.setAbortConnection(abortConnection);
-        strategy.setCheckPeriod(checkPeriod);
-        strategy.setMaxSlowDuration(maxSlowDuration);
-        strategy.setMaxTimeSinceLastAck(maxTimeSinceLastAck);
+   public AbortSlowAckConsumer0Test(Boolean isTopic) {
+      super(isTopic);
+   }
 
-        return strategy;
-    }
+   @Override
+   protected AbortSlowAckConsumerStrategy createSlowConsumerStrategy() {
+      AbortSlowAckConsumerStrategy strategy = new AbortSlowAckConsumerStrategy();
+      strategy.setAbortConnection(abortConnection);
+      strategy.setCheckPeriod(checkPeriod);
+      strategy.setMaxSlowDuration(maxSlowDuration);
+      strategy.setMaxTimeSinceLastAck(maxTimeSinceLastAck);
 
-    @Override
-    protected BrokerService createBroker() throws Exception {
-        BrokerService broker = super.createBroker();
-        PolicyEntry policy = new PolicyEntry();
+      return strategy;
+   }
 
-        strategy = createSlowConsumerStrategy();
-        underTest = strategy;
+   @Override
+   protected BrokerService createBroker() throws Exception {
+      BrokerService broker = super.createBroker();
+      PolicyEntry policy = new PolicyEntry();
 
-        policy.setSlowConsumerStrategy(strategy);
-        policy.setQueuePrefetch(10);
-        policy.setTopicPrefetch(10);
-        PolicyMap pMap = new PolicyMap();
-        pMap.setDefaultEntry(policy);
-        broker.setDestinationPolicy(pMap);
-        return broker;
-    }
+      strategy = createSlowConsumerStrategy();
+      underTest = strategy;
 
-    @Override
-    protected ConnectionFactory createConnectionFactory() throws Exception {
-        ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("vm://localhost");
-        factory.getPrefetchPolicy().setAll(1);
-        return factory;
-    }
+      policy.setSlowConsumerStrategy(strategy);
+      policy.setQueuePrefetch(10);
+      policy.setTopicPrefetch(10);
+      PolicyMap pMap = new PolicyMap();
+      pMap.setDefaultEntry(policy);
+      broker.setDestinationPolicy(pMap);
+      return broker;
+   }
 
-    @Override
-    @Test
-    public void testSlowConsumerIsAbortedViaJmx() throws Exception {
-        strategy.setMaxTimeSinceLastAck(500); // so jmx does the abort
-        super.testSlowConsumerIsAbortedViaJmx();
-    }
+   @Override
+   protected ConnectionFactory createConnectionFactory() throws Exception {
+      ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("vm://localhost");
+      factory.getPrefetchPolicy().setAll(1);
+      return factory;
+   }
 
-    @Test
-    public void testZeroPrefetchConsumerIsAborted() throws Exception {
-        strategy.setMaxTimeSinceLastAck(2000); // Make it shorter
+   @Override
+   @Test
+   public void testSlowConsumerIsAbortedViaJmx() throws Exception {
+      strategy.setMaxTimeSinceLastAck(500); // so jmx does the abort
+      super.testSlowConsumerIsAbortedViaJmx();
+   }
 
-        ActiveMQConnection conn = (ActiveMQConnection) createConnectionFactory().createConnection();
-        conn.setExceptionListener(this);
-        connections.add(conn);
+   @Test
+   public void testZeroPrefetchConsumerIsAborted() throws Exception {
+      strategy.setMaxTimeSinceLastAck(2000); // Make it shorter
 
-        Session sess = conn.createSession(false, Session.CLIENT_ACKNOWLEDGE);
-        final MessageConsumer consumer = sess.createConsumer(destination);
-        assertNotNull(consumer);
-        conn.start();
-        startProducers(destination, 20);
+      ActiveMQConnection conn = (ActiveMQConnection) createConnectionFactory().createConnection();
+      conn.setExceptionListener(this);
+      connections.add(conn);
 
-        Message message = consumer.receive(5000);
-        assertNotNull(message);
+      Session sess = conn.createSession(false, Session.CLIENT_ACKNOWLEDGE);
+      final MessageConsumer consumer = sess.createConsumer(destination);
+      assertNotNull(consumer);
+      conn.start();
+      startProducers(destination, 20);
 
-        TimeUnit.SECONDS.sleep(15);
+      Message message = consumer.receive(5000);
+      assertNotNull(message);
 
-        try {
-            consumer.receive(5000);
-            fail("Slow consumer not aborted.");
-        } catch (Exception ex) {
-        }
-    }
+      TimeUnit.SECONDS.sleep(15);
 
-    @Test
-    public void testIdleConsumerCanBeAbortedNoMessages() throws Exception {
-        strategy.setIgnoreIdleConsumers(false);
-        strategy.setMaxTimeSinceLastAck(2000); // Make it shorter
+      try {
+         consumer.receive(5000);
+         fail("Slow consumer not aborted.");
+      }
+      catch (Exception ex) {
+      }
+   }
 
-        ActiveMQConnection conn = (ActiveMQConnection) createConnectionFactory().createConnection();
-        conn.setExceptionListener(this);
-        connections.add(conn);
+   @Test
+   public void testIdleConsumerCanBeAbortedNoMessages() throws Exception {
+      strategy.setIgnoreIdleConsumers(false);
+      strategy.setMaxTimeSinceLastAck(2000); // Make it shorter
 
-        Session sess = conn.createSession(false, Session.CLIENT_ACKNOWLEDGE);
-        final MessageConsumer consumer = sess.createConsumer(destination);
-        assertNotNull(consumer);
-        conn.start();
+      ActiveMQConnection conn = (ActiveMQConnection) createConnectionFactory().createConnection();
+      conn.setExceptionListener(this);
+      connections.add(conn);
 
-        startProducers(destination, 1);
+      Session sess = conn.createSession(false, Session.CLIENT_ACKNOWLEDGE);
+      final MessageConsumer consumer = sess.createConsumer(destination);
+      assertNotNull(consumer);
+      conn.start();
 
-        Message message = consumer.receive(5000);
-        assertNotNull(message);
+      startProducers(destination, 1);
 
-        // Consumer needs to be closed before the reeive call.
-        TimeUnit.SECONDS.sleep(15);
+      Message message = consumer.receive(5000);
+      assertNotNull(message);
 
-        try {
-            consumer.receive(5000);
-            fail("Idle consumer not aborted.");
-        } catch (Exception ex) {
-        }
-    }
+      // Consumer needs to be closed before the reeive call.
+      TimeUnit.SECONDS.sleep(15);
 
-    @Test
-    public void testIdleConsumerCanBeAborted() throws Exception {
-        strategy.setIgnoreIdleConsumers(false);
-        strategy.setMaxTimeSinceLastAck(2000); // Make it shorter
+      try {
+         consumer.receive(5000);
+         fail("Idle consumer not aborted.");
+      }
+      catch (Exception ex) {
+      }
+   }
 
-        ActiveMQConnection conn = (ActiveMQConnection) createConnectionFactory().createConnection();
-        conn.setExceptionListener(this);
-        connections.add(conn);
+   @Test
+   public void testIdleConsumerCanBeAborted() throws Exception {
+      strategy.setIgnoreIdleConsumers(false);
+      strategy.setMaxTimeSinceLastAck(2000); // Make it shorter
 
-        Session sess = conn.createSession(false, Session.CLIENT_ACKNOWLEDGE);
-        final MessageConsumer consumer = sess.createConsumer(destination);
-        assertNotNull(consumer);
-        conn.start();
-        startProducers(destination, 1);
+      ActiveMQConnection conn = (ActiveMQConnection) createConnectionFactory().createConnection();
+      conn.setExceptionListener(this);
+      connections.add(conn);
 
-        Message message = consumer.receive(5000);
-        assertNotNull(message);
-        message.acknowledge();
+      Session sess = conn.createSession(false, Session.CLIENT_ACKNOWLEDGE);
+      final MessageConsumer consumer = sess.createConsumer(destination);
+      assertNotNull(consumer);
+      conn.start();
+      startProducers(destination, 1);
 
-        // Consumer needs to be closed before the reeive call.
-        TimeUnit.SECONDS.sleep(15);
+      Message message = consumer.receive(5000);
+      assertNotNull(message);
+      message.acknowledge();
 
-        try {
-            consumer.receive(5000);
-            fail("Idle consumer not aborted.");
-        } catch (Exception ex) {
-        }
-    }
+      // Consumer needs to be closed before the reeive call.
+      TimeUnit.SECONDS.sleep(15);
+
+      try {
+         consumer.receive(5000);
+         fail("Idle consumer not aborted.");
+      }
+      catch (Exception ex) {
+      }
+   }
 }

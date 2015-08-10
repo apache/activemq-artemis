@@ -23,8 +23,8 @@ import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-public class FactoryFinder
-{
+public class FactoryFinder {
+
    /**
     * The strategy that the FactoryFinder uses to find load and instantiate Objects
     * can be changed out by calling the setObjectFactory method with a custom implementation of ObjectFactory.
@@ -33,15 +33,15 @@ public class FactoryFinder
     * environment where service discovery needs to be done via the container system.  For example,
     * in an OSGi scenario.
     */
-   public interface ObjectFactory
-   {
+   public interface ObjectFactory {
+
       /**
        * @param path the full service path
+       * @return Object
        * @throws IllegalAccessException illegal access
        * @throws InstantiationException on instantiation error
-       * @throws IOException On IO Error
+       * @throws IOException            On IO Error
        * @throws ClassNotFoundException On class not found error
-       * @return Object
        */
       Object create(String path) throws IllegalAccessException, InstantiationException, IOException, ClassNotFoundException;
 
@@ -50,85 +50,69 @@ public class FactoryFinder
    /**
     * The default implementation of Object factory which works well in standalone applications.
     */
-   protected static class StandaloneObjectFactory implements ObjectFactory
-   {
+   protected static class StandaloneObjectFactory implements ObjectFactory {
+
       final ConcurrentMap<String, Class> classMap = new ConcurrentHashMap<String, Class>();
 
-      public Object create(final String path) throws InstantiationException, IllegalAccessException, ClassNotFoundException, IOException
-      {
+      public Object create(final String path) throws InstantiationException, IllegalAccessException, ClassNotFoundException, IOException {
          Class clazz = classMap.get(path);
-         if (clazz == null)
-         {
+         if (clazz == null) {
             clazz = loadClass(loadProperties(path));
             classMap.put(path, clazz);
          }
          return clazz.newInstance();
       }
 
-      static Class loadClass(Properties properties) throws ClassNotFoundException, IOException
-      {
+      static Class loadClass(Properties properties) throws ClassNotFoundException, IOException {
 
          String className = properties.getProperty("class");
-         if (className == null)
-         {
+         if (className == null) {
             throw new IOException("Expected property is missing: class");
          }
          Class clazz = null;
          ClassLoader loader = Thread.currentThread().getContextClassLoader();
-         if (loader != null)
-         {
-            try
-            {
+         if (loader != null) {
+            try {
                clazz = loader.loadClass(className);
             }
-            catch (ClassNotFoundException e)
-            {
+            catch (ClassNotFoundException e) {
                // ignore
             }
          }
-         if (clazz == null)
-         {
+         if (clazz == null) {
             clazz = FactoryFinder.class.getClassLoader().loadClass(className);
          }
 
          return clazz;
       }
 
-      public Properties loadProperties(String uri) throws IOException
-      {
+      public Properties loadProperties(String uri) throws IOException {
          // lets try the thread context class loader first
          ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-         if (classLoader == null)
-         {
+         if (classLoader == null) {
             classLoader = StandaloneObjectFactory.class.getClassLoader();
          }
          InputStream in = classLoader.getResourceAsStream(uri);
-         if (in == null)
-         {
+         if (in == null) {
             in = FactoryFinder.class.getClassLoader().getResourceAsStream(uri);
-            if (in == null)
-            {
+            if (in == null) {
                throw new IOException("Could not find factory class for resource: " + uri);
             }
          }
 
          // lets load the file
          BufferedInputStream reader = null;
-         try
-         {
+         try {
             reader = new BufferedInputStream(in);
             Properties properties = new Properties();
             properties.load(reader);
             return properties;
          }
-         finally
-         {
-            try
-            {
+         finally {
+            try {
                reader.close();
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
             }
          }
       }
@@ -139,13 +123,11 @@ public class FactoryFinder
    // ================================================================
    private static ObjectFactory objectFactory = new StandaloneObjectFactory();
 
-   public static ObjectFactory getObjectFactory()
-   {
+   public static ObjectFactory getObjectFactory() {
       return objectFactory;
    }
 
-   public static void setObjectFactory(ObjectFactory objectFactory)
-   {
+   public static void setObjectFactory(ObjectFactory objectFactory) {
       FactoryFinder.objectFactory = objectFactory;
    }
 
@@ -154,8 +136,7 @@ public class FactoryFinder
    // ================================================================
    private final String path;
 
-   public FactoryFinder(String path)
-   {
+   public FactoryFinder(String path) {
       this.path = path;
    }
 
@@ -167,11 +148,10 @@ public class FactoryFinder
     * @return a newly created instance
     * @throws IllegalAccessException On illegal access
     * @throws InstantiationException On can not instantiate exception
-    * @throws IOException On IOException
+    * @throws IOException            On IOException
     * @throws ClassNotFoundException When class not on class path
     */
-   public Object newInstance(String key) throws IllegalAccessException, InstantiationException, IOException, ClassNotFoundException
-   {
+   public Object newInstance(String key) throws IllegalAccessException, InstantiationException, IOException, ClassNotFoundException {
       return objectFactory.create(path + key);
    }
 }

@@ -28,14 +28,13 @@ import org.fusesource.mqtt.client.Topic;
 
 import static org.fusesource.hawtbuf.UTF8Buffer.utf8;
 
-public class FuseMQTTClientProvider implements MQTTClientProvider
-{
+public class FuseMQTTClientProvider implements MQTTClientProvider {
+
    private final MQTT mqtt = new MQTT();
    private BlockingConnection connection;
 
    @Override
-   public void connect(String host) throws Exception
-   {
+   public void connect(String host) throws Exception {
       mqtt.setHost(host);
       mqtt.setVersion("3.1.1");
       // shut off connect retry
@@ -47,46 +46,38 @@ public class FuseMQTTClientProvider implements MQTTClientProvider
    }
 
    @Override
-   public void disconnect() throws Exception
-   {
-      if (this.connection != null)
-      {
+   public void disconnect() throws Exception {
+      if (this.connection != null) {
          this.connection.disconnect();
       }
    }
 
    @Override
-   public void publish(String topic, byte[] payload, int qos) throws Exception
-   {
+   public void publish(String topic, byte[] payload, int qos) throws Exception {
       publish(topic, payload, qos, false);
    }
 
    @Override
-   public void publish(String topic, byte[] payload, int qos, boolean retained) throws Exception
-   {
+   public void publish(String topic, byte[] payload, int qos, boolean retained) throws Exception {
       connection.publish(topic, payload, QoS.values()[qos], retained);
    }
 
    @Override
-   public void subscribe(String topic, int qos) throws Exception
-   {
+   public void subscribe(String topic, int qos) throws Exception {
       Topic[] topics = {new Topic(utf8(topic), QoS.values()[qos])};
       connection.subscribe(topics);
    }
 
    @Override
-   public void unsubscribe(String topic) throws Exception
-   {
+   public void unsubscribe(String topic) throws Exception {
       connection.unsubscribe(new String[]{topic});
    }
 
    @Override
-   public byte[] receive(int timeout) throws Exception
-   {
+   public byte[] receive(int timeout) throws Exception {
       byte[] result = null;
       Message message = connection.receive(timeout, TimeUnit.MILLISECONDS);
-      if (message != null)
-      {
+      if (message != null) {
          result = message.getPayload();
          message.ack();
       }
@@ -94,38 +85,32 @@ public class FuseMQTTClientProvider implements MQTTClientProvider
    }
 
    @Override
-   public void setSslContext(SSLContext sslContext)
-   {
+   public void setSslContext(SSLContext sslContext) {
       mqtt.setSslContext(sslContext);
    }
 
    @Override
-   public void setWillMessage(String string)
-   {
+   public void setWillMessage(String string) {
       mqtt.setWillMessage(string);
    }
 
    @Override
-   public void setWillTopic(String topic)
-   {
+   public void setWillTopic(String topic) {
       mqtt.setWillTopic(topic);
    }
 
    @Override
-   public void setClientId(String clientId)
-   {
+   public void setClientId(String clientId) {
       mqtt.setClientId(clientId);
    }
 
    @Override
-   public void kill() throws Exception
-   {
+   public void kill() throws Exception {
       connection.kill();
    }
 
    @Override
-   public void setKeepAlive(int keepAlive) throws Exception
-   {
+   public void setKeepAlive(int keepAlive) throws Exception {
       mqtt.setKeepAlive((short) keepAlive);
    }
 }

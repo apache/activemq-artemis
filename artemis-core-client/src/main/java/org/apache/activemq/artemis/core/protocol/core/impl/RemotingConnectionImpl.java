@@ -39,8 +39,7 @@ import org.apache.activemq.artemis.spi.core.protocol.AbstractRemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.utils.SimpleIDGenerator;
 
-public class RemotingConnectionImpl extends AbstractRemotingConnection implements CoreRemotingConnection
-{
+public class RemotingConnectionImpl extends AbstractRemotingConnection implements CoreRemotingConnection {
    // Constants
    // ------------------------------------------------------------------------------------
 
@@ -92,8 +91,7 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
                                  final long blockingCallTimeout,
                                  final long blockingCallFailoverTimeout,
                                  final List<Interceptor> incomingInterceptors,
-                                 final List<Interceptor> outgoingInterceptors)
-   {
+                                 final List<Interceptor> outgoingInterceptors) {
       this(packetDecoder, transportConnection, blockingCallTimeout, blockingCallFailoverTimeout, incomingInterceptors, outgoingInterceptors, true, null, null);
    }
 
@@ -141,13 +139,11 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
       transportConnection.setProtocolConnection(this);
    }
 
-
    // RemotingConnection implementation
    // ------------------------------------------------------------
 
    @Override
-   public String toString()
-   {
+   public String toString() {
       return "RemotingConnectionImpl [clientID=" + clientID +
          ", nodeID=" +
          nodeID +
@@ -159,25 +155,21 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
    /**
     * @return the clientVersion
     */
-   public int getClientVersion()
-   {
+   public int getClientVersion() {
       return clientVersion;
    }
 
    /**
     * @param clientVersion the clientVersion to set
     */
-   public void setClientVersion(int clientVersion)
-   {
+   public void setClientVersion(int clientVersion) {
       this.clientVersion = clientVersion;
    }
 
-   public synchronized Channel getChannel(final long channelID, final int confWindowSize)
-   {
+   public synchronized Channel getChannel(final long channelID, final int confWindowSize) {
       Channel channel = channels.get(channelID);
 
-      if (channel == null)
-      {
+      if (channel == null) {
          channel = new ChannelImpl(this, channelID, confWindowSize, outgoingInterceptors);
 
          channels.put(channelID, channel);
@@ -186,22 +178,17 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
       return channel;
    }
 
-   public synchronized boolean removeChannel(final long channelID)
-   {
+   public synchronized boolean removeChannel(final long channelID) {
       return channels.remove(channelID) != null;
    }
 
-   public synchronized void putChannel(final long channelID, final Channel channel)
-   {
+   public synchronized void putChannel(final long channelID, final Channel channel) {
       channels.put(channelID, channel);
    }
 
-   public void fail(final ActiveMQException me, String scaleDownTargetNodeID)
-   {
-      synchronized (failLock)
-      {
-         if (destroyed)
-         {
+   public void fail(final ActiveMQException me, String scaleDownTargetNodeID) {
+      synchronized (failLock) {
+         if (destroyed) {
             return;
          }
 
@@ -210,13 +197,10 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
 
       ActiveMQClientLogger.LOGGER.connectionFailureDetected(me.getMessage(), me.getType());
 
-
-      try
-      {
+      try {
          transportConnection.forceClose();
       }
-      catch (Throwable e)
-      {
+      catch (Throwable e) {
          ActiveMQClientLogger.LOGGER.warn(e.getMessage(), e);
       }
 
@@ -227,18 +211,14 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
 
       internalClose();
 
-      for (Channel channel : channels.values())
-      {
+      for (Channel channel : channels.values()) {
          channel.returnBlocking(me);
       }
    }
 
-   public void destroy()
-   {
-      synchronized (failLock)
-      {
-         if (destroyed)
-         {
+   public void destroy() {
+      synchronized (failLock) {
+         if (destroyed) {
             return;
          }
 
@@ -250,13 +230,11 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
       callClosingListeners();
    }
 
-   public void disconnect(final boolean criticalError)
-   {
+   public void disconnect(final boolean criticalError) {
       disconnect(null, criticalError);
    }
 
-   public void disconnect(String scaleDownNodeID, final boolean criticalError)
-   {
+   public void disconnect(String scaleDownNodeID, final boolean criticalError) {
       Channel channel0 = getChannel(ChannelImpl.CHANNEL_ID.PING.id, -1);
 
       // And we remove all channels from the connection, this ensures no more packets will be processed after this
@@ -265,12 +243,10 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
 
       Set<Channel> allChannels = new HashSet<Channel>(channels.values());
 
-      if (!criticalError)
-      {
+      if (!criticalError) {
          removeAllChannels();
       }
-      else
-      {
+      else {
          // We can't hold a lock if a critical error is happening...
          // as other threads will be holding the lock while hanging on IO
          channels.clear();
@@ -278,100 +254,80 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
 
       // Now we are 100% sure that no more packets will be processed we can flush then send the disconnect
 
-      if (!criticalError)
-      {
-         for (Channel channel : allChannels)
-         {
+      if (!criticalError) {
+         for (Channel channel : allChannels) {
             channel.flushConfirmations();
          }
       }
       Packet disconnect;
 
-      if (channel0.supports(PacketImpl.DISCONNECT_V2))
-      {
+      if (channel0.supports(PacketImpl.DISCONNECT_V2)) {
          disconnect = new DisconnectMessage_V2(nodeID, scaleDownNodeID);
       }
-      else
-      {
+      else {
          disconnect = new DisconnectMessage(nodeID);
       }
       channel0.sendAndFlush(disconnect);
    }
 
-   public long generateChannelID()
-   {
+   public long generateChannelID() {
       return idGenerator.generateID();
    }
 
-   public synchronized void syncIDGeneratorSequence(final long id)
-   {
-      if (!idGeneratorSynced)
-      {
+   public synchronized void syncIDGeneratorSequence(final long id) {
+      if (!idGeneratorSynced) {
          idGenerator = new SimpleIDGenerator(id);
 
          idGeneratorSynced = true;
       }
    }
 
-   public long getIDGeneratorSequence()
-   {
+   public long getIDGeneratorSequence() {
       return idGenerator.getCurrentID();
    }
 
-   public Object getTransferLock()
-   {
+   public Object getTransferLock() {
       return transferLock;
    }
 
-   public boolean isClient()
-   {
+   public boolean isClient() {
       return client;
    }
 
-   public boolean isDestroyed()
-   {
+   public boolean isDestroyed() {
       return destroyed;
    }
 
-   public long getBlockingCallTimeout()
-   {
+   public long getBlockingCallTimeout() {
       return blockingCallTimeout;
    }
 
    @Override
-   public long getBlockingCallFailoverTimeout()
-   {
+   public long getBlockingCallFailoverTimeout() {
       return blockingCallFailoverTimeout;
    }
 
    //We flush any confirmations on the connection - this prevents idle bridges for example
    //sitting there with many unacked messages
-   public void flush()
-   {
-      synchronized (transferLock)
-      {
-         for (Channel channel : channels.values())
-         {
+   public void flush() {
+      synchronized (transferLock) {
+         for (Channel channel : channels.values()) {
             channel.flushConfirmations();
          }
       }
    }
 
-   public ActiveMQPrincipal getDefaultActiveMQPrincipal()
-   {
+   public ActiveMQPrincipal getDefaultActiveMQPrincipal() {
       return getTransportConnection().getDefaultActiveMQPrincipal();
    }
 
    // Buffer Handler implementation
    // ----------------------------------------------------
-   public void bufferReceived(final Object connectionID, final ActiveMQBuffer buffer)
-   {
-      try
-      {
+   public void bufferReceived(final Object connectionID, final ActiveMQBuffer buffer) {
+      try {
          final Packet packet = packetDecoder.decode(buffer);
 
-         if (isTrace)
-         {
+         if (isTrace) {
             ActiveMQClientLogger.LOGGER.trace("handling packet " + packet);
          }
 
@@ -380,58 +336,47 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
 
          super.bufferReceived(connectionID, buffer);
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          ActiveMQClientLogger.LOGGER.errorDecodingPacket(e);
       }
    }
 
-   private void doBufferReceived(final Packet packet)
-   {
-      if (ChannelImpl.invokeInterceptors(packet, incomingInterceptors, this) != null)
-      {
+   private void doBufferReceived(final Packet packet) {
+      if (ChannelImpl.invokeInterceptors(packet, incomingInterceptors, this) != null) {
          return;
       }
 
-      synchronized (transferLock)
-      {
+      synchronized (transferLock) {
          final Channel channel = channels.get(packet.getChannelID());
 
-         if (channel != null)
-         {
+         if (channel != null) {
             channel.handlePacket(packet);
          }
       }
    }
 
-   protected void removeAllChannels()
-   {
+   protected void removeAllChannels() {
       // We get the transfer lock first - this ensures no packets are being processed AND
       // it's guaranteed no more packets will be processed once this method is complete
-      synchronized (transferLock)
-      {
+      synchronized (transferLock) {
          channels.clear();
       }
    }
 
-   private void internalClose()
-   {
+   private void internalClose() {
       // We close the underlying transport connection
       getTransportConnection().close();
 
-      for (Channel channel : channels.values())
-      {
+      for (Channel channel : channels.values()) {
          channel.close();
       }
    }
 
-   public void setClientID(String cID)
-   {
+   public void setClientID(String cID) {
       clientID = cID;
    }
 
-   public String getClientID()
-   {
+   public String getClientID() {
       return clientID;
    }
 }

@@ -17,12 +17,12 @@
 package org.apache.activemq.usecases;
 
 /**
- * 
+ *
  */
 public class PublishOnQueueConsumedMessageTest extends PublishOnTopicConsumedMessageTest {
 
-    protected void setUp() throws Exception {
-        topic = false;
-        super.setUp();
-    }
+   protected void setUp() throws Exception {
+      topic = false;
+      super.setUp();
+   }
 }

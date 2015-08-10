@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.utils;
 
-
 /**
  * UUID represents Universally Unique Identifiers (aka Global UID in Windows
  * world). UUIDs are usually generated via UUIDGenerator (or in case of 'Null
@@ -41,8 +40,8 @@ package org.apache.activemq.artemis.utils;
  * bytes).
  */
 
-public final class UUID
-{
+public final class UUID {
+
    private static final String kHexChars = "0123456789abcdefABCDEF";
 
    public static final byte INDEX_CLOCK_HI = 6;
@@ -98,8 +97,7 @@ public final class UUID
     * @param type UUID type
     * @param data 16 byte UUID contents
     */
-   public UUID(final int type, final byte[] data)
-   {
+   public UUID(final int type, final byte[] data) {
       mId = data;
       // Type is multiplexed with time_hi:
       mId[UUID.INDEX_TYPE] &= (byte) 0x0F;
@@ -109,8 +107,7 @@ public final class UUID
       mId[UUID.INDEX_VARIATION] |= (byte) 0x80;
    }
 
-   public byte[] asBytes()
-   {
+   public byte[] asBytes() {
       return mId;
    }
 
@@ -129,27 +126,22 @@ public final class UUID
    private static final int[] kShifts = {3, 7, 17, 21, 29, 4, 9};
 
    @Override
-   public int hashCode()
-   {
-      if (mHashCode == 0)
-      {
+   public int hashCode() {
+      if (mHashCode == 0) {
          // Let's handle first and last byte separately:
          int result = mId[0] & 0xFF;
 
          result |= result << 16;
          result |= result << 8;
 
-         for (int i = 1; i < 15; i += 2)
-         {
+         for (int i = 1; i < 15; i += 2) {
             int curr = (mId[i] & 0xFF) << 8 | mId[i + 1] & 0xFF;
             int shift = UUID.kShifts[i >> 1];
 
-            if (shift > 16)
-            {
+            if (shift > 16) {
                result ^= curr << shift | curr >>> 32 - shift;
             }
-            else
-            {
+            else {
                result ^= curr << shift;
             }
          }
@@ -161,12 +153,10 @@ public final class UUID
 
          result ^= last << 27;
          // Let's not accept hash 0 as it indicates 'not hashed yet':
-         if (result == 0)
-         {
+         if (result == 0) {
             mHashCode = -1;
          }
-         else
-         {
+         else {
             mHashCode = result;
          }
       }
@@ -174,23 +164,19 @@ public final class UUID
    }
 
    @Override
-   public String toString()
-   {
+   public String toString() {
       /*
        * Could be synchronized, but there isn't much harm in just taking our
        * chances (ie. in the worst case we'll form the string more than once...
        * but result is the same)
        */
 
-      if (mDesc == null)
-      {
+      if (mDesc == null) {
          StringBuffer b = new StringBuffer(36);
 
-         for (int i = 0; i < 16; ++i)
-         {
+         for (int i = 0; i < 16; ++i) {
             // Need to bypass hyphens:
-            switch (i)
-            {
+            switch (i) {
                case 4:
                case 6:
                case 8:
@@ -204,8 +190,7 @@ public final class UUID
             b.append(UUID.kHexChars.charAt(hex >> 4));
             b.append(UUID.kHexChars.charAt(hex & 0x0f));
          }
-         if (!UUID.sDescCaching)
-         {
+         if (!UUID.sDescCaching) {
             return b.toString();
          }
          mDesc = b.toString();
@@ -220,16 +205,12 @@ public final class UUID
     * @return byte array that can be used to recreate a UUID instance from the given String
     * representation
     */
-   public static byte[] stringToBytes(String uuid)
-   {
+   public static byte[] stringToBytes(String uuid) {
       byte[] data = new byte[16];
       int dataIdx = 0;
-      try
-      {
-         for (int i = 0; i < uuid.length(); )
-         {
-            while (uuid.charAt(i) == '-')
-            {
+      try {
+         for (int i = 0; i < uuid.length(); ) {
+            while (uuid.charAt(i) == '-') {
                i++;
             }
             char c1 = uuid.charAt(i);
@@ -240,8 +221,7 @@ public final class UUID
             data[dataIdx++] = (byte) ((c1Bytes << 4) + c2Bytes);
          }
       }
-      catch (RuntimeException e)
-      {
+      catch (RuntimeException e) {
          throw new IllegalArgumentException(e);
       }
       return data;
@@ -251,18 +231,14 @@ public final class UUID
     * Checking equality of UUIDs is easy; just compare the 128-bit number.
     */
    @Override
-   public boolean equals(final Object o)
-   {
-      if (!(o instanceof UUID))
-      {
+   public boolean equals(final Object o) {
+      if (!(o instanceof UUID)) {
          return false;
       }
       byte[] otherId = ((UUID) o).mId;
       byte[] thisId = mId;
-      for (int i = 0; i < 16; ++i)
-      {
-         if (otherId[i] != thisId[i])
-         {
+      for (int i = 0; i < 16; ++i) {
+         if (otherId[i] != thisId[i]) {
             return false;
          }
       }

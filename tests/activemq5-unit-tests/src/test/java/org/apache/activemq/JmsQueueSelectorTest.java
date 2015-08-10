@@ -18,11 +18,12 @@
 package org.apache.activemq;
 
 /**
- * 
+ *
  */
 public class JmsQueueSelectorTest extends JmsTopicSelectorTest {
-    public void setUp() throws Exception {
-        topic = false;
-        super.setUp();
-    }
+
+   public void setUp() throws Exception {
+      topic = false;
+      super.setUp();
+   }
 }

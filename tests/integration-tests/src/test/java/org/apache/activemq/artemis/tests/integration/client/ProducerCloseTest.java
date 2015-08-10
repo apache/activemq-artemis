@@ -30,8 +30,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class ProducerCloseTest extends ActiveMQTestBase
-{
+public class ProducerCloseTest extends ActiveMQTestBase {
 
    private ActiveMQServer server;
    private ClientSessionFactory sf;
@@ -39,8 +38,7 @@ public class ProducerCloseTest extends ActiveMQTestBase
    private ServerLocator locator;
 
    @Test
-   public void testCanNotUseAClosedProducer() throws Exception
-   {
+   public void testCanNotUseAClosedProducer() throws Exception {
       final ClientProducer producer = session.createProducer(RandomUtil.randomSimpleString());
 
       Assert.assertFalse(producer.isClosed());
@@ -49,10 +47,8 @@ public class ProducerCloseTest extends ActiveMQTestBase
 
       Assert.assertTrue(producer.isClosed());
 
-      ActiveMQTestBase.expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, new ActiveMQAction()
-      {
-         public void run() throws ActiveMQException
-         {
+      ActiveMQTestBase.expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, new ActiveMQAction() {
+         public void run() throws ActiveMQException {
             producer.send(session.createMessage(false));
          }
       });
@@ -64,8 +60,7 @@ public class ProducerCloseTest extends ActiveMQTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
       Configuration config = createDefaultInVMConfig();
       server = createServer(false, config);

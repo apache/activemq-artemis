@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 package org.objectweb.jtests.jms.conform.queue;
+
 import java.util.Enumeration;
 
 import javax.jms.JMSException;
@@ -32,8 +33,7 @@ import org.objectweb.jtests.jms.framework.TestConfig;
 /**
  * Test the <code>javax.jms.QueueBrowser</code> features.
  */
-public class QueueBrowserTest extends PTPTestCase
-{
+public class QueueBrowserTest extends PTPTestCase {
 
    /**
     * The <code>QueueBrowser</code> of the receiver's session
@@ -49,10 +49,8 @@ public class QueueBrowserTest extends PTPTestCase
     * Test the <code>QueueBrowser</code> of the sender.
     */
    @Test
-   public void testSenderBrowser()
-   {
-      try
-      {
+   public void testSenderBrowser() {
+      try {
          TextMessage message_1 = senderSession.createTextMessage();
          message_1.setText("testBrowser:message_1");
          TextMessage message_2 = senderSession.createTextMessage();
@@ -67,14 +65,13 @@ public class QueueBrowserTest extends PTPTestCase
          // ask the browser to browse the sender's session
          Enumeration enumeration = senderBrowser.getEnumeration();
          int count = 0;
-         while (enumeration.hasMoreElements())
-         {
+         while (enumeration.hasMoreElements()) {
             // one more message in the queue
             count++;
             // check that the message in the queue is one of the two which where sent
             Object obj = enumeration.nextElement();
             Assert.assertTrue(obj instanceof TextMessage);
-            TextMessage msg = (TextMessage)obj;
+            TextMessage msg = (TextMessage) obj;
             Assert.assertTrue(msg.getText().startsWith("testBrowser:message_"));
          }
          // check that there is effectively 2 messages in the queue
@@ -85,14 +82,14 @@ public class QueueBrowserTest extends PTPTestCase
          Message m = receiver.receive(TestConfig.TIMEOUT);
          // ... and check it is the first which was sent.
          Assert.assertTrue(m instanceof TextMessage);
-         TextMessage msg = (TextMessage)m;
+         TextMessage msg = (TextMessage) m;
          Assert.assertEquals("testBrowser:message_1", msg.getText());
 
          // receive the second message...
          m = receiver.receive(TestConfig.TIMEOUT);
          // ... and check it is the second which was sent.
          Assert.assertTrue(m instanceof TextMessage);
-         msg = (TextMessage)m;
+         msg = (TextMessage) m;
          Assert.assertEquals("testBrowser:message_2", msg.getText());
 
          // ask the browser to browse the sender's session
@@ -102,8 +99,7 @@ public class QueueBrowserTest extends PTPTestCase
          // from the queue)
          Assert.assertTrue(!enumeration.hasMoreElements());
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          fail(e);
       }
    }
@@ -113,10 +109,8 @@ public class QueueBrowserTest extends PTPTestCase
     * browses only the messages matching this selector.
     */
    @Test
-   public void testBrowserWithMessageSelector()
-   {
-      try
-      {
+   public void testBrowserWithMessageSelector() {
+      try {
          senderBrowser = senderSession.createBrowser(senderQueue, "pi = 3.14159");
 
          receiver.close();
@@ -132,53 +126,44 @@ public class QueueBrowserTest extends PTPTestCase
 
          Enumeration enumeration = senderBrowser.getEnumeration();
          int count = 0;
-         while (enumeration.hasMoreElements())
-         {
+         while (enumeration.hasMoreElements()) {
             count++;
             Object obj = enumeration.nextElement();
             Assert.assertTrue(obj instanceof TextMessage);
-            TextMessage msg = (TextMessage)obj;
+            TextMessage msg = (TextMessage) obj;
             Assert.assertEquals("testBrowserWithMessageSelector:message_2", msg.getText());
          }
          Assert.assertEquals(1, count);
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          fail(e);
       }
    }
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
-      try
-      {
+   public void setUp() throws Exception {
+      try {
          super.setUp();
          receiverBrowser = receiverSession.createBrowser(receiverQueue);
          senderBrowser = senderSession.createBrowser(senderQueue);
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          throw new RuntimeException(e);
       }
    }
 
    @Override
    @After
-   public void tearDown() throws Exception
-   {
-      try
-      {
+   public void tearDown() throws Exception {
+      try {
          receiverBrowser.close();
          senderBrowser.close();
          super.tearDown();
       }
-      catch (JMSException ignored)
-      {
+      catch (JMSException ignored) {
       }
-      finally
-      {
+      finally {
          receiverBrowser = null;
          senderBrowser = null;
       }

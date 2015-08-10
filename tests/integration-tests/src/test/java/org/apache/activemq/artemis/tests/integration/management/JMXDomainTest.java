@@ -29,24 +29,20 @@ import org.junit.Test;
 import java.util.HashMap;
 import java.util.Map;
 
-public class JMXDomainTest extends ManagementTestBase
-{
+public class JMXDomainTest extends ManagementTestBase {
+
    ActiveMQServer server_0 = null;
    ActiveMQServer server_1 = null;
 
    @Test
-   public void test2ActiveMQServersManagedFrom1MBeanServer() throws Exception
-   {
-      Configuration config_0 = createDefaultInVMConfig()
-         .setJMXManagementEnabled(true);
+   public void test2ActiveMQServersManagedFrom1MBeanServer() throws Exception {
+      Configuration config_0 = createDefaultInVMConfig().setJMXManagementEnabled(true);
 
       String jmxDomain_1 = ActiveMQDefaultConfiguration.getDefaultJmxDomain() + ".1";
 
       Map<String, Object> params = new HashMap<String, Object>();
       params.put(TransportConstants.SERVER_ID_PROP_NAME, 1);
-      Configuration config_1 = createBasicConfig()
-         .addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName(), params))
-         .setJMXDomain(jmxDomain_1);
+      Configuration config_1 = createBasicConfig().addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName(), params)).setJMXDomain(jmxDomain_1);
 
       server_0 = addServer(ActiveMQServers.newActiveMQServer(config_0, mbeanServer, false));
       server_1 = addServer(ActiveMQServers.newActiveMQServer(config_1, mbeanServer, false));

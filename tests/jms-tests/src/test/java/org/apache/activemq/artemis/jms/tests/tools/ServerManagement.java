@@ -29,8 +29,7 @@ import org.apache.activemq.artemis.jms.tests.tools.container.Server;
  * Collection of static methods to use to start/stop and interact with the in-memory JMS server. It
  * is also use to start/stop a remote server.
  */
-public class ServerManagement
-{
+public class ServerManagement {
    // Constants -----------------------------------------------------
 
    // logging levels used by the remote client to forward log output on a remote server
@@ -60,13 +59,11 @@ public class ServerManagement
     * Makes sure that a "hollow" TestServer (either local or remote, depending on the nature of the
     * test), exists and it's ready to be started.
     */
-   public static synchronized Server create() throws Exception
-   {
+   public static synchronized Server create() throws Exception {
       return new LocalTestServer();
    }
 
-   public static void start(final int i, final String config, final boolean clearDatabase) throws Exception
-   {
+   public static void start(final int i, final String config, final boolean clearDatabase) throws Exception {
       ServerManagement.start(i, config, clearDatabase, true);
    }
 
@@ -77,56 +74,44 @@ public class ServerManagement
    public static void start(final int i,
                             final String config,
                             final boolean clearDatabase,
-                            final boolean startActiveMQServer) throws Exception
-   {
+                            final boolean startActiveMQServer) throws Exception {
       throw new IllegalStateException("Method to start a server is not implemented");
    }
 
-   public static synchronized void kill(final int i) throws Exception
-   {
-      if (i == 0)
-      {
+   public static synchronized void kill(final int i) throws Exception {
+      if (i == 0) {
          // Cannot kill server 0 if there are any other servers since it has the rmi registry in it
-         for (int j = 1; j < ServerManagement.servers.size(); j++)
-         {
-            if (ServerManagement.servers.get(j) != null)
-            {
+         for (int j = 1; j < ServerManagement.servers.size(); j++) {
+            if (ServerManagement.servers.get(j) != null) {
                throw new IllegalStateException("Cannot kill server 0, since server[" + j + "] still exists");
             }
          }
       }
 
-      if (i > ServerManagement.servers.size())
-      {
+      if (i > ServerManagement.servers.size()) {
          ServerManagement.log.error("server " + i +
-                                    " has not been created or has already been killed, so it cannot be killed");
+                                       " has not been created or has already been killed, so it cannot be killed");
       }
-      else
-      {
+      else {
          Server server = ServerManagement.servers.get(i);
          ServerManagement.log.info("invoking kill() on server " + i);
-         try
-         {
+         try {
             server.kill();
          }
-         catch (Throwable t)
-         {
+         catch (Throwable t) {
             // This is likely to throw an exception since the server dies before the response is received
          }
 
          ServerManagement.log.info("Waiting for server to die");
 
-         try
-         {
-            while (true)
-            {
+         try {
+            while (true) {
                server.ping();
                ServerManagement.log.debug("server " + i + " still alive ...");
                Thread.sleep(100);
             }
          }
-         catch (Throwable e)
-         {
+         catch (Throwable e) {
             // Ok
          }
 
@@ -137,8 +122,7 @@ public class ServerManagement
 
    }
 
-   public static Hashtable<String, String> getJNDIEnvironment(final int serverIndex)
-   {
+   public static Hashtable<String, String> getJNDIEnvironment(final int serverIndex) {
       return InVMInitialContextFactory.getJNDIEnvironment(serverIndex);
    }
 }

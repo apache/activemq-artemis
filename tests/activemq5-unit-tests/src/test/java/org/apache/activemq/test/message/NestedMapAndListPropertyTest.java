@@ -30,66 +30,65 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Tests that a Message can have nested Map and List properties attached.
- *
  */
 public class NestedMapAndListPropertyTest extends JmsTopicSendReceiveWithTwoConnectionsAndEmbeddedBrokerTest {
 
-    private static final Logger LOG = LoggerFactory.getLogger(NestedMapAndListPropertyTest.class);
+   private static final Logger LOG = LoggerFactory.getLogger(NestedMapAndListPropertyTest.class);
 
-    @Override
-    @SuppressWarnings("rawtypes")
-    protected void assertMessageValid(int index, Message message) throws JMSException {
-        Object value = message.getObjectProperty("textField");
-        assertEquals("textField", data[index], value);
+   @Override
+   @SuppressWarnings("rawtypes")
+   protected void assertMessageValid(int index, Message message) throws JMSException {
+      Object value = message.getObjectProperty("textField");
+      assertEquals("textField", data[index], value);
 
-        Map map = (Map)message.getObjectProperty("mapField");
-        assertNotNull(map);
-        assertEquals("mapField.a", "foo", map.get("a"));
-        assertEquals("mapField.b", new Integer(23), map.get("b"));
-        assertEquals("mapField.c", new Long(45), map.get("c"));
+      Map map = (Map) message.getObjectProperty("mapField");
+      assertNotNull(map);
+      assertEquals("mapField.a", "foo", map.get("a"));
+      assertEquals("mapField.b", new Integer(23), map.get("b"));
+      assertEquals("mapField.c", new Long(45), map.get("c"));
 
-        value = map.get("d");
-        assertTrue("mapField.d should be a Map", value instanceof Map);
-        map = (Map)value;
+      value = map.get("d");
+      assertTrue("mapField.d should be a Map", value instanceof Map);
+      map = (Map) value;
 
-        assertEquals("mapField.d.x", "abc", map.get("x"));
-        value = map.get("y");
-        assertTrue("mapField.d.y is a List", value instanceof List);
-        List list = (List)value;
-        LOG.debug("mapField.d.y: " + list);
-        assertEquals("listField.size", 3, list.size());
+      assertEquals("mapField.d.x", "abc", map.get("x"));
+      value = map.get("y");
+      assertTrue("mapField.d.y is a List", value instanceof List);
+      List list = (List) value;
+      LOG.debug("mapField.d.y: " + list);
+      assertEquals("listField.size", 3, list.size());
 
-        LOG.debug("Found map: " + map);
+      LOG.debug("Found map: " + map);
 
-        list = (List)message.getObjectProperty("listField");
-        LOG.debug("listField: " + list);
-        assertEquals("listField.size", 3, list.size());
-        assertEquals("listField[0]", "a", list.get(0));
-        assertEquals("listField[1]", "b", list.get(1));
-        assertEquals("listField[2]", "c", list.get(2));
-        assertEquals("JohnDoe", message.getStringProperty("JMSXUserID"));
-    }
+      list = (List) message.getObjectProperty("listField");
+      LOG.debug("listField: " + list);
+      assertEquals("listField.size", 3, list.size());
+      assertEquals("listField[0]", "a", list.get(0));
+      assertEquals("listField[1]", "b", list.get(1));
+      assertEquals("listField[2]", "c", list.get(2));
+      assertEquals("JohnDoe", message.getStringProperty("JMSXUserID"));
+   }
 
-    @Override
-    protected Message createMessage(int index) throws JMSException {
-        Message answer = session.createMessage();
+   @Override
+   protected Message createMessage(int index) throws JMSException {
+      Message answer = session.createMessage();
 
-        answer.setStringProperty("textField", data[index]);
+      answer.setStringProperty("textField", data[index]);
 
-        Map<String, Object> grandChildMap = new HashMap<String, Object>();
-        grandChildMap.put("x", "abc");
-        grandChildMap.put("y", Arrays.asList(new Object[] {"a", "b", "c"}));
+      Map<String, Object> grandChildMap = new HashMap<String, Object>();
+      grandChildMap.put("x", "abc");
+      grandChildMap.put("y", Arrays.asList(new Object[]{"a", "b", "c"}));
 
-        Map<String, Object> nestedMap = new HashMap<String, Object>();
-        nestedMap.put("a", "foo");
-        nestedMap.put("b", new Integer(23));
-        nestedMap.put("c", new Long(45));
-        nestedMap.put("d", grandChildMap);
+      Map<String, Object> nestedMap = new HashMap<String, Object>();
+      nestedMap.put("a", "foo");
+      nestedMap.put("b", new Integer(23));
+      nestedMap.put("c", new Long(45));
+      nestedMap.put("d", grandChildMap);
 
-        answer.setObjectProperty("mapField", nestedMap);
-        answer.setObjectProperty("listField", Arrays.asList(new Object[] {"a", "b", "c"}));
-        answer.setStringProperty("JMSXUserID", "JohnDoe");
+      answer.setObjectProperty("mapField", nestedMap);
+      answer.setObjectProperty("listField", Arrays.asList(new Object[]{"a", "b", "c"}));
+      answer.setStringProperty("JMSXUserID", "JohnDoe");
 
-        return answer;
-    }
+      return answer;
+   }
 }

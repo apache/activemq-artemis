@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.integration.management;
+
 import org.apache.activemq.artemis.api.core.management.QueueControl;
 import org.apache.activemq.artemis.api.jms.management.JMSQueueControl;
 import org.junit.Before;
@@ -32,8 +33,7 @@ import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 
-public abstract class ManagementTestBase extends ActiveMQTestBase
-{
+public abstract class ManagementTestBase extends ActiveMQTestBase {
 
    // Constants -----------------------------------------------------
 
@@ -43,15 +43,14 @@ public abstract class ManagementTestBase extends ActiveMQTestBase
 
    // Static --------------------------------------------------------
 
-   protected static void consumeMessages(final int expected, final ClientSession session, final SimpleString queue) throws Exception
-   {
+   protected static void consumeMessages(final int expected,
+                                         final ClientSession session,
+                                         final SimpleString queue) throws Exception {
       ClientConsumer consumer = null;
-      try
-      {
+      try {
          consumer = session.createConsumer(queue);
          ClientMessage m = null;
-         for (int i = 0; i < expected; i++)
-         {
+         for (int i = 0; i < expected; i++) {
             m = consumer.receive(500);
             Assert.assertNotNull("expected to received " + expected + " messages, got only " + i, m);
             m.acknowledge();
@@ -60,10 +59,8 @@ public abstract class ManagementTestBase extends ActiveMQTestBase
          m = consumer.receiveImmediate();
          Assert.assertNull("received one more message than expected (" + expected + ")", m);
       }
-      finally
-      {
-         if (consumer != null)
-         {
+      finally {
+         if (consumer != null) {
             consumer.close();
          }
       }
@@ -79,8 +76,7 @@ public abstract class ManagementTestBase extends ActiveMQTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       mbeanServer = MBeanServerFactory.createMBeanServer();
@@ -88,54 +84,46 @@ public abstract class ManagementTestBase extends ActiveMQTestBase
 
    @Override
    @After
-   public void tearDown() throws Exception
-   {
+   public void tearDown() throws Exception {
       MBeanServerFactory.releaseMBeanServer(mbeanServer);
       super.tearDown();
    }
 
-   protected void checkNoResource(final ObjectName on)
-   {
+   protected void checkNoResource(final ObjectName on) {
       Assert.assertFalse("unexpected resource for " + on, mbeanServer.isRegistered(on));
    }
 
-   protected void checkResource(final ObjectName on)
-   {
+   protected void checkResource(final ObjectName on) {
       Assert.assertTrue("no resource for " + on, mbeanServer.isRegistered(on));
    }
 
-   protected QueueControl createManagementControl(final String address, final String queue) throws Exception
-   {
+   protected QueueControl createManagementControl(final String address, final String queue) throws Exception {
       return createManagementControl(SimpleString.toSimpleString(address), SimpleString.toSimpleString(queue));
    }
 
-   protected QueueControl createManagementControl(final SimpleString address, final SimpleString queue) throws Exception
-   {
+   protected QueueControl createManagementControl(final SimpleString address,
+                                                  final SimpleString queue) throws Exception {
       QueueControl queueControl = ManagementControlHelper.createQueueControl(address, queue, mbeanServer);
 
       return queueControl;
    }
 
-   protected long getMessageCount(JMSQueueControl control) throws Exception
-   {
+   protected long getMessageCount(JMSQueueControl control) throws Exception {
       control.flushExecutor();
       return control.getMessageCount();
    }
 
-   protected long getMessagesAdded(JMSQueueControl control) throws Exception
-   {
+   protected long getMessagesAdded(JMSQueueControl control) throws Exception {
       control.flushExecutor();
       return control.getMessagesAdded();
    }
 
-   protected long getMessageCount(QueueControl control) throws Exception
-   {
+   protected long getMessageCount(QueueControl control) throws Exception {
       control.flushExecutor();
       return control.getMessageCount();
    }
 
-   protected long getMessagesAdded(QueueControl control) throws Exception
-   {
+   protected long getMessagesAdded(QueueControl control) throws Exception {
       control.flushExecutor();
       return control.getMessagesAdded();
    }

@@ -19,8 +19,8 @@ package org.apache.activemq.artemis.core.client.impl;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.spi.core.remoting.SessionContext;
 
-public interface ClientProducerCreditManager
-{
+public interface ClientProducerCreditManager {
+
    ClientProducerCredits getCredits(SimpleString address, boolean anon, SessionContext context);
 
    void returnCredits(SimpleString address);

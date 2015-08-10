@@ -18,12 +18,10 @@ package org.apache.activemq.artemis.tests.integration.stomp.util;
 
 import java.util.StringTokenizer;
 
-public class StompFrameFactoryV12 implements StompFrameFactory
-{
+public class StompFrameFactoryV12 implements StompFrameFactory {
 
    @Override
-   public ClientStompFrame createFrame(String data)
-   {
+   public ClientStompFrame createFrame(String data) {
       //split the string at "\n\n"
       String[] dataFields = data.split("\n\n");
 
@@ -32,107 +30,86 @@ public class StompFrameFactoryV12 implements StompFrameFactory
       String command = tokenizer.nextToken();
       ClientStompFrame frame = new ClientStompFrameV12(command);
 
-      while (tokenizer.hasMoreTokens())
-      {
+      while (tokenizer.hasMoreTokens()) {
          String header = tokenizer.nextToken();
          String[] fields = splitAndDecodeHeader(header);
          frame.addHeader(fields[0], fields[1]);
       }
 
       //body (without null byte)
-      if (dataFields.length == 2)
-      {
+      if (dataFields.length == 2) {
          frame.setBody(dataFields[1]);
       }
       return frame;
    }
 
-   public void printByteHeader(String headers)
-   {
+   public void printByteHeader(String headers) {
       StringBuffer buffer = new StringBuffer();
 
-      for (int i = 0; i < headers.length(); i++)
-      {
+      for (int i = 0; i < headers.length(); i++) {
          char c = headers.charAt(i);
          buffer.append((byte) c + " ");
       }
       System.out.println("header in byte : " + buffer.toString());
    }
 
-   private String[] splitAndDecodeHeader(String header)
-   {
+   private String[] splitAndDecodeHeader(String header) {
       // split the header into the key and value at the ":" since there shouldn't be any unescaped colons in the header
       // except for the one separating the key and value
       String[] result = header.split(":");
 
-      for (int j = 0; j < result.length; j++)
-      {
+      for (int j = 0; j < result.length; j++) {
          StringBuffer decodedHeader = new StringBuffer();
          boolean isEsc = false;
 
-         for (int i = 0; i < result[j].length(); i++)
-         {
+         for (int i = 0; i < result[j].length(); i++) {
             char b = result[j].charAt(i);
 
-            switch (b)
-            {
+            switch (b) {
                //escaping
-               case '\\':
-               {
-                  if (isEsc)
-                  {
+               case '\\': {
+                  if (isEsc) {
                      //this is a backslash
                      decodedHeader.append(b);
                      isEsc = false;
                   }
-                  else
-                  {
+                  else {
                      //begin escaping
                      isEsc = true;
                   }
                   break;
                }
-               case 'c':
-               {
-                  if (isEsc)
-                  {
+               case 'c': {
+                  if (isEsc) {
                      decodedHeader.append(":");
                      isEsc = false;
                   }
-                  else
-                  {
+                  else {
                      decodedHeader.append(b);
                   }
                   break;
                }
-               case 'n':
-               {
-                  if (isEsc)
-                  {
+               case 'n': {
+                  if (isEsc) {
                      decodedHeader.append('\n');
                      isEsc = false;
                   }
-                  else
-                  {
+                  else {
                      decodedHeader.append(b);
                   }
                   break;
                }
-               case 'r':
-               {
-                  if (isEsc)
-                  {
+               case 'r': {
+                  if (isEsc) {
                      decodedHeader.append('\r');
                      isEsc = false;
                   }
-                  else
-                  {
+                  else {
                      decodedHeader.append(b);
                   }
                   break;
                }
-               default:
-               {
+               default: {
                   decodedHeader.append(b);
                }
             }
@@ -145,14 +122,12 @@ public class StompFrameFactoryV12 implements StompFrameFactory
    }
 
    @Override
-   public ClientStompFrame newFrame(String command)
-   {
+   public ClientStompFrame newFrame(String command) {
       return new ClientStompFrameV12(command);
    }
 
    @Override
-   public ClientStompFrame newAnyFrame(String command)
-   {
+   public ClientStompFrame newAnyFrame(String command) {
       return new ClientStompFrameV12(command, true, false);
    }
 

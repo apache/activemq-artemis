@@ -40,48 +40,36 @@ import javax.jms.TextMessage;
  * GroupingTest
  */
 @RunWith(BMUnitRunner.class)
-public class GroupingTest extends JMSTestBase
-{
+public class GroupingTest extends JMSTestBase {
+
    private Queue queue;
    static boolean pause = false;
 
    @Before
    @Override
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       queue = createQueue("TestQueue");
    }
 
-   protected ConnectionFactory getCF() throws Exception
-   {
+   protected ConnectionFactory getCF() throws Exception {
       return cf;
    }
 
-
    @Test
-   @BMRules
-      (
-         rules =
-            {
-               @BMRule
-                  (
-                     name = "trace clientsessionimpl commit",
-                     targetClass = "org.apache.activemq.artemis.core.server.impl.ServerSessionImpl",
-                     targetMethod = "rollback",
-                     targetLocation = "EXIT",
-                     action = "org.apache.activemq.artemis.tests.extras.byteman.GroupingTest.pause();"
-                  )
-            }
-      )
-   public void testGroupingRollbackOnClose() throws Exception
-   {
+   @BMRules(
+      rules = {@BMRule(
+         name = "trace clientsessionimpl commit",
+         targetClass = "org.apache.activemq.artemis.core.server.impl.ServerSessionImpl",
+         targetMethod = "rollback",
+         targetLocation = "EXIT",
+         action = "org.apache.activemq.artemis.tests.extras.byteman.GroupingTest.pause();")})
+   public void testGroupingRollbackOnClose() throws Exception {
       Connection sendConnection = null;
       Connection connection = null;
       Connection connection2 = null;
-      try
-      {
+      try {
          ActiveMQConnectionFactory fact = (ActiveMQConnectionFactory) getCF();
          fact.setReconnectAttempts(0);
          //fact.setConsumerWindowSize(1000);
@@ -105,16 +93,12 @@ public class GroupingTest extends JMSTestBase
 
          final String jmsxgroupID = null;
 
-         Thread t = new Thread(new Runnable()
-         {
+         Thread t = new Thread(new Runnable() {
             @Override
-            public void run()
-            {
+            public void run() {
 
-               try
-               {
-                  for (int j = 0; j < 10000; j++)
-                  {
+               try {
+                  for (int j = 0; j < 10000; j++) {
                      TextMessage message = sendSession.createTextMessage();
 
                      message.setText("Message" + j);
@@ -124,8 +108,7 @@ public class GroupingTest extends JMSTestBase
                      producer.send(message);
                   }
                }
-               catch (JMSException e)
-               {
+               catch (JMSException e) {
                   e.printStackTrace();
                }
             }
@@ -133,8 +116,7 @@ public class GroupingTest extends JMSTestBase
          t.start();
 
          //consume 5 msgs from 1st first consumer
-         for (int j = 0; j < 5; j++)
-         {
+         for (int j = 0; j < 5; j++) {
             TextMessage tm = (TextMessage) consumer1.receive(10000);
 
             assertNotNull(tm);
@@ -148,8 +130,7 @@ public class GroupingTest extends JMSTestBase
          rc.fail(new ActiveMQNotConnectedException());
          pause = false;
 
-         for (int j = 0; j < 10000; j++)
-         {
+         for (int j = 0; j < 10000; j++) {
             TextMessage tm = (TextMessage) consumer2.receive(5000);
 
             assertNotNull(tm);
@@ -159,31 +140,23 @@ public class GroupingTest extends JMSTestBase
             assertEquals(tm.getStringProperty("JMSXGroupID"), "foo");
          }
       }
-      finally
-      {
-         if (sendConnection != null)
-         {
+      finally {
+         if (sendConnection != null) {
             sendConnection.close();
          }
-         if (connection2 != null)
-         {
+         if (connection2 != null) {
             connection2.close();
          }
       }
    }
 
-
-   public static void pause()
-   {
-      if (pause)
-      {
-         try
-         {
+   public static void pause() {
+      if (pause) {
+         try {
             System.out.println("pausing after rollback");
             Thread.sleep(500);
          }
-         catch (InterruptedException e)
-         {
+         catch (InterruptedException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
          }
          System.out.println("finished pausing after rollback");

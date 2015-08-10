@@ -37,9 +37,10 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.TestName;
 
-public class BasicOpenWireTest extends OpenWireTestBase
-{
-   @Rule public TestName name = new TestName();
+public class BasicOpenWireTest extends OpenWireTestBase {
+
+   @Rule
+   public TestName name = new TestName();
 
    protected static final String urlString = "tcp://" + OWHOST + ":" + OWPORT + "?wireFormat.cacheEnabled=true";
    protected ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(urlString);
@@ -57,8 +58,7 @@ public class BasicOpenWireTest extends OpenWireTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
       SimpleString coreQueue = new SimpleString("jms.queue." + queueName);
       this.server.createQueue(coreQueue, coreQueue, null, false, false);
@@ -72,59 +72,48 @@ public class BasicOpenWireTest extends OpenWireTestBase
       this.server.createQueue(durableQueue, durableQueue, null, true, false);
       testQueues.put(durableQueueName, durableQueue);
 
-      if (!enableSecurity)
-      {
+      if (!enableSecurity) {
          connection = (ActiveMQConnection) factory.createConnection();
       }
    }
 
    @Override
    @After
-   public void tearDown() throws Exception
-   {
+   public void tearDown() throws Exception {
       System.out.println("tear down! " + connection);
-      try
-      {
-         if (connection != null)
-         {
+      try {
+         if (connection != null) {
             System.out.println("closing connection");
             connection.close();
             System.out.println("connection closed.");
          }
 
          Iterator<SimpleString> iterQueues = testQueues.values().iterator();
-         while (iterQueues.hasNext())
-         {
+         while (iterQueues.hasNext()) {
             SimpleString coreQ = iterQueues.next();
-            if (server.locateQueue(coreQ) != null)
-            {
+            if (server.locateQueue(coreQ) != null) {
                this.server.destroyQueue(coreQ);
             }
             System.out.println("Destroyed queue: " + coreQ);
          }
          testQueues.clear();
       }
-      catch (Throwable e)
-      {
+      catch (Throwable e) {
          System.out.println("Exception !! " + e);
          e.printStackTrace();
       }
-      finally
-      {
+      finally {
          super.tearDown();
          System.out.println("Super done.");
       }
    }
 
-   public ActiveMQDestination createDestination(Session session, byte type, String name) throws Exception
-   {
-      if (name == null)
-      {
+   public ActiveMQDestination createDestination(Session session, byte type, String name) throws Exception {
+      if (name == null) {
          return createDestination(session, type);
       }
 
-      switch (type)
-      {
+      switch (type) {
          case ActiveMQDestination.QUEUE_TYPE:
             makeSureCoreQueueExist(name);
             return (ActiveMQDestination) session.createQueue(name);
@@ -139,21 +128,17 @@ public class BasicOpenWireTest extends OpenWireTestBase
       }
    }
 
-   public void makeSureCoreQueueExist(String qname) throws Exception
-   {
+   public void makeSureCoreQueueExist(String qname) throws Exception {
       SimpleString coreQ = testQueues.get(qname);
-      if (coreQ == null)
-      {
+      if (coreQ == null) {
          coreQ = new SimpleString("jms.queue." + qname);
          this.server.createQueue(coreQ, coreQ, null, false, false);
          testQueues.put(qname, coreQ);
       }
    }
 
-   public ActiveMQDestination createDestination(Session session, byte type) throws JMSException
-   {
-      switch (type)
-      {
+   public ActiveMQDestination createDestination(Session session, byte type) throws JMSException {
+      switch (type) {
          case ActiveMQDestination.QUEUE_TYPE:
             return (ActiveMQDestination) session.createQueue(queueName);
          case ActiveMQDestination.TOPIC_TYPE:
@@ -167,10 +152,8 @@ public class BasicOpenWireTest extends OpenWireTestBase
       }
    }
 
-   protected ActiveMQDestination createDestination2(Session session, byte type) throws JMSException
-   {
-      switch (type)
-      {
+   protected ActiveMQDestination createDestination2(Session session, byte type) throws JMSException {
+      switch (type) {
          case ActiveMQDestination.QUEUE_TYPE:
             return (ActiveMQDestination) session.createQueue(queueName2);
          case ActiveMQDestination.TOPIC_TYPE:
@@ -184,23 +167,19 @@ public class BasicOpenWireTest extends OpenWireTestBase
       }
    }
 
-   protected void sendMessages(Session session, Destination destination, int count) throws JMSException
-   {
+   protected void sendMessages(Session session, Destination destination, int count) throws JMSException {
       MessageProducer producer = session.createProducer(destination);
       sendMessages(session, producer, count);
       producer.close();
    }
 
-   protected void sendMessages(Session session, MessageProducer producer, int count) throws JMSException
-   {
-      for (int i = 0; i < count; i++)
-      {
+   protected void sendMessages(Session session, MessageProducer producer, int count) throws JMSException {
+      for (int i = 0; i < count; i++) {
          producer.send(session.createTextMessage(messageTextPrefix + i));
       }
    }
 
-   protected void sendMessages(Connection connection, Destination destination, int count) throws JMSException
-   {
+   protected void sendMessages(Connection connection, Destination destination, int count) throws JMSException {
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       sendMessages(session, destination, count);
       session.close();
@@ -211,37 +190,27 @@ public class BasicOpenWireTest extends OpenWireTestBase
     * @param firstSet
     * @param secondSet
     */
-   protected void assertTextMessagesEqual(String messsage, Message[] firstSet,
-         Message[] secondSet) throws JMSException
-   {
-      assertEquals("Message count does not match: " + messsage,
-            firstSet.length, secondSet.length);
-      for (int i = 0; i < secondSet.length; i++)
-      {
+   protected void assertTextMessagesEqual(String messsage,
+                                          Message[] firstSet,
+                                          Message[] secondSet) throws JMSException {
+      assertEquals("Message count does not match: " + messsage, firstSet.length, secondSet.length);
+      for (int i = 0; i < secondSet.length; i++) {
          TextMessage m1 = (TextMessage) firstSet[i];
          TextMessage m2 = (TextMessage) secondSet[i];
-         assertFalse("Message " + (i + 1) + " did not match : " + messsage
-               + ": expected {" + m1 + "}, but was {" + m2 + "}", m1 == null
-               ^ m2 == null);
-         assertEquals("Message " + (i + 1) + " did not match: " + messsage
-               + ": expected {" + m1 + "}, but was {" + m2 + "}", m1.getText(),
-               m2.getText());
+         assertFalse("Message " + (i + 1) + " did not match : " + messsage + ": expected {" + m1 + "}, but was {" + m2 + "}", m1 == null ^ m2 == null);
+         assertEquals("Message " + (i + 1) + " did not match: " + messsage + ": expected {" + m1 + "}, but was {" + m2 + "}", m1.getText(), m2.getText());
       }
    }
 
-   protected Connection createConnection() throws JMSException
-   {
+   protected Connection createConnection() throws JMSException {
       return factory.createConnection();
    }
 
-   protected void safeClose(Session s)
-   {
-      try
-      {
+   protected void safeClose(Session s) {
+      try {
          s.close();
       }
-      catch (Throwable e)
-      {
+      catch (Throwable e) {
       }
    }
 }

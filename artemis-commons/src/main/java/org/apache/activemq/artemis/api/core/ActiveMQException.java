@@ -19,19 +19,17 @@ package org.apache.activemq.artemis.api.core;
 /**
  * ActiveMQException is the root exception for the ActiveMQ Artemis API.
  */
-public class ActiveMQException extends Exception
-{
+public class ActiveMQException extends Exception {
+
    private static final long serialVersionUID = -4802014152804997417L;
 
    private final ActiveMQExceptionType type;
 
-   public ActiveMQException()
-   {
+   public ActiveMQException() {
       type = ActiveMQExceptionType.GENERIC_EXCEPTION;
    }
 
-   public ActiveMQException(final String msg)
-   {
+   public ActiveMQException(final String msg) {
       super(msg);
       type = ActiveMQExceptionType.GENERIC_EXCEPTION;
    }
@@ -39,39 +37,33 @@ public class ActiveMQException extends Exception
    /*
    * This constructor is needed only for the native layer
    */
-   public ActiveMQException(int code, String msg)
-   {
+   public ActiveMQException(int code, String msg) {
       super(msg);
 
       this.type = ActiveMQExceptionType.getType(code);
    }
 
-   public ActiveMQException(ActiveMQExceptionType type, String msg)
-   {
+   public ActiveMQException(ActiveMQExceptionType type, String msg) {
       super(msg);
 
       this.type = type;
    }
 
-   public ActiveMQException(ActiveMQExceptionType type)
-   {
+   public ActiveMQException(ActiveMQExceptionType type) {
       this.type = type;
    }
 
-   public ActiveMQException(ActiveMQExceptionType type, String message, Throwable t)
-   {
+   public ActiveMQException(ActiveMQExceptionType type, String message, Throwable t) {
       super(message, t);
       this.type = type;
    }
 
-   public ActiveMQExceptionType getType()
-   {
+   public ActiveMQExceptionType getType() {
       return type;
    }
 
    @Override
-   public String toString()
-   {
+   public String toString() {
       return this.getClass().getSimpleName() + "[errorType=" + type + " message=" + getMessage() + "]";
    }
 

@@ -22,39 +22,36 @@ import java.util.List;
 import org.apache.activemq.artemis.core.persistence.impl.nullpm.NullStorageManager;
 import org.apache.activemq.artemis.core.server.ServerMessage;
 
-public class FakeStorageManager extends NullStorageManager
-{
+public class FakeStorageManager extends NullStorageManager {
+
    List<Long> messageIds = new ArrayList<Long>();
 
    List<Long> ackIds = new ArrayList<Long>();
 
    @Override
-   public void storeMessage(final ServerMessage message) throws Exception
-   {
+   public void storeMessage(final ServerMessage message) throws Exception {
       messageIds.add(message.getMessageID());
    }
 
    @Override
-   public void storeMessageTransactional(final long txID, final ServerMessage message) throws Exception
-   {
+   public void storeMessageTransactional(final long txID, final ServerMessage message) throws Exception {
       messageIds.add(message.getMessageID());
    }
 
    @Override
-   public void deleteMessage(final long messageID) throws Exception
-   {
+   public void deleteMessage(final long messageID) throws Exception {
       messageIds.remove(messageID);
    }
 
    @Override
-   public void storeAcknowledge(final long queueID, final long messageID) throws Exception
-   {
+   public void storeAcknowledge(final long queueID, final long messageID) throws Exception {
       ackIds.add(messageID);
    }
 
    @Override
-   public void storeAcknowledgeTransactional(final long txID, final long queueID, final long messageiD) throws Exception
-   {
+   public void storeAcknowledgeTransactional(final long txID,
+                                             final long queueID,
+                                             final long messageiD) throws Exception {
       ackIds.add(messageiD);
    }
 }

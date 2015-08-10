@@ -28,13 +28,11 @@ import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Test;
 
-public class GracefulShutdownTest extends ActiveMQTestBase
-{
+public class GracefulShutdownTest extends ActiveMQTestBase {
+
    @Test
-   public void testGracefulShutdown() throws Exception
-   {
-      Configuration config = createDefaultInVMConfig()
-              .setGracefulShutdownEnabled(true);
+   public void testGracefulShutdown() throws Exception {
+      Configuration config = createDefaultInVMConfig().setGracefulShutdownEnabled(true);
 
       final ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(config, false));
 
@@ -46,16 +44,12 @@ public class GracefulShutdownTest extends ActiveMQTestBase
 
       ClientSession session = sf.createSession(true, true);
 
-      Thread t = new Thread(new Runnable()
-      {
-         public void run()
-         {
-            try
-            {
+      Thread t = new Thread(new Runnable() {
+         public void run() {
+            try {
                server.stop();
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                e.printStackTrace();
             }
          }
@@ -65,8 +59,7 @@ public class GracefulShutdownTest extends ActiveMQTestBase
       t.start();
 
       // wait for the thread to actually call stop() on the server
-      while (server.isStarted())
-      {
+      while (server.isStarted()) {
          Thread.sleep(100);
       }
 
@@ -77,13 +70,11 @@ public class GracefulShutdownTest extends ActiveMQTestBase
       session.start();
       assertNotNull(session.createConsumer("testQueue").receive(500));
 
-      try
-      {
+      try {
          sf.createSession();
          fail("Creating a session here should fail because the acceptors should be paused");
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          assertTrue(e instanceof ActiveMQSessionCreationException);
          ActiveMQSessionCreationException activeMQSessionCreationException = (ActiveMQSessionCreationException) e;
          assertEquals(activeMQSessionCreationException.getType(), ActiveMQExceptionType.SESSION_CREATION_REJECTED);
@@ -95,10 +86,8 @@ public class GracefulShutdownTest extends ActiveMQTestBase
       long start = System.currentTimeMillis();
 
       // wait for the shutdown thread to complete, interrupt it if it takes too long
-      while (t.isAlive())
-      {
-         if (System.currentTimeMillis() - start > 3000)
-         {
+      while (t.isAlive()) {
+         if (System.currentTimeMillis() - start > 3000) {
             t.interrupt();
             break;
          }
@@ -110,13 +99,10 @@ public class GracefulShutdownTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testGracefulShutdownWithTimeout() throws Exception
-   {
+   public void testGracefulShutdownWithTimeout() throws Exception {
       long timeout = 10000;
 
-      Configuration config = createDefaultInVMConfig()
-              .setGracefulShutdownEnabled(true)
-              .setGracefulShutdownTimeout(timeout);
+      Configuration config = createDefaultInVMConfig().setGracefulShutdownEnabled(true).setGracefulShutdownTimeout(timeout);
 
       final ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(config, false));
 
@@ -126,16 +112,12 @@ public class GracefulShutdownTest extends ActiveMQTestBase
 
       ClientSessionFactory sf = createSessionFactory(locator);
 
-      Thread t = new Thread(new Runnable()
-      {
-         public void run()
-         {
-            try
-            {
+      Thread t = new Thread(new Runnable() {
+         public void run() {
+            try {
                server.stop();
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                e.printStackTrace();
             }
          }
@@ -146,18 +128,15 @@ public class GracefulShutdownTest extends ActiveMQTestBase
       t.start();
 
       // wait for the thread to actually call stop() on the server
-      while (server.isStarted())
-      {
+      while (server.isStarted()) {
          Thread.sleep(100);
       }
 
-      try
-      {
+      try {
          sf.createSession();
          fail("Creating a session here should fail because the acceptors should be paused");
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          assertTrue(e instanceof ActiveMQSessionCreationException);
          ActiveMQSessionCreationException activeMQSessionCreationException = (ActiveMQSessionCreationException) e;
          assertEquals(activeMQSessionCreationException.getType(), ActiveMQExceptionType.SESSION_CREATION_REJECTED);
@@ -167,8 +146,7 @@ public class GracefulShutdownTest extends ActiveMQTestBase
 
       assertTrue("thread should still be alive here waiting for the timeout to elapse", t.isAlive());
 
-      while (t.isAlive())
-      {
+      while (t.isAlive()) {
          Thread.sleep(100);
       }
 

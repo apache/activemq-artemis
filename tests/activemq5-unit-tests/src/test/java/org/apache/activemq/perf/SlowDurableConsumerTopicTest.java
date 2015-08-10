@@ -21,15 +21,15 @@ import javax.jms.Destination;
 import javax.jms.JMSException;
 
 /**
- * 
+ *
  */
 public class SlowDurableConsumerTopicTest extends SlowConsumerTopicTest {
 
-    protected PerfConsumer[] slowConsumers;
-    protected int numberOfSlowConsumers = 1;
+   protected PerfConsumer[] slowConsumers;
+   protected int numberOfSlowConsumers = 1;
 
-    protected PerfConsumer createSlowConsumer(ConnectionFactory fac, Destination dest, int number) throws JMSException {
-        return new SlowConsumer(fac, dest, "durableSlowConsumer" + number);
-    }
+   protected PerfConsumer createSlowConsumer(ConnectionFactory fac, Destination dest, int number) throws JMSException {
+      return new SlowConsumer(fac, dest, "durableSlowConsumer" + number);
+   }
 
 }

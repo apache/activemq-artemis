@@ -28,8 +28,7 @@ import org.junit.Assert;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
 
-public class ActiveMQDestinationTest extends ActiveMQTestBase
-{
+public class ActiveMQDestinationTest extends ActiveMQTestBase {
    // Constants -----------------------------------------------------
 
    // Attributes ----------------------------------------------------
@@ -41,8 +40,7 @@ public class ActiveMQDestinationTest extends ActiveMQTestBase
    // Public --------------------------------------------------------
 
    @Test
-   public void testEquals() throws Exception
-   {
+   public void testEquals() throws Exception {
       String destinationName = RandomUtil.randomString();
       String address = ActiveMQDestination.JMS_QUEUE_ADDRESS_PREFIX + destinationName;
       ActiveMQDestination destination = (ActiveMQDestination) ActiveMQDestination.fromAddress(address);
@@ -56,38 +54,33 @@ public class ActiveMQDestinationTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testFromAddressWithQueueAddressPrefix() throws Exception
-   {
+   public void testFromAddressWithQueueAddressPrefix() throws Exception {
       String destinationName = RandomUtil.randomString();
       String address = ActiveMQDestination.JMS_QUEUE_ADDRESS_PREFIX + destinationName;
       ActiveMQDestination destination = (ActiveMQDestination) ActiveMQDestination.fromAddress(address);
       Assert.assertTrue(destination instanceof Queue);
-      Assert.assertEquals(destinationName, ((Queue)destination).getQueueName());
+      Assert.assertEquals(destinationName, ((Queue) destination).getQueueName());
    }
 
    @Test
-   public void testFromAddressWithTopicAddressPrefix() throws Exception
-   {
+   public void testFromAddressWithTopicAddressPrefix() throws Exception {
       String destinationName = RandomUtil.randomString();
       String address = ActiveMQDestination.JMS_TOPIC_ADDRESS_PREFIX + destinationName;
       ActiveMQDestination destination = (ActiveMQDestination) ActiveMQDestination.fromAddress(address);
       Assert.assertTrue(destination instanceof Topic);
-      Assert.assertEquals(destinationName, ((Topic)destination).getTopicName());
+      Assert.assertEquals(destinationName, ((Topic) destination).getTopicName());
    }
 
    @Test
-   public void testFromAddressWithInvalidPrefix() throws Exception
-   {
+   public void testFromAddressWithInvalidPrefix() throws Exception {
       String invalidPrefix = "junk";
       String destinationName = RandomUtil.randomString();
       String address = invalidPrefix + destinationName;
-      try
-      {
+      try {
          ActiveMQDestination.fromAddress(address);
          Assert.fail("IllegalArgumentException");
       }
-      catch (JMSRuntimeException e)
-      {
+      catch (JMSRuntimeException e) {
       }
    }
 

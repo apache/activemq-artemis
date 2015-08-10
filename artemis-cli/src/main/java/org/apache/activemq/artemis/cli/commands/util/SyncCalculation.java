@@ -35,19 +35,22 @@ import org.apache.activemq.artemis.utils.ReusableLatch;
  * It will perform a simple test to evaluate how many syncs a disk can make per second
  * * *
  */
-public class SyncCalculation
-{
+public class SyncCalculation {
+
    /**
     * It will perform a write test of blockSize * bocks, sinc on each write, for N tries.
     * It will return the lowest spent time from the tries.
     */
-   public static long syncTest(File datafolder, int blockSize, int blocks, int tries, boolean verbose, boolean aio) throws Exception
-   {
+   public static long syncTest(File datafolder,
+                               int blockSize,
+                               int blocks,
+                               int tries,
+                               boolean verbose,
+                               boolean aio) throws Exception {
       SequentialFileFactory factory = newFactory(datafolder, aio);
       SequentialFile file = factory.createSequentialFile("test.tmp");
 
-      try
-      {
+      try {
          file.delete();
          file.open();
 
@@ -57,8 +60,7 @@ public class SyncCalculation
 
          byte[] block = new byte[blockSize];
 
-         for (int i = 0; i < block.length; i++)
-         {
+         for (int i = 0; i < block.length; i++) {
             block[i] = (byte) 't';
          }
 
@@ -68,39 +70,32 @@ public class SyncCalculation
 
          final ReusableLatch latch = new ReusableLatch(0);
 
-         IOCallback callback = new IOCallback()
-         {
+         IOCallback callback = new IOCallback() {
             @Override
-            public void done()
-            {
+            public void done() {
                latch.countDown();
             }
 
             @Override
-            public void onError(int errorCode, String errorMessage)
-            {
+            public void onError(int errorCode, String errorMessage) {
 
             }
          };
 
          DecimalFormat dcformat = new DecimalFormat("###.##");
-         for (int ntry = 0; ntry < tries; ntry++)
-         {
+         for (int ntry = 0; ntry < tries; ntry++) {
 
-            if (verbose)
-            {
+            if (verbose) {
                System.out.println("**************************************************");
                System.out.println(ntry + " of " + tries + " calculation");
             }
             file.position(0);
             long start = System.currentTimeMillis();
-            for (int i = 0; i < blocks; i++)
-            {
+            for (int i = 0; i < blocks; i++) {
                bufferBlock.position(0);
                latch.countUp();
                file.writeDirect(bufferBlock, true, callback);
-               if (!latch.await(5, TimeUnit.SECONDS))
-               {
+               if (!latch.await(5, TimeUnit.SECONDS)) {
                   throw new IOException("Callback wasn't called");
                }
             }
@@ -108,9 +103,8 @@ public class SyncCalculation
 
             result[ntry] = (end - start);
 
-            if (verbose)
-            {
-               double writesPerMillisecond = (double)blocks / (double) result[ntry];
+            if (verbose) {
+               double writesPerMillisecond = (double) blocks / (double) result[ntry];
                System.out.println("Time = " + result[ntry]);
                System.out.println("Writes / millisecond = " + dcformat.format(writesPerMillisecond));
                System.out.println("bufferTimeout = " + toNanos(result[ntry], blocks));
@@ -121,45 +115,34 @@ public class SyncCalculation
          factory.releaseDirectBuffer(bufferBlock);
 
          long totalTime = Long.MAX_VALUE;
-         for (int i = 0; i < tries; i++)
-         {
-            if (result[i] < totalTime)
-            {
+         for (int i = 0; i < tries; i++) {
+            if (result[i] < totalTime) {
                totalTime = result[i];
             }
          }
 
          return totalTime;
       }
-      finally
-      {
-         try
-         {
+      finally {
+         try {
             file.close();
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
          }
-         try
-         {
+         try {
             file.delete();
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
          }
-         try
-         {
+         try {
             factory.stop();
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
          }
       }
    }
 
-
-   public static long toNanos(long time, long blocks)
-   {
+   public static long toNanos(long time, long blocks) {
 
       double blocksPerMillisecond = (double) blocks / (double) (time);
 
@@ -170,18 +153,15 @@ public class SyncCalculation
       return timeWait;
    }
 
-   private static SequentialFileFactory newFactory(File datafolder, boolean aio)
-   {
-      if (aio && LibaioContext.isLoaded())
-      {
+   private static SequentialFileFactory newFactory(File datafolder, boolean aio) {
+      if (aio && LibaioContext.isLoaded()) {
          SequentialFileFactory factory = new AIOSequentialFileFactory(datafolder, 1);
          factory.start();
          ((AIOSequentialFileFactory) factory).disableBufferReuse();
 
          return factory;
       }
-      else
-      {
+      else {
          SequentialFileFactory factory = new NIOSequentialFileFactory(datafolder, 1);
          factory.start();
          return factory;

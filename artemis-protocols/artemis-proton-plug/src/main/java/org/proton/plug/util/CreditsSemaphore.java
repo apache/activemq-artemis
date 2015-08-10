@@ -18,67 +18,53 @@ package org.proton.plug.util;
 
 import java.util.concurrent.locks.AbstractQueuedSynchronizer;
 
-public class CreditsSemaphore
-{
+public class CreditsSemaphore {
 
    @SuppressWarnings("serial")
-   private static class Sync extends AbstractQueuedSynchronizer
-   {
-      public Sync(int initial)
-      {
+   private static class Sync extends AbstractQueuedSynchronizer {
+
+      public Sync(int initial) {
          setState(initial);
       }
 
-      public int getCredits()
-      {
+      public int getCredits() {
          return getState();
       }
 
       @Override
-      public int tryAcquireShared(final int numberOfAqcquires)
-      {
-         for (;;)
-         {
+      public int tryAcquireShared(final int numberOfAqcquires) {
+         for (; ; ) {
             int actualSize = getState();
             int newValue = actualSize - numberOfAqcquires;
 
-            if (newValue < 0)
-            {
-               if (actualSize == getState())
-               {
+            if (newValue < 0) {
+               if (actualSize == getState()) {
                   return -1;
                }
             }
-            else if (compareAndSetState(actualSize, newValue))
-            {
+            else if (compareAndSetState(actualSize, newValue)) {
                return newValue;
             }
          }
       }
 
       @Override
-      public boolean tryReleaseShared(final int numberOfReleases)
-      {
-         for (;;)
-         {
+      public boolean tryReleaseShared(final int numberOfReleases) {
+         for (; ; ) {
             int actualSize = getState();
             int newValue = actualSize + numberOfReleases;
 
-            if (compareAndSetState(actualSize, newValue))
-            {
+            if (compareAndSetState(actualSize, newValue)) {
                return true;
             }
 
          }
       }
 
-      public void setCredits(final int credits)
-      {
-         for (;;)
-         {
+      public void setCredits(final int credits) {
+         for (; ; ) {
             int actualState = getState();
-            if (compareAndSetState(actualState, credits))
-            {
+            if (compareAndSetState(actualState, credits)) {
                // This is to wake up any pending threads that could be waiting on queued
                releaseShared(0);
                return;
@@ -89,44 +75,35 @@ public class CreditsSemaphore
 
    private final Sync sync;
 
-
-   public CreditsSemaphore(int initialCredits)
-   {
+   public CreditsSemaphore(int initialCredits) {
       sync = new Sync(initialCredits);
    }
 
-   public void acquire() throws InterruptedException
-   {
+   public void acquire() throws InterruptedException {
       sync.acquireSharedInterruptibly(1);
    }
 
-   public boolean tryAcquire()
-   {
+   public boolean tryAcquire() {
       return sync.tryAcquireShared(1) >= 0;
    }
 
-   public void release() throws InterruptedException
-   {
+   public void release() throws InterruptedException {
       sync.releaseShared(1);
    }
 
-   public void release(int credits) throws InterruptedException
-   {
+   public void release(int credits) throws InterruptedException {
       sync.releaseShared(credits);
    }
 
-   public void setCredits(int credits)
-   {
+   public void setCredits(int credits) {
       sync.setCredits(credits);
    }
 
-   public int getCredits()
-   {
+   public int getCredits() {
       return sync.getCredits();
    }
 
-   public boolean hasQueuedThreads()
-   {
+   public boolean hasQueuedThreads() {
       return sync.hasQueuedThreads();
    }
 

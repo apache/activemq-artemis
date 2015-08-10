@@ -43,30 +43,24 @@ import java.util.Collection;
 import java.util.Map;
 
 @RunWith(value = Parameterized.class)
-public class ScaleDownTest extends ClusterTestBase
-{
+public class ScaleDownTest extends ClusterTestBase {
+
    private boolean useScaleDownGroupName;
 
    // this will ensure that all tests in this class are run twice,
    // once with "true" passed to the class' constructor and once with "false"
    @Parameterized.Parameters(name = "useScaleDownGroupName={0}")
-   public static Collection getParameters()
-   {
-      return Arrays.asList(new Object[][]{
-         {true},
-         {false}
-      });
+   public static Collection getParameters() {
+      return Arrays.asList(new Object[][]{{true}, {false}});
    }
 
-   public ScaleDownTest(boolean useScaleDownGroupName)
-   {
+   public ScaleDownTest(boolean useScaleDownGroupName) {
       this.useScaleDownGroupName = useScaleDownGroupName;
    }
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
       setupLiveServer(0, isFileStorage(), isNetty(), true);
       setupLiveServer(1, isFileStorage(), isNetty(), true);
@@ -74,8 +68,7 @@ public class ScaleDownTest extends ClusterTestBase
       haPolicyConfiguration0.setScaleDownConfiguration(new ScaleDownConfiguration());
       LiveOnlyPolicyConfiguration haPolicyConfiguration1 = (LiveOnlyPolicyConfiguration) servers[1].getConfiguration().getHAPolicyConfiguration();
       haPolicyConfiguration1.setScaleDownConfiguration(new ScaleDownConfiguration());
-      if (useScaleDownGroupName)
-      {
+      if (useScaleDownGroupName) {
          haPolicyConfiguration0.getScaleDownConfiguration().setGroupName("bill");
          haPolicyConfiguration1.getScaleDownConfiguration().setGroupName("bill");
       }
@@ -88,14 +81,12 @@ public class ScaleDownTest extends ClusterTestBase
       setupSessionFactory(1, isNetty());
    }
 
-   protected boolean isNetty()
-   {
+   protected boolean isNetty() {
       return true;
    }
 
    @Test
-   public void testBasicScaleDown() throws Exception
-   {
+   public void testBasicScaleDown() throws Exception {
       final int TEST_SIZE = 2;
       final String addressName = "testAddress";
       final String queueName1 = "testQueue1";
@@ -116,7 +107,7 @@ public class ScaleDownTest extends ClusterTestBase
       Assert.assertNotNull(clientMessage);
       clientMessage.acknowledge();
       consumers[1].getSession().commit();
-//      removeConsumer(1);
+      //      removeConsumer(1);
 
       // at this point on node 0 there should be 2 messages in testQueue1 and 1 message in testQueue2
       Assert.assertEquals(TEST_SIZE, getMessageCount(((LocalQueueBinding) servers[0].getPostOffice().getBinding(new SimpleString(queueName1))).getQueue()));
@@ -152,8 +143,7 @@ public class ScaleDownTest extends ClusterTestBase
    }
 
    @Test
-   public void testStoreAndForward() throws Exception
-   {
+   public void testStoreAndForward() throws Exception {
       final int TEST_SIZE = 50;
       final String addressName1 = "testAddress1";
       final String addressName2 = "testAddress2";
@@ -172,12 +162,10 @@ public class ScaleDownTest extends ClusterTestBase
 
       // find and pause the sf queue so no messages actually move from node 0 to node 1
       String sfQueueName = null;
-      for (Map.Entry<SimpleString, Binding> entry : servers[0].getPostOffice().getAllBindings().entrySet())
-      {
+      for (Map.Entry<SimpleString, Binding> entry : servers[0].getPostOffice().getAllBindings().entrySet()) {
          String temp = entry.getValue().getAddress().toString();
 
-         if (temp.startsWith("sf.") && temp.endsWith(servers[1].getNodeID().toString()))
-         {
+         if (temp.startsWith("sf.") && temp.endsWith(servers[1].getNodeID().toString())) {
             // we found the sf queue for the other node
             // need to pause the sfQueue here
             ((LocalQueueBinding) entry.getValue()).getQueue().pause();
@@ -203,8 +191,7 @@ public class ScaleDownTest extends ClusterTestBase
 
       // get the messages from node 1
       addConsumer(0, 1, queueName1, null);
-      for (int i = 0; i < TEST_SIZE; i++)
-      {
+      for (int i = 0; i < TEST_SIZE; i++) {
          ClientMessage clientMessage = consumers[0].getConsumer().receive(250);
          Assert.assertNotNull(clientMessage);
          clientMessage.acknowledge();
@@ -215,8 +202,7 @@ public class ScaleDownTest extends ClusterTestBase
       removeConsumer(0);
 
       addConsumer(0, 1, queueName2, null);
-      for (int i = 0; i < TEST_SIZE; i++)
-      {
+      for (int i = 0; i < TEST_SIZE; i++) {
          clientMessage = consumers[0].getConsumer().receive(250);
          Assert.assertNotNull(clientMessage);
          clientMessage.acknowledge();
@@ -228,8 +214,7 @@ public class ScaleDownTest extends ClusterTestBase
    }
 
    @Test
-   public void testScaleDownWithMissingQueue() throws Exception
-   {
+   public void testScaleDownWithMissingQueue() throws Exception {
       final int TEST_SIZE = 2;
       final String addressName = "testAddress";
       final String queueName1 = "testQueue1";
@@ -280,8 +265,7 @@ public class ScaleDownTest extends ClusterTestBase
    }
 
    @Test
-   public void testMessageProperties() throws Exception
-   {
+   public void testMessageProperties() throws Exception {
       final int TEST_SIZE = 5;
       final String addressName = "testAddress";
       final String queueName = "testQueue";
@@ -294,15 +278,13 @@ public class ScaleDownTest extends ClusterTestBase
       ClientProducer producer = addClientProducer(session.createProducer(addressName));
 
       StringBuilder international = new StringBuilder();
-      for (char x = 800; x < 1200; x++)
-      {
+      for (char x = 800; x < 1200; x++) {
          international.append(x);
       }
 
       String special = "\"<>'&";
 
-      for (int i = 0; i < TEST_SIZE; i++)
-      {
+      for (int i = 0; i < TEST_SIZE; i++) {
          ClientMessage msg = session.createMessage(true);
          msg.getBodyBuffer().writeString("Bob the giant pig " + i);
          msg.putBooleanProperty("myBooleanProperty", Boolean.TRUE);
@@ -327,8 +309,7 @@ public class ScaleDownTest extends ClusterTestBase
       ClientConsumer consumer = addClientConsumer(session.createConsumer(queueName));
       session.start();
 
-      for (int i = 0; i < 5; i++)
-      {
+      for (int i = 0; i < 5; i++) {
          ClientMessage msg = consumer.receive(250);
          byte[] body = new byte[msg.getBodySize()];
          msg.getBodyBuffer().readBytes(body);
@@ -336,8 +317,7 @@ public class ScaleDownTest extends ClusterTestBase
          Assert.assertEquals(msg.getBooleanProperty("myBooleanProperty"), Boolean.TRUE);
          Assert.assertEquals(msg.getByteProperty("myByteProperty"), new Byte("0"));
          byte[] bytes = msg.getBytesProperty("myBytesProperty");
-         for (int j = 0; j < 5; j++)
-         {
+         for (int j = 0; j < 5; j++) {
             Assert.assertEquals(j, bytes[j]);
          }
          Assert.assertEquals(i * 1.6, msg.getDoubleProperty("myDoubleProperty"), 0.000001);
@@ -353,8 +333,7 @@ public class ScaleDownTest extends ClusterTestBase
    }
 
    @Test
-   public void testLargeMessage() throws Exception
-   {
+   public void testLargeMessage() throws Exception {
       final String addressName = "testAddress";
       final String queueName = "testQueue";
 
@@ -365,21 +344,17 @@ public class ScaleDownTest extends ClusterTestBase
       ClientSession session = addClientSession(sf.createSession(false, false));
       ClientProducer producer = addClientProducer(session.createProducer(addressName));
 
-
       byte[] buffer = new byte[2 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE];
-      for (int i = 0; i < buffer.length; i++)
-      {
+      for (int i = 0; i < buffer.length; i++) {
          buffer[i] = getSamplebyte(i);
       }
 
-      for (int nmsg = 0; nmsg < 10; nmsg++)
-      {
+      for (int nmsg = 0; nmsg < 10; nmsg++) {
          ClientMessage message = session.createMessage(true);
          message.getBodyBuffer().writeBytes(buffer);
          producer.send(message);
          session.commit();
       }
-
 
       servers[0].stop();
 
@@ -388,16 +363,14 @@ public class ScaleDownTest extends ClusterTestBase
       ClientConsumer consumer = addClientConsumer(session.createConsumer(queueName));
       session.start();
 
-      for (int nmsg = 0; nmsg < 10; nmsg++)
-      {
+      for (int nmsg = 0; nmsg < 10; nmsg++) {
          ClientMessage msg = consumer.receive(250);
 
          Assert.assertNotNull(msg);
 
          Assert.assertEquals(2 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, msg.getBodySize());
 
-         for (int i = 0; i < 2 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE; i++)
-         {
+         for (int i = 0; i < 2 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE; i++) {
             byte byteRead = msg.getBodyBuffer().readByte();
             Assert.assertEquals(msg + " Is different", ActiveMQTestBase.getSamplebyte(i), byteRead);
          }
@@ -408,8 +381,7 @@ public class ScaleDownTest extends ClusterTestBase
    }
 
    @Test
-   public void testPaging() throws Exception
-   {
+   public void testPaging() throws Exception {
       final int CHUNK_SIZE = 50;
       int messageCount = 0;
       final String addressName = "testAddress";
@@ -422,15 +394,11 @@ public class ScaleDownTest extends ClusterTestBase
       ClientSession session = addClientSession(sf.createSession(false, false));
       ClientProducer producer = addClientProducer(session.createProducer(addressName));
 
-      AddressSettings defaultSetting = new AddressSettings()
-              .setPageSizeBytes(10 * 1024)
-              .setMaxSizeBytes(20 * 1024);
+      AddressSettings defaultSetting = new AddressSettings().setPageSizeBytes(10 * 1024).setMaxSizeBytes(20 * 1024);
       servers[0].getAddressSettingsRepository().addMatch("#", defaultSetting);
 
-      while (!servers[0].getPagingManager().getPageStore(new SimpleString(addressName)).isPaging())
-      {
-         for (int i = 0; i < CHUNK_SIZE; i++)
-         {
+      while (!servers[0].getPagingManager().getPageStore(new SimpleString(addressName)).isPaging()) {
+         for (int i = 0; i < CHUNK_SIZE; i++) {
             Message message = session.createMessage(true);
             message.getBodyBuffer().writeBytes(new byte[1024]);
             producer.send(message);
@@ -442,8 +410,7 @@ public class ScaleDownTest extends ClusterTestBase
       servers[0].stop();
 
       addConsumer(0, 1, queueName, null);
-      for (int i = 0; i < messageCount; i++)
-      {
+      for (int i = 0; i < messageCount; i++) {
          Assert.assertNotNull(consumers[0].getConsumer().receive(250));
       }
 
@@ -452,8 +419,7 @@ public class ScaleDownTest extends ClusterTestBase
    }
 
    @Test
-   public void testOrderWithPaging() throws Exception
-   {
+   public void testOrderWithPaging() throws Exception {
       final int CHUNK_SIZE = 50;
       int messageCount = 0;
       final String addressName = "testAddress";
@@ -466,15 +432,11 @@ public class ScaleDownTest extends ClusterTestBase
       ClientSession session = addClientSession(sf.createSession(false, false));
       ClientProducer producer = addClientProducer(session.createProducer(addressName));
 
-      AddressSettings defaultSetting = new AddressSettings()
-              .setPageSizeBytes(10 * 1024)
-              .setMaxSizeBytes(20 * 1024);
+      AddressSettings defaultSetting = new AddressSettings().setPageSizeBytes(10 * 1024).setMaxSizeBytes(20 * 1024);
       servers[0].getAddressSettingsRepository().addMatch("#", defaultSetting);
 
-      while (!servers[0].getPagingManager().getPageStore(new SimpleString(addressName)).isPaging())
-      {
-         for (int i = 0; i < CHUNK_SIZE; i++)
-         {
+      while (!servers[0].getPagingManager().getPageStore(new SimpleString(addressName)).isPaging()) {
+         for (int i = 0; i < CHUNK_SIZE; i++) {
             Message message = session.createMessage(true);
             message.getBodyBuffer().writeBytes(new byte[1024]);
             message.putIntProperty("order", i);
@@ -487,8 +449,7 @@ public class ScaleDownTest extends ClusterTestBase
       servers[0].stop();
 
       addConsumer(0, 1, queueName, null);
-      for (int i = 0; i < messageCount; i++)
-      {
+      for (int i = 0; i < messageCount; i++) {
          Assert.assertEquals(i, consumers[0].getConsumer().receive(250).getIntProperty("order").intValue());
       }
 
@@ -497,8 +458,7 @@ public class ScaleDownTest extends ClusterTestBase
    }
 
    @Test
-   public void testFilters() throws Exception
-   {
+   public void testFilters() throws Exception {
       final int TEST_SIZE = 50;
       final String addressName = "testAddress";
       final String evenQueue = "evenQueue";
@@ -513,8 +473,7 @@ public class ScaleDownTest extends ClusterTestBase
       ClientSession session = addClientSession(sf.createSession(false, false));
       ClientProducer producer = addClientProducer(session.createProducer(addressName));
 
-      for (int i = 0; i < TEST_SIZE; i++)
-      {
+      for (int i = 0; i < TEST_SIZE; i++) {
          Message message = session.createMessage(false);
          if (i % 2 == 0)
             message.putStringProperty(ClusterTestBase.FILTER_PROP, new SimpleString("0"));
@@ -528,17 +487,14 @@ public class ScaleDownTest extends ClusterTestBase
 
       addConsumer(0, 1, evenQueue, null);
       addConsumer(1, 1, oddQueue, null);
-      for (int i = 0; i < TEST_SIZE; i++)
-      {
+      for (int i = 0; i < TEST_SIZE; i++) {
          String compare;
          ClientMessage message;
-         if (i % 2 == 0)
-         {
+         if (i % 2 == 0) {
             message = consumers[0].getConsumer().receive(250);
             compare = "0";
          }
-         else
-         {
+         else {
             message = consumers[1].getConsumer().receive(250);
             compare = "1";
          }

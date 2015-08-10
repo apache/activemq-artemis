@@ -36,8 +36,8 @@ import java.util.concurrent.TimeUnit;
  *
  * @see JGroupsBroadcastEndpoint
  */
-public interface BroadcastEndpoint
-{
+public interface BroadcastEndpoint {
+
    /**
     * This method initializes a BroadcastEndpoint as
     * a receiving end for broadcasts. After that data can be

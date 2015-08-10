@@ -42,78 +42,78 @@ import org.slf4j.LoggerFactory;
 
 public class AMQ5421Test {
 
-    private static final Logger LOG = LoggerFactory.getLogger(AMQ5421Test.class);
+   private static final Logger LOG = LoggerFactory.getLogger(AMQ5421Test.class);
 
-    private static final int DEST_COUNT = 1000;
-    private final Destination[] destination = new Destination[DEST_COUNT];
-    private final MessageProducer[] producer = new MessageProducer[DEST_COUNT];
-    private BrokerService brokerService;
-    private String connectionUri;
+   private static final int DEST_COUNT = 1000;
+   private final Destination[] destination = new Destination[DEST_COUNT];
+   private final MessageProducer[] producer = new MessageProducer[DEST_COUNT];
+   private BrokerService brokerService;
+   private String connectionUri;
 
-    protected ConnectionFactory createConnectionFactory() throws Exception {
-        ActiveMQConnectionFactory conFactory = new ActiveMQConnectionFactory(connectionUri);
-        conFactory.setWatchTopicAdvisories(false);
-        return conFactory;
-    }
+   protected ConnectionFactory createConnectionFactory() throws Exception {
+      ActiveMQConnectionFactory conFactory = new ActiveMQConnectionFactory(connectionUri);
+      conFactory.setWatchTopicAdvisories(false);
+      return conFactory;
+   }
 
-    protected AbortSlowAckConsumerStrategy createSlowConsumerStrategy() {
-        AbortSlowAckConsumerStrategy strategy = new AbortSlowAckConsumerStrategy();
-        strategy.setCheckPeriod(2000);
-        strategy.setMaxTimeSinceLastAck(5000);
-        strategy.setIgnoreIdleConsumers(false);
+   protected AbortSlowAckConsumerStrategy createSlowConsumerStrategy() {
+      AbortSlowAckConsumerStrategy strategy = new AbortSlowAckConsumerStrategy();
+      strategy.setCheckPeriod(2000);
+      strategy.setMaxTimeSinceLastAck(5000);
+      strategy.setIgnoreIdleConsumers(false);
 
-        return strategy;
-    }
+      return strategy;
+   }
 
-    @Before
-    public void setUp() throws Exception {
-        brokerService = BrokerFactory.createBroker(new URI("broker://()/localhost?persistent=false&useJmx=true"));
-        PolicyEntry policy = new PolicyEntry();
+   @Before
+   public void setUp() throws Exception {
+      brokerService = BrokerFactory.createBroker(new URI("broker://()/localhost?persistent=false&useJmx=true"));
+      PolicyEntry policy = new PolicyEntry();
 
-        policy.setSlowConsumerStrategy(createSlowConsumerStrategy());
-        policy.setQueuePrefetch(10);
-        policy.setTopicPrefetch(10);
-        PolicyMap pMap = new PolicyMap();
-        pMap.setDefaultEntry(policy);
-        brokerService.setDestinationPolicy(pMap);
-        brokerService.addConnector("tcp://0.0.0.0:0");
-        brokerService.start();
+      policy.setSlowConsumerStrategy(createSlowConsumerStrategy());
+      policy.setQueuePrefetch(10);
+      policy.setTopicPrefetch(10);
+      PolicyMap pMap = new PolicyMap();
+      pMap.setDefaultEntry(policy);
+      brokerService.setDestinationPolicy(pMap);
+      brokerService.addConnector("tcp://0.0.0.0:0");
+      brokerService.start();
 
-        connectionUri = brokerService.getTransportConnectorByScheme("tcp").getPublishableConnectString();
-    }
+      connectionUri = brokerService.getTransportConnectorByScheme("tcp").getPublishableConnectString();
+   }
 
-    @Test
-    public void testManyTempDestinations() throws Exception {
-        Connection connection = createConnectionFactory().createConnection();
-        connection.start();
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+   @Test
+   public void testManyTempDestinations() throws Exception {
+      Connection connection = createConnectionFactory().createConnection();
+      connection.start();
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-        for (int i = 0; i < DEST_COUNT; i++) {
-            destination[i] = session.createTemporaryQueue();
-            LOG.debug("Created temp queue: [}", i);
-        }
+      for (int i = 0; i < DEST_COUNT; i++) {
+         destination[i] = session.createTemporaryQueue();
+         LOG.debug("Created temp queue: [}", i);
+      }
 
-        for (int i = 0; i < DEST_COUNT; i++) {
-            producer[i] = session.createProducer(destination[i]);
-            LOG.debug("Created producer: {}", i);
-            TextMessage msg = session.createTextMessage(" testMessage " + i);
-            producer[i].send(msg);
-            LOG.debug("message sent: {}", i);
-            MessageConsumer consumer = session.createConsumer(destination[i]);
-            Message message = consumer.receive(1000);
-            Assert.assertTrue(message.equals(msg));
-        }
+      for (int i = 0; i < DEST_COUNT; i++) {
+         producer[i] = session.createProducer(destination[i]);
+         LOG.debug("Created producer: {}", i);
+         TextMessage msg = session.createTextMessage(" testMessage " + i);
+         producer[i].send(msg);
+         LOG.debug("message sent: {}", i);
+         MessageConsumer consumer = session.createConsumer(destination[i]);
+         Message message = consumer.receive(1000);
+         Assert.assertTrue(message.equals(msg));
+      }
 
-        for (int i = 0; i < DEST_COUNT; i++) {
-            producer[i].close();
-        }
+      for (int i = 0; i < DEST_COUNT; i++) {
+         producer[i].close();
+      }
 
-        connection.close();
-    }
+      connection.close();
+   }
 
-    @After
-    public void tearDown() throws Exception {
-        brokerService.stop();
-        brokerService.waitUntilStopped();
-    }
+   @After
+   public void tearDown() throws Exception {
+      brokerService.stop();
+      brokerService.waitUntilStopped();
+   }
 }

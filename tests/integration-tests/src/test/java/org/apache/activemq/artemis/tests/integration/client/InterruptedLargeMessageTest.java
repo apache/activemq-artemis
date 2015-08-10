@@ -61,8 +61,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class InterruptedLargeMessageTest extends LargeMessageTestBase
-{
+public class InterruptedLargeMessageTest extends LargeMessageTestBase {
    // Constants -----------------------------------------------------
 
    static final int RECEIVE_WAIT_TIME = 60000;
@@ -75,35 +74,29 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
       LargeMessageTestInterceptorIgnoreLastPacket.clearInterrupt();
       locator = createFactory(isNetty());
    }
 
-   protected boolean isNetty()
-   {
+   protected boolean isNetty() {
       return false;
    }
 
    @Test
-   public void testInterruptLargeMessageSend() throws Exception
-   {
+   public void testInterruptLargeMessageSend() throws Exception {
 
       ClientSession session = null;
 
       LargeMessageTestInterceptorIgnoreLastPacket.clearInterrupt();
       ActiveMQServer server = createServer(true, isNetty());
 
-      server.getConfiguration()
-         .getIncomingInterceptorClassNames()
-         .add(LargeMessageTestInterceptorIgnoreLastPacket.class.getName());
+      server.getConfiguration().getIncomingInterceptorClassNames().add(LargeMessageTestInterceptorIgnoreLastPacket.class.getName());
 
       server.start();
 
-      locator.setBlockOnNonDurableSend(false)
-              .setBlockOnDurableSend(false);
+      locator.setBlockOnNonDurableSend(false).setBlockOnDurableSend(false);
 
       ClientSessionFactory sf = createSessionFactory(locator);
 
@@ -121,8 +114,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase
 
       Thread.sleep(500);
 
-      for (ServerSession srvSession : server.getSessions())
-      {
+      for (ServerSession srvSession : server.getSessions()) {
          ((ServerSessionImpl) srvSession).clearLargeMessage();
       }
 
@@ -138,17 +130,14 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase
    }
 
    @Test
-   public void testCloseConsumerDuringTransmission() throws Exception
-   {
+   public void testCloseConsumerDuringTransmission() throws Exception {
       ActiveMQServer server = createServer(true, isNetty());
 
       LargeMessageTestInterceptorIgnoreLastPacket.disableInterrupt();
 
       server.start();
 
-      locator.setBlockOnNonDurableSend(false)
-              .setBlockOnDurableSend(false)
-              .addIncomingInterceptor(new LargeMessageTestInterceptorIgnoreLastPacket());
+      locator.setBlockOnNonDurableSend(false).setBlockOnDurableSend(false).addIncomingInterceptor(new LargeMessageTestInterceptorIgnoreLastPacket());
 
       ClientSessionFactory sf = createSessionFactory(locator);
 
@@ -172,17 +161,13 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase
 
       session.start();
 
-      Thread t = new Thread()
-      {
+      Thread t = new Thread() {
          @Override
-         public void run()
-         {
-            try
-            {
+         public void run() {
+            try {
                System.out.println("Receiving message");
                ClientMessage msg = cons.receive(5000);
-               if (msg == null)
-               {
+               if (msg == null) {
                   System.err.println("Message not received");
                   unexpectedErrors.incrementAndGet();
                   return;
@@ -190,8 +175,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase
 
                msg.checkCompletion();
             }
-            catch (ActiveMQException e)
-            {
+            catch (ActiveMQException e) {
                e.printStackTrace();
                expectedErrors.incrementAndGet();
             }
@@ -215,9 +199,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase
    }
 
    @Test
-   public void testSendNonPersistentQueue() throws Exception
-   {
-
+   public void testSendNonPersistentQueue() throws Exception {
 
       ClientSession session = null;
 
@@ -226,8 +208,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase
 
       server.start();
 
-      locator.setBlockOnNonDurableSend(true)
-              .setBlockOnDurableSend(true);
+      locator.setBlockOnNonDurableSend(true).setBlockOnDurableSend(true);
 
       ClientSessionFactory sf = createSessionFactory(locator);
 
@@ -237,8 +218,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase
 
       ClientProducer producer = session.createProducer(ADDRESS);
 
-      for (int i = 0; i < 10; i++)
-      {
+      for (int i = 0; i < 10; i++) {
          Message clientFile = createLargeClientMessageStreaming(session, LARGE_MESSAGE_SIZE, true);
 
          producer.send(clientFile);
@@ -253,14 +233,11 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase
 
       session.start();
 
-      for (int h = 0; h < 5; h++)
-      {
-         for (int i = 0; i < 10; i++)
-         {
+      for (int h = 0; h < 5; h++) {
+         for (int i = 0; i < 10; i++) {
             ClientMessage clientMessage = cons.receive(5000);
             Assert.assertNotNull(clientMessage);
-            for (int countByte = 0; countByte < LARGE_MESSAGE_SIZE; countByte++)
-            {
+            for (int countByte = 0; countByte < LARGE_MESSAGE_SIZE; countByte++) {
                Assert.assertEquals(ActiveMQTestBase.getSamplebyte(countByte), clientMessage.getBodyBuffer().readByte());
             }
             clientMessage.acknowledge();
@@ -277,15 +254,12 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase
    }
 
    @Test
-   public void testSendPaging() throws Exception
-   {
-
+   public void testSendPaging() throws Exception {
 
       ClientSession session = null;
 
       LargeMessageTestInterceptorIgnoreLastPacket.disableInterrupt();
-      ActiveMQServer server =
-         createServer(true, createDefaultConfig(isNetty()), 10000, 20000, new HashMap<String, AddressSettings>());
+      ActiveMQServer server = createServer(true, createDefaultConfig(isNetty()), 10000, 20000, new HashMap<String, AddressSettings>());
 
       // server.getConfiguration()
       // .getIncomingInterceptorClassNames()
@@ -293,8 +267,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase
 
       server.start();
 
-      locator.setBlockOnNonDurableSend(true)
-              .setBlockOnDurableSend(true);
+      locator.setBlockOnNonDurableSend(true).setBlockOnDurableSend(true);
 
       ClientSessionFactory sf = createSessionFactory(locator);
 
@@ -306,8 +279,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase
 
       ClientProducer producer = session.createProducer(ADDRESS);
 
-      for (int i = 0; i < 10; i++)
-      {
+      for (int i = 0; i < 10; i++) {
          Message clientFile = createLargeClientMessageStreaming(session, LARGE_MESSAGE_SIZE, true);
 
          producer.send(clientFile);
@@ -316,8 +288,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase
 
       validateNoFilesOnLargeDir(server.getConfiguration().getLargeMessagesDirectory(), 10);
 
-      for (int h = 0; h < 5; h++)
-      {
+      for (int h = 0; h < 5; h++) {
          session.close();
 
          sf.close();
@@ -334,22 +305,18 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase
 
          session.start();
 
-         for (int i = 0; i < 10; i++)
-         {
+         for (int i = 0; i < 10; i++) {
             ClientMessage clientMessage = cons.receive(5000);
             Assert.assertNotNull(clientMessage);
-            for (int countByte = 0; countByte < LARGE_MESSAGE_SIZE; countByte++)
-            {
+            for (int countByte = 0; countByte < LARGE_MESSAGE_SIZE; countByte++) {
                Assert.assertEquals(ActiveMQTestBase.getSamplebyte(countByte), clientMessage.getBodyBuffer().readByte());
             }
             clientMessage.acknowledge();
          }
-         if (h == 4)
-         {
+         if (h == 4) {
             session.commit();
          }
-         else
-         {
+         else {
             session.rollback();
          }
 
@@ -365,23 +332,18 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase
    }
 
    @Test
-   public void testSendPreparedXA() throws Exception
-   {
+   public void testSendPreparedXA() throws Exception {
       ClientSession session = null;
 
       LargeMessageTestInterceptorIgnoreLastPacket.disableInterrupt();
 
-      ActiveMQServer server =
-         createServer(true, createDefaultConfig(isNetty()), 10000, 20000, new HashMap<String, AddressSettings>());
+      ActiveMQServer server = createServer(true, createDefaultConfig(isNetty()), 10000, 20000, new HashMap<String, AddressSettings>());
 
-      server.getConfiguration()
-         .getIncomingInterceptorClassNames()
-         .add(LargeMessageTestInterceptorIgnoreLastPacket.class.getName());
+      server.getConfiguration().getIncomingInterceptorClassNames().add(LargeMessageTestInterceptorIgnoreLastPacket.class.getName());
 
       server.start();
 
-      locator.setBlockOnNonDurableSend(true)
-              .setBlockOnDurableSend(true);
+      locator.setBlockOnNonDurableSend(true).setBlockOnDurableSend(true);
 
       ClientSessionFactory sf = createSessionFactory(locator);
 
@@ -396,8 +358,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase
 
       session.start(xid1, XAResource.TMNOFLAGS);
 
-      for (int i = 0; i < 10; i++)
-      {
+      for (int i = 0; i < 10; i++) {
          Message clientFile = createLargeClientMessageStreaming(session, LARGE_MESSAGE_SIZE, true);
          clientFile.putIntProperty("txid", 1);
          producer.send(clientFile);
@@ -408,8 +369,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase
 
       session.start(xid2, XAResource.TMNOFLAGS);
 
-      for (int i = 0; i < 10; i++)
-      {
+      for (int i = 0; i < 10; i++) {
          Message clientFile = createLargeClientMessageStreaming(session, LARGE_MESSAGE_SIZE, true);
          clientFile.putIntProperty("txid", 2);
          clientFile.putIntProperty("i", i);
@@ -425,14 +385,12 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase
       server.stop(false);
       server.start();
 
-      for (int start = 0; start < 2; start++)
-      {
+      for (int start = 0; start < 2; start++) {
          System.out.println("Start " + start);
 
          sf = createSessionFactory(locator);
 
-         if (start == 0)
-         {
+         if (start == 0) {
             session = sf.createSession(true, false, false);
             session.commit(xid1, false);
             session.close();
@@ -441,8 +399,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase
          session = sf.createSession(false, false, false);
          ClientConsumer cons1 = session.createConsumer(ADDRESS);
          session.start();
-         for (int i = 0; i < 10; i++)
-         {
+         for (int i = 0; i < 10; i++) {
             log.info("I = " + i);
             ClientMessage msg = cons1.receive(5000);
             Assert.assertNotNull(msg);
@@ -450,12 +407,10 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase
             msg.acknowledge();
          }
 
-         if (start == 1)
-         {
+         if (start == 1) {
             session.commit();
          }
-         else
-         {
+         else {
             session.rollback();
          }
 
@@ -486,11 +441,9 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase
    }
 
    @Test
-   public void testRestartBeforeDelete() throws Exception
-   {
+   public void testRestartBeforeDelete() throws Exception {
 
-      class NoPostACKQueue extends QueueImpl
-      {
+      class NoPostACKQueue extends QueueImpl {
 
          public NoPostACKQueue(long id,
                                SimpleString address,
@@ -505,38 +458,21 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase
                                PostOffice postOffice,
                                StorageManager storageManager,
                                HierarchicalRepository<AddressSettings> addressSettingsRepository,
-                               Executor executor)
-         {
-            super(id,
-                  address,
-                  name,
-                  filter,
-                  pageSubscription,
-                  user,
-                  durable,
-                  temporary,
-                  autoCreated,
-                  scheduledExecutor,
-                  postOffice,
-                  storageManager,
-                  addressSettingsRepository,
-                  executor);
+                               Executor executor) {
+            super(id, address, name, filter, pageSubscription, user, durable, temporary, autoCreated, scheduledExecutor, postOffice, storageManager, addressSettingsRepository, executor);
          }
 
          @Override
-         public void postAcknowledge(final MessageReference ref)
-         {
+         public void postAcknowledge(final MessageReference ref) {
             System.out.println("Ignoring postACK on message " + ref);
          }
 
          @Override
-         public void deliverScheduledMessages()
-         {
+         public void deliverScheduledMessages() {
          }
       }
 
-      class NoPostACKQueueFactory implements QueueFactory
-      {
+      class NoPostACKQueueFactory implements QueueFactory {
 
          final StorageManager storageManager;
 
@@ -552,8 +488,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase
                                       PostOffice postOffice,
                                       ScheduledExecutorService scheduledExecutor,
                                       HierarchicalRepository<AddressSettings> addressSettingsRepository,
-                                      final ExecutorFactory execFactory)
-         {
+                                      final ExecutorFactory execFactory) {
             this.storageManager = storageManager;
             this.postOffice = postOffice;
             this.scheduledExecutor = scheduledExecutor;
@@ -569,34 +504,18 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase
                                   SimpleString user,
                                   boolean durable,
                                   boolean temporary,
-                                  boolean autoCreated)
-         {
+                                  boolean autoCreated) {
 
-            return new NoPostACKQueue(persistenceID,
-                                      address,
-                                      name,
-                                      filter,
-                                      user,
-                                      pageSubscription,
-                                      durable,
-                                      temporary,
-                                      autoCreated,
-                                      scheduledExecutor,
-                                      postOffice,
-                                      storageManager,
-                                      addressSettingsRepository,
-                                      execFactory.getExecutor());
+            return new NoPostACKQueue(persistenceID, address, name, filter, user, pageSubscription, durable, temporary, autoCreated, scheduledExecutor, postOffice, storageManager, addressSettingsRepository, execFactory.getExecutor());
          }
 
          /* (non-Javadoc)
           * @see org.apache.activemq.artemis.core.server.QueueFactory#setPostOffice(org.apache.activemq.artemis.core.postoffice.PostOffice)
           */
-         public void setPostOffice(PostOffice postOffice)
-         {
+         public void setPostOffice(PostOffice postOffice) {
          }
 
       }
-
 
       ClientSession session = null;
 
@@ -607,14 +526,9 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase
 
       QueueFactory original = server.getQueueFactory();
 
-      ((ActiveMQServerImpl) server).replaceQueueFactory(new NoPostACKQueueFactory(server.getStorageManager(),
-                                                                                 server.getPostOffice(),
-                                                                                 server.getScheduledPool(),
-                                                                                 server.getAddressSettingsRepository(),
-                                                                                 server.getExecutorFactory()));
+      ((ActiveMQServerImpl) server).replaceQueueFactory(new NoPostACKQueueFactory(server.getStorageManager(), server.getPostOffice(), server.getScheduledPool(), server.getAddressSettingsRepository(), server.getExecutorFactory()));
 
-      locator.setBlockOnNonDurableSend(true)
-              .setBlockOnDurableSend(true);
+      locator.setBlockOnNonDurableSend(true).setBlockOnDurableSend(true);
 
       ClientSessionFactory sf = createSessionFactory(locator);
 
@@ -624,8 +538,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase
 
       ClientProducer producer = session.createProducer(ADDRESS);
 
-      for (int i = 0; i < 10; i++)
-      {
+      for (int i = 0; i < 10; i++) {
          Message clientFile = createLargeClientMessageStreaming(session, LARGE_MESSAGE_SIZE, true);
 
          producer.send(clientFile);
@@ -640,15 +553,12 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase
 
       session.start();
 
-      for (int i = 0; i < 10; i++)
-      {
+      for (int i = 0; i < 10; i++) {
          ClientMessage msg = cons.receive(5000);
          Assert.assertNotNull(msg);
-         msg.saveToOutputStream(new java.io.OutputStream()
-         {
+         msg.saveToOutputStream(new java.io.OutputStream() {
             @Override
-            public void write(int b) throws IOException
-            {
+            public void write(int b) throws IOException {
             }
          });
          msg.acknowledge();
@@ -665,8 +575,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase
    }
 
    @Test
-   public void testConsumeAfterRestart() throws Exception
-   {
+   public void testConsumeAfterRestart() throws Exception {
       ClientSession session = null;
 
       LargeMessageTestInterceptorIgnoreLastPacket.clearInterrupt();
@@ -676,8 +585,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase
 
       QueueFactory original = server.getQueueFactory();
 
-      locator.setBlockOnNonDurableSend(true)
-              .setBlockOnDurableSend(true);
+      locator.setBlockOnNonDurableSend(true).setBlockOnDurableSend(true);
 
       ClientSessionFactory sf = createSessionFactory(locator);
 
@@ -687,8 +595,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase
 
       ClientProducer producer = session.createProducer(ADDRESS);
 
-      for (int i = 0; i < 10; i++)
-      {
+      for (int i = 0; i < 10; i++) {
          Message clientFile = createLargeClientMessageStreaming(session, LARGE_MESSAGE_SIZE, true);
 
          producer.send(clientFile);
@@ -709,15 +616,12 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase
 
       session.start();
 
-      for (int i = 0; i < 10; i++)
-      {
+      for (int i = 0; i < 10; i++) {
          ClientMessage msg = cons.receive(5000);
          Assert.assertNotNull(msg);
-         msg.saveToOutputStream(new java.io.OutputStream()
-         {
+         msg.saveToOutputStream(new java.io.OutputStream() {
             @Override
-            public void write(int b) throws IOException
-            {
+            public void write(int b) throws IOException {
             }
          });
          msg.acknowledge();
@@ -733,22 +637,18 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase
       validateNoFilesOnLargeDir();
    }
 
-   public static class LargeMessageTestInterceptorIgnoreLastPacket implements Interceptor
-   {
+   public static class LargeMessageTestInterceptorIgnoreLastPacket implements Interceptor {
 
-      public static void clearInterrupt()
-      {
+      public static void clearInterrupt() {
          intMessages = true;
          latch = new CountDownLatch(1);
       }
 
-      public static void disableInterrupt()
-      {
+      public static void disableInterrupt() {
          intMessages = false;
       }
 
-      public static void awaitInterrupt() throws Exception
-      {
+      public static void awaitInterrupt() throws Exception {
          latch.await();
       }
 
@@ -757,13 +657,10 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase
       private static CountDownLatch latch = new CountDownLatch(1);
 
       @Override
-      public boolean intercept(Packet packet, RemotingConnection connection) throws ActiveMQException
-      {
-         if (packet instanceof SessionContinuationMessage)
-         {
+      public boolean intercept(Packet packet, RemotingConnection connection) throws ActiveMQException {
+         if (packet instanceof SessionContinuationMessage) {
             SessionContinuationMessage msg = (SessionContinuationMessage) packet;
-            if (!msg.isContinues() && intMessages)
-            {
+            if (!msg.isContinues() && intMessages) {
                System.out.println("Ignored a message");
                latch.countDown();
                return false;

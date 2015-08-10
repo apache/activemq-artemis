@@ -24,19 +24,15 @@ import java.io.InputStreamReader;
 
 import org.apache.activemq.artemis.utils.ConcurrentHashSet;
 
-public class ProcessBuilder
-{
+public class ProcessBuilder {
+
    static ConcurrentHashSet<Process> processes = new ConcurrentHashSet<>();
 
-   static
-   {
-      Runtime.getRuntime().addShutdownHook(new Thread()
-      {
-         public void run()
-         {
-            for (Process p : processes)
-            {
-//               if (p.isAlive())
+   static {
+      Runtime.getRuntime().addShutdownHook(new Thread() {
+         public void run() {
+            for (Process p : processes) {
+               //               if (p.isAlive())
                {
                   p.destroy();
                }
@@ -45,43 +41,36 @@ public class ProcessBuilder
       });
    }
 
-
    /**
     * it will lookup for process that are dead already, eliminating leaks.
     */
-   public static void cleanupProcess()
-   {
-      for (Process p: processes)
-      {
-//         if (!p.isAlive())
+   public static void cleanupProcess() {
+      for (Process p : processes) {
+         //         if (!p.isAlive())
          {
             processes.remove(p);
          }
       }
    }
 
-
-
    /**
     * *
-    * @param logname the prefix for log output
+    *
+    * @param logname  the prefix for log output
     * @param location The location where this command is being executed from
-    * @param hook it will finish the process upon shutdown of the VM
-    * @param args The arguments being passwed to the the CLI tool
+    * @param hook     it will finish the process upon shutdown of the VM
+    * @param args     The arguments being passwed to the the CLI tool
     * @return
     * @throws Exception
     */
-   public static Process build(String logname, File location, boolean hook, String... args) throws Exception
-   {
+   public static Process build(String logname, File location, boolean hook, String... args) throws Exception {
       boolean IS_WINDOWS = System.getProperty("os.name").toLowerCase().trim().startsWith("win");
 
       String[] newArgs;
-      if (IS_WINDOWS)
-      {
+      if (IS_WINDOWS) {
          newArgs = rebuildArgs(args, "cmd", "/c", "artemis.cmd");
       }
-      else
-      {
+      else {
          newArgs = rebuildArgs(args, "./artemis");
       }
 
@@ -91,17 +80,11 @@ public class ProcessBuilder
 
       Process process = builder.start();
 
-      ProcessLogger outputLogger = new ProcessLogger(true,
-                                                     process.getInputStream(),
-                                                     logname,
-                                                     false);
+      ProcessLogger outputLogger = new ProcessLogger(true, process.getInputStream(), logname, false);
       outputLogger.start();
 
       // Adding a reader to System.err, so the VM won't hang on a System.err.println as identified on this forum thread:
-      ProcessLogger errorLogger = new ProcessLogger(true,
-                                                    process.getErrorStream(),
-                                                    logname,
-                                                    true);
+      ProcessLogger errorLogger = new ProcessLogger(true, process.getErrorStream(), logname, true);
       errorLogger.start();
 
       processes.add(process);
@@ -111,31 +94,27 @@ public class ProcessBuilder
       return process;
    }
 
-   public static String[] rebuildArgs(String[] args, String ... prefixArgs)
-   {
+   public static String[] rebuildArgs(String[] args, String... prefixArgs) {
       String[] resultArgs = new String[args.length + prefixArgs.length];
 
       int i = 0;
 
-      for (String arg: prefixArgs)
-      {
+      for (String arg : prefixArgs) {
          resultArgs[i++] = arg;
       }
 
-      for (String arg: args)
-      {
+      for (String arg : args) {
          resultArgs[i++] = arg;
       }
 
       return resultArgs;
    }
 
-
    /**
     * Redirect the input stream to a logger (as debug logs)
     */
-   static class ProcessLogger extends Thread
-   {
+   static class ProcessLogger extends Thread {
+
       private final InputStream is;
 
       private final String logName;
@@ -149,8 +128,7 @@ public class ProcessBuilder
       ProcessLogger(final boolean print,
                     final InputStream is,
                     final String logName,
-                    final boolean sendToErr) throws ClassNotFoundException
-      {
+                    final boolean sendToErr) throws ClassNotFoundException {
          this.is = is;
          this.print = print;
          this.logName = logName;
@@ -159,30 +137,23 @@ public class ProcessBuilder
       }
 
       @Override
-      public void run()
-      {
-         try
-         {
+      public void run() {
+         try {
             InputStreamReader isr = new InputStreamReader(is);
             BufferedReader br = new BufferedReader(isr);
             String line;
-            while ((line = br.readLine()) != null)
-            {
-               if (print)
-               {
-                  if (sendToErr)
-                  {
+            while ((line = br.readLine()) != null) {
+               if (print) {
+                  if (sendToErr) {
                      System.err.println(logName + "-err:" + line);
                   }
-                  else
-                  {
+                  else {
                      System.out.println(logName + "-out:" + line);
                   }
                }
             }
          }
-         catch (IOException e)
-         {
+         catch (IOException e) {
             // ok, stream closed
          }
 

@@ -24,8 +24,8 @@ import org.apache.activemq.artemis.core.journal.EncodingSupport;
 /**
  * A ConnectionFactoryConfiguration for {@link javax.jms.ConnectionFactory} objects.
  */
-public interface ConnectionFactoryConfiguration extends EncodingSupport
-{
+public interface ConnectionFactoryConfiguration extends EncodingSupport {
+
    boolean isPersisted();
 
    String getName();

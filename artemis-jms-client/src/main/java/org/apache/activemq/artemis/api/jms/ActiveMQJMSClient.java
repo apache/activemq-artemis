@@ -34,15 +34,14 @@ import org.apache.activemq.artemis.uri.ConnectionFactoryParser;
 /**
  * A utility class for creating ActiveMQ Artemis client-side JMS managed resources.
  */
-public class ActiveMQJMSClient
-{
+public class ActiveMQJMSClient {
+
    /**
     * Creates an ActiveMQConnectionFactory;
     *
     * @return the ActiveMQConnectionFactory
     */
-   public static ActiveMQConnectionFactory createConnectionFactory(final String url, String name) throws Exception
-   {
+   public static ActiveMQConnectionFactory createConnectionFactory(final String url, String name) throws Exception {
       ConnectionFactoryParser parser = new ConnectionFactoryParser();
       return parser.newObject(parser.expandURI(url), name);
    }
@@ -58,35 +57,30 @@ public class ActiveMQJMSClient
     * updated whenever the cluster topology changes. If the topology includes backup servers that
     * information is also propagated to the client so that it can know which server to failover onto
     * in case of live server failure.
+    *
     * @param groupConfiguration
     * @param jmsFactoryType
     * @return the ActiveMQConnectionFactory
     */
-   public static ActiveMQConnectionFactory createConnectionFactoryWithHA(final DiscoveryGroupConfiguration groupConfiguration, JMSFactoryType jmsFactoryType)
-   {
+   public static ActiveMQConnectionFactory createConnectionFactoryWithHA(final DiscoveryGroupConfiguration groupConfiguration,
+                                                                         JMSFactoryType jmsFactoryType) {
       ActiveMQConnectionFactory factory = null;
-      if (jmsFactoryType.equals(JMSFactoryType.CF))
-      {
+      if (jmsFactoryType.equals(JMSFactoryType.CF)) {
          factory = new ActiveMQJMSConnectionFactory(true, groupConfiguration);
       }
-      else if (jmsFactoryType.equals(JMSFactoryType.QUEUE_CF))
-      {
+      else if (jmsFactoryType.equals(JMSFactoryType.QUEUE_CF)) {
          factory = new ActiveMQQueueConnectionFactory(true, groupConfiguration);
       }
-      else if (jmsFactoryType.equals(JMSFactoryType.TOPIC_CF))
-      {
+      else if (jmsFactoryType.equals(JMSFactoryType.TOPIC_CF)) {
          factory = new ActiveMQTopicConnectionFactory(true, groupConfiguration);
       }
-      else if (jmsFactoryType.equals(JMSFactoryType.XA_CF))
-      {
+      else if (jmsFactoryType.equals(JMSFactoryType.XA_CF)) {
          factory = new ActiveMQXAConnectionFactory(true, groupConfiguration);
       }
-      else if (jmsFactoryType.equals(JMSFactoryType.QUEUE_XA_CF))
-      {
+      else if (jmsFactoryType.equals(JMSFactoryType.QUEUE_XA_CF)) {
          factory = new ActiveMQXAQueueConnectionFactory(true, groupConfiguration);
       }
-      else if (jmsFactoryType.equals(JMSFactoryType.TOPIC_XA_CF))
-      {
+      else if (jmsFactoryType.equals(JMSFactoryType.TOPIC_XA_CF)) {
          factory = new ActiveMQXATopicConnectionFactory(true, groupConfiguration);
       }
 
@@ -102,31 +96,25 @@ public class ActiveMQJMSClient
     * @param jmsFactoryType
     * @return the ActiveMQConnectionFactory
     */
-   public static ActiveMQConnectionFactory createConnectionFactoryWithoutHA(final DiscoveryGroupConfiguration groupConfiguration, JMSFactoryType jmsFactoryType)
-   {
+   public static ActiveMQConnectionFactory createConnectionFactoryWithoutHA(final DiscoveryGroupConfiguration groupConfiguration,
+                                                                            JMSFactoryType jmsFactoryType) {
       ActiveMQConnectionFactory factory = null;
-      if (jmsFactoryType.equals(JMSFactoryType.CF))
-      {
+      if (jmsFactoryType.equals(JMSFactoryType.CF)) {
          factory = new ActiveMQJMSConnectionFactory(false, groupConfiguration);
       }
-      else if (jmsFactoryType.equals(JMSFactoryType.QUEUE_CF))
-      {
+      else if (jmsFactoryType.equals(JMSFactoryType.QUEUE_CF)) {
          factory = new ActiveMQQueueConnectionFactory(false, groupConfiguration);
       }
-      else if (jmsFactoryType.equals(JMSFactoryType.TOPIC_CF))
-      {
+      else if (jmsFactoryType.equals(JMSFactoryType.TOPIC_CF)) {
          factory = new ActiveMQTopicConnectionFactory(false, groupConfiguration);
       }
-      else if (jmsFactoryType.equals(JMSFactoryType.XA_CF))
-      {
+      else if (jmsFactoryType.equals(JMSFactoryType.XA_CF)) {
          factory = new ActiveMQXAConnectionFactory(false, groupConfiguration);
       }
-      else if (jmsFactoryType.equals(JMSFactoryType.QUEUE_XA_CF))
-      {
+      else if (jmsFactoryType.equals(JMSFactoryType.QUEUE_XA_CF)) {
          factory = new ActiveMQXAQueueConnectionFactory(false, groupConfiguration);
       }
-      else if (jmsFactoryType.equals(JMSFactoryType.TOPIC_XA_CF))
-      {
+      else if (jmsFactoryType.equals(JMSFactoryType.TOPIC_XA_CF)) {
          factory = new ActiveMQXATopicConnectionFactory(false, groupConfiguration);
       }
 
@@ -142,37 +130,32 @@ public class ActiveMQJMSClient
     * downloaded and automatically updated whenever the cluster topology changes. If the topology
     * includes backup servers that information is also propagated to the client so that it can know
     * which server to failover onto in case of live server failure.
+    *
     * @param jmsFactoryType
     * @param initialServers The initial set of servers used to make a connection to the cluster.
-    *           Each one is tried in turn until a successful connection is made. Once a connection
-    *           is made, the cluster topology is downloaded and the rest of the list is ignored.
+    *                       Each one is tried in turn until a successful connection is made. Once a connection
+    *                       is made, the cluster topology is downloaded and the rest of the list is ignored.
     * @return the ActiveMQConnectionFactory
     */
-   public static ActiveMQConnectionFactory createConnectionFactoryWithHA(JMSFactoryType jmsFactoryType, final TransportConfiguration... initialServers)
-   {
+   public static ActiveMQConnectionFactory createConnectionFactoryWithHA(JMSFactoryType jmsFactoryType,
+                                                                         final TransportConfiguration... initialServers) {
       ActiveMQConnectionFactory factory = null;
-      if (jmsFactoryType.equals(JMSFactoryType.CF))
-      {
+      if (jmsFactoryType.equals(JMSFactoryType.CF)) {
          factory = new ActiveMQJMSConnectionFactory(true, initialServers);
       }
-      else if (jmsFactoryType.equals(JMSFactoryType.QUEUE_CF))
-      {
+      else if (jmsFactoryType.equals(JMSFactoryType.QUEUE_CF)) {
          factory = new ActiveMQQueueConnectionFactory(true, initialServers);
       }
-      else if (jmsFactoryType.equals(JMSFactoryType.TOPIC_CF))
-      {
+      else if (jmsFactoryType.equals(JMSFactoryType.TOPIC_CF)) {
          factory = new ActiveMQTopicConnectionFactory(true, initialServers);
       }
-      else if (jmsFactoryType.equals(JMSFactoryType.XA_CF))
-      {
+      else if (jmsFactoryType.equals(JMSFactoryType.XA_CF)) {
          factory = new ActiveMQXAConnectionFactory(true, initialServers);
       }
-      else if (jmsFactoryType.equals(JMSFactoryType.QUEUE_XA_CF))
-      {
+      else if (jmsFactoryType.equals(JMSFactoryType.QUEUE_XA_CF)) {
          factory = new ActiveMQXAQueueConnectionFactory(true, initialServers);
       }
-      else if (jmsFactoryType.equals(JMSFactoryType.TOPIC_XA_CF))
-      {
+      else if (jmsFactoryType.equals(JMSFactoryType.TOPIC_XA_CF)) {
          factory = new ActiveMQXATopicConnectionFactory(true, initialServers);
       }
 
@@ -185,35 +168,30 @@ public class ActiveMQJMSClient
     * <p>
     * The ActiveMQConnectionFactory is not updated automatically as the cluster topology changes, and
     * no HA backup information is propagated to the client
+    *
     * @param jmsFactoryType
     * @param transportConfigurations
     * @return the ActiveMQConnectionFactory
     */
-   public static ActiveMQConnectionFactory createConnectionFactoryWithoutHA(JMSFactoryType jmsFactoryType, final TransportConfiguration... transportConfigurations)
-   {
+   public static ActiveMQConnectionFactory createConnectionFactoryWithoutHA(JMSFactoryType jmsFactoryType,
+                                                                            final TransportConfiguration... transportConfigurations) {
       ActiveMQConnectionFactory factory = null;
-      if (jmsFactoryType.equals(JMSFactoryType.CF))
-      {
+      if (jmsFactoryType.equals(JMSFactoryType.CF)) {
          factory = new ActiveMQJMSConnectionFactory(false, transportConfigurations);
       }
-      else if (jmsFactoryType.equals(JMSFactoryType.QUEUE_CF))
-      {
+      else if (jmsFactoryType.equals(JMSFactoryType.QUEUE_CF)) {
          factory = new ActiveMQQueueConnectionFactory(false, transportConfigurations);
       }
-      else if (jmsFactoryType.equals(JMSFactoryType.TOPIC_CF))
-      {
+      else if (jmsFactoryType.equals(JMSFactoryType.TOPIC_CF)) {
          factory = new ActiveMQTopicConnectionFactory(false, transportConfigurations);
       }
-      else if (jmsFactoryType.equals(JMSFactoryType.XA_CF))
-      {
+      else if (jmsFactoryType.equals(JMSFactoryType.XA_CF)) {
          factory = new ActiveMQXAConnectionFactory(false, transportConfigurations);
       }
-      else if (jmsFactoryType.equals(JMSFactoryType.QUEUE_XA_CF))
-      {
+      else if (jmsFactoryType.equals(JMSFactoryType.QUEUE_XA_CF)) {
          factory = new ActiveMQXAQueueConnectionFactory(false, transportConfigurations);
       }
-      else if (jmsFactoryType.equals(JMSFactoryType.TOPIC_XA_CF))
-      {
+      else if (jmsFactoryType.equals(JMSFactoryType.TOPIC_XA_CF)) {
          factory = new ActiveMQXATopicConnectionFactory(false, transportConfigurations);
       }
 
@@ -226,8 +204,7 @@ public class ActiveMQJMSClient
     * @param name the name of the topic
     * @return The Topic
     */
-   public static Topic createTopic(final String name)
-   {
+   public static Topic createTopic(final String name) {
       return ActiveMQDestination.createTopic(name);
    }
 
@@ -237,13 +214,11 @@ public class ActiveMQJMSClient
     * @param name the name of the queue
     * @return The Queue
     */
-   public static Queue createQueue(final String name)
-   {
+   public static Queue createQueue(final String name) {
       return ActiveMQDestination.createQueue(name);
    }
 
-   private ActiveMQJMSClient()
-   {
+   private ActiveMQJMSClient() {
       // Utility class
    }
 }

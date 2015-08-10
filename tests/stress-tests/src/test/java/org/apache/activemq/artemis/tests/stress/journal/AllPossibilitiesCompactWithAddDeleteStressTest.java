@@ -16,11 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.stress.journal;
 
-public class AllPossibilitiesCompactWithAddDeleteStressTest extends MixupCompactorTestBase
-{
+public class AllPossibilitiesCompactWithAddDeleteStressTest extends MixupCompactorTestBase {
 
-   public void internalTest() throws Exception
-   {
+   public void internalTest() throws Exception {
       createJournal();
 
       startJournal();

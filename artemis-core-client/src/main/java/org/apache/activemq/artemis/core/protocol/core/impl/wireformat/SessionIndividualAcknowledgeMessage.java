@@ -19,8 +19,7 @@ package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 
-public class SessionIndividualAcknowledgeMessage extends PacketImpl
-{
+public class SessionIndividualAcknowledgeMessage extends PacketImpl {
    // Constants -----------------------------------------------------
 
    // Attributes ----------------------------------------------------
@@ -35,8 +34,9 @@ public class SessionIndividualAcknowledgeMessage extends PacketImpl
 
    // Constructors --------------------------------------------------
 
-   public SessionIndividualAcknowledgeMessage(final long consumerID, final long messageID, final boolean requiresResponse)
-   {
+   public SessionIndividualAcknowledgeMessage(final long consumerID,
+                                              final long messageID,
+                                              final boolean requiresResponse) {
       super(SESS_INDIVIDUAL_ACKNOWLEDGE);
 
       this.consumerID = consumerID;
@@ -46,31 +46,26 @@ public class SessionIndividualAcknowledgeMessage extends PacketImpl
       this.requiresResponse = requiresResponse;
    }
 
-   public SessionIndividualAcknowledgeMessage()
-   {
+   public SessionIndividualAcknowledgeMessage() {
       super(SESS_INDIVIDUAL_ACKNOWLEDGE);
    }
 
    // Public --------------------------------------------------------
 
-   public long getConsumerID()
-   {
+   public long getConsumerID() {
       return consumerID;
    }
 
-   public long getMessageID()
-   {
+   public long getMessageID() {
       return messageID;
    }
 
-   public boolean isRequiresResponse()
-   {
+   public boolean isRequiresResponse() {
       return requiresResponse;
    }
 
    @Override
-   public void encodeRest(final ActiveMQBuffer buffer)
-   {
+   public void encodeRest(final ActiveMQBuffer buffer) {
       buffer.writeLong(consumerID);
 
       buffer.writeLong(messageID);
@@ -79,8 +74,7 @@ public class SessionIndividualAcknowledgeMessage extends PacketImpl
    }
 
    @Override
-   public void decodeRest(final ActiveMQBuffer buffer)
-   {
+   public void decodeRest(final ActiveMQBuffer buffer) {
       consumerID = buffer.readLong();
 
       messageID = buffer.readLong();
@@ -89,26 +83,24 @@ public class SessionIndividualAcknowledgeMessage extends PacketImpl
    }
 
    @Override
-   public int hashCode()
-   {
+   public int hashCode() {
       final int prime = 31;
       int result = super.hashCode();
-      result = prime * result + (int)(consumerID ^ (consumerID >>> 32));
-      result = prime * result + (int)(messageID ^ (messageID >>> 32));
+      result = prime * result + (int) (consumerID ^ (consumerID >>> 32));
+      result = prime * result + (int) (messageID ^ (messageID >>> 32));
       result = prime * result + (requiresResponse ? 1231 : 1237);
       return result;
    }
 
    @Override
-   public boolean equals(Object obj)
-   {
+   public boolean equals(Object obj) {
       if (this == obj)
          return true;
       if (!super.equals(obj))
          return false;
       if (!(obj instanceof SessionIndividualAcknowledgeMessage))
          return false;
-      SessionIndividualAcknowledgeMessage other = (SessionIndividualAcknowledgeMessage)obj;
+      SessionIndividualAcknowledgeMessage other = (SessionIndividualAcknowledgeMessage) obj;
       if (consumerID != other.consumerID)
          return false;
       if (messageID != other.messageID)

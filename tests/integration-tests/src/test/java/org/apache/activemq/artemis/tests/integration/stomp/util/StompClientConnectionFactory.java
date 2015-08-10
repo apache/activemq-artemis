@@ -18,28 +18,25 @@ package org.apache.activemq.artemis.tests.integration.stomp.util;
 
 import java.io.IOException;
 
-public class StompClientConnectionFactory
-{
+public class StompClientConnectionFactory {
+
    //create a raw connection to the host.
-   public static StompClientConnection createClientConnection(String version, String host, int port) throws IOException
-   {
-      if ("1.0".equals(version))
-      {
+   public static StompClientConnection createClientConnection(String version,
+                                                              String host,
+                                                              int port) throws IOException {
+      if ("1.0".equals(version)) {
          return new StompClientConnectionV10(host, port);
       }
-      if ("1.1".equals(version))
-      {
+      if ("1.1".equals(version)) {
          return new StompClientConnectionV11(host, port);
       }
-      if ("1.2".equals(version))
-      {
+      if ("1.2".equals(version)) {
          return new StompClientConnectionV12(host, port);
       }
       return null;
    }
 
-   public static void main(String[] args) throws Exception
-   {
+   public static void main(String[] args) throws Exception {
       StompClientConnection connection = StompClientConnectionFactory.createClientConnection("1.0", "localhost", 61613);
 
       System.out.println("created a new connection: " + connection);

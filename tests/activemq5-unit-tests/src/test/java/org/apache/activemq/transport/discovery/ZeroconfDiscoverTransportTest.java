@@ -18,12 +18,12 @@ package org.apache.activemq.transport.discovery;
 
 /**
  *
- * 
+ *
  */
 public class ZeroconfDiscoverTransportTest extends DiscoveryTransportBrokerTest {
 
-    protected String getDiscoveryUri() {
-        return "zeroconf://cheese";
-    }
+   protected String getDiscoveryUri() {
+      return "zeroconf://cheese";
+   }
 
 }

@@ -16,15 +16,13 @@
  */
 package org.apache.activemq.artemis.selector.filter;
 
-
 /**
  * A BooleanExpression is an expression that always
  * produces a Boolean result.
  *
  * @version $Revision: 1.2 $
  */
-public interface BooleanExpression extends Expression
-{
+public interface BooleanExpression extends Expression {
 
    /**
     * @param message

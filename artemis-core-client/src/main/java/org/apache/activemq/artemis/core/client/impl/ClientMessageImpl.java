@@ -33,14 +33,12 @@ import org.apache.activemq.artemis.core.message.impl.MessageImpl;
 import org.apache.activemq.artemis.reader.MessageUtil;
 
 /**
- *
  * A ClientMessageImpl
  */
-public class ClientMessageImpl extends MessageImpl implements ClientMessageInternal
-{
+public class ClientMessageImpl extends MessageImpl implements ClientMessageInternal {
+
    // added this constant here so that the client package have no dependency on JMS
    public static final SimpleString REPLYTO_HEADER_NAME = MessageUtil.REPLYTO_HEADER_NAME;
-
 
    private int deliveryCount;
 
@@ -48,14 +46,15 @@ public class ClientMessageImpl extends MessageImpl implements ClientMessageInter
 
    private int flowControlSize = -1;
 
-   /** Used on LargeMessages only */
+   /**
+    * Used on LargeMessages only
+    */
    private InputStream bodyInputStream;
 
    /*
     * Constructor for when reading from remoting
     */
-   public ClientMessageImpl()
-   {
+   public ClientMessageImpl() {
    }
 
    /*
@@ -66,41 +65,34 @@ public class ClientMessageImpl extends MessageImpl implements ClientMessageInter
                             final long expiration,
                             final long timestamp,
                             final byte priority,
-                            final int initialMessageBufferSize)
-   {
+                            final int initialMessageBufferSize) {
       super(type, durable, expiration, timestamp, priority, initialMessageBufferSize);
    }
 
    @Override
-   public boolean isServerMessage()
-   {
+   public boolean isServerMessage() {
       return false;
    }
 
    @Override
-   public void onReceipt(final ClientConsumerInternal consumer)
-   {
+   public void onReceipt(final ClientConsumerInternal consumer) {
       this.consumer = consumer;
    }
 
    @Override
-   public ClientMessageImpl setDeliveryCount(final int deliveryCount)
-   {
+   public ClientMessageImpl setDeliveryCount(final int deliveryCount) {
       this.deliveryCount = deliveryCount;
       return this;
    }
 
    @Override
-   public int getDeliveryCount()
-   {
+   public int getDeliveryCount() {
       return deliveryCount;
    }
 
    @Override
-   public ClientMessageImpl acknowledge() throws ActiveMQException
-   {
-      if (consumer != null)
-      {
+   public ClientMessageImpl acknowledge() throws ActiveMQException {
+      if (consumer != null) {
          consumer.acknowledge(this);
       }
 
@@ -108,10 +100,8 @@ public class ClientMessageImpl extends MessageImpl implements ClientMessageInter
    }
 
    @Override
-   public ClientMessageImpl individualAcknowledge() throws ActiveMQException
-   {
-      if (consumer != null)
-      {
+   public ClientMessageImpl individualAcknowledge() throws ActiveMQException {
+      if (consumer != null) {
          consumer.individualAcknowledge(this);
       }
 
@@ -119,18 +109,15 @@ public class ClientMessageImpl extends MessageImpl implements ClientMessageInter
    }
 
    @Override
-   public int getFlowControlSize()
-   {
-      if (flowControlSize < 0)
-      {
+   public int getFlowControlSize() {
+      if (flowControlSize < 0) {
          throw new IllegalStateException("Flow Control hasn't been set");
       }
       return flowControlSize;
    }
 
    @Override
-   public void setFlowControlSize(final int flowControlSize)
-   {
+   public void setFlowControlSize(final int flowControlSize) {
       this.flowControlSize = flowControlSize;
    }
 
@@ -138,69 +125,58 @@ public class ClientMessageImpl extends MessageImpl implements ClientMessageInter
     * @return the largeMessage
     */
    @Override
-   public boolean isLargeMessage()
-   {
+   public boolean isLargeMessage() {
       return false;
    }
 
    @Override
-   public boolean isCompressed()
-   {
+   public boolean isCompressed() {
       return properties.getBooleanProperty(Message.HDR_LARGE_COMPRESSED);
    }
 
    @Override
-   public int getBodySize()
-   {
+   public int getBodySize() {
       return buffer.writerIndex() - buffer.readerIndex();
    }
 
    @Override
-   public String toString()
-   {
-      return "ClientMessage[messageID=" + messageID + ", durable=" + durable + ", address=" + getAddress()  + ",userID=" + (getUserID() != null ? getUserID() : "null") + ",properties=" + properties.toString() + "]";
+   public String toString() {
+      return "ClientMessage[messageID=" + messageID + ", durable=" + durable + ", address=" + getAddress() + ",userID=" + (getUserID() != null ? getUserID() : "null") + ",properties=" + properties.toString() + "]";
    }
 
    @Override
-   public void saveToOutputStream(final OutputStream out) throws ActiveMQException
-   {
-      try
-      {
+   public void saveToOutputStream(final OutputStream out) throws ActiveMQException {
+      try {
          byte[] readBuffer = new byte[getBodySize()];
          getBodyBuffer().readBytes(readBuffer);
          out.write(readBuffer);
          out.flush();
       }
-      catch (IOException e)
-      {
+      catch (IOException e) {
          throw ActiveMQClientMessageBundle.BUNDLE.errorSavingBody(e);
       }
    }
 
    @Override
-   public ClientMessageImpl setOutputStream(final OutputStream out) throws ActiveMQException
-   {
+   public ClientMessageImpl setOutputStream(final OutputStream out) throws ActiveMQException {
       saveToOutputStream(out);
       return this;
    }
 
    @Override
-   public boolean waitOutputStreamCompletion(final long timeMilliseconds) throws ActiveMQException
-   {
+   public boolean waitOutputStreamCompletion(final long timeMilliseconds) throws ActiveMQException {
       return true;
    }
 
    @Override
-   public void discardBody()
-   {
+   public void discardBody() {
    }
 
    /**
     * @return the bodyInputStream
     */
    @Override
-   public InputStream getBodyInputStream()
-   {
+   public InputStream getBodyInputStream() {
       return bodyInputStream;
    }
 
@@ -208,202 +184,170 @@ public class ClientMessageImpl extends MessageImpl implements ClientMessageInter
     * @param bodyInputStream the bodyInputStream to set
     */
    @Override
-   public ClientMessageImpl setBodyInputStream(final InputStream bodyInputStream)
-   {
+   public ClientMessageImpl setBodyInputStream(final InputStream bodyInputStream) {
       this.bodyInputStream = bodyInputStream;
       return this;
    }
 
    @Override
-   public BodyEncoder getBodyEncoder() throws ActiveMQException
-   {
+   public BodyEncoder getBodyEncoder() throws ActiveMQException {
       return new DecodingContext();
    }
 
    @Override
-   public ClientMessageImpl putBooleanProperty(final SimpleString key, final boolean value)
-   {
+   public ClientMessageImpl putBooleanProperty(final SimpleString key, final boolean value) {
       return (ClientMessageImpl) super.putBooleanProperty(key, value);
    }
 
    @Override
-   public ClientMessageImpl putByteProperty(final SimpleString key, final byte value)
-   {
+   public ClientMessageImpl putByteProperty(final SimpleString key, final byte value) {
       return (ClientMessageImpl) super.putByteProperty(key, value);
    }
 
    @Override
-   public ClientMessageImpl putBytesProperty(final SimpleString key, final byte[] value)
-   {
+   public ClientMessageImpl putBytesProperty(final SimpleString key, final byte[] value) {
       return (ClientMessageImpl) super.putBytesProperty(key, value);
    }
 
    @Override
-   public ClientMessageImpl putCharProperty(SimpleString key, char value)
-   {
+   public ClientMessageImpl putCharProperty(SimpleString key, char value) {
       return (ClientMessageImpl) super.putCharProperty(key, value);
    }
 
    @Override
-   public ClientMessageImpl putCharProperty(String key, char value)
-   {
+   public ClientMessageImpl putCharProperty(String key, char value) {
       return (ClientMessageImpl) super.putCharProperty(key, value);
    }
 
    @Override
-   public ClientMessageImpl putShortProperty(final SimpleString key, final short value)
-   {
+   public ClientMessageImpl putShortProperty(final SimpleString key, final short value) {
       return (ClientMessageImpl) super.putShortProperty(key, value);
    }
 
    @Override
-   public ClientMessageImpl putIntProperty(final SimpleString key, final int value)
-   {
+   public ClientMessageImpl putIntProperty(final SimpleString key, final int value) {
       return (ClientMessageImpl) super.putIntProperty(key, value);
    }
 
    @Override
-   public ClientMessageImpl putLongProperty(final SimpleString key, final long value)
-   {
+   public ClientMessageImpl putLongProperty(final SimpleString key, final long value) {
       return (ClientMessageImpl) super.putLongProperty(key, value);
    }
 
    @Override
-   public ClientMessageImpl putFloatProperty(final SimpleString key, final float value)
-   {
+   public ClientMessageImpl putFloatProperty(final SimpleString key, final float value) {
       return (ClientMessageImpl) super.putFloatProperty(key, value);
    }
 
    @Override
-   public ClientMessageImpl putDoubleProperty(final SimpleString key, final double value)
-   {
+   public ClientMessageImpl putDoubleProperty(final SimpleString key, final double value) {
       return (ClientMessageImpl) super.putDoubleProperty(key, value);
    }
 
    @Override
-   public ClientMessageImpl putStringProperty(final SimpleString key, final SimpleString value)
-   {
+   public ClientMessageImpl putStringProperty(final SimpleString key, final SimpleString value) {
       return (ClientMessageImpl) super.putStringProperty(key, value);
    }
 
    @Override
-   public ClientMessageImpl putObjectProperty(final SimpleString key, final Object value) throws ActiveMQPropertyConversionException
-   {
+   public ClientMessageImpl putObjectProperty(final SimpleString key,
+                                              final Object value) throws ActiveMQPropertyConversionException {
       return (ClientMessageImpl) super.putObjectProperty(key, value);
    }
 
    @Override
-   public ClientMessageImpl putObjectProperty(final String key, final Object value) throws ActiveMQPropertyConversionException
-   {
+   public ClientMessageImpl putObjectProperty(final String key,
+                                              final Object value) throws ActiveMQPropertyConversionException {
       return (ClientMessageImpl) super.putObjectProperty(key, value);
    }
 
    @Override
-   public ClientMessageImpl putBooleanProperty(final String key, final boolean value)
-   {
+   public ClientMessageImpl putBooleanProperty(final String key, final boolean value) {
       return (ClientMessageImpl) super.putBooleanProperty(key, value);
    }
 
    @Override
-   public ClientMessageImpl putByteProperty(final String key, final byte value)
-   {
+   public ClientMessageImpl putByteProperty(final String key, final byte value) {
       return (ClientMessageImpl) super.putByteProperty(key, value);
    }
 
    @Override
-   public ClientMessageImpl putBytesProperty(final String key, final byte[] value)
-   {
+   public ClientMessageImpl putBytesProperty(final String key, final byte[] value) {
       return (ClientMessageImpl) super.putBytesProperty(key, value);
    }
 
    @Override
-   public ClientMessageImpl putShortProperty(final String key, final short value)
-   {
+   public ClientMessageImpl putShortProperty(final String key, final short value) {
       return (ClientMessageImpl) super.putShortProperty(key, value);
    }
 
    @Override
-   public ClientMessageImpl putIntProperty(final String key, final int value)
-   {
+   public ClientMessageImpl putIntProperty(final String key, final int value) {
       return (ClientMessageImpl) super.putIntProperty(key, value);
    }
 
    @Override
-   public ClientMessageImpl putLongProperty(final String key, final long value)
-   {
+   public ClientMessageImpl putLongProperty(final String key, final long value) {
       return (ClientMessageImpl) super.putLongProperty(key, value);
    }
 
    @Override
-   public ClientMessageImpl putFloatProperty(final String key, final float value)
-   {
+   public ClientMessageImpl putFloatProperty(final String key, final float value) {
       return (ClientMessageImpl) super.putFloatProperty(key, value);
    }
 
    @Override
-   public ClientMessageImpl putDoubleProperty(final String key, final double value)
-   {
+   public ClientMessageImpl putDoubleProperty(final String key, final double value) {
       return (ClientMessageImpl) super.putDoubleProperty(key, value);
    }
 
    @Override
-   public ClientMessageImpl putStringProperty(final String key, final String value)
-   {
+   public ClientMessageImpl putStringProperty(final String key, final String value) {
       return (ClientMessageImpl) super.putStringProperty(key, value);
    }
 
    @Override
-   public ClientMessageImpl writeBodyBufferBytes(byte[] bytes)
-   {
+   public ClientMessageImpl writeBodyBufferBytes(byte[] bytes) {
       return (ClientMessageImpl) super.writeBodyBufferBytes(bytes);
    }
 
    @Override
-   public ClientMessageImpl writeBodyBufferString(String string)
-   {
+   public ClientMessageImpl writeBodyBufferString(String string) {
       return (ClientMessageImpl) super.writeBodyBufferString(string);
    }
 
-   private final class DecodingContext implements BodyEncoder
-   {
-      public DecodingContext()
-      {
+   private final class DecodingContext implements BodyEncoder {
+
+      public DecodingContext() {
       }
 
       @Override
-      public void open()
-      {
+      public void open() {
          getBodyBuffer().readerIndex(0);
       }
 
       @Override
-      public void close()
-      {
+      public void close() {
       }
 
       @Override
-      public long getLargeBodySize()
-      {
-         if (isLargeMessage())
-         {
+      public long getLargeBodySize() {
+         if (isLargeMessage()) {
             return getBodyBuffer().writerIndex();
          }
-         else
-         {
+         else {
             return getBodyBuffer().writerIndex() - BODY_OFFSET;
          }
       }
 
       @Override
-      public int encode(final ByteBuffer bufferRead) throws ActiveMQException
-      {
+      public int encode(final ByteBuffer bufferRead) throws ActiveMQException {
          ActiveMQBuffer buffer1 = ActiveMQBuffers.wrappedBuffer(bufferRead);
          return encode(buffer1, bufferRead.capacity());
       }
 
       @Override
-      public int encode(final ActiveMQBuffer bufferOut, final int size)
-      {
+      public int encode(final ActiveMQBuffer bufferOut, final int size) {
          byte[] bytes = new byte[size];
          getWholeBuffer().readBytes(bytes);
          bufferOut.writeBytes(bytes, 0, size);

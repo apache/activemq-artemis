@@ -18,27 +18,23 @@ package org.apache.activemq.artemis.tests.unit.core.config.impl.fakes;
 
 import org.apache.activemq.artemis.core.server.ConnectorService;
 
-public class FakeConnectorService implements ConnectorService
-{
+public class FakeConnectorService implements ConnectorService {
+
    @Override
-   public String getName()
-   {
+   public String getName() {
       return null;
    }
 
    @Override
-   public void start() throws Exception
-   {
+   public void start() throws Exception {
    }
 
    @Override
-   public void stop() throws Exception
-   {
+   public void stop() throws Exception {
    }
 
    @Override
-   public boolean isStarted()
-   {
+   public boolean isStarted() {
       return false;
    }
 }

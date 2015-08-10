@@ -46,192 +46,203 @@ import org.slf4j.LoggerFactory;
  * An AMQ-2401 Test
  */
 public class AMQ2401Test extends TestCase implements MessageListener {
-    private BrokerService broker;
-    private ActiveMQConnectionFactory factory;
-    private static final int SEND_COUNT = 500;
-    private static final int CONSUMER_COUNT = 50;
-    private static final int PRODUCER_COUNT = 1;
-    private static final int LOG_INTERVAL = 10;
 
-    private static final Logger LOG = LoggerFactory.getLogger(AMQ2401Test.class);
+   private BrokerService broker;
+   private ActiveMQConnectionFactory factory;
+   private static final int SEND_COUNT = 500;
+   private static final int CONSUMER_COUNT = 50;
+   private static final int PRODUCER_COUNT = 1;
+   private static final int LOG_INTERVAL = 10;
 
-    private final ArrayList<Service> services = new ArrayList<Service>(CONSUMER_COUNT + PRODUCER_COUNT);
-    private int count = 0;
-    private CountDownLatch latch;
+   private static final Logger LOG = LoggerFactory.getLogger(AMQ2401Test.class);
 
-    @Override
-    protected void setUp() throws Exception {
-        broker = new BrokerService();
-        broker.setDataDirectory("target" + File.separator + "test-data" + File.separator + "AMQ2401Test");
-        broker.setDeleteAllMessagesOnStartup(true);
-        String connectionUri = broker.addConnector("tcp://0.0.0.0:0").getPublishableConnectString();
-        PolicyMap policies = new PolicyMap();
-        PolicyEntry entry = new PolicyEntry();
-        entry.setMemoryLimit(1024 * 100);
-        entry.setProducerFlowControl(true);
-        entry.setPendingQueuePolicy(new VMPendingQueueMessageStoragePolicy());
-        entry.setQueue(">");
-        policies.setDefaultEntry(entry);
-        broker.setDestinationPolicy(policies);
-        broker.setUseJmx(false);
-        broker.start();
-        broker.waitUntilStarted();
+   private final ArrayList<Service> services = new ArrayList<Service>(CONSUMER_COUNT + PRODUCER_COUNT);
+   private int count = 0;
+   private CountDownLatch latch;
 
-        factory = new ActiveMQConnectionFactory(connectionUri);
-        super.setUp();
-    }
+   @Override
+   protected void setUp() throws Exception {
+      broker = new BrokerService();
+      broker.setDataDirectory("target" + File.separator + "test-data" + File.separator + "AMQ2401Test");
+      broker.setDeleteAllMessagesOnStartup(true);
+      String connectionUri = broker.addConnector("tcp://0.0.0.0:0").getPublishableConnectString();
+      PolicyMap policies = new PolicyMap();
+      PolicyEntry entry = new PolicyEntry();
+      entry.setMemoryLimit(1024 * 100);
+      entry.setProducerFlowControl(true);
+      entry.setPendingQueuePolicy(new VMPendingQueueMessageStoragePolicy());
+      entry.setQueue(">");
+      policies.setDefaultEntry(entry);
+      broker.setDestinationPolicy(policies);
+      broker.setUseJmx(false);
+      broker.start();
+      broker.waitUntilStarted();
 
-    @Override
-    protected void tearDown() throws Exception {
-        broker.stop();
-        broker.waitUntilStopped();
-    }
+      factory = new ActiveMQConnectionFactory(connectionUri);
+      super.setUp();
+   }
 
-    public void testDupsOk() throws Exception {
+   @Override
+   protected void tearDown() throws Exception {
+      broker.stop();
+      broker.waitUntilStopped();
+   }
 
-        TestProducer p = null;
-        TestConsumer c = null;
-        try {
-            latch = new CountDownLatch(SEND_COUNT);
+   public void testDupsOk() throws Exception {
 
-            for (int i = 0; i < CONSUMER_COUNT; i++) {
-                TestConsumer consumer = new TestConsumer();
-                consumer.start();
-                services.add(consumer);
-            }
-            for (int i = 0; i < PRODUCER_COUNT; i++) {
-                TestProducer producer = new TestProducer();
-                producer.start();
-                services.add(producer);
-            }
+      TestProducer p = null;
+      TestConsumer c = null;
+      try {
+         latch = new CountDownLatch(SEND_COUNT);
 
-            waitForMessageReceipt(TimeUnit.SECONDS.toMillis(30));
-        } finally {
-            if (p != null) {
-                p.close();
-            }
+         for (int i = 0; i < CONSUMER_COUNT; i++) {
+            TestConsumer consumer = new TestConsumer();
+            consumer.start();
+            services.add(consumer);
+         }
+         for (int i = 0; i < PRODUCER_COUNT; i++) {
+            TestProducer producer = new TestProducer();
+            producer.start();
+            services.add(producer);
+         }
 
-            if (c != null) {
-                c.close();
-            }
-        }
-    }
+         waitForMessageReceipt(TimeUnit.SECONDS.toMillis(30));
+      }
+      finally {
+         if (p != null) {
+            p.close();
+         }
 
-    @Override
-    public void onMessage(Message message) {
-        latch.countDown();
-        if (++count % LOG_INTERVAL == 0) {
-            LOG.debug("Received message " + count);
-        }
+         if (c != null) {
+            c.close();
+         }
+      }
+   }
 
-        try {
-            Thread.sleep(1);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
-    }
+   @Override
+   public void onMessage(Message message) {
+      latch.countDown();
+      if (++count % LOG_INTERVAL == 0) {
+         LOG.debug("Received message " + count);
+      }
 
-    /**
-     * @throws InterruptedException
-     * @throws TimeoutException
-     */
-    private void waitForMessageReceipt(long timeout) throws InterruptedException, TimeoutException {
-        if (!latch.await(timeout, TimeUnit.MILLISECONDS)) {
-            throw new TimeoutException(String.format("Consumner didn't receive expected # of messages, %d of %d received.", latch.getCount(), SEND_COUNT));
-        }
-    }
+      try {
+         Thread.sleep(1);
+      }
+      catch (InterruptedException e) {
+         Thread.currentThread().interrupt();
+      }
+   }
 
-    private interface Service {
-        public void start() throws Exception;
-        public void close();
-    }
+   /**
+    * @throws InterruptedException
+    * @throws TimeoutException
+    */
+   private void waitForMessageReceipt(long timeout) throws InterruptedException, TimeoutException {
+      if (!latch.await(timeout, TimeUnit.MILLISECONDS)) {
+         throw new TimeoutException(String.format("Consumner didn't receive expected # of messages, %d of %d received.", latch.getCount(), SEND_COUNT));
+      }
+   }
 
-    private class TestProducer implements Runnable, Service {
-        Thread thread;
-        BytesMessage message;
+   private interface Service {
 
-        Connection connection;
-        Session session;
-        MessageProducer producer;
+      public void start() throws Exception;
 
-        TestProducer() throws Exception {
-            thread = new Thread(this, "TestProducer");
-            connection = factory.createConnection();
-            connection.start();
-            session = connection.createSession(false, Session.DUPS_OK_ACKNOWLEDGE);
-            producer = session.createProducer(session.createQueue("AMQ2401Test"));
-        }
+      public void close();
+   }
 
-        @Override
-        public void start() {
-            thread.start();
-        }
+   private class TestProducer implements Runnable, Service {
 
-        @Override
-        public void run() {
+      Thread thread;
+      BytesMessage message;
 
-            int count = SEND_COUNT / PRODUCER_COUNT;
-            for (int i = 1; i <= count; i++) {
-                try {
-                    if ((i % LOG_INTERVAL) == 0) {
-                        LOG.debug("Sending: " + i);
-                    }
-                    message = session.createBytesMessage();
-                    message.writeBytes(new byte[1024]);
-                    producer.send(message);
-                } catch (JMSException jmse) {
-                    jmse.printStackTrace();
-                    break;
-                }
-            }
-        }
+      Connection connection;
+      Session session;
+      MessageProducer producer;
 
-        @Override
-        public void close() {
+      TestProducer() throws Exception {
+         thread = new Thread(this, "TestProducer");
+         connection = factory.createConnection();
+         connection.start();
+         session = connection.createSession(false, Session.DUPS_OK_ACKNOWLEDGE);
+         producer = session.createProducer(session.createQueue("AMQ2401Test"));
+      }
+
+      @Override
+      public void start() {
+         thread.start();
+      }
+
+      @Override
+      public void run() {
+
+         int count = SEND_COUNT / PRODUCER_COUNT;
+         for (int i = 1; i <= count; i++) {
             try {
-                connection.close();
-            } catch (JMSException e) {
+               if ((i % LOG_INTERVAL) == 0) {
+                  LOG.debug("Sending: " + i);
+               }
+               message = session.createBytesMessage();
+               message.writeBytes(new byte[1024]);
+               producer.send(message);
             }
-        }
-    }
+            catch (JMSException jmse) {
+               jmse.printStackTrace();
+               break;
+            }
+         }
+      }
 
-    private class TestConsumer implements Runnable, Service {
-        ActiveMQConnection connection;
-        Session session;
-        MessageConsumer consumer;
+      @Override
+      public void close() {
+         try {
+            connection.close();
+         }
+         catch (JMSException e) {
+         }
+      }
+   }
 
-        TestConsumer() throws Exception {
-            factory.setOptimizeAcknowledge(false);
-            connection = (ActiveMQConnection) factory.createConnection();
+   private class TestConsumer implements Runnable, Service {
 
-            session = connection.createSession(false, Session.DUPS_OK_ACKNOWLEDGE);
-            consumer = session.createConsumer(session.createQueue("AMQ2401Test"));
+      ActiveMQConnection connection;
+      Session session;
+      MessageConsumer consumer;
 
-            consumer.setMessageListener(AMQ2401Test.this);
-        }
+      TestConsumer() throws Exception {
+         factory.setOptimizeAcknowledge(false);
+         connection = (ActiveMQConnection) factory.createConnection();
 
-        @Override
-        public void start() throws Exception {
-            connection.start();
-        }
+         session = connection.createSession(false, Session.DUPS_OK_ACKNOWLEDGE);
+         consumer = session.createConsumer(session.createQueue("AMQ2401Test"));
 
-        @Override
-        public void close() {
+         consumer.setMessageListener(AMQ2401Test.this);
+      }
+
+      @Override
+      public void start() throws Exception {
+         connection.start();
+      }
+
+      @Override
+      public void close() {
+         try {
+            connection.close();
+         }
+         catch (JMSException e) {
+         }
+      }
+
+      @Override
+      public void run() {
+         while (latch.getCount() > 0) {
             try {
-                connection.close();
-            } catch (JMSException e) {
+               onMessage(consumer.receive());
             }
-        }
-
-        @Override
-        public void run() {
-            while (latch.getCount() > 0) {
-                try {
-                    onMessage(consumer.receive());
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+            catch (Exception e) {
+               e.printStackTrace();
             }
-        }
-    }
+         }
+      }
+   }
 }

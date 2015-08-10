@@ -52,8 +52,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class JournalCleanupCompactStressTest extends ActiveMQTestBase
-{
+public class JournalCleanupCompactStressTest extends ActiveMQTestBase {
 
    public static SimpleIDGenerator idGen = new SimpleIDGenerator(1);
 
@@ -76,9 +75,7 @@ public class JournalCleanupCompactStressTest extends ActiveMQTestBase
 
    private JournalImpl journal;
 
-   ThreadFactory tFactory = new ActiveMQThreadFactory("SoakTest" + System.identityHashCode(this),
-                                                     false,
-                                                     JournalCleanupCompactStressTest.class.getClassLoader());
+   ThreadFactory tFactory = new ActiveMQThreadFactory("SoakTest" + System.identityHashCode(this), false, JournalCleanupCompactStressTest.class.getClassLoader());
 
    private ExecutorService threadPool;
 
@@ -86,16 +83,13 @@ public class JournalCleanupCompactStressTest extends ActiveMQTestBase
 
    Executor testExecutor;
 
-   protected long getTotalTimeMilliseconds()
-   {
+   protected long getTotalTimeMilliseconds() {
       return TimeUnit.MINUTES.toMillis(2);
    }
 
-
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       threadPool = Executors.newFixedThreadPool(20, tFactory);
@@ -112,43 +106,27 @@ public class JournalCleanupCompactStressTest extends ActiveMQTestBase
       SequentialFileFactory factory;
 
       int maxAIO;
-      if (LibaioContext.isLoaded())
-      {
+      if (LibaioContext.isLoaded()) {
          factory = new AIOSequentialFileFactory(dir, 10);
          maxAIO = ActiveMQDefaultConfiguration.getDefaultJournalMaxIoAio();
       }
-      else
-      {
+      else {
          factory = new NIOSequentialFileFactory(dir, true, 1);
          maxAIO = ActiveMQDefaultConfiguration.getDefaultJournalMaxIoNio();
       }
 
-      journal = new JournalImpl(50 * 1024,
-                                20,
-                                50,
-                                ActiveMQDefaultConfiguration.getDefaultJournalCompactPercentage(),
-                                factory,
-                                "activemq-data",
-                                "amq",
-                                maxAIO)
-      {
+      journal = new JournalImpl(50 * 1024, 20, 50, ActiveMQDefaultConfiguration.getDefaultJournalCompactPercentage(), factory, "activemq-data", "amq", maxAIO) {
          @Override
-         protected void onCompactLockingTheJournal() throws Exception
-         {
+         protected void onCompactLockingTheJournal() throws Exception {
          }
 
          @Override
-         protected void onCompactStart() throws Exception
-         {
-            testExecutor.execute(new Runnable()
-            {
-               public void run()
-               {
-                  try
-                  {
+         protected void onCompactStart() throws Exception {
+            testExecutor.execute(new Runnable() {
+               public void run() {
+                  try {
                      // System.out.println("OnCompactStart enter");
-                     if (running)
-                     {
+                     if (running) {
                         long id = idGen.generateID();
                         journal.appendAddRecord(id, (byte) 0, new byte[]{1, 2, 3}, false);
                         journal.forceMoveNextFile();
@@ -156,8 +134,7 @@ public class JournalCleanupCompactStressTest extends ActiveMQTestBase
                      }
                      // System.out.println("OnCompactStart leave");
                   }
-                  catch (Exception e)
-                  {
+                  catch (Exception e) {
                      e.printStackTrace();
                      errors.incrementAndGet();
                   }
@@ -175,17 +152,13 @@ public class JournalCleanupCompactStressTest extends ActiveMQTestBase
 
    @Override
    @After
-   public void tearDown() throws Exception
-   {
-      try
-      {
-         if (journal.isStarted())
-         {
+   public void tearDown() throws Exception {
+      try {
+         if (journal.isStarted()) {
             journal.stop();
          }
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          // don't care :-)
       }
 
@@ -193,8 +166,7 @@ public class JournalCleanupCompactStressTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testAppend() throws Exception
-   {
+   public void testAppend() throws Exception {
 
       running = true;
       SlowAppenderNoTX t1 = new SlowAppenderNoTX();
@@ -204,8 +176,7 @@ public class JournalCleanupCompactStressTest extends ActiveMQTestBase
       FastAppenderTx[] appenders = new FastAppenderTx[NTHREADS];
       FastUpdateTx[] updaters = new FastUpdateTx[NTHREADS];
 
-      for (int i = 0; i < NTHREADS; i++)
-      {
+      for (int i = 0; i < NTHREADS; i++) {
          appenders[i] = new FastAppenderTx();
          updaters[i] = new FastUpdateTx(appenders[i].queue);
       }
@@ -214,16 +185,14 @@ public class JournalCleanupCompactStressTest extends ActiveMQTestBase
 
       Thread.sleep(1000);
 
-      for (int i = 0; i < NTHREADS; i++)
-      {
+      for (int i = 0; i < NTHREADS; i++) {
          appenders[i].start();
          updaters[i].start();
       }
 
       long timeToEnd = System.currentTimeMillis() + getTotalTimeMilliseconds();
 
-      while (System.currentTimeMillis() < timeToEnd)
-      {
+      while (System.currentTimeMillis() < timeToEnd) {
          System.out.println("Append = " + numberOfRecords +
                                ", Update = " +
                                numberOfUpdates +
@@ -245,23 +214,19 @@ public class JournalCleanupCompactStressTest extends ActiveMQTestBase
       // Release Semaphore after setting running to false or the threads may never finish
       maxRecords.release(MAX_WRITES - maxRecords.availablePermits());
 
-      for (Thread t : appenders)
-      {
+      for (Thread t : appenders) {
          t.join();
       }
 
-      for (Thread t : updaters)
-      {
+      for (Thread t : updaters) {
          t.join();
       }
 
       t1.join();
 
       final CountDownLatch latchExecutorDone = new CountDownLatch(1);
-      testExecutor.execute(new Runnable()
-      {
-         public void run()
-         {
+      testExecutor.execute(new Runnable() {
+         public void run() {
             latchExecutorDone.countDown();
          }
       });
@@ -277,8 +242,7 @@ public class JournalCleanupCompactStressTest extends ActiveMQTestBase
       Collection<Long> records = journal.getRecords().keySet();
 
       System.out.println("Deleting everything!");
-      for (Long delInfo : records)
-      {
+      for (Long delInfo : records) {
          journal.appendDeleteRecord(delInfo, false);
       }
 
@@ -296,29 +260,23 @@ public class JournalCleanupCompactStressTest extends ActiveMQTestBase
    /**
     * @throws Exception
     */
-   private void reloadJournal() throws Exception
-   {
+   private void reloadJournal() throws Exception {
       assertEquals(0, errors.get());
 
       ArrayList<RecordInfo> committedRecords = new ArrayList<RecordInfo>();
       ArrayList<PreparedTransactionInfo> preparedTransactions = new ArrayList<PreparedTransactionInfo>();
-      journal.load(committedRecords, preparedTransactions, new TransactionFailureCallback()
-      {
-         public void failedTransaction(long transactionID, List<RecordInfo> records, List<RecordInfo> recordsToDelete)
-         {
+      journal.load(committedRecords, preparedTransactions, new TransactionFailureCallback() {
+         public void failedTransaction(long transactionID, List<RecordInfo> records, List<RecordInfo> recordsToDelete) {
          }
       });
 
       long appends = 0, updates = 0;
 
-      for (RecordInfo record : committedRecords)
-      {
-         if (record.isUpdate)
-         {
+      for (RecordInfo record : committedRecords) {
+         if (record.isUpdate) {
             updates++;
          }
-         else
-         {
+         else {
             appends++;
          }
       }
@@ -326,36 +284,30 @@ public class JournalCleanupCompactStressTest extends ActiveMQTestBase
       assertEquals(numberOfRecords.get() - numberOfDeletes.get(), appends);
    }
 
-   private byte[] generateRecord()
-   {
+   private byte[] generateRecord() {
       int size = RandomUtil.randomPositiveInt() % 10000;
-      if (size == 0)
-      {
+      if (size == 0) {
          size = 10000;
       }
       return RandomUtil.randomBytes(size);
    }
 
-   class FastAppenderTx extends Thread
-   {
+   class FastAppenderTx extends Thread {
+
       LinkedBlockingDeque<Long> queue = new LinkedBlockingDeque<Long>();
 
       OperationContextImpl ctx = new OperationContextImpl(executorFactory.getExecutor());
 
-      public FastAppenderTx()
-      {
+      public FastAppenderTx() {
          super("FastAppenderTX");
       }
 
       @Override
-      public void run()
-      {
+      public void run() {
          rwLock.readLock().lock();
 
-         try
-         {
-            while (running)
-            {
+         try {
+            while (running) {
                final int txSize = RandomUtil.randomMax(100);
 
                long txID = JournalCleanupCompactStressTest.idGen.generateID();
@@ -364,34 +316,28 @@ public class JournalCleanupCompactStressTest extends ActiveMQTestBase
 
                final long[] ids = new long[txSize];
 
-               for (int i = 0; i < txSize; i++)
-               {
+               for (int i = 0; i < txSize; i++) {
                   ids[i] = JournalCleanupCompactStressTest.idGen.generateID();
                }
 
                journal.appendAddRecordTransactional(rollbackTXID, ids[0], (byte) 0, generateRecord());
                journal.appendRollbackRecord(rollbackTXID, true);
 
-               for (int i = 0; i < txSize; i++)
-               {
+               for (int i = 0; i < txSize; i++) {
                   long id = ids[i];
                   journal.appendAddRecordTransactional(txID, id, (byte) 0, generateRecord());
                   maxRecords.acquire();
                }
                journal.appendCommitRecord(txID, true, ctx);
 
-               ctx.executeOnCompletion(new IOCallback()
-               {
+               ctx.executeOnCompletion(new IOCallback() {
 
-                  public void onError(final int errorCode, final String errorMessage)
-                  {
+                  public void onError(final int errorCode, final String errorMessage) {
                   }
 
-                  public void done()
-                  {
+                  public void done() {
                      numberOfRecords.addAndGet(txSize);
-                     for (Long id : ids)
-                     {
+                     for (Long id : ids) {
                         queue.add(id);
                      }
                   }
@@ -403,61 +349,51 @@ public class JournalCleanupCompactStressTest extends ActiveMQTestBase
 
                rwLock.readLock().lock();
 
-
             }
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             e.printStackTrace();
             running = false;
             errors.incrementAndGet();
          }
-         finally
-         {
+         finally {
             rwLock.readLock().unlock();
          }
       }
    }
 
-   class FastUpdateTx extends Thread
-   {
+   class FastUpdateTx extends Thread {
+
       final LinkedBlockingDeque<Long> queue;
 
       OperationContextImpl ctx = new OperationContextImpl(executorFactory.getExecutor());
 
-      public FastUpdateTx(final LinkedBlockingDeque<Long> queue)
-      {
+      public FastUpdateTx(final LinkedBlockingDeque<Long> queue) {
          super("FastUpdateTX");
          this.queue = queue;
       }
 
       @Override
-      public void run()
-      {
+      public void run() {
 
          rwLock.readLock().lock();
 
-         try
-         {
+         try {
             int txSize = RandomUtil.randomMax(100);
             int txCount = 0;
             long[] ids = new long[txSize];
 
             long txID = JournalCleanupCompactStressTest.idGen.generateID();
 
-            while (running)
-            {
+            while (running) {
 
                Long id = queue.poll(10, TimeUnit.SECONDS);
-               if (id != null)
-               {
+               if (id != null) {
                   ids[txCount++] = id;
                   journal.appendUpdateRecordTransactional(txID, id, (byte) 0, generateRecord());
                }
-               if (txCount == txSize || id == null)
-               {
-                  if (txCount > 0)
-                  {
+               if (txCount == txSize || id == null) {
+                  if (txCount > 0) {
                      journal.appendCommitRecord(txID, true, ctx);
                      ctx.executeOnCompletion(new DeleteTask(ids));
                   }
@@ -475,64 +411,53 @@ public class JournalCleanupCompactStressTest extends ActiveMQTestBase
                }
             }
 
-            if (txCount > 0)
-            {
+            if (txCount > 0) {
                journal.appendCommitRecord(txID, true);
             }
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             e.printStackTrace();
             running = false;
             errors.incrementAndGet();
          }
-         finally
-         {
+         finally {
             rwLock.readLock().unlock();
          }
       }
    }
 
-   class DeleteTask implements IOCallback
-   {
+   class DeleteTask implements IOCallback {
+
       final long[] ids;
 
-      DeleteTask(final long[] ids)
-      {
+      DeleteTask(final long[] ids) {
          this.ids = ids;
       }
 
-      public void done()
-      {
+      public void done() {
          rwLock.readLock().lock();
          numberOfUpdates.addAndGet(ids.length);
-         try
-         {
-            for (long id : ids)
-            {
-               if (id != 0)
-               {
+         try {
+            for (long id : ids) {
+               if (id != 0) {
                   journal.appendDeleteRecord(id, false);
                   maxRecords.release();
                   numberOfDeletes.incrementAndGet();
                }
             }
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             System.err.println("Can't delete id");
             e.printStackTrace();
             running = false;
             errors.incrementAndGet();
          }
-         finally
-         {
+         finally {
             rwLock.readLock().unlock();
          }
       }
 
-      public void onError(final int errorCode, final String errorMessage)
-      {
+      public void onError(final int errorCode, final String errorMessage) {
       }
 
    }
@@ -541,26 +466,20 @@ public class JournalCleanupCompactStressTest extends ActiveMQTestBase
     * Adds stuff to the journal, but it will take a long time to remove them.
     * This will cause cleanup and compacting to happen more often
     */
-   class SlowAppenderNoTX extends Thread
-   {
+   class SlowAppenderNoTX extends Thread {
 
-      public SlowAppenderNoTX()
-      {
+      public SlowAppenderNoTX() {
          super("SlowAppender");
       }
 
       @Override
-      public void run()
-      {
+      public void run() {
          rwLock.readLock().lock();
-         try
-         {
-            while (running)
-            {
+         try {
+            while (running) {
                long[] ids = new long[5];
                // Append
-               for (int i = 0; running & i < ids.length; i++)
-               {
+               for (int i = 0; running & i < ids.length; i++) {
                   System.out.println("append slow");
                   ids[i] = JournalCleanupCompactStressTest.idGen.generateID();
                   maxRecords.acquire();
@@ -574,8 +493,7 @@ public class JournalCleanupCompactStressTest extends ActiveMQTestBase
                   rwLock.readLock().lock();
                }
                // Delete
-               for (int i = 0; running & i < ids.length; i++)
-               {
+               for (int i = 0; running & i < ids.length; i++) {
                   System.out.println("Deleting");
                   maxRecords.release();
                   journal.appendDeleteRecord(ids[i], false);
@@ -583,13 +501,11 @@ public class JournalCleanupCompactStressTest extends ActiveMQTestBase
                }
             }
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             e.printStackTrace();
             System.exit(-1);
          }
-         finally
-         {
+         finally {
             rwLock.readLock().unlock();
          }
       }

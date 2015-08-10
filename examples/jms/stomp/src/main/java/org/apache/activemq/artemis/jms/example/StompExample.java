@@ -33,27 +33,25 @@ import javax.naming.InitialContext;
  * An example where a client will send a Stomp message on a TCP socket
  * and consume it from a JMS MessageConsumer.
  */
-public class StompExample
-{
+public class StompExample {
+
    private static final String END_OF_FRAME = "\u0000";
 
-   public static void main(final String[] args) throws Exception
-   {
+   public static void main(final String[] args) throws Exception {
       Connection connection = null;
       InitialContext initialContext = null;
 
-      try
-      {
+      try {
          // Step 1. Create a TCP socket to connect to the Stomp port
          Socket socket = new Socket("localhost", 61613);
 
          // Step 2. Send a CONNECT frame to connect to the server
          String connectFrame = "CONNECT\n" +
-                 "login: guest\n" +
-                 "passcode: guest\n" +
-                 "request-id: 1\n" +
-                 "\n" +
-                 END_OF_FRAME;
+            "login: guest\n" +
+            "passcode: guest\n" +
+            "request-id: 1\n" +
+            "\n" +
+            END_OF_FRAME;
          sendFrame(socket, connectFrame);
 
          readFrame(socket);
@@ -62,17 +60,17 @@ public class StompExample
          // jms.queue.exampleQueue address with a text body
          String text = "Hello, world from Stomp!";
          String message = "SEND\n" +
-                 "destination: jms.queue.exampleQueue\n" +
-                 "\n" +
-                 text +
-                 END_OF_FRAME;
+            "destination: jms.queue.exampleQueue\n" +
+            "\n" +
+            text +
+            END_OF_FRAME;
          sendFrame(socket, message);
          System.out.println("Sent Stomp message: " + text);
 
          // Step 4. Send a DISCONNECT frame to disconnect from the server
          String disconnectFrame = "DISCONNECT\n" +
-                 "\n" +
-                 END_OF_FRAME;
+            "\n" +
+            END_OF_FRAME;
          sendFrame(socket, disconnectFrame);
 
          // Step 5. Slose the TCP socket
@@ -84,8 +82,8 @@ public class StompExample
          initialContext = new InitialContext();
 
          // Step 7. Perform a lookup on the queue and the connection factory
-         Queue queue = (Queue)initialContext.lookup("queue/exampleQueue");
-         ConnectionFactory cf = (ConnectionFactory)initialContext.lookup("ConnectionFactory");
+         Queue queue = (Queue) initialContext.lookup("queue/exampleQueue");
+         ConnectionFactory cf = (ConnectionFactory) initialContext.lookup("ConnectionFactory");
 
          // Step 8.Create a JMS Connection, Session and a MessageConsumer on the queue
          connection = cf.createConnection();
@@ -96,36 +94,30 @@ public class StompExample
          connection.start();
 
          // Step 10. Receive the message
-         TextMessage messageReceived = (TextMessage)consumer.receive(5000);
+         TextMessage messageReceived = (TextMessage) consumer.receive(5000);
          System.out.println("Received JMS message: " + messageReceived.getText());
       }
-      finally
-      {
+      finally {
          // Step 11. Be sure to close our JMS resources!
-         if (initialContext != null)
-         {
+         if (initialContext != null) {
             initialContext.close();
          }
-         if (connection != null)
-         {
+         if (connection != null) {
             connection.close();
          }
       }
    }
 
-   private static void sendFrame(Socket socket, String data) throws Exception
-   {
+   private static void sendFrame(Socket socket, String data) throws Exception {
       byte[] bytes = data.getBytes(StandardCharsets.UTF_8);
       OutputStream outputStream = socket.getOutputStream();
-      for (int i = 0; i < bytes.length; i++)
-      {
+      for (int i = 0; i < bytes.length; i++) {
          outputStream.write(bytes[i]);
       }
       outputStream.flush();
    }
 
-   private static String readFrame(Socket socket) throws Exception
-   {
+   private static String readFrame(Socket socket) throws Exception {
       byte[] bytes = new byte[2048];
       InputStream inputStream = socket.getInputStream();
       int nbytes = inputStream.read(bytes);

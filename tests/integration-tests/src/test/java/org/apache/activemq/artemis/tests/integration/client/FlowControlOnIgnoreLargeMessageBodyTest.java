@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.integration.client;
+
 import org.junit.Before;
 
 import org.junit.Test;
@@ -36,8 +37,8 @@ import javax.naming.NamingException;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
 
-public class FlowControlOnIgnoreLargeMessageBodyTest extends JMSTestBase
-{
+public class FlowControlOnIgnoreLargeMessageBodyTest extends JMSTestBase {
+
    IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    private Topic topic;
@@ -56,24 +57,22 @@ public class FlowControlOnIgnoreLargeMessageBodyTest extends JMSTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
       jmsServer.createTopic(true, "topicIn", "/topic/topicIn");
-      topic = (Topic)namingContext.lookup("/topic/topicIn");
+      topic = (Topic) namingContext.lookup("/topic/topicIn");
    }
 
    @Override
-   protected boolean usePersistence()
-   {
+   protected boolean usePersistence() {
       return false;
    }
 
    /**
     * LoadProducer
     */
-   class LoadProducer extends Thread
-   {
+   class LoadProducer extends Thread {
+
       private final ConnectionFactory cf;
 
       private final Topic topic;
@@ -86,45 +85,41 @@ public class FlowControlOnIgnoreLargeMessageBodyTest extends JMSTestBase
 
       private int sentMessages = 0;
 
-      LoadProducer(final String name, final Topic topic, final ConnectionFactory cf, final int messagesCount) throws Exception
-      {
+      LoadProducer(final String name,
+                   final Topic topic,
+                   final ConnectionFactory cf,
+                   final int messagesCount) throws Exception {
          super(name);
          this.cf = cf;
          this.topic = topic;
          this.messagesCount = messagesCount;
       }
 
-      public void sendStopRequest()
-      {
+      public void sendStopRequest() {
          stopped = false;
          requestForStop = true;
       }
 
-      public boolean isStopped()
-      {
+      public boolean isStopped() {
          return stopped;
       }
 
       @Override
-      public void run()
-      {
+      public void run() {
          stopped = false;
          Connection connection = null;
          Session session = null;
          MessageProducer prod;
          log.info("Starting producer for " + topic + " - " + getName());
-         try
-         {
+         try {
             connection = cf.createConnection();
             session = connection.createSession(true, Session.SESSION_TRANSACTED);
             prod = session.createProducer(topic);
 
             prod.setDeliveryMode(DeliveryMode.PERSISTENT);
 
-            for (int i = 1; i <= messagesCount && !requestForStop; i++)
-            {
-               if (error)
-               {
+            for (int i = 1; i <= messagesCount && !requestForStop; i++) {
+               if (error) {
                   break;
                }
                sentMessages++;
@@ -132,46 +127,37 @@ public class FlowControlOnIgnoreLargeMessageBodyTest extends JMSTestBase
                msg.setIntProperty(FlowControlOnIgnoreLargeMessageBodyTest.ATTR_MSG_COUNTER, i);
                msg.writeBytes(new byte[FlowControlOnIgnoreLargeMessageBodyTest.MSG_SIZE]);
                prod.send(msg);
-               if (i % 10 == 0)
-               {
+               if (i % 10 == 0) {
                   session.commit();
                }
-               if (i % 100 == 0)
-               {
+               if (i % 100 == 0) {
                   log.info("Address " + topic + " sent " + i + " messages");
                }
             }
             System.out.println("Ending producer for " + topic + " - " + getName() + " messages " + sentMessages);
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             error = true;
             e.printStackTrace();
          }
-         finally
-         {
-            try
-            {
+         finally {
+            try {
                session.commit();
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                e.printStackTrace();
             }
-            try
-            {
+            try {
                connection.close();
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                e.printStackTrace();
             }
          }
          stopped = true;
       }
 
-      public int getSentMessages()
-      {
+      public int getSentMessages() {
          return sentMessages;
       }
    }
@@ -179,8 +165,8 @@ public class FlowControlOnIgnoreLargeMessageBodyTest extends JMSTestBase
    /**
     * LoadConsumer
     */
-   class LoadConsumer extends Thread
-   {
+   class LoadConsumer extends Thread {
+
       private final ConnectionFactory cf;
 
       private final Topic topic;
@@ -202,8 +188,7 @@ public class FlowControlOnIgnoreLargeMessageBodyTest extends JMSTestBase
                    final Topic topic,
                    final ConnectionFactory cf,
                    final int receiveTimeout,
-                   final int numberOfMessages)
-      {
+                   final int numberOfMessages) {
          super(name);
          this.cf = cf;
          this.topic = topic;
@@ -212,27 +197,23 @@ public class FlowControlOnIgnoreLargeMessageBodyTest extends JMSTestBase
          this.consumerCreated = consumerCreated;
       }
 
-      public void sendStopRequest()
-      {
+      public void sendStopRequest() {
          stopped = false;
          requestForStop = true;
       }
 
-      public boolean isStopped()
-      {
+      public boolean isStopped() {
          return stopped;
       }
 
       @Override
-      public void run()
-      {
+      public void run() {
          Connection connection = null;
          Session session = null;
          stopped = false;
          requestForStop = false;
          System.out.println("Starting consumer for " + topic + " - " + getName());
-         try
-         {
+         try {
             connection = cf.createConnection();
 
             connection.setClientID(getName());
@@ -247,109 +228,81 @@ public class FlowControlOnIgnoreLargeMessageBodyTest extends JMSTestBase
 
             int counter = 0;
 
-            while (counter < numberOfMessages && !requestForStop && !error)
-            {
-               if (counter == 0)
-               {
+            while (counter < numberOfMessages && !requestForStop && !error) {
+               if (counter == 0) {
                   System.out.println("Starting to consume for " + topic + " - " + getName());
                }
-               BytesMessage msg = (BytesMessage)subscriber.receive(receiveTimeout);
-               if (msg == null)
-               {
+               BytesMessage msg = (BytesMessage) subscriber.receive(receiveTimeout);
+               if (msg == null) {
                   System.out.println("Cannot get message in specified timeout: " + topic + " - " + getName());
                   error = true;
                }
-               else
-               {
+               else {
                   counter++;
-                  if (msg.getIntProperty(FlowControlOnIgnoreLargeMessageBodyTest.ATTR_MSG_COUNTER) != counter)
-                  {
+                  if (msg.getIntProperty(FlowControlOnIgnoreLargeMessageBodyTest.ATTR_MSG_COUNTER) != counter) {
                      error = true;
                   }
                }
-               if (counter % 10 == 0)
-               {
+               if (counter % 10 == 0) {
                   session.commit();
                }
-               if (counter % 100 == 0)
-               {
+               if (counter % 100 == 0) {
                   log.info("## " + getName() + " " + topic + " received " + counter);
                }
                receivedMessages = counter;
             }
             session.commit();
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             System.out.println("Exception in consumer " + getName() + " : " + e.getMessage());
             e.printStackTrace();
          }
-         finally
-         {
-            if (session != null)
-            {
-               try
-               {
+         finally {
+            if (session != null) {
+               try {
                   session.close();
                }
-               catch (JMSException e)
-               {
+               catch (JMSException e) {
                   System.err.println("Cannot close session " + e.getMessage());
                }
             }
-            if (connection != null)
-            {
-               try
-               {
+            if (connection != null) {
+               try {
                   connection.close();
                }
-               catch (JMSException e)
-               {
+               catch (JMSException e) {
                   System.err.println("Cannot close connection " + e.getMessage());
                }
             }
          }
          stopped = true;
          System.out.println("Stopping consumer for " + topic +
-                            " - " +
-                            getName() +
-                            ", received " +
-                            getReceivedMessages());
+                               " - " +
+                               getName() +
+                               ", received " +
+                               getReceivedMessages());
       }
 
-      public int getReceivedMessages()
-      {
+      public int getReceivedMessages() {
          return receivedMessages;
       }
    }
 
    @Test
-   public void testFlowControl()
-   {
+   public void testFlowControl() {
       Context context = null;
-      try
-      {
-         LoadProducer producer = new LoadProducer("producer",
-                                                  topic,
-                                                  cf,
-                                                  FlowControlOnIgnoreLargeMessageBodyTest.TOTAL_MESSAGES_COUNT);
+      try {
+         LoadProducer producer = new LoadProducer("producer", topic, cf, FlowControlOnIgnoreLargeMessageBodyTest.TOTAL_MESSAGES_COUNT);
 
          LoadConsumer[] consumers = new LoadConsumer[CONSUMERS_COUNT];
 
          CountDownLatch latch = new CountDownLatch(CONSUMERS_COUNT);
 
-         for (int i = 0; i < consumers.length; i++)
-         {
-            consumers[i] = new LoadConsumer(latch,
-                                            "consumer " + i,
-                                            topic,
-                                            cf,
-                                            receiveTimeout,
-                                            FlowControlOnIgnoreLargeMessageBodyTest.TOTAL_MESSAGES_COUNT);
+         for (int i = 0; i < consumers.length; i++) {
+            consumers[i] = new LoadConsumer(latch, "consumer " + i, topic, cf, receiveTimeout, FlowControlOnIgnoreLargeMessageBodyTest.TOTAL_MESSAGES_COUNT);
          }
 
-         for (LoadConsumer consumer : consumers)
-         {
+         for (LoadConsumer consumer : consumers) {
             consumer.start();
          }
 
@@ -357,55 +310,43 @@ public class FlowControlOnIgnoreLargeMessageBodyTest extends JMSTestBase
 
          producer.start();
          producer.join();
-         for (LoadConsumer consumer : consumers)
-         {
+         for (LoadConsumer consumer : consumers) {
             consumer.join();
          }
 
          String errorMessage = null;
-         if (producer.getSentMessages() != FlowControlOnIgnoreLargeMessageBodyTest.TOTAL_MESSAGES_COUNT)
-         {
+         if (producer.getSentMessages() != FlowControlOnIgnoreLargeMessageBodyTest.TOTAL_MESSAGES_COUNT) {
             errorMessage = "Producer did not send defined count of messages";
          }
-         else
-         {
-            for (LoadConsumer consumer : consumers)
-            {
-               if (consumer.getReceivedMessages() != FlowControlOnIgnoreLargeMessageBodyTest.TOTAL_MESSAGES_COUNT)
-               {
+         else {
+            for (LoadConsumer consumer : consumers) {
+               if (consumer.getReceivedMessages() != FlowControlOnIgnoreLargeMessageBodyTest.TOTAL_MESSAGES_COUNT) {
                   errorMessage = "Consumer did not send defined count of messages";
                   break;
                }
             }
          }
 
-         if (errorMessage != null)
-         {
+         if (errorMessage != null) {
             System.err.println(" ERROR ERROR ERROR ERROR ERROR ERROR ERROR ERROR ERROR ");
             System.err.println(errorMessage);
          }
-         else
-         {
+         else {
             System.out.println(" OK ");
          }
 
          assertFalse(error);
          assertNull(errorMessage);
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          log.warn(e.getMessage(), e);
       }
-      finally
-      {
-         if (context != null)
-         {
-            try
-            {
+      finally {
+         if (context != null) {
+            try {
                context.close();
             }
-            catch (NamingException ex)
-            {
+            catch (NamingException ex) {
                log.warn(ex.getMessage(), ex);
             }
          }

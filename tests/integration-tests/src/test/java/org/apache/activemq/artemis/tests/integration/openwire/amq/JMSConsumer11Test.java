@@ -35,27 +35,21 @@ import org.junit.runners.Parameterized;
  * adapted from: org.apache.activemq.JMSConsumerTest
  */
 @RunWith(Parameterized.class)
-public class JMSConsumer11Test extends BasicOpenWireTest
-{
+public class JMSConsumer11Test extends BasicOpenWireTest {
+
    @Parameterized.Parameters(name = "deliveryMode={0}")
-   public static Collection<Object[]> getParams()
-   {
-      return Arrays.asList(new Object[][] {
-         {DeliveryMode.NON_PERSISTENT},
-         {DeliveryMode.PERSISTENT}
-      });
+   public static Collection<Object[]> getParams() {
+      return Arrays.asList(new Object[][]{{DeliveryMode.NON_PERSISTENT}, {DeliveryMode.PERSISTENT}});
    }
 
    public int deliveryMode;
 
-   public JMSConsumer11Test(int deliveryMode)
-   {
+   public JMSConsumer11Test(int deliveryMode) {
       this.deliveryMode = deliveryMode;
    }
 
    @Test
-   public void testPrefetch1MessageNotDispatched() throws Exception
-   {
+   public void testPrefetch1MessageNotDispatched() throws Exception {
       // Set prefetch to 1
       connection.getPrefetchPolicy().setAll(1);
       connection.start();
@@ -72,8 +66,7 @@ public class JMSConsumer11Test extends BasicOpenWireTest
       // Since prefetch is still full, the 2nd message should get dispatched
       // to another consumer.. lets create the 2nd consumer test that it does
       // make sure it does.
-      ActiveMQConnection connection2 = (ActiveMQConnection) factory
-            .createConnection();
+      ActiveMQConnection connection2 = (ActiveMQConnection) factory.createConnection();
       connection2.start();
       Session session2 = connection2.createSession(true, 0);
       MessageConsumer consumer2 = session2.createConsumer(destination);
@@ -100,12 +93,10 @@ public class JMSConsumer11Test extends BasicOpenWireTest
       System.out.println("received 3: " + m);
       assertNull(m);
 
-      try
-      {
+      try {
          connection2.close();
       }
-      catch (Throwable e)
-      {
+      catch (Throwable e) {
          System.err.println("exception e: " + e);
          e.printStackTrace();
       }

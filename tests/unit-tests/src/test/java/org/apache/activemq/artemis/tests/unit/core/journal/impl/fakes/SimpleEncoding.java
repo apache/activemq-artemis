@@ -22,8 +22,7 @@ import org.apache.activemq.artemis.core.journal.EncodingSupport;
 /**
  * Provides a SimpleEncoding with a Fake Payload
  */
-public class SimpleEncoding implements EncodingSupport
-{
+public class SimpleEncoding implements EncodingSupport {
 
    // Constants -----------------------------------------------------
 
@@ -36,29 +35,24 @@ public class SimpleEncoding implements EncodingSupport
 
    // Constructors --------------------------------------------------
 
-   public SimpleEncoding(final int size, final byte bytetosend)
-   {
+   public SimpleEncoding(final int size, final byte bytetosend) {
       this.size = size;
       this.bytetosend = bytetosend;
    }
 
    // Public --------------------------------------------------------
-   public void decode(final ActiveMQBuffer buffer)
-   {
+   public void decode(final ActiveMQBuffer buffer) {
       throw new UnsupportedOperationException();
 
    }
 
-   public void encode(final ActiveMQBuffer buffer)
-   {
-      for (int i = 0; i < size; i++)
-      {
+   public void encode(final ActiveMQBuffer buffer) {
+      for (int i = 0; i < size; i++) {
          buffer.writeByte(bytetosend);
       }
    }
 
-   public int getEncodeSize()
-   {
+   public int getEncodeSize() {
       return size;
    }
 

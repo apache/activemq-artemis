@@ -32,103 +32,103 @@ import org.springframework.jms.core.MessageCreator;
 
 public class CloseRollbackRedeliveryQueueTest extends EmbeddedBrokerTestSupport {
 
-    private static final transient Logger LOG = LoggerFactory.getLogger(CloseRollbackRedeliveryQueueTest.class);
+   private static final transient Logger LOG = LoggerFactory.getLogger(CloseRollbackRedeliveryQueueTest.class);
 
-    protected int numberOfMessagesOnQueue = 1;
-    private Connection connection;
-   
-    public void testVerifySessionCloseRedeliveryWithFailoverTransport() throws Throwable {
-        Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
-        MessageConsumer consumer = session.createConsumer(destination);
+   protected int numberOfMessagesOnQueue = 1;
+   private Connection connection;
 
-        Message message = consumer.receive(1000);
-        String id = message.getJMSMessageID();
-        assertNotNull(message);
-        LOG.info("got message " + message);
-        // close will rollback the current tx
-        session.close();
-        
-        session = connection.createSession(true, Session.SESSION_TRANSACTED);
-        consumer = session.createConsumer(destination);
+   public void testVerifySessionCloseRedeliveryWithFailoverTransport() throws Throwable {
+      Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
+      MessageConsumer consumer = session.createConsumer(destination);
 
-        message = consumer.receive(1000);
-        session.commit();
-        assertNotNull(message);
-        assertEquals("redelivered message", id, message.getJMSMessageID());
-        assertEquals(2, message.getLongProperty("JMSXDeliveryCount"));
-    }
-    
-    public void testVerifyConsumerAndSessionCloseRedeliveryWithFailoverTransport() throws Throwable {
-        Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
-        MessageConsumer consumer = session.createConsumer(destination);
+      Message message = consumer.receive(1000);
+      String id = message.getJMSMessageID();
+      assertNotNull(message);
+      LOG.info("got message " + message);
+      // close will rollback the current tx
+      session.close();
 
-        Message message = consumer.receive(1000);
-        String id = message.getJMSMessageID();
-        assertNotNull(message);
-        LOG.info("got message " + message);
-        consumer.close();
-        session.close();
-        session = connection.createSession(true, Session.SESSION_TRANSACTED);
-        consumer = session.createConsumer(destination);
+      session = connection.createSession(true, Session.SESSION_TRANSACTED);
+      consumer = session.createConsumer(destination);
 
-        message = consumer.receive(1000);
-        session.commit();
-        assertNotNull(message);
-        assertEquals("redelivered message", id, message.getJMSMessageID());
-        assertEquals(2, message.getLongProperty("JMSXDeliveryCount"));
-    }
+      message = consumer.receive(1000);
+      session.commit();
+      assertNotNull(message);
+      assertEquals("redelivered message", id, message.getJMSMessageID());
+      assertEquals(2, message.getLongProperty("JMSXDeliveryCount"));
+   }
 
-    public void testVerifyConsumerCloseSessionRollbackRedeliveryWithFailoverTransport() throws Throwable {
-        Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
-        MessageConsumer consumer = session.createConsumer(destination);
+   public void testVerifyConsumerAndSessionCloseRedeliveryWithFailoverTransport() throws Throwable {
+      Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
+      MessageConsumer consumer = session.createConsumer(destination);
 
-        Message message = consumer.receive(1000);
-        String id = message.getJMSMessageID();
-        assertNotNull(message);
-        LOG.info("got message " + message);
-        consumer.close();
-        session.rollback();
-        
-        consumer = session.createConsumer(destination);
-        message = consumer.receive(1000);
-        session.commit();
-        assertNotNull(message);
-        assertEquals("redelivered message", id, message.getJMSMessageID());
-        assertEquals(2, message.getLongProperty("JMSXDeliveryCount"));
-    }
-    
-    protected void setUp() throws Exception {
-        super.setUp();
+      Message message = consumer.receive(1000);
+      String id = message.getJMSMessageID();
+      assertNotNull(message);
+      LOG.info("got message " + message);
+      consumer.close();
+      session.close();
+      session = connection.createSession(true, Session.SESSION_TRANSACTED);
+      consumer = session.createConsumer(destination);
 
-        connection = createConnection();
-        connection.start();
+      message = consumer.receive(1000);
+      session.commit();
+      assertNotNull(message);
+      assertEquals("redelivered message", id, message.getJMSMessageID());
+      assertEquals(2, message.getLongProperty("JMSXDeliveryCount"));
+   }
 
-        // lets fill the queue up
-        for (int i = 0; i < numberOfMessagesOnQueue; i++) {
-            template.send(createMessageCreator(i));
-        }
+   public void testVerifyConsumerCloseSessionRollbackRedeliveryWithFailoverTransport() throws Throwable {
+      Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
+      MessageConsumer consumer = session.createConsumer(destination);
 
-    }
+      Message message = consumer.receive(1000);
+      String id = message.getJMSMessageID();
+      assertNotNull(message);
+      LOG.info("got message " + message);
+      consumer.close();
+      session.rollback();
 
-    protected ConnectionFactory createConnectionFactory() throws Exception {
-        // failover: enables message audit - which could get in the way of redelivery 
-        return new ActiveMQConnectionFactory("failover:" + bindAddress);
-    }
-    
-    protected void tearDown() throws Exception {
-        if (connection != null) {
-            connection.close();
-        }
-        super.tearDown();
-    }
+      consumer = session.createConsumer(destination);
+      message = consumer.receive(1000);
+      session.commit();
+      assertNotNull(message);
+      assertEquals("redelivered message", id, message.getJMSMessageID());
+      assertEquals(2, message.getLongProperty("JMSXDeliveryCount"));
+   }
 
-    protected MessageCreator createMessageCreator(final int i) {
-        return new MessageCreator() {
-            public Message createMessage(Session session) throws JMSException {
-                TextMessage answer = session.createTextMessage("Message: " + i);
-                answer.setIntProperty("Counter", i);
-                return answer;
-            }
-        };
-    }
+   protected void setUp() throws Exception {
+      super.setUp();
+
+      connection = createConnection();
+      connection.start();
+
+      // lets fill the queue up
+      for (int i = 0; i < numberOfMessagesOnQueue; i++) {
+         template.send(createMessageCreator(i));
+      }
+
+   }
+
+   protected ConnectionFactory createConnectionFactory() throws Exception {
+      // failover: enables message audit - which could get in the way of redelivery
+      return new ActiveMQConnectionFactory("failover:" + bindAddress);
+   }
+
+   protected void tearDown() throws Exception {
+      if (connection != null) {
+         connection.close();
+      }
+      super.tearDown();
+   }
+
+   protected MessageCreator createMessageCreator(final int i) {
+      return new MessageCreator() {
+         public Message createMessage(Session session) throws JMSException {
+            TextMessage answer = session.createTextMessage("Message: " + i);
+            answer.setIntProperty("Counter", i);
+            return answer;
+         }
+      };
+   }
 }

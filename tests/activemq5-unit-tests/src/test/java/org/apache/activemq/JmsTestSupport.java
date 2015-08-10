@@ -39,148 +39,151 @@ import org.apache.activemq.command.ActiveMQDestination;
 
 /**
  * Test cases used to test the JMS message consumer.
- *
- *
  */
 public class JmsTestSupport extends CombinationTestSupport {
 
-    static final private AtomicLong TEST_COUNTER = new AtomicLong();
-    public String userName;
-    public String password;
-    public String messageTextPrefix = "";
+   static final private AtomicLong TEST_COUNTER = new AtomicLong();
+   public String userName;
+   public String password;
+   public String messageTextPrefix = "";
 
-    protected ConnectionFactory factory;
-    protected ActiveMQConnection connection;
-    protected BrokerService broker;
+   protected ConnectionFactory factory;
+   protected ActiveMQConnection connection;
+   protected BrokerService broker;
 
-    protected List<Connection> connections = Collections.synchronizedList(new ArrayList<Connection>());
+   protected List<Connection> connections = Collections.synchronizedList(new ArrayList<Connection>());
 
-    // /////////////////////////////////////////////////////////////////
-    //
-    // Test support methods.
-    //
-    // /////////////////////////////////////////////////////////////////
-    protected ActiveMQDestination createDestination(Session session, byte type) throws JMSException {
-        String testMethod = getName();
-        if( testMethod.indexOf(" ")>0 ) {
-            testMethod = testMethod.substring(0, testMethod.indexOf(" "));
-        }
-        String name = "TEST." + getClass().getName() + "." +testMethod+"."+TEST_COUNTER.getAndIncrement();
-        switch (type) {
-        case ActiveMQDestination.QUEUE_TYPE:
-            return (ActiveMQDestination)session.createQueue(name);
-        case ActiveMQDestination.TOPIC_TYPE:
-            return (ActiveMQDestination)session.createTopic(name);
-        case ActiveMQDestination.TEMP_QUEUE_TYPE:
-            return (ActiveMQDestination)session.createTemporaryQueue();
-        case ActiveMQDestination.TEMP_TOPIC_TYPE:
-            return (ActiveMQDestination)session.createTemporaryTopic();
-        default:
+   // /////////////////////////////////////////////////////////////////
+   //
+   // Test support methods.
+   //
+   // /////////////////////////////////////////////////////////////////
+   protected ActiveMQDestination createDestination(Session session, byte type) throws JMSException {
+      String testMethod = getName();
+      if (testMethod.indexOf(" ") > 0) {
+         testMethod = testMethod.substring(0, testMethod.indexOf(" "));
+      }
+      String name = "TEST." + getClass().getName() + "." + testMethod + "." + TEST_COUNTER.getAndIncrement();
+      switch (type) {
+         case ActiveMQDestination.QUEUE_TYPE:
+            return (ActiveMQDestination) session.createQueue(name);
+         case ActiveMQDestination.TOPIC_TYPE:
+            return (ActiveMQDestination) session.createTopic(name);
+         case ActiveMQDestination.TEMP_QUEUE_TYPE:
+            return (ActiveMQDestination) session.createTemporaryQueue();
+         case ActiveMQDestination.TEMP_TOPIC_TYPE:
+            return (ActiveMQDestination) session.createTemporaryTopic();
+         default:
             throw new IllegalArgumentException("type: " + type);
-        }
-    }
+      }
+   }
 
-    protected void sendMessages(Destination destination, int count) throws Exception {
-        ConnectionFactory factory = createConnectionFactory();
-        Connection connection = factory.createConnection();
-        connection.start();
-        sendMessages(connection, destination, count);
-        connection.close();
-    }
+   protected void sendMessages(Destination destination, int count) throws Exception {
+      ConnectionFactory factory = createConnectionFactory();
+      Connection connection = factory.createConnection();
+      connection.start();
+      sendMessages(connection, destination, count);
+      connection.close();
+   }
 
-    protected void sendMessages(Connection connection, Destination destination, int count) throws JMSException {
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        sendMessages(session, destination, count);
-        session.close();
-    }
+   protected void sendMessages(Connection connection, Destination destination, int count) throws JMSException {
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      sendMessages(session, destination, count);
+      session.close();
+   }
 
-    protected void sendMessages(Session session, Destination destination, int count) throws JMSException {
-        MessageProducer producer = session.createProducer(destination);
-        sendMessages(session, producer, count);
-        producer.close();
-    }
+   protected void sendMessages(Session session, Destination destination, int count) throws JMSException {
+      MessageProducer producer = session.createProducer(destination);
+      sendMessages(session, producer, count);
+      producer.close();
+   }
 
-    protected void sendMessages(Session session, MessageProducer producer, int count) throws JMSException {
-        for (int i = 0; i < count; i++) {
-            producer.send(session.createTextMessage(messageTextPrefix  + i));
-        }
-    }
+   protected void sendMessages(Session session, MessageProducer producer, int count) throws JMSException {
+      for (int i = 0; i < count; i++) {
+         producer.send(session.createTextMessage(messageTextPrefix + i));
+      }
+   }
 
-    protected ConnectionFactory createConnectionFactory() throws Exception {
-        return new ActiveMQConnectionFactory("tcp://localhost:61616");
-    }
+   protected ConnectionFactory createConnectionFactory() throws Exception {
+      return new ActiveMQConnectionFactory("tcp://localhost:61616");
+   }
 
-    protected BrokerService createBroker() throws Exception {
-        return BrokerFactory.createBroker(new URI("broker://()/localhost?persistent=false"));
-    }
+   protected BrokerService createBroker() throws Exception {
+      return BrokerFactory.createBroker(new URI("broker://()/localhost?persistent=false"));
+   }
 
-    protected void setUp() throws Exception {
-        super.setUp();
+   protected void setUp() throws Exception {
+      super.setUp();
 
-        if (System.getProperty("basedir") == null) {
-            File file = new File(".");
-            System.setProperty("basedir", file.getAbsolutePath());
-        }
+      if (System.getProperty("basedir") == null) {
+         File file = new File(".");
+         System.setProperty("basedir", file.getAbsolutePath());
+      }
 
-        broker = createBroker();
-        broker.start();
-        factory = createConnectionFactory();
-        connection = (ActiveMQConnection)factory.createConnection(userName, password);
-        connections.add(connection);
-    }
+      broker = createBroker();
+      broker.start();
+      factory = createConnectionFactory();
+      connection = (ActiveMQConnection) factory.createConnection(userName, password);
+      connections.add(connection);
+   }
 
-    protected void tearDown() throws Exception {
-        for (Iterator<Connection> iter = connections.iterator(); iter.hasNext();) {
-            Connection conn = iter.next();
-            try {
-                conn.close();
-            } catch (Throwable e) {
-            }
-            iter.remove();
-        }
-        broker.stop();
-        super.tearDown();
-    }
+   protected void tearDown() throws Exception {
+      for (Iterator<Connection> iter = connections.iterator(); iter.hasNext(); ) {
+         Connection conn = iter.next();
+         try {
+            conn.close();
+         }
+         catch (Throwable e) {
+         }
+         iter.remove();
+      }
+      broker.stop();
+      super.tearDown();
+   }
 
-    protected void safeClose(Connection c) {
-        try {
-            c.close();
-        } catch (Throwable e) {
-        }
-    }
+   protected void safeClose(Connection c) {
+      try {
+         c.close();
+      }
+      catch (Throwable e) {
+      }
+   }
 
-    protected void safeClose(Session s) {
-        try {
-            s.close();
-        } catch (Throwable e) {
-        }
-    }
+   protected void safeClose(Session s) {
+      try {
+         s.close();
+      }
+      catch (Throwable e) {
+      }
+   }
 
-    protected void safeClose(MessageConsumer c) {
-        try {
-            c.close();
-        } catch (Throwable e) {
-        }
-    }
+   protected void safeClose(MessageConsumer c) {
+      try {
+         c.close();
+      }
+      catch (Throwable e) {
+      }
+   }
 
-    protected void safeClose(MessageProducer p) {
-        try {
-            p.close();
-        } catch (Throwable e) {
-        }
-    }
+   protected void safeClose(MessageProducer p) {
+      try {
+         p.close();
+      }
+      catch (Throwable e) {
+      }
+   }
 
-    protected void profilerPause(String prompt) throws IOException {
-        if (System.getProperty("profiler") != null) {
-            pause(prompt);
-        }
-    }
+   protected void profilerPause(String prompt) throws IOException {
+      if (System.getProperty("profiler") != null) {
+         pause(prompt);
+      }
+   }
 
-    protected void pause(String prompt) throws IOException {
-        System.out.println();
-        System.out.println(prompt + "> Press enter to continue: ");
-        while (System.in.read() != '\n') {
-        }
-    }
+   protected void pause(String prompt) throws IOException {
+      System.out.println();
+      System.out.println(prompt + "> Press enter to continue: ");
+      while (System.in.read() != '\n') {
+      }
+   }
 
 }

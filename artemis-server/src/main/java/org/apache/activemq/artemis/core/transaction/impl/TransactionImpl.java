@@ -31,8 +31,8 @@ import org.apache.activemq.artemis.core.server.impl.RefsOperation;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.core.transaction.TransactionOperation;
 
-public class TransactionImpl implements Transaction
-{
+public class TransactionImpl implements Transaction {
+
    private List<TransactionOperation> operations;
 
    private static final int INITIAL_NUM_PROPERTIES = 10;
@@ -44,7 +44,6 @@ public class TransactionImpl implements Transaction
    private final Xid xid;
 
    private final long id;
-
 
    private volatile State state = State.ACTIVE;
 
@@ -58,8 +57,7 @@ public class TransactionImpl implements Transaction
 
    private int timeoutSeconds = -1;
 
-   public TransactionImpl(final StorageManager storageManager, final int timeoutSeconds)
-   {
+   public TransactionImpl(final StorageManager storageManager, final int timeoutSeconds) {
       this.storageManager = storageManager;
 
       xid = null;
@@ -71,8 +69,7 @@ public class TransactionImpl implements Transaction
       this.timeoutSeconds = timeoutSeconds;
    }
 
-   public TransactionImpl(final StorageManager storageManager)
-   {
+   public TransactionImpl(final StorageManager storageManager) {
       this.storageManager = storageManager;
 
       xid = null;
@@ -82,8 +79,7 @@ public class TransactionImpl implements Transaction
       createTime = System.currentTimeMillis();
    }
 
-   public TransactionImpl(final Xid xid, final StorageManager storageManager, final int timeoutSeconds)
-   {
+   public TransactionImpl(final Xid xid, final StorageManager storageManager, final int timeoutSeconds) {
       this.storageManager = storageManager;
 
       this.xid = xid;
@@ -95,8 +91,7 @@ public class TransactionImpl implements Transaction
       this.timeoutSeconds = timeoutSeconds;
    }
 
-   public TransactionImpl(final long id, final Xid xid, final StorageManager storageManager)
-   {
+   public TransactionImpl(final long id, final Xid xid, final StorageManager storageManager) {
       this.storageManager = storageManager;
 
       this.xid = xid;
@@ -109,83 +104,65 @@ public class TransactionImpl implements Transaction
    // Transaction implementation
    // -----------------------------------------------------------
 
-   public void setContainsPersistent()
-   {
+   public void setContainsPersistent() {
       containsPersistent = true;
    }
 
-   public boolean isContainsPersistent()
-   {
+   public boolean isContainsPersistent() {
       return containsPersistent;
    }
 
-   public void setTimeout(final int timeout)
-   {
+   public void setTimeout(final int timeout) {
       this.timeoutSeconds = timeout;
    }
 
    @Override
-   public RefsOperation createRefsOperation(Queue queue)
-   {
+   public RefsOperation createRefsOperation(Queue queue) {
       return new RefsOperation(queue, storageManager);
    }
 
-   public long getID()
-   {
+   public long getID() {
       return id;
    }
 
-   public long getCreateTime()
-   {
+   public long getCreateTime() {
       return createTime;
    }
 
-   public boolean hasTimedOut(final long currentTime, final int defaultTimeout)
-   {
-      if (timeoutSeconds == -1)
-      {
+   public boolean hasTimedOut(final long currentTime, final int defaultTimeout) {
+      if (timeoutSeconds == -1) {
          return getState() != Transaction.State.PREPARED && currentTime > createTime + defaultTimeout * 1000;
       }
-      else
-      {
+      else {
          return getState() != Transaction.State.PREPARED && currentTime > createTime + timeoutSeconds * 1000;
       }
    }
 
-   public void prepare() throws Exception
-   {
+   public void prepare() throws Exception {
       storageManager.readLock();
-      try
-      {
-         synchronized (timeoutLock)
-         {
-            if (state == State.ROLLBACK_ONLY)
-            {
-               if (exception != null)
-               {
+      try {
+         synchronized (timeoutLock) {
+            if (state == State.ROLLBACK_ONLY) {
+               if (exception != null) {
                   // this TX will never be rolled back,
                   // so we reset it now
                   beforeRollback();
                   afterRollback();
-                  if (operations != null)
-                  {
+                  if (operations != null) {
                      operations.clear();
                   }
                   throw exception;
                }
-               else
-               {
+               else {
                   // Do nothing
                   return;
                }
             }
-            else if (state != State.ACTIVE)
-            {
+            else if (state != State.ACTIVE) {
                throw new IllegalStateException("Transaction is in invalid state " + state);
             }
 
-            if (xid == null)
-            {
+            if (xid == null) {
                throw new IllegalStateException("Cannot prepare non XA transaction");
             }
 
@@ -197,62 +174,48 @@ public class TransactionImpl implements Transaction
             // We use the Callback even for non persistence
             // If we are using non-persistence with replication, the replication manager will have
             // to execute this runnable in the correct order
-            storageManager.afterCompleteOperations(new IOCallback()
-            {
+            storageManager.afterCompleteOperations(new IOCallback() {
 
-               public void onError(final int errorCode, final String errorMessage)
-               {
+               public void onError(final int errorCode, final String errorMessage) {
                   ActiveMQServerLogger.LOGGER.ioErrorOnTX(errorCode, errorMessage);
                }
 
-               public void done()
-               {
+               public void done() {
                   afterPrepare();
                }
             });
          }
       }
-      finally
-      {
+      finally {
          storageManager.readUnLock();
       }
    }
 
-   public void commit() throws Exception
-   {
+   public void commit() throws Exception {
       commit(true);
    }
 
-   public void commit(final boolean onePhase) throws Exception
-   {
-      synchronized (timeoutLock)
-      {
-         if (state == State.ROLLBACK_ONLY)
-         {
+   public void commit(final boolean onePhase) throws Exception {
+      synchronized (timeoutLock) {
+         if (state == State.ROLLBACK_ONLY) {
             rollback();
 
-            if (exception != null)
-            {
+            if (exception != null) {
                throw exception;
             }
-            else
-            {
+            else {
                // Do nothing
                return;
             }
          }
 
-         if (xid != null)
-         {
-            if (onePhase && state != State.ACTIVE || !onePhase && state != State.PREPARED)
-            {
+         if (xid != null) {
+            if (onePhase && state != State.ACTIVE || !onePhase && state != State.PREPARED) {
                throw new IllegalStateException("Transaction is in invalid state " + state);
             }
          }
-         else
-         {
-            if (state != State.ACTIVE)
-            {
+         else {
+            if (state != State.ACTIVE) {
                throw new IllegalStateException("Transaction is in invalid state " + state);
             }
          }
@@ -266,16 +229,13 @@ public class TransactionImpl implements Transaction
          // to execute this runnable in the correct order
          // This also will only use a different thread if there are any IO pending.
          // If the IO finished early by the time we got here, we won't need an executor
-         storageManager.afterCompleteOperations(new IOCallback()
-         {
+         storageManager.afterCompleteOperations(new IOCallback() {
 
-            public void onError(final int errorCode, final String errorMessage)
-            {
+            public void onError(final int errorCode, final String errorMessage) {
                ActiveMQServerLogger.LOGGER.ioErrorOnTX(errorCode, errorMessage);
             }
 
-            public void done()
-            {
+            public void done() {
                afterCommit();
             }
          });
@@ -286,10 +246,8 @@ public class TransactionImpl implements Transaction
    /**
     * @throws Exception
     */
-   protected void doCommit() throws Exception
-   {
-      if (containsPersistent || xid != null && state == State.PREPARED)
-      {
+   protected void doCommit() throws Exception {
+      if (containsPersistent || xid != null && state == State.PREPARED) {
 
          storageManager.commit(id);
 
@@ -297,21 +255,15 @@ public class TransactionImpl implements Transaction
       }
    }
 
-   public void rollback() throws Exception
-   {
-      synchronized (timeoutLock)
-      {
-         if (xid != null)
-         {
-            if (state != State.PREPARED && state != State.ACTIVE && state != State.ROLLBACK_ONLY)
-            {
+   public void rollback() throws Exception {
+      synchronized (timeoutLock) {
+         if (xid != null) {
+            if (state != State.PREPARED && state != State.ACTIVE && state != State.ROLLBACK_ONLY) {
                throw new IllegalStateException("Transaction is in invalid state " + state);
             }
          }
-         else
-         {
-            if (state != State.ACTIVE && state != State.ROLLBACK_ONLY)
-            {
+         else {
+            if (state != State.ACTIVE && state != State.ROLLBACK_ONLY) {
                throw new IllegalStateException("Transaction is in invalid state " + state);
             }
          }
@@ -323,16 +275,13 @@ public class TransactionImpl implements Transaction
          // We use the Callback even for non persistence
          // If we are using non-persistence with replication, the replication manager will have
          // to execute this runnable in the correct order
-         storageManager.afterCompleteOperations(new IOCallback()
-         {
+         storageManager.afterCompleteOperations(new IOCallback() {
 
-            public void onError(final int errorCode, final String errorMessage)
-            {
+            public void onError(final int errorCode, final String errorMessage) {
                ActiveMQServerLogger.LOGGER.ioErrorOnTX(errorCode, errorMessage);
             }
 
-            public void done()
-            {
+            public void done() {
                afterRollback();
                state = State.ROLLEDBACK;
             }
@@ -340,43 +289,34 @@ public class TransactionImpl implements Transaction
       }
    }
 
-   public void suspend()
-   {
-      if (state != State.ACTIVE)
-      {
+   public void suspend() {
+      if (state != State.ACTIVE) {
          throw new IllegalStateException("Can only suspend active transaction");
       }
       state = State.SUSPENDED;
    }
 
-   public void resume()
-   {
-      if (state != State.SUSPENDED)
-      {
+   public void resume() {
+      if (state != State.SUSPENDED) {
          throw new IllegalStateException("Can only resume a suspended transaction");
       }
       state = State.ACTIVE;
    }
 
-   public Transaction.State getState()
-   {
+   public Transaction.State getState() {
       return state;
    }
 
-   public void setState(final State state)
-   {
+   public void setState(final State state) {
       this.state = state;
    }
 
-   public Xid getXid()
-   {
+   public Xid getXid() {
       return xid;
    }
 
-   public void markAsRollbackOnly(final ActiveMQException exception1)
-   {
-      if (ActiveMQServerLogger.LOGGER.isDebugEnabled())
-      {
+   public void markAsRollbackOnly(final ActiveMQException exception1) {
+      if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
          ActiveMQServerLogger.LOGGER.debug("Marking Transaction " + this.id + " as rollback only");
       }
       state = State.ROLLBACK_ONLY;
@@ -384,29 +324,24 @@ public class TransactionImpl implements Transaction
       this.exception = exception1;
    }
 
-   public synchronized void addOperation(final TransactionOperation operation)
-   {
+   public synchronized void addOperation(final TransactionOperation operation) {
       checkCreateOperations();
 
       operations.add(operation);
    }
 
-   private int getOperationsCount()
-   {
+   private int getOperationsCount() {
       checkCreateOperations();
 
       return operations.size();
    }
 
-   public synchronized List<TransactionOperation> getAllOperations()
-   {
+   public synchronized List<TransactionOperation> getAllOperations() {
       return new ArrayList<TransactionOperation>(operations);
    }
 
-   public void putProperty(final int index, final Object property)
-   {
-      if (index >= properties.length)
-      {
+   public void putProperty(final int index, final Object property) {
+      if (index >= properties.length) {
          Object[] newProperties = new Object[index];
 
          System.arraycopy(properties, 0, newProperties, 0, properties.length);
@@ -417,99 +352,75 @@ public class TransactionImpl implements Transaction
       properties[index] = property;
    }
 
-   public Object getProperty(final int index)
-   {
+   public Object getProperty(final int index) {
       return properties[index];
    }
 
    // Private
    // -------------------------------------------------------------------
 
-   private void doRollback() throws Exception
-   {
-      if (containsPersistent || xid != null && state == State.PREPARED)
-      {
+   private void doRollback() throws Exception {
+      if (containsPersistent || xid != null && state == State.PREPARED) {
          storageManager.rollback(id);
       }
    }
 
-   private void checkCreateOperations()
-   {
-      if (operations == null)
-      {
+   private void checkCreateOperations() {
+      if (operations == null) {
          operations = new ArrayList<TransactionOperation>();
       }
    }
 
-   private synchronized void afterCommit()
-   {
-      if (operations != null)
-      {
-         for (TransactionOperation operation : operations)
-         {
+   private synchronized void afterCommit() {
+      if (operations != null) {
+         for (TransactionOperation operation : operations) {
             operation.afterCommit(this);
          }
       }
    }
 
-   private synchronized void afterRollback()
-   {
-      if (operations != null)
-      {
-         for (TransactionOperation operation : operations)
-         {
+   private synchronized void afterRollback() {
+      if (operations != null) {
+         for (TransactionOperation operation : operations) {
             operation.afterRollback(this);
          }
       }
    }
 
-   private synchronized void beforeCommit() throws Exception
-   {
-      if (operations != null)
-      {
-         for (TransactionOperation operation : operations)
-         {
+   private synchronized void beforeCommit() throws Exception {
+      if (operations != null) {
+         for (TransactionOperation operation : operations) {
             operation.beforeCommit(this);
          }
       }
    }
 
-   private synchronized void beforePrepare() throws Exception
-   {
-      if (operations != null)
-      {
-         for (TransactionOperation operation : operations)
-         {
+   private synchronized void beforePrepare() throws Exception {
+      if (operations != null) {
+         for (TransactionOperation operation : operations) {
             operation.beforePrepare(this);
          }
       }
    }
 
-   private synchronized void beforeRollback() throws Exception
-   {
-      if (operations != null)
-      {
-         for (TransactionOperation operation : operations)
-         {
+   private synchronized void beforeRollback() throws Exception {
+      if (operations != null) {
+         for (TransactionOperation operation : operations) {
             operation.beforeRollback(this);
          }
       }
    }
 
-   private synchronized void afterPrepare()
-   {
-      if (operations != null)
-      {
-         for (TransactionOperation operation : operations)
-         {
+   private synchronized void afterPrepare() {
+      if (operations != null) {
+         for (TransactionOperation operation : operations) {
             operation.afterPrepare(this);
          }
       }
    }
 
    @Override
-   public String toString()
-   {
+   public String toString() {
       Date dt = new Date(this.createTime);
       return "TransactionImpl [xid=" + xid +
          ", id=" +

@@ -16,63 +16,62 @@
  */
 package org.apache.activemq.management;
 
-
 public class RangeStatisticTest extends StatisticTestSupport {
-    
-    private static final org.apache.commons.logging.Log LOG = org.apache.commons.logging.LogFactory
-            .getLog(RangeStatisticTest.class);
 
-    /**
-     * Use case for RangeStatisticImpl class.
-     * @throws Exception
-     */
-    public void testStatistic() throws Exception {
-        RangeStatisticImpl stat = new RangeStatisticImpl("myRange", "millis", "myDescription");
-        assertStatistic(stat, "myRange", "millis", "myDescription");
+   private static final org.apache.commons.logging.Log LOG = org.apache.commons.logging.LogFactory.getLog(RangeStatisticTest.class);
 
-        assertRangeStatistic(stat);
-    }
+   /**
+    * Use case for RangeStatisticImpl class.
+    *
+    * @throws Exception
+    */
+   public void testStatistic() throws Exception {
+      RangeStatisticImpl stat = new RangeStatisticImpl("myRange", "millis", "myDescription");
+      assertStatistic(stat, "myRange", "millis", "myDescription");
 
-    protected void assertRangeStatistic(RangeStatisticImpl stat) throws InterruptedException {
-        assertEquals(0, stat.getCurrent());
-        assertEquals(0, stat.getLowWaterMark());
-        assertEquals(0, stat.getHighWaterMark());
+      assertRangeStatistic(stat);
+   }
 
-        stat.setCurrent(100);
-        assertEquals(100, stat.getCurrent());
-        assertEquals(100, stat.getLowWaterMark());
-        assertEquals(100, stat.getHighWaterMark());
+   protected void assertRangeStatistic(RangeStatisticImpl stat) throws InterruptedException {
+      assertEquals(0, stat.getCurrent());
+      assertEquals(0, stat.getLowWaterMark());
+      assertEquals(0, stat.getHighWaterMark());
 
-        stat.setCurrent(50);
-        assertEquals(50, stat.getCurrent());
-        assertEquals(50, stat.getLowWaterMark());
-        assertEquals(100, stat.getHighWaterMark());
+      stat.setCurrent(100);
+      assertEquals(100, stat.getCurrent());
+      assertEquals(100, stat.getLowWaterMark());
+      assertEquals(100, stat.getHighWaterMark());
 
-        stat.setCurrent(200);
-        assertEquals(200, stat.getCurrent());
-        assertEquals(50, stat.getLowWaterMark());
-        assertEquals(200, stat.getHighWaterMark());
+      stat.setCurrent(50);
+      assertEquals(50, stat.getCurrent());
+      assertEquals(50, stat.getLowWaterMark());
+      assertEquals(100, stat.getHighWaterMark());
 
-        Thread.sleep(500);
+      stat.setCurrent(200);
+      assertEquals(200, stat.getCurrent());
+      assertEquals(50, stat.getLowWaterMark());
+      assertEquals(200, stat.getHighWaterMark());
 
-        stat.setCurrent(10);
-        assertEquals(10, stat.getCurrent());
-        assertEquals(10, stat.getLowWaterMark());
-        assertEquals(200, stat.getHighWaterMark());
+      Thread.sleep(500);
 
-        assertLastTimeNotStartTime(stat);
+      stat.setCurrent(10);
+      assertEquals(10, stat.getCurrent());
+      assertEquals(10, stat.getLowWaterMark());
+      assertEquals(200, stat.getHighWaterMark());
 
-        LOG.info("Stat is: " + stat);
+      assertLastTimeNotStartTime(stat);
 
-        stat.reset();
+      LOG.info("Stat is: " + stat);
 
-        assertEquals(0, stat.getCurrent());
-        assertEquals(0, stat.getLowWaterMark());
-        assertEquals(0, stat.getHighWaterMark());
+      stat.reset();
 
-        stat.setCurrent(100);
-        assertEquals(100, stat.getCurrent());
-        assertEquals(100, stat.getLowWaterMark());
-        assertEquals(100, stat.getHighWaterMark());
-    }
+      assertEquals(0, stat.getCurrent());
+      assertEquals(0, stat.getLowWaterMark());
+      assertEquals(0, stat.getHighWaterMark());
+
+      stat.setCurrent(100);
+      assertEquals(100, stat.getCurrent());
+      assertEquals(100, stat.getLowWaterMark());
+      assertEquals(100, stat.getHighWaterMark());
+   }
 }

@@ -26,143 +26,119 @@ import org.proton.plug.handler.EventHandler;
 /**
  * This is useful for cases where you only want to implement a few methods
  */
-public abstract class DefaultEventHandler implements EventHandler
-{
+public abstract class DefaultEventHandler implements EventHandler {
+
    @Override
-   public void onInit(Connection connection) throws Exception
-   {
+   public void onInit(Connection connection) throws Exception {
 
    }
 
    @Override
-   public void onLocalOpen(Connection connection) throws Exception
-   {
+   public void onLocalOpen(Connection connection) throws Exception {
 
    }
 
    @Override
-   public void onRemoteOpen(Connection connection) throws Exception
-   {
+   public void onRemoteOpen(Connection connection) throws Exception {
 
    }
 
    @Override
-   public void onLocalClose(Connection connection) throws Exception
-   {
+   public void onLocalClose(Connection connection) throws Exception {
 
    }
 
    @Override
-   public void onRemoteClose(Connection connection) throws Exception
-   {
+   public void onRemoteClose(Connection connection) throws Exception {
    }
 
    @Override
-   public void onFinal(Connection connection) throws Exception
-   {
-
-   }
-
-   @Override
-   public void onInit(Session session) throws Exception
-   {
+   public void onFinal(Connection connection) throws Exception {
 
    }
 
    @Override
-   public void onLocalOpen(Session session) throws Exception
-   {
+   public void onInit(Session session) throws Exception {
 
    }
 
    @Override
-   public void onRemoteOpen(Session session) throws Exception
-   {
+   public void onLocalOpen(Session session) throws Exception {
 
    }
 
    @Override
-   public void onLocalClose(Session session) throws Exception
-   {
+   public void onRemoteOpen(Session session) throws Exception {
 
    }
 
    @Override
-   public void onRemoteClose(Session session) throws Exception
-   {
+   public void onLocalClose(Session session) throws Exception {
 
    }
 
    @Override
-   public void onFinal(Session session) throws Exception
-   {
+   public void onRemoteClose(Session session) throws Exception {
 
    }
 
    @Override
-   public void onInit(Link link) throws Exception
-   {
+   public void onFinal(Session session) throws Exception {
 
    }
 
    @Override
-   public void onLocalOpen(Link link) throws Exception
-   {
+   public void onInit(Link link) throws Exception {
 
    }
 
    @Override
-   public void onRemoteOpen(Link link) throws Exception
-   {
+   public void onLocalOpen(Link link) throws Exception {
 
    }
 
    @Override
-   public void onLocalClose(Link link) throws Exception
-   {
+   public void onRemoteOpen(Link link) throws Exception {
 
    }
 
    @Override
-   public void onRemoteClose(Link link) throws Exception
-   {
+   public void onLocalClose(Link link) throws Exception {
 
    }
 
    @Override
-   public void onFlow(Link link) throws Exception
-   {
+   public void onRemoteClose(Link link) throws Exception {
 
    }
 
    @Override
-   public void onFinal(Link link) throws Exception
-   {
-
-   }
-
-
-   @Override
-   public void onRemoteDetach(Link link) throws Exception
-   {
+   public void onFlow(Link link) throws Exception {
 
    }
 
    @Override
-   public void onDetach(Link link) throws Exception
-   {
+   public void onFinal(Link link) throws Exception {
 
    }
 
    @Override
-   public void onDelivery(Delivery delivery) throws Exception
-   {
+   public void onRemoteDetach(Link link) throws Exception {
 
    }
 
    @Override
-   public void onTransport(Transport transport) throws Exception
-   {
+   public void onDetach(Link link) throws Exception {
+
+   }
+
+   @Override
+   public void onDelivery(Delivery delivery) throws Exception {
+
+   }
+
+   @Override
+   public void onTransport(Transport transport) throws Exception {
 
    }
 }

@@ -41,8 +41,7 @@ import org.junit.Before;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class MultipleServerFailoverTestBase extends ActiveMQTestBase
-{
+public abstract class MultipleServerFailoverTestBase extends ActiveMQTestBase {
    // Constants -----------------------------------------------------
 
    protected static final SimpleString ADDRESS = new SimpleString("jms.queues.FailoverTestAddress");
@@ -71,56 +70,44 @@ public abstract class MultipleServerFailoverTestBase extends ActiveMQTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
       liveServers = new ArrayList<TestableServer>();
       backupServers = new ArrayList<TestableServer>();
       backupConfigs = new ArrayList<Configuration>();
       liveConfigs = new ArrayList<Configuration>();
 
-      for (int i = 0; i < getLiveServerCount(); i++)
-      {
+      for (int i = 0; i < getLiveServerCount(); i++) {
          HAPolicyConfiguration haPolicyConfiguration = null;
 
-         if (isSharedStore())
-         {
+         if (isSharedStore()) {
             haPolicyConfiguration = new SharedStoreMasterPolicyConfiguration();
-            ((SharedStoreMasterPolicyConfiguration)haPolicyConfiguration).setFailbackDelay(1000);
+            ((SharedStoreMasterPolicyConfiguration) haPolicyConfiguration).setFailbackDelay(1000);
          }
-         else
-         {
+         else {
             haPolicyConfiguration = new ReplicatedPolicyConfiguration();
-            if (getNodeGroupName() != null)
-            {
-               ((ReplicatedPolicyConfiguration)haPolicyConfiguration).setGroupName(getNodeGroupName() + "-" + i);
+            if (getNodeGroupName() != null) {
+               ((ReplicatedPolicyConfiguration) haPolicyConfiguration).setGroupName(getNodeGroupName() + "-" + i);
             }
          }
 
-         Configuration configuration = createDefaultConfig(isNetty())
-            .clearAcceptorConfigurations()
-            .addAcceptorConfiguration(getAcceptorTransportConfiguration(true, i))
-            .setHAPolicyConfiguration(haPolicyConfiguration);
+         Configuration configuration = createDefaultConfig(isNetty()).clearAcceptorConfigurations().addAcceptorConfiguration(getAcceptorTransportConfiguration(true, i)).setHAPolicyConfiguration(haPolicyConfiguration);
 
-         if (!isSharedStore())
-         {
+         if (!isSharedStore()) {
             configuration.setBindingsDirectory(getBindingsDir(i, false));
             configuration.setJournalDirectory(getJournalDir(i, false));
             configuration.setPagingDirectory(getPageDir(i, false));
             configuration.setLargeMessagesDirectory(getLargeMessagesDir(i, false));
          }
-         else
-         {
+         else {
             //todo
          }
 
          TransportConfiguration livetc = getConnectorTransportConfiguration(true, i);
          configuration.addConnectorConfiguration(livetc.getName(), livetc);
          List<String> connectors = new ArrayList<String>();
-         for (int j = 0; j < getLiveServerCount(); j++)
-         {
-            if (j != i)
-            {
+         for (int j = 0; j < getLiveServerCount(); j++) {
+            if (j != i) {
                TransportConfiguration staticTc = getConnectorTransportConfiguration(true, j);
                configuration.getConnectorConfigurations().put(staticTc.getName(), staticTc);
                connectors.add(staticTc.getName());
@@ -136,55 +123,43 @@ public abstract class MultipleServerFailoverTestBase extends ActiveMQTestBase
          activeMQServer.setIdentity("Live-" + i);
          liveServers.add(activeMQServer);
       }
-      for (int i = 0; i < getBackupServerCount(); i++)
-      {
+      for (int i = 0; i < getBackupServerCount(); i++) {
          HAPolicyConfiguration haPolicyConfiguration = null;
 
-         if (isSharedStore())
-         {
+         if (isSharedStore()) {
             haPolicyConfiguration = new SharedStoreSlavePolicyConfiguration();
-            ((SharedStoreSlavePolicyConfiguration)haPolicyConfiguration).setFailbackDelay(1000);
+            ((SharedStoreSlavePolicyConfiguration) haPolicyConfiguration).setFailbackDelay(1000);
          }
-         else
-         {
+         else {
             haPolicyConfiguration = new ReplicaPolicyConfiguration();
-            ((ReplicaPolicyConfiguration)haPolicyConfiguration).setFailbackDelay(1000);
-            if (getNodeGroupName() != null)
-            {
-               ((ReplicaPolicyConfiguration)haPolicyConfiguration).setGroupName(getNodeGroupName() + "-" + i);
+            ((ReplicaPolicyConfiguration) haPolicyConfiguration).setFailbackDelay(1000);
+            if (getNodeGroupName() != null) {
+               ((ReplicaPolicyConfiguration) haPolicyConfiguration).setGroupName(getNodeGroupName() + "-" + i);
             }
          }
 
-         Configuration configuration = createDefaultConfig(isNetty())
-            .clearAcceptorConfigurations()
-            .addAcceptorConfiguration(getAcceptorTransportConfiguration(false, i))
-            .setHAPolicyConfiguration(haPolicyConfiguration);
+         Configuration configuration = createDefaultConfig(isNetty()).clearAcceptorConfigurations().addAcceptorConfiguration(getAcceptorTransportConfiguration(false, i)).setHAPolicyConfiguration(haPolicyConfiguration);
 
-         if (!isSharedStore())
-         {
+         if (!isSharedStore()) {
             configuration.setBindingsDirectory(getBindingsDir(i, true));
             configuration.setJournalDirectory(getJournalDir(i, true));
             configuration.setPagingDirectory(getPageDir(i, true));
             configuration.setLargeMessagesDirectory(getLargeMessagesDir(i, true));
          }
-         else
-         {
+         else {
             //todo
          }
 
          TransportConfiguration backuptc = getConnectorTransportConfiguration(false, i);
          configuration.addConnectorConfiguration(backuptc.getName(), backuptc);
          List<String> connectors = new ArrayList<String>();
-         for (int j = 0; j < getBackupServerCount(); j++)
-         {
+         for (int j = 0; j < getBackupServerCount(); j++) {
             TransportConfiguration staticTc = getConnectorTransportConfiguration(true, j);
             configuration.addConnectorConfiguration(staticTc.getName(), staticTc);
             connectors.add(staticTc.getName());
          }
-         for (int j = 0; j < getBackupServerCount(); j++)
-         {
-            if (j != i)
-            {
+         for (int j = 0; j < getBackupServerCount(); j++) {
+            if (j != i) {
                TransportConfiguration staticTc = getConnectorTransportConfiguration(false, j);
                configuration.getConnectorConfigurations().put(staticTc.getName(), staticTc);
                connectors.add(staticTc.getName());
@@ -201,78 +176,61 @@ public abstract class MultipleServerFailoverTestBase extends ActiveMQTestBase
       }
    }
 
-   protected TransportConfiguration getAcceptorTransportConfiguration(final boolean live, int node)
-   {
+   protected TransportConfiguration getAcceptorTransportConfiguration(final boolean live, int node) {
       TransportConfiguration transportConfiguration;
-      if (isNetty())
-      {
+      if (isNetty()) {
          transportConfiguration = TransportConfigurationUtils.getNettyAcceptor(live, node, (live ? "live-" : "backup-") + node);
       }
-      else
-      {
+      else {
          transportConfiguration = TransportConfigurationUtils.getInVMAcceptor(live, node, (live ? "live-" : "backup-") + node);
       }
       return transportConfiguration;
    }
 
-   protected TransportConfiguration getConnectorTransportConfiguration(final boolean live, int node)
-   {
+   protected TransportConfiguration getConnectorTransportConfiguration(final boolean live, int node) {
       TransportConfiguration transportConfiguration;
-      if (isNetty())
-      {
+      if (isNetty()) {
          transportConfiguration = TransportConfigurationUtils.getNettyConnector(live, node, (live ? "live-" : "backup-") + node);
       }
-      else
-      {
+      else {
          transportConfiguration = TransportConfigurationUtils.getInVMConnector(live, node, (live ? "live-" : "backup-") + node);
       }
       return transportConfiguration;
    }
 
-   protected ServerLocatorInternal getServerLocator(int node) throws Exception
-   {
-      return (ServerLocatorInternal) addServerLocator(ActiveMQClient.createServerLocatorWithHA(getConnectorTransportConfiguration(true, node)))
-              .setRetryInterval(50)
-              .setReconnectAttempts(-1)
-              .setInitialConnectAttempts(-1);
+   protected ServerLocatorInternal getServerLocator(int node) throws Exception {
+      return (ServerLocatorInternal) addServerLocator(ActiveMQClient.createServerLocatorWithHA(getConnectorTransportConfiguration(true, node))).setRetryInterval(50).setReconnectAttempts(-1).setInitialConnectAttempts(-1);
    }
 
-   protected ServerLocatorInternal getBackupServerLocator(int node) throws Exception
-   {
-      return (ServerLocatorInternal) addServerLocator(ActiveMQClient.createServerLocatorWithHA(getConnectorTransportConfiguration(false, node)))
-              .setRetryInterval(50)
-              .setReconnectAttempts(-1)
-              .setInitialConnectAttempts(-1);
+   protected ServerLocatorInternal getBackupServerLocator(int node) throws Exception {
+      return (ServerLocatorInternal) addServerLocator(ActiveMQClient.createServerLocatorWithHA(getConnectorTransportConfiguration(false, node))).setRetryInterval(50).setReconnectAttempts(-1).setInitialConnectAttempts(-1);
    }
 
    protected ClientSession createSession(ClientSessionFactory sf,
                                          boolean autoCommitSends,
                                          boolean autoCommitAcks,
-                                         int ackBatchSize) throws Exception
-   {
+                                         int ackBatchSize) throws Exception {
       return addClientSession(sf.createSession(autoCommitSends, autoCommitAcks, ackBatchSize));
    }
 
-   protected ClientSession createSession(ClientSessionFactory sf, boolean autoCommitSends, boolean autoCommitAcks) throws Exception
-   {
+   protected ClientSession createSession(ClientSessionFactory sf,
+                                         boolean autoCommitSends,
+                                         boolean autoCommitAcks) throws Exception {
       return addClientSession(sf.createSession(autoCommitSends, autoCommitAcks));
    }
 
-   protected ClientSession createSession(ClientSessionFactory sf) throws Exception
-   {
+   protected ClientSession createSession(ClientSessionFactory sf) throws Exception {
       return addClientSession(sf.createSession());
    }
 
    protected ClientSession createSession(ClientSessionFactory sf,
                                          boolean xa,
                                          boolean autoCommitSends,
-                                         boolean autoCommitAcks) throws Exception
-   {
+                                         boolean autoCommitAcks) throws Exception {
       return addClientSession(sf.createSession(xa, autoCommitSends, autoCommitAcks));
    }
 
-   protected void waitForDistribution(SimpleString address, ActiveMQServer server, int messageCount) throws Exception
-   {
+   protected void waitForDistribution(SimpleString address, ActiveMQServer server, int messageCount) throws Exception {
       ActiveMQServerLogger.LOGGER.debug("waiting for distribution of messages on server " + server);
 
       long start = System.currentTimeMillis();
@@ -281,17 +239,14 @@ public abstract class MultipleServerFailoverTestBase extends ActiveMQTestBase
 
       Queue q = (Queue) server.getPostOffice().getBinding(address).getBindable();
 
-      do
-      {
+      do {
 
-         if (getMessageCount(q) >= messageCount)
-         {
+         if (getMessageCount(q) >= messageCount) {
             return;
          }
 
          Thread.sleep(10);
-      }
-      while (System.currentTimeMillis() - start < timeout);
+      } while (System.currentTimeMillis() - start < timeout);
 
       throw new Exception();
    }

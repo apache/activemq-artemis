@@ -16,29 +16,29 @@
  */
 package org.apache.activemq.broker.ft;
 
-public class QueueMasterSlaveTestUsingSharedFileTest extends
-        QueueMasterSlaveTestSupport {
-    
-    protected String getSlaveXml() {
-        return "org/apache/activemq/broker/ft/sharedFileSlave.xml";
-    }
-    
-    protected String getMasterXml() {
-        return "org/apache/activemq/broker/ft/sharedFileMaster.xml";
-    }
-    
-    protected void createSlave() throws Exception {    	
-    	// Start the Brokers async since starting them up could be a blocking operation..
-        new Thread(new Runnable() {
-            public void run() {
-                try {
-                    QueueMasterSlaveTestUsingSharedFileTest.super.createSlave();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
+public class QueueMasterSlaveTestUsingSharedFileTest extends QueueMasterSlaveTestSupport {
 
-        }).start();
-    }
+   protected String getSlaveXml() {
+      return "org/apache/activemq/broker/ft/sharedFileSlave.xml";
+   }
+
+   protected String getMasterXml() {
+      return "org/apache/activemq/broker/ft/sharedFileMaster.xml";
+   }
+
+   protected void createSlave() throws Exception {
+      // Start the Brokers async since starting them up could be a blocking operation..
+      new Thread(new Runnable() {
+         public void run() {
+            try {
+               QueueMasterSlaveTestUsingSharedFileTest.super.createSlave();
+            }
+            catch (Exception e) {
+               e.printStackTrace();
+            }
+         }
+
+      }).start();
+   }
 
 }

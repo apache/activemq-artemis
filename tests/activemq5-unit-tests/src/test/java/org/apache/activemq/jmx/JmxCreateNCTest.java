@@ -34,34 +34,32 @@ import static org.junit.Assert.assertNotNull;
  */
 public class JmxCreateNCTest {
 
-    private static final String BROKER_NAME = "jmx-broker";
+   private static final String BROKER_NAME = "jmx-broker";
 
-    @Test
-    public void testBridgeRegistration() throws Exception {
-        BrokerService broker = new BrokerService();
-        broker.setBrokerName(BROKER_NAME);
-        broker.setUseJmx(true); // explicitly set this so no funny issues
-        broker.start();
-        broker.waitUntilStarted();
+   @Test
+   public void testBridgeRegistration() throws Exception {
+      BrokerService broker = new BrokerService();
+      broker.setBrokerName(BROKER_NAME);
+      broker.setUseJmx(true); // explicitly set this so no funny issues
+      broker.start();
+      broker.waitUntilStarted();
 
-        // now create network connector over JMX
-        ObjectName brokerObjectName = new ObjectName("org.apache.activemq:type=Broker,brokerName=" + BROKER_NAME);
-        BrokerViewMBean proxy = (BrokerViewMBean) broker.getManagementContext().newProxyInstance(brokerObjectName,
-                BrokerViewMBean.class, true);
+      // now create network connector over JMX
+      ObjectName brokerObjectName = new ObjectName("org.apache.activemq:type=Broker,brokerName=" + BROKER_NAME);
+      BrokerViewMBean proxy = (BrokerViewMBean) broker.getManagementContext().newProxyInstance(brokerObjectName, BrokerViewMBean.class, true);
 
-        assertNotNull("We could not retrieve the broker from JMX", proxy);
+      assertNotNull("We could not retrieve the broker from JMX", proxy);
 
-        // let's add the NC
-        String connectoName = proxy.addNetworkConnector("static:(tcp://localhost:61617)");
-        assertEquals("NC", connectoName);
+      // let's add the NC
+      String connectoName = proxy.addNetworkConnector("static:(tcp://localhost:61617)");
+      assertEquals("NC", connectoName);
 
-        // Make sure we can retrieve the NC through JMX
-        ObjectName networkConnectorObjectName = new ObjectName("org.apache.activemq:type=Broker,brokerName=" + BROKER_NAME +
-                ",connector=networkConnectors,networkConnectorName=" + connectoName);
-        NetworkConnectorViewMBean nc  = (NetworkConnectorViewMBean) broker.getManagementContext().newProxyInstance(networkConnectorObjectName,
-                NetworkConnectorViewMBean.class, true);
+      // Make sure we can retrieve the NC through JMX
+      ObjectName networkConnectorObjectName = new ObjectName("org.apache.activemq:type=Broker,brokerName=" + BROKER_NAME +
+                                                                ",connector=networkConnectors,networkConnectorName=" + connectoName);
+      NetworkConnectorViewMBean nc = (NetworkConnectorViewMBean) broker.getManagementContext().newProxyInstance(networkConnectorObjectName, NetworkConnectorViewMBean.class, true);
 
-        assertNotNull(nc);
-        assertEquals("NC", nc.getName());
-    }
+      assertNotNull(nc);
+      assertEquals("NC", nc.getName());
+   }
 }

@@ -23,21 +23,23 @@ package org.apache.activemq.artemis.api.core.client;
  * the listener receives {@link #nodeUP(TopologyMember, boolean)} for all the current topology
  * members.
  */
-public interface ClusterTopologyListener
-{
+public interface ClusterTopologyListener {
+
    /**
     * Triggered when a node joins the cluster.
+    *
     * @param member
-    * @param last if the whole cluster topology is being transmitted (after adding the listener to
-    *           the cluster connection) this parameter will be {@code true} for the last topology
-    *           member.
+    * @param last   if the whole cluster topology is being transmitted (after adding the listener to
+    *               the cluster connection) this parameter will be {@code true} for the last topology
+    *               member.
     */
    void nodeUP(TopologyMember member, boolean last);
 
    /**
     * Triggered when a node leaves the cluster.
+    *
     * @param eventUID
-    * @param nodeID the id of the node leaving the cluster
+    * @param nodeID   the id of the node leaving the cluster
     */
    void nodeDown(long eventUID, String nodeID);
 }

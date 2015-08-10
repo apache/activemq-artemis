@@ -37,146 +37,149 @@ import org.slf4j.LoggerFactory;
 import org.springframework.jms.core.MessageCreator;
 
 /**
- * 
+ *
  */
 public class RollbacksWhileConsumingLargeQueueTest extends EmbeddedBrokerTestSupport implements MessageListener {
 
-    private static final transient Logger LOG = LoggerFactory.getLogger(RollbacksWhileConsumingLargeQueueTest.class);
+   private static final transient Logger LOG = LoggerFactory.getLogger(RollbacksWhileConsumingLargeQueueTest.class);
 
-    protected int numberOfMessagesOnQueue = 650;
-    private Connection connection;
-    private AtomicInteger deliveryCounter = new AtomicInteger(0);
-    private AtomicInteger ackCounter = new AtomicInteger(0);
-    private CountDownLatch latch;
-    private Throwable failure;
+   protected int numberOfMessagesOnQueue = 650;
+   private Connection connection;
+   private AtomicInteger deliveryCounter = new AtomicInteger(0);
+   private AtomicInteger ackCounter = new AtomicInteger(0);
+   private CountDownLatch latch;
+   private Throwable failure;
 
-    public void testWithReciever() throws Throwable {
-        latch = new CountDownLatch(numberOfMessagesOnQueue);
-        Session session = connection.createSession(true, 0);
-        MessageConsumer consumer = session.createConsumer(destination);
+   public void testWithReciever() throws Throwable {
+      latch = new CountDownLatch(numberOfMessagesOnQueue);
+      Session session = connection.createSession(true, 0);
+      MessageConsumer consumer = session.createConsumer(destination);
 
-        long start = System.currentTimeMillis();
-        while ((System.currentTimeMillis() - start) < 1000 * 1000) {
-            if (getFailure() != null) {
-                throw getFailure();
-            }
+      long start = System.currentTimeMillis();
+      while ((System.currentTimeMillis() - start) < 1000 * 1000) {
+         if (getFailure() != null) {
+            throw getFailure();
+         }
 
-            // Are we done receiving all the messages.
-            if (ackCounter.get() == numberOfMessagesOnQueue) {
-                return;
-            }
+         // Are we done receiving all the messages.
+         if (ackCounter.get() == numberOfMessagesOnQueue) {
+            return;
+         }
 
-            Message message = consumer.receive(1000);
-            if (message == null) {
-                continue;
-            }
+         Message message = consumer.receive(1000);
+         if (message == null) {
+            continue;
+         }
 
-            try {
-                onMessage(message);
-                session.commit();
-            } catch (Throwable e) {
-                session.rollback();
-            }
-        }
+         try {
+            onMessage(message);
+            session.commit();
+         }
+         catch (Throwable e) {
+            session.rollback();
+         }
+      }
 
-        fail("Did not receive all the messages.");
-    }
+      fail("Did not receive all the messages.");
+   }
 
-    public void testWithMessageListener() throws Throwable {
-        latch = new CountDownLatch(numberOfMessagesOnQueue);
-        new DelegatingTransactionalMessageListener(this, connection, destination);
+   public void testWithMessageListener() throws Throwable {
+      latch = new CountDownLatch(numberOfMessagesOnQueue);
+      new DelegatingTransactionalMessageListener(this, connection, destination);
 
-        long start = System.currentTimeMillis();
-        while ((System.currentTimeMillis() - start) < 1000 * 1000) {
+      long start = System.currentTimeMillis();
+      while ((System.currentTimeMillis() - start) < 1000 * 1000) {
 
-            if (getFailure() != null) {
-                throw getFailure();
-            }
+         if (getFailure() != null) {
+            throw getFailure();
+         }
 
-            if (latch.await(1, TimeUnit.SECONDS)) {
-                LOG.debug("Received: " + deliveryCounter.get() + "  message(s)");
-                return;
-            }
+         if (latch.await(1, TimeUnit.SECONDS)) {
+            LOG.debug("Received: " + deliveryCounter.get() + "  message(s)");
+            return;
+         }
 
-        }
+      }
 
-        fail("Did not receive all the messages.");
-    }
+      fail("Did not receive all the messages.");
+   }
 
-    protected ConnectionFactory createConnectionFactory() throws Exception {
-        ActiveMQConnectionFactory answer = (ActiveMQConnectionFactory) super.createConnectionFactory();
-        RedeliveryPolicy policy = new RedeliveryPolicy();
-        policy.setMaximumRedeliveries(3);
-        policy.setRedeliveryDelay(0);
-        policy.setInitialRedeliveryDelay(0);
-        policy.setUseExponentialBackOff(false);
-        answer.setRedeliveryPolicy(policy);
-        return answer;
-    }
+   protected ConnectionFactory createConnectionFactory() throws Exception {
+      ActiveMQConnectionFactory answer = (ActiveMQConnectionFactory) super.createConnectionFactory();
+      RedeliveryPolicy policy = new RedeliveryPolicy();
+      policy.setMaximumRedeliveries(3);
+      policy.setRedeliveryDelay(0);
+      policy.setInitialRedeliveryDelay(0);
+      policy.setUseExponentialBackOff(false);
+      answer.setRedeliveryPolicy(policy);
+      return answer;
+   }
 
-    protected void setUp() throws Exception {
-        super.setUp();
+   protected void setUp() throws Exception {
+      super.setUp();
 
-        connection = createConnection();
-        connection.start();
+      connection = createConnection();
+      connection.start();
 
-        // lets fill the queue up
-        for (int i = 0; i < numberOfMessagesOnQueue; i++) {
-            template.send(createMessageCreator(i));
-        }
+      // lets fill the queue up
+      for (int i = 0; i < numberOfMessagesOnQueue; i++) {
+         template.send(createMessageCreator(i));
+      }
 
-    }
+   }
 
-    protected void tearDown() throws Exception {
-        if (connection != null) {
-            connection.close();
-        }
-        super.tearDown();
-    }
+   protected void tearDown() throws Exception {
+      if (connection != null) {
+         connection.close();
+      }
+      super.tearDown();
+   }
 
-    protected MessageCreator createMessageCreator(final int i) {
-        return new MessageCreator() {
-            public Message createMessage(Session session) throws JMSException {
-                TextMessage answer = session.createTextMessage("Message: " + i);
-                answer.setIntProperty("Counter", i);
-                return answer;
-            }
-        };
-    }
+   protected MessageCreator createMessageCreator(final int i) {
+      return new MessageCreator() {
+         public Message createMessage(Session session) throws JMSException {
+            TextMessage answer = session.createTextMessage("Message: " + i);
+            answer.setIntProperty("Counter", i);
+            return answer;
+         }
+      };
+   }
 
-    public void onMessage(Message message) {
-        String msgId = null;
-        String msgText = null;
+   public void onMessage(Message message) {
+      String msgId = null;
+      String msgText = null;
 
-        try {
-            msgId = message.getJMSMessageID();
-            msgText = ((TextMessage)message).getText();
-        } catch (JMSException e) {
-            setFailure(e);
-        }
+      try {
+         msgId = message.getJMSMessageID();
+         msgText = ((TextMessage) message).getText();
+      }
+      catch (JMSException e) {
+         setFailure(e);
+      }
 
-        try {
-            assertEquals("Message: " + ackCounter.get(), msgText);
-        } catch (Throwable e) {
-            setFailure(e);
-        }
+      try {
+         assertEquals("Message: " + ackCounter.get(), msgText);
+      }
+      catch (Throwable e) {
+         setFailure(e);
+      }
 
-        int value = deliveryCounter.incrementAndGet();
-        if (value % 2 == 0) {
-            LOG.info("Rolling Back message: " + ackCounter.get() + " id: " + msgId + ", content: " + msgText);
-            throw new RuntimeException("Dummy exception on message: " + value);
-        }
+      int value = deliveryCounter.incrementAndGet();
+      if (value % 2 == 0) {
+         LOG.info("Rolling Back message: " + ackCounter.get() + " id: " + msgId + ", content: " + msgText);
+         throw new RuntimeException("Dummy exception on message: " + value);
+      }
 
-        LOG.info("Received message: " + ackCounter.get() + " id: " + msgId + ", content: " + msgText);
-        ackCounter.incrementAndGet();
-        latch.countDown();
-    }
+      LOG.info("Received message: " + ackCounter.get() + " id: " + msgId + ", content: " + msgText);
+      ackCounter.incrementAndGet();
+      latch.countDown();
+   }
 
-    public synchronized Throwable getFailure() {
-        return failure;
-    }
+   public synchronized Throwable getFailure() {
+      return failure;
+   }
 
-    public synchronized void setFailure(Throwable failure) {
-        this.failure = failure;
-    }
+   public synchronized void setFailure(Throwable failure) {
+      this.failure = failure;
+   }
 }

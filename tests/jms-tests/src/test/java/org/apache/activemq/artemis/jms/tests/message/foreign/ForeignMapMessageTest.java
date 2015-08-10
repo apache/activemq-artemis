@@ -26,13 +26,12 @@ import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
 /**
  * Tests the delivery/receipt of a foreign map message
  */
-public class ForeignMapMessageTest extends ForeignMessageTest
-{
+public class ForeignMapMessageTest extends ForeignMessageTest {
+
    private final String obj = new String("stringobject");
 
    @Override
-   protected Message createForeignMessage() throws Exception
-   {
+   protected Message createForeignMessage() throws Exception {
       SimpleJMSMapMessage m = new SimpleJMSMapMessage();
 
       log.debug("creating JMS Message type " + m.getClass().getName());
@@ -44,18 +43,17 @@ public class ForeignMapMessageTest extends ForeignMessageTest
       m.setInt("int1", 3);
       m.setLong("long1", 4L);
       m.setObject("object1", obj);
-      m.setShort("short1", (short)5);
+      m.setShort("short1", (short) 5);
       m.setString("string1", "stringvalue");
 
       return m;
    }
 
    @Override
-   protected void assertEquivalent(final Message m, final int mode, final boolean redelivery) throws JMSException
-   {
+   protected void assertEquivalent(final Message m, final int mode, final boolean redelivery) throws JMSException {
       super.assertEquivalent(m, mode, redelivery);
 
-      MapMessage map = (MapMessage)m;
+      MapMessage map = (MapMessage) m;
 
       ProxyAssertSupport.assertTrue(map.getBoolean("boolean1"));
       ProxyAssertSupport.assertEquals(map.getChar("char1"), 'c');
@@ -64,7 +62,7 @@ public class ForeignMapMessageTest extends ForeignMessageTest
       ProxyAssertSupport.assertEquals(map.getInt("int1"), 3);
       ProxyAssertSupport.assertEquals(map.getLong("long1"), 4L);
       ProxyAssertSupport.assertEquals(map.getObject("object1"), obj);
-      ProxyAssertSupport.assertEquals(map.getShort("short1"), (short)5);
+      ProxyAssertSupport.assertEquals(map.getShort("short1"), (short) 5);
       ProxyAssertSupport.assertEquals(map.getString("string1"), "stringvalue");
    }
 }

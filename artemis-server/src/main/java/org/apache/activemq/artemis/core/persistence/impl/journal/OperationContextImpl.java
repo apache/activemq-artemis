@@ -32,7 +32,6 @@ import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 
 /**
- *
  * Each instance of OperationContextImpl is associated with an executor (usually an ordered Executor).
  *
  * Tasks are hold until the operations are complete and executed in the natural order as soon as the operations are returned
@@ -42,31 +41,25 @@ import org.apache.activemq.artemis.utils.ExecutorFactory;
  *
  * So, if you are doing operations that are not dependent on IO (e.g NonPersistentMessages) you wouldn't have any context switch.
  */
-public class OperationContextImpl implements OperationContext
-{
+public class OperationContextImpl implements OperationContext {
+
    private static final ThreadLocal<OperationContext> threadLocalContext = new ThreadLocal<OperationContext>();
 
-   public static void clearContext()
-   {
+   public static void clearContext() {
       OperationContextImpl.threadLocalContext.set(null);
    }
 
-   public static final OperationContext getContext()
-   {
+   public static final OperationContext getContext() {
       return getContext(null);
    }
 
-   public static OperationContext getContext(final ExecutorFactory executorFactory)
-   {
+   public static OperationContext getContext(final ExecutorFactory executorFactory) {
       OperationContext token = OperationContextImpl.threadLocalContext.get();
-      if (token == null)
-      {
-         if (executorFactory == null)
-         {
+      if (token == null) {
+         if (executorFactory == null) {
             return null;
          }
-         else
-         {
+         else {
             token = new OperationContextImpl(executorFactory.getExecutor());
             OperationContextImpl.threadLocalContext.set(token);
          }
@@ -74,8 +67,7 @@ public class OperationContextImpl implements OperationContext
       return token;
    }
 
-   public static void setContext(final OperationContext context)
-   {
+   public static void setContext(final OperationContext context) {
       OperationContextImpl.threadLocalContext.set(context);
    }
 
@@ -101,53 +93,43 @@ public class OperationContextImpl implements OperationContext
 
    private final AtomicInteger executorsPending = new AtomicInteger(0);
 
-   public OperationContextImpl(final Executor executor)
-   {
+   public OperationContextImpl(final Executor executor) {
       super();
       this.executor = executor;
    }
 
-   public void pageSyncLineUp()
-   {
+   public void pageSyncLineUp() {
       pageLineUp.incrementAndGet();
    }
 
-   public synchronized void pageSyncDone()
-   {
+   public synchronized void pageSyncDone() {
       paged++;
       checkTasks();
    }
 
-   public void storeLineUp()
-   {
+   public void storeLineUp() {
       storeLineUp.incrementAndGet();
    }
 
-   public void replicationLineUp()
-   {
+   public void replicationLineUp() {
       replicationLineUp.incrementAndGet();
    }
 
-   public synchronized void replicationDone()
-   {
+   public synchronized void replicationDone() {
       replicated++;
       checkTasks();
    }
 
-   public void executeOnCompletion(final IOCallback completion)
-   {
-      if (errorCode != -1)
-      {
+   public void executeOnCompletion(final IOCallback completion) {
+      if (errorCode != -1) {
          completion.onError(errorCode, errorMessage);
          return;
       }
 
       boolean executeNow = false;
 
-      synchronized (this)
-      {
-         if (tasks == null)
-         {
+      synchronized (this) {
+         if (tasks == null) {
             tasks = new LinkedList<TaskHolder>();
             minimalReplicated = replicationLineUp.intValue();
             minimalStore = storeLineUp.intValue();
@@ -156,59 +138,48 @@ public class OperationContextImpl implements OperationContext
 
          // On this case, we can just execute the context directly
          if (replicationLineUp.intValue() == replicated && storeLineUp.intValue() == stored &&
-                  pageLineUp.intValue() == paged)
-         {
+            pageLineUp.intValue() == paged) {
             // We want to avoid the executor if everything is complete...
             // However, we can't execute the context if there are executions pending
             // We need to use the executor on this case
-            if (executorsPending.get() == 0)
-            {
+            if (executorsPending.get() == 0) {
                // No need to use an executor here or a context switch
                // there are no actions pending.. hence we can just execute the task directly on the same thread
                executeNow = true;
             }
-            else
-            {
+            else {
                execute(completion);
             }
          }
-         else
-         {
+         else {
             tasks.add(new TaskHolder(completion));
          }
       }
 
-      if (executeNow)
-      {
+      if (executeNow) {
          // Executing outside of any locks
          completion.done();
       }
 
    }
 
-   public synchronized void done()
-   {
+   public synchronized void done() {
       stored++;
       checkTasks();
    }
 
-   private void checkTasks()
-   {
-      if (stored >= minimalStore && replicated >= minimalReplicated && paged >= minimalPage)
-      {
+   private void checkTasks() {
+      if (stored >= minimalStore && replicated >= minimalReplicated && paged >= minimalPage) {
          Iterator<TaskHolder> iter = tasks.iterator();
-         while (iter.hasNext())
-         {
+         while (iter.hasNext()) {
             TaskHolder holder = iter.next();
-            if (stored >= holder.storeLined && replicated >= holder.replicationLined && paged >= holder.pageLined)
-            {
+            if (stored >= holder.storeLined && replicated >= holder.replicationLined && paged >= holder.pageLined) {
                // If set, we use an executor to avoid the server being single threaded
                execute(holder.task);
 
                iter.remove();
             }
-            else
-            {
+            else {
                // End of list here. No other task will be completed after this
                break;
             }
@@ -219,34 +190,26 @@ public class OperationContextImpl implements OperationContext
    /**
     * @param task
     */
-   private void execute(final IOCallback task)
-   {
+   private void execute(final IOCallback task) {
       executorsPending.incrementAndGet();
-      try
-      {
-         executor.execute(new Runnable()
-         {
-            public void run()
-            {
-               try
-               {
+      try {
+         executor.execute(new Runnable() {
+            public void run() {
+               try {
                   // If any IO is done inside the callback, it needs to be done on a new context
                   OperationContextImpl.clearContext();
                   task.done();
                }
-               finally
-               {
+               finally {
                   executorsPending.decrementAndGet();
                }
             }
          });
       }
-      catch (Throwable e)
-      {
+      catch (Throwable e) {
          ActiveMQServerLogger.LOGGER.errorExecutingAIOCallback(e);
          executorsPending.decrementAndGet();
-         task.onError(ActiveMQExceptionType.INTERNAL_ERROR.getCode(),
-                      "It wasn't possible to complete IO operation - " + e.getMessage());
+         task.onError(ActiveMQExceptionType.INTERNAL_ERROR.getCode(), "It wasn't possible to complete IO operation - " + e.getMessage());
       }
    }
 
@@ -254,21 +217,17 @@ public class OperationContextImpl implements OperationContext
     * (non-Javadoc)
     * @see org.apache.activemq.artemis.core.replication.ReplicationToken#complete()
     */
-   public void complete()
-   {
+   public void complete() {
    }
 
    @Override
-   public synchronized void onError(final int errorCode, final String errorMessage)
-   {
+   public synchronized void onError(final int errorCode, final String errorMessage) {
       this.errorCode = errorCode;
       this.errorMessage = errorMessage;
 
-      if (tasks != null)
-      {
+      if (tasks != null) {
          Iterator<TaskHolder> iter = tasks.iterator();
-         while (iter.hasNext())
-         {
+         while (iter.hasNext()) {
             TaskHolder holder = iter.next();
             holder.task.onError(errorCode, errorMessage);
             iter.remove();
@@ -276,20 +235,18 @@ public class OperationContextImpl implements OperationContext
       }
    }
 
-   final class TaskHolder
-   {
+   final class TaskHolder {
 
       @Override
-      public String toString()
-      {
+      public String toString() {
          return "TaskHolder [storeLined=" + storeLined +
-                ", replicationLined=" +
-                replicationLined +
-                ", pageLined=" +
-                pageLined +
-                ", task=" +
-                task +
-                "]";
+            ", replicationLined=" +
+            replicationLined +
+            ", pageLined=" +
+            pageLined +
+            ", task=" +
+            task +
+            "]";
       }
 
       final int storeLined;
@@ -298,8 +255,7 @@ public class OperationContextImpl implements OperationContext
 
       final IOCallback task;
 
-      TaskHolder(final IOCallback task)
-      {
+      TaskHolder(final IOCallback task) {
          storeLined = storeLineUp.intValue();
          replicationLined = replicationLineUp.intValue();
          pageLined = pageLineUp.intValue();
@@ -308,64 +264,57 @@ public class OperationContextImpl implements OperationContext
    }
 
    @Override
-   public void waitCompletion() throws Exception
-   {
+   public void waitCompletion() throws Exception {
       waitCompletion(0);
    }
 
    @Override
-   public boolean waitCompletion(final long timeout) throws InterruptedException, ActiveMQException
-   {
+   public boolean waitCompletion(final long timeout) throws InterruptedException, ActiveMQException {
       SimpleWaitIOCallback waitCallback = new SimpleWaitIOCallback();
       executeOnCompletion(waitCallback);
       complete();
-      if (timeout == 0)
-      {
+      if (timeout == 0) {
          waitCallback.waitCompletion();
          return true;
       }
-      else
-      {
+      else {
          return waitCallback.waitCompletion(timeout);
       }
    }
 
    @Override
-   public String toString()
-   {
+   public String toString() {
       StringBuffer buffer = new StringBuffer();
-      if (tasks != null)
-      {
-         for (TaskHolder hold : tasks)
-         {
+      if (tasks != null) {
+         for (TaskHolder hold : tasks) {
             buffer.append("Task = " + hold + "\n");
          }
       }
 
       return "OperationContextImpl [" + hashCode() + "] [minimalStore=" + minimalStore +
-             ", storeLineUp=" +
-             storeLineUp +
-             ", stored=" +
-             stored +
-             ", minimalReplicated=" +
-             minimalReplicated +
-             ", replicationLineUp=" +
-             replicationLineUp +
-             ", replicated=" +
-             replicated +
-             ", paged=" +
-             paged +
-             ", minimalPage=" +
-             minimalPage +
-             ", pageLineUp=" +
-             pageLineUp +
-             ", errorCode=" +
-             errorCode +
-             ", errorMessage=" +
-             errorMessage +
-             ", executorsPending=" +
-             executorsPending +
-             ", executor=" + this.executor +
-             "]" + buffer.toString();
+         ", storeLineUp=" +
+         storeLineUp +
+         ", stored=" +
+         stored +
+         ", minimalReplicated=" +
+         minimalReplicated +
+         ", replicationLineUp=" +
+         replicationLineUp +
+         ", replicated=" +
+         replicated +
+         ", paged=" +
+         paged +
+         ", minimalPage=" +
+         minimalPage +
+         ", pageLineUp=" +
+         pageLineUp +
+         ", errorCode=" +
+         errorCode +
+         ", errorMessage=" +
+         errorMessage +
+         ", executorsPending=" +
+         executorsPending +
+         ", executor=" + this.executor +
+         "]" + buffer.toString();
    }
 }

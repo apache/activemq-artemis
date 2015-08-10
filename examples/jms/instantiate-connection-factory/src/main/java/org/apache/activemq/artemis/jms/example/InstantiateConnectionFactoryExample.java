@@ -28,19 +28,16 @@ import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 
 /**
- *
  * This example demonstrates how a JMS client can directly instantiate it's JMS Objects like
  * Queue, ConnectionFactory, etc. without having to use JNDI at all.
  *
  * For more information please see the readme.html file.
  */
-public class InstantiateConnectionFactoryExample
-{
-   public static void main(final String[] args) throws Exception
-   {
+public class InstantiateConnectionFactoryExample {
+
+   public static void main(final String[] args) throws Exception {
       Connection connection = null;
-      try
-      {
+      try {
          // Step 1. Directly instantiate the JMS Queue object.
          Queue queue = ActiveMQJMSClient.createQueue("exampleQueue");
 
@@ -71,14 +68,12 @@ public class InstantiateConnectionFactoryExample
          connection.start();
 
          // Step 11. Receive the message
-         TextMessage messageReceived = (TextMessage)messageConsumer.receive(5000);
+         TextMessage messageReceived = (TextMessage) messageConsumer.receive(5000);
 
          System.out.println("Received message: " + messageReceived.getText());
       }
-      finally
-      {
-         if (connection != null)
-         {
+      finally {
+         if (connection != null) {
             connection.close();
          }
       }

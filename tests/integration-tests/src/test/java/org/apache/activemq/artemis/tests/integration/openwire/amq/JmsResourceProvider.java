@@ -33,8 +33,8 @@ import org.apache.activemq.command.ActiveMQDestination;
 /**
  * adapted from: org.apache.activemq.test.JmsResourceProvider
  */
-public class JmsResourceProvider
-{
+public class JmsResourceProvider {
+
    private boolean transacted;
    private int ackMode = Session.AUTO_ACKNOWLEDGE;
    private boolean isTopic;
@@ -47,11 +47,9 @@ public class JmsResourceProvider
     *
     * @see org.apache.activemq.test.JmsResourceProvider#createConnection(javax.jms.ConnectionFactory)
     */
-   public Connection createConnection(ConnectionFactory cf) throws JMSException
-   {
+   public Connection createConnection(ConnectionFactory cf) throws JMSException {
       Connection connection = cf.createConnection();
-      if (getClientID() != null)
-      {
+      if (getClientID() != null) {
          connection.setClientID(getClientID());
       }
       return connection;
@@ -60,23 +58,18 @@ public class JmsResourceProvider
    /**
     * @see org.apache.activemq.test.JmsResourceProvider#createSession(javax.jms.Connection)
     */
-   public Session createSession(Connection conn) throws JMSException
-   {
+   public Session createSession(Connection conn) throws JMSException {
       System.out.println("createing a session tx ? " + transacted);
       return conn.createSession(transacted, ackMode);
    }
 
    /**
     * @see org.apache.activemq.test.JmsResourceProvider#createConsumer(javax.jms.Session,
-    *      javax.jms.Destination)
+    * javax.jms.Destination)
     */
-   public MessageConsumer createConsumer(Session session,
-         Destination destination) throws JMSException
-   {
-      if (isDurableSubscriber())
-      {
-         return session.createDurableSubscriber((Topic) destination,
-               durableName);
+   public MessageConsumer createConsumer(Session session, Destination destination) throws JMSException {
+      if (isDurableSubscriber()) {
+         return session.createDurableSubscriber((Topic) destination, durableName);
       }
       return session.createConsumer(destination);
    }
@@ -84,13 +77,12 @@ public class JmsResourceProvider
    /**
     * Creates a connection for a consumer.
     *
-    * @param ssp
-    *           - ServerSessionPool
+    * @param ssp - ServerSessionPool
     * @return ConnectionConsumer
     */
    public ConnectionConsumer createConnectionConsumer(Connection connection,
-         Destination destination, ServerSessionPool ssp) throws JMSException
-   {
+                                                      Destination destination,
+                                                      ServerSessionPool ssp) throws JMSException {
       return connection.createConnectionConsumer(destination, null, ssp, 1);
    }
 
@@ -98,11 +90,9 @@ public class JmsResourceProvider
     * Creates a producer.
     *
     * @see org.apache.activemq.test.JmsResourceProvider#createProducer(javax.jms.Session,
-    *      javax.jms.Destination)
+    * javax.jms.Destination)
     */
-   public MessageProducer createProducer(Session session,
-         Destination destination) throws JMSException
-   {
+   public MessageProducer createProducer(Session session, Destination destination) throws JMSException {
       MessageProducer producer = session.createProducer(destination);
       producer.setDeliveryMode(deliveryMode);
       return producer;
@@ -112,20 +102,14 @@ public class JmsResourceProvider
     * Creates a destination, which can either a topic or a queue.
     *
     * @see org.apache.activemq.test.JmsResourceProvider#createDestination(javax.jms.Session,
-    *      java.lang.String)
+    * java.lang.String)
     */
-   public Destination createDestination(Session session,
-         JmsTransactionTestSupport support) throws JMSException
-   {
-      if (isTopic)
-      {
-         return (Destination) support.createDestination(session,
-               ActiveMQDestination.TOPIC_TYPE);
+   public Destination createDestination(Session session, JmsTransactionTestSupport support) throws JMSException {
+      if (isTopic) {
+         return (Destination) support.createDestination(session, ActiveMQDestination.TOPIC_TYPE);
       }
-      else
-      {
-         return (Destination) support.createDestination(session,
-               ActiveMQDestination.QUEUE_TYPE);
+      else {
+         return (Destination) support.createDestination(session, ActiveMQDestination.QUEUE_TYPE);
       }
    }
 
@@ -134,8 +118,7 @@ public class JmsResourceProvider
     *
     * @return isDurableSubscriber
     */
-   public boolean isDurableSubscriber()
-   {
+   public boolean isDurableSubscriber() {
       return isTopic && durableName != null;
    }
 
@@ -144,19 +127,16 @@ public class JmsResourceProvider
     *
     * @return Returns the ackMode.
     */
-   public int getAckMode()
-   {
+   public int getAckMode() {
       return ackMode;
    }
 
    /**
     * Sets the acnknowledgement mode.
     *
-    * @param ackMode
-    *           The ackMode to set.
+    * @param ackMode The ackMode to set.
     */
-   public void setAckMode(int ackMode)
-   {
+   public void setAckMode(int ackMode) {
       this.ackMode = ackMode;
    }
 
@@ -166,17 +146,14 @@ public class JmsResourceProvider
     *
     * @return Returns the isTopic.
     */
-   public boolean isTopic()
-   {
+   public boolean isTopic() {
       return isTopic;
    }
 
    /**
-    * @param isTopic
-    *           The isTopic to set.
+    * @param isTopic The isTopic to set.
     */
-   public void setTopic(boolean isTopic)
-   {
+   public void setTopic(boolean isTopic) {
       this.isTopic = isTopic;
    }
 
@@ -185,8 +162,7 @@ public class JmsResourceProvider
     *
     * @return Returns the transacted.
     */
-   public boolean isTransacted()
-   {
+   public boolean isTransacted() {
       return transacted;
    }
 
@@ -195,11 +171,9 @@ public class JmsResourceProvider
     *
     * @param transacted
     */
-   public void setTransacted(boolean transacted)
-   {
+   public void setTransacted(boolean transacted) {
       this.transacted = transacted;
-      if (transacted)
-      {
+      if (transacted) {
          setAckMode(Session.SESSION_TRANSACTED);
       }
    }
@@ -209,8 +183,7 @@ public class JmsResourceProvider
     *
     * @return deliveryMode
     */
-   public int getDeliveryMode()
-   {
+   public int getDeliveryMode() {
       return deliveryMode;
    }
 
@@ -219,8 +192,7 @@ public class JmsResourceProvider
     *
     * @param deliveryMode
     */
-   public void setDeliveryMode(int deliveryMode)
-   {
+   public void setDeliveryMode(int deliveryMode) {
       this.deliveryMode = deliveryMode;
    }
 
@@ -229,8 +201,7 @@ public class JmsResourceProvider
     *
     * @return clientID
     */
-   public String getClientID()
-   {
+   public String getClientID() {
       return clientID;
    }
 
@@ -239,8 +210,7 @@ public class JmsResourceProvider
     *
     * @param clientID
     */
-   public void setClientID(String clientID)
-   {
+   public void setClientID(String clientID) {
       this.clientID = clientID;
    }
 
@@ -249,8 +219,7 @@ public class JmsResourceProvider
     *
     * @return durableName
     */
-   public String getDurableName()
-   {
+   public String getDurableName() {
       return durableName;
    }
 
@@ -259,8 +228,7 @@ public class JmsResourceProvider
     *
     * @param durableName
     */
-   public void setDurableName(String durableName)
-   {
+   public void setDurableName(String durableName) {
       this.durableName = durableName;
    }
 }

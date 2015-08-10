@@ -35,8 +35,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionMetaData;
 import org.apache.activemq.artemis.tests.unit.UnitTestLogger;
 
-public class ManifestTest extends ActiveMQTestBase
-{
+public class ManifestTest extends ActiveMQTestBase {
    // Constants -----------------------------------------------------
 
    // Static --------------------------------------------------------
@@ -48,8 +47,7 @@ public class ManifestTest extends ActiveMQTestBase
    // Public --------------------------------------------------------
 
    @Test
-   public void testManifestEntries() throws Exception
-   {
+   public void testManifestEntries() throws Exception {
       Properties props = System.getProperties();
       String userDir = props.getProperty("build.lib");
 
@@ -66,8 +64,7 @@ public class ManifestTest extends ActiveMQTestBase
       // Open a connection and get ConnectionMetaData
       Connection conn = null;
 
-      try
-      {
+      try {
          ActiveMQServer server = ActiveMQServers.newActiveMQServer(createBasicConfig());
 
          ConnectionMetaData meta = new ActiveMQConnectionMetaData(server.getVersion());
@@ -77,10 +74,8 @@ public class ManifestTest extends ActiveMQTestBase
 
          Assert.assertEquals(meta.getProviderVersion(), attrs.getValue("ActiveMQ-Version"));
       }
-      finally
-      {
-         if (conn != null)
-         {
+      finally {
+         if (conn != null) {
             conn.close();
          }
       }

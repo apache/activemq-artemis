@@ -36,123 +36,128 @@ import org.slf4j.LoggerFactory;
 
 public class JmsTimeoutTest extends EmbeddedBrokerTestSupport {
 
-    static final Logger LOG = LoggerFactory.getLogger(JmsTimeoutTest.class);
+   static final Logger LOG = LoggerFactory.getLogger(JmsTimeoutTest.class);
 
-    private final int messageSize=1024*64;
-    private final int messageCount=10000;
-    private final AtomicInteger exceptionCount = new AtomicInteger(0);
+   private final int messageSize = 1024 * 64;
+   private final int messageCount = 10000;
+   private final AtomicInteger exceptionCount = new AtomicInteger(0);
 
-    /**
-     * Test the case where the broker is blocked due to a memory limit
-     * and a producer timeout is set on the connection.
-     * @throws Exception
-     */
-    public void testBlockedProducerConnectionTimeout() throws Exception {
-        final ActiveMQConnection cx = (ActiveMQConnection)createConnection();
-        final ActiveMQDestination queue = createDestination("testqueue");
+   /**
+    * Test the case where the broker is blocked due to a memory limit
+    * and a producer timeout is set on the connection.
+    *
+    * @throws Exception
+    */
+   public void testBlockedProducerConnectionTimeout() throws Exception {
+      final ActiveMQConnection cx = (ActiveMQConnection) createConnection();
+      final ActiveMQDestination queue = createDestination("testqueue");
 
-        // we should not take longer than 10 seconds to return from send
-        cx.setSendTimeout(10000);
+      // we should not take longer than 10 seconds to return from send
+      cx.setSendTimeout(10000);
 
-        Runnable r = new Runnable() {
-            public void run() {
-                try {
-                    LOG.info("Sender thread starting");
-                    Session session = cx.createSession(false, 1);
-                    MessageProducer producer = session.createProducer(queue);
-                    producer.setDeliveryMode(DeliveryMode.PERSISTENT);
+      Runnable r = new Runnable() {
+         public void run() {
+            try {
+               LOG.info("Sender thread starting");
+               Session session = cx.createSession(false, 1);
+               MessageProducer producer = session.createProducer(queue);
+               producer.setDeliveryMode(DeliveryMode.PERSISTENT);
 
-                    TextMessage message = session.createTextMessage(createMessageText());
-                    for(int count=0; count<messageCount; count++){
-                        producer.send(message);
-                    }
-                    LOG.info("Done sending..");
-                } catch (JMSException e) {
-                    if (e.getCause() instanceof RequestTimedOutIOException) {
-                        exceptionCount.incrementAndGet();
-                    } else {
-                        e.printStackTrace();
-                    }
-                    return;
-                }
-
+               TextMessage message = session.createTextMessage(createMessageText());
+               for (int count = 0; count < messageCount; count++) {
+                  producer.send(message);
+               }
+               LOG.info("Done sending..");
             }
-        };
-        cx.start();
-        Thread producerThread = new Thread(r);
-        producerThread.start();
-        producerThread.join(30000);
-        cx.close();
-        // We should have a few timeout exceptions as memory store will fill up
-        assertTrue("No exception from the broker", exceptionCount.get() > 0);
-    }
-
-    /**
-     * Test the case where the broker is blocked due to a memory limit
-     * with a fail timeout
-     * @throws Exception
-     */
-    public void testBlockedProducerUsageSendFailTimeout() throws Exception {
-        final ActiveMQConnection cx = (ActiveMQConnection)createConnection();
-        final ActiveMQDestination queue = createDestination("testqueue");
-
-        broker.getSystemUsage().setSendFailIfNoSpaceAfterTimeout(5000);
-        Runnable r = new Runnable() {
-            public void run() {
-                try {
-                    LOG.info("Sender thread starting");
-                    Session session = cx.createSession(false, 1);
-                    MessageProducer producer = session.createProducer(queue);
-                    producer.setDeliveryMode(DeliveryMode.PERSISTENT);
-
-                    TextMessage message = session.createTextMessage(createMessageText());
-                    for(int count=0; count<messageCount; count++){
-                        producer.send(message);
-                    }
-                    LOG.info("Done sending..");
-                } catch (JMSException e) {
-                    if (e instanceof ResourceAllocationException || e.getCause() instanceof RequestTimedOutIOException) {
-                        exceptionCount.incrementAndGet();
-                    } else {
-                        e.printStackTrace();
-                    }
-                    return;
-                }
+            catch (JMSException e) {
+               if (e.getCause() instanceof RequestTimedOutIOException) {
+                  exceptionCount.incrementAndGet();
+               }
+               else {
+                  e.printStackTrace();
+               }
+               return;
             }
-        };
-        cx.start();
-        Thread producerThread = new Thread(r);
-        producerThread.start();
-        producerThread.join(30000);
-        cx.close();
-        // We should have a few timeout exceptions as memory store will fill up
-        assertTrue("No exception from the broker", exceptionCount.get() > 0);
-    }
 
-    protected void setUp() throws Exception {
-        exceptionCount.set(0);
-        bindAddress = "tcp://localhost:0";
-        broker = createBroker();
-        broker.setDeleteAllMessagesOnStartup(true);
-        broker.getSystemUsage().getMemoryUsage().setLimit(5*1024*1024);
+         }
+      };
+      cx.start();
+      Thread producerThread = new Thread(r);
+      producerThread.start();
+      producerThread.join(30000);
+      cx.close();
+      // We should have a few timeout exceptions as memory store will fill up
+      assertTrue("No exception from the broker", exceptionCount.get() > 0);
+   }
 
-        super.setUp();
-    }
+   /**
+    * Test the case where the broker is blocked due to a memory limit
+    * with a fail timeout
+    *
+    * @throws Exception
+    */
+   public void testBlockedProducerUsageSendFailTimeout() throws Exception {
+      final ActiveMQConnection cx = (ActiveMQConnection) createConnection();
+      final ActiveMQDestination queue = createDestination("testqueue");
 
-    @Override
-    protected ConnectionFactory createConnectionFactory() throws Exception {
-        return new ActiveMQConnectionFactory(
-            broker.getTransportConnectors().get(0).getPublishableConnectString());
-    }
+      broker.getSystemUsage().setSendFailIfNoSpaceAfterTimeout(5000);
+      Runnable r = new Runnable() {
+         public void run() {
+            try {
+               LOG.info("Sender thread starting");
+               Session session = cx.createSession(false, 1);
+               MessageProducer producer = session.createProducer(queue);
+               producer.setDeliveryMode(DeliveryMode.PERSISTENT);
 
-    private String createMessageText() {
-        StringBuffer buffer = new StringBuffer();
-        buffer.append("<filler>");
-        for (int i = buffer.length(); i < messageSize; i++) {
-            buffer.append('X');
-        }
-        buffer.append("</filler>");
-        return buffer.toString();
-    }
+               TextMessage message = session.createTextMessage(createMessageText());
+               for (int count = 0; count < messageCount; count++) {
+                  producer.send(message);
+               }
+               LOG.info("Done sending..");
+            }
+            catch (JMSException e) {
+               if (e instanceof ResourceAllocationException || e.getCause() instanceof RequestTimedOutIOException) {
+                  exceptionCount.incrementAndGet();
+               }
+               else {
+                  e.printStackTrace();
+               }
+               return;
+            }
+         }
+      };
+      cx.start();
+      Thread producerThread = new Thread(r);
+      producerThread.start();
+      producerThread.join(30000);
+      cx.close();
+      // We should have a few timeout exceptions as memory store will fill up
+      assertTrue("No exception from the broker", exceptionCount.get() > 0);
+   }
+
+   protected void setUp() throws Exception {
+      exceptionCount.set(0);
+      bindAddress = "tcp://localhost:0";
+      broker = createBroker();
+      broker.setDeleteAllMessagesOnStartup(true);
+      broker.getSystemUsage().getMemoryUsage().setLimit(5 * 1024 * 1024);
+
+      super.setUp();
+   }
+
+   @Override
+   protected ConnectionFactory createConnectionFactory() throws Exception {
+      return new ActiveMQConnectionFactory(broker.getTransportConnectors().get(0).getPublishableConnectString());
+   }
+
+   private String createMessageText() {
+      StringBuffer buffer = new StringBuffer();
+      buffer.append("<filler>");
+      for (int i = buffer.length(); i < messageSize; i++) {
+         buffer.append('X');
+      }
+      buffer.append("</filler>");
+      return buffer.toString();
+   }
 
 }

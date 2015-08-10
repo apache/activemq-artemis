@@ -30,16 +30,15 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Before;
 import org.junit.Test;
 
-public class ResourceLimitTest extends ActiveMQTestBase
-{
+public class ResourceLimitTest extends ActiveMQTestBase {
+
    private ActiveMQServer server;
 
    private TransportConfiguration liveTC;
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       ResourceLimitSettings resourceLimitSettings = new ResourceLimitSettings();
@@ -47,29 +46,24 @@ public class ResourceLimitTest extends ActiveMQTestBase
       resourceLimitSettings.setMaxConnections(1);
       resourceLimitSettings.setMaxQueues(1);
 
-      Configuration configuration = createBasicConfig()
-              .addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY))
-              .addResourceLimitSettings(resourceLimitSettings);
+      Configuration configuration = createBasicConfig().addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY)).addResourceLimitSettings(resourceLimitSettings);
 
       server = addServer(ActiveMQServers.newActiveMQServer(configuration, false));
       server.start();
    }
 
    @Test
-   public void testSessionLimitForUser() throws Exception
-   {
+   public void testSessionLimitForUser() throws Exception {
       ServerLocator locator = addServerLocator(createNonHALocator(false));
       ClientSessionFactory clientSessionFactory = locator.createSessionFactory();
       ClientSession clientSession = clientSessionFactory.createSession("myUser", "password", false, true, true, false, 0);
 
-      try
-      {
+      try {
          ClientSessionFactory extraClientSessionFactory = locator.createSessionFactory();
          ClientSession extraClientSession = extraClientSessionFactory.createSession("myUser", "password", false, true, true, false, 0);
          fail("creating a session factory here should fail");
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          assertTrue(e instanceof ActiveMQSessionCreationException);
       }
 
@@ -77,32 +71,27 @@ public class ResourceLimitTest extends ActiveMQTestBase
 
       clientSession = clientSessionFactory.createSession("myUser", "password", false, true, true, false, 0);
 
-      try
-      {
+      try {
          ClientSessionFactory extraClientSessionFactory = locator.createSessionFactory();
          ClientSession extraClientSession = extraClientSessionFactory.createSession("myUser", "password", false, true, true, false, 0);
          fail("creating a session factory here should fail");
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          assertTrue(e instanceof ActiveMQSessionCreationException);
       }
    }
 
    @Test
-   public void testQueueLimitForUser() throws Exception
-   {
+   public void testQueueLimitForUser() throws Exception {
       ServerLocator locator = addServerLocator(createNonHALocator(false));
       ClientSessionFactory clientSessionFactory = locator.createSessionFactory();
       ClientSession clientSession = clientSessionFactory.createSession("myUser", "password", false, true, true, false, 0);
       clientSession.createQueue("address", "queue");
 
-      try
-      {
+      try {
          clientSession.createQueue("address", "anotherQueue");
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          assertTrue(e instanceof ActiveMQSessionCreationException);
       }
 
@@ -110,21 +99,17 @@ public class ResourceLimitTest extends ActiveMQTestBase
 
       clientSession.createQueue("address", "queue");
 
-      try
-      {
+      try {
          clientSession.createQueue("address", "anotherQueue");
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          assertTrue(e instanceof ActiveMQSessionCreationException);
       }
 
-      try
-      {
+      try {
          clientSession.createSharedQueue(SimpleString.toSimpleString("address"), SimpleString.toSimpleString("anotherQueue"), false);
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          assertTrue(e instanceof ActiveMQSessionCreationException);
       }
    }

@@ -19,12 +19,11 @@ package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
 
-public class DisconnectMessage_V2 extends DisconnectMessage
-{
+public class DisconnectMessage_V2 extends DisconnectMessage {
+
    private SimpleString scaleDownNodeID;
 
-   public DisconnectMessage_V2(final SimpleString nodeID, final String scaleDownNodeID)
-   {
+   public DisconnectMessage_V2(final SimpleString nodeID, final String scaleDownNodeID) {
       super(DISCONNECT_V2);
 
       this.nodeID = nodeID;
@@ -32,35 +31,30 @@ public class DisconnectMessage_V2 extends DisconnectMessage
       this.scaleDownNodeID = SimpleString.toSimpleString(scaleDownNodeID);
    }
 
-   public DisconnectMessage_V2()
-   {
+   public DisconnectMessage_V2() {
       super(DISCONNECT_V2);
    }
 
    // Public --------------------------------------------------------
 
-   public SimpleString getScaleDownNodeID()
-   {
+   public SimpleString getScaleDownNodeID() {
       return scaleDownNodeID;
    }
 
    @Override
-   public void encodeRest(final ActiveMQBuffer buffer)
-   {
+   public void encodeRest(final ActiveMQBuffer buffer) {
       super.encodeRest(buffer);
       buffer.writeNullableSimpleString(scaleDownNodeID);
    }
 
    @Override
-   public void decodeRest(final ActiveMQBuffer buffer)
-   {
+   public void decodeRest(final ActiveMQBuffer buffer) {
       super.decodeRest(buffer);
       scaleDownNodeID = buffer.readNullableSimpleString();
    }
 
    @Override
-   public String toString()
-   {
+   public String toString() {
       StringBuffer buf = new StringBuffer(getParentString());
       buf.append(", nodeID=" + nodeID);
       buf.append(", scaleDownNodeID=" + scaleDownNodeID);
@@ -69,8 +63,7 @@ public class DisconnectMessage_V2 extends DisconnectMessage
    }
 
    @Override
-   public int hashCode()
-   {
+   public int hashCode() {
       final int prime = 31;
       int result = super.hashCode();
       result = prime * result + ((scaleDownNodeID == null) ? 0 : scaleDownNodeID.hashCode());
@@ -78,30 +71,23 @@ public class DisconnectMessage_V2 extends DisconnectMessage
    }
 
    @Override
-   public boolean equals(Object obj)
-   {
-      if (this == obj)
-      {
+   public boolean equals(Object obj) {
+      if (this == obj) {
          return true;
       }
-      if (!super.equals(obj))
-      {
+      if (!super.equals(obj)) {
          return false;
       }
-      if (!(obj instanceof DisconnectMessage_V2))
-      {
+      if (!(obj instanceof DisconnectMessage_V2)) {
          return false;
       }
       DisconnectMessage_V2 other = (DisconnectMessage_V2) obj;
-      if (scaleDownNodeID == null)
-      {
-         if (other.scaleDownNodeID != null)
-         {
+      if (scaleDownNodeID == null) {
+         if (other.scaleDownNodeID != null) {
             return false;
          }
       }
-      else if (!scaleDownNodeID.equals(other.scaleDownNodeID))
-      {
+      else if (!scaleDownNodeID.equals(other.scaleDownNodeID)) {
          return false;
       }
       return true;

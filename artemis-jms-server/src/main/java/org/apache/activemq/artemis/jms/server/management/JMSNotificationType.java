@@ -19,8 +19,7 @@ package org.apache.activemq.artemis.jms.server.management;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.management.NotificationType;
 
-public enum JMSNotificationType implements NotificationType
-{
+public enum JMSNotificationType implements NotificationType {
    QUEUE_CREATED(0),
    QUEUE_DESTROYED(1),
    TOPIC_CREATED(2),
@@ -32,14 +31,12 @@ public enum JMSNotificationType implements NotificationType
 
    private int type;
 
-   private JMSNotificationType(int type)
-   {
+   private JMSNotificationType(int type) {
       this.type = type;
    }
 
    @Override
-   public int getType()
-   {
+   public int getType() {
       return type;
    }
 }

@@ -23,58 +23,62 @@ import javax.jms.*;
 
 public class ConsumerThread extends Thread {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ConsumerThread.class);
+   private static final Logger LOG = LoggerFactory.getLogger(ConsumerThread.class);
 
-    int messageCount = 1000;
-    int received = 0;
-    Destination dest;
-    Session sess;
-    boolean breakOnNull = true;
+   int messageCount = 1000;
+   int received = 0;
+   Destination dest;
+   Session sess;
+   boolean breakOnNull = true;
 
-    public ConsumerThread(Session sess, Destination dest) {
-        this.dest = dest;
-        this.sess = sess;
-    }
+   public ConsumerThread(Session sess, Destination dest) {
+      this.dest = dest;
+      this.sess = sess;
+   }
 
-    @Override
-    public void run() {
+   @Override
+   public void run() {
       MessageConsumer consumer = null;
 
-        try {
-            consumer = sess.createConsumer(dest);
-            while (received < messageCount) {
-                Message msg = consumer.receive(3000);
-                if (msg != null) {
-                    LOG.info("Received " + received + ": " + ((TextMessage)msg).getText());
-                    received++;
-                } else {
-                    if (breakOnNull) {
-                        break;
-                    }
-                }
+      try {
+         consumer = sess.createConsumer(dest);
+         while (received < messageCount) {
+            Message msg = consumer.receive(3000);
+            if (msg != null) {
+               LOG.info("Received " + received + ": " + ((TextMessage) msg).getText());
+               received++;
             }
-        } catch (JMSException e) {
-            e.printStackTrace();
-        } finally {
-            if (consumer != null) {
-                try {
-                    consumer.close();
-                } catch (JMSException e) {
-                    e.printStackTrace();
-                }
+            else {
+               if (breakOnNull) {
+                  break;
+               }
             }
-        }
-    }
+         }
+      }
+      catch (JMSException e) {
+         e.printStackTrace();
+      }
+      finally {
+         if (consumer != null) {
+            try {
+               consumer.close();
+            }
+            catch (JMSException e) {
+               e.printStackTrace();
+            }
+         }
+      }
+   }
 
-    public int getReceived() {
-        return received;
-    }
+   public int getReceived() {
+      return received;
+   }
 
-    public void setMessageCount(int messageCount) {
-        this.messageCount = messageCount;
-    }
+   public void setMessageCount(int messageCount) {
+      this.messageCount = messageCount;
+   }
 
-    public void setBreakOnNull(boolean breakOnNull) {
-        this.breakOnNull = breakOnNull;
-    }
+   public void setBreakOnNull(boolean breakOnNull) {
+      this.breakOnNull = breakOnNull;
+   }
 }

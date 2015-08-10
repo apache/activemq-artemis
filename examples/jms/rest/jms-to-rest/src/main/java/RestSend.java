@@ -14,14 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 import org.jboss.resteasy.client.ClientRequest;
 import org.jboss.resteasy.client.ClientResponse;
 import org.jboss.resteasy.spi.Link;
 
-public class RestSend
-{
-   public static void main(String[] args) throws Exception
-   {
+public class RestSend {
+
+   public static void main(String[] args) throws Exception {
       // first get the create URL for the shipping queue
       ClientRequest request = new ClientRequest("http://localhost:9095/queues/jms.queue.orders");
       ClientResponse res = request.head();
@@ -34,6 +34,7 @@ public class RestSend
       order.setAmount("$199.99");
 
       res = create.request().body("application/xml", order).post();
-      if (res.getStatus() != 201) throw new RuntimeException("Failed to post");
+      if (res.getStatus() != 201)
+         throw new RuntimeException("Failed to post");
    }
 }

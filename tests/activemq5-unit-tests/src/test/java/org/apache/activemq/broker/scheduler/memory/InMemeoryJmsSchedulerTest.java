@@ -23,18 +23,18 @@ import org.apache.activemq.broker.scheduler.JmsSchedulerTest;
  */
 public class InMemeoryJmsSchedulerTest extends JmsSchedulerTest {
 
-    @Override
-    protected boolean isPersistent() {
-        return false;
-    }
+   @Override
+   protected boolean isPersistent() {
+      return false;
+   }
 
-    @Override
-    public void testScheduleRestart() throws Exception {
-        // No persistence so scheduled jobs don't survive restart.
-    }
+   @Override
+   public void testScheduleRestart() throws Exception {
+      // No persistence so scheduled jobs don't survive restart.
+   }
 
-    @Override
-    public void testJobSchedulerStoreUsage() throws Exception {
-        // No store usage numbers for in-memory store.
-    }
+   @Override
+   public void testJobSchedulerStoreUsage() throws Exception {
+      // No store usage numbers for in-memory store.
+   }
 }

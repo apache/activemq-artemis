@@ -18,8 +18,8 @@ package org.proton.plug.test.minimalclient;
 
 import org.proton.plug.AMQPClientConnectionContext;
 
-public interface Connector
-{
+public interface Connector {
+
    void start();
 
    AMQPClientConnectionContext connect(String host, int port) throws Exception;

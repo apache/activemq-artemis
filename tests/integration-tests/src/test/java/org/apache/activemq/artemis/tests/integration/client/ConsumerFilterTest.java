@@ -29,8 +29,8 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Before;
 import org.junit.Test;
 
-public class ConsumerFilterTest extends ActiveMQTestBase
-{
+public class ConsumerFilterTest extends ActiveMQTestBase {
+
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    private ActiveMQServer server;
@@ -40,8 +40,7 @@ public class ConsumerFilterTest extends ActiveMQTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       server = createServer(false);
@@ -61,13 +60,11 @@ public class ConsumerFilterTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testLargeToken() throws Exception
-   {
+   public void testLargeToken() throws Exception {
       StringBuffer token = new StringBuffer();
 
       token.append("'");
-      for (int i = 0; i < 5000; i++)
-      {
+      for (int i = 0; i < 5000; i++) {
          token.append("a");
       }
       token.append("'");
@@ -77,9 +74,7 @@ public class ConsumerFilterTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testNonMatchingMessagesFollowedByMatchingMessages() throws Exception
-   {
-
+   public void testNonMatchingMessagesFollowedByMatchingMessages() throws Exception {
 
       ClientMessage message = session.createMessage(false);
 
@@ -109,11 +104,9 @@ public class ConsumerFilterTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testNonMatchingMessagesFollowedByMatchingMessagesMany() throws Exception
-   {
+   public void testNonMatchingMessagesFollowedByMatchingMessagesMany() throws Exception {
 
-      for (int i = 0; i < QueueImpl.MAX_DELIVERIES_IN_LOOP * 2; i++)
-      {
+      for (int i = 0; i < QueueImpl.MAX_DELIVERIES_IN_LOOP * 2; i++) {
          ClientMessage message = session.createMessage(false);
 
          message.putStringProperty("animal", "hippo");
@@ -123,8 +116,7 @@ public class ConsumerFilterTest extends ActiveMQTestBase
 
       assertNull(consumer.receiveImmediate());
 
-      for (int i = 0; i < QueueImpl.MAX_DELIVERIES_IN_LOOP * 2; i++)
-      {
+      for (int i = 0; i < QueueImpl.MAX_DELIVERIES_IN_LOOP * 2; i++) {
          ClientMessage message = session.createMessage(false);
 
          message.putStringProperty("animal", "giraffe");
@@ -132,8 +124,7 @@ public class ConsumerFilterTest extends ActiveMQTestBase
          producer.send(message);
       }
 
-      for (int i = 0; i < QueueImpl.MAX_DELIVERIES_IN_LOOP * 2; i++)
-      {
+      for (int i = 0; i < QueueImpl.MAX_DELIVERIES_IN_LOOP * 2; i++) {
          ClientMessage received = consumer.receiveImmediate();
 
          assertNotNull(received);
@@ -147,8 +138,7 @@ public class ConsumerFilterTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testTwoConsumers() throws Exception
-   {
+   public void testTwoConsumers() throws Exception {
       ClientConsumer consumer2 = session.createConsumer("foo", "animal='elephant'");
 
       //Create and consume message that matches the first consumer's filter
@@ -222,8 +212,7 @@ public class ConsumerFilterTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testLinkedListOrder() throws Exception
-   {
+   public void testLinkedListOrder() throws Exception {
       ServerLocator locator = createInVMNonHALocator();
 
       ClientSessionFactory sf = createSessionFactory(locator);
@@ -279,8 +268,7 @@ public class ConsumerFilterTest extends ActiveMQTestBase
     * @param consumer
     * @throws Exception
     */
-   private void readConsumer(String consumerName, ClientConsumer consumer) throws Exception
-   {
+   private void readConsumer(String consumerName, ClientConsumer consumer) throws Exception {
       ClientMessage message = consumer.receive(5000);
       assertNotNull(message);
       System.out.println("consumer = " + consumerName + " message, color=" + message.getStringProperty("color") + ", msg = " + message.getStringProperty("value"));
@@ -292,8 +280,7 @@ public class ConsumerFilterTest extends ActiveMQTestBase
     * @param producer
     * @throws Exception
     */
-   private void sendMessage(ClientSession session, ClientProducer producer, String color, String msg) throws Exception
-   {
+   private void sendMessage(ClientSession session, ClientProducer producer, String color, String msg) throws Exception {
       ClientMessage anyMessage = session.createMessage(true);
       anyMessage.putStringProperty("color", color);
       anyMessage.putStringProperty("value", msg);

@@ -34,17 +34,13 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 
 /**
- *
  * This example shows how to run an ActiveMQ Artemis core client and server embedded in your
  * own application
  */
-public class EmbeddedExample
-{
+public class EmbeddedExample {
 
-   public static void main(final String[] args) throws Exception
-   {
-      try
-      {
+   public static void main(final String[] args) throws Exception {
+      try {
          // Step 1. Create the Configuration, and set the properties accordingly
          Configuration configuration = new ConfigurationImpl();
          //we only need this for the server lock file
@@ -72,8 +68,7 @@ public class EmbeddedExample
 
          ClientSession session = null;
 
-         try
-         {
+         try {
 
             // Step 5. Create the session, and producer
             session = sf.createSession();
@@ -99,11 +94,9 @@ public class EmbeddedExample
             ClientMessage messageReceived = messageConsumer.receive(1000);
             System.out.println("Received TextMessage:" + messageReceived.getStringProperty(propName));
          }
-         finally
-         {
+         finally {
             // Step 9. Be sure to close our resources!
-            if (sf != null)
-            {
+            if (sf != null) {
                sf.close();
             }
 
@@ -111,8 +104,7 @@ public class EmbeddedExample
             server.stop();
          }
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          e.printStackTrace();
          throw e;
       }

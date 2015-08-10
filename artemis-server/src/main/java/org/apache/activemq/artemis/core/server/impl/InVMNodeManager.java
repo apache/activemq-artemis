@@ -37,15 +37,13 @@ import static org.apache.activemq.artemis.core.server.impl.InVMNodeManager.State
  * multiple servers are run inside the same VM and File Locks can not be shared in the
  * same VM (it would cause a shared lock violation).
  */
-public final class InVMNodeManager extends NodeManager
-{
+public final class InVMNodeManager extends NodeManager {
 
    private final Semaphore liveLock;
 
    private final Semaphore backupLock;
 
-   public enum State
-   {
+   public enum State {
       LIVE, PAUSED, FAILING_BACK, NOT_STARTED
    }
 
@@ -53,15 +51,13 @@ public final class InVMNodeManager extends NodeManager
 
    public long failoverPause = 0L;
 
-   public InVMNodeManager(boolean replicatedBackup)
-   {
+   public InVMNodeManager(boolean replicatedBackup) {
       this(replicatedBackup, null);
       if (replicatedBackup)
          throw new RuntimeException("if replicated-backup, we need its journal directory");
    }
 
-   public InVMNodeManager(boolean replicatedBackup, File directory)
-   {
+   public InVMNodeManager(boolean replicatedBackup, File directory) {
       super(replicatedBackup, directory);
       liveLock = new Semaphore(1);
       backupLock = new Semaphore(1);
@@ -69,98 +65,80 @@ public final class InVMNodeManager extends NodeManager
    }
 
    @Override
-   public void awaitLiveNode() throws Exception
-   {
-      do
-      {
-         while (state == NOT_STARTED)
-         {
+   public void awaitLiveNode() throws Exception {
+      do {
+         while (state == NOT_STARTED) {
             Thread.sleep(2000);
          }
 
          liveLock.acquire();
 
-         if (state == PAUSED)
-         {
+         if (state == PAUSED) {
             liveLock.release();
             Thread.sleep(2000);
          }
-         else if (state == FAILING_BACK)
-         {
+         else if (state == FAILING_BACK) {
             liveLock.release();
             Thread.sleep(2000);
          }
-         else if (state == LIVE)
-         {
+         else if (state == LIVE) {
             break;
          }
-      }
-      while (true);
-      if (failoverPause > 0L)
-      {
+      } while (true);
+      if (failoverPause > 0L) {
          Thread.sleep(failoverPause);
       }
    }
 
    @Override
-   public void startBackup() throws Exception
-   {
+   public void startBackup() throws Exception {
       backupLock.acquire();
    }
 
    @Override
-   public void startLiveNode() throws Exception
-   {
+   public void startLiveNode() throws Exception {
       state = FAILING_BACK;
       liveLock.acquire();
       state = LIVE;
    }
 
    @Override
-   public void pauseLiveServer() throws Exception
-   {
+   public void pauseLiveServer() throws Exception {
       state = PAUSED;
       liveLock.release();
    }
 
    @Override
-   public void crashLiveServer() throws Exception
-   {
+   public void crashLiveServer() throws Exception {
       //overkill as already set to live
       state = LIVE;
       liveLock.release();
    }
 
    @Override
-   public boolean isAwaitingFailback() throws Exception
-   {
+   public boolean isAwaitingFailback() throws Exception {
       return state == FAILING_BACK;
    }
 
    @Override
-   public boolean isBackupLive() throws Exception
-   {
+   public boolean isBackupLive() throws Exception {
       return liveLock.availablePermits() == 0;
    }
 
    @Override
-   public void interrupt()
-   {
+   public void interrupt() {
       //
    }
 
    @Override
-   public void releaseBackup()
-   {
-      if (backupLock != null)
-      {
+   public void releaseBackup() {
+      if (backupLock != null) {
          backupLock.release();
       }
    }
 
    @Override
-   public SimpleString readNodeId() throws ActiveMQIllegalStateException, IOException
-   {
+   public SimpleString readNodeId() throws ActiveMQIllegalStateException, IOException {
       return getNodeId();
    }
 }

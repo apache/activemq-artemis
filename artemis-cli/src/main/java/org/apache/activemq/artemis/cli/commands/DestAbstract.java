@@ -17,10 +17,10 @@
 
 package org.apache.activemq.artemis.cli.commands;
 
-   import io.airlift.airline.Option;
+import io.airlift.airline.Option;
 
-public class DestAbstract extends ActionAbstract
-{
+public class DestAbstract extends ActionAbstract {
+
    @Option(name = "--url", description = "URL towards the broker. (default: tcp://localhost:61616)")
    String brokerURL = "tcp://localhost:61616";
 

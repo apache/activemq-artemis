@@ -22,15 +22,17 @@ import javax.jms.Topic;
 import javax.jms.TopicSession;
 
 /**
- * 
+ *
  */
 public class JmsTopicSendReceiveSubscriberTest extends JmsTopicSendReceiveTest {
-    protected MessageConsumer createConsumer() throws JMSException {
-        if (durable) {
-            return super.createConsumer();
-        } else {
-            TopicSession topicSession = (TopicSession)session;
-            return topicSession.createSubscriber((Topic)consumerDestination, null, false);
-        }
-    }
+
+   protected MessageConsumer createConsumer() throws JMSException {
+      if (durable) {
+         return super.createConsumer();
+      }
+      else {
+         TopicSession topicSession = (TopicSession) session;
+         return topicSession.createSubscriber((Topic) consumerDestination, null, false);
+      }
+   }
 }

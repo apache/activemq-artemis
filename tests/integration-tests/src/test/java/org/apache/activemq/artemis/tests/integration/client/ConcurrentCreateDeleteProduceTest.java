@@ -40,13 +40,11 @@ import org.junit.Test;
  * the NPE happened during depaging what let the server to recover itself on the next depage.
  * To verify a fix on this test against the previous version of QueueImpl look for NPEs on System.err
  */
-public class ConcurrentCreateDeleteProduceTest extends ActiveMQTestBase
-{
+public class ConcurrentCreateDeleteProduceTest extends ActiveMQTestBase {
 
    volatile boolean running = true;
 
    private final SimpleString ADDRESS = new SimpleString("ADQUEUE");
-
 
    AtomicInteger sequence = new AtomicInteger(0);
    private ActiveMQServer server;
@@ -56,29 +54,19 @@ public class ConcurrentCreateDeleteProduceTest extends ActiveMQTestBase
 
    private static final int PAGE_SIZE = 10 * 1024;
 
-
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
-      Configuration config = createDefaultInVMConfig()
-         .setJournalSyncNonTransactional(false)
-         .setJournalSyncTransactional(false);
+      Configuration config = createDefaultInVMConfig().setJournalSyncNonTransactional(false).setJournalSyncTransactional(false);
 
-      server = createServer(true, config,
-                            PAGE_SIZE,
-                            PAGE_MAX,
-                            new HashMap<String, AddressSettings>());
+      server = createServer(true, config, PAGE_SIZE, PAGE_MAX, new HashMap<String, AddressSettings>());
       server.start();
-      locator = createNonHALocator(false)
-              .setBlockOnDurableSend(false)
-              .setBlockOnAcknowledge(true);
+      locator = createNonHALocator(false).setBlockOnDurableSend(false).setBlockOnAcknowledge(true);
    }
 
    @Test
-   public void testConcurrentProduceCreateAndDelete() throws Throwable
-   {
+   public void testConcurrentProduceCreateAndDelete() throws Throwable {
       ClientSessionFactory factory = locator.createSessionFactory();
       ClientSession session = factory.createSession(true, true);
       ClientProducer producer = session.createProducer(ADDRESS);
@@ -89,14 +77,12 @@ public class ConcurrentCreateDeleteProduceTest extends ActiveMQTestBase
 
       Consumer[] consumers = new Consumer[10];
 
-      for (int i = 0; i < consumers.length; i++)
-      {
+      for (int i = 0; i < consumers.length; i++) {
          consumers[i] = new Consumer();
          consumers[i].start();
       }
 
-      for (int i = 0; i < 50000 && running; i++)
-      {
+      for (int i = 0; i < 50000 && running; i++) {
          producer.send(session.createMessage(true));
          //Thread.sleep(10);
       }
@@ -105,49 +91,39 @@ public class ConcurrentCreateDeleteProduceTest extends ActiveMQTestBase
 
       running = false;
 
-
-      for (Consumer consumer : consumers)
-      {
+      for (Consumer consumer : consumers) {
          consumer.join();
-         if (consumer.ex != null)
-         {
+         if (consumer.ex != null) {
             throw consumer.ex;
          }
       }
 
    }
 
+   class Consumer extends Thread {
 
-   class Consumer extends Thread
-   {
       volatile Throwable ex;
 
-      public void run()
-      {
+      public void run() {
          ClientSessionFactory factory;
          ClientSession session;
-         try
-         {
+         try {
             factory = locator.createSessionFactory();
             session = factory.createSession(false, false);
             session.start();
 
             int msgcount = 0;
 
-            for (int i = 0; i < 100 && running; i++)
-            {
+            for (int i = 0; i < 100 && running; i++) {
                SimpleString queueName = ADDRESS.concat("_" + sequence.incrementAndGet());
                session.createQueue(ADDRESS, queueName, true);
                ClientConsumer consumer = session.createConsumer(queueName);
-               while (running)
-               {
+               while (running) {
                   ClientMessage msg = consumer.receive(5000);
-                  if (msg == null)
-                  {
+                  if (msg == null) {
                      break;
                   }
-                  if (msgcount++ == 500)
-                  {
+                  if (msgcount++ == 500) {
                      msgcount = 0;
                      break;
                   }
@@ -159,8 +135,7 @@ public class ConcurrentCreateDeleteProduceTest extends ActiveMQTestBase
             }
             session.close();
          }
-         catch (Throwable e)
-         {
+         catch (Throwable e) {
             this.ex = e;
             e.printStackTrace();
             running = false;

@@ -28,30 +28,26 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class SessionCreateProducerTest extends ActiveMQTestBase
-{
+public class SessionCreateProducerTest extends ActiveMQTestBase {
+
    private ServerLocator locator;
    private ClientSessionInternal clientSession;
    private ClientSessionFactory cf;
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
       locator = createInVMNonHALocator();
       ActiveMQServer service = createServer(false);
       service.start();
-      locator.setProducerMaxRate(99)
-              .setBlockOnNonDurableSend(true)
-              .setBlockOnNonDurableSend(true);
+      locator.setProducerMaxRate(99).setBlockOnNonDurableSend(true).setBlockOnNonDurableSend(true);
       cf = createSessionFactory(locator);
       clientSession = (ClientSessionInternal) addClientSession(cf.createSession(false, true, true));
    }
 
    @Test
-   public void testCreateAnonProducer() throws Exception
-   {
+   public void testCreateAnonProducer() throws Exception {
       ClientProducer producer = clientSession.createProducer();
       Assert.assertNull(producer.getAddress());
       Assert.assertEquals(cf.getServerLocator().getProducerMaxRate(), producer.getMaxRate());
@@ -61,8 +57,7 @@ public class SessionCreateProducerTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testCreateProducer1() throws Exception
-   {
+   public void testCreateProducer1() throws Exception {
       ClientProducer producer = clientSession.createProducer("testAddress");
       Assert.assertNotNull(producer.getAddress());
       Assert.assertEquals(cf.getServerLocator().getProducerMaxRate(), producer.getMaxRate());
@@ -72,20 +67,16 @@ public class SessionCreateProducerTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testProducerOnClosedSession() throws Exception
-   {
+   public void testProducerOnClosedSession() throws Exception {
       clientSession.close();
-      try
-      {
+      try {
          clientSession.createProducer();
          Assert.fail("should throw exception");
       }
-      catch (ActiveMQObjectClosedException oce)
-      {
+      catch (ActiveMQObjectClosedException oce) {
          //ok
       }
-      catch (ActiveMQException e)
-      {
+      catch (ActiveMQException e) {
          fail("Invalid Exception type:" + e.getType());
       }
    }

@@ -28,33 +28,33 @@ import org.junit.Test;
 
 public class DuplexNetworkTest extends SimpleNetworkTest {
 
-    @Override
-    protected String getLocalBrokerURI() {
-        return "org/apache/activemq/network/duplexLocalBroker.xml";
-    }
+   @Override
+   protected String getLocalBrokerURI() {
+      return "org/apache/activemq/network/duplexLocalBroker.xml";
+   }
 
-    @Override
-    protected BrokerService createRemoteBroker() throws Exception {
-        BrokerService broker = new BrokerService();
-        broker.setBrokerName("remoteBroker");
-        broker.addConnector("tcp://localhost:61617");
-        return broker;
-    }
+   @Override
+   protected BrokerService createRemoteBroker() throws Exception {
+      BrokerService broker = new BrokerService();
+      broker.setBrokerName("remoteBroker");
+      broker.addConnector("tcp://localhost:61617");
+      return broker;
+   }
 
-    @Test
-    public void testTempQueues() throws Exception {
-        TemporaryQueue temp = localSession.createTemporaryQueue();
-        MessageProducer producer = localSession.createProducer(temp);
-        producer.send(localSession.createTextMessage("test"));
-        Thread.sleep(100);
-        assertEquals("Destination not created", 1, remoteBroker.getAdminView().getTemporaryQueues().length);
-        temp.delete();
+   @Test
+   public void testTempQueues() throws Exception {
+      TemporaryQueue temp = localSession.createTemporaryQueue();
+      MessageProducer producer = localSession.createProducer(temp);
+      producer.send(localSession.createTextMessage("test"));
+      Thread.sleep(100);
+      assertEquals("Destination not created", 1, remoteBroker.getAdminView().getTemporaryQueues().length);
+      temp.delete();
 
-        assertTrue("Destination not deleted", Wait.waitFor(new Wait.Condition() {
-            @Override
-            public boolean isSatisified() throws Exception {
-                return 0 == remoteBroker.getAdminView().getTemporaryQueues().length;
-            }
-        }));
-    }
+      assertTrue("Destination not deleted", Wait.waitFor(new Wait.Condition() {
+         @Override
+         public boolean isSatisified() throws Exception {
+            return 0 == remoteBroker.getAdminView().getTemporaryQueues().length;
+         }
+      }));
+   }
 }

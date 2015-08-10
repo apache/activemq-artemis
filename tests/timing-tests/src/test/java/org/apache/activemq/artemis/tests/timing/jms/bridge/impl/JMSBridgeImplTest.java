@@ -70,8 +70,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class JMSBridgeImplTest extends ActiveMQTestBase
-{
+public class JMSBridgeImplTest extends ActiveMQTestBase {
    // Constants -----------------------------------------------------
 
    private static final UnitTestLogger log = UnitTestLogger.LOGGER;
@@ -89,82 +88,57 @@ public class JMSBridgeImplTest extends ActiveMQTestBase
 
    // Static --------------------------------------------------------
 
-   protected static TransactionManager newTransactionManager()
-   {
-      return new TransactionManager()
-      {
-         public Transaction suspend() throws SystemException
-         {
+   protected static TransactionManager newTransactionManager() {
+      return new TransactionManager() {
+         public Transaction suspend() throws SystemException {
             return null;
          }
 
-         public void setTransactionTimeout(final int arg0) throws SystemException
-         {
+         public void setTransactionTimeout(final int arg0) throws SystemException {
          }
 
-         public void setRollbackOnly() throws IllegalStateException, SystemException
-         {
+         public void setRollbackOnly() throws IllegalStateException, SystemException {
          }
 
-         public void rollback() throws IllegalStateException, SecurityException, SystemException
-         {
+         public void rollback() throws IllegalStateException, SecurityException, SystemException {
          }
 
-         public void resume(final Transaction arg0) throws InvalidTransactionException,
-            IllegalStateException,
-            SystemException
-         {
+         public void resume(final Transaction arg0) throws InvalidTransactionException, IllegalStateException, SystemException {
          }
 
-         public Transaction getTransaction() throws SystemException
-         {
+         public Transaction getTransaction() throws SystemException {
             return null;
          }
 
-         public int getStatus() throws SystemException
-         {
+         public int getStatus() throws SystemException {
             return 0;
          }
 
-         public void commit() throws RollbackException,
-            HeuristicMixedException,
-            HeuristicRollbackException,
-            SecurityException,
-            IllegalStateException,
-            SystemException
-         {
+         public void commit() throws RollbackException, HeuristicMixedException, HeuristicRollbackException, SecurityException, IllegalStateException, SystemException {
          }
 
-         public void begin() throws NotSupportedException, SystemException
-         {
+         public void begin() throws NotSupportedException, SystemException {
          }
       };
    }
 
-   private static DestinationFactory newDestinationFactory(final Destination dest)
-   {
-      return new DestinationFactory()
-      {
-         public Destination createDestination() throws Exception
-         {
+   private static DestinationFactory newDestinationFactory(final Destination dest) {
+      return new DestinationFactory() {
+         public Destination createDestination() throws Exception {
             return dest;
          }
       };
    }
 
-   private static ConnectionFactoryFactory newConnectionFactoryFactory(final ConnectionFactory cf)
-   {
-      return new ConnectionFactoryFactory()
-      {
-         public ConnectionFactory createConnectionFactory() throws Exception
-         {
+   private static ConnectionFactoryFactory newConnectionFactoryFactory(final ConnectionFactory cf) {
+      return new ConnectionFactoryFactory() {
+         public ConnectionFactory createConnectionFactory() throws Exception {
             return cf;
          }
       };
    }
 
-   private static ConnectionFactory createConnectionFactory()
-   {
+   private static ConnectionFactory createConnectionFactory() {
 
       ActiveMQJMSConnectionFactory cf = (ActiveMQJMSConnectionFactory) ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration(InVMConnectorFactory.class.getName()));
       // Note! We disable automatic reconnection on the session factory. The bridge needs to do the reconnection
@@ -179,15 +153,12 @@ public class JMSBridgeImplTest extends ActiveMQTestBase
    // Public --------------------------------------------------------
 
    @Test
-   public void testStartWithRepeatedFailure() throws Exception
-   {
-      ActiveMQJMSConnectionFactory failingSourceCF = new ActiveMQJMSConnectionFactory(false, new TransportConfiguration(InVMConnectorFactory.class.getName()))
-      {
+   public void testStartWithRepeatedFailure() throws Exception {
+      ActiveMQJMSConnectionFactory failingSourceCF = new ActiveMQJMSConnectionFactory(false, new TransportConfiguration(InVMConnectorFactory.class.getName())) {
          private static final long serialVersionUID = 2834937512213001068L;
 
          @Override
-         public Connection createConnection() throws JMSException
-         {
+         public Connection createConnection() throws JMSException {
             throw new JMSException("unable to create a conn");
          }
       };
@@ -225,23 +196,18 @@ public class JMSBridgeImplTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testStartWithFailureThenSuccess() throws Exception
-   {
-      ActiveMQJMSConnectionFactory failingSourceCF = new ActiveMQJMSConnectionFactory(false, new TransportConfiguration(InVMConnectorFactory.class.getName()))
-      {
+   public void testStartWithFailureThenSuccess() throws Exception {
+      ActiveMQJMSConnectionFactory failingSourceCF = new ActiveMQJMSConnectionFactory(false, new TransportConfiguration(InVMConnectorFactory.class.getName())) {
          private static final long serialVersionUID = 4657153922210359725L;
          boolean firstTime = true;
 
          @Override
-         public Connection createConnection() throws JMSException
-         {
-            if (firstTime)
-            {
+         public Connection createConnection() throws JMSException {
+            if (firstTime) {
                firstTime = false;
                throw new JMSException("unable to create a conn");
             }
-            else
-            {
+            else {
                return super.createConnection();
             }
          }
@@ -287,8 +253,7 @@ public class JMSBridgeImplTest extends ActiveMQTestBase
    * expires even if the maxBatchSize is not reached
    */
    @Test
-   public void testSendMessagesWhenMaxBatchTimeExpires() throws Exception
-   {
+   public void testSendMessagesWhenMaxBatchTimeExpires() throws Exception {
       int maxBatchSize = 2;
       long maxBatchTime = 500;
 
@@ -320,11 +285,9 @@ public class JMSBridgeImplTest extends ActiveMQTestBase
       Session targetSess = targetConn.createSession(false, Session.AUTO_ACKNOWLEDGE);
       MessageConsumer consumer = targetSess.createConsumer(targetDF.createDestination());
       final List<Message> messages = new LinkedList<Message>();
-      MessageListener listener = new MessageListener()
-      {
+      MessageListener listener = new MessageListener() {
 
-         public void onMessage(final Message message)
-         {
+         public void onMessage(final Message message) {
             messages.add(message);
          }
       };
@@ -349,8 +312,7 @@ public class JMSBridgeImplTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testSendMessagesWithMaxBatchSize() throws Exception
-   {
+   public void testSendMessagesWithMaxBatchSize() throws Exception {
       final int numMessages = 10;
 
       ConnectionFactoryFactory sourceCFF = JMSBridgeImplTest.newConnectionFactoryFactory(JMSBridgeImplTest.createConnectionFactory());
@@ -382,10 +344,8 @@ public class JMSBridgeImplTest extends ActiveMQTestBase
       MessageConsumer consumer = targetSess.createConsumer(targetDF.createDestination());
       final List<Message> messages = new LinkedList<Message>();
       final CountDownLatch latch = new CountDownLatch(numMessages);
-      MessageListener listener = new MessageListener()
-      {
-         public void onMessage(final Message message)
-         {
+      MessageListener listener = new MessageListener() {
+         public void onMessage(final Message message) {
             messages.add(message);
             latch.countDown();
          }
@@ -398,8 +358,7 @@ public class JMSBridgeImplTest extends ActiveMQTestBase
 
       MessageProducer producer = sourceSess.createProducer(sourceDF.createDestination());
 
-      for (int i = 0; i < numMessages - 1; i++)
-      {
+      for (int i = 0; i < numMessages - 1; i++) {
          TextMessage msg = sourceSess.createTextMessage();
          producer.send(msg);
          JMSBridgeImplTest.log.info("sent message " + i);
@@ -426,19 +385,16 @@ public class JMSBridgeImplTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testAutoAckOnSourceBatchOfOne() throws Exception
-   {
+   public void testAutoAckOnSourceBatchOfOne() throws Exception {
       doTestAutoAckOnSource(1);
    }
 
    @Test
-   public void testAutoAckOnSourceBatchOfTen() throws Exception
-   {
+   public void testAutoAckOnSourceBatchOfTen() throws Exception {
       doTestAutoAckOnSource(10);
    }
 
-   public void doTestAutoAckOnSource(int maxBatchSize) throws Exception
-   {
+   public void doTestAutoAckOnSource(int maxBatchSize) throws Exception {
       final int numMessages = maxBatchSize;
 
       ConnectionFactoryFactory sourceCFF = JMSBridgeImplTest.newConnectionFactoryFactory(JMSBridgeImplTest.createConnectionFactory());
@@ -470,8 +426,7 @@ public class JMSBridgeImplTest extends ActiveMQTestBase
 
       MessageProducer producer = sourceSess.createProducer(sourceDF.createDestination());
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          TextMessage msg = sourceSess.createTextMessage();
          producer.send(msg);
          JMSBridgeImplTest.log.info("sent message " + i);
@@ -479,11 +434,7 @@ public class JMSBridgeImplTest extends ActiveMQTestBase
 
       sourceConn.close();
 
-      JMSQueueControl jmsQueueControl = MBeanServerInvocationHandler.newProxyInstance(
-         ManagementFactory.getPlatformMBeanServer(),
-         ObjectNameBuilder.DEFAULT.getJMSQueueObjectName(JMSBridgeImplTest.SOURCE),
-         JMSQueueControl.class,
-         false);
+      JMSQueueControl jmsQueueControl = MBeanServerInvocationHandler.newProxyInstance(ManagementFactory.getPlatformMBeanServer(), ObjectNameBuilder.DEFAULT.getJMSQueueObjectName(JMSBridgeImplTest.SOURCE), JMSQueueControl.class, false);
       assertNotEquals(jmsQueueControl.getDeliveringCount(), numMessages);
 
       bridge.stop();
@@ -491,16 +442,13 @@ public class JMSBridgeImplTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testExceptionOnSourceAndRetrySucceeds() throws Exception
-   {
+   public void testExceptionOnSourceAndRetrySucceeds() throws Exception {
       final AtomicReference<Connection> sourceConn = new AtomicReference<Connection>();
-      ActiveMQJMSConnectionFactory failingSourceCF = new ActiveMQJMSConnectionFactory(false, new TransportConfiguration(InVMConnectorFactory.class.getName()))
-      {
+      ActiveMQJMSConnectionFactory failingSourceCF = new ActiveMQJMSConnectionFactory(false, new TransportConfiguration(InVMConnectorFactory.class.getName())) {
          private static final long serialVersionUID = -8866390811966688830L;
 
          @Override
-         public Connection createConnection() throws JMSException
-         {
+         public Connection createConnection() throws JMSException {
             sourceConn.set(super.createConnection());
             return sourceConn.get();
          }
@@ -544,30 +492,24 @@ public class JMSBridgeImplTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testExceptionOnSourceAndRetryFails() throws Exception
-   {
+   public void testExceptionOnSourceAndRetryFails() throws Exception {
       final AtomicReference<Connection> sourceConn = new AtomicReference<Connection>();
-      ActiveMQJMSConnectionFactory failingSourceCF =
-         new ActiveMQJMSConnectionFactory(false, new TransportConfiguration(INVM_CONNECTOR_FACTORY))
-         {
-            private static final long serialVersionUID = 8216804886099984645L;
-            boolean firstTime = true;
+      ActiveMQJMSConnectionFactory failingSourceCF = new ActiveMQJMSConnectionFactory(false, new TransportConfiguration(INVM_CONNECTOR_FACTORY)) {
+         private static final long serialVersionUID = 8216804886099984645L;
+         boolean firstTime = true;
 
-            @Override
-            public Connection createConnection() throws JMSException
-            {
-               if (firstTime)
-               {
-                  firstTime = false;
-                  sourceConn.set(super.createConnection());
-                  return sourceConn.get();
-               }
-               else
-               {
-                  throw new JMSException("exception while retrying to connect");
-               }
+         @Override
+         public Connection createConnection() throws JMSException {
+            if (firstTime) {
+               firstTime = false;
+               sourceConn.set(super.createConnection());
+               return sourceConn.get();
             }
-         };
+            else {
+               throw new JMSException("exception while retrying to connect");
+            }
+         }
+      };
       // Note! We disable automatic reconnection on the session factory. The bridge needs to do the reconnection
       failingSourceCF.setReconnectAttempts(0);
       failingSourceCF.setBlockOnNonDurableSend(true);
@@ -610,12 +552,10 @@ public class JMSBridgeImplTest extends ActiveMQTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
-      Configuration config = createBasicConfig()
-         .addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName()));
+      Configuration config = createBasicConfig().addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName()));
       InVMNamingContext context = new InVMNamingContext();
       jmsServer = new JMSServerManagerImpl(addServer(ActiveMQServers.newActiveMQServer(config, false)));
       jmsServer.setRegistry(new JndiBindingRegistry(context));
@@ -627,8 +567,7 @@ public class JMSBridgeImplTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testTransactionManagerNotSetForDuplicatesOK() throws Exception
-   {
+   public void testTransactionManagerNotSetForDuplicatesOK() throws Exception {
 
       ConnectionFactoryFactory sourceCFF = JMSBridgeImplTest.newConnectionFactoryFactory(JMSBridgeImplTest.createConnectionFactory());
       ConnectionFactoryFactory targetCFF = JMSBridgeImplTest.newConnectionFactoryFactory(JMSBridgeImplTest.createConnectionFactory());
@@ -660,8 +599,7 @@ public class JMSBridgeImplTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testThrowErrorWhenTMNotSetForOnceOnly() throws Exception
-   {
+   public void testThrowErrorWhenTMNotSetForOnceOnly() throws Exception {
       thrown.expect(RuntimeException.class);
 
       ConnectionFactoryFactory sourceCFF = JMSBridgeImplTest.newConnectionFactoryFactory(JMSBridgeImplTest.createConnectionFactory());

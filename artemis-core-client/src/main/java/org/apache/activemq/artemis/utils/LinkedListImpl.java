@@ -19,15 +19,14 @@ package org.apache.activemq.artemis.utils;
 import java.lang.reflect.Array;
 import java.util.NoSuchElementException;
 
-
 /**
  * A linked list implementation which allows multiple iterators to exist at the same time on the queue, and which see any
  * elements added or removed from the queue either directly or via iterators.
  *
  * This class is not thread safe.
  */
-public class LinkedListImpl<E> implements LinkedList<E>
-{
+public class LinkedListImpl<E> implements LinkedList<E> {
+
    private static final int INITIAL_ITERATOR_ARRAY_SIZE = 10;
 
    private final Node<E> head = new Node<E>(null);
@@ -43,13 +42,11 @@ public class LinkedListImpl<E> implements LinkedList<E>
 
    private int nextIndex;
 
-   public LinkedListImpl()
-   {
+   public LinkedListImpl() {
       iters = createIteratorArray(INITIAL_ITERATOR_ARRAY_SIZE);
    }
 
-   public void addHead(E e)
-   {
+   public void addHead(E e) {
       Node<E> node = new Node<E>(e);
 
       node.next = head.next;
@@ -58,12 +55,10 @@ public class LinkedListImpl<E> implements LinkedList<E>
 
       head.next = node;
 
-      if (size == 0)
-      {
+      if (size == 0) {
          tail = node;
       }
-      else
-      {
+      else {
          // Need to set the previous element on the former head
          node.next.prev = node;
       }
@@ -71,14 +66,11 @@ public class LinkedListImpl<E> implements LinkedList<E>
       size++;
    }
 
-   public void addTail(E e)
-   {
-      if (size == 0)
-      {
+   public void addTail(E e) {
+      if (size == 0) {
          addHead(e);
       }
-      else
-      {
+      else {
          Node<E> node = new Node<E>(e);
 
          node.prev = tail;
@@ -91,51 +83,42 @@ public class LinkedListImpl<E> implements LinkedList<E>
       }
    }
 
-   public E poll()
-   {
+   public E poll() {
       Node<E> ret = head.next;
 
-      if (ret != null)
-      {
+      if (ret != null) {
          removeAfter(head);
 
          return ret.val;
       }
-      else
-      {
+      else {
          return null;
       }
    }
 
-   public void clear()
-   {
+   public void clear() {
       tail = head.next = null;
 
       size = 0;
    }
 
-   public int size()
-   {
+   public int size() {
       return size;
    }
 
-   public LinkedListIterator<E> iterator()
-   {
+   public LinkedListIterator<E> iterator() {
       return new Iterator();
    }
 
-   public String toString()
-   {
+   public String toString() {
       StringBuilder str = new StringBuilder("LinkedListImpl [ ");
 
       Node<E> node = head;
 
-      while (node != null)
-      {
+      while (node != null) {
          str.append(node.toString());
 
-         if (node.next != null)
-         {
+         if (node.next != null) {
             str.append(", ");
          }
 
@@ -145,36 +128,30 @@ public class LinkedListImpl<E> implements LinkedList<E>
       return str.toString();
    }
 
-   public int numIters()
-   {
+   public int numIters() {
       return numIters;
    }
 
-   private Iterator[] createIteratorArray(int size)
-   {
-      return (Iterator[])Array.newInstance(Iterator.class, size);
+   private Iterator[] createIteratorArray(int size) {
+      return (Iterator[]) Array.newInstance(Iterator.class, size);
    }
 
-   private void removeAfter(Node<E> node)
-   {
+   private void removeAfter(Node<E> node) {
       Node<E> toRemove = node.next;
 
       node.next = toRemove.next;
 
-      if (toRemove.next != null)
-      {
+      if (toRemove.next != null) {
          toRemove.next.prev = node;
       }
 
-      if (toRemove == tail)
-      {
+      if (toRemove == tail) {
          tail = node;
       }
 
       size--;
 
-      if (toRemove.iterCount != 0)
-      {
+      if (toRemove.iterCount != 0) {
          LinkedListImpl.this.nudgeIterators(toRemove);
       }
 
@@ -183,22 +160,17 @@ public class LinkedListImpl<E> implements LinkedList<E>
       toRemove.next = toRemove.prev = null;
    }
 
-   private synchronized void nudgeIterators(Node<E> node)
-   {
-      for (int i = 0; i < numIters; i++)
-      {
+   private synchronized void nudgeIterators(Node<E> node) {
+      for (int i = 0; i < numIters; i++) {
          Iterator iter = iters[i];
-         if (iter != null)
-         {
+         if (iter != null) {
             iter.nudged(node);
          }
       }
    }
 
-   private synchronized void addIter(Iterator iter)
-   {
-      if (numIters == iters.length)
-      {
+   private synchronized void addIter(Iterator iter) {
+      if (numIters == iters.length) {
          resize(2 * numIters);
       }
 
@@ -207,8 +179,7 @@ public class LinkedListImpl<E> implements LinkedList<E>
       numIters++;
    }
 
-   private synchronized void resize(int newSize)
-   {
+   private synchronized void resize(int newSize) {
       Iterator[] newIters = createIteratorArray(newSize);
 
       System.arraycopy(iters, 0, newIters, 0, numIters);
@@ -216,16 +187,12 @@ public class LinkedListImpl<E> implements LinkedList<E>
       iters = newIters;
    }
 
-   private synchronized void removeIter(Iterator iter)
-   {
-      for (int i = 0; i < numIters; i++)
-      {
-         if (iter == iters[i])
-         {
+   private synchronized void removeIter(Iterator iter) {
+      for (int i = 0; i < numIters; i++) {
+         if (iter == iters[i]) {
             iters[i] = null;
 
-            if (i != numIters - 1)
-            {
+            if (i != numIters - 1) {
                // Fill in the hole
 
                System.arraycopy(iters, i + 1, iters, i, numIters - i - 1);
@@ -233,8 +200,7 @@ public class LinkedListImpl<E> implements LinkedList<E>
 
             numIters--;
 
-            if (numIters >= INITIAL_ITERATOR_ARRAY_SIZE && numIters == iters.length / 2)
-            {
+            if (numIters >= INITIAL_ITERATOR_ARRAY_SIZE && numIters == iters.length / 2) {
                resize(numIters);
             }
 
@@ -247,8 +213,8 @@ public class LinkedListImpl<E> implements LinkedList<E>
       throw new IllegalStateException("Cannot find iter to remove");
    }
 
-   private static final class Node<E>
-   {
+   private static final class Node<E> {
+
       Node<E> next;
 
       Node<E> prev;
@@ -257,91 +223,75 @@ public class LinkedListImpl<E> implements LinkedList<E>
 
       int iterCount;
 
-      Node(E e)
-      {
+      Node(E e) {
          val = e;
       }
 
-      public String toString()
-      {
+      public String toString() {
          return "Node, value = " + val;
       }
    }
 
-   private class Iterator implements LinkedListIterator<E>
-   {
+   private class Iterator implements LinkedListIterator<E> {
+
       Node<E> last;
 
       Node<E> current = head.next;
 
       boolean repeat;
 
-      Iterator()
-      {
-         if (current != null)
-         {
+      Iterator() {
+         if (current != null) {
             current.iterCount++;
          }
 
          addIter(this);
       }
 
-      public void repeat()
-      {
+      public void repeat() {
          repeat = true;
       }
 
-      public boolean hasNext()
-      {
+      public boolean hasNext() {
          Node<E> e = getNode();
 
-         if (e != null && (e != last || repeat))
-         {
+         if (e != null && (e != last || repeat)) {
             return true;
          }
 
          return canAdvance();
       }
 
-      public E next()
-      {
+      public E next() {
          Node<E> e = getNode();
 
-         if (repeat)
-         {
+         if (repeat) {
             repeat = false;
 
-            if (e != null)
-            {
+            if (e != null) {
                return e.val;
             }
-            else
-            {
-               if (canAdvance())
-               {
+            else {
+               if (canAdvance()) {
                   advance();
 
                   e = getNode();
 
                   return e.val;
                }
-               else
-               {
+               else {
                   throw new NoSuchElementException();
                }
             }
          }
 
-         if (e == null || e == last)
-         {
-            if (canAdvance())
-            {
+         if (e == null || e == last) {
+            if (canAdvance()) {
                advance();
 
                e = getNode();
             }
-            else
-            {
+            else {
                throw new NoSuchElementException();
             }
          }
@@ -353,15 +303,12 @@ public class LinkedListImpl<E> implements LinkedList<E>
          return e.val;
       }
 
-      public void remove()
-      {
-         if (last == null)
-         {
+      public void remove() {
+         if (last == null) {
             throw new NoSuchElementException();
          }
 
-         if (current == null)
-         {
+         if (current == null) {
             throw new NoSuchElementException();
          }
 
@@ -370,67 +317,52 @@ public class LinkedListImpl<E> implements LinkedList<E>
          last = null;
       }
 
-      public void close()
-      {
+      public void close() {
          removeIter(this);
       }
 
-      public void nudged(Node<E> node)
-      {
-         if (current == node)
-         {
-            if (canAdvance())
-            {
+      public void nudged(Node<E> node) {
+         if (current == node) {
+            if (canAdvance()) {
                advance();
             }
-            else
-            {
-               if (current.prev != head)
-               {
+            else {
+               if (current.prev != head) {
                   current.iterCount--;
 
                   current = current.prev;
 
                   current.iterCount++;
                }
-               else
-               {
+               else {
                   current = null;
                }
             }
          }
       }
 
-      private Node<E> getNode()
-      {
-         if (current == null)
-         {
+      private Node<E> getNode() {
+         if (current == null) {
             current = head.next;
 
-            if (current != null)
-            {
+            if (current != null) {
                current.iterCount++;
             }
          }
 
-         if (current != null)
-         {
+         if (current != null) {
             return current;
          }
-         else
-         {
+         else {
             return null;
          }
       }
 
-      private boolean canAdvance()
-      {
-         if (current == null)
-         {
+      private boolean canAdvance() {
+         if (current == null) {
             current = head.next;
 
-            if (current != null)
-            {
+            if (current != null) {
                current.iterCount++;
             }
          }
@@ -438,10 +370,8 @@ public class LinkedListImpl<E> implements LinkedList<E>
          return current != null && current.next != null;
       }
 
-      private void advance()
-      {
-         if (current == null || current.next == null)
-         {
+      private void advance() {
+         if (current == null || current.next == null) {
             throw new NoSuchElementException();
          }
 

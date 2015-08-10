@@ -41,50 +41,41 @@ import org.junit.Test;
 /**
  * adapted from: org.apache.activemq.ProducerFlowControlSendFailTest
  */
-public class ProducerFlowControlSendFailTest extends ProducerFlowControlTest
-{
+public class ProducerFlowControlSendFailTest extends ProducerFlowControlTest {
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
    }
 
    @Override
    @After
-   public void tearDown() throws Exception
-   {
+   public void tearDown() throws Exception {
       super.tearDown();
    }
 
    @Override
-   protected void extraServerConfig(Configuration serverConfig)
-   {
+   protected void extraServerConfig(Configuration serverConfig) {
       String match = "jms.queue.#";
       Map<String, AddressSettings> asMap = serverConfig.getAddressesSettings();
-      asMap.get(match)
-              .setMaxSizeBytes(1)
-              .setAddressFullMessagePolicy(AddressFullMessagePolicy.FAIL);
+      asMap.get(match).setMaxSizeBytes(1).setAddressFullMessagePolicy(AddressFullMessagePolicy.FAIL);
    }
 
    @Override
-   public void test2ndPublisherWithStandardConnectionThatIsBlocked() throws Exception
-   {
+   public void test2ndPublisherWithStandardConnectionThatIsBlocked() throws Exception {
       // with sendFailIfNoSpace set, there is no blocking of the connection
    }
 
    @Override
-   public void testAsyncPublisherRecoverAfterBlock() throws Exception
-   {
+   public void testAsyncPublisherRecoverAfterBlock() throws Exception {
       // sendFail means no flowControllwindow as there is no producer ack, just
       // an exception
    }
 
    @Override
    @Test
-   public void testPublisherRecoverAfterBlock() throws Exception
-   {
+   public void testPublisherRecoverAfterBlock() throws Exception {
       ActiveMQConnectionFactory factory = (ActiveMQConnectionFactory) getConnectionFactory();
       // with sendFail, there must be no flowControllwindow
       // sendFail is an alternative flow control mechanism that does not block
@@ -92,24 +83,18 @@ public class ProducerFlowControlSendFailTest extends ProducerFlowControlTest
       this.flowControlConnection = (ActiveMQConnection) factory.createConnection();
       this.flowControlConnection.start();
 
-      final Session session = this.flowControlConnection.createSession(false,
-            Session.CLIENT_ACKNOWLEDGE);
+      final Session session = this.flowControlConnection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
       final MessageProducer producer = session.createProducer(queueA);
 
       final AtomicBoolean keepGoing = new AtomicBoolean(true);
 
-      Thread thread = new Thread("Filler")
-      {
+      Thread thread = new Thread("Filler") {
          @Override
-         public void run()
-         {
-            while (keepGoing.get())
-            {
-               try
-               {
+         public void run() {
+            while (keepGoing.get()) {
+               try {
                   producer.send(session.createTextMessage("Test message"));
-                  if (gotResourceException.get())
-                  {
+                  if (gotResourceException.get()) {
                      System.out.println("got exception");
                      // do not flood the broker with requests when full as we
                      // are sending async and they
@@ -117,8 +102,7 @@ public class ProducerFlowControlSendFailTest extends ProducerFlowControlTest
                      Thread.sleep(200);
                   }
                }
-               catch (Exception e)
-               {
+               catch (Exception e) {
                   // with async send, there will be no exceptions
                   e.printStackTrace();
                }
@@ -132,11 +116,9 @@ public class ProducerFlowControlSendFailTest extends ProducerFlowControlTest
       // can receive 10
       MessageConsumer consumer = session.createConsumer(queueA);
       TextMessage msg;
-      for (int idx = 0; idx < 10; ++idx)
-      {
+      for (int idx = 0; idx < 10; ++idx) {
          msg = (TextMessage) consumer.receive(1000);
-         if (msg != null)
-         {
+         if (msg != null) {
             msg.acknowledge();
          }
       }
@@ -145,35 +127,27 @@ public class ProducerFlowControlSendFailTest extends ProducerFlowControlTest
    }
 
    @Test
-   public void testPublisherRecoverAfterBlockWithSyncSend() throws Exception
-   {
+   public void testPublisherRecoverAfterBlockWithSyncSend() throws Exception {
       ActiveMQConnectionFactory factory = (ActiveMQConnectionFactory) getConnectionFactory();
       factory.setExceptionListener(null);
       factory.setUseAsyncSend(false);
       this.flowControlConnection = (ActiveMQConnection) factory.createConnection();
       this.flowControlConnection.start();
 
-      final Session session = this.flowControlConnection.createSession(false,
-            Session.CLIENT_ACKNOWLEDGE);
+      final Session session = this.flowControlConnection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
       final MessageProducer producer = session.createProducer(queueA);
 
       final AtomicBoolean keepGoing = new AtomicBoolean(true);
       final AtomicInteger exceptionCount = new AtomicInteger(0);
-      Thread thread = new Thread("Filler")
-      {
+      Thread thread = new Thread("Filler") {
          @Override
-         public void run()
-         {
-            while (keepGoing.get())
-            {
-               try
-               {
+         public void run() {
+            while (keepGoing.get()) {
+               try {
                   producer.send(session.createTextMessage("Test message"));
                }
-               catch (JMSException arg0)
-               {
-                  if (arg0 instanceof ResourceAllocationException)
-                  {
+               catch (JMSException arg0) {
+                  if (arg0 instanceof ResourceAllocationException) {
                      gotResourceException.set(true);
                      exceptionCount.incrementAndGet();
                   }
@@ -188,11 +162,9 @@ public class ProducerFlowControlSendFailTest extends ProducerFlowControlTest
       // can receive 10
       MessageConsumer consumer = session.createConsumer(queueA);
       TextMessage msg;
-      for (int idx = 0; idx < 10; ++idx)
-      {
+      for (int idx = 0; idx < 10; ++idx) {
          msg = (TextMessage) consumer.receive(1000);
-         if (msg != null)
-         {
+         if (msg != null) {
             msg.acknowledge();
          }
       }
@@ -200,14 +172,10 @@ public class ProducerFlowControlSendFailTest extends ProducerFlowControlTest
       keepGoing.set(false);
    }
 
-   protected ConnectionFactory getConnectionFactory() throws Exception
-   {
-      factory.setExceptionListener(new ExceptionListener()
-      {
-         public void onException(JMSException arg0)
-         {
-            if (arg0 instanceof ResourceAllocationException)
-            {
+   protected ConnectionFactory getConnectionFactory() throws Exception {
+      factory.setExceptionListener(new ExceptionListener() {
+         public void onException(JMSException arg0) {
+            if (arg0 instanceof ResourceAllocationException) {
                gotResourceException.set(true);
             }
          }

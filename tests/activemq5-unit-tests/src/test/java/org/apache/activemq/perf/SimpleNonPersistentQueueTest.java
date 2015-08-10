@@ -22,57 +22,60 @@ import javax.jms.ConnectionFactory;
 import javax.jms.DeliveryMode;
 import javax.jms.Destination;
 import javax.jms.JMSException;
+
 import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.broker.region.policy.PolicyEntry;
 import org.apache.activemq.broker.region.policy.PolicyMap;
 
 /**
- * 
+ *
  */
 public class SimpleNonPersistentQueueTest extends SimpleQueueTest {
 
-    @Override
-    protected void setUp() throws Exception {
-        numberOfConsumers = 1;
-        numberofProducers = 1;
-        super.setUp();
-    }
-    @Override
-    protected PerfProducer createProducer(ConnectionFactory fac, Destination dest, int number, byte[] payload) throws JMSException {
-        PerfProducer pp = new PerfProducer(fac, dest, payload);
-        pp.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
-        //pp.setTimeToLive(100);
-        return pp;
-    }
-    
-    @Override
-    protected PerfConsumer createConsumer(ConnectionFactory fac, Destination dest, int number) throws JMSException {
-        PerfConsumer result =  new PerfConsumer(fac, dest);
-        result.setInitialDelay(10*1000);
-        boolean enableAudit = numberOfConsumers <= 1;
-        System.err.println("Enable Audit = " + enableAudit);
-        result.setEnableAudit(enableAudit);
+   @Override
+   protected void setUp() throws Exception {
+      numberOfConsumers = 1;
+      numberofProducers = 1;
+      super.setUp();
+   }
 
-        return result;
-    }
-    
-    
-    @Override
-    protected void configureBroker(BrokerService answer,String uri) throws Exception {
-       // answer.setPersistent(false);
-        final List<PolicyEntry> policyEntries = new ArrayList<PolicyEntry>();
-        final PolicyEntry entry = new PolicyEntry();
-        entry.setQueue(">");
-        entry.setMemoryLimit(1024 * 1024 * 1); // Set to 1 MB
-        entry.setOptimizedDispatch(true);
-        entry.setLazyDispatch(true);
-        policyEntries.add(entry);
+   @Override
+   protected PerfProducer createProducer(ConnectionFactory fac,
+                                         Destination dest,
+                                         int number,
+                                         byte[] payload) throws JMSException {
+      PerfProducer pp = new PerfProducer(fac, dest, payload);
+      pp.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
+      //pp.setTimeToLive(100);
+      return pp;
+   }
 
-        
-        final PolicyMap policyMap = new PolicyMap();
-        policyMap.setPolicyEntries(policyEntries);
-        answer.setDestinationPolicy(policyMap);
-        super.configureBroker(answer, uri);
-    }
-    
+   @Override
+   protected PerfConsumer createConsumer(ConnectionFactory fac, Destination dest, int number) throws JMSException {
+      PerfConsumer result = new PerfConsumer(fac, dest);
+      result.setInitialDelay(10 * 1000);
+      boolean enableAudit = numberOfConsumers <= 1;
+      System.err.println("Enable Audit = " + enableAudit);
+      result.setEnableAudit(enableAudit);
+
+      return result;
+   }
+
+   @Override
+   protected void configureBroker(BrokerService answer, String uri) throws Exception {
+      // answer.setPersistent(false);
+      final List<PolicyEntry> policyEntries = new ArrayList<PolicyEntry>();
+      final PolicyEntry entry = new PolicyEntry();
+      entry.setQueue(">");
+      entry.setMemoryLimit(1024 * 1024 * 1); // Set to 1 MB
+      entry.setOptimizedDispatch(true);
+      entry.setLazyDispatch(true);
+      policyEntries.add(entry);
+
+      final PolicyMap policyMap = new PolicyMap();
+      policyMap.setPolicyEntries(policyEntries);
+      answer.setDestinationPolicy(policyMap);
+      super.configureBroker(answer, uri);
+   }
+
 }

@@ -19,15 +19,13 @@ package org.apache.activemq.artemis.core.journal;
 /**
  * This is a POJO containing information about the journal during load time.
  */
-public class JournalLoadInformation
-{
+public class JournalLoadInformation {
 
    private int numberOfRecords = 0;
 
    private long maxID = -1;
 
-   public JournalLoadInformation()
-   {
+   public JournalLoadInformation() {
       super();
    }
 
@@ -35,8 +33,7 @@ public class JournalLoadInformation
     * @param numberOfRecords
     * @param maxID
     */
-   public JournalLoadInformation(final int numberOfRecords, final long maxID)
-   {
+   public JournalLoadInformation(final int numberOfRecords, final long maxID) {
       super();
       this.numberOfRecords = numberOfRecords;
       this.maxID = maxID;
@@ -45,75 +42,63 @@ public class JournalLoadInformation
    /**
     * @return the numberOfRecords
     */
-   public int getNumberOfRecords()
-   {
+   public int getNumberOfRecords() {
       return numberOfRecords;
    }
 
    /**
     * @param numberOfRecords the numberOfRecords to set
     */
-   public void setNumberOfRecords(final int numberOfRecords)
-   {
+   public void setNumberOfRecords(final int numberOfRecords) {
       this.numberOfRecords = numberOfRecords;
    }
 
    /**
     * @return the maxID
     */
-   public long getMaxID()
-   {
+   public long getMaxID() {
       return maxID;
    }
 
    /**
     * @param maxID the maxID to set
     */
-   public void setMaxID(final long maxID)
-   {
+   public void setMaxID(final long maxID) {
       this.maxID = maxID;
    }
 
    @Override
-   public int hashCode()
-   {
+   public int hashCode() {
       final int prime = 31;
       int result = 1;
-      result = prime * result + (int)(maxID ^ maxID >>> 32);
+      result = prime * result + (int) (maxID ^ maxID >>> 32);
       result = prime * result + numberOfRecords;
       return result;
    }
 
    @Override
-   public boolean equals(final Object obj)
-   {
-      if (this == obj)
-      {
+   public boolean equals(final Object obj) {
+      if (this == obj) {
          return true;
       }
-      if (obj == null)
-      {
+      if (obj == null) {
          return false;
       }
-      if (getClass() != obj.getClass())
-      {
+      if (getClass() != obj.getClass()) {
          return false;
       }
-      JournalLoadInformation other = (JournalLoadInformation)obj;
-      if (maxID != other.maxID)
-      {
+      JournalLoadInformation other = (JournalLoadInformation) obj;
+      if (maxID != other.maxID) {
          return false;
       }
-      if (numberOfRecords != other.numberOfRecords)
-      {
+      if (numberOfRecords != other.numberOfRecords) {
          return false;
       }
       return true;
    }
 
    @Override
-   public String toString()
-   {
+   public String toString() {
       return "JournalLoadInformation [maxID=" + maxID + ", numberOfRecords=" + numberOfRecords + "]";
    }
 }

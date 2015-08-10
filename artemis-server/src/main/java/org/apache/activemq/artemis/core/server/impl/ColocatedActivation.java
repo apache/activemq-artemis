@@ -43,8 +43,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-public class ColocatedActivation extends LiveActivation
-{
+public class ColocatedActivation extends LiveActivation {
+
    private static final SimpleString REQUEST_BACKUP_QUORUM_VOTE = new SimpleString("RequestBackupQuorumVote");
 
    private final ColocatedHAManager colocatedHAManager;
@@ -55,104 +55,82 @@ public class ColocatedActivation extends LiveActivation
 
    private final ActiveMQServerImpl server;
 
-   public ColocatedActivation(ActiveMQServerImpl activeMQServer, ColocatedPolicy colocatedPolicy, LiveActivation liveActivation)
-   {
+   public ColocatedActivation(ActiveMQServerImpl activeMQServer,
+                              ColocatedPolicy colocatedPolicy,
+                              LiveActivation liveActivation) {
       server = activeMQServer;
       this.colocatedPolicy = colocatedPolicy;
       this.liveActivation = liveActivation;
       colocatedHAManager = new ColocatedHAManager(colocatedPolicy, server);
    }
 
-
    @Override
-   public void haStarted()
-   {
+   public void haStarted() {
       server.getClusterManager().getQuorumManager().registerQuorumHandler(new RequestBackupQuorumVoteHandler());
       //vote for a backup if required
-      if (colocatedPolicy.isRequestBackup())
-      {
+      if (colocatedPolicy.isRequestBackup()) {
          server.getClusterManager().getQuorumManager().vote(new RequestBackupQuorumVote());
       }
    }
 
    @Override
-   public void freezeConnections(RemotingService remotingService)
-   {
+   public void freezeConnections(RemotingService remotingService) {
       liveActivation.freezeConnections(remotingService);
    }
 
    @Override
-   public void postConnectionFreeze()
-   {
+   public void postConnectionFreeze() {
       liveActivation.postConnectionFreeze();
    }
 
    @Override
-   public void preStorageClose() throws Exception
-   {
+   public void preStorageClose() throws Exception {
       liveActivation.preStorageClose();
    }
 
    @Override
-   public void sendLiveIsStopping()
-   {
+   public void sendLiveIsStopping() {
       liveActivation.sendLiveIsStopping();
    }
 
    @Override
-   public ReplicationManager getReplicationManager()
-   {
+   public ReplicationManager getReplicationManager() {
       return liveActivation.getReplicationManager();
    }
 
    @Override
-   public HAManager getHAManager()
-   {
+   public HAManager getHAManager() {
       return colocatedHAManager;
    }
 
    @Override
-   public void run()
-   {
+   public void run() {
       liveActivation.run();
    }
 
    @Override
-   public void close(boolean permanently, boolean restarting) throws Exception
-   {
+   public void close(boolean permanently, boolean restarting) throws Exception {
       liveActivation.close(permanently, restarting);
    }
 
    @Override
-   public ChannelHandler getActivationChannelHandler(final Channel channel, final Acceptor acceptorUsed)
-   {
+   public ChannelHandler getActivationChannelHandler(final Channel channel, final Acceptor acceptorUsed) {
       final ChannelHandler activationChannelHandler = liveActivation.getActivationChannelHandler(channel, acceptorUsed);
-      return new ChannelHandler()
-      {
+      return new ChannelHandler() {
          @Override
-         public void handlePacket(Packet packet)
-         {
-            if (packet.getType() == PacketImpl.BACKUP_REQUEST)
-            {
+         public void handlePacket(Packet packet) {
+            if (packet.getType() == PacketImpl.BACKUP_REQUEST) {
                BackupRequestMessage backupRequestMessage = (BackupRequestMessage) packet;
                boolean started = false;
-               try
-               {
-                  started = colocatedHAManager.activateBackup(backupRequestMessage.getBackupSize(),
-                        backupRequestMessage.getJournalDirectory(),
-                        backupRequestMessage.getBindingsDirectory(),
-                        backupRequestMessage.getLargeMessagesDirectory(),
-                        backupRequestMessage.getPagingDirectory(),
-                        backupRequestMessage.getNodeID());
+               try {
+                  started = colocatedHAManager.activateBackup(backupRequestMessage.getBackupSize(), backupRequestMessage.getJournalDirectory(), backupRequestMessage.getBindingsDirectory(), backupRequestMessage.getLargeMessagesDirectory(), backupRequestMessage.getPagingDirectory(), backupRequestMessage.getNodeID());
                }
-               catch (Exception e)
-               {
+               catch (Exception e) {
                   e.printStackTrace();
                }
                channel.send(new BackupResponseMessage(started));
             }
-            else if (activationChannelHandler != null)
-            {
+            else if (activationChannelHandler != null) {
                activationChannelHandler.handlePacket(packet);
             }
          }
@@ -162,73 +140,63 @@ public class ColocatedActivation extends LiveActivation
    /**
     * A vote handler for incoming backup request votes
     */
-   private final class RequestBackupQuorumVoteHandler implements QuorumVoteHandler
-   {
+   private final class RequestBackupQuorumVoteHandler implements QuorumVoteHandler {
+
       @Override
-      public Vote vote(Vote vote)
-      {
+      public Vote vote(Vote vote) {
          int size = colocatedHAManager.getBackupServers().size();
          return new RequestBackupVote(size, server.getNodeID().toString(), size < colocatedPolicy.getMaxBackups());
       }
 
       @Override
-      public SimpleString getQuorumName()
-      {
+      public SimpleString getQuorumName() {
          return REQUEST_BACKUP_QUORUM_VOTE;
       }
 
       @Override
-      public Vote decode(ActiveMQBuffer voteBuffer)
-      {
+      public Vote decode(ActiveMQBuffer voteBuffer) {
          RequestBackupVote requestBackupVote = new RequestBackupVote();
          requestBackupVote.decode(voteBuffer);
          return requestBackupVote;
       }
    }
+
    /**
     * a quorum vote for backup requests
     */
-   private final class RequestBackupQuorumVote extends QuorumVote<RequestBackupVote, Pair<String, Integer>>
-   {
+   private final class RequestBackupQuorumVote extends QuorumVote<RequestBackupVote, Pair<String, Integer>> {
+
       //the available nodes that we can request
       private final List<Pair<String, Integer>> nodes = new ArrayList<>();
 
-      public RequestBackupQuorumVote()
-      {
+      public RequestBackupQuorumVote() {
          super(REQUEST_BACKUP_QUORUM_VOTE);
       }
 
       @Override
-      public Vote connected()
-      {
+      public Vote connected() {
          return new RequestBackupVote();
       }
 
       @Override
-      public Vote notConnected()
-      {
+      public Vote notConnected() {
          return new RequestBackupVote();
       }
 
       @Override
-      public void vote(RequestBackupVote vote)
-      {
+      public void vote(RequestBackupVote vote) {
          //if the returned vote is available add it to the nodes we can request
-         if (vote.backupAvailable)
-         {
+         if (vote.backupAvailable) {
             nodes.add(vote.getVote());
          }
       }
 
       @Override
-      public Pair<String, Integer> getDecision()
-      {
+      public Pair<String, Integer> getDecision() {
          //sort the nodes by how many backups they have and choose the first
-         Collections.sort(nodes, new Comparator<Pair<String, Integer>>()
-         {
+         Collections.sort(nodes, new Comparator<Pair<String, Integer>>() {
             @Override
-            public int compare(Pair<String, Integer> o1, Pair<String, Integer> o2)
-            {
+            public int compare(Pair<String, Integer> o1, Pair<String, Integer> o2) {
                return o1.getB().compareTo(o2.getB());
             }
          });
@@ -236,43 +204,33 @@ public class ColocatedActivation extends LiveActivation
       }
 
       @Override
-      public void allVotesCast(Topology voteTopology)
-      {
+      public void allVotesCast(Topology voteTopology) {
          //if we have any nodes that we can request then send a request
-         if (nodes.size() > 0)
-         {
+         if (nodes.size() > 0) {
             Pair<String, Integer> decision = getDecision();
             TopologyMemberImpl member = voteTopology.getMember(decision.getA());
-            try
-            {
+            try {
                boolean backupStarted = colocatedHAManager.requestBackup(member.getConnector(), decision.getB().intValue(), !colocatedPolicy.isSharedStore());
-               if (!backupStarted)
-               {
+               if (!backupStarted) {
                   nodes.clear();
-                  server.getScheduledPool().schedule(new Runnable()
-                  {
+                  server.getScheduledPool().schedule(new Runnable() {
                      @Override
-                     public void run()
-                     {
+                     public void run() {
                         server.getClusterManager().getQuorumManager().vote(new RequestBackupQuorumVote());
                      }
                   }, colocatedPolicy.getBackupRequestRetryInterval(), TimeUnit.MILLISECONDS);
                }
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                e.printStackTrace();
                //todo
             }
          }
-         else
-         {
+         else {
             nodes.clear();
-            server.getScheduledPool().schedule(new Runnable()
-            {
+            server.getScheduledPool().schedule(new Runnable() {
                @Override
-               public void run()
-               {
+               public void run() {
                   server.getClusterManager().getQuorumManager().vote(RequestBackupQuorumVote.this);
                }
             }, colocatedPolicy.getBackupRequestRetryInterval(), TimeUnit.MILLISECONDS);
@@ -280,55 +238,48 @@ public class ColocatedActivation extends LiveActivation
       }
 
       @Override
-      public SimpleString getName()
-      {
+      public SimpleString getName() {
          return REQUEST_BACKUP_QUORUM_VOTE;
       }
    }
 
-   class RequestBackupVote extends Vote<Pair<String, Integer>>
-   {
+   class RequestBackupVote extends Vote<Pair<String, Integer>> {
+
       private int backupsSize;
       private String nodeID;
       private boolean backupAvailable;
 
-      public RequestBackupVote()
-      {
+      public RequestBackupVote() {
          backupsSize = -1;
       }
 
-      public RequestBackupVote(int backupsSize, String nodeID, boolean backupAvailable)
-      {
+      public RequestBackupVote(int backupsSize, String nodeID, boolean backupAvailable) {
          this.backupsSize = backupsSize;
          this.nodeID = nodeID;
          this.backupAvailable = backupAvailable;
       }
 
       @Override
-      public void encode(ActiveMQBuffer buff)
-      {
+      public void encode(ActiveMQBuffer buff) {
          buff.writeInt(backupsSize);
          buff.writeNullableString(nodeID);
          buff.writeBoolean(backupAvailable);
       }
 
       @Override
-      public void decode(ActiveMQBuffer buff)
-      {
+      public void decode(ActiveMQBuffer buff) {
          backupsSize = buff.readInt();
          nodeID = buff.readNullableString();
          backupAvailable = buff.readBoolean();
       }
 
       @Override
-      public boolean isRequestServerVote()
-      {
+      public boolean isRequestServerVote() {
          return true;
       }
 
       @Override
-      public Pair<String, Integer> getVote()
-      {
+      public Pair<String, Integer> getVote() {
          return new Pair<>(nodeID, backupsSize);
       }
    }

@@ -24,7 +24,9 @@ import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.jms.Topic;
+
 import junit.framework.Test;
+
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.store.kahadb.KahaDBPersistenceAdapter;
@@ -32,59 +34,57 @@ import org.apache.activemq.transport.failover.FailoverTransport;
 
 public class DurablePersistentFalseRestartTest extends BrokerRestartTestSupport {
 
-    @Override
-    protected void configureBroker(BrokerService broker) throws Exception {
-        super.configureBroker(broker);
-        broker.setPersistent(false);
-        broker.setPersistenceAdapter(new KahaDBPersistenceAdapter());
-        broker.addConnector("tcp://0.0.0.0:0");
-    }
+   @Override
+   protected void configureBroker(BrokerService broker) throws Exception {
+      super.configureBroker(broker);
+      broker.setPersistent(false);
+      broker.setPersistenceAdapter(new KahaDBPersistenceAdapter());
+      broker.addConnector("tcp://0.0.0.0:0");
+   }
 
-    public void testValidateNoPersistenceForDurableAfterRestart() throws Exception {
+   public void testValidateNoPersistenceForDurableAfterRestart() throws Exception {
 
-        ConnectionFactory connectionFactory =
-                new ActiveMQConnectionFactory("failover:(" + broker.getTransportConnectors().get(0).getPublishableConnectString() + ")");
-        ActiveMQConnection connection = (ActiveMQConnection) connectionFactory.createConnection();
-        connection.setClientID("clientId");
-        connection.start();
+      ConnectionFactory connectionFactory = new ActiveMQConnectionFactory("failover:(" + broker.getTransportConnectors().get(0).getPublishableConnectString() + ")");
+      ActiveMQConnection connection = (ActiveMQConnection) connectionFactory.createConnection();
+      connection.setClientID("clientId");
+      connection.start();
 
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-        Topic destination = session.createTopic(queueName);
-        MessageConsumer consumer = session.createDurableSubscriber(destination, "subscriberName");
+      Topic destination = session.createTopic(queueName);
+      MessageConsumer consumer = session.createDurableSubscriber(destination, "subscriberName");
 
-        populateDestination(10, destination, connection);
+      populateDestination(10, destination, connection);
 
-        restartBroker();
+      restartBroker();
 
-        // make failover aware of the restarted auto assigned port
-        ((FailoverTransport) connection.getTransport().narrow(FailoverTransport.class)).add(true, broker.getTransportConnectors().get(0).getPublishableConnectString());
+      // make failover aware of the restarted auto assigned port
+      ((FailoverTransport) connection.getTransport().narrow(FailoverTransport.class)).add(true, broker.getTransportConnectors().get(0).getPublishableConnectString());
 
-        TextMessage msg = (TextMessage) consumer.receive(4000);
-        assertNull("did not get a message when persistent=false, message: " + msg, msg);
+      TextMessage msg = (TextMessage) consumer.receive(4000);
+      assertNull("did not get a message when persistent=false, message: " + msg, msg);
 
-        connection.close();
-    }
+      connection.close();
+   }
 
-    private void populateDestination(final int nbMessages,
-                                     final Destination destination, javax.jms.Connection connection)
-            throws JMSException {
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        MessageProducer producer = session.createProducer(destination);
-        for (int i = 1; i <= nbMessages; i++) {
-            producer.send(session.createTextMessage("<hello id='" + i + "'/>"));
-        }
-        producer.close();
-        session.close();
-    }
+   private void populateDestination(final int nbMessages,
+                                    final Destination destination,
+                                    javax.jms.Connection connection) throws JMSException {
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      MessageProducer producer = session.createProducer(destination);
+      for (int i = 1; i <= nbMessages; i++) {
+         producer.send(session.createTextMessage("<hello id='" + i + "'/>"));
+      }
+      producer.close();
+      session.close();
+   }
 
+   public static Test suite() {
+      return suite(DurablePersistentFalseRestartTest.class);
+   }
 
-    public static Test suite() {
-        return suite(DurablePersistentFalseRestartTest.class);
-    }
-
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(suite());
-    }
+   public static void main(String[] args) {
+      junit.textui.TestRunner.run(suite());
+   }
 
 }

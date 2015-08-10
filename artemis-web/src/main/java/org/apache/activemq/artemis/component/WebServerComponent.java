@@ -30,17 +30,15 @@ import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.webapp.WebAppContext;
 
-public class WebServerComponent implements ExternalComponent
-{
+public class WebServerComponent implements ExternalComponent {
 
    private Server server;
    private HandlerList handlers;
    private WebServerDTO webServerConfig;
 
    @Override
-   public void configure(ComponentDTO config, String artemisInstance, String artemisHome) throws Exception
-   {
-      webServerConfig = (WebServerDTO)config;
+   public void configure(ComponentDTO config, String artemisInstance, String artemisHome) throws Exception {
+      webServerConfig = (WebServerDTO) config;
       String path = webServerConfig.path.startsWith("/") ? webServerConfig.path : "/" + webServerConfig.path;
       URI uri = new URI(webServerConfig.bind);
       server = new Server();
@@ -52,10 +50,8 @@ public class WebServerComponent implements ExternalComponent
 
       handlers = new HandlerList();
 
-      if (webServerConfig.apps != null)
-      {
-         for (AppDTO app : webServerConfig.apps)
-         {
+      if (webServerConfig.apps != null) {
+         for (AppDTO app : webServerConfig.apps) {
             deployWar(app.url, app.war, artemisHome, path);
          }
       }
@@ -78,32 +74,26 @@ public class WebServerComponent implements ExternalComponent
       server.setHandler(handlers);
    }
 
-   public void start() throws Exception
-   {
+   public void start() throws Exception {
       server.start();
 
       System.out.println("HTTP Server started at " + webServerConfig.bind);
    }
 
-   public void stop() throws Exception
-   {
+   public void stop() throws Exception {
       server.stop();
    }
 
-   public boolean isStarted()
-   {
+   public boolean isStarted() {
       return server != null && server.isStarted();
    }
 
-   private void deployWar(String url, String warURL, String activeMQHome, String path)
-   {
+   private void deployWar(String url, String warURL, String activeMQHome, String path) {
       WebAppContext webapp = new WebAppContext();
-      if (url.startsWith("/"))
-      {
+      if (url.startsWith("/")) {
          webapp.setContextPath(url);
       }
-      else
-      {
+      else {
          webapp.setContextPath("/" + url);
       }
       webapp.setWar(activeMQHome + path + "/" + warURL);

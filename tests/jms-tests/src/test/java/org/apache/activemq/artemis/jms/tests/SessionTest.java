@@ -38,8 +38,7 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
 import org.junit.Test;
 
-public class SessionTest extends ActiveMQServerTestCase
-{
+public class SessionTest extends ActiveMQServerTestCase {
    // Constants -----------------------------------------------------
 
    // Static --------------------------------------------------------
@@ -51,8 +50,7 @@ public class SessionTest extends ActiveMQServerTestCase
    // Public --------------------------------------------------------
 
    @Test
-   public void testCreateProducer() throws Exception
-   {
+   public void testCreateProducer() throws Exception {
       Connection conn = getConnectionFactory().createConnection();
       Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
       sess.createProducer(ActiveMQServerTestCase.topic1);
@@ -60,8 +58,7 @@ public class SessionTest extends ActiveMQServerTestCase
    }
 
    @Test
-   public void testCreateProducerOnNullQueue() throws Exception
-   {
+   public void testCreateProducerOnNullQueue() throws Exception {
       Connection conn = getConnectionFactory().createConnection();
       Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
       Message m = sess.createTextMessage("something");
@@ -74,7 +71,7 @@ public class SessionTest extends ActiveMQServerTestCase
       conn.start();
 
       // receiveNoWait is not guaranteed to return message immediately
-      TextMessage rm = (TextMessage)c.receive(1000);
+      TextMessage rm = (TextMessage) c.receive(1000);
 
       ProxyAssertSupport.assertEquals("something", rm.getText());
 
@@ -82,8 +79,7 @@ public class SessionTest extends ActiveMQServerTestCase
    }
 
    @Test
-   public void testCreateConsumer() throws Exception
-   {
+   public void testCreateConsumer() throws Exception {
       Connection conn = getConnectionFactory().createConnection();
       Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
@@ -92,8 +88,7 @@ public class SessionTest extends ActiveMQServerTestCase
    }
 
    @Test
-   public void testGetSession2() throws Exception
-   {
+   public void testGetSession2() throws Exception {
       deployConnectionFactory(0, JMSFactoryType.CF, "ConnectionFactory", "/ConnectionFactory");
       XAConnection conn = getXAConnectionFactory().createXAConnection();
       XASession sess = conn.createXASession();
@@ -107,67 +102,57 @@ public class SessionTest extends ActiveMQServerTestCase
    //
 
    @Test
-   public void testCreateNonExistentQueue() throws Exception
-   {
+   public void testCreateNonExistentQueue() throws Exception {
       AddressSettings addressSettings = new AddressSettings();
       addressSettings.setAutoCreateJmsQueues(false);
       getJmsServer().getAddressSettingsRepository().addMatch("#", addressSettings);
 
       Connection conn = getConnectionFactory().createConnection();
       Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-      try
-      {
+      try {
          sess.createQueue("QueueThatDoesNotExist");
          ProxyAssertSupport.fail();
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
       }
       conn.close();
    }
 
    @Test
-   public void testCreateQueueOnATopicSession() throws Exception
-   {
-      TopicConnection c = (TopicConnection)getConnectionFactory().createConnection();
+   public void testCreateQueueOnATopicSession() throws Exception {
+      TopicConnection c = (TopicConnection) getConnectionFactory().createConnection();
       TopicSession s = c.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
 
-      try
-      {
+      try {
          s.createQueue("TestQueue");
          ProxyAssertSupport.fail("should throw IllegalStateException");
       }
-      catch (javax.jms.IllegalStateException e)
-      {
+      catch (javax.jms.IllegalStateException e) {
          // OK
       }
       c.close();
    }
 
    @Test
-   public void testCreateQueueWhileTopicWithSameNameExists() throws Exception
-   {
+   public void testCreateQueueWhileTopicWithSameNameExists() throws Exception {
       AddressSettings addressSettings = new AddressSettings();
       addressSettings.setAutoCreateJmsQueues(false);
       getJmsServer().getAddressSettingsRepository().addMatch("#", addressSettings);
 
       Connection conn = getConnectionFactory().createConnection();
       Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-      try
-      {
+      try {
          sess.createQueue("TestTopic");
          ProxyAssertSupport.fail("should throw JMSException");
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          // OK
       }
       conn.close();
    }
 
    @Test
-   public void testCreateQueue() throws Exception
-   {
+   public void testCreateQueue() throws Exception {
       Connection conn = getConnectionFactory().createConnection();
       Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
       Queue queue = sess.createQueue("Queue1");
@@ -186,60 +171,50 @@ public class SessionTest extends ActiveMQServerTestCase
    }
 
    @Test
-   public void testCreateNonExistentTopic() throws Exception
-   {
+   public void testCreateNonExistentTopic() throws Exception {
       Connection conn = getConnectionFactory().createConnection();
       Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-      try
-      {
+      try {
          sess.createTopic("TopicThatDoesNotExist");
          ProxyAssertSupport.fail("should throw JMSException");
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          // OK
       }
       conn.close();
    }
 
    @Test
-   public void testCreateTopicOnAQueueSession() throws Exception
-   {
-      QueueConnection c = (QueueConnection)getConnectionFactory().createConnection();
+   public void testCreateTopicOnAQueueSession() throws Exception {
+      QueueConnection c = (QueueConnection) getConnectionFactory().createConnection();
       QueueSession s = c.createQueueSession(false, Session.AUTO_ACKNOWLEDGE);
 
-      try
-      {
+      try {
          s.createTopic("TestTopic");
          ProxyAssertSupport.fail("should throw IllegalStateException");
       }
-      catch (javax.jms.IllegalStateException e)
-      {
+      catch (javax.jms.IllegalStateException e) {
          // OK
       }
       c.close();
    }
 
    @Test
-   public void testCreateTopicWhileQueueWithSameNameExists() throws Exception
-   {
+   public void testCreateTopicWhileQueueWithSameNameExists() throws Exception {
       Connection conn = getConnectionFactory().createConnection();
       Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-      try
-      {
+      try {
          sess.createTopic("TestQueue");
          ProxyAssertSupport.fail("should throw JMSException");
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          // OK
       }
       conn.close();
    }
 
    @Test
-   public void testCreateTopic() throws Exception
-   {
+   public void testCreateTopic() throws Exception {
       Connection conn = getConnectionFactory().createConnection();
       Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
@@ -251,27 +226,23 @@ public class SessionTest extends ActiveMQServerTestCase
       MessageConsumer consumer = sess.createConsumer(topic);
       conn.start();
 
-      class TestRunnable implements Runnable
-      {
+      class TestRunnable implements Runnable {
+
          boolean exceptionThrown;
 
          public Message m;
 
          MessageConsumer consumer;
 
-         TestRunnable(final MessageConsumer consumer)
-         {
+         TestRunnable(final MessageConsumer consumer) {
             this.consumer = consumer;
          }
 
-         public void run()
-         {
-            try
-            {
+         public void run() {
+            try {
                m = consumer.receive(3000);
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                exceptionThrown = true;
             }
          }
@@ -293,8 +264,7 @@ public class SessionTest extends ActiveMQServerTestCase
    }
 
    @Test
-   public void testGetXAResource2() throws Exception
-   {
+   public void testGetXAResource2() throws Exception {
       XAConnection conn = getXAConnectionFactory().createXAConnection();
       XASession sess = conn.createXASession();
 
@@ -303,8 +273,7 @@ public class SessionTest extends ActiveMQServerTestCase
    }
 
    @Test
-   public void testIllegalState() throws Exception
-   {
+   public void testIllegalState() throws Exception {
       // IllegalStateException should be thrown if commit or rollback
       // is invoked on a non transacted session
       Connection conn = getConnectionFactory().createConnection();
@@ -315,22 +284,18 @@ public class SessionTest extends ActiveMQServerTestCase
       Message m = sess.createTextMessage("hello");
       prod.send(m);
 
-      try
-      {
+      try {
          sess.rollback();
          ProxyAssertSupport.fail();
       }
-      catch (javax.jms.IllegalStateException e)
-      {
+      catch (javax.jms.IllegalStateException e) {
       }
 
-      try
-      {
+      try {
          sess.commit();
          ProxyAssertSupport.fail();
       }
-      catch (javax.jms.IllegalStateException e)
-      {
+      catch (javax.jms.IllegalStateException e) {
       }
 
       conn.close();
@@ -343,8 +308,7 @@ public class SessionTest extends ActiveMQServerTestCase
    //
 
    @Test
-   public void testCreateTwoSessions() throws Exception
-   {
+   public void testCreateTwoSessions() throws Exception {
       Connection conn = getConnectionFactory().createConnection();
       Session sessionOne = conn.createSession(false, Session.CLIENT_ACKNOWLEDGE);
       ProxyAssertSupport.assertFalse(sessionOne.getTransacted());
@@ -359,8 +323,7 @@ public class SessionTest extends ActiveMQServerTestCase
    }
 
    @Test
-   public void testCloseAndCreateSession() throws Exception
-   {
+   public void testCloseAndCreateSession() throws Exception {
       Connection c = getConnectionFactory().createConnection();
       Session s = c.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
@@ -374,8 +337,7 @@ public class SessionTest extends ActiveMQServerTestCase
    }
 
    @Test
-   public void testCloseNoClientAcknowledgment() throws Exception
-   {
+   public void testCloseNoClientAcknowledgment() throws Exception {
       // send a message to the queue
 
       Connection conn = getConnectionFactory().createConnection();
@@ -387,7 +349,7 @@ public class SessionTest extends ActiveMQServerTestCase
       s = conn.createSession(false, Session.CLIENT_ACKNOWLEDGE);
       conn.start();
 
-      TextMessage m = (TextMessage)s.createConsumer(queue1).receive(1000);
+      TextMessage m = (TextMessage) s.createConsumer(queue1).receive(1000);
 
       ProxyAssertSupport.assertEquals("wont_ack", m.getText());
 
@@ -397,7 +359,7 @@ public class SessionTest extends ActiveMQServerTestCase
 
       // get the message again
       s = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-      m = (TextMessage)s.createConsumer(queue1).receive(1000);
+      m = (TextMessage) s.createConsumer(queue1).receive(1000);
 
       ProxyAssertSupport.assertEquals("wont_ack", m.getText());
 
@@ -405,8 +367,7 @@ public class SessionTest extends ActiveMQServerTestCase
    }
 
    @Test
-   public void testCloseInTransaction() throws Exception
-   {
+   public void testCloseInTransaction() throws Exception {
       // send a message to the queue
 
       Connection conn = getConnectionFactory().createConnection();
@@ -418,7 +379,7 @@ public class SessionTest extends ActiveMQServerTestCase
       Session session = conn.createSession(true, -1);
       conn.start();
 
-      TextMessage m = (TextMessage)session.createConsumer(queue1).receive(1000);
+      TextMessage m = (TextMessage) session.createConsumer(queue1).receive(1000);
 
       ProxyAssertSupport.assertEquals("bex", m.getText());
 
@@ -439,7 +400,7 @@ public class SessionTest extends ActiveMQServerTestCase
       conn = getConnectionFactory().createConnection();
       s = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
       conn.start();
-      TextMessage rm = (TextMessage)s.createConsumer(queue1).receive(1000);
+      TextMessage rm = (TextMessage) s.createConsumer(queue1).receive(1000);
 
       ProxyAssertSupport.assertEquals("bex", rm.getText());
 

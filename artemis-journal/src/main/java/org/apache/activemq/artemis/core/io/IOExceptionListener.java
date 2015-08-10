@@ -16,7 +16,7 @@
  */
 package org.apache.activemq.artemis.core.io;
 
-public interface IOExceptionListener
-{
+public interface IOExceptionListener {
+
    void onIOException(Exception exception, String message);
 }

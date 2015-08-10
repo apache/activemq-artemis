@@ -20,29 +20,24 @@ import org.apache.activemq.artemis.api.core.client.ClientMessage;
 
 import javax.ws.rs.core.Response;
 
-public class ConsumedHttpMessage extends ConsumedMessage
-{
+public class ConsumedHttpMessage extends ConsumedMessage {
+
    private byte[] data;
 
-   public ConsumedHttpMessage(ClientMessage message)
-   {
+   public ConsumedHttpMessage(ClientMessage message) {
       super(message);
    }
 
    @Override
-   public void build(Response.ResponseBuilder builder)
-   {
+   public void build(Response.ResponseBuilder builder) {
       buildHeaders(builder);
-      if (data == null)
-      {
+      if (data == null) {
          int size = message.getBodySize();
-         if (size > 0)
-         {
+         if (size > 0) {
             data = new byte[size];
             message.getBodyBuffer().readBytes(data);
          }
-         else
-         {
+         else {
             data = new byte[0];
          }
       }

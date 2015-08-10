@@ -32,8 +32,8 @@ import java.security.PrivilegedAction;
  * <tr><td>AMQ_PASSWORD or org.apache.activemq.AMQ_PASSWORD</td> <td>null</td></tr>
  * </table>
  */
-public class DefaultConnectionProperties
-{
+public class DefaultConnectionProperties {
+
    public static final String DEFAULT_BROKER_HOST;
    public static final int DEFAULT_BROKER_PORT;
    public static final String DEFAULT_BROKER_BIND_URL;
@@ -41,18 +41,13 @@ public class DefaultConnectionProperties
    public static final String DEFAULT_USER;
    public static final String DEFAULT_PASSWORD;
 
-   static String getProperty(final String defaultValue, final String... propertyNames)
-   {
-      return AccessController.doPrivileged(new PrivilegedAction<String>()
-      {
+   static String getProperty(final String defaultValue, final String... propertyNames) {
+      return AccessController.doPrivileged(new PrivilegedAction<String>() {
          @Override
-         public String run()
-         {
-            for (String name : propertyNames)
-            {
+         public String run() {
+            for (String name : propertyNames) {
                String property = System.getProperty(name);
-               if (property != null && !property.isEmpty())
-               {
+               if (property != null && !property.isEmpty()) {
                   return property;
                }
             }
@@ -61,8 +56,7 @@ public class DefaultConnectionProperties
       });
    }
 
-   static
-   {
+   static {
       String host = getProperty("localhost", "AMQ_HOST", "org.apache.activemq.AMQ_HOST");
       String port = getProperty("61616", "AMQ_PORT", "org.apache.activemq.AMQ_PORT");
       DEFAULT_BROKER_HOST = host;
@@ -71,8 +65,7 @@ public class DefaultConnectionProperties
       DEFAULT_USER = getProperty(null, "AMQ_USER", "org.apache.activemq.AMQ_USER");
       DEFAULT_PASSWORD = getProperty(null, "AMQ_PASSWORD", "org.apache.activemq.AMQ_PASSWORD");
 
-      if (DEFAULT_USER != null && DEFAULT_PASSWORD != null)
-      {
+      if (DEFAULT_USER != null && DEFAULT_PASSWORD != null) {
          url += "?user=" + DEFAULT_USER + "&password=" + DEFAULT_PASSWORD;
       }
 

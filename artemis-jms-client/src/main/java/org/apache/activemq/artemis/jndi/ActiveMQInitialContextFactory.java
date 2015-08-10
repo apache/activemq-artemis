@@ -37,8 +37,8 @@ import org.apache.activemq.artemis.uri.ConnectionFactoryParser;
  * child context depending on the QoS such as transient or durable and queue or
  * topic.
  */
-public class ActiveMQInitialContextFactory implements InitialContextFactory
-{
+public class ActiveMQInitialContextFactory implements InitialContextFactory {
+
    public static final String REFRESH_TIMEOUT = "refreshTimeout";
    public static final String DISCOVERY_INITIAL_WAIT_TIMEOUT = "discoveryInitialWaitTimeout";
    public static final String DYNAMIC_QUEUE_CONTEXT = "dynamicQueues";
@@ -47,50 +47,39 @@ public class ActiveMQInitialContextFactory implements InitialContextFactory
    private String queuePrefix = "queue.";
    private String topicPrefix = "topic.";
 
-   public Context getInitialContext(Hashtable environment) throws NamingException
-   {
+   public Context getInitialContext(Hashtable environment) throws NamingException {
       // lets create a factory
       Map<String, Object> data = new ConcurrentHashMap<>();
-      for (Iterator iter = environment.entrySet().iterator(); iter.hasNext(); )
-      {
+      for (Iterator iter = environment.entrySet().iterator(); iter.hasNext(); ) {
          Map.Entry entry = (Map.Entry) iter.next();
          String key = entry.getKey().toString();
-         if (key.startsWith(connectionFactoryPrefix))
-         {
+         if (key.startsWith(connectionFactoryPrefix)) {
             String jndiName = key.substring(connectionFactoryPrefix.length());
-            try
-            {
+            try {
                ConnectionFactory factory = createConnectionFactory((String) environment.get(key), jndiName);
                data.put(jndiName, factory);
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                e.printStackTrace();
                throw new NamingException("Invalid broker URL");
             }
          }
       }
 
-
-
       createQueues(data, environment);
       createTopics(data, environment);
 
-      data.put(DYNAMIC_QUEUE_CONTEXT, new LazyCreateContext()
-      {
+      data.put(DYNAMIC_QUEUE_CONTEXT, new LazyCreateContext() {
          private static final long serialVersionUID = 6503881346214855588L;
 
-         protected Object createEntry(String name)
-         {
+         protected Object createEntry(String name) {
             return ActiveMQJMSClient.createQueue(name);
          }
       });
-      data.put(DYNAMIC_TOPIC_CONTEXT, new LazyCreateContext()
-      {
+      data.put(DYNAMIC_TOPIC_CONTEXT, new LazyCreateContext() {
          private static final long serialVersionUID = 2019166796234979615L;
 
-         protected Object createEntry(String name)
-         {
+         protected Object createEntry(String name) {
             return ActiveMQJMSClient.createTopic(name);
          }
       });
@@ -100,56 +89,45 @@ public class ActiveMQInitialContextFactory implements InitialContextFactory
 
    // Properties
    // -------------------------------------------------------------------------
-   public String getTopicPrefix()
-   {
+   public String getTopicPrefix() {
       return topicPrefix;
    }
 
-   public void setTopicPrefix(String topicPrefix)
-   {
+   public void setTopicPrefix(String topicPrefix) {
       this.topicPrefix = topicPrefix;
    }
 
-   public String getQueuePrefix()
-   {
+   public String getQueuePrefix() {
       return queuePrefix;
    }
 
-   public void setQueuePrefix(String queuePrefix)
-   {
+   public void setQueuePrefix(String queuePrefix) {
       this.queuePrefix = queuePrefix;
    }
 
    // Implementation methods
    // -------------------------------------------------------------------------
 
-   protected ReadOnlyContext createContext(Hashtable environment, Map<String, Object> data)
-   {
+   protected ReadOnlyContext createContext(Hashtable environment, Map<String, Object> data) {
       return new ReadOnlyContext(environment, data);
    }
 
-   protected void createQueues(Map<String, Object> data, Hashtable environment)
-   {
-      for (Iterator iter = environment.entrySet().iterator(); iter.hasNext(); )
-      {
+   protected void createQueues(Map<String, Object> data, Hashtable environment) {
+      for (Iterator iter = environment.entrySet().iterator(); iter.hasNext(); ) {
          Map.Entry entry = (Map.Entry) iter.next();
          String key = entry.getKey().toString();
-         if (key.startsWith(queuePrefix))
-         {
+         if (key.startsWith(queuePrefix)) {
             String jndiName = key.substring(queuePrefix.length());
             data.put(jndiName, createQueue(entry.getValue().toString()));
          }
       }
    }
 
-   protected void createTopics(Map<String, Object> data, Hashtable environment)
-   {
-      for (Iterator iter = environment.entrySet().iterator(); iter.hasNext(); )
-      {
+   protected void createTopics(Map<String, Object> data, Hashtable environment) {
+      for (Iterator iter = environment.entrySet().iterator(); iter.hasNext(); ) {
          Map.Entry entry = (Map.Entry) iter.next();
          String key = entry.getKey().toString();
-         if (key.startsWith(topicPrefix))
-         {
+         if (key.startsWith(topicPrefix)) {
             String jndiName = key.substring(topicPrefix.length());
             data.put(jndiName, createTopic(entry.getValue().toString()));
          }
@@ -159,24 +137,21 @@ public class ActiveMQInitialContextFactory implements InitialContextFactory
    /**
     * Factory method to create new Queue instances
     */
-   protected Queue createQueue(String name)
-   {
+   protected Queue createQueue(String name) {
       return ActiveMQJMSClient.createQueue(name);
    }
 
    /**
     * Factory method to create new Topic instances
     */
-   protected Topic createTopic(String name)
-   {
+   protected Topic createTopic(String name) {
       return ActiveMQJMSClient.createTopic(name);
    }
 
    /**
     * Factory method to create a new connection factory from the given environment
     */
-   protected ConnectionFactory createConnectionFactory(String uri, String name) throws Exception
-   {
+   protected ConnectionFactory createConnectionFactory(String uri, String name) throws Exception {
       ConnectionFactoryParser parser = new ConnectionFactoryParser();
       return parser.newObject(parser.expandURI(uri), name);
    }

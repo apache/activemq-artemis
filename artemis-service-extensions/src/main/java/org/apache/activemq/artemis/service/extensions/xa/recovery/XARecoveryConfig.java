@@ -25,13 +25,11 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 
 /**
- *
  * This represents the configuration of a single connection factory.
  *
  * A wrapper around info needed for the xa recovery resource
  */
-public class XARecoveryConfig
-{
+public class XARecoveryConfig {
 
    private final boolean ha;
    private final TransportConfiguration[] transportConfiguration;
@@ -39,23 +37,20 @@ public class XARecoveryConfig
    private final String username;
    private final String password;
 
-   public static XARecoveryConfig newConfig(ActiveMQConnectionFactory factory,
-                                            String userName,
-                                            String password)
-   {
-      if (factory.getServerLocator().getDiscoveryGroupConfiguration() != null)
-      {
+   public static XARecoveryConfig newConfig(ActiveMQConnectionFactory factory, String userName, String password) {
+      if (factory.getServerLocator().getDiscoveryGroupConfiguration() != null) {
          return new XARecoveryConfig(factory.getServerLocator().isHA(), factory.getServerLocator().getDiscoveryGroupConfiguration(), userName, password);
       }
-      else
-      {
+      else {
          return new XARecoveryConfig(factory.getServerLocator().isHA(), factory.getServerLocator().getStaticTransportConfigurations(), userName, password);
       }
 
    }
 
-   public XARecoveryConfig(final boolean ha, final TransportConfiguration[] transportConfiguration, final String username, final String password)
-   {
+   public XARecoveryConfig(final boolean ha,
+                           final TransportConfiguration[] transportConfiguration,
+                           final String username,
+                           final String password) {
       this.transportConfiguration = transportConfiguration;
       this.discoveryConfiguration = null;
       this.username = username;
@@ -63,8 +58,10 @@ public class XARecoveryConfig
       this.ha = ha;
    }
 
-   public XARecoveryConfig(final boolean ha, final DiscoveryGroupConfiguration discoveryConfiguration, final String username, final String password)
-   {
+   public XARecoveryConfig(final boolean ha,
+                           final DiscoveryGroupConfiguration discoveryConfiguration,
+                           final String username,
+                           final String password) {
       this.discoveryConfiguration = discoveryConfiguration;
       this.transportConfiguration = null;
       this.username = username;
@@ -72,52 +69,43 @@ public class XARecoveryConfig
       this.ha = ha;
    }
 
-   public boolean isHA()
-   {
+   public boolean isHA() {
       return ha;
    }
 
-   public DiscoveryGroupConfiguration getDiscoveryConfiguration()
-   {
+   public DiscoveryGroupConfiguration getDiscoveryConfiguration() {
       return discoveryConfiguration;
    }
 
-   public TransportConfiguration[] getTransportConfig()
-   {
+   public TransportConfiguration[] getTransportConfig() {
       return transportConfiguration;
    }
 
-   public String getUsername()
-   {
+   public String getUsername() {
       return username;
    }
 
-   public String getPassword()
-   {
+   public String getPassword() {
       return password;
    }
 
-
    /**
     * Create a serverLocator using the configuration
+    *
     * @return locator
     */
-   public ServerLocator createServerLocator()
-   {
-      if (getDiscoveryConfiguration() != null)
-      {
+   public ServerLocator createServerLocator() {
+      if (getDiscoveryConfiguration() != null) {
          return ActiveMQClient.createServerLocator(isHA(), getDiscoveryConfiguration());
       }
-      else
-      {
+      else {
          return ActiveMQClient.createServerLocator(isHA(), getTransportConfig());
       }
 
    }
 
    @Override
-   public int hashCode()
-   {
+   public int hashCode() {
       final int prime = 31;
       int result = 1;
       result = prime * result + ((discoveryConfiguration == null) ? 0 : discoveryConfiguration.hashCode());
@@ -130,17 +118,15 @@ public class XARecoveryConfig
     * Just having the connector is enough, as we don't want to duplicate resources just because of usernames
     */
    @Override
-   public boolean equals(Object obj)
-   {
+   public boolean equals(Object obj) {
       if (this == obj)
          return true;
       if (obj == null)
          return false;
       if (getClass() != obj.getClass())
          return false;
-      XARecoveryConfig other = (XARecoveryConfig)obj;
-      if (discoveryConfiguration == null)
-      {
+      XARecoveryConfig other = (XARecoveryConfig) obj;
+      if (discoveryConfiguration == null) {
          if (other.discoveryConfiguration != null)
             return false;
       }
@@ -155,12 +141,11 @@ public class XARecoveryConfig
     * @see java.lang.Object#toString()
     */
    @Override
-   public String toString()
-   {
+   public String toString() {
       return "XARecoveryConfig [transportConfiguration = " + Arrays.toString(transportConfiguration) +
-             ", discoveryConfiguration = " + discoveryConfiguration +
-             ", username=" +
-             username +
-             ", password=****]";
+         ", discoveryConfiguration = " + discoveryConfiguration +
+         ", username=" +
+         username +
+         ", password=****]";
    }
 }

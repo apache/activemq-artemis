@@ -20,7 +20,7 @@ import org.apache.activemq.artemis.dto.BrokerDTO;
 
 import java.net.URI;
 
-public interface BrokerFactoryHandler
-{
+public interface BrokerFactoryHandler {
+
    BrokerDTO createBroker(URI brokerURI) throws Exception;
 }

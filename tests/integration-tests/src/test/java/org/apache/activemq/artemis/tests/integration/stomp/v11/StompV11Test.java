@@ -44,41 +44,35 @@ import org.junit.Test;
 /*
  *
  */
-public class StompV11Test extends StompV11TestBase
-{
+public class StompV11Test extends StompV11TestBase {
+
    private static final transient IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    private StompClientConnection connV11;
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
       connV11 = StompClientConnectionFactory.createClientConnection("1.1", hostname, port);
    }
 
    @Override
    @After
-   public void tearDown() throws Exception
-   {
-      try
-      {
+   public void tearDown() throws Exception {
+      try {
          log.debug("Connection 11 : " + connV11.isConnected());
-         if (connV11 != null && connV11.isConnected())
-         {
+         if (connV11 != null && connV11.isConnected()) {
             connV11.disconnect();
          }
       }
-      finally
-      {
+      finally {
          super.tearDown();
       }
    }
 
    @Test
-   public void testConnection() throws Exception
-   {
+   public void testConnection() throws Exception {
       server.getActiveMQServer().getConfiguration().setSecurityEnabled(true);
       StompClientConnection connection = StompClientConnectionFactory.createClientConnection("1.0", hostname, port);
 
@@ -123,8 +117,7 @@ public class StompV11Test extends StompV11TestBase
    }
 
    @Test
-   public void testNegotiation() throws Exception
-   {
+   public void testNegotiation() throws Exception {
       // case 1 accept-version absent. It is a 1.0 connect
       ClientStompFrame frame = connV11.createFrame("CONNECT");
       frame.addHeader("host", "127.0.0.1");
@@ -208,8 +201,7 @@ public class StompV11Test extends StompV11TestBase
    }
 
    @Test
-   public void testSendAndReceive() throws Exception
-   {
+   public void testSendAndReceive() throws Exception {
       connV11.connect(defUser, defPass);
       ClientStompFrame frame = connV11.createFrame("SEND");
       frame.addHeader("destination", getQueuePrefix() + getQueueName());
@@ -269,8 +261,7 @@ public class StompV11Test extends StompV11TestBase
    }
 
    @Test
-   public void testHeaderContentType() throws Exception
-   {
+   public void testHeaderContentType() throws Exception {
       connV11.connect(defUser, defPass);
       ClientStompFrame frame = connV11.createFrame("SEND");
       frame.addHeader("destination", getQueuePrefix() + getQueueName());
@@ -306,8 +297,7 @@ public class StompV11Test extends StompV11TestBase
    }
 
    @Test
-   public void testHeaderContentLength() throws Exception
-   {
+   public void testHeaderContentLength() throws Exception {
       connV11.connect(defUser, defPass);
       ClientStompFrame frame = connV11.createFrame("SEND");
 
@@ -348,8 +338,7 @@ public class StompV11Test extends StompV11TestBase
    }
 
    @Test
-   public void testHeaderEncoding() throws Exception
-   {
+   public void testHeaderEncoding() throws Exception {
       connV11.connect(defUser, defPass);
       ClientStompFrame frame = connV11.createFrame("SEND");
 
@@ -398,8 +387,7 @@ public class StompV11Test extends StompV11TestBase
    }
 
    @Test
-   public void testHeartBeat() throws Exception
-   {
+   public void testHeartBeat() throws Exception {
       //no heart beat at all if heat-beat absent
       ClientStompFrame frame = connV11.createFrame("CONNECT");
       frame.addHeader("host", "127.0.0.1");
@@ -461,13 +449,11 @@ public class StompV11Test extends StompV11TestBase
       frame.setBody("Hello World");
 
       //send will fail
-      try
-      {
+      try {
          connV11.sendFrame(frame);
          fail("connection should have been destroyed by now");
       }
-      catch (IOException e)
-      {
+      catch (IOException e) {
          //ignore
       }
 
@@ -509,8 +495,7 @@ public class StompV11Test extends StompV11TestBase
 
    //server ping
    @Test
-   public void testHeartBeat2() throws Exception
-   {
+   public void testHeartBeat2() throws Exception {
       //heart-beat (1,1)
       ClientStompFrame frame = connV11.createFrame("CONNECT");
       frame.addHeader("host", "127.0.0.1");
@@ -567,11 +552,9 @@ public class StompV11Test extends StompV11TestBase
    }
 
    @Test
-   public void testSendWithHeartBeatsAndReceive() throws Exception
-   {
+   public void testSendWithHeartBeatsAndReceive() throws Exception {
       StompClientConnection newConn = null;
-      try
-      {
+      try {
          ClientStompFrame frame = connV11.createFrame("CONNECT");
          frame.addHeader("host", "127.0.0.1");
          frame.addHeader("login", this.defUser);
@@ -587,16 +570,14 @@ public class StompV11Test extends StompV11TestBase
          frame.addHeader("destination", getQueuePrefix() + getQueueName());
          frame.addHeader("content-type", "text/plain");
 
-         for (int i = 0; i < 10; i++)
-         {
+         for (int i = 0; i < 10; i++) {
             frame.setBody("Hello World " + i + "!");
             connV11.sendFrame(frame);
             Thread.sleep(500);
          }
 
          // subscribe
-         newConn = StompClientConnectionFactory.createClientConnection("1.1",
-                                                                       hostname, port);
+         newConn = StompClientConnectionFactory.createClientConnection("1.1", hostname, port);
          newConn.connect(defUser, defPass);
 
          ClientStompFrame subFrame = newConn.createFrame("SUBSCRIBE");
@@ -610,8 +591,7 @@ public class StompV11Test extends StompV11TestBase
 
          frame = newConn.receiveFrame();
 
-         while (frame != null)
-         {
+         while (frame != null) {
             cnt++;
             Thread.sleep(500);
             frame = newConn.receiveFrame(5000);
@@ -624,8 +604,7 @@ public class StompV11Test extends StompV11TestBase
          unsubFrame.addHeader("id", "a-sub");
          newConn.sendFrame(unsubFrame);
       }
-      finally
-      {
+      finally {
          if (newConn != null)
             newConn.disconnect();
          connV11.disconnect();
@@ -633,15 +612,13 @@ public class StompV11Test extends StompV11TestBase
    }
 
    @Test
-   public void testSendAndReceiveWithHeartBeats() throws Exception
-   {
+   public void testSendAndReceiveWithHeartBeats() throws Exception {
       connV11.connect(defUser, defPass);
       ClientStompFrame frame = connV11.createFrame("SEND");
       frame.addHeader("destination", getQueuePrefix() + getQueueName());
       frame.addHeader("content-type", "text/plain");
 
-      for (int i = 0; i < 10; i++)
-      {
+      for (int i = 0; i < 10; i++) {
          frame.setBody("Hello World " + i + "!");
          connV11.sendFrame(frame);
          Thread.sleep(500);
@@ -649,8 +626,7 @@ public class StompV11Test extends StompV11TestBase
 
       //subscribe
       StompClientConnection newConn = StompClientConnectionFactory.createClientConnection("1.1", hostname, port);
-      try
-      {
+      try {
          frame = newConn.createFrame("CONNECT");
          frame.addHeader("host", "127.0.0.1");
          frame.addHeader("login", this.defUser);
@@ -675,8 +651,7 @@ public class StompV11Test extends StompV11TestBase
 
          frame = newConn.receiveFrame();
 
-         while (frame != null)
-         {
+         while (frame != null) {
             cnt++;
             Thread.sleep(500);
             frame = newConn.receiveFrame(5000);
@@ -689,18 +664,15 @@ public class StompV11Test extends StompV11TestBase
          unsubFrame.addHeader("id", "a-sub");
          newConn.sendFrame(unsubFrame);
       }
-      finally
-      {
+      finally {
          newConn.disconnect();
       }
    }
 
    @Test
-   public void testSendWithHeartBeatsAndReceiveWithHeartBeats() throws Exception
-   {
+   public void testSendWithHeartBeatsAndReceiveWithHeartBeats() throws Exception {
       StompClientConnection newConn = null;
-      try
-      {
+      try {
          ClientStompFrame frame = connV11.createFrame("CONNECT");
          frame.addHeader("host", "127.0.0.1");
          frame.addHeader("login", this.defUser);
@@ -716,16 +688,14 @@ public class StompV11Test extends StompV11TestBase
          frame.addHeader("destination", getQueuePrefix() + getQueueName());
          frame.addHeader("content-type", "text/plain");
 
-         for (int i = 0; i < 10; i++)
-         {
+         for (int i = 0; i < 10; i++) {
             frame.setBody("Hello World " + i + "!");
             connV11.sendFrame(frame);
             Thread.sleep(500);
          }
 
          // subscribe
-         newConn = StompClientConnectionFactory.createClientConnection("1.1",
-                                                                       hostname, port);
+         newConn = StompClientConnectionFactory.createClientConnection("1.1", hostname, port);
          frame = newConn.createFrame("CONNECT");
          frame.addHeader("host", "127.0.0.1");
          frame.addHeader("login", this.defUser);
@@ -750,8 +720,7 @@ public class StompV11Test extends StompV11TestBase
 
          frame = newConn.receiveFrame();
 
-         while (frame != null)
-         {
+         while (frame != null) {
             cnt++;
             Thread.sleep(500);
             frame = newConn.receiveFrame(5000);
@@ -763,8 +732,7 @@ public class StompV11Test extends StompV11TestBase
          unsubFrame.addHeader("id", "a-sub");
          newConn.sendFrame(unsubFrame);
       }
-      finally
-      {
+      finally {
          if (newConn != null)
             newConn.disconnect();
          connV11.disconnect();
@@ -772,8 +740,7 @@ public class StompV11Test extends StompV11TestBase
    }
 
    @Test
-   public void testNack() throws Exception
-   {
+   public void testNack() throws Exception {
       connV11.connect(defUser, defPass);
 
       subscribe(connV11, "sub1", "client");
@@ -797,8 +764,7 @@ public class StompV11Test extends StompV11TestBase
    }
 
    @Test
-   public void testNackWithWrongSubId() throws Exception
-   {
+   public void testNackWithWrongSubId() throws Exception {
       connV11.connect(defUser, defPass);
 
       subscribe(connV11, "sub1", "client");
@@ -826,8 +792,7 @@ public class StompV11Test extends StompV11TestBase
    }
 
    @Test
-   public void testNackWithWrongMessageId() throws Exception
-   {
+   public void testNackWithWrongMessageId() throws Exception {
       connV11.connect(defUser, defPass);
 
       subscribe(connV11, "sub1", "client");
@@ -854,10 +819,8 @@ public class StompV11Test extends StompV11TestBase
       Assert.assertNotNull(message);
    }
 
-
    @Test
-   public void testAck() throws Exception
-   {
+   public void testAck() throws Exception {
       connV11.connect(defUser, defPass);
 
       subscribe(connV11, "sub1", "client");
@@ -867,7 +830,6 @@ public class StompV11Test extends StompV11TestBase
       ClientStompFrame frame = connV11.receiveFrame();
 
       String messageID = frame.getHeader("message-id");
-
 
       ack(connV11, "sub1", messageID, null);
 
@@ -882,8 +844,7 @@ public class StompV11Test extends StompV11TestBase
    }
 
    @Test
-   public void testAckWithWrongSubId() throws Exception
-   {
+   public void testAckWithWrongSubId() throws Exception {
       connV11.connect(defUser, defPass);
 
       subscribe(connV11, "sub1", "client");
@@ -893,7 +854,6 @@ public class StompV11Test extends StompV11TestBase
       ClientStompFrame frame = connV11.receiveFrame();
 
       String messageID = frame.getHeader("message-id");
-
 
       ack(connV11, "sub2", messageID, null);
 
@@ -912,8 +872,7 @@ public class StompV11Test extends StompV11TestBase
    }
 
    @Test
-   public void testAckWithWrongMessageId() throws Exception
-   {
+   public void testAckWithWrongMessageId() throws Exception {
       connV11.connect(defUser, defPass);
 
       subscribe(connV11, "sub1", "client");
@@ -941,8 +900,7 @@ public class StompV11Test extends StompV11TestBase
    }
 
    @Test
-   public void testErrorWithReceipt() throws Exception
-   {
+   public void testErrorWithReceipt() throws Exception {
       connV11.connect(defUser, defPass);
 
       subscribe(connV11, "sub1", "client");
@@ -952,7 +910,6 @@ public class StompV11Test extends StompV11TestBase
       ClientStompFrame frame = connV11.receiveFrame();
 
       String messageID = frame.getHeader("message-id");
-
 
       ClientStompFrame ackFrame = connV11.createFrame("ACK");
       //give it a wrong sub id
@@ -979,8 +936,7 @@ public class StompV11Test extends StompV11TestBase
    }
 
    @Test
-   public void testErrorWithReceipt2() throws Exception
-   {
+   public void testErrorWithReceipt2() throws Exception {
       connV11.connect(defUser, defPass);
 
       subscribe(connV11, "sub1", "client");
@@ -990,7 +946,6 @@ public class StompV11Test extends StompV11TestBase
       ClientStompFrame frame = connV11.receiveFrame();
 
       String messageID = frame.getHeader("message-id");
-
 
       ClientStompFrame ackFrame = connV11.createFrame("ACK");
       //give it a wrong sub id
@@ -1017,23 +972,20 @@ public class StompV11Test extends StompV11TestBase
    }
 
    @Test
-   public void testAckModeClient() throws Exception
-   {
+   public void testAckModeClient() throws Exception {
       connV11.connect(defUser, defPass);
 
       subscribe(connV11, "sub1", "client");
 
       int num = 50;
       //send a bunch of messages
-      for (int i = 0; i < num; i++)
-      {
+      for (int i = 0; i < num; i++) {
          this.sendMessage("client-ack" + i);
       }
 
       ClientStompFrame frame = null;
 
-      for (int i = 0; i < num; i++)
-      {
+      for (int i = 0; i < num; i++) {
          frame = connV11.receiveFrame();
          assertNotNull(frame);
       }
@@ -1052,29 +1004,25 @@ public class StompV11Test extends StompV11TestBase
    }
 
    @Test
-   public void testAckModeClient2() throws Exception
-   {
+   public void testAckModeClient2() throws Exception {
       connV11.connect(defUser, defPass);
 
       subscribe(connV11, "sub1", "client");
 
       int num = 50;
       //send a bunch of messages
-      for (int i = 0; i < num; i++)
-      {
+      for (int i = 0; i < num; i++) {
          this.sendMessage("client-ack" + i);
       }
 
       ClientStompFrame frame = null;
 
-      for (int i = 0; i < num; i++)
-      {
+      for (int i = 0; i < num; i++) {
          frame = connV11.receiveFrame();
          assertNotNull(frame);
 
          //ack the 49th
-         if (i == num - 2)
-         {
+         if (i == num - 2) {
             this.ack(connV11, "sub1", frame);
          }
       }
@@ -1092,23 +1040,20 @@ public class StompV11Test extends StompV11TestBase
    }
 
    @Test
-   public void testAckModeAuto() throws Exception
-   {
+   public void testAckModeAuto() throws Exception {
       connV11.connect(defUser, defPass);
 
       subscribe(connV11, "sub1", "auto");
 
       int num = 50;
       //send a bunch of messages
-      for (int i = 0; i < num; i++)
-      {
+      for (int i = 0; i < num; i++) {
          this.sendMessage("auto-ack" + i);
       }
 
       ClientStompFrame frame = null;
 
-      for (int i = 0; i < num; i++)
-      {
+      for (int i = 0; i < num; i++) {
          frame = connV11.receiveFrame();
          assertNotNull(frame);
       }
@@ -1124,30 +1069,26 @@ public class StompV11Test extends StompV11TestBase
    }
 
    @Test
-   public void testAckModeClientIndividual() throws Exception
-   {
+   public void testAckModeClientIndividual() throws Exception {
       connV11.connect(defUser, defPass);
 
       subscribe(connV11, "sub1", "client-individual");
 
       int num = 50;
       //send a bunch of messages
-      for (int i = 0; i < num; i++)
-      {
+      for (int i = 0; i < num; i++) {
          this.sendMessage("client-individual-ack" + i);
       }
 
       ClientStompFrame frame = null;
 
-      for (int i = 0; i < num; i++)
-      {
+      for (int i = 0; i < num; i++) {
          frame = connV11.receiveFrame();
          assertNotNull(frame);
 
          System.out.println(i + " == received: " + frame);
          //ack on even numbers
-         if (i % 2 == 0)
-         {
+         if (i % 2 == 0) {
             this.ack(connV11, "sub1", frame);
          }
       }
@@ -1160,8 +1101,7 @@ public class StompV11Test extends StompV11TestBase
       MessageConsumer consumer = session.createConsumer(queue);
 
       TextMessage message = null;
-      for (int i = 0; i < num / 2; i++)
-      {
+      for (int i = 0; i < num / 2; i++) {
          message = (TextMessage) consumer.receive(1000);
          Assert.assertNotNull(message);
          System.out.println("Legal: " + message.getText());
@@ -1173,8 +1113,7 @@ public class StompV11Test extends StompV11TestBase
    }
 
    @Test
-   public void testTwoSubscribers() throws Exception
-   {
+   public void testTwoSubscribers() throws Exception {
       connV11.connect(defUser, defPass, "myclientid");
 
       this.subscribeTopic(connV11, "sub1", "auto", null);
@@ -1213,8 +1152,7 @@ public class StompV11Test extends StompV11TestBase
    }
 
    @Test
-   public void testSendAndReceiveOnDifferentConnections() throws Exception
-   {
+   public void testSendAndReceiveOnDifferentConnections() throws Exception {
       connV11.connect(defUser, defPass);
 
       ClientStompFrame sendFrame = connV11.createFrame("SEND");
@@ -1240,8 +1178,7 @@ public class StompV11Test extends StompV11TestBase
    //----------------Note: tests below are adapted from StompTest
 
    @Test
-   public void testBeginSameTransactionTwice() throws Exception
-   {
+   public void testBeginSameTransactionTwice() throws Exception {
       connV11.connect(defUser, defPass);
 
       beginTransaction(connV11, "tx1");
@@ -1253,8 +1190,7 @@ public class StompV11Test extends StompV11TestBase
    }
 
    @Test
-   public void testBodyWithUTF8() throws Exception
-   {
+   public void testBodyWithUTF8() throws Exception {
       connV11.connect(defUser, defPass);
 
       this.subscribe(connV11, getName(), "auto");
@@ -1273,8 +1209,7 @@ public class StompV11Test extends StompV11TestBase
    }
 
    @Test
-   public void testClientAckNotPartOfTransaction() throws Exception
-   {
+   public void testClientAckNotPartOfTransaction() throws Exception {
       connV11.connect(defUser, defPass);
 
       this.subscribe(connV11, getName(), "client");
@@ -1306,8 +1241,7 @@ public class StompV11Test extends StompV11TestBase
    }
 
    @Test
-   public void testDisconnectAndError() throws Exception
-   {
+   public void testDisconnectAndError() throws Exception {
       connV11.connect(defUser, defPass);
 
       this.subscribe(connV11, getName(), "client");
@@ -1317,45 +1251,36 @@ public class StompV11Test extends StompV11TestBase
 
       ClientStompFrame result = connV11.sendFrame(frame);
 
-      if (result == null || (!"RECEIPT".equals(result.getCommand())) || (!"1".equals(result.getHeader("receipt-id"))))
-      {
+      if (result == null || (!"RECEIPT".equals(result.getCommand())) || (!"1".equals(result.getHeader("receipt-id")))) {
          fail("Disconnect failed! " + result);
       }
 
       final CountDownLatch latch = new CountDownLatch(1);
 
-      Thread thr = new Thread()
-      {
-         public void run()
-         {
+      Thread thr = new Thread() {
+         public void run() {
             ClientStompFrame sendFrame = connV11.createFrame("SEND");
             sendFrame.addHeader("destination", getQueuePrefix() + getQueueName());
             sendFrame.setBody("Hello World");
-            while (latch.getCount() != 0)
-            {
-               try
-               {
+            while (latch.getCount() != 0) {
+               try {
                   connV11.sendFrame(sendFrame);
                   Thread.sleep(500);
                }
-               catch (InterruptedException e)
-               {
+               catch (InterruptedException e) {
                   //retry
                }
-               catch (ClosedChannelException e)
-               {
+               catch (ClosedChannelException e) {
                   //ok.
                   latch.countDown();
                   break;
                }
-               catch (IOException e)
-               {
+               catch (IOException e) {
                   //ok.
                   latch.countDown();
                   break;
                }
-               finally
-               {
+               finally {
                   connV11.destroy();
                }
             }
@@ -1366,8 +1291,7 @@ public class StompV11Test extends StompV11TestBase
       latch.await(10, TimeUnit.SECONDS);
 
       long count = latch.getCount();
-      if (count != 0)
-      {
+      if (count != 0) {
          latch.countDown();
       }
       thr.join();
@@ -1376,8 +1300,7 @@ public class StompV11Test extends StompV11TestBase
    }
 
    @Test
-   public void testDurableSubscriber() throws Exception
-   {
+   public void testDurableSubscriber() throws Exception {
       connV11.connect(defUser, defPass);
 
       this.subscribe(connV11, "sub1", "client", getName());
@@ -1391,8 +1314,7 @@ public class StompV11Test extends StompV11TestBase
    }
 
    @Test
-   public void testDurableSubscriberWithReconnection() throws Exception
-   {
+   public void testDurableSubscriberWithReconnection() throws Exception {
       connV11.connect(defUser, defPass, "myclientid");
 
       this.subscribeTopic(connV11, "sub1", "auto", getName());
@@ -1402,8 +1324,7 @@ public class StompV11Test extends StompV11TestBase
 
       ClientStompFrame result = connV11.sendFrame(frame);
 
-      if (result == null || (!"RECEIPT".equals(result.getCommand())) || (!"1".equals(result.getHeader("receipt-id"))))
-      {
+      if (result == null || (!"RECEIPT".equals(result.getCommand())) || (!"1".equals(result.getHeader("receipt-id")))) {
          fail("Disconnect failed! " + result);
       }
 
@@ -1429,8 +1350,7 @@ public class StompV11Test extends StompV11TestBase
    }
 
    @Test
-   public void testJMSXGroupIdCanBeSet() throws Exception
-   {
+   public void testJMSXGroupIdCanBeSet() throws Exception {
       MessageConsumer consumer = session.createConsumer(queue);
 
       connV11.connect(defUser, defPass);
@@ -1450,8 +1370,7 @@ public class StompV11Test extends StompV11TestBase
    }
 
    @Test
-   public void testMessagesAreInOrder() throws Exception
-   {
+   public void testMessagesAreInOrder() throws Exception {
       int ctr = 10;
       String[] data = new String[ctr];
 
@@ -1459,28 +1378,24 @@ public class StompV11Test extends StompV11TestBase
 
       this.subscribe(connV11, "sub1", "auto");
 
-      for (int i = 0; i < ctr; ++i)
-      {
+      for (int i = 0; i < ctr; ++i) {
          data[i] = getName() + i;
          sendMessage(data[i]);
       }
 
       ClientStompFrame frame = null;
 
-      for (int i = 0; i < ctr; ++i)
-      {
+      for (int i = 0; i < ctr; ++i) {
          frame = connV11.receiveFrame();
          Assert.assertTrue("Message not in order", frame.getBody().equals(data[i]));
       }
 
-      for (int i = 0; i < ctr; ++i)
-      {
+      for (int i = 0; i < ctr; ++i) {
          data[i] = getName() + ":second:" + i;
          sendMessage(data[i]);
       }
 
-      for (int i = 0; i < ctr; ++i)
-      {
+      for (int i = 0; i < ctr; ++i) {
          frame = connV11.receiveFrame();
          Assert.assertTrue("Message not in order", frame.getBody().equals(data[i]));
       }
@@ -1489,8 +1404,7 @@ public class StompV11Test extends StompV11TestBase
    }
 
    @Test
-   public void testSubscribeWithAutoAckAndSelector() throws Exception
-   {
+   public void testSubscribeWithAutoAckAndSelector() throws Exception {
       connV11.connect(defUser, defPass);
 
       this.subscribe(connV11, "sub1", "auto", null, "foo = 'zzz'");
@@ -1506,8 +1420,7 @@ public class StompV11Test extends StompV11TestBase
    }
 
    @Test
-   public void testRedeliveryWithClientAck() throws Exception
-   {
+   public void testRedeliveryWithClientAck() throws Exception {
       connV11.connect(defUser, defPass);
 
       this.subscribe(connV11, "subId", "client");
@@ -1528,18 +1441,15 @@ public class StompV11Test extends StompV11TestBase
    }
 
    @Test
-   public void testSendManyMessages() throws Exception
-   {
+   public void testSendManyMessages() throws Exception {
       MessageConsumer consumer = session.createConsumer(queue);
 
       connV11.connect(defUser, defPass);
 
       int count = 1000;
       final CountDownLatch latch = new CountDownLatch(count);
-      consumer.setMessageListener(new MessageListener()
-      {
-         public void onMessage(Message arg0)
-         {
+      consumer.setMessageListener(new MessageListener() {
+         public void onMessage(Message arg0) {
             latch.countDown();
          }
       });
@@ -1548,8 +1458,7 @@ public class StompV11Test extends StompV11TestBase
       frame.addHeader("destination", getQueuePrefix() + getQueueName());
       frame.setBody("Hello World");
 
-      for (int i = 1; i <= count; i++)
-      {
+      for (int i = 1; i <= count; i++) {
          connV11.sendFrame(frame);
       }
 
@@ -1559,8 +1468,7 @@ public class StompV11Test extends StompV11TestBase
    }
 
    @Test
-   public void testSendMessage() throws Exception
-   {
+   public void testSendMessage() throws Exception {
       MessageConsumer consumer = session.createConsumer(queue);
 
       connV11.connect(defUser, defPass);
@@ -1585,8 +1493,7 @@ public class StompV11Test extends StompV11TestBase
    }
 
    @Test
-   public void testSendMessageWithContentLength() throws Exception
-   {
+   public void testSendMessageWithContentLength() throws Exception {
       MessageConsumer consumer = session.createConsumer(queue);
 
       connV11.connect(defUser, defPass);
@@ -1613,8 +1520,7 @@ public class StompV11Test extends StompV11TestBase
    }
 
    @Test
-   public void testSendMessageWithCustomHeadersAndSelector() throws Exception
-   {
+   public void testSendMessageWithCustomHeadersAndSelector() throws Exception {
       MessageConsumer consumer = session.createConsumer(queue, "foo = 'abc'");
 
       connV11.connect(defUser, defPass);
@@ -1636,8 +1542,7 @@ public class StompV11Test extends StompV11TestBase
    }
 
    @Test
-   public void testSendMessageWithLeadingNewLine() throws Exception
-   {
+   public void testSendMessageWithLeadingNewLine() throws Exception {
       MessageConsumer consumer = session.createConsumer(queue);
 
       connV11.connect(defUser, defPass);
@@ -1665,8 +1570,7 @@ public class StompV11Test extends StompV11TestBase
    }
 
    @Test
-   public void testSendMessageWithReceipt() throws Exception
-   {
+   public void testSendMessageWithReceipt() throws Exception {
       MessageConsumer consumer = session.createConsumer(queue);
 
       connV11.connect(defUser, defPass);
@@ -1695,8 +1599,7 @@ public class StompV11Test extends StompV11TestBase
    }
 
    @Test
-   public void testSendMessageWithStandardHeaders() throws Exception
-   {
+   public void testSendMessageWithStandardHeaders() throws Exception {
       MessageConsumer consumer = session.createConsumer(queue);
 
       connV11.connect(defUser, defPass);
@@ -1731,15 +1634,13 @@ public class StompV11Test extends StompV11TestBase
    }
 
    @Test
-   public void testSendMessageWithLongHeaders() throws Exception
-   {
+   public void testSendMessageWithLongHeaders() throws Exception {
       MessageConsumer consumer = session.createConsumer(queue);
 
       connV11.connect(defUser, defPass);
 
       StringBuffer buffer = new StringBuffer();
-      for (int i = 0; i < 2048; i++)
-      {
+      for (int i = 0; i < 2048; i++) {
          buffer.append("a");
       }
 
@@ -1773,8 +1674,7 @@ public class StompV11Test extends StompV11TestBase
    }
 
    @Test
-   public void testSubscribeToTopic() throws Exception
-   {
+   public void testSubscribeToTopic() throws Exception {
       connV11.connect(defUser, defPass);
 
       this.subscribeTopic(connV11, "sub1", null, null, true);
@@ -1798,8 +1698,7 @@ public class StompV11Test extends StompV11TestBase
    }
 
    @Test
-   public void testSubscribeToTopicWithNoLocal() throws Exception
-   {
+   public void testSubscribeToTopicWithNoLocal() throws Exception {
       connV11.connect(defUser, defPass);
 
       this.subscribeTopic(connV11, "sub1", null, null, true, true);
@@ -1831,8 +1730,7 @@ public class StompV11Test extends StompV11TestBase
    }
 
    @Test
-   public void testSubscribeWithAutoAck() throws Exception
-   {
+   public void testSubscribeWithAutoAck() throws Exception {
       connV11.connect(defUser, defPass);
 
       this.subscribe(connV11, "sub1", "auto");
@@ -1854,8 +1752,7 @@ public class StompV11Test extends StompV11TestBase
    }
 
    @Test
-   public void testSubscribeWithAutoAckAndBytesMessage() throws Exception
-   {
+   public void testSubscribeWithAutoAckAndBytesMessage() throws Exception {
       connV11.connect(defUser, defPass);
 
       this.subscribe(connV11, "sub1", "auto");
@@ -1879,8 +1776,7 @@ public class StompV11Test extends StompV11TestBase
    }
 
    @Test
-   public void testSubscribeWithClientAck() throws Exception
-   {
+   public void testSubscribeWithClientAck() throws Exception {
       connV11.connect(defUser, defPass);
 
       this.subscribe(connV11, "sub1", "client");
@@ -1900,20 +1796,17 @@ public class StompV11Test extends StompV11TestBase
    }
 
    @Test
-   public void testSubscribeWithClientAckThenConsumingAgainWithAutoAckWithExplicitDisconnect() throws Exception
-   {
+   public void testSubscribeWithClientAckThenConsumingAgainWithAutoAckWithExplicitDisconnect() throws Exception {
       assertSubscribeWithClientAckThenConsumeWithAutoAck(true);
    }
 
    @Test
-   public void testSubscribeWithClientAckThenConsumingAgainWithAutoAckWithNoDisconnectFrame() throws Exception
-   {
+   public void testSubscribeWithClientAckThenConsumingAgainWithAutoAckWithNoDisconnectFrame() throws Exception {
       assertSubscribeWithClientAckThenConsumeWithAutoAck(false);
    }
 
    @Test
-   public void testSubscribeWithID() throws Exception
-   {
+   public void testSubscribeWithID() throws Exception {
       connV11.connect(defUser, defPass);
 
       this.subscribe(connV11, "mysubid", "auto");
@@ -1928,8 +1821,7 @@ public class StompV11Test extends StompV11TestBase
    }
 
    @Test
-   public void testSubscribeWithMessageSentWithProperties() throws Exception
-   {
+   public void testSubscribeWithMessageSentWithProperties() throws Exception {
       connV11.connect(defUser, defPass);
 
       this.subscribe(connV11, "sub1", "auto");
@@ -1964,8 +1856,7 @@ public class StompV11Test extends StompV11TestBase
    }
 
    @Test
-   public void testSuccessiveTransactionsWithSameID() throws Exception
-   {
+   public void testSuccessiveTransactionsWithSameID() throws Exception {
       MessageConsumer consumer = session.createConsumer(queue);
 
       connV11.connect(defUser, defPass);
@@ -2005,8 +1896,7 @@ public class StompV11Test extends StompV11TestBase
    }
 
    @Test
-   public void testTransactionCommit() throws Exception
-   {
+   public void testTransactionCommit() throws Exception {
       MessageConsumer consumer = session.createConsumer(queue);
 
       connV11.connect(defUser, defPass);
@@ -2035,8 +1925,7 @@ public class StompV11Test extends StompV11TestBase
    }
 
    @Test
-   public void testTransactionRollback() throws Exception
-   {
+   public void testTransactionRollback() throws Exception {
       MessageConsumer consumer = session.createConsumer(queue);
 
       connV11.connect(defUser, defPass);
@@ -2075,8 +1964,7 @@ public class StompV11Test extends StompV11TestBase
    }
 
    @Test
-   public void testUnsubscribe() throws Exception
-   {
+   public void testUnsubscribe() throws Exception {
       connV11.connect(defUser, defPass);
 
       this.subscribe(connV11, "sub1", "auto");
@@ -2103,45 +1991,41 @@ public class StompV11Test extends StompV11TestBase
 
    //-----------------private help methods
 
-   private void abortTransaction(StompClientConnection conn, String txID) throws IOException, InterruptedException
-   {
+   private void abortTransaction(StompClientConnection conn, String txID) throws IOException, InterruptedException {
       ClientStompFrame abortFrame = conn.createFrame("ABORT");
       abortFrame.addHeader("transaction", txID);
 
       conn.sendFrame(abortFrame);
    }
 
-   private void beginTransaction(StompClientConnection conn, String txID) throws IOException, InterruptedException
-   {
+   private void beginTransaction(StompClientConnection conn, String txID) throws IOException, InterruptedException {
       ClientStompFrame beginFrame = conn.createFrame("BEGIN");
       beginFrame.addHeader("transaction", txID);
 
       conn.sendFrame(beginFrame);
    }
 
-   private void commitTransaction(StompClientConnection conn, String txID) throws IOException, InterruptedException
-   {
+   private void commitTransaction(StompClientConnection conn, String txID) throws IOException, InterruptedException {
       commitTransaction(conn, txID, false);
    }
 
-   private void commitTransaction(StompClientConnection conn, String txID, boolean receipt) throws IOException, InterruptedException
-   {
+   private void commitTransaction(StompClientConnection conn,
+                                  String txID,
+                                  boolean receipt) throws IOException, InterruptedException {
       ClientStompFrame beginFrame = conn.createFrame("COMMIT");
       beginFrame.addHeader("transaction", txID);
-      if (receipt)
-      {
+      if (receipt) {
          beginFrame.addHeader("receipt", "1234");
       }
       ClientStompFrame resp = conn.sendFrame(beginFrame);
-      if (receipt)
-      {
+      if (receipt) {
          assertEquals("1234", resp.getHeader("receipt-id"));
       }
    }
 
-   private void ack(StompClientConnection conn, String subId,
-                    ClientStompFrame frame) throws IOException, InterruptedException
-   {
+   private void ack(StompClientConnection conn,
+                    String subId,
+                    ClientStompFrame frame) throws IOException, InterruptedException {
       String messageID = frame.getHeader("message-id");
 
       ClientStompFrame ackFrame = conn.createFrame("ACK");
@@ -2150,27 +2034,26 @@ public class StompV11Test extends StompV11TestBase
       ackFrame.addHeader("message-id", messageID);
 
       ClientStompFrame response = conn.sendFrame(ackFrame);
-      if (response != null)
-      {
+      if (response != null) {
          throw new IOException("failed to ack " + response);
       }
    }
 
-   private void ack(StompClientConnection conn, String subId, String mid, String txID) throws IOException, InterruptedException
-   {
+   private void ack(StompClientConnection conn,
+                    String subId,
+                    String mid,
+                    String txID) throws IOException, InterruptedException {
       ClientStompFrame ackFrame = conn.createFrame("ACK");
       ackFrame.addHeader("subscription", subId);
       ackFrame.addHeader("message-id", mid);
-      if (txID != null)
-      {
+      if (txID != null) {
          ackFrame.addHeader("transaction", txID);
       }
 
       conn.sendFrame(ackFrame);
    }
 
-   private void nack(StompClientConnection conn, String subId, String mid) throws IOException, InterruptedException
-   {
+   private void nack(StompClientConnection conn, String subId, String mid) throws IOException, InterruptedException {
       ClientStompFrame ackFrame = conn.createFrame("NACK");
       ackFrame.addHeader("subscription", subId);
       ackFrame.addHeader("message-id", mid);
@@ -2178,135 +2061,135 @@ public class StompV11Test extends StompV11TestBase
       conn.sendFrame(ackFrame);
    }
 
-   private void subscribe(StompClientConnection conn, String subId, String ack) throws IOException, InterruptedException
-   {
+   private void subscribe(StompClientConnection conn,
+                          String subId,
+                          String ack) throws IOException, InterruptedException {
       subscribe(conn, subId, ack, null, null);
    }
 
-   private void subscribe(StompClientConnection conn, String subId,
-                          String ack, String durableId) throws IOException, InterruptedException
-   {
+   private void subscribe(StompClientConnection conn,
+                          String subId,
+                          String ack,
+                          String durableId) throws IOException, InterruptedException {
       subscribe(conn, subId, ack, durableId, null);
    }
 
-   private void subscribe(StompClientConnection conn, String subId,
-                          String ack, String durableId, boolean receipt) throws IOException, InterruptedException
-   {
+   private void subscribe(StompClientConnection conn,
+                          String subId,
+                          String ack,
+                          String durableId,
+                          boolean receipt) throws IOException, InterruptedException {
       subscribe(conn, subId, ack, durableId, null, receipt);
    }
 
-   private void subscribe(StompClientConnection conn, String subId, String ack,
-                          String durableId, String selector) throws IOException,
-      InterruptedException
-   {
+   private void subscribe(StompClientConnection conn,
+                          String subId,
+                          String ack,
+                          String durableId,
+                          String selector) throws IOException, InterruptedException {
       subscribe(conn, subId, ack, durableId, selector, false);
    }
 
-   private void subscribe(StompClientConnection conn, String subId,
-                          String ack, String durableId, String selector, boolean receipt) throws IOException, InterruptedException
-   {
+   private void subscribe(StompClientConnection conn,
+                          String subId,
+                          String ack,
+                          String durableId,
+                          String selector,
+                          boolean receipt) throws IOException, InterruptedException {
       ClientStompFrame subFrame = conn.createFrame("SUBSCRIBE");
       subFrame.addHeader("id", subId);
       subFrame.addHeader("destination", getQueuePrefix() + getQueueName());
-      if (ack != null)
-      {
+      if (ack != null) {
          subFrame.addHeader("ack", ack);
       }
-      if (durableId != null)
-      {
+      if (durableId != null) {
          subFrame.addHeader("durable-subscriber-name", durableId);
       }
-      if (selector != null)
-      {
+      if (selector != null) {
          subFrame.addHeader("selector", selector);
       }
-      if (receipt)
-      {
+      if (receipt) {
          subFrame.addHeader("receipt", "1234");
       }
 
       subFrame = conn.sendFrame(subFrame);
 
-      if (receipt)
-      {
+      if (receipt) {
          assertEquals("1234", subFrame.getHeader("receipt-id"));
       }
    }
 
-   private void subscribeTopic(StompClientConnection conn, String subId,
-                               String ack, String durableId) throws IOException, InterruptedException
-   {
+   private void subscribeTopic(StompClientConnection conn,
+                               String subId,
+                               String ack,
+                               String durableId) throws IOException, InterruptedException {
       subscribeTopic(conn, subId, ack, durableId, false);
    }
 
-   private void subscribeTopic(StompClientConnection conn, String subId,
-                               String ack, String durableId, boolean receipt) throws IOException, InterruptedException
-   {
+   private void subscribeTopic(StompClientConnection conn,
+                               String subId,
+                               String ack,
+                               String durableId,
+                               boolean receipt) throws IOException, InterruptedException {
       subscribeTopic(conn, subId, ack, durableId, receipt, false);
    }
 
-   private void subscribeTopic(StompClientConnection conn, String subId,
-                               String ack, String durableId, boolean receipt, boolean noLocal) throws IOException, InterruptedException
-   {
+   private void subscribeTopic(StompClientConnection conn,
+                               String subId,
+                               String ack,
+                               String durableId,
+                               boolean receipt,
+                               boolean noLocal) throws IOException, InterruptedException {
       ClientStompFrame subFrame = conn.createFrame("SUBSCRIBE");
       subFrame.addHeader("id", subId);
       subFrame.addHeader("destination", getTopicPrefix() + getTopicName());
-      if (ack != null)
-      {
+      if (ack != null) {
          subFrame.addHeader("ack", ack);
       }
-      if (durableId != null)
-      {
+      if (durableId != null) {
          subFrame.addHeader("durable-subscriber-name", durableId);
       }
-      if (receipt)
-      {
+      if (receipt) {
          subFrame.addHeader("receipt", "1234");
       }
-      if (noLocal)
-      {
+      if (noLocal) {
          subFrame.addHeader("no-local", "true");
       }
 
       ClientStompFrame frame = conn.sendFrame(subFrame);
 
-      if (receipt)
-      {
+      if (receipt) {
          assertTrue(frame.getHeader("receipt-id").equals("1234"));
       }
    }
 
-   private void unsubscribe(StompClientConnection conn, String subId) throws IOException, InterruptedException
-   {
+   private void unsubscribe(StompClientConnection conn, String subId) throws IOException, InterruptedException {
       ClientStompFrame subFrame = conn.createFrame("UNSUBSCRIBE");
       subFrame.addHeader("id", subId);
 
       conn.sendFrame(subFrame);
    }
 
-   private void unsubscribe(StompClientConnection conn, String subId,
-                            boolean receipt) throws IOException, InterruptedException
-   {
+   private void unsubscribe(StompClientConnection conn,
+                            String subId,
+                            boolean receipt) throws IOException, InterruptedException {
       ClientStompFrame subFrame = conn.createFrame("UNSUBSCRIBE");
       subFrame.addHeader("id", subId);
 
-      if (receipt)
-      {
+      if (receipt) {
          subFrame.addHeader("receipt", "4321");
       }
 
       ClientStompFrame f = conn.sendFrame(subFrame);
 
-      if (receipt)
-      {
+      if (receipt) {
          System.out.println("response: " + f);
          assertEquals("RECEIPT", f.getCommand());
          assertEquals("4321", f.getHeader("receipt-id"));
       }
    }
 
-   protected void assertSubscribeWithClientAckThenConsumeWithAutoAck(boolean sendDisconnect) throws Exception
-   {
+   protected void assertSubscribeWithClientAckThenConsumeWithAutoAck(boolean sendDisconnect) throws Exception {
       connV11.connect(defUser, defPass);
 
       this.subscribe(connV11, "sub1", "client");
@@ -2319,13 +2202,11 @@ public class StompV11Test extends StompV11TestBase
 
       log.info("Reconnecting!");
 
-      if (sendDisconnect)
-      {
+      if (sendDisconnect) {
          connV11.disconnect();
          connV11 = StompClientConnectionFactory.createClientConnection("1.1", hostname, port);
       }
-      else
-      {
+      else {
          connV11.destroy();
          connV11 = StompClientConnectionFactory.createClientConnection("1.1", hostname, port);
       }
@@ -2355,8 +2236,7 @@ public class StompV11Test extends StompV11TestBase
    }
 
    @Test
-   public void testSendMessageToNonExistentJmsQueueWithoutAutoCreation() throws Exception
-   {
+   public void testSendMessageToNonExistentJmsQueueWithoutAutoCreation() throws Exception {
       AddressSettings addressSettings = new AddressSettings();
       addressSettings.setAutoCreateJmsQueues(false);
       server.getActiveMQServer().getAddressSettingsRepository().addMatch("#", addressSettings);
@@ -2378,8 +2258,7 @@ public class StompV11Test extends StompV11TestBase
    }
 
    @Test
-   public void testSendMessageToNonExistentJmsQueueWithAutoCreation() throws Exception
-   {
+   public void testSendMessageToNonExistentJmsQueueWithAutoCreation() throws Exception {
       connV11.connect(defUser, defPass);
 
       ClientStompFrame frame = connV11.createFrame("SEND");
@@ -2398,8 +2277,7 @@ public class StompV11Test extends StompV11TestBase
    }
 
    @Test
-   public void testSendAndReceiveWithEscapedCharactersInSenderId() throws Exception
-   {
+   public void testSendAndReceiveWithEscapedCharactersInSenderId() throws Exception {
       connV11.connect(defUser, defPass);
       ClientStompFrame frame = connV11.createFrame("SEND");
       frame.addHeader("destination", getQueuePrefix() + getQueueName());

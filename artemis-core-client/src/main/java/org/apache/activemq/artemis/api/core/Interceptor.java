@@ -25,6 +25,6 @@ import org.apache.activemq.artemis.core.protocol.core.Packet;
  * {@literal broker.xml}.<br>
  * To add it to a client, use {@link org.apache.activemq.artemis.api.core.client.ServerLocator#addIncomingInterceptor(Interceptor)}
  */
-public interface Interceptor extends BaseInterceptor<Packet>
-{
+public interface Interceptor extends BaseInterceptor<Packet> {
+
 }

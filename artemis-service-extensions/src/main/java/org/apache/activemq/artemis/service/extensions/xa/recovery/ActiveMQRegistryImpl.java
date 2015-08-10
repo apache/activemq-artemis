@@ -17,40 +17,34 @@
 
 package org.apache.activemq.artemis.service.extensions.xa.recovery;
 
-public class ActiveMQRegistryImpl implements ActiveMQRegistry
-{
+public class ActiveMQRegistryImpl implements ActiveMQRegistry {
+
    private static ActiveMQRegistryImpl instance;
 
-   public static ActiveMQRegistry getInstance()
-   {
-      if (instance == null)
-      {
+   public static ActiveMQRegistry getInstance() {
+      if (instance == null) {
          instance = new ActiveMQRegistryImpl();
       }
       return instance;
    }
 
    @Override
-   public void register(XARecoveryConfig resourceConfig)
-   {
+   public void register(XARecoveryConfig resourceConfig) {
 
    }
 
    @Override
-   public void unRegister(XARecoveryConfig resourceConfig)
-   {
+   public void unRegister(XARecoveryConfig resourceConfig) {
 
    }
 
    @Override
-   public void stop()
-   {
+   public void stop() {
 
    }
 
    @Override
-   public void init()
-   {
+   public void init() {
 
    }
 }

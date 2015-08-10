@@ -25,81 +25,66 @@ import org.apache.activemq.artemis.jms.persistence.config.PersistedDestination;
 import org.apache.activemq.artemis.jms.persistence.config.PersistedBindings;
 import org.apache.activemq.artemis.jms.persistence.config.PersistedType;
 
-public class NullJMSStorageManagerImpl implements JMSStorageManager
-{
+public class NullJMSStorageManagerImpl implements JMSStorageManager {
 
    @Override
-   public void deleteConnectionFactory(String connectionFactory) throws Exception
-   {
+   public void deleteConnectionFactory(String connectionFactory) throws Exception {
 
    }
 
    @Override
-   public List<PersistedConnectionFactory> recoverConnectionFactories()
-   {
+   public List<PersistedConnectionFactory> recoverConnectionFactories() {
       return Collections.emptyList();
    }
 
    @Override
-   public List<PersistedDestination> recoverDestinations()
-   {
+   public List<PersistedDestination> recoverDestinations() {
       return Collections.emptyList();
    }
 
    @Override
-   public void storeConnectionFactory(PersistedConnectionFactory connectionFactory) throws Exception
-   {
+   public void storeConnectionFactory(PersistedConnectionFactory connectionFactory) throws Exception {
    }
 
    @Override
-   public void storeDestination(PersistedDestination destination)
-   {
+   public void storeDestination(PersistedDestination destination) {
    }
 
    @Override
-   public boolean isStarted()
-   {
+   public boolean isStarted() {
       return true;
    }
 
    @Override
-   public void start() throws Exception
-   {
+   public void start() throws Exception {
    }
 
    @Override
-   public void stop() throws Exception
-   {
+   public void stop() throws Exception {
    }
 
    @Override
-   public void addBindings(PersistedType type, String name, String... address) throws Exception
-   {
+   public void addBindings(PersistedType type, String name, String... address) throws Exception {
    }
 
    @Override
-   public void deleteBindings(PersistedType type, String name, String address) throws Exception
-   {
+   public void deleteBindings(PersistedType type, String name, String address) throws Exception {
    }
 
    @Override
-   public void deleteDestination(PersistedType type, String name) throws Exception
-   {
+   public void deleteDestination(PersistedType type, String name) throws Exception {
    }
 
    @Override
-   public void deleteBindings(PersistedType type, String name) throws Exception
-   {
+   public void deleteBindings(PersistedType type, String name) throws Exception {
    }
 
    @Override
-   public List<PersistedBindings> recoverPersistedBindings() throws Exception
-   {
+   public List<PersistedBindings> recoverPersistedBindings() throws Exception {
       return Collections.emptyList();
    }
 
    @Override
-   public void load() throws Exception
-   {
+   public void load() throws Exception {
    }
 }

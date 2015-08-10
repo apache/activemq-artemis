@@ -20,8 +20,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 
-public class DisconnectMessage extends PacketImpl
-{
+public class DisconnectMessage extends PacketImpl {
    // Constants -----------------------------------------------------
 
    // Attributes ----------------------------------------------------
@@ -32,45 +31,38 @@ public class DisconnectMessage extends PacketImpl
 
    // Constructors --------------------------------------------------
 
-   public DisconnectMessage(final SimpleString nodeID)
-   {
+   public DisconnectMessage(final SimpleString nodeID) {
       super(DISCONNECT);
 
       this.nodeID = nodeID;
    }
 
-   public DisconnectMessage()
-   {
+   public DisconnectMessage() {
       super(DISCONNECT);
    }
 
-   public DisconnectMessage(byte disconnectV2)
-   {
+   public DisconnectMessage(byte disconnectV2) {
       super(disconnectV2);
    }
 
    // Public --------------------------------------------------------
 
-   public SimpleString getNodeID()
-   {
+   public SimpleString getNodeID() {
       return nodeID;
    }
 
    @Override
-   public void encodeRest(final ActiveMQBuffer buffer)
-   {
+   public void encodeRest(final ActiveMQBuffer buffer) {
       buffer.writeNullableSimpleString(nodeID);
    }
 
    @Override
-   public void decodeRest(final ActiveMQBuffer buffer)
-   {
+   public void decodeRest(final ActiveMQBuffer buffer) {
       nodeID = buffer.readNullableSimpleString();
    }
 
    @Override
-   public String toString()
-   {
+   public String toString() {
       StringBuffer buf = new StringBuffer(getParentString());
       buf.append(", nodeID=" + nodeID);
       buf.append("]");
@@ -78,14 +70,12 @@ public class DisconnectMessage extends PacketImpl
    }
 
    @Override
-   public final boolean isRequiresConfirmations()
-   {
+   public final boolean isRequiresConfirmations() {
       return false;
    }
 
    @Override
-   public int hashCode()
-   {
+   public int hashCode() {
       final int prime = 31;
       int result = super.hashCode();
       result = prime * result + ((nodeID == null) ? 0 : nodeID.hashCode());
@@ -93,30 +83,23 @@ public class DisconnectMessage extends PacketImpl
    }
 
    @Override
-   public boolean equals(Object obj)
-   {
-      if (this == obj)
-      {
+   public boolean equals(Object obj) {
+      if (this == obj) {
          return true;
       }
-      if (!super.equals(obj))
-      {
+      if (!super.equals(obj)) {
          return false;
       }
-      if (!(obj instanceof DisconnectMessage))
-      {
+      if (!(obj instanceof DisconnectMessage)) {
          return false;
       }
-      DisconnectMessage other = (DisconnectMessage)obj;
-      if (nodeID == null)
-      {
-         if (other.nodeID != null)
-         {
+      DisconnectMessage other = (DisconnectMessage) obj;
+      if (nodeID == null) {
+         if (other.nodeID != null) {
             return false;
          }
       }
-      else if (!nodeID.equals(other.nodeID))
-      {
+      else if (!nodeID.equals(other.nodeID)) {
          return false;
       }
       return true;

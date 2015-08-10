@@ -16,21 +16,19 @@
  */
 package org.apache.activemq.jndi;
 
-
 /**
  * Test case for AMQ-140
- *
- *
  */
 public class DestinationNameWithSlashTest extends JNDITestSupport {
-    public void testNameWithSlash() throws Exception {
-        assertDestinationExists("jms/Queue");
 
-    }
+   public void testNameWithSlash() throws Exception {
+      assertDestinationExists("jms/Queue");
 
-    @Override
-    protected void configureEnvironment() {
-        super.configureEnvironment();
-        environment.put("queue.jms/Queue", "example.myqueue");
-    }
+   }
+
+   @Override
+   protected void configureEnvironment() {
+      super.configureEnvironment();
+      environment.put("queue.jms/Queue", "example.myqueue");
+   }
 }

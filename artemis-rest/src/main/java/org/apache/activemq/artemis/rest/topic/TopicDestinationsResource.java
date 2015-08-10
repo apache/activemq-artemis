@@ -44,75 +44,61 @@ import org.apache.activemq.artemis.rest.queue.PostMessageNoDups;
 import org.w3c.dom.Document;
 
 @Path("/topics")
-public class TopicDestinationsResource
-{
+public class TopicDestinationsResource {
+
    private Map<String, TopicResource> topics = new ConcurrentHashMap<String, TopicResource>();
    private TopicServiceManager manager;
 
-   public TopicDestinationsResource(TopicServiceManager manager)
-   {
+   public TopicDestinationsResource(TopicServiceManager manager) {
       this.manager = manager;
    }
 
    @POST
    @Consumes("application/activemq.jms.topic+xml")
-   public Response createJmsQueue(@Context UriInfo uriInfo, Document document)
-   {
+   public Response createJmsQueue(@Context UriInfo uriInfo, Document document) {
       ActiveMQRestLogger.LOGGER.debug("Handling POST request for \"" + uriInfo.getPath() + "\"");
 
-      try
-      {
+      try {
          TopicConfiguration topic = FileJMSConfiguration.parseTopicConfiguration(document.getDocumentElement());
          ActiveMQTopic activeMQTopic = ActiveMQDestination.createTopic(topic.getName());
          String topicName = activeMQTopic.getAddress();
          ClientSession session = manager.getSessionFactory().createSession(false, false, false);
-         try
-         {
+         try {
 
             ClientSession.QueueQuery query = session.queueQuery(new SimpleString(topicName));
-            if (!query.isExists())
-            {
+            if (!query.isExists()) {
                session.createQueue(topicName, topicName, "__AMQX=-1", true);
 
             }
-            else
-            {
+            else {
                throw new WebApplicationException(Response.status(412).type("text/plain").entity("Queue already exists.").build());
             }
          }
-         finally
-         {
-            try
-            {
+         finally {
+            try {
                session.close();
             }
-            catch (Exception ignored)
-            {
+            catch (Exception ignored) {
             }
          }
          URI uri = uriInfo.getRequestUriBuilder().path(topicName).build();
          return Response.created(uri).build();
       }
-      catch (Exception e)
-      {
-         if (e instanceof WebApplicationException) throw (WebApplicationException) e;
+      catch (Exception e) {
+         if (e instanceof WebApplicationException)
+            throw (WebApplicationException) e;
          throw new WebApplicationException(e, Response.serverError().type("text/plain").entity("Failed to create queue.").build());
       }
    }
 
-
    @Path("/{topic-name}")
-   public TopicResource findTopic(@PathParam("topic-name") String name) throws Exception
-   {
+   public TopicResource findTopic(@PathParam("topic-name") String name) throws Exception {
       TopicResource topic = topics.get(name);
-      if (topic == null)
-      {
+      if (topic == null) {
          ClientSession session = manager.getSessionFactory().createSession(false, false, false);
-         try
-         {
+         try {
             ClientSession.QueueQuery query = session.queueQuery(new SimpleString(name));
-            if (!query.isExists())
-            {
+            if (!query.isExists()) {
                System.err.println("Topic '" + name + "' does not exist");
                throw new WebApplicationException(Response.status(404).type("text/plain").entity("Topic '" + name + "' does not exist").build());
             }
@@ -121,27 +107,25 @@ public class TopicDestinationsResource
 
             topic = createTopicResource(name, defaultDurable, queueSettings.getConsumerSessionTimeoutSeconds(), queueSettings.isDuplicatesAllowed());
          }
-         finally
-         {
-            try
-            {
+         finally {
+            try {
                session.close();
             }
-            catch (ActiveMQException e)
-            {
+            catch (ActiveMQException e) {
             }
          }
       }
       return topic;
    }
 
-   public Map<String, TopicResource> getTopics()
-   {
+   public Map<String, TopicResource> getTopics() {
       return topics;
    }
 
-   public TopicResource createTopicResource(String topicName, boolean defaultDurable, int timeoutSeconds, boolean duplicates) throws Exception
-   {
+   public TopicResource createTopicResource(String topicName,
+                                            boolean defaultDurable,
+                                            int timeoutSeconds,
+                                            boolean duplicates) throws Exception {
       TopicResource topicResource = new TopicResource();
       topicResource.setTopicDestinationsResource(this);
       topicResource.setDestination(topicName);
@@ -159,12 +143,10 @@ public class TopicDestinationsResource
       topicResource.setPushSubscriptions(push);
 
       PostMessage sender = null;
-      if (duplicates)
-      {
+      if (duplicates) {
          sender = new PostMessageDupsOk();
       }
-      else
-      {
+      else {
          sender = new PostMessageNoDups();
       }
       sender.setDefaultDurable(defaultDurable);
@@ -176,12 +158,10 @@ public class TopicDestinationsResource
       sender.init();
       topicResource.setSender(sender);
 
-      if (manager.getPushStore() != null)
-      {
+      if (manager.getPushStore() != null) {
          push.setPushStore(manager.getPushStore());
          List<PushTopicRegistration> regs = manager.getPushStore().getByTopic(topicName);
-         for (PushTopicRegistration reg : regs)
-         {
+         for (PushTopicRegistration reg : regs) {
             push.addRegistration(reg);
          }
       }

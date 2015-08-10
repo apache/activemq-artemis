@@ -31,8 +31,7 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Ignore;
 import org.junit.Test;
 
-public class ExportFormatTest extends ActiveMQTestBase
-{
+public class ExportFormatTest extends ActiveMQTestBase {
 
    // Constants -----------------------------------------------------
 
@@ -72,9 +71,9 @@ public class ExportFormatTest extends ActiveMQTestBase
       "#File,JournalFileImpl: (activemq-data-2.amq id = 2, recordID = 2)";
 
    @Test
-   @Ignore // Used to update the format, if you need to use this it means the data format was broken, Be careful on updating the format!
-   public void testCreateFormat() throws Exception
-   {
+   @Ignore
+   // Used to update the format, if you need to use this it means the data format was broken, Be careful on updating the format!
+   public void testCreateFormat() throws Exception {
       ActiveMQServer server = createServer(true);
       server.start();
 
@@ -85,8 +84,7 @@ public class ExportFormatTest extends ActiveMQTestBase
       session.createQueue("A1", "A1", true);
 
       ClientProducer producer = session.createProducer("A1");
-      for (int i = 0; i < 5; i++)
-      {
+      for (int i = 0; i < 5; i++) {
          ClientMessage msg = session.createMessage(true);
          msg.putIntProperty("key", i);
          producer.send(msg);
@@ -99,8 +97,7 @@ public class ExportFormatTest extends ActiveMQTestBase
 
       producer = session.createProducer("A1");
 
-      for (int i = 5; i < 10; i++)
-      {
+      for (int i = 5; i < 10; i++) {
          ClientMessage msg = session.createMessage(true);
          msg.putIntProperty("key", i);
          producer.send(msg);
@@ -121,17 +118,11 @@ public class ExportFormatTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testConsumeFromFormat() throws Exception
-   {
+   public void testConsumeFromFormat() throws Exception {
       ActiveMQServer server = createServer(true);
 
       DecodeJournal.importJournal(server.getConfiguration().getJournalLocation().getAbsolutePath(), "activemq-data", "amq", 2, 102400, new StringReader(journalFile));
-      DecodeJournal.importJournal(server.getConfiguration().getBindingsLocation().getAbsolutePath(),
-                                  "activemq-bindings",
-                                  "bindings",
-                                  2,
-                                  1048576,
-                                  new StringReader(bindingsFile));
+      DecodeJournal.importJournal(server.getConfiguration().getBindingsLocation().getAbsolutePath(), "activemq-bindings", "bindings", 2, 1048576, new StringReader(bindingsFile));
       server.start();
 
       ServerLocator locator = createInVMNonHALocator();
@@ -140,8 +131,7 @@ public class ExportFormatTest extends ActiveMQTestBase
       session.start();
 
       ClientConsumer consumer = session.createConsumer("A1");
-      for (int i = 0; i < 10; i++)
-      {
+      for (int i = 0; i < 10; i++) {
          ClientMessage msg = consumer.receive(5000);
          assertNotNull(msg);
          msg.acknowledge();

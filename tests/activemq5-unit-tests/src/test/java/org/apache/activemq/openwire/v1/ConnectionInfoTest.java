@@ -24,36 +24,34 @@ import org.apache.activemq.command.ConnectionInfo;
  * auto generated - do not modify! if you need to make a change, please see the
  * modify the groovy scripts in the under src/gram/script and then use maven
  * openwire:generate to regenerate this file.
- * 
- * 
  */
 public class ConnectionInfoTest extends BaseCommandTestSupport {
 
-    public static final ConnectionInfoTest SINGLETON = new ConnectionInfoTest();
+   public static final ConnectionInfoTest SINGLETON = new ConnectionInfoTest();
 
-    public Object createObject() throws Exception {
-        ConnectionInfo info = new ConnectionInfo();
-        populateObject(info);
-        return info;
-    }
+   public Object createObject() throws Exception {
+      ConnectionInfo info = new ConnectionInfo();
+      populateObject(info);
+      return info;
+   }
 
-    protected void populateObject(Object object) throws Exception {
-        super.populateObject(object);
-        ConnectionInfo info = (ConnectionInfo)object;
-        info.setConnectionId(createConnectionId("ConnectionId:1"));
-        info.setClientId("ClientId:2");
-        info.setPassword("Password:3");
-        info.setUserName("UserName:4");
+   protected void populateObject(Object object) throws Exception {
+      super.populateObject(object);
+      ConnectionInfo info = (ConnectionInfo) object;
+      info.setConnectionId(createConnectionId("ConnectionId:1"));
+      info.setClientId("ClientId:2");
+      info.setPassword("Password:3");
+      info.setUserName("UserName:4");
 
-        {
-            BrokerId value[] = new BrokerId[2];
-            for (int i = 0; i < 2; i++) {
-                value[i] = createBrokerId("BrokerPath:5");
-            }
-            info.setBrokerPath(value);
-        }
-        info.setBrokerMasterConnector(true);
-        info.setManageable(false);
+      {
+         BrokerId value[] = new BrokerId[2];
+         for (int i = 0; i < 2; i++) {
+            value[i] = createBrokerId("BrokerPath:5");
+         }
+         info.setBrokerPath(value);
+      }
+      info.setBrokerMasterConnector(true);
+      info.setManageable(false);
 
-    }
+   }
 }

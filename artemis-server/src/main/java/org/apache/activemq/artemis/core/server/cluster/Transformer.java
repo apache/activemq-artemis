@@ -18,7 +18,7 @@ package org.apache.activemq.artemis.core.server.cluster;
 
 import org.apache.activemq.artemis.core.server.ServerMessage;
 
-public interface Transformer
-{
+public interface Transformer {
+
    ServerMessage transform(ServerMessage message);
 }

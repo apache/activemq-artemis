@@ -20,7 +20,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.AbstractQueuedSynchronizer;
 
 /**
- *
  * <p>This class will use the framework provided to by AbstractQueuedSynchronizer.</p>
  * <p>AbstractQueuedSynchronizer is the framework for any sort of concurrent synchronization, such as Semaphores, events, etc, based on AtomicIntegers.</p>
  *
@@ -33,70 +32,59 @@ import java.util.concurrent.locks.AbstractQueuedSynchronizer;
  * <p>Note: This latch is reusable. Once it reaches zero, you can call up again, and reuse it on further waits.</p>
  *
  * <p>For example: prepareTransaction will wait for the current completions, and further adds will be called on the latch. Later on when commit is called you can reuse the same latch.</p>
- *
  */
-public class ReusableLatch
-{
+public class ReusableLatch {
+
    /**
     * Look at the doc and examples provided by AbstractQueuedSynchronizer for more information
-    * @see AbstractQueuedSynchronizer*/
+    *
+    * @see AbstractQueuedSynchronizer
+    */
    @SuppressWarnings("serial")
-   private static class CountSync extends AbstractQueuedSynchronizer
-   {
-      public CountSync(int count)
-      {
+   private static class CountSync extends AbstractQueuedSynchronizer {
+
+      public CountSync(int count) {
          setState(count);
       }
 
-      public int getCount()
-      {
+      public int getCount() {
          return getState();
       }
 
-      public void setCount(final int count)
-      {
+      public void setCount(final int count) {
          setState(count);
       }
 
       @Override
-      public int tryAcquireShared(final int numberOfAqcquires)
-      {
+      public int tryAcquireShared(final int numberOfAqcquires) {
          return getState() == 0 ? 1 : -1;
       }
 
-      public void add()
-      {
-         for (;;)
-         {
+      public void add() {
+         for (; ; ) {
             int actualState = getState();
             int newState = actualState + 1;
-            if (compareAndSetState(actualState, newState))
-            {
+            if (compareAndSetState(actualState, newState)) {
                return;
             }
          }
       }
 
       @Override
-      public boolean tryReleaseShared(final int numberOfReleases)
-      {
-         for (;;)
-         {
+      public boolean tryReleaseShared(final int numberOfReleases) {
+         for (; ; ) {
             int actualState = getState();
-            if (actualState == 0)
-            {
+            if (actualState == 0) {
                return true;
             }
 
             int newState = actualState - numberOfReleases;
 
-            if (newState < 0)
-            {
+            if (newState < 0) {
                newState = 0;
             }
 
-            if (compareAndSetState(actualState, newState))
-            {
+            if (compareAndSetState(actualState, newState)) {
                return newState == 0;
             }
          }
@@ -105,54 +93,43 @@ public class ReusableLatch
 
    private final CountSync control;
 
-   public ReusableLatch()
-   {
+   public ReusableLatch() {
       this(0);
    }
 
-   public ReusableLatch(final int count)
-   {
+   public ReusableLatch(final int count) {
       control = new CountSync(count);
    }
 
-   public int getCount()
-   {
+   public int getCount() {
       return control.getCount();
    }
 
-   public void setCount(final int count)
-   {
+   public void setCount(final int count) {
       control.setCount(count);
    }
 
-   public void countUp()
-   {
+   public void countUp() {
       control.add();
    }
 
-   public void countDown()
-   {
+   public void countDown() {
       control.releaseShared(1);
    }
 
-
-   public void countDown(final int count)
-   {
+   public void countDown(final int count) {
       control.releaseShared(count);
    }
 
-   public void await() throws InterruptedException
-   {
+   public void await() throws InterruptedException {
       control.acquireSharedInterruptibly(1);
    }
 
-   public boolean await(final long milliseconds) throws InterruptedException
-   {
+   public boolean await(final long milliseconds) throws InterruptedException {
       return control.tryAcquireSharedNanos(1, TimeUnit.MILLISECONDS.toNanos(milliseconds));
    }
 
-   public boolean await(final long timeWait, TimeUnit timeUnit) throws InterruptedException
-   {
+   public boolean await(final long timeWait, TimeUnit timeUnit) throws InterruptedException {
       return control.tryAcquireSharedNanos(1, timeUnit.toNanos(timeWait));
    }
 }

@@ -21,18 +21,19 @@ import javax.jms.DeliveryMode;
 import org.apache.activemq.broker.BrokerService;
 
 public class NIOPersistentSendAndReceiveTest extends NIOJmsSendAndReceiveTest {
-    protected BrokerService broker;
 
-    protected void setUp() throws Exception {
-        this.topic = false;
-        this.deliveryMode = DeliveryMode.PERSISTENT;
-        super.setUp();
-    }
+   protected BrokerService broker;
 
-    protected BrokerService createBroker() throws Exception {
-        BrokerService answer = new BrokerService();
-        answer.setPersistent(true);
-        answer.addConnector(getBrokerURL());
-        return answer;
-    }
+   protected void setUp() throws Exception {
+      this.topic = false;
+      this.deliveryMode = DeliveryMode.PERSISTENT;
+      super.setUp();
+   }
+
+   protected BrokerService createBroker() throws Exception {
+      BrokerService answer = new BrokerService();
+      answer.setPersistent(true);
+      answer.addConnector(getBrokerURL());
+      return answer;
+   }
 }

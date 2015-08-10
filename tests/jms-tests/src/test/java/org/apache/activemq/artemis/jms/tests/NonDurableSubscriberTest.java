@@ -28,8 +28,7 @@ import org.junit.Test;
 /**
  * Non-durable subscriber tests.
  */
-public class NonDurableSubscriberTest extends JMSTestCase
-{
+public class NonDurableSubscriberTest extends JMSTestCase {
    // Constants -----------------------------------------------------
 
    // Static --------------------------------------------------------
@@ -46,19 +45,16 @@ public class NonDurableSubscriberTest extends JMSTestCase
     * Test introduced as a result of a TCK failure.
     */
    @Test
-   public void testNonDurableSubscriberOnNullTopic() throws Exception
-   {
+   public void testNonDurableSubscriberOnNullTopic() throws Exception {
       TopicConnection conn = createTopicConnection();
 
       TopicSession ts = conn.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
 
-      try
-      {
+      try {
          ts.createSubscriber(null);
          ProxyAssertSupport.fail("this should fail");
       }
-      catch (javax.jms.InvalidDestinationException e)
-      {
+      catch (javax.jms.InvalidDestinationException e) {
          // OK
       }
    }
@@ -67,39 +63,33 @@ public class NonDurableSubscriberTest extends JMSTestCase
     * Test introduced as a result of a TCK failure.
     */
    @Test
-   public void testNonDurableSubscriberInvalidUnsubscribe() throws Exception
-   {
+   public void testNonDurableSubscriberInvalidUnsubscribe() throws Exception {
       TopicConnection conn = createTopicConnection();
       conn.setClientID("clientIDxyz123");
 
       TopicSession ts = conn.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
 
-      try
-      {
+      try {
          ts.unsubscribe("invalid-subscription-name");
          ProxyAssertSupport.fail("this should fail");
       }
-      catch (javax.jms.InvalidDestinationException e)
-      {
+      catch (javax.jms.InvalidDestinationException e) {
          // OK
       }
    }
 
    @Test
-   public void testInvalidSelectorOnSubscription() throws Exception
-   {
+   public void testInvalidSelectorOnSubscription() throws Exception {
       TopicConnection c = createTopicConnection();
       c.setClientID("something");
 
       TopicSession s = c.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
 
-      try
-      {
+      try {
          s.createSubscriber(ActiveMQServerTestCase.topic1, "=TEST 'test'", false);
          ProxyAssertSupport.fail("this should fail");
       }
-      catch (InvalidSelectorException e)
-      {
+      catch (InvalidSelectorException e) {
          // OK
       }
    }

@@ -34,78 +34,78 @@ import org.junit.Assert;
 
 public class AMQ4116Test extends EmbeddedBrokerTestSupport {
 
-    private final String tcpAddr = "tcp://localhost:0";
-    private String connectionUri;
+   private final String tcpAddr = "tcp://localhost:0";
+   private String connectionUri;
 
-    /**
-     * In this test, a message is produced and consumed from the test queue.
-     * Memory usage on the test queue should be reset to 0. The memory that was
-     * consumed is then sent to a second queue. Memory usage on the original
-     * test queue should remain 0, but actually increased when the second
-     * enqueue occurs.
-     */
-    public void testVMTransport() throws Exception {
-        runTest(connectionFactory);
-    }
+   /**
+    * In this test, a message is produced and consumed from the test queue.
+    * Memory usage on the test queue should be reset to 0. The memory that was
+    * consumed is then sent to a second queue. Memory usage on the original
+    * test queue should remain 0, but actually increased when the second
+    * enqueue occurs.
+    */
+   public void testVMTransport() throws Exception {
+      runTest(connectionFactory);
+   }
 
-    /**
-     * This is an analog to the previous test, but occurs over TCP and passes.
-     */
-    public void testTCPTransport() throws Exception {
-        runTest(new ActiveMQConnectionFactory(connectionUri));
-    }
+   /**
+    * This is an analog to the previous test, but occurs over TCP and passes.
+    */
+   public void testTCPTransport() throws Exception {
+      runTest(new ActiveMQConnectionFactory(connectionUri));
+   }
 
-    private void runTest(ConnectionFactory connFactory) throws Exception {
-        // Verify that test queue is empty and not using any memory.
-        Destination physicalDestination = broker.getDestination(destination);
-        Assert.assertEquals(0, physicalDestination.getMemoryUsage().getUsage());
+   private void runTest(ConnectionFactory connFactory) throws Exception {
+      // Verify that test queue is empty and not using any memory.
+      Destination physicalDestination = broker.getDestination(destination);
+      Assert.assertEquals(0, physicalDestination.getMemoryUsage().getUsage());
 
-        // Enqueue a single message and verify that the test queue is using
-        // memory.
-        Connection conn = connFactory.createConnection();
-        conn.start();
-        Session session = conn.createSession(true, Session.SESSION_TRANSACTED);
-        MessageProducer producer = session.createProducer(destination);
+      // Enqueue a single message and verify that the test queue is using
+      // memory.
+      Connection conn = connFactory.createConnection();
+      conn.start();
+      Session session = conn.createSession(true, Session.SESSION_TRANSACTED);
+      MessageProducer producer = session.createProducer(destination);
 
-        producer.send(new ActiveMQMessage());
+      producer.send(new ActiveMQMessage());
 
-        // Commit, which ensures message is in queue and memory usage updated.
-        session.commit();
-        Assert.assertTrue(physicalDestination.getMemoryUsage().getUsage() > 0);
+      // Commit, which ensures message is in queue and memory usage updated.
+      session.commit();
+      Assert.assertTrue(physicalDestination.getMemoryUsage().getUsage() > 0);
 
-        // Consume the message and verify that the test queue is no longer using
-        // any memory.
-        MessageConsumer consumer = session.createConsumer(destination);
-        Message received = consumer.receive();
-        Assert.assertNotNull(received);
+      // Consume the message and verify that the test queue is no longer using
+      // any memory.
+      MessageConsumer consumer = session.createConsumer(destination);
+      Message received = consumer.receive();
+      Assert.assertNotNull(received);
 
-        // Commit, which ensures message is removed from queue and memory usage
-        // updated.
-        session.commit();
-        Assert.assertEquals(0, physicalDestination.getMemoryUsage().getUsage());
+      // Commit, which ensures message is removed from queue and memory usage
+      // updated.
+      session.commit();
+      Assert.assertEquals(0, physicalDestination.getMemoryUsage().getUsage());
 
-        // Resend the message to a different queue and verify that the original
-        // test queue is still not using any memory.
-        ActiveMQQueue secondDestination = new ActiveMQQueue(AMQ4116Test.class + ".second");
-        MessageProducer secondPproducer = session.createProducer(secondDestination);
+      // Resend the message to a different queue and verify that the original
+      // test queue is still not using any memory.
+      ActiveMQQueue secondDestination = new ActiveMQQueue(AMQ4116Test.class + ".second");
+      MessageProducer secondPproducer = session.createProducer(secondDestination);
 
-        secondPproducer.send(received);
+      secondPproducer.send(received);
 
-        // Commit, which ensures message is in queue and memory usage updated.
-        // NOTE: This assertion fails due to bug.
-        session.commit();
-        Assert.assertEquals(0, physicalDestination.getMemoryUsage().getUsage());
+      // Commit, which ensures message is in queue and memory usage updated.
+      // NOTE: This assertion fails due to bug.
+      session.commit();
+      Assert.assertEquals(0, physicalDestination.getMemoryUsage().getUsage());
 
-        conn.stop();
-    }
+      conn.stop();
+   }
 
-    /**
-     * Create an embedded broker that has both TCP and VM connectors.
-     */
-    @Override
-    protected BrokerService createBroker() throws Exception {
-        BrokerService broker = super.createBroker();
-        connectionUri = broker.addConnector(tcpAddr).getPublishableConnectString();
-        return broker;
-    }
+   /**
+    * Create an embedded broker that has both TCP and VM connectors.
+    */
+   @Override
+   protected BrokerService createBroker() throws Exception {
+      BrokerService broker = super.createBroker();
+      connectionUri = broker.addConnector(tcpAddr).getPublishableConnectString();
+      return broker;
+   }
 }

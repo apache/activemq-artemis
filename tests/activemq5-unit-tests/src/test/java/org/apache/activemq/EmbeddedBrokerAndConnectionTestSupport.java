@@ -20,25 +20,24 @@ import javax.jms.Connection;
 
 /**
  * A base class for a test case which creates an embedded broker and uses a connection and session
- *
- * 
  */
 public abstract class EmbeddedBrokerAndConnectionTestSupport extends EmbeddedBrokerTestSupport {
-    protected Connection connection;
 
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
+   protected Connection connection;
 
-        connection = createConnection();
-        connection.start();
-    }
+   @Override
+   protected void setUp() throws Exception {
+      super.setUp();
 
-    @Override
-    protected void tearDown() throws Exception {
-        if (connection != null) {
-            connection.close();
-        }
-        super.tearDown();
-    }
+      connection = createConnection();
+      connection.start();
+   }
+
+   @Override
+   protected void tearDown() throws Exception {
+      if (connection != null) {
+         connection.close();
+      }
+      super.tearDown();
+   }
 }

@@ -25,92 +25,76 @@ import org.apache.qpid.proton.codec.WritableBuffer;
  * This is to use NettyBuffer within Proton
  */
 
-public class NettyWritable implements WritableBuffer
-{
+public class NettyWritable implements WritableBuffer {
 
    final ByteBuf nettyBuffer;
 
-   public NettyWritable(ByteBuf nettyBuffer)
-   {
+   public NettyWritable(ByteBuf nettyBuffer) {
       this.nettyBuffer = nettyBuffer;
    }
 
-
    @Override
-   public void put(byte b)
-   {
+   public void put(byte b) {
       nettyBuffer.writeByte(b);
    }
 
    @Override
-   public void putFloat(float f)
-   {
+   public void putFloat(float f) {
       nettyBuffer.writeFloat(f);
    }
 
    @Override
-   public void putDouble(double d)
-   {
+   public void putDouble(double d) {
       nettyBuffer.writeDouble(d);
    }
 
    @Override
-   public void put(byte[] src, int offset, int length)
-   {
+   public void put(byte[] src, int offset, int length) {
       nettyBuffer.writeBytes(src, offset, length);
    }
 
    @Override
-   public void putShort(short s)
-   {
+   public void putShort(short s) {
       nettyBuffer.writeShort(s);
    }
 
    @Override
-   public void putInt(int i)
-   {
+   public void putInt(int i) {
       nettyBuffer.writeInt(i);
    }
 
    @Override
-   public void putLong(long l)
-   {
+   public void putLong(long l) {
       nettyBuffer.writeLong(l);
    }
 
    @Override
-   public boolean hasRemaining()
-   {
+   public boolean hasRemaining() {
       return nettyBuffer.writerIndex() < nettyBuffer.capacity();
    }
 
    @Override
-   public int remaining()
-   {
+   public int remaining() {
       return nettyBuffer.capacity() - nettyBuffer.writerIndex();
    }
 
    @Override
-   public int position()
-   {
+   public int position() {
       return nettyBuffer.writerIndex();
    }
 
    @Override
-   public void position(int position)
-   {
+   public void position(int position) {
       nettyBuffer.writerIndex(position);
    }
 
    @Override
-   public void put(ByteBuffer payload)
-   {
+   public void put(ByteBuffer payload) {
       nettyBuffer.writeBytes(payload);
    }
 
    @Override
-   public int limit()
-   {
+   public int limit() {
       return nettyBuffer.capacity();
    }
 }

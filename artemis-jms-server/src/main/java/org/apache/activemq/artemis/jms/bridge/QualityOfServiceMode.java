@@ -64,34 +64,27 @@ package org.apache.activemq.artemis.jms.bridge;
  * using QOS_ONCE_AND_ONLY_ONCE but may be a good choice depending on your
  * specific application.
  */
-public enum QualityOfServiceMode
-{
+public enum QualityOfServiceMode {
    AT_MOST_ONCE(0), DUPLICATES_OK(1), ONCE_AND_ONLY_ONCE(2);
 
    private final int value;
 
-   QualityOfServiceMode(final int value)
-   {
+   QualityOfServiceMode(final int value) {
       this.value = value;
    }
 
-   public int intValue()
-   {
+   public int intValue() {
       return value;
    }
 
-   public static QualityOfServiceMode valueOf(final int value)
-   {
-      if (value == AT_MOST_ONCE.value)
-      {
+   public static QualityOfServiceMode valueOf(final int value) {
+      if (value == AT_MOST_ONCE.value) {
          return AT_MOST_ONCE;
       }
-      if (value == DUPLICATES_OK.value)
-      {
+      if (value == DUPLICATES_OK.value) {
          return DUPLICATES_OK;
       }
-      if (value == ONCE_AND_ONLY_ONCE.value)
-      {
+      if (value == ONCE_AND_ONLY_ONCE.value) {
          return ONCE_AND_ONLY_ONCE;
       }
       throw new IllegalArgumentException("invalid QualityOfServiceMode value: " + value);

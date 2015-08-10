@@ -21,8 +21,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.utils.ReusableLatch;
 
-public class TransactionCallback implements IOCallback
-{
+public class TransactionCallback implements IOCallback {
+
    private final ReusableLatch countLatch = new ReusableLatch();
 
    private volatile String errorMessage = null;
@@ -35,17 +35,14 @@ public class TransactionCallback implements IOCallback
 
    private volatile IOCallback delegateCompletion;
 
-   public void countUp()
-   {
+   public void countUp() {
       up.incrementAndGet();
       countLatch.countUp();
    }
 
-   public void done()
-   {
+   public void done() {
       countLatch.countDown();
-      if (++done == up.get() && delegateCompletion != null)
-      {
+      if (++done == up.get() && delegateCompletion != null) {
          final IOCallback delegateToCall = delegateCompletion;
          // We need to set the delegateCompletion to null first or blocking commits could miss a callback
          // What would affect mainly tests
@@ -54,26 +51,22 @@ public class TransactionCallback implements IOCallback
       }
    }
 
-   public void waitCompletion() throws InterruptedException
-   {
+   public void waitCompletion() throws InterruptedException {
       countLatch.await();
 
-      if (errorMessage != null)
-      {
+      if (errorMessage != null) {
          throw new IllegalStateException("Error on Transaction: " + errorCode + " - " + errorMessage);
       }
    }
 
-   public void onError(final int errorCode, final String errorMessage)
-   {
+   public void onError(final int errorCode, final String errorMessage) {
       this.errorMessage = errorMessage;
 
       this.errorCode = errorCode;
 
       countLatch.countDown();
 
-      if (delegateCompletion != null)
-      {
+      if (delegateCompletion != null) {
          delegateCompletion.onError(errorCode, errorMessage);
       }
    }
@@ -81,32 +74,28 @@ public class TransactionCallback implements IOCallback
    /**
     * @return the delegateCompletion
     */
-   public IOCallback getDelegateCompletion()
-   {
+   public IOCallback getDelegateCompletion() {
       return delegateCompletion;
    }
 
    /**
     * @param delegateCompletion the delegateCompletion to set
     */
-   public void setDelegateCompletion(final IOCallback delegateCompletion)
-   {
+   public void setDelegateCompletion(final IOCallback delegateCompletion) {
       this.delegateCompletion = delegateCompletion;
    }
 
    /**
     * @return the errorMessage
     */
-   public String getErrorMessage()
-   {
+   public String getErrorMessage() {
       return errorMessage;
    }
 
    /**
     * @return the errorCode
     */
-   public int getErrorCode()
-   {
+   public int getErrorCode() {
       return errorCode;
    }
 

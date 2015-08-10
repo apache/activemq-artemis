@@ -46,33 +46,28 @@ import org.apache.activemq.artemis.api.core.TransportConfiguration;
  *                       value="org.apache.activemq.artemis.jms.server.recovery.ActiveMQXAResourceRecovery;org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory,guest,guest,host=localhost,port=61616;org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory,guest,guest,host=localhost2,port=61617"/&gt;
  * </pre>
  */
-public class ActiveMQXAResourceRecovery
-{
+public class ActiveMQXAResourceRecovery {
+
    private final boolean trace = ActiveMQXARecoveryLogger.LOGGER.isTraceEnabled();
 
    private boolean hasMore;
 
    private ActiveMQXAResourceWrapper res;
 
-   public ActiveMQXAResourceRecovery()
-   {
-      if (trace)
-      {
+   public ActiveMQXAResourceRecovery() {
+      if (trace) {
          ActiveMQXARecoveryLogger.LOGGER.trace("Constructing ActiveMQXAResourceRecovery");
       }
    }
 
-   public boolean initialise(final String config)
-   {
-      if (ActiveMQXARecoveryLogger.LOGGER.isTraceEnabled())
-      {
+   public boolean initialise(final String config) {
+      if (ActiveMQXARecoveryLogger.LOGGER.isTraceEnabled()) {
          ActiveMQXARecoveryLogger.LOGGER.trace(this + " intialise: " + config);
       }
 
       String[] configs = config.split(";");
       XARecoveryConfig[] xaRecoveryConfigs = new XARecoveryConfig[configs.length];
-      for (int i = 0, configsLength = configs.length; i < configsLength; i++)
-      {
+      for (int i = 0, configsLength = configs.length; i < configsLength; i++) {
          String s = configs[i];
          ConfigParser parser = new ConfigParser(s);
          String connectorFactoryClassName = parser.getConnectorFactoryClassName();
@@ -83,21 +78,17 @@ public class ActiveMQXAResourceRecovery
          xaRecoveryConfigs[i] = new XARecoveryConfig(false, new TransportConfiguration[]{transportConfiguration}, username, password);
       }
 
-
       res = new ActiveMQXAResourceWrapper(xaRecoveryConfigs);
 
-      if (ActiveMQXARecoveryLogger.LOGGER.isTraceEnabled())
-      {
+      if (ActiveMQXARecoveryLogger.LOGGER.isTraceEnabled()) {
          ActiveMQXARecoveryLogger.LOGGER.trace(this + " initialised");
       }
 
       return true;
    }
 
-   public boolean hasMoreResources()
-   {
-      if (ActiveMQXARecoveryLogger.LOGGER.isTraceEnabled())
-      {
+   public boolean hasMoreResources() {
+      if (ActiveMQXARecoveryLogger.LOGGER.isTraceEnabled()) {
          ActiveMQXARecoveryLogger.LOGGER.trace(this + " hasMoreResources");
       }
 
@@ -120,29 +111,25 @@ public class ActiveMQXAResourceRecovery
       return hasMore;
    }
 
-   public XAResource getXAResource()
-   {
-      if (ActiveMQXARecoveryLogger.LOGGER.isTraceEnabled())
-      {
+   public XAResource getXAResource() {
+      if (ActiveMQXARecoveryLogger.LOGGER.isTraceEnabled()) {
          ActiveMQXARecoveryLogger.LOGGER.trace(this + " getXAResource");
       }
 
       return res;
    }
 
-   public XAResource[] getXAResources()
-   {
+   public XAResource[] getXAResources() {
       return new XAResource[]{res};
    }
 
    @Override
-   protected void finalize()
-   {
+   protected void finalize() {
       res.close();
    }
 
-   public static class ConfigParser
-   {
+   public static class ConfigParser {
+
       private final String connectorFactoryClassName;
 
       private final Map<String, Object> connectorParameters;
@@ -151,18 +138,15 @@ public class ActiveMQXAResourceRecovery
 
       private String password;
 
-      public ConfigParser(final String config)
-      {
-         if (config == null || config.length() == 0)
-         {
+      public ConfigParser(final String config) {
+         if (config == null || config.length() == 0) {
             throw new IllegalArgumentException("Must specify provider connector factory class name in config");
          }
 
          String[] strings = config.split(",");
 
          // First (mandatory) param is the connector factory class name
-         if (strings.length < 1)
-         {
+         if (strings.length < 1) {
             throw new IllegalArgumentException("Must specify provider connector factory class name in config");
          }
 
@@ -170,59 +154,48 @@ public class ActiveMQXAResourceRecovery
 
          // Next two (optional) parameters are the username and password to use for creating the session for recovery
 
-         if (strings.length >= 2)
-         {
+         if (strings.length >= 2) {
 
             username = strings[1].trim();
-            if (username.length() == 0)
-            {
+            if (username.length() == 0) {
                username = null;
             }
 
-            if (strings.length == 2)
-            {
+            if (strings.length == 2) {
                throw new IllegalArgumentException("If username is specified, password must be specified too");
             }
 
             password = strings[2].trim();
-            if (password.length() == 0)
-            {
+            if (password.length() == 0) {
                password = null;
             }
          }
 
          // other tokens are for connector configurations
          connectorParameters = new HashMap<String, Object>();
-         if (strings.length >= 3)
-         {
-            for (int i = 3; i < strings.length; i++)
-            {
+         if (strings.length >= 3) {
+            for (int i = 3; i < strings.length; i++) {
                String[] str = strings[i].split("=");
-               if (str.length == 2)
-               {
+               if (str.length == 2) {
                   connectorParameters.put(str[0].trim(), str[1].trim());
                }
             }
          }
       }
 
-      public String getConnectorFactoryClassName()
-      {
+      public String getConnectorFactoryClassName() {
          return connectorFactoryClassName;
       }
 
-      public Map<String, Object> getConnectorParameters()
-      {
+      public Map<String, Object> getConnectorParameters() {
          return connectorParameters;
       }
 
-      public String getUsername()
-      {
+      public String getUsername() {
          return username;
       }
 
-      public String getPassword()
-      {
+      public String getPassword() {
          return password;
       }
    }

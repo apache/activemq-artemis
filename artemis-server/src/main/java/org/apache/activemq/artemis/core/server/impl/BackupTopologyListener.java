@@ -22,21 +22,18 @@ import java.util.concurrent.TimeUnit;
 import org.apache.activemq.artemis.api.core.client.ClusterTopologyListener;
 import org.apache.activemq.artemis.api.core.client.TopologyMember;
 
-final class BackupTopologyListener implements ClusterTopologyListener
-{
+final class BackupTopologyListener implements ClusterTopologyListener {
 
    private final CountDownLatch latch = new CountDownLatch(1);
    private final String ownId;
    private static final int WAIT_TIMEOUT = 60;
 
-   public BackupTopologyListener(String ownId)
-   {
+   public BackupTopologyListener(String ownId) {
       this.ownId = ownId;
    }
 
    @Override
-   public void nodeUP(TopologyMember topologyMember, boolean last)
-   {
+   public void nodeUP(TopologyMember topologyMember, boolean last) {
       final String nodeID = topologyMember.getNodeId();
 
       if (ownId.equals(nodeID) && topologyMember.getBackup() != null)
@@ -44,19 +41,15 @@ final class BackupTopologyListener implements ClusterTopologyListener
    }
 
    @Override
-   public void nodeDown(long eventUID, String nodeID)
-   {
+   public void nodeDown(long eventUID, String nodeID) {
       // no-op
    }
 
-   boolean waitForBackup()
-   {
-      try
-      {
+   boolean waitForBackup() {
+      try {
          return latch.await(WAIT_TIMEOUT, TimeUnit.SECONDS);
       }
-      catch (InterruptedException e)
-      {
+      catch (InterruptedException e) {
          return false;
       }
    }

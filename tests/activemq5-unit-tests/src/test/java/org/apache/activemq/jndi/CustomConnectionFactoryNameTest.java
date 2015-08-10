@@ -22,35 +22,33 @@ import org.apache.activemq.ActiveMQConnectionFactory;
 
 /**
  * Test case for AMQ-141
- *
- *
  */
 public class CustomConnectionFactoryNameTest extends ActiveMQInitialContextFactoryTest {
 
-    @Override
-    public void testConnectionFactoriesArePresent() throws NamingException {
-        super.testConnectionFactoriesArePresent();
-        assertConnectionFactoryPresent("jms/Connection");
-        assertConnectionFactoryPresent("jms/DURABLE_SUB_CONNECTION_FACTORY");
-    }
+   @Override
+   public void testConnectionFactoriesArePresent() throws NamingException {
+      super.testConnectionFactoriesArePresent();
+      assertConnectionFactoryPresent("jms/Connection");
+      assertConnectionFactoryPresent("jms/DURABLE_SUB_CONNECTION_FACTORY");
+   }
 
-    public void testConnectionFactoriesAreConfigured() throws NamingException {
-        super.testConnectionFactoriesArePresent();
-        ActiveMQConnectionFactory factory1 = (ActiveMQConnectionFactory) context.lookup("jms/Connection");
-        assertNull(factory1.getClientID());
-        ActiveMQConnectionFactory factory2 = (ActiveMQConnectionFactory) context.lookup("jms/DURABLE_SUB_CONNECTION_FACTORY");
-        assertEquals("testclient", factory2.getClientID());
-    }
+   public void testConnectionFactoriesAreConfigured() throws NamingException {
+      super.testConnectionFactoriesArePresent();
+      ActiveMQConnectionFactory factory1 = (ActiveMQConnectionFactory) context.lookup("jms/Connection");
+      assertNull(factory1.getClientID());
+      ActiveMQConnectionFactory factory2 = (ActiveMQConnectionFactory) context.lookup("jms/DURABLE_SUB_CONNECTION_FACTORY");
+      assertEquals("testclient", factory2.getClientID());
+   }
 
-    @Override
-    protected String getConnectionFactoryLookupName() {
-        return "myConnectionFactory";
-    }
+   @Override
+   protected String getConnectionFactoryLookupName() {
+      return "myConnectionFactory";
+   }
 
-    @Override
-    protected void configureEnvironment() {
-        super.configureEnvironment();
-        environment.put("connectionFactoryNames", " myConnectionFactory, jms/Connection, jms/DURABLE_SUB_CONNECTION_FACTORY");
-        environment.put("connection.jms/DURABLE_SUB_CONNECTION_FACTORY.clientID", "testclient");
-    }
+   @Override
+   protected void configureEnvironment() {
+      super.configureEnvironment();
+      environment.put("connectionFactoryNames", " myConnectionFactory, jms/Connection, jms/DURABLE_SUB_CONNECTION_FACTORY");
+      environment.put("connection.jms/DURABLE_SUB_CONNECTION_FACTORY.clientID", "testclient");
+   }
 }

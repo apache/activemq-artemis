@@ -38,15 +38,13 @@ import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 /**
  * A simple JMS example that shows the delivery order of messages with priorities.
  */
-public class MessagePriorityExample
-{
-   public static void main(final String[] args) throws Exception
-   {
+public class MessagePriorityExample {
+
+   public static void main(final String[] args) throws Exception {
       AtomicBoolean result = new AtomicBoolean(true);
       final ArrayList<TextMessage> msgReceived = new ArrayList<TextMessage>();
       Connection connection = null;
-      try
-      {
+      try {
 
          // Step 2. look-up the JMS queue object from JNDI
          Queue queue = ActiveMQJMSClient.createQueue("exampleQueue");
@@ -76,16 +74,16 @@ public class MessagePriorityExample
          // Step 9. Send the Messages, each has a different priority
          producer.send(sentMessages[0]);
          System.out.println("Message sent: " + sentMessages[0].getText() +
-                                    " with priority: " +
-                                    sentMessages[0].getJMSPriority());
+                               " with priority: " +
+                               sentMessages[0].getJMSPriority());
          producer.send(sentMessages[1], DeliveryMode.NON_PERSISTENT, 5, 0);
          System.out.println("Message sent: " + sentMessages[1].getText() +
-                                    "with priority: " +
-                                    sentMessages[1].getJMSPriority());
+                               "with priority: " +
+                               sentMessages[1].getJMSPriority());
          producer.send(sentMessages[2], DeliveryMode.NON_PERSISTENT, 9, 0);
          System.out.println("Message sent: " + sentMessages[2].getText() +
-                                    "with priority: " +
-                                    sentMessages[2].getJMSPriority());
+                               "with priority: " +
+                               sentMessages[2].getJMSPriority());
 
          // Step 10. Start the connection now.
          connection.start();
@@ -94,11 +92,9 @@ public class MessagePriorityExample
          Thread.sleep(5000);
 
          // Step 12. Examine the order
-         for (int i = 0; i < 3; i++)
-         {
+         for (int i = 0; i < 3; i++) {
             TextMessage rm = msgReceived.get(i);
-            if (!rm.getText().equals(sentMessages[2 - i].getText()))
-            {
+            if (!rm.getText().equals(sentMessages[2 - i].getText())) {
                throw new IllegalStateException("Priority is broken!");
             }
          }
@@ -106,37 +102,31 @@ public class MessagePriorityExample
          if (!result.get())
             throw new IllegalStateException();
       }
-      finally
-      {
+      finally {
          // Step 13. Be sure to close our JMS resources!
-         if (connection != null)
-         {
+         if (connection != null) {
             connection.close();
          }
       }
    }
 }
 
-class SimpleMessageListener implements MessageListener
-{
+class SimpleMessageListener implements MessageListener {
+
    ArrayList<TextMessage> msgReceived;
    AtomicBoolean result;
 
-   public SimpleMessageListener(ArrayList<TextMessage> msgReceived, AtomicBoolean result)
-   {
+   public SimpleMessageListener(ArrayList<TextMessage> msgReceived, AtomicBoolean result) {
       this.msgReceived = msgReceived;
       this.result = result;
    }
 
-   public void onMessage(final Message msg)
-   {
-      TextMessage textMessage = (TextMessage)msg;
-      try
-      {
+   public void onMessage(final Message msg) {
+      TextMessage textMessage = (TextMessage) msg;
+      try {
          System.out.println("Received message : [" + textMessage.getText() + "]");
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          result.set(false);
       }
       msgReceived.add(textMessage);

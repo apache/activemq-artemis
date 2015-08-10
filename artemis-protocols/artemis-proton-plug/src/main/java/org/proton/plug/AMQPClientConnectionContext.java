@@ -21,8 +21,8 @@ import org.proton.plug.exceptions.ActiveMQAMQPException;
 /**
  * This is valid only on a client connection.
  */
-public interface AMQPClientConnectionContext extends AMQPConnectionContext
-{
+public interface AMQPClientConnectionContext extends AMQPConnectionContext {
+
    /**
     * This will send an open and block for its return on AMQP protocol.
     *

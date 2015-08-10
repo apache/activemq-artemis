@@ -36,17 +36,15 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 /**
- *
  * A CloseConnectionOnGCTest
  */
-public class CloseConnectionOnGCTest extends JMSTestBase
-{
+public class CloseConnectionOnGCTest extends JMSTestBase {
+
    private ActiveMQConnectionFactory cf;
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       cf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration(INVM_CONNECTOR_FACTORY));
@@ -55,8 +53,7 @@ public class CloseConnectionOnGCTest extends JMSTestBase
    }
 
    @Test
-   public void testCloseOneConnectionOnGC() throws Exception
-   {
+   public void testCloseOneConnectionOnGC() throws Exception {
       // Debug - don't remove this until intermittent failure with this test is fixed
       int initialConns = server.getRemotingService().getConnections().size();
 
@@ -69,10 +66,8 @@ public class CloseConnectionOnGCTest extends JMSTestBase
       Assert.assertEquals(1, server.getRemotingService().getConnections().size());
       final CountDownLatch latch = new CountDownLatch(1);
       Iterator<RemotingConnection> connectionIterator = server.getRemotingService().getConnections().iterator();
-      connectionIterator.next().addCloseListener(new CloseListener()
-      {
-         public void connectionClosed()
-         {
+      connectionIterator.next().addCloseListener(new CloseListener() {
+         public void connectionClosed() {
             latch.countDown();
          }
       });
@@ -86,8 +81,7 @@ public class CloseConnectionOnGCTest extends JMSTestBase
    }
 
    @Test
-   public void testCloseSeveralConnectionOnGC() throws Exception
-   {
+   public void testCloseSeveralConnectionOnGC() throws Exception {
       Connection conn1 = cf.createConnection();
       Connection conn2 = cf.createConnection();
       Connection conn3 = cf.createConnection();
@@ -100,13 +94,10 @@ public class CloseConnectionOnGCTest extends JMSTestBase
 
       final CountDownLatch latch = new CountDownLatch(3);
       Iterator<RemotingConnection> connectionIterator = server.getRemotingService().getConnections().iterator();
-      while (connectionIterator.hasNext())
-      {
+      while (connectionIterator.hasNext()) {
          RemotingConnection remotingConnection = connectionIterator.next();
-         remotingConnection.addCloseListener(new CloseListener()
-         {
-            public void connectionClosed()
-            {
+         remotingConnection.addCloseListener(new CloseListener() {
+            public void connectionClosed() {
                latch.countDown();
             }
          });
@@ -124,8 +115,7 @@ public class CloseConnectionOnGCTest extends JMSTestBase
    }
 
    @Test
-   public void testCloseSeveralConnectionsWithSessionsOnGC() throws Exception
-   {
+   public void testCloseSeveralConnectionsWithSessionsOnGC() throws Exception {
       Connection conn1 = cf.createConnection();
       Connection conn2 = cf.createConnection();
       Connection conn3 = cf.createConnection();
@@ -143,13 +133,10 @@ public class CloseConnectionOnGCTest extends JMSTestBase
       Session sess7 = conn3.createSession(false, Session.AUTO_ACKNOWLEDGE);
       final CountDownLatch latch = new CountDownLatch(3);
       Iterator<RemotingConnection> connectionIterator = server.getRemotingService().getConnections().iterator();
-      while (connectionIterator.hasNext())
-      {
+      while (connectionIterator.hasNext()) {
          RemotingConnection remotingConnection = connectionIterator.next();
-         remotingConnection.addCloseListener(new CloseListener()
-         {
-            public void connectionClosed()
-            {
+         remotingConnection.addCloseListener(new CloseListener() {
+            public void connectionClosed() {
                latch.countDown();
             }
          });

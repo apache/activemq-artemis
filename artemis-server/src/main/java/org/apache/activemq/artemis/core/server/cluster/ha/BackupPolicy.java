@@ -19,47 +19,39 @@ package org.apache.activemq.artemis.core.server.cluster.ha;
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.core.server.impl.Activation;
 
-public abstract class BackupPolicy implements HAPolicy<Activation>
-{
+public abstract class BackupPolicy implements HAPolicy<Activation> {
+
    protected ScaleDownPolicy scaleDownPolicy;
    protected boolean restartBackup = ActiveMQDefaultConfiguration.isDefaultRestartBackup();
 
-   public ScaleDownPolicy getScaleDownPolicy()
-   {
+   public ScaleDownPolicy getScaleDownPolicy() {
       return scaleDownPolicy;
    }
 
-   public void setScaleDownPolicy(ScaleDownPolicy scaleDownPolicy)
-   {
+   public void setScaleDownPolicy(ScaleDownPolicy scaleDownPolicy) {
       this.scaleDownPolicy = scaleDownPolicy;
    }
 
-
    @Override
-   public boolean isBackup()
-   {
+   public boolean isBackup() {
       return true;
    }
 
    @Override
-   public String getScaleDownClustername()
-   {
+   public String getScaleDownClustername() {
       return null;
    }
 
    @Override
-   public String getScaleDownGroupName()
-   {
+   public String getScaleDownGroupName() {
       return getScaleDownPolicy() != null ? getScaleDownPolicy().getGroupName() : null;
    }
 
-   public boolean isRestartBackup()
-   {
+   public boolean isRestartBackup() {
       return restartBackup;
    }
 
-   public void setRestartBackup(boolean restartBackup)
-   {
+   public void setRestartBackup(boolean restartBackup) {
       this.restartBackup = restartBackup;
    }
 }

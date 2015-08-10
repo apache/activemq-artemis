@@ -58,7 +58,9 @@ public class ArtemisCreatePlugin extends ArtemisAbstractPlugin
     */
    private PluginDescriptor descriptor;
 
-   /** Directory to replace the configuration with */
+   /**
+    * Directory to replace the configuration with
+    */
    @Parameter(defaultValue = "${basedir}/target/classes/activemq/server0", required = true)
    private File configuration;
 
@@ -110,7 +112,9 @@ public class ArtemisCreatePlugin extends ArtemisAbstractPlugin
    @Parameter(defaultValue = "false")
    private boolean failoverOnShutdown;
 
-   /** it will disable auto-tune*/
+   /**
+    * it will disable auto-tune
+    */
    @Parameter(defaultValue = "true")
    private boolean noAutoTune;
 
@@ -132,8 +136,6 @@ public class ArtemisCreatePlugin extends ArtemisAbstractPlugin
    @Parameter
    ArrayList<String> args = new ArrayList<>();
 
-
-
    @Parameter
    private String[] libList;
 
@@ -146,56 +148,43 @@ public class ArtemisCreatePlugin extends ArtemisAbstractPlugin
     * @param path
     * @return
     */
-   private boolean lookupHome(Path path)
-   {
+   private boolean lookupHome(Path path) {
 
-      if (path == null)
-      {
+      if (path == null) {
          return false;
       }
 
       Path binFolder = path.resolve("bin");
 
-      if (binFolder == null && Files.exists(binFolder, LinkOption.NOFOLLOW_LINKS))
-      {
+      if (binFolder == null && Files.exists(binFolder, LinkOption.NOFOLLOW_LINKS)) {
          return false;
       }
 
       Path artemisScript = binFolder.resolve("artemis");
 
-
       return artemisScript != null && Files.exists(artemisScript, LinkOption.NOFOLLOW_LINKS);
-
 
    }
 
-   private void add(List<String> list,  String ... str)
-   {
-      for (String s: str)
-      {
+   private void add(List<String> list, String... str) {
+      for (String s : str) {
          list.add(s);
       }
    }
 
    @Override
-   protected void doExecute() throws MojoExecutionException, MojoFailureException
-   {
-      if (System.getProperty("bypassAddress") != null)
-      {
+   protected void doExecute() throws MojoExecutionException, MojoFailureException {
+      if (System.getProperty("bypassAddress") != null) {
          System.out.println("BYPASSADDRESS");
       }
       getLog().info("Local " + localRepository);
       MavenProject project = (MavenProject) getPluginContext().get("project");
 
-
-      if (!lookupHome(home.toPath()))
-      {
-         if (lookupHome(alternateHome.toPath()))
-         {
+      if (!lookupHome(home.toPath())) {
+         if (lookupHome(alternateHome.toPath())) {
             home = alternateHome;
          }
-         else
-         {
+         else {
             getLog().error("********************************************************************************************");
             getLog().error("Could not locate suitable Artemis.home on either " + home + " or " + alternateHome);
             getLog().error("Use the binary distribution or build the distribution before running the examples");
@@ -205,73 +194,58 @@ public class ArtemisCreatePlugin extends ArtemisAbstractPlugin
          }
       }
 
-
       Map properties = getPluginContext();
 
       Set<Map.Entry> entries = properties.entrySet();
 
       getLog().info("Entries.size " + entries.size());
-      for (Map.Entry entry : entries)
-      {
+      for (Map.Entry entry : entries) {
          getLog().info("... key=" + entry.getKey() + " = " + entry.getValue());
       }
 
       ArrayList<String> listCommands = new ArrayList<>();
 
-      add(listCommands, "create", "--allow-anonymous", "--silent", "--force", "--no-web", "--user", user, "--password", password,
-                        "--role", role,
-                        "--port-offset", "" + portOffset,
-                        "--data", dataFolder);
+      add(listCommands, "create", "--allow-anonymous", "--silent", "--force", "--no-web", "--user", user, "--password", password, "--role", role, "--port-offset", "" + portOffset, "--data", dataFolder);
 
-      if (allowAnonymous)
-      {
+      if (allowAnonymous) {
          add(listCommands, "--allow-anonymous");
       }
-      else
-      {
+      else {
          add(listCommands, "--require-login");
       }
 
-      if (!javaOptions.isEmpty())
-      {
+      if (!javaOptions.isEmpty()) {
          add(listCommands, "--java-options", javaOptions);
       }
 
-      if (slave)
-      {
+      if (slave) {
          add(listCommands, "--slave");
       }
 
-      if (replicated)
-      {
+      if (replicated) {
          add(listCommands, "--replicated");
       }
 
-      if (sharedStore)
-      {
+      if (sharedStore) {
          add(listCommands, "--shared-store");
       }
 
-      if (clustered)
-      {
+      if (clustered) {
          add(listCommands, "--clustered");
          add(listCommands, "--message-load-balancing", messageLoadBalancing);
       }
 
-      if (failoverOnShutdown)
-      {
+      if (failoverOnShutdown) {
          add(listCommands, "--failover-on-shutdown");
       }
 
-      if (noAutoTune)
-      {
+      if (noAutoTune) {
          add(listCommands, "--no-autotune");
       }
 
       add(listCommands, "--verbose");
 
-      for (String str : args)
-      {
+      for (String str : args) {
          add(listCommands, str);
       }
 
@@ -279,62 +253,51 @@ public class ArtemisCreatePlugin extends ArtemisAbstractPlugin
 
       getLog().debug("***** Server created at " + instance + " with home=" + home + " *****");
 
-      try
-      {
+      try {
          Artemis.execute(home, null, listCommands);
 
-         if (configuration != null)
-         {
+         if (configuration != null) {
             String[] list = configuration.list();
 
-            if (list != null)
-            {
+            if (list != null) {
                getLog().debug("************************************************");
                getLog().debug("Replacing configuration files:");
 
-               for (String file : configuration.list())
-               {
+               for (String file : configuration.list()) {
                   Path target = instance.toPath().resolve("etc").resolve(file);
                   getLog().debug("Replacing " + file + " into " + target);
-
 
                   Files.copy(configuration.toPath().resolve(file), target, StandardCopyOption.REPLACE_EXISTING);
                }
             }
          }
 
-         if (libList != null)
-         {
-            for (int i = 0; i < libList.length; i++)
-            {
+         if (libList != null) {
+            for (int i = 0; i < libList.length; i++) {
                String[] splitString = libList[i].split(":");
 
                getLog().debug("********************" + splitString[0] + "/" + splitString[1] + "/" + splitString[2]);
 
                Artifact artifact;
-               try
-               {
-                  artifact = new DefaultArtifact( libList[i] );
+               try {
+                  artifact = new DefaultArtifact(libList[i]);
                }
-               catch ( IllegalArgumentException e )
-               {
-                  throw new MojoFailureException( e.getMessage(), e );
+               catch (IllegalArgumentException e) {
+                  throw new MojoFailureException(e.getMessage(), e);
                }
 
                ArtifactRequest request = new ArtifactRequest();
-               request.setArtifact( artifact );
-               request.setRepositories( remoteRepos );
+               request.setArtifact(artifact);
+               request.setRepositories(remoteRepos);
 
                getLog().debug("Resolving artifact " + artifact + " from " + remoteRepos);
 
                ArtifactResult result;
-               try
-               {
-                  result = repositorySystem.resolveArtifact( repoSession, request );
+               try {
+                  result = repositorySystem.resolveArtifact(repoSession, request);
                }
-               catch ( ArtifactResolutionException e )
-               {
-                  throw new MojoExecutionException( e.getMessage(), e );
+               catch (ArtifactResolutionException e) {
+                  throw new MojoExecutionException(e.getMessage(), e);
                }
 
                File artifactFile = result.getArtifact().getFile();
@@ -347,15 +310,13 @@ public class ArtemisCreatePlugin extends ArtemisAbstractPlugin
          }
 
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          getLog().error(e);
          throw new MojoFailureException(e.getMessage());
       }
    }
 
-   private void copyToLib(File projectLib) throws IOException
-   {
+   private void copyToLib(File projectLib) throws IOException {
       Path target = instance.toPath().resolve("lib").resolve(projectLib.getName());
       target.toFile().mkdirs();
       getLog().debug("Copying " + projectLib.getName() + " as " + target.toFile().getAbsolutePath());

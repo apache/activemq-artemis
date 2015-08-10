@@ -34,41 +34,33 @@ import org.apache.activemq.artemis.core.server.RoutingContext;
 import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.junit.Test;
 
-
 /**
  * This test is replicating the behaviour from https://issues.jboss.org/browse/HORNETQ-988.
  */
-public class WildcardAddressManagerUnitTest extends ActiveMQTestBase
-{
-
+public class WildcardAddressManagerUnitTest extends ActiveMQTestBase {
 
    @Test
-   public void testUnitOnWildCardFailingScenario() throws Exception
-   {
+   public void testUnitOnWildCardFailingScenario() throws Exception {
       int errors = 0;
       WildcardAddressManager ad = new WildcardAddressManager(new BindingFactoryFake());
       ad.addBinding(new BindingFake("jms.topic.Topic1", "jms.topic.Topic1"));
       ad.addBinding(new BindingFake("jms.topic.Topic1", "one"));
       ad.addBinding(new BindingFake("jms.topic.*", "two"));
       ad.removeBinding(SimpleString.toSimpleString("one"), null);
-      try
-      {
+      try {
          ad.removeBinding(SimpleString.toSimpleString("two"), null);
       }
-      catch (Throwable e)
-      {
+      catch (Throwable e) {
          // We are not failing the test here as this test is replicating the exact scenario
          // that was happening under https://issues.jboss.org/browse/HORNETQ-988
          // In which this would be ignored
          errors++;
          e.printStackTrace();
       }
-      try
-      {
+      try {
          ad.addBinding(new BindingFake("jms.topic.Topic1", "three"));
       }
-      catch (Throwable e)
-      {
+      catch (Throwable e) {
          // We are not failing the test here as this test is replicating the exact scenario
          // that was happening under https://issues.jboss.org/browse/HORNETQ-988
          // In which this would be ignored
@@ -79,180 +71,150 @@ public class WildcardAddressManagerUnitTest extends ActiveMQTestBase
       assertEquals("Exception happened during the process", 0, errors);
    }
 
-   class BindingFactoryFake implements BindingsFactory
-   {
-      public Bindings createBindings(SimpleString address) throws Exception
-      {
+   class BindingFactoryFake implements BindingsFactory {
+
+      public Bindings createBindings(SimpleString address) throws Exception {
          return new BindignsFake();
       }
    }
 
-   class BindingFake implements Binding
-   {
+   class BindingFake implements Binding {
 
       final SimpleString address;
       final SimpleString id;
 
-      public BindingFake(String addressParameter, String id)
-      {
+      public BindingFake(String addressParameter, String id) {
          this(SimpleString.toSimpleString(addressParameter), SimpleString.toSimpleString(id));
       }
 
-      public BindingFake(SimpleString addressParameter, SimpleString id)
-      {
+      public BindingFake(SimpleString addressParameter, SimpleString id) {
          this.address = addressParameter;
          this.id = id;
       }
 
-
       @Override
-      public void unproposed(SimpleString groupID)
-      {
+      public void unproposed(SimpleString groupID) {
 
       }
 
       @Override
-      public SimpleString getAddress()
-      {
+      public SimpleString getAddress() {
          return address;
       }
 
       @Override
-      public Bindable getBindable()
-      {
+      public Bindable getBindable() {
          return null;
       }
 
       @Override
-      public BindingType getType()
-      {
+      public BindingType getType() {
          return null;
       }
 
       @Override
-      public SimpleString getUniqueName()
-      {
+      public SimpleString getUniqueName() {
          return id;
       }
 
       @Override
-      public SimpleString getRoutingName()
-      {
+      public SimpleString getRoutingName() {
          return null;
       }
 
       @Override
-      public SimpleString getClusterName()
-      {
+      public SimpleString getClusterName() {
          return null;
       }
 
       @Override
-      public Filter getFilter()
-      {
+      public Filter getFilter() {
          return null;
       }
 
       @Override
-      public boolean isHighAcceptPriority(ServerMessage message)
-      {
+      public boolean isHighAcceptPriority(ServerMessage message) {
          return false;
       }
 
       @Override
-      public boolean isExclusive()
-      {
+      public boolean isExclusive() {
          return false;
       }
 
       @Override
-      public long getID()
-      {
+      public long getID() {
          return 0;
       }
 
       @Override
-      public int getDistance()
-      {
+      public int getDistance() {
          return 0;
       }
 
       @Override
-      public void route(ServerMessage message, RoutingContext context) throws Exception
-      {
+      public void route(ServerMessage message, RoutingContext context) throws Exception {
       }
 
       @Override
-      public void close() throws Exception
-      {
+      public void close() throws Exception {
       }
 
       @Override
-      public String toManagementString()
-      {
+      public String toManagementString() {
          return "FakeBiding Address=" + this.address;
       }
 
       @Override
-      public boolean isConnected()
-      {
+      public boolean isConnected() {
          return true;
       }
 
       @Override
-      public void routeWithAck(ServerMessage message, RoutingContext context)
-      {
+      public void routeWithAck(ServerMessage message, RoutingContext context) {
 
       }
    }
 
+   class BindignsFake implements Bindings {
 
-   class BindignsFake implements Bindings
-   {
       ArrayList<Binding> bindings = new ArrayList<Binding>();
 
-
       @Override
-      public Collection<Binding> getBindings()
-      {
+      public Collection<Binding> getBindings() {
          return bindings;
       }
 
       @Override
-      public void addBinding(Binding binding)
-      {
+      public void addBinding(Binding binding) {
          bindings.add(binding);
       }
 
       @Override
-      public void removeBinding(Binding binding)
-      {
+      public void removeBinding(Binding binding) {
          bindings.remove(binding);
       }
 
       @Override
-      public void setMessageLoadBalancingType(MessageLoadBalancingType messageLoadBalancingType)
-      {
+      public void setMessageLoadBalancingType(MessageLoadBalancingType messageLoadBalancingType) {
 
       }
 
       @Override
-      public void unproposed(SimpleString groupID)
-      {
+      public void unproposed(SimpleString groupID) {
       }
 
       @Override
-      public boolean redistribute(ServerMessage message, Queue originatingQueue, RoutingContext context) throws Exception
-      {
+      public boolean redistribute(ServerMessage message,
+                                  Queue originatingQueue,
+                                  RoutingContext context) throws Exception {
          return false;
       }
 
       @Override
-      public void route(ServerMessage message, RoutingContext context) throws Exception
-      {
+      public void route(ServerMessage message, RoutingContext context) throws Exception {
          System.out.println("routing message: " + message);
       }
    }
-
 
 }

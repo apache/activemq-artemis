@@ -33,31 +33,32 @@ import org.apache.activemq.test.TestSupport;
  */
 public class ChangeSessionDeliveryModeTest extends TestSupport implements MessageListener {
 
-    /**
-     * test following condition- which are defined by JMS Spec 1.1:
-     * MessageConsumers cannot use a MessageListener and receive() from the same
-     * session
-     *
-     * @throws Exception
-     */
-    public void testDoChangeSessionDeliveryMode() throws Exception {
-        Destination destination = createDestination("foo.bar");
-        Connection connection = createConnection();
-        connection.start();
-        Session consumerSession = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        MessageConsumer consumer1 = consumerSession.createConsumer(destination);
-        consumer1.setMessageListener(this);
-        MessageConsumer consumer2 = consumerSession.createConsumer(destination);
+   /**
+    * test following condition- which are defined by JMS Spec 1.1:
+    * MessageConsumers cannot use a MessageListener and receive() from the same
+    * session
+    *
+    * @throws Exception
+    */
+   public void testDoChangeSessionDeliveryMode() throws Exception {
+      Destination destination = createDestination("foo.bar");
+      Connection connection = createConnection();
+      connection.start();
+      Session consumerSession = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      MessageConsumer consumer1 = consumerSession.createConsumer(destination);
+      consumer1.setMessageListener(this);
+      MessageConsumer consumer2 = consumerSession.createConsumer(destination);
 
-        try {
-            consumer2.receive(10);
-            fail("Did not receive expected exception.");
-        } catch (JMSException e) {
-            assertTrue(e instanceof IllegalStateException);
-        }
-    }
+      try {
+         consumer2.receive(10);
+         fail("Did not receive expected exception.");
+      }
+      catch (JMSException e) {
+         assertTrue(e instanceof IllegalStateException);
+      }
+   }
 
-    @Override
-    public void onMessage(Message msg) {
-    }
+   @Override
+   public void onMessage(Message msg) {
+   }
 }

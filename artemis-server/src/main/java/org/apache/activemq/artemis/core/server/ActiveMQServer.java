@@ -56,8 +56,7 @@ import org.apache.activemq.artemis.utils.ExecutorFactory;
  * <p>
  * This is not part of our public API.
  */
-public interface ActiveMQServer extends ActiveMQComponent
-{
+public interface ActiveMQServer extends ActiveMQComponent {
 
    /**
     * Sets the server identity.
@@ -96,6 +95,7 @@ public interface ActiveMQServer extends ActiveMQComponent
 
    /**
     * Returns the resource to manage this ActiveMQ Artemis server.
+    *
     * @throws IllegalStateException if the server is not properly started.
     */
    ActiveMQServerControlImpl getActiveMQServerControl();
@@ -138,7 +138,9 @@ public interface ActiveMQServer extends ActiveMQComponent
 
    List<ServerSession> getSessions(String connectionID);
 
-   /** @return a session containing the meta-key and meata-value */
+   /**
+    * @return a session containing the meta-key and meata-value
+    */
    ServerSession lookupSession(String metakey, String metavalue);
 
    ClusterManager getClusterManager();
@@ -149,6 +151,7 @@ public interface ActiveMQServer extends ActiveMQComponent
 
    /**
     * This is the queue creator responsible for JMS Queue creations*
+    *
     * @param queueCreator
     */
    void setJMSQueueCreator(QueueCreator queueCreator);
@@ -160,12 +163,12 @@ public interface ActiveMQServer extends ActiveMQComponent
 
    /**
     * Wait for server initialization.
+    *
     * @param timeout
     * @param unit
     * @return {@code true} if the server was already initialized or if it was initialized within the
-    *         timeout period, {@code false} otherwise.
+    * timeout period, {@code false} otherwise.
     * @throws InterruptedException
-
     * @see java.util.concurrent.CountDownLatch#await(long, java.util.concurrent.TimeUnit)
     */
    boolean waitForActivation(long timeout, TimeUnit unit) throws InterruptedException;
@@ -182,10 +185,10 @@ public interface ActiveMQServer extends ActiveMQComponent
     * @throws Exception
     */
    void createSharedQueue(final SimpleString address,
-                           final SimpleString name,
-                           final SimpleString filterString,
-                           final SimpleString user,
-                           boolean durable) throws Exception;
+                          final SimpleString name,
+                          final SimpleString filterString,
+                          final SimpleString user,
+                          boolean durable) throws Exception;
 
    Queue createQueue(SimpleString address,
                      SimpleString queueName,
@@ -222,7 +225,10 @@ public interface ActiveMQServer extends ActiveMQComponent
 
    void destroyQueue(SimpleString queueName, ServerSession session, boolean checkConsumerCount) throws Exception;
 
-   void destroyQueue(SimpleString queueName, ServerSession session, boolean checkConsumerCount, boolean removeConsumers) throws Exception;
+   void destroyQueue(SimpleString queueName,
+                     ServerSession session,
+                     boolean checkConsumerCount,
+                     boolean removeConsumers) throws Exception;
 
    String destroyConnectionWithSessionMetadata(String metaKey, String metaValue) throws Exception;
 
@@ -252,6 +258,7 @@ public interface ActiveMQServer extends ActiveMQComponent
 
    /**
     * return true if there is a binding for this address (i.e. if there is a created queue)
+    *
     * @param address
     * @return
     */

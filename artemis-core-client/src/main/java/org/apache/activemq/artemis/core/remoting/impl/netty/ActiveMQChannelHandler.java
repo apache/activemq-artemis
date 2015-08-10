@@ -28,12 +28,11 @@ import org.apache.activemq.artemis.core.client.ActiveMQClientMessageBundle;
 import org.apache.activemq.artemis.spi.core.remoting.BufferHandler;
 import org.apache.activemq.artemis.spi.core.remoting.ConnectionLifeCycleListener;
 
-
 /**
  * Common handler implementation for client and server side handler.
  */
-public class ActiveMQChannelHandler extends ChannelDuplexHandler
-{
+public class ActiveMQChannelHandler extends ChannelDuplexHandler {
+
    private final ChannelGroup group;
 
    private final BufferHandler handler;
@@ -44,42 +43,35 @@ public class ActiveMQChannelHandler extends ChannelDuplexHandler
 
    protected ActiveMQChannelHandler(final ChannelGroup group,
                                     final BufferHandler handler,
-                                    final ConnectionLifeCycleListener listener)
-   {
+                                    final ConnectionLifeCycleListener listener) {
       this.group = group;
       this.handler = handler;
       this.listener = listener;
    }
 
    @Override
-   public void channelActive(final ChannelHandlerContext ctx) throws Exception
-   {
+   public void channelActive(final ChannelHandlerContext ctx) throws Exception {
       group.add(ctx.channel());
       ctx.fireChannelActive();
    }
 
    @Override
-   public void channelWritabilityChanged(ChannelHandlerContext ctx) throws Exception
-   {
+   public void channelWritabilityChanged(ChannelHandlerContext ctx) throws Exception {
       // TODO: Think about the id thingy
       listener.connectionReadyForWrites(channelId(ctx.channel()), ctx.channel().isWritable());
    }
 
    @Override
-   public void channelRead(final ChannelHandlerContext ctx, final Object msg) throws Exception
-   {
+   public void channelRead(final ChannelHandlerContext ctx, final Object msg) throws Exception {
       ByteBuf buffer = (ByteBuf) msg;
 
       handler.bufferReceived(channelId(ctx.channel()), new ChannelBufferWrapper(buffer));
    }
 
    @Override
-   public void channelInactive(final ChannelHandlerContext ctx) throws Exception
-   {
-      synchronized (this)
-      {
-         if (active)
-         {
+   public void channelInactive(final ChannelHandlerContext ctx) throws Exception {
+      synchronized (this) {
+         if (active) {
             listener.connectionDestroyed(channelId(ctx.channel()));
 
             active = false;
@@ -88,10 +80,8 @@ public class ActiveMQChannelHandler extends ChannelDuplexHandler
    }
 
    @Override
-   public void exceptionCaught(final ChannelHandlerContext ctx, final Throwable cause) throws Exception
-   {
-      if (!active)
-      {
+   public void exceptionCaught(final ChannelHandlerContext ctx, final Throwable cause) throws Exception {
+      if (!active) {
          return;
       }
       // We don't want to log this - since it is normal for this to happen during failover/reconnect
@@ -101,22 +91,18 @@ public class ActiveMQChannelHandler extends ChannelDuplexHandler
       ActiveMQException me = ActiveMQClientMessageBundle.BUNDLE.nettyError();
       me.initCause(cause);
 
-      synchronized (listener)
-      {
-         try
-         {
+      synchronized (listener) {
+         try {
             listener.connectionException(channelId(ctx.channel()), me);
             active = false;
          }
-         catch (Exception ex)
-         {
+         catch (Exception ex) {
             ActiveMQClientLogger.LOGGER.errorCallingLifeCycleListener(ex);
          }
       }
    }
 
-   protected static int channelId(Channel channel)
-   {
+   protected static int channelId(Channel channel) {
       return channel.hashCode();
    }
 }

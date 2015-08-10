@@ -21,14 +21,14 @@ package org.apache.activemq.artemis.core.protocol.stomp;
  *
  * @version $Revision: 57 $
  */
-public interface Stomp
-{
+public interface Stomp {
+
    String NULL = "\u0000";
 
    String NEWLINE = "\n";
 
-   public interface Commands
-   {
+   public interface Commands {
+
       String CONNECT = "CONNECT";
 
       String SEND = "SEND";
@@ -53,8 +53,8 @@ public interface Stomp
       String STOMP = "STOMP";
    }
 
-   public interface Responses
-   {
+   public interface Responses {
+
       String CONNECTED = "CONNECTED";
 
       String ERROR = "ERROR";
@@ -64,8 +64,8 @@ public interface Stomp
       String RECEIPT = "RECEIPT";
    }
 
-   public interface Headers
-   {
+   public interface Headers {
+
       String SEPARATOR = ":";
 
       String RECEIPT_REQUESTED = "receipt";
@@ -78,13 +78,13 @@ public interface Stomp
 
       String CONTENT_TYPE = "content-type";
 
-      public interface Response
-      {
+      public interface Response {
+
          String RECEIPT_ID = "receipt-id";
       }
 
-      public interface Send
-      {
+      public interface Send {
+
          String DESTINATION = "destination";
 
          String CORRELATION_ID = "correlation-id";
@@ -100,8 +100,8 @@ public interface Stomp
          Object PERSISTENT = "persistent";
       }
 
-      public interface Message
-      {
+      public interface Message {
+
          String MESSAGE_ID = "message-id";
 
          String DESTINATION = "destination";
@@ -125,8 +125,8 @@ public interface Stomp
          String ACK = "ack";
       }
 
-      public interface Subscribe
-      {
+      public interface Subscribe {
+
          String DESTINATION = "destination";
 
          String ACK_MODE = "ack";
@@ -139,8 +139,8 @@ public interface Stomp
 
          String NO_LOCAL = "no-local";
 
-         public interface AckModeValues
-         {
+         public interface AckModeValues {
+
             String AUTO = "auto";
 
             String CLIENT = "client";
@@ -149,8 +149,8 @@ public interface Stomp
          }
       }
 
-      public interface Unsubscribe
-      {
+      public interface Unsubscribe {
+
          String DESTINATION = "destination";
 
          String ID = "id";
@@ -158,8 +158,8 @@ public interface Stomp
          String DURABLE_SUBSCRIBER_NAME = "durable-subscriber-name";
       }
 
-      public interface Connect
-      {
+      public interface Connect {
+
          String LOGIN = "login";
 
          String PASSCODE = "passcode";
@@ -175,16 +175,16 @@ public interface Stomp
          Object HEART_BEAT = "heart-beat";
       }
 
-      public interface Error
-      {
+      public interface Error {
+
          String MESSAGE = "message";
 
          //1.1
          String VERSION = "version";
       }
 
-      public interface Connected
-      {
+      public interface Connected {
+
          String SESSION = "session";
 
          String RESPONSE_ID = "response-id";
@@ -197,8 +197,8 @@ public interface Stomp
          String HEART_BEAT = "heart-beat";
       }
 
-      public interface Ack
-      {
+      public interface Ack {
+
          String MESSAGE_ID = "message-id";
 
          //1.1

@@ -35,68 +35,70 @@ import org.springframework.core.io.ClassPathResource;
  *
  */
 public class TwoBrokerTopicSendReceiveTest extends JmsTopicSendReceiveWithTwoConnectionsTest {
-    private static final Logger LOG = LoggerFactory.getLogger(TwoBrokerTopicSendReceiveTest.class);
 
-    protected ActiveMQConnectionFactory sendFactory;
-    protected ActiveMQConnectionFactory receiveFactory;
-    protected HashMap<String, BrokerService> brokers = new HashMap<String, BrokerService>();
+   private static final Logger LOG = LoggerFactory.getLogger(TwoBrokerTopicSendReceiveTest.class);
 
-    @Override
-    protected void setUp() throws Exception {
-        sendFactory = createSenderConnectionFactory();
-        receiveFactory = createReceiverConnectionFactory();
+   protected ActiveMQConnectionFactory sendFactory;
+   protected ActiveMQConnectionFactory receiveFactory;
+   protected HashMap<String, BrokerService> brokers = new HashMap<String, BrokerService>();
 
-        // Give server enough time to setup,
-        // so we don't lose messages when connection fails
-        LOG.info("Waiting for brokers Initialize.");
-        Thread.sleep(5000);
-        LOG.info("Brokers should be initialized by now.. starting test.");
+   @Override
+   protected void setUp() throws Exception {
+      sendFactory = createSenderConnectionFactory();
+      receiveFactory = createReceiverConnectionFactory();
 
-        super.setUp();
-    }
+      // Give server enough time to setup,
+      // so we don't lose messages when connection fails
+      LOG.info("Waiting for brokers Initialize.");
+      Thread.sleep(5000);
+      LOG.info("Brokers should be initialized by now.. starting test.");
 
-    protected ActiveMQConnectionFactory createReceiverConnectionFactory() throws JMSException {
-        return createConnectionFactory("org/apache/activemq/usecases/receiver.xml", "receiver",
-                                       "vm://receiver");
-    }
+      super.setUp();
+   }
 
-    protected ActiveMQConnectionFactory createSenderConnectionFactory() throws JMSException {
-        return createConnectionFactory("org/apache/activemq/usecases/sender.xml", "sender", "vm://sender");
-    }
+   protected ActiveMQConnectionFactory createReceiverConnectionFactory() throws JMSException {
+      return createConnectionFactory("org/apache/activemq/usecases/receiver.xml", "receiver", "vm://receiver");
+   }
 
-    @Override
-    protected void tearDown() throws Exception {
-        super.tearDown();
-        for (Iterator<BrokerService> iter = brokers.values().iterator(); iter.hasNext();) {
-            BrokerService broker = iter.next();
-            ServiceSupport.dispose(broker);
-            iter.remove();
-        }
-    }
+   protected ActiveMQConnectionFactory createSenderConnectionFactory() throws JMSException {
+      return createConnectionFactory("org/apache/activemq/usecases/sender.xml", "sender", "vm://sender");
+   }
 
-    @Override
-    protected Connection createReceiveConnection() throws JMSException {
-        return receiveFactory.createConnection();
-    }
+   @Override
+   protected void tearDown() throws Exception {
+      super.tearDown();
+      for (Iterator<BrokerService> iter = brokers.values().iterator(); iter.hasNext(); ) {
+         BrokerService broker = iter.next();
+         ServiceSupport.dispose(broker);
+         iter.remove();
+      }
+   }
 
-    @Override
-    protected Connection createSendConnection() throws JMSException {
-        return sendFactory.createConnection();
-    }
+   @Override
+   protected Connection createReceiveConnection() throws JMSException {
+      return receiveFactory.createConnection();
+   }
 
-    protected ActiveMQConnectionFactory createConnectionFactory(String config, String brokerName,
-                                                                String connectUrl) throws JMSException {
-        try {
-            BrokerFactoryBean brokerFactory = new BrokerFactoryBean(new ClassPathResource(config));
-            brokerFactory.afterPropertiesSet();
-            BrokerService broker = brokerFactory.getBroker();
-            brokers.put(brokerName, broker);
+   @Override
+   protected Connection createSendConnection() throws JMSException {
+      return sendFactory.createConnection();
+   }
 
-            return new ActiveMQConnectionFactory(connectUrl);
+   protected ActiveMQConnectionFactory createConnectionFactory(String config,
+                                                               String brokerName,
+                                                               String connectUrl) throws JMSException {
+      try {
+         BrokerFactoryBean brokerFactory = new BrokerFactoryBean(new ClassPathResource(config));
+         brokerFactory.afterPropertiesSet();
+         BrokerService broker = brokerFactory.getBroker();
+         brokers.put(brokerName, broker);
 
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
+         return new ActiveMQConnectionFactory(connectUrl);
+
+      }
+      catch (Exception e) {
+         e.printStackTrace();
+      }
+      return null;
+   }
 }

@@ -46,265 +46,275 @@ import org.apache.log4j.Logger;
 
 /**
  * AMQ1936Test
- *
  */
 public class AMQ1936Test extends TestCase {
-    private final static Logger logger = Logger.getLogger(AMQ1936Test.class);
-    private final static String TEST_QUEUE_NAME = "dynamicQueues/duplicate.message.test.queue";
-    // //--
-    //
-    private final static long TEST_MESSAGE_COUNT = 6000; // The number of test messages to use
-    //
-    // //--
-    private final static int CONSUMER_COUNT = 2; // The number of message receiver instances
-    private final static boolean TRANSACTED_RECEIVE = true; // Flag used by receiver which indicates messages should be
-                                                            // processed within a JMS transaction
 
-    private final ThreadPoolExecutor threadPool = new ThreadPoolExecutor(CONSUMER_COUNT, CONSUMER_COUNT, Long.MAX_VALUE, TimeUnit.SECONDS,
-        new LinkedBlockingQueue<Runnable>());
-    private final ThreadedMessageReceiver[] receivers = new ThreadedMessageReceiver[CONSUMER_COUNT];
-    private BrokerService broker = null;
-    static QueueConnectionFactory connectionFactory = null;
+   private final static Logger logger = Logger.getLogger(AMQ1936Test.class);
+   private final static String TEST_QUEUE_NAME = "dynamicQueues/duplicate.message.test.queue";
+   // //--
+   //
+   private final static long TEST_MESSAGE_COUNT = 6000; // The number of test messages to use
+   //
+   // //--
+   private final static int CONSUMER_COUNT = 2; // The number of message receiver instances
+   private final static boolean TRANSACTED_RECEIVE = true; // Flag used by receiver which indicates messages should be
+   // processed within a JMS transaction
 
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
+   private final ThreadPoolExecutor threadPool = new ThreadPoolExecutor(CONSUMER_COUNT, CONSUMER_COUNT, Long.MAX_VALUE, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
+   private final ThreadedMessageReceiver[] receivers = new ThreadedMessageReceiver[CONSUMER_COUNT];
+   private BrokerService broker = null;
+   static QueueConnectionFactory connectionFactory = null;
 
-        broker = new BrokerService();
-        broker.getSystemUsage().getMemoryUsage().setLimit(5 * 1024 * 1024);
-        broker.setBrokerName("test");
-        broker.setDeleteAllMessagesOnStartup(true);
-        broker.start();
-        connectionFactory = new ActiveMQConnectionFactory("vm://test");
-        ;
-    }
+   @Override
+   protected void setUp() throws Exception {
+      super.setUp();
 
-    @Override
-    protected void tearDown() throws Exception {
-        super.tearDown();
+      broker = new BrokerService();
+      broker.getSystemUsage().getMemoryUsage().setLimit(5 * 1024 * 1024);
+      broker.setBrokerName("test");
+      broker.setDeleteAllMessagesOnStartup(true);
+      broker.start();
+      connectionFactory = new ActiveMQConnectionFactory("vm://test");
+      ;
+   }
 
-        if (threadPool != null) {
-            // signal receivers to stop
-            for (ThreadedMessageReceiver receiver : receivers) {
-                receiver.setShouldStop(true);
-            }
+   @Override
+   protected void tearDown() throws Exception {
+      super.tearDown();
 
-            logger.info("Waiting for receivers to shutdown..");
-            if (!threadPool.awaitTermination(10, TimeUnit.SECONDS)) {
-                logger.warn("Not all receivers completed shutdown.");
-            } else {
-                logger.info("All receivers shutdown successfully..");
-            }
-        }
+      if (threadPool != null) {
+         // signal receivers to stop
+         for (ThreadedMessageReceiver receiver : receivers) {
+            receiver.setShouldStop(true);
+         }
 
-        logger.debug("Stoping the broker.");
+         logger.info("Waiting for receivers to shutdown..");
+         if (!threadPool.awaitTermination(10, TimeUnit.SECONDS)) {
+            logger.warn("Not all receivers completed shutdown.");
+         }
+         else {
+            logger.info("All receivers shutdown successfully..");
+         }
+      }
 
-        if (broker != null) {
-            broker.stop();
-        }
-    }
+      logger.debug("Stoping the broker.");
 
-    private void sendTextMessage(String queueName, int i) throws JMSException, NamingException {
-        QueueConnectionFactory connectionFactory = new ActiveMQConnectionFactory("vm://test");
-        QueueConnection queueConnection = null;
-        QueueSession session = null;
-        QueueSender sender = null;
-        Queue queue = null;
-        TextMessage message = null;
+      if (broker != null) {
+         broker.stop();
+      }
+   }
 
-        try {
+   private void sendTextMessage(String queueName, int i) throws JMSException, NamingException {
+      QueueConnectionFactory connectionFactory = new ActiveMQConnectionFactory("vm://test");
+      QueueConnection queueConnection = null;
+      QueueSession session = null;
+      QueueSender sender = null;
+      Queue queue = null;
+      TextMessage message = null;
 
-            // Create the queue connection
-            queueConnection = connectionFactory.createQueueConnection();
+      try {
 
-            session = queueConnection.createQueueSession(false, QueueSession.AUTO_ACKNOWLEDGE);
-            queue = session.createQueue(TEST_QUEUE_NAME);
-            sender = session.createSender(queue);
-            sender.setDeliveryMode(DeliveryMode.PERSISTENT);
+         // Create the queue connection
+         queueConnection = connectionFactory.createQueueConnection();
 
-            message = session.createTextMessage(String.valueOf(i));
+         session = queueConnection.createQueueSession(false, QueueSession.AUTO_ACKNOWLEDGE);
+         queue = session.createQueue(TEST_QUEUE_NAME);
+         sender = session.createSender(queue);
+         sender.setDeliveryMode(DeliveryMode.PERSISTENT);
 
-            // send the message
-            sender.send(message);
+         message = session.createTextMessage(String.valueOf(i));
 
-            if (session.getTransacted()) {
-                session.commit();
-            }
-            if (i % 1000 == 0) {
-                logger.info("Message successfully sent to : " + queue.getQueueName() + " messageid: " + message.getJMSMessageID() + " content:"
-                    + message.getText());
-            }
-        } finally {
-            if (sender != null) {
-                sender.close();
-            }
-            if (session != null) {
-                session.close();
-            }
-            if (queueConnection != null) {
-                queueConnection.close();
-            }
-        }
-    }
+         // send the message
+         sender.send(message);
 
-    public void testForDuplicateMessages() throws Exception {
-        final ConcurrentHashMap<String, String> messages = new ConcurrentHashMap<String, String>();
-        final Object lock = new Object();
-        final CountDownLatch duplicateSignal = new CountDownLatch(1);
-        final AtomicInteger messageCount = new AtomicInteger(0);
+         if (session.getTransacted()) {
+            session.commit();
+         }
+         if (i % 1000 == 0) {
+            logger.info("Message successfully sent to : " + queue.getQueueName() + " messageid: " + message.getJMSMessageID() + " content:" + message.getText());
+         }
+      }
+      finally {
+         if (sender != null) {
+            sender.close();
+         }
+         if (session != null) {
+            session.close();
+         }
+         if (queueConnection != null) {
+            queueConnection.close();
+         }
+      }
+   }
 
-        // add 1/2 the number of our total messages
-        for (int i = 0; i < TEST_MESSAGE_COUNT / 2; i++) {
-            if (duplicateSignal.getCount() == 0) {
-                fail("Duplicate message id detected");
-            }
-            sendTextMessage(TEST_QUEUE_NAME, i);
-        }
+   public void testForDuplicateMessages() throws Exception {
+      final ConcurrentHashMap<String, String> messages = new ConcurrentHashMap<String, String>();
+      final Object lock = new Object();
+      final CountDownLatch duplicateSignal = new CountDownLatch(1);
+      final AtomicInteger messageCount = new AtomicInteger(0);
 
-        // create a number of consumers to read of the messages and start them with a handler which simply stores the
-        // message ids
-        // in a Map and checks for a duplicate
-        for (int i = 0; i < CONSUMER_COUNT; i++) {
-            receivers[i] = new ThreadedMessageReceiver(TEST_QUEUE_NAME, new IMessageHandler() {
+      // add 1/2 the number of our total messages
+      for (int i = 0; i < TEST_MESSAGE_COUNT / 2; i++) {
+         if (duplicateSignal.getCount() == 0) {
+            fail("Duplicate message id detected");
+         }
+         sendTextMessage(TEST_QUEUE_NAME, i);
+      }
 
-                @Override
-                public void onMessage(Message message) throws Exception {
-                    synchronized (lock) {
-                        int current = messageCount.incrementAndGet();
-                        if (current % 1000 == 0) {
-                            logger.info("Received message:" + message.getJMSMessageID() + " with content: " + ((TextMessage) message).getText());
-                        }
-                        if (messages.containsKey(message.getJMSMessageID())) {
-                            duplicateSignal.countDown();
-                            logger.fatal("duplicate message id detected:" + message.getJMSMessageID());
-                            fail("Duplicate message id detected:" + message.getJMSMessageID());
-                        } else {
-                            messages.put(message.getJMSMessageID(), message.getJMSMessageID());
-                        }
-                    }
-                }
-            });
-            threadPool.submit(receivers[i]);
-        }
+      // create a number of consumers to read of the messages and start them with a handler which simply stores the
+      // message ids
+      // in a Map and checks for a duplicate
+      for (int i = 0; i < CONSUMER_COUNT; i++) {
+         receivers[i] = new ThreadedMessageReceiver(TEST_QUEUE_NAME, new IMessageHandler() {
 
-        // starting adding the remaining messages
-        for (int i = 0; i < TEST_MESSAGE_COUNT / 2; i++) {
-            if (duplicateSignal.getCount() == 0) {
-                fail("Duplicate message id detected");
-            }
-            sendTextMessage(TEST_QUEUE_NAME, i);
-        }
-
-        logger.info("sent all " + TEST_MESSAGE_COUNT + " messages");
-
-        // allow some time for messages to be delivered to receivers.
-        boolean ok = Wait.waitFor(new Wait.Condition() {
             @Override
-            public boolean isSatisified() throws Exception {
-                return TEST_MESSAGE_COUNT == messages.size();
+            public void onMessage(Message message) throws Exception {
+               synchronized (lock) {
+                  int current = messageCount.incrementAndGet();
+                  if (current % 1000 == 0) {
+                     logger.info("Received message:" + message.getJMSMessageID() + " with content: " + ((TextMessage) message).getText());
+                  }
+                  if (messages.containsKey(message.getJMSMessageID())) {
+                     duplicateSignal.countDown();
+                     logger.fatal("duplicate message id detected:" + message.getJMSMessageID());
+                     fail("Duplicate message id detected:" + message.getJMSMessageID());
+                  }
+                  else {
+                     messages.put(message.getJMSMessageID(), message.getJMSMessageID());
+                  }
+               }
             }
-        }, TimeUnit.MINUTES.toMillis(7));
-        if (!ok) {
-            AutoFailTestSupport.dumpAllThreads("--STUCK?--");
-        }
-        assertEquals("Number of messages received does not match the number sent", TEST_MESSAGE_COUNT, messages.size());
-        assertEquals(TEST_MESSAGE_COUNT, messageCount.get());
-    }
+         });
+         threadPool.submit(receivers[i]);
+      }
 
-    private final static class ThreadedMessageReceiver implements Runnable {
+      // starting adding the remaining messages
+      for (int i = 0; i < TEST_MESSAGE_COUNT / 2; i++) {
+         if (duplicateSignal.getCount() == 0) {
+            fail("Duplicate message id detected");
+         }
+         sendTextMessage(TEST_QUEUE_NAME, i);
+      }
 
-        private IMessageHandler handler = null;
-        private final AtomicBoolean shouldStop = new AtomicBoolean(false);
+      logger.info("sent all " + TEST_MESSAGE_COUNT + " messages");
 
-        public ThreadedMessageReceiver(String queueName, IMessageHandler handler) {
-            this.handler = handler;
-        }
+      // allow some time for messages to be delivered to receivers.
+      boolean ok = Wait.waitFor(new Wait.Condition() {
+         @Override
+         public boolean isSatisified() throws Exception {
+            return TEST_MESSAGE_COUNT == messages.size();
+         }
+      }, TimeUnit.MINUTES.toMillis(7));
+      if (!ok) {
+         AutoFailTestSupport.dumpAllThreads("--STUCK?--");
+      }
+      assertEquals("Number of messages received does not match the number sent", TEST_MESSAGE_COUNT, messages.size());
+      assertEquals(TEST_MESSAGE_COUNT, messageCount.get());
+   }
 
-        @Override
-        public void run() {
+   private final static class ThreadedMessageReceiver implements Runnable {
 
-            QueueConnection queueConnection = null;
-            QueueSession session = null;
-            QueueReceiver receiver = null;
-            Queue queue = null;
-            Message message = null;
+      private IMessageHandler handler = null;
+      private final AtomicBoolean shouldStop = new AtomicBoolean(false);
+
+      public ThreadedMessageReceiver(String queueName, IMessageHandler handler) {
+         this.handler = handler;
+      }
+
+      @Override
+      public void run() {
+
+         QueueConnection queueConnection = null;
+         QueueSession session = null;
+         QueueReceiver receiver = null;
+         Queue queue = null;
+         Message message = null;
+         try {
             try {
-                try {
 
-                    queueConnection = connectionFactory.createQueueConnection();
-                    // create a transacted session
-                    session = queueConnection.createQueueSession(TRANSACTED_RECEIVE, QueueSession.AUTO_ACKNOWLEDGE);
-                    queue = session.createQueue(TEST_QUEUE_NAME);
-                    receiver = session.createReceiver(queue);
+               queueConnection = connectionFactory.createQueueConnection();
+               // create a transacted session
+               session = queueConnection.createQueueSession(TRANSACTED_RECEIVE, QueueSession.AUTO_ACKNOWLEDGE);
+               queue = session.createQueue(TEST_QUEUE_NAME);
+               receiver = session.createReceiver(queue);
 
-                    // start the connection
-                    queueConnection.start();
+               // start the connection
+               queueConnection.start();
 
-                    logger.info("Receiver " + Thread.currentThread().getName() + " connected.");
+               logger.info("Receiver " + Thread.currentThread().getName() + " connected.");
 
-                    // start receive loop
-                    while (!(shouldStop.get() || Thread.currentThread().isInterrupted())) {
-                        try {
-                            message = receiver.receive(200);
-                        } catch (Exception e) {
-                            //
-                            // ignore interrupted exceptions
-                            //
-                            if (e instanceof InterruptedException || e.getCause() instanceof InterruptedException) {
+               // start receive loop
+               while (!(shouldStop.get() || Thread.currentThread().isInterrupted())) {
+                  try {
+                     message = receiver.receive(200);
+                  }
+                  catch (Exception e) {
+                     //
+                     // ignore interrupted exceptions
+                     //
+                     if (e instanceof InterruptedException || e.getCause() instanceof InterruptedException) {
                                 /* ignore */
-                            } else {
-                                throw e;
-                            }
-                        }
+                     }
+                     else {
+                        throw e;
+                     }
+                  }
 
-                        if (message != null && this.handler != null) {
-                            this.handler.onMessage(message);
-                        }
+                  if (message != null && this.handler != null) {
+                     this.handler.onMessage(message);
+                  }
 
-                        // commit session on successful handling of message
-                        if (session.getTransacted()) {
-                            session.commit();
-                        }
-                    }
+                  // commit session on successful handling of message
+                  if (session.getTransacted()) {
+                     session.commit();
+                  }
+               }
 
-                    logger.info("Receiver " + Thread.currentThread().getName() + " shutting down.");
+               logger.info("Receiver " + Thread.currentThread().getName() + " shutting down.");
 
-                } finally {
-                    if (receiver != null) {
-                        try {
-                            receiver.close();
-                        } catch (JMSException e) {
-                            logger.warn(e);
-                        }
-                    }
-                    if (session != null) {
-                        try {
-                            session.close();
-                        } catch (JMSException e) {
-                            logger.warn(e);
-                        }
-                    }
-                    if (queueConnection != null) {
-                        queueConnection.close();
-                    }
-                }
-            } catch (JMSException e) {
-                logger.error(e);
-                e.printStackTrace();
-            } catch (NamingException e) {
-                logger.error(e);
-            } catch (Exception e) {
-                logger.error(e);
-                e.printStackTrace();
             }
-        }
+            finally {
+               if (receiver != null) {
+                  try {
+                     receiver.close();
+                  }
+                  catch (JMSException e) {
+                     logger.warn(e);
+                  }
+               }
+               if (session != null) {
+                  try {
+                     session.close();
+                  }
+                  catch (JMSException e) {
+                     logger.warn(e);
+                  }
+               }
+               if (queueConnection != null) {
+                  queueConnection.close();
+               }
+            }
+         }
+         catch (JMSException e) {
+            logger.error(e);
+            e.printStackTrace();
+         }
+         catch (NamingException e) {
+            logger.error(e);
+         }
+         catch (Exception e) {
+            logger.error(e);
+            e.printStackTrace();
+         }
+      }
 
-        public void setShouldStop(Boolean shouldStop) {
-            this.shouldStop.set(shouldStop);
-        }
-    }
+      public void setShouldStop(Boolean shouldStop) {
+         this.shouldStop.set(shouldStop);
+      }
+   }
 
-    public interface IMessageHandler {
-        void onMessage(Message message) throws Exception;
-    }
+   public interface IMessageHandler {
+
+      void onMessage(Message message) throws Exception;
+   }
 }

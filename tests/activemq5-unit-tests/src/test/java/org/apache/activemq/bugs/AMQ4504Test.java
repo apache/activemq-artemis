@@ -21,6 +21,7 @@ import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
+
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.command.ActiveMQQueue;
@@ -29,54 +30,54 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-
 import static org.junit.Assert.assertNotNull;
 
 public class AMQ4504Test {
 
-    BrokerService brokerService;
+   BrokerService brokerService;
 
-    @Before
-    public void setup() throws Exception {
-        brokerService = new BrokerService();
-        brokerService.setPersistent(false);
-        brokerService.start();
-    }
+   @Before
+   public void setup() throws Exception {
+      brokerService = new BrokerService();
+      brokerService.setPersistent(false);
+      brokerService.start();
+   }
 
-    @After
-    public void stop() throws Exception {
-        brokerService.stop();
-    }
+   @After
+   public void stop() throws Exception {
+      brokerService.stop();
+   }
 
-    @Test
-    public void testCompositeDestConsumer() throws Exception {
+   @Test
+   public void testCompositeDestConsumer() throws Exception {
 
-        final int numDests = 20;
-        final int numMessages = 200;
-        StringBuffer stringBuffer = new StringBuffer();
-        for (int i=0; i<numDests; i++) {
-            if (stringBuffer.length() != 0) {
-                stringBuffer.append(',');
-            }
-            stringBuffer.append("ST." + i);
-        }
-        stringBuffer.append("?consumer.prefetchSize=100");
-        ActiveMQQueue activeMQQueue = new ActiveMQQueue(stringBuffer.toString());
-        ConnectionFactory factory = new ActiveMQConnectionFactory(brokerService.getVmConnectorURI());
-        Connection connection = factory.createConnection();
-        connection.start();
-        MessageProducer producer = connection.createSession(false, Session.AUTO_ACKNOWLEDGE).createProducer(activeMQQueue);
-        for (int i=0; i<numMessages; i++) {
-            producer.send(new ActiveMQTextMessage());
-        }
+      final int numDests = 20;
+      final int numMessages = 200;
+      StringBuffer stringBuffer = new StringBuffer();
+      for (int i = 0; i < numDests; i++) {
+         if (stringBuffer.length() != 0) {
+            stringBuffer.append(',');
+         }
+         stringBuffer.append("ST." + i);
+      }
+      stringBuffer.append("?consumer.prefetchSize=100");
+      ActiveMQQueue activeMQQueue = new ActiveMQQueue(stringBuffer.toString());
+      ConnectionFactory factory = new ActiveMQConnectionFactory(brokerService.getVmConnectorURI());
+      Connection connection = factory.createConnection();
+      connection.start();
+      MessageProducer producer = connection.createSession(false, Session.AUTO_ACKNOWLEDGE).createProducer(activeMQQueue);
+      for (int i = 0; i < numMessages; i++) {
+         producer.send(new ActiveMQTextMessage());
+      }
 
-        MessageConsumer consumer = connection.createSession(false, Session.AUTO_ACKNOWLEDGE).createConsumer(activeMQQueue);
-        try {
-            for (int i=0; i< numMessages * numDests; i++) {
-                assertNotNull("received:"  + i, consumer.receive(4000));
-            }
-        } finally {
-            connection.close();
-        }
-    }
+      MessageConsumer consumer = connection.createSession(false, Session.AUTO_ACKNOWLEDGE).createConsumer(activeMQQueue);
+      try {
+         for (int i = 0; i < numMessages * numDests; i++) {
+            assertNotNull("received:" + i, consumer.receive(4000));
+         }
+      }
+      finally {
+         connection.close();
+      }
+   }
 }

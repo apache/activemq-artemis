@@ -34,8 +34,7 @@ import org.apache.activemq.artemis.api.core.Pair;
 
 import org.junit.Assert;
 
-public class TransportConfigurationEncodingSupportTest extends Assert
-{
+public class TransportConfigurationEncodingSupportTest extends Assert {
 
    // Constants -----------------------------------------------------
 
@@ -48,8 +47,7 @@ public class TransportConfigurationEncodingSupportTest extends Assert
    // Public --------------------------------------------------------
 
    @Test
-   public void testTransportConfiguration() throws Exception
-   {
+   public void testTransportConfiguration() throws Exception {
       Map<String, Object> params = new HashMap<String, Object>();
       params.put(TransportConstants.PORT_PROP_NAME, 5665);
       params.put(TransportConstants.HOST_PROP_NAME, RandomUtil.randomString());
@@ -67,15 +65,13 @@ public class TransportConfigurationEncodingSupportTest extends Assert
       assertEquals(config.getName(), decoded.getName());
       assertEquals(config.getFactoryClassName(), decoded.getFactoryClassName());
       assertEquals(config.getParams().size(), decoded.getParams().size());
-      for (String key : config.getParams().keySet())
-      {
+      for (String key : config.getParams().keySet()) {
          assertEquals(config.getParams().get(key).toString(), decoded.getParams().get(key).toString());
       }
    }
 
    @Test
-   public void testTransportConfigurations() throws Exception
-   {
+   public void testTransportConfigurations() throws Exception {
       List<Pair<TransportConfiguration, TransportConfiguration>> connectorConfigs = new ArrayList<Pair<TransportConfiguration, TransportConfiguration>>();
       Map<String, Object> liveParams = new HashMap<String, Object>();
       liveParams.put(TransportConstants.PORT_PROP_NAME, 5665);
@@ -107,13 +103,11 @@ public class TransportConfigurationEncodingSupportTest extends Assert
    }
 
    // decoded TransportConfiguration have parameter values as String instead of primitive type
-   private static void assertEquivalent(TransportConfiguration expected, TransportConfiguration actual)
-   {
+   private static void assertEquivalent(TransportConfiguration expected, TransportConfiguration actual) {
       assertEquals(expected.getFactoryClassName(), actual.getFactoryClassName());
       assertEquals(expected.getName(), actual.getName());
       assertEquals(expected.getParams().size(), actual.getParams().size());
-      for (Map.Entry<String, Object> entry : expected.getParams().entrySet())
-      {
+      for (Map.Entry<String, Object> entry : expected.getParams().entrySet()) {
          String key = entry.getKey();
          assertEquals(expected.getParams().get(key).toString(), actual.getParams().get(key).toString());
       }

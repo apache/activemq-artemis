@@ -45,60 +45,63 @@ import org.slf4j.LoggerFactory;
 
 public final class SimpleQueueSender {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SimpleQueueSender.class);
+   private static final Logger LOG = LoggerFactory.getLogger(SimpleQueueSender.class);
 
-    private SimpleQueueSender() {
-    }
+   private SimpleQueueSender() {
+   }
 
-    /**
-     * Main method.
-     * 
-     * @param args the queue used by the example and, optionally, the number of
-     *                messages to send
-     */
-    public static void main(String[] args) {
-        String queueName = null;
-        Context jndiContext = null;
-        QueueConnectionFactory queueConnectionFactory = null;
-        QueueConnection queueConnection = null;
-        QueueSession queueSession = null;
-        Queue queue = null;
-        QueueSender queueSender = null;
-        TextMessage message = null;
-        final int numMsgs;
+   /**
+    * Main method.
+    *
+    * @param args the queue used by the example and, optionally, the number of
+    *             messages to send
+    */
+   public static void main(String[] args) {
+      String queueName = null;
+      Context jndiContext = null;
+      QueueConnectionFactory queueConnectionFactory = null;
+      QueueConnection queueConnection = null;
+      QueueSession queueSession = null;
+      Queue queue = null;
+      QueueSender queueSender = null;
+      TextMessage message = null;
+      final int numMsgs;
 
-        if ((args.length < 1) || (args.length > 2)) {
-            LOG.info("Usage: java SimpleQueueSender " + "<queue-name> [<number-of-messages>]");
-            System.exit(1);
-        }
-        queueName = args[0];
-        LOG.info("Queue name is " + queueName);
-        if (args.length == 2) {
-            numMsgs = (new Integer(args[1])).intValue();
-        } else {
-            numMsgs = 1;
-        }
+      if ((args.length < 1) || (args.length > 2)) {
+         LOG.info("Usage: java SimpleQueueSender " + "<queue-name> [<number-of-messages>]");
+         System.exit(1);
+      }
+      queueName = args[0];
+      LOG.info("Queue name is " + queueName);
+      if (args.length == 2) {
+         numMsgs = (new Integer(args[1])).intValue();
+      }
+      else {
+         numMsgs = 1;
+      }
 
         /*
          * Create a JNDI API InitialContext object if none exists yet.
          */
-        try {
-            jndiContext = new InitialContext();
-        } catch (NamingException e) {
-            LOG.info("Could not create JNDI API context: " + e.toString());
-            System.exit(1);
-        }
+      try {
+         jndiContext = new InitialContext();
+      }
+      catch (NamingException e) {
+         LOG.info("Could not create JNDI API context: " + e.toString());
+         System.exit(1);
+      }
 
         /*
          * Look up connection factory and queue. If either does not exist, exit.
          */
-        try {
-            queueConnectionFactory = (QueueConnectionFactory)jndiContext.lookup("QueueConnectionFactory");
-            queue = (Queue)jndiContext.lookup(queueName);
-        } catch (NamingException e) {
-            LOG.info("JNDI API lookup failed: " + e);
-            System.exit(1);
-        }
+      try {
+         queueConnectionFactory = (QueueConnectionFactory) jndiContext.lookup("QueueConnectionFactory");
+         queue = (Queue) jndiContext.lookup(queueName);
+      }
+      catch (NamingException e) {
+         LOG.info("JNDI API lookup failed: " + e);
+         System.exit(1);
+      }
 
         /*
          * Create connection. Create session from connection; false means
@@ -106,32 +109,35 @@ public final class SimpleQueueSender {
          * messages, varying text slightly. Send end-of-messages message.
          * Finally, close connection.
          */
-        try {
-            queueConnection = queueConnectionFactory.createQueueConnection();
-            queueSession = queueConnection.createQueueSession(false, Session.AUTO_ACKNOWLEDGE);
-            queueSender = queueSession.createSender(queue);
-            message = queueSession.createTextMessage();
-            for (int i = 0; i < numMsgs; i++) {
-                message.setText("This is message " + (i + 1));
-                LOG.info("Sending message: " + message.getText());
-                queueSender.send(message);
-            }
+      try {
+         queueConnection = queueConnectionFactory.createQueueConnection();
+         queueSession = queueConnection.createQueueSession(false, Session.AUTO_ACKNOWLEDGE);
+         queueSender = queueSession.createSender(queue);
+         message = queueSession.createTextMessage();
+         for (int i = 0; i < numMsgs; i++) {
+            message.setText("This is message " + (i + 1));
+            LOG.info("Sending message: " + message.getText());
+            queueSender.send(message);
+         }
 
             /*
              * Send a non-text control message indicating end of messages.
              */
-            queueSender.send(queueSession.createMessage());
-        } catch (JMSException e) {
-            LOG.info("Exception occurred: " + e.toString());
-        } finally {
-            if (queueConnection != null) {
-                try {
-                    queueConnection.close();
-                } catch (JMSException e) {
-                }
+         queueSender.send(queueSession.createMessage());
+      }
+      catch (JMSException e) {
+         LOG.info("Exception occurred: " + e.toString());
+      }
+      finally {
+         if (queueConnection != null) {
+            try {
+               queueConnection.close();
             }
-        }
-    }
+            catch (JMSException e) {
+            }
+         }
+      }
+   }
 }
 
 // END SNIPPET: demo

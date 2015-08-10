@@ -34,8 +34,8 @@ import org.proton.plug.AMQPSessionCallback;
 import org.proton.plug.ServerSASL;
 import org.proton.plug.sasl.AnonymousServerSASL;
 
-public class ActiveMQProtonConnectionCallback implements AMQPConnectionCallback
-{
+public class ActiveMQProtonConnectionCallback implements AMQPConnectionCallback {
+
    private final ProtonProtocolManager manager;
 
    private final Connection connection;
@@ -46,80 +46,64 @@ public class ActiveMQProtonConnectionCallback implements AMQPConnectionCallback
 
    private final ReusableLatch latch = new ReusableLatch(0);
 
-   public ActiveMQProtonConnectionCallback(ProtonProtocolManager manager, Connection connection)
-   {
+   public ActiveMQProtonConnectionCallback(ProtonProtocolManager manager, Connection connection) {
       this.manager = manager;
       this.connection = connection;
    }
 
    @Override
-   public ServerSASL[] getSASLMechnisms()
-   {
+   public ServerSASL[] getSASLMechnisms() {
       return new ServerSASL[]{new AnonymousServerSASL(), new ActiveMQPlainSASL(manager.getServer().getSecurityStore(), manager.getServer().getSecurityManager())};
    }
 
    @Override
-   public void close()
-   {
+   public void close() {
 
    }
 
-   public Executor getExeuctor()
-   {
-      if (protonConnectionDelegate != null)
-      {
+   public Executor getExeuctor() {
+      if (protonConnectionDelegate != null) {
          return protonConnectionDelegate.getExecutor();
       }
-      else
-      {
+      else {
          return null;
       }
    }
 
    @Override
-   public void setConnection(AMQPConnectionContext connection)
-   {
+   public void setConnection(AMQPConnectionContext connection) {
       this.amqpConnection = connection;
    }
 
    @Override
-   public AMQPConnectionContext getConnection()
-   {
+   public AMQPConnectionContext getConnection() {
       return amqpConnection;
    }
 
-   public ActiveMQProtonRemotingConnection getProtonConnectionDelegate()
-   {
+   public ActiveMQProtonRemotingConnection getProtonConnectionDelegate() {
       return protonConnectionDelegate;
    }
 
-   public void setProtonConnectionDelegate(ActiveMQProtonRemotingConnection protonConnectionDelegate)
-   {
+   public void setProtonConnectionDelegate(ActiveMQProtonRemotingConnection protonConnectionDelegate) {
       this.protonConnectionDelegate = protonConnectionDelegate;
    }
 
-   public void onTransport(ByteBuf byteBuf, AMQPConnectionContext amqpConnection)
-   {
+   public void onTransport(ByteBuf byteBuf, AMQPConnectionContext amqpConnection) {
       final int size = byteBuf.writerIndex();
 
       latch.countUp();
-      connection.write(new ChannelBufferWrapper(byteBuf, true), false, false, new ChannelFutureListener()
-      {
+      connection.write(new ChannelBufferWrapper(byteBuf, true), false, false, new ChannelFutureListener() {
          @Override
-         public void operationComplete(ChannelFuture future) throws Exception
-         {
+         public void operationComplete(ChannelFuture future) throws Exception {
             latch.countDown();
          }
       });
 
-      if (amqpConnection.isSyncOnFlush())
-      {
-         try
-         {
+      if (amqpConnection.isSyncOnFlush()) {
+         try {
             latch.await(5, TimeUnit.SECONDS);
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             e.printStackTrace();
          }
       }
@@ -127,10 +111,8 @@ public class ActiveMQProtonConnectionCallback implements AMQPConnectionCallback
       amqpConnection.outputDone(size);
    }
 
-
    @Override
-   public AMQPSessionCallback createSessionCallback(AMQPConnectionContext connection)
-   {
+   public AMQPSessionCallback createSessionCallback(AMQPConnectionContext connection) {
       return new ProtonSessionIntegrationCallback(this, manager, connection);
    }
 

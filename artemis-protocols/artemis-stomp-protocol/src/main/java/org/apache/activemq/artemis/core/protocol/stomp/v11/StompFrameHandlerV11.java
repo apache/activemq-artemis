@@ -31,14 +31,13 @@ import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 
 import static org.apache.activemq.artemis.core.protocol.stomp.ActiveMQStompProtocolMessageBundle.BUNDLE;
 
-public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements FrameEventListener
-{
+public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements FrameEventListener {
+
    protected static final char ESC_CHAR = '\\';
 
    private HeartBeater heartBeater;
 
-   public StompFrameHandlerV11(StompConnection connection)
-   {
+   public StompFrameHandlerV11(StompConnection connection) {
       super(connection);
       connection.addStompEventListener(this);
       decoder = new StompDecoderV11(this);
@@ -46,8 +45,7 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
    }
 
    @Override
-   public StompFrame onConnect(StompFrame frame)
-   {
+   public StompFrame onConnect(StompFrame frame) {
       StompFrame response = null;
       Map<String, String> headers = frame.getHeadersMap();
       String login = headers.get(Stomp.Headers.Connect.LOGIN);
@@ -55,31 +53,24 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
       String clientID = headers.get(Stomp.Headers.Connect.CLIENT_ID);
       String requestID = headers.get(Stomp.Headers.Connect.REQUEST_ID);
 
-      try
-      {
-         if (connection.validateUser(login, passcode))
-         {
+      try {
+         if (connection.validateUser(login, passcode)) {
             connection.setClientID(clientID);
             connection.setValid(true);
 
             response = this.createStompFrame(Stomp.Responses.CONNECTED);
 
             // version
-            response.addHeader(Stomp.Headers.Connected.VERSION,
-                               connection.getVersion());
+            response.addHeader(Stomp.Headers.Connected.VERSION, connection.getVersion());
 
             // session
-            response.addHeader(Stomp.Headers.Connected.SESSION, connection
-               .getID().toString());
+            response.addHeader(Stomp.Headers.Connected.SESSION, connection.getID().toString());
 
             // server
-            response.addHeader(Stomp.Headers.Connected.SERVER,
-                               connection.getActiveMQServerName());
+            response.addHeader(Stomp.Headers.Connected.SERVER, connection.getActiveMQServerName());
 
-            if (requestID != null)
-            {
-               response.addHeader(Stomp.Headers.Connected.RESPONSE_ID,
-                                  requestID);
+            if (requestID != null) {
+               response.addHeader(Stomp.Headers.Connected.RESPONSE_ID, requestID);
             }
 
             // heart-beat. We need to start after connected frame has been sent.
@@ -87,21 +78,17 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
             // connected frame.
             String heartBeat = headers.get(Stomp.Headers.Connect.HEART_BEAT);
 
-            if (heartBeat != null)
-            {
+            if (heartBeat != null) {
                handleHeartBeat(heartBeat);
-               if (heartBeater == null)
-               {
+               if (heartBeater == null) {
                   response.addHeader(Stomp.Headers.Connected.HEART_BEAT, "0,0");
                }
-               else
-               {
+               else {
                   response.addHeader(Stomp.Headers.Connected.HEART_BEAT, heartBeater.getServerHeartBeatValue());
                }
             }
          }
-         else
-         {
+         else {
             // not valid
             response = createStompFrame(Stomp.Responses.ERROR);
             response.setNeedsDisconnect(true);
@@ -110,8 +97,7 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
             response.setBody("The login account is not valid.");
          }
       }
-      catch (ActiveMQStompException e)
-      {
+      catch (ActiveMQStompException e) {
          response = e.getFrame();
       }
 
@@ -120,11 +106,9 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
 
    //ping parameters, hard-code for now
    //the server can support min 20 milliseconds and receive ping at 100 milliseconds (20,100)
-   private void handleHeartBeat(String heartBeatHeader) throws ActiveMQStompException
-   {
+   private void handleHeartBeat(String heartBeatHeader) throws ActiveMQStompException {
       String[] params = heartBeatHeader.split(",");
-      if (params.length != 2)
-      {
+      if (params.length != 2) {
          throw new ActiveMQStompException(connection, "Incorrect heartbeat header " + heartBeatHeader);
       }
 
@@ -133,24 +117,19 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
       //client receive ping
       long minAcceptInterval = Long.valueOf(params[1]);
 
-      if ((minPingInterval != 0) || (minAcceptInterval != 0))
-      {
+      if ((minPingInterval != 0) || (minAcceptInterval != 0)) {
          heartBeater = new HeartBeater(minPingInterval, minAcceptInterval);
       }
    }
 
    @Override
-   public StompFrame onDisconnect(StompFrame frame)
-   {
-      if (this.heartBeater != null)
-      {
+   public StompFrame onDisconnect(StompFrame frame) {
+      if (this.heartBeater != null) {
          heartBeater.shutdown();
-         try
-         {
+         try {
             heartBeater.join();
          }
-         catch (InterruptedException e)
-         {
+         catch (InterruptedException e) {
             ActiveMQServerLogger.LOGGER.errorOnStompHeartBeat(e);
          }
       }
@@ -158,61 +137,51 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
    }
 
    @Override
-   public StompFrame onUnsubscribe(StompFrame request)
-   {
+   public StompFrame onUnsubscribe(StompFrame request) {
       StompFrame response = null;
       //unsubscribe in 1.1 only needs id header
       String id = request.getHeader(Stomp.Headers.Unsubscribe.ID);
       String durableSubscriberName = request.getHeader(Stomp.Headers.Unsubscribe.DURABLE_SUBSCRIBER_NAME);
 
       String subscriptionID = null;
-      if (id != null)
-      {
+      if (id != null) {
          subscriptionID = id;
       }
-      else
-      {
+      else {
          response = BUNDLE.needSubscriptionID().setHandler(this).getFrame();
          return response;
       }
 
-      try
-      {
+      try {
          connection.unsubscribe(subscriptionID, durableSubscriberName);
       }
-      catch (ActiveMQStompException e)
-      {
+      catch (ActiveMQStompException e) {
          response = e.getFrame();
       }
       return response;
    }
 
    @Override
-   public StompFrame onAck(StompFrame request)
-   {
+   public StompFrame onAck(StompFrame request) {
       StompFrame response = null;
 
       String messageID = request.getHeader(Stomp.Headers.Ack.MESSAGE_ID);
       String txID = request.getHeader(Stomp.Headers.TRANSACTION);
       String subscriptionID = request.getHeader(Stomp.Headers.Ack.SUBSCRIPTION);
 
-      if (txID != null)
-      {
+      if (txID != null) {
          ActiveMQServerLogger.LOGGER.stompTXAckNorSupported();
       }
 
-      if (subscriptionID == null)
-      {
+      if (subscriptionID == null) {
          response = BUNDLE.needSubscriptionID().setHandler(this).getFrame();
          return response;
       }
 
-      try
-      {
+      try {
          connection.acknowledge(messageID, subscriptionID);
       }
-      catch (ActiveMQStompException e)
-      {
+      catch (ActiveMQStompException e) {
          response = e.getFrame();
       }
 
@@ -220,56 +189,45 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
    }
 
    @Override
-   public StompFrame onStomp(StompFrame request)
-   {
-      if (!connection.isValid())
-      {
+   public StompFrame onStomp(StompFrame request) {
+      if (!connection.isValid()) {
          return onConnect(request);
       }
       return null;
    }
 
    @Override
-   public StompFrame onNack(StompFrame request)
-   {
+   public StompFrame onNack(StompFrame request) {
       //this eventually means discard the message (it never be redelivered again).
       //we can consider supporting redeliver to a different sub.
       return onAck(request);
    }
 
    @Override
-   public void replySent(StompFrame reply)
-   {
-      if (reply.getCommand().equals(Stomp.Responses.CONNECTED))
-      {
+   public void replySent(StompFrame reply) {
+      if (reply.getCommand().equals(Stomp.Responses.CONNECTED)) {
          //kick off the pinger
          startHeartBeat();
       }
 
-      if (reply.needsDisconnect())
-      {
+      if (reply.needsDisconnect()) {
          connection.disconnect(false);
       }
-      else
-      {
+      else {
          //update ping
-         if (heartBeater != null)
-         {
+         if (heartBeater != null) {
             heartBeater.pinged();
          }
       }
    }
 
-   private void startHeartBeat()
-   {
-      if (heartBeater != null)
-      {
+   private void startHeartBeat() {
+      if (heartBeater != null) {
          heartBeater.start();
       }
    }
 
-   public StompFrame createPingFrame()
-   {
+   public StompFrame createPingFrame() {
       StompFrame frame = createStompFrame(Stomp.Commands.STOMP);
       frame.setPing(true);
       return frame;
@@ -281,8 +239,8 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
    //interval, send a ping.
    //(b) accept ping: if server hasn't received any frame within
    // 2*serverAcceptPing, disconnect!
-   private class HeartBeater extends Thread
-   {
+   private class HeartBeater extends Thread {
+
       private static final int MIN_SERVER_PING = 500;
       private static final int MIN_CLIENT_PING = 500;
 
@@ -293,65 +251,52 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
       AtomicLong lastAccepted = new AtomicLong(0);
       StompFrame pingFrame;
 
-      public HeartBeater(long clientPing, long clientAcceptPing)
-      {
-         if (clientPing != 0)
-         {
+      public HeartBeater(long clientPing, long clientAcceptPing) {
+         if (clientPing != 0) {
             serverAcceptPing = clientPing > MIN_CLIENT_PING ? clientPing : MIN_CLIENT_PING;
          }
 
-         if (clientAcceptPing != 0)
-         {
+         if (clientAcceptPing != 0) {
             serverPing = clientAcceptPing > MIN_SERVER_PING ? clientAcceptPing : MIN_SERVER_PING;
          }
       }
 
-      public synchronized void shutdown()
-      {
+      public synchronized void shutdown() {
          shutdown = true;
          this.notify();
       }
 
-      public String getServerHeartBeatValue()
-      {
+      public String getServerHeartBeatValue() {
          return String.valueOf(serverPing) + "," + String.valueOf(serverAcceptPing);
       }
 
-      public void pinged()
-      {
+      public void pinged() {
          lastPingTime.set(System.currentTimeMillis());
       }
 
       @Override
-      public void run()
-      {
+      public void run() {
          lastAccepted.set(System.currentTimeMillis());
          pingFrame = createPingFrame();
 
-         synchronized (this)
-         {
-            while (!shutdown)
-            {
+         synchronized (this) {
+            while (!shutdown) {
                long dur1 = 0;
                long dur2 = 0;
 
-               if (serverPing != 0)
-               {
+               if (serverPing != 0) {
                   dur1 = System.currentTimeMillis() - lastPingTime.get();
-                  if (dur1 >= serverPing)
-                  {
+                  if (dur1 >= serverPing) {
                      lastPingTime.set(System.currentTimeMillis());
                      connection.ping(pingFrame);
                      dur1 = 0;
                   }
                }
 
-               if (serverAcceptPing != 0)
-               {
+               if (serverAcceptPing != 0) {
                   dur2 = System.currentTimeMillis() - lastAccepted.get();
 
-                  if (dur2 > (2 * serverAcceptPing))
-                  {
+                  if (dur2 > (2 * serverAcceptPing)) {
                      connection.disconnect(false);
                      shutdown = true;
                      break;
@@ -361,82 +306,68 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
                long waitTime1 = 0;
                long waitTime2 = 0;
 
-               if (serverPing > 0)
-               {
+               if (serverPing > 0) {
                   waitTime1 = serverPing - dur1;
                }
 
-               if (serverAcceptPing > 0)
-               {
+               if (serverAcceptPing > 0) {
                   waitTime2 = serverAcceptPing * 2 - dur2;
                }
 
                long waitTime = 10L;
 
-               if ((waitTime1 > 0) && (waitTime2 > 0))
-               {
+               if ((waitTime1 > 0) && (waitTime2 > 0)) {
                   waitTime = Math.min(waitTime1, waitTime2);
                }
-               else if (waitTime1 > 0)
-               {
+               else if (waitTime1 > 0) {
                   waitTime = waitTime1;
                }
-               else if (waitTime2 > 0)
-               {
+               else if (waitTime2 > 0) {
                   waitTime = waitTime2;
                }
 
-               try
-               {
+               try {
                   this.wait(waitTime);
                }
-               catch (InterruptedException e)
-               {
+               catch (InterruptedException e) {
                }
             }
          }
       }
 
-      public void pingAccepted()
-      {
+      public void pingAccepted() {
          this.lastAccepted.set(System.currentTimeMillis());
       }
    }
 
    @Override
-   public void requestAccepted(StompFrame request)
-   {
-      if (heartBeater != null)
-      {
+   public void requestAccepted(StompFrame request) {
+      if (heartBeater != null) {
          heartBeater.pingAccepted();
       }
    }
 
    @Override
-   public StompFrame createStompFrame(String command)
-   {
+   public StompFrame createStompFrame(String command) {
       return new StompFrameV11(command);
    }
 
    @Override
-   public void initDecoder(VersionedStompFrameHandler existingHandler)
-   {
+   public void initDecoder(VersionedStompFrameHandler existingHandler) {
       decoder.init(existingHandler.getDecoder());
    }
 
-   protected class StompDecoderV11 extends StompDecoder
-   {
+   protected class StompDecoderV11 extends StompDecoder {
+
       protected boolean isEscaping = false;
       protected SimpleBytes holder = new SimpleBytes(1024);
 
-      public StompDecoderV11(StompFrameHandlerV11 handler)
-      {
+      public StompDecoderV11(StompFrameHandlerV11 handler) {
          super(handler);
       }
 
       @Override
-      public void init(StompDecoder decoder)
-      {
+      public void init(StompDecoder decoder) {
          this.data = decoder.data;
          this.workingBuffer = decoder.workingBuffer;
          this.pos = decoder.pos;
@@ -444,16 +375,14 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
       }
 
       @Override
-      public void init()
-      {
+      public void init() {
          super.init();
          isEscaping = false;
          holder.reset();
       }
 
       @Override
-      protected boolean parseCommand() throws ActiveMQStompException
-      {
+      protected boolean parseCommand() throws ActiveMQStompException {
          int offset = 0;
          boolean nextChar = false;
 
@@ -463,45 +392,39 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
          // next STOMP frame is read - we need to deal with this.
          // Besides, Stomp 1.2 allows for extra EOLs after NULL (i.e.
          // either "[\r]\n"s or "\n"s)
-         while (true)
-         {
-            if (workingBuffer[offset] == NEW_LINE)
-            {
-               if (heartBeater != null)
-               {
+         while (true) {
+            if (workingBuffer[offset] == NEW_LINE) {
+               if (heartBeater != null) {
                   //client ping
                   heartBeater.pingAccepted();
                }
                nextChar = false;
             }
-            else if (workingBuffer[offset] == CR)
-            {
-               if (nextChar) throw BUNDLE.invalidTwoCRs().setHandler(handler);
+            else if (workingBuffer[offset] == CR) {
+               if (nextChar)
+                  throw BUNDLE.invalidTwoCRs().setHandler(handler);
                nextChar = true;
             }
-            else
-            {
+            else {
                break;
             }
             offset++;
-            if (offset == data) return false; //no more bytes
+            if (offset == data)
+               return false; //no more bytes
          }
 
-         if (nextChar)
-         {
+         if (nextChar) {
             throw BUNDLE.badCRs().setHandler(handler);
          }
 
          //if some EOLs have been processed, drop those bytes before parsing command
-         if (offset > 0)
-         {
+         if (offset > 0) {
             System.arraycopy(workingBuffer, offset, workingBuffer, 0, data - offset);
             data = data - offset;
             offset = 0;
          }
 
-         if (data < 4)
-         {
+         if (data < 4) {
             // Need at least four bytes to identify the command
             // - up to 3 bytes for the command name + potentially another byte for a leading \n
             return false;
@@ -509,24 +432,18 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
 
          byte b = workingBuffer[offset];
 
-         switch (b)
-         {
-            case A:
-            {
-               if (workingBuffer[offset + 1] == StompDecoder.B)
-               {
-                  if (!tryIncrement(offset + COMMAND_ABORT_LENGTH + eolLen))
-                  {
+         switch (b) {
+            case A: {
+               if (workingBuffer[offset + 1] == StompDecoder.B) {
+                  if (!tryIncrement(offset + COMMAND_ABORT_LENGTH + eolLen)) {
                      return false;
                   }
 
                   // ABORT
                   command = COMMAND_ABORT;
                }
-               else
-               {
-                  if (!tryIncrement(offset + COMMAND_ACK_LENGTH + eolLen))
-                  {
+               else {
+                  if (!tryIncrement(offset + COMMAND_ACK_LENGTH + eolLen)) {
                      return false;
                   }
 
@@ -535,10 +452,8 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
                }
                break;
             }
-            case B:
-            {
-               if (!tryIncrement(offset + COMMAND_BEGIN_LENGTH + eolLen))
-               {
+            case B: {
+               if (!tryIncrement(offset + COMMAND_BEGIN_LENGTH + eolLen)) {
                   return false;
                }
 
@@ -547,12 +462,9 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
 
                break;
             }
-            case C:
-            {
-               if (workingBuffer[offset + 2] == M)
-               {
-                  if (!tryIncrement(offset + COMMAND_COMMIT_LENGTH + eolLen))
-                  {
+            case C: {
+               if (workingBuffer[offset + 2] == M) {
+                  if (!tryIncrement(offset + COMMAND_COMMIT_LENGTH + eolLen)) {
                      return false;
                   }
 
@@ -560,10 +472,8 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
                   command = COMMAND_COMMIT;
                }
                /**** added by meddy, 27 april 2011, handle header parser for reply to websocket protocol ****/
-               else if (workingBuffer[offset + 7] == E)
-               {
-                  if (!tryIncrement(offset + COMMAND_CONNECTED_LENGTH + eolLen))
-                  {
+               else if (workingBuffer[offset + 7] == E) {
+                  if (!tryIncrement(offset + COMMAND_CONNECTED_LENGTH + eolLen)) {
                      return false;
                   }
 
@@ -571,10 +481,8 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
                   command = COMMAND_CONNECTED;
                }
                /**** end ****/
-               else
-               {
-                  if (!tryIncrement(offset + COMMAND_CONNECT_LENGTH + eolLen))
-                  {
+               else {
+                  if (!tryIncrement(offset + COMMAND_CONNECT_LENGTH + eolLen)) {
                      return false;
                   }
 
@@ -583,10 +491,8 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
                }
                break;
             }
-            case D:
-            {
-               if (!tryIncrement(offset + COMMAND_DISCONNECT_LENGTH + eolLen))
-               {
+            case D: {
+               if (!tryIncrement(offset + COMMAND_DISCONNECT_LENGTH + eolLen)) {
                   return false;
                }
 
@@ -595,10 +501,8 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
 
                break;
             }
-            case R:
-            {
-               if (!tryIncrement(offset + COMMAND_RECEIPT_LENGTH + eolLen))
-               {
+            case R: {
+               if (!tryIncrement(offset + COMMAND_RECEIPT_LENGTH + eolLen)) {
                   return false;
                }
 
@@ -608,10 +512,8 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
                break;
             }
             /**** added by meddy, 27 april 2011, handle header parser for reply to websocket protocol ****/
-            case E:
-            {
-               if (!tryIncrement(offset + COMMAND_ERROR_LENGTH + eolLen))
-               {
+            case E: {
+               if (!tryIncrement(offset + COMMAND_ERROR_LENGTH + eolLen)) {
                   return false;
                }
 
@@ -620,10 +522,8 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
 
                break;
             }
-            case M:
-            {
-               if (!tryIncrement(offset + COMMAND_MESSAGE_LENGTH + eolLen))
-               {
+            case M: {
+               if (!tryIncrement(offset + COMMAND_MESSAGE_LENGTH + eolLen)) {
                   return false;
                }
 
@@ -633,32 +533,25 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
                break;
             }
             /**** end ****/
-            case S:
-            {
-               if (workingBuffer[offset + 1] == E)
-               {
-                  if (!tryIncrement(offset + COMMAND_SEND_LENGTH + eolLen))
-                  {
+            case S: {
+               if (workingBuffer[offset + 1] == E) {
+                  if (!tryIncrement(offset + COMMAND_SEND_LENGTH + eolLen)) {
                      return false;
                   }
 
                   // SEND
                   command = COMMAND_SEND;
                }
-               else if (workingBuffer[offset + 1] == U)
-               {
-                  if (!tryIncrement(offset + COMMAND_SUBSCRIBE_LENGTH + eolLen))
-                  {
+               else if (workingBuffer[offset + 1] == U) {
+                  if (!tryIncrement(offset + COMMAND_SUBSCRIBE_LENGTH + eolLen)) {
                      return false;
                   }
 
                   // SUBSCRIBE
                   command = COMMAND_SUBSCRIBE;
                }
-               else
-               {
-                  if (!tryIncrement(offset + StompDecoder.COMMAND_STOMP_LENGTH + eolLen))
-                  {
+               else {
+                  if (!tryIncrement(offset + StompDecoder.COMMAND_STOMP_LENGTH + eolLen)) {
                      return false;
                   }
 
@@ -667,10 +560,8 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
                }
                break;
             }
-            case U:
-            {
-               if (!tryIncrement(offset + COMMAND_UNSUBSCRIBE_LENGTH + eolLen))
-               {
+            case U: {
+               if (!tryIncrement(offset + COMMAND_UNSUBSCRIBE_LENGTH + eolLen)) {
                   return false;
                }
 
@@ -679,18 +570,15 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
 
                break;
             }
-            case N:
-            {
-               if (!tryIncrement(offset + COMMAND_NACK_LENGTH + eolLen))
-               {
+            case N: {
+               if (!tryIncrement(offset + COMMAND_NACK_LENGTH + eolLen)) {
                   return false;
                }
                //NACK
                command = COMMAND_NACK;
                break;
             }
-            default:
-            {
+            default: {
                throwInvalid();
             }
          }
@@ -700,46 +588,35 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
          return true;
       }
 
-      protected void checkEol() throws ActiveMQStompException
-      {
-         if (workingBuffer[pos - 1] != NEW_LINE)
-         {
+      protected void checkEol() throws ActiveMQStompException {
+         if (workingBuffer[pos - 1] != NEW_LINE) {
             throwInvalid();
          }
       }
 
       @Override
-      protected boolean parseHeaders() throws ActiveMQStompException
-      {
-
+      protected boolean parseHeaders() throws ActiveMQStompException {
 
       outer:
-         while (true)
-         {
+         while (true) {
             byte b = workingBuffer[pos++];
 
-            switch (b)
-            {
+            switch (b) {
                //escaping
-               case ESC_CHAR:
-               {
-                  if (isEscaping)
-                  {
+               case ESC_CHAR: {
+                  if (isEscaping) {
                      //this is a backslash
                      holder.append(b);
                      isEscaping = false;
                   }
-                  else
-                  {
+                  else {
                      //begin escaping
                      isEscaping = true;
                   }
                   break;
                }
-               case HEADER_SEPARATOR:
-               {
-                  if (inHeaderName)
-                  {
+               case HEADER_SEPARATOR: {
+                  if (inHeaderName) {
                      headerName = holder.getString();
 
                      holder.reset();
@@ -753,36 +630,28 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
 
                   break;
                }
-               case StompDecoder.LN:
-               {
-                  if (isEscaping)
-                  {
+               case StompDecoder.LN: {
+                  if (isEscaping) {
                      holder.append(StompDecoder.NEW_LINE);
                      isEscaping = false;
                   }
-                  else
-                  {
+                  else {
                      holder.append(b);
                   }
                   break;
                }
-               case StompDecoder.c:
-               {
-                  if (isEscaping)
-                  {
+               case StompDecoder.c: {
+                  if (isEscaping) {
                      holder.append(StompDecoder.HEADER_SEPARATOR);
                      isEscaping = false;
                   }
-                  else
-                  {
+                  else {
                      holder.append(b);
                   }
                   break;
                }
-               case StompDecoder.NEW_LINE:
-               {
-                  if (whiteSpaceOnly)
-                  {
+               case StompDecoder.NEW_LINE: {
+                  if (whiteSpaceOnly) {
                      // Headers are terminated by a blank line
                      readingHeaders = false;
 
@@ -794,13 +663,11 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
 
                   headers.put(headerName, headerValue);
 
-                  if (headerName.equals(Stomp.Headers.CONTENT_LENGTH))
-                  {
+                  if (headerName.equals(Stomp.Headers.CONTENT_LENGTH)) {
                      contentLength = Integer.parseInt(headerValue);
                   }
 
-                  if (headerName.equals(Stomp.Headers.CONTENT_TYPE))
-                  {
+                  if (headerName.equals(Stomp.Headers.CONTENT_TYPE)) {
                      contentType = headerValue;
                   }
 
@@ -812,8 +679,7 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
 
                   break;
                }
-               default:
-               {
+               default: {
                   whiteSpaceOnly = false;
 
                   headerValueWhitespace = false;
@@ -821,8 +687,7 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
                   holder.append(b);
                }
             }
-            if (pos == data)
-            {
+            if (pos == data) {
                // Run out of data
                return false;
             }
@@ -830,18 +695,14 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
          return true;
       }
 
-      protected StompFrame parseBody() throws ActiveMQStompException
-      {
+      protected StompFrame parseBody() throws ActiveMQStompException {
          byte[] content = null;
 
-         if (contentLength != -1)
-         {
-            if (pos + contentLength + 1 > data)
-            {
+         if (contentLength != -1) {
+            if (pos + contentLength + 1 > data) {
                // Need more bytes
             }
-            else
-            {
+            else {
                content = new byte[contentLength];
 
                System.arraycopy(workingBuffer, pos, content, 0, contentLength);
@@ -849,33 +710,26 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
                pos += contentLength;
 
                //drain all the rest
-               if (bodyStart == -1)
-               {
+               if (bodyStart == -1) {
                   bodyStart = pos;
                }
 
-               while (pos < data)
-               {
-                  if (workingBuffer[pos++] == 0)
-                  {
+               while (pos < data) {
+                  if (workingBuffer[pos++] == 0) {
                      break;
                   }
                }
             }
          }
-         else
-         {
+         else {
             // Need to scan for terminating NUL
 
-            if (bodyStart == -1)
-            {
+            if (bodyStart == -1) {
                bodyStart = pos;
             }
 
-            while (pos < data)
-            {
-               if (workingBuffer[pos++] == 0)
-               {
+            while (pos < data) {
+               if (workingBuffer[pos++] == 0) {
                   content = new byte[pos - bodyStart - 1];
 
                   System.arraycopy(workingBuffer, bodyStart, content, 0, content.length);
@@ -885,11 +739,10 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
             }
          }
 
-         if (content != null)
-         {
-            if (data > pos)
-            {
-               if (workingBuffer[pos] == NEW_LINE) pos++;
+         if (content != null) {
+            if (data > pos) {
+               if (workingBuffer[pos] == NEW_LINE)
+                  pos++;
 
                if (data > pos)
                   // More data still in the buffer from the next packet
@@ -906,8 +759,7 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
 
             return ret;
          }
-         else
-         {
+         else {
             return null;
          }
       }

@@ -30,14 +30,13 @@ import org.junit.Test;
  * <br>
  * This test must be run with the Test security config. on the server
  */
-public class SecurityTest extends JMSTestCase
-{
+public class SecurityTest extends JMSTestCase {
+
    /**
     * Login with no user, no password Should allow login (equivalent to guest)
     */
    @Test
-   public void testLoginNoUserNoPassword() throws Exception
-   {
+   public void testLoginNoUserNoPassword() throws Exception {
       createConnection();
       createConnection(null, null);
    }
@@ -47,8 +46,7 @@ public class SecurityTest extends JMSTestCase
     * Should allow login (equivalent to guest)
     */
    @Test
-   public void testLoginNoUserNoPasswordWithNoGuest() throws Exception
-   {
+   public void testLoginNoUserNoPasswordWithNoGuest() throws Exception {
       createConnection();
       createConnection(null, null);
    }
@@ -58,8 +56,7 @@ public class SecurityTest extends JMSTestCase
     * Should allow
     */
    @Test
-   public void testLoginValidUserAndPassword() throws Exception
-   {
+   public void testLoginValidUserAndPassword() throws Exception {
       createConnection("guest", "guest");
    }
 
@@ -68,15 +65,12 @@ public class SecurityTest extends JMSTestCase
     * Should allow
     */
    @Test
-   public void testLoginValidUserInvalidPassword() throws Exception
-   {
-      try
-      {
+   public void testLoginValidUserInvalidPassword() throws Exception {
+      try {
          Connection conn1 = createConnection("guest", "not.the.valid.password");
          ProxyAssertSupport.fail();
       }
-      catch (JMSSecurityException e)
-      {
+      catch (JMSSecurityException e) {
          // Expected
       }
    }
@@ -86,15 +80,12 @@ public class SecurityTest extends JMSTestCase
     * Should allow
     */
    @Test
-   public void testLoginInvalidUserInvalidPassword() throws Exception
-   {
-      try
-      {
+   public void testLoginInvalidUserInvalidPassword() throws Exception {
+      try {
          Connection conn1 = createConnection("not.the.valid.user", "not.the.valid.password");
          ProxyAssertSupport.fail();
       }
-      catch (JMSSecurityException e)
-      {
+      catch (JMSSecurityException e) {
          // Expected
       }
    }
@@ -105,21 +96,17 @@ public class SecurityTest extends JMSTestCase
     * user/pwd with preconfigured clientID, should return preconf
     */
    @Test
-   public void testPreConfClientID() throws Exception
-   {
+   public void testPreConfClientID() throws Exception {
       Connection conn = null;
-      try
-      {
+      try {
          ActiveMQServerTestCase.deployConnectionFactory("dilbert-id", "preConfcf", "preConfcf");
          ConnectionFactory cf = (ConnectionFactory) getInitialContext().lookup("preConfcf");
          conn = cf.createConnection("guest", "guest");
          String clientID = conn.getClientID();
          ProxyAssertSupport.assertEquals("Invalid ClientID", "dilbert-id", clientID);
       }
-      finally
-      {
-         if (conn != null)
-         {
+      finally {
+         if (conn != null) {
             conn.close();
          }
          ActiveMQServerTestCase.undeployConnectionFactory("preConfcf");
@@ -130,8 +117,7 @@ public class SecurityTest extends JMSTestCase
     * Try setting client ID
     */
    @Test
-   public void testSetClientID() throws Exception
-   {
+   public void testSetClientID() throws Exception {
       Connection conn = createConnection();
       conn.setClientID("myID");
       String clientID = conn.getClientID();
@@ -142,25 +128,20 @@ public class SecurityTest extends JMSTestCase
     * Try setting client ID on preconfigured connection - should throw exception
     */
    @Test
-   public void testSetClientIDPreConf() throws Exception
-   {
+   public void testSetClientIDPreConf() throws Exception {
       Connection conn = null;
-      try
-      {
+      try {
          ActiveMQServerTestCase.deployConnectionFactory("dilbert-id", "preConfcf", "preConfcf");
          ConnectionFactory cf = (ConnectionFactory) getInitialContext().lookup("preConfcf");
          conn = cf.createConnection("guest", "guest");
          conn.setClientID("myID");
          ProxyAssertSupport.fail();
       }
-      catch (IllegalStateException e)
-      {
+      catch (IllegalStateException e) {
          // Expected
       }
-      finally
-      {
-         if (conn != null)
-         {
+      finally {
+         if (conn != null) {
             conn.close();
          }
          ActiveMQServerTestCase.undeployConnectionFactory("preConfcf");
@@ -171,17 +152,14 @@ public class SecurityTest extends JMSTestCase
     * Try setting client ID after an operation has been performed on the connection
     */
    @Test
-   public void testSetClientIDAfterOp() throws Exception
-   {
+   public void testSetClientIDAfterOp() throws Exception {
       Connection conn = createConnection();
       conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-      try
-      {
+      try {
          conn.setClientID("myID");
          ProxyAssertSupport.fail();
       }
-      catch (IllegalStateException e)
-      {
+      catch (IllegalStateException e) {
          // Expected
       }
    }

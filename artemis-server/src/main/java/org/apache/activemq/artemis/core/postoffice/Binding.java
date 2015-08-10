@@ -23,8 +23,8 @@ import org.apache.activemq.artemis.core.server.RoutingContext;
 import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.group.UnproposalListener;
 
-public interface Binding extends UnproposalListener
-{
+public interface Binding extends UnproposalListener {
+
    SimpleString getAddress();
 
    Bindable getBindable();

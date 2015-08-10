@@ -26,8 +26,7 @@ import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.server.cluster.ClusterConnection;
 import org.apache.activemq.artemis.utils.json.JSONArray;
 
-public class ClusterConnectionControlImpl extends AbstractControl implements ClusterConnectionControl
-{
+public class ClusterConnectionControlImpl extends AbstractControl implements ClusterConnectionControl {
 
    // Constants -----------------------------------------------------
 
@@ -43,8 +42,7 @@ public class ClusterConnectionControlImpl extends AbstractControl implements Clu
 
    public ClusterConnectionControlImpl(final ClusterConnection clusterConnection,
                                        final StorageManager storageManager,
-                                       final ClusterConnectionConfiguration configuration) throws Exception
-   {
+                                       final ClusterConnectionConfiguration configuration) throws Exception {
       super(ClusterConnectionControl.class, storageManager);
       this.clusterConnection = clusterConnection;
       this.configuration = configuration;
@@ -52,231 +50,181 @@ public class ClusterConnectionControlImpl extends AbstractControl implements Clu
 
    // ClusterConnectionControlMBean implementation ---------------------------
 
-   public String getAddress()
-   {
+   public String getAddress() {
       clearIO();
-      try
-      {
+      try {
          return configuration.getAddress();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
 
    }
 
-   public String getDiscoveryGroupName()
-   {
+   public String getDiscoveryGroupName() {
       clearIO();
-      try
-      {
+      try {
          return configuration.getDiscoveryGroupName();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
 
    }
 
-   public int getMaxHops()
-   {
+   public int getMaxHops() {
       clearIO();
-      try
-      {
+      try {
          return configuration.getMaxHops();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
 
    }
 
-   public String getName()
-   {
+   public String getName() {
       clearIO();
-      try
-      {
+      try {
          return configuration.getName();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
 
    }
 
-   public long getRetryInterval()
-   {
+   public long getRetryInterval() {
       clearIO();
-      try
-      {
+      try {
          return configuration.getRetryInterval();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
 
    }
 
-   public String getNodeID()
-   {
+   public String getNodeID() {
       clearIO();
-      try
-      {
+      try {
          return clusterConnection.getNodeID();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public String[] getStaticConnectors()
-   {
+   public String[] getStaticConnectors() {
       clearIO();
-      try
-      {
-         if (configuration.getStaticConnectors() == null)
-         {
+      try {
+         if (configuration.getStaticConnectors() == null) {
             return null;
          }
-         else
-         {
+         else {
             return configuration.getStaticConnectors().toArray(new String[0]);
          }
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public String getStaticConnectorsAsJSON() throws Exception
-   {
+   public String getStaticConnectorsAsJSON() throws Exception {
       clearIO();
-      try
-      {
+      try {
          List<String> connectors = configuration.getStaticConnectors();
 
-         if (connectors == null)
-         {
+         if (connectors == null) {
             return null;
          }
 
          JSONArray array = new JSONArray();
 
-         for (String connector : connectors)
-         {
+         for (String connector : connectors) {
             array.put(connector);
          }
          return array.toString();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public boolean isDuplicateDetection()
-   {
+   public boolean isDuplicateDetection() {
       clearIO();
-      try
-      {
+      try {
          return configuration.isDuplicateDetection();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public String getMessageLoadBalancingType()
-   {
+   public String getMessageLoadBalancingType() {
       clearIO();
-      try
-      {
+      try {
          return configuration.getMessageLoadBalancingType().getType();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public String getTopology()
-   {
+   public String getTopology() {
       clearIO();
-      try
-      {
+      try {
          return clusterConnection.getTopology().describe();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public Map<String, String> getNodes() throws Exception
-   {
+   public Map<String, String> getNodes() throws Exception {
       clearIO();
-      try
-      {
+      try {
          return clusterConnection.getNodes();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public boolean isStarted()
-   {
+   public boolean isStarted() {
       clearIO();
-      try
-      {
+      try {
          return clusterConnection.isStarted();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public void start() throws Exception
-   {
+   public void start() throws Exception {
       clearIO();
-      try
-      {
+      try {
          clusterConnection.start();
          clusterConnection.flushExecutor();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public void stop() throws Exception
-   {
+   public void stop() throws Exception {
       clearIO();
-      try
-      {
+      try {
          clusterConnection.stop();
          clusterConnection.flushExecutor();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
    @Override
-   protected MBeanOperationInfo[] fillMBeanOperationInfo()
-   {
+   protected MBeanOperationInfo[] fillMBeanOperationInfo() {
       return MBeanInfoHelper.getMBeanOperationsInfo(ClusterConnectionControl.class);
    }
 

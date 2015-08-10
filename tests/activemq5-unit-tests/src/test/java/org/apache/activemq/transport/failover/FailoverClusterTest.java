@@ -25,7 +25,9 @@ import javax.jms.Connection;
 import javax.jms.MessageConsumer;
 import javax.jms.Queue;
 import javax.jms.Session;
+
 import junit.framework.TestCase;
+
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.broker.BrokerService;
@@ -34,130 +36,130 @@ import org.apache.activemq.network.NetworkConnector;
 
 public class FailoverClusterTest extends TestCase {
 
-    private static final int NUMBER = 10;
-    private static final String BROKER_BIND_ADDRESS = "tcp://0.0.0.0:0";
-    private static final String BROKER_A_NAME = "BROKERA";
-    private static final String BROKER_B_NAME = "BROKERB";
-    private BrokerService brokerA;
-    private BrokerService brokerB;
-    private String clientUrl;
+   private static final int NUMBER = 10;
+   private static final String BROKER_BIND_ADDRESS = "tcp://0.0.0.0:0";
+   private static final String BROKER_A_NAME = "BROKERA";
+   private static final String BROKER_B_NAME = "BROKERB";
+   private BrokerService brokerA;
+   private BrokerService brokerB;
+   private String clientUrl;
 
-    private final List<ActiveMQConnection> connections = new ArrayList<ActiveMQConnection>();
+   private final List<ActiveMQConnection> connections = new ArrayList<ActiveMQConnection>();
 
-    public void testClusterConnectedAfterClients() throws Exception {
-        createClients();
-        if (brokerB == null) {
-            brokerB = createBrokerB(BROKER_BIND_ADDRESS);
-        }
-        Thread.sleep(3000);
-        Set<String> set = new HashSet<String>();
-        for (ActiveMQConnection c : connections) {
-            set.add(c.getTransportChannel().getRemoteAddress());
-        }
-        assertTrue(set.size() > 1);
-    }
+   public void testClusterConnectedAfterClients() throws Exception {
+      createClients();
+      if (brokerB == null) {
+         brokerB = createBrokerB(BROKER_BIND_ADDRESS);
+      }
+      Thread.sleep(3000);
+      Set<String> set = new HashSet<String>();
+      for (ActiveMQConnection c : connections) {
+         set.add(c.getTransportChannel().getRemoteAddress());
+      }
+      assertTrue(set.size() > 1);
+   }
 
-    public void testClusterURIOptionsStrip() throws Exception {
-        createClients();
-        if (brokerB == null) {
-            // add in server side only url param, should not be propagated
-            brokerB = createBrokerB(BROKER_BIND_ADDRESS + "?transport.closeAsync=false");
-        }
-        Thread.sleep(3000);
-        Set<String> set = new HashSet<String>();
-        for (ActiveMQConnection c : connections) {
-            set.add(c.getTransportChannel().getRemoteAddress());
-        }
-        assertTrue(set.size() > 1);
-    }
+   public void testClusterURIOptionsStrip() throws Exception {
+      createClients();
+      if (brokerB == null) {
+         // add in server side only url param, should not be propagated
+         brokerB = createBrokerB(BROKER_BIND_ADDRESS + "?transport.closeAsync=false");
+      }
+      Thread.sleep(3000);
+      Set<String> set = new HashSet<String>();
+      for (ActiveMQConnection c : connections) {
+         set.add(c.getTransportChannel().getRemoteAddress());
+      }
+      assertTrue(set.size() > 1);
+   }
 
-    public void testClusterConnectedBeforeClients() throws Exception {
+   public void testClusterConnectedBeforeClients() throws Exception {
 
-        if (brokerB == null) {
-            brokerB = createBrokerB(BROKER_BIND_ADDRESS);
-        }
-        Thread.sleep(5000);
-        createClients();
-        Thread.sleep(2000);
-        brokerA.stop();
-        Thread.sleep(2000);
+      if (brokerB == null) {
+         brokerB = createBrokerB(BROKER_BIND_ADDRESS);
+      }
+      Thread.sleep(5000);
+      createClients();
+      Thread.sleep(2000);
+      brokerA.stop();
+      Thread.sleep(2000);
 
-        URI brokerBURI = new URI( brokerB.getTransportConnectors().get(0).getPublishableConnectString());
-        for (ActiveMQConnection c : connections) {
-            String addr = c.getTransportChannel().getRemoteAddress();
-            assertTrue(addr.indexOf("" + brokerBURI.getPort()) > 0);
-        }
-    }
+      URI brokerBURI = new URI(brokerB.getTransportConnectors().get(0).getPublishableConnectString());
+      for (ActiveMQConnection c : connections) {
+         String addr = c.getTransportChannel().getRemoteAddress();
+         assertTrue(addr.indexOf("" + brokerBURI.getPort()) > 0);
+      }
+   }
 
-    @Override
-    protected void setUp() throws Exception {
-        if (brokerA == null) {
-            brokerA = createBrokerA(BROKER_BIND_ADDRESS + "?transport.closeAsync=false");
-            clientUrl = "failover://(" + brokerA.getTransportConnectors().get(0).getPublishableConnectString() + ")";
-        }
-    }
+   @Override
+   protected void setUp() throws Exception {
+      if (brokerA == null) {
+         brokerA = createBrokerA(BROKER_BIND_ADDRESS + "?transport.closeAsync=false");
+         clientUrl = "failover://(" + brokerA.getTransportConnectors().get(0).getPublishableConnectString() + ")";
+      }
+   }
 
-    @Override
-    protected void tearDown() throws Exception {
-        for (Connection c : connections) {
-            c.close();
-        }
-        if (brokerB != null) {
-            brokerB.stop();
-            brokerB = null;
-        }
-        if (brokerA != null) {
-            brokerA.stop();
-            brokerA = null;
-        }
-    }
+   @Override
+   protected void tearDown() throws Exception {
+      for (Connection c : connections) {
+         c.close();
+      }
+      if (brokerB != null) {
+         brokerB.stop();
+         brokerB = null;
+      }
+      if (brokerA != null) {
+         brokerA.stop();
+         brokerA = null;
+      }
+   }
 
-    protected BrokerService createBrokerA(String uri) throws Exception {
-        BrokerService answer = new BrokerService();
-        answer.setUseJmx(false);
-        configureConsumerBroker(answer, uri);
-        answer.start();
-        return answer;
-    }
+   protected BrokerService createBrokerA(String uri) throws Exception {
+      BrokerService answer = new BrokerService();
+      answer.setUseJmx(false);
+      configureConsumerBroker(answer, uri);
+      answer.start();
+      return answer;
+   }
 
-    protected void configureConsumerBroker(BrokerService answer, String uri) throws Exception {
-        answer.setBrokerName(BROKER_A_NAME);
-        answer.setPersistent(false);
-        TransportConnector connector = answer.addConnector(uri);
-        connector.setRebalanceClusterClients(true);
-        connector.setUpdateClusterClients(true);
-        answer.setUseShutdownHook(false);
-    }
+   protected void configureConsumerBroker(BrokerService answer, String uri) throws Exception {
+      answer.setBrokerName(BROKER_A_NAME);
+      answer.setPersistent(false);
+      TransportConnector connector = answer.addConnector(uri);
+      connector.setRebalanceClusterClients(true);
+      connector.setUpdateClusterClients(true);
+      answer.setUseShutdownHook(false);
+   }
 
-    protected BrokerService createBrokerB(String uri) throws Exception {
-        BrokerService answer = new BrokerService();
-        answer.setUseJmx(false);
-        configureNetwork(answer, uri);
-        answer.start();
-        return answer;
-    }
+   protected BrokerService createBrokerB(String uri) throws Exception {
+      BrokerService answer = new BrokerService();
+      answer.setUseJmx(false);
+      configureNetwork(answer, uri);
+      answer.start();
+      return answer;
+   }
 
-    protected void configureNetwork(BrokerService answer, String uri) throws Exception {
-        answer.setBrokerName(BROKER_B_NAME);
-        answer.setPersistent(false);
-        NetworkConnector network = answer.addNetworkConnector("static://" + brokerA.getTransportConnectors().get(0).getPublishableConnectString());
-        network.setDuplex(true);
-        TransportConnector connector = answer.addConnector(uri);
-        connector.setRebalanceClusterClients(true);
-        connector.setUpdateClusterClients(true);
-        answer.setUseShutdownHook(false);
-    }
+   protected void configureNetwork(BrokerService answer, String uri) throws Exception {
+      answer.setBrokerName(BROKER_B_NAME);
+      answer.setPersistent(false);
+      NetworkConnector network = answer.addNetworkConnector("static://" + brokerA.getTransportConnectors().get(0).getPublishableConnectString());
+      network.setDuplex(true);
+      TransportConnector connector = answer.addConnector(uri);
+      connector.setRebalanceClusterClients(true);
+      connector.setUpdateClusterClients(true);
+      answer.setUseShutdownHook(false);
+   }
 
-    @SuppressWarnings("unused")
-    protected void createClients() throws Exception {
-        ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(clientUrl);
-        for (int i = 0; i < NUMBER; i++) {
-            ActiveMQConnection c = (ActiveMQConnection) factory.createConnection();
-            c.start();
-            Session s = c.createSession(false, Session.AUTO_ACKNOWLEDGE);
-            Queue queue = s.createQueue(getClass().getName());
-            MessageConsumer consumer = s.createConsumer(queue);
-            connections.add(c);
-        }
-    }
+   @SuppressWarnings("unused")
+   protected void createClients() throws Exception {
+      ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(clientUrl);
+      for (int i = 0; i < NUMBER; i++) {
+         ActiveMQConnection c = (ActiveMQConnection) factory.createConnection();
+         c.start();
+         Session s = c.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         Queue queue = s.createQueue(getClass().getName());
+         MessageConsumer consumer = s.createConsumer(queue);
+         connections.add(c);
+      }
+   }
 }

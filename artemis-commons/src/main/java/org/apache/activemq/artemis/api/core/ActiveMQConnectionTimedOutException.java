@@ -19,17 +19,15 @@ package org.apache.activemq.artemis.api.core;
 /**
  * A client timed out will connecting to ActiveMQ Artemis server.
  */
-public final class ActiveMQConnectionTimedOutException extends ActiveMQException
-{
+public final class ActiveMQConnectionTimedOutException extends ActiveMQException {
+
    private static final long serialVersionUID = 3244233758084830372L;
 
-   public ActiveMQConnectionTimedOutException()
-   {
+   public ActiveMQConnectionTimedOutException() {
       super(ActiveMQExceptionType.CONNECTION_TIMEDOUT);
    }
 
-   public ActiveMQConnectionTimedOutException(String msg)
-   {
+   public ActiveMQConnectionTimedOutException(String msg) {
       super(ActiveMQExceptionType.CONNECTION_TIMEDOUT, msg);
    }
 }

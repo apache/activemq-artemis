@@ -35,19 +35,17 @@ import org.apache.activemq.artemis.core.server.management.ManagementService;
 import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 
 /**
-* An activation controls the lifecycle of the server and any components specific to the Activation itself.
-*/
-public abstract class Activation implements Runnable
-{
+ * An activation controls the lifecycle of the server and any components specific to the Activation itself.
+ */
+public abstract class Activation implements Runnable {
+
    public abstract void close(boolean permanently, boolean restarting) throws Exception;
 
    /*
    * freeze the connection but allow the Activation to over ride this and decide if any connections should be left open.
    * */
-   public void freezeConnections(RemotingService remotingService)
-   {
-      if (remotingService != null)
-      {
+   public void freezeConnections(RemotingService remotingService) {
+      if (remotingService != null) {
          remotingService.freeze(null, null);
       }
    }
@@ -56,67 +54,60 @@ public abstract class Activation implements Runnable
    * allow the activation t ooverride this if it needs to tidy up after freezing the connection. its a different method as
    * its called outside of the lock that the previous method is.
    * */
-   public void postConnectionFreeze()
-   {
+   public void postConnectionFreeze() {
    }
 
    /*
    * called before the server is closing the journals so the activation can tidy up stuff
    * */
-   public void preStorageClose() throws Exception
-   {
+   public void preStorageClose() throws Exception {
    }
 
    /*
    * called by the server to notify the Activation that the server is stopping
    * */
-   public void sendLiveIsStopping()
-   {
+   public void sendLiveIsStopping() {
    }
 
    /*
    * called by the ha manager to notify the Activation that HA is now active
    * */
-   public void haStarted()
-   {
+   public void haStarted() {
    }
 
    /*
    * allows the Activation to register a channel handler so it can handle any packets that are unique to the Activation
    * */
-   public ChannelHandler getActivationChannelHandler(Channel channel, Acceptor acceptorUsed)
-   {
+   public ChannelHandler getActivationChannelHandler(Channel channel, Acceptor acceptorUsed) {
       return null;
    }
 
    /*
    * returns the HA manager used for this Activation
    * */
-   public HAManager getHAManager()
-   {
+   public HAManager getHAManager() {
       return new StandaloneHAManager();
    }
 
    /*
    * create the Journal loader needed for this Activation.
    * */
-   public JournalLoader createJournalLoader(PostOffice postOffice, PagingManager pagingManager, StorageManager storageManager, QueueFactory queueFactory, NodeManager nodeManager, ManagementService managementService, GroupingHandler groupingHandler, Configuration configuration, ActiveMQServer parentServer) throws ActiveMQException
-   {
-      return new PostOfficeJournalLoader(postOffice,
-            pagingManager,
-            storageManager,
-            queueFactory,
-            nodeManager,
-            managementService,
-            groupingHandler,
-            configuration);
+   public JournalLoader createJournalLoader(PostOffice postOffice,
+                                            PagingManager pagingManager,
+                                            StorageManager storageManager,
+                                            QueueFactory queueFactory,
+                                            NodeManager nodeManager,
+                                            ManagementService managementService,
+                                            GroupingHandler groupingHandler,
+                                            Configuration configuration,
+                                            ActiveMQServer parentServer) throws ActiveMQException {
+      return new PostOfficeJournalLoader(postOffice, pagingManager, storageManager, queueFactory, nodeManager, managementService, groupingHandler, configuration);
    }
 
    /*
    * todo, remove this, its only needed for JMSServerManagerImpl, it should be sought elsewhere
    * */
-   public ReplicationManager getReplicationManager()
-   {
+   public ReplicationManager getReplicationManager() {
       return null;
    }
 }

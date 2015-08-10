@@ -25,12 +25,15 @@ import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
  * Every live server will have an HAPolicy that configures the type of server that it should be either live, backup or
  * colocated (both). It also configures how, if colocated, it should react to sending and receiving requests for backups.
  */
-public interface HAPolicy<T extends Activation>
-{
+public interface HAPolicy<T extends Activation> {
+
    /*
    * created the Activation associated with this policy.
    * */
-   T createActivation(ActiveMQServerImpl server, boolean wasLive, Map<String, Object> activationParams, ActiveMQServerImpl.ShutdownOnCriticalErrorListener shutdownOnCriticalIO) throws Exception;
+   T createActivation(ActiveMQServerImpl server,
+                      boolean wasLive,
+                      Map<String, Object> activationParams,
+                      ActiveMQServerImpl.ShutdownOnCriticalErrorListener shutdownOnCriticalIO) throws Exception;
 
    boolean isSharedStore();
 

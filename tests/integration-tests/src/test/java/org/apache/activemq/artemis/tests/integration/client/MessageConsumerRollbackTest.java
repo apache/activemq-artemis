@@ -35,8 +35,7 @@ import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
 import org.junit.Before;
 import org.junit.Test;
 
-public class MessageConsumerRollbackTest extends ActiveMQTestBase
-{
+public class MessageConsumerRollbackTest extends ActiveMQTestBase {
 
    ActiveMQServer server;
 
@@ -49,8 +48,7 @@ public class MessageConsumerRollbackTest extends ActiveMQTestBase
    private static final String outQueue = "outQueue";
 
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       server = createServer(true, true);
@@ -84,8 +82,7 @@ public class MessageConsumerRollbackTest extends ActiveMQTestBase
    // Public --------------------------------------------------------
 
    @Test
-   public void testRollbackMultipleConsumers() throws Exception
-   {
+   public void testRollbackMultipleConsumers() throws Exception {
 
       int numberOfMessages = 3000;
       int numberOfConsumers = 10;
@@ -99,21 +96,16 @@ public class MessageConsumerRollbackTest extends ActiveMQTestBase
 
       LocalConsumer[] consumers = new LocalConsumer[numberOfConsumers];
 
-      for (int i = 0; i < numberOfConsumers; i++)
-      {
+      for (int i = 0; i < numberOfConsumers; i++) {
          consumers[i] = new LocalConsumer(count, commitLatch);
          consumers[i].start();
       }
 
-
       commitLatch.await(2, TimeUnit.MINUTES);
 
-
-      for (LocalConsumer consumer : consumers)
-      {
+      for (LocalConsumer consumer : consumers) {
          consumer.stop();
       }
-
 
       ClientConsumer consumer = session.createConsumer(outQueue);
 
@@ -121,8 +113,7 @@ public class MessageConsumerRollbackTest extends ActiveMQTestBase
 
       HashSet<Integer> values = new HashSet<Integer>();
 
-      for (int i = 0; i < numberOfMessages; i++)
-      {
+      for (int i = 0; i < numberOfMessages; i++) {
          ClientMessage msg = consumer.receive(1000);
          assertNotNull(msg);
          int value = msg.getIntProperty("out_msg");
@@ -131,11 +122,9 @@ public class MessageConsumerRollbackTest extends ActiveMQTestBase
          values.add(value);
       }
 
-
       assertNull(consumer.receiveImmediate());
 
-      for (int i = 0; i < numberOfMessages; i++)
-      {
+      for (int i = 0; i < numberOfMessages; i++) {
          assertTrue(values.contains(i));
       }
 
@@ -150,12 +139,10 @@ public class MessageConsumerRollbackTest extends ActiveMQTestBase
     * @param session
     * @throws Exception
     */
-   private void sendMessages(int numberOfMessages, ClientSession session) throws Exception
-   {
+   private void sendMessages(int numberOfMessages, ClientSession session) throws Exception {
       ClientProducer producer = session.createProducer(inQueue);
 
-      for (int i = 0; i < numberOfMessages; i++)
-      {
+      for (int i = 0; i < numberOfMessages; i++) {
          ActiveMQTextMessage txt = new ActiveMQTextMessage(session);
          txt.setIntProperty("msg", i);
          txt.setText("Message Number (" + i + ")");
@@ -166,8 +153,7 @@ public class MessageConsumerRollbackTest extends ActiveMQTestBase
       session.commit();
    }
 
-   private class LocalConsumer implements MessageHandler
-   {
+   private class LocalConsumer implements MessageHandler {
 
       // One of the tests will need this
       boolean rollbackFirstMessage = true;
@@ -186,21 +172,18 @@ public class MessageConsumerRollbackTest extends ActiveMQTestBase
 
       CountDownLatch commitLatch;
 
-      public LocalConsumer(AtomicInteger counter, CountDownLatch commitLatch)
-      {
+      public LocalConsumer(AtomicInteger counter, CountDownLatch commitLatch) {
          this.counter = counter;
          this.commitLatch = commitLatch;
       }
 
-      public void stop() throws Exception
-      {
+      public void stop() throws Exception {
          session.close();
          factoryLocator.close();
          consumerLocator.close();
       }
 
-      public void start() throws Exception
-      {
+      public void start() throws Exception {
          consumerLocator = createNettyNonHALocator();
 
          factoryLocator = createSessionFactory(consumerLocator);
@@ -216,11 +199,9 @@ public class MessageConsumerRollbackTest extends ActiveMQTestBase
          session.start();
       }
 
-      public void onMessage(ClientMessage message)
-      {
+      public void onMessage(ClientMessage message) {
 
-         try
-         {
+         try {
 
             message.acknowledge();
             ClientMessage outmsg = session.createMessage(true);
@@ -229,34 +210,27 @@ public class MessageConsumerRollbackTest extends ActiveMQTestBase
 
             producer.send(outmsg);
 
-
-            if (rollbackFirstMessage)
-            {
+            if (rollbackFirstMessage) {
                session.rollback();
                rollbackFirstMessage = false;
                return;
             }
 
-            if (counter.incrementAndGet() % 200 == 0)
-            {
+            if (counter.incrementAndGet() % 200 == 0) {
                System.out.println("rollback " + message);
                session.rollback();
             }
-            else
-            {
+            else {
                commitLatch.countDown();
                session.commit();
             }
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             e.printStackTrace();
-            try
-            {
+            try {
                session.rollback();
             }
-            catch (Exception ignored)
-            {
+            catch (Exception ignored) {
                ignored.printStackTrace();
             }
          }

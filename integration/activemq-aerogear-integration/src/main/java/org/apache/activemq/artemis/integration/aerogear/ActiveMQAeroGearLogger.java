@@ -37,8 +37,8 @@ import org.jboss.logging.annotations.MessageLogger;
  * so an INFO message would be 181000 to 181999
  */
 @MessageLogger(projectCode = "AMQ")
-public interface ActiveMQAeroGearLogger extends BasicLogger
-{
+public interface ActiveMQAeroGearLogger extends BasicLogger {
+
    /**
     * The aerogear logger.
     */

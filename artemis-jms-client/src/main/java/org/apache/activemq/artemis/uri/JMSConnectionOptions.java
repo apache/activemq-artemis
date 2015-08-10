@@ -24,52 +24,41 @@ import org.apache.activemq.artemis.api.jms.JMSFactoryType;
  * When parsing the URL this will serve as an intermediate object
  * And it could also be a pl
  */
-public class JMSConnectionOptions extends ConnectionOptions
-{
+public class JMSConnectionOptions extends ConnectionOptions {
+
    private JMSFactoryType factoryType = JMSFactoryType.CF;
 
-   public JMSFactoryType getFactoryTypeEnum()
-   {
+   public JMSFactoryType getFactoryTypeEnum() {
       return factoryType;
    }
 
-   public String getType()
-   {
+   public String getType() {
       return factoryType.toString();
    }
 
-
-   public void setType(final String type)
-   {
+   public void setType(final String type) {
       this.factoryType = convertCFType(type);
-      if (factoryType == null)
-      {
+      if (factoryType == null) {
          factoryType = JMSFactoryType.CF;
       }
    }
 
-   public static JMSFactoryType convertCFType(String type)
-   {
-      try
-      {
-         if (type == null)
-         {
+   public static JMSFactoryType convertCFType(String type) {
+      try {
+         if (type == null) {
             return JMSFactoryType.CF;
          }
-         else
-         {
+         else {
             return Enum.valueOf(JMSFactoryType.class, type);
          }
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          return null;
       }
    }
 
    @Override
-   public String toString()
-   {
+   public String toString() {
       return "JMSConnectionOptions{" +
          ", factoryType=" + factoryType +
          '}';

@@ -26,15 +26,13 @@ import javax.naming.InitialContext;
 /**
  * A JMS Example that uses shared consumers.
  */
-public class JMSSharedConsumerExample
-{
-   public static void main(final String[] args) throws Exception
-   {
+public class JMSSharedConsumerExample {
+
+   public static void main(final String[] args) throws Exception {
       InitialContext initialContext = null;
       JMSContext jmsContext = null;
       JMSContext jmsContext2 = null;
-      try
-      {
+      try {
          // Step 1. Create an initial context to perform the JNDI lookup.
          initialContext = new InitialContext();
 
@@ -42,7 +40,7 @@ public class JMSSharedConsumerExample
          Topic topic = (Topic) initialContext.lookup("topic/exampleTopic");
 
          // Step 3. Perform a lookup on the Connection Factory
-         ConnectionFactory cf = (ConnectionFactory)initialContext.lookup("ConnectionFactory");
+         ConnectionFactory cf = (ConnectionFactory) initialContext.lookup("ConnectionFactory");
 
          // Step 4.Create a JMS Context
          jmsContext = cf.createContext();
@@ -60,9 +58,9 @@ public class JMSSharedConsumerExample
          JMSConsumer jmsConsumer2 = jmsContext2.createSharedConsumer(topic, "sc1");
 
          // Step 9. send 2 messages
-         producer.send(topic, "this is a String!") ;
+         producer.send(topic, "this is a String!");
 
-         producer.send(topic, "this is a second String!") ;
+         producer.send(topic, "this is a second String!");
 
          // Step 10. receive the messages shared by both consumers
          String body = jmsConsumer.receiveBody(String.class, 5000);
@@ -73,19 +71,15 @@ public class JMSSharedConsumerExample
 
          System.out.println("body = " + body);
       }
-      finally
-      {
+      finally {
          // Step 11. Be sure to close our JMS resources!
-         if (initialContext != null)
-         {
+         if (initialContext != null) {
             initialContext.close();
          }
-         if (jmsContext != null)
-         {
+         if (jmsContext != null) {
             jmsContext.close();
          }
-         if (jmsContext2 != null)
-         {
+         if (jmsContext2 != null) {
             jmsContext2.close();
          }
       }

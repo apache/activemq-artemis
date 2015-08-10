@@ -21,8 +21,7 @@ import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.jms.server.config.ConnectionFactoryConfiguration;
 import org.apache.activemq.artemis.jms.server.config.impl.ConnectionFactoryConfigurationImpl;
 
-public class PersistedConnectionFactory implements EncodingSupport
-{
+public class PersistedConnectionFactory implements EncodingSupport {
 
    // Constants -----------------------------------------------------
 
@@ -32,16 +31,14 @@ public class PersistedConnectionFactory implements EncodingSupport
 
    private ConnectionFactoryConfiguration config;
 
-   public PersistedConnectionFactory()
-   {
+   public PersistedConnectionFactory() {
       super();
    }
 
    /**
     * @param config
     */
-   public PersistedConnectionFactory(final ConnectionFactoryConfiguration config)
-   {
+   public PersistedConnectionFactory(final ConnectionFactoryConfiguration config) {
       super();
       this.config = config;
    }
@@ -55,45 +52,38 @@ public class PersistedConnectionFactory implements EncodingSupport
    /**
     * @return the id
     */
-   public long getId()
-   {
+   public long getId() {
       return id;
    }
 
-   public void setId(final long id)
-   {
+   public void setId(final long id) {
       this.id = id;
    }
 
-   public String getName()
-   {
+   public String getName() {
       return config.getName();
    }
 
    /**
     * @return the config
     */
-   public ConnectionFactoryConfiguration getConfig()
-   {
+   public ConnectionFactoryConfiguration getConfig() {
       return config;
    }
 
    @Override
-   public void decode(final ActiveMQBuffer buffer)
-   {
+   public void decode(final ActiveMQBuffer buffer) {
       config = new ConnectionFactoryConfigurationImpl();
       config.decode(buffer);
    }
 
    @Override
-   public void encode(final ActiveMQBuffer buffer)
-   {
+   public void encode(final ActiveMQBuffer buffer) {
       config.encode(buffer);
    }
 
    @Override
-   public int getEncodeSize()
-   {
+   public int getEncodeSize() {
       return config.getEncodeSize();
    }
 

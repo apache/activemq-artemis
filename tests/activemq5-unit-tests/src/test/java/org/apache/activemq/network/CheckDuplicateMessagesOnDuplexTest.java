@@ -32,6 +32,7 @@ import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.net.ServerSocketFactory;
+
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.broker.TransportConnector;
@@ -55,302 +56,305 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import static org.junit.Assert.*;
 
 /**
- *
  * @author x22koe
  */
 public class CheckDuplicateMessagesOnDuplexTest {
 
-    private static final Logger log = LoggerFactory.getLogger(CheckDuplicateMessagesOnDuplexTest.class);
-    private BrokerService localBroker;
-    private BrokerService remoteBroker;
-    private ActiveMQConnectionFactory localFactory;
-    private ActiveMQConnectionFactory remoteFactory;
-    private Session localSession;
-    private MessageConsumer consumer;
-    private Session remoteSession;
-    private MessageProducer producer;
-    private Connection remoteConnection;
-    private Connection localConnection;
-    private DebugTransportFilter debugTransportFilter;
-    private boolean useLevelDB = false;
+   private static final Logger log = LoggerFactory.getLogger(CheckDuplicateMessagesOnDuplexTest.class);
+   private BrokerService localBroker;
+   private BrokerService remoteBroker;
+   private ActiveMQConnectionFactory localFactory;
+   private ActiveMQConnectionFactory remoteFactory;
+   private Session localSession;
+   private MessageConsumer consumer;
+   private Session remoteSession;
+   private MessageProducer producer;
+   private Connection remoteConnection;
+   private Connection localConnection;
+   private DebugTransportFilter debugTransportFilter;
+   private boolean useLevelDB = false;
 
-    public CheckDuplicateMessagesOnDuplexTest() {
-    }
+   public CheckDuplicateMessagesOnDuplexTest() {
+   }
 
-    @BeforeClass
-    public static void setUpClass() {
-    }
+   @BeforeClass
+   public static void setUpClass() {
+   }
 
-    @AfterClass
-    public static void tearDownClass() {
-    }
+   @AfterClass
+   public static void tearDownClass() {
+   }
 
-    @Before
-    public void setUp() {
-    }
+   @Before
+   public void setUp() {
+   }
 
-    @After
-    public void tearDown() {
-    }
+   @After
+   public void tearDown() {
+   }
 
-    @Test
-    public void testConnectionLossBehaviorBeforeAckIsSent() throws Exception {
-        createBrokers();
-        localBroker.deleteAllMessages();
-        remoteBroker.deleteAllMessages();
-        startBrokers();
-        openConnections();
+   @Test
+   public void testConnectionLossBehaviorBeforeAckIsSent() throws Exception {
+      createBrokers();
+      localBroker.deleteAllMessages();
+      remoteBroker.deleteAllMessages();
+      startBrokers();
+      openConnections();
 
-        Thread.sleep(1000);
-        log.info("\n\n==============================================\nsend hello1\n");
+      Thread.sleep(1000);
+      log.info("\n\n==============================================\nsend hello1\n");
 
-        // simulate network failure between REMOTE and LOCAL just before the reception response is sent back to REMOTE
-        debugTransportFilter.closeOnResponse = true;
+      // simulate network failure between REMOTE and LOCAL just before the reception response is sent back to REMOTE
+      debugTransportFilter.closeOnResponse = true;
 
-        producer.send(remoteSession.createTextMessage("hello1"));
-        Message msg = consumer.receive(30000);
+      producer.send(remoteSession.createTextMessage("hello1"));
+      Message msg = consumer.receive(30000);
 
-        assertNotNull("expected hello1", msg);
-        assertEquals("hello1", ((TextMessage) msg).getText());
+      assertNotNull("expected hello1", msg);
+      assertEquals("hello1", ((TextMessage) msg).getText());
 
-        Thread.sleep(1000);
-        log.info("\n\n------------------------------------------\nsend hello2\n");
+      Thread.sleep(1000);
+      log.info("\n\n------------------------------------------\nsend hello2\n");
 
-        producer.send(remoteSession.createTextMessage("hello2"));
-        msg = consumer.receive(30000);
+      producer.send(remoteSession.createTextMessage("hello2"));
+      msg = consumer.receive(30000);
 
-        assertNotNull("expected hello2", msg);
-        assertEquals("hello2", ((TextMessage) msg).getText());
+      assertNotNull("expected hello2", msg);
+      assertEquals("hello2", ((TextMessage) msg).getText());
 
-        closeLocalConnection();
+      closeLocalConnection();
 
-        Thread.sleep(1000);
-        log.info("\n\n------------------------------------------\nsend hello3\n");
+      Thread.sleep(1000);
+      log.info("\n\n------------------------------------------\nsend hello3\n");
 
-        openLocalConnection();
+      openLocalConnection();
 
-        Thread.sleep(1000);
+      Thread.sleep(1000);
 
-        producer.send(remoteSession.createTextMessage("hello3"));
-        msg = consumer.receive(30000);
+      producer.send(remoteSession.createTextMessage("hello3"));
+      msg = consumer.receive(30000);
 
-        assertNotNull("expected hello3", msg);
-        assertEquals("hello3", ((TextMessage) msg).getText());
+      assertNotNull("expected hello3", msg);
+      assertEquals("hello3", ((TextMessage) msg).getText());
 
-        Thread.sleep(1000);
-        log.info("\n\n==============================================\n\n");
+      Thread.sleep(1000);
+      log.info("\n\n==============================================\n\n");
 
-        closeConnections();
-        stopBrokers();
+      closeConnections();
+      stopBrokers();
 
-        // restart the local broker, which should be empty
+      // restart the local broker, which should be empty
 
-        Thread.sleep(1000);
-        log.info("\n\n##############################################\n\n");
+      Thread.sleep(1000);
+      log.info("\n\n##############################################\n\n");
 
-        createLocalBroker();
-        startLocalBroker();
-        openLocalConnection();
+      createLocalBroker();
+      startLocalBroker();
+      openLocalConnection();
 
-        // this should not return the "hello1" message
-        msg = consumer.receive(1000);
+      // this should not return the "hello1" message
+      msg = consumer.receive(1000);
 
-        closeLocalConnection();
-        stopLocalBroker();
+      closeLocalConnection();
+      stopLocalBroker();
 
-        assertNull(msg);
-    }
+      assertNull(msg);
+   }
 
-    private void createBrokers() throws Exception {
-        createLocalBroker();
-        createRemoteBroker();
-    }
+   private void createBrokers() throws Exception {
+      createLocalBroker();
+      createRemoteBroker();
+   }
 
-    private void createLocalBroker() throws Exception {
-        localBroker = new BrokerService();
-        localBroker.setBrokerName("LOCAL");
-        localBroker.setUseJmx(true);
-        localBroker.setSchedulePeriodForDestinationPurge(5000);
-        ManagementContext managementContext = new ManagementContext();
-        managementContext.setCreateConnector(false);
-        localBroker.setManagementContext(managementContext);
-        PersistenceAdapter persistenceAdapter = persistenceAdapterFactory("target/local");
-        localBroker.setPersistenceAdapter(persistenceAdapter);
-        List<TransportConnector> transportConnectors = new ArrayList<TransportConnector>();
-        DebugTransportFactory tf = new DebugTransportFactory();
-        TransportServer transport = tf.doBind(URI.create("nio://127.0.0.1:23539"));
-        TransportConnector transportConnector = new TransportConnector(transport);
-        transportConnector.setName("tc");
-        transportConnector.setAuditNetworkProducers(true);
-        transportConnectors.add(transportConnector);
-        localBroker.setTransportConnectors(transportConnectors);
-    }
+   private void createLocalBroker() throws Exception {
+      localBroker = new BrokerService();
+      localBroker.setBrokerName("LOCAL");
+      localBroker.setUseJmx(true);
+      localBroker.setSchedulePeriodForDestinationPurge(5000);
+      ManagementContext managementContext = new ManagementContext();
+      managementContext.setCreateConnector(false);
+      localBroker.setManagementContext(managementContext);
+      PersistenceAdapter persistenceAdapter = persistenceAdapterFactory("target/local");
+      localBroker.setPersistenceAdapter(persistenceAdapter);
+      List<TransportConnector> transportConnectors = new ArrayList<TransportConnector>();
+      DebugTransportFactory tf = new DebugTransportFactory();
+      TransportServer transport = tf.doBind(URI.create("nio://127.0.0.1:23539"));
+      TransportConnector transportConnector = new TransportConnector(transport);
+      transportConnector.setName("tc");
+      transportConnector.setAuditNetworkProducers(true);
+      transportConnectors.add(transportConnector);
+      localBroker.setTransportConnectors(transportConnectors);
+   }
 
-    private void createRemoteBroker() throws Exception {
-        remoteBroker = new BrokerService();
-        remoteBroker.setBrokerName("REMOTE");
-        remoteBroker.setUseJmx(true);
-        remoteBroker.setSchedulePeriodForDestinationPurge(5000);
-        ManagementContext managementContext = new ManagementContext();
-        managementContext.setCreateConnector(false);
-        remoteBroker.setManagementContext(managementContext);
-        PersistenceAdapter persistenceAdapter = persistenceAdapterFactory("target/remote");
-        remoteBroker.setPersistenceAdapter(persistenceAdapter);
-        List<NetworkConnector> networkConnectors = new ArrayList<NetworkConnector>();
-        DiscoveryNetworkConnector networkConnector = new DiscoveryNetworkConnector();
-        networkConnector.setName("to local");
-        // set maxInactivityDuration to 0, otherwise the broker restarts while you are in the debugger
-        networkConnector.setUri(URI.create("static://(tcp://127.0.0.1:23539?wireFormat.maxInactivityDuration=0)"));
-        networkConnector.setDuplex(true);
-        //networkConnector.setNetworkTTL(5);
-        //networkConnector.setDynamicOnly(true);
-        networkConnector.setAlwaysSyncSend(true);
-        networkConnector.setDecreaseNetworkConsumerPriority(false);
-        networkConnector.setPrefetchSize(1);
-        networkConnector.setCheckDuplicateMessagesOnDuplex(true);
-        networkConnectors.add(networkConnector);
-        remoteBroker.setNetworkConnectors(networkConnectors);
-    }
+   private void createRemoteBroker() throws Exception {
+      remoteBroker = new BrokerService();
+      remoteBroker.setBrokerName("REMOTE");
+      remoteBroker.setUseJmx(true);
+      remoteBroker.setSchedulePeriodForDestinationPurge(5000);
+      ManagementContext managementContext = new ManagementContext();
+      managementContext.setCreateConnector(false);
+      remoteBroker.setManagementContext(managementContext);
+      PersistenceAdapter persistenceAdapter = persistenceAdapterFactory("target/remote");
+      remoteBroker.setPersistenceAdapter(persistenceAdapter);
+      List<NetworkConnector> networkConnectors = new ArrayList<NetworkConnector>();
+      DiscoveryNetworkConnector networkConnector = new DiscoveryNetworkConnector();
+      networkConnector.setName("to local");
+      // set maxInactivityDuration to 0, otherwise the broker restarts while you are in the debugger
+      networkConnector.setUri(URI.create("static://(tcp://127.0.0.1:23539?wireFormat.maxInactivityDuration=0)"));
+      networkConnector.setDuplex(true);
+      //networkConnector.setNetworkTTL(5);
+      //networkConnector.setDynamicOnly(true);
+      networkConnector.setAlwaysSyncSend(true);
+      networkConnector.setDecreaseNetworkConsumerPriority(false);
+      networkConnector.setPrefetchSize(1);
+      networkConnector.setCheckDuplicateMessagesOnDuplex(true);
+      networkConnectors.add(networkConnector);
+      remoteBroker.setNetworkConnectors(networkConnectors);
+   }
 
-    private void startBrokers() throws Exception {
-        startLocalBroker();
-        startRemoteBroker();
-    }
+   private void startBrokers() throws Exception {
+      startLocalBroker();
+      startRemoteBroker();
+   }
 
-    private void startLocalBroker() throws Exception {
-        localBroker.start();
-        localBroker.waitUntilStarted();
-    }
+   private void startLocalBroker() throws Exception {
+      localBroker.start();
+      localBroker.waitUntilStarted();
+   }
 
-    private void startRemoteBroker() throws Exception {
-        remoteBroker.start();
-        remoteBroker.waitUntilStarted();
-    }
+   private void startRemoteBroker() throws Exception {
+      remoteBroker.start();
+      remoteBroker.waitUntilStarted();
+   }
 
-    private void openConnections() throws JMSException {
-        openLocalConnection();
-        openRemoteConnection();
-    }
+   private void openConnections() throws JMSException {
+      openLocalConnection();
+      openRemoteConnection();
+   }
 
-    private void openLocalConnection() throws JMSException {
-        localFactory = new ActiveMQConnectionFactory(localBroker.getVmConnectorURI());
-        //localFactory.setSendAcksAsync(false);
-        localConnection = localFactory.createConnection();
-        localConnection.start();
-        localSession = localConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        consumer = localSession.createConsumer(localSession.createQueue("testqueue"));
-    }
+   private void openLocalConnection() throws JMSException {
+      localFactory = new ActiveMQConnectionFactory(localBroker.getVmConnectorURI());
+      //localFactory.setSendAcksAsync(false);
+      localConnection = localFactory.createConnection();
+      localConnection.start();
+      localSession = localConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      consumer = localSession.createConsumer(localSession.createQueue("testqueue"));
+   }
 
-    private void openRemoteConnection() throws JMSException {
-        remoteFactory = new ActiveMQConnectionFactory(remoteBroker.getVmConnectorURI());
-        //remoteFactory.setSendAcksAsync(false);
-        remoteConnection = remoteFactory.createConnection();
-        remoteConnection.start();
-        remoteSession = remoteConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        producer = remoteSession.createProducer(remoteSession.createQueue("testqueue"));
-    }
+   private void openRemoteConnection() throws JMSException {
+      remoteFactory = new ActiveMQConnectionFactory(remoteBroker.getVmConnectorURI());
+      //remoteFactory.setSendAcksAsync(false);
+      remoteConnection = remoteFactory.createConnection();
+      remoteConnection.start();
+      remoteSession = remoteConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      producer = remoteSession.createProducer(remoteSession.createQueue("testqueue"));
+   }
 
-    private void closeConnections() throws JMSException {
-        closeLocalConnection();
-        closeRemoteConnection();
-    }
+   private void closeConnections() throws JMSException {
+      closeLocalConnection();
+      closeRemoteConnection();
+   }
 
-    private void closeLocalConnection() throws JMSException {
-        localConnection.close();
-    }
+   private void closeLocalConnection() throws JMSException {
+      localConnection.close();
+   }
 
-    private void closeRemoteConnection() throws JMSException {
-        remoteConnection.close();
-    }
+   private void closeRemoteConnection() throws JMSException {
+      remoteConnection.close();
+   }
 
-    private void stopBrokers() throws Exception {
-        stopRemoteBroker();
-        stopLocalBroker();
-    }
+   private void stopBrokers() throws Exception {
+      stopRemoteBroker();
+      stopLocalBroker();
+   }
 
-    private void stopLocalBroker() throws Exception {
-        localBroker.stop();
-        localBroker.waitUntilStopped();
-    }
+   private void stopLocalBroker() throws Exception {
+      localBroker.stop();
+      localBroker.waitUntilStopped();
+   }
 
-    private void stopRemoteBroker() throws Exception {
-        remoteBroker.stop();
-        remoteBroker.waitUntilStopped();
-    }
+   private void stopRemoteBroker() throws Exception {
+      remoteBroker.stop();
+      remoteBroker.waitUntilStopped();
+   }
 
-    private PersistenceAdapter persistenceAdapterFactory(String path) {
-        if (useLevelDB) {
-            return persistenceAdapterFactory_LevelDB(path);
-        } else {
-            return persistenceAdapterFactory_KahaDB(path);
-        }
-    }
+   private PersistenceAdapter persistenceAdapterFactory(String path) {
+      if (useLevelDB) {
+         return persistenceAdapterFactory_LevelDB(path);
+      }
+      else {
+         return persistenceAdapterFactory_KahaDB(path);
+      }
+   }
 
-    private PersistenceAdapter persistenceAdapterFactory_KahaDB(String path) {
-        KahaDBPersistenceAdapter kahaDBPersistenceAdapter = new KahaDBPersistenceAdapter();
-        kahaDBPersistenceAdapter.setDirectory(new File(path));
-        kahaDBPersistenceAdapter.setIgnoreMissingJournalfiles(true);
-        kahaDBPersistenceAdapter.setCheckForCorruptJournalFiles(true);
-        kahaDBPersistenceAdapter.setChecksumJournalFiles(true);
-        return kahaDBPersistenceAdapter;
-    }
+   private PersistenceAdapter persistenceAdapterFactory_KahaDB(String path) {
+      KahaDBPersistenceAdapter kahaDBPersistenceAdapter = new KahaDBPersistenceAdapter();
+      kahaDBPersistenceAdapter.setDirectory(new File(path));
+      kahaDBPersistenceAdapter.setIgnoreMissingJournalfiles(true);
+      kahaDBPersistenceAdapter.setCheckForCorruptJournalFiles(true);
+      kahaDBPersistenceAdapter.setChecksumJournalFiles(true);
+      return kahaDBPersistenceAdapter;
+   }
 
-    private PersistenceAdapter persistenceAdapterFactory_LevelDB(String path) {
-        LevelDBPersistenceAdapter levelDBPersistenceAdapter = new LevelDBPersistenceAdapter();
-        levelDBPersistenceAdapter.setDirectory(new File(path));
-        return levelDBPersistenceAdapter;
-    }
+   private PersistenceAdapter persistenceAdapterFactory_LevelDB(String path) {
+      LevelDBPersistenceAdapter levelDBPersistenceAdapter = new LevelDBPersistenceAdapter();
+      levelDBPersistenceAdapter.setDirectory(new File(path));
+      return levelDBPersistenceAdapter;
+   }
 
-    private class DebugTransportFactory extends NIOTransportFactory {
+   private class DebugTransportFactory extends NIOTransportFactory {
 
-        @Override
-        protected TcpTransportServer createTcpTransportServer(URI location, ServerSocketFactory serverSocketFactory)
-                throws IOException, URISyntaxException {
-            return new DebugTransportServer(this, location, serverSocketFactory);
-        }
-    }
+      @Override
+      protected TcpTransportServer createTcpTransportServer(URI location,
+                                                            ServerSocketFactory serverSocketFactory) throws IOException, URISyntaxException {
+         return new DebugTransportServer(this, location, serverSocketFactory);
+      }
+   }
 
-    private class DebugTransportServer extends TcpTransportServer {
+   private class DebugTransportServer extends TcpTransportServer {
 
-        public DebugTransportServer(TcpTransportFactory transportFactory, URI location,
-                                    ServerSocketFactory serverSocketFactory) throws IOException, URISyntaxException {
-            super(transportFactory, location, serverSocketFactory);
-        }
+      public DebugTransportServer(TcpTransportFactory transportFactory,
+                                  URI location,
+                                  ServerSocketFactory serverSocketFactory) throws IOException, URISyntaxException {
+         super(transportFactory, location, serverSocketFactory);
+      }
 
-        @Override
-        protected Transport createTransport(Socket socket, WireFormat format) throws IOException {
-            Transport transport;
-            transport = new NIOTransport(format, socket);
-            debugTransportFilter = new DebugTransportFilter(transport);
-            return debugTransportFilter;
-        }
-    }
+      @Override
+      protected Transport createTransport(Socket socket, WireFormat format) throws IOException {
+         Transport transport;
+         transport = new NIOTransport(format, socket);
+         debugTransportFilter = new DebugTransportFilter(transport);
+         return debugTransportFilter;
+      }
+   }
 
-    private class DebugTransportFilter extends TransportFilter {
+   private class DebugTransportFilter extends TransportFilter {
 
-        boolean closeOnResponse = false;
+      boolean closeOnResponse = false;
 
-        public DebugTransportFilter(Transport next) {
-            super(next);
-        }
+      public DebugTransportFilter(Transport next) {
+         super(next);
+      }
 
-        @Override
-        public void oneway(Object command) throws IOException {
-            if (closeOnResponse && command instanceof Response) {
-                closeOnResponse = false;
-                log.warn("\n\nclosing connection before response is sent\n\n");
-                try {
-                    ((NIOTransport) next).stop();
-                } catch (Exception ex) {
-                    log.error("couldn't stop niotransport", ex);
-                }
-                // don't send response
-                return;
+      @Override
+      public void oneway(Object command) throws IOException {
+         if (closeOnResponse && command instanceof Response) {
+            closeOnResponse = false;
+            log.warn("\n\nclosing connection before response is sent\n\n");
+            try {
+               ((NIOTransport) next).stop();
             }
-            super.oneway(command);
-        }
-    }
+            catch (Exception ex) {
+               log.error("couldn't stop niotransport", ex);
+            }
+            // don't send response
+            return;
+         }
+         super.oneway(command);
+      }
+   }
 }

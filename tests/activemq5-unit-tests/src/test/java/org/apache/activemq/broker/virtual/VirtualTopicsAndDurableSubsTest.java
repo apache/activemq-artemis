@@ -28,76 +28,84 @@ import org.apache.activemq.spring.ConsumerBean;
 
 public class VirtualTopicsAndDurableSubsTest extends MBeanTest {
 
-    private Connection connection;
+   private Connection connection;
 
-    public void testVirtualTopicCreationAndDurableSubs() throws Exception {
-        if (connection == null) {
-            connection = createConnection();
-        }
-        connection.setClientID(getAClientID());
-        connection.start();
+   public void testVirtualTopicCreationAndDurableSubs() throws Exception {
+      if (connection == null) {
+         connection = createConnection();
+      }
+      connection.setClientID(getAClientID());
+      connection.start();
 
-        ConsumerBean messageList = new ConsumerBean();
-        messageList.setVerbose(true);
-        
-        String queueAName = getVirtualTopicConsumerName();
-        // create consumer 'cluster'
-        ActiveMQQueue queue1 = new ActiveMQQueue(queueAName);
-        ActiveMQQueue queue2 = new ActiveMQQueue(queueAName);
+      ConsumerBean messageList = new ConsumerBean();
+      messageList.setVerbose(true);
 
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        MessageConsumer c1 = session.createConsumer(queue1);
-        MessageConsumer c2 = session.createConsumer(queue2);
+      String queueAName = getVirtualTopicConsumerName();
+      // create consumer 'cluster'
+      ActiveMQQueue queue1 = new ActiveMQQueue(queueAName);
+      ActiveMQQueue queue2 = new ActiveMQQueue(queueAName);
 
-        c1.setMessageListener(messageList);
-        c2.setMessageListener(messageList);
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      MessageConsumer c1 = session.createConsumer(queue1);
+      MessageConsumer c2 = session.createConsumer(queue2);
 
-        // create topic producer
-        MessageProducer producer = session.createProducer(new ActiveMQTopic(getVirtualTopicName()));
-        assertNotNull(producer);
+      c1.setMessageListener(messageList);
+      c2.setMessageListener(messageList);
 
-        int total = 10;
-        for (int i = 0; i < total; i++) {
-            producer.send(session.createTextMessage("message: " + i));
-        }
-        messageList.assertMessagesArrived(total);
-        
-        //Add and remove durable subscriber after using VirtualTopics
-        assertCreateAndDestroyDurableSubscriptions();
-    }
+      // create topic producer
+      MessageProducer producer = session.createProducer(new ActiveMQTopic(getVirtualTopicName()));
+      assertNotNull(producer);
 
-    protected String getAClientID(){
-    	return "VirtualTopicCreationAndDurableSubs";
-    }
+      int total = 10;
+      for (int i = 0; i < total; i++) {
+         producer.send(session.createTextMessage("message: " + i));
+      }
+      messageList.assertMessagesArrived(total);
 
-    protected String getVirtualTopicName() {
-        return "VirtualTopic.TEST";
-    }
+      //Add and remove durable subscriber after using VirtualTopics
+      assertCreateAndDestroyDurableSubscriptions();
+   }
 
+   protected String getAClientID() {
+      return "VirtualTopicCreationAndDurableSubs";
+   }
 
-    protected String getVirtualTopicConsumerName() {
-        return "Consumer.A.VirtualTopic.TEST";
-    }
+   protected String getVirtualTopicName() {
+      return "VirtualTopic.TEST";
+   }
 
-    protected String getDurableSubscriberName(){
-    	return "Sub1";
-    }
-    
-    protected String getDurableSubscriberTopicName(){
-    	return "simple.topic";
-    }
+   protected String getVirtualTopicConsumerName() {
+      return "Consumer.A.VirtualTopic.TEST";
+   }
 
-    protected void tearDown() throws Exception {
-        if (connection != null) {
-            connection.close();
-        }
-        super.tearDown();
-    }
-    
-    //Overrides test cases from MBeanTest to avoid having them run.
-    public void testMBeans() throws Exception {}
-    public void testMoveMessages() throws Exception {}
-    public void testRetryMessages() throws Exception {}
-    public void testMoveMessagesBySelector() throws Exception {}
-    public void testCopyMessagesBySelector() throws Exception {}
+   protected String getDurableSubscriberName() {
+      return "Sub1";
+   }
+
+   protected String getDurableSubscriberTopicName() {
+      return "simple.topic";
+   }
+
+   protected void tearDown() throws Exception {
+      if (connection != null) {
+         connection.close();
+      }
+      super.tearDown();
+   }
+
+   //Overrides test cases from MBeanTest to avoid having them run.
+   public void testMBeans() throws Exception {
+   }
+
+   public void testMoveMessages() throws Exception {
+   }
+
+   public void testRetryMessages() throws Exception {
+   }
+
+   public void testMoveMessagesBySelector() throws Exception {
+   }
+
+   public void testCopyMessagesBySelector() throws Exception {
+   }
 }

@@ -38,15 +38,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-public class HornetQProtocolTest extends ActiveMQTestBase
-{
+public class HornetQProtocolTest extends ActiveMQTestBase {
+
    protected ActiveMQServer server;
 
    private static final Logger LOG = LoggerFactory.getLogger(HornetQProtocolTest.class);
 
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       HashMap<String, Object> params = new HashMap<String, Object>();
       params.put(org.hornetq.core.remoting.impl.netty.TransportConstants.PORT_PROP_NAME, "" + 5445);
       params.put(org.hornetq.core.remoting.impl.netty.TransportConstants.PROTOCOLS_PROP_NAME, "HORNETQ");
@@ -61,8 +60,7 @@ public class HornetQProtocolTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testMessagePropertiesAreTransformedBetweenCoreAndHQProtocols() throws Exception
-   {
+   public void testMessagePropertiesAreTransformedBetweenCoreAndHQProtocols() throws Exception {
       org.hornetq.api.core.client.ClientSession hqSession = createHQClientSession();
       ClientSession coreSession = createCoreClientSession();
 
@@ -80,8 +78,7 @@ public class HornetQProtocolTest extends ActiveMQTestBase
       ClientConsumer coreConsumer = coreSession.createConsumer(queueName);
 
       // Check that HornetQ Properties are correctly converted to core properties.
-      for (int i = 0; i < 2; i++)
-      {
+      for (int i = 0; i < 2; i++) {
          hqProducer.send(createHQTestMessage(hqSession));
       }
 
@@ -97,8 +94,7 @@ public class HornetQProtocolTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testDuplicateIDPropertyWithHornetQProtocol() throws Exception
-   {
+   public void testDuplicateIDPropertyWithHornetQProtocol() throws Exception {
       org.hornetq.api.core.client.ClientSession session = createHQClientSession();
 
       String queueName = "test.hq.queue";
@@ -129,8 +125,7 @@ public class HornetQProtocolTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testDuplicateIDPropertyWithHornetQAndCoreProtocol() throws Exception
-   {
+   public void testDuplicateIDPropertyWithHornetQAndCoreProtocol() throws Exception {
       org.hornetq.api.core.client.ClientSession hqSession = createHQClientSession();
 
       String queueName = "test.hq.queue";
@@ -153,7 +148,6 @@ public class HornetQProtocolTest extends ActiveMQTestBase
       assertTrue(m.containsProperty(Message.HDR_DUPLICATE_DETECTION_ID));
       assertNotNull(m);
 
-
       hqProducer.send(message);
       m = coreConsumer.receive(1000);
       assertNull(m);
@@ -163,24 +157,21 @@ public class HornetQProtocolTest extends ActiveMQTestBase
       assertNull(m);
    }
 
-   private org.hornetq.api.core.client.ClientMessage createHQTestMessage(org.hornetq.api.core.client.ClientSession session)
-   {
+   private org.hornetq.api.core.client.ClientMessage createHQTestMessage(org.hornetq.api.core.client.ClientSession session) {
       org.hornetq.api.core.client.ClientMessage message = session.createMessage(false);
       String v = UUID.randomUUID().toString();
       message.putStringProperty(org.hornetq.api.core.Message.HDR_DUPLICATE_DETECTION_ID.toString(), v);
       return message;
    }
 
-   private ClientMessage createCoreTestMessage(ClientSession session)
-   {
+   private ClientMessage createCoreTestMessage(ClientSession session) {
       ClientMessage message = session.createMessage(false);
       String v = UUID.randomUUID().toString();
       message.putStringProperty(org.hornetq.api.core.Message.HDR_DUPLICATE_DETECTION_ID.toString(), v);
       return message;
    }
 
-   private org.hornetq.api.core.client.ClientSession createHQClientSession() throws Exception
-   {
+   private org.hornetq.api.core.client.ClientSession createHQClientSession() throws Exception {
       Map<String, Object> map = new HashMap<String, Object>();
       map.put("host", "localhost");
       map.put("port", 5445);
@@ -191,8 +182,7 @@ public class HornetQProtocolTest extends ActiveMQTestBase
       return sf.createSession();
    }
 
-   private ClientSession createCoreClientSession() throws Exception
-   {
+   private ClientSession createCoreClientSession() throws Exception {
       Map<String, Object> map = new HashMap<String, Object>();
       map.put("host", "localhost");
       map.put("port", 61616);

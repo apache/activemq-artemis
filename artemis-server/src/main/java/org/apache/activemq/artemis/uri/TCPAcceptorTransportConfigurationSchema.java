@@ -21,15 +21,13 @@ import org.apache.activemq.artemis.core.remoting.impl.netty.NettyAcceptorFactory
 import java.net.URI;
 import java.util.Set;
 
-public class TCPAcceptorTransportConfigurationSchema extends TCPTransportConfigurationSchema
-{
-   public TCPAcceptorTransportConfigurationSchema(Set<String> allowableProperties)
-   {
+public class TCPAcceptorTransportConfigurationSchema extends TCPTransportConfigurationSchema {
+
+   public TCPAcceptorTransportConfigurationSchema(Set<String> allowableProperties) {
       super(allowableProperties);
    }
 
-   public String getFactoryName(URI uri)
-   {
+   public String getFactoryName(URI uri) {
       return NettyAcceptorFactory.class.getName();
    }
 }

@@ -31,8 +31,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class InVMNonPersistentMessageBufferTest extends ActiveMQTestBase
-{
+public class InVMNonPersistentMessageBufferTest extends ActiveMQTestBase {
+
    public static final String address = "testaddress";
 
    public static final String queueName = "testqueue";
@@ -55,8 +55,7 @@ public class InVMNonPersistentMessageBufferTest extends ActiveMQTestBase
     */
 
    @Test
-   public void testSimpleSendReceive() throws Exception
-   {
+   public void testSimpleSendReceive() throws Exception {
       ClientMessage message = session.createMessage(false);
 
       final String body = RandomUtil.randomString();
@@ -71,8 +70,7 @@ public class InVMNonPersistentMessageBufferTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testSimpleSendReceiveWithEmptyBody() throws Exception
-   {
+   public void testSimpleSendReceiveWithEmptyBody() throws Exception {
       ClientMessage message = session.createMessage(false);
 
       ClientMessage received = sendAndReceive(message);
@@ -83,8 +81,7 @@ public class InVMNonPersistentMessageBufferTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testSendSameMessageMultipleTimes() throws Exception
-   {
+   public void testSendSameMessageMultipleTimes() throws Exception {
       ClientMessage message = session.createMessage(false);
 
       final String body = RandomUtil.randomString();
@@ -93,8 +90,7 @@ public class InVMNonPersistentMessageBufferTest extends ActiveMQTestBase
 
       int bodySize = message.getBodySize();
 
-      for (int i = 0; i < 10; i++)
-      {
+      for (int i = 0; i < 10; i++) {
          ClientMessage received = sendAndReceive(message);
 
          Assert.assertNotNull(received);
@@ -108,14 +104,12 @@ public class InVMNonPersistentMessageBufferTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testSendMessageResetSendAgainDifferentBody() throws Exception
-   {
+   public void testSendMessageResetSendAgainDifferentBody() throws Exception {
       ClientMessage message = session.createMessage(false);
 
       String body = RandomUtil.randomString();
 
-      for (int i = 0; i < 10; i++)
-      {
+      for (int i = 0; i < 10; i++) {
          // Make the body a bit longer each time
          body += "XX";
 
@@ -135,17 +129,14 @@ public class InVMNonPersistentMessageBufferTest extends ActiveMQTestBase
 
          message.getBodyBuffer().clear();
 
-         Assert.assertEquals(PacketImpl.PACKET_HEADERS_SIZE + DataConstants.SIZE_INT, message.getBodyBuffer()
-                                                                                             .writerIndex());
+         Assert.assertEquals(PacketImpl.PACKET_HEADERS_SIZE + DataConstants.SIZE_INT, message.getBodyBuffer().writerIndex());
 
-         Assert.assertEquals(PacketImpl.PACKET_HEADERS_SIZE + DataConstants.SIZE_INT, message.getBodyBuffer()
-                                                                                             .readerIndex());
+         Assert.assertEquals(PacketImpl.PACKET_HEADERS_SIZE + DataConstants.SIZE_INT, message.getBodyBuffer().readerIndex());
       }
    }
 
    @Test
-   public void testCannotReadPastEndOfMessageBody() throws Exception
-   {
+   public void testCannotReadPastEndOfMessageBody() throws Exception {
       ClientMessage message = session.createMessage(false);
 
       final String body = RandomUtil.randomString();
@@ -158,29 +149,25 @@ public class InVMNonPersistentMessageBufferTest extends ActiveMQTestBase
 
       Assert.assertEquals(body, received.getBodyBuffer().readString());
 
-      try
-      {
+      try {
          received.getBodyBuffer().readByte();
 
          Assert.fail("Should throw exception");
       }
-      catch (IndexOutOfBoundsException e)
-      {
+      catch (IndexOutOfBoundsException e) {
          // OK
       }
    }
 
    @Test
-   public void testCanReReadBodyAfterReaderReset() throws Exception
-   {
+   public void testCanReReadBodyAfterReaderReset() throws Exception {
       ClientMessage message = session.createMessage(false);
 
       final String body = RandomUtil.randomString();
 
       message.getBodyBuffer().writeString(body);
 
-      Assert.assertEquals(PacketImpl.PACKET_HEADERS_SIZE + DataConstants.SIZE_INT, message.getBodyBuffer()
-                                                                                          .readerIndex());
+      Assert.assertEquals(PacketImpl.PACKET_HEADERS_SIZE + DataConstants.SIZE_INT, message.getBodyBuffer().readerIndex());
 
       String body2 = message.getBodyBuffer().readString();
 
@@ -188,8 +175,7 @@ public class InVMNonPersistentMessageBufferTest extends ActiveMQTestBase
 
       message.getBodyBuffer().resetReaderIndex();
 
-      Assert.assertEquals(PacketImpl.PACKET_HEADERS_SIZE + DataConstants.SIZE_INT, message.getBodyBuffer()
-                                                                                          .readerIndex());
+      Assert.assertEquals(PacketImpl.PACKET_HEADERS_SIZE + DataConstants.SIZE_INT, message.getBodyBuffer().readerIndex());
 
       String body3 = message.getBodyBuffer().readString();
 
@@ -203,8 +189,7 @@ public class InVMNonPersistentMessageBufferTest extends ActiveMQTestBase
 
       received.getBodyBuffer().resetReaderIndex();
 
-      Assert.assertEquals(PacketImpl.PACKET_HEADERS_SIZE + DataConstants.SIZE_INT, received.getBodyBuffer()
-                                                                                           .readerIndex());
+      Assert.assertEquals(PacketImpl.PACKET_HEADERS_SIZE + DataConstants.SIZE_INT, received.getBodyBuffer().readerIndex());
 
       String body4 = received.getBodyBuffer().readString();
 
@@ -212,32 +197,26 @@ public class InVMNonPersistentMessageBufferTest extends ActiveMQTestBase
 
    }
 
-   protected ServerLocator createFactory() throws Exception
-   {
-      if (isNetty())
-      {
+   protected ServerLocator createFactory() throws Exception {
+      if (isNetty()) {
          return createNettyNonHALocator();
       }
-      else
-      {
+      else {
          return createInVMNonHALocator();
       }
    }
 
-   protected boolean isNetty()
-   {
+   protected boolean isNetty() {
       return false;
    }
 
-   protected boolean isPersistent()
-   {
+   protected boolean isPersistent() {
       return false;
    }
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       server = createServer(isPersistent(), isNetty());
@@ -259,8 +238,7 @@ public class InVMNonPersistentMessageBufferTest extends ActiveMQTestBase
       session.start();
    }
 
-   private ClientMessage sendAndReceive(final ClientMessage message) throws Exception
-   {
+   private ClientMessage sendAndReceive(final ClientMessage message) throws Exception {
       producer.send(message);
 
       ClientMessage received = consumer.receive(10000);

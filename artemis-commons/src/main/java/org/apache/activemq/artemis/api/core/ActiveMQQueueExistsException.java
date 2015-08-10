@@ -19,17 +19,15 @@ package org.apache.activemq.artemis.api.core;
 /**
  * An operation failed because a queue exists on the server.
  */
-public final class ActiveMQQueueExistsException extends ActiveMQException
-{
+public final class ActiveMQQueueExistsException extends ActiveMQException {
+
    private static final long serialVersionUID = -405552292451883063L;
 
-   public ActiveMQQueueExistsException()
-   {
+   public ActiveMQQueueExistsException() {
       super(ActiveMQExceptionType.QUEUE_EXISTS);
    }
 
-   public ActiveMQQueueExistsException(String msg)
-   {
+   public ActiveMQQueueExistsException(String msg) {
       super(ActiveMQExceptionType.QUEUE_EXISTS, msg);
    }
 }

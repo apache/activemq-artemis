@@ -24,16 +24,14 @@ import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManagerImpl
 import org.junit.Assert;
 import org.junit.Test;
 
-public class FileBrokerTest
-{
+public class FileBrokerTest {
+
    @Test
-   public void startWithJMS() throws Exception
-   {
+   public void startWithJMS() throws Exception {
       ServerDTO serverDTO = new ServerDTO();
       serverDTO.configuration = "broker.xml";
       FileBroker broker = null;
-      try
-      {
+      try {
          broker = new FileBroker(serverDTO, new ActiveMQSecurityManagerImpl());
          broker.start();
          JMSServerManagerImpl jmsServerManager = (JMSServerManagerImpl) broker.getComponents().get("jms");
@@ -46,23 +44,19 @@ public class FileBrokerTest
          Assert.assertTrue(activeMQServer.isStarted());
          Assert.assertTrue(broker.isStarted());
       }
-      finally
-      {
-         if (broker != null)
-         {
+      finally {
+         if (broker != null) {
             broker.stop();
          }
       }
    }
 
    @Test
-   public void startWithoutJMS() throws Exception
-   {
+   public void startWithoutJMS() throws Exception {
       ServerDTO serverDTO = new ServerDTO();
       serverDTO.configuration = "broker-nojms.xml";
       FileBroker broker = null;
-      try
-      {
+      try {
          broker = new FileBroker(serverDTO, new ActiveMQSecurityManagerImpl());
          broker.start();
          JMSServerManagerImpl jmsServerManager = (JMSServerManagerImpl) broker.getComponents().get("jms");
@@ -72,8 +66,7 @@ public class FileBrokerTest
          Assert.assertTrue(activeMQServer.isStarted());
          Assert.assertTrue(broker.isStarted());
       }
-      finally
-      {
+      finally {
          assert broker != null;
          broker.stop();
       }

@@ -40,8 +40,7 @@ import org.apache.activemq.artemis.utils.TypedProperties;
 /**
  * The ActiveMQ Artemis SecurityStore implementation
  */
-public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryChangeListener
-{
+public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryChangeListener {
    // Constants -----------------------------------------------------
 
    // Static --------------------------------------------------------
@@ -79,8 +78,7 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
                             final boolean securityEnabled,
                             final String managementClusterUser,
                             final String managementClusterPassword,
-                            final NotificationService notificationService)
-   {
+                            final NotificationService notificationService) {
       this.securityRepository = securityRepository;
       this.securityManager = securityManager;
       this.invalidationInterval = invalidationInterval;
@@ -94,25 +92,19 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
    // SecurityManager implementation --------------------------------
 
    @Override
-   public boolean isSecurityEnabled()
-   {
+   public boolean isSecurityEnabled() {
       return securityEnabled;
    }
 
-   public void stop()
-   {
+   public void stop() {
       securityRepository.unRegisterListener(this);
    }
 
-   public void authenticate(final String user, final String password) throws Exception
-   {
-      if (securityEnabled)
-      {
+   public void authenticate(final String user, final String password) throws Exception {
+      if (securityEnabled) {
 
-         if (managementClusterUser.equals(user))
-         {
-            if (trace)
-            {
+         if (managementClusterUser.equals(user)) {
+            if (trace) {
                ActiveMQServerLogger.LOGGER.trace("Authenticating cluster admin user");
             }
 
@@ -120,20 +112,16 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
              * The special user cluster user is used for creating sessions that replicate management
              * operation between nodes
              */
-            if (!managementClusterPassword.equals(password))
-            {
+            if (!managementClusterPassword.equals(password)) {
                throw ActiveMQMessageBundle.BUNDLE.unableToValidateClusterUser(user);
             }
-            else
-            {
+            else {
                return;
             }
          }
 
-         if (!securityManager.validateUser(user, password))
-         {
-            if (notificationService != null)
-            {
+         if (!securityManager.validateUser(user, password)) {
+            if (notificationService != null) {
                TypedProperties props = new TypedProperties();
 
                props.putSimpleStringProperty(ManagementHelper.HDR_USER, SimpleString.toSimpleString(user));
@@ -148,18 +136,16 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
       }
    }
 
-   public void check(final SimpleString address, final CheckType checkType, final ServerSession session) throws Exception
-   {
-      if (securityEnabled)
-      {
-         if (trace)
-         {
+   public void check(final SimpleString address,
+                     final CheckType checkType,
+                     final ServerSession session) throws Exception {
+      if (securityEnabled) {
+         if (trace) {
             ActiveMQServerLogger.LOGGER.trace("checking access permissions to " + address);
          }
 
          String user = session.getUsername();
-         if (checkCached(address, user, checkType))
-         {
+         if (checkCached(address, user, checkType)) {
             // OK
             return;
          }
@@ -169,15 +155,12 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
          Set<Role> roles = securityRepository.getMatch(saddress);
 
          // bypass permission checks for management cluster user
-         if (managementClusterUser.equals(user) && session.getPassword().equals(managementClusterPassword))
-         {
+         if (managementClusterUser.equals(user) && session.getPassword().equals(managementClusterPassword)) {
             return;
          }
 
-         if (!securityManager.validateUserAndRole(user, session.getPassword(), roles, checkType))
-         {
-            if (notificationService != null)
-            {
+         if (!securityManager.validateUserAndRole(user, session.getPassword(), roles, checkType)) {
+            if (notificationService != null) {
                TypedProperties props = new TypedProperties();
 
                props.putSimpleStringProperty(ManagementHelper.HDR_ADDRESS, address);
@@ -194,8 +177,7 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
          // if we get here we're granted, add to the cache
          ConcurrentHashSet<SimpleString> set = new ConcurrentHashSet<SimpleString>();
          ConcurrentHashSet<SimpleString> act = cache.putIfAbsent(user + "." + checkType.name(), set);
-         if (act != null)
-         {
+         if (act != null) {
             set = act;
          }
          set.add(address);
@@ -203,8 +185,7 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
       }
    }
 
-   public void onChange()
-   {
+   public void onChange() {
       invalidateCache();
    }
 
@@ -215,28 +196,23 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
    // Package Private -----------------------------------------------
 
    // Private -------------------------------------------------------
-   private void invalidateCache()
-   {
+   private void invalidateCache() {
       cache.clear();
    }
 
-   private boolean checkCached(final SimpleString dest, final String user, final CheckType checkType)
-   {
+   private boolean checkCached(final SimpleString dest, final String user, final CheckType checkType) {
       long now = System.currentTimeMillis();
 
       boolean granted = false;
 
-      if (now - lastCheck > invalidationInterval)
-      {
+      if (now - lastCheck > invalidationInterval) {
          invalidateCache();
 
          lastCheck = now;
       }
-      else
-      {
+      else {
          ConcurrentHashSet<SimpleString> act = cache.get(user + "." + checkType.name());
-         if (act != null)
-         {
+         if (act != null) {
             granted = act.contains(dest);
          }
       }

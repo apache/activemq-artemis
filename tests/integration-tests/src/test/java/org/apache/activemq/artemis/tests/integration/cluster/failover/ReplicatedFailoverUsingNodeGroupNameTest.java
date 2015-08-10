@@ -19,21 +19,19 @@ package org.apache.activemq.artemis.tests.integration.cluster.failover;
 import org.apache.activemq.artemis.core.config.ha.ReplicaPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicatedPolicyConfiguration;
 
-public class ReplicatedFailoverUsingNodeGroupNameTest extends ReplicatedFailoverTest
-{
+public class ReplicatedFailoverUsingNodeGroupNameTest extends ReplicatedFailoverTest {
+
    @Override
-   protected void createReplicatedConfigs() throws Exception
-   {
+   protected void createReplicatedConfigs() throws Exception {
       super.createReplicatedConfigs();
-      ((ReplicatedPolicyConfiguration)liveConfig.getHAPolicyConfiguration()).setGroupName("liveNodeGroup1");
-      ((ReplicaPolicyConfiguration)backupConfig.getHAPolicyConfiguration()).setGroupName("liveNodeGroup1");
+      ((ReplicatedPolicyConfiguration) liveConfig.getHAPolicyConfiguration()).setGroupName("liveNodeGroup1");
+      ((ReplicaPolicyConfiguration) backupConfig.getHAPolicyConfiguration()).setGroupName("liveNodeGroup1");
    }
 
    @Override
-   protected void setupHAPolicyConfiguration()
-   {
+   protected void setupHAPolicyConfiguration() {
       super.setupHAPolicyConfiguration();
-      ((ReplicatedPolicyConfiguration)liveConfig.getHAPolicyConfiguration()).setGroupName("liveNodeGroup1");
-      ((ReplicaPolicyConfiguration)backupConfig.getHAPolicyConfiguration()).setGroupName("liveNodeGroup1");
+      ((ReplicatedPolicyConfiguration) liveConfig.getHAPolicyConfiguration()).setGroupName("liveNodeGroup1");
+      ((ReplicaPolicyConfiguration) backupConfig.getHAPolicyConfiguration()).setGroupName("liveNodeGroup1");
    }
 }

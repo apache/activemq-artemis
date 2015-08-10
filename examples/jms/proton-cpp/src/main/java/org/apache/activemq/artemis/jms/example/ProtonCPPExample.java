@@ -37,22 +37,20 @@ import org.apache.activemq.artemis.api.jms.management.JMSManagementHelper;
  *
  * Please see the readme.html for more details.
  */
-public class ProtonCPPExample
-{
-   public static void main(final String[] args) throws Exception
-   {
+public class ProtonCPPExample {
+
+   public static void main(final String[] args) throws Exception {
       Connection connection = null;
 
       InitialContext initialContext = null;
-      try
-      {
+      try {
          // Step 1. Create an initial context to perform the JNDI lookup.
          initialContext = new InitialContext();
 
          // Step 2. Perform the look-ups
-         Queue queue = (Queue)initialContext.lookup("queue/exampleQueue");
+         Queue queue = (Queue) initialContext.lookup("queue/exampleQueue");
 
-         ConnectionFactory cf = (ConnectionFactory)initialContext.lookup("ConnectionFactory");
+         ConnectionFactory cf = (ConnectionFactory) initialContext.lookup("ConnectionFactory");
 
          // Step 3. Create a the JMS objects
          connection = cf.createConnection();
@@ -75,29 +73,24 @@ public class ProtonCPPExample
          // Step 5. Finally, receive the message
          Message messageReceived = messageConsumer.receive(5000);
 
-         if (messageReceived == null)
-         {
+         if (messageReceived == null) {
             // We are not going to issue this as an error because
             // we also use this example as part of our tests on artemis
             // this is not considered an error, just that no messages arrived (i.e. hello wasn't called)
          }
-         else
-         {
+         else {
             System.out.println("message received: " + messageReceived);
 
             // Sending message back to client
             producerAnswer.send(session.createTextMessage("HELLO from Apache ActiveMQ Artemis"));
          }
       }
-      finally
-      {
+      finally {
          // Step 9. Be sure to close our resources!
-         if (initialContext != null)
-         {
+         if (initialContext != null) {
             initialContext.close();
          }
-         if (connection != null)
-         {
+         if (connection != null) {
             connection.close();
          }
       }
@@ -105,9 +98,8 @@ public class ProtonCPPExample
 
    // To do this we send a management message to get the message count.
    // In real life you wouldn't create a new session every time you send a management message
-   private int getMessageCount(final Connection connection) throws Exception
-   {
-      QueueSession session = ((QueueConnection)connection).createQueueSession(false, Session.AUTO_ACKNOWLEDGE);
+   private int getMessageCount(final Connection connection) throws Exception {
+      QueueSession session = ((QueueConnection) connection).createQueueSession(false, Session.AUTO_ACKNOWLEDGE);
 
       Queue managementQueue = ActiveMQJMSClient.createQueue("activemq.management");
 
@@ -121,7 +113,7 @@ public class ProtonCPPExample
 
       Message response = requestor.request(m);
 
-      int messageCount = (Integer)JMSManagementHelper.getResult(response);
+      int messageCount = (Integer) JMSManagementHelper.getResult(response);
 
       return messageCount;
    }

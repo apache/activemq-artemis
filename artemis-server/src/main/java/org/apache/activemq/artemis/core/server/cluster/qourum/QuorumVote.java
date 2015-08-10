@@ -22,12 +22,11 @@ import org.apache.activemq.artemis.core.client.impl.Topology;
 /**
  * the vote itself. the vote can be decided by the enquirer or sent out to each node in the quorum.
  */
-public abstract class QuorumVote<V extends Vote, T>
-{
+public abstract class QuorumVote<V extends Vote, T> {
+
    private SimpleString name;
 
-   public QuorumVote(SimpleString name)
-   {
+   public QuorumVote(SimpleString name) {
       this.name = name;
    }
 
@@ -43,6 +42,7 @@ public abstract class QuorumVote<V extends Vote, T>
     * called by the {@link org.apache.activemq.artemis.core.server.cluster.qourum.QuorumManager} fails to connect to a node in the quorum.
     * The QuorumVote can then decide whether or not a decision can be made with just that information however the node
     * cannot cannot be asked.
+    *
     * @return the vote to use
     */
    public abstract Vote notConnected();
@@ -74,8 +74,7 @@ public abstract class QuorumVote<V extends Vote, T>
     *
     * @return the name of the wuorum vote
     */
-   public SimpleString getName()
-   {
+   public SimpleString getName() {
       return name;
    }
 }

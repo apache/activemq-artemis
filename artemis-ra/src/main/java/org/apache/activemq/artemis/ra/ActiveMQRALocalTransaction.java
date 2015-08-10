@@ -20,26 +20,28 @@ import javax.jms.JMSException;
 import javax.resource.ResourceException;
 import javax.resource.spi.LocalTransaction;
 
-
 /**
  * JMS Local transaction
  */
-public class ActiveMQRALocalTransaction implements LocalTransaction
-{
-   /** Trace enabled */
+public class ActiveMQRALocalTransaction implements LocalTransaction {
+
+   /**
+    * Trace enabled
+    */
    private static boolean trace = ActiveMQRALogger.LOGGER.isTraceEnabled();
 
-   /** The managed connection */
+   /**
+    * The managed connection
+    */
    private final ActiveMQRAManagedConnection mc;
 
    /**
     * Constructor
+    *
     * @param mc The managed connection
     */
-   public ActiveMQRALocalTransaction(final ActiveMQRAManagedConnection mc)
-   {
-      if (ActiveMQRALocalTransaction.trace)
-      {
+   public ActiveMQRALocalTransaction(final ActiveMQRAManagedConnection mc) {
+      if (ActiveMQRALocalTransaction.trace) {
          ActiveMQRALogger.LOGGER.trace("constructor(" + mc + ")");
       }
 
@@ -48,43 +50,37 @@ public class ActiveMQRALocalTransaction implements LocalTransaction
 
    /**
     * Begin
-    * @exception ResourceException Thrown if the operation fails
+    *
+    * @throws ResourceException Thrown if the operation fails
     */
-   public void begin() throws ResourceException
-   {
-      if (ActiveMQRALocalTransaction.trace)
-      {
+   public void begin() throws ResourceException {
+      if (ActiveMQRALocalTransaction.trace) {
          ActiveMQRALogger.LOGGER.trace("begin()");
       }
 
-     // mc.setInManagedTx(true);
+      // mc.setInManagedTx(true);
    }
 
    /**
     * Commit
-    * @exception ResourceException Thrown if the operation fails
+    *
+    * @throws ResourceException Thrown if the operation fails
     */
-   public void commit() throws ResourceException
-   {
-      if (ActiveMQRALocalTransaction.trace)
-      {
+   public void commit() throws ResourceException {
+      if (ActiveMQRALocalTransaction.trace) {
          ActiveMQRALogger.LOGGER.trace("commit()");
       }
 
       mc.lock();
-      try
-      {
-         if (mc.getSession().getTransacted())
-         {
+      try {
+         if (mc.getSession().getTransacted()) {
             mc.getSession().commit();
          }
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          throw new ResourceException("Could not commit LocalTransaction", e);
       }
-      finally
-      {
+      finally {
          //mc.setInManagedTx(false);
          mc.unlock();
       }
@@ -92,29 +88,24 @@ public class ActiveMQRALocalTransaction implements LocalTransaction
 
    /**
     * Rollback
-    * @exception ResourceException Thrown if the operation fails
+    *
+    * @throws ResourceException Thrown if the operation fails
     */
-   public void rollback() throws ResourceException
-   {
-      if (ActiveMQRALocalTransaction.trace)
-      {
+   public void rollback() throws ResourceException {
+      if (ActiveMQRALocalTransaction.trace) {
          ActiveMQRALogger.LOGGER.trace("rollback()");
       }
 
       mc.lock();
-      try
-      {
-         if (mc.getSession().getTransacted())
-         {
+      try {
+         if (mc.getSession().getTransacted()) {
             mc.getSession().rollback();
          }
       }
-      catch (JMSException ex)
-      {
+      catch (JMSException ex) {
          throw new ResourceException("Could not rollback LocalTransaction", ex);
       }
-      finally
-      {
+      finally {
          //mc.setInManagedTx(false);
          mc.unlock();
       }

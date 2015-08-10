@@ -34,8 +34,8 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class CommitRollbackTest extends ActiveMQTestBase
-{
+public class CommitRollbackTest extends ActiveMQTestBase {
+
    public final SimpleString addressA = new SimpleString("addressA");
 
    public final SimpleString addressB = new SimpleString("addressB");
@@ -47,8 +47,7 @@ public class CommitRollbackTest extends ActiveMQTestBase
    public final SimpleString queueC = new SimpleString("queueC");
 
    @Test
-   public void testReceiveWithCommit() throws Exception
-   {
+   public void testReceiveWithCommit() throws Exception {
       ActiveMQServer server = createServer(false);
       server.start();
 
@@ -60,13 +59,11 @@ public class CommitRollbackTest extends ActiveMQTestBase
       ClientProducer cp = sendSession.createProducer(addressA);
       ClientConsumer cc = session.createConsumer(queueA);
       int numMessages = 100;
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          cp.send(sendSession.createMessage(false));
       }
       session.start();
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage cm = cc.receive(5000);
          Assert.assertNotNull(cm);
          cm.acknowledge();
@@ -80,8 +77,7 @@ public class CommitRollbackTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testReceiveWithRollback() throws Exception
-   {
+   public void testReceiveWithRollback() throws Exception {
       ActiveMQServer server = createServer(false);
 
       server.start();
@@ -93,13 +89,11 @@ public class CommitRollbackTest extends ActiveMQTestBase
       ClientProducer cp = sendSession.createProducer(addressA);
       ClientConsumer cc = session.createConsumer(queueA);
       int numMessages = 100;
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          cp.send(sendSession.createMessage(false));
       }
       session.start();
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage cm = cc.receive(5000);
          Assert.assertNotNull(cm);
          cm.acknowledge();
@@ -107,8 +101,7 @@ public class CommitRollbackTest extends ActiveMQTestBase
       Queue q = (Queue) server.getPostOffice().getBinding(queueA).getBindable();
       Assert.assertEquals(numMessages, q.getDeliveringCount());
       session.rollback();
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage cm = cc.receive(5000);
          Assert.assertNotNull(cm);
          cm.acknowledge();
@@ -119,8 +112,7 @@ public class CommitRollbackTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testReceiveWithRollbackMultipleConsumersDifferentQueues() throws Exception
-   {
+   public void testReceiveWithRollbackMultipleConsumersDifferentQueues() throws Exception {
       ActiveMQServer server = createServer(false);
 
       server.start();
@@ -135,14 +127,12 @@ public class CommitRollbackTest extends ActiveMQTestBase
       ClientConsumer cc = session.createConsumer(queueA);
       ClientConsumer cc2 = session.createConsumer(queueB);
       int numMessages = 100;
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          cp.send(sendSession.createMessage(false));
          cp2.send(sendSession.createMessage(false));
       }
       session.start();
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage cm = cc.receive(5000);
          Assert.assertNotNull(cm);
          cm.acknowledge();
@@ -165,13 +155,10 @@ public class CommitRollbackTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testAsyncConsumerCommit() throws Exception
-   {
+   public void testAsyncConsumerCommit() throws Exception {
       ActiveMQServer server = createServer(false);
       server.start();
-      ServerLocator locator = createInVMNonHALocator()
-              .setBlockOnAcknowledge(true)
-              .setAckBatchSize(0);
+      ServerLocator locator = createInVMNonHALocator().setBlockOnAcknowledge(true).setAckBatchSize(0);
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession sendSession = cf.createSession(false, true, true);
       final ClientSession session = cf.createSession(false, true, false);
@@ -179,28 +166,21 @@ public class CommitRollbackTest extends ActiveMQTestBase
       ClientProducer cp = sendSession.createProducer(addressA);
       ClientConsumer cc = session.createConsumer(queueA);
       int numMessages = 100;
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          cp.send(sendSession.createMessage(false));
       }
       final CountDownLatch latch = new CountDownLatch(numMessages);
       session.start();
-      cc.setMessageHandler(new MessageHandler()
-      {
-         public void onMessage(final ClientMessage message)
-         {
-            try
-            {
+      cc.setMessageHandler(new MessageHandler() {
+         public void onMessage(final ClientMessage message) {
+            try {
                message.acknowledge();
             }
-            catch (ActiveMQException e)
-            {
-               try
-               {
+            catch (ActiveMQException e) {
+               try {
                   session.close();
                }
-               catch (ActiveMQException e1)
-               {
+               catch (ActiveMQException e1) {
                   e1.printStackTrace();
                }
             }
@@ -220,13 +200,10 @@ public class CommitRollbackTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testAsyncConsumerRollback() throws Exception
-   {
+   public void testAsyncConsumerRollback() throws Exception {
       ActiveMQServer server = createServer(false);
       server.start();
-      ServerLocator locator = createInVMNonHALocator()
-              .setBlockOnAcknowledge(true)
-              .setAckBatchSize(0);
+      ServerLocator locator = createInVMNonHALocator().setBlockOnAcknowledge(true).setAckBatchSize(0);
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession sendSession = cf.createSession(false, true, true);
       final ClientSession session = cf.createSession(false, true, false);
@@ -234,8 +211,7 @@ public class CommitRollbackTest extends ActiveMQTestBase
       ClientProducer cp = sendSession.createProducer(addressA);
       ClientConsumer cc = session.createConsumer(queueA);
       int numMessages = 100;
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          cp.send(sendSession.createMessage(false));
       }
       CountDownLatch latch = new CountDownLatch(numMessages);
@@ -259,32 +235,26 @@ public class CommitRollbackTest extends ActiveMQTestBase
 
    }
 
-   private static class ackHandler implements MessageHandler
-   {
+   private static class ackHandler implements MessageHandler {
+
       private final ClientSession session;
 
       private final CountDownLatch latch;
 
-      public ackHandler(final ClientSession session, final CountDownLatch latch)
-      {
+      public ackHandler(final ClientSession session, final CountDownLatch latch) {
          this.session = session;
          this.latch = latch;
       }
 
-      public void onMessage(final ClientMessage message)
-      {
-         try
-         {
+      public void onMessage(final ClientMessage message) {
+         try {
             message.acknowledge();
          }
-         catch (ActiveMQException e)
-         {
-            try
-            {
+         catch (ActiveMQException e) {
+            try {
                session.close();
             }
-            catch (ActiveMQException e1)
-            {
+            catch (ActiveMQException e1) {
                e1.printStackTrace();
             }
          }

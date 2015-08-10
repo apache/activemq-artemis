@@ -30,10 +30,9 @@ import java.util.Hashtable;
  * This example demonstrates a core bridge set-up between two nodes, consuming messages from a queue
  * on one node and forwarding them to an address on the second node.
  */
-public class BridgeExample
-{
-   public static void main(final String[] args) throws Exception
-   {
+public class BridgeExample {
+
+   public static void main(final String[] args) throws Exception {
       Connection connection0 = null;
 
       Connection connection1 = null;
@@ -42,8 +41,7 @@ public class BridgeExample
 
       InitialContext ic1 = null;
 
-      try
-      {
+      try {
          // Step 1 - we create an initial context for looking up JNDI on node 0
 
          Hashtable<String, Object> properties = new Hashtable<String, Object>();
@@ -54,11 +52,11 @@ public class BridgeExample
 
          // Step 2 - we look up the sausage-factory queue from node 0
 
-         Queue sausageFactory = (Queue)ic0.lookup("queue/sausage-factory");
+         Queue sausageFactory = (Queue) ic0.lookup("queue/sausage-factory");
 
          // Step 3 - we look up a JMS ConnectionFactory object from node 0
 
-         ConnectionFactory cf0 = (ConnectionFactory)ic0.lookup("ConnectionFactory");
+         ConnectionFactory cf0 = (ConnectionFactory) ic0.lookup("ConnectionFactory");
 
          // Step 4 - we create an initial context for looking up JNDI on node 1
 
@@ -70,11 +68,11 @@ public class BridgeExample
 
          // Step 5 - we look up the mincing-machine queue on node 1
 
-         Queue mincingMachine = (Queue)ic1.lookup("queue/mincing-machine");
+         Queue mincingMachine = (Queue) ic1.lookup("queue/mincing-machine");
 
          // Step 6 - we look up a JMS ConnectionFactory object from node 1
 
-         ConnectionFactory cf1 = (ConnectionFactory)ic1.lookup("ConnectionFactory");
+         ConnectionFactory cf1 = (ConnectionFactory) ic1.lookup("ConnectionFactory");
 
          // Step 7. We create a JMS Connection connection0 which is a connection to server 0
 
@@ -112,9 +110,9 @@ public class BridgeExample
          producer.send(message);
 
          System.out.println("Sent " + message.getStringProperty("name") +
-                                    " message with " +
-                                    message.getStringProperty("hat") +
-                                    " hat to sausage-factory on node 0");
+                               " message with " +
+                               message.getStringProperty("hat") +
+                               " hat to sausage-factory on node 0");
 
          // Step 14 - we successfully receive the aardvark message from the mincing-machine one node 1. The aardvark's
          // hat is now blue since it has been transformed!
@@ -122,9 +120,9 @@ public class BridgeExample
          Message receivedMessage = consumer.receive(5000);
 
          System.out.println("Received " + receivedMessage.getStringProperty("name") +
-                                    " message with " +
-                                    receivedMessage.getStringProperty("hat") +
-                                    " hat from mincing-machine on node 1");
+                               " message with " +
+                               receivedMessage.getStringProperty("hat") +
+                               " hat from mincing-machine on node 1");
 
          // Step 13. We create and send another message, this time representing a sasquatch with a mauve hat to the
          // sausage-factory on node 0. This won't be bridged to the mincing-machine since we only want aardvarks, not
@@ -139,44 +137,37 @@ public class BridgeExample
          producer.send(message);
 
          System.out.println("Sent " + message.getStringProperty("name") +
-                                    " message with " +
-                                    message.getStringProperty("hat") +
-                                    " hat to sausage-factory on node 0");
+                               " message with " +
+                               message.getStringProperty("hat") +
+                               " hat to sausage-factory on node 0");
 
          // Step 14. We don't receive the message since it has not been bridged.
 
          receivedMessage = consumer.receive(1000);
 
-         if (receivedMessage == null)
-         {
+         if (receivedMessage == null) {
             System.out.println("Didn't receive that message from mincing-machine on node 1");
          }
-         else
-         {
+         else {
             throw new IllegalStateException();
          }
       }
-      finally
-      {
+      finally {
          // Step 15. Be sure to close our resources!
 
-         if (connection0 != null)
-         {
+         if (connection0 != null) {
             connection0.close();
          }
 
-         if (connection1 != null)
-         {
+         if (connection1 != null) {
             connection1.close();
          }
 
-         if (ic0 != null)
-         {
+         if (ic0 != null) {
             ic0.close();
          }
 
-         if (ic1 != null)
-         {
+         if (ic1 != null) {
             ic1.close();
          }
       }

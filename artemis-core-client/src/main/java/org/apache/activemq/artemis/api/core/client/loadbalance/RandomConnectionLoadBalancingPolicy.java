@@ -22,17 +22,17 @@ import org.apache.activemq.artemis.utils.Random;
  * {@link RandomConnectionLoadBalancingPolicy#select(int)} returns a (pseudo) random integer between
  * {@code 0} (inclusive) and {@code max} (exclusive).
  */
-public final class RandomConnectionLoadBalancingPolicy implements ConnectionLoadBalancingPolicy
-{
+public final class RandomConnectionLoadBalancingPolicy implements ConnectionLoadBalancingPolicy {
+
    private final Random random = new Random();
 
    /**
     * Returns a pseudo random number between {@code 0} (inclusive) and {@code max} exclusive.
+    *
     * @param max the upper limit of the random number selection
     * @see java.util.Random#nextInt(int)
     */
-   public int select(final int max)
-   {
+   public int select(final int max) {
       return random.getRandom().nextInt(max);
    }
 }

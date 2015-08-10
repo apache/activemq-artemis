@@ -18,8 +18,8 @@ package org.apache.activemq.artemis.utils;
 
 import java.util.concurrent.TimeUnit;
 
-public class TokenBucketLimiterImpl implements TokenBucketLimiter
-{
+public class TokenBucketLimiterImpl implements TokenBucketLimiter {
+
    private final int rate;
 
    private final long window;
@@ -27,24 +27,22 @@ public class TokenBucketLimiterImpl implements TokenBucketLimiter
    private final boolean spin;
 
    /**
-      Even thought we don't use TokenBucket in multiThread
-      the implementation should keep this volatile for correctness
-     */
+    * Even thought we don't use TokenBucket in multiThread
+    * the implementation should keep this volatile for correctness
+    */
    private volatile long last;
 
    /**
-      Even thought we don't use TokenBucket in multiThread
-      the implementation should keep this volatile for correctness
-     */
+    * Even thought we don't use TokenBucket in multiThread
+    * the implementation should keep this volatile for correctness
+    */
    private int tokens;
 
-   public TokenBucketLimiterImpl(final int rate, final boolean spin)
-   {
+   public TokenBucketLimiterImpl(final int rate, final boolean spin) {
       this(rate, spin, TimeUnit.SECONDS, 1);
    }
 
-   public TokenBucketLimiterImpl(final int rate, final boolean spin, TimeUnit unit, int unitAmount)
-   {
+   public TokenBucketLimiterImpl(final int rate, final boolean spin, TimeUnit unit, int unitAmount) {
       this.rate = rate;
 
       this.spin = spin;
@@ -52,64 +50,51 @@ public class TokenBucketLimiterImpl implements TokenBucketLimiter
       this.window = unit.toMillis(unitAmount);
    }
 
-   public int getRate()
-   {
+   public int getRate() {
       return rate;
    }
 
-   public boolean isSpin()
-   {
+   public boolean isSpin() {
       return spin;
    }
 
-   public void limit()
-   {
-      while (!check())
-      {
-         if (spin)
-         {
+   public void limit() {
+      while (!check()) {
+         if (spin) {
             Thread.yield();
          }
-         else
-         {
-            try
-            {
+         else {
+            try {
                Thread.sleep(1);
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                // Ignore
             }
          }
       }
    }
 
-   private boolean check()
-   {
+   private boolean check() {
       long now = System.currentTimeMillis();
 
-      if (last == 0)
-      {
+      if (last == 0) {
          last = now;
       }
 
       long diff = now - last;
 
-      if (diff >= window)
-      {
+      if (diff >= window) {
          last = System.currentTimeMillis();
 
          tokens = rate;
       }
 
-      if (tokens > 0)
-      {
+      if (tokens > 0) {
          tokens--;
 
          return true;
       }
-      else
-      {
+      else {
          return false;
       }
    }

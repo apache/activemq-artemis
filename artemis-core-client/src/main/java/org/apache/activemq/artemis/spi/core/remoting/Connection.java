@@ -25,8 +25,8 @@ import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 /**
  * The connection used by a channel to write data to.
  */
-public interface Connection
-{
+public interface Connection {
+
    /**
     * Create a new ActiveMQBuffer of the given size.
     *
@@ -34,7 +34,6 @@ public interface Connection
     * @return the new buffer.
     */
    ActiveMQBuffer createTransportBuffer(int size);
-
 
    RemotingConnection getProtocolConnection();
 
@@ -50,8 +49,8 @@ public interface Connection
    /**
     * writes the buffer to the connection and if flush is true returns only when the buffer has been physically written to the connection.
     *
-    * @param buffer the buffer to write
-    * @param flush  whether to flush the buffers onto the wire
+    * @param buffer  the buffer to write
+    * @param flush   whether to flush the buffers onto the wire
     * @param batched whether the packet is allowed to batched for better performance
     */
    void write(ActiveMQBuffer buffer, boolean flush, boolean batched);
@@ -59,8 +58,8 @@ public interface Connection
    /**
     * writes the buffer to the connection and if flush is true returns only when the buffer has been physically written to the connection.
     *
-    * @param buffer the buffer to write
-    * @param flush  whether to flush the buffers onto the wire
+    * @param buffer  the buffer to write
+    * @param flush   whether to flush the buffers onto the wire
     * @param batched whether the packet is allowed to batched for better performance
     */
    void write(ActiveMQBuffer buffer, boolean flush, boolean batched, ChannelFutureListener futureListener);
@@ -71,7 +70,6 @@ public interface Connection
     * @param buffer the buffer to write
     */
    void write(ActiveMQBuffer buffer);
-
 
    /**
     * This should close the internal channel without calling any listeners.
@@ -87,6 +85,7 @@ public interface Connection
 
    /**
     * Returns a string representation of the remote address this connection is connected to.
+    *
     * @return the remote address
     */
    String getRemoteAddress();
@@ -103,6 +102,7 @@ public interface Connection
    /**
     * Generates a {@link TransportConfiguration} to be used to connect to the same target this is
     * connected to.
+    *
     * @return TransportConfiguration
     */
    TransportConfiguration getConnectorConfig();
@@ -112,6 +112,7 @@ public interface Connection
    /**
     * the InVM Connection has some special handling as it doesn't use Netty ProtocolChannel
     * we will use this method Instead of using instanceof
+    *
     * @return
     */
    boolean isUsingProtocolHandling();

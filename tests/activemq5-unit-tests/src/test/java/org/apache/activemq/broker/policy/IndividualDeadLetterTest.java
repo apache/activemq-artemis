@@ -38,72 +38,73 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class IndividualDeadLetterTest extends DeadLetterTest {
-    private static final Logger LOG = LoggerFactory.getLogger(IndividualDeadLetterTest.class);
 
-    @Override
-    protected BrokerService createBroker() throws Exception {
-        BrokerService broker = super.createBroker();
+   private static final Logger LOG = LoggerFactory.getLogger(IndividualDeadLetterTest.class);
 
-        PolicyEntry policy = new PolicyEntry();
-        DeadLetterStrategy strategy = new IndividualDeadLetterStrategy();
-        strategy.setProcessNonPersistent(true);
-        policy.setDeadLetterStrategy(strategy);
+   @Override
+   protected BrokerService createBroker() throws Exception {
+      BrokerService broker = super.createBroker();
 
-        PolicyMap pMap = new PolicyMap();
-        pMap.setDefaultEntry(policy);
+      PolicyEntry policy = new PolicyEntry();
+      DeadLetterStrategy strategy = new IndividualDeadLetterStrategy();
+      strategy.setProcessNonPersistent(true);
+      policy.setDeadLetterStrategy(strategy);
 
-        broker.setDestinationPolicy(pMap);
+      PolicyMap pMap = new PolicyMap();
+      pMap.setDefaultEntry(policy);
 
-        return broker;
-    }
+      broker.setDestinationPolicy(pMap);
 
-    @Override
-    protected Destination createDlqDestination() {
-        String prefix = topic ? "ActiveMQ.DLQ.Topic." : "ActiveMQ.DLQ.Queue.";
-        return new ActiveMQQueue(prefix + getClass().getName() + "." + getName());
-    }
+      return broker;
+   }
 
-    public void testDLQBrowsing() throws Exception {
-        super.topic = false;
-        deliveryMode = DeliveryMode.PERSISTENT;
-        durableSubscriber = false;
-        messageCount = 1;
+   @Override
+   protected Destination createDlqDestination() {
+      String prefix = topic ? "ActiveMQ.DLQ.Topic." : "ActiveMQ.DLQ.Queue.";
+      return new ActiveMQQueue(prefix + getClass().getName() + "." + getName());
+   }
 
-        connection.start();
+   public void testDLQBrowsing() throws Exception {
+      super.topic = false;
+      deliveryMode = DeliveryMode.PERSISTENT;
+      durableSubscriber = false;
+      messageCount = 1;
 
-        ActiveMQConnection amqConnection = (ActiveMQConnection) connection;
-        rollbackCount = amqConnection.getRedeliveryPolicy().getMaximumRedeliveries() + 1;
-        LOG.info("Will redeliver messages: " + rollbackCount + " times");
+      connection.start();
 
-        sendMessages();
+      ActiveMQConnection amqConnection = (ActiveMQConnection) connection;
+      rollbackCount = amqConnection.getRedeliveryPolicy().getMaximumRedeliveries() + 1;
+      LOG.info("Will redeliver messages: " + rollbackCount + " times");
 
-        // now lets receive and rollback N times
-        for (int i = 0; i < rollbackCount; i++) {
-            makeConsumer();
-            Message message = consumer.receive(5000);
-            assertNotNull("No message received: ", message);
+      sendMessages();
 
-            session.rollback();
-            LOG.info("Rolled back: " + rollbackCount + " times");
-            consumer.close();
-        }
+      // now lets receive and rollback N times
+      for (int i = 0; i < rollbackCount; i++) {
+         makeConsumer();
+         Message message = consumer.receive(5000);
+         assertNotNull("No message received: ", message);
 
-        makeDlqBrowser();
-        browseDlq();
-        dlqBrowser.close();
-        session.close();
-        Thread.sleep(1000);
-        session = connection.createSession(transactedMode, acknowledgeMode);
-        Queue testQueue = new ActiveMQQueue("ActiveMQ.DLQ.Queue.ActiveMQ.DLQ.Queue." + getClass().getName() + "." + getName());
-        MessageConsumer testConsumer = session.createConsumer(testQueue);
-        assertNull("The message shouldn't be sent to another DLQ", testConsumer.receive(1000));
+         session.rollback();
+         LOG.info("Rolled back: " + rollbackCount + " times");
+         consumer.close();
+      }
 
-    }
+      makeDlqBrowser();
+      browseDlq();
+      dlqBrowser.close();
+      session.close();
+      Thread.sleep(1000);
+      session = connection.createSession(transactedMode, acknowledgeMode);
+      Queue testQueue = new ActiveMQQueue("ActiveMQ.DLQ.Queue.ActiveMQ.DLQ.Queue." + getClass().getName() + "." + getName());
+      MessageConsumer testConsumer = session.createConsumer(testQueue);
+      assertNull("The message shouldn't be sent to another DLQ", testConsumer.receive(1000));
 
-    protected void browseDlq() throws Exception {
-        Enumeration<?> messages = dlqBrowser.getEnumeration();
-        while (messages.hasMoreElements()) {
-            LOG.info("Browsing: " + messages.nextElement());
-        }
-    }
+   }
+
+   protected void browseDlq() throws Exception {
+      Enumeration<?> messages = dlqBrowser.getEnumeration();
+      while (messages.hasMoreElements()) {
+         LOG.info("Browsing: " + messages.nextElement());
+      }
+   }
 }

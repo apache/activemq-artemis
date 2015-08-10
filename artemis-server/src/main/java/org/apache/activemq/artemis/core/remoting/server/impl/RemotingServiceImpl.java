@@ -71,8 +71,7 @@ import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.ConfigurationHelper;
 import org.apache.activemq.artemis.utils.ReusableLatch;
 
-public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycleListener
-{
+public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycleListener {
    // Constants -----------------------------------------------------
 
    private static final boolean isTrace = ActiveMQServerLogger.LOGGER.isTraceEnabled();
@@ -126,8 +125,7 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
                               final ScheduledExecutorService scheduledThreadPool,
                               List<ProtocolManagerFactory> protocolManagerFactories,
                               final Executor flushExecutor,
-                              final ServiceRegistry serviceRegistry)
-   {
+                              final ServiceRegistry serviceRegistry) {
       this.serviceRegistry = serviceRegistry;
 
       acceptorsConfig = config.getAcceptorConfigurations();
@@ -147,35 +145,25 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
       this.flushExecutor = flushExecutor;
 
       ActiveMQServerLogger.LOGGER.addingProtocolSupport(coreProtocolManagerFactory.getProtocols()[0], coreProtocolManagerFactory.getModuleName());
-      this.protocolMap.put(coreProtocolManagerFactory.getProtocols()[0],
-                           coreProtocolManagerFactory.createProtocolManager(server, coreProtocolManagerFactory.filterInterceptors(incomingInterceptors),
-                                                                            coreProtocolManagerFactory.filterInterceptors(outgoingInterceptors)));
+      this.protocolMap.put(coreProtocolManagerFactory.getProtocols()[0], coreProtocolManagerFactory.createProtocolManager(server, coreProtocolManagerFactory.filterInterceptors(incomingInterceptors), coreProtocolManagerFactory.filterInterceptors(outgoingInterceptors)));
 
-      if (config.isResolveProtocols())
-      {
+      if (config.isResolveProtocols()) {
          ServiceLoader<ProtocolManagerFactory> serviceLoader = ServiceLoader.load(ProtocolManagerFactory.class, this.getClass().getClassLoader());
-         if (serviceLoader != null)
-         {
-            for (ProtocolManagerFactory next : serviceLoader)
-            {
+         if (serviceLoader != null) {
+            for (ProtocolManagerFactory next : serviceLoader) {
                String[] protocols = next.getProtocols();
-               for (String protocol : protocols)
-               {
+               for (String protocol : protocols) {
                   ActiveMQServerLogger.LOGGER.addingProtocolSupport(protocol, next.getModuleName());
-                  protocolMap.put(protocol, next.createProtocolManager(server, next.filterInterceptors(incomingInterceptors),
-                        next.filterInterceptors(outgoingInterceptors)));
+                  protocolMap.put(protocol, next.createProtocolManager(server, next.filterInterceptors(incomingInterceptors), next.filterInterceptors(outgoingInterceptors)));
                }
             }
          }
       }
 
-      if (protocolManagerFactories != null)
-      {
-         for (ProtocolManagerFactory protocolManagerFactory : protocolManagerFactories)
-         {
+      if (protocolManagerFactories != null) {
+         for (ProtocolManagerFactory protocolManagerFactory : protocolManagerFactories) {
             String[] protocols = protocolManagerFactory.getProtocols();
-            for (String protocol : protocols)
-            {
+            for (String protocol : protocols) {
                ActiveMQServerLogger.LOGGER.addingProtocolSupport(protocol, protocolManagerFactory.getModuleName());
                protocolMap.put(protocol, protocolManagerFactory.createProtocolManager(server, incomingInterceptors, outgoingInterceptors));
             }
@@ -185,23 +173,18 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
 
    // RemotingService implementation -------------------------------
 
-   private void setInterceptors(Configuration configuration)
-   {
+   private void setInterceptors(Configuration configuration) {
       incomingInterceptors.addAll(serviceRegistry.getIncomingInterceptors(configuration.getIncomingInterceptorClassNames()));
       outgoingInterceptors.addAll(serviceRegistry.getOutgoingInterceptors(configuration.getOutgoingInterceptorClassNames()));
    }
 
-   public synchronized void start() throws Exception
-   {
-      if (started)
-      {
+   public synchronized void start() throws Exception {
+      if (started) {
          return;
       }
 
-      ClassLoader tccl = AccessController.doPrivileged(new PrivilegedAction<ClassLoader>()
-      {
-         public ClassLoader run()
-         {
+      ClassLoader tccl = AccessController.doPrivileged(new PrivilegedAction<ClassLoader>() {
+         public ClassLoader run() {
             return Thread.currentThread().getContextClassLoader();
          }
       });
@@ -218,51 +201,39 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
 
       threadPool = Executors.newCachedThreadPool(tFactory);
 
-      for (TransportConfiguration info : acceptorsConfig)
-      {
-         try
-         {
+      for (TransportConfiguration info : acceptorsConfig) {
+         try {
             AcceptorFactory factory = server.getServiceRegistry().getAcceptorFactory(info.getName(), info.getFactoryClassName());
 
             Map<String, ProtocolManager> supportedProtocols = new ConcurrentHashMap();
 
-            String protocol = ConfigurationHelper.getStringProperty(TransportConstants.PROTOCOL_PROP_NAME, null,
-                                                                    info.getParams());
+            String protocol = ConfigurationHelper.getStringProperty(TransportConstants.PROTOCOL_PROP_NAME, null, info.getParams());
 
-            if (protocol != null)
-            {
+            if (protocol != null) {
                ActiveMQServerLogger.LOGGER.warnDeprecatedProtocol();
                ProtocolManager protocolManager = protocolMap.get(protocol);
 
-               if (protocolManager == null)
-               {
+               if (protocolManager == null) {
                   throw ActiveMQMessageBundle.BUNDLE.noProtocolManagerFound(protocol);
                }
-               else
-               {
+               else {
                   supportedProtocols.put(protocol, protocolManager);
                }
             }
 
-            String protocols = ConfigurationHelper.getStringProperty(TransportConstants.PROTOCOLS_PROP_NAME, null,
-                                                                     info.getParams());
+            String protocols = ConfigurationHelper.getStringProperty(TransportConstants.PROTOCOLS_PROP_NAME, null, info.getParams());
 
-            if (protocols != null)
-            {
+            if (protocols != null) {
                String[] actualProtocols = protocols.split(",");
 
-               if (actualProtocols != null)
-               {
-                  for (String actualProtocol : actualProtocols)
-                  {
+               if (actualProtocols != null) {
+                  for (String actualProtocol : actualProtocols) {
                      ProtocolManager protocolManager = protocolMap.get(actualProtocol);
 
-                     if (protocolManager == null)
-                     {
+                     if (protocolManager == null) {
                         throw ActiveMQMessageBundle.BUNDLE.noProtocolManagerFound(actualProtocol);
                      }
-                     else
-                     {
+                     else {
                         supportedProtocols.put(actualProtocol, protocolManager);
                      }
                   }
@@ -271,31 +242,21 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
 
             ClusterConnection clusterConnection = lookupClusterConnection(info);
 
-            Acceptor acceptor = factory.createAcceptor(info.getName(),
-                                                       clusterConnection,
-                                                       info.getParams(),
-                                                       new DelegatingBufferHandler(),
-                                                       this,
-                                                       threadPool,
-                                                       scheduledThreadPool,
-                                                       supportedProtocols.isEmpty() ? protocolMap : supportedProtocols);
+            Acceptor acceptor = factory.createAcceptor(info.getName(), clusterConnection, info.getParams(), new DelegatingBufferHandler(), this, threadPool, scheduledThreadPool, supportedProtocols.isEmpty() ? protocolMap : supportedProtocols);
 
-            if (defaultInvmSecurityPrincipal != null && acceptor.isUnsecurable())
-            {
+            if (defaultInvmSecurityPrincipal != null && acceptor.isUnsecurable()) {
                acceptor.setDefaultActiveMQPrincipal(defaultInvmSecurityPrincipal);
             }
 
             acceptors.put(info.getName(), acceptor);
 
-            if (managementService != null)
-            {
+            if (managementService != null) {
                acceptor.setNotificationService(managementService);
 
                managementService.registerAcceptor(acceptor, info);
             }
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             ActiveMQServerLogger.LOGGER.errorCreatingAcceptor(e, info.getFactoryClassName());
          }
       }
@@ -313,49 +274,38 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
       started = true;
    }
 
-   public synchronized void startAcceptors() throws Exception
-   {
-      if (isStarted())
-      {
-         for (Acceptor a : acceptors.values())
-         {
+   public synchronized void startAcceptors() throws Exception {
+      if (isStarted()) {
+         for (Acceptor a : acceptors.values()) {
             a.start();
          }
       }
    }
 
-   public synchronized void allowInvmSecurityOverride(ActiveMQPrincipal principal)
-   {
+   public synchronized void allowInvmSecurityOverride(ActiveMQPrincipal principal) {
       defaultInvmSecurityPrincipal = principal;
-      for (Acceptor acceptor : acceptors.values())
-      {
-         if (acceptor.isUnsecurable())
-         {
+      for (Acceptor acceptor : acceptors.values()) {
+         if (acceptor.isUnsecurable()) {
             acceptor.setDefaultActiveMQPrincipal(principal);
          }
       }
    }
 
-   public synchronized void pauseAcceptors()
-   {
+   public synchronized void pauseAcceptors() {
       if (!started)
          return;
 
-      for (Acceptor acceptor : acceptors.values())
-      {
-         try
-         {
+      for (Acceptor acceptor : acceptors.values()) {
+         try {
             acceptor.pause();
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             ActiveMQServerLogger.LOGGER.errorStoppingAcceptor();
          }
       }
    }
 
-   public synchronized void freeze(final String scaleDownNodeID, final CoreRemotingConnection connectionToKeepOpen)
-   {
+   public synchronized void freeze(final String scaleDownNodeID, final CoreRemotingConnection connectionToKeepOpen) {
       if (!started)
          return;
       failureCheckAndFlushThread.close(false);
@@ -363,47 +313,39 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
 
       // Now we ensure that no connections will process any more packets after this method is
       // complete then send a disconnect packet
-      for (Entry<Object, ConnectionEntry> entry : connectionEntries.entrySet())
-      {
+      for (Entry<Object, ConnectionEntry> entry : connectionEntries.entrySet()) {
          RemotingConnection conn = entry.getValue().connection;
 
          if (conn.equals(connectionToKeepOpen))
             continue;
 
-         if (ActiveMQServerLogger.LOGGER.isTraceEnabled())
-         {
+         if (ActiveMQServerLogger.LOGGER.isTraceEnabled()) {
             ActiveMQServerLogger.LOGGER.trace("Sending connection.disconnection packet to " + conn);
          }
 
-         if (!conn.isClient())
-         {
+         if (!conn.isClient()) {
             conn.disconnect(scaleDownNodeID, false);
             removeConnection(entry.getKey());
          }
       }
    }
 
-   public void stop(final boolean criticalError) throws Exception
-   {
-      if (!started)
-      {
+   public void stop(final boolean criticalError) throws Exception {
+      if (!started) {
          return;
       }
 
       failureCheckAndFlushThread.close(criticalError);
 
       // We need to stop them accepting first so no new connections are accepted after we send the disconnect message
-      for (Acceptor acceptor : acceptors.values())
-      {
-         if (ActiveMQServerLogger.LOGGER.isDebugEnabled())
-         {
+      for (Acceptor acceptor : acceptors.values()) {
+         if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
             ActiveMQServerLogger.LOGGER.debug("Pausing acceptor " + acceptor);
          }
          acceptor.pause();
       }
 
-      if (ActiveMQServerLogger.LOGGER.isDebugEnabled())
-      {
+      if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
          ActiveMQServerLogger.LOGGER.debug("Sending disconnect on live connections");
       }
 
@@ -411,20 +353,17 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
 
       // Now we ensure that no connections will process any more packets after this method is complete
       // then send a disconnect packet
-      for (ConnectionEntry entry : connectionEntries)
-      {
+      for (ConnectionEntry entry : connectionEntries) {
          RemotingConnection conn = entry.connection;
 
-         if (ActiveMQServerLogger.LOGGER.isTraceEnabled())
-         {
+         if (ActiveMQServerLogger.LOGGER.isTraceEnabled()) {
             ActiveMQServerLogger.LOGGER.trace("Sending connection.disconnection packet to " + conn);
          }
 
          conn.disconnect(criticalError);
       }
 
-      for (Acceptor acceptor : acceptors.values())
-      {
+      for (Acceptor acceptor : acceptors.values()) {
          acceptor.stop();
       }
 
@@ -433,19 +372,16 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
       connections.clear();
       connectionCountLatch.setCount(0);
 
-      if (managementService != null)
-      {
+      if (managementService != null) {
          managementService.unregisterAcceptors();
       }
 
       threadPool.shutdown();
 
-      if (!criticalError)
-      {
+      if (!criticalError) {
          boolean ok = threadPool.awaitTermination(10000, TimeUnit.MILLISECONDS);
 
-         if (!ok)
-         {
+         if (!ok) {
             ActiveMQServerLogger.LOGGER.timeoutRemotingThreadPool();
          }
       }
@@ -455,92 +391,77 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
    }
 
    @Override
-   public Acceptor getAcceptor(String name)
-   {
+   public Acceptor getAcceptor(String name) {
       return acceptors.get(name);
    }
 
-   public boolean isStarted()
-   {
+   public boolean isStarted() {
       return started;
    }
 
-
-   private RemotingConnection getConnection(final Object remotingConnectionID)
-   {
+   private RemotingConnection getConnection(final Object remotingConnectionID) {
       ConnectionEntry entry = connections.get(remotingConnectionID);
 
-      if (entry != null)
-      {
+      if (entry != null) {
          return entry.connection;
       }
-      else
-      {
+      else {
          ActiveMQServerLogger.LOGGER.errorRemovingConnection();
 
          return null;
       }
    }
 
-   public RemotingConnection removeConnection(final Object remotingConnectionID)
-   {
+   public RemotingConnection removeConnection(final Object remotingConnectionID) {
       ConnectionEntry entry = connections.remove(remotingConnectionID);
 
-      if (entry != null)
-      {
+      if (entry != null) {
          connectionCountLatch.countDown();
          return entry.connection;
       }
-      else
-      {
+      else {
          ActiveMQServerLogger.LOGGER.errorRemovingConnection();
 
          return null;
       }
    }
 
-   public synchronized Set<RemotingConnection> getConnections()
-   {
+   public synchronized Set<RemotingConnection> getConnections() {
       Set<RemotingConnection> conns = new HashSet<RemotingConnection>(connections.size());
 
-      for (ConnectionEntry entry : connections.values())
-      {
+      for (ConnectionEntry entry : connections.values()) {
          conns.add(entry.connection);
       }
 
       return conns;
    }
 
-   public synchronized ReusableLatch getConnectionCountLatch()
-   {
+   public synchronized ReusableLatch getConnectionCountLatch() {
       return connectionCountLatch;
    }
 
    // ConnectionLifeCycleListener implementation -----------------------------------
 
-   private ProtocolManager getProtocolManager(String protocol)
-   {
+   private ProtocolManager getProtocolManager(String protocol) {
       return protocolMap.get(protocol);
    }
 
-   public void connectionCreated(final ActiveMQComponent component, final Connection connection, final String protocol)
-   {
-      if (server == null)
-      {
+   public void connectionCreated(final ActiveMQComponent component,
+                                 final Connection connection,
+                                 final String protocol) {
+      if (server == null) {
          throw new IllegalStateException("Unable to create connection, server hasn't finished starting up");
       }
 
       ProtocolManager pmgr = this.getProtocolManager(protocol.toString());
 
-      if (pmgr == null)
-      {
+      if (pmgr == null) {
          throw ActiveMQMessageBundle.BUNDLE.unknownProtocol(protocol);
       }
 
       ConnectionEntry entry = pmgr.createConnectionEntry((Acceptor) component, connection);
 
-      if (isTrace)
-      {
+      if (isTrace) {
          ActiveMQServerLogger.LOGGER.trace("Connection created " + connection);
       }
 
@@ -548,28 +469,23 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
       connectionCountLatch.countUp();
    }
 
-   public void connectionDestroyed(final Object connectionID)
-   {
+   public void connectionDestroyed(final Object connectionID) {
 
-      if (isTrace)
-      {
+      if (isTrace) {
          ActiveMQServerLogger.LOGGER.trace("Connection removed " + connectionID + " from server " + this.server, new Exception("trace"));
       }
 
       ConnectionEntry conn = connections.get(connectionID);
 
-      if (conn != null)
-      {
+      if (conn != null) {
          // Bit of a hack - find a better way to do this
 
          List<FailureListener> failureListeners = conn.connection.getFailureListeners();
 
          boolean empty = true;
 
-         for (FailureListener listener : failureListeners)
-         {
-            if (listener instanceof ServerSessionImpl)
-            {
+         for (FailureListener listener : failureListeners) {
+            if (listener instanceof ServerSessionImpl) {
                empty = false;
 
                break;
@@ -579,8 +495,7 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
          // We only destroy the connection if the connection has no sessions attached to it
          // Otherwise it means the connection has died without the sessions being closed first
          // so we need to keep them for ttl, in case re-attachment occurs
-         if (empty)
-         {
+         if (empty) {
             removeConnection(connectionID);
 
             conn.connection.destroy();
@@ -588,8 +503,7 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
       }
    }
 
-   public void connectionException(final Object connectionID, final ActiveMQException me)
-   {
+   public void connectionException(final Object connectionID, final ActiveMQException me) {
       // We DO NOT call fail on connection exception, otherwise in event of real connection failure, the
       // connection will be failed, the session will be closed and won't be able to reconnect
 
@@ -600,78 +514,64 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
       // Connections should only fail when TTL is exceeded
    }
 
-   public void connectionReadyForWrites(final Object connectionID, final boolean ready)
-   {
+   public void connectionReadyForWrites(final Object connectionID, final boolean ready) {
    }
 
    @Override
-   public void addIncomingInterceptor(final Interceptor interceptor)
-   {
+   public void addIncomingInterceptor(final Interceptor interceptor) {
       incomingInterceptors.add(interceptor);
 
       updateProtocols();
    }
 
    @Override
-   public List<BaseInterceptor> getIncomingInterceptors()
-   {
+   public List<BaseInterceptor> getIncomingInterceptors() {
       return Collections.unmodifiableList(incomingInterceptors);
    }
 
    @Override
-   public boolean removeIncomingInterceptor(final Interceptor interceptor)
-   {
-      if (incomingInterceptors.remove(interceptor))
-      {
+   public boolean removeIncomingInterceptor(final Interceptor interceptor) {
+      if (incomingInterceptors.remove(interceptor)) {
          updateProtocols();
          return true;
       }
-      else
-      {
+      else {
          return false;
       }
    }
 
    @Override
-   public void addOutgoingInterceptor(final Interceptor interceptor)
-   {
+   public void addOutgoingInterceptor(final Interceptor interceptor) {
       outgoingInterceptors.add(interceptor);
       updateProtocols();
    }
 
    @Override
-   public List<BaseInterceptor> getOutgoinInterceptors()
-   {
+   public List<BaseInterceptor> getOutgoinInterceptors() {
       return Collections.unmodifiableList(outgoingInterceptors);
    }
 
    @Override
-   public boolean removeOutgoingInterceptor(final Interceptor interceptor)
-   {
-      if (outgoingInterceptors.remove(interceptor))
-      {
+   public boolean removeOutgoingInterceptor(final Interceptor interceptor) {
+      if (outgoingInterceptors.remove(interceptor)) {
          updateProtocols();
          return true;
       }
-      else
-      {
+      else {
          return false;
       }
    }
 
-   private ClusterConnection lookupClusterConnection(TransportConfiguration acceptorConfig)
-   {
+   private ClusterConnection lookupClusterConnection(TransportConfiguration acceptorConfig) {
       String clusterConnectionName = (String) acceptorConfig.getParams().get(org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.CLUSTER_CONNECTION);
 
       ClusterConnection clusterConnection = null;
-      if (clusterConnectionName != null)
-      {
+      if (clusterConnectionName != null) {
          clusterConnection = clusterManager.getClusterConnection(clusterConnectionName);
       }
 
       // if not found we will still use the default name, even if a name was provided
-      if (clusterConnection == null)
-      {
+      if (clusterConnection == null) {
          clusterConnection = clusterManager.getDefaultConnection(acceptorConfig);
       }
 
@@ -680,108 +580,86 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
 
    // Inner classes -------------------------------------------------
 
-   private final class DelegatingBufferHandler implements BufferHandler
-   {
-      public void bufferReceived(final Object connectionID, final ActiveMQBuffer buffer)
-      {
+   private final class DelegatingBufferHandler implements BufferHandler {
+
+      public void bufferReceived(final Object connectionID, final ActiveMQBuffer buffer) {
          ConnectionEntry conn = connections.get(connectionID);
 
-         if (conn != null)
-         {
+         if (conn != null) {
             conn.connection.bufferReceived(connectionID, buffer);
          }
-         else
-         {
-            if (ActiveMQServerLogger.LOGGER.isTraceEnabled())
-            {
+         else {
+            if (ActiveMQServerLogger.LOGGER.isTraceEnabled()) {
                ActiveMQServerLogger.LOGGER.trace("ConnectionID = " + connectionID + " was already closed, so ignoring packet");
             }
          }
       }
    }
 
-   private final class FailureCheckAndFlushThread extends Thread
-   {
+   private final class FailureCheckAndFlushThread extends Thread {
+
       private final long pauseInterval;
 
       private volatile boolean closed;
       private final CountDownLatch latch = new CountDownLatch(1);
 
-      FailureCheckAndFlushThread(final long pauseInterval)
-      {
+      FailureCheckAndFlushThread(final long pauseInterval) {
          super("activemq-failure-check-thread");
 
          this.pauseInterval = pauseInterval;
       }
 
-      public void close(final boolean criticalError)
-      {
+      public void close(final boolean criticalError) {
          closed = true;
 
          latch.countDown();
 
-         if (!criticalError)
-         {
-            try
-            {
+         if (!criticalError) {
+            try {
                join();
             }
-            catch (InterruptedException e)
-            {
+            catch (InterruptedException e) {
                throw new ActiveMQInterruptedException(e);
             }
          }
       }
 
       @Override
-      public void run()
-      {
-         while (!closed)
-         {
-            try
-            {
+      public void run() {
+         while (!closed) {
+            try {
                long now = System.currentTimeMillis();
 
                Set<Object> idsToRemove = new HashSet<Object>();
 
-               for (ConnectionEntry entry : connections.values())
-               {
+               for (ConnectionEntry entry : connections.values()) {
                   final RemotingConnection conn = entry.connection;
 
                   boolean flush = true;
 
-                  if (entry.ttl != -1)
-                  {
-                     if (!conn.checkDataReceived())
-                     {
-                        if (now >= entry.lastCheck + entry.ttl)
-                        {
+                  if (entry.ttl != -1) {
+                     if (!conn.checkDataReceived()) {
+                        if (now >= entry.lastCheck + entry.ttl) {
                            idsToRemove.add(conn.getID());
 
                            flush = false;
                         }
                      }
-                     else
-                     {
+                     else {
                         entry.lastCheck = now;
                      }
                   }
 
-                  if (flush)
-                  {
-                     flushExecutor.execute(new Runnable()
-                     {
-                        public void run()
-                        {
-                           try
-                           {
+                  if (flush) {
+                     flushExecutor.execute(new Runnable() {
+                        public void run() {
+                           try {
                               // this is using a different thread
                               // as if anything wrong happens on flush
                               // failure detection could be affected
                               conn.flush();
                            }
-                           catch (Throwable e)
-                           {
+                           catch (Throwable e) {
                               ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
                            }
 
@@ -790,11 +668,9 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
                   }
                }
 
-               for (Object id : idsToRemove)
-               {
+               for (Object id : idsToRemove) {
                   RemotingConnection conn = getConnection(id);
-                  if (conn != null)
-                  {
+                  if (conn != null) {
                      conn.fail(ActiveMQMessageBundle.BUNDLE.clientExited(conn.getRemoteAddress()));
                      removeConnection(id);
                   }
@@ -803,18 +679,15 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
                if (latch.await(pauseInterval, TimeUnit.MILLISECONDS))
                   return;
             }
-            catch (Throwable e)
-            {
+            catch (Throwable e) {
                ActiveMQServerLogger.LOGGER.errorOnFailureCheck(e);
             }
          }
       }
    }
 
-   protected void updateProtocols()
-   {
-      for (ProtocolManager<?> protocolManager : this.protocolMap.values())
-      {
+   protected void updateProtocols() {
+      for (ProtocolManager<?> protocolManager : this.protocolMap.values()) {
          protocolManager.updateInterceptors(incomingInterceptors, outgoingInterceptors);
       }
 

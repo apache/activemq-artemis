@@ -31,20 +31,19 @@ import org.proton.plug.context.AbstractProtonSessionContext;
 import org.proton.plug.exceptions.ActiveMQAMQPException;
 import org.proton.plug.util.FutureRunnable;
 
-public class ProtonClientSessionContext extends AbstractProtonSessionContext implements AMQPClientSessionContext
-{
-   public ProtonClientSessionContext(AMQPSessionCallback sessionSPI, AbstractConnectionContext connection, Session session)
-   {
+public class ProtonClientSessionContext extends AbstractProtonSessionContext implements AMQPClientSessionContext {
+
+   public ProtonClientSessionContext(AMQPSessionCallback sessionSPI,
+                                     AbstractConnectionContext connection,
+                                     Session session) {
       super(sessionSPI, connection, session);
    }
 
-   public AMQPClientSenderContext createSender(String address, boolean preSettled) throws ActiveMQAMQPException
-   {
+   public AMQPClientSenderContext createSender(String address, boolean preSettled) throws ActiveMQAMQPException {
       FutureRunnable futureRunnable = new FutureRunnable(1);
 
       ProtonClientContext amqpSender;
-      synchronized (connection.getLock())
-      {
+      synchronized (connection.getLock()) {
          Sender sender = session.sender(address);
          sender.setSenderSettleMode(SenderSettleMode.SETTLED);
          Target target = new Target();
@@ -62,14 +61,12 @@ public class ProtonClientSessionContext extends AbstractProtonSessionContext imp
       return amqpSender;
    }
 
-   public AMQPClientReceiverContext createReceiver(String address) throws ActiveMQAMQPException
-   {
+   public AMQPClientReceiverContext createReceiver(String address) throws ActiveMQAMQPException {
       FutureRunnable futureRunnable = new FutureRunnable(1);
 
       ProtonClientReceiverContext amqpReceiver;
 
-      synchronized (connection.getLock())
-      {
+      synchronized (connection.getLock()) {
          Receiver receiver = session.receiver(address);
          Source source = new Source();
          source.setAddress(address);

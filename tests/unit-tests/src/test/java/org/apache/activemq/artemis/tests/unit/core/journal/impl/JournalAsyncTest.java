@@ -31,8 +31,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class JournalAsyncTest extends ActiveMQTestBase
-{
+public class JournalAsyncTest extends ActiveMQTestBase {
 
    // Constants -----------------------------------------------------
 
@@ -53,19 +52,16 @@ public class JournalAsyncTest extends ActiveMQTestBase
    // Public --------------------------------------------------------
 
    @Test
-   public void testAsynchronousCommit() throws Exception
-   {
+   public void testAsynchronousCommit() throws Exception {
       doAsynchronousTest(true);
    }
 
    @Test
-   public void testAsynchronousRollback() throws Exception
-   {
+   public void testAsynchronousRollback() throws Exception {
       doAsynchronousTest(false);
    }
 
-   public void doAsynchronousTest(final boolean isCommit) throws Exception
-   {
+   public void doAsynchronousTest(final boolean isCommit) throws Exception {
       final int JOURNAL_SIZE = 20000;
 
       setupJournal(JOURNAL_SIZE, 100, 5);
@@ -74,33 +70,27 @@ public class JournalAsyncTest extends ActiveMQTestBase
 
       final CountDownLatch latch = new CountDownLatch(1);
 
-      class LocalThread extends Thread
-      {
+      class LocalThread extends Thread {
+
          Exception e;
 
          @Override
-         public void run()
-         {
-            try
-            {
-               for (int i = 0; i < 10; i++)
-               {
+         public void run() {
+            try {
+               for (int i = 0; i < 10; i++) {
                   journalImpl.appendAddRecordTransactional(1L, i, (byte) 1, new SimpleEncoding(1, (byte) 0));
                }
 
                latch.countDown();
                factory.setHoldCallbacks(false, null);
-               if (isCommit)
-               {
+               if (isCommit) {
                   journalImpl.appendCommitRecord(1L, true);
                }
-               else
-               {
+               else {
                   journalImpl.appendRollbackRecord(1L, true);
                }
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                e.printStackTrace();
                this.e = e;
             }
@@ -122,8 +112,7 @@ public class JournalAsyncTest extends ActiveMQTestBase
 
       t.join();
 
-      if (t.e != null)
-      {
+      if (t.e != null) {
          throw t.e;
       }
    }
@@ -131,8 +120,7 @@ public class JournalAsyncTest extends ActiveMQTestBase
    // If a callback error already arrived, we should just throw the exception
    // right away
    @Test
-   public void testPreviousError() throws Exception
-   {
+   public void testPreviousError() throws Exception {
       final int JOURNAL_SIZE = 20000;
 
       setupJournal(JOURNAL_SIZE, 100, 5);
@@ -147,35 +135,30 @@ public class JournalAsyncTest extends ActiveMQTestBase
       factory.setGenerateErrors(false);
       factory.setHoldCallbacks(false, null);
 
-      try
-      {
+      try {
          journalImpl.appendAddRecordTransactional(1L, 2, (byte) 1, new SimpleEncoding(1, (byte) 0));
          Assert.fail("Exception expected"); // An exception already happened in one
          // of the elements on this transaction.
          // We can't accept any more elements on
          // the transaction
       }
-      catch (Exception ignored)
-      {
+      catch (Exception ignored) {
       }
    }
 
    @Test
-   public void testSyncNonTransaction() throws Exception
-   {
+   public void testSyncNonTransaction() throws Exception {
       final int JOURNAL_SIZE = 20000;
 
       setupJournal(JOURNAL_SIZE, 100, 5);
 
       factory.setGenerateErrors(true);
 
-      try
-      {
+      try {
          journalImpl.appendAddRecord(1L, (byte) 0, new SimpleEncoding(1, (byte) 0), true);
          Assert.fail("Exception expected");
       }
-      catch (Exception ignored)
-      {
+      catch (Exception ignored) {
 
       }
 
@@ -187,8 +170,7 @@ public class JournalAsyncTest extends ActiveMQTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       records = new ArrayList<RecordInfo>();
@@ -203,16 +185,12 @@ public class JournalAsyncTest extends ActiveMQTestBase
 
    @Override
    @After
-   public void tearDown() throws Exception
-   {
-      if (journalImpl != null)
-      {
-         try
-         {
+   public void tearDown() throws Exception {
+      if (journalImpl != null) {
+         try {
             journalImpl.stop();
          }
-         catch (Throwable ignored)
-         {
+         catch (Throwable ignored) {
          }
       }
 
@@ -220,15 +198,14 @@ public class JournalAsyncTest extends ActiveMQTestBase
    }
 
    // Private -------------------------------------------------------
-   private void setupJournal(final int journalSize, final int alignment, final int numberOfMinimalFiles) throws Exception
-   {
-      if (factory == null)
-      {
+   private void setupJournal(final int journalSize,
+                             final int alignment,
+                             final int numberOfMinimalFiles) throws Exception {
+      if (factory == null) {
          factory = new FakeSequentialFileFactory(alignment, true);
       }
 
-      if (journalImpl != null)
-      {
+      if (journalImpl != null) {
          journalImpl.stop();
       }
 

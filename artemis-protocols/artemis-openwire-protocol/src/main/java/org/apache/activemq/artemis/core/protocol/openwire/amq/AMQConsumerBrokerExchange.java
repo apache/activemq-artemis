@@ -19,84 +19,71 @@ package org.apache.activemq.artemis.core.protocol.openwire.amq;
 import org.apache.activemq.command.MessageAck;
 import org.apache.activemq.command.MessagePull;
 
-public abstract class AMQConsumerBrokerExchange
-{
+public abstract class AMQConsumerBrokerExchange {
+
    protected final AMQSession amqSession;
    private AMQConnectionContext connectionContext;
    private AMQDestination regionDestination;
    private AMQSubscription subscription;
    private boolean wildcard;
 
-   public AMQConsumerBrokerExchange(AMQSession amqSession)
-   {
+   public AMQConsumerBrokerExchange(AMQSession amqSession) {
       this.amqSession = amqSession;
    }
 
    /**
     * @return the connectionContext
     */
-   public AMQConnectionContext getConnectionContext()
-   {
+   public AMQConnectionContext getConnectionContext() {
       return this.connectionContext;
    }
 
    /**
-    * @param connectionContext
-    *           the connectionContext to set
+    * @param connectionContext the connectionContext to set
     */
-   public void setConnectionContext(AMQConnectionContext connectionContext)
-   {
+   public void setConnectionContext(AMQConnectionContext connectionContext) {
       this.connectionContext = connectionContext;
    }
 
    /**
     * @return the regionDestination
     */
-   public AMQDestination getRegionDestination()
-   {
+   public AMQDestination getRegionDestination() {
       return this.regionDestination;
    }
 
    /**
-    * @param regionDestination
-    *           the regionDestination to set
+    * @param regionDestination the regionDestination to set
     */
-   public void setRegionDestination(AMQDestination regionDestination)
-   {
+   public void setRegionDestination(AMQDestination regionDestination) {
       this.regionDestination = regionDestination;
    }
 
    /**
     * @return the subscription
     */
-   public AMQSubscription getSubscription()
-   {
+   public AMQSubscription getSubscription() {
       return this.subscription;
    }
 
    /**
-    * @param subscription
-    *           the subscription to set
+    * @param subscription the subscription to set
     */
-   public void setSubscription(AMQSubscription subscription)
-   {
+   public void setSubscription(AMQSubscription subscription) {
       this.subscription = subscription;
    }
 
    /**
     * @return the wildcard
     */
-   public boolean isWildcard()
-   {
+   public boolean isWildcard() {
       return this.wildcard;
    }
 
    /**
-    * @param wildcard
-    *           the wildcard to set
+    * @param wildcard the wildcard to set
     */
-   public void setWildcard(boolean wildcard)
-   {
+   public void setWildcard(boolean wildcard) {
       this.wildcard = wildcard;
    }
 

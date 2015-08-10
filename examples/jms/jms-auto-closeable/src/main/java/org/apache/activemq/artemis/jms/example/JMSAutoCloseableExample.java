@@ -26,10 +26,9 @@ import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 /**
  * A simple JMS example that shows how AutoCloseable is used by JMS 2 resources.
  */
-public class JMSAutoCloseableExample
-{
-   public static void main(final String[] args) throws Exception
-   {
+public class JMSAutoCloseableExample {
+
+   public static void main(final String[] args) throws Exception {
       // Step 2. Perfom a lookup on the queue
       Queue queue = ActiveMQJMSClient.createQueue("exampleQueue");
 
@@ -39,8 +38,7 @@ public class JMSAutoCloseableExample
             // Even though ConnectionFactory is not closeable it would be nice to close an ActiveMQConnectionFactory
             ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory();
             JMSContext jmsContext = cf.createContext()
-         )
-      {
+         ) {
          // Step 5. create a jms producer
          JMSProducer jmsProducer = jmsContext.createProducer();
 

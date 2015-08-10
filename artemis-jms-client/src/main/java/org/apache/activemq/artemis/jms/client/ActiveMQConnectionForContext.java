@@ -23,10 +23,11 @@ import javax.jms.XAJMSContext;
  * Interface created to support reference counting all contexts using it.
  * <p>
  * Necessary to support {@code JMSContext.close()} conditions.
+ *
  * @see JMSContext
  */
-public interface ActiveMQConnectionForContext extends javax.jms.Connection
-{
+public interface ActiveMQConnectionForContext extends javax.jms.Connection {
+
    JMSContext createContext(int sessionMode);
 
    XAJMSContext createXAContext();

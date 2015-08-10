@@ -37,16 +37,14 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class RequestorTest extends ActiveMQTestBase
-{
+public class RequestorTest extends ActiveMQTestBase {
 
    private ActiveMQServer server;
    private ClientSessionFactory sf;
    private ServerLocator locator;
 
    @Test
-   public void testRequest() throws Exception
-   {
+   public void testRequest() throws Exception {
       final SimpleString key = RandomUtil.randomSimpleString();
       long value = RandomUtil.randomLong();
       SimpleString requestAddress = new SimpleString("AdTest");
@@ -74,14 +72,11 @@ public class RequestorTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testManyRequestsOverBlocked() throws Exception
-   {
+   public void testManyRequestsOverBlocked() throws Exception {
       final SimpleString key = RandomUtil.randomSimpleString();
       long value = RandomUtil.randomLong();
 
-      AddressSettings settings = new AddressSettings()
-              .setAddressFullMessagePolicy(AddressFullMessagePolicy.BLOCK)
-              .setMaxSizeBytes(1024);
+      AddressSettings settings = new AddressSettings().setAddressFullMessagePolicy(AddressFullMessagePolicy.BLOCK).setMaxSizeBytes(1024);
       server.getAddressSettingsRepository().addMatch("#", settings);
 
       SimpleString requestAddress = new SimpleString("RequestAddress");
@@ -97,11 +92,8 @@ public class RequestorTest extends ActiveMQTestBase
       ClientConsumer requestConsumer = sessionRequest.createConsumer(requestQueue);
       requestConsumer.setMessageHandler(new SimpleMessageHandler(key, sessionRequest));
 
-
-      for (int i = 0; i < 2000; i++)
-      {
-         if (i % 100 == 0)
-         {
+      for (int i = 0; i < 2000; i++) {
+         if (i % 100 == 0) {
             System.out.println(i);
          }
          final ClientSession session = sf.createSession(false, true, true);
@@ -125,8 +117,7 @@ public class RequestorTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testTwoRequests() throws Exception
-   {
+   public void testTwoRequests() throws Exception {
       final SimpleString key = RandomUtil.randomSimpleString();
       long value = RandomUtil.randomLong();
       SimpleString requestAddress = RandomUtil.randomSimpleString();
@@ -161,8 +152,7 @@ public class RequestorTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testRequestWithRequestConsumerWhichDoesNotReply() throws Exception
-   {
+   public void testRequestWithRequestConsumerWhichDoesNotReply() throws Exception {
       SimpleString requestAddress = RandomUtil.randomSimpleString();
       SimpleString requestQueue = RandomUtil.randomSimpleString();
 
@@ -174,11 +164,9 @@ public class RequestorTest extends ActiveMQTestBase
       session.createTemporaryQueue(requestAddress, requestQueue);
 
       ClientConsumer requestConsumer = session.createConsumer(requestQueue);
-      requestConsumer.setMessageHandler(new MessageHandler()
-      {
+      requestConsumer.setMessageHandler(new MessageHandler() {
          // return a message with the negative request's value
-         public void onMessage(final ClientMessage request)
-         {
+         public void onMessage(final ClientMessage request) {
             // do nothing -> no reply
          }
       });
@@ -193,8 +181,7 @@ public class RequestorTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testClientRequestorConstructorWithClosedSession() throws Exception
-   {
+   public void testClientRequestorConstructorWithClosedSession() throws Exception {
       final SimpleString requestAddress = RandomUtil.randomSimpleString();
 
       ClientSessionFactory sf = createSessionFactory(locator);
@@ -202,22 +189,17 @@ public class RequestorTest extends ActiveMQTestBase
 
       session.close();
 
-      ActiveMQAction activeMQAction = new ActiveMQAction()
-      {
-         public void run() throws Exception
-         {
+      ActiveMQAction activeMQAction = new ActiveMQAction() {
+         public void run() throws Exception {
             new ClientRequestor(session, requestAddress);
          }
       };
 
-      ActiveMQTestBase.expectActiveMQException("ClientRequestor's session must not be closed",
-                                               ActiveMQExceptionType.OBJECT_CLOSED,
-                                               activeMQAction);
+      ActiveMQTestBase.expectActiveMQException("ClientRequestor's session must not be closed", ActiveMQExceptionType.OBJECT_CLOSED, activeMQAction);
    }
 
    @Test
-   public void testClose() throws Exception
-   {
+   public void testClose() throws Exception {
       final SimpleString key = RandomUtil.randomSimpleString();
       long value = RandomUtil.randomLong();
       SimpleString requestAddress = RandomUtil.randomSimpleString();
@@ -246,46 +228,38 @@ public class RequestorTest extends ActiveMQTestBase
 
       requestor.close();
 
-      ActiveMQAction activeMQAction = new ActiveMQAction()
-      {
-         public void run() throws Exception
-         {
+      ActiveMQAction activeMQAction = new ActiveMQAction() {
+         public void run() throws Exception {
             requestor.request(session.createMessage(false), 500);
          }
       };
 
-      ActiveMQTestBase.expectActiveMQException("can not send a request on a closed ClientRequestor",
-                                               ActiveMQExceptionType.OBJECT_CLOSED, activeMQAction);
+      ActiveMQTestBase.expectActiveMQException("can not send a request on a closed ClientRequestor", ActiveMQExceptionType.OBJECT_CLOSED, activeMQAction);
    }
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
       server = createServer(false, createDefaultInVMConfig());
       server.start();
-      locator = createInVMNonHALocator()
-              .setAckBatchSize(0);
+      locator = createInVMNonHALocator().setAckBatchSize(0);
       sf = createSessionFactory(locator);
    }
 
-   private final class SimpleMessageHandler implements MessageHandler
-   {
+   private final class SimpleMessageHandler implements MessageHandler {
+
       private final SimpleString key;
 
       private final ClientSession session;
 
-      private SimpleMessageHandler(final SimpleString key, final ClientSession session)
-      {
+      private SimpleMessageHandler(final SimpleString key, final ClientSession session) {
          this.key = key;
          this.session = session;
       }
 
-      public void onMessage(final ClientMessage request)
-      {
-         try
-         {
+      public void onMessage(final ClientMessage request) {
+         try {
             ClientMessage reply = session.createMessage(false);
             SimpleString replyTo = (SimpleString) request.getObjectProperty(ClientMessageImpl.REPLYTO_HEADER_NAME);
             long value = (Long) request.getObjectProperty(key);
@@ -294,8 +268,7 @@ public class RequestorTest extends ActiveMQTestBase
             replyProducer.send(reply);
             request.acknowledge();
          }
-         catch (ActiveMQException e)
-         {
+         catch (ActiveMQException e) {
             e.printStackTrace();
          }
       }

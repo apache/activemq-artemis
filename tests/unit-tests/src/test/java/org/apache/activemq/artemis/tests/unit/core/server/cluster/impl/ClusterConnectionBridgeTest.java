@@ -21,27 +21,24 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.core.server.cluster.impl.ClusterConnectionBridge;
 import org.junit.Test;
 
-public class ClusterConnectionBridgeTest extends ActiveMQTestBase
-{
+public class ClusterConnectionBridgeTest extends ActiveMQTestBase {
+
    @Test
-   public void testCreateSelectorFromAddressForNormalMatches()
-   {
+   public void testCreateSelectorFromAddressForNormalMatches() {
       String address = "jms.my.address";
       String expectedSelector = ManagementHelper.HDR_ADDRESS + " LIKE '" + address + "%'";
       assertEquals(expectedSelector, ClusterConnectionBridge.createSelectorFromAddress(address));
    }
 
    @Test
-   public void testCreateSelectorFromAddressForExclusions()
-   {
+   public void testCreateSelectorFromAddressForExclusions() {
       String address = "jms.my.address";
       String expectedSelector = ManagementHelper.HDR_ADDRESS + " NOT LIKE '" + address + "%'";
       assertEquals(expectedSelector, ClusterConnectionBridge.createSelectorFromAddress("!" + address));
    }
 
    @Test
-   public void testCreateSelectorFromListForNormalMatches()
-   {
+   public void testCreateSelectorFromListForNormalMatches() {
       String address1 = "jms.test1.address";
       String address2 = "jms.test2.address";
       String addresses = address1 + "," + address2;
@@ -56,8 +53,7 @@ public class ClusterConnectionBridgeTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testCreateSelectorFromListForExclusions()
-   {
+   public void testCreateSelectorFromListForExclusions() {
       String address1 = "jms.test1.address";
       String address2 = "jms.test2.address";
       String addresses = "!" + address1 + "," + "!" + address2;
@@ -72,8 +68,7 @@ public class ClusterConnectionBridgeTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testCreateSelectorFromListForExclusionsAndNormalMatches()
-   {
+   public void testCreateSelectorFromListForExclusionsAndNormalMatches() {
       String address1 = "jms.test1.address";
       String address2 = "jms.test2.address";
       String address3 = "jms.test3.address";
@@ -93,8 +88,7 @@ public class ClusterConnectionBridgeTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testCreateSelectorFromListIgnoresEmptyStrings()
-   {
+   public void testCreateSelectorFromListIgnoresEmptyStrings() {
       String address1 = "jms.test1.address";
       String address2 = "jms.test2.address";
       String addresses = address1 + ",!" + address2 + ",,,";

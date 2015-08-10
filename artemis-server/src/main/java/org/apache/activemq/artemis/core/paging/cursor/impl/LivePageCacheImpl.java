@@ -27,98 +27,82 @@ import org.apache.activemq.artemis.core.server.LargeServerMessage;
 /**
  * This is the same as PageCache, however this is for the page that's being currently written.
  */
-public class LivePageCacheImpl implements LivePageCache
-{
+public class LivePageCacheImpl implements LivePageCache {
+
    private final List<PagedMessage> messages = new LinkedList<PagedMessage>();
 
    private final Page page;
 
    private boolean isLive = true;
 
-   public LivePageCacheImpl(final Page page)
-   {
+   public LivePageCacheImpl(final Page page) {
       this.page = page;
    }
 
    @Override
-   public long getPageId()
-   {
+   public long getPageId() {
       return page.getPageId();
    }
 
    @Override
-   public synchronized int getNumberOfMessages()
-   {
+   public synchronized int getNumberOfMessages() {
       return messages.size();
    }
 
    @Override
-   public synchronized void setMessages(PagedMessage[] messages)
-   {
+   public synchronized void setMessages(PagedMessage[] messages) {
       // This method shouldn't be called on liveCache, but we will provide the implementation for it anyway
-      for (PagedMessage msg : messages)
-      {
+      for (PagedMessage msg : messages) {
          addLiveMessage(msg);
       }
    }
 
    @Override
-   public synchronized PagedMessage getMessage(int messageNumber)
-   {
-      if (messageNumber < messages.size())
-      {
+   public synchronized PagedMessage getMessage(int messageNumber) {
+      if (messageNumber < messages.size()) {
          return messages.get(messageNumber);
       }
-      else
-      {
+      else {
          return null;
       }
    }
 
    @Override
-   public void lock()
-   {
+   public void lock() {
       // nothing to be done on live cache
    }
 
    @Override
-   public void unlock()
-   {
+   public void unlock() {
       // nothing to be done on live cache
    }
 
    @Override
-   public synchronized boolean isLive()
-   {
+   public synchronized boolean isLive() {
       return isLive;
    }
 
    @Override
-   public synchronized void addLiveMessage(PagedMessage message)
-   {
-      if (message.getMessage().isLargeMessage())
-      {
-         ((LargeServerMessage)message.getMessage()).incrementDelayDeletionCount();
+   public synchronized void addLiveMessage(PagedMessage message) {
+      if (message.getMessage().isLargeMessage()) {
+         ((LargeServerMessage) message.getMessage()).incrementDelayDeletionCount();
       }
       this.messages.add(message);
    }
 
    @Override
-   public synchronized void close()
-   {
+   public synchronized void close() {
       this.isLive = false;
    }
 
    @Override
-   public synchronized PagedMessage[] getMessages()
-   {
+   public synchronized PagedMessage[] getMessages() {
       return messages.toArray(new PagedMessage[messages.size()]);
    }
 
    @Override
-   public String toString()
-   {
+   public String toString() {
       return "LivePacheCacheImpl::page=" + page.getPageId() + " number of messages=" + messages.size() + " isLive = " +
-               isLive;
+         isLive;
    }
 }

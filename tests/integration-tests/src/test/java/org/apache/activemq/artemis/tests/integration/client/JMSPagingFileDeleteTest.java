@@ -35,8 +35,8 @@ import javax.jms.Topic;
 /**
  * This will perform cleanup tests on paging while using JMS topics
  */
-public class JMSPagingFileDeleteTest extends JMSTestBase
-{
+public class JMSPagingFileDeleteTest extends JMSTestBase {
+
    static IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    Topic topic1;
@@ -62,23 +62,19 @@ public class JMSPagingFileDeleteTest extends JMSTestBase
    private static final int MESSAGE_NUM = 50;
 
    @Override
-   protected boolean usePersistence()
-   {
+   protected boolean usePersistence() {
       return true;
    }
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       topic1 = createTopic("topic1");
 
       // Paging Setting
-      AddressSettings setting = new AddressSettings()
-              .setPageSizeBytes(JMSPagingFileDeleteTest.PAGE_SIZE)
-              .setMaxSizeBytes(JMSPagingFileDeleteTest.PAGE_MAX);
+      AddressSettings setting = new AddressSettings().setPageSizeBytes(JMSPagingFileDeleteTest.PAGE_SIZE).setMaxSizeBytes(JMSPagingFileDeleteTest.PAGE_MAX);
       server.getAddressSettingsRepository().addMatch("#", setting);
    }
 
@@ -88,14 +84,11 @@ public class JMSPagingFileDeleteTest extends JMSTestBase
     * @throws Exception
     */
    @Test
-   public void testTopicsWithNonDurableSubscription() throws Exception
-   {
+   public void testTopicsWithNonDurableSubscription() throws Exception {
       connection = null;
 
-      try
-      {
-         for (int repeat = 0; repeat < 2; repeat++)
-         {
+      try {
+         for (int repeat = 0; repeat < 2; repeat++) {
             connection = cf.createConnection();
             connection.setClientID("cid");
 
@@ -109,8 +102,7 @@ public class JMSPagingFileDeleteTest extends JMSTestBase
             System.out.println("---------- Send messages. ----------");
             BytesMessage bytesMessage = session.createBytesMessage();
             bytesMessage.writeBytes(new byte[JMSPagingFileDeleteTest.MESSAGE_SIZE]);
-            for (int i = 0; i < JMSPagingFileDeleteTest.MESSAGE_NUM; i++)
-            {
+            for (int i = 0; i < JMSPagingFileDeleteTest.MESSAGE_NUM; i++) {
                producer.send(bytesMessage);
             }
             System.out.println("Sent " + JMSPagingFileDeleteTest.MESSAGE_NUM + " messages.");
@@ -129,10 +121,8 @@ public class JMSPagingFileDeleteTest extends JMSTestBase
             //subscriber1.close(); // << you can't call this on this test
             //session.close(); // << can't call this on this test
 
-
             long timeout = System.currentTimeMillis() + 5000;
-            while (timeout > System.currentTimeMillis() && pagingStore.isPaging())
-            {
+            while (timeout > System.currentTimeMillis() && pagingStore.isPaging()) {
                Thread.sleep(100);
             }
             printPageStoreInfo(pagingStore);
@@ -140,23 +130,18 @@ public class JMSPagingFileDeleteTest extends JMSTestBase
          }
 
       }
-      finally
-      {
-         if (connection != null)
-         {
+      finally {
+         if (connection != null) {
             connection.close();
          }
       }
    }
 
-
    @Test
-   public void testTopics() throws Exception
-   {
+   public void testTopics() throws Exception {
       connection = null;
 
-      try
-      {
+      try {
          connection = cf.createConnection();
          connection.setClientID("cid");
 
@@ -170,8 +155,7 @@ public class JMSPagingFileDeleteTest extends JMSTestBase
          System.out.println("---------- Send messages. ----------");
          BytesMessage bytesMessage = session.createBytesMessage();
          bytesMessage.writeBytes(new byte[JMSPagingFileDeleteTest.MESSAGE_SIZE]);
-         for (int i = 0; i < JMSPagingFileDeleteTest.MESSAGE_NUM; i++)
-         {
+         for (int i = 0; i < JMSPagingFileDeleteTest.MESSAGE_NUM; i++) {
             producer.send(bytesMessage);
          }
          System.out.println("Sent " + JMSPagingFileDeleteTest.MESSAGE_NUM + " messages.");
@@ -188,8 +172,7 @@ public class JMSPagingFileDeleteTest extends JMSTestBase
 
          // -----------------(Step3) Subscribe to all the messages from the topic.--------------
          System.out.println("---------- Receive all messages. ----------");
-         for (int i = 0; i < JMSPagingFileDeleteTest.MESSAGE_NUM; i++)
-         {
+         for (int i = 0; i < JMSPagingFileDeleteTest.MESSAGE_NUM; i++) {
             Message message1 = subscriber1.receive(JMSPagingFileDeleteTest.RECEIVE_TIMEOUT);
             assertNotNull(message1);
             Message message2 = subscriber2.receive(JMSPagingFileDeleteTest.RECEIVE_TIMEOUT);
@@ -198,8 +181,7 @@ public class JMSPagingFileDeleteTest extends JMSTestBase
 
          pagingStore = server.getPagingManager().getPageStore(new SimpleString("jms.topic.topic1"));
          long timeout = System.currentTimeMillis() + 5000;
-         while (timeout > System.currentTimeMillis() && pagingStore.isPaging())
-         {
+         while (timeout > System.currentTimeMillis() && pagingStore.isPaging()) {
             Thread.sleep(100);
          }
          assertFalse(pagingStore.isPaging());
@@ -221,24 +203,20 @@ public class JMSPagingFileDeleteTest extends JMSTestBase
 
          timeout = System.currentTimeMillis() + 10000;
 
-         while (timeout > System.currentTimeMillis() && pagingStore.getNumberOfPages() != 1)
-         {
+         while (timeout > System.currentTimeMillis() && pagingStore.getNumberOfPages() != 1) {
             Thread.sleep(100);
          }
 
          assertEquals(1, pagingStore.getNumberOfPages()); //I expected number of the page is 1, but It was not.
       }
-      finally
-      {
-         if (connection != null)
-         {
+      finally {
+         if (connection != null) {
             connection.close();
          }
       }
    }
 
-   private void stopAndStartServer() throws Exception
-   {
+   private void stopAndStartServer() throws Exception {
       System.out.println("---------- Restart server. ----------");
       connection.close();
 
@@ -252,8 +230,7 @@ public class JMSPagingFileDeleteTest extends JMSTestBase
       reconnect();
    }
 
-   private void reconnect() throws Exception
-   {
+   private void reconnect() throws Exception {
       connection = cf.createConnection();
       connection.setClientID("cid");
       session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -262,8 +239,7 @@ public class JMSPagingFileDeleteTest extends JMSTestBase
       connection.start();
    }
 
-   private void printPageStoreInfo(PagingStore pagingStore) throws Exception
-   {
+   private void printPageStoreInfo(PagingStore pagingStore) throws Exception {
       System.out.println("---------- Paging Store Info ----------");
       System.out.println(" CurrentPage = " + pagingStore.getCurrentPage());
       System.out.println(" FirstPage = " + pagingStore.getFirstPage());

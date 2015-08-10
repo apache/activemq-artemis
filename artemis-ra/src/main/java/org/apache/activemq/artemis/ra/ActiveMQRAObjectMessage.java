@@ -21,57 +21,55 @@ import java.io.Serializable;
 import javax.jms.JMSException;
 import javax.jms.ObjectMessage;
 
-
 /**
  * A wrapper for a message
  */
-public class ActiveMQRAObjectMessage extends ActiveMQRAMessage implements ObjectMessage
-{
-   /** Whether trace is enabled */
+public class ActiveMQRAObjectMessage extends ActiveMQRAMessage implements ObjectMessage {
+
+   /**
+    * Whether trace is enabled
+    */
    private static boolean trace = ActiveMQRALogger.LOGGER.isTraceEnabled();
 
    /**
     * Create a new wrapper
+    *
     * @param message the message
     * @param session the session
     */
-   public ActiveMQRAObjectMessage(final ObjectMessage message, final ActiveMQRASession session)
-   {
+   public ActiveMQRAObjectMessage(final ObjectMessage message, final ActiveMQRASession session) {
       super(message, session);
 
-      if (ActiveMQRAObjectMessage.trace)
-      {
+      if (ActiveMQRAObjectMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("constructor(" + message + ", " + session + ")");
       }
    }
 
    /**
     * Get the object
+    *
     * @return The object
-    * @exception JMSException Thrown if an error occurs
+    * @throws JMSException Thrown if an error occurs
     */
-   public Serializable getObject() throws JMSException
-   {
-      if (ActiveMQRAObjectMessage.trace)
-      {
+   public Serializable getObject() throws JMSException {
+      if (ActiveMQRAObjectMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("getObject()");
       }
 
-      return ((ObjectMessage)message).getObject();
+      return ((ObjectMessage) message).getObject();
    }
 
    /**
     * Set the object
+    *
     * @param object The object
-    * @exception JMSException Thrown if an error occurs
+    * @throws JMSException Thrown if an error occurs
     */
-   public void setObject(final Serializable object) throws JMSException
-   {
-      if (ActiveMQRAObjectMessage.trace)
-      {
+   public void setObject(final Serializable object) throws JMSException {
+      if (ActiveMQRAObjectMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("setObject(" + object + ")");
       }
 
-      ((ObjectMessage)message).setObject(object);
+      ((ObjectMessage) message).setObject(object);
    }
 }

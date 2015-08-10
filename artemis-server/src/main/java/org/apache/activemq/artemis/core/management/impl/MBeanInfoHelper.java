@@ -27,8 +27,7 @@ import javax.management.MBeanParameterInfo;
 import org.apache.activemq.artemis.api.core.management.Operation;
 import org.apache.activemq.artemis.api.core.management.Parameter;
 
-public class MBeanInfoHelper
-{
+public class MBeanInfoHelper {
    // Constants -----------------------------------------------------
 
    // Attributes ----------------------------------------------------
@@ -39,15 +38,12 @@ public class MBeanInfoHelper
 
    // Public --------------------------------------------------------
 
-   public static MBeanOperationInfo[] getMBeanOperationsInfo(final Class mbeanInterface)
-   {
+   public static MBeanOperationInfo[] getMBeanOperationsInfo(final Class mbeanInterface) {
       List<MBeanOperationInfo> operations = new ArrayList<MBeanOperationInfo>();
 
-      for (Method method : mbeanInterface.getMethods())
-      {
+      for (Method method : mbeanInterface.getMethods()) {
          if (!MBeanInfoHelper.isGetterMethod(method) && !MBeanInfoHelper.isSetterMethod(method) &&
-             !MBeanInfoHelper.isIsBooleanMethod(method))
-         {
+            !MBeanInfoHelper.isIsBooleanMethod(method)) {
             operations.add(MBeanInfoHelper.getOperationInfo(method));
          }
       }
@@ -61,59 +57,48 @@ public class MBeanInfoHelper
 
    // Private -------------------------------------------------------
 
-   private static boolean isGetterMethod(final Method method)
-   {
+   private static boolean isGetterMethod(final Method method) {
       if (!method.getName().equals("get") && method.getName().startsWith("get") &&
-          method.getParameterTypes().length == 0 &&
-          !method.getReturnType().equals(void.class))
-      {
+         method.getParameterTypes().length == 0 &&
+         !method.getReturnType().equals(void.class)) {
          return true;
       }
 
       return false;
    }
 
-   private static boolean isSetterMethod(final Method method)
-   {
+   private static boolean isSetterMethod(final Method method) {
       if (!method.getName().equals("set") && method.getName().startsWith("set") &&
-          method.getParameterTypes().length == 1 &&
-          method.getReturnType().equals(void.class))
-      {
+         method.getParameterTypes().length == 1 &&
+         method.getReturnType().equals(void.class)) {
          return true;
       }
-      else
-      {
+      else {
          return false;
       }
    }
 
-   private static boolean isIsBooleanMethod(final Method method)
-   {
+   private static boolean isIsBooleanMethod(final Method method) {
       if (!method.getName().equals("is") && method.getName().startsWith("is") &&
-          method.getParameterTypes().length == 0 &&
-          method.getReturnType().equals(boolean.class))
-      {
+         method.getParameterTypes().length == 0 &&
+         method.getReturnType().equals(boolean.class)) {
          return true;
       }
-      else
-      {
+      else {
          return false;
       }
    }
 
-   private static MBeanOperationInfo getOperationInfo(final Method operation)
-   {
+   private static MBeanOperationInfo getOperationInfo(final Method operation) {
       MBeanOperationInfo info = null;
       Class<?> returnType = operation.getReturnType();
 
-      MBeanParameterInfo[] paramsInfo = MBeanInfoHelper.getParametersInfo(operation.getParameterAnnotations(),
-                                                                          operation.getParameterTypes());
+      MBeanParameterInfo[] paramsInfo = MBeanInfoHelper.getParametersInfo(operation.getParameterAnnotations(), operation.getParameterTypes());
 
       String description = operation.getName();
       int impact = MBeanOperationInfo.UNKNOWN;
 
-      if (operation.getAnnotation(Operation.class) != null)
-      {
+      if (operation.getAnnotation(Operation.class) != null) {
          description = operation.getAnnotation(Operation.class).desc();
          impact = operation.getAnnotation(Operation.class).impact();
       }
@@ -122,26 +107,21 @@ public class MBeanInfoHelper
       return info;
    }
 
-   private static MBeanParameterInfo[] getParametersInfo(final Annotation[][] params, final Class<?>[] paramTypes)
-   {
+   private static MBeanParameterInfo[] getParametersInfo(final Annotation[][] params, final Class<?>[] paramTypes) {
       MBeanParameterInfo[] paramsInfo = new MBeanParameterInfo[params.length];
 
-      for (int i = 0; i < params.length; i++)
-      {
+      for (int i = 0; i < params.length; i++) {
          MBeanParameterInfo paramInfo = null;
          String type = paramTypes[i].getName();
-         for (Annotation anno : params[i])
-         {
-            if (Parameter.class.isInstance(anno))
-            {
+         for (Annotation anno : params[i]) {
+            if (Parameter.class.isInstance(anno)) {
                String name = Parameter.class.cast(anno).name();
                String description = Parameter.class.cast(anno).desc();
                paramInfo = new MBeanParameterInfo(name, type, description);
             }
          }
 
-         if (paramInfo == null)
-         {
+         if (paramInfo == null) {
             paramInfo = new MBeanParameterInfo("p " + (i + 1), type, "parameter " + (i + 1));
          }
 

@@ -29,27 +29,25 @@ import org.proton.plug.exceptions.ActiveMQAMQPException;
 import org.proton.plug.context.ProtonInitializable;
 import org.proton.plug.util.FutureRunnable;
 
-public class ProtonClientConnectionContext extends AbstractConnectionContext implements AMQPClientConnectionContext
-{
-   public ProtonClientConnectionContext(AMQPConnectionCallback connectionCallback)
-   {
+public class ProtonClientConnectionContext extends AbstractConnectionContext implements AMQPClientConnectionContext {
+
+   public ProtonClientConnectionContext(AMQPConnectionCallback connectionCallback) {
       super(connectionCallback);
    }
 
-   public ProtonClientConnectionContext(AMQPConnectionCallback connectionCallback, int idleTimeout, int maxFrameSize, int channelMax)
-   {
+   public ProtonClientConnectionContext(AMQPConnectionCallback connectionCallback,
+                                        int idleTimeout,
+                                        int maxFrameSize,
+                                        int channelMax) {
       super(connectionCallback, idleTimeout, maxFrameSize, channelMax);
    }
 
    // Maybe a client interface?
-   public void clientOpen(ClientSASL sasl) throws Exception
-   {
+   public void clientOpen(ClientSASL sasl) throws Exception {
       FutureRunnable future = new FutureRunnable(1);
-      synchronized (handler.getLock())
-      {
+      synchronized (handler.getLock()) {
          this.afterInit(future);
-         if (sasl != null)
-         {
+         if (sasl != null) {
             handler.createClientSasl(sasl);
          }
          handler.getConnection().open();
@@ -60,13 +58,11 @@ public class ProtonClientConnectionContext extends AbstractConnectionContext imp
       waitWithTimeout(future);
    }
 
-   public AMQPClientSessionContext createClientSession() throws ActiveMQAMQPException
-   {
+   public AMQPClientSessionContext createClientSession() throws ActiveMQAMQPException {
 
       FutureRunnable futureRunnable = new FutureRunnable(1);
       ProtonClientSessionContext sessionImpl;
-      synchronized (handler.getLock())
-      {
+      synchronized (handler.getLock()) {
          Session session = handler.getConnection().session();
          sessionImpl = (ProtonClientSessionContext) getSessionExtension(session);
          sessionImpl.afterInit(futureRunnable);
@@ -80,8 +76,7 @@ public class ProtonClientConnectionContext extends AbstractConnectionContext imp
    }
 
    @Override
-   protected AbstractProtonSessionContext newSessionExtension(Session realSession) throws ActiveMQAMQPException
-   {
+   protected AbstractProtonSessionContext newSessionExtension(Session realSession) throws ActiveMQAMQPException {
       AMQPSessionCallback sessionSPI = connectionCallback.createSessionCallback(this);
       AbstractProtonSessionContext protonSession = new ProtonClientSessionContext(sessionSPI, this, realSession);
 
@@ -90,11 +85,9 @@ public class ProtonClientConnectionContext extends AbstractConnectionContext imp
    }
 
    @Override
-   protected void remoteLinkOpened(Link link) throws Exception
-   {
+   protected void remoteLinkOpened(Link link) throws Exception {
       Object context = link.getContext();
-      if (context != null && context instanceof ProtonInitializable)
-      {
+      if (context != null && context instanceof ProtonInitializable) {
          ((ProtonInitializable) context).initialise();
       }
    }

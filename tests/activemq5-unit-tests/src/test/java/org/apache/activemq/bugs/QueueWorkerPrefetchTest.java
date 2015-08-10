@@ -34,6 +34,7 @@ import javax.jms.Queue;
 import javax.jms.Session;
 
 import junit.framework.TestCase;
+
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.ActiveMQPrefetchPolicy;
 import org.apache.activemq.broker.BrokerService;
@@ -44,205 +45,219 @@ import org.slf4j.LoggerFactory;
  * Test case demonstrating situation where messages are not delivered to
  * consumers.
  */
-public class QueueWorkerPrefetchTest extends TestCase implements
-        MessageListener {
-    private static final Logger LOG = LoggerFactory
-            .getLogger(QueueWorkerPrefetchTest.class);
-    private static final int BATCH_SIZE = 10;
-    private static final long WAIT_TIMEOUT = 1000 * 10;
+public class QueueWorkerPrefetchTest extends TestCase implements MessageListener {
 
-    /** The connection URL. */
-    private static final String BROKER_BIND_ADDRESS = "tcp://localhost:0";
+   private static final Logger LOG = LoggerFactory.getLogger(QueueWorkerPrefetchTest.class);
+   private static final int BATCH_SIZE = 10;
+   private static final long WAIT_TIMEOUT = 1000 * 10;
 
-    /**
-     * The queue prefetch size to use. A value greater than 1 seems to make
-     * things work.
-     */
-    private static final int QUEUE_PREFETCH_SIZE = 1;
+   /**
+    * The connection URL.
+    */
+   private static final String BROKER_BIND_ADDRESS = "tcp://localhost:0";
 
-    /**
-     * The number of workers to use. A single worker with a prefetch of 1 works.
-     */
-    private static final int NUM_WORKERS = 2;
+   /**
+    * The queue prefetch size to use. A value greater than 1 seems to make
+    * things work.
+    */
+   private static final int QUEUE_PREFETCH_SIZE = 1;
 
-    /** Embedded JMS broker. */
-    private BrokerService broker;
+   /**
+    * The number of workers to use. A single worker with a prefetch of 1 works.
+    */
+   private static final int NUM_WORKERS = 2;
 
-    /** The master's producer object for creating work items. */
-    private MessageProducer workItemProducer;
+   /**
+    * Embedded JMS broker.
+    */
+   private BrokerService broker;
 
-    /** The master's consumer object for consuming ack messages from workers. */
-    private MessageConsumer masterItemConsumer;
+   /**
+    * The master's producer object for creating work items.
+    */
+   private MessageProducer workItemProducer;
 
-    /** The number of acks received by the master. */
-    private final AtomicLong acksReceived = new AtomicLong(0);
+   /**
+    * The master's consumer object for consuming ack messages from workers.
+    */
+   private MessageConsumer masterItemConsumer;
 
-    private final AtomicReference<CountDownLatch> latch = new AtomicReference<CountDownLatch>();
+   /**
+    * The number of acks received by the master.
+    */
+   private final AtomicLong acksReceived = new AtomicLong(0);
 
-    private String connectionUri;
+   private final AtomicReference<CountDownLatch> latch = new AtomicReference<CountDownLatch>();
 
-    /** Messages sent to the work-item queue. */
-    private static class WorkMessage implements Serializable {
-        private static final long serialVersionUID = 1L;
-        private final int id;
+   private String connectionUri;
 
-        public WorkMessage(int id) {
-            this.id = id;
-        }
+   /**
+    * Messages sent to the work-item queue.
+    */
+   private static class WorkMessage implements Serializable {
 
-        @Override
-        public String toString() {
-            return "Work: " + id;
-        }
-    }
+      private static final long serialVersionUID = 1L;
+      private final int id;
 
-    /**
-     * The worker process. Consume messages from the work-item queue, possibly
-     * creating more messages to submit to the work-item queue. For each work
-     * item, send an ack to the master.
-     */
-    private static class Worker implements MessageListener {
-        /**
-         * Counter shared between workers to decided when new work-item messages
-         * are created.
-         */
-        private static AtomicInteger counter = new AtomicInteger(0);
+      public WorkMessage(int id) {
+         this.id = id;
+      }
 
-        /** Session to use. */
-        private Session session;
+      @Override
+      public String toString() {
+         return "Work: " + id;
+      }
+   }
 
-        /** Producer for sending ack messages to the master. */
-        private MessageProducer masterItemProducer;
+   /**
+    * The worker process. Consume messages from the work-item queue, possibly
+    * creating more messages to submit to the work-item queue. For each work
+    * item, send an ack to the master.
+    */
+   private static class Worker implements MessageListener {
 
-        /** Producer for sending new work items to the work-items queue. */
-        private MessageProducer workItemProducer;
+      /**
+       * Counter shared between workers to decided when new work-item messages
+       * are created.
+       */
+      private static AtomicInteger counter = new AtomicInteger(0);
 
-        public Worker(Session session) throws JMSException {
-            this.session = session;
-            masterItemProducer = session.createProducer(session
-                    .createQueue("master-item"));
-            Queue workItemQueue = session.createQueue("work-item");
-            workItemProducer = session.createProducer(workItemQueue);
-            MessageConsumer workItemConsumer = session
-                    .createConsumer(workItemQueue);
-            workItemConsumer.setMessageListener(this);
-        }
+      /**
+       * Session to use.
+       */
+      private Session session;
 
-        public void onMessage(javax.jms.Message message) {
-            try {
-                WorkMessage work = (WorkMessage) ((ObjectMessage) message)
-                        .getObject();
+      /**
+       * Producer for sending ack messages to the master.
+       */
+      private MessageProducer masterItemProducer;
 
-                long c = counter.incrementAndGet();
+      /**
+       * Producer for sending new work items to the work-items queue.
+       */
+      private MessageProducer workItemProducer;
 
-                // Don't create a new work item for every BATCH_SIZE message. */
-                if (c % BATCH_SIZE != 0) {
-                    // Send new work item to work-item queue.
-                    workItemProducer.send(session
-                            .createObjectMessage(new WorkMessage(work.id + 1)));
-                }
+      public Worker(Session session) throws JMSException {
+         this.session = session;
+         masterItemProducer = session.createProducer(session.createQueue("master-item"));
+         Queue workItemQueue = session.createQueue("work-item");
+         workItemProducer = session.createProducer(workItemQueue);
+         MessageConsumer workItemConsumer = session.createConsumer(workItemQueue);
+         workItemConsumer.setMessageListener(this);
+      }
 
-                // Send ack to master.
-                masterItemProducer.send(session.createObjectMessage(work));
-            } catch (JMSException e) {
-                throw new IllegalStateException("Something has gone wrong", e);
+      public void onMessage(javax.jms.Message message) {
+         try {
+            WorkMessage work = (WorkMessage) ((ObjectMessage) message).getObject();
+
+            long c = counter.incrementAndGet();
+
+            // Don't create a new work item for every BATCH_SIZE message. */
+            if (c % BATCH_SIZE != 0) {
+               // Send new work item to work-item queue.
+               workItemProducer.send(session.createObjectMessage(new WorkMessage(work.id + 1)));
             }
-        }
 
-        /** Close of JMS resources used by worker. */
-        public void close() throws JMSException {
-            masterItemProducer.close();
-            workItemProducer.close();
-            session.close();
-        }
-    }
+            // Send ack to master.
+            masterItemProducer.send(session.createObjectMessage(work));
+         }
+         catch (JMSException e) {
+            throw new IllegalStateException("Something has gone wrong", e);
+         }
+      }
 
-    /** Master message handler. Process ack messages. */
-    public void onMessage(javax.jms.Message message) {
-        long acks = acksReceived.incrementAndGet();
-        latch.get().countDown();
-        if (acks % 1 == 0) {
-            LOG.info("Master now has ack count of: " + acksReceived);
-        }
-    }
+      /**
+       * Close of JMS resources used by worker.
+       */
+      public void close() throws JMSException {
+         masterItemProducer.close();
+         workItemProducer.close();
+         session.close();
+      }
+   }
 
-    protected void setUp() throws Exception {
-        // Create the message broker.
-        super.setUp();
-        broker = new BrokerService();
-        broker.setPersistent(false);
-        broker.setUseJmx(true);
-        broker.addConnector(BROKER_BIND_ADDRESS);
-        broker.start();
-        broker.waitUntilStarted();
+   /**
+    * Master message handler. Process ack messages.
+    */
+   public void onMessage(javax.jms.Message message) {
+      long acks = acksReceived.incrementAndGet();
+      latch.get().countDown();
+      if (acks % 1 == 0) {
+         LOG.info("Master now has ack count of: " + acksReceived);
+      }
+   }
 
-        connectionUri = broker.getTransportConnectors().get(0).getPublishableConnectString();
-    }
+   protected void setUp() throws Exception {
+      // Create the message broker.
+      super.setUp();
+      broker = new BrokerService();
+      broker.setPersistent(false);
+      broker.setUseJmx(true);
+      broker.addConnector(BROKER_BIND_ADDRESS);
+      broker.start();
+      broker.waitUntilStarted();
 
-    protected void tearDown() throws Exception {
-        // Shut down the message broker.
-        broker.deleteAllMessages();
-        broker.stop();
-        super.tearDown();
-    }
+      connectionUri = broker.getTransportConnectors().get(0).getPublishableConnectString();
+   }
 
-    public void testActiveMQ() throws Exception {
-        // Create the connection to the broker.
-        ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(connectionUri);
-        ActiveMQPrefetchPolicy prefetchPolicy = new ActiveMQPrefetchPolicy();
-        prefetchPolicy.setQueuePrefetch(QUEUE_PREFETCH_SIZE);
-        connectionFactory.setPrefetchPolicy(prefetchPolicy);
-        Connection connection = connectionFactory.createConnection();
-        connection.start();
+   protected void tearDown() throws Exception {
+      // Shut down the message broker.
+      broker.deleteAllMessages();
+      broker.stop();
+      super.tearDown();
+   }
 
-        Session masterSession = connection.createSession(false,
-                Session.AUTO_ACKNOWLEDGE);
-        workItemProducer = masterSession.createProducer(masterSession
-                .createQueue("work-item"));
-        masterItemConsumer = masterSession.createConsumer(masterSession
-                .createQueue("master-item"));
-        masterItemConsumer.setMessageListener(this);
+   public void testActiveMQ() throws Exception {
+      // Create the connection to the broker.
+      ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(connectionUri);
+      ActiveMQPrefetchPolicy prefetchPolicy = new ActiveMQPrefetchPolicy();
+      prefetchPolicy.setQueuePrefetch(QUEUE_PREFETCH_SIZE);
+      connectionFactory.setPrefetchPolicy(prefetchPolicy);
+      Connection connection = connectionFactory.createConnection();
+      connection.start();
 
-        // Create the workers.
-        Worker[] workers = new Worker[NUM_WORKERS];
-        for (int i = 0; i < NUM_WORKERS; i++) {
-            workers[i] = new Worker(connection.createSession(false,
-                    Session.AUTO_ACKNOWLEDGE));
-        }
+      Session masterSession = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      workItemProducer = masterSession.createProducer(masterSession.createQueue("work-item"));
+      masterItemConsumer = masterSession.createConsumer(masterSession.createQueue("master-item"));
+      masterItemConsumer.setMessageListener(this);
 
-        // Send a message to the work queue, and wait for the BATCH_SIZE acks
-        // from the workers.
-        acksReceived.set(0);
-        latch.set(new CountDownLatch(BATCH_SIZE));
-        workItemProducer.send(masterSession
-                .createObjectMessage(new WorkMessage(1)));
+      // Create the workers.
+      Worker[] workers = new Worker[NUM_WORKERS];
+      for (int i = 0; i < NUM_WORKERS; i++) {
+         workers[i] = new Worker(connection.createSession(false, Session.AUTO_ACKNOWLEDGE));
+      }
 
-        if (!latch.get().await(WAIT_TIMEOUT, TimeUnit.MILLISECONDS)) {
-            fail("First batch only received " + acksReceived + " messages");
-        }
+      // Send a message to the work queue, and wait for the BATCH_SIZE acks
+      // from the workers.
+      acksReceived.set(0);
+      latch.set(new CountDownLatch(BATCH_SIZE));
+      workItemProducer.send(masterSession.createObjectMessage(new WorkMessage(1)));
 
-        LOG.info("First batch received");
+      if (!latch.get().await(WAIT_TIMEOUT, TimeUnit.MILLISECONDS)) {
+         fail("First batch only received " + acksReceived + " messages");
+      }
 
-        // Send another message to the work queue, and wait for the next 1000 acks. It is
-        // at this point where the workers never get notified of this message, as they
-        // have a large pending queue. Creating a new worker at this point however will
-        // receive this new message.
-        acksReceived.set(0);
-        latch.set(new CountDownLatch(BATCH_SIZE));
-        workItemProducer.send(masterSession
-                .createObjectMessage(new WorkMessage(1)));
+      LOG.info("First batch received");
 
-        if (!latch.get().await(WAIT_TIMEOUT, TimeUnit.MILLISECONDS)) {
-            fail("Second batch only received " + acksReceived + " messages");
-        }
+      // Send another message to the work queue, and wait for the next 1000 acks. It is
+      // at this point where the workers never get notified of this message, as they
+      // have a large pending queue. Creating a new worker at this point however will
+      // receive this new message.
+      acksReceived.set(0);
+      latch.set(new CountDownLatch(BATCH_SIZE));
+      workItemProducer.send(masterSession.createObjectMessage(new WorkMessage(1)));
 
-        LOG.info("Second batch received");
+      if (!latch.get().await(WAIT_TIMEOUT, TimeUnit.MILLISECONDS)) {
+         fail("Second batch only received " + acksReceived + " messages");
+      }
 
-        // Cleanup all JMS resources.
-        for (int i = 0; i < NUM_WORKERS; i++) {
-            workers[i].close();
-        }
-        masterSession.close();
-        connection.close();
-    }
+      LOG.info("Second batch received");
+
+      // Cleanup all JMS resources.
+      for (int i = 0; i < NUM_WORKERS; i++) {
+         workers[i].close();
+      }
+      masterSession.close();
+      connection.close();
+   }
 }

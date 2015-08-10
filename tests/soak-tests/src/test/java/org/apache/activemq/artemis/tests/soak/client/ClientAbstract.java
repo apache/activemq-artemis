@@ -34,8 +34,7 @@ import org.apache.activemq.artemis.utils.UUIDGenerator;
  * <p>
  * And this is dealing with XA directly for the purpose testing only.
  */
-public abstract class ClientAbstract extends Thread
-{
+public abstract class ClientAbstract extends Thread {
 
    // Constants -----------------------------------------------------
    private static final UnitTestLogger log = UnitTestLogger.LOGGER;
@@ -62,57 +61,44 @@ public abstract class ClientAbstract extends Thread
 
    // Constructors --------------------------------------------------
 
-   public ClientAbstract(ClientSessionFactory sf)
-   {
+   public ClientAbstract(ClientSessionFactory sf) {
       this.sf = sf;
    }
 
    // Public --------------------------------------------------------
 
-   public ClientSession getConnection()
-   {
+   public ClientSession getConnection() {
       return session;
    }
 
-   public int getErrorsCount()
-   {
+   public int getErrorsCount() {
       return errors;
    }
 
-   public final void connect()
-   {
-      while (running)
-      {
-         try
-         {
+   public final void connect() {
+      while (running) {
+         try {
             disconnect();
 
             session = sf.createXASession();
 
-            if (activeXid != null)
-            {
-               synchronized (ClientAbstract.class)
-               {
+            if (activeXid != null) {
+               synchronized (ClientAbstract.class) {
                   Xid[] xids = session.recover(XAResource.TMSTARTRSCAN);
                   boolean found = false;
-                  for (Xid recXid : xids)
-                  {
-                     if (recXid.equals(activeXid))
-                     {
+                  for (Xid recXid : xids) {
+                     if (recXid.equals(activeXid)) {
                         // System.out.println("Calling commit after a prepare on " + this);
                         found = true;
                         callCommit();
                      }
                   }
 
-                  if (!found)
-                  {
-                     if (pendingCommit)
-                     {
+                  if (!found) {
+                     if (pendingCommit) {
                         onCommit();
                      }
-                     else
-                     {
+                     else {
                         onRollback();
                      }
 
@@ -126,16 +112,13 @@ public abstract class ClientAbstract extends Thread
 
             break;
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             ClientAbstract.log.warn("Can't connect to server, retrying");
             disconnect();
-            try
-            {
+            try {
                Thread.sleep(1000);
             }
-            catch (InterruptedException ignored)
-            {
+            catch (InterruptedException ignored) {
                // if an interruption was sent, we will respect it and leave the loop
                break;
             }
@@ -144,13 +127,11 @@ public abstract class ClientAbstract extends Thread
    }
 
    @Override
-   public void run()
-   {
+   public void run() {
       connect();
    }
 
-   protected void callCommit() throws Exception
-   {
+   protected void callCommit() throws Exception {
       pendingCommit = true;
       session.commit(activeXid, false);
       pendingCommit = false;
@@ -158,35 +139,30 @@ public abstract class ClientAbstract extends Thread
       onCommit();
    }
 
-   protected void callPrepare() throws Exception
-   {
+   protected void callPrepare() throws Exception {
       session.prepare(activeXid);
    }
 
-   public void beginTX() throws Exception
-   {
+   public void beginTX() throws Exception {
       activeXid = newXID();
 
       session.start(activeXid, XAResource.TMNOFLAGS);
    }
 
-   public void endTX() throws Exception
-   {
+   public void endTX() throws Exception {
       session.end(activeXid, XAResource.TMSUCCESS);
       callPrepare();
       callCommit();
    }
 
-   public void setRunning(final boolean running)
-   {
+   public void setRunning(final boolean running) {
       this.running = running;
    }
 
    /**
     * @return
     */
-   private XidImpl newXID()
-   {
+   private XidImpl newXID() {
       return new XidImpl("tst".getBytes(), 1, UUIDGenerator.getInstance().generateStringUUID().getBytes());
    }
 
@@ -196,17 +172,13 @@ public abstract class ClientAbstract extends Thread
 
    protected abstract void onRollback();
 
-   public void disconnect()
-   {
-      try
-      {
-         if (session != null)
-         {
+   public void disconnect() {
+      try {
+         if (session != null) {
             session.close();
          }
       }
-      catch (Exception ignored)
-      {
+      catch (Exception ignored) {
          ignored.printStackTrace();
       }
 

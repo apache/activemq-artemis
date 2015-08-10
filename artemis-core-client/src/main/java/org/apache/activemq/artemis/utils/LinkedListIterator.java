@@ -18,14 +18,13 @@ package org.apache.activemq.artemis.utils;
 
 import java.util.Iterator;
 
-
 /**
  * A LinkedListIterator
  *
  * This iterator allows the last element to be repeated in the next call to hasNext or next
  */
-public interface LinkedListIterator<E> extends Iterator<E>, AutoCloseable
-{
+public interface LinkedListIterator<E> extends Iterator<E>, AutoCloseable {
+
    void repeat();
 
    void close();

@@ -44,8 +44,8 @@ import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManagerImpl
 import org.junit.After;
 import org.junit.Before;
 
-public class OpenWireTestBase extends ActiveMQTestBase
-{
+public class OpenWireTestBase extends ActiveMQTestBase {
+
    public static final String OWHOST = "localhost";
    public static final int OWPORT = 61616;
 
@@ -62,24 +62,20 @@ public class OpenWireTestBase extends ActiveMQTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
       server = this.createServer(realStore, true);
 
       Configuration serverConfig = server.getConfiguration();
 
-      serverConfig.getAddressesSettings().put("jms.queue.#", new AddressSettings()
-              .setAutoCreateJmsQueues(false)
-              .setDeadLetterAddress(new SimpleString("jms.queue.ActiveMQ.DLQ")));
+      serverConfig.getAddressesSettings().put("jms.queue.#", new AddressSettings().setAutoCreateJmsQueues(false).setDeadLetterAddress(new SimpleString("jms.queue.ActiveMQ.DLQ")));
 
       serverConfig.getAcceptorConfigurations().add(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY));
       serverConfig.setSecurityEnabled(enableSecurity);
 
       extraServerConfig(serverConfig);
 
-      if (enableSecurity)
-      {
+      if (enableSecurity) {
          ActiveMQSecurityManagerImpl securityManager = (ActiveMQSecurityManagerImpl) server.getSecurityManager();
          securityManager.getConfiguration().addRole("openwireSender", "sender");
          securityManager.getConfiguration().addUser("openwireSender", "SeNdEr");
@@ -104,14 +100,12 @@ public class OpenWireTestBase extends ActiveMQTestBase
          Role destRole = new Role("manager", false, false, false, false, true, true, false);
 
          Map<String, Set<Role>> settings = server.getConfiguration().getSecurityRoles();
-         if (settings == null)
-         {
+         if (settings == null) {
             settings = new HashMap<String, Set<Role>>();
             server.getConfiguration().setSecurityRoles(settings);
          }
          Set<Role> anySet = settings.get("#");
-         if (anySet == null)
-         {
+         if (anySet == null) {
             anySet = new HashSet<Role>();
             settings.put("#", anySet);
          }
@@ -132,12 +126,10 @@ public class OpenWireTestBase extends ActiveMQTestBase
    }
 
    //override this to add extra server configs
-   protected void extraServerConfig(Configuration serverConfig)
-   {
+   protected void extraServerConfig(Configuration serverConfig) {
    }
 
-   protected void registerConnectionFactory() throws Exception
-   {
+   protected void registerConnectionFactory() throws Exception {
       List<TransportConfiguration> connectorConfigs = new ArrayList<TransportConfiguration>();
       connectorConfigs.add(new TransportConfiguration(INVM_CONNECTOR_FACTORY));
 
@@ -146,8 +138,8 @@ public class OpenWireTestBase extends ActiveMQTestBase
       coreCf = (ConnectionFactory) namingContext.lookup("/cf");
    }
 
-   protected void createCF(final List<TransportConfiguration> connectorConfigs, final String... jndiBindings) throws Exception
-   {
+   protected void createCF(final List<TransportConfiguration> connectorConfigs,
+                           final String... jndiBindings) throws Exception {
       final int retryInterval = 1000;
       final double retryIntervalMultiplier = 1.0;
       final int reconnectAttempts = -1;
@@ -156,29 +148,20 @@ public class OpenWireTestBase extends ActiveMQTestBase
       List<String> connectorNames = registerConnectors(server, connectorConfigs);
 
       String cfName = name.getMethodName();
-      if (cfName == null)
-      {
+      if (cfName == null) {
          cfName = "cfOpenWire";
       }
-      ConnectionFactoryConfiguration configuration = new ConnectionFactoryConfigurationImpl()
-         .setName(cfName)
-         .setConnectorNames(connectorNames)
-         .setRetryInterval(retryInterval)
-         .setRetryIntervalMultiplier(retryIntervalMultiplier)
-         .setCallTimeout(callTimeout)
-         .setReconnectAttempts(reconnectAttempts);
+      ConnectionFactoryConfiguration configuration = new ConnectionFactoryConfigurationImpl().setName(cfName).setConnectorNames(connectorNames).setRetryInterval(retryInterval).setRetryIntervalMultiplier(retryIntervalMultiplier).setCallTimeout(callTimeout).setReconnectAttempts(reconnectAttempts);
       jmsServer.createConnectionFactory(false, configuration, jndiBindings);
    }
 
-   protected JMSServerControl getJMSServerControl() throws Exception
-   {
+   protected JMSServerControl getJMSServerControl() throws Exception {
       return ManagementControlHelper.createJMSServerControl(mbeanServer);
    }
 
    @Override
    @After
-   public void tearDown() throws Exception
-   {
+   public void tearDown() throws Exception {
       MBeanServerFactory.releaseMBeanServer(mbeanServer);
       mbeanServer = null;
       server.stop();

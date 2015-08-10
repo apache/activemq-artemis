@@ -16,23 +16,22 @@
  */
 package org.apache.activemq.management;
 
-
 public class BoundaryStatisticTest extends StatisticTestSupport {
-    
-    private static final org.apache.commons.logging.Log LOG = org.apache.commons.logging.LogFactory
-            .getLog(BoundaryStatisticTest.class);
 
-    /**
-     * Use case for BoundaryStatisticImpl class.
-     * @throws Exception
-     */
-    public void testStatistic() throws Exception {
-        BoundaryStatisticImpl stat = new BoundaryStatisticImpl("myBoundaryStat", "seconds", "myBoundaryStatDesc", 1000, 2000);
-        assertStatistic(stat, "myBoundaryStat", "seconds", "myBoundaryStatDesc");
+   private static final org.apache.commons.logging.Log LOG = org.apache.commons.logging.LogFactory.getLog(BoundaryStatisticTest.class);
 
-        assertEquals(1000, stat.getLowerBound());
-        assertEquals(2000, stat.getUpperBound());
+   /**
+    * Use case for BoundaryStatisticImpl class.
+    *
+    * @throws Exception
+    */
+   public void testStatistic() throws Exception {
+      BoundaryStatisticImpl stat = new BoundaryStatisticImpl("myBoundaryStat", "seconds", "myBoundaryStatDesc", 1000, 2000);
+      assertStatistic(stat, "myBoundaryStat", "seconds", "myBoundaryStatDesc");
 
-        LOG.info("Stat is: " + stat);
-    }
+      assertEquals(1000, stat.getLowerBound());
+      assertEquals(2000, stat.getUpperBound());
+
+      LOG.info("Stat is: " + stat);
+   }
 }

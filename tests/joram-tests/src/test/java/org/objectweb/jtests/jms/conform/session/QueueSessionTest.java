@@ -33,18 +33,15 @@ import org.objectweb.jtests.jms.framework.TestConfig;
  * <br />
  * See JMS specifications, sec. 4.4 Session
  */
-public class QueueSessionTest extends PTPTestCase
-{
+public class QueueSessionTest extends PTPTestCase {
 
    /**
     * Test that if we rollback a transaction which has consumed a message,
     * the message is effectively redelivered.
     */
    @Test
-   public void testRollbackRececeivedMessage()
-   {
-      try
-      {
+   public void testRollbackRececeivedMessage() {
+      try {
          senderConnection.stop();
          // senderSession has been created as non transacted
          // we create it again but as a transacted session
@@ -60,8 +57,7 @@ public class QueueSessionTest extends PTPTestCase
          receiverSession = receiverConnection.createQueueSession(true, 0);
          Assert.assertEquals(true, receiverSession.getTransacted());
 
-         if (receiver != null)
-         {
+         if (receiver != null) {
             receiver.close();
          }
          // we create again the receiver
@@ -79,7 +75,7 @@ public class QueueSessionTest extends PTPTestCase
          Message m = receiver.receive(TestConfig.TIMEOUT);
          Assert.assertTrue(m != null);
          Assert.assertTrue(m instanceof TextMessage);
-         TextMessage msg = (TextMessage)m;
+         TextMessage msg = (TextMessage) m;
          // ... which is the one which was sent...
          Assert.assertEquals("testRollbackRececeivedMessage", msg.getText());
          // ...and has not been redelivered
@@ -92,15 +88,14 @@ public class QueueSessionTest extends PTPTestCase
          m = receiver.receive(TestConfig.TIMEOUT);
          Assert.assertTrue(m != null);
          Assert.assertTrue(m instanceof TextMessage);
-         msg = (TextMessage)m;
+         msg = (TextMessage) m;
          // ... which is still the one which was sent...
          Assert.assertEquals("testRollbackRececeivedMessage", msg.getText());
          // .. but this time, it has been redelivered
          Assert.assertEquals(true, msg.getJMSRedelivered());
 
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          fail(e);
       }
    }
@@ -110,18 +105,14 @@ public class QueueSessionTest extends PTPTestCase
     * messaeg session throws a <code>javax.jms.InvalidSelectorException</code>.
     */
    @Test
-   public void testCreateBrowser_2()
-   {
-      try
-      {
+   public void testCreateBrowser_2() {
+      try {
          senderSession.createBrowser(senderQueue, "definitely not a message selector!");
          Assert.fail("Should throw a javax.jms.InvalidSelectorException.\n");
       }
-      catch (InvalidSelectorException e)
-      {
+      catch (InvalidSelectorException e) {
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          Assert.fail("Should throw a javax.jms.InvalidSelectorException, not a " + e);
       }
    }
@@ -131,18 +122,14 @@ public class QueueSessionTest extends PTPTestCase
     * <code>Queue</code> throws a <code>javax.jms.InvalidDestinationException</code>.
     */
    @Test
-   public void testCreateBrowser_1()
-   {
-      try
-      {
-         senderSession.createBrowser((Queue)null);
+   public void testCreateBrowser_1() {
+      try {
+         senderSession.createBrowser((Queue) null);
          Assert.fail("Should throw a javax.jms.InvalidDestinationException.\n");
       }
-      catch (InvalidDestinationException e)
-      {
+      catch (InvalidDestinationException e) {
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          Assert.fail("Should throw a javax.jms.InvalidDestinationException, not a " + e);
       }
    }
@@ -152,18 +139,14 @@ public class QueueSessionTest extends PTPTestCase
     * message selector throws a <code>javax.jms.InvalidSelectorException</code>.
     */
    @Test
-   public void testCreateReceiver_2()
-   {
-      try
-      {
+   public void testCreateReceiver_2() {
+      try {
          receiver = senderSession.createReceiver(senderQueue, "definitely not a message selector!");
          Assert.fail("Should throw a javax.jms.InvalidSelectorException.\n");
       }
-      catch (InvalidSelectorException e)
-      {
+      catch (InvalidSelectorException e) {
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          Assert.fail("Should throw a javax.jms.InvalidSelectorException, not a " + e);
       }
    }
@@ -173,19 +156,15 @@ public class QueueSessionTest extends PTPTestCase
     * <code>Queue</code> throws a <code>javax.jms.InvalidDestinationException</code>>
     */
    @Test
-   public void testCreateReceiver_1()
-   {
-      try
-      {
-         receiver = senderSession.createReceiver((Queue)null);
+   public void testCreateReceiver_1() {
+      try {
+         receiver = senderSession.createReceiver((Queue) null);
          Assert.fail("Should throw a javax.jms.InvalidDestinationException.\n");
       }
-      catch (InvalidDestinationException e)
-      {
+      catch (InvalidDestinationException e) {
          // expected
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          Assert.fail("Should throw a javax.jms.InvalidDestinationException, not a " + e);
       }
    }

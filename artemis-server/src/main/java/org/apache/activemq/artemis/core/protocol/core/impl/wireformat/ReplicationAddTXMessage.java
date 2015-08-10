@@ -23,14 +23,15 @@ import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.core.replication.ReplicationManager.ADD_OPERATION_TYPE;
 
-public class ReplicationAddTXMessage extends PacketImpl
-{
+public class ReplicationAddTXMessage extends PacketImpl {
 
    private long txId;
 
    private long id;
 
-   /** 0 - BindingsImpl, 1 - MessagesJournal */
+   /**
+    * 0 - BindingsImpl, 1 - MessagesJournal
+    */
    private byte journalID;
 
    private byte recordType;
@@ -41,17 +42,16 @@ public class ReplicationAddTXMessage extends PacketImpl
 
    private ADD_OPERATION_TYPE operation;
 
-   public ReplicationAddTXMessage()
-   {
+   public ReplicationAddTXMessage() {
       super(PacketImpl.REPLICATION_APPEND_TX);
    }
 
-   public ReplicationAddTXMessage(final byte journalID, final ADD_OPERATION_TYPE operation,
+   public ReplicationAddTXMessage(final byte journalID,
+                                  final ADD_OPERATION_TYPE operation,
                                   final long txId,
                                   final long id,
                                   final byte recordType,
-                                  final EncodingSupport encodingData)
-   {
+                                  final EncodingSupport encodingData) {
       this();
       this.journalID = journalID;
       this.operation = operation;
@@ -64,8 +64,7 @@ public class ReplicationAddTXMessage extends PacketImpl
    // Public --------------------------------------------------------
 
    @Override
-   public void encodeRest(final ActiveMQBuffer buffer)
-   {
+   public void encodeRest(final ActiveMQBuffer buffer) {
       buffer.writeByte(journalID);
       buffer.writeBoolean(operation.toBoolean());
       buffer.writeLong(txId);
@@ -76,8 +75,7 @@ public class ReplicationAddTXMessage extends PacketImpl
    }
 
    @Override
-   public void decodeRest(final ActiveMQBuffer buffer)
-   {
+   public void decodeRest(final ActiveMQBuffer buffer) {
       journalID = buffer.readByte();
       operation = ADD_OPERATION_TYPE.toOperation(buffer.readBoolean());
       txId = buffer.readLong();
@@ -91,72 +89,63 @@ public class ReplicationAddTXMessage extends PacketImpl
    /**
     * @return the id
     */
-   public long getId()
-   {
+   public long getId() {
       return id;
    }
 
-   public long getTxId()
-   {
+   public long getTxId() {
       return txId;
    }
 
    /**
     * @return the journalID
     */
-   public byte getJournalID()
-   {
+   public byte getJournalID() {
       return journalID;
    }
 
-   public ADD_OPERATION_TYPE getOperation()
-   {
+   public ADD_OPERATION_TYPE getOperation() {
       return operation;
    }
 
    /**
     * @return the recordType
     */
-   public byte getRecordType()
-   {
+   public byte getRecordType() {
       return recordType;
    }
 
    /**
     * @return the recordData
     */
-   public byte[] getRecordData()
-   {
+   public byte[] getRecordData() {
       return recordData;
    }
 
    @Override
-   public int hashCode()
-   {
+   public int hashCode() {
       final int prime = 31;
       int result = super.hashCode();
       result = prime * result + ((encodingData == null) ? 0 : encodingData.hashCode());
-      result = prime * result + (int)(id ^ (id >>> 32));
+      result = prime * result + (int) (id ^ (id >>> 32));
       result = prime * result + journalID;
       result = prime * result + ((operation == null) ? 0 : operation.hashCode());
       result = prime * result + Arrays.hashCode(recordData);
       result = prime * result + recordType;
-      result = prime * result + (int)(txId ^ (txId >>> 32));
+      result = prime * result + (int) (txId ^ (txId >>> 32));
       return result;
    }
 
    @Override
-   public boolean equals(Object obj)
-   {
+   public boolean equals(Object obj) {
       if (this == obj)
          return true;
       if (!super.equals(obj))
          return false;
       if (!(obj instanceof ReplicationAddTXMessage))
          return false;
-      ReplicationAddTXMessage other = (ReplicationAddTXMessage)obj;
-      if (encodingData == null)
-      {
+      ReplicationAddTXMessage other = (ReplicationAddTXMessage) obj;
+      if (encodingData == null) {
          if (other.encodingData != null)
             return false;
       }

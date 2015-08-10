@@ -17,8 +17,8 @@
 
 package org.apache.activemq.artemis.jlibaio;
 
-public interface SubmitInfo
-{
+public interface SubmitInfo {
+
    void onError(int errno, String message);
 
    void done();

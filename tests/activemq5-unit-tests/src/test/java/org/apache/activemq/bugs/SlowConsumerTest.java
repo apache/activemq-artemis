@@ -30,6 +30,7 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 
 import junit.framework.TestCase;
+
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.command.ActiveMQQueue;
@@ -38,122 +39,125 @@ import org.slf4j.LoggerFactory;
 
 public class SlowConsumerTest extends TestCase {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SlowConsumerTest.class);
-    private static final int MESSAGES_COUNT = 10000;
+   private static final Logger LOG = LoggerFactory.getLogger(SlowConsumerTest.class);
+   private static final int MESSAGES_COUNT = 10000;
 
-    private final int messageLogFrequency = 2500;
-    private final long messageReceiveTimeout = 10000L;
+   private final int messageLogFrequency = 2500;
+   private final long messageReceiveTimeout = 10000L;
 
-    private Socket stompSocket;
-    private ByteArrayOutputStream inputBuffer;
-    private int messagesCount;
+   private Socket stompSocket;
+   private ByteArrayOutputStream inputBuffer;
+   private int messagesCount;
 
-    /**
-     * @param args
-     * @throws Exception
-     */
-    public void testRemoveSubscriber() throws Exception {
-        final BrokerService broker = new BrokerService();
-        broker.setPersistent(true);
-        broker.setUseJmx(true);
-        broker.setDeleteAllMessagesOnStartup(true);
+   /**
+    * @param args
+    * @throws Exception
+    */
+   public void testRemoveSubscriber() throws Exception {
+      final BrokerService broker = new BrokerService();
+      broker.setPersistent(true);
+      broker.setUseJmx(true);
+      broker.setDeleteAllMessagesOnStartup(true);
 
-        broker.addConnector("tcp://localhost:0").setName("Default");
-        broker.start();
-        ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(
-                broker.getTransportConnectors().get(0).getPublishableConnectString());
-        final Connection connection = factory.createConnection();
-        connection.start();
+      broker.addConnector("tcp://localhost:0").setName("Default");
+      broker.start();
+      ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(broker.getTransportConnectors().get(0).getPublishableConnectString());
+      final Connection connection = factory.createConnection();
+      connection.start();
 
-        Thread producingThread = new Thread("Producing thread") {
-            public void run() {
-                try {
-                    Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-                    MessageProducer producer = session.createProducer(new ActiveMQQueue(getDestinationName()));
-                    for (int idx = 0; idx < MESSAGES_COUNT; ++idx) {
-                        Message message = session.createTextMessage("" + idx);
-                        producer.send(message);
-                        LOG.debug("Sending: " + idx);
-                    }
-                    producer.close();
-                    session.close();
-                } catch (Throwable ex) {
-                    ex.printStackTrace();
-                }
+      Thread producingThread = new Thread("Producing thread") {
+         public void run() {
+            try {
+               Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+               MessageProducer producer = session.createProducer(new ActiveMQQueue(getDestinationName()));
+               for (int idx = 0; idx < MESSAGES_COUNT; ++idx) {
+                  Message message = session.createTextMessage("" + idx);
+                  producer.send(message);
+                  LOG.debug("Sending: " + idx);
+               }
+               producer.close();
+               session.close();
             }
-        };
-        producingThread.setPriority(Thread.MAX_PRIORITY);
-        producingThread.start();
-        Thread.sleep(1000);
-
-        Thread consumingThread = new Thread("Consuming thread") {
-
-            public void run() {
-                try {
-                    Session session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
-                    MessageConsumer consumer = session.createConsumer(new ActiveMQQueue(getDestinationName()));
-                    int diff = 0;
-                    while (messagesCount != MESSAGES_COUNT) {
-                        Message msg = consumer.receive(messageReceiveTimeout);
-                        if (msg == null) {
-                            LOG.warn("Got null message at count: " + messagesCount + ". Continuing...");
-                            break;
-                        }
-                        String text = ((TextMessage)msg).getText();
-                        int currentMsgIdx = Integer.parseInt(text);
-                        LOG.debug("Received: " + text + " messageCount: " + messagesCount);
-                        msg.acknowledge();
-                        if ((messagesCount + diff) != currentMsgIdx) {
-                            LOG.debug("Message(s) skipped!! Should be message no.: " + messagesCount + " but got: " + currentMsgIdx);
-                            diff = currentMsgIdx - messagesCount;
-                        }
-                        ++messagesCount;
-                        if (messagesCount % messageLogFrequency == 0) {
-                            LOG.info("Received: " + messagesCount + " messages so far");
-                        }
-                        // Thread.sleep(70);
-                    }
-                } catch (Throwable ex) {
-                    ex.printStackTrace();
-                }
+            catch (Throwable ex) {
+               ex.printStackTrace();
             }
-        };
-        consumingThread.start();
-        consumingThread.join();
+         }
+      };
+      producingThread.setPriority(Thread.MAX_PRIORITY);
+      producingThread.start();
+      Thread.sleep(1000);
 
-        assertEquals(MESSAGES_COUNT, messagesCount);
+      Thread consumingThread = new Thread("Consuming thread") {
 
-    }
+         public void run() {
+            try {
+               Session session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
+               MessageConsumer consumer = session.createConsumer(new ActiveMQQueue(getDestinationName()));
+               int diff = 0;
+               while (messagesCount != MESSAGES_COUNT) {
+                  Message msg = consumer.receive(messageReceiveTimeout);
+                  if (msg == null) {
+                     LOG.warn("Got null message at count: " + messagesCount + ". Continuing...");
+                     break;
+                  }
+                  String text = ((TextMessage) msg).getText();
+                  int currentMsgIdx = Integer.parseInt(text);
+                  LOG.debug("Received: " + text + " messageCount: " + messagesCount);
+                  msg.acknowledge();
+                  if ((messagesCount + diff) != currentMsgIdx) {
+                     LOG.debug("Message(s) skipped!! Should be message no.: " + messagesCount + " but got: " + currentMsgIdx);
+                     diff = currentMsgIdx - messagesCount;
+                  }
+                  ++messagesCount;
+                  if (messagesCount % messageLogFrequency == 0) {
+                     LOG.info("Received: " + messagesCount + " messages so far");
+                  }
+                  // Thread.sleep(70);
+               }
+            }
+            catch (Throwable ex) {
+               ex.printStackTrace();
+            }
+         }
+      };
+      consumingThread.start();
+      consumingThread.join();
 
-    public void sendFrame(String data) throws Exception {
-        byte[] bytes = data.getBytes("UTF-8");
-        OutputStream outputStream = stompSocket.getOutputStream();
-        for (int i = 0; i < bytes.length; i++) {
-            outputStream.write(bytes[i]);
-        }
-        outputStream.flush();
-    }
+      assertEquals(MESSAGES_COUNT, messagesCount);
 
-    public String receiveFrame(long timeOut) throws Exception {
-        stompSocket.setSoTimeout((int)timeOut);
-        InputStream is = stompSocket.getInputStream();
-        int c = 0;
-        for (;;) {
+   }
+
+   public void sendFrame(String data) throws Exception {
+      byte[] bytes = data.getBytes("UTF-8");
+      OutputStream outputStream = stompSocket.getOutputStream();
+      for (int i = 0; i < bytes.length; i++) {
+         outputStream.write(bytes[i]);
+      }
+      outputStream.flush();
+   }
+
+   public String receiveFrame(long timeOut) throws Exception {
+      stompSocket.setSoTimeout((int) timeOut);
+      InputStream is = stompSocket.getInputStream();
+      int c = 0;
+      for (; ; ) {
+         c = is.read();
+         if (c < 0) {
+            throw new IOException("socket closed.");
+         }
+         else if (c == 0) {
             c = is.read();
-            if (c < 0) {
-                throw new IOException("socket closed.");
-            } else if (c == 0) {
-                c = is.read();
-                byte[] ba = inputBuffer.toByteArray();
-                inputBuffer.reset();
-                return new String(ba, "UTF-8");
-            } else {
-                inputBuffer.write(c);
-            }
-        }
-    }
+            byte[] ba = inputBuffer.toByteArray();
+            inputBuffer.reset();
+            return new String(ba, "UTF-8");
+         }
+         else {
+            inputBuffer.write(c);
+         }
+      }
+   }
 
-    protected String getDestinationName() {
-        return getClass().getName() + "." + getName();
-    }
+   protected String getDestinationName() {
+      return getClass().getName() + "." + getName();
+   }
 }

@@ -75,8 +75,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class JMSServerControlTest extends ManagementTestBase
-{
+public class JMSServerControlTest extends ManagementTestBase {
    // Attributes ----------------------------------------------------
 
    protected InVMNamingContext context;
@@ -89,13 +88,10 @@ public class JMSServerControlTest extends ManagementTestBase
 
    // Static --------------------------------------------------------
 
-   private static String toCSV(final Object[] objects)
-   {
+   private static String toCSV(final Object[] objects) {
       StringBuilder str = new StringBuilder();
-      for (int i = 0; i < objects.length; i++)
-      {
-         if (i > 0)
-         {
+      for (int i = 0; i < objects.length; i++) {
+         if (i > 0) {
             str.append(", ");
          }
          str.append(objects[i]);
@@ -110,22 +106,19 @@ public class JMSServerControlTest extends ManagementTestBase
    /**
     * Number of consumers used by the test itself
     */
-   protected int getNumberOfConsumers()
-   {
+   protected int getNumberOfConsumers() {
       return 0;
    }
 
    @Test
-   public void testGetVersion() throws Exception
-   {
+   public void testGetVersion() throws Exception {
       JMSServerControl control = createManagementControl();
       String version = control.getVersion();
       Assert.assertEquals(serverManager.getVersion(), version);
    }
 
    @Test
-   public void testCreateQueueWithBindings() throws Exception
-   {
+   public void testCreateQueueWithBindings() throws Exception {
       String[] bindings = new String[3];
       bindings[0] = RandomUtil.randomString();
       bindings[1] = RandomUtil.randomString();
@@ -162,8 +155,7 @@ public class JMSServerControlTest extends ManagementTestBase
    }
 
    @Test
-   public void testCreateQueueWithCommaBindings() throws Exception
-   {
+   public void testCreateQueueWithCommaBindings() throws Exception {
       String[] bindings = new String[3];
       bindings[0] = "first&comma;first";
       bindings[1] = "second&comma;second";
@@ -200,8 +192,7 @@ public class JMSServerControlTest extends ManagementTestBase
    }
 
    @Test
-   public void testCreateQueueWithSelector() throws Exception
-   {
+   public void testCreateQueueWithSelector() throws Exception {
       String[] bindings = new String[3];
       bindings[0] = RandomUtil.randomString();
       bindings[1] = RandomUtil.randomString();
@@ -222,29 +213,17 @@ public class JMSServerControlTest extends ManagementTestBase
       Queue queue = (Queue) o;
       // assertEquals(((ActiveMQDestination)queue).get);
       Assert.assertEquals(queueName, queue.getQueueName());
-      Assert.assertEquals(selector, server.getPostOffice()
-         .getBinding(new SimpleString("jms.queue." + queueName))
-         .getFilter()
-         .getFilterString()
-         .toString());
+      Assert.assertEquals(selector, server.getPostOffice().getBinding(new SimpleString("jms.queue." + queueName)).getFilter().getFilterString().toString());
       o = ActiveMQTestBase.checkBinding(context, bindings[1]);
       Assert.assertTrue(o instanceof Queue);
       queue = (Queue) o;
       Assert.assertEquals(queueName, queue.getQueueName());
-      Assert.assertEquals(selector, server.getPostOffice()
-         .getBinding(new SimpleString("jms.queue." + queueName))
-         .getFilter()
-         .getFilterString()
-         .toString());
+      Assert.assertEquals(selector, server.getPostOffice().getBinding(new SimpleString("jms.queue." + queueName)).getFilter().getFilterString().toString());
       o = ActiveMQTestBase.checkBinding(context, bindings[2]);
       Assert.assertTrue(o instanceof Queue);
       queue = (Queue) o;
       Assert.assertEquals(queueName, queue.getQueueName());
-      Assert.assertEquals(selector, server.getPostOffice()
-         .getBinding(new SimpleString("jms.queue." + queueName))
-         .getFilter()
-         .getFilterString()
-         .toString());
+      Assert.assertEquals(selector, server.getPostOffice().getBinding(new SimpleString("jms.queue." + queueName)).getFilter().getFilterString().toString());
       checkResource(ObjectNameBuilder.DEFAULT.getJMSQueueObjectName(queueName));
 
       Assert.assertNotNull(fakeJMSStorageManager.destinationMap.get(queueName));
@@ -255,8 +234,7 @@ public class JMSServerControlTest extends ManagementTestBase
    }
 
    @Test
-   public void testCreateNonDurableQueue() throws Exception
-   {
+   public void testCreateNonDurableQueue() throws Exception {
       String queueName = RandomUtil.randomString();
       String binding = RandomUtil.randomString();
 
@@ -270,8 +248,7 @@ public class JMSServerControlTest extends ManagementTestBase
       Assert.assertTrue(o instanceof Queue);
       Queue queue = (Queue) o;
       Assert.assertEquals(queueName, queue.getQueueName());
-      QueueBinding queueBinding = (QueueBinding) server.getPostOffice()
-         .getBinding(new SimpleString("jms.queue." + queueName));
+      QueueBinding queueBinding = (QueueBinding) server.getPostOffice().getBinding(new SimpleString("jms.queue." + queueName));
       Assert.assertFalse(queueBinding.getQueue().isDurable());
       checkResource(ObjectNameBuilder.DEFAULT.getJMSQueueObjectName(queueName));
 
@@ -281,8 +258,7 @@ public class JMSServerControlTest extends ManagementTestBase
    }
 
    @Test
-   public void testDestroyQueue() throws Exception
-   {
+   public void testDestroyQueue() throws Exception {
       String queueJNDIBinding = RandomUtil.randomString();
       String queueName = RandomUtil.randomString();
 
@@ -304,8 +280,7 @@ public class JMSServerControlTest extends ManagementTestBase
    }
 
    @Test
-   public void testDestroyQueueWithConsumers() throws Exception
-   {
+   public void testDestroyQueueWithConsumers() throws Exception {
       String queueJNDIBinding = RandomUtil.randomString();
       String queueName = RandomUtil.randomString();
 
@@ -318,11 +293,9 @@ public class JMSServerControlTest extends ManagementTestBase
       ActiveMQTestBase.checkBinding(context, queueJNDIBinding);
       checkResource(ObjectNameBuilder.DEFAULT.getJMSQueueObjectName(queueName));
 
-      ActiveMQConnectionFactory cf =
-         new ActiveMQConnectionFactory(false, new TransportConfiguration(INVM_CONNECTOR_FACTORY));
+      ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory(false, new TransportConfiguration(INVM_CONNECTOR_FACTORY));
       ActiveMQConnection connection = (ActiveMQConnection) cf.createConnection();
-      try
-      {
+      try {
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
          // create a consumer will create a Core queue bound to the topic address
          ActiveMQMessageConsumer cons = (ActiveMQMessageConsumer) session.createConsumer(ActiveMQJMSClient.createQueue(queueName));
@@ -335,34 +308,28 @@ public class JMSServerControlTest extends ManagementTestBase
          Assert.assertNull(fakeJMSStorageManager.destinationMap.get(queueName));
 
          long time = System.currentTimeMillis();
-         while (!cons.isClosed() && time + 5000 > System.currentTimeMillis())
-         {
+         while (!cons.isClosed() && time + 5000 > System.currentTimeMillis()) {
             Thread.sleep(100);
          }
          Assert.assertTrue(cons.isClosed());
 
-         try
-         {
+         try {
             cons.receive(5000);
             Assert.fail("should throw exception");
          }
-         catch (javax.jms.IllegalStateException e)
-         {
+         catch (javax.jms.IllegalStateException e) {
             Assert.assertTrue(e.getCause() instanceof ActiveMQObjectClosedException);
          }
       }
-      finally
-      {
-         if (connection != null)
-         {
+      finally {
+         if (connection != null) {
             connection.close();
          }
       }
    }
 
    @Test
-   public void testDestroyQueueWithConsumersWithoutForcingTheConsumersToClose() throws Exception
-   {
+   public void testDestroyQueueWithConsumersWithoutForcingTheConsumersToClose() throws Exception {
       String queueJNDIBinding = RandomUtil.randomString();
       String queueName = RandomUtil.randomString();
 
@@ -378,21 +345,18 @@ public class JMSServerControlTest extends ManagementTestBase
       ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory(false, new TransportConfiguration(INVM_CONNECTOR_FACTORY));
       ActiveMQConnection connection = (ActiveMQConnection) cf.createConnection();
       connection.start();
-      try
-      {
+      try {
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
          MessageProducer producer = session.createProducer(ActiveMQJMSClient.createQueue(queueName));
          producer.send(session.createTextMessage());
          // create a consumer will create a Core queue bound to the topic address
          ActiveMQMessageConsumer cons = (ActiveMQMessageConsumer) session.createConsumer(ActiveMQJMSClient.createQueue(queueName));
 
-         try
-         {
+         try {
             control.destroyQueue(queueName, false);
             Assert.fail();
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             Assert.assertTrue(e.getMessage().startsWith("AMQ119025"));
          }
 
@@ -405,19 +369,15 @@ public class JMSServerControlTest extends ManagementTestBase
 
          Assert.assertNotNull(cons.receive(5000));
       }
-      finally
-      {
-         if (connection != null)
-         {
+      finally {
+         if (connection != null) {
             connection.close();
          }
       }
    }
 
-
    @Test
-   public void testDestroyTopicWithConsumersWithoutForcingTheConsumersToClose() throws Exception
-   {
+   public void testDestroyTopicWithConsumersWithoutForcingTheConsumersToClose() throws Exception {
       String topicJNDIBinding = RandomUtil.randomString();
       String topicName = RandomUtil.randomString();
 
@@ -433,21 +393,18 @@ public class JMSServerControlTest extends ManagementTestBase
       ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory(false, new TransportConfiguration(INVM_CONNECTOR_FACTORY));
       ActiveMQConnection connection = (ActiveMQConnection) cf.createConnection();
       connection.start();
-      try
-      {
+      try {
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
          // create a consumer will create a Core queue bound to the topic address
          ActiveMQMessageConsumer cons = (ActiveMQMessageConsumer) session.createConsumer(ActiveMQJMSClient.createTopic(topicName));
          MessageProducer producer = session.createProducer(ActiveMQJMSClient.createTopic(topicName));
          producer.send(session.createTextMessage());
 
-         try
-         {
+         try {
             control.destroyTopic(topicName, false);
             Assert.fail();
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             Assert.assertTrue(e.getMessage().startsWith("AMQ119025"));
          }
 
@@ -457,19 +414,15 @@ public class JMSServerControlTest extends ManagementTestBase
 
          Assert.assertNotNull(cons.receive(5000));
       }
-      finally
-      {
-         if (connection != null)
-         {
+      finally {
+         if (connection != null) {
             connection.close();
          }
       }
    }
 
-
    @Test
-   public void testDestroyTopicWithConsumers() throws Exception
-   {
+   public void testDestroyTopicWithConsumers() throws Exception {
       String topicJNDIBinding = RandomUtil.randomString();
       String topicName = RandomUtil.randomString();
 
@@ -482,11 +435,9 @@ public class JMSServerControlTest extends ManagementTestBase
       ActiveMQTestBase.checkBinding(context, topicJNDIBinding);
       checkResource(ObjectNameBuilder.DEFAULT.getJMSTopicObjectName(topicName));
 
-      ActiveMQConnectionFactory cf =
-         new ActiveMQConnectionFactory(false, new TransportConfiguration(INVM_CONNECTOR_FACTORY));
+      ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory(false, new TransportConfiguration(INVM_CONNECTOR_FACTORY));
       ActiveMQConnection connection = (ActiveMQConnection) cf.createConnection();
-      try
-      {
+      try {
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
          // create a consumer will create a Core queue bound to the topic address
          ActiveMQMessageConsumer cons = (ActiveMQMessageConsumer) session.createConsumer(ActiveMQJMSClient.createTopic(topicName));
@@ -497,34 +448,28 @@ public class JMSServerControlTest extends ManagementTestBase
          checkNoResource(ObjectNameBuilder.DEFAULT.getJMSTopicObjectName(topicName));
 
          long time = System.currentTimeMillis();
-         while (!cons.isClosed() && time + 5000 > System.currentTimeMillis())
-         {
+         while (!cons.isClosed() && time + 5000 > System.currentTimeMillis()) {
             Thread.sleep(100);
          }
          Assert.assertTrue(cons.isClosed());
 
-         try
-         {
+         try {
             cons.receive(5000);
             Assert.fail("should throw exception");
          }
-         catch (javax.jms.IllegalStateException e)
-         {
+         catch (javax.jms.IllegalStateException e) {
             Assert.assertTrue(e.getCause() instanceof ActiveMQObjectClosedException);
          }
       }
-      finally
-      {
-         if (connection != null)
-         {
+      finally {
+         if (connection != null) {
             connection.close();
          }
       }
    }
 
    @Test
-   public void testDestroyQueueWithConsumersNetty() throws Exception
-   {
+   public void testDestroyQueueWithConsumersNetty() throws Exception {
       String queueJNDIBinding = RandomUtil.randomString();
       String queueName = RandomUtil.randomString();
 
@@ -537,12 +482,10 @@ public class JMSServerControlTest extends ManagementTestBase
       ActiveMQTestBase.checkBinding(context, queueJNDIBinding);
       checkResource(ObjectNameBuilder.DEFAULT.getJMSQueueObjectName(queueName));
 
-      ActiveMQConnectionFactory cf =
-         new ActiveMQConnectionFactory(false, new TransportConfiguration(ActiveMQTestBase.NETTY_CONNECTOR_FACTORY));
+      ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory(false, new TransportConfiguration(ActiveMQTestBase.NETTY_CONNECTOR_FACTORY));
       cf.setReconnectAttempts(-1);
       ActiveMQConnection connection = (ActiveMQConnection) cf.createConnection();
-      try
-      {
+      try {
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
          // create a consumer will create a Core queue bound to the topic address
          MessageConsumer cons = session.createConsumer(ActiveMQJMSClient.createQueue(queueName));
@@ -555,35 +498,29 @@ public class JMSServerControlTest extends ManagementTestBase
          Assert.assertNull(fakeJMSStorageManager.destinationMap.get(queueName));
 
          long timeout = System.currentTimeMillis() + 1000;
-         while (timeout > System.currentTimeMillis() && !((ActiveMQMessageConsumer)cons).isClosed())
-         {
+         while (timeout > System.currentTimeMillis() && !((ActiveMQMessageConsumer) cons).isClosed()) {
             Thread.sleep(1);
          }
 
-         Assert.assertTrue(((ActiveMQMessageConsumer)cons).isClosed());
+         Assert.assertTrue(((ActiveMQMessageConsumer) cons).isClosed());
 
-         try
-         {
+         try {
             cons.receive(5000);
             Assert.fail("should throw exception");
          }
-         catch (javax.jms.IllegalStateException e)
-         {
+         catch (javax.jms.IllegalStateException e) {
             Assert.assertTrue(e.getCause() instanceof ActiveMQObjectClosedException);
          }
       }
-      finally
-      {
-         if (connection != null)
-         {
+      finally {
+         if (connection != null) {
             connection.close();
          }
       }
    }
 
    @Test
-   public void testGetQueueNames() throws Exception
-   {
+   public void testGetQueueNames() throws Exception {
       String queueJNDIBinding = RandomUtil.randomString();
       String queueName = RandomUtil.randomString();
 
@@ -602,8 +539,7 @@ public class JMSServerControlTest extends ManagementTestBase
    }
 
    @Test
-   public void testCreateTopic() throws Exception
-   {
+   public void testCreateTopic() throws Exception {
       String[] bindings = new String[3];
       bindings[0] = RandomUtil.randomString();
       bindings[1] = RandomUtil.randomString();
@@ -640,8 +576,7 @@ public class JMSServerControlTest extends ManagementTestBase
    }
 
    @Test
-   public void testDestroyTopic() throws Exception
-   {
+   public void testDestroyTopic() throws Exception {
       String topicJNDIBinding = RandomUtil.randomString();
       String topicName = RandomUtil.randomString();
 
@@ -654,16 +589,14 @@ public class JMSServerControlTest extends ManagementTestBase
       checkResource(ObjectNameBuilder.DEFAULT.getJMSTopicObjectName(topicName));
       Topic topic = (Topic) context.lookup(topicJNDIBinding);
       Assert.assertNotNull(topic);
-      ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory(false,
-                                                                 new TransportConfiguration(InVMConnectorFactory.class.getName()));
+      ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory(false, new TransportConfiguration(InVMConnectorFactory.class.getName()));
       Connection connection = cf.createConnection();
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       // create a consumer will create a Core queue bound to the topic address
       session.createConsumer(topic);
 
       String topicAddress = ActiveMQDestination.createTopicAddressFromName(topicName).toString();
-      AddressControl addressControl = (AddressControl) server.getManagementService()
-         .getResource(ResourceNames.CORE_ADDRESS + topicAddress);
+      AddressControl addressControl = (AddressControl) server.getManagementService().getResource(ResourceNames.CORE_ADDRESS + topicAddress);
       Assert.assertNotNull(addressControl);
 
       Assert.assertTrue(addressControl.getQueueNames().length > 0);
@@ -679,8 +612,7 @@ public class JMSServerControlTest extends ManagementTestBase
    }
 
    @Test
-   public void testListAllConsumers() throws Exception
-   {
+   public void testListAllConsumers() throws Exception {
       String topicJNDIBinding = RandomUtil.randomString();
       String topicName = RandomUtil.randomString();
 
@@ -693,8 +625,7 @@ public class JMSServerControlTest extends ManagementTestBase
       checkResource(ObjectNameBuilder.DEFAULT.getJMSTopicObjectName(topicName));
       Topic topic = (Topic) context.lookup(topicJNDIBinding);
       Assert.assertNotNull(topic);
-      ActiveMQConnectionFactory cf =
-         new ActiveMQConnectionFactory(false, new TransportConfiguration(INVM_CONNECTOR_FACTORY));
+      ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory(false, new TransportConfiguration(INVM_CONNECTOR_FACTORY));
       Connection connection = cf.createConnection();
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       // create a consumer will create a Core queue bound to the topic address
@@ -711,8 +642,7 @@ public class JMSServerControlTest extends ManagementTestBase
       Assert.assertEquals(getNumberOfConsumers(), jsonArray.length());
 
       String topicAddress = ActiveMQDestination.createTopicAddressFromName(topicName).toString();
-      AddressControl addressControl = (AddressControl) server.getManagementService()
-         .getResource(ResourceNames.CORE_ADDRESS + topicAddress);
+      AddressControl addressControl = (AddressControl) server.getManagementService().getResource(ResourceNames.CORE_ADDRESS + topicAddress);
       Assert.assertNotNull(addressControl);
 
       Assert.assertTrue(addressControl.getQueueNames().length > 0);
@@ -728,8 +658,7 @@ public class JMSServerControlTest extends ManagementTestBase
    }
 
    @Test
-   public void testGetTopicNames() throws Exception
-   {
+   public void testGetTopicNames() throws Exception {
       String topicJNDIBinding = RandomUtil.randomString();
       String topicName = RandomUtil.randomString();
 
@@ -748,18 +677,13 @@ public class JMSServerControlTest extends ManagementTestBase
    }
 
    @Test
-   public void testCreateConnectionFactory_3b() throws Exception
-   {
-      server.getConfiguration()
-         .getConnectorConfigurations()
-         .put("tst", new TransportConfiguration(INVM_CONNECTOR_FACTORY));
+   public void testCreateConnectionFactory_3b() throws Exception {
+      server.getConfiguration().getConnectorConfigurations().put("tst", new TransportConfiguration(INVM_CONNECTOR_FACTORY));
 
-      doCreateConnectionFactory(new ConnectionFactoryCreator()
-      {
+      doCreateConnectionFactory(new ConnectionFactoryCreator() {
          public void createConnectionFactory(final JMSServerControl control,
                                              final String cfName,
-                                             final Object[] bindings) throws Exception
-         {
+                                             final Object[] bindings) throws Exception {
             String jndiBindings = JMSServerControlTest.toCSV(bindings);
 
             control.createConnectionFactory(cfName, false, false, 0, "tst", jndiBindings);
@@ -768,8 +692,7 @@ public class JMSServerControlTest extends ManagementTestBase
    }
 
    @Test
-   public void testCreateConnectionFactory_CompleteList() throws Exception
-   {
+   public void testCreateConnectionFactory_CompleteList() throws Exception {
       JMSServerControl control = createManagementControl();
       control.createConnectionFactory("test", //name
                                       true, // ha
@@ -806,7 +729,6 @@ public class JMSServerControlTest extends ManagementTestBase
                                       1, // reconnectAttempts
                                       true, // failoverOnInitialConnection
                                       "tst"); // groupID
-
 
       ActiveMQQueueConnectionFactory cf = (ActiveMQQueueConnectionFactory) context.lookup("tst");
 
@@ -892,22 +814,17 @@ public class JMSServerControlTest extends ManagementTestBase
 
       Assert.assertFalse(mbeanServer.isRegistered(nameBuilder.getConnectionFactoryObjectName("test")));
 
-
-      try
-      {
+      try {
          cf = (ActiveMQQueueConnectionFactory) context.lookup("tst");
          Assert.fail("Failure expected");
       }
-      catch (NamingException e)
-      {
+      catch (NamingException e) {
       }
-
 
    }
 
    @Test
-   public void testDestroyConnectionFactoryWithNullBindings() throws Exception
-   {
+   public void testDestroyConnectionFactoryWithNullBindings() throws Exception {
       // Create Connection Factory with Null Bindings
       JMSServerControl control = createManagementControl();
       control.createConnectionFactory("test-cf", // Name
@@ -923,17 +840,14 @@ public class JMSServerControlTest extends ManagementTestBase
    }
 
    @Test
-   public void testListPreparedTransactionDetails() throws Exception
-   {
+   public void testListPreparedTransactionDetails() throws Exception {
       Xid xid = newXID();
 
       JMSServerControl control = createManagementControl();
       String cfJNDIBinding = "/cf";
       String cfName = "cf";
 
-      server.getConfiguration()
-         .getConnectorConfigurations()
-         .put("tst", new TransportConfiguration(INVM_CONNECTOR_FACTORY));
+      server.getConfiguration().getConnectorConfigurations().put("tst", new TransportConfiguration(INVM_CONNECTOR_FACTORY));
 
       control.createConnectionFactory(cfName, false, false, 3, "tst", cfJNDIBinding);
 
@@ -963,8 +877,7 @@ public class JMSServerControlTest extends ManagementTestBase
    }
 
    @Test
-   public void testListPreparedTranscationDetailsAsHTML() throws Exception
-   {
+   public void testListPreparedTranscationDetailsAsHTML() throws Exception {
       Xid xid = newXID();
 
       JMSServerControl control = createManagementControl();
@@ -972,9 +885,7 @@ public class JMSServerControlTest extends ManagementTestBase
       String cfJNDIBinding = "/cf";
       String cfName = "cf";
 
-      server.getConfiguration()
-         .getConnectorConfigurations()
-         .put("tst", new TransportConfiguration(INVM_CONNECTOR_FACTORY));
+      server.getConfiguration().getConnectorConfigurations().put("tst", new TransportConfiguration(INVM_CONNECTOR_FACTORY));
 
       control.createConnectionFactory(cfName, false, false, 3, "tst", cfJNDIBinding);
 
@@ -1003,14 +914,11 @@ public class JMSServerControlTest extends ManagementTestBase
       control.listPreparedTransactionDetailsAsHTML();
    }
 
-
    @Test
-   public void testRemoteClientIDConnection() throws Exception
-   {
+   public void testRemoteClientIDConnection() throws Exception {
       JMSServerControl control = createManagementControl();
 
-      ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory(false,
-                                                                 new TransportConfiguration(InVMConnectorFactory.class.getName()));
+      ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory(false, new TransportConfiguration(InVMConnectorFactory.class.getName()));
       Connection connection = cf.createConnection();
 
       connection.setClientID("someID");
@@ -1018,12 +926,10 @@ public class JMSServerControlTest extends ManagementTestBase
       Connection connection2 = cf.createConnection();
       boolean failed = false;
 
-      try
-      {
+      try {
          connection2.setClientID("someID");
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          failed = true;
       }
 
@@ -1033,16 +939,13 @@ public class JMSServerControlTest extends ManagementTestBase
 
       connection2.setClientID("someID");
 
-
       failed = false;
       Connection connection3 = cf.createConnection();
 
-      try
-      {
+      try {
          connection3.setClientID("someID");
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          failed = true;
       }
 
@@ -1055,8 +958,7 @@ public class JMSServerControlTest extends ManagementTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       startServer();
@@ -1065,12 +967,8 @@ public class JMSServerControlTest extends ManagementTestBase
    /**
     * @throws Exception
     */
-   protected void startServer() throws Exception
-   {
-      Configuration config = createDefaultNettyConfig()
-              .setJMXManagementEnabled(true)
-              .addConnectorConfiguration("netty", new TransportConfiguration(ActiveMQTestBase.NETTY_CONNECTOR_FACTORY))
-              .addConnectorConfiguration("invm", new TransportConfiguration(INVM_CONNECTOR_FACTORY));
+   protected void startServer() throws Exception {
+      Configuration config = createDefaultNettyConfig().setJMXManagementEnabled(true).addConnectorConfiguration("netty", new TransportConfiguration(ActiveMQTestBase.NETTY_CONNECTOR_FACTORY)).addConnectorConfiguration("invm", new TransportConfiguration(INVM_CONNECTOR_FACTORY));
 
       server = addServer(ActiveMQServers.newActiveMQServer(config, mbeanServer, true));
 
@@ -1085,24 +983,18 @@ public class JMSServerControlTest extends ManagementTestBase
       serverManager.replaceStorageManager(fakeJMSStorageManager);
    }
 
-   protected JMSServerControl createManagementControl() throws Exception
-   {
+   protected JMSServerControl createManagementControl() throws Exception {
       return ManagementControlHelper.createJMSServerControl(mbeanServer);
    }
 
    // Private -------------------------------------------------------
 
-   private void doCreateConnectionFactory(final ConnectionFactoryCreator creator) throws Exception
-   {
-      Object[] cfJNDIBindings = new Object[]{
-         RandomUtil.randomString(),
-         RandomUtil.randomString(),
-         RandomUtil.randomString()};
+   private void doCreateConnectionFactory(final ConnectionFactoryCreator creator) throws Exception {
+      Object[] cfJNDIBindings = new Object[]{RandomUtil.randomString(), RandomUtil.randomString(), RandomUtil.randomString()};
 
       String cfName = RandomUtil.randomString();
 
-      for (Object cfJNDIBinding : cfJNDIBindings)
-      {
+      for (Object cfJNDIBinding : cfJNDIBindings) {
          ActiveMQTestBase.checkNoBinding(context, cfJNDIBinding.toString());
       }
       checkNoResource(ObjectNameBuilder.DEFAULT.getConnectionFactoryObjectName(cfName));
@@ -1110,8 +1002,7 @@ public class JMSServerControlTest extends ManagementTestBase
       JMSServerControl control = createManagementControl();
       creator.createConnectionFactory(control, cfName, cfJNDIBindings);
 
-      for (Object cfJNDIBinding : cfJNDIBindings)
-      {
+      for (Object cfJNDIBinding : cfJNDIBindings) {
          Object o = ActiveMQTestBase.checkBinding(context, cfJNDIBinding.toString());
          Assert.assertTrue(o instanceof ConnectionFactory);
          ConnectionFactory cf = (ConnectionFactory) o;
@@ -1128,13 +1019,13 @@ public class JMSServerControlTest extends ManagementTestBase
 
    // Inner classes -------------------------------------------------
 
-   interface ConnectionFactoryCreator
-   {
+   interface ConnectionFactoryCreator {
+
       void createConnectionFactory(JMSServerControl control, String cfName, Object[] bindings) throws Exception;
    }
 
-   class FakeJMSStorageManager implements JMSStorageManager
-   {
+   class FakeJMSStorageManager implements JMSStorageManager {
+
       Map<String, PersistedDestination> destinationMap = new HashMap<String, PersistedDestination>();
 
       Map<String, PersistedConnectionFactory> connectionFactoryMap = new HashMap<String, PersistedConnectionFactory>();
@@ -1143,89 +1034,73 @@ public class JMSServerControlTest extends ManagementTestBase
 
       JMSStorageManager delegate;
 
-      public FakeJMSStorageManager(JMSStorageManager delegate)
-      {
+      public FakeJMSStorageManager(JMSStorageManager delegate) {
          this.delegate = delegate;
       }
 
-      public void storeDestination(PersistedDestination destination) throws Exception
-      {
+      public void storeDestination(PersistedDestination destination) throws Exception {
          destinationMap.put(destination.getName(), destination);
          delegate.storeDestination(destination);
       }
 
-      public void deleteDestination(PersistedType type, String name) throws Exception
-      {
+      public void deleteDestination(PersistedType type, String name) throws Exception {
          destinationMap.remove(name);
          delegate.deleteDestination(type, name);
       }
 
-      public List<PersistedDestination> recoverDestinations()
-      {
+      public List<PersistedDestination> recoverDestinations() {
          return delegate.recoverDestinations();
       }
 
-      public void deleteConnectionFactory(String connectionFactory) throws Exception
-      {
+      public void deleteConnectionFactory(String connectionFactory) throws Exception {
          connectionFactoryMap.remove(connectionFactory);
          delegate.deleteConnectionFactory(connectionFactory);
       }
 
-      public void storeConnectionFactory(PersistedConnectionFactory connectionFactory) throws Exception
-      {
+      public void storeConnectionFactory(PersistedConnectionFactory connectionFactory) throws Exception {
          connectionFactoryMap.put(connectionFactory.getName(), connectionFactory);
          delegate.storeConnectionFactory(connectionFactory);
       }
 
-      public List<PersistedConnectionFactory> recoverConnectionFactories()
-      {
+      public List<PersistedConnectionFactory> recoverConnectionFactories() {
          return delegate.recoverConnectionFactories();
       }
 
-      public void addBindings(PersistedType type, String name, String... address) throws Exception
-      {
+      public void addBindings(PersistedType type, String name, String... address) throws Exception {
          persistedJNDIMap.putIfAbsent(name, new ArrayList<String>());
-         for (String ad : address)
-         {
+         for (String ad : address) {
             persistedJNDIMap.get(name).add(ad);
          }
          delegate.addBindings(type, name, address);
       }
 
-      public List<PersistedBindings> recoverPersistedBindings() throws Exception
-      {
+      public List<PersistedBindings> recoverPersistedBindings() throws Exception {
          return delegate.recoverPersistedBindings();
       }
 
-      public void deleteBindings(PersistedType type, String name, String address) throws Exception
-      {
+      public void deleteBindings(PersistedType type, String name, String address) throws Exception {
          persistedJNDIMap.get(name).remove(address);
          delegate.deleteBindings(type, name, address);
       }
 
-      public void deleteBindings(PersistedType type, String name) throws Exception
-      {
+      public void deleteBindings(PersistedType type, String name) throws Exception {
          persistedJNDIMap.get(name).clear();
          delegate.deleteBindings(type, name);
       }
 
-      public void start() throws Exception
-      {
+      public void start() throws Exception {
          delegate.start();
       }
 
-      public void stop() throws Exception
-      {
+      public void stop() throws Exception {
          delegate.stop();
       }
 
-      public boolean isStarted()
-      {
+      public boolean isStarted() {
          return delegate.isStarted();
       }
 
-      public void load() throws Exception
-      {
+      public void load() throws Exception {
          delegate.load();
       }
    }

@@ -46,11 +46,10 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- *
  * A JMSXDeliveryCountTest
  */
-public class JMSXDeliveryCountTest extends JMSTestBase
-{
+public class JMSXDeliveryCountTest extends JMSTestBase {
+
    Queue queue1;
    Topic topic1;
 
@@ -58,8 +57,7 @@ public class JMSXDeliveryCountTest extends JMSTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       xacf = ActiveMQJMSClient.createConnectionFactory("tcp://localhost:61616", "test");
@@ -72,8 +70,7 @@ public class JMSXDeliveryCountTest extends JMSTestBase
 
    @Override
    @After
-   public void tearDown() throws Exception
-   {
+   public void tearDown() throws Exception {
       TxControl.disable(true);
 
       TransactionReaper.terminate(false);
@@ -83,12 +80,10 @@ public class JMSXDeliveryCountTest extends JMSTestBase
    }
 
    @Test
-   public void testSimpleJMSXDeliveryCount() throws Exception
-   {
+   public void testSimpleJMSXDeliveryCount() throws Exception {
       Connection conn = null;
 
-      try
-      {
+      try {
          conn = cf.createConnection();
          Session s = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
          MessageProducer p = s.createProducer(queue1);
@@ -103,42 +98,36 @@ public class JMSXDeliveryCountTest extends JMSTestBase
 
          conn.start();
 
-         TextMessage tm = (TextMessage)c.receive(1000);
+         TextMessage tm = (TextMessage) c.receive(1000);
 
          Assert.assertEquals("xoxo", tm.getText());
-         Assert.assertTrue("JMSXDeliveryCount is supposed to exist as a property",
-                                       tm.propertyExists("JMSXDeliveryCount"));
+         Assert.assertTrue("JMSXDeliveryCount is supposed to exist as a property", tm.propertyExists("JMSXDeliveryCount"));
          Assert.assertEquals(1, tm.getIntProperty("JMSXDeliveryCount"));
 
          s.recover();
 
-         tm = (TextMessage)c.receive(1000);
+         tm = (TextMessage) c.receive(1000);
 
          Assert.assertEquals("xoxo", tm.getText());
-         Assert.assertTrue("JMSXDeliveryCount is supposed to exist as a property",
-                                       tm.propertyExists("JMSXDeliveryCount"));
+         Assert.assertTrue("JMSXDeliveryCount is supposed to exist as a property", tm.propertyExists("JMSXDeliveryCount"));
          Assert.assertEquals(2, tm.getIntProperty("JMSXDeliveryCount"));
 
          tm.acknowledge();
 
          conn.close();
       }
-      finally
-      {
-         if (conn != null)
-         {
+      finally {
+         if (conn != null) {
             conn.close();
          }
       }
    }
 
    @Test
-   public void testJMSXDeliveryCountNotDeliveredMessagesNotUpdated() throws Exception
-   {
+   public void testJMSXDeliveryCountNotDeliveredMessagesNotUpdated() throws Exception {
       Connection conn = null;
 
-      try
-      {
+      try {
          conn = cf.createConnection();
 
          Session s = conn.createSession(false, Session.CLIENT_ACKNOWLEDGE);
@@ -155,7 +144,7 @@ public class JMSXDeliveryCountTest extends JMSTestBase
 
          conn.start();
 
-         TextMessage tm = (TextMessage)c.receive(1000);
+         TextMessage tm = (TextMessage) c.receive(1000);
 
          Assert.assertEquals("message1", tm.getText());
          Assert.assertFalse(tm.getJMSRedelivered());
@@ -167,31 +156,31 @@ public class JMSXDeliveryCountTest extends JMSTestBase
 
          c = s.createConsumer(queue1);
 
-         tm = (TextMessage)c.receive(1000);
+         tm = (TextMessage) c.receive(1000);
 
          Assert.assertEquals("message1", tm.getText());
          Assert.assertTrue(tm.getJMSRedelivered());
          Assert.assertEquals(2, tm.getIntProperty("JMSXDeliveryCount"));
 
-         tm = (TextMessage)c.receive(1000);
+         tm = (TextMessage) c.receive(1000);
 
          Assert.assertEquals("message2", tm.getText());
          Assert.assertFalse(tm.getJMSRedelivered());
          Assert.assertEquals(1, tm.getIntProperty("JMSXDeliveryCount"));
 
-         tm = (TextMessage)c.receive(1000);
+         tm = (TextMessage) c.receive(1000);
 
          Assert.assertEquals("message3", tm.getText());
          Assert.assertFalse(tm.getJMSRedelivered());
          Assert.assertEquals(1, tm.getIntProperty("JMSXDeliveryCount"));
 
-         tm = (TextMessage)c.receive(1000);
+         tm = (TextMessage) c.receive(1000);
 
          Assert.assertEquals("message4", tm.getText());
          Assert.assertFalse(tm.getJMSRedelivered());
          Assert.assertEquals(1, tm.getIntProperty("JMSXDeliveryCount"));
 
-         tm = (TextMessage)c.receive(1000);
+         tm = (TextMessage) c.receive(1000);
 
          Assert.assertEquals("message5", tm.getText());
          Assert.assertFalse(tm.getJMSRedelivered());
@@ -199,22 +188,18 @@ public class JMSXDeliveryCountTest extends JMSTestBase
 
          tm.acknowledge();
       }
-      finally
-      {
-         if (conn != null)
-         {
+      finally {
+         if (conn != null) {
             conn.close();
          }
       }
    }
 
    @Test
-   public void testRedeliveryOnQueue() throws Exception
-   {
+   public void testRedeliveryOnQueue() throws Exception {
       Connection conn = null;
 
-      try
-      {
+      try {
          conn = cf.createConnection();
 
          Session sess1 = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -227,8 +212,7 @@ public class JMSXDeliveryCountTest extends JMSTestBase
 
          final int NUM_RECOVERIES = 8;
 
-         for (int i = 0; i < NUM_MESSAGES; i++)
-         {
+         for (int i = 0; i < NUM_MESSAGES; i++) {
             TextMessage tm = sess1.createTextMessage();
             tm.setText("testing" + i);
             prod.send(tm);
@@ -242,41 +226,33 @@ public class JMSXDeliveryCountTest extends JMSTestBase
 
          TextMessage tm = null;
 
-         for (int j = 0; j < NUM_RECOVERIES; j++)
-         {
-            for (int i = 0; i < NUM_MESSAGES; i++)
-            {
-               tm = (TextMessage)cons.receive(3000);
+         for (int j = 0; j < NUM_RECOVERIES; j++) {
+            for (int i = 0; i < NUM_MESSAGES; i++) {
+               tm = (TextMessage) cons.receive(3000);
                Assert.assertNotNull(tm);
                Assert.assertEquals("testing" + i, tm.getText());
-               Assert.assertTrue("JMSXDeliveryCount is supposed to exist as a property",
-                                             tm.propertyExists("JMSXDeliveryCount"));
+               Assert.assertTrue("JMSXDeliveryCount is supposed to exist as a property", tm.propertyExists("JMSXDeliveryCount"));
                Assert.assertEquals(j + 1, tm.getIntProperty("JMSXDeliveryCount"));
             }
-            if (j != NUM_RECOVERIES - 1)
-            {
+            if (j != NUM_RECOVERIES - 1) {
                sess2.recover();
             }
          }
 
          tm.acknowledge();
       }
-      finally
-      {
-         if (conn != null)
-         {
+      finally {
+         if (conn != null) {
             conn.close();
          }
       }
    }
 
    @Test
-   public void testRedeliveryOnTopic() throws Exception
-   {
+   public void testRedeliveryOnTopic() throws Exception {
       Connection conn = null;
 
-      try
-      {
+      try {
          conn = cf.createConnection();
 
          conn.setClientID("myclientid");
@@ -310,8 +286,7 @@ public class JMSXDeliveryCountTest extends JMSTestBase
          MessageProducer prod = sessSend.createProducer(topic1);
          prod.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
 
-         for (int i = 0; i < NUM_MESSAGES; i++)
-         {
+         for (int i = 0; i < NUM_MESSAGES; i++) {
             TextMessage tm1 = sessSend.createTextMessage("testing" + i);
             prod.send(tm1);
          }
@@ -328,22 +303,18 @@ public class JMSXDeliveryCountTest extends JMSTestBase
 
          sess3.unsubscribe("subxyz");
       }
-      finally
-      {
-         if (conn != null)
-         {
+      finally {
+         if (conn != null) {
             conn.close();
          }
       }
    }
 
    @Test
-   public void testDeliveryCountUpdatedOnCloseTransacted() throws Exception
-   {
+   public void testDeliveryCountUpdatedOnCloseTransacted() throws Exception {
       Connection conn = null;
 
-      try
-      {
+      try {
          conn = cf.createConnection();
 
          Session producerSess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -357,21 +328,20 @@ public class JMSXDeliveryCountTest extends JMSTestBase
 
          producer.send(tm);
 
-         TextMessage rm = (TextMessage)consumer.receive(1000);
+         TextMessage rm = (TextMessage) consumer.receive(1000);
 
          Assert.assertNotNull(rm);
 
          Assert.assertEquals(tm.getText(), rm.getText());
 
-         Assert.assertTrue("JMSXDeliveryCount is supposed to exist as a property",
-                                       tm.propertyExists("JMSXDeliveryCount"));
+         Assert.assertTrue("JMSXDeliveryCount is supposed to exist as a property", tm.propertyExists("JMSXDeliveryCount"));
          Assert.assertEquals(1, rm.getIntProperty("JMSXDeliveryCount"));
 
          Assert.assertFalse(rm.getJMSRedelivered());
 
          consumerSess.rollback();
 
-         rm = (TextMessage)consumer.receive(1000);
+         rm = (TextMessage) consumer.receive(1000);
 
          Assert.assertNotNull(rm);
 
@@ -383,7 +353,7 @@ public class JMSXDeliveryCountTest extends JMSTestBase
 
          consumerSess.rollback();
 
-         rm = (TextMessage)consumer.receive(1000);
+         rm = (TextMessage) consumer.receive(1000);
 
          Assert.assertNotNull(rm);
 
@@ -401,7 +371,7 @@ public class JMSXDeliveryCountTest extends JMSTestBase
 
          consumer = consumerSess.createConsumer(queue1);
 
-         rm = (TextMessage)consumer.receive(1000);
+         rm = (TextMessage) consumer.receive(1000);
 
          Assert.assertNotNull(rm);
 
@@ -413,22 +383,18 @@ public class JMSXDeliveryCountTest extends JMSTestBase
 
          consumerSess.commit();
       }
-      finally
-      {
-         if (conn != null)
-         {
+      finally {
+         if (conn != null) {
             conn.close();
          }
       }
    }
 
    @Test
-   public void testDeliveryCountUpdatedOnCloseClientAck() throws Exception
-   {
+   public void testDeliveryCountUpdatedOnCloseClientAck() throws Exception {
       Connection conn = null;
 
-      try
-      {
+      try {
          conn = cf.createConnection();
 
          Session producerSess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -442,7 +408,7 @@ public class JMSXDeliveryCountTest extends JMSTestBase
 
          producer.send(tm);
 
-         TextMessage rm = (TextMessage)consumer.receive(1000);
+         TextMessage rm = (TextMessage) consumer.receive(1000);
 
          Assert.assertNotNull(rm);
 
@@ -454,7 +420,7 @@ public class JMSXDeliveryCountTest extends JMSTestBase
 
          consumerSess.recover();
 
-         rm = (TextMessage)consumer.receive(1000);
+         rm = (TextMessage) consumer.receive(1000);
 
          Assert.assertNotNull(rm);
 
@@ -466,7 +432,7 @@ public class JMSXDeliveryCountTest extends JMSTestBase
 
          consumerSess.recover();
 
-         rm = (TextMessage)consumer.receive(1000);
+         rm = (TextMessage) consumer.receive(1000);
 
          Assert.assertNotNull(rm);
 
@@ -484,7 +450,7 @@ public class JMSXDeliveryCountTest extends JMSTestBase
 
          consumer = consumerSess.createConsumer(queue1);
 
-         rm = (TextMessage)consumer.receive(1000);
+         rm = (TextMessage) consumer.receive(1000);
 
          Assert.assertNotNull(rm);
 
@@ -496,18 +462,15 @@ public class JMSXDeliveryCountTest extends JMSTestBase
 
          rm.acknowledge();
       }
-      finally
-      {
-         if (conn != null)
-         {
+      finally {
+         if (conn != null) {
             conn.close();
          }
       }
    }
 
    @Test
-   public void testDeliveryCountUpdatedOnCloseXA() throws Exception
-   {
+   public void testDeliveryCountUpdatedOnCloseXA() throws Exception {
       XAConnection xaConn = null;
 
       Connection conn = null;
@@ -517,8 +480,7 @@ public class JMSXDeliveryCountTest extends JMSTestBase
 
       Transaction tx = null;
 
-      try
-      {
+      try {
          toResume = mgr.suspend();
 
          conn = cf.createConnection();
@@ -548,7 +510,7 @@ public class JMSXDeliveryCountTest extends JMSTestBase
 
          tx.enlistResource(consumerSess.getXAResource());
 
-         TextMessage rm = (TextMessage)consumer.receive(1000);
+         TextMessage rm = (TextMessage) consumer.receive(1000);
 
          Assert.assertNotNull(rm);
 
@@ -572,7 +534,7 @@ public class JMSXDeliveryCountTest extends JMSTestBase
 
          tx.enlistResource(consumerSess.getXAResource());
 
-         rm = (TextMessage)consumer.receive(1000);
+         rm = (TextMessage) consumer.receive(1000);
 
          Assert.assertNotNull(rm);
 
@@ -596,7 +558,7 @@ public class JMSXDeliveryCountTest extends JMSTestBase
 
          tx.enlistResource(consumerSess.getXAResource());
 
-         rm = (TextMessage)consumer.receive(1000);
+         rm = (TextMessage) consumer.receive(1000);
 
          Assert.assertNotNull(rm);
 
@@ -630,7 +592,7 @@ public class JMSXDeliveryCountTest extends JMSTestBase
 
          tx.enlistResource(consumerSess.getXAResource());
 
-         rm = (TextMessage)consumer.receive(1000);
+         rm = (TextMessage) consumer.receive(1000);
 
          Assert.assertNotNull(rm);
 
@@ -644,43 +606,34 @@ public class JMSXDeliveryCountTest extends JMSTestBase
 
          tx.delistResource(consumerSess.getXAResource(), XAResource.TMSUCCESS);
       }
-      finally
-      {
-         if (conn != null)
-         {
+      finally {
+         if (conn != null) {
             conn.close();
          }
 
-         if (tx != null)
-         {
-            try
-            {
+         if (tx != null) {
+            try {
                mgr.commit();
             }
-            catch (Exception ignore)
-            {
+            catch (Exception ignore) {
             }
          }
-         if (xaConn != null)
-         {
+         if (xaConn != null) {
             xaConn.close();
          }
 
-         if (toResume != null)
-         {
-            try
-            {
+         if (toResume != null) {
+            try {
                mgr.resume(toResume);
             }
-            catch (Exception ignore)
-            {
+            catch (Exception ignore) {
             }
          }
       }
    }
 
-   class Receiver implements Runnable
-   {
+   class Receiver implements Runnable {
+
       MessageConsumer cons;
 
       int numMessages;
@@ -697,8 +650,7 @@ public class JMSXDeliveryCountTest extends JMSTestBase
                final Session sess,
                final MessageConsumer cons,
                final int numMessages,
-               final int numRecoveries)
-      {
+               final int numRecoveries) {
          this.sess = sess;
          this.cons = cons;
          this.numMessages = numMessages;
@@ -706,44 +658,35 @@ public class JMSXDeliveryCountTest extends JMSTestBase
          this.name = name;
       }
 
-      public void run()
-      {
-         try
-         {
+      public void run() {
+         try {
             Message lastMessage = null;
-            for (int j = 0; j < numRecoveries; j++)
-            {
+            for (int j = 0; j < numRecoveries; j++) {
 
-               for (int i = 0; i < numMessages; i++)
-               {
-                  TextMessage tm = (TextMessage)cons.receive();
+               for (int i = 0; i < numMessages; i++) {
+                  TextMessage tm = (TextMessage) cons.receive();
                   lastMessage = tm;
 
-                  if (tm == null)
-                  {
+                  if (tm == null) {
                      failed = true;
                   }
 
-                  if (!tm.getText().equals("testing" + i))
-                  {
+                  if (!tm.getText().equals("testing" + i)) {
                      failed = true;
                   }
 
-                  if (tm.getIntProperty("JMSXDeliveryCount") != j + 1)
-                  {
+                  if (tm.getIntProperty("JMSXDeliveryCount") != j + 1) {
                      failed = true;
                   }
                }
-               if (j != numRecoveries - 1)
-               {
+               if (j != numRecoveries - 1) {
                   sess.recover();
                }
 
             }
             lastMessage.acknowledge();
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             failed = true;
          }
       }
@@ -757,55 +700,44 @@ public class JMSXDeliveryCountTest extends JMSTestBase
 
    // Inner classes --------------------------------------------------------------------------------
 
-   static class DummyXAResource implements XAResource
-   {
-      DummyXAResource()
-      {
+   static class DummyXAResource implements XAResource {
+
+      DummyXAResource() {
       }
 
-      public void commit(final Xid arg0, final boolean arg1) throws XAException
-      {
+      public void commit(final Xid arg0, final boolean arg1) throws XAException {
       }
 
-      public void end(final Xid arg0, final int arg1) throws XAException
-      {
+      public void end(final Xid arg0, final int arg1) throws XAException {
       }
 
-      public void forget(final Xid arg0) throws XAException
-      {
+      public void forget(final Xid arg0) throws XAException {
       }
 
-      public int getTransactionTimeout() throws XAException
-      {
+      public int getTransactionTimeout() throws XAException {
          return 0;
       }
 
-      public boolean isSameRM(final XAResource arg0) throws XAException
-      {
+      public boolean isSameRM(final XAResource arg0) throws XAException {
          return false;
       }
 
-      public int prepare(final Xid arg0) throws XAException
-      {
+      public int prepare(final Xid arg0) throws XAException {
          return XAResource.XA_OK;
       }
 
-      public Xid[] recover(final int arg0) throws XAException
-      {
+      public Xid[] recover(final int arg0) throws XAException {
          return null;
       }
 
-      public void rollback(final Xid arg0) throws XAException
-      {
+      public void rollback(final Xid arg0) throws XAException {
       }
 
-      public boolean setTransactionTimeout(final int arg0) throws XAException
-      {
+      public boolean setTransactionTimeout(final int arg0) throws XAException {
          return false;
       }
 
-      public void start(final Xid arg0, final int arg1) throws XAException
-      {
+      public void start(final Xid arg0, final int arg1) throws XAException {
 
       }
 

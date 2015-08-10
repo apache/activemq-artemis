@@ -56,8 +56,8 @@ import org.junit.Test;
 /**
  * A test of the XML export/import functionality
  */
-public class XmlImportExportTest extends ActiveMQTestBase
-{
+public class XmlImportExportTest extends ActiveMQTestBase {
+
    public static final int CONSUMER_TIMEOUT = 5000;
    private static final String QUEUE_NAME = "A1";
    private ServerLocator locator;
@@ -67,8 +67,7 @@ public class XmlImportExportTest extends ActiveMQTestBase
    private InVMContext namingContext;
 
    @Test
-   public void testMessageProperties() throws Exception
-   {
+   public void testMessageProperties() throws Exception {
       ClientSession session = basicSetUp();
 
       session.createQueue(QUEUE_NAME, QUEUE_NAME, true);
@@ -76,15 +75,13 @@ public class XmlImportExportTest extends ActiveMQTestBase
       ClientProducer producer = session.createProducer(QUEUE_NAME);
 
       StringBuilder international = new StringBuilder();
-      for (char x = 800; x < 1200; x++)
-      {
+      for (char x = 800; x < 1200; x++) {
          international.append(x);
       }
 
       String special = "\"<>'&";
 
-      for (int i = 0; i < 5; i++)
-      {
+      for (int i = 0; i < 5; i++) {
          ClientMessage msg = session.createMessage(true);
          msg.getBodyBuffer().writeString("Bob the giant pig " + i);
          msg.putBooleanProperty("myBooleanProperty", Boolean.TRUE);
@@ -127,8 +124,7 @@ public class XmlImportExportTest extends ActiveMQTestBase
       ClientConsumer consumer = session.createConsumer(QUEUE_NAME);
       session.start();
 
-      for (int i = 0; i < 5; i++)
-      {
+      for (int i = 0; i < 5; i++) {
          ClientMessage msg = consumer.receive(CONSUMER_TIMEOUT);
          byte[] body = new byte[msg.getBodySize()];
          msg.getBodyBuffer().readBytes(body);
@@ -136,8 +132,7 @@ public class XmlImportExportTest extends ActiveMQTestBase
          assertEquals(msg.getBooleanProperty("myBooleanProperty"), Boolean.TRUE);
          assertEquals(msg.getByteProperty("myByteProperty"), new Byte("0"));
          byte[] bytes = msg.getBytesProperty("myBytesProperty");
-         for (int j = 0; j < 5; j++)
-         {
+         for (int j = 0; j < 5; j++) {
             assertEquals(j, bytes[j]);
          }
          assertEquals(i * 1.6, msg.getDoubleProperty("myDoubleProperty"), 0.000001);
@@ -160,8 +155,7 @@ public class XmlImportExportTest extends ActiveMQTestBase
     * @return ClientSession
     * @throws Exception
     */
-   private ClientSession basicSetUp() throws Exception
-   {
+   private ClientSession basicSetUp() throws Exception {
       server = createServer(true);
       server.getConfiguration().getConnectorConfigurations().put("in-vm1", new TransportConfiguration(INVM_CONNECTOR_FACTORY));
       server.getConfiguration().getConnectorConfigurations().put("in-vm2", new TransportConfiguration(INVM_CONNECTOR_FACTORY));
@@ -176,15 +170,13 @@ public class XmlImportExportTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testMessageTypes() throws Exception
-   {
+   public void testMessageTypes() throws Exception {
 
       ClientSession session = basicSetUp();
 
       session.createQueue(QUEUE_NAME, QUEUE_NAME, true);
 
       ClientProducer producer = session.createProducer(QUEUE_NAME);
-
 
       ClientMessage msg = session.createMessage(Message.BYTES_TYPE, true);
       producer.send(msg);
@@ -239,8 +231,7 @@ public class XmlImportExportTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testMessageAttributes() throws Exception
-   {
+   public void testMessageAttributes() throws Exception {
 
       ClientSession session = basicSetUp();
 
@@ -284,8 +275,7 @@ public class XmlImportExportTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testBindingAttributes() throws Exception
-   {
+   public void testBindingAttributes() throws Exception {
       ClientSession session = basicSetUp();
 
       session.createQueue("addressName1", "queueName1", true);
@@ -323,8 +313,7 @@ public class XmlImportExportTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testJmsConnectionFactoryBinding() throws Exception
-   {
+   public void testJmsConnectionFactoryBinding() throws Exception {
       final String clientId = "myClientId";
       final long clientFailureCheckPeriod = 1;
       final long connectionTTl = 2;
@@ -364,42 +353,7 @@ public class XmlImportExportTest extends ActiveMQTestBase
 
       ClientSession session = basicSetUp();
 
-      jmsServer.createConnectionFactory(name,
-            ha,
-            type,
-            connectors,
-            clientId,
-            clientFailureCheckPeriod,
-            connectionTTl,
-            callTimeout,
-            callFailoverTimeout,
-            cacheLargeMessagesClient,
-            minLargeMessageSize,
-            compressLargeMessages,
-            consumerWindowSize,
-            consumerMaxRate,
-            confirmationWindowSize,
-            producerWindowSize,
-            producerMaxrate,
-            blockOnAcknowledge,
-            blockOnDurableSend,
-            blockOnNonDurableSend,
-            autoGroup,
-            preacknowledge,
-            loadBalancingPolicyClassName,
-            transactionBatchSize,
-            dupsOKBatchSize,
-            useGlobalPools,
-            scheduledThreadPoolMaxSize,
-            threadPoolMaxSize,
-            retryInterval,
-            retryIntervalMultiplier,
-            maxRetryInterval,
-            reconnectAttempts,
-            failoverOnInitialConnection,
-            groupId,
-            jndi_binding1,
-            jndi_binding2);
+      jmsServer.createConnectionFactory(name, ha, type, connectors, clientId, clientFailureCheckPeriod, connectionTTl, callTimeout, callFailoverTimeout, cacheLargeMessagesClient, minLargeMessageSize, compressLargeMessages, consumerWindowSize, consumerMaxRate, confirmationWindowSize, producerWindowSize, producerMaxrate, blockOnAcknowledge, blockOnDurableSend, blockOnNonDurableSend, autoGroup, preacknowledge, loadBalancingPolicyClassName, transactionBatchSize, dupsOKBatchSize, useGlobalPools, scheduledThreadPoolMaxSize, threadPoolMaxSize, retryInterval, retryIntervalMultiplier, maxRetryInterval, reconnectAttempts, failoverOnInitialConnection, groupId, jndi_binding1, jndi_binding2);
 
       jmsServer.createConnectionFactory("mySecondConnectionFactoryName", false, JMSFactoryType.CF, Arrays.asList("in-vm1", "in-vm2"), "mySecondConnectionFactoryName1", "mySecondConnectionFactoryName2");
 
@@ -431,10 +385,10 @@ public class XmlImportExportTest extends ActiveMQTestBase
       assertEquals(clientFailureCheckPeriod, hcf1.getClientFailureCheckPeriod());
       assertEquals(connectionTTl, hcf1.getConnectionTTL());
       assertEquals(callTimeout, hcf1.getCallTimeout());
-//      Assert.assertEquals(callFailoverTimeout, hcf1.getCallFailoverTimeout());  // this value isn't currently persisted by org.apache.activemq.artemis.jms.server.config.impl.ConnectionFactoryConfigurationImpl.encode()
-//      Assert.assertEquals(cacheLargeMessagesClient, hcf1.isCacheLargeMessagesClient()); // this value isn't currently supported by org.apache.activemq.artemis.api.jms.management.JMSServerControl.createConnectionFactory(java.lang.String, boolean, boolean, int, java.lang.String, java.lang.String, java.lang.String, long, long, long, long, int, boolean, int, int, int, int, int, boolean, boolean, boolean, boolean, boolean, java.lang.String, int, int, boolean, int, int, long, double, long, int, boolean, java.lang.String)
+      //      Assert.assertEquals(callFailoverTimeout, hcf1.getCallFailoverTimeout());  // this value isn't currently persisted by org.apache.activemq.artemis.jms.server.config.impl.ConnectionFactoryConfigurationImpl.encode()
+      //      Assert.assertEquals(cacheLargeMessagesClient, hcf1.isCacheLargeMessagesClient()); // this value isn't currently supported by org.apache.activemq.artemis.api.jms.management.JMSServerControl.createConnectionFactory(java.lang.String, boolean, boolean, int, java.lang.String, java.lang.String, java.lang.String, long, long, long, long, int, boolean, int, int, int, int, int, boolean, boolean, boolean, boolean, boolean, java.lang.String, int, int, boolean, int, int, long, double, long, int, boolean, java.lang.String)
       assertEquals(minLargeMessageSize, hcf1.getMinLargeMessageSize());
-//      Assert.assertEquals(compressLargeMessages, hcf1.isCompressLargeMessage());  // this value isn't currently handled properly by org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl.createConnectionFactory(java.lang.String, boolean, org.apache.activemq.artemis.api.jms.JMSFactoryType, java.util.List<java.lang.String>, java.lang.String, long, long, long, long, boolean, int, boolean, int, int, int, int, int, boolean, boolean, boolean, boolean, boolean, java.lang.String, int, int, boolean, int, int, long, double, long, int, boolean, java.lang.String, java.lang.String...)()
+      //      Assert.assertEquals(compressLargeMessages, hcf1.isCompressLargeMessage());  // this value isn't currently handled properly by org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl.createConnectionFactory(java.lang.String, boolean, org.apache.activemq.artemis.api.jms.JMSFactoryType, java.util.List<java.lang.String>, java.lang.String, long, long, long, long, boolean, int, boolean, int, int, int, int, int, boolean, boolean, boolean, boolean, boolean, java.lang.String, int, int, boolean, int, int, long, double, long, int, boolean, java.lang.String, java.lang.String...)()
       assertEquals(consumerWindowSize, hcf1.getConsumerWindowSize());
       assertEquals(consumerMaxRate, hcf1.getConsumerMaxRate());
       assertEquals(confirmationWindowSize, hcf1.getConfirmationWindowSize());
@@ -464,8 +418,7 @@ public class XmlImportExportTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testJmsDestination() throws Exception
-   {
+   public void testJmsDestination() throws Exception {
       ClientSession session = basicSetUp();
 
       jmsServer.createQueue(true, "myQueue", null, true, "myQueueJndiBinding1", "myQueueJndiBinding2");
@@ -489,7 +442,6 @@ public class XmlImportExportTest extends ActiveMQTestBase
       ByteArrayInputStream xmlInputStream = new ByteArrayInputStream(xmlOutputStream.toByteArray());
       XmlDataImporter xmlDataImporter = new XmlDataImporter();
       xmlDataImporter.process(xmlInputStream, session);
-
 
       assertNotNull(namingContext.lookup("myQueueJndiBinding1"));
       assertNotNull(namingContext.lookup("myQueueJndiBinding2"));
@@ -516,8 +468,7 @@ public class XmlImportExportTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testLargeMessage() throws Exception
-   {
+   public void testLargeMessage() throws Exception {
       server = createServer(true);
       server.start();
       locator = createInVMNonHALocator();
@@ -529,8 +480,7 @@ public class XmlImportExportTest extends ActiveMQTestBase
       fileMessage.setMessageID(1005);
       fileMessage.setDurable(true);
 
-      for (int i = 0; i < 2 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE; i++)
-      {
+      for (int i = 0; i < 2 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE; i++) {
          fileMessage.addBytes(new byte[]{getSamplebyte(i)});
       }
 
@@ -578,8 +528,7 @@ public class XmlImportExportTest extends ActiveMQTestBase
 
       assertEquals(2 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, msg.getBodySize());
 
-      for (int i = 0; i < 2 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE; i++)
-      {
+      for (int i = 0; i < 2 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE; i++) {
          assertEquals(getSamplebyte(i), msg.getBodyBuffer().readByte());
       }
 
@@ -588,8 +537,7 @@ public class XmlImportExportTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testPartialQueue() throws Exception
-   {
+   public void testPartialQueue() throws Exception {
       ClientSession session = basicSetUp();
 
       session.createQueue("myAddress", "myQueue1", true);
@@ -637,26 +585,21 @@ public class XmlImportExportTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testPagedMessageWithMissingBinding() throws Exception
-   {
+   public void testPagedMessageWithMissingBinding() throws Exception {
       final String MY_ADDRESS = "myAddress";
       final String MY_QUEUE = "myQueue";
       final String MY_QUEUE2 = "myQueue2";
 
       ActiveMQServer server = createServer(true);
 
-      AddressSettings defaultSetting = new AddressSettings()
-              .setPageSizeBytes(10 * 1024)
-              .setMaxSizeBytes(20 * 1024);
+      AddressSettings defaultSetting = new AddressSettings().setPageSizeBytes(10 * 1024).setMaxSizeBytes(20 * 1024);
       server.getAddressSettingsRepository().addMatch("#", defaultSetting);
       server.start();
 
       ServerLocator locator = createInVMNonHALocator()
-              // Making it synchronous, just because we want to stop sending messages as soon as the page-store becomes in
-              // page mode and we could only guarantee that by setting it to synchronous
-              .setBlockOnNonDurableSend(true)
-              .setBlockOnDurableSend(true)
-              .setBlockOnAcknowledge(true);
+         // Making it synchronous, just because we want to stop sending messages as soon as the page-store becomes in
+         // page mode and we could only guarantee that by setting it to synchronous
+         .setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setBlockOnAcknowledge(true);
 
       ClientSessionFactory factory = locator.createSessionFactory();
       ClientSession session = factory.createSession(false, true, true);
@@ -669,8 +612,7 @@ public class XmlImportExportTest extends ActiveMQTestBase
       ClientMessage message = session.createMessage(true);
       message.getBodyBuffer().writeBytes(new byte[1024]);
 
-      for (int i = 0; i < 200; i++)
-      {
+      for (int i = 0; i < 200; i++) {
          producer.send(message);
       }
 
@@ -699,8 +641,7 @@ public class XmlImportExportTest extends ActiveMQTestBase
 
       session.start();
 
-      for (int i = 0; i < 200; i++)
-      {
+      for (int i = 0; i < 200; i++) {
          message = consumer.receive(CONSUMER_TIMEOUT);
 
          assertNotNull(message);
@@ -712,25 +653,20 @@ public class XmlImportExportTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testPaging() throws Exception
-   {
+   public void testPaging() throws Exception {
       final String MY_ADDRESS = "myAddress";
       final String MY_QUEUE = "myQueue";
 
       server = createServer(true);
 
-      AddressSettings defaultSetting = new AddressSettings()
-              .setPageSizeBytes(10 * 1024)
-              .setMaxSizeBytes(20 * 1024);
+      AddressSettings defaultSetting = new AddressSettings().setPageSizeBytes(10 * 1024).setMaxSizeBytes(20 * 1024);
       server.getAddressSettingsRepository().addMatch("#", defaultSetting);
       server.start();
 
       locator = createInVMNonHALocator()
-              // Making it synchronous, just because we want to stop sending messages as soon as the page-store becomes in
-              // page mode and we could only guarantee that by setting it to synchronous
-              .setBlockOnNonDurableSend(true)
-              .setBlockOnDurableSend(true)
-              .setBlockOnAcknowledge(true);
+         // Making it synchronous, just because we want to stop sending messages as soon as the page-store becomes in
+         // page mode and we could only guarantee that by setting it to synchronous
+         .setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setBlockOnAcknowledge(true);
 
       factory = createSessionFactory(locator);
       ClientSession session = factory.createSession(false, true, true);
@@ -742,8 +678,7 @@ public class XmlImportExportTest extends ActiveMQTestBase
       ClientMessage message = session.createMessage(true);
       message.getBodyBuffer().writeBytes(new byte[1024]);
 
-      for (int i = 0; i < 200; i++)
-      {
+      for (int i = 0; i < 200; i++) {
          producer.send(message);
       }
 
@@ -770,8 +705,7 @@ public class XmlImportExportTest extends ActiveMQTestBase
 
       session.start();
 
-      for (int i = 0; i < 200; i++)
-      {
+      for (int i = 0; i < 200; i++) {
          message = consumer.receive(CONSUMER_TIMEOUT);
 
          assertNotNull(message);
@@ -779,25 +713,20 @@ public class XmlImportExportTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testPagedLargeMessage() throws Exception
-   {
+   public void testPagedLargeMessage() throws Exception {
       final String MY_ADDRESS = "myAddress";
       final String MY_QUEUE = "myQueue";
 
       ActiveMQServer server = createServer(true);
 
-      AddressSettings defaultSetting = new AddressSettings()
-              .setPageSizeBytes(10 * 1024)
-              .setMaxSizeBytes(20 * 1024);
+      AddressSettings defaultSetting = new AddressSettings().setPageSizeBytes(10 * 1024).setMaxSizeBytes(20 * 1024);
       server.getAddressSettingsRepository().addMatch("#", defaultSetting);
       server.start();
 
       ServerLocator locator = createInVMNonHALocator()
-              // Making it synchronous, just because we want to stop sending messages as soon as the page-store becomes in
-              // page mode and we could only guarantee that by setting it to synchronous
-              .setBlockOnNonDurableSend(true)
-              .setBlockOnDurableSend(true)
-              .setBlockOnAcknowledge(true);
+         // Making it synchronous, just because we want to stop sending messages as soon as the page-store becomes in
+         // page mode and we could only guarantee that by setting it to synchronous
+         .setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setBlockOnAcknowledge(true);
 
       ClientSessionFactory factory = locator.createSessionFactory();
       ClientSession session = factory.createSession(false, true, true);
@@ -809,8 +738,7 @@ public class XmlImportExportTest extends ActiveMQTestBase
       ClientMessage message = session.createMessage(true);
       message.getBodyBuffer().writeBytes(new byte[1024]);
 
-      for (int i = 0; i < 200; i++)
-      {
+      for (int i = 0; i < 200; i++) {
          producer.send(message);
       }
 
@@ -819,8 +747,7 @@ public class XmlImportExportTest extends ActiveMQTestBase
       fileMessage.setMessageID(1005);
       fileMessage.setDurable(true);
 
-      for (int i = 0; i < 2 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE; i++)
-      {
+      for (int i = 0; i < 2 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE; i++) {
          fileMessage.addBytes(new byte[]{getSamplebyte(i)});
       }
 
@@ -855,8 +782,7 @@ public class XmlImportExportTest extends ActiveMQTestBase
 
       session.start();
 
-      for (int i = 0; i < 200; i++)
-      {
+      for (int i = 0; i < 200; i++) {
          message = consumer.receive(CONSUMER_TIMEOUT);
 
          assertNotNull(message);
@@ -868,8 +794,7 @@ public class XmlImportExportTest extends ActiveMQTestBase
 
       assertEquals(2 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, msg.getBodySize());
 
-      for (int i = 0; i < 2 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE; i++)
-      {
+      for (int i = 0; i < 2 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE; i++) {
          assertEquals(getSamplebyte(i), msg.getBodyBuffer().readByte());
       }
 
@@ -879,14 +804,12 @@ public class XmlImportExportTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testTransactional() throws Exception
-   {
+   public void testTransactional() throws Exception {
       ClientSession session = basicSetUp();
 
       session.createQueue(QUEUE_NAME, QUEUE_NAME, true);
 
       ClientProducer producer = session.createProducer(QUEUE_NAME);
-
 
       ClientMessage msg = session.createMessage(true);
       producer.send(msg);
@@ -918,8 +841,7 @@ public class XmlImportExportTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testBody() throws Exception
-   {
+   public void testBody() throws Exception {
       final String QUEUE_NAME = "A1";
       ActiveMQServer server = createServer(true);
       server.start();
@@ -967,8 +889,7 @@ public class XmlImportExportTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testBody2() throws Exception
-   {
+   public void testBody2() throws Exception {
       final String QUEUE_NAME = "A1";
       ActiveMQServer server = createServer(true);
       server.start();
@@ -982,9 +903,8 @@ public class XmlImportExportTest extends ActiveMQTestBase
 
       ClientMessage msg = session.createMessage(true);
       byte[] bodyTst = new byte[10];
-      for (int i = 0; i < 10; i++)
-      {
-         bodyTst[i] = (byte)(i + 1);
+      for (int i = 0; i < 10; i++) {
+         bodyTst[i] = (byte) (i + 1);
       }
       msg.getBodyBuffer().writeBytes(bodyTst);
       assertEquals(bodyTst.length, msg.getBodySize());

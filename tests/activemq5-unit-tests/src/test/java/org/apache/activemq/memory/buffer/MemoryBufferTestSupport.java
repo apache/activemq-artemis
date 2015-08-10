@@ -26,42 +26,43 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * 
+ *
  */
 public abstract class MemoryBufferTestSupport extends TestCase {
-    private static final Logger LOG = LoggerFactory.getLogger(MemoryBufferTestSupport.class);
 
-    protected MessageBuffer buffer = createMessageBuffer();
-    protected MessageQueue qA = buffer.createMessageQueue();
-    protected MessageQueue qB = buffer.createMessageQueue();
-    protected MessageQueue qC = buffer.createMessageQueue();
-    protected int messageCount;
+   private static final Logger LOG = LoggerFactory.getLogger(MemoryBufferTestSupport.class);
 
-    protected abstract MessageBuffer createMessageBuffer();
+   protected MessageBuffer buffer = createMessageBuffer();
+   protected MessageQueue qA = buffer.createMessageQueue();
+   protected MessageQueue qB = buffer.createMessageQueue();
+   protected MessageQueue qC = buffer.createMessageQueue();
+   protected int messageCount;
 
-    protected void setUp() throws Exception {
-        buffer = createMessageBuffer();
-        qA = buffer.createMessageQueue();
-        qB = buffer.createMessageQueue();
-        qC = buffer.createMessageQueue();
-    }
+   protected abstract MessageBuffer createMessageBuffer();
 
-    protected void dump() {
-        LOG.info("Dumping current state");
-        dumpQueue(qA, "A");
-        dumpQueue(qB, "B");
-        dumpQueue(qC, "C");
-    }
+   protected void setUp() throws Exception {
+      buffer = createMessageBuffer();
+      qA = buffer.createMessageQueue();
+      qB = buffer.createMessageQueue();
+      qC = buffer.createMessageQueue();
+   }
 
-    protected void dumpQueue(MessageQueue queue, String name) {
-        LOG.info("  " + name + " = " + queue.getList());
-    }
+   protected void dump() {
+      LOG.info("Dumping current state");
+      dumpQueue(qA, "A");
+      dumpQueue(qB, "B");
+      dumpQueue(qC, "C");
+   }
 
-    protected ActiveMQMessage createMessage(int size) throws Exception {
-        DummyMessage answer = new DummyMessage(size);
-        answer.setIntProperty("counter", ++messageCount);
-        answer.setJMSMessageID("" + messageCount);
-        return answer;
-    }
+   protected void dumpQueue(MessageQueue queue, String name) {
+      LOG.info("  " + name + " = " + queue.getList());
+   }
+
+   protected ActiveMQMessage createMessage(int size) throws Exception {
+      DummyMessage answer = new DummyMessage(size);
+      answer.setIntProperty("counter", ++messageCount);
+      answer.setJMSMessageID("" + messageCount);
+      return answer;
+   }
 
 }

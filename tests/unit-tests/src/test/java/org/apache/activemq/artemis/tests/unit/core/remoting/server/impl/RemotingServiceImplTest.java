@@ -34,8 +34,8 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;
 
-public class RemotingServiceImplTest
-{
+public class RemotingServiceImplTest {
+
    private ServiceRegistry serviceRegistry;
 
    private RemotingServiceImpl remotingService;
@@ -43,8 +43,7 @@ public class RemotingServiceImplTest
    private Configuration configuration;
 
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       serviceRegistry = new ServiceRegistryImpl();
       configuration = new ConfigurationImpl();
       configuration.setAcceptorConfigurations(new HashSet<TransportConfiguration>());
@@ -55,10 +54,8 @@ public class RemotingServiceImplTest
     * Tests that the service registry gets propaged into remotingService.
     */
    @Test
-   public void testPropagatingInterceptors() throws Exception
-   {
-      for (int i = 0; i < 5; i++)
-      {
+   public void testPropagatingInterceptors() throws Exception {
+      for (int i = 0; i < 5; i++) {
          serviceRegistry.addIncomingInterceptor(new FakeInterceptor());
       }
 
@@ -74,8 +71,7 @@ public class RemotingServiceImplTest
     * defined in the configuration.
     */
    @Test
-   public void testSetInterceptorsAddsBothInterceptorsFromConfigAndServiceRegistry() throws Exception
-   {
+   public void testSetInterceptorsAddsBothInterceptorsFromConfigAndServiceRegistry() throws Exception {
       Method method = RemotingServiceImpl.class.getDeclaredMethod("setInterceptors", Configuration.class);
       Field incomingInterceptors = RemotingServiceImpl.class.getDeclaredField("incomingInterceptors");
       Field outgoingInterceptors = RemotingServiceImpl.class.getDeclaredField("outgoingInterceptors");
@@ -94,8 +90,8 @@ public class RemotingServiceImplTest
 
       method.invoke(remotingService, configuration);
 
-      assertTrue(((List) incomingInterceptors.get(remotingService)).size() == 2 );
-      assertTrue(((List) outgoingInterceptors.get(remotingService)).size() == 2 );
+      assertTrue(((List) incomingInterceptors.get(remotingService)).size() == 2);
+      assertTrue(((List) outgoingInterceptors.get(remotingService)).size() == 2);
       assertTrue(((List) incomingInterceptors.get(remotingService)).contains(serviceRegistry.getIncomingInterceptors(null).get(0)));
       assertTrue(((List) outgoingInterceptors.get(remotingService)).contains(serviceRegistry.getOutgoingInterceptors(null).get(0)));
    }
@@ -105,8 +101,7 @@ public class RemotingServiceImplTest
     * are added to the RemotingServiceImpl on creation
     */
    @Test
-   public void testInterceptorsAreAddedOnCreationOfServiceRegistry() throws Exception
-   {
+   public void testInterceptorsAreAddedOnCreationOfServiceRegistry() throws Exception {
       Field incomingInterceptors = RemotingServiceImpl.class.getDeclaredField("incomingInterceptors");
       Field outgoingInterceptors = RemotingServiceImpl.class.getDeclaredField("outgoingInterceptors");
 
@@ -123,8 +118,8 @@ public class RemotingServiceImplTest
 
       remotingService = new RemotingServiceImpl(null, configuration, null, null, null, null, null, serviceRegistry);
 
-      assertTrue(((List) incomingInterceptors.get(remotingService)).size() == 2 );
-      assertTrue(((List) outgoingInterceptors.get(remotingService)).size() == 2 );
+      assertTrue(((List) incomingInterceptors.get(remotingService)).size() == 2);
+      assertTrue(((List) outgoingInterceptors.get(remotingService)).size() == 2);
       assertTrue(((List) incomingInterceptors.get(remotingService)).contains(serviceRegistry.getIncomingInterceptors(null).get(0)));
       assertTrue(((List) outgoingInterceptors.get(remotingService)).contains(serviceRegistry.getOutgoingInterceptors(null).get(0)));
    }

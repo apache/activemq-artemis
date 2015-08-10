@@ -37,8 +37,8 @@ import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 import org.apache.activemq.artemis.utils.ReusableLatch;
 
 @Command(name = "run", description = "runs the broker instance")
-public class Run extends Configurable
-{
+public class Run extends Configurable {
+
    @Option(name = "--allow-kill", description = "This will allow the server to kill itself. Useful for tests (failover tests for instance)")
    boolean allowKill;
 
@@ -49,10 +49,10 @@ public class Run extends Configurable
    /**
     * This will disable the System.exit at the end of the server.stop, as that means there are other things
     * happening on the same VM.
+    *
     * @param embedded
     */
-   public static void setEmbedded(boolean embedded)
-   {
+   public static void setEmbedded(boolean embedded) {
       Run.embedded = true;
    }
 
@@ -61,8 +61,7 @@ public class Run extends Configurable
    private ArrayList<ActiveMQComponent> components = new ArrayList<>();
 
    @Override
-   public Object execute(ActionContext context) throws Exception
-   {
+   public Object execute(ActionContext context) throws Exception {
       super.execute(context);
 
       Artemis.printBanner();
@@ -79,15 +78,13 @@ public class Run extends Configurable
 
       server.start();
 
-      if (broker.web != null)
-      {
+      if (broker.web != null) {
          broker.components.add(broker.web);
       }
 
-      for (ComponentDTO componentDTO : broker.components)
-      {
+      for (ComponentDTO componentDTO : broker.components) {
          Class clazz = this.getClass().getClassLoader().loadClass(componentDTO.componentClassName);
-         ExternalComponent component = (ExternalComponent)clazz.newInstance();
+         ExternalComponent component = (ExternalComponent) clazz.newInstance();
          component.configure(componentDTO, getBrokerInstance(), getBrokerHome());
          component.start();
          components.add(component);
@@ -96,9 +93,7 @@ public class Run extends Configurable
       return null;
    }
 
-
-   private void createDirectories(FileConfiguration fileConfiguration)
-   {
+   private void createDirectories(FileConfiguration fileConfiguration) {
       fileConfiguration.getPagingLocation().mkdirs();
       fileConfiguration.getJournalLocation().mkdirs();
       fileConfiguration.getBindingsLocation().mkdirs();
@@ -107,68 +102,53 @@ public class Run extends Configurable
 
    /**
     * Add a simple shutdown hook to stop the server.
+    *
     * @param configurationDir
     */
-   private void addShutdownHook(File configurationDir)
-   {
+   private void addShutdownHook(File configurationDir) {
 
       latchRunning.countUp();
-      final File file = new File(configurationDir,"STOP_ME");
-      if (file.exists())
-      {
-         if (!file.delete())
-         {
+      final File file = new File(configurationDir, "STOP_ME");
+      if (file.exists()) {
+         if (!file.delete()) {
             ActiveMQBootstrapLogger.LOGGER.errorDeletingFile(file.getAbsolutePath());
          }
       }
-      final File fileKill = new File(configurationDir,"KILL_ME");
-      if (fileKill.exists())
-      {
-         if (!fileKill.delete())
-         {
+      final File fileKill = new File(configurationDir, "KILL_ME");
+      if (fileKill.exists()) {
+         if (!fileKill.delete()) {
             ActiveMQBootstrapLogger.LOGGER.errorDeletingFile(fileKill.getAbsolutePath());
          }
       }
 
       final Timer timer = new Timer("ActiveMQ Artemis Server Shutdown Timer", true);
-      timer.scheduleAtFixedRate(new TimerTask()
-      {
+      timer.scheduleAtFixedRate(new TimerTask() {
          @Override
-         public void run()
-         {
-            if (allowKill && fileKill.exists())
-            {
-               try
-               {
+         public void run() {
+            if (allowKill && fileKill.exists()) {
+               try {
                   System.err.println("Halting by user request");
                   fileKill.delete();
                }
-               catch (Throwable ignored)
-               {
+               catch (Throwable ignored) {
                }
                Runtime.getRuntime().halt(0);
             }
-            if (file.exists())
-            {
-               try
-               {
-                  try
-                  {
+            if (file.exists()) {
+               try {
+                  try {
                      server.stop();
                   }
-                  catch (Exception e)
-                  {
+                  catch (Exception e) {
                      e.printStackTrace();
                   }
                   timer.cancel();
                }
-               finally
-               {
+               finally {
                   System.out.println("Server stopped!");
                   System.out.flush();
                   latchRunning.countDown();
-                  if (!embedded)
-                  {
+                  if (!embedded) {
                      Runtime.getRuntime().exit(0);
                   }
                }
@@ -176,17 +156,12 @@ public class Run extends Configurable
          }
       }, 500, 500);
 
-
-      Runtime.getRuntime().addShutdownHook(new Thread()
-      {
-         public void run()
-         {
-            try
-            {
+      Runtime.getRuntime().addShutdownHook(new Thread() {
+         public void run() {
+            try {
                server.stop();
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                e.printStackTrace();
             }
          }

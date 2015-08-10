@@ -22,26 +22,23 @@ import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 
-public class HAClientTopologyWithDiscoveryTest extends TopologyClusterTestBase
-{
+public class HAClientTopologyWithDiscoveryTest extends TopologyClusterTestBase {
+
    protected final String groupAddress = getUDPDiscoveryAddress();
 
    protected final int groupPort = getUDPDiscoveryPort();
 
    @Override
-   protected boolean isNetty()
-   {
+   protected boolean isNetty() {
       return false;
    }
 
    @Override
-   protected void setupCluster() throws Exception
-   {
+   protected void setupCluster() throws Exception {
       setupCluster(MessageLoadBalancingType.ON_DEMAND);
    }
 
-   protected void setupCluster(final MessageLoadBalancingType messageLoadBalancingType) throws Exception
-   {
+   protected void setupCluster(final MessageLoadBalancingType messageLoadBalancingType) throws Exception {
       setupDiscoveryClusterConnection("cluster0", 0, "dg1", "queues", messageLoadBalancingType, 1, isNetty());
       setupDiscoveryClusterConnection("cluster1", 1, "dg1", "queues", messageLoadBalancingType, 1, isNetty());
       setupDiscoveryClusterConnection("cluster2", 2, "dg1", "queues", messageLoadBalancingType, 1, isNetty());
@@ -50,8 +47,7 @@ public class HAClientTopologyWithDiscoveryTest extends TopologyClusterTestBase
    }
 
    @Override
-   protected void setupServers() throws Exception
-   {
+   protected void setupServers() throws Exception {
       setupLiveServerWithDiscovery(0, groupAddress, groupPort, isFileStorage(), isNetty(), false);
       setupLiveServerWithDiscovery(1, groupAddress, groupPort, isFileStorage(), isNetty(), false);
       setupLiveServerWithDiscovery(2, groupAddress, groupPort, isFileStorage(), isNetty(), false);
@@ -60,14 +56,9 @@ public class HAClientTopologyWithDiscoveryTest extends TopologyClusterTestBase
    }
 
    @Override
-   protected ServerLocator createHAServerLocator()
-   {
-      ServerLocator locator = ActiveMQClient.createServerLocatorWithHA(new DiscoveryGroupConfiguration()
-                                                                          .setBroadcastEndpointFactory(new UDPBroadcastEndpointFactory()
-                                                                                                             .setGroupAddress(groupAddress)
-                                                                                                             .setGroupPort(groupPort)));
-      locator.setBlockOnNonDurableSend(true)
-              .setBlockOnDurableSend(true);
+   protected ServerLocator createHAServerLocator() {
+      ServerLocator locator = ActiveMQClient.createServerLocatorWithHA(new DiscoveryGroupConfiguration().setBroadcastEndpointFactory(new UDPBroadcastEndpointFactory().setGroupAddress(groupAddress).setGroupPort(groupPort)));
+      locator.setBlockOnNonDurableSend(true).setBlockOnDurableSend(true);
       addServerLocator(locator);
       return locator;
    }

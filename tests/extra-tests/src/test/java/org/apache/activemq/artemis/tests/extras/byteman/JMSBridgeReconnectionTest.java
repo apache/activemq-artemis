@@ -31,78 +31,45 @@ import org.jboss.byteman.contrib.bmunit.BMRules;
 import org.jboss.byteman.contrib.bmunit.BMUnitRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 @RunWith(BMUnitRunner.class)
-public class JMSBridgeReconnectionTest extends BridgeTestBase
-{
+public class JMSBridgeReconnectionTest extends BridgeTestBase {
 
    @Test
-   @BMRules
-         (
-               rules =
-                     {
-                           @BMRule
-                                 (
-                                       name = "trace clientsessionimpl send",
-                                       targetClass = "org.apache.activemq.artemis.core.protocol.core.impl.ChannelImpl",
-                                       targetMethod = "send",
-                                       targetLocation = "ENTRY",
-                                       action = "org.apache.activemq.artemis.tests.extras.byteman.JMSBridgeReconnectionTest.pause($1);"
-                                 ),
-                           @BMRule
-                                 (
-                                       name = "trace sendRegularMessage",
-                                       targetClass = "org.apache.activemq.artemis.core.client.impl.ClientProducerImpl",
-                                       targetMethod = "sendRegularMessage",
-                                       targetLocation = "ENTRY",
-                                       action = "org.apache.activemq.artemis.tests.extras.byteman.JMSBridgeReconnectionTest.pause2($1,$2,$3);"
-                                 )
-                     }
-         )
-   public void performCrashDestinationStopBridge() throws Exception
-   {
+   @BMRules(
+      rules = {@BMRule(
+         name = "trace clientsessionimpl send",
+         targetClass = "org.apache.activemq.artemis.core.protocol.core.impl.ChannelImpl",
+         targetMethod = "send",
+         targetLocation = "ENTRY",
+         action = "org.apache.activemq.artemis.tests.extras.byteman.JMSBridgeReconnectionTest.pause($1);"), @BMRule(
+         name = "trace sendRegularMessage",
+         targetClass = "org.apache.activemq.artemis.core.client.impl.ClientProducerImpl",
+         targetMethod = "sendRegularMessage",
+         targetLocation = "ENTRY",
+         action = "org.apache.activemq.artemis.tests.extras.byteman.JMSBridgeReconnectionTest.pause2($1,$2,$3);")})
+   public void performCrashDestinationStopBridge() throws Exception {
       activeMQServer = jmsServer1;
       ConnectionFactoryFactory factInUse0 = cff0;
       ConnectionFactoryFactory factInUse1 = cff1;
-      final JMSBridgeImpl bridge =
-            new JMSBridgeImpl(factInUse0,
-                  factInUse1,
-                  sourceQueueFactory,
-                  targetQueueFactory,
-                  null,
-                  null,
-                  null,
-                  null,
-                  null,
-                  1000,
-                  -1,
-                  QualityOfServiceMode.DUPLICATES_OK,
-                  10,
-                  -1,
-                  null,
-                  null,
-                  false);
+      final JMSBridgeImpl bridge = new JMSBridgeImpl(factInUse0, factInUse1, sourceQueueFactory, targetQueueFactory, null, null, null, null, null, 1000, -1, QualityOfServiceMode.DUPLICATES_OK, 10, -1, null, null, false);
 
       addActiveMQComponent(bridge);
       bridge.setTransactionManager(newTransactionManager());
       bridge.start();
       final CountDownLatch latch = new CountDownLatch(20);
-      Thread clientThread = new Thread(new Runnable()
-      {
+      Thread clientThread = new Thread(new Runnable() {
          @Override
-         public void run()
-         {
-            while (bridge.isStarted())
-            {
-               try
-               {
+         public void run() {
+            while (bridge.isStarted()) {
+               try {
                   sendMessages(cf0, sourceQueue, 0, 1, false, false);
                   latch.countDown();
                }
-               catch (Exception e)
-               {
+               catch (Exception e) {
                   e.printStackTrace();
                }
             }
@@ -120,28 +87,21 @@ public class JMSBridgeReconnectionTest extends BridgeTestBase
       assertTrue(!clientThread.isAlive());
    }
 
-   public static void pause(Packet packet)
-   {
-      if (packet.getType() == PacketImpl.SESS_SEND)
-      {
+   public static void pause(Packet packet) {
+      if (packet.getType() == PacketImpl.SESS_SEND) {
          SessionSendMessage sendMessage = (SessionSendMessage) packet;
-         if (sendMessage.getMessage().containsProperty("__AMQ_CID") && count < 0 && !stopped)
-         {
-            try
-            {
+         if (sendMessage.getMessage().containsProperty("__AMQ_CID") && count < 0 && !stopped) {
+            try {
                activeMQServer.stop();
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                e.printStackTrace();
             }
             stopped = true;
-            try
-            {
+            try {
                Thread.sleep(5000);
             }
-            catch (InterruptedException e)
-            {
+            catch (InterruptedException e) {
                e.printStackTrace();
             }
             stopLatch.countDown();
@@ -153,10 +113,9 @@ public class JMSBridgeReconnectionTest extends BridgeTestBase
    static boolean stopped = false;
    static int count = 20;
    static CountDownLatch stopLatch = new CountDownLatch(1);
-   public static void pause2(MessageInternal msgI, boolean sendBlocking, final ClientProducerCredits theCredits)
-   {
-      if (msgI.containsProperty("__AMQ_CID"))
-      {
+
+   public static void pause2(MessageInternal msgI, boolean sendBlocking, final ClientProducerCredits theCredits) {
+      if (msgI.containsProperty("__AMQ_CID")) {
          count--;
       }
    }

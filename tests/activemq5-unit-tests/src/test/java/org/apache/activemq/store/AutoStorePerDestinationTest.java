@@ -17,26 +17,27 @@
 package org.apache.activemq.store;
 
 import java.util.ArrayList;
+
 import org.apache.activemq.store.kahadb.FilteredKahaDBPersistenceAdapter;
 import org.apache.activemq.store.kahadb.MultiKahaDBPersistenceAdapter;
 
 public class AutoStorePerDestinationTest extends StorePerDestinationTest {
 
-    // use perDestinationFlag to get multiple stores from one match all adapter
-    public void prepareBrokerWithMultiStore(boolean deleteAllMessages) throws Exception {
+   // use perDestinationFlag to get multiple stores from one match all adapter
+   public void prepareBrokerWithMultiStore(boolean deleteAllMessages) throws Exception {
 
-        MultiKahaDBPersistenceAdapter multiKahaDBPersistenceAdapter = new MultiKahaDBPersistenceAdapter();
-        if (deleteAllMessages) {
-            multiKahaDBPersistenceAdapter.deleteAllMessages();
-        }
-        ArrayList<FilteredKahaDBPersistenceAdapter> adapters = new ArrayList<FilteredKahaDBPersistenceAdapter>();
+      MultiKahaDBPersistenceAdapter multiKahaDBPersistenceAdapter = new MultiKahaDBPersistenceAdapter();
+      if (deleteAllMessages) {
+         multiKahaDBPersistenceAdapter.deleteAllMessages();
+      }
+      ArrayList<FilteredKahaDBPersistenceAdapter> adapters = new ArrayList<FilteredKahaDBPersistenceAdapter>();
 
-        FilteredKahaDBPersistenceAdapter template = new FilteredKahaDBPersistenceAdapter();
-        template.setPersistenceAdapter(createStore(deleteAllMessages));
-        template.setPerDestination(true);
-        adapters.add(template);
+      FilteredKahaDBPersistenceAdapter template = new FilteredKahaDBPersistenceAdapter();
+      template.setPersistenceAdapter(createStore(deleteAllMessages));
+      template.setPerDestination(true);
+      adapters.add(template);
 
-        multiKahaDBPersistenceAdapter.setFilteredPersistenceAdapters(adapters);
-        brokerService  = createBroker(multiKahaDBPersistenceAdapter);
-    }
+      multiKahaDBPersistenceAdapter.setFilteredPersistenceAdapters(adapters);
+      brokerService = createBroker(multiKahaDBPersistenceAdapter);
+   }
 }

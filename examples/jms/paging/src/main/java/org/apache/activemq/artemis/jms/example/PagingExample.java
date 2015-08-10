@@ -29,27 +29,25 @@ import javax.naming.InitialContext;
 /**
  * A simple JMS Queue example that creates a producer and consumer on a queue and sends then receives a message.
  */
-public class PagingExample
-{
-   public static void main(final String[] args) throws Exception
-   {
+public class PagingExample {
+
+   public static void main(final String[] args) throws Exception {
       Connection connection = null;
 
       InitialContext initialContext = null;
-      try
-      {
+      try {
          // Step 1. Create an initial context to perform the JNDI lookup.
          initialContext = new InitialContext();
 
          // Step 2. Perform a lookup on the Connection Factory
-         ConnectionFactory cf = (ConnectionFactory)initialContext.lookup("ConnectionFactory");
+         ConnectionFactory cf = (ConnectionFactory) initialContext.lookup("ConnectionFactory");
 
          // Step 3. We look-up the JMS queue object from JNDI. pagingQueue is configured to hold a very limited number
          // of bytes in memory
-         Queue pageQueue = (Queue)initialContext.lookup("queue/pagingQueue");
+         Queue pageQueue = (Queue) initialContext.lookup("queue/pagingQueue");
 
          // Step 4. Lookup for a JMS Queue
-         Queue queue = (Queue)initialContext.lookup("queue/exampleQueue");
+         Queue queue = (Queue) initialContext.lookup("queue/exampleQueue");
 
          // Step 5. Create a JMS Connection
          connection = cf.createConnection();
@@ -69,8 +67,7 @@ public class PagingExample
 
          // Step 10. Send only 20 messages to the Queue. This will be already enough for pagingQueue. Look at
          // ./paging/config/activemq-queues.xml for the config.
-         for (int i = 0; i < 20; i++)
-         {
+         for (int i = 0; i < 20; i++) {
             pageMessageProducer.send(message);
          }
 
@@ -81,8 +78,7 @@ public class PagingExample
          messageProducer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
 
          // Step 13. Send the message for about 1K, which should be over the memory limit imposed by the server
-         for (int i = 0; i < 1000; i++)
-         {
+         for (int i = 0; i < 1000; i++) {
             messageProducer.send(message);
          }
 
@@ -100,12 +96,10 @@ public class PagingExample
          // paging
          // until messages are ACKed
 
-         for (int i = 0; i < 1000; i++)
-         {
-            message = (BytesMessage)messageConsumer.receive(3000);
+         for (int i = 0; i < 1000; i++) {
+            message = (BytesMessage) messageConsumer.receive(3000);
 
-            if (i % 100 == 0)
-            {
+            if (i % 100 == 0) {
                System.out.println("Received " + i + " messages");
                message.acknowledge();
             }
@@ -117,27 +111,23 @@ public class PagingExample
          messageConsumer.close();
          messageConsumer = session.createConsumer(pageQueue);
 
-         for (int i = 0; i < 20; i++)
-         {
-            message = (BytesMessage)messageConsumer.receive(1000);
+         for (int i = 0; i < 20; i++) {
+            message = (BytesMessage) messageConsumer.receive(1000);
 
             System.out.println("Received message " + i + " from pageQueue");
 
             message.acknowledge();
          }
       }
-      finally
-      {
+      finally {
          // And finally, always remember to close your JMS connections after use, in a finally block. Closing a JMS
          // connection will automatically close all of its sessions, consumers, producer and browser objects
 
-         if (initialContext != null)
-         {
+         if (initialContext != null) {
             initialContext.close();
          }
 
-         if (connection != null)
-         {
+         if (connection != null) {
             connection.close();
          }
       }

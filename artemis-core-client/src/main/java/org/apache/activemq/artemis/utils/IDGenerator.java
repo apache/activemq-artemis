@@ -26,8 +26,8 @@ package org.apache.activemq.artemis.utils;
  * a record indicates a server crash. During server restart, if the journals lack a
  * {@literal next-recordID} record, we use the last recorded ID plus {@code MAX_INT}.
  */
-public interface IDGenerator
-{
+public interface IDGenerator {
+
    long generateID();
 
    long getCurrentID();

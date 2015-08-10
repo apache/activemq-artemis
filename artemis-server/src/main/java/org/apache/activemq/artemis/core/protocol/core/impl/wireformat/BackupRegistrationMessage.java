@@ -27,18 +27,20 @@ import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
  * If it succeeds the backup will start synchronization of its state with the new backup node, and
  * replicating any new data. If it fails the backup server will receive a message indicating
  * failure, and should shutdown.
+ *
  * @see BackupReplicationStartFailedMessage
  */
-public final class BackupRegistrationMessage extends PacketImpl
-{
+public final class BackupRegistrationMessage extends PacketImpl {
 
    private TransportConfiguration connector;
    private String clusterUser;
    private String clusterPassword;
    private boolean backupWantsFailBack;
 
-   public BackupRegistrationMessage(TransportConfiguration tc, String user, String password, boolean backupWantsFailBack)
-   {
+   public BackupRegistrationMessage(TransportConfiguration tc,
+                                    String user,
+                                    String password,
+                                    boolean backupWantsFailBack) {
       this();
       connector = tc;
       clusterUser = user;
@@ -46,19 +48,16 @@ public final class BackupRegistrationMessage extends PacketImpl
       this.backupWantsFailBack = backupWantsFailBack;
    }
 
-   public BackupRegistrationMessage()
-   {
+   public BackupRegistrationMessage() {
       super(BACKUP_REGISTRATION);
    }
 
-   public TransportConfiguration getConnector()
-   {
+   public TransportConfiguration getConnector() {
       return connector;
    }
 
    @Override
-   public void encodeRest(final ActiveMQBuffer buffer)
-   {
+   public void encodeRest(final ActiveMQBuffer buffer) {
       buffer.writeString(clusterUser);
       buffer.writeString(clusterPassword);
       buffer.writeBoolean(backupWantsFailBack);
@@ -66,8 +65,7 @@ public final class BackupRegistrationMessage extends PacketImpl
    }
 
    @Override
-   public void decodeRest(final ActiveMQBuffer buffer)
-   {
+   public void decodeRest(final ActiveMQBuffer buffer) {
       clusterUser = buffer.readString();
       clusterPassword = buffer.readString();
       backupWantsFailBack = buffer.readBoolean();
@@ -75,24 +73,20 @@ public final class BackupRegistrationMessage extends PacketImpl
       connector.decode(buffer);
    }
 
-   public String getClusterUser()
-   {
+   public String getClusterUser() {
       return clusterUser;
    }
 
-   public String getClusterPassword()
-   {
+   public String getClusterPassword() {
       return clusterPassword;
    }
 
-   public boolean isFailBackRequest()
-   {
+   public boolean isFailBackRequest() {
       return backupWantsFailBack;
    }
 
    @Override
-   public int hashCode()
-   {
+   public int hashCode() {
       final int prime = 31;
       int result = super.hashCode();
       result = prime * result + (backupWantsFailBack ? 1231 : 1237);
@@ -103,33 +97,29 @@ public final class BackupRegistrationMessage extends PacketImpl
    }
 
    @Override
-   public boolean equals(Object obj)
-   {
+   public boolean equals(Object obj) {
       if (this == obj)
          return true;
       if (!super.equals(obj))
          return false;
       if (!(obj instanceof BackupRegistrationMessage))
          return false;
-      BackupRegistrationMessage other = (BackupRegistrationMessage)obj;
+      BackupRegistrationMessage other = (BackupRegistrationMessage) obj;
       if (backupWantsFailBack != other.backupWantsFailBack)
          return false;
-      if (clusterPassword == null)
-      {
+      if (clusterPassword == null) {
          if (other.clusterPassword != null)
             return false;
       }
       else if (!clusterPassword.equals(other.clusterPassword))
          return false;
-      if (clusterUser == null)
-      {
+      if (clusterUser == null) {
          if (other.clusterUser != null)
             return false;
       }
       else if (!clusterUser.equals(other.clusterUser))
          return false;
-      if (connector == null)
-      {
+      if (connector == null) {
          if (other.connector != null)
             return false;
       }

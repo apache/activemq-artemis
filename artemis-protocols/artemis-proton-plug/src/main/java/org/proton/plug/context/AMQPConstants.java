@@ -19,14 +19,14 @@ package org.proton.plug.context;
 /**
  * Constants derived from the AMQP spec
  */
-public class AMQPConstants
-{
+public class AMQPConstants {
+
    /*
    * Connection Properties
    * http://docs.oasis-open.org/amqp/core/v1.0/amqp-core-complete-v1.0.pdf#subsection.2.7.1
    * */
-   public static class Connection
-   {
+   public static class Connection {
+
       public static final int DEFAULT_IDLE_TIMEOUT = -1;
 
       public static final int DEFAULT_MAX_FRAME_SIZE = -1;//it should be according to the spec 4294967295l;

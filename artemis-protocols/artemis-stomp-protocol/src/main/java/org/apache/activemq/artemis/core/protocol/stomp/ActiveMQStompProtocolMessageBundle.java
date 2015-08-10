@@ -33,8 +33,8 @@ import org.jboss.logging.Messages;
  */
 
 @MessageBundle(projectCode = "AMQ")
-public interface ActiveMQStompProtocolMessageBundle
-{
+public interface ActiveMQStompProtocolMessageBundle {
+
    ActiveMQStompProtocolMessageBundle BUNDLE = Messages.getBundle(ActiveMQStompProtocolMessageBundle.class);
 
    @Message(id = 339000, value = "Stomp Connection TTL cannot be negative: {0}", format = Message.Format.MESSAGE_FORMAT)

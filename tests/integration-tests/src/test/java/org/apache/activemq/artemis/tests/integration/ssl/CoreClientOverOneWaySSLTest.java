@@ -50,19 +50,14 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 @RunWith(value = Parameterized.class)
-public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase
-{
+public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
+
    @Parameterized.Parameters(name = "storeType={0}")
-   public static Collection getParameters()
-   {
-      return Arrays.asList(new Object[][]{
-         {"JCEKS"},
-         {"JKS"}
-      });
+   public static Collection getParameters() {
+      return Arrays.asList(new Object[][]{{"JCEKS"}, {"JKS"}});
    }
 
-   public CoreClientOverOneWaySSLTest(String storeType)
-   {
+   public CoreClientOverOneWaySSLTest(String storeType) {
       this.storeType = storeType;
       SERVER_SIDE_KEYSTORE = "server-side-keystore." + storeType.toLowerCase();
       CLIENT_SIDE_TRUSTSTORE = "client-side-truststore." + storeType.toLowerCase();
@@ -70,7 +65,8 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase
 
    public static final SimpleString QUEUE = new SimpleString("QueueOverSSL");
 
-   /** These artifacts are required for testing 1-way SSL
+   /**
+    * These artifacts are required for testing 1-way SSL
     *
     * Commands to create the JKS artifacts:
     * keytool -genkey -keystore server-side-keystore.jks -storepass secureexample -keypass secureexample -dname "CN=ActiveMQ Artemis, OU=ActiveMQ Artemis, O=ActiveMQ Artemis, L=ActiveMQ Artemis, S=ActiveMQ Artemis, C=AMQ"
@@ -92,8 +88,7 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase
    private TransportConfiguration tc;
 
    @Test
-   public void testOneWaySSL() throws Exception
-   {
+   public void testOneWaySSL() throws Exception {
       createCustomSslServer();
       String text = RandomUtil.randomString();
 
@@ -120,8 +115,7 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testOneWaySSLWithBadClientCipherSuite() throws Exception
-   {
+   public void testOneWaySSLWithBadClientCipherSuite() throws Exception {
       createCustomSslServer();
       tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
       tc.getParams().put(TransportConstants.TRUSTSTORE_PROVIDER_PROP_NAME, storeType);
@@ -130,20 +124,17 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase
       tc.getParams().put(TransportConstants.ENABLED_CIPHER_SUITES_PROP_NAME, "myBadCipherSuite");
 
       ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc));
-      try
-      {
+      try {
          createSessionFactory(locator);
          Assert.fail();
       }
-      catch (ActiveMQNotConnectedException e)
-      {
+      catch (ActiveMQNotConnectedException e) {
          Assert.assertTrue(true);
       }
    }
 
    @Test
-   public void testOneWaySSLWithBadServerCipherSuite() throws Exception
-   {
+   public void testOneWaySSLWithBadServerCipherSuite() throws Exception {
       createCustomSslServer("myBadCipherSuite", null);
       tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
       tc.getParams().put(TransportConstants.TRUSTSTORE_PROVIDER_PROP_NAME, storeType);
@@ -151,20 +142,17 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase
       tc.getParams().put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, PASSWORD);
 
       ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc));
-      try
-      {
+      try {
          createSessionFactory(locator);
          Assert.fail();
       }
-      catch (ActiveMQNotConnectedException e)
-      {
+      catch (ActiveMQNotConnectedException e) {
          Assert.assertTrue(true);
       }
    }
 
    @Test
-   public void testOneWaySSLWithMismatchedCipherSuites() throws Exception
-   {
+   public void testOneWaySSLWithMismatchedCipherSuites() throws Exception {
       createCustomSslServer(getEnabledCipherSuites()[0], "TLSv1.2");
       tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
       tc.getParams().put(TransportConstants.TRUSTSTORE_PROVIDER_PROP_NAME, storeType);
@@ -174,20 +162,17 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase
       tc.getParams().put(TransportConstants.ENABLED_PROTOCOLS_PROP_NAME, "TLSv1.2");
 
       ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc));
-      try
-      {
+      try {
          createSessionFactory(locator);
          Assert.fail();
       }
-      catch (ActiveMQNotConnectedException e)
-      {
+      catch (ActiveMQNotConnectedException e) {
          Assert.assertTrue(true);
       }
    }
 
    @Test
-   public void testOneWaySSLWithBadClientProtocol() throws Exception
-   {
+   public void testOneWaySSLWithBadClientProtocol() throws Exception {
       createCustomSslServer();
       tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
       tc.getParams().put(TransportConstants.TRUSTSTORE_PROVIDER_PROP_NAME, storeType);
@@ -196,20 +181,17 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase
       tc.getParams().put(TransportConstants.ENABLED_PROTOCOLS_PROP_NAME, "myBadProtocol");
 
       ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc));
-      try
-      {
+      try {
          createSessionFactory(locator);
          Assert.fail();
       }
-      catch (ActiveMQNotConnectedException e)
-      {
+      catch (ActiveMQNotConnectedException e) {
          Assert.assertTrue(true);
       }
    }
 
    @Test
-   public void testOneWaySSLWithBadServerProtocol() throws Exception
-   {
+   public void testOneWaySSLWithBadServerProtocol() throws Exception {
       createCustomSslServer(null, "myBadProtocol");
       tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
       tc.getParams().put(TransportConstants.TRUSTSTORE_PROVIDER_PROP_NAME, storeType);
@@ -217,20 +199,17 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase
       tc.getParams().put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, PASSWORD);
 
       ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc));
-      try
-      {
+      try {
          createSessionFactory(locator);
          Assert.fail();
       }
-      catch (ActiveMQNotConnectedException e)
-      {
+      catch (ActiveMQNotConnectedException e) {
          Assert.assertTrue(true);
       }
    }
 
    @Test
-   public void testOneWaySSLWithMismatchedProtocols() throws Exception
-   {
+   public void testOneWaySSLWithMismatchedProtocols() throws Exception {
       createCustomSslServer(null, "TLSv1");
       tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
       tc.getParams().put(TransportConstants.TRUSTSTORE_PROVIDER_PROP_NAME, storeType);
@@ -239,21 +218,18 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase
       tc.getParams().put(TransportConstants.ENABLED_PROTOCOLS_PROP_NAME, "TLSv1.2");
 
       ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc));
-      try
-      {
+      try {
          createSessionFactory(locator);
          Assert.fail();
       }
-      catch (ActiveMQNotConnectedException e)
-      {
+      catch (ActiveMQNotConnectedException e) {
          Assert.assertTrue(true);
       }
    }
 
    @Test
    // http://www.oracle.com/technetwork/topics/security/poodlecve-2014-3566-2339408.html
-   public void testPOODLE() throws Exception
-   {
+   public void testPOODLE() throws Exception {
       createCustomSslServer(null, "SSLv3");
       tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
       tc.getParams().put(TransportConstants.TRUSTSTORE_PROVIDER_PROP_NAME, storeType);
@@ -262,20 +238,17 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase
       tc.getParams().put(TransportConstants.ENABLED_PROTOCOLS_PROP_NAME, "SSLv3");
 
       ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc));
-      try
-      {
+      try {
          createSessionFactory(locator);
          Assert.fail();
       }
-      catch (ActiveMQNotConnectedException e)
-      {
+      catch (ActiveMQNotConnectedException e) {
          Assert.assertTrue(true);
       }
    }
 
    @Test
-   public void testOneWaySSLWithGoodClientCipherSuite() throws Exception
-   {
+   public void testOneWaySSLWithGoodClientCipherSuite() throws Exception {
       createCustomSslServer();
       String text = RandomUtil.randomString();
 
@@ -288,12 +261,10 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase
 
       ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc));
       ClientSessionFactory sf = null;
-      try
-      {
+      try {
          sf = createSessionFactory(locator);
       }
-      catch (ActiveMQNotConnectedException e)
-      {
+      catch (ActiveMQNotConnectedException e) {
          Assert.fail();
       }
 
@@ -313,8 +284,7 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testOneWaySSLWithGoodServerCipherSuite() throws Exception
-   {
+   public void testOneWaySSLWithGoodServerCipherSuite() throws Exception {
       createCustomSslServer(getSuitableCipherSuite(), null);
       String text = RandomUtil.randomString();
 
@@ -326,12 +296,10 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase
 
       ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc));
       ClientSessionFactory sf = null;
-      try
-      {
+      try {
          sf = createSessionFactory(locator);
       }
-      catch (ActiveMQNotConnectedException e)
-      {
+      catch (ActiveMQNotConnectedException e) {
          Assert.fail();
       }
 
@@ -351,8 +319,7 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testOneWaySSLWithGoodClientProtocol() throws Exception
-   {
+   public void testOneWaySSLWithGoodClientProtocol() throws Exception {
       createCustomSslServer();
       String text = RandomUtil.randomString();
 
@@ -364,13 +331,11 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase
 
       ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc));
       ClientSessionFactory sf = null;
-      try
-      {
+      try {
          sf = createSessionFactory(locator);
          Assert.assertTrue(true);
       }
-      catch (ActiveMQNotConnectedException e)
-      {
+      catch (ActiveMQNotConnectedException e) {
          Assert.fail();
       }
 
@@ -390,8 +355,7 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testOneWaySSLWithGoodServerProtocol() throws Exception
-   {
+   public void testOneWaySSLWithGoodServerProtocol() throws Exception {
       createCustomSslServer(null, "TLSv1");
       String text = RandomUtil.randomString();
 
@@ -402,13 +366,11 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase
 
       ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc));
       ClientSessionFactory sf = null;
-      try
-      {
+      try {
          sf = createSessionFactory(locator);
          Assert.assertTrue(true);
       }
-      catch (ActiveMQNotConnectedException e)
-      {
+      catch (ActiveMQNotConnectedException e) {
          Assert.fail();
       }
 
@@ -427,8 +389,7 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase
       Assert.assertEquals(text, m.getBodyBuffer().readString());
    }
 
-   public String getSuitableCipherSuite() throws Exception
-   {
+   public String getSuitableCipherSuite() throws Exception {
       String result = "";
 
       String[] suites = getEnabledCipherSuites();
@@ -446,11 +407,9 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase
        * TLS_DHE_DSS_WITH_AES_128_CBC_SHA
        * SSL_DHE_DSS_WITH_3DES_EDE_CBC_SHA
        */
-      for (int i = 0; i < suites.length; i++)
-      {
+      for (int i = 0; i < suites.length; i++) {
          String suite = suites[i];
-         if ((storeType.equals("JCEKS") && suite.contains("DHE_DSS_WITH")) || (!storeType.equals("JCEKS") && !suite.contains("ECDSA") && suite.contains("RSA")))
-         {
+         if ((storeType.equals("JCEKS") && suite.contains("DHE_DSS_WITH")) || (!storeType.equals("JCEKS") && !suite.contains("ECDSA") && suite.contains("RSA"))) {
             result = suite;
             break;
          }
@@ -460,38 +419,32 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase
       return result;
    }
 
-   public String[] getEnabledCipherSuites() throws Exception
-   {
+   public String[] getEnabledCipherSuites() throws Exception {
       SSLContext context = SSLSupport.createContext(storeType, SERVER_SIDE_KEYSTORE, PASSWORD, storeType, CLIENT_SIDE_TRUSTSTORE, PASSWORD);
       SSLEngine engine = context.createSSLEngine();
       return engine.getEnabledCipherSuites();
    }
 
    @Test
-   public void testOneWaySSLWithoutTrustStore() throws Exception
-   {
+   public void testOneWaySSLWithoutTrustStore() throws Exception {
       createCustomSslServer();
       tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
 
       ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc));
-      try
-      {
+      try {
          createSessionFactory(locator);
          Assert.fail();
       }
-      catch (ActiveMQNotConnectedException se)
-      {
+      catch (ActiveMQNotConnectedException se) {
          //ok
       }
-      catch (ActiveMQException e)
-      {
+      catch (ActiveMQException e) {
          fail("Invalid Exception type:" + e.getType());
       }
    }
 
    @Test
-   public void testOneWaySSLWithIncorrectTrustStorePassword() throws Exception
-   {
+   public void testOneWaySSLWithIncorrectTrustStorePassword() throws Exception {
       createCustomSslServer();
       tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
       tc.getParams().put(TransportConstants.TRUSTSTORE_PROVIDER_PROP_NAME, storeType);
@@ -499,69 +452,56 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase
       tc.getParams().put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, "invalid password");
 
       ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc));
-      try
-      {
+      try {
          ClientSessionFactory sf = createSessionFactory(locator);
          Assert.fail();
       }
-      catch (ActiveMQNotConnectedException se)
-      {
+      catch (ActiveMQNotConnectedException se) {
          //ok
       }
-      catch (ActiveMQException e)
-      {
+      catch (ActiveMQException e) {
          fail("Invalid Exception type:" + e.getType());
       }
    }
 
    @Test
-   public void testOneWaySSLWithIncorrectTrustStorePath() throws Exception
-   {
+   public void testOneWaySSLWithIncorrectTrustStorePath() throws Exception {
       createCustomSslServer();
       tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
       tc.getParams().put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, "incorrect path");
       tc.getParams().put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, PASSWORD);
 
       ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc));
-      try
-      {
+      try {
          ClientSessionFactory sf = createSessionFactory(locator);
          Assert.fail();
       }
-      catch (ActiveMQNotConnectedException se)
-      {
+      catch (ActiveMQNotConnectedException se) {
          //ok
       }
-      catch (ActiveMQException e)
-      {
+      catch (ActiveMQException e) {
          fail("Invalid Exception type:" + e.getType());
       }
    }
 
    // see https://jira.jboss.org/jira/browse/HORNETQ-234
    @Test
-   public void testPlainConnectionToSSLEndpoint() throws Exception
-   {
+   public void testPlainConnectionToSSLEndpoint() throws Exception {
       createCustomSslServer();
       tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, false);
 
-      ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc))
-              .setCallTimeout(2000);
-      try
-      {
+      ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc)).setCallTimeout(2000);
+      try {
          createSessionFactory(locator);
          fail("expecting exception");
       }
-      catch (ActiveMQNotConnectedException se)
-      {
+      catch (ActiveMQNotConnectedException se) {
          //ok
       }
-      catch (ActiveMQConnectionTimedOutException ctoe)
-      {
+      catch (ActiveMQConnectionTimedOutException ctoe) {
          //ok
       }
-      catch (ActiveMQException e)
-      {
+      catch (ActiveMQException e) {
          fail("Invalid Exception type:" + e.getType());
       }
    }
@@ -570,36 +510,30 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
    }
 
-   private void createCustomSslServer() throws Exception
-   {
+   private void createCustomSslServer() throws Exception {
       createCustomSslServer(null, null);
    }
 
-   private void createCustomSslServer(String cipherSuites, String protocols) throws Exception
-   {
+   private void createCustomSslServer(String cipherSuites, String protocols) throws Exception {
       Map<String, Object> params = new HashMap<String, Object>();
       params.put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
       params.put(TransportConstants.KEYSTORE_PROVIDER_PROP_NAME, storeType);
       params.put(TransportConstants.KEYSTORE_PATH_PROP_NAME, SERVER_SIDE_KEYSTORE);
       params.put(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, PASSWORD);
 
-      if (cipherSuites != null)
-      {
+      if (cipherSuites != null) {
          params.put(TransportConstants.ENABLED_CIPHER_SUITES_PROP_NAME, cipherSuites);
       }
 
-      if (protocols != null)
-      {
+      if (protocols != null) {
          params.put(TransportConstants.ENABLED_PROTOCOLS_PROP_NAME, protocols);
       }
 
-      ConfigurationImpl config = createBasicConfig()
-         .addAcceptorConfiguration(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params));
+      ConfigurationImpl config = createBasicConfig().addAcceptorConfiguration(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params));
       server = createServer(false, config);
       server.start();
       waitForServerToStart(server);

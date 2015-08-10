@@ -28,6 +28,7 @@ import javax.jms.Topic;
 import javax.jms.TopicConnection;
 import javax.jms.TopicRequestor;
 import javax.jms.TopicSession;
+
 import junit.framework.TestCase;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
@@ -38,69 +39,70 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 public class TopicBridgeSpringTest extends TestCase implements MessageListener {
 
-    protected static final int MESSAGE_COUNT = 10;
-    private static final Logger LOG = LoggerFactory.getLogger(TopicBridgeSpringTest.class);
+   protected static final int MESSAGE_COUNT = 10;
+   private static final Logger LOG = LoggerFactory.getLogger(TopicBridgeSpringTest.class);
 
-    protected AbstractApplicationContext context;
-    protected TopicConnection localConnection;
-    protected TopicConnection remoteConnection;
-    protected TopicRequestor requestor;
-    protected TopicSession requestServerSession;
-    protected MessageConsumer requestServerConsumer;
-    protected MessageProducer requestServerProducer;
+   protected AbstractApplicationContext context;
+   protected TopicConnection localConnection;
+   protected TopicConnection remoteConnection;
+   protected TopicRequestor requestor;
+   protected TopicSession requestServerSession;
+   protected MessageConsumer requestServerConsumer;
+   protected MessageProducer requestServerProducer;
 
-    protected void setUp() throws Exception {
+   protected void setUp() throws Exception {
 
-        super.setUp();
-        context = createApplicationContext();
-        ActiveMQConnectionFactory fac = (ActiveMQConnectionFactory)context.getBean("localFactory");
-        localConnection = fac.createTopicConnection();
-        localConnection.start();
-        requestServerSession = localConnection.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
-        Topic theTopic = requestServerSession.createTopic(getClass().getName());
-        requestServerConsumer = requestServerSession.createConsumer(theTopic);
-        requestServerConsumer.setMessageListener(this);
-        requestServerProducer = requestServerSession.createProducer(null);
+      super.setUp();
+      context = createApplicationContext();
+      ActiveMQConnectionFactory fac = (ActiveMQConnectionFactory) context.getBean("localFactory");
+      localConnection = fac.createTopicConnection();
+      localConnection.start();
+      requestServerSession = localConnection.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
+      Topic theTopic = requestServerSession.createTopic(getClass().getName());
+      requestServerConsumer = requestServerSession.createConsumer(theTopic);
+      requestServerConsumer.setMessageListener(this);
+      requestServerProducer = requestServerSession.createProducer(null);
 
-        fac = (ActiveMQConnectionFactory)context.getBean("remoteFactory");
-        remoteConnection = fac.createTopicConnection();
-        remoteConnection.start();
-        TopicSession session = remoteConnection.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
-        requestor = new TopicRequestor(session, theTopic);
-    }
+      fac = (ActiveMQConnectionFactory) context.getBean("remoteFactory");
+      remoteConnection = fac.createTopicConnection();
+      remoteConnection.start();
+      TopicSession session = remoteConnection.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
+      requestor = new TopicRequestor(session, theTopic);
+   }
 
-    protected AbstractApplicationContext createApplicationContext() {
-        return new ClassPathXmlApplicationContext("org/apache/activemq/network/jms/topic-spring.xml");
-    }
+   protected AbstractApplicationContext createApplicationContext() {
+      return new ClassPathXmlApplicationContext("org/apache/activemq/network/jms/topic-spring.xml");
+   }
 
-    protected void tearDown() throws Exception {
-        localConnection.close();
-        super.tearDown();
-    }
+   protected void tearDown() throws Exception {
+      localConnection.close();
+      super.tearDown();
+   }
 
-    public void testTopicRequestorOverBridge() throws JMSException {
-        for (int i = 0; i < MESSAGE_COUNT; i++) {
-            TextMessage msg = requestServerSession.createTextMessage("test msg: " + i);
-            LOG.info("Making request: " + msg);
-            TextMessage result = (TextMessage)requestor.request(msg);
-            assertNotNull(result);
-            LOG.info("Received result: " + result.getText());
-        }
-    }
+   public void testTopicRequestorOverBridge() throws JMSException {
+      for (int i = 0; i < MESSAGE_COUNT; i++) {
+         TextMessage msg = requestServerSession.createTextMessage("test msg: " + i);
+         LOG.info("Making request: " + msg);
+         TextMessage result = (TextMessage) requestor.request(msg);
+         assertNotNull(result);
+         LOG.info("Received result: " + result.getText());
+      }
+   }
 
-    public void onMessage(Message msg) {
-        try {
-            TextMessage textMsg = (TextMessage)msg;
-            String payload = "REPLY: " + textMsg.getText();
-            Destination replyTo;
-            replyTo = msg.getJMSReplyTo();
-            textMsg.clearBody();
-            textMsg.setText(payload);
-            LOG.info("Sending response: " + textMsg);
-            requestServerProducer.send(replyTo, textMsg);
-        } catch (JMSException e) {
-            e.printStackTrace();
-        }
-    }
+   public void onMessage(Message msg) {
+      try {
+         TextMessage textMsg = (TextMessage) msg;
+         String payload = "REPLY: " + textMsg.getText();
+         Destination replyTo;
+         replyTo = msg.getJMSReplyTo();
+         textMsg.clearBody();
+         textMsg.setText(payload);
+         LOG.info("Sending response: " + textMsg);
+         requestServerProducer.send(replyTo, textMsg);
+      }
+      catch (JMSException e) {
+         e.printStackTrace();
+      }
+   }
 
 }

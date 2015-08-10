@@ -27,8 +27,7 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class BlockingSendTest extends ActiveMQTestBase
-{
+public class BlockingSendTest extends ActiveMQTestBase {
 
    // Constants -----------------------------------------------------
 
@@ -41,8 +40,7 @@ public class BlockingSendTest extends ActiveMQTestBase
    // Public --------------------------------------------------------
 
    @Test
-   public void testSinglePersistentBlockingNonSync() throws Exception
-   {
+   public void testSinglePersistentBlockingNonSync() throws Exception {
       ActiveMQServer server = createServer(true);
       ClientSession session = null;
       ClientSessionFactory factory = null;
@@ -55,8 +53,7 @@ public class BlockingSendTest extends ActiveMQTestBase
       server.start();
 
       System.out.println("sync = " + server.getConfiguration().isJournalSyncNonTransactional());
-      locator = createInVMNonHALocator()
-              .setBlockOnDurableSend(true);
+      locator = createInVMNonHALocator().setBlockOnDurableSend(true);
       factory = createSessionFactory(locator);
 
       session = factory.createSession();

@@ -40,56 +40,55 @@ import org.jboss.logging.annotations.MessageLogger;
  * so an INFO message would be 341000 to 341999
  */
 @MessageLogger(projectCode = "AMQ")
-public interface ActiveMQJMSBridgeLogger extends BasicLogger
-{
+public interface ActiveMQJMSBridgeLogger extends BasicLogger {
+
    /**
     * The default logger.
     */
    ActiveMQJMSBridgeLogger LOGGER = Logger.getMessageLogger(ActiveMQJMSBridgeLogger.class, ActiveMQJMSBridgeLogger.class.getPackage().getName());
 
    @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 341000, value = "Failed to set up JMS bridge connections. Most probably the source or target servers are unavailable." +
-         " Will retry after a pause of {0} ms", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 341000, value = "Failed to set up JMS bridge connections. Most probably the source or target servers are unavailable." + " Will retry after a pause of {0} ms", format = Message.Format.MESSAGE_FORMAT)
    void failedToSetUpBridge(long failureRetryInterval);
 
    @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 341001, value = "JMS Bridge Succeeded in reconnecting to servers" , format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 341001, value = "JMS Bridge Succeeded in reconnecting to servers", format = Message.Format.MESSAGE_FORMAT)
    void bridgeReconnected();
 
    @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 341002, value = "Succeeded in connecting to servers" , format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 341002, value = "Succeeded in connecting to servers", format = Message.Format.MESSAGE_FORMAT)
    void bridgeConnected();
 
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 342000, value = "Attempt to start JMS Bridge, but is already started" , format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 342000, value = "Attempt to start JMS Bridge, but is already started", format = Message.Format.MESSAGE_FORMAT)
    void errorBridgeAlreadyStarted();
 
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 342001, value = "Failed to start JMS Bridge" , format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 342001, value = "Failed to start JMS Bridge", format = Message.Format.MESSAGE_FORMAT)
    void errorStartingBridge();
 
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 342002, value = "Failed to unregisted JMS Bridge {0}" , format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 342002, value = "Failed to unregisted JMS Bridge {0}", format = Message.Format.MESSAGE_FORMAT)
    void errorUnregisteringBridge(ObjectName objectName);
 
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 342003, value = "JMS Bridge unable to set up connections, bridge will be stopped" , format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 342003, value = "JMS Bridge unable to set up connections, bridge will be stopped", format = Message.Format.MESSAGE_FORMAT)
    void errorConnectingBridge();
 
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 342004, value = "JMS Bridge Will retry after a pause of {0} ms" , format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 342004, value = "JMS Bridge Will retry after a pause of {0} ms", format = Message.Format.MESSAGE_FORMAT)
    void bridgeRetry(long failureRetryInterval);
 
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 342005, value = "JMS Bridge unable to set up connections, bridge will not be started" , format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 342005, value = "JMS Bridge unable to set up connections, bridge will not be started", format = Message.Format.MESSAGE_FORMAT)
    void bridgeNotStarted();
 
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 342006, value = "Detected failure on bridge connection" , format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 342006, value = "Detected failure on bridge connection", format = Message.Format.MESSAGE_FORMAT)
    void bridgeFailure(@Cause Exception e);
 
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 342009, value = "JMS Bridge failed to send + acknowledge batch, closing JMS objects"  , format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 342009, value = "JMS Bridge failed to send + acknowledge batch, closing JMS objects", format = Message.Format.MESSAGE_FORMAT)
    void bridgeAckError(@Cause Exception e);
 
    @LogMessage(level = Logger.Level.WARN)
@@ -97,10 +96,10 @@ public interface ActiveMQJMSBridgeLogger extends BasicLogger
    void bridgeConnectError(@Cause Exception e);
 
    @LogMessage(level = Logger.Level.ERROR)
-   @Message(id = 344001, value = "Failed to start source connection" , format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 344001, value = "Failed to start source connection", format = Message.Format.MESSAGE_FORMAT)
    void jmsBridgeSrcConnectError(@Cause Exception e);
 
    @LogMessage(level = Logger.Level.ERROR)
-   @Message(id = 344002, value = "Failed to start JMS Bridge.  QoS Mode: {0} requires a Transaction Manager, none found" , format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 344002, value = "Failed to start JMS Bridge.  QoS Mode: {0} requires a Transaction Manager, none found", format = Message.Format.MESSAGE_FORMAT)
    void jmsBridgeTransactionManagerMissing(QualityOfServiceMode qosMode);
 }

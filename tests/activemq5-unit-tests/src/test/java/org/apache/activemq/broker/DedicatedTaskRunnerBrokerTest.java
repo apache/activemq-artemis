@@ -20,18 +20,18 @@ import junit.framework.Test;
 
 public class DedicatedTaskRunnerBrokerTest extends BrokerTest {
 
-    protected BrokerService createBroker() throws Exception {
-        BrokerService broker = super.createBroker();
-        broker.setDedicatedTaskRunner(true);
-        return broker;
-    }
-    
-    public static Test suite() {
-        return suite(DedicatedTaskRunnerBrokerTest.class);
-    }
+   protected BrokerService createBroker() throws Exception {
+      BrokerService broker = super.createBroker();
+      broker.setDedicatedTaskRunner(true);
+      return broker;
+   }
 
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(suite());
-    }
+   public static Test suite() {
+      return suite(DedicatedTaskRunnerBrokerTest.class);
+   }
+
+   public static void main(String[] args) {
+      junit.textui.TestRunner.run(suite());
+   }
 
 }

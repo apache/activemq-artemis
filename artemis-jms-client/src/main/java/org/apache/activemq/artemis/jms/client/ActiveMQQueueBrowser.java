@@ -32,8 +32,7 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 /**
  * ActiveMQ Artemis implementation of a JMS QueueBrowser.
  */
-public final class ActiveMQQueueBrowser implements QueueBrowser
-{
+public final class ActiveMQQueueBrowser implements QueueBrowser {
    // Constants ------------------------------------------------------------------------------------
 
    // Static ---------------------------------------------------------------------------------------
@@ -50,65 +49,55 @@ public final class ActiveMQQueueBrowser implements QueueBrowser
 
    // Constructors ---------------------------------------------------------------------------------
 
-   protected ActiveMQQueueBrowser(final ActiveMQQueue queue, final String messageSelector, final ClientSession session) throws JMSException
-   {
+   protected ActiveMQQueueBrowser(final ActiveMQQueue queue,
+                                  final String messageSelector,
+                                  final ClientSession session) throws JMSException {
       this.session = session;
       this.queue = queue;
-      if (messageSelector != null)
-      {
+      if (messageSelector != null) {
          filterString = new SimpleString(SelectorTranslator.convertToActiveMQFilterString(messageSelector));
       }
    }
 
    // QueueBrowser implementation -------------------------------------------------------------------
 
-   public void close() throws JMSException
-   {
-      if (consumer != null)
-      {
-         try
-         {
+   public void close() throws JMSException {
+      if (consumer != null) {
+         try {
             consumer.close();
          }
-         catch (ActiveMQException e)
-         {
+         catch (ActiveMQException e) {
             throw JMSExceptionHelper.convertFromActiveMQException(e);
          }
       }
    }
 
-   public Enumeration getEnumeration() throws JMSException
-   {
-      try
-      {
+   public Enumeration getEnumeration() throws JMSException {
+      try {
          close();
 
          consumer = session.createConsumer(queue.getSimpleAddress(), filterString, true);
 
          return new BrowserEnumeration();
       }
-      catch (ActiveMQException e)
-      {
+      catch (ActiveMQException e) {
          throw JMSExceptionHelper.convertFromActiveMQException(e);
       }
 
    }
 
-   public String getMessageSelector() throws JMSException
-   {
+   public String getMessageSelector() throws JMSException {
       return filterString == null ? null : filterString.toString();
    }
 
-   public Queue getQueue() throws JMSException
-   {
+   public Queue getQueue() throws JMSException {
       return queue;
    }
 
    // Public ---------------------------------------------------------------------------------------
 
    @Override
-   public String toString()
-   {
+   public String toString() {
       return "ActiveMQQueueBrowser->" + consumer;
    }
 
@@ -120,48 +109,39 @@ public final class ActiveMQQueueBrowser implements QueueBrowser
 
    // Inner classes --------------------------------------------------------------------------------
 
-   private final class BrowserEnumeration implements Enumeration<ActiveMQMessage>
-   {
+   private final class BrowserEnumeration implements Enumeration<ActiveMQMessage> {
+
       ClientMessage current = null;
 
-      public boolean hasMoreElements()
-      {
-         if (current == null)
-         {
-            try
-            {
+      public boolean hasMoreElements() {
+         if (current == null) {
+            try {
                current = consumer.receiveImmediate();
             }
-            catch (ActiveMQException e)
-            {
+            catch (ActiveMQException e) {
                return false;
             }
          }
          return current != null;
       }
 
-      public ActiveMQMessage nextElement()
-      {
+      public ActiveMQMessage nextElement() {
          ActiveMQMessage msg;
-         if (hasMoreElements())
-         {
+         if (hasMoreElements()) {
             ClientMessage next = current;
             current = null;
             msg = ActiveMQMessage.createMessage(next, session);
-            try
-            {
+            try {
                msg.doBeforeReceive();
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                ActiveMQJMSClientLogger.LOGGER.errorCreatingMessage(e);
 
                return null;
             }
             return msg;
          }
-         else
-         {
+         else {
             throw new NoSuchElementException();
          }
       }

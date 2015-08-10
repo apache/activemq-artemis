@@ -19,13 +19,13 @@ package org.apache.activemq.artemis.core.server;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 
-public interface QueueCreator
-{
+public interface QueueCreator {
+
    /**
-    *
     * You should return true if you even tried to create the queue and the queue was already there.
     * As the callers of this method will use that as an indicator that they should re-route the messages.
     * *
+    *
     * @return True if a queue was created.
     */
    boolean create(SimpleString address) throws Exception;

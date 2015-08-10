@@ -52,8 +52,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class MultipleProducersPagingTest extends ActiveMQTestBase
-{
+public class MultipleProducersPagingTest extends ActiveMQTestBase {
+
    private static final int CONSUMER_WAIT_TIME_MS = 250;
    private static final int PRODUCERS = 5;
    private static final long MESSAGES_PER_PRODUCER = 2000;
@@ -71,32 +71,17 @@ public class MultipleProducersPagingTest extends ActiveMQTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
       executor = Executors.newCachedThreadPool();
 
-      AddressSettings addressSettings = new AddressSettings()
-              .setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE)
-              .setPageSizeBytes(50000)
-              .setMaxSizeBytes(404850);
+      AddressSettings addressSettings = new AddressSettings().setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE).setPageSizeBytes(50000).setMaxSizeBytes(404850);
 
-      Configuration config = createBasicConfig()
-         .setPersistenceEnabled(false)
-         .setAddressesSettings(Collections.singletonMap("#", addressSettings))
-         .setAcceptorConfigurations(Collections.singleton(new TransportConfiguration(NettyAcceptorFactory.class.getName())))
-         .setConnectorConfigurations(Collections.singletonMap("netty", new TransportConfiguration(NettyConnectorFactory.class.getName())));
+      Configuration config = createBasicConfig().setPersistenceEnabled(false).setAddressesSettings(Collections.singletonMap("#", addressSettings)).setAcceptorConfigurations(Collections.singleton(new TransportConfiguration(NettyAcceptorFactory.class.getName()))).setConnectorConfigurations(Collections.singletonMap("netty", new TransportConfiguration(NettyConnectorFactory.class.getName())));
 
       final JMSConfiguration jmsConfig = new JMSConfigurationImpl();
-      jmsConfig.getConnectionFactoryConfigurations().add(new ConnectionFactoryConfigurationImpl()
-         .setName("cf")
-         .setConnectorNames(Arrays.asList("netty"))
-         .setBindings("/cf"));
-      jmsConfig.getQueueConfigurations().add(new JMSQueueConfigurationImpl()
-                                                .setName("simple")
-                                                .setSelector("")
-                                                .setDurable(false)
-                                                .setBindings("/queue/simple"));
+      jmsConfig.getConnectionFactoryConfigurations().add(new ConnectionFactoryConfigurationImpl().setName("cf").setConnectorNames(Arrays.asList("netty")).setBindings("/cf"));
+      jmsConfig.getQueueConfigurations().add(new JMSQueueConfigurationImpl().setName("simple").setSelector("").setDurable(false).setBindings("/queue/simple"));
 
       jmsServer = new EmbeddedJMS();
       jmsServer.setConfiguration(config);
@@ -112,13 +97,10 @@ public class MultipleProducersPagingTest extends ActiveMQTestBase
       msgSent = new AtomicLong(0);
    }
 
-
    @Test
-   public void testQueue() throws InterruptedException
-   {
+   public void testQueue() throws InterruptedException {
       executor.execute(new ConsumerRun());
-      for (int i = 0; i < PRODUCERS; i++)
-      {
+      for (int i = 0; i < PRODUCERS; i++) {
          executor.execute(new ProducerRun());
       }
       Assert.assertTrue("must take less than a minute to run", runnersLatch.await(1, TimeUnit.MINUTES));
@@ -126,68 +108,56 @@ public class MultipleProducersPagingTest extends ActiveMQTestBase
       Assert.assertEquals("number received", TOTAL_MSG, msgReceived.longValue());
    }
 
-   private synchronized Session createSession() throws JMSException
-   {
+   private synchronized Session createSession() throws JMSException {
       Connection connection = cf.createConnection();
       connections.add(connection);
       connection.start();
       return connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
    }
 
-   final class ConsumerRun implements Runnable
-   {
+   final class ConsumerRun implements Runnable {
 
       @Override
-      public void run()
-      {
-         try
-         {
+      public void run() {
+         try {
             Session session = createSession();
             MessageConsumer consumer = session.createConsumer(queue);
             barrierLatch.await();
-            while (true)
-            {
+            while (true) {
                Message msg = consumer.receive(CONSUMER_WAIT_TIME_MS);
                if (msg == null)
                   break;
                msgReceived.incrementAndGet();
             }
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             throw new RuntimeException(e);
          }
-         finally
-         {
+         finally {
             runnersLatch.countDown();
          }
       }
 
    }
 
-   final class ProducerRun implements Runnable
-   {
+   final class ProducerRun implements Runnable {
+
       @Override
-      public void run()
-      {
-         try
-         {
+      public void run() {
+         try {
             Session session = createSession();
             MessageProducer producer = session.createProducer(queue);
             barrierLatch.await();
 
-            for (int i = 0; i < MESSAGES_PER_PRODUCER; i++)
-            {
+            for (int i = 0; i < MESSAGES_PER_PRODUCER; i++) {
                producer.send(session.createTextMessage(this.hashCode() + " counter " + i));
                msgSent.incrementAndGet();
             }
          }
-         catch (Exception cause)
-         {
+         catch (Exception cause) {
             throw new RuntimeException(cause);
          }
-         finally
-         {
+         finally {
             runnersLatch.countDown();
          }
       }
@@ -195,11 +165,9 @@ public class MultipleProducersPagingTest extends ActiveMQTestBase
 
    @Override
    @After
-   public void tearDown() throws Exception
-   {
+   public void tearDown() throws Exception {
       executor.shutdown();
-      for (Connection conn : connections)
-      {
+      for (Connection conn : connections) {
          conn.close();
       }
       connections.clear();

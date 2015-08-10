@@ -30,8 +30,8 @@ import java.util.zip.Inflater;
  * <p>
  * Not for concurrent use.
  */
-public class InflaterWriter extends OutputStream
-{
+public class InflaterWriter extends OutputStream {
+
    private final Inflater inflater = new Inflater();
 
    private final OutputStream output;
@@ -42,8 +42,7 @@ public class InflaterWriter extends OutputStream
 
    private final byte[] outputBuffer = new byte[writeBuffer.length * 2];
 
-   public InflaterWriter(final OutputStream output)
-   {
+   public InflaterWriter(final OutputStream output) {
       this.output = output;
    }
 
@@ -51,20 +50,16 @@ public class InflaterWriter extends OutputStream
     * Write a compressed byte.
     */
    @Override
-   public void write(final int b) throws IOException
-   {
-      writeBuffer[writePointer] = (byte)(b & 0xFF);
+   public void write(final int b) throws IOException {
+      writeBuffer[writePointer] = (byte) (b & 0xFF);
       writePointer++;
 
-      if (writePointer == writeBuffer.length)
-      {
+      if (writePointer == writeBuffer.length) {
          writePointer = 0;
-         try
-         {
+         try {
             doWrite();
          }
-         catch (DataFormatException e)
-         {
+         catch (DataFormatException e) {
             IOException ie = new IOException("Error decompressing data");
             ie.initCause(e);
             throw ie;
@@ -73,23 +68,18 @@ public class InflaterWriter extends OutputStream
    }
 
    @Override
-   public void close() throws IOException
-   {
-      if (writePointer > 0)
-      {
+   public void close() throws IOException {
+      if (writePointer > 0) {
          inflater.setInput(writeBuffer, 0, writePointer);
-         try
-         {
+         try {
             int n = inflater.inflate(outputBuffer);
-            while (n > 0)
-            {
+            while (n > 0) {
                output.write(outputBuffer, 0, n);
                n = inflater.inflate(outputBuffer);
             }
             output.close();
          }
-         catch (DataFormatException e)
-         {
+         catch (DataFormatException e) {
             IOException io = new IOException(e.getMessage());
             io.initCause(e);
             throw io;
@@ -97,13 +87,11 @@ public class InflaterWriter extends OutputStream
       }
    }
 
-   private void doWrite() throws DataFormatException, IOException
-   {
+   private void doWrite() throws DataFormatException, IOException {
       inflater.setInput(writeBuffer);
       int n = inflater.inflate(outputBuffer);
 
-      while (n > 0)
-      {
+      while (n > 0) {
          output.write(outputBuffer, 0, n);
          n = inflater.inflate(outputBuffer);
       }

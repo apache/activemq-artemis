@@ -37,8 +37,8 @@ import org.apache.activemq.artemis.api.core.SimpleString;
  * {@link ServerLocator#setProducerWindowSize(int)}. <br>
  * <br>
  */
-public interface ClientProducer extends AutoCloseable
-{
+public interface ClientProducer extends AutoCloseable {
+
    /**
     * Returns the address where messages will be sent.
     *
@@ -58,6 +58,7 @@ public interface ClientProducer extends AutoCloseable
     * if {@link ServerLocator#setBlockOnDurableSend(boolean)} or
     * {@link ServerLocator#setBlockOnNonDurableSend(boolean)} are set to <code>true</code> for the
     * specified message type.
+    *
     * @param message the message to send
     * @throws ActiveMQException if an exception occurs while sending the message
     */
@@ -69,6 +70,7 @@ public interface ClientProducer extends AutoCloseable
     * This message will be sent asynchronously.
     * <p>
     * The handler will only get called if {@link ServerLocator#setConfirmationWindowSize(int) -1}.
+    *
     * @param message the message to send
     * @param handler handler to call after receiving a SEND acknowledgement from the server
     * @throws ActiveMQException if an exception occurs while sending the message
@@ -82,6 +84,7 @@ public interface ClientProducer extends AutoCloseable
     * if {@link ServerLocator#setBlockOnDurableSend(boolean)} or
     * {@link ServerLocator#setBlockOnNonDurableSend(boolean)} are set to true for the specified
     * message type.
+    *
     * @param address the address where the message will be sent
     * @param message the message to send
     * @throws ActiveMQException if an exception occurs while sending the message
@@ -94,6 +97,7 @@ public interface ClientProducer extends AutoCloseable
     * This message will be sent asynchronously.
     * <p>
     * The handler will only get called if {@link ServerLocator#setConfirmationWindowSize(int) -1}.
+    *
     * @param address the address where the message will be sent
     * @param message the message to send
     * @param handler handler to call after receiving a SEND acknowledgement from the server
@@ -108,6 +112,7 @@ public interface ClientProducer extends AutoCloseable
     * if {@link ServerLocator#setBlockOnDurableSend(boolean)} or
     * {@link ServerLocator#setBlockOnNonDurableSend(boolean)} are set to true for the specified
     * message type.
+    *
     * @param address the address where the message will be sent
     * @param message the message to send
     * @throws ActiveMQException if an exception occurs while sending the message

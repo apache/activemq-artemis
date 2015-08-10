@@ -19,6 +19,7 @@ package org.apache.activemq.bugs;
 import javax.jms.Connection;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
+
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.command.ActiveMQQueue;
@@ -28,69 +29,70 @@ import org.apache.activemq.util.DefaultIOExceptionHandler;
 import org.junit.After;
 import org.junit.Test;
 
-
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 public class AMQ2736Test {
-    BrokerService broker;
 
-    @Test
-    public void testRollbackOnRecover() throws Exception {
-        broker = createAndStartBroker(true);
-        DefaultIOExceptionHandler ignoreAllExceptionsIOExHandler = new DefaultIOExceptionHandler();
-        ignoreAllExceptionsIOExHandler.setIgnoreAllErrors(true);
-        broker.setIoExceptionHandler(ignoreAllExceptionsIOExHandler);
+   BrokerService broker;
 
-        ActiveMQConnectionFactory f = new ActiveMQConnectionFactory("vm://localhost?async=false");
-        f.setAlwaysSyncSend(true);
-        Connection c = f.createConnection();
-        c.start();
-        Session s = c.createSession(true, Session.SESSION_TRANSACTED);
-        MessageProducer p = s.createProducer(new ActiveMQQueue("Tx"));
-        p.send(s.createTextMessage("aa"));
+   @Test
+   public void testRollbackOnRecover() throws Exception {
+      broker = createAndStartBroker(true);
+      DefaultIOExceptionHandler ignoreAllExceptionsIOExHandler = new DefaultIOExceptionHandler();
+      ignoreAllExceptionsIOExHandler.setIgnoreAllErrors(true);
+      broker.setIoExceptionHandler(ignoreAllExceptionsIOExHandler);
 
-        // kill journal without commit
-        KahaDBPersistenceAdapter pa = (KahaDBPersistenceAdapter) broker.getPersistenceAdapter();
-        KahaDBStore store = pa.getStore();
+      ActiveMQConnectionFactory f = new ActiveMQConnectionFactory("vm://localhost?async=false");
+      f.setAlwaysSyncSend(true);
+      Connection c = f.createConnection();
+      c.start();
+      Session s = c.createSession(true, Session.SESSION_TRANSACTED);
+      MessageProducer p = s.createProducer(new ActiveMQQueue("Tx"));
+      p.send(s.createTextMessage("aa"));
 
-        assertNotNull("last tx location is present " + store.getInProgressTxLocationRange()[1]);
+      // kill journal without commit
+      KahaDBPersistenceAdapter pa = (KahaDBPersistenceAdapter) broker.getPersistenceAdapter();
+      KahaDBStore store = pa.getStore();
 
-        // test hack, close the journal to ensure no further journal updates when broker stops
-        // mimic kill -9 in terms of no normal shutdown sequence
-        store.getJournal().close();
-        try {
-            store.close();
-        } catch (Exception expectedLotsAsJournalBorked) {
-        }
+      assertNotNull("last tx location is present " + store.getInProgressTxLocationRange()[1]);
 
-        broker.stop();
-        broker.waitUntilStopped();
+      // test hack, close the journal to ensure no further journal updates when broker stops
+      // mimic kill -9 in terms of no normal shutdown sequence
+      store.getJournal().close();
+      try {
+         store.close();
+      }
+      catch (Exception expectedLotsAsJournalBorked) {
+      }
 
-        // restart with recovery
-        broker = createAndStartBroker(false);
+      broker.stop();
+      broker.waitUntilStopped();
 
-        pa = (KahaDBPersistenceAdapter) broker.getPersistenceAdapter();
-        store = pa.getStore();
+      // restart with recovery
+      broker = createAndStartBroker(false);
 
-        // inflight non xa tx should be rolledback on recovery
-        assertNull("in progress tx location is present ", store.getInProgressTxLocationRange()[0]);
+      pa = (KahaDBPersistenceAdapter) broker.getPersistenceAdapter();
+      store = pa.getStore();
 
-    }
+      // inflight non xa tx should be rolledback on recovery
+      assertNull("in progress tx location is present ", store.getInProgressTxLocationRange()[0]);
 
-    @After
-    public void stopBroker() throws Exception {
-        if (broker != null) {
-            broker.stop();
-        }
-    }
+   }
 
-    private BrokerService createAndStartBroker(boolean deleteAll) throws Exception {
-        BrokerService broker = new BrokerService();
-        broker.setDeleteAllMessagesOnStartup(deleteAll);
-        broker.setUseJmx(false);
-        broker.getManagementContext().setCreateConnector(false);
-        broker.start();
-        return broker;
-    }
+   @After
+   public void stopBroker() throws Exception {
+      if (broker != null) {
+         broker.stop();
+      }
+   }
+
+   private BrokerService createAndStartBroker(boolean deleteAll) throws Exception {
+      BrokerService broker = new BrokerService();
+      broker.setDeleteAllMessagesOnStartup(deleteAll);
+      broker.setUseJmx(false);
+      broker.getManagementContext().setCreateConnector(false);
+      broker.start();
+      return broker;
+   }
 }

@@ -51,8 +51,7 @@ import java.util.concurrent.CountDownLatch;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 
-public class ManualReconnectionToSingleServerTest extends ActiveMQTestBase
-{
+public class ManualReconnectionToSingleServerTest extends ActiveMQTestBase {
    // Constants -----------------------------------------------------
 
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
@@ -73,10 +72,8 @@ public class ManualReconnectionToSingleServerTest extends ActiveMQTestBase
 
    private static final int NUM = 20;
 
-   private final ExceptionListener exceptionListener = new ExceptionListener()
-   {
-      public void onException(final JMSException e)
-      {
+   private final ExceptionListener exceptionListener = new ExceptionListener() {
+      public void onException(final JMSException e) {
          exceptionLatch.countDown();
          disconnect();
          connect();
@@ -89,30 +86,27 @@ public class ManualReconnectionToSingleServerTest extends ActiveMQTestBase
    private ActiveMQServer server;
 
    @Test
-   public void testExceptionListener() throws Exception
-   {
+   public void testExceptionListener() throws Exception {
       connect();
 
-      ConnectionFactory cf = (ConnectionFactory)context.lookup("/cf");
-      Destination dest = (Destination)context.lookup(QUEUE_NAME);
+      ConnectionFactory cf = (ConnectionFactory) context.lookup("/cf");
+      Destination dest = (Destination) context.lookup(QUEUE_NAME);
       Connection conn = cf.createConnection();
       Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
       MessageProducer prod = sess.createProducer(dest);
 
-      for (int i = 0; i < NUM; i++)
-      {
+      for (int i = 0; i < NUM; i++) {
          Message message = sess.createTextMessage(new Date().toString());
          message.setIntProperty("counter", i + 1);
          prod.send(message);
 
-         if (i == NUM / 2)
-         {
+         if (i == NUM / 2) {
             conn.close();
             serverManager.stop();
             Thread.sleep(5000);
             serverManager.start();
-            cf = (ConnectionFactory)context.lookup("/cf");
-            dest = (Destination)context.lookup(QUEUE_NAME);
+            cf = (ConnectionFactory) context.lookup("/cf");
+            dest = (Destination) context.lookup(QUEUE_NAME);
             conn = cf.createConnection();
             sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
             prod = sess.createProducer(dest);
@@ -141,8 +135,7 @@ public class ManualReconnectionToSingleServerTest extends ActiveMQTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       context = new InVMNamingContext();
@@ -157,12 +150,7 @@ public class ManualReconnectionToSingleServerTest extends ActiveMQTestBase
 
       ArrayList<TransportConfiguration> configs = new ArrayList<TransportConfiguration>();
       configs.add(new TransportConfiguration(NETTY_CONNECTOR_FACTORY));
-      ConnectionFactoryConfiguration cfConfig = new ConnectionFactoryConfigurationImpl()
-         .setName("cf")
-         .setConnectorNames(registerConnectors(server, configs))
-         .setBindings("/cf")
-            .setRetryInterval(1000)
-         .setReconnectAttempts(-1);
+      ConnectionFactoryConfiguration cfConfig = new ConnectionFactoryConfigurationImpl().setName("cf").setConnectorNames(registerConnectors(server, configs)).setBindings("/cf").setRetryInterval(1000).setReconnectAttempts(-1);
       configuration.getConnectionFactoryConfigurations().add(cfConfig);
       serverManager.start();
 
@@ -177,53 +165,43 @@ public class ManualReconnectionToSingleServerTest extends ActiveMQTestBase
 
    // Inner classes -------------------------------------------------
 
-   protected void disconnect()
-   {
+   protected void disconnect() {
       ManualReconnectionToSingleServerTest.log.info("calling disconnect");
-      if (connection == null)
-      {
+      if (connection == null) {
          ManualReconnectionToSingleServerTest.log.info("connection is null");
          return;
       }
 
-      try
-      {
+      try {
          connection.setExceptionListener(null);
          ManualReconnectionToSingleServerTest.log.info("closing the connection");
          connection.close();
          connection = null;
          ManualReconnectionToSingleServerTest.log.info("connection closed");
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          ManualReconnectionToSingleServerTest.log.info("** got exception");
          e.printStackTrace();
       }
    }
 
-   protected void connect()
-   {
+   protected void connect() {
       int retries = 0;
       final int retryLimit = 1000;
-      try
-      {
-         if (context == null)
-         {
+      try {
+         if (context == null) {
             return;
          }
          Context initialContext = context;
          Queue queue;
          ConnectionFactory cf;
-         while (true)
-         {
-            try
-            {
-               queue = (Queue)initialContext.lookup(QUEUE_NAME);
-               cf = (ConnectionFactory)initialContext.lookup("/cf");
+         while (true) {
+            try {
+               queue = (Queue) initialContext.lookup(QUEUE_NAME);
+               cf = (ConnectionFactory) initialContext.lookup("/cf");
                break;
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                if (retries++ > retryLimit)
                   throw e;
                // retry until server is up
@@ -237,40 +215,32 @@ public class ManualReconnectionToSingleServerTest extends ActiveMQTestBase
          consumer.setMessageListener(listener);
          connection.start();
       }
-      catch (Exception e)
-      {
-         if (connection != null)
-         {
-            try
-            {
+      catch (Exception e) {
+         if (connection != null) {
+            try {
                connection.close();
             }
-            catch (JMSException e1)
-            {
+            catch (JMSException e1) {
                e1.printStackTrace();
             }
          }
       }
    }
 
-   private class Listener implements MessageListener
-   {
+   private class Listener implements MessageListener {
+
       private int count = 0;
 
-      public void onMessage(final Message msg)
-      {
+      public void onMessage(final Message msg) {
          count++;
 
-         try
-         {
+         try {
             msg.getIntProperty("counter");
          }
-         catch (JMSException e)
-         {
+         catch (JMSException e) {
             e.printStackTrace();
          }
-         if (count == NUM)
-         {
+         if (count == NUM) {
             allMessagesReceived.countDown();
          }
       }

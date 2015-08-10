@@ -23,8 +23,8 @@ import org.apache.activemq.artemis.utils.json.JSONObject;
  * Helper class to create Java Objects from the
  * JSON serialization returned by {@link TopicControl#listAllSubscriptionsAsJSON()} and related methods.
  */
-public class SubscriptionInfo
-{
+public class SubscriptionInfo {
+
    private final String queueName;
 
    private final String clientID;
@@ -45,20 +45,12 @@ public class SubscriptionInfo
     * Returns an array of SubscriptionInfo corresponding to the JSON serialization returned
     * by {@link TopicControl#listAllSubscriptionsAsJSON()} and related methods.
     */
-   public static SubscriptionInfo[] from(final String jsonString) throws Exception
-   {
+   public static SubscriptionInfo[] from(final String jsonString) throws Exception {
       JSONArray array = new JSONArray(jsonString);
       SubscriptionInfo[] infos = new SubscriptionInfo[array.length()];
-      for (int i = 0; i < array.length(); i++)
-      {
+      for (int i = 0; i < array.length(); i++) {
          JSONObject sub = array.getJSONObject(i);
-         SubscriptionInfo info = new SubscriptionInfo(sub.getString("queueName"),
-                                                      sub.optString("clientID", null),
-                                                      sub.optString("name", null),
-                                                      sub.getBoolean("durable"),
-                                                      sub.optString("selector", null),
-                                                      sub.getInt("messageCount"),
-                                                      sub.getInt("deliveringCount"));
+         SubscriptionInfo info = new SubscriptionInfo(sub.getString("queueName"), sub.optString("clientID", null), sub.optString("name", null), sub.getBoolean("durable"), sub.optString("selector", null), sub.getInt("messageCount"), sub.getInt("deliveringCount"));
          infos[i] = info;
       }
 
@@ -73,8 +65,7 @@ public class SubscriptionInfo
                             final boolean durable,
                             final String selector,
                             final int messageCount,
-                            final int deliveringCount)
-   {
+                            final int deliveringCount) {
       this.queueName = queueName;
       this.clientID = clientID;
       this.name = name;
@@ -89,56 +80,49 @@ public class SubscriptionInfo
    /**
     * Returns the name of the ActiveMQ Artemis core queue corresponding to this subscription.
     */
-   public String getQueueName()
-   {
+   public String getQueueName() {
       return queueName;
    }
 
    /**
     * Returns the client ID of this subscription or {@code null}.
     */
-   public String getClientID()
-   {
+   public String getClientID() {
       return clientID;
    }
 
    /**
     * Returns the name of this subscription.
     */
-   public String getName()
-   {
+   public String getName() {
       return name;
    }
 
    /**
     * Returns whether this subscription is durable.
     */
-   public boolean isDurable()
-   {
+   public boolean isDurable() {
       return durable;
    }
 
    /**
     * Returns the JMS message selector associated to this subscription.
     */
-   public String getSelector()
-   {
+   public String getSelector() {
       return selector;
    }
 
    /**
     * Returns the number of messages currently held by this subscription.
     */
-   public int getMessageCount()
-   {
+   public int getMessageCount() {
       return messageCount;
    }
 
    /**
     * Returns the number of messages currently delivered to this subscription.
     */
-   public int getDeliveringCount()
-   {
+   public int getDeliveringCount() {
       return deliveringCount;
    }
 }

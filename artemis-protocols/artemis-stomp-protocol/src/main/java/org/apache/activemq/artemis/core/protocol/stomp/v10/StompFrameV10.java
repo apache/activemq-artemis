@@ -18,10 +18,9 @@ package org.apache.activemq.artemis.core.protocol.stomp.v10;
 
 import org.apache.activemq.artemis.core.protocol.stomp.StompFrame;
 
-public class StompFrameV10 extends StompFrame
-{
-   public StompFrameV10(String command)
-   {
+public class StompFrameV10 extends StompFrame {
+
+   public StompFrameV10(String command) {
       super(command);
    }
 

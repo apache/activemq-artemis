@@ -57,8 +57,8 @@ import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
 import org.apache.activemq.artemis.utils.ConcurrentHashSet;
 import org.apache.activemq.artemis.utils.FutureLatch;
 
-final class PageSubscriptionImpl implements PageSubscription
-{
+final class PageSubscriptionImpl implements PageSubscription {
+
    private final boolean isTrace = ActiveMQServerLogger.LOGGER.isTraceEnabled();
 
    private boolean empty = true;
@@ -100,8 +100,7 @@ final class PageSubscriptionImpl implements PageSubscription
                         final Executor executor,
                         final Filter filter,
                         final long cursorId,
-                        final boolean persistent)
-   {
+                        final boolean persistent) {
       this.pageStore = pageStore;
       this.store = store;
       this.cursorProvider = cursorProvider;
@@ -114,76 +113,61 @@ final class PageSubscriptionImpl implements PageSubscription
 
    // Public --------------------------------------------------------
 
-   public PagingStore getPagingStore()
-   {
+   public PagingStore getPagingStore() {
       return pageStore;
    }
 
-   public Queue getQueue()
-   {
+   public Queue getQueue() {
       return queue;
    }
 
-   public boolean isPaging()
-   {
+   public boolean isPaging() {
       return pageStore.isPaging();
    }
 
-   public void setQueue(Queue queue)
-   {
+   public void setQueue(Queue queue) {
       this.queue = queue;
    }
 
-   public void disableAutoCleanup()
-   {
+   public void disableAutoCleanup() {
       autoCleanup = false;
    }
 
-   public void enableAutoCleanup()
-   {
+   public void enableAutoCleanup() {
       autoCleanup = true;
    }
 
-   public PageCursorProvider getProvider()
-   {
+   public PageCursorProvider getProvider() {
       return cursorProvider;
    }
 
-   public void notEmpty()
-   {
-      synchronized (consumedPages)
-      {
+   public void notEmpty() {
+      synchronized (consumedPages) {
          this.empty = false;
       }
 
    }
 
-   public void bookmark(PagePosition position) throws Exception
-   {
+   public void bookmark(PagePosition position) throws Exception {
       PageCursorInfo cursorInfo = getPageInfo(position);
 
-      if (position.getMessageNr() > 0)
-      {
+      if (position.getMessageNr() > 0) {
          cursorInfo.confirmed.addAndGet(position.getMessageNr());
       }
 
       confirmPosition(position);
    }
 
-   public long getMessageCount()
-   {
-      if (empty)
-      {
+   public long getMessageCount() {
+      if (empty) {
          return 0;
       }
-      else
-      {
+      else {
          return counter.getValue() - deliveredCount.get();
       }
    }
 
-   public PageSubscriptionCounter getCounter()
-   {
+   public PageSubscriptionCounter getCounter() {
       return counter;
    }
 
@@ -194,41 +178,31 @@ final class PageSubscriptionImpl implements PageSubscription
     * TX) we may have big holes on the page streaming, and we will need to ignore such pages on the
     * cursor/subscription.
     */
-   public void reloadPageCompletion(PagePosition position)
-   {
+   public void reloadPageCompletion(PagePosition position) {
       PageCursorInfo info = new PageCursorInfo(position.getPageNr(), position.getMessageNr(), null);
       info.setCompleteInfo(position);
-      synchronized (consumedPages)
-      {
+      synchronized (consumedPages) {
          consumedPages.put(Long.valueOf(position.getPageNr()), info);
       }
    }
 
-   public void scheduleCleanupCheck()
-   {
-      if (autoCleanup)
-      {
-         if (scheduledCleanupCount.get() > 2)
-         {
+   public void scheduleCleanupCheck() {
+      if (autoCleanup) {
+         if (scheduledCleanupCount.get() > 2) {
             return;
          }
 
          scheduledCleanupCount.incrementAndGet();
-         executor.execute(new Runnable()
-         {
+         executor.execute(new Runnable() {
 
-            public void run()
-            {
-               try
-               {
+            public void run() {
+               try {
                   cleanupEntries(false);
                }
-               catch (Exception e)
-               {
+               catch (Exception e) {
                   ActiveMQServerLogger.LOGGER.problemCleaningCursorPages(e);
                }
-               finally
-               {
+               finally {
                   scheduledCleanupCount.decrementAndGet();
                }
             }
@@ -236,10 +210,8 @@ final class PageSubscriptionImpl implements PageSubscription
       }
    }
 
-   public void onPageModeCleared(Transaction tx) throws Exception
-   {
-      if (counter != null)
-      {
+   public void onPageModeCleared(Transaction tx) throws Exception {
+      if (counter != null) {
          // this could be null on testcases
          counter.delete(tx);
       }
@@ -249,10 +221,8 @@ final class PageSubscriptionImpl implements PageSubscription
    /**
     * It will cleanup all the records for completed pages
     */
-   public void cleanupEntries(final boolean completeDelete) throws Exception
-   {
-      if (completeDelete)
-      {
+   public void cleanupEntries(final boolean completeDelete) throws Exception {
+      if (completeDelete) {
          counter.delete();
       }
       Transaction tx = new TransactionImpl(store);
@@ -262,30 +232,24 @@ final class PageSubscriptionImpl implements PageSubscription
       final ArrayList<PageCursorInfo> completedPages = new ArrayList<PageCursorInfo>();
 
       // First get the completed pages using a lock
-      synchronized (consumedPages)
-      {
+      synchronized (consumedPages) {
          // lastAckedPosition = null means no acks were done yet, so we are not ready to cleanup
-         if (lastAckedPosition == null)
-         {
+         if (lastAckedPosition == null) {
             return;
          }
 
-         for (Entry<Long, PageCursorInfo> entry : consumedPages.entrySet())
-         {
+         for (Entry<Long, PageCursorInfo> entry : consumedPages.entrySet()) {
             PageCursorInfo info = entry.getValue();
 
-            if (info.isDone() && !info.isPendingDelete())
-            {
+            if (info.isDone() && !info.isPendingDelete()) {
                Page currentPage = pageStore.getCurrentPage();
 
                if (currentPage != null && entry.getKey() == pageStore.getCurrentPage().getPageId() &&
-                  currentPage.isLive())
-               {
+                  currentPage.isLive()) {
                   ActiveMQServerLogger.LOGGER.trace("We can't clear page " + entry.getKey() +
-                                                      " now since it's the current page");
+                                                       " now since it's the current page");
                }
-               else
-               {
+               else {
                   info.setPendingDelete();
                   completedPages.add(entry.getValue());
                }
@@ -293,8 +257,7 @@ final class PageSubscriptionImpl implements PageSubscription
          }
       }
 
-      for (PageCursorInfo infoPG : completedPages)
-      {
+      for (PageCursorInfo infoPG : completedPages) {
          // HORNETQ-1017: There are a few cases where a pending transaction might set a big hole on the page system
          //               where we need to ignore these pages in case of a restart.
          //               for that reason when we delete complete ACKs we store a single record per page file that will
@@ -303,26 +266,21 @@ final class PageSubscriptionImpl implements PageSubscription
          //               In case of a TX Failure (a crash on the server) this will be recovered on the next cleanup once the
          //               server is restarted.
          // first will mark the page as complete
-         if (isPersistent())
-         {
+         if (isPersistent()) {
             PagePosition completePage = new PagePositionImpl(infoPG.getPageId(), infoPG.getNumberOfMessages());
             infoPG.setCompleteInfo(completePage);
             store.storePageCompleteTransactional(tx.getID(), this.getId(), completePage);
-            if (!persist)
-            {
+            if (!persist) {
                persist = true;
                tx.setContainsPersistent();
             }
          }
 
          // it will delete the page ack records
-         for (PagePosition pos : infoPG.acks)
-         {
-            if (pos.getRecordID() >= 0)
-            {
+         for (PagePosition pos : infoPG.acks) {
+            if (pos.getRecordID() >= 0) {
                store.deleteCursorAcknowledgeTransactional(tx.getID(), pos.getRecordID());
-               if (!persist)
-               {
+               if (!persist) {
                   // only need to set it once
                   tx.setContainsPersistent();
                   persist = true;
@@ -334,19 +292,14 @@ final class PageSubscriptionImpl implements PageSubscription
          infoPG.removedReferences.clear();
       }
 
-      tx.addOperation(new TransactionOperationAbstract()
-      {
+      tx.addOperation(new TransactionOperationAbstract() {
 
          @Override
-         public void afterCommit(final Transaction tx1)
-         {
-            executor.execute(new Runnable()
-            {
+         public void afterCommit(final Transaction tx1) {
+            executor.execute(new Runnable() {
 
-               public void run()
-               {
-                  if (!completeDelete)
-                  {
+               public void run() {
+                  if (!completeDelete) {
                      cursorProvider.scheduleCleanup();
                   }
                }
@@ -359,89 +312,71 @@ final class PageSubscriptionImpl implements PageSubscription
    }
 
    @Override
-   public String toString()
-   {
+   public String toString() {
       return "PageSubscriptionImpl [cursorId=" + cursorId + ", queue=" + queue + ", filter = " + filter + "]";
    }
 
-   private PagedReference getReference(PagePosition pos)
-   {
+   private PagedReference getReference(PagePosition pos) {
       return cursorProvider.newReference(pos, cursorProvider.getMessage(pos), this);
    }
 
    @Override
-   public PageIterator iterator()
-   {
+   public PageIterator iterator() {
       return new CursorIterator();
    }
 
-   private PagedReference internalGetNext(final PagePosition pos)
-   {
+   private PagedReference internalGetNext(final PagePosition pos) {
       PagePosition retPos = pos.nextMessage();
 
       PageCache cache = cursorProvider.getPageCache(pos.getPageNr());
 
-      if (cache != null && !cache.isLive() && retPos.getMessageNr() >= cache.getNumberOfMessages())
-      {
+      if (cache != null && !cache.isLive() && retPos.getMessageNr() >= cache.getNumberOfMessages()) {
          // The next message is beyond what's available at the current page, so we need to move to the next page
          cache = null;
       }
 
       // it will scan for the next available page
-      while ((cache == null && retPos.getPageNr() <= pageStore.getCurrentWritingPage()) ||
-         (cache != null && retPos.getPageNr() <= pageStore.getCurrentWritingPage() && cache.getNumberOfMessages() == 0))
-      {
+      while ((cache == null && retPos.getPageNr() <= pageStore.getCurrentWritingPage()) || (cache != null && retPos.getPageNr() <= pageStore.getCurrentWritingPage() && cache.getNumberOfMessages() == 0)) {
          retPos = moveNextPage(retPos);
 
          cache = cursorProvider.getPageCache(retPos.getPageNr());
       }
 
-      if (cache == null)
-      {
+      if (cache == null) {
          // it will be null in the case of the current writing page
          return null;
       }
-      else
-      {
+      else {
          PagedMessage serverMessage = cache.getMessage(retPos.getMessageNr());
 
-         if (serverMessage != null)
-         {
+         if (serverMessage != null) {
             return cursorProvider.newReference(retPos, serverMessage, this);
          }
-         else
-         {
+         else {
             return null;
          }
       }
    }
 
-   private PagePosition moveNextPage(final PagePosition pos)
-   {
+   private PagePosition moveNextPage(final PagePosition pos) {
       PagePosition retPos = pos;
-      while (true)
-      {
+      while (true) {
          retPos = retPos.nextPage();
-         synchronized (consumedPages)
-         {
+         synchronized (consumedPages) {
             PageCursorInfo pageInfo = consumedPages.get(retPos.getPageNr());
             // any deleted or complete page will be ignored on the moveNextPage, we will just keep going
-            if (pageInfo == null || (!pageInfo.isPendingDelete() && pageInfo.getCompleteInfo() == null))
-            {
+            if (pageInfo == null || (!pageInfo.isPendingDelete() && pageInfo.getCompleteInfo() == null)) {
                return retPos;
             }
          }
       }
    }
 
-   private boolean routed(PagedMessage message)
-   {
+   private boolean routed(PagedMessage message) {
       long id = getId();
 
-      for (long qid : message.getQueueIDs())
-      {
-         if (qid == id)
-         {
+      for (long qid : message.getQueueIDs()) {
+         if (qid == id) {
             return true;
          }
       }
@@ -451,116 +386,94 @@ final class PageSubscriptionImpl implements PageSubscription
    /**
     *
     */
-   private synchronized PagePosition getStartPosition()
-   {
+   private synchronized PagePosition getStartPosition() {
       return new PagePositionImpl(pageStore.getFirstPage(), -1);
    }
 
-   public void confirmPosition(final Transaction tx, final PagePosition position) throws Exception
-   {
+   public void confirmPosition(final Transaction tx, final PagePosition position) throws Exception {
       // if the cursor is persistent
-      if (persistent)
-      {
+      if (persistent) {
          store.storeCursorAcknowledgeTransactional(tx.getID(), cursorId, position);
       }
       installTXCallback(tx, position);
 
    }
 
-   public void ackTx(final Transaction tx, final PagedReference reference) throws Exception
-   {
+   public void ackTx(final Transaction tx, final PagedReference reference) throws Exception {
       confirmPosition(tx, reference.getPosition());
 
       counter.increment(tx, -1);
 
       PageTransactionInfo txInfo = getPageTransaction(reference);
-      if (txInfo != null)
-      {
+      if (txInfo != null) {
          txInfo.storeUpdate(store, pageStore.getPagingManager(), tx);
       }
    }
 
    @Override
-   public void ack(final PagedReference reference) throws Exception
-   {
+   public void ack(final PagedReference reference) throws Exception {
       // Need to do the ACK and counter atomically (inside a TX) or the counter could get out of sync
       Transaction tx = new TransactionImpl(this.store);
       ackTx(tx, reference);
       tx.commit();
    }
 
-   public boolean contains(PagedReference ref) throws Exception
-   {
+   public boolean contains(PagedReference ref) throws Exception {
       // We first verify if the message was routed to this queue
       boolean routed = false;
 
-      for (long idRef : ref.getPagedMessage().getQueueIDs())
-      {
-         if (idRef == this.cursorId)
-         {
+      for (long idRef : ref.getPagedMessage().getQueueIDs()) {
+         if (idRef == this.cursorId) {
             routed = true;
             break;
          }
       }
-      if (!routed)
-      {
+      if (!routed) {
          return false;
       }
-      else
-      {
+      else {
          // if it's been routed here, we have to verify if it was acked
          return !getPageInfo(ref.getPosition()).isAck(ref.getPosition());
       }
    }
 
-   public void confirmPosition(final PagePosition position) throws Exception
-   {
+   public void confirmPosition(final PagePosition position) throws Exception {
       // if we are dealing with a persistent cursor
-      if (persistent)
-      {
+      if (persistent) {
          store.storeCursorAcknowledge(cursorId, position);
       }
 
-      store.afterCompleteOperations(new IOCallback()
-      {
+      store.afterCompleteOperations(new IOCallback() {
          volatile String error = "";
 
          @Override
-         public void onError(final int errorCode, final String errorMessage)
-         {
+         public void onError(final int errorCode, final String errorMessage) {
             error = " errorCode=" + errorCode + ", msg=" + errorMessage;
             ActiveMQServerLogger.LOGGER.pageSubscriptionError(this, error);
          }
 
          @Override
-         public void done()
-         {
+         public void done() {
             processACK(position);
          }
 
          @Override
-         public String toString()
-         {
+         public String toString() {
             return IOCallback.class.getSimpleName() + "(" + PageSubscriptionImpl.class.getSimpleName() + ") " + error;
          }
       });
    }
 
    @Override
-   public long getFirstPage()
-   {
-      synchronized (consumedPages)
-      {
-         if (empty && consumedPages.isEmpty())
-         {
+   public long getFirstPage() {
+      synchronized (consumedPages) {
+         if (empty && consumedPages.isEmpty()) {
             return -1;
          }
          long lastPageSeen = 0;
-         for (Map.Entry<Long, PageCursorInfo> info : consumedPages.entrySet())
-         {
+         for (Map.Entry<Long, PageCursorInfo> info : consumedPages.entrySet()) {
             lastPageSeen = info.getKey();
-            if (!info.getValue().isDone() && !info.getValue().isPendingDelete())
-            {
+            if (!info.getValue().isDone() && !info.getValue().isPendingDelete()) {
                return info.getKey();
             }
          }
@@ -569,39 +482,31 @@ final class PageSubscriptionImpl implements PageSubscription
 
    }
 
-   public void addPendingDelivery(final PagePosition position)
-   {
+   public void addPendingDelivery(final PagePosition position) {
       getPageInfo(position).incrementPendingTX();
    }
 
    @Override
-   public void redeliver(final PageIterator iterator, final PagePosition position)
-   {
+   public void redeliver(final PageIterator iterator, final PagePosition position) {
       iterator.redeliver(position);
 
-      synchronized (consumedPages)
-      {
+      synchronized (consumedPages) {
          PageCursorInfo pageInfo = consumedPages.get(position.getPageNr());
-         if (pageInfo != null)
-         {
+         if (pageInfo != null) {
             pageInfo.decrementPendingTX();
          }
-         else
-         {
+         else {
             // this shouldn't really happen.
          }
       }
    }
 
    @Override
-   public PagedMessage queryMessage(PagePosition pos)
-   {
-      try
-      {
+   public PagedMessage queryMessage(PagePosition pos) {
+      try {
          return cursorProvider.getMessage(pos);
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          throw new RuntimeException(e.getMessage(), e);
       }
    }
@@ -609,10 +514,8 @@ final class PageSubscriptionImpl implements PageSubscription
    /**
     * Theres no need to synchronize this method as it's only called from journal load on startup
     */
-   public void reloadACK(final PagePosition position)
-   {
-      if (recoveredACK == null)
-      {
+   public void reloadACK(final PagePosition position) {
+      if (recoveredACK == null) {
          recoveredACK = new LinkedList<PagePosition>();
       }
 
@@ -620,42 +523,34 @@ final class PageSubscriptionImpl implements PageSubscription
    }
 
    @Override
-   public void reloadPreparedACK(final Transaction tx, final PagePosition position)
-   {
+   public void reloadPreparedACK(final Transaction tx, final PagePosition position) {
       deliveredCount.incrementAndGet();
       installTXCallback(tx, position);
    }
 
    @Override
-   public void positionIgnored(final PagePosition position)
-   {
+   public void positionIgnored(final PagePosition position) {
       processACK(position);
    }
 
-   public void lateDeliveryRollback(PagePosition position)
-   {
+   public void lateDeliveryRollback(PagePosition position) {
       PageCursorInfo cursorInfo = processACK(position);
       cursorInfo.decrementPendingTX();
    }
 
    @Override
-   public boolean isComplete(long page)
-   {
-      synchronized (consumedPages)
-      {
-         if (empty && consumedPages.isEmpty())
-         {
+   public boolean isComplete(long page) {
+      synchronized (consumedPages) {
+         if (empty && consumedPages.isEmpty()) {
             return true;
          }
 
          PageCursorInfo info = consumedPages.get(page);
 
-         if (info == null && empty)
-         {
+         if (info == null && empty) {
             return true;
          }
-         else
-         {
+         else {
             return info != null && info.isDone();
          }
       }
@@ -664,100 +559,79 @@ final class PageSubscriptionImpl implements PageSubscription
    /**
     * All the data associated with the cursor should go away here
     */
-   public void destroy() throws Exception
-   {
+   public void destroy() throws Exception {
       final long tx = store.generateID();
-      try
-      {
+      try {
 
          boolean isPersistent = false;
 
-         synchronized (consumedPages)
-         {
-            for (PageCursorInfo cursor : consumedPages.values())
-            {
-               for (PagePosition info : cursor.acks)
-               {
-                  if (info.getRecordID() >= 0)
-                  {
+         synchronized (consumedPages) {
+            for (PageCursorInfo cursor : consumedPages.values()) {
+               for (PagePosition info : cursor.acks) {
+                  if (info.getRecordID() >= 0) {
                      isPersistent = true;
                      store.deleteCursorAcknowledgeTransactional(tx, info.getRecordID());
                   }
                }
                PagePosition completeInfo = cursor.getCompleteInfo();
-               if (completeInfo != null && completeInfo.getRecordID() >= 0)
-               {
+               if (completeInfo != null && completeInfo.getRecordID() >= 0) {
                   store.deletePageComplete(completeInfo.getRecordID());
                   cursor.setCompleteInfo(null);
                }
             }
          }
 
-         if (isPersistent)
-         {
+         if (isPersistent) {
             store.commit(tx);
          }
 
          cursorProvider.close(this);
       }
-      catch (Exception e)
-      {
-         try
-         {
+      catch (Exception e) {
+         try {
             store.rollback(tx);
          }
-         catch (Exception ignored)
-         {
+         catch (Exception ignored) {
             // exception of the exception.. nothing that can be done here
          }
       }
    }
 
    @Override
-   public long getId()
-   {
+   public long getId() {
       return cursorId;
    }
 
-   public boolean isPersistent()
-   {
+   public boolean isPersistent() {
       return persistent;
    }
 
-   public void processReload() throws Exception
-   {
-      if (recoveredACK != null)
-      {
-         if (isTrace)
-         {
+   public void processReload() throws Exception {
+      if (recoveredACK != null) {
+         if (isTrace) {
             ActiveMQServerLogger.LOGGER.trace("********** processing reload!!!!!!!");
          }
          Collections.sort(recoveredACK);
 
          long txDeleteCursorOnReload = -1;
 
-         for (PagePosition pos : recoveredACK)
-         {
+         for (PagePosition pos : recoveredACK) {
             lastAckedPosition = pos;
             PageCursorInfo pageInfo = getPageInfo(pos);
 
-            if (pageInfo == null)
-            {
+            if (pageInfo == null) {
                ActiveMQServerLogger.LOGGER.pageNotFound(pos);
-               if (txDeleteCursorOnReload == -1)
-               {
+               if (txDeleteCursorOnReload == -1) {
                   txDeleteCursorOnReload = store.generateID();
                }
                store.deleteCursorAcknowledgeTransactional(txDeleteCursorOnReload, pos.getRecordID());
             }
-            else
-            {
+            else {
                pageInfo.loadACK(pos);
             }
          }
 
-         if (txDeleteCursorOnReload >= 0)
-         {
+         if (txDeleteCursorOnReload >= 0) {
             store.commit(txDeleteCursorOnReload);
          }
 
@@ -766,68 +640,51 @@ final class PageSubscriptionImpl implements PageSubscription
       }
    }
 
-   public void flushExecutors()
-   {
+   public void flushExecutors() {
       FutureLatch future = new FutureLatch();
       executor.execute(future);
-      while (!future.await(1000))
-      {
+      while (!future.await(1000)) {
          ActiveMQServerLogger.LOGGER.timedOutFlushingExecutorsPagingCursor(this);
       }
    }
 
-   public void stop()
-   {
+   public void stop() {
       flushExecutors();
    }
 
-   public void printDebug()
-   {
+   public void printDebug() {
       printDebug(toString());
    }
 
-   public void printDebug(final String msg)
-   {
+   public void printDebug(final String msg) {
       System.out.println("Debug information on PageCurorImpl- " + msg);
-      for (PageCursorInfo info : consumedPages.values())
-      {
+      for (PageCursorInfo info : consumedPages.values()) {
          System.out.println(info);
       }
    }
 
-
-   public void onDeletePage(Page deletedPage) throws Exception
-   {
+   public void onDeletePage(Page deletedPage) throws Exception {
       PageCursorInfo info;
-      synchronized (consumedPages)
-      {
+      synchronized (consumedPages) {
          info = consumedPages.remove(Long.valueOf(deletedPage.getPageId()));
       }
-      if (info != null)
-      {
+      if (info != null) {
          PagePosition completeInfo = info.getCompleteInfo();
-         if (completeInfo != null)
-         {
-            try
-            {
+         if (completeInfo != null) {
+            try {
                store.deletePageComplete(completeInfo.getRecordID());
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                ActiveMQServerLogger.LOGGER.warn("Error while deleting page-complete-record", e);
             }
             info.setCompleteInfo(null);
          }
-         for (PagePosition deleteInfo : info.acks)
-         {
-            if (deleteInfo.getRecordID() >= 0)
-            {
-               try
-               {
+         for (PagePosition deleteInfo : info.acks) {
+            if (deleteInfo.getRecordID() >= 0) {
+               try {
                   store.deleteCursorAcknowledge(deleteInfo.getRecordID());
                }
-               catch (Exception e)
-               {
+               catch (Exception e) {
                   ActiveMQServerLogger.LOGGER.warn("Error while deleting page-complete-record", e);
                }
             }
@@ -836,33 +693,25 @@ final class PageSubscriptionImpl implements PageSubscription
       }
    }
 
-   public Executor getExecutor()
-   {
+   public Executor getExecutor() {
       return executor;
    }
 
-
-   public void reloadPageInfo(long pageNr)
-   {
+   public void reloadPageInfo(long pageNr) {
       getPageInfo(pageNr, true);
    }
 
-   private PageCursorInfo getPageInfo(final PagePosition pos)
-   {
+   private PageCursorInfo getPageInfo(final PagePosition pos) {
       return getPageInfo(pos.getPageNr(), true);
    }
 
-   private PageCursorInfo getPageInfo(final long pageNr, boolean create)
-   {
-      synchronized (consumedPages)
-      {
+   private PageCursorInfo getPageInfo(final long pageNr, boolean create) {
+      synchronized (consumedPages) {
          PageCursorInfo pageInfo = consumedPages.get(pageNr);
 
-         if (create && pageInfo == null)
-         {
+         if (create && pageInfo == null) {
             PageCache cache = cursorProvider.getPageCache(pageNr);
-            if (cache == null)
-            {
+            if (cache == null) {
                return null;
             }
             pageInfo = new PageCursorInfo(pageNr, cache.getNumberOfMessages(), cache);
@@ -877,14 +726,11 @@ final class PageSubscriptionImpl implements PageSubscription
 
    // Protected -----------------------------------------------------
 
-   private boolean match(final ServerMessage message)
-   {
-      if (filter == null)
-      {
+   private boolean match(final ServerMessage message) {
+      if (filter == null) {
          return true;
       }
-      else
-      {
+      else {
          return filter.match(message);
       }
    }
@@ -893,24 +739,18 @@ final class PageSubscriptionImpl implements PageSubscription
 
    // To be called only after the ACK has been processed and guaranteed to be on storage
    // The only exception is on non storage events such as not matching messages
-   private PageCursorInfo processACK(final PagePosition pos)
-   {
-      if (lastAckedPosition == null || pos.compareTo(lastAckedPosition) > 0)
-      {
-         if (isTrace)
-         {
+   private PageCursorInfo processACK(final PagePosition pos) {
+      if (lastAckedPosition == null || pos.compareTo(lastAckedPosition) > 0) {
+         if (isTrace) {
             ActiveMQServerLogger.LOGGER.trace("a new position is being processed as ACK");
          }
-         if (lastAckedPosition != null && lastAckedPosition.getPageNr() != pos.getPageNr())
-         {
-            if (isTrace)
-            {
+         if (lastAckedPosition != null && lastAckedPosition.getPageNr() != pos.getPageNr()) {
+            if (isTrace) {
                ActiveMQServerLogger.LOGGER.trace("Scheduling cleanup on pageSubscription for address = " + pageStore.getAddress() + " queue = " + this.getQueue().getName());
             }
 
             // there's a different page being acked, we will do the check right away
-            if (autoCleanup)
-            {
+            if (autoCleanup) {
                scheduleCleanupCheck();
             }
          }
@@ -919,14 +759,12 @@ final class PageSubscriptionImpl implements PageSubscription
       PageCursorInfo info = getPageInfo(pos);
 
       // This could be null if the page file was removed
-      if (info == null)
-      {
+      if (info == null) {
          // This could become null if the page file was deleted, or if the queue was removed maybe?
          // it's better to diagnose it (based on support tickets) instead of NPE
          ActiveMQServerLogger.LOGGER.nullPageCursorInfo(this.getPagingStore().getAddress().toString(), pos.toString(), cursorId);
       }
-      else
-      {
+      else {
          info.addACK(pos);
       }
 
@@ -937,10 +775,8 @@ final class PageSubscriptionImpl implements PageSubscription
     * @param tx
     * @param position
     */
-   private void installTXCallback(final Transaction tx, final PagePosition position)
-   {
-      if (position.getRecordID() >= 0)
-      {
+   private void installTXCallback(final Transaction tx, final PagePosition position) {
+      if (position.getRecordID() >= 0) {
          // It needs to persist, otherwise the cursor will return to the fist page position
          tx.setContainsPersistent();
       }
@@ -949,8 +785,7 @@ final class PageSubscriptionImpl implements PageSubscription
 
       PageCursorTX cursorTX = (PageCursorTX) tx.getProperty(TransactionPropertyIndexes.PAGE_CURSOR_POSITIONS);
 
-      if (cursorTX == null)
-      {
+      if (cursorTX == null) {
          cursorTX = new PageCursorTX();
          tx.putProperty(TransactionPropertyIndexes.PAGE_CURSOR_POSITIONS, cursorTX);
          tx.addOperation(cursorTX);
@@ -960,14 +795,11 @@ final class PageSubscriptionImpl implements PageSubscription
 
    }
 
-   private PageTransactionInfo getPageTransaction(final PagedReference reference)
-   {
-      if (reference.getPagedMessage().getTransactionID() >= 0)
-      {
+   private PageTransactionInfo getPageTransaction(final PagedReference reference) {
+      if (reference.getPagedMessage().getTransactionID() >= 0) {
          return pageStore.getPagingManager().getTransaction(reference.getPagedMessage().getTransactionID());
       }
-      else
-      {
+      else {
          return null;
       }
    }
@@ -977,10 +809,8 @@ final class PageSubscriptionImpl implements PageSubscription
     *
     * @param info
     */
-   private void onPageDone(final PageCursorInfo info)
-   {
-      if (autoCleanup)
-      {
+   private void onPageDone(final PageCursorInfo info) {
+      if (autoCleanup) {
          scheduleCleanupCheck();
       }
    }
@@ -993,8 +823,8 @@ final class PageSubscriptionImpl implements PageSubscription
     * This instance will be released as soon as the entire page is consumed, releasing the memory at
     * that point The ref counts are increased also when a message is ignored for any reason.
     */
-   private final class PageCursorInfo
-   {
+   private final class PageCursorInfo {
+
       // Number of messages existent on this page
       private final int numberOfMessages;
 
@@ -1027,16 +857,12 @@ final class PageSubscriptionImpl implements PageSubscription
       // expressions
       private final AtomicInteger confirmed = new AtomicInteger(0);
 
-
-      public boolean isAck(PagePosition position)
-      {
-         return completePage != null ||
-                acks.contains(position);
+      public boolean isAck(PagePosition position) {
+         return completePage != null || acks.contains(position);
       }
 
       @Override
-      public String toString()
-      {
+      public String toString() {
          return "PageCursorInfo::PageID=" + pageId +
             " numberOfMessage = " +
             numberOfMessages +
@@ -1046,17 +872,14 @@ final class PageSubscriptionImpl implements PageSubscription
             this.isDone();
       }
 
-      public PageCursorInfo(final long pageId, final int numberOfMessages, final PageCache cache)
-      {
+      public PageCursorInfo(final long pageId, final int numberOfMessages, final PageCache cache) {
          this.pageId = pageId;
          this.numberOfMessages = numberOfMessages;
-         if (cache != null)
-         {
+         if (cache != null) {
             wasLive = cache.isLive();
             this.cache = new WeakReference<PageCache>(cache);
          }
-         else
-         {
+         else {
             wasLive = false;
          }
       }
@@ -1064,94 +887,78 @@ final class PageSubscriptionImpl implements PageSubscription
       /**
        * @param completePage
        */
-      public void setCompleteInfo(final PagePosition completePage)
-      {
+      public void setCompleteInfo(final PagePosition completePage) {
          this.completePage = completePage;
       }
 
-      public PagePosition getCompleteInfo()
-      {
+      public PagePosition getCompleteInfo() {
          return completePage;
       }
 
-      public boolean isDone()
-      {
+      public boolean isDone() {
          return completePage != null || (getNumberOfMessages() == confirmed.get() && pendingTX.get() == 0);
       }
 
-      public boolean isPendingDelete()
-      {
+      public boolean isPendingDelete() {
          return pendingDelete || completePage != null;
       }
 
-      public void setPendingDelete()
-      {
+      public void setPendingDelete() {
          pendingDelete = true;
       }
 
       /**
        * @return the pageId
        */
-      public long getPageId()
-      {
+      public long getPageId() {
          return pageId;
       }
 
-      public void incrementPendingTX()
-      {
+      public void incrementPendingTX() {
          pendingTX.incrementAndGet();
       }
 
-      public void decrementPendingTX()
-      {
+      public void decrementPendingTX() {
          pendingTX.decrementAndGet();
          checkDone();
       }
 
-      public boolean isRemoved(final PagePosition pos)
-      {
+      public boolean isRemoved(final PagePosition pos) {
          return removedReferences.contains(pos);
       }
 
-      public void remove(final PagePosition position)
-      {
+      public void remove(final PagePosition position) {
          removedReferences.add(position);
       }
 
-      public void addACK(final PagePosition posACK)
-      {
+      public void addACK(final PagePosition posACK) {
 
-         if (isTrace)
-         {
+         if (isTrace) {
             ActiveMQServerLogger.LOGGER.trace("numberOfMessages =  " + getNumberOfMessages() +
-                                                " confirmed =  " +
-                                                (confirmed.get() + 1) +
-                                                " pendingTX = " + pendingTX +
-                                                ", page = " +
-                                                pageId + " posACK = " + posACK);
+                                                 " confirmed =  " +
+                                                 (confirmed.get() + 1) +
+                                                 " pendingTX = " + pendingTX +
+                                                 ", page = " +
+                                                 pageId + " posACK = " + posACK);
          }
 
          boolean added = internalAddACK(posACK);
 
          // Negative could mean a bookmark on the first element for the page (example -1)
-         if (added && posACK.getMessageNr() >= 0)
-         {
+         if (added && posACK.getMessageNr() >= 0) {
             confirmed.incrementAndGet();
             checkDone();
          }
       }
 
       // To be called during reload
-      public void loadACK(final PagePosition posACK)
-      {
-         if (internalAddACK(posACK) && posACK.getMessageNr() >= 0)
-         {
+      public void loadACK(final PagePosition posACK) {
+         if (internalAddACK(posACK) && posACK.getMessageNr() >= 0) {
             confirmed.incrementAndGet();
          }
       }
 
-      private boolean internalAddACK(final PagePosition posACK)
-      {
+      private boolean internalAddACK(final PagePosition posACK) {
          removedReferences.add(posACK);
          return acks.add(posACK);
       }
@@ -1159,48 +966,39 @@ final class PageSubscriptionImpl implements PageSubscription
       /**
        *
        */
-      protected void checkDone()
-      {
-         if (isDone())
-         {
+      protected void checkDone() {
+         if (isDone()) {
             onPageDone(this);
          }
       }
 
-      private int getNumberOfMessages()
-      {
-         if (wasLive)
-         {
+      private int getNumberOfMessages() {
+         if (wasLive) {
             // if the page was live at any point, we need to
             // get the number of messages from the page-cache
             PageCache localcache = this.cache.get();
-            if (localcache == null)
-            {
+            if (localcache == null) {
                localcache = cursorProvider.getPageCache(pageId);
                this.cache = new WeakReference<PageCache>(localcache);
             }
 
             return localcache.getNumberOfMessages();
          }
-         else
-         {
+         else {
             return numberOfMessages;
          }
       }
 
    }
 
-   private static final class PageCursorTX extends TransactionOperationAbstract
-   {
-      private final Map<PageSubscriptionImpl, List<PagePosition>> pendingPositions =
-         new HashMap<PageSubscriptionImpl, List<PagePosition>>();
+   private static final class PageCursorTX extends TransactionOperationAbstract {
 
-      private void addPositionConfirmation(final PageSubscriptionImpl cursor, final PagePosition position)
-      {
+      private final Map<PageSubscriptionImpl, List<PagePosition>> pendingPositions = new HashMap<PageSubscriptionImpl, List<PagePosition>>();
+
+      private void addPositionConfirmation(final PageSubscriptionImpl cursor, final PagePosition position) {
          List<PagePosition> list = pendingPositions.get(cursor);
 
-         if (list == null)
-         {
+         if (list == null) {
             list = new LinkedList<PagePosition>();
             pendingPositions.put(cursor, list);
          }
@@ -1209,16 +1007,13 @@ final class PageSubscriptionImpl implements PageSubscription
       }
 
       @Override
-      public void afterCommit(final Transaction tx)
-      {
-         for (Entry<PageSubscriptionImpl, List<PagePosition>> entry : pendingPositions.entrySet())
-         {
+      public void afterCommit(final Transaction tx) {
+         for (Entry<PageSubscriptionImpl, List<PagePosition>> entry : pendingPositions.entrySet()) {
             PageSubscriptionImpl cursor = entry.getKey();
 
             List<PagePosition> positions = entry.getValue();
 
-            for (PagePosition confirmed : positions)
-            {
+            for (PagePosition confirmed : positions) {
                cursor.processACK(confirmed);
                cursor.deliveredCount.decrementAndGet();
             }
@@ -1227,15 +1022,14 @@ final class PageSubscriptionImpl implements PageSubscription
       }
 
       @Override
-      public List<MessageReference> getRelatedMessageReferences()
-      {
+      public List<MessageReference> getRelatedMessageReferences() {
          return Collections.emptyList();
       }
 
    }
 
-   private class CursorIterator implements PageIterator
-   {
+   private class CursorIterator implements PageIterator {
+
       private PagePosition position = null;
 
       private PagePosition lastOperation = null;
@@ -1255,72 +1049,56 @@ final class PageSubscriptionImpl implements PageSubscription
        */
       private volatile PagedReference cachedNext;
 
-      public CursorIterator()
-      {
+      public CursorIterator() {
       }
 
-      public void redeliver(PagePosition reference)
-      {
-         synchronized (redeliveries)
-         {
+      public void redeliver(PagePosition reference) {
+         synchronized (redeliveries) {
             redeliveries.add(reference);
          }
       }
 
-      public void repeat()
-      {
-         if (isredelivery)
-         {
-            synchronized (redeliveries)
-            {
+      public void repeat() {
+         if (isredelivery) {
+            synchronized (redeliveries) {
                cachedNext = lastRedelivery;
             }
          }
-         else
-         {
-            if (lastOperation == null)
-            {
+         else {
+            if (lastOperation == null) {
                position = null;
             }
-            else
-            {
+            else {
                position = lastOperation;
             }
          }
       }
 
       @Override
-      public synchronized PagedReference next()
-      {
+      public synchronized PagedReference next() {
 
-         if (cachedNext != null)
-         {
+         if (cachedNext != null) {
             currentDelivery = cachedNext;
             cachedNext = null;
             return currentDelivery;
          }
 
-         try
-         {
-            if (position == null)
-            {
+         try {
+            if (position == null) {
                position = getStartPosition();
             }
 
             currentDelivery = moveNext();
             return currentDelivery;
          }
-         catch (RuntimeException e)
-         {
+         catch (RuntimeException e) {
             e.printStackTrace();
             throw e;
          }
       }
 
-      private PagedReference moveNext()
-      {
-         synchronized (PageSubscriptionImpl.this)
-         {
+      private PagedReference moveNext() {
+         synchronized (PageSubscriptionImpl.this) {
             boolean match = false;
 
             PagedReference message;
@@ -1328,14 +1106,11 @@ final class PageSubscriptionImpl implements PageSubscription
             PagePosition lastPosition = position;
             PagePosition tmpPosition = position;
 
-            do
-            {
-               synchronized (redeliveries)
-               {
+            do {
+               synchronized (redeliveries) {
                   PagePosition redelivery = redeliveries.poll();
 
-                  if (redelivery != null)
-                  {
+                  if (redelivery != null) {
                      // There's a redelivery pending, we will get it out of that pool instead
                      isredelivery = true;
                      PagedReference redeliveredMsg = getReference(redelivery);
@@ -1343,8 +1118,7 @@ final class PageSubscriptionImpl implements PageSubscription
 
                      return redeliveredMsg;
                   }
-                  else
-                  {
+                  else {
                      lastRedelivery = null;
                      isredelivery = false;
                   }
@@ -1352,8 +1126,7 @@ final class PageSubscriptionImpl implements PageSubscription
                   message = internalGetNext(tmpPosition);
                }
 
-               if (message == null)
-               {
+               if (message == null) {
                   break;
                }
 
@@ -1367,34 +1140,26 @@ final class PageSubscriptionImpl implements PageSubscription
                // 1st... is it routed?
 
                valid = routed(message.getPagedMessage());
-               if (!valid)
-               {
+               if (!valid) {
                   ignored = true;
                }
 
                PageCursorInfo info = getPageInfo(message.getPosition().getPageNr(), false);
 
-               if (info != null && (info.isRemoved(message.getPosition()) || info.getCompleteInfo() != null))
-               {
+               if (info != null && (info.isRemoved(message.getPosition()) || info.getCompleteInfo() != null)) {
                   continue;
                }
 
                // 2nd ... if TX, is it committed?
-               if (valid && message.getPagedMessage().getTransactionID() >= 0)
-               {
-                  PageTransactionInfo tx = pageStore.getPagingManager().getTransaction(message.getPagedMessage()
-                                                                                          .getTransactionID());
-                  if (tx == null)
-                  {
-                     ActiveMQServerLogger.LOGGER.pageSubscriptionCouldntLoad(message.getPagedMessage().getTransactionID(),
-                                                                            message.getPosition(), pageStore.getAddress(), queue.getName());
+               if (valid && message.getPagedMessage().getTransactionID() >= 0) {
+                  PageTransactionInfo tx = pageStore.getPagingManager().getTransaction(message.getPagedMessage().getTransactionID());
+                  if (tx == null) {
+                     ActiveMQServerLogger.LOGGER.pageSubscriptionCouldntLoad(message.getPagedMessage().getTransactionID(), message.getPosition(), pageStore.getAddress(), queue.getName());
                      valid = false;
                      ignored = true;
                   }
-                  else
-                  {
-                     if (tx.deliverAfterCommit(CursorIterator.this, PageSubscriptionImpl.this, message.getPosition()))
-                     {
+                  else {
+                     if (tx.deliverAfterCommit(CursorIterator.this, PageSubscriptionImpl.this, message.getPosition())) {
                         valid = false;
                         ignored = false;
                      }
@@ -1402,42 +1167,34 @@ final class PageSubscriptionImpl implements PageSubscription
                }
 
                // 3rd... was it previously removed?
-               if (valid)
-               {
+               if (valid) {
                   // We don't create a PageCursorInfo unless we are doing a write operation (ack or removing)
                   // Say you have a Browser that will only read the files... there's no need to control PageCursors is
                   // nothing
                   // is being changed. That's why the false is passed as a parameter here
 
-                  if (info != null && info.isRemoved(message.getPosition()))
-                  {
+                  if (info != null && info.isRemoved(message.getPosition())) {
                      valid = false;
                   }
                }
 
-               if (!ignored)
-               {
+               if (!ignored) {
                   position = message.getPosition();
                }
 
-               if (valid)
-               {
+               if (valid) {
                   match = match(message.getMessage());
 
-                  if (!match)
-                  {
+                  if (!match) {
                      processACK(message.getPosition());
                   }
                }
-               else if (ignored)
-               {
+               else if (ignored) {
                   positionIgnored(message.getPosition());
                }
-            }
-            while (message != null && !match);
+            } while (message != null && !match);
 
-            if (message != null)
-            {
+            if (message != null) {
                lastOperation = lastPosition;
             }
 
@@ -1449,16 +1206,13 @@ final class PageSubscriptionImpl implements PageSubscription
        * QueueImpl::deliver could be calling hasNext while QueueImpl.depage could be using next and hasNext as well.
        * It would be a rare race condition but I would prefer avoiding that scenario
        */
-      public synchronized boolean hasNext()
-      {
+      public synchronized boolean hasNext() {
          // if an unbehaved program called hasNext twice before next, we only cache it once.
-         if (cachedNext != null)
-         {
+         if (cachedNext != null) {
             return true;
          }
 
-         if (!pageStore.isPaging())
-         {
+         if (!pageStore.isPaging()) {
             return false;
          }
 
@@ -1468,23 +1222,19 @@ final class PageSubscriptionImpl implements PageSubscription
       }
 
       @Override
-      public void remove()
-      {
+      public void remove() {
          deliveredCount.incrementAndGet();
          PagedReference delivery = currentDelivery;
-         if (delivery != null)
-         {
+         if (delivery != null) {
             PageCursorInfo info = PageSubscriptionImpl.this.getPageInfo(delivery.getPosition());
-            if (info != null)
-            {
+            if (info != null) {
                info.remove(delivery.getPosition());
             }
          }
       }
 
       @Override
-      public void close()
-      {
+      public void close() {
       }
    }
 }

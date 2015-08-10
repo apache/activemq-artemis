@@ -21,14 +21,13 @@ import org.jboss.resteasy.plugins.server.tjws.TJWSEmbeddedJaxrsServer;
 import org.apache.activemq.artemis.rest.MessageServiceManager;
 import org.jboss.resteasy.test.TestPortProvider;
 
-public class EmbeddedRestActiveMQ
-{
+public class EmbeddedRestActiveMQ {
+
    protected TJWSEmbeddedJaxrsServer tjws = new TJWSEmbeddedJaxrsServer();
    protected EmbeddedActiveMQ embeddedActiveMQ;
    protected MessageServiceManager manager = new MessageServiceManager();
 
-   public EmbeddedRestActiveMQ()
-   {
+   public EmbeddedRestActiveMQ() {
       int port = TestPortProvider.getPort();
       tjws.setPort(port);
       tjws.setRootResourcePath("");
@@ -36,33 +35,27 @@ public class EmbeddedRestActiveMQ
       initEmbeddedActiveMQ();
    }
 
-   protected void initEmbeddedActiveMQ()
-   {
+   protected void initEmbeddedActiveMQ() {
       embeddedActiveMQ = new EmbeddedActiveMQ();
    }
 
-   public TJWSEmbeddedJaxrsServer getTjws()
-   {
+   public TJWSEmbeddedJaxrsServer getTjws() {
       return tjws;
    }
 
-   public void setTjws(TJWSEmbeddedJaxrsServer tjws)
-   {
+   public void setTjws(TJWSEmbeddedJaxrsServer tjws) {
       this.tjws = tjws;
    }
 
-   public EmbeddedActiveMQ getEmbeddedActiveMQ()
-   {
+   public EmbeddedActiveMQ getEmbeddedActiveMQ() {
       return embeddedActiveMQ;
    }
 
-   public MessageServiceManager getManager()
-   {
+   public MessageServiceManager getManager() {
       return manager;
    }
 
-   public void start() throws Exception
-   {
+   public void start() throws Exception {
       embeddedActiveMQ.start();
       tjws.start();
       manager.start();
@@ -70,21 +63,16 @@ public class EmbeddedRestActiveMQ
       tjws.getDeployment().getRegistry().addSingletonResource(manager.getTopicManager().getDestination());
    }
 
-   public void stop() throws Exception
-   {
-      try
-      {
+   public void stop() throws Exception {
+      try {
          tjws.stop();
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
       }
-      try
-      {
+      try {
          manager.stop();
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
       }
       embeddedActiveMQ.stop();
    }

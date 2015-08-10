@@ -35,8 +35,7 @@ import org.junit.Test;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-public class ReplicatedDistributionTest extends ClusterTestBase
-{
+public class ReplicatedDistributionTest extends ClusterTestBase {
 
    private static final SimpleString ADDRESS = new SimpleString("test.SomeAddress");
    private ClientSession sessionOne;
@@ -45,13 +44,10 @@ public class ReplicatedDistributionTest extends ClusterTestBase
    private ClientProducer producer;
 
    @Test
-   public void testRedistribution() throws Exception
-   {
+   public void testRedistribution() throws Exception {
       commonTestCode();
 
-
-      for (int i = 0; i < 50; i++)
-      {
+      for (int i = 0; i < 50; i++) {
          ClientMessage msg = consThree.receive(15000);
 
          Assert.assertNotNull(msg);
@@ -85,8 +81,7 @@ public class ReplicatedDistributionTest extends ClusterTestBase
 
       // consThree = sessionThree.createConsumer(ADDRESS);
 
-      for (int i = 50; i < 100; i++)
-      {
+      for (int i = 50; i < 100; i++) {
          ClientMessage msg = consThree.receive(15000);
 
          Assert.assertNotNull(msg);
@@ -112,12 +107,10 @@ public class ReplicatedDistributionTest extends ClusterTestBase
    }
 
    @Test
-   public void testSimpleRedistribution() throws Exception
-   {
+   public void testSimpleRedistribution() throws Exception {
       commonTestCode();
 
-      for (int i = 0; i < 100; i++)
-      {
+      for (int i = 0; i < 100; i++) {
          ClientMessage msg = consThree.receive(15000);
 
          Assert.assertNotNull(msg);
@@ -126,8 +119,7 @@ public class ReplicatedDistributionTest extends ClusterTestBase
 
          int received = msg.getIntProperty("key");
 
-         if (i != received)
-         {
+         if (i != received) {
             // Shouldn't this be a failure?
             System.out.println(i + "!=" + received);
          }
@@ -143,15 +135,13 @@ public class ReplicatedDistributionTest extends ClusterTestBase
       Assert.assertNull(consOne.receiveImmediate());
    }
 
-   private void commonTestCode() throws Exception
-   {
+   private void commonTestCode() throws Exception {
       waitForBindings(3, "test.SomeAddress", 1, 1, true);
       waitForBindings(1, "test.SomeAddress", 1, 1, false);
 
       producer = sessionOne.createProducer(ReplicatedDistributionTest.ADDRESS);
 
-      for (int i = 0; i < 100; i++)
-      {
+      for (int i = 0; i < 100; i++) {
          ClientMessage msg = sessionOne.createMessage(true);
          msg.putIntProperty(new SimpleString("key"), i);
          producer.send(msg);
@@ -164,8 +154,7 @@ public class ReplicatedDistributionTest extends ClusterTestBase
     * @param session
     * @throws InterruptedException
     */
-   private void fail(final ClientSession session) throws InterruptedException
-   {
+   private void fail(final ClientSession session) throws InterruptedException {
 
       final CountDownLatch latch = new CountDownLatch(1);
 
@@ -185,8 +174,7 @@ public class ReplicatedDistributionTest extends ClusterTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       setupLiveServer(1, true, isSharedStore(), true, false);
@@ -201,8 +189,7 @@ public class ReplicatedDistributionTest extends ClusterTestBase
 
       AddressSettings as = new AddressSettings().setRedistributionDelay(0);
 
-      for (int i : new int[]{1, 2, 3})
-      {
+      for (int i : new int[]{1, 2, 3}) {
          getServer(i).getAddressSettingsRepository().addMatch("test.*", as);
          getServer(i).start();
       }
@@ -222,8 +209,7 @@ public class ReplicatedDistributionTest extends ClusterTestBase
    }
 
    @Override
-   protected boolean isSharedStore()
-   {
+   protected boolean isSharedStore() {
       return false;
    }
 }

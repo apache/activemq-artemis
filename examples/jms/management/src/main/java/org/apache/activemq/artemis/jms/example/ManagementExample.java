@@ -34,22 +34,20 @@ import org.apache.activemq.artemis.api.jms.management.JMSManagementHelper;
 /**
  * An example that shows how to manage ActiveMQ Artemis using JMS messages.
  */
-public class ManagementExample
-{
-   public static void main(final String[] args) throws Exception
-   {
+public class ManagementExample {
+
+   public static void main(final String[] args) throws Exception {
       QueueConnection connection = null;
       InitialContext initialContext = null;
-      try
-      {
+      try {
          // Step 1. Create an initial context to perform the JNDI lookup.
          initialContext = new InitialContext();
 
          // Step 2. Perfom a lookup on the queue
-         Queue queue = (Queue)initialContext.lookup("queue/exampleQueue");
+         Queue queue = (Queue) initialContext.lookup("queue/exampleQueue");
 
          // Step 3. Perform a lookup on the Connection Factory
-         QueueConnectionFactory cf = (QueueConnectionFactory)initialContext.lookup("ConnectionFactory");
+         QueueConnectionFactory cf = (QueueConnectionFactory) initialContext.lookup("ConnectionFactory");
 
          // Step 4.Create a JMS Connection
          connection = cf.createQueueConnection();
@@ -89,7 +87,7 @@ public class ManagementExample
          Message reply = requestor.request(m);
 
          // Step 15. Use a helper class to retrieve the operation result
-         int messageCount = (Integer)JMSManagementHelper.getResult(reply);
+         int messageCount = (Integer) JMSManagementHelper.getResult(reply);
          System.out.println(queue.getQueueName() + " contains " + messageCount + " messages");
 
          // Step 16. Create another JMS message to use as a management message
@@ -99,10 +97,7 @@ public class ManagementExample
          // * the object name of the resource to manage (i.e. the queue)
          // * in this case, we want to call the "removeMessage" operation with the JMS MessageID
          // of the message sent to the queue in step 8.
-         JMSManagementHelper.putOperationInvocation(m,
-                                                    "jms.queue.exampleQueue",
-                                                    "removeMessage",
-                                                    message.getJMSMessageID());
+         JMSManagementHelper.putOperationInvocation(m, "jms.queue.exampleQueue", "removeMessage", message.getJMSMessageID());
 
          // Step 18 Use the requestor to send the request and wait for the reply
          reply = requestor.request(m);
@@ -113,7 +108,7 @@ public class ManagementExample
 
          // Step 20. Use a helper class to retrieve the operation result
          // in that case, a boolean which is true if the message was removed, false else
-         boolean messageRemoved = (Boolean)JMSManagementHelper.getResult(reply);
+         boolean messageRemoved = (Boolean) JMSManagementHelper.getResult(reply);
          System.out.println("message has been removed: " + messageRemoved);
 
          // Step 21. Create a JMS Message Consumer on the queue
@@ -122,18 +117,15 @@ public class ManagementExample
          // Step 22. Trying to receive a message. Since the only message in the queue was removed by a management
          // operation,
          // there is none to consume. The call will timeout after 5000ms and messageReceived will be null
-         TextMessage messageReceived = (TextMessage)messageConsumer.receive(5000);
+         TextMessage messageReceived = (TextMessage) messageConsumer.receive(5000);
          System.out.println("Received message: " + messageReceived);
       }
-      finally
-      {
+      finally {
          // Step 23. Be sure to close the resources!
-         if (initialContext != null)
-         {
+         if (initialContext != null) {
             initialContext.close();
          }
-         if (connection != null)
-         {
+         if (connection != null) {
             connection.close();
          }
       }

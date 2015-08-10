@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 package org.objectweb.jtests.jms.conform.message;
+
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageNotWriteableException;
@@ -28,27 +29,21 @@ import org.objectweb.jtests.jms.framework.TestConfig;
 /**
  * Tests on message body.
  */
-public class MessageBodyTest extends PTPTestCase
-{
+public class MessageBodyTest extends PTPTestCase {
 
    /**
     * Test that the <code>TextMessage.clearBody()</code> method does not clear the
     * message properties.
     */
    @Test
-   public void testClearBody_2()
-   {
-      try
-      {
+   public void testClearBody_2() {
+      try {
          TextMessage message = senderSession.createTextMessage();
          message.setStringProperty("prop", "foo");
          message.clearBody();
-         Assert.assertEquals("sec. 3.11.1 Clearing a message's body does not clear its property entries.\n",
-                             "foo",
-                             message.getStringProperty("prop"));
+         Assert.assertEquals("sec. 3.11.1 Clearing a message's body does not clear its property entries.\n", "foo", message.getStringProperty("prop"));
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          fail(e);
       }
    }
@@ -57,20 +52,14 @@ public class MessageBodyTest extends PTPTestCase
     * Test that the <code>TextMessage.clearBody()</code> effectively clear the body of the message
     */
    @Test
-   public void testClearBody_1()
-   {
-      try
-      {
+   public void testClearBody_1() {
+      try {
          TextMessage message = senderSession.createTextMessage();
          message.setText("bar");
          message.clearBody();
-         Assert.assertEquals("sec. 3 .11.1 the clearBody method of Message resets the value of the message body " + "to the 'empty' initial message value as set by the message type's create "
-                                      + "method provided by Session.\n",
-                             null,
-                             message.getText());
+         Assert.assertEquals("sec. 3 .11.1 the clearBody method of Message resets the value of the message body " + "to the 'empty' initial message value as set by the message type's create " + "method provided by Session.\n", null, message.getText());
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          fail(e);
       }
    }
@@ -80,25 +69,21 @@ public class MessageBodyTest extends PTPTestCase
     * received message raises a <code>javax.jms.MessageNotWriteableException</code>.
     */
    @Test
-   public void testWriteOnReceivedBody()
-   {
-      try
-      {
+   public void testWriteOnReceivedBody() {
+      try {
          TextMessage message = senderSession.createTextMessage();
          message.setText("foo");
          sender.send(message);
 
          Message m = receiver.receive(TestConfig.TIMEOUT);
          Assert.assertTrue("The message should be an instance of TextMessage.\n", m instanceof TextMessage);
-         TextMessage msg = (TextMessage)m;
+         TextMessage msg = (TextMessage) m;
          msg.setText("bar");
          Assert.fail("should raise a MessageNotWriteableException (sec. 3.11.2)");
       }
-      catch (MessageNotWriteableException e)
-      {
+      catch (MessageNotWriteableException e) {
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          fail(e);
       }
    }

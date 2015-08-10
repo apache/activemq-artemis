@@ -20,44 +20,37 @@ import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
 
 import java.lang.ref.WeakReference;
 
+public class MemorySize {
 
-public class MemorySize
-{
    private static final int numberOfObjects = 10000;
 
-   private static Object newObject(final ObjectFactory factory) throws Exception
-   {
+   private static Object newObject(final ObjectFactory factory) throws Exception {
       return factory.createObject();
    }
 
-   public static boolean is64bitArch()
-   {
+   public static boolean is64bitArch() {
       boolean is64bit = true; // Default to 64 e.g. if can't retrieve property
 
-      try
-      {
+      try {
          String arch = System.getProperty("os.arch");
 
-         if (arch != null)
-         {
+         if (arch != null) {
             is64bit = arch.contains("64");
          }
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          // Ignore
       }
 
       return is64bit;
    }
 
-   public interface ObjectFactory
-   {
+   public interface ObjectFactory {
+
       Object createObject();
    }
 
-   public static int calculateSize(final ObjectFactory factory) throws Exception
-   {
+   public static int calculateSize(final ObjectFactory factory) throws Exception {
       final Runtime runtime = Runtime.getRuntime();
 
       MemorySize.getMemorySize(runtime);
@@ -74,8 +67,7 @@ public class MemorySize
 
       Object[] obj = new Object[MemorySize.numberOfObjects * 2];
 
-      for (i = 0; i < MemorySize.numberOfObjects * 2; i++)
-      {
+      for (i = 0; i < MemorySize.numberOfObjects * 2; i++) {
          obj[i] = MemorySize.newObject(factory);
       }
 
@@ -85,8 +77,7 @@ public class MemorySize
 
       totalMemory1 = runtime.totalMemory();
 
-      for (i = 0; i < MemorySize.numberOfObjects; i++)
-      {
+      for (i = 0; i < MemorySize.numberOfObjects; i++) {
          obj[i] = MemorySize.newObject(factory);
       }
 
@@ -94,10 +85,9 @@ public class MemorySize
 
       totalMemory2 = runtime.totalMemory();
 
-      final int size = Math.round((float)(heap2 - heap1) / MemorySize.numberOfObjects);
+      final int size = Math.round((float) (heap2 - heap1) / MemorySize.numberOfObjects);
 
-      if (totalMemory1 != totalMemory2)
-      {
+      if (totalMemory1 != totalMemory2) {
          // throw new IllegalStateException("Warning: JVM allocated more data what would make results invalid " +
          // totalMemory1 + ":" + totalMemory2);
 
@@ -107,28 +97,22 @@ public class MemorySize
       return size;
    }
 
-   private static long getMemorySize(final Runtime runtime)
-   {
-      for (int i = 0; i < 5; i++)
-      {
+   private static long getMemorySize(final Runtime runtime) {
+      for (int i = 0; i < 5; i++) {
          MemorySize.forceGC();
       }
       return runtime.totalMemory() - runtime.freeMemory();
    }
 
-   private static void forceGC()
-   {
+   private static void forceGC() {
       WeakReference<Object> dumbReference = new WeakReference<Object>(new Object());
       // A loop that will wait GC, using the minimal time as possible
-      while (dumbReference.get() != null)
-      {
+      while (dumbReference.get() != null) {
          System.gc();
-         try
-         {
+         try {
             Thread.sleep(500);
          }
-         catch (InterruptedException e)
-         {
+         catch (InterruptedException e) {
          }
       }
    }

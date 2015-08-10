@@ -32,166 +32,165 @@ import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 public class AMQ3411Test extends TestCase {
-	@SuppressWarnings("unused")
-	private static final Logger LOG = LoggerFactory
-			.getLogger(AMQ3411Test.class);
-	private static final Collection<String> DEFAULT_OPTIONS = Arrays
-			.asList(new String[] { "--amqurl", "tcp://localhost:61616", });
 
-	private static final Collection<String> DEFAULT_TOKENS = Arrays
-			.asList(new String[] { "FOO.QUEUE" });
-	protected AbstractApplicationContext context;
-	protected static final String origPassword = "ABCDEFG";
+   @SuppressWarnings("unused")
+   private static final Logger LOG = LoggerFactory.getLogger(AMQ3411Test.class);
+   private static final Collection<String> DEFAULT_OPTIONS = Arrays.asList(new String[]{"--amqurl", "tcp://localhost:61616",});
 
-	protected void setUp() throws Exception {
-		super.setUp();
+   private static final Collection<String> DEFAULT_TOKENS = Arrays.asList(new String[]{"FOO.QUEUE"});
+   protected AbstractApplicationContext context;
+   protected static final String origPassword = "ABCDEFG";
 
-		context = createApplicationContext();
+   protected void setUp() throws Exception {
+      super.setUp();
 
-	}
+      context = createApplicationContext();
 
-	protected AbstractApplicationContext createApplicationContext() {
-		return new ClassPathXmlApplicationContext("org/apache/activemq/console/command/activemq.xml");
-	}
+   }
 
-	protected void tearDown() throws Exception {
-		BrokerService broker = (BrokerService) context.getBean("localbroker");
-		broker.stop();
-		broker = (BrokerService) context.getBean("default");
-		broker.stop();
-		super.tearDown();
-	}
+   protected AbstractApplicationContext createApplicationContext() {
+      return new ClassPathXmlApplicationContext("org/apache/activemq/console/command/activemq.xml");
+   }
 
-	public void testNoFactorySet() throws Exception {
-		AmqBrowseCommand command = new AmqBrowseCommand();
-		CommandContext context = new CommandContext();
+   protected void tearDown() throws Exception {
+      BrokerService broker = (BrokerService) context.getBean("localbroker");
+      broker.stop();
+      broker = (BrokerService) context.getBean("default");
+      broker.stop();
+      super.tearDown();
+   }
 
-		context.setFormatter(new CommandShellOutputFormatter(System.out));
+   public void testNoFactorySet() throws Exception {
+      AmqBrowseCommand command = new AmqBrowseCommand();
+      CommandContext context = new CommandContext();
 
-		command.setCommandContext(context);
+      context.setFormatter(new CommandShellOutputFormatter(System.out));
 
-		List<String> tokens = new ArrayList<String>();
-		tokens.addAll(DEFAULT_OPTIONS);
-		tokens.addAll(DEFAULT_TOKENS);
+      command.setCommandContext(context);
 
-		command.execute(tokens);
+      List<String> tokens = new ArrayList<String>();
+      tokens.addAll(DEFAULT_OPTIONS);
+      tokens.addAll(DEFAULT_TOKENS);
 
-		assertNotNull(command.getPasswordFactory());
-		assertTrue(command.getPasswordFactory() instanceof DefaultPasswordFactory);
-		assertNull(command.getPassword());
-	}
+      command.execute(tokens);
 
-	public void testUsernamePasswordSet() throws Exception {
-		AmqBrowseCommand command = new AmqBrowseCommand();
-		CommandContext context = new CommandContext();
+      assertNotNull(command.getPasswordFactory());
+      assertTrue(command.getPasswordFactory() instanceof DefaultPasswordFactory);
+      assertNull(command.getPassword());
+   }
 
-		String username = "user";
-		String password = "password";
+   public void testUsernamePasswordSet() throws Exception {
+      AmqBrowseCommand command = new AmqBrowseCommand();
+      CommandContext context = new CommandContext();
 
-		context.setFormatter(new CommandShellOutputFormatter(System.out));
+      String username = "user";
+      String password = "password";
 
-		command.setCommandContext(context);
+      context.setFormatter(new CommandShellOutputFormatter(System.out));
 
-		List<String> tokens = new ArrayList<String>();
-		tokens.addAll(DEFAULT_OPTIONS);
-		tokens.add("--password");
-		tokens.add(password);
+      command.setCommandContext(context);
 
-		tokens.add("--user");
-		tokens.add(username);
-		tokens.addAll(DEFAULT_TOKENS);
+      List<String> tokens = new ArrayList<String>();
+      tokens.addAll(DEFAULT_OPTIONS);
+      tokens.add("--password");
+      tokens.add(password);
 
-		command.execute(tokens);
+      tokens.add("--user");
+      tokens.add(username);
+      tokens.addAll(DEFAULT_TOKENS);
 
-		assertNotNull(command.getPasswordFactory());
-		assertTrue(command.getPasswordFactory() instanceof DefaultPasswordFactory);
-		assertEquals(password, command.getPassword());
-		assertEquals(username, command.getUsername());
-	}
+      command.execute(tokens);
 
-	public void testFactorySet() throws Exception {
-		AmqBrowseCommand command = new AmqBrowseCommand();
-		CommandContext context = new CommandContext();
+      assertNotNull(command.getPasswordFactory());
+      assertTrue(command.getPasswordFactory() instanceof DefaultPasswordFactory);
+      assertEquals(password, command.getPassword());
+      assertEquals(username, command.getUsername());
+   }
 
-		context.setFormatter(new CommandShellOutputFormatter(System.out));
+   public void testFactorySet() throws Exception {
+      AmqBrowseCommand command = new AmqBrowseCommand();
+      CommandContext context = new CommandContext();
 
-		command.setCommandContext(context);
+      context.setFormatter(new CommandShellOutputFormatter(System.out));
 
-		List<String> tokens = new ArrayList<String>();
-		tokens.addAll(DEFAULT_OPTIONS);
-		tokens.add("--passwordFactory");
-		tokens.add(LowercasingPasswordFactory.class.getCanonicalName());
-		tokens.add("--password");
-		tokens.add(origPassword);
-		tokens.addAll(DEFAULT_TOKENS);
+      command.setCommandContext(context);
 
-		command.execute(tokens);
-		assertNotNull(command.getPasswordFactory());
-		assertTrue(command.getPasswordFactory() instanceof LowercasingPasswordFactory);
+      List<String> tokens = new ArrayList<String>();
+      tokens.addAll(DEFAULT_OPTIONS);
+      tokens.add("--passwordFactory");
+      tokens.add(LowercasingPasswordFactory.class.getCanonicalName());
+      tokens.add("--password");
+      tokens.add(origPassword);
+      tokens.addAll(DEFAULT_TOKENS);
 
-		// validate that the factory is indeed being used for the password.
-		assertEquals(origPassword.toLowerCase(), command.getPassword());
-	}
+      command.execute(tokens);
+      assertNotNull(command.getPasswordFactory());
+      assertTrue(command.getPasswordFactory() instanceof LowercasingPasswordFactory);
 
-	public void testFactorySetWrong1() throws Exception {
-		AmqBrowseCommand command = new AmqBrowseCommand();
-		CommandContext context = new CommandContext();
+      // validate that the factory is indeed being used for the password.
+      assertEquals(origPassword.toLowerCase(), command.getPassword());
+   }
 
-		context.setFormatter(new CommandShellOutputFormatter(System.out));
+   public void testFactorySetWrong1() throws Exception {
+      AmqBrowseCommand command = new AmqBrowseCommand();
+      CommandContext context = new CommandContext();
 
-		command.setCommandContext(context);
+      context.setFormatter(new CommandShellOutputFormatter(System.out));
 
-		List<String> tokens = new ArrayList<String>();
-		tokens.addAll(DEFAULT_OPTIONS);
-		tokens.add("--passwordFactory");
-		tokens
-				.add("org.apache.activemq.console.command.TestAMQ3411.DoesntExistFactory");
-		tokens.add("--password");
-		tokens.add(origPassword);
+      command.setCommandContext(context);
 
-		tokens.addAll(DEFAULT_TOKENS);
+      List<String> tokens = new ArrayList<String>();
+      tokens.addAll(DEFAULT_OPTIONS);
+      tokens.add("--passwordFactory");
+      tokens.add("org.apache.activemq.console.command.TestAMQ3411.DoesntExistFactory");
+      tokens.add("--password");
+      tokens.add(origPassword);
 
-		try {
-			command.execute(tokens);
-		} catch (Throwable e) {
-			Throwable cause = e;
-			while (null != cause) {
-				if (cause instanceof java.lang.ClassNotFoundException)
-					return;
-				cause = cause.getCause();
-			}
-			assertFalse(e.toString(), true);
-		}
-		assertFalse("No exception caught", true);
-	}
+      tokens.addAll(DEFAULT_TOKENS);
 
-	public void testFactorySetWrong2() throws Exception {
-		AmqBrowseCommand command = new AmqBrowseCommand();
-		CommandContext context = new CommandContext();
+      try {
+         command.execute(tokens);
+      }
+      catch (Throwable e) {
+         Throwable cause = e;
+         while (null != cause) {
+            if (cause instanceof java.lang.ClassNotFoundException)
+               return;
+            cause = cause.getCause();
+         }
+         assertFalse(e.toString(), true);
+      }
+      assertFalse("No exception caught", true);
+   }
 
-		context.setFormatter(new CommandShellOutputFormatter(System.out));
+   public void testFactorySetWrong2() throws Exception {
+      AmqBrowseCommand command = new AmqBrowseCommand();
+      CommandContext context = new CommandContext();
 
-		command.setCommandContext(context);
+      context.setFormatter(new CommandShellOutputFormatter(System.out));
 
-		List<String> tokens = new ArrayList<String>();
-		tokens.addAll(DEFAULT_OPTIONS);
-		tokens.add("--passwordFactory");
-		tokens.add("java.lang.Object");
-		tokens.add("--password");
-		tokens.add(origPassword);
-		tokens.addAll(DEFAULT_TOKENS);
+      command.setCommandContext(context);
 
-		try {
-			command.execute(tokens);
-		} catch (Throwable e) {
-			Throwable cause = e;
-			while (null != cause) {
-				if (cause instanceof java.lang.ClassCastException)
-					return;
-				cause = cause.getCause();
-			}
-			assertFalse(e.toString(), true);
-		}
-		assertFalse("No exception caught", true);
-	}
+      List<String> tokens = new ArrayList<String>();
+      tokens.addAll(DEFAULT_OPTIONS);
+      tokens.add("--passwordFactory");
+      tokens.add("java.lang.Object");
+      tokens.add("--password");
+      tokens.add(origPassword);
+      tokens.addAll(DEFAULT_TOKENS);
+
+      try {
+         command.execute(tokens);
+      }
+      catch (Throwable e) {
+         Throwable cause = e;
+         while (null != cause) {
+            if (cause instanceof java.lang.ClassCastException)
+               return;
+            cause = cause.getCause();
+         }
+         assertFalse(e.toString(), true);
+      }
+      assertFalse("No exception caught", true);
+   }
 }

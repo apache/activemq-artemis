@@ -40,328 +40,332 @@ import org.junit.Test;
 
 public class TopicBridgeStandaloneReconnectTest {
 
-    private SimpleJmsTopicConnector jmsTopicConnector;
+   private SimpleJmsTopicConnector jmsTopicConnector;
 
-    private BrokerService localBroker;
-    private BrokerService foreignBroker;
+   private BrokerService localBroker;
+   private BrokerService foreignBroker;
 
-    private ActiveMQConnectionFactory localConnectionFactory;
-    private ActiveMQConnectionFactory foreignConnectionFactory;
+   private ActiveMQConnectionFactory localConnectionFactory;
+   private ActiveMQConnectionFactory foreignConnectionFactory;
 
-    private Destination outbound;
-    private Destination inbound;
+   private Destination outbound;
+   private Destination inbound;
 
-    private final ArrayList<Connection> connections = new ArrayList<Connection>();
+   private final ArrayList<Connection> connections = new ArrayList<Connection>();
 
-    @Test
-    public void testSendAndReceiveOverConnectedBridges() throws Exception {
+   @Test
+   public void testSendAndReceiveOverConnectedBridges() throws Exception {
 
-        startLocalBroker();
-        startForeignBroker();
+      startLocalBroker();
+      startForeignBroker();
 
-        jmsTopicConnector.start();
+      jmsTopicConnector.start();
 
-        final MessageConsumer local = createConsumerForLocalBroker();
-        final MessageConsumer foreign = createConsumerForForeignBroker();
+      final MessageConsumer local = createConsumerForLocalBroker();
+      final MessageConsumer foreign = createConsumerForForeignBroker();
 
-        sendMessageToForeignBroker("to.foreign.broker");
-        sendMessageToLocalBroker("to.local.broker");
+      sendMessageToForeignBroker("to.foreign.broker");
+      sendMessageToLocalBroker("to.local.broker");
 
-        assertTrue("Should have received a Message.", Wait.waitFor(new Wait.Condition() {
-            @Override
-            public boolean isSatisified() throws Exception {
-                Message message = local.receive(100);
-                if (message != null && ((TextMessage) message).getText().equals("to.local.broker")) {
-                    return true;
-                }
-                return false;
+      assertTrue("Should have received a Message.", Wait.waitFor(new Wait.Condition() {
+         @Override
+         public boolean isSatisified() throws Exception {
+            Message message = local.receive(100);
+            if (message != null && ((TextMessage) message).getText().equals("to.local.broker")) {
+               return true;
             }
-        }));
+            return false;
+         }
+      }));
 
-        assertTrue("Should have received a Message.", Wait.waitFor(new Wait.Condition() {
-            @Override
-            public boolean isSatisified() throws Exception {
-                Message message = foreign.receive(100);
-                if (message != null && ((TextMessage) message).getText().equals("to.foreign.broker")) {
-                    return true;
-                }
-                return false;
+      assertTrue("Should have received a Message.", Wait.waitFor(new Wait.Condition() {
+         @Override
+         public boolean isSatisified() throws Exception {
+            Message message = foreign.receive(100);
+            if (message != null && ((TextMessage) message).getText().equals("to.foreign.broker")) {
+               return true;
             }
-        }));
-    }
+            return false;
+         }
+      }));
+   }
 
-    @Test
-    public void testSendAndReceiveOverBridgeWhenStartedBeforeBrokers() throws Exception {
+   @Test
+   public void testSendAndReceiveOverBridgeWhenStartedBeforeBrokers() throws Exception {
 
-        jmsTopicConnector.start();
+      jmsTopicConnector.start();
 
-        startLocalBroker();
-        startForeignBroker();
+      startLocalBroker();
+      startForeignBroker();
 
-        assertTrue("Should have Connected.", Wait.waitFor(new Wait.Condition() {
-            @Override
-            public boolean isSatisified() throws Exception {
-                return jmsTopicConnector.isConnected();
+      assertTrue("Should have Connected.", Wait.waitFor(new Wait.Condition() {
+         @Override
+         public boolean isSatisified() throws Exception {
+            return jmsTopicConnector.isConnected();
+         }
+      }));
+
+      final MessageConsumer local = createConsumerForLocalBroker();
+      final MessageConsumer foreign = createConsumerForForeignBroker();
+
+      sendMessageToForeignBroker("to.foreign.broker");
+      sendMessageToLocalBroker("to.local.broker");
+
+      assertTrue("Should have received a Message.", Wait.waitFor(new Wait.Condition() {
+         @Override
+         public boolean isSatisified() throws Exception {
+            Message message = local.receive(100);
+            if (message != null && ((TextMessage) message).getText().equals("to.local.broker")) {
+               return true;
             }
-        }));
+            return false;
+         }
+      }));
 
-        final MessageConsumer local = createConsumerForLocalBroker();
-        final MessageConsumer foreign = createConsumerForForeignBroker();
-
-        sendMessageToForeignBroker("to.foreign.broker");
-        sendMessageToLocalBroker("to.local.broker");
-
-        assertTrue("Should have received a Message.", Wait.waitFor(new Wait.Condition() {
-            @Override
-            public boolean isSatisified() throws Exception {
-                Message message = local.receive(100);
-                if (message != null && ((TextMessage) message).getText().equals("to.local.broker")) {
-                    return true;
-                }
-                return false;
+      assertTrue("Should have received a Message.", Wait.waitFor(new Wait.Condition() {
+         @Override
+         public boolean isSatisified() throws Exception {
+            Message message = foreign.receive(100);
+            if (message != null && ((TextMessage) message).getText().equals("to.foreign.broker")) {
+               return true;
             }
-        }));
+            return false;
+         }
+      }));
+   }
 
-        assertTrue("Should have received a Message.", Wait.waitFor(new Wait.Condition() {
-            @Override
-            public boolean isSatisified() throws Exception {
-                Message message = foreign.receive(100);
-                if (message != null && ((TextMessage) message).getText().equals("to.foreign.broker")) {
-                    return true;
-                }
-                return false;
+   @Test
+   public void testSendAndReceiveOverBridgeWithRestart() throws Exception {
+
+      startLocalBroker();
+      startForeignBroker();
+
+      jmsTopicConnector.start();
+
+      assertTrue("Should have Connected.", Wait.waitFor(new Wait.Condition() {
+         @Override
+         public boolean isSatisified() throws Exception {
+            return jmsTopicConnector.isConnected();
+         }
+      }));
+
+      stopLocalBroker();
+      stopForeignBroker();
+
+      assertTrue("Should have detected connection drop.", Wait.waitFor(new Wait.Condition() {
+         @Override
+         public boolean isSatisified() throws Exception {
+            return !jmsTopicConnector.isConnected();
+         }
+      }));
+
+      startLocalBroker();
+      startForeignBroker();
+
+      assertTrue("Should have Re-Connected.", Wait.waitFor(new Wait.Condition() {
+         @Override
+         public boolean isSatisified() throws Exception {
+            return jmsTopicConnector.isConnected();
+         }
+      }));
+
+      final MessageConsumer local = createConsumerForLocalBroker();
+      final MessageConsumer foreign = createConsumerForForeignBroker();
+
+      sendMessageToForeignBroker("to.foreign.broker");
+      sendMessageToLocalBroker("to.local.broker");
+
+      assertTrue("Should have received a Message.", Wait.waitFor(new Wait.Condition() {
+         @Override
+         public boolean isSatisified() throws Exception {
+            Message message = local.receive(100);
+            if (message != null && ((TextMessage) message).getText().equals("to.local.broker")) {
+               return true;
             }
-        }));
-    }
+            return false;
+         }
+      }));
 
-    @Test
-    public void testSendAndReceiveOverBridgeWithRestart() throws Exception {
-
-        startLocalBroker();
-        startForeignBroker();
-
-        jmsTopicConnector.start();
-
-        assertTrue("Should have Connected.", Wait.waitFor(new Wait.Condition() {
-            @Override
-            public boolean isSatisified() throws Exception {
-                return jmsTopicConnector.isConnected();
+      assertTrue("Should have received a Message.", Wait.waitFor(new Wait.Condition() {
+         @Override
+         public boolean isSatisified() throws Exception {
+            Message message = foreign.receive(100);
+            if (message != null && ((TextMessage) message).getText().equals("to.foreign.broker")) {
+               return true;
             }
-        }));
+            return false;
+         }
+      }));
+   }
 
-        stopLocalBroker();
-        stopForeignBroker();
+   @Before
+   public void setUp() throws Exception {
 
-        assertTrue("Should have detected connection drop.", Wait.waitFor(new Wait.Condition() {
-            @Override
-            public boolean isSatisified() throws Exception {
-                return !jmsTopicConnector.isConnected();
-            }
-        }));
+      localConnectionFactory = createLocalConnectionFactory();
+      foreignConnectionFactory = createForeignConnectionFactory();
 
-        startLocalBroker();
-        startForeignBroker();
+      outbound = new ActiveMQTopic("RECONNECT.TEST.OUT.TOPIC");
+      inbound = new ActiveMQTopic("RECONNECT.TEST.IN.TOPIC");
 
-        assertTrue("Should have Re-Connected.", Wait.waitFor(new Wait.Condition() {
-            @Override
-            public boolean isSatisified() throws Exception {
-                return jmsTopicConnector.isConnected();
-            }
-        }));
+      jmsTopicConnector = new SimpleJmsTopicConnector();
 
-        final MessageConsumer local = createConsumerForLocalBroker();
-        final MessageConsumer foreign = createConsumerForForeignBroker();
+      // Wire the bridges.
+      jmsTopicConnector.setOutboundTopicBridges(new OutboundTopicBridge[]{new OutboundTopicBridge("RECONNECT.TEST.OUT.TOPIC")});
+      jmsTopicConnector.setInboundTopicBridges(new InboundTopicBridge[]{new InboundTopicBridge("RECONNECT.TEST.IN.TOPIC")});
 
-        sendMessageToForeignBroker("to.foreign.broker");
-        sendMessageToLocalBroker("to.local.broker");
+      // Tell it how to reach the two brokers.
+      jmsTopicConnector.setOutboundTopicConnectionFactory(new ActiveMQConnectionFactory("tcp://localhost:61617"));
+      jmsTopicConnector.setLocalTopicConnectionFactory(new ActiveMQConnectionFactory("tcp://localhost:61616"));
+   }
 
-        assertTrue("Should have received a Message.", Wait.waitFor(new Wait.Condition() {
-            @Override
-            public boolean isSatisified() throws Exception {
-                Message message = local.receive(100);
-                if (message != null && ((TextMessage) message).getText().equals("to.local.broker")) {
-                    return true;
-                }
-                return false;
-            }
-        }));
+   @After
+   public void tearDown() throws Exception {
+      disposeConsumerConnections();
 
-        assertTrue("Should have received a Message.", Wait.waitFor(new Wait.Condition() {
-            @Override
-            public boolean isSatisified() throws Exception {
-                Message message = foreign.receive(100);
-                if (message != null && ((TextMessage) message).getText().equals("to.foreign.broker")) {
-                    return true;
-                }
-                return false;
-            }
-        }));
-    }
+      try {
+         jmsTopicConnector.stop();
+         jmsTopicConnector = null;
+      }
+      catch (Exception e) {
+      }
 
-    @Before
-    public void setUp() throws Exception {
+      try {
+         stopLocalBroker();
+      }
+      catch (Throwable e) {
+      }
+      try {
+         stopForeignBroker();
+      }
+      catch (Throwable e) {
+      }
+   }
 
-        localConnectionFactory = createLocalConnectionFactory();
-        foreignConnectionFactory = createForeignConnectionFactory();
+   protected void disposeConsumerConnections() {
+      for (Iterator<Connection> iter = connections.iterator(); iter.hasNext(); ) {
+         Connection connection = iter.next();
+         try {
+            connection.close();
+         }
+         catch (Throwable ignore) {
+         }
+      }
+   }
 
-        outbound = new ActiveMQTopic("RECONNECT.TEST.OUT.TOPIC");
-        inbound = new ActiveMQTopic("RECONNECT.TEST.IN.TOPIC");
+   protected void startLocalBroker() throws Exception {
+      if (localBroker == null) {
+         localBroker = createFirstBroker();
+         localBroker.start();
+         localBroker.waitUntilStarted();
+      }
+   }
 
-        jmsTopicConnector = new SimpleJmsTopicConnector();
+   protected void stopLocalBroker() throws Exception {
+      if (localBroker != null) {
+         localBroker.stop();
+         localBroker.waitUntilStopped();
+         localBroker = null;
+      }
+   }
 
-        // Wire the bridges.
-        jmsTopicConnector.setOutboundTopicBridges(
-            new OutboundTopicBridge[] {new OutboundTopicBridge("RECONNECT.TEST.OUT.TOPIC")});
-        jmsTopicConnector.setInboundTopicBridges(
-                new InboundTopicBridge[] {new InboundTopicBridge("RECONNECT.TEST.IN.TOPIC")});
+   protected void startForeignBroker() throws Exception {
+      if (foreignBroker == null) {
+         foreignBroker = createSecondBroker();
+         foreignBroker.start();
+         foreignBroker.waitUntilStarted();
+      }
+   }
 
-        // Tell it how to reach the two brokers.
-        jmsTopicConnector.setOutboundTopicConnectionFactory(
-            new ActiveMQConnectionFactory("tcp://localhost:61617"));
-        jmsTopicConnector.setLocalTopicConnectionFactory(
-                new ActiveMQConnectionFactory("tcp://localhost:61616"));
-    }
+   protected void stopForeignBroker() throws Exception {
+      if (foreignBroker != null) {
+         foreignBroker.stop();
+         foreignBroker.waitUntilStopped();
+         foreignBroker = null;
+      }
+   }
 
-    @After
-    public void tearDown() throws Exception {
-        disposeConsumerConnections();
+   protected BrokerService createFirstBroker() throws Exception {
+      BrokerService broker = new BrokerService();
+      broker.setBrokerName("broker1");
+      broker.setPersistent(false);
+      broker.setUseJmx(false);
+      broker.addConnector("tcp://localhost:61616");
 
-        try {
-            jmsTopicConnector.stop();
-            jmsTopicConnector = null;
-        } catch (Exception e) {
-        }
+      return broker;
+   }
 
-        try {
-            stopLocalBroker();
-        } catch (Throwable e) {
-        }
-        try {
-            stopForeignBroker();
-        } catch (Throwable e) {
-        }
-    }
+   protected BrokerService createSecondBroker() throws Exception {
 
-    protected void disposeConsumerConnections() {
-        for (Iterator<Connection> iter = connections.iterator(); iter.hasNext();) {
-            Connection connection = iter.next();
-            try {
-                connection.close();
-            } catch (Throwable ignore) {
-            }
-        }
-    }
+      BrokerService broker = new BrokerService();
+      broker.setBrokerName("broker2");
+      broker.setPersistent(false);
+      broker.setUseJmx(false);
+      broker.addConnector("tcp://localhost:61617");
 
-    protected void startLocalBroker() throws Exception {
-        if (localBroker == null) {
-            localBroker = createFirstBroker();
-            localBroker.start();
-            localBroker.waitUntilStarted();
-        }
-    }
+      return broker;
+   }
 
-    protected void stopLocalBroker() throws Exception {
-        if (localBroker != null) {
-            localBroker.stop();
-            localBroker.waitUntilStopped();
-            localBroker = null;
-        }
-    }
+   protected ActiveMQConnectionFactory createLocalConnectionFactory() {
+      return new ActiveMQConnectionFactory("tcp://localhost:61616");
+   }
 
-    protected void startForeignBroker() throws Exception {
-        if (foreignBroker == null) {
-            foreignBroker = createSecondBroker();
-            foreignBroker.start();
-            foreignBroker.waitUntilStarted();
-        }
-    }
+   protected ActiveMQConnectionFactory createForeignConnectionFactory() {
+      return new ActiveMQConnectionFactory("tcp://localhost:61617");
+   }
 
-    protected void stopForeignBroker() throws Exception {
-        if (foreignBroker != null) {
-            foreignBroker.stop();
-            foreignBroker.waitUntilStopped();
-            foreignBroker = null;
-        }
-    }
+   protected void sendMessageToForeignBroker(String text) throws JMSException {
+      Connection connection = null;
+      try {
+         connection = localConnectionFactory.createConnection();
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         MessageProducer producer = session.createProducer(outbound);
+         TextMessage message = session.createTextMessage();
+         message.setText(text);
+         producer.send(message);
+      }
+      finally {
+         try {
+            connection.close();
+         }
+         catch (Throwable ignore) {
+         }
+      }
+   }
 
-    protected BrokerService createFirstBroker() throws Exception {
-        BrokerService broker = new BrokerService();
-        broker.setBrokerName("broker1");
-        broker.setPersistent(false);
-        broker.setUseJmx(false);
-        broker.addConnector("tcp://localhost:61616");
+   protected void sendMessageToLocalBroker(String text) throws JMSException {
+      Connection connection = null;
+      try {
+         connection = foreignConnectionFactory.createConnection();
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         MessageProducer producer = session.createProducer(inbound);
+         TextMessage message = session.createTextMessage();
+         message.setText(text);
+         producer.send(message);
+      }
+      finally {
+         try {
+            connection.close();
+         }
+         catch (Throwable ignore) {
+         }
+      }
+   }
 
-        return broker;
-    }
+   protected MessageConsumer createConsumerForLocalBroker() throws JMSException {
+      Connection connection = localConnectionFactory.createConnection();
+      connections.add(connection);
+      connection.start();
 
-    protected BrokerService createSecondBroker() throws Exception {
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      return session.createConsumer(inbound);
+   }
 
-        BrokerService broker = new BrokerService();
-        broker.setBrokerName("broker2");
-        broker.setPersistent(false);
-        broker.setUseJmx(false);
-        broker.addConnector("tcp://localhost:61617");
+   protected MessageConsumer createConsumerForForeignBroker() throws JMSException {
+      Connection connection = foreignConnectionFactory.createConnection();
+      connections.add(connection);
+      connection.start();
 
-        return broker;
-    }
-
-    protected ActiveMQConnectionFactory createLocalConnectionFactory() {
-        return new ActiveMQConnectionFactory("tcp://localhost:61616");
-    }
-
-    protected ActiveMQConnectionFactory createForeignConnectionFactory() {
-        return new ActiveMQConnectionFactory("tcp://localhost:61617");
-    }
-
-    protected void sendMessageToForeignBroker(String text) throws JMSException {
-        Connection connection = null;
-        try {
-            connection = localConnectionFactory.createConnection();
-            Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-            MessageProducer producer = session.createProducer(outbound);
-            TextMessage message = session.createTextMessage();
-            message.setText(text);
-            producer.send(message);
-        } finally {
-            try {
-                connection.close();
-            } catch (Throwable ignore) {
-            }
-        }
-    }
-
-    protected void sendMessageToLocalBroker(String text) throws JMSException {
-        Connection connection = null;
-        try {
-            connection = foreignConnectionFactory.createConnection();
-            Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-            MessageProducer producer = session.createProducer(inbound);
-            TextMessage message = session.createTextMessage();
-            message.setText(text);
-            producer.send(message);
-        } finally {
-            try {
-                connection.close();
-            } catch (Throwable ignore) {
-            }
-        }
-    }
-
-    protected MessageConsumer createConsumerForLocalBroker() throws JMSException {
-        Connection connection = localConnectionFactory.createConnection();
-        connections.add(connection);
-        connection.start();
-
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        return session.createConsumer(inbound);
-    }
-
-    protected MessageConsumer createConsumerForForeignBroker() throws JMSException {
-        Connection connection = foreignConnectionFactory.createConnection();
-        connections.add(connection);
-        connection.start();
-
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        return session.createConsumer(outbound);
-    }
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      return session.createConsumer(outbound);
+   }
 }

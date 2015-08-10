@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 import org.jboss.resteasy.client.ClientRequest;
 import org.jboss.resteasy.client.ClientResponse;
@@ -26,10 +27,9 @@ import javax.jms.MessageProducer;
 import javax.jms.ObjectMessage;
 import javax.jms.Session;
 
-public class PostOrder
-{
-   public static void main(String[] args) throws Exception
-   {
+public class PostOrder {
+
+   public static void main(String[] args) throws Exception {
       // first get the create URL for the shipping queue
       ClientRequest request = new ClientRequest("http://localhost:9095/queues/jms.queue.orders");
       ClientResponse res = request.head();
@@ -43,18 +43,19 @@ public class PostOrder
 
       res = create.request().body("application/xml", order).post();
 
-      if (res.getStatus() == 307)
-      {
+      if (res.getStatus() == 307) {
          Link redirect = res.getLocationLink();
          res.releaseConnection();
          res = redirect.request().body("application/xml", order).post();
       }
 
-      if (res.getStatus() != 201) throw new RuntimeException("Failed to post");
+      if (res.getStatus() != 201)
+         throw new RuntimeException("Failed to post");
 
       create = res.getHeaderAsLink("msg-create-next");
 
-      if (res.getStatus() != 201) throw new RuntimeException("Failed to post");
+      if (res.getStatus() != 201)
+         throw new RuntimeException("Failed to post");
 
       System.out.println("Send Monica's order...");
       order.setName("Monica");
@@ -62,13 +63,15 @@ public class PostOrder
       res.releaseConnection();
       res = create.request().body("application/xml", order).post();
 
-      if (res.getStatus() != 201) throw new RuntimeException("Failed to post");
+      if (res.getStatus() != 201)
+         throw new RuntimeException("Failed to post");
 
       System.out.println("Resend Monica's order over same create-next link...");
 
       res.releaseConnection();
       res = create.request().body("application/xml", order).post();
 
-      if (res.getStatus() != 201) throw new RuntimeException("Failed to post");
+      if (res.getStatus() != 201)
+         throw new RuntimeException("Failed to post");
    }
 }

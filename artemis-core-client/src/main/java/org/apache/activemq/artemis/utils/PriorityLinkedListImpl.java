@@ -24,8 +24,8 @@ import java.util.NoSuchElementException;
  * <p>
  * It implements this by maintaining an individual LinkedBlockingDeque for each priority level.
  */
-public class PriorityLinkedListImpl<T> implements PriorityLinkedList<T>
-{
+public class PriorityLinkedListImpl<T> implements PriorityLinkedList<T> {
+
    protected LinkedListImpl<T>[] levels;
 
    private int size;
@@ -36,39 +36,31 @@ public class PriorityLinkedListImpl<T> implements PriorityLinkedList<T>
 
    private int lastPriority = -1;
 
-   public PriorityLinkedListImpl(final int priorities)
-   {
+   public PriorityLinkedListImpl(final int priorities) {
       levels = (LinkedListImpl<T>[]) Array.newInstance(LinkedListImpl.class, priorities);
 
-      for (int i = 0; i < priorities; i++)
-      {
+      for (int i = 0; i < priorities; i++) {
          levels[i] = new LinkedListImpl<T>();
       }
    }
 
-   private void checkHighest(final int priority)
-   {
-      if (lastPriority != priority || priority > highestPriority)
-      {
+   private void checkHighest(final int priority) {
+      if (lastPriority != priority || priority > highestPriority) {
          lastPriority = priority;
-         if (lastReset == Integer.MAX_VALUE)
-         {
+         if (lastReset == Integer.MAX_VALUE) {
             lastReset = 0;
          }
-         else
-         {
+         else {
             lastReset++;
          }
       }
 
-      if (priority > highestPriority)
-      {
+      if (priority > highestPriority) {
          highestPriority = priority;
       }
    }
 
-   public void addHead(final T t, final int priority)
-   {
+   public void addHead(final T t, final int priority) {
       checkHighest(priority);
 
       levels[priority].addHead(t);
@@ -76,8 +68,7 @@ public class PriorityLinkedListImpl<T> implements PriorityLinkedList<T>
       size++;
    }
 
-   public void addTail(final T t, final int priority)
-   {
+   public void addTail(final T t, final int priority) {
       checkHighest(priority);
 
       levels[priority].addTail(t);
@@ -85,8 +76,7 @@ public class PriorityLinkedListImpl<T> implements PriorityLinkedList<T>
       size++;
    }
 
-   public T poll()
-   {
+   public T poll() {
       T t = null;
 
       // We are just using a simple prioritization algorithm:
@@ -95,22 +85,17 @@ public class PriorityLinkedListImpl<T> implements PriorityLinkedList<T>
 
       // TODO - A better prioritization algorithm
 
-      for (int i = highestPriority; i >= 0; i--)
-      {
+      for (int i = highestPriority; i >= 0; i--) {
          LinkedListImpl<T> ll = levels[i];
 
-         if (ll.size() != 0)
-         {
+         if (ll.size() != 0) {
             t = ll.poll();
 
-            if (t != null)
-            {
+            if (t != null) {
                size--;
 
-               if (ll.size() == 0)
-               {
-                  if (highestPriority == i)
-                  {
+               if (ll.size() == 0) {
+                  if (highestPriority == i) {
                      highestPriority--;
                   }
                }
@@ -123,33 +108,28 @@ public class PriorityLinkedListImpl<T> implements PriorityLinkedList<T>
       return t;
    }
 
-   public void clear()
-   {
-      for (LinkedListImpl<T> list : levels)
-      {
+   public void clear() {
+      for (LinkedListImpl<T> list : levels) {
          list.clear();
       }
 
       size = 0;
    }
 
-   public int size()
-   {
+   public int size() {
       return size;
    }
 
-   public boolean isEmpty()
-   {
+   public boolean isEmpty() {
       return size == 0;
    }
 
-   public LinkedListIterator<T> iterator()
-   {
+   public LinkedListIterator<T> iterator() {
       return new PriorityLinkedListIterator();
    }
 
-   private class PriorityLinkedListIterator implements LinkedListIterator<T>
-   {
+   private class PriorityLinkedListIterator implements LinkedListIterator<T> {
+
       private int index;
 
       private final LinkedListIterator<T>[] cachedIters = new LinkedListIterator[levels.length];
@@ -160,78 +140,63 @@ public class PriorityLinkedListImpl<T> implements PriorityLinkedList<T>
 
       volatile boolean closed = false;
 
-      PriorityLinkedListIterator()
-      {
+      PriorityLinkedListIterator() {
          index = levels.length - 1;
       }
 
       @Override
-      protected void finalize()
-      {
+      protected void finalize() {
          close();
       }
 
-      public void repeat()
-      {
-         if (lastIter == null)
-         {
+      public void repeat() {
+         if (lastIter == null) {
             throw new NoSuchElementException();
          }
 
          lastIter.repeat();
       }
 
-      public void close()
-      {
-         if (!closed)
-         {
+      public void close() {
+         if (!closed) {
             closed = true;
             lastIter = null;
 
-            for (LinkedListIterator<T> iter : cachedIters)
-            {
-               if (iter != null)
-               {
+            for (LinkedListIterator<T> iter : cachedIters) {
+               if (iter != null) {
                   iter.close();
                }
             }
          }
       }
 
-      private void checkReset()
-      {
-         if (lastReset != resetCount)
-         {
+      private void checkReset() {
+         if (lastReset != resetCount) {
             index = highestPriority;
 
             resetCount = lastReset;
          }
       }
 
-      public boolean hasNext()
-      {
+      public boolean hasNext() {
          checkReset();
 
-         while (index >= 0)
-         {
+         while (index >= 0) {
             lastIter = cachedIters[index];
 
-            if (lastIter == null)
-            {
+            if (lastIter == null) {
                lastIter = cachedIters[index] = levels[index].iterator();
             }
 
             boolean b = lastIter.hasNext();
 
-            if (b)
-            {
+            if (b) {
                return true;
             }
 
             index--;
 
-            if (index < 0)
-            {
+            if (index < 0) {
                index = levels.length - 1;
 
                break;
@@ -240,20 +205,16 @@ public class PriorityLinkedListImpl<T> implements PriorityLinkedList<T>
          return false;
       }
 
-      public T next()
-      {
-         if (lastIter == null)
-         {
+      public T next() {
+         if (lastIter == null) {
             throw new NoSuchElementException();
          }
 
          return lastIter.next();
       }
 
-      public void remove()
-      {
-         if (lastIter == null)
-         {
+      public void remove() {
+         if (lastIter == null) {
             throw new NoSuchElementException();
          }
 
@@ -266,8 +227,7 @@ public class PriorityLinkedListImpl<T> implements PriorityLinkedList<T>
          // what would make us eventually having hasNext() returning false
          // as a bug
          // Part of the fix for HORNETQ-705
-         for (int i = index; i >= 0 && levels[index].size() == 0; i--)
-         {
+         for (int i = index; i >= 0 && levels[index].size() == 0; i--) {
             highestPriority = i;
          }
 

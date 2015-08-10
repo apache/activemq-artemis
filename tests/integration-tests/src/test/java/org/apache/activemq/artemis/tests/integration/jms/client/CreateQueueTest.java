@@ -27,8 +27,7 @@ import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 import org.junit.Test;
 
-public class CreateQueueTest extends JMSTestBase
-{
+public class CreateQueueTest extends JMSTestBase {
    // Constants -----------------------------------------------------
 
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
@@ -42,8 +41,7 @@ public class CreateQueueTest extends JMSTestBase
    // Public --------------------------------------------------------
 
    @Test
-   public void testCreateQueueTempQueue() throws Exception
-   {
+   public void testCreateQueueTempQueue() throws Exception {
       conn = cf.createConnection();
 
       Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -68,8 +66,7 @@ public class CreateQueueTest extends JMSTestBase
    }
 
    @Test
-   public void testCreateQueue() throws Exception
-   {
+   public void testCreateQueue() throws Exception {
       conn = cf.createConnection();
       Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
@@ -95,8 +92,7 @@ public class CreateQueueTest extends JMSTestBase
    }
 
    @Test
-   public void testCreateTopic() throws Exception
-   {
+   public void testCreateTopic() throws Exception {
       conn = cf.createConnection();
 
       Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -121,8 +117,7 @@ public class CreateQueueTest extends JMSTestBase
    }
 
    @Test
-   public void testCreateTopicTempTopic() throws Exception
-   {
+   public void testCreateTopicTempTopic() throws Exception {
       conn = cf.createConnection();
       Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
 

@@ -43,21 +43,19 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class PagingManagerImplTest extends ActiveMQTestBase
-{
+public class PagingManagerImplTest extends ActiveMQTestBase {
+
    private final ReadLock lock = new ReentrantReadWriteLock().readLock();
 
    @Test
-   public void testPagingManager() throws Exception
-   {
+   public void testPagingManager() throws Exception {
 
       HierarchicalRepository<AddressSettings> addressSettings = new HierarchicalObjectRepository<AddressSettings>();
       addressSettings.setDefault(new AddressSettings().setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE));
 
       final StorageManager storageManager = new NullStorageManager();
 
-      PagingStoreFactoryNIO storeFactory =
-         new PagingStoreFactoryNIO(storageManager, getPageDirFile(), 100, null, getOrderedExecutor(), true, null);
+      PagingStoreFactoryNIO storeFactory = new PagingStoreFactoryNIO(storageManager, getPageDirFile(), 100, null, getOrderedExecutor(), true, null);
 
       PagingManagerImpl managerImpl = new PagingManagerImpl(storeFactory, addressSettings);
 
@@ -84,11 +82,7 @@ public class PagingManagerImplTest extends ActiveMQTestBase
 
       Assert.assertEquals(1, msgs.size());
 
-      ActiveMQTestBase.assertEqualsByteArrays(msg.getBodyBuffer().writerIndex(), msg.getBodyBuffer().toByteBuffer().array(), msgs.get(0)
-              .getMessage()
-              .getBodyBuffer()
-              .toByteBuffer()
-              .array());
+      ActiveMQTestBase.assertEqualsByteArrays(msg.getBodyBuffer().writerIndex(), msg.getBodyBuffer().toByteBuffer().array(), msgs.get(0).getMessage().getBodyBuffer().toByteBuffer().array());
 
       Assert.assertTrue(store.isPaging());
 
@@ -101,8 +95,7 @@ public class PagingManagerImplTest extends ActiveMQTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
       File fileJournalDir = new File(getJournalDir());
       fileJournalDir.mkdirs();
@@ -111,8 +104,9 @@ public class PagingManagerImplTest extends ActiveMQTestBase
       pageDirDir.mkdirs();
    }
 
-   protected ServerMessage createMessage(final long messageId, final SimpleString destination, final ByteBuffer buffer)
-   {
+   protected ServerMessage createMessage(final long messageId,
+                                         final SimpleString destination,
+                                         final ByteBuffer buffer) {
       ServerMessage msg = new ServerMessageImpl(messageId, 200);
 
       msg.setAddress(destination);
@@ -122,12 +116,10 @@ public class PagingManagerImplTest extends ActiveMQTestBase
       return msg;
    }
 
-   protected ByteBuffer createRandomBuffer(final int size)
-   {
+   protected ByteBuffer createRandomBuffer(final int size) {
       ByteBuffer buffer = ByteBuffer.allocate(size);
 
-      for (int j = 0; j < buffer.limit(); j++)
-      {
+      for (int j = 0; j < buffer.limit(); j++) {
          buffer.put(RandomUtil.randomByte());
       }
       return buffer;

@@ -35,35 +35,25 @@ import org.junit.runners.Parameterized;
  * adapted from: org.apache.activemq.JMSConsumerTest
  */
 @RunWith(Parameterized.class)
-public class JMSConsumer10Test extends BasicOpenWireTest
-{
+public class JMSConsumer10Test extends BasicOpenWireTest {
+
    @Parameterized.Parameters(name = "deliveryMode={0} ackMode={1} destinationType={2}")
-   public static Collection<Object[]> getParams()
-   {
-      return Arrays.asList(new Object[][] {
-         {DeliveryMode.NON_PERSISTENT, Session.AUTO_ACKNOWLEDGE, ActiveMQDestination.QUEUE_TYPE},
-         {DeliveryMode.NON_PERSISTENT, Session.DUPS_OK_ACKNOWLEDGE, ActiveMQDestination.QUEUE_TYPE},
-         {DeliveryMode.NON_PERSISTENT, Session.CLIENT_ACKNOWLEDGE, ActiveMQDestination.QUEUE_TYPE},
-         {DeliveryMode.PERSISTENT, Session.AUTO_ACKNOWLEDGE, ActiveMQDestination.QUEUE_TYPE},
-         {DeliveryMode.PERSISTENT, Session.DUPS_OK_ACKNOWLEDGE, ActiveMQDestination.QUEUE_TYPE},
-         {DeliveryMode.PERSISTENT, Session.CLIENT_ACKNOWLEDGE, ActiveMQDestination.QUEUE_TYPE}
-      });
+   public static Collection<Object[]> getParams() {
+      return Arrays.asList(new Object[][]{{DeliveryMode.NON_PERSISTENT, Session.AUTO_ACKNOWLEDGE, ActiveMQDestination.QUEUE_TYPE}, {DeliveryMode.NON_PERSISTENT, Session.DUPS_OK_ACKNOWLEDGE, ActiveMQDestination.QUEUE_TYPE}, {DeliveryMode.NON_PERSISTENT, Session.CLIENT_ACKNOWLEDGE, ActiveMQDestination.QUEUE_TYPE}, {DeliveryMode.PERSISTENT, Session.AUTO_ACKNOWLEDGE, ActiveMQDestination.QUEUE_TYPE}, {DeliveryMode.PERSISTENT, Session.DUPS_OK_ACKNOWLEDGE, ActiveMQDestination.QUEUE_TYPE}, {DeliveryMode.PERSISTENT, Session.CLIENT_ACKNOWLEDGE, ActiveMQDestination.QUEUE_TYPE}});
    }
 
    public int deliveryMode;
    public int ackMode;
    public byte destinationType;
 
-   public JMSConsumer10Test(int deliveryMode, int ackMode, byte destinationType)
-   {
+   public JMSConsumer10Test(int deliveryMode, int ackMode, byte destinationType) {
       this.deliveryMode = deliveryMode;
       this.ackMode = ackMode;
       this.destinationType = destinationType;
    }
 
    @Test
-   public void testUnackedWithPrefetch1StayInQueue() throws Exception
-   {
+   public void testUnackedWithPrefetch1StayInQueue() throws Exception {
 
       // Set prefetch to 1
       connection.getPrefetchPolicy().setAll(1);
@@ -79,8 +69,7 @@ public class JMSConsumer10Test extends BasicOpenWireTest
 
       // Only pick up the first 2 messages.
       Message message = null;
-      for (int i = 0; i < 2; i++)
-      {
+      for (int i = 0; i < 2; i++) {
          message = consumer.receive(1000);
          assertNotNull(message);
       }
@@ -96,8 +85,7 @@ public class JMSConsumer10Test extends BasicOpenWireTest
       consumer = session.createConsumer(destination);
 
       // Pickup the rest of the messages.
-      for (int i = 0; i < 2; i++)
-      {
+      for (int i = 0; i < 2; i++) {
          message = consumer.receive(1000);
          assertNotNull(message);
       }

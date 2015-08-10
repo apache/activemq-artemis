@@ -17,5 +17,6 @@
 package org.apache.activemq.bugs;
 
 public interface Receiver {
-    void receive(String s) throws Exception;
+
+   void receive(String s) throws Exception;
 }

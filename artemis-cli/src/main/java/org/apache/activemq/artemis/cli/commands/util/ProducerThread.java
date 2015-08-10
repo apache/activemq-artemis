@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.cli.commands.util;
 
-
 import javax.jms.BytesMessage;
 import javax.jms.DeliveryMode;
 import javax.jms.Destination;
@@ -33,8 +32,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.utils.ReusableLatch;
 
-public class ProducerThread extends Thread
-{
+public class ProducerThread extends Thread {
+
    protected final Session session;
 
    boolean verbose;
@@ -59,20 +58,16 @@ public class ProducerThread extends Thread
    final ReusableLatch finished = new ReusableLatch(1);
    final ReusableLatch paused = new ReusableLatch(0);
 
-
-   public ProducerThread(Session session, Destination destination, int threadNr)
-   {
+   public ProducerThread(Session session, Destination destination, int threadNr) {
       super("Producer " + destination.toString() + ", thread=" + threadNr);
       this.destination = destination;
       this.session = session;
    }
 
-   public void run()
-   {
+   public void run() {
       MessageProducer producer = null;
       String threadName = Thread.currentThread().getName();
-      try
-      {
+      try {
          producer = session.createProducer(destination);
          producer.setDeliveryMode(persistent ? DeliveryMode.PERSISTENT : DeliveryMode.NON_PERSISTENT);
          producer.setTimeToLive(msgTTL);
@@ -82,30 +77,24 @@ public class ProducerThread extends Thread
          System.out.println(threadName + " Started to calculate elapsed time ...\n");
          long tStart = System.currentTimeMillis();
 
-         if (runIndefinitely)
-         {
-            while (running)
-            {
+         if (runIndefinitely) {
+            while (running) {
                paused.await();
                sendMessage(producer, threadName);
                sentCount.incrementAndGet();
             }
          }
-         else
-         {
-            for (sentCount.set(0); sentCount.get() < messageCount && running; sentCount.incrementAndGet())
-            {
+         else {
+            for (sentCount.set(0); sentCount.get() < messageCount && running; sentCount.incrementAndGet()) {
                paused.await();
                sendMessage(producer, threadName);
             }
          }
 
-         try
-         {
+         try {
             session.commit();
          }
-         catch (Throwable ignored)
-         {
+         catch (Throwable ignored) {
          }
 
          System.out.println(threadName + " Produced: " + this.getSentCount() + " messages");
@@ -115,96 +104,74 @@ public class ProducerThread extends Thread
          System.out.println(threadName + " Elapsed time in milli second : " + (tEnd - tStart) + " milli seconds");
 
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          e.printStackTrace();
       }
-      finally
-      {
-         if (finished != null)
-         {
+      finally {
+         if (finished != null) {
             finished.countDown();
          }
-         if (producer != null)
-         {
-            try
-            {
+         if (producer != null) {
+            try {
                producer.close();
             }
-            catch (JMSException e)
-            {
+            catch (JMSException e) {
                e.printStackTrace();
             }
          }
       }
    }
 
-   private void sendMessage(MessageProducer producer, String threadName) throws Exception
-   {
+   private void sendMessage(MessageProducer producer, String threadName) throws Exception {
       Message message = createMessage(sentCount.get(), threadName);
       producer.send(message);
-      if (verbose)
-      {
+      if (verbose) {
          System.out.println(threadName + " Sent: " + (message instanceof TextMessage ? ((TextMessage) message).getText() : message.getJMSMessageID()));
       }
 
-      if (transactionBatchSize > 0 && sentCount.get() > 0 && sentCount.get() % transactionBatchSize == 0)
-      {
+      if (transactionBatchSize > 0 && sentCount.get() > 0 && sentCount.get() % transactionBatchSize == 0) {
          System.out.println(threadName + " Committing transaction: " + transactions++);
          session.commit();
       }
 
-      if (sleep > 0)
-      {
+      if (sleep > 0) {
          Thread.sleep(sleep);
       }
    }
 
-   private void initPayLoad()
-   {
-      if (messageSize > 0)
-      {
+   private void initPayLoad() {
+      if (messageSize > 0) {
          payload = new byte[messageSize];
-         for (int i = 0; i < payload.length; i++)
-         {
+         for (int i = 0; i < payload.length; i++) {
             payload[i] = '.';
          }
       }
    }
 
-   protected Message createMessage(int i, String threadName) throws Exception
-   {
+   protected Message createMessage(int i, String threadName) throws Exception {
       Message answer;
-      if (payload != null)
-      {
+      if (payload != null) {
          answer = session.createBytesMessage();
          ((BytesMessage) answer).writeBytes(payload);
       }
-      else
-      {
-         if (textMessageSize > 0)
-         {
-            if (messageText == null)
-            {
+      else {
+         if (textMessageSize > 0) {
+            if (messageText == null) {
                messageText = readInputStream(getClass().getResourceAsStream("demo.txt"), textMessageSize, i);
             }
          }
-         else if (payloadUrl != null)
-         {
+         else if (payloadUrl != null) {
             messageText = readInputStream(new URL(payloadUrl).openStream(), -1, i);
          }
-         else if (message != null)
-         {
+         else if (message != null) {
             messageText = message;
          }
-         else
-         {
+         else {
             messageText = createDefaultMessage(i);
          }
          answer = session.createTextMessage(messageText);
       }
-      if ((msgGroupID != null) && (!msgGroupID.isEmpty()))
-      {
+      if ((msgGroupID != null) && (!msgGroupID.isEmpty())) {
          answer.setStringProperty("JMSXGroupID", msgGroupID);
       }
 
@@ -213,218 +180,178 @@ public class ProducerThread extends Thread
       return answer;
    }
 
-   private String readInputStream(InputStream is, int size, int messageNumber) throws IOException
-   {
+   private String readInputStream(InputStream is, int size, int messageNumber) throws IOException {
       InputStreamReader reader = new InputStreamReader(is);
-      try
-      {
+      try {
          char[] buffer;
-         if (size > 0)
-         {
+         if (size > 0) {
             buffer = new char[size];
          }
-         else
-         {
+         else {
             buffer = new char[1024];
          }
          int count;
          StringBuilder builder = new StringBuilder();
-         while ((count = reader.read(buffer)) != -1)
-         {
+         while ((count = reader.read(buffer)) != -1) {
             builder.append(buffer, 0, count);
-            if (size > 0) break;
+            if (size > 0)
+               break;
          }
          return builder.toString();
       }
-      catch (IOException ioe)
-      {
+      catch (IOException ioe) {
          return createDefaultMessage(messageNumber);
       }
-      finally
-      {
+      finally {
          reader.close();
       }
    }
 
-   private String createDefaultMessage(int messageNumber)
-   {
+   private String createDefaultMessage(int messageNumber) {
       return "test message: " + messageNumber;
    }
 
-   public ProducerThread setMessageCount(int messageCount)
-   {
+   public ProducerThread setMessageCount(int messageCount) {
       this.messageCount = messageCount;
       return this;
    }
 
-   public int getSleep()
-   {
+   public int getSleep() {
       return sleep;
    }
 
-   public ProducerThread setSleep(int sleep)
-   {
+   public ProducerThread setSleep(int sleep) {
       this.sleep = sleep;
       return this;
    }
 
-   public int getMessageCount()
-   {
+   public int getMessageCount() {
       return messageCount;
    }
 
-   public int getSentCount()
-   {
+   public int getSentCount() {
       return sentCount.get();
    }
 
-   public boolean isPersistent()
-   {
+   public boolean isPersistent() {
       return persistent;
    }
 
-   public ProducerThread setPersistent(boolean persistent)
-   {
+   public ProducerThread setPersistent(boolean persistent) {
       this.persistent = persistent;
       return this;
    }
 
-   public boolean isRunning()
-   {
+   public boolean isRunning() {
       return running;
    }
 
-   public ProducerThread setRunning(boolean running)
-   {
+   public ProducerThread setRunning(boolean running) {
       this.running = running;
       return this;
    }
 
-   public long getMsgTTL()
-   {
+   public long getMsgTTL() {
       return msgTTL;
    }
 
-   public ProducerThread setMsgTTL(long msgTTL)
-   {
+   public ProducerThread setMsgTTL(long msgTTL) {
       this.msgTTL = msgTTL;
       return this;
    }
 
-   public int getTransactionBatchSize()
-   {
+   public int getTransactionBatchSize() {
       return transactionBatchSize;
    }
 
-   public ProducerThread setTransactionBatchSize(int transactionBatchSize)
-   {
+   public ProducerThread setTransactionBatchSize(int transactionBatchSize) {
       this.transactionBatchSize = transactionBatchSize;
       return this;
    }
 
-   public String getMsgGroupID()
-   {
+   public String getMsgGroupID() {
       return msgGroupID;
    }
 
-   public ProducerThread setMsgGroupID(String msgGroupID)
-   {
+   public ProducerThread setMsgGroupID(String msgGroupID) {
       this.msgGroupID = msgGroupID;
       return this;
    }
 
-   public int getTextMessageSize()
-   {
+   public int getTextMessageSize() {
       return textMessageSize;
    }
 
-   public ProducerThread setTextMessageSize(int textMessageSize)
-   {
+   public ProducerThread setTextMessageSize(int textMessageSize) {
       this.textMessageSize = textMessageSize;
       return this;
    }
 
-   public int getMessageSize()
-   {
+   public int getMessageSize() {
       return messageSize;
    }
 
-   public ProducerThread setMessageSize(int messageSize)
-   {
+   public ProducerThread setMessageSize(int messageSize) {
       this.messageSize = messageSize;
       return this;
    }
 
-   public ReusableLatch getFinished()
-   {
+   public ReusableLatch getFinished() {
       return finished;
    }
 
-   public ProducerThread setFinished(int value)
-   {
+   public ProducerThread setFinished(int value) {
       finished.setCount(value);
       return this;
    }
 
-   public String getPayloadUrl()
-   {
+   public String getPayloadUrl() {
       return payloadUrl;
    }
 
-   public ProducerThread setPayloadUrl(String payloadUrl)
-   {
+   public ProducerThread setPayloadUrl(String payloadUrl) {
       this.payloadUrl = payloadUrl;
       return this;
    }
 
-   public String getMessage()
-   {
+   public String getMessage() {
       return message;
    }
 
-   public ProducerThread setMessage(String message)
-   {
+   public ProducerThread setMessage(String message) {
       this.message = message;
       return this;
    }
 
-   public boolean isRunIndefinitely()
-   {
+   public boolean isRunIndefinitely() {
       return runIndefinitely;
    }
 
-   public ProducerThread setRunIndefinitely(boolean runIndefinitely)
-   {
+   public ProducerThread setRunIndefinitely(boolean runIndefinitely) {
       this.runIndefinitely = runIndefinitely;
       return this;
    }
 
-   public ProducerThread pauseProducer()
-   {
+   public ProducerThread pauseProducer() {
       this.paused.countUp();
       return this;
    }
 
-   public ProducerThread resumeProducer()
-   {
+   public ProducerThread resumeProducer() {
       this.paused.countDown();
       return this;
    }
 
-   public ProducerThread resetCounters()
-   {
+   public ProducerThread resetCounters() {
       this.sentCount.set(0);
       return this;
    }
 
-
-   public boolean isVerbose()
-   {
+   public boolean isVerbose() {
       return verbose;
    }
 
-   public ProducerThread setVerbose(boolean verbose)
-   {
+   public ProducerThread setVerbose(boolean verbose) {
       this.verbose = verbose;
       return this;
    }

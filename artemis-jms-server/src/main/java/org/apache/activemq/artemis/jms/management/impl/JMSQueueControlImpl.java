@@ -37,8 +37,8 @@ import org.apache.activemq.artemis.jms.server.JMSServerManager;
 import org.apache.activemq.artemis.utils.json.JSONArray;
 import org.apache.activemq.artemis.utils.json.JSONObject;
 
-public class JMSQueueControlImpl extends StandardMBean implements JMSQueueControl
-{
+public class JMSQueueControlImpl extends StandardMBean implements JMSQueueControl {
+
    private final ActiveMQDestination managedQueue;
 
    private final JMSServerManager jmsServerManager;
@@ -52,22 +52,17 @@ public class JMSQueueControlImpl extends StandardMBean implements JMSQueueContro
    /**
     * Returns null if the string is null or empty
     */
-   public static String createFilterFromJMSSelector(final String selectorStr) throws ActiveMQException
-   {
-      return selectorStr == null || selectorStr.trim().length() == 0 ? null
-         : SelectorTranslator.convertToActiveMQFilterString(selectorStr);
+   public static String createFilterFromJMSSelector(final String selectorStr) throws ActiveMQException {
+      return selectorStr == null || selectorStr.trim().length() == 0 ? null : SelectorTranslator.convertToActiveMQFilterString(selectorStr);
    }
 
-   private static String createFilterForJMSMessageID(final String jmsMessageID) throws Exception
-   {
+   private static String createFilterForJMSMessageID(final String jmsMessageID) throws Exception {
       return FilterConstants.ACTIVEMQ_USERID + " = '" + jmsMessageID + "'";
    }
 
-   static String toJSON(final Map<String, Object>[] messages)
-   {
+   static String toJSON(final Map<String, Object>[] messages) {
       JSONArray array = new JSONArray();
-      for (Map<String, Object> message : messages)
-      {
+      for (Map<String, Object> message : messages) {
          array.put(new JSONObject(message));
       }
       return array.toString();
@@ -78,8 +73,7 @@ public class JMSQueueControlImpl extends StandardMBean implements JMSQueueContro
    public JMSQueueControlImpl(final ActiveMQDestination managedQueue,
                               final QueueControl coreQueueControl,
                               final JMSServerManager jmsServerManager,
-                              final MessageCounter counter) throws Exception
-   {
+                              final MessageCounter counter) throws Exception {
       super(JMSQueueControl.class);
       this.managedQueue = managedQueue;
       this.jmsServerManager = jmsServerManager;
@@ -91,127 +85,103 @@ public class JMSQueueControlImpl extends StandardMBean implements JMSQueueContro
 
    // ManagedJMSQueueMBean implementation ---------------------------
 
-   public String getName()
-   {
+   public String getName() {
       return managedQueue.getName();
    }
 
-   public String getAddress()
-   {
+   public String getAddress() {
       return managedQueue.getAddress();
    }
 
-   public boolean isTemporary()
-   {
+   public boolean isTemporary() {
       return managedQueue.isTemporary();
    }
 
-   public long getMessageCount()
-   {
+   public long getMessageCount() {
       return coreQueueControl.getMessageCount();
    }
 
-   public long getMessagesAdded()
-   {
+   public long getMessagesAdded() {
       return coreQueueControl.getMessagesAdded();
    }
 
-   public int getConsumerCount()
-   {
+   public int getConsumerCount() {
       return coreQueueControl.getConsumerCount();
    }
 
-   public int getDeliveringCount()
-   {
+   public int getDeliveringCount() {
       return coreQueueControl.getDeliveringCount();
    }
 
-   public long getScheduledCount()
-   {
+   public long getScheduledCount() {
       return coreQueueControl.getScheduledCount();
    }
 
-   public boolean isDurable()
-   {
+   public boolean isDurable() {
       return coreQueueControl.isDurable();
    }
 
-   public String getDeadLetterAddress()
-   {
+   public String getDeadLetterAddress() {
       return coreQueueControl.getDeadLetterAddress();
    }
 
-   public String getExpiryAddress()
-   {
+   public String getExpiryAddress() {
       return coreQueueControl.getExpiryAddress();
    }
 
-   public String getFirstMessageAsJSON() throws Exception
-   {
+   public String getFirstMessageAsJSON() throws Exception {
       return coreQueueControl.getFirstMessageAsJSON();
    }
 
-   public Long getFirstMessageTimestamp() throws Exception
-   {
+   public Long getFirstMessageTimestamp() throws Exception {
       return coreQueueControl.getFirstMessageTimestamp();
    }
 
-   public Long getFirstMessageAge() throws Exception
-   {
+   public Long getFirstMessageAge() throws Exception {
       return coreQueueControl.getFirstMessageAge();
    }
 
    @Override
-   public void addBinding(String binding) throws Exception
-   {
+   public void addBinding(String binding) throws Exception {
       jmsServerManager.addQueueToBindingRegistry(managedQueue.getName(), binding);
    }
 
-   public String[] getRegistryBindings()
-   {
+   public String[] getRegistryBindings() {
       return jmsServerManager.getBindingsOnQueue(managedQueue.getName());
    }
 
-   public boolean removeMessage(final String messageID) throws Exception
-   {
+   public boolean removeMessage(final String messageID) throws Exception {
       String filter = JMSQueueControlImpl.createFilterForJMSMessageID(messageID);
       int removed = coreQueueControl.removeMessages(filter);
-      if (removed != 1)
-      {
+      if (removed != 1) {
          throw new IllegalArgumentException("No message found for JMSMessageID: " + messageID);
       }
       return true;
    }
 
-   public int removeMessages(final String filterStr) throws Exception
-   {
+   public int removeMessages(final String filterStr) throws Exception {
       String filter = JMSQueueControlImpl.createFilterFromJMSSelector(filterStr);
       return coreQueueControl.removeMessages(filter);
    }
 
-   public Map<String, Object>[] listMessages(final String filterStr) throws Exception
-   {
-      try
-      {
+   public Map<String, Object>[] listMessages(final String filterStr) throws Exception {
+      try {
          String filter = JMSQueueControlImpl.createFilterFromJMSSelector(filterStr);
          Map<String, Object>[] coreMessages = coreQueueControl.listMessages(filter);
 
          return toJMSMap(coreMessages);
       }
-      catch (ActiveMQException e)
-      {
+      catch (ActiveMQException e) {
          throw new IllegalStateException(e.getMessage());
       }
    }
 
-   private Map<String, Object>[] toJMSMap(Map<String, Object>[] coreMessages)
-   {
+   private Map<String, Object>[] toJMSMap(Map<String, Object>[] coreMessages) {
       Map<String, Object>[] jmsMessages = new Map[coreMessages.length];
 
       int i = 0;
 
-      for (Map<String, Object> coreMessage : coreMessages)
-      {
+      for (Map<String, Object> coreMessage : coreMessages) {
          Map<String, Object> jmsMessage = ActiveMQMessage.coreMaptoJMSMap(coreMessage);
          jmsMessages[i++] = jmsMessage;
       }
@@ -219,215 +189,175 @@ public class JMSQueueControlImpl extends StandardMBean implements JMSQueueContro
    }
 
    @Override
-   public Map<String, Object>[] listScheduledMessages() throws Exception
-   {
+   public Map<String, Object>[] listScheduledMessages() throws Exception {
       Map<String, Object>[] coreMessages = coreQueueControl.listScheduledMessages();
 
       return toJMSMap(coreMessages);
    }
 
    @Override
-   public String listScheduledMessagesAsJSON() throws Exception
-   {
+   public String listScheduledMessagesAsJSON() throws Exception {
       return coreQueueControl.listScheduledMessagesAsJSON();
    }
 
    @Override
-   public Map<String, Map<String, Object>[]> listDeliveringMessages() throws Exception
-   {
-      try
-      {
+   public Map<String, Map<String, Object>[]> listDeliveringMessages() throws Exception {
+      try {
          Map<String, Map<String, Object>[]> returnMap = new HashMap<String, Map<String, Object>[]>();
-
 
          // the workingMap from the queue-control
          Map<String, Map<String, Object>[]> workingMap = coreQueueControl.listDeliveringMessages();
 
-         for (Map.Entry<String, Map<String, Object>[]> entry : workingMap.entrySet())
-         {
+         for (Map.Entry<String, Map<String, Object>[]> entry : workingMap.entrySet()) {
             returnMap.put(entry.getKey(), toJMSMap(entry.getValue()));
          }
 
          return returnMap;
       }
-      catch (ActiveMQException e)
-      {
+      catch (ActiveMQException e) {
          throw new IllegalStateException(e.getMessage());
       }
    }
 
    @Override
-   public String listDeliveringMessagesAsJSON() throws Exception
-   {
+   public String listDeliveringMessagesAsJSON() throws Exception {
       return coreQueueControl.listDeliveringMessagesAsJSON();
    }
 
-   public String listMessagesAsJSON(final String filter) throws Exception
-   {
+   public String listMessagesAsJSON(final String filter) throws Exception {
       return JMSQueueControlImpl.toJSON(listMessages(filter));
    }
 
-   public long countMessages(final String filterStr) throws Exception
-   {
+   public long countMessages(final String filterStr) throws Exception {
       String filter = JMSQueueControlImpl.createFilterFromJMSSelector(filterStr);
       return coreQueueControl.countMessages(filter);
    }
 
-   public boolean expireMessage(final String messageID) throws Exception
-   {
+   public boolean expireMessage(final String messageID) throws Exception {
       String filter = JMSQueueControlImpl.createFilterForJMSMessageID(messageID);
       int expired = coreQueueControl.expireMessages(filter);
-      if (expired != 1)
-      {
+      if (expired != 1) {
          throw new IllegalArgumentException("No message found for JMSMessageID: " + messageID);
       }
       return true;
    }
 
-   public int expireMessages(final String filterStr) throws Exception
-   {
+   public int expireMessages(final String filterStr) throws Exception {
       String filter = JMSQueueControlImpl.createFilterFromJMSSelector(filterStr);
       return coreQueueControl.expireMessages(filter);
    }
 
-   public boolean sendMessageToDeadLetterAddress(final String messageID) throws Exception
-   {
+   public boolean sendMessageToDeadLetterAddress(final String messageID) throws Exception {
       String filter = JMSQueueControlImpl.createFilterForJMSMessageID(messageID);
       int dead = coreQueueControl.sendMessagesToDeadLetterAddress(filter);
-      if (dead != 1)
-      {
+      if (dead != 1) {
          throw new IllegalArgumentException("No message found for JMSMessageID: " + messageID);
       }
       return true;
    }
 
-   public int sendMessagesToDeadLetterAddress(final String filterStr) throws Exception
-   {
+   public int sendMessagesToDeadLetterAddress(final String filterStr) throws Exception {
       String filter = JMSQueueControlImpl.createFilterFromJMSSelector(filterStr);
       return coreQueueControl.sendMessagesToDeadLetterAddress(filter);
    }
 
-   public boolean changeMessagePriority(final String messageID, final int newPriority) throws Exception
-   {
+   public boolean changeMessagePriority(final String messageID, final int newPriority) throws Exception {
       String filter = JMSQueueControlImpl.createFilterForJMSMessageID(messageID);
       int changed = coreQueueControl.changeMessagesPriority(filter, newPriority);
-      if (changed != 1)
-      {
+      if (changed != 1) {
          throw new IllegalArgumentException("No message found for JMSMessageID: " + messageID);
       }
       return true;
    }
 
-   public int changeMessagesPriority(final String filterStr, final int newPriority) throws Exception
-   {
+   public int changeMessagesPriority(final String filterStr, final int newPriority) throws Exception {
       String filter = JMSQueueControlImpl.createFilterFromJMSSelector(filterStr);
       return coreQueueControl.changeMessagesPriority(filter, newPriority);
    }
 
-   public boolean moveMessage(final String messageID, final String otherQueueName) throws Exception
-   {
+   public boolean moveMessage(final String messageID, final String otherQueueName) throws Exception {
       return moveMessage(messageID, otherQueueName, false);
    }
 
-   public boolean moveMessage(final String messageID, final String otherQueueName, final boolean rejectDuplicates) throws Exception
-   {
+   public boolean moveMessage(final String messageID,
+                              final String otherQueueName,
+                              final boolean rejectDuplicates) throws Exception {
       String filter = JMSQueueControlImpl.createFilterForJMSMessageID(messageID);
       ActiveMQDestination otherQueue = ActiveMQDestination.createQueue(otherQueueName);
       int moved = coreQueueControl.moveMessages(filter, otherQueue.getAddress(), rejectDuplicates);
-      if (moved != 1)
-      {
+      if (moved != 1) {
          throw new IllegalArgumentException("No message found for JMSMessageID: " + messageID);
       }
 
       return true;
    }
 
-   public int moveMessages(final String filterStr, final String otherQueueName, final boolean rejectDuplicates) throws Exception
-   {
+   public int moveMessages(final String filterStr,
+                           final String otherQueueName,
+                           final boolean rejectDuplicates) throws Exception {
       String filter = JMSQueueControlImpl.createFilterFromJMSSelector(filterStr);
       ActiveMQDestination otherQueue = ActiveMQDestination.createQueue(otherQueueName);
       return coreQueueControl.moveMessages(filter, otherQueue.getAddress(), rejectDuplicates);
    }
 
-
-   public int moveMessages(final String filterStr, final String otherQueueName) throws Exception
-   {
+   public int moveMessages(final String filterStr, final String otherQueueName) throws Exception {
       return moveMessages(filterStr, otherQueueName, false);
    }
 
    @Operation(desc = "List all the existent consumers on the Queue")
-   public String listConsumersAsJSON() throws Exception
-   {
+   public String listConsumersAsJSON() throws Exception {
       return coreQueueControl.listConsumersAsJSON();
    }
 
-   public String listMessageCounter()
-   {
-      try
-      {
+   public String listMessageCounter() {
+      try {
          return MessageCounterInfo.toJSon(counter);
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          throw new IllegalStateException(e);
       }
    }
 
-   public void resetMessageCounter() throws Exception
-   {
+   public void resetMessageCounter() throws Exception {
       coreQueueControl.resetMessageCounter();
    }
 
-   public String listMessageCounterAsHTML()
-   {
+   public String listMessageCounterAsHTML() {
       return MessageCounterHelper.listMessageCounterAsHTML(new MessageCounter[]{counter});
    }
 
-   public String listMessageCounterHistory() throws Exception
-   {
+   public String listMessageCounterHistory() throws Exception {
       return MessageCounterHelper.listMessageCounterHistory(counter);
    }
 
-   public String listMessageCounterHistoryAsHTML()
-   {
+   public String listMessageCounterHistoryAsHTML() {
       return MessageCounterHelper.listMessageCounterHistoryAsHTML(new MessageCounter[]{counter});
    }
 
-   public boolean isPaused() throws Exception
-   {
+   public boolean isPaused() throws Exception {
       return coreQueueControl.isPaused();
    }
 
-   public void pause() throws Exception
-   {
+   public void pause() throws Exception {
       coreQueueControl.pause();
    }
 
-   public void resume() throws Exception
-   {
+   public void resume() throws Exception {
       coreQueueControl.resume();
    }
 
-   public String getSelector()
-   {
+   public String getSelector() {
       return coreQueueControl.getFilter();
    }
 
-   public void flushExecutor()
-   {
+   public void flushExecutor() {
       coreQueueControl.flushExecutor();
    }
 
    @Override
-   public MBeanInfo getMBeanInfo()
-   {
+   public MBeanInfo getMBeanInfo() {
       MBeanInfo info = super.getMBeanInfo();
-      return new MBeanInfo(info.getClassName(),
-                           info.getDescription(),
-                           info.getAttributes(),
-                           info.getConstructors(),
-                           MBeanInfoHelper.getMBeanOperationsInfo(JMSQueueControl.class),
-                           info.getNotifications());
+      return new MBeanInfo(info.getClassName(), info.getDescription(), info.getAttributes(), info.getConstructors(), MBeanInfoHelper.getMBeanOperationsInfo(JMSQueueControl.class), info.getNotifications());
    }
 
    // Package protected ---------------------------------------------

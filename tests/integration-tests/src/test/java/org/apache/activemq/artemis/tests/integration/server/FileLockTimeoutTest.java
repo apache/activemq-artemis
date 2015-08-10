@@ -33,68 +33,51 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 
-public class FileLockTimeoutTest extends ActiveMQTestBase
-{
+public class FileLockTimeoutTest extends ActiveMQTestBase {
+
    @BeforeClass
-   public static void prepareLogger()
-   {
+   public static void prepareLogger() {
       AssertionLoggerHandler.startCapture();
    }
 
    @AfterClass
-   public static void clearLogger()
-   {
+   public static void clearLogger() {
       AssertionLoggerHandler.stopCapture();
    }
 
-   protected void doTest(final boolean useAIO) throws Exception
-   {
-      if (useAIO)
-      {
-         Assert.assertTrue(String.format("libAIO is not loaded on %s %s %s", System.getProperty("os.name"),
-                                         System.getProperty("os.arch"), System.getProperty("os.version")),
-                           LibaioContext.isLoaded()
-         );
+   protected void doTest(final boolean useAIO) throws Exception {
+      if (useAIO) {
+         Assert.assertTrue(String.format("libAIO is not loaded on %s %s %s", System.getProperty("os.name"), System.getProperty("os.arch"), System.getProperty("os.version")), LibaioContext.isLoaded());
       }
-      Configuration config = super.createDefaultInVMConfig()
-         .setHAPolicyConfiguration(new SharedStoreMasterPolicyConfiguration())
-         .clearAcceptorConfigurations();
+      Configuration config = super.createDefaultInVMConfig().setHAPolicyConfiguration(new SharedStoreMasterPolicyConfiguration()).clearAcceptorConfigurations();
 
       ActiveMQServer server1 = createServer(true, config);
-      if (useAIO)
-      {
+      if (useAIO) {
          server1.getConfiguration().setJournalType(JournalType.ASYNCIO);
       }
-      else
-      {
+      else {
          server1.getConfiguration().setJournalType(JournalType.NIO);
       }
       server1.start();
       server1.waitForActivation(10, TimeUnit.SECONDS);
       final ActiveMQServer server2 = createServer(true, config);
-      if (useAIO)
-      {
+      if (useAIO) {
          server2.getConfiguration().setJournalType(JournalType.ASYNCIO);
       }
-      else
-      {
+      else {
          server2.getConfiguration().setJournalType(JournalType.NIO);
       }
       server2.getConfiguration().setJournalLockAcquisitionTimeout(5000);
 
       // if something happens that causes the timeout to misbehave we don't want the test to hang
       ExecutorService service = Executors.newSingleThreadExecutor();
-      Runnable r = new Runnable()
-      {
+      Runnable r = new Runnable() {
          @Override
-         public void run()
-         {
-            try
-            {
+         public void run() {
+            try {
                server2.start();
             }
-            catch (final Exception e)
-            {
+            catch (final Exception e) {
                throw new RuntimeException(e);
             }
          }
@@ -102,12 +85,10 @@ public class FileLockTimeoutTest extends ActiveMQTestBase
 
       Future<?> f = service.submit(r);
 
-      try
-      {
+      try {
          f.get(15, TimeUnit.SECONDS);
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          IntegrationTestLogger.LOGGER.warn("aborting test because server is taking too long to start");
       }
 

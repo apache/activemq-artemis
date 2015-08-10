@@ -23,8 +23,8 @@ import org.apache.activemq.broker.scheduler.JmsCronSchedulerTest;
  */
 public class InMemoryJmsCronSchedulerTest extends JmsCronSchedulerTest {
 
-    @Override
-    protected boolean isPersistent() {
-        return false;
-    }
+   @Override
+   protected boolean isPersistent() {
+      return false;
+   }
 }

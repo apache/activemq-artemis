@@ -24,112 +24,109 @@ import org.apache.activemq.util.MessageIdList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 import javax.jms.MessageConsumer;
 import java.net.URI;
 
-
 public class AMQ2927Test extends JmsMultipleBrokersTestSupport {
 
-    private static final Logger LOG = LoggerFactory.getLogger(AMQ2927Test.class);
+   private static final Logger LOG = LoggerFactory.getLogger(AMQ2927Test.class);
 
-    ActiveMQQueue queue = new ActiveMQQueue("TEST");
+   ActiveMQQueue queue = new ActiveMQQueue("TEST");
 
-    @Override
-    public void setUp() throws Exception {
-        super.setAutoFail(true);
-        super.setUp();
-        BrokerService brokerA = createBroker(new URI("broker:(tcp://localhost:61616)/BrokerA?persistent=true&useJmx=false&deleteAllMessagesOnStartup=true"));
-        brokerA.setBrokerId("BrokerA");
-        BrokerService brokerB = createBroker(new URI("broker:(tcp://localhost:61617)/BrokerB?persistent=true&useJmx=false&deleteAllMessagesOnStartup=true"));
-        brokerB.setBrokerId("BrokerB");
-        NetworkConnector aTOb = bridgeBrokers(brokers.get("BrokerA").broker, brokers.get("BrokerB").broker, false, 2, true, true);
-        aTOb.addStaticallyIncludedDestination(queue);
-        NetworkConnector bTOa = bridgeBrokers(brokers.get("BrokerB").broker, brokers.get("BrokerA").broker, false, 2, true, true);
-        bTOa.addStaticallyIncludedDestination(queue);
+   @Override
+   public void setUp() throws Exception {
+      super.setAutoFail(true);
+      super.setUp();
+      BrokerService brokerA = createBroker(new URI("broker:(tcp://localhost:61616)/BrokerA?persistent=true&useJmx=false&deleteAllMessagesOnStartup=true"));
+      brokerA.setBrokerId("BrokerA");
+      BrokerService brokerB = createBroker(new URI("broker:(tcp://localhost:61617)/BrokerB?persistent=true&useJmx=false&deleteAllMessagesOnStartup=true"));
+      brokerB.setBrokerId("BrokerB");
+      NetworkConnector aTOb = bridgeBrokers(brokers.get("BrokerA").broker, brokers.get("BrokerB").broker, false, 2, true, true);
+      aTOb.addStaticallyIncludedDestination(queue);
+      NetworkConnector bTOa = bridgeBrokers(brokers.get("BrokerB").broker, brokers.get("BrokerA").broker, false, 2, true, true);
+      bTOa.addStaticallyIncludedDestination(queue);
 
-        startAllBrokers();
-        waitForBridgeFormation();
-        
-    }
+      startAllBrokers();
+      waitForBridgeFormation();
 
-    public void testRestartSend() throws Exception {
+   }
 
-        Thread.sleep(1000);
+   public void testRestartSend() throws Exception {
 
-        LOG.info("restarting broker");
+      Thread.sleep(1000);
 
-        restartBroker("BrokerA");
+      LOG.info("restarting broker");
 
-        Thread.sleep(5000);
+      restartBroker("BrokerA");
 
-        LOG.info("sending message");
+      Thread.sleep(5000);
 
-        sendMessages("BrokerA", queue, 1);
+      LOG.info("sending message");
 
-        Thread.sleep(3000);
+      sendMessages("BrokerA", queue, 1);
 
-        LOG.info("consuming message");
+      Thread.sleep(3000);
 
-        MessageConsumer consumerA = createConsumer("BrokerA", queue);
-        MessageConsumer consumerB = createConsumer("BrokerB", queue);
+      LOG.info("consuming message");
 
-        Thread.sleep(1000);
+      MessageConsumer consumerA = createConsumer("BrokerA", queue);
+      MessageConsumer consumerB = createConsumer("BrokerB", queue);
 
-        MessageIdList messagesA = getConsumerMessages("BrokerA", consumerA);
-        MessageIdList messagesB = getConsumerMessages("BrokerB", consumerB);
+      Thread.sleep(1000);
 
-        LOG.info("consumerA = " + messagesA);
-        LOG.info("consumerB = " + messagesB);
+      MessageIdList messagesA = getConsumerMessages("BrokerA", consumerA);
+      MessageIdList messagesB = getConsumerMessages("BrokerB", consumerB);
 
-        messagesA.assertMessagesReceived(0);
-        messagesB.assertMessagesReceived(1);
+      LOG.info("consumerA = " + messagesA);
+      LOG.info("consumerB = " + messagesB);
 
-    }
+      messagesA.assertMessagesReceived(0);
+      messagesB.assertMessagesReceived(1);
 
+   }
 
-    public void testSendRestart() throws Exception {
+   public void testSendRestart() throws Exception {
 
-        Thread.sleep(1000);
+      Thread.sleep(1000);
 
-        LOG.info("sending message");
+      LOG.info("sending message");
 
-        sendMessages("BrokerA", queue, 1);
+      sendMessages("BrokerA", queue, 1);
 
-        Thread.sleep(3000);
+      Thread.sleep(3000);
 
-        LOG.info("restarting broker");
+      LOG.info("restarting broker");
 
-        restartBroker("BrokerA");
+      restartBroker("BrokerA");
 
-        Thread.sleep(5000);
+      Thread.sleep(5000);
 
-        LOG.info("consuming message");
+      LOG.info("consuming message");
 
-        MessageConsumer consumerA = createConsumer("BrokerA", queue);
-        MessageConsumer consumerB = createConsumer("BrokerB", queue);
+      MessageConsumer consumerA = createConsumer("BrokerA", queue);
+      MessageConsumer consumerB = createConsumer("BrokerB", queue);
 
-        Thread.sleep(1000);
+      Thread.sleep(1000);
 
-        MessageIdList messagesA = getConsumerMessages("BrokerA", consumerA);
-        MessageIdList messagesB = getConsumerMessages("BrokerB", consumerB);
+      MessageIdList messagesA = getConsumerMessages("BrokerA", consumerA);
+      MessageIdList messagesB = getConsumerMessages("BrokerB", consumerB);
 
-        LOG.info("consumerA = " + messagesA);
-        LOG.info("consumerB = " + messagesB);
+      LOG.info("consumerA = " + messagesA);
+      LOG.info("consumerB = " + messagesB);
 
-        messagesA.assertMessagesReceived(0);
-        messagesB.assertMessagesReceived(1);
-    }
+      messagesA.assertMessagesReceived(0);
+      messagesB.assertMessagesReceived(1);
+   }
 
-    protected void restartBroker(String brokerName) throws Exception {
-        destroyBroker("BrokerA");
-        BrokerService broker = createBroker(new URI("broker:(tcp://localhost:61616)/BrokerA?persistent=true&useJmx=false"));
-        broker.setBrokerId("BrokerA");
-        NetworkConnector aTOb = bridgeBrokers(brokers.get("BrokerA").broker, brokers.get("BrokerB").broker, false, 2, true, true);
-        aTOb.addStaticallyIncludedDestination(queue);
-        broker.start();
-        broker.waitUntilStarted();
-        waitForBridgeFormation();
-    }
+   protected void restartBroker(String brokerName) throws Exception {
+      destroyBroker("BrokerA");
+      BrokerService broker = createBroker(new URI("broker:(tcp://localhost:61616)/BrokerA?persistent=true&useJmx=false"));
+      broker.setBrokerId("BrokerA");
+      NetworkConnector aTOb = bridgeBrokers(brokers.get("BrokerA").broker, brokers.get("BrokerB").broker, false, 2, true, true);
+      aTOb.addStaticallyIncludedDestination(queue);
+      broker.start();
+      broker.waitUntilStarted();
+      waitForBridgeFormation();
+   }
 
 }

@@ -38,140 +38,144 @@ import org.apache.activemq.util.Wait;
 
 public class DurableSubscriptionSelectorTest extends org.apache.activemq.TestSupport {
 
-    MBeanServer mbs;
-    BrokerService broker = null;
-    ActiveMQTopic topic;
+   MBeanServer mbs;
+   BrokerService broker = null;
+   ActiveMQTopic topic;
 
-    ActiveMQConnection consumerConnection = null, producerConnection = null;
-    Session producerSession;
-    MessageProducer producer;
+   ActiveMQConnection consumerConnection = null, producerConnection = null;
+   Session producerSession;
+   MessageProducer producer;
 
-    private int received = 0;
+   private int received = 0;
 
-    public static Test suite() {
-        return suite(DurableSubscriptionSelectorTest.class);
-    }
+   public static Test suite() {
+      return suite(DurableSubscriptionSelectorTest.class);
+   }
 
-    public void initCombosForTestSubscription() throws Exception {
-        this.addCombinationValues("defaultPersistenceAdapter", PersistenceAdapterChoice.values());
-    }
+   public void initCombosForTestSubscription() throws Exception {
+      this.addCombinationValues("defaultPersistenceAdapter", PersistenceAdapterChoice.values());
+   }
 
-    public void testSubscription() throws Exception {
-        openConsumer();
-        for (int i = 0; i < 4000; i++) {
-            sendMessage(false);
-        }
-        Thread.sleep(1000);
+   public void testSubscription() throws Exception {
+      openConsumer();
+      for (int i = 0; i < 4000; i++) {
+         sendMessage(false);
+      }
+      Thread.sleep(1000);
 
-        assertEquals("Invalid message received.", 0, received);
+      assertEquals("Invalid message received.", 0, received);
 
-        closeProducer();
-        closeConsumer();
-        stopBroker();
+      closeProducer();
+      closeConsumer();
+      stopBroker();
 
-        startBroker(false);
-        openConsumer();
+      startBroker(false);
+      openConsumer();
 
-        sendMessage(true);
+      sendMessage(true);
 
-        Wait.waitFor(new Wait.Condition() { @Override
-        public boolean isSatisified() { return received >= 1;} }, 10000);
+      Wait.waitFor(new Wait.Condition() {
+         @Override
+         public boolean isSatisified() {
+            return received >= 1;
+         }
+      }, 10000);
 
-        assertEquals("Message is not received.", 1, received);
+      assertEquals("Message is not received.", 1, received);
 
-        sendMessage(true);
-        Thread.sleep(100);
+      sendMessage(true);
+      Thread.sleep(100);
 
-        assertEquals("Message is not received.", 2, received);
-    }
+      assertEquals("Message is not received.", 2, received);
+   }
 
-    private void openConsumer() throws Exception {
-        consumerConnection = (ActiveMQConnection) createConnection();
-        consumerConnection.setClientID("cliID");
-        consumerConnection.start();
-        Session session = consumerConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        TopicSubscriber subscriber = session.createDurableSubscriber(topic, "subName", "filter=true", false);
+   private void openConsumer() throws Exception {
+      consumerConnection = (ActiveMQConnection) createConnection();
+      consumerConnection.setClientID("cliID");
+      consumerConnection.start();
+      Session session = consumerConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      TopicSubscriber subscriber = session.createDurableSubscriber(topic, "subName", "filter=true", false);
 
-        subscriber.setMessageListener(new MessageListener() {
-            @Override
-            public void onMessage(Message message) {
-                received++;
-            }
-        });
-    }
+      subscriber.setMessageListener(new MessageListener() {
+         @Override
+         public void onMessage(Message message) {
+            received++;
+         }
+      });
+   }
 
-    private void closeConsumer() throws JMSException {
-        if (consumerConnection != null)
-            consumerConnection.close();
-        consumerConnection = null;
-    }
+   private void closeConsumer() throws JMSException {
+      if (consumerConnection != null)
+         consumerConnection.close();
+      consumerConnection = null;
+   }
 
-    private void sendMessage(boolean filter) throws Exception {
-        if (producerConnection == null) {
-            producerConnection = (ActiveMQConnection) createConnection();
-            producerConnection.start();
-            producerSession = producerConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-            producer = producerSession.createProducer(topic);
-        }
+   private void sendMessage(boolean filter) throws Exception {
+      if (producerConnection == null) {
+         producerConnection = (ActiveMQConnection) createConnection();
+         producerConnection.start();
+         producerSession = producerConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         producer = producerSession.createProducer(topic);
+      }
 
-        Message message = producerSession.createMessage();
-        message.setBooleanProperty("filter", filter);
-        producer.send(message);
-    }
+      Message message = producerSession.createMessage();
+      message.setBooleanProperty("filter", filter);
+      producer.send(message);
+   }
 
-    private void closeProducer() throws JMSException {
-        if (producerConnection != null)
-            producerConnection.close();
-        producerConnection = null;
-    }
+   private void closeProducer() throws JMSException {
+      if (producerConnection != null)
+         producerConnection.close();
+      producerConnection = null;
+   }
 
-    private void startBroker(boolean deleteMessages) throws Exception {
-        broker = new BrokerService();
-        broker.setBrokerName("test-broker");
+   private void startBroker(boolean deleteMessages) throws Exception {
+      broker = new BrokerService();
+      broker.setBrokerName("test-broker");
 
-        if (deleteMessages) {
-            broker.setDeleteAllMessagesOnStartup(true);
-        }
-        setDefaultPersistenceAdapter(broker);
+      if (deleteMessages) {
+         broker.setDeleteAllMessagesOnStartup(true);
+      }
+      setDefaultPersistenceAdapter(broker);
 
         /* use maxPageSize policy in place of always pulling from the broker in maxRows chunks
         if (broker.getPersistenceAdapter() instanceof JDBCPersistenceAdapter) {
             ((JDBCPersistenceAdapter)broker.getPersistenceAdapter()).setMaxRows(5000);
         }*/
 
-        PolicyMap policyMap = new PolicyMap();
-        PolicyEntry defaultEntry = new PolicyEntry();
-        defaultEntry.setMaxPageSize(5000);
-        policyMap.setDefaultEntry(defaultEntry);
-        broker.setDestinationPolicy(policyMap);
+      PolicyMap policyMap = new PolicyMap();
+      PolicyEntry defaultEntry = new PolicyEntry();
+      defaultEntry.setMaxPageSize(5000);
+      policyMap.setDefaultEntry(defaultEntry);
+      broker.setDestinationPolicy(policyMap);
 
-        broker.start();
-    }
+      broker.start();
+   }
 
-    private void stopBroker() throws Exception {
-        if (broker != null)
-            broker.stop();
-        broker = null;
-    }
+   private void stopBroker() throws Exception {
+      if (broker != null)
+         broker.stop();
+      broker = null;
+   }
 
-    @Override
-    protected ActiveMQConnectionFactory createConnectionFactory() throws Exception {
-        return new ActiveMQConnectionFactory("vm://test-broker?jms.watchTopicAdvisories=false&waitForStart=5000&create=false");
-    }
+   @Override
+   protected ActiveMQConnectionFactory createConnectionFactory() throws Exception {
+      return new ActiveMQConnectionFactory("vm://test-broker?jms.watchTopicAdvisories=false&waitForStart=5000&create=false");
+   }
 
-    @Override
-    protected void setUp() throws Exception {
-        setAutoFail(true);
-        super.setUp();
+   @Override
+   protected void setUp() throws Exception {
+      setAutoFail(true);
+      super.setUp();
 
-        startBroker(true);
-        topic = (ActiveMQTopic) createDestination();
-        mbs = ManagementFactory.getPlatformMBeanServer();
-    }
+      startBroker(true);
+      topic = (ActiveMQTopic) createDestination();
+      mbs = ManagementFactory.getPlatformMBeanServer();
+   }
 
-    @Override
-    protected void tearDown() throws Exception {
-        stopBroker();
-        super.tearDown();
-    }
+   @Override
+   protected void tearDown() throws Exception {
+      stopBroker();
+      super.tearDown();
+   }
 }

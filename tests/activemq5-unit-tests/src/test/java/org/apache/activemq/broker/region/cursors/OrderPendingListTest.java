@@ -34,411 +34,412 @@ import org.junit.Test;
 
 public class OrderPendingListTest {
 
-    @Test
-    public void testAddMessageFirst() throws Exception {
+   @Test
+   public void testAddMessageFirst() throws Exception {
 
-        OrderedPendingList list = new OrderedPendingList();
+      OrderedPendingList list = new OrderedPendingList();
 
-        list.addMessageFirst(new TestMessageReference(1));
-        list.addMessageFirst(new TestMessageReference(2));
-        list.addMessageFirst(new TestMessageReference(3));
-        list.addMessageFirst(new TestMessageReference(4));
-        list.addMessageFirst(new TestMessageReference(5));
+      list.addMessageFirst(new TestMessageReference(1));
+      list.addMessageFirst(new TestMessageReference(2));
+      list.addMessageFirst(new TestMessageReference(3));
+      list.addMessageFirst(new TestMessageReference(4));
+      list.addMessageFirst(new TestMessageReference(5));
 
-        assertTrue(list.size() == 5);
-        assertEquals(5, list.getAsList().size());
+      assertTrue(list.size() == 5);
+      assertEquals(5, list.getAsList().size());
 
-        Iterator<MessageReference> iter = list.iterator();
-        int lastId = list.size();
-        while (iter.hasNext()) {
-            assertEquals(lastId--, iter.next().getMessageId().getProducerSequenceId());
-        }
-    }
+      Iterator<MessageReference> iter = list.iterator();
+      int lastId = list.size();
+      while (iter.hasNext()) {
+         assertEquals(lastId--, iter.next().getMessageId().getProducerSequenceId());
+      }
+   }
 
-    @Test
-    public void testAddMessageLast() throws Exception {
+   @Test
+   public void testAddMessageLast() throws Exception {
 
-        OrderedPendingList list = new OrderedPendingList();
+      OrderedPendingList list = new OrderedPendingList();
 
-        list.addMessageLast(new TestMessageReference(1));
-        list.addMessageLast(new TestMessageReference(2));
-        list.addMessageLast(new TestMessageReference(3));
-        list.addMessageLast(new TestMessageReference(4));
-        list.addMessageLast(new TestMessageReference(5));
+      list.addMessageLast(new TestMessageReference(1));
+      list.addMessageLast(new TestMessageReference(2));
+      list.addMessageLast(new TestMessageReference(3));
+      list.addMessageLast(new TestMessageReference(4));
+      list.addMessageLast(new TestMessageReference(5));
 
-        assertTrue(list.size() == 5);
-        assertEquals(5, list.getAsList().size());
+      assertTrue(list.size() == 5);
+      assertEquals(5, list.getAsList().size());
 
-        Iterator<MessageReference> iter = list.iterator();
-        int lastId = 1;
-        while (iter.hasNext()) {
-            assertEquals(lastId++, iter.next().getMessageId().getProducerSequenceId());
-        }
-    }
+      Iterator<MessageReference> iter = list.iterator();
+      int lastId = 1;
+      while (iter.hasNext()) {
+         assertEquals(lastId++, iter.next().getMessageId().getProducerSequenceId());
+      }
+   }
 
-    @Test
-    public void testClear() throws Exception {
-        OrderedPendingList list = new OrderedPendingList();
+   @Test
+   public void testClear() throws Exception {
+      OrderedPendingList list = new OrderedPendingList();
 
-        list.addMessageFirst(new TestMessageReference(1));
-        list.addMessageFirst(new TestMessageReference(2));
-        list.addMessageFirst(new TestMessageReference(3));
-        list.addMessageFirst(new TestMessageReference(4));
-        list.addMessageFirst(new TestMessageReference(5));
+      list.addMessageFirst(new TestMessageReference(1));
+      list.addMessageFirst(new TestMessageReference(2));
+      list.addMessageFirst(new TestMessageReference(3));
+      list.addMessageFirst(new TestMessageReference(4));
+      list.addMessageFirst(new TestMessageReference(5));
 
-        assertFalse(list.isEmpty());
-        assertTrue(list.size() == 5);
-        assertEquals(5, list.getAsList().size());
+      assertFalse(list.isEmpty());
+      assertTrue(list.size() == 5);
+      assertEquals(5, list.getAsList().size());
 
-        list.clear();
+      list.clear();
 
-        assertTrue(list.isEmpty());
-        assertTrue(list.size() == 0);
-        assertEquals(0, list.getAsList().size());
+      assertTrue(list.isEmpty());
+      assertTrue(list.size() == 0);
+      assertEquals(0, list.getAsList().size());
 
-        list.addMessageFirst(new TestMessageReference(1));
-        list.addMessageLast(new TestMessageReference(2));
-        list.addMessageLast(new TestMessageReference(3));
-        list.addMessageFirst(new TestMessageReference(4));
-        list.addMessageLast(new TestMessageReference(5));
+      list.addMessageFirst(new TestMessageReference(1));
+      list.addMessageLast(new TestMessageReference(2));
+      list.addMessageLast(new TestMessageReference(3));
+      list.addMessageFirst(new TestMessageReference(4));
+      list.addMessageLast(new TestMessageReference(5));
 
-        assertFalse(list.isEmpty());
-        assertTrue(list.size() == 5);
-        assertEquals(5, list.getAsList().size());
-    }
+      assertFalse(list.isEmpty());
+      assertTrue(list.size() == 5);
+      assertEquals(5, list.getAsList().size());
+   }
 
-    @Test
-    public void testIsEmpty() throws Exception {
-        OrderedPendingList list = new OrderedPendingList();
-        assertTrue(list.isEmpty());
+   @Test
+   public void testIsEmpty() throws Exception {
+      OrderedPendingList list = new OrderedPendingList();
+      assertTrue(list.isEmpty());
 
-        list.addMessageFirst(new TestMessageReference(1));
-        list.addMessageFirst(new TestMessageReference(2));
-        list.addMessageFirst(new TestMessageReference(3));
-        list.addMessageFirst(new TestMessageReference(4));
-        list.addMessageFirst(new TestMessageReference(5));
+      list.addMessageFirst(new TestMessageReference(1));
+      list.addMessageFirst(new TestMessageReference(2));
+      list.addMessageFirst(new TestMessageReference(3));
+      list.addMessageFirst(new TestMessageReference(4));
+      list.addMessageFirst(new TestMessageReference(5));
 
-        assertFalse(list.isEmpty());
-        list.clear();
-        assertTrue(list.isEmpty());
-    }
+      assertFalse(list.isEmpty());
+      list.clear();
+      assertTrue(list.isEmpty());
+   }
 
-    @Test
-    public void testSize() {
-        OrderedPendingList list = new OrderedPendingList();
-        assertTrue(list.isEmpty());
+   @Test
+   public void testSize() {
+      OrderedPendingList list = new OrderedPendingList();
+      assertTrue(list.isEmpty());
 
-        assertTrue(list.size() == 0);
-        list.addMessageFirst(new TestMessageReference(1));
-        assertTrue(list.size() == 1);
-        list.addMessageLast(new TestMessageReference(2));
-        assertTrue(list.size() == 2);
-        list.addMessageFirst(new TestMessageReference(3));
-        assertTrue(list.size() == 3);
-        list.addMessageLast(new TestMessageReference(4));
-        assertTrue(list.size() == 4);
-        list.addMessageFirst(new TestMessageReference(5));
-        assertTrue(list.size() == 5);
+      assertTrue(list.size() == 0);
+      list.addMessageFirst(new TestMessageReference(1));
+      assertTrue(list.size() == 1);
+      list.addMessageLast(new TestMessageReference(2));
+      assertTrue(list.size() == 2);
+      list.addMessageFirst(new TestMessageReference(3));
+      assertTrue(list.size() == 3);
+      list.addMessageLast(new TestMessageReference(4));
+      assertTrue(list.size() == 4);
+      list.addMessageFirst(new TestMessageReference(5));
+      assertTrue(list.size() == 5);
 
-        assertFalse(list.isEmpty());
-        list.clear();
-        assertTrue(list.isEmpty());
-        assertTrue(list.size() == 0);
-    }
+      assertFalse(list.isEmpty());
+      list.clear();
+      assertTrue(list.isEmpty());
+      assertTrue(list.size() == 0);
+   }
 
-    @Test
-    public void testRemove() throws Exception {
+   @Test
+   public void testRemove() throws Exception {
 
-        OrderedPendingList list = new OrderedPendingList();
+      OrderedPendingList list = new OrderedPendingList();
 
-        TestMessageReference toRemove = new TestMessageReference(6);
+      TestMessageReference toRemove = new TestMessageReference(6);
 
-        list.addMessageFirst(new TestMessageReference(1));
-        list.addMessageFirst(new TestMessageReference(2));
-        list.addMessageFirst(new TestMessageReference(3));
-        list.addMessageFirst(new TestMessageReference(4));
-        list.addMessageFirst(new TestMessageReference(5));
+      list.addMessageFirst(new TestMessageReference(1));
+      list.addMessageFirst(new TestMessageReference(2));
+      list.addMessageFirst(new TestMessageReference(3));
+      list.addMessageFirst(new TestMessageReference(4));
+      list.addMessageFirst(new TestMessageReference(5));
 
-        assertTrue(list.size() == 5);
-        assertEquals(5, list.getAsList().size());
+      assertTrue(list.size() == 5);
+      assertEquals(5, list.getAsList().size());
 
-        list.addMessageLast(toRemove);
-        list.remove(toRemove);
+      list.addMessageLast(toRemove);
+      list.remove(toRemove);
 
-        assertTrue(list.size() == 5);
-        assertEquals(5, list.getAsList().size());
+      assertTrue(list.size() == 5);
+      assertEquals(5, list.getAsList().size());
 
-        list.remove(toRemove);
+      list.remove(toRemove);
 
-        assertTrue(list.size() == 5);
-        assertEquals(5, list.getAsList().size());
+      assertTrue(list.size() == 5);
+      assertEquals(5, list.getAsList().size());
 
-        Iterator<MessageReference> iter = list.iterator();
-        int lastId = list.size();
-        while (iter.hasNext()) {
-            assertEquals(lastId--, iter.next().getMessageId().getProducerSequenceId());
-        }
+      Iterator<MessageReference> iter = list.iterator();
+      int lastId = list.size();
+      while (iter.hasNext()) {
+         assertEquals(lastId--, iter.next().getMessageId().getProducerSequenceId());
+      }
 
-        list.remove(null);
-    }
+      list.remove(null);
+   }
 
-    @Test
-    public void testContains() throws Exception {
+   @Test
+   public void testContains() throws Exception {
 
-        OrderedPendingList list = new OrderedPendingList();
+      OrderedPendingList list = new OrderedPendingList();
 
-        TestMessageReference toRemove = new TestMessageReference(6);
+      TestMessageReference toRemove = new TestMessageReference(6);
 
-        assertFalse(list.contains(toRemove));
-        assertFalse(list.contains(null));
+      assertFalse(list.contains(toRemove));
+      assertFalse(list.contains(null));
 
-        list.addMessageFirst(new TestMessageReference(1));
-        list.addMessageFirst(new TestMessageReference(2));
-        list.addMessageFirst(new TestMessageReference(3));
-        list.addMessageFirst(new TestMessageReference(4));
-        list.addMessageFirst(new TestMessageReference(5));
+      list.addMessageFirst(new TestMessageReference(1));
+      list.addMessageFirst(new TestMessageReference(2));
+      list.addMessageFirst(new TestMessageReference(3));
+      list.addMessageFirst(new TestMessageReference(4));
+      list.addMessageFirst(new TestMessageReference(5));
 
-        assertTrue(list.size() == 5);
-        assertEquals(5, list.getAsList().size());
+      assertTrue(list.size() == 5);
+      assertEquals(5, list.getAsList().size());
 
-        list.addMessageLast(toRemove);
-        assertTrue(list.size() == 6);
-        assertTrue(list.contains(toRemove));
-        list.remove(toRemove);
-        assertFalse(list.contains(toRemove));
+      list.addMessageLast(toRemove);
+      assertTrue(list.size() == 6);
+      assertTrue(list.contains(toRemove));
+      list.remove(toRemove);
+      assertFalse(list.contains(toRemove));
 
-        assertTrue(list.size() == 5);
-        assertEquals(5, list.getAsList().size());
-    }
+      assertTrue(list.size() == 5);
+      assertEquals(5, list.getAsList().size());
+   }
 
-    @Test
-    public void testValues() throws Exception {
+   @Test
+   public void testValues() throws Exception {
 
-        OrderedPendingList list = new OrderedPendingList();
+      OrderedPendingList list = new OrderedPendingList();
 
-        TestMessageReference toRemove = new TestMessageReference(6);
+      TestMessageReference toRemove = new TestMessageReference(6);
 
-        assertFalse(list.contains(toRemove));
+      assertFalse(list.contains(toRemove));
 
-        list.addMessageFirst(new TestMessageReference(1));
-        list.addMessageFirst(new TestMessageReference(2));
-        list.addMessageFirst(new TestMessageReference(3));
-        list.addMessageFirst(new TestMessageReference(4));
-        list.addMessageFirst(new TestMessageReference(5));
+      list.addMessageFirst(new TestMessageReference(1));
+      list.addMessageFirst(new TestMessageReference(2));
+      list.addMessageFirst(new TestMessageReference(3));
+      list.addMessageFirst(new TestMessageReference(4));
+      list.addMessageFirst(new TestMessageReference(5));
 
-        Collection<MessageReference> values = list.values();
-        assertEquals(5, values.size());
+      Collection<MessageReference> values = list.values();
+      assertEquals(5, values.size());
 
-        for (MessageReference msg : values) {
-            assertTrue(values.contains(msg));
-        }
+      for (MessageReference msg : values) {
+         assertTrue(values.contains(msg));
+      }
 
-        assertFalse(values.contains(toRemove));
+      assertFalse(values.contains(toRemove));
 
-        list.addMessageLast(toRemove);
-        values = list.values();
-        assertEquals(6, values.size());
-        for (MessageReference msg : values) {
-            assertTrue(values.contains(msg));
-        }
+      list.addMessageLast(toRemove);
+      values = list.values();
+      assertEquals(6, values.size());
+      for (MessageReference msg : values) {
+         assertTrue(values.contains(msg));
+      }
 
-        assertTrue(values.contains(toRemove));
-    }
+      assertTrue(values.contains(toRemove));
+   }
 
-    @Test
-    public void testAddAll() throws Exception {
-        OrderedPendingList list = new OrderedPendingList();
-        TestPendingList source = new TestPendingList();
+   @Test
+   public void testAddAll() throws Exception {
+      OrderedPendingList list = new OrderedPendingList();
+      TestPendingList source = new TestPendingList();
 
-        source.addMessageFirst(new TestMessageReference(1));
-        source.addMessageFirst(new TestMessageReference(2));
-        source.addMessageFirst(new TestMessageReference(3));
-        source.addMessageFirst(new TestMessageReference(4));
-        source.addMessageFirst(new TestMessageReference(5));
+      source.addMessageFirst(new TestMessageReference(1));
+      source.addMessageFirst(new TestMessageReference(2));
+      source.addMessageFirst(new TestMessageReference(3));
+      source.addMessageFirst(new TestMessageReference(4));
+      source.addMessageFirst(new TestMessageReference(5));
 
-        assertTrue(list.isEmpty());
-        assertEquals(5, source.size());
-        list.addAll(source);
-        assertEquals(5, list.size());
+      assertTrue(list.isEmpty());
+      assertEquals(5, source.size());
+      list.addAll(source);
+      assertEquals(5, list.size());
 
-        for (MessageReference message : source) {
-            assertTrue(list.contains(message));
-        }
+      for (MessageReference message : source) {
+         assertTrue(list.contains(message));
+      }
 
-        list.addAll(null);
-    }
+      list.addAll(null);
+   }
 
-    static class TestPendingList implements PendingList {
+   static class TestPendingList implements PendingList {
 
-        private final LinkedList<MessageReference> theList = new LinkedList<MessageReference>();
+      private final LinkedList<MessageReference> theList = new LinkedList<MessageReference>();
 
-        @Override
-        public boolean isEmpty() {
-            return theList.isEmpty();
-        }
+      @Override
+      public boolean isEmpty() {
+         return theList.isEmpty();
+      }
 
-        @Override
-        public void clear() {
-            theList.clear();
-        }
+      @Override
+      public void clear() {
+         theList.clear();
+      }
 
-        @Override
-        public PendingNode addMessageFirst(MessageReference message) {
-            theList.addFirst(message);
+      @Override
+      public PendingNode addMessageFirst(MessageReference message) {
+         theList.addFirst(message);
+         return new PendingNode(null, message);
+      }
+
+      @Override
+      public PendingNode addMessageLast(MessageReference message) {
+         theList.addLast(message);
+         return new PendingNode(null, message);
+      }
+
+      @Override
+      public PendingNode remove(MessageReference message) {
+         if (theList.remove(message)) {
             return new PendingNode(null, message);
-        }
+         }
+         else {
+            return null;
+         }
+      }
 
-        @Override
-        public PendingNode addMessageLast(MessageReference message) {
-            theList.addLast(message);
-            return new PendingNode(null, message);
-        }
+      @Override
+      public int size() {
+         return theList.size();
+      }
 
-        @Override
-        public PendingNode remove(MessageReference message) {
-            if (theList.remove(message)) {
-                return new PendingNode(null, message);
-            } else {
-                return null;
+      @Override
+      public Iterator<MessageReference> iterator() {
+         return theList.iterator();
+      }
+
+      @Override
+      public boolean contains(MessageReference message) {
+         return theList.contains(message);
+      }
+
+      @Override
+      public Collection<MessageReference> values() {
+         return theList;
+      }
+
+      @Override
+      public void addAll(PendingList pendingList) {
+         for (MessageReference messageReference : pendingList) {
+            theList.add(messageReference);
+         }
+      }
+
+      @Override
+      public MessageReference get(MessageId messageId) {
+         for (MessageReference messageReference : theList) {
+            if (messageReference.getMessageId().equals(messageId)) {
+               return messageReference;
             }
-        }
+         }
+         return null;
+      }
+   }
 
-        @Override
-        public int size() {
-            return theList.size();
-        }
+   static class TestMessageReference implements MessageReference {
 
-        @Override
-        public Iterator<MessageReference> iterator() {
-            return theList.iterator();
-        }
+      private static final IdGenerator id = new IdGenerator();
 
-        @Override
-        public boolean contains(MessageReference message) {
-            return theList.contains(message);
-        }
+      private MessageId messageId;
+      private int referenceCount = 0;
 
-        @Override
-        public Collection<MessageReference> values() {
-            return theList;
-        }
+      public TestMessageReference(int sequenceId) {
+         messageId = new MessageId(id.generateId() + ":1", sequenceId);
+      }
 
-        @Override
-        public void addAll(PendingList pendingList) {
-            for(MessageReference messageReference : pendingList) {
-                theList.add(messageReference);
-            }
-        }
+      @Override
+      public MessageId getMessageId() {
+         return messageId;
+      }
 
-        @Override
-        public MessageReference get(MessageId messageId) {
-            for(MessageReference messageReference : theList) {
-                if (messageReference.getMessageId().equals(messageId)) {
-                    return messageReference;
-                }
-            }
-            return null;
-        }
-    }
+      @Override
+      public Message getMessageHardRef() {
+         return null;
+      }
 
-    static class TestMessageReference implements MessageReference {
+      @Override
+      public Message getMessage() {
+         return null;
+      }
 
-        private static final IdGenerator id = new IdGenerator();
+      @Override
+      public boolean isPersistent() {
+         return false;
+      }
 
-        private MessageId messageId;
-        private int referenceCount = 0;
+      @Override
+      public Destination getRegionDestination() {
+         return null;
+      }
 
-        public TestMessageReference(int sequenceId) {
-            messageId = new MessageId(id.generateId() + ":1", sequenceId);
-        }
+      @Override
+      public int getRedeliveryCounter() {
+         return 0;
+      }
 
-        @Override
-        public MessageId getMessageId() {
-            return messageId;
-        }
+      @Override
+      public void incrementRedeliveryCounter() {
+      }
 
-        @Override
-        public Message getMessageHardRef() {
-            return null;
-        }
+      @Override
+      public int getReferenceCount() {
+         return this.referenceCount;
+      }
 
-        @Override
-        public Message getMessage() {
-            return null;
-        }
+      @Override
+      public int incrementReferenceCount() {
+         return this.referenceCount++;
+      }
 
-        @Override
-        public boolean isPersistent() {
-            return false;
-        }
+      @Override
+      public int decrementReferenceCount() {
+         return this.referenceCount--;
+      }
 
-        @Override
-        public Destination getRegionDestination() {
-            return null;
-        }
+      @Override
+      public ConsumerId getTargetConsumerId() {
+         return null;
+      }
 
-        @Override
-        public int getRedeliveryCounter() {
-            return 0;
-        }
+      @Override
+      public int getSize() {
+         return 1;
+      }
 
-        @Override
-        public void incrementRedeliveryCounter() {
-        }
+      @Override
+      public long getExpiration() {
+         return 0;
+      }
 
-        @Override
-        public int getReferenceCount() {
-            return this.referenceCount;
-        }
+      @Override
+      public String getGroupID() {
+         return null;
+      }
 
-        @Override
-        public int incrementReferenceCount() {
-            return this.referenceCount++;
-        }
+      @Override
+      public int getGroupSequence() {
+         return 0;
+      }
 
-        @Override
-        public int decrementReferenceCount() {
-            return this.referenceCount--;
-        }
+      @Override
+      public boolean isExpired() {
+         return false;
+      }
 
-        @Override
-        public ConsumerId getTargetConsumerId() {
-            return null;
-        }
+      @Override
+      public boolean isDropped() {
+         return false;
+      }
 
-        @Override
-        public int getSize() {
-            return 1;
-        }
-
-        @Override
-        public long getExpiration() {
-            return 0;
-        }
-
-        @Override
-        public String getGroupID() {
-            return null;
-        }
-
-        @Override
-        public int getGroupSequence() {
-            return 0;
-        }
-
-        @Override
-        public boolean isExpired() {
-            return false;
-        }
-
-        @Override
-        public boolean isDropped() {
-            return false;
-        }
-
-        @Override
-        public boolean isAdvisory() {
-            return false;
-        }
-    }
+      @Override
+      public boolean isAdvisory() {
+         return false;
+      }
+   }
 }

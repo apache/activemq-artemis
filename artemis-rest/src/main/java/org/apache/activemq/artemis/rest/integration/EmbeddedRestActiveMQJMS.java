@@ -19,22 +19,20 @@ package org.apache.activemq.artemis.rest.integration;
 import org.apache.activemq.artemis.jms.server.embedded.EmbeddedJMS;
 import org.apache.activemq.artemis.spi.core.naming.BindingRegistry;
 
-public class EmbeddedRestActiveMQJMS extends EmbeddedRestActiveMQ
-{
+public class EmbeddedRestActiveMQJMS extends EmbeddedRestActiveMQ {
+
    @Override
-   protected void initEmbeddedActiveMQ()
-   {
+   protected void initEmbeddedActiveMQ() {
       embeddedActiveMQ = new EmbeddedJMS();
    }
 
-   public BindingRegistry getRegistry()
-   {
-      if (embeddedActiveMQ == null) return null;
+   public BindingRegistry getRegistry() {
+      if (embeddedActiveMQ == null)
+         return null;
       return ((EmbeddedJMS) embeddedActiveMQ).getRegistry();
    }
 
-   public EmbeddedJMS getEmbeddedJMS()
-   {
+   public EmbeddedJMS getEmbeddedJMS() {
       return (EmbeddedJMS) embeddedActiveMQ;
    }
 }

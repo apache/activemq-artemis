@@ -17,6 +17,7 @@
 package org.apache.activemq.broker.policy;
 
 import junit.framework.Test;
+
 import org.apache.activemq.JmsMultipleClientsTestSupport;
 import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.broker.jmx.AbortSlowConsumerStrategyViewMBean;
@@ -45,52 +46,51 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
-
 public class AbortSlowConsumerBase extends JmsMultipleClientsTestSupport implements ExceptionListener {
 
-    private static final Logger LOG = LoggerFactory.getLogger(AbortSlowConsumerBase.class);
+   private static final Logger LOG = LoggerFactory.getLogger(AbortSlowConsumerBase.class);
 
-    protected AbortSlowConsumerStrategy underTest;
-    protected boolean abortConnection = false;
-    protected long checkPeriod = 2 * 1000;
-    protected long maxSlowDuration = 5 * 1000;
-    protected final List<Throwable> exceptions = new ArrayList<Throwable>();
+   protected AbortSlowConsumerStrategy underTest;
+   protected boolean abortConnection = false;
+   protected long checkPeriod = 2 * 1000;
+   protected long maxSlowDuration = 5 * 1000;
+   protected final List<Throwable> exceptions = new ArrayList<Throwable>();
 
-    @Override
-    @Before
-    public void setUp() throws Exception {
-        exceptions.clear();
-        topic = true;
-        underTest = createSlowConsumerStrategy();
-        super.setUp();
-        createDestination();
-    }
+   @Override
+   @Before
+   public void setUp() throws Exception {
+      exceptions.clear();
+      topic = true;
+      underTest = createSlowConsumerStrategy();
+      super.setUp();
+      createDestination();
+   }
 
-    protected AbortSlowConsumerStrategy createSlowConsumerStrategy() {
-        return new AbortSlowConsumerStrategy();
-    }
+   protected AbortSlowConsumerStrategy createSlowConsumerStrategy() {
+      return new AbortSlowConsumerStrategy();
+   }
 
-    @Override
-    protected BrokerService createBroker() throws Exception {
-        BrokerService broker = super.createBroker();
-        PolicyEntry policy = new PolicyEntry();
-        underTest.setAbortConnection(abortConnection);
-        underTest.setCheckPeriod(checkPeriod);
-        underTest.setMaxSlowDuration(maxSlowDuration);
+   @Override
+   protected BrokerService createBroker() throws Exception {
+      BrokerService broker = super.createBroker();
+      PolicyEntry policy = new PolicyEntry();
+      underTest.setAbortConnection(abortConnection);
+      underTest.setCheckPeriod(checkPeriod);
+      underTest.setMaxSlowDuration(maxSlowDuration);
 
-        policy.setSlowConsumerStrategy(underTest);
-        policy.setQueuePrefetch(10);
-        policy.setTopicPrefetch(10);
-        PolicyMap pMap = new PolicyMap();
-        pMap.setDefaultEntry(policy);
-        broker.setDestinationPolicy(pMap);
-        return broker;
-    }
+      policy.setSlowConsumerStrategy(underTest);
+      policy.setQueuePrefetch(10);
+      policy.setTopicPrefetch(10);
+      PolicyMap pMap = new PolicyMap();
+      pMap.setDefaultEntry(policy);
+      broker.setDestinationPolicy(pMap);
+      return broker;
+   }
 
-    @Override
-    public void onException(JMSException exception) {
-        exceptions.add(exception);
-        exception.printStackTrace();
-    }
+   @Override
+   public void onException(JMSException exception) {
+      exceptions.add(exception);
+      exception.printStackTrace();
+   }
 
 }

@@ -22,22 +22,24 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * 
+ *
  */
 public class CreateConsumerButDontStartConnectionWarningTest extends JmsQueueSendReceiveTest {
-    private static final transient Logger LOG = LoggerFactory.getLogger(CreateConsumerButDontStartConnectionWarningTest.class);
 
-    @Override
-    protected void startConnection() throws JMSException {
-        // don't start the connection
-    }
+   private static final transient Logger LOG = LoggerFactory.getLogger(CreateConsumerButDontStartConnectionWarningTest.class);
 
-    @Override
-    protected void assertMessagesAreReceived() throws JMSException {
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            LOG.warn("Caught: " + e, e);
-        }
-    }
+   @Override
+   protected void startConnection() throws JMSException {
+      // don't start the connection
+   }
+
+   @Override
+   protected void assertMessagesAreReceived() throws JMSException {
+      try {
+         Thread.sleep(1000);
+      }
+      catch (InterruptedException e) {
+         LOG.warn("Caught: " + e, e);
+      }
+   }
 }

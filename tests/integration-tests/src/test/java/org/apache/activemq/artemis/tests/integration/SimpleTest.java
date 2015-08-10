@@ -33,8 +33,8 @@ import java.util.UUID;
 /**
  * A simple test-case used for documentation purposes.
  */
-public class SimpleTest extends ActiveMQTestBase
-{
+public class SimpleTest extends ActiveMQTestBase {
+
    protected ActiveMQServer server;
 
    protected ClientSession session;
@@ -45,8 +45,7 @@ public class SimpleTest extends ActiveMQTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       /**
        * Invoke org.apache.activemq.artemis.tests.util.ActiveMQTestBase's setUp() to bootstrap everything properly.
        */
@@ -81,8 +80,7 @@ public class SimpleTest extends ActiveMQTestBase
    }
 
    @Test
-   public void simpleTest() throws Exception
-   {
+   public void simpleTest() throws Exception {
       final String data = "Simple Text " + UUID.randomUUID().toString();
       final String queueName = "simpleQueue";
       final String addressName = "simpleAddress";

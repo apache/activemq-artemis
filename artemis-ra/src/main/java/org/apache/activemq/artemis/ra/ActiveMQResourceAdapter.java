@@ -61,8 +61,8 @@ import org.jgroups.JChannel;
 /**
  * The resource adapter for ActiveMQ
  */
-public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
-{
+public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
+
    private static final long serialVersionUID = 4756893709825838770L;
 
    /**
@@ -89,7 +89,6 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
     * The resource adapter properties before parsing
     */
    private String unparsedProperties;
-
 
    /**
     * The resource adapter connector classnames before parsing
@@ -125,10 +124,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
    /**
     * Constructor
     */
-   public ActiveMQResourceAdapter()
-   {
-      if (ActiveMQResourceAdapter.trace)
-      {
+   public ActiveMQResourceAdapter() {
+      if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("constructor()");
       }
 
@@ -138,8 +135,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
       recoveryManager = new RecoveryManager();
    }
 
-   public TransactionManager getTM()
-   {
+   public TransactionManager getTM() {
       return tm;
    }
 
@@ -150,25 +146,20 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
     * @param spec            The activation spec
     * @throws ResourceException Thrown if an error occurs
     */
-   public void endpointActivation(final MessageEndpointFactory endpointFactory, final ActivationSpec spec) throws ResourceException
-   {
-      if (spec == null)
-      {
+   public void endpointActivation(final MessageEndpointFactory endpointFactory,
+                                  final ActivationSpec spec) throws ResourceException {
+      if (spec == null) {
          throw ActiveMQRABundle.BUNDLE.noActivationSpec();
       }
-      if (!configured.getAndSet(true))
-      {
-         try
-         {
+      if (!configured.getAndSet(true)) {
+         try {
             setup();
          }
-         catch (ActiveMQException e)
-         {
+         catch (ActiveMQException e) {
             throw new ResourceException("Unable to create activation", e);
          }
       }
-      if (ActiveMQResourceAdapter.trace)
-      {
+      if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("endpointActivation(" + endpointFactory + ", " + spec + ")");
       }
 
@@ -183,16 +174,13 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
     * @param endpointFactory The endpoint factory
     * @param spec            The activation spec
     */
-   public void endpointDeactivation(final MessageEndpointFactory endpointFactory, final ActivationSpec spec)
-   {
-      if (ActiveMQResourceAdapter.trace)
-      {
+   public void endpointDeactivation(final MessageEndpointFactory endpointFactory, final ActivationSpec spec) {
+      if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("endpointDeactivation(" + endpointFactory + ", " + spec + ")");
       }
 
       ActiveMQActivation activation = activations.remove(spec);
-      if (activation != null)
-      {
+      if (activation != null) {
          activation.stop();
       }
    }
@@ -204,26 +192,20 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
     * @return The XA resources
     * @throws ResourceException Thrown if an error occurs or unsupported
     */
-   public XAResource[] getXAResources(final ActivationSpec[] specs) throws ResourceException
-   {
-      if (ActiveMQResourceAdapter.trace)
-      {
+   public XAResource[] getXAResources(final ActivationSpec[] specs) throws ResourceException {
+      if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("getXAResources(" + Arrays.toString(specs) + ")");
       }
 
-      if (useAutoRecovery)
-      {
+      if (useAutoRecovery) {
          // let the TM handle the recovery
          return null;
       }
-      else
-      {
+      else {
          List<XAResource> xaresources = new ArrayList<XAResource>();
-         for (ActivationSpec spec : specs)
-         {
+         for (ActivationSpec spec : specs) {
             ActiveMQActivation activation = activations.get(spec);
-            if (activation != null)
-            {
+            if (activation != null) {
                xaresources.addAll(activation.getXAResources());
             }
          }
@@ -237,10 +219,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
     * @param ctx The bootstrap context
     * @throws ResourceAdapterInternalException Thrown if an error occurs
     */
-   public void start(final BootstrapContext ctx) throws ResourceAdapterInternalException
-   {
-      if (ActiveMQResourceAdapter.trace)
-      {
+   public void start(final BootstrapContext ctx) throws ResourceAdapterInternalException {
+      if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("start(" + ctx + ")");
       }
 
@@ -250,14 +230,11 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
 
       this.ctx = ctx;
 
-      if (!configured.getAndSet(true))
-      {
-         try
-         {
+      if (!configured.getAndSet(true)) {
+         try {
             setup();
          }
-         catch (ActiveMQException e)
-         {
+         catch (ActiveMQException e) {
             throw new ResourceAdapterInternalException("Unable to create activation", e);
          }
       }
@@ -268,41 +245,33 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
    /**
     * Stop
     */
-   public void stop()
-   {
-      if (ActiveMQResourceAdapter.trace)
-      {
+   public void stop() {
+      if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("stop()");
       }
 
-      for (Map.Entry<ActivationSpec, ActiveMQActivation> entry : activations.entrySet())
-      {
-         try
-         {
+      for (Map.Entry<ActivationSpec, ActiveMQActivation> entry : activations.entrySet()) {
+         try {
             entry.getValue().stop();
          }
-         catch (Exception ignored)
-         {
+         catch (Exception ignored) {
             ActiveMQRALogger.LOGGER.debug("Ignored", ignored);
          }
       }
 
       activations.clear();
 
-      for (ActiveMQRAManagedConnectionFactory managedConnectionFactory : managedConnectionFactories)
-      {
+      for (ActiveMQRAManagedConnectionFactory managedConnectionFactory : managedConnectionFactories) {
          managedConnectionFactory.stop();
       }
 
       managedConnectionFactories.clear();
 
-      if (defaultActiveMQConnectionFactory != null)
-      {
+      if (defaultActiveMQConnectionFactory != null) {
          defaultActiveMQConnectionFactory.close();
       }
 
-      if (recoveryActiveMQConnectionFactory != null)
-      {
+      if (recoveryActiveMQConnectionFactory != null) {
          recoveryActiveMQConnectionFactory.close();
       }
 
@@ -311,40 +280,32 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
       ActiveMQRALogger.LOGGER.raStopped();
    }
 
-   public void setUseAutoRecovery(Boolean useAutoRecovery)
-   {
+   public void setUseAutoRecovery(Boolean useAutoRecovery) {
       this.useAutoRecovery = useAutoRecovery;
    }
 
-   public Boolean isUseAutoRecovery()
-   {
+   public Boolean isUseAutoRecovery() {
       return this.useAutoRecovery;
    }
 
-   public Boolean isUseMaskedPassword()
-   {
+   public Boolean isUseMaskedPassword() {
       return this.raProperties.isUseMaskedPassword();
    }
 
-   public void setUseMaskedPassword(Boolean useMaskedPassword)
-   {
+   public void setUseMaskedPassword(Boolean useMaskedPassword) {
       this.raProperties.setUseMaskedPassword(useMaskedPassword);
    }
 
-   public void setPasswordCodec(String passwordCodec)
-   {
+   public void setPasswordCodec(String passwordCodec) {
       this.raProperties.setPasswordCodec(passwordCodec);
    }
 
-   public String getPasswordCodec()
-   {
+   public String getPasswordCodec() {
       return this.raProperties.getPasswordCodec();
    }
 
-   public void setConnectorClassName(final String connectorClassName)
-   {
-      if (ActiveMQResourceAdapter.trace)
-      {
+   public void setConnectorClassName(final String connectorClassName) {
+      if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("setTransportType(" + connectorClassName + ")");
       }
       unparsedConnectors = connectorClassName;
@@ -352,56 +313,44 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
       raProperties.setParsedConnectorClassNames(ActiveMQRaUtils.parseConnectorConnectorConfig(connectorClassName));
    }
 
-   public String getConnectorClassName()
-   {
+   public String getConnectorClassName() {
       return unparsedConnectors;
    }
 
-   public String getConnectionParameters()
-   {
+   public String getConnectionParameters() {
       return unparsedProperties;
    }
 
-   public void setConnectionParameters(final String config)
-   {
-      if (config != null)
-      {
+   public void setConnectionParameters(final String config) {
+      if (config != null) {
          this.unparsedProperties = config;
          raProperties.setParsedConnectionParameters(ActiveMQRaUtils.parseConfig(config));
       }
    }
 
-
-   public Boolean getHA()
-   {
+   public Boolean getHA() {
       return raProperties.isHA();
    }
 
-   public void setHA(final Boolean ha)
-   {
+   public void setHA(final Boolean ha) {
       this.raProperties.setHA(ha);
    }
 
-   public String getEntries()
-   {
+   public String getEntries() {
       return entries;
    }
 
-   public String getJndiName()
-   {
-      if (!(entries == null || entries.isEmpty()))
-      {
+   public String getJndiName() {
+      if (!(entries == null || entries.isEmpty())) {
          Matcher m = Pattern.compile("\"(.*?)\"").matcher(entries);
-         if (m.find())
-         {
+         if (m.find()) {
             return m.group(1);
          }
       }
       return null;
    }
 
-   public void setEntries(String entries)
-   {
+   public void setEntries(String entries) {
       this.entries = entries;
    }
 
@@ -410,33 +359,27 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
     *
     * @return The value
     */
-   public String getDiscoveryAddress()
-   {
-      if (ActiveMQResourceAdapter.trace)
-      {
+   public String getDiscoveryAddress() {
+      if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("getDiscoveryGroupAddress()");
       }
 
       return raProperties.getDiscoveryAddress();
    }
 
-   public void setJgroupsFile(String jgroupsFile)
-   {
+   public void setJgroupsFile(String jgroupsFile) {
       raProperties.setJgroupsFile(jgroupsFile);
    }
 
-   public String getJgroupsFile()
-   {
+   public String getJgroupsFile() {
       return raProperties.getJgroupsFile();
    }
 
-   public String getJgroupsChannelName()
-   {
+   public String getJgroupsChannelName() {
       return raProperties.getJgroupsChannelName();
    }
 
-   public void setJgroupsChannelName(String jgroupsChannelName)
-   {
+   public void setJgroupsChannelName(String jgroupsChannelName) {
       raProperties.setJgroupsChannelName(jgroupsChannelName);
    }
 
@@ -445,10 +388,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
     *
     * @param dgn The value
     */
-   public void setDiscoveryAddress(final String dgn)
-   {
-      if (ActiveMQResourceAdapter.trace)
-      {
+   public void setDiscoveryAddress(final String dgn) {
+      if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("setDiscoveryGroupAddress(" + dgn + ")");
       }
 
@@ -460,10 +401,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
     *
     * @return The value
     */
-   public Integer getDiscoveryPort()
-   {
-      if (ActiveMQResourceAdapter.trace)
-      {
+   public Integer getDiscoveryPort() {
+      if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("getDiscoveryGroupPort()");
       }
 
@@ -475,10 +414,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
     *
     * @param discoveryLocalBindAddress the address value
     */
-   public void setDiscoveryLocalBindAddress(final String discoveryLocalBindAddress)
-   {
-      if (ActiveMQResourceAdapter.trace)
-      {
+   public void setDiscoveryLocalBindAddress(final String discoveryLocalBindAddress) {
+      if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("setDiscoveryLocalBindAddress(" + discoveryLocalBindAddress + ")");
       }
 
@@ -490,10 +427,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
     *
     * @return the address value
     */
-   public String getDiscoveryLocalBindAddress()
-   {
-      if (ActiveMQResourceAdapter.trace)
-      {
+   public String getDiscoveryLocalBindAddress() {
+      if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("getDiscoveryLocalBindAddress()");
       }
 
@@ -505,10 +440,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
     *
     * @param dgp The value
     */
-   public void setDiscoveryPort(final Integer dgp)
-   {
-      if (ActiveMQResourceAdapter.trace)
-      {
+   public void setDiscoveryPort(final Integer dgp) {
+      if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("setDiscoveryGroupPort(" + dgp + ")");
       }
 
@@ -520,10 +453,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
     *
     * @return The value
     */
-   public Long getDiscoveryRefreshTimeout()
-   {
-      if (ActiveMQResourceAdapter.trace)
-      {
+   public Long getDiscoveryRefreshTimeout() {
+      if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("getDiscoveryRefreshTimeout()");
       }
 
@@ -535,10 +466,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
     *
     * @param discoveryRefreshTimeout The value
     */
-   public void setDiscoveryRefreshTimeout(final Long discoveryRefreshTimeout)
-   {
-      if (ActiveMQResourceAdapter.trace)
-      {
+   public void setDiscoveryRefreshTimeout(final Long discoveryRefreshTimeout) {
+      if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("setDiscoveryRefreshTimeout(" + discoveryRefreshTimeout + ")");
       }
 
@@ -550,10 +479,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
     *
     * @return The value
     */
-   public Long getDiscoveryInitialWaitTimeout()
-   {
-      if (ActiveMQResourceAdapter.trace)
-      {
+   public Long getDiscoveryInitialWaitTimeout() {
+      if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("getDiscoveryInitialWaitTimeout()");
       }
 
@@ -565,10 +492,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
     *
     * @param discoveryInitialWaitTimeout The value
     */
-   public void setDiscoveryInitialWaitTimeout(final Long discoveryInitialWaitTimeout)
-   {
-      if (ActiveMQResourceAdapter.trace)
-      {
+   public void setDiscoveryInitialWaitTimeout(final Long discoveryInitialWaitTimeout) {
+      if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("setDiscoveryInitialWaitTimeout(" + discoveryInitialWaitTimeout + ")");
       }
 
@@ -580,10 +505,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
     *
     * @return The value
     */
-   public Long getClientFailureCheckPeriod()
-   {
-      if (ActiveMQResourceAdapter.trace)
-      {
+   public Long getClientFailureCheckPeriod() {
+      if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("getClientFailureCheckPeriod()");
       }
 
@@ -595,10 +518,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
     *
     * @param clientFailureCheckPeriod The value
     */
-   public void setClientFailureCheckPeriod(final Long clientFailureCheckPeriod)
-   {
-      if (ActiveMQResourceAdapter.trace)
-      {
+   public void setClientFailureCheckPeriod(final Long clientFailureCheckPeriod) {
+      if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("setClientFailureCheckPeriod(" + clientFailureCheckPeriod + ")");
       }
 
@@ -610,10 +531,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
     *
     * @return The value
     */
-   public Long getConnectionTTL()
-   {
-      if (ActiveMQResourceAdapter.trace)
-      {
+   public Long getConnectionTTL() {
+      if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("getConnectionTTL()");
       }
 
@@ -625,10 +544,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
     *
     * @param connectionTTL The value
     */
-   public void setConnectionTTL(final Long connectionTTL)
-   {
-      if (ActiveMQResourceAdapter.trace)
-      {
+   public void setConnectionTTL(final Long connectionTTL) {
+      if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("setConnectionTTL(" + connectionTTL + ")");
       }
 
@@ -640,10 +557,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
     *
     * @return The value
     */
-   public Boolean isCacheLargeMessagesClient()
-   {
-      if (ActiveMQResourceAdapter.trace)
-      {
+   public Boolean isCacheLargeMessagesClient() {
+      if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("isCacheLargeMessagesClient()");
       }
 
@@ -655,10 +570,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
     *
     * @param cacheLargeMessagesClient The value
     */
-   public void setCacheLargeMessagesClient(final Boolean cacheLargeMessagesClient)
-   {
-      if (ActiveMQResourceAdapter.trace)
-      {
+   public void setCacheLargeMessagesClient(final Boolean cacheLargeMessagesClient) {
+      if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("setCacheLargeMessagesClient(" + cacheLargeMessagesClient + ")");
       }
 
@@ -670,10 +583,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
     *
     * @return The value
     */
-   public Boolean isCompressLargeMessage()
-   {
-      if (ActiveMQResourceAdapter.trace)
-      {
+   public Boolean isCompressLargeMessage() {
+      if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("isCompressLargeMessage()");
       }
 
@@ -685,10 +596,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
     *
     * @param failoverOnInitialConnection The value
     */
-   public void setFailoverOnInitialConnection(final Boolean failoverOnInitialConnection)
-   {
-      if (ActiveMQResourceAdapter.trace)
-      {
+   public void setFailoverOnInitialConnection(final Boolean failoverOnInitialConnection) {
+      if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("setFailoverOnInitialConnection(" + failoverOnInitialConnection + ")");
       }
 
@@ -700,10 +609,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
     *
     * @return The value
     */
-   public Boolean isFailoverOnInitialConnection()
-   {
-      if (ActiveMQResourceAdapter.trace)
-      {
+   public Boolean isFailoverOnInitialConnection() {
+      if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("isFailoverOnInitialConnection()");
       }
 
@@ -715,10 +622,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
     *
     * @param compressLargeMessage The value
     */
-   public void setCompressLargeMessage(final Boolean compressLargeMessage)
-   {
-      if (ActiveMQResourceAdapter.trace)
-      {
+   public void setCompressLargeMessage(final Boolean compressLargeMessage) {
+      if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("setCompressLargeMessage(" + compressLargeMessage + ")");
       }
 
@@ -730,10 +635,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
     *
     * @return The value
     */
-   public Long getCallTimeout()
-   {
-      if (ActiveMQResourceAdapter.trace)
-      {
+   public Long getCallTimeout() {
+      if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("getCallTimeout()");
       }
 
@@ -745,10 +648,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
     *
     * @param callTimeout The value
     */
-   public void setCallTimeout(final Long callTimeout)
-   {
-      if (ActiveMQResourceAdapter.trace)
-      {
+   public void setCallTimeout(final Long callTimeout) {
+      if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("setCallTimeout(" + callTimeout + ")");
       }
 
@@ -760,10 +661,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
     *
     * @return The value
     */
-   public Long getCallFailoverTimeout()
-   {
-      if (ActiveMQResourceAdapter.trace)
-      {
+   public Long getCallFailoverTimeout() {
+      if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("getCallFailoverTimeout()");
       }
 
@@ -775,10 +674,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
     *
     * @param callFailoverTimeout The value
     */
-   public void setCallFailoverTimeout(final Long callFailoverTimeout)
-   {
-      if (ActiveMQResourceAdapter.trace)
-      {
+   public void setCallFailoverTimeout(final Long callFailoverTimeout) {
+      if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("setCallFailoverTimeout(" + callFailoverTimeout + ")");
       }
 
@@ -790,10 +687,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
     *
     * @return The value
     */
-   public Integer getDupsOKBatchSize()
-   {
-      if (ActiveMQResourceAdapter.trace)
-      {
+   public Integer getDupsOKBatchSize() {
+      if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("getDupsOKBatchSize()");
       }
 
@@ -805,10 +700,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
     *
     * @param dupsOKBatchSize The value
     */
-   public void setDupsOKBatchSize(final Integer dupsOKBatchSize)
-   {
-      if (ActiveMQResourceAdapter.trace)
-      {
+   public void setDupsOKBatchSize(final Integer dupsOKBatchSize) {
+      if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("setDupsOKBatchSize(" + dupsOKBatchSize + ")");
       }
 
@@ -820,10 +713,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
     *
     * @return The value
     */
-   public Integer getTransactionBatchSize()
-   {
-      if (ActiveMQResourceAdapter.trace)
-      {
+   public Integer getTransactionBatchSize() {
+      if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("getTransactionBatchSize()");
       }
 
@@ -835,10 +726,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
     *
     * @param transactionBatchSize The value
     */
-   public void setTransactionBatchSize(final Integer transactionBatchSize)
-   {
-      if (ActiveMQResourceAdapter.trace)
-      {
+   public void setTransactionBatchSize(final Integer transactionBatchSize) {
+      if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("setTransactionBatchSize(" + transactionBatchSize + ")");
       }
 
@@ -850,10 +739,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
     *
     * @return The value
     */
-   public Integer getConsumerWindowSize()
-   {
-      if (ActiveMQResourceAdapter.trace)
-      {
+   public Integer getConsumerWindowSize() {
+      if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("getConsumerWindowSize()");
       }
 
@@ -865,10 +752,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
     *
     * @param consumerWindowSize The value
     */
-   public void setConsumerWindowSize(final Integer consumerWindowSize)
-   {
-      if (ActiveMQResourceAdapter.trace)
-      {
+   public void setConsumerWindowSize(final Integer consumerWindowSize) {
+      if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("setConsumerWindowSize(" + consumerWindowSize + ")");
       }
 
@@ -880,10 +765,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
     *
     * @return The value
     */
-   public Integer getConsumerMaxRate()
-   {
-      if (ActiveMQResourceAdapter.trace)
-      {
+   public Integer getConsumerMaxRate() {
+      if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("getConsumerMaxRate()");
       }
 
@@ -895,10 +778,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
     *
     * @param consumerMaxRate The value
     */
-   public void setConsumerMaxRate(final Integer consumerMaxRate)
-   {
-      if (ActiveMQResourceAdapter.trace)
-      {
+   public void setConsumerMaxRate(final Integer consumerMaxRate) {
+      if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("setConsumerMaxRate(" + consumerMaxRate + ")");
       }
 
@@ -910,10 +791,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
     *
     * @return The value
     */
-   public Integer getConfirmationWindowSize()
-   {
-      if (ActiveMQResourceAdapter.trace)
-      {
+   public Integer getConfirmationWindowSize() {
+      if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("getConfirmationWindowSize()");
       }
 
@@ -925,10 +804,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
     *
     * @param confirmationWindowSize The value
     */
-   public void setConfirmationWindowSize(final Integer confirmationWindowSize)
-   {
-      if (ActiveMQResourceAdapter.trace)
-      {
+   public void setConfirmationWindowSize(final Integer confirmationWindowSize) {
+      if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("setConfirmationWindowSize(" + confirmationWindowSize + ")");
       }
 
@@ -940,10 +817,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
     *
     * @return The value
     */
-   public Integer getProducerMaxRate()
-   {
-      if (ActiveMQResourceAdapter.trace)
-      {
+   public Integer getProducerMaxRate() {
+      if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("getProducerMaxRate()");
       }
 
@@ -955,10 +830,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
     *
     * @param producerMaxRate The value
     */
-   public void setProducerMaxRate(final Integer producerMaxRate)
-   {
-      if (ActiveMQResourceAdapter.trace)
-      {
+   public void setProducerMaxRate(final Integer producerMaxRate) {
+      if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("setProducerMaxRate(" + producerMaxRate + ")");
       }
 
@@ -970,10 +843,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
     *
     * @return The value
     */
-   public Integer getProducerWindowSize()
-   {
-      if (ActiveMQResourceAdapter.trace)
-      {
+   public Integer getProducerWindowSize() {
+      if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("getProducerWindowSize()");
       }
 
@@ -985,10 +856,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
     *
     * @param producerWindowSize The value
     */
-   public void setProducerWindowSize(final Integer producerWindowSize)
-   {
-      if (ActiveMQResourceAdapter.trace)
-      {
+   public void setProducerWindowSize(final Integer producerWindowSize) {
+      if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("setProducerWindowSize(" + producerWindowSize + ")");
       }
 
@@ -1000,10 +869,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
     *
     * @return The value
     */
-   public Integer getMinLargeMessageSize()
-   {
-      if (ActiveMQResourceAdapter.trace)
-      {
+   public Integer getMinLargeMessageSize() {
+      if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("getMinLargeMessageSize()");
       }
 
@@ -1015,10 +882,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
     *
     * @param minLargeMessageSize The value
     */
-   public void setMinLargeMessageSize(final Integer minLargeMessageSize)
-   {
-      if (ActiveMQResourceAdapter.trace)
-      {
+   public void setMinLargeMessageSize(final Integer minLargeMessageSize) {
+      if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("setMinLargeMessageSize(" + minLargeMessageSize + ")");
       }
 
@@ -1030,10 +895,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
     *
     * @return The value
     */
-   public Boolean getBlockOnAcknowledge()
-   {
-      if (ActiveMQResourceAdapter.trace)
-      {
+   public Boolean getBlockOnAcknowledge() {
+      if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("getBlockOnAcknowledge()");
       }
 
@@ -1045,10 +908,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
     *
     * @param blockOnAcknowledge The value
     */
-   public void setBlockOnAcknowledge(final Boolean blockOnAcknowledge)
-   {
-      if (ActiveMQResourceAdapter.trace)
-      {
+   public void setBlockOnAcknowledge(final Boolean blockOnAcknowledge) {
+      if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("setBlockOnAcknowledge(" + blockOnAcknowledge + ")");
       }
 
@@ -1060,10 +921,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
     *
     * @return The value
     */
-   public Boolean getBlockOnNonDurableSend()
-   {
-      if (ActiveMQResourceAdapter.trace)
-      {
+   public Boolean getBlockOnNonDurableSend() {
+      if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("getBlockOnNonDurableSend()");
       }
 
@@ -1075,10 +934,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
     *
     * @param blockOnNonDurableSend The value
     */
-   public void setBlockOnNonDurableSend(final Boolean blockOnNonDurableSend)
-   {
-      if (ActiveMQResourceAdapter.trace)
-      {
+   public void setBlockOnNonDurableSend(final Boolean blockOnNonDurableSend) {
+      if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("setBlockOnNonDurableSend(" + blockOnNonDurableSend + ")");
       }
 
@@ -1090,10 +947,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
     *
     * @return The value
     */
-   public Boolean getBlockOnDurableSend()
-   {
-      if (ActiveMQResourceAdapter.trace)
-      {
+   public Boolean getBlockOnDurableSend() {
+      if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("getBlockOnDurableSend()");
       }
 
@@ -1105,10 +960,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
     *
     * @param blockOnDurableSend The value
     */
-   public void setBlockOnDurableSend(final Boolean blockOnDurableSend)
-   {
-      if (ActiveMQResourceAdapter.trace)
-      {
+   public void setBlockOnDurableSend(final Boolean blockOnDurableSend) {
+      if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("setBlockOnDurableSend(" + blockOnDurableSend + ")");
       }
 
@@ -1120,10 +973,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
     *
     * @return The value
     */
-   public Boolean getAutoGroup()
-   {
-      if (ActiveMQResourceAdapter.trace)
-      {
+   public Boolean getAutoGroup() {
+      if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("getAutoGroup()");
       }
 
@@ -1135,10 +986,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
     *
     * @param autoGroup The value
     */
-   public void setAutoGroup(final Boolean autoGroup)
-   {
-      if (ActiveMQResourceAdapter.trace)
-      {
+   public void setAutoGroup(final Boolean autoGroup) {
+      if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("setAutoGroup(" + autoGroup + ")");
       }
 
@@ -1150,10 +999,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
     *
     * @return The value
     */
-   public Boolean getPreAcknowledge()
-   {
-      if (ActiveMQResourceAdapter.trace)
-      {
+   public Boolean getPreAcknowledge() {
+      if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("getPreAcknowledge()");
       }
 
@@ -1165,10 +1012,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
     *
     * @param preAcknowledge The value
     */
-   public void setPreAcknowledge(final Boolean preAcknowledge)
-   {
-      if (ActiveMQResourceAdapter.trace)
-      {
+   public void setPreAcknowledge(final Boolean preAcknowledge) {
+      if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("setPreAcknowledge(" + preAcknowledge + ")");
       }
 
@@ -1180,10 +1025,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
     *
     * @return The value
     */
-   public Integer getInitialConnectAttempts()
-   {
-      if (ActiveMQResourceAdapter.trace)
-      {
+   public Integer getInitialConnectAttempts() {
+      if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("getInitialConnectAttempts()");
       }
 
@@ -1195,10 +1038,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
     *
     * @param initialConnectAttempts The value
     */
-   public void setInitialConnectAttempts(final Integer initialConnectAttempts)
-   {
-      if (ActiveMQResourceAdapter.trace)
-      {
+   public void setInitialConnectAttempts(final Integer initialConnectAttempts) {
+      if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("setInitialConnectionAttempts(" + initialConnectAttempts + ")");
       }
 
@@ -1210,10 +1051,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
     *
     * @return The value
     */
-   public Integer getInitialMessagePacketSize()
-   {
-      if (ActiveMQResourceAdapter.trace)
-      {
+   public Integer getInitialMessagePacketSize() {
+      if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("getInitialMessagePacketSize()");
       }
 
@@ -1225,10 +1064,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
     *
     * @param initialMessagePacketSize The value
     */
-   public void setInitialMessagePacketSize(final Integer initialMessagePacketSize)
-   {
-      if (ActiveMQResourceAdapter.trace)
-      {
+   public void setInitialMessagePacketSize(final Integer initialMessagePacketSize) {
+      if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("setInitialMessagePacketSize(" + initialMessagePacketSize + ")");
       }
 
@@ -1240,10 +1077,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
     *
     * @return The value
     */
-   public Long getRetryInterval()
-   {
-      if (ActiveMQResourceAdapter.trace)
-      {
+   public Long getRetryInterval() {
+      if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("getRetryInterval()");
       }
 
@@ -1255,10 +1090,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
     *
     * @param retryInterval The value
     */
-   public void setRetryInterval(final Long retryInterval)
-   {
-      if (ActiveMQResourceAdapter.trace)
-      {
+   public void setRetryInterval(final Long retryInterval) {
+      if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("setRetryInterval(" + retryInterval + ")");
       }
 
@@ -1270,10 +1103,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
     *
     * @return The value
     */
-   public Double getRetryIntervalMultiplier()
-   {
-      if (ActiveMQResourceAdapter.trace)
-      {
+   public Double getRetryIntervalMultiplier() {
+      if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("getRetryIntervalMultiplier()");
       }
 
@@ -1285,10 +1116,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
     *
     * @param retryIntervalMultiplier The value
     */
-   public void setRetryIntervalMultiplier(final Double retryIntervalMultiplier)
-   {
-      if (ActiveMQResourceAdapter.trace)
-      {
+   public void setRetryIntervalMultiplier(final Double retryIntervalMultiplier) {
+      if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("setRetryIntervalMultiplier(" + retryIntervalMultiplier + ")");
       }
 
@@ -1300,10 +1129,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
     *
     * @return The value
     */
-   public Long getMaxRetryInterval()
-   {
-      if (ActiveMQResourceAdapter.trace)
-      {
+   public Long getMaxRetryInterval() {
+      if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("getMaxRetryInterval()");
       }
 
@@ -1315,10 +1142,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
     *
     * @param maxRetryInterval The value
     */
-   public void setMaxRetryInterval(final Long maxRetryInterval)
-   {
-      if (ActiveMQResourceAdapter.trace)
-      {
+   public void setMaxRetryInterval(final Long maxRetryInterval) {
+      if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("setMaxRetryInterval(" + maxRetryInterval + ")");
       }
 
@@ -1330,10 +1155,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
     *
     * @return The value
     */
-   public Integer getReconnectAttempts()
-   {
-      if (ActiveMQResourceAdapter.trace)
-      {
+   public Integer getReconnectAttempts() {
+      if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("getReconnectAttempts()");
       }
 
@@ -1345,67 +1168,53 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
     *
     * @param reconnectAttempts The value
     */
-   public void setReconnectAttempts(final Integer reconnectAttempts)
-   {
-      if (ActiveMQResourceAdapter.trace)
-      {
+   public void setReconnectAttempts(final Integer reconnectAttempts) {
+      if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("setReconnectAttempts(" + reconnectAttempts + ")");
       }
 
       raProperties.setReconnectAttempts(reconnectAttempts);
    }
 
-   public String getConnectionLoadBalancingPolicyClassName()
-   {
+   public String getConnectionLoadBalancingPolicyClassName() {
       return raProperties.getConnectionLoadBalancingPolicyClassName();
    }
 
-   public void setConnectionLoadBalancingPolicyClassName(final String connectionLoadBalancingPolicyClassName)
-   {
-      if (ActiveMQResourceAdapter.trace)
-      {
+   public void setConnectionLoadBalancingPolicyClassName(final String connectionLoadBalancingPolicyClassName) {
+      if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("setFailoverOnServerShutdown(" + connectionLoadBalancingPolicyClassName + ")");
       }
       raProperties.setConnectionLoadBalancingPolicyClassName(connectionLoadBalancingPolicyClassName);
    }
 
-   public Integer getScheduledThreadPoolMaxSize()
-   {
+   public Integer getScheduledThreadPoolMaxSize() {
       return raProperties.getScheduledThreadPoolMaxSize();
    }
 
-   public void setScheduledThreadPoolMaxSize(final Integer scheduledThreadPoolMaxSize)
-   {
-      if (ActiveMQResourceAdapter.trace)
-      {
+   public void setScheduledThreadPoolMaxSize(final Integer scheduledThreadPoolMaxSize) {
+      if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("setFailoverOnServerShutdown(" + scheduledThreadPoolMaxSize + ")");
       }
       raProperties.setScheduledThreadPoolMaxSize(scheduledThreadPoolMaxSize);
    }
 
-   public Integer getThreadPoolMaxSize()
-   {
+   public Integer getThreadPoolMaxSize() {
       return raProperties.getThreadPoolMaxSize();
    }
 
-   public void setThreadPoolMaxSize(final Integer threadPoolMaxSize)
-   {
-      if (ActiveMQResourceAdapter.trace)
-      {
+   public void setThreadPoolMaxSize(final Integer threadPoolMaxSize) {
+      if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("setFailoverOnServerShutdown(" + threadPoolMaxSize + ")");
       }
       raProperties.setThreadPoolMaxSize(threadPoolMaxSize);
    }
 
-   public Boolean getUseGlobalPools()
-   {
+   public Boolean getUseGlobalPools() {
       return raProperties.isUseGlobalPools();
    }
 
-   public void setUseGlobalPools(final Boolean useGlobalPools)
-   {
-      if (ActiveMQResourceAdapter.trace)
-      {
+   public void setUseGlobalPools(final Boolean useGlobalPools) {
+      if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("setFailoverOnServerShutdown(" + useGlobalPools + ")");
       }
       raProperties.setUseGlobalPools(useGlobalPools);
@@ -1416,10 +1225,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
     *
     * @return The value
     */
-   public String getUserName()
-   {
-      if (ActiveMQResourceAdapter.trace)
-      {
+   public String getUserName() {
+      if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("getUserName()");
       }
 
@@ -1431,10 +1238,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
     *
     * @param userName The value
     */
-   public void setUserName(final String userName)
-   {
-      if (ActiveMQResourceAdapter.trace)
-      {
+   public void setUserName(final String userName) {
+      if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("setUserName(" + userName + ")");
       }
 
@@ -1446,10 +1251,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
     *
     * @return The value
     */
-   public String getPassword()
-   {
-      if (ActiveMQResourceAdapter.trace)
-      {
+   public String getPassword() {
+      if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("getPassword()");
       }
 
@@ -1461,10 +1264,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
     *
     * @param password The value
     */
-   public void setPassword(final String password)
-   {
-      if (ActiveMQResourceAdapter.trace)
-      {
+   public void setPassword(final String password) {
+      if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("setPassword(****)");
       }
 
@@ -1474,35 +1275,30 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
    /**
     * @return the useJNDI
     */
-   public boolean isUseJNDI()
-   {
+   public boolean isUseJNDI() {
       return raProperties.isUseJNDI();
    }
 
    /**
     * @param value the useJNDI to set
     */
-   public void setUseJNDI(final Boolean value)
-   {
+   public void setUseJNDI(final Boolean value) {
       raProperties.setUseJNDI(value);
    }
 
    /**
     * @return return the jndi params to use
     */
-   public String getJndiParams()
-   {
+   public String getJndiParams() {
       return unparsedJndiParams;
    }
 
-   public void setJndiParams(String jndiParams)
-   {
+   public void setJndiParams(String jndiParams) {
       unparsedJndiParams = jndiParams;
       raProperties.setParsedJndiParams(ActiveMQRaUtils.parseHashtableConfig(jndiParams));
    }
 
-   public Hashtable<?, ?> getParsedJndiParams()
-   {
+   public Hashtable<?, ?> getParsedJndiParams() {
       return raProperties.getParsedJndiParams();
    }
 
@@ -1511,10 +1307,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
     *
     * @return The value
     */
-   public String getClientID()
-   {
-      if (ActiveMQResourceAdapter.trace)
-      {
+   public String getClientID() {
+      if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("getClientID()");
       }
 
@@ -1526,10 +1320,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
     *
     * @param clientID The client id
     */
-   public void setClientID(final String clientID)
-   {
-      if (ActiveMQResourceAdapter.trace)
-      {
+   public void setClientID(final String clientID) {
+      if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("setClientID(" + clientID + ")");
       }
 
@@ -1541,10 +1333,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
     *
     * @return The value
     */
-   public String getGroupID()
-   {
-      if (ActiveMQResourceAdapter.trace)
-      {
+   public String getGroupID() {
+      if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("getGroupID()");
       }
 
@@ -1556,10 +1346,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
     *
     * @param groupID The group id
     */
-   public void setGroupID(final String groupID)
-   {
-      if (ActiveMQResourceAdapter.trace)
-      {
+   public void setGroupID(final String groupID) {
+      if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("setGroupID(" + groupID + ")");
       }
 
@@ -1571,10 +1359,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
     *
     * @return The value
     */
-   public Boolean getUseLocalTx()
-   {
-      if (ActiveMQResourceAdapter.trace)
-      {
+   public Boolean getUseLocalTx() {
+      if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("getUseLocalTx()");
       }
 
@@ -1586,47 +1372,37 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
     *
     * @param localTx The value
     */
-   public void setUseLocalTx(final Boolean localTx)
-   {
-      if (ActiveMQResourceAdapter.trace)
-      {
+   public void setUseLocalTx(final Boolean localTx) {
+      if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("setUseXA(" + localTx + ")");
       }
 
       raProperties.setUseLocalTx(localTx);
    }
 
-   public int getSetupAttempts()
-   {
-      if (ActiveMQResourceAdapter.trace)
-      {
+   public int getSetupAttempts() {
+      if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("getSetupAttempts()");
       }
       return raProperties.getSetupAttempts();
    }
 
-   public void setSetupAttempts(Integer setupAttempts)
-   {
-      if (ActiveMQResourceAdapter.trace)
-      {
+   public void setSetupAttempts(Integer setupAttempts) {
+      if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("setSetupAttempts(" + setupAttempts + ")");
       }
       raProperties.setSetupAttempts(setupAttempts);
    }
 
-   public long getSetupInterval()
-   {
-      if (ActiveMQResourceAdapter.trace)
-      {
+   public long getSetupInterval() {
+      if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("getSetupInterval()");
       }
       return raProperties.getSetupInterval();
    }
 
-   public void setSetupInterval(Long interval)
-   {
-      if (ActiveMQResourceAdapter.trace)
-      {
+   public void setSetupInterval(Long interval) {
+      if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("setSetupInterval(" + interval + ")");
       }
       raProperties.setSetupInterval(interval);
@@ -1639,20 +1415,16 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
     * @return True if this object is the same as the obj argument; false otherwise.
     */
    @Override
-   public boolean equals(final Object obj)
-   {
-      if (ActiveMQResourceAdapter.trace)
-      {
+   public boolean equals(final Object obj) {
+      if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("equals(" + obj + ")");
       }
 
-      if (obj == null)
-      {
+      if (obj == null) {
          return false;
       }
 
-      if (obj instanceof ActiveMQResourceAdapter)
-      {
+      if (obj instanceof ActiveMQResourceAdapter) {
          return raProperties.equals(((ActiveMQResourceAdapter) obj).getProperties());
       }
       return false;
@@ -1664,10 +1436,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
     * @return The hash code
     */
    @Override
-   public int hashCode()
-   {
-      if (ActiveMQResourceAdapter.trace)
-      {
+   public int hashCode() {
+      if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("hashCode()");
       }
 
@@ -1679,15 +1449,12 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
     *
     * @return The manager
     */
-   public WorkManager getWorkManager()
-   {
-      if (ActiveMQResourceAdapter.trace)
-      {
+   public WorkManager getWorkManager() {
+      if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("getWorkManager()");
       }
 
-      if (ctx == null)
-      {
+      if (ctx == null) {
          return null;
       }
 
@@ -1703,43 +1470,34 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
                                       final Integer transactionBatchSize,
                                       final boolean deliveryTransacted,
                                       final boolean useLocalTx,
-                                      final Integer txTimeout) throws Exception
-   {
+                                      final Integer txTimeout) throws Exception {
 
       ClientSession result;
 
       // if we are CMP or BMP using local tx we ignore the ack mode as we are transactional
-      if (deliveryTransacted || useLocalTx)
-      {
+      if (deliveryTransacted || useLocalTx) {
          // JBPAPP-8845
          // If transacted we need to send the ack flush as soon as possible
          // as if any transaction times out, we need the ack on the server already
-         if (useLocalTx)
-         {
+         if (useLocalTx) {
             result = parameterFactory.createSession(user, pass, false, false, false, false, 0);
          }
-         else
-         {
+         else {
             result = parameterFactory.createSession(user, pass, true, false, false, false, 0);
          }
       }
-      else
-      {
-         if (preAck != null && preAck)
-         {
+      else {
+         if (preAck != null && preAck) {
             result = parameterFactory.createSession(user, pass, false, true, true, true, -1);
          }
-         else
-         {
+         else {
             // only auto ack and dups ok are supported
-            switch (ackMode)
-            {
+            switch (ackMode) {
                case Session.AUTO_ACKNOWLEDGE:
                   result = parameterFactory.createSession(user, pass, false, true, true, false, 0);
                   break;
                case Session.DUPS_OK_ACKNOWLEDGE:
-                  int actDupsOkBatchSize = dupsOkBatchSize != null ? dupsOkBatchSize
-                     : ActiveMQClient.DEFAULT_ACK_BATCH_SIZE;
+                  int actDupsOkBatchSize = dupsOkBatchSize != null ? dupsOkBatchSize : ActiveMQClient.DEFAULT_ACK_BATCH_SIZE;
                   result = parameterFactory.createSession(user, pass, false, true, true, false, actDupsOkBatchSize);
                   break;
                default:
@@ -1754,9 +1512,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
 
    }
 
-
-   public RecoveryManager getRecoveryManager()
-   {
+   public RecoveryManager getRecoveryManager() {
       return recoveryManager;
    }
 
@@ -1765,10 +1521,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
     *
     * @return The properties
     */
-   protected ActiveMQRAProperties getProperties()
-   {
-      if (ActiveMQResourceAdapter.trace)
-      {
+   protected ActiveMQRAProperties getProperties() {
+      if (ActiveMQResourceAdapter.trace) {
          ActiveMQRALogger.LOGGER.trace("getProperties()");
       }
 
@@ -1778,29 +1532,23 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
    /**
     * Setup the factory
     */
-   protected void setup() throws ActiveMQException
-   {
+   protected void setup() throws ActiveMQException {
       raProperties.init();
       defaultActiveMQConnectionFactory = createActiveMQConnectionFactory(raProperties);
       recoveryActiveMQConnectionFactory = createRecoveryActiveMQConnectionFactory(raProperties);
       recoveryManager.register(recoveryActiveMQConnectionFactory, raProperties.getUserName(), raProperties.getPassword());
    }
 
-   public Map<ActivationSpec, ActiveMQActivation> getActivations()
-   {
+   public Map<ActivationSpec, ActiveMQActivation> getActivations() {
       return activations;
    }
 
-   public ActiveMQConnectionFactory getDefaultActiveMQConnectionFactory() throws ResourceException
-   {
-      if (!configured.getAndSet(true))
-      {
-         try
-         {
+   public ActiveMQConnectionFactory getDefaultActiveMQConnectionFactory() throws ResourceException {
+      if (!configured.getAndSet(true)) {
+         try {
             setup();
          }
-         catch (ActiveMQException e)
-         {
+         catch (ActiveMQException e) {
             throw new ResourceException("Unable to create activation", e);
          }
       }
@@ -1810,16 +1558,14 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
    /**
     * @see ActiveMQRAProperties#getJgroupsChannelLocatorClass()
     */
-   public String getJgroupsChannelLocatorClass()
-   {
+   public String getJgroupsChannelLocatorClass() {
       return raProperties.getJgroupsChannelLocatorClass();
    }
 
    /**
     * @see ActiveMQRAProperties#setJgroupsChannelLocatorClass(String)
     */
-   public void setJgroupsChannelLocatorClass(String jgroupsChannelLocatorClass)
-   {
+   public void setJgroupsChannelLocatorClass(String jgroupsChannelLocatorClass) {
       raProperties.setJgroupsChannelLocatorClass(jgroupsChannelLocatorClass);
    }
 
@@ -1827,158 +1573,116 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
     * @return
     * @see ActiveMQRAProperties#getJgroupsChannelRefName()
     */
-   public String getJgroupsChannelRefName()
-   {
+   public String getJgroupsChannelRefName() {
       return raProperties.getJgroupsChannelRefName();
    }
 
    /**
     * @see ActiveMQRAProperties#setJgroupsChannelRefName(java.lang.String)
     */
-   public void setJgroupsChannelRefName(String jgroupsChannelRefName)
-   {
+   public void setJgroupsChannelRefName(String jgroupsChannelRefName) {
       raProperties.setJgroupsChannelRefName(jgroupsChannelRefName);
    }
 
-   public ActiveMQConnectionFactory createActiveMQConnectionFactory(final ConnectionFactoryProperties overrideProperties)
-   {
+   public ActiveMQConnectionFactory createActiveMQConnectionFactory(final ConnectionFactoryProperties overrideProperties) {
       ActiveMQConnectionFactory cf;
-      List<String> connectorClassName = overrideProperties.getParsedConnectorClassNames() != null ? overrideProperties.getParsedConnectorClassNames()
-         : raProperties.getParsedConnectorClassNames();
+      List<String> connectorClassName = overrideProperties.getParsedConnectorClassNames() != null ? overrideProperties.getParsedConnectorClassNames() : raProperties.getParsedConnectorClassNames();
 
-      String discoveryAddress = overrideProperties.getDiscoveryAddress() != null ? overrideProperties.getDiscoveryAddress()
-         : getDiscoveryAddress();
+      String discoveryAddress = overrideProperties.getDiscoveryAddress() != null ? overrideProperties.getDiscoveryAddress() : getDiscoveryAddress();
 
       Boolean ha = overrideProperties.isHA() != null ? overrideProperties.isHA() : getHA();
 
-      String jgroupsFileName = overrideProperties.getJgroupsFile() != null ? overrideProperties.getJgroupsFile()
-         : getJgroupsFile();
+      String jgroupsFileName = overrideProperties.getJgroupsFile() != null ? overrideProperties.getJgroupsFile() : getJgroupsFile();
 
-      String jgroupsChannel = overrideProperties.getJgroupsChannelName() != null ? overrideProperties.getJgroupsChannelName()
-         : getJgroupsChannelName();
+      String jgroupsChannel = overrideProperties.getJgroupsChannelName() != null ? overrideProperties.getJgroupsChannelName() : getJgroupsChannelName();
 
       String jgroupsLocatorClassName = raProperties.getJgroupsChannelLocatorClass();
 
-      if (ha == null)
-      {
+      if (ha == null) {
          ha = ActiveMQClient.DEFAULT_IS_HA;
       }
 
-      if (discoveryAddress != null || jgroupsFileName != null || jgroupsLocatorClassName != null)
-      {
+      if (discoveryAddress != null || jgroupsFileName != null || jgroupsLocatorClassName != null) {
          BroadcastEndpointFactory endpointFactory = null;
 
-         if (jgroupsLocatorClassName != null)
-         {
+         if (jgroupsLocatorClassName != null) {
             String jchannelRefName = raProperties.getJgroupsChannelRefName();
             JChannel jchannel = ActiveMQRaUtils.locateJGroupsChannel(jgroupsLocatorClassName, jchannelRefName);
             endpointFactory = new ChannelBroadcastEndpointFactory(jchannel, jgroupsChannel);
          }
-         else if (discoveryAddress != null)
-         {
-            Integer discoveryPort = overrideProperties.getDiscoveryPort() != null ? overrideProperties.getDiscoveryPort()
-               : getDiscoveryPort();
-            if (discoveryPort == null)
-            {
+         else if (discoveryAddress != null) {
+            Integer discoveryPort = overrideProperties.getDiscoveryPort() != null ? overrideProperties.getDiscoveryPort() : getDiscoveryPort();
+            if (discoveryPort == null) {
                discoveryPort = ActiveMQClient.DEFAULT_DISCOVERY_PORT;
             }
 
-            String localBindAddress = overrideProperties.getDiscoveryLocalBindAddress() != null ? overrideProperties.getDiscoveryLocalBindAddress()
-               : raProperties.getDiscoveryLocalBindAddress();
-            endpointFactory = new UDPBroadcastEndpointFactory()
-               .setGroupAddress(discoveryAddress)
-               .setGroupPort(discoveryPort)
-               .setLocalBindAddress(localBindAddress)
-               .setLocalBindPort(-1);
+            String localBindAddress = overrideProperties.getDiscoveryLocalBindAddress() != null ? overrideProperties.getDiscoveryLocalBindAddress() : raProperties.getDiscoveryLocalBindAddress();
+            endpointFactory = new UDPBroadcastEndpointFactory().setGroupAddress(discoveryAddress).setGroupPort(discoveryPort).setLocalBindAddress(localBindAddress).setLocalBindPort(-1);
          }
-         else if (jgroupsFileName != null)
-         {
-            endpointFactory = new JGroupsFileBroadcastEndpointFactory()
-                  .setChannelName(jgroupsChannel)
-                  .setFile(jgroupsFileName);
+         else if (jgroupsFileName != null) {
+            endpointFactory = new JGroupsFileBroadcastEndpointFactory().setChannelName(jgroupsChannel).setFile(jgroupsFileName);
          }
-         Long refreshTimeout = overrideProperties.getDiscoveryRefreshTimeout() != null ? overrideProperties.getDiscoveryRefreshTimeout()
-            : raProperties.getDiscoveryRefreshTimeout();
-         if (refreshTimeout == null)
-         {
+         Long refreshTimeout = overrideProperties.getDiscoveryRefreshTimeout() != null ? overrideProperties.getDiscoveryRefreshTimeout() : raProperties.getDiscoveryRefreshTimeout();
+         if (refreshTimeout == null) {
             refreshTimeout = ActiveMQClient.DEFAULT_DISCOVERY_REFRESH_TIMEOUT;
          }
 
-         Long initialTimeout = overrideProperties.getDiscoveryInitialWaitTimeout() != null ? overrideProperties.getDiscoveryInitialWaitTimeout()
-            : raProperties.getDiscoveryInitialWaitTimeout();
+         Long initialTimeout = overrideProperties.getDiscoveryInitialWaitTimeout() != null ? overrideProperties.getDiscoveryInitialWaitTimeout() : raProperties.getDiscoveryInitialWaitTimeout();
 
-         if (initialTimeout == null)
-         {
+         if (initialTimeout == null) {
             initialTimeout = ActiveMQClient.DEFAULT_DISCOVERY_INITIAL_WAIT_TIMEOUT;
          }
 
-         DiscoveryGroupConfiguration groupConfiguration = new DiscoveryGroupConfiguration()
-            .setRefreshTimeout(refreshTimeout)
-            .setDiscoveryInitialWaitTimeout(initialTimeout)
-            .setBroadcastEndpointFactory(endpointFactory);
+         DiscoveryGroupConfiguration groupConfiguration = new DiscoveryGroupConfiguration().setRefreshTimeout(refreshTimeout).setDiscoveryInitialWaitTimeout(initialTimeout).setBroadcastEndpointFactory(endpointFactory);
 
-         if (ActiveMQRALogger.LOGGER.isDebugEnabled())
-         {
+         if (ActiveMQRALogger.LOGGER.isDebugEnabled()) {
             ActiveMQRALogger.LOGGER.debug("Creating Connection Factory on the resource adapter for discovery=" + groupConfiguration + " with ha=" + ha);
          }
 
-         if (ha)
-         {
+         if (ha) {
             cf = ActiveMQJMSClient.createConnectionFactoryWithHA(groupConfiguration, JMSFactoryType.XA_CF);
          }
-         else
-         {
+         else {
             cf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(groupConfiguration, JMSFactoryType.XA_CF);
          }
       }
-      else if (connectorClassName != null)
-      {
+      else if (connectorClassName != null) {
          TransportConfiguration[] transportConfigurations = new TransportConfiguration[connectorClassName.size()];
 
          List<Map<String, Object>> connectionParams;
-         if (overrideProperties.getParsedConnectorClassNames() != null)
-         {
+         if (overrideProperties.getParsedConnectorClassNames() != null) {
             connectionParams = overrideProperties.getParsedConnectionParameters();
          }
-         else
-         {
+         else {
             connectionParams = raProperties.getParsedConnectionParameters();
          }
 
-         for (int i = 0; i < connectorClassName.size(); i++)
-         {
+         for (int i = 0; i < connectorClassName.size(); i++) {
             TransportConfiguration tc;
-            if (connectionParams == null || i >= connectionParams.size())
-            {
+            if (connectionParams == null || i >= connectionParams.size()) {
                tc = new TransportConfiguration(connectorClassName.get(i));
                ActiveMQRALogger.LOGGER.debug("No connector params provided using default");
             }
-            else
-            {
+            else {
                tc = new TransportConfiguration(connectorClassName.get(i), connectionParams.get(i));
             }
 
             transportConfigurations[i] = tc;
          }
 
-
-         if (ActiveMQRALogger.LOGGER.isDebugEnabled())
-         {
+         if (ActiveMQRALogger.LOGGER.isDebugEnabled()) {
             ActiveMQRALogger.LOGGER.debug("Creating Connection Factory on the resource adapter for transport=" +
-                                            Arrays.toString(transportConfigurations) + " with ha=" + ha);
+                                             Arrays.toString(transportConfigurations) + " with ha=" + ha);
          }
 
-         if (ha)
-         {
+         if (ha) {
             cf = ActiveMQJMSClient.createConnectionFactoryWithHA(JMSFactoryType.XA_CF, transportConfigurations);
          }
-         else
-         {
+         else {
             cf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.XA_CF, transportConfigurations);
          }
       }
-      else
-      {
+      else {
          throw new IllegalArgumentException("must provide either TransportType or DiscoveryGroupAddress and DiscoveryGroupPort for ResourceAdapter Connection Factory");
       }
 
@@ -1986,124 +1690,87 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
       return cf;
    }
 
-   public ActiveMQConnectionFactory createRecoveryActiveMQConnectionFactory(final ConnectionFactoryProperties overrideProperties)
-   {
+   public ActiveMQConnectionFactory createRecoveryActiveMQConnectionFactory(final ConnectionFactoryProperties overrideProperties) {
       ActiveMQConnectionFactory cf;
-      List<String> connectorClassName = overrideProperties.getParsedConnectorClassNames() != null ? overrideProperties.getParsedConnectorClassNames()
-         : raProperties.getParsedConnectorClassNames();
+      List<String> connectorClassName = overrideProperties.getParsedConnectorClassNames() != null ? overrideProperties.getParsedConnectorClassNames() : raProperties.getParsedConnectorClassNames();
 
-      String discoveryAddress = overrideProperties.getDiscoveryAddress() != null ? overrideProperties.getDiscoveryAddress()
-         : getDiscoveryAddress();
+      String discoveryAddress = overrideProperties.getDiscoveryAddress() != null ? overrideProperties.getDiscoveryAddress() : getDiscoveryAddress();
 
-      String jgroupsFileName = overrideProperties.getJgroupsFile() != null ? overrideProperties.getJgroupsFile()
-         : getJgroupsFile();
+      String jgroupsFileName = overrideProperties.getJgroupsFile() != null ? overrideProperties.getJgroupsFile() : getJgroupsFile();
 
-      String jgroupsChannel = overrideProperties.getJgroupsChannelName() != null ? overrideProperties.getJgroupsChannelName()
-         : getJgroupsChannelName();
+      String jgroupsChannel = overrideProperties.getJgroupsChannelName() != null ? overrideProperties.getJgroupsChannelName() : getJgroupsChannelName();
 
-      if (connectorClassName == null)
-      {
+      if (connectorClassName == null) {
          BroadcastEndpointFactory endpointFactory = null;
-         if (discoveryAddress != null)
-         {
-            Integer discoveryPort = overrideProperties.getDiscoveryPort() != null ? overrideProperties.getDiscoveryPort()
-               : getDiscoveryPort();
-            if (discoveryPort == null)
-            {
+         if (discoveryAddress != null) {
+            Integer discoveryPort = overrideProperties.getDiscoveryPort() != null ? overrideProperties.getDiscoveryPort() : getDiscoveryPort();
+            if (discoveryPort == null) {
                discoveryPort = ActiveMQClient.DEFAULT_DISCOVERY_PORT;
             }
 
-            String localBindAddress = overrideProperties.getDiscoveryLocalBindAddress() != null ? overrideProperties.getDiscoveryLocalBindAddress()
-               : raProperties.getDiscoveryLocalBindAddress();
-            endpointFactory = new UDPBroadcastEndpointFactory()
-               .setGroupAddress(discoveryAddress)
-               .setGroupPort(discoveryPort)
-               .setLocalBindAddress(localBindAddress)
-               .setLocalBindPort(-1);
+            String localBindAddress = overrideProperties.getDiscoveryLocalBindAddress() != null ? overrideProperties.getDiscoveryLocalBindAddress() : raProperties.getDiscoveryLocalBindAddress();
+            endpointFactory = new UDPBroadcastEndpointFactory().setGroupAddress(discoveryAddress).setGroupPort(discoveryPort).setLocalBindAddress(localBindAddress).setLocalBindPort(-1);
          }
-         else if (jgroupsFileName != null)
-         {
-            endpointFactory = new JGroupsFileBroadcastEndpointFactory()
-                  .setChannelName(jgroupsChannel)
-                  .setFile(jgroupsFileName);
+         else if (jgroupsFileName != null) {
+            endpointFactory = new JGroupsFileBroadcastEndpointFactory().setChannelName(jgroupsChannel).setFile(jgroupsFileName);
          }
-         else
-         {
+         else {
             String jgroupsLocatorClass = raProperties.getJgroupsChannelLocatorClass();
-            if (jgroupsLocatorClass != null)
-            {
+            if (jgroupsLocatorClass != null) {
                String jgroupsChannelRefName = raProperties.getJgroupsChannelRefName();
                JChannel jchannel = ActiveMQRaUtils.locateJGroupsChannel(jgroupsLocatorClass, jgroupsChannelRefName);
                endpointFactory = new ChannelBroadcastEndpointFactory(jchannel, jgroupsChannel);
             }
-            if (endpointFactory == null)
-            {
+            if (endpointFactory == null) {
                throw new IllegalArgumentException("must provide either TransportType or DiscoveryGroupAddress and DiscoveryGroupPort for ResourceAdapter Connection Factory");
             }
          }
 
-         Long refreshTimeout = overrideProperties.getDiscoveryRefreshTimeout() != null ? overrideProperties.getDiscoveryRefreshTimeout()
-            : raProperties.getDiscoveryRefreshTimeout();
-         if (refreshTimeout == null)
-         {
+         Long refreshTimeout = overrideProperties.getDiscoveryRefreshTimeout() != null ? overrideProperties.getDiscoveryRefreshTimeout() : raProperties.getDiscoveryRefreshTimeout();
+         if (refreshTimeout == null) {
             refreshTimeout = ActiveMQClient.DEFAULT_DISCOVERY_REFRESH_TIMEOUT;
          }
 
-         Long initialTimeout = overrideProperties.getDiscoveryInitialWaitTimeout() != null ? overrideProperties.getDiscoveryInitialWaitTimeout()
-            : raProperties.getDiscoveryInitialWaitTimeout();
-         if (initialTimeout == null)
-         {
+         Long initialTimeout = overrideProperties.getDiscoveryInitialWaitTimeout() != null ? overrideProperties.getDiscoveryInitialWaitTimeout() : raProperties.getDiscoveryInitialWaitTimeout();
+         if (initialTimeout == null) {
             initialTimeout = ActiveMQClient.DEFAULT_DISCOVERY_INITIAL_WAIT_TIMEOUT;
          }
-         DiscoveryGroupConfiguration groupConfiguration = new DiscoveryGroupConfiguration()
-            .setRefreshTimeout(refreshTimeout)
-            .setDiscoveryInitialWaitTimeout(initialTimeout)
-            .setBroadcastEndpointFactory(endpointFactory);
+         DiscoveryGroupConfiguration groupConfiguration = new DiscoveryGroupConfiguration().setRefreshTimeout(refreshTimeout).setDiscoveryInitialWaitTimeout(initialTimeout).setBroadcastEndpointFactory(endpointFactory);
 
          groupConfiguration.setRefreshTimeout(refreshTimeout);
 
-         if (ActiveMQRALogger.LOGGER.isDebugEnabled())
-         {
+         if (ActiveMQRALogger.LOGGER.isDebugEnabled()) {
             ActiveMQRALogger.LOGGER.debug("Creating Recovery Connection Factory on the resource adapter for discovery=" + groupConfiguration);
          }
 
          cf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(groupConfiguration, JMSFactoryType.XA_CF);
       }
-      else
-      {
+      else {
          TransportConfiguration[] transportConfigurations = new TransportConfiguration[connectorClassName.size()];
 
          List<Map<String, Object>> connectionParams;
-         if (overrideProperties.getParsedConnectorClassNames() != null)
-         {
+         if (overrideProperties.getParsedConnectorClassNames() != null) {
             connectionParams = overrideProperties.getParsedConnectionParameters();
          }
-         else
-         {
+         else {
             connectionParams = raProperties.getParsedConnectionParameters();
          }
 
-         for (int i = 0; i < connectorClassName.size(); i++)
-         {
+         for (int i = 0; i < connectorClassName.size(); i++) {
             TransportConfiguration tc;
-            if (connectionParams == null || i >= connectionParams.size())
-            {
+            if (connectionParams == null || i >= connectionParams.size()) {
                tc = new TransportConfiguration(connectorClassName.get(i));
                ActiveMQRALogger.LOGGER.debug("No connector params provided using default");
             }
-            else
-            {
+            else {
                tc = new TransportConfiguration(connectorClassName.get(i), connectionParams.get(i));
             }
 
             transportConfigurations[i] = tc;
          }
 
-
-         if (ActiveMQRALogger.LOGGER.isDebugEnabled())
-         {
-            ActiveMQRALogger.LOGGER.debug("Creating Recovery Connection Factory on the resource adapter for transport=" +
-                                            Arrays.toString(transportConfigurations));
+         if (ActiveMQRALogger.LOGGER.isDebugEnabled()) {
+            ActiveMQRALogger.LOGGER.debug("Creating Recovery Connection Factory on the resource adapter for transport=" + Arrays.toString(transportConfigurations));
          }
 
          cf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.XA_CF, transportConfigurations);
@@ -2118,235 +1785,164 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable
    }
 
    public Map<String, Object> overrideConnectionParameters(final Map<String, Object> connectionParams,
-                                                           final Map<String, Object> overrideConnectionParams)
-   {
+                                                           final Map<String, Object> overrideConnectionParams) {
       Map<String, Object> map = new HashMap<String, Object>();
-      if (connectionParams != null)
-      {
+      if (connectionParams != null) {
          map.putAll(connectionParams);
       }
-      if (overrideConnectionParams != null)
-      {
-         for (Map.Entry<String, Object> stringObjectEntry : overrideConnectionParams.entrySet())
-         {
+      if (overrideConnectionParams != null) {
+         for (Map.Entry<String, Object> stringObjectEntry : overrideConnectionParams.entrySet()) {
             map.put(stringObjectEntry.getKey(), stringObjectEntry.getValue());
          }
       }
       return map;
    }
 
-   private void setParams(final ActiveMQConnectionFactory cf,
-                          final ConnectionFactoryProperties overrideProperties)
-   {
-      Boolean val = overrideProperties.isAutoGroup() != null ? overrideProperties.isAutoGroup()
-         : raProperties.isAutoGroup();
-      if (val != null)
-      {
+   private void setParams(final ActiveMQConnectionFactory cf, final ConnectionFactoryProperties overrideProperties) {
+      Boolean val = overrideProperties.isAutoGroup() != null ? overrideProperties.isAutoGroup() : raProperties.isAutoGroup();
+      if (val != null) {
          cf.setAutoGroup(val);
       }
-      val = overrideProperties.isBlockOnAcknowledge() != null ? overrideProperties.isBlockOnAcknowledge()
-         : raProperties.isBlockOnAcknowledge();
-      if (val != null)
-      {
+      val = overrideProperties.isBlockOnAcknowledge() != null ? overrideProperties.isBlockOnAcknowledge() : raProperties.isBlockOnAcknowledge();
+      if (val != null) {
          cf.setBlockOnAcknowledge(val);
       }
-      val = overrideProperties.isBlockOnNonDurableSend() != null ? overrideProperties.isBlockOnNonDurableSend()
-         : raProperties.isBlockOnNonDurableSend();
-      if (val != null)
-      {
+      val = overrideProperties.isBlockOnNonDurableSend() != null ? overrideProperties.isBlockOnNonDurableSend() : raProperties.isBlockOnNonDurableSend();
+      if (val != null) {
          cf.setBlockOnNonDurableSend(val);
       }
-      val = overrideProperties.isBlockOnDurableSend() != null ? overrideProperties.isBlockOnDurableSend()
-         : raProperties.isBlockOnDurableSend();
-      if (val != null)
-      {
+      val = overrideProperties.isBlockOnDurableSend() != null ? overrideProperties.isBlockOnDurableSend() : raProperties.isBlockOnDurableSend();
+      if (val != null) {
          cf.setBlockOnDurableSend(val);
       }
-      val = overrideProperties.isPreAcknowledge() != null ? overrideProperties.isPreAcknowledge()
-         : raProperties.isPreAcknowledge();
-      if (val != null)
-      {
+      val = overrideProperties.isPreAcknowledge() != null ? overrideProperties.isPreAcknowledge() : raProperties.isPreAcknowledge();
+      if (val != null) {
          cf.setPreAcknowledge(val);
       }
-      val = overrideProperties.isUseGlobalPools() != null ? overrideProperties.isUseGlobalPools()
-         : raProperties.isUseGlobalPools();
-      if (val != null)
-      {
+      val = overrideProperties.isUseGlobalPools() != null ? overrideProperties.isUseGlobalPools() : raProperties.isUseGlobalPools();
+      if (val != null) {
          cf.setUseGlobalPools(val);
       }
 
-      val = overrideProperties.isCacheLargeMessagesClient() != null ? overrideProperties.isCacheLargeMessagesClient()
-         : raProperties.isCacheLargeMessagesClient();
-      if (val != null)
-      {
+      val = overrideProperties.isCacheLargeMessagesClient() != null ? overrideProperties.isCacheLargeMessagesClient() : raProperties.isCacheLargeMessagesClient();
+      if (val != null) {
          cf.setCacheLargeMessagesClient(val);
       }
 
-      val = overrideProperties.isCompressLargeMessage() != null ? overrideProperties.isCompressLargeMessage()
-         : raProperties.isCompressLargeMessage();
-      if (val != null)
-      {
+      val = overrideProperties.isCompressLargeMessage() != null ? overrideProperties.isCompressLargeMessage() : raProperties.isCompressLargeMessage();
+      if (val != null) {
          cf.setCompressLargeMessage(val);
       }
 
-      val = overrideProperties.isFailoverOnInitialConnection() != null ? overrideProperties.isFailoverOnInitialConnection()
-         : raProperties.isFailoverOnInitialConnection();
-      if (val != null)
-      {
+      val = overrideProperties.isFailoverOnInitialConnection() != null ? overrideProperties.isFailoverOnInitialConnection() : raProperties.isFailoverOnInitialConnection();
+      if (val != null) {
          cf.setFailoverOnInitialConnection(val);
       }
 
-      Integer val2 = overrideProperties.getConsumerMaxRate() != null ? overrideProperties.getConsumerMaxRate()
-         : raProperties.getConsumerMaxRate();
-      if (val2 != null)
-      {
+      Integer val2 = overrideProperties.getConsumerMaxRate() != null ? overrideProperties.getConsumerMaxRate() : raProperties.getConsumerMaxRate();
+      if (val2 != null) {
          cf.setConsumerMaxRate(val2);
       }
-      val2 = overrideProperties.getConsumerWindowSize() != null ? overrideProperties.getConsumerWindowSize()
-         : raProperties.getConsumerWindowSize();
-      if (val2 != null)
-      {
+      val2 = overrideProperties.getConsumerWindowSize() != null ? overrideProperties.getConsumerWindowSize() : raProperties.getConsumerWindowSize();
+      if (val2 != null) {
          cf.setConsumerWindowSize(val2);
       }
-      val2 = overrideProperties.getDupsOKBatchSize() != null ? overrideProperties.getDupsOKBatchSize()
-         : raProperties.getDupsOKBatchSize();
-      if (val2 != null)
-      {
+      val2 = overrideProperties.getDupsOKBatchSize() != null ? overrideProperties.getDupsOKBatchSize() : raProperties.getDupsOKBatchSize();
+      if (val2 != null) {
          cf.setDupsOKBatchSize(val2);
       }
 
-      val2 = overrideProperties.getMinLargeMessageSize() != null ? overrideProperties.getMinLargeMessageSize()
-         : raProperties.getMinLargeMessageSize();
-      if (val2 != null)
-      {
+      val2 = overrideProperties.getMinLargeMessageSize() != null ? overrideProperties.getMinLargeMessageSize() : raProperties.getMinLargeMessageSize();
+      if (val2 != null) {
          cf.setMinLargeMessageSize(val2);
       }
-      val2 = overrideProperties.getProducerMaxRate() != null ? overrideProperties.getProducerMaxRate()
-         : raProperties.getProducerMaxRate();
-      if (val2 != null)
-      {
+      val2 = overrideProperties.getProducerMaxRate() != null ? overrideProperties.getProducerMaxRate() : raProperties.getProducerMaxRate();
+      if (val2 != null) {
          cf.setProducerMaxRate(val2);
       }
-      val2 = overrideProperties.getProducerWindowSize() != null ? overrideProperties.getProducerWindowSize()
-         : raProperties.getProducerWindowSize();
-      if (val2 != null)
-      {
+      val2 = overrideProperties.getProducerWindowSize() != null ? overrideProperties.getProducerWindowSize() : raProperties.getProducerWindowSize();
+      if (val2 != null) {
          cf.setProducerWindowSize(val2);
       }
-      val2 = overrideProperties.getConfirmationWindowSize() != null ? overrideProperties.getConfirmationWindowSize()
-         : raProperties.getConfirmationWindowSize();
-      if (val2 != null)
-      {
+      val2 = overrideProperties.getConfirmationWindowSize() != null ? overrideProperties.getConfirmationWindowSize() : raProperties.getConfirmationWindowSize();
+      if (val2 != null) {
          cf.setConfirmationWindowSize(val2);
       }
-      val2 = overrideProperties.getReconnectAttempts() != null ? overrideProperties.getReconnectAttempts()
-         : raProperties.getReconnectAttempts();
-      if (val2 != null)
-      {
+      val2 = overrideProperties.getReconnectAttempts() != null ? overrideProperties.getReconnectAttempts() : raProperties.getReconnectAttempts();
+      if (val2 != null) {
          cf.setReconnectAttempts(val2);
       }
-      else
-      {
+      else {
          //the global default is 0 but we should always try to reconnect JCA
          cf.setReconnectAttempts(-1);
       }
-      val2 = overrideProperties.getThreadPoolMaxSize() != null ? overrideProperties.getThreadPoolMaxSize()
-         : raProperties.getThreadPoolMaxSize();
-      if (val2 != null)
-      {
+      val2 = overrideProperties.getThreadPoolMaxSize() != null ? overrideProperties.getThreadPoolMaxSize() : raProperties.getThreadPoolMaxSize();
+      if (val2 != null) {
          cf.setThreadPoolMaxSize(val2);
       }
-      val2 = overrideProperties.getScheduledThreadPoolMaxSize() != null ? overrideProperties.getScheduledThreadPoolMaxSize()
-         : raProperties.getScheduledThreadPoolMaxSize();
-      if (val2 != null)
-      {
+      val2 = overrideProperties.getScheduledThreadPoolMaxSize() != null ? overrideProperties.getScheduledThreadPoolMaxSize() : raProperties.getScheduledThreadPoolMaxSize();
+      if (val2 != null) {
          cf.setScheduledThreadPoolMaxSize(val2);
       }
-      val2 = overrideProperties.getTransactionBatchSize() != null ? overrideProperties.getTransactionBatchSize()
-         : raProperties.getTransactionBatchSize();
-      if (val2 != null)
-      {
+      val2 = overrideProperties.getTransactionBatchSize() != null ? overrideProperties.getTransactionBatchSize() : raProperties.getTransactionBatchSize();
+      if (val2 != null) {
          cf.setTransactionBatchSize(val2);
       }
-      val2 = overrideProperties.getInitialConnectAttempts() != null ? overrideProperties.getInitialConnectAttempts()
-         : raProperties.getInitialConnectAttempts();
-      if (val2 != null)
-      {
+      val2 = overrideProperties.getInitialConnectAttempts() != null ? overrideProperties.getInitialConnectAttempts() : raProperties.getInitialConnectAttempts();
+      if (val2 != null) {
          cf.setInitialConnectAttempts(val2);
       }
-      val2 = overrideProperties.getInitialMessagePacketSize() != null ? overrideProperties.getInitialMessagePacketSize()
-         : raProperties.getInitialMessagePacketSize();
-      if (val2 != null)
-      {
+      val2 = overrideProperties.getInitialMessagePacketSize() != null ? overrideProperties.getInitialMessagePacketSize() : raProperties.getInitialMessagePacketSize();
+      if (val2 != null) {
          cf.setInitialMessagePacketSize(val2);
       }
 
-      Long val3 = overrideProperties.getClientFailureCheckPeriod() != null ? overrideProperties.getClientFailureCheckPeriod()
-         : raProperties.getClientFailureCheckPeriod();
-      if (val3 != null)
-      {
+      Long val3 = overrideProperties.getClientFailureCheckPeriod() != null ? overrideProperties.getClientFailureCheckPeriod() : raProperties.getClientFailureCheckPeriod();
+      if (val3 != null) {
          cf.setClientFailureCheckPeriod(val3);
       }
-      val3 = overrideProperties.getCallTimeout() != null ? overrideProperties.getCallTimeout()
-         : raProperties.getCallTimeout();
-      if (val3 != null)
-      {
+      val3 = overrideProperties.getCallTimeout() != null ? overrideProperties.getCallTimeout() : raProperties.getCallTimeout();
+      if (val3 != null) {
          cf.setCallTimeout(val3);
       }
-      val3 = overrideProperties.getCallFailoverTimeout() != null ? overrideProperties.getCallFailoverTimeout()
-         : raProperties.getCallFailoverTimeout();
-      if (val3 != null)
-      {
+      val3 = overrideProperties.getCallFailoverTimeout() != null ? overrideProperties.getCallFailoverTimeout() : raProperties.getCallFailoverTimeout();
+      if (val3 != null) {
          cf.setCallFailoverTimeout(val3);
       }
-      val3 = overrideProperties.getConnectionTTL() != null ? overrideProperties.getConnectionTTL()
-         : raProperties.getConnectionTTL();
-      if (val3 != null)
-      {
+      val3 = overrideProperties.getConnectionTTL() != null ? overrideProperties.getConnectionTTL() : raProperties.getConnectionTTL();
+      if (val3 != null) {
          cf.setConnectionTTL(val3);
       }
 
-      val3 = overrideProperties.getRetryInterval() != null ? overrideProperties.getRetryInterval()
-         : raProperties.getRetryInterval();
-      if (val3 != null)
-      {
+      val3 = overrideProperties.getRetryInterval() != null ? overrideProperties.getRetryInterval() : raProperties.getRetryInterval();
+      if (val3 != null) {
          cf.setRetryInterval(val3);
       }
 
-      val3 = overrideProperties.getMaxRetryInterval() != null ? overrideProperties.getMaxRetryInterval()
-         : raProperties.getMaxRetryInterval();
-      if (val3 != null)
-      {
+      val3 = overrideProperties.getMaxRetryInterval() != null ? overrideProperties.getMaxRetryInterval() : raProperties.getMaxRetryInterval();
+      if (val3 != null) {
          cf.setMaxRetryInterval(val3);
       }
 
-      Double val4 = overrideProperties.getRetryIntervalMultiplier() != null ? overrideProperties.getRetryIntervalMultiplier()
-         : raProperties.getRetryIntervalMultiplier();
-      if (val4 != null)
-      {
+      Double val4 = overrideProperties.getRetryIntervalMultiplier() != null ? overrideProperties.getRetryIntervalMultiplier() : raProperties.getRetryIntervalMultiplier();
+      if (val4 != null) {
          cf.setRetryIntervalMultiplier(val4);
       }
-      String val5 = overrideProperties.getClientID() != null ? overrideProperties.getClientID()
-         : raProperties.getClientID();
-      if (val5 != null)
-      {
+      String val5 = overrideProperties.getClientID() != null ? overrideProperties.getClientID() : raProperties.getClientID();
+      if (val5 != null) {
          cf.setClientID(val5);
       }
-      val5 = overrideProperties.getConnectionLoadBalancingPolicyClassName() != null ? overrideProperties.getConnectionLoadBalancingPolicyClassName()
-         : raProperties.getConnectionLoadBalancingPolicyClassName();
-      if (val5 != null)
-      {
+      val5 = overrideProperties.getConnectionLoadBalancingPolicyClassName() != null ? overrideProperties.getConnectionLoadBalancingPolicyClassName() : raProperties.getConnectionLoadBalancingPolicyClassName();
+      if (val5 != null) {
          cf.setConnectionLoadBalancingPolicyClassName(val5);
       }
    }
 
-   public void setManagedConnectionFactory(ActiveMQRAManagedConnectionFactory activeMQRAManagedConnectionFactory)
-   {
+   public void setManagedConnectionFactory(ActiveMQRAManagedConnectionFactory activeMQRAManagedConnectionFactory) {
       managedConnectionFactories.add(activeMQRAManagedConnectionFactory);
    }
 
-   public SensitiveDataCodec<String> getCodecInstance()
-   {
+   public SensitiveDataCodec<String> getCodecInstance() {
       return raProperties.getCodecInstance();
    }
 }

@@ -32,8 +32,7 @@ import javax.jms.TextMessage;
  * and replies with text messages containing the reversed text.
  * It sends replies to the destination specified by the JMS ReplyTo header of the consumed messages.
  */
-public class TextReverserService implements MessageListener
-{
+public class TextReverserService implements MessageListener {
 
    // Constants -----------------------------------------------------
 
@@ -45,15 +44,13 @@ public class TextReverserService implements MessageListener
 
    // Static --------------------------------------------------------
 
-   private static String reverse(final String text)
-   {
+   private static String reverse(final String text) {
       return new StringBuffer(text).reverse().toString();
    }
 
    // Constructors --------------------------------------------------
 
-   public TextReverserService(final ConnectionFactory cf, final Destination destination) throws JMSException
-   {
+   public TextReverserService(final ConnectionFactory cf, final Destination destination) throws JMSException {
       // create a JMS connection
       connection = cf.createConnection();
       // create a JMS session
@@ -69,11 +66,9 @@ public class TextReverserService implements MessageListener
 
    // MessageListener implementation --------------------------------
 
-   public void onMessage(final Message request)
-   {
-      TextMessage textMessage = (TextMessage)request;
-      try
-      {
+   public void onMessage(final Message request) {
+      TextMessage textMessage = (TextMessage) request;
+      try {
          // retrieve the request's text
          String text = textMessage.getText();
          // create a reply containing the reversed text
@@ -88,25 +83,20 @@ public class TextReverserService implements MessageListener
          // close the producer
          producer.close();
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          e.printStackTrace();
       }
    }
 
    // Public --------------------------------------------------------
 
-   public void close()
-   {
-      if (connection != null)
-      {
-         try
-         {
+   public void close() {
+      if (connection != null) {
+         try {
             // be sure to close the JMS resources
             connection.close();
          }
-         catch (JMSException e)
-         {
+         catch (JMSException e) {
             e.printStackTrace();
          }
       }

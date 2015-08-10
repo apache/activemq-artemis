@@ -57,8 +57,8 @@ import static java.nio.file.attribute.PosixFilePermission.OWNER_WRITE;
  * CLI action that creates a broker instance directory.
  */
 @Command(name = "create", description = "creates a new broker instance")
-public class Create extends InputAbstract
-{
+public class Create extends InputAbstract {
+
    private static final Integer DEFAULT_PORT = 61616;
 
    private static final Integer AMQP_PORT = 5672;
@@ -173,346 +173,278 @@ public class Create extends InputAbstract
 
    boolean IS_CYGWIN;
 
-   public int getMaxHops()
-   {
+   public int getMaxHops() {
       return maxHops;
    }
 
-   public void setMaxHops(int maxHops)
-   {
+   public void setMaxHops(int maxHops) {
       this.maxHops = maxHops;
    }
 
-   public boolean isNoWeb()
-   {
+   public boolean isNoWeb() {
       return noWeb;
    }
 
-   public void setNoWeb(boolean noWeb)
-   {
+   public void setNoWeb(boolean noWeb) {
       this.noWeb = noWeb;
    }
 
-   public int getPortOffset()
-   {
+   public int getPortOffset() {
       return portOffset;
    }
 
-   public void setPortOffset(int portOffset)
-   {
+   public void setPortOffset(int portOffset) {
       this.portOffset = portOffset;
    }
 
-   public MessageLoadBalancingType getMessageLoadBalancing()
-   {
+   public MessageLoadBalancingType getMessageLoadBalancing() {
       return messageLoadBalancing;
    }
 
-   public void setMessageLoadBalancing(MessageLoadBalancingType messageLoadBalancing)
-   {
+   public void setMessageLoadBalancing(MessageLoadBalancingType messageLoadBalancing) {
       this.messageLoadBalancing = messageLoadBalancing;
    }
 
-   public String getJavaOptions()
-   {
+   public String getJavaOptions() {
       return javaOptions;
    }
 
-   public void setJavaOptions(String javaOptions)
-   {
+   public void setJavaOptions(String javaOptions) {
       this.javaOptions = javaOptions;
    }
 
-   public File getInstance()
-   {
+   public File getInstance() {
       return directory;
    }
 
-   public void setInstance(File directory)
-   {
+   public void setInstance(File directory) {
       this.directory = directory;
    }
 
-   public String getHost()
-   {
-      if (host == null)
-      {
+   public String getHost() {
+      if (host == null) {
          host = "0.0.0.0";
       }
       return host;
    }
 
-   public String getHostForClustered()
-   {
-      if (getHost().equals("0.0.0.0"))
-      {
+   public String getHostForClustered() {
+      if (getHost().equals("0.0.0.0")) {
          host = input("--host", "Host " + host + " is not valid for clustering, please provide a valid IP or hostname", "localhost");
       }
 
       return host;
    }
 
-   public void setHost(String host)
-   {
+   public void setHost(String host) {
       this.host = host;
    }
 
-   public boolean isForce()
-   {
+   public boolean isForce() {
       return force;
    }
 
-   public void setForce(boolean force)
-   {
+   public void setForce(boolean force) {
       this.force = force;
    }
 
-   public File getHome()
-   {
-      if (home == null)
-      {
+   public File getHome() {
+      if (home == null) {
          home = new File(getBrokerHome());
       }
       return home;
    }
 
-   public void setHome(File home)
-   {
+   public void setHome(File home) {
       this.home = home;
    }
 
-   public boolean isClustered()
-   {
+   public boolean isClustered() {
       return clustered;
    }
 
-   public void setClustered(boolean clustered)
-   {
+   public void setClustered(boolean clustered) {
       this.clustered = clustered;
    }
 
-   public boolean isReplicated()
-   {
+   public boolean isReplicated() {
       return replicated;
    }
 
-   public void setReplicated(boolean replicated)
-   {
+   public void setReplicated(boolean replicated) {
       this.replicated = replicated;
    }
 
-   public boolean isSharedStore()
-   {
+   public boolean isSharedStore() {
       return sharedStore;
    }
 
-   public void setSharedStore(boolean sharedStore)
-   {
+   public void setSharedStore(boolean sharedStore) {
       this.sharedStore = sharedStore;
    }
 
-   public String getEncoding()
-   {
+   public String getEncoding() {
       return encoding;
    }
 
-   public void setEncoding(String encoding)
-   {
+   public void setEncoding(String encoding) {
       this.encoding = encoding;
    }
 
-   public String getData()
-   {
+   public String getData() {
       return data;
    }
 
-   public void setData(String data)
-   {
+   public void setData(String data) {
       this.data = data;
    }
 
-   public String getClusterUser()
-   {
-      if (clusterUser == null)
-      {
+   public String getClusterUser() {
+      if (clusterUser == null) {
          clusterUser = input("--cluster-user", "Please provide the username:", "cluster-admin");
       }
       return clusterUser;
    }
 
-   public void setClusterUser(String clusterUser)
-   {
+   public void setClusterUser(String clusterUser) {
       this.clusterUser = clusterUser;
    }
 
-   public String getClusterPassword()
-   {
-      if (clusterPassword == null)
-      {
+   public String getClusterPassword() {
+      if (clusterPassword == null) {
          clusterPassword = inputPassword("--cluster-password", "Please enter the password:", "password-admin");
       }
       return clusterPassword;
    }
 
-   public void setClusterPassword(String clusterPassword)
-   {
+   public void setClusterPassword(String clusterPassword) {
       this.clusterPassword = clusterPassword;
    }
 
-   public boolean isAllowAnonymous()
-   {
-      if (allowAnonymous == null)
-      {
+   public boolean isAllowAnonymous() {
+      if (allowAnonymous == null) {
          String value = input("--allow-anonymous | --require-login", "Allow anonymous access? (Y/N):", "Y");
          allowAnonymous = Boolean.valueOf(value.toLowerCase().equals("y"));
       }
       return allowAnonymous.booleanValue();
    }
 
-   public void setAllowAnonymous(boolean allowGuest)
-   {
+   public void setAllowAnonymous(boolean allowGuest) {
       this.allowAnonymous = Boolean.valueOf(allowGuest);
    }
 
-   public Boolean getRequireLogin()
-   {
-      if (requireLogin == null)
-      {
+   public Boolean getRequireLogin() {
+      if (requireLogin == null) {
          requireLogin = !isAllowAnonymous();
       }
       return requireLogin;
    }
 
-   public void setRequireLogin(Boolean requireLogin)
-   {
+   public void setRequireLogin(Boolean requireLogin) {
       this.requireLogin = requireLogin;
    }
 
-   public String getPassword()
-   {
+   public String getPassword() {
 
-      if (password == null)
-      {
+      if (password == null) {
          this.password = inputPassword("--password", "Please provide the default password:", "admin");
       }
 
       return password;
    }
 
-   public void setPassword(String password)
-   {
+   public void setPassword(String password) {
       this.password = password;
    }
 
-   public String getUser()
-   {
-      if (user == null)
-      {
+   public String getUser() {
+      if (user == null) {
          user = input("--user", "Please provide the default username:", "admin");
       }
       return user;
    }
 
-   public void setUser(String user)
-   {
+   public void setUser(String user) {
       this.user = user;
    }
 
-   public String getRole()
-   {
-      if (role == null)
-      {
+   public String getRole() {
+      if (role == null) {
          role = "amq";
       }
       return role;
    }
 
-   public void setRole(String role)
-   {
+   public void setRole(String role) {
       this.role = role;
    }
 
-   public boolean isSlave()
-   {
+   public boolean isSlave() {
       return slave;
    }
 
-   public void setSlave(boolean slave)
-   {
+   public void setSlave(boolean slave) {
       this.slave = slave;
    }
 
-   public boolean isFailoverOnShutodwn()
-   {
+   public boolean isFailoverOnShutodwn() {
       return failoverOnShutodwn;
    }
 
-   public void setFailoverOnShutodwn(boolean failoverOnShutodwn)
-   {
+   public void setFailoverOnShutodwn(boolean failoverOnShutodwn) {
       this.failoverOnShutodwn = failoverOnShutodwn;
    }
 
-   public Boolean getAllowAnonymous()
-   {
+   public Boolean getAllowAnonymous() {
       return allowAnonymous;
    }
 
-   public void setAllowAnonymous(Boolean allowAnonymous)
-   {
+   public void setAllowAnonymous(Boolean allowAnonymous) {
       this.allowAnonymous = allowAnonymous;
    }
 
    @Override
-   public Object execute(ActionContext context) throws Exception
-   {
+   public Object execute(ActionContext context) throws Exception {
       this.checkDirectory();
       super.execute(context);
 
-      try
-      {
+      try {
          return run(context);
       }
-      catch (Throwable e)
-      {
+      catch (Throwable e) {
          e.printStackTrace(context.err);
          throw e;
       }
    }
 
-
-   /** This method is made public for the testsuite */
-   public InputStream openStream(String source)
-   {
+   /**
+    * This method is made public for the testsuite
+    */
+   public InputStream openStream(String source) {
       return this.getClass().getResourceAsStream(source);
    }
 
    /**
     * Checks that the directory provided either exists and is writable or doesn't exist but can be created.
     */
-   private void checkDirectory()
-   {
-      if (!directory.exists())
-      {
+   private void checkDirectory() {
+      if (!directory.exists()) {
          boolean created = directory.mkdirs();
-         if (!created)
-         {
+         if (!created) {
             throw new RuntimeException(String.format("Unable to create the path '%s'.", directory));
          }
       }
-      else if (!directory.canWrite())
-      {
+      else if (!directory.canWrite()) {
          throw new RuntimeException(String.format("The path '%s' is not writable.", directory));
       }
    }
 
-   public Object run(ActionContext context) throws Exception
-   {
+   public Object run(ActionContext context) throws Exception {
       IS_WINDOWS = System.getProperty("os.name").toLowerCase().trim().startsWith("win");
       IS_CYGWIN = IS_WINDOWS && "cygwin".equals(System.getenv("OSTYPE"));
 
       // requireLogin should set alloAnonymous=false, to avoid user's questions
-      if (requireLogin != null && requireLogin.booleanValue())
-      {
+      if (requireLogin != null && requireLogin.booleanValue()) {
          allowAnonymous = Boolean.FALSE;
       }
 
@@ -524,35 +456,29 @@ public class Create extends InputAbstract
 
       filters.put("${failover-on-shutdown}", isFailoverOnShutodwn() ? "true" : "false");
 
-      if (replicated)
-      {
+      if (replicated) {
          clustered = true;
          filters.put("${replicated.settings}", applyFilters(readTextFile(ETC_REPLICATED_SETTINGS_TXT), filters));
       }
-      else
-      {
+      else {
          filters.put("${replicated.settings}", "");
       }
 
-      if (sharedStore)
-      {
+      if (sharedStore) {
          clustered = true;
          filters.put("${shared-store.settings}", applyFilters(readTextFile(ETC_SHARED_STORE_SETTINGS_TXT), filters));
       }
-      else
-      {
+      else {
          filters.put("${shared-store.settings}", "");
       }
 
       boolean aio;
 
-      if (IS_WINDOWS || !supportsLibaio())
-      {
+      if (IS_WINDOWS || !supportsLibaio()) {
          aio = false;
          filters.put("${journal.settings}", "NIO");
       }
-      else
-      {
+      else {
          aio = true;
          filters.put("${journal.settings}", "ASYNCIO");
       }
@@ -572,8 +498,7 @@ public class Create extends InputAbstract
       filters.put("${password}", getPassword());
       filters.put("${role}", getRole());
 
-      if (clustered)
-      {
+      if (clustered) {
          filters.put("${host}", getHostForClustered());
          String connectorSettings = readTextFile(ETC_CONNECTOR_SETTINGS_TXT);
          connectorSettings = applyFilters(connectorSettings, filters);
@@ -584,8 +509,7 @@ public class Create extends InputAbstract
          filters.put("${cluster-user}", getClusterUser());
          filters.put("${cluster-password}", getClusterPassword());
       }
-      else
-      {
+      else {
          filters.put("${host}", getHost());
          filters.put("${connector-config.settings}", "");
          filters.put("${cluster-security.settings}", "");
@@ -596,8 +520,7 @@ public class Create extends InputAbstract
 
       applyJMSObjects(filters);
 
-      if (home != null)
-      {
+      if (home != null) {
          filters.put("${home}", path(home, false));
       }
       filters.put("${artemis.home}", path(getHome().toString(), false));
@@ -612,23 +535,20 @@ public class Create extends InputAbstract
       File dataFolder = new File(directory, "data");
       dataFolder.mkdirs();
 
-      if (javaOptions == null || javaOptions.length() == 0)
-      {
+      if (javaOptions == null || javaOptions.length() == 0) {
          javaOptions = "";
       }
 
       filters.put("${java-opts}", javaOptions);
 
-      if (IS_WINDOWS)
-      {
+      if (IS_WINDOWS) {
          write(BIN_ARTEMIS_CMD, null, false);
          write(BIN_ARTEMIS_SERVICE_EXE);
          write(BIN_ARTEMIS_SERVICE_XML, filters, false);
          write(ETC_ARTEMIS_PROFILE_CMD, filters, false);
       }
 
-      if (!IS_WINDOWS || IS_CYGWIN)
-      {
+      if (!IS_WINDOWS || IS_CYGWIN) {
          write(BIN_ARTEMIS, null, true);
          makeExec(BIN_ARTEMIS);
          write(BIN_ARTEMIS_SERVICE, null, true);
@@ -639,22 +559,17 @@ public class Create extends InputAbstract
 
       write(ETC_LOGGING_PROPERTIES, null, false);
 
-      if (isAllowAnonymous())
-      {
+      if (isAllowAnonymous()) {
          filters.put("${bootstrap.guest}", "default-user=\"" + getUser() + "\"");
       }
-      else
-      {
+      else {
          filters.put("${bootstrap.guest}", "");
       }
 
-
-      if (noWeb)
-      {
+      if (noWeb) {
          filters.put("${bootstrap-web-settings}", "");
       }
-      else
-      {
+      else {
          filters.put("${bootstrap-web-settings}", applyFilters(readTextFile(ETC_BOOTSTRAP_WEB_SETTINGS_TXT), filters));
       }
 
@@ -673,12 +588,10 @@ public class Create extends InputAbstract
       File service = new File(directory, BIN_ARTEMIS_SERVICE);
       context.out.println("");
 
-      if (!IS_WINDOWS || IS_CYGWIN)
-      {
+      if (!IS_WINDOWS || IS_CYGWIN) {
 
          // Does it look like we are on a System V init system?
-         if (new File("/etc/init.d/").isDirectory())
-         {
+         if (new File("/etc/init.d/").isDirectory()) {
             context.out.println("Or you can setup the broker as system service and run it in the background:");
             context.out.println("");
             context.out.println("   sudo ln -s \"%s\" /etc/init.d/".format(service.getCanonicalPath()));
@@ -686,8 +599,7 @@ public class Create extends InputAbstract
             context.out.println("");
 
          }
-         else
-         {
+         else {
 
             context.out.println("Or you can run the broker in the background using:");
             context.out.println("");
@@ -696,8 +608,7 @@ public class Create extends InputAbstract
          }
       }
 
-      if (IS_WINDOWS)
-      {
+      if (IS_WINDOWS) {
          service = new File(directory, BIN_ARTEMIS_SERVICE_EXE);
          context.out.println("Or you can setup the broker as Windows service and run it in the background:");
          context.out.println("");
@@ -714,41 +625,36 @@ public class Create extends InputAbstract
       return null;
    }
 
-   /** It will create the jms configurations */
-   private void applyJMSObjects(HashMap<String, String> filters)
-   {
+   /**
+    * It will create the jms configurations
+    */
+   private void applyJMSObjects(HashMap<String, String> filters) {
       StringWriter writer = new StringWriter();
       PrintWriter printWriter = new PrintWriter(writer);
       printWriter.println();
 
-      for (String str : getQueueList())
-      {
+      for (String str : getQueueList()) {
          printWriter.println("      <queue name=\"" + str + "\"/>");
       }
-      for (String str : getTopicList())
-      {
+      for (String str : getTopicList()) {
          printWriter.println("      <topic name=\"" + str + "\"/>");
       }
       filters.put("${jms-list.settings}", writer.toString());
    }
 
-   private void performAutoTune(HashMap<String, String> filters, boolean aio, File dataFolder)
-   {
-      if (noAutoTune)
-      {
+   private void performAutoTune(HashMap<String, String> filters, boolean aio, File dataFolder) {
+      if (noAutoTune) {
          filters.put("${journal-buffer.settings}", "");
       }
-      else
-      {
-         try
-         {
+      else {
+         try {
             int writes = 250;
             System.out.println("");
             System.out.println("Auto tuning journal ...");
 
             long time = SyncCalculation.syncTest(dataFolder, 4096, writes, 5, verbose, aio);
             long nanoseconds = SyncCalculation.toNanos(time, writes);
-            double writesPerMillisecond = (double)writes / (double) time;
+            double writesPerMillisecond = (double) writes / (double) time;
 
             String writesPerMillisecondStr = new DecimalFormat("###.##").format(writesPerMillisecond);
 
@@ -757,13 +663,12 @@ public class Create extends InputAbstract
             syncFilter.put("${writesPerMillisecond}", writesPerMillisecondStr);
 
             System.out.println("done! Your system can make " + writesPerMillisecondStr +
-                    " writes per millisecond, your journal-buffer-timeout will be " + nanoseconds);
+                                  " writes per millisecond, your journal-buffer-timeout will be " + nanoseconds);
 
             filters.put("${journal-buffer.settings}", applyFilters(readTextFile(ETC_JOURNAL_BUFFER_SETTINGS), syncFilter));
 
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             filters.put("${journal-buffer.settings}", "");
             e.printStackTrace();
             System.err.println("Couldn't perform sync calculation, using default values");
@@ -771,105 +676,80 @@ public class Create extends InputAbstract
       }
    }
 
-   private boolean supportsLibaio()
-   {
-      if (LibaioContext.isLoaded())
-      {
-         try (LibaioContext context = new LibaioContext(1, true))
-         {
+   private boolean supportsLibaio() {
+      if (LibaioContext.isLoaded()) {
+         try (LibaioContext context = new LibaioContext(1, true)) {
             File tmpFile = new File(directory, "validateAIO.bin");
             boolean supportsLibaio = true;
-            try
-            {
+            try {
                LibaioFile file = context.openFile(tmpFile, true);
                file.close();
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                supportsLibaio = false;
             }
             tmpFile.delete();
-            if (!supportsLibaio)
-            {
+            if (!supportsLibaio) {
                System.err.println("The filesystem used on " + directory + " doesn't support libAIO and O_DIRECT files, switching journal-type to NIO");
             }
             return supportsLibaio;
          }
       }
-      else
-      {
+      else {
          return false;
       }
    }
 
-   private void makeExec(String path) throws IOException
-   {
-      try
-      {
+   private void makeExec(String path) throws IOException {
+      try {
          File file = new File(directory, path);
-         Files.setPosixFilePermissions(file.toPath(), new HashSet<PosixFilePermission>(Arrays.asList(
-            OWNER_READ, OWNER_WRITE, OWNER_EXECUTE,
-            GROUP_READ, GROUP_WRITE, GROUP_EXECUTE,
-            OTHERS_READ, OTHERS_EXECUTE
-         )));
+         Files.setPosixFilePermissions(file.toPath(), new HashSet<PosixFilePermission>(Arrays.asList(OWNER_READ, OWNER_WRITE, OWNER_EXECUTE, GROUP_READ, GROUP_WRITE, GROUP_EXECUTE, OTHERS_READ, OTHERS_EXECUTE)));
       }
-      catch (Throwable ignore)
-      {
+      catch (Throwable ignore) {
          // Our best effort was not good enough :)
       }
    }
 
-
-   private String[] getQueueList()
-   {
-      if (queues == null)
-      {
+   private String[] getQueueList() {
+      if (queues == null) {
          return new String[0];
       }
-      else
-      {
+      else {
          return queues.split(",");
       }
    }
 
-   private String[] getTopicList()
-   {
-      if (topics == null)
-      {
+   private String[] getTopicList() {
+      if (topics == null) {
          return new String[0];
       }
-      else
-      {
+      else {
          return topics.split(",");
       }
    }
 
-   String path(String value, boolean unixPaths) throws IOException
-   {
+   String path(String value, boolean unixPaths) throws IOException {
       return path(new File(value), unixPaths);
    }
 
-   private String path(File value, boolean unixPaths) throws IOException
-   {
-      if (unixPaths && IS_CYGWIN)
-      {
+   private String path(File value, boolean unixPaths) throws IOException {
+      if (unixPaths && IS_CYGWIN) {
          return value.getCanonicalPath();
       }
-      else
-      {
+      else {
          return value.getCanonicalPath();
       }
    }
 
-   private void write(String source, HashMap<String, String> filters, boolean unixTarget) throws IOException
-   {
+   private void write(String source, HashMap<String, String> filters, boolean unixTarget) throws IOException {
       write(source, new File(directory, source), filters, unixTarget);
    }
 
-   private void write(String source, File target, HashMap<String, String> filters, boolean unixTarget) throws IOException
-   {
-      if (target.exists() && !force)
-      {
+   private void write(String source,
+                      File target,
+                      HashMap<String, String> filters,
+                      boolean unixTarget) throws IOException {
+      if (target.exists() && !force) {
          throw new RuntimeException(String.format("The file '%s' already exists.  Use --force to overwrite.", target));
       }
 
@@ -881,62 +761,49 @@ public class Create extends InputAbstract
       content = content.replaceAll("\\r?\\n", Matcher.quoteReplacement(separator));
       ByteArrayInputStream in = new ByteArrayInputStream(content.getBytes(encoding));
 
-      try (FileOutputStream fout = new FileOutputStream(target))
-      {
+      try (FileOutputStream fout = new FileOutputStream(target)) {
          copy(in, fout);
       }
    }
 
-   private String applyFilters(String content, HashMap<String, String> filters) throws IOException
-   {
+   private String applyFilters(String content, HashMap<String, String> filters) throws IOException {
 
-      if (filters != null)
-      {
-         for (Map.Entry<String, String> entry : filters.entrySet())
-         {
+      if (filters != null) {
+         for (Map.Entry<String, String> entry : filters.entrySet()) {
             content = replace(content, entry.getKey(), entry.getValue());
          }
       }
       return content;
    }
 
-   private String readTextFile(String source) throws IOException
-   {
+   private String readTextFile(String source) throws IOException {
       ByteArrayOutputStream out = new ByteArrayOutputStream();
-      try (InputStream in = openStream(source))
-      {
+      try (InputStream in = openStream(source)) {
          copy(in, out);
       }
       return new String(out.toByteArray(), "UTF-8");
    }
 
-   private void write(String source) throws IOException
-   {
+   private void write(String source) throws IOException {
       File target = new File(directory, source);
-      if (target.exists() && !force)
-      {
+      if (target.exists() && !force) {
          throw new RuntimeException(String.format("The file '%s' already exists.  Use --force to overwrite.", target));
       }
-      try (FileOutputStream fout = new FileOutputStream(target))
-      {
-         try (InputStream in = openStream(source))
-         {
+      try (FileOutputStream fout = new FileOutputStream(target)) {
+         try (InputStream in = openStream(source)) {
             copy(in, fout);
          }
       }
    }
 
-   private String replace(String content, String key, String value)
-   {
+   private String replace(String content, String key, String value) {
       return content.replaceAll(Pattern.quote(key), Matcher.quoteReplacement(value));
    }
 
-   private void copy(InputStream is, OutputStream os) throws IOException
-   {
+   private void copy(InputStream is, OutputStream os) throws IOException {
       byte[] buffer = new byte[1024 * 4];
       int c = is.read(buffer);
-      while (c >= 0)
-      {
+      while (c >= 0) {
          os.write(buffer, 0, c);
          c = is.read(buffer);
       }

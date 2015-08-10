@@ -40,31 +40,25 @@ import org.junit.runners.Parameterized;
  * adapted from: org.apache.activemq.JMSConsumerTest
  */
 @RunWith(Parameterized.class)
-public class JMSConsumer7Test extends BasicOpenWireTest
-{
+public class JMSConsumer7Test extends BasicOpenWireTest {
+
    @Parameterized.Parameters(name = "deliveryMode={0} ackMode={1} destinationType={2}")
-   public static Collection<Object[]> getParams()
-   {
-      return Arrays.asList(new Object[][] {
-         {DeliveryMode.NON_PERSISTENT, Session.CLIENT_ACKNOWLEDGE, ActiveMQDestination.QUEUE_TYPE},
-         {DeliveryMode.PERSISTENT, Session.CLIENT_ACKNOWLEDGE, ActiveMQDestination.QUEUE_TYPE}
-      });
+   public static Collection<Object[]> getParams() {
+      return Arrays.asList(new Object[][]{{DeliveryMode.NON_PERSISTENT, Session.CLIENT_ACKNOWLEDGE, ActiveMQDestination.QUEUE_TYPE}, {DeliveryMode.PERSISTENT, Session.CLIENT_ACKNOWLEDGE, ActiveMQDestination.QUEUE_TYPE}});
    }
 
    public int deliveryMode;
    public int ackMode;
    public byte destinationType;
 
-   public JMSConsumer7Test(int deliveryMode, int ackMode, byte destinationType)
-   {
+   public JMSConsumer7Test(int deliveryMode, int ackMode, byte destinationType) {
       this.deliveryMode = deliveryMode;
       this.ackMode = ackMode;
       this.destinationType = destinationType;
    }
 
    @Test
-   public void testMessageListenerOnMessageCloseUnackedWithPrefetch1StayInQueue() throws Exception
-   {
+   public void testMessageListenerOnMessageCloseUnackedWithPrefetch1StayInQueue() throws Exception {
       final AtomicInteger counter = new AtomicInteger(0);
       final CountDownLatch sendDone = new CountDownLatch(1);
       final CountDownLatch got2Done = new CountDownLatch(1);
@@ -80,21 +74,16 @@ public class JMSConsumer7Test extends BasicOpenWireTest
 
       // Use all the ack modes
       Session session = connection.createSession(false, ackMode);
-      ActiveMQDestination destination = createDestination(session,
-            destinationType);
+      ActiveMQDestination destination = createDestination(session, destinationType);
       MessageConsumer consumer = session.createConsumer(destination);
-      consumer.setMessageListener(new MessageListener()
-      {
+      consumer.setMessageListener(new MessageListener() {
          @Override
-         public void onMessage(Message m)
-         {
-            try
-            {
+         public void onMessage(Message m) {
+            try {
                TextMessage tm = (TextMessage) m;
                assertEquals("" + counter.get(), tm.getText());
                counter.incrementAndGet();
-               if (counter.get() == 2)
-               {
+               if (counter.get() == 2) {
                   sendDone.await();
                   connection.close();
                   got2Done.countDown();
@@ -102,8 +91,7 @@ public class JMSConsumer7Test extends BasicOpenWireTest
                System.out.println("acking tm: " + tm.getText());
                tm.acknowledge();
             }
-            catch (Throwable e)
-            {
+            catch (Throwable e) {
                System.out.println("ack failed!!");
                e.printStackTrace();
             }
@@ -127,26 +115,21 @@ public class JMSConsumer7Test extends BasicOpenWireTest
       final CountDownLatch done2 = new CountDownLatch(1);
       session = connection.createSession(false, ackMode);
       consumer = session.createConsumer(destination);
-      consumer.setMessageListener(new MessageListener()
-      {
+      consumer.setMessageListener(new MessageListener() {
          @Override
-         public void onMessage(Message m)
-         {
-            try
-            {
+         public void onMessage(Message m) {
+            try {
                TextMessage tm = (TextMessage) m;
                System.out.println("2nd received: " + tm.getText());
                // order is not guaranteed as the connection is started before
                // the listener is set.
                // assertEquals("" + counter.get(), tm.getText());
                counter.incrementAndGet();
-               if (counter.get() == 4)
-               {
+               if (counter.get() == 4) {
                   done2.countDown();
                }
             }
-            catch (Throwable e)
-            {
+            catch (Throwable e) {
                System.err.println("Unexpected exception: " + e);
             }
          }

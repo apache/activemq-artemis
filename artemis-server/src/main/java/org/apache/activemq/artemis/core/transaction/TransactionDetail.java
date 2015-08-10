@@ -29,8 +29,8 @@ import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
 import org.apache.activemq.artemis.utils.json.JSONArray;
 import org.apache.activemq.artemis.utils.json.JSONObject;
 
-public abstract class TransactionDetail
-{
+public abstract class TransactionDetail {
+
    public static final String KEY_CREATION_TIME = "creation_time";
 
    public static final String KEY_XID_AS_BASE64 = "xid_as_base64";
@@ -55,15 +55,13 @@ public abstract class TransactionDetail
    private final Transaction transaction;
    private final Long creationTime;
 
-   public TransactionDetail(Xid xid, Transaction tx, Long creation)
-   {
+   public TransactionDetail(Xid xid, Transaction tx, Long creation) {
       this.xid = xid;
       this.transaction = tx;
       this.creationTime = creation;
    }
 
-   public JSONObject toJSON() throws Exception
-   {
+   public JSONObject toJSON() throws Exception {
       DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM);
       JSONObject detailJson = new JSONObject();
 
@@ -76,32 +74,26 @@ public abstract class TransactionDetail
       JSONArray msgsJson = new JSONArray();
       List<TransactionOperation> txops = this.transaction.getAllOperations();
       detailJson.put(KEY_TX_RELATED_MESSAGES, msgsJson);
-      if (txops == null)
-      {
+      if (txops == null) {
          return detailJson;
       }
 
-      for (TransactionOperation op : txops)
-      {
+      for (TransactionOperation op : txops) {
          String opClassName = op.getClass().getName();
          String opType = null;
-         if (opClassName.equals("org.apache.activemq.artemis.core.postoffice.impl.PostOfficeImpl$AddOperation"))
-         {
+         if (opClassName.equals("org.apache.activemq.artemis.core.postoffice.impl.PostOfficeImpl$AddOperation")) {
             opType = "(+) send";
          }
-         else if (opClassName.equals("org.apache.activemq.artemis.core.server.impl.QueueImpl$RefsOperation"))
-         {
+         else if (opClassName.equals("org.apache.activemq.artemis.core.server.impl.QueueImpl$RefsOperation")) {
             opType = "(-) receive";
          }
 
          List<MessageReference> msgs = op.getRelatedMessageReferences();
-         if (msgs == null)
-         {
+         if (msgs == null) {
             continue;
          }
 
-         for (MessageReference ref : msgs)
-         {
+         for (MessageReference ref : msgs) {
             JSONObject msgJson = new JSONObject();
             msgsJson.put(msgJson);
 
@@ -118,5 +110,5 @@ public abstract class TransactionDetail
 
    public abstract String decodeMessageType(ServerMessage msg);
 
-   public abstract Map<String,Object> decodeMessageProperties(ServerMessage msg);
+   public abstract Map<String, Object> decodeMessageProperties(ServerMessage msg);
 }

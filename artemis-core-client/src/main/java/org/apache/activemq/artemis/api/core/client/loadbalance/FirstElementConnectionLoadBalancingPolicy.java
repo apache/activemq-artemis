@@ -16,18 +16,16 @@
  */
 package org.apache.activemq.artemis.api.core.client.loadbalance;
 
-
 /**
  * A {@link FirstElementConnectionLoadBalancingPolicy#select(int)} always returns 0.
  */
-public final class FirstElementConnectionLoadBalancingPolicy implements ConnectionLoadBalancingPolicy
-{
+public final class FirstElementConnectionLoadBalancingPolicy implements ConnectionLoadBalancingPolicy {
+
    /**
     * @param max param is ignored
     * @return 0
     */
-   public int select(final int max)
-   {
+   public int select(final int max) {
       return 0;
    }
 }

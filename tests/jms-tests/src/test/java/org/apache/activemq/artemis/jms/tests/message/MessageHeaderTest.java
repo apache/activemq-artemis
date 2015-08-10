@@ -59,8 +59,7 @@ import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
 import org.junit.Test;
 
-public class MessageHeaderTest extends MessageHeaderTestBase
-{
+public class MessageHeaderTest extends MessageHeaderTestBase {
    // Constants -----------------------------------------------------
 
    // Static --------------------------------------------------------
@@ -72,8 +71,7 @@ public class MessageHeaderTest extends MessageHeaderTestBase
    // Public --------------------------------------------------------
 
    @Test
-   public void testClearMessage() throws Exception
-   {
+   public void testClearMessage() throws Exception {
       queueProducer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
 
       Message message = queueProducerSession.createTextMessage("some message");
@@ -91,20 +89,17 @@ public class MessageHeaderTest extends MessageHeaderTestBase
    }
 
    @Test
-   public void testMessageOrderQueue() throws Exception
-   {
+   public void testMessageOrderQueue() throws Exception {
       final int NUM_MESSAGES = 10;
 
       queueProducer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
-      for (int i = 0; i < NUM_MESSAGES; i++)
-      {
+      for (int i = 0; i < NUM_MESSAGES; i++) {
          Message m = queueProducerSession.createMessage();
          m.setIntProperty("count", i);
          queueProducer.send(m);
       }
 
-      for (int i = 0; i < NUM_MESSAGES; i++)
-      {
+      for (int i = 0; i < NUM_MESSAGES; i++) {
          Message m = queueConsumer.receive(3000);
          ProxyAssertSupport.assertNotNull(m);
          int count = m.getIntProperty("count");
@@ -112,15 +107,13 @@ public class MessageHeaderTest extends MessageHeaderTestBase
       }
 
       queueProducer.setDeliveryMode(DeliveryMode.PERSISTENT);
-      for (int i = 0; i < NUM_MESSAGES; i++)
-      {
+      for (int i = 0; i < NUM_MESSAGES; i++) {
          Message m = queueProducerSession.createMessage();
          m.setIntProperty("count2", i);
          queueProducer.send(m);
       }
 
-      for (int i = 0; i < NUM_MESSAGES; i++)
-      {
+      for (int i = 0; i < NUM_MESSAGES; i++) {
          Message m = queueConsumer.receive(3000);
          ProxyAssertSupport.assertNotNull(m);
          int count = m.getIntProperty("count2");
@@ -129,20 +122,17 @@ public class MessageHeaderTest extends MessageHeaderTestBase
    }
 
    @Test
-   public void testMessageOrderTopic() throws Exception
-   {
+   public void testMessageOrderTopic() throws Exception {
       final int NUM_MESSAGES = 10;
 
       topicProducer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
-      for (int i = 0; i < NUM_MESSAGES; i++)
-      {
+      for (int i = 0; i < NUM_MESSAGES; i++) {
          Message m = topicProducerSession.createMessage();
          m.setIntProperty("count", i);
          topicProducer.send(m);
       }
 
-      for (int i = 0; i < NUM_MESSAGES; i++)
-      {
+      for (int i = 0; i < NUM_MESSAGES; i++) {
          Message m = topicConsumer.receive(3000);
          ProxyAssertSupport.assertNotNull(m);
          int count = m.getIntProperty("count");
@@ -150,15 +140,13 @@ public class MessageHeaderTest extends MessageHeaderTestBase
       }
 
       topicProducer.setDeliveryMode(DeliveryMode.PERSISTENT);
-      for (int i = 0; i < NUM_MESSAGES; i++)
-      {
+      for (int i = 0; i < NUM_MESSAGES; i++) {
          Message m = topicProducerSession.createMessage();
          m.setIntProperty("count2", i);
          topicProducer.send(m);
       }
 
-      for (int i = 0; i < NUM_MESSAGES; i++)
-      {
+      for (int i = 0; i < NUM_MESSAGES; i++) {
          Message m = topicConsumer.receive(3000);
          ProxyAssertSupport.assertNotNull(m);
          int count = m.getIntProperty("count2");
@@ -167,8 +155,7 @@ public class MessageHeaderTest extends MessageHeaderTestBase
    }
 
    @Test
-   public void testProperties() throws Exception
-   {
+   public void testProperties() throws Exception {
       Message m1 = queueProducerSession.createMessage();
 
       // Some arbitrary values
@@ -199,13 +186,11 @@ public class MessageHeaderTest extends MessageHeaderTestBase
       m1.setObjectProperty("myDouble", new Double(myDouble));
       m1.setObjectProperty("myString", myString);
 
-      try
-      {
+      try {
          m1.setObjectProperty("myIllegal", new Object());
          ProxyAssertSupport.fail();
       }
-      catch (javax.jms.MessageFormatException e)
-      {
+      catch (javax.jms.MessageFormatException e) {
       }
 
       queueProducer.send(m1);
@@ -224,76 +209,60 @@ public class MessageHeaderTest extends MessageHeaderTestBase
       ProxyAssertSupport.assertEquals(myString, m2.getStringProperty("myString"));
 
       // Properties should now be read-only
-      try
-      {
+      try {
          m2.setBooleanProperty("myBool", myBool);
          ProxyAssertSupport.fail();
       }
-      catch (MessageNotWriteableException e)
-      {
+      catch (MessageNotWriteableException e) {
       }
 
-      try
-      {
+      try {
          m2.setByteProperty("myByte", myByte);
          ProxyAssertSupport.fail();
       }
-      catch (MessageNotWriteableException e)
-      {
+      catch (MessageNotWriteableException e) {
       }
 
-      try
-      {
+      try {
          m2.setShortProperty("myShort", myShort);
          ProxyAssertSupport.fail();
       }
-      catch (MessageNotWriteableException e)
-      {
+      catch (MessageNotWriteableException e) {
       }
 
-      try
-      {
+      try {
          m2.setIntProperty("myInt", myInt);
          ProxyAssertSupport.fail();
       }
-      catch (MessageNotWriteableException e)
-      {
+      catch (MessageNotWriteableException e) {
       }
 
-      try
-      {
+      try {
          m2.setLongProperty("myLong", myLong);
          ProxyAssertSupport.fail();
       }
-      catch (MessageNotWriteableException e)
-      {
+      catch (MessageNotWriteableException e) {
       }
 
-      try
-      {
+      try {
          m2.setFloatProperty("myFloat", myFloat);
          ProxyAssertSupport.fail();
       }
-      catch (MessageNotWriteableException e)
-      {
+      catch (MessageNotWriteableException e) {
       }
 
-      try
-      {
+      try {
          m2.setDoubleProperty("myDouble", myDouble);
          ProxyAssertSupport.fail();
       }
-      catch (MessageNotWriteableException e)
-      {
+      catch (MessageNotWriteableException e) {
       }
 
-      try
-      {
+      try {
          m2.setStringProperty("myString", myString);
          ProxyAssertSupport.fail();
       }
-      catch (MessageNotWriteableException e)
-      {
+      catch (MessageNotWriteableException e) {
       }
 
       ProxyAssertSupport.assertTrue(m2.propertyExists("myBool"));
@@ -309,8 +278,7 @@ public class MessageHeaderTest extends MessageHeaderTestBase
 
       Set<String> propNames = new HashSet<String>();
       Enumeration en = m2.getPropertyNames();
-      while (en.hasMoreElements())
-      {
+      while (en.hasMoreElements()) {
          String propName = (String) en.nextElement();
 
          propNames.add(propName);
@@ -333,58 +301,46 @@ public class MessageHeaderTest extends MessageHeaderTestBase
 
       ProxyAssertSupport.assertEquals(String.valueOf(myBool), m2.getStringProperty("myBool"));
 
-      try
-      {
+      try {
          m2.getByteProperty("myBool");
          ProxyAssertSupport.fail();
       }
-      catch (MessageFormatException e)
-      {
+      catch (MessageFormatException e) {
       }
 
-      try
-      {
+      try {
          m2.getShortProperty("myBool");
          ProxyAssertSupport.fail();
       }
-      catch (MessageFormatException e)
-      {
+      catch (MessageFormatException e) {
       }
 
-      try
-      {
+      try {
          m2.getIntProperty("myBool");
          ProxyAssertSupport.fail();
       }
-      catch (MessageFormatException e)
-      {
+      catch (MessageFormatException e) {
       }
 
-      try
-      {
+      try {
          m2.getLongProperty("myBool");
          ProxyAssertSupport.fail();
       }
-      catch (MessageFormatException e)
-      {
+      catch (MessageFormatException e) {
       }
 
-      try
-      {
+      try {
          m2.getFloatProperty("myBool");
          ProxyAssertSupport.fail();
       }
-      catch (MessageFormatException e)
-      {
+      catch (MessageFormatException e) {
       }
 
-      try
-      {
+      try {
          m2.getDoubleProperty("myBool");
          ProxyAssertSupport.fail();
       }
-      catch (MessageFormatException e)
-      {
+      catch (MessageFormatException e) {
       }
 
       // byte property can be read as short, int, long or String
@@ -394,31 +350,25 @@ public class MessageHeaderTest extends MessageHeaderTestBase
       ProxyAssertSupport.assertEquals(myByte, m2.getLongProperty("myByte"));
       ProxyAssertSupport.assertEquals(String.valueOf(myByte), m2.getStringProperty("myByte"));
 
-      try
-      {
+      try {
          m2.getBooleanProperty("myByte");
          ProxyAssertSupport.fail();
       }
-      catch (MessageFormatException e)
-      {
+      catch (MessageFormatException e) {
       }
 
-      try
-      {
+      try {
          m2.getFloatProperty("myByte");
          ProxyAssertSupport.fail();
       }
-      catch (MessageFormatException e)
-      {
+      catch (MessageFormatException e) {
       }
 
-      try
-      {
+      try {
          m2.getDoubleProperty("myByte");
          ProxyAssertSupport.fail();
       }
-      catch (MessageFormatException e)
-      {
+      catch (MessageFormatException e) {
       }
 
       // short property can be read as int, long or String
@@ -427,40 +377,32 @@ public class MessageHeaderTest extends MessageHeaderTestBase
       ProxyAssertSupport.assertEquals(myShort, m2.getLongProperty("myShort"));
       ProxyAssertSupport.assertEquals(String.valueOf(myShort), m2.getStringProperty("myShort"));
 
-      try
-      {
+      try {
          m2.getByteProperty("myShort");
          ProxyAssertSupport.fail();
       }
-      catch (MessageFormatException e)
-      {
+      catch (MessageFormatException e) {
       }
 
-      try
-      {
+      try {
          m2.getBooleanProperty("myShort");
          ProxyAssertSupport.fail();
       }
-      catch (MessageFormatException e)
-      {
+      catch (MessageFormatException e) {
       }
 
-      try
-      {
+      try {
          m2.getFloatProperty("myShort");
          ProxyAssertSupport.fail();
       }
-      catch (MessageFormatException e)
-      {
+      catch (MessageFormatException e) {
       }
 
-      try
-      {
+      try {
          m2.getDoubleProperty("myShort");
          ProxyAssertSupport.fail();
       }
-      catch (MessageFormatException e)
-      {
+      catch (MessageFormatException e) {
       }
 
       // int property can be read as long or String
@@ -468,107 +410,85 @@ public class MessageHeaderTest extends MessageHeaderTestBase
       ProxyAssertSupport.assertEquals(myInt, m2.getLongProperty("myInt"));
       ProxyAssertSupport.assertEquals(String.valueOf(myInt), m2.getStringProperty("myInt"));
 
-      try
-      {
+      try {
          m2.getShortProperty("myInt");
          ProxyAssertSupport.fail();
       }
-      catch (MessageFormatException e)
-      {
+      catch (MessageFormatException e) {
       }
 
-      try
-      {
+      try {
          m2.getByteProperty("myInt");
          ProxyAssertSupport.fail();
       }
-      catch (MessageFormatException e)
-      {
+      catch (MessageFormatException e) {
       }
 
-      try
-      {
+      try {
          m2.getBooleanProperty("myInt");
          ProxyAssertSupport.fail();
       }
-      catch (MessageFormatException e)
-      {
+      catch (MessageFormatException e) {
       }
 
-      try
-      {
+      try {
          m2.getFloatProperty("myInt");
          ProxyAssertSupport.fail();
       }
-      catch (MessageFormatException e)
-      {
+      catch (MessageFormatException e) {
       }
 
-      try
-      {
+      try {
          m2.getDoubleProperty("myInt");
          ProxyAssertSupport.fail();
       }
-      catch (MessageFormatException e)
-      {
+      catch (MessageFormatException e) {
       }
 
       // long property can be read as String
 
       ProxyAssertSupport.assertEquals(String.valueOf(myLong), m2.getStringProperty("myLong"));
 
-      try
-      {
+      try {
          m2.getIntProperty("myLong");
          ProxyAssertSupport.fail();
       }
-      catch (MessageFormatException e)
-      {
+      catch (MessageFormatException e) {
       }
 
-      try
-      {
+      try {
          m2.getShortProperty("myLong");
          ProxyAssertSupport.fail();
       }
-      catch (MessageFormatException e)
-      {
+      catch (MessageFormatException e) {
       }
 
-      try
-      {
+      try {
          m2.getByteProperty("myLong");
          ProxyAssertSupport.fail();
       }
-      catch (MessageFormatException e)
-      {
+      catch (MessageFormatException e) {
       }
 
-      try
-      {
+      try {
          m2.getBooleanProperty("myLong");
          ProxyAssertSupport.fail();
       }
-      catch (MessageFormatException e)
-      {
+      catch (MessageFormatException e) {
       }
 
-      try
-      {
+      try {
          m2.getFloatProperty("myLong");
          ProxyAssertSupport.fail();
       }
-      catch (MessageFormatException e)
-      {
+      catch (MessageFormatException e) {
       }
 
-      try
-      {
+      try {
          m2.getDoubleProperty("myLong");
          ProxyAssertSupport.fail();
       }
-      catch (MessageFormatException e)
-      {
+      catch (MessageFormatException e) {
       }
 
       // float property can be read as double or String
@@ -576,107 +496,85 @@ public class MessageHeaderTest extends MessageHeaderTestBase
       ProxyAssertSupport.assertEquals(String.valueOf(myFloat), m2.getStringProperty("myFloat"));
       ProxyAssertSupport.assertEquals(myFloat, m2.getDoubleProperty("myFloat"), 0);
 
-      try
-      {
+      try {
          m2.getIntProperty("myFloat");
          ProxyAssertSupport.fail();
       }
-      catch (MessageFormatException e)
-      {
+      catch (MessageFormatException e) {
       }
 
-      try
-      {
+      try {
          m2.getShortProperty("myFloat");
          ProxyAssertSupport.fail();
       }
-      catch (MessageFormatException e)
-      {
+      catch (MessageFormatException e) {
       }
 
-      try
-      {
+      try {
          m2.getLongProperty("myFloat");
          ProxyAssertSupport.fail();
       }
-      catch (MessageFormatException e)
-      {
+      catch (MessageFormatException e) {
       }
 
-      try
-      {
+      try {
          m2.getByteProperty("myFloat");
          ProxyAssertSupport.fail();
       }
-      catch (MessageFormatException e)
-      {
+      catch (MessageFormatException e) {
       }
 
-      try
-      {
+      try {
          m2.getBooleanProperty("myFloat");
          ProxyAssertSupport.fail();
       }
-      catch (MessageFormatException e)
-      {
+      catch (MessageFormatException e) {
       }
 
       // double property can be read as String
 
       ProxyAssertSupport.assertEquals(String.valueOf(myDouble), m2.getStringProperty("myDouble"));
 
-      try
-      {
+      try {
          m2.getFloatProperty("myDouble");
          ProxyAssertSupport.fail();
       }
-      catch (MessageFormatException e)
-      {
+      catch (MessageFormatException e) {
       }
 
-      try
-      {
+      try {
          m2.getIntProperty("myDouble");
          ProxyAssertSupport.fail();
       }
-      catch (MessageFormatException e)
-      {
+      catch (MessageFormatException e) {
       }
 
-      try
-      {
+      try {
          m2.getShortProperty("myDouble");
          ProxyAssertSupport.fail();
       }
-      catch (MessageFormatException e)
-      {
+      catch (MessageFormatException e) {
       }
 
-      try
-      {
+      try {
          m2.getByteProperty("myDouble");
          ProxyAssertSupport.fail();
       }
-      catch (MessageFormatException e)
-      {
+      catch (MessageFormatException e) {
       }
 
-      try
-      {
+      try {
          m2.getBooleanProperty("myDouble");
          ProxyAssertSupport.fail();
       }
-      catch (MessageFormatException e)
-      {
+      catch (MessageFormatException e) {
       }
 
-      try
-      {
+      try {
          m2.getFloatProperty("myDouble");
          ProxyAssertSupport.fail();
       }
-      catch (MessageFormatException e)
-      {
+      catch (MessageFormatException e) {
       }
 
       m2.clearProperties();
@@ -708,59 +606,46 @@ public class MessageHeaderTest extends MessageHeaderTestBase
 
       m3.getBooleanProperty("myIllegal");
 
-      try
-      {
+      try {
          m3.getByteProperty("myIllegal");
          ProxyAssertSupport.fail();
       }
-      catch (NumberFormatException e)
-      {
+      catch (NumberFormatException e) {
       }
-      try
-      {
+      try {
          m3.getShortProperty("myIllegal");
          ProxyAssertSupport.fail();
       }
-      catch (NumberFormatException e)
-      {
+      catch (NumberFormatException e) {
       }
-      try
-      {
+      try {
          m3.getIntProperty("myIllegal");
          ProxyAssertSupport.fail();
       }
-      catch (NumberFormatException e)
-      {
+      catch (NumberFormatException e) {
       }
-      try
-      {
+      try {
          m3.getLongProperty("myIllegal");
          ProxyAssertSupport.fail();
       }
-      catch (NumberFormatException e)
-      {
+      catch (NumberFormatException e) {
       }
-      try
-      {
+      try {
          m3.getFloatProperty("myIllegal");
          ProxyAssertSupport.fail();
       }
-      catch (NumberFormatException e)
-      {
+      catch (NumberFormatException e) {
       }
-      try
-      {
+      try {
          m3.getDoubleProperty("myIllegal");
          ProxyAssertSupport.fail();
       }
-      catch (NumberFormatException e)
-      {
+      catch (NumberFormatException e) {
       }
    }
 
    @Test
-   public void testSendReceiveForeignMessage() throws JMSException
-   {
+   public void testSendReceiveForeignMessage() throws JMSException {
 
       log.trace("Starting da test");
 
@@ -790,14 +675,8 @@ public class MessageHeaderTest extends MessageHeaderTestBase
    }
 
    @Test
-   public void testCopyOnJBossMessage() throws JMSException
-   {
-      ClientMessage clientMessage = new ClientMessageImpl(ActiveMQTextMessage.TYPE,
-                                                          true,
-                                                          0,
-                                                          System.currentTimeMillis(),
-                                                          (byte) 4,
-                                                          1000);
+   public void testCopyOnJBossMessage() throws JMSException {
+      ClientMessage clientMessage = new ClientMessageImpl(ActiveMQTextMessage.TYPE, true, 0, System.currentTimeMillis(), (byte) 4, 1000);
       ClientSession session = new FakeSession(clientMessage);
       ActiveMQMessage jbossMessage = ActiveMQMessage.createMessage(clientMessage, session);
       jbossMessage.clearProperties();
@@ -810,14 +689,8 @@ public class MessageHeaderTest extends MessageHeaderTestBase
    }
 
    @Test
-   public void testCopyOnForeignMessage() throws JMSException
-   {
-      ClientMessage clientMessage = new ClientMessageImpl(ActiveMQTextMessage.TYPE,
-                                                          true,
-                                                          0,
-                                                          System.currentTimeMillis(),
-                                                          (byte) 4,
-                                                          1000);
+   public void testCopyOnForeignMessage() throws JMSException {
+      ClientMessage clientMessage = new ClientMessageImpl(ActiveMQTextMessage.TYPE, true, 0, System.currentTimeMillis(), (byte) 4, 1000);
       ClientSession session = new FakeSession(clientMessage);
 
       Message foreignMessage = new SimpleJMSMessage();
@@ -829,19 +702,12 @@ public class MessageHeaderTest extends MessageHeaderTestBase
    }
 
    @Test
-   public void testCopyOnForeignBytesMessage() throws JMSException
-   {
-      ClientMessage clientMessage = new ClientMessageImpl(ActiveMQTextMessage.TYPE,
-                                                          true,
-                                                          0,
-                                                          System.currentTimeMillis(),
-                                                          (byte) 4,
-                                                          1000);
+   public void testCopyOnForeignBytesMessage() throws JMSException {
+      ClientMessage clientMessage = new ClientMessageImpl(ActiveMQTextMessage.TYPE, true, 0, System.currentTimeMillis(), (byte) 4, 1000);
       ClientSession session = new FakeSession(clientMessage);
 
       BytesMessage foreignBytesMessage = new SimpleJMSBytesMessage();
-      for (int i = 0; i < 20; i++)
-      {
+      for (int i = 0; i < 20; i++) {
          foreignBytesMessage.writeByte((byte) i);
       }
 
@@ -854,14 +720,8 @@ public class MessageHeaderTest extends MessageHeaderTestBase
    }
 
    @Test
-   public void testCopyOnForeignMapMessage() throws JMSException
-   {
-      ClientMessage clientMessage = new ClientMessageImpl(ActiveMQTextMessage.TYPE,
-                                                          true,
-                                                          0,
-                                                          System.currentTimeMillis(),
-                                                          (byte) 4,
-                                                          1000);
+   public void testCopyOnForeignMapMessage() throws JMSException {
+      ClientMessage clientMessage = new ClientMessageImpl(ActiveMQTextMessage.TYPE, true, 0, System.currentTimeMillis(), (byte) 4, 1000);
       ClientSession session = new FakeSession(clientMessage);
       MapMessage foreignMapMessage = new SimpleJMSMapMessage();
       foreignMapMessage.setInt("int", 1);
@@ -873,14 +733,8 @@ public class MessageHeaderTest extends MessageHeaderTestBase
    }
 
    @Test
-   public void testCopyOnForeignObjectMessage() throws JMSException
-   {
-      ClientMessage clientMessage = new ClientMessageImpl(ActiveMQTextMessage.TYPE,
-                                                          true,
-                                                          0,
-                                                          System.currentTimeMillis(),
-                                                          (byte) 4,
-                                                          1000);
+   public void testCopyOnForeignObjectMessage() throws JMSException {
+      ClientMessage clientMessage = new ClientMessageImpl(ActiveMQTextMessage.TYPE, true, 0, System.currentTimeMillis(), (byte) 4, 1000);
       ClientSession session = new FakeSession(clientMessage);
 
       ObjectMessage foreignObjectMessage = new SimpleJMSObjectMessage();
@@ -891,14 +745,8 @@ public class MessageHeaderTest extends MessageHeaderTestBase
    }
 
    @Test
-   public void testCopyOnForeignStreamMessage() throws JMSException
-   {
-      ClientMessage clientMessage = new ClientMessageImpl(ActiveMQTextMessage.TYPE,
-                                                          true,
-                                                          0,
-                                                          System.currentTimeMillis(),
-                                                          (byte) 4,
-                                                          1000);
+   public void testCopyOnForeignStreamMessage() throws JMSException {
+      ClientMessage clientMessage = new ClientMessageImpl(ActiveMQTextMessage.TYPE, true, 0, System.currentTimeMillis(), (byte) 4, 1000);
       ClientSession session = new FakeSession(clientMessage);
 
       StreamMessage foreignStreamMessage = new SimpleJMSStreamMessage();
@@ -912,14 +760,8 @@ public class MessageHeaderTest extends MessageHeaderTestBase
    }
 
    @Test
-   public void testCopyOnForeignTextMessage() throws JMSException
-   {
-      ClientMessage clientMessage = new ClientMessageImpl(ActiveMQTextMessage.TYPE,
-                                                          true,
-                                                          0,
-                                                          System.currentTimeMillis(),
-                                                          (byte) 4,
-                                                          1000);
+   public void testCopyOnForeignTextMessage() throws JMSException {
+      ClientMessage clientMessage = new ClientMessageImpl(ActiveMQTextMessage.TYPE, true, 0, System.currentTimeMillis(), (byte) 4, 1000);
       ClientSession session = new FakeSession(clientMessage);
       TextMessage foreignTextMessage = new SimpleJMSTextMessage();
 
@@ -929,8 +771,7 @@ public class MessageHeaderTest extends MessageHeaderTestBase
    }
 
    @Test
-   public void testForeignJMSDestination() throws JMSException
-   {
+   public void testForeignJMSDestination() throws JMSException {
       Message message = queueProducerSession.createMessage();
 
       Destination foreignDestination = new ForeignDestination();
@@ -956,138 +797,128 @@ public class MessageHeaderTest extends MessageHeaderTestBase
 
    // Inner classes -------------------------------------------------
 
-   private static class ForeignDestination implements Destination, Serializable
-   {
+   private static class ForeignDestination implements Destination, Serializable {
+
       private static final long serialVersionUID = 5545509674580823610L;
 
       // A ForeignDestination equals any other ForeignDestination, for simplicity
       @Override
-      public boolean equals(final Object obj)
-      {
+      public boolean equals(final Object obj) {
          return obj instanceof ForeignDestination;
       }
 
       @Override
-      public int hashCode()
-      {
+      public int hashCode() {
          return 157;
       }
    }
 
-   class FakeSession implements ClientSession
-   {
-      public ClientConsumer createConsumer(final SimpleString queueName, final boolean browseOnly) throws ActiveMQException
-      {
+   class FakeSession implements ClientSession {
+
+      public ClientConsumer createConsumer(final SimpleString queueName,
+                                           final boolean browseOnly) throws ActiveMQException {
          // TODO Auto-generated method stub
          return null;
       }
 
-
-      public ClientConsumer createConsumer(final String queueName, final boolean browseOnly) throws ActiveMQException
-      {
+      public ClientConsumer createConsumer(final String queueName, final boolean browseOnly) throws ActiveMQException {
          // TODO Auto-generated method stub
          return null;
       }
 
-      public void createQueue(final String address, final String queueName) throws ActiveMQException
-      {
+      public void createQueue(final String address, final String queueName) throws ActiveMQException {
          // TODO Auto-generated method stub
 
       }
 
       private final ClientMessage message;
 
-      public FakeSession(final ClientMessage message)
-      {
+      public FakeSession(final ClientMessage message) {
          this.message = message;
       }
 
       public void createQueue(final SimpleString address,
                               final SimpleString queueName,
                               final SimpleString filterString,
-                              final boolean durable) throws ActiveMQException
-      {
+                              final boolean durable) throws ActiveMQException {
       }
 
-      public void createQueue(final SimpleString address, final SimpleString queueName, final boolean durable) throws ActiveMQException
-      {
-      }
-
-      @Override
-      public void createSharedQueue(SimpleString address, SimpleString queueName, boolean durable) throws ActiveMQException
-      {
+      public void createQueue(final SimpleString address,
+                              final SimpleString queueName,
+                              final boolean durable) throws ActiveMQException {
       }
 
       @Override
-      public void createSharedQueue(SimpleString address, SimpleString queueName, SimpleString filter, boolean durable) throws ActiveMQException
-      {
+      public void createSharedQueue(SimpleString address,
+                                    SimpleString queueName,
+                                    boolean durable) throws ActiveMQException {
       }
 
-      public void createQueue(final String address, final String queueName, final boolean durable) throws ActiveMQException
-      {
+      @Override
+      public void createSharedQueue(SimpleString address,
+                                    SimpleString queueName,
+                                    SimpleString filter,
+                                    boolean durable) throws ActiveMQException {
+      }
+
+      public void createQueue(final String address,
+                              final String queueName,
+                              final boolean durable) throws ActiveMQException {
       }
 
       public void createQueue(final SimpleString address,
                               final SimpleString queueName,
                               final boolean durable,
-                              final boolean temporary) throws ActiveMQException
-      {
+                              final boolean temporary) throws ActiveMQException {
       }
 
       public void createQueue(final String address,
                               final String queueName,
                               final boolean durable,
-                              final boolean temporary) throws ActiveMQException
-      {
+                              final boolean temporary) throws ActiveMQException {
       }
 
       public void createQueue(final String address,
                               final String queueName,
                               final String filterString,
-                              final boolean durable) throws ActiveMQException
-      {
+                              final boolean durable) throws ActiveMQException {
       }
 
-      public void createTemporaryQueue(final SimpleString address, final SimpleString queueName) throws ActiveMQException
-      {
+      public void createTemporaryQueue(final SimpleString address,
+                                       final SimpleString queueName) throws ActiveMQException {
       }
 
-      public void createTemporaryQueue(final String address, final String queueName) throws ActiveMQException
-      {
+      public void createTemporaryQueue(final String address, final String queueName) throws ActiveMQException {
       }
 
       public void createTemporaryQueue(final SimpleString address,
                                        final SimpleString queueName,
-                                       final SimpleString filter) throws ActiveMQException
-      {
+                                       final SimpleString filter) throws ActiveMQException {
       }
 
-      public void createTemporaryQueue(final String address, final String queueName, final String filter) throws ActiveMQException
-      {
+      public void createTemporaryQueue(final String address,
+                                       final String queueName,
+                                       final String filter) throws ActiveMQException {
       }
 
-      public void deleteQueue(final SimpleString queueName) throws ActiveMQException
-      {
+      public void deleteQueue(final SimpleString queueName) throws ActiveMQException {
       }
 
-      public void deleteQueue(final String queueName) throws ActiveMQException
-      {
+      public void deleteQueue(final String queueName) throws ActiveMQException {
       }
 
-      public ClientConsumer createConsumer(final SimpleString queueName) throws ActiveMQException
-      {
+      public ClientConsumer createConsumer(final SimpleString queueName) throws ActiveMQException {
          return null;
       }
 
-      public ClientConsumer createConsumer(final SimpleString queueName, final SimpleString filterString) throws ActiveMQException
-      {
+      public ClientConsumer createConsumer(final SimpleString queueName,
+                                           final SimpleString filterString) throws ActiveMQException {
          return null;
       }
 
       public ClientConsumer createConsumer(final SimpleString queueName,
                                            final SimpleString filterString,
-                                           final boolean browseOnly) throws ActiveMQException
-      {
+                                           final boolean browseOnly) throws ActiveMQException {
          return null;
       }
 
@@ -1095,23 +926,21 @@ public class MessageHeaderTest extends MessageHeaderTestBase
                                            final SimpleString filterString,
                                            final int windowSize,
                                            final int maxRate,
-                                           final boolean browseOnly) throws ActiveMQException
-      {
+                                           final boolean browseOnly) throws ActiveMQException {
          return null;
       }
 
-      public ClientConsumer createConsumer(final String queueName) throws ActiveMQException
-      {
+      public ClientConsumer createConsumer(final String queueName) throws ActiveMQException {
          return null;
       }
 
-      public ClientConsumer createConsumer(final String queueName, final String filterString) throws ActiveMQException
-      {
+      public ClientConsumer createConsumer(final String queueName, final String filterString) throws ActiveMQException {
          return null;
       }
 
-      public ClientConsumer createConsumer(final String queueName, final String filterString, final boolean browseOnly) throws ActiveMQException
-      {
+      public ClientConsumer createConsumer(final String queueName,
+                                           final String filterString,
+                                           final boolean browseOnly) throws ActiveMQException {
          return null;
       }
 
@@ -1119,28 +948,25 @@ public class MessageHeaderTest extends MessageHeaderTestBase
                                            final String filterString,
                                            final int windowSize,
                                            final int maxRate,
-                                           final boolean browseOnly) throws ActiveMQException
-      {
+                                           final boolean browseOnly) throws ActiveMQException {
          return null;
       }
 
-      public ClientConsumer createFileConsumer(final File directory, final SimpleString queueName) throws ActiveMQException
-      {
+      public ClientConsumer createFileConsumer(final File directory,
+                                               final SimpleString queueName) throws ActiveMQException {
          return null;
       }
 
       public ClientConsumer createFileConsumer(final File directory,
                                                final SimpleString queueName,
-                                               final SimpleString filterString) throws ActiveMQException
-      {
+                                               final SimpleString filterString) throws ActiveMQException {
          return null;
       }
 
       public ClientConsumer createFileConsumer(final File directory,
                                                final SimpleString queueName,
                                                final SimpleString filterString,
-                                               final boolean browseOnly) throws ActiveMQException
-      {
+                                               final boolean browseOnly) throws ActiveMQException {
          return null;
       }
 
@@ -1149,26 +975,24 @@ public class MessageHeaderTest extends MessageHeaderTestBase
                                                final SimpleString filterString,
                                                final int windowSize,
                                                final int maxRate,
-                                               final boolean browseOnly) throws ActiveMQException
-      {
+                                               final boolean browseOnly) throws ActiveMQException {
          return null;
       }
 
-      public ClientConsumer createFileConsumer(final File directory, final String queueName) throws ActiveMQException
-      {
+      public ClientConsumer createFileConsumer(final File directory, final String queueName) throws ActiveMQException {
          return null;
       }
 
-      public ClientConsumer createFileConsumer(final File directory, final String queueName, final String filterString) throws ActiveMQException
-      {
+      public ClientConsumer createFileConsumer(final File directory,
+                                               final String queueName,
+                                               final String filterString) throws ActiveMQException {
          return null;
       }
 
       public ClientConsumer createFileConsumer(final File directory,
                                                final String queueName,
                                                final String filterString,
-                                               final boolean browseOnly) throws ActiveMQException
-      {
+                                               final boolean browseOnly) throws ActiveMQException {
          return null;
       }
 
@@ -1177,111 +1001,90 @@ public class MessageHeaderTest extends MessageHeaderTestBase
                                                final String filterString,
                                                final int windowSize,
                                                final int maxRate,
-                                               final boolean browseOnly) throws ActiveMQException
-      {
+                                               final boolean browseOnly) throws ActiveMQException {
          return null;
       }
 
-      public ClientProducer createProducer() throws ActiveMQException
-      {
+      public ClientProducer createProducer() throws ActiveMQException {
          return null;
       }
 
-      public ClientProducer createProducer(final SimpleString address) throws ActiveMQException
-      {
+      public ClientProducer createProducer(final SimpleString address) throws ActiveMQException {
          return null;
       }
 
-      public ClientProducer createProducer(final SimpleString address, final int rate) throws ActiveMQException
-      {
+      public ClientProducer createProducer(final SimpleString address, final int rate) throws ActiveMQException {
          return null;
       }
 
       public ClientProducer createProducer(final SimpleString address,
                                            final int maxRate,
                                            final boolean blockOnNonDurableSend,
-                                           final boolean blockOnDurableSend) throws ActiveMQException
-      {
+                                           final boolean blockOnDurableSend) throws ActiveMQException {
          return null;
       }
 
-      public ClientProducer createProducer(final String address) throws ActiveMQException
-      {
+      public ClientProducer createProducer(final String address) throws ActiveMQException {
          return null;
       }
 
-      public ClientProducer createProducer(final String address, final int rate) throws ActiveMQException
-      {
+      public ClientProducer createProducer(final String address, final int rate) throws ActiveMQException {
          return null;
       }
 
       public ClientProducer createProducer(final String address,
                                            final int maxRate,
                                            final boolean blockOnNonDurableSend,
-                                           final boolean blockOnDurableSend) throws ActiveMQException
-      {
+                                           final boolean blockOnDurableSend) throws ActiveMQException {
          return null;
       }
 
-      public QueueQuery queueQuery(final SimpleString queueName) throws ActiveMQException
-      {
+      public QueueQuery queueQuery(final SimpleString queueName) throws ActiveMQException {
          return null;
       }
 
-      public AddressQuery addressQuery(final SimpleString address) throws ActiveMQException
-      {
+      public AddressQuery addressQuery(final SimpleString address) throws ActiveMQException {
          return null;
       }
 
-      public XAResource getXAResource()
-      {
+      public XAResource getXAResource() {
          return null;
       }
 
-      public void commit() throws ActiveMQException
-      {
+      public void commit() throws ActiveMQException {
       }
 
-      public boolean isRollbackOnly()
-      {
+      public boolean isRollbackOnly() {
 
          return false;
       }
 
-      public void rollback() throws ActiveMQException
-      {
+      public void rollback() throws ActiveMQException {
       }
 
-      public void rollback(final boolean considerLastMessageAsDelivered) throws ActiveMQException
-      {
+      public void rollback(final boolean considerLastMessageAsDelivered) throws ActiveMQException {
       }
 
-      public void close() throws ActiveMQException
-      {
+      public void close() throws ActiveMQException {
       }
 
-      public boolean isClosed()
-      {
+      public boolean isClosed() {
          return false;
       }
 
-      public boolean isAutoCommitSends()
-      {
+      public boolean isAutoCommitSends() {
          return false;
       }
 
-      public boolean isAutoCommitAcks()
-      {
+      public boolean isAutoCommitAcks() {
          return false;
       }
 
-      public boolean isBlockOnAcknowledge()
-      {
+      public boolean isBlockOnAcknowledge() {
          return false;
       }
 
-      public boolean isXA()
-      {
+      public boolean isXA() {
          return false;
       }
 
@@ -1289,108 +1092,86 @@ public class MessageHeaderTest extends MessageHeaderTestBase
                                          final boolean durable,
                                          final long expiration,
                                          final long timestamp,
-                                         final byte priority)
-      {
+                                         final byte priority) {
          return message;
       }
 
-      public ClientMessage createMessage(final byte type, final boolean durable)
-      {
+      public ClientMessage createMessage(final byte type, final boolean durable) {
          return message;
       }
 
-      public ClientMessage createMessage(final boolean durable)
-      {
+      public ClientMessage createMessage(final boolean durable) {
          return message;
       }
 
-      public FakeSession start() throws ActiveMQException
-      {
+      public FakeSession start() throws ActiveMQException {
          return this;
       }
 
-      public void stop() throws ActiveMQException
-      {
+      public void stop() throws ActiveMQException {
       }
 
-      public void addFailureListener(final FailureListener listener)
-      {
+      public void addFailureListener(final FailureListener listener) {
       }
 
-      public void addFailoverListener(FailoverEventListener listener)
-      {
+      public void addFailoverListener(FailoverEventListener listener) {
       }
 
-      public boolean removeFailureListener(final FailureListener listener)
-      {
+      public boolean removeFailureListener(final FailureListener listener) {
          return false;
       }
 
-      public boolean removeFailoverListener(FailoverEventListener listener)
-      {
+      public boolean removeFailoverListener(FailoverEventListener listener) {
          return false;
       }
 
-      public int getVersion()
-      {
+      public int getVersion() {
          return 0;
       }
 
-      public FakeSession setSendAcknowledgementHandler(final SendAcknowledgementHandler handler)
-      {
+      public FakeSession setSendAcknowledgementHandler(final SendAcknowledgementHandler handler) {
          return this;
       }
 
-      public void commit(final Xid xid, final boolean b) throws XAException
-      {
+      public void commit(final Xid xid, final boolean b) throws XAException {
       }
 
-      public void end(final Xid xid, final int i) throws XAException
-      {
+      public void end(final Xid xid, final int i) throws XAException {
       }
 
-      public void forget(final Xid xid) throws XAException
-      {
+      public void forget(final Xid xid) throws XAException {
       }
 
-      public int getTransactionTimeout() throws XAException
-      {
+      public int getTransactionTimeout() throws XAException {
          return 0;
       }
 
-      public boolean isSameRM(final XAResource xaResource) throws XAException
-      {
+      public boolean isSameRM(final XAResource xaResource) throws XAException {
          return false;
       }
 
-      public int prepare(final Xid xid) throws XAException
-      {
+      public int prepare(final Xid xid) throws XAException {
          return 0;
       }
 
-      public Xid[] recover(final int i) throws XAException
-      {
+      public Xid[] recover(final int i) throws XAException {
          return new Xid[0];
       }
 
-      public void rollback(final Xid xid) throws XAException
-      {
+      public void rollback(final Xid xid) throws XAException {
       }
 
-      public boolean setTransactionTimeout(final int i) throws XAException
-      {
+      public boolean setTransactionTimeout(final int i) throws XAException {
          return false;
       }
 
-      public void start(final Xid xid, final int i) throws XAException
-      {
+      public void start(final Xid xid, final int i) throws XAException {
       }
 
       /* (non-Javadoc)
        * @see ClientSession#createTransportBuffer(byte[])
        */
-      public ActiveMQBuffer createBuffer(final byte[] bytes)
-      {
+      public ActiveMQBuffer createBuffer(final byte[] bytes) {
          // TODO Auto-generated method stub
          return null;
       }
@@ -1398,21 +1179,17 @@ public class MessageHeaderTest extends MessageHeaderTestBase
       /* (non-Javadoc)
        * @see ClientSession#createTransportBuffer(int)
        */
-      public ActiveMQBuffer createBuffer(final int size)
-      {
+      public ActiveMQBuffer createBuffer(final int size) {
          // TODO Auto-generated method stub
          return null;
       }
 
-
-      public void addFailureListener(final SessionFailureListener listener)
-      {
+      public void addFailureListener(final SessionFailureListener listener) {
          // TODO Auto-generated method stub
 
       }
 
-      public boolean removeFailureListener(final SessionFailureListener listener)
-      {
+      public boolean removeFailureListener(final SessionFailureListener listener) {
          // TODO Auto-generated method stub
          return false;
       }
@@ -1420,8 +1197,7 @@ public class MessageHeaderTest extends MessageHeaderTestBase
       /* (non-Javadoc)
        * @see ClientSession#createQueue(org.apache.activemq.artemis.utils.SimpleString, org.apache.activemq.artemis.utils.SimpleString)
        */
-      public void createQueue(SimpleString address, SimpleString queueName) throws ActiveMQException
-      {
+      public void createQueue(SimpleString address, SimpleString queueName) throws ActiveMQException {
          // TODO Auto-generated method stub
 
       }
@@ -1429,8 +1205,7 @@ public class MessageHeaderTest extends MessageHeaderTestBase
       /* (non-Javadoc)
        * @see ClientSession#setClientID(java.lang.String)
        */
-      public void setClientID(String clientID)
-      {
+      public void setClientID(String clientID) {
          // TODO Auto-generated method stub
 
       }
@@ -1438,8 +1213,7 @@ public class MessageHeaderTest extends MessageHeaderTestBase
       /* (non-Javadoc)
        * @see ClientSession#addMetaData(java.lang.String, java.lang.String)
        */
-      public void addMetaData(String key, String data) throws ActiveMQException
-      {
+      public void addMetaData(String key, String data) throws ActiveMQException {
          // TODO Auto-generated method stub
 
       }
@@ -1447,15 +1221,13 @@ public class MessageHeaderTest extends MessageHeaderTestBase
       /* (non-Javadoc)
        * @see ClientSession#addUniqueMetaData(java.lang.String, java.lang.String)
        */
-      public void addUniqueMetaData(String key, String data) throws ActiveMQException
-      {
+      public void addUniqueMetaData(String key, String data) throws ActiveMQException {
          // TODO Auto-generated method stub
 
       }
 
       @Override
-      public ClientSessionFactory getSessionFactory()
-      {
+      public ClientSessionFactory getSessionFactory() {
          return null;
       }
    }

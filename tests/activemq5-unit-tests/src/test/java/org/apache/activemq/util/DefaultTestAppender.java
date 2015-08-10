@@ -23,61 +23,61 @@ import org.apache.log4j.spi.ErrorHandler;
 import org.apache.log4j.spi.Filter;
 
 public abstract class DefaultTestAppender implements Appender {
-    
-    String name = this.getClass().getSimpleName();
-    
-    @Override
-    public void addFilter(Filter newFilter) {
 
-    }
+   String name = this.getClass().getSimpleName();
 
-    @Override
-    public Filter getFilter() {
-        return null;
-    }
+   @Override
+   public void addFilter(Filter newFilter) {
 
-    @Override
-    public void clearFilters() {
+   }
 
-    }
+   @Override
+   public Filter getFilter() {
+      return null;
+   }
 
-    @Override
-    public void close() {
+   @Override
+   public void clearFilters() {
 
-    }
+   }
 
-    @Override
-    public String getName() {
-        return name;
-    }
+   @Override
+   public void close() {
 
-    @Override
-    public void setErrorHandler(ErrorHandler errorHandler) {
+   }
 
-    }
+   @Override
+   public String getName() {
+      return name;
+   }
 
-    @Override
-    public ErrorHandler getErrorHandler() {
-        return null;
-    }
+   @Override
+   public void setErrorHandler(ErrorHandler errorHandler) {
 
-    @Override
-    public void setLayout(Layout layout) {
+   }
 
-    }
+   @Override
+   public ErrorHandler getErrorHandler() {
+      return null;
+   }
 
-    @Override
-    public Layout getLayout() {
-        return null;
-    }
+   @Override
+   public void setLayout(Layout layout) {
 
-    @Override
-    public void setName(String name) {
-        this.name = name;
-    }
+   }
 
-    @Override
-    public boolean requiresLayout() {
-        return false;
-    }
+   @Override
+   public Layout getLayout() {
+      return null;
+   }
+
+   @Override
+   public void setName(String name) {
+      this.name = name;
+   }
+
+   @Override
+   public boolean requiresLayout() {
+      return false;
+   }
 }

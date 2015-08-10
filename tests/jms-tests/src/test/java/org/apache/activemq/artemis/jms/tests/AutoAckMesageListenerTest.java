@@ -29,8 +29,7 @@ import javax.jms.Session;
 
 import org.junit.Test;
 
-public class AutoAckMesageListenerTest extends JMSTestCase
-{
+public class AutoAckMesageListenerTest extends JMSTestCase {
 
    // Constants -----------------------------------------------------
 
@@ -45,12 +44,10 @@ public class AutoAckMesageListenerTest extends JMSTestCase
    // Public --------------------------------------------------------
 
    @Test
-   public void testAutoAckMsgListenerQueue() throws Exception
-   {
+   public void testAutoAckMsgListenerQueue() throws Exception {
       Connection conn = null;
 
-      try
-      {
+      try {
          CountDownLatch latch = new CountDownLatch(1);
 
          conn = createConnection();
@@ -75,15 +72,12 @@ public class AutoAckMesageListenerTest extends JMSTestCase
          latch.await(10, TimeUnit.SECONDS);
 
          // check message listener status
-         if (listener.getPassed() == false)
-         {
+         if (listener.getPassed() == false) {
             throw new Exception("failed");
          }
       }
-      finally
-      {
-         if (conn != null)
-         {
+      finally {
+         if (conn != null) {
             conn.close();
          }
       }
@@ -97,51 +91,42 @@ public class AutoAckMesageListenerTest extends JMSTestCase
 
    // Inner classes -------------------------------------------------
 
-   private static class AutoAckMsgListener implements MessageListener
-   {
+   private static class AutoAckMsgListener implements MessageListener {
+
       private boolean passed;
 
       private final Session session;
 
       private final CountDownLatch monitor;
 
-      public AutoAckMsgListener(CountDownLatch latch, Session session)
-      {
+      public AutoAckMsgListener(CountDownLatch latch, Session session) {
          this.monitor = latch;
          this.session = session;
       }
 
       // get state of test
-      public boolean getPassed()
-      {
+      public boolean getPassed() {
          return passed;
       }
 
       // will receive two messages
-      public void onMessage(Message message)
-      {
-         try
-         {
-            if (message.getBooleanProperty("last") == false)
-            {
+      public void onMessage(Message message) {
+         try {
+            if (message.getBooleanProperty("last") == false) {
                log.info("Received first message.");
-               if (message.getJMSRedelivered() == true)
-               {
+               if (message.getJMSRedelivered() == true) {
                   // should not re-receive this one
                   log.info("Error: received first message twice");
                   passed = false;
                }
             }
-            else
-            {
-               if (message.getJMSRedelivered() == false)
-               {
+            else {
+               if (message.getJMSRedelivered() == false) {
                   // received second message for first time
                   log.info("Received second message. Calling recover()");
                   session.recover();
                }
-               else
-               {
+               else {
                   // should be redelivered after recover
                   log.info("Received second message again as expected");
                   passed = true;
@@ -149,8 +134,7 @@ public class AutoAckMesageListenerTest extends JMSTestCase
                }
             }
          }
-         catch (JMSException e)
-         {
+         catch (JMSException e) {
             log.warn("Exception caught in message listener:\n" + e);
             passed = false;
             monitor.countDown();

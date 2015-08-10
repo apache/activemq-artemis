@@ -46,23 +46,21 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class PagingSendTest extends ActiveMQTestBase
-{
+public class PagingSendTest extends ActiveMQTestBase {
+
    public static final SimpleString ADDRESS = new SimpleString("SimpleAddress");
 
    private ServerLocator locator;
 
    private ActiveMQServer server;
 
-   protected boolean isNetty()
-   {
+   protected boolean isNetty() {
       return false;
    }
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
       Configuration config = new ConfigurationImpl();
       server = newActiveMQServer();
@@ -72,13 +70,10 @@ public class PagingSendTest extends ActiveMQTestBase
       locator = createFactory(isNetty());
    }
 
-   private ActiveMQServer newActiveMQServer() throws Exception
-   {
+   private ActiveMQServer newActiveMQServer() throws Exception {
       ActiveMQServer server = createServer(true, isNetty());
 
-      AddressSettings defaultSetting = new AddressSettings()
-              .setPageSizeBytes(10 * 1024)
-              .setMaxSizeBytes(20 * 1024);
+      AddressSettings defaultSetting = new AddressSettings().setPageSizeBytes(10 * 1024).setMaxSizeBytes(20 * 1024);
 
       server.getAddressSettingsRepository().addMatch("#", defaultSetting);
 
@@ -86,26 +81,21 @@ public class PagingSendTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testSameMessageOverAndOverBlocking() throws Exception
-   {
+   public void testSameMessageOverAndOverBlocking() throws Exception {
       dotestSameMessageOverAndOver(true);
    }
 
    @Test
-   public void testSameMessageOverAndOverNonBlocking() throws Exception
-   {
+   public void testSameMessageOverAndOverNonBlocking() throws Exception {
       dotestSameMessageOverAndOver(false);
    }
 
-   public void dotestSameMessageOverAndOver(final boolean blocking) throws Exception
-   {
+   public void dotestSameMessageOverAndOver(final boolean blocking) throws Exception {
       // Making it synchronous, just because we want to stop sending messages as soon as the
       // page-store becomes in
       // page mode
       // and we could only guarantee that by setting it to synchronous
-      locator.setBlockOnNonDurableSend(blocking)
-              .setBlockOnDurableSend(blocking)
-              .setBlockOnAcknowledge(blocking);
+      locator.setBlockOnNonDurableSend(blocking).setBlockOnDurableSend(blocking).setBlockOnAcknowledge(blocking);
 
       ClientSessionFactory sf = createSessionFactory(locator);
       ClientSession session = sf.createSession(null, null, false, true, true, false, 0);
@@ -119,8 +109,7 @@ public class PagingSendTest extends ActiveMQTestBase
       message = session.createMessage(true);
       message.getBodyBuffer().writeBytes(new byte[1024]);
 
-      for (int i = 0; i < 200; i++)
-      {
+      for (int i = 0; i < 200; i++) {
          producer.send(message);
       }
 
@@ -132,14 +121,12 @@ public class PagingSendTest extends ActiveMQTestBase
 
       session.start();
 
-      for (int i = 0; i < 200; i++)
-      {
+      for (int i = 0; i < 200; i++) {
          ClientMessage message2 = consumer.receive(10000);
 
          Assert.assertNotNull(message2);
 
-         if (i == 100)
-         {
+         if (i == 100) {
             session.commit();
          }
 
@@ -152,8 +139,7 @@ public class PagingSendTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testOrderOverTX() throws Exception
-   {
+   public void testOrderOverTX() throws Exception {
       ClientSessionFactory sf = createSessionFactory(locator);
 
       ClientSession sessionConsumer = sf.createSession(true, true, 0);
@@ -170,26 +156,20 @@ public class PagingSendTest extends ActiveMQTestBase
       // Consumer will be ready after we have commits
       final CountDownLatch ready = new CountDownLatch(1);
 
-      Thread tProducer = new Thread()
-      {
+      Thread tProducer = new Thread() {
          @Override
-         public void run()
-         {
-            try
-            {
+         public void run() {
+            try {
                int commit = 0;
-               for (int i = 0; i < TOTAL_MESSAGES; i++)
-               {
+               for (int i = 0; i < TOTAL_MESSAGES; i++) {
                   ClientMessage msg = sessionProducer.createMessage(true);
                   msg.getBodyBuffer().writeBytes(new byte[1024]);
                   msg.putIntProperty("count", i);
                   producer.send(msg);
 
-                  if (i % 100 == 0 && i > 0)
-                  {
+                  if (i % 100 == 0 && i > 0) {
                      sessionProducer.commit();
-                     if (commit++ > 2)
-                     {
+                     if (commit++ > 2) {
                         ready.countDown();
                      }
                   }
@@ -198,8 +178,7 @@ public class PagingSendTest extends ActiveMQTestBase
                sessionProducer.commit();
 
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                e.printStackTrace();
                errors.incrementAndGet();
             }
@@ -214,8 +193,7 @@ public class PagingSendTest extends ActiveMQTestBase
 
       assertTrue(ready.await(10, TimeUnit.SECONDS));
 
-      for (int i = 0; i < TOTAL_MESSAGES; i++)
-      {
+      for (int i = 0; i < TOTAL_MESSAGES; i++) {
          ClientMessage msg = consumer.receive(10000);
 
          Assert.assertNotNull(msg);
@@ -235,8 +213,7 @@ public class PagingSendTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testPagingDoesNotDuplicateBatchMessages() throws Exception
-   {
+   public void testPagingDoesNotDuplicateBatchMessages() throws Exception {
       int batchSize = 20;
 
       ClientSessionFactory sf = createSessionFactory(locator);
@@ -247,11 +224,9 @@ public class PagingSendTest extends ActiveMQTestBase
       session.createQueue(queueAddr, queueAddr, null, true);
 
       // Set up paging on the queue address
-      AddressSettings addressSettings = new AddressSettings()
-              .setPageSizeBytes(10 * 1024)
-              /** This actually causes the address to start paging messages after 10 x messages with 1024 payload is sent.
-               Presumably due to additional meta-data, message headers etc... **/
-              .setMaxSizeBytes(16 * 1024);
+      AddressSettings addressSettings = new AddressSettings().setPageSizeBytes(10 * 1024)
+         /** This actually causes the address to start paging messages after 10 x messages with 1024 payload is sent.
+          Presumably due to additional meta-data, message headers etc... **/.setMaxSizeBytes(16 * 1024);
       server.getAddressSettingsRepository().addMatch("#", addressSettings);
 
       sendMessageBatch(batchSize, session, queueAddr);
@@ -260,8 +235,7 @@ public class PagingSendTest extends ActiveMQTestBase
 
       checkBatchMessagesAreNotPagedTwice(queue);
 
-      for (int i = 0; i < 10; i++)
-      {
+      for (int i = 0; i < 10; i++) {
          // execute the same count a couple times. This is to make sure the iterators have no impact regardless
          // the number of times they are called
          assertEquals(batchSize, processCountThroughIterator(queue));
@@ -270,8 +244,7 @@ public class PagingSendTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testPagingDoesNotDuplicateBatchMessagesAfterPagingStarted() throws Exception
-   {
+   public void testPagingDoesNotDuplicateBatchMessagesAfterPagingStarted() throws Exception {
       int batchSize = 20;
 
       ClientSessionFactory sf = createSessionFactory(locator);
@@ -282,17 +255,14 @@ public class PagingSendTest extends ActiveMQTestBase
       session.createQueue(queueAddr, queueAddr, null, true);
 
       // Set up paging on the queue address
-      AddressSettings addressSettings = new AddressSettings()
-              .setPageSizeBytes(10 * 1024)
-              /** This actually causes the address to start paging messages after 10 x messages with 1024 payload is sent.
-               Presumably due to additional meta-data, message headers etc... **/
-              .setMaxSizeBytes(16 * 1024);
+      AddressSettings addressSettings = new AddressSettings().setPageSizeBytes(10 * 1024)
+         /** This actually causes the address to start paging messages after 10 x messages with 1024 payload is sent.
+          Presumably due to additional meta-data, message headers etc... **/.setMaxSizeBytes(16 * 1024);
       server.getAddressSettingsRepository().addMatch("#", addressSettings);
 
       int numberOfMessages = 0;
       // ensure the server is paging
-      while (!server.getPagingManager().getPageStore(queueAddr).isPaging())
-      {
+      while (!server.getPagingManager().getPageStore(queueAddr).isPaging()) {
          sendMessageBatch(batchSize, session, queueAddr);
          numberOfMessages += batchSize;
 
@@ -304,20 +274,19 @@ public class PagingSendTest extends ActiveMQTestBase
       Queue queue = server.locateQueue(queueAddr);
       checkBatchMessagesAreNotPagedTwice(queue);
 
-      for (int i = 0; i < 10; i++)
-      {
+      for (int i = 0; i < 10; i++) {
          // execute the same count a couple times. This is to make sure the iterators have no impact regardless
          // the number of times they are called
          assertEquals(numberOfMessages, processCountThroughIterator(queue));
       }
    }
 
-   public List<String> sendMessageBatch(int batchSize, ClientSession session, SimpleString queueAddr) throws ActiveMQException
-   {
+   public List<String> sendMessageBatch(int batchSize,
+                                        ClientSession session,
+                                        SimpleString queueAddr) throws ActiveMQException {
       List<String> messageIds = new ArrayList<String>();
       ClientProducer producer = session.createProducer(queueAddr);
-      for (int i = 0; i < batchSize; i++)
-      {
+      for (int i = 0; i < batchSize; i++) {
          Message message = session.createMessage(true);
          message.getBodyBuffer().writeBytes(new byte[1024]);
          String id = UUID.randomUUID().toString();
@@ -336,22 +305,19 @@ public class PagingSendTest extends ActiveMQTestBase
     * this allows us to test only those messages that have been sent after the address has started paging (ignoring any
     * duplicates that may have happened before this point).
     */
-   public void checkBatchMessagesAreNotPagedTwice(Queue queue) throws Exception
-   {
+   public void checkBatchMessagesAreNotPagedTwice(Queue queue) throws Exception {
       LinkedListIterator<MessageReference> pageIterator = queue.totalIterator();
 
       Set<String> messageOrderSet = new HashSet<String>();
 
       int duplicates = 0;
-      while (pageIterator.hasNext())
-      {
+      while (pageIterator.hasNext()) {
          MessageReference reference = pageIterator.next();
 
          String id = reference.getMessage().getStringProperty("id");
 
          // If add(id) returns true it means that this id was already added to this set.  Hence a duplicate is found.
-         if (!messageOrderSet.add(id))
-         {
+         if (!messageOrderSet.add(id)) {
             duplicates++;
          }
       }
@@ -363,13 +329,11 @@ public class PagingSendTest extends ActiveMQTestBase
     * this allows us to test only those messages that have been sent after the address has started paging (ignoring any
     * duplicates that may have happened before this point).
     */
-   protected int processCountThroughIterator(Queue queue) throws Exception
-   {
+   protected int processCountThroughIterator(Queue queue) throws Exception {
       LinkedListIterator<MessageReference> pageIterator = queue.totalIterator();
 
       int count = 0;
-      while (pageIterator.hasNext())
-      {
+      while (pageIterator.hasNext()) {
          MessageReference reference = pageIterator.next();
          count++;
       }

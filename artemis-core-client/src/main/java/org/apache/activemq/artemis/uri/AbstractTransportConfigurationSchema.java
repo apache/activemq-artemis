@@ -21,6 +21,6 @@ import org.apache.activemq.artemis.utils.uri.URISchema;
 
 import java.util.List;
 
-public abstract class AbstractTransportConfigurationSchema  extends URISchema<List<TransportConfiguration>, String>
-{
+public abstract class AbstractTransportConfigurationSchema extends URISchema<List<TransportConfiguration>, String> {
+
 }

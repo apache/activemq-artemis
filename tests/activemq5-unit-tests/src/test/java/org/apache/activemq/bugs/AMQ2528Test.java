@@ -32,50 +32,47 @@ import org.junit.Assert;
  */
 public class AMQ2528Test extends EmbeddedBrokerTestSupport {
 
-	/**
-	 * Setup the test so that the destination is a queue.
-	 */
-	protected void setUp() throws Exception {
-		useTopic = false;
-		super.setUp();
-	}
+   /**
+    * Setup the test so that the destination is a queue.
+    */
+   protected void setUp() throws Exception {
+      useTopic = false;
+      super.setUp();
+   }
 
-	/**
-	 * This test enqueues test messages to destination and then verifies that
-	 * {@link Queue#removeMatchingMessages("")} removes all the messages.
-	 */
-	public void testRemoveMatchingMessages() throws Exception {
-		final int NUM_MESSAGES = 100;
-		final String MESSAGE_ID = "id";
+   /**
+    * This test enqueues test messages to destination and then verifies that
+    * {@link Queue#removeMatchingMessages("")} removes all the messages.
+    */
+   public void testRemoveMatchingMessages() throws Exception {
+      final int NUM_MESSAGES = 100;
+      final String MESSAGE_ID = "id";
 
-		// Enqueue the test messages.
-		Connection conn = createConnection();
-		try {
-			conn.start();
-			Session session = conn.createSession(false,
-					Session.AUTO_ACKNOWLEDGE);
-			MessageProducer producer = session.createProducer(destination);
-			for (int id = 0; id < NUM_MESSAGES; id++) {
-				Message message = session.createMessage();
-				message.setIntProperty(MESSAGE_ID, id);
-				producer.send(message);
-			}
-			producer.close();
-			session.close();
-		} finally {
-			conn.close();
-		}
+      // Enqueue the test messages.
+      Connection conn = createConnection();
+      try {
+         conn.start();
+         Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         MessageProducer producer = session.createProducer(destination);
+         for (int id = 0; id < NUM_MESSAGES; id++) {
+            Message message = session.createMessage();
+            message.setIntProperty(MESSAGE_ID, id);
+            producer.send(message);
+         }
+         producer.close();
+         session.close();
+      }
+      finally {
+         conn.close();
+      }
 
-		// Verify that half of the messages can be removed by selector.
-		Queue queue = (Queue) broker.getRegionBroker().getDestinations(
-				destination).iterator().next();
+      // Verify that half of the messages can be removed by selector.
+      Queue queue = (Queue) broker.getRegionBroker().getDestinations(destination).iterator().next();
 
-		Assert.assertEquals(NUM_MESSAGES / 2, queue
-				.removeMatchingMessages(MESSAGE_ID + " < " + NUM_MESSAGES / 2));
+      Assert.assertEquals(NUM_MESSAGES / 2, queue.removeMatchingMessages(MESSAGE_ID + " < " + NUM_MESSAGES / 2));
 
-		// Verify that the remainder of the messages can be removed by empty
-		// selector.
-		Assert.assertEquals(NUM_MESSAGES - NUM_MESSAGES / 2, queue
-				.removeMatchingMessages(""));
-	}
+      // Verify that the remainder of the messages can be removed by empty
+      // selector.
+      Assert.assertEquals(NUM_MESSAGES - NUM_MESSAGES / 2, queue.removeMatchingMessages(""));
+   }
 }

@@ -20,8 +20,7 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.SoftValueHashMap;
 import org.junit.Test;
 
-public class SoftValueMapTest extends ActiveMQTestBase
-{
+public class SoftValueMapTest extends ActiveMQTestBase {
 
    // Constants -----------------------------------------------------
 
@@ -34,8 +33,7 @@ public class SoftValueMapTest extends ActiveMQTestBase
    // Public --------------------------------------------------------
 
    @Test
-   public void testEvictions()
-   {
+   public void testEvictions() {
       forceGC();
       long maxMemory = Runtime.getRuntime().maxMemory() - Runtime.getRuntime().freeMemory();
 
@@ -46,8 +44,7 @@ public class SoftValueMapTest extends ActiveMQTestBase
 
       final int MAX_ELEMENTS = 1000;
 
-      for (long i = 0; i < MAX_ELEMENTS; i++)
-      {
+      for (long i = 0; i < MAX_ELEMENTS; i++) {
          softCache.put(i, new Value(new byte[bufferSize]));
       }
 
@@ -58,23 +55,19 @@ public class SoftValueMapTest extends ActiveMQTestBase
       System.out.println("Soft cache has " + softCache.size() + " elements");
    }
 
-
    @Test
-   public void testEvictionsLeastUsed()
-   {
+   public void testEvictionsLeastUsed() {
       forceGC();
 
       SoftValueHashMap<Long, Value> softCache = new SoftValueHashMap<Long, Value>(200);
 
-      for (long i = 0; i < 100; i++)
-      {
+      for (long i = 0; i < 100; i++) {
          Value v = new Value(new byte[1]);
          v.setLive(true);
          softCache.put(i, v);
       }
 
-      for (long i = 100; i < 200; i++)
-      {
+      for (long i = 100; i < 200; i++) {
          Value v = new Value(new byte[1]);
          softCache.put(i, v);
       }
@@ -85,8 +78,7 @@ public class SoftValueMapTest extends ActiveMQTestBase
 
       // these are live, so they shouldn't go
 
-      for (long i = 0; i < 100; i++)
-      {
+      for (long i = 0; i < 100; i++) {
          assertNotNull(softCache.get(i));
       }
 
@@ -102,12 +94,10 @@ public class SoftValueMapTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testEvictOldestElement()
-   {
+   public void testEvictOldestElement() {
       Value one = new Value(new byte[100]);
       Value two = new Value(new byte[100]);
       Value three = new Value(new byte[100]);
-
 
       SoftValueHashMap<Integer, Value> softCache = new SoftValueHashMap<Integer, Value>(2);
       softCache.put(3, three);
@@ -118,34 +108,29 @@ public class SoftValueMapTest extends ActiveMQTestBase
       assertEquals(two, softCache.get(2));
       assertEquals(one, softCache.get(1));
 
-
    }
 
-   class Value implements SoftValueHashMap.ValueCache
-   {
+   class Value implements SoftValueHashMap.ValueCache {
+
       byte[] payload;
 
       boolean live;
 
-      Value(byte[] payload)
-      {
+      Value(byte[] payload) {
          this.payload = payload;
       }
 
       /* (non-Javadoc)
        * @see org.apache.activemq.artemis.utils.SoftValueHashMap.ValueCache#isLive()
        */
-      public boolean isLive()
-      {
+      public boolean isLive() {
          return live;
       }
 
-      public void setLive(boolean live)
-      {
+      public void setLive(boolean live) {
          this.live = live;
       }
    }
-
 
    // Package protected ---------------------------------------------
 

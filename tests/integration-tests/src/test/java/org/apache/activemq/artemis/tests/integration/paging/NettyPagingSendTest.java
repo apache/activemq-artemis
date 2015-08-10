@@ -16,11 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.paging;
 
-public class NettyPagingSendTest extends PagingSendTest
-{
+public class NettyPagingSendTest extends PagingSendTest {
+
    @Override
-   protected boolean isNetty()
-   {
+   protected boolean isNetty() {
       return true;
    }
 }

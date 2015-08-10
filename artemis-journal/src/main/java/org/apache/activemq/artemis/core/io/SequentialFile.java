@@ -25,8 +25,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.core.io.buffer.TimedBuffer;
 
-public interface SequentialFile
-{
+public interface SequentialFile {
 
    boolean isOpen();
 
@@ -36,6 +35,7 @@ public interface SequentialFile
 
    /**
     * The maximum number of simultaneous writes accepted
+    *
     * @param maxIO
     * @throws Exception
     */
@@ -63,31 +63,33 @@ public interface SequentialFile
 
    /**
     * Write directly to the file without using any buffer
+    *
     * @param bytes the ByteBuffer must be compatible with the SequentialFile implementation (AIO or
-    *           NIO). To be safe, use a buffer from the corresponding
-    *           {@link SequentialFileFactory#newBuffer(int)}.
+    *              NIO). To be safe, use a buffer from the corresponding
+    *              {@link SequentialFileFactory#newBuffer(int)}.
     */
    void writeDirect(ByteBuffer bytes, boolean sync, IOCallback callback);
 
    /**
     * Write directly to the file without using intermediate any buffer
+    *
     * @param bytes the ByteBuffer must be compatible with the SequentialFile implementation (AIO or
-    *           NIO). To be safe, use a buffer from the corresponding
-    *           {@link SequentialFileFactory#newBuffer(int)}.
+    *              NIO). To be safe, use a buffer from the corresponding
+    *              {@link SequentialFileFactory#newBuffer(int)}.
     */
    void writeDirect(ByteBuffer bytes, boolean sync) throws Exception;
 
    /**
     * @param bytes the ByteBuffer must be compatible with the SequentialFile implementation (AIO or
-    *           NIO). To be safe, use a buffer from the corresponding
-    *           {@link SequentialFileFactory#newBuffer(int)}.
+    *              NIO). To be safe, use a buffer from the corresponding
+    *              {@link SequentialFileFactory#newBuffer(int)}.
     */
    int read(ByteBuffer bytes, IOCallback callback) throws Exception;
 
    /**
     * @param bytes the ByteBuffer must be compatible with the SequentialFile implementation (AIO or
-    *           NIO). To be safe, use a buffer from the corresponding
-    *           {@link SequentialFileFactory#newBuffer(int)}.
+    *              NIO). To be safe, use a buffer from the corresponding
+    *              {@link SequentialFileFactory#newBuffer(int)}.
     */
    int read(ByteBuffer bytes) throws Exception;
 

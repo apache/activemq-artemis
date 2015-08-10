@@ -65,8 +65,8 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 
-public abstract class BridgeTestBase extends ActiveMQTestBase
-{
+public abstract class BridgeTestBase extends ActiveMQTestBase {
+
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    protected ConnectionFactoryFactory cff0, cff1;
@@ -104,15 +104,11 @@ public abstract class BridgeTestBase extends ActiveMQTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       // Start the servers
-      Configuration conf0 = createBasicConfig()
-         .setJournalDirectory(getJournalDir(0, false))
-         .setBindingsDirectory(getBindingsDir(0, false))
-         .addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY));
+      Configuration conf0 = createBasicConfig().setJournalDirectory(getJournalDir(0, false)).setBindingsDirectory(getBindingsDir(0, false)).addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY));
 
       server0 = addServer(ActiveMQServers.newActiveMQServer(conf0, false));
 
@@ -124,10 +120,7 @@ public abstract class BridgeTestBase extends ActiveMQTestBase
       params1 = new HashMap<String, Object>();
       params1.put(TransportConstants.SERVER_ID_PROP_NAME, 1);
 
-      Configuration conf1 = createBasicConfig()
-         .setJournalDirectory(getJournalDir(1, false))
-         .setBindingsDirectory(getBindingsDir(1, false))
-         .addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY, params1));
+      Configuration conf1 = createBasicConfig().setJournalDirectory(getJournalDir(1, false)).setBindingsDirectory(getBindingsDir(1, false)).addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY, params1));
 
       server1 = addServer(ActiveMQServers.newActiveMQServer(conf1, false));
 
@@ -153,21 +146,17 @@ public abstract class BridgeTestBase extends ActiveMQTestBase
 
    }
 
-   protected void createQueue(final String queueName, final int index) throws Exception
-   {
+   protected void createQueue(final String queueName, final int index) throws Exception {
       JMSServerManager server = jmsServer0;
-      if (index == 1)
-      {
+      if (index == 1) {
          server = jmsServer1;
       }
-      assertTrue("queue '/queue/" + queueName + "' created",
-                 server.createQueue(false, queueName, null, true, "/queue/" + queueName));
+      assertTrue("queue '/queue/" + queueName + "' created", server.createQueue(false, queueName, null, true, "/queue/" + queueName));
    }
 
    @Override
    @After
-   public void tearDown() throws Exception
-   {
+   public void tearDown() throws Exception {
       checkEmpty(sourceQueue, 0);
       checkEmpty(localTargetQueue, 0);
       checkEmpty(targetQueue, 1);
@@ -175,12 +164,10 @@ public abstract class BridgeTestBase extends ActiveMQTestBase
       // Check no subscriptions left lying around
 
       checkNoSubscriptions(sourceTopic, 0);
-      if (cff0 instanceof ActiveMQConnectionFactory)
-      {
+      if (cff0 instanceof ActiveMQConnectionFactory) {
          ((ActiveMQConnectionFactory) cff0).close();
       }
-      if (cff1 instanceof ActiveMQConnectionFactory)
-      {
+      if (cff1 instanceof ActiveMQConnectionFactory) {
          ((ActiveMQConnectionFactory) cff1).close();
       }
       stopComponent(jmsServer0);
@@ -219,16 +206,10 @@ public abstract class BridgeTestBase extends ActiveMQTestBase
       super.tearDown();
    }
 
-
-   protected void setUpAdministeredObjects() throws Exception
-   {
-      cff0LowProducerWindow = new ConnectionFactoryFactory()
-      {
-         public ConnectionFactory createConnectionFactory() throws Exception
-         {
-            ActiveMQConnectionFactory cf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF,
-                                                                                              new TransportConfiguration(
-                                                                                                 INVM_CONNECTOR_FACTORY));
+   protected void setUpAdministeredObjects() throws Exception {
+      cff0LowProducerWindow = new ConnectionFactoryFactory() {
+         public ConnectionFactory createConnectionFactory() throws Exception {
+            ActiveMQConnectionFactory cf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration(INVM_CONNECTOR_FACTORY));
 
             // Note! We disable automatic reconnection on the session factory. The bridge needs to do the reconnection
             cf.setReconnectAttempts(0);
@@ -242,14 +223,9 @@ public abstract class BridgeTestBase extends ActiveMQTestBase
 
       };
 
-
-      cff0 = new ConnectionFactoryFactory()
-      {
-         public ConnectionFactory createConnectionFactory() throws Exception
-         {
-            ActiveMQConnectionFactory cf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF,
-                                                                                              new TransportConfiguration(
-                                                                                                 INVM_CONNECTOR_FACTORY));
+      cff0 = new ConnectionFactoryFactory() {
+         public ConnectionFactory createConnectionFactory() throws Exception {
+            ActiveMQConnectionFactory cf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration(INVM_CONNECTOR_FACTORY));
 
             // Note! We disable automatic reconnection on the session factory. The bridge needs to do the reconnection
             cf.setReconnectAttempts(0);
@@ -262,13 +238,9 @@ public abstract class BridgeTestBase extends ActiveMQTestBase
 
       };
 
-      cff0xa = new ConnectionFactoryFactory()
-      {
-         public Object createConnectionFactory() throws Exception
-         {
-            ActiveMQXAConnectionFactory cf = (ActiveMQXAConnectionFactory) ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.XA_CF,
-                                                                                                                            new TransportConfiguration(
-                                                                                                                               INVM_CONNECTOR_FACTORY));
+      cff0xa = new ConnectionFactoryFactory() {
+         public Object createConnectionFactory() throws Exception {
+            ActiveMQXAConnectionFactory cf = (ActiveMQXAConnectionFactory) ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.XA_CF, new TransportConfiguration(INVM_CONNECTOR_FACTORY));
 
             // Note! We disable automatic reconnection on the session factory. The bridge needs to do the reconnection
             cf.setReconnectAttempts(0);
@@ -284,15 +256,10 @@ public abstract class BridgeTestBase extends ActiveMQTestBase
       cf0 = (ConnectionFactory) cff0.createConnectionFactory();
       cf0xa = (XAConnectionFactory) cff0xa.createConnectionFactory();
 
-      cff1 = new ConnectionFactoryFactory()
-      {
+      cff1 = new ConnectionFactoryFactory() {
 
-         public ConnectionFactory createConnectionFactory() throws Exception
-         {
-            ActiveMQJMSConnectionFactory cf = (ActiveMQJMSConnectionFactory) ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF,
-                                                                                                                              new TransportConfiguration(
-                                                                                                                                 INVM_CONNECTOR_FACTORY,
-                                                                                                                                 params1));
+         public ConnectionFactory createConnectionFactory() throws Exception {
+            ActiveMQJMSConnectionFactory cf = (ActiveMQJMSConnectionFactory) ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration(INVM_CONNECTOR_FACTORY, params1));
 
             // Note! We disable automatic reconnection on the session factory. The bridge needs to do the reconnection
             cf.setReconnectAttempts(0);
@@ -304,15 +271,10 @@ public abstract class BridgeTestBase extends ActiveMQTestBase
          }
       };
 
-      cff1xa = new ConnectionFactoryFactory()
-      {
+      cff1xa = new ConnectionFactoryFactory() {
 
-         public XAConnectionFactory createConnectionFactory() throws Exception
-         {
-            ActiveMQXAConnectionFactory cf = (ActiveMQXAConnectionFactory) ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.XA_CF,
-                                                                                                                            new TransportConfiguration(
-                                                                                                                               INVM_CONNECTOR_FACTORY,
-                                                                                                                               params1));
+         public XAConnectionFactory createConnectionFactory() throws Exception {
+            ActiveMQXAConnectionFactory cf = (ActiveMQXAConnectionFactory) ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.XA_CF, new TransportConfiguration(INVM_CONNECTOR_FACTORY, params1));
 
             // Note! We disable automatic reconnection on the session factory. The bridge needs to do the reconnection
             cf.setReconnectAttempts(0);
@@ -327,40 +289,32 @@ public abstract class BridgeTestBase extends ActiveMQTestBase
       cf1 = (ConnectionFactory) cff1.createConnectionFactory();
       cf1xa = (XAConnectionFactory) cff1xa.createConnectionFactory();
 
-      sourceQueueFactory = new DestinationFactory()
-      {
-         public Destination createDestination() throws Exception
-         {
+      sourceQueueFactory = new DestinationFactory() {
+         public Destination createDestination() throws Exception {
             return (Destination) context0.lookup("/queue/sourceQueue");
          }
       };
 
       sourceQueue = (Queue) sourceQueueFactory.createDestination();
 
-      targetQueueFactory = new DestinationFactory()
-      {
-         public Destination createDestination() throws Exception
-         {
+      targetQueueFactory = new DestinationFactory() {
+         public Destination createDestination() throws Exception {
             return (Destination) context1.lookup("/queue/targetQueue");
          }
       };
 
       targetQueue = (Queue) targetQueueFactory.createDestination();
 
-      sourceTopicFactory = new DestinationFactory()
-      {
-         public Destination createDestination() throws Exception
-         {
+      sourceTopicFactory = new DestinationFactory() {
+         public Destination createDestination() throws Exception {
             return (Destination) context0.lookup("/topic/sourceTopic");
          }
       };
 
       sourceTopic = (Topic) sourceTopicFactory.createDestination();
 
-      localTargetQueueFactory = new DestinationFactory()
-      {
-         public Destination createDestination() throws Exception
-         {
+      localTargetQueueFactory = new DestinationFactory() {
+         public Destination createDestination() throws Exception {
             return (Destination) context0.lookup("/queue/localTargetQueue");
          }
       };
@@ -373,12 +327,10 @@ public abstract class BridgeTestBase extends ActiveMQTestBase
                                final int start,
                                final int numMessages,
                                final boolean persistent,
-                               final boolean largeMessage) throws Exception
-   {
+                               final boolean largeMessage) throws Exception {
       Connection conn = null;
 
-      try
-      {
+      try {
          conn = cf.createConnection();
 
          Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -387,27 +339,22 @@ public abstract class BridgeTestBase extends ActiveMQTestBase
 
          prod.setDeliveryMode(persistent ? DeliveryMode.PERSISTENT : DeliveryMode.NON_PERSISTENT);
 
-         for (int i = start; i < start + numMessages; i++)
-         {
-            if (largeMessage)
-            {
+         for (int i = start; i < start + numMessages; i++) {
+            if (largeMessage) {
                BytesMessage msg = sess.createBytesMessage();
                ((ActiveMQMessage) msg).setInputStream(ActiveMQTestBase.createFakeLargeStream(1024L * 1024L));
                msg.setStringProperty("msg", "message" + i);
                prod.send(msg);
             }
-            else
-            {
+            else {
                TextMessage tm = sess.createTextMessage("message" + i);
                prod.send(tm);
             }
 
          }
       }
-      finally
-      {
-         if (conn != null)
-         {
+      finally {
+         if (conn != null) {
             conn.close();
          }
       }
@@ -418,12 +365,10 @@ public abstract class BridgeTestBase extends ActiveMQTestBase
                                         final QualityOfServiceMode qosMode,
                                         final int numMessages,
                                         final boolean longWaitForFirst,
-                                        final boolean largeMessage) throws Exception
-   {
+                                        final boolean largeMessage) throws Exception {
       Connection conn = null;
 
-      try
-      {
+      try {
          conn = cf.createConnection();
 
          conn.start();
@@ -440,29 +385,24 @@ public abstract class BridgeTestBase extends ActiveMQTestBase
 
          // We always wait longer for the first one - it may take some time to arrive especially if we are
          // waiting for recovery to kick in
-         while (true)
-         {
+         while (true) {
             Message tm = cons.receive(count == 0 ? (longWaitForFirst ? 60000 : 10000) : 5000);
 
-            if (tm == null)
-            {
+            if (tm == null) {
                break;
             }
 
             // log.info("Got message " + tm.getText());
 
-            if (largeMessage)
-            {
+            if (largeMessage) {
                BytesMessage bmsg = (BytesMessage) tm;
                msgs.add(tm.getStringProperty("msg"));
                byte[] buffRead = new byte[1024];
-               for (int i = 0; i < 1024; i++)
-               {
+               for (int i = 0; i < 1024; i++) {
                   Assert.assertEquals(1024, bmsg.readBytes(buffRead));
                }
             }
-            else
-            {
+            else {
                msgs.add(((TextMessage) tm).getText());
             }
 
@@ -470,23 +410,19 @@ public abstract class BridgeTestBase extends ActiveMQTestBase
 
          }
 
-         if (qosMode == QualityOfServiceMode.ONCE_AND_ONLY_ONCE || qosMode == QualityOfServiceMode.DUPLICATES_OK)
-         {
+         if (qosMode == QualityOfServiceMode.ONCE_AND_ONLY_ONCE || qosMode == QualityOfServiceMode.DUPLICATES_OK) {
             // All the messages should be received
 
-            for (int i = 0; i < numMessages; i++)
-            {
+            for (int i = 0; i < numMessages; i++) {
                Assert.assertTrue("quality=" + qosMode + ", #=" + i + ", message=" + msgs, msgs.contains("message" + i));
             }
 
             // Should be no more
-            if (qosMode == QualityOfServiceMode.ONCE_AND_ONLY_ONCE)
-            {
+            if (qosMode == QualityOfServiceMode.ONCE_AND_ONLY_ONCE) {
                Assert.assertEquals(numMessages, msgs.size());
             }
          }
-         else if (qosMode == QualityOfServiceMode.AT_MOST_ONCE)
-         {
+         else if (qosMode == QualityOfServiceMode.AT_MOST_ONCE) {
             // No *guarantee* that any messages will be received
             // but you still might get some depending on how/where the crash occurred
          }
@@ -494,10 +430,8 @@ public abstract class BridgeTestBase extends ActiveMQTestBase
          BridgeTestBase.log.trace("Check complete");
 
       }
-      finally
-      {
-         if (conn != null)
-         {
+      finally {
+         if (conn != null) {
             conn.close();
          }
       }
@@ -507,11 +441,9 @@ public abstract class BridgeTestBase extends ActiveMQTestBase
                                                  final Destination dest,
                                                  final int start,
                                                  final int numMessages,
-                                                 final boolean largeMessage) throws Exception
-   {
+                                                 final boolean largeMessage) throws Exception {
       Connection conn = null;
-      try
-      {
+      try {
          conn = cf.createConnection();
 
          conn.start();
@@ -522,65 +454,53 @@ public abstract class BridgeTestBase extends ActiveMQTestBase
 
          // Consume the messages
 
-         for (int i = 0; i < numMessages; i++)
-         {
+         for (int i = 0; i < numMessages; i++) {
             Message tm = cons.receive(30000);
 
             Assert.assertNotNull(tm);
 
-            if (largeMessage)
-            {
+            if (largeMessage) {
                BytesMessage bmsg = (BytesMessage) tm;
                Assert.assertEquals("message" + (i + start), tm.getStringProperty("msg"));
                byte[] buffRead = new byte[1024];
-               for (int j = 0; j < 1024; j++)
-               {
+               for (int j = 0; j < 1024; j++) {
                   Assert.assertEquals(1024, bmsg.readBytes(buffRead));
                }
             }
-            else
-            {
+            else {
                Assert.assertEquals("message" + (i + start), ((TextMessage) tm).getText());
             }
          }
       }
-      finally
-      {
-         if (conn != null)
-         {
+      finally {
+         if (conn != null) {
             conn.close();
          }
       }
    }
 
-   public boolean checkEmpty(final Queue queue, final int index) throws Exception
-   {
+   public boolean checkEmpty(final Queue queue, final int index) throws Exception {
       ManagementService managementService = server0.getManagementService();
-      if (index == 1)
-      {
+      if (index == 1) {
          managementService = server1.getManagementService();
       }
       JMSQueueControl queueControl = (JMSQueueControl) managementService.getResource(ResourceNames.JMS_QUEUE + queue.getQueueName());
 
       //server may be closed
-      if (queueControl != null)
-      {
+      if (queueControl != null) {
          queueControl.flushExecutor();
          Long messageCount = queueControl.getMessageCount();
 
-         if (messageCount > 0)
-         {
+         if (messageCount > 0) {
             queueControl.removeMessages(null);
          }
       }
       return true;
    }
 
-   protected void checkNoSubscriptions(final Topic topic, final int index) throws Exception
-   {
+   protected void checkNoSubscriptions(final Topic topic, final int index) throws Exception {
       ManagementService managementService = server0.getManagementService();
-      if (index == 1)
-      {
+      if (index == 1) {
          managementService = server1.getManagementService();
       }
       TopicControl topicControl = (TopicControl) managementService.getResource(ResourceNames.JMS_TOPIC + topic.getTopicName());
@@ -588,19 +508,16 @@ public abstract class BridgeTestBase extends ActiveMQTestBase
 
    }
 
-   protected void removeAllMessages(final String queueName, final int index) throws Exception
-   {
+   protected void removeAllMessages(final String queueName, final int index) throws Exception {
       ManagementService managementService = server0.getManagementService();
-      if (index == 1)
-      {
+      if (index == 1) {
          managementService = server1.getManagementService();
       }
       JMSQueueControl queueControl = (JMSQueueControl) managementService.getResource(ResourceNames.JMS_QUEUE + queueName);
       queueControl.removeMessages(null);
    }
 
-   protected TransactionManager newTransactionManager()
-   {
+   protected TransactionManager newTransactionManager() {
       return new TransactionManagerImple();
    }
 

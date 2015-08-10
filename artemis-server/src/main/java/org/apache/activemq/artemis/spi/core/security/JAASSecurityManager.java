@@ -38,8 +38,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
  * The {@link Subject} returned by the login context is expecting to have a {@link Group} with the <code>Roles</code> name
  * containing a set of {@link Principal} for each role of the user.
  */
-public class JAASSecurityManager implements ActiveMQSecurityManager
-{
+public class JAASSecurityManager implements ActiveMQSecurityManager {
    // Static --------------------------------------------------------
 
    // Attributes ----------------------------------------------------
@@ -54,15 +53,12 @@ public class JAASSecurityManager implements ActiveMQSecurityManager
 
    // ActiveMQSecurityManager implementation -----------------------------
 
-   public boolean validateUser(final String user, final String password)
-   {
-      try
-      {
+   public boolean validateUser(final String user, final String password) {
+      try {
          getAuthenticatedSubject(user, password);
          return true;
       }
-      catch (LoginException e1)
-      {
+      catch (LoginException e1) {
          return false;
       }
    }
@@ -70,22 +66,18 @@ public class JAASSecurityManager implements ActiveMQSecurityManager
    public boolean validateUserAndRole(final String user,
                                       final String password,
                                       final Set<Role> roles,
-                                      final CheckType checkType)
-   {
+                                      final CheckType checkType) {
       Subject localSubject = null;
-      try
-      {
+      try {
          localSubject = getAuthenticatedSubject(user, password);
       }
-      catch (LoginException e1)
-      {
+      catch (LoginException e1) {
          return false;
       }
 
       boolean authenticated = true;
 
-      if (localSubject != null)
-      {
+      if (localSubject != null) {
          Set<Principal> rolePrincipals = getRolePrincipals(checkType, roles);
 
          // authenticated = realmMapping.doesUserHaveRole(principal, rolePrincipals);
@@ -95,11 +87,9 @@ public class JAASSecurityManager implements ActiveMQSecurityManager
 
          // Check the caller's roles
          Group subjectRoles = getSubjectRoles(localSubject);
-         if (subjectRoles != null)
-         {
+         if (subjectRoles != null) {
             Iterator<Principal> iter = rolePrincipals.iterator();
-            while (!hasRole && iter.hasNext())
-            {
+            while (!hasRole && iter.hasNext()) {
                Principal role = iter.next();
                hasRole = subjectRoles.isMember(role);
             }
@@ -107,29 +97,25 @@ public class JAASSecurityManager implements ActiveMQSecurityManager
 
          authenticated = hasRole;
 
-         if (trace)
-         {
+         if (trace) {
             ActiveMQServerLogger.LOGGER.trace("user " + user + (authenticated ? " is " : " is NOT ") + "authorized");
          }
       }
       return authenticated;
    }
 
-   private Subject getAuthenticatedSubject(final String user, final String password) throws LoginException
-   {
+   private Subject getAuthenticatedSubject(final String user, final String password) throws LoginException {
       SimplePrincipal principal = user == null ? null : new SimplePrincipal(user);
 
       char[] passwordChars = null;
 
-      if (password != null)
-      {
+      if (password != null) {
          passwordChars = password.toCharArray();
       }
 
       Subject subject = new Subject();
 
-      if (user != null)
-      {
+      if (user != null) {
          subject.getPrincipals().add(principal);
       }
       subject.getPrivateCredentials().add(passwordChars);
@@ -139,30 +125,24 @@ public class JAASSecurityManager implements ActiveMQSecurityManager
       return lc.getSubject();
    }
 
-   private Group getSubjectRoles(final Subject subject)
-   {
+   private Group getSubjectRoles(final Subject subject) {
       Set<Group> subjectGroups = subject.getPrincipals(Group.class);
       Iterator<Group> iter = subjectGroups.iterator();
       Group roles = null;
-      while (iter.hasNext())
-      {
+      while (iter.hasNext()) {
          Group grp = iter.next();
          String name = grp.getName();
-         if (name.equals("Roles"))
-         {
+         if (name.equals("Roles")) {
             roles = grp;
          }
       }
       return roles;
    }
 
-   private Set<Principal> getRolePrincipals(final CheckType checkType, final Set<Role> roles)
-   {
+   private Set<Principal> getRolePrincipals(final CheckType checkType, final Set<Role> roles) {
       Set<Principal> principals = new HashSet<Principal>();
-      for (Role role : roles)
-      {
-         if (checkType.hasRole(role))
-         {
+      for (Role role : roles) {
+         if (checkType.hasRole(role)) {
             principals.add(new SimplePrincipal(role.getName()));
          }
       }
@@ -171,18 +151,15 @@ public class JAASSecurityManager implements ActiveMQSecurityManager
 
    // Public --------------------------------------------------------
 
-   public void setConfigurationName(final String configurationName)
-   {
+   public void setConfigurationName(final String configurationName) {
       this.configurationName = configurationName;
    }
 
-   public void setCallbackHandler(final CallbackHandler handler)
-   {
+   public void setCallbackHandler(final CallbackHandler handler) {
       callbackHandler = handler;
    }
 
-   public void setConfiguration(final Configuration config)
-   {
+   public void setConfiguration(final Configuration config) {
       this.config = config;
    }
 
@@ -190,54 +167,48 @@ public class JAASSecurityManager implements ActiveMQSecurityManager
 
    // Inner classes -------------------------------------------------
 
-   public static class SimplePrincipal implements Principal, java.io.Serializable
-   {
+   public static class SimplePrincipal implements Principal, java.io.Serializable {
+
       private static final long serialVersionUID = 1L;
 
       private final String name;
 
-      public SimplePrincipal(final String name)
-      {
+      public SimplePrincipal(final String name) {
          this.name = name;
       }
 
-      /** Compare this SimplePrincipal's name against another Principal
-      @return true if name equals another.getName();
+      /**
+       * Compare this SimplePrincipal's name against another Principal
+       *
+       * @return true if name equals another.getName();
        */
       @Override
-      public boolean equals(final Object another)
-      {
-         if (!(another instanceof Principal))
-         {
+      public boolean equals(final Object another) {
+         if (!(another instanceof Principal)) {
             return false;
          }
-         String anotherName = ((Principal)another).getName();
+         String anotherName = ((Principal) another).getName();
          boolean equals = false;
-         if (name == null)
-         {
+         if (name == null) {
             equals = anotherName == null;
          }
-         else
-         {
+         else {
             equals = name.equals(anotherName);
          }
          return equals;
       }
 
       @Override
-      public int hashCode()
-      {
+      public int hashCode() {
          return name == null ? 0 : name.hashCode();
       }
 
       @Override
-      public String toString()
-      {
+      public String toString() {
          return name;
       }
 
-      public String getName()
-      {
+      public String getName() {
          return name;
       }
    }

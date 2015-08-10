@@ -32,18 +32,15 @@ import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
 /**
  * Code to be run in an external VM, via main()
  */
-public class CrashClient
-{
+public class CrashClient {
    // Constants ------------------------------------------------------------------------------------
 
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    // Static ---------------------------------------------------------------------------------------
 
-   public static void main(final String[] args) throws Exception
-   {
-      try
-      {
+   public static void main(final String[] args) throws Exception {
+      try {
          CrashClient.log.debug("args = " + Arrays.asList(args));
 
          ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(NettyConnectorFactory.class.getName()));
@@ -51,16 +48,11 @@ public class CrashClient
          locator.setConnectionTTL(ClientCrashTest.CONNECTION_TTL);
          ClientSessionFactory sf = locator.createSessionFactory();
 
-
          ClientSession session = sf.createSession(false, true, true);
          ClientProducer producer = session.createProducer(ClientCrashTest.QUEUE);
 
          // it has to be durable otherwise it may race dying before the client is killed
-         ClientMessage message = session.createMessage(ActiveMQTextMessage.TYPE,
-                                                             true,
-                                                             0,
-                                                             System.currentTimeMillis(),
-                                                             (byte)1);
+         ClientMessage message = session.createMessage(ActiveMQTextMessage.TYPE, true, 0, System.currentTimeMillis(), (byte) 1);
          message.getBodyBuffer().writeString(ClientCrashTest.MESSAGE_TEXT_FROM_CLIENT);
 
          producer.send(message);
@@ -68,8 +60,7 @@ public class CrashClient
          // exit without closing the session properly
          System.exit(9);
       }
-      catch (Throwable t)
-      {
+      catch (Throwable t) {
          CrashClient.log.error(t.getMessage(), t);
          System.exit(1);
       }

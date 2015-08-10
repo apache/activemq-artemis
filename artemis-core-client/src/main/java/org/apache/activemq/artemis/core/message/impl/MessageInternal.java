@@ -25,8 +25,8 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.message.BodyEncoder;
 import org.apache.activemq.artemis.utils.TypedProperties;
 
-public interface MessageInternal extends Message
-{
+public interface MessageInternal extends Message {
+
    void decodeFromBuffer(ActiveMQBuffer buffer);
 
    int getEndOfMessagePosition();

@@ -52,19 +52,14 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 @RunWith(value = Parameterized.class)
-public class CoreClientOverTwoWaySSLTest extends ActiveMQTestBase
-{
+public class CoreClientOverTwoWaySSLTest extends ActiveMQTestBase {
+
    @Parameterized.Parameters(name = "storeType={0}")
-   public static Collection getParameters()
-   {
-      return Arrays.asList(new Object[][]{
-         {"JCEKS"},
-         {"JKS"}
-      });
+   public static Collection getParameters() {
+      return Arrays.asList(new Object[][]{{"JCEKS"}, {"JKS"}});
    }
 
-   public CoreClientOverTwoWaySSLTest(String storeType)
-   {
+   public CoreClientOverTwoWaySSLTest(String storeType) {
       this.storeType = storeType;
       SERVER_SIDE_KEYSTORE = "server-side-keystore." + storeType.toLowerCase();
       SERVER_SIDE_TRUSTSTORE = "server-side-truststore." + storeType.toLowerCase();
@@ -74,7 +69,8 @@ public class CoreClientOverTwoWaySSLTest extends ActiveMQTestBase
 
    public static final SimpleString QUEUE = new SimpleString("QueueOverSSL");
 
-   /** These artifacts are required for testing 2-way SSL
+   /**
+    * These artifacts are required for testing 2-way SSL
     *
     * Commands to create the JKS artifacts:
     * keytool -genkey -keystore client-side-keystore.jks -storepass secureexample -keypass secureexample -dname "CN=ActiveMQ Artemis, OU=ActiveMQ Artemis, O=ActiveMQ Artemis, L=ActiveMQ Artemis, S=ActiveMQ Artemis, C=AMQ"
@@ -98,16 +94,12 @@ public class CoreClientOverTwoWaySSLTest extends ActiveMQTestBase
 
    private TransportConfiguration tc;
 
-   private class MyInterceptor implements Interceptor
-   {
-      public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException
-      {
-         if (packet.getType() == PacketImpl.SESS_SEND)
-         {
-            try
-            {
-               if (connection.getTransportConnection() instanceof NettyConnection)
-               {
+   private class MyInterceptor implements Interceptor {
+
+      public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException {
+         if (packet.getType() == PacketImpl.SESS_SEND) {
+            try {
+               if (connection.getTransportConnection() instanceof NettyConnection) {
                   System.out.println("Passed through....");
                   NettyConnection nettyConnection = (NettyConnection) connection.getTransportConnection();
                   SslHandler sslHandler = (SslHandler) nettyConnection.getChannel().pipeline().get("ssl");
@@ -116,8 +108,7 @@ public class CoreClientOverTwoWaySSLTest extends ActiveMQTestBase
                   Assert.assertNotNull(sslHandler.engine().getSession().getPeerCertificateChain());
                }
             }
-            catch (SSLPeerUnverifiedException e)
-            {
+            catch (SSLPeerUnverifiedException e) {
                Assert.fail(e.getMessage());
             }
          }
@@ -126,8 +117,7 @@ public class CoreClientOverTwoWaySSLTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testTwoWaySSL() throws Exception
-   {
+   public void testTwoWaySSL() throws Exception {
       String text = RandomUtil.randomString();
 
       tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
@@ -158,25 +148,21 @@ public class CoreClientOverTwoWaySSLTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testTwoWaySSLWithoutClientKeyStore() throws Exception
-   {
+   public void testTwoWaySSLWithoutClientKeyStore() throws Exception {
       tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
       tc.getParams().put(TransportConstants.TRUSTSTORE_PROVIDER_PROP_NAME, storeType);
       tc.getParams().put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, CLIENT_SIDE_TRUSTSTORE);
       tc.getParams().put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, PASSWORD);
 
       ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc));
-      try
-      {
+      try {
          createSessionFactory(locator);
          Assert.fail();
       }
-      catch (ActiveMQNotConnectedException se)
-      {
+      catch (ActiveMQNotConnectedException se) {
          //ok
       }
-      catch (ActiveMQException e)
-      {
+      catch (ActiveMQException e) {
          Assert.fail("Invalid Exception type:" + e.getType());
       }
    }
@@ -185,8 +171,7 @@ public class CoreClientOverTwoWaySSLTest extends ActiveMQTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
       Map<String, Object> params = new HashMap<String, Object>();
       params.put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
@@ -197,8 +182,7 @@ public class CoreClientOverTwoWaySSLTest extends ActiveMQTestBase
       params.put(TransportConstants.TRUSTSTORE_PROVIDER_PROP_NAME, storeType);
       params.put(TransportConstants.KEYSTORE_PROVIDER_PROP_NAME, storeType);
       params.put(TransportConstants.NEED_CLIENT_AUTH_PROP_NAME, true);
-      ConfigurationImpl config = createBasicConfig()
-         .addAcceptorConfiguration(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params));
+      ConfigurationImpl config = createBasicConfig().addAcceptorConfiguration(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params));
       server = createServer(false, config);
       server.start();
       waitForServerToStart(server);

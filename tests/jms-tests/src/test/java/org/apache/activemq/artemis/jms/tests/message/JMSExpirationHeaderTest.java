@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.jms.tests.message;
+
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -28,8 +29,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class JMSExpirationHeaderTest extends MessageHeaderTestBase
-{
+public class JMSExpirationHeaderTest extends MessageHeaderTestBase {
    // Constants -----------------------------------------------------
 
    // Static --------------------------------------------------------
@@ -48,8 +48,7 @@ public class JMSExpirationHeaderTest extends MessageHeaderTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
       expectedMessage = null;
       testFailed = false;
@@ -58,24 +57,21 @@ public class JMSExpirationHeaderTest extends MessageHeaderTestBase
 
    @Override
    @After
-   public void tearDown() throws Exception
-   {
+   public void tearDown() throws Exception {
       super.tearDown();
    }
 
    // Tests ---------------------------------------------------------
 
    @Test
-   public void testZeroExpiration() throws Exception
-   {
+   public void testZeroExpiration() throws Exception {
       Message m = queueProducerSession.createMessage();
       queueProducer.send(m);
       ProxyAssertSupport.assertEquals(0, queueConsumer.receive().getJMSExpiration());
    }
 
    @Test
-   public void testNoExpirationOnTimeoutReceive() throws Exception
-   {
+   public void testNoExpirationOnTimeoutReceive() throws Exception {
       Message m = queueProducerSession.createMessage();
       queueProducer.send(m, DeliveryMode.NON_PERSISTENT, 4, 5000);
 
@@ -87,8 +83,7 @@ public class JMSExpirationHeaderTest extends MessageHeaderTestBase
    }
 
    @Test
-   public void testExpirationOnTimeoutReceive() throws Exception
-   {
+   public void testExpirationOnTimeoutReceive() throws Exception {
       Message m = queueProducerSession.createMessage();
       queueProducer.send(m, DeliveryMode.NON_PERSISTENT, 4, 1000);
 
@@ -99,8 +94,7 @@ public class JMSExpirationHeaderTest extends MessageHeaderTestBase
    }
 
    @Test
-   public void testExpirationOnReceiveNoWait() throws Exception
-   {
+   public void testExpirationOnReceiveNoWait() throws Exception {
       Message m = queueProducerSession.createMessage();
       queueProducer.send(m, DeliveryMode.NON_PERSISTENT, 4, 1000);
 
@@ -111,8 +105,7 @@ public class JMSExpirationHeaderTest extends MessageHeaderTestBase
    }
 
    @Test
-   public void testExpiredMessageDiscardingOnTimeoutReceive() throws Exception
-   {
+   public void testExpiredMessageDiscardingOnTimeoutReceive() throws Exception {
       Message m = queueProducerSession.createMessage();
       queueProducer.send(m, DeliveryMode.NON_PERSISTENT, 4, 1000);
 
@@ -121,20 +114,15 @@ public class JMSExpirationHeaderTest extends MessageHeaderTestBase
 
       // start the receiver thread
       final CountDownLatch latch = new CountDownLatch(1);
-      Thread receiverThread = new Thread(new Runnable()
-      {
-         public void run()
-         {
-            try
-            {
+      Thread receiverThread = new Thread(new Runnable() {
+         public void run() {
+            try {
                expectedMessage = queueConsumer.receive(100);
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                log.trace("receive() exits with an exception", e);
             }
-            finally
-            {
+            finally {
                latch.countDown();
             }
          }
@@ -146,29 +134,23 @@ public class JMSExpirationHeaderTest extends MessageHeaderTestBase
    }
 
    @Test
-   public void testReceiveTimeoutPreservation() throws Exception
-   {
+   public void testReceiveTimeoutPreservation() throws Exception {
       final long timeToWaitForReceive = 5000;
 
       final CountDownLatch receiverLatch = new CountDownLatch(1);
 
       // start the receiver thread
-      Thread receiverThread = new Thread(new Runnable()
-      {
-         public void run()
-         {
-            try
-            {
+      Thread receiverThread = new Thread(new Runnable() {
+         public void run() {
+            try {
                long t1 = System.currentTimeMillis();
                expectedMessage = queueConsumer.receive(timeToWaitForReceive);
                effectiveReceiveTime = System.currentTimeMillis() - t1;
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                log.trace("receive() exits with an exception", e);
             }
-            finally
-            {
+            finally {
                receiverLatch.countDown();
             }
          }
@@ -178,12 +160,9 @@ public class JMSExpirationHeaderTest extends MessageHeaderTestBase
       final CountDownLatch senderLatch = new CountDownLatch(1);
 
       // start the sender thread
-      Thread senderThread = new Thread(new Runnable()
-      {
-         public void run()
-         {
-            try
-            {
+      Thread senderThread = new Thread(new Runnable() {
+         public void run() {
+            try {
                // wait for 3 secs
                Thread.sleep(3000);
 
@@ -191,22 +170,19 @@ public class JMSExpirationHeaderTest extends MessageHeaderTestBase
                Message m = queueProducerSession.createMessage();
                queueProducer.send(m, DeliveryMode.NON_PERSISTENT, 4, -1);
 
-               ActiveMQMessage msg = (ActiveMQMessage)m;
+               ActiveMQMessage msg = (ActiveMQMessage) m;
 
-               if (!msg.getCoreMessage().isExpired())
-               {
+               if (!msg.getCoreMessage().isExpired()) {
                   log.error("The message " + m + " should have expired");
                   testFailed = true;
                   return;
                }
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                log.error("This exception will fail the test", e);
                testFailed = true;
             }
-            finally
-            {
+            finally {
                senderLatch.countDown();
             }
          }
@@ -216,8 +192,7 @@ public class JMSExpirationHeaderTest extends MessageHeaderTestBase
       ActiveMQTestBase.waitForLatch(senderLatch);
       ActiveMQTestBase.waitForLatch(receiverLatch);
 
-      if (testFailed)
-      {
+      if (testFailed) {
          ProxyAssertSupport.fail("Test failed by the sender thread. Watch for exception in logs");
       }
 
@@ -234,8 +209,7 @@ public class JMSExpirationHeaderTest extends MessageHeaderTestBase
    }
 
    @Test
-   public void testNoExpirationOnReceive() throws Exception
-   {
+   public void testNoExpirationOnReceive() throws Exception {
       Message m = queueProducerSession.createMessage();
       queueProducer.send(m, DeliveryMode.NON_PERSISTENT, 4, 5000);
       Message result = queueConsumer.receive();
@@ -243,8 +217,7 @@ public class JMSExpirationHeaderTest extends MessageHeaderTestBase
    }
 
    @Test
-   public void testExpirationOnReceive() throws Exception
-   {
+   public void testExpirationOnReceive() throws Exception {
       final AtomicBoolean received = new AtomicBoolean(true);
 
       queueProducer.send(queueProducerSession.createMessage(), DeliveryMode.NON_PERSISTENT, 4, 2000);
@@ -257,35 +230,28 @@ public class JMSExpirationHeaderTest extends MessageHeaderTestBase
 
       final CountDownLatch latch = new CountDownLatch(1);
       // blocking read for a while to make sure I don't get anything, not even a null
-      Thread receiverThread = new Thread(new Runnable()
-      {
-         public void run()
-         {
-            try
-            {
+      Thread receiverThread = new Thread(new Runnable() {
+         public void run() {
+            try {
                log.trace("Attempting to receive");
                expectedMessage = queueConsumer.receive();
 
                // NOTE on close, the receive() call will return with null
                log.trace("Receive exited without exception:" + expectedMessage);
 
-               if (expectedMessage == null)
-               {
+               if (expectedMessage == null) {
                   received.set(false);
                }
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                log.trace("receive() exits with an exception", e);
                ProxyAssertSupport.fail();
             }
-            catch (Throwable t)
-            {
+            catch (Throwable t) {
                log.trace("receive() exits with a throwable", t);
                ProxyAssertSupport.fail();
             }
-            finally
-            {
+            finally {
                latch.countDown();
             }
          }
@@ -310,8 +276,7 @@ public class JMSExpirationHeaderTest extends MessageHeaderTestBase
     * queue/subscription, when delivery is attempted
     */
    @Test
-   public void testExpiredMessageDoesNotGoBackOnQueue() throws Exception
-   {
+   public void testExpiredMessageDoesNotGoBackOnQueue() throws Exception {
       Message m = queueProducerSession.createMessage();
 
       m.setStringProperty("weebles", "wobble but they don't fall down");

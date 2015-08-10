@@ -32,65 +32,53 @@ import org.apache.activemq.artemis.tests.integration.cluster.failover.FailoverTe
 import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
 
-public class ReplicationOrderTest extends FailoverTestBase
-{
+public class ReplicationOrderTest extends FailoverTestBase {
 
    public static final int NUM = 300;
 
    @Test
-   public void testMixedPersistentAndNonPersistentMessagesOrderWithReplicatedBackup() throws Exception
-   {
+   public void testMixedPersistentAndNonPersistentMessagesOrderWithReplicatedBackup() throws Exception {
       doTestMixedPersistentAndNonPersistentMessagesOrderWithReplicatedBackup(false);
    }
 
    @Test
-   public void testTxMixedPersistentAndNonPersistentMessagesOrderWithReplicatedBackup() throws Exception
-   {
+   public void testTxMixedPersistentAndNonPersistentMessagesOrderWithReplicatedBackup() throws Exception {
       doTestMixedPersistentAndNonPersistentMessagesOrderWithReplicatedBackup(true);
    }
 
-   private void doTestMixedPersistentAndNonPersistentMessagesOrderWithReplicatedBackup(final boolean transactional) throws Exception
-   {
+   private void doTestMixedPersistentAndNonPersistentMessagesOrderWithReplicatedBackup(final boolean transactional) throws Exception {
       String address = RandomUtil.randomString();
       String queue = RandomUtil.randomString();
       ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(getConnectorTransportConfiguration(true));
       addServerLocator(locator);
-      locator.setBlockOnNonDurableSend(false)
-              .setBlockOnDurableSend(false);
+      locator.setBlockOnNonDurableSend(false).setBlockOnDurableSend(false);
       ClientSessionFactory csf = createSessionFactory(locator);
       ClientSession session = null;
-      if (transactional)
-      {
+      if (transactional) {
          session = csf.createSession(false, false);
       }
-      else
-      {
+      else {
          session = csf.createSession(true, true);
       }
       addClientSession(session);
       session.createQueue(address, queue, true);
       ClientProducer producer = session.createProducer(address);
       boolean durable = false;
-      for (int i = 0; i < ReplicationOrderTest.NUM; i++)
-      {
+      for (int i = 0; i < ReplicationOrderTest.NUM; i++) {
          ClientMessage msg = session.createMessage(durable);
          msg.putIntProperty("counter", i);
          producer.send(msg);
-         if (transactional)
-         {
-            if (i % 10 == 0)
-            {
+         if (transactional) {
+            if (i % 10 == 0) {
                session.commit();
                durable = !durable;
             }
          }
-         else
-         {
+         else {
             durable = !durable;
          }
       }
-      if (transactional)
-      {
+      if (transactional) {
          session.commit();
       }
       session.close();
@@ -100,8 +88,7 @@ public class ReplicationOrderTest extends FailoverTestBase
       session = csf.createSession(true, true);
       session.start();
       ClientConsumer consumer = session.createConsumer(queue);
-      for (int i = 0; i < ReplicationOrderTest.NUM; i++)
-      {
+      for (int i = 0; i < ReplicationOrderTest.NUM; i++) {
          ClientMessage message = consumer.receive(1000);
          Assert.assertNotNull(message);
          Assert.assertEquals(i, message.getIntProperty("counter").intValue());
@@ -114,20 +101,17 @@ public class ReplicationOrderTest extends FailoverTestBase
    }
 
    @Override
-   protected void createConfigs() throws Exception
-   {
+   protected void createConfigs() throws Exception {
       createReplicatedConfigs();
    }
 
    @Override
-   protected TransportConfiguration getConnectorTransportConfiguration(final boolean live)
-   {
+   protected TransportConfiguration getConnectorTransportConfiguration(final boolean live) {
       return TransportConfigurationUtils.getInVMConnector(live);
    }
 
    @Override
-   protected TransportConfiguration getAcceptorTransportConfiguration(final boolean live)
-   {
+   protected TransportConfiguration getAcceptorTransportConfiguration(final boolean live) {
       return TransportConfigurationUtils.getInVMAcceptor(live);
    }
 }

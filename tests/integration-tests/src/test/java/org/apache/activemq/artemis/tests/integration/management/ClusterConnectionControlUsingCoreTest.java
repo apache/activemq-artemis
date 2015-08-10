@@ -25,8 +25,7 @@ import org.junit.Before;
 
 import java.util.Map;
 
-public class ClusterConnectionControlUsingCoreTest extends ClusterConnectionControlTest
-{
+public class ClusterConnectionControlUsingCoreTest extends ClusterConnectionControlTest {
 
    // Constants -----------------------------------------------------
 
@@ -42,89 +41,71 @@ public class ClusterConnectionControlUsingCoreTest extends ClusterConnectionCont
    // ClusterConnectionControlTest overrides --------------------------------
 
    @Override
-   protected ClusterConnectionControl createManagementControl(final String name) throws Exception
-   {
+   protected ClusterConnectionControl createManagementControl(final String name) throws Exception {
       ClientSessionFactory sf = createSessionFactory(locator);
       session = sf.createSession(false, true, true);
       session.start();
 
-      return new ClusterConnectionControl()
-      {
-         private final CoreMessagingProxy proxy = new CoreMessagingProxy(session,
-                                                                         ResourceNames.CORE_CLUSTER_CONNECTION + name);
+      return new ClusterConnectionControl() {
+         private final CoreMessagingProxy proxy = new CoreMessagingProxy(session, ResourceNames.CORE_CLUSTER_CONNECTION + name);
 
-         public Object[] getStaticConnectors()
-         {
+         public Object[] getStaticConnectors() {
             return (Object[]) proxy.retrieveAttributeValue("staticConnectors");
          }
 
-         public String getStaticConnectorsAsJSON() throws Exception
-         {
+         public String getStaticConnectorsAsJSON() throws Exception {
             return (String) proxy.retrieveAttributeValue("staticConnectorsAsJSON");
          }
 
-         public String getAddress()
-         {
+         public String getAddress() {
             return (String) proxy.retrieveAttributeValue("address");
          }
 
-         public String getDiscoveryGroupName()
-         {
+         public String getDiscoveryGroupName() {
             return (String) proxy.retrieveAttributeValue("discoveryGroupName");
          }
 
-         public int getMaxHops()
-         {
+         public int getMaxHops() {
             return (Integer) proxy.retrieveAttributeValue("maxHops");
          }
 
-         public long getRetryInterval()
-         {
+         public long getRetryInterval() {
             return (Long) proxy.retrieveAttributeValue("retryInterval");
          }
 
-         public String getTopology()
-         {
+         public String getTopology() {
             return (String) proxy.retrieveAttributeValue("topology");
          }
 
-         public Map<String, String> getNodes() throws Exception
-         {
+         public Map<String, String> getNodes() throws Exception {
             return (Map<String, String>) proxy.retrieveAttributeValue("nodes");
          }
 
-         public boolean isDuplicateDetection()
-         {
+         public boolean isDuplicateDetection() {
             return (Boolean) proxy.retrieveAttributeValue("duplicateDetection");
          }
 
-         public String getMessageLoadBalancingType()
-         {
+         public String getMessageLoadBalancingType() {
             return (String) proxy.retrieveAttributeValue("messageLoadBalancingType");
          }
 
-         public String getName()
-         {
+         public String getName() {
             return (String) proxy.retrieveAttributeValue("name");
          }
 
-         public String getNodeID()
-         {
+         public String getNodeID() {
             return (String) proxy.retrieveAttributeValue("nodeID");
          }
 
-         public boolean isStarted()
-         {
+         public boolean isStarted() {
             return (Boolean) proxy.retrieveAttributeValue("started");
          }
 
-         public void start() throws Exception
-         {
+         public void start() throws Exception {
             proxy.invokeOperation("start");
          }
 
-         public void stop() throws Exception
-         {
+         public void stop() throws Exception {
             proxy.invokeOperation("stop");
          }
 
@@ -137,11 +118,9 @@ public class ClusterConnectionControlUsingCoreTest extends ClusterConnectionCont
 
    // Protected -----------------------------------------------------
 
-
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       locator = createInVMNonHALocator();

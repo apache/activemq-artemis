@@ -18,8 +18,8 @@ package org.apache.activemq.artemis.core.config;
 
 import java.io.Serializable;
 
-public class CoreQueueConfiguration implements Serializable
-{
+public class CoreQueueConfiguration implements Serializable {
+
    private static final long serialVersionUID = 650404974977490254L;
 
    private String address = null;
@@ -30,35 +30,29 @@ public class CoreQueueConfiguration implements Serializable
 
    private boolean durable = true;
 
-   public CoreQueueConfiguration()
-   {
+   public CoreQueueConfiguration() {
    }
 
-   public String getAddress()
-   {
+   public String getAddress() {
       return address;
    }
 
-   public String getName()
-   {
+   public String getName() {
       return name;
    }
 
-   public String getFilterString()
-   {
+   public String getFilterString() {
       return filterString;
    }
 
-   public boolean isDurable()
-   {
+   public boolean isDurable() {
       return durable;
    }
 
    /**
     * @param address the address to set
     */
-   public CoreQueueConfiguration setAddress(final String address)
-   {
+   public CoreQueueConfiguration setAddress(final String address) {
       this.address = address;
       return this;
    }
@@ -66,8 +60,7 @@ public class CoreQueueConfiguration implements Serializable
    /**
     * @param name the name to set
     */
-   public CoreQueueConfiguration setName(final String name)
-   {
+   public CoreQueueConfiguration setName(final String name) {
       this.name = name;
       return this;
    }
@@ -75,8 +68,7 @@ public class CoreQueueConfiguration implements Serializable
    /**
     * @param filterString the filterString to set
     */
-   public CoreQueueConfiguration setFilterString(final String filterString)
-   {
+   public CoreQueueConfiguration setFilterString(final String filterString) {
       this.filterString = filterString;
       return this;
    }
@@ -84,15 +76,13 @@ public class CoreQueueConfiguration implements Serializable
    /**
     * @param durable the durable to set; default value is true
     */
-   public CoreQueueConfiguration setDurable(final boolean durable)
-   {
+   public CoreQueueConfiguration setDurable(final boolean durable) {
       this.durable = durable;
       return this;
    }
 
    @Override
-   public int hashCode()
-   {
+   public int hashCode() {
       final int prime = 31;
       int result = 1;
       result = prime * result + ((address == null) ? 0 : address.hashCode());
@@ -103,17 +93,15 @@ public class CoreQueueConfiguration implements Serializable
    }
 
    @Override
-   public boolean equals(Object obj)
-   {
+   public boolean equals(Object obj) {
       if (this == obj)
          return true;
       if (obj == null)
          return false;
       if (getClass() != obj.getClass())
          return false;
-      CoreQueueConfiguration other = (CoreQueueConfiguration)obj;
-      if (address == null)
-      {
+      CoreQueueConfiguration other = (CoreQueueConfiguration) obj;
+      if (address == null) {
          if (other.address != null)
             return false;
       }
@@ -121,15 +109,13 @@ public class CoreQueueConfiguration implements Serializable
          return false;
       if (durable != other.durable)
          return false;
-      if (filterString == null)
-      {
+      if (filterString == null) {
          if (other.filterString != null)
             return false;
       }
       else if (!filterString.equals(other.filterString))
          return false;
-      if (name == null)
-      {
+      if (name == null) {
          if (other.name != null)
             return false;
       }

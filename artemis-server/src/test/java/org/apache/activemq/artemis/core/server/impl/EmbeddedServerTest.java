@@ -31,8 +31,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-public class EmbeddedServerTest
-{
+public class EmbeddedServerTest {
+
    private static final String SERVER_LOCK_NAME = "server.lock";
    private static final String SERVER_JOURNAL_DIR = "target/data/journal";
 
@@ -40,41 +40,30 @@ public class EmbeddedServerTest
    private Configuration configuration;
 
    @Before
-   public void setup()
-   {
-      configuration = new ConfigurationImpl()
-         .setJournalDirectory(SERVER_JOURNAL_DIR)
-         .setPersistenceEnabled(false)
-         .setSecurityEnabled(false)
-         .addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName()));
+   public void setup() {
+      configuration = new ConfigurationImpl().setJournalDirectory(SERVER_JOURNAL_DIR).setPersistenceEnabled(false).setSecurityEnabled(false).addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName()));
 
       server = ActiveMQServers.newActiveMQServer(configuration);
-      try
-      {
+      try {
          server.start();
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          Assert.fail();
       }
    }
 
    @After
-   public void teardown()
-   {
-      try
-      {
+   public void teardown() {
+      try {
          server.stop();
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          // Do Nothing
       }
    }
 
    @Test
-   public void testNoLockFileWithPersistenceFalse()
-   {
+   public void testNoLockFileWithPersistenceFalse() {
       Path journalDir = Paths.get(SERVER_JOURNAL_DIR, SERVER_LOCK_NAME);
       boolean lockExists = Files.exists(journalDir);
       Assert.assertFalse(lockExists);

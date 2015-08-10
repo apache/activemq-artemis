@@ -23,35 +23,35 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ConsumeQueuePrefetchTest extends ConsumeTopicPrefetchTest {
-    private static final Logger LOG = LoggerFactory.getLogger(ConsumeQueuePrefetchTest.class);
-    
-    protected void setUp() throws Exception {
-        topic = false;
-        super.setUp();
-    }
-    
-    public void testInflightWithConsumerPerMessage() throws JMSException {
-        makeMessages(prefetchSize);
 
-        LOG.info("About to send and receive: " + prefetchSize + " on destination: " + destination
-                + " of type: " + destination.getClass().getName());
+   private static final Logger LOG = LoggerFactory.getLogger(ConsumeQueuePrefetchTest.class);
 
-        for (int i = 0; i < prefetchSize; i++) {
-            Message message = session.createTextMessage(messageTexts[i]);
-            producer.send(message);
-        }
+   protected void setUp() throws Exception {
+      topic = false;
+      super.setUp();
+   }
 
-        validateConsumerPrefetch(this.getSubject(), prefetchSize);
-        
-        // new consumer per 20 messages
-        for (int i = 0; i < prefetchSize; i+=20) {
-            consumer.close();
-            consumer = session.createConsumer(destination);
-            validateConsumerPrefetch(this.getSubject(), prefetchSize - i);
-            for (int j=0; j<20; j++) {
-                Message message = consumeMessge(i+j);
-                message.acknowledge();
-            }
-        }
-    }
+   public void testInflightWithConsumerPerMessage() throws JMSException {
+      makeMessages(prefetchSize);
+
+      LOG.info("About to send and receive: " + prefetchSize + " on destination: " + destination + " of type: " + destination.getClass().getName());
+
+      for (int i = 0; i < prefetchSize; i++) {
+         Message message = session.createTextMessage(messageTexts[i]);
+         producer.send(message);
+      }
+
+      validateConsumerPrefetch(this.getSubject(), prefetchSize);
+
+      // new consumer per 20 messages
+      for (int i = 0; i < prefetchSize; i += 20) {
+         consumer.close();
+         consumer = session.createConsumer(destination);
+         validateConsumerPrefetch(this.getSubject(), prefetchSize - i);
+         for (int j = 0; j < 20; j++) {
+            Message message = consumeMessge(i + j);
+            message.acknowledge();
+         }
+      }
+   }
 }

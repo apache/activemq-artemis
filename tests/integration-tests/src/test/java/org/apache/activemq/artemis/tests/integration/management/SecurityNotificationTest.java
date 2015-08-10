@@ -43,8 +43,7 @@ import java.util.Set;
 import static org.apache.activemq.artemis.api.core.management.CoreNotificationType.SECURITY_AUTHENTICATION_VIOLATION;
 import static org.apache.activemq.artemis.api.core.management.CoreNotificationType.SECURITY_PERMISSION_VIOLATION;
 
-public class SecurityNotificationTest extends ActiveMQTestBase
-{
+public class SecurityNotificationTest extends ActiveMQTestBase {
 
    // Constants -----------------------------------------------------
 
@@ -65,8 +64,7 @@ public class SecurityNotificationTest extends ActiveMQTestBase
    // Public --------------------------------------------------------
 
    @Test
-   public void testSECURITY_AUTHENTICATION_VIOLATION() throws Exception
-   {
+   public void testSECURITY_AUTHENTICATION_VIOLATION() throws Exception {
       String unknownUser = RandomUtil.randomString();
 
       SecurityNotificationTest.flush(notifConsumer);
@@ -74,24 +72,20 @@ public class SecurityNotificationTest extends ActiveMQTestBase
       ServerLocator locator = createInVMNonHALocator();
       ClientSessionFactory sf = createSessionFactory(locator);
 
-      try
-      {
+      try {
          sf.createSession(unknownUser, RandomUtil.randomString(), false, true, true, false, 1);
          Assert.fail("authentication must fail and a notification of security violation must be sent");
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
       }
 
       ClientMessage[] notifications = SecurityNotificationTest.consumeMessages(1, notifConsumer);
-      Assert.assertEquals(SECURITY_AUTHENTICATION_VIOLATION.toString(),
-                          notifications[0].getObjectProperty(ManagementHelper.HDR_NOTIFICATION_TYPE).toString());
+      Assert.assertEquals(SECURITY_AUTHENTICATION_VIOLATION.toString(), notifications[0].getObjectProperty(ManagementHelper.HDR_NOTIFICATION_TYPE).toString());
       Assert.assertEquals(unknownUser, notifications[0].getObjectProperty(ManagementHelper.HDR_USER).toString());
    }
 
    @Test
-   public void testSECURITY_PERMISSION_VIOLATION() throws Exception
-   {
+   public void testSECURITY_PERMISSION_VIOLATION() throws Exception {
       SimpleString queue = RandomUtil.randomSimpleString();
       SimpleString address = RandomUtil.randomSimpleString();
 
@@ -109,23 +103,18 @@ public class SecurityNotificationTest extends ActiveMQTestBase
       ClientSessionFactory sf = createSessionFactory(locator);
       ClientSession guestSession = sf.createSession("guest", "guest", false, true, true, false, 1);
 
-      try
-      {
+      try {
          guestSession.createQueue(address, queue, true);
          Assert.fail("session creation must fail and a notification of security violation must be sent");
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
       }
 
       ClientMessage[] notifications = SecurityNotificationTest.consumeMessages(1, notifConsumer);
-      Assert.assertEquals(SECURITY_PERMISSION_VIOLATION.toString(),
-                          notifications[0].getObjectProperty(ManagementHelper.HDR_NOTIFICATION_TYPE).toString());
+      Assert.assertEquals(SECURITY_PERMISSION_VIOLATION.toString(), notifications[0].getObjectProperty(ManagementHelper.HDR_NOTIFICATION_TYPE).toString());
       Assert.assertEquals("guest", notifications[0].getObjectProperty(ManagementHelper.HDR_USER).toString());
-      Assert.assertEquals(address.toString(), notifications[0].getObjectProperty(ManagementHelper.HDR_ADDRESS)
-                                                              .toString());
-      Assert.assertEquals(CheckType.CREATE_DURABLE_QUEUE.toString(),
-                          notifications[0].getObjectProperty(ManagementHelper.HDR_CHECK_TYPE).toString());
+      Assert.assertEquals(address.toString(), notifications[0].getObjectProperty(ManagementHelper.HDR_ADDRESS).toString());
+      Assert.assertEquals(CheckType.CREATE_DURABLE_QUEUE.toString(), notifications[0].getObjectProperty(ManagementHelper.HDR_CHECK_TYPE).toString());
 
       guestSession.close();
    }
@@ -136,12 +125,10 @@ public class SecurityNotificationTest extends ActiveMQTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
-      Configuration config = createDefaultInVMConfig()
-         .setSecurityEnabled(true);
+      Configuration config = createDefaultInVMConfig().setSecurityEnabled(true);
       server = addServer(ActiveMQServers.newActiveMQServer(config, false));
       server.start();
 
@@ -155,8 +142,7 @@ public class SecurityNotificationTest extends ActiveMQTestBase
       Role role = new Role("notif", true, true, true, true, true, true, true);
       Set<Role> roles = new HashSet<Role>();
       roles.add(role);
-      server.getSecurityRepository().addMatch(ActiveMQDefaultConfiguration.getDefaultManagementNotificationAddress().toString(),
-                                              roles);
+      server.getSecurityRepository().addMatch(ActiveMQDefaultConfiguration.getDefaultManagementNotificationAddress().toString(), roles);
 
       securityManager.getConfiguration().addRole("admin", "notif");
 
@@ -172,28 +158,22 @@ public class SecurityNotificationTest extends ActiveMQTestBase
 
    // Private -------------------------------------------------------
 
-   private static void flush(final ClientConsumer notifConsumer) throws ActiveMQException
-   {
+   private static void flush(final ClientConsumer notifConsumer) throws ActiveMQException {
       ClientMessage message = null;
-      do
-      {
+      do {
          message = notifConsumer.receive(500);
-      }
-      while (message != null);
+      } while (message != null);
    }
 
-   protected static ClientMessage[] consumeMessages(final int expected, final ClientConsumer consumer) throws Exception
-   {
+   protected static ClientMessage[] consumeMessages(final int expected,
+                                                    final ClientConsumer consumer) throws Exception {
       ClientMessage[] messages = new ClientMessage[expected];
 
       ClientMessage m = null;
-      for (int i = 0; i < expected; i++)
-      {
+      for (int i = 0; i < expected; i++) {
          m = consumer.receive(500);
-         if (m != null)
-         {
-            for (SimpleString key : m.getPropertyNames())
-            {
+         if (m != null) {
+            for (SimpleString key : m.getPropertyNames()) {
                System.out.println(key + "=" + m.getObjectProperty(key));
             }
          }
@@ -202,8 +182,7 @@ public class SecurityNotificationTest extends ActiveMQTestBase
          m.acknowledge();
       }
       m = consumer.receiveImmediate();
-      if (m != null)
-      {
+      if (m != null) {
          for (SimpleString key : m.getPropertyNames())
 
          {

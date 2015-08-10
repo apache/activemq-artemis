@@ -28,15 +28,14 @@ import org.junit.Test;
 
 import java.lang.ref.WeakReference;
 
-public class SessionCloseOnGCTest extends ActiveMQTestBase
-{
+public class SessionCloseOnGCTest extends ActiveMQTestBase {
+
    private ActiveMQServer server;
    private ServerLocator locator;
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       server = createServer(false);
@@ -50,8 +49,7 @@ public class SessionCloseOnGCTest extends ActiveMQTestBase
     * Also... we want to make sure the SessionFactory will close itself when there are not references into it
     */
    @Test
-   public void testValidateFactoryGC1() throws Exception
-   {
+   public void testValidateFactoryGC1() throws Exception {
       ClientSessionFactory factory = locator.createSessionFactory();
 
       ClientSession s1 = factory.createSession();
@@ -81,8 +79,7 @@ public class SessionCloseOnGCTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testValidateFactoryGC2() throws Exception
-   {
+   public void testValidateFactoryGC2() throws Exception {
       locator.setUseGlobalPools(false);
 
       ClientSessionFactory factory = locator.createSessionFactory();
@@ -114,8 +111,7 @@ public class SessionCloseOnGCTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testValidateFactoryGC3() throws Exception
-   {
+   public void testValidateFactoryGC3() throws Exception {
       ClientSessionFactory factory = locator.createSessionFactory();
 
       ClientSession s1 = factory.createSession();
@@ -143,8 +139,7 @@ public class SessionCloseOnGCTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testValidateFactoryGC4() throws Exception
-   {
+   public void testValidateFactoryGC4() throws Exception {
       ClientSessionFactory factory = locator.createSessionFactory();
 
       ClientSession s1 = factory.createSession();
@@ -169,8 +164,7 @@ public class SessionCloseOnGCTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testValidateFactoryGC5() throws Exception
-   {
+   public void testValidateFactoryGC5() throws Exception {
       ClientSessionFactory factory = locator.createSessionFactory();
 
       WeakReference<ClientSessionFactory> fref = new WeakReference<ClientSessionFactory>(factory);
@@ -184,8 +178,7 @@ public class SessionCloseOnGCTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testCloseOneSessionOnGC() throws Exception
-   {
+   public void testCloseOneSessionOnGC() throws Exception {
       ClientSessionFactoryImpl sf = (ClientSessionFactoryImpl) locator.createSessionFactory();
 
       ClientSession session = sf.createSession(false, true, true);
@@ -204,8 +197,7 @@ public class SessionCloseOnGCTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testCloseSeveralSessionOnGC() throws Exception
-   {
+   public void testCloseSeveralSessionOnGC() throws Exception {
       ClientSessionFactoryImpl sf = (ClientSessionFactoryImpl) locator.createSessionFactory();
 
       ClientSession session1 = sf.createSession(false, true, true);
@@ -227,14 +219,12 @@ public class SessionCloseOnGCTest extends ActiveMQTestBase
       int count = 0;
       final int TOTAL_SLEEP_TIME = 400;
       final int MAX_COUNT = 20;
-      while (count++ < MAX_COUNT)
-      {
+      while (count++ < MAX_COUNT) {
          /*
           * The assertion is vulnerable to races, both in the session closing as well as the return
           * value of the sessions.size() (i.e. HashSet.size()).
           */
-         synchronized (this)
-         {
+         synchronized (this) {
             // synchronized block will (as a side effect) force sync all field values
             if (sf.numSessions() == 0)
                break;

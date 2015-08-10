@@ -22,21 +22,24 @@ import javax.jms.Destination;
 import javax.jms.JMSException;
 
 /**
- * 
+ *
  */
 public class KahaDBDurableTransactedTopicTest extends KahaDBDurableTopicTest {
 
-    @Override
-    protected void setUp() throws Exception {
-        //this.initialConsumerDelay = 10 * 1000;
-        super.setUp();
-    }
-    @Override
-    protected PerfProducer createProducer(ConnectionFactory fac, Destination dest, int number, byte[] payload) throws JMSException {
-        PerfProducer result= new PerfProducer(fac, dest, payload, true);
-        result.setDeliveryMode(DeliveryMode.PERSISTENT);
-        return result;
-    }
+   @Override
+   protected void setUp() throws Exception {
+      //this.initialConsumerDelay = 10 * 1000;
+      super.setUp();
+   }
 
-  
+   @Override
+   protected PerfProducer createProducer(ConnectionFactory fac,
+                                         Destination dest,
+                                         int number,
+                                         byte[] payload) throws JMSException {
+      PerfProducer result = new PerfProducer(fac, dest, payload, true);
+      result.setDeliveryMode(DeliveryMode.PERSISTENT);
+      return result;
+   }
+
 }

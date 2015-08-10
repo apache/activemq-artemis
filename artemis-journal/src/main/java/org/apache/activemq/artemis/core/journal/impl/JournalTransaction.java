@@ -27,8 +27,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.core.journal.impl.dataformat.JournalInternalRecord;
 
-public class JournalTransaction
-{
+public class JournalTransaction {
 
    private JournalRecordProvider journal;
 
@@ -52,55 +51,45 @@ public class JournalTransaction
 
    private final AtomicInteger counter = new AtomicInteger();
 
-   public JournalTransaction(final long id, final JournalRecordProvider journal)
-   {
+   public JournalTransaction(final long id, final JournalRecordProvider journal) {
       this.id = id;
       this.journal = journal;
    }
 
-   public void replaceRecordProvider(final JournalRecordProvider provider)
-   {
+   public void replaceRecordProvider(final JournalRecordProvider provider) {
       journal = provider;
    }
 
    /**
     * @return the id
     */
-   public long getId()
-   {
+   public long getId() {
       return id;
    }
 
-   public int getCounter(final JournalFile file)
-   {
+   public int getCounter(final JournalFile file) {
       return internalgetCounter(file).intValue();
    }
 
-   public void incCounter(final JournalFile file)
-   {
+   public void incCounter(final JournalFile file) {
       internalgetCounter(file).incrementAndGet();
    }
 
-   public long[] getPositiveArray()
-   {
-      if (pos == null)
-      {
+   public long[] getPositiveArray() {
+      if (pos == null) {
          return new long[0];
       }
-      else
-      {
+      else {
          int i = 0;
          long[] ids = new long[pos.size()];
-         for (JournalUpdate el : pos)
-         {
+         for (JournalUpdate el : pos) {
             ids[i++] = el.getId();
          }
          return ids;
       }
    }
 
-   public void setCompacting()
-   {
+   public void setCompacting() {
       compacting = true;
 
       // Everything is cleared on the transaction...
@@ -108,33 +97,28 @@ public class JournalTransaction
       clear();
    }
 
-   /** This is used to merge transactions from compacting */
-   public void merge(final JournalTransaction other)
-   {
-      if (other.pos != null)
-      {
-         if (pos == null)
-         {
+   /**
+    * This is used to merge transactions from compacting
+    */
+   public void merge(final JournalTransaction other) {
+      if (other.pos != null) {
+         if (pos == null) {
             pos = new ArrayList<JournalUpdate>();
          }
 
          pos.addAll(other.pos);
       }
 
-      if (other.neg != null)
-      {
-         if (neg == null)
-         {
+      if (other.neg != null) {
+         if (neg == null) {
             neg = new ArrayList<JournalUpdate>();
          }
 
          neg.addAll(other.neg);
       }
 
-      if (other.pendingFiles != null)
-      {
-         if (pendingFiles == null)
-         {
+      if (other.pendingFiles != null) {
+         if (pendingFiles == null) {
             pendingFiles = new HashSet<JournalFile>();
          }
 
@@ -147,29 +131,24 @@ public class JournalTransaction
    /**
     *
     */
-   public void clear()
-   {
+   public void clear() {
       // / Compacting is recreating all the previous files and everything
       // / so we just clear the list of previous files, previous pos and previous adds
       // / The transaction may be working at the top from now
 
-      if (pendingFiles != null)
-      {
+      if (pendingFiles != null) {
          pendingFiles.clear();
       }
 
-      if (callbackList != null)
-      {
+      if (callbackList != null) {
          callbackList.clear();
       }
 
-      if (pos != null)
-      {
+      if (pos != null) {
          pos.clear();
       }
 
-      if (neg != null)
-      {
+      if (neg != null) {
          neg.clear();
       }
 
@@ -184,28 +163,23 @@ public class JournalTransaction
     * @param currentFile
     * @param data
     */
-   public void fillNumberOfRecords(final JournalFile currentFile, final JournalInternalRecord data)
-   {
+   public void fillNumberOfRecords(final JournalFile currentFile, final JournalInternalRecord data) {
       data.setNumberOfRecords(getCounter(currentFile));
    }
 
-   public TransactionCallback getCallback(final JournalFile file) throws Exception
-   {
-      if (callbackList == null)
-      {
+   public TransactionCallback getCallback(final JournalFile file) throws Exception {
+      if (callbackList == null) {
          callbackList = new HashMap<JournalFile, TransactionCallback>();
       }
 
       currentCallback = callbackList.get(file);
 
-      if (currentCallback == null)
-      {
+      if (currentCallback == null) {
          currentCallback = new TransactionCallback();
          callbackList.put(file, currentCallback);
       }
 
-      if (currentCallback.getErrorMessage() != null)
-      {
+      if (currentCallback.getErrorMessage() != null) {
          throw ActiveMQExceptionType.createException(currentCallback.getErrorCode(), currentCallback.getErrorMessage());
       }
 
@@ -214,28 +188,24 @@ public class JournalTransaction
       return currentCallback;
    }
 
-   public void addPositive(final JournalFile file, final long id, final int size)
-   {
+   public void addPositive(final JournalFile file, final long id, final int size) {
       incCounter(file);
 
       addFile(file);
 
-      if (pos == null)
-      {
+      if (pos == null) {
          pos = new ArrayList<JournalUpdate>();
       }
 
       pos.add(new JournalUpdate(file, id, size));
    }
 
-   public void addNegative(final JournalFile file, final long id)
-   {
+   public void addNegative(final JournalFile file, final long id) {
       incCounter(file);
 
       addFile(file);
 
-      if (neg == null)
-      {
+      if (neg == null) {
          neg = new ArrayList<JournalUpdate>();
       }
 
@@ -244,58 +214,45 @@ public class JournalTransaction
 
    /**
     * The caller of this method needs to guarantee appendLock.lock at the journal. (unless this is being called from load what is a single thread process).
-    * */
-   public void commit(final JournalFile file)
-   {
+    */
+   public void commit(final JournalFile file) {
       JournalCompactor compactor = journal.getCompactor();
 
-      if (compacting)
-      {
+      if (compacting) {
          compactor.addCommandCommit(this, file);
       }
-      else
-      {
+      else {
 
-         if (pos != null)
-         {
-            for (JournalUpdate trUpdate : pos)
-            {
+         if (pos != null) {
+            for (JournalUpdate trUpdate : pos) {
                JournalRecord posFiles = journal.getRecords().get(trUpdate.id);
 
-               if (compactor != null && compactor.lookupRecord(trUpdate.id))
-               {
+               if (compactor != null && compactor.lookupRecord(trUpdate.id)) {
                   // This is a case where the transaction was opened after compacting was started,
                   // but the commit arrived while compacting was working
                   // We need to cache the counter update, so compacting will take the correct files when it is done
                   compactor.addCommandUpdate(trUpdate.id, trUpdate.file, trUpdate.size);
                }
-               else if (posFiles == null)
-               {
+               else if (posFiles == null) {
                   posFiles = new JournalRecord(trUpdate.file, trUpdate.size);
 
                   journal.getRecords().put(trUpdate.id, posFiles);
                }
-               else
-               {
+               else {
                   posFiles.addUpdateFile(trUpdate.file, trUpdate.size);
                }
             }
          }
 
-         if (neg != null)
-         {
-            for (JournalUpdate trDelete : neg)
-            {
-               if (compactor != null)
-               {
+         if (neg != null) {
+            for (JournalUpdate trDelete : neg) {
+               if (compactor != null) {
                   compactor.addCommandDelete(trDelete.id, trDelete.file);
                }
-               else
-               {
+               else {
                   JournalRecord posFiles = journal.getRecords().remove(trDelete.id);
 
-                  if (posFiles != null)
-                  {
+                  if (posFiles != null) {
                      posFiles.delete(trDelete.file);
                   }
                }
@@ -305,29 +262,25 @@ public class JournalTransaction
          // Now add negs for the pos we added in each file in which there were
          // transactional operations
 
-         for (JournalFile jf : pendingFiles)
-         {
+         for (JournalFile jf : pendingFiles) {
             file.incNegCount(jf);
          }
       }
    }
 
-   public void waitCallbacks() throws InterruptedException
-   {
-      if (callbackList != null)
-      {
-         for (TransactionCallback callback : callbackList.values())
-         {
+   public void waitCallbacks() throws InterruptedException {
+      if (callbackList != null) {
+         for (TransactionCallback callback : callbackList.values()) {
             callback.waitCompletion();
          }
       }
    }
 
-   /** Wait completion at the latest file only */
-   public void waitCompletion() throws Exception
-   {
-      if (currentCallback != null)
-      {
+   /**
+    * Wait completion at the latest file only
+    */
+   public void waitCompletion() throws Exception {
+      if (currentCallback != null) {
          currentCallback.waitCompletion();
       }
    }
@@ -335,17 +288,14 @@ public class JournalTransaction
    /**
     * The caller of this method needs to guarantee appendLock.lock before calling this method if being used outside of the lock context.
     * or else potFilesMap could be affected
-    * */
-   public void rollback(final JournalFile file)
-   {
+    */
+   public void rollback(final JournalFile file) {
       JournalCompactor compactor = journal.getCompactor();
 
-      if (compacting && compactor != null)
-      {
+      if (compacting && compactor != null) {
          compactor.addCommandRollback(this, file);
       }
-      else
-      {
+      else {
          // Now add negs for the pos we added in each file in which there were
          // transactional operations
          // Note that we do this on rollback as we do on commit, since we need
@@ -356,8 +306,7 @@ public class JournalTransaction
          // just left with a prepare when the tx
          // has actually been rolled back
 
-         for (JournalFile jf : pendingFiles)
-         {
+         for (JournalFile jf : pendingFiles) {
             file.incNegCount(jf);
          }
       }
@@ -366,34 +315,31 @@ public class JournalTransaction
    /**
     * The caller of this method needs to guarantee appendLock.lock before calling this method if being used outside of the lock context.
     * or else potFilesMap could be affected
-    * */
-   public void prepare(final JournalFile file)
-   {
+    */
+   public void prepare(final JournalFile file) {
       // We don't want the prepare record getting deleted before time
 
       addFile(file);
    }
 
-   /** Used by load, when the transaction was not loaded correctly */
-   public void forget()
-   {
+   /**
+    * Used by load, when the transaction was not loaded correctly
+    */
+   public void forget() {
       // The transaction was not committed or rolled back in the file, so we
       // reverse any pos counts we added
-      for (JournalFile jf : pendingFiles)
-      {
+      for (JournalFile jf : pendingFiles) {
          jf.decPosCount();
       }
 
    }
 
    @Override
-   public String toString()
-   {
+   public String toString() {
       return "JournalTransaction(" + id + ")";
    }
 
-   private AtomicInteger internalgetCounter(final JournalFile file)
-   {
+   private AtomicInteger internalgetCounter(final JournalFile file) {
       if (lastFile != file)
 
       {
@@ -403,15 +349,12 @@ public class JournalTransaction
       return counter;
    }
 
-   private void addFile(final JournalFile file)
-   {
-      if (pendingFiles == null)
-      {
+   private void addFile(final JournalFile file) {
+      if (pendingFiles == null) {
          pendingFiles = new HashSet<JournalFile>();
       }
 
-      if (!pendingFiles.contains(file))
-      {
+      if (!pendingFiles.contains(file)) {
          pendingFiles.add(file);
 
          // We add a pos for the transaction itself in the file - this
@@ -421,8 +364,8 @@ public class JournalTransaction
       }
    }
 
-   private static class JournalUpdate
-   {
+   private static class JournalUpdate {
+
       private final JournalFile file;
 
       long id;
@@ -434,8 +377,7 @@ public class JournalTransaction
        * @param id
        * @param size
        */
-      private JournalUpdate(final JournalFile file, final long id, final int size)
-      {
+      private JournalUpdate(final JournalFile file, final long id, final int size) {
          super();
          this.file = file;
          this.id = id;
@@ -445,8 +387,7 @@ public class JournalTransaction
       /**
        * @return the id
        */
-      public long getId()
-      {
+      public long getId() {
          return id;
       }
    }

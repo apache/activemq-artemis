@@ -33,8 +33,8 @@ import javax.naming.InitialContext;
  * A simple example that demonstrates failover of the JMS connection from one node to another
  * when the live server crashes using a JMS <em>transacted</em> session and replication.
  */
-public class ReplicatedTransactionFailoverExample
-{
+public class ReplicatedTransactionFailoverExample {
+
    private static Process server0;
 
    private static Process server1;
@@ -45,16 +45,14 @@ public class ReplicatedTransactionFailoverExample
    // We recommend some sort of UUID, but for this example the Current Time as string would be enough
    private static String uniqueID = Long.toString(System.currentTimeMillis());
 
-   public static void main(final String[] args) throws Exception
-   {
+   public static void main(final String[] args) throws Exception {
       final int numMessages = 10;
 
       Connection connection = null;
 
       InitialContext initialContext = null;
 
-      try
-      {
+      try {
          server0 = ServerUtil.startServer(args[0], ReplicatedTransactionFailoverExample.class.getSimpleName() + "0", 0, 5000);
          server1 = ServerUtil.startServer(args[1], ReplicatedTransactionFailoverExample.class.getSimpleName() + "1", 1, 5000);
 
@@ -62,8 +60,8 @@ public class ReplicatedTransactionFailoverExample
          initialContext = new InitialContext();
 
          // Step 2. Look-up the JMS resources from JNDI
-         Queue queue = (Queue)initialContext.lookup("queue/exampleQueue");
-         ConnectionFactory connectionFactory = (ConnectionFactory)initialContext.lookup("ConnectionFactory");
+         Queue queue = (Queue) initialContext.lookup("queue/exampleQueue");
+         ConnectionFactory connectionFactory = (ConnectionFactory) initialContext.lookup("ConnectionFactory");
 
          // Step 3. We create a JMS Connection
          connection = connectionFactory.createConnection();
@@ -84,12 +82,10 @@ public class ReplicatedTransactionFailoverExample
          sendMessages(session, producer, numMessages, true);
 
          // Step 9. As failover occurred during transaction, the session has been marked for rollback only
-         try
-         {
+         try {
             session.commit();
          }
-         catch (TransactionRolledBackException e)
-         {
+         catch (TransactionRolledBackException e) {
             System.err.println("transaction has been rolled back: " + e.getMessage());
          }
 
@@ -102,12 +98,10 @@ public class ReplicatedTransactionFailoverExample
 
          // Step 12. We are now transparently reconnected to server #0, the backup server.
          // We consume the messages sent before the crash of the live server and commit the session.
-         for (int i = 0; i < numMessages; i++)
-         {
-            TextMessage message0 = (TextMessage)consumer.receive(5000);
+         for (int i = 0; i < numMessages; i++) {
+            TextMessage message0 = (TextMessage) consumer.receive(5000);
 
-            if (message0 == null)
-            {
+            if (message0 == null) {
                throw new IllegalStateException("Example failed - message wasn't received");
             }
 
@@ -118,17 +112,14 @@ public class ReplicatedTransactionFailoverExample
 
          System.out.println("Other message on the server? " + consumer.receive(5000));
       }
-      finally
-      {
+      finally {
          // Step 13. Be sure to close our resources!
 
-         if (connection != null)
-         {
+         if (connection != null) {
             connection.close();
          }
 
-         if (initialContext != null)
-         {
+         if (initialContext != null) {
             initialContext.close();
          }
 
@@ -138,13 +129,11 @@ public class ReplicatedTransactionFailoverExample
    }
 
    private static void sendMessages(final Session session,
-                             final MessageProducer producer,
-                             final int numMessages,
-                             final boolean killServer) throws Exception
-   {
+                                    final MessageProducer producer,
+                                    final int numMessages,
+                                    final boolean killServer) throws Exception {
       // We send half of messages
-      for (int i = 0; i < numMessages / 2; i++)
-      {
+      for (int i = 0; i < numMessages / 2; i++) {
          TextMessage message = session.createTextMessage("This is text message " + i);
 
          // We set the duplicate detection header - so the server will ignore the same message
@@ -157,14 +146,12 @@ public class ReplicatedTransactionFailoverExample
          System.out.println("Sent message: " + message.getText());
       }
 
-      if (killServer)
-      {
+      if (killServer) {
          ServerUtil.killServer(server0);
       }
 
       // We send the remaining half of messages
-      for (int i = numMessages / 2; i < numMessages; i++)
-      {
+      for (int i = numMessages / 2; i < numMessages; i++) {
          TextMessage message = session.createTextMessage("This is text message " + i);
 
          // We set the duplicate detection header - so the server will ignore the same message

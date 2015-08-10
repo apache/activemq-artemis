@@ -17,6 +17,7 @@
 package org.apache.activemq.broker.partition;
 
 import junit.framework.TestCase;
+
 import org.apache.activemq.broker.BrokerFactory;
 import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.partition.PartitionBrokerPlugin;
@@ -26,28 +27,28 @@ import org.apache.activemq.partition.dto.Partitioning;
  */
 public class SpringPartitionBrokerTest extends TestCase {
 
-    public void testCreatePartitionBroker() throws Exception {
+   public void testCreatePartitionBroker() throws Exception {
 
-        BrokerService broker = BrokerFactory.createBroker("xbean:activemq-partition.xml");
-        assertEquals(1, broker.getPlugins().length);
-        PartitionBrokerPlugin plugin = (PartitionBrokerPlugin)broker.getPlugins()[0];
-        Partitioning config = plugin.getConfig();
-        assertEquals(2,  config.getBrokers().size());
+      BrokerService broker = BrokerFactory.createBroker("xbean:activemq-partition.xml");
+      assertEquals(1, broker.getPlugins().length);
+      PartitionBrokerPlugin plugin = (PartitionBrokerPlugin) broker.getPlugins()[0];
+      Partitioning config = plugin.getConfig();
+      assertEquals(2, config.getBrokers().size());
 
-        Object o;
-        String json = "{\n" +
-        "  \"by_client_id\":{\n" +
-        "    \"client1\":{\"ids\":[\"broker1\"]},\n" +
-        "    \"client2\":{\"ids\":[\"broker1\",\"broker2\"]}\n" +
-        "  },\n" +
-        "  \"brokers\":{\n" +
-        "    \"broker1\":\"tcp://localhost:61616\",\n" +
-        "    \"broker2\":\"tcp://localhost:61616\"\n" +
-        "  }\n" +
-        "}";
-        Partitioning expected = Partitioning.MAPPER.readValue(json, Partitioning.class);
-        assertEquals(expected.toString(), config.toString());
+      Object o;
+      String json = "{\n" +
+         "  \"by_client_id\":{\n" +
+         "    \"client1\":{\"ids\":[\"broker1\"]},\n" +
+         "    \"client2\":{\"ids\":[\"broker1\",\"broker2\"]}\n" +
+         "  },\n" +
+         "  \"brokers\":{\n" +
+         "    \"broker1\":\"tcp://localhost:61616\",\n" +
+         "    \"broker2\":\"tcp://localhost:61616\"\n" +
+         "  }\n" +
+         "}";
+      Partitioning expected = Partitioning.MAPPER.readValue(json, Partitioning.class);
+      assertEquals(expected.toString(), config.toString());
 
-    }
+   }
 
 }

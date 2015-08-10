@@ -28,66 +28,64 @@ import org.apache.activemq.broker.region.policy.PolicyMap;
 import org.apache.activemq.command.ActiveMQDestination;
 
 /**
- * 
+ *
  */
 public class MessageGroupConfigTest extends TestSupport {
-    protected BrokerService broker;
 
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();  
-    }
+   protected BrokerService broker;
 
-    @Override
-    protected void tearDown() throws Exception {
-        broker.stop();
-        super.tearDown();    
-    }
+   @Override
+   protected void setUp() throws Exception {
+      super.setUp();
+   }
 
+   @Override
+   protected void tearDown() throws Exception {
+      broker.stop();
+      super.tearDown();
+   }
 
+   public void testCachedGroupConfiguration() throws Exception {
+      doTestGroupConfiguration("cached", CachedMessageGroupMap.class);
+   }
 
-    public void testCachedGroupConfiguration() throws Exception {
-        doTestGroupConfiguration("cached",CachedMessageGroupMap.class);
-    }
+   public void testCachedGroupConfigurationWithCacheSize() throws Exception {
+      CachedMessageGroupMap result = (CachedMessageGroupMap) doTestGroupConfiguration("cached?cacheSize=10", CachedMessageGroupMap.class);
+      assertEquals(10, result.getMaximumCacheSize());
 
-    public void testCachedGroupConfigurationWithCacheSize() throws Exception {
-        CachedMessageGroupMap result = (CachedMessageGroupMap) doTestGroupConfiguration("cached?cacheSize=10",CachedMessageGroupMap.class);
-        assertEquals(10,result.getMaximumCacheSize());
+   }
 
-    }
+   public void testSimpleGroupConfiguration() throws Exception {
+      doTestGroupConfiguration("simple", SimpleMessageGroupMap.class);
+   }
 
-    public void testSimpleGroupConfiguration() throws Exception {
-        doTestGroupConfiguration("simple", SimpleMessageGroupMap.class);
-    }
+   public void testBucketGroupConfiguration() throws Exception {
+      doTestGroupConfiguration("bucket", MessageGroupHashBucket.class);
+   }
 
-    public void testBucketGroupConfiguration() throws Exception {
-        doTestGroupConfiguration("bucket", MessageGroupHashBucket.class);
-    }
+   public void testBucketGroupConfigurationWithBucketCount() throws Exception {
+      MessageGroupHashBucket result = (MessageGroupHashBucket) doTestGroupConfiguration("bucket?bucketCount=2", MessageGroupHashBucket.class);
+      assertEquals(2, result.getBucketCount());
+   }
 
-    public void testBucketGroupConfigurationWithBucketCount() throws Exception {
-        MessageGroupHashBucket result = (MessageGroupHashBucket) doTestGroupConfiguration("bucket?bucketCount=2", MessageGroupHashBucket.class);
-        assertEquals(2,result.getBucketCount());
-    }
+   public MessageGroupMap doTestGroupConfiguration(String type, Class classType) throws Exception {
+      broker = new BrokerService();
 
-    public MessageGroupMap doTestGroupConfiguration(String type, Class classType) throws Exception {
-        broker = new BrokerService();
+      PolicyEntry defaultEntry = new PolicyEntry();
+      defaultEntry.setMessageGroupMapFactoryType(type);
+      PolicyMap policyMap = new PolicyMap();
+      policyMap.setDefaultEntry(defaultEntry);
+      broker.setDestinationPolicy(policyMap);
+      broker.start();
+      super.topic = false;
+      ActiveMQDestination destination = (ActiveMQDestination) createDestination("org.apache.foo");
+      Queue brokerDestination = (Queue) broker.getDestination(destination);
 
-        PolicyEntry defaultEntry = new PolicyEntry();
-        defaultEntry.setMessageGroupMapFactoryType(type);
-        PolicyMap policyMap = new PolicyMap();
-        policyMap.setDefaultEntry(defaultEntry);
-        broker.setDestinationPolicy(policyMap);
-        broker.start();
-        super.topic = false;
-        ActiveMQDestination destination = (ActiveMQDestination) createDestination("org.apache.foo");
-        Queue brokerDestination = (Queue) broker.getDestination(destination);
-
-        assertNotNull(brokerDestination);
-        MessageGroupMap messageGroupMap = brokerDestination.getMessageGroupOwners();
-        assertNotNull(messageGroupMap);
-        assertTrue(messageGroupMap.getClass().isAssignableFrom(classType));
-        return messageGroupMap;
-    }
-
+      assertNotNull(brokerDestination);
+      MessageGroupMap messageGroupMap = brokerDestination.getMessageGroupOwners();
+      assertNotNull(messageGroupMap);
+      assertTrue(messageGroupMap.getClass().isAssignableFrom(classType));
+      return messageGroupMap;
+   }
 
 }

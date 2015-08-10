@@ -29,8 +29,7 @@ import org.objectweb.jtests.jms.framework.PubSubTestCase;
  * Test setting of client ID which is relevant only for Durable Subscribtion
  */
 
-public class TopicConnectionTest extends PubSubTestCase
-{
+public class TopicConnectionTest extends PubSubTestCase {
 
    /**
     * Test that a call to <code>setClientID</code> will throw an
@@ -39,18 +38,15 @@ public class TopicConnectionTest extends PubSubTestCase
     * http://java.sun.com/j2ee/sdk_1.3/techdocs/api/javax/jms/Connection.html#setClientID(java.lang.String)
     */
    @Test
-   public void testSetClientID_1()
-   {
-      try
-      {
+   public void testSetClientID_1() {
+      try {
          // we start from a clean state for the connection
          subscriberConnection.close();
          subscriberConnection = null;
 
          subscriberConnection = subscriberTCF.createTopicConnection();
          // if the JMS provider does not set a client ID, we do.
-         if (subscriberConnection.getClientID() == null)
-         {
+         if (subscriberConnection.getClientID() == null) {
             subscriberConnection.setClientID("testSetClientID_1");
             Assert.assertEquals("testSetClientID_1", subscriberConnection.getClientID());
          }
@@ -61,15 +57,12 @@ public class TopicConnectionTest extends PubSubTestCase
          subscriberConnection.setClientID("another client ID");
          Assert.fail("Should raise a javax.jms.IllegalStateException");
       }
-      catch (javax.jms.IllegalStateException e)
-      {
+      catch (javax.jms.IllegalStateException e) {
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          Assert.fail("Should raise a javax.jms.IllegalStateException, not a " + e);
       }
-      catch (java.lang.IllegalStateException e)
-      {
+      catch (java.lang.IllegalStateException e) {
          Assert.fail("Should raise a javax.jms.IllegalStateException, not a java.lang.IllegalStateException");
       }
    }
@@ -82,18 +75,15 @@ public class TopicConnectionTest extends PubSubTestCase
     * http://java.sun.com/j2ee/sdk_1.3/techdocs/api/javax/jms/Connection.html#setClientID(java.lang.String)
     */
    @Test
-   public void testSetClientID_2()
-   {
-      try
-      {
+   public void testSetClientID_2() {
+      try {
          // we start from a clean state for the first connection
          subscriberConnection.close();
          subscriberConnection = null;
 
          subscriberConnection = subscriberTCF.createTopicConnection();
          // if the JMS provider has set a client ID, this test is not relevant
-         if (subscriberConnection.getClientID() != null)
-         {
+         if (subscriberConnection.getClientID() != null) {
             return;
          }
 
@@ -104,15 +94,12 @@ public class TopicConnectionTest extends PubSubTestCase
          subscriberConnection.setClientID("testSetClientID_2");
          Assert.fail("Should throw a javax.jms.IllegalStateException");
       }
-      catch (javax.jms.IllegalStateException e)
-      {
+      catch (javax.jms.IllegalStateException e) {
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          Assert.fail("Should raise a javax.jms.IllegalStateException, not a " + e);
       }
-      catch (java.lang.IllegalStateException e)
-      {
+      catch (java.lang.IllegalStateException e) {
          Assert.fail("Should raise a javax.jms.IllegalStateException, not a java.lang.IllegalStateException");
       }
    }

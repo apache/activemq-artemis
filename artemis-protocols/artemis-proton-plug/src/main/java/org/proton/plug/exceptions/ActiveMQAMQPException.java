@@ -18,26 +18,22 @@ package org.proton.plug.exceptions;
 
 import org.apache.qpid.proton.amqp.Symbol;
 
-public class ActiveMQAMQPException extends Exception
-{
+public class ActiveMQAMQPException extends Exception {
 
    private static final String ERROR_PREFIX = "amqp:";
 
-   public Symbol getAmqpError()
-   {
+   public Symbol getAmqpError() {
       return amqpError;
    }
 
    private final Symbol amqpError;
 
-   public ActiveMQAMQPException(Symbol amqpError, String message, Throwable e)
-   {
+   public ActiveMQAMQPException(Symbol amqpError, String message, Throwable e) {
       super(message, e);
       this.amqpError = amqpError;
    }
 
-   public ActiveMQAMQPException(Symbol amqpError, String message)
-   {
+   public ActiveMQAMQPException(Symbol amqpError, String message) {
       super(message);
       this.amqpError = amqpError;
    }

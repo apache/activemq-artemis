@@ -65,8 +65,7 @@ import java.util.Random;
  * synchronized context (caller locks on either this object, or a similar timer
  * lock), and so has no method synchronization.
  */
-public class UUIDTimer
-{
+public class UUIDTimer {
    // // // Constants
 
    /**
@@ -126,8 +125,7 @@ public class UUIDTimer
     */
    private int mClockCounter = 0;
 
-   UUIDTimer(final Random rnd)
-   {
+   UUIDTimer(final Random rnd) {
       mRnd = rnd;
       initCounters(rnd);
       mLastSystemTimestamp = 0L;
@@ -135,8 +133,7 @@ public class UUIDTimer
       mLastUsedTimestamp = 0L;
    }
 
-   private void initCounters(final Random rnd)
-   {
+   private void initCounters(final Random rnd) {
       /*
        * Let's generate the clock sequence field now; as with counter, this
        * reduces likelihood of collisions (as explained in UUID specs)
@@ -152,8 +149,7 @@ public class UUIDTimer
       mClockCounter = mClockSequence[2] & 0xFF;
    }
 
-   public void getTimestamp(final byte[] uuidData)
-   {
+   public void getTimestamp(final byte[] uuidData) {
       // First the clock sequence:
       uuidData[UUID.INDEX_CLOCK_SEQUENCE] = mClockSequence[0];
       uuidData[UUID.INDEX_CLOCK_SEQUENCE + 1] = mClockSequence[1];
@@ -164,8 +160,7 @@ public class UUIDTimer
        * Let's first verify that the system time is not going backwards;
        * independent of whether we can use it:
        */
-      if (systime < mLastSystemTimestamp)
-      {
+      if (systime < mLastSystemTimestamp) {
          // Logger.logWarning("System time going backwards! (got value
          // "+systime+", last "+mLastSystemTimestamp);
          // Let's write it down, still
@@ -177,18 +172,15 @@ public class UUIDTimer
        * used (when generating UUIDs fast with coarse clock resolution; or if
        * clock has gone backwards over reboot etc).
        */
-      if (systime <= mLastUsedTimestamp)
-      {
+      if (systime <= mLastUsedTimestamp) {
          /*
           * Can we just use the last time stamp (ok if the counter hasn't hit
           * max yet)
           */
-         if (mClockCounter < UUIDTimer.kClockMultiplier)
-         { // yup, still have room
+         if (mClockCounter < UUIDTimer.kClockMultiplier) { // yup, still have room
             systime = mLastUsedTimestamp;
          }
-         else
-         { // nope, have to roll over to next value and maybe wait
+         else { // nope, have to roll over to next value and maybe wait
             long actDiff = mLastUsedTimestamp - systime;
             long origTime = systime;
             systime = mLastUsedTimestamp + 1L;
@@ -209,14 +201,12 @@ public class UUIDTimer
              * been moved backwards, or when coarse clock resolution has forced
              * us to advance virtual timer too far)
              */
-            if (actDiff >= UUIDTimer.kMaxClockAdvance)
-            {
+            if (actDiff >= UUIDTimer.kMaxClockAdvance) {
                UUIDTimer.slowDown(origTime, actDiff);
             }
          }
       }
-      else
-      {
+      else {
          /*
           * Clock has advanced normally; just need to make sure counter is reset
           * to a low value (need not be 0; good to leave a small residual to
@@ -270,10 +260,8 @@ public class UUIDTimer
     * Delay is kept to just a millisecond or two, to prevent excessive blocking;
     * but that should be enough to eventually synchronize physical clock with
     * virtual clock values used for UUIDs.
-    *
     */
-   private static void slowDown(final long startTime, final long actDiff)
-   {
+   private static void slowDown(final long startTime, final long actDiff) {
       /*
        * First, let's determine how long we'd like to wait. This is based on how
        * far ahead are we as of now.
@@ -281,45 +269,36 @@ public class UUIDTimer
       long ratio = actDiff / UUIDTimer.kMaxClockAdvance;
       long delay;
 
-      if (ratio < 2L)
-      { // 200 msecs or less
+      if (ratio < 2L) { // 200 msecs or less
          delay = 1L;
       }
-      else if (ratio < 10L)
-      { // 1 second or less
+      else if (ratio < 10L) { // 1 second or less
          delay = 2L;
       }
-      else if (ratio < 600L)
-      { // 1 minute or less
+      else if (ratio < 600L) { // 1 minute or less
          delay = 3L;
       }
-      else
-      {
+      else {
          delay = 5L;
       }
       // Logger.logWarning("Need to wait for "+delay+" milliseconds; virtual
       // clock advanced too far in the future");
       long waitUntil = startTime + delay;
       int counter = 0;
-      do
-      {
-         try
-         {
+      do {
+         try {
             Thread.sleep(delay);
          }
-         catch (InterruptedException ie)
-         {
+         catch (InterruptedException ie) {
          }
          delay = 1L;
          /*
           * This is just a sanity check: don't want an "infinite" loop if clock
           * happened to be moved backwards by, say, an hour...
           */
-         if (++counter > UUIDTimer.MAX_WAIT_COUNT)
-         {
+         if (++counter > UUIDTimer.MAX_WAIT_COUNT) {
             break;
          }
-      }
-      while (System.currentTimeMillis() < waitUntil);
+      } while (System.currentTimeMillis() < waitUntil);
    }
 }

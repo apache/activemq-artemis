@@ -37,175 +37,174 @@ import org.apache.activemq.util.Wait;
  * manipulated by the remote broker.
  */
 public class AMQ4147Test extends JmsMultipleBrokersTestSupport {
-    /**
-     * This test demonstrates the bug: namely, when a message is bridged over
-     * the VMTransport, its memory usage continues to refer to the originating
-     * broker. As a result, memory usage is never accounted for on the remote
-     * broker, and the local broker's memory usage is only decreased once the
-     * message is consumed on the remote broker.
-     */
-    public void testVMTransportRemoteMemoryUsage() throws Exception {
-        BrokerService broker1 = createBroker(new URI(
-                "broker:(vm://broker1)/broker1?persistent=false"));
 
-        BrokerService broker2 = createBroker(new URI(
-                "broker:(vm://broker2)/broker2?persistent=false"));
+   /**
+    * This test demonstrates the bug: namely, when a message is bridged over
+    * the VMTransport, its memory usage continues to refer to the originating
+    * broker. As a result, memory usage is never accounted for on the remote
+    * broker, and the local broker's memory usage is only decreased once the
+    * message is consumed on the remote broker.
+    */
+   public void testVMTransportRemoteMemoryUsage() throws Exception {
+      BrokerService broker1 = createBroker(new URI("broker:(vm://broker1)/broker1?persistent=false"));
 
-        startAllBrokers();
+      BrokerService broker2 = createBroker(new URI("broker:(vm://broker2)/broker2?persistent=false"));
 
-        // Forward messages from broker1 to broker2 over the VM transport.
-        bridgeBrokers("broker1", "broker2").start();
+      startAllBrokers();
 
-        // Verify that broker1 and broker2's test queues have no memory usage.
-        ActiveMQDestination testQueue = createDestination(
-                AMQ4147Test.class.getSimpleName() + ".queue", false);
-        final Destination broker1TestQueue = broker1.getDestination(testQueue);
-        final Destination broker2TestQueue = broker2.getDestination(testQueue);
+      // Forward messages from broker1 to broker2 over the VM transport.
+      bridgeBrokers("broker1", "broker2").start();
 
-        assertEquals(0, broker1TestQueue.getMemoryUsage().getUsage());
-        assertEquals(0, broker2TestQueue.getMemoryUsage().getUsage());
+      // Verify that broker1 and broker2's test queues have no memory usage.
+      ActiveMQDestination testQueue = createDestination(AMQ4147Test.class.getSimpleName() + ".queue", false);
+      final Destination broker1TestQueue = broker1.getDestination(testQueue);
+      final Destination broker2TestQueue = broker2.getDestination(testQueue);
 
-        // Produce a message to broker1's test queue and verify that broker1's
-        // memory usage has increased, but broker2 still has no memory usage.
-        sendMessages("broker1", testQueue, 1);
-        assertTrue(broker1TestQueue.getMemoryUsage().getUsage() > 0);
-        assertEquals(0, broker2TestQueue.getMemoryUsage().getUsage());
+      assertEquals(0, broker1TestQueue.getMemoryUsage().getUsage());
+      assertEquals(0, broker2TestQueue.getMemoryUsage().getUsage());
 
-        // Create a consumer on broker2 that is synchronized to allow detection
-        // of "in flight" messages to the consumer.
-        MessageIdList broker2Messages = getBrokerMessages("broker2");
-        final Semaphore consumerReady = new Semaphore(0);
-        final Semaphore consumerProceed = new Semaphore(0);
+      // Produce a message to broker1's test queue and verify that broker1's
+      // memory usage has increased, but broker2 still has no memory usage.
+      sendMessages("broker1", testQueue, 1);
+      assertTrue(broker1TestQueue.getMemoryUsage().getUsage() > 0);
+      assertEquals(0, broker2TestQueue.getMemoryUsage().getUsage());
 
-        broker2Messages.setParent(new MessageListener() {
-            @Override
-            public void onMessage(Message message) {
-                consumerReady.release();
-                try {
-                    consumerProceed.acquire();
-                } catch (InterruptedException ex) {
-                    Thread.currentThread().interrupt();
-                }
+      // Create a consumer on broker2 that is synchronized to allow detection
+      // of "in flight" messages to the consumer.
+      MessageIdList broker2Messages = getBrokerMessages("broker2");
+      final Semaphore consumerReady = new Semaphore(0);
+      final Semaphore consumerProceed = new Semaphore(0);
+
+      broker2Messages.setParent(new MessageListener() {
+         @Override
+         public void onMessage(Message message) {
+            consumerReady.release();
+            try {
+               consumerProceed.acquire();
             }
-        });
+            catch (InterruptedException ex) {
+               Thread.currentThread().interrupt();
+            }
+         }
+      });
 
-        createConsumer("broker2", testQueue);
+      createConsumer("broker2", testQueue);
 
-        // Verify that when broker2's consumer receives the message, the memory
-        // usage has moved broker1 to broker2. The first assertion is expected
-        // to fail due to the bug; the try/finally ensures the consumer is
-        // released prior to failure so that the broker can shut down.
-        consumerReady.acquire();
+      // Verify that when broker2's consumer receives the message, the memory
+      // usage has moved broker1 to broker2. The first assertion is expected
+      // to fail due to the bug; the try/finally ensures the consumer is
+      // released prior to failure so that the broker can shut down.
+      consumerReady.acquire();
 
-        try {
-            assertTrue("Memory Usage Should be Zero: ", Wait.waitFor(new Wait.Condition() {
-                @Override
-                public boolean isSatisified() throws Exception {
-                    return broker1TestQueue.getMemoryUsage().getUsage() == 0;
-                }
-            }));
-            assertTrue(broker2TestQueue.getMemoryUsage().getUsage() > 0);
-        } finally {
-            // Consume the message and verify that there is no more memory
-            // usage.
-            consumerProceed.release();
-        }
-
-        assertTrue("Memory Usage Should be Zero: ", Wait.waitFor(new Wait.Condition() {
+      try {
+         assertTrue("Memory Usage Should be Zero: ", Wait.waitFor(new Wait.Condition() {
             @Override
             public boolean isSatisified() throws Exception {
-                return broker1TestQueue.getMemoryUsage().getUsage() == 0;
+               return broker1TestQueue.getMemoryUsage().getUsage() == 0;
             }
-        }));
-        assertTrue("Memory Usage Should be Zero: ", Wait.waitFor(new Wait.Condition() {
+         }));
+         assertTrue(broker2TestQueue.getMemoryUsage().getUsage() > 0);
+      }
+      finally {
+         // Consume the message and verify that there is no more memory
+         // usage.
+         consumerProceed.release();
+      }
+
+      assertTrue("Memory Usage Should be Zero: ", Wait.waitFor(new Wait.Condition() {
+         @Override
+         public boolean isSatisified() throws Exception {
+            return broker1TestQueue.getMemoryUsage().getUsage() == 0;
+         }
+      }));
+      assertTrue("Memory Usage Should be Zero: ", Wait.waitFor(new Wait.Condition() {
+         @Override
+         public boolean isSatisified() throws Exception {
+            return broker2TestQueue.getMemoryUsage().getUsage() == 0;
+         }
+      }));
+   }
+
+   /**
+    * This test demonstrates that the bug is VMTransport-specific and does not
+    * occur when bridges occur using other protocols.
+    */
+   public void testTcpTransportRemoteMemoryUsage() throws Exception {
+      BrokerService broker1 = createBroker(new URI("broker:(vm://broker1)/broker1?persistent=false"));
+
+      BrokerService broker2 = createBroker(new URI("broker:(tcp://localhost:61616)/broker2?persistent=false"));
+
+      startAllBrokers();
+
+      // Forward messages from broker1 to broker2 over the TCP transport.
+      bridgeBrokers("broker1", "broker2").start();
+
+      // Verify that broker1 and broker2's test queues have no memory usage.
+      ActiveMQDestination testQueue = createDestination(AMQ4147Test.class.getSimpleName() + ".queue", false);
+      final Destination broker1TestQueue = broker1.getDestination(testQueue);
+      final Destination broker2TestQueue = broker2.getDestination(testQueue);
+
+      assertEquals(0, broker1TestQueue.getMemoryUsage().getUsage());
+      assertEquals(0, broker2TestQueue.getMemoryUsage().getUsage());
+
+      // Produce a message to broker1's test queue and verify that broker1's
+      // memory usage has increased, but broker2 still has no memory usage.
+      sendMessages("broker1", testQueue, 1);
+      assertTrue(broker1TestQueue.getMemoryUsage().getUsage() > 0);
+      assertEquals(0, broker2TestQueue.getMemoryUsage().getUsage());
+
+      // Create a consumer on broker2 that is synchronized to allow detection
+      // of "in flight" messages to the consumer.
+      MessageIdList broker2Messages = getBrokerMessages("broker2");
+      final Semaphore consumerReady = new Semaphore(0);
+      final Semaphore consumerProceed = new Semaphore(0);
+
+      broker2Messages.setParent(new MessageListener() {
+         @Override
+         public void onMessage(Message message) {
+            consumerReady.release();
+            try {
+               consumerProceed.acquire();
+            }
+            catch (InterruptedException ex) {
+               Thread.currentThread().interrupt();
+            }
+         }
+      });
+
+      createConsumer("broker2", testQueue);
+
+      // Verify that when broker2's consumer receives the message, the memory
+      // usage has moved broker1 to broker2.
+      consumerReady.acquire();
+
+      try {
+         assertTrue("Memory Usage Should be Zero: ", Wait.waitFor(new Wait.Condition() {
             @Override
             public boolean isSatisified() throws Exception {
-                return broker2TestQueue.getMemoryUsage().getUsage() == 0;
+               return broker1TestQueue.getMemoryUsage().getUsage() == 0;
             }
-        }));
-    }
+         }));
+         assertTrue(broker2TestQueue.getMemoryUsage().getUsage() > 0);
+      }
+      finally {
+         // Consume the message and verify that there is no more memory
+         // usage.
+         consumerProceed.release();
+      }
 
-    /**
-     * This test demonstrates that the bug is VMTransport-specific and does not
-     * occur when bridges occur using other protocols.
-     */
-    public void testTcpTransportRemoteMemoryUsage() throws Exception {
-        BrokerService broker1 = createBroker(new URI(
-                "broker:(vm://broker1)/broker1?persistent=false"));
-
-        BrokerService broker2 = createBroker(new URI(
-                "broker:(tcp://localhost:61616)/broker2?persistent=false"));
-
-        startAllBrokers();
-
-        // Forward messages from broker1 to broker2 over the TCP transport.
-        bridgeBrokers("broker1", "broker2").start();
-
-        // Verify that broker1 and broker2's test queues have no memory usage.
-        ActiveMQDestination testQueue = createDestination(
-                AMQ4147Test.class.getSimpleName() + ".queue", false);
-        final Destination broker1TestQueue = broker1.getDestination(testQueue);
-        final Destination broker2TestQueue = broker2.getDestination(testQueue);
-
-        assertEquals(0, broker1TestQueue.getMemoryUsage().getUsage());
-        assertEquals(0, broker2TestQueue.getMemoryUsage().getUsage());
-
-        // Produce a message to broker1's test queue and verify that broker1's
-        // memory usage has increased, but broker2 still has no memory usage.
-        sendMessages("broker1", testQueue, 1);
-        assertTrue(broker1TestQueue.getMemoryUsage().getUsage() > 0);
-        assertEquals(0, broker2TestQueue.getMemoryUsage().getUsage());
-
-        // Create a consumer on broker2 that is synchronized to allow detection
-        // of "in flight" messages to the consumer.
-        MessageIdList broker2Messages = getBrokerMessages("broker2");
-        final Semaphore consumerReady = new Semaphore(0);
-        final Semaphore consumerProceed = new Semaphore(0);
-
-        broker2Messages.setParent(new MessageListener() {
-            @Override
-            public void onMessage(Message message) {
-                consumerReady.release();
-                try {
-                    consumerProceed.acquire();
-                } catch (InterruptedException ex) {
-                    Thread.currentThread().interrupt();
-                }
-            }
-        });
-
-        createConsumer("broker2", testQueue);
-
-        // Verify that when broker2's consumer receives the message, the memory
-        // usage has moved broker1 to broker2.
-        consumerReady.acquire();
-
-        try {
-            assertTrue("Memory Usage Should be Zero: ", Wait.waitFor(new Wait.Condition() {
-                @Override
-                public boolean isSatisified() throws Exception {
-                    return broker1TestQueue.getMemoryUsage().getUsage() == 0;
-                }
-            }));
-            assertTrue(broker2TestQueue.getMemoryUsage().getUsage() > 0);
-        } finally {
-            // Consume the message and verify that there is no more memory
-            // usage.
-            consumerProceed.release();
-        }
-
-        // Pause to allow ACK to be processed.
-        assertTrue("Memory Usage Should be Zero: ", Wait.waitFor(new Wait.Condition() {
-            @Override
-            public boolean isSatisified() throws Exception {
-                return broker1TestQueue.getMemoryUsage().getUsage() == 0;
-            }
-        }));
-        assertTrue("Memory Usage Should be Zero: ", Wait.waitFor(new Wait.Condition() {
-            @Override
-            public boolean isSatisified() throws Exception {
-                return broker2TestQueue.getMemoryUsage().getUsage() == 0;
-            }
-        }));
-    }
+      // Pause to allow ACK to be processed.
+      assertTrue("Memory Usage Should be Zero: ", Wait.waitFor(new Wait.Condition() {
+         @Override
+         public boolean isSatisified() throws Exception {
+            return broker1TestQueue.getMemoryUsage().getUsage() == 0;
+         }
+      }));
+      assertTrue("Memory Usage Should be Zero: ", Wait.waitFor(new Wait.Condition() {
+         @Override
+         public boolean isSatisified() throws Exception {
+            return broker2TestQueue.getMemoryUsage().getUsage() == 0;
+         }
+      }));
+   }
 }

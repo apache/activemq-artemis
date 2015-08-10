@@ -36,17 +36,15 @@ import java.lang.reflect.Method;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-public class ActiveMQMessageHandlerXATest extends ActiveMQRATestBase
-{
+public class ActiveMQMessageHandlerXATest extends ActiveMQRATestBase {
+
    @Override
-   public boolean useSecurity()
-   {
+   public boolean useSecurity() {
       return false;
    }
 
    @Test
-   public void testXACommit() throws Exception
-   {
+   public void testXACommit() throws Exception {
       ActiveMQResourceAdapter qResourceAdapter = newResourceAdapter();
       MyBootstrapContext ctx = new MyBootstrapContext();
       qResourceAdapter.start(ctx);
@@ -77,8 +75,7 @@ public class ActiveMQMessageHandlerXATest extends ActiveMQRATestBase
    }
 
    @Test
-   public void testXACommitWhenStopping() throws Exception
-   {
+   public void testXACommitWhenStopping() throws Exception {
       ActiveMQResourceAdapter qResourceAdapter = newResourceAdapter();
       MyBootstrapContext ctx = new MyBootstrapContext();
       qResourceAdapter.start(ctx);
@@ -117,8 +114,7 @@ public class ActiveMQMessageHandlerXATest extends ActiveMQRATestBase
    }
 
    @Test
-   public void testXACommitInterruptsWhenStopping() throws Exception
-   {
+   public void testXACommitInterruptsWhenStopping() throws Exception {
       ActiveMQResourceAdapter qResourceAdapter = newResourceAdapter();
       MyBootstrapContext ctx = new MyBootstrapContext();
       qResourceAdapter.start(ctx);
@@ -157,8 +153,7 @@ public class ActiveMQMessageHandlerXATest extends ActiveMQRATestBase
    }
 
    @Test
-   public void testXARollback() throws Exception
-   {
+   public void testXARollback() throws Exception {
       setupDLQ(10);
       ActiveMQResourceAdapter qResourceAdapter = newResourceAdapter();
       qResourceAdapter.setConnectorClassName(INVM_CONNECTOR_FACTORY);
@@ -196,103 +191,86 @@ public class ActiveMQMessageHandlerXATest extends ActiveMQRATestBase
       qResourceAdapter.stop();
    }
 
-   class XADummyEndpoint extends DummyMessageEndpoint
-   {
+   class XADummyEndpoint extends DummyMessageEndpoint {
+
       private Xid xid;
 
-      public XADummyEndpoint(CountDownLatch latch)
-      {
+      public XADummyEndpoint(CountDownLatch latch) {
          super(latch);
          xid = new XidImpl("xa1".getBytes(), 1, UUIDGenerator.getInstance().generateStringUUID().getBytes());
       }
 
       @Override
-      public void beforeDelivery(Method method) throws NoSuchMethodException, ResourceException
-      {
+      public void beforeDelivery(Method method) throws NoSuchMethodException, ResourceException {
          super.beforeDelivery(method);
-         try
-         {
+         try {
             xaResource.start(xid, XAResource.TMNOFLAGS);
          }
-         catch (XAException e)
-         {
+         catch (XAException e) {
             throw new ResourceException(e.getMessage(), e);
          }
       }
 
       @Override
-      public void afterDelivery() throws ResourceException
-      {
-         try
-         {
+      public void afterDelivery() throws ResourceException {
+         try {
             xaResource.end(xid, XAResource.TMSUCCESS);
          }
-         catch (XAException e)
-         {
+         catch (XAException e) {
             throw new ResourceException(e.getMessage(), e);
          }
 
          super.afterDelivery();
       }
 
-      public void rollback() throws XAException
-      {
+      public void rollback() throws XAException {
          xaResource.rollback(xid);
       }
 
-      public void prepare() throws XAException
-      {
+      public void prepare() throws XAException {
          xaResource.prepare(xid);
       }
 
-      public void commit() throws XAException
-      {
+      public void commit() throws XAException {
          xaResource.commit(xid, false);
       }
    }
-   class PausingXADummyEndpoint extends XADummyEndpoint
-   {
+
+   class PausingXADummyEndpoint extends XADummyEndpoint {
+
       private final CountDownLatch beforeDeliveryLatch;
 
       boolean interrupted = false;
 
-      public PausingXADummyEndpoint(CountDownLatch latch,CountDownLatch beforeDeliveryLatch)
-      {
+      public PausingXADummyEndpoint(CountDownLatch latch, CountDownLatch beforeDeliveryLatch) {
          super(latch);
          this.beforeDeliveryLatch = beforeDeliveryLatch;
       }
 
       @Override
-      public void beforeDelivery(Method method) throws NoSuchMethodException, ResourceException
-      {
+      public void beforeDelivery(Method method) throws NoSuchMethodException, ResourceException {
          super.beforeDelivery(method);
          beforeDeliveryLatch.countDown();
       }
 
       @Override
-      public void onMessage(Message message)
-      {
+      public void onMessage(Message message) {
          super.onMessage(message);
-         try
-         {
+         try {
             Thread.sleep(2000);
          }
-         catch (InterruptedException e)
-         {
+         catch (InterruptedException e) {
             interrupted = true;
          }
       }
 
       @Override
-      public void release()
-      {
-         try
-         {
+      public void release() {
+         try {
             prepare();
             commit();
          }
-         catch (XAException e)
-         {
+         catch (XAException e) {
             e.printStackTrace();
          }
          super.release();

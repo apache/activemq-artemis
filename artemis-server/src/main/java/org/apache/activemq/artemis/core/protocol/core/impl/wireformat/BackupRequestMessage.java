@@ -20,8 +20,8 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 
-public class BackupRequestMessage extends PacketImpl
-{
+public class BackupRequestMessage extends PacketImpl {
+
    private int backupSize;
    private SimpleString nodeID;
    private String journalDirectory;
@@ -29,14 +29,15 @@ public class BackupRequestMessage extends PacketImpl
    private String largeMessagesDirectory;
    private String pagingDirectory;
 
-
-   public BackupRequestMessage()
-   {
+   public BackupRequestMessage() {
       super(BACKUP_REQUEST);
    }
 
-   public BackupRequestMessage(int backupSize, String journalDirectory, String bindingsDirectory, String largeMessagesDirectory, String pagingDirectory)
-   {
+   public BackupRequestMessage(int backupSize,
+                               String journalDirectory,
+                               String bindingsDirectory,
+                               String largeMessagesDirectory,
+                               String pagingDirectory) {
       super(BACKUP_REQUEST);
       this.backupSize = backupSize;
       this.journalDirectory = journalDirectory;
@@ -45,16 +46,14 @@ public class BackupRequestMessage extends PacketImpl
       this.pagingDirectory = pagingDirectory;
    }
 
-   public BackupRequestMessage(int backupSize, SimpleString nodeID)
-   {
+   public BackupRequestMessage(int backupSize, SimpleString nodeID) {
       super(BACKUP_REQUEST);
       this.backupSize = backupSize;
       this.nodeID = nodeID;
    }
 
    @Override
-   public void encodeRest(ActiveMQBuffer buffer)
-   {
+   public void encodeRest(ActiveMQBuffer buffer) {
       super.encodeRest(buffer);
       buffer.writeInt(backupSize);
       buffer.writeNullableString(journalDirectory);
@@ -65,8 +64,7 @@ public class BackupRequestMessage extends PacketImpl
    }
 
    @Override
-   public void decodeRest(ActiveMQBuffer buffer)
-   {
+   public void decodeRest(ActiveMQBuffer buffer) {
       super.decodeRest(buffer);
       backupSize = buffer.readInt();
       journalDirectory = buffer.readNullableString();
@@ -76,33 +74,27 @@ public class BackupRequestMessage extends PacketImpl
       nodeID = buffer.readNullableSimpleString();
    }
 
-   public int getBackupSize()
-   {
+   public int getBackupSize() {
       return backupSize;
    }
 
-   public SimpleString getNodeID()
-   {
+   public SimpleString getNodeID() {
       return nodeID;
    }
 
-   public String getJournalDirectory()
-   {
+   public String getJournalDirectory() {
       return journalDirectory;
    }
 
-   public String getBindingsDirectory()
-   {
+   public String getBindingsDirectory() {
       return bindingsDirectory;
    }
 
-   public String getLargeMessagesDirectory()
-   {
+   public String getLargeMessagesDirectory() {
       return largeMessagesDirectory;
    }
 
-   public String getPagingDirectory()
-   {
+   public String getPagingDirectory() {
       return pagingDirectory;
    }
 }

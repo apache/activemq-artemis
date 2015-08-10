@@ -47,37 +47,30 @@ import java.util.Map;
 import java.util.Set;
 
 @RunWith(value = Parameterized.class)
-public class AutomaticColocatedQuorumVoteTest extends ActiveMQTestBase
-{
+public class AutomaticColocatedQuorumVoteTest extends ActiveMQTestBase {
+
    private final boolean replicated;
 
    @Parameterized.Parameters(name = "replicated={0}")
-   public static Collection getParameters()
-   {
-      return Arrays.asList(new Object[][]
-      {
-         {true},
-         {false}
-      });
+   public static Collection getParameters() {
+      return Arrays.asList(new Object[][]{{true}, {false}});
    }
 
-   public AutomaticColocatedQuorumVoteTest(boolean replicated)
-   {
+   public AutomaticColocatedQuorumVoteTest(boolean replicated) {
       this.replicated = replicated;
    }
+
    @Test
-   public void testSimpleDistributionBackupStrategyFull() throws Exception
-   {
+   public void testSimpleDistributionBackupStrategyFull() throws Exception {
       ActiveMQServer server0 = createServer(0, 1, false);
       ActiveMQServer server1 = createServer(1, 0, false);
       TransportConfiguration liveConnector0 = getConnectorTransportConfiguration("liveConnector" + 0, 0);
       TransportConfiguration liveConnector1 = getConnectorTransportConfiguration("liveConnector" + 1, 1);
 
       try
-      (
-         ServerLocator serverLocator = ActiveMQClient.createServerLocatorWithoutHA(liveConnector0)
-      )
-      {
+         (
+            ServerLocator serverLocator = ActiveMQClient.createServerLocatorWithoutHA(liveConnector0)
+         ) {
          server0.start();
          server1.start();
          ClientSessionFactory sessionFactory0 = serverLocator.createSessionFactory(liveConnector0);
@@ -87,9 +80,9 @@ public class AutomaticColocatedQuorumVoteTest extends ActiveMQTestBase
          Topology topology = serverLocator.getTopology();
          Collection<TopologyMemberImpl> members = topology.getMembers();
          Assert.assertEquals(members.size(), 2);
-         Map<String,ActiveMQServer> backupServers0 = server0.getClusterManager().getHAManager().getBackupServers();
+         Map<String, ActiveMQServer> backupServers0 = server0.getClusterManager().getHAManager().getBackupServers();
          Assert.assertEquals(backupServers0.size(), 1);
-         Map<String,ActiveMQServer> backupServers1 = server1.getClusterManager().getHAManager().getBackupServers();
+         Map<String, ActiveMQServer> backupServers1 = server1.getClusterManager().getHAManager().getBackupServers();
          Assert.assertEquals(backupServers1.size(), 1);
          ActiveMQServer backupServer0 = backupServers0.values().iterator().next();
          ActiveMQServer backupServer1 = backupServers1.values().iterator().next();
@@ -111,8 +104,7 @@ public class AutomaticColocatedQuorumVoteTest extends ActiveMQTestBase
          Assert.assertEquals(2, connectorConfigurations1.size());
          Assert.assertEquals("61717", connectorConfigurations1.get("liveConnector1").getParams().get("port"));
          Assert.assertEquals("61616", connectorConfigurations1.get("remoteConnector1").getParams().get("port"));
-         if (!replicated)
-         {
+         if (!replicated) {
             Assert.assertEquals(server0.getConfiguration().getJournalDirectory(), backupServer1.getConfiguration().getJournalDirectory());
             Assert.assertEquals(server0.getConfiguration().getBindingsDirectory(), backupServer1.getConfiguration().getBindingsDirectory());
             Assert.assertEquals(server0.getConfiguration().getLargeMessagesDirectory(), backupServer1.getConfiguration().getLargeMessagesDirectory());
@@ -122,8 +114,7 @@ public class AutomaticColocatedQuorumVoteTest extends ActiveMQTestBase
             Assert.assertEquals(server1.getConfiguration().getLargeMessagesDirectory(), backupServer0.getConfiguration().getLargeMessagesDirectory());
             Assert.assertEquals(server1.getConfiguration().getPagingDirectory(), backupServer0.getConfiguration().getPagingDirectory());
          }
-         else
-         {
+         else {
             Assert.assertNotEquals(server0.getConfiguration().getJournalDirectory(), backupServer1.getConfiguration().getJournalDirectory());
             Assert.assertNotEquals(server0.getConfiguration().getBindingsDirectory(), backupServer1.getConfiguration().getBindingsDirectory());
             Assert.assertNotEquals(server0.getConfiguration().getLargeMessagesDirectory(), backupServer1.getConfiguration().getLargeMessagesDirectory());
@@ -134,14 +125,11 @@ public class AutomaticColocatedQuorumVoteTest extends ActiveMQTestBase
             Assert.assertNotEquals(server1.getConfiguration().getPagingDirectory(), backupServer0.getConfiguration().getPagingDirectory());
          }
       }
-      finally
-      {
-         try
-         {
+      finally {
+         try {
             server0.stop();
          }
-         catch (Throwable e)
-         {
+         catch (Throwable e) {
             e.printStackTrace();
          }
          server1.stop();
@@ -149,18 +137,16 @@ public class AutomaticColocatedQuorumVoteTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testSimpleDistributionBackupStrategyScaleDown() throws Exception
-   {
+   public void testSimpleDistributionBackupStrategyScaleDown() throws Exception {
       ActiveMQServer server0 = createServer(0, 1, true);
       ActiveMQServer server1 = createServer(1, 0, true);
       TransportConfiguration liveConnector0 = getConnectorTransportConfiguration("liveConnector" + 0, 0);
       TransportConfiguration liveConnector1 = getConnectorTransportConfiguration("liveConnector" + 1, 1);
 
       try
-      (
+         (
             ServerLocator serverLocator = ActiveMQClient.createServerLocatorWithoutHA(liveConnector0)
-      )
-      {
+         ) {
          server0.start();
          server1.start();
          ClientSessionFactory sessionFactory0 = serverLocator.createSessionFactory(liveConnector0);
@@ -170,9 +156,9 @@ public class AutomaticColocatedQuorumVoteTest extends ActiveMQTestBase
          Topology topology = serverLocator.getTopology();
          Collection<TopologyMemberImpl> members = topology.getMembers();
          Assert.assertEquals(members.size(), 2);
-         Map<String,ActiveMQServer> backupServers0 = server0.getClusterManager().getHAManager().getBackupServers();
+         Map<String, ActiveMQServer> backupServers0 = server0.getClusterManager().getHAManager().getBackupServers();
          Assert.assertEquals(backupServers0.size(), 1);
-         Map<String,ActiveMQServer> backupServers1 = server1.getClusterManager().getHAManager().getBackupServers();
+         Map<String, ActiveMQServer> backupServers1 = server1.getClusterManager().getHAManager().getBackupServers();
          Assert.assertEquals(backupServers1.size(), 1);
          ActiveMQServer backupServer0 = backupServers0.values().iterator().next();
          ActiveMQServer backupServer1 = backupServers1.values().iterator().next();
@@ -192,8 +178,7 @@ public class AutomaticColocatedQuorumVoteTest extends ActiveMQTestBase
          Assert.assertEquals(2, connectorConfigurations1.size());
          Assert.assertEquals("61617", connectorConfigurations1.get("liveConnector1").getParams().get("port"));
          Assert.assertEquals("61616", connectorConfigurations1.get("remoteConnector1").getParams().get("port"));
-         if (!replicated)
-         {
+         if (!replicated) {
             Assert.assertEquals(server0.getConfiguration().getJournalDirectory(), backupServer1.getConfiguration().getJournalDirectory());
             Assert.assertEquals(server0.getConfiguration().getBindingsDirectory(), backupServer1.getConfiguration().getBindingsDirectory());
             Assert.assertEquals(server0.getConfiguration().getLargeMessagesDirectory(), backupServer1.getConfiguration().getLargeMessagesDirectory());
@@ -203,8 +188,7 @@ public class AutomaticColocatedQuorumVoteTest extends ActiveMQTestBase
             Assert.assertEquals(server1.getConfiguration().getLargeMessagesDirectory(), backupServer0.getConfiguration().getLargeMessagesDirectory());
             Assert.assertEquals(server1.getConfiguration().getPagingDirectory(), backupServer0.getConfiguration().getPagingDirectory());
          }
-         else
-         {
+         else {
             Assert.assertNotEquals(server0.getConfiguration().getJournalDirectory(), backupServer1.getConfiguration().getJournalDirectory());
             Assert.assertNotEquals(server0.getConfiguration().getBindingsDirectory(), backupServer1.getConfiguration().getBindingsDirectory());
             Assert.assertNotEquals(server0.getConfiguration().getLargeMessagesDirectory(), backupServer1.getConfiguration().getLargeMessagesDirectory());
@@ -215,14 +199,11 @@ public class AutomaticColocatedQuorumVoteTest extends ActiveMQTestBase
             Assert.assertNotEquals(server1.getConfiguration().getPagingDirectory(), backupServer0.getConfiguration().getPagingDirectory());
          }
       }
-      finally
-      {
-         try
-         {
+      finally {
+         try {
             server0.stop();
          }
-         catch (Throwable e)
-         {
+         catch (Throwable e) {
             e.printStackTrace();
          }
          server1.stop();
@@ -230,8 +211,7 @@ public class AutomaticColocatedQuorumVoteTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testSimpleDistributionOfBackupsMaxBackupsExceeded() throws Exception
-   {
+   public void testSimpleDistributionOfBackupsMaxBackupsExceeded() throws Exception {
       ActiveMQServer server0 = createServer(0, 1, false);
       ActiveMQServer server1 = createServer(1, 0, false);
       ActiveMQServer server2 = createServer(2, 0, false);
@@ -241,12 +221,10 @@ public class AutomaticColocatedQuorumVoteTest extends ActiveMQTestBase
       TransportConfiguration liveConnector2 = getConnectorTransportConfiguration("liveConnector" + 2, 2);
       TransportConfiguration liveConnector3 = getConnectorTransportConfiguration("liveConnector" + 3, 3);
 
-
       try
-      (
-         ServerLocator serverLocator = ActiveMQClient.createServerLocatorWithoutHA(liveConnector0)
-      )
-      {
+         (
+            ServerLocator serverLocator = ActiveMQClient.createServerLocatorWithoutHA(liveConnector0)
+         ) {
          server0.start();
          server1.start();
          ClientSessionFactory sessionFactory0 = serverLocator.createSessionFactory(liveConnector0);
@@ -256,9 +234,9 @@ public class AutomaticColocatedQuorumVoteTest extends ActiveMQTestBase
          Topology topology = serverLocator.getTopology();
          Collection<TopologyMemberImpl> members = topology.getMembers();
          Assert.assertEquals(members.size(), 2);
-         Map<String,ActiveMQServer> backupServers0 = server0.getClusterManager().getHAManager().getBackupServers();
+         Map<String, ActiveMQServer> backupServers0 = server0.getClusterManager().getHAManager().getBackupServers();
          Assert.assertEquals(backupServers0.size(), 1);
-         Map<String,ActiveMQServer> backupServers1 = server1.getClusterManager().getHAManager().getBackupServers();
+         Map<String, ActiveMQServer> backupServers1 = server1.getClusterManager().getHAManager().getBackupServers();
          Assert.assertEquals(backupServers1.size(), 1);
          ActiveMQServer backupServer0 = backupServers0.values().iterator().next();
          ActiveMQServer backupServer1 = backupServers1.values().iterator().next();
@@ -274,9 +252,9 @@ public class AutomaticColocatedQuorumVoteTest extends ActiveMQTestBase
          waitForRemoteBackup(sessionFactory2, 10);
          waitForRemoteBackup(sessionFactory3, 10);
          Assert.assertEquals(members.size(), 2);
-         Map<String,ActiveMQServer> backupServers2 = server2.getClusterManager().getHAManager().getBackupServers();
+         Map<String, ActiveMQServer> backupServers2 = server2.getClusterManager().getHAManager().getBackupServers();
          Assert.assertEquals(backupServers2.size(), 1);
-         Map<String,ActiveMQServer> backupServers3 = server3.getClusterManager().getHAManager().getBackupServers();
+         Map<String, ActiveMQServer> backupServers3 = server3.getClusterManager().getHAManager().getBackupServers();
          Assert.assertEquals(backupServers3.size(), 1);
          ActiveMQServer backupServer2 = backupServers2.values().iterator().next();
          ActiveMQServer backupServer3 = backupServers3.values().iterator().next();
@@ -287,8 +265,7 @@ public class AutomaticColocatedQuorumVoteTest extends ActiveMQTestBase
          Assert.assertEquals(server2.getNodeID(), backupServer3.getNodeID());
          Assert.assertEquals(server3.getNodeID(), backupServer2.getNodeID());
       }
-      finally
-      {
+      finally {
          server0.stop();
          server1.stop();
          server2.stop();
@@ -296,8 +273,7 @@ public class AutomaticColocatedQuorumVoteTest extends ActiveMQTestBase
       }
    }
 
-   private ActiveMQServer createServer(int node, int remoteNode, boolean scaleDown) throws Exception
-   {
+   private ActiveMQServer createServer(int node, int remoteNode, boolean scaleDown) throws Exception {
       TransportConfiguration liveConnector = getConnectorTransportConfiguration("liveConnector" + node, node);
       TransportConfiguration remoteConnector = getConnectorTransportConfiguration("remoteConnector" + node, remoteNode);
       TransportConfiguration liveAcceptor = getAcceptorTransportConfiguration(node);
@@ -307,25 +283,17 @@ public class AutomaticColocatedQuorumVoteTest extends ActiveMQTestBase
       return server;
    }
 
-   private Configuration getConfiguration(String identity, boolean scaleDown, TransportConfiguration liveConnector, TransportConfiguration liveAcceptor, TransportConfiguration... otherLiveNodes) throws Exception
-   {
-      Configuration configuration = createDefaultInVMConfig()
-         .clearAcceptorConfigurations()
-         .addAcceptorConfiguration(liveAcceptor)
-         .addConnectorConfiguration(liveConnector.getName(), liveConnector)
-         .setJournalDirectory(getJournalDir() + identity)
-         .setBindingsDirectory(getBindingsDir() + identity)
-         .setLargeMessagesDirectory(getLargeMessagesDir() + identity)
-         .setPagingDirectory(getPageDir() + identity)
-         .addQueueConfiguration(new CoreQueueConfiguration()
-                                   .setAddress("jms.queue.testQueue")
-                                   .setName("jms.queue.testQueue"));
+   private Configuration getConfiguration(String identity,
+                                          boolean scaleDown,
+                                          TransportConfiguration liveConnector,
+                                          TransportConfiguration liveAcceptor,
+                                          TransportConfiguration... otherLiveNodes) throws Exception {
+      Configuration configuration = createDefaultInVMConfig().clearAcceptorConfigurations().addAcceptorConfiguration(liveAcceptor).addConnectorConfiguration(liveConnector.getName(), liveConnector).setJournalDirectory(getJournalDir() + identity).setBindingsDirectory(getBindingsDir() + identity).setLargeMessagesDirectory(getLargeMessagesDir() + identity).setPagingDirectory(getPageDir() + identity).addQueueConfiguration(new CoreQueueConfiguration().setAddress("jms.queue.testQueue").setName("jms.queue.testQueue"));
 
       List<String> transportConfigurationList = new ArrayList<>();
 
       final ColocatedPolicyConfiguration haPolicy = new ColocatedPolicyConfiguration();
-      for (TransportConfiguration otherLiveNode : otherLiveNodes)
-      {
+      for (TransportConfiguration otherLiveNode : otherLiveNodes) {
          configuration.addConnectorConfiguration(otherLiveNode.getName(), otherLiveNode);
          transportConfigurationList.add(otherLiveNode.getName());
          haPolicy.getExcludedConnectors().add(otherLiveNode.getName());
@@ -341,25 +309,21 @@ public class AutomaticColocatedQuorumVoteTest extends ActiveMQTestBase
       haPolicy.setMaxBackups(1);
       haPolicy.setRequestBackup(true);
       configuration.setHAPolicyConfiguration(haPolicy);
-      if (!replicated)
-      {
+      if (!replicated) {
          SharedStoreMasterPolicyConfiguration ssmc = new SharedStoreMasterPolicyConfiguration();
          SharedStoreSlavePolicyConfiguration sssc = new SharedStoreSlavePolicyConfiguration();
          haPolicy.setLiveConfig(ssmc);
          haPolicy.setBackupConfig(sssc);
-         if (scaleDown)
-         {
+         if (scaleDown) {
             sssc.setScaleDownConfiguration(new ScaleDownConfiguration());
          }
       }
-      else
-      {
+      else {
          ReplicatedPolicyConfiguration rpc = new ReplicatedPolicyConfiguration();
          ReplicaPolicyConfiguration rpc2 = new ReplicaPolicyConfiguration();
          haPolicy.setLiveConfig(rpc);
          haPolicy.setBackupConfig(rpc2);
-         if (scaleDown)
-         {
+         if (scaleDown) {
             rpc2.setScaleDownConfiguration(new ScaleDownConfiguration());
          }
       }
@@ -367,15 +331,13 @@ public class AutomaticColocatedQuorumVoteTest extends ActiveMQTestBase
       return configuration;
    }
 
-   private TransportConfiguration getAcceptorTransportConfiguration(int node)
-   {
+   private TransportConfiguration getAcceptorTransportConfiguration(int node) {
       HashMap<String, Object> params = new HashMap<>();
       params.put("port", "" + (61616 + node));
       return new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params);
    }
 
-   private TransportConfiguration getConnectorTransportConfiguration(String name, int node)
-   {
+   private TransportConfiguration getConnectorTransportConfiguration(String name, int node) {
       HashMap<String, Object> params = new HashMap<>();
       params.put("port", "" + (61616 + node));
       return new TransportConfiguration(NETTY_CONNECTOR_FACTORY, params, name);

@@ -45,62 +45,63 @@ import org.slf4j.LoggerFactory;
 /**
  * A simple polymorphic JMS producer which can work with Queues or Topics which
  * uses JNDI to lookup the JMS connection factory and destination
- * 
- * 
  */
 public final class SimpleProducer {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SimpleProducer.class);
+   private static final Logger LOG = LoggerFactory.getLogger(SimpleProducer.class);
 
-    private SimpleProducer() {
-    }
+   private SimpleProducer() {
+   }
 
-    /**
-     * @param args the destination name to send to and optionally, the number of
-     *                messages to send
-     */
-    public static void main(String[] args) {
-        Context jndiContext = null;
-        ConnectionFactory connectionFactory = null;
-        Connection connection = null;
-        Session session = null;
-        Destination destination = null;
-        MessageProducer producer = null;
-        String destinationName = null;
-        final int numMsgs;
+   /**
+    * @param args the destination name to send to and optionally, the number of
+    *             messages to send
+    */
+   public static void main(String[] args) {
+      Context jndiContext = null;
+      ConnectionFactory connectionFactory = null;
+      Connection connection = null;
+      Session session = null;
+      Destination destination = null;
+      MessageProducer producer = null;
+      String destinationName = null;
+      final int numMsgs;
 
-        if ((args.length < 1) || (args.length > 2)) {
-            LOG.info("Usage: java SimpleProducer <destination-name> [<number-of-messages>]");
-            System.exit(1);
-        }
-        destinationName = args[0];
-        LOG.info("Destination name is " + destinationName);
-        if (args.length == 2) {
-            numMsgs = (new Integer(args[1])).intValue();
-        } else {
-            numMsgs = 1;
-        }
+      if ((args.length < 1) || (args.length > 2)) {
+         LOG.info("Usage: java SimpleProducer <destination-name> [<number-of-messages>]");
+         System.exit(1);
+      }
+      destinationName = args[0];
+      LOG.info("Destination name is " + destinationName);
+      if (args.length == 2) {
+         numMsgs = (new Integer(args[1])).intValue();
+      }
+      else {
+         numMsgs = 1;
+      }
 
         /*
          * Create a JNDI API InitialContext object
          */
-        try {
-            jndiContext = new InitialContext();
-        } catch (NamingException e) {
-            LOG.info("Could not create JNDI API context: " + e.toString());
-            System.exit(1);
-        }
+      try {
+         jndiContext = new InitialContext();
+      }
+      catch (NamingException e) {
+         LOG.info("Could not create JNDI API context: " + e.toString());
+         System.exit(1);
+      }
 
         /*
          * Look up connection factory and destination.
          */
-        try {
-            connectionFactory = (ConnectionFactory)jndiContext.lookup("ConnectionFactory");
-            destination = (Destination)jndiContext.lookup(destinationName);
-        } catch (NamingException e) {
-            LOG.info("JNDI API lookup failed: " + e);
-            System.exit(1);
-        }
+      try {
+         connectionFactory = (ConnectionFactory) jndiContext.lookup("ConnectionFactory");
+         destination = (Destination) jndiContext.lookup(destinationName);
+      }
+      catch (NamingException e) {
+         LOG.info("JNDI API lookup failed: " + e);
+         System.exit(1);
+      }
 
         /*
          * Create connection. Create session from connection; false means
@@ -108,32 +109,35 @@ public final class SimpleProducer {
          * messages, varying text slightly. Send end-of-messages message.
          * Finally, close connection.
          */
-        try {
-            connection = connectionFactory.createConnection();
-            session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-            producer = session.createProducer(destination);
-            TextMessage message = session.createTextMessage();
-            for (int i = 0; i < numMsgs; i++) {
-                message.setText("This is message " + (i + 1));
-                LOG.info("Sending message: " + message.getText());
-                producer.send(message);
-            }
+      try {
+         connection = connectionFactory.createConnection();
+         session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         producer = session.createProducer(destination);
+         TextMessage message = session.createTextMessage();
+         for (int i = 0; i < numMsgs; i++) {
+            message.setText("This is message " + (i + 1));
+            LOG.info("Sending message: " + message.getText());
+            producer.send(message);
+         }
 
             /*
              * Send a non-text control message indicating end of messages.
              */
-            producer.send(session.createMessage());
-        } catch (JMSException e) {
-            LOG.info("Exception occurred: " + e);
-        } finally {
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (JMSException e) {
-                }
+         producer.send(session.createMessage());
+      }
+      catch (JMSException e) {
+         LOG.info("Exception occurred: " + e);
+      }
+      finally {
+         if (connection != null) {
+            try {
+               connection.close();
             }
-        }
-    }
+            catch (JMSException e) {
+            }
+         }
+      }
+   }
 }
 
 // END SNIPPET: demo

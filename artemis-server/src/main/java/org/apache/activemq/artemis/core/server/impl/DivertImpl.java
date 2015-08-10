@@ -29,8 +29,8 @@ import org.apache.activemq.artemis.core.server.cluster.Transformer;
 /**
  * A DivertImpl simply diverts a message to a different forwardAddress
  */
-public class DivertImpl implements Divert
-{
+public class DivertImpl implements Divert {
+
    private final PostOffice postOffice;
 
    private final SimpleString forwardAddress;
@@ -54,8 +54,7 @@ public class DivertImpl implements Divert
                      final Filter filter,
                      final Transformer transformer,
                      final PostOffice postOffice,
-                     final StorageManager storageManager)
-   {
+                     final StorageManager storageManager) {
       this.forwardAddress = forwardAddress;
 
       this.uniqueName = uniqueName;
@@ -73,13 +72,11 @@ public class DivertImpl implements Divert
       this.storageManager = storageManager;
    }
 
-   public void route(final ServerMessage message, final RoutingContext context) throws Exception
-   {
+   public void route(final ServerMessage message, final RoutingContext context) throws Exception {
       // We must make a copy of the message, otherwise things like returning credits to the page won't work
       // properly on ack, since the original address will be overwritten
 
-      if (ActiveMQServerLogger.LOGGER.isTraceEnabled())
-      {
+      if (ActiveMQServerLogger.LOGGER.isTraceEnabled()) {
          ActiveMQServerLogger.LOGGER.trace("Diverting message " + message + " into " + this);
       }
 
@@ -88,8 +85,7 @@ public class DivertImpl implements Divert
       ServerMessage copy = null;
 
       // Shouldn't copy if it's not routed anywhere else
-      if (!forwardAddress.equals(message.getAddress()))
-      {
+      if (!forwardAddress.equals(message.getAddress())) {
          copy = message.copy(id);
          copy.finishCopy();
 
@@ -100,13 +96,11 @@ public class DivertImpl implements Divert
 
          copy.setExpiration(message.getExpiration());
 
-         if (transformer != null)
-         {
+         if (transformer != null) {
             copy = transformer.transform(copy);
          }
       }
-      else
-      {
+      else {
          copy = message;
       }
 
@@ -114,34 +108,27 @@ public class DivertImpl implements Divert
    }
 
    @Override
-   public void routeWithAck(ServerMessage message, RoutingContext context) throws Exception
-   {
+   public void routeWithAck(ServerMessage message, RoutingContext context) throws Exception {
       route(message, context);
    }
 
-
-   public SimpleString getRoutingName()
-   {
+   public SimpleString getRoutingName() {
       return routingName;
    }
 
-   public SimpleString getUniqueName()
-   {
+   public SimpleString getUniqueName() {
       return uniqueName;
    }
 
-   public boolean isExclusive()
-   {
+   public boolean isExclusive() {
       return exclusive;
    }
 
-   public Filter getFilter()
-   {
+   public Filter getFilter() {
       return filter;
    }
 
-   public Transformer getTransformer()
-   {
+   public Transformer getTransformer() {
       return transformer;
    }
 
@@ -149,20 +136,19 @@ public class DivertImpl implements Divert
     * @see java.lang.Object#toString()
     */
    @Override
-   public String toString()
-   {
+   public String toString() {
       return "DivertImpl [routingName=" + routingName +
-             ", uniqueName=" +
-             uniqueName +
-             ", forwardAddress=" +
-             forwardAddress +
-             ", exclusive=" +
-             exclusive +
-             ", filter=" +
-             filter +
-             ", transformer=" +
-             transformer +
-             "]";
+         ", uniqueName=" +
+         uniqueName +
+         ", forwardAddress=" +
+         forwardAddress +
+         ", exclusive=" +
+         exclusive +
+         ", filter=" +
+         filter +
+         ", transformer=" +
+         transformer +
+         "]";
    }
 
 }

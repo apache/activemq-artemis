@@ -24,13 +24,13 @@ import org.apache.activemq.broker.scheduler.JobSchedulerTest;
  */
 public class InMemoryJobSchedulerTest extends JobSchedulerTest {
 
-    @Override
-    public void testAddStopThenDeliver() throws Exception {
-        // In Memory store that's stopped doesn't retain the jobs.
-    }
+   @Override
+   public void testAddStopThenDeliver() throws Exception {
+      // In Memory store that's stopped doesn't retain the jobs.
+   }
 
-    @Override
-    protected JobSchedulerStore createJobSchedulerStore() throws Exception {
-        return new InMemoryJobSchedulerStore();
-    }
+   @Override
+   protected JobSchedulerStore createJobSchedulerStore() throws Exception {
+      return new InMemoryJobSchedulerStore();
+   }
 }

@@ -92,8 +92,8 @@ import org.apache.activemq.artemis.utils.Base64;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 
 @Command(name = "exp", description = "Export all message-data using an XML that could be interpreted by any system.")
-public final class XmlDataExporter extends DataAbstract implements Action
-{
+public final class XmlDataExporter extends DataAbstract implements Action {
+
    private static final Long LARGE_MESSAGE_CHUNK_SIZE = 1000L;
 
    private JournalStorageManager storageManager;
@@ -125,37 +125,28 @@ public final class XmlDataExporter extends DataAbstract implements Action
    long bindingsPrinted = 0L;
 
    @Override
-   public Object execute(ActionContext context) throws Exception
-   {
+   public Object execute(ActionContext context) throws Exception {
       super.execute(context);
 
-      try
-      {
+      try {
          process(context.out, getBinding(), getJournal(), getPaging(), getLargeMessages());
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          treatError(e, "data", "exp");
       }
       return null;
    }
 
-
-   public void process(OutputStream out, String bindingsDir, String journalDir, String pagingDir,
-                          String largeMessagesDir) throws Exception
-   {
-      config = new ConfigurationImpl()
-         .setBindingsDirectory(bindingsDir)
-         .setJournalDirectory(journalDir)
-         .setPagingDirectory(pagingDir)
-         .setLargeMessagesDirectory(largeMessagesDir)
-         .setJournalType(JournalType.NIO);
+   public void process(OutputStream out,
+                       String bindingsDir,
+                       String journalDir,
+                       String pagingDir,
+                       String largeMessagesDir) throws Exception {
+      config = new ConfigurationImpl().setBindingsDirectory(bindingsDir).setJournalDirectory(journalDir).setPagingDirectory(pagingDir).setLargeMessagesDirectory(largeMessagesDir).setJournalType(JournalType.NIO);
       final ExecutorService executor = Executors.newFixedThreadPool(1);
-      ExecutorFactory executorFactory = new ExecutorFactory()
-      {
+      ExecutorFactory executorFactory = new ExecutorFactory() {
          @Override
-         public Executor getExecutor()
-         {
+         public Executor getExecutor() {
             return executor;
          }
       };
@@ -165,16 +156,12 @@ public final class XmlDataExporter extends DataAbstract implements Action
       XMLOutputFactory factory = XMLOutputFactory.newInstance();
       XMLStreamWriter rawXmlWriter = factory.createXMLStreamWriter(out, "UTF-8");
       PrettyPrintHandler handler = new PrettyPrintHandler(rawXmlWriter);
-      xmlWriter = (XMLStreamWriter) Proxy.newProxyInstance(
-         XMLStreamWriter.class.getClassLoader(),
-         new Class[]{XMLStreamWriter.class},
-         handler);
+      xmlWriter = (XMLStreamWriter) Proxy.newProxyInstance(XMLStreamWriter.class.getClassLoader(), new Class[]{XMLStreamWriter.class}, handler);
 
       writeXMLData();
    }
 
-   private void writeXMLData() throws Exception
-   {
+   private void writeXMLData() throws Exception {
       long start = System.currentTimeMillis();
       getBindings();
       getJmsBindings();
@@ -190,8 +177,7 @@ public final class XmlDataExporter extends DataAbstract implements Action
     *
     * @throws Exception will be thrown if anything goes wrong reading the journal
     */
-   private void processMessageJournal() throws Exception
-   {
+   private void processMessageJournal() throws Exception {
       ArrayList<RecordInfo> acks = new ArrayList<>();
 
       List<RecordInfo> records = new LinkedList<>();
@@ -206,35 +192,29 @@ public final class XmlDataExporter extends DataAbstract implements Action
       messageJournal.start();
 
       // Just logging these, no action necessary
-      TransactionFailureCallback transactionFailureCallback = new TransactionFailureCallback()
-      {
+      TransactionFailureCallback transactionFailureCallback = new TransactionFailureCallback() {
          @Override
-         public void failedTransaction(long transactionID, List<RecordInfo> records1, List<RecordInfo> recordsToDelete)
-         {
+         public void failedTransaction(long transactionID,
+                                       List<RecordInfo> records1,
+                                       List<RecordInfo> recordsToDelete) {
             StringBuilder message = new StringBuilder();
             message.append("Encountered failed journal transaction: ").append(transactionID);
-            for (int i = 0; i < records1.size(); i++)
-            {
-               if (i == 0)
-               {
+            for (int i = 0; i < records1.size(); i++) {
+               if (i == 0) {
                   message.append("; Records: ");
                }
                message.append(records1.get(i));
-               if (i != (records1.size() - 1))
-               {
+               if (i != (records1.size() - 1)) {
                   message.append(", ");
                }
             }
 
-            for (int i = 0; i < recordsToDelete.size(); i++)
-            {
-               if (i == 0)
-               {
+            for (int i = 0; i < recordsToDelete.size(); i++) {
+               if (i == 0) {
                   message.append("; RecordsToDelete: ");
                }
                message.append(recordsToDelete.get(i));
-               if (i != (recordsToDelete.size() - 1))
-               {
+               if (i != (recordsToDelete.size() - 1)) {
                   message.append(", ");
                }
             }
@@ -248,66 +228,54 @@ public final class XmlDataExporter extends DataAbstract implements Action
       // Since we don't use these nullify the reference so that the garbage collector can clean them up
       preparedTransactions = null;
 
-      for (RecordInfo info : records)
-      {
+      for (RecordInfo info : records) {
          byte[] data = info.data;
 
          ActiveMQBuffer buff = ActiveMQBuffers.wrappedBuffer(data);
 
          Object o = DescribeJournal.newObjectEncoding(info, storageManager);
-         if (info.getUserRecordType() == JournalRecordIds.ADD_MESSAGE)
-         {
+         if (info.getUserRecordType() == JournalRecordIds.ADD_MESSAGE) {
             messages.put(info.id, ((MessageDescribe) o).getMsg());
          }
-         else if (info.getUserRecordType() == JournalRecordIds.ADD_LARGE_MESSAGE)
-         {
+         else if (info.getUserRecordType() == JournalRecordIds.ADD_LARGE_MESSAGE) {
             messages.put(info.id, ((MessageDescribe) o).getMsg());
          }
-         else if (info.getUserRecordType() == JournalRecordIds.ADD_REF)
-         {
+         else if (info.getUserRecordType() == JournalRecordIds.ADD_REF) {
             ReferenceDescribe ref = (ReferenceDescribe) o;
             HashMap<Long, ReferenceDescribe> map = messageRefs.get(info.id);
-            if (map == null)
-            {
+            if (map == null) {
                HashMap<Long, ReferenceDescribe> newMap = new HashMap<>();
                newMap.put(ref.refEncoding.queueID, ref);
                messageRefs.put(info.id, newMap);
             }
-            else
-            {
+            else {
                map.put(ref.refEncoding.queueID, ref);
             }
          }
-         else if (info.getUserRecordType() == JournalRecordIds.ACKNOWLEDGE_REF)
-         {
+         else if (info.getUserRecordType() == JournalRecordIds.ACKNOWLEDGE_REF) {
             acks.add(info);
          }
-         else if (info.userRecordType == JournalRecordIds.ACKNOWLEDGE_CURSOR)
-         {
+         else if (info.userRecordType == JournalRecordIds.ACKNOWLEDGE_CURSOR) {
             CursorAckRecordEncoding encoding = new CursorAckRecordEncoding();
             encoding.decode(buff);
 
             Set<PagePosition> set = cursorRecords.get(encoding.queueID);
 
-            if (set == null)
-            {
+            if (set == null) {
                set = new HashSet<>();
                cursorRecords.put(encoding.queueID, set);
             }
 
             set.add(encoding.position);
          }
-         else if (info.userRecordType == JournalRecordIds.PAGE_TRANSACTION)
-         {
-            if (info.isUpdate)
-            {
+         else if (info.userRecordType == JournalRecordIds.PAGE_TRANSACTION) {
+            if (info.isUpdate) {
                PageUpdateTXEncoding pageUpdate = new PageUpdateTXEncoding();
 
                pageUpdate.decode(buff);
                pgTXs.add(pageUpdate.pageTX);
             }
-            else
-            {
+            else {
                PageTransactionInfoImpl pageTransactionInfo = new PageTransactionInfoImpl();
 
                pageTransactionInfo.decode(buff);
@@ -328,33 +296,22 @@ public final class XmlDataExporter extends DataAbstract implements Action
     *
     * @param acks the list of ack records we got from the journal
     */
-   private void removeAcked(ArrayList<RecordInfo> acks)
-   {
-      for (RecordInfo info : acks)
-      {
+   private void removeAcked(ArrayList<RecordInfo> acks) {
+      for (RecordInfo info : acks) {
          AckDescribe ack = (AckDescribe) DescribeJournal.newObjectEncoding(info, null);
          HashMap<Long, ReferenceDescribe> referenceDescribeHashMap = messageRefs.get(info.id);
          referenceDescribeHashMap.remove(ack.refEncoding.queueID);
-         if (referenceDescribeHashMap.size() == 0)
-         {
+         if (referenceDescribeHashMap.size() == 0) {
             messages.remove(info.id);
             messageRefs.remove(info.id);
          }
       }
    }
 
-   private void getJmsBindings() throws Exception
-   {
+   private void getJmsBindings() throws Exception {
       SequentialFileFactory bindingsJMS = new NIOSequentialFileFactory(config.getBindingsLocation(), 1);
 
-      Journal jmsJournal = new JournalImpl(1024 * 1024,
-                                           2,
-                                           config.getJournalCompactMinFiles(),
-                                           config.getJournalCompactPercentage(),
-                                           bindingsJMS,
-                                           "activemq-jms",
-                                           "jms",
-                                           1);
+      Journal jmsJournal = new JournalImpl(1024 * 1024, 2, config.getJournalCompactMinFiles(), config.getJournalCompactPercentage(), bindingsJMS, "activemq-jms", "jms", 1);
 
       jmsJournal.start();
 
@@ -366,46 +323,40 @@ public final class XmlDataExporter extends DataAbstract implements Action
 
       jmsJournal.load(data, list, null);
 
-      for (RecordInfo record : data)
-      {
+      for (RecordInfo record : data) {
          long id = record.id;
 
          ActiveMQBuffer buffer = ActiveMQBuffers.wrappedBuffer(record.data);
 
          byte rec = record.getUserRecordType();
 
-         if (rec == JMSJournalStorageManagerImpl.CF_RECORD)
-         {
+         if (rec == JMSJournalStorageManagerImpl.CF_RECORD) {
             PersistedConnectionFactory cf = new PersistedConnectionFactory();
             cf.decode(buffer);
             cf.setId(id);
             ActiveMQServerLogger.LOGGER.info("Found JMS connection factory: " + cf.getName());
             jmsConnectionFactories.put(cf.getName(), cf);
          }
-         else if (rec == JMSJournalStorageManagerImpl.DESTINATION_RECORD)
-         {
+         else if (rec == JMSJournalStorageManagerImpl.DESTINATION_RECORD) {
             PersistedDestination destination = new PersistedDestination();
             destination.decode(buffer);
             destination.setId(id);
             ActiveMQServerLogger.LOGGER.info("Found JMS destination: " + destination.getName());
             jmsDestinations.put(new Pair<>(destination.getType(), destination.getName()), destination);
          }
-         else if (rec == JMSJournalStorageManagerImpl.BINDING_RECORD)
-         {
+         else if (rec == JMSJournalStorageManagerImpl.BINDING_RECORD) {
             PersistedBindings jndi = new PersistedBindings();
             jndi.decode(buffer);
             jndi.setId(id);
             Pair<PersistedType, String> key = new Pair<>(jndi.getType(), jndi.getName());
             StringBuilder builder = new StringBuilder();
-            for (String binding : jndi.getBindings())
-            {
+            for (String binding : jndi.getBindings()) {
                builder.append(binding).append(" ");
             }
             ActiveMQServerLogger.LOGGER.info("Found JMS JNDI binding data for " + jndi.getType() + " " + jndi.getName() + ": " + builder.toString());
             jmsJNDI.put(key, jndi);
          }
-         else
-         {
+         else {
             throw new IllegalStateException("Invalid record type " + rec);
          }
 
@@ -417,8 +368,7 @@ public final class XmlDataExporter extends DataAbstract implements Action
     *
     * @throws Exception will be thrown if anything goes wrong reading the bindings journal
     */
-   private void getBindings() throws Exception
-   {
+   private void getBindings() throws Exception {
       List<RecordInfo> records = new LinkedList<>();
 
       Journal bindingsJournal = storageManager.getBindingsJournal();
@@ -429,12 +379,9 @@ public final class XmlDataExporter extends DataAbstract implements Action
 
       ((JournalImpl) bindingsJournal).load(records, null, null, false);
 
-      for (RecordInfo info : records)
-      {
-         if (info.getUserRecordType() == JournalRecordIds.QUEUE_BINDING_RECORD)
-         {
-            PersistentQueueBindingEncoding bindingEncoding =
-               (PersistentQueueBindingEncoding) DescribeJournal.newObjectEncoding(info, null);
+      for (RecordInfo info : records) {
+         if (info.getUserRecordType() == JournalRecordIds.QUEUE_BINDING_RECORD) {
+            PersistentQueueBindingEncoding bindingEncoding = (PersistentQueueBindingEncoding) DescribeJournal.newObjectEncoding(info, null);
             queueBindings.put(bindingEncoding.getId(), bindingEncoding);
          }
       }
@@ -442,10 +389,8 @@ public final class XmlDataExporter extends DataAbstract implements Action
       bindingsJournal.stop();
    }
 
-   private void printDataAsXML()
-   {
-      try
-      {
+   private void printDataAsXML() {
+      try {
          xmlWriter.writeStartDocument(XmlDataConstants.XML_VERSION);
          xmlWriter.writeStartElement(XmlDataConstants.DOCUMENT_PARENT);
          printBindingsAsXML();
@@ -457,23 +402,19 @@ public final class XmlDataExporter extends DataAbstract implements Action
          xmlWriter.flush();
          xmlWriter.close();
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          e.printStackTrace();
       }
    }
 
-   private void printBindingsAsXML() throws XMLStreamException
-   {
+   private void printBindingsAsXML() throws XMLStreamException {
       xmlWriter.writeStartElement(XmlDataConstants.BINDINGS_PARENT);
-      for (Map.Entry<Long, PersistentQueueBindingEncoding> queueBindingEncodingEntry : queueBindings.entrySet())
-      {
+      for (Map.Entry<Long, PersistentQueueBindingEncoding> queueBindingEncodingEntry : queueBindings.entrySet()) {
          PersistentQueueBindingEncoding bindingEncoding = queueBindings.get(queueBindingEncodingEntry.getKey());
          xmlWriter.writeEmptyElement(XmlDataConstants.BINDINGS_CHILD);
          xmlWriter.writeAttribute(XmlDataConstants.BINDING_ADDRESS, bindingEncoding.getAddress().toString());
          String filter = "";
-         if (bindingEncoding.getFilterString() != null)
-         {
+         if (bindingEncoding.getFilterString() != null) {
             filter = bindingEncoding.getFilterString().toString();
          }
          xmlWriter.writeAttribute(XmlDataConstants.BINDING_FILTER_STRING, filter);
@@ -484,19 +425,16 @@ public final class XmlDataExporter extends DataAbstract implements Action
       xmlWriter.writeEndElement(); // end BINDINGS_PARENT
    }
 
-   private void printJmsConnectionFactoriesAsXML() throws XMLStreamException
-   {
+   private void printJmsConnectionFactoriesAsXML() throws XMLStreamException {
       xmlWriter.writeStartElement(XmlDataConstants.JMS_CONNECTION_FACTORIES);
-      for (String jmsConnectionFactoryKey : jmsConnectionFactories.keySet())
-      {
+      for (String jmsConnectionFactoryKey : jmsConnectionFactories.keySet()) {
          xmlWriter.writeStartElement(XmlDataConstants.JMS_CONNECTION_FACTORY);
          PersistedConnectionFactory jmsConnectionFactory = jmsConnectionFactories.get(jmsConnectionFactoryKey);
          xmlWriter.writeStartElement(XmlDataConstants.JMS_CONNECTION_FACTORY_NAME);
          xmlWriter.writeCharacters(jmsConnectionFactory.getName());
          xmlWriter.writeEndElement();
          String clientID = jmsConnectionFactory.getConfig().getClientID();
-         if (clientID != null)
-         {
+         if (clientID != null) {
             xmlWriter.writeStartElement(XmlDataConstants.JMS_CONNECTION_FACTORY_CLIENT_ID);
             xmlWriter.writeCharacters(clientID);
             xmlWriter.writeEndElement();
@@ -538,8 +476,7 @@ public final class XmlDataExporter extends DataAbstract implements Action
          xmlWriter.writeEndElement();
 
          String discoveryGroupName = jmsConnectionFactory.getConfig().getDiscoveryGroupName();
-         if (discoveryGroupName != null)
-         {
+         if (discoveryGroupName != null) {
             xmlWriter.writeStartElement(XmlDataConstants.JMS_CONNECTION_FACTORY_DISCOVERY_GROUP_NAME);
             xmlWriter.writeCharacters(discoveryGroupName);
             xmlWriter.writeEndElement();
@@ -556,8 +493,7 @@ public final class XmlDataExporter extends DataAbstract implements Action
          xmlWriter.writeEndElement();
 
          String groupID = jmsConnectionFactory.getConfig().getGroupID();
-         if (groupID != null)
-         {
+         if (groupID != null) {
             xmlWriter.writeStartElement(XmlDataConstants.JMS_CONNECTION_FACTORY_GROUP_ID);
             xmlWriter.writeCharacters(groupID);
             xmlWriter.writeEndElement();
@@ -669,8 +605,7 @@ public final class XmlDataExporter extends DataAbstract implements Action
          xmlWriter.writeEndElement();
 
          xmlWriter.writeStartElement(XmlDataConstants.JMS_CONNECTION_FACTORY_CONNECTORS);
-         for (String connector : jmsConnectionFactory.getConfig().getConnectorNames())
-         {
+         for (String connector : jmsConnectionFactory.getConfig().getConnectorNames()) {
             xmlWriter.writeStartElement(XmlDataConstants.JMS_CONNECTION_FACTORY_CONNECTOR);
             xmlWriter.writeCharacters(connector);
             xmlWriter.writeEndElement();
@@ -679,8 +614,7 @@ public final class XmlDataExporter extends DataAbstract implements Action
 
          xmlWriter.writeStartElement(XmlDataConstants.JMS_JNDI_ENTRIES);
          PersistedBindings jndi = jmsJNDI.get(new Pair<>(PersistedType.ConnectionFactory, jmsConnectionFactory.getName()));
-         for (String jndiEntry : jndi.getBindings())
-         {
+         for (String jndiEntry : jndi.getBindings()) {
             xmlWriter.writeStartElement(XmlDataConstants.JMS_JNDI_ENTRY);
             xmlWriter.writeCharacters(jndiEntry);
             xmlWriter.writeEndElement();
@@ -691,11 +625,9 @@ public final class XmlDataExporter extends DataAbstract implements Action
       xmlWriter.writeEndElement();
    }
 
-   private void printJmsDestinationsAsXML() throws XMLStreamException
-   {
+   private void printJmsDestinationsAsXML() throws XMLStreamException {
       xmlWriter.writeStartElement(XmlDataConstants.JMS_DESTINATIONS);
-      for (Pair<PersistedType, String> jmsDestinationsKey : jmsDestinations.keySet())
-      {
+      for (Pair<PersistedType, String> jmsDestinationsKey : jmsDestinations.keySet()) {
          PersistedDestination jmsDestination = jmsDestinations.get(jmsDestinationsKey);
          xmlWriter.writeStartElement(XmlDataConstants.JMS_DESTINATION);
 
@@ -704,8 +636,7 @@ public final class XmlDataExporter extends DataAbstract implements Action
          xmlWriter.writeEndElement();
 
          String selector = jmsDestination.getSelector();
-         if (selector != null && selector.length() != 0)
-         {
+         if (selector != null && selector.length() != 0) {
             xmlWriter.writeStartElement(XmlDataConstants.JMS_DESTINATION_SELECTOR);
             xmlWriter.writeCharacters(selector);
             xmlWriter.writeEndElement();
@@ -715,11 +646,9 @@ public final class XmlDataExporter extends DataAbstract implements Action
          xmlWriter.writeCharacters(jmsDestination.getType().toString());
          xmlWriter.writeEndElement();
 
-
          xmlWriter.writeStartElement(XmlDataConstants.JMS_JNDI_ENTRIES);
          PersistedBindings jndi = jmsJNDI.get(new Pair<>(jmsDestination.getType(), jmsDestination.getName()));
-         for (String jndiEntry : jndi.getBindings())
-         {
+         for (String jndiEntry : jndi.getBindings()) {
             xmlWriter.writeStartElement(XmlDataConstants.JMS_JNDI_ENTRY);
             xmlWriter.writeCharacters(jndiEntry);
             xmlWriter.writeEndElement();
@@ -730,14 +659,12 @@ public final class XmlDataExporter extends DataAbstract implements Action
       xmlWriter.writeEndElement();
    }
 
-   private void printAllMessagesAsXML() throws XMLStreamException
-   {
+   private void printAllMessagesAsXML() throws XMLStreamException {
       xmlWriter.writeStartElement(XmlDataConstants.MESSAGES_PARENT);
 
       // Order here is important.  We must process the messages from the journal before we process those from the page
       // files in order to get the messages in the right order.
-      for (Map.Entry<Long, Message> messageMapEntry : messages.entrySet())
-      {
+      for (Map.Entry<Long, Message> messageMapEntry : messages.entrySet()) {
          printSingleMessageAsXML((ServerMessage) messageMapEntry.getValue(), extractQueueNames(messageRefs.get(messageMapEntry.getKey())));
       }
 
@@ -750,23 +677,17 @@ public final class XmlDataExporter extends DataAbstract implements Action
     * Reads from the page files and prints messages as it finds them (making sure to check acks and transactions
     * from the journal).
     */
-   private void printPagedMessagesAsXML()
-   {
-      try
-      {
+   private void printPagedMessagesAsXML() {
+      try {
          ScheduledExecutorService scheduled = Executors.newScheduledThreadPool(1);
          final ExecutorService executor = Executors.newFixedThreadPool(10);
-         ExecutorFactory executorFactory = new ExecutorFactory()
-         {
+         ExecutorFactory executorFactory = new ExecutorFactory() {
             @Override
-            public Executor getExecutor()
-            {
+            public Executor getExecutor() {
                return executor;
             }
          };
-         PagingStoreFactory pageStoreFactory =
-            new PagingStoreFactoryNIO(storageManager, config.getPagingLocation(), 1000L, scheduled, executorFactory, true,
-                                      null);
+         PagingStoreFactory pageStoreFactory = new PagingStoreFactoryNIO(storageManager, config.getPagingLocation(), 1000L, scheduled, executorFactory, true, null);
          HierarchicalRepository<AddressSettings> addressSettingsRepository = new HierarchicalObjectRepository<>();
          addressSettingsRepository.setDefault(new AddressSettings());
          PagingManager manager = new PagingManagerImpl(pageStoreFactory, addressSettingsRepository);
@@ -775,18 +696,15 @@ public final class XmlDataExporter extends DataAbstract implements Action
 
          SimpleString[] stores = manager.getStoreNames();
 
-         for (SimpleString store : stores)
-         {
+         for (SimpleString store : stores) {
             PagingStore pageStore = manager.getPageStore(store);
 
-            if (pageStore != null)
-            {
+            if (pageStore != null) {
                File folder = pageStore.getFolder();
                ActiveMQServerLogger.LOGGER.debug("Reading page store " + store + " folder = " + folder);
 
                int pageId = (int) pageStore.getFirstPage();
-               for (int i = 0; i < pageStore.getNumberOfPages(); i++)
-               {
+               for (int i = 0; i < pageStore.getNumberOfPages(); i++) {
                   ActiveMQServerLogger.LOGGER.debug("Reading page " + pageId);
                   Page page = pageStore.createPage(pageId);
                   page.open();
@@ -795,36 +713,30 @@ public final class XmlDataExporter extends DataAbstract implements Action
 
                   int messageId = 0;
 
-                  for (PagedMessage message : messages)
-                  {
+                  for (PagedMessage message : messages) {
                      message.initMessage(storageManager);
                      long[] queueIDs = message.getQueueIDs();
                      List<String> queueNames = new ArrayList<>();
-                     for (long queueID : queueIDs)
-                     {
+                     for (long queueID : queueIDs) {
                         PagePosition posCheck = new PagePositionImpl(pageId, messageId);
 
                         boolean acked = false;
 
                         Set<PagePosition> positions = cursorRecords.get(queueID);
-                        if (positions != null)
-                        {
+                        if (positions != null) {
                            acked = positions.contains(posCheck);
                         }
 
-                        if (!acked)
-                        {
+                        if (!acked) {
                            PersistentQueueBindingEncoding queueBinding = queueBindings.get(queueID);
-                           if (queueBinding != null)
-                           {
+                           if (queueBinding != null) {
                               SimpleString queueName = queueBinding.getQueueName();
                               queueNames.add(queueName.toString());
                            }
                         }
                      }
 
-                     if (queueNames.size() > 0 && (message.getTransactionID() == -1 || pgTXs.contains(message.getTransactionID())))
-                     {
+                     if (queueNames.size() > 0 && (message.getTransactionID() == -1 || pgTXs.contains(message.getTransactionID()))) {
                         printSingleMessageAsXML(message.getMessage(), queueNames);
                      }
 
@@ -834,20 +746,17 @@ public final class XmlDataExporter extends DataAbstract implements Action
                   pageId++;
                }
             }
-            else
-            {
+            else {
                ActiveMQServerLogger.LOGGER.debug("Page store was null");
             }
          }
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          e.printStackTrace();
       }
    }
 
-   private void printSingleMessageAsXML(ServerMessage message, List<String> queues) throws XMLStreamException
-   {
+   private void printSingleMessageAsXML(ServerMessage message, List<String> queues) throws XMLStreamException {
       xmlWriter.writeStartElement(XmlDataConstants.MESSAGES_CHILD);
       printMessageAttributes(message);
       printMessageProperties(message);
@@ -857,16 +766,13 @@ public final class XmlDataExporter extends DataAbstract implements Action
       messagesPrinted++;
    }
 
-   private void printMessageBody(ServerMessage message) throws XMLStreamException
-   {
+   private void printMessageBody(ServerMessage message) throws XMLStreamException {
       xmlWriter.writeStartElement(XmlDataConstants.MESSAGE_BODY);
 
-      if (message.isLargeMessage())
-      {
+      if (message.isLargeMessage()) {
          printLargeMessageBody((LargeServerMessage) message);
       }
-      else
-      {
+      else {
          int size = message.getEndOfBodyPosition() - message.getBodyBuffer().readerIndex();
          byte[] buffer = new byte[size];
          message.getBodyBuffer().readBytes(buffer);
@@ -876,27 +782,22 @@ public final class XmlDataExporter extends DataAbstract implements Action
       xmlWriter.writeEndElement(); // end MESSAGE_BODY
    }
 
-   private void printLargeMessageBody(LargeServerMessage message) throws XMLStreamException
-   {
+   private void printLargeMessageBody(LargeServerMessage message) throws XMLStreamException {
       xmlWriter.writeAttribute(XmlDataConstants.MESSAGE_IS_LARGE, Boolean.TRUE.toString());
       BodyEncoder encoder = null;
 
-      try
-      {
+      try {
          encoder = message.getBodyEncoder();
          encoder.open();
          long totalBytesWritten = 0;
          Long bufferSize;
          long bodySize = encoder.getLargeBodySize();
-         for (long i = 0; i < bodySize; i += LARGE_MESSAGE_CHUNK_SIZE)
-         {
+         for (long i = 0; i < bodySize; i += LARGE_MESSAGE_CHUNK_SIZE) {
             Long remainder = bodySize - totalBytesWritten;
-            if (remainder >= LARGE_MESSAGE_CHUNK_SIZE)
-            {
+            if (remainder >= LARGE_MESSAGE_CHUNK_SIZE) {
                bufferSize = LARGE_MESSAGE_CHUNK_SIZE;
             }
-            else
-            {
+            else {
                bufferSize = remainder;
             }
             ActiveMQBuffer buffer = ActiveMQBuffers.fixedBuffer(bufferSize.intValue());
@@ -906,145 +807,114 @@ public final class XmlDataExporter extends DataAbstract implements Action
          }
          encoder.close();
       }
-      catch (ActiveMQException e)
-      {
+      catch (ActiveMQException e) {
          e.printStackTrace();
       }
-      finally
-      {
-         if (encoder != null)
-         {
-            try
-            {
+      finally {
+         if (encoder != null) {
+            try {
                encoder.close();
             }
-            catch (ActiveMQException e)
-            {
+            catch (ActiveMQException e) {
                e.printStackTrace();
             }
          }
       }
    }
 
-   private void printMessageQueues(List<String> queues) throws XMLStreamException
-   {
+   private void printMessageQueues(List<String> queues) throws XMLStreamException {
       xmlWriter.writeStartElement(XmlDataConstants.QUEUES_PARENT);
-      for (String queueName : queues)
-      {
+      for (String queueName : queues) {
          xmlWriter.writeEmptyElement(XmlDataConstants.QUEUES_CHILD);
          xmlWriter.writeAttribute(XmlDataConstants.QUEUE_NAME, queueName);
       }
       xmlWriter.writeEndElement(); // end QUEUES_PARENT
    }
 
-   private void printMessageProperties(ServerMessage message) throws XMLStreamException
-   {
+   private void printMessageProperties(ServerMessage message) throws XMLStreamException {
       xmlWriter.writeStartElement(XmlDataConstants.PROPERTIES_PARENT);
-      for (SimpleString key : message.getPropertyNames())
-      {
+      for (SimpleString key : message.getPropertyNames()) {
          Object value = message.getObjectProperty(key);
          xmlWriter.writeEmptyElement(XmlDataConstants.PROPERTIES_CHILD);
          xmlWriter.writeAttribute(XmlDataConstants.PROPERTY_NAME, key.toString());
-         if (value instanceof byte[])
-         {
+         if (value instanceof byte[]) {
             xmlWriter.writeAttribute(XmlDataConstants.PROPERTY_VALUE, encode((byte[]) value));
          }
-         else
-         {
+         else {
             xmlWriter.writeAttribute(XmlDataConstants.PROPERTY_VALUE, value == null ? XmlDataConstants.NULL : value.toString());
          }
 
-         if (value instanceof Boolean)
-         {
+         if (value instanceof Boolean) {
             xmlWriter.writeAttribute(XmlDataConstants.PROPERTY_TYPE, XmlDataConstants.PROPERTY_TYPE_BOOLEAN);
          }
-         else if (value instanceof Byte)
-         {
+         else if (value instanceof Byte) {
             xmlWriter.writeAttribute(XmlDataConstants.PROPERTY_TYPE, XmlDataConstants.PROPERTY_TYPE_BYTE);
          }
-         else if (value instanceof Short)
-         {
+         else if (value instanceof Short) {
             xmlWriter.writeAttribute(XmlDataConstants.PROPERTY_TYPE, XmlDataConstants.PROPERTY_TYPE_SHORT);
          }
-         else if (value instanceof Integer)
-         {
+         else if (value instanceof Integer) {
             xmlWriter.writeAttribute(XmlDataConstants.PROPERTY_TYPE, XmlDataConstants.PROPERTY_TYPE_INTEGER);
          }
-         else if (value instanceof Long)
-         {
+         else if (value instanceof Long) {
             xmlWriter.writeAttribute(XmlDataConstants.PROPERTY_TYPE, XmlDataConstants.PROPERTY_TYPE_LONG);
          }
-         else if (value instanceof Float)
-         {
+         else if (value instanceof Float) {
             xmlWriter.writeAttribute(XmlDataConstants.PROPERTY_TYPE, XmlDataConstants.PROPERTY_TYPE_FLOAT);
          }
-         else if (value instanceof Double)
-         {
+         else if (value instanceof Double) {
             xmlWriter.writeAttribute(XmlDataConstants.PROPERTY_TYPE, XmlDataConstants.PROPERTY_TYPE_DOUBLE);
          }
-         else if (value instanceof String)
-         {
+         else if (value instanceof String) {
             xmlWriter.writeAttribute(XmlDataConstants.PROPERTY_TYPE, XmlDataConstants.PROPERTY_TYPE_STRING);
          }
-         else if (value instanceof SimpleString)
-         {
+         else if (value instanceof SimpleString) {
             xmlWriter.writeAttribute(XmlDataConstants.PROPERTY_TYPE, XmlDataConstants.PROPERTY_TYPE_SIMPLE_STRING);
          }
-         else if (value instanceof byte[])
-         {
+         else if (value instanceof byte[]) {
             xmlWriter.writeAttribute(XmlDataConstants.PROPERTY_TYPE, XmlDataConstants.PROPERTY_TYPE_BYTES);
          }
       }
       xmlWriter.writeEndElement(); // end PROPERTIES_PARENT
    }
 
-   private void printMessageAttributes(ServerMessage message) throws XMLStreamException
-   {
+   private void printMessageAttributes(ServerMessage message) throws XMLStreamException {
       xmlWriter.writeAttribute(XmlDataConstants.MESSAGE_ID, Long.toString(message.getMessageID()));
       xmlWriter.writeAttribute(XmlDataConstants.MESSAGE_PRIORITY, Byte.toString(message.getPriority()));
       xmlWriter.writeAttribute(XmlDataConstants.MESSAGE_EXPIRATION, Long.toString(message.getExpiration()));
       xmlWriter.writeAttribute(XmlDataConstants.MESSAGE_TIMESTAMP, Long.toString(message.getTimestamp()));
       byte rawType = message.getType();
       String prettyType = XmlDataConstants.DEFAULT_TYPE_PRETTY;
-      if (rawType == Message.BYTES_TYPE)
-      {
+      if (rawType == Message.BYTES_TYPE) {
          prettyType = XmlDataConstants.BYTES_TYPE_PRETTY;
       }
-      else if (rawType == Message.MAP_TYPE)
-      {
+      else if (rawType == Message.MAP_TYPE) {
          prettyType = XmlDataConstants.MAP_TYPE_PRETTY;
       }
-      else if (rawType == Message.OBJECT_TYPE)
-      {
+      else if (rawType == Message.OBJECT_TYPE) {
          prettyType = XmlDataConstants.OBJECT_TYPE_PRETTY;
       }
-      else if (rawType == Message.STREAM_TYPE)
-      {
+      else if (rawType == Message.STREAM_TYPE) {
          prettyType = XmlDataConstants.STREAM_TYPE_PRETTY;
       }
-      else if (rawType == Message.TEXT_TYPE)
-      {
+      else if (rawType == Message.TEXT_TYPE) {
          prettyType = XmlDataConstants.TEXT_TYPE_PRETTY;
       }
       xmlWriter.writeAttribute(XmlDataConstants.MESSAGE_TYPE, prettyType);
-      if (message.getUserID() != null)
-      {
+      if (message.getUserID() != null) {
          xmlWriter.writeAttribute(XmlDataConstants.MESSAGE_USER_ID, message.getUserID().toString());
       }
    }
 
-   private List<String> extractQueueNames(HashMap<Long, ReferenceDescribe> refMap)
-   {
+   private List<String> extractQueueNames(HashMap<Long, ReferenceDescribe> refMap) {
       List<String> queues = new ArrayList<>();
-      for (ReferenceDescribe ref : refMap.values())
-      {
+      for (ReferenceDescribe ref : refMap.values()) {
          queues.add(queueBindings.get(ref.refEncoding.queueID).getQueueName().toString());
       }
       return queues;
    }
 
-   private static String encode(final byte[] data)
-   {
+   private static String encode(final byte[] data) {
       return Base64.encodeBytes(data, 0, data.length, Base64.DONT_BREAK_LINES | Base64.URL_SAFE);
    }
 
@@ -1053,8 +923,8 @@ public final class XmlDataExporter extends DataAbstract implements Action
    /**
     * Proxy to handle indenting the XML since <code>javax.xml.stream.XMLStreamWriter</code> doesn't support that.
     */
-   static class PrettyPrintHandler implements InvocationHandler
-   {
+   static class PrettyPrintHandler implements InvocationHandler {
+
       private final XMLStreamWriter target;
 
       private int depth = 0;
@@ -1065,19 +935,15 @@ public final class XmlDataExporter extends DataAbstract implements Action
 
       boolean wrap = true;
 
-
-      public PrettyPrintHandler(XMLStreamWriter target)
-      {
+      public PrettyPrintHandler(XMLStreamWriter target) {
          this.target = target;
       }
 
       @Override
-      public Object invoke(Object proxy, Method method, Object[] args) throws Throwable
-      {
+      public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
          String m = method.getName();
 
-         switch (m)
-         {
+         switch (m) {
             case "writeStartElement":
                target.writeCharacters(LINE_SEPARATOR);
                target.writeCharacters(indent(depth));
@@ -1086,8 +952,7 @@ public final class XmlDataExporter extends DataAbstract implements Action
                break;
             case "writeEndElement":
                depth--;
-               if (wrap)
-               {
+               if (wrap) {
                   target.writeCharacters(LINE_SEPARATOR);
                   target.writeCharacters(indent(depth));
                }
@@ -1108,12 +973,10 @@ public final class XmlDataExporter extends DataAbstract implements Action
          return null;
       }
 
-      private String indent(int depth)
-      {
+      private String indent(int depth) {
          depth *= 3; // level of indentation
          char[] output = new char[depth];
-         while (depth-- > 0)
-         {
+         while (depth-- > 0) {
             output[depth] = INDENT_CHAR;
          }
          return new String(output);

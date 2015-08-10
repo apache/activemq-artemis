@@ -25,27 +25,24 @@ import org.apache.activemq.artemis.core.postoffice.PostOffice;
 import org.apache.activemq.artemis.core.server.ConnectorService;
 import org.apache.activemq.artemis.core.server.ConnectorServiceFactory;
 
-public class VertxOutgoingConnectorServiceFactory implements ConnectorServiceFactory
-{
+public class VertxOutgoingConnectorServiceFactory implements ConnectorServiceFactory {
 
    @Override
    public ConnectorService createConnectorService(String connectorName,
-            Map<String, Object> configuration, StorageManager storageManager,
-            PostOffice postOffice, ScheduledExecutorService scheduledThreadPool)
-   {
-      return new OutgoingVertxEventHandler(connectorName, configuration, storageManager,
-               postOffice, scheduledThreadPool);
+                                                  Map<String, Object> configuration,
+                                                  StorageManager storageManager,
+                                                  PostOffice postOffice,
+                                                  ScheduledExecutorService scheduledThreadPool) {
+      return new OutgoingVertxEventHandler(connectorName, configuration, storageManager, postOffice, scheduledThreadPool);
    }
 
    @Override
-   public Set<String> getAllowableProperties()
-   {
+   public Set<String> getAllowableProperties() {
       return VertxConstants.ALLOWABLE_OUTGOING_CONNECTOR_KEYS;
    }
 
    @Override
-   public Set<String> getRequiredProperties()
-   {
+   public Set<String> getRequiredProperties() {
       return VertxConstants.REQUIRED_OUTGOING_CONNECTOR_KEYS;
    }
 

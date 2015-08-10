@@ -16,7 +16,7 @@
  */
 package org.apache.activemq.artemis.core.settings;
 
-public interface HierarchicalRepositoryChangeListener
-{
+public interface HierarchicalRepositoryChangeListener {
+
    void onChange();
 }

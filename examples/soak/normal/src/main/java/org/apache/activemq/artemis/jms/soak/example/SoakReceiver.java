@@ -31,41 +31,34 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Logger;
 
-public class SoakReceiver
-{
+public class SoakReceiver {
+
    private static final Logger log = Logger.getLogger(SoakReceiver.class.getName());
 
    private static final String EOF = UUID.randomUUID().toString();
 
-   public static void main(final String[] args)
-   {
-      Runnable runnable = new Runnable()
-      {
+   public static void main(final String[] args) {
+      Runnable runnable = new Runnable() {
          @Override
-         public void run()
-         {
+         public void run() {
 
-            try
-            {
+            try {
                String fileName = SoakBase.getPerfFileName();
 
                SoakParams params = SoakBase.getParams(fileName);
 
                final SoakReceiver receiver = new SoakReceiver(params);
 
-               Runtime.getRuntime().addShutdownHook(new Thread()
-               {
+               Runtime.getRuntime().addShutdownHook(new Thread() {
                   @Override
-                  public void run()
-                  {
+                  public void run() {
                      receiver.disconnect();
                   }
                });
 
                receiver.run();
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                e.printStackTrace();
             }
          }
@@ -77,17 +70,14 @@ public class SoakReceiver
 
    private final SoakParams perfParams;
 
-   private final ExceptionListener exceptionListener = new ExceptionListener()
-   {
-      public void onException(final JMSException e)
-      {
+   private final ExceptionListener exceptionListener = new ExceptionListener() {
+      public void onException(final JMSException e) {
          disconnect();
          connect();
       }
    };
 
-   private final MessageListener listener = new MessageListener()
-   {
+   private final MessageListener listener = new MessageListener() {
       int modulo = 10000;
 
       private final AtomicLong count = new AtomicLong(0);
@@ -96,33 +86,24 @@ public class SoakReceiver
 
       long moduloStart = start;
 
-      public void onMessage(final Message msg)
-      {
+      public void onMessage(final Message msg) {
          long totalDuration = System.currentTimeMillis() - start;
 
-         try
-         {
-            if (SoakReceiver.EOF.equals(msg.getStringProperty("eof")))
-            {
-               SoakReceiver.log.info(String.format("Received %s messages in %.2f minutes", count, 1.0 * totalDuration /
-                                                                                                  SoakBase.TO_MILLIS));
+         try {
+            if (SoakReceiver.EOF.equals(msg.getStringProperty("eof"))) {
+               SoakReceiver.log.info(String.format("Received %s messages in %.2f minutes", count, 1.0 * totalDuration / SoakBase.TO_MILLIS));
                SoakReceiver.log.info("END OF RUN");
 
                return;
             }
          }
-         catch (JMSException e1)
-         {
+         catch (JMSException e1) {
             e1.printStackTrace();
          }
-         if (count.incrementAndGet() % modulo == 0)
-         {
+         if (count.incrementAndGet() % modulo == 0) {
             double duration = (1.0 * System.currentTimeMillis() - moduloStart) / 1000;
             moduloStart = System.currentTimeMillis();
-            SoakReceiver.log.info(String.format("received %s messages in %2.2fs (total: %.0fs)",
-                                                modulo,
-                                                duration,
-                                                totalDuration / 1000.0));
+            SoakReceiver.log.info(String.format("received %s messages in %2.2fs (total: %.0fs)", modulo, duration, totalDuration / 1000.0));
          }
       }
    };
@@ -131,19 +112,16 @@ public class SoakReceiver
 
    private Connection connection;
 
-   private SoakReceiver(final SoakParams perfParams)
-   {
+   private SoakReceiver(final SoakParams perfParams) {
       this.perfParams = perfParams;
    }
 
-   public void run() throws Exception
-   {
+   public void run() throws Exception {
       connect();
 
       boolean runInfinitely = perfParams.getDurationInMinutes() == -1;
 
-      if (!runInfinitely)
-      {
+      if (!runInfinitely) {
          Thread.sleep(perfParams.getDurationInMinutes() * SoakBase.TO_MILLIS);
 
          // send EOF message
@@ -151,76 +129,60 @@ public class SoakReceiver
          eof.setStringProperty("eof", SoakReceiver.EOF);
          listener.onMessage(eof);
 
-         if (connection != null)
-         {
+         if (connection != null) {
             connection.close();
             connection = null;
          }
       }
-      else
-      {
-         while (true)
-         {
+      else {
+         while (true) {
             Thread.sleep(500);
          }
       }
    }
 
-   private void disconnect()
-   {
-      if (connection != null)
-      {
-         try
-         {
+   private void disconnect() {
+      if (connection != null) {
+         try {
             connection.setExceptionListener(null);
             connection.close();
          }
-         catch (JMSException e)
-         {
+         catch (JMSException e) {
             e.printStackTrace();
          }
-         finally
-         {
+         finally {
             connection = null;
          }
       }
    }
 
-   private void connect()
-   {
+   private void connect() {
       InitialContext ic = null;
-      try
-      {
+      try {
          ic = new InitialContext();
 
-         ConnectionFactory factory = (ConnectionFactory)ic.lookup(perfParams.getConnectionFactoryLookup());
+         ConnectionFactory factory = (ConnectionFactory) ic.lookup(perfParams.getConnectionFactoryLookup());
 
-         Destination destination = (Destination)ic.lookup(perfParams.getDestinationLookup());
+         Destination destination = (Destination) ic.lookup(perfParams.getDestinationLookup());
 
          connection = factory.createConnection();
          connection.setExceptionListener(exceptionListener);
 
-         session = connection.createSession(perfParams.isSessionTransacted(),
-                                            perfParams.isDupsOK() ? Session.DUPS_OK_ACKNOWLEDGE
-                                                                 : Session.AUTO_ACKNOWLEDGE);
+         session = connection.createSession(perfParams.isSessionTransacted(), perfParams.isDupsOK() ? Session.DUPS_OK_ACKNOWLEDGE : Session.AUTO_ACKNOWLEDGE);
 
          MessageConsumer messageConsumer = session.createConsumer(destination);
          messageConsumer.setMessageListener(listener);
 
          connection.start();
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          e.printStackTrace();
       }
-      finally
-      {
-         try
-         {
+      finally {
+         try {
             ic.close();
          }
-         catch (NamingException e)
-         {
+         catch (NamingException e) {
             e.printStackTrace();
          }
       }

@@ -32,15 +32,14 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(BMUnitRunner.class)
-public class ScaleDownFailoverTest extends ClusterTestBase
-{
+public class ScaleDownFailoverTest extends ClusterTestBase {
+
    protected static int stopCount = 0;
    private static ActiveMQServer[] staticServers;
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
       stopCount = 0;
       setupLiveServer(0, isFileStorage(), false, isNetty(), true);
@@ -54,8 +53,7 @@ public class ScaleDownFailoverTest extends ClusterTestBase
       ((LiveOnlyPolicyConfiguration) servers[0].getConfiguration().getHAPolicyConfiguration()).setScaleDownConfiguration(scaleDownConfiguration);
       ((LiveOnlyPolicyConfiguration) servers[1].getConfiguration().getHAPolicyConfiguration()).setScaleDownConfiguration(scaleDownConfiguration2);
       ((LiveOnlyPolicyConfiguration) servers[2].getConfiguration().getHAPolicyConfiguration()).setScaleDownConfiguration(scaleDownConfiguration3);
-      if (isGrouped())
-      {
+      if (isGrouped()) {
          scaleDownConfiguration.setGroupName("bill");
          scaleDownConfiguration2.setGroupName("bill");
          scaleDownConfiguration3.setGroupName("bill");
@@ -74,29 +72,23 @@ public class ScaleDownFailoverTest extends ClusterTestBase
       setupSessionFactory(2, isNetty());
    }
 
-   protected boolean isNetty()
-   {
+   protected boolean isNetty() {
       return true;
    }
 
-   protected boolean isGrouped()
-   {
+   protected boolean isGrouped() {
       return false;
    }
 
-
    @Test
-   @BMRule
-      (
-         name = "blow-up",
-         targetClass = "org.apache.activemq.artemis.api.core.client.ServerLocator",
-         targetMethod = "createSessionFactory(org.apache.activemq.artemis.api.core.TransportConfiguration, int, boolean)",
-         isInterface = true,
-         targetLocation = "ENTRY",
-         action = "org.apache.activemq.artemis.tests.extras.byteman.ScaleDownFailoverTest.fail($1);"
-      )
-   public void testScaleDownWhenFirstServerFails() throws Exception
-   {
+   @BMRule(
+      name = "blow-up",
+      targetClass = "org.apache.activemq.artemis.api.core.client.ServerLocator",
+      targetMethod = "createSessionFactory(org.apache.activemq.artemis.api.core.TransportConfiguration, int, boolean)",
+      isInterface = true,
+      targetLocation = "ENTRY",
+      action = "org.apache.activemq.artemis.tests.extras.byteman.ScaleDownFailoverTest.fail($1);")
+   public void testScaleDownWhenFirstServerFails() throws Exception {
       final int TEST_SIZE = 2;
       final String addressName = "testAddress";
       final String queueName1 = "testQueue1";
@@ -157,21 +149,14 @@ public class ScaleDownFailoverTest extends ClusterTestBase
       removeConsumer(0);
    }
 
-   public static void fail(TransportConfiguration tc)
-   {
+   public static void fail(TransportConfiguration tc) {
       // only kill one server
-      if (stopCount == 0)
-      {
-         try
-         {
-            for (ActiveMQServer activeMQServer : staticServers)
-            {
-               if (activeMQServer != null)
-               {
-                  for (TransportConfiguration transportConfiguration : activeMQServer.getConfiguration().getAcceptorConfigurations())
-                  {
-                     if (transportConfiguration.getParams().get(TransportConstants.PORT_PROP_NAME).equals(tc.getParams().get(TransportConstants.PORT_PROP_NAME)))
-                     {
+      if (stopCount == 0) {
+         try {
+            for (ActiveMQServer activeMQServer : staticServers) {
+               if (activeMQServer != null) {
+                  for (TransportConfiguration transportConfiguration : activeMQServer.getConfiguration().getAcceptorConfigurations()) {
+                     if (transportConfiguration.getParams().get(TransportConstants.PORT_PROP_NAME).equals(tc.getParams().get(TransportConstants.PORT_PROP_NAME))) {
                         activeMQServer.stop();
                         stopCount++;
                         System.out.println("Stopping server listening at: " + tc.getParams().get(TransportConstants.PORT_PROP_NAME));
@@ -180,8 +165,7 @@ public class ScaleDownFailoverTest extends ClusterTestBase
                }
             }
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             e.printStackTrace();
          }
       }

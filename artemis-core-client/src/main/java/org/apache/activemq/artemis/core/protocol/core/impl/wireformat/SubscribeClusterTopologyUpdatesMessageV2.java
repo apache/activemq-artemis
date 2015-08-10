@@ -18,30 +18,24 @@ package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 
-public class SubscribeClusterTopologyUpdatesMessageV2 extends SubscribeClusterTopologyUpdatesMessage
-{
+public class SubscribeClusterTopologyUpdatesMessageV2 extends SubscribeClusterTopologyUpdatesMessage {
 
    private int clientVersion;
 
-   public SubscribeClusterTopologyUpdatesMessageV2(final boolean clusterConnection, int clientVersion)
-   {
+   public SubscribeClusterTopologyUpdatesMessageV2(final boolean clusterConnection, int clientVersion) {
       super(SUBSCRIBE_TOPOLOGY_V2, clusterConnection);
 
       this.clientVersion = clientVersion;
    }
 
-   public SubscribeClusterTopologyUpdatesMessageV2()
-   {
+   public SubscribeClusterTopologyUpdatesMessageV2() {
       super(SUBSCRIBE_TOPOLOGY_V2);
    }
 
    // Public --------------------------------------------------------
 
-
-
    @Override
-   public void encodeRest(final ActiveMQBuffer buffer)
-   {
+   public void encodeRest(final ActiveMQBuffer buffer) {
       super.encodeRest(buffer);
       buffer.writeInt(clientVersion);
    }
@@ -49,21 +43,18 @@ public class SubscribeClusterTopologyUpdatesMessageV2 extends SubscribeClusterTo
    /**
     * @return the clientVersion
     */
-   public int getClientVersion()
-   {
+   public int getClientVersion() {
       return clientVersion;
    }
 
    @Override
-   public void decodeRest(final ActiveMQBuffer buffer)
-   {
+   public void decodeRest(final ActiveMQBuffer buffer) {
       super.decodeRest(buffer);
       clientVersion = buffer.readInt();
    }
 
    @Override
-   public int hashCode()
-   {
+   public int hashCode() {
       final int prime = 31;
       int result = super.hashCode();
       result = prime * result + clientVersion;
@@ -71,15 +62,14 @@ public class SubscribeClusterTopologyUpdatesMessageV2 extends SubscribeClusterTo
    }
 
    @Override
-   public boolean equals(Object obj)
-   {
+   public boolean equals(Object obj) {
       if (this == obj)
          return true;
       if (!super.equals(obj))
          return false;
       if (!(obj instanceof SubscribeClusterTopologyUpdatesMessageV2))
          return false;
-      SubscribeClusterTopologyUpdatesMessageV2 other = (SubscribeClusterTopologyUpdatesMessageV2)obj;
+      SubscribeClusterTopologyUpdatesMessageV2 other = (SubscribeClusterTopologyUpdatesMessageV2) obj;
       if (clientVersion != other.clientVersion)
          return false;
       return true;

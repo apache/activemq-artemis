@@ -25,31 +25,31 @@ import javax.net.ssl.SSLServerSocketFactory;
 
 public class StubSSLSocketFactory extends SSLServerSocketFactory {
 
-    private final ServerSocket retServerSocket;
+   private final ServerSocket retServerSocket;
 
-    public StubSSLSocketFactory(ServerSocket returnServerSocket) {
-        retServerSocket = returnServerSocket;
-    }
+   public StubSSLSocketFactory(ServerSocket returnServerSocket) {
+      retServerSocket = returnServerSocket;
+   }
 
-    public ServerSocket createServerSocket(int arg0) throws IOException {
-        return retServerSocket;
-    }
+   public ServerSocket createServerSocket(int arg0) throws IOException {
+      return retServerSocket;
+   }
 
-    public ServerSocket createServerSocket(int arg0, int arg1) throws IOException {
-        return retServerSocket;
-    }
+   public ServerSocket createServerSocket(int arg0, int arg1) throws IOException {
+      return retServerSocket;
+   }
 
-    public ServerSocket createServerSocket(int arg0, int arg1, InetAddress arg2) throws IOException {
-        return retServerSocket;
-    }
+   public ServerSocket createServerSocket(int arg0, int arg1, InetAddress arg2) throws IOException {
+      return retServerSocket;
+   }
 
-    // --- Stubbed Methods ---
+   // --- Stubbed Methods ---
 
-    public String[] getDefaultCipherSuites() {
-        return null;
-    }
+   public String[] getDefaultCipherSuites() {
+      return null;
+   }
 
-    public String[] getSupportedCipherSuites() {
-        return null;
-    }
+   public String[] getSupportedCipherSuites() {
+      return null;
+   }
 }

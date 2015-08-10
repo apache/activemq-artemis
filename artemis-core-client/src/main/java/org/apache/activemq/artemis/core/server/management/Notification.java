@@ -21,42 +21,38 @@ import org.apache.activemq.artemis.utils.TypedProperties;
 
 /**
  * A Notification
+ *
  * @see org.apache.activemq.artemis.core.server.management.NotificationListener
  * @see NotificationType
  */
-public final class Notification
-{
+public final class Notification {
+
    private final NotificationType type;
 
    private final TypedProperties properties;
 
    private final String uid;
 
-   public Notification(final String uid, final NotificationType type, final TypedProperties properties)
-   {
+   public Notification(final String uid, final NotificationType type, final TypedProperties properties) {
       this.uid = uid;
       this.type = type;
       this.properties = properties;
    }
 
-   public NotificationType getType()
-   {
+   public NotificationType getType() {
       return type;
    }
 
-   public TypedProperties getProperties()
-   {
+   public TypedProperties getProperties() {
       return properties;
    }
 
-   public String getUID()
-   {
+   public String getUID() {
       return uid;
    }
 
    @Override
-   public String toString()
-   {
+   public String toString() {
       return "Notification[uid=" + uid + ", type=" + type + ", properties=" + properties + "]";
    }
 }

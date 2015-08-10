@@ -34,13 +34,12 @@ import org.apache.activemq.artemis.spi.core.remoting.ConnectionLifeCycleListener
 import org.junit.Assert;
 import org.junit.Test;
 
-public class NettyConnectionTest extends ActiveMQTestBase
-{
+public class NettyConnectionTest extends ActiveMQTestBase {
+
    private static final Map<String, Object> emptyMap = Collections.emptyMap();
 
    @Test
-   public void testGetID() throws Exception
-   {
+   public void testGetID() throws Exception {
       Channel channel = createChannel();
       NettyConnection conn = new NettyConnection(emptyMap, channel, new MyListener(), false, false);
 
@@ -48,8 +47,7 @@ public class NettyConnectionTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testWrite() throws Exception
-   {
+   public void testWrite() throws Exception {
       ActiveMQBuffer buff = ActiveMQBuffers.wrappedBuffer(ByteBuffer.allocate(128));
       EmbeddedChannel channel = createChannel();
 
@@ -62,8 +60,7 @@ public class NettyConnectionTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testCreateBuffer() throws Exception
-   {
+   public void testCreateBuffer() throws Exception {
       EmbeddedChannel channel = createChannel();
       NettyConnection conn = new NettyConnection(emptyMap, channel, new MyListener(), false, false);
 
@@ -75,31 +72,27 @@ public class NettyConnectionTest extends ActiveMQTestBase
 
    }
 
-   private static EmbeddedChannel createChannel()
-   {
+   private static EmbeddedChannel createChannel() {
       return new EmbeddedChannel(new ChannelInboundHandlerAdapter());
    }
 
-   class MyListener implements ConnectionLifeCycleListener
-   {
+   class MyListener implements ConnectionLifeCycleListener {
 
-      public void connectionCreated(final ActiveMQComponent component, final Connection connection, final String protocol)
-      {
-
-      }
-
-      public void connectionDestroyed(final Object connectionID)
-      {
+      public void connectionCreated(final ActiveMQComponent component,
+                                    final Connection connection,
+                                    final String protocol) {
 
       }
 
-      public void connectionException(final Object connectionID, final ActiveMQException me)
-      {
+      public void connectionDestroyed(final Object connectionID) {
 
       }
 
-      public void connectionReadyForWrites(Object connectionID, boolean ready)
-      {
+      public void connectionException(final Object connectionID, final ActiveMQException me) {
+
+      }
+
+      public void connectionReadyForWrites(Object connectionID, boolean ready) {
       }
 
    }

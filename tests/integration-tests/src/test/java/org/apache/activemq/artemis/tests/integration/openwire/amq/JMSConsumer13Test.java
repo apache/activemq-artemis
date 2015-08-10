@@ -35,42 +35,28 @@ import org.junit.runners.Parameterized;
  * adapted from: org.apache.activemq.JMSConsumerTest
  */
 @RunWith(Parameterized.class)
-public class JMSConsumer13Test extends BasicOpenWireTest
-{
+public class JMSConsumer13Test extends BasicOpenWireTest {
+
    @Parameterized.Parameters(name = "deliveryMode={0} destinationType={1}")
-   public static Collection<Object[]> getParams()
-   {
-      return Arrays.asList(new Object[][] {
-         {DeliveryMode.NON_PERSISTENT, ActiveMQDestination.QUEUE_TYPE},
-         {DeliveryMode.NON_PERSISTENT, ActiveMQDestination.TOPIC_TYPE},
-         {DeliveryMode.NON_PERSISTENT, ActiveMQDestination.TEMP_QUEUE_TYPE},
-         {DeliveryMode.NON_PERSISTENT, ActiveMQDestination.TEMP_TOPIC_TYPE},
-         {DeliveryMode.PERSISTENT, ActiveMQDestination.QUEUE_TYPE},
-         {DeliveryMode.PERSISTENT, ActiveMQDestination.TOPIC_TYPE},
-         {DeliveryMode.PERSISTENT, ActiveMQDestination.TEMP_QUEUE_TYPE},
-         {DeliveryMode.PERSISTENT, ActiveMQDestination.TEMP_TOPIC_TYPE},
-      });
+   public static Collection<Object[]> getParams() {
+      return Arrays.asList(new Object[][]{{DeliveryMode.NON_PERSISTENT, ActiveMQDestination.QUEUE_TYPE}, {DeliveryMode.NON_PERSISTENT, ActiveMQDestination.TOPIC_TYPE}, {DeliveryMode.NON_PERSISTENT, ActiveMQDestination.TEMP_QUEUE_TYPE}, {DeliveryMode.NON_PERSISTENT, ActiveMQDestination.TEMP_TOPIC_TYPE}, {DeliveryMode.PERSISTENT, ActiveMQDestination.QUEUE_TYPE}, {DeliveryMode.PERSISTENT, ActiveMQDestination.TOPIC_TYPE}, {DeliveryMode.PERSISTENT, ActiveMQDestination.TEMP_QUEUE_TYPE}, {DeliveryMode.PERSISTENT, ActiveMQDestination.TEMP_TOPIC_TYPE},});
    }
 
    public int deliveryMode;
    public byte destinationType;
 
-   public JMSConsumer13Test(int deliveryMode, byte destinationType)
-   {
+   public JMSConsumer13Test(int deliveryMode, byte destinationType) {
       this.deliveryMode = deliveryMode;
       this.destinationType = destinationType;
    }
 
    @Test
-   public void testReceiveMessageWithConsumer() throws Exception
-   {
+   public void testReceiveMessageWithConsumer() throws Exception {
 
       // Receive a message with the JMS API
       connection.start();
-      Session session = connection.createSession(false,
-            Session.AUTO_ACKNOWLEDGE);
-      ActiveMQDestination destination = createDestination(session,
-            destinationType);
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      ActiveMQDestination destination = createDestination(session, destinationType);
       MessageConsumer consumer = session.createConsumer(destination);
 
       // Send the messages

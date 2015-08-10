@@ -21,40 +21,33 @@ import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-public final class InVMRegistry
-{
+public final class InVMRegistry {
+
    public static final InVMRegistry instance = new InVMRegistry();
 
    private final ConcurrentMap<Integer, InVMAcceptor> acceptors = new ConcurrentHashMap<Integer, InVMAcceptor>();
 
-   public void registerAcceptor(final int id, final InVMAcceptor acceptor)
-   {
-      if (acceptors.putIfAbsent(id, acceptor) != null)
-      {
+   public void registerAcceptor(final int id, final InVMAcceptor acceptor) {
+      if (acceptors.putIfAbsent(id, acceptor) != null) {
          throw ActiveMQMessageBundle.BUNDLE.acceptorExists(id);
       }
    }
 
-   public void unregisterAcceptor(final int id)
-   {
-      if (acceptors.remove(id) == null)
-      {
+   public void unregisterAcceptor(final int id) {
+      if (acceptors.remove(id) == null) {
          throw ActiveMQMessageBundle.BUNDLE.acceptorNotExists(id);
       }
    }
 
-   public InVMAcceptor getAcceptor(final int id)
-   {
+   public InVMAcceptor getAcceptor(final int id) {
       return acceptors.get(id);
    }
 
-   public void clear()
-   {
+   public void clear() {
       acceptors.clear();
    }
 
-   public int size()
-   {
+   public int size() {
       return acceptors.size();
    }
 }

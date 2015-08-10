@@ -51,8 +51,8 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 
-public class JMSTestBase extends ActiveMQTestBase
-{
+public class JMSTestBase extends ActiveMQTestBase {
+
    protected ActiveMQServer server;
 
    protected JMSServerManagerImpl jmsServer;
@@ -65,60 +65,48 @@ public class JMSTestBase extends ActiveMQTestBase
    private final Random random = new Random();
    protected InVMNamingContext namingContext;
 
-   protected boolean useSecurity()
-   {
+   protected boolean useSecurity() {
       return false;
    }
 
-   protected boolean useJMX()
-   {
+   protected boolean useJMX() {
       return true;
    }
 
-   protected boolean usePersistence()
-   {
+   protected boolean usePersistence() {
       return false;
    }
 
-   protected final JMSContext addContext(JMSContext context0)
-   {
+   protected final JMSContext addContext(JMSContext context0) {
       contextSet.add(context0);
       return context0;
    }
 
-   protected final JMSContext createContext()
-   {
+   protected final JMSContext createContext() {
       return addContext(cf.createContext());
    }
 
-   protected final JMSContext createContext(int sessionMode)
-   {
+   protected final JMSContext createContext(int sessionMode) {
       return addContext(cf.createContext(null, null, sessionMode));
    }
 
    /**
     * @throws Exception
     */
-   protected Queue createQueue(final String queueName) throws Exception
-   {
+   protected Queue createQueue(final String queueName) throws Exception {
       return createQueue(false, queueName);
    }
 
-   protected Topic createTopic(final String topicName) throws Exception
-   {
+   protected Topic createTopic(final String topicName) throws Exception {
       return createTopic(false, topicName);
    }
 
-
-   protected long getMessageCount(JMSQueueControl control) throws Exception
-   {
+   protected long getMessageCount(JMSQueueControl control) throws Exception {
       control.flushExecutor();
       return control.getMessageCount();
    }
 
-
-   protected long getMessageCount(QueueControl control) throws Exception
-   {
+   protected long getMessageCount(QueueControl control) throws Exception {
       control.flushExecutor();
       return control.getMessageCount();
    }
@@ -126,15 +114,13 @@ public class JMSTestBase extends ActiveMQTestBase
    /**
     * @throws Exception
     */
-   protected Queue createQueue(final boolean storeConfig, final String queueName) throws Exception
-   {
+   protected Queue createQueue(final boolean storeConfig, final String queueName) throws Exception {
       jmsServer.createQueue(storeConfig, queueName, null, true, "/jms/" + queueName);
 
       return (Queue) namingContext.lookup("/jms/" + queueName);
    }
 
-   protected Topic createTopic(final boolean storeConfig, final String topicName) throws Exception
-   {
+   protected Topic createTopic(final boolean storeConfig, final String topicName) throws Exception {
       jmsServer.createTopic(storeConfig, topicName, "/jms/" + topicName);
 
       return (Topic) namingContext.lookup("/jms/" + topicName);
@@ -142,15 +128,12 @@ public class JMSTestBase extends ActiveMQTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       mbeanServer = MBeanServerFactory.createMBeanServer();
 
-      Configuration config = createDefaultConfig(true)
-         .setSecurityEnabled(useSecurity())
-         .addConnectorConfiguration("invm", new TransportConfiguration(INVM_CONNECTOR_FACTORY));
+      Configuration config = createDefaultConfig(true).setSecurityEnabled(useSecurity()).addConnectorConfiguration("invm", new TransportConfiguration(INVM_CONNECTOR_FACTORY));
 
       server = addServer(ActiveMQServers.newActiveMQServer(config, mbeanServer, usePersistence()));
       jmsServer = new JMSServerManagerImpl(server);
@@ -162,14 +145,11 @@ public class JMSTestBase extends ActiveMQTestBase
    }
 
    @Override
-   protected Configuration createDefaultConfig(boolean netty) throws Exception
-   {
-      return super.createDefaultConfig(netty)
-         .setJMXManagementEnabled(true);
+   protected Configuration createDefaultConfig(boolean netty) throws Exception {
+      return super.createDefaultConfig(netty).setJMXManagementEnabled(true);
    }
 
-   protected void restartServer() throws Exception
-   {
+   protected void restartServer() throws Exception {
       namingContext = new InVMNamingContext();
       jmsServer.setRegistry(new JndiBindingRegistry(namingContext));
       jmsServer.start();
@@ -177,37 +157,29 @@ public class JMSTestBase extends ActiveMQTestBase
       registerConnectionFactory();
    }
 
-   protected void killServer() throws Exception
-   {
+   protected void killServer() throws Exception {
       jmsServer.stop();
    }
 
    @Override
    @After
-   public void tearDown() throws Exception
-   {
-      try
-      {
-         for (JMSContext jmsContext : contextSet)
-         {
+   public void tearDown() throws Exception {
+      try {
+         for (JMSContext jmsContext : contextSet) {
             jmsContext.close();
          }
       }
-      catch (RuntimeException ignored)
-      {
+      catch (RuntimeException ignored) {
          // no-op
       }
-      finally
-      {
+      finally {
          contextSet.clear();
       }
-      try
-      {
+      try {
          if (conn != null)
             conn.close();
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          // no-op
       }
 
@@ -228,8 +200,7 @@ public class JMSTestBase extends ActiveMQTestBase
       super.tearDown();
    }
 
-   protected void registerConnectionFactory() throws Exception
-   {
+   protected void registerConnectionFactory() throws Exception {
       List<TransportConfiguration> connectorConfigs = new ArrayList<TransportConfiguration>();
       connectorConfigs.add(new TransportConfiguration(INVM_CONNECTOR_FACTORY));
 
@@ -243,15 +214,11 @@ public class JMSTestBase extends ActiveMQTestBase
     * @param jndiBindings
     * @throws Exception
     */
-   protected void createCF(final List<TransportConfiguration> connectorConfigs, final String... jndiBindings) throws Exception
-   {
+   protected void createCF(final List<TransportConfiguration> connectorConfigs,
+                           final String... jndiBindings) throws Exception {
       List<String> connectorNames = registerConnectors(server, connectorConfigs);
 
-      ConnectionFactoryConfiguration configuration = new ConnectionFactoryConfigurationImpl()
-         .setName(name.getMethodName())
-         .setConnectorNames(connectorNames)
-         .setRetryInterval(1000)
-         .setReconnectAttempts(-1);
+      ConnectionFactoryConfiguration configuration = new ConnectionFactoryConfigurationImpl().setName(name.getMethodName()).setConnectorNames(connectorNames).setRetryInterval(1000).setReconnectAttempts(-1);
       testCaseCfExtraConfig(configuration);
       jmsServer.createConnectionFactory(false, configuration, jndiBindings);
    }
@@ -261,21 +228,16 @@ public class JMSTestBase extends ActiveMQTestBase
     *
     * @param configuration
     */
-   protected void testCaseCfExtraConfig(ConnectionFactoryConfiguration configuration)
-   {
+   protected void testCaseCfExtraConfig(ConnectionFactoryConfiguration configuration) {
       // no-op
 
    }
 
-   protected final void sendMessages(JMSContext context, JMSProducer producer, Queue queue, final int total)
-   {
-      try
-      {
-         for (int j = 0; j < total; j++)
-         {
+   protected final void sendMessages(JMSContext context, JMSProducer producer, Queue queue, final int total) {
+      try {
+         for (int j = 0; j < total; j++) {
             StringBuilder sb = new StringBuilder();
-            for (int m = 0; m < 200; m++)
-            {
+            for (int m = 0; m < 200; m++) {
                sb.append(random.nextLong());
             }
             Message msg = context.createTextMessage(sb.toString());
@@ -283,24 +245,20 @@ public class JMSTestBase extends ActiveMQTestBase
             producer.send(queue, msg);
          }
       }
-      catch (JMSException cause)
-      {
+      catch (JMSException cause) {
          throw new JMSRuntimeException(cause.getMessage(), cause.getErrorCode(), cause);
       }
    }
 
-   protected void useDummyTransactionManager()
-   {
+   protected void useDummyTransactionManager() {
       ServiceUtils.setTransactionManager(new DummyTransactionManager());
    }
 
    protected final void receiveMessages(JMSConsumer consumer, final int start, final int msgCount, final boolean ack)
 
    {
-      try
-      {
-         for (int i = start; i < msgCount; i++)
-         {
+      try {
+         for (int i = start; i < msgCount; i++) {
             Message message = consumer.receive(100);
             Assert.assertNotNull("Expecting a message " + i, message);
             final int actual = message.getIntProperty("counter");
@@ -309,8 +267,7 @@ public class JMSTestBase extends ActiveMQTestBase
                message.acknowledge();
          }
       }
-      catch (JMSException cause)
-      {
+      catch (JMSException cause) {
          throw new JMSRuntimeException(cause.getMessage(), cause.getErrorCode(), cause);
       }
    }

@@ -25,16 +25,14 @@ import org.apache.activemq.artemis.jms.persistence.config.PersistedDestination;
 import org.apache.activemq.artemis.jms.persistence.config.PersistedBindings;
 import org.apache.activemq.artemis.jms.persistence.config.PersistedType;
 
-public class JMSStorageManagerTest extends StorageManagerTestBase
-{
+public class JMSStorageManagerTest extends StorageManagerTestBase {
+
    //https://issues.jboss.org/browse/HORNETQ-812
    @Test
-   public void testJNDIPersistence() throws Exception
-   {
+   public void testJNDIPersistence() throws Exception {
       createJMSStorage();
 
-      jmsJournal.storeDestination(new PersistedDestination(PersistedType.Queue,
-            "jndiPersistQueue", null, true));
+      jmsJournal.storeDestination(new PersistedDestination(PersistedType.Queue, "jndiPersistQueue", null, true));
 
       jmsJournal.addBindings(PersistedType.Queue, "jndiPersistQueue", "jndi-1");
 

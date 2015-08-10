@@ -41,8 +41,8 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 @RunWith(Parameterized.class)
-public class JmsProducerCompletionListenerTest extends JMSTestBase
-{
+public class JmsProducerCompletionListenerTest extends JMSTestBase {
+
    static final int TOTAL_MSGS = 20;
 
    private JMSContext context;
@@ -52,26 +52,22 @@ public class JmsProducerCompletionListenerTest extends JMSTestBase
    private final int confirmationWindowSize;
 
    @Parameterized.Parameters(name = "confirmationWindowSize={0}")
-   public static Iterable<Object[]> data()
-   {
+   public static Iterable<Object[]> data() {
       return Arrays.asList(new Object[][]{{-1}, {0}, {10}, {1000}});
    }
 
-   public JmsProducerCompletionListenerTest(int confirmationWindowSize)
-   {
+   public JmsProducerCompletionListenerTest(int confirmationWindowSize) {
       this.confirmationWindowSize = confirmationWindowSize;
    }
 
    @Override
-   protected void testCaseCfExtraConfig(ConnectionFactoryConfiguration configuration)
-   {
+   protected void testCaseCfExtraConfig(ConnectionFactoryConfiguration configuration) {
       configuration.setConfirmationWindowSize(confirmationWindowSize);
    }
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
       context = createContext();
       producer = context.createProducer();
@@ -79,8 +75,7 @@ public class JmsProducerCompletionListenerTest extends JMSTestBase
    }
 
    @Test
-   public void testCompletionListener() throws InterruptedException
-   {
+   public void testCompletionListener() throws InterruptedException {
       CountingCompletionListener cl = new CountingCompletionListener(TOTAL_MSGS);
       Assert.assertEquals(null, producer.getAsync());
       producer.setAsync(cl);
@@ -96,37 +91,30 @@ public class JmsProducerCompletionListenerTest extends JMSTestBase
    }
 
    @Test
-   public void testNullCompletionListener() throws Exception
-   {
+   public void testNullCompletionListener() throws Exception {
       Connection connection = null;
-      try
-      {
+      try {
          connection = cf.createConnection();
          Session session = connection.createSession();
          MessageProducer prod = session.createProducer(queue);
          prod.send(session.createMessage(), null);
          Assert.fail("Didn't get expected exception!");
       }
-      catch (IllegalArgumentException expected)
-      {
+      catch (IllegalArgumentException expected) {
          //ok
       }
-      finally
-      {
-         if (connection != null)
-         {
+      finally {
+         if (connection != null) {
             connection.close();
          }
       }
    }
 
    @Test
-   public void testInvalidCallFromListener() throws InterruptedException
-   {
+   public void testInvalidCallFromListener() throws InterruptedException {
       JMSConsumer consumer = context.createConsumer(queue);
       List<InvalidCompletionListener> listeners = new ArrayList<InvalidCompletionListener>();
-      for (int i = 0; i < 3; i++)
-      {
+      for (int i = 0; i < 3; i++) {
          InvalidCompletionListener cl = new InvalidCompletionListener(context, i);
          listeners.add(cl);
          producer.setAsync(cl);
@@ -134,16 +122,14 @@ public class JmsProducerCompletionListenerTest extends JMSTestBase
       }
       receiveMessages(consumer, 0, 1, true);
       context.close();
-      for (InvalidCompletionListener cl : listeners)
-      {
+      for (InvalidCompletionListener cl : listeners) {
          Assert.assertTrue(cl.latch.await(1, TimeUnit.SECONDS));
          Assert.assertNotNull(cl.error);
          Assert.assertTrue(cl.error instanceof IllegalStateRuntimeException);
       }
    }
 
-   public static final class InvalidCompletionListener implements CompletionListener
-   {
+   public static final class InvalidCompletionListener implements CompletionListener {
 
       private final JMSContext context;
       public final CountDownLatch latch = new CountDownLatch(1);
@@ -154,20 +140,16 @@ public class JmsProducerCompletionListenerTest extends JMSTestBase
        * @param context
        * @param call
        */
-      public InvalidCompletionListener(JMSContext context, int call)
-      {
+      public InvalidCompletionListener(JMSContext context, int call) {
          this.call = call;
          this.context = context;
       }
 
       @Override
-      public void onCompletion(Message message)
-      {
+      public void onCompletion(Message message) {
          latch.countDown();
-         try
-         {
-            switch (call)
-            {
+         try {
+            switch (call) {
                case 0:
                   context.rollback();
                   break;
@@ -181,50 +163,43 @@ public class JmsProducerCompletionListenerTest extends JMSTestBase
                   throw new IllegalArgumentException("call code " + call);
             }
          }
-         catch (Exception error1)
-         {
+         catch (Exception error1) {
             this.error = error1;
          }
       }
 
       @Override
-      public void onException(Message message, Exception exception)
-      {
+      public void onException(Message message, Exception exception) {
          // TODO Auto-generated method stub
       }
 
    }
 
-   public static final class CountingCompletionListener implements CompletionListener
-   {
+   public static final class CountingCompletionListener implements CompletionListener {
 
       public int completion;
       public int error;
       public CountDownLatch completionLatch;
       public Message lastMessage;
 
-      public CountingCompletionListener(int n)
-      {
+      public CountingCompletionListener(int n) {
          completionLatch = new CountDownLatch(n);
       }
 
       @Override
-      public void onCompletion(Message message)
-      {
+      public void onCompletion(Message message) {
          completion++;
          completionLatch.countDown();
          lastMessage = message;
       }
 
       @Override
-      public void onException(Message message, Exception exception)
-      {
+      public void onException(Message message, Exception exception) {
          error++;
       }
 
       @Override
-      public String toString()
-      {
+      public String toString() {
          return JmsProducerCompletionListenerTest.class.getSimpleName() + ":" +
             CountingCompletionListener.class.getSimpleName() + ":" + completionLatch;
       }

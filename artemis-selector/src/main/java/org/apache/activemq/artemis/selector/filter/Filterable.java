@@ -22,8 +22,7 @@ package org.apache.activemq.artemis.selector.filter;
  *
  * @version $Revision: 1.4 $
  */
-public interface Filterable
-{
+public interface Filterable {
 
    /**
     * This method is used by message filters which do content based routing (Like the XPath

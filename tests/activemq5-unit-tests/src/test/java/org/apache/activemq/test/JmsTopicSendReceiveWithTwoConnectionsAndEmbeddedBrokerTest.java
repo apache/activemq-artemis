@@ -20,50 +20,50 @@ import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.broker.BrokerService;
 
 /**
- * 
+ *
  */
 public class JmsTopicSendReceiveWithTwoConnectionsAndEmbeddedBrokerTest extends JmsTopicSendReceiveWithTwoConnectionsTest {
 
-    protected BrokerService broker;
-    protected String bindAddress = "tcp://localhost:61616";
+   protected BrokerService broker;
+   protected String bindAddress = "tcp://localhost:61616";
 
-    /**
-     * Sets up a test where the producer and consumer have their own connection.
-     * 
-     * @see junit.framework.TestCase#setUp()
-     */
-    protected void setUp() throws Exception {
-        if (broker == null) {
-            broker = createBroker();
-        }
-        super.setUp();
-    }
+   /**
+    * Sets up a test where the producer and consumer have their own connection.
+    *
+    * @see junit.framework.TestCase#setUp()
+    */
+   protected void setUp() throws Exception {
+      if (broker == null) {
+         broker = createBroker();
+      }
+      super.setUp();
+   }
 
-    protected void tearDown() throws Exception {
-        super.tearDown();
+   protected void tearDown() throws Exception {
+      super.tearDown();
 
-        if (broker != null) {
-            broker.stop();
-        }
-    }
+      if (broker != null) {
+         broker.stop();
+      }
+   }
 
-    /**
-     * Factory method to create a new broker
-     * 
-     * @throws Exception
-     */
-    protected BrokerService createBroker() throws Exception {
-        BrokerService answer = new BrokerService();
-        configureBroker(answer);
-        answer.start();
-        return answer;
-    }
+   /**
+    * Factory method to create a new broker
+    *
+    * @throws Exception
+    */
+   protected BrokerService createBroker() throws Exception {
+      BrokerService answer = new BrokerService();
+      configureBroker(answer);
+      answer.start();
+      return answer;
+   }
 
-    protected void configureBroker(BrokerService answer) throws Exception {
-        answer.addConnector(bindAddress);
-    }
+   protected void configureBroker(BrokerService answer) throws Exception {
+      answer.addConnector(bindAddress);
+   }
 
-    protected ActiveMQConnectionFactory createConnectionFactory() throws Exception {
-        return new ActiveMQConnectionFactory(bindAddress);
-    }
+   protected ActiveMQConnectionFactory createConnectionFactory() throws Exception {
+      return new ActiveMQConnectionFactory(bindAddress);
+   }
 }

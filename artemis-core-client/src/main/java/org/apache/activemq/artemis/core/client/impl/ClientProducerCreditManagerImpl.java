@@ -23,8 +23,8 @@ import java.util.Map;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.spi.core.remoting.SessionContext;
 
-public class ClientProducerCreditManagerImpl implements ClientProducerCreditManager
-{
+public class ClientProducerCreditManagerImpl implements ClientProducerCreditManager {
+
    public static final int MAX_UNREFERENCED_CREDITS_CACHE_SIZE = 1000;
 
    private final Map<SimpleString, ClientProducerCredits> producerCredits = new LinkedHashMap<SimpleString, ClientProducerCredits>();
@@ -35,30 +35,26 @@ public class ClientProducerCreditManagerImpl implements ClientProducerCreditMana
 
    private int windowSize;
 
-   public ClientProducerCreditManagerImpl(final ClientSessionInternal session, final int windowSize)
-   {
+   public ClientProducerCreditManagerImpl(final ClientSessionInternal session, final int windowSize) {
       this.session = session;
 
       this.windowSize = windowSize;
    }
 
-   public synchronized ClientProducerCredits getCredits(final SimpleString address, final boolean anon, SessionContext context)
-   {
-      if (windowSize == -1)
-      {
+   public synchronized ClientProducerCredits getCredits(final SimpleString address,
+                                                        final boolean anon,
+                                                        SessionContext context) {
+      if (windowSize == -1) {
          return ClientProducerCreditsNoFlowControl.instance;
       }
-      else
-      {
+      else {
          boolean needInit = false;
          ClientProducerCredits credits;
 
-         synchronized (this)
-         {
+         synchronized (this) {
             credits = producerCredits.get(address);
 
-            if (credits == null)
-            {
+            if (credits == null) {
                // Doesn't need to be fair since session is single threaded
                credits = new ClientProducerCreditsImpl(session, address, windowSize);
                needInit = true;
@@ -66,15 +62,13 @@ public class ClientProducerCreditManagerImpl implements ClientProducerCreditMana
                producerCredits.put(address, credits);
             }
 
-            if (!anon)
-            {
+            if (!anon) {
                credits.incrementRefCount();
 
                // Remove from anon credits (if there)
                unReferencedCredits.remove(address);
             }
-            else
-            {
+            else {
                addToUnReferencedCache(address, credits);
             }
          }
@@ -82,8 +76,7 @@ public class ClientProducerCreditManagerImpl implements ClientProducerCreditMana
          // The init is done outside of the lock
          // otherwise packages may arrive with flow control
          // while this is still sending requests causing a dead lock
-         if (needInit)
-         {
+         if (needInit) {
             credits.init(context);
          }
 
@@ -91,50 +84,40 @@ public class ClientProducerCreditManagerImpl implements ClientProducerCreditMana
       }
    }
 
-   public synchronized void returnCredits(final SimpleString address)
-   {
+   public synchronized void returnCredits(final SimpleString address) {
       ClientProducerCredits credits = producerCredits.get(address);
 
-      if (credits != null && credits.decrementRefCount() == 0)
-      {
+      if (credits != null && credits.decrementRefCount() == 0) {
          addToUnReferencedCache(address, credits);
       }
    }
 
-   public synchronized void receiveCredits(final SimpleString address, final int credits)
-   {
+   public synchronized void receiveCredits(final SimpleString address, final int credits) {
       ClientProducerCredits cr = producerCredits.get(address);
 
-      if (cr != null)
-      {
+      if (cr != null) {
          cr.receiveCredits(credits);
       }
    }
 
-   public synchronized void receiveFailCredits(final SimpleString address, int credits)
-   {
+   public synchronized void receiveFailCredits(final SimpleString address, int credits) {
       ClientProducerCredits cr = producerCredits.get(address);
 
-      if (cr != null)
-      {
+      if (cr != null) {
          cr.receiveFailCredits(credits);
       }
    }
 
-   public synchronized void reset()
-   {
-      for (ClientProducerCredits credits : producerCredits.values())
-      {
+   public synchronized void reset() {
+      for (ClientProducerCredits credits : producerCredits.values()) {
          credits.reset();
       }
    }
 
-   public synchronized void close()
-   {
+   public synchronized void close() {
       windowSize = -1;
 
-      for (ClientProducerCredits credits : producerCredits.values())
-      {
+      for (ClientProducerCredits credits : producerCredits.values()) {
          credits.close();
       }
 
@@ -143,22 +126,18 @@ public class ClientProducerCreditManagerImpl implements ClientProducerCreditMana
       unReferencedCredits.clear();
    }
 
-   public synchronized int creditsMapSize()
-   {
+   public synchronized int creditsMapSize() {
       return producerCredits.size();
    }
 
-   public synchronized int unReferencedCreditsSize()
-   {
+   public synchronized int unReferencedCreditsSize() {
       return unReferencedCredits.size();
    }
 
-   private void addToUnReferencedCache(final SimpleString address, final ClientProducerCredits credits)
-   {
+   private void addToUnReferencedCache(final SimpleString address, final ClientProducerCredits credits) {
       unReferencedCredits.put(address, credits);
 
-      if (unReferencedCredits.size() > MAX_UNREFERENCED_CREDITS_CACHE_SIZE)
-      {
+      if (unReferencedCredits.size() > MAX_UNREFERENCED_CREDITS_CACHE_SIZE) {
          // Remove the oldest entry
 
          Iterator<Map.Entry<SimpleString, ClientProducerCredits>> iter = unReferencedCredits.entrySet().iterator();
@@ -171,8 +150,7 @@ public class ClientProducerCreditManagerImpl implements ClientProducerCreditMana
       }
    }
 
-   private void removeEntry(final SimpleString address, final ClientProducerCredits credits)
-   {
+   private void removeEntry(final SimpleString address, final ClientProducerCredits credits) {
       producerCredits.remove(address);
 
       credits.releaseOutstanding();
@@ -180,51 +158,40 @@ public class ClientProducerCreditManagerImpl implements ClientProducerCreditMana
       credits.close();
    }
 
+   static class ClientProducerCreditsNoFlowControl implements ClientProducerCredits {
 
-   static class ClientProducerCreditsNoFlowControl implements ClientProducerCredits
-   {
       static ClientProducerCreditsNoFlowControl instance = new ClientProducerCreditsNoFlowControl();
 
-      public void acquireCredits(int credits) throws InterruptedException
-      {
+      public void acquireCredits(int credits) throws InterruptedException {
       }
 
-      public void receiveCredits(int credits)
-      {
+      public void receiveCredits(int credits) {
       }
 
-      public void receiveFailCredits(int credits)
-      {
+      public void receiveFailCredits(int credits) {
       }
 
-      public boolean isBlocked()
-      {
+      public boolean isBlocked() {
          return false;
       }
 
-      public void init(SessionContext ctx)
-      {
+      public void init(SessionContext ctx) {
       }
 
-      public void reset()
-      {
+      public void reset() {
       }
 
-      public void close()
-      {
+      public void close() {
       }
 
-      public void incrementRefCount()
-      {
+      public void incrementRefCount() {
       }
 
-      public int decrementRefCount()
-      {
+      public int decrementRefCount() {
          return 1;
       }
 
-      public void releaseOutstanding()
-      {
+      public void releaseOutstanding() {
       }
 
    }

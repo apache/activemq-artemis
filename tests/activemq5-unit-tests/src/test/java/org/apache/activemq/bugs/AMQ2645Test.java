@@ -36,74 +36,76 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class AMQ2645Test extends EmbeddedBrokerTestSupport {
-    private static final Logger LOG = LoggerFactory.getLogger(AMQ2645Test.class);
-    private final static String QUEUE_NAME = "test.daroo.q";
 
-    public void testWaitForTransportInterruptionProcessingHang()
-            throws Exception {
-        final ConnectionFactory fac = new ActiveMQConnectionFactory(
-                "failover:(" + this.bindAddress + ")");
-        final Connection connection = fac.createConnection();
-        try {
-            final Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-            final Queue queue = session.createQueue(QUEUE_NAME);
-            final MessageProducer producer = session.createProducer(queue);
-            producer.setDeliveryMode(DeliveryMode.PERSISTENT);
-            connection.start();
+   private static final Logger LOG = LoggerFactory.getLogger(AMQ2645Test.class);
+   private final static String QUEUE_NAME = "test.daroo.q";
 
-            producer.send(session.createTextMessage("test"));
+   public void testWaitForTransportInterruptionProcessingHang() throws Exception {
+      final ConnectionFactory fac = new ActiveMQConnectionFactory("failover:(" + this.bindAddress + ")");
+      final Connection connection = fac.createConnection();
+      try {
+         final Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         final Queue queue = session.createQueue(QUEUE_NAME);
+         final MessageProducer producer = session.createProducer(queue);
+         producer.setDeliveryMode(DeliveryMode.PERSISTENT);
+         connection.start();
 
-            final CountDownLatch afterRestart = new CountDownLatch(1);
-            final CountDownLatch twoNewMessages = new CountDownLatch(1);
-            final CountDownLatch thirdMessageReceived = new CountDownLatch(1);
+         producer.send(session.createTextMessage("test"));
 
-            final MessageConsumer consumer = session.createConsumer(session.createQueue(QUEUE_NAME));
-            consumer.setMessageListener(new MessageListener() {
-                public void onMessage(Message message) {
-                    try {
-                        afterRestart.await();
+         final CountDownLatch afterRestart = new CountDownLatch(1);
+         final CountDownLatch twoNewMessages = new CountDownLatch(1);
+         final CountDownLatch thirdMessageReceived = new CountDownLatch(1);
 
-                        final TextMessage txtMsg = (TextMessage) message;
-                        if (txtMsg.getText().equals("test")) {
-                            producer.send(session.createTextMessage("test 1"));
-                            TimeUnit.SECONDS.sleep(5);
-                            // THIS SECOND send() WILL CAUSE CONSUMER DEADLOCK
-                            producer.send(session.createTextMessage("test 2"));
-                            LOG.info("Two new messages produced.");
-                            twoNewMessages.countDown();
-                        } else if (txtMsg.getText().equals("test 3")) {
-                            thirdMessageReceived.countDown();
-                        }
-                    } catch (Exception e) {
-                        LOG.error(e.toString());
-                        throw new RuntimeException(e);
-                    }
-                }
-            });
+         final MessageConsumer consumer = session.createConsumer(session.createQueue(QUEUE_NAME));
+         consumer.setMessageListener(new MessageListener() {
+            public void onMessage(Message message) {
+               try {
+                  afterRestart.await();
 
-            LOG.info("Stopping broker....");
-            broker.stop();
+                  final TextMessage txtMsg = (TextMessage) message;
+                  if (txtMsg.getText().equals("test")) {
+                     producer.send(session.createTextMessage("test 1"));
+                     TimeUnit.SECONDS.sleep(5);
+                     // THIS SECOND send() WILL CAUSE CONSUMER DEADLOCK
+                     producer.send(session.createTextMessage("test 2"));
+                     LOG.info("Two new messages produced.");
+                     twoNewMessages.countDown();
+                  }
+                  else if (txtMsg.getText().equals("test 3")) {
+                     thirdMessageReceived.countDown();
+                  }
+               }
+               catch (Exception e) {
+                  LOG.error(e.toString());
+                  throw new RuntimeException(e);
+               }
+            }
+         });
 
-            LOG.info("Creating new broker...");
-            broker = createBroker();
-            startBroker();
-            broker.waitUntilStarted();
+         LOG.info("Stopping broker....");
+         broker.stop();
 
-            afterRestart.countDown();
-            assertTrue("Consumer is deadlocked!", twoNewMessages.await(60, TimeUnit.SECONDS));
+         LOG.info("Creating new broker...");
+         broker = createBroker();
+         startBroker();
+         broker.waitUntilStarted();
 
-            producer.send(session.createTextMessage("test 3"));
-            assertTrue("Consumer got third message after block", thirdMessageReceived.await(60, TimeUnit.SECONDS));
+         afterRestart.countDown();
+         assertTrue("Consumer is deadlocked!", twoNewMessages.await(60, TimeUnit.SECONDS));
 
-        } finally {
-            broker.stop();
-        }
+         producer.send(session.createTextMessage("test 3"));
+         assertTrue("Consumer got third message after block", thirdMessageReceived.await(60, TimeUnit.SECONDS));
 
-    }
+      }
+      finally {
+         broker.stop();
+      }
 
-    @Override
-    protected void setUp() throws Exception {
-        bindAddress = "tcp://0.0.0.0:61617";
-        super.setUp();
-    }
+   }
+
+   @Override
+   protected void setUp() throws Exception {
+      bindAddress = "tcp://0.0.0.0:61617";
+      super.setUp();
+   }
 }

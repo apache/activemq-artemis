@@ -42,14 +42,13 @@ import org.junit.Test;
 
 import static org.jboss.resteasy.test.TestPortProvider.generateURL;
 
-public class SelectorTest extends MessageTestBase
-{
+public class SelectorTest extends MessageTestBase {
+
    public static ConnectionFactory connectionFactory;
    public static String topicName = ActiveMQDestination.createQueueAddressFromName("testTopic").toString();
 
    @BeforeClass
-   public static void setup() throws Exception
-   {
+   public static void setup() throws Exception {
       connectionFactory = new ActiveMQJMSConnectionFactory(manager.getQueueManager().getServerLocator());
       System.out.println("Queue name: " + topicName);
       TopicDeployment deployment = new TopicDeployment();
@@ -60,52 +59,43 @@ public class SelectorTest extends MessageTestBase
    }
 
    @XmlRootElement
-   public static class Order implements Serializable
-   {
+   public static class Order implements Serializable {
+
       private static final long serialVersionUID = 482698090549294508L;
       private String name;
       private String amount;
 
-      public String getName()
-      {
+      public String getName() {
          return name;
       }
 
-      public void setName(String name)
-      {
+      public void setName(String name) {
          this.name = name;
       }
 
-      public String getAmount()
-      {
+      public String getAmount() {
          return amount;
       }
 
-      public void setAmount(String amount)
-      {
+      public void setAmount(String amount) {
          this.amount = amount;
       }
 
       @Override
-      public boolean equals(Object o)
-      {
-         if (this == o)
-         {
+      public boolean equals(Object o) {
+         if (this == o) {
             return true;
          }
-         if (o == null || getClass() != o.getClass())
-         {
+         if (o == null || getClass() != o.getClass()) {
             return false;
          }
 
          Order order = (Order) o;
 
-         if (!amount.equals(order.amount))
-         {
+         if (!amount.equals(order.amount)) {
             return false;
          }
-         if (!name.equals(order.name))
-         {
+         if (!name.equals(order.name)) {
             return false;
          }
 
@@ -113,83 +103,71 @@ public class SelectorTest extends MessageTestBase
       }
 
       @Override
-      public String toString()
-      {
+      public String toString() {
          return "Order{" +
             "name='" + name + '\'' +
             '}';
       }
 
       @Override
-      public int hashCode()
-      {
+      public int hashCode() {
          int result = name.hashCode();
          result = 31 * result + amount.hashCode();
          return result;
       }
    }
 
-   public static Destination createDestination(String dest)
-   {
+   public static Destination createDestination(String dest) {
       ActiveMQDestination destination = (ActiveMQDestination) ActiveMQDestination.fromAddress(dest);
       System.out.println("SimpleAddress: " + destination.getSimpleAddress());
       return destination;
    }
 
-   public static void publish(String dest, Serializable object, String contentType, String tag) throws Exception
-   {
+   public static void publish(String dest, Serializable object, String contentType, String tag) throws Exception {
       Connection conn = connectionFactory.createConnection();
-      try
-      {
+      try {
          Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
          Destination destination = createDestination(dest);
          MessageProducer producer = session.createProducer(destination);
          ObjectMessage message = session.createObjectMessage();
 
-         if (contentType != null)
-         {
+         if (contentType != null) {
             message.setStringProperty(HttpHeaderProperty.CONTENT_TYPE, contentType);
          }
-         if (tag != null)
-         {
+         if (tag != null) {
             message.setStringProperty("MyTag", tag);
          }
          message.setObject(object);
 
          producer.send(message);
       }
-      finally
-      {
+      finally {
          conn.close();
       }
    }
 
    @Path("/push")
-   public static class PushReceiver
-   {
+   public static class PushReceiver {
+
       public static Order oneOrder;
       public static Order twoOrder;
 
       @POST
       @Path("one")
-      public void one(Order order)
-      {
+      public void one(Order order) {
          oneOrder = order;
       }
 
       @POST
       @Path("two")
-      public void two(Order order)
-      {
+      public void two(Order order) {
          twoOrder = order;
       }
-
 
    }
 
    @Test
-   public void testPush() throws Exception
-   {
+   public void testPush() throws Exception {
       server.getJaxrsServer().getDeployment().getRegistry().addPerRequestResource(PushReceiver.class);
       ClientRequest request = new ClientRequest(generateURL("/topics/" + topicName));
 
@@ -261,10 +239,8 @@ public class SelectorTest extends MessageTestBase
       response.releaseConnection();
    }
 
-
    @Test
-   public void testPull() throws Exception
-   {
+   public void testPull() throws Exception {
       ClientRequest request = new ClientRequest(generateURL("/topics/" + topicName));
 
       ClientResponse<?> response = request.head();
@@ -272,18 +248,15 @@ public class SelectorTest extends MessageTestBase
       Assert.assertEquals(200, response.getStatus());
       Link consumers = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "pull-subscriptions");
       System.out.println("pull: " + consumers);
-      response = consumers.request().formParameter("autoAck", "true")
-         .formParameter("selector", "MyTag = '1'").post();
+      response = consumers.request().formParameter("autoAck", "true").formParameter("selector", "MyTag = '1'").post();
       response.releaseConnection();
 
       Link consumeOne = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "consume-next");
       System.out.println("consumeOne: " + consumeOne);
-      response = consumers.request().formParameter("autoAck", "true")
-         .formParameter("selector", "MyTag = '2'").post();
+      response = consumers.request().formParameter("autoAck", "true").formParameter("selector", "MyTag = '2'").post();
       response.releaseConnection();
       Link consumeTwo = getLinkByTitle(manager.getQueueManager().getLinkStrategy(), response, "consume-next");
       System.out.println("consumeTwo: " + consumeTwo);
-
 
       // test that Accept header is used to set content-type
       {
@@ -319,8 +292,7 @@ public class SelectorTest extends MessageTestBase
       }
    }
 
-   private Link consumeOrder(Order order, Link consumeNext) throws Exception
-   {
+   private Link consumeOrder(Order order, Link consumeNext) throws Exception {
       ClientResponse<?> response = consumeNext.request().header("Accept-Wait", "4").accept("application/xml").post(String.class);
       Assert.assertEquals(200, response.getStatus());
       Assert.assertEquals("application/xml", response.getHeaders().getFirst("Content-Type").toString().toLowerCase());

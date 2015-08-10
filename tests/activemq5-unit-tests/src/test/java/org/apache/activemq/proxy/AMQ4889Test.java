@@ -17,7 +17,6 @@
 
 package org.apache.activemq.proxy;
 
-
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.broker.BrokerPlugin;
 import org.apache.activemq.broker.BrokerService;
@@ -43,93 +42,95 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 public class AMQ4889Test {
-    protected static final Logger LOG = LoggerFactory.getLogger(AMQ4889Test.class);
 
-    public static final String USER = "user";
-    public static final String GOOD_USER_PASSWORD = "password";
-    public static final String WRONG_PASSWORD = "wrongPassword";
-    public static final String PROXY_URI = "tcp://localhost:6002";
-    public static final String LOCAL_URI = "tcp://localhost:6001";
+   protected static final Logger LOG = LoggerFactory.getLogger(AMQ4889Test.class);
 
-    protected BrokerService brokerService;
-    private ProxyConnector proxyConnector;
-    protected TransportConnector transportConnector;
-    protected ConnectionFactory connectionFactory;
+   public static final String USER = "user";
+   public static final String GOOD_USER_PASSWORD = "password";
+   public static final String WRONG_PASSWORD = "wrongPassword";
+   public static final String PROXY_URI = "tcp://localhost:6002";
+   public static final String LOCAL_URI = "tcp://localhost:6001";
 
-    private static final Integer ITERATIONS = 100;
+   protected BrokerService brokerService;
+   private ProxyConnector proxyConnector;
+   protected TransportConnector transportConnector;
+   protected ConnectionFactory connectionFactory;
 
-    protected BrokerService createBroker() throws Exception {
-        brokerService = new BrokerService();
-        brokerService.setPersistent(false);
+   private static final Integer ITERATIONS = 100;
 
-        ArrayList<BrokerPlugin> plugins = new ArrayList<BrokerPlugin>();
-        BrokerPlugin authenticationPlugin = configureAuthentication();
-        plugins.add(authenticationPlugin);
-        BrokerPlugin[] array = new BrokerPlugin[plugins.size()];
-        brokerService.setPlugins(plugins.toArray(array));
+   protected BrokerService createBroker() throws Exception {
+      brokerService = new BrokerService();
+      brokerService.setPersistent(false);
 
-        transportConnector = brokerService.addConnector(LOCAL_URI);
-        proxyConnector = new ProxyConnector();
-        proxyConnector.setName("proxy");
-        proxyConnector.setBind(new URI(PROXY_URI));
-        proxyConnector.setRemote(new URI(LOCAL_URI));
-        brokerService.addProxyConnector(proxyConnector);
+      ArrayList<BrokerPlugin> plugins = new ArrayList<BrokerPlugin>();
+      BrokerPlugin authenticationPlugin = configureAuthentication();
+      plugins.add(authenticationPlugin);
+      BrokerPlugin[] array = new BrokerPlugin[plugins.size()];
+      brokerService.setPlugins(plugins.toArray(array));
 
-        brokerService.start();
-        brokerService.waitUntilStarted();
+      transportConnector = brokerService.addConnector(LOCAL_URI);
+      proxyConnector = new ProxyConnector();
+      proxyConnector.setName("proxy");
+      proxyConnector.setBind(new URI(PROXY_URI));
+      proxyConnector.setRemote(new URI(LOCAL_URI));
+      brokerService.addProxyConnector(proxyConnector);
 
-        return brokerService;
-    }
+      brokerService.start();
+      brokerService.waitUntilStarted();
 
-    protected BrokerPlugin configureAuthentication() throws Exception {
-        List<AuthenticationUser> users = new ArrayList<AuthenticationUser>();
-        users.add(new AuthenticationUser(USER, GOOD_USER_PASSWORD, "users"));
-        SimpleAuthenticationPlugin authenticationPlugin = new SimpleAuthenticationPlugin(users);
+      return brokerService;
+   }
 
-        return authenticationPlugin;
-    }
+   protected BrokerPlugin configureAuthentication() throws Exception {
+      List<AuthenticationUser> users = new ArrayList<AuthenticationUser>();
+      users.add(new AuthenticationUser(USER, GOOD_USER_PASSWORD, "users"));
+      SimpleAuthenticationPlugin authenticationPlugin = new SimpleAuthenticationPlugin(users);
 
-    @Before
-    public void setUp() throws Exception {
-        brokerService = createBroker();
-        connectionFactory = new ActiveMQConnectionFactory(PROXY_URI);
-    }
+      return authenticationPlugin;
+   }
 
-    @After
-    public void tearDown() throws Exception {
-        brokerService.stop();
-        brokerService.waitUntilStopped();
-    }
+   @Before
+   public void setUp() throws Exception {
+      brokerService = createBroker();
+      connectionFactory = new ActiveMQConnectionFactory(PROXY_URI);
+   }
 
+   @After
+   public void tearDown() throws Exception {
+      brokerService.stop();
+      brokerService.waitUntilStopped();
+   }
 
-    @Test(timeout = 1 * 60 * 1000)
-    public void testForConnectionLeak() throws Exception {
-        Integer expectedConnectionCount = 0;
-        for (int i=0; i < ITERATIONS; i++) {
-            try {
-                if (i % 2 == 0) {
-                    LOG.debug("Iteration {} adding bad connection", i);
-                    Connection connection = connectionFactory.createConnection(USER, WRONG_PASSWORD);
-                    Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-                    fail("createSession should fail");
-                } else {
-                    LOG.debug("Iteration {} adding good connection", i);
-                    Connection connection = connectionFactory.createConnection(USER, GOOD_USER_PASSWORD);
-                    Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-                    expectedConnectionCount++;
-                }
-                //
-            } catch (JMSSecurityException e) {
+   @Test(timeout = 1 * 60 * 1000)
+   public void testForConnectionLeak() throws Exception {
+      Integer expectedConnectionCount = 0;
+      for (int i = 0; i < ITERATIONS; i++) {
+         try {
+            if (i % 2 == 0) {
+               LOG.debug("Iteration {} adding bad connection", i);
+               Connection connection = connectionFactory.createConnection(USER, WRONG_PASSWORD);
+               Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+               fail("createSession should fail");
             }
-            LOG.debug("Iteration {} Connections? {}", i, proxyConnector.getConnectionCount());
-        }
-        final Integer val = expectedConnectionCount;
-        Wait.waitFor(new Wait.Condition() {
-            @Override
-            public boolean isSatisified() throws Exception {
-                return val.equals(proxyConnector.getConnectionCount());
+            else {
+               LOG.debug("Iteration {} adding good connection", i);
+               Connection connection = connectionFactory.createConnection(USER, GOOD_USER_PASSWORD);
+               Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+               expectedConnectionCount++;
             }
-        }, 20);
-        assertEquals(val, proxyConnector.getConnectionCount());
-    }
+            //
+         }
+         catch (JMSSecurityException e) {
+         }
+         LOG.debug("Iteration {} Connections? {}", i, proxyConnector.getConnectionCount());
+      }
+      final Integer val = expectedConnectionCount;
+      Wait.waitFor(new Wait.Condition() {
+         @Override
+         public boolean isSatisified() throws Exception {
+            return val.equals(proxyConnector.getConnectionCount());
+         }
+      }, 20);
+      assertEquals(val, proxyConnector.getConnectionCount());
+   }
 }

@@ -25,8 +25,7 @@ import javax.naming.NamingException;
  * JMS Provider has to implement this
  * simple interface to be able to use the test suite.
  */
-public interface Admin
-{
+public interface Admin {
 
    /**
     * Returns the name of the JMS Provider.
@@ -44,16 +43,16 @@ public interface Admin
 
    /**
     * Creates a <code>ConnectionFactory</code> and makes it available
-    *from JNDI with name <code>name</code>.
+    * from JNDI with name <code>name</code>.
     *
-    * @since JMS 1.1
     * @param name JNDI name of the <code>ConnectionFactory</code>
+    * @since JMS 1.1
     */
    void createConnectionFactory(String name);
 
    /**
     * Creates a <code>QueueConnectionFactory</code> and makes it available
-    *from JNDI with name <code>name</code>.
+    * from JNDI with name <code>name</code>.
     *
     * @param name JNDI name of the <code>QueueConnectionFactory</code>
     */
@@ -61,7 +60,7 @@ public interface Admin
 
    /**
     * Creates a <code>TopicConnectionFactory</code> and makes it available
-    *from JNDI with name <code>name</code>.
+    * from JNDI with name <code>name</code>.
     *
     * @param name JNDI name of the <code>TopicConnectionFactory</code>
     */
@@ -69,7 +68,7 @@ public interface Admin
 
    /**
     * Creates a <code>Queue</code> and makes it available
-    *from JNDI with name <code>name</code>.
+    * from JNDI with name <code>name</code>.
     *
     * @param name JNDI name of the <code>Queue</code>
     */
@@ -77,7 +76,7 @@ public interface Admin
 
    /**
     * Creates a <code>Topic</code> and makes it available
-    *from JNDI with name <code>name</code>.
+    * from JNDI with name <code>name</code>.
     *
     * @param name JNDI name of the <code>Topic</code>
     */
@@ -100,8 +99,8 @@ public interface Admin
    /**
     * Removes the <code>ConnectionFactory</code> of name <code>name</code> from JNDI and deletes it
     *
-    * @since JMS 1.1
     * @param name JNDI name of the <code>ConnectionFactory</code>
+    * @since JMS 1.1
     */
    void deleteConnectionFactory(String name);
 

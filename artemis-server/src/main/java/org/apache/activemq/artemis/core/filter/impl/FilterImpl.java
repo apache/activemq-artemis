@@ -29,25 +29,24 @@ import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.ServerMessage;
 
 /**
-* This class implements an ActiveMQ Artemis filter
-*
-* ActiveMQ Artemis filters have the same syntax as JMS 1.1 selectors, but the identifiers are different.
-*
-* Valid identifiers that can be used are:
-*
-* AMQPriority - the priority of the message
-* AMQTimestamp - the timestamp of the message
-* AMQDurable - "DURABLE" or "NON_DURABLE"
-* AMQExpiration - the expiration of the message
-* AMQSize - the encoded size of the full message in bytes
-* AMQUserID - the user specified ID string (if any)
-* Any other identifiers that appear in a filter expression represent header values for the message
-*
-* String values must be set as <code>SimpleString</code>, not <code>java.lang.String</code> (see JBMESSAGING-1307).
-* Derived from JBoss MQ version by
-*/
-public class FilterImpl implements Filter
-{
+ * This class implements an ActiveMQ Artemis filter
+ *
+ * ActiveMQ Artemis filters have the same syntax as JMS 1.1 selectors, but the identifiers are different.
+ *
+ * Valid identifiers that can be used are:
+ *
+ * AMQPriority - the priority of the message
+ * AMQTimestamp - the timestamp of the message
+ * AMQDurable - "DURABLE" or "NON_DURABLE"
+ * AMQExpiration - the expiration of the message
+ * AMQSize - the encoded size of the full message in bytes
+ * AMQUserID - the user specified ID string (if any)
+ * Any other identifiers that appear in a filter expression represent header values for the message
+ *
+ * String values must be set as <code>SimpleString</code>, not <code>java.lang.String</code> (see JBMESSAGING-1307).
+ * Derived from JBoss MQ version by
+ */
+public class FilterImpl implements Filter {
 
    // Constants -----------------------------------------------------
 
@@ -61,8 +60,7 @@ public class FilterImpl implements Filter
     * @return null if <code>filterStr</code> is null or an empty String and a valid filter else
     * @throws ActiveMQException if the string does not correspond to a valid filter
     */
-   public static Filter createFilter(final String filterStr) throws ActiveMQException
-   {
+   public static Filter createFilter(final String filterStr) throws ActiveMQException {
       return FilterImpl.createFilter(SimpleString.toSimpleString(filterStr == null ? null : filterStr.trim()));
    }
 
@@ -70,20 +68,16 @@ public class FilterImpl implements Filter
     * @return null if <code>filterStr</code> is null or an empty String and a valid filter else
     * @throws ActiveMQException if the string does not correspond to a valid filter
     */
-   public static Filter createFilter(final SimpleString filterStr) throws ActiveMQException
-   {
-      if (filterStr == null || filterStr.length() == 0)
-      {
+   public static Filter createFilter(final SimpleString filterStr) throws ActiveMQException {
+      if (filterStr == null || filterStr.length() == 0) {
          return null;
       }
 
       BooleanExpression booleanExpression;
-      try
-      {
-         booleanExpression =  SelectorParser.parse(filterStr.toString());
+      try {
+         booleanExpression = SelectorParser.parse(filterStr.toString());
       }
-      catch (Throwable e)
-      {
+      catch (Throwable e) {
          ActiveMQServerLogger.LOGGER.invalidFilter(e, filterStr);
          throw ActiveMQMessageBundle.BUNDLE.invalidFilter(e, filterStr);
       }
@@ -92,36 +86,30 @@ public class FilterImpl implements Filter
 
    // Constructors ---------------------------------------------------
 
-   private FilterImpl(final SimpleString str, final BooleanExpression expression)
-   {
+   private FilterImpl(final SimpleString str, final BooleanExpression expression) {
       sfilterString = str;
       this.booleanExpression = expression;
    }
 
    // Filter implementation ---------------------------------------------------------------------
 
-   public SimpleString getFilterString()
-   {
+   public SimpleString getFilterString() {
       return sfilterString;
    }
 
-   public synchronized boolean match(final ServerMessage message)
-   {
-      try
-      {
+   public synchronized boolean match(final ServerMessage message) {
+      try {
          boolean result = booleanExpression.matches(new FilterableServerMessage(message));
          return result;
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          ActiveMQServerLogger.LOGGER.invalidFilter(e, sfilterString);
          return false;
       }
    }
 
    @Override
-   public int hashCode()
-   {
+   public int hashCode() {
       final int prime = 31;
       int result = 1;
       result = prime * result + ((sfilterString == null) ? 0 : sfilterString.hashCode());
@@ -129,17 +117,15 @@ public class FilterImpl implements Filter
    }
 
    @Override
-   public boolean equals(Object obj)
-   {
+   public boolean equals(Object obj) {
       if (this == obj)
          return true;
       if (obj == null)
          return false;
       if (getClass() != obj.getClass())
          return false;
-      FilterImpl other = (FilterImpl)obj;
-      if (sfilterString == null)
-      {
+      FilterImpl other = (FilterImpl) obj;
+      if (sfilterString == null) {
          if (other.sfilterString != null)
             return false;
       }
@@ -149,71 +135,56 @@ public class FilterImpl implements Filter
    }
 
    @Override
-   public String toString()
-   {
+   public String toString() {
       return "FilterImpl [sfilterString=" + sfilterString + "]";
    }
 
    // Private --------------------------------------------------------------------------
 
-   private static Object getHeaderFieldValue(final ServerMessage msg, final SimpleString fieldName)
-   {
-      if (FilterConstants.ACTIVEMQ_USERID.equals(fieldName))
-      {
+   private static Object getHeaderFieldValue(final ServerMessage msg, final SimpleString fieldName) {
+      if (FilterConstants.ACTIVEMQ_USERID.equals(fieldName)) {
          // It's the stringified (hex) representation of a user id that can be used in a selector expression
          return new SimpleString("ID:" + msg.getUserID());
       }
-      else if (FilterConstants.ACTIVEMQ_PRIORITY.equals(fieldName))
-      {
+      else if (FilterConstants.ACTIVEMQ_PRIORITY.equals(fieldName)) {
          return Integer.valueOf(msg.getPriority());
       }
-      else if (FilterConstants.ACTIVEMQ_TIMESTAMP.equals(fieldName))
-      {
+      else if (FilterConstants.ACTIVEMQ_TIMESTAMP.equals(fieldName)) {
          return msg.getTimestamp();
       }
-      else if (FilterConstants.ACTIVEMQ_DURABLE.equals(fieldName))
-      {
+      else if (FilterConstants.ACTIVEMQ_DURABLE.equals(fieldName)) {
          return msg.isDurable() ? FilterConstants.DURABLE : FilterConstants.NON_DURABLE;
       }
-      else if (FilterConstants.ACTIVEMQ_EXPIRATION.equals(fieldName))
-      {
+      else if (FilterConstants.ACTIVEMQ_EXPIRATION.equals(fieldName)) {
          return msg.getExpiration();
       }
-      else if (FilterConstants.ACTIVEMQ_SIZE.equals(fieldName))
-      {
+      else if (FilterConstants.ACTIVEMQ_SIZE.equals(fieldName)) {
          return msg.getEncodeSize();
       }
-      else
-      {
+      else {
          return null;
       }
    }
 
-   private static class FilterableServerMessage implements Filterable
-   {
+   private static class FilterableServerMessage implements Filterable {
+
       private final ServerMessage message;
 
-      public FilterableServerMessage(ServerMessage message)
-      {
+      public FilterableServerMessage(ServerMessage message) {
          this.message = message;
       }
 
       @Override
-      public Object getProperty(String id)
-      {
+      public Object getProperty(String id) {
          Object result = null;
-         if (id.startsWith(FilterConstants.ACTIVEMQ_PREFIX.toString()))
-         {
+         if (id.startsWith(FilterConstants.ACTIVEMQ_PREFIX.toString())) {
             result = getHeaderFieldValue(message, new SimpleString(id));
          }
-         if (result == null)
-         {
+         if (result == null) {
             result = message.getObjectProperty(new SimpleString(id));
          }
-         if (result != null)
-         {
-            if (result.getClass() == SimpleString.class)
-            {
+         if (result != null) {
+            if (result.getClass() == SimpleString.class) {
                result = result.toString();
             }
          }
@@ -221,15 +192,13 @@ public class FilterImpl implements Filter
       }
 
       @Override
-      public <T> T getBodyAs(Class<T> type) throws FilterException
-      {
+      public <T> T getBodyAs(Class<T> type) throws FilterException {
          // TODO: implement to support content based selection
          return null;
       }
 
       @Override
-      public Object getLocalConnectionId()
-      {
+      public Object getLocalConnectionId() {
          // Only needed if the NoLocal
          return null;
       }

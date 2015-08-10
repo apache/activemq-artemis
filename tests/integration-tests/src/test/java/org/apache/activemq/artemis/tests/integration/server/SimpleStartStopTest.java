@@ -27,8 +27,7 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.jboss.logmanager.Level;
 import org.junit.Test;
 
-public class SimpleStartStopTest extends ActiveMQTestBase
-{
+public class SimpleStartStopTest extends ActiveMQTestBase {
 
    /**
     * Start / stopping the server shouldn't generate any errors.
@@ -39,29 +38,23 @@ public class SimpleStartStopTest extends ActiveMQTestBase
     * @throws Exception
     */
    @Test
-   public void testStartStopAndCleanupIDs() throws Exception
-   {
+   public void testStartStopAndCleanupIDs() throws Exception {
       AssertionLoggerHandler.clear();
       AssertionLoggerHandler.startCapture();
-      try
-      {
+      try {
          ActiveMQServer server = null;
 
-         for (int i = 0; i < 50; i++)
-         {
+         for (int i = 0; i < 50; i++) {
             server = createServer(true, false);
             server.start();
             server.stop(false);
          }
 
          // There shouldn't be any error from starting / stopping the server
-         assertFalse("There shouldn't be any error for just starting / stopping the server",
-                     AssertionLoggerHandler.hasLevel(Level.ERROR));
+         assertFalse("There shouldn't be any error for just starting / stopping the server", AssertionLoggerHandler.hasLevel(Level.ERROR));
          assertFalse(AssertionLoggerHandler.findText("AMQ224008"));
 
-
          HashMap<Integer, AtomicInteger> records = this.internalCountJournalLivingRecords(server.getConfiguration(), false);
-
 
          AtomicInteger recordCount = records.get((int) JournalRecordIds.ID_COUNTER_RECORD);
 
@@ -73,12 +66,9 @@ public class SimpleStartStopTest extends ActiveMQTestBase
 
          System.out.println("RecordCount::" + recordCount);
 
-
          server.start();
 
-
          records = this.internalCountJournalLivingRecords(server.getConfiguration(), false);
-
 
          recordCount = records.get((int) JournalRecordIds.ID_COUNTER_RECORD);
 
@@ -91,8 +81,7 @@ public class SimpleStartStopTest extends ActiveMQTestBase
          server.stop();
 
       }
-      finally
-      {
+      finally {
          AssertionLoggerHandler.stopCapture();
       }
    }

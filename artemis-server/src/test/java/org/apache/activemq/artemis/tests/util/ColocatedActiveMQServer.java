@@ -30,69 +30,64 @@ import org.apache.activemq.artemis.core.server.impl.FileLockNodeManager;
 import org.apache.activemq.artemis.jlibaio.LibaioContext;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 
+public class ColocatedActiveMQServer extends ActiveMQServerImpl {
 
-public class ColocatedActiveMQServer extends ActiveMQServerImpl
-{
    private final NodeManager nodeManagerLive;
    private final NodeManager nodeManagerBackup;
    boolean backup = false;
    public ColocatedActiveMQServer backupServer;
 
-   public ColocatedActiveMQServer(FileConfiguration fc, ActiveMQSecurityManager sm, NodeManager nodeManagerLive, NodeManager nodeManagerBackup)
-   {
+   public ColocatedActiveMQServer(FileConfiguration fc,
+                                  ActiveMQSecurityManager sm,
+                                  NodeManager nodeManagerLive,
+                                  NodeManager nodeManagerBackup) {
       super(fc, sm);
       this.nodeManagerLive = nodeManagerLive;
       this.nodeManagerBackup = nodeManagerBackup;
    }
 
-   public ColocatedActiveMQServer(Configuration backupServerConfiguration, ActiveMQServer parentServer, NodeManager nodeManagerBackup, NodeManager nodeManagerLive)
-   {
+   public ColocatedActiveMQServer(Configuration backupServerConfiguration,
+                                  ActiveMQServer parentServer,
+                                  NodeManager nodeManagerBackup,
+                                  NodeManager nodeManagerLive) {
       super(backupServerConfiguration, null, null, parentServer);
       this.nodeManagerLive = nodeManagerLive;
       this.nodeManagerBackup = nodeManagerBackup;
    }
 
-   public ColocatedActiveMQServer(Configuration configuration, MBeanServer platformMBeanServer, ActiveMQSecurityManager securityManager,
-                                  NodeManager nodeManagerLive, NodeManager nodeManagerBackup)
-   {
+   public ColocatedActiveMQServer(Configuration configuration,
+                                  MBeanServer platformMBeanServer,
+                                  ActiveMQSecurityManager securityManager,
+                                  NodeManager nodeManagerLive,
+                                  NodeManager nodeManagerBackup) {
       super(configuration, platformMBeanServer, securityManager);
       this.nodeManagerLive = nodeManagerLive;
       this.nodeManagerBackup = nodeManagerBackup;
    }
 
-
    @Override
-   protected NodeManager
-   createNodeManager(final File directory, boolean replicatingBackup)
-   {
-      if (replicatingBackup)
-      {
+   protected NodeManager createNodeManager(final File directory, boolean replicatingBackup) {
+      if (replicatingBackup) {
          NodeManager manager;
-         if (getConfiguration().getJournalType() == JournalType.ASYNCIO && LibaioContext.isLoaded())
-         {
+         if (getConfiguration().getJournalType() == JournalType.ASYNCIO && LibaioContext.isLoaded()) {
             return new AIOFileLockNodeManager(directory, replicatingBackup, getConfiguration().getJournalLockAcquisitionTimeout());
          }
-         else
-         {
+         else {
             return new FileLockNodeManager(directory, replicatingBackup, getConfiguration().getJournalLockAcquisitionTimeout());
          }
       }
-      else
-      {
-         if (backup)
-         {
+      else {
+         if (backup) {
             return nodeManagerBackup;
          }
-         else
-         {
+         else {
             return nodeManagerLive;
          }
       }
    }
 
    @Override
-   public ActiveMQServer createBackupServer(Configuration configuration)
-   {
+   public ActiveMQServer createBackupServer(Configuration configuration) {
       ColocatedActiveMQServer backup = new ColocatedActiveMQServer(configuration, this, nodeManagerBackup, nodeManagerLive);
       backup.backup = true;
       this.backupServer = backup;

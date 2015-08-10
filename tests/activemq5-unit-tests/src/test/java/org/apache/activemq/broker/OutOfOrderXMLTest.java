@@ -17,17 +17,17 @@
 package org.apache.activemq.broker;
 
 import java.net.URI;
+
 import org.apache.activemq.xbean.XBeanBrokerFactory;
 import org.junit.Test;
 
 // https://issues.apache.org/activemq/browse/AMQ-2939
 public class OutOfOrderXMLTest {
 
-    @Test
-    public void verifyBrokerCreationWhenXmlOutOfOrderValidationFalse() throws Exception {
-        BrokerService answer =
-                BrokerFactory.createBroker(new URI("xbean:org/apache/activemq/broker/out-of-order-broker-elements.xml?validate=false"));
-        answer.stop();
+   @Test
+   public void verifyBrokerCreationWhenXmlOutOfOrderValidationFalse() throws Exception {
+      BrokerService answer = BrokerFactory.createBroker(new URI("xbean:org/apache/activemq/broker/out-of-order-broker-elements.xml?validate=false"));
+      answer.stop();
 
-    }    
+   }
 }

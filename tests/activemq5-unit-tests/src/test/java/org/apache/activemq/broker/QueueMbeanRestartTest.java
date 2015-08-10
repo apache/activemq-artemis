@@ -37,87 +37,86 @@ import org.slf4j.LoggerFactory;
 
 @RunWith(value = Parameterized.class)
 public class QueueMbeanRestartTest extends TestSupport {
-    private static final transient Logger LOG = LoggerFactory.getLogger(QueueMbeanRestartTest.class);
 
-    BrokerService broker;
+   private static final transient Logger LOG = LoggerFactory.getLogger(QueueMbeanRestartTest.class);
 
-    private final TestSupport.PersistenceAdapterChoice persistenceAdapterChoice;
+   BrokerService broker;
 
-    @Parameterized.Parameters
-    public static Collection<TestSupport.PersistenceAdapterChoice[]> getTestParameters() {
-        TestSupport.PersistenceAdapterChoice[] kahaDb = {TestSupport.PersistenceAdapterChoice.KahaDB};
-        TestSupport.PersistenceAdapterChoice[] levelDb = {TestSupport.PersistenceAdapterChoice.LevelDB};
-        TestSupport.PersistenceAdapterChoice[] jdbc = {TestSupport.PersistenceAdapterChoice.JDBC};
-        List<TestSupport.PersistenceAdapterChoice[]> choices = new ArrayList<TestSupport.PersistenceAdapterChoice[]>();
-        choices.add(kahaDb);
-        choices.add(levelDb);
-        choices.add(jdbc);
+   private final TestSupport.PersistenceAdapterChoice persistenceAdapterChoice;
 
-        return choices;
-    }
+   @Parameterized.Parameters
+   public static Collection<TestSupport.PersistenceAdapterChoice[]> getTestParameters() {
+      TestSupport.PersistenceAdapterChoice[] kahaDb = {TestSupport.PersistenceAdapterChoice.KahaDB};
+      TestSupport.PersistenceAdapterChoice[] levelDb = {TestSupport.PersistenceAdapterChoice.LevelDB};
+      TestSupport.PersistenceAdapterChoice[] jdbc = {TestSupport.PersistenceAdapterChoice.JDBC};
+      List<TestSupport.PersistenceAdapterChoice[]> choices = new ArrayList<TestSupport.PersistenceAdapterChoice[]>();
+      choices.add(kahaDb);
+      choices.add(levelDb);
+      choices.add(jdbc);
 
-    public QueueMbeanRestartTest(TestSupport.PersistenceAdapterChoice choice) {
-        this.persistenceAdapterChoice = choice;
-    }
+      return choices;
+   }
 
-    @Before
-    public void setUp() throws Exception {
-        topic = false;
-        super.setUp();
-    }
+   public QueueMbeanRestartTest(TestSupport.PersistenceAdapterChoice choice) {
+      this.persistenceAdapterChoice = choice;
+   }
 
-    @After
-    public void tearDown() throws Exception {
-        super.tearDown();
-        broker.stop();
-    }
+   @Before
+   public void setUp() throws Exception {
+      topic = false;
+      super.setUp();
+   }
 
-    @Test(timeout = 60000)
-    public void testMBeanPresenceOnRestart() throws Exception {
-        createBroker(true);
+   @After
+   public void tearDown() throws Exception {
+      super.tearDown();
+      broker.stop();
+   }
 
-        sendMessages();
-        verifyPresenceOfQueueMbean();
-        LOG.info("restart....");
+   @Test(timeout = 60000)
+   public void testMBeanPresenceOnRestart() throws Exception {
+      createBroker(true);
 
-        restartBroker();
-        verifyPresenceOfQueueMbean();
-    }
+      sendMessages();
+      verifyPresenceOfQueueMbean();
+      LOG.info("restart....");
 
-    private void restartBroker() throws Exception {
-        broker.stop();
-        broker.waitUntilStopped();
-        Thread.sleep(5 * 1000);
-        createBroker(false);
-        broker.waitUntilStarted();
-    }
+      restartBroker();
+      verifyPresenceOfQueueMbean();
+   }
 
-    private void verifyPresenceOfQueueMbean() throws Exception {
-        for (ObjectName name : broker.getManagementContext().queryNames(null, null)) {
-            LOG.info("candidate :" + name);
-            String type = name.getKeyProperty("destinationType");
-            if (type != null && type.equals("Queue")) {
-                assertEquals(
-                        JMXSupport.encodeObjectNamePart(((ActiveMQQueue) createDestination()).getPhysicalName()),
-                        name.getKeyProperty("destinationName"));
-                LOG.info("found mbbean " + name);
-                return;
-            }
-        }
-        fail("expected to find matching queue mbean for: " + createDestination());
-    }
+   private void restartBroker() throws Exception {
+      broker.stop();
+      broker.waitUntilStopped();
+      Thread.sleep(5 * 1000);
+      createBroker(false);
+      broker.waitUntilStarted();
+   }
 
-    private void sendMessages() throws Exception {
-        Session session = createConnection().createSession(false, Session.AUTO_ACKNOWLEDGE);
-        MessageProducer producer = session.createProducer(createDestination());
-        producer.send(session.createTextMessage());
-    }
+   private void verifyPresenceOfQueueMbean() throws Exception {
+      for (ObjectName name : broker.getManagementContext().queryNames(null, null)) {
+         LOG.info("candidate :" + name);
+         String type = name.getKeyProperty("destinationType");
+         if (type != null && type.equals("Queue")) {
+            assertEquals(JMXSupport.encodeObjectNamePart(((ActiveMQQueue) createDestination()).getPhysicalName()), name.getKeyProperty("destinationName"));
+            LOG.info("found mbbean " + name);
+            return;
+         }
+      }
+      fail("expected to find matching queue mbean for: " + createDestination());
+   }
 
-    private void createBroker(boolean deleteAll) throws Exception {
-        broker = new BrokerService();
-        setPersistenceAdapter(broker, persistenceAdapterChoice);
+   private void sendMessages() throws Exception {
+      Session session = createConnection().createSession(false, Session.AUTO_ACKNOWLEDGE);
+      MessageProducer producer = session.createProducer(createDestination());
+      producer.send(session.createTextMessage());
+   }
 
-        broker.setDeleteAllMessagesOnStartup(deleteAll);
-        broker.start();
-    }
+   private void createBroker(boolean deleteAll) throws Exception {
+      broker = new BrokerService();
+      setPersistenceAdapter(broker, persistenceAdapterChoice);
+
+      broker.setDeleteAllMessagesOnStartup(deleteAll);
+      broker.start();
+   }
 }

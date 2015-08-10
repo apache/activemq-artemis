@@ -33,13 +33,12 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Test;
 
-public class XmlImportExportStressTest extends ActiveMQTestBase
-{
+public class XmlImportExportStressTest extends ActiveMQTestBase {
+
    public static final int CONSUMER_TIMEOUT = 5000;
 
    @Test
-   public void testHighVolume() throws Exception
-   {
+   public void testHighVolume() throws Exception {
       final String FILE_NAME = getTestDir() + "/export.out";
 
       final String QUEUE_NAME = "A1";
@@ -57,19 +56,16 @@ public class XmlImportExportStressTest extends ActiveMQTestBase
       final int SIZE = 10240;
       final int COUNT = 20000;
       byte[] bodyTst = new byte[SIZE];
-      for (int i = 0; i < SIZE; i++)
-      {
+      for (int i = 0; i < SIZE; i++) {
          bodyTst[i] = (byte) (i + 1);
       }
 
       msg.getBodyBuffer().writeBytes(bodyTst);
       assertEquals(bodyTst.length, msg.getBodySize());
 
-      for (int i = 0; i < COUNT; i++)
-      {
+      for (int i = 0; i < COUNT; i++) {
          producer.send(msg);
-         if (i % 500 == 0)
-         {
+         if (i % 500 == 0) {
             System.out.println("Sent " + i);
             session.commit();
          }
@@ -109,14 +105,12 @@ public class XmlImportExportStressTest extends ActiveMQTestBase
       ClientConsumer consumer = session.createConsumer(QUEUE_NAME);
       session.start();
 
-      for (int i = 0; i < COUNT; i++)
-      {
+      for (int i = 0; i < COUNT; i++) {
          msg = consumer.receive(CONSUMER_TIMEOUT);
          assertNotNull(msg);
 
          msg.acknowledge();
-         if (i % 500 == 0)
-         {
+         if (i % 500 == 0) {
             System.out.println("Received " + i);
             session.commit();
          }

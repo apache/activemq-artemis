@@ -23,46 +23,46 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class MyObject implements Serializable {
 
-    private static final long serialVersionUID = -2505777188753549398L;
+   private static final long serialVersionUID = -2505777188753549398L;
 
-    private String message;
-    private final AtomicInteger writeObjectCalled = new AtomicInteger(0);
-    private final AtomicInteger readObjectCalled = new AtomicInteger(0);
-    private final AtomicInteger readObjectNoDataCalled = new AtomicInteger(0);
+   private String message;
+   private final AtomicInteger writeObjectCalled = new AtomicInteger(0);
+   private final AtomicInteger readObjectCalled = new AtomicInteger(0);
+   private final AtomicInteger readObjectNoDataCalled = new AtomicInteger(0);
 
-    public MyObject(String message) {
-        this.setMessage(message);
-    }
+   public MyObject(String message) {
+      this.setMessage(message);
+   }
 
-    public void setMessage(String message) {
-        this.message = message;
-    }
+   public void setMessage(String message) {
+      this.message = message;
+   }
 
-    public String getMessage() {
-        return message;
-    }
+   public String getMessage() {
+      return message;
+   }
 
-    private void writeObject(java.io.ObjectOutputStream out) throws IOException {
-        writeObjectCalled.incrementAndGet();
-        out.defaultWriteObject();
-    }
+   private void writeObject(java.io.ObjectOutputStream out) throws IOException {
+      writeObjectCalled.incrementAndGet();
+      out.defaultWriteObject();
+   }
 
-    private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
-        in.defaultReadObject();
-        readObjectCalled.incrementAndGet();
-    }
+   private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
+      in.defaultReadObject();
+      readObjectCalled.incrementAndGet();
+   }
 
-    public int getWriteObjectCalled() {
-        return writeObjectCalled.get();
-    }
+   public int getWriteObjectCalled() {
+      return writeObjectCalled.get();
+   }
 
-    public int getReadObjectCalled() {
-        return readObjectCalled.get();
-    }
+   public int getReadObjectCalled() {
+      return readObjectCalled.get();
+   }
 
-    public int getReadObjectNoDataCalled() {
-        return readObjectNoDataCalled.get();
-    }
+   public int getReadObjectNoDataCalled() {
+      return readObjectNoDataCalled.get();
+   }
 }
 
 

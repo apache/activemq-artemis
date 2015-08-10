@@ -31,29 +31,23 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import org.proton.plug.AMQPClientConnectionContext;
 import org.proton.plug.context.client.ProtonClientConnectionContextFactory;
 
-public class SimpleAMQPConnector implements Connector
-{
+public class SimpleAMQPConnector implements Connector {
+
    private Bootstrap bootstrap;
 
-   public void start()
-   {
+   public void start() {
 
       bootstrap = new Bootstrap();
       bootstrap.channel(NioSocketChannel.class);
       bootstrap.group(new NioEventLoopGroup(10));
 
-      bootstrap.handler(
-         new ChannelInitializer<Channel>()
-         {
-            public void initChannel(Channel channel) throws Exception
-            {
-            }
-         }
-      );
+      bootstrap.handler(new ChannelInitializer<Channel>() {
+                           public void initChannel(Channel channel) throws Exception {
+                           }
+                        });
    }
 
-   public AMQPClientConnectionContext connect(String host, int port) throws Exception
-   {
+   public AMQPClientConnectionContext connect(String host, int port) throws Exception {
       SocketAddress remoteDestination = new InetSocketAddress(host, port);
 
       ChannelFuture future = bootstrap.connect(remoteDestination);
@@ -64,19 +58,15 @@ public class SimpleAMQPConnector implements Connector
 
       final AMQPClientConnectionContext connection = (AMQPClientConnectionContext) ProtonClientConnectionContextFactory.getFactory().createConnection(clientConnectionSPI);
 
-      future.channel().pipeline().addLast(
-         new ChannelDuplexHandler()
-         {
+      future.channel().pipeline().addLast(new ChannelDuplexHandler() {
 
-            @Override
-            public void channelRead(final ChannelHandlerContext ctx, final Object msg) throws Exception
-            {
-               ByteBuf buffer = (ByteBuf) msg;
-               connection.inputBuffer(buffer);
-            }
-         }
-      );
-
+                                             @Override
+                                             public void channelRead(final ChannelHandlerContext ctx,
+                                                                     final Object msg) throws Exception {
+                                                ByteBuf buffer = (ByteBuf) msg;
+                                                connection.inputBuffer(buffer);
+                                             }
+                                          });
 
       return connection;
    }

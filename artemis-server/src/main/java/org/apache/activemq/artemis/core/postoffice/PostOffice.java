@@ -30,7 +30,6 @@ import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 
 /**
- *
  * A PostOffice instance maintains a mapping of a String address to a Queue. Multiple Queue instances can be bound
  * with the same String address.
  *
@@ -41,14 +40,15 @@ import org.apache.activemq.artemis.core.transaction.Transaction;
  *
  * A Queue instance can only be bound against a single address in the post office.
  */
-public interface PostOffice extends ActiveMQComponent
-{
+public interface PostOffice extends ActiveMQComponent {
+
    void addBinding(Binding binding) throws Exception;
 
    Binding removeBinding(SimpleString uniqueName, Transaction tx) throws Exception;
 
    /**
     * It will lookup the Binding without creating an item on the Queue if non-existent
+    *
     * @param address
     * @throws Exception
     */
@@ -56,6 +56,7 @@ public interface PostOffice extends ActiveMQComponent
 
    /**
     * Differently to lookupBindings, this will always create a new element on the Queue if non-existent
+    *
     * @param address
     * @throws Exception
     */
@@ -71,15 +72,28 @@ public interface PostOffice extends ActiveMQComponent
 
    void route(ServerMessage message, QueueCreator queueCreator, Transaction tx, boolean direct) throws Exception;
 
-   void route(ServerMessage message, QueueCreator queueCreator, Transaction tx, boolean direct, boolean rejectDuplicates) throws Exception;
+   void route(ServerMessage message,
+              QueueCreator queueCreator,
+              Transaction tx,
+              boolean direct,
+              boolean rejectDuplicates) throws Exception;
 
-   void route(ServerMessage message, QueueCreator queueCreator, RoutingContext context, boolean direct) throws Exception;
+   void route(ServerMessage message,
+              QueueCreator queueCreator,
+              RoutingContext context,
+              boolean direct) throws Exception;
 
-   void route(ServerMessage message, QueueCreator queueCreator, RoutingContext context, boolean direct, boolean rejectDuplicates) throws Exception;
+   void route(ServerMessage message,
+              QueueCreator queueCreator,
+              RoutingContext context,
+              boolean direct,
+              boolean rejectDuplicates) throws Exception;
 
    MessageReference reroute(ServerMessage message, Queue queue, Transaction tx) throws Exception;
 
-   Pair<RoutingContext, ServerMessage> redistribute(ServerMessage message, final Queue originatingQueue, Transaction tx) throws Exception;
+   Pair<RoutingContext, ServerMessage> redistribute(ServerMessage message,
+                                                    final Queue originatingQueue,
+                                                    Transaction tx) throws Exception;
 
    void processRoute(final ServerMessage message, final RoutingContext context, final boolean direct) throws Exception;
 

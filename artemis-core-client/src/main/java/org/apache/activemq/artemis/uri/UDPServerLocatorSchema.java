@@ -28,58 +28,53 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class UDPServerLocatorSchema extends AbstractServerLocatorSchema
-{
+public class UDPServerLocatorSchema extends AbstractServerLocatorSchema {
+
    protected static List<String> IGNORED = new ArrayList<>();
-   static
-   {
+
+   static {
       IGNORED.add("localBindAddress");
       IGNORED.add("localBindPort");
    }
+
    @Override
-   public String getSchemaName()
-   {
+   public String getSchemaName() {
       return SchemaConstants.UDP;
    }
 
    @Override
-   protected ServerLocator internalNewObject(URI uri, Map<String, String> query, String name) throws Exception
-   {
+   protected ServerLocator internalNewObject(URI uri, Map<String, String> query, String name) throws Exception {
       ConnectionOptions options = newConnectionOptions(uri, query);
 
       DiscoveryGroupConfiguration dgc = getDiscoveryGroupConfiguration(uri, query, getHost(uri), getPort(uri), name);
 
-      if (options.isHa())
-      {
+      if (options.isHa()) {
          return ActiveMQClient.createServerLocatorWithHA(dgc);
       }
-      else
-      {
+      else {
          return ActiveMQClient.createServerLocatorWithoutHA(dgc);
       }
    }
 
    @Override
-   protected URI internalNewURI(ServerLocator bean) throws Exception
-   {
+   protected URI internalNewURI(ServerLocator bean) throws Exception {
       DiscoveryGroupConfiguration dgc = bean.getDiscoveryGroupConfiguration();
       UDPBroadcastEndpointFactory endpoint = (UDPBroadcastEndpointFactory) dgc.getBroadcastEndpointFactory();
       dgc.setBroadcastEndpointFactory(endpoint);
       String query = URISchema.getData(IGNORED, bean, dgc, endpoint);
-      return new URI(SchemaConstants.UDP, null,  endpoint.getGroupAddress(), endpoint.getGroupPort(), null, query, null);
+      return new URI(SchemaConstants.UDP, null, endpoint.getGroupAddress(), endpoint.getGroupPort(), null, query, null);
    }
 
-   public static DiscoveryGroupConfiguration getDiscoveryGroupConfiguration(URI uri, Map<String, String> query, String host, int port, String name) throws Exception
-   {
-      UDPBroadcastEndpointFactory endpointFactoryConfiguration = new UDPBroadcastEndpointFactory()
-               .setGroupAddress(host)
-               .setGroupPort(port);
+   public static DiscoveryGroupConfiguration getDiscoveryGroupConfiguration(URI uri,
+                                                                            Map<String, String> query,
+                                                                            String host,
+                                                                            int port,
+                                                                            String name) throws Exception {
+      UDPBroadcastEndpointFactory endpointFactoryConfiguration = new UDPBroadcastEndpointFactory().setGroupAddress(host).setGroupPort(port);
 
       URISchema.setData(uri, endpointFactoryConfiguration, query);
 
-      DiscoveryGroupConfiguration dgc = URISchema.setData(uri, new DiscoveryGroupConfiguration(), query)
-            .setName(name)
-         .setBroadcastEndpointFactory(endpointFactoryConfiguration);
+      DiscoveryGroupConfiguration dgc = URISchema.setData(uri, new DiscoveryGroupConfiguration(), query).setName(name).setBroadcastEndpointFactory(endpointFactoryConfiguration);
 
       URISchema.setData(uri, dgc, query);
       return dgc;

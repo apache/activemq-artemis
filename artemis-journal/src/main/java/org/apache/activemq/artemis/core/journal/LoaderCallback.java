@@ -16,8 +16,8 @@
  */
 package org.apache.activemq.artemis.core.journal;
 
-public interface LoaderCallback extends TransactionFailureCallback
-{
+public interface LoaderCallback extends TransactionFailureCallback {
+
    void addPreparedTransaction(PreparedTransactionInfo preparedTransaction);
 
    void addRecord(RecordInfo info);

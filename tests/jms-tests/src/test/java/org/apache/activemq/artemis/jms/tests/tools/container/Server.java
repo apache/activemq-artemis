@@ -30,8 +30,8 @@ import org.apache.activemq.artemis.jms.server.JMSServerManager;
 /**
  * The remote interface exposed by TestServer.
  */
-public interface Server extends Remote
-{
+public interface Server extends Remote {
+
    int getServerID() throws Exception;
 
    /**
@@ -158,18 +158,13 @@ public interface Server extends Remote
                                 boolean supportsLoadBalancing,
                                 final String... jndiBindings) throws Exception;
 
-   void deployConnectionFactory(String clientID, String objectName,
-                                final String... jndiBindings) throws Exception;
+   void deployConnectionFactory(String clientID, String objectName, final String... jndiBindings) throws Exception;
 
-   void deployConnectionFactory(String objectName, int prefetchSize,
-                                final String... jndiBindings) throws Exception;
+   void deployConnectionFactory(String objectName, int prefetchSize, final String... jndiBindings) throws Exception;
 
-   void deployConnectionFactory(String objectName,
-                                final String... jndiBindings) throws Exception;
+   void deployConnectionFactory(String objectName, final String... jndiBindings) throws Exception;
 
-   void deployConnectionFactory(String objectName,
-                                JMSFactoryType type,
-                                final String... jndiBindings) throws Exception;
+   void deployConnectionFactory(String objectName, JMSFactoryType type, final String... jndiBindings) throws Exception;
 
    void undeployConnectionFactory(String objectName) throws Exception;
 

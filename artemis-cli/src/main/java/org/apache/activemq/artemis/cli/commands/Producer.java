@@ -28,8 +28,7 @@ import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 
 @Command(name = "producer", description = "It will send messages to an instance")
-public class Producer extends DestAbstract
-{
+public class Producer extends DestAbstract {
 
    @Option(name = "--non-persistent", description = "It will send messages non persistently")
    boolean nonpersistent = false;
@@ -47,43 +46,36 @@ public class Producer extends DestAbstract
    String msgGroupID = null;
 
    @Override
-   public Object execute(ActionContext context) throws Exception
-   {
+   public Object execute(ActionContext context) throws Exception {
       super.execute(context);
 
       ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(brokerURL, user, password);
 
       Destination dest = ActiveMQDestination.createDestination(this.destination, ActiveMQDestination.QUEUE_TYPE);
-      try (Connection connection = factory.createConnection())
-      {
+      try (Connection connection = factory.createConnection()) {
          ProducerThread[] threadsArray = new ProducerThread[threads];
-         for (int i = 0; i < threads; i++)
-         {
+         for (int i = 0; i < threads; i++) {
             Session session;
-            if (txBatchSize > 0)
-            {
+            if (txBatchSize > 0) {
                session = connection.createSession(true, Session.SESSION_TRANSACTED);
             }
-            else
-            {
+            else {
                session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
             }
             threadsArray[i] = new ProducerThread(session, dest, i);
 
             threadsArray[i].setVerbose(verbose).setSleep(sleep).setPersistent(!nonpersistent).
-                            setMessageSize(messageSize).setTextMessageSize(textMessageSize).
-                            setMsgTTL(msgTTL).setMsgGroupID(msgGroupID).setTransactionBatchSize(txBatchSize).
-                            setMessageCount(messageCount);
+               setMessageSize(messageSize).setTextMessageSize(textMessageSize).
+               setMsgTTL(msgTTL).setMsgGroupID(msgGroupID).setTransactionBatchSize(txBatchSize).
+               setMessageCount(messageCount);
          }
 
-         for (ProducerThread thread : threadsArray)
-         {
+         for (ProducerThread thread : threadsArray) {
             thread.start();
          }
 
          int messagesProduced = 0;
-         for (ProducerThread thread : threadsArray)
-         {
+         for (ProducerThread thread : threadsArray) {
             thread.join();
             messagesProduced += thread.getSentCount();
          }

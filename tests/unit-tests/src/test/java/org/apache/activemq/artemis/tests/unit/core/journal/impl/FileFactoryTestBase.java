@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.unit.core.journal.impl;
+
 import java.nio.ByteBuffer;
 
 import org.apache.activemq.artemis.core.io.SequentialFile;
@@ -23,16 +24,15 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Before;
 
-public abstract class FileFactoryTestBase extends ActiveMQTestBase
-{
+public abstract class FileFactoryTestBase extends ActiveMQTestBase {
+
    protected abstract SequentialFileFactory createFactory();
 
    protected SequentialFileFactory factory;
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       factory = createFactory();
@@ -40,8 +40,7 @@ public abstract class FileFactoryTestBase extends ActiveMQTestBase
 
    // Protected ---------------------------------
 
-   protected void checkFill(final SequentialFile file, final int size) throws Exception
-   {
+   protected void checkFill(final SequentialFile file, final int size) throws Exception {
       file.fill(size);
 
       file.close();
@@ -62,8 +61,7 @@ public abstract class FileFactoryTestBase extends ActiveMQTestBase
 
       bb.get(bytes);
 
-      for (int i = 0; i < size; i++)
-      {
+      for (int i = 0; i < size; i++) {
          // log.debug(" i is " + i);
          Assert.assertEquals(0, bytes[i]);
       }

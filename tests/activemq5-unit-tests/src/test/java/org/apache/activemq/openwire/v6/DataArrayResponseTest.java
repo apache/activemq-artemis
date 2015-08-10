@@ -24,39 +24,35 @@ import java.io.IOException;
 import org.apache.activemq.openwire.*;
 import org.apache.activemq.command.*;
 
-
 /**
  * Test case for the OpenWire marshalling for DataArrayResponse
  *
  *
  * NOTE!: This file is auto generated - do not modify!
- *        if you need to make a change, please see the modify the groovy scripts in the
- *        under src/gram/script and then use maven openwire:generate to regenerate 
- *        this file.
- *
- * 
+ * if you need to make a change, please see the modify the groovy scripts in the
+ * under src/gram/script and then use maven openwire:generate to regenerate
+ * this file.
  */
 public class DataArrayResponseTest extends ResponseTest {
 
+   public static DataArrayResponseTest SINGLETON = new DataArrayResponseTest();
 
-    public static DataArrayResponseTest SINGLETON = new DataArrayResponseTest();
+   public Object createObject() throws Exception {
+      DataArrayResponse info = new DataArrayResponse();
+      populateObject(info);
+      return info;
+   }
 
-    public Object createObject() throws Exception {
-        DataArrayResponse info = new DataArrayResponse();
-        populateObject(info);
-        return info;
-    }
+   protected void populateObject(Object object) throws Exception {
+      super.populateObject(object);
+      DataArrayResponse info = (DataArrayResponse) object;
 
-    protected void populateObject(Object object) throws Exception {
-        super.populateObject(object);
-        DataArrayResponse info = (DataArrayResponse) object;
-
-        {
-            DataStructure value[] = new DataStructure[2];
-            for( int i=0; i < 2; i++ ) {
-                value[i] = createDataStructure("Data:1");
-            }
-            info.setData(value);
-        }
-    }
+      {
+         DataStructure value[] = new DataStructure[2];
+         for (int i = 0; i < 2; i++) {
+            value[i] = createDataStructure("Data:1");
+         }
+         info.setData(value);
+      }
+   }
 }

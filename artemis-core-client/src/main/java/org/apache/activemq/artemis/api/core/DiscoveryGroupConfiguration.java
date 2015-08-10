@@ -32,8 +32,8 @@ import org.apache.activemq.artemis.utils.UUIDGenerator;
  * If by any reason, both properties are filled, the JGroups takes precedence. That means, if
  * {@code jgroupsFile != null} then the Grouping method used will be JGroups.
  */
-public final class DiscoveryGroupConfiguration implements Serializable
-{
+public final class DiscoveryGroupConfiguration implements Serializable {
+
    private static final long serialVersionUID = 8657206421727863400L;
 
    private String name = UUIDGenerator.getInstance().generateStringUUID();
@@ -47,25 +47,21 @@ public final class DiscoveryGroupConfiguration implements Serializable
    * */
    private BroadcastEndpointFactory endpointFactory;
 
-   public DiscoveryGroupConfiguration()
-   {
+   public DiscoveryGroupConfiguration() {
    }
 
-   public String getName()
-   {
+   public String getName() {
       return name;
    }
 
-   public long getRefreshTimeout()
-   {
+   public long getRefreshTimeout() {
       return refreshTimeout;
    }
 
    /**
     * @param name the name to set
     */
-   public DiscoveryGroupConfiguration setName(final String name)
-   {
+   public DiscoveryGroupConfiguration setName(final String name) {
       this.name = name;
       return this;
    }
@@ -73,8 +69,7 @@ public final class DiscoveryGroupConfiguration implements Serializable
    /**
     * @param refreshTimeout the refreshTimeout to set
     */
-   public DiscoveryGroupConfiguration setRefreshTimeout(final long refreshTimeout)
-   {
+   public DiscoveryGroupConfiguration setRefreshTimeout(final long refreshTimeout) {
       this.refreshTimeout = refreshTimeout;
       return this;
    }
@@ -82,49 +77,48 @@ public final class DiscoveryGroupConfiguration implements Serializable
    /**
     * @return the discoveryInitialWaitTimeout
     */
-   public long getDiscoveryInitialWaitTimeout()
-   {
+   public long getDiscoveryInitialWaitTimeout() {
       return discoveryInitialWaitTimeout;
    }
 
    /**
     * @param discoveryInitialWaitTimeout the discoveryInitialWaitTimeout to set
     */
-   public DiscoveryGroupConfiguration setDiscoveryInitialWaitTimeout(long discoveryInitialWaitTimeout)
-   {
+   public DiscoveryGroupConfiguration setDiscoveryInitialWaitTimeout(long discoveryInitialWaitTimeout) {
       this.discoveryInitialWaitTimeout = discoveryInitialWaitTimeout;
       return this;
    }
 
-   public BroadcastEndpointFactory getBroadcastEndpointFactory()
-   {
+   public BroadcastEndpointFactory getBroadcastEndpointFactory() {
       return endpointFactory;
    }
 
-   public DiscoveryGroupConfiguration setBroadcastEndpointFactory(BroadcastEndpointFactory endpointFactory)
-   {
+   public DiscoveryGroupConfiguration setBroadcastEndpointFactory(BroadcastEndpointFactory endpointFactory) {
       this.endpointFactory = endpointFactory;
       return this;
    }
 
    @Override
-   public boolean equals(Object o)
-   {
-      if (this == o) return true;
-      if (o == null || getClass() != o.getClass()) return false;
+   public boolean equals(Object o) {
+      if (this == o)
+         return true;
+      if (o == null || getClass() != o.getClass())
+         return false;
 
       DiscoveryGroupConfiguration that = (DiscoveryGroupConfiguration) o;
 
-      if (discoveryInitialWaitTimeout != that.discoveryInitialWaitTimeout) return false;
-      if (refreshTimeout != that.refreshTimeout) return false;
-      if (name != null ? !name.equals(that.name) : that.name != null) return false;
+      if (discoveryInitialWaitTimeout != that.discoveryInitialWaitTimeout)
+         return false;
+      if (refreshTimeout != that.refreshTimeout)
+         return false;
+      if (name != null ? !name.equals(that.name) : that.name != null)
+         return false;
 
       return true;
    }
 
    @Override
-   public int hashCode()
-   {
+   public int hashCode() {
       int result = name != null ? name.hashCode() : 0;
       result = 31 * result + (int) (refreshTimeout ^ (refreshTimeout >>> 32));
       result = 31 * result + (int) (discoveryInitialWaitTimeout ^ (discoveryInitialWaitTimeout >>> 32));
@@ -132,8 +126,7 @@ public final class DiscoveryGroupConfiguration implements Serializable
    }
 
    @Override
-   public String toString()
-   {
+   public String toString() {
       return "DiscoveryGroupConfiguration{" +
          "name='" + name + '\'' +
          ", refreshTimeout=" + refreshTimeout +

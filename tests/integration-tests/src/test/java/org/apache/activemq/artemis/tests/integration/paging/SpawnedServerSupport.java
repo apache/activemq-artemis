@@ -42,107 +42,59 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 /**
  * Support class for server that are using an external process on the testsuite
  */
-public class SpawnedServerSupport
-{
+public class SpawnedServerSupport {
 
-   static ActiveMQServer createServer(String folder)
-   {
+   static ActiveMQServer createServer(String folder) {
       return ActiveMQServers.newActiveMQServer(createConfig(folder), true);
    }
 
-   static Configuration createConfig(String folder)
-   {
-      AddressSettings settings = new AddressSettings()
-              .setMaxDeliveryAttempts(-1)
-              .setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE)
-              .setPageSizeBytes(10 * 1024)
-              .setMaxSizeBytes(100 * 1024);
+   static Configuration createConfig(String folder) {
+      AddressSettings settings = new AddressSettings().setMaxDeliveryAttempts(-1).setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE).setPageSizeBytes(10 * 1024).setMaxSizeBytes(100 * 1024);
 
-      Configuration config = new ConfigurationImpl()
-              .setSecurityEnabled(false)
-              .setJournalMinFiles(2)
-              .setJournalFileSize(100 * 1024)
-              .setJournalType(ActiveMQTestBase.getDefaultJournalType())
-              .setJournalCompactMinFiles(0)
-              .setJournalCompactPercentage(0)
-              .setClusterPassword(ActiveMQTestBase.CLUSTER_PASSWORD)
-              .setJournalDirectory(ActiveMQTestBase.getJournalDir(folder, 0, false))
-              .setBindingsDirectory(ActiveMQTestBase.getBindingsDir(folder, 0, false))
-              .setPagingDirectory(ActiveMQTestBase.getPageDir(folder, 0, false))
-              .setLargeMessagesDirectory(ActiveMQTestBase.getLargeMessagesDir(folder, 0, false))
-              .setPersistenceEnabled(true)
-              .addAddressesSetting("#", settings)
-              .addAcceptorConfiguration(new TransportConfiguration(ActiveMQTestBase.NETTY_ACCEPTOR_FACTORY));
+      Configuration config = new ConfigurationImpl().setSecurityEnabled(false).setJournalMinFiles(2).setJournalFileSize(100 * 1024).setJournalType(ActiveMQTestBase.getDefaultJournalType()).setJournalCompactMinFiles(0).setJournalCompactPercentage(0).setClusterPassword(ActiveMQTestBase.CLUSTER_PASSWORD).setJournalDirectory(ActiveMQTestBase.getJournalDir(folder, 0, false)).setBindingsDirectory(ActiveMQTestBase.getBindingsDir(folder, 0, false)).setPagingDirectory(ActiveMQTestBase.getPageDir(folder, 0, false)).setLargeMessagesDirectory(ActiveMQTestBase.getLargeMessagesDir(folder, 0, false)).setPersistenceEnabled(true).addAddressesSetting("#", settings).addAcceptorConfiguration(new TransportConfiguration(ActiveMQTestBase.NETTY_ACCEPTOR_FACTORY));
 
       return config;
    }
 
-   static Configuration createSharedFolderConfig(String folder, int thisport, int otherport, boolean isBackup)
-   {
+   static Configuration createSharedFolderConfig(String folder, int thisport, int otherport, boolean isBackup) {
       HAPolicyConfiguration haPolicyConfiguration = null;
 
-      if (isBackup)
-      {
+      if (isBackup) {
          haPolicyConfiguration = new SharedStoreSlavePolicyConfiguration();
-         ((SharedStoreSlavePolicyConfiguration)haPolicyConfiguration).setAllowFailBack(false);
+         ((SharedStoreSlavePolicyConfiguration) haPolicyConfiguration).setAllowFailBack(false);
       }
-      else
-      {
+      else {
          haPolicyConfiguration = new SharedStoreMasterPolicyConfiguration();
       }
 
-      Configuration config = createConfig(folder)
-         .clearAcceptorConfigurations()
-         .setJournalFileSize(15 * 1024 * 1024)
-         .addAcceptorConfiguration(createTransportConfigiguration(true, thisport))
-         .addConnectorConfiguration("thisServer", createTransportConfigiguration(false, thisport))
-         .addConnectorConfiguration("otherServer", createTransportConfigiguration(false, otherport))
-         .setMessageExpiryScanPeriod(500)
-         .addClusterConfiguration(isBackup ? setupClusterConn("thisServer", "otherServer") : setupClusterConn("thisServer"))
-         .setHAPolicyConfiguration(haPolicyConfiguration);
+      Configuration config = createConfig(folder).clearAcceptorConfigurations().setJournalFileSize(15 * 1024 * 1024).addAcceptorConfiguration(createTransportConfigiguration(true, thisport)).addConnectorConfiguration("thisServer", createTransportConfigiguration(false, thisport)).addConnectorConfiguration("otherServer", createTransportConfigiguration(false, otherport)).setMessageExpiryScanPeriod(500).addClusterConfiguration(isBackup ? setupClusterConn("thisServer", "otherServer") : setupClusterConn("thisServer")).setHAPolicyConfiguration(haPolicyConfiguration);
 
       return config;
    }
 
-   protected static final ClusterConnectionConfiguration setupClusterConn(String connectorName, String... connectors)
-   {
+   protected static final ClusterConnectionConfiguration setupClusterConn(String connectorName, String... connectors) {
       List<String> connectorList = new LinkedList<String>();
-      for (String conn : connectors)
-      {
+      for (String conn : connectors) {
          connectorList.add(conn);
       }
 
-      ClusterConnectionConfiguration ccc = new ClusterConnectionConfiguration()
-         .setName("cluster1")
-         .setAddress("jms")
-         .setConnectorName(connectorName)
-         .setRetryInterval(10)
-         .setDuplicateDetection(false)
-         .setMessageLoadBalancingType(MessageLoadBalancingType.STRICT)
-         .setConfirmationWindowSize(1)
-         .setStaticConnectors(connectorList);
+      ClusterConnectionConfiguration ccc = new ClusterConnectionConfiguration().setName("cluster1").setAddress("jms").setConnectorName(connectorName).setRetryInterval(10).setDuplicateDetection(false).setMessageLoadBalancingType(MessageLoadBalancingType.STRICT).setConfirmationWindowSize(1).setStaticConnectors(connectorList);
 
       return ccc;
    }
 
-
-   public static ServerLocator createLocator(int port)
-   {
+   public static ServerLocator createLocator(int port) {
       TransportConfiguration config = createTransportConfigiguration(false, port);
       return ActiveMQClient.createServerLocator(true, config);
    }
 
-
-   static TransportConfiguration createTransportConfigiguration(boolean acceptor, int port)
-   {
+   static TransportConfiguration createTransportConfigiguration(boolean acceptor, int port) {
       String className;
 
-      if (acceptor)
-      {
+      if (acceptor) {
          className = NettyAcceptorFactory.class.getName();
       }
-      else
-      {
+      else {
          className = NettyConnectorFactory.class.getName();
       }
       Map<String, Object> serverParams = new HashMap<String, Object>();
@@ -150,9 +102,7 @@ public class SpawnedServerSupport
       return new TransportConfiguration(className, serverParams);
    }
 
-
-   static ActiveMQServer createSharedFolderServer(String folder, int thisPort, int otherPort, boolean isBackup)
-   {
+   static ActiveMQServer createSharedFolderServer(String folder, int thisPort, int otherPort, boolean isBackup) {
       return ActiveMQServers.newActiveMQServer(createSharedFolderConfig(folder, thisPort, otherPort, isBackup), true);
    }
 }

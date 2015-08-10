@@ -23,6 +23,7 @@ import javax.jms.JMSException;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.Topic;
+
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.broker.BrokerRegistry;
 import org.apache.activemq.broker.BrokerService;
@@ -32,64 +33,66 @@ import org.junit.Test;
 
 public class AMQ5136Test {
 
-    BrokerService brokerService;
-    @Before
-    public void startBroker() throws Exception {
-        brokerService = new BrokerService();
-        brokerService.setPersistent(false);
-        brokerService.start();
-    }
+   BrokerService brokerService;
 
-    @After
-    public void stopBroker() throws Exception {
-        brokerService.stop();
-    }
+   @Before
+   public void startBroker() throws Exception {
+      brokerService = new BrokerService();
+      brokerService.setPersistent(false);
+      brokerService.start();
+   }
 
-    @Test
-    public void memoryUsageOnCommit() throws Exception {
-        sendMessagesAndAssertMemoryUsage(new TransactionHandler() {
-            @Override
-            public void finishTransaction(Session session) throws JMSException {
-                session.commit();
-            }
-        });
-    }
+   @After
+   public void stopBroker() throws Exception {
+      brokerService.stop();
+   }
 
-    @Test
-    public void memoryUsageOnRollback() throws Exception {
-        sendMessagesAndAssertMemoryUsage(new TransactionHandler() {
-            @Override
-            public void finishTransaction(Session session) throws JMSException {
-                session.rollback();
-            }
-        });
-    }
+   @Test
+   public void memoryUsageOnCommit() throws Exception {
+      sendMessagesAndAssertMemoryUsage(new TransactionHandler() {
+         @Override
+         public void finishTransaction(Session session) throws JMSException {
+            session.commit();
+         }
+      });
+   }
 
-    private void sendMessagesAndAssertMemoryUsage(TransactionHandler transactionHandler) throws Exception {
-        ConnectionFactory connectionFactory = new ActiveMQConnectionFactory("vm://localhost");
-        Connection connection = connectionFactory.createConnection();
-        Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
-        Topic destination = session.createTopic("ActiveMQBug");
-        MessageProducer producer = session.createProducer(destination);
-        for (int i = 0; i < 100; i++) {
-            BytesMessage message = session.createBytesMessage();
-            message.writeBytes(generateBytes());
-            producer.send(message);
-            transactionHandler.finishTransaction(session);
-        }
-        connection.close();
-        org.junit.Assert.assertEquals(0, BrokerRegistry.getInstance().findFirst().getSystemUsage().getMemoryUsage().getPercentUsage());
-    }
+   @Test
+   public void memoryUsageOnRollback() throws Exception {
+      sendMessagesAndAssertMemoryUsage(new TransactionHandler() {
+         @Override
+         public void finishTransaction(Session session) throws JMSException {
+            session.rollback();
+         }
+      });
+   }
 
-    private byte[] generateBytes() {
-        byte[] bytes = new byte[100000];
-        for (int i = 0; i < 100000; i++) {
-            bytes[i] = (byte) i;
-        }
-        return bytes;
-    }
+   private void sendMessagesAndAssertMemoryUsage(TransactionHandler transactionHandler) throws Exception {
+      ConnectionFactory connectionFactory = new ActiveMQConnectionFactory("vm://localhost");
+      Connection connection = connectionFactory.createConnection();
+      Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
+      Topic destination = session.createTopic("ActiveMQBug");
+      MessageProducer producer = session.createProducer(destination);
+      for (int i = 0; i < 100; i++) {
+         BytesMessage message = session.createBytesMessage();
+         message.writeBytes(generateBytes());
+         producer.send(message);
+         transactionHandler.finishTransaction(session);
+      }
+      connection.close();
+      org.junit.Assert.assertEquals(0, BrokerRegistry.getInstance().findFirst().getSystemUsage().getMemoryUsage().getPercentUsage());
+   }
 
-    private static interface TransactionHandler {
-        void finishTransaction(Session session) throws JMSException;
-    }
+   private byte[] generateBytes() {
+      byte[] bytes = new byte[100000];
+      for (int i = 0; i < 100000; i++) {
+         bytes[i] = (byte) i;
+      }
+      return bytes;
+   }
+
+   private static interface TransactionHandler {
+
+      void finishTransaction(Session session) throws JMSException;
+   }
 }

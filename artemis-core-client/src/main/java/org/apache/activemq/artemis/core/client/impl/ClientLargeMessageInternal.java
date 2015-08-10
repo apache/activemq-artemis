@@ -16,9 +16,7 @@
  */
 package org.apache.activemq.artemis.core.client.impl;
 
-
-public interface ClientLargeMessageInternal extends ClientMessageInternal
-{
+public interface ClientLargeMessageInternal extends ClientMessageInternal {
 
    void setLargeMessageController(LargeMessageController controller);
 

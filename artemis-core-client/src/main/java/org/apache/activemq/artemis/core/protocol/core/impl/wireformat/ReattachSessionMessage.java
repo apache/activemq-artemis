@@ -19,14 +19,13 @@ package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 
-public class ReattachSessionMessage extends PacketImpl
-{
+public class ReattachSessionMessage extends PacketImpl {
+
    private String name;
 
    private int lastConfirmedCommandID;
 
-   public ReattachSessionMessage(final String name, final int lastConfirmedCommandID)
-   {
+   public ReattachSessionMessage(final String name, final int lastConfirmedCommandID) {
       super(REATTACH_SESSION);
 
       this.name = name;
@@ -34,44 +33,37 @@ public class ReattachSessionMessage extends PacketImpl
       this.lastConfirmedCommandID = lastConfirmedCommandID;
    }
 
-   public ReattachSessionMessage()
-   {
+   public ReattachSessionMessage() {
       super(REATTACH_SESSION);
    }
 
-   public String getName()
-   {
+   public String getName() {
       return name;
    }
 
-   public int getLastConfirmedCommandID()
-   {
+   public int getLastConfirmedCommandID() {
       return lastConfirmedCommandID;
    }
 
    @Override
-   public void encodeRest(final ActiveMQBuffer buffer)
-   {
+   public void encodeRest(final ActiveMQBuffer buffer) {
       buffer.writeString(name);
       buffer.writeInt(lastConfirmedCommandID);
    }
 
    @Override
-   public void decodeRest(final ActiveMQBuffer buffer)
-   {
+   public void decodeRest(final ActiveMQBuffer buffer) {
       name = buffer.readString();
       lastConfirmedCommandID = buffer.readInt();
    }
 
    @Override
-   public final boolean isRequiresConfirmations()
-   {
+   public final boolean isRequiresConfirmations() {
       return false;
    }
 
    @Override
-   public int hashCode()
-   {
+   public int hashCode() {
       final int prime = 31;
       int result = super.hashCode();
       result = prime * result + lastConfirmedCommandID;
@@ -80,19 +72,17 @@ public class ReattachSessionMessage extends PacketImpl
    }
 
    @Override
-   public boolean equals(Object obj)
-   {
+   public boolean equals(Object obj) {
       if (this == obj)
          return true;
       if (!super.equals(obj))
          return false;
       if (!(obj instanceof ReattachSessionMessage))
          return false;
-      ReattachSessionMessage other = (ReattachSessionMessage)obj;
+      ReattachSessionMessage other = (ReattachSessionMessage) obj;
       if (lastConfirmedCommandID != other.lastConfirmedCommandID)
          return false;
-      if (name == null)
-      {
+      if (name == null) {
          if (other.name != null)
             return false;
       }

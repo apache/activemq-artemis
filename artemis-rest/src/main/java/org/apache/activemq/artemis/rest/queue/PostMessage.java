@@ -43,8 +43,8 @@ import org.apache.activemq.artemis.rest.ActiveMQRestLogger;
 import org.apache.activemq.artemis.utils.UUID;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 
-public class PostMessage
-{
+public class PostMessage {
+
    protected ClientSessionFactory sessionFactory;
    protected String destination;
    protected boolean defaultDurable = false;
@@ -55,32 +55,30 @@ public class PostMessage
    protected ArrayBlockingQueue<Pooled> pool;
    protected int poolSize = 10;
 
-   protected static class Pooled
-   {
+   protected static class Pooled {
+
       public ClientSession session;
       public ClientProducer producer;
 
-      private Pooled(ClientSession session, ClientProducer producer)
-      {
+      private Pooled(ClientSession session, ClientProducer producer) {
          this.session = session;
          this.producer = producer;
       }
    }
 
-   protected String generateDupId()
-   {
+   protected String generateDupId() {
       return startupTime + Long.toString(counter.incrementAndGet());
    }
 
-   public void publish(HttpHeaders headers, byte[] body, String dup,
+   public void publish(HttpHeaders headers,
+                       byte[] body,
+                       String dup,
                        boolean durable,
                        Long ttl,
                        Long expiration,
-                       Integer priority) throws Exception
-   {
+                       Integer priority) throws Exception {
       Pooled pooled = getPooled();
-      try
-      {
+      try {
          ClientProducer producer = pooled.producer;
          ClientMessage message = createActiveMQMessage(headers, body, durable, ttl, expiration, priority, pooled.session);
          message.putStringProperty(ClientMessage.HDR_DUPLICATE_DETECTION_ID.toString(), dup);
@@ -88,14 +86,11 @@ public class PostMessage
          ActiveMQRestLogger.LOGGER.debug("Sent message: " + message);
          pool.add(pooled);
       }
-      catch (Exception ex)
-      {
-         try
-         {
+      catch (Exception ex) {
+         try {
             pooled.session.close();
          }
-         catch (ActiveMQException e)
-         {
+         catch (ActiveMQException e) {
          }
          addPooled();
          throw ex;
@@ -104,12 +99,14 @@ public class PostMessage
 
    @PUT
    @Path("{id}")
-   public Response putWithId(@PathParam("id") String dupId, @QueryParam("durable") Boolean durable,
+   public Response putWithId(@PathParam("id") String dupId,
+                             @QueryParam("durable") Boolean durable,
                              @QueryParam("ttl") Long ttl,
                              @QueryParam("expiration") Long expiration,
                              @QueryParam("priority") Integer priority,
-                             @Context HttpHeaders headers, @Context UriInfo uriInfo, byte[] body)
-   {
+                             @Context HttpHeaders headers,
+                             @Context UriInfo uriInfo,
+                             byte[] body) {
       ActiveMQRestLogger.LOGGER.debug("Handling PUT request for \"" + uriInfo.getRequestUri() + "\"");
 
       return internalPostWithId(dupId, durable, ttl, expiration, priority, headers, uriInfo, body);
@@ -117,19 +114,27 @@ public class PostMessage
 
    @POST
    @Path("{id}")
-   public Response postWithId(@PathParam("id") String dupId, @QueryParam("durable") Boolean durable,
+   public Response postWithId(@PathParam("id") String dupId,
+                              @QueryParam("durable") Boolean durable,
                               @QueryParam("ttl") Long ttl,
                               @QueryParam("expiration") Long expiration,
                               @QueryParam("priority") Integer priority,
-                              @Context HttpHeaders headers, @Context UriInfo uriInfo, byte[] body)
-   {
+                              @Context HttpHeaders headers,
+                              @Context UriInfo uriInfo,
+                              byte[] body) {
       ActiveMQRestLogger.LOGGER.debug("Handling POST request for \"" + uriInfo.getRequestUri() + "\"");
 
       return internalPostWithId(dupId, durable, ttl, expiration, priority, headers, uriInfo, body);
    }
 
-   private Response internalPostWithId(String dupId, Boolean durable, Long ttl, Long expiration, Integer priority, HttpHeaders headers, UriInfo uriInfo, byte[] body)
-   {
+   private Response internalPostWithId(String dupId,
+                                       Boolean durable,
+                                       Long ttl,
+                                       Long expiration,
+                                       Integer priority,
+                                       HttpHeaders headers,
+                                       UriInfo uriInfo,
+                                       byte[] body) {
       String matched = uriInfo.getMatchedURIs().get(1);
       UriBuilder nextBuilder = uriInfo.getBaseUriBuilder();
       String nextId = generateDupId();
@@ -137,20 +142,14 @@ public class PostMessage
       URI next = nextBuilder.build();
 
       boolean isDurable = defaultDurable;
-      if (durable != null)
-      {
+      if (durable != null) {
          isDurable = durable.booleanValue();
       }
-      try
-      {
+      try {
          publish(headers, body, dupId, isDurable, ttl, expiration, priority);
       }
-      catch (Exception e)
-      {
-         Response error = Response.serverError()
-            .entity("Problem posting message: " + e.getMessage())
-            .type("text/plain")
-            .build();
+      catch (Exception e) {
+         Response error = Response.serverError().entity("Problem posting message: " + e.getMessage()).type("text/plain").build();
          throw new WebApplicationException(e, error);
       }
       Response.ResponseBuilder builder = Response.status(201);
@@ -158,139 +157,112 @@ public class PostMessage
       return builder.build();
    }
 
-   public long getProducerTimeToLive()
-   {
+   public long getProducerTimeToLive() {
       return producerTimeToLive;
    }
 
-   public void setProducerTimeToLive(long producerTimeToLive)
-   {
+   public void setProducerTimeToLive(long producerTimeToLive) {
       this.producerTimeToLive = producerTimeToLive;
    }
 
-   public DestinationServiceManager getServiceManager()
-   {
+   public DestinationServiceManager getServiceManager() {
       return serviceManager;
    }
 
-   public void setServiceManager(DestinationServiceManager serviceManager)
-   {
+   public void setServiceManager(DestinationServiceManager serviceManager) {
       this.serviceManager = serviceManager;
    }
 
-   public ClientSessionFactory getSessionFactory()
-   {
+   public ClientSessionFactory getSessionFactory() {
       return sessionFactory;
    }
 
-   public void setSessionFactory(ClientSessionFactory sessionFactory)
-   {
+   public void setSessionFactory(ClientSessionFactory sessionFactory) {
       this.sessionFactory = sessionFactory;
    }
 
-   public String getDestination()
-   {
+   public String getDestination() {
       return destination;
    }
 
-   public void setDestination(String destination)
-   {
+   public void setDestination(String destination) {
       this.destination = destination;
    }
 
-   public boolean isDefaultDurable()
-   {
+   public boolean isDefaultDurable() {
       return defaultDurable;
    }
 
-   public void setDefaultDurable(boolean defaultDurable)
-   {
+   public void setDefaultDurable(boolean defaultDurable) {
       this.defaultDurable = defaultDurable;
    }
 
-   public int getPoolSize()
-   {
+   public int getPoolSize() {
       return poolSize;
    }
 
-   public void setPoolSize(int poolSize)
-   {
+   public void setPoolSize(int poolSize) {
       this.poolSize = poolSize;
    }
 
-   public void init() throws Exception
-   {
+   public void init() throws Exception {
       pool = new ArrayBlockingQueue<Pooled>(poolSize);
-      for (int i = 0; i < poolSize; i++)
-      {
+      for (int i = 0; i < poolSize; i++) {
          addPooled();
       }
    }
 
-   protected void addPooled() throws ActiveMQException
-   {
+   protected void addPooled() throws ActiveMQException {
       ClientSession session = sessionFactory.createSession();
       ClientProducer producer = session.createProducer(destination);
       session.start();
       pool.add(new Pooled(session, producer));
    }
 
-   protected Pooled getPooled() throws InterruptedException
-   {
+   protected Pooled getPooled() throws InterruptedException {
       Pooled pooled = pool.poll(1, TimeUnit.SECONDS);
-      if (pooled == null)
-      {
+      if (pooled == null) {
          throw new WebApplicationException(Response.status(503).entity("Timed out waiting for available producer.").type("text/plain").build());
       }
       return pooled;
    }
 
-   public void cleanup()
-   {
-      for (Pooled pooled : pool)
-      {
-         try
-         {
+   public void cleanup() {
+      for (Pooled pooled : pool) {
+         try {
             pooled.session.close();
          }
-         catch (ActiveMQException e)
-         {
+         catch (ActiveMQException e) {
             throw new RuntimeException(e);
          }
       }
    }
 
-
-   protected ClientMessage createActiveMQMessage(HttpHeaders headers, byte[] body,
+   protected ClientMessage createActiveMQMessage(HttpHeaders headers,
+                                                 byte[] body,
                                                  boolean durable,
                                                  Long ttl,
                                                  Long expiration,
                                                  Integer priority,
-                                                 ClientSession session) throws Exception
-   {
+                                                 ClientSession session) throws Exception {
       ClientMessage message = session.createMessage(Message.BYTES_TYPE, durable);
 
       // HORNETQ-962
       UUID uid = UUIDGenerator.getInstance().generateUUID();
       message.setUserID(uid);
 
-      if (expiration != null)
-      {
+      if (expiration != null) {
          message.setExpiration(expiration.longValue());
       }
-      else if (ttl != null)
-      {
+      else if (ttl != null) {
          message.setExpiration(System.currentTimeMillis() + ttl.longValue());
       }
-      else if (producerTimeToLive > 0)
-      {
+      else if (producerTimeToLive > 0) {
          message.setExpiration(System.currentTimeMillis() + producerTimeToLive);
       }
-      if (priority != null)
-      {
+      if (priority != null) {
          byte p = priority.byteValue();
-         if (p >= 0 && p <= 9)
-         {
+         if (p >= 0 && p <= 9) {
             message.setPriority(p);
          }
       }

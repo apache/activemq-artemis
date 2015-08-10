@@ -16,7 +16,6 @@
  */
 package org.proton.plug.test.minimalserver;
 
-
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.List;
@@ -47,11 +46,9 @@ import org.proton.plug.test.Constants;
 /**
  * A Netty TCP Acceptor that supports SSL
  */
-public class MinimalServer
-{
+public class MinimalServer {
 
-   static
-   {
+   static {
       // Disable resource leak detection for performance reasons by default
       ResourceLeakDetector.setEnabled(false);
    }
@@ -73,14 +70,12 @@ public class MinimalServer
    // Constants.PORT is the default here
    private int port;
 
-   public synchronized void start(String host, int port, final boolean sasl) throws Exception
-   {
+   public synchronized void start(String host, int port, final boolean sasl) throws Exception {
       this.host = host;
       this.port = port;
       this.sasl = sasl;
 
-      if (channelClazz != null)
-      {
+      if (channelClazz != null) {
          // Already started
          return;
       }
@@ -93,12 +88,9 @@ public class MinimalServer
       bootstrap.group(eventLoopGroup);
       bootstrap.channel(channelClazz);
 
-
-      ChannelInitializer<Channel> factory = new ChannelInitializer<Channel>()
-      {
+      ChannelInitializer<Channel> factory = new ChannelInitializer<Channel>() {
          @Override
-         public void initChannel(Channel channel) throws Exception
-         {
+         public void initChannel(Channel channel) throws Exception {
             ChannelPipeline pipeline = channel.pipeline();
             pipeline.addLast("amqp-handler", new ProtocolDecoder());
          }
@@ -108,13 +100,12 @@ public class MinimalServer
       bootstrap.option(ChannelOption.SO_REUSEADDR, true).
          childOption(ChannelOption.SO_REUSEADDR, true).
          childOption(ChannelOption.SO_KEEPALIVE, true).
-//       childOption(ChannelOption.AUTO_READ, false).
-         childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT);
+         //       childOption(ChannelOption.AUTO_READ, false).
+            childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT);
 
       channelGroup = new DefaultChannelGroup("activemq-accepted-channels", GlobalEventExecutor.INSTANCE);
 
       serverChannelGroup = new DefaultChannelGroup("activemq-acceptor-channels", GlobalEventExecutor.INSTANCE);
-
 
       SocketAddress address;
       address = new InetSocketAddress(host, port);
@@ -123,65 +114,51 @@ public class MinimalServer
 
    }
 
-   class ProtocolDecoder extends ByteToMessageDecoder
-   {
+   class ProtocolDecoder extends ByteToMessageDecoder {
 
       AMQPServerConnectionContext connection;
 
-
-      public ProtocolDecoder()
-      {
+      public ProtocolDecoder() {
       }
 
       @Override
-      public void channelActive(ChannelHandlerContext ctx) throws Exception
-      {
+      public void channelActive(ChannelHandlerContext ctx) throws Exception {
          super.channelActive(ctx);
          connection = ProtonServerConnectionContextFactory.getFactory().createConnection(new MinimalConnectionSPI(ctx.channel()));
          //ctx.read();
       }
 
       @Override
-      protected void decode(final ChannelHandlerContext ctx, ByteBuf byteIn, List<Object> out) throws Exception
-      {
+      protected void decode(final ChannelHandlerContext ctx, ByteBuf byteIn, List<Object> out) throws Exception {
          connection.inputBuffer(byteIn);
          ctx.flush();
-//         if (connection.capacity() > 0)
-//         {
-//            ctx.read();
-//         }
+         //         if (connection.capacity() > 0)
+         //         {
+         //            ctx.read();
+         //         }
       }
    }
 
-   public synchronized void stop()
-   {
-      if (serverChannelGroup != null)
-      {
+   public synchronized void stop() {
+      if (serverChannelGroup != null) {
          serverChannelGroup.close().awaitUninterruptibly();
       }
 
-      if (channelGroup != null)
-      {
+      if (channelGroup != null) {
          ChannelGroupFuture future = channelGroup.close().awaitUninterruptibly();
       }
    }
 
-
-   public static void main(String[] arg)
-   {
+   public static void main(String[] arg) {
       MinimalServer server = new MinimalServer();
-      try
-      {
+      try {
          server.start("127.0.0.1", Constants.PORT, true);
 
-
-         while (true)
-         {
+         while (true) {
             Thread.sleep(360000000);
          }
       }
-      catch (Throwable e)
-      {
+      catch (Throwable e) {
          e.printStackTrace();
       }
    }

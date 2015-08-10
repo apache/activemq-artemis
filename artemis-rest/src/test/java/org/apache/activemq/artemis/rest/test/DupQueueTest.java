@@ -26,11 +26,10 @@ import org.junit.Test;
 
 import static org.jboss.resteasy.test.TestPortProvider.generateURL;
 
-public class DupQueueTest extends MessageTestBase
-{
+public class DupQueueTest extends MessageTestBase {
+
    @Test
-   public void testDup() throws Exception
-   {
+   public void testDup() throws Exception {
       String testName = "testDup";
       QueueDeployment deployment = new QueueDeployment();
       deployment.setDuplicatesAllowed(false);
@@ -94,8 +93,7 @@ public class DupQueueTest extends MessageTestBase
    }
 
    @Test
-   public void testDupWithId() throws Exception
-   {
+   public void testDupWithId() throws Exception {
       String testName = "testDupWithId";
       QueueDeployment deployment = new QueueDeployment();
       deployment.setDuplicatesAllowed(false);

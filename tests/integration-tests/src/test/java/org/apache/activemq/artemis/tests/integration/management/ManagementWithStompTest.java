@@ -44,8 +44,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ManagementWithStompTest extends ManagementTestBase
-{
+public class ManagementWithStompTest extends ManagementTestBase {
 
    // Constants -----------------------------------------------------
 
@@ -65,10 +64,8 @@ public class ManagementWithStompTest extends ManagementTestBase
 
    // Public --------------------------------------------------------
 
-
    @Test
-   public void testGetManagementAttributeFromStomp() throws Exception
-   {
+   public void testGetManagementAttributeFromStomp() throws Exception {
       SimpleString address = RandomUtil.randomSimpleString();
       SimpleString queue = RandomUtil.randomSimpleString();
 
@@ -85,10 +82,10 @@ public class ManagementWithStompTest extends ManagementTestBase
 
       // retrieve the address of the queue
       frame = "\nSEND\n" + "destination:" + ActiveMQDefaultConfiguration.getDefaultManagementAddress() + "\n" +
-            "reply-to:" + address + "\n" +
-            "_AMQ_ResourceName:" + ResourceNames.CORE_QUEUE + queue + "\n" +
-            "_AMQ_Attribute: Address\n\n" +
-            Stomp.NULL;
+         "reply-to:" + address + "\n" +
+         "_AMQ_ResourceName:" + ResourceNames.CORE_QUEUE + queue + "\n" +
+         "_AMQ_Attribute: Address\n\n" +
+         Stomp.NULL;
       sendFrame(frame);
 
       frame = receiveFrame(10000);
@@ -110,8 +107,7 @@ public class ManagementWithStompTest extends ManagementTestBase
    }
 
    @Test
-   public void testInvokeOperationFromStomp() throws Exception
-   {
+   public void testInvokeOperationFromStomp() throws Exception {
       SimpleString address = RandomUtil.randomSimpleString();
       SimpleString queue = RandomUtil.randomSimpleString();
 
@@ -128,11 +124,11 @@ public class ManagementWithStompTest extends ManagementTestBase
 
       // count number of message with filter "color = 'blue'"
       frame = "\nSEND\n" + "destination:" + ActiveMQDefaultConfiguration.getDefaultManagementAddress() + "\n" +
-            "reply-to:" + address + "\n" +
-            "_AMQ_ResourceName:" + ResourceNames.CORE_QUEUE + queue + "\n" +
-            "_AMQ_OperationName: countMessages\n\n" +
-            "[\"color = 'blue'\"]" +
-            Stomp.NULL;
+         "reply-to:" + address + "\n" +
+         "_AMQ_ResourceName:" + ResourceNames.CORE_QUEUE + queue + "\n" +
+         "_AMQ_OperationName: countMessages\n\n" +
+         "[\"color = 'blue'\"]" +
+         Stomp.NULL;
       sendFrame(frame);
 
       frame = receiveFrame(10000);
@@ -161,8 +157,7 @@ public class ManagementWithStompTest extends ManagementTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       Map<String, Object> params = new HashMap<String, Object>();
@@ -170,15 +165,13 @@ public class ManagementWithStompTest extends ManagementTestBase
       params.put(TransportConstants.PORT_PROP_NAME, TransportConstants.DEFAULT_STOMP_PORT);
       TransportConfiguration stompTransport = new TransportConfiguration(NettyAcceptorFactory.class.getName(), params);
 
-      Configuration config = createDefaultInVMConfig()
-              .addAcceptorConfiguration(stompTransport);
+      Configuration config = createDefaultInVMConfig().addAcceptorConfiguration(stompTransport);
 
       server = addServer(ActiveMQServers.newActiveMQServer(config, mbeanServer, false, "brianm", "wombats"));
 
       server.start();
 
-      locator = createInVMNonHALocator()
-              .setBlockOnNonDurableSend(true);
+      locator = createInVMNonHALocator().setBlockOnNonDurableSend(true);
       ClientSessionFactory sf = createSessionFactory(locator);
       session = sf.createSession(false, true, false);
       session.start();
@@ -189,34 +182,27 @@ public class ManagementWithStompTest extends ManagementTestBase
 
    // Private -------------------------------------------------------
 
-   public void sendFrame(String data) throws Exception
-   {
+   public void sendFrame(String data) throws Exception {
       byte[] bytes = data.getBytes(StandardCharsets.UTF_8);
       OutputStream outputStream = stompSocket.getOutputStream();
-      for (int i = 0; i < bytes.length; i++)
-      {
+      for (int i = 0; i < bytes.length; i++) {
          outputStream.write(bytes[i]);
       }
       outputStream.flush();
    }
 
-   public String receiveFrame(long timeOut) throws Exception
-   {
-      stompSocket.setSoTimeout((int)timeOut);
+   public String receiveFrame(long timeOut) throws Exception {
+      stompSocket.setSoTimeout((int) timeOut);
       InputStream is = stompSocket.getInputStream();
       int c = 0;
-      for (;;)
-      {
+      for (; ; ) {
          c = is.read();
-         if (c < 0)
-         {
+         if (c < 0) {
             throw new IOException("socket closed.");
          }
-         else if (c == 0)
-         {
+         else if (c == 0) {
             c = is.read();
-            if (c != '\n')
-            {
+            if (c != '\n') {
                byte[] ba = inputBuffer.toByteArray();
                System.out.println(new String(ba, StandardCharsets.UTF_8));
             }
@@ -225,15 +211,13 @@ public class ManagementWithStompTest extends ManagementTestBase
             inputBuffer.reset();
             return new String(ba, StandardCharsets.UTF_8);
          }
-         else
-         {
+         else {
             inputBuffer.write(c);
          }
       }
    }
 
-   protected void waitForReceipt() throws Exception
-   {
+   protected void waitForReceipt() throws Exception {
       String frame = receiveFrame(50000);
       Assert.assertNotNull(frame);
       Assert.assertTrue(frame.indexOf("RECEIPT") > -1);

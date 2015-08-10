@@ -31,8 +31,8 @@ import org.junit.runner.RunWith;
 import java.util.concurrent.CountDownLatch;
 
 @RunWith(BMUnitRunner.class)
-public class ReplicationBackupTest extends ActiveMQTestBase
-{
+public class ReplicationBackupTest extends ActiveMQTestBase {
+
    private static final CountDownLatch ruleFired = new CountDownLatch(1);
    private ActiveMQServer backupServer;
    private ActiveMQServer liveServer;
@@ -42,32 +42,20 @@ public class ReplicationBackupTest extends ActiveMQTestBase
    * state != STARTED
    */
    @Test
-   @BMRules
-      (
-         rules =
-            {
-               @BMRule
-                  (
-                     name = "prevent backup annoucement",
-                     targetClass = "org.apache.activemq.artemis.core.server.impl.SharedNothingLiveActivation",
-                     targetMethod = "run",
-                     targetLocation = "AT EXIT",
-                     action = "org.apache.activemq.artemis.tests.extras.byteman.ReplicationBackupTest.breakIt();"
-                  )
-            }
-      )
-   public void testReplicatedBackupAnnouncement() throws Exception
-   {
+   @BMRules(
+      rules = {@BMRule(
+         name = "prevent backup annoucement",
+         targetClass = "org.apache.activemq.artemis.core.server.impl.SharedNothingLiveActivation",
+         targetMethod = "run",
+         targetLocation = "AT EXIT",
+         action = "org.apache.activemq.artemis.tests.extras.byteman.ReplicationBackupTest.breakIt();")})
+   public void testReplicatedBackupAnnouncement() throws Exception {
       TransportConfiguration liveConnector = TransportConfigurationUtils.getNettyConnector(true, 0);
       TransportConfiguration liveAcceptor = TransportConfigurationUtils.getNettyAcceptor(true, 0);
       TransportConfiguration backupConnector = TransportConfigurationUtils.getNettyConnector(false, 0);
       TransportConfiguration backupAcceptor = TransportConfigurationUtils.getNettyAcceptor(false, 0);
 
-      Configuration backupConfig = createDefaultInVMConfig()
-         .setBindingsDirectory(getBindingsDir(0, true))
-         .setJournalDirectory(getJournalDir(0, true))
-         .setPagingDirectory(getPageDir(0, true))
-         .setLargeMessagesDirectory(getLargeMessagesDir(0, true));
+      Configuration backupConfig = createDefaultInVMConfig().setBindingsDirectory(getBindingsDir(0, true)).setJournalDirectory(getJournalDir(0, true)).setPagingDirectory(getPageDir(0, true)).setLargeMessagesDirectory(getLargeMessagesDir(0, true));
 
       Configuration liveConfig = createDefaultInVMConfig();
 
@@ -76,17 +64,13 @@ public class ReplicationBackupTest extends ActiveMQTestBase
       liveServer = createServer(liveConfig);
 
       // start the live server in a new thread so we can start the backup simultaneously to induce a potential race
-      Thread startThread = new Thread(new Runnable()
-      {
+      Thread startThread = new Thread(new Runnable() {
          @Override
-         public void run()
-         {
-            try
-            {
+         public void run() {
+            try {
                liveServer.start();
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                e.printStackTrace();
             }
          }
@@ -100,18 +84,15 @@ public class ReplicationBackupTest extends ActiveMQTestBase
       ActiveMQTestBase.waitForRemoteBackup(null, 3, true, backupServer);
    }
 
-   public static void breakIt()
-   {
+   public static void breakIt() {
       ruleFired.countDown();
-      try
-      {
+      try {
          /* before the fix this sleep would put the "live" server into a state where the acceptors were started
           * but the server's state != STARTED which would cause the backup to fail to announce
           */
          Thread.sleep(2000);
       }
-      catch (InterruptedException e)
-      {
+      catch (InterruptedException e) {
          e.printStackTrace();
       }
    }

@@ -21,25 +21,20 @@ import org.apache.qpid.proton.engine.Receiver;
 import org.apache.qpid.proton.message.Message;
 import org.apache.qpid.proton.message.impl.MessageImpl;
 
-public class DeliveryUtil
-{
+public class DeliveryUtil {
 
-   public static int readDelivery(Receiver receiver, ByteBuf buffer)
-   {
+   public static int readDelivery(Receiver receiver, ByteBuf buffer) {
       int initial = buffer.writerIndex();
       // optimization by norman
       int count;
-      while ((count = receiver.recv(buffer.array(), buffer.arrayOffset() + buffer.writerIndex(), buffer.writableBytes())) > 0)
-      {
+      while ((count = receiver.recv(buffer.array(), buffer.arrayOffset() + buffer.writerIndex(), buffer.writableBytes())) > 0) {
          // Increment the writer index by the number of bytes written into it while calling recv.
          buffer.writerIndex(buffer.writerIndex() + count);
       }
       return buffer.writerIndex() - initial;
    }
 
-
-   public static MessageImpl decodeMessageImpl(ByteBuf buffer)
-   {
+   public static MessageImpl decodeMessageImpl(ByteBuf buffer) {
       MessageImpl message = (MessageImpl) Message.Factory.create();
       message.decode(buffer.array(), buffer.arrayOffset() + buffer.readerIndex(), buffer.readableBytes());
       return message;

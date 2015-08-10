@@ -42,8 +42,8 @@ import org.junit.Test;
 /**
  * Play with ActiveMQ
  */
-public class RawAckTest
-{
+public class RawAckTest {
+
    protected static ActiveMQServer activeMQServer;
    static ServerLocator serverLocator;
    static ClientSessionFactory sessionFactory;
@@ -52,12 +52,8 @@ public class RawAckTest
    static ClientSession session;
 
    @BeforeClass
-   public static void setup() throws Exception
-   {
-      Configuration configuration = new ConfigurationImpl()
-         .setPersistenceEnabled(false)
-         .setSecurityEnabled(false)
-         .addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName()));
+   public static void setup() throws Exception {
+      Configuration configuration = new ConfigurationImpl().setPersistenceEnabled(false).setSecurityEnabled(false).addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName()));
 
       activeMQServer = ActiveMQServers.newActiveMQServer(configuration);
       activeMQServer.start();
@@ -75,28 +71,24 @@ public class RawAckTest
    }
 
    @AfterClass
-   public static void shutdown() throws Exception
-   {
+   public static void shutdown() throws Exception {
       serverLocator.close();
       activeMQServer.stop();
    }
 
    static boolean passed = false;
 
-   private static class MyThread extends Thread
-   {
+   private static class MyThread extends Thread {
+
       final ClientConsumer consumer;
 
-      private MyThread(ClientConsumer consumer)
-      {
+      private MyThread(ClientConsumer consumer) {
          this.consumer = consumer;
       }
 
       @Override
-      public void run()
-      {
-         try
-         {
+      public void run() {
+         try {
             ClientMessage message = consumer.receiveImmediate();
             int size = message.getBodyBuffer().readInt();
             byte[] bytes = new byte[size];
@@ -105,24 +97,21 @@ public class RawAckTest
             System.out.println(str);
             message.acknowledge();
             message = consumer.receive(1);
-            if (message != null)
-            {
+            if (message != null) {
                System.err.println("Not expecting another message: type=" + message.getType());
                throw new RuntimeException("Failed, receive extra message");
             }
             Assert.assertNull(message);
             passed = true;
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             e.printStackTrace();
          }
       }
    }
 
    @Test
-   public void testAck() throws Exception
-   {
+   public void testAck() throws Exception {
 
       ClientMessage message;
 

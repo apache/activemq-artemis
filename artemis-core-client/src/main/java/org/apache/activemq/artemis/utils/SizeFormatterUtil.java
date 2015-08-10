@@ -16,8 +16,7 @@
  */
 package org.apache.activemq.artemis.utils;
 
-public class SizeFormatterUtil
-{
+public class SizeFormatterUtil {
 
    // Constants -----------------------------------------------------
 
@@ -31,22 +30,18 @@ public class SizeFormatterUtil
 
    // Static --------------------------------------------------------
 
-   public static String sizeof(final long size)
-   {
+   public static String sizeof(final long size) {
       double s = Long.valueOf(size).doubleValue();
       String suffix = "B";
-      if (s > SizeFormatterUtil.oneGiB)
-      {
+      if (s > SizeFormatterUtil.oneGiB) {
          s /= SizeFormatterUtil.oneGiB;
          suffix = "GiB";
       }
-      else if (s > SizeFormatterUtil.oneMiB)
-      {
+      else if (s > SizeFormatterUtil.oneMiB) {
          s /= SizeFormatterUtil.oneMiB;
          suffix = "MiB";
       }
-      else if (s > SizeFormatterUtil.oneKiB)
-      {
+      else if (s > SizeFormatterUtil.oneKiB) {
          s /= SizeFormatterUtil.oneKiB;
          suffix = "kiB";
       }

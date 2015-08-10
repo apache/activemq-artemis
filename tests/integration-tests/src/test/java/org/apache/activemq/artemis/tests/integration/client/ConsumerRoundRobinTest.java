@@ -31,8 +31,8 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 
-public class ConsumerRoundRobinTest extends ActiveMQTestBase
-{
+public class ConsumerRoundRobinTest extends ActiveMQTestBase {
+
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    public final SimpleString addressA = new SimpleString("addressA");
@@ -40,8 +40,7 @@ public class ConsumerRoundRobinTest extends ActiveMQTestBase
    public final SimpleString queueA = new SimpleString("queueA");
 
    @Test
-   public void testConsumersRoundRobinCorrectly() throws Exception
-   {
+   public void testConsumersRoundRobinCorrectly() throws Exception {
       ActiveMQServer server = createServer(false);
       server.start();
       ServerLocator locator = createInVMNonHALocator();
@@ -62,18 +61,15 @@ public class ConsumerRoundRobinTest extends ActiveMQTestBase
 
       ClientProducer cp = session.createProducer(addressA);
       int numMessage = 10;
-      for (int i = 0; i < numMessage; i++)
-      {
+      for (int i = 0; i < numMessage; i++) {
          ClientMessage cm = session.createMessage(false);
          cm.getBodyBuffer().writeInt(i);
          cp.send(cm);
       }
       int currMessage = 0;
-      for (int i = 0; i < numMessage / 5; i++)
-      {
+      for (int i = 0; i < numMessage / 5; i++) {
          log.info("i is " + i);
-         for (int j = 0; j < 5; j++)
-         {
+         for (int j = 0; j < 5; j++) {
             log.info("j is " + j);
             ClientMessage cm = consumers[j].receive(5000);
             Assert.assertNotNull(cm);

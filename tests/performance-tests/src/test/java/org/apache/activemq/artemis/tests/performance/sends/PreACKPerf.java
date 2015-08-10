@@ -24,11 +24,10 @@ import javax.jms.Session;
 
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSConstants;
 
-public class PreACKPerf extends AbstractSendReceivePerfTest
-{
+public class PreACKPerf extends AbstractSendReceivePerfTest {
+
    @Override
-   protected void consumeMessages(Connection c, String qName) throws Exception
-   {
+   protected void consumeMessages(Connection c, String qName) throws Exception {
       int mode = 0;
       mode = ActiveMQJMSConstants.PRE_ACKNOWLEDGE;
 
@@ -42,24 +41,20 @@ public class PreACKPerf extends AbstractSendReceivePerfTest
 
       Message m = null;
 
-
       long start = System.currentTimeMillis();
 
       long nmessages = 0;
       long timeout = System.currentTimeMillis() + 30 * 1000;
-      while (timeout > System.currentTimeMillis())
-      {
+      while (timeout > System.currentTimeMillis()) {
          m = consumer.receive(5000);
 
          nmessages++;
 
-         if (m == null)
-         {
+         if (m == null) {
             throw new Exception("Failed with m = null");
          }
 
-         if (nmessages % 10000 == 0)
-         {
+         if (nmessages % 10000 == 0) {
             printMsgsSec(start, nmessages);
          }
 
@@ -70,20 +65,15 @@ public class PreACKPerf extends AbstractSendReceivePerfTest
       printMsgsSec(start, nmessages);
    }
 
-
-
-   protected void printMsgsSec(final long start, final double nmessages)
-   {
+   protected void printMsgsSec(final long start, final double nmessages) {
 
       long end = System.currentTimeMillis();
       double elapsed = ((double) end - (double) start) / 1000f;
 
       double messagesPerSecond = nmessages / elapsed;
 
-      System.out.println("end = " + end + ", start=" + start + ", numberOfMessages="
-                            + nmessages + ", elapsed=" + elapsed + " msgs/sec= " + messagesPerSecond);
+      System.out.println("end = " + end + ", start=" + start + ", numberOfMessages=" + nmessages + ", elapsed=" + elapsed + " msgs/sec= " + messagesPerSecond);
 
    }
-
 
 }

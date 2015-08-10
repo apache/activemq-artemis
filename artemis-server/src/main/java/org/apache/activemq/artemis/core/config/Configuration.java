@@ -34,8 +34,8 @@ import org.apache.activemq.artemis.core.settings.impl.ResourceLimitSettings;
 /**
  * A Configuration is used to configure ActiveMQ Artemis servers.
  */
-public interface Configuration
-{
+public interface Configuration {
+
    /**
     * To be used on dependency management on the application server
     */
@@ -295,7 +295,8 @@ public interface Configuration
     */
    Configuration setDiscoveryGroupConfigurations(Map<String, DiscoveryGroupConfiguration> configs);
 
-   Configuration addDiscoveryGroupConfiguration(final String key, DiscoveryGroupConfiguration discoveryGroupConfiguration);
+   Configuration addDiscoveryGroupConfiguration(final String key,
+                                                DiscoveryGroupConfiguration discoveryGroupConfiguration);
 
    /**
     * Returns the grouping handler configured for this server.
@@ -467,6 +468,7 @@ public interface Configuration
 
    /**
     * The location of the journal related to artemis.instance.
+    *
     * @return
     */
    File getJournalLocation();
@@ -687,7 +689,6 @@ public interface Configuration
     */
    Configuration setPagingDirectory(String dir);
 
-
    /**
     * The paging location related to artemis.instance
     */
@@ -701,7 +702,9 @@ public interface Configuration
     */
    String getLargeMessagesDirectory();
 
-   /** The large message location related to artemis.instance */
+   /**
+    * The large message location related to artemis.instance
+    */
    File getLargeMessagesLocation();
 
    /**

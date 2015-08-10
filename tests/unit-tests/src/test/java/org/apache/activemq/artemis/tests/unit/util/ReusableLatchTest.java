@@ -24,34 +24,29 @@ import org.apache.activemq.artemis.utils.ReusableLatch;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class ReusableLatchTest extends ActiveMQTestBase
-{
+public class ReusableLatchTest extends ActiveMQTestBase {
+
    @Test
-   public void testLatchWithParameterizedDown() throws Exception
-   {
+   public void testLatchWithParameterizedDown() throws Exception {
       ReusableLatch latch = new ReusableLatch(1000);
 
       latch.countDown(5000);
 
       assertTrue(latch.await(1000));
 
-
       assertEquals(0, latch.getCount());
    }
 
    @Test
-   public void testLatchOnSingleThread() throws Exception
-   {
+   public void testLatchOnSingleThread() throws Exception {
       ReusableLatch latch = new ReusableLatch();
 
-      for (int i = 1; i <= 100; i++)
-      {
+      for (int i = 1; i <= 100; i++) {
          latch.countUp();
          Assert.assertEquals(i, latch.getCount());
       }
 
-      for (int i = 100; i > 0; i--)
-      {
+      for (int i = 100; i > 0; i--) {
          Assert.assertEquals(i, latch.getCount());
          latch.countDown();
          Assert.assertEquals(i - 1, latch.getCount());
@@ -71,8 +66,7 @@ public class ReusableLatchTest extends ActiveMQTestBase
     * @throws Exception
     */
    @Test
-   public void testLatchOnMultiThread() throws Exception
-   {
+   public void testLatchOnMultiThread() throws Exception {
       final ReusableLatch latch = new ReusableLatch();
 
       latch.countUp(); // We hold at least one, so ThreadWaits won't go away
@@ -80,56 +74,47 @@ public class ReusableLatchTest extends ActiveMQTestBase
       final int numberOfThreads = 100;
       final int numberOfAdds = 100;
 
-      class ThreadWait extends Thread
-      {
+      class ThreadWait extends Thread {
+
          private volatile boolean waiting = true;
 
          @Override
-         public void run()
-         {
-            try
-            {
-               if (!latch.await(5000))
-               {
+         public void run() {
+            try {
+               if (!latch.await(5000)) {
                   UnitTestLogger.LOGGER.error("Latch timed out");
                }
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                UnitTestLogger.LOGGER.error(e);
             }
             waiting = false;
          }
       }
 
-      class ThreadAdd extends Thread
-      {
+      class ThreadAdd extends Thread {
+
          private final CountDownLatch latchReady;
 
          private final CountDownLatch latchStart;
 
-         ThreadAdd(final CountDownLatch latchReady, final CountDownLatch latchStart)
-         {
+         ThreadAdd(final CountDownLatch latchReady, final CountDownLatch latchStart) {
             this.latchReady = latchReady;
             this.latchStart = latchStart;
          }
 
          @Override
-         public void run()
-         {
-            try
-            {
+         public void run() {
+            try {
                latchReady.countDown();
                // Everybody should start at the same time, to worse concurrency
                // effects
                latchStart.await();
-               for (int i = 0; i < numberOfAdds; i++)
-               {
+               for (int i = 0; i < numberOfAdds; i++) {
                   latch.countUp();
                }
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                UnitTestLogger.LOGGER.error(e.getMessage(), e);
             }
          }
@@ -141,8 +126,7 @@ public class ReusableLatchTest extends ActiveMQTestBase
       ThreadAdd[] threadAdds = new ThreadAdd[numberOfThreads];
       ThreadWait[] waits = new ThreadWait[numberOfThreads];
 
-      for (int i = 0; i < numberOfThreads; i++)
-      {
+      for (int i = 0; i < numberOfThreads; i++) {
          threadAdds[i] = new ThreadAdd(latchReady, latchStart);
          threadAdds[i].start();
          waits[i] = new ThreadWait();
@@ -152,46 +136,39 @@ public class ReusableLatchTest extends ActiveMQTestBase
       latchReady.await();
       latchStart.countDown();
 
-      for (int i = 0; i < numberOfThreads; i++)
-      {
+      for (int i = 0; i < numberOfThreads; i++) {
          threadAdds[i].join();
       }
 
-      for (int i = 0; i < numberOfThreads; i++)
-      {
+      for (int i = 0; i < numberOfThreads; i++) {
          Assert.assertTrue(waits[i].waiting);
       }
 
       Assert.assertEquals(numberOfThreads * numberOfAdds + 1, latch.getCount());
 
-      class ThreadDown extends Thread
-      {
+      class ThreadDown extends Thread {
+
          private final CountDownLatch latchReady;
 
          private final CountDownLatch latchStart;
 
-         ThreadDown(final CountDownLatch latchReady, final CountDownLatch latchStart)
-         {
+         ThreadDown(final CountDownLatch latchReady, final CountDownLatch latchStart) {
             this.latchReady = latchReady;
             this.latchStart = latchStart;
          }
 
          @Override
-         public void run()
-         {
-            try
-            {
+         public void run() {
+            try {
                latchReady.countDown();
                // Everybody should start at the same time, to worse concurrency
                // effects
                latchStart.await();
-               for (int i = 0; i < numberOfAdds; i++)
-               {
+               for (int i = 0; i < numberOfAdds; i++) {
                   latch.countDown();
                }
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                UnitTestLogger.LOGGER.error(e.getMessage(), e);
             }
          }
@@ -202,8 +179,7 @@ public class ReusableLatchTest extends ActiveMQTestBase
 
       ThreadDown[] down = new ThreadDown[numberOfThreads];
 
-      for (int i = 0; i < numberOfThreads; i++)
-      {
+      for (int i = 0; i < numberOfThreads; i++) {
          down[i] = new ThreadDown(latchReady, latchStart);
          down[i].start();
       }
@@ -211,46 +187,40 @@ public class ReusableLatchTest extends ActiveMQTestBase
       latchReady.await();
       latchStart.countDown();
 
-      for (int i = 0; i < numberOfThreads; i++)
-      {
+      for (int i = 0; i < numberOfThreads; i++) {
          down[i].join();
       }
 
       Assert.assertEquals(1, latch.getCount());
 
-      for (int i = 0; i < numberOfThreads; i++)
-      {
+      for (int i = 0; i < numberOfThreads; i++) {
          Assert.assertTrue(waits[i].waiting);
       }
 
       latch.countDown();
 
-      for (int i = 0; i < numberOfThreads; i++)
-      {
+      for (int i = 0; i < numberOfThreads; i++) {
          waits[i].join();
       }
 
       Assert.assertEquals(0, latch.getCount());
 
-      for (int i = 0; i < numberOfThreads; i++)
-      {
+      for (int i = 0; i < numberOfThreads; i++) {
          Assert.assertFalse(waits[i].waiting);
       }
    }
 
    @Test
-   public void testReuseLatch() throws Exception
-   {
+   public void testReuseLatch() throws Exception {
       final ReusableLatch latch = new ReusableLatch(5);
-      for (int i = 0; i < 5; i++)
-      {
+      for (int i = 0; i < 5; i++) {
          latch.countDown();
       }
 
       latch.countUp();
 
-      class ThreadWait extends Thread
-      {
+      class ThreadWait extends Thread {
+
          private volatile boolean waiting = false;
 
          private volatile Exception e;
@@ -258,19 +228,15 @@ public class ReusableLatchTest extends ActiveMQTestBase
          private final CountDownLatch readyLatch = new CountDownLatch(1);
 
          @Override
-         public void run()
-         {
+         public void run() {
             waiting = true;
             readyLatch.countDown();
-            try
-            {
-               if (!latch.await(1000))
-               {
+            try {
+               if (!latch.await(1000)) {
                   UnitTestLogger.LOGGER.error("Latch timed out!", new Exception("trace"));
                }
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                UnitTestLogger.LOGGER.error(e);
                this.e = e;
             }

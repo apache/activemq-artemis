@@ -23,8 +23,7 @@ import org.apache.activemq.artemis.core.config.BridgeConfiguration;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.server.cluster.Bridge;
 
-public class BridgeControlImpl extends AbstractControl implements BridgeControl
-{
+public class BridgeControlImpl extends AbstractControl implements BridgeControl {
 
    // Constants -----------------------------------------------------
 
@@ -40,8 +39,7 @@ public class BridgeControlImpl extends AbstractControl implements BridgeControl
 
    public BridgeControlImpl(final Bridge bridge,
                             final StorageManager storageManager,
-                            final BridgeConfiguration configuration) throws Exception
-   {
+                            final BridgeConfiguration configuration) throws Exception {
       super(BridgeControl.class, storageManager);
       this.bridge = bridge;
       this.configuration = configuration;
@@ -49,205 +47,159 @@ public class BridgeControlImpl extends AbstractControl implements BridgeControl
 
    // BridgeControlMBean implementation ---------------------------
 
-   public String[] getStaticConnectors() throws Exception
-   {
+   public String[] getStaticConnectors() throws Exception {
       clearIO();
-      try
-      {
+      try {
          return configuration.getStaticConnectors().toArray(new String[0]);
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public String getForwardingAddress()
-   {
+   public String getForwardingAddress() {
       clearIO();
-      try
-      {
+      try {
          return configuration.getForwardingAddress();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public String getQueueName()
-   {
+   public String getQueueName() {
       clearIO();
-      try
-      {
+      try {
          return configuration.getQueueName();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public String getDiscoveryGroupName()
-   {
+   public String getDiscoveryGroupName() {
       clearIO();
-      try
-      {
+      try {
          return configuration.getDiscoveryGroupName();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public String getFilterString()
-   {
+   public String getFilterString() {
       clearIO();
-      try
-      {
+      try {
          return configuration.getFilterString();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public int getReconnectAttempts()
-   {
+   public int getReconnectAttempts() {
       clearIO();
-      try
-      {
+      try {
          return configuration.getReconnectAttempts();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public String getName()
-   {
+   public String getName() {
       clearIO();
-      try
-      {
+      try {
          return configuration.getName();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public long getRetryInterval()
-   {
+   public long getRetryInterval() {
       clearIO();
-      try
-      {
+      try {
          return configuration.getRetryInterval();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public double getRetryIntervalMultiplier()
-   {
+   public double getRetryIntervalMultiplier() {
       clearIO();
-      try
-      {
+      try {
          return configuration.getRetryIntervalMultiplier();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public String getTransformerClassName()
-   {
+   public String getTransformerClassName() {
       clearIO();
-      try
-      {
+      try {
          return configuration.getTransformerClassName();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public boolean isStarted()
-   {
+   public boolean isStarted() {
       clearIO();
-      try
-      {
+      try {
          return bridge.isStarted();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public boolean isUseDuplicateDetection()
-   {
+   public boolean isUseDuplicateDetection() {
       clearIO();
-      try
-      {
+      try {
          return configuration.isUseDuplicateDetection();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public boolean isHA()
-   {
+   public boolean isHA() {
       clearIO();
-      try
-      {
+      try {
          return configuration.isHA();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public void start() throws Exception
-   {
+   public void start() throws Exception {
       clearIO();
-      try
-      {
+      try {
          bridge.start();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public void stop() throws Exception
-   {
+   public void stop() throws Exception {
       clearIO();
-      try
-      {
+      try {
          bridge.stop();
          bridge.flushExecutor();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
    @Override
-   protected MBeanOperationInfo[] fillMBeanOperationInfo()
-   {
+   protected MBeanOperationInfo[] fillMBeanOperationInfo() {
       return MBeanInfoHelper.getMBeanOperationsInfo(BridgeControl.class);
    }
 

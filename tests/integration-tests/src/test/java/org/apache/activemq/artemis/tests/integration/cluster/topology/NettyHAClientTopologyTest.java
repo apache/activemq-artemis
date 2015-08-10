@@ -16,12 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.topology;
 
-public class NettyHAClientTopologyTest extends HAClientTopologyTest
-{
+public class NettyHAClientTopologyTest extends HAClientTopologyTest {
 
    @Override
-   protected boolean isNetty()
-   {
+   protected boolean isNetty() {
       return true;
    }
 }

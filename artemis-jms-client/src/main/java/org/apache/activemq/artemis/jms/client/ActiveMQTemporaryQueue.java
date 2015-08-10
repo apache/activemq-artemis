@@ -18,14 +18,12 @@ package org.apache.activemq.artemis.jms.client;
 
 import javax.jms.TemporaryQueue;
 
-
 /**
  * ActiveMQ Artemis implementation of a JMS TemporaryQueue.
  * <br>
  * This class can be instantiated directly.
  */
-public class ActiveMQTemporaryQueue extends ActiveMQQueue implements TemporaryQueue
-{
+public class ActiveMQTemporaryQueue extends ActiveMQQueue implements TemporaryQueue {
    // Constants -----------------------------------------------------
 
    private static final long serialVersionUID = -4624930377557954624L;
@@ -36,7 +34,6 @@ public class ActiveMQTemporaryQueue extends ActiveMQQueue implements TemporaryQu
 
    // Constructors --------------------------------------------------
 
-
    // TemporaryQueue implementation ------------------------------------------
 
    // Public --------------------------------------------------------
@@ -46,14 +43,12 @@ public class ActiveMQTemporaryQueue extends ActiveMQQueue implements TemporaryQu
     * @param name
     * @param session
     */
-   public ActiveMQTemporaryQueue(String address, String name, ActiveMQSession session)
-   {
+   public ActiveMQTemporaryQueue(String address, String name, ActiveMQSession session) {
       super(address, name, true, session);
    }
 
    @Override
-   public String toString()
-   {
+   public String toString() {
       return "ActiveMQTemporaryQueue[" + name + "]";
    }
 

@@ -22,95 +22,77 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
-
 /**
  * An expression which performs an operation on two expression values
  *
  * @version $Revision: 1.3 $
  */
-public abstract class UnaryExpression implements Expression
-{
+public abstract class UnaryExpression implements Expression {
 
    private static final BigDecimal BD_LONG_MIN_VALUE = BigDecimal.valueOf(Long.MIN_VALUE);
    protected Expression right;
 
-   public UnaryExpression(Expression left)
-   {
+   public UnaryExpression(Expression left) {
       this.right = left;
    }
 
-   public static Expression createNegate(Expression left)
-   {
-      return new UnaryExpression(left)
-      {
-         public Object evaluate(Filterable message) throws FilterException
-         {
+   public static Expression createNegate(Expression left) {
+      return new UnaryExpression(left) {
+         public Object evaluate(Filterable message) throws FilterException {
             Object rvalue = right.evaluate(message);
-            if (rvalue == null)
-            {
+            if (rvalue == null) {
                return null;
             }
-            if (rvalue instanceof Number)
-            {
+            if (rvalue instanceof Number) {
                return negate((Number) rvalue);
             }
             return null;
          }
 
-         public String getExpressionSymbol()
-         {
+         public String getExpressionSymbol() {
             return "-";
          }
       };
    }
 
-   public static BooleanExpression createInExpression(PropertyExpression right, List<Object> elements, final boolean not)
-   {
+   public static BooleanExpression createInExpression(PropertyExpression right,
+                                                      List<Object> elements,
+                                                      final boolean not) {
 
       // Use a HashSet if there are many elements.
       Collection<Object> t;
-      if (elements.size() == 0)
-      {
+      if (elements.size() == 0) {
          t = null;
       }
-      else if (elements.size() < 5)
-      {
+      else if (elements.size() < 5) {
          t = elements;
       }
-      else
-      {
+      else {
          t = new HashSet<Object>(elements);
       }
       final Collection<Object> inList = t;
 
-      return new BooleanUnaryExpression(right)
-      {
-         public Object evaluate(Filterable message) throws FilterException
-         {
+      return new BooleanUnaryExpression(right) {
+         public Object evaluate(Filterable message) throws FilterException {
 
             Object rvalue = right.evaluate(message);
-            if (rvalue == null)
-            {
+            if (rvalue == null) {
                return null;
             }
-            if (rvalue.getClass() != String.class)
-            {
+            if (rvalue.getClass() != String.class) {
                return null;
             }
 
-            if ((inList != null && inList.contains(rvalue)) ^ not)
-            {
+            if ((inList != null && inList.contains(rvalue)) ^ not) {
                return Boolean.TRUE;
             }
-            else
-            {
+            else {
                return Boolean.FALSE;
             }
 
          }
 
-         public String toString()
-         {
+         public String toString() {
             StringBuffer answer = new StringBuffer();
             answer.append(right);
             answer.append(" ");
@@ -118,11 +100,9 @@ public abstract class UnaryExpression implements Expression
             answer.append(" ( ");
 
             int count = 0;
-            for (Iterator<Object> i = inList.iterator(); i.hasNext(); )
-            {
+            for (Iterator<Object> i = inList.iterator(); i.hasNext(); ) {
                Object o = (Object) i.next();
-               if (count != 0)
-               {
+               if (count != 0) {
                   answer.append(", ");
                }
                answer.append(o);
@@ -133,116 +113,91 @@ public abstract class UnaryExpression implements Expression
             return answer.toString();
          }
 
-         public String getExpressionSymbol()
-         {
-            if (not)
-            {
+         public String getExpressionSymbol() {
+            if (not) {
                return "NOT IN";
             }
-            else
-            {
+            else {
                return "IN";
             }
          }
       };
    }
 
-   abstract static class BooleanUnaryExpression extends UnaryExpression implements BooleanExpression
-   {
-      public BooleanUnaryExpression(Expression left)
-      {
+   abstract static class BooleanUnaryExpression extends UnaryExpression implements BooleanExpression {
+
+      public BooleanUnaryExpression(Expression left) {
          super(left);
       }
 
-      public boolean matches(Filterable message) throws FilterException
-      {
+      public boolean matches(Filterable message) throws FilterException {
          Object object = evaluate(message);
          return object != null && object == Boolean.TRUE;
       }
    }
 
-   public static BooleanExpression createNOT(BooleanExpression left)
-   {
-      return new BooleanUnaryExpression(left)
-      {
-         public Object evaluate(Filterable message) throws FilterException
-         {
+   public static BooleanExpression createNOT(BooleanExpression left) {
+      return new BooleanUnaryExpression(left) {
+         public Object evaluate(Filterable message) throws FilterException {
             Boolean lvalue = (Boolean) right.evaluate(message);
-            if (lvalue == null)
-            {
+            if (lvalue == null) {
                return null;
             }
             return lvalue.booleanValue() ? Boolean.FALSE : Boolean.TRUE;
          }
 
-         public String getExpressionSymbol()
-         {
+         public String getExpressionSymbol() {
             return "NOT";
          }
       };
    }
 
-   public static BooleanExpression createXPath(final String xpath)
-   {
+   public static BooleanExpression createXPath(final String xpath) {
       return new XPathExpression(xpath);
    }
 
-   public static BooleanExpression createXQuery(final String xpath)
-   {
+   public static BooleanExpression createXQuery(final String xpath) {
       return new XQueryExpression(xpath);
    }
 
-   public static BooleanExpression createBooleanCast(Expression left)
-   {
-      return new BooleanUnaryExpression(left)
-      {
-         public Object evaluate(Filterable message) throws FilterException
-         {
+   public static BooleanExpression createBooleanCast(Expression left) {
+      return new BooleanUnaryExpression(left) {
+         public Object evaluate(Filterable message) throws FilterException {
             Object rvalue = right.evaluate(message);
-            if (rvalue == null)
-            {
+            if (rvalue == null) {
                return null;
             }
-            if (!rvalue.getClass().equals(Boolean.class))
-            {
+            if (!rvalue.getClass().equals(Boolean.class)) {
                return Boolean.FALSE;
             }
             return ((Boolean) rvalue).booleanValue() ? Boolean.TRUE : Boolean.FALSE;
          }
 
-         public String toString()
-         {
+         public String toString() {
             return right.toString();
          }
 
-         public String getExpressionSymbol()
-         {
+         public String getExpressionSymbol() {
             return "";
          }
       };
    }
 
-   private static Number negate(Number left)
-   {
+   private static Number negate(Number left) {
       Class clazz = left.getClass();
-      if (clazz == Integer.class)
-      {
+      if (clazz == Integer.class) {
          return new Integer(-left.intValue());
       }
-      else if (clazz == Long.class)
-      {
+      else if (clazz == Long.class) {
          return new Long(-left.longValue());
       }
-      else if (clazz == Float.class)
-      {
+      else if (clazz == Float.class) {
          return new Float(-left.floatValue());
       }
-      else if (clazz == Double.class)
-      {
+      else if (clazz == Double.class) {
          return new Double(-left.doubleValue());
       }
-      else if (clazz == BigDecimal.class)
-      {
+      else if (clazz == BigDecimal.class) {
          // We ussually get a big deciamal when we have Long.MIN_VALUE
          // constant in the
          // Selector. Long.MIN_VALUE is too big to store in a Long as a
@@ -253,41 +208,35 @@ public abstract class UnaryExpression implements Expression
          BigDecimal bd = (BigDecimal) left;
          bd = bd.negate();
 
-         if (BD_LONG_MIN_VALUE.compareTo(bd) == 0)
-         {
+         if (BD_LONG_MIN_VALUE.compareTo(bd) == 0) {
             return Long.valueOf(Long.MIN_VALUE);
          }
          return bd;
       }
-      else
-      {
+      else {
          throw new RuntimeException("Don't know how to negate: " + left);
       }
    }
 
-   public Expression getRight()
-   {
+   public Expression getRight() {
       return right;
    }
 
-   public void setRight(Expression expression)
-   {
+   public void setRight(Expression expression) {
       right = expression;
    }
 
    /**
     * @see java.lang.Object#toString()
     */
-   public String toString()
-   {
+   public String toString() {
       return "(" + getExpressionSymbol() + " " + right.toString() + ")";
    }
 
    /**
     * @see java.lang.Object#hashCode()
     */
-   public int hashCode()
-   {
+   public int hashCode() {
       int result = right.hashCode();
       result = 31 * result + getExpressionSymbol().hashCode();
       return result;
@@ -296,27 +245,22 @@ public abstract class UnaryExpression implements Expression
    /**
     * @see java.lang.Object#equals(java.lang.Object)
     */
-   public boolean equals(Object o)
-   {
-      if (this == o)
-      {
+   public boolean equals(Object o) {
+      if (this == o) {
          return true;
       }
 
-      if (o == null || getClass() != o.getClass())
-      {
+      if (o == null || getClass() != o.getClass()) {
          return false;
       }
 
-      final BinaryExpression that = (BinaryExpression)o;
+      final BinaryExpression that = (BinaryExpression) o;
 
-      if (!this.getExpressionSymbol().equals(that.getExpressionSymbol()))
-      {
+      if (!this.getExpressionSymbol().equals(that.getExpressionSymbol())) {
          return false;
       }
 
-      if (right != null && !right.equals(that.right))
-      {
+      if (right != null && !right.equals(that.right)) {
          return false;
       }
 

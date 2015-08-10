@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.integration.cluster.distribution;
+
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.junit.Before;
 
@@ -27,26 +28,23 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.core.message.impl.MessageImpl;
 
-public class ClusterHeadersRemovedTest extends ClusterTestBase
-{
+public class ClusterHeadersRemovedTest extends ClusterTestBase {
+
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       setupServer(0, isFileStorage(), isNetty());
       setupServer(1, isFileStorage(), isNetty());
    }
 
-   protected boolean isNetty()
-   {
+   protected boolean isNetty() {
       return false;
    }
 
    @Test
-   public void testHeadersRemoved() throws Exception
-   {
+   public void testHeadersRemoved() throws Exception {
       setupClusterConnection("cluster1", 0, 1, "queues", MessageLoadBalancingType.ON_DEMAND, 1, isNetty(), false);
       setupClusterConnection("clusterX", 1, -1, "queues", MessageLoadBalancingType.ON_DEMAND, 1, isNetty(), false);
       startServers(1, 0);
@@ -68,26 +66,22 @@ public class ClusterHeadersRemovedTest extends ClusterTestBase
 
       ClientSession session0 = sf.createSession(false, true, true);
 
-      try
-      {
+      try {
          ClientProducer producer = session0.createProducer("queues.testaddress");
 
-         for (int i = 0; i < 10; i++)
-         {
+         for (int i = 0; i < 10; i++) {
             ClientMessage message = session0.createMessage(true);
 
             producer.send(message);
          }
       }
-      finally
-      {
+      finally {
          session0.close();
       }
 
       ClientConsumer consumer = super.getConsumer(1);
 
-      for (int i = 0; i < 10; i++)
-      {
+      for (int i = 0; i < 10; i++) {
          ClientMessage message = consumer.receive(5000);
 
          assertNotNull(message);

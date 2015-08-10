@@ -23,55 +23,46 @@ import java.util.concurrent.Future;
 /**
  * A simple Runnable to allow {@link HttpAcceptorHandler}s to be called intermittently.
  */
-public class HttpKeepAliveRunnable implements Runnable
-{
+public class HttpKeepAliveRunnable implements Runnable {
+
    private final List<HttpAcceptorHandler> handlers = new ArrayList<HttpAcceptorHandler>();
 
    private boolean closed = false;
 
    private Future<?> future;
 
-   public synchronized void run()
-   {
-      if (closed)
-      {
+   public synchronized void run() {
+      if (closed) {
          return;
       }
 
       long time = System.currentTimeMillis();
-      for (HttpAcceptorHandler handler : handlers)
-      {
+      for (HttpAcceptorHandler handler : handlers) {
          handler.keepAlive(time);
       }
    }
 
-   public synchronized void registerKeepAliveHandler(final HttpAcceptorHandler httpAcceptorHandler)
-   {
+   public synchronized void registerKeepAliveHandler(final HttpAcceptorHandler httpAcceptorHandler) {
       handlers.add(httpAcceptorHandler);
    }
 
-   public synchronized void unregisterKeepAliveHandler(final HttpAcceptorHandler httpAcceptorHandler)
-   {
+   public synchronized void unregisterKeepAliveHandler(final HttpAcceptorHandler httpAcceptorHandler) {
       handlers.remove(httpAcceptorHandler);
       httpAcceptorHandler.shutdown();
    }
 
-   public void close()
-   {
-      for (HttpAcceptorHandler handler : handlers)
-      {
+   public void close() {
+      for (HttpAcceptorHandler handler : handlers) {
          handler.shutdown();
       }
-      if (future != null)
-      {
+      if (future != null) {
          future.cancel(true);
       }
 
       closed = true;
    }
 
-   public synchronized void setFuture(final Future<?> future)
-   {
+   public synchronized void setFuture(final Future<?> future) {
       this.future = future;
    }
 }

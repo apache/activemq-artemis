@@ -22,11 +22,10 @@ import java.util.Map;
 import org.apache.activemq.artemis.service.extensions.xa.ActiveMQXAResourceWrapper;
 import org.apache.activemq.artemis.service.extensions.xa.ActiveMQXAResourceWrapperFactory;
 
-public class MockActiveMQResourceWrapperFactory implements ActiveMQXAResourceWrapperFactory
-{
+public class MockActiveMQResourceWrapperFactory implements ActiveMQXAResourceWrapperFactory {
+
    @Override
-   public ActiveMQXAResourceWrapper wrap(XAResource xaResource, Map<String, Object> properties)
-   {
+   public ActiveMQXAResourceWrapper wrap(XAResource xaResource, Map<String, Object> properties) {
       return null;
    }
 }

@@ -32,120 +32,122 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class MessageListenerDeadLetterTest extends DeadLetterTestSupport {
-    private static final Logger LOG = LoggerFactory
-            .getLogger(MessageListenerDeadLetterTest.class);
 
-    private int rollbackCount;
+   private static final Logger LOG = LoggerFactory.getLogger(MessageListenerDeadLetterTest.class);
 
-    private Session dlqSession;
+   private int rollbackCount;
 
-    private final Error[] error = new Error[1];
+   private Session dlqSession;
 
-    protected void doTest() throws Exception {
-        messageCount = 200;
-        connection.start();
+   private final Error[] error = new Error[1];
 
-        ActiveMQConnection amqConnection = (ActiveMQConnection) connection;
-        rollbackCount = amqConnection.getRedeliveryPolicy().getMaximumRedeliveries() + 1;
-        LOG.info("Will redeliver messages: " + rollbackCount + " times");
+   protected void doTest() throws Exception {
+      messageCount = 200;
+      connection.start();
 
-        makeConsumer();
-        makeDlqConsumer();
+      ActiveMQConnection amqConnection = (ActiveMQConnection) connection;
+      rollbackCount = amqConnection.getRedeliveryPolicy().getMaximumRedeliveries() + 1;
+      LOG.info("Will redeliver messages: " + rollbackCount + " times");
 
-        sendMessages();
+      makeConsumer();
+      makeDlqConsumer();
 
-        // now lets receive and rollback N times
-        int maxRollbacks = messageCount * rollbackCount;
-        consumer.setMessageListener(new RollbackMessageListener(maxRollbacks, rollbackCount));
+      sendMessages();
 
-        for (int i = 0; i < messageCount; i++) {
-            Message msg = dlqConsumer.receive(4000);
-            if (error[0] != null) {
-                // error from message listener
-                throw error[0];
-            }
-            assertMessage(msg, i);
-            assertNotNull("Should be a DLQ message for loop: " + i, msg);
-        }
-        if (error[0] != null) {
+      // now lets receive and rollback N times
+      int maxRollbacks = messageCount * rollbackCount;
+      consumer.setMessageListener(new RollbackMessageListener(maxRollbacks, rollbackCount));
+
+      for (int i = 0; i < messageCount; i++) {
+         Message msg = dlqConsumer.receive(4000);
+         if (error[0] != null) {
+            // error from message listener
             throw error[0];
-        }
-    }
+         }
+         assertMessage(msg, i);
+         assertNotNull("Should be a DLQ message for loop: " + i, msg);
+      }
+      if (error[0] != null) {
+         throw error[0];
+      }
+   }
 
-    protected void makeDlqConsumer() throws JMSException {
-        dlqDestination = createDlqDestination();
+   protected void makeDlqConsumer() throws JMSException {
+      dlqDestination = createDlqDestination();
 
-        LOG.info("Consuming from dead letter on: " + dlqDestination);
-        dlqConsumer = dlqSession.createConsumer(dlqDestination);
-    }
+      LOG.info("Consuming from dead letter on: " + dlqDestination);
+      dlqConsumer = dlqSession.createConsumer(dlqDestination);
+   }
 
-    @Override
-    protected void setUp() throws Exception {
-        transactedMode = true;
-        super.setUp();
-        dlqSession = connection.createSession(transactedMode, acknowledgeMode);
-    }
+   @Override
+   protected void setUp() throws Exception {
+      transactedMode = true;
+      super.setUp();
+      dlqSession = connection.createSession(transactedMode, acknowledgeMode);
+   }
 
-    @Override
-    protected void tearDown() throws Exception {
-        dlqConsumer.close();
-        dlqSession.close();
-        session.close();
-        super.tearDown();
-    };
+   @Override
+   protected void tearDown() throws Exception {
+      dlqConsumer.close();
+      dlqSession.close();
+      session.close();
+      super.tearDown();
+   }
 
-    protected ActiveMQConnectionFactory createConnectionFactory()
-            throws Exception {
-        ActiveMQConnectionFactory answer = super.createConnectionFactory();
-        RedeliveryPolicy policy = new RedeliveryPolicy();
-        policy.setMaximumRedeliveries(3);
-        policy.setBackOffMultiplier((short) 1);
-        policy.setRedeliveryDelay(0);
-        policy.setInitialRedeliveryDelay(0);
-        policy.setUseExponentialBackOff(false);
-        answer.setRedeliveryPolicy(policy);
-        return answer;
-    }
+   ;
 
-    protected Destination createDlqDestination() {
-        return new ActiveMQQueue("ActiveMQ.DLQ");
-    }
+   protected ActiveMQConnectionFactory createConnectionFactory() throws Exception {
+      ActiveMQConnectionFactory answer = super.createConnectionFactory();
+      RedeliveryPolicy policy = new RedeliveryPolicy();
+      policy.setMaximumRedeliveries(3);
+      policy.setBackOffMultiplier((short) 1);
+      policy.setRedeliveryDelay(0);
+      policy.setInitialRedeliveryDelay(0);
+      policy.setUseExponentialBackOff(false);
+      answer.setRedeliveryPolicy(policy);
+      return answer;
+   }
 
-    class RollbackMessageListener implements MessageListener {
+   protected Destination createDlqDestination() {
+      return new ActiveMQQueue("ActiveMQ.DLQ");
+   }
 
-        final int maxRollbacks;
+   class RollbackMessageListener implements MessageListener {
 
-        final int deliveryCount;
+      final int maxRollbacks;
 
-        AtomicInteger rollbacks = new AtomicInteger();
+      final int deliveryCount;
 
-        RollbackMessageListener(int c, int delvery) {
-            maxRollbacks = c;
-            deliveryCount = delvery;
-        }
+      AtomicInteger rollbacks = new AtomicInteger();
 
-        public void onMessage(Message message) {
-            try {
-                int expectedMessageId = rollbacks.get() / deliveryCount;
-                LOG.info("expecting messageId: " + expectedMessageId);
-                assertMessage(message, expectedMessageId);
-                if (rollbacks.incrementAndGet() > maxRollbacks) {
-                    fail("received too many messages, already done too many rollbacks: "
-                            + rollbacks);
-                }
-                session.rollback();
+      RollbackMessageListener(int c, int delvery) {
+         maxRollbacks = c;
+         deliveryCount = delvery;
+      }
 
-            } catch (Throwable e) {
-                LOG.error("unexpected exception:" + e, e);
-                // propagating assertError to execution task will cause a hang
-                // at shutdown
-                if (e instanceof Error) {
-                    error[0] = (Error) e;
-                } else {
-                    fail("unexpected exception: " + e);
-                }
-
+      public void onMessage(Message message) {
+         try {
+            int expectedMessageId = rollbacks.get() / deliveryCount;
+            LOG.info("expecting messageId: " + expectedMessageId);
+            assertMessage(message, expectedMessageId);
+            if (rollbacks.incrementAndGet() > maxRollbacks) {
+               fail("received too many messages, already done too many rollbacks: " + rollbacks);
             }
-        }
-    }
+            session.rollback();
+
+         }
+         catch (Throwable e) {
+            LOG.error("unexpected exception:" + e, e);
+            // propagating assertError to execution task will cause a hang
+            // at shutdown
+            if (e instanceof Error) {
+               error[0] = (Error) e;
+            }
+            else {
+               fail("unexpected exception: " + e);
+            }
+
+         }
+      }
+   }
 }

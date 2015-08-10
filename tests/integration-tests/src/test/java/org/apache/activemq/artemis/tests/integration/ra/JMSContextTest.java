@@ -35,22 +35,20 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class JMSContextTest extends ActiveMQRATestBase
-{
+public class JMSContextTest extends ActiveMQRATestBase {
+
    private ActiveMQResourceAdapter resourceAdapter;
 
    ActiveMQRAConnectionManager qraConnectionManager = new ActiveMQRAConnectionManager();
    private ActiveMQRAConnectionFactory qraConnectionFactory;
 
-   public TransactionManager getTm()
-   {
+   public TransactionManager getTm() {
       return DummyTransactionManager.tm;
    }
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       useDummyTransactionManager();
       super.setUp();
       ActiveMQSecurityManagerImpl securityManager = (ActiveMQSecurityManagerImpl) server.getSecurityManager();
@@ -75,11 +73,9 @@ public class JMSContextTest extends ActiveMQRATestBase
 
    @Override
    @After
-   public void tearDown() throws Exception
-   {
+   public void tearDown() throws Exception {
       DummyTransactionManager.tm.tx = null;
-      if (resourceAdapter != null)
-      {
+      if (resourceAdapter != null) {
          resourceAdapter.stop();
       }
 
@@ -88,82 +84,66 @@ public class JMSContextTest extends ActiveMQRATestBase
    }
 
    @Test
-   public void testCreateContextThrowsException() throws Exception
-   {
+   public void testCreateContextThrowsException() throws Exception {
       JMSContext jmsctx = qraConnectionFactory.createContext();
-      try
-      {
+      try {
          jmsctx.createContext(JMSContext.AUTO_ACKNOWLEDGE);
          fail("expected JMSRuntimeException");
       }
-      catch (JMSRuntimeException e)
-      {
+      catch (JMSRuntimeException e) {
          //pass
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          fail("wrong exception thrown: " + e);
       }
    }
 
    @Test
-   public void testCreateXAContextThrowsException() throws Exception
-   {
+   public void testCreateXAContextThrowsException() throws Exception {
       JMSContext jmsctx = qraConnectionFactory.createXAContext();
-      try
-      {
+      try {
          jmsctx.createContext(JMSContext.AUTO_ACKNOWLEDGE);
          fail("expected JMSRuntimeException");
       }
-      catch (JMSRuntimeException e)
-      {
+      catch (JMSRuntimeException e) {
          //pass
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          fail("wrong exception thrown: " + e);
       }
    }
 
    @Test
-   public void sessionTransactedTestActiveJTATx() throws Exception
-   {
-      try
-      {
+   public void sessionTransactedTestActiveJTATx() throws Exception {
+      try {
          qraConnectionFactory.createContext(JMSContext.SESSION_TRANSACTED);
          fail();
       }
-      catch (JMSRuntimeException e)
-      {
+      catch (JMSRuntimeException e) {
          //pass
       }
    }
 
    @Test
-   public void sessionTransactedTestNoActiveJTATx() throws Exception
-   {
+   public void sessionTransactedTestNoActiveJTATx() throws Exception {
       ((DummyTransactionManager) ServiceUtils.getTransactionManager()).tx = new DummyTransaction();
       JMSContext context = qraConnectionFactory.createContext(JMSContext.SESSION_TRANSACTED);
       assertEquals(context.getSessionMode(), JMSContext.AUTO_ACKNOWLEDGE);
    }
 
    @Test
-   public void clientAckTestActiveJTATx() throws Exception
-   {
-      try
-      {
+   public void clientAckTestActiveJTATx() throws Exception {
+      try {
          qraConnectionFactory.createContext(JMSContext.CLIENT_ACKNOWLEDGE);
          fail();
       }
-      catch (JMSRuntimeException e)
-      {
+      catch (JMSRuntimeException e) {
          //pass
       }
    }
 
    @Test
-   public void clientAckTestNoActiveJTATx() throws Exception
-   {
+   public void clientAckTestNoActiveJTATx() throws Exception {
       ((DummyTransactionManager) ServiceUtils.getTransactionManager()).tx = new DummyTransaction();
       JMSContext context = qraConnectionFactory.createContext(JMSContext.CLIENT_ACKNOWLEDGE);
       assertEquals(context.getSessionMode(), JMSContext.AUTO_ACKNOWLEDGE);

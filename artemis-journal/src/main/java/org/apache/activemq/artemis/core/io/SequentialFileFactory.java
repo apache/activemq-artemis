@@ -21,11 +21,10 @@ import java.nio.ByteBuffer;
 import java.util.List;
 
 /**
- *
  * A SequentialFileFactory
  */
-public interface SequentialFileFactory
-{
+public interface SequentialFileFactory {
+
    SequentialFile createSequentialFile(String fileName);
 
    int getMaxIO();
@@ -34,6 +33,7 @@ public interface SequentialFileFactory
     * Lists files that end with the given extension.
     * <p>
     * This method inserts a ".' before the extension.
+    *
     * @param extension
     * @return
     * @throws Exception
@@ -42,20 +42,27 @@ public interface SequentialFileFactory
 
    boolean isSupportsCallbacks();
 
-   /** The SequentialFile will call this method when a disk IO Error happens during the live phase. */
+   /**
+    * The SequentialFile will call this method when a disk IO Error happens during the live phase.
+    */
    void onIOError(Exception exception, String message, SequentialFile file);
 
-   /** used for cases where you need direct buffer outside of the journal context.
-    *  This is because the native layer has a method that can be reused in certain cases like paging */
+   /**
+    * used for cases where you need direct buffer outside of the journal context.
+    * This is because the native layer has a method that can be reused in certain cases like paging
+    */
    ByteBuffer allocateDirectBuffer(int size);
 
-   /** used for cases where you need direct buffer outside of the journal context.
-    *  This is because the native layer has a method that can be reused in certain cases like paging */
+   /**
+    * used for cases where you need direct buffer outside of the journal context.
+    * This is because the native layer has a method that can be reused in certain cases like paging
+    */
    void releaseDirectBuffer(ByteBuffer buffer);
 
    /**
     * Note: You need to release the buffer if is used for reading operations. You don't need to do
     * it if using writing operations (AIO Buffer Lister will take of writing operations)
+    *
     * @param size
     * @return the allocated ByteBuffer
     */

@@ -21,8 +21,7 @@ import org.apache.activemq.artemis.core.message.impl.MessageInternal;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.utils.DataConstants;
 
-public class SessionReceiveMessage extends MessagePacket
-{
+public class SessionReceiveMessage extends MessagePacket {
    // Constants -----------------------------------------------------
 
    // Attributes ----------------------------------------------------
@@ -31,8 +30,7 @@ public class SessionReceiveMessage extends MessagePacket
 
    private int deliveryCount;
 
-   public SessionReceiveMessage(final long consumerID, final MessageInternal message, final int deliveryCount)
-   {
+   public SessionReceiveMessage(final long consumerID, final MessageInternal message, final int deliveryCount) {
       super(SESS_RECEIVE_MSG, message);
 
       this.consumerID = consumerID;
@@ -40,31 +38,26 @@ public class SessionReceiveMessage extends MessagePacket
       this.deliveryCount = deliveryCount;
    }
 
-   public SessionReceiveMessage(final MessageInternal message)
-   {
+   public SessionReceiveMessage(final MessageInternal message) {
       super(SESS_RECEIVE_MSG, message);
    }
 
    // Public --------------------------------------------------------
 
-   public long getConsumerID()
-   {
+   public long getConsumerID() {
       return consumerID;
    }
 
-   public int getDeliveryCount()
-   {
+   public int getDeliveryCount() {
       return deliveryCount;
    }
 
    @Override
-   public ActiveMQBuffer encode(final RemotingConnection connection)
-   {
+   public ActiveMQBuffer encode(final RemotingConnection connection) {
       ActiveMQBuffer buffer = message.getEncodedBuffer();
 
       // Sanity check
-      if (buffer.writerIndex() != message.getEndOfMessagePosition())
-      {
+      if (buffer.writerIndex() != message.getEndOfMessagePosition()) {
          throw new IllegalStateException("Wrong encode position");
       }
 
@@ -87,8 +80,7 @@ public class SessionReceiveMessage extends MessagePacket
    }
 
    @Override
-   public void decode(final ActiveMQBuffer buffer)
-   {
+   public void decode(final ActiveMQBuffer buffer) {
       channelID = buffer.readLong();
 
       message.decodeFromBuffer(buffer);
@@ -105,25 +97,23 @@ public class SessionReceiveMessage extends MessagePacket
    }
 
    @Override
-   public int hashCode()
-   {
+   public int hashCode() {
       final int prime = 31;
       int result = super.hashCode();
-      result = prime * result + (int)(consumerID ^ (consumerID >>> 32));
+      result = prime * result + (int) (consumerID ^ (consumerID >>> 32));
       result = prime * result + deliveryCount;
       return result;
    }
 
    @Override
-   public boolean equals(Object obj)
-   {
+   public boolean equals(Object obj) {
       if (this == obj)
          return true;
       if (!super.equals(obj))
          return false;
       if (!(obj instanceof SessionReceiveMessage))
          return false;
-      SessionReceiveMessage other = (SessionReceiveMessage)obj;
+      SessionReceiveMessage other = (SessionReceiveMessage) obj;
       if (consumerID != other.consumerID)
          return false;
       if (deliveryCount != other.deliveryCount)

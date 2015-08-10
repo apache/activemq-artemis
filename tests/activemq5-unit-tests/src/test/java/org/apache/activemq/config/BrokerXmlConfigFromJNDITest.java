@@ -29,25 +29,26 @@ import org.apache.activemq.test.JmsTopicSendReceiveWithTwoConnectionsTest;
  *
  */
 public class BrokerXmlConfigFromJNDITest extends JmsTopicSendReceiveWithTwoConnectionsTest {
-    @Override
-    protected ActiveMQConnectionFactory createConnectionFactory() throws Exception {
-        assertBaseDirectoryContainsSpaces();
 
-        // we could put these properties into a jndi.properties
-        // on the classpath instead
-        Hashtable<String, String> properties = new Hashtable<String, String>();
-        properties.put("java.naming.factory.initial", "org.apache.activemq.jndi.ActiveMQInitialContextFactory");
+   @Override
+   protected ActiveMQConnectionFactory createConnectionFactory() throws Exception {
+      assertBaseDirectoryContainsSpaces();
 
-        // configure the embedded broker using an XML config file
-        // which is either a URL or a resource on the classpath
-        File f = new File(System.getProperty("basedir", "."), "/src/test/resources/activemq.xml");
-        properties.put(Context.PROVIDER_URL, "vm://localhost?brokerConfig=xbean:" + f.toURI());
+      // we could put these properties into a jndi.properties
+      // on the classpath instead
+      Hashtable<String, String> properties = new Hashtable<String, String>();
+      properties.put("java.naming.factory.initial", "org.apache.activemq.jndi.ActiveMQInitialContextFactory");
 
-        InitialContext context = new InitialContext(properties);
-        ActiveMQConnectionFactory connectionFactory = (ActiveMQConnectionFactory) context.lookup("ConnectionFactory");
+      // configure the embedded broker using an XML config file
+      // which is either a URL or a resource on the classpath
+      File f = new File(System.getProperty("basedir", "."), "/src/test/resources/activemq.xml");
+      properties.put(Context.PROVIDER_URL, "vm://localhost?brokerConfig=xbean:" + f.toURI());
 
-        // END SNIPPET: example
-        return connectionFactory;
-    }
+      InitialContext context = new InitialContext(properties);
+      ActiveMQConnectionFactory connectionFactory = (ActiveMQConnectionFactory) context.lookup("ConnectionFactory");
+
+      // END SNIPPET: example
+      return connectionFactory;
+   }
 
 }

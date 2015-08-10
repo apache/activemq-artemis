@@ -21,30 +21,28 @@ import org.apache.activemq.openwire.DataFileGeneratorTestSupport;
 
 /**
  * Test case for the OpenWire marshalling for MessageId
- * 
- * 
+ *
+ *
  * NOTE!: This file is auto generated - do not modify! if you need to make a
  * change, please see the modify the groovy scripts in the under src/gram/script
  * and then use maven openwire:generate to regenerate this file.
- * 
- * 
  */
 public class MessageIdTest extends DataFileGeneratorTestSupport {
 
-    public static final MessageIdTest SINGLETON = new MessageIdTest();
+   public static final MessageIdTest SINGLETON = new MessageIdTest();
 
-    public Object createObject() throws Exception {
-        MessageId info = new MessageId();
-        populateObject(info);
-        return info;
-    }
+   public Object createObject() throws Exception {
+      MessageId info = new MessageId();
+      populateObject(info);
+      return info;
+   }
 
-    protected void populateObject(Object object) throws Exception {
-        super.populateObject(object);
-        MessageId info = (MessageId)object;
-        info.setProducerId(createProducerId("ProducerId:1"));
-        info.setProducerSequenceId(1);
-        info.setBrokerSequenceId(2);
+   protected void populateObject(Object object) throws Exception {
+      super.populateObject(object);
+      MessageId info = (MessageId) object;
+      info.setProducerId(createProducerId("ProducerId:1"));
+      info.setProducerSequenceId(1);
+      info.setBrokerSequenceId(2);
 
-    }
+   }
 }

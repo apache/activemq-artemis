@@ -25,23 +25,24 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * 
+ *
  */
 public class JmsSendReceiveTwoConnectionsWithSenderUsingPoolTest extends JmsTopicSendReceiveWithTwoConnectionsTest {
-    protected static final Logger LOG = LoggerFactory.getLogger(JmsSendReceiveTwoConnectionsWithSenderUsingPoolTest.class);
-    protected PooledConnectionFactory senderConnectionFactory = new PooledConnectionFactory("vm://localhost?broker.persistent=false");
 
-    protected Connection createSendConnection() throws Exception {
-        return senderConnectionFactory.createConnection();
-    }
+   protected static final Logger LOG = LoggerFactory.getLogger(JmsSendReceiveTwoConnectionsWithSenderUsingPoolTest.class);
+   protected PooledConnectionFactory senderConnectionFactory = new PooledConnectionFactory("vm://localhost?broker.persistent=false");
 
-    protected void setUp() throws Exception {
-        verbose = true;
-        super.setUp();
-    }
+   protected Connection createSendConnection() throws Exception {
+      return senderConnectionFactory.createConnection();
+   }
 
-    protected void tearDown() throws Exception {
-        super.tearDown();
-        senderConnectionFactory.stop();
-    }
+   protected void setUp() throws Exception {
+      verbose = true;
+      super.setUp();
+   }
+
+   protected void tearDown() throws Exception {
+      super.tearDown();
+      senderConnectionFactory.stop();
+   }
 }

@@ -24,8 +24,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 /**
  * Used to send large messages
  */
-public class ActiveMQBufferInputStream extends InputStream
-{
+public class ActiveMQBufferInputStream extends InputStream {
 
    /* (non-Javadoc)
     * @see java.io.InputStream#read()
@@ -41,34 +40,27 @@ public class ActiveMQBufferInputStream extends InputStream
 
    // Public --------------------------------------------------------
 
-   public ActiveMQBufferInputStream(final ActiveMQBuffer paramByteBuffer)
-   {
+   public ActiveMQBufferInputStream(final ActiveMQBuffer paramByteBuffer) {
       bb = paramByteBuffer;
    }
 
    @Override
-   public int read() throws IOException
-   {
-      if (bb == null)
-      {
+   public int read() throws IOException {
+      if (bb == null) {
          throw new IOException("read on a closed InputStream");
       }
 
-      if (remainingBytes() == 0)
-      {
+      if (remainingBytes() == 0) {
          return -1;
       }
-      else
-      {
+      else {
          return bb.readByte() & 0xFF;
       }
    }
 
    @Override
-   public int read(final byte[] byteArray) throws IOException
-   {
-      if (bb == null)
-      {
+   public int read(final byte[] byteArray) throws IOException {
+      if (bb == null) {
          throw new IOException("read on a closed InputStream");
       }
 
@@ -76,30 +68,24 @@ public class ActiveMQBufferInputStream extends InputStream
    }
 
    @Override
-   public int read(final byte[] byteArray, final int off, final int len) throws IOException
-   {
-      if (bb == null)
-      {
+   public int read(final byte[] byteArray, final int off, final int len) throws IOException {
+      if (bb == null) {
          throw new IOException("read on a closed InputStream");
       }
 
-      if (byteArray == null)
-      {
+      if (byteArray == null) {
          throw new NullPointerException();
       }
-      if (off < 0 || off > byteArray.length || len < 0 || off + len > byteArray.length || off + len < 0)
-      {
+      if (off < 0 || off > byteArray.length || len < 0 || off + len > byteArray.length || off + len < 0) {
          throw new IndexOutOfBoundsException();
       }
-      if (len == 0)
-      {
+      if (len == 0) {
          return 0;
       }
 
       int size = Math.min(remainingBytes(), len);
 
-      if (size == 0)
-      {
+      if (size == 0) {
          return -1;
       }
 
@@ -108,15 +94,12 @@ public class ActiveMQBufferInputStream extends InputStream
    }
 
    @Override
-   public long skip(final long len) throws IOException
-   {
-      if (bb == null)
-      {
+   public long skip(final long len) throws IOException {
+      if (bb == null) {
          throw new IOException("skip on a closed InputStream");
       }
 
-      if (len <= 0L)
-      {
+      if (len <= 0L) {
          return 0L;
       }
 
@@ -128,10 +111,8 @@ public class ActiveMQBufferInputStream extends InputStream
    }
 
    @Override
-   public int available() throws IOException
-   {
-      if (bb == null)
-      {
+   public int available() throws IOException {
+      if (bb == null) {
          throw new IOException("available on a closed InputStream");
       }
 
@@ -139,25 +120,21 @@ public class ActiveMQBufferInputStream extends InputStream
    }
 
    @Override
-   public void close() throws IOException
-   {
+   public void close() throws IOException {
       bb = null;
    }
 
    @Override
-   public synchronized void mark(final int paramInt)
-   {
+   public synchronized void mark(final int paramInt) {
    }
 
    @Override
-   public synchronized void reset() throws IOException
-   {
+   public synchronized void reset() throws IOException {
       throw new IOException("mark/reset not supported");
    }
 
    @Override
-   public boolean markSupported()
-   {
+   public boolean markSupported() {
       return false;
    }
 
@@ -170,11 +147,9 @@ public class ActiveMQBufferInputStream extends InputStream
    /**
     * @return
     */
-   private int remainingBytes()
-   {
+   private int remainingBytes() {
       return bb.writerIndex() - bb.readerIndex();
    }
-
 
    // Inner classes -------------------------------------------------
 

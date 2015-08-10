@@ -31,47 +31,48 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class DiscardingDeadLetterPolicyTest extends DeadLetterTest {
-    private static final Logger LOG = LoggerFactory.getLogger(DiscardingDeadLetterPolicyTest.class);
 
-    @Override
-    protected BrokerService createBroker() throws Exception {
-        BrokerService broker = super.createBroker();
+   private static final Logger LOG = LoggerFactory.getLogger(DiscardingDeadLetterPolicyTest.class);
 
-        PolicyEntry policy = new PolicyEntry();
-        DeadLetterStrategy strategy = new DiscardingDeadLetterStrategy();
-        strategy.setProcessNonPersistent(true);
-        policy.setDeadLetterStrategy(strategy);
+   @Override
+   protected BrokerService createBroker() throws Exception {
+      BrokerService broker = super.createBroker();
 
-        PolicyMap pMap = new PolicyMap();
-        pMap.setDefaultEntry(policy);
+      PolicyEntry policy = new PolicyEntry();
+      DeadLetterStrategy strategy = new DiscardingDeadLetterStrategy();
+      strategy.setProcessNonPersistent(true);
+      policy.setDeadLetterStrategy(strategy);
 
-        broker.setDestinationPolicy(pMap);
+      PolicyMap pMap = new PolicyMap();
+      pMap.setDefaultEntry(policy);
 
-        return broker;
-    }
+      broker.setDestinationPolicy(pMap);
 
-    @Override
-    protected void doTest() throws Exception {
-        connection.start();
+      return broker;
+   }
 
-        ActiveMQConnection amqConnection = (ActiveMQConnection) connection;
-        rollbackCount = amqConnection.getRedeliveryPolicy().getMaximumRedeliveries() + 1;
-        LOG.info("Will redeliver messages: " + rollbackCount + " times");
+   @Override
+   protected void doTest() throws Exception {
+      connection.start();
 
-        makeConsumer();
-        makeDlqConsumer();
+      ActiveMQConnection amqConnection = (ActiveMQConnection) connection;
+      rollbackCount = amqConnection.getRedeliveryPolicy().getMaximumRedeliveries() + 1;
+      LOG.info("Will redeliver messages: " + rollbackCount + " times");
 
-        sendMessages();
+      makeConsumer();
+      makeDlqConsumer();
 
-        // now lets receive and rollback N times
-        for (int i = 0; i < messageCount; i++) {
-            consumeAndRollback(i);
-        }
+      sendMessages();
 
-        for (int i = 0; i < messageCount; i++) {
-            Message msg = dlqConsumer.receive(1000);
-            assertNull("Should not be a DLQ message for loop: " + i, msg);
-        }
-        session.commit();
-    }
+      // now lets receive and rollback N times
+      for (int i = 0; i < messageCount; i++) {
+         consumeAndRollback(i);
+      }
+
+      for (int i = 0; i < messageCount; i++) {
+         Message msg = dlqConsumer.receive(1000);
+         assertNull("Should not be a DLQ message for loop: " + i, msg);
+      }
+      session.commit();
+   }
 }

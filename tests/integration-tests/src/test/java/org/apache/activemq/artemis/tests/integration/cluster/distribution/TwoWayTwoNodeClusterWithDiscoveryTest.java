@@ -18,8 +18,7 @@ package org.apache.activemq.artemis.tests.integration.cluster.distribution;
 
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 
-public class TwoWayTwoNodeClusterWithDiscoveryTest extends TwoWayTwoNodeClusterTest
-{
+public class TwoWayTwoNodeClusterWithDiscoveryTest extends TwoWayTwoNodeClusterTest {
 
    // Constants -----------------------------------------------------
 
@@ -40,15 +39,13 @@ public class TwoWayTwoNodeClusterWithDiscoveryTest extends TwoWayTwoNodeClusterT
    // Protected -----------------------------------------------------
 
    @Override
-   protected void setupClusters()
-   {
+   protected void setupClusters() {
       setupDiscoveryClusterConnection("cluster0", 0, "dg1", "queues", MessageLoadBalancingType.ON_DEMAND, 1, isNetty());
       setupDiscoveryClusterConnection("cluster1", 1, "dg1", "queues", MessageLoadBalancingType.ON_DEMAND, 1, isNetty());
    }
 
    @Override
-   protected void setupServers() throws Exception
-   {
+   protected void setupServers() throws Exception {
       setupLiveServerWithDiscovery(0, groupAddress, groupPort, isFileStorage(), isNetty(), false);
       setupLiveServerWithDiscovery(1, groupAddress, groupPort, isFileStorage(), isNetty(), false);
    }

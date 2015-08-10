@@ -28,8 +28,7 @@ import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.junit.Test;
 
-public class ExpiryMessageTest extends JMSTestBase
-{
+public class ExpiryMessageTest extends JMSTestBase {
    // Constants -----------------------------------------------------
 
    // Attributes ----------------------------------------------------
@@ -41,15 +40,12 @@ public class ExpiryMessageTest extends JMSTestBase
    // Public --------------------------------------------------------
 
    @Override
-   protected Configuration createDefaultConfig(boolean netty) throws Exception
-   {
-      return super.createDefaultConfig(netty)
-              .setMessageExpiryScanPeriod(1000);
+   protected Configuration createDefaultConfig(boolean netty) throws Exception {
+      return super.createDefaultConfig(netty).setMessageExpiryScanPeriod(1000);
    }
 
    @Test
-   public void testSendTopicNoSubscription() throws Exception
-   {
+   public void testSendTopicNoSubscription() throws Exception {
       Topic topic = createTopic("test-topic");
       TopicControl control = ManagementControlHelper.createTopicControl(topic, mbeanServer);
 
@@ -69,8 +65,7 @@ public class ExpiryMessageTest extends JMSTestBase
       MessageProducer prod = sess.createProducer(topic);
       prod.setTimeToLive(1000);
 
-      for (int i = 0; i < 100; i++)
-      {
+      for (int i = 0; i < 100; i++) {
          TextMessage txt = sess.createTextMessage("txt");
          prod.send(txt);
       }
@@ -85,13 +80,11 @@ public class ExpiryMessageTest extends JMSTestBase
       long timeout = System.currentTimeMillis() + 10000;
 
       // We will wait some time, but we will wait as minimal as possible
-      while (control.getMessageCount() != 0 && System.currentTimeMillis() > timeout)
-      {
+      while (control.getMessageCount() != 0 && System.currentTimeMillis() > timeout) {
          Thread.sleep(100);
       }
 
       assertEquals(0, control.getMessageCount());
-
 
    }
 

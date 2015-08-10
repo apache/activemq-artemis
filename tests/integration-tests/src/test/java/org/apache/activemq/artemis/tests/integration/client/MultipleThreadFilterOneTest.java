@@ -38,8 +38,7 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
  * Multiple Threads producing Messages, with Multiple Consumers with different queues, each queue with a different filter
  * This is similar to MultipleThreadFilterTwoTest but it uses multiple queues
  */
-public class MultipleThreadFilterOneTest extends ActiveMQTestBase
-{
+public class MultipleThreadFilterOneTest extends ActiveMQTestBase {
 
    // Constants -----------------------------------------------------
 
@@ -63,8 +62,8 @@ public class MultipleThreadFilterOneTest extends ActiveMQTestBase
 
    // Public --------------------------------------------------------
 
-   class SomeProducer extends Thread
-   {
+   class SomeProducer extends Thread {
+
       final ClientSessionFactory factory;
 
       final ServerLocator locator;
@@ -73,34 +72,27 @@ public class MultipleThreadFilterOneTest extends ActiveMQTestBase
 
       public final AtomicInteger errors = new AtomicInteger(0);
 
-      public SomeProducer() throws Exception
-      {
+      public SomeProducer() throws Exception {
          locator = createNonHALocator(isNetty);
          factory = locator.createSessionFactory();
          prodSession = factory.createSession(false, false);
          sendMessages(numberOfMessages / 2);
       }
 
-      public void run()
-      {
-         try
-         {
+      public void run() {
+         try {
             sendMessages(numberOfMessages / 2);
          }
-         catch (Throwable e)
-         {
+         catch (Throwable e) {
             e.printStackTrace();
             errors.incrementAndGet();
          }
-         finally
-         {
-            try
-            {
+         finally {
+            try {
                prodSession.close();
                locator.close();
             }
-            catch (Throwable ignored)
-            {
+            catch (Throwable ignored) {
                ignored.printStackTrace();
             }
 
@@ -110,18 +102,15 @@ public class MultipleThreadFilterOneTest extends ActiveMQTestBase
       /**
        * @throws ActiveMQException
        */
-      private void sendMessages(int msgs) throws ActiveMQException
-      {
+      private void sendMessages(int msgs) throws ActiveMQException {
          ClientProducer producer = prodSession.createProducer(ADDRESS);
 
-         for (int i = 0; i < msgs; i++)
-         {
+         for (int i = 0; i < msgs; i++) {
             ClientMessage message = prodSession.createMessage(true);
             message.putIntProperty("prodNR", i % nThreads);
             producer.send(message);
 
-            if (i % 100 == 0)
-            {
+            if (i % 100 == 0) {
                prodSession.commit();
             }
          }
@@ -131,8 +120,8 @@ public class MultipleThreadFilterOneTest extends ActiveMQTestBase
       }
    }
 
-   class SomeConsumer extends Thread
-   {
+   class SomeConsumer extends Thread {
+
       final ClientSessionFactory factory;
 
       final ServerLocator locator;
@@ -145,8 +134,7 @@ public class MultipleThreadFilterOneTest extends ActiveMQTestBase
 
       final AtomicInteger errors = new AtomicInteger(0);
 
-      public SomeConsumer(int nr) throws Exception
-      {
+      public SomeConsumer(int nr) throws Exception {
          locator = createNonHALocator(isNetty);
          factory = locator.createSessionFactory();
          consumerSession = factory.createSession(false, false);
@@ -156,21 +144,17 @@ public class MultipleThreadFilterOneTest extends ActiveMQTestBase
          this.nr = nr;
       }
 
-      public void run()
-      {
-         try
-         {
+      public void run() {
+         try {
             consumerSession.start();
 
-            for (int i = 0; i < numberOfMessages; i++)
-            {
+            for (int i = 0; i < numberOfMessages; i++) {
                ClientMessage msg = consumer.receive(15000);
                Assert.assertNotNull(msg);
                Assert.assertEquals(nr, msg.getIntProperty("prodNR").intValue());
                msg.acknowledge();
 
-               if (i % 500 == 0)
-               {
+               if (i % 500 == 0) {
                   System.out.println("Consumed " + i);
                   consumerSession.commit();
                }
@@ -180,13 +164,11 @@ public class MultipleThreadFilterOneTest extends ActiveMQTestBase
 
             consumerSession.commit();
          }
-         catch (Throwable e)
-         {
+         catch (Throwable e) {
             e.printStackTrace();
             errors.incrementAndGet();
          }
-         finally
-         {
+         finally {
             close();
 
          }
@@ -195,56 +177,46 @@ public class MultipleThreadFilterOneTest extends ActiveMQTestBase
       /**
        *
        */
-      public void close()
-      {
-         try
-         {
+      public void close() {
+         try {
             consumerSession.close();
             locator.close();
          }
-         catch (Throwable ignored)
-         {
+         catch (Throwable ignored) {
             ignored.printStackTrace();
          }
       }
    }
 
    @Test
-   public void testSendingNetty() throws Exception
-   {
+   public void testSendingNetty() throws Exception {
       testSending(true, false);
    }
 
    @Test
-   public void testSendingNettyPaging() throws Exception
-   {
+   public void testSendingNettyPaging() throws Exception {
       testSending(true, true);
    }
 
    @Test
-   public void testSendingInVM() throws Exception
-   {
+   public void testSendingInVM() throws Exception {
       testSending(false, false);
    }
 
    @Test
-   public void testSendingInVMPaging() throws Exception
-   {
+   public void testSendingInVMPaging() throws Exception {
       testSending(false, true);
    }
 
-   private void testSending(boolean isNetty, boolean isPaging) throws Exception
-   {
+   private void testSending(boolean isNetty, boolean isPaging) throws Exception {
       boolean useDeadConsumer = true;
       this.isNetty = isNetty;
       ActiveMQServer server;
 
-      if (isPaging)
-      {
+      if (isPaging) {
          server = createServer(true, createDefaultConfig(isNetty), PAGE_SIZE, PAGE_MAX, new HashMap<String, AddressSettings>());
       }
-      else
-      {
+      else {
          server = createServer(true, isNetty);
       }
 
@@ -257,50 +229,40 @@ public class MultipleThreadFilterOneTest extends ActiveMQTestBase
 
       SomeConsumer[] deadConsumers = null;
 
-      try
-      {
+      try {
 
-         for (int i = 0; i < nThreads; i++)
-         {
+         for (int i = 0; i < nThreads; i++) {
             consumers[i] = new SomeConsumer(i);
          }
 
-         for (int i = 0; i < nThreads; i++)
-         {
+         for (int i = 0; i < nThreads; i++) {
             producers[i] = new SomeProducer();
          }
 
-         if (useDeadConsumer)
-         {
+         if (useDeadConsumer) {
             deadConsumers = new SomeConsumer[20];
-            for (int i = 0; i < 20; i++)
-            {
+            for (int i = 0; i < 20; i++) {
                deadConsumers[i] = new SomeConsumer(i + nThreads);
             }
          }
 
-         for (int i = 0; i < nThreads; i++)
-         {
+         for (int i = 0; i < nThreads; i++) {
             consumers[i].start();
             producers[i].start();
          }
 
-         for (SomeProducer producer : producers)
-         {
+         for (SomeProducer producer : producers) {
             producer.join();
             Assert.assertEquals(0, producer.errors.get());
          }
 
-         for (SomeConsumer consumer : consumers)
-         {
+         for (SomeConsumer consumer : consumers) {
             consumer.join();
             Assert.assertEquals(0, consumer.errors.get());
          }
 
-         if (useDeadConsumer)
-         {
-            for (SomeConsumer cons : deadConsumers)
-            {
+         if (useDeadConsumer) {
+            for (SomeConsumer cons : deadConsumers) {
                cons.close();
             }
          }
@@ -308,8 +270,7 @@ public class MultipleThreadFilterOneTest extends ActiveMQTestBase
          waitForNotPaging(server.locateQueue(new SimpleString("Q1")));
 
       }
-      finally
-      {
+      finally {
          server.stop();
       }
    }

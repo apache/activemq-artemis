@@ -106,8 +106,8 @@ import org.apache.activemq.wireformat.WireFormat;
 /**
  * Represents an activemq connection.
  */
-public class OpenWireConnection implements RemotingConnection, CommandVisitor
-{
+public class OpenWireConnection implements RemotingConnection, CommandVisitor {
+
    private final OpenWireProtocolManager protocolManager;
 
    private final Connection transportConnection;
@@ -182,9 +182,10 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor
 
    private volatile AMQSession advisorySession;
 
-   public OpenWireConnection(Acceptor acceptorUsed, Connection connection,
-         OpenWireProtocolManager openWireProtocolManager, OpenWireFormat wf)
-   {
+   public OpenWireConnection(Acceptor acceptorUsed,
+                             Connection connection,
+                             OpenWireProtocolManager openWireProtocolManager,
+                             OpenWireFormat wf) {
       this.protocolManager = openWireProtocolManager;
       this.transportConnection = connection;
       this.acceptorUsed = new AMQConnectorImpl(acceptorUsed);
@@ -193,31 +194,24 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor
    }
 
    @Override
-   public void bufferReceived(Object connectionID, ActiveMQBuffer buffer)
-   {
-      try
-      {
+   public void bufferReceived(Object connectionID, ActiveMQBuffer buffer) {
+      try {
          dataInput.receiveData(buffer);
       }
-      catch (Throwable t)
-      {
+      catch (Throwable t) {
          ActiveMQServerLogger.LOGGER.error("decoding error", t);
          return;
       }
 
       // this.setDataReceived();
-      while (dataInput.readable())
-      {
-         try
-         {
+      while (dataInput.readable()) {
+         try {
             Object object = null;
-            try
-            {
+            try {
                object = wireFormat.unmarshal(dataInput);
                dataInput.mark();
             }
-            catch (NotEnoughBytesException e)
-            {
+            catch (NotEnoughBytesException e) {
                //meaning the dataInput hasn't enough bytes for a command.
                //in that case we just return and waiting for the next
                //call of bufferReceived()
@@ -229,125 +223,93 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor
             int commandId = command.getCommandId();
             // the connection handles pings, negotiations directly.
             // and delegate all other commands to manager.
-            if (command.getClass() == KeepAliveInfo.class)
-            {
+            if (command.getClass() == KeepAliveInfo.class) {
                KeepAliveInfo info = (KeepAliveInfo) command;
-               if (info.isResponseRequired())
-               {
+               if (info.isResponseRequired()) {
                   info.setResponseRequired(false);
                   protocolManager.sendReply(this, info);
                }
             }
-            else if (command.getClass() == WireFormatInfo.class)
-            {
+            else if (command.getClass() == WireFormatInfo.class) {
                // amq here starts a read/write monitor thread (detect ttl?)
                negotiate((WireFormatInfo) command);
             }
-            else if (command.getClass() == ConnectionInfo.class
-                  || command.getClass() == ConsumerInfo.class
-                  || command.getClass() == RemoveInfo.class
-                  || command.getClass() == SessionInfo.class
-                  || command.getClass() == ProducerInfo.class
-                  || ActiveMQMessage.class.isAssignableFrom(command.getClass())
-                  || command.getClass() == MessageAck.class
-                  || command.getClass() == TransactionInfo.class
-                  || command.getClass() == DestinationInfo.class
-                  || command.getClass() == ShutdownInfo.class
-                  || command.getClass() == RemoveSubscriptionInfo.class)
-            {
+            else if (command.getClass() == ConnectionInfo.class || command.getClass() == ConsumerInfo.class || command.getClass() == RemoveInfo.class || command.getClass() == SessionInfo.class || command.getClass() == ProducerInfo.class || ActiveMQMessage.class.isAssignableFrom(command.getClass()) || command.getClass() == MessageAck.class || command.getClass() == TransactionInfo.class || command.getClass() == DestinationInfo.class || command.getClass() == ShutdownInfo.class || command.getClass() == RemoveSubscriptionInfo.class) {
                Response response = null;
 
-               if (pendingStop)
-               {
+               if (pendingStop) {
                   response = new ExceptionResponse(this.stopError);
                }
-               else
-               {
+               else {
                   response = ((Command) command).visit(this);
 
-                  if (response instanceof ExceptionResponse)
-                  {
-                     if (!responseRequired)
-                     {
-                        Throwable cause = ((ExceptionResponse)response).getException();
+                  if (response instanceof ExceptionResponse) {
+                     if (!responseRequired) {
+                        Throwable cause = ((ExceptionResponse) response).getException();
                         serviceException(cause);
                         response = null;
                      }
                   }
                }
 
-               if (responseRequired)
-               {
-                  if (response == null)
-                  {
+               if (responseRequired) {
+                  if (response == null) {
                      response = new Response();
                   }
                }
 
                // The context may have been flagged so that the response is not
                // sent.
-               if (context != null)
-               {
-                  if (context.isDontSendReponse())
-                  {
+               if (context != null) {
+                  if (context.isDontSendReponse()) {
                      context.setDontSendReponse(false);
                      response = null;
                   }
                }
 
-               if (response != null && !protocolManager.isStopping())
-               {
+               if (response != null && !protocolManager.isStopping()) {
                   response.setCorrelationId(commandId);
                   dispatchSync(response);
                }
 
             }
-            else
-            {
+            else {
                // note!!! wait for negotiation (e.g. use a countdown latch)
                // before handling any other commands
                this.protocolManager.handleCommand(this, command);
             }
          }
-         catch (IOException e)
-         {
+         catch (IOException e) {
             ActiveMQServerLogger.LOGGER.error("error decoding", e);
          }
-         catch (Throwable t)
-         {
+         catch (Throwable t) {
             ActiveMQServerLogger.LOGGER.error("error decoding", t);
          }
       }
    }
 
-   private void negotiate(WireFormatInfo command) throws IOException
-   {
+   private void negotiate(WireFormatInfo command) throws IOException {
       this.wireFormat.renegotiateWireFormat(command);
    }
 
    @Override
-   public Object getID()
-   {
+   public Object getID() {
       return transportConnection.getID();
    }
 
    @Override
-   public long getCreationTime()
-   {
+   public long getCreationTime() {
       return creationTime;
    }
 
    @Override
-   public String getRemoteAddress()
-   {
+   public String getRemoteAddress() {
       return transportConnection.getRemoteAddress();
    }
 
    @Override
-   public void addFailureListener(FailureListener listener)
-   {
-      if (listener == null)
-      {
+   public void addFailureListener(FailureListener listener) {
+      if (listener == null) {
          throw new IllegalStateException("FailureListener cannot be null");
       }
 
@@ -355,10 +317,8 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor
    }
 
    @Override
-   public boolean removeFailureListener(FailureListener listener)
-   {
-      if (listener == null)
-      {
+   public boolean removeFailureListener(FailureListener listener) {
+      if (listener == null) {
          throw new IllegalStateException("FailureListener cannot be null");
       }
 
@@ -366,10 +326,8 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor
    }
 
    @Override
-   public void addCloseListener(CloseListener listener)
-   {
-      if (listener == null)
-      {
+   public void addCloseListener(CloseListener listener) {
+      if (listener == null) {
          throw new IllegalStateException("CloseListener cannot be null");
       }
 
@@ -377,10 +335,8 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor
    }
 
    @Override
-   public boolean removeCloseListener(CloseListener listener)
-   {
-      if (listener == null)
-      {
+   public boolean removeCloseListener(CloseListener listener) {
+      if (listener == null) {
          throw new IllegalStateException("CloseListener cannot be null");
       }
 
@@ -388,8 +344,7 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor
    }
 
    @Override
-   public List<CloseListener> removeCloseListeners()
-   {
+   public List<CloseListener> removeCloseListeners() {
       List<CloseListener> ret = new ArrayList<CloseListener>(closeListeners);
 
       closeListeners.clear();
@@ -398,26 +353,22 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor
    }
 
    @Override
-   public void setCloseListeners(List<CloseListener> listeners)
-   {
+   public void setCloseListeners(List<CloseListener> listeners) {
       closeListeners.clear();
 
       closeListeners.addAll(listeners);
    }
 
    @Override
-   public List<FailureListener> getFailureListeners()
-   {
+   public List<FailureListener> getFailureListeners() {
       // we do not return the listeners otherwise the remoting service
       // would NOT destroy the connection.
       return Collections.emptyList();
    }
 
    @Override
-   public List<FailureListener> removeFailureListeners()
-   {
-      List<FailureListener> ret = new ArrayList<FailureListener>(
-            failureListeners);
+   public List<FailureListener> removeFailureListeners() {
+      List<FailureListener> ret = new ArrayList<FailureListener>(failureListeners);
 
       failureListeners.clear();
 
@@ -425,24 +376,20 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor
    }
 
    @Override
-   public void setFailureListeners(List<FailureListener> listeners)
-   {
+   public void setFailureListeners(List<FailureListener> listeners) {
       failureListeners.clear();
 
       failureListeners.addAll(listeners);
    }
 
    @Override
-   public ActiveMQBuffer createTransportBuffer(int size)
-   {
+   public ActiveMQBuffer createTransportBuffer(int size) {
       return ActiveMQBuffers.dynamicBuffer(size);
    }
 
    @Override
-   public void fail(ActiveMQException me)
-   {
-      if (me != null)
-      {
+   public void fail(ActiveMQException me) {
+      if (me != null) {
          ActiveMQServerLogger.LOGGER.connectionFailureDetected(me.getMessage(), me.getType());
       }
 
@@ -457,64 +404,53 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor
    }
 
    @Override
-   public void destroy()
-   {
+   public void destroy() {
       destroyed = true;
 
       transportConnection.close();
 
-      try
-      {
+      try {
          deleteTempQueues();
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          //log warning
       }
 
-      synchronized (sendLock)
-      {
+      synchronized (sendLock) {
          callClosingListeners();
       }
    }
 
-   private void deleteTempQueues() throws Exception
-   {
+   private void deleteTempQueues() throws Exception {
       Iterator<String> queueNames = tempQueues.iterator();
-      while (queueNames.hasNext())
-      {
+      while (queueNames.hasNext()) {
          String q = queueNames.next();
          protocolManager.deleteQueue(q);
       }
    }
 
    @Override
-   public Connection getTransportConnection()
-   {
+   public Connection getTransportConnection() {
       return this.transportConnection;
    }
 
    @Override
-   public boolean isClient()
-   {
+   public boolean isClient() {
       return false;
    }
 
    @Override
-   public boolean isDestroyed()
-   {
+   public boolean isDestroyed() {
       return destroyed;
    }
 
    @Override
-   public void disconnect(boolean criticalError)
-   {
+   public void disconnect(boolean criticalError) {
       fail(null);
    }
 
    @Override
-   public boolean checkDataReceived()
-   {
+   public boolean checkDataReceived() {
       boolean res = dataReceived;
 
       dataReceived = false;
@@ -523,23 +459,17 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor
    }
 
    @Override
-   public void flush()
-   {
+   public void flush() {
    }
 
-   private void callFailureListeners(final ActiveMQException me)
-   {
-      final List<FailureListener> listenersClone = new ArrayList<FailureListener>(
-            failureListeners);
+   private void callFailureListeners(final ActiveMQException me) {
+      final List<FailureListener> listenersClone = new ArrayList<FailureListener>(failureListeners);
 
-      for (final FailureListener listener : listenersClone)
-      {
-         try
-         {
+      for (final FailureListener listener : listenersClone) {
+         try {
             listener.connectionFailed(me, false);
          }
-         catch (final Throwable t)
-         {
+         catch (final Throwable t) {
             // Failure of one listener to execute shouldn't prevent others
             // from
             // executing
@@ -548,19 +478,14 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor
       }
    }
 
-   private void callClosingListeners()
-   {
-      final List<CloseListener> listenersClone = new ArrayList<CloseListener>(
-            closeListeners);
+   private void callClosingListeners() {
+      final List<CloseListener> listenersClone = new ArrayList<CloseListener>(closeListeners);
 
-      for (final CloseListener listener : listenersClone)
-      {
-         try
-         {
+      for (final CloseListener listener : listenersClone) {
+         try {
             listener.connectionClosed();
          }
-         catch (final Throwable t)
-         {
+         catch (final Throwable t) {
             // Failure of one listener to execute shouldn't prevent others
             // from
             // executing
@@ -570,47 +495,38 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor
    }
 
    // throw a WireFormatInfo to the peer
-   public void init()
-   {
+   public void init() {
       WireFormatInfo info = wireFormat.getPreferedWireFormatInfo();
       protocolManager.send(this, info);
    }
 
-   public ConnectionState getState()
-   {
+   public ConnectionState getState() {
       return state;
    }
 
-   public void physicalSend(Command command) throws IOException
-   {
-      try
-      {
+   public void physicalSend(Command command) throws IOException {
+      try {
          ByteSequence bytes = wireFormat.marshal(command);
          ActiveMQBuffer buffer = OpenWireUtil.toActiveMQBuffer(bytes);
-         synchronized (sendLock)
-         {
+         synchronized (sendLock) {
             getTransportConnection().write(buffer, false, false);
          }
       }
-      catch (IOException e)
-      {
+      catch (IOException e) {
          throw e;
       }
-      catch (Throwable t)
-      {
+      catch (Throwable t) {
          ActiveMQServerLogger.LOGGER.error("error sending", t);
       }
 
    }
 
    @Override
-   public Response processAddConnection(ConnectionInfo info) throws Exception
-   {
+   public Response processAddConnection(ConnectionInfo info) throws Exception {
       WireFormatInfo wireFormatInfo = wireFormat.getPreferedWireFormatInfo();
       // Older clients should have been defaulting this field to true.. but
       // they were not.
-      if (wireFormatInfo != null && wireFormatInfo.getVersion() <= 2)
-      {
+      if (wireFormatInfo != null && wireFormatInfo.getVersion() <= 2) {
          info.setClientMaster(true);
       }
 
@@ -619,7 +535,6 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor
       context = new AMQConnectionContext();
 
       state.reset(info);
-
 
       this.faultTolerantConnection = info.isFaultTolerant();
       // Setup the context.
@@ -635,43 +550,33 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor
       context.setMessageAuthorizationPolicy(getMessageAuthorizationPolicy());
       context.setNetworkConnection(networkConnection);
       context.setFaultTolerant(faultTolerantConnection);
-      context
-            .setTransactions(new ConcurrentHashMap<TransactionId, AMQTransaction>());
+      context.setTransactions(new ConcurrentHashMap<TransactionId, AMQTransaction>());
       context.setUserName(info.getUserName());
       context.setWireFormatInfo(wireFormatInfo);
       context.setReconnect(info.isFailoverReconnect());
       this.manageable = info.isManageable();
       context.setConnectionState(state);
-      if (info.getClientIp() == null)
-      {
+      if (info.getClientIp() == null) {
          info.setClientIp(getRemoteAddress());
       }
 
-      try
-      {
+      try {
          protocolManager.addConnection(context, info);
       }
-      catch (Exception e)
-      {
-         if (e instanceof SecurityException)
-         {
+      catch (Exception e) {
+         if (e instanceof SecurityException) {
             // close this down - in case the peer of this transport doesn't play
             // nice
-            delayedStop(2000,
-                  "Failed with SecurityException: " + e.getLocalizedMessage(),
-                  e);
+            delayedStop(2000, "Failed with SecurityException: " + e.getLocalizedMessage(), e);
          }
          Response resp = new ExceptionResponse(e);
          return resp;
       }
-      if (info.isManageable())
-      {
+      if (info.isManageable()) {
          // send ConnectionCommand
          ConnectionControl command = this.acceptorUsed.getConnectionControl();
-         command.setFaultTolerant(protocolManager
-               .isFaultTolerantConfiguration());
-         if (info.isFailoverReconnect())
-         {
+         command.setFaultTolerant(protocolManager.isFaultTolerantConfiguration());
+         if (info.isFailoverReconnect()) {
             command.setRebalanceConnection(false);
          }
          dispatchAsync(command);
@@ -679,86 +584,65 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor
       return null;
    }
 
-   public void dispatchAsync(Command message)
-   {
-      if (!stopping.get())
-      {
-         if (taskRunner == null)
-         {
+   public void dispatchAsync(Command message) {
+      if (!stopping.get()) {
+         if (taskRunner == null) {
             dispatchSync(message);
          }
-         else
-         {
-            synchronized (dispatchQueue)
-            {
+         else {
+            synchronized (dispatchQueue) {
                dispatchQueue.add(message);
             }
-            try
-            {
+            try {
                taskRunner.wakeup();
             }
-            catch (InterruptedException e)
-            {
+            catch (InterruptedException e) {
                Thread.currentThread().interrupt();
             }
          }
       }
-      else
-      {
-         if (message.isMessageDispatch())
-         {
+      else {
+         if (message.isMessageDispatch()) {
             MessageDispatch md = (MessageDispatch) message;
             TransmitCallback sub = md.getTransmitCallback();
             protocolManager.postProcessDispatch(md);
-            if (sub != null)
-            {
+            if (sub != null) {
                sub.onFailure();
             }
          }
       }
    }
 
-   public void dispatchSync(Command message)
-   {
-      try
-      {
+   public void dispatchSync(Command message) {
+      try {
          processDispatch(message);
       }
-      catch (IOException e)
-      {
+      catch (IOException e) {
          serviceExceptionAsync(e);
       }
    }
 
-   public void serviceExceptionAsync(final IOException e)
-   {
-      if (asyncException.compareAndSet(false, true))
-      {
-         new Thread("Async Exception Handler")
-         {
+   public void serviceExceptionAsync(final IOException e) {
+      if (asyncException.compareAndSet(false, true)) {
+         new Thread("Async Exception Handler") {
             @Override
-            public void run()
-            {
+            public void run() {
                serviceException(e);
             }
          }.start();
       }
    }
 
-   public void serviceException(Throwable e)
-   {
+   public void serviceException(Throwable e) {
       // are we a transport exception such as not being able to dispatch
       // synchronously to a transport
-      if (e instanceof IOException)
-      {
+      if (e instanceof IOException) {
          serviceTransportException((IOException) e);
       }
-      else if (e.getClass() == AMQBrokerStoppedException.class)
-      {
+      else if (e.getClass() == AMQBrokerStoppedException.class) {
          // Handle the case where the broker is stopped
          // But the client is still connected.
-         if (!stopping.get())
-         {
+         if (!stopping.get()) {
             ConnectionError ce = new ConnectionError();
             ce.setException(e);
             dispatchSync(ce);
@@ -766,12 +650,10 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor
             this.stopError = e;
             // Wait a little bit to try to get the output buffer to flush
             // the exception notification to the client.
-            try
-            {
+            try {
                Thread.sleep(500);
             }
-            catch (InterruptedException ie)
-            {
+            catch (InterruptedException ie) {
                Thread.currentThread().interrupt();
             }
             // Worst case is we just kill the connection before the
@@ -779,31 +661,25 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor
             stopAsync();
          }
       }
-      else if (!stopping.get() && !inServiceException)
-      {
+      else if (!stopping.get() && !inServiceException) {
          inServiceException = true;
-         try
-         {
+         try {
             ConnectionError ce = new ConnectionError();
             ce.setException(e);
-            if (pendingStop)
-            {
+            if (pendingStop) {
                dispatchSync(ce);
             }
-            else
-            {
+            else {
                dispatchAsync(ce);
             }
          }
-         finally
-         {
+         finally {
             inServiceException = false;
          }
       }
    }
 
-   public void serviceTransportException(IOException e)
-   {
+   public void serviceTransportException(IOException e) {
       /*
        * deal with it later BrokerService bService =
        * connector.getBrokerService(); if (bService.isShutdownOnSlaveFailure())
@@ -818,164 +694,124 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor
        */
    }
 
-   public void setMarkedCandidate(boolean markedCandidate)
-   {
+   public void setMarkedCandidate(boolean markedCandidate) {
       this.markedCandidate = markedCandidate;
-      if (!markedCandidate)
-      {
+      if (!markedCandidate) {
          timeStamp = 0;
          blockedCandidate = false;
       }
    }
 
-   protected void dispatch(Command command) throws IOException
-   {
-      try
-      {
+   protected void dispatch(Command command) throws IOException {
+      try {
          setMarkedCandidate(true);
          this.physicalSend(command);
       }
-      finally
-      {
+      finally {
          setMarkedCandidate(false);
       }
    }
 
-   protected void processDispatch(Command command) throws IOException
-   {
-      MessageDispatch messageDispatch = (MessageDispatch) (command
-            .isMessageDispatch() ? command : null);
-      try
-      {
-         if (!stopping.get())
-         {
-            if (messageDispatch != null)
-            {
+   protected void processDispatch(Command command) throws IOException {
+      MessageDispatch messageDispatch = (MessageDispatch) (command.isMessageDispatch() ? command : null);
+      try {
+         if (!stopping.get()) {
+            if (messageDispatch != null) {
                protocolManager.preProcessDispatch(messageDispatch);
             }
             dispatch(command);
          }
       }
-      catch (IOException e)
-      {
-         if (messageDispatch != null)
-         {
+      catch (IOException e) {
+         if (messageDispatch != null) {
             TransmitCallback sub = messageDispatch.getTransmitCallback();
             protocolManager.postProcessDispatch(messageDispatch);
-            if (sub != null)
-            {
+            if (sub != null) {
                sub.onFailure();
             }
             messageDispatch = null;
             throw e;
          }
       }
-      finally
-      {
-         if (messageDispatch != null)
-         {
+      finally {
+         if (messageDispatch != null) {
             TransmitCallback sub = messageDispatch.getTransmitCallback();
             protocolManager.postProcessDispatch(messageDispatch);
-            if (sub != null)
-            {
+            if (sub != null) {
                sub.onSuccess();
             }
          }
       }
    }
 
-   private AMQMessageAuthorizationPolicy getMessageAuthorizationPolicy()
-   {
+   private AMQMessageAuthorizationPolicy getMessageAuthorizationPolicy() {
       return this.messageAuthorizationPolicy;
    }
 
-   public void delayedStop(final int waitTime, final String reason,
-         Throwable cause)
-   {
-      if (waitTime > 0)
-      {
-         synchronized (this)
-         {
+   public void delayedStop(final int waitTime, final String reason, Throwable cause) {
+      if (waitTime > 0) {
+         synchronized (this) {
             pendingStop = true;
             stopError = cause;
          }
-         try
-         {
-            stopTaskRunnerFactory.execute(new Runnable()
-            {
+         try {
+            stopTaskRunnerFactory.execute(new Runnable() {
                @Override
-               public void run()
-               {
-                  try
-                  {
+               public void run() {
+                  try {
                      Thread.sleep(waitTime);
                      stopAsync();
                   }
-                  catch (InterruptedException e)
-                  {
+                  catch (InterruptedException e) {
                   }
                }
             });
          }
-         catch (Throwable t)
-         {
+         catch (Throwable t) {
             // log error
          }
       }
    }
 
-   public void stopAsync()
-   {
+   public void stopAsync() {
       // If we're in the middle of starting then go no further... for now.
-      synchronized (this)
-      {
+      synchronized (this) {
          pendingStop = true;
-         if (starting)
-         {
+         if (starting) {
             // log
             return;
          }
       }
-      if (stopping.compareAndSet(false, true))
-      {
-         if (context != null)
-         {
+      if (stopping.compareAndSet(false, true)) {
+         if (context != null) {
             context.getStopping().set(true);
          }
-         try
-         {
-            stopTaskRunnerFactory.execute(new Runnable()
-            {
+         try {
+            stopTaskRunnerFactory.execute(new Runnable() {
                @Override
-               public void run()
-               {
+               public void run() {
                   serviceLock.writeLock().lock();
-                  try
-                  {
+                  try {
                      doStop();
                   }
-                  catch (Throwable e)
-                  {
+                  catch (Throwable e) {
                      // LOG
                   }
-                  finally
-                  {
+                  finally {
                      stopped.countDown();
                      serviceLock.writeLock().unlock();
                   }
                }
             });
          }
-         catch (Throwable t)
-         {
+         catch (Throwable t) {
             // LOG
             stopped.countDown();
          }
       }
    }
 
-   protected void doStop() throws Exception
-   {
+   protected void doStop() throws Exception {
       this.acceptorUsed.onStopped(this);
       /*
        * What's a duplex bridge? try { synchronized (this) { if (duplexBridge !=
@@ -983,17 +819,14 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor
        * LOG.trace("Exception caught stopping. This exception is ignored.",
        * ignore); }
        */
-      try
-      {
+      try {
          getTransportConnection().close();
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          // log
       }
 
-      if (taskRunner != null)
-      {
+      if (taskRunner != null) {
          taskRunner.shutdown(1);
          taskRunner = null;
       }
@@ -1001,18 +834,14 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor
       active = false;
       // Run the MessageDispatch callbacks so that message references get
       // cleaned up.
-      synchronized (dispatchQueue)
-      {
-         for (Iterator<Command> iter = dispatchQueue.iterator(); iter.hasNext();)
-         {
+      synchronized (dispatchQueue) {
+         for (Iterator<Command> iter = dispatchQueue.iterator(); iter.hasNext(); ) {
             Command command = iter.next();
-            if (command.isMessageDispatch())
-            {
+            if (command.isMessageDispatch()) {
                MessageDispatch md = (MessageDispatch) command;
                TransmitCallback sub = md.getTransmitCallback();
                protocolManager.postProcessDispatch(md);
-               if (sub != null)
-               {
+               if (sub != null) {
                   sub.onFailure();
                }
             }
@@ -1022,70 +851,54 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor
       //
       // Remove all logical connection associated with this connection
       // from the broker.
-      if (!protocolManager.isStopped())
-      {
+      if (!protocolManager.isStopped()) {
          context.getStopping().set(true);
-         try
-         {
+         try {
             processRemoveConnection(state.getInfo().getConnectionId(), 0L);
          }
-         catch (Throwable ignore)
-         {
+         catch (Throwable ignore) {
             ignore.printStackTrace();
          }
       }
    }
 
    @Override
-   public Response processAddConsumer(ConsumerInfo info)
-   {
+   public Response processAddConsumer(ConsumerInfo info) {
       Response resp = null;
-      try
-      {
+      try {
          protocolManager.addConsumer(this, info);
       }
-      catch (Exception e)
-      {
-         if (e instanceof ActiveMQSecurityException)
-         {
+      catch (Exception e) {
+         if (e instanceof ActiveMQSecurityException) {
             resp = new ExceptionResponse(new JMSSecurityException(e.getMessage()));
          }
-         else
-         {
+         else {
             resp = new ExceptionResponse(e);
          }
       }
       return resp;
    }
 
-   public void addConsumerBrokerExchange(ConsumerId id, AMQSession amqSession, Map<ActiveMQDestination, AMQConsumer> consumerMap)
-   {
+   public void addConsumerBrokerExchange(ConsumerId id,
+                                         AMQSession amqSession,
+                                         Map<ActiveMQDestination, AMQConsumer> consumerMap) {
       AMQConsumerBrokerExchange result = consumerExchanges.get(id);
-      if (result == null)
-      {
-         if (consumerMap.size() == 1)
-         {
+      if (result == null) {
+         if (consumerMap.size() == 1) {
             result = new AMQSingleConsumerBrokerExchange(amqSession, consumerMap.values().iterator().next());
          }
-         else
-         {
+         else {
             result = new AMQCompositeConsumerBrokerExchange(amqSession, consumerMap);
          }
-         synchronized (consumerExchanges)
-         {
+         synchronized (consumerExchanges) {
             result.setConnectionContext(context);
             SessionState ss = state.getSessionState(id.getParentId());
-            if (ss != null)
-            {
+            if (ss != null) {
                ConsumerState cs = ss.getConsumerState(id);
-               if (cs != null)
-               {
+               if (cs != null) {
                   ConsumerInfo info = cs.getInfo();
-                  if (info != null)
-                  {
-                     if (info.getDestination() != null
-                           && info.getDestination().isPattern())
-                     {
+                  if (info != null) {
+                     if (info.getDestination() != null && info.getDestination().isPattern()) {
                         result.setWildcard(true);
                      }
                   }
@@ -1096,28 +909,22 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor
       }
    }
 
-   public int getConsumerCount()
-   {
+   public int getConsumerCount() {
       int result = 0;
-      for (SessionId sessionId : state.getSessionIds())
-      {
+      for (SessionId sessionId : state.getSessionIds()) {
          SessionState sessionState = state.getSessionState(sessionId);
-         if (sessionState != null)
-         {
+         if (sessionState != null) {
             result += sessionState.getConsumerIds().size();
          }
       }
       return result;
    }
 
-   public int getProducerCount()
-   {
+   public int getProducerCount() {
       int result = 0;
-      for (SessionId sessionId : state.getSessionIds())
-      {
+      for (SessionId sessionId : state.getSessionIds()) {
          SessionState sessionState = state.getSessionState(sessionId);
-         if (sessionState != null)
-         {
+         if (sessionState != null) {
             result += sessionState.getProducerIds().size();
          }
       }
@@ -1125,21 +932,16 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor
    }
 
    @Override
-   public Response processAddDestination(DestinationInfo dest) throws Exception
-   {
+   public Response processAddDestination(DestinationInfo dest) throws Exception {
       Response resp = null;
-      try
-      {
+      try {
          protocolManager.addDestination(this, dest);
       }
-      catch (Exception e)
-      {
-         if (e instanceof ActiveMQSecurityException)
-         {
+      catch (Exception e) {
+         if (e instanceof ActiveMQSecurityException) {
             resp = new ExceptionResponse(new JMSSecurityException(e.getMessage()));
          }
-         else
-         {
+         else {
             resp = new ExceptionResponse(e);
          }
       }
@@ -1147,25 +949,19 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor
    }
 
    @Override
-   public Response processAddProducer(ProducerInfo info) throws Exception
-   {
+   public Response processAddProducer(ProducerInfo info) throws Exception {
       Response resp = null;
-      try
-      {
+      try {
          protocolManager.addProducer(this, info);
       }
-      catch (Exception e)
-      {
-         if (e instanceof ActiveMQSecurityException)
-         {
+      catch (Exception e) {
+         if (e instanceof ActiveMQSecurityException) {
             resp = new ExceptionResponse(new JMSSecurityException(e.getMessage()));
          }
-         else if (e instanceof ActiveMQNonExistentQueueException)
-         {
+         else if (e instanceof ActiveMQNonExistentQueueException) {
             resp = new ExceptionResponse(new InvalidDestinationException(e.getMessage()));
          }
-         else
-         {
+         else {
             resp = new ExceptionResponse(e);
          }
       }
@@ -1173,18 +969,14 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor
    }
 
    @Override
-   public Response processAddSession(SessionInfo info) throws Exception
-   {
+   public Response processAddSession(SessionInfo info) throws Exception {
       // Avoid replaying dup commands
-      if (!state.getSessionIds().contains(info.getSessionId()))
-      {
+      if (!state.getSessionIds().contains(info.getSessionId())) {
          protocolManager.addSession(this, info);
-         try
-         {
+         try {
             state.addSession(info);
          }
-         catch (IllegalStateException e)
-         {
+         catch (IllegalStateException e) {
             e.printStackTrace();
             protocolManager.removeSession(context, info);
          }
@@ -1193,26 +985,22 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor
    }
 
    @Override
-   public Response processBeginTransaction(TransactionInfo info) throws Exception
-   {
+   public Response processBeginTransaction(TransactionInfo info) throws Exception {
       TransactionId txId = info.getTransactionId();
 
-      if (!txMap.containsKey(txId))
-      {
+      if (!txMap.containsKey(txId)) {
          txMap.put(txId, info);
       }
       return null;
    }
 
    @Override
-   public Response processBrokerInfo(BrokerInfo arg0) throws Exception
-   {
+   public Response processBrokerInfo(BrokerInfo arg0) throws Exception {
       throw new IllegalStateException("not implemented! ");
    }
 
    @Override
-   public Response processCommitTransactionOnePhase(TransactionInfo info) throws Exception
-   {
+   public Response processCommitTransactionOnePhase(TransactionInfo info) throws Exception {
       protocolManager.commitTransactionOnePhase(info);
       TransactionId txId = info.getTransactionId();
       txMap.remove(txId);
@@ -1221,8 +1009,7 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor
    }
 
    @Override
-   public Response processCommitTransactionTwoPhase(TransactionInfo info) throws Exception
-   {
+   public Response processCommitTransactionTwoPhase(TransactionInfo info) throws Exception {
       protocolManager.commitTransactionTwoPhase(info);
       TransactionId txId = info.getTransactionId();
       txMap.remove(txId);
@@ -1231,51 +1018,43 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor
    }
 
    @Override
-   public Response processConnectionControl(ConnectionControl arg0) throws Exception
-   {
+   public Response processConnectionControl(ConnectionControl arg0) throws Exception {
       throw new IllegalStateException("not implemented! ");
    }
 
    @Override
-   public Response processConnectionError(ConnectionError arg0) throws Exception
-   {
+   public Response processConnectionError(ConnectionError arg0) throws Exception {
       throw new IllegalStateException("not implemented! ");
    }
 
    @Override
-   public Response processConsumerControl(ConsumerControl arg0) throws Exception
-   {
+   public Response processConsumerControl(ConsumerControl arg0) throws Exception {
       throw new IllegalStateException("not implemented! ");
    }
 
    @Override
-   public Response processControlCommand(ControlCommand arg0) throws Exception
-   {
+   public Response processControlCommand(ControlCommand arg0) throws Exception {
       throw new IllegalStateException("not implemented! ");
    }
 
    @Override
-   public Response processEndTransaction(TransactionInfo info) throws Exception
-   {
+   public Response processEndTransaction(TransactionInfo info) throws Exception {
       protocolManager.endTransaction(info);
       TransactionId txId = info.getTransactionId();
 
-      if (!txMap.containsKey(txId))
-      {
+      if (!txMap.containsKey(txId)) {
          txMap.put(txId, info);
       }
       return null;
    }
 
    @Override
-   public Response processFlush(FlushCommand arg0) throws Exception
-   {
+   public Response processFlush(FlushCommand arg0) throws Exception {
       throw new IllegalStateException("not implemented! ");
    }
 
    @Override
-   public Response processForgetTransaction(TransactionInfo info) throws Exception
-   {
+   public Response processForgetTransaction(TransactionInfo info) throws Exception {
       TransactionId txId = info.getTransactionId();
       txMap.remove(txId);
 
@@ -1284,102 +1063,76 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor
    }
 
    @Override
-   public Response processKeepAlive(KeepAliveInfo arg0) throws Exception
-   {
+   public Response processKeepAlive(KeepAliveInfo arg0) throws Exception {
       throw new IllegalStateException("not implemented! ");
    }
 
    @Override
-   public Response processMessage(Message messageSend)
-   {
+   public Response processMessage(Message messageSend) {
       Response resp = null;
-      try
-      {
+      try {
          ProducerId producerId = messageSend.getProducerId();
          AMQProducerBrokerExchange producerExchange = getProducerBrokerExchange(producerId);
          final AMQConnectionContext pcontext = producerExchange.getConnectionContext();
          final ProducerInfo producerInfo = producerExchange.getProducerState().getInfo();
-         boolean sendProducerAck = !messageSend.isResponseRequired() && producerInfo.getWindowSize() > 0
-               && !pcontext.isInRecoveryMode();
+         boolean sendProducerAck = !messageSend.isResponseRequired() && producerInfo.getWindowSize() > 0 && !pcontext.isInRecoveryMode();
 
          AMQSession session = protocolManager.getSession(producerId.getParentId());
 
-         if (producerExchange.canDispatch(messageSend))
-         {
+         if (producerExchange.canDispatch(messageSend)) {
             SendingResult result = session.send(producerExchange, messageSend, sendProducerAck);
-            if (result.isBlockNextSend())
-            {
-               if (!context.isNetworkConnection() && result.isSendFailIfNoSpace())
-               {
-                  throw new ResourceAllocationException("Usage Manager Memory Limit reached. Stopping producer ("
-                     + producerId + ") to prevent flooding "
-                     + result.getBlockingAddress() + "."
-                     + " See http://activemq.apache.org/producer-flow-control.html for more info");
+            if (result.isBlockNextSend()) {
+               if (!context.isNetworkConnection() && result.isSendFailIfNoSpace()) {
+                  throw new ResourceAllocationException("Usage Manager Memory Limit reached. Stopping producer (" + producerId + ") to prevent flooding " + result.getBlockingAddress() + "." + " See http://activemq.apache.org/producer-flow-control.html for more info");
                }
 
-               if (producerInfo.getWindowSize() > 0 || messageSend.isResponseRequired())
-               {
+               if (producerInfo.getWindowSize() > 0 || messageSend.isResponseRequired()) {
                   //in that case don't send the response
                   //this will force the client to wait until
                   //the response is got.
                   context.setDontSendReponse(true);
                }
-               else
-               {
+               else {
                   //hang the connection until the space is available
                   session.blockingWaitForSpace(producerExchange, result);
                }
             }
-            else if (sendProducerAck)
-            {
+            else if (sendProducerAck) {
                ProducerAck ack = new ProducerAck(producerInfo.getProducerId(), messageSend.getSize());
                this.dispatchAsync(ack);
             }
          }
       }
-      catch (Exception e)
-      {
-         if (e instanceof ActiveMQSecurityException)
-         {
+      catch (Exception e) {
+         if (e instanceof ActiveMQSecurityException) {
             resp = new ExceptionResponse(new JMSSecurityException(e.getMessage()));
          }
-         else
-         {
+         else {
             resp = new ExceptionResponse(e);
          }
       }
       return resp;
    }
 
-   private AMQProducerBrokerExchange getProducerBrokerExchange(ProducerId id) throws IOException
-   {
+   private AMQProducerBrokerExchange getProducerBrokerExchange(ProducerId id) throws IOException {
       AMQProducerBrokerExchange result = producerExchanges.get(id);
-      if (result == null)
-      {
-         synchronized (producerExchanges)
-         {
+      if (result == null) {
+         synchronized (producerExchanges) {
             result = new AMQProducerBrokerExchange();
             result.setConnectionContext(context);
             //todo implement reconnect https://issues.apache.org/jira/browse/ARTEMIS-194
-            if (context.isReconnect()
-                  || (context.isNetworkConnection() && this.acceptorUsed
-                        .isAuditNetworkProducers()))
-            {
-               if (protocolManager.getPersistenceAdapter() != null)
-               {
+            if (context.isReconnect() || (context.isNetworkConnection() && this.acceptorUsed.isAuditNetworkProducers())) {
+               if (protocolManager.getPersistenceAdapter() != null) {
                   result.setLastStoredSequenceId(protocolManager.getPersistenceAdapter().getLastProducerSequenceId(id));
                }
             }
             SessionState ss = state.getSessionState(id.getParentId());
-            if (ss != null)
-            {
+            if (ss != null) {
                result.setProducerState(ss.getProducerState(id));
                ProducerState producerState = ss.getProducerState(id);
-               if (producerState != null && producerState.getInfo() != null)
-               {
+               if (producerState != null && producerState.getInfo() != null) {
                   ProducerInfo info = producerState.getInfo();
-                  result.setMutable(info.getDestination() == null
-                        || info.getDestination().isComposite());
+                  result.setMutable(info.getDestination() == null || info.getDestination().isComposite());
                }
             }
             producerExchanges.put(id, result);
@@ -1389,32 +1142,26 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor
    }
 
    @Override
-   public Response processMessageAck(MessageAck ack) throws Exception
-   {
+   public Response processMessageAck(MessageAck ack) throws Exception {
       AMQConsumerBrokerExchange consumerBrokerExchange = consumerExchanges.get(ack.getConsumerId());
       consumerBrokerExchange.acknowledge(ack);
       return null;
    }
 
    @Override
-   public Response processMessageDispatch(MessageDispatch arg0) throws Exception
-   {
+   public Response processMessageDispatch(MessageDispatch arg0) throws Exception {
       throw new IllegalStateException("not implemented! ");
    }
 
    @Override
-   public Response processMessageDispatchNotification(
-         MessageDispatchNotification arg0) throws Exception
-   {
+   public Response processMessageDispatchNotification(MessageDispatchNotification arg0) throws Exception {
       throw new IllegalStateException("not implemented! ");
    }
 
    @Override
-   public Response processMessagePull(MessagePull arg0) throws Exception
-   {
+   public Response processMessagePull(MessagePull arg0) throws Exception {
       AMQConsumerBrokerExchange amqConsumerBrokerExchange = consumerExchanges.get(arg0.getConsumerId());
-      if (amqConsumerBrokerExchange == null)
-      {
+      if (amqConsumerBrokerExchange == null) {
          throw new IllegalStateException("Consumer does not exist");
       }
       amqConsumerBrokerExchange.processMessagePull(arg0);
@@ -1422,75 +1169,57 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor
    }
 
    @Override
-   public Response processPrepareTransaction(TransactionInfo info) throws Exception
-   {
+   public Response processPrepareTransaction(TransactionInfo info) throws Exception {
       protocolManager.prepareTransaction(info);
       return null;
    }
 
    @Override
-   public Response processProducerAck(ProducerAck arg0) throws Exception
-   {
+   public Response processProducerAck(ProducerAck arg0) throws Exception {
       throw new IllegalStateException("not implemented! ");
    }
 
    @Override
-   public Response processRecoverTransactions(TransactionInfo info) throws Exception
-   {
+   public Response processRecoverTransactions(TransactionInfo info) throws Exception {
       Set<SessionId> sIds = state.getSessionIds();
       TransactionId[] recovered = protocolManager.recoverTransactions(sIds);
       return new DataArrayResponse(recovered);
    }
 
    @Override
-   public Response processRemoveConnection(ConnectionId id,
-         long lastDeliveredSequenceId) throws Exception
-   {
+   public Response processRemoveConnection(ConnectionId id, long lastDeliveredSequenceId) throws Exception {
       // Don't allow things to be added to the connection state while we
       // are shutting down.
       state.shutdown();
       // Cascade the connection stop to the sessions.
-      for (SessionId sessionId : state.getSessionIds())
-      {
-         try
-         {
+      for (SessionId sessionId : state.getSessionIds()) {
+         try {
             processRemoveSession(sessionId, lastDeliveredSequenceId);
          }
-         catch (Throwable e)
-         {
+         catch (Throwable e) {
             // LOG
          }
       }
 
-      try
-      {
-         protocolManager.removeConnection(context, state.getInfo(),
-               null);
+      try {
+         protocolManager.removeConnection(context, state.getInfo(), null);
       }
-      catch (Throwable e)
-      {
+      catch (Throwable e) {
          // log
       }
       return null;
    }
 
    @Override
-   public Response processRemoveConsumer(ConsumerId id,
-         long lastDeliveredSequenceId) throws Exception
-   {
+   public Response processRemoveConsumer(ConsumerId id, long lastDeliveredSequenceId) throws Exception {
       SessionId sessionId = id.getParentId();
       SessionState ss = state.getSessionState(sessionId);
-      if (ss == null)
-      {
-         throw new IllegalStateException(
-               "Cannot remove a consumer from a session that had not been registered: "
-                     + sessionId);
+      if (ss == null) {
+         throw new IllegalStateException("Cannot remove a consumer from a session that had not been registered: " + sessionId);
       }
       ConsumerState consumerState = ss.removeConsumer(id);
-      if (consumerState == null)
-      {
-         throw new IllegalStateException(
-               "Cannot remove a consumer that had not been registered: " + id);
+      if (consumerState == null) {
+         throw new IllegalStateException("Cannot remove a consumer that had not been registered: " + id);
       }
       ConsumerInfo info = consumerState.getInfo();
       info.setLastDeliveredSequenceId(lastDeliveredSequenceId);
@@ -1504,20 +1233,16 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor
       return null;
    }
 
-   private void removeConsumerBrokerExchange(ConsumerId id)
-   {
-      synchronized (consumerExchanges)
-      {
+   private void removeConsumerBrokerExchange(ConsumerId id) {
+      synchronized (consumerExchanges) {
          consumerExchanges.remove(id);
       }
    }
 
    @Override
-   public Response processRemoveDestination(DestinationInfo info) throws Exception
-   {
+   public Response processRemoveDestination(DestinationInfo info) throws Exception {
       ActiveMQDestination dest = info.getDestination();
-      if (dest.isQueue())
-      {
+      if (dest.isQueue()) {
          String qName = "jms.queue." + dest.getPhysicalName();
          protocolManager.deleteQueue(qName);
       }
@@ -1525,45 +1250,34 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor
    }
 
    @Override
-   public Response processRemoveProducer(ProducerId id) throws Exception
-   {
+   public Response processRemoveProducer(ProducerId id) throws Exception {
       protocolManager.removeProducer(id);
       return null;
    }
 
    @Override
-   public Response processRemoveSession(SessionId id,
-         long lastDeliveredSequenceId) throws Exception
-   {
+   public Response processRemoveSession(SessionId id, long lastDeliveredSequenceId) throws Exception {
       SessionState session = state.getSessionState(id);
-      if (session == null)
-      {
-         throw new IllegalStateException(
-               "Cannot remove session that had not been registered: " + id);
+      if (session == null) {
+         throw new IllegalStateException("Cannot remove session that had not been registered: " + id);
       }
       // Don't let new consumers or producers get added while we are closing
       // this down.
       session.shutdown();
       // Cascade the connection stop to the consumers and producers.
-      for (ConsumerId consumerId : session.getConsumerIds())
-      {
-         try
-         {
+      for (ConsumerId consumerId : session.getConsumerIds()) {
+         try {
             processRemoveConsumer(consumerId, lastDeliveredSequenceId);
          }
-         catch (Throwable e)
-         {
+         catch (Throwable e) {
             // LOG.warn("Failed to remove consumer: {}", consumerId, e);
          }
       }
-      for (ProducerId producerId : session.getProducerIds())
-      {
-         try
-         {
+      for (ProducerId producerId : session.getProducerIds()) {
+         try {
             processRemoveProducer(producerId);
          }
-         catch (Throwable e)
-         {
+         catch (Throwable e) {
             // LOG.warn("Failed to remove producer: {}", producerId, e);
          }
       }
@@ -1573,15 +1287,13 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor
    }
 
    @Override
-   public Response processRemoveSubscription(RemoveSubscriptionInfo subInfo) throws Exception
-   {
+   public Response processRemoveSubscription(RemoveSubscriptionInfo subInfo) throws Exception {
       protocolManager.removeSubscription(subInfo);
       return null;
    }
 
    @Override
-   public Response processRollbackTransaction(TransactionInfo info) throws Exception
-   {
+   public Response processRollbackTransaction(TransactionInfo info) throws Exception {
       protocolManager.rollbackTransaction(info);
       TransactionId txId = info.getTransactionId();
       txMap.remove(txId);
@@ -1589,32 +1301,26 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor
    }
 
    @Override
-   public Response processShutdown(ShutdownInfo info) throws Exception
-   {
+   public Response processShutdown(ShutdownInfo info) throws Exception {
       return null;
    }
 
    @Override
-   public Response processWireFormat(WireFormatInfo arg0) throws Exception
-   {
+   public Response processWireFormat(WireFormatInfo arg0) throws Exception {
       throw new IllegalStateException("not implemented! ");
    }
 
-   public int getMaximumConsumersAllowedPerConnection()
-   {
+   public int getMaximumConsumersAllowedPerConnection() {
       return this.acceptorUsed.getMaximumConsumersAllowedPerConnection();
    }
 
-   public int getMaximumProducersAllowedPerConnection()
-   {
+   public int getMaximumProducersAllowedPerConnection() {
       return this.acceptorUsed.getMaximumProducersAllowedPerConnection();
    }
 
-   public void deliverMessage(MessageDispatch dispatch)
-   {
+   public void deliverMessage(MessageDispatch dispatch) {
       Message m = dispatch.getMessage();
-      if (m != null)
-      {
+      if (m != null) {
          long endTime = System.currentTimeMillis();
          m.setBrokerOutTime(endTime);
       }
@@ -1622,40 +1328,33 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor
       protocolManager.send(this, dispatch);
    }
 
-   public WireFormat getMarshaller()
-   {
+   public WireFormat getMarshaller() {
       return this.wireFormat;
    }
 
-   public void registerTempQueue(SimpleString qName)
-   {
+   public void registerTempQueue(SimpleString qName) {
       tempQueues.add(qName.toString());
    }
 
    @Override
-   public void disconnect(String reason, boolean fail)
-   {
+   public void disconnect(String reason, boolean fail) {
       destroy();
    }
 
    @Override
-   public void fail(ActiveMQException e, String message)
-   {
+   public void fail(ActiveMQException e, String message) {
       destroy();
    }
 
-   public void setAdvisorySession(AMQSession amqSession)
-   {
+   public void setAdvisorySession(AMQSession amqSession) {
       this.advisorySession = amqSession;
    }
 
-   public AMQSession getAdvisorySession()
-   {
+   public AMQSession getAdvisorySession() {
       return this.advisorySession;
    }
 
-   public AMQConnectionContext getConext()
-   {
+   public AMQConnectionContext getConext() {
       return this.context;
    }
 

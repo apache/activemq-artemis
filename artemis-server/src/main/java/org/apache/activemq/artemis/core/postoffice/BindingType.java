@@ -18,8 +18,7 @@ package org.apache.activemq.artemis.core.postoffice;
 
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 
-public enum BindingType
-{
+public enum BindingType {
    LOCAL_QUEUE, REMOTE_QUEUE, DIVERT;
 
    public static final int LOCAL_QUEUE_INDEX = 0;
@@ -28,22 +27,17 @@ public enum BindingType
 
    public static final int DIVERT_INDEX = 2;
 
-   public int toInt()
-   {
-      if (equals(BindingType.LOCAL_QUEUE))
-      {
+   public int toInt() {
+      if (equals(BindingType.LOCAL_QUEUE)) {
          return BindingType.LOCAL_QUEUE_INDEX;
       }
-      else if (equals(BindingType.REMOTE_QUEUE))
-      {
+      else if (equals(BindingType.REMOTE_QUEUE)) {
          return BindingType.REMOTE_QUEUE_INDEX;
       }
-      else if (equals(BindingType.DIVERT))
-      {
+      else if (equals(BindingType.DIVERT)) {
          return BindingType.DIVERT_INDEX;
       }
-      else
-      {
+      else {
          throw ActiveMQMessageBundle.BUNDLE.cannotConvertToInt();
       }
    }

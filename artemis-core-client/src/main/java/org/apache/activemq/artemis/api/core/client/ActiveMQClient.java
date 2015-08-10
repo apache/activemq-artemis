@@ -32,8 +32,8 @@ import java.net.URI;
  * setter methods before creating the sessions. Once a session is created, the factory can no longer
  * be modified (its setter methods will throw a {@link IllegalStateException}.
  */
-public final class ActiveMQClient
-{
+public final class ActiveMQClient {
+
    public static final String DEFAULT_CONNECTION_LOAD_BALANCING_POLICY_CLASS_NAME = RoundRobinConnectionLoadBalancingPolicy.class.getCanonicalName();
 
    public static final long DEFAULT_CLIENT_FAILURE_CHECK_PERIOD = ActiveMQDefaultConfiguration.getDefaultClientFailureCheckPeriod();
@@ -119,8 +119,7 @@ public final class ActiveMQClient
     *
     * @return the ActiveMQConnectionFactory
     */
-   public static ServerLocator createServerLocator(final String url) throws Exception
-   {
+   public static ServerLocator createServerLocator(final String url) throws Exception {
       ServerLocatorParser parser = new ServerLocatorParser();
       return parser.newObject(new URI(url), null);
    }
@@ -132,8 +131,7 @@ public final class ActiveMQClient
     * @param transportConfigurations
     * @return the ServerLocator
     */
-   public static ServerLocator createServerLocatorWithoutHA(TransportConfiguration... transportConfigurations)
-   {
+   public static ServerLocator createServerLocatorWithoutHA(TransportConfiguration... transportConfigurations) {
       return new ServerLocatorImpl(false, transportConfigurations);
    }
 
@@ -141,12 +139,12 @@ public final class ActiveMQClient
     * Create a ServerLocator which creates session factories using a static list of transportConfigurations, the ServerLocator is not updated automatically
     * as the cluster topology changes, and no HA backup information is propagated to the client
     *
-    * @param ha The Locator will support topology updates and ha (this required the server to be clustered, otherwise the first connection will timeout)
+    * @param ha                      The Locator will support topology updates and ha (this required the server to be clustered, otherwise the first connection will timeout)
     * @param transportConfigurations
     * @return the ServerLocator
     */
-   public static ServerLocator createServerLocator(final boolean ha, TransportConfiguration... transportConfigurations)
-   {
+   public static ServerLocator createServerLocator(final boolean ha,
+                                                   TransportConfiguration... transportConfigurations) {
       return new ServerLocatorImpl(ha, transportConfigurations);
    }
 
@@ -155,26 +153,26 @@ public final class ActiveMQClient
     * backup information is propagated to the client
     * <p>
     * The UDP address and port are used to listen for live servers in the cluster
+    *
     * @param groupConfiguration
     * @return the ServerLocator
     */
-   public static ServerLocator createServerLocatorWithoutHA(final DiscoveryGroupConfiguration groupConfiguration)
-   {
+   public static ServerLocator createServerLocatorWithoutHA(final DiscoveryGroupConfiguration groupConfiguration) {
       return new ServerLocatorImpl(false, groupConfiguration);
    }
-
 
    /**
     * Create a ServerLocator which creates session factories from a set of live servers, no HA
     * backup information is propagated to the client The UDP address and port are used to listen for
     * live servers in the cluster
-    * @param ha The Locator will support topology updates and ha (this required the server to be
-    *           clustered, otherwise the first connection will timeout)
+    *
+    * @param ha                 The Locator will support topology updates and ha (this required the server to be
+    *                           clustered, otherwise the first connection will timeout)
     * @param groupConfiguration
     * @return the ServerLocator
     */
-   public static ServerLocator createServerLocator(final boolean ha, final DiscoveryGroupConfiguration groupConfiguration)
-   {
+   public static ServerLocator createServerLocator(final boolean ha,
+                                                   final DiscoveryGroupConfiguration groupConfiguration) {
       return new ServerLocatorImpl(ha, groupConfiguration);
    }
 
@@ -188,13 +186,13 @@ public final class ActiveMQClient
     * <p>
     * If the topology includes backup servers that information is also propagated to the client so
     * that it can know which server to failover onto in case of live server failure.
+    *
     * @param initialServers The initial set of servers used to make a connection to the cluster.
-    *           Each one is tried in turn until a successful connection is made. Once a connection
-    *           is made, the cluster topology is downloaded and the rest of the list is ignored.
+    *                       Each one is tried in turn until a successful connection is made. Once a connection
+    *                       is made, the cluster topology is downloaded and the rest of the list is ignored.
     * @return the ServerLocator
     */
-   public static ServerLocator createServerLocatorWithHA(TransportConfiguration... initialServers)
-   {
+   public static ServerLocator createServerLocatorWithHA(TransportConfiguration... initialServers) {
       return new ServerLocatorImpl(true, initialServers);
    }
 
@@ -210,17 +208,15 @@ public final class ActiveMQClient
     * <p>
     * If the topology includes backup servers that information is also propagated to the client so
     * that it can know which server to failover onto in case of live server failure.
+    *
     * @param groupConfiguration
     * @return the ServerLocator
     */
-   public static ServerLocator createServerLocatorWithHA(final DiscoveryGroupConfiguration groupConfiguration)
-   {
+   public static ServerLocator createServerLocatorWithHA(final DiscoveryGroupConfiguration groupConfiguration) {
       return new ServerLocatorImpl(true, groupConfiguration);
    }
 
-
-   private ActiveMQClient()
-   {
+   private ActiveMQClient() {
       // Utility class
    }
 }

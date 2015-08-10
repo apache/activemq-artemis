@@ -16,12 +16,15 @@
  */
 package org.proton.plug;
 
-public abstract class AMQPConnectionContextFactory
-{
+public abstract class AMQPConnectionContextFactory {
+
    /**
     * @return
     */
-   public abstract AMQPConnectionContext createConnection(AMQPConnectionCallback connectionCallback,int idleTimeout, int maxFrameSize, int channelMax);
+   public abstract AMQPConnectionContext createConnection(AMQPConnectionCallback connectionCallback,
+                                                          int idleTimeout,
+                                                          int maxFrameSize,
+                                                          int channelMax);
 
    /**
     * @return

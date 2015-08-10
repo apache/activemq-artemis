@@ -33,102 +33,85 @@ import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.utils.LinkedListIterator;
 import org.apache.activemq.artemis.utils.ReferenceCounter;
 
-public class FakeQueue implements Queue
-{
+public class FakeQueue implements Queue {
 
    @Override
-   public boolean isInternalQueue()
-   {
+   public boolean isInternalQueue() {
       // no-op
       return false;
    }
 
    @Override
-   public void deleteQueue(boolean removeConsumers) throws Exception
-   {
+   public void deleteQueue(boolean removeConsumers) throws Exception {
    }
 
-   public void unproposed(SimpleString groupID)
-   {
-
-   }
-
-   @Override
-   public void setConsumersRefCount(ReferenceCounter referenceCounter)
-   {
+   public void unproposed(SimpleString groupID) {
 
    }
 
    @Override
-   public void setInternalQueue(boolean internalQueue)
-   {
+   public void setConsumersRefCount(ReferenceCounter referenceCounter) {
+
+   }
+
+   @Override
+   public void setInternalQueue(boolean internalQueue) {
       // no-op
 
    }
 
    @Override
-   public void cancel(Transaction tx, MessageReference ref, boolean ignoreRedeliveryCheck)
-   {
+   public void cancel(Transaction tx, MessageReference ref, boolean ignoreRedeliveryCheck) {
       // no-op
    }
 
    PageSubscription subs;
 
-   public boolean isDirectDeliver()
-   {
+   public boolean isDirectDeliver() {
       // no-op
       return false;
    }
 
-   public void close()
-   {
+   public void close() {
       // no-op
 
    }
 
-   public void forceCheckQueueSize()
-   {
+   public void forceCheckQueueSize() {
       // no-op
 
    }
 
-   public void reload(MessageReference ref)
-   {
+   public void reload(MessageReference ref) {
       // no-op
 
    }
 
-   public boolean flushExecutor()
-   {
+   public boolean flushExecutor() {
       return true;
    }
 
-   public void addHead(MessageReference ref)
-   {
+   public void addHead(MessageReference ref) {
       // no-op
 
    }
 
-   public void addHead(List<MessageReference> ref)
-   {
+   public void addHead(List<MessageReference> ref) {
       // no-op
 
    }
 
-   public void addTail(MessageReference ref, boolean direct)
-   {
+   public void addTail(MessageReference ref, boolean direct) {
       // no-op
 
    }
 
-   public void addTail(MessageReference ref)
-   {
+   public void addTail(MessageReference ref) {
       // no-op
 
    }
 
-   public void resetAllIterators()
-   {
+   public void resetAllIterators() {
       // no-op
 
    }
@@ -139,493 +122,422 @@ public class FakeQueue implements Queue
 
    private long messageCount;
 
-   public FakeQueue(final SimpleString name)
-   {
+   public FakeQueue(final SimpleString name) {
       this(name, 0);
    }
 
-   public FakeQueue(final SimpleString name, final long id)
-   {
+   public FakeQueue(final SimpleString name, final long id) {
       this.name = name;
       this.id = id;
    }
 
    @Override
-   public void acknowledge(final MessageReference ref) throws Exception
-   {
+   public void acknowledge(final MessageReference ref) throws Exception {
       // no-op
 
    }
 
    @Override
-   public void acknowledge(final Transaction tx, final MessageReference ref) throws Exception
-   {
+   public void acknowledge(final Transaction tx, final MessageReference ref) throws Exception {
       // no-op
 
    }
 
    @Override
-   public void addConsumer(final Consumer consumer) throws Exception
-   {
+   public void addConsumer(final Consumer consumer) throws Exception {
       // no-op
 
    }
 
    @Override
-   public void addRedistributor(final long delay)
-   {
+   public void addRedistributor(final long delay) {
       // no-op
 
    }
 
    @Override
-   public void cancel(final MessageReference reference, final long timeBase) throws Exception
-   {
+   public void cancel(final MessageReference reference, final long timeBase) throws Exception {
       // no-op
 
    }
 
    @Override
-   public void cancel(final Transaction tx, final MessageReference ref)
-   {
+   public void cancel(final Transaction tx, final MessageReference ref) {
       // no-op
 
    }
 
    @Override
-   public void cancelRedistributor() throws Exception
-   {
+   public void cancelRedistributor() throws Exception {
       // no-op
 
    }
 
    @Override
-   public boolean changeReferencePriority(final long messageID, final byte newPriority) throws Exception
-   {
+   public boolean changeReferencePriority(final long messageID, final byte newPriority) throws Exception {
       // no-op
       return false;
    }
 
    @Override
-   public int changeReferencesPriority(Filter filter, byte newPriority) throws Exception
-   {
+   public int changeReferencesPriority(Filter filter, byte newPriority) throws Exception {
       // no-op
       return 0;
    }
 
    @Override
-   public boolean checkRedelivery(final MessageReference ref, final long timeBase, final boolean check) throws Exception
-   {
+   public boolean checkRedelivery(final MessageReference ref,
+                                  final long timeBase,
+                                  final boolean check) throws Exception {
       // no-op
       return false;
    }
 
    @Override
-   public int deleteAllReferences() throws Exception
-   {
+   public int deleteAllReferences() throws Exception {
       // no-op
       return 0;
    }
 
    @Override
-   public int deleteMatchingReferences(final Filter filter) throws Exception
-   {
+   public int deleteMatchingReferences(final Filter filter) throws Exception {
       // no-op
       return 0;
    }
 
    @Override
-   public boolean deleteReference(final long messageID) throws Exception
-   {
+   public boolean deleteReference(final long messageID) throws Exception {
       // no-op
       return false;
    }
 
    @Override
-   public void deliverAsync()
-   {
+   public void deliverAsync() {
       // no-op
 
    }
 
    @Override
-   public void expire(final MessageReference ref) throws Exception
-   {
+   public void expire(final MessageReference ref) throws Exception {
       // no-op
 
    }
 
    @Override
-   public boolean expireReference(final long messageID) throws Exception
-   {
+   public boolean expireReference(final long messageID) throws Exception {
       // no-op
       return false;
    }
 
    @Override
-   public void expireReferences() throws Exception
-   {
+   public void expireReferences() throws Exception {
       // no-op
 
    }
 
    @Override
-   public int expireReferences(final Filter filter) throws Exception
-   {
+   public int expireReferences(final Filter filter) throws Exception {
       // no-op
       return 0;
    }
 
    @Override
-   public int getConsumerCount()
-   {
+   public int getConsumerCount() {
       // no-op
       return 0;
    }
 
    @Override
-   public ReferenceCounter getConsumersRefCount()
-   {
+   public ReferenceCounter getConsumersRefCount() {
       return null;  //To change body of implemented methods use File | Settings | File Templates.
    }
 
    @Override
-   public Set<Consumer> getConsumers()
-   {
+   public Set<Consumer> getConsumers() {
       // no-op
       return null;
    }
 
    @Override
-   public int getDeliveringCount()
-   {
+   public int getDeliveringCount() {
       // no-op
       return 0;
    }
 
    @Override
-   public Filter getFilter()
-   {
+   public Filter getFilter() {
       // no-op
       return null;
    }
 
    @Override
-   public long getMessageCount()
-   {
+   public long getMessageCount() {
       return messageCount;
    }
 
-   public void setMessageCount(long messageCount)
-   {
+   public void setMessageCount(long messageCount) {
       this.messageCount = messageCount;
    }
 
    @Override
-   public long getMessagesAdded()
-   {
+   public long getMessagesAdded() {
       // no-op
       return 0;
    }
 
    @Override
-   public long getMessagesAcknowledged()
-   {
+   public long getMessagesAcknowledged() {
       // no-op
       return 0;
    }
 
    @Override
-   public void resetMessagesAdded()
-   {
+   public void resetMessagesAdded() {
       // no-op
 
    }
 
    @Override
-   public void resetMessagesAcknowledged()
-   {
+   public void resetMessagesAcknowledged() {
       // no-op
 
    }
 
    @Override
-   public void incrementMesssagesAdded()
-   {
+   public void incrementMesssagesAdded() {
 
    }
 
    @Override
-   public void deliverScheduledMessages()
-   {
+   public void deliverScheduledMessages() {
 
    }
 
    @Override
-   public SimpleString getName()
-   {
+   public SimpleString getName() {
       return name;
    }
 
-   public SimpleString getAddress()
-   {
+   public SimpleString getAddress() {
       // no-op
       return null;
    }
 
    @Override
-   public long getID()
-   {
+   public long getID() {
       return id;
    }
 
    @Override
-   public MessageReference getReference(final long id1)
-   {
+   public MessageReference getReference(final long id1) {
       // no-op
       return null;
    }
 
    @Override
-   public int getScheduledCount()
-   {
+   public int getScheduledCount() {
       // no-op
       return 0;
    }
 
    @Override
-   public List<MessageReference> getScheduledMessages()
-   {
+   public List<MessageReference> getScheduledMessages() {
       // no-op
       return null;
    }
 
    @Override
-   public boolean isDurable()
-   {
+   public boolean isDurable() {
       // no-op
       return false;
    }
 
    @Override
-   public boolean isPaused()
-   {
+   public boolean isPaused() {
       // no-op
       return false;
    }
 
    @Override
-   public boolean isTemporary()
-   {
+   public boolean isTemporary() {
       // no-op
       return false;
    }
 
    @Override
-   public boolean isAutoCreated()
-   {
+   public boolean isAutoCreated() {
       return false;
    }
 
    @Override
-   public LinkedListIterator<MessageReference> iterator()
-   {
+   public LinkedListIterator<MessageReference> iterator() {
       // no-op
       return null;
    }
 
    @Override
-   public boolean moveReference(final long messageID, final SimpleString toAddress) throws Exception
-   {
+   public boolean moveReference(final long messageID, final SimpleString toAddress) throws Exception {
       // no-op
       return false;
    }
 
    @Override
-   public int moveReferences(final Filter filter, final SimpleString toAddress) throws Exception
-   {
+   public int moveReferences(final Filter filter, final SimpleString toAddress) throws Exception {
       // no-op
       return 0;
    }
 
    @Override
-   public void pause()
-   {
+   public void pause() {
       // no-op
 
    }
 
    @Override
-   public void reacknowledge(final Transaction tx, final MessageReference ref) throws Exception
-   {
+   public void reacknowledge(final Transaction tx, final MessageReference ref) throws Exception {
       // no-op
 
    }
 
-   public void referenceHandled()
-   {
+   public void referenceHandled() {
       // no-op
 
    }
 
-   public void removeConsumer(final Consumer consumer)
-   {
+   public void removeConsumer(final Consumer consumer) {
    }
 
-   public MessageReference removeFirstReference(final long id1) throws Exception
-   {
+   public MessageReference removeFirstReference(final long id1) throws Exception {
       // no-op
       return null;
    }
 
-   public MessageReference removeReferenceWithID(final long id1) throws Exception
-   {
+   public MessageReference removeReferenceWithID(final long id1) throws Exception {
       // no-op
       return null;
    }
 
-   public void resume()
-   {
+   public void resume() {
       // no-op
 
    }
 
-   public boolean sendMessageToDeadLetterAddress(final long messageID) throws Exception
-   {
+   public boolean sendMessageToDeadLetterAddress(final long messageID) throws Exception {
       // no-op
       return false;
    }
 
-   public int sendMessagesToDeadLetterAddress(Filter filter) throws Exception
-   {
+   public int sendMessagesToDeadLetterAddress(Filter filter) throws Exception {
       // no-op
       return 0;
    }
 
-
    @Override
-   public SimpleString getExpiryAddress()
-   {
+   public SimpleString getExpiryAddress() {
       return null;
    }
 
    @Override
-   public void route(final ServerMessage message, final RoutingContext context) throws Exception
-   {
+   public void route(final ServerMessage message, final RoutingContext context) throws Exception {
       // no-op
 
    }
 
    @Override
-   public void routeWithAck(ServerMessage message, RoutingContext context)
-   {
+   public void routeWithAck(ServerMessage message, RoutingContext context) {
 
    }
 
-   public boolean hasMatchingConsumer(final ServerMessage message)
-   {
+   public boolean hasMatchingConsumer(final ServerMessage message) {
       // no-op
       return false;
    }
 
-   public Executor getExecutor()
-   {
+   public Executor getExecutor() {
       // no-op
       return null;
    }
 
-   public void addLast(MessageReference ref, boolean direct)
-   {
+   public void addLast(MessageReference ref, boolean direct) {
       // no-op
 
    }
 
    @Override
-   public PageSubscription getPageSubscription()
-   {
+   public PageSubscription getPageSubscription() {
       return subs;
    }
 
-   public void setPageSubscription(PageSubscription sub)
-   {
+   public void setPageSubscription(PageSubscription sub) {
       this.subs = sub;
    }
 
    @Override
-   public boolean moveReference(long messageID, SimpleString toAddress, boolean rejectDuplicates) throws Exception
-   {
+   public boolean moveReference(long messageID, SimpleString toAddress, boolean rejectDuplicates) throws Exception {
       // no-op
       return false;
    }
 
    @Override
-   public int deleteAllReferences(int flushLimit) throws Exception
-   {
+   public int deleteAllReferences(int flushLimit) throws Exception {
       return 0;
    }
 
    @Override
-   public int deleteMatchingReferences(int flushLImit, Filter filter) throws Exception
-   {
+   public int deleteMatchingReferences(int flushLImit, Filter filter) throws Exception {
       return 0;
    }
 
    @Override
-   public int moveReferences(int flushLimit, Filter filter, SimpleString toAddress, boolean rejectDuplicates) throws Exception
-   {
+   public int moveReferences(int flushLimit,
+                             Filter filter,
+                             SimpleString toAddress,
+                             boolean rejectDuplicates) throws Exception {
       return 0;
    }
 
    @Override
-   public void forceDelivery()
-   {
+   public void forceDelivery() {
       // no-op
 
    }
 
    @Override
-   public void deleteQueue() throws Exception
-   {
+   public void deleteQueue() throws Exception {
       // no-op
    }
 
    /* (non-Javadoc)
    * @see org.apache.activemq.artemis.core.server.Queue#destroyPaging()
    */
-   public void destroyPaging()
-   {
+   public void destroyPaging() {
    }
 
    /* (non-Javadoc)
     * @see org.apache.activemq.artemis.core.server.Queue#getDeliveringMessages()
     */
    @Override
-   public Map<String, List<MessageReference>> getDeliveringMessages()
-   {
+   public Map<String, List<MessageReference>> getDeliveringMessages() {
       return null;
    }
 
    @Override
-   public LinkedListIterator<MessageReference> totalIterator()
-   {
+   public LinkedListIterator<MessageReference> totalIterator() {
       // TODO Auto-generated method stub
       return null;
    }
 
    @Override
-   public void postAcknowledge(MessageReference ref)
-   {
+   public void postAcknowledge(MessageReference ref) {
    }
 
    @Override
-   public float getRate()
-   {
+   public float getRate() {
       return 0.0f;
    }
 
    @Override
-   public SimpleString getUser()
-   {
+   public SimpleString getUser() {
       return null;
    }
 }

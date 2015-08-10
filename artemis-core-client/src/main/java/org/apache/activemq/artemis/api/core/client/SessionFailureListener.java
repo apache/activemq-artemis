@@ -22,8 +22,8 @@ import org.apache.activemq.artemis.core.remoting.FailureListener;
 /**
  * A SessionFailureListener notifies the client when a failure occurred on the session.
  */
-public interface SessionFailureListener extends FailureListener
-{
+public interface SessionFailureListener extends FailureListener {
+
    /**
     * Notifies that a connection has failed due to the specified exception.
     * <br>

@@ -21,8 +21,8 @@ import java.util.Arrays;
 
 import org.apache.activemq.artemis.core.version.Version;
 
-public class VersionImpl implements Version, Serializable
-{
+public class VersionImpl implements Version, Serializable {
+
    private static final long serialVersionUID = -5271227256591080403L;
 
    private final String versionName;
@@ -44,8 +44,7 @@ public class VersionImpl implements Version, Serializable
                       final int minorVersion,
                       final int microVersion,
                       final int incrementingVersion,
-                      final int[] compatibleVersionList)
-   {
+                      final int[] compatibleVersionList) {
       this.versionName = versionName;
 
       this.majorVersion = majorVersion;
@@ -61,42 +60,33 @@ public class VersionImpl implements Version, Serializable
 
    // Version implementation ------------------------------------------
 
-   public String getFullVersion()
-   {
+   public String getFullVersion() {
       return versionName;
    }
 
-   public String getVersionName()
-   {
+   public String getVersionName() {
       return versionName;
    }
 
-   public int getMajorVersion()
-   {
+   public int getMajorVersion() {
       return majorVersion;
    }
 
-   public int getMinorVersion()
-   {
+   public int getMinorVersion() {
       return minorVersion;
    }
 
-   public int getMicroVersion()
-   {
+   public int getMicroVersion() {
       return microVersion;
    }
 
-   public int getIncrementingVersion()
-   {
+   public int getIncrementingVersion() {
       return incrementingVersion;
    }
 
-   public boolean isCompatible(int version)
-   {
-      for (int element : compatibleVersionList)
-      {
-         if (element == version)
-         {
+   public boolean isCompatible(int version) {
+      for (int element : compatibleVersionList) {
+         if (element == version) {
             return true;
          }
       }
@@ -104,8 +94,7 @@ public class VersionImpl implements Version, Serializable
    }
 
    @Override
-   public int hashCode()
-   {
+   public int hashCode() {
       final int prime = 31;
       int result = 1;
       result = prime * result + Arrays.hashCode(compatibleVersionList);
@@ -118,50 +107,38 @@ public class VersionImpl implements Version, Serializable
    }
 
    @Override
-   public boolean equals(Object obj)
-   {
-      if (this == obj)
-      {
+   public boolean equals(Object obj) {
+      if (this == obj) {
          return true;
       }
-      if (obj == null)
-      {
+      if (obj == null) {
          return false;
       }
-      if (!(obj instanceof VersionImpl))
-      {
+      if (!(obj instanceof VersionImpl)) {
          return false;
       }
-      VersionImpl other = (VersionImpl)obj;
-      if (!Arrays.equals(compatibleVersionList, other.compatibleVersionList))
-      {
+      VersionImpl other = (VersionImpl) obj;
+      if (!Arrays.equals(compatibleVersionList, other.compatibleVersionList)) {
          return false;
       }
-      if (incrementingVersion != other.incrementingVersion)
-      {
+      if (incrementingVersion != other.incrementingVersion) {
          return false;
       }
-      if (majorVersion != other.majorVersion)
-      {
+      if (majorVersion != other.majorVersion) {
          return false;
       }
-      if (microVersion != other.microVersion)
-      {
+      if (microVersion != other.microVersion) {
          return false;
       }
-      if (minorVersion != other.minorVersion)
-      {
+      if (minorVersion != other.minorVersion) {
          return false;
       }
-      if (versionName == null)
-      {
-         if (other.versionName != null)
-         {
+      if (versionName == null) {
+         if (other.versionName != null) {
             return false;
          }
       }
-      else if (!versionName.equals(other.versionName))
-      {
+      else if (!versionName.equals(other.versionName)) {
          return false;
       }
       return true;

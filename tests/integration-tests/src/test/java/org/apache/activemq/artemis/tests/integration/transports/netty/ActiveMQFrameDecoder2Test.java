@@ -28,8 +28,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class ActiveMQFrameDecoder2Test extends ActiveMQTestBase
-{
+public class ActiveMQFrameDecoder2Test extends ActiveMQTestBase {
+
    private static final int MSG_CNT = 10000;
 
    private static final int MSG_LEN = 1000;
@@ -39,36 +39,29 @@ public class ActiveMQFrameDecoder2Test extends ActiveMQTestBase
    private static final Random rand = new Random();
 
    @Test
-   public void testOrdinaryFragmentation() throws Exception
-   {
+   public void testOrdinaryFragmentation() throws Exception {
       final EmbeddedChannel decoder = new EmbeddedChannel(new ActiveMQFrameDecoder2());
       final byte[] data = new byte[ActiveMQFrameDecoder2Test.MSG_LEN];
       ActiveMQFrameDecoder2Test.rand.nextBytes(data);
 
       ByteBuf src = Unpooled.buffer(ActiveMQFrameDecoder2Test.MSG_CNT * (ActiveMQFrameDecoder2Test.MSG_LEN + 4));
-      while (src.writerIndex() < src.capacity())
-      {
+      while (src.writerIndex() < src.capacity()) {
          src.writeInt(ActiveMQFrameDecoder2Test.MSG_LEN);
          src.writeBytes(data);
       }
 
       List<ByteBuf> packets = new ArrayList<ByteBuf>();
-      while (src.isReadable())
-      {
-         int length = Math.min(ActiveMQFrameDecoder2Test.rand.nextInt(ActiveMQFrameDecoder2Test.FRAGMENT_MAX_LEN),
-                               src.readableBytes());
+      while (src.isReadable()) {
+         int length = Math.min(ActiveMQFrameDecoder2Test.rand.nextInt(ActiveMQFrameDecoder2Test.FRAGMENT_MAX_LEN), src.readableBytes());
          packets.add(src.readBytes(length));
       }
 
       int cnt = 0;
-      for (ByteBuf p : packets)
-      {
+      for (ByteBuf p : packets) {
          decoder.writeInbound(p);
-         for (;;)
-         {
+         for (; ; ) {
             ByteBuf frame = (ByteBuf) decoder.readInbound();
-            if (frame == null)
-            {
+            if (frame == null) {
                break;
             }
             Assert.assertEquals(4, frame.readerIndex());
@@ -82,8 +75,7 @@ public class ActiveMQFrameDecoder2Test extends ActiveMQTestBase
    }
 
    @Test
-   public void testExtremeFragmentation() throws Exception
-   {
+   public void testExtremeFragmentation() throws Exception {
       final EmbeddedChannel decoder = new EmbeddedChannel(new ActiveMQFrameDecoder2());
 
       decoder.writeInbound(Unpooled.wrappedBuffer(new byte[]{0}));

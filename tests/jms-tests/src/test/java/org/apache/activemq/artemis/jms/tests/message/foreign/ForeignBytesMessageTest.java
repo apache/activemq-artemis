@@ -26,11 +26,10 @@ import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
 /**
  * Tests the delivery/receipt of a foreign byte message
  */
-public class ForeignBytesMessageTest extends ForeignMessageTest
-{
+public class ForeignBytesMessageTest extends ForeignMessageTest {
+
    @Override
-   protected Message createForeignMessage() throws Exception
-   {
+   protected Message createForeignMessage() throws Exception {
       SimpleJMSBytesMessage m = new SimpleJMSBytesMessage();
 
       log.debug("creating JMS Message type " + m.getClass().getName());
@@ -41,17 +40,15 @@ public class ForeignBytesMessageTest extends ForeignMessageTest
    }
 
    @Override
-   protected void assertEquivalent(final Message m, final int mode, final boolean redelivery) throws JMSException
-   {
+   protected void assertEquivalent(final Message m, final int mode, final boolean redelivery) throws JMSException {
       super.assertEquivalent(m, mode, redelivery);
 
-      BytesMessage byteMsg = (BytesMessage)m;
+      BytesMessage byteMsg = (BytesMessage) m;
 
       StringBuffer sb = new StringBuffer();
       byte[] buffer = new byte[1024];
       int n = byteMsg.readBytes(buffer);
-      while (n != -1)
-      {
+      while (n != -1) {
          sb.append(new String(buffer, 0, n));
          n = byteMsg.readBytes(buffer);
       }

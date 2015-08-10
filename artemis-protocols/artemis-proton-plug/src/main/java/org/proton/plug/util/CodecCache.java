@@ -20,11 +20,10 @@ import org.apache.qpid.proton.codec.AMQPDefinedTypes;
 import org.apache.qpid.proton.codec.DecoderImpl;
 import org.apache.qpid.proton.codec.EncoderImpl;
 
-public class CodecCache
-{
+public class CodecCache {
 
-   private static class EncoderDecoderPair
-   {
+   private static class EncoderDecoderPair {
+
       DecoderImpl decoder = new DecoderImpl();
       EncoderImpl encoder = new EncoderImpl(decoder);
 
@@ -33,22 +32,18 @@ public class CodecCache
       }
    }
 
-   private static final ThreadLocal<EncoderDecoderPair> tlsCodec = new ThreadLocal<EncoderDecoderPair>()
-   {
+   private static final ThreadLocal<EncoderDecoderPair> tlsCodec = new ThreadLocal<EncoderDecoderPair>() {
       @Override
-      protected EncoderDecoderPair initialValue()
-      {
+      protected EncoderDecoderPair initialValue() {
          return new EncoderDecoderPair();
       }
    };
 
-   public static DecoderImpl getDecoder()
-   {
+   public static DecoderImpl getDecoder() {
       return tlsCodec.get().decoder;
    }
 
-   public static EncoderImpl getEncoder()
-   {
+   public static EncoderImpl getEncoder() {
       return tlsCodec.get().encoder;
    }
 

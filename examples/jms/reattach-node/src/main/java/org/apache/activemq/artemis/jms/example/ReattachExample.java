@@ -35,23 +35,21 @@ import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
  *
  * The network is brought back up and the client reconnects and resumes transparently.
  */
-public class ReattachExample
-{
-   public static void main(final String[] args) throws Exception
-   {
+public class ReattachExample {
+
+   public static void main(final String[] args) throws Exception {
       Connection connection = null;
       InitialContext initialContext = null;
 
-      try
-      {
+      try {
          // Step 1. Create an initial context to perform the JNDI lookup.
          initialContext = new InitialContext();
 
          // Step 2. Perform a lookup on the queue
-         Queue queue = (Queue)initialContext.lookup("queue/exampleQueue");
+         Queue queue = (Queue) initialContext.lookup("queue/exampleQueue");
 
          // Step 3. Perform a lookup on the Connection Factory
-         ConnectionFactory cf = (ConnectionFactory)initialContext.lookup("ConnectionFactory");
+         ConnectionFactory cf = (ConnectionFactory) initialContext.lookup("ConnectionFactory");
 
          // Step 4. Create a JMS Connection
          connection = cf.createConnection();
@@ -92,45 +90,38 @@ public class ReattachExample
          System.out.println("Restarted acceptor. The client will now reconnect.");
 
          // Step 13. We receive the message
-         TextMessage messageReceived = (TextMessage)messageConsumer.receive(5000);
+         TextMessage messageReceived = (TextMessage) messageConsumer.receive(5000);
 
          System.out.println("Received message: " + messageReceived.getText());
       }
-      finally
-      {
+      finally {
          // Step 14. Be sure to close our JMS resources!
-         if (initialContext != null)
-         {
+         if (initialContext != null) {
             initialContext.close();
          }
 
-         if (connection != null)
-         {
+         if (connection != null) {
             connection.close();
          }
       }
    }
 
-   private static void stopAcceptor() throws Exception
-   {
+   private static void stopAcceptor() throws Exception {
       stopStartAcceptor(true);
    }
 
-   private static void startAcceptor() throws Exception
-   {
+   private static void startAcceptor() throws Exception {
       stopStartAcceptor(false);
    }
 
    // To do this we send a management message to close the acceptor, we do this on a different
    // connection factory which uses a different remoting connection so we can still send messages
    // when the main connection has been stopped
-   private static void stopStartAcceptor(final boolean stop) throws Exception
-   {
+   private static void stopStartAcceptor(final boolean stop) throws Exception {
       ConnectionFactory cf = new ActiveMQConnectionFactory("tcp://localhost:61617");
 
       Connection connection = null;
-      try
-      {
+      try {
          connection = cf.createConnection();
 
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -149,10 +140,8 @@ public class ReattachExample
 
          producer.send(m);
       }
-      finally
-      {
-         if (connection != null)
-         {
+      finally {
+         if (connection != null) {
             connection.close();
          }
       }

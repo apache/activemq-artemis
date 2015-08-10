@@ -32,8 +32,7 @@ import org.jboss.resteasy.core.Headers;
 import org.jboss.resteasy.spi.ResteasyProviderFactory;
 import org.jboss.resteasy.util.GenericType;
 
-public class ActiveMQ
-{
+public class ActiveMQ {
 
    /**
     * Sets the message body to a serialized
@@ -42,8 +41,7 @@ public class ActiveMQ
     * @param message
     * @param object
     */
-   public static void setEntity(ClientMessage message, Serializable object)
-   {
+   public static void setEntity(ClientMessage message, Serializable object) {
       setEntity(message, object, null);
    }
 
@@ -55,12 +53,11 @@ public class ActiveMQ
     * @param object
     * @param contentType HTTP Content-Type header
     */
-   public static void setEntity(ClientMessage message, Serializable object, String contentType)
-   {
-      if (contentType != null) message.putStringProperty(HttpHeaderProperty.CONTENT_TYPE, contentType);
+   public static void setEntity(ClientMessage message, Serializable object, String contentType) {
+      if (contentType != null)
+         message.putStringProperty(HttpHeaderProperty.CONTENT_TYPE, contentType);
       byte[] data;
-      try
-      {
+      try {
          ByteArrayOutputStream baos = new ByteArrayOutputStream(1024);
 
          ObjectOutputStream oos = new ObjectOutputStream(baos);
@@ -71,8 +68,7 @@ public class ActiveMQ
 
          data = baos.toByteArray();
       }
-      catch (IOException e)
-      {
+      catch (IOException e) {
          throw new RuntimeException(e);
       }
 
@@ -81,11 +77,9 @@ public class ActiveMQ
 
    }
 
-   public static void setHttpHeader(ClientMessage message, String name, String value)
-   {
+   public static void setHttpHeader(ClientMessage message, String name, String value) {
       message.putStringProperty(HttpHeaderProperty.toPropertyName(name), value);
    }
-
 
    /**
     * Get an HTTP header value from a JMS Message
@@ -94,8 +88,7 @@ public class ActiveMQ
     * @param name
     * @return the HTTP header String
     */
-   public static String getHttpHeader(ClientMessage message, String name)
-   {
+   public static String getHttpHeader(ClientMessage message, String name) {
       return message.getStringProperty(HttpHeaderProperty.toPropertyName(name));
    }
 
@@ -106,8 +99,7 @@ public class ActiveMQ
     * @param type
     * @return
     */
-   public static <T> T getEntity(ClientMessage message, Class<T> type)
-   {
+   public static <T> T getEntity(ClientMessage message, Class<T> type) {
       return getEntity(message, type, null, ResteasyProviderFactory.getInstance());
    }
 
@@ -119,8 +111,7 @@ public class ActiveMQ
     * @param factory
     * @return
     */
-   public static <T> T getEntity(ClientMessage message, Class<T> type, ResteasyProviderFactory factory)
-   {
+   public static <T> T getEntity(ClientMessage message, Class<T> type, ResteasyProviderFactory factory) {
       return getEntity(message, type, null, factory);
    }
 
@@ -134,46 +125,42 @@ public class ActiveMQ
     * @throws UnknownMediaType
     * @throws UnmarshalException
     */
-   public static <T> T getEntity(ClientMessage message, GenericType<T> type, ResteasyProviderFactory factory) throws UnknownMediaType, UnmarshalException
-   {
+   public static <T> T getEntity(ClientMessage message,
+                                 GenericType<T> type,
+                                 ResteasyProviderFactory factory) throws UnknownMediaType, UnmarshalException {
       return getEntity(message, type.getType(), type.getGenericType(), factory);
    }
 
-   public static <T> T getEntity(ClientMessage msg, Class<T> type, Type genericType, ResteasyProviderFactory factory)
-   {
+   public static <T> T getEntity(ClientMessage msg, Class<T> type, Type genericType, ResteasyProviderFactory factory) {
       int size = msg.getBodySize();
-      if (size <= 0) return null;
+      if (size <= 0)
+         return null;
 
       byte[] body = new byte[size];
       msg.getBodyBuffer().readBytes(body);
 
-
       String contentType = msg.getStringProperty(HttpHeaderProperty.CONTENT_TYPE);
-      if (contentType == null)
-      {
+      if (contentType == null) {
          throw new UnknownMediaType("Message did not have a Content-Type header cannot extract entity");
       }
       MediaType ct = MediaType.valueOf(contentType);
       MessageBodyReader<T> reader = factory.getMessageBodyReader(type, genericType, null, ct);
-      if (reader == null)
-      {
+      if (reader == null) {
          throw new UnmarshalException("Unable to find a JAX-RS reader for type " + type.getName() + " and media type " + contentType);
       }
 
       Providers current = ResteasyProviderFactory.getContextData(Providers.class);
       ResteasyProviderFactory.pushContext(Providers.class, factory);
-      try
-      {
+      try {
          return reader.readFrom(type, genericType, null, ct, new Headers<String>(), new ByteArrayInputStream(body));
       }
-      catch (IOException e)
-      {
+      catch (IOException e) {
          throw new RuntimeException(e);
       }
-      finally
-      {
+      finally {
          ResteasyProviderFactory.popContextData(Providers.class);
-         if (current != null) ResteasyProviderFactory.pushContext(Providers.class, current);
+         if (current != null)
+            ResteasyProviderFactory.pushContext(Providers.class, current);
       }
    }
 
@@ -183,8 +170,7 @@ public class ActiveMQ
     * @param msg
     * @return
     */
-   public static boolean isHttpMessage(ClientMessage msg)
-   {
+   public static boolean isHttpMessage(ClientMessage msg) {
       Boolean aBoolean = msg.getBooleanProperty(HttpMessageHelper.POSTED_AS_HTTP_MESSAGE);
       return aBoolean != null && aBoolean.booleanValue() == true;
    }

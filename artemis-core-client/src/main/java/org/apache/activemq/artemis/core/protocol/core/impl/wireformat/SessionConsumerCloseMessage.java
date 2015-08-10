@@ -19,67 +19,58 @@ package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 
-public class SessionConsumerCloseMessage extends PacketImpl
-{
+public class SessionConsumerCloseMessage extends PacketImpl {
 
    private long consumerID;
 
-   public SessionConsumerCloseMessage(final long objectID)
-   {
+   public SessionConsumerCloseMessage(final long objectID) {
       super(SESS_CONSUMER_CLOSE);
 
       consumerID = objectID;
    }
 
-   public SessionConsumerCloseMessage()
-   {
+   public SessionConsumerCloseMessage() {
       super(SESS_CONSUMER_CLOSE);
    }
 
    // Public --------------------------------------------------------
 
-   public long getConsumerID()
-   {
+   public long getConsumerID() {
       return consumerID;
    }
 
    @Override
-   public void encodeRest(final ActiveMQBuffer buffer)
-   {
+   public void encodeRest(final ActiveMQBuffer buffer) {
       buffer.writeLong(consumerID);
    }
 
    @Override
-   public void decodeRest(final ActiveMQBuffer buffer)
-   {
+   public void decodeRest(final ActiveMQBuffer buffer) {
       consumerID = buffer.readLong();
    }
 
    @Override
-   public String toString()
-   {
+   public String toString() {
       return getParentString() + ", consumerID=" + consumerID + "]";
    }
 
    @Override
-   public int hashCode()
-   {
+   public int hashCode() {
       final int prime = 31;
       int result = super.hashCode();
-      result = prime * result + (int)(consumerID ^ (consumerID >>> 32));
+      result = prime * result + (int) (consumerID ^ (consumerID >>> 32));
       return result;
    }
 
    @Override
-   public boolean equals(Object obj)
-   {
+   public boolean equals(Object obj) {
       if (this == obj)
          return true;
       if (!super.equals(obj))
          return false;
       if (!(obj instanceof SessionConsumerCloseMessage))
          return false;
-      SessionConsumerCloseMessage other = (SessionConsumerCloseMessage)obj;
+      SessionConsumerCloseMessage other = (SessionConsumerCloseMessage) obj;
       if (consumerID != other.consumerID)
          return false;
       return true;

@@ -18,36 +18,31 @@ package org.apache.activemq.artemis.core.protocol.stomp;
 
 import java.nio.charset.StandardCharsets;
 
+public class SimpleBytes {
 
-public class SimpleBytes
-{
    private final int step;
    private byte[] contents;
    private int index;
 
-   public SimpleBytes(int initCapacity)
-   {
+   public SimpleBytes(int initCapacity) {
       this.step = initCapacity;
       contents = new byte[initCapacity];
       index = 0;
    }
 
-   public String getString()
-   {
-      if (index == 0) return "";
+   public String getString() {
+      if (index == 0)
+         return "";
 
       return new String(contents, 0, index, StandardCharsets.UTF_8);
    }
 
-   public void reset()
-   {
+   public void reset() {
       index = 0;
    }
 
-   public void append(byte b)
-   {
-      if (index >= contents.length)
-      {
+   public void append(byte b) {
+      if (index >= contents.length) {
          //grow
          byte[] newBuffer = new byte[contents.length + step];
          System.arraycopy(contents, 0, newBuffer, 0, contents.length);

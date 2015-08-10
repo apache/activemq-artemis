@@ -29,8 +29,7 @@ import org.jboss.logmanager.ExtLogRecord;
  *
  * Be careful with this use as this is intended for testing only (such as testcases)
  */
-public class AssertionLoggerHandler extends ExtHandler
-{
+public class AssertionLoggerHandler extends ExtHandler {
 
    private static final Map<String, ExtLogRecord> messages = new ConcurrentHashMap<>();
    private static boolean capture = false;
@@ -39,27 +38,22 @@ public class AssertionLoggerHandler extends ExtHandler
     * {@inheritDoc}
     */
    @Override
-   public void flush()
-   {
+   public void flush() {
    }
 
    /**
     * {@inheritDoc}
     */
    @Override
-   public void close() throws SecurityException
-   {
+   public void close() throws SecurityException {
    }
 
    @Override
-   protected void doPublish(final ExtLogRecord record)
-   {
-      if (capture)
-      {
+   protected void doPublish(final ExtLogRecord record) {
+      if (capture) {
          messages.put(record.getFormattedMessage(), record);
       }
    }
-
 
    /**
     * is there any record matching Level?
@@ -67,12 +61,9 @@ public class AssertionLoggerHandler extends ExtHandler
     * @param level
     * @return
     */
-   public static boolean hasLevel(Level level)
-   {
-      for (ExtLogRecord record : messages.values())
-      {
-         if (record.getLevel().equals(level))
-         {
+   public static boolean hasLevel(Level level) {
+      for (ExtLogRecord record : messages.values()) {
+         if (record.getLevel().equals(level)) {
             return true;
          }
       }
@@ -86,37 +77,29 @@ public class AssertionLoggerHandler extends ExtHandler
     * @param text
     * @return
     */
-   public static boolean findText(final String... text)
-   {
-      for (Map.Entry<String, ExtLogRecord> entry : messages.entrySet())
-      {
+   public static boolean findText(final String... text) {
+      for (Map.Entry<String, ExtLogRecord> entry : messages.entrySet()) {
          String key = entry.getKey();
          boolean found = true;
 
-         for (String txtCheck : text)
-         {
+         for (String txtCheck : text) {
             found = key.contains(txtCheck);
-            if (!found)
-            {
+            if (!found) {
                // If the main log message doesn't contain what we're looking for let's look in the message from the exception (if there is one).
                Throwable throwable = entry.getValue().getThrown();
-               if (throwable != null && throwable.getMessage() != null)
-               {
+               if (throwable != null && throwable.getMessage() != null) {
                   found = throwable.getMessage().contains(txtCheck);
-                  if (!found)
-                  {
+                  if (!found) {
                      break;
                   }
                }
-               else
-               {
+               else {
                   break;
                }
             }
          }
 
-         if (found)
-         {
+         if (found) {
             return true;
          }
       }
@@ -124,19 +107,16 @@ public class AssertionLoggerHandler extends ExtHandler
       return false;
    }
 
-   public static final void clear()
-   {
+   public static final void clear() {
       messages.clear();
    }
 
-   public static final void startCapture()
-   {
+   public static final void startCapture() {
       clear();
       capture = true;
    }
 
-   public static final void stopCapture()
-   {
+   public static final void stopCapture() {
       capture = false;
       clear();
    }

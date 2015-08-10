@@ -41,35 +41,29 @@ import org.junit.Test;
 /**
  * Client-ack time
  */
-public abstract class AbstractSendReceivePerfTest extends JMSTestBase
-{
+public abstract class AbstractSendReceivePerfTest extends JMSTestBase {
+
    protected static final String Q_NAME = "test-queue-01";
    private Queue queue;
 
    protected AtomicBoolean running = new AtomicBoolean(true);
 
-
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       jmsServer.createQueue(false, Q_NAME, null, true, Q_NAME);
       queue = ActiveMQJMSClient.createQueue(Q_NAME);
 
-      AddressSettings settings = new AddressSettings()
-              .setAddressFullMessagePolicy(AddressFullMessagePolicy.BLOCK)
-              .setMaxSizeBytes(Long.MAX_VALUE);
+      AddressSettings settings = new AddressSettings().setAddressFullMessagePolicy(AddressFullMessagePolicy.BLOCK).setMaxSizeBytes(Long.MAX_VALUE);
       server.getAddressSettingsRepository().clear();
       server.getAddressSettingsRepository().addMatch("#", settings);
 
    }
 
-
    @Override
-   protected void registerConnectionFactory() throws Exception
-   {
+   protected void registerConnectionFactory() throws Exception {
       List<TransportConfiguration> connectorConfigs = new ArrayList<TransportConfiguration>();
       connectorConfigs.add(new TransportConfiguration(NETTY_CONNECTOR_FACTORY));
 
@@ -78,15 +72,11 @@ public abstract class AbstractSendReceivePerfTest extends JMSTestBase
       cf = (ConnectionFactory) namingContext.lookup("/cf");
    }
 
-
    private static final java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(AbstractSendReceivePerfTest.class.getName());
 
-
    @Test
-   public void testSendReceive() throws Exception
-   {
+   public void testSendReceive() throws Exception {
       long numberOfSamples = Long.getLong("HORNETQ_TEST_SAMPLES", 1000);
-
 
       MessageReceiver receiver = new MessageReceiver(Q_NAME, numberOfSamples);
       receiver.start();
@@ -107,59 +97,44 @@ public abstract class AbstractSendReceivePerfTest extends JMSTestBase
     * to be called after a message is consumed
     * so the flow control of the test kicks in.
     */
-   protected final void afterConsume(Message message)
-   {
-      if (message != null)
-      {
+   protected final void afterConsume(Message message) {
+      if (message != null) {
          pendingCredit.release();
       }
    }
 
-
-   protected final void beforeSend()
-   {
-      while (running.get())
-      {
-         try
-         {
-            if (pendingCredit.tryAcquire(1, TimeUnit.SECONDS))
-            {
+   protected final void beforeSend() {
+      while (running.get()) {
+         try {
+            if (pendingCredit.tryAcquire(1, TimeUnit.SECONDS)) {
                return;
             }
-            else
-            {
+            else {
                System.out.println("Couldn't get credits!");
             }
          }
-         catch (Throwable e)
-         {
+         catch (Throwable e) {
             throw new RuntimeException(e.getMessage(), e);
          }
       }
    }
 
+   private class MessageReceiver extends Thread {
 
-
-
-   private class MessageReceiver extends Thread
-   {
       private final String qName;
       private final long numberOfSamples;
 
       public boolean failed = false;
 
-      public MessageReceiver(String qname, long numberOfSamples) throws Exception
-      {
+      public MessageReceiver(String qname, long numberOfSamples) throws Exception {
          super("Receiver " + qname);
          this.qName = qname;
          this.numberOfSamples = numberOfSamples;
       }
 
       @Override
-      public void run()
-      {
-         try
-         {
+      public void run() {
+         try {
             LOGGER.info("Receiver: Connecting");
             Connection c = cf.createConnection();
 
@@ -167,13 +142,11 @@ public abstract class AbstractSendReceivePerfTest extends JMSTestBase
 
             c.close();
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             e.printStackTrace();
             failed = true;
          }
-         finally
-         {
+         finally {
             running.set(false);
          }
       }
@@ -181,24 +154,21 @@ public abstract class AbstractSendReceivePerfTest extends JMSTestBase
 
    protected abstract void consumeMessages(Connection c, String qName) throws Exception;
 
-   private class MessageSender extends Thread
-   {
+   private class MessageSender extends Thread {
+
       protected String qName;
 
       public boolean failed = false;
 
-      public MessageSender(String qname) throws Exception
-      {
+      public MessageSender(String qname) throws Exception {
          super("Sender " + qname);
 
          this.qName = qname;
       }
 
       @Override
-      public void run()
-      {
-         try
-         {
+      public void run() {
+         try {
             LOGGER.info("Sender: Connecting");
             Connection c = cf.createConnection();
 
@@ -207,15 +177,12 @@ public abstract class AbstractSendReceivePerfTest extends JMSTestBase
             c.close();
 
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             failed = true;
-            if (e instanceof InterruptedException)
-            {
+            if (e instanceof InterruptedException) {
                LOGGER.info("Sender done.");
             }
-            else
-            {
+            else {
                e.printStackTrace();
             }
          }
@@ -223,21 +190,17 @@ public abstract class AbstractSendReceivePerfTest extends JMSTestBase
    }
 
    /* This will by default send non persistent messages */
-   protected void sendMessages(Connection c, String qName) throws JMSException
-   {
+   protected void sendMessages(Connection c, String qName) throws JMSException {
       Session s = null;
       s = c.createSession(false, Session.AUTO_ACKNOWLEDGE);
       LOGGER.info("Sender: Using AUTO-ACK session");
-
 
       Queue q = s.createQueue(qName);
       MessageProducer producer = s.createProducer(null);
       producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
 
-
       long sent = 0;
-      while (running.get())
-      {
+      while (running.get()) {
          beforeSend();
          producer.send(q, s.createTextMessage("Message_" + (sent++)));
       }

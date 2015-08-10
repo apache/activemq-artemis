@@ -18,8 +18,7 @@ package org.apache.activemq.artemis.core.protocol.openwire.amq;
 
 import org.apache.activemq.command.Message;
 
-public interface AMQMessageAuthorizationPolicy
-{
+public interface AMQMessageAuthorizationPolicy {
 
    /**
     * Returns true if the given message is able to be dispatched to the connection

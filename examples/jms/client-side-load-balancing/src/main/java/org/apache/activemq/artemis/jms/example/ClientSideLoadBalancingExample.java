@@ -33,26 +33,24 @@ import javax.naming.InitialContext;
  * In this example there are three nodes and we use a round-robin client side load-balancing
  * policy.
  */
-public class ClientSideLoadBalancingExample
-{
-   public static void main(final String[] args) throws Exception
-   {
+public class ClientSideLoadBalancingExample {
+
+   public static void main(final String[] args) throws Exception {
       InitialContext initialContext = null;
 
       Connection connectionA = null;
       Connection connectionB = null;
       Connection connectionC = null;
 
-      try
-      {
+      try {
          // Step 1. Get an initial context for looking up JNDI from server 0
          initialContext = new InitialContext();
 
          // Step 2. Look-up the JMS Queue object from JNDI
-         Queue queue = (Queue)initialContext.lookup("queue/exampleQueue");
+         Queue queue = (Queue) initialContext.lookup("queue/exampleQueue");
 
          // Step 3. Look-up a JMS Connection Factory object from JNDI on server 0
-         ConnectionFactory connectionFactory = (ConnectionFactory)initialContext.lookup("ConnectionFactory");
+         ConnectionFactory connectionFactory = (ConnectionFactory) initialContext.lookup("ConnectionFactory");
 
          // Step 4. We create 3 JMS connections from the same connection factory. Since we are using round-robin
          // load-balancing this should result in each sessions being connected to a different node of the cluster
@@ -69,9 +67,9 @@ public class ClientSideLoadBalancingExample
          Session sessionB = connectionB.createSession(false, Session.AUTO_ACKNOWLEDGE);
          Session sessionC = connectionC.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-         System.out.println("Session A - " + ((org.apache.activemq.artemis.core.client.impl.DelegatingSession) ((org.apache.activemq.artemis.jms.client.ActiveMQSession) sessionA).getCoreSession()).getConnection().getRemoteAddress() );
-         System.out.println("Session B - " + ((org.apache.activemq.artemis.core.client.impl.DelegatingSession) ((org.apache.activemq.artemis.jms.client.ActiveMQSession) sessionB).getCoreSession()).getConnection().getRemoteAddress() );
-         System.out.println("Session C - " + ((org.apache.activemq.artemis.core.client.impl.DelegatingSession) ((org.apache.activemq.artemis.jms.client.ActiveMQSession) sessionC).getCoreSession()).getConnection().getRemoteAddress() );
+         System.out.println("Session A - " + ((org.apache.activemq.artemis.core.client.impl.DelegatingSession) ((org.apache.activemq.artemis.jms.client.ActiveMQSession) sessionA).getCoreSession()).getConnection().getRemoteAddress());
+         System.out.println("Session B - " + ((org.apache.activemq.artemis.core.client.impl.DelegatingSession) ((org.apache.activemq.artemis.jms.client.ActiveMQSession) sessionB).getCoreSession()).getConnection().getRemoteAddress());
+         System.out.println("Session C - " + ((org.apache.activemq.artemis.core.client.impl.DelegatingSession) ((org.apache.activemq.artemis.jms.client.ActiveMQSession) sessionC).getCoreSession()).getConnection().getRemoteAddress());
 
          // Step 6. We create JMS MessageProducer objects on the sessions
          MessageProducer producerA = sessionA.createProducer(queue);
@@ -81,8 +79,7 @@ public class ClientSideLoadBalancingExample
          // Step 7. We send some messages on each producer
          final int numMessages = 10;
 
-         for (int i = 0; i < numMessages; i++)
-         {
+         for (int i = 0; i < numMessages; i++) {
             TextMessage messageA = sessionA.createTextMessage("A:This is text message " + i);
             producerA.send(messageA);
             System.out.println("Sent message: " + messageA.getText());
@@ -109,37 +106,30 @@ public class ClientSideLoadBalancingExample
          consume(sessionB, queue, numMessages, "B");
          consume(sessionC, queue, numMessages, "C");
       }
-      finally
-      {
+      finally {
          // Step 10. Be sure to close our resources!
 
-         if (connectionA != null)
-         {
+         if (connectionA != null) {
             connectionA.close();
          }
-         if (connectionB != null)
-         {
+         if (connectionB != null) {
             connectionB.close();
          }
-         if (connectionC != null)
-         {
+         if (connectionC != null) {
             connectionC.close();
          }
 
-         if (initialContext != null)
-         {
+         if (initialContext != null) {
             initialContext.close();
          }
       }
    }
 
-   private static void consume(Session session, Queue queue, int numMessages, String node) throws JMSException
-   {
+   private static void consume(Session session, Queue queue, int numMessages, String node) throws JMSException {
       MessageConsumer consumer = session.createConsumer(queue);
 
-      for (int i = 0; i < numMessages; i++)
-      {
-         TextMessage message = (TextMessage)consumer.receive(2000);
+      for (int i = 0; i < numMessages; i++) {
+         TextMessage message = (TextMessage) consumer.receive(2000);
          System.out.println("Got message: " + message.getText() + " from node " + node);
       }
 

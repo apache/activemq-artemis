@@ -1,5 +1,5 @@
 /**
-revision 946600 * Licensed to the Apache Software Foundation (ASF) under one or more
+ revision 946600 * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
@@ -20,7 +20,7 @@ import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.leveldb.LevelDBStore;
 
 /**
- * 
+ *
  */
 public class LevelDBDurableTopicTest extends SimpleDurableTopicTest {
 
@@ -32,13 +32,13 @@ public class LevelDBDurableTopicTest extends SimpleDurableTopicTest {
      * result=factory.getBroker(); result.start(); return result; }
      */
 
-    @Override
-    protected void configureBroker(BrokerService answer,String uri) throws Exception {
-        LevelDBStore store = new LevelDBStore();
-        answer.setPersistenceAdapter(store);
-        answer.setDeleteAllMessagesOnStartup(true);
-        answer.addConnector(uri);
-       
-    }
+   @Override
+   protected void configureBroker(BrokerService answer, String uri) throws Exception {
+      LevelDBStore store = new LevelDBStore();
+      answer.setPersistenceAdapter(store);
+      answer.setDeleteAllMessagesOnStartup(true);
+      answer.addConnector(uri);
+
+   }
 
 }

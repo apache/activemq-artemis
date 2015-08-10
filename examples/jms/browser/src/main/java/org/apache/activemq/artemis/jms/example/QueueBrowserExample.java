@@ -30,25 +30,22 @@ import java.util.Enumeration;
 /**
  * A simple example which shows how to use a QueueBrowser to look at messages of a queue without removing them from the queue
  */
-public class QueueBrowserExample
-{
-   public static void main(final String[] args) throws Exception
-   {
+public class QueueBrowserExample {
+
+   public static void main(final String[] args) throws Exception {
       Connection connection = null;
       InitialContext initialContext = null;
-      try
-      {
+      try {
          // Step 1. Create an initial context to perform the JNDI lookup.
          initialContext = new InitialContext();
 
          // Step 2. Perfom a lookup on the queue
-         Queue queue = (Queue)initialContext.lookup("queue/exampleQueue");
+         Queue queue = (Queue) initialContext.lookup("queue/exampleQueue");
 
          // Step 3. Perform a lookup on the Connection Factory
          //          you could alternatively instantiate the connection directly
          //          ConnectionFactory cf = new ActiveMQConnectionFactory(); // this would accept the broker URI as well
-         ConnectionFactory cf = (ConnectionFactory)initialContext.lookup("ConnectionFactory");
-
+         ConnectionFactory cf = (ConnectionFactory) initialContext.lookup("ConnectionFactory");
 
          // Step 4. Create a JMS Connection
          connection = cf.createConnection();
@@ -73,9 +70,8 @@ public class QueueBrowserExample
          // Step 10. Browse the messages on the queue
          // Browsing a queue does not remove the messages from the queue
          Enumeration messageEnum = browser.getEnumeration();
-         while (messageEnum.hasMoreElements())
-         {
-            TextMessage message = (TextMessage)messageEnum.nextElement();
+         while (messageEnum.hasMoreElements()) {
+            TextMessage message = (TextMessage) messageEnum.nextElement();
             System.out.println("Browsing: " + message.getText());
          }
 
@@ -89,20 +85,17 @@ public class QueueBrowserExample
          connection.start();
 
          // Step 14. Receive the 2 messages
-         TextMessage messageReceived = (TextMessage)messageConsumer.receive(5000);
+         TextMessage messageReceived = (TextMessage) messageConsumer.receive(5000);
          System.out.println("Received message: " + messageReceived.getText());
-         messageReceived = (TextMessage)messageConsumer.receive(5000);
+         messageReceived = (TextMessage) messageConsumer.receive(5000);
          System.out.println("Received message: " + messageReceived.getText());
       }
-      finally
-      {
+      finally {
          // Step 15. Be sure to close our JMS resources!
-         if (initialContext != null)
-         {
+         if (initialContext != null) {
             initialContext.close();
          }
-         if (connection != null)
-         {
+         if (connection != null) {
             connection.close();
          }
       }

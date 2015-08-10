@@ -18,26 +18,27 @@ package org.apache.activemq.usecases;
 
 import javax.jms.Destination;
 import javax.jms.Session;
+
 import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.broker.region.policy.PolicyEntry;
 import org.apache.activemq.broker.region.policy.PolicyMap;
 
 public class TempTopicProducerFlowControlTest extends TopicProducerFlowControlTest {
 
-    @Override
-    protected void setDestinationPolicy(BrokerService broker, PolicyMap pm) {
-        PolicyEntry tpe = new PolicyEntry();
-        tpe.setTempTopic(true);
-        tpe.setMemoryLimit(destinationMemLimit);
-        tpe.setProducerFlowControl(true);
-        tpe.setAdvisoryWhenFull(true);
-        pm.setDefaultEntry(tpe);
+   @Override
+   protected void setDestinationPolicy(BrokerService broker, PolicyMap pm) {
+      PolicyEntry tpe = new PolicyEntry();
+      tpe.setTempTopic(true);
+      tpe.setMemoryLimit(destinationMemLimit);
+      tpe.setProducerFlowControl(true);
+      tpe.setAdvisoryWhenFull(true);
+      pm.setDefaultEntry(tpe);
 
-        broker.setDestinationPolicy(pm);
-    }
+      broker.setDestinationPolicy(pm);
+   }
 
-    @Override
-    protected Destination createDestination(Session session) throws Exception {
-        return session.createTemporaryTopic();
-    }
+   @Override
+   protected Destination createDestination(Session session) throws Exception {
+      return session.createTemporaryTopic();
+   }
 }

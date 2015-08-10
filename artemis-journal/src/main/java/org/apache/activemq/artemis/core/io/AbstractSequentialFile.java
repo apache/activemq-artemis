@@ -36,8 +36,7 @@ import org.apache.activemq.artemis.core.io.buffer.TimedBufferObserver;
 import org.apache.activemq.artemis.journal.ActiveMQJournalBundle;
 import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
 
-public abstract class AbstractSequentialFile implements SequentialFile
-{
+public abstract class AbstractSequentialFile implements SequentialFile {
 
    private File file;
 
@@ -69,8 +68,7 @@ public abstract class AbstractSequentialFile implements SequentialFile
    public AbstractSequentialFile(final File directory,
                                  final String file,
                                  final SequentialFileFactory factory,
-                                 final Executor writerExecutor)
-   {
+                                 final Executor writerExecutor) {
       super();
       this.file = new File(directory, file);
       this.directory = directory;
@@ -80,62 +78,49 @@ public abstract class AbstractSequentialFile implements SequentialFile
 
    // Public --------------------------------------------------------
 
-   public final boolean exists()
-   {
+   public final boolean exists() {
       return file.exists();
    }
 
-   public final String getFileName()
-   {
+   public final String getFileName() {
       return file.getName();
    }
 
-   public final void delete() throws IOException, InterruptedException, ActiveMQException
-   {
-      if (isOpen())
-      {
+   public final void delete() throws IOException, InterruptedException, ActiveMQException {
+      if (isOpen()) {
          close();
       }
 
-      if (file.exists() && !file.delete())
-      {
+      if (file.exists() && !file.delete()) {
          ActiveMQJournalLogger.LOGGER.errorDeletingFile(this);
       }
    }
 
-   public void copyTo(SequentialFile newFileName) throws Exception
-   {
-      try
-      {
+   public void copyTo(SequentialFile newFileName) throws Exception {
+      try {
          ActiveMQJournalLogger.LOGGER.debug("Copying " + this + " as " + newFileName);
-         if (!newFileName.isOpen())
-         {
+         if (!newFileName.isOpen()) {
             newFileName.open();
          }
 
-         if (!isOpen())
-         {
+         if (!isOpen()) {
             this.open();
          }
 
-
          ByteBuffer buffer = ByteBuffer.allocate(10 * 1024);
 
-         for (;;)
-         {
+         for (; ; ) {
             buffer.rewind();
             int size = this.read(buffer);
             newFileName.writeDirect(buffer, false);
-            if (size < 10 * 1024)
-            {
+            if (size < 10 * 1024) {
                break;
             }
          }
          newFileName.close();
          this.close();
       }
-      catch (IOException e)
-      {
+      catch (IOException e) {
          factory.onIOError(new ActiveMQIOErrorException(e.getMessage(), e), e.getMessage(), this);
          throw e;
       }
@@ -145,35 +130,27 @@ public abstract class AbstractSequentialFile implements SequentialFile
     * @throws IOException only declare exception due to signature. Sub-class needs it.
     */
    @Override
-   public void position(final long pos) throws IOException
-   {
+   public void position(final long pos) throws IOException {
       position.set(pos);
    }
 
-   public long position()
-   {
+   public long position() {
       return position.get();
    }
 
-   public final void renameTo(final String newFileName) throws IOException, InterruptedException,
-      ActiveMQException
-   {
-      try
-      {
+   public final void renameTo(final String newFileName) throws IOException, InterruptedException, ActiveMQException {
+      try {
          close();
       }
-      catch (IOException e)
-      {
+      catch (IOException e) {
          factory.onIOError(new ActiveMQIOErrorException(e.getMessage(), e), e.getMessage(), this);
          throw e;
       }
 
       File newFile = new File(directory + "/" + newFileName);
 
-      if (!file.equals(newFile))
-      {
-         if (!file.renameTo(newFile))
-         {
+      if (!file.equals(newFile)) {
+         if (!file.renameTo(newFile)) {
             throw ActiveMQJournalBundle.BUNDLE.ioRenameFileError(file.getName(), newFileName);
          }
          file = newFile;
@@ -181,67 +158,53 @@ public abstract class AbstractSequentialFile implements SequentialFile
    }
 
    /**
-    * @throws IOException      we declare throwing IOException because sub-classes need to do it
+    * @throws IOException       we declare throwing IOException because sub-classes need to do it
     * @throws ActiveMQException
     */
-   public synchronized void close() throws IOException, InterruptedException, ActiveMQException
-   {
+   public synchronized void close() throws IOException, InterruptedException, ActiveMQException {
       final CountDownLatch donelatch = new CountDownLatch(1);
 
-      if (writerExecutor != null)
-      {
-         writerExecutor.execute(new Runnable()
-         {
-            public void run()
-            {
+      if (writerExecutor != null) {
+         writerExecutor.execute(new Runnable() {
+            public void run() {
                donelatch.countDown();
             }
          });
 
-         while (!donelatch.await(60, TimeUnit.SECONDS))
-         {
+         while (!donelatch.await(60, TimeUnit.SECONDS)) {
             ActiveMQJournalLogger.LOGGER.couldNotCompleteTask(new Exception("trace"), file.getName());
          }
       }
    }
 
-   public final boolean fits(final int size)
-   {
-      if (timedBuffer == null)
-      {
+   public final boolean fits(final int size) {
+      if (timedBuffer == null) {
          return position.get() + size <= fileSize;
       }
-      else
-      {
+      else {
          return timedBuffer.checkSize(size);
       }
    }
 
-   public void setTimedBuffer(final TimedBuffer buffer)
-   {
-      if (timedBuffer != null)
-      {
+   public void setTimedBuffer(final TimedBuffer buffer) {
+      if (timedBuffer != null) {
          timedBuffer.setObserver(null);
       }
 
       timedBuffer = buffer;
 
-      if (buffer != null)
-      {
+      if (buffer != null) {
          buffer.setObserver(timedBufferObserver);
       }
 
    }
 
-   public void write(final ActiveMQBuffer bytes, final boolean sync, final IOCallback callback) throws IOException
-   {
-      if (timedBuffer != null)
-      {
+   public void write(final ActiveMQBuffer bytes, final boolean sync, final IOCallback callback) throws IOException {
+      if (timedBuffer != null) {
          bytes.setIndex(0, bytes.capacity());
          timedBuffer.addBytes(bytes, sync, callback);
       }
-      else
-      {
+      else {
          ByteBuffer buffer = factory.newBuffer(bytes.capacity());
          buffer.put(bytes.toByteBuffer().array());
          buffer.rewind();
@@ -249,31 +212,25 @@ public abstract class AbstractSequentialFile implements SequentialFile
       }
    }
 
-   public void write(final ActiveMQBuffer bytes, final boolean sync) throws IOException, InterruptedException,
-      ActiveMQException
-   {
-      if (sync)
-      {
+   public void write(final ActiveMQBuffer bytes,
+                     final boolean sync) throws IOException, InterruptedException, ActiveMQException {
+      if (sync) {
          SimpleWaitIOCallback completion = new SimpleWaitIOCallback();
 
          write(bytes, true, completion);
 
          completion.waitCompletion();
       }
-      else
-      {
+      else {
          write(bytes, false, DummyCallback.getInstance());
       }
    }
 
-   public void write(final EncodingSupport bytes, final boolean sync, final IOCallback callback)
-   {
-      if (timedBuffer != null)
-      {
+   public void write(final EncodingSupport bytes, final boolean sync, final IOCallback callback) {
+      if (timedBuffer != null) {
          timedBuffer.addBytes(bytes, sync, callback);
       }
-      else
-      {
+      else {
          ByteBuffer buffer = factory.newBuffer(bytes.getEncodeSize());
 
          // If not using the TimedBuffer, a final copy is necessary
@@ -287,69 +244,55 @@ public abstract class AbstractSequentialFile implements SequentialFile
       }
    }
 
-   public void write(final EncodingSupport bytes, final boolean sync) throws InterruptedException, ActiveMQException
-   {
-      if (sync)
-      {
+   public void write(final EncodingSupport bytes, final boolean sync) throws InterruptedException, ActiveMQException {
+      if (sync) {
          SimpleWaitIOCallback completion = new SimpleWaitIOCallback();
 
          write(bytes, true, completion);
 
          completion.waitCompletion();
       }
-      else
-      {
+      else {
          write(bytes, false, DummyCallback.getInstance());
       }
    }
 
-   protected File getFile()
-   {
+   protected File getFile() {
       return file;
    }
 
-   private static final class DelegateCallback implements IOCallback
-   {
+   private static final class DelegateCallback implements IOCallback {
+
       final List<IOCallback> delegates;
 
-      private DelegateCallback(final List<IOCallback> delegates)
-      {
+      private DelegateCallback(final List<IOCallback> delegates) {
          this.delegates = delegates;
       }
 
-      public void done()
-      {
-         for (IOCallback callback : delegates)
-         {
-            try
-            {
+      public void done() {
+         for (IOCallback callback : delegates) {
+            try {
                callback.done();
             }
-            catch (Throwable e)
-            {
+            catch (Throwable e) {
                ActiveMQJournalLogger.LOGGER.errorCompletingCallback(e);
             }
          }
       }
 
-      public void onError(final int errorCode, final String errorMessage)
-      {
-         for (IOCallback callback : delegates)
-         {
-            try
-            {
+      public void onError(final int errorCode, final String errorMessage) {
+         for (IOCallback callback : delegates) {
+            try {
                callback.onError(errorCode, errorMessage);
             }
-            catch (Throwable e)
-            {
+            catch (Throwable e) {
                ActiveMQJournalLogger.LOGGER.errorCallingErrorCallback(e);
             }
          }
       }
    }
 
-   protected ByteBuffer newBuffer(int size, int limit)
-   {
+   protected ByteBuffer newBuffer(int size, int limit) {
       size = factory.calculateBlockSize(size);
       limit = factory.calculateBlockSize(limit);
 
@@ -358,50 +301,41 @@ public abstract class AbstractSequentialFile implements SequentialFile
       return buffer;
    }
 
-   protected class LocalBufferObserver implements TimedBufferObserver
-   {
-      public void flushBuffer(final ByteBuffer buffer, final boolean requestedSync, final List<IOCallback> callbacks)
-      {
+   protected class LocalBufferObserver implements TimedBufferObserver {
+
+      public void flushBuffer(final ByteBuffer buffer, final boolean requestedSync, final List<IOCallback> callbacks) {
          buffer.flip();
 
-         if (buffer.limit() == 0)
-         {
+         if (buffer.limit() == 0) {
             factory.releaseBuffer(buffer);
          }
-         else
-         {
+         else {
             writeDirect(buffer, requestedSync, new DelegateCallback(callbacks));
          }
       }
 
-      public ByteBuffer newBuffer(final int size, final int limit)
-      {
+      public ByteBuffer newBuffer(final int size, final int limit) {
          return AbstractSequentialFile.this.newBuffer(size, limit);
       }
 
-      public int getRemainingBytes()
-      {
-         if (fileSize - position.get() > Integer.MAX_VALUE)
-         {
+      public int getRemainingBytes() {
+         if (fileSize - position.get() > Integer.MAX_VALUE) {
             return Integer.MAX_VALUE;
          }
-         else
-         {
-            return (int)(fileSize - position.get());
+         else {
+            return (int) (fileSize - position.get());
          }
       }
 
       @Override
-      public String toString()
-      {
+      public String toString() {
          return "TimedBufferObserver on file (" + getFile().getName() + ")";
       }
 
    }
 
    @Override
-   public File getJavaFile()
-   {
+   public File getJavaFile() {
       return getFile().getAbsoluteFile();
    }
 }

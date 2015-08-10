@@ -30,39 +30,41 @@ import java.util.concurrent.TimeUnit;
 
 public class CraigsBugTest extends EmbeddedBrokerTestSupport {
 
-    private String connectionUri;
+   private String connectionUri;
 
-    public void testConnectionFactory() throws Exception {
-        final ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory(connectionUri);
-        final ActiveMQQueue queue = new ActiveMQQueue("testqueue");
-        final Connection conn = cf.createConnection();
+   public void testConnectionFactory() throws Exception {
+      final ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory(connectionUri);
+      final ActiveMQQueue queue = new ActiveMQQueue("testqueue");
+      final Connection conn = cf.createConnection();
 
-        Runnable r = new Runnable() {
-            public void run() {
-                try {
-                    Session session = conn.createSession(false, 1);
-                    MessageConsumer consumer = session.createConsumer(queue, null);
-                    consumer.receive(1000);
-                } catch (JMSException e) {
-                    e.printStackTrace();
-                }
+      Runnable r = new Runnable() {
+         public void run() {
+            try {
+               Session session = conn.createSession(false, 1);
+               MessageConsumer consumer = session.createConsumer(queue, null);
+               consumer.receive(1000);
             }
-        };
-        new Thread(r).start();
-        conn.start();
+            catch (JMSException e) {
+               e.printStackTrace();
+            }
+         }
+      };
+      new Thread(r).start();
+      conn.start();
 
-        try {
-            new CountDownLatch(1).await(3, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
+      try {
+         new CountDownLatch(1).await(3, TimeUnit.SECONDS);
+      }
+      catch (InterruptedException e) {
+         e.printStackTrace();
+      }
+   }
 
-    protected void setUp() throws Exception {
-        bindAddress = "tcp://localhost:0";
-        super.setUp();
+   protected void setUp() throws Exception {
+      bindAddress = "tcp://localhost:0";
+      super.setUp();
 
-        connectionUri = broker.getTransportConnectors().get(0).getPublishableConnectString();
-    }
+      connectionUri = broker.getTransportConnectors().get(0).getPublishableConnectString();
+   }
 
 }

@@ -50,8 +50,8 @@ import org.apache.activemq.artemis.utils.ConfirmationWindowWarning;
 import org.apache.activemq.artemis.utils.TokenBucketLimiterImpl;
 import org.apache.activemq.artemis.utils.XidCodecSupport;
 
-public final class ClientSessionImpl implements ClientSessionInternal, FailureListener
-{
+public final class ClientSessionImpl implements ClientSessionInternal, FailureListener {
+
    private final Map<String, String> metadata = new HashMap<String, String>();
 
    private final ClientSessionFactoryInternal sessionFactory;
@@ -137,7 +137,6 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
     */
    private Xid currentXID;
 
-
    private final AtomicInteger concurrentCall = new AtomicInteger(0);
 
    private final ConfirmationWindowWarning confirmationWindowWarning;
@@ -167,8 +166,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
                      final String groupID,
                      final SessionContext sessionContext,
                      final Executor executor,
-                     final Executor flowControlExecutor) throws ActiveMQException
-   {
+                     final Executor flowControlExecutor) throws ActiveMQException {
       this.sessionFactory = sessionFactory;
 
       this.name = name;
@@ -229,185 +227,153 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
    // ClientSession implementation
    // -----------------------------------------------------------------
 
-   public void createQueue(final SimpleString address, final SimpleString queueName) throws ActiveMQException
-   {
+   public void createQueue(final SimpleString address, final SimpleString queueName) throws ActiveMQException {
       internalCreateQueue(address, queueName, null, false, false);
    }
 
-   public void createQueue(final SimpleString address, final SimpleString queueName, final boolean durable) throws ActiveMQException
-   {
+   public void createQueue(final SimpleString address,
+                           final SimpleString queueName,
+                           final boolean durable) throws ActiveMQException {
       internalCreateQueue(address, queueName, null, durable, false);
    }
 
-   public void createQueue(final String address, final String queueName, final boolean durable) throws ActiveMQException
-   {
+   public void createQueue(final String address,
+                           final String queueName,
+                           final boolean durable) throws ActiveMQException {
       createQueue(SimpleString.toSimpleString(address), SimpleString.toSimpleString(queueName), durable);
    }
 
    public void createSharedQueue(SimpleString address,
                                  SimpleString queueName,
-                                 boolean durable) throws ActiveMQException
-   {
+                                 boolean durable) throws ActiveMQException {
       createSharedQueue(address, queueName, null, durable);
    }
 
    public void createSharedQueue(SimpleString address,
                                  SimpleString queueName,
                                  SimpleString filterString,
-                                 boolean durable) throws ActiveMQException
-   {
+                                 boolean durable) throws ActiveMQException {
 
       checkClosed();
 
-
       startCall();
-      try
-      {
+      try {
          sessionContext.createSharedQueue(address, queueName, filterString, durable);
       }
-      finally
-      {
+      finally {
          endCall();
       }
 
    }
 
-
    public void createQueue(final SimpleString address,
                            final SimpleString queueName,
                            final SimpleString filterString,
-                           final boolean durable) throws ActiveMQException
-   {
+                           final boolean durable) throws ActiveMQException {
       internalCreateQueue(address, queueName, filterString, durable, false);
    }
 
    public void createQueue(final String address,
                            final String queueName,
                            final String filterString,
-                           final boolean durable) throws ActiveMQException
-   {
+                           final boolean durable) throws ActiveMQException {
       createQueue(SimpleString.toSimpleString(address), SimpleString.toSimpleString(queueName), SimpleString.toSimpleString(filterString), durable);
    }
 
-   public void createTemporaryQueue(final SimpleString address, final SimpleString queueName) throws ActiveMQException
-   {
+   public void createTemporaryQueue(final SimpleString address, final SimpleString queueName) throws ActiveMQException {
       internalCreateQueue(address, queueName, null, false, true);
    }
 
-   public void createTemporaryQueue(final String address, final String queueName) throws ActiveMQException
-   {
-      internalCreateQueue(SimpleString.toSimpleString(address),
-                          SimpleString.toSimpleString(queueName),
-                          null,
-                          false,
-                          true);
+   public void createTemporaryQueue(final String address, final String queueName) throws ActiveMQException {
+      internalCreateQueue(SimpleString.toSimpleString(address), SimpleString.toSimpleString(queueName), null, false, true);
    }
 
-   public void createTemporaryQueue(final SimpleString address, final SimpleString queueName, final SimpleString filter) throws ActiveMQException
-   {
+   public void createTemporaryQueue(final SimpleString address,
+                                    final SimpleString queueName,
+                                    final SimpleString filter) throws ActiveMQException {
       internalCreateQueue(address, queueName, filter, false, true);
    }
 
-   public void createTemporaryQueue(final String address, final String queueName, final String filter) throws ActiveMQException
-   {
-      internalCreateQueue(SimpleString.toSimpleString(address),
-                          SimpleString.toSimpleString(queueName),
-                          SimpleString.toSimpleString(filter),
-                          false,
-                          true);
+   public void createTemporaryQueue(final String address,
+                                    final String queueName,
+                                    final String filter) throws ActiveMQException {
+      internalCreateQueue(SimpleString.toSimpleString(address), SimpleString.toSimpleString(queueName), SimpleString.toSimpleString(filter), false, true);
    }
 
-   public void deleteQueue(final SimpleString queueName) throws ActiveMQException
-   {
+   public void deleteQueue(final SimpleString queueName) throws ActiveMQException {
       checkClosed();
 
       startCall();
-      try
-      {
+      try {
          sessionContext.deleteQueue(queueName);
       }
-      finally
-      {
+      finally {
          endCall();
       }
    }
 
-   public void deleteQueue(final String queueName) throws ActiveMQException
-   {
+   public void deleteQueue(final String queueName) throws ActiveMQException {
       deleteQueue(SimpleString.toSimpleString(queueName));
    }
 
-   public QueueQuery queueQuery(final SimpleString queueName) throws ActiveMQException
-   {
+   public QueueQuery queueQuery(final SimpleString queueName) throws ActiveMQException {
       checkClosed();
 
-
       startCall();
-      try
-      {
+      try {
          return sessionContext.queueQuery(queueName);
       }
-      finally
-      {
+      finally {
          endCall();
       }
 
    }
 
-   public AddressQuery addressQuery(final SimpleString address) throws ActiveMQException
-   {
+   public AddressQuery addressQuery(final SimpleString address) throws ActiveMQException {
       checkClosed();
-
 
       return sessionContext.addressQuery(address);
    }
 
-   public ClientConsumer createConsumer(final SimpleString queueName) throws ActiveMQException
-   {
+   public ClientConsumer createConsumer(final SimpleString queueName) throws ActiveMQException {
       return createConsumer(queueName, null, false);
    }
 
-   public ClientConsumer createConsumer(final String queueName) throws ActiveMQException
-   {
+   public ClientConsumer createConsumer(final String queueName) throws ActiveMQException {
       return createConsumer(SimpleString.toSimpleString(queueName));
    }
 
-   public ClientConsumer createConsumer(final SimpleString queueName, final SimpleString filterString) throws ActiveMQException
-   {
+   public ClientConsumer createConsumer(final SimpleString queueName,
+                                        final SimpleString filterString) throws ActiveMQException {
       return createConsumer(queueName, filterString, consumerWindowSize, consumerMaxRate, false);
    }
 
-   public void createQueue(final String address, final String queueName) throws ActiveMQException
-   {
+   public void createQueue(final String address, final String queueName) throws ActiveMQException {
       createQueue(SimpleString.toSimpleString(address), SimpleString.toSimpleString(queueName));
    }
 
-   public ClientConsumer createConsumer(final String queueName, final String filterString) throws ActiveMQException
-   {
+   public ClientConsumer createConsumer(final String queueName, final String filterString) throws ActiveMQException {
       return createConsumer(SimpleString.toSimpleString(queueName), SimpleString.toSimpleString(filterString));
    }
 
    public ClientConsumer createConsumer(final SimpleString queueName,
                                         final SimpleString filterString,
-                                        final boolean browseOnly) throws ActiveMQException
-   {
+                                        final boolean browseOnly) throws ActiveMQException {
       return createConsumer(queueName, filterString, consumerWindowSize, consumerMaxRate, browseOnly);
    }
 
-   public ClientConsumer createConsumer(final SimpleString queueName, final boolean browseOnly) throws ActiveMQException
-   {
+   public ClientConsumer createConsumer(final SimpleString queueName,
+                                        final boolean browseOnly) throws ActiveMQException {
       return createConsumer(queueName, null, consumerWindowSize, consumerMaxRate, browseOnly);
    }
 
-   public ClientConsumer createConsumer(final String queueName, final String filterString, final boolean browseOnly) throws ActiveMQException
-   {
-      return createConsumer(SimpleString.toSimpleString(queueName),
-                            SimpleString.toSimpleString(filterString),
-                            browseOnly);
+   public ClientConsumer createConsumer(final String queueName,
+                                        final String filterString,
+                                        final boolean browseOnly) throws ActiveMQException {
+      return createConsumer(SimpleString.toSimpleString(queueName), SimpleString.toSimpleString(filterString), browseOnly);
    }
 
-   public ClientConsumer createConsumer(final String queueName, final boolean browseOnly) throws ActiveMQException
-   {
+   public ClientConsumer createConsumer(final String queueName, final boolean browseOnly) throws ActiveMQException {
       return createConsumer(SimpleString.toSimpleString(queueName), null, browseOnly);
    }
 
@@ -425,8 +391,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
                                         final SimpleString filterString,
                                         final int windowSize,
                                         final int maxRate,
-                                        final boolean browseOnly) throws ActiveMQException
-   {
+                                        final boolean browseOnly) throws ActiveMQException {
       return internalCreateConsumer(queueName, filterString, windowSize, maxRate, browseOnly);
    }
 
@@ -434,67 +399,55 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
                                         final String filterString,
                                         final int windowSize,
                                         final int maxRate,
-                                        final boolean browseOnly) throws ActiveMQException
-   {
+                                        final boolean browseOnly) throws ActiveMQException {
       return createConsumer(SimpleString.toSimpleString(queueName), SimpleString.toSimpleString(filterString), windowSize, maxRate, browseOnly);
    }
 
-   public ClientProducer createProducer() throws ActiveMQException
-   {
+   public ClientProducer createProducer() throws ActiveMQException {
       return createProducer((SimpleString) null);
    }
 
-   public ClientProducer createProducer(final SimpleString address) throws ActiveMQException
-   {
+   public ClientProducer createProducer(final SimpleString address) throws ActiveMQException {
       return createProducer(address, producerMaxRate);
    }
 
-   public ClientProducer createProducer(final String address) throws ActiveMQException
-   {
+   public ClientProducer createProducer(final String address) throws ActiveMQException {
       return createProducer(SimpleString.toSimpleString(address));
    }
 
-   public ClientProducer createProducer(final SimpleString address, final int maxRate) throws ActiveMQException
-   {
+   public ClientProducer createProducer(final SimpleString address, final int maxRate) throws ActiveMQException {
       return internalCreateProducer(address, maxRate);
    }
 
-   public ClientProducer createProducer(final String address, final int rate) throws ActiveMQException
-   {
+   public ClientProducer createProducer(final String address, final int rate) throws ActiveMQException {
       return createProducer(SimpleString.toSimpleString(address), rate);
    }
 
-   public XAResource getXAResource()
-   {
+   public XAResource getXAResource() {
       return this;
    }
 
-   private void rollbackOnFailover(boolean outcomeKnown) throws ActiveMQException
-   {
+   private void rollbackOnFailover(boolean outcomeKnown) throws ActiveMQException {
       rollback(false);
 
-      if (outcomeKnown)
-      {
+      if (outcomeKnown) {
          throw ActiveMQClientMessageBundle.BUNDLE.txRolledBack();
       }
 
       throw ActiveMQClientMessageBundle.BUNDLE.txOutcomeUnknown();
    }
 
-   public void commit() throws ActiveMQException
-   {
+   public void commit() throws ActiveMQException {
       checkClosed();
 
-      if (ActiveMQClientLogger.LOGGER.isTraceEnabled())
-      {
+      if (ActiveMQClientLogger.LOGGER.isTraceEnabled()) {
          ActiveMQClientLogger.LOGGER.trace("Sending commit");
       }
 
       /*
       * we have failed over since any work was done so we should rollback
       * */
-      if (rollbackOnly)
-      {
+      if (rollbackOnly) {
          rollbackOnFailover(true);
       }
 
@@ -503,53 +456,43 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       * if we have failed over whilst flushing the acks then we should rollback and throw exception before attempting to
       * commit as committing might actually commit something but we we wouldn't know and rollback after the commit
       * */
-      if (rollbackOnly)
-      {
+      if (rollbackOnly) {
          rollbackOnFailover(true);
       }
-      try
-      {
+      try {
          sessionContext.simpleCommit();
       }
-      catch (ActiveMQException e)
-      {
-         if (e.getType() == ActiveMQExceptionType.UNBLOCKED || rollbackOnly)
-         {
+      catch (ActiveMQException e) {
+         if (e.getType() == ActiveMQExceptionType.UNBLOCKED || rollbackOnly) {
             // The call to commit was unlocked on failover, we therefore rollback the tx,
             // and throw a transaction rolled back exception instead
             //or
             //if we have been set to rollbackonly then we have probably failed over and don't know if the tx has committed
             rollbackOnFailover(false);
          }
-         else
-         {
+         else {
             throw e;
          }
       }
 
       //oops, we have failed over during the commit and don't know what happened
-      if (rollbackOnly)
-      {
+      if (rollbackOnly) {
          rollbackOnFailover(false);
       }
 
       workDone = false;
    }
 
-   public boolean isRollbackOnly()
-   {
+   public boolean isRollbackOnly() {
       return rollbackOnly;
    }
 
-   public void rollback() throws ActiveMQException
-   {
+   public void rollback() throws ActiveMQException {
       rollback(false);
    }
 
-   public void rollback(final boolean isLastMessageAsDelivered) throws ActiveMQException
-   {
-      if (ActiveMQClientLogger.LOGGER.isTraceEnabled())
-      {
+   public void rollback(final boolean isLastMessageAsDelivered) throws ActiveMQException {
+      if (ActiveMQClientLogger.LOGGER.isTraceEnabled()) {
          ActiveMQClientLogger.LOGGER.trace("calling rollback(isLastMessageAsDelivered=" + isLastMessageAsDelivered + ")");
       }
       checkClosed();
@@ -561,15 +504,12 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
 
       boolean wasStarted = started;
 
-      if (wasStarted)
-      {
+      if (wasStarted) {
          stop();
       }
 
-
       // We need to make sure we don't get any inflight messages
-      for (ClientConsumerInternal consumer : cloneConsumers())
-      {
+      for (ClientConsumerInternal consumer : cloneConsumers()) {
          consumer.clear(true);
       }
 
@@ -578,8 +518,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
 
       sessionContext.simpleRollback(isLastMessageAsDelivered);
 
-      if (wasStarted)
-      {
+      if (wasStarted) {
          start();
       }
 
@@ -590,63 +529,50 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
                                       final boolean durable,
                                       final long expiration,
                                       final long timestamp,
-                                      final byte priority)
-   {
+                                      final byte priority) {
       return new ClientMessageImpl(type, durable, expiration, timestamp, priority, initialMessagePacketSize);
    }
 
-   public ClientMessage createMessage(final byte type, final boolean durable)
-   {
+   public ClientMessage createMessage(final byte type, final boolean durable) {
       return this.createMessage(type, durable, 0, System.currentTimeMillis(), (byte) 4);
    }
 
-   public ClientMessage createMessage(final boolean durable)
-   {
+   public ClientMessage createMessage(final boolean durable) {
       return this.createMessage((byte) 0, durable);
    }
 
-   public boolean isClosed()
-   {
+   public boolean isClosed() {
       return closed;
    }
 
-   public boolean isAutoCommitSends()
-   {
+   public boolean isAutoCommitSends() {
       return autoCommitSends;
    }
 
-   public boolean isAutoCommitAcks()
-   {
+   public boolean isAutoCommitAcks() {
       return autoCommitAcks;
    }
 
-   public boolean isBlockOnAcknowledge()
-   {
+   public boolean isBlockOnAcknowledge() {
       return blockOnAcknowledge;
    }
 
-   public boolean isXA()
-   {
+   public boolean isXA() {
       return xa;
    }
 
-   public void resetIfNeeded() throws ActiveMQException
-   {
-      if (rollbackOnly)
-      {
+   public void resetIfNeeded() throws ActiveMQException {
+      if (rollbackOnly) {
          ActiveMQClientLogger.LOGGER.resettingSessionAfterFailure();
          rollback(false);
       }
    }
 
-   public ClientSessionImpl start() throws ActiveMQException
-   {
+   public ClientSessionImpl start() throws ActiveMQException {
       checkClosed();
 
-      if (!started)
-      {
-         for (ClientConsumerInternal clientConsumerInternal : cloneConsumers())
-         {
+      if (!started) {
+         for (ClientConsumerInternal clientConsumerInternal : cloneConsumers()) {
             clientConsumerInternal.start();
          }
 
@@ -658,19 +584,15 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       return this;
    }
 
-   public void stop() throws ActiveMQException
-   {
+   public void stop() throws ActiveMQException {
       stop(true);
    }
 
-   public void stop(final boolean waitForOnMessage) throws ActiveMQException
-   {
+   public void stop(final boolean waitForOnMessage) throws ActiveMQException {
       checkClosed();
 
-      if (started)
-      {
-         for (ClientConsumerInternal clientConsumerInternal : cloneConsumers())
-         {
+      if (started) {
+         for (ClientConsumerInternal clientConsumerInternal : cloneConsumers()) {
             clientConsumerInternal.stop(waitForOnMessage);
          }
 
@@ -680,209 +602,173 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       }
    }
 
-   public void addFailureListener(final SessionFailureListener listener)
-   {
+   public void addFailureListener(final SessionFailureListener listener) {
       sessionFactory.addFailureListener(listener);
    }
 
-   public boolean removeFailureListener(final SessionFailureListener listener)
-   {
+   public boolean removeFailureListener(final SessionFailureListener listener) {
       return sessionFactory.removeFailureListener(listener);
    }
 
-   public void addFailoverListener(FailoverEventListener listener)
-   {
+   public void addFailoverListener(FailoverEventListener listener) {
       sessionFactory.addFailoverListener(listener);
    }
 
-   public boolean removeFailoverListener(FailoverEventListener listener)
-   {
+   public boolean removeFailoverListener(FailoverEventListener listener) {
       return sessionFactory.removeFailoverListener(listener);
    }
 
-   public int getVersion()
-   {
+   public int getVersion() {
       return sessionContext.getServerVersion();
    }
 
-   public boolean isClosing()
-   {
+   public boolean isClosing() {
       return inClose;
    }
 
    @Override
-   public String getNodeId()
-   {
+   public String getNodeId() {
       return sessionFactory.getLiveNodeId();
    }
 
    // ClientSessionInternal implementation
    // ------------------------------------------------------------
 
-   public int getMinLargeMessageSize()
-   {
+   public int getMinLargeMessageSize() {
       return minLargeMessageSize;
    }
 
-   public boolean isCompressLargeMessages()
-   {
+   public boolean isCompressLargeMessages() {
       return compressLargeMessages;
    }
 
    /**
     * @return the cacheLargeMessageClient
     */
-   public boolean isCacheLargeMessageClient()
-   {
+   public boolean isCacheLargeMessageClient() {
       return cacheLargeMessageClient;
    }
 
-   public String getName()
-   {
+   public String getName() {
       return name;
    }
 
    /**
     * Acknowledges all messages received by the consumer so far.
     */
-   public void acknowledge(final ClientConsumer consumer, final Message message) throws ActiveMQException
-   {
+   public void acknowledge(final ClientConsumer consumer, final Message message) throws ActiveMQException {
       // if we're pre-acknowledging then we don't need to do anything
-      if (preAcknowledge)
-      {
+      if (preAcknowledge) {
          return;
       }
 
       checkClosed();
-      if (ActiveMQClientLogger.LOGGER.isDebugEnabled())
-      {
+      if (ActiveMQClientLogger.LOGGER.isDebugEnabled()) {
          ActiveMQClientLogger.LOGGER.debug("client ack messageID = " + message.getMessageID());
       }
 
       startCall();
-      try
-      {
+      try {
          sessionContext.sendACK(false, blockOnAcknowledge, consumer, message);
       }
-      finally
-      {
+      finally {
          endCall();
       }
    }
 
-   public void individualAcknowledge(final ClientConsumer consumer, final Message message) throws ActiveMQException
-   {
+   public void individualAcknowledge(final ClientConsumer consumer, final Message message) throws ActiveMQException {
       // if we're pre-acknowledging then we don't need to do anything
-      if (preAcknowledge)
-      {
+      if (preAcknowledge) {
          return;
       }
 
       checkClosed();
 
       startCall();
-      try
-      {
+      try {
 
          sessionContext.sendACK(true, blockOnAcknowledge, consumer, message);
       }
-      finally
-      {
+      finally {
          endCall();
       }
    }
 
-   public void expire(final ClientConsumer consumer, final Message message) throws ActiveMQException
-   {
+   public void expire(final ClientConsumer consumer, final Message message) throws ActiveMQException {
       checkClosed();
 
       // We don't send expiries for pre-ack since message will already have been acked on server
-      if (!preAcknowledge)
-      {
+      if (!preAcknowledge) {
          sessionContext.expireMessage(consumer, message);
       }
    }
 
-   public void addConsumer(final ClientConsumerInternal consumer)
-   {
-      synchronized (consumers)
-      {
+   public void addConsumer(final ClientConsumerInternal consumer) {
+      synchronized (consumers) {
          consumers.put(consumer.getConsumerContext(), consumer);
       }
    }
 
-   public void addProducer(final ClientProducerInternal producer)
-   {
-      synchronized (producers)
-      {
+   public void addProducer(final ClientProducerInternal producer) {
+      synchronized (producers) {
          producers.add(producer);
       }
    }
 
-   public void removeConsumer(final ClientConsumerInternal consumer) throws ActiveMQException
-   {
-      synchronized (consumers)
-      {
+   public void removeConsumer(final ClientConsumerInternal consumer) throws ActiveMQException {
+      synchronized (consumers) {
          consumers.remove(consumer.getConsumerContext());
       }
    }
 
-   public void removeProducer(final ClientProducerInternal producer)
-   {
-      synchronized (producers)
-      {
+   public void removeProducer(final ClientProducerInternal producer) {
+      synchronized (producers) {
          producers.remove(producer);
       }
    }
 
-   public void handleReceiveMessage(final ConsumerContext consumerID, final ClientMessageInternal message) throws Exception
-   {
+   public void handleReceiveMessage(final ConsumerContext consumerID,
+                                    final ClientMessageInternal message) throws Exception {
       ClientConsumerInternal consumer = getConsumer(consumerID);
 
-      if (consumer != null)
-      {
+      if (consumer != null) {
          consumer.handleMessage(message);
       }
    }
 
-   public void handleReceiveLargeMessage(final ConsumerContext consumerID, ClientLargeMessageInternal clientLargeMessage, long largeMessageSize) throws Exception
-   {
+   public void handleReceiveLargeMessage(final ConsumerContext consumerID,
+                                         ClientLargeMessageInternal clientLargeMessage,
+                                         long largeMessageSize) throws Exception {
       ClientConsumerInternal consumer = getConsumer(consumerID);
 
-      if (consumer != null)
-      {
+      if (consumer != null) {
          consumer.handleLargeMessage(clientLargeMessage, largeMessageSize);
       }
    }
 
-   public void handleReceiveContinuation(final ConsumerContext consumerID, byte[] chunk, int flowControlSize, boolean isContinues) throws Exception
-   {
+   public void handleReceiveContinuation(final ConsumerContext consumerID,
+                                         byte[] chunk,
+                                         int flowControlSize,
+                                         boolean isContinues) throws Exception {
       ClientConsumerInternal consumer = getConsumer(consumerID);
 
-      if (consumer != null)
-      {
+      if (consumer != null) {
          consumer.handleLargeMessageContinuation(chunk, flowControlSize, isContinues);
       }
    }
 
    @Override
-   public void handleConsumerDisconnect(ConsumerContext context) throws ActiveMQException
-   {
+   public void handleConsumerDisconnect(ConsumerContext context) throws ActiveMQException {
       final ClientConsumerInternal consumer = getConsumer(context);
 
-      if (consumer != null)
-      {
-         executor.execute(new Runnable()
-         {
+      if (consumer != null) {
+         executor.execute(new Runnable() {
             @Override
-            public void run()
-            {
-               try
-               {
+            public void run() {
+               try {
                   consumer.close();
                }
-               catch (ActiveMQException e)
-               {
+               catch (ActiveMQException e) {
                   ActiveMQClientLogger.LOGGER.unableToCloseConsumer(e);
                }
             }
@@ -890,32 +776,26 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       }
    }
 
-   public void close() throws ActiveMQException
-   {
-      if (closed)
-      {
+   public void close() throws ActiveMQException {
+      if (closed) {
          ActiveMQClientLogger.LOGGER.debug("Session was already closed, giving up now, this=" + this);
          return;
       }
 
-      if (ActiveMQClientLogger.LOGGER.isDebugEnabled())
-      {
+      if (ActiveMQClientLogger.LOGGER.isDebugEnabled()) {
          ActiveMQClientLogger.LOGGER.debug("Calling close on session " + this);
       }
 
-      try
-      {
+      try {
          closeChildren();
 
-         synchronized (this)
-         {
+         synchronized (this) {
             producerCreditManager.close();
          }
          inClose = true;
          sessionContext.sessionClose();
       }
-      catch (Throwable e)
-      {
+      catch (Throwable e) {
          // Session close should always return without exception
 
          // Note - we only log at trace
@@ -925,10 +805,8 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       doCleanup(false);
    }
 
-   public synchronized void cleanUp(boolean failingOver) throws ActiveMQException
-   {
-      if (closed)
-      {
+   public synchronized void cleanUp(boolean failingOver) throws ActiveMQException {
+      if (closed) {
          return;
       }
 
@@ -939,14 +817,12 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       doCleanup(failingOver);
    }
 
-   public ClientSessionImpl setSendAcknowledgementHandler(final SendAcknowledgementHandler handler)
-   {
+   public ClientSessionImpl setSendAcknowledgementHandler(final SendAcknowledgementHandler handler) {
       sessionContext.setSendAcknowledgementHandler(handler);
       return this;
    }
 
-   public void preHandleFailover(RemotingConnection connection)
-   {
+   public void preHandleFailover(RemotingConnection connection) {
       // We lock the channel to prevent any packets to be added to the re-send
       // cache during the failover process
       //we also do this before the connection fails over to give the session a chance to block for failover
@@ -955,31 +831,24 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
 
    // Needs to be synchronized to prevent issues with occurring concurrently with close()
 
-   public void handleFailover(final RemotingConnection backupConnection, ActiveMQException cause)
-   {
-      synchronized (this)
-      {
-         if (closed)
-         {
+   public void handleFailover(final RemotingConnection backupConnection, ActiveMQException cause) {
+      synchronized (this) {
+         if (closed) {
             return;
          }
 
          boolean resetCreditManager = false;
 
-         try
-         {
+         try {
 
             // TODO remove this and encapsulate it
 
             boolean reattached = sessionContext.reattachOnNewConnection(backupConnection);
 
-            if (!reattached)
-            {
-               for (ClientConsumerInternal consumer : cloneConsumers())
-               {
+            if (!reattached) {
+               for (ClientConsumerInternal consumer : cloneConsumers()) {
                   consumer.clearAtFailover();
                }
-
 
                // The session wasn't found on the server - probably we're failing over onto a backup server where the
                // session won't exist or the target server has been restarted - in this case the session will need to be
@@ -992,37 +861,29 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
                // has already been executed on the server, that's why we can't find the session- in this case we *don't*
                // want
                // to recreate the session, we just want to unblock the blocking call
-               if (!inClose && mayAttemptToFailover)
-               {
-                  sessionContext.recreateSession(username, password,
-                                                 minLargeMessageSize, xa, autoCommitSends,
-                                                 autoCommitAcks, preAcknowledge, defaultAddress);
+               if (!inClose && mayAttemptToFailover) {
+                  sessionContext.recreateSession(username, password, minLargeMessageSize, xa, autoCommitSends, autoCommitAcks, preAcknowledge, defaultAddress);
 
-                  for (Map.Entry<ConsumerContext, ClientConsumerInternal> entryx : consumers.entrySet())
-                  {
+                  for (Map.Entry<ConsumerContext, ClientConsumerInternal> entryx : consumers.entrySet()) {
 
                      ClientConsumerInternal consumerInternal = entryx.getValue();
 
                      sessionContext.recreateConsumerOnServer(consumerInternal);
                   }
 
-                  if ((!autoCommitAcks || !autoCommitSends) && workDone)
-                  {
+                  if ((!autoCommitAcks || !autoCommitSends) && workDone) {
                      // this is protected by a lock, so we can guarantee nothing will sneak here
                      // while we do our work here
                      rollbackOnly = true;
                   }
-                  if (currentXID != null)
-                  {
+                  if (currentXID != null) {
                      sessionContext.xaFailed(currentXID);
                      rollbackOnly = true;
                   }
 
                   // Now start the session if it was already started
-                  if (started)
-                  {
-                     for (ClientConsumerInternal consumer : cloneConsumers())
-                     {
+                  if (started) {
+                     for (ClientConsumerInternal consumer : cloneConsumers()) {
                         consumer.clearAtFailover();
                         consumer.start();
                      }
@@ -1036,17 +897,14 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
                sessionContext.returnBlocking(cause);
             }
          }
-         catch (Throwable t)
-         {
+         catch (Throwable t) {
             ActiveMQClientLogger.LOGGER.failedToHandleFailover(t);
          }
-         finally
-         {
+         finally {
             sessionContext.releaseCommunications();
          }
 
-         if (resetCreditManager)
-         {
+         if (resetCreditManager) {
             producerCreditManager.reset();
 
             // Also need to send more credits for consumers, otherwise the system could hand with the server
@@ -1056,112 +914,89 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
 
       HashMap<String, String> metaDataToSend;
 
-      synchronized (metadata)
-      {
+      synchronized (metadata) {
          metaDataToSend = new HashMap<String, String>(metadata);
       }
 
       sessionContext.resetMetadata(metaDataToSend);
 
-
    }
 
-   public void addMetaData(String key, String data) throws ActiveMQException
-   {
-      synchronized (metadata)
-      {
+   public void addMetaData(String key, String data) throws ActiveMQException {
+      synchronized (metadata) {
          metadata.put(key, data);
       }
 
       sessionContext.addSessionMetadata(key, data);
    }
 
-   public void addUniqueMetaData(String key, String data) throws ActiveMQException
-   {
+   public void addUniqueMetaData(String key, String data) throws ActiveMQException {
       sessionContext.addUniqueMetaData(key, data);
    }
 
-   public ClientSessionFactory getSessionFactory()
-   {
+   public ClientSessionFactory getSessionFactory() {
       return sessionFactory;
    }
 
-   public void setAddress(final Message message, final SimpleString address)
-   {
-      if (defaultAddress == null)
-      {
+   public void setAddress(final Message message, final SimpleString address) {
+      if (defaultAddress == null) {
          defaultAddress = address;
 
          message.setAddress(address);
       }
-      else
-      {
-         if (!address.equals(defaultAddress))
-         {
+      else {
+         if (!address.equals(defaultAddress)) {
             message.setAddress(address);
          }
-         else
-         {
+         else {
             message.setAddress(null);
          }
       }
    }
 
-   public void setPacketSize(final int packetSize)
-   {
-      if (packetSize > this.initialMessagePacketSize)
-      {
+   public void setPacketSize(final int packetSize) {
+      if (packetSize > this.initialMessagePacketSize) {
          this.initialMessagePacketSize = (int) (packetSize * 1.2);
       }
    }
 
-   public void workDone()
-   {
+   public void workDone() {
       workDone = true;
    }
 
-   public void sendProducerCreditsMessage(final int credits, final SimpleString address)
-   {
+   public void sendProducerCreditsMessage(final int credits, final SimpleString address) {
       sessionContext.sendProducerCreditsMessage(credits, address);
    }
 
-   public synchronized ClientProducerCredits getCredits(final SimpleString address, final boolean anon)
-   {
+   public synchronized ClientProducerCredits getCredits(final SimpleString address, final boolean anon) {
       ClientProducerCredits credits = producerCreditManager.getCredits(address, anon, sessionContext);
 
       return credits;
    }
 
-   public void returnCredits(final SimpleString address)
-   {
+   public void returnCredits(final SimpleString address) {
       producerCreditManager.returnCredits(address);
    }
 
-   public void handleReceiveProducerCredits(final SimpleString address, final int credits)
-   {
+   public void handleReceiveProducerCredits(final SimpleString address, final int credits) {
       producerCreditManager.receiveCredits(address, credits);
    }
 
-   public void handleReceiveProducerFailCredits(final SimpleString address, int credits)
-   {
+   public void handleReceiveProducerFailCredits(final SimpleString address, int credits) {
       producerCreditManager.receiveFailCredits(address, credits);
    }
 
-   public ClientProducerCreditManager getProducerCreditManager()
-   {
+   public ClientProducerCreditManager getProducerCreditManager() {
       return producerCreditManager;
    }
 
-   public void startCall()
-   {
-      if (concurrentCall.incrementAndGet() > 1)
-      {
+   public void startCall() {
+      if (concurrentCall.incrementAndGet() > 1) {
          ActiveMQClientLogger.LOGGER.invalidConcurrentSessionUsage(new Exception("trace"));
       }
    }
 
-   public void endCall()
-   {
+   public void endCall() {
       concurrentCall.decrementAndGet();
    }
 
@@ -1172,17 +1007,14 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
    // XAResource implementation
    // --------------------------------------------------------------------
 
-   public void commit(final Xid xid, final boolean onePhase) throws XAException
-   {
-      if (ActiveMQClientLogger.LOGGER.isTraceEnabled())
-      {
+   public void commit(final Xid xid, final boolean onePhase) throws XAException {
+      if (ActiveMQClientLogger.LOGGER.isTraceEnabled()) {
          ActiveMQClientLogger.LOGGER.trace("call commit(xid=" + convert(xid));
       }
       checkXA();
 
       // we should never throw rollback if we have already prepared
-      if (rollbackOnly)
-      {
+      if (rollbackOnly) {
          ActiveMQClientLogger.LOGGER.commitAfterFailover();
       }
 
@@ -1190,17 +1022,14 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       // done this
 
       startCall();
-      try
-      {
+      try {
          sessionContext.xaCommit(xid, onePhase);
          workDone = false;
       }
-      catch (XAException xae)
-      {
+      catch (XAException xae) {
          throw xae;
       }
-      catch (Throwable t)
-      {
+      catch (Throwable t) {
          ActiveMQClientLogger.LOGGER.failoverDuringCommit();
 
          // Any error on commit -> RETRY
@@ -1209,56 +1038,44 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
          xaException.initCause(t);
          throw xaException;
       }
-      finally
-      {
+      finally {
          endCall();
       }
    }
 
-   public void end(final Xid xid, final int flags) throws XAException
-   {
-      if (ActiveMQClientLogger.LOGGER.isTraceEnabled())
-      {
+   public void end(final Xid xid, final int flags) throws XAException {
+      if (ActiveMQClientLogger.LOGGER.isTraceEnabled()) {
          ActiveMQClientLogger.LOGGER.trace("Calling end:: " + convert(xid) + ", flags=" + convertTXFlag(flags));
       }
 
       checkXA();
 
-      try
-      {
-         if (rollbackOnly)
-         {
-            try
-            {
+      try {
+         if (rollbackOnly) {
+            try {
                rollback();
             }
-            catch (Throwable ignored)
-            {
+            catch (Throwable ignored) {
                ActiveMQClientLogger.LOGGER.debug("Error on rollback during end call!", ignored);
             }
             throw new XAException(XAException.XAER_RMFAIL);
          }
 
-         try
-         {
+         try {
             flushAcks();
 
             startCall();
-            try
-            {
+            try {
                sessionContext.xaEnd(xid, flags);
             }
-            finally
-            {
+            finally {
                endCall();
             }
          }
-         catch (XAException xae)
-         {
+         catch (XAException xae) {
             throw xae;
          }
-         catch (Throwable t)
-         {
+         catch (Throwable t) {
             ActiveMQClientLogger.LOGGER.errorCallingEnd(t);
             // This could occur if the TM interrupts the thread
             XAException xaException = new XAException(XAException.XAER_RMFAIL);
@@ -1266,47 +1083,38 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
             throw xaException;
          }
       }
-      finally
-      {
+      finally {
          currentXID = null;
       }
    }
 
-   public void forget(final Xid xid) throws XAException
-   {
+   public void forget(final Xid xid) throws XAException {
       checkXA();
       startCall();
-      try
-      {
+      try {
          sessionContext.xaForget(xid);
       }
-      catch (XAException xae)
-      {
+      catch (XAException xae) {
          throw xae;
       }
-      catch (Throwable t)
-      {
+      catch (Throwable t) {
          // This could occur if the TM interrupts the thread
          XAException xaException = new XAException(XAException.XAER_RMFAIL);
          xaException.initCause(t);
          throw xaException;
       }
-      finally
-      {
+      finally {
          endCall();
       }
    }
 
-   public int getTransactionTimeout() throws XAException
-   {
+   public int getTransactionTimeout() throws XAException {
       checkXA();
 
-      try
-      {
+      try {
          return sessionContext.recoverSessionTimeout();
       }
-      catch (Throwable t)
-      {
+      catch (Throwable t) {
          // This could occur if the TM interrupts the thread
          XAException xaException = new XAException(XAException.XAER_RMFAIL);
          xaException.initCause(t);
@@ -1314,16 +1122,13 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       }
    }
 
-   public boolean setTransactionTimeout(final int seconds) throws XAException
-   {
+   public boolean setTransactionTimeout(final int seconds) throws XAException {
       checkXA();
 
-      try
-      {
+      try {
          return sessionContext.configureTransactionTimeout(seconds);
       }
-      catch (Throwable t)
-      {
+      catch (Throwable t) {
          // This could occur if the TM interrupts the thread
          XAException xaException = new XAException(XAException.XAER_RMFAIL);
          xaException.initCause(t);
@@ -1331,27 +1136,23 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       }
    }
 
-   public boolean isSameRM(final XAResource xares) throws XAException
-   {
+   public boolean isSameRM(final XAResource xares) throws XAException {
       checkXA();
 
-      if (forceNotSameRM)
-      {
+      if (forceNotSameRM) {
          return false;
       }
 
       ClientSessionInternal other = getSessionInternalFromXAResource(xares);
 
-      if (other == null)
-      {
+      if (other == null) {
          return false;
       }
 
       String liveNodeId = sessionFactory.getLiveNodeId();
       String otherLiveNodeId = ((ClientSessionFactoryInternal) other.getSessionFactory()).getLiveNodeId();
 
-      if (liveNodeId != null && otherLiveNodeId != null)
-      {
+      if (liveNodeId != null && otherLiveNodeId != null) {
          return liveNodeId.equals(otherLiveNodeId);
       }
 
@@ -1359,34 +1160,26 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       return sessionFactory == other.getSessionFactory();
    }
 
-   private ClientSessionInternal getSessionInternalFromXAResource(final XAResource xares)
-   {
-      if (xares == null)
-      {
+   private ClientSessionInternal getSessionInternalFromXAResource(final XAResource xares) {
+      if (xares == null) {
          return null;
       }
-      if (xares instanceof ClientSessionInternal)
-      {
+      if (xares instanceof ClientSessionInternal) {
          return (ClientSessionInternal) xares;
       }
-      else if (xares instanceof ActiveMQXAResource)
-      {
-         return getSessionInternalFromXAResource(((ActiveMQXAResource)xares).getResource());
+      else if (xares instanceof ActiveMQXAResource) {
+         return getSessionInternalFromXAResource(((ActiveMQXAResource) xares).getResource());
       }
       return null;
    }
 
-   public int prepare(final Xid xid) throws XAException
-   {
+   public int prepare(final Xid xid) throws XAException {
       checkXA();
-      if (ActiveMQClientLogger.LOGGER.isTraceEnabled())
-      {
+      if (ActiveMQClientLogger.LOGGER.isTraceEnabled()) {
          ActiveMQClientLogger.LOGGER.trace("Calling prepare:: " + convert(xid));
       }
 
-
-      if (rollbackOnly)
-      {
+      if (rollbackOnly) {
          throw new XAException(XAException.XAER_RMFAIL);
       }
 
@@ -1394,35 +1187,27 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       // done this
 
       startCall();
-      try
-      {
+      try {
          return sessionContext.xaPrepare(xid);
       }
-      catch (XAException xae)
-      {
+      catch (XAException xae) {
          throw xae;
       }
-      catch (ActiveMQException e)
-      {
-         if (e.getType() == ActiveMQExceptionType.UNBLOCKED)
-         {
+      catch (ActiveMQException e) {
+         if (e.getType() == ActiveMQExceptionType.UNBLOCKED) {
             // Unblocked on failover
-            try
-            {
+            try {
                // will retry once after failover & unblock
                return sessionContext.xaPrepare(xid);
             }
-            catch (Throwable t)
-            {
+            catch (Throwable t) {
                // ignore and rollback
             }
             ActiveMQClientLogger.LOGGER.failoverDuringPrepareRollingBack();
-            try
-            {
+            try {
                rollback(false);
             }
-            catch (Throwable t)
-            {
+            catch (Throwable t) {
                // This could occur if the TM interrupts the thread
                XAException xaException = new XAException(XAException.XAER_RMFAIL);
                xaException.initCause(t);
@@ -1441,8 +1226,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
          xaException.initCause(e);
          throw xaException;
       }
-      catch (Throwable t)
-      {
+      catch (Throwable t) {
          ActiveMQClientLogger.LOGGER.errorDuringPrepare(t);
 
          // This could occur if the TM interrupts the thread
@@ -1450,24 +1234,19 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
          xaException.initCause(t);
          throw xaException;
       }
-      finally
-      {
+      finally {
          endCall();
       }
    }
 
-   public Xid[] recover(final int flags) throws XAException
-   {
+   public Xid[] recover(final int flags) throws XAException {
       checkXA();
 
-      if ((flags & XAResource.TMSTARTRSCAN) == XAResource.TMSTARTRSCAN)
-      {
-         try
-         {
+      if ((flags & XAResource.TMSTARTRSCAN) == XAResource.TMSTARTRSCAN) {
+         try {
             return sessionContext.xaScan();
          }
-         catch (Throwable t)
-         {
+         catch (Throwable t) {
             // This could occur if the TM interrupts the thread
             XAException xaException = new XAException(XAException.XAER_RMFAIL);
             xaException.initCause(t);
@@ -1478,54 +1257,43 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       return new Xid[0];
    }
 
-   public void rollback(final Xid xid) throws XAException
-   {
+   public void rollback(final Xid xid) throws XAException {
       checkXA();
 
-      if (ActiveMQClientLogger.LOGGER.isTraceEnabled())
-      {
+      if (ActiveMQClientLogger.LOGGER.isTraceEnabled()) {
          ActiveMQClientLogger.LOGGER.trace("Calling rollback:: " + convert(xid));
       }
 
-      try
-      {
+      try {
          boolean wasStarted = started;
 
-         if (wasStarted)
-         {
+         if (wasStarted) {
             stop(false);
          }
 
          // We need to make sure we don't get any inflight messages
-         for (ClientConsumerInternal consumer : cloneConsumers())
-         {
+         for (ClientConsumerInternal consumer : cloneConsumers()) {
             consumer.clear(false);
          }
 
          flushAcks();
 
-         try
-         {
+         try {
             sessionContext.xaRollback(xid, wasStarted);
          }
-         finally
-         {
-            if (wasStarted)
-            {
+         finally {
+            if (wasStarted) {
                start();
             }
          }
 
          workDone = false;
       }
-      catch (XAException xae)
-      {
+      catch (XAException xae) {
          throw xae;
       }
-      catch (ActiveMQException e)
-      {
-         if (e.getType() == ActiveMQExceptionType.UNBLOCKED)
-         {
+      catch (ActiveMQException e) {
+         if (e.getType() == ActiveMQExceptionType.UNBLOCKED) {
             // Unblocked on failover
             throw new XAException(XAException.XA_RETRY);
          }
@@ -1535,8 +1303,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
          xaException.initCause(e);
          throw xaException;
       }
-      catch (Throwable t)
-      {
+      catch (Throwable t) {
          // This could occur if the TM interrupts the thread
          XAException xaException = new XAException(XAException.XAER_RMFAIL);
          xaException.initCause(t);
@@ -1544,40 +1311,31 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       }
    }
 
-   public void start(final Xid xid, final int flags) throws XAException
-   {
-      if (ActiveMQClientLogger.LOGGER.isTraceEnabled())
-      {
+   public void start(final Xid xid, final int flags) throws XAException {
+      if (ActiveMQClientLogger.LOGGER.isTraceEnabled()) {
          ActiveMQClientLogger.LOGGER.trace("Calling start:: " + convert(xid) + " clientXID=" + xid + " flags = " + convertTXFlag(flags));
       }
 
       checkXA();
 
-      try
-      {
+      try {
          sessionContext.xaStart(xid, flags);
 
          this.currentXID = xid;
       }
-      catch (XAException xae)
-      {
+      catch (XAException xae) {
          throw xae;
       }
-      catch (ActiveMQException e)
-      {
+      catch (ActiveMQException e) {
          // we can retry this only because we know for sure that no work would have been done
-         if (e.getType() == ActiveMQExceptionType.UNBLOCKED)
-         {
-            try
-            {
+         if (e.getType() == ActiveMQExceptionType.UNBLOCKED) {
+            try {
                sessionContext.xaStart(xid, flags);
             }
-            catch (XAException xae)
-            {
+            catch (XAException xae) {
                throw xae;
             }
-            catch (Throwable t)
-            {
+            catch (Throwable t) {
                // This could occur if the TM interrupts the thread
                XAException xaException = new XAException(XAException.XAER_RMFAIL);
                xaException.initCause(t);
@@ -1590,8 +1348,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
          xaException.initCause(e);
          throw xaException;
       }
-      catch (Throwable t)
-      {
+      catch (Throwable t) {
          // This could occur if the TM interrupts the thread
          XAException xaException = new XAException(XAException.XAER_RMFAIL);
          xaException.initCause(t);
@@ -1601,44 +1358,35 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
 
    // FailureListener implementation --------------------------------------------
 
-   public void connectionFailed(final ActiveMQException me, boolean failedOver)
-   {
-      try
-      {
+   public void connectionFailed(final ActiveMQException me, boolean failedOver) {
+      try {
          cleanUp(false);
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          ActiveMQClientLogger.LOGGER.failedToCleanupSession(e);
       }
    }
 
-   public void connectionFailed(final ActiveMQException me, boolean failedOver, String scaleDownTargetNodeID)
-   {
+   public void connectionFailed(final ActiveMQException me, boolean failedOver, String scaleDownTargetNodeID) {
       connectionFailed(me, failedOver);
    }
 
    // Public
    // ----------------------------------------------------------------------------
 
-   public void setForceNotSameRM(final boolean force)
-   {
+   public void setForceNotSameRM(final boolean force) {
       forceNotSameRM = force;
    }
 
-   public RemotingConnection getConnection()
-   {
+   public RemotingConnection getConnection() {
       return sessionContext.getRemotingConnection();
    }
 
    @Override
-   public String toString()
-   {
+   public String toString() {
       StringBuilder buffer = new StringBuilder();
-      synchronized (metadata)
-      {
-         for (Map.Entry<String, String> entry : metadata.entrySet())
-         {
+      synchronized (metadata) {
+         for (Map.Entry<String, String> entry : metadata.entrySet()) {
             buffer.append(entry.getKey() + "=" + entry.getValue() + ",");
          }
       }
@@ -1667,12 +1415,10 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
                                                  final SimpleString filterString,
                                                  final int windowSize,
                                                  final int maxRate,
-                                                 final boolean browseOnly) throws ActiveMQException
-   {
+                                                 final boolean browseOnly) throws ActiveMQException {
       checkClosed();
 
-      ClientConsumerInternal consumer = sessionContext.createConsumer(queueName, filterString, windowSize, maxRate,
-                                                                      ackBatchSize, browseOnly, executor, flowControlExecutor);
+      ClientConsumerInternal consumer = sessionContext.createConsumer(queueName, filterString, windowSize, maxRate, ackBatchSize, browseOnly, executor, flowControlExecutor);
 
       addConsumer(consumer);
 
@@ -1681,28 +1427,18 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       // consumer
 
       // TODO: this could semantically change on other servers. I know for instance on stomp this is just an ignore
-      if (windowSize != 0)
-      {
+      if (windowSize != 0) {
          sessionContext.sendConsumerCredits(consumer, windowSize);
       }
 
       return consumer;
    }
 
-   private ClientProducer internalCreateProducer(final SimpleString address, final int maxRate) throws ActiveMQException
-   {
+   private ClientProducer internalCreateProducer(final SimpleString address,
+                                                 final int maxRate) throws ActiveMQException {
       checkClosed();
 
-      ClientProducerInternal producer = new ClientProducerImpl(this,
-                                                               address,
-                                                               maxRate == -1 ? null
-                                                                  : new TokenBucketLimiterImpl(maxRate, false),
-                                                               autoCommitSends && blockOnNonDurableSend,
-                                                               autoCommitSends && blockOnDurableSend,
-                                                               autoGroup,
-                                                               groupID == null ? null : new SimpleString(groupID),
-                                                               minLargeMessageSize,
-                                                               sessionContext);
+      ClientProducerInternal producer = new ClientProducerImpl(this, address, maxRate == -1 ? null : new TokenBucketLimiterImpl(maxRate, false), autoCommitSends && blockOnNonDurableSend, autoCommitSends && blockOnDurableSend, autoGroup, groupID == null ? null : new SimpleString(groupID), minLargeMessageSize, sessionContext);
 
       addProducer(producer);
 
@@ -1713,61 +1449,48 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
                                     final SimpleString queueName,
                                     final SimpleString filterString,
                                     final boolean durable,
-                                    final boolean temp) throws ActiveMQException
-   {
+                                    final boolean temp) throws ActiveMQException {
       checkClosed();
 
-      if (durable && temp)
-      {
+      if (durable && temp) {
          throw ActiveMQClientMessageBundle.BUNDLE.queueMisConfigured();
       }
 
       startCall();
-      try
-      {
+      try {
          sessionContext.createQueue(address, queueName, filterString, durable, temp);
       }
-      finally
-      {
+      finally {
          endCall();
       }
    }
 
-   private void checkXA() throws XAException
-   {
-      if (!xa)
-      {
+   private void checkXA() throws XAException {
+      if (!xa) {
          ActiveMQClientLogger.LOGGER.sessionNotXA();
          throw new XAException(XAException.XAER_RMFAIL);
       }
    }
 
-   private void checkClosed() throws ActiveMQException
-   {
-      if (closed || inClose)
-      {
+   private void checkClosed() throws ActiveMQException {
+      if (closed || inClose) {
          throw ActiveMQClientMessageBundle.BUNDLE.sessionClosed();
       }
    }
 
-   private ClientConsumerInternal getConsumer(final ConsumerContext consumerContext)
-   {
-      synchronized (consumers)
-      {
+   private ClientConsumerInternal getConsumer(final ConsumerContext consumerContext) {
+      synchronized (consumers) {
          ClientConsumerInternal consumer = consumers.get(consumerContext);
          return consumer;
       }
    }
 
-   private void doCleanup(boolean failingOver)
-   {
-      if (ActiveMQClientLogger.LOGGER.isDebugEnabled())
-      {
+   private void doCleanup(boolean failingOver) {
+      if (ActiveMQClientLogger.LOGGER.isDebugEnabled()) {
          ActiveMQClientLogger.LOGGER.debug("calling cleanup on " + this);
       }
 
-      synchronized (this)
-      {
+      synchronized (this) {
          closed = true;
 
          sessionContext.cleanup();
@@ -1776,19 +1499,16 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       sessionFactory.removeSession(this, failingOver);
    }
 
-   private void cleanUpChildren() throws ActiveMQException
-   {
+   private void cleanUpChildren() throws ActiveMQException {
       Set<ClientConsumerInternal> consumersClone = cloneConsumers();
 
-      for (ClientConsumerInternal consumer : consumersClone)
-      {
+      for (ClientConsumerInternal consumer : consumersClone) {
          consumer.cleanUp();
       }
 
       Set<ClientProducerInternal> producersClone = cloneProducers();
 
-      for (ClientProducerInternal producer : producersClone)
-      {
+      for (ClientProducerInternal producer : producersClone) {
          producer.cleanUp();
       }
    }
@@ -1798,12 +1518,10 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
     *
     * @return
     */
-   public Set<ClientProducerInternal> cloneProducers()
-   {
+   public Set<ClientProducerInternal> cloneProducers() {
       Set<ClientProducerInternal> producersClone;
 
-      synchronized (producers)
-      {
+      synchronized (producers) {
          producersClone = new HashSet<ClientProducerInternal>(producers);
       }
       return producersClone;
@@ -1814,35 +1532,28 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
     *
     * @return
     */
-   public Set<ClientConsumerInternal> cloneConsumers()
-   {
-      synchronized (consumers)
-      {
+   public Set<ClientConsumerInternal> cloneConsumers() {
+      synchronized (consumers) {
          return new HashSet<ClientConsumerInternal>(consumers.values());
       }
    }
 
-   private void closeChildren() throws ActiveMQException
-   {
+   private void closeChildren() throws ActiveMQException {
       Set<ClientConsumerInternal> consumersClone = cloneConsumers();
 
-      for (ClientConsumer consumer : consumersClone)
-      {
+      for (ClientConsumer consumer : consumersClone) {
          consumer.close();
       }
 
       Set<ClientProducerInternal> producersClone = cloneProducers();
 
-      for (ClientProducer producer : producersClone)
-      {
+      for (ClientProducer producer : producersClone) {
          producer.close();
       }
    }
 
-   private void flushAcks() throws ActiveMQException
-   {
-      for (ClientConsumerInternal consumer : cloneConsumers())
-      {
+   private void flushAcks() throws ActiveMQException {
+      for (ClientConsumerInternal consumer : cloneConsumers()) {
          consumer.flushAcks();
       }
    }
@@ -1857,8 +1568,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
     * @param xid
     * @return
     */
-   public static Object convert(Xid xid)
-   {
+   public static Object convert(Xid xid) {
       ActiveMQBuffer buffer = ActiveMQBuffers.dynamicBuffer(200);
       XidCodecSupport.encodeXid(xid, buffer);
 
@@ -1867,52 +1577,40 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       return "xid=" + obj + ",clientXID=" + xid;
    }
 
-   private String convertTXFlag(final int flags)
-   {
-      if (flags == XAResource.TMSUSPEND)
-      {
+   private String convertTXFlag(final int flags) {
+      if (flags == XAResource.TMSUSPEND) {
          return "SESS_XA_SUSPEND";
       }
-      else if (flags == XAResource.TMSUCCESS)
-      {
+      else if (flags == XAResource.TMSUCCESS) {
          return "TMSUCCESS";
       }
-      else if (flags == XAResource.TMFAIL)
-      {
+      else if (flags == XAResource.TMFAIL) {
          return "TMFAIL";
       }
-      else if (flags == XAResource.TMJOIN)
-      {
+      else if (flags == XAResource.TMJOIN) {
          return "TMJOIN";
       }
-      else if (flags == XAResource.TMRESUME)
-      {
+      else if (flags == XAResource.TMRESUME) {
          return "TMRESUME";
       }
-      else if (flags == XAResource.TMNOFLAGS)
-      {
+      else if (flags == XAResource.TMNOFLAGS) {
          // Don't need to flush since the previous end will have done this
          return "TMNOFLAGS";
       }
-      else
-      {
+      else {
          return "XAER_INVAL(" + flags + ")";
       }
    }
 
    @Override
-   public void setStopSignal()
-   {
+   public void setStopSignal() {
       mayAttemptToFailover = false;
    }
 
    @Override
-   public boolean isConfirmationWindowEnabled()
-   {
-      if (confirmationWindowWarning.disabled)
-      {
-         if (!confirmationWindowWarning.warningIssued.get())
-         {
+   public boolean isConfirmationWindowEnabled() {
+      if (confirmationWindowWarning.disabled) {
+         if (!confirmationWindowWarning.warningIssued.get()) {
             ActiveMQClientLogger.LOGGER.confirmationWindowDisabledWarning();
             confirmationWindowWarning.warningIssued.set(true);
          }
@@ -1922,13 +1620,10 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
    }
 
    @Override
-   public void scheduleConfirmation(final SendAcknowledgementHandler handler, final Message message)
-   {
-      executor.execute(new Runnable()
-      {
+   public void scheduleConfirmation(final SendAcknowledgementHandler handler, final Message message) {
+      executor.execute(new Runnable() {
          @Override
-         public void run()
-         {
+         public void run() {
             handler.sendAcknowledged(message);
          }
       });

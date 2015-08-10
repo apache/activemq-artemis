@@ -31,16 +31,15 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class WildCardRoutingTest extends ActiveMQTestBase
-{
+public class WildCardRoutingTest extends ActiveMQTestBase {
+
    private ActiveMQServer server;
    private ServerLocator locator;
    private ClientSession clientSession;
    private ClientSessionFactory sf;
 
    @Test
-   public void testBasicWildcardRouting() throws Exception
-   {
+   public void testBasicWildcardRouting() throws Exception {
       SimpleString addressAB = new SimpleString("a.b");
       SimpleString addressAC = new SimpleString("a.c");
       SimpleString address = new SimpleString("a.*");
@@ -69,8 +68,7 @@ public class WildCardRoutingTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testBasicWildcardRoutingQueuesDontExist() throws Exception
-   {
+   public void testBasicWildcardRoutingQueuesDontExist() throws Exception {
       SimpleString addressAB = new SimpleString("a.b");
       SimpleString addressAC = new SimpleString("a.c");
       SimpleString address = new SimpleString("a.*");
@@ -101,8 +99,7 @@ public class WildCardRoutingTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testBasicWildcardRoutingQueuesDontExist2() throws Exception
-   {
+   public void testBasicWildcardRoutingQueuesDontExist2() throws Exception {
       SimpleString addressAB = new SimpleString("a.b");
       SimpleString addressAC = new SimpleString("a.c");
       SimpleString address = new SimpleString("a.*");
@@ -141,8 +138,7 @@ public class WildCardRoutingTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testBasicWildcardRoutingWithHash() throws Exception
-   {
+   public void testBasicWildcardRoutingWithHash() throws Exception {
       SimpleString addressAB = new SimpleString("a.b");
       SimpleString addressAC = new SimpleString("a.c");
       SimpleString address = new SimpleString("a.#");
@@ -171,8 +167,7 @@ public class WildCardRoutingTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testWildcardRoutingQueuesAddedAfter() throws Exception
-   {
+   public void testWildcardRoutingQueuesAddedAfter() throws Exception {
       SimpleString addressAB = new SimpleString("a.b");
       SimpleString addressAC = new SimpleString("a.c");
       SimpleString address = new SimpleString("a.*");
@@ -201,8 +196,7 @@ public class WildCardRoutingTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testWildcardRoutingQueuesAddedThenDeleted() throws Exception
-   {
+   public void testWildcardRoutingQueuesAddedThenDeleted() throws Exception {
       SimpleString addressAB = new SimpleString("a.b");
       SimpleString addressAC = new SimpleString("a.c");
       SimpleString address = new SimpleString("a.*");
@@ -235,8 +229,7 @@ public class WildCardRoutingTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testWildcardRoutingLotsOfQueuesAddedThenDeleted() throws Exception
-   {
+   public void testWildcardRoutingLotsOfQueuesAddedThenDeleted() throws Exception {
       SimpleString addressAB = new SimpleString("a.b");
       SimpleString addressAC = new SimpleString("a.c");
       SimpleString addressAD = new SimpleString("a.d");
@@ -333,8 +326,7 @@ public class WildCardRoutingTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testWildcardRoutingLotsOfQueuesAddedThenDeletedHash() throws Exception
-   {
+   public void testWildcardRoutingLotsOfQueuesAddedThenDeletedHash() throws Exception {
       SimpleString addressAB = new SimpleString("a.b");
       SimpleString addressAC = new SimpleString("a.c");
       SimpleString addressAD = new SimpleString("a.d");
@@ -431,8 +423,7 @@ public class WildCardRoutingTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testWildcardRoutingWithSingleHash() throws Exception
-   {
+   public void testWildcardRoutingWithSingleHash() throws Exception {
       SimpleString addressAB = new SimpleString("a.b");
       SimpleString addressAC = new SimpleString("a.c");
       SimpleString address = new SimpleString("#");
@@ -461,8 +452,7 @@ public class WildCardRoutingTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testWildcardRoutingWithHash() throws Exception
-   {
+   public void testWildcardRoutingWithHash() throws Exception {
       SimpleString addressAB = new SimpleString("a.b.f");
       SimpleString addressAC = new SimpleString("a.c.f");
       SimpleString address = new SimpleString("a.#.f");
@@ -491,8 +481,7 @@ public class WildCardRoutingTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testWildcardRoutingWithHashMultiLengthAddresses() throws Exception
-   {
+   public void testWildcardRoutingWithHashMultiLengthAddresses() throws Exception {
       SimpleString addressAB = new SimpleString("a.b.c.f");
       SimpleString addressAC = new SimpleString("a.c.f");
       SimpleString addressAD = new SimpleString("a.d");
@@ -522,8 +511,7 @@ public class WildCardRoutingTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testWildcardRoutingWithDoubleStar() throws Exception
-   {
+   public void testWildcardRoutingWithDoubleStar() throws Exception {
       SimpleString addressAB = new SimpleString("a.b");
       SimpleString addressAC = new SimpleString("a.c");
       SimpleString address = new SimpleString("*.*");
@@ -552,8 +540,7 @@ public class WildCardRoutingTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testWildcardRoutingPartialMatchStar() throws Exception
-   {
+   public void testWildcardRoutingPartialMatchStar() throws Exception {
       SimpleString addressAB = new SimpleString("a.b");
       SimpleString addressAC = new SimpleString("a.c");
       SimpleString address = new SimpleString("*.b");
@@ -578,8 +565,7 @@ public class WildCardRoutingTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testWildcardRoutingVariableLengths() throws Exception
-   {
+   public void testWildcardRoutingVariableLengths() throws Exception {
       SimpleString addressAB = new SimpleString("a.b.c");
       SimpleString addressAC = new SimpleString("a.c");
       SimpleString address = new SimpleString("a.#");
@@ -606,8 +592,7 @@ public class WildCardRoutingTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testWildcardRoutingVariableLengthsStar() throws Exception
-   {
+   public void testWildcardRoutingVariableLengthsStar() throws Exception {
       SimpleString addressAB = new SimpleString("a.b.c");
       SimpleString addressAC = new SimpleString("a.c");
       SimpleString address = new SimpleString("a.*");
@@ -632,8 +617,7 @@ public class WildCardRoutingTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testWildcardRoutingMultipleStars() throws Exception
-   {
+   public void testWildcardRoutingMultipleStars() throws Exception {
       SimpleString addressAB = new SimpleString("a.b.c");
       SimpleString addressAC = new SimpleString("a.c");
       SimpleString address = new SimpleString("*.*");
@@ -658,8 +642,7 @@ public class WildCardRoutingTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testWildcardRoutingStarInMiddle() throws Exception
-   {
+   public void testWildcardRoutingStarInMiddle() throws Exception {
       SimpleString addressAB = new SimpleString("a.b.c");
       SimpleString addressAC = new SimpleString("a.c");
       SimpleString address = new SimpleString("*.b.*");
@@ -684,8 +667,7 @@ public class WildCardRoutingTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testWildcardRoutingStarAndHash() throws Exception
-   {
+   public void testWildcardRoutingStarAndHash() throws Exception {
       SimpleString addressAB = new SimpleString("a.b.c.d");
       SimpleString addressAC = new SimpleString("a.c");
       SimpleString address = new SimpleString("*.b.#");
@@ -710,8 +692,7 @@ public class WildCardRoutingTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testWildcardRoutingHashAndStar() throws Exception
-   {
+   public void testWildcardRoutingHashAndStar() throws Exception {
       SimpleString addressAB = new SimpleString("a.b.c");
       SimpleString addressAC = new SimpleString("a.c");
       SimpleString address = new SimpleString("#.b.*");
@@ -736,8 +717,7 @@ public class WildCardRoutingTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testLargeWildcardRouting() throws Exception
-   {
+   public void testLargeWildcardRouting() throws Exception {
       SimpleString addressAB = new SimpleString("a.b.c.d.e.f.g.h.i.j.k.l.m.n.o.p.q.r.s.t.u.v.w.x.y.z");
       SimpleString addressAC = new SimpleString("a.c");
       SimpleString address = new SimpleString("a.#");
@@ -775,12 +755,9 @@ public class WildCardRoutingTest extends ActiveMQTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
-      Configuration configuration = createDefaultInVMConfig()
-         .setWildcardRoutingEnabled(true)
-         .setTransactionTimeoutScanPeriod(500);
+      Configuration configuration = createDefaultInVMConfig().setWildcardRoutingEnabled(true).setTransactionTimeoutScanPeriod(500);
       server = addServer(ActiveMQServers.newActiveMQServer(configuration, false));
       server.start();
       server.getManagementService().enableNotifications(false);

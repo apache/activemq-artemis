@@ -25,20 +25,19 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 
-public class ReplicatedPagedFailoverTest extends ReplicatedFailoverTest
-{
+public class ReplicatedPagedFailoverTest extends ReplicatedFailoverTest {
+
    @Override
-   protected ActiveMQServer createInVMFailoverServer(final boolean realFiles, final Configuration configuration,
-                                                    final NodeManager nodeManager, int id)
-   {
-      return createInVMFailoverServer(realFiles, configuration, PAGE_SIZE, PAGE_MAX,
-                                      new HashMap<String, AddressSettings>(), nodeManager, id);
+   protected ActiveMQServer createInVMFailoverServer(final boolean realFiles,
+                                                     final Configuration configuration,
+                                                     final NodeManager nodeManager,
+                                                     int id) {
+      return createInVMFailoverServer(realFiles, configuration, PAGE_SIZE, PAGE_MAX, new HashMap<String, AddressSettings>(), nodeManager, id);
    }
 
    @Override
    @Test
-   public void testFailWithBrowser() throws Exception
-   {
+   public void testFailWithBrowser() throws Exception {
       // paged messages are not available for browsing
    }
 }

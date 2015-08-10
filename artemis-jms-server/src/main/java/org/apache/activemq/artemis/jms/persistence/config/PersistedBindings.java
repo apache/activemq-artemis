@@ -24,8 +24,7 @@ import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.utils.BufferHelper;
 import org.apache.activemq.artemis.utils.DataConstants;
 
-public class PersistedBindings implements EncodingSupport
-{
+public class PersistedBindings implements EncodingSupport {
 
    // Constants -----------------------------------------------------
 
@@ -43,16 +42,14 @@ public class PersistedBindings implements EncodingSupport
 
    // Constructors --------------------------------------------------
 
-   public PersistedBindings()
-   {
+   public PersistedBindings() {
    }
 
    /**
     * @param type
     * @param name
     */
-   public PersistedBindings(PersistedType type, String name)
-   {
+   public PersistedBindings(PersistedType type, String name) {
       super();
       this.type = type;
       this.name = name;
@@ -60,45 +57,38 @@ public class PersistedBindings implements EncodingSupport
 
    // Public --------------------------------------------------------
    @Override
-   public void decode(ActiveMQBuffer buffer)
-   {
+   public void decode(ActiveMQBuffer buffer) {
       type = PersistedType.getType(buffer.readByte());
       name = buffer.readSimpleString().toString();
       int bindingArraySize = buffer.readInt();
       bindings = new ArrayList<String>(bindingArraySize);
 
-      for (int i = 0; i < bindingArraySize; i++)
-      {
+      for (int i = 0; i < bindingArraySize; i++) {
          bindings.add(buffer.readSimpleString().toString());
       }
    }
 
    @Override
-   public void encode(ActiveMQBuffer buffer)
-   {
+   public void encode(ActiveMQBuffer buffer) {
       buffer.writeByte(type.getType());
       BufferHelper.writeAsSimpleString(buffer, name);
       buffer.writeInt(bindings.size());
-      for (String bindingsEl : bindings)
-      {
+      for (String bindingsEl : bindings) {
          BufferHelper.writeAsSimpleString(buffer, bindingsEl);
       }
    }
 
    @Override
-   public int getEncodeSize()
-   {
+   public int getEncodeSize() {
       return DataConstants.SIZE_BYTE +
          BufferHelper.sizeOfSimpleString(name) +
          sizeOfBindings();
    }
 
-   private int sizeOfBindings()
-   {
+   private int sizeOfBindings() {
       int size = DataConstants.SIZE_INT; // for the number of elements written
 
-      for (String str : bindings)
-      {
+      for (String str : bindings) {
          size += BufferHelper.sizeOfSimpleString(str);
       }
 
@@ -108,50 +98,43 @@ public class PersistedBindings implements EncodingSupport
    /**
     * @return the id
     */
-   public long getId()
-   {
+   public long getId() {
       return id;
    }
 
    /**
     * @param id the id to set
     */
-   public void setId(long id)
-   {
+   public void setId(long id) {
       this.id = id;
    }
 
    /**
     * @return the type
     */
-   public PersistedType getType()
-   {
+   public PersistedType getType() {
       return type;
    }
 
    /**
     * @return the name
     */
-   public String getName()
-   {
+   public String getName() {
       return name;
    }
 
    /**
     * @return the bindings
     */
-   public List<String> getBindings()
-   {
+   public List<String> getBindings() {
       return bindings;
    }
 
-   public void addBinding(String address)
-   {
+   public void addBinding(String address) {
       bindings.add(address);
    }
 
-   public void deleteBinding(String address)
-   {
+   public void deleteBinding(String address) {
       bindings.remove(address);
    }
 

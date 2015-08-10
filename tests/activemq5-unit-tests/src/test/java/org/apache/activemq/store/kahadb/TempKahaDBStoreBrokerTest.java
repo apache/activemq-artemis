@@ -25,35 +25,32 @@ import org.apache.activemq.broker.BrokerTest;
 
 /**
  * Once the wire format is completed we can test against real persistence storage.
- * 
- * 
  */
 public class TempKahaDBStoreBrokerTest extends BrokerTest {
 
-    protected BrokerService createBroker() throws Exception {
-        BrokerService broker = new BrokerService();
-        KahaDBStore kaha = new KahaDBStore();
-        kaha.setDirectory(new File("target/activemq-data/kahadb"));
-        kaha.deleteAllMessages();
-        broker.setPersistenceAdapter(kaha);
-        return broker;
-    }
-    
-    protected BrokerService createRestartedBroker() throws Exception {
-        BrokerService broker = new BrokerService();
-        TempKahaDBStore kaha = new TempKahaDBStore();
-        kaha.setDirectory(new File("target/activemq-data/kahadb"));
-        broker.setPersistenceAdapter(kaha);
-        return broker;
-    }
-    
-    
-    public static Test suite() {
-        return suite(TempKahaDBStoreBrokerTest.class);
-    }
-    
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(suite());
-    }
+   protected BrokerService createBroker() throws Exception {
+      BrokerService broker = new BrokerService();
+      KahaDBStore kaha = new KahaDBStore();
+      kaha.setDirectory(new File("target/activemq-data/kahadb"));
+      kaha.deleteAllMessages();
+      broker.setPersistenceAdapter(kaha);
+      return broker;
+   }
+
+   protected BrokerService createRestartedBroker() throws Exception {
+      BrokerService broker = new BrokerService();
+      TempKahaDBStore kaha = new TempKahaDBStore();
+      kaha.setDirectory(new File("target/activemq-data/kahadb"));
+      broker.setPersistenceAdapter(kaha);
+      return broker;
+   }
+
+   public static Test suite() {
+      return suite(TempKahaDBStoreBrokerTest.class);
+   }
+
+   public static void main(String[] args) {
+      junit.textui.TestRunner.run(suite());
+   }
 
 }

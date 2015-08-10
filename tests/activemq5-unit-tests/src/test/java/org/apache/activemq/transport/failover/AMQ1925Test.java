@@ -48,348 +48,326 @@ import org.apache.log4j.Logger;
 
 /**
  * TestCase showing the message-destroying described in AMQ-1925
- * 
- * 
  */
 public class AMQ1925Test extends TestCase implements ExceptionListener {
-	private static final Logger log = Logger.getLogger(AMQ1925Test.class);
 
-	private static final String QUEUE_NAME = "test.amq1925";
-	private static final String PROPERTY_MSG_NUMBER = "NUMBER";
-	private static final int MESSAGE_COUNT = 10000;
+   private static final Logger log = Logger.getLogger(AMQ1925Test.class);
 
-	private BrokerService bs;
-	private URI tcpUri;
-	private ActiveMQConnectionFactory cf;
+   private static final String QUEUE_NAME = "test.amq1925";
+   private static final String PROPERTY_MSG_NUMBER = "NUMBER";
+   private static final int MESSAGE_COUNT = 10000;
 
-    private JMSException exception;
+   private BrokerService bs;
+   private URI tcpUri;
+   private ActiveMQConnectionFactory cf;
 
-	public void XtestAMQ1925_TXInProgress() throws Exception {
-		Connection connection = cf.createConnection();
-		connection.start();
-		Session session = connection.createSession(true,
-				Session.SESSION_TRANSACTED);
-		MessageConsumer consumer = session.createConsumer(session
-				.createQueue(QUEUE_NAME));
+   private JMSException exception;
 
-		// The runnable is likely to interrupt during the session#commit, since
-		// this takes the longest
-		final CountDownLatch starter = new CountDownLatch(1);
-		final AtomicBoolean restarted = new AtomicBoolean();
-		new Thread(new Runnable() {
-			public void run() {
-				try {
-					starter.await();
+   public void XtestAMQ1925_TXInProgress() throws Exception {
+      Connection connection = cf.createConnection();
+      connection.start();
+      Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
+      MessageConsumer consumer = session.createConsumer(session.createQueue(QUEUE_NAME));
 
-					// Simulate broker failure & restart
-					bs.stop();
-					bs = new BrokerService();
-					bs.setPersistent(true);
-					bs.setUseJmx(true);
-					bs.addConnector(tcpUri);
-					bs.start();
+      // The runnable is likely to interrupt during the session#commit, since
+      // this takes the longest
+      final CountDownLatch starter = new CountDownLatch(1);
+      final AtomicBoolean restarted = new AtomicBoolean();
+      new Thread(new Runnable() {
+         public void run() {
+            try {
+               starter.await();
 
-					restarted.set(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		}).start();
+               // Simulate broker failure & restart
+               bs.stop();
+               bs = new BrokerService();
+               bs.setPersistent(true);
+               bs.setUseJmx(true);
+               bs.addConnector(tcpUri);
+               bs.start();
 
-		for (int i = 0; i < MESSAGE_COUNT; i++) {
-			Message message = consumer.receive(500);
-			assertNotNull("No Message " + i + " found", message);
+               restarted.set(true);
+            }
+            catch (Exception e) {
+               e.printStackTrace();
+            }
+         }
+      }).start();
 
-			if (i < 10)
-				assertFalse("Timing problem, restarted too soon", restarted
-						.get());
-			if (i == 10) {
-				starter.countDown();
-			}
-			if (i > MESSAGE_COUNT - 100) {
-				assertTrue("Timing problem, restarted too late", restarted
-						.get());
-			}
+      for (int i = 0; i < MESSAGE_COUNT; i++) {
+         Message message = consumer.receive(500);
+         assertNotNull("No Message " + i + " found", message);
 
-			assertEquals(i, message.getIntProperty(PROPERTY_MSG_NUMBER));
-			session.commit();
-		}
-		assertNull(consumer.receive(500));
+         if (i < 10)
+            assertFalse("Timing problem, restarted too soon", restarted.get());
+         if (i == 10) {
+            starter.countDown();
+         }
+         if (i > MESSAGE_COUNT - 100) {
+            assertTrue("Timing problem, restarted too late", restarted.get());
+         }
 
-		consumer.close();
-		session.close();
-		connection.close();
+         assertEquals(i, message.getIntProperty(PROPERTY_MSG_NUMBER));
+         session.commit();
+      }
+      assertNull(consumer.receive(500));
 
-		assertQueueEmpty();
-	}
+      consumer.close();
+      session.close();
+      connection.close();
 
-	public void XtestAMQ1925_TXInProgress_TwoConsumers() throws Exception {
-		Connection connection = cf.createConnection();
-		connection.start();
-		Session session1 = connection.createSession(true,
-				Session.SESSION_TRANSACTED);
-		MessageConsumer consumer1 = session1.createConsumer(session1
-				.createQueue(QUEUE_NAME));
-		Session session2 = connection.createSession(true,
-				Session.SESSION_TRANSACTED);
-		MessageConsumer consumer2 = session2.createConsumer(session2
-				.createQueue(QUEUE_NAME));
+      assertQueueEmpty();
+   }
 
-		// The runnable is likely to interrupt during the session#commit, since
-		// this takes the longest
-		final CountDownLatch starter = new CountDownLatch(1);
-		final AtomicBoolean restarted = new AtomicBoolean();
-		new Thread(new Runnable() {
-			public void run() {
-				try {
-					starter.await();
+   public void XtestAMQ1925_TXInProgress_TwoConsumers() throws Exception {
+      Connection connection = cf.createConnection();
+      connection.start();
+      Session session1 = connection.createSession(true, Session.SESSION_TRANSACTED);
+      MessageConsumer consumer1 = session1.createConsumer(session1.createQueue(QUEUE_NAME));
+      Session session2 = connection.createSession(true, Session.SESSION_TRANSACTED);
+      MessageConsumer consumer2 = session2.createConsumer(session2.createQueue(QUEUE_NAME));
 
-					// Simulate broker failure & restart
-					bs.stop();
-					bs = new BrokerService();
-					bs.setPersistent(true);
-					bs.setUseJmx(true);
-					bs.addConnector(tcpUri);
-					bs.start();
+      // The runnable is likely to interrupt during the session#commit, since
+      // this takes the longest
+      final CountDownLatch starter = new CountDownLatch(1);
+      final AtomicBoolean restarted = new AtomicBoolean();
+      new Thread(new Runnable() {
+         public void run() {
+            try {
+               starter.await();
 
-					restarted.set(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		}).start();
+               // Simulate broker failure & restart
+               bs.stop();
+               bs = new BrokerService();
+               bs.setPersistent(true);
+               bs.setUseJmx(true);
+               bs.addConnector(tcpUri);
+               bs.start();
 
-		Collection<Integer> results = new ArrayList<Integer>(MESSAGE_COUNT);
-		for (int i = 0; i < MESSAGE_COUNT; i++) {
-			Message message1 = consumer1.receive(20);
-			Message message2 = consumer2.receive(20);
-			if (message1 == null && message2 == null) {
-				if (results.size() < MESSAGE_COUNT) {
-					message1 = consumer1.receive(500);
-					message2 = consumer2.receive(500);
+               restarted.set(true);
+            }
+            catch (Exception e) {
+               e.printStackTrace();
+            }
+         }
+      }).start();
 
-					if (message1 == null && message2 == null) {
-						// Missing messages
-						break;
-					}
-				}
-				break;
-			}
+      Collection<Integer> results = new ArrayList<Integer>(MESSAGE_COUNT);
+      for (int i = 0; i < MESSAGE_COUNT; i++) {
+         Message message1 = consumer1.receive(20);
+         Message message2 = consumer2.receive(20);
+         if (message1 == null && message2 == null) {
+            if (results.size() < MESSAGE_COUNT) {
+               message1 = consumer1.receive(500);
+               message2 = consumer2.receive(500);
 
-			if (i < 10)
-				assertFalse("Timing problem, restarted too soon", restarted
-						.get());
-			if (i == 10) {
-				starter.countDown();
-			}
-			if (i > MESSAGE_COUNT - 50) {
-				assertTrue("Timing problem, restarted too late", restarted
-						.get());
-			}
+               if (message1 == null && message2 == null) {
+                  // Missing messages
+                  break;
+               }
+            }
+            break;
+         }
 
-			if (message1 != null) {
-				results.add(message1.getIntProperty(PROPERTY_MSG_NUMBER));
-				session1.commit();
-			}
-			if (message2 != null) {
-				results.add(message2.getIntProperty(PROPERTY_MSG_NUMBER));
-				session2.commit();
-			}
-		}
-		assertNull(consumer1.receive(500));
-		assertNull(consumer2.receive(500));
+         if (i < 10)
+            assertFalse("Timing problem, restarted too soon", restarted.get());
+         if (i == 10) {
+            starter.countDown();
+         }
+         if (i > MESSAGE_COUNT - 50) {
+            assertTrue("Timing problem, restarted too late", restarted.get());
+         }
 
-		consumer1.close();
-		session1.close();
-		consumer2.close();
-		session2.close();
-		connection.close();
+         if (message1 != null) {
+            results.add(message1.getIntProperty(PROPERTY_MSG_NUMBER));
+            session1.commit();
+         }
+         if (message2 != null) {
+            results.add(message2.getIntProperty(PROPERTY_MSG_NUMBER));
+            session2.commit();
+         }
+      }
+      assertNull(consumer1.receive(500));
+      assertNull(consumer2.receive(500));
 
-		int foundMissingMessages = 0;
-		if (results.size() < MESSAGE_COUNT) {
-			foundMissingMessages = tryToFetchMissingMessages();
-		}
-		for (int i = 0; i < MESSAGE_COUNT; i++) {
-			assertTrue("Message-Nr " + i + " not found (" + results.size()
-					+ " total, " + foundMissingMessages
-					+ " have been found 'lingering' in the queue)", results
-					.contains(i));
-		}
-		assertQueueEmpty();
-	}
+      consumer1.close();
+      session1.close();
+      consumer2.close();
+      session2.close();
+      connection.close();
 
-	private int tryToFetchMissingMessages() throws JMSException {
-		Connection connection = cf.createConnection();
-		connection.start();
-		Session session = connection.createSession(true, 0);
-		MessageConsumer consumer = session.createConsumer(session
-				.createQueue(QUEUE_NAME));
+      int foundMissingMessages = 0;
+      if (results.size() < MESSAGE_COUNT) {
+         foundMissingMessages = tryToFetchMissingMessages();
+      }
+      for (int i = 0; i < MESSAGE_COUNT; i++) {
+         assertTrue("Message-Nr " + i + " not found (" + results.size() + " total, " + foundMissingMessages + " have been found 'lingering' in the queue)", results.contains(i));
+      }
+      assertQueueEmpty();
+   }
 
-		int count = 0;
-		while (true) {
-			Message message = consumer.receive(500);
-			if (message == null)
-				break;
+   private int tryToFetchMissingMessages() throws JMSException {
+      Connection connection = cf.createConnection();
+      connection.start();
+      Session session = connection.createSession(true, 0);
+      MessageConsumer consumer = session.createConsumer(session.createQueue(QUEUE_NAME));
 
-			log.info("Found \"missing\" message: " + message);
-			count++;
-		}
+      int count = 0;
+      while (true) {
+         Message message = consumer.receive(500);
+         if (message == null)
+            break;
 
-		consumer.close();
-		session.close();
-		connection.close();
+         log.info("Found \"missing\" message: " + message);
+         count++;
+      }
 
-		return count;
-	}
+      consumer.close();
+      session.close();
+      connection.close();
 
-	public void testAMQ1925_TXBegin() throws Exception {
-		Connection connection = cf.createConnection();
-		connection.start();
-		connection.setExceptionListener(this);
-		Session session = connection.createSession(true,
-				Session.SESSION_TRANSACTED);
-		MessageConsumer consumer = session.createConsumer(session
-				.createQueue(QUEUE_NAME));
+      return count;
+   }
 
-		boolean restartDone = false;
-		for (int i = 0; i < MESSAGE_COUNT; i++) {
-			Message message = consumer.receive(5000);
-			assertNotNull(message);
+   public void testAMQ1925_TXBegin() throws Exception {
+      Connection connection = cf.createConnection();
+      connection.start();
+      connection.setExceptionListener(this);
+      Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
+      MessageConsumer consumer = session.createConsumer(session.createQueue(QUEUE_NAME));
 
-			if (i == 222 && !restartDone) {
-				// Simulate broker failure & restart
-				bs.stop();
-				bs = new BrokerService();
-				bs.setPersistent(true);
-				bs.setUseJmx(true);
-				bs.addConnector(tcpUri);
-				bs.start();
-				restartDone = true;
-			}
+      boolean restartDone = false;
+      for (int i = 0; i < MESSAGE_COUNT; i++) {
+         Message message = consumer.receive(5000);
+         assertNotNull(message);
 
-			assertEquals(i, message.getIntProperty(PROPERTY_MSG_NUMBER));
-			try {
-			    session.commit();
-			} catch (TransactionRolledBackException expectedOnOccasion) {
-			    log.info("got rollback: "  + expectedOnOccasion);
-			    i--;
-			}
-		}
-		assertNull(consumer.receive(500));
+         if (i == 222 && !restartDone) {
+            // Simulate broker failure & restart
+            bs.stop();
+            bs = new BrokerService();
+            bs.setPersistent(true);
+            bs.setUseJmx(true);
+            bs.addConnector(tcpUri);
+            bs.start();
+            restartDone = true;
+         }
 
-		consumer.close();
-		session.close();
-		connection.close();
+         assertEquals(i, message.getIntProperty(PROPERTY_MSG_NUMBER));
+         try {
+            session.commit();
+         }
+         catch (TransactionRolledBackException expectedOnOccasion) {
+            log.info("got rollback: " + expectedOnOccasion);
+            i--;
+         }
+      }
+      assertNull(consumer.receive(500));
 
-		assertQueueEmpty();
-		assertNull("no exception on connection listener: " + exception, exception);
-	}
+      consumer.close();
+      session.close();
+      connection.close();
 
-	public void testAMQ1925_TXCommited() throws Exception {
-		Connection connection = cf.createConnection();
-		connection.start();
-		Session session = connection.createSession(true,
-				Session.SESSION_TRANSACTED);
-		MessageConsumer consumer = session.createConsumer(session
-				.createQueue(QUEUE_NAME));
+      assertQueueEmpty();
+      assertNull("no exception on connection listener: " + exception, exception);
+   }
 
-		for (int i = 0; i < MESSAGE_COUNT; i++) {
-			Message message = consumer.receive(5000);
-			assertNotNull(message);
+   public void testAMQ1925_TXCommited() throws Exception {
+      Connection connection = cf.createConnection();
+      connection.start();
+      Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
+      MessageConsumer consumer = session.createConsumer(session.createQueue(QUEUE_NAME));
 
-			assertEquals(i, message.getIntProperty(PROPERTY_MSG_NUMBER));
-			session.commit();
+      for (int i = 0; i < MESSAGE_COUNT; i++) {
+         Message message = consumer.receive(5000);
+         assertNotNull(message);
 
-			if (i == 222) {
-				// Simulate broker failure & restart
-				bs.stop();
-				bs = new BrokerService();
-				bs.setPersistent(true);
-				bs.setUseJmx(true);
-				bs.addConnector(tcpUri);
-				bs.start();
-			}
-		}
-		assertNull(consumer.receive(500));
+         assertEquals(i, message.getIntProperty(PROPERTY_MSG_NUMBER));
+         session.commit();
 
-		consumer.close();
-		session.close();
-		connection.close();
+         if (i == 222) {
+            // Simulate broker failure & restart
+            bs.stop();
+            bs = new BrokerService();
+            bs.setPersistent(true);
+            bs.setUseJmx(true);
+            bs.addConnector(tcpUri);
+            bs.start();
+         }
+      }
+      assertNull(consumer.receive(500));
 
-		assertQueueEmpty();
-	}
+      consumer.close();
+      session.close();
+      connection.close();
 
-	private void assertQueueEmpty() throws Exception {
-		Connection connection = cf.createConnection();
-		connection.start();
-		Session session = connection.createSession(true,
-				Session.SESSION_TRANSACTED);
-		MessageConsumer consumer = session.createConsumer(session
-				.createQueue(QUEUE_NAME));
+      assertQueueEmpty();
+   }
 
-		Message msg = consumer.receive(500);
-		if (msg != null) {
-			fail(msg.toString());
-		}
+   private void assertQueueEmpty() throws Exception {
+      Connection connection = cf.createConnection();
+      connection.start();
+      Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
+      MessageConsumer consumer = session.createConsumer(session.createQueue(QUEUE_NAME));
 
-		consumer.close();
-		session.close();
-		connection.close();
+      Message msg = consumer.receive(500);
+      if (msg != null) {
+         fail(msg.toString());
+      }
 
-		assertQueueLength(0);
-	}
+      consumer.close();
+      session.close();
+      connection.close();
 
-	private void assertQueueLength(int len) throws Exception, IOException {
-		Set<Destination> destinations = bs.getBroker().getDestinations(
-				new ActiveMQQueue(QUEUE_NAME));
-		Queue queue = (Queue) destinations.iterator().next();
-		assertEquals(len, queue.getMessageStore().getMessageCount());
-	}
+      assertQueueLength(0);
+   }
 
-	private void sendMessagesToQueue() throws Exception {
-		Connection connection = cf.createConnection();
-		Session session = connection.createSession(true,
-				Session.SESSION_TRANSACTED);
-		MessageProducer producer = session.createProducer(session
-				.createQueue(QUEUE_NAME));
+   private void assertQueueLength(int len) throws Exception, IOException {
+      Set<Destination> destinations = bs.getBroker().getDestinations(new ActiveMQQueue(QUEUE_NAME));
+      Queue queue = (Queue) destinations.iterator().next();
+      assertEquals(len, queue.getMessageStore().getMessageCount());
+   }
 
-		producer.setDeliveryMode(DeliveryMode.PERSISTENT);
-		for (int i = 0; i < MESSAGE_COUNT; i++) {
-			TextMessage message = session
-					.createTextMessage("Test message " + i);
-			message.setIntProperty(PROPERTY_MSG_NUMBER, i);
-			producer.send(message);
-		}
-		session.commit();
+   private void sendMessagesToQueue() throws Exception {
+      Connection connection = cf.createConnection();
+      Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
+      MessageProducer producer = session.createProducer(session.createQueue(QUEUE_NAME));
 
-		producer.close();
-		session.close();
-		connection.close();
+      producer.setDeliveryMode(DeliveryMode.PERSISTENT);
+      for (int i = 0; i < MESSAGE_COUNT; i++) {
+         TextMessage message = session.createTextMessage("Test message " + i);
+         message.setIntProperty(PROPERTY_MSG_NUMBER, i);
+         producer.send(message);
+      }
+      session.commit();
 
-		assertQueueLength(MESSAGE_COUNT);
-	}
+      producer.close();
+      session.close();
+      connection.close();
 
-	protected void setUp() throws Exception {
-	    exception = null;
-		bs = new BrokerService();
-		bs.setDeleteAllMessagesOnStartup(true);
-		bs.setPersistent(true);
-		bs.setUseJmx(true);
-		TransportConnector connector = bs.addConnector("tcp://localhost:0");
-		bs.start();
-		tcpUri = connector.getConnectUri();
+      assertQueueLength(MESSAGE_COUNT);
+   }
 
-		cf = new ActiveMQConnectionFactory("failover://(" + tcpUri + ")");
+   protected void setUp() throws Exception {
+      exception = null;
+      bs = new BrokerService();
+      bs.setDeleteAllMessagesOnStartup(true);
+      bs.setPersistent(true);
+      bs.setUseJmx(true);
+      TransportConnector connector = bs.addConnector("tcp://localhost:0");
+      bs.start();
+      tcpUri = connector.getConnectUri();
 
-		sendMessagesToQueue();
-	}
+      cf = new ActiveMQConnectionFactory("failover://(" + tcpUri + ")");
 
-	protected void tearDown() throws Exception {
-		new ServiceStopper().stop(bs);
-	}
+      sendMessagesToQueue();
+   }
 
-    public void onException(JMSException exception) {
-        this.exception = exception;    
-    }
+   protected void tearDown() throws Exception {
+      new ServiceStopper().stop(bs);
+   }
+
+   public void onException(JMSException exception) {
+      this.exception = exception;
+   }
 
 }

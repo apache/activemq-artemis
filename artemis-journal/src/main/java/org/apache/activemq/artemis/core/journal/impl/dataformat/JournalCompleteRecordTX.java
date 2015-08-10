@@ -34,12 +34,12 @@ import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
  * <p>
  * The commit operation itself is not included in this total.
  */
-public class JournalCompleteRecordTX extends JournalInternalRecord
-{
-   public enum TX_RECORD_TYPE
-   {
+public class JournalCompleteRecordTX extends JournalInternalRecord {
+
+   public enum TX_RECORD_TYPE {
       COMMIT, PREPARE;
    }
+
    private final TX_RECORD_TYPE txRecordType;
 
    private final long txID;
@@ -48,8 +48,9 @@ public class JournalCompleteRecordTX extends JournalInternalRecord
 
    private int numberOfRecords;
 
-   public JournalCompleteRecordTX(final TX_RECORD_TYPE isCommit, final long txID, final EncodingSupport transactionData)
-   {
+   public JournalCompleteRecordTX(final TX_RECORD_TYPE isCommit,
+                                  final long txID,
+                                  final EncodingSupport transactionData) {
       this.txRecordType = isCommit;
 
       this.txID = txID;
@@ -58,14 +59,11 @@ public class JournalCompleteRecordTX extends JournalInternalRecord
    }
 
    @Override
-   public void encode(final ActiveMQBuffer buffer)
-   {
-      if (txRecordType == TX_RECORD_TYPE.COMMIT)
-      {
+   public void encode(final ActiveMQBuffer buffer) {
+      if (txRecordType == TX_RECORD_TYPE.COMMIT) {
          buffer.writeByte(JournalImpl.COMMIT_RECORD);
       }
-      else
-      {
+      else {
          buffer.writeByte(JournalImpl.PREPARE_RECORD);
       }
 
@@ -77,13 +75,11 @@ public class JournalCompleteRecordTX extends JournalInternalRecord
 
       buffer.writeInt(numberOfRecords);
 
-      if (transactionData != null)
-      {
+      if (transactionData != null) {
          buffer.writeInt(transactionData.getEncodeSize());
       }
 
-      if (transactionData != null)
-      {
+      if (transactionData != null) {
          transactionData.encode(buffer);
       }
 
@@ -91,26 +87,21 @@ public class JournalCompleteRecordTX extends JournalInternalRecord
    }
 
    @Override
-   public void setNumberOfRecords(final int records)
-   {
+   public void setNumberOfRecords(final int records) {
       numberOfRecords = records;
    }
 
    @Override
-   public int getNumberOfRecords()
-   {
+   public int getNumberOfRecords() {
       return numberOfRecords;
    }
 
    @Override
-   public int getEncodeSize()
-   {
-      if (txRecordType == TX_RECORD_TYPE.COMMIT)
-      {
+   public int getEncodeSize() {
+      if (txRecordType == TX_RECORD_TYPE.COMMIT) {
          return JournalImpl.SIZE_COMPLETE_TRANSACTION_RECORD + 1;
       }
-      else
-      {
+      else {
          return JournalImpl.SIZE_PREPARE_RECORD + (transactionData != null ? transactionData.getEncodeSize() : 0) + 1;
       }
    }

@@ -89,8 +89,7 @@ import org.apache.activemq.artemis.utils.json.JSONObject;
 /**
  * Server side Session implementation
  */
-public class ServerSessionImpl implements ServerSession, FailureListener
-{
+public class ServerSessionImpl implements ServerSession, FailureListener {
    // Constants -----------------------------------------------------------------------------
 
    private static final boolean isTrace = ActiveMQServerLogger.LOGGER.isTraceEnabled();
@@ -175,8 +174,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener
 
    //create an 'empty' session. Only used by AMQServerSession
    //in order to check username and password
-   protected ServerSessionImpl(String username, String password)
-   {
+   protected ServerSessionImpl(String username, String password) {
       this.username = username;
       this.password = password;
 
@@ -218,14 +216,8 @@ public class ServerSessionImpl implements ServerSession, FailureListener
                             final SimpleString defaultAddress,
                             final SessionCallback callback,
                             final OperationContext context,
-                            final QueueCreator queueCreator) throws Exception
-   {
-      this(name, username, password, minLargeMessageSize,
-         autoCommitSends, autoCommitAcks, preAcknowledge,
-         strictUpdateDeliveryCount, xa, remotingConnection,
-         storageManager, postOffice, resourceManager, securityStore,
-         managementService, server, managementAddress, defaultAddress,
-         callback, context, null, queueCreator);
+                            final QueueCreator queueCreator) throws Exception {
+      this(name, username, password, minLargeMessageSize, autoCommitSends, autoCommitAcks, preAcknowledge, strictUpdateDeliveryCount, xa, remotingConnection, storageManager, postOffice, resourceManager, securityStore, managementService, server, managementAddress, defaultAddress, callback, context, null, queueCreator);
    }
 
    public ServerSessionImpl(final String name,
@@ -249,8 +241,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener
                             final SessionCallback callback,
                             final OperationContext context,
                             TransactionFactory transactionFactory,
-                            final QueueCreator queueCreator) throws Exception
-   {
+                            final QueueCreator queueCreator) throws Exception {
       this.username = username;
 
       this.password = password;
@@ -295,17 +286,14 @@ public class ServerSessionImpl implements ServerSession, FailureListener
 
       this.queueCreator = queueCreator;
 
-      if (transactionFactory == null)
-      {
+      if (transactionFactory == null) {
          this.transactionFactory = new DefaultTransactionFactory();
       }
-      else
-      {
+      else {
          this.transactionFactory = transactionFactory;
       }
 
-      if (!xa)
-      {
+      if (!xa) {
          tx = newTransaction();
       }
    }
@@ -315,63 +303,51 @@ public class ServerSessionImpl implements ServerSession, FailureListener
    /**
     * @return the sessionContext
     */
-   public OperationContext getSessionContext()
-   {
+   public OperationContext getSessionContext() {
       return context;
    }
 
-   public String getUsername()
-   {
+   public String getUsername() {
       return username;
    }
 
-   public String getPassword()
-   {
+   public String getPassword() {
       return password;
    }
 
-   public int getMinLargeMessageSize()
-   {
+   public int getMinLargeMessageSize() {
       return minLargeMessageSize;
    }
 
-   public String getName()
-   {
+   public String getName() {
       return name;
    }
 
-   public Object getConnectionID()
-   {
+   public Object getConnectionID() {
       return remotingConnection.getID();
    }
 
-   public Set<ServerConsumer> getServerConsumers()
-   {
+   public Set<ServerConsumer> getServerConsumers() {
       Set<ServerConsumer> consumersClone = new HashSet<ServerConsumer>(consumers.values());
       return Collections.unmodifiableSet(consumersClone);
    }
 
-   public boolean removeConsumer(final long consumerID) throws Exception
-   {
+   public boolean removeConsumer(final long consumerID) throws Exception {
       return consumers.remove(consumerID) != null;
    }
 
-   protected void doClose(final boolean failed) throws Exception
-   {
-      synchronized (this)
-      {
-         if (closed) return;
+   protected void doClose(final boolean failed) throws Exception {
+      synchronized (this) {
+         if (closed)
+            return;
 
-         if (tx != null && tx.getXid() == null)
-         {
+         if (tx != null && tx.getXid() == null) {
             // We only rollback local txs on close, not XA tx branches
 
-            try
-            {
+            try {
                rollback(failed, false);
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
             }
          }
@@ -381,21 +357,16 @@ public class ServerSessionImpl implements ServerSession, FailureListener
       //https://issues.jboss.org/browse/HORNETQ-1141
       Set<ServerConsumer> consumersClone = new HashSet<ServerConsumer>(consumers.values());
 
-      for (ServerConsumer consumer : consumersClone)
-      {
-         try
-         {
+      for (ServerConsumer consumer : consumersClone) {
+         try {
             consumer.close(failed);
          }
-         catch (Throwable e)
-         {
+         catch (Throwable e) {
             ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
-            try
-            {
+            try {
                consumer.removeItself();
             }
-            catch (Throwable e2)
-            {
+            catch (Throwable e2) {
                ActiveMQServerLogger.LOGGER.warn(e2.getMessage(), e2);
             }
          }
@@ -403,21 +374,16 @@ public class ServerSessionImpl implements ServerSession, FailureListener
 
       consumers.clear();
 
-      if (currentLargeMessage != null)
-      {
-         try
-         {
+      if (currentLargeMessage != null) {
+         try {
             currentLargeMessage.deleteFile();
          }
-         catch (Throwable error)
-         {
+         catch (Throwable error) {
             ActiveMQServerLogger.LOGGER.errorDeletingLargeMessageFile(error);
          }
       }
 
-
-      synchronized (this)
-      {
+      synchronized (this) {
          server.removeSession(name);
 
          remotingConnection.removeFailureListener(this);
@@ -428,18 +394,14 @@ public class ServerSessionImpl implements ServerSession, FailureListener
       }
    }
 
-
-
-   public QueueCreator getQueueCreator()
-   {
+   public QueueCreator getQueueCreator() {
       return queueCreator;
    }
 
    public ServerConsumer createConsumer(final long consumerID,
                                         final SimpleString queueName,
                                         final SimpleString filterString,
-                                        final boolean browseOnly) throws Exception
-   {
+                                        final boolean browseOnly) throws Exception {
       return this.createConsumer(consumerID, queueName, filterString, browseOnly, true, null);
    }
 
@@ -448,12 +410,10 @@ public class ServerSessionImpl implements ServerSession, FailureListener
                                         final SimpleString filterString,
                                         final boolean browseOnly,
                                         final boolean supportLargeMessage,
-                                        final Integer credits) throws Exception
-   {
+                                        final Integer credits) throws Exception {
       Binding binding = postOffice.getBinding(queueName);
 
-      if (binding == null || binding.getType() != BindingType.LOCAL_QUEUE)
-      {
+      if (binding == null || binding.getType() != BindingType.LOCAL_QUEUE) {
          throw ActiveMQMessageBundle.BUNDLE.noSuchQueue(queueName);
       }
 
@@ -461,23 +421,10 @@ public class ServerSessionImpl implements ServerSession, FailureListener
 
       Filter filter = FilterImpl.createFilter(filterString);
 
-      ServerConsumer consumer = newConsumer(consumerID,
-                                                       this,
-                                                       (QueueBinding) binding,
-                                                       filter,
-                                                       started,
-                                                       browseOnly,
-                                                       storageManager,
-                                                       callback,
-                                                       preAcknowledge,
-                                                       strictUpdateDeliveryCount,
-                                                       managementService,
-                                                       supportLargeMessage,
-                                                       credits);
+      ServerConsumer consumer = newConsumer(consumerID, this, (QueueBinding) binding, filter, started, browseOnly, storageManager, callback, preAcknowledge, strictUpdateDeliveryCount, managementService, supportLargeMessage, credits);
       consumers.put(consumer.getID(), consumer);
 
-      if (!browseOnly)
-      {
+      if (!browseOnly) {
          TypedProperties props = new TypedProperties();
 
          props.putSimpleStringProperty(ManagementHelper.HDR_ADDRESS, binding.getAddress());
@@ -499,19 +446,17 @@ public class ServerSessionImpl implements ServerSession, FailureListener
 
          props.putSimpleStringProperty(ManagementHelper.HDR_SESSION_NAME, SimpleString.toSimpleString(name));
 
-         if (filterString != null)
-         {
+         if (filterString != null) {
             props.putSimpleStringProperty(ManagementHelper.HDR_FILTERSTRING, filterString);
          }
 
          Notification notification = new Notification(null, CoreNotificationType.CONSUMER_CREATED, props);
 
-         if (ActiveMQServerLogger.LOGGER.isDebugEnabled())
-         {
+         if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
             ActiveMQServerLogger.LOGGER.debug("Session with user=" + username +
-                                                ", connection=" + this.remotingConnection +
-                                                " created a consumer on queue " + queueName +
-                                                ", filter = " + filterString);
+                                                 ", connection=" + this.remotingConnection +
+                                                 " created a consumer on queue " + queueName +
+                                                 ", filter = " + filterString);
          }
 
          managementService.sendNotification(notification);
@@ -521,60 +466,47 @@ public class ServerSessionImpl implements ServerSession, FailureListener
    }
 
    protected ServerConsumer newConsumer(long consumerID,
-         ServerSessionImpl serverSessionImpl, QueueBinding binding,
-         Filter filter, boolean started2, boolean browseOnly,
-         StorageManager storageManager2, SessionCallback callback2,
-         boolean preAcknowledge2, boolean strictUpdateDeliveryCount2,
-         ManagementService managementService2, boolean supportLargeMessage,
-         Integer credits) throws Exception
-   {
-      return new ServerConsumerImpl(consumerID,
-            this,
-            (QueueBinding) binding,
-            filter,
-            started,
-            browseOnly,
-            storageManager,
-            callback,
-            preAcknowledge,
-            strictUpdateDeliveryCount,
-            managementService,
-            supportLargeMessage,
-            credits);
+                                        ServerSessionImpl serverSessionImpl,
+                                        QueueBinding binding,
+                                        Filter filter,
+                                        boolean started2,
+                                        boolean browseOnly,
+                                        StorageManager storageManager2,
+                                        SessionCallback callback2,
+                                        boolean preAcknowledge2,
+                                        boolean strictUpdateDeliveryCount2,
+                                        ManagementService managementService2,
+                                        boolean supportLargeMessage,
+                                        Integer credits) throws Exception {
+      return new ServerConsumerImpl(consumerID, this, (QueueBinding) binding, filter, started, browseOnly, storageManager, callback, preAcknowledge, strictUpdateDeliveryCount, managementService, supportLargeMessage, credits);
    }
 
    public Queue createQueue(final SimpleString address,
-                           final SimpleString name,
-                           final SimpleString filterString,
-                           final boolean temporary,
-                           final boolean durable) throws Exception
-   {
-      if (durable)
-      {
+                            final SimpleString name,
+                            final SimpleString filterString,
+                            final boolean temporary,
+                            final boolean durable) throws Exception {
+      if (durable) {
          // make sure the user has privileges to create this queue
          securityStore.check(address, CheckType.CREATE_DURABLE_QUEUE, this);
       }
-      else
-      {
+      else {
          securityStore.check(address, CheckType.CREATE_NON_DURABLE_QUEUE, this);
       }
 
-      ((ActiveMQServerImpl)server).checkQueueCreationLimit(getUsername());
+      ((ActiveMQServerImpl) server).checkQueueCreationLimit(getUsername());
 
       Queue queue;
 
       // any non-temporary JMS queue created via this method should be marked as auto-created
-      if (!temporary && address.toString().startsWith(ResourceNames.JMS_QUEUE) && address.equals(name))
-      {
+      if (!temporary && address.toString().startsWith(ResourceNames.JMS_QUEUE) && address.equals(name)) {
          queue = server.createQueue(address, name, filterString, SimpleString.toSimpleString(getUsername()), durable, temporary, true);
       }
-      else
-      {
+      else {
          queue = server.createQueue(address, name, filterString, SimpleString.toSimpleString(getUsername()), durable, temporary);
       }
 
-      if (temporary)
-      {
+      if (temporary) {
          // Temporary queue in core simply means the queue will be deleted if
          // the remoting connection
          // dies. It does not mean it will get deleted automatically when the
@@ -589,11 +521,10 @@ public class ServerSessionImpl implements ServerSession, FailureListener
          tempQueueCleannerUppers.put(name, cleaner);
       }
 
-      if (ActiveMQServerLogger.LOGGER.isDebugEnabled())
-      {
+      if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
          ActiveMQServerLogger.LOGGER.debug("Queue " + name + " created on address " + address +
-                                             " with filter=" + filterString + " temporary = " +
-                                             temporary + " durable=" + durable + " on session user=" + this.username + ", connection=" + this.remotingConnection);
+                                              " with filter=" + filterString + " temporary = " +
+                                              temporary + " durable=" + durable + " on session user=" + this.username + ", connection=" + this.remotingConnection);
       }
 
       return queue;
@@ -604,87 +535,72 @@ public class ServerSessionImpl implements ServerSession, FailureListener
    public void createSharedQueue(final SimpleString address,
                                  final SimpleString name,
                                  boolean durable,
-                                 final SimpleString filterString) throws Exception
-   {
+                                 final SimpleString filterString) throws Exception {
       securityStore.check(address, CheckType.CREATE_NON_DURABLE_QUEUE, this);
 
-      ((ActiveMQServerImpl)server).checkQueueCreationLimit(getUsername());
+      ((ActiveMQServerImpl) server).checkQueueCreationLimit(getUsername());
 
       server.createSharedQueue(address, name, filterString, SimpleString.toSimpleString(getUsername()), durable);
    }
 
-   public RemotingConnection getRemotingConnection()
-   {
+   public RemotingConnection getRemotingConnection() {
       return remotingConnection;
    }
 
-   public static class TempQueueCleanerUpper implements CloseListener, FailureListener
-   {
+   public static class TempQueueCleanerUpper implements CloseListener, FailureListener {
+
       private final SimpleString bindingName;
 
       private final ActiveMQServer server;
 
-      public TempQueueCleanerUpper(final ActiveMQServer server, final SimpleString bindingName)
-      {
+      public TempQueueCleanerUpper(final ActiveMQServer server, final SimpleString bindingName) {
          this.server = server;
 
          this.bindingName = bindingName;
       }
 
-      private void run()
-      {
-         try
-         {
-            if (ActiveMQServerLogger.LOGGER.isDebugEnabled())
-            {
+      private void run() {
+         try {
+            if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
                ActiveMQServerLogger.LOGGER.debug("deleting temporary queue " + bindingName);
             }
-            try
-            {
+            try {
                server.destroyQueue(bindingName, null, false);
             }
-            catch (ActiveMQException e)
-            {
+            catch (ActiveMQException e) {
                // that's fine.. it can happen due to queue already been deleted
                ActiveMQServerLogger.LOGGER.debug(e.getMessage(), e);
             }
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             ActiveMQServerLogger.LOGGER.errorRemovingTempQueue(e, bindingName);
          }
       }
 
-      public void connectionFailed(ActiveMQException exception, boolean failedOver)
-      {
+      public void connectionFailed(ActiveMQException exception, boolean failedOver) {
          run();
       }
 
       @Override
-      public void connectionFailed(final ActiveMQException me, boolean failedOver, String scaleDownTargetNodeID)
-      {
+      public void connectionFailed(final ActiveMQException me, boolean failedOver, String scaleDownTargetNodeID) {
          connectionFailed(me, failedOver);
       }
 
-      public void connectionClosed()
-      {
+      public void connectionClosed() {
          run();
       }
 
       @Override
-      public String toString()
-      {
+      public String toString() {
          return "Temporary Cleaner for queue " + bindingName;
       }
 
    }
 
-   public void deleteQueue(final SimpleString queueToDelete) throws Exception
-   {
+   public void deleteQueue(final SimpleString queueToDelete) throws Exception {
       Binding binding = postOffice.getBinding(queueToDelete);
 
-      if (binding == null || binding.getType() != BindingType.LOCAL_QUEUE)
-      {
+      if (binding == null || binding.getType() != BindingType.LOCAL_QUEUE) {
          throw new ActiveMQNonExistentQueueException();
       }
 
@@ -692,20 +608,17 @@ public class ServerSessionImpl implements ServerSession, FailureListener
 
       TempQueueCleanerUpper cleaner = this.tempQueueCleannerUppers.remove(queueToDelete);
 
-      if (cleaner != null)
-      {
+      if (cleaner != null) {
          remotingConnection.removeCloseListener(cleaner);
 
          remotingConnection.removeFailureListener(cleaner);
       }
    }
 
-   public QueueQueryResult executeQueueQuery(final SimpleString name) throws Exception
-   {
+   public QueueQueryResult executeQueueQuery(final SimpleString name) throws Exception {
       boolean autoCreateJmsQueues = name.toString().startsWith(ResourceNames.JMS_QUEUE) && server.getAddressSettingsRepository().getMatch(name.toString()).isAutoCreateJmsQueues();
 
-      if (name == null)
-      {
+      if (name == null) {
          throw ActiveMQMessageBundle.BUNDLE.queueNameIsNull();
       }
 
@@ -713,63 +626,47 @@ public class ServerSessionImpl implements ServerSession, FailureListener
 
       Binding binding = postOffice.getBinding(name);
 
-      if (binding != null && binding.getType() == BindingType.LOCAL_QUEUE)
-      {
+      if (binding != null && binding.getType() == BindingType.LOCAL_QUEUE) {
          Queue queue = (Queue) binding.getBindable();
 
          Filter filter = queue.getFilter();
 
          SimpleString filterString = filter == null ? null : filter.getFilterString();
 
-         response = new QueueQueryResult(name,
-                                         binding.getAddress(),
-                                         queue.isDurable(),
-                                         queue.isTemporary(),
-                                         filterString,
-                                         queue.getConsumerCount(),
-                                         queue.getMessageCount(),
-                                         autoCreateJmsQueues);
+         response = new QueueQueryResult(name, binding.getAddress(), queue.isDurable(), queue.isTemporary(), filterString, queue.getConsumerCount(), queue.getMessageCount(), autoCreateJmsQueues);
       }
       // make an exception for the management address (see HORNETQ-29)
-      else if (name.equals(managementAddress))
-      {
+      else if (name.equals(managementAddress)) {
          response = new QueueQueryResult(name, managementAddress, true, false, null, -1, -1, autoCreateJmsQueues);
       }
-      else if (autoCreateJmsQueues)
-      {
+      else if (autoCreateJmsQueues) {
          response = new QueueQueryResult(name, name, true, false, null, 0, 0, true, false);
       }
-      else
-      {
+      else {
          response = new QueueQueryResult(null, null, false, false, null, 0, 0, false, false);
       }
 
       return response;
    }
 
-   public BindingQueryResult executeBindingQuery(final SimpleString address) throws Exception
-   {
+   public BindingQueryResult executeBindingQuery(final SimpleString address) throws Exception {
       boolean autoCreateJmsQueues = address.toString().startsWith(ResourceNames.JMS_QUEUE) && server.getAddressSettingsRepository().getMatch(address.toString()).isAutoCreateJmsQueues();
 
-      if (address == null)
-      {
+      if (address == null) {
          throw ActiveMQMessageBundle.BUNDLE.addressIsNull();
       }
 
       List<SimpleString> names = new ArrayList<SimpleString>();
 
       // make an exception for the management address (see HORNETQ-29)
-      if (address.equals(managementAddress))
-      {
+      if (address.equals(managementAddress)) {
          return new BindingQueryResult(true, names, autoCreateJmsQueues);
       }
 
       Bindings bindings = postOffice.getMatchingBindings(address);
 
-      for (Binding binding : bindings.getBindings())
-      {
-         if (binding.getType() == BindingType.LOCAL_QUEUE || binding.getType() == BindingType.REMOTE_QUEUE)
-         {
+      for (Binding binding : bindings.getBindings()) {
+         if (binding.getType() == BindingType.LOCAL_QUEUE || binding.getType() == BindingType.REMOTE_QUEUE) {
             names.add(binding.getUniqueName());
          }
       }
@@ -777,40 +674,32 @@ public class ServerSessionImpl implements ServerSession, FailureListener
       return new BindingQueryResult(!names.isEmpty(), names, autoCreateJmsQueues);
    }
 
-   public void forceConsumerDelivery(final long consumerID, final long sequence) throws Exception
-   {
+   public void forceConsumerDelivery(final long consumerID, final long sequence) throws Exception {
       ServerConsumer consumer = consumers.get(consumerID);
 
       // this would be possible if the server consumer was closed by pings/pongs.. etc
-      if (consumer != null)
-      {
+      if (consumer != null) {
          consumer.forceDelivery(sequence);
       }
    }
 
-
-   public void promptDelivery(long consumerID)
-   {
+   public void promptDelivery(long consumerID) {
       ServerConsumer consumer = consumers.get(consumerID);
 
       // this would be possible if the server consumer was closed by pings/pongs.. etc
-      if (consumer != null)
-      {
+      if (consumer != null) {
          consumer.promptDelivery();
       }
    }
 
-   public void acknowledge(final long consumerID, final long messageID) throws Exception
-   {
+   public void acknowledge(final long consumerID, final long messageID) throws Exception {
       ServerConsumer consumer = consumers.get(consumerID);
 
-      if (consumer == null)
-      {
+      if (consumer == null) {
          throw ActiveMQMessageBundle.BUNDLE.consumerDoesntExist(consumerID);
       }
 
-      if (tx != null && tx.getState() == State.ROLLEDBACK)
-      {
+      if (tx != null && tx.getState() == State.ROLLEDBACK) {
          // JBPAPP-8845 - if we let stuff to be acked on a rolled back TX, we will just
          // have these messages to be stuck on the limbo until the server is restarted
          // The tx has already timed out, so we need to ack and rollback immediately
@@ -818,18 +707,15 @@ public class ServerSessionImpl implements ServerSession, FailureListener
          consumer.acknowledge(newTX, messageID);
          newTX.rollback();
       }
-      else
-      {
+      else {
          consumer.acknowledge(autoCommitAcks ? null : tx, messageID);
       }
    }
 
-   public void individualAcknowledge(final long consumerID, final long messageID) throws Exception
-   {
+   public void individualAcknowledge(final long consumerID, final long messageID) throws Exception {
       ServerConsumer consumer = consumers.get(consumerID);
 
-      if (tx != null && tx.getState() == State.ROLLEDBACK)
-      {
+      if (tx != null && tx.getState() == State.ROLLEDBACK) {
          // JBPAPP-8845 - if we let stuff to be acked on a rolled back TX, we will just
          // have these messages to be stuck on the limbo until the server is restarted
          // The tx has already timed out, so we need to ack and rollback immediately
@@ -837,63 +723,49 @@ public class ServerSessionImpl implements ServerSession, FailureListener
          consumer.individualAcknowledge(tx, messageID);
          newTX.rollback();
       }
-      else
-      {
+      else {
          consumer.individualAcknowledge(autoCommitAcks ? null : tx, messageID);
       }
 
    }
 
-   public void individualCancel(final long consumerID, final long messageID, boolean failed) throws Exception
-   {
+   public void individualCancel(final long consumerID, final long messageID, boolean failed) throws Exception {
       ServerConsumer consumer = consumers.get(consumerID);
 
-      if (consumer != null)
-      {
+      if (consumer != null) {
          consumer.individualCancel(messageID, failed);
       }
 
    }
 
-
-   public void expire(final long consumerID, final long messageID) throws Exception
-   {
+   public void expire(final long consumerID, final long messageID) throws Exception {
       MessageReference ref = consumers.get(consumerID).removeReferenceByID(messageID);
 
-      if (ref != null)
-      {
+      if (ref != null) {
          ref.getQueue().expire(ref);
       }
    }
 
-   public synchronized void commit() throws Exception
-   {
-      if (isTrace)
-      {
+   public synchronized void commit() throws Exception {
+      if (isTrace) {
          ActiveMQServerLogger.LOGGER.trace("Calling commit");
       }
-      try
-      {
-         if (tx != null)
-         {
+      try {
+         if (tx != null) {
             tx.commit();
          }
       }
-      finally
-      {
-         if (xa)
-         {
+      finally {
+         if (xa) {
             tx = null;
          }
-         else
-         {
+         else {
             tx = newTransaction();
          }
       }
    }
 
-   public void rollback(final boolean considerLastMessageAsDelivered) throws Exception
-   {
+   public void rollback(final boolean considerLastMessageAsDelivered) throws Exception {
       rollback(false, considerLastMessageAsDelivered);
    }
 
@@ -902,10 +774,9 @@ public class ServerSessionImpl implements ServerSession, FailureListener
     * @param considerLastMessageAsDelivered
     * @throws Exception
     */
-   private synchronized void rollback(final boolean clientFailed, final boolean considerLastMessageAsDelivered) throws Exception
-   {
-      if (tx == null)
-      {
+   private synchronized void rollback(final boolean clientFailed,
+                                      final boolean considerLastMessageAsDelivered) throws Exception {
+      if (tx == null) {
          // Might be null if XA
 
          tx = newTransaction();
@@ -913,12 +784,10 @@ public class ServerSessionImpl implements ServerSession, FailureListener
 
       doRollback(clientFailed, considerLastMessageAsDelivered, tx);
 
-      if (xa)
-      {
+      if (xa) {
          tx = null;
       }
-      else
-      {
+      else {
          tx = newTransaction();
       }
    }
@@ -926,8 +795,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener
    /**
     * @return
     */
-   protected Transaction newTransaction()
-   {
+   protected Transaction newTransaction() {
       return transactionFactory.newTransaction(null, storageManager, timeoutSeconds);
    }
 
@@ -935,197 +803,153 @@ public class ServerSessionImpl implements ServerSession, FailureListener
     * @param xid
     * @return
     */
-   private Transaction newTransaction(final Xid xid)
-   {
+   private Transaction newTransaction(final Xid xid) {
       return transactionFactory.newTransaction(xid, storageManager, timeoutSeconds);
    }
 
-   public synchronized void xaCommit(final Xid xid, final boolean onePhase) throws Exception
-   {
+   public synchronized void xaCommit(final Xid xid, final boolean onePhase) throws Exception {
 
-      if (tx != null && tx.getXid().equals(xid))
-      {
+      if (tx != null && tx.getXid().equals(xid)) {
          final String msg = "Cannot commit, session is currently doing work in transaction " + tx.getXid();
 
          throw new ActiveMQXAException(XAException.XAER_PROTO, msg);
       }
-      else
-      {
+      else {
          Transaction theTx = resourceManager.removeTransaction(xid);
 
-
-         if (isTrace)
-         {
+         if (isTrace) {
             ActiveMQServerLogger.LOGGER.trace("XAcommit into " + theTx + ", xid=" + xid);
          }
 
-         if (theTx == null)
-         {
+         if (theTx == null) {
             // checked heuristic committed transactions
-            if (resourceManager.getHeuristicCommittedTransactions().contains(xid))
-            {
-               throw new ActiveMQXAException(XAException.XA_HEURCOM,
-                                            "transaction has been heuristically committed: " + xid);
+            if (resourceManager.getHeuristicCommittedTransactions().contains(xid)) {
+               throw new ActiveMQXAException(XAException.XA_HEURCOM, "transaction has been heuristically committed: " + xid);
             }
             // checked heuristic rolled back transactions
-            else if (resourceManager.getHeuristicRolledbackTransactions().contains(xid))
-            {
-               throw new ActiveMQXAException(XAException.XA_HEURRB,
-                                            "transaction has been heuristically rolled back: " + xid);
+            else if (resourceManager.getHeuristicRolledbackTransactions().contains(xid)) {
+               throw new ActiveMQXAException(XAException.XA_HEURRB, "transaction has been heuristically rolled back: " + xid);
             }
-            else
-            {
-               if (isTrace)
-               {
+            else {
+               if (isTrace) {
                   ActiveMQServerLogger.LOGGER.trace("XAcommit into " + theTx + ", xid=" + xid + " cannot find it");
                }
 
                throw new ActiveMQXAException(XAException.XAER_NOTA, "Cannot find xid in resource manager: " + xid);
             }
          }
-         else
-         {
-            if (theTx.getState() == Transaction.State.SUSPENDED)
-            {
+         else {
+            if (theTx.getState() == Transaction.State.SUSPENDED) {
                // Put it back
                resourceManager.putTransaction(xid, theTx);
 
                throw new ActiveMQXAException(XAException.XAER_PROTO, "Cannot commit transaction, it is suspended " + xid);
             }
-            else
-            {
+            else {
                theTx.commit(onePhase);
             }
          }
       }
    }
 
-   public synchronized void xaEnd(final Xid xid) throws Exception
-   {
-      if (tx != null && tx.getXid().equals(xid))
-      {
-         if (tx.getState() == Transaction.State.SUSPENDED)
-         {
+   public synchronized void xaEnd(final Xid xid) throws Exception {
+      if (tx != null && tx.getXid().equals(xid)) {
+         if (tx.getState() == Transaction.State.SUSPENDED) {
             final String msg = "Cannot end, transaction is suspended";
 
             throw new ActiveMQXAException(XAException.XAER_PROTO, msg);
          }
-         else if (tx.getState() == Transaction.State.ROLLEDBACK)
-         {
+         else if (tx.getState() == Transaction.State.ROLLEDBACK) {
             final String msg = "Cannot end, transaction is rolled back";
 
             tx = null;
 
             throw new ActiveMQXAException(XAException.XAER_PROTO, msg);
          }
-         else
-         {
+         else {
             tx = null;
          }
       }
-      else
-      {
+      else {
          // It's also legal for the TM to call end for a Xid in the suspended
          // state
          // See JTA 1.1 spec 3.4.4 - state diagram
          // Although in practice TMs rarely do this.
          Transaction theTx = resourceManager.getTransaction(xid);
 
-         if (theTx == null)
-         {
+         if (theTx == null) {
             final String msg = "Cannot find suspended transaction to end " + xid;
 
             throw new ActiveMQXAException(XAException.XAER_NOTA, msg);
          }
-         else
-         {
-            if (theTx.getState() != Transaction.State.SUSPENDED)
-            {
+         else {
+            if (theTx.getState() != Transaction.State.SUSPENDED) {
                final String msg = "Transaction is not suspended " + xid;
 
                throw new ActiveMQXAException(XAException.XAER_PROTO, msg);
             }
-            else
-            {
+            else {
                theTx.resume();
             }
          }
       }
    }
 
-   public synchronized void xaForget(final Xid xid) throws Exception
-   {
+   public synchronized void xaForget(final Xid xid) throws Exception {
       long id = resourceManager.removeHeuristicCompletion(xid);
 
-      if (id != -1)
-      {
-         try
-         {
+      if (id != -1) {
+         try {
             storageManager.deleteHeuristicCompletion(id);
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             e.printStackTrace();
 
             throw new ActiveMQXAException(XAException.XAER_RMFAIL);
          }
       }
-      else
-      {
+      else {
          throw new ActiveMQXAException(XAException.XAER_NOTA);
       }
    }
 
-   public synchronized void xaJoin(final Xid xid) throws Exception
-   {
+   public synchronized void xaJoin(final Xid xid) throws Exception {
       Transaction theTx = resourceManager.getTransaction(xid);
 
-      if (theTx == null)
-      {
+      if (theTx == null) {
          final String msg = "Cannot find xid in resource manager: " + xid;
 
          throw new ActiveMQXAException(XAException.XAER_NOTA, msg);
       }
-      else
-      {
-         if (theTx.getState() == Transaction.State.SUSPENDED)
-         {
+      else {
+         if (theTx.getState() == Transaction.State.SUSPENDED) {
             throw new ActiveMQXAException(XAException.XAER_PROTO, "Cannot join tx, it is suspended " + xid);
          }
-         else
-         {
+         else {
             tx = theTx;
          }
       }
    }
 
-   public synchronized void xaResume(final Xid xid) throws Exception
-   {
-      if (tx != null)
-      {
+   public synchronized void xaResume(final Xid xid) throws Exception {
+      if (tx != null) {
          final String msg = "Cannot resume, session is currently doing work in a transaction " + tx.getXid();
 
          throw new ActiveMQXAException(XAException.XAER_PROTO, msg);
       }
-      else
-      {
+      else {
          Transaction theTx = resourceManager.getTransaction(xid);
 
-         if (theTx == null)
-         {
+         if (theTx == null) {
             final String msg = "Cannot find xid in resource manager: " + xid;
 
             throw new ActiveMQXAException(XAException.XAER_NOTA, msg);
          }
-         else
-         {
-            if (theTx.getState() != Transaction.State.SUSPENDED)
-            {
-               throw new ActiveMQXAException(XAException.XAER_PROTO,
-                                            "Cannot resume transaction, it is not suspended " + xid);
+         else {
+            if (theTx.getState() != Transaction.State.SUSPENDED) {
+               throw new ActiveMQXAException(XAException.XAER_PROTO, "Cannot resume transaction, it is not suspended " + xid);
             }
-            else
-            {
+            else {
                tx = theTx;
 
                tx.resume();
@@ -1134,146 +958,114 @@ public class ServerSessionImpl implements ServerSession, FailureListener
       }
    }
 
-   public synchronized void xaRollback(final Xid xid) throws Exception
-   {
-      if (tx != null && tx.getXid().equals(xid))
-      {
+   public synchronized void xaRollback(final Xid xid) throws Exception {
+      if (tx != null && tx.getXid().equals(xid)) {
          final String msg = "Cannot roll back, session is currently doing work in a transaction " + tx.getXid();
 
          throw new ActiveMQXAException(XAException.XAER_PROTO, msg);
       }
-      else
-      {
+      else {
          Transaction theTx = resourceManager.removeTransaction(xid);
-         if (isTrace)
-         {
+         if (isTrace) {
             ActiveMQServerLogger.LOGGER.trace("xarollback into " + theTx);
          }
 
-         if (theTx == null)
-         {
+         if (theTx == null) {
             // checked heuristic committed transactions
-            if (resourceManager.getHeuristicCommittedTransactions().contains(xid))
-            {
-               throw new ActiveMQXAException(XAException.XA_HEURCOM,
-                                            "transaction has ben heuristically committed: " + xid);
+            if (resourceManager.getHeuristicCommittedTransactions().contains(xid)) {
+               throw new ActiveMQXAException(XAException.XA_HEURCOM, "transaction has ben heuristically committed: " + xid);
             }
             // checked heuristic rolled back transactions
-            else if (resourceManager.getHeuristicRolledbackTransactions().contains(xid))
-            {
-               throw new ActiveMQXAException(XAException.XA_HEURRB,
-                                            "transaction has ben heuristically rolled back: " + xid);
+            else if (resourceManager.getHeuristicRolledbackTransactions().contains(xid)) {
+               throw new ActiveMQXAException(XAException.XA_HEURRB, "transaction has ben heuristically rolled back: " + xid);
             }
-            else
-            {
-               if (isTrace)
-               {
+            else {
+               if (isTrace) {
                   ActiveMQServerLogger.LOGGER.trace("xarollback into " + theTx + ", xid=" + xid + " forcing a rollback regular");
                }
 
-               try
-               {
+               try {
                   // jbpapp-8845
                   // This could have happened because the TX timed out,
                   // at this point we would be better on rolling back this session as a way to prevent consumers from holding their messages
                   this.rollback(false);
                }
-               catch (Exception e)
-               {
+               catch (Exception e) {
                   ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
                }
 
                throw new ActiveMQXAException(XAException.XAER_NOTA, "Cannot find xid in resource manager: " + xid);
             }
          }
-         else
-         {
-            if (theTx.getState() == Transaction.State.SUSPENDED)
-            {
-               if (isTrace)
-               {
+         else {
+            if (theTx.getState() == Transaction.State.SUSPENDED) {
+               if (isTrace) {
                   ActiveMQServerLogger.LOGGER.trace("xarollback into " + theTx + " sending tx back as it was suspended");
                }
-
 
                // Put it back
                resourceManager.putTransaction(xid, tx);
 
-               throw new ActiveMQXAException(XAException.XAER_PROTO,
-                                            "Cannot rollback transaction, it is suspended " + xid);
+               throw new ActiveMQXAException(XAException.XAER_PROTO, "Cannot rollback transaction, it is suspended " + xid);
             }
-            else
-            {
+            else {
                doRollback(false, false, theTx);
             }
          }
       }
    }
 
-   public synchronized void xaStart(final Xid xid) throws Exception
-   {
-      if (tx != null)
-      {
+   public synchronized void xaStart(final Xid xid) throws Exception {
+      if (tx != null) {
          ActiveMQServerLogger.LOGGER.xidReplacedOnXStart(tx.getXid().toString(), xid.toString());
 
-         try
-         {
-            if (tx.getState() != Transaction.State.PREPARED)
-            {
+         try {
+            if (tx.getState() != Transaction.State.PREPARED) {
                // we don't want to rollback anything prepared here
-               if (tx.getXid() != null)
-               {
+               if (tx.getXid() != null) {
                   resourceManager.removeTransaction(tx.getXid());
                }
                tx.rollback();
             }
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             ActiveMQServerLogger.LOGGER.debug("An exception happened while we tried to debug the previous tx, we can ignore this exception", e);
          }
       }
 
       tx = newTransaction(xid);
 
-      if (isTrace)
-      {
+      if (isTrace) {
          ActiveMQServerLogger.LOGGER.trace("xastart into tx= " + tx);
       }
 
       boolean added = resourceManager.putTransaction(xid, tx);
 
-      if (!added)
-      {
+      if (!added) {
          final String msg = "Cannot start, there is already a xid " + tx.getXid();
 
          throw new ActiveMQXAException(XAException.XAER_DUPID, msg);
       }
    }
 
-   public synchronized void xaFailed(final Xid xid) throws Exception
-   {
-      if (tx != null)
-      {
+   public synchronized void xaFailed(final Xid xid) throws Exception {
+      if (tx != null) {
          final String msg = "Cannot start, session is already doing work in a transaction " + tx.getXid();
 
          throw new ActiveMQXAException(XAException.XAER_PROTO, msg);
       }
-      else
-      {
+      else {
 
          tx = newTransaction(xid);
          tx.markAsRollbackOnly(new ActiveMQException("Can't commit as a Failover happened during the operation"));
 
-         if (isTrace)
-         {
+         if (isTrace) {
             ActiveMQServerLogger.LOGGER.trace("xastart into tx= " + tx);
          }
 
          boolean added = resourceManager.putTransaction(xid, tx);
 
-         if (!added)
-         {
+         if (!added) {
             final String msg = "Cannot start, there is already a xid " + tx.getXid();
 
             throw new ActiveMQXAException(XAException.XAER_DUPID, msg);
@@ -1281,30 +1073,24 @@ public class ServerSessionImpl implements ServerSession, FailureListener
       }
    }
 
-   public synchronized void xaSuspend() throws Exception
-   {
+   public synchronized void xaSuspend() throws Exception {
 
-      if (isTrace)
-      {
+      if (isTrace) {
          ActiveMQServerLogger.LOGGER.trace("xasuspend on " + this.tx);
       }
 
-      if (tx == null)
-      {
+      if (tx == null) {
          final String msg = "Cannot suspend, session is not doing work in a transaction ";
 
          throw new ActiveMQXAException(XAException.XAER_PROTO, msg);
       }
-      else
-      {
-         if (tx.getState() == Transaction.State.SUSPENDED)
-         {
+      else {
+         if (tx.getState() == Transaction.State.SUSPENDED) {
             final String msg = "Cannot suspend, transaction is already suspended " + tx.getXid();
 
             throw new ActiveMQXAException(XAException.XAER_PROTO, msg);
          }
-         else
-         {
+         else {
             tx.suspend();
 
             tx = null;
@@ -1312,50 +1098,39 @@ public class ServerSessionImpl implements ServerSession, FailureListener
       }
    }
 
-   public synchronized void xaPrepare(final Xid xid) throws Exception
-   {
-      if (tx != null && tx.getXid().equals(xid))
-      {
+   public synchronized void xaPrepare(final Xid xid) throws Exception {
+      if (tx != null && tx.getXid().equals(xid)) {
          final String msg = "Cannot commit, session is currently doing work in a transaction " + tx.getXid();
 
          throw new ActiveMQXAException(XAException.XAER_PROTO, msg);
       }
-      else
-      {
+      else {
          Transaction theTx = resourceManager.getTransaction(xid);
 
-         if (isTrace)
-         {
+         if (isTrace) {
             ActiveMQServerLogger.LOGGER.trace("xaprepare into " + ", xid=" + xid + ", tx= " + tx);
          }
 
-         if (theTx == null)
-         {
+         if (theTx == null) {
             final String msg = "Cannot find xid in resource manager: " + xid;
 
             throw new ActiveMQXAException(XAException.XAER_NOTA, msg);
          }
-         else
-         {
-            if (theTx.getState() == Transaction.State.SUSPENDED)
-            {
-               throw new ActiveMQXAException(XAException.XAER_PROTO,
-                                            "Cannot prepare transaction, it is suspended " + xid);
+         else {
+            if (theTx.getState() == Transaction.State.SUSPENDED) {
+               throw new ActiveMQXAException(XAException.XAER_PROTO, "Cannot prepare transaction, it is suspended " + xid);
             }
-            else if (theTx.getState() == Transaction.State.PREPARED)
-            {
+            else if (theTx.getState() == Transaction.State.PREPARED) {
                ActiveMQServerLogger.LOGGER.info("ignoring prepare on xid as already called :" + xid);
             }
-            else
-            {
+            else {
                theTx.prepare();
             }
          }
       }
    }
 
-   public List<Xid> xaGetInDoubtXids()
-   {
+   public List<Xid> xaGetInDoubtXids() {
       List<Xid> xids = new ArrayList<Xid>();
 
       xids.addAll(resourceManager.getPreparedTransactions());
@@ -1365,88 +1140,69 @@ public class ServerSessionImpl implements ServerSession, FailureListener
       return xids;
    }
 
-   public int xaGetTimeout()
-   {
+   public int xaGetTimeout() {
       return resourceManager.getTimeoutSeconds();
    }
 
-   public void xaSetTimeout(final int timeout)
-   {
+   public void xaSetTimeout(final int timeout) {
       timeoutSeconds = timeout;
-      if (tx != null)
-      {
+      if (tx != null) {
          tx.setTimeout(timeout);
       }
    }
 
-   public void start()
-   {
+   public void start() {
       setStarted(true);
    }
 
-   public void stop()
-   {
+   public void stop() {
       setStarted(false);
    }
 
-   public void waitContextCompletion()
-   {
-      try
-      {
-         if (!context.waitCompletion(10000))
-         {
+   public void waitContextCompletion() {
+      try {
+         if (!context.waitCompletion(10000)) {
             ActiveMQServerLogger.LOGGER.errorCompletingContext(new Exception("warning"));
          }
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
       }
    }
 
-   public void close(final boolean failed)
-   {
-      if (closed) return;
-      context.executeOnCompletion(new IOCallback()
-      {
-         public void onError(int errorCode, String errorMessage)
-         {
+   public void close(final boolean failed) {
+      if (closed)
+         return;
+      context.executeOnCompletion(new IOCallback() {
+         public void onError(int errorCode, String errorMessage) {
          }
 
-         public void done()
-         {
-            try
-            {
+         public void done() {
+            try {
                doClose(failed);
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                ActiveMQServerLogger.LOGGER.errorClosingSession(e);
             }
          }
       });
    }
 
-   public void closeConsumer(final long consumerID) throws Exception
-   {
+   public void closeConsumer(final long consumerID) throws Exception {
       final ServerConsumer consumer = consumers.get(consumerID);
 
-      if (consumer != null)
-      {
+      if (consumer != null) {
          consumer.close(false);
       }
-      else
-      {
+      else {
          ActiveMQServerLogger.LOGGER.cannotFindConsumer(consumerID);
       }
    }
 
-   public void receiveConsumerCredits(final long consumerID, final int credits) throws Exception
-   {
+   public void receiveConsumerCredits(final long consumerID, final int credits) throws Exception {
       ServerConsumer consumer = consumers.get(consumerID);
 
-      if (consumer == null)
-      {
+      if (consumer == null) {
          ActiveMQServerLogger.LOGGER.debug("There is no consumer with id " + consumerID);
 
          return;
@@ -1456,41 +1212,34 @@ public class ServerSessionImpl implements ServerSession, FailureListener
    }
 
    @Override
-   public Transaction getCurrentTransaction()
-   {
-      if (tx == null)
-      {
+   public Transaction getCurrentTransaction() {
+      if (tx == null) {
          tx = newTransaction();
       }
       return tx;
    }
 
-   public void sendLarge(final MessageInternal message) throws Exception
-   {
+   public void sendLarge(final MessageInternal message) throws Exception {
       // need to create the LargeMessage before continue
       long id = storageManager.generateID();
 
       LargeServerMessage largeMsg = storageManager.createLargeMessage(id, message);
 
-      if (ActiveMQServerLogger.LOGGER.isTraceEnabled())
-      {
+      if (ActiveMQServerLogger.LOGGER.isTraceEnabled()) {
          ActiveMQServerLogger.LOGGER.trace("sendLarge::" + largeMsg);
       }
 
-      if (currentLargeMessage != null)
-      {
+      if (currentLargeMessage != null) {
          ActiveMQServerLogger.LOGGER.replacingIncompleteLargeMessage(currentLargeMessage.getMessageID());
       }
 
       currentLargeMessage = largeMsg;
    }
 
-   public void send(final ServerMessage message, final boolean direct) throws Exception
-   {
+   public void send(final ServerMessage message, final boolean direct) throws Exception {
       //large message may come from StompSession directly, in which
       //case the id header already generated.
-      if (!message.isLargeMessage())
-      {
+      if (!message.isLargeMessage()) {
          long id = storageManager.generateID();
 
          message.setMessageID(id);
@@ -1499,45 +1248,37 @@ public class ServerSessionImpl implements ServerSession, FailureListener
 
       SimpleString address = message.getAddress();
 
-      if (defaultAddress == null && address != null)
-      {
+      if (defaultAddress == null && address != null) {
          defaultAddress = address;
       }
 
-      if (address == null)
-      {
-         if (message.isDurable())
-         {
+      if (address == null) {
+         if (message.isDurable()) {
             // We need to force a re-encode when the message gets persisted or when it gets reloaded
             // it will have no address
             message.setAddress(defaultAddress);
          }
-         else
-         {
+         else {
             // We don't want to force a re-encode when the message gets sent to the consumer
             message.setAddressTransient(defaultAddress);
          }
       }
 
-      if (isTrace)
-      {
+      if (isTrace) {
          ActiveMQServerLogger.LOGGER.trace("send(message=" + message + ", direct=" + direct + ") being called");
       }
 
-      if (message.getAddress() == null)
-      {
+      if (message.getAddress() == null) {
          // This could happen with some tests that are ignoring messages
          throw ActiveMQMessageBundle.BUNDLE.noAddress();
       }
 
-      if (message.getAddress().equals(managementAddress))
-      {
+      if (message.getAddress().equals(managementAddress)) {
          // It's a management message
 
          handleManagementMessage(message, direct);
       }
-      else
-      {
+      else {
          doSend(message, direct);
       }
    }
@@ -1545,10 +1286,8 @@ public class ServerSessionImpl implements ServerSession, FailureListener
    public void sendContinuations(final int packetSize,
                                  final long messageBodySize,
                                  final byte[] body,
-                                 final boolean continues) throws Exception
-   {
-      if (currentLargeMessage == null)
-      {
+                                 final boolean continues) throws Exception {
+      if (currentLargeMessage == null) {
          throw ActiveMQMessageBundle.BUNDLE.largeMessageNotInitialised();
       }
 
@@ -1557,12 +1296,10 @@ public class ServerSessionImpl implements ServerSession, FailureListener
 
       currentLargeMessage.addBytes(body);
 
-      if (!continues)
-      {
+      if (!continues) {
          currentLargeMessage.releaseResources();
 
-         if (messageBodySize >= 0)
-         {
+         if (messageBodySize >= 0) {
             currentLargeMessage.putLongProperty(Message.HDR_LARGE_BODY_SIZE, messageBodySize);
          }
 
@@ -1572,118 +1309,94 @@ public class ServerSessionImpl implements ServerSession, FailureListener
       }
    }
 
-   public void requestProducerCredits(final SimpleString address, final int credits) throws Exception
-   {
+   public void requestProducerCredits(final SimpleString address, final int credits) throws Exception {
       PagingStore store = server.getPagingManager().getPageStore(address);
 
-      if (!store.checkMemory(new Runnable()
-      {
-         public void run()
-         {
+      if (!store.checkMemory(new Runnable() {
+         public void run() {
             callback.sendProducerCreditsMessage(credits, address);
          }
-      }))
-      {
+      })) {
          callback.sendProducerCreditsFailMessage(credits, address);
       }
    }
 
-   public void setTransferring(final boolean transferring)
-   {
+   public void setTransferring(final boolean transferring) {
       Set<ServerConsumer> consumersClone = new HashSet<ServerConsumer>(consumers.values());
 
-      for (ServerConsumer consumer : consumersClone)
-      {
+      for (ServerConsumer consumer : consumersClone) {
          consumer.setTransferring(transferring);
       }
    }
 
-   public void addMetaData(String key, String data)
-   {
-      if (metaData == null)
-      {
+   public void addMetaData(String key, String data) {
+      if (metaData == null) {
          metaData = new HashMap<String, String>();
       }
       metaData.put(key, data);
    }
 
-
-   public boolean addUniqueMetaData(String key, String data)
-   {
+   public boolean addUniqueMetaData(String key, String data) {
       ServerSession sessionWithMetaData = server.lookupSession(key, data);
-      if (sessionWithMetaData != null && sessionWithMetaData != this)
-      {
+      if (sessionWithMetaData != null && sessionWithMetaData != this) {
          // There is a duplication of this property
          return false;
       }
-      else
-      {
+      else {
          addMetaData(key, data);
          return true;
       }
    }
 
-   public String getMetaData(String key)
-   {
+   public String getMetaData(String key) {
       String data = null;
-      if (metaData != null)
-      {
+      if (metaData != null) {
          data = metaData.get(key);
       }
 
-      if (key.equals(ClientSession.JMS_SESSION_CLIENT_ID_PROPERTY))
-      {
+      if (key.equals(ClientSession.JMS_SESSION_CLIENT_ID_PROPERTY)) {
          // we know it's a JMS Session, we now install JMS Hooks of any kind
          installJMSHooks();
       }
       return data;
    }
 
-   public String[] getTargetAddresses()
-   {
+   public String[] getTargetAddresses() {
       Map<SimpleString, Pair<UUID, AtomicLong>> copy = cloneTargetAddresses();
       Iterator<SimpleString> iter = copy.keySet().iterator();
       int num = copy.keySet().size();
       String[] addresses = new String[num];
       int i = 0;
-      while (iter.hasNext())
-      {
+      while (iter.hasNext()) {
          addresses[i] = iter.next().toString();
          i++;
       }
       return addresses;
    }
 
-   public String getLastSentMessageID(String address)
-   {
+   public String getLastSentMessageID(String address) {
       Pair<UUID, AtomicLong> value = targetAddressInfos.get(SimpleString.toSimpleString(address));
-      if (value != null)
-      {
+      if (value != null) {
          return value.getA().toString();
       }
-      else
-      {
+      else {
          return null;
       }
    }
 
-   public long getCreationTime()
-   {
+   public long getCreationTime() {
       return this.creationTime;
    }
 
-   public StorageManager getStorageManager()
-   {
+   public StorageManager getStorageManager() {
       return this.storageManager;
    }
 
    @Override
-   public void describeProducersInfo(JSONArray array) throws Exception
-   {
+   public void describeProducersInfo(JSONArray array) throws Exception {
       Map<SimpleString, Pair<UUID, AtomicLong>> targetCopy = cloneTargetAddresses();
 
-      for (Map.Entry<SimpleString, Pair<UUID, AtomicLong>> entry : targetCopy.entrySet())
-      {
+      for (Map.Entry<SimpleString, Pair<UUID, AtomicLong>> entry : targetCopy.entrySet()) {
          JSONObject producerInfo = new JSONObject();
          producerInfo.put("connectionID", this.getConnectionID().toString());
          producerInfo.put("sessionID", this.getName());
@@ -1695,24 +1408,18 @@ public class ServerSessionImpl implements ServerSession, FailureListener
    }
 
    @Override
-   public String toString()
-   {
+   public String toString() {
       StringBuffer buffer = new StringBuffer();
-      if (this.metaData != null)
-      {
-         for (Map.Entry<String, String> value : metaData.entrySet())
-         {
-            if (buffer.length() != 0)
-            {
+      if (this.metaData != null) {
+         for (Map.Entry<String, String> value : metaData.entrySet()) {
+            if (buffer.length() != 0) {
                buffer.append(",");
             }
             Object tmpValue = value.getValue();
-            if (tmpValue == null || tmpValue.toString().isEmpty())
-            {
+            if (tmpValue == null || tmpValue.toString().isEmpty()) {
                buffer.append(value.getKey() + "=*N/A*");
             }
-            else
-            {
+            else {
                buffer.append(value.getKey() + "=" + tmpValue);
             }
          }
@@ -1727,68 +1434,52 @@ public class ServerSessionImpl implements ServerSession, FailureListener
    // --------------------------------------------------------------------
 
    @Override
-   public void connectionFailed(final ActiveMQException me, boolean failedOver)
-   {
-      try
-      {
+   public void connectionFailed(final ActiveMQException me, boolean failedOver) {
+      try {
          ActiveMQServerLogger.LOGGER.clientConnectionFailed(name);
 
          close(true);
 
          ActiveMQServerLogger.LOGGER.clientConnectionFailedClearingSession(name);
       }
-      catch (Throwable t)
-      {
+      catch (Throwable t) {
          ActiveMQServerLogger.LOGGER.errorClosingConnection(this);
       }
    }
 
    @Override
-   public void connectionFailed(final ActiveMQException me, boolean failedOver, String scaleDownTargetNodeID)
-   {
+   public void connectionFailed(final ActiveMQException me, boolean failedOver, String scaleDownTargetNodeID) {
       connectionFailed(me, failedOver);
    }
 
-   public void clearLargeMessage()
-   {
+   public void clearLargeMessage() {
       currentLargeMessage = null;
    }
 
-
-
-   private void installJMSHooks()
-   {
+   private void installJMSHooks() {
       this.queueCreator = server.getJMSQueueCreator();
    }
 
-
-   private Map<SimpleString, Pair<UUID, AtomicLong>> cloneTargetAddresses()
-   {
+   private Map<SimpleString, Pair<UUID, AtomicLong>> cloneTargetAddresses() {
       return new HashMap<SimpleString, Pair<UUID, AtomicLong>>(targetAddressInfos);
    }
 
-   private void setStarted(final boolean s)
-   {
+   private void setStarted(final boolean s) {
       Set<ServerConsumer> consumersClone = new HashSet<ServerConsumer>(consumers.values());
 
-      for (ServerConsumer consumer : consumersClone)
-      {
+      for (ServerConsumer consumer : consumersClone) {
          consumer.setStarted(s);
       }
 
       started = s;
    }
 
-   private void handleManagementMessage(final ServerMessage message, final boolean direct) throws Exception
-   {
-      try
-      {
+   private void handleManagementMessage(final ServerMessage message, final boolean direct) throws Exception {
+      try {
          securityStore.check(message.getAddress(), CheckType.MANAGE, this);
       }
-      catch (ActiveMQException e)
-      {
-         if (!autoCommitSends)
-         {
+      catch (ActiveMQException e) {
+         if (!autoCommitSends) {
             tx.markAsRollbackOnly(e);
          }
          throw e;
@@ -1798,24 +1489,22 @@ public class ServerSessionImpl implements ServerSession, FailureListener
 
       SimpleString replyTo = message.getSimpleStringProperty(ClientMessageImpl.REPLYTO_HEADER_NAME);
 
-      if (replyTo != null)
-      {
+      if (replyTo != null) {
          reply.setAddress(replyTo);
 
          doSend(reply, direct);
       }
    }
 
-   private void doRollback(final boolean clientFailed, final boolean lastMessageAsDelived, final Transaction theTx) throws Exception
-   {
+   private void doRollback(final boolean clientFailed,
+                           final boolean lastMessageAsDelived,
+                           final Transaction theTx) throws Exception {
       boolean wasStarted = started;
 
       List<MessageReference> toCancel = new ArrayList<MessageReference>();
 
-      for (ServerConsumer consumer : consumers.values())
-      {
-         if (wasStarted)
-         {
+      for (ServerConsumer consumer : consumers.values()) {
+         if (wasStarted) {
             consumer.setStarted(false);
          }
 
@@ -1826,8 +1515,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener
       //after the last tx was rolled back so we should handle them separately. if not they
       //will end up added to the tx but never ever handled even tho they were removed from the consumers delivering refs.
       //we add them to a new tx and roll them back as the calling client will assume that this has happened.
-      if (theTx.getState() == State.ROLLEDBACK)
-      {
+      if (theTx.getState() == State.ROLLEDBACK) {
          Transaction newTX = newTransaction();
          cancelAndRollback(clientFailed, newTX, wasStarted, toCancel);
          throw new IllegalStateException("Transaction has already been rolled back");
@@ -1835,23 +1523,20 @@ public class ServerSessionImpl implements ServerSession, FailureListener
       cancelAndRollback(clientFailed, theTx, wasStarted, toCancel);
    }
 
-   private void cancelAndRollback(boolean clientFailed, Transaction theTx, boolean wasStarted, List<MessageReference> toCancel) throws Exception
-   {
-      for (MessageReference ref : toCancel)
-      {
+   private void cancelAndRollback(boolean clientFailed,
+                                  Transaction theTx,
+                                  boolean wasStarted,
+                                  List<MessageReference> toCancel) throws Exception {
+      for (MessageReference ref : toCancel) {
          ref.getQueue().cancel(theTx, ref);
       }
       //if we failed don't restart as an attempt to deliver messages may be made before we actually close the consumer
-      if (wasStarted && !clientFailed)
-      {
-         theTx.addOperation(new TransactionOperationAbstract()
-         {
+      if (wasStarted && !clientFailed) {
+         theTx.addOperation(new TransactionOperationAbstract() {
 
             @Override
-            public void afterRollback(Transaction tx)
-            {
-               for (ServerConsumer consumer : consumers.values())
-               {
+            public void afterRollback(Transaction tx) {
+               for (ServerConsumer consumer : consumers.values()) {
                   consumer.setStarted(true);
                }
             }
@@ -1862,80 +1547,63 @@ public class ServerSessionImpl implements ServerSession, FailureListener
       theTx.rollback();
    }
 
-   protected void doSend(final ServerMessage msg, final boolean direct) throws Exception
-   {
+   protected void doSend(final ServerMessage msg, final boolean direct) throws Exception {
       // check the user has write access to this address.
-      try
-      {
+      try {
          securityStore.check(msg.getAddress(), CheckType.SEND, this);
       }
-      catch (ActiveMQException e)
-      {
-         if (!autoCommitSends && tx != null)
-         {
+      catch (ActiveMQException e) {
+         if (!autoCommitSends && tx != null) {
             tx.markAsRollbackOnly(e);
          }
          throw e;
       }
 
-      if (tx == null || autoCommitSends)
-      {
+      if (tx == null || autoCommitSends) {
       }
-      else
-      {
+      else {
          routingContext.setTransaction(tx);
       }
 
-      try
-      {
+      try {
          postOffice.route(msg, queueCreator, routingContext, direct);
 
          Pair<UUID, AtomicLong> value = targetAddressInfos.get(msg.getAddress());
 
-         if (value == null)
-         {
+         if (value == null) {
             targetAddressInfos.put(msg.getAddress(), new Pair<UUID, AtomicLong>(msg.getUserID(), new AtomicLong(1)));
          }
-         else
-         {
+         else {
             value.setA(msg.getUserID());
             value.getB().incrementAndGet();
          }
       }
-      finally
-      {
+      finally {
          routingContext.clear();
       }
    }
 
-
    @Override
-   public List<MessageReference> getInTXMessagesForConsumer(long consumerId)
-   {
-      if (this.tx != null)
-      {
+   public List<MessageReference> getInTXMessagesForConsumer(long consumerId) {
+      if (this.tx != null) {
          RefsOperation oper = (RefsOperation) tx.getProperty(TransactionPropertyIndexes.REFS_OPERATION);
 
-         if (oper == null)
-         {
+         if (oper == null) {
             return Collections.emptyList();
          }
-         else
-         {
+         else {
             return oper.getListOnConsumer(consumerId);
          }
       }
-      else
-      {
+      else {
          return Collections.emptyList();
       }
    }
 
-   private static class DefaultTransactionFactory implements TransactionFactory
-   {
+   private static class DefaultTransactionFactory implements TransactionFactory {
+
       @Override
-      public Transaction newTransaction(Xid xid, StorageManager storageManager, int timeoutSeconds)
-      {
+      public Transaction newTransaction(Xid xid, StorageManager storageManager, int timeoutSeconds) {
          return new TransactionImpl(xid, storageManager, timeoutSeconds);
       }
    }

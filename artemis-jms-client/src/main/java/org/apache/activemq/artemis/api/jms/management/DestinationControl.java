@@ -24,8 +24,7 @@ import org.apache.activemq.artemis.api.core.management.Parameter;
 /**
  * A DestinationControl is used to manage a JMS Destination.
  */
-public interface DestinationControl
-{
+public interface DestinationControl {
    // Attributes ----------------------------------------------------
 
    /**

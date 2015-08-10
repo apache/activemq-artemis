@@ -33,68 +33,52 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.HashMap;
 
-public class ServerUtil
-{
-   public static Process startServer(String artemisInstance, String serverName) throws Exception
-   {
+public class ServerUtil {
+
+   public static Process startServer(String artemisInstance, String serverName) throws Exception {
       return startServer(artemisInstance, serverName, 0, 0);
    }
 
-   public static Process startServer(String artemisInstance, String serverName, int id, int timeout) throws Exception
-   {
+   public static Process startServer(String artemisInstance, String serverName, int id, int timeout) throws Exception {
       boolean IS_WINDOWS = System.getProperty("os.name").toLowerCase().trim().startsWith("win");
 
       ProcessBuilder builder = null;
-      if (IS_WINDOWS)
-      {
+      if (IS_WINDOWS) {
          builder = new ProcessBuilder("cmd", "/c", "artemis.cmd", "run");
       }
-      else
-      {
+      else {
          builder = new ProcessBuilder("./artemis", "run");
       }
 
       builder.directory(new File(artemisInstance + "/bin"));
 
       final Process process = builder.start();
-      Runtime.getRuntime().addShutdownHook(new Thread()
-      {
-         public void run()
-         {
+      Runtime.getRuntime().addShutdownHook(new Thread() {
+         public void run() {
             process.destroy();
          }
       });
 
-      ProcessLogger outputLogger = new ProcessLogger(true,
-                                                     process.getInputStream(),
-                                                     serverName,
-                                                     false);
+      ProcessLogger outputLogger = new ProcessLogger(true, process.getInputStream(), serverName, false);
       outputLogger.start();
 
       // Adding a reader to System.err, so the VM won't hang on a System.err.println as identified on this forum thread:
       // http://www.jboss.org/index.html?module=bb&op=viewtopic&t=151815
-      ProcessLogger errorLogger = new ProcessLogger(true,
-                                                    process.getErrorStream(),
-                                                    serverName,
-                                                    true);
+      ProcessLogger errorLogger = new ProcessLogger(true, process.getErrorStream(), serverName, true);
       errorLogger.start();
 
       // wait for start
-      if (timeout != 0)
-      {
+      if (timeout != 0) {
          waitForServerToStart(id, timeout);
       }
 
       return process;
    }
 
-   public static void waitForServerToStart(int id, int timeout) throws InterruptedException
-   {
+   public static void waitForServerToStart(int id, int timeout) throws InterruptedException {
       long realTimeout = System.currentTimeMillis() + timeout;
-      while (System.currentTimeMillis() < realTimeout)
-      {
-         try
-         {
+      while (System.currentTimeMillis() < realTimeout) {
+         try {
             HashMap<String, Object> params = new HashMap<String, Object>();
             params.put("host", "localhost");
             params.put("port", 61616 + id);
@@ -103,8 +87,7 @@ public class ServerUtil
             cf.createConnection().close();
             System.out.println("server " + id + " started");
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             System.out.println("awaiting server " + id + " start at " + (61616 + id));
             Thread.sleep(500);
             continue;
@@ -113,10 +96,8 @@ public class ServerUtil
       }
    }
 
-   public static void killServer(final Process server) throws Exception
-   {
-      if (server != null)
-      {
+   public static void killServer(final Process server) throws Exception {
+      if (server != null) {
          System.out.println("**********************************");
          System.out.println("Killing server " + server);
          System.out.println("**********************************");
@@ -126,35 +107,30 @@ public class ServerUtil
       }
    }
 
-   public static int getServer(Connection connection)
-   {
+   public static int getServer(Connection connection) {
       ClientSession session = ((ActiveMQConnection) connection).getInitialSession();
       TransportConfiguration transportConfiguration = session.getSessionFactory().getConnectorConfiguration();
       String port = (String) transportConfiguration.getParams().get("port");
       return Integer.valueOf(port) - 61616;
    }
 
-   public static  Connection getServerConnection(int server, Connection... connections)
-   {
-      for (Connection connection : connections)
-      {
+   public static Connection getServerConnection(int server, Connection... connections) {
+      for (Connection connection : connections) {
          ClientSession session = ((ActiveMQConnection) connection).getInitialSession();
          TransportConfiguration transportConfiguration = session.getSessionFactory().getConnectorConfiguration();
          String port = (String) transportConfiguration.getParams().get("port");
-         if (Integer.valueOf(port) == server + 61616)
-         {
+         if (Integer.valueOf(port) == server + 61616) {
             return connection;
          }
       }
       return null;
    }
 
-
    /**
     * Redirect the input stream to a logger (as debug logs)
     */
-   static class ProcessLogger extends Thread
-   {
+   static class ProcessLogger extends Thread {
+
       private final InputStream is;
 
       private final String logName;
@@ -166,8 +142,7 @@ public class ServerUtil
       ProcessLogger(final boolean print,
                     final InputStream is,
                     final String logName,
-                    final boolean sendToErr) throws ClassNotFoundException
-      {
+                    final boolean sendToErr) throws ClassNotFoundException {
          this.is = is;
          this.print = print;
          this.logName = logName;
@@ -176,30 +151,23 @@ public class ServerUtil
       }
 
       @Override
-      public void run()
-      {
-         try
-         {
+      public void run() {
+         try {
             InputStreamReader isr = new InputStreamReader(is);
             BufferedReader br = new BufferedReader(isr);
             String line;
-            while ((line = br.readLine()) != null)
-            {
-               if (print)
-               {
-                  if (sendToErr)
-                  {
+            while ((line = br.readLine()) != null) {
+               if (print) {
+                  if (sendToErr) {
                      System.err.println(logName + "-err:" + line);
                   }
-                  else
-                  {
+                  else {
                      System.out.println(logName + "-out:" + line);
                   }
                }
             }
          }
-         catch (IOException e)
-         {
+         catch (IOException e) {
             // ok, stream closed
          }
       }

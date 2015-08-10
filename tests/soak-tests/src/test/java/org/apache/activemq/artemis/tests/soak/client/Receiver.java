@@ -25,8 +25,7 @@ import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.utils.ReusableLatch;
 
-public class Receiver extends ClientAbstract
-{
+public class Receiver extends ClientAbstract {
 
    // Constants -----------------------------------------------------
 
@@ -52,48 +51,39 @@ public class Receiver extends ClientAbstract
 
    protected ClientConsumer cons;
 
-
    // Static --------------------------------------------------------
 
    // Constructors --------------------------------------------------
 
-   public Receiver(ClientSessionFactory sf, String queue)
-   {
+   public Receiver(ClientSessionFactory sf, String queue) {
       super(sf);
       this.queue = queue;
    }
 
    // Public --------------------------------------------------------
 
-   public void run()
-   {
+   public void run() {
       super.run();
 
-      while (running)
-      {
-         try
-         {
+      while (running) {
+         try {
             beginTX();
 
-            for (int i = 0; i < 1000; i++)
-            {
+            for (int i = 0; i < 1000; i++) {
                ClientMessage msg = cons.receive(5000);
-               if (msg == null)
-               {
+               if (msg == null) {
                   break;
                }
 
                msg.acknowledge();
 
-               if (msg.getLongProperty("count") != msgs + pendingMsgs)
-               {
+               if (msg.getLongProperty("count") != msgs + pendingMsgs) {
                   errors++;
                   System.out.println("count should be " + (msgs + pendingMsgs) + " when it was " + msg.getLongProperty("count") + " on " + queue);
                }
 
                pendingMsgs++;
-               if (!minConsume.tryAcquire(1, 5, TimeUnit.SECONDS))
-               {
+               if (!minConsume.tryAcquire(1, 5, TimeUnit.SECONDS)) {
                   break;
                }
 
@@ -101,11 +91,9 @@ public class Receiver extends ClientAbstract
 
             endTX();
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             connect();
          }
-
 
       }
    }
@@ -114,8 +102,7 @@ public class Receiver extends ClientAbstract
     * @see org.apache.activemq.artemis.jms.example.ClientAbstract#connectClients()
     */
    @Override
-   protected void connectClients() throws Exception
-   {
+   protected void connectClients() throws Exception {
 
       cons = session.createConsumer(queue);
 
@@ -126,8 +113,7 @@ public class Receiver extends ClientAbstract
     * @see org.apache.activemq.artemis.jms.example.ClientAbstract#onCommit()
     */
    @Override
-   protected void onCommit()
-   {
+   protected void onCommit() {
       msgs += pendingMsgs;
       this.currentDiff.addAndGet(-pendingMsgs);
       latchMax.countDown(pendingMsgs);
@@ -138,33 +124,27 @@ public class Receiver extends ClientAbstract
     * @see org.apache.activemq.artemis.jms.example.ClientAbstract#onRollback()
     */
    @Override
-   protected void onRollback()
-   {
+   protected void onRollback() {
       minConsume.release(pendingMsgs);
       pendingMsgs = 0;
    }
 
-   public String toString()
-   {
+   public String toString() {
       return "Receiver::" + this.queue + ", msgs=" + msgs + ", pending=" + pendingMsgs;
    }
 
    /**
     * @param pendingMsgs2
     */
-   public void messageProduced(int producedMessages)
-   {
+   public void messageProduced(int producedMessages) {
       minConsume.release(producedMessages);
       currentDiff.addAndGet(producedMessages);
-      if (currentDiff.get() > MAX_DIFF)
-      {
+      if (currentDiff.get() > MAX_DIFF) {
          latchMax.setCount(currentDiff.get() - MAX_DIFF);
-         try
-         {
+         try {
             latchMax.await(5, TimeUnit.SECONDS);
          }
-         catch (InterruptedException e)
-         {
+         catch (InterruptedException e) {
             e.printStackTrace();
          }
       }

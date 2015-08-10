@@ -20,16 +20,17 @@ import java.util.List;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 
-public class BindingQueryResult
-{
+public class BindingQueryResult {
+
    private boolean exists;
 
    private List<SimpleString> queueNames;
 
    private boolean autoCreateJmsQueues;
 
-   public BindingQueryResult(final boolean exists, final List<SimpleString> queueNames, final boolean autoCreateJmsQueues)
-   {
+   public BindingQueryResult(final boolean exists,
+                             final List<SimpleString> queueNames,
+                             final boolean autoCreateJmsQueues) {
       this.exists = exists;
 
       this.queueNames = queueNames;
@@ -37,18 +38,15 @@ public class BindingQueryResult
       this.autoCreateJmsQueues = autoCreateJmsQueues;
    }
 
-   public boolean isExists()
-   {
+   public boolean isExists() {
       return exists;
    }
 
-   public boolean isAutoCreateJmsQueues()
-   {
+   public boolean isAutoCreateJmsQueues() {
       return autoCreateJmsQueues;
    }
 
-   public List<SimpleString> getQueueNames()
-   {
+   public List<SimpleString> getQueueNames() {
       return queueNames;
    }
 }

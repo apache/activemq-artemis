@@ -36,64 +36,67 @@ import org.apache.activemq.EmbeddedBrokerTestSupport;
 import org.apache.activemq.spring.ConsumerBean;
 
 /**
- * 
+ *
  */
 public class MessageAuthenticationTest extends EmbeddedBrokerTestSupport {
 
-    private Connection connection;
+   private Connection connection;
 
-    public void testSendInvalidMessage() throws Exception {
-        if (connection == null) {
-            connection = createConnection();
-        }
-        connection.start();
+   public void testSendInvalidMessage() throws Exception {
+      if (connection == null) {
+         connection = createConnection();
+      }
+      connection.start();
 
-        ConsumerBean messageList = new ConsumerBean();
-        messageList.setVerbose(true);
+      ConsumerBean messageList = new ConsumerBean();
+      messageList.setVerbose(true);
 
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-        Destination destination = new ActiveMQQueue("MyQueue");
+      Destination destination = new ActiveMQQueue("MyQueue");
 
-        MessageConsumer c1 = session.createConsumer(destination);
+      MessageConsumer c1 = session.createConsumer(destination);
 
-        c1.setMessageListener(messageList);
+      c1.setMessageListener(messageList);
 
-        MessageProducer producer = session.createProducer(destination);
-        assertNotNull(producer);
+      MessageProducer producer = session.createProducer(destination);
+      assertNotNull(producer);
 
-        producer.send(createMessage(session, "invalidBody", "myHeader", "xyz"));
-        producer.send(createMessage(session, "validBody", "myHeader", "abc"));
+      producer.send(createMessage(session, "invalidBody", "myHeader", "xyz"));
+      producer.send(createMessage(session, "validBody", "myHeader", "abc"));
 
-        messageList.assertMessagesArrived(1);
-        assertEquals("validBody", ((TextMessage) messageList.flushMessages().get(0)).getText());
-    }
+      messageList.assertMessagesArrived(1);
+      assertEquals("validBody", ((TextMessage) messageList.flushMessages().get(0)).getText());
+   }
 
-    private javax.jms.Message createMessage(Session session, String body, String header, String value) throws JMSException {
-        TextMessage msg = session.createTextMessage(body);
-        msg.setStringProperty(header, value);
-        return msg;
-    }
+   private javax.jms.Message createMessage(Session session,
+                                           String body,
+                                           String header,
+                                           String value) throws JMSException {
+      TextMessage msg = session.createTextMessage(body);
+      msg.setStringProperty(header, value);
+      return msg;
+   }
 
-    @Override
-    protected BrokerService createBroker() throws Exception {
-        BrokerService answer = new BrokerService();
-        answer.setPersistent(false);
-        answer.setMessageAuthorizationPolicy(new MessageAuthorizationPolicy() {
-            public boolean isAllowedToConsume(ConnectionContext context, Message message) {
-                try {
-                    Object value = message.getProperty("myHeader");
-                    return "abc".equals(value);
-                }
-                catch (IOException e) {
-                    System.out.println("Caught: " + e);
-                    e.printStackTrace();
-                    return false;
-                }
+   @Override
+   protected BrokerService createBroker() throws Exception {
+      BrokerService answer = new BrokerService();
+      answer.setPersistent(false);
+      answer.setMessageAuthorizationPolicy(new MessageAuthorizationPolicy() {
+         public boolean isAllowedToConsume(ConnectionContext context, Message message) {
+            try {
+               Object value = message.getProperty("myHeader");
+               return "abc".equals(value);
             }
-        });
-        answer.addConnector(bindAddress);
-        return answer;
-    }
+            catch (IOException e) {
+               System.out.println("Caught: " + e);
+               e.printStackTrace();
+               return false;
+            }
+         }
+      });
+      answer.addConnector(bindAddress);
+      return answer;
+   }
 
 }

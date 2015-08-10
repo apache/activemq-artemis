@@ -21,43 +21,26 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.jms.client.ActiveMQBytesMessage;
 import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
 
-public final class CreateMessage
-{
+public final class CreateMessage {
 
-   private CreateMessage()
-   {
+   private CreateMessage() {
       // Utility class
    }
 
-   public static ClientMessage createTextMessage(final String s, final ClientSession clientSession)
-   {
-      ClientMessage message = clientSession.createMessage(ActiveMQTextMessage.TYPE,
-                                                          true,
-                                                          0,
-                                                          System.currentTimeMillis(),
-                                                          (byte) 4);
+   public static ClientMessage createTextMessage(final String s, final ClientSession clientSession) {
+      ClientMessage message = clientSession.createMessage(ActiveMQTextMessage.TYPE, true, 0, System.currentTimeMillis(), (byte) 4);
       message.getBodyBuffer().writeString(s);
       return message;
    }
 
-   public static ClientMessage createBytesMessage(final ClientSession session, final byte[] b, final boolean durable)
-   {
-      ClientMessage message = session.createMessage(ActiveMQBytesMessage.TYPE,
-                                                    durable,
-                                                    0,
-                                                    System.currentTimeMillis(),
-                                                    (byte) 1);
+   public static ClientMessage createBytesMessage(final ClientSession session, final byte[] b, final boolean durable) {
+      ClientMessage message = session.createMessage(ActiveMQBytesMessage.TYPE, durable, 0, System.currentTimeMillis(), (byte) 1);
       message.getBodyBuffer().writeBytes(b);
       return message;
    }
 
-   public static ClientMessage createTextMessage(final ClientSession session, final String s, final boolean durable)
-   {
-      ClientMessage message = session.createMessage(ActiveMQTextMessage.TYPE,
-                                                    durable,
-                                                    0,
-                                                    System.currentTimeMillis(),
-                                                    (byte) 1);
+   public static ClientMessage createTextMessage(final ClientSession session, final String s, final boolean durable) {
+      ClientMessage message = session.createMessage(ActiveMQTextMessage.TYPE, durable, 0, System.currentTimeMillis(), (byte) 1);
       message.getBodyBuffer().writeString(s);
       return message;
    }

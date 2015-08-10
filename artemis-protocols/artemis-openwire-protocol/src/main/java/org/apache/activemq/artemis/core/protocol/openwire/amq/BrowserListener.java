@@ -16,7 +16,7 @@
  */
 package org.apache.activemq.artemis.core.protocol.openwire.amq;
 
-interface BrowserListener
-{
+interface BrowserListener {
+
    void browseFinished();
 }

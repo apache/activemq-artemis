@@ -28,24 +28,22 @@ import javax.naming.InitialContext;
 /**
  * A simple JMS Topic example that creates a producer and consumer on a queue and sends and receives a message.
  */
-public class TopicSelectorExample1
-{
-   public static void main(final String[] args) throws Exception
-   {
+public class TopicSelectorExample1 {
+
+   public static void main(final String[] args) throws Exception {
       Connection connection = null;
 
       InitialContext initialContext = null;
-      try
-      {
+      try {
 
          // Step 1. Create an initial context to perform the JNDI lookup.
          initialContext = new InitialContext();
 
          // Step 2. Look-up the JMS topic
-         Topic topic = (Topic)initialContext.lookup("topic/exampleTopic");
+         Topic topic = (Topic) initialContext.lookup("topic/exampleTopic");
 
          // Step 3. Look-up the JMS connection factory
-         ConnectionFactory cf = (ConnectionFactory)initialContext.lookup("ConnectionFactory");
+         ConnectionFactory cf = (ConnectionFactory) initialContext.lookup("ConnectionFactory");
 
          // Step 4. Create a JMS connection
          connection = cf.createConnection();
@@ -67,14 +65,12 @@ public class TopicSelectorExample1
 
          // Step 10. Send 20 messages, 10 with someID=1, 10 with someID=2
 
-         for (int i = 1; i < 10; i++)
-         {
-            for (int someID = 1; someID <= 2; someID++)
-            {
+         for (int i = 1; i < 10; i++) {
+            for (int someID = 1; someID <= 2; someID++) {
                // Step 10.1 Create a text message
                TextMessage message1 = session.createTextMessage("This is a text message " + i +
-                                                                        " sent for someID=" +
-                                                                        someID);
+                                                                   " sent for someID=" +
+                                                                   someID);
 
                // Step 10.1 Set a property
                message1.setIntProperty("someID", someID);
@@ -93,48 +89,42 @@ public class TopicSelectorExample1
 
          System.out.println("*************************************************************");
          System.out.println("MessageConsumer1 will only receive messages where someID=1:");
-         for (;;)
-         {
-            TextMessage messageReceivedA = (TextMessage)messageConsumer1.receive(1000);
-            if (messageReceivedA == null)
-            {
+         for (; ; ) {
+            TextMessage messageReceivedA = (TextMessage) messageConsumer1.receive(1000);
+            if (messageReceivedA == null) {
                break;
             }
 
             System.out.println("messageConsumer1 received " + messageReceivedA.getText() +
-                                       " someID = " +
-                                       messageReceivedA.getIntProperty("someID"));
+                                  " someID = " +
+                                  messageReceivedA.getIntProperty("someID"));
          }
 
          // Step 13. Consume the messages from MessageConsumer2, filtering out someID=2
          System.out.println("*************************************************************");
          System.out.println("MessageConsumer2 will only receive messages where someID=2:");
-         for (;;)
-         {
-            TextMessage messageReceivedB = (TextMessage)messageConsumer2.receive(1000);
-            if (messageReceivedB == null)
-            {
+         for (; ; ) {
+            TextMessage messageReceivedB = (TextMessage) messageConsumer2.receive(1000);
+            if (messageReceivedB == null) {
                break;
             }
 
             System.out.println("messageConsumer2 received " + messageReceivedB.getText() +
-                                       " someID = " +
-                                       messageReceivedB.getIntProperty("someID"));
+                                  " someID = " +
+                                  messageReceivedB.getIntProperty("someID"));
          }
 
          // Step 14. Consume the messages from MessageConsumer3, receiving the complete set of messages
          System.out.println("*************************************************************");
          System.out.println("MessageConsumer3 will receive every message:");
-         for (;;)
-         {
-            TextMessage messageReceivedC = (TextMessage)messageConsumer3.receive(1000);
-            if (messageReceivedC == null)
-            {
+         for (; ; ) {
+            TextMessage messageReceivedC = (TextMessage) messageConsumer3.receive(1000);
+            if (messageReceivedC == null) {
                break;
             }
             System.out.println("messageConsumer3 received " + messageReceivedC.getText() +
-                                       " someID = " +
-                                       messageReceivedC.getIntProperty("someID"));
+                                  " someID = " +
+                                  messageReceivedC.getIntProperty("someID"));
          }
 
          // Step 15. Close the subscribers
@@ -142,15 +132,12 @@ public class TopicSelectorExample1
          messageConsumer2.close();
          messageConsumer3.close();
       }
-      finally
-      {
+      finally {
          // Step 15. Be sure to close our JMS resources!
-         if (initialContext != null)
-         {
+         if (initialContext != null) {
             initialContext.close();
          }
-         if (connection != null)
-         {
+         if (connection != null) {
             connection.close();
          }
       }

@@ -23,38 +23,31 @@ import org.apache.activemq.artemis.core.server.AutoCreatedQueueManager;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.utils.ReferenceCounterUtil;
 
-public class AutoCreatedQueueManagerImpl implements AutoCreatedQueueManager
-{
+public class AutoCreatedQueueManagerImpl implements AutoCreatedQueueManager {
+
    private final SimpleString queueName;
 
    private final ActiveMQServer server;
 
-   private final Runnable runnable = new Runnable()
-   {
-      public void run()
-      {
-         try
-         {
+   private final Runnable runnable = new Runnable() {
+      public void run() {
+         try {
             Queue queue = server.locateQueue(queueName);
             long consumerCount = queue.getConsumerCount();
             long messageCount = queue.getMessageCount();
 
-            if (server.locateQueue(queueName).getMessageCount() == 0)
-            {
-               if (ActiveMQServerLogger.LOGGER.isDebugEnabled())
-               {
+            if (server.locateQueue(queueName).getMessageCount() == 0) {
+               if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
                   ActiveMQServerLogger.LOGGER.debug("deleting auto-created queue \"" + queueName + "\" because consumerCount = " + consumerCount + " and messageCount = " + messageCount);
                }
 
                server.destroyQueue(queueName, null, false);
             }
-            else if (ActiveMQServerLogger.LOGGER.isDebugEnabled())
-            {
+            else if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
                ActiveMQServerLogger.LOGGER.debug("NOT deleting auto-created queue \"" + queueName + "\" because consumerCount = " + consumerCount + " and messageCount = " + messageCount);
             }
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             ActiveMQServerLogger.LOGGER.errorRemovingAutoCreatedQueue(e, queueName);
          }
       }
@@ -62,28 +55,24 @@ public class AutoCreatedQueueManagerImpl implements AutoCreatedQueueManager
 
    private final ReferenceCounterUtil referenceCounterUtil = new ReferenceCounterUtil(runnable);
 
-   public AutoCreatedQueueManagerImpl(ActiveMQServer server, SimpleString queueName)
-   {
+   public AutoCreatedQueueManagerImpl(ActiveMQServer server, SimpleString queueName) {
       this.server = server;
 
       this.queueName = queueName;
    }
 
    @Override
-   public int increment()
-   {
+   public int increment() {
       return referenceCounterUtil.increment();
    }
 
    @Override
-   public int decrement()
-   {
+   public int decrement() {
       return referenceCounterUtil.decrement();
    }
 
    @Override
-   public SimpleString getQueueName()
-   {
+   public SimpleString getQueueName() {
       return queueName;
    }
 }

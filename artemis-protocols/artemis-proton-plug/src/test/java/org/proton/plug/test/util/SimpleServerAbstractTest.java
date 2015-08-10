@@ -26,53 +26,42 @@ import org.proton.plug.test.minimalserver.MinimalServer;
 import org.junit.After;
 import org.junit.Before;
 
-public class SimpleServerAbstractTest
-{
+public class SimpleServerAbstractTest {
 
    protected final boolean useSASL;
    protected final boolean useInVM;
    protected MinimalServer server = new MinimalServer();
 
-   public SimpleServerAbstractTest(boolean useSASL, boolean useInVM)
-   {
+   public SimpleServerAbstractTest(boolean useSASL, boolean useInVM) {
       this.useSASL = useSASL;
       this.useInVM = useInVM;
    }
 
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       DumbServer.clear();
       AbstractJMSTest.forceGC();
-      if (!useInVM)
-      {
+      if (!useInVM) {
          server.start("127.0.0.1", Constants.PORT, useSASL);
       }
-
 
    }
 
    @After
-   public void tearDown() throws Exception
-   {
-      if (!useInVM)
-      {
+   public void tearDown() throws Exception {
+      if (!useInVM) {
          server.stop();
       }
       DumbServer.clear();
    }
 
-   protected Connector newConnector()
-   {
-      if (useInVM)
-      {
+   protected Connector newConnector() {
+      if (useInVM) {
          return new InVMTestConnector();
       }
-      else
-      {
+      else {
          return new SimpleAMQPConnector();
       }
    }
-
 
 }

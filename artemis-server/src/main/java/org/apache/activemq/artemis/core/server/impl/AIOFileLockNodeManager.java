@@ -33,34 +33,29 @@ import org.apache.activemq.artemis.jlibaio.LibaioFile;
  * <p>
  * https://bugzilla.redhat.com/show_bug.cgi?id=678585
  */
-public final class AIOFileLockNodeManager extends FileLockNodeManager
-{
+public final class AIOFileLockNodeManager extends FileLockNodeManager {
 
    /**
     * @param directory
     * @param replicatingBackup
     */
-   public AIOFileLockNodeManager(final File directory, boolean replicatingBackup)
-   {
+   public AIOFileLockNodeManager(final File directory, boolean replicatingBackup) {
       super(directory, replicatingBackup);
    }
 
-   public AIOFileLockNodeManager(final File directory, boolean replicatingBackup, long lockAcquisitionTimeout)
-   {
+   public AIOFileLockNodeManager(final File directory, boolean replicatingBackup, long lockAcquisitionTimeout) {
       super(directory, replicatingBackup);
 
       this.lockAcquisitionTimeout = lockAcquisitionTimeout;
    }
 
    @Override
-   protected FileLock tryLock(final int lockPos) throws Exception
-   {
+   protected FileLock tryLock(final int lockPos) throws Exception {
       File file = newFileForRegionLock(lockPos);
 
       LibaioFile fileControl = LibaioContext.openControlFile(file.getAbsolutePath(), false);
 
-      if (!fileControl.lock())
-      {
+      if (!fileControl.lock()) {
          fileControl.close();
          return null;
       }
@@ -72,32 +67,25 @@ public final class AIOFileLockNodeManager extends FileLockNodeManager
    }
 
    @Override
-   protected FileLock lock(final int liveLockPos) throws Exception
-   {
+   protected FileLock lock(final int liveLockPos) throws Exception {
       long start = System.currentTimeMillis();
 
       File file = newFileForRegionLock(liveLockPos);
 
-      while (!interrupted)
-      {
+      while (!interrupted) {
          FileLock lockFile = tryLock(liveLockPos);
-         if (lockFile != null)
-         {
+         if (lockFile != null) {
             return lockFile;
          }
-         else
-         {
-            try
-            {
+         else {
+            try {
                Thread.sleep(500);
             }
-            catch (InterruptedException e)
-            {
+            catch (InterruptedException e) {
                return null;
             }
 
-            if (lockAcquisitionTimeout != -1 && (System.currentTimeMillis() - start) > lockAcquisitionTimeout)
-            {
+            if (lockAcquisitionTimeout != -1 && (System.currentTimeMillis() - start) > lockAcquisitionTimeout) {
                throw new Exception("timed out waiting for lock");
             }
          }
@@ -110,8 +98,7 @@ public final class AIOFileLockNodeManager extends FileLockNodeManager
     * @param liveLockPos
     * @return
     */
-   protected File newFileForRegionLock(final int liveLockPos)
-   {
+   protected File newFileForRegionLock(final int liveLockPos) {
       File file = newFile("server." + liveLockPos + ".lock");
       return file;
    }

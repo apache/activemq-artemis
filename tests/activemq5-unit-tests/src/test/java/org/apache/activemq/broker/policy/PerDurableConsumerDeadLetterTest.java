@@ -31,40 +31,40 @@ import org.apache.activemq.command.ActiveMQQueue;
  */
 public class PerDurableConsumerDeadLetterTest extends DeadLetterTest {
 
-    private static final String CLIENT_ID = "george";
+   private static final String CLIENT_ID = "george";
 
-    @Override
-    protected BrokerService createBroker() throws Exception {
-        BrokerService broker = super.createBroker();
+   @Override
+   protected BrokerService createBroker() throws Exception {
+      BrokerService broker = super.createBroker();
 
-        PolicyEntry policy = new PolicyEntry();
-        IndividualDeadLetterStrategy strategy = new IndividualDeadLetterStrategy();
-        strategy.setProcessNonPersistent(true);
-        strategy.setDestinationPerDurableSubscriber(true);
-        policy.setDeadLetterStrategy(strategy);
+      PolicyEntry policy = new PolicyEntry();
+      IndividualDeadLetterStrategy strategy = new IndividualDeadLetterStrategy();
+      strategy.setProcessNonPersistent(true);
+      strategy.setDestinationPerDurableSubscriber(true);
+      policy.setDeadLetterStrategy(strategy);
 
-        PolicyMap pMap = new PolicyMap();
-        pMap.setDefaultEntry(policy);
+      PolicyMap pMap = new PolicyMap();
+      pMap.setDefaultEntry(policy);
 
-        broker.setDestinationPolicy(pMap);
+      broker.setDestinationPolicy(pMap);
 
-        return broker;
-    }
+      return broker;
+   }
 
-    @Override
-    protected String createClientId() {
-        return CLIENT_ID;
-    }
+   @Override
+   protected String createClientId() {
+      return CLIENT_ID;
+   }
 
-    @Override
-    protected Destination createDlqDestination() {
-        String prefix = topic ? "ActiveMQ.DLQ.Topic." : "ActiveMQ.DLQ.Queue.";
-        String destinationName = prefix + getClass().getName() + "." + getName();
-        if (durableSubscriber) {
-            String subName = // connectionId:SubName
-                CLIENT_ID + ":" + getDestination().toString();
-            destinationName += "." + subName ;
-        }
-        return new ActiveMQQueue(destinationName);
-    }
+   @Override
+   protected Destination createDlqDestination() {
+      String prefix = topic ? "ActiveMQ.DLQ.Topic." : "ActiveMQ.DLQ.Queue.";
+      String destinationName = prefix + getClass().getName() + "." + getName();
+      if (durableSubscriber) {
+         String subName = // connectionId:SubName
+            CLIENT_ID + ":" + getDestination().toString();
+         destinationName += "." + subName;
+      }
+      return new ActiveMQQueue(destinationName);
+   }
 }

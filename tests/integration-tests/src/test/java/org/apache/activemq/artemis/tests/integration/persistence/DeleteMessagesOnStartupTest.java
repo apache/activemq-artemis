@@ -33,15 +33,14 @@ import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class DeleteMessagesOnStartupTest extends StorageManagerTestBase
-{
+public class DeleteMessagesOnStartupTest extends StorageManagerTestBase {
+
    volatile boolean deleteMessages = false;
 
    ArrayList<Long> deletedMessage = new ArrayList<Long>();
 
    @Test
-   public void testDeleteMessagesOnStartup() throws Exception
-   {
+   public void testDeleteMessagesOnStartup() throws Exception {
       createStorage();
 
       Queue theQueue = new FakeQueue(new SimpleString(""));
@@ -52,8 +51,7 @@ public class DeleteMessagesOnStartupTest extends StorageManagerTestBase
 
       journal.storeMessage(msg);
 
-      for (int i = 2; i < 100; i++)
-      {
+      for (int i = 2; i < 100; i++) {
          journal.storeMessage(new ServerMessageImpl(i, 100));
       }
 
@@ -71,20 +69,16 @@ public class DeleteMessagesOnStartupTest extends StorageManagerTestBase
 
       Assert.assertEquals(98, deletedMessage.size());
 
-      for (Long messageID : deletedMessage)
-      {
+      for (Long messageID : deletedMessage) {
          Assert.assertTrue("messageID = " + messageID, messageID.longValue() >= 2 && messageID <= 99);
       }
    }
 
    @Override
-   protected JournalStorageManager createJournalStorageManager(Configuration configuration)
-   {
-      return new JournalStorageManager(configuration, execFactory, null)
-      {
+   protected JournalStorageManager createJournalStorageManager(Configuration configuration) {
+      return new JournalStorageManager(configuration, execFactory, null) {
          @Override
-         public void deleteMessage(final long messageID) throws Exception
-         {
+         public void deleteMessage(final long messageID) throws Exception {
             deletedMessage.add(messageID);
             super.deleteMessage(messageID);
          }
