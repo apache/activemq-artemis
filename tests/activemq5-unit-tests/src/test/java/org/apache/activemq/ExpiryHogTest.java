@@ -23,7 +23,6 @@ import javax.jms.TextMessage;
 import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.broker.region.policy.PolicyEntry;
 import org.apache.activemq.broker.region.policy.PolicyMap;
-import org.apache.activemq.store.kahadb.KahaDBPersistenceAdapter;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -58,8 +57,6 @@ public class ExpiryHogTest extends JmsMultipleClientsTestSupport {
         policyMap.setDefaultEntry(defaultEntry);
         bs.setDestinationPolicy(policyMap);
 
-        KahaDBPersistenceAdapter ad = (KahaDBPersistenceAdapter) bs.getPersistenceAdapter();
-        ad.setConcurrentStoreAndDispatchQueues(true);
         return bs;
     }
 
