@@ -1061,9 +1061,8 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
 
                   if (count++ == 1) {
                      // it will hold here for a while
-                     if (!latchDone.await(TIMEOUT, TimeUnit.SECONDS)) // a timed wait, so if the test fails, one less
-                     // thread around
-                     {
+                     if (!latchDone.await(TIMEOUT, TimeUnit.SECONDS)) {
+                        // a timed wait, so if the test fails, one less thread around
                         new Exception("ClientConsuemrWindowSizeTest Handler couldn't receive signal in less than 5 seconds").printStackTrace();
                         failed = true;
                      }

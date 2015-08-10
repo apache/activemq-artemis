@@ -46,9 +46,7 @@ import org.eclipse.aether.resolution.ArtifactResolutionException;
 import org.eclipse.aether.resolution.ArtifactResult;
 
 @Mojo(name = "create", defaultPhase = LifecyclePhase.VERIFY)
-public class ArtemisCreatePlugin extends ArtemisAbstractPlugin
-
-{
+public class ArtemisCreatePlugin extends ArtemisAbstractPlugin {
 
    @Parameter
    String name;

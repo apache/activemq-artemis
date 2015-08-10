@@ -72,8 +72,8 @@ public interface ActiveMQJournalLogger extends BasicLogger {
 
    @LogMessage(level = Logger.Level.INFO)
    @Message(id = 141007, value = "Current File on the journal is <= the sequence file.getFileID={0} on the dataFiles" +
-      "\nCurrentfile.getFileId={1} while the file.getFileID()={2}" +
-      "\nIs same = ({3})",
+         "\nCurrentfile.getFileId={1} while the file.getFileID()={2}" +
+         "\nIs same = ({3})",
       format = Message.Format.MESSAGE_FORMAT)
    void currentFile(Long fileID, Long id, Long fileFileID, Boolean b);
 

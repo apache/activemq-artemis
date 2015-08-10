@@ -33,7 +33,7 @@ public class CreditsSemaphore {
 
       @Override
       public int tryAcquireShared(final int numberOfAqcquires) {
-         for (; ; ) {
+         for (;;) {
             int actualSize = getState();
             int newValue = actualSize - numberOfAqcquires;
 
@@ -50,7 +50,7 @@ public class CreditsSemaphore {
 
       @Override
       public boolean tryReleaseShared(final int numberOfReleases) {
-         for (; ; ) {
+         for (;;) {
             int actualSize = getState();
             int newValue = actualSize + numberOfReleases;
 
@@ -62,7 +62,7 @@ public class CreditsSemaphore {
       }
 
       public void setCredits(final int credits) {
-         for (; ; ) {
+         for (;;) {
             int actualState = getState();
             if (compareAndSetState(actualState, credits)) {
                // This is to wake up any pending threads that could be waiting on queued

@@ -53,7 +53,7 @@ public final class LargeServerMessageInSync implements ReplicatedLargeMessage {
       if (appendFile != null) {
          appendFile.close();
          appendFile.open();
-         for (; ; ) {
+         for (;;) {
             buffer.rewind();
             int bytesRead = appendFile.read(buffer);
             if (bytesRead > 0)

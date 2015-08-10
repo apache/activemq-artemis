@@ -53,8 +53,7 @@ public class ActiveMQSecurityManagerImpl implements ActiveMQSecurityManager {
       else if (username == null && password == null) {
          return configuration.getDefaultUser() != null;
       }
-      else // the only possible case here is user == null, password != null
-      {
+      else { // the only possible case here is user == null, password != null
          logger.debug("Validating default user against a provided password.  This happens when username=null, password!=null");
          String defaultUsername = configuration.getDefaultUser();
          User defaultUser = configuration.getUser(defaultUsername);

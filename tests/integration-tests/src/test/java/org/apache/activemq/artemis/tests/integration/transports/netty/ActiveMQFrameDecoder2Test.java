@@ -59,7 +59,7 @@ public class ActiveMQFrameDecoder2Test extends ActiveMQTestBase {
       int cnt = 0;
       for (ByteBuf p : packets) {
          decoder.writeInbound(p);
-         for (; ; ) {
+         for (;;) {
             ByteBuf frame = (ByteBuf) decoder.readInbound();
             if (frame == null) {
                break;

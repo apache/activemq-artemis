@@ -1567,8 +1567,7 @@ public class Base64 {
          // Encode?
          if (encode) {
             buffer[position++] = (byte) theByte;
-            if (position >= bufferLength) // Enough to encode.
-            {
+            if (position >= bufferLength) { // Enough to encode.
                out.write(Base64.encode3to4(b4, buffer, bufferLength, options));
 
                lineLength += 4;
@@ -1586,8 +1585,7 @@ public class Base64 {
             // Meaningful Base64 character?
             if (decodabet[theByte & 0x7f] > Base64.WHITE_SPACE_ENC) {
                buffer[position++] = (byte) theByte;
-               if (position >= bufferLength) // Enough to output.
-               {
+               if (position >= bufferLength) { // Enough to output.
                   int len = Base64.decode4to3(buffer, 0, b4, 0, options);
                   out.write(b4, 0, len);
                   // out.write( Base64.decode4to3( buffer ) );

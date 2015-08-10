@@ -205,7 +205,7 @@ public class JSONTokener {
     * @throws JSONException
     */
    public char nextClean() throws JSONException {
-      for (; ; ) {
+      for (;;) {
          char c = next();
          if (c == 0 || c > ' ') {
             return c;
@@ -228,7 +228,7 @@ public class JSONTokener {
    public String nextString(final char quote) throws JSONException {
       char c;
       StringBuffer sb = new StringBuffer();
-      for (; ; ) {
+      for (;;) {
          c = next();
          switch (c) {
             case 0:
@@ -281,7 +281,7 @@ public class JSONTokener {
     */
    public String nextTo(final char d) throws JSONException {
       StringBuffer sb = new StringBuffer();
-      for (; ; ) {
+      for (;;) {
          char c = next();
          if (c == d || c == 0 || c == '\n' || c == '\r') {
             if (c != 0) {
@@ -303,7 +303,7 @@ public class JSONTokener {
    public String nextTo(final String delimiters) throws JSONException {
       char c;
       StringBuffer sb = new StringBuffer();
-      for (; ; ) {
+      for (;;) {
          c = next();
          if (delimiters.indexOf(c) >= 0 || c == 0 || c == '\n' || c == '\r') {
             if (c != 0) {

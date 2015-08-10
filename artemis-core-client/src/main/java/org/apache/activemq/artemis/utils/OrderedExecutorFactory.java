@@ -73,7 +73,7 @@ public final class OrderedExecutorFactory implements ExecutorFactory {
          this.parent = parent;
          runner = new Runnable() {
             public void run() {
-               for (; ; ) {
+               for (;;) {
                   // Optimization, first try without any locks
                   Runnable task = tasks.poll();
                   if (task == null) {

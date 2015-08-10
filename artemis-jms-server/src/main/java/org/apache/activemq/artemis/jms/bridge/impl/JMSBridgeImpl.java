@@ -1015,8 +1015,7 @@ public final class JMSBridgeImpl implements JMSBridge {
             sourceConn = createConnection(sourceUsername, sourcePassword, sourceCff, clientID, false, true);
             sourceSession = sourceConn.createSession(true, Session.SESSION_TRANSACTED);
          }
-         else // bridging across different servers
-         {
+         else { // bridging across different servers
             // QoS = ONCE_AND_ONLY_ONCE
             if (forwardMode == JMSBridgeImpl.FORWARD_MODE_XA) {
                // Create an XASession for consuming from the source
@@ -1027,8 +1026,7 @@ public final class JMSBridgeImpl implements JMSBridge {
                sourceConn = createConnection(sourceUsername, sourcePassword, sourceCff, clientID, true, true);
                sourceSession = ((XAConnection) sourceConn).createXASession();
             }
-            else // QoS = DUPLICATES_OK || AT_MOST_ONCE
-            {
+            else { // QoS = DUPLICATES_OK || AT_MOST_ONCE
                if (JMSBridgeImpl.trace) {
                   ActiveMQJMSBridgeLogger.LOGGER.trace("Creating non XA source session");
                }
@@ -1068,8 +1066,7 @@ public final class JMSBridgeImpl implements JMSBridge {
             targetConn = sourceConn;
             targetSession = sourceSession;
          }
-         else // bridging across different servers
-         {
+         else { // bridging across different servers
             // QoS = ONCE_AND_ONLY_ONCE
             if (forwardMode == JMSBridgeImpl.FORWARD_MODE_XA) {
                if (JMSBridgeImpl.trace) {
@@ -1082,8 +1079,7 @@ public final class JMSBridgeImpl implements JMSBridge {
 
                targetSession = ((XAConnection) targetConn).createXASession();
             }
-            else // QoS = DUPLICATES_OK || AT_MOST_ONCE
-            {
+            else { // QoS = DUPLICATES_OK || AT_MOST_ONCE
                if (JMSBridgeImpl.trace) {
                   ActiveMQJMSBridgeLogger.LOGGER.trace("Creating non XA dest session");
                }

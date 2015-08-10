@@ -107,15 +107,14 @@ public class ClosingConnectionTest extends ActiveMQTestBase {
    * Test for https://bugzilla.redhat.com/show_bug.cgi?id=1193085
    * */
    @Test
-   @BMRules(
-      rules = {@BMRule(
-         name = "rule to kill connection",
-         targetClass = "org.apache.activemq.artemis.core.io.nio.NIOSequentialFile",
-         targetMethod = "open(int, boolean)",
-         targetLocation = "AT INVOKE java.nio.channels.FileChannel.size()",
-         action = "org.apache.activemq.artemis.tests.extras.byteman.ClosingConnectionTest.killConnection();"
-
-      )})
+   @BMRules(rules = {
+         @BMRule(
+            name = "rule to kill connection",
+            targetClass = "org.apache.activemq.artemis.core.io.nio.NIOSequentialFile",
+            targetMethod = "open(int, boolean)",
+            targetLocation = "AT INVOKE java.nio.channels.FileChannel.size()",
+            action = "org.apache.activemq.artemis.tests.extras.byteman.ClosingConnectionTest.killConnection();")
+         })
    public void testKillConnection() throws Exception {
       locator.setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setBlockOnAcknowledge(true);
 

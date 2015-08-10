@@ -252,9 +252,7 @@ public class NotificationTest extends ActiveMQTestBase {
       }
       m = consumer.receiveImmediate();
       if (m != null) {
-         for (SimpleString key : m.getPropertyNames())
-
-         {
+         for (SimpleString key : m.getPropertyNames()) {
             System.out.println(key + "=" + m.getObjectProperty(key));
          }
       }

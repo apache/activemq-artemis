@@ -89,7 +89,7 @@ public class TopicSelectorExample1 {
 
          System.out.println("*************************************************************");
          System.out.println("MessageConsumer1 will only receive messages where someID=1:");
-         for (; ; ) {
+         for (;;) {
             TextMessage messageReceivedA = (TextMessage) messageConsumer1.receive(1000);
             if (messageReceivedA == null) {
                break;
@@ -103,7 +103,7 @@ public class TopicSelectorExample1 {
          // Step 13. Consume the messages from MessageConsumer2, filtering out someID=2
          System.out.println("*************************************************************");
          System.out.println("MessageConsumer2 will only receive messages where someID=2:");
-         for (; ; ) {
+         for (;;) {
             TextMessage messageReceivedB = (TextMessage) messageConsumer2.receive(1000);
             if (messageReceivedB == null) {
                break;
@@ -117,7 +117,7 @@ public class TopicSelectorExample1 {
          // Step 14. Consume the messages from MessageConsumer3, receiving the complete set of messages
          System.out.println("*************************************************************");
          System.out.println("MessageConsumer3 will receive every message:");
-         for (; ; ) {
+         for (;;) {
             TextMessage messageReceivedC = (TextMessage) messageConsumer3.receive(1000);
             if (messageReceivedC == null) {
                break;

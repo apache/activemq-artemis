@@ -42,9 +42,9 @@ public class SimpleAMQPConnector implements Connector {
       bootstrap.group(new NioEventLoopGroup(10));
 
       bootstrap.handler(new ChannelInitializer<Channel>() {
-                           public void initChannel(Channel channel) throws Exception {
-                           }
-                        });
+            public void initChannel(Channel channel) throws Exception {
+            }
+         });
    }
 
    public AMQPClientConnectionContext connect(String host, int port) throws Exception {
@@ -59,14 +59,12 @@ public class SimpleAMQPConnector implements Connector {
       final AMQPClientConnectionContext connection = (AMQPClientConnectionContext) ProtonClientConnectionContextFactory.getFactory().createConnection(clientConnectionSPI);
 
       future.channel().pipeline().addLast(new ChannelDuplexHandler() {
-
-                                             @Override
-                                             public void channelRead(final ChannelHandlerContext ctx,
-                                                                     final Object msg) throws Exception {
-                                                ByteBuf buffer = (ByteBuf) msg;
-                                                connection.inputBuffer(buffer);
-                                             }
-                                          });
+            @Override
+            public void channelRead(final ChannelHandlerContext ctx, final Object msg) throws Exception {
+               ByteBuf buffer = (ByteBuf) msg;
+               connection.inputBuffer(buffer);
+            }
+         });
 
       return connection;
    }

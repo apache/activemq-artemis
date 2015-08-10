@@ -66,9 +66,7 @@ public class ProxyAssertSupport {
       }
    }
 
-   public static void fail(final java.lang.String string)
-
-   {
+   public static void fail(final java.lang.String string) {
       try {
          Assert.fail(string);
       }

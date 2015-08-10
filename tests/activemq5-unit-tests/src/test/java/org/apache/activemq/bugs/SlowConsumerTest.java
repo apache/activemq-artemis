@@ -140,7 +140,7 @@ public class SlowConsumerTest extends TestCase {
       stompSocket.setSoTimeout((int) timeOut);
       InputStream is = stompSocket.getInputStream();
       int c = 0;
-      for (; ; ) {
+      for (;;) {
          c = is.read();
          if (c < 0) {
             throw new IOException("socket closed.");

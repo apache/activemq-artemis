@@ -109,7 +109,7 @@ public abstract class AbstractSequentialFile implements SequentialFile {
 
          ByteBuffer buffer = ByteBuffer.allocate(10 * 1024);
 
-         for (; ; ) {
+         for (;;) {
             buffer.rewind();
             int size = this.read(buffer);
             newFileName.writeDirect(buffer, false);

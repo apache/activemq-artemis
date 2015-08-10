@@ -115,7 +115,7 @@ public class ConcurrentStompTest extends StompTestBase {
       socket.setSoTimeout((int) timeOut);
       InputStream is = socket.getInputStream();
       int c = 0;
-      for (; ; ) {
+      for (;;) {
          c = is.read();
          if (c < 0) {
             throw new IOException("socket closed.");

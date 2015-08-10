@@ -119,8 +119,7 @@ public class OrphanedConsumerTest extends ActiveMQTestBase {
          targetLocation = "ENTRY",
          condition = "org.apache.activemq.artemis.tests.extras.byteman.OrphanedConsumerTest.isConditionActive()",
          action = "org.apache.activemq.artemis.tests.extras.byteman.OrphanedConsumerTest.leavingCloseOnTestCountersWhileClosing()")
-
-      })
+         })
    public void testOrphanedConsumers() throws Exception {
       internalTestOrphanedConsumers(false);
    }
@@ -148,8 +147,7 @@ public class OrphanedConsumerTest extends ActiveMQTestBase {
          targetLocation = "ENTRY",
          condition = "org.apache.activemq.artemis.tests.extras.byteman.OrphanedConsumerTest.isConditionActive()",
          action = "org.apache.activemq.artemis.tests.extras.byteman.OrphanedConsumerTest.leavingCloseOnTestCountersWhileClosing()")
-
-      })
+         })
    public void testOrphanedConsumersByManagement() throws Exception {
       internalTestOrphanedConsumers(true);
    }

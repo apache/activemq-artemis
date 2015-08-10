@@ -140,9 +140,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
                          final boolean enableWildCardRouting,
                          final int idCacheSize,
                          final boolean persistIDCache,
-                         final HierarchicalRepository<AddressSettings> addressSettingsRepository)
-
-   {
+                         final HierarchicalRepository<AddressSettings> addressSettingsRepository) {
       this.storageManager = storageManager;
 
       queueFactory = bindableFactory;

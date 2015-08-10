@@ -113,7 +113,7 @@ public class JSONArray {
          return;
       }
       x.back();
-      for (; ; ) {
+      for (;;) {
          if (x.nextClean() == ',') {
             x.back();
             myArrayList.add(null);

@@ -254,9 +254,7 @@ public class JMSTestBase extends ActiveMQTestBase {
       ServiceUtils.setTransactionManager(new DummyTransactionManager());
    }
 
-   protected final void receiveMessages(JMSConsumer consumer, final int start, final int msgCount, final boolean ack)
-
-   {
+   protected final void receiveMessages(JMSConsumer consumer, final int start, final int msgCount, final boolean ack) {
       try {
          for (int i = start; i < msgCount; i++) {
             Message message = consumer.receive(100);

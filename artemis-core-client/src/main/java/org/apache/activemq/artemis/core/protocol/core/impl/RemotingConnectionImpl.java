@@ -103,9 +103,7 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
                           final List<Interceptor> incomingInterceptors,
                           final List<Interceptor> outgoingInterceptors,
                           final Executor executor,
-                          final SimpleString nodeID)
-
-   {
+                          final SimpleString nodeID) {
       this(packetDecoder, transportConnection, -1, -1, incomingInterceptors, outgoingInterceptors, false, executor, nodeID);
    }
 
@@ -117,9 +115,7 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
                                   final List<Interceptor> outgoingInterceptors,
                                   final boolean client,
                                   final Executor executor,
-                                  final SimpleString nodeID)
-
-   {
+                                  final SimpleString nodeID) {
       super(transportConnection, executor);
 
       this.packetDecoder = packetDecoder;

@@ -61,7 +61,7 @@ public class ReusableLatch {
       }
 
       public void add() {
-         for (; ; ) {
+         for (;;) {
             int actualState = getState();
             int newState = actualState + 1;
             if (compareAndSetState(actualState, newState)) {
@@ -72,7 +72,7 @@ public class ReusableLatch {
 
       @Override
       public boolean tryReleaseShared(final int numberOfReleases) {
-         for (; ; ) {
+         for (;;) {
             int actualState = getState();
             if (actualState == 0) {
                return true;

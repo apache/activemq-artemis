@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.management;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -36,9 +39,6 @@ import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.HashSet;
-import java.util.Set;
 
 import static org.apache.activemq.artemis.api.core.management.CoreNotificationType.SECURITY_AUTHENTICATION_VIOLATION;
 import static org.apache.activemq.artemis.api.core.management.CoreNotificationType.SECURITY_PERMISSION_VIOLATION;
@@ -183,9 +183,7 @@ public class SecurityNotificationTest extends ActiveMQTestBase {
       }
       m = consumer.receiveImmediate();
       if (m != null) {
-         for (SimpleString key : m.getPropertyNames())
-
-         {
+         for (SimpleString key : m.getPropertyNames()) {
             System.out.println(key + "=" + m.getObjectProperty(key));
          }
       }

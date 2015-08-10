@@ -58,7 +58,6 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
    private ChannelHandlerContext ctx;
 
    private final MQTTLogger log = MQTTLogger.LOGGER;
-   ;
 
    private boolean stopped = false;
 

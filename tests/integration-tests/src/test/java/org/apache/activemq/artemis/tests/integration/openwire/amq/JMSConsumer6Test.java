@@ -16,23 +16,22 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire.amq;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageListener;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.ActiveMQMessageConsumer;
 import org.apache.activemq.ActiveMQSession;
-import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.artemis.tests.integration.openwire.BasicOpenWireTest;
+import org.apache.activemq.command.ActiveMQDestination;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -65,14 +64,14 @@ public class JMSConsumer6Test extends BasicOpenWireTest {
       ActiveMQSession session = (ActiveMQSession) connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       ActiveMQDestination destination = createDestination(session, destinationType);
       MessageConsumer consumer = session.createConsumer(destination, new MessageListener() {
-                                                           @Override
-                                                           public void onMessage(Message m) {
-                                                              counter.incrementAndGet();
-                                                              if (counter.get() == 4) {
-                                                                 done.countDown();
-                                                              }
-                                                           }
-                                                        });
+         @Override
+         public void onMessage(Message m) {
+            counter.incrementAndGet();
+            if (counter.get() == 4) {
+               done.countDown();
+            }
+         }
+      });
       assertNotNull(consumer);
 
       // Send the messages

@@ -340,9 +340,7 @@ public class JournalTransaction {
    }
 
    private AtomicInteger internalgetCounter(final JournalFile file) {
-      if (lastFile != file)
-
-      {
+      if (lastFile != file) {
          lastFile = file;
          counter.set(0);
       }
