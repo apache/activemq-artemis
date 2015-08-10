@@ -39,6 +39,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class TcpTransportFactory extends TransportFactory {
+
    private static final Logger LOG = LoggerFactory.getLogger(TcpTransportFactory.class);
 
    private static volatile String brokerService = null;
@@ -81,19 +82,21 @@ public class TcpTransportFactory extends TransportFactory {
          server.bind();
 
          return server;
-      } catch (URISyntaxException e) {
+      }
+      catch (URISyntaxException e) {
          throw IOExceptionSupport.create(e);
       }
    }
 
-   protected TcpTransportServer createTcpTransportServer(final URI location, ServerSocketFactory serverSocketFactory) throws IOException, URISyntaxException {
+   protected TcpTransportServer createTcpTransportServer(final URI location,
+                                                         ServerSocketFactory serverSocketFactory) throws IOException, URISyntaxException {
       return new TcpTransportServer(this, location, serverSocketFactory);
    }
 
    @SuppressWarnings("rawtypes")
    public Transport compositeConfigure(Transport transport, WireFormat format, Map options) {
 
-      TcpTransport tcpTransport = (TcpTransport)transport.narrow(TcpTransport.class);
+      TcpTransport tcpTransport = (TcpTransport) transport.narrow(TcpTransport.class);
       IntrospectionSupport.setProperties(tcpTransport, options);
 
       Map<String, Object> socketOptions = IntrospectionSupport.extractProperties(options, "socket.");
@@ -102,7 +105,8 @@ public class TcpTransportFactory extends TransportFactory {
       if (tcpTransport.isTrace()) {
          try {
             transport = TransportLoggerSupport.createTransportLogger(transport, tcpTransport.getLogWriterName(), tcpTransport.isDynamicManagement(), tcpTransport.isStartLogging(), tcpTransport.getJmxPort());
-         } catch (Throwable e) {
+         }
+         catch (Throwable e) {
             LOG.error("Could not create TransportLogger object for: " + tcpTransport.getLogWriterName() + ", reason: " + e, e);
          }
       }
@@ -115,7 +119,7 @@ public class TcpTransportFactory extends TransportFactory {
 
       // Only need the WireFormatNegotiator if using openwire
       if (format instanceof OpenWireFormat) {
-         transport = new WireFormatNegotiator(transport, (OpenWireFormat)format, tcpTransport.getMinmumWireFormatVersion());
+         transport = new WireFormatNegotiator(transport, (OpenWireFormat) format, tcpTransport.getMinmumWireFormatVersion());
       }
 
       return super.compositeConfigure(transport, format, options);
@@ -135,9 +139,10 @@ public class TcpTransportFactory extends TransportFactory {
             Integer.parseInt(path.substring(localPortIndex + 1, path.length()));
             String localString = location.getScheme() + ":/" + path;
             localLocation = new URI(localString);
-         } catch (Exception e) {
+         }
+         catch (Exception e) {
             LOG.warn("path isn't a valid local location for TcpTransport to use", e.getMessage());
-            if(LOG.isDebugEnabled()) {
+            if (LOG.isDebugEnabled()) {
                LOG.debug("Failure detail", e);
             }
          }
@@ -146,7 +151,10 @@ public class TcpTransportFactory extends TransportFactory {
       return createTcpTransport(wf, socketFactory, location, localLocation);
    }
 
-   protected TcpTransport createTcpTransport(WireFormat wf, SocketFactory socketFactory, URI location, URI localLocation) throws UnknownHostException, IOException {
+   protected TcpTransport createTcpTransport(WireFormat wf,
+                                             SocketFactory socketFactory,
+                                             URI location,
+                                             URI localLocation) throws UnknownHostException, IOException {
       return new TcpTransport(wf, socketFactory, location, localLocation);
    }
 
@@ -162,8 +170,7 @@ public class TcpTransportFactory extends TransportFactory {
       return new InactivityMonitor(transport, format);
    }
 
-   public static void clearService()
-   {
+   public static void clearService() {
       brokerService = null;
    }
 }

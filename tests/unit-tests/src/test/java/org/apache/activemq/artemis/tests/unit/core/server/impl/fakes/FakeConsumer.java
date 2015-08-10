@@ -25,8 +25,8 @@ import org.apache.activemq.artemis.core.server.Consumer;
 import org.apache.activemq.artemis.core.server.HandleStatus;
 import org.apache.activemq.artemis.core.server.MessageReference;
 
-public class FakeConsumer implements Consumer
-{
+public class FakeConsumer implements Consumer {
+
    private HandleStatus statusToReturn = HandleStatus.HANDLED;
 
    private HandleStatus newStatus;
@@ -37,110 +37,88 @@ public class FakeConsumer implements Consumer
 
    private final Filter filter;
 
-   public FakeConsumer()
-   {
+   public FakeConsumer() {
       filter = null;
    }
 
-   public FakeConsumer(final Filter filter)
-   {
+   public FakeConsumer(final Filter filter) {
       this.filter = filter;
    }
 
-   public Filter getFilter()
-   {
+   public Filter getFilter() {
       return filter;
    }
 
-   public String debug()
-   {
+   public String debug() {
       return toString();
    }
 
-   public synchronized MessageReference waitForNextReference(long timeout)
-   {
-      while (references.isEmpty() && timeout > 0)
-      {
+   public synchronized MessageReference waitForNextReference(long timeout) {
+      while (references.isEmpty() && timeout > 0) {
          long start = System.currentTimeMillis();
-         try
-         {
+         try {
             wait();
          }
-         catch (InterruptedException e)
-         {
+         catch (InterruptedException e) {
          }
          timeout -= System.currentTimeMillis() - start;
       }
 
-      if (timeout <= 0)
-      {
+      if (timeout <= 0) {
          throw new IllegalStateException("Timed out waiting for reference");
       }
 
       return references.removeFirst();
    }
 
-   public synchronized void setStatusImmediate(final HandleStatus newStatus)
-   {
+   public synchronized void setStatusImmediate(final HandleStatus newStatus) {
       statusToReturn = newStatus;
    }
 
-   public synchronized void setStatusDelayed(final HandleStatus newStatus, final int numReferences)
-   {
+   public synchronized void setStatusDelayed(final HandleStatus newStatus, final int numReferences) {
       this.newStatus = newStatus;
 
       delayCountdown = numReferences;
    }
 
-   public synchronized List<MessageReference> getReferences()
-   {
+   public synchronized List<MessageReference> getReferences() {
       return references;
    }
 
-   public synchronized void clearReferences()
-   {
+   public synchronized void clearReferences() {
       references.clear();
    }
 
-   public synchronized HandleStatus handle(final MessageReference reference)
-   {
-      if (statusToReturn == HandleStatus.BUSY)
-      {
+   public synchronized HandleStatus handle(final MessageReference reference) {
+      if (statusToReturn == HandleStatus.BUSY) {
          return HandleStatus.BUSY;
       }
 
-      if (filter != null)
-      {
-         if (filter.match(reference.getMessage()))
-         {
+      if (filter != null) {
+         if (filter.match(reference.getMessage())) {
             references.addLast(reference);
             reference.getQueue().referenceHandled();
             notify();
 
             return HandleStatus.HANDLED;
          }
-         else
-         {
+         else {
             return HandleStatus.NO_MATCH;
          }
       }
 
-      if (newStatus != null)
-      {
-         if (delayCountdown == 0)
-         {
+      if (newStatus != null) {
+         if (delayCountdown == 0) {
             statusToReturn = newStatus;
 
             newStatus = null;
          }
-         else
-         {
+         else {
             delayCountdown--;
          }
       }
 
-      if (statusToReturn == HandleStatus.HANDLED)
-      {
+      if (statusToReturn == HandleStatus.HANDLED) {
          reference.getQueue().referenceHandled();
          references.addLast(reference);
          notify();
@@ -150,28 +128,22 @@ public class FakeConsumer implements Consumer
    }
 
    @Override
-   public void proceedDeliver(MessageReference ref) throws Exception
-   {
+   public void proceedDeliver(MessageReference ref) throws Exception {
       // no op
    }
 
    @Override
-   public String toManagementString()
-   {
+   public String toManagementString() {
       return toString();
    }
 
    @Override
-   public void disconnect()
-   {
+   public void disconnect() {
       //To change body of implemented methods use File | Settings | File Templates.
    }
 
-   public List<MessageReference>  getDeliveringMessages()
-   {
+   public List<MessageReference> getDeliveringMessages() {
       return Collections.emptyList();
    }
-
-
 
 }

@@ -17,13 +17,12 @@
 package org.apache.activemq;
 
 /**
- * 
- * 
+ *
+ *
  */
-public class JmsTopicSendReceiveWithTwoConnectionsWithJMXTest extends
-    JmsTopicSendReceiveWithTwoConnectionsTest {
+public class JmsTopicSendReceiveWithTwoConnectionsWithJMXTest extends JmsTopicSendReceiveWithTwoConnectionsTest {
 
-    protected ActiveMQConnectionFactory createConnectionFactory() throws Exception {
-        return new ActiveMQConnectionFactory("vm://localhost?broker.persistent=false&broker.useJmx=true");
-    }
+   protected ActiveMQConnectionFactory createConnectionFactory() throws Exception {
+      return new ActiveMQConnectionFactory("vm://localhost?broker.persistent=false&broker.useJmx=true");
+   }
 }

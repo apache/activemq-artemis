@@ -26,13 +26,12 @@ import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.integration.cluster.distribution.ClusterTestBase;
 
-public class ClusterRestartTest extends ClusterTestBase
-{
+public class ClusterRestartTest extends ClusterTestBase {
+
    IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    @Test
-   public void testRestartWithQueuesCreateInDiffOrder() throws Exception
-   {
+   public void testRestartWithQueuesCreateInDiffOrder() throws Exception {
       setupServer(0, isFileStorage(), isNetty());
       setupServer(1, isFileStorage(), isNetty());
 
@@ -96,8 +95,7 @@ public class ClusterRestartTest extends ClusterTestBase
    }
 
    @Test
-   public void testRestartWithQueuesCreateInDiffOrder2() throws Exception
-   {
+   public void testRestartWithQueuesCreateInDiffOrder2() throws Exception {
       setupServer(0, isFileStorage(), isNetty());
       setupServer(1, isFileStorage(), isNetty());
 
@@ -156,22 +154,16 @@ public class ClusterRestartTest extends ClusterTestBase
       System.out.println("*****************************************************************************");
    }
 
-   private void printBindings(final int num) throws Exception
-   {
-      for (int i = 0; i < num; i++)
-      {
-         Collection<Binding> bindings0 = getServer(i).getPostOffice()
-            .getBindingsForAddress(new SimpleString("queues.testaddress"))
-            .getBindings();
-         for (Binding binding : bindings0)
-         {
+   private void printBindings(final int num) throws Exception {
+      for (int i = 0; i < num; i++) {
+         Collection<Binding> bindings0 = getServer(i).getPostOffice().getBindingsForAddress(new SimpleString("queues.testaddress")).getBindings();
+         for (Binding binding : bindings0) {
             System.out.println(binding + " on node " + i + " at " + binding.getID());
          }
       }
    }
 
-   public boolean isNetty()
-   {
+   public boolean isNetty() {
       return true;
    }
 

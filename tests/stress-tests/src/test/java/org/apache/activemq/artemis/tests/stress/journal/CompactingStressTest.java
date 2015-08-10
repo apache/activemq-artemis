@@ -35,8 +35,7 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class CompactingStressTest extends ActiveMQTestBase
-{
+public class CompactingStressTest extends ActiveMQTestBase {
 
    // Constants -----------------------------------------------------
 
@@ -67,32 +66,27 @@ public class CompactingStressTest extends ActiveMQTestBase
    // Public --------------------------------------------------------
 
    @Test
-   public void testCleanupAIO() throws Throwable
-   {
-      if (LibaioContext.isLoaded())
-      {
+   public void testCleanupAIO() throws Throwable {
+      if (LibaioContext.isLoaded()) {
          internalTestCleanup(JournalType.ASYNCIO);
       }
    }
 
    @Test
-   public void testCleanupNIO() throws Throwable
-   {
+   public void testCleanupNIO() throws Throwable {
       internalTestCleanup(JournalType.NIO);
       tearDown();
       setUp();
    }
 
-   private void internalTestCleanup(final JournalType journalType) throws Throwable
-   {
+   private void internalTestCleanup(final JournalType journalType) throws Throwable {
       setupServer(journalType);
 
       ClientSession session = sf.createSession(false, true, true);
 
       ClientProducer prod = session.createProducer(CompactingStressTest.AD1);
 
-      for (int i = 0; i < 500; i++)
-      {
+      for (int i = 0; i < 500; i++) {
          prod.send(session.createMessage(true));
       }
 
@@ -105,12 +99,10 @@ public class CompactingStressTest extends ActiveMQTestBase
 
       session.start();
 
-      for (int i = 0; i < 200; i++)
-      {
+      for (int i = 0; i < 200; i++) {
          System.out.println("Iteration " + i);
          // Sending non transactionally, so it would test non transactional stuff on the journal
-         for (int j = 0; j < 1000; j++)
-         {
+         for (int j = 0; j < 1000; j++) {
             Message msg = session.createMessage(true);
             msg.getBodyBuffer().writeBytes(new byte[1024]);
 
@@ -120,8 +112,7 @@ public class CompactingStressTest extends ActiveMQTestBase
          // I need to guarantee a roundtrip to the server, to make sure everything is persisted
          session.commit();
 
-         for (int j = 0; j < 1000; j++)
-         {
+         for (int j = 0; j < 1000; j++) {
             ClientMessage msg = cons.receive(2000);
             Assert.assertNotNull(msg);
             msg.acknowledge();
@@ -146,8 +137,7 @@ public class CompactingStressTest extends ActiveMQTestBase
       cons = session.createConsumer(CompactingStressTest.Q1);
       session.start();
 
-      for (int i = 0; i < 500; i++)
-      {
+      for (int i = 0; i < 500; i++) {
          ClientMessage msg = cons.receive(1000);
          Assert.assertNotNull(msg);
          msg.acknowledge();
@@ -162,46 +152,38 @@ public class CompactingStressTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testMultiProducerAndCompactAIO() throws Throwable
-   {
-      if (LibaioContext.isLoaded())
-      {
+   public void testMultiProducerAndCompactAIO() throws Throwable {
+      if (LibaioContext.isLoaded()) {
          internalTestMultiProducer(JournalType.ASYNCIO);
       }
    }
 
    @Test
-   public void testMultiProducerAndCompactNIO() throws Throwable
-   {
+   public void testMultiProducerAndCompactNIO() throws Throwable {
       internalTestMultiProducer(JournalType.NIO);
    }
 
-   public void internalTestMultiProducer(final JournalType journalType) throws Throwable
-   {
+   public void internalTestMultiProducer(final JournalType journalType) throws Throwable {
 
       setupServer(journalType);
 
       ClientSession session = sf.createSession(false, false);
 
-      try
-      {
+      try {
          ClientProducer producer = session.createProducer(CompactingStressTest.AD3);
 
          ClientMessage msg = session.createMessage(true);
 
-         for (int i = 0; i < CompactingStressTest.TOT_AD3; i++)
-         {
+         for (int i = 0; i < CompactingStressTest.TOT_AD3; i++) {
             producer.send(msg);
-            if (i % 100 == 0)
-            {
+            if (i % 100 == 0) {
                session.commit();
             }
          }
 
          session.commit();
       }
-      finally
-      {
+      finally {
          session.close();
       }
 
@@ -216,34 +198,28 @@ public class CompactingStressTest extends ActiveMQTestBase
       final CountDownLatch latchReady = new CountDownLatch(2);
       final CountDownLatch latchStart = new CountDownLatch(1);
 
-      class FastProducer extends Thread
-      {
+      class FastProducer extends Thread {
+
          Throwable e;
 
-         FastProducer()
-         {
+         FastProducer() {
             super("Fast-Thread");
          }
 
          @Override
-         public void run()
-         {
+         public void run() {
             ClientSession session = null;
             ClientSession sessionSlow = null;
             latchReady.countDown();
-            try
-            {
+            try {
                ActiveMQTestBase.waitForLatch(latchStart);
                session = sf.createSession(true, true);
                sessionSlow = sf.createSession(false, false);
                ClientProducer prod = session.createProducer(CompactingStressTest.AD2);
                ClientProducer slowProd = sessionSlow.createProducer(CompactingStressTest.AD1);
-               for (int i = 0; i < NUMBER_OF_FAST_MESSAGES; i++)
-               {
-                  if (i % SLOW_INTERVAL == 0)
-                  {
-                     if (numberOfMessages.incrementAndGet() % 5 == 0)
-                     {
+               for (int i = 0; i < NUMBER_OF_FAST_MESSAGES; i++) {
+                  if (i % SLOW_INTERVAL == 0) {
+                     if (numberOfMessages.incrementAndGet() % 5 == 0) {
                         sessionSlow.commit();
                      }
                      slowProd.send(session.createMessage(true));
@@ -254,72 +230,58 @@ public class CompactingStressTest extends ActiveMQTestBase
                }
                sessionSlow.commit();
             }
-            catch (Throwable e)
-            {
+            catch (Throwable e) {
                this.e = e;
             }
-            finally
-            {
-               try
-               {
+            finally {
+               try {
                   session.close();
                }
-               catch (Throwable e)
-               {
+               catch (Throwable e) {
                   this.e = e;
                }
-               try
-               {
+               try {
                   sessionSlow.close();
                }
-               catch (Throwable e)
-               {
+               catch (Throwable e) {
                   this.e = e;
                }
             }
          }
       }
 
-      class FastConsumer extends Thread
-      {
+      class FastConsumer extends Thread {
+
          Throwable e;
 
-         FastConsumer()
-         {
+         FastConsumer() {
             super("Fast-Consumer");
          }
 
          @Override
-         public void run()
-         {
+         public void run() {
             ClientSession session = null;
             latchReady.countDown();
-            try
-            {
+            try {
                ActiveMQTestBase.waitForLatch(latchStart);
                session = sf.createSession(true, true);
                session.start();
                ClientConsumer cons = session.createConsumer(CompactingStressTest.Q2);
-               for (int i = 0; i < NUMBER_OF_FAST_MESSAGES; i++)
-               {
+               for (int i = 0; i < NUMBER_OF_FAST_MESSAGES; i++) {
                   ClientMessage msg = cons.receive(60 * 1000);
                   msg.acknowledge();
                }
 
                Assert.assertNull(cons.receiveImmediate());
             }
-            catch (Throwable e)
-            {
+            catch (Throwable e) {
                this.e = e;
             }
-            finally
-            {
-               try
-               {
+            finally {
+               try {
                   session.close();
                }
-               catch (Throwable e)
-               {
+               catch (Throwable e) {
                   this.e = e;
                }
             }
@@ -337,15 +299,13 @@ public class CompactingStressTest extends ActiveMQTestBase
 
       p1.join();
 
-      if (p1.e != null)
-      {
+      if (p1.e != null) {
          throw p1.e;
       }
 
       f1.join();
 
-      if (f1.e != null)
-      {
+      if (f1.e != null) {
          throw f1.e;
       }
 
@@ -357,8 +317,7 @@ public class CompactingStressTest extends ActiveMQTestBase
 
       ClientSession sess = null;
 
-      try
-      {
+      try {
 
          sess = sf.createSession(true, true);
 
@@ -366,8 +325,7 @@ public class CompactingStressTest extends ActiveMQTestBase
 
          sess.start();
 
-         for (int i = 0; i < numberOfMessages.intValue(); i++)
-         {
+         for (int i = 0; i < numberOfMessages.intValue(); i++) {
             ClientMessage msg = cons.receive(60000);
             Assert.assertNotNull(msg);
             msg.acknowledge();
@@ -385,8 +343,7 @@ public class CompactingStressTest extends ActiveMQTestBase
 
          cons = sess.createConsumer(CompactingStressTest.Q3);
 
-         for (int i = 0; i < CompactingStressTest.TOT_AD3; i++)
-         {
+         for (int i = 0; i < CompactingStressTest.TOT_AD3; i++) {
             ClientMessage msg = cons.receive(60000);
             Assert.assertNotNull(msg);
             msg.acknowledge();
@@ -395,61 +352,43 @@ public class CompactingStressTest extends ActiveMQTestBase
          Assert.assertNull(cons.receiveImmediate());
 
       }
-      finally
-      {
-         try
-         {
+      finally {
+         try {
             sess.close();
          }
-         catch (Throwable ignored)
-         {
+         catch (Throwable ignored) {
          }
       }
    }
 
-   private void setupServer(final JournalType journalType) throws Exception
-   {
-      Configuration config = createDefaultInVMConfig()
-         .setJournalSyncNonTransactional(false)
-         .setJournalFileSize(ActiveMQDefaultConfiguration.getDefaultJournalFileSize())
-         .setJournalType(journalType)
-         .setJournalCompactMinFiles(10)
-         .setJournalCompactPercentage(50);
+   private void setupServer(final JournalType journalType) throws Exception {
+      Configuration config = createDefaultInVMConfig().setJournalSyncNonTransactional(false).setJournalFileSize(ActiveMQDefaultConfiguration.getDefaultJournalFileSize()).setJournalType(journalType).setJournalCompactMinFiles(10).setJournalCompactPercentage(50);
 
       server = createServer(true, config);
 
       server.start();
 
-
-      ServerLocator locator = createInVMNonHALocator()
-              .setBlockOnDurableSend(false)
-              .setBlockOnAcknowledge(false);
+      ServerLocator locator = createInVMNonHALocator().setBlockOnDurableSend(false).setBlockOnAcknowledge(false);
 
       sf = createSessionFactory(locator);
       ClientSession sess = addClientSession(sf.createSession());
 
-      try
-      {
+      try {
          sess.createQueue(CompactingStressTest.AD1, CompactingStressTest.Q1, true);
       }
-      catch (Exception ignored)
-      {
+      catch (Exception ignored) {
       }
 
-      try
-      {
+      try {
          sess.createQueue(CompactingStressTest.AD2, CompactingStressTest.Q2, true);
       }
-      catch (Exception ignored)
-      {
+      catch (Exception ignored) {
       }
 
-      try
-      {
+      try {
          sess.createQueue(CompactingStressTest.AD3, CompactingStressTest.Q3, true);
       }
-      catch (Exception ignored)
-      {
+      catch (Exception ignored) {
       }
 
       sess.close();

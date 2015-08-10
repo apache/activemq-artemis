@@ -51,138 +51,137 @@ import org.slf4j.LoggerFactory;
  */
 public class AMQ4222Test extends TestSupport {
 
-    private static final Logger LOG = LoggerFactory.getLogger(AMQ4222Test.class);
+   private static final Logger LOG = LoggerFactory.getLogger(AMQ4222Test.class);
 
-    protected BrokerService brokerService;
+   protected BrokerService brokerService;
 
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-        topic = false;
-        brokerService = createBroker();
-    }
+   @Override
+   protected void setUp() throws Exception {
+      super.setUp();
+      topic = false;
+      brokerService = createBroker();
+   }
 
-    @Override
-    protected void tearDown() throws Exception {
-        brokerService.stop();
-        brokerService.waitUntilStopped();
-    }
+   @Override
+   protected void tearDown() throws Exception {
+      brokerService.stop();
+      brokerService.waitUntilStopped();
+   }
 
-    protected BrokerService createBroker() throws Exception {
-        BrokerService broker = BrokerFactory.createBroker(new URI("broker:()/localhost?persistent=false"));
-        broker.start();
-        broker.waitUntilStarted();
-        return broker;
-    }
+   protected BrokerService createBroker() throws Exception {
+      BrokerService broker = BrokerFactory.createBroker(new URI("broker:()/localhost?persistent=false"));
+      broker.start();
+      broker.waitUntilStarted();
+      return broker;
+   }
 
-    @Override
-    protected ActiveMQConnectionFactory createConnectionFactory() throws Exception {
-        return new ActiveMQConnectionFactory("vm://localhost");
-    }
+   @Override
+   protected ActiveMQConnectionFactory createConnectionFactory() throws Exception {
+      return new ActiveMQConnectionFactory("vm://localhost");
+   }
 
-    public void testTempQueueCleanedUp() throws Exception {
+   public void testTempQueueCleanedUp() throws Exception {
 
-        Destination requestQueue = createDestination();
+      Destination requestQueue = createDestination();
 
-        Connection producerConnection = createConnection();
-        producerConnection.start();
-        Session producerSession = producerConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      Connection producerConnection = createConnection();
+      producerConnection.start();
+      Session producerSession = producerConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-        MessageProducer producer = producerSession.createProducer(requestQueue);
-        Destination replyTo = producerSession.createTemporaryQueue();
-        MessageConsumer producerSessionConsumer = producerSession.createConsumer(replyTo);
+      MessageProducer producer = producerSession.createProducer(requestQueue);
+      Destination replyTo = producerSession.createTemporaryQueue();
+      MessageConsumer producerSessionConsumer = producerSession.createConsumer(replyTo);
 
-        final CountDownLatch countDownLatch = new CountDownLatch(1);
-        // let's listen to the response on the queue
-        producerSessionConsumer.setMessageListener(new MessageListener() {
-            @Override
-            public void onMessage(Message message) {
-                try {
-                    if (message instanceof TextMessage) {
-                        LOG.info("You got a message: " + ((TextMessage) message).getText());
-                        countDownLatch.countDown();
-                    }
-                } catch (JMSException e) {
-                    e.printStackTrace();
-                }
+      final CountDownLatch countDownLatch = new CountDownLatch(1);
+      // let's listen to the response on the queue
+      producerSessionConsumer.setMessageListener(new MessageListener() {
+         @Override
+         public void onMessage(Message message) {
+            try {
+               if (message instanceof TextMessage) {
+                  LOG.info("You got a message: " + ((TextMessage) message).getText());
+                  countDownLatch.countDown();
+               }
             }
-        });
-
-        producer.send(createRequest(producerSession, replyTo));
-
-        Connection consumerConnection = createConnection();
-        consumerConnection.start();
-        Session consumerSession = consumerConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        MessageConsumer consumer = consumerSession.createConsumer(requestQueue);
-        final MessageProducer consumerProducer = consumerSession.createProducer(null);
-
-        consumer.setMessageListener(new MessageListener() {
-            @Override
-            public void onMessage(Message message) {
-                try {
-                    consumerProducer.send(message.getJMSReplyTo(), message);
-                } catch (JMSException e) {
-                    LOG.error("error sending a response on the temp queue");
-                    e.printStackTrace();
-                }
+            catch (JMSException e) {
+               e.printStackTrace();
             }
-        });
+         }
+      });
 
-        countDownLatch.await(2, TimeUnit.SECONDS);
+      producer.send(createRequest(producerSession, replyTo));
 
-        // producer has not gone away yet...
-        org.apache.activemq.broker.region.Destination tempDestination = getDestination(brokerService,
-                (ActiveMQDestination) replyTo);
-        assertNotNull(tempDestination);
+      Connection consumerConnection = createConnection();
+      consumerConnection.start();
+      Session consumerSession = consumerConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      MessageConsumer consumer = consumerSession.createConsumer(requestQueue);
+      final MessageProducer consumerProducer = consumerSession.createProducer(null);
 
-        // clean up
-        producer.close();
-        producerSession.close();
-        producerConnection.close();
-
-        // producer has gone away.. so the temp queue should not exist anymore... let's see..
-        // producer has not gone away yet...
-        tempDestination = getDestination(brokerService,
-                (ActiveMQDestination) replyTo);
-        assertNull(tempDestination);
-
-        // now.. the connection on the broker side for the dude producing to the temp dest will
-        // still have a reference in his producerBrokerExchange.. this will keep the destination
-        // from being reclaimed by GC if there is never another send that producer makes...
-        // let's see if that reference is there...
-        final TransportConnector connector = VMTransportFactory.CONNECTORS.get("localhost");
-        assertNotNull(connector);
-        assertTrue(Wait.waitFor(new Wait.Condition() {
-            @Override
-            public boolean isSatisified() throws Exception {
-                return connector.getConnections().size() == 1;
+      consumer.setMessageListener(new MessageListener() {
+         @Override
+         public void onMessage(Message message) {
+            try {
+               consumerProducer.send(message.getJMSReplyTo(), message);
             }
-        }));
-        TransportConnection transportConnection = connector.getConnections().get(0);
-        Map<ProducerId, ProducerBrokerExchange> exchanges = getProducerExchangeFromConn(transportConnection);
-        assertEquals(1, exchanges.size());
-        ProducerBrokerExchange exchange = exchanges.values().iterator().next();
+            catch (JMSException e) {
+               LOG.error("error sending a response on the temp queue");
+               e.printStackTrace();
+            }
+         }
+      });
 
-        // so this is the reason for the test... we don't want these exchanges to hold a reference
-        // to a region destination.. after a send is completed, the destination is not used anymore on
-        // a producer exchange
-        assertNull(exchange.getRegionDestination());
-        assertNull(exchange.getRegion());
+      countDownLatch.await(2, TimeUnit.SECONDS);
 
-    }
+      // producer has not gone away yet...
+      org.apache.activemq.broker.region.Destination tempDestination = getDestination(brokerService, (ActiveMQDestination) replyTo);
+      assertNotNull(tempDestination);
 
-    @SuppressWarnings("unchecked")
-    private Map<ProducerId, ProducerBrokerExchange> getProducerExchangeFromConn(TransportConnection transportConnection) throws NoSuchFieldException, IllegalAccessException {
-        Field f = TransportConnection.class.getDeclaredField("producerExchanges");
-        f.setAccessible(true);
-        Map<ProducerId, ProducerBrokerExchange> producerExchanges =
-                (Map<ProducerId, ProducerBrokerExchange>)f.get(transportConnection);
-        return producerExchanges;
-    }
+      // clean up
+      producer.close();
+      producerSession.close();
+      producerConnection.close();
 
-    private Message createRequest(Session session, Destination replyTo) throws JMSException {
-        Message message = session.createTextMessage("Payload");
-        message.setJMSReplyTo(replyTo);
-        return message;
-    }
+      // producer has gone away.. so the temp queue should not exist anymore... let's see..
+      // producer has not gone away yet...
+      tempDestination = getDestination(brokerService, (ActiveMQDestination) replyTo);
+      assertNull(tempDestination);
+
+      // now.. the connection on the broker side for the dude producing to the temp dest will
+      // still have a reference in his producerBrokerExchange.. this will keep the destination
+      // from being reclaimed by GC if there is never another send that producer makes...
+      // let's see if that reference is there...
+      final TransportConnector connector = VMTransportFactory.CONNECTORS.get("localhost");
+      assertNotNull(connector);
+      assertTrue(Wait.waitFor(new Wait.Condition() {
+         @Override
+         public boolean isSatisified() throws Exception {
+            return connector.getConnections().size() == 1;
+         }
+      }));
+      TransportConnection transportConnection = connector.getConnections().get(0);
+      Map<ProducerId, ProducerBrokerExchange> exchanges = getProducerExchangeFromConn(transportConnection);
+      assertEquals(1, exchanges.size());
+      ProducerBrokerExchange exchange = exchanges.values().iterator().next();
+
+      // so this is the reason for the test... we don't want these exchanges to hold a reference
+      // to a region destination.. after a send is completed, the destination is not used anymore on
+      // a producer exchange
+      assertNull(exchange.getRegionDestination());
+      assertNull(exchange.getRegion());
+
+   }
+
+   @SuppressWarnings("unchecked")
+   private Map<ProducerId, ProducerBrokerExchange> getProducerExchangeFromConn(TransportConnection transportConnection) throws NoSuchFieldException, IllegalAccessException {
+      Field f = TransportConnection.class.getDeclaredField("producerExchanges");
+      f.setAccessible(true);
+      Map<ProducerId, ProducerBrokerExchange> producerExchanges = (Map<ProducerId, ProducerBrokerExchange>) f.get(transportConnection);
+      return producerExchanges;
+   }
+
+   private Message createRequest(Session session, Destination replyTo) throws JMSException {
+      Message message = session.createTextMessage("Payload");
+      message.setJMSReplyTo(replyTo);
+      return message;
+   }
 }

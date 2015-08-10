@@ -18,14 +18,13 @@ package org.apache.activemq.artemis.utils;
 
 import java.io.Serializable;
 
-public class Random implements Serializable
-{
+public class Random implements Serializable {
+
    private static int extraSeed;
 
    private static final long serialVersionUID = 40335522290950498L;
 
-   private static synchronized long getSeed()
-   {
+   private static synchronized long getSeed() {
       long seed = System.currentTimeMillis() + Random.extraSeed++;
 
       return seed;
@@ -33,8 +32,7 @@ public class Random implements Serializable
 
    private final java.util.Random random = new java.util.Random(Random.getSeed());
 
-   public java.util.Random getRandom()
-   {
+   public java.util.Random getRandom() {
       return random;
    }
 

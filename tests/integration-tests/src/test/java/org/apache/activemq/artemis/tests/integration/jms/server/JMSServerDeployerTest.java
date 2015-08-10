@@ -36,8 +36,7 @@ import javax.jms.Queue;
 import javax.jms.Topic;
 import javax.naming.Context;
 
-public class JMSServerDeployerTest extends ActiveMQTestBase
-{
+public class JMSServerDeployerTest extends ActiveMQTestBase {
    // Constants -----------------------------------------------------
 
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
@@ -57,8 +56,7 @@ public class JMSServerDeployerTest extends ActiveMQTestBase
    // Public --------------------------------------------------------
 
    @Test
-   public void testDeployUnusualQueueNames() throws Exception
-   {
+   public void testDeployUnusualQueueNames() throws Exception {
       doTestDeployQueuesWithUnusualNames("queue.with.dots.in.name", "/myqueue");
 
       doTestDeployQueuesWithUnusualNames("queue with spaces in name", "/myqueue2");
@@ -67,13 +65,11 @@ public class JMSServerDeployerTest extends ActiveMQTestBase
 
       doTestDeployQueuesWithUnusualNames("queue\\with\\backslashes\\in\\name", "/myqueue4");
 
-      doTestDeployQueuesWithUnusualNames("queue with # chars and * chars in name",
-                                         "/myqueue5");
+      doTestDeployQueuesWithUnusualNames("queue with # chars and * chars in name", "/myqueue5");
    }
 
    @Test
-   public void testDeployUnusualTopicNames() throws Exception
-   {
+   public void testDeployUnusualTopicNames() throws Exception {
       doTestDeployTopicsWithUnusualNames("topic.with.dots.in.name", "/mytopic");
 
       doTestDeployTopicsWithUnusualNames("topic with spaces in name", "/mytopic2");
@@ -82,13 +78,10 @@ public class JMSServerDeployerTest extends ActiveMQTestBase
 
       doTestDeployTopicsWithUnusualNames("topic\\with\\backslashes\\in\\name", "/mytopic4");
 
-      doTestDeployTopicsWithUnusualNames("topic with # chars and * chars in name",
-                                         "/mytopic5");
+      doTestDeployTopicsWithUnusualNames("topic with # chars and * chars in name", "/mytopic5");
    }
 
-   private void doTestDeployQueuesWithUnusualNames(final String queueName,
-                                                   final String jndiName) throws Exception
-   {
+   private void doTestDeployQueuesWithUnusualNames(final String queueName, final String jndiName) throws Exception {
       jmsServer.createQueue(false, queueName, null, false, jndiName);
 
       Queue queue = (Queue) context.lookup(jndiName);
@@ -96,9 +89,7 @@ public class JMSServerDeployerTest extends ActiveMQTestBase
       Assert.assertEquals(queueName, queue.getQueueName());
    }
 
-   private void doTestDeployTopicsWithUnusualNames(final String topicName,
-                                                   final String jndiName) throws Exception
-   {
+   private void doTestDeployTopicsWithUnusualNames(final String topicName, final String jndiName) throws Exception {
       jmsServer.createTopic(false, topicName, jndiName);
 
       Topic topic = (Topic) context.lookup(jndiName);
@@ -112,22 +103,12 @@ public class JMSServerDeployerTest extends ActiveMQTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
-      DiscoveryGroupConfiguration dcg = new DiscoveryGroupConfiguration()
-         .setName("mygroup")
-         .setRefreshTimeout(5432)
-         .setDiscoveryInitialWaitTimeout(5432)
-         .setBroadcastEndpointFactory(new UDPBroadcastEndpointFactory()
-                                            .setGroupAddress("243.7.7.7")
-                                            .setGroupPort(12345)
-                                            .setLocalBindAddress("172.16.8.10"));
+      DiscoveryGroupConfiguration dcg = new DiscoveryGroupConfiguration().setName("mygroup").setRefreshTimeout(5432).setDiscoveryInitialWaitTimeout(5432).setBroadcastEndpointFactory(new UDPBroadcastEndpointFactory().setGroupAddress("243.7.7.7").setGroupPort(12345).setLocalBindAddress("172.16.8.10"));
 
-      config = createBasicConfig()
-         .addConnectorConfiguration("netty", new TransportConfiguration(NettyConnectorFactory.class.getName()))
-         .addDiscoveryGroupConfiguration("mygroup", dcg);
+      config = createBasicConfig().addConnectorConfiguration("netty", new TransportConfiguration(NettyConnectorFactory.class.getName())).addDiscoveryGroupConfiguration("mygroup", dcg);
 
       ActiveMQServer server = createServer(false, config);
 

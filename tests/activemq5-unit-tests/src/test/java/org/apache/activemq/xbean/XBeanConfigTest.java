@@ -37,85 +37,84 @@ import org.slf4j.LoggerFactory;
  */
 public class XBeanConfigTest extends TestCase {
 
-    private static final Logger LOG = LoggerFactory.getLogger(XBeanConfigTest.class);
+   private static final Logger LOG = LoggerFactory.getLogger(XBeanConfigTest.class);
 
-    protected BrokerService brokerService;
-    protected Broker broker;
-    protected ConnectionContext context;
-    protected ConnectionInfo info;
+   protected BrokerService brokerService;
+   protected Broker broker;
+   protected ConnectionContext context;
+   protected ConnectionInfo info;
 
-    public void testBrokerConfiguredCorrectly() throws Exception {
+   public void testBrokerConfiguredCorrectly() throws Exception {
 
-        // Validate the system properties are being evaluated in xbean.
-        assertEquals("testbroker", brokerService.getBrokerName());
+      // Validate the system properties are being evaluated in xbean.
+      assertEquals("testbroker", brokerService.getBrokerName());
 
-        Topic topic = (Topic)broker.addDestination(context, new ActiveMQTopic("FOO.BAR"),true);
-        DispatchPolicy dispatchPolicy = topic.getDispatchPolicy();
-        assertTrue("dispatchPolicy should be RoundRobinDispatchPolicy: " + dispatchPolicy, dispatchPolicy instanceof RoundRobinDispatchPolicy);
+      Topic topic = (Topic) broker.addDestination(context, new ActiveMQTopic("FOO.BAR"), true);
+      DispatchPolicy dispatchPolicy = topic.getDispatchPolicy();
+      assertTrue("dispatchPolicy should be RoundRobinDispatchPolicy: " + dispatchPolicy, dispatchPolicy instanceof RoundRobinDispatchPolicy);
 
-        SubscriptionRecoveryPolicy subscriptionRecoveryPolicy = topic.getSubscriptionRecoveryPolicy();
-        subscriptionRecoveryPolicy = ((RetainedMessageSubscriptionRecoveryPolicy)subscriptionRecoveryPolicy).getWrapped();
+      SubscriptionRecoveryPolicy subscriptionRecoveryPolicy = topic.getSubscriptionRecoveryPolicy();
+      subscriptionRecoveryPolicy = ((RetainedMessageSubscriptionRecoveryPolicy) subscriptionRecoveryPolicy).getWrapped();
 
-        assertTrue("subscriptionRecoveryPolicy should be LastImageSubscriptionRecoveryPolicy: " + subscriptionRecoveryPolicy,
-                   subscriptionRecoveryPolicy instanceof LastImageSubscriptionRecoveryPolicy);
+      assertTrue("subscriptionRecoveryPolicy should be LastImageSubscriptionRecoveryPolicy: " + subscriptionRecoveryPolicy, subscriptionRecoveryPolicy instanceof LastImageSubscriptionRecoveryPolicy);
 
-        LOG.info("destination: " + topic);
-        LOG.info("dispatchPolicy: " + dispatchPolicy);
-        LOG.info("subscriptionRecoveryPolicy: " + subscriptionRecoveryPolicy);
+      LOG.info("destination: " + topic);
+      LOG.info("dispatchPolicy: " + dispatchPolicy);
+      LOG.info("subscriptionRecoveryPolicy: " + subscriptionRecoveryPolicy);
 
-        topic = (Topic)broker.addDestination(context, new ActiveMQTopic("ORDERS.BOOKS"),true);
-        dispatchPolicy = topic.getDispatchPolicy();
-        assertTrue("dispatchPolicy should be StrictOrderDispatchPolicy: " + dispatchPolicy, dispatchPolicy instanceof StrictOrderDispatchPolicy);
+      topic = (Topic) broker.addDestination(context, new ActiveMQTopic("ORDERS.BOOKS"), true);
+      dispatchPolicy = topic.getDispatchPolicy();
+      assertTrue("dispatchPolicy should be StrictOrderDispatchPolicy: " + dispatchPolicy, dispatchPolicy instanceof StrictOrderDispatchPolicy);
 
-        subscriptionRecoveryPolicy = topic.getSubscriptionRecoveryPolicy();
-        subscriptionRecoveryPolicy = ((RetainedMessageSubscriptionRecoveryPolicy)subscriptionRecoveryPolicy).getWrapped();
-        assertTrue("subscriptionRecoveryPolicy should be TimedSubscriptionRecoveryPolicy: " + subscriptionRecoveryPolicy,
-                   subscriptionRecoveryPolicy instanceof TimedSubscriptionRecoveryPolicy);
-        TimedSubscriptionRecoveryPolicy timedSubscriptionPolicy = (TimedSubscriptionRecoveryPolicy)subscriptionRecoveryPolicy;
-        assertEquals("getRecoverDuration()", 60000, timedSubscriptionPolicy.getRecoverDuration());
+      subscriptionRecoveryPolicy = topic.getSubscriptionRecoveryPolicy();
+      subscriptionRecoveryPolicy = ((RetainedMessageSubscriptionRecoveryPolicy) subscriptionRecoveryPolicy).getWrapped();
+      assertTrue("subscriptionRecoveryPolicy should be TimedSubscriptionRecoveryPolicy: " + subscriptionRecoveryPolicy, subscriptionRecoveryPolicy instanceof TimedSubscriptionRecoveryPolicy);
+      TimedSubscriptionRecoveryPolicy timedSubscriptionPolicy = (TimedSubscriptionRecoveryPolicy) subscriptionRecoveryPolicy;
+      assertEquals("getRecoverDuration()", 60000, timedSubscriptionPolicy.getRecoverDuration());
 
-        LOG.info("destination: " + topic);
-        LOG.info("dispatchPolicy: " + dispatchPolicy);
-        LOG.info("subscriptionRecoveryPolicy: " + subscriptionRecoveryPolicy);
-    }
+      LOG.info("destination: " + topic);
+      LOG.info("dispatchPolicy: " + dispatchPolicy);
+      LOG.info("subscriptionRecoveryPolicy: " + subscriptionRecoveryPolicy);
+   }
 
-    @Override
-    protected void setUp() throws Exception {
-        System.setProperty("brokername", "testbroker");
-        brokerService = createBroker();
-        broker = brokerService.getBroker();
+   @Override
+   protected void setUp() throws Exception {
+      System.setProperty("brokername", "testbroker");
+      brokerService = createBroker();
+      broker = brokerService.getBroker();
 
-        // started automatically
-        // brokerService.start();
+      // started automatically
+      // brokerService.start();
 
-        context = new ConnectionContext();
-        context.setBroker(broker);
-        info = new ConnectionInfo();
-        info.setClientId("James");
-        info.setUserName("James");
-        info.setConnectionId(new ConnectionId("1234"));
+      context = new ConnectionContext();
+      context.setBroker(broker);
+      info = new ConnectionInfo();
+      info.setClientId("James");
+      info.setUserName("James");
+      info.setConnectionId(new ConnectionId("1234"));
 
-        try {
-            broker.addConnection(context, info);
-        } catch (Throwable e) {
-            e.printStackTrace();
-            fail(e.getMessage());
-        }
+      try {
+         broker.addConnection(context, info);
+      }
+      catch (Throwable e) {
+         e.printStackTrace();
+         fail(e.getMessage());
+      }
 
-        assertNotNull("No broker created!");
-    }
+      assertNotNull("No broker created!");
+   }
 
-    @Override
-    protected void tearDown() throws Exception {
-        if (brokerService != null) {
-            brokerService.stop();
-        }
-    }
+   @Override
+   protected void tearDown() throws Exception {
+      if (brokerService != null) {
+         brokerService.stop();
+      }
+   }
 
-    protected BrokerService createBroker() throws Exception {
-        String uri = "org/apache/activemq/xbean/activemq-policy.xml";
-        LOG.info("Loading broker configuration from the classpath with URI: " + uri);
-        return BrokerFactory.createBroker(new URI("xbean:" + uri));
-    }
+   protected BrokerService createBroker() throws Exception {
+      String uri = "org/apache/activemq/xbean/activemq-policy.xml";
+      LOG.info("Loading broker configuration from the classpath with URI: " + uri);
+      return BrokerFactory.createBroker(new URI("xbean:" + uri));
+   }
 
 }

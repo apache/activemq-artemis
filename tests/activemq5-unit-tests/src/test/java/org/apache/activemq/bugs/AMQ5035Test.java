@@ -35,49 +35,49 @@ import org.junit.Test;
 
 public class AMQ5035Test {
 
-    private static final String CLIENT_ID = "amq-test-client-id";
-    private static final String DURABLE_SUB_NAME = "testDurable";
+   private static final String CLIENT_ID = "amq-test-client-id";
+   private static final String DURABLE_SUB_NAME = "testDurable";
 
-    private final String xbean = "xbean:";
-    private final String confBase = "src/test/resources/org/apache/activemq/bugs/amq5035";
+   private final String xbean = "xbean:";
+   private final String confBase = "src/test/resources/org/apache/activemq/bugs/amq5035";
 
-    private static BrokerService brokerService;
-    private String connectionUri;
+   private static BrokerService brokerService;
+   private String connectionUri;
 
-    @Before
-    public void setUp() throws Exception {
-        brokerService = BrokerFactory.createBroker(xbean + confBase + "/activemq.xml");
-        connectionUri = brokerService.getTransportConnectorByScheme("tcp").getPublishableConnectString();
-        brokerService.setDeleteAllMessagesOnStartup(true);
-        brokerService.start();
-        brokerService.waitUntilStarted();
-    }
+   @Before
+   public void setUp() throws Exception {
+      brokerService = BrokerFactory.createBroker(xbean + confBase + "/activemq.xml");
+      connectionUri = brokerService.getTransportConnectorByScheme("tcp").getPublishableConnectString();
+      brokerService.setDeleteAllMessagesOnStartup(true);
+      brokerService.start();
+      brokerService.waitUntilStarted();
+   }
 
-    @After
-    public void tearDown() throws Exception {
-        brokerService.stop();
-        brokerService.waitUntilStopped();
-    }
+   @After
+   public void tearDown() throws Exception {
+      brokerService.stop();
+      brokerService.waitUntilStopped();
+   }
 
-    @Test
-    public void testFoo() throws Exception {
-        ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(connectionUri);
-        Connection connection = factory.createConnection();
-        connection.setClientID(CLIENT_ID);
-        connection.start();
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        Topic topic = session.createTopic("Test.Topic");
-        MessageConsumer consumer = session.createDurableSubscriber(topic, DURABLE_SUB_NAME);
-        consumer.close();
+   @Test
+   public void testFoo() throws Exception {
+      ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(connectionUri);
+      Connection connection = factory.createConnection();
+      connection.setClientID(CLIENT_ID);
+      connection.start();
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      Topic topic = session.createTopic("Test.Topic");
+      MessageConsumer consumer = session.createDurableSubscriber(topic, DURABLE_SUB_NAME);
+      consumer.close();
 
-        BrokerViewMBean brokerView = getBrokerView(DURABLE_SUB_NAME);
-        brokerView.destroyDurableSubscriber(CLIENT_ID, DURABLE_SUB_NAME);
-    }
+      BrokerViewMBean brokerView = getBrokerView(DURABLE_SUB_NAME);
+      brokerView.destroyDurableSubscriber(CLIENT_ID, DURABLE_SUB_NAME);
+   }
 
-    private BrokerViewMBean getBrokerView(String testDurable) throws MalformedObjectNameException {
-        ObjectName brokerName = new ObjectName("org.apache.activemq:type=Broker,brokerName=localhost");
-        BrokerViewMBean view = (BrokerViewMBean) brokerService.getManagementContext().newProxyInstance(brokerName, BrokerViewMBean.class, true);
-        assertNotNull(view);
-        return view;
-    }
+   private BrokerViewMBean getBrokerView(String testDurable) throws MalformedObjectNameException {
+      ObjectName brokerName = new ObjectName("org.apache.activemq:type=Broker,brokerName=localhost");
+      BrokerViewMBean view = (BrokerViewMBean) brokerService.getManagementContext().newProxyInstance(brokerName, BrokerViewMBean.class, true);
+      assertNotNull(view);
+      return view;
+   }
 }

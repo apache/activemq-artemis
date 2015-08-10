@@ -19,42 +19,35 @@ package org.apache.activemq.artemis.utils;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-public class FutureLatch implements Runnable
-{
+public class FutureLatch implements Runnable {
+
    private final CountDownLatch latch;
 
-   public FutureLatch()
-   {
+   public FutureLatch() {
       super();
       latch = new CountDownLatch(1);
    }
 
-   public FutureLatch(int latches)
-   {
+   public FutureLatch(int latches) {
       super();
-      latch =  new CountDownLatch(latches);
+      latch = new CountDownLatch(latches);
    }
 
-   public boolean await(final long timeout)
-   {
-      try
-      {
+   public boolean await(final long timeout) {
+      try {
          return latch.await(timeout, TimeUnit.MILLISECONDS);
       }
-      catch (InterruptedException e)
-      {
+      catch (InterruptedException e) {
          return false;
       }
    }
 
-   public void run()
-   {
+   public void run() {
       latch.countDown();
    }
 
    @Override
-   public String toString()
-   {
+   public String toString() {
       return FutureLatch.class.getSimpleName() + "(latch=" + latch + ")";
    }
 }

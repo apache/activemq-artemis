@@ -28,11 +28,9 @@ import org.junit.Test;
 /**
  * @version $Revision: 1.7 $
  */
-public class SelectorTest
-{
+public class SelectorTest {
 
-   class MockMessage implements Filterable
-   {
+   class MockMessage implements Filterable {
 
       HashMap<String, Object> properties = new HashMap<String, Object>();
       private String text;
@@ -41,110 +39,87 @@ public class SelectorTest
       private String type;
       private Object localConnectionId;
 
-      public void setDestination(Object destination)
-      {
+      public void setDestination(Object destination) {
          this.destination = destination;
       }
 
-      public void setJMSMessageID(String messageId)
-      {
+      public void setJMSMessageID(String messageId) {
          this.messageId = messageId;
       }
 
-      public void setJMSType(String type)
-      {
+      public void setJMSType(String type) {
          this.type = type;
       }
 
-      public void setText(String text)
-      {
+      public void setText(String text) {
          this.text = text;
       }
 
-      public void setBooleanProperty(String key, boolean value)
-      {
+      public void setBooleanProperty(String key, boolean value) {
          properties.put(key, value);
       }
 
-      public void setStringProperty(String key, String value)
-      {
+      public void setStringProperty(String key, String value) {
          properties.put(key, value);
       }
 
-      public void setByteProperty(String key, byte value)
-      {
+      public void setByteProperty(String key, byte value) {
          properties.put(key, value);
       }
 
-      public void setDoubleProperty(String key, double value)
-      {
+      public void setDoubleProperty(String key, double value) {
          properties.put(key, value);
       }
 
-      public void setFloatProperty(String key, float value)
-      {
+      public void setFloatProperty(String key, float value) {
          properties.put(key, value);
       }
 
-      public void setLongProperty(String key, long value)
-      {
+      public void setLongProperty(String key, long value) {
          properties.put(key, value);
       }
 
-      public void setIntProperty(String key, int value)
-      {
+      public void setIntProperty(String key, int value) {
          properties.put(key, value);
       }
 
-      public void setShortProperty(String key, short value)
-      {
+      public void setShortProperty(String key, short value) {
          properties.put(key, value);
       }
 
-      public void setObjectProperty(String key, Object value)
-      {
+      public void setObjectProperty(String key, Object value) {
          properties.put(key, value);
       }
 
-      public <T> T getBodyAs(Class<T> type) throws FilterException
-      {
-         if (type == String.class)
-         {
+      public <T> T getBodyAs(Class<T> type) throws FilterException {
+         if (type == String.class) {
             return type.cast(text);
          }
          return null;
       }
 
-      public Object getProperty(String name)
-      {
-         if ("JMSType".equals(name))
-         {
+      public Object getProperty(String name) {
+         if ("JMSType".equals(name)) {
             return type;
          }
-         if ("JMSMessageID".equals(name))
-         {
+         if ("JMSMessageID".equals(name)) {
             return messageId;
          }
          return properties.get(name);
       }
 
-      public Object getDestination()
-      {
+      public Object getDestination() {
          return destination;
       }
 
-      public Object getLocalConnectionId()
-      {
+      public Object getLocalConnectionId() {
          return localConnectionId;
       }
 
-
    }
 
-
    @Test
-   public void testBooleanSelector() throws Exception
-   {
+   public void testBooleanSelector() throws Exception {
       MockMessage message = createMessage();
 
       assertSelector(message, "(trueProp OR falseProp) AND trueProp", true);
@@ -153,8 +128,7 @@ public class SelectorTest
    }
 
    @Test
-   public void testXPathSelectors() throws Exception
-   {
+   public void testXPathSelectors() throws Exception {
       MockMessage message = new MockMessage();
 
       message.setJMSType("xml");
@@ -197,8 +171,7 @@ public class SelectorTest
    }
 
    @Test
-   public void testJMSPropertySelectors() throws Exception
-   {
+   public void testJMSPropertySelectors() throws Exception {
       MockMessage message = createMessage();
       message.setJMSType("selector-test");
       message.setJMSMessageID("id:test:1:1:1:1");
@@ -218,8 +191,7 @@ public class SelectorTest
    }
 
    @Test
-   public void testBasicSelectors() throws Exception
-   {
+   public void testBasicSelectors() throws Exception {
       MockMessage message = createMessage();
 
       assertSelector(message, "name = 'James'", true);
@@ -230,8 +202,7 @@ public class SelectorTest
    }
 
    @Test
-   public void testPropertyTypes() throws Exception
-   {
+   public void testPropertyTypes() throws Exception {
       MockMessage message = createMessage();
       assertSelector(message, "byteProp = 123", true);
       assertSelector(message, "byteProp = 10", false);
@@ -258,8 +229,7 @@ public class SelectorTest
    }
 
    @Test
-   public void testAndSelectors() throws Exception
-   {
+   public void testAndSelectors() throws Exception {
       MockMessage message = createMessage();
 
       assertSelector(message, "name = 'James' and rank < 200", true);
@@ -269,8 +239,7 @@ public class SelectorTest
    }
 
    @Test
-   public void testOrSelectors() throws Exception
-   {
+   public void testOrSelectors() throws Exception {
       MockMessage message = createMessage();
 
       assertSelector(message, "name = 'James' or rank < 200", true);
@@ -281,8 +250,7 @@ public class SelectorTest
    }
 
    @Test
-   public void testPlus() throws Exception
-   {
+   public void testPlus() throws Exception {
       MockMessage message = createMessage();
 
       assertSelector(message, "rank + 2 = 125", true);
@@ -294,8 +262,7 @@ public class SelectorTest
    }
 
    @Test
-   public void testMinus() throws Exception
-   {
+   public void testMinus() throws Exception {
       MockMessage message = createMessage();
 
       assertSelector(message, "rank - 2 = 121", true);
@@ -304,8 +271,7 @@ public class SelectorTest
    }
 
    @Test
-   public void testMultiply() throws Exception
-   {
+   public void testMultiply() throws Exception {
       MockMessage message = createMessage();
 
       assertSelector(message, "rank * 2 = 246", true);
@@ -314,8 +280,7 @@ public class SelectorTest
    }
 
    @Test
-   public void testDivide() throws Exception
-   {
+   public void testDivide() throws Exception {
       MockMessage message = createMessage();
 
       assertSelector(message, "rank / version = 61.5", true);
@@ -326,8 +291,7 @@ public class SelectorTest
    }
 
    @Test
-   public void testBetween() throws Exception
-   {
+   public void testBetween() throws Exception {
       MockMessage message = createMessage();
 
       assertSelector(message, "rank between 100 and 150", true);
@@ -335,8 +299,7 @@ public class SelectorTest
    }
 
    @Test
-   public void testIn() throws Exception
-   {
+   public void testIn() throws Exception {
       MockMessage message = createMessage();
 
       assertSelector(message, "name in ('James', 'Bob', 'Gromit')", true);
@@ -348,8 +311,7 @@ public class SelectorTest
    }
 
    @Test
-   public void testIsNull() throws Exception
-   {
+   public void testIsNull() throws Exception {
       MockMessage message = createMessage();
 
       assertSelector(message, "dummy is null", true);
@@ -359,37 +321,32 @@ public class SelectorTest
    }
 
    @Test
-   public void testLike() throws Exception
-   {
+   public void testLike() throws Exception {
       MockMessage message = createMessage();
       message.setStringProperty("modelClassId", "com.whatever.something.foo.bar");
       message.setStringProperty("modelInstanceId", "170");
       message.setStringProperty("modelRequestError", "abc");
       message.setStringProperty("modelCorrelatedClientId", "whatever");
 
-      assertSelector(message, "modelClassId LIKE 'com.whatever.something.%' AND modelInstanceId = '170' AND (modelRequestError IS NULL OR modelCorrelatedClientId = 'whatever')",
-                     true);
+      assertSelector(message, "modelClassId LIKE 'com.whatever.something.%' AND modelInstanceId = '170' AND (modelRequestError IS NULL OR modelCorrelatedClientId = 'whatever')", true);
 
       message.setStringProperty("modelCorrelatedClientId", "shouldFailNow");
 
-      assertSelector(message, "modelClassId LIKE 'com.whatever.something.%' AND modelInstanceId = '170' AND (modelRequestError IS NULL OR modelCorrelatedClientId = 'whatever')",
-                     false);
+      assertSelector(message, "modelClassId LIKE 'com.whatever.something.%' AND modelInstanceId = '170' AND (modelRequestError IS NULL OR modelCorrelatedClientId = 'whatever')", false);
 
       message = createMessage();
       message.setStringProperty("modelClassId", "com.whatever.something.foo.bar");
       message.setStringProperty("modelInstanceId", "170");
       message.setStringProperty("modelCorrelatedClientId", "shouldNotMatch");
 
-      assertSelector(message, "modelClassId LIKE 'com.whatever.something.%' AND modelInstanceId = '170' AND (modelRequestError IS NULL OR modelCorrelatedClientId = 'whatever')",
-                     true);
+      assertSelector(message, "modelClassId LIKE 'com.whatever.something.%' AND modelInstanceId = '170' AND (modelRequestError IS NULL OR modelCorrelatedClientId = 'whatever')", true);
    }
 
    /**
     * Test cases from Mats Henricson
     */
    @Test
-   public void testMatsHenricsonUseCases() throws Exception
-   {
+   public void testMatsHenricsonUseCases() throws Exception {
       MockMessage message = createMessage();
       assertSelector(message, "SessionserverId=1870414179", false);
 
@@ -411,8 +368,7 @@ public class SelectorTest
    }
 
    @Test
-   public void testFloatComparisons() throws Exception
-   {
+   public void testFloatComparisons() throws Exception {
       MockMessage message = createMessage();
 
       // JMS 1.1 Section 3.8.1.1 : Approximate literals use the Java
@@ -462,15 +418,13 @@ public class SelectorTest
    }
 
    @Test
-   public void testStringQuoteParsing() throws Exception
-   {
+   public void testStringQuoteParsing() throws Exception {
       MockMessage message = createMessage();
       assertSelector(message, "quote = '''In God We Trust'''", true);
    }
 
    @Test
-   public void testLikeComparisons() throws Exception
-   {
+   public void testLikeComparisons() throws Exception {
       MockMessage message = createMessage();
 
       assertSelector(message, "quote LIKE '''In G_d We Trust'''", true);
@@ -492,16 +446,14 @@ public class SelectorTest
    }
 
    @Test
-   public void testInvalidSelector() throws Exception
-   {
+   public void testInvalidSelector() throws Exception {
       MockMessage message = createMessage();
       assertInvalidSelector(message, "3+5");
       assertInvalidSelector(message, "True AND 3+5");
       assertInvalidSelector(message, "=TEST 'test'");
    }
 
-   protected MockMessage createMessage()
-   {
+   protected MockMessage createMessage() {
       MockMessage message = createMessage("FOO.BAR");
       message.setJMSType("selector-test");
       message.setJMSMessageID("connection:1:1:1:1");
@@ -526,28 +478,23 @@ public class SelectorTest
       return message;
    }
 
-   protected void assertInvalidSelector(MockMessage message, String text)
-   {
-      try
-      {
+   protected void assertInvalidSelector(MockMessage message, String text) {
+      try {
          SelectorParser.parse(text);
          Assert.fail("Created a valid selector");
       }
-      catch (FilterException e)
-      {
+      catch (FilterException e) {
       }
    }
 
-   protected void assertSelector(MockMessage message, String text, boolean expected) throws FilterException
-   {
+   protected void assertSelector(MockMessage message, String text, boolean expected) throws FilterException {
       BooleanExpression selector = SelectorParser.parse(text);
       Assert.assertTrue("Created a valid selector", selector != null);
       boolean value = selector.matches(message);
       Assert.assertEquals("Selector for: " + text, expected, value);
    }
 
-   protected MockMessage createMessage(String subject)
-   {
+   protected MockMessage createMessage(String subject) {
       MockMessage message = new MockMessage();
       message.setDestination(subject);
       return message;

@@ -27,68 +27,69 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * 
- * 
+ *
+ *
  */
 public class DeadLetterTest extends DeadLetterTestSupport {
-    private static final Logger LOG = LoggerFactory.getLogger(DeadLetterTest.class);
 
-    protected int rollbackCount;
+   private static final Logger LOG = LoggerFactory.getLogger(DeadLetterTest.class);
 
-    protected void doTest() throws Exception {
-        connection.start();
+   protected int rollbackCount;
 
-        ActiveMQConnection amqConnection = (ActiveMQConnection) connection;
-        rollbackCount = amqConnection.getRedeliveryPolicy().getMaximumRedeliveries() + 1;
-        LOG.info("Will redeliver messages: " + rollbackCount + " times");
+   protected void doTest() throws Exception {
+      connection.start();
 
-        makeConsumer();
-        makeDlqConsumer();
+      ActiveMQConnection amqConnection = (ActiveMQConnection) connection;
+      rollbackCount = amqConnection.getRedeliveryPolicy().getMaximumRedeliveries() + 1;
+      LOG.info("Will redeliver messages: " + rollbackCount + " times");
 
-        sendMessages();
+      makeConsumer();
+      makeDlqConsumer();
 
-        // now lets receive and rollback N times
-        for (int i = 0; i < messageCount; i++) {
-            consumeAndRollback(i);
-        }
+      sendMessages();
 
-        for (int i = 0; i < messageCount; i++) {
-            Message msg = dlqConsumer.receive(1000);
-            assertMessage(msg, i);
-            assertNotNull("Should be a DLQ message for loop: " + i, msg);
-        }
-        session.commit();
-    }
+      // now lets receive and rollback N times
+      for (int i = 0; i < messageCount; i++) {
+         consumeAndRollback(i);
+      }
 
-    protected void consumeAndRollback(int messageCounter) throws Exception {
-        for (int i = 0; i < rollbackCount; i++) {
-            Message message = consumer.receive(5000);
-            assertNotNull("No message received for message: " + messageCounter + " and rollback loop: " + i, message);
-            assertMessage(message, messageCounter);
+      for (int i = 0; i < messageCount; i++) {
+         Message msg = dlqConsumer.receive(1000);
+         assertMessage(msg, i);
+         assertNotNull("Should be a DLQ message for loop: " + i, msg);
+      }
+      session.commit();
+   }
 
-            session.rollback();
-        }
-        LOG.info("Rolled back: " + rollbackCount + " times");
-    }
+   protected void consumeAndRollback(int messageCounter) throws Exception {
+      for (int i = 0; i < rollbackCount; i++) {
+         Message message = consumer.receive(5000);
+         assertNotNull("No message received for message: " + messageCounter + " and rollback loop: " + i, message);
+         assertMessage(message, messageCounter);
 
-    protected void setUp() throws Exception {
-        transactedMode = true;
-        super.setUp();
-    }
+         session.rollback();
+      }
+      LOG.info("Rolled back: " + rollbackCount + " times");
+   }
 
-    protected ActiveMQConnectionFactory createConnectionFactory() throws Exception {
-        ActiveMQConnectionFactory answer = super.createConnectionFactory();
-        RedeliveryPolicy policy = new RedeliveryPolicy();
-        policy.setMaximumRedeliveries(3);
-        policy.setBackOffMultiplier((short) 1);
-        policy.setInitialRedeliveryDelay(10);
-        policy.setUseExponentialBackOff(false);
-        answer.setRedeliveryPolicy(policy);
-        return answer;
-    }
+   protected void setUp() throws Exception {
+      transactedMode = true;
+      super.setUp();
+   }
 
-    protected Destination createDlqDestination() {
-        return new ActiveMQQueue("ActiveMQ.DLQ");
-    }
+   protected ActiveMQConnectionFactory createConnectionFactory() throws Exception {
+      ActiveMQConnectionFactory answer = super.createConnectionFactory();
+      RedeliveryPolicy policy = new RedeliveryPolicy();
+      policy.setMaximumRedeliveries(3);
+      policy.setBackOffMultiplier((short) 1);
+      policy.setInitialRedeliveryDelay(10);
+      policy.setUseExponentialBackOff(false);
+      answer.setRedeliveryPolicy(policy);
+      return answer;
+   }
+
+   protected Destination createDlqDestination() {
+      return new ActiveMQQueue("ActiveMQ.DLQ");
+   }
 
 }

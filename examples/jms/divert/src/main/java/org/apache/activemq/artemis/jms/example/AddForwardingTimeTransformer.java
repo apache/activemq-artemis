@@ -20,10 +20,9 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.cluster.Transformer;
 
-public class AddForwardingTimeTransformer implements Transformer
-{
-   public ServerMessage transform(final ServerMessage message)
-   {
+public class AddForwardingTimeTransformer implements Transformer {
+
+   public ServerMessage transform(final ServerMessage message) {
       message.putLongProperty(new SimpleString("time_of_forward"), System.currentTimeMillis());
 
       return message;

@@ -16,45 +16,38 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
-
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 
-public class CheckFailoverReplyMessage extends PacketImpl
-{
+public class CheckFailoverReplyMessage extends PacketImpl {
+
    private boolean okToFailover;
 
-   public CheckFailoverReplyMessage(boolean okToFailover)
-   {
+   public CheckFailoverReplyMessage(boolean okToFailover) {
       super(CHECK_FOR_FAILOVER_REPLY);
       this.okToFailover = okToFailover;
    }
 
-   public CheckFailoverReplyMessage()
-   {
+   public CheckFailoverReplyMessage() {
       super(CHECK_FOR_FAILOVER_REPLY);
    }
 
    @Override
-   public boolean isResponse()
-   {
+   public boolean isResponse() {
       return true;
    }
 
    @Override
-   public void encodeRest(ActiveMQBuffer buffer)
-   {
+   public void encodeRest(ActiveMQBuffer buffer) {
       buffer.writeBoolean(okToFailover);
    }
 
    @Override
-   public void decodeRest(ActiveMQBuffer buffer)
-   {
+   public void decodeRest(ActiveMQBuffer buffer) {
       okToFailover = buffer.readBoolean();
    }
 
-   public boolean isOkToFailover()
-   {
+   public boolean isOkToFailover() {
       return okToFailover;
    }
 }

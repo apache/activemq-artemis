@@ -40,8 +40,8 @@ import org.vertx.java.platform.PlatformLocator;
 import org.vertx.java.platform.PlatformManager;
 import org.vertx.java.spi.cluster.impl.hazelcast.HazelcastClusterManagerFactory;
 
-public class IncomingVertxEventHandler implements ConnectorService
-{
+public class IncomingVertxEventHandler implements ConnectorService {
+
    private final String connectorName;
 
    private final String queueName;
@@ -68,51 +68,41 @@ public class IncomingVertxEventHandler implements ConnectorService
 
    private boolean isStarted = false;
 
-   public IncomingVertxEventHandler(String connectorName, Map<String, Object> configuration,
-            StorageManager storageManager, PostOffice postOffice,
-            ScheduledExecutorService scheduledThreadPool)
-   {
+   public IncomingVertxEventHandler(String connectorName,
+                                    Map<String, Object> configuration,
+                                    StorageManager storageManager,
+                                    PostOffice postOffice,
+                                    ScheduledExecutorService scheduledThreadPool) {
       this.connectorName = connectorName;
-      this.queueName = ConfigurationHelper.getStringProperty(VertxConstants.QUEUE_NAME, null,
-               configuration);
+      this.queueName = ConfigurationHelper.getStringProperty(VertxConstants.QUEUE_NAME, null, configuration);
 
       this.port = ConfigurationHelper.getIntProperty(VertxConstants.PORT, 0, configuration);
-      this.host = ConfigurationHelper.getStringProperty(VertxConstants.HOST, "localhost",
-               configuration);
-      this.quorumSize = ConfigurationHelper.getIntProperty(VertxConstants.VERTX_QUORUM_SIZE,
-               -1, configuration);
-      this.haGroup = ConfigurationHelper.getStringProperty(VertxConstants.VERTX_HA_GROUP,
-               "activemq", configuration);
-      this.vertxAddress = ConfigurationHelper.getStringProperty(VertxConstants.VERTX_ADDRESS,
-               "org.apache.activemq", configuration);
+      this.host = ConfigurationHelper.getStringProperty(VertxConstants.HOST, "localhost", configuration);
+      this.quorumSize = ConfigurationHelper.getIntProperty(VertxConstants.VERTX_QUORUM_SIZE, -1, configuration);
+      this.haGroup = ConfigurationHelper.getStringProperty(VertxConstants.VERTX_HA_GROUP, "activemq", configuration);
+      this.vertxAddress = ConfigurationHelper.getStringProperty(VertxConstants.VERTX_ADDRESS, "org.apache.activemq", configuration);
 
       this.storageManager = storageManager;
       this.postOffice = postOffice;
    }
 
    @Override
-   public void start() throws Exception
-   {
-      if (this.isStarted)
-      {
+   public void start() throws Exception {
+      if (this.isStarted) {
          return;
       }
-      System.setProperty("vertx.clusterManagerFactory",
-               HazelcastClusterManagerFactory.class.getName());
-      if (quorumSize != -1)
-      {
+      System.setProperty("vertx.clusterManagerFactory", HazelcastClusterManagerFactory.class.getName());
+      if (quorumSize != -1) {
          platformManager = PlatformLocator.factory.createPlatformManager(port, host, quorumSize, haGroup);
       }
-      else
-      {
+      else {
          platformManager = PlatformLocator.factory.createPlatformManager(port, host);
       }
 
       eventBus = platformManager.vertx().eventBus();
 
       Binding b = postOffice.getBinding(new SimpleString(queueName));
-      if (b == null)
-      {
+      if (b == null) {
          throw new Exception(connectorName + ": queue " + queueName + " not found");
       }
 
@@ -124,10 +114,8 @@ public class IncomingVertxEventHandler implements ConnectorService
    }
 
    @Override
-   public void stop() throws Exception
-   {
-      if (!isStarted)
-      {
+   public void stop() throws Exception {
+      if (!isStarted) {
          return;
       }
       eventBus.unregisterHandler(vertxAddress, handler);
@@ -138,31 +126,26 @@ public class IncomingVertxEventHandler implements ConnectorService
    }
 
    @Override
-   public boolean isStarted()
-   {
+   public boolean isStarted() {
       return isStarted;
    }
 
    @Override
-   public String getName()
-   {
+   public String getName() {
       return connectorName;
    }
 
-   private class EventHandler implements Handler<Message<?>>
-   {
+   private class EventHandler implements Handler<Message<?>> {
+
       @Override
-      public void handle(Message<?> message)
-      {
-         ServerMessage msg = new ServerMessageImpl(storageManager.generateID(),
-                  VertxConstants.INITIAL_MESSAGE_BUFFER_SIZE);
+      public void handle(Message<?> message) {
+         ServerMessage msg = new ServerMessageImpl(storageManager.generateID(), VertxConstants.INITIAL_MESSAGE_BUFFER_SIZE);
          msg.setAddress(new SimpleString(queueName));
          msg.setDurable(true);
          msg.encodeMessageIDToBuffer();
 
          String replyAddress = message.replyAddress();
-         if (replyAddress != null)
-         {
+         if (replyAddress != null) {
             msg.putStringProperty(VertxConstants.VERTX_MESSAGE_REPLYADDRESS, replyAddress);
          }
 
@@ -173,20 +156,16 @@ public class IncomingVertxEventHandler implements ConnectorService
 
          manualEncodeVertxMessageBody(msg.getBodyBuffer(), message.body(), type);
 
-         try
-         {
+         try {
             postOffice.route(msg, null, false);
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             ActiveMQVertxLogger.LOGGER.error("failed to route msg " + msg, e);
          }
       }
 
-      private void manualEncodeVertxMessageBody(ActiveMQBuffer bodyBuffer, Object body, int type)
-      {
-         switch (type)
-         {
+      private void manualEncodeVertxMessageBody(ActiveMQBuffer bodyBuffer, Object body, int type) {
+         switch (type) {
             case VertxConstants.TYPE_BOOLEAN:
                bodyBuffer.writeBoolean(((Boolean) body));
                break;
@@ -243,69 +222,53 @@ public class IncomingVertxEventHandler implements ConnectorService
          }
       }
 
-      private int getMessageType(Message<?> message)
-      {
+      private int getMessageType(Message<?> message) {
 
          Object body = message.body();
 
-         if (message instanceof PingMessage)
-         {
+         if (message instanceof PingMessage) {
             return VertxConstants.TYPE_PING;
          }
-         else if (body instanceof Buffer)
-         {
+         else if (body instanceof Buffer) {
             return VertxConstants.TYPE_BUFFER;
          }
-         else if (body instanceof Boolean)
-         {
+         else if (body instanceof Boolean) {
             return VertxConstants.TYPE_BOOLEAN;
          }
-         else if (body instanceof byte[])
-         {
+         else if (body instanceof byte[]) {
             return VertxConstants.TYPE_BYTEARRAY;
          }
-         else if (body instanceof Byte)
-         {
+         else if (body instanceof Byte) {
             return VertxConstants.TYPE_BYTE;
          }
-         else if (body instanceof Character)
-         {
+         else if (body instanceof Character) {
             return VertxConstants.TYPE_CHARACTER;
          }
-         else if (body instanceof Double)
-         {
+         else if (body instanceof Double) {
             return VertxConstants.TYPE_DOUBLE;
          }
-         else if (body instanceof Float)
-         {
+         else if (body instanceof Float) {
             return VertxConstants.TYPE_FLOAT;
          }
-         else if (body instanceof Integer)
-         {
+         else if (body instanceof Integer) {
             return VertxConstants.TYPE_INT;
          }
-         else if (body instanceof Long)
-         {
+         else if (body instanceof Long) {
             return VertxConstants.TYPE_LONG;
          }
-         else if (body instanceof Short)
-         {
+         else if (body instanceof Short) {
             return VertxConstants.TYPE_SHORT;
          }
-         else if (body instanceof String)
-         {
+         else if (body instanceof String) {
             return VertxConstants.TYPE_STRING;
          }
-         else if (body instanceof JsonArray)
-         {
+         else if (body instanceof JsonArray) {
             return VertxConstants.TYPE_JSON_ARRAY;
          }
-         else if (body instanceof JsonObject)
-         {
+         else if (body instanceof JsonObject) {
             return VertxConstants.TYPE_JSON_OBJECT;
          }
-         else if (body instanceof ReplyException)
-         {
+         else if (body instanceof ReplyException) {
             return VertxConstants.TYPE_REPLY_FAILURE;
          }
 
@@ -315,9 +278,7 @@ public class IncomingVertxEventHandler implements ConnectorService
    }
 
    @Override
-   public String toString()
-   {
-      return "[IncomingVertxEventHandler(" + connectorName + "), queueName: " + queueName
-               + " host: " + host + " port: " + port + " vertxAddress: " + vertxAddress + "]";
+   public String toString() {
+      return "[IncomingVertxEventHandler(" + connectorName + "), queueName: " + queueName + " host: " + host + " port: " + port + " vertxAddress: " + vertxAddress + "]";
    }
 }

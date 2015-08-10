@@ -16,55 +16,46 @@
  */
 package org.apache.activemq.artemis.selector.filter;
 
-
 /**
  * Represents a property expression
  *
  * @version $Revision: 1.5 $
  */
-public class PropertyExpression implements Expression
-{
+public class PropertyExpression implements Expression {
 
    private final String name;
 
-   public PropertyExpression(String name)
-   {
+   public PropertyExpression(String name) {
       this.name = name;
    }
 
-   public Object evaluate(Filterable message) throws FilterException
-   {
+   public Object evaluate(Filterable message) throws FilterException {
       return message.getProperty(name);
    }
 
-   public String getName()
-   {
+   public String getName() {
       return name;
    }
 
    /**
     * @see java.lang.Object#toString()
     */
-   public String toString()
-   {
+   public String toString() {
       return name;
    }
 
    /**
     * @see java.lang.Object#hashCode()
     */
-   public int hashCode()
-   {
+   public int hashCode() {
       return name.hashCode();
    }
 
    /**
     * @see java.lang.Object#equals(java.lang.Object)
     */
-   public boolean equals(Object o)
-   {
-      if (o == null || !this.getClass().equals(o.getClass()))
-      {
+   public boolean equals(Object o) {
+      if (o == null || !this.getClass().equals(o.getClass())) {
          return false;
       }
       return name.equals(((PropertyExpression) o).name);

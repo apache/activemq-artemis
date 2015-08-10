@@ -36,77 +36,78 @@ import org.slf4j.LoggerFactory;
 
 public class AMQ3879Test {
 
-    static final Logger LOG = LoggerFactory.getLogger(AMQ3841Test.class);
-    private BrokerService broker;
+   static final Logger LOG = LoggerFactory.getLogger(AMQ3841Test.class);
+   private BrokerService broker;
 
-    private ActiveMQConnectionFactory factory;
+   private ActiveMQConnectionFactory factory;
 
-    @Before
-    public void setUp() throws Exception {
-        broker = createBroker();
-        broker.start();
-        broker.waitUntilStarted();
+   @Before
+   public void setUp() throws Exception {
+      broker = createBroker();
+      broker.start();
+      broker.waitUntilStarted();
 
-        factory = new ActiveMQConnectionFactory("vm://localhost");
-        factory.setAlwaysSyncSend(true);
-    }
+      factory = new ActiveMQConnectionFactory("vm://localhost");
+      factory.setAlwaysSyncSend(true);
+   }
 
-    @After
-    public void tearDown() throws Exception {
-        broker.stop();
-        broker.waitUntilStopped();
-        broker = null;
-    }
+   @After
+   public void tearDown() throws Exception {
+      broker.stop();
+      broker.waitUntilStopped();
+      broker = null;
+   }
 
-    protected BrokerService createBroker() throws Exception {
-        BrokerService broker = new BrokerService();
-        broker.setDeleteAllMessagesOnStartup(true);
-        broker.setPersistent(false);
-        broker.setUseJmx(false);
-        broker.setBrokerName("localhost");
-        broker.addConnector("vm://localhost");
-        return broker;
-    }
+   protected BrokerService createBroker() throws Exception {
+      BrokerService broker = new BrokerService();
+      broker.setDeleteAllMessagesOnStartup(true);
+      broker.setPersistent(false);
+      broker.setUseJmx(false);
+      broker.setBrokerName("localhost");
+      broker.addConnector("vm://localhost");
+      return broker;
+   }
 
-    @Test
-    public void testConnectionDletesWrongTempDests() throws Exception {
+   @Test
+   public void testConnectionDletesWrongTempDests() throws Exception {
 
-        final Connection connection1 = factory.createConnection();
-        final Connection connection2 = factory.createConnection();
+      final Connection connection1 = factory.createConnection();
+      final Connection connection2 = factory.createConnection();
 
-        Session session1 = connection1.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        Session session2 = connection2.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      Session session1 = connection1.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      Session session2 = connection2.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-        Destination tempDestAdvisory = AdvisorySupport.TEMP_QUEUE_ADVISORY_TOPIC;
+      Destination tempDestAdvisory = AdvisorySupport.TEMP_QUEUE_ADVISORY_TOPIC;
 
-        MessageConsumer advisoryConsumer = session1.createConsumer(tempDestAdvisory);
-        connection1.start();
+      MessageConsumer advisoryConsumer = session1.createConsumer(tempDestAdvisory);
+      connection1.start();
 
-        Destination tempQueue = session2.createTemporaryQueue();
-        MessageProducer tempProducer = session2.createProducer(tempQueue);
+      Destination tempQueue = session2.createTemporaryQueue();
+      MessageProducer tempProducer = session2.createProducer(tempQueue);
 
-        assertNotNull(advisoryConsumer.receive(5000));
+      assertNotNull(advisoryConsumer.receive(5000));
 
-        Thread t = new Thread(new Runnable() {
+      Thread t = new Thread(new Runnable() {
 
-            @Override
-            public void run() {
-                try {
-                    Thread.sleep(20);
-                    connection1.close();
-                } catch (Exception e) {
-                }
+         @Override
+         public void run() {
+            try {
+               Thread.sleep(20);
+               connection1.close();
             }
-        });
+            catch (Exception e) {
+            }
+         }
+      });
 
-        t.start();
+      t.start();
 
-        for (int i = 0; i < 256; ++i) {
-            Message msg = session2.createTextMessage("Temp Data");
-            tempProducer.send(msg);
-            Thread.sleep(2);
-        }
+      for (int i = 0; i < 256; ++i) {
+         Message msg = session2.createTextMessage("Temp Data");
+         tempProducer.send(msg);
+         Thread.sleep(2);
+      }
 
-        t.join();
-    }
+      t.join();
+   }
 }

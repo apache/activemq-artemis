@@ -33,14 +33,13 @@ import org.junit.Test;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ConnectionLimitTest extends ActiveMQTestBase
-{
+public class ConnectionLimitTest extends ActiveMQTestBase {
+
    private ActiveMQServer server;
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       Map nettyParams = new HashMap();
@@ -49,47 +48,38 @@ public class ConnectionLimitTest extends ActiveMQTestBase
       Map invmParams = new HashMap();
       invmParams.put(org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants.CONNECTIONS_ALLOWED, 1);
 
-      Configuration configuration = createBasicConfig()
-              .addAcceptorConfiguration(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, nettyParams))
-              .addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY, invmParams));
+      Configuration configuration = createBasicConfig().addAcceptorConfiguration(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, nettyParams)).addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY, invmParams));
 
       server = addServer(ActiveMQServers.newActiveMQServer(configuration, false));
       server.start();
    }
 
    @Test
-   public void testInVMConnectionLimit() throws Exception
-   {
+   public void testInVMConnectionLimit() throws Exception {
       ServerLocator locator = addServerLocator(createNonHALocator(false));
       ClientSessionFactory clientSessionFactory = locator.createSessionFactory();
 
-      try
-      {
+      try {
          ClientSessionFactory extraClientSessionFactory = locator.createSessionFactory();
          fail("creating a session factory here should fail");
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          assertTrue(e instanceof ActiveMQNotConnectedException);
       }
    }
 
    @Test
-   public void testNettyConnectionLimit() throws Exception
-   {
-      ServerLocator locator = createNonHALocator(true)
-              .setCallTimeout(3000);
+   public void testNettyConnectionLimit() throws Exception {
+      ServerLocator locator = createNonHALocator(true).setCallTimeout(3000);
       ClientSessionFactory clientSessionFactory = locator.createSessionFactory();
       ClientSession clientSession = addClientSession(clientSessionFactory.createSession());
       ClientSessionFactory extraClientSessionFactory = locator.createSessionFactory();
 
-      try
-      {
+      try {
          ClientSession extraClientSession = addClientSession(extraClientSessionFactory.createSession());
          fail("creating a session here should fail");
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          assertTrue(e instanceof ActiveMQConnectionTimedOutException);
       }
    }

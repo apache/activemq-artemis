@@ -32,12 +32,10 @@ import org.junit.Test;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
-public class DeliveryOrderTest extends JMSTestCase
-{
+public class DeliveryOrderTest extends JMSTestCase {
 
    @Test
-   public void testOutOfOrder() throws Exception
-   {
+   public void testOutOfOrder() throws Exception {
       Connection conn = createConnection();
 
       Session sess = conn.createSession(true, Session.SESSION_TRANSACTED);
@@ -58,14 +56,12 @@ public class DeliveryOrderTest extends JMSTestCase
 
       conn.start();
 
-      for (int i = 0; i < NUM_MESSAGES; i++)
-      {
+      for (int i = 0; i < NUM_MESSAGES; i++) {
          TextMessage tm = sess.createTextMessage("message" + i);
 
          prod.send(tm);
 
-         if (i % 10 == 0)
-         {
+         if (i % 10 == 0) {
             sess.commit();
          }
       }
@@ -75,14 +71,13 @@ public class DeliveryOrderTest extends JMSTestCase
 
       Assert.assertTrue(latch.await(20000, MILLISECONDS));
 
-      if (listener.failed)
-      {
+      if (listener.failed) {
          ProxyAssertSupport.fail("listener failed: " + listener.getError());
       }
    }
 
-   class MyListener implements MessageListener
-   {
+   class MyListener implements MessageListener {
+
       private int c;
 
       private final int num;
@@ -95,27 +90,22 @@ public class DeliveryOrderTest extends JMSTestCase
 
       private final Session sess;
 
-      MyListener(final CountDownLatch latch, final Session sess, final int num)
-      {
+      MyListener(final CountDownLatch latch, final Session sess, final int num) {
          this.latch = latch;
          this.num = num;
          this.sess = sess;
       }
 
-      public void onMessage(final Message msg)
-      {
+      public void onMessage(final Message msg) {
          // preserve the first error
-         if (failed)
-         {
+         if (failed) {
             return;
          }
 
-         try
-         {
+         try {
             TextMessage tm = (TextMessage) msg;
 
-            if (!("message" + c).equals(tm.getText()))
-            {
+            if (!("message" + c).equals(tm.getText())) {
                // Failed
                failed = true;
                setError("Listener was supposed to get " + "message" + c + " but got " + tm.getText());
@@ -124,19 +114,16 @@ public class DeliveryOrderTest extends JMSTestCase
 
             c++;
 
-            if (c % 500 == 0)
-            {
+            if (c % 500 == 0) {
                sess.commit();
             }
 
-            if (c == num)
-            {
+            if (c == num) {
                sess.commit();
                latch.countDown();
             }
          }
-         catch (JMSException e)
-         {
+         catch (JMSException e) {
             e.printStackTrace();
 
             // Failed
@@ -146,13 +133,11 @@ public class DeliveryOrderTest extends JMSTestCase
          }
       }
 
-      public synchronized String getError()
-      {
+      public synchronized String getError() {
          return error;
       }
 
-      private synchronized void setError(final String s)
-      {
+      private synchronized void setError(final String s) {
          error = s;
       }
    }

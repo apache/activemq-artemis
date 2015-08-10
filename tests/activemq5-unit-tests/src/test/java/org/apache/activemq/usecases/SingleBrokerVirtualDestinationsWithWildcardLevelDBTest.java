@@ -33,12 +33,12 @@ import java.net.URI;
 
 public class SingleBrokerVirtualDestinationsWithWildcardLevelDBTest extends SingleBrokerVirtualDestinationsWithWildcardTest {
 
-    @Override
-    protected void configurePersistenceAdapter(BrokerService broker) throws IOException {
-        File dataFileDir = new File("target/test-amq-data/leveldb/" + broker.getBrokerName());
-        LevelDBStore kaha = new LevelDBStore();
-        kaha.setDirectory(dataFileDir);
-        broker.setPersistenceAdapter(kaha);
-    }
+   @Override
+   protected void configurePersistenceAdapter(BrokerService broker) throws IOException {
+      File dataFileDir = new File("target/test-amq-data/leveldb/" + broker.getBrokerName());
+      LevelDBStore kaha = new LevelDBStore();
+      kaha.setDirectory(dataFileDir);
+      broker.setPersistenceAdapter(kaha);
+   }
 
 }

@@ -31,45 +31,45 @@ import org.apache.activemq.broker.region.policy.PolicyMap;
 import org.apache.activemq.broker.region.policy.StorePendingQueueMessageStoragePolicy;
 
 /**
- * 
+ *
  */
 public class CursorQueueStoreTest extends CursorSupport {
 
-    protected Destination getDestination(Session session) throws JMSException {
-        String queueName = "QUEUE" + getClass().getName();
-        return session.createQueue(queueName);
-    }
+   protected Destination getDestination(Session session) throws JMSException {
+      String queueName = "QUEUE" + getClass().getName();
+      return session.createQueue(queueName);
+   }
 
-    protected Connection getConsumerConnection(ConnectionFactory fac) throws JMSException {
-        Connection connection = fac.createConnection();
-        connection.setClientID("testConsumer");
-        connection.start();
-        return connection;
-    }
+   protected Connection getConsumerConnection(ConnectionFactory fac) throws JMSException {
+      Connection connection = fac.createConnection();
+      connection.setClientID("testConsumer");
+      connection.start();
+      return connection;
+   }
 
-    protected MessageConsumer getConsumer(Connection connection) throws Exception {
-        Session consumerSession = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        Destination dest = getDestination(consumerSession);
-        MessageConsumer consumer = consumerSession.createConsumer(dest);
-        return consumer;
-    }
+   protected MessageConsumer getConsumer(Connection connection) throws Exception {
+      Session consumerSession = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      Destination dest = getDestination(consumerSession);
+      MessageConsumer consumer = consumerSession.createConsumer(dest);
+      return consumer;
+   }
 
-    protected void configureBroker(BrokerService answer) throws Exception {
-        PolicyEntry policy = new PolicyEntry();
-        policy.setPendingQueuePolicy(new StorePendingQueueMessageStoragePolicy());
-        PolicyMap pMap = new PolicyMap();
-        pMap.setDefaultEntry(policy);
-        answer.setDestinationPolicy(pMap);
-        answer.setDeleteAllMessagesOnStartup(true);
-        answer.addConnector(bindAddress);
-        answer.setDeleteAllMessagesOnStartup(true);
-    }
-    
-    public static Test suite() {
-        return suite(CursorQueueStoreTest.class);
-    }
+   protected void configureBroker(BrokerService answer) throws Exception {
+      PolicyEntry policy = new PolicyEntry();
+      policy.setPendingQueuePolicy(new StorePendingQueueMessageStoragePolicy());
+      PolicyMap pMap = new PolicyMap();
+      pMap.setDefaultEntry(policy);
+      answer.setDestinationPolicy(pMap);
+      answer.setDeleteAllMessagesOnStartup(true);
+      answer.addConnector(bindAddress);
+      answer.setDeleteAllMessagesOnStartup(true);
+   }
 
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(suite());
-    }
+   public static Test suite() {
+      return suite(CursorQueueStoreTest.class);
+   }
+
+   public static void main(String[] args) {
+      junit.textui.TestRunner.run(suite());
+   }
 }

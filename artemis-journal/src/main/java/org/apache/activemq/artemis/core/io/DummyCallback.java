@@ -19,31 +19,26 @@ package org.apache.activemq.artemis.core.io;
 import org.apache.activemq.artemis.core.journal.impl.SyncIOCompletion;
 import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
 
-public class DummyCallback extends SyncIOCompletion
-{
+public class DummyCallback extends SyncIOCompletion {
+
    private static final DummyCallback instance = new DummyCallback();
 
-   public static DummyCallback getInstance()
-   {
+   public static DummyCallback getInstance() {
       return DummyCallback.instance;
    }
 
-   public void done()
-   {
+   public void done() {
    }
 
-   public void onError(final int errorCode, final String errorMessage)
-   {
+   public void onError(final int errorCode, final String errorMessage) {
       ActiveMQJournalLogger.LOGGER.errorWritingData(new Exception(errorMessage), errorMessage, errorCode);
    }
 
    @Override
-   public void waitCompletion() throws Exception
-   {
+   public void waitCompletion() throws Exception {
    }
 
    @Override
-   public void storeLineUp()
-   {
+   public void storeLineUp() {
    }
 }

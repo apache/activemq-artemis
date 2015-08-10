@@ -21,8 +21,7 @@ import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class UUIDGeneratorTest extends ActiveMQTestBase
-{
+public class UUIDGeneratorTest extends ActiveMQTestBase {
    // Constants -----------------------------------------------------
 
    // Attributes ----------------------------------------------------
@@ -34,15 +33,12 @@ public class UUIDGeneratorTest extends ActiveMQTestBase
    // Public --------------------------------------------------------
 
    @Test
-   public void testGetHardwareAddress() throws Exception
-   {
+   public void testGetHardwareAddress() throws Exception {
       String javaVersion = System.getProperty("java.vm.version");
-      if (javaVersion.startsWith("1.5"))
-      {
+      if (javaVersion.startsWith("1.5")) {
          Assert.assertNull(UUIDGenerator.getHardwareAddress());
       }
-      else if (javaVersion.startsWith("1.6"))
-      {
+      else if (javaVersion.startsWith("1.6")) {
          byte[] bytes = UUIDGenerator.getHardwareAddress();
          Assert.assertNotNull(bytes);
          Assert.assertTrue(bytes.length == 6);
@@ -50,8 +46,7 @@ public class UUIDGeneratorTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testZeroPaddedBytes() throws Exception
-   {
+   public void testZeroPaddedBytes() throws Exception {
       Assert.assertNull(UUIDGenerator.getZeroPaddedSixBytes(null));
       Assert.assertNull(UUIDGenerator.getZeroPaddedSixBytes(new byte[0]));
       Assert.assertNull(UUIDGenerator.getZeroPaddedSixBytes(new byte[7]));

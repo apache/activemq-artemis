@@ -19,30 +19,29 @@ package org.apache.activemq;
 import javax.jms.TextMessage;
 
 /**
- * 
+ *
  */
 public class JmsTopicSendSameMessageTest extends JmsTopicSendReceiveWithTwoConnectionsTest {
 
-    private static final org.apache.commons.logging.Log LOG = org.apache.commons.logging.LogFactory
-        .getLog(JmsTopicSendSameMessageTest.class);
+   private static final org.apache.commons.logging.Log LOG = org.apache.commons.logging.LogFactory.getLog(JmsTopicSendSameMessageTest.class);
 
-    public void testSendReceive() throws Exception {
-        messages.clear();
+   public void testSendReceive() throws Exception {
+      messages.clear();
 
-        TextMessage message = session.createTextMessage();
+      TextMessage message = session.createTextMessage();
 
-        for (int i = 0; i < data.length; i++) {
-            message.setText(data[i]);
-            message.setStringProperty("stringProperty", data[i]);
-            message.setIntProperty("intProperty", i);
+      for (int i = 0; i < data.length; i++) {
+         message.setText(data[i]);
+         message.setStringProperty("stringProperty", data[i]);
+         message.setIntProperty("intProperty", i);
 
-            if (verbose) {
-                LOG.info("About to send a message: " + message + " with text: " + data[i]);
-            }
+         if (verbose) {
+            LOG.info("About to send a message: " + message + " with text: " + data[i]);
+         }
 
-            producer.send(producerDestination, message);
-        }
+         producer.send(producerDestination, message);
+      }
 
-        assertMessagesAreReceived();
-    }
+      assertMessagesAreReceived();
+   }
 }

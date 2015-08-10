@@ -31,8 +31,7 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class DeleteQueueRestartTest extends ActiveMQTestBase
-{
+public class DeleteQueueRestartTest extends ActiveMQTestBase {
 
    // Constants -----------------------------------------------------
 
@@ -47,28 +46,22 @@ public class DeleteQueueRestartTest extends ActiveMQTestBase
    // Public --------------------------------------------------------
 
    @Test
-   public void testDeleteQueueAndRestart() throws Exception
-   {
+   public void testDeleteQueueAndRestart() throws Exception {
       // This test could eventually pass, even when the queue was being deleted in the wrong order,
       // however it failed in 90% of the runs with 5 iterations.
-      for (int i = 0; i < 5; i++)
-      {
+      for (int i = 0; i < 5; i++) {
          setUp();
          internalDeleteQueueAndRestart();
          tearDown();
       }
    }
 
-   private void internalDeleteQueueAndRestart() throws Exception
-   {
+   private void internalDeleteQueueAndRestart() throws Exception {
       ActiveMQServer server = createServer(true);
 
       server.start();
 
-      ServerLocator locator = createInVMNonHALocator()
-              .setBlockOnDurableSend(true)
-              .setBlockOnNonDurableSend(true)
-              .setMinLargeMessageSize(1024 * 1024);
+      ServerLocator locator = createInVMNonHALocator().setBlockOnDurableSend(true).setBlockOnNonDurableSend(true).setMinLargeMessageSize(1024 * 1024);
 
       ClientSessionFactory factory = createSessionFactory(locator);
 
@@ -78,8 +71,7 @@ public class DeleteQueueRestartTest extends ActiveMQTestBase
 
       ClientProducer prod = session.createProducer(DeleteQueueRestartTest.ADDRESS);
 
-      for (int i = 0; i < 100; i++)
-      {
+      for (int i = 0; i < 100; i++) {
          ClientMessage msg = createBytesMessage(session, ActiveMQBytesMessage.TYPE, new byte[0], true);
          prod.send(msg);
       }
@@ -87,19 +79,15 @@ public class DeleteQueueRestartTest extends ActiveMQTestBase
       final CountDownLatch count = new CountDownLatch(1);
 
       // Using another thread, as the deleteQueue is a blocked call
-      new Thread()
-      {
+      new Thread() {
          @Override
-         public void run()
-         {
-            try
-            {
+         public void run() {
+            try {
                session.deleteQueue(DeleteQueueRestartTest.ADDRESS);
                session.close();
                count.countDown();
             }
-            catch (ActiveMQException e)
-            {
+            catch (ActiveMQException e) {
             }
          }
       }.start();

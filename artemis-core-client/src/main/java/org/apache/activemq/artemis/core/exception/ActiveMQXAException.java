@@ -18,19 +18,17 @@ package org.apache.activemq.artemis.core.exception;
 
 import javax.transaction.xa.XAException;
 
-public class ActiveMQXAException extends XAException
-{
+public class ActiveMQXAException extends XAException {
+
    private static final long serialVersionUID = 6535914602965015803L;
 
-   public ActiveMQXAException(final int errorCode, final String message)
-   {
+   public ActiveMQXAException(final int errorCode, final String message) {
       super(message);
 
       this.errorCode = errorCode;
    }
 
-   public ActiveMQXAException(final int errorCode)
-   {
+   public ActiveMQXAException(final int errorCode) {
       super(errorCode);
    }
 }

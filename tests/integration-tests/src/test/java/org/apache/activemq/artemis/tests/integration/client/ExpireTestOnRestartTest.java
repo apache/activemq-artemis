@@ -31,23 +31,16 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Before;
 import org.junit.Test;
 
-public class ExpireTestOnRestartTest extends ActiveMQTestBase
-{
+public class ExpireTestOnRestartTest extends ActiveMQTestBase {
 
    ActiveMQServer server;
 
-
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
       server = createServer(true);
-      AddressSettings setting = new AddressSettings()
-              .setExpiryAddress(SimpleString.toSimpleString("exp"))
-              .setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE)
-              .setPageSizeBytes(100 * 1024)
-              .setMaxSizeBytes(200 * 1024);
+      AddressSettings setting = new AddressSettings().setExpiryAddress(SimpleString.toSimpleString("exp")).setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE).setPageSizeBytes(100 * 1024).setMaxSizeBytes(200 * 1024);
       server.getConfiguration().setJournalSyncNonTransactional(false);
       server.getConfiguration().setMessageExpiryScanPeriod(-1);
       server.getConfiguration().setJournalSyncTransactional(false);
@@ -57,8 +50,7 @@ public class ExpireTestOnRestartTest extends ActiveMQTestBase
 
    // The biggest problem on this test was the exceptions that happened. I couldn't find any wrong state beyond the exceptions
    @Test
-   public void testRestartWithExpire() throws Exception
-   {
+   public void testRestartWithExpire() throws Exception {
       int NUMBER_OF_EXPIRED_MESSAGES = 1000;
       ServerLocator locator = createInVMNonHALocator();
       locator.setBlockOnDurableSend(false);
@@ -69,15 +61,13 @@ public class ExpireTestOnRestartTest extends ActiveMQTestBase
       session.createQueue("exp", "exp", true);
       ClientProducer prod = session.createProducer("test");
 
-      for (int i = 0; i < 10; i++)
-      {
+      for (int i = 0; i < 10; i++) {
          ClientMessage message = session.createMessage(true);
          message.getBodyBuffer().writeBytes(new byte[1024 * 10]);
          prod.send(message);
       }
 
-      for (int i = 0; i < NUMBER_OF_EXPIRED_MESSAGES; i++)
-      {
+      for (int i = 0; i < NUMBER_OF_EXPIRED_MESSAGES; i++) {
          ClientMessage message = session.createMessage(true);
          message.putIntProperty("i", i);
          message.getBodyBuffer().writeBytes(new byte[1024 * 10]);
@@ -101,11 +91,9 @@ public class ExpireTestOnRestartTest extends ActiveMQTestBase
       factory = locator.createSessionFactory();
       session = factory.createSession(false, false);
 
-
       ClientConsumer cons = session.createConsumer("test");
       session.start();
-      for (int i = 0; i < 10; i++)
-      {
+      for (int i = 0; i < 10; i++) {
          ClientMessage msg = cons.receive(5000);
          assertNotNull(msg);
          msg.acknowledge();
@@ -115,16 +103,13 @@ public class ExpireTestOnRestartTest extends ActiveMQTestBase
       cons.close();
 
       long timeout = System.currentTimeMillis() + 60000;
-      while (queue.getPageSubscription().getPagingStore().isPaging() && timeout > System.currentTimeMillis())
-      {
+      while (queue.getPageSubscription().getPagingStore().isPaging() && timeout > System.currentTimeMillis()) {
          Thread.sleep(1);
       }
       assertFalse(queue.getPageSubscription().getPagingStore().isPaging());
 
-
       cons = session.createConsumer("exp");
-      for (int i = 0; i < NUMBER_OF_EXPIRED_MESSAGES; i++)
-      {
+      for (int i = 0; i < NUMBER_OF_EXPIRED_MESSAGES; i++) {
          ClientMessage msg = cons.receive(5000);
          assertNotNull(msg);
          msg.acknowledge();
@@ -134,14 +119,12 @@ public class ExpireTestOnRestartTest extends ActiveMQTestBase
 
       int extras = 0;
       ClientMessage msg;
-      while ((msg = cons.receiveImmediate()) != null)
-      {
+      while ((msg = cons.receiveImmediate()) != null) {
          System.out.println(msg);
          extras++;
       }
 
       assertEquals("Received extra messages on expire address", 0, extras);
-
 
       session.commit();
 

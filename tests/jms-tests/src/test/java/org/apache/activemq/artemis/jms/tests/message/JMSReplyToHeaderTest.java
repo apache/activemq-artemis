@@ -24,11 +24,9 @@ import javax.jms.TemporaryQueue;
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
 
 /**
- *
  * A JMSReplyToHeaderTest
  */
-public class JMSReplyToHeaderTest extends MessageHeaderTestBase
-{
+public class JMSReplyToHeaderTest extends MessageHeaderTestBase {
    // Constants -----------------------------------------------------
 
    // Static --------------------------------------------------------
@@ -40,8 +38,7 @@ public class JMSReplyToHeaderTest extends MessageHeaderTestBase
    // Public --------------------------------------------------------
 
    @Test
-   public void testJMSDestinationSimple() throws Exception
-   {
+   public void testJMSDestinationSimple() throws Exception {
       Message m = queueProducerSession.createMessage();
       TemporaryQueue tempQ = queueProducerSession.createTemporaryQueue();
       m.setJMSReplyTo(tempQ);
@@ -52,8 +49,7 @@ public class JMSReplyToHeaderTest extends MessageHeaderTestBase
    }
 
    @Test
-   public void testJMSDestinationNull() throws Exception
-   {
+   public void testJMSDestinationNull() throws Exception {
       Message m = queueProducerSession.createMessage();
       m.setJMSReplyTo(null);
 

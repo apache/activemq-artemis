@@ -19,38 +19,32 @@ package org.proton.plug.sasl;
 import org.proton.plug.SASLResult;
 import org.proton.plug.ServerSASL;
 
-public class ServerSASLPlain implements ServerSASL
-{
+public class ServerSASLPlain implements ServerSASL {
+
    public static final String NAME = "PLAIN";
 
    @Override
-   public String getName()
-   {
+   public String getName() {
       return NAME;
    }
 
    @Override
-   public SASLResult processSASL(byte[] data)
-   {
+   public SASLResult processSASL(byte[] data) {
 
       String username = null;
       String password = null;
       String bytes = new String(data);
       String[] credentials = bytes.split(Character.toString((char) 0));
       int offSet = 0;
-      if (credentials.length > 0)
-      {
-         if (credentials[0].length() == 0)
-         {
+      if (credentials.length > 0) {
+         if (credentials[0].length() == 0) {
             offSet = 1;
          }
 
-         if (credentials.length >= offSet)
-         {
+         if (credentials.length >= offSet) {
             username = credentials[offSet];
          }
-         if (credentials.length >= (offSet + 1))
-         {
+         if (credentials.length >= (offSet + 1)) {
             password = credentials[offSet + 1];
          }
       }
@@ -60,15 +54,13 @@ public class ServerSASLPlain implements ServerSASL
       return new PlainSASLResult(success, username, password);
    }
 
-
    /**
     * Hook for subclasses to perform the authentication here
     *
     * @param user
     * @param password
     */
-   protected boolean authenticate(String user, String password)
-   {
+   protected boolean authenticate(String user, String password) {
       return true;
    }
 }

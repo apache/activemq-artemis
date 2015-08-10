@@ -25,8 +25,8 @@ import org.apache.activemq.artemis.api.core.Message;
  *
  * @see org.apache.activemq.artemis.core.persistence.impl.journal.LargeServerMessageInSync
  */
-public interface ReplicatedLargeMessage
-{
+public interface ReplicatedLargeMessage {
+
    /**
     * @see org.apache.activemq.artemis.core.server.LargeServerMessage#setDurable(boolean)
     */

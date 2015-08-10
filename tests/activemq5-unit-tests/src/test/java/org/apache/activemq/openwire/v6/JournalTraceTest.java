@@ -24,33 +24,29 @@ import java.io.IOException;
 import org.apache.activemq.openwire.*;
 import org.apache.activemq.command.*;
 
-
 /**
  * Test case for the OpenWire marshalling for JournalTrace
  *
  *
  * NOTE!: This file is auto generated - do not modify!
- *        if you need to make a change, please see the modify the groovy scripts in the
- *        under src/gram/script and then use maven openwire:generate to regenerate 
- *        this file.
- *
- * 
+ * if you need to make a change, please see the modify the groovy scripts in the
+ * under src/gram/script and then use maven openwire:generate to regenerate
+ * this file.
  */
 public class JournalTraceTest extends DataFileGeneratorTestSupport {
 
+   public static JournalTraceTest SINGLETON = new JournalTraceTest();
 
-    public static JournalTraceTest SINGLETON = new JournalTraceTest();
+   public Object createObject() throws Exception {
+      JournalTrace info = new JournalTrace();
+      populateObject(info);
+      return info;
+   }
 
-    public Object createObject() throws Exception {
-        JournalTrace info = new JournalTrace();
-        populateObject(info);
-        return info;
-    }
+   protected void populateObject(Object object) throws Exception {
+      super.populateObject(object);
+      JournalTrace info = (JournalTrace) object;
 
-    protected void populateObject(Object object) throws Exception {
-        super.populateObject(object);
-        JournalTrace info = (JournalTrace) object;
-
-        info.setMessage("Message:1");
-    }
+      info.setMessage("Message:1");
+   }
 }

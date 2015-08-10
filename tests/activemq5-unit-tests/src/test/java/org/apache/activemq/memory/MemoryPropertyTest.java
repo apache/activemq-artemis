@@ -25,51 +25,50 @@ import org.slf4j.LoggerFactory;
 
 public class MemoryPropertyTest extends TestCase {
 
-    private static final transient Logger LOG = LoggerFactory.getLogger(MemoryPropertyTest.class);
-    BrokerService broker;
+   private static final transient Logger LOG = LoggerFactory.getLogger(MemoryPropertyTest.class);
+   BrokerService broker;
 
+   /**
+    * Sets up a test where the producer and consumer have their own connection.
+    *
+    * @see junit.framework.TestCase#setUp()
+    */
+   @Override
+   protected void setUp() throws Exception {
+      // Create broker from resource
+      LOG.info("Creating broker... ");
+      broker = createBroker("xbean:org/apache/activemq/memory/activemq.xml");
+      LOG.info("Success");
+      super.setUp();
+   }
 
-    /**
-     * Sets up a test where the producer and consumer have their own connection.
-     *
-     * @see junit.framework.TestCase#setUp()
-     */
-    @Override
-    protected void setUp() throws Exception {
-        // Create broker from resource
-        LOG.info("Creating broker... ");
-        broker = createBroker("xbean:org/apache/activemq/memory/activemq.xml");
-        LOG.info("Success");
-        super.setUp();
-    }
+   protected BrokerService createBroker(String resource) throws Exception {
+      return BrokerFactory.createBroker(resource);
+   }
 
-    protected BrokerService createBroker(String resource) throws Exception {
-        return BrokerFactory.createBroker(resource);
-    }
+   /*
+    * Stops the Broker
+    *
+    * @see junit.framework.TestCase#tearDown()
+    */
+   @Override
+   protected void tearDown() throws Exception {
+      LOG.info("Closing Broker");
+      if (broker != null) {
+         broker.stop();
+      }
+      LOG.info("Broker closed...");
+   }
 
-    /*
-     * Stops the Broker
-     *
-     * @see junit.framework.TestCase#tearDown()
-     */
-    @Override
-    protected void tearDown() throws Exception {
-        LOG.info("Closing Broker");
-        if (broker != null) {
-            broker.stop();
-        }
-        LOG.info("Broker closed...");
-    }
+   public void testBrokerInitialized() {
+      assertTrue("We should have a broker", broker != null);
 
-    public void testBrokerInitialized() {
-        assertTrue("We should have a broker", broker != null);
+      assertEquals("test-broker", broker.getBrokerName());
+      assertEquals(1024, broker.getSystemUsage().getMemoryUsage().getLimit());
+      assertEquals(34, broker.getSystemUsage().getMemoryUsage().getPercentUsageMinDelta());
 
-        assertEquals("test-broker", broker.getBrokerName());
-        assertEquals(1024, broker.getSystemUsage().getMemoryUsage().getLimit());
-        assertEquals(34, broker.getSystemUsage().getMemoryUsage().getPercentUsageMinDelta());
-
-        assertNotNull(broker.getSystemUsage().getStoreUsage().getStore());
-        // non persistent broker so no temp storage
-        assertNull(broker.getSystemUsage().getTempUsage().getStore());
-    }
+      assertNotNull(broker.getSystemUsage().getStoreUsage().getStore());
+      // non persistent broker so no temp storage
+      assertNull(broker.getSystemUsage().getTempUsage().getStore());
+   }
 }

@@ -30,8 +30,7 @@ import javax.jms.MessageFormatException;
 import javax.jms.MessageNotReadableException;
 import javax.jms.MessageNotWriteableException;
 
-public class SimpleJMSBytesMessage extends SimpleJMSMessage implements BytesMessage
-{
+public class SimpleJMSBytesMessage extends SimpleJMSMessage implements BytesMessage {
    // Static -------------------------------------------------------
 
    // Attributes ----------------------------------------------------
@@ -50,469 +49,356 @@ public class SimpleJMSBytesMessage extends SimpleJMSMessage implements BytesMess
 
    // Constructor ---------------------------------------------------
 
-   public SimpleJMSBytesMessage()
-   {
+   public SimpleJMSBytesMessage() {
       ostream = new ByteArrayOutputStream();
       p = new DataOutputStream(ostream);
    }
 
    // BytesMessage implementation -----------------------------------
 
-   public boolean readBoolean() throws JMSException
-   {
+   public boolean readBoolean() throws JMSException {
       checkRead();
-      try
-      {
+      try {
          return m.readBoolean();
       }
-      catch (EOFException e)
-      {
+      catch (EOFException e) {
          throw new MessageEOFException("");
       }
-      catch (IOException e)
-      {
+      catch (IOException e) {
          throw new JMSException("IOException");
       }
    }
 
-   public byte readByte() throws JMSException
-   {
+   public byte readByte() throws JMSException {
       checkRead();
-      try
-      {
+      try {
          return m.readByte();
       }
-      catch (EOFException e)
-      {
+      catch (EOFException e) {
          throw new MessageEOFException("");
       }
-      catch (IOException e)
-      {
+      catch (IOException e) {
          throw new JMSException("IOException");
       }
    }
 
-   public int readUnsignedByte() throws JMSException
-   {
+   public int readUnsignedByte() throws JMSException {
       checkRead();
-      try
-      {
+      try {
          return m.readUnsignedByte();
       }
-      catch (EOFException e)
-      {
+      catch (EOFException e) {
          throw new MessageEOFException("");
       }
-      catch (IOException e)
-      {
+      catch (IOException e) {
          throw new JMSException("IOException");
       }
    }
 
-   public short readShort() throws JMSException
-   {
+   public short readShort() throws JMSException {
       checkRead();
-      try
-      {
+      try {
          return m.readShort();
       }
-      catch (EOFException e)
-      {
+      catch (EOFException e) {
          throw new MessageEOFException("");
       }
-      catch (IOException e)
-      {
+      catch (IOException e) {
          throw new JMSException("IOException");
       }
    }
 
-   public int readUnsignedShort() throws JMSException
-   {
+   public int readUnsignedShort() throws JMSException {
       checkRead();
-      try
-      {
+      try {
          return m.readUnsignedShort();
       }
-      catch (EOFException e)
-      {
+      catch (EOFException e) {
          throw new MessageEOFException("");
       }
-      catch (IOException e)
-      {
+      catch (IOException e) {
          throw new JMSException("IOException");
       }
    }
 
-   public char readChar() throws JMSException
-   {
+   public char readChar() throws JMSException {
       checkRead();
-      try
-      {
+      try {
          return m.readChar();
       }
-      catch (EOFException e)
-      {
+      catch (EOFException e) {
          throw new MessageEOFException("");
       }
-      catch (IOException e)
-      {
+      catch (IOException e) {
          throw new JMSException("IOException");
       }
    }
 
-   public int readInt() throws JMSException
-   {
+   public int readInt() throws JMSException {
       checkRead();
-      try
-      {
+      try {
          return m.readInt();
       }
-      catch (EOFException e)
-      {
+      catch (EOFException e) {
          throw new MessageEOFException("");
       }
-      catch (IOException e)
-      {
+      catch (IOException e) {
          throw new JMSException("IOException");
       }
    }
 
-   public long readLong() throws JMSException
-   {
+   public long readLong() throws JMSException {
       checkRead();
-      try
-      {
+      try {
          return m.readLong();
       }
-      catch (EOFException e)
-      {
+      catch (EOFException e) {
          throw new MessageEOFException("");
       }
-      catch (IOException e)
-      {
+      catch (IOException e) {
          throw new JMSException("IOException");
       }
    }
 
-   public float readFloat() throws JMSException
-   {
+   public float readFloat() throws JMSException {
       checkRead();
-      try
-      {
+      try {
          return m.readFloat();
       }
-      catch (EOFException e)
-      {
+      catch (EOFException e) {
          throw new MessageEOFException("");
       }
-      catch (IOException e)
-      {
+      catch (IOException e) {
          throw new JMSException("IOException");
       }
    }
 
-   public double readDouble() throws JMSException
-   {
+   public double readDouble() throws JMSException {
       checkRead();
-      try
-      {
+      try {
          return m.readDouble();
       }
-      catch (EOFException e)
-      {
+      catch (EOFException e) {
          throw new MessageEOFException("");
       }
-      catch (IOException e)
-      {
+      catch (IOException e) {
          throw new JMSException("IOException");
       }
    }
 
-   public String readUTF() throws JMSException
-   {
+   public String readUTF() throws JMSException {
       checkRead();
-      try
-      {
+      try {
          return m.readUTF();
       }
-      catch (EOFException e)
-      {
+      catch (EOFException e) {
          throw new MessageEOFException("");
       }
-      catch (IOException e)
-      {
+      catch (IOException e) {
          throw new JMSException("IOException");
       }
    }
 
-   public int readBytes(final byte[] value) throws JMSException
-   {
+   public int readBytes(final byte[] value) throws JMSException {
       checkRead();
-      try
-      {
+      try {
          return m.read(value);
       }
-      catch (IOException e)
-      {
+      catch (IOException e) {
          throw new JMSException("IOException");
       }
    }
 
-   public int readBytes(final byte[] value, final int length) throws JMSException
-   {
+   public int readBytes(final byte[] value, final int length) throws JMSException {
       checkRead();
-      try
-      {
+      try {
          return m.read(value, 0, length);
       }
-      catch (IOException e)
-      {
+      catch (IOException e) {
          throw new JMSException("IOException");
       }
    }
 
-   public void writeBoolean(final boolean value) throws JMSException
-   {
-      if (!bodyWriteOnly)
-      {
+   public void writeBoolean(final boolean value) throws JMSException {
+      if (!bodyWriteOnly) {
          throw new MessageNotWriteableException("the message body is read-only");
       }
-      try
-      {
+      try {
          p.writeBoolean(value);
       }
-      catch (IOException e)
-      {
+      catch (IOException e) {
          throw new JMSException("IOException");
       }
    }
 
-   public void writeByte(final byte value) throws JMSException
-   {
-      if (!bodyWriteOnly)
-      {
+   public void writeByte(final byte value) throws JMSException {
+      if (!bodyWriteOnly) {
          throw new MessageNotWriteableException("the message body is read-only");
       }
-      try
-      {
+      try {
          p.writeByte(value);
       }
-      catch (IOException e)
-      {
+      catch (IOException e) {
          throw new JMSException("IOException");
       }
    }
 
-   public void writeShort(final short value) throws JMSException
-   {
-      if (!bodyWriteOnly)
-      {
+   public void writeShort(final short value) throws JMSException {
+      if (!bodyWriteOnly) {
          throw new MessageNotWriteableException("the message body is read-only");
       }
-      try
-      {
+      try {
          p.writeShort(value);
       }
-      catch (IOException e)
-      {
+      catch (IOException e) {
          throw new JMSException("IOException");
       }
    }
 
-   public void writeChar(final char value) throws JMSException
-   {
-      if (!bodyWriteOnly)
-      {
+   public void writeChar(final char value) throws JMSException {
+      if (!bodyWriteOnly) {
          throw new MessageNotWriteableException("the message body is read-only");
       }
-      try
-      {
+      try {
          p.writeChar(value);
       }
-      catch (IOException e)
-      {
+      catch (IOException e) {
          throw new JMSException("IOException");
       }
    }
 
-   public void writeInt(final int value) throws JMSException
-   {
-      if (!bodyWriteOnly)
-      {
+   public void writeInt(final int value) throws JMSException {
+      if (!bodyWriteOnly) {
          throw new MessageNotWriteableException("the message body is read-only");
       }
-      try
-      {
+      try {
          p.writeInt(value);
       }
-      catch (IOException e)
-      {
+      catch (IOException e) {
          throw new JMSException("IOException");
       }
    }
 
-   public void writeLong(final long value) throws JMSException
-   {
-      if (!bodyWriteOnly)
-      {
+   public void writeLong(final long value) throws JMSException {
+      if (!bodyWriteOnly) {
          throw new MessageNotWriteableException("the message body is read-only");
       }
-      try
-      {
+      try {
          p.writeLong(value);
       }
-      catch (IOException e)
-      {
+      catch (IOException e) {
          throw new JMSException("IOException");
       }
    }
 
-   public void writeFloat(final float value) throws JMSException
-   {
-      if (!bodyWriteOnly)
-      {
+   public void writeFloat(final float value) throws JMSException {
+      if (!bodyWriteOnly) {
          throw new MessageNotWriteableException("the message body is read-only");
       }
-      try
-      {
+      try {
          p.writeFloat(value);
       }
-      catch (IOException e)
-      {
+      catch (IOException e) {
          throw new JMSException("IOException");
       }
    }
 
-   public void writeDouble(final double value) throws JMSException
-   {
-      if (!bodyWriteOnly)
-      {
+   public void writeDouble(final double value) throws JMSException {
+      if (!bodyWriteOnly) {
          throw new MessageNotWriteableException("the message body is read-only");
       }
-      try
-      {
+      try {
          p.writeDouble(value);
       }
-      catch (IOException e)
-      {
+      catch (IOException e) {
          throw new JMSException("IOException");
       }
    }
 
-   public void writeUTF(final String value) throws JMSException
-   {
-      if (!bodyWriteOnly)
-      {
+   public void writeUTF(final String value) throws JMSException {
+      if (!bodyWriteOnly) {
          throw new MessageNotWriteableException("the message body is read-only");
       }
-      try
-      {
+      try {
          p.writeUTF(value);
       }
-      catch (IOException e)
-      {
+      catch (IOException e) {
          throw new JMSException("IOException");
       }
    }
 
-   public void writeBytes(final byte[] value) throws JMSException
-   {
-      if (!bodyWriteOnly)
-      {
+   public void writeBytes(final byte[] value) throws JMSException {
+      if (!bodyWriteOnly) {
          throw new MessageNotWriteableException("the message body is read-only");
       }
-      try
-      {
+      try {
          p.write(value, 0, value.length);
       }
-      catch (IOException e)
-      {
+      catch (IOException e) {
          throw new JMSException("IOException");
       }
    }
 
-   public void writeBytes(final byte[] value, final int offset, final int length) throws JMSException
-   {
-      if (!bodyWriteOnly)
-      {
+   public void writeBytes(final byte[] value, final int offset, final int length) throws JMSException {
+      if (!bodyWriteOnly) {
          throw new MessageNotWriteableException("the message body is read-only");
       }
-      try
-      {
+      try {
          p.write(value, offset, length);
       }
-      catch (IOException e)
-      {
+      catch (IOException e) {
          throw new JMSException("IOException");
       }
    }
 
-   public void writeObject(final Object value) throws JMSException
-   {
-      if (!bodyWriteOnly)
-      {
+   public void writeObject(final Object value) throws JMSException {
+      if (!bodyWriteOnly) {
          throw new MessageNotWriteableException("the message body is read-only");
       }
-      try
-      {
-         if (value == null)
-         {
+      try {
+         if (value == null) {
             throw new NullPointerException("Attempt to write a new value");
          }
-         if (value instanceof String)
-         {
-            p.writeUTF((String)value);
+         if (value instanceof String) {
+            p.writeUTF((String) value);
          }
-         else if (value instanceof Boolean)
-         {
-            p.writeBoolean(((Boolean)value).booleanValue());
+         else if (value instanceof Boolean) {
+            p.writeBoolean(((Boolean) value).booleanValue());
          }
-         else if (value instanceof Byte)
-         {
-            p.writeByte(((Byte)value).byteValue());
+         else if (value instanceof Byte) {
+            p.writeByte(((Byte) value).byteValue());
          }
-         else if (value instanceof Short)
-         {
-            p.writeShort(((Short)value).shortValue());
+         else if (value instanceof Short) {
+            p.writeShort(((Short) value).shortValue());
          }
-         else if (value instanceof Integer)
-         {
-            p.writeInt(((Integer)value).intValue());
+         else if (value instanceof Integer) {
+            p.writeInt(((Integer) value).intValue());
          }
-         else if (value instanceof Long)
-         {
-            p.writeLong(((Long)value).longValue());
+         else if (value instanceof Long) {
+            p.writeLong(((Long) value).longValue());
          }
-         else if (value instanceof Float)
-         {
-            p.writeFloat(((Float)value).floatValue());
+         else if (value instanceof Float) {
+            p.writeFloat(((Float) value).floatValue());
          }
-         else if (value instanceof Double)
-         {
-            p.writeDouble(((Double)value).doubleValue());
+         else if (value instanceof Double) {
+            p.writeDouble(((Double) value).doubleValue());
          }
-         else if (value instanceof byte[])
-         {
-            p.write((byte[])value, 0, ((byte[])value).length);
+         else if (value instanceof byte[]) {
+            p.write((byte[]) value, 0, ((byte[]) value).length);
          }
-         else
-         {
+         else {
             throw new MessageFormatException("Invalid object for properties");
          }
       }
-      catch (IOException e)
-      {
+      catch (IOException e) {
          throw new JMSException("IOException");
       }
 
    }
 
-   public void reset() throws JMSException
-   {
-      try
-      {
-         if (bodyWriteOnly)
-         {
+   public void reset() throws JMSException {
+      try {
+         if (bodyWriteOnly) {
             p.flush();
             internalArray = ostream.toByteArray();
             ostream.close();
@@ -523,14 +409,12 @@ public class SimpleJMSBytesMessage extends SimpleJMSMessage implements BytesMess
          p = null;
          bodyWriteOnly = false;
       }
-      catch (IOException e)
-      {
+      catch (IOException e) {
          throw new JMSException("IOException");
       }
    }
 
-   public long getBodyLength() throws JMSException
-   {
+   public long getBodyLength() throws JMSException {
       checkRead();
       return internalArray.length;
    }
@@ -548,17 +432,14 @@ public class SimpleJMSBytesMessage extends SimpleJMSMessage implements BytesMess
     *
     * @throws javax.jms.JMSException when not readable
     */
-   private void checkRead() throws JMSException
-   {
-      if (bodyWriteOnly)
-      {
+   private void checkRead() throws JMSException {
+      if (bodyWriteOnly) {
          throw new MessageNotReadableException("readByte while the buffer is writeonly");
       }
 
       // We have just received/reset() the message, and the client is trying to
       // read it
-      if (istream == null || m == null)
-      {
+      if (istream == null || m == null) {
          istream = new ByteArrayInputStream(internalArray);
          m = new DataInputStream(istream);
       }

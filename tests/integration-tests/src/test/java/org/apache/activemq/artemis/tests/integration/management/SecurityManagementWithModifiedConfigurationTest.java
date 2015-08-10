@@ -22,8 +22,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.junit.Test;
 
-public class SecurityManagementWithModifiedConfigurationTest extends SecurityManagementTestBase
-{
+public class SecurityManagementWithModifiedConfigurationTest extends SecurityManagementTestBase {
 
    // Constants -----------------------------------------------------
 
@@ -38,28 +37,22 @@ public class SecurityManagementWithModifiedConfigurationTest extends SecurityMan
    // Public --------------------------------------------------------
 
    @Test
-   public void testSendManagementMessageWithModifiedClusterAdminUser() throws Exception
-   {
+   public void testSendManagementMessageWithModifiedClusterAdminUser() throws Exception {
       doSendManagementMessage(ActiveMQDefaultConfiguration.getDefaultClusterUser(), configuredClusterPassword, true);
    }
 
    @Test
-   public void testSendManagementMessageWithDefaultClusterAdminUser() throws Exception
-   {
-      doSendManagementMessage(ActiveMQDefaultConfiguration.getDefaultClusterUser(),
-                              ActiveMQDefaultConfiguration.getDefaultClusterPassword(),
-                              false);
+   public void testSendManagementMessageWithDefaultClusterAdminUser() throws Exception {
+      doSendManagementMessage(ActiveMQDefaultConfiguration.getDefaultClusterUser(), ActiveMQDefaultConfiguration.getDefaultClusterPassword(), false);
    }
 
    @Test
-   public void testSendManagementMessageWithGuest() throws Exception
-   {
+   public void testSendManagementMessageWithGuest() throws Exception {
       doSendManagementMessage("guest", "guest", false);
    }
 
    @Test
-   public void testSendManagementMessageWithoutUserCredentials() throws Exception
-   {
+   public void testSendManagementMessageWithoutUserCredentials() throws Exception {
       doSendManagementMessage(null, null, false);
    }
 
@@ -68,11 +61,8 @@ public class SecurityManagementWithModifiedConfigurationTest extends SecurityMan
    // Protected -----------------------------------------------------
 
    @Override
-   protected ActiveMQServer setupAndStartActiveMQServer() throws Exception
-   {
-      Configuration conf = createDefaultInVMConfig()
-         .setSecurityEnabled(true)
-         .setClusterPassword(configuredClusterPassword);
+   protected ActiveMQServer setupAndStartActiveMQServer() throws Exception {
+      Configuration conf = createDefaultInVMConfig().setSecurityEnabled(true).setClusterPassword(configuredClusterPassword);
       ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(conf, false));
       server.start();
 

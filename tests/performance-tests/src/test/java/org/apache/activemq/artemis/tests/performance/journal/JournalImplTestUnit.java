@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.performance.journal;
+
 import java.util.ArrayList;
 
 import org.apache.activemq.artemis.core.journal.Journal;
@@ -29,22 +30,20 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 
-public abstract class JournalImplTestUnit extends JournalImplTestBase
-{
+public abstract class JournalImplTestUnit extends JournalImplTestBase {
+
    private static final UnitTestLogger log = UnitTestLogger.LOGGER;
 
    @Override
    @After
-   public void tearDown() throws Exception
-   {
+   public void tearDown() throws Exception {
       super.tearDown();
 
       Assert.assertEquals(0, LibaioContext.getTotalMaxIO());
    }
 
    @Test
-   public void testAddUpdateDeleteManyLargeFileSize() throws Exception
-   {
+   public void testAddUpdateDeleteManyLargeFileSize() throws Exception {
       final int numberAdds = 1000;
 
       final int numberUpdates = 500;
@@ -53,22 +52,19 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase
 
       long[] adds = new long[numberAdds];
 
-      for (int i = 0; i < numberAdds; i++)
-      {
+      for (int i = 0; i < numberAdds; i++) {
          adds[i] = i;
       }
 
       long[] updates = new long[numberUpdates];
 
-      for (int i = 0; i < numberUpdates; i++)
-      {
+      for (int i = 0; i < numberUpdates; i++) {
          updates[i] = i;
       }
 
       long[] deletes = new long[numberDeletes];
 
-      for (int i = 0; i < numberDeletes; i++)
-      {
+      for (int i = 0; i < numberDeletes; i++) {
          deletes[i] = i;
       }
 
@@ -87,8 +83,7 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase
    }
 
    @Test
-   public void testAddUpdateDeleteManySmallFileSize() throws Exception
-   {
+   public void testAddUpdateDeleteManySmallFileSize() throws Exception {
       final int numberAdds = 1000;
 
       final int numberUpdates = 500;
@@ -97,22 +92,19 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase
 
       long[] adds = new long[numberAdds];
 
-      for (int i = 0; i < numberAdds; i++)
-      {
+      for (int i = 0; i < numberAdds; i++) {
          adds[i] = i;
       }
 
       long[] updates = new long[numberUpdates];
 
-      for (int i = 0; i < numberUpdates; i++)
-      {
+      for (int i = 0; i < numberUpdates; i++) {
          updates[i] = i;
       }
 
       long[] deletes = new long[numberDeletes];
 
-      for (int i = 0; i < numberDeletes; i++)
-      {
+      for (int i = 0; i < numberDeletes; i++) {
          deletes[i] = i;
       }
 
@@ -133,8 +125,7 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase
    }
 
    @Test
-   public void testReclaimAndReload() throws Exception
-   {
+   public void testReclaimAndReload() throws Exception {
       setup(2, 10 * 1024 * 1024, false);
       createJournal();
       startJournal();
@@ -146,24 +137,21 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase
 
       int NUMBER_OF_RECORDS = 1000;
 
-      for (int count = 0; count < NUMBER_OF_RECORDS; count++)
-      {
-         journal.appendAddRecord(count, (byte)0, record, true);
+      for (int count = 0; count < NUMBER_OF_RECORDS; count++) {
+         journal.appendAddRecord(count, (byte) 0, record, true);
 
-         if (count >= NUMBER_OF_RECORDS / 2)
-         {
+         if (count >= NUMBER_OF_RECORDS / 2) {
             journal.appendDeleteRecord(count - NUMBER_OF_RECORDS / 2, true);
          }
 
-         if (count % 100 == 0)
-         {
+         if (count % 100 == 0) {
             JournalImplTestUnit.log.debug("Done: " + count);
          }
       }
 
       long end = System.currentTimeMillis();
 
-      double rate = 1000 * (double)NUMBER_OF_RECORDS / (end - start);
+      double rate = 1000 * (double) NUMBER_OF_RECORDS / (end - start);
 
       JournalImplTestUnit.log.info("Rate of " + rate + " adds/removes per sec");
 
@@ -180,10 +168,8 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase
    }
 
    @Test
-   public void testSpeedNonTransactional() throws Exception
-   {
-      for (int i = 0; i < 1; i++)
-      {
+   public void testSpeedNonTransactional() throws Exception {
+      for (int i = 0; i < 1; i++) {
          setUp();
          System.gc();
          Thread.sleep(500);
@@ -193,66 +179,58 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase
    }
 
    @Test
-   public void testSpeedTransactional() throws Exception
-   {
+   public void testSpeedTransactional() throws Exception {
       Journal journal = new JournalImpl(10 * 1024 * 1024, 10, 0, 0, getFileFactory(), "activemq-data", "amq", 5000);
 
       journal.start();
 
       journal.load(new ArrayList<RecordInfo>(), null, null);
 
-      try
-      {
+      try {
          final int numMessages = 50050;
 
-         SimpleEncoding data = new SimpleEncoding(1024, (byte)'j');
+         SimpleEncoding data = new SimpleEncoding(1024, (byte) 'j');
 
          long start = System.currentTimeMillis();
 
          int count = 0;
          double[] rates = new double[50];
-         for (int i = 0; i < 50; i++)
-         {
+         for (int i = 0; i < 50; i++) {
             long startTrans = System.currentTimeMillis();
-            for (int j = 0; j < 1000; j++)
-            {
-               journal.appendAddRecordTransactional(i, count++, (byte)0, data);
+            for (int j = 0; j < 1000; j++) {
+               journal.appendAddRecordTransactional(i, count++, (byte) 0, data);
             }
 
             journal.appendCommitRecord(i, true);
 
             long endTrans = System.currentTimeMillis();
 
-            rates[i] = 1000 * (double)1000 / (endTrans - startTrans);
+            rates[i] = 1000 * (double) 1000 / (endTrans - startTrans);
          }
 
          long end = System.currentTimeMillis();
 
-         for (double rate : rates)
-         {
+         for (double rate : rates) {
             JournalImplTestUnit.log.info("Transaction Rate = " + rate + " records/sec");
 
          }
 
-         double rate = 1000 * (double)numMessages / (end - start);
+         double rate = 1000 * (double) numMessages / (end - start);
 
          JournalImplTestUnit.log.info("Rate " + rate + " records/sec");
       }
-      finally
-      {
+      finally {
          journal.stop();
       }
 
    }
 
-   private void internaltestSpeedNonTransactional() throws Exception
-   {
+   private void internaltestSpeedNonTransactional() throws Exception {
       final long numMessages = 10000;
 
-      int numFiles = (int)((numMessages * 1024 + 512) / (10 * 1024 * 1024) * 1.3);
+      int numFiles = (int) ((numMessages * 1024 + 512) / (10 * 1024 * 1024) * 1.3);
 
-      if (numFiles < 2)
-      {
+      if (numFiles < 2) {
          numFiles = 2;
       }
 
@@ -265,18 +243,17 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase
       journal.load(new ArrayList<RecordInfo>(), null, null);
 
       JournalImplTestUnit.log.debug("Adding data");
-      SimpleEncoding data = new SimpleEncoding(700, (byte)'j');
+      SimpleEncoding data = new SimpleEncoding(700, (byte) 'j');
 
       long start = System.currentTimeMillis();
 
-      for (int i = 0; i < numMessages; i++)
-      {
-         journal.appendAddRecord(i, (byte)0, data, true);
+      for (int i = 0; i < numMessages; i++) {
+         journal.appendAddRecord(i, (byte) 0, data, true);
       }
 
       long end = System.currentTimeMillis();
 
-      double rate = 1000 * (double)numMessages / (end - start);
+      double rate = 1000 * (double) numMessages / (end - start);
 
       JournalImplTestUnit.log.info("Rate " + rate + " records/sec");
 

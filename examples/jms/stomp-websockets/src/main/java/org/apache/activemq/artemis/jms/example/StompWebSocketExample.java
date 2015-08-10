@@ -31,17 +31,15 @@ import javax.naming.InitialContext;
  * An example where a client will send a JMS message to a Topic.
  * Browser clients connected using Web Sockets will be able to receive the message.
  */
-public class StompWebSocketExample
-{
-   public static void main(final String[] args) throws Exception
-   {
+public class StompWebSocketExample {
+
+   public static void main(final String[] args) throws Exception {
       Connection connection = null;
       InitialContext initialContext = null;
-      try
-      {
+      try {
          initialContext = new InitialContext();
-         Topic topic = (Topic)initialContext.lookup("topic/chat");
-         ConnectionFactory cf = (ConnectionFactory)initialContext.lookup("ConnectionFactory");
+         Topic topic = (Topic) initialContext.lookup("topic/chat");
+         ConnectionFactory cf = (ConnectionFactory) initialContext.lookup("ConnectionFactory");
          connection = cf.createConnection();
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
@@ -60,18 +58,15 @@ public class StompWebSocketExample
 
          connection.start();
 
-         message = (TextMessage)consumer.receive();
+         message = (TextMessage) consumer.receive();
          System.out.println("Received message: " + message.getText());
       }
-      finally
-      {
-         if (connection != null)
-         {
+      finally {
+         if (connection != null) {
             connection.close();
          }
 
-         if (initialContext != null)
-         {
+         if (initialContext != null) {
             initialContext.close();
          }
       }

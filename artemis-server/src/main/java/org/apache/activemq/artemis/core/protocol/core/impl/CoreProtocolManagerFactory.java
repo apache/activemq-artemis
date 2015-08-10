@@ -25,27 +25,28 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.spi.core.protocol.AbstractProtocolManagerFactory;
 import org.apache.activemq.artemis.spi.core.protocol.ProtocolManager;
 
-public class CoreProtocolManagerFactory extends AbstractProtocolManagerFactory<Interceptor>
-{
+public class CoreProtocolManagerFactory extends AbstractProtocolManagerFactory<Interceptor> {
+
    private static String[] SUPPORTED_PROTOCOLS = {ActiveMQClient.DEFAULT_CORE_PROTOCOL};
 
    private static final String MODULE_NAME = "artemis-server";
 
    /**
     * {@inheritDoc} *
+    *
     * @param server
     * @param incomingInterceptors
     * @param outgoingInterceptors
     * @return
     */
-   public ProtocolManager createProtocolManager(final ActiveMQServer server, final List<Interceptor> incomingInterceptors, List<Interceptor> outgoingInterceptors)
-   {
+   public ProtocolManager createProtocolManager(final ActiveMQServer server,
+                                                final List<Interceptor> incomingInterceptors,
+                                                List<Interceptor> outgoingInterceptors) {
       return new CoreProtocolManager(this, server, incomingInterceptors, outgoingInterceptors);
    }
 
    @Override
-   public List<Interceptor> filterInterceptors(List<BaseInterceptor> interceptors)
-   {
+   public List<Interceptor> filterInterceptors(List<BaseInterceptor> interceptors) {
       // This is using this tool method
       // it wouldn't be possible to write a generic method without this class parameter
       // and I didn't want to bloat the cllaers for this
@@ -53,14 +54,12 @@ public class CoreProtocolManagerFactory extends AbstractProtocolManagerFactory<I
    }
 
    @Override
-   public String[] getProtocols()
-   {
+   public String[] getProtocols() {
       return SUPPORTED_PROTOCOLS;
    }
 
    @Override
-   public String getModuleName()
-   {
+   public String getModuleName() {
       return MODULE_NAME;
    }
 

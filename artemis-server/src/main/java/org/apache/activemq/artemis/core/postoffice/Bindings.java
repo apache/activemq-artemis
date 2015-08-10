@@ -24,8 +24,8 @@ import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.server.group.UnproposalListener;
 
-public interface Bindings extends UnproposalListener
-{
+public interface Bindings extends UnproposalListener {
+
    Collection<Binding> getBindings();
 
    void addBinding(Binding binding);

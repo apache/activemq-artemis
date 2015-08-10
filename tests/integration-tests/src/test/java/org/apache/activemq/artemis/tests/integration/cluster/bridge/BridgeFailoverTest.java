@@ -32,12 +32,10 @@ import org.apache.activemq.artemis.core.server.cluster.impl.BridgeImpl;
 import org.apache.activemq.artemis.tests.integration.cluster.util.MultiServerTestBase;
 import org.junit.Test;
 
-public class BridgeFailoverTest extends MultiServerTestBase
-{
+public class BridgeFailoverTest extends MultiServerTestBase {
 
    @Test
-   public void testSimpleConnectOnMultipleNodes() throws Exception
-   {
+   public void testSimpleConnectOnMultipleNodes() throws Exception {
       BridgeConfiguration bridgeConfiguration = new BridgeConfiguration();
 
       String ORIGINAL_QUEUE = "noCluster.originalQueue";
@@ -56,14 +54,9 @@ public class BridgeFailoverTest extends MultiServerTestBase
       bridgeConfiguration.setReconnectAttempts(-1);
       servers[2].getConfiguration().getBridgeConfigurations().add(bridgeConfiguration);
 
-      for (ActiveMQServer server : servers)
-      {
-         server.getConfiguration().getQueueConfigurations().add(new CoreQueueConfiguration()
-            .setAddress(ORIGINAL_QUEUE)
-            .setName(ORIGINAL_QUEUE));
-         server.getConfiguration().getQueueConfigurations().add(new CoreQueueConfiguration()
-            .setAddress(TARGET_QUEUE)
-            .setName(TARGET_QUEUE));
+      for (ActiveMQServer server : servers) {
+         server.getConfiguration().getQueueConfigurations().add(new CoreQueueConfiguration().setAddress(ORIGINAL_QUEUE).setName(ORIGINAL_QUEUE));
+         server.getConfiguration().getQueueConfigurations().add(new CoreQueueConfiguration().setAddress(TARGET_QUEUE).setName(TARGET_QUEUE));
       }
 
       startServers();
@@ -75,14 +68,12 @@ public class BridgeFailoverTest extends MultiServerTestBase
       ClientSession session = addClientSession(factory.createSession(false, false));
       ClientProducer producer = addClientProducer(session.createProducer(ORIGINAL_QUEUE));
 
-      for (int i = 0; i < 100; i++)
-      {
+      for (int i = 0; i < 100; i++) {
          ClientMessage msg = session.createMessage(true);
          msg.putIntProperty("i", i);
          producer.send(msg);
       }
       session.commit();
-
 
       ServerLocator locatorConsumer = createLocator(false, 4);
       ClientSessionFactory factoryConsumer = addSessionFactory(locatorConsumer.createSessionFactory());
@@ -91,8 +82,7 @@ public class BridgeFailoverTest extends MultiServerTestBase
 
       sessionConsumer.start();
 
-      for (int i = 0; i < 100; i++)
-      {
+      for (int i = 0; i < 100; i++) {
          ClientMessage message = consumer.receive(10000);
          assertNotNull(message);
          message.acknowledge();
@@ -102,19 +92,16 @@ public class BridgeFailoverTest extends MultiServerTestBase
    }
 
    @Test
-   public void testFailoverOnBridgeNoRetryOnSameNode() throws Exception
-   {
+   public void testFailoverOnBridgeNoRetryOnSameNode() throws Exception {
       internalTestFailoverOnBridge(0);
    }
 
    @Test
-   public void testFailoverOnBridgeForeverRetryOnSameNode() throws Exception
-   {
+   public void testFailoverOnBridgeForeverRetryOnSameNode() throws Exception {
       internalTestFailoverOnBridge(-1);
    }
 
-   public void internalTestFailoverOnBridge(int retriesSameNode) throws Exception
-   {
+   public void internalTestFailoverOnBridge(int retriesSameNode) throws Exception {
       BridgeConfiguration bridgeConfiguration = new BridgeConfiguration();
 
       String ORIGINAL_QUEUE = "noCluster.originalQueue";
@@ -135,14 +122,9 @@ public class BridgeFailoverTest extends MultiServerTestBase
       bridgeConfiguration.setHA(true);
       servers[2].getConfiguration().getBridgeConfigurations().add(bridgeConfiguration);
 
-      for (ActiveMQServer server : servers)
-      {
-         server.getConfiguration().getQueueConfigurations().add(new CoreQueueConfiguration()
-            .setAddress(ORIGINAL_QUEUE)
-            .setName(ORIGINAL_QUEUE));
-         server.getConfiguration().getQueueConfigurations().add(new CoreQueueConfiguration()
-            .setAddress(TARGET_QUEUE)
-            .setName(TARGET_QUEUE));
+      for (ActiveMQServer server : servers) {
+         server.getConfiguration().getQueueConfigurations().add(new CoreQueueConfiguration().setAddress(ORIGINAL_QUEUE).setName(ORIGINAL_QUEUE));
+         server.getConfiguration().getQueueConfigurations().add(new CoreQueueConfiguration().setAddress(TARGET_QUEUE).setName(TARGET_QUEUE));
       }
 
       startServers();
@@ -152,8 +134,7 @@ public class BridgeFailoverTest extends MultiServerTestBase
 
       long timeout = System.currentTimeMillis() + 5000;
 
-      while (bridge.getTargetNodeFromTopology() == null && timeout > System.currentTimeMillis())
-      {
+      while (bridge.getTargetNodeFromTopology() == null && timeout > System.currentTimeMillis()) {
          Thread.sleep(100);
       }
 
@@ -166,14 +147,12 @@ public class BridgeFailoverTest extends MultiServerTestBase
       ClientSession session = addClientSession(factory.createSession(false, false));
       ClientProducer producer = addClientProducer(session.createProducer(ORIGINAL_QUEUE));
 
-      for (int i = 0; i < 100; i++)
-      {
+      for (int i = 0; i < 100; i++) {
          ClientMessage msg = session.createMessage(true);
          msg.putIntProperty("i", i);
          producer.send(msg);
       }
       session.commit();
-
 
       ServerLocator locatorConsumer = createLocator(false, 4);
       ClientSessionFactory factoryConsumer = addSessionFactory(locatorConsumer.createSessionFactory());
@@ -182,8 +161,7 @@ public class BridgeFailoverTest extends MultiServerTestBase
 
       sessionConsumer.start();
 
-      for (int i = 0; i < 100; i++)
-      {
+      for (int i = 0; i < 100; i++) {
          ClientMessage message = consumer.receive(10000);
          assertNotNull(message);
          message.acknowledge();
@@ -195,22 +173,19 @@ public class BridgeFailoverTest extends MultiServerTestBase
       factoryConsumer.close();
       sessionConsumer.close();
 
-
       crashAndWaitForFailure(servers[4], locatorConsumer);
 
       locatorConsumer.close();
 
       waitForServerToStart(backupServers[4]);
 
-      for (int i = 100; i < 200; i++)
-      {
+      for (int i = 100; i < 200; i++) {
          ClientMessage msg = session.createMessage(true);
          msg.putIntProperty("i", i);
          producer.send(msg);
       }
 
       session.commit();
-
 
       locatorConsumer = createLocator(false, 9);
       factoryConsumer = addSessionFactory(locatorConsumer.createSessionFactory());
@@ -220,8 +195,7 @@ public class BridgeFailoverTest extends MultiServerTestBase
 
       sessionConsumer.start();
 
-      for (int i = 0; i < 200; i++)
-      {
+      for (int i = 0; i < 200; i++) {
          ClientMessage message = consumer.receive(10000);
          assertNotNull(message);
          message.acknowledge();
@@ -232,8 +206,7 @@ public class BridgeFailoverTest extends MultiServerTestBase
    }
 
    @Test
-   public void testInitialConnectionNodeAlreadyDown() throws Exception
-   {
+   public void testInitialConnectionNodeAlreadyDown() throws Exception {
       BridgeConfiguration bridgeConfiguration = new BridgeConfiguration();
 
       String ORIGINAL_QUEUE = "noCluster.originalQueue";
@@ -252,14 +225,9 @@ public class BridgeFailoverTest extends MultiServerTestBase
       bridgeConfiguration.setReconnectAttempts(-1);
       servers[2].getConfiguration().getBridgeConfigurations().add(bridgeConfiguration);
 
-      for (ActiveMQServer server : servers)
-      {
-         server.getConfiguration().getQueueConfigurations().add(new CoreQueueConfiguration()
-            .setAddress(ORIGINAL_QUEUE)
-            .setName(ORIGINAL_QUEUE));
-         server.getConfiguration().getQueueConfigurations().add(new CoreQueueConfiguration()
-            .setAddress(TARGET_QUEUE)
-            .setName(TARGET_QUEUE));
+      for (ActiveMQServer server : servers) {
+         server.getConfiguration().getQueueConfigurations().add(new CoreQueueConfiguration().setAddress(ORIGINAL_QUEUE).setName(ORIGINAL_QUEUE));
+         server.getConfiguration().getQueueConfigurations().add(new CoreQueueConfiguration().setAddress(TARGET_QUEUE).setName(TARGET_QUEUE));
       }
 
       startBackups(0, 1, 3, 4);
@@ -273,7 +241,6 @@ public class BridgeFailoverTest extends MultiServerTestBase
       startBackups(2);
       startServers(2);
 
-
       // The server where the bridge source is configured at
       ServerLocator locator = createLocator(false, 2); // connecting to the backup
 
@@ -281,14 +248,12 @@ public class BridgeFailoverTest extends MultiServerTestBase
       ClientSession session = addClientSession(factory.createSession(false, false));
       ClientProducer producer = addClientProducer(session.createProducer(ORIGINAL_QUEUE));
 
-      for (int i = 0; i < 100; i++)
-      {
+      for (int i = 0; i < 100; i++) {
          ClientMessage msg = session.createMessage(true);
          msg.putIntProperty("i", i);
          producer.send(msg);
       }
       session.commit();
-
 
       ServerLocator locatorConsumer = createLocator(false, 9);
       ClientSessionFactory factoryConsumer = addSessionFactory(locatorConsumer.createSessionFactory());
@@ -297,8 +262,7 @@ public class BridgeFailoverTest extends MultiServerTestBase
 
       sessionConsumer.start();
 
-      for (int i = 0; i < 100; i++)
-      {
+      for (int i = 0; i < 100; i++) {
          ClientMessage message = consumer.receive(10000);
          assertNotNull(message);
          message.acknowledge();

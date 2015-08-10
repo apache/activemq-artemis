@@ -29,8 +29,7 @@ import org.apache.maven.plugins.annotations.Parameter;
  * Allows a Java Client to be run which must hve a static main(String[] args) method
  */
 @Mojo(name = "runClient", defaultPhase = LifecyclePhase.VERIFY)
-public class ArtemisClientPlugin extends ArtemisAbstractPlugin
-{
+public class ArtemisClientPlugin extends ArtemisAbstractPlugin {
 
    @Parameter
    String clientClass;
@@ -44,20 +43,16 @@ public class ArtemisClientPlugin extends ArtemisAbstractPlugin
    private Properties systemProperties;
 
    @Override
-   protected void doExecute() throws MojoExecutionException, MojoFailureException
-   {
-      try
-      {
-         if (systemProperties != null && !systemProperties.isEmpty())
-         {
+   protected void doExecute() throws MojoExecutionException, MojoFailureException {
+      try {
+         if (systemProperties != null && !systemProperties.isEmpty()) {
             System.getProperties().putAll(systemProperties);
          }
          Class aClass = Class.forName(clientClass);
          Method method = aClass.getDeclaredMethod("main", new Class[]{String[].class});
          method.invoke(null, new Object[]{args});
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          getLog().error(e);
          throw new MojoFailureException(e.getMessage());
       }

@@ -37,8 +37,8 @@ import org.apache.activemq.artemis.utils.ConcurrentHashSet;
 /**
  * A simple address manager that maintains the addresses and bindings.
  */
-public class SimpleAddressManager implements AddressManager
-{
+public class SimpleAddressManager implements AddressManager {
+
    /**
     * HashMap<Address, Binding>
     */
@@ -53,50 +53,40 @@ public class SimpleAddressManager implements AddressManager
 
    private final BindingsFactory bindingsFactory;
 
-   public SimpleAddressManager(final BindingsFactory bindingsFactory)
-   {
+   public SimpleAddressManager(final BindingsFactory bindingsFactory) {
       this.bindingsFactory = bindingsFactory;
    }
 
-   public boolean addBinding(final Binding binding) throws Exception
-   {
-      if (nameMap.putIfAbsent(binding.getUniqueName(), binding) != null || pendingDeletes.contains(binding.getUniqueName()))
-      {
+   public boolean addBinding(final Binding binding) throws Exception {
+      if (nameMap.putIfAbsent(binding.getUniqueName(), binding) != null || pendingDeletes.contains(binding.getUniqueName())) {
          throw ActiveMQMessageBundle.BUNDLE.bindingAlreadyExists(binding);
       }
 
-      if (ActiveMQServerLogger.LOGGER.isTraceEnabled())
-      {
+      if (ActiveMQServerLogger.LOGGER.isTraceEnabled()) {
          ActiveMQServerLogger.LOGGER.trace("Adding binding " + binding + " with address = " + binding.getUniqueName(), new Exception("trace"));
       }
 
       return addMappingInternal(binding.getAddress(), binding);
    }
 
-   public Binding removeBinding(final SimpleString uniqueName, Transaction tx) throws Exception
-   {
+   public Binding removeBinding(final SimpleString uniqueName, Transaction tx) throws Exception {
       final Binding binding = nameMap.remove(uniqueName);
 
-      if (binding == null)
-      {
+      if (binding == null) {
          return null;
       }
 
-      if (tx != null)
-      {
+      if (tx != null) {
          pendingDeletes.add(uniqueName);
-         tx.addOperation(new TransactionOperationAbstract()
-         {
+         tx.addOperation(new TransactionOperationAbstract() {
 
             @Override
-            public void afterCommit(Transaction tx)
-            {
+            public void afterCommit(Transaction tx) {
                pendingDeletes.remove(uniqueName);
             }
 
             @Override
-            public void afterRollback(Transaction tx)
-            {
+            public void afterRollback(Transaction tx) {
                nameMap.put(uniqueName, binding);
                pendingDeletes.remove(uniqueName);
             }
@@ -109,33 +99,27 @@ public class SimpleAddressManager implements AddressManager
       return binding;
    }
 
-   public Bindings getBindingsForRoutingAddress(final SimpleString address) throws Exception
-   {
+   public Bindings getBindingsForRoutingAddress(final SimpleString address) throws Exception {
       return mappings.get(address);
    }
 
-   public Binding getBinding(final SimpleString bindableName)
-   {
+   public Binding getBinding(final SimpleString bindableName) {
       return nameMap.get(bindableName);
    }
 
-   public Map<SimpleString, Binding> getBindings()
-   {
+   public Map<SimpleString, Binding> getBindings() {
       return nameMap;
    }
 
-   public Bindings getMatchingBindings(final SimpleString address) throws Exception
-   {
+   public Bindings getMatchingBindings(final SimpleString address) throws Exception {
       Address add = new AddressImpl(address);
 
       Bindings bindings = bindingsFactory.createBindings(address);
 
-      for (Binding binding : nameMap.values())
-      {
+      for (Binding binding : nameMap.values()) {
          Address addCheck = new AddressImpl(binding.getAddress());
 
-         if (addCheck.matches(add))
-         {
+         if (addCheck.matches(add)) {
             bindings.addBinding(binding);
          }
       }
@@ -143,52 +127,42 @@ public class SimpleAddressManager implements AddressManager
       return bindings;
    }
 
-   public void clear()
-   {
+   public void clear() {
       nameMap.clear();
       mappings.clear();
    }
 
-
    @Override
-   public Set<SimpleString> getAddresses()
-   {
+   public Set<SimpleString> getAddresses() {
       Set<SimpleString> addresses = new HashSet<>();
       addresses.addAll(mappings.keySet());
       return addresses;
    }
 
-   protected void removeBindingInternal(final SimpleString address, final SimpleString bindableName)
-   {
+   protected void removeBindingInternal(final SimpleString address, final SimpleString bindableName) {
       Bindings bindings = mappings.get(address);
 
-      if (bindings != null)
-      {
+      if (bindings != null) {
          removeMapping(bindableName, bindings);
 
-         if (bindings.getBindings().isEmpty())
-         {
+         if (bindings.getBindings().isEmpty()) {
             mappings.remove(address);
          }
       }
    }
 
-   protected Binding removeMapping(final SimpleString bindableName, final Bindings bindings)
-   {
+   protected Binding removeMapping(final SimpleString bindableName, final Bindings bindings) {
       Binding theBinding = null;
 
-      for (Binding binding : bindings.getBindings())
-      {
-         if (binding.getUniqueName().equals(bindableName))
-         {
+      for (Binding binding : bindings.getBindings()) {
+         if (binding.getUniqueName().equals(bindableName)) {
             theBinding = binding;
 
             break;
          }
       }
 
-      if (theBinding == null)
-      {
+      if (theBinding == null) {
          throw new IllegalStateException("Cannot find binding " + bindableName);
       }
 
@@ -197,20 +171,17 @@ public class SimpleAddressManager implements AddressManager
       return theBinding;
    }
 
-   protected boolean addMappingInternal(final SimpleString address, final Binding binding) throws Exception
-   {
+   protected boolean addMappingInternal(final SimpleString address, final Binding binding) throws Exception {
       Bindings bindings = mappings.get(address);
 
       Bindings prevBindings = null;
 
-      if (bindings == null)
-      {
+      if (bindings == null) {
          bindings = bindingsFactory.createBindings(address);
 
          prevBindings = mappings.putIfAbsent(address, bindings);
 
-         if (prevBindings != null)
-         {
+         if (prevBindings != null) {
             bindings = prevBindings;
          }
       }

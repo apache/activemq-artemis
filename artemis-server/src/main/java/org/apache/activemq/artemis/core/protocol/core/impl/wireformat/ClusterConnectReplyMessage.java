@@ -16,52 +16,44 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
-
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 
-public class ClusterConnectReplyMessage extends PacketImpl
-{
+public class ClusterConnectReplyMessage extends PacketImpl {
+
    private boolean authorized;
 
-   public ClusterConnectReplyMessage()
-   {
+   public ClusterConnectReplyMessage() {
       super(CLUSTER_CONNECT_REPLY);
    }
 
-   public ClusterConnectReplyMessage(boolean authorized)
-   {
+   public ClusterConnectReplyMessage(boolean authorized) {
       super(CLUSTER_CONNECT_REPLY);
       this.authorized = authorized;
    }
 
    @Override
-   public boolean isResponse()
-   {
+   public boolean isResponse() {
       return true;
    }
 
    @Override
-   public void encodeRest(ActiveMQBuffer buffer)
-   {
+   public void encodeRest(ActiveMQBuffer buffer) {
       super.encodeRest(buffer);
       buffer.writeBoolean(authorized);
    }
 
    @Override
-   public void decodeRest(ActiveMQBuffer buffer)
-   {
+   public void decodeRest(ActiveMQBuffer buffer) {
       super.decodeRest(buffer);
       authorized = buffer.readBoolean();
    }
 
-   public boolean isAuthorized()
-   {
+   public boolean isAuthorized() {
       return authorized;
    }
 
-   public void setAuthorized(boolean authorized)
-   {
+   public void setAuthorized(boolean authorized) {
       this.authorized = authorized;
    }
 }

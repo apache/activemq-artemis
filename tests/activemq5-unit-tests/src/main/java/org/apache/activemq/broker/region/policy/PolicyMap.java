@@ -23,45 +23,37 @@ import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.filter.DestinationMap;
 import org.apache.activemq.filter.DestinationMapEntry;
 
-public class PolicyMap extends DestinationMap
-{
+public class PolicyMap extends DestinationMap {
 
    private PolicyEntry defaultEntry;
    private List allEntries = new ArrayList();
 
-   public PolicyEntry getEntryFor(ActiveMQDestination destination)
-   {
+   public PolicyEntry getEntryFor(ActiveMQDestination destination) {
       PolicyEntry answer = (PolicyEntry) chooseValue(destination);
-      if (answer == null)
-      {
+      if (answer == null) {
          answer = getDefaultEntry();
       }
       return answer;
    }
 
-   public void setPolicyEntries(List entries)
-   {
+   public void setPolicyEntries(List entries) {
       super.setEntries(entries);
       allEntries.addAll(entries);
    }
 
-   public List getAllEntries()
-   {
+   public List getAllEntries() {
       return allEntries;
    }
 
-   public PolicyEntry getDefaultEntry()
-   {
+   public PolicyEntry getDefaultEntry() {
       return defaultEntry;
    }
 
-   public void setDefaultEntry(PolicyEntry defaultEntry)
-   {
+   public void setDefaultEntry(PolicyEntry defaultEntry) {
       this.defaultEntry = defaultEntry;
    }
 
-   protected Class<? extends DestinationMapEntry> getEntryClass()
-   {
+   protected Class<? extends DestinationMapEntry> getEntryClass() {
       return PolicyEntry.class;
    }
 }

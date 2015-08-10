@@ -39,78 +39,78 @@ import org.junit.rules.TestName;
  */
 public class JobSchedulerTestSupport {
 
-    @Rule public TestName name = new TestName();
+   @Rule
+   public TestName name = new TestName();
 
-    protected String connectionUri;
-    protected BrokerService broker;
-    protected JobScheduler jobScheduler;
-    protected Queue destination;
+   protected String connectionUri;
+   protected BrokerService broker;
+   protected JobScheduler jobScheduler;
+   protected Queue destination;
 
-    @Before
-    public void setUp() throws Exception {
-        connectionUri = "vm://localhost";
-        destination = new ActiveMQQueue(name.getMethodName());
+   @Before
+   public void setUp() throws Exception {
+      connectionUri = "vm://localhost";
+      destination = new ActiveMQQueue(name.getMethodName());
 
-        broker = createBroker();
-        broker.start();
-        broker.waitUntilStarted();
+      broker = createBroker();
+      broker.start();
+      broker.waitUntilStarted();
 
-        jobScheduler = broker.getJobSchedulerStore().getJobScheduler("JMS");
-    }
+      jobScheduler = broker.getJobSchedulerStore().getJobScheduler("JMS");
+   }
 
-    @After
-    public void tearDown() throws Exception {
-        if (broker != null) {
-            broker.stop();
-            broker.waitUntilStopped();
-        }
-    }
+   @After
+   public void tearDown() throws Exception {
+      if (broker != null) {
+         broker.stop();
+         broker.waitUntilStopped();
+      }
+   }
 
-    protected Connection createConnection() throws Exception {
-        return createConnectionFactory().createConnection();
-    }
+   protected Connection createConnection() throws Exception {
+      return createConnectionFactory().createConnection();
+   }
 
-    protected ConnectionFactory createConnectionFactory() throws Exception {
-        return new ActiveMQConnectionFactory(connectionUri);
-    }
+   protected ConnectionFactory createConnectionFactory() throws Exception {
+      return new ActiveMQConnectionFactory(connectionUri);
+   }
 
-    protected BrokerService createBroker() throws Exception {
-        return createBroker(true);
-    }
+   protected BrokerService createBroker() throws Exception {
+      return createBroker(true);
+   }
 
-    protected boolean isUseJmx() {
-        return false;
-    }
+   protected boolean isUseJmx() {
+      return false;
+   }
 
-    protected boolean isPersistent() {
-        return true;
-    }
+   protected boolean isPersistent() {
+      return true;
+   }
 
-    protected JobSchedulerViewMBean getJobSchedulerMBean() throws Exception {
-        ObjectName objectName = broker.getAdminView().getJMSJobScheduler();
-        JobSchedulerViewMBean scheduler = null;
-        if (objectName != null) {
-            scheduler = (JobSchedulerViewMBean) broker.getManagementContext()
-                .newProxyInstance(objectName, JobSchedulerViewMBean.class, true);
-        }
+   protected JobSchedulerViewMBean getJobSchedulerMBean() throws Exception {
+      ObjectName objectName = broker.getAdminView().getJMSJobScheduler();
+      JobSchedulerViewMBean scheduler = null;
+      if (objectName != null) {
+         scheduler = (JobSchedulerViewMBean) broker.getManagementContext().newProxyInstance(objectName, JobSchedulerViewMBean.class, true);
+      }
 
-        return scheduler;
-    }
+      return scheduler;
+   }
 
-    protected BrokerService createBroker(boolean delete) throws Exception {
-        File schedulerDirectory = new File("target/scheduler");
-        if (delete) {
-            IOHelper.mkdirs(schedulerDirectory);
-            IOHelper.deleteChildren(schedulerDirectory);
-        }
+   protected BrokerService createBroker(boolean delete) throws Exception {
+      File schedulerDirectory = new File("target/scheduler");
+      if (delete) {
+         IOHelper.mkdirs(schedulerDirectory);
+         IOHelper.deleteChildren(schedulerDirectory);
+      }
 
-        BrokerService answer = new BrokerService();
-        answer.setPersistent(isPersistent());
-        answer.setDeleteAllMessagesOnStartup(true);
-        answer.setDataDirectory("target");
-        answer.setSchedulerDirectoryFile(schedulerDirectory);
-        answer.setSchedulerSupport(true);
-        answer.setUseJmx(isUseJmx());
-        return answer;
-    }
+      BrokerService answer = new BrokerService();
+      answer.setPersistent(isPersistent());
+      answer.setDeleteAllMessagesOnStartup(true);
+      answer.setDataDirectory("target");
+      answer.setSchedulerDirectoryFile(schedulerDirectory);
+      answer.setSchedulerSupport(true);
+      answer.setUseJmx(isUseJmx());
+      return answer;
+   }
 }

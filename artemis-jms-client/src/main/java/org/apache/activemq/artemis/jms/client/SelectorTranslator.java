@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *
  * This class converts a JMS selector expression into an ActiveMQ Artemis core filter expression.
  *
  * JMS selector and ActiveMQ Artemis filters use the same syntax but have different identifiers.
@@ -33,12 +32,10 @@ import java.util.List;
  *
  * This makes it less trivial than a simple search and replace.
  */
-public class SelectorTranslator
-{
-   public static String convertToActiveMQFilterString(final String selectorString)
-   {
-      if (selectorString == null)
-      {
+public class SelectorTranslator {
+
+   public static String convertToActiveMQFilterString(final String selectorString) {
+      if (selectorString == null) {
          return null;
       }
 
@@ -56,8 +53,7 @@ public class SelectorTranslator
 
    }
 
-   private static String parse(final String input, final String match, final String replace)
-   {
+   private static String parse(final String input, final String match, final String replace) {
       final char quote = '\'';
 
       boolean inQuote = false;
@@ -68,42 +64,35 @@ public class SelectorTranslator
 
       boolean replaceInQuotes = match.charAt(0) == quote;
 
-      for (int i = 0; i < input.length(); i++)
-      {
+      for (int i = 0; i < input.length(); i++) {
          char c = input.charAt(i);
 
-         if (c == quote)
-         {
+         if (c == quote) {
             inQuote = !inQuote;
          }
 
-         if ((!inQuote || replaceInQuotes) && c == match.charAt(matchPos))
-         {
+         if ((!inQuote || replaceInQuotes) && c == match.charAt(matchPos)) {
             matchPos++;
 
-            if (matchPos == match.length())
-            {
+            if (matchPos == match.length()) {
 
                boolean matched = true;
 
                // Check that name is not part of another identifier name
 
                // Check character after match
-               if (i < input.length() - 1 && Character.isJavaIdentifierPart(input.charAt(i + 1)))
-               {
+               if (i < input.length() - 1 && Character.isJavaIdentifierPart(input.charAt(i + 1))) {
                   matched = false;
                }
 
                // Check character before match
                int posBeforeStart = i - match.length();
 
-               if (posBeforeStart >= 0 && Character.isJavaIdentifierPart(input.charAt(posBeforeStart)))
-               {
+               if (posBeforeStart >= 0 && Character.isJavaIdentifierPart(input.charAt(posBeforeStart))) {
                   matched = false;
                }
 
-               if (matched)
-               {
+               if (matched) {
                   positions.add(i - match.length() + 1);
                }
 
@@ -112,20 +101,17 @@ public class SelectorTranslator
                matchPos = 0;
             }
          }
-         else
-         {
+         else {
             matchPos = 0;
          }
       }
 
-      if (!positions.isEmpty())
-      {
+      if (!positions.isEmpty()) {
          StringBuffer buff = new StringBuffer();
 
          int startPos = 0;
 
-         for (int pos : positions)
-         {
+         for (int pos : positions) {
             String substr = input.substring(startPos, pos);
 
             buff.append(substr);
@@ -135,15 +121,13 @@ public class SelectorTranslator
             startPos = pos + match.length();
          }
 
-         if (startPos < input.length())
-         {
+         if (startPos < input.length()) {
             buff.append(input.substring(startPos, input.length()));
          }
 
          return buff.toString();
       }
-      else
-      {
+      else {
          return input;
       }
    }

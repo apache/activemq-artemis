@@ -18,23 +18,24 @@
 package org.apache.activemq.store.kahadb;
 
 import junit.framework.Test;
+
 import org.apache.activemq.store.MessagePriorityTest;
 import org.apache.activemq.store.PersistenceAdapter;
 import org.apache.activemq.store.kahadb.KahaDBPersistenceAdapter;
 
 public class KahaDBMessagePriorityTest extends MessagePriorityTest {
 
-    @Override
-    protected PersistenceAdapter createPersistenceAdapter(boolean delete) throws Exception {
-        KahaDBPersistenceAdapter adapter = new KahaDBPersistenceAdapter();
-        adapter.setConcurrentStoreAndDispatchQueues(false);
-        adapter.setConcurrentStoreAndDispatchTopics(false);
-        adapter.deleteAllMessages();
-        return adapter;
-    }
-    
-    public static Test suite() {
-        return suite(KahaDBMessagePriorityTest.class);
-    }
+   @Override
+   protected PersistenceAdapter createPersistenceAdapter(boolean delete) throws Exception {
+      KahaDBPersistenceAdapter adapter = new KahaDBPersistenceAdapter();
+      adapter.setConcurrentStoreAndDispatchQueues(false);
+      adapter.setConcurrentStoreAndDispatchTopics(false);
+      adapter.deleteAllMessages();
+      return adapter;
+   }
+
+   public static Test suite() {
+      return suite(KahaDBMessagePriorityTest.class);
+   }
 
 }

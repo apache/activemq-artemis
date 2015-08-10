@@ -26,8 +26,8 @@ import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 /**
  * A Core Bridge
  */
-public interface Bridge extends Consumer, ActiveMQComponent
-{
+public interface Bridge extends Consumer, ActiveMQComponent {
+
    SimpleString getName();
 
    Queue getQueue();

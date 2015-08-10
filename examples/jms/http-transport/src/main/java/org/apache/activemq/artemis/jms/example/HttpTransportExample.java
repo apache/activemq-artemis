@@ -31,13 +31,11 @@ import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 /**
  * A simple JMS Queue example that uses HTTP protocol.
  */
-public class HttpTransportExample
-{
-   public static void main(final String[] args) throws Exception
-   {
+public class HttpTransportExample {
+
+   public static void main(final String[] args) throws Exception {
       Connection connection = null;
-      try
-      {
+      try {
          // Step 2. Perfom a lookup on the queue
          Queue queue = ActiveMQJMSClient.createQueue("exampleQueue");
 
@@ -70,15 +68,13 @@ public class HttpTransportExample
          connection.start();
 
          // Step 11. Receive the message
-         TextMessage messageReceived = (TextMessage)messageConsumer.receive(5000);
+         TextMessage messageReceived = (TextMessage) messageConsumer.receive(5000);
 
          System.out.println("Received message: " + messageReceived.getText());
 
       }
-      finally
-      {
-         if (connection != null)
-         {
+      finally {
+         if (connection != null) {
             connection.close();
          }
       }

@@ -33,134 +33,134 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * 
+ *
  */
 public class MultiBrokersMultiClientsTest extends JmsMultipleBrokersTestSupport implements UncaughtExceptionHandler {
-    public static final int BROKER_COUNT = 6; // number of brokers to network
-    public static final int CONSUMER_COUNT = 25; // consumers per broker
-    public static final int PRODUCER_COUNT = 3; // producers per broker
-    public static final int MESSAGE_COUNT = 20; // messages per producer
 
-    private static final Logger LOG = LoggerFactory.getLogger(MultiBrokersMultiClientsTest.class);
+   public static final int BROKER_COUNT = 6; // number of brokers to network
+   public static final int CONSUMER_COUNT = 25; // consumers per broker
+   public static final int PRODUCER_COUNT = 3; // producers per broker
+   public static final int MESSAGE_COUNT = 20; // messages per producer
 
-    protected Map<String, MessageConsumer> consumerMap;
-    final Map<Thread, Throwable> unhandeledExceptions = new HashMap<Thread, Throwable>();
+   private static final Logger LOG = LoggerFactory.getLogger(MultiBrokersMultiClientsTest.class);
 
-    public void testTopicAllConnected() throws Exception {
-        bridgeAllBrokers();
-        startAllBrokers();
-        waitForBridgeFormation();
+   protected Map<String, MessageConsumer> consumerMap;
+   final Map<Thread, Throwable> unhandeledExceptions = new HashMap<Thread, Throwable>();
 
-        // Setup topic destination
-        Destination dest = createDestination("TEST.FOO", true);
+   public void testTopicAllConnected() throws Exception {
+      bridgeAllBrokers();
+      startAllBrokers();
+      waitForBridgeFormation();
 
-        CountDownLatch latch = new CountDownLatch(BROKER_COUNT * PRODUCER_COUNT * BROKER_COUNT * CONSUMER_COUNT * MESSAGE_COUNT);
+      // Setup topic destination
+      Destination dest = createDestination("TEST.FOO", true);
 
-        // Setup consumers
-        for (int i = 1; i <= BROKER_COUNT; i++) {
-            for (int j = 0; j < CONSUMER_COUNT; j++) {
-                consumerMap.put("Consumer:" + i + ":" + j, createConsumer("Broker" + i, dest, latch));
-            }
-        }
+      CountDownLatch latch = new CountDownLatch(BROKER_COUNT * PRODUCER_COUNT * BROKER_COUNT * CONSUMER_COUNT * MESSAGE_COUNT);
 
-        // wait for consumers to get propagated
-        for (int i = 1; i <= BROKER_COUNT; i++) {
-        	// all consumers on the remote brokers look like 1 consumer to the local broker.
-        	assertConsumersConnect("Broker" + i, dest, (BROKER_COUNT-1)+CONSUMER_COUNT, 65000);
-        }
+      // Setup consumers
+      for (int i = 1; i <= BROKER_COUNT; i++) {
+         for (int j = 0; j < CONSUMER_COUNT; j++) {
+            consumerMap.put("Consumer:" + i + ":" + j, createConsumer("Broker" + i, dest, latch));
+         }
+      }
 
-        // Send messages
-        for (int i = 1; i <= BROKER_COUNT; i++) {
-            for (int j = 0; j < PRODUCER_COUNT; j++) {
-                sendMessages("Broker" + i, dest, MESSAGE_COUNT);
-            }
-        }
+      // wait for consumers to get propagated
+      for (int i = 1; i <= BROKER_COUNT; i++) {
+         // all consumers on the remote brokers look like 1 consumer to the local broker.
+         assertConsumersConnect("Broker" + i, dest, (BROKER_COUNT - 1) + CONSUMER_COUNT, 65000);
+      }
 
-        assertTrue("Missing " + latch.getCount() + " messages", latch.await(45, TimeUnit.SECONDS));
+      // Send messages
+      for (int i = 1; i <= BROKER_COUNT; i++) {
+         for (int j = 0; j < PRODUCER_COUNT; j++) {
+            sendMessages("Broker" + i, dest, MESSAGE_COUNT);
+         }
+      }
 
-        // Get message count
-        for (int i = 1; i <= BROKER_COUNT; i++) {
-            for (int j = 0; j < CONSUMER_COUNT; j++) {
-                MessageIdList msgs = getConsumerMessages("Broker" + i, (MessageConsumer)consumerMap.get("Consumer:" + i + ":" + j));
-                assertEquals(BROKER_COUNT * PRODUCER_COUNT * MESSAGE_COUNT, msgs.getMessageCount());
-            }
-        }
+      assertTrue("Missing " + latch.getCount() + " messages", latch.await(45, TimeUnit.SECONDS));
 
-        assertNoUnhandeledExceptions();
-    }
+      // Get message count
+      for (int i = 1; i <= BROKER_COUNT; i++) {
+         for (int j = 0; j < CONSUMER_COUNT; j++) {
+            MessageIdList msgs = getConsumerMessages("Broker" + i, (MessageConsumer) consumerMap.get("Consumer:" + i + ":" + j));
+            assertEquals(BROKER_COUNT * PRODUCER_COUNT * MESSAGE_COUNT, msgs.getMessageCount());
+         }
+      }
 
-    private void assertNoUnhandeledExceptions() {
-        for( Entry<Thread, Throwable> e: unhandeledExceptions.entrySet()) {
-            LOG.error("Thread:" + e.getKey() + " Had unexpected: " + e.getValue());
-        }
-        assertTrue("There are no unhandelled exceptions, see: log for detail on: " + unhandeledExceptions,
-                unhandeledExceptions.isEmpty());
-    }
+      assertNoUnhandeledExceptions();
+   }
 
-    public void testQueueAllConnected() throws Exception {
-        bridgeAllBrokers();
-        startAllBrokers();
-        this.waitForBridgeFormation();
+   private void assertNoUnhandeledExceptions() {
+      for (Entry<Thread, Throwable> e : unhandeledExceptions.entrySet()) {
+         LOG.error("Thread:" + e.getKey() + " Had unexpected: " + e.getValue());
+      }
+      assertTrue("There are no unhandelled exceptions, see: log for detail on: " + unhandeledExceptions, unhandeledExceptions.isEmpty());
+   }
 
-        // Setup topic destination
-        Destination dest = createDestination("TEST.FOO", false);
+   public void testQueueAllConnected() throws Exception {
+      bridgeAllBrokers();
+      startAllBrokers();
+      this.waitForBridgeFormation();
 
-        CountDownLatch latch = new CountDownLatch(BROKER_COUNT * PRODUCER_COUNT * MESSAGE_COUNT);
+      // Setup topic destination
+      Destination dest = createDestination("TEST.FOO", false);
 
-        // Setup consumers
-        for (int i = 1; i <= BROKER_COUNT; i++) {
-            for (int j = 0; j < CONSUMER_COUNT; j++) {
-                consumerMap.put("Consumer:" + i + ":" + j, createConsumer("Broker" + i, dest, latch));
-            }
-        }
+      CountDownLatch latch = new CountDownLatch(BROKER_COUNT * PRODUCER_COUNT * MESSAGE_COUNT);
 
-        // wait for consumers to get propagated
-        for (int i = 1; i <= BROKER_COUNT; i++) {
-        	// all consumers on the remote brokers look like 1 consumer to the local broker.
-        	assertConsumersConnect("Broker" + i, dest, (BROKER_COUNT-1)+CONSUMER_COUNT, 65000);
-        }
+      // Setup consumers
+      for (int i = 1; i <= BROKER_COUNT; i++) {
+         for (int j = 0; j < CONSUMER_COUNT; j++) {
+            consumerMap.put("Consumer:" + i + ":" + j, createConsumer("Broker" + i, dest, latch));
+         }
+      }
 
-        // Send messages
-        for (int i = 1; i <= BROKER_COUNT; i++) {
-            for (int j = 0; j < PRODUCER_COUNT; j++) {
-                sendMessages("Broker" + i, dest, MESSAGE_COUNT);
-            }
-        }
+      // wait for consumers to get propagated
+      for (int i = 1; i <= BROKER_COUNT; i++) {
+         // all consumers on the remote brokers look like 1 consumer to the local broker.
+         assertConsumersConnect("Broker" + i, dest, (BROKER_COUNT - 1) + CONSUMER_COUNT, 65000);
+      }
 
-        // Wait for messages to be delivered
-        assertTrue("Missing " + latch.getCount() + " messages", latch.await(45, TimeUnit.SECONDS));
+      // Send messages
+      for (int i = 1; i <= BROKER_COUNT; i++) {
+         for (int j = 0; j < PRODUCER_COUNT; j++) {
+            sendMessages("Broker" + i, dest, MESSAGE_COUNT);
+         }
+      }
 
-        // Get message count
-        int totalMsg = 0;
-        for (int i = 1; i <= BROKER_COUNT; i++) {
-            for (int j = 0; j < CONSUMER_COUNT; j++) {
-                MessageIdList msgs = getConsumerMessages("Broker" + i, consumerMap.get("Consumer:" + i + ":" + j));
-                totalMsg += msgs.getMessageCount();
-            }
-        }
-        assertEquals(BROKER_COUNT * PRODUCER_COUNT * MESSAGE_COUNT, totalMsg);
-        
-        assertNoUnhandeledExceptions();
-    }
+      // Wait for messages to be delivered
+      assertTrue("Missing " + latch.getCount() + " messages", latch.await(45, TimeUnit.SECONDS));
 
-    public void setUp() throws Exception {
-        super.setAutoFail(true);
-        super.setUp();
+      // Get message count
+      int totalMsg = 0;
+      for (int i = 1; i <= BROKER_COUNT; i++) {
+         for (int j = 0; j < CONSUMER_COUNT; j++) {
+            MessageIdList msgs = getConsumerMessages("Broker" + i, consumerMap.get("Consumer:" + i + ":" + j));
+            totalMsg += msgs.getMessageCount();
+         }
+      }
+      assertEquals(BROKER_COUNT * PRODUCER_COUNT * MESSAGE_COUNT, totalMsg);
 
-        unhandeledExceptions.clear();
-        Thread.setDefaultUncaughtExceptionHandler(this);
-        
-        // Setup n brokers
-        for (int i = 1; i <= BROKER_COUNT; i++) {
-            createBroker(new URI("broker:()/Broker" + i + "?persistent=false&useJmx=false"));
-        }
+      assertNoUnhandeledExceptions();
+   }
 
-        consumerMap = new HashMap<String, MessageConsumer>();
-    }
+   public void setUp() throws Exception {
+      super.setAutoFail(true);
+      super.setUp();
 
-    public void uncaughtException(Thread t, Throwable e) {
-        synchronized(unhandeledExceptions) {
-            unhandeledExceptions.put(t,e);
-        }
-    }
+      unhandeledExceptions.clear();
+      Thread.setDefaultUncaughtExceptionHandler(this);
+
+      // Setup n brokers
+      for (int i = 1; i <= BROKER_COUNT; i++) {
+         createBroker(new URI("broker:()/Broker" + i + "?persistent=false&useJmx=false"));
+      }
+
+      consumerMap = new HashMap<String, MessageConsumer>();
+   }
+
+   public void uncaughtException(Thread t, Throwable e) {
+      synchronized (unhandeledExceptions) {
+         unhandeledExceptions.put(t, e);
+      }
+   }
 }

@@ -41,8 +41,8 @@ import org.apache.activemq.artemis.utils.UUIDGenerator;
  * ClientSessionFactory sf = new ClientSessionFactoryImpl(config);
  * </pre>
  */
-public class TransportConfiguration implements Serializable
-{
+public class TransportConfiguration implements Serializable {
+
    private static final long serialVersionUID = -3994528421527392679L;
 
    private String name;
@@ -65,16 +65,13 @@ public class TransportConfiguration implements Serializable
     * @param commaSeparatedHosts the comma separated host string
     * @return the hosts
     */
-   public static String[] splitHosts(final String commaSeparatedHosts)
-   {
-      if (commaSeparatedHosts == null)
-      {
+   public static String[] splitHosts(final String commaSeparatedHosts) {
+      if (commaSeparatedHosts == null) {
          return new String[0];
       }
       String[] hosts = commaSeparatedHosts.split(",");
 
-      for (int i = 0; i < hosts.length; i++)
-      {
+      for (int i = 0; i < hosts.length; i++) {
          hosts[i] = hosts[i].trim();
       }
       return hosts;
@@ -83,8 +80,7 @@ public class TransportConfiguration implements Serializable
    /**
     * Creates a default TransportConfiguration with no configured transport.
     */
-   public TransportConfiguration()
-   {
+   public TransportConfiguration() {
       this.params = new HashMap<>();
    }
 
@@ -96,16 +92,13 @@ public class TransportConfiguration implements Serializable
     * @param params    The parameters needed by the ConnectorFactory
     * @param name      The name of this TransportConfiguration
     */
-   public TransportConfiguration(final String className, final Map<String, Object> params, final String name)
-   {
+   public TransportConfiguration(final String className, final Map<String, Object> params, final String name) {
       factoryClassName = className;
 
-      if (params == null || params.isEmpty())
-      {
+      if (params == null || params.isEmpty()) {
          this.params = TransportConfigurationUtil.getDefaults(className);
       }
-      else
-      {
+      else {
          this.params = params;
       }
 
@@ -119,8 +112,7 @@ public class TransportConfiguration implements Serializable
     * @param className The class name of the ConnectorFactory
     * @param params    The parameters needed by the ConnectorFactory
     */
-   public TransportConfiguration(final String className, final Map<String, Object> params)
-   {
+   public TransportConfiguration(final String className, final Map<String, Object> params) {
       this(className, params, UUIDGenerator.getInstance().generateStringUUID());
    }
 
@@ -129,8 +121,7 @@ public class TransportConfiguration implements Serializable
     *
     * @param className The class name of the ConnectorFactory
     */
-   public TransportConfiguration(final String className)
-   {
+   public TransportConfiguration(final String className) {
       this(className, new HashMap<String, Object>(), UUIDGenerator.getInstance().generateStringUUID());
    }
 
@@ -139,8 +130,7 @@ public class TransportConfiguration implements Serializable
     *
     * @return the name
     */
-   public String getName()
-   {
+   public String getName() {
       return name;
    }
 
@@ -149,8 +139,7 @@ public class TransportConfiguration implements Serializable
     *
     * @return The factory's class name
     */
-   public String getFactoryClassName()
-   {
+   public String getFactoryClassName() {
       return factoryClassName;
    }
 
@@ -159,62 +148,49 @@ public class TransportConfiguration implements Serializable
     *
     * @return the parameters
     */
-   public Map<String, Object> getParams()
-   {
+   public Map<String, Object> getParams() {
       return params;
    }
 
    @Override
-   public int hashCode()
-   {
+   public int hashCode() {
       return factoryClassName.hashCode();
    }
 
    @Override
-   public boolean equals(final Object other)
-   {
-      if (other instanceof TransportConfiguration == false)
-      {
+   public boolean equals(final Object other) {
+      if (other instanceof TransportConfiguration == false) {
          return false;
       }
 
       TransportConfiguration kother = (TransportConfiguration) other;
 
-      if (factoryClassName.equals(kother.factoryClassName))
-      {
-         if (params == null || params.isEmpty())
-         {
+      if (factoryClassName.equals(kother.factoryClassName)) {
+         if (params == null || params.isEmpty()) {
             return kother.params == null || kother.params.isEmpty();
          }
-         else
-         {
-            if (kother.params == null || kother.params.isEmpty())
-            {
+         else {
+            if (kother.params == null || kother.params.isEmpty()) {
                return false;
             }
-            else if (params.size() == kother.params.size())
-            {
-               for (Map.Entry<String, Object> entry : params.entrySet())
-               {
+            else if (params.size() == kother.params.size()) {
+               for (Map.Entry<String, Object> entry : params.entrySet()) {
                   Object thisVal = entry.getValue();
 
                   Object otherVal = kother.params.get(entry.getKey());
 
-                  if (otherVal == null || !otherVal.equals(thisVal))
-                  {
+                  if (otherVal == null || !otherVal.equals(thisVal)) {
                      return false;
                   }
                }
                return true;
             }
-            else
-            {
+            else {
                return false;
             }
          }
       }
-      else
-      {
+      else {
          return false;
       }
    }
@@ -224,48 +200,39 @@ public class TransportConfiguration implements Serializable
     * use a Netty Cluster Connection on an InVM ClusterConnection (inVM used on tests) for that
     * reason I need to test if the two instances of the TransportConfiguration are equivalent while
     * a test a connector against an acceptor
+    *
     * @param otherConfig
     * @return {@code true} if the factory class names are equivalents
     */
-   public boolean isEquivalent(TransportConfiguration otherConfig)
-   {
-      if (this.getFactoryClassName().equals(otherConfig.getFactoryClassName()))
-      {
+   public boolean isEquivalent(TransportConfiguration otherConfig) {
+      if (this.getFactoryClassName().equals(otherConfig.getFactoryClassName())) {
          return true;
       }
-      else if (this.getFactoryClassName().contains("Netty") && otherConfig.getFactoryClassName().contains("Netty"))
-      {
+      else if (this.getFactoryClassName().contains("Netty") && otherConfig.getFactoryClassName().contains("Netty")) {
          return true;
       }
-      else if (this.getFactoryClassName().contains("InVM") && otherConfig.getFactoryClassName().contains("InVM"))
-      {
+      else if (this.getFactoryClassName().contains("InVM") && otherConfig.getFactoryClassName().contains("InVM")) {
          return true;
       }
-      else
-      {
+      else {
          return false;
       }
    }
 
    @Override
-   public String toString()
-   {
+   public String toString() {
       StringBuilder str = new StringBuilder(TransportConfiguration.class.getSimpleName());
       str.append("(name=" + name + ", ");
       str.append("factory=" + replaceWildcardChars(factoryClassName));
       str.append(") ");
-      if (params != null)
-      {
-         if (!params.isEmpty())
-         {
+      if (params != null) {
+         if (!params.isEmpty()) {
             str.append("?");
          }
 
          boolean first = true;
-         for (Map.Entry<String, Object> entry : params.entrySet())
-         {
-            if (!first)
-            {
+         for (Map.Entry<String, Object> entry : params.entrySet()) {
+            if (!first) {
                str.append("&");
             }
 
@@ -273,12 +240,10 @@ public class TransportConfiguration implements Serializable
 
             // HORNETQ-1281 - don't log passwords
             String val;
-            if (key.equals(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME) || key.equals(TransportConstants.DEFAULT_TRUSTSTORE_PASSWORD))
-            {
+            if (key.equals(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME) || key.equals(TransportConstants.DEFAULT_TRUSTSTORE_PASSWORD)) {
                val = "****";
             }
-            else
-            {
+            else {
                val = entry.getValue() == null ? "null" : entry.getValue().toString();
             }
 
@@ -297,43 +262,35 @@ public class TransportConfiguration implements Serializable
     *
     * @param buffer the buffer to encode into
     */
-   public void encode(final ActiveMQBuffer buffer)
-   {
+   public void encode(final ActiveMQBuffer buffer) {
       buffer.writeString(name);
       buffer.writeString(factoryClassName);
 
       buffer.writeInt(params == null ? 0 : params.size());
 
-      if (params != null)
-      {
-         for (Map.Entry<String, Object> entry : params.entrySet())
-         {
+      if (params != null) {
+         for (Map.Entry<String, Object> entry : params.entrySet()) {
             buffer.writeString(entry.getKey());
 
             Object val = entry.getValue();
 
-            if (val instanceof Boolean)
-            {
+            if (val instanceof Boolean) {
                buffer.writeByte(TransportConfiguration.TYPE_BOOLEAN);
                buffer.writeBoolean((Boolean) val);
             }
-            else if (val instanceof Integer)
-            {
+            else if (val instanceof Integer) {
                buffer.writeByte(TransportConfiguration.TYPE_INT);
                buffer.writeInt((Integer) val);
             }
-            else if (val instanceof Long)
-            {
+            else if (val instanceof Long) {
                buffer.writeByte(TransportConfiguration.TYPE_LONG);
                buffer.writeLong((Long) val);
             }
-            else if (val instanceof String)
-            {
+            else if (val instanceof String) {
                buffer.writeByte(TransportConfiguration.TYPE_STRING);
                buffer.writeString((String) val);
             }
-            else
-            {
+            else {
                throw ActiveMQClientMessageBundle.BUNDLE.invalidEncodeType(val);
             }
          }
@@ -347,61 +304,50 @@ public class TransportConfiguration implements Serializable
     *
     * @param buffer the buffer to decode from
     */
-   public void decode(final ActiveMQBuffer buffer)
-   {
+   public void decode(final ActiveMQBuffer buffer) {
       name = buffer.readString();
       factoryClassName = buffer.readString();
 
       int num = buffer.readInt();
 
-      if (params == null)
-      {
-         if (num > 0)
-         {
+      if (params == null) {
+         if (num > 0) {
             params = new HashMap<String, Object>();
          }
       }
-      else
-      {
+      else {
          params.clear();
       }
 
-      for (int i = 0; i < num; i++)
-      {
+      for (int i = 0; i < num; i++) {
          String key = buffer.readString();
 
          byte type = buffer.readByte();
 
          Object val;
 
-         switch (type)
-         {
-            case TYPE_BOOLEAN:
-            {
+         switch (type) {
+            case TYPE_BOOLEAN: {
                val = buffer.readBoolean();
 
                break;
             }
-            case TYPE_INT:
-            {
+            case TYPE_INT: {
                val = buffer.readInt();
 
                break;
             }
-            case TYPE_LONG:
-            {
+            case TYPE_LONG: {
                val = buffer.readLong();
 
                break;
             }
-            case TYPE_STRING:
-            {
+            case TYPE_STRING: {
                val = buffer.readString();
 
                break;
             }
-            default:
-            {
+            default: {
                throw ActiveMQClientMessageBundle.BUNDLE.invalidType(type);
             }
          }
@@ -410,8 +356,7 @@ public class TransportConfiguration implements Serializable
       }
    }
 
-   private static String replaceWildcardChars(final String str)
-   {
+   private static String replaceWildcardChars(final String str) {
       return str.replace('.', '-');
    }
 }

@@ -26,8 +26,8 @@ import org.apache.activemq.artemis.utils.json.JSONObject;
  * Helper class to create Java Objects from the
  * JSON serialization returned by {@link QueueControl#listMessageCounter()}.
  */
-public final class MessageCounterInfo
-{
+public final class MessageCounterInfo {
+
    private final String name;
 
    private final String subscription;
@@ -48,12 +48,12 @@ public final class MessageCounterInfo
 
    /**
     * Returns a JSON String serialization of a {@link MessageCounter} object.
+    *
     * @param counter
     * @return
     * @throws Exception
     */
-   public static String toJSon(final MessageCounter counter) throws Exception
-   {
+   public static String toJSon(final MessageCounter counter) throws Exception {
       DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM);
 
       JSONObject json = new JSONObject(counter);
@@ -69,8 +69,7 @@ public final class MessageCounterInfo
     * Returns an array of RoleInfo corresponding to the JSON serialization returned
     * by {@link QueueControl#listMessageCounter()}.
     */
-   public static MessageCounterInfo fromJSON(final String jsonString) throws Exception
-   {
+   public static MessageCounterInfo fromJSON(final String jsonString) throws Exception {
       JSONObject data = new JSONObject(jsonString);
       String name = data.getString("destinationName");
       String subscription = data.getString("destinationSubscription");
@@ -82,15 +81,7 @@ public final class MessageCounterInfo
       String lastAddTimestamp = data.getString("lastAddTimestamp");
       String updateTimestamp = data.getString("updateTimestamp");
 
-      return new MessageCounterInfo(name,
-                                    subscription,
-                                    durable,
-                                    count,
-                                    countDelta,
-                                    depth,
-                                    depthDelta,
-                                    lastAddTimestamp,
-                                    updateTimestamp);
+      return new MessageCounterInfo(name, subscription, durable, count, countDelta, depth, depthDelta, lastAddTimestamp, updateTimestamp);
    }
 
    // Constructors --------------------------------------------------
@@ -103,8 +94,7 @@ public final class MessageCounterInfo
                              final int depth,
                              final int depthDelta,
                              final String lastAddTimestamp,
-                             final String udpateTimestamp)
-   {
+                             final String udpateTimestamp) {
       this.name = name;
       this.subscription = subscription;
       this.durable = durable;
@@ -121,72 +111,63 @@ public final class MessageCounterInfo
    /**
     * Returns the name of the queue.
     */
-   public String getName()
-   {
+   public String getName() {
       return name;
    }
 
    /**
     * Returns the name of the subscription.
     */
-   public String getSubscription()
-   {
+   public String getSubscription() {
       return subscription;
    }
 
    /**
     * Returns whether the queue is durable.
     */
-   public boolean isDurable()
-   {
+   public boolean isDurable() {
       return durable;
    }
 
    /**
     * Returns the number of messages added to the queue since it was created.
     */
-   public long getCount()
-   {
+   public long getCount() {
       return count;
    }
 
    /**
     * Returns the number of messages added to the queue since the last counter sample.
     */
-   public long getCountDelta()
-   {
+   public long getCountDelta() {
       return countDelta;
    }
 
    /**
     * Returns the number of messages currently in the queue.
     */
-   public int getDepth()
-   {
+   public int getDepth() {
       return depth;
    }
 
    /**
     * Returns the number of messages in the queue since last counter sample.
     */
-   public int getDepthDelta()
-   {
+   public int getDepthDelta() {
       return depthDelta;
    }
 
    /**
     * Returns the timestamp of the last time a message was added to the queue.
     */
-   public String getLastAddTimestamp()
-   {
+   public String getLastAddTimestamp() {
       return lastAddTimestamp;
    }
 
    /**
     * Returns the timestamp of the last time the queue was updated.
     */
-   public String getUdpateTimestamp()
-   {
+   public String getUdpateTimestamp() {
       return udpateTimestamp;
    }
 }

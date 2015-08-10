@@ -28,19 +28,16 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class ClientAckTopicTest extends MessageTestBase
-{
+public class ClientAckTopicTest extends MessageTestBase {
 
    @BeforeClass
-   public static void setup() throws Exception
-   {
+   public static void setup() throws Exception {
       TopicDeployment deployment1 = new TopicDeployment("testQueue", true);
       manager.getTopicManager().deploy(deployment1);
    }
 
    @Test
-   public void testAckTimeoutX2() throws Exception
-   {
+   public void testAckTimeoutX2() throws Exception {
       TopicDeployment deployment = new TopicDeployment();
       deployment.setConsumerSessionTimeoutSeconds(1);
       deployment.setDuplicatesAllowed(true);
@@ -54,10 +51,7 @@ public class ClientAckTopicTest extends MessageTestBase
       testAckTimeout();
    }
 
-
-   public void testAckTimeout() throws Exception
-   {
-
+   public void testAckTimeout() throws Exception {
 
       ClientRequest request = new ClientRequest(TestPortProvider.generateURL("/topics/testAck"));
 
@@ -67,14 +61,11 @@ public class ClientAckTopicTest extends MessageTestBase
       Link sender = getLinkByTitle(manager.getTopicManager().getLinkStrategy(), response, "create");
       System.out.println("create: " + sender);
       Link subscriptions = getLinkByTitle(manager.getTopicManager().getLinkStrategy(), response, "pull-subscriptions");
-      response = subscriptions.request().formParameter("autoAck", "false")
-         .formParameter("durable", "true")
-         .post();
+      response = subscriptions.request().formParameter("autoAck", "false").formParameter("durable", "true").post();
       response.releaseConnection();
       Assert.assertEquals(201, response.getStatus());
       Link sub1 = response.getLocationLink();
       Assert.assertNotNull(sub1);
-
 
       Link consumeNext = getLinkByTitle(manager.getTopicManager().getLinkStrategy(), response, "acknowledge-next");
       System.out.println("poller: " + consumeNext);
@@ -83,7 +74,6 @@ public class ClientAckTopicTest extends MessageTestBase
          ClientResponse<?> res = sender.request().body("text/plain", Integer.toString(1)).post();
          res.releaseConnection();
          Assert.assertEquals(201, res.getStatus());
-
 
          res = consumeNext.request().post(String.class);
          res.releaseConnection();
@@ -100,8 +90,7 @@ public class ClientAckTopicTest extends MessageTestBase
          Thread.sleep(2000);
 
          ClientResponse ackRes = ack.request().formParameter("acknowledge", "true").post();
-         if (ackRes.getStatus() == 500)
-         {
+         if (ackRes.getStatus() == 500) {
             System.out.println("Failure: " + ackRes.getEntity(String.class));
          }
          ackRes.releaseConnection();
@@ -121,8 +110,7 @@ public class ClientAckTopicTest extends MessageTestBase
          System.out.println("consumeNext: " + consumeNext);
 
          ClientResponse ackRes = ack.request().formParameter("acknowledge", "true").post();
-         if (ackRes.getStatus() != 204)
-         {
+         if (ackRes.getStatus() != 204) {
             System.out.println(ackRes.getEntity(String.class));
          }
          ackRes.releaseConnection();
@@ -132,8 +120,7 @@ public class ClientAckTopicTest extends MessageTestBase
    }
 
    @Test
-   public void testSuccessFirst() throws Exception
-   {
+   public void testSuccessFirst() throws Exception {
       ClientRequest request = new ClientRequest(TestPortProvider.generateURL("/topics/testQueue"));
 
       ClientResponse<?> response = request.head();
@@ -142,11 +129,8 @@ public class ClientAckTopicTest extends MessageTestBase
       Link sender = getLinkByTitle(manager.getTopicManager().getLinkStrategy(), response, "create");
       System.out.println("create: " + sender);
 
-
       Link subscriptions = getLinkByTitle(manager.getTopicManager().getLinkStrategy(), response, "pull-subscriptions");
-      response = subscriptions.request().formParameter("autoAck", "false")
-         .formParameter("durable", "true")
-         .post();
+      response = subscriptions.request().formParameter("autoAck", "false").formParameter("durable", "true").post();
       response.releaseConnection();
       Assert.assertEquals(201, response.getStatus());
       Link sub1 = response.getLocationLink();
@@ -196,8 +180,7 @@ public class ClientAckTopicTest extends MessageTestBase
    }
 
    @Test
-   public void testSuccessFirstNonDurable() throws Exception
-   {
+   public void testSuccessFirstNonDurable() throws Exception {
       ClientRequest request = new ClientRequest(TestPortProvider.generateURL("/topics/testQueue"));
 
       ClientResponse<?> response = request.head();
@@ -206,11 +189,8 @@ public class ClientAckTopicTest extends MessageTestBase
       Link sender = getLinkByTitle(manager.getTopicManager().getLinkStrategy(), response, "create");
       System.out.println("create: " + sender);
 
-
       Link subscriptions = getLinkByTitle(manager.getTopicManager().getLinkStrategy(), response, "pull-subscriptions");
-      response = subscriptions.request().formParameter("autoAck", "false")
-         .formParameter("durable", "false")
-         .post();
+      response = subscriptions.request().formParameter("autoAck", "false").formParameter("durable", "false").post();
       response.releaseConnection();
       Assert.assertEquals(201, response.getStatus());
       Link sub1 = response.getLocationLink();
@@ -260,8 +240,7 @@ public class ClientAckTopicTest extends MessageTestBase
    }
 
    @Test
-   public void testPull() throws Exception
-   {
+   public void testPull() throws Exception {
       ClientRequest request = new ClientRequest(TestPortProvider.generateURL("/topics/testQueue"));
 
       ClientResponse<?> response = request.head();
@@ -270,9 +249,7 @@ public class ClientAckTopicTest extends MessageTestBase
       Link sender = getLinkByTitle(manager.getTopicManager().getLinkStrategy(), response, "create");
       System.out.println("create: " + sender);
       Link subscriptions = getLinkByTitle(manager.getTopicManager().getLinkStrategy(), response, "pull-subscriptions");
-      response = subscriptions.request().formParameter("autoAck", "false")
-         .formParameter("durable", "true")
-         .post();
+      response = subscriptions.request().formParameter("autoAck", "false").formParameter("durable", "true").post();
       response.releaseConnection();
       Assert.assertEquals(201, response.getStatus());
       Link sub1 = response.getLocationLink();

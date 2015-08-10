@@ -21,7 +21,7 @@ package org.apache.activemq.artemis.core.client.impl;
  * This listener is not part of the API and shouldn't be used by users.
  * (if you do so we can't guarantee any API compatibility on this class)
  */
-public interface AfterConnectInternalListener
-{
+public interface AfterConnectInternalListener {
+
    void onConnection(ClientSessionFactoryInternal sf);
 }

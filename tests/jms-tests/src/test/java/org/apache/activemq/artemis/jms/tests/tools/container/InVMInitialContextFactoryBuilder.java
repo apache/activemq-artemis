@@ -24,8 +24,7 @@ import javax.naming.NamingException;
 import javax.naming.spi.InitialContextFactory;
 import javax.naming.spi.InitialContextFactoryBuilder;
 
-public class InVMInitialContextFactoryBuilder implements InitialContextFactoryBuilder
-{
+public class InVMInitialContextFactoryBuilder implements InitialContextFactoryBuilder {
    // Constants ------------------------------------------------------------------------------------
 
    private static final JmsTestLogger log = JmsTestLogger.LOGGER;
@@ -36,55 +35,44 @@ public class InVMInitialContextFactoryBuilder implements InitialContextFactoryBu
 
    // Constructors ---------------------------------------------------------------------------------
 
-   public InVMInitialContextFactoryBuilder()
-   {
+   public InVMInitialContextFactoryBuilder() {
    }
 
    // InitialContextFactoryBuilder implementation --------------------------------------------------
 
-   public InitialContextFactory createInitialContextFactory(final Hashtable environment) throws NamingException
-   {
+   public InitialContextFactory createInitialContextFactory(final Hashtable environment) throws NamingException {
 
       InitialContextFactory icf = null;
 
-      if (environment != null)
-      {
-         String icfName = (String)environment.get("java.naming.factory.initial");
+      if (environment != null) {
+         String icfName = (String) environment.get("java.naming.factory.initial");
 
-         if (icfName != null)
-         {
+         if (icfName != null) {
             Class c = null;
 
-            try
-            {
+            try {
                c = Class.forName(icfName);
             }
-            catch (ClassNotFoundException e)
-            {
+            catch (ClassNotFoundException e) {
                InVMInitialContextFactoryBuilder.log.error("\"" + icfName + "\" cannot be loaded", e);
                throw new NamingException("\"" + icfName + "\" cannot be loaded");
             }
 
-            try
-            {
-               icf = (InitialContextFactory)c.newInstance();
+            try {
+               icf = (InitialContextFactory) c.newInstance();
             }
-            catch (InstantiationException e)
-            {
+            catch (InstantiationException e) {
                InVMInitialContextFactoryBuilder.log.error(c.getName() + " cannot be instantiated", e);
                throw new NamingException(c.getName() + " cannot be instantiated");
             }
-            catch (IllegalAccessException e)
-            {
-               InVMInitialContextFactoryBuilder.log.error(c.getName() + " instantiation generated an IllegalAccessException",
-                                                          e);
+            catch (IllegalAccessException e) {
+               InVMInitialContextFactoryBuilder.log.error(c.getName() + " instantiation generated an IllegalAccessException", e);
                throw new NamingException(c.getName() + " instantiation generated an IllegalAccessException");
             }
          }
       }
 
-      if (icf == null)
-      {
+      if (icf == null) {
          icf = new InVMInitialContextFactory();
       }
 

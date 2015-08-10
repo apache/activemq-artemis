@@ -34,12 +34,10 @@ import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
 
+public class StompOverHttpTest extends StompTest {
 
-public class StompOverHttpTest extends StompTest
-{
    @Override
-   protected void addChannelHandlers(SocketChannel ch)
-   {
+   protected void addChannelHandlers(SocketChannel ch) {
       ch.pipeline().addLast(new HttpRequestEncoder());
       ch.pipeline().addLast(new HttpResponseDecoder());
       ch.pipeline().addLast(new HttpHandler());
@@ -49,37 +47,31 @@ public class StompOverHttpTest extends StompTest
    }
 
    @Override
-   public String receiveFrame(long timeOut) throws Exception
-   {
+   public String receiveFrame(long timeOut) throws Exception {
       //we are request/response so may need to send an empty request so we get responses piggy backed
       sendFrame(new byte[]{});
       return super.receiveFrame(timeOut);
    }
 
-   class HttpHandler extends ChannelDuplexHandler
-   {
+   class HttpHandler extends ChannelDuplexHandler {
+
       @Override
-      public void channelRead(final ChannelHandlerContext ctx, final Object msg) throws Exception
-      {
-         if (msg instanceof DefaultHttpContent)
-         {
-            DefaultHttpContent response = (DefaultHttpContent)msg;
+      public void channelRead(final ChannelHandlerContext ctx, final Object msg) throws Exception {
+         if (msg instanceof DefaultHttpContent) {
+            DefaultHttpContent response = (DefaultHttpContent) msg;
             ctx.fireChannelRead(response.content());
          }
       }
 
       @Override
-      public void write(final ChannelHandlerContext ctx, final Object msg, ChannelPromise promise) throws Exception
-      {
-         if (msg instanceof ByteBuf)
-         {
+      public void write(final ChannelHandlerContext ctx, final Object msg, ChannelPromise promise) throws Exception {
+         if (msg instanceof ByteBuf) {
             ByteBuf buf = (ByteBuf) msg;
             FullHttpRequest httpRequest = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, "", buf);
             httpRequest.headers().add(HttpHeaders.Names.CONTENT_LENGTH, String.valueOf(buf.readableBytes()));
             ctx.write(httpRequest, promise);
          }
-         else
-         {
+         else {
             ctx.write(msg, promise);
          }
       }

@@ -25,8 +25,8 @@ import org.apache.activemq.artemis.core.postoffice.Address;
 /**
  * splits an address string into its hierarchical parts split by '.'
  */
-public class AddressImpl implements Address
-{
+public class AddressImpl implements Address {
+
    private final SimpleString address;
 
    private final SimpleString[] addressParts;
@@ -35,110 +35,87 @@ public class AddressImpl implements Address
 
    private final List<Address> linkedAddresses = new ArrayList<Address>();
 
-   public AddressImpl(final SimpleString address)
-   {
+   public AddressImpl(final SimpleString address) {
       this.address = address;
       addressParts = address.split(WildcardAddressManager.DELIM);
       containsWildCard = address.contains(WildcardAddressManager.SINGLE_WORD) || address.contains(WildcardAddressManager.ANY_WORDS);
    }
 
-   public SimpleString getAddress()
-   {
+   public SimpleString getAddress() {
       return address;
    }
 
-   public SimpleString[] getAddressParts()
-   {
+   public SimpleString[] getAddressParts() {
       return addressParts;
    }
 
-   public boolean containsWildCard()
-   {
+   public boolean containsWildCard() {
       return containsWildCard;
    }
 
-   public List<Address> getLinkedAddresses()
-   {
+   public List<Address> getLinkedAddresses() {
       return linkedAddresses;
    }
 
-   public void addLinkedAddress(final Address address)
-   {
-      if (!linkedAddresses.contains(address))
-      {
+   public void addLinkedAddress(final Address address) {
+      if (!linkedAddresses.contains(address)) {
          linkedAddresses.add(address);
       }
    }
 
-   public void removeLinkedAddress(final Address actualAddress)
-   {
+   public void removeLinkedAddress(final Address actualAddress) {
       linkedAddresses.remove(actualAddress);
    }
 
-   public boolean matches(final Address add)
-   {
-      if (containsWildCard == add.containsWildCard())
-      {
+   public boolean matches(final Address add) {
+      if (containsWildCard == add.containsWildCard()) {
          return address.equals(add.getAddress());
       }
       int pos = 0;
       int matchPos = 0;
 
       SimpleString nextToMatch;
-      for (; matchPos < add.getAddressParts().length; )
-      {
-         if (pos >= addressParts.length)
-         {
+      for (; matchPos < add.getAddressParts().length; ) {
+         if (pos >= addressParts.length) {
             // test for # as last address part
             return pos + 1 == add.getAddressParts().length && add.getAddressParts()[pos].equals(WildcardAddressManager.ANY_WORDS_SIMPLESTRING);
          }
          SimpleString curr = addressParts[pos];
          SimpleString next = addressParts.length > pos + 1 ? addressParts[pos + 1] : null;
          SimpleString currMatch = add.getAddressParts()[matchPos];
-         if (currMatch.equals(WildcardAddressManager.SINGLE_WORD_SIMPLESTRING))
-         {
+         if (currMatch.equals(WildcardAddressManager.SINGLE_WORD_SIMPLESTRING)) {
             pos++;
             matchPos++;
          }
-         else if (currMatch.equals(WildcardAddressManager.ANY_WORDS_SIMPLESTRING))
-         {
-            if (matchPos == addressParts.length - 1)
-            {
+         else if (currMatch.equals(WildcardAddressManager.ANY_WORDS_SIMPLESTRING)) {
+            if (matchPos == addressParts.length - 1) {
                pos++;
                matchPos++;
             }
-            else if (next == null)
-            {
+            else if (next == null) {
                return false;
             }
-            else if (matchPos == add.getAddressParts().length - 1)
-            {
+            else if (matchPos == add.getAddressParts().length - 1) {
                return true;
             }
-            else
-            {
+            else {
                nextToMatch = add.getAddressParts()[matchPos + 1];
-               while (curr != null)
-               {
-                  if (curr.equals(nextToMatch))
-                  {
+               while (curr != null) {
+                  if (curr.equals(nextToMatch)) {
                      break;
                   }
                   pos++;
                   curr = next;
                   next = addressParts.length > pos + 1 ? addressParts[pos + 1] : null;
                }
-               if (curr == null)
-               {
+               if (curr == null) {
                   return false;
                }
                matchPos++;
             }
          }
-         else
-         {
-            if (!curr.equals(currMatch))
-            {
+         else {
+            if (!curr.equals(currMatch)) {
                return false;
             }
             pos++;
@@ -149,21 +126,17 @@ public class AddressImpl implements Address
    }
 
    @Override
-   public boolean equals(final Object o)
-   {
-      if (this == o)
-      {
+   public boolean equals(final Object o) {
+      if (this == o) {
          return true;
       }
-      if (o == null || getClass() != o.getClass())
-      {
+      if (o == null || getClass() != o.getClass()) {
          return false;
       }
 
       AddressImpl address1 = (AddressImpl) o;
 
-      if (!address.equals(address1.address))
-      {
+      if (!address.equals(address1.address)) {
          return false;
       }
 
@@ -171,8 +144,7 @@ public class AddressImpl implements Address
    }
 
    @Override
-   public int hashCode()
-   {
+   public int hashCode() {
       return address.hashCode();
    }
 }

@@ -19,25 +19,25 @@ package org.apache.activemq.broker;
 
 public class ProgressPrinter {
 
-    private final long total;
-    private final long interval;
-    private long percentDone;
-    private long counter;
+   private final long total;
+   private final long interval;
+   private long percentDone;
+   private long counter;
 
-    public ProgressPrinter(long total, long interval) {
-        this.total = total;
-        this.interval = interval;
-    }
+   public ProgressPrinter(long total, long interval) {
+      this.total = total;
+      this.interval = interval;
+   }
 
-    public synchronized void increment() {
-        update(++counter);
-    }
+   public synchronized void increment() {
+      update(++counter);
+   }
 
-    public synchronized void update(long current) {
-        long at = 100 * current / total;
-        if ((percentDone / interval) != (at / interval)) {
-            percentDone = at;
-            System.out.println("Completed: " + percentDone + "%");
-        }
-    }
+   public synchronized void update(long current) {
+      long at = 100 * current / total;
+      if ((percentDone / interval) != (at / interval)) {
+         percentDone = at;
+         System.out.println("Completed: " + percentDone + "%");
+      }
+   }
 }

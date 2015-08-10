@@ -28,14 +28,13 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
 
-
 /**
  * The configuration used to determine how the server will broadcast members.
  * <p>
  * This is analogous to {@link DiscoveryGroupConfiguration}
  */
-public final class UDPBroadcastEndpointFactory implements BroadcastEndpointFactory
-{
+public final class UDPBroadcastEndpointFactory implements BroadcastEndpointFactory {
+
    private transient String localBindAddress = null;
 
    private transient int localBindPort = -1;
@@ -44,59 +43,45 @@ public final class UDPBroadcastEndpointFactory implements BroadcastEndpointFacto
 
    private int groupPort = -1;
 
-   public UDPBroadcastEndpointFactory()
-   {
+   public UDPBroadcastEndpointFactory() {
    }
 
-   public BroadcastEndpoint createBroadcastEndpoint() throws Exception
-   {
-      return new UDPBroadcastEndpoint()
-         .setGroupAddress(groupAddress != null ? InetAddress.getByName(groupAddress) : null)
-         .setGroupPort(groupPort)
-         .setLocalBindAddress(localBindAddress != null ? InetAddress.getByName(localBindAddress) : null)
-         .setLocalBindPort(localBindPort);
+   public BroadcastEndpoint createBroadcastEndpoint() throws Exception {
+      return new UDPBroadcastEndpoint().setGroupAddress(groupAddress != null ? InetAddress.getByName(groupAddress) : null).setGroupPort(groupPort).setLocalBindAddress(localBindAddress != null ? InetAddress.getByName(localBindAddress) : null).setLocalBindPort(localBindPort);
    }
 
-   public String getGroupAddress()
-   {
+   public String getGroupAddress() {
       return groupAddress;
    }
 
-   public UDPBroadcastEndpointFactory setGroupAddress(String groupAddress)
-   {
+   public UDPBroadcastEndpointFactory setGroupAddress(String groupAddress) {
       this.groupAddress = groupAddress;
       return this;
    }
 
-   public int getGroupPort()
-   {
+   public int getGroupPort() {
       return groupPort;
    }
 
-   public UDPBroadcastEndpointFactory setGroupPort(int groupPort)
-   {
+   public UDPBroadcastEndpointFactory setGroupPort(int groupPort) {
       this.groupPort = groupPort;
       return this;
    }
 
-   public int getLocalBindPort()
-   {
+   public int getLocalBindPort() {
       return localBindPort;
    }
 
-   public UDPBroadcastEndpointFactory setLocalBindPort(int localBindPort)
-   {
+   public UDPBroadcastEndpointFactory setLocalBindPort(int localBindPort) {
       this.localBindPort = localBindPort;
       return this;
    }
 
-   public String getLocalBindAddress()
-   {
+   public String getLocalBindAddress() {
       return localBindAddress;
    }
 
-   public UDPBroadcastEndpointFactory setLocalBindAddress(String localBindAddress)
-   {
+   public UDPBroadcastEndpointFactory setLocalBindAddress(String localBindAddress) {
       this.localBindAddress = localBindAddress;
       return this;
    }
@@ -105,8 +90,8 @@ public final class UDPBroadcastEndpointFactory implements BroadcastEndpointFacto
     * <p> This is the member discovery implementation using direct UDP. It was extracted as a refactoring from
     * {@link org.apache.activemq.artemis.core.cluster.DiscoveryGroup}</p>
     */
-   private static class UDPBroadcastEndpoint implements BroadcastEndpoint
-   {
+   private static class UDPBroadcastEndpoint implements BroadcastEndpoint {
+
       private static final int SOCKET_TIMEOUT = 500;
 
       private InetAddress localAddress;
@@ -123,61 +108,48 @@ public final class UDPBroadcastEndpointFactory implements BroadcastEndpointFacto
 
       private volatile boolean open;
 
-      public UDPBroadcastEndpoint()
-      {
+      public UDPBroadcastEndpoint() {
       }
 
-      public UDPBroadcastEndpoint setGroupAddress(InetAddress groupAddress)
-      {
+      public UDPBroadcastEndpoint setGroupAddress(InetAddress groupAddress) {
          this.groupAddress = groupAddress;
          return this;
       }
 
-      public UDPBroadcastEndpoint setGroupPort(int groupPort)
-      {
+      public UDPBroadcastEndpoint setGroupPort(int groupPort) {
          this.groupPort = groupPort;
          return this;
       }
 
-      public UDPBroadcastEndpoint setLocalBindAddress(InetAddress localAddress)
-      {
+      public UDPBroadcastEndpoint setLocalBindAddress(InetAddress localAddress) {
          this.localAddress = localAddress;
          return this;
       }
 
-      public UDPBroadcastEndpoint setLocalBindPort(int localBindPort)
-      {
+      public UDPBroadcastEndpoint setLocalBindPort(int localBindPort) {
          this.localBindPort = localBindPort;
          return this;
       }
 
-
-      public void broadcast(byte[] data) throws Exception
-      {
+      public void broadcast(byte[] data) throws Exception {
          DatagramPacket packet = new DatagramPacket(data, data.length, groupAddress, groupPort);
          broadcastingSocket.send(packet);
       }
 
-      public byte[] receiveBroadcast() throws Exception
-      {
+      public byte[] receiveBroadcast() throws Exception {
          final byte[] data = new byte[65535];
          final DatagramPacket packet = new DatagramPacket(data, data.length);
 
-         while (open)
-         {
-            try
-            {
+         while (open) {
+            try {
                receivingSocket.receive(packet);
             }
             // TODO: Do we need this?
-            catch (InterruptedIOException e)
-            {
+            catch (InterruptedIOException e) {
                continue;
             }
-            catch (IOException e)
-            {
-               if (open)
-               {
+            catch (IOException e) {
+               if (open) {
                   ActiveMQClientLogger.LOGGER.warn(this + " getting exception when receiving broadcasting.", e);
                }
             }
@@ -186,23 +158,18 @@ public final class UDPBroadcastEndpointFactory implements BroadcastEndpointFacto
          return data;
       }
 
-      public byte[] receiveBroadcast(long time, TimeUnit unit) throws Exception
-      {
+      public byte[] receiveBroadcast(long time, TimeUnit unit) throws Exception {
          // We just use the regular method on UDP, there's no timeout support
          // and this is basically for tests only
          return receiveBroadcast();
       }
 
-      public void openBroadcaster() throws Exception
-      {
-         if (localBindPort != -1)
-         {
+      public void openBroadcaster() throws Exception {
+         if (localBindPort != -1) {
             broadcastingSocket = new DatagramSocket(localBindPort, localAddress);
          }
-         else
-         {
-            if (localAddress != null)
-            {
+         else {
+            if (localAddress != null) {
                ActiveMQClientLogger.LOGGER.broadcastGroupBindError();
             }
             broadcastingSocket = new DatagramSocket();
@@ -211,29 +178,23 @@ public final class UDPBroadcastEndpointFactory implements BroadcastEndpointFacto
          open = true;
       }
 
-      public void openClient() throws Exception
-      {
+      public void openClient() throws Exception {
          // HORNETQ-874
-         if (checkForLinux() || checkForSolaris() || checkForHp())
-         {
-            try
-            {
+         if (checkForLinux() || checkForSolaris() || checkForHp()) {
+            try {
                receivingSocket = new MulticastSocket(new InetSocketAddress(groupAddress, groupPort));
             }
-            catch (IOException e)
-            {
+            catch (IOException e) {
                ActiveMQClientLogger.LOGGER.ioDiscoveryError(groupAddress.getHostAddress(), groupAddress instanceof Inet4Address ? "IPv4" : "IPv6");
 
                receivingSocket = new MulticastSocket(groupPort);
             }
          }
-         else
-         {
+         else {
             receivingSocket = new MulticastSocket(groupPort);
          }
 
-         if (localAddress != null)
-         {
+         if (localAddress != null) {
             receivingSocket.setInterface(localAddress);
          }
 
@@ -245,45 +206,36 @@ public final class UDPBroadcastEndpointFactory implements BroadcastEndpointFacto
       }
 
       //@Todo: using isBroadcast to share endpoint between broadcast and receiving
-      public void close(boolean isBroadcast) throws Exception
-      {
+      public void close(boolean isBroadcast) throws Exception {
          open = false;
 
-         if (broadcastingSocket != null)
-         {
+         if (broadcastingSocket != null) {
             broadcastingSocket.close();
          }
 
-         if (receivingSocket != null)
-         {
+         if (receivingSocket != null) {
             receivingSocket.close();
          }
       }
 
-      private static boolean checkForLinux()
-      {
+      private static boolean checkForLinux() {
          return checkForPresence("os.name", "linux");
       }
 
-      private static boolean checkForHp()
-      {
+      private static boolean checkForHp() {
          return checkForPresence("os.name", "hp");
       }
 
-      private static boolean checkForSolaris()
-      {
+      private static boolean checkForSolaris() {
          return checkForPresence("os.name", "sun");
       }
 
-      private static boolean checkForPresence(String key, String value)
-      {
-         try
-         {
+      private static boolean checkForPresence(String key, String value) {
+         try {
             String tmp = System.getProperty(key);
             return tmp != null && tmp.trim().toLowerCase().startsWith(value);
          }
-         catch (Throwable t)
-         {
+         catch (Throwable t) {
             return false;
          }
       }
@@ -291,8 +243,7 @@ public final class UDPBroadcastEndpointFactory implements BroadcastEndpointFacto
    }
 
    @Override
-   public int hashCode()
-   {
+   public int hashCode() {
       final int prime = 31;
       int result = 1;
       result = prime * result + ((groupAddress == null) ? 0 : groupAddress.hashCode());
@@ -301,8 +252,7 @@ public final class UDPBroadcastEndpointFactory implements BroadcastEndpointFacto
    }
 
    @Override
-   public boolean equals(Object obj)
-   {
+   public boolean equals(Object obj) {
       if (this == obj)
          return true;
       if (obj == null)
@@ -310,8 +260,7 @@ public final class UDPBroadcastEndpointFactory implements BroadcastEndpointFacto
       if (getClass() != obj.getClass())
          return false;
       UDPBroadcastEndpointFactory other = (UDPBroadcastEndpointFactory) obj;
-      if (groupAddress == null)
-      {
+      if (groupAddress == null) {
          if (other.groupAddress != null)
             return false;
       }

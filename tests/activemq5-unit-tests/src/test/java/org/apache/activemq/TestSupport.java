@@ -41,188 +41,187 @@ import org.apache.activemq.store.memory.MemoryPersistenceAdapter;
 
 /**
  * Useful base class for unit test cases
- *
- *
  */
 public abstract class TestSupport extends CombinationTestSupport {
 
-    protected ActiveMQConnectionFactory connectionFactory;
-    protected boolean topic = true;
-    public PersistenceAdapterChoice defaultPersistenceAdapter = PersistenceAdapterChoice.KahaDB;
+   protected ActiveMQConnectionFactory connectionFactory;
+   protected boolean topic = true;
+   public PersistenceAdapterChoice defaultPersistenceAdapter = PersistenceAdapterChoice.KahaDB;
 
-    protected ActiveMQMessage createMessage() {
-        return new ActiveMQMessage();
-    }
+   protected ActiveMQMessage createMessage() {
+      return new ActiveMQMessage();
+   }
 
-    protected Destination createDestination(String subject) {
-        if (topic) {
-            return new ActiveMQTopic(subject);
-        } else {
-            return new ActiveMQQueue(subject);
-        }
-    }
+   protected Destination createDestination(String subject) {
+      if (topic) {
+         return new ActiveMQTopic(subject);
+      }
+      else {
+         return new ActiveMQQueue(subject);
+      }
+   }
 
-    protected Destination createDestination() {
-        return createDestination(getDestinationString());
-    }
+   protected Destination createDestination() {
+      return createDestination(getDestinationString());
+   }
 
-    /**
-     * Returns the name of the destination used in this test case
-     */
-    protected String getDestinationString() {
-        return getClass().getName() + "." + getName(true);
-    }
+   /**
+    * Returns the name of the destination used in this test case
+    */
+   protected String getDestinationString() {
+      return getClass().getName() + "." + getName(true);
+   }
 
-    /**
-     * @param messsage
-     * @param firstSet
-     * @param secondSet
-     */
-    protected void assertTextMessagesEqual(String messsage, Message[] firstSet, Message[] secondSet)
-        throws JMSException {
-        assertEquals("Message count does not match: " + messsage, firstSet.length, secondSet.length);
-        for (int i = 0; i < secondSet.length; i++) {
-            TextMessage m1 = (TextMessage)firstSet[i];
-            TextMessage m2 = (TextMessage)secondSet[i];
-            assertFalse("Message " + (i + 1) + " did not match : " + messsage + ": expected {" + m1
-                        + "}, but was {" + m2 + "}", m1 == null ^ m2 == null);
-            assertEquals("Message " + (i + 1) + " did not match: " + messsage + ": expected {" + m1
-                         + "}, but was {" + m2 + "}", m1.getText(), m2.getText());
-        }
-    }
+   /**
+    * @param messsage
+    * @param firstSet
+    * @param secondSet
+    */
+   protected void assertTextMessagesEqual(String messsage,
+                                          Message[] firstSet,
+                                          Message[] secondSet) throws JMSException {
+      assertEquals("Message count does not match: " + messsage, firstSet.length, secondSet.length);
+      for (int i = 0; i < secondSet.length; i++) {
+         TextMessage m1 = (TextMessage) firstSet[i];
+         TextMessage m2 = (TextMessage) secondSet[i];
+         assertFalse("Message " + (i + 1) + " did not match : " + messsage + ": expected {" + m1 + "}, but was {" + m2 + "}", m1 == null ^ m2 == null);
+         assertEquals("Message " + (i + 1) + " did not match: " + messsage + ": expected {" + m1 + "}, but was {" + m2 + "}", m1.getText(), m2.getText());
+      }
+   }
 
-    protected ActiveMQConnectionFactory createConnectionFactory() throws Exception {
-        return new ActiveMQConnectionFactory("vm://localhost?broker.persistent=false");
-    }
+   protected ActiveMQConnectionFactory createConnectionFactory() throws Exception {
+      return new ActiveMQConnectionFactory("vm://localhost?broker.persistent=false");
+   }
 
-    /**
-     * Factory method to create a new connection
-     */
-    protected Connection createConnection() throws Exception {
-        return getConnectionFactory().createConnection();
-    }
+   /**
+    * Factory method to create a new connection
+    */
+   protected Connection createConnection() throws Exception {
+      return getConnectionFactory().createConnection();
+   }
 
-    public ActiveMQConnectionFactory getConnectionFactory() throws Exception {
-        if (connectionFactory == null) {
-            connectionFactory = createConnectionFactory();
-            assertTrue("Should have created a connection factory!", connectionFactory != null);
-        }
-        return connectionFactory;
-    }
+   public ActiveMQConnectionFactory getConnectionFactory() throws Exception {
+      if (connectionFactory == null) {
+         connectionFactory = createConnectionFactory();
+         assertTrue("Should have created a connection factory!", connectionFactory != null);
+      }
+      return connectionFactory;
+   }
 
-    protected String getConsumerSubject() {
-        return getSubject();
-    }
+   protected String getConsumerSubject() {
+      return getSubject();
+   }
 
-    protected String getProducerSubject() {
-        return getSubject();
-    }
+   protected String getProducerSubject() {
+      return getSubject();
+   }
 
-    protected String getSubject() {
-        return getName();
-    }
+   protected String getSubject() {
+      return getName();
+   }
 
-    public static void recursiveDelete(File f) {
-        if (f.isDirectory()) {
-            File[] files = f.listFiles();
-            for (int i = 0; i < files.length; i++) {
-                recursiveDelete(files[i]);
-            }
-        }
-        f.delete();
-    }
+   public static void recursiveDelete(File f) {
+      if (f.isDirectory()) {
+         File[] files = f.listFiles();
+         for (int i = 0; i < files.length; i++) {
+            recursiveDelete(files[i]);
+         }
+      }
+      f.delete();
+   }
 
-    public static void removeMessageStore() {
-        if (System.getProperty("activemq.store.dir") != null) {
-            recursiveDelete(new File(System.getProperty("activemq.store.dir")));
-        }
-        if (System.getProperty("derby.system.home") != null) {
-            recursiveDelete(new File(System.getProperty("derby.system.home")));
-        }
-    }
+   public static void removeMessageStore() {
+      if (System.getProperty("activemq.store.dir") != null) {
+         recursiveDelete(new File(System.getProperty("activemq.store.dir")));
+      }
+      if (System.getProperty("derby.system.home") != null) {
+         recursiveDelete(new File(System.getProperty("derby.system.home")));
+      }
+   }
 
-    public static DestinationStatistics getDestinationStatistics(BrokerService broker, ActiveMQDestination destination) {
-        DestinationStatistics result = null;
-        org.apache.activemq.broker.region.Destination dest = getDestination(broker, destination);
-        if (dest != null) {
-            result = dest.getDestinationStatistics();
-        }
-        return result;
-    }
+   public static DestinationStatistics getDestinationStatistics(BrokerService broker, ActiveMQDestination destination) {
+      DestinationStatistics result = null;
+      org.apache.activemq.broker.region.Destination dest = getDestination(broker, destination);
+      if (dest != null) {
+         result = dest.getDestinationStatistics();
+      }
+      return result;
+   }
 
-    public static org.apache.activemq.broker.region.Destination getDestination(BrokerService target, ActiveMQDestination destination) {
-        org.apache.activemq.broker.region.Destination result = null;
-        for (org.apache.activemq.broker.region.Destination dest : getDestinationMap(target, destination).values()) {
-            if (dest.getName().equals(destination.getPhysicalName())) {
-                result = dest;
-                break;
-            }
-        }
-        return result;
-    }
+   public static org.apache.activemq.broker.region.Destination getDestination(BrokerService target,
+                                                                              ActiveMQDestination destination) {
+      org.apache.activemq.broker.region.Destination result = null;
+      for (org.apache.activemq.broker.region.Destination dest : getDestinationMap(target, destination).values()) {
+         if (dest.getName().equals(destination.getPhysicalName())) {
+            result = dest;
+            break;
+         }
+      }
+      return result;
+   }
 
-    private static Map<ActiveMQDestination, org.apache.activemq.broker.region.Destination> getDestinationMap(BrokerService target,
-            ActiveMQDestination destination) {
-        RegionBroker regionBroker = (RegionBroker) target.getRegionBroker();
-        if (destination.isTemporary()) {
-            return destination.isQueue() ? regionBroker.getTempQueueRegion().getDestinationMap() :
-                    regionBroker.getTempTopicRegion().getDestinationMap();
-        }
-        return destination.isQueue() ?
-                    regionBroker.getQueueRegion().getDestinationMap() :
-                        regionBroker.getTopicRegion().getDestinationMap();
-    }
+   private static Map<ActiveMQDestination, org.apache.activemq.broker.region.Destination> getDestinationMap(
+      BrokerService target,
+      ActiveMQDestination destination) {
+      RegionBroker regionBroker = (RegionBroker) target.getRegionBroker();
+      if (destination.isTemporary()) {
+         return destination.isQueue() ? regionBroker.getTempQueueRegion().getDestinationMap() : regionBroker.getTempTopicRegion().getDestinationMap();
+      }
+      return destination.isQueue() ? regionBroker.getQueueRegion().getDestinationMap() : regionBroker.getTopicRegion().getDestinationMap();
+   }
 
-    public static enum PersistenceAdapterChoice {LevelDB, KahaDB, AMQ, JDBC, MEM };
+   public static enum PersistenceAdapterChoice {LevelDB, KahaDB, AMQ, JDBC, MEM}
 
-    public PersistenceAdapter setDefaultPersistenceAdapter(BrokerService broker) throws IOException {
-        return setPersistenceAdapter(broker, defaultPersistenceAdapter);
-    }
+   ;
 
-    public static PersistenceAdapter setPersistenceAdapter(BrokerService broker, PersistenceAdapterChoice choice) throws IOException {
-        PersistenceAdapter adapter = null;
-        switch (choice) {
-        case JDBC:
+   public PersistenceAdapter setDefaultPersistenceAdapter(BrokerService broker) throws IOException {
+      return setPersistenceAdapter(broker, defaultPersistenceAdapter);
+   }
+
+   public static PersistenceAdapter setPersistenceAdapter(BrokerService broker,
+                                                          PersistenceAdapterChoice choice) throws IOException {
+      PersistenceAdapter adapter = null;
+      switch (choice) {
+         case JDBC:
             JDBCPersistenceAdapter jdbcPersistenceAdapter = new JDBCPersistenceAdapter();
             jdbcPersistenceAdapter.setUseLock(false); // rollback (at shutdown) on derby can take a long time with file io etc
             adapter = jdbcPersistenceAdapter;
             break;
-        case KahaDB:
+         case KahaDB:
             adapter = new KahaDBPersistenceAdapter();
             break;
-        case LevelDB:
+         case LevelDB:
             adapter = new LevelDBPersistenceAdapter();
             break;
-        case MEM:
+         case MEM:
             adapter = new MemoryPersistenceAdapter();
             break;
-        }
-        broker.setPersistenceAdapter(adapter);
-        adapter.setDirectory(new File(broker.getBrokerDataDirectory(), choice.name()));
-        return adapter;
-    }
+      }
+      broker.setPersistenceAdapter(adapter);
+      adapter.setDirectory(new File(broker.getBrokerDataDirectory(), choice.name()));
+      return adapter;
+   }
 
-    public void stopBrokerWithStoreFailure(BrokerService broker, PersistenceAdapterChoice choice) throws Exception {
-        switch (choice) {
-            case KahaDB:
-                KahaDBPersistenceAdapter kahaDBPersistenceAdapter = (KahaDBPersistenceAdapter) broker.getPersistenceAdapter();
+   public void stopBrokerWithStoreFailure(BrokerService broker, PersistenceAdapterChoice choice) throws Exception {
+      switch (choice) {
+         case KahaDB:
+            KahaDBPersistenceAdapter kahaDBPersistenceAdapter = (KahaDBPersistenceAdapter) broker.getPersistenceAdapter();
 
-                // have the broker stop with an IOException on next checkpoint so it has a pending local transaction to recover
-                kahaDBPersistenceAdapter.getStore().getJournal().close();
-                break;
-            default:
-                // just stop normally by default
-                broker.stop();
-        }
-        broker.waitUntilStopped();
-    }
+            // have the broker stop with an IOException on next checkpoint so it has a pending local transaction to recover
+            kahaDBPersistenceAdapter.getStore().getJournal().close();
+            break;
+         default:
+            // just stop normally by default
+            broker.stop();
+      }
+      broker.waitUntilStopped();
+   }
 
-
-    /**
-     * Test if base directory contains spaces
-     */
-    protected void assertBaseDirectoryContainsSpaces() {
-        assertFalse("Base directory cannot contain spaces.", new File(System.getProperty("basedir", ".")).getAbsoluteFile().toString().contains(" "));
-    }
+   /**
+    * Test if base directory contains spaces
+    */
+   protected void assertBaseDirectoryContainsSpaces() {
+      assertFalse("Base directory cannot contain spaces.", new File(System.getProperty("basedir", ".")).getAbsoluteFile().toString().contains(" "));
+   }
 
 }

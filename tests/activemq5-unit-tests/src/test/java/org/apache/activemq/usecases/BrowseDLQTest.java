@@ -42,67 +42,63 @@ import static org.junit.Assert.*;
  */
 public class BrowseDLQTest {
 
-    private static final int NUM_MESSAGES = 100;
-    private BrokerService brokerService;
-    private ActiveMQQueue testQueue = new ActiveMQQueue("TEST.FOO");
-    private ActiveMQQueue dlq = new ActiveMQQueue("ActiveMQ.DLQ");
+   private static final int NUM_MESSAGES = 100;
+   private BrokerService brokerService;
+   private ActiveMQQueue testQueue = new ActiveMQQueue("TEST.FOO");
+   private ActiveMQQueue dlq = new ActiveMQQueue("ActiveMQ.DLQ");
 
-    @Test
-    public void testCannotBrowseDLQAsTable() throws Exception {
-        startBroker();
-        // send 100 messages to queue with TTL of 1 second
-        sendMessagesToBeExpired();
+   @Test
+   public void testCannotBrowseDLQAsTable() throws Exception {
+      startBroker();
+      // send 100 messages to queue with TTL of 1 second
+      sendMessagesToBeExpired();
 
-        // let's let the messages expire
-        TimeUnit.SECONDS.sleep(2);
+      // let's let the messages expire
+      TimeUnit.SECONDS.sleep(2);
 
-        assertCanBrowse();
-    }
+      assertCanBrowse();
+   }
 
-    private void assertCanBrowse() throws MalformedObjectNameException, OpenDataException {
-        ObjectName queueViewMBeanName = new ObjectName("org.apache.activemq:type=Broker,brokerName=localhost,destinationType=Queue,destinationName=ActiveMQ.DLQ");
-        QueueViewMBean queue = (QueueViewMBean)
-                brokerService.getManagementContext().newProxyInstance(queueViewMBeanName, QueueViewMBean.class, true);
-        // make sure we have messages here
-        assertTrue(queue.getQueueSize() > 0);
+   private void assertCanBrowse() throws MalformedObjectNameException, OpenDataException {
+      ObjectName queueViewMBeanName = new ObjectName("org.apache.activemq:type=Broker,brokerName=localhost,destinationType=Queue,destinationName=ActiveMQ.DLQ");
+      QueueViewMBean queue = (QueueViewMBean) brokerService.getManagementContext().newProxyInstance(queueViewMBeanName, QueueViewMBean.class, true);
+      // make sure we have messages here
+      assertTrue(queue.getQueueSize() > 0);
 
-        CompositeData[] regularBrowse = queue.browse();
-        assertNotNull(regularBrowse);
+      CompositeData[] regularBrowse = queue.browse();
+      assertNotNull(regularBrowse);
 
-        TabularData tableData = queue.browseAsTable();
-        assertNotNull(tableData);
+      TabularData tableData = queue.browseAsTable();
+      assertNotNull(tableData);
 
-    }
+   }
 
+   @After
+   public void tearDown() throws Exception {
+      brokerService.stop();
+      brokerService.waitUntilStopped();
+   }
 
+   private void startBroker() throws Exception {
+      brokerService = BrokerFactory.createBroker("broker:()/localhost?deleteAllMessagesOnStartup=true");
 
-    @After
-    public void tearDown() throws Exception {
-        brokerService.stop();
-        brokerService.waitUntilStopped();
-    }
+      PolicyMap policyMap = new PolicyMap();
+      PolicyEntry policyEntry = new PolicyEntry();
+      policyEntry.setExpireMessagesPeriod(1000);
+      policyMap.setDefaultEntry(policyEntry);
+      brokerService.setDestinationPolicy(policyMap);
+      brokerService.start();
+      brokerService.waitUntilStarted();
+   }
 
-    private void startBroker() throws Exception {
-        brokerService = BrokerFactory.createBroker("broker:()/localhost?deleteAllMessagesOnStartup=true");
-
-        PolicyMap policyMap = new PolicyMap();
-        PolicyEntry policyEntry = new PolicyEntry();
-        policyEntry.setExpireMessagesPeriod(1000);
-        policyMap.setDefaultEntry(policyEntry);
-        brokerService.setDestinationPolicy(policyMap);
-        brokerService.start();
-        brokerService.waitUntilStarted();
-    }
-
-    private void sendMessagesToBeExpired() throws JMSException, InterruptedException {
-        ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("vm://localhost");
-        Connection connection = factory.createConnection();
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        MessageProducer producer = session.createProducer(testQueue);
-        for (int i = 0; i < NUM_MESSAGES; i++) {
-            producer.send(testQueue,session.createTextMessage("Hello world #"  + i), DeliveryMode.PERSISTENT,
-                    4, 500);
-        }
-        connection.close();
-    }
+   private void sendMessagesToBeExpired() throws JMSException, InterruptedException {
+      ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("vm://localhost");
+      Connection connection = factory.createConnection();
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      MessageProducer producer = session.createProducer(testQueue);
+      for (int i = 0; i < NUM_MESSAGES; i++) {
+         producer.send(testQueue, session.createTextMessage("Hello world #" + i), DeliveryMode.PERSISTENT, 4, 500);
+      }
+      connection.close();
+   }
 }

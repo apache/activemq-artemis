@@ -19,8 +19,8 @@ package org.apache.activemq.artemis.api.jms;
 /**
  * Constants for ActiveMQ Artemis for property keys used for ActiveMQ Artemis specific extensions to JMS.
  */
-public class ActiveMQJMSConstants
-{
+public class ActiveMQJMSConstants {
+
    public static final String JMS_ACTIVEMQ_INPUT_STREAM = "JMS_AMQ_InputStream";
 
    public static final String JMS_ACTIVEMQ_OUTPUT_STREAM = "JMS_AMQ_OutputStream";
@@ -33,6 +33,5 @@ public class ActiveMQJMSConstants
 
    public static final int INDIVIDUAL_ACKNOWLEDGE = 101;
 
-   public static final String JMS_ACTIVEMQ_ENABLE_BYTE_ARRAY_JMS_CORRELATION_ID_PROPERTY_NAME =
-      "amq.jms.support-bytes-id";
+   public static final String JMS_ACTIVEMQ_ENABLE_BYTE_ARRAY_JMS_CORRELATION_ID_PROPERTY_NAME = "amq.jms.support-bytes-id";
 }

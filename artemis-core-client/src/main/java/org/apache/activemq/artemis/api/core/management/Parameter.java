@@ -29,8 +29,8 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.PARAMETER)
-public @interface Parameter
-{
+public @interface Parameter {
+
    String name();
 
    String desc() default "N/A";

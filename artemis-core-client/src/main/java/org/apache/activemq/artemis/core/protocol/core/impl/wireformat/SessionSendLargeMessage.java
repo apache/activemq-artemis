@@ -20,19 +20,18 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.message.impl.MessageInternal;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 
-public class SessionSendLargeMessage extends PacketImpl
-{
+public class SessionSendLargeMessage extends PacketImpl {
 
-
-   /** Used only if largeMessage */
+   /**
+    * Used only if largeMessage
+    */
    private final MessageInternal largeMessage;
 
    // Static --------------------------------------------------------
 
    // Constructors --------------------------------------------------
 
-   public SessionSendLargeMessage(final MessageInternal largeMessage)
-   {
+   public SessionSendLargeMessage(final MessageInternal largeMessage) {
       super(SESS_SEND_LARGE);
 
       this.largeMessage = largeMessage;
@@ -40,26 +39,22 @@ public class SessionSendLargeMessage extends PacketImpl
 
    // Public --------------------------------------------------------
 
-   public MessageInternal getLargeMessage()
-   {
+   public MessageInternal getLargeMessage() {
       return largeMessage;
    }
 
    @Override
-   public void encodeRest(final ActiveMQBuffer buffer)
-   {
+   public void encodeRest(final ActiveMQBuffer buffer) {
       largeMessage.encodeHeadersAndProperties(buffer);
    }
 
    @Override
-   public void decodeRest(final ActiveMQBuffer buffer)
-   {
+   public void decodeRest(final ActiveMQBuffer buffer) {
       largeMessage.decodeHeadersAndProperties(buffer);
    }
 
    @Override
-   public int hashCode()
-   {
+   public int hashCode() {
       final int prime = 31;
       int result = super.hashCode();
       result = prime * result + ((largeMessage == null) ? 0 : largeMessage.hashCode());
@@ -67,17 +62,15 @@ public class SessionSendLargeMessage extends PacketImpl
    }
 
    @Override
-   public boolean equals(Object obj)
-   {
+   public boolean equals(Object obj) {
       if (this == obj)
          return true;
       if (!super.equals(obj))
          return false;
       if (!(obj instanceof SessionSendLargeMessage))
          return false;
-      SessionSendLargeMessage other = (SessionSendLargeMessage)obj;
-      if (largeMessage == null)
-      {
+      SessionSendLargeMessage other = (SessionSendLargeMessage) obj;
+      if (largeMessage == null) {
          if (other.largeMessage != null)
             return false;
       }

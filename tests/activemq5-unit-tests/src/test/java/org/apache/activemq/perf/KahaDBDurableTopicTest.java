@@ -20,33 +20,33 @@ import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.broker.BrokerService;
 
 /**
- * 
+ *
  */
 public class KahaDBDurableTopicTest extends SimpleDurableTopicTest {
 
-    @Override
-    protected void setUp() throws Exception {
-        //this.initialConsumerDelay = 10 * 1000;
-        super.setUp();
-    }
-    
-    @Override
-    protected ActiveMQConnectionFactory createConnectionFactory(String uri) throws Exception {
-        ActiveMQConnectionFactory result = new ActiveMQConnectionFactory(uri);
-        //result.setDispatchAsync(false);
-        return result;
-    }
-    
-    @Override
-    protected void configureBroker(BrokerService answer,String uri) throws Exception {
-        //AMQPersistenceAdapterFactory persistenceFactory = new AMQPersistenceAdapterFactory();
-        //persistenceFactory.setMaxFileLength(1024*16);
-        //persistenceFactory.setPersistentIndex(true);
-        //persistenceFactory.setCleanupInterval(10000);
-        //answer.setPersistenceFactory(persistenceFactory);
-        answer.setDeleteAllMessagesOnStartup(true);
-        answer.addConnector(uri);
-        answer.setUseShutdownHook(false);
-        answer.setEnableStatistics(false);
-    }
+   @Override
+   protected void setUp() throws Exception {
+      //this.initialConsumerDelay = 10 * 1000;
+      super.setUp();
+   }
+
+   @Override
+   protected ActiveMQConnectionFactory createConnectionFactory(String uri) throws Exception {
+      ActiveMQConnectionFactory result = new ActiveMQConnectionFactory(uri);
+      //result.setDispatchAsync(false);
+      return result;
+   }
+
+   @Override
+   protected void configureBroker(BrokerService answer, String uri) throws Exception {
+      //AMQPersistenceAdapterFactory persistenceFactory = new AMQPersistenceAdapterFactory();
+      //persistenceFactory.setMaxFileLength(1024*16);
+      //persistenceFactory.setPersistentIndex(true);
+      //persistenceFactory.setCleanupInterval(10000);
+      //answer.setPersistenceFactory(persistenceFactory);
+      answer.setDeleteAllMessagesOnStartup(true);
+      answer.addConnector(uri);
+      answer.setUseShutdownHook(false);
+      answer.setEnableStatistics(false);
+   }
 }

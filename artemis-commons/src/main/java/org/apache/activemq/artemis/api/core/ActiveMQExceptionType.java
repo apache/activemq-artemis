@@ -24,200 +24,151 @@ import java.util.Map;
 /**
  * Defines all {@link ActiveMQException} types and their codes.
  */
-public enum ActiveMQExceptionType
-{
+public enum ActiveMQExceptionType {
 
    // Error codes -------------------------------------------------
 
-   INTERNAL_ERROR(000)
-   {
+   INTERNAL_ERROR(000) {
       @Override
-      public ActiveMQException createException(String msg)
-      {
+      public ActiveMQException createException(String msg) {
          return new ActiveMQInternalErrorException(msg);
       }
    },
-   UNSUPPORTED_PACKET(001)
-   {
+   UNSUPPORTED_PACKET(001) {
       @Override
-      public ActiveMQException createException(String msg)
-      {
+      public ActiveMQException createException(String msg) {
          return new ActiveMQUnsupportedPacketException(msg);
       }
    },
-   NOT_CONNECTED(002)
-   {
+   NOT_CONNECTED(002) {
       @Override
-      public ActiveMQException createException(String msg)
-      {
+      public ActiveMQException createException(String msg) {
          return new ActiveMQNotConnectedException(msg);
       }
    },
-   CONNECTION_TIMEDOUT(003)
-   {
+   CONNECTION_TIMEDOUT(003) {
       @Override
-      public ActiveMQException createException(String msg)
-      {
+      public ActiveMQException createException(String msg) {
          return new ActiveMQConnectionTimedOutException(msg);
       }
    },
-   DISCONNECTED(004)
-   {
+   DISCONNECTED(004) {
       @Override
-      public ActiveMQException createException(String msg)
-      {
+      public ActiveMQException createException(String msg) {
          return new ActiveMQDisconnectedException(msg);
       }
    },
-   UNBLOCKED(005)
-   {
+   UNBLOCKED(005) {
       @Override
-      public ActiveMQException createException(String msg)
-      {
+      public ActiveMQException createException(String msg) {
          return new ActiveMQUnBlockedException(msg);
       }
    },
-   IO_ERROR(006)
-   {
+   IO_ERROR(006) {
       @Override
-      public ActiveMQException createException(String msg)
-      {
+      public ActiveMQException createException(String msg) {
          return new ActiveMQIOErrorException(msg);
       }
    },
-   QUEUE_DOES_NOT_EXIST(100)
-   {
+   QUEUE_DOES_NOT_EXIST(100) {
       @Override
-      public ActiveMQException createException(String msg)
-      {
+      public ActiveMQException createException(String msg) {
          return new ActiveMQNonExistentQueueException(msg);
       }
    },
-   QUEUE_EXISTS(101)
-   {
+   QUEUE_EXISTS(101) {
       @Override
-      public ActiveMQException createException(String msg)
-      {
+      public ActiveMQException createException(String msg) {
          return new ActiveMQQueueExistsException(msg);
       }
    },
-   OBJECT_CLOSED(102)
-   {
+   OBJECT_CLOSED(102) {
       @Override
-      public ActiveMQException createException(String msg)
-      {
+      public ActiveMQException createException(String msg) {
          return new ActiveMQObjectClosedException(msg);
       }
    },
-   INVALID_FILTER_EXPRESSION(103)
-   {
+   INVALID_FILTER_EXPRESSION(103) {
       @Override
-      public ActiveMQException createException(String msg)
-      {
+      public ActiveMQException createException(String msg) {
          return new ActiveMQInvalidFilterExpressionException(msg);
       }
    },
-   ILLEGAL_STATE(104)
-   {
+   ILLEGAL_STATE(104) {
       @Override
-      public ActiveMQException createException(String msg)
-      {
+      public ActiveMQException createException(String msg) {
          return new ActiveMQIllegalStateException(msg);
       }
    },
-   SECURITY_EXCEPTION(105)
-   {
+   SECURITY_EXCEPTION(105) {
       @Override
-      public ActiveMQException createException(String msg)
-      {
+      public ActiveMQException createException(String msg) {
          return new ActiveMQSecurityException(msg);
       }
    },
-   ADDRESS_EXISTS(107)
-   {
+   ADDRESS_EXISTS(107) {
       @Override
-      public ActiveMQException createException(String msg)
-      {
+      public ActiveMQException createException(String msg) {
          return new ActiveMQAddressExistsException(msg);
       }
    },
-   INCOMPATIBLE_CLIENT_SERVER_VERSIONS(108)
-   {
+   INCOMPATIBLE_CLIENT_SERVER_VERSIONS(108) {
       @Override
-      public ActiveMQException createException(String msg)
-      {
+      public ActiveMQException createException(String msg) {
          return new ActiveMQIncompatibleClientServerException(msg);
       }
    },
-   LARGE_MESSAGE_ERROR_BODY(110)
-   {
+   LARGE_MESSAGE_ERROR_BODY(110) {
       @Override
-      public ActiveMQException createException(String msg)
-      {
+      public ActiveMQException createException(String msg) {
          return new ActiveMQLargeMessageException(msg);
       }
    },
-   TRANSACTION_ROLLED_BACK(111)
-   {
+   TRANSACTION_ROLLED_BACK(111) {
       @Override
-      public ActiveMQException createException(String msg)
-      {
+      public ActiveMQException createException(String msg) {
          return new ActiveMQTransactionRolledBackException(msg);
       }
    },
-   SESSION_CREATION_REJECTED(112)
-   {
+   SESSION_CREATION_REJECTED(112) {
       @Override
-      public ActiveMQException createException(String msg)
-      {
+      public ActiveMQException createException(String msg) {
          return new ActiveMQSessionCreationException(msg);
       }
    },
-   DUPLICATE_ID_REJECTED(113)
-   {
+   DUPLICATE_ID_REJECTED(113) {
       @Override
-      public ActiveMQException createException(String msg)
-      {
+      public ActiveMQException createException(String msg) {
          return new ActiveMQDuplicateIdException(msg);
       }
    },
-   DUPLICATE_METADATA(114)
-   {
+   DUPLICATE_METADATA(114) {
       @Override
-      public ActiveMQException createException(String msg)
-      {
+      public ActiveMQException createException(String msg) {
          return new ActiveMQDuplicateMetaDataException(msg);
       }
    },
-   TRANSACTION_OUTCOME_UNKNOWN(115)
-   {
+   TRANSACTION_OUTCOME_UNKNOWN(115) {
       @Override
-      public ActiveMQException createException(String msg)
-      {
+      public ActiveMQException createException(String msg) {
          return new ActiveMQTransactionOutcomeUnknownException(msg);
       }
    },
-   ALREADY_REPLICATING(116)
-   {
+   ALREADY_REPLICATING(116) {
       @Override
-      public ActiveMQException createException(String msg)
-      {
+      public ActiveMQException createException(String msg) {
          return new ActiveMQAlreadyReplicatingException(msg);
       }
    },
-   INTERCEPTOR_REJECTED_PACKET(117)
-   {
+   INTERCEPTOR_REJECTED_PACKET(117) {
       @Override
-      public ActiveMQException createException(String msg)
-      {
+      public ActiveMQException createException(String msg) {
          return new ActiveMQInterceptorRejectedPacketException(msg);
       }
    },
-   INVALID_TRANSIENT_QUEUE_USE(118)
-   {
+   INVALID_TRANSIENT_QUEUE_USE(118) {
       @Override
-      public ActiveMQException createException(String msg)
-      {
+      public ActiveMQException createException(String msg) {
          return new ActiveMQInvalidTransientQueueUseException(msg);
       }
    },
@@ -232,27 +183,21 @@ public enum ActiveMQExceptionType
    NATIVE_ERROR_CANT_ALLOCATE_QUEUE(206),
    NATIVE_ERROR_PREALLOCATE_FILE(208),
    NATIVE_ERROR_ALLOCATE_MEMORY(209),
-   ADDRESS_FULL(210)
-   {
+   ADDRESS_FULL(210) {
       @Override
-      public ActiveMQException createException(String msg)
-      {
+      public ActiveMQException createException(String msg) {
          return new ActiveMQAddressFullException(msg);
       }
    },
-   LARGE_MESSAGE_INTERRUPTED(211)
-   {
+   LARGE_MESSAGE_INTERRUPTED(211) {
       @Override
-      public ActiveMQException createException(String msg)
-      {
+      public ActiveMQException createException(String msg) {
          return new ActiveMQLargeMessageInterruptedException(msg);
       }
    },
-   CLUSTER_SECURITY_EXCEPTION(212)
-   {
+   CLUSTER_SECURITY_EXCEPTION(212) {
       @Override
-      public ActiveMQException createException(String msg)
-      {
+      public ActiveMQException createException(String msg) {
          return new ActiveMQClusterSecurityException(msg);
       }
 
@@ -260,11 +205,9 @@ public enum ActiveMQExceptionType
 
    private static final Map<Integer, ActiveMQExceptionType> TYPE_MAP;
 
-   static
-   {
+   static {
       HashMap<Integer, ActiveMQExceptionType> map = new HashMap<Integer, ActiveMQExceptionType>();
-      for (ActiveMQExceptionType type : EnumSet.allOf(ActiveMQExceptionType.class))
-      {
+      for (ActiveMQExceptionType type : EnumSet.allOf(ActiveMQExceptionType.class)) {
          map.put(type.getCode(), type);
       }
       TYPE_MAP = Collections.unmodifiableMap(map);
@@ -272,28 +215,23 @@ public enum ActiveMQExceptionType
 
    private final int code;
 
-   ActiveMQExceptionType(int code)
-   {
+   ActiveMQExceptionType(int code) {
       this.code = code;
    }
 
-   public int getCode()
-   {
+   public int getCode() {
       return code;
    }
 
-   public ActiveMQException createException(String msg)
-   {
+   public ActiveMQException createException(String msg) {
       return new ActiveMQException(msg + ", code:" + this);
    }
 
-   public static ActiveMQException createException(int code, String msg)
-   {
+   public static ActiveMQException createException(int code, String msg) {
       return getType(code).createException(msg);
    }
 
-   public static ActiveMQExceptionType getType(int code)
-   {
+   public static ActiveMQExceptionType getType(int code) {
       ActiveMQExceptionType type = TYPE_MAP.get(code);
       if (type != null)
          return type;

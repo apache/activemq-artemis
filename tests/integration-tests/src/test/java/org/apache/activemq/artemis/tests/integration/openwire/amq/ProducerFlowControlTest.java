@@ -42,8 +42,8 @@ import org.junit.Test;
 /**
  * adapted from: org.apache.activemq.ProducerFlowControlTest
  */
-public class ProducerFlowControlTest extends BasicOpenWireTest
-{
+public class ProducerFlowControlTest extends BasicOpenWireTest {
+
    ActiveMQQueue queueA = new ActiveMQQueue("QUEUE.A");
    ActiveMQQueue queueB = new ActiveMQQueue("QUEUE.B");
    protected ActiveMQConnection flowControlConnection;
@@ -52,8 +52,7 @@ public class ProducerFlowControlTest extends BasicOpenWireTest
    private Thread asyncThread = null;
 
    @Test
-   public void test2ndPublisherWithProducerWindowSendConnectionThatIsBlocked() throws Exception
-   {
+   public void test2ndPublisherWithProducerWindowSendConnectionThatIsBlocked() throws Exception {
       factory.setProducerWindowSize(1024 * 64);
       flowControlConnection = (ActiveMQConnection) factory.createConnection();
       flowControlConnection.start();
@@ -85,8 +84,7 @@ public class ProducerFlowControlTest extends BasicOpenWireTest
    }
 
    @Test
-   public void testPublisherRecoverAfterBlock() throws Exception
-   {
+   public void testPublisherRecoverAfterBlock() throws Exception {
       flowControlConnection = (ActiveMQConnection) factory.createConnection();
       flowControlConnection.start();
 
@@ -96,22 +94,17 @@ public class ProducerFlowControlTest extends BasicOpenWireTest
       final AtomicBoolean done = new AtomicBoolean(true);
       final AtomicBoolean keepGoing = new AtomicBoolean(true);
 
-      Thread thread = new Thread("Filler")
-      {
+      Thread thread = new Thread("Filler") {
          int i;
 
          @Override
-         public void run()
-         {
-            while (keepGoing.get())
-            {
+         public void run() {
+            while (keepGoing.get()) {
                done.set(false);
-               try
-               {
+               try {
                   producer.send(session.createTextMessage("Test message " + ++i));
                }
-               catch (JMSException e)
-               {
+               catch (JMSException e) {
                   break;
                }
             }
@@ -124,11 +117,9 @@ public class ProducerFlowControlTest extends BasicOpenWireTest
       // (done == false)
       MessageConsumer consumer = session.createConsumer(queueA);
       TextMessage msg;
-      for (int idx = 0; idx < 5; ++idx)
-      {
+      for (int idx = 0; idx < 5; ++idx) {
          msg = (TextMessage) consumer.receive(1000);
-         System.out.println("received: " + idx + ", msg: "
-               + msg.getJMSMessageID());
+         System.out.println("received: " + idx + ", msg: " + msg.getJMSMessageID());
          msg.acknowledge();
       }
       Thread.sleep(1000);
@@ -139,36 +130,29 @@ public class ProducerFlowControlTest extends BasicOpenWireTest
    }
 
    @Test
-   public void testAsyncPublisherRecoverAfterBlock() throws Exception
-   {
+   public void testAsyncPublisherRecoverAfterBlock() throws Exception {
       factory.setProducerWindowSize(1024 * 5);
       factory.setUseAsyncSend(true);
       flowControlConnection = (ActiveMQConnection) factory.createConnection();
       flowControlConnection.start();
 
-      final Session session = flowControlConnection.createSession(false,
-            Session.CLIENT_ACKNOWLEDGE);
+      final Session session = flowControlConnection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
       final MessageProducer producer = session.createProducer(queueA);
 
       final AtomicBoolean done = new AtomicBoolean(true);
       final AtomicBoolean keepGoing = new AtomicBoolean(true);
 
-      Thread thread = new Thread("Filler")
-      {
+      Thread thread = new Thread("Filler") {
          int i;
 
          @Override
-         public void run()
-         {
-            while (keepGoing.get())
-            {
+         public void run() {
+            while (keepGoing.get()) {
                done.set(false);
-               try
-               {
+               try {
                   producer.send(session.createTextMessage("Test message " + ++i));
                }
-               catch (JMSException e)
-               {
+               catch (JMSException e) {
                }
             }
          }
@@ -180,8 +164,7 @@ public class ProducerFlowControlTest extends BasicOpenWireTest
       // (done == false)
       MessageConsumer consumer = session.createConsumer(queueA);
       TextMessage msg;
-      for (int idx = 0; idx < 5; ++idx)
-      {
+      for (int idx = 0; idx < 5; ++idx) {
          msg = (TextMessage) consumer.receive(1000);
          assertNotNull("Got a message", msg);
          System.out.println("received: " + idx + ", msg: " + msg.getJMSMessageID());
@@ -195,14 +178,12 @@ public class ProducerFlowControlTest extends BasicOpenWireTest
    }
 
    @Test
-   public void test2ndPublisherWithSyncSendConnectionThatIsBlocked() throws Exception
-   {
+   public void test2ndPublisherWithSyncSendConnectionThatIsBlocked() throws Exception {
       factory.setAlwaysSyncSend(true);
       flowControlConnection = (ActiveMQConnection) factory.createConnection();
       flowControlConnection.start();
 
-      Session session = flowControlConnection.createSession(false,
-            Session.CLIENT_ACKNOWLEDGE);
+      Session session = flowControlConnection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
       MessageConsumer consumer = session.createConsumer(queueB);
 
       // Test sending to Queue A
@@ -227,14 +208,12 @@ public class ProducerFlowControlTest extends BasicOpenWireTest
    }
 
    @Test
-   public void testSimpleSendReceive() throws Exception
-   {
+   public void testSimpleSendReceive() throws Exception {
       factory.setAlwaysSyncSend(true);
       flowControlConnection = (ActiveMQConnection) factory.createConnection();
       flowControlConnection.start();
 
-      Session session = flowControlConnection.createSession(false,
-            Session.CLIENT_ACKNOWLEDGE);
+      Session session = flowControlConnection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
       MessageConsumer consumer = session.createConsumer(queueA);
 
       // Test sending to Queue B it should not block.
@@ -255,8 +234,7 @@ public class ProducerFlowControlTest extends BasicOpenWireTest
    }
 
    @Test
-   public void test2ndPublisherWithStandardConnectionThatIsBlocked() throws Exception
-   {
+   public void test2ndPublisherWithStandardConnectionThatIsBlocked() throws Exception {
       flowControlConnection = (ActiveMQConnection) factory.createConnection();
       flowControlConnection.start();
 
@@ -272,9 +250,7 @@ public class ProducerFlowControlTest extends BasicOpenWireTest
       assertFalse(pubishDoneToQeueuB.await(2, TimeUnit.SECONDS));
    }
 
-   private void fillQueue(final ActiveMQQueue queue) throws JMSException,
-         InterruptedException
-   {
+   private void fillQueue(final ActiveMQQueue queue) throws JMSException, InterruptedException {
       final AtomicBoolean done = new AtomicBoolean(true);
       final AtomicBoolean keepGoing = new AtomicBoolean(true);
 
@@ -282,27 +258,21 @@ public class ProducerFlowControlTest extends BasicOpenWireTest
       // flag to false.
       // Once the send starts to block it will not reset the done flag
       // anymore.
-      asyncThread = new Thread("Fill thread.")
-      {
-         public void run()
-         {
+      asyncThread = new Thread("Fill thread.") {
+         public void run() {
             Session session = null;
-            try
-            {
+            try {
                session = flowControlConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
                MessageProducer producer = session.createProducer(queue);
                producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
-               while (keepGoing.get())
-               {
+               while (keepGoing.get()) {
                   done.set(false);
                   producer.send(session.createTextMessage("Hello World"));
                }
             }
-            catch (JMSException e)
-            {
+            catch (JMSException e) {
             }
-            finally
-            {
+            finally {
                safeClose(session);
             }
          }
@@ -313,46 +283,35 @@ public class ProducerFlowControlTest extends BasicOpenWireTest
       keepGoing.set(false);
    }
 
-   protected void waitForBlockedOrResourceLimit(final AtomicBoolean done) throws InterruptedException
-   {
-      while (true)
-      {
+   protected void waitForBlockedOrResourceLimit(final AtomicBoolean done) throws InterruptedException {
+      while (true) {
          Thread.sleep(2000);
          System.out.println("check done: " + done.get() + " ex: " + gotResourceException.get());
          // the producer is blocked once the done flag stays true or there is a
          // resource exception
-         if (done.get() || gotResourceException.get())
-         {
+         if (done.get() || gotResourceException.get()) {
             break;
          }
          done.set(true);
       }
    }
 
-   private CountDownLatch asyncSendTo(final ActiveMQQueue queue,
-         final String message) throws JMSException
-   {
+   private CountDownLatch asyncSendTo(final ActiveMQQueue queue, final String message) throws JMSException {
       final CountDownLatch done = new CountDownLatch(1);
-      new Thread("Send thread.")
-      {
-         public void run()
-         {
+      new Thread("Send thread.") {
+         public void run() {
             Session session = null;
-            try
-            {
-               session = flowControlConnection.createSession(false,
-                     Session.AUTO_ACKNOWLEDGE);
+            try {
+               session = flowControlConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
                MessageProducer producer = session.createProducer(queue);
                producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
                producer.send(session.createTextMessage(message));
                done.countDown();
             }
-            catch (JMSException e)
-            {
+            catch (JMSException e) {
                e.printStackTrace();
             }
-            finally
-            {
+            finally {
                safeClose(session);
             }
          }
@@ -361,19 +320,15 @@ public class ProducerFlowControlTest extends BasicOpenWireTest
    }
 
    @Override
-   protected void extraServerConfig(Configuration serverConfig)
-   {
+   protected void extraServerConfig(Configuration serverConfig) {
       String match = "jms.queue.#";
       Map<String, AddressSettings> asMap = serverConfig.getAddressesSettings();
-      asMap.get(match)
-              .setMaxSizeBytes(1)
-              .setAddressFullMessagePolicy(AddressFullMessagePolicy.BLOCK);
+      asMap.get(match).setMaxSizeBytes(1).setAddressFullMessagePolicy(AddressFullMessagePolicy.BLOCK);
    }
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
       this.makeSureCoreQueueExist("QUEUE.A");
       this.makeSureCoreQueueExist("QUEUE.B");
@@ -381,28 +336,20 @@ public class ProducerFlowControlTest extends BasicOpenWireTest
 
    @Override
    @After
-   public void tearDown() throws Exception
-   {
-      try
-      {
-         if (flowControlConnection != null)
-         {
-            TcpTransport t = (TcpTransport) flowControlConnection.getTransport()
-               .narrow(TcpTransport.class);
-            t.getTransportListener()
-               .onException(new IOException("Disposed."));
-            flowControlConnection.getTransport()
-               .stop();
+   public void tearDown() throws Exception {
+      try {
+         if (flowControlConnection != null) {
+            TcpTransport t = (TcpTransport) flowControlConnection.getTransport().narrow(TcpTransport.class);
+            t.getTransportListener().onException(new IOException("Disposed."));
+            flowControlConnection.getTransport().stop();
             flowControlConnection.close();
          }
-         if (asyncThread != null)
-         {
+         if (asyncThread != null) {
             asyncThread.join();
             asyncThread = null;
          }
       }
-      finally
-      {
+      finally {
          super.tearDown();
       }
    }

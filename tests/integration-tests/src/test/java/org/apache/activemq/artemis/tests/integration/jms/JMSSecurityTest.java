@@ -27,33 +27,28 @@ import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.junit.Before;
 import org.junit.Test;
 
-public class JMSSecurityTest extends JMSTestBase
-{
+public class JMSSecurityTest extends JMSTestBase {
+
    @Override
-   public boolean useSecurity()
-   {
+   public boolean useSecurity() {
       return true;
    }
 
    @Override
    @Before
-   public void setUp() throws  Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
    }
 
    @Test
-   public void testSecurityOnJMSContext() throws Exception
-   {
+   public void testSecurityOnJMSContext() throws Exception {
       ActiveMQSecurityManagerImpl securityManager = (ActiveMQSecurityManagerImpl) server.getSecurityManager();
       securityManager.getConfiguration().addUser("IDo", "Exist");
-      try
-      {
+      try {
          JMSContext ctx = cf.createContext("Idont", "exist");
          ctx.close();
       }
-      catch (JMSSecurityRuntimeException e)
-      {
+      catch (JMSSecurityRuntimeException e) {
          // expected
       }
       JMSContext ctx = cf.createContext("IDo", "Exist");
@@ -61,18 +56,15 @@ public class JMSSecurityTest extends JMSTestBase
    }
 
    @Test
-   public void testCreateQueueConnection() throws Exception
-   {
+   public void testCreateQueueConnection() throws Exception {
       ActiveMQSecurityManagerImpl securityManager = (ActiveMQSecurityManagerImpl) server.getSecurityManager();
       securityManager.getConfiguration().addUser("IDo", "Exist");
-      try
-      {
-         QueueConnection queueC = ((QueueConnectionFactory)cf).createQueueConnection("IDont", "Exist");
+      try {
+         QueueConnection queueC = ((QueueConnectionFactory) cf).createQueueConnection("IDont", "Exist");
          fail("supposed to throw exception");
          queueC.close();
       }
-      catch (JMSSecurityException e)
-      {
+      catch (JMSSecurityException e) {
          // expected
       }
       JMSContext ctx = cf.createContext("IDo", "Exist");

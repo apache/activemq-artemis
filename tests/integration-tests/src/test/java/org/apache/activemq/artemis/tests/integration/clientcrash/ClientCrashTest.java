@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.integration.clientcrash;
+
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.SpawnedVMSupport;
 import org.junit.Before;
@@ -36,8 +37,8 @@ import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
  * A test that makes sure that an ActiveMQ Artemis server cleans up the associated
  * resources when one of its client crashes.
  */
-public class ClientCrashTest extends ClientTestBase
-{
+public class ClientCrashTest extends ClientTestBase {
+
    // using short values so this test can run fast
    static final int PING_PERIOD = 100;
 
@@ -68,8 +69,7 @@ public class ClientCrashTest extends ClientTestBase
    // Public --------------------------------------------------------
 
    @Test
-   public void testCrashClient() throws Exception
-   {
+   public void testCrashClient() throws Exception {
       assertActiveConnections(1);
 
       ClientSession session = sf.createSession(false, true, true);
@@ -83,7 +83,6 @@ public class ClientCrashTest extends ClientTestBase
       ClientConsumer consumer = session.createConsumer(ClientCrashTest.QUEUE);
       ClientProducer producer = session.createProducer(ClientCrashTest.QUEUE);
 
-
       session.start();
 
       // receive a message from the queue
@@ -94,11 +93,7 @@ public class ClientCrashTest extends ClientTestBase
       assertActiveConnections(1 + 1); // One local and one from the other vm
       assertActiveSession(1 + 1);
 
-      ClientMessage message = session.createMessage(ActiveMQTextMessage.TYPE,
-                                                          false,
-                                                          0,
-                                                          System.currentTimeMillis(),
-                                                          (byte)1);
+      ClientMessage message = session.createMessage(ActiveMQTextMessage.TYPE, false, 0, System.currentTimeMillis(), (byte) 1);
       message.getBodyBuffer().writeString(ClientCrashTest.MESSAGE_TEXT_FROM_SERVER);
       producer.send(message);
 
@@ -122,8 +117,7 @@ public class ClientCrashTest extends ClientTestBase
    }
 
    @Test
-   public void testCrashClient2() throws Exception
-   {
+   public void testCrashClient2() throws Exception {
       // set the redelivery delay to avoid an attempt to redeliver the message to the dead client
       AddressSettings addressSettings = new AddressSettings().setRedeliveryDelay(ClientCrashTest.CONNECTION_TTL + ClientCrashTest.PING_PERIOD);
       server.getAddressSettingsRepository().addMatch(ClientCrashTest.QUEUE2.toString(), addressSettings);
@@ -168,8 +162,7 @@ public class ClientCrashTest extends ClientTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       locator = createNettyNonHALocator();

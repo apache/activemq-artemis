@@ -20,40 +20,34 @@ import org.apache.activemq.artemis.utils.json.JSONArray;
 import org.apache.activemq.artemis.utils.json.JSONException;
 import org.apache.activemq.artemis.utils.json.JSONObject;
 
-public class JMSSessionInfo
-{
+public class JMSSessionInfo {
+
    private final String sessionID;
 
    private final long creationTime;
 
-   public JMSSessionInfo(String sessionID, long creationTime)
-   {
+   public JMSSessionInfo(String sessionID, long creationTime) {
       this.sessionID = sessionID;
       this.creationTime = creationTime;
    }
 
-   public static JMSSessionInfo[] from(final String jsonString) throws JSONException
-   {
+   public static JMSSessionInfo[] from(final String jsonString) throws JSONException {
       JSONArray array = new JSONArray(jsonString);
       JMSSessionInfo[] infos = new JMSSessionInfo[array.length()];
-      for (int i = 0; i < array.length(); i++)
-      {
+      for (int i = 0; i < array.length(); i++) {
          JSONObject obj = array.getJSONObject(i);
 
-         JMSSessionInfo info = new JMSSessionInfo(obj.getString("sessionID"),
-                                                        obj.getLong("creationTime"));
+         JMSSessionInfo info = new JMSSessionInfo(obj.getString("sessionID"), obj.getLong("creationTime"));
          infos[i] = info;
       }
       return infos;
    }
 
-   public String getSessionID()
-   {
+   public String getSessionID() {
       return sessionID;
    }
 
-   public long getCreationTime()
-   {
+   public long getCreationTime() {
       return creationTime;
    }
 }

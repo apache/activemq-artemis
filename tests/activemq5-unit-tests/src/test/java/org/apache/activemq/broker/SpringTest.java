@@ -31,75 +31,76 @@ import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 public class SpringTest extends TestCase {
-    
-    private static final Logger LOG = LoggerFactory.getLogger(SpringTest.class);
 
-    protected AbstractApplicationContext context;
-    protected SpringConsumer consumer;
-    protected SpringProducer producer;
+   private static final Logger LOG = LoggerFactory.getLogger(SpringTest.class);
 
-    public void testSenderWithSpringXml() throws Exception {
-        assertSenderConfig("org/apache/activemq/broker/spring.xml");
-    }
-    /**
-     * assert method that is used by all the test method to send and receive messages
-     * based on each spring configuration.
-     *
-     * @param config
-     * @throws Exception
-     */
-    protected void assertSenderConfig(String config) throws Exception {
-        context = new ClassPathXmlApplicationContext(config);
+   protected AbstractApplicationContext context;
+   protected SpringConsumer consumer;
+   protected SpringProducer producer;
 
-        consumer = (SpringConsumer) context.getBean("consumer");
-        assertTrue("Found a valid consumer", consumer != null);
+   public void testSenderWithSpringXml() throws Exception {
+      assertSenderConfig("org/apache/activemq/broker/spring.xml");
+   }
 
-        consumer.start();
+   /**
+    * assert method that is used by all the test method to send and receive messages
+    * based on each spring configuration.
+    *
+    * @param config
+    * @throws Exception
+    */
+   protected void assertSenderConfig(String config) throws Exception {
+      context = new ClassPathXmlApplicationContext(config);
 
-        producer = (SpringProducer) context.getBean("producer");
-        assertTrue("Found a valid producer", producer != null);
+      consumer = (SpringConsumer) context.getBean("consumer");
+      assertTrue("Found a valid consumer", consumer != null);
 
-        consumer.flushMessages();
-        producer.start();
+      consumer.start();
 
-        // lets sleep a little to give the JMS time to dispatch stuff
-        consumer.waitForMessagesToArrive(producer.getMessageCount());
+      producer = (SpringProducer) context.getBean("producer");
+      assertTrue("Found a valid producer", producer != null);
 
-        // now lets check that the consumer has received some messages
-        List messages = consumer.flushMessages();
-        LOG.info("Consumer has received messages....");
-        for (Iterator iter = messages.iterator(); iter.hasNext();) {
-            Object message = iter.next();
-            LOG.info("Received: " + message);
-        }
+      consumer.flushMessages();
+      producer.start();
 
-        assertEquals("Message count", producer.getMessageCount(), messages.size());
-    }
+      // lets sleep a little to give the JMS time to dispatch stuff
+      consumer.waitForMessagesToArrive(producer.getMessageCount());
 
-    /**
-     * Clean up method.
-     *
-     * @throws Exception
-     */
-    protected void tearDown() throws Exception {
-        if (consumer != null) {
-            consumer.stop();
-        }
-        if (producer != null) {
-            producer.stop();
-        }
+      // now lets check that the consumer has received some messages
+      List messages = consumer.flushMessages();
+      LOG.info("Consumer has received messages....");
+      for (Iterator iter = messages.iterator(); iter.hasNext(); ) {
+         Object message = iter.next();
+         LOG.info("Received: " + message);
+      }
 
-        if (context != null) {
-            context.destroy();
-        }
-    }
+      assertEquals("Message count", producer.getMessageCount(), messages.size());
+   }
 
-    protected void setUp() throws Exception {
-        if (System.getProperty("basedir") == null) {
-            File file = new File(".");
-            System.setProperty("basedir", file.getAbsolutePath());
-        }
-        super.setUp();
-    }
+   /**
+    * Clean up method.
+    *
+    * @throws Exception
+    */
+   protected void tearDown() throws Exception {
+      if (consumer != null) {
+         consumer.stop();
+      }
+      if (producer != null) {
+         producer.stop();
+      }
+
+      if (context != null) {
+         context.destroy();
+      }
+   }
+
+   protected void setUp() throws Exception {
+      if (System.getProperty("basedir") == null) {
+         File file = new File(".");
+         System.setProperty("basedir", file.getAbsolutePath());
+      }
+      super.setUp();
+   }
 
 }

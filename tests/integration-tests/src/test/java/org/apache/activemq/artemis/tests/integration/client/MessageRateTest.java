@@ -34,8 +34,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class MessageRateTest extends ActiveMQTestBase
-{
+public class MessageRateTest extends ActiveMQTestBase {
 
    // Constants -----------------------------------------------------
 
@@ -52,8 +51,7 @@ public class MessageRateTest extends ActiveMQTestBase
    // Public --------------------------------------------------------
 
    @Test
-   public void testProduceRate() throws Exception
-   {
+   public void testProduceRate() throws Exception {
       ActiveMQServer server = createServer(false);
 
       server.start();
@@ -66,8 +64,7 @@ public class MessageRateTest extends ActiveMQTestBase
 
       ClientProducer producer = session.createProducer(ADDRESS);
       long start = System.currentTimeMillis();
-      for (int i = 0; i < 10; i++)
-      {
+      for (int i = 0; i < 10; i++) {
          producer.send(session.createMessage(false));
       }
       long end = System.currentTimeMillis();
@@ -78,8 +75,7 @@ public class MessageRateTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testConsumeRate() throws Exception
-   {
+   public void testConsumeRate() throws Exception {
       ActiveMQServer server = createServer(false);
 
       server.start();
@@ -93,8 +89,7 @@ public class MessageRateTest extends ActiveMQTestBase
 
       ClientProducer producer = session.createProducer(ADDRESS);
 
-      for (int i = 0; i < 12; i++)
-      {
+      for (int i = 0; i < 12; i++) {
          producer.send(session.createMessage(false));
       }
 
@@ -104,8 +99,7 @@ public class MessageRateTest extends ActiveMQTestBase
 
       long start = System.currentTimeMillis();
 
-      for (int i = 0; i < 12; i++)
-      {
+      for (int i = 0; i < 12; i++) {
          consumer.receive(1000);
       }
 
@@ -116,10 +110,8 @@ public class MessageRateTest extends ActiveMQTestBase
       session.close();
    }
 
-
    @Test
-   public void testConsumeRate2() throws Exception
-   {
+   public void testConsumeRate2() throws Exception {
       ActiveMQServer server = createServer(false);
 
       server.start();
@@ -132,8 +124,7 @@ public class MessageRateTest extends ActiveMQTestBase
 
       ClientProducer producer = session.createProducer(ADDRESS);
 
-      for (int i = 0; i < 12; i++)
-      {
+      for (int i = 0; i < 12; i++) {
          producer.send(session.createMessage(false));
       }
 
@@ -143,8 +134,7 @@ public class MessageRateTest extends ActiveMQTestBase
 
       long start = System.currentTimeMillis();
 
-      for (int i = 0; i < 12; i++)
-      {
+      for (int i = 0; i < 12; i++) {
          consumer.receive(1000);
       }
 
@@ -156,8 +146,7 @@ public class MessageRateTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testConsumeRateListener() throws Exception
-   {
+   public void testConsumeRateListener() throws Exception {
       ActiveMQServer server = createServer(false);
 
       server.start();
@@ -171,8 +160,7 @@ public class MessageRateTest extends ActiveMQTestBase
 
       ClientProducer producer = session.createProducer(ADDRESS);
 
-      for (int i = 0; i < 12; i++)
-      {
+      for (int i = 0; i < 12; i++) {
          producer.send(session.createMessage(false));
       }
 
@@ -182,18 +170,14 @@ public class MessageRateTest extends ActiveMQTestBase
 
       final CountDownLatch messages = new CountDownLatch(12);
 
-      consumer.setMessageHandler(new MessageHandler()
-      {
+      consumer.setMessageHandler(new MessageHandler() {
 
-         public void onMessage(final ClientMessage message)
-         {
-            try
-            {
+         public void onMessage(final ClientMessage message) {
+            try {
                message.acknowledge();
                messages.countDown();
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                e.printStackTrace(); // Hudson report
                failures.incrementAndGet();
             }
@@ -213,8 +197,7 @@ public class MessageRateTest extends ActiveMQTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       locator = createInVMNonHALocator();

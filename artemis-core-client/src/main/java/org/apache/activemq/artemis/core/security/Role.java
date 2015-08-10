@@ -21,8 +21,8 @@ import java.io.Serializable;
 /**
  * A role is used by the security store to define access rights and is configured on a connection factory or an address.
  */
-public class Role implements Serializable
-{
+public class Role implements Serializable {
+
    private static final long serialVersionUID = 3560097227776448872L;
 
    private final String name;
@@ -48,10 +48,8 @@ public class Role implements Serializable
                final boolean deleteDurableQueue,
                final boolean createNonDurableQueue,
                final boolean deleteNonDurableQueue,
-               final boolean manage)
-   {
-      if (name == null)
-      {
+               final boolean manage) {
+      if (name == null) {
          throw new NullPointerException("name is null");
       }
       this.name = name;
@@ -64,68 +62,54 @@ public class Role implements Serializable
       this.manage = manage;
    }
 
-   public String getName()
-   {
+   public String getName() {
       return name;
    }
 
-   public boolean isSend()
-   {
+   public boolean isSend() {
       return send;
    }
 
-   public boolean isConsume()
-   {
+   public boolean isConsume() {
       return consume;
    }
 
-   public boolean isCreateDurableQueue()
-   {
+   public boolean isCreateDurableQueue() {
       return createDurableQueue;
    }
 
-   public boolean isDeleteDurableQueue()
-   {
+   public boolean isDeleteDurableQueue() {
       return deleteDurableQueue;
    }
 
-   public boolean isCreateNonDurableQueue()
-   {
+   public boolean isCreateNonDurableQueue() {
       return createNonDurableQueue;
    }
 
-   public boolean isDeleteNonDurableQueue()
-   {
+   public boolean isDeleteNonDurableQueue() {
       return deleteNonDurableQueue;
    }
 
    @Override
-   public String toString()
-   {
+   public String toString() {
       StringBuffer stringReturn = new StringBuffer("Role {name=" + name + "; allows=[");
 
-      if (send)
-      {
+      if (send) {
          stringReturn.append(" send ");
       }
-      if (consume)
-      {
+      if (consume) {
          stringReturn.append(" consume ");
       }
-      if (createDurableQueue)
-      {
+      if (createDurableQueue) {
          stringReturn.append(" createDurableQueue ");
       }
-      if (deleteDurableQueue)
-      {
+      if (deleteDurableQueue) {
          stringReturn.append(" deleteDurableQueue ");
       }
-      if (createNonDurableQueue)
-      {
+      if (createNonDurableQueue) {
          stringReturn.append(" createNonDurableQueue ");
       }
-      if (deleteNonDurableQueue)
-      {
+      if (deleteNonDurableQueue) {
          stringReturn.append(" deleteNonDurableQueue ");
       }
 
@@ -135,45 +119,35 @@ public class Role implements Serializable
    }
 
    @Override
-   public boolean equals(final Object o)
-   {
-      if (this == o)
-      {
+   public boolean equals(final Object o) {
+      if (this == o) {
          return true;
       }
-      if (o == null || getClass() != o.getClass())
-      {
+      if (o == null || getClass() != o.getClass()) {
          return false;
       }
 
-      Role role = (Role)o;
+      Role role = (Role) o;
 
-      if (consume != role.consume)
-      {
+      if (consume != role.consume) {
          return false;
       }
-      if (createDurableQueue != role.createDurableQueue)
-      {
+      if (createDurableQueue != role.createDurableQueue) {
          return false;
       }
-      if (createNonDurableQueue != role.createNonDurableQueue)
-      {
+      if (createNonDurableQueue != role.createNonDurableQueue) {
          return false;
       }
-      if (deleteDurableQueue != role.deleteDurableQueue)
-      {
+      if (deleteDurableQueue != role.deleteDurableQueue) {
          return false;
       }
-      if (deleteNonDurableQueue != role.deleteNonDurableQueue)
-      {
+      if (deleteNonDurableQueue != role.deleteNonDurableQueue) {
          return false;
       }
-      if (send != role.send)
-      {
+      if (send != role.send) {
          return false;
       }
-      if (!name.equals(role.name))
-      {
+      if (!name.equals(role.name)) {
          return false;
       }
 
@@ -181,8 +155,7 @@ public class Role implements Serializable
    }
 
    @Override
-   public int hashCode()
-   {
+   public int hashCode() {
       int result;
       result = name.hashCode();
       result = 31 * result + (send ? 1 : 0);
@@ -194,8 +167,7 @@ public class Role implements Serializable
       return result;
    }
 
-   public boolean isManage()
-   {
+   public boolean isManage() {
       return manage;
    }
 }

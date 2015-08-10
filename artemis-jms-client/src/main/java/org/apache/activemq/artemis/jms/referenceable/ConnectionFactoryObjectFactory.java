@@ -24,18 +24,19 @@ import javax.naming.Reference;
 import javax.naming.spi.ObjectFactory;
 
 /**
- *
  * A ConnectionFactoryObjectFactory.
  *
  * Given a reference - reconstructs an ActiveMQRAConnectionFactory
  */
-public class ConnectionFactoryObjectFactory implements ObjectFactory
-{
-   public Object getObjectInstance(final Object ref, final Name name, final Context ctx, final Hashtable props) throws Exception
-   {
-      Reference r = (Reference)ref;
+public class ConnectionFactoryObjectFactory implements ObjectFactory {
 
-      byte[] bytes = (byte[])r.get("ActiveMQ-CF").getContent();
+   public Object getObjectInstance(final Object ref,
+                                   final Name name,
+                                   final Context ctx,
+                                   final Hashtable props) throws Exception {
+      Reference r = (Reference) ref;
+
+      byte[] bytes = (byte[]) r.get("ActiveMQ-CF").getContent();
 
       // Deserialize
       return SerializableObjectRefAddr.deserialize(bytes);

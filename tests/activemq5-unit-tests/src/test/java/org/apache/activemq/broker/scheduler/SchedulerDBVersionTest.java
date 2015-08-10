@@ -46,119 +46,121 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class SchedulerDBVersionTest {
-    static String basedir;
-    static {
-        try {
-            ProtectionDomain protectionDomain = SchedulerDBVersionTest.class.getProtectionDomain();
-            basedir = new File(new File(protectionDomain.getCodeSource().getLocation().getPath()), "../..").getCanonicalPath();
-        } catch (IOException e) {
-            basedir = ".";
-        }
-    }
 
-    static final Logger LOG = LoggerFactory.getLogger(SchedulerDBVersionTest.class);
-    final static File VERSION_LEGACY_JMS =
-        new File(basedir + "/src/test/resources/org/apache/activemq/store/schedulerDB/legacy");
+   static String basedir;
 
-    BrokerService broker = null;
+   static {
+      try {
+         ProtectionDomain protectionDomain = SchedulerDBVersionTest.class.getProtectionDomain();
+         basedir = new File(new File(protectionDomain.getCodeSource().getLocation().getPath()), "../..").getCanonicalPath();
+      }
+      catch (IOException e) {
+         basedir = ".";
+      }
+   }
 
-    protected BrokerService createBroker(JobSchedulerStoreImpl scheduler) throws Exception {
-        BrokerService answer = new BrokerService();
-        answer.setJobSchedulerStore(scheduler);
-        answer.setPersistent(true);
-        answer.setDataDirectory("target");
-        answer.setSchedulerSupport(true);
-        answer.setUseJmx(false);
-        return answer;
-    }
+   static final Logger LOG = LoggerFactory.getLogger(SchedulerDBVersionTest.class);
+   final static File VERSION_LEGACY_JMS = new File(basedir + "/src/test/resources/org/apache/activemq/store/schedulerDB/legacy");
 
-    @After
-    public void tearDown() throws Exception {
-        if (broker != null) {
-            broker.stop();
-        }
-    }
+   BrokerService broker = null;
 
-    @Ignore("Used only when a new version of the store needs to archive it's test data.")
-    @Test
-    public void testCreateStore() throws Exception {
-        JobSchedulerStoreImpl scheduler = new JobSchedulerStoreImpl();
-        File dir = new File("src/test/resources/org/apache/activemq/store/schedulerDB/legacy");
-        IOHelper.deleteFile(dir);
-        scheduler.setDirectory(dir);
-        scheduler.setJournalMaxFileLength(1024 * 1024);
-        broker = createBroker(scheduler);
-        broker.start();
-        ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory("vm://localhost");
-        Connection connection = cf.createConnection();
-        connection.start();
-        scheduleRepeating(connection);
-        connection.close();
-        broker.stop();
-    }
+   protected BrokerService createBroker(JobSchedulerStoreImpl scheduler) throws Exception {
+      BrokerService answer = new BrokerService();
+      answer.setJobSchedulerStore(scheduler);
+      answer.setPersistent(true);
+      answer.setDataDirectory("target");
+      answer.setSchedulerSupport(true);
+      answer.setUseJmx(false);
+      return answer;
+   }
 
-    private void scheduleRepeating(Connection connection) throws Exception {
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        Queue queue = session.createQueue("test.queue");
-        MessageProducer producer = session.createProducer(queue);
+   @After
+   public void tearDown() throws Exception {
+      if (broker != null) {
+         broker.stop();
+      }
+   }
 
-        TextMessage message = session.createTextMessage("test msg");
-        long time = 1000;
-        message.setLongProperty(ScheduledMessage.AMQ_SCHEDULED_DELAY, time);
-        message.setLongProperty(ScheduledMessage.AMQ_SCHEDULED_PERIOD, 500);
-        message.setIntProperty(ScheduledMessage.AMQ_SCHEDULED_REPEAT, -1);
-        producer.send(message);
-        producer.close();
-    }
+   @Ignore("Used only when a new version of the store needs to archive it's test data.")
+   @Test
+   public void testCreateStore() throws Exception {
+      JobSchedulerStoreImpl scheduler = new JobSchedulerStoreImpl();
+      File dir = new File("src/test/resources/org/apache/activemq/store/schedulerDB/legacy");
+      IOHelper.deleteFile(dir);
+      scheduler.setDirectory(dir);
+      scheduler.setJournalMaxFileLength(1024 * 1024);
+      broker = createBroker(scheduler);
+      broker.start();
+      ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory("vm://localhost");
+      Connection connection = cf.createConnection();
+      connection.start();
+      scheduleRepeating(connection);
+      connection.close();
+      broker.stop();
+   }
 
-    @Test
-    public void testLegacyStoreConversion() throws Exception {
-        doTestScheduleRepeated(VERSION_LEGACY_JMS);
-    }
+   private void scheduleRepeating(Connection connection) throws Exception {
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      Queue queue = session.createQueue("test.queue");
+      MessageProducer producer = session.createProducer(queue);
 
-    public void doTestScheduleRepeated(File existingStore) throws Exception {
-        File testDir = new File("target/activemq-data/store/scheduler/versionDB");
-        IOHelper.deleteFile(testDir);
-        IOHelper.copyFile(existingStore, testDir);
+      TextMessage message = session.createTextMessage("test msg");
+      long time = 1000;
+      message.setLongProperty(ScheduledMessage.AMQ_SCHEDULED_DELAY, time);
+      message.setLongProperty(ScheduledMessage.AMQ_SCHEDULED_PERIOD, 500);
+      message.setIntProperty(ScheduledMessage.AMQ_SCHEDULED_REPEAT, -1);
+      producer.send(message);
+      producer.close();
+   }
 
-        final int NUMBER = 10;
-        ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory("vm://localhost");
+   @Test
+   public void testLegacyStoreConversion() throws Exception {
+      doTestScheduleRepeated(VERSION_LEGACY_JMS);
+   }
 
-        for (int i = 0; i < 3; ++i) {
-            JobSchedulerStoreImpl scheduler = new JobSchedulerStoreImpl();
-            scheduler.setDirectory(testDir);
-            scheduler.setJournalMaxFileLength(1024 * 1024);
-            BrokerService broker = createBroker(scheduler);
-            broker.start();
-            broker.waitUntilStarted();
+   public void doTestScheduleRepeated(File existingStore) throws Exception {
+      File testDir = new File("target/activemq-data/store/scheduler/versionDB");
+      IOHelper.deleteFile(testDir);
+      IOHelper.copyFile(existingStore, testDir);
 
-            final AtomicInteger count = new AtomicInteger();
-            Connection connection = cf.createConnection();
+      final int NUMBER = 10;
+      ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory("vm://localhost");
 
-            Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-            Queue queue = session.createQueue("test.queue");
+      for (int i = 0; i < 3; ++i) {
+         JobSchedulerStoreImpl scheduler = new JobSchedulerStoreImpl();
+         scheduler.setDirectory(testDir);
+         scheduler.setJournalMaxFileLength(1024 * 1024);
+         BrokerService broker = createBroker(scheduler);
+         broker.start();
+         broker.waitUntilStarted();
 
-            MessageConsumer consumer = session.createConsumer(queue);
+         final AtomicInteger count = new AtomicInteger();
+         Connection connection = cf.createConnection();
 
-            final CountDownLatch latch = new CountDownLatch(NUMBER);
-            consumer.setMessageListener(new MessageListener() {
-                @Override
-                public void onMessage(Message message) {
-                    LOG.info("Received scheduled message: {}", message);
-                    latch.countDown();
-                    count.incrementAndGet();
-                }
-            });
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         Queue queue = session.createQueue("test.queue");
 
-            connection.start();
-            assertEquals(latch.getCount(), NUMBER);
-            latch.await(30, TimeUnit.SECONDS);
+         MessageConsumer consumer = session.createConsumer(queue);
 
-            connection.close();
-            broker.stop();
-            broker.waitUntilStopped();
+         final CountDownLatch latch = new CountDownLatch(NUMBER);
+         consumer.setMessageListener(new MessageListener() {
+            @Override
+            public void onMessage(Message message) {
+               LOG.info("Received scheduled message: {}", message);
+               latch.countDown();
+               count.incrementAndGet();
+            }
+         });
 
-            assertEquals(0, latch.getCount());
-        }
-    }
+         connection.start();
+         assertEquals(latch.getCount(), NUMBER);
+         latch.await(30, TimeUnit.SECONDS);
+
+         connection.close();
+         broker.stop();
+         broker.waitUntilStopped();
+
+         assertEquals(0, latch.getCount());
+      }
+   }
 }

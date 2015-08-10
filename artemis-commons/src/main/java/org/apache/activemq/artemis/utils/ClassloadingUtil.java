@@ -25,101 +25,80 @@ import java.net.URL;
  * Is't required to use a Security Block on any calls to this class.
  */
 
-public final class ClassloadingUtil
-{
-   private static final String INSTANTIATION_EXCEPTION_MESSAGE =
-      "Your class must have a constructor without arguments. If it is an inner class, it must be static!";
+public final class ClassloadingUtil {
 
-   public static Object newInstanceFromClassLoader(final String className)
-   {
+   private static final String INSTANTIATION_EXCEPTION_MESSAGE = "Your class must have a constructor without arguments. If it is an inner class, it must be static!";
+
+   public static Object newInstanceFromClassLoader(final String className) {
       ClassLoader loader = ClassloadingUtil.class.getClassLoader();
-      try
-      {
+      try {
          Class<?> clazz = loader.loadClass(className);
          return clazz.newInstance();
       }
-      catch (Throwable t)
-      {
-         if (t instanceof InstantiationException)
-         {
+      catch (Throwable t) {
+         if (t instanceof InstantiationException) {
             System.out.println(INSTANTIATION_EXCEPTION_MESSAGE);
          }
          loader = Thread.currentThread().getContextClassLoader();
          if (loader == null)
             throw new RuntimeException("No local context classloader", t);
 
-         try
-         {
+         try {
             return loader.loadClass(className).newInstance();
          }
-         catch (InstantiationException e)
-         {
+         catch (InstantiationException e) {
             throw new RuntimeException(INSTANTIATION_EXCEPTION_MESSAGE + " " + className, e);
          }
-         catch (ClassNotFoundException e)
-         {
+         catch (ClassNotFoundException e) {
             throw new IllegalStateException(e);
          }
-         catch (IllegalAccessException e)
-         {
+         catch (IllegalAccessException e) {
             throw new RuntimeException(e);
          }
       }
    }
 
-   public static Object newInstanceFromClassLoader(final String className, Object... objs)
-   {
+   public static Object newInstanceFromClassLoader(final String className, Object... objs) {
       ClassLoader loader = ClassloadingUtil.class.getClassLoader();
-      try
-      {
+      try {
          Class<?>[] parametersType = new Class<?>[objs.length];
-         for (int i = 0; i < objs.length; i++)
-         {
+         for (int i = 0; i < objs.length; i++) {
             parametersType[i] = objs[i].getClass();
          }
          Class<?> clazz = loader.loadClass(className);
          return clazz.getConstructor(parametersType).newInstance(objs);
       }
-      catch (Throwable t)
-      {
-         if (t instanceof InstantiationException)
-         {
+      catch (Throwable t) {
+         if (t instanceof InstantiationException) {
             System.out.println(INSTANTIATION_EXCEPTION_MESSAGE);
          }
          loader = Thread.currentThread().getContextClassLoader();
          if (loader == null)
             throw new RuntimeException("No local context classloader", t);
 
-         try
-         {
+         try {
             return loader.loadClass(className).newInstance();
          }
-         catch (InstantiationException e)
-         {
+         catch (InstantiationException e) {
             throw new RuntimeException(INSTANTIATION_EXCEPTION_MESSAGE + " " + className, e);
          }
-         catch (ClassNotFoundException e)
-         {
+         catch (ClassNotFoundException e) {
             throw new IllegalStateException(e);
          }
-         catch (IllegalAccessException e)
-         {
+         catch (IllegalAccessException e) {
             throw new RuntimeException(e);
          }
       }
    }
 
-   public static URL findResource(final String resourceName)
-   {
+   public static URL findResource(final String resourceName) {
       ClassLoader loader = ClassloadingUtil.class.getClassLoader();
-      try
-      {
+      try {
          URL resource = loader.getResource(resourceName);
          if (resource != null)
             return resource;
       }
-      catch (Throwable t)
-      {
+      catch (Throwable t) {
       }
 
       loader = Thread.currentThread().getContextClassLoader();

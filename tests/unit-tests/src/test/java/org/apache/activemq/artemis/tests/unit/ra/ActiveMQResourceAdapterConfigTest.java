@@ -33,14 +33,13 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
-
 /**
  * This test is used to generate the commented out configs in the src/config/ra.xml. If you add a setter to the ActiveMQResourceAdapter
  * this test should fail, if it does paste the new commented out configs into the ra.xml file and in here. don't forget to
  * add a description for each new property added and try and put it in the config some where appropriate.
  */
-public class ActiveMQResourceAdapterConfigTest extends ActiveMQTestBase
-{
+public class ActiveMQResourceAdapterConfigTest extends ActiveMQTestBase {
+
    private static String config = "" +
       "<config-property>\n" +
       "         <description>\n" +
@@ -387,18 +386,14 @@ public class ActiveMQResourceAdapterConfigTest extends ActiveMQTestBase
       "         <config-property-value></config-property-value>" +
       "      </config-property>";
 
-
    private static String rootConfig = "<root>" + config + commentedOutConfigs + "</root>";
 
    @Test
-   public void testConfiguration() throws Exception
-   {
+   public void testConfiguration() throws Exception {
       Method[] methods = ActiveMQResourceAdapter.class.getMethods();
       Map<String, Method> methodList = new HashMap<String, Method>();
-      for (Method method : methods)
-      {
-         if (method.getName().startsWith("set"))
-         {
+      for (Method method : methods) {
+         if (method.getName().startsWith("set")) {
             methodList.put(method.getName(), method);
          }
       }
@@ -411,8 +406,7 @@ public class ActiveMQResourceAdapterConfigTest extends ActiveMQTestBase
 
       NodeList nl = docEle.getElementsByTagName("config-property");
 
-      for (int i = 0; i < nl.getLength(); i++)
-      {
+      for (int i = 0; i < nl.getLength(); i++) {
          Element el = (Element) nl.item(i);
          NodeList elementsByTagName = el.getElementsByTagName("config-property-name");
          assertEquals(el.toString(), elementsByTagName.getLength(), 1);
@@ -428,12 +422,10 @@ public class ActiveMQResourceAdapterConfigTest extends ActiveMQTestBase
          String configPropertyTypeName = configPropertyTypeNode.getTextContent();
          assertEquals(configPropertyTypeName, c.getName());
       }
-      if (!methodList.isEmpty())
-      {
+      if (!methodList.isEmpty()) {
          StringBuffer newConfig = new StringBuffer(commentedOutConfigs);
          newConfig.append("\n");
-         for (Method method : methodList.values())
-         {
+         for (Method method : methodList.values()) {
             newConfig.append("         \"      <config-property>\" + \n");
             newConfig.append("         \"         <description>***add***</description>\" + \n");
             newConfig.append("         \"         <config-property-name>").append(method.getName().substring(3)).append("</config-property-name>\" + \n");
@@ -444,8 +436,7 @@ public class ActiveMQResourceAdapterConfigTest extends ActiveMQTestBase
          System.out.println(newConfig);
          fail("methods not shown please see previous and add");
       }
-      else
-      {
+      else {
          System.out.println(commentedOutConfigs);
       }
    }
@@ -454,24 +445,19 @@ public class ActiveMQResourceAdapterConfigTest extends ActiveMQTestBase
     * @param setter
     * @return
     */
-   private Class<?> lookupType(Method setter)
-   {
+   private Class<?> lookupType(Method setter) {
       Class<?> clzz = setter.getParameterTypes()[0];
 
-      if (clzz == Boolean.class)
-      {
+      if (clzz == Boolean.class) {
          return Boolean.TYPE;
       }
-      else if (clzz == Long.class)
-      {
+      else if (clzz == Long.class) {
          return Long.TYPE;
       }
-      else if (clzz == Integer.class)
-      {
+      else if (clzz == Integer.class) {
          return Integer.TYPE;
       }
-      else
-      {
+      else {
          return clzz;
       }
    }

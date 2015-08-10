@@ -18,10 +18,9 @@ package org.apache.activemq.artemis.uri;
 
 import org.apache.activemq.artemis.core.remoting.impl.invm.InVMAcceptorFactory;
 
-public class InVMAcceptorTransportConfigurationSchema extends InVMTransportConfigurationSchema
-{
-   protected String getFactoryName()
-   {
+public class InVMAcceptorTransportConfigurationSchema extends InVMTransportConfigurationSchema {
+
+   protected String getFactoryName() {
       return InVMAcceptorFactory.class.getName();
    }
 }

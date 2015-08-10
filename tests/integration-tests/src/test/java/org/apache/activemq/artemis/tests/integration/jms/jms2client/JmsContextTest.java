@@ -45,8 +45,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class JmsContextTest extends JMSTestBase
-{
+public class JmsContextTest extends JMSTestBase {
 
    private JMSContext context;
    private final Random random = new Random();
@@ -54,22 +53,19 @@ public class JmsContextTest extends JMSTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
       context = createContext();
       queue1 = createQueue(JmsContextTest.class.getSimpleName() + "Queue");
    }
 
    @Test
-   public void testCreateContext()
-   {
+   public void testCreateContext() {
       Assert.assertNotNull(context);
    }
 
    @Test
-   public void testRollbackTest()
-   {
+   public void testRollbackTest() {
       JMSContext ctx = addContext(cf.createContext(JMSContext.SESSION_TRANSACTED));
 
       JMSProducer producer = ctx.createProducer();
@@ -95,12 +91,10 @@ public class JmsContextTest extends JMSTestBase
 
       cons.close();
 
-
    }
 
    @Test
-   public void testDupsOK()
-   {
+   public void testDupsOK() {
       JMSContext ctx = addContext(cf.createContext(JMSContext.DUPS_OK_ACKNOWLEDGE));
       assertEquals(JMSContext.DUPS_OK_ACKNOWLEDGE, ctx.getSessionMode());
 
@@ -119,8 +113,7 @@ public class JmsContextTest extends JMSTestBase
    }
 
    @Test
-   public void testReceiveBytes() throws Exception
-   {
+   public void testReceiveBytes() throws Exception {
       JMSProducer producer = context.createProducer();
 
       JMSConsumer consumer = context.createConsumer(queue1);
@@ -145,8 +138,7 @@ public class JmsContextTest extends JMSTestBase
    }
 
    @Test
-   public void testReceiveText() throws Exception
-   {
+   public void testReceiveText() throws Exception {
       JMSProducer producer = context.createProducer();
 
       JMSConsumer consumer = context.createConsumer(queue1);
@@ -158,7 +150,6 @@ public class JmsContextTest extends JMSTestBase
       TextMessage sendMsg = context.createTextMessage(randomStr);
       producer.send(queue1, sendMsg);
 
-
       TextMessage receiveMsg = (TextMessage) consumer.receiveNoWait();
 
       assertEquals(randomStr, receiveMsg.getText());
@@ -166,8 +157,7 @@ public class JmsContextTest extends JMSTestBase
    }
 
    @Test
-   public void testDelay() throws Exception
-   {
+   public void testDelay() throws Exception {
       JMSProducer producer = context.createProducer();
 
       JMSConsumer consumer = context.createConsumer(queue1);
@@ -191,8 +181,7 @@ public class JmsContextTest extends JMSTestBase
    }
 
    @Test
-   public void testExpire() throws Exception
-   {
+   public void testExpire() throws Exception {
       JMSProducer producer = context.createProducer();
 
       producer.setTimeToLive(500);
@@ -236,8 +225,7 @@ public class JmsContextTest extends JMSTestBase
    }
 
    @Test
-   public void testDeliveryMode() throws Exception
-   {
+   public void testDeliveryMode() throws Exception {
       JMSProducer producer = context.createProducer();
 
       JMSConsumer consumer = context.createConsumer(queue1);
@@ -257,39 +245,32 @@ public class JmsContextTest extends JMSTestBase
    }
 
    @Test
-   public void testInvalidMessage()
-   {
+   public void testInvalidMessage() {
       JMSProducer producer = context.createProducer();
-      try
-      {
+      try {
          producer.send(queue1, (Message) null);
          Assert.fail("null msg");
       }
-      catch (MessageFormatRuntimeException expected)
-      {
+      catch (MessageFormatRuntimeException expected) {
          // no-op
       }
    }
 
    @Test
-   public void testInvalidDestination()
-   {
+   public void testInvalidDestination() {
       JMSProducer producer = context.createProducer();
       Message msg = context.createMessage();
-      try
-      {
+      try {
          producer.send((Destination) null, msg);
          Assert.fail("null Destination");
       }
-      catch (InvalidDestinationRuntimeException expected)
-      {
+      catch (InvalidDestinationRuntimeException expected) {
          // no-op
       }
    }
 
    @Test
-   public void testSendStreamMessage() throws JMSException, InterruptedException
-   {
+   public void testSendStreamMessage() throws JMSException, InterruptedException {
       JmsProducerCompletionListenerTest.CountingCompletionListener cl = new JmsProducerCompletionListenerTest.CountingCompletionListener(1);
       JMSProducer producer = context.createProducer();
       producer.setAsync(cl);
@@ -314,33 +295,28 @@ public class JmsContextTest extends JMSTestBase
    }
 
    @Test
-   public void testSetClientIdLate()
-   {
+   public void testSetClientIdLate() {
       JMSProducer producer = context.createProducer();
       Message msg = context.createMessage();
       producer.send(queue1, msg);
-      try
-      {
+      try {
          context.setClientID("id");
          Assert.fail("expected exception");
       }
-      catch (IllegalStateRuntimeException e)
-      {
+      catch (IllegalStateRuntimeException e) {
          // no op
       }
    }
 
    @Test
-   public void testCloseSecondContextConnectionRemainsOpen() throws JMSException
-   {
+   public void testCloseSecondContextConnectionRemainsOpen() throws JMSException {
       JMSContext localContext = context.createContext(JMSContext.CLIENT_ACKNOWLEDGE);
       Assert.assertEquals("client_ack", JMSContext.CLIENT_ACKNOWLEDGE, localContext.getSessionMode());
       JMSProducer producer = localContext.createProducer();
       JMSConsumer consumer = localContext.createConsumer(queue1);
 
       final int pass = 1;
-      for (int idx = 0; idx < 2; idx++)
-      {
+      for (int idx = 0; idx < 2; idx++) {
          Message m = localContext.createMessage();
          int intProperty = random.nextInt();
          m.setIntProperty("random", intProperty);
@@ -351,8 +327,7 @@ public class JmsContextTest extends JMSTestBase
          Assert.assertNotNull("must have a msg", msg);
          Assert.assertEquals(intProperty, msg.getIntProperty("random"));
          /* In the second pass we close the connection before ack'ing */
-         if (idx == pass)
-         {
+         if (idx == pass) {
             localContext.close();
          }
          /**
@@ -361,49 +336,42 @@ public class JmsContextTest extends JMSTestBase
           * session must throw an {@code IllegalStateRuntimeException}. Closing a closed connection
           * must NOT throw an exception.
           */
-         try
-         {
+         try {
             msg.acknowledge();
             Assert.assertEquals("connection should be open on pass 0. It is " + pass, 0, idx);
          }
          // HORNETQ-1209 "JMS 2.0" XXX JMSContext javadoc says we must expect a
          // IllegalStateRuntimeException here. But Message.ack...() says it must throws the
          // non-runtime variant.
-         catch (javax.jms.IllegalStateException expected)
-         {
+         catch (javax.jms.IllegalStateException expected) {
             Assert.assertEquals("we only close the connection on pass " + pass, pass, idx);
          }
       }
    }
 
    @Test(expected = JMSRuntimeException.class)
-   public void testInvalidSessionModesValueMinusOne()
-   {
+   public void testInvalidSessionModesValueMinusOne() {
       context.createContext(-1);
    }
 
    @Test(expected = JMSRuntimeException.class)
-   public void testInvalidSessionModesValue4()
-   {
+   public void testInvalidSessionModesValue4() {
       context.createContext(4);
    }
 
    @Test
-   public void testGetAnotherContextFromIt()
-   {
+   public void testGetAnotherContextFromIt() {
       JMSContext c2 = context.createContext(Session.DUPS_OK_ACKNOWLEDGE);
       Assert.assertNotNull(c2);
       Assert.assertEquals(Session.DUPS_OK_ACKNOWLEDGE, c2.getSessionMode());
       Message m2 = c2.createMessage();
       Assert.assertNotNull(m2);
       c2.close(); // should close its session, but not its (shared) connection
-      try
-      {
+      try {
          c2.createMessage();
          Assert.fail("session should be closed...");
       }
-      catch (JMSRuntimeException expected)
-      {
+      catch (JMSRuntimeException expected) {
          // expected
       }
       Message m1 = context.createMessage();
@@ -411,8 +379,7 @@ public class JmsContextTest extends JMSTestBase
    }
 
    @Test
-   public void testSetGetClientIdNewContext()
-   {
+   public void testSetGetClientIdNewContext() {
       final String id = "123";
       JMSContext c = context;// createContext();
       c.setClientID(id);
@@ -421,8 +388,7 @@ public class JmsContextTest extends JMSTestBase
    }
 
    @Test
-   public void testGetClientId()
-   {
+   public void testGetClientId() {
       JMSContext context2 = addContext(context.createContext(Session.AUTO_ACKNOWLEDGE));
       final String id = "ID: " + random.nextInt();
       context.setClientID(id);
@@ -430,15 +396,13 @@ public class JmsContextTest extends JMSTestBase
    }
 
    @Test
-   public void testCreateConsumerWithSelector() throws JMSException
-   {
+   public void testCreateConsumerWithSelector() throws JMSException {
       final String filterName = "magicIndexMessage";
       final int total = 5;
       JMSProducer producer = context.createProducer();
       JMSConsumer consumerNoSelect = context.createConsumer(queue1);
       JMSConsumer consumer = context.createConsumer(queue1, filterName + "=TRUE");
-      for (int i = 0; i < total; i++)
-      {
+      for (int i = 0; i < total; i++) {
          Message msg = context.createTextMessage("message " + i);
          msg.setBooleanProperty(filterName, i == 3);
          producer.send(queue1, msg);
@@ -447,8 +411,7 @@ public class JmsContextTest extends JMSTestBase
       Assert.assertNotNull(msg0);
       msg0.acknowledge();
       Assert.assertNull("no more messages", consumer.receiveNoWait());
-      for (int i = 0; i < total - 1; i++)
-      {
+      for (int i = 0; i < total - 1; i++) {
          Message msg = consumerNoSelect.receive(100);
          Assert.assertNotNull(msg);
          msg.acknowledge();
@@ -457,8 +420,7 @@ public class JmsContextTest extends JMSTestBase
    }
 
    @Test
-   public void testContextStopAndCloseFromMessageListeners() throws Exception
-   {
+   public void testContextStopAndCloseFromMessageListeners() throws Exception {
       final JMSContext context1 = context.createContext(Session.AUTO_ACKNOWLEDGE);
       JMSConsumer consumer1 = context1.createConsumer(queue1);
 
@@ -507,17 +469,13 @@ public class JmsContextTest extends JMSTestBase
    }
 
    @Test
-   public void recoverAckTest() throws Exception
-   {
+   public void recoverAckTest() throws Exception {
       // Create JMSContext with CLIENT_ACKNOWLEDGE
 
-
-      try (JMSContext context = cf.createContext(JMSContext.CLIENT_ACKNOWLEDGE))
-      {
+      try (JMSContext context = cf.createContext(JMSContext.CLIENT_ACKNOWLEDGE)) {
          int numMessages = 10;
 
          TextMessage textMessage = null;
-
 
          // Create JMSConsumer from JMSContext
          JMSConsumer consumer = context.createConsumer(queue1);
@@ -526,8 +484,7 @@ public class JmsContextTest extends JMSTestBase
          JMSProducer producer = context.createProducer();
 
          // send messages
-         for (int i = 0; i < numMessages; i++)
-         {
+         for (int i = 0; i < numMessages; i++) {
             String message = "text message " + i;
             textMessage = context.createTextMessage(message);
             textMessage.setStringProperty("COM_SUN_JMS_TESTNAME", "recoverAckTest" + i);
@@ -535,8 +492,7 @@ public class JmsContextTest extends JMSTestBase
          }
 
          // receive messages but do not acknowledge
-         for (int i = 0; i < numMessages; i++)
-         {
+         for (int i = 0; i < numMessages; i++) {
             textMessage = (TextMessage) consumer.receive(5000);
             assertNotNull(textMessage);
          }
@@ -544,8 +500,7 @@ public class JmsContextTest extends JMSTestBase
          context.recover();
 
          // receive messages a second time followed by acknowledge
-         for (int i = 0; i < numMessages; i++)
-         {
+         for (int i = 0; i < numMessages; i++) {
             textMessage = (TextMessage) consumer.receive(5000);
             assertNotNull(textMessage);
          }
@@ -555,8 +510,7 @@ public class JmsContextTest extends JMSTestBase
       }
 
       // doing this check with another context / consumer to make sure it was acked.
-      try (JMSContext context = cf.createContext(JMSContext.CLIENT_ACKNOWLEDGE))
-      {
+      try (JMSContext context = cf.createContext(JMSContext.CLIENT_ACKNOWLEDGE)) {
          // Create JMSConsumer from JMSContext
          JMSConsumer consumer = context.createConsumer(queue1);
 
@@ -565,11 +519,9 @@ public class JmsContextTest extends JMSTestBase
    }
 
    @Test
-   public void bytesMessage() throws Exception
-   {
+   public void bytesMessage() throws Exception {
       context = cf.createContext();
-      try
-      {
+      try {
          JMSProducer producer = context.createProducer();
          BytesMessage bMsg = context.createBytesMessage();
          bMsg.setStringProperty("COM_SUN_JMS_TESTNAME", "sendAndRecvMsgOfEachTypeCLTest");
@@ -583,15 +535,13 @@ public class JmsContextTest extends JMSTestBase
          assertEquals(listener.message.readByte(), (byte) 1);
          assertEquals(listener.message.readInt(), 22);
       }
-      finally
-      {
+      finally {
          context.close();
       }
    }
 
    @Test
-   public void illegalStateRuntimeExceptionTests() throws Exception
-   {
+   public void illegalStateRuntimeExceptionTests() throws Exception {
       JMSProducer producer = context.createProducer();
       JMSConsumer consumer = context.createConsumer(queue1);
       System.out.println("Creating TextMessage");
@@ -604,54 +554,47 @@ public class JmsContextTest extends JMSTestBase
       assertNull(listener.ex);
    }
 
-   private static class SimpleCompletionListener implements CompletionListener
-   {
+   private static class SimpleCompletionListener implements CompletionListener {
+
       private CountDownLatch latch;
       private BytesMessage message;
 
-      public SimpleCompletionListener(CountDownLatch latch)
-      {
+      public SimpleCompletionListener(CountDownLatch latch) {
          this.latch = latch;
       }
 
       @Override
-      public void onCompletion(Message message)
-      {
+      public void onCompletion(Message message) {
          this.message = (BytesMessage) message;
          latch.countDown();
       }
 
       @Override
-      public void onException(Message message, Exception exception)
-      {
+      public void onException(Message message, Exception exception) {
          //To change body of implemented methods use File | Settings | File Templates.
       }
    }
 
-   private static class InvalidMessageListener implements MessageListener
-   {
+   private static class InvalidMessageListener implements MessageListener {
+
       private int id;
       private CountDownLatch latch;
       private JMSContext context;
       private volatile Throwable error;
 
-      public InvalidMessageListener(JMSContext context, CountDownLatch latch, int id)
-      {
+      public InvalidMessageListener(JMSContext context, CountDownLatch latch, int id) {
          this.id = id;
          this.latch = latch;
          this.context = context;
       }
 
-      public Throwable getError()
-      {
+      public Throwable getError() {
          return error;
       }
 
       @Override
-      public void onMessage(Message arg0)
-      {
-         switch (id)
-         {
+      public void onMessage(Message arg0) {
+         switch (id) {
             case 1:
                stopContext();
                break;
@@ -664,61 +607,50 @@ public class JmsContextTest extends JMSTestBase
          latch.countDown();
       }
 
-      private void stopContext()
-      {
-         try
-         {
+      private void stopContext() {
+         try {
             context.stop();
          }
-         catch (Throwable t)
-         {
+         catch (Throwable t) {
             error = t;
          }
       }
 
-      private void closeContext()
-      {
-         try
-         {
+      private void closeContext() {
+         try {
             context.close();
          }
-         catch (Throwable t)
-         {
+         catch (Throwable t) {
             error = t;
          }
       }
 
    }
 
-   private class JMSCOntextStopCompletionListener implements CompletionListener
-   {
+   private class JMSCOntextStopCompletionListener implements CompletionListener {
+
       private JMSContext context;
       private CountDownLatch latch;
       private Exception ex;
 
-      public JMSCOntextStopCompletionListener(JMSContext context, CountDownLatch latch)
-      {
+      public JMSCOntextStopCompletionListener(JMSContext context, CountDownLatch latch) {
          this.context = context;
          this.latch = latch;
       }
 
       @Override
-      public void onCompletion(Message message)
-      {
-         try
-         {
+      public void onCompletion(Message message) {
+         try {
             context.stop();
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             this.ex = e;
          }
          latch.countDown();
       }
 
       @Override
-      public void onException(Message message, Exception exception)
-      {
+      public void onException(Message message, Exception exception) {
       }
    }
 }

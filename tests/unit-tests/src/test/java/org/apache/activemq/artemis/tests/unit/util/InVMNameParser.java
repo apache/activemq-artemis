@@ -24,8 +24,7 @@ import javax.naming.Name;
 import javax.naming.NameParser;
 import javax.naming.NamingException;
 
-public class InVMNameParser implements NameParser, Serializable
-{
+public class InVMNameParser implements NameParser, Serializable {
    // Constants -----------------------------------------------------
 
    private static final long serialVersionUID = 2925203703371001031L;
@@ -34,8 +33,7 @@ public class InVMNameParser implements NameParser, Serializable
 
    static Properties syntax;
 
-   static
-   {
+   static {
       InVMNameParser.syntax = new Properties();
       InVMNameParser.syntax.put("jndi.syntax.direction", "left_to_right");
       InVMNameParser.syntax.put("jndi.syntax.ignorecase", "false");
@@ -48,13 +46,11 @@ public class InVMNameParser implements NameParser, Serializable
 
    // Public --------------------------------------------------------
 
-   public static Properties getSyntax()
-   {
+   public static Properties getSyntax() {
       return InVMNameParser.syntax;
    }
 
-   public Name parse(final String name) throws NamingException
-   {
+   public Name parse(final String name) throws NamingException {
       return new CompoundName(name, InVMNameParser.syntax);
    }
 

@@ -16,13 +16,13 @@
  */
 
 package org.apache.activemq.artemis.uri;
+
 /**
  * This will represent all the possible options you could setup on URLs
  * When parsing the URL this will serve as an intermediate object
  * And it could also be a pl
  */
-public class ConnectionOptions
-{
+public class ConnectionOptions {
 
    private boolean ha;
 
@@ -30,53 +30,45 @@ public class ConnectionOptions
 
    private int port;
 
-   public ConnectionOptions setHost(String host)
-   {
+   public ConnectionOptions setHost(String host) {
       this.host = host;
       return this;
    }
 
-   public String getHost()
-   {
+   public String getHost() {
       return host;
    }
 
-
-   public ConnectionOptions setPort(int port)
-   {
+   public ConnectionOptions setPort(int port) {
       this.port = port;
       return this;
    }
 
-   public int getPort()
-   {
+   public int getPort() {
       return port;
    }
 
-   public boolean isHa()
-   {
+   public boolean isHa() {
       return ha;
    }
 
-   public void setHa(boolean ha)
-   {
+   public void setHa(boolean ha) {
       this.ha = ha;
    }
 
-   /** Se need both options (ha / HA in case of typos on the URI) */
-   public boolean isHA()
-   {
+   /**
+    * Se need both options (ha / HA in case of typos on the URI)
+    */
+   public boolean isHA() {
       return ha;
    }
 
-   public void setHA(boolean ha)
-   {
+   public void setHA(boolean ha) {
       this.ha = ha;
    }
 
    @Override
-   public String toString()
-   {
+   public String toString() {
       return "ConnectionOptions{" +
          "ha=" + ha +
          '}';

@@ -20,14 +20,14 @@ import java.net.SocketAddress;
 
 /**
  *
- * 
+ *
  */
 public interface DropCommandStrategy {
 
-    /**
-     * Returns true if the command should be dropped for
-     * the given command ID and address
-     */
-    boolean shouldDropCommand(int commandId, SocketAddress address, boolean redelivery);
+   /**
+    * Returns true if the command should be dropped for
+    * the given command ID and address
+    */
+   boolean shouldDropCommand(int commandId, SocketAddress address, boolean redelivery);
 
 }

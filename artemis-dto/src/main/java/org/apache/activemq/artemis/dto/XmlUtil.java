@@ -32,48 +32,39 @@ import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class XmlUtil
-{
+public class XmlUtil {
 
    /**
     * Changes ${property} with values from a properties object
     */
-   static class PropertiesFilter extends StreamReaderDelegate
-   {
+   static class PropertiesFilter extends StreamReaderDelegate {
 
       static final Pattern pattern = Pattern.compile("\\$\\{([^\\}]+)\\}");
       private final Properties props;
 
-      public PropertiesFilter(XMLStreamReader parent, Properties props)
-      {
+      public PropertiesFilter(XMLStreamReader parent, Properties props) {
          super(parent);
          this.props = props;
       }
 
       @Override
-      public String getAttributeValue(int index)
-      {
+      public String getAttributeValue(int index) {
          return filter(super.getAttributeValue(index));
       }
 
-      public String filter(String str)
-      {
+      public String filter(String str) {
          int start = 0;
-         while (true)
-         {
+         while (true) {
             Matcher matcher = pattern.matcher(str);
-            if (!matcher.find(start))
-            {
+            if (!matcher.find(start)) {
                break;
             }
             String group = matcher.group(1);
             String property = props.getProperty(group);
-            if (property != null)
-            {
+            if (property != null) {
                str = matcher.replaceFirst(Matcher.quoteReplacement(property));
             }
-            else
-            {
+            else {
                start = matcher.end();
             }
          }
@@ -84,8 +75,7 @@ public class XmlUtil
 
    private static final XMLInputFactory factory = XMLInputFactory.newInstance();
 
-   public static <T> T decode(Class<T> clazz, File configuration) throws Exception
-   {
+   public static <T> T decode(Class<T> clazz, File configuration) throws Exception {
       JAXBContext jaxbContext = JAXBContext.newInstance("org.apache.activemq.artemis.dto");
 
       Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
@@ -100,8 +90,7 @@ public class XmlUtil
       //TODO - support properties files
       Properties props = System.getProperties();
 
-      if (props != null)
-      {
+      if (props != null) {
          reader = new PropertiesFilter(reader, props);
       }
 

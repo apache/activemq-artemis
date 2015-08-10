@@ -20,8 +20,8 @@ import org.jboss.resteasy.spi.Link;
 
 import javax.ws.rs.core.Response;
 
-public class LinkHeaderLinkStrategy implements LinkStrategy
-{
+public class LinkHeaderLinkStrategy implements LinkStrategy {
+
    /**
     * @param builder
     * @param title   user friendly name
@@ -29,14 +29,12 @@ public class LinkHeaderLinkStrategy implements LinkStrategy
     * @param href
     * @param type
     */
-   public void setLinkHeader(Response.ResponseBuilder builder, String title, String rel, String href, String type)
-   {
+   public void setLinkHeader(Response.ResponseBuilder builder, String title, String rel, String href, String type) {
       Link link = new Link(title, rel, href, type, null);
       setLinkHeader(builder, link);
    }
 
-   public void setLinkHeader(Response.ResponseBuilder builder, Link link)
-   {
+   public void setLinkHeader(Response.ResponseBuilder builder, Link link) {
       builder.header("Link", link);
    }
 

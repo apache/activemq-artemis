@@ -28,15 +28,16 @@ import org.apache.activemq.command.ProducerInfo;
 import org.apache.activemq.usage.MemoryUsage;
 import org.apache.activemq.usage.Usage;
 
-public interface AMQDestination
-{
+public interface AMQDestination {
+
    AMQDeadLetterStrategy DEFAULT_DEAD_LETTER_STRATEGY = new AMQSharedDeadLetterStrategy();
    long DEFAULT_BLOCKED_PRODUCER_WARNING_INTERVAL = 30000;
 
    void addSubscription(AMQConnectionContext context, AMQSubscription sub) throws Exception;
 
-   void removeSubscription(AMQConnectionContext context, AMQSubscription sub,
-         long lastDeliveredSequenceId) throws Exception;
+   void removeSubscription(AMQConnectionContext context,
+                           AMQSubscription sub,
+                           long lastDeliveredSequenceId) throws Exception;
 
    void addProducer(AMQConnectionContext context, ProducerInfo info) throws Exception;
 
@@ -44,8 +45,10 @@ public interface AMQDestination
 
    void send(AMQProducerBrokerExchange producerExchange, Message messageSend) throws Exception;
 
-   void acknowledge(AMQConnectionContext context, AMQSubscription sub,
-         final MessageAck ack, final MessageReference node) throws IOException;
+   void acknowledge(AMQConnectionContext context,
+                    AMQSubscription sub,
+                    final MessageAck ack,
+                    final MessageReference node) throws IOException;
 
    long getInactiveTimoutBeforeGC();
 
@@ -88,16 +91,14 @@ public interface AMQDestination
     * resource usage will be triggered. Values of 0 or less will disable
     * warnings
     *
-    * @param blockedProducerWarningInterval
-    *           the interval at which warning about blocked producers will be
-    *           triggered.
+    * @param blockedProducerWarningInterval the interval at which warning about blocked producers will be
+    *                                       triggered.
     */
    void setBlockedProducerWarningInterval(long blockedProducerWarningInterval);
 
    /**
-    *
     * @return the interval at which warning about blocked producers will be
-    *         triggered.
+    * triggered.
     */
    long getBlockedProducerWarningInterval();
 
@@ -160,8 +161,7 @@ public interface AMQDestination
     * @param subs
     * @param node
     */
-   void messageExpired(AMQConnectionContext context, AMQSubscription subs,
-         MessageReference node);
+   void messageExpired(AMQConnectionContext context, AMQSubscription subs, MessageReference node);
 
    /**
     * called when message is consumed
@@ -169,8 +169,7 @@ public interface AMQDestination
     * @param context
     * @param messageReference
     */
-   void messageConsumed(AMQConnectionContext context,
-         MessageReference messageReference);
+   void messageConsumed(AMQConnectionContext context, MessageReference messageReference);
 
    /**
     * Called when message is delivered to the broker
@@ -178,8 +177,7 @@ public interface AMQDestination
     * @param context
     * @param messageReference
     */
-   void messageDelivered(AMQConnectionContext context,
-         MessageReference messageReference);
+   void messageDelivered(AMQConnectionContext context, MessageReference messageReference);
 
    /**
     * Called when a message is discarded - e.g. running low on memory This will
@@ -189,8 +187,7 @@ public interface AMQDestination
     * @param messageReference
     * @param sub
     */
-   void messageDiscarded(AMQConnectionContext context, AMQSubscription sub,
-         MessageReference messageReference);
+   void messageDiscarded(AMQConnectionContext context, AMQSubscription sub, MessageReference messageReference);
 
    /**
     * Called when there is a slow consumer

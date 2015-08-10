@@ -18,11 +18,9 @@ package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 
-public class SessionCommitMessage extends PacketImpl
-{
+public class SessionCommitMessage extends PacketImpl {
 
-   public SessionCommitMessage()
-   {
+   public SessionCommitMessage() {
       super(SESS_COMMIT);
    }
 

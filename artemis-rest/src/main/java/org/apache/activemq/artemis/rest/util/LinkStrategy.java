@@ -18,7 +18,7 @@ package org.apache.activemq.artemis.rest.util;
 
 import javax.ws.rs.core.Response;
 
-public interface LinkStrategy
-{
+public interface LinkStrategy {
+
    void setLinkHeader(Response.ResponseBuilder builder, String title, String rel, String href, String type);
 }

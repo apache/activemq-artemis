@@ -20,10 +20,9 @@ package org.apache.activemq.artemis.uri;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.utils.uri.URIFactory;
 
-public class ConnectionFactoryParser extends URIFactory<ActiveMQConnectionFactory, String>
-{
-   public ConnectionFactoryParser()
-   {
+public class ConnectionFactoryParser extends URIFactory<ActiveMQConnectionFactory, String> {
+
+   public ConnectionFactoryParser() {
       registerSchema(new TCPSchema());
       registerSchema(new UDPSchema());
       registerSchema(new JGroupsSchema());

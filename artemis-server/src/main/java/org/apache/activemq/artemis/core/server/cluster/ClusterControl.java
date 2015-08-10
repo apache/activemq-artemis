@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.core.server.cluster;
 
-
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
@@ -46,8 +45,8 @@ import org.apache.activemq.artemis.core.server.cluster.qourum.Vote;
  * handles the communication between a cluster node and the cluster, either the whole cluster or a specific node in the
  * cluster such as a replicating node.
  */
-public class ClusterControl implements AutoCloseable
-{
+public class ClusterControl implements AutoCloseable {
+
    private Channel clusterChannel;
 
    private final ClientSessionFactoryInternal sessionFactory;
@@ -58,8 +57,7 @@ public class ClusterControl implements AutoCloseable
 
    private final String clusterPassword;
 
-   public ClusterControl(ClientSessionFactoryInternal sessionFactory, ActiveMQServer server)
-   {
+   public ClusterControl(ClientSessionFactoryInternal sessionFactory, ActiveMQServer server) {
       this.sessionFactory = sessionFactory;
       this.server = server;
       this.clusterUser = server.getConfiguration().getClusterUser();
@@ -72,17 +70,14 @@ public class ClusterControl implements AutoCloseable
     *
     * @throws ActiveMQException if authorisation wasn't successful.
     */
-   public void authorize() throws ActiveMQException
-   {
-      CoreRemotingConnection connection = (CoreRemotingConnection)sessionFactory.getConnection();
+   public void authorize() throws ActiveMQException {
+      CoreRemotingConnection connection = (CoreRemotingConnection) sessionFactory.getConnection();
 
       clusterChannel = connection.getChannel(ChannelImpl.CHANNEL_ID.CLUSTER.id, -1);
 
-      ClusterConnectReplyMessage packet =
-            (ClusterConnectReplyMessage) clusterChannel.sendBlocking(new ClusterConnectMessage(clusterUser, clusterPassword), PacketImpl.CLUSTER_CONNECT_REPLY);
+      ClusterConnectReplyMessage packet = (ClusterConnectReplyMessage) clusterChannel.sendBlocking(new ClusterConnectMessage(clusterUser, clusterPassword), PacketImpl.CLUSTER_CONNECT_REPLY);
 
-      if (!packet.isAuthorized())
-      {
+      if (!packet.isAuthorized()) {
          throw ActiveMQMessageBundle.BUNDLE.unableToValidateClusterUser(clusterUser);
       }
    }
@@ -95,20 +90,18 @@ public class ClusterControl implements AutoCloseable
     *                           server.
     * @throws ActiveMQException
     */
-   public void announceReplicatingBackupToLive(final boolean attemptingFailBack, String replicationClusterName) throws ActiveMQException
-   {
+   public void announceReplicatingBackupToLive(final boolean attemptingFailBack,
+                                               String replicationClusterName) throws ActiveMQException {
 
       ClusterConnectionConfiguration config = ConfigurationUtils.getReplicationClusterConfiguration(server.getConfiguration(), replicationClusterName);
-      if (config == null)
-      {
+      if (config == null) {
          ActiveMQServerLogger.LOGGER.announceBackupNoClusterConnections();
          throw new ActiveMQException("lacking cluster connection");
 
       }
       TransportConfiguration connector = server.getConfiguration().getConnectorConfigurations().get(config.getConnectorName());
 
-      if (connector == null)
-      {
+      if (connector == null) {
          ActiveMQServerLogger.LOGGER.announceBackupNoConnector(config.getConnectorName());
          throw new ActiveMQException("lacking cluster connection");
       }
@@ -119,13 +112,13 @@ public class ClusterControl implements AutoCloseable
    /**
     * announce this node to the cluster.
     *
-    * @param currentEventID used if multiple announcements about this node are made.
-    * @param nodeID the node id if the announcing node
-    * @param backupGroupName the backup group name.
+    * @param currentEventID     used if multiple announcements about this node are made.
+    * @param nodeID             the node id if the announcing node
+    * @param backupGroupName    the backup group name.
     * @param scaleDownGroupName the scaledown group name
-    * @param isBackup are we a backup
-    * @param config the transports config
-    * @param backupConfig the transports backup config
+    * @param isBackup           are we a backup
+    * @param config             the transports config
+    * @param backupConfig       the transports backup config
     */
    public void sendNodeAnnounce(final long currentEventID,
                                 String nodeID,
@@ -133,8 +126,7 @@ public class ClusterControl implements AutoCloseable
                                 String scaleDownGroupName,
                                 boolean isBackup,
                                 TransportConfiguration config,
-                                TransportConfiguration backupConfig)
-   {
+                                TransportConfiguration backupConfig) {
       clusterChannel.send(new NodeAnnounceMessage(currentEventID, nodeID, backupGroupName, scaleDownGroupName, isBackup, config, backupConfig));
    }
 
@@ -143,9 +135,8 @@ public class ClusterControl implements AutoCloseable
     *
     * @return the replication channel
     */
-   public Channel createReplicationChannel()
-   {
-      CoreRemotingConnection connection = (CoreRemotingConnection)sessionFactory.getConnection();
+   public Channel createReplicationChannel() {
+      CoreRemotingConnection connection = (CoreRemotingConnection) sessionFactory.getConnection();
       return connection.getChannel(ChannelImpl.CHANNEL_ID.REPLICATION.id, -1);
    }
 
@@ -154,63 +145,55 @@ public class ClusterControl implements AutoCloseable
     *
     * @return the session factory
     */
-   public ClientSessionFactoryInternal getSessionFactory()
-   {
+   public ClientSessionFactoryInternal getSessionFactory() {
       return sessionFactory;
    }
 
    /**
     * close this cluster control and its resources
     */
-   public void close()
-   {
+   public void close() {
       sessionFactory.close();
    }
 
-   public Vote sendQuorumVote(SimpleString handler, Vote vote)
-   {
-      try
-      {
-         QuorumVoteReplyMessage replyMessage = (QuorumVoteReplyMessage)
-               clusterChannel.sendBlocking(new QuorumVoteMessage(handler, vote), PacketImpl.QUORUM_VOTE_REPLY);
+   public Vote sendQuorumVote(SimpleString handler, Vote vote) {
+      try {
+         QuorumVoteReplyMessage replyMessage = (QuorumVoteReplyMessage) clusterChannel.sendBlocking(new QuorumVoteMessage(handler, vote), PacketImpl.QUORUM_VOTE_REPLY);
          QuorumVoteHandler voteHandler = server.getClusterManager().getQuorumManager().getVoteHandler(replyMessage.getHandler());
          replyMessage.decodeRest(voteHandler);
          return replyMessage.getVote();
       }
-      catch (ActiveMQException e)
-      {
+      catch (ActiveMQException e) {
          return null;
       }
    }
 
-   public boolean requestReplicatedBackup(int backupSize, SimpleString nodeID)
-   {
+   public boolean requestReplicatedBackup(int backupSize, SimpleString nodeID) {
       BackupRequestMessage backupRequestMessage = new BackupRequestMessage(backupSize, nodeID);
       return requestBackup(backupRequestMessage);
    }
 
-   private boolean requestBackup(BackupRequestMessage backupRequestMessage)
-   {
+   private boolean requestBackup(BackupRequestMessage backupRequestMessage) {
       BackupResponseMessage packet;
-      try
-      {
+      try {
          packet = (BackupResponseMessage) clusterChannel.sendBlocking(backupRequestMessage, PacketImpl.BACKUP_REQUEST_RESPONSE);
       }
-      catch (ActiveMQException e)
-      {
+      catch (ActiveMQException e) {
          return false;
       }
       return packet.isBackupStarted();
    }
 
-   public boolean requestSharedStoreBackup(int backupSize, String journalDirectory, String bindingsDirectory, String largeMessagesDirectory, String pagingDirectory)
-   {
+   public boolean requestSharedStoreBackup(int backupSize,
+                                           String journalDirectory,
+                                           String bindingsDirectory,
+                                           String largeMessagesDirectory,
+                                           String pagingDirectory) {
       BackupRequestMessage backupRequestMessage = new BackupRequestMessage(backupSize, journalDirectory, bindingsDirectory, largeMessagesDirectory, pagingDirectory);
       return requestBackup(backupRequestMessage);
    }
 
-   public void announceScaleDown(SimpleString targetNodeId, SimpleString scaledDownNodeId)
-   {
+   public void announceScaleDown(SimpleString targetNodeId, SimpleString scaledDownNodeId) {
       ScaleDownAnnounceMessage announceMessage = new ScaleDownAnnounceMessage(targetNodeId, scaledDownNodeId);
       clusterChannel.send(announceMessage);
    }

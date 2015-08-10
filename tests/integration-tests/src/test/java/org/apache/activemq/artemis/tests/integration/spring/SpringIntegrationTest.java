@@ -29,13 +29,12 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
 
-public class SpringIntegrationTest extends ActiveMQTestBase
-{
+public class SpringIntegrationTest extends ActiveMQTestBase {
+
    IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
       // Need to force GC as the connection on the spring needs to be cleared
       // otherwise the sprint thread may leak here
@@ -43,12 +42,10 @@ public class SpringIntegrationTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testSpring() throws Exception
-   {
+   public void testSpring() throws Exception {
       System.out.println("Creating bean factory...");
       ApplicationContext context = null;
-      try
-      {
+      try {
          context = new ClassPathXmlApplicationContext(new String[]{"spring-jms-beans.xml"});
          MessageSender sender = (MessageSender) context.getBean("MessageSender");
          System.out.println("Sending message...");
@@ -59,30 +56,23 @@ public class SpringIntegrationTest extends ActiveMQTestBase
          Assert.assertEquals(ExampleListener.lastMessage, "Hello world");
          ((ActiveMQConnectionFactory) sender.getConnectionFactory()).close();
       }
-      finally
-      {
-         try
-         {
-            if (context != null)
-            {
+      finally {
+         try {
+            if (context != null) {
                DefaultMessageListenerContainer container = (DefaultMessageListenerContainer) context.getBean("listenerContainer");
                container.stop();
             }
          }
-         catch (Throwable ignored)
-         {
+         catch (Throwable ignored) {
             ignored.printStackTrace();
          }
-         try
-         {
-            if (context != null)
-            {
+         try {
+            if (context != null) {
                EmbeddedJMS jms = (EmbeddedJMS) context.getBean("EmbeddedJms");
                jms.stop();
             }
          }
-         catch (Throwable ignored)
-         {
+         catch (Throwable ignored) {
             ignored.printStackTrace();
          }
       }

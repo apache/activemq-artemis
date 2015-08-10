@@ -39,18 +39,14 @@ import static org.jboss.resteasy.test.TestPortProvider.generateURL;
 /**
  * Test durable queue push consumers
  */
-public class PersistentPushQueueConsumerTest
-{
+public class PersistentPushQueueConsumerTest {
+
    public static MessageServiceManager manager;
    protected static ResteasyDeployment deployment;
    public static ActiveMQServer activeMQServer;
 
-   public static void startup() throws Exception
-   {
-      Configuration configuration = new ConfigurationImpl()
-         .setPersistenceEnabled(false)
-         .setSecurityEnabled(false)
-         .addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName()));
+   public static void startup() throws Exception {
+      Configuration configuration = new ConfigurationImpl().setPersistenceEnabled(false).setSecurityEnabled(false).addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName()));
 
       activeMQServer = ActiveMQServers.newActiveMQServer(configuration);
       activeMQServer.start();
@@ -62,8 +58,7 @@ public class PersistentPushQueueConsumerTest
       deployment.getRegistry().addSingletonResource(manager.getTopicManager().getDestination());
    }
 
-   public static void shutdown() throws Exception
-   {
+   public static void shutdown() throws Exception {
       manager.stop();
       manager = null;
       EmbeddedContainer.stop();
@@ -73,10 +68,8 @@ public class PersistentPushQueueConsumerTest
    }
 
    @Test
-   public void testBridge() throws Exception
-   {
-      try
-      {
+   public void testBridge() throws Exception {
+      try {
          startup();
 
          String testName = "testBridge";
@@ -133,14 +126,12 @@ public class PersistentPushQueueConsumerTest
 
          manager.getQueueManager().getPushStore().removeAll();
       }
-      finally
-      {
+      finally {
          shutdown();
       }
    }
 
-   private void deployBridgeQueues(String testName) throws Exception
-   {
+   private void deployBridgeQueues(String testName) throws Exception {
       QueueDeployment deployment = new QueueDeployment();
       deployment.setDuplicatesAllowed(true);
       deployment.setDurableSend(false);
@@ -154,10 +145,8 @@ public class PersistentPushQueueConsumerTest
    }
 
    @Test
-   public void testFailure() throws Exception
-   {
-      try
-      {
+   public void testFailure() throws Exception {
+      try {
          startup();
 
          String testName = "testFailure";
@@ -206,8 +195,7 @@ public class PersistentPushQueueConsumerTest
 
          manager.getQueueManager().getPushStore().removeAll();
       }
-      finally
-      {
+      finally {
          shutdown();
       }
    }

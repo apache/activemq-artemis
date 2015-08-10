@@ -30,11 +30,9 @@ import org.apache.activemq.artemis.core.messagecounter.MessageCounter;
 import org.apache.activemq.artemis.core.messagecounter.MessageCounterManager;
 
 /**
- *
  * A MessageCounterManager
  */
-public class MessageCounterManagerImpl implements MessageCounterManager
-{
+public class MessageCounterManagerImpl implements MessageCounterManager {
 
    public static final long DEFAULT_SAMPLE_PERIOD = ActiveMQDefaultConfiguration.getDefaultMessageCounterSamplePeriod();
 
@@ -54,35 +52,27 @@ public class MessageCounterManagerImpl implements MessageCounterManager
 
    private final ScheduledExecutorService scheduledThreadPool;
 
-   public MessageCounterManagerImpl(final ScheduledExecutorService scheduledThreadPool)
-   {
+   public MessageCounterManagerImpl(final ScheduledExecutorService scheduledThreadPool) {
       messageCounters = new HashMap<String, MessageCounter>();
 
       this.scheduledThreadPool = scheduledThreadPool;
    }
 
-   public synchronized void start()
-   {
-      if (started)
-      {
+   public synchronized void start() {
+      if (started) {
          return;
       }
 
       messageCountersPinger = new MessageCountersPinger();
 
-      Future<?> future = scheduledThreadPool.scheduleAtFixedRate(messageCountersPinger,
-                                                                 0,
-                                                                 period,
-                                                                 TimeUnit.MILLISECONDS);
+      Future<?> future = scheduledThreadPool.scheduleAtFixedRate(messageCountersPinger, 0, period, TimeUnit.MILLISECONDS);
       messageCountersPinger.setFuture(future);
 
       started = true;
    }
 
-   public synchronized void stop()
-   {
-      if (!started)
-      {
+   public synchronized void stop() {
+      if (!started) {
          return;
       }
 
@@ -91,75 +81,59 @@ public class MessageCounterManagerImpl implements MessageCounterManager
       started = false;
    }
 
-   public synchronized void clear()
-   {
+   public synchronized void clear() {
       messageCounters.clear();
    }
 
-   public synchronized void reschedule(final long newPeriod)
-   {
+   public synchronized void reschedule(final long newPeriod) {
       boolean wasStarted = started;
 
-      if (wasStarted)
-      {
+      if (wasStarted) {
          stop();
       }
 
       period = newPeriod;
 
-      if (wasStarted)
-      {
+      if (wasStarted) {
          start();
       }
    }
 
-   public long getSamplePeriod()
-   {
+   public long getSamplePeriod() {
       return period;
    }
 
-   public int getMaxDayCount()
-   {
+   public int getMaxDayCount() {
       return maxDayCount;
    }
 
-   public void setMaxDayCount(final int count)
-   {
+   public void setMaxDayCount(final int count) {
       maxDayCount = count;
    }
 
-   public void registerMessageCounter(final String name, final MessageCounter counter)
-   {
-      synchronized (messageCounters)
-      {
+   public void registerMessageCounter(final String name, final MessageCounter counter) {
+      synchronized (messageCounters) {
          messageCounters.put(name, counter);
       }
    }
 
-   public MessageCounter unregisterMessageCounter(final String name)
-   {
-      synchronized (messageCounters)
-      {
+   public MessageCounter unregisterMessageCounter(final String name) {
+      synchronized (messageCounters) {
          return messageCounters.remove(name);
       }
    }
 
-   public Set<MessageCounter> getMessageCounters()
-   {
-      synchronized (messageCounters)
-      {
+   public Set<MessageCounter> getMessageCounters() {
+      synchronized (messageCounters) {
          return new HashSet<MessageCounter>(messageCounters.values());
       }
    }
 
-   public void resetAllCounters()
-   {
-      synchronized (messageCounters)
-      {
+   public void resetAllCounters() {
+      synchronized (messageCounters) {
          Iterator<MessageCounter> iter = messageCounters.values().iterator();
 
-         while (iter.hasNext())
-         {
+         while (iter.hasNext()) {
             MessageCounter counter = iter.next();
 
             counter.resetCounter();
@@ -167,14 +141,11 @@ public class MessageCounterManagerImpl implements MessageCounterManager
       }
    }
 
-   public void resetAllCounterHistories()
-   {
-      synchronized (messageCounters)
-      {
+   public void resetAllCounterHistories() {
+      synchronized (messageCounters) {
          Iterator<MessageCounter> iter = messageCounters.values().iterator();
 
-         while (iter.hasNext())
-         {
+         while (iter.hasNext()) {
             MessageCounter counter = iter.next();
 
             counter.resetHistory();
@@ -182,25 +153,21 @@ public class MessageCounterManagerImpl implements MessageCounterManager
       }
    }
 
-   private class MessageCountersPinger implements Runnable
-   {
+   private class MessageCountersPinger implements Runnable {
+
       private boolean closed = false;
 
       private Future<?> future;
 
-      public synchronized void run()
-      {
-         if (closed)
-         {
+      public synchronized void run() {
+         if (closed) {
             return;
          }
 
-         synchronized (messageCounters)
-         {
+         synchronized (messageCounters) {
             Iterator<MessageCounter> iter = messageCounters.values().iterator();
 
-            while (iter.hasNext())
-            {
+            while (iter.hasNext()) {
                MessageCounter counter = iter.next();
 
                counter.onTimer();
@@ -208,15 +175,12 @@ public class MessageCounterManagerImpl implements MessageCounterManager
          }
       }
 
-      public void setFuture(final Future<?> future)
-      {
+      public void setFuture(final Future<?> future) {
          this.future = future;
       }
 
-      synchronized void stop()
-      {
-         if (future != null)
-         {
+      synchronized void stop() {
+         if (future != null) {
             future.cancel(false);
          }
 

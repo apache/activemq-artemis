@@ -25,8 +25,8 @@ import org.apache.activemq.artemis.core.server.Divert;
 import org.apache.activemq.artemis.core.server.RoutingContext;
 import org.apache.activemq.artemis.core.server.ServerMessage;
 
-public class DivertBinding implements Binding
-{
+public class DivertBinding implements Binding {
+
    private final SimpleString address;
 
    private final Divert divert;
@@ -41,8 +41,7 @@ public class DivertBinding implements Binding
 
    private final long id;
 
-   public DivertBinding(final long id, final SimpleString address, final Divert divert)
-   {
+   public DivertBinding(final long id, final SimpleString address, final Divert divert) {
       this.id = id;
 
       this.address = address;
@@ -58,114 +57,95 @@ public class DivertBinding implements Binding
       exclusive = divert.isExclusive();
    }
 
-   public long getID()
-   {
+   public long getID() {
       return id;
    }
 
-   public Filter getFilter()
-   {
+   public Filter getFilter() {
       return filter;
    }
 
-   public SimpleString getAddress()
-   {
+   public SimpleString getAddress() {
       return address;
    }
 
-   public Bindable getBindable()
-   {
+   public Bindable getBindable() {
       return divert;
    }
 
-   public SimpleString getRoutingName()
-   {
+   public SimpleString getRoutingName() {
       return routingName;
    }
 
-   public SimpleString getUniqueName()
-   {
+   public SimpleString getUniqueName() {
       return uniqueName;
    }
 
-   public SimpleString getClusterName()
-   {
+   public SimpleString getClusterName() {
       return uniqueName;
    }
 
-   public boolean isExclusive()
-   {
+   public boolean isExclusive() {
       return exclusive;
    }
 
-   public boolean isHighAcceptPriority(final ServerMessage message)
-   {
+   public boolean isHighAcceptPriority(final ServerMessage message) {
       return true;
    }
 
-   public void route(final ServerMessage message, final RoutingContext context) throws Exception
-   {
+   public void route(final ServerMessage message, final RoutingContext context) throws Exception {
       divert.route(message, context);
    }
 
-   public int getDistance()
-   {
+   public int getDistance() {
       return 0;
    }
 
-   public BindingType getType()
-   {
+   public BindingType getType() {
       return BindingType.DIVERT;
    }
 
    @Override
-   public void unproposed(SimpleString groupID)
-   {
+   public void unproposed(SimpleString groupID) {
    }
 
    @Override
-   public String toString()
-   {
+   public String toString() {
       return "DivertBinding [id=" + id +
-             ", address=" +
-             address +
-             ", divert=" +
-             divert +
-             ", filter=" +
-             filter +
-             ", uniqueName=" +
-             uniqueName +
-             ", routingName=" +
-             routingName +
-             ", exclusive=" +
-             exclusive +
-             "]";
+         ", address=" +
+         address +
+         ", divert=" +
+         divert +
+         ", filter=" +
+         filter +
+         ", uniqueName=" +
+         uniqueName +
+         ", routingName=" +
+         routingName +
+         ", exclusive=" +
+         exclusive +
+         "]";
    }
 
    @Override
-   public String toManagementString()
-   {
+   public String toManagementString() {
       return this.getClass().getSimpleName() + " [id=" + id + "]";
    }
 
    @Override
-   public boolean isConnected()
-   {
+   public boolean isConnected() {
       return true;
    }
 
    @Override
-   public void routeWithAck(ServerMessage message, RoutingContext context)
-   {
-     //noop
+   public void routeWithAck(ServerMessage message, RoutingContext context) {
+      //noop
    }
 
-   public void close() throws Exception
-   {
+   public void close() throws Exception {
    }
 
-   public Divert getDivert()
-   {
+   public Divert getDivert() {
       return divert;
    }
 

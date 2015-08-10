@@ -16,11 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
-public class ReplicatedMultipleServerFailoverNoGroupNodeNameTest extends ReplicatedMultipleServerFailoverTest
-{
+public class ReplicatedMultipleServerFailoverNoGroupNodeNameTest extends ReplicatedMultipleServerFailoverTest {
+
    @Override
-   public String getNodeGroupName()
-   {
+   public String getNodeGroupName() {
       return null;
    }
 }

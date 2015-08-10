@@ -24,8 +24,8 @@ import java.util.Map;
 /*
 * An HAManager takes care of any colocated backups in a VM.
 * */
-public interface HAManager extends ActiveMQComponent
-{
+public interface HAManager extends ActiveMQComponent {
+
    /**
     * return the current backup servers
     *

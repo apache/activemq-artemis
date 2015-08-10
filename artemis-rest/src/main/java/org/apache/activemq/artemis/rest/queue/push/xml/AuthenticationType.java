@@ -20,7 +20,7 @@ import javax.xml.bind.annotation.XmlSeeAlso;
 import java.io.Serializable;
 
 @XmlSeeAlso({BasicAuth.class, DigestAuth.class})
-public class AuthenticationType implements Serializable
-{
+public class AuthenticationType implements Serializable {
+
    private static final long serialVersionUID = -4856752055689300045L;
 }

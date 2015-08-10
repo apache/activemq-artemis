@@ -24,43 +24,40 @@ import org.apache.activemq.artemis.rest.ActiveMQRestLogger;
 import org.apache.activemq.artemis.rest.queue.push.PushConsumer;
 import org.apache.activemq.artemis.rest.queue.push.xml.PushRegistration;
 
-public class PushSubscription extends PushConsumer
-{
-   public PushSubscription(ClientSessionFactory factory, String destination, String id, PushRegistration registration, PushStore store)
-   {
+public class PushSubscription extends PushConsumer {
+
+   public PushSubscription(ClientSessionFactory factory,
+                           String destination,
+                           String id,
+                           PushRegistration registration,
+                           PushStore store) {
       super(factory, destination, id, registration, store);
    }
 
    @Override
-   public void disableFromFailure()
-   {
+   public void disableFromFailure() {
       super.disableFromFailure();
-      if (registration.isDurable()) deleteSubscriberQueue();
+      if (registration.isDurable())
+         deleteSubscriberQueue();
    }
 
-   protected void deleteSubscriberQueue()
-   {
+   protected void deleteSubscriberQueue() {
       String subscriptionName = registration.getDestination();
       ClientSession session = null;
-      try
-      {
+      try {
          session = factory.createSession();
 
          session.deleteQueue(subscriptionName);
       }
-      catch (ActiveMQException e)
-      {
+      catch (ActiveMQException e) {
          ActiveMQRestLogger.LOGGER.errorDeletingSubscriberQueue(e);
       }
-      finally
-      {
-         try
-         {
+      finally {
+         try {
             if (session != null)
                session.close();
          }
-         catch (ActiveMQException e)
-         {
+         catch (ActiveMQException e) {
          }
       }
    }

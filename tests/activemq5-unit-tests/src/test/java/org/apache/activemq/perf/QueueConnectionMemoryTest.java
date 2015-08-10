@@ -30,54 +30,55 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class QueueConnectionMemoryTest extends SimpleQueueTest {
-    private static final transient Logger LOG = LoggerFactory.getLogger(QueueConnectionMemoryTest.class);
 
-    @Override
-    protected void setUp() throws Exception {
-    }
+   private static final transient Logger LOG = LoggerFactory.getLogger(QueueConnectionMemoryTest.class);
 
-    @Override
-    protected void tearDown() throws Exception {
+   @Override
+   protected void setUp() throws Exception {
+   }
 
-    }
+   @Override
+   protected void tearDown() throws Exception {
 
-    @Override
-    protected Destination createDestination(Session s, String destinationName) throws JMSException {
-        return s.createTemporaryQueue();
-    }
+   }
 
-    @Override
-    public void testPerformance() throws JMSException {
-        // just cancel super class test
-    }
+   @Override
+   protected Destination createDestination(Session s, String destinationName) throws JMSException {
+      return s.createTemporaryQueue();
+   }
 
-    @Override
-    protected void configureBroker(BrokerService answer,String uri) throws Exception {
-        LevelDBStore adaptor = new LevelDBStore();
-        answer.setPersistenceAdapter(adaptor);
-        answer.addConnector(uri);
-        answer.setDeleteAllMessagesOnStartup(true);
-    }
+   @Override
+   public void testPerformance() throws JMSException {
+      // just cancel super class test
+   }
 
-    public void testMemory() throws Exception {
-        if (broker == null) {
-            broker = createBroker(bindAddress);
-        }
-        factory = createConnectionFactory(bindAddress);
-        Connection con = factory.createConnection();
-        Session session = con.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        createDestination(session, destinationName);
-        con.close();
-        for (int i = 0; i < 3; i++) {
-            Connection connection = factory.createConnection();
-            connection.start();
-            Session s = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-            Destination dest = s.createTemporaryQueue();
-            s.createConsumer(dest);
-            LOG.debug("Created connnection: " + i);
-            Thread.sleep(1000);
-        }
+   @Override
+   protected void configureBroker(BrokerService answer, String uri) throws Exception {
+      LevelDBStore adaptor = new LevelDBStore();
+      answer.setPersistenceAdapter(adaptor);
+      answer.addConnector(uri);
+      answer.setDeleteAllMessagesOnStartup(true);
+   }
 
-        Thread.sleep(Integer.MAX_VALUE);
-    }
+   public void testMemory() throws Exception {
+      if (broker == null) {
+         broker = createBroker(bindAddress);
+      }
+      factory = createConnectionFactory(bindAddress);
+      Connection con = factory.createConnection();
+      Session session = con.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      createDestination(session, destinationName);
+      con.close();
+      for (int i = 0; i < 3; i++) {
+         Connection connection = factory.createConnection();
+         connection.start();
+         Session s = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         Destination dest = s.createTemporaryQueue();
+         s.createConsumer(dest);
+         LOG.debug("Created connnection: " + i);
+         Thread.sleep(1000);
+      }
+
+      Thread.sleep(Integer.MAX_VALUE);
+   }
 }

@@ -28,8 +28,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class TransactionalSendTest extends ActiveMQTestBase
-{
+public class TransactionalSendTest extends ActiveMQTestBase {
+
    public final SimpleString addressA = new SimpleString("addressA");
 
    public final SimpleString queueA = new SimpleString("queueA");
@@ -42,15 +42,13 @@ public class TransactionalSendTest extends ActiveMQTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
       locator = createInVMNonHALocator();
    }
 
    @Test
-   public void testSendWithCommit() throws Exception
-   {
+   public void testSendWithCommit() throws Exception {
       ActiveMQServer server = createServer(false);
       server.start();
       ClientSessionFactory cf = createSessionFactory(locator);
@@ -58,8 +56,7 @@ public class TransactionalSendTest extends ActiveMQTestBase
       session.createQueue(addressA, queueA, false);
       ClientProducer cp = session.createProducer(addressA);
       int numMessages = 100;
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          cp.send(session.createMessage(false));
       }
       Queue q = (Queue) server.getPostOffice().getBinding(queueA).getBindable();
@@ -67,8 +64,7 @@ public class TransactionalSendTest extends ActiveMQTestBase
       session.commit();
       Assert.assertEquals(getMessageCount(q), numMessages);
       // now send some more
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          cp.send(session.createMessage(false));
       }
       Assert.assertEquals(numMessages, getMessageCount(q));
@@ -78,8 +74,7 @@ public class TransactionalSendTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testSendWithRollback() throws Exception
-   {
+   public void testSendWithRollback() throws Exception {
       ActiveMQServer server = createServer(false);
       server.start();
       ClientSessionFactory cf = createSessionFactory(locator);
@@ -87,8 +82,7 @@ public class TransactionalSendTest extends ActiveMQTestBase
       session.createQueue(addressA, queueA, false);
       ClientProducer cp = session.createProducer(addressA);
       int numMessages = 100;
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          cp.send(session.createMessage(false));
       }
       Queue q = (Queue) server.getPostOffice().getBinding(queueA).getBindable();
@@ -96,8 +90,7 @@ public class TransactionalSendTest extends ActiveMQTestBase
       session.rollback();
       Assert.assertEquals(getMessageCount(q), 0);
       // now send some more
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          cp.send(session.createMessage(false));
       }
       Assert.assertEquals(0, getMessageCount(q));

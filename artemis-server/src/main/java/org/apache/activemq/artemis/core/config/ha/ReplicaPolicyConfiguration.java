@@ -20,8 +20,8 @@ import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.core.config.HAPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ScaleDownConfiguration;
 
-public class ReplicaPolicyConfiguration implements HAPolicyConfiguration
-{
+public class ReplicaPolicyConfiguration implements HAPolicyConfiguration {
+
    private String clusterName = null;
 
    private int maxSavedReplicatedJournalsSize = ActiveMQDefaultConfiguration.getDefaultMaxSavedReplicatedJournalsSize();
@@ -39,90 +39,74 @@ public class ReplicaPolicyConfiguration implements HAPolicyConfiguration
 
    private long failbackDelay = ActiveMQDefaultConfiguration.getDefaultFailbackDelay();
 
-   public ReplicaPolicyConfiguration()
-   {
+   public ReplicaPolicyConfiguration() {
    }
 
    @Override
-   public TYPE getType()
-   {
+   public TYPE getType() {
       return TYPE.REPLICA;
    }
 
-   public ScaleDownConfiguration getScaleDownConfiguration()
-   {
+   public ScaleDownConfiguration getScaleDownConfiguration() {
       return scaleDownConfiguration;
    }
 
-   public ReplicaPolicyConfiguration setScaleDownConfiguration(ScaleDownConfiguration scaleDownConfiguration)
-   {
+   public ReplicaPolicyConfiguration setScaleDownConfiguration(ScaleDownConfiguration scaleDownConfiguration) {
       this.scaleDownConfiguration = scaleDownConfiguration;
       return this;
    }
 
-   public String getClusterName()
-   {
+   public String getClusterName() {
       return clusterName;
    }
 
-   public ReplicaPolicyConfiguration setClusterName(String clusterName)
-   {
+   public ReplicaPolicyConfiguration setClusterName(String clusterName) {
       this.clusterName = clusterName;
       return this;
    }
 
-   public int getMaxSavedReplicatedJournalsSize()
-   {
+   public int getMaxSavedReplicatedJournalsSize() {
       return maxSavedReplicatedJournalsSize;
    }
 
-   public ReplicaPolicyConfiguration setMaxSavedReplicatedJournalsSize(int maxSavedReplicatedJournalsSize)
-   {
+   public ReplicaPolicyConfiguration setMaxSavedReplicatedJournalsSize(int maxSavedReplicatedJournalsSize) {
       this.maxSavedReplicatedJournalsSize = maxSavedReplicatedJournalsSize;
       return this;
    }
 
-   public String getGroupName()
-   {
+   public String getGroupName() {
       return groupName;
    }
 
-   public ReplicaPolicyConfiguration setGroupName(String groupName)
-   {
+   public ReplicaPolicyConfiguration setGroupName(String groupName) {
       this.groupName = groupName;
       return this;
    }
 
-   public boolean isRestartBackup()
-   {
+   public boolean isRestartBackup() {
       return restartBackup;
    }
 
-   public ReplicaPolicyConfiguration setRestartBackup(boolean restartBackup)
-   {
+   public ReplicaPolicyConfiguration setRestartBackup(boolean restartBackup) {
       this.restartBackup = restartBackup;
       return this;
    }
 
-   public boolean isAllowFailBack()
-   {
+   public boolean isAllowFailBack() {
       return allowFailBack;
    }
 
-   public ReplicaPolicyConfiguration setAllowFailBack(boolean allowFailBack)
-   {
+   public ReplicaPolicyConfiguration setAllowFailBack(boolean allowFailBack) {
       this.allowFailBack = allowFailBack;
       return this;
    }
 
-   public ReplicaPolicyConfiguration setFailbackDelay(long failbackDelay)
-   {
+   public ReplicaPolicyConfiguration setFailbackDelay(long failbackDelay) {
       this.failbackDelay = failbackDelay;
       return this;
    }
 
-   public long getFailbackDelay()
-   {
+   public long getFailbackDelay() {
       return failbackDelay;
    }
 }

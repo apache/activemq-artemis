@@ -27,39 +27,39 @@ import org.springframework.context.support.AbstractApplicationContext;
 
 /**
  * A useful base class for spring based unit test cases
- *
- *
  */
 public abstract class SpringTestSupport extends TestCase {
 
-    protected AbstractApplicationContext context;
+   protected AbstractApplicationContext context;
 
-    @Override
-    protected void setUp() throws Exception {
-        context = createApplicationContext();
-    }
+   @Override
+   protected void setUp() throws Exception {
+      context = createApplicationContext();
+   }
 
-    protected abstract AbstractApplicationContext createApplicationContext();;
+   protected abstract AbstractApplicationContext createApplicationContext();
 
-    @Override
-    protected void tearDown() throws Exception {
-        if (context != null) {
-            context.destroy();
-        }
-    }
+   ;
 
-    protected Object getBean(String name) {
-        Object bean = context.getBean(name);
-        if (bean == null) {
-            fail("Should have found bean named '" + name + "' in the Spring ApplicationContext");
-        }
-        return bean;
-    }
+   @Override
+   protected void tearDown() throws Exception {
+      if (context != null) {
+         context.destroy();
+      }
+   }
 
-    protected void assertSetEquals(String description, Object[] expected, Set<?> actual) {
-        Set<Object> expectedSet = new HashSet<Object>();
-        expectedSet.addAll(Arrays.asList(expected));
-        assertEquals(description, expectedSet, actual);
-    }
+   protected Object getBean(String name) {
+      Object bean = context.getBean(name);
+      if (bean == null) {
+         fail("Should have found bean named '" + name + "' in the Spring ApplicationContext");
+      }
+      return bean;
+   }
+
+   protected void assertSetEquals(String description, Object[] expected, Set<?> actual) {
+      Set<Object> expectedSet = new HashSet<Object>();
+      expectedSet.addAll(Arrays.asList(expected));
+      assertEquals(description, expectedSet, actual);
+   }
 
 }

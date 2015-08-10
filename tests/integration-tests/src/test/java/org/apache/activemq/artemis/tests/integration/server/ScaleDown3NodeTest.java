@@ -39,12 +39,11 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class ScaleDown3NodeTest extends ClusterTestBase
-{
+public class ScaleDown3NodeTest extends ClusterTestBase {
+
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
       setupLiveServer(0, isFileStorage(), false, isNetty(), true);
       setupLiveServer(1, isFileStorage(), false, isNetty(), true);
@@ -76,31 +75,26 @@ public class ScaleDown3NodeTest extends ClusterTestBase
       IntegrationTestLogger.LOGGER.info("===============================");
    }
 
-   protected boolean isNetty()
-   {
+   protected boolean isNetty() {
       return true;
    }
 
    @Test
-   public void testBasicScaleDownWithDefaultReconnectAttempts() throws Exception
-   {
+   public void testBasicScaleDownWithDefaultReconnectAttempts() throws Exception {
       testBasicScaleDownInternal(ActiveMQDefaultConfiguration.getDefaultBridgeReconnectAttempts(), false);
    }
 
    @Test
-   public void testBasicScaleDownWithoutBridgeReconnect() throws Exception
-   {
+   public void testBasicScaleDownWithoutBridgeReconnect() throws Exception {
       testBasicScaleDownInternal(0, false);
    }
 
    @Test
-   public void testBasicScaleDownWithDefaultReconnectAttemptsAndLargeMessages() throws Exception
-   {
+   public void testBasicScaleDownWithDefaultReconnectAttemptsAndLargeMessages() throws Exception {
       testBasicScaleDownInternal(ActiveMQDefaultConfiguration.getDefaultBridgeReconnectAttempts(), true);
    }
 
-   private void testBasicScaleDownInternal(int reconnectAttempts, boolean large) throws Exception
-   {
+   private void testBasicScaleDownInternal(int reconnectAttempts, boolean large) throws Exception {
       AddressSettings addressSettings = new AddressSettings().setRedistributionDelay(0);
       servers[0].getAddressSettingsRepository().addMatch("#", addressSettings);
       servers[1].getAddressSettingsRepository().addMatch("#", addressSettings);
@@ -128,15 +122,13 @@ public class ScaleDown3NodeTest extends ClusterTestBase
 
       Message message;
 
-      if (large)
-      {
+      if (large) {
          LargeServerMessageImpl fileMessage = new LargeServerMessageImpl((JournalStorageManager) servers[2].getStorageManager());
 
          fileMessage.setMessageID(1005);
          fileMessage.setDurable(true);
 
-         for (int i = 0; i < 2 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE; i++)
-         {
+         for (int i = 0; i < 2 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE; i++) {
             fileMessage.addBytes(new byte[]{ActiveMQTestBase.getSamplebyte(i)});
          }
 
@@ -146,20 +138,17 @@ public class ScaleDown3NodeTest extends ClusterTestBase
 
          message = fileMessage;
       }
-      else
-      {
+      else {
          message = session.createMessage(false);
       }
 
-      for (int i = 0; i < TEST_SIZE; i++)
-      {
+      for (int i = 0; i < TEST_SIZE; i++) {
          ClientProducer producer = session.createProducer(addressName);
          producer.send(message);
       }
 
-      if (large)
-      {
-         ((LargeServerMessageImpl)message).deleteFile();
+      if (large) {
+         ((LargeServerMessageImpl) message).deleteFile();
       }
 
       // add a consumer to node 0 to trigger redistribution here
@@ -170,16 +159,13 @@ public class ScaleDown3NodeTest extends ClusterTestBase
       long start = System.currentTimeMillis();
       long messageCount = 0;
 
-      while (System.currentTimeMillis() - start < timeout)
-      {
+      while (System.currentTimeMillis() - start < timeout) {
          // ensure the message is not in the queue on node 2
          messageCount = getMessageCount(snfQueue);
-         if (messageCount < TEST_SIZE)
-         {
+         if (messageCount < TEST_SIZE) {
             Thread.sleep(200);
          }
-         else
-         {
+         else {
             break;
          }
       }
@@ -194,16 +180,13 @@ public class ScaleDown3NodeTest extends ClusterTestBase
 
       start = System.currentTimeMillis();
 
-      while (System.currentTimeMillis() - start < timeout)
-      {
+      while (System.currentTimeMillis() - start < timeout) {
          // ensure the message is not in the queue on node 2
          messageCount = getMessageCount(((LocalQueueBinding) servers[2].getPostOffice().getBinding(new SimpleString(queueName1))).getQueue());
-         if (messageCount > 0)
-         {
+         if (messageCount > 0) {
             Thread.sleep(200);
          }
-         else
-         {
+         else {
             break;
          }
       }
@@ -215,16 +198,13 @@ public class ScaleDown3NodeTest extends ClusterTestBase
 
       // allow some time for redistribution to move the message to node 1
       start = System.currentTimeMillis();
-      while (System.currentTimeMillis() - start < timeout)
-      {
+      while (System.currentTimeMillis() - start < timeout) {
          // ensure the message is not in the queue on node 2
          messageCount = getMessageCount(((LocalQueueBinding) servers[1].getPostOffice().getBinding(new SimpleString(queueName1))).getQueue());
-         if (messageCount < TEST_SIZE)
-         {
+         if (messageCount < TEST_SIZE) {
             Thread.sleep(200);
          }
-         else
-         {
+         else {
             break;
          }
       }
@@ -232,16 +212,13 @@ public class ScaleDown3NodeTest extends ClusterTestBase
       // ensure the message is in queue 1 on node 1 as expected
       Assert.assertEquals(TEST_SIZE, messageCount);
 
-      for (int i = 0; i < TEST_SIZE; i++)
-      {
+      for (int i = 0; i < TEST_SIZE; i++) {
          ClientMessage clientMessage = consumers[0].getConsumer().receive(250);
          Assert.assertNotNull(clientMessage);
-         if (large)
-         {
+         if (large) {
             Assert.assertEquals(2 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, clientMessage.getBodySize());
 
-            for (int j = 0; j < 2 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE; j++)
-            {
+            for (int j = 0; j < 2 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE; j++) {
                Assert.assertEquals(ActiveMQTestBase.getSamplebyte(j), clientMessage.getBodyBuffer().readByte());
             }
          }
@@ -256,8 +233,7 @@ public class ScaleDown3NodeTest extends ClusterTestBase
    }
 
    @Test
-   public void testScaleDownWithMultipleQueues() throws Exception
-   {
+   public void testScaleDownWithMultipleQueues() throws Exception {
       AddressSettings addressSettings = new AddressSettings().setRedistributionDelay(0);
       servers[0].getAddressSettingsRepository().addMatch("#", addressSettings);
       servers[1].getAddressSettingsRepository().addMatch("#", addressSettings);
@@ -294,8 +270,7 @@ public class ScaleDown3NodeTest extends ClusterTestBase
       Message message;
       message = session.createMessage(false);
 
-      for (int i = 0; i < TEST_SIZE; i++)
-      {
+      for (int i = 0; i < TEST_SIZE; i++) {
          ClientProducer producer = session.createProducer(addressName);
          producer.send(message);
       }
@@ -309,16 +284,13 @@ public class ScaleDown3NodeTest extends ClusterTestBase
       long start = System.currentTimeMillis();
       long messageCount = 0;
 
-      while (System.currentTimeMillis() - start < timeout)
-      {
+      while (System.currentTimeMillis() - start < timeout) {
          // ensure the message is not in the queue on node 2
          messageCount = getMessageCount(snfQueue);
-         if (messageCount < TEST_SIZE * 2)
-         {
+         if (messageCount < TEST_SIZE * 2) {
             Thread.sleep(200);
          }
-         else
-         {
+         else {
             break;
          }
       }
@@ -334,17 +306,14 @@ public class ScaleDown3NodeTest extends ClusterTestBase
 
       start = System.currentTimeMillis();
 
-      while (System.currentTimeMillis() - start < timeout)
-      {
+      while (System.currentTimeMillis() - start < timeout) {
          // ensure the messages are not in the queues on node 2
          messageCount = getMessageCount(((LocalQueueBinding) servers[2].getPostOffice().getBinding(new SimpleString(queueName1))).getQueue());
          messageCount += getMessageCount(((LocalQueueBinding) servers[2].getPostOffice().getBinding(new SimpleString(queueName3))).getQueue());
-         if (messageCount > 0)
-         {
+         if (messageCount > 0) {
             Thread.sleep(200);
          }
-         else
-         {
+         else {
             break;
          }
       }
@@ -359,17 +328,14 @@ public class ScaleDown3NodeTest extends ClusterTestBase
 
       // allow some time for redistribution to move the message to node 1
       start = System.currentTimeMillis();
-      while (System.currentTimeMillis() - start < timeout)
-      {
+      while (System.currentTimeMillis() - start < timeout) {
          // ensure the message is not in the queue on node 2
          messageCount = getMessageCount(((LocalQueueBinding) servers[1].getPostOffice().getBinding(new SimpleString(queueName1))).getQueue());
          messageCount += getMessageCount(((LocalQueueBinding) servers[1].getPostOffice().getBinding(new SimpleString(queueName3))).getQueue());
-         if (messageCount < TEST_SIZE * 2)
-         {
+         if (messageCount < TEST_SIZE * 2) {
             Thread.sleep(200);
          }
-         else
-         {
+         else {
             break;
          }
       }
@@ -377,8 +343,7 @@ public class ScaleDown3NodeTest extends ClusterTestBase
       // ensure the message is in queue 1 on node 1 as expected
       Assert.assertEquals(TEST_SIZE * 2, messageCount);
 
-      for (int i = 0; i < TEST_SIZE; i++)
-      {
+      for (int i = 0; i < TEST_SIZE; i++) {
          ClientMessage clientMessage = consumers[0].getConsumer().receive(250);
          Assert.assertNotNull(clientMessage);
          IntegrationTestLogger.LOGGER.info("Received: " + clientMessage);

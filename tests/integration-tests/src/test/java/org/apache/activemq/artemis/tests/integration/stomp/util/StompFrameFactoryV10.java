@@ -35,11 +35,9 @@ import java.util.StringTokenizer;
  * 12. RECEIPT
  * 13. ERROR
  */
-public class StompFrameFactoryV10 implements StompFrameFactory
-{
+public class StompFrameFactoryV10 implements StompFrameFactory {
 
-   public ClientStompFrame createFrame(String data)
-   {
+   public ClientStompFrame createFrame(String data) {
       //split the string at "\n\n"
       String[] dataFields = data.split("\n\n");
 
@@ -48,30 +46,26 @@ public class StompFrameFactoryV10 implements StompFrameFactory
       String command = tokenizer.nextToken();
       ClientStompFrame frame = new ClientStompFrameV10(command);
 
-      while (tokenizer.hasMoreTokens())
-      {
+      while (tokenizer.hasMoreTokens()) {
          String header = tokenizer.nextToken();
          String[] fields = header.split(":");
          frame.addHeader(fields[0], fields[1]);
       }
 
       //body (without null byte)
-      if (dataFields.length == 2)
-      {
+      if (dataFields.length == 2) {
          frame.setBody(dataFields[1]);
       }
       return frame;
    }
 
    @Override
-   public ClientStompFrame newFrame(String command)
-   {
+   public ClientStompFrame newFrame(String command) {
       return new ClientStompFrameV10(command);
    }
 
    @Override
-   public ClientStompFrame newAnyFrame(String command)
-   {
+   public ClientStompFrame newAnyFrame(String command) {
       return new ClientStompFrameV10(command, false);
    }
 

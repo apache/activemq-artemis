@@ -26,12 +26,10 @@ import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class SharedStoreBackupTest extends FailoverTestBase
-{
+public class SharedStoreBackupTest extends FailoverTestBase {
 
    @Test
-   public void testStartSharedBackupWithScalingDownPolicyDisabled() throws Exception
-   {
+   public void testStartSharedBackupWithScalingDownPolicyDisabled() throws Exception {
       System.out.println("is backup active: " + backupServer.isActive());
       liveServer.stop();
       // wait max 10s for backup to activate
@@ -40,65 +38,44 @@ public class SharedStoreBackupTest extends FailoverTestBase
 
    /**
     * Returns true if backup started in given timeout. False otherwise.
+    *
     * @param backupServer backup server
-    * @param waitTimeout timeout in milliseconds
+    * @param waitTimeout  timeout in milliseconds
     * @return returns true if backup started in given timeout. False otherwise
     */
-   private boolean waitForBackupToBecomeActive(TestableServer backupServer, long waitTimeout) throws Exception
-   {
+   private boolean waitForBackupToBecomeActive(TestableServer backupServer, long waitTimeout) throws Exception {
 
       long startTime = System.currentTimeMillis();
       boolean isBackupStarted;
       // wait given timeout for backup to activate
-      while (!(isBackupStarted = backupServer.isActive()) && System.currentTimeMillis() - startTime < waitTimeout)
-      {
+      while (!(isBackupStarted = backupServer.isActive()) && System.currentTimeMillis() - startTime < waitTimeout) {
          Thread.sleep(300);
       }
       return isBackupStarted;
    }
 
    @Override
-   protected void createConfigs() throws Exception
-   {
+   protected void createConfigs() throws Exception {
       nodeManager = new InVMNodeManager(false);
       TransportConfiguration liveConnector = getConnectorTransportConfiguration(true);
       TransportConfiguration backupConnector = getConnectorTransportConfiguration(false);
       System.out.println("backup config created - mnovak");
-      backupConfig =
-               super.createDefaultConfig(false)
-                    .clearAcceptorConfigurations()
-                    .addAcceptorConfiguration(getAcceptorTransportConfiguration(false))
-                    .setHAPolicyConfiguration(new SharedStoreSlavePolicyConfiguration().setFailbackDelay(1000)
-                                                                                       .setScaleDownConfiguration(new ScaleDownConfiguration().setEnabled(false))
-                                                                                       .setRestartBackup(false))
-                    .addConnectorConfiguration(liveConnector.getName(), liveConnector)
-                    .addConnectorConfiguration(backupConnector.getName(), backupConnector)
-                    .addClusterConfiguration(basicClusterConnectionConfig(backupConnector.getName(),
-                                                                          liveConnector.getName()));
+      backupConfig = super.createDefaultConfig(false).clearAcceptorConfigurations().addAcceptorConfiguration(getAcceptorTransportConfiguration(false)).setHAPolicyConfiguration(new SharedStoreSlavePolicyConfiguration().setFailbackDelay(1000).setScaleDownConfiguration(new ScaleDownConfiguration().setEnabled(false)).setRestartBackup(false)).addConnectorConfiguration(liveConnector.getName(), liveConnector).addConnectorConfiguration(backupConnector.getName(), backupConnector).addClusterConfiguration(basicClusterConnectionConfig(backupConnector.getName(), liveConnector.getName()));
 
       backupServer = createTestableServer(backupConfig);
 
-      liveConfig =
-               super.createDefaultConfig(false)
-                    .clearAcceptorConfigurations()
-                    .addAcceptorConfiguration(getAcceptorTransportConfiguration(true))
-                    .setHAPolicyConfiguration(new SharedStoreMasterPolicyConfiguration().setFailbackDelay(1000)
-                                                                                        .setFailoverOnServerShutdown(true))
-                    .addClusterConfiguration(basicClusterConnectionConfig(liveConnector.getName()))
-                    .addConnectorConfiguration(liveConnector.getName(), liveConnector);
+      liveConfig = super.createDefaultConfig(false).clearAcceptorConfigurations().addAcceptorConfiguration(getAcceptorTransportConfiguration(true)).setHAPolicyConfiguration(new SharedStoreMasterPolicyConfiguration().setFailbackDelay(1000).setFailoverOnServerShutdown(true)).addClusterConfiguration(basicClusterConnectionConfig(liveConnector.getName())).addConnectorConfiguration(liveConnector.getName(), liveConnector);
 
       liveServer = createTestableServer(liveConfig);
    }
 
    @Override
-   protected TransportConfiguration getAcceptorTransportConfiguration(final boolean live)
-   {
+   protected TransportConfiguration getAcceptorTransportConfiguration(final boolean live) {
       return TransportConfigurationUtils.getInVMAcceptor(live);
    }
 
    @Override
-   protected TransportConfiguration getConnectorTransportConfiguration(final boolean live)
-   {
+   protected TransportConfiguration getConnectorTransportConfiguration(final boolean live) {
       return TransportConfigurationUtils.getInVMConnector(live);
    }
 

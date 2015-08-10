@@ -27,8 +27,7 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class SendStressTest extends ActiveMQTestBase
-{
+public class SendStressTest extends ActiveMQTestBase {
 
    // Constants -----------------------------------------------------
 
@@ -42,19 +41,16 @@ public class SendStressTest extends ActiveMQTestBase
 
    // Remove this method to re-enable those tests
    @Test
-   public void testStressSendNetty() throws Exception
-   {
+   public void testStressSendNetty() throws Exception {
       doTestStressSend(true);
    }
 
    @Test
-   public void testStressSendInVM() throws Exception
-   {
+   public void testStressSendInVM() throws Exception {
       doTestStressSend(false);
    }
 
-   public void doTestStressSend(final boolean netty) throws Exception
-   {
+   public void doTestStressSend(final boolean netty) throws Exception {
       ActiveMQServer server = createServer(false, netty);
       server.start();
       ServerLocator locator = createNonHALocator(netty);
@@ -66,8 +62,7 @@ public class SendStressTest extends ActiveMQTestBase
 
       final int numberOfMessages = 100000;
 
-      try
-      {
+      try {
          server.start();
 
          session = sf.createSession(false, false);
@@ -80,11 +75,9 @@ public class SendStressTest extends ActiveMQTestBase
 
          message.getBodyBuffer().writeBytes(new byte[1024]);
 
-         for (int i = 0; i < numberOfMessages; i++)
-         {
+         for (int i = 0; i < numberOfMessages; i++) {
             producer.send(message);
-            if (i % batchSize == 0)
-            {
+            if (i % batchSize == 0) {
                System.out.println("Sent " + i);
                session.commit();
             }
@@ -100,14 +93,12 @@ public class SendStressTest extends ActiveMQTestBase
 
          session.start();
 
-         for (int i = 0; i < numberOfMessages; i++)
-         {
+         for (int i = 0; i < numberOfMessages; i++) {
             ClientMessage msg = consumer.receive(5000);
             Assert.assertNotNull(msg);
             msg.acknowledge();
 
-            if (i % batchSize == 0)
-            {
+            if (i % batchSize == 0) {
                System.out.println("Consumed " + i);
                session.commit();
             }
@@ -115,17 +106,13 @@ public class SendStressTest extends ActiveMQTestBase
 
          session.commit();
       }
-      finally
-      {
-         if (session != null)
-         {
-            try
-            {
+      finally {
+         if (session != null) {
+            try {
                sf.close();
                session.close();
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                e.printStackTrace();
             }
          }

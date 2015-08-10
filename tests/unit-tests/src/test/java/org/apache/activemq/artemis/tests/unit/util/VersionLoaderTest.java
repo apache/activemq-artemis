@@ -25,8 +25,7 @@ import org.apache.activemq.artemis.utils.VersionLoader;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class VersionLoaderTest extends ActiveMQTestBase
-{
+public class VersionLoaderTest extends ActiveMQTestBase {
    // Constants -----------------------------------------------------
 
    // Attributes ----------------------------------------------------
@@ -38,22 +37,17 @@ public class VersionLoaderTest extends ActiveMQTestBase
    // Public --------------------------------------------------------
 
    @Test
-   public void testLoadVersion() throws Exception
-   {
+   public void testLoadVersion() throws Exception {
       Version version = VersionLoader.getVersion();
       Properties props = new Properties();
       props.load(ClassLoader.getSystemResourceAsStream(VersionLoader.DEFAULT_PROP_FILE_NAME));
 
       Assert.assertEquals(props.get("activemq.version.versionName"), version.getVersionName());
 
-      Assert.assertEquals(Integer.parseInt(props.getProperty("activemq.version.majorVersion")),
-                          version.getMajorVersion());
-      Assert.assertEquals(Integer.parseInt(props.getProperty("activemq.version.minorVersion")),
-                          version.getMinorVersion());
-      Assert.assertEquals(Integer.parseInt(props.getProperty("activemq.version.microVersion")),
-                          version.getMicroVersion());
-      Assert.assertEquals(Integer.parseInt(new StringTokenizer(props.getProperty("activemq.version.incrementingVersion"), ",").nextToken()),
-                          version.getIncrementingVersion());
+      Assert.assertEquals(Integer.parseInt(props.getProperty("activemq.version.majorVersion")), version.getMajorVersion());
+      Assert.assertEquals(Integer.parseInt(props.getProperty("activemq.version.minorVersion")), version.getMinorVersion());
+      Assert.assertEquals(Integer.parseInt(props.getProperty("activemq.version.microVersion")), version.getMicroVersion());
+      Assert.assertEquals(Integer.parseInt(new StringTokenizer(props.getProperty("activemq.version.incrementingVersion"), ",").nextToken()), version.getIncrementingVersion());
    }
 
    // Z implementation ----------------------------------------------

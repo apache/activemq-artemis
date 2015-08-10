@@ -36,124 +36,126 @@ import org.slf4j.LoggerFactory;
 
 // https://issues.apache.org/activemq/browse/AMQ-2880
 public class JDBCXACommitExceptionTest extends JDBCCommitExceptionTest {
-    private static final Logger LOG = LoggerFactory.getLogger(JDBCXACommitExceptionTest.class);
 
-    private long txGenerator = System.currentTimeMillis();
+   private static final Logger LOG = LoggerFactory.getLogger(JDBCXACommitExceptionTest.class);
 
-    protected ActiveMQXAConnectionFactory factory;
+   private long txGenerator = System.currentTimeMillis();
 
-    boolean onePhase = true;
+   protected ActiveMQXAConnectionFactory factory;
 
-    @Override
-    public void setUp() throws Exception {
-        super.setUp();
+   boolean onePhase = true;
 
-        factory = new ActiveMQXAConnectionFactory(
-            connectionUri + "?jms.prefetchPolicy.all=0&jms.redeliveryPolicy.maximumRedeliveries="+messagesExpected);
-    }
+   @Override
+   public void setUp() throws Exception {
+      super.setUp();
 
-    public void testTwoPhaseSqlException() throws Exception {
-        onePhase = false;
-        doTestSqlException();
-    }
+      factory = new ActiveMQXAConnectionFactory(connectionUri + "?jms.prefetchPolicy.all=0&jms.redeliveryPolicy.maximumRedeliveries=" + messagesExpected);
+   }
 
-    @Override
-    protected int receiveMessages(int messagesExpected) throws Exception {
-        XAConnection connection = factory.createXAConnection();
-        connection.start();
-        XASession session = connection.createXASession();
+   public void testTwoPhaseSqlException() throws Exception {
+      onePhase = false;
+      doTestSqlException();
+   }
 
-        jdbc.setShouldBreak(true);
+   @Override
+   protected int receiveMessages(int messagesExpected) throws Exception {
+      XAConnection connection = factory.createXAConnection();
+      connection.start();
+      XASession session = connection.createXASession();
 
-        // first try and receive these messages, they'll continually fail
-        receiveMessages(messagesExpected, session, onePhase);
+      jdbc.setShouldBreak(true);
 
-        jdbc.setShouldBreak(false);
+      // first try and receive these messages, they'll continually fail
+      receiveMessages(messagesExpected, session, onePhase);
 
-        // now that the store is sane, try and get all the messages sent
-        return receiveMessages(messagesExpected, session, onePhase);
-    }
+      jdbc.setShouldBreak(false);
 
-    protected int receiveMessages(int messagesExpected, XASession session, boolean onePhase) throws Exception {
-        int messagesReceived = 0;
+      // now that the store is sane, try and get all the messages sent
+      return receiveMessages(messagesExpected, session, onePhase);
+   }
 
-        for (int i=0; i<messagesExpected; i++) {
-            Destination destination = session.createQueue("TEST");
-            MessageConsumer consumer = session.createConsumer(destination);
+   protected int receiveMessages(int messagesExpected, XASession session, boolean onePhase) throws Exception {
+      int messagesReceived = 0;
 
-            XAResource resource = session.getXAResource();
-            resource.recover(XAResource.TMSTARTRSCAN);
-            resource.recover(XAResource.TMNOFLAGS);
+      for (int i = 0; i < messagesExpected; i++) {
+         Destination destination = session.createQueue("TEST");
+         MessageConsumer consumer = session.createConsumer(destination);
 
-            Xid tid = createXid();
+         XAResource resource = session.getXAResource();
+         resource.recover(XAResource.TMSTARTRSCAN);
+         resource.recover(XAResource.TMNOFLAGS);
 
-            Message message = null;
+         Xid tid = createXid();
+
+         Message message = null;
+         try {
+            LOG.debug("Receiving message " + (messagesReceived + 1) + " of " + messagesExpected);
+            resource.start(tid, XAResource.TMNOFLAGS);
+            message = consumer.receive(2000);
+            LOG.info("Received : " + message);
+            resource.end(tid, XAResource.TMSUCCESS);
+            if (message != null) {
+               if (onePhase) {
+                  resource.commit(tid, true);
+               }
+               else {
+                  resource.prepare(tid);
+                  resource.commit(tid, false);
+               }
+               messagesReceived++;
+            }
+         }
+         catch (Exception e) {
+            LOG.debug("Caught exception:", e);
+
             try {
-                LOG.debug("Receiving message " + (messagesReceived+1) + " of " + messagesExpected);
-                resource.start(tid, XAResource.TMNOFLAGS);
-                message = consumer.receive(2000);
-                LOG.info("Received : " + message);
-                resource.end(tid, XAResource.TMSUCCESS);
-                if (message != null) {
-                    if (onePhase) {
-                        resource.commit(tid, true);
-                    } else {
-                        resource.prepare(tid);
-                        resource.commit(tid, false);
-                    }
-                    messagesReceived++;
-                }
-            } catch (Exception e) {
-                LOG.debug("Caught exception:", e);
-
-                try {
-                    LOG.debug("Rolling back transaction (just in case, no need to do this as it is implicit in a 1pc commit failure) " + tid);
-                    resource.rollback(tid);
-                }
-                catch (XAException ex) {
-                    try {
-                        LOG.debug("Caught exception during rollback: " + ex + " forgetting transaction " + tid);
-                        resource.forget(tid);
-                    }
-                    catch (XAException ex1) {
-                        LOG.debug("rollback/forget failed: " + ex1.errorCode);
-                    }
-                }
-            } finally {
-                if (consumer != null) {
-                    consumer.close();
-                }
+               LOG.debug("Rolling back transaction (just in case, no need to do this as it is implicit in a 1pc commit failure) " + tid);
+               resource.rollback(tid);
             }
-        }
-        return messagesReceived;
-    }
-
-    public Xid createXid() throws IOException {
-
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        DataOutputStream os = new DataOutputStream(baos);
-        os.writeLong(++txGenerator);
-        os.close();
-        final byte[] bs = baos.toByteArray();
-
-        return new Xid() {
-            @Override
-            public int getFormatId() {
-                return 86;
+            catch (XAException ex) {
+               try {
+                  LOG.debug("Caught exception during rollback: " + ex + " forgetting transaction " + tid);
+                  resource.forget(tid);
+               }
+               catch (XAException ex1) {
+                  LOG.debug("rollback/forget failed: " + ex1.errorCode);
+               }
             }
-
-            @Override
-            public byte[] getGlobalTransactionId() {
-                return bs;
+         }
+         finally {
+            if (consumer != null) {
+               consumer.close();
             }
+         }
+      }
+      return messagesReceived;
+   }
 
-            @Override
-            public byte[] getBranchQualifier() {
-                return bs;
-            }
-        };
+   public Xid createXid() throws IOException {
 
-    }
+      ByteArrayOutputStream baos = new ByteArrayOutputStream();
+      DataOutputStream os = new DataOutputStream(baos);
+      os.writeLong(++txGenerator);
+      os.close();
+      final byte[] bs = baos.toByteArray();
 
+      return new Xid() {
+         @Override
+         public int getFormatId() {
+            return 86;
+         }
+
+         @Override
+         public byte[] getGlobalTransactionId() {
+            return bs;
+         }
+
+         @Override
+         public byte[] getBranchQualifier() {
+            return bs;
+         }
+      };
+
+   }
 
 }

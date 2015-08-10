@@ -21,7 +21,7 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 /**
  * A factory for creating bindings
  */
-public interface BindingsFactory
-{
+public interface BindingsFactory {
+
    Bindings createBindings(SimpleString address) throws Exception;
 }

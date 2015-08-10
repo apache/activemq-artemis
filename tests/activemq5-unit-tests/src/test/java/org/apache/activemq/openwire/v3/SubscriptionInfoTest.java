@@ -19,37 +19,33 @@ package org.apache.activemq.openwire.v3;
 import org.apache.activemq.command.SubscriptionInfo;
 import org.apache.activemq.openwire.DataFileGeneratorTestSupport;
 
-
 /**
  * Test case for the OpenWire marshalling for SubscriptionInfo
  *
  *
  * NOTE!: This file is auto generated - do not modify!
- *        if you need to make a change, please see the modify the groovy scripts in the
- *        under src/gram/script and then use maven openwire:generate to regenerate 
- *        this file.
- *
- * 
+ * if you need to make a change, please see the modify the groovy scripts in the
+ * under src/gram/script and then use maven openwire:generate to regenerate
+ * this file.
  */
 public class SubscriptionInfoTest extends DataFileGeneratorTestSupport {
 
+   public static final SubscriptionInfoTest SINGLETON = new SubscriptionInfoTest();
 
-    public static final SubscriptionInfoTest SINGLETON = new SubscriptionInfoTest();
+   public Object createObject() throws Exception {
+      SubscriptionInfo info = new SubscriptionInfo();
+      populateObject(info);
+      return info;
+   }
 
-    public Object createObject() throws Exception {
-        SubscriptionInfo info = new SubscriptionInfo();
-        populateObject(info);
-        return info;
-    }
+   protected void populateObject(Object object) throws Exception {
+      super.populateObject(object);
+      SubscriptionInfo info = (SubscriptionInfo) object;
 
-    protected void populateObject(Object object) throws Exception {
-        super.populateObject(object);
-        SubscriptionInfo info = (SubscriptionInfo) object;
-
-        info.setClientId("ClientId:1");
-        info.setDestination(createActiveMQDestination("Destination:2"));
-        info.setSelector("Selector:3");
-        info.setSubscriptionName("SubcriptionName:4");
-        info.setSubscribedDestination(createActiveMQDestination("SubscribedDestination:5"));
-    }
+      info.setClientId("ClientId:1");
+      info.setDestination(createActiveMQDestination("Destination:2"));
+      info.setSelector("Selector:3");
+      info.setSubscriptionName("SubcriptionName:4");
+      info.setSubscribedDestination(createActiveMQDestination("SubscribedDestination:5"));
+   }
 }

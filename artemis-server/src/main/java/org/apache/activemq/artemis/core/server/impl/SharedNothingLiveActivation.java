@@ -54,8 +54,8 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-public class SharedNothingLiveActivation extends LiveActivation
-{
+public class SharedNothingLiveActivation extends LiveActivation {
+
    //this is how we act when we initially start as a live
    private ReplicatedPolicy replicatedPolicy;
 
@@ -65,34 +65,26 @@ public class SharedNothingLiveActivation extends LiveActivation
 
    private final Object replicationLock = new Object();
 
-   public SharedNothingLiveActivation(ActiveMQServerImpl activeMQServer,
-                                      ReplicatedPolicy replicatedPolicy)
-   {
+   public SharedNothingLiveActivation(ActiveMQServerImpl activeMQServer, ReplicatedPolicy replicatedPolicy) {
       this.activeMQServer = activeMQServer;
       this.replicatedPolicy = replicatedPolicy;
    }
 
    @Override
-   public void freezeConnections(RemotingService remotingService)
-   {
+   public void freezeConnections(RemotingService remotingService) {
       ReplicationManager localReplicationManager = replicationManager;
 
-      if (remotingService != null && localReplicationManager != null)
-      {
+      if (remotingService != null && localReplicationManager != null) {
          remotingService.freeze(null, localReplicationManager.getBackupTransportConnection());
       }
-      else if (remotingService != null)
-      {
+      else if (remotingService != null) {
          remotingService.freeze(null, null);
       }
    }
 
-   public void run()
-   {
-      try
-      {
-         if (replicatedPolicy.isCheckForLiveServer() && isNodeIdUsed())
-         {
+   public void run() {
+      try {
+         if (replicatedPolicy.isCheckForLiveServer() && isNodeIdUsed()) {
             //set for when we failback
             replicatedPolicy.getReplicaPolicy().setReplicatedPolicy(replicatedPolicy);
             activeMQServer.setHAPolicy(replicatedPolicy.getReplicaPolicy());
@@ -105,44 +97,33 @@ public class SharedNothingLiveActivation extends LiveActivation
 
          activeMQServer.completeActivation();
 
-         if (activeMQServer.getIdentity() != null)
-         {
+         if (activeMQServer.getIdentity() != null) {
             ActiveMQServerLogger.LOGGER.serverIsLive(activeMQServer.getIdentity());
          }
-         else
-         {
+         else {
             ActiveMQServerLogger.LOGGER.serverIsLive();
          }
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          ActiveMQServerLogger.LOGGER.initializationError(e);
       }
    }
 
    @Override
-   public ChannelHandler getActivationChannelHandler(final Channel channel, final Acceptor acceptorUsed)
-   {
-      return new ChannelHandler()
-      {
+   public ChannelHandler getActivationChannelHandler(final Channel channel, final Acceptor acceptorUsed) {
+      return new ChannelHandler() {
          @Override
-         public void handlePacket(Packet packet)
-         {
-            if (packet.getType() == PacketImpl.BACKUP_REGISTRATION)
-            {
-               BackupRegistrationMessage msg = (BackupRegistrationMessage)packet;
+         public void handlePacket(Packet packet) {
+            if (packet.getType() == PacketImpl.BACKUP_REGISTRATION) {
+               BackupRegistrationMessage msg = (BackupRegistrationMessage) packet;
                ClusterConnection clusterConnection = acceptorUsed.getClusterConnection();
-               try
-               {
-                  startReplication(channel.getConnection(), clusterConnection, getPair(msg.getConnector(), true),
-                        msg.isFailBackRequest());
+               try {
+                  startReplication(channel.getConnection(), clusterConnection, getPair(msg.getConnector(), true), msg.isFailBackRequest());
                }
-               catch (ActiveMQAlreadyReplicatingException are)
-               {
+               catch (ActiveMQAlreadyReplicatingException are) {
                   channel.send(new BackupReplicationStartFailedMessage(BackupReplicationStartFailedMessage.BackupRegistrationProblem.ALREADY_REPLICATING));
                }
-               catch (ActiveMQException e)
-               {
+               catch (ActiveMQException e) {
                   ActiveMQServerLogger.LOGGER.debug("Failed to process backup registration packet", e);
                   channel.send(new BackupReplicationStartFailedMessage(BackupReplicationStartFailedMessage.BackupRegistrationProblem.EXCEPTION));
                }
@@ -151,24 +132,21 @@ public class SharedNothingLiveActivation extends LiveActivation
       };
    }
 
-   public void startReplication(CoreRemotingConnection rc, final ClusterConnection clusterConnection,
-                                final Pair<TransportConfiguration, TransportConfiguration> pair, final boolean isFailBackRequest) throws ActiveMQException
-   {
-      if (replicationManager != null)
-      {
+   public void startReplication(CoreRemotingConnection rc,
+                                final ClusterConnection clusterConnection,
+                                final Pair<TransportConfiguration, TransportConfiguration> pair,
+                                final boolean isFailBackRequest) throws ActiveMQException {
+      if (replicationManager != null) {
          throw new ActiveMQAlreadyReplicatingException();
       }
 
-      if (!activeMQServer.isStarted())
-      {
+      if (!activeMQServer.isStarted()) {
          throw new ActiveMQIllegalStateException();
       }
 
-      synchronized (replicationLock)
-      {
+      synchronized (replicationLock) {
 
-         if (replicationManager != null)
-         {
+         if (replicationManager != null) {
             throw new ActiveMQAlreadyReplicatingException();
          }
          ReplicationFailureListener listener = new ReplicationFailureListener();
@@ -176,58 +154,45 @@ public class SharedNothingLiveActivation extends LiveActivation
          rc.addFailureListener(listener);
          replicationManager = new ReplicationManager(rc, activeMQServer.getExecutorFactory());
          replicationManager.start();
-         Thread t = new Thread(new Runnable()
-         {
-            public void run()
-            {
-               try
-               {
-                  activeMQServer.getStorageManager().startReplication(replicationManager, activeMQServer.getPagingManager(), activeMQServer.getNodeID().toString(),
-                        isFailBackRequest && replicatedPolicy.isAllowAutoFailBack());
+         Thread t = new Thread(new Runnable() {
+            public void run() {
+               try {
+                  activeMQServer.getStorageManager().startReplication(replicationManager, activeMQServer.getPagingManager(), activeMQServer.getNodeID().toString(), isFailBackRequest && replicatedPolicy.isAllowAutoFailBack());
 
                   clusterConnection.nodeAnnounced(System.currentTimeMillis(), activeMQServer.getNodeID().toString(), replicatedPolicy.getGroupName(), replicatedPolicy.getScaleDownGroupName(), pair, true);
 
                   //todo, check why this was set here
                   //backupUpToDate = false;
 
-                  if (isFailBackRequest && replicatedPolicy.isAllowAutoFailBack())
-                  {
+                  if (isFailBackRequest && replicatedPolicy.isAllowAutoFailBack()) {
                      BackupTopologyListener listener1 = new BackupTopologyListener(activeMQServer.getNodeID().toString());
                      clusterConnection.addClusterTopologyListener(listener1);
-                     if (listener1.waitForBackup())
-                     {
-                        try
-                        {
+                     if (listener1.waitForBackup()) {
+                        try {
                            Thread.sleep(replicatedPolicy.getFailbackDelay());
                         }
-                        catch (InterruptedException e)
-                        {
+                        catch (InterruptedException e) {
                            //
                         }
                         //if we have to many backups kept or arent configured to restart just stop, otherwise restart as a backup
-                        if (!replicatedPolicy.getReplicaPolicy().isRestartBackup() && activeMQServer.countNumberOfCopiedJournals() >= replicatedPolicy.getReplicaPolicy().getMaxSavedReplicatedJournalsSize() && replicatedPolicy.getReplicaPolicy().getMaxSavedReplicatedJournalsSize() >= 0)
-                        {
+                        if (!replicatedPolicy.getReplicaPolicy().isRestartBackup() && activeMQServer.countNumberOfCopiedJournals() >= replicatedPolicy.getReplicaPolicy().getMaxSavedReplicatedJournalsSize() && replicatedPolicy.getReplicaPolicy().getMaxSavedReplicatedJournalsSize() >= 0) {
                            activeMQServer.stop(true);
                            ActiveMQServerLogger.LOGGER.stopReplicatedBackupAfterFailback();
                         }
-                        else
-                        {
+                        else {
                            activeMQServer.stop(true);
                            ActiveMQServerLogger.LOGGER.restartingReplicatedBackupAfterFailback();
                            activeMQServer.setHAPolicy(replicatedPolicy.getReplicaPolicy());
                            activeMQServer.start();
                         }
                      }
-                     else
-                     {
+                     else {
                         ActiveMQServerLogger.LOGGER.failbackMissedBackupAnnouncement();
                      }
                   }
                }
-               catch (Exception e)
-               {
-                  if (activeMQServer.getState() == ActiveMQServerImpl.SERVER_STATE.STARTED)
-                  {
+               catch (Exception e) {
+                  if (activeMQServer.getState() == ActiveMQServerImpl.SERVER_STATE.STARTED) {
                   /*
                    * The reasoning here is that the exception was either caused by (1) the
                    * (interaction with) the backup, or (2) by an IO Error at the storage. If (1), we
@@ -236,18 +201,14 @@ public class SharedNothingLiveActivation extends LiveActivation
                    */
                      ActiveMQServerLogger.LOGGER.errorStartingReplication(e);
                   }
-                  try
-                  {
+                  try {
                      ActiveMQServerImpl.stopComponent(replicationManager);
                   }
-                  catch (Exception amqe)
-                  {
+                  catch (Exception amqe) {
                      ActiveMQServerLogger.LOGGER.errorStoppingReplication(amqe);
                   }
-                  finally
-                  {
-                     synchronized (replicationLock)
-                     {
+                  finally {
+                     synchronized (replicationLock) {
                         replicationManager = null;
                      }
                   }
@@ -259,32 +220,24 @@ public class SharedNothingLiveActivation extends LiveActivation
       }
    }
 
-   private final class ReplicationFailureListener implements FailureListener, CloseListener
-   {
+   private final class ReplicationFailureListener implements FailureListener, CloseListener {
 
       @Override
-      public void connectionFailed(ActiveMQException exception, boolean failedOver)
-      {
+      public void connectionFailed(ActiveMQException exception, boolean failedOver) {
          connectionClosed();
       }
 
       @Override
-      public void connectionFailed(final ActiveMQException me, boolean failedOver, String scaleDownTargetNodeID)
-      {
+      public void connectionFailed(final ActiveMQException me, boolean failedOver, String scaleDownTargetNodeID) {
          connectionFailed(me, failedOver);
       }
 
       @Override
-      public void connectionClosed()
-      {
-         activeMQServer.getThreadPool().execute(new Runnable()
-         {
-            public void run()
-            {
-               synchronized (replicationLock)
-               {
-                  if (replicationManager != null)
-                  {
+      public void connectionClosed() {
+         activeMQServer.getThreadPool().execute(new Runnable() {
+            public void run() {
+               synchronized (replicationLock) {
+                  if (replicationManager != null) {
                      activeMQServer.getStorageManager().stopReplication();
                      replicationManager = null;
                   }
@@ -294,15 +247,13 @@ public class SharedNothingLiveActivation extends LiveActivation
       }
    }
 
-   private Pair<TransportConfiguration, TransportConfiguration> getPair(TransportConfiguration conn,
-                                                                        boolean isBackup)
-   {
-      if (isBackup)
-      {
+   private Pair<TransportConfiguration, TransportConfiguration> getPair(TransportConfiguration conn, boolean isBackup) {
+      if (isBackup) {
          return new Pair<>(null, conn);
       }
       return new Pair<>(conn, null);
    }
+
    /**
     * Determines whether there is another server already running with this server's nodeID.
     * <p>
@@ -311,17 +262,14 @@ public class SharedNothingLiveActivation extends LiveActivation
     *
     * @throws Exception
     */
-   private boolean isNodeIdUsed() throws Exception
-   {
+   private boolean isNodeIdUsed() throws Exception {
       if (activeMQServer.getConfiguration().getClusterConfigurations().isEmpty())
          return false;
       SimpleString nodeId0;
-      try
-      {
+      try {
          nodeId0 = activeMQServer.getNodeManager().readNodeId();
       }
-      catch (ActiveMQIllegalStateException e)
-      {
+      catch (ActiveMQIllegalStateException e) {
          nodeId0 = null;
       }
 
@@ -336,16 +284,13 @@ public class SharedNothingLiveActivation extends LiveActivation
       NodeIdListener listener = new NodeIdListener(nodeId0);
 
       locator.addClusterTopologyListener(listener);
-      try
-      {
+      try {
          locator.setReconnectAttempts(0);
-         try
-         {
+         try {
             locator.addClusterTopologyListener(listener);
             factory = locator.connectNoWarnings();
          }
-         catch (Exception notConnected)
-         {
+         catch (Exception notConnected) {
             return false;
          }
 
@@ -353,8 +298,7 @@ public class SharedNothingLiveActivation extends LiveActivation
 
          return listener.isNodePresent;
       }
-      finally
-      {
+      finally {
          if (factory != null)
             factory.close();
          if (locator != null)
@@ -362,124 +306,99 @@ public class SharedNothingLiveActivation extends LiveActivation
       }
    }
 
-   public void close(boolean permanently, boolean restarting) throws Exception
-   {
+   public void close(boolean permanently, boolean restarting) throws Exception {
 
       replicationManager = null;
       // To avoid a NPE cause by the stop
       NodeManager nodeManagerInUse = activeMQServer.getNodeManager();
 
-      if (nodeManagerInUse != null)
-      {
+      if (nodeManagerInUse != null) {
          //todo does this actually make any difference, we only set a different flag in the lock file which replication doesnt use
-         if (permanently)
-         {
+         if (permanently) {
             nodeManagerInUse.crashLiveServer();
          }
-         else
-         {
+         else {
             nodeManagerInUse.pauseLiveServer();
          }
       }
    }
 
    @Override
-   public void sendLiveIsStopping()
-   {
+   public void sendLiveIsStopping() {
       final ReplicationManager localReplicationManager = replicationManager;
 
-      if (localReplicationManager != null)
-      {
+      if (localReplicationManager != null) {
          localReplicationManager.sendLiveIsStopping(ReplicationLiveIsStoppingMessage.LiveStopping.STOP_CALLED);
          // Schedule for 10 seconds
          // this pool gets a 'hard' shutdown, no need to manage the Future of this Runnable.
-         activeMQServer.getScheduledPool().schedule(new Runnable()
-         {
+         activeMQServer.getScheduledPool().schedule(new Runnable() {
             @Override
-            public void run()
-            {
+            public void run() {
                localReplicationManager.clearReplicationTokens();
             }
          }, 30, TimeUnit.SECONDS);
       }
    }
 
-   public ReplicationManager getReplicationManager()
-   {
-      synchronized (replicationLock)
-      {
+   public ReplicationManager getReplicationManager() {
+      synchronized (replicationLock) {
          return replicationManager;
       }
    }
 
-   private ServerLocatorInternal getLocator(ClusterConnectionConfiguration config) throws ActiveMQException
-   {
+   private ServerLocatorInternal getLocator(ClusterConnectionConfiguration config) throws ActiveMQException {
       ServerLocatorInternal locator;
-      if (config.getDiscoveryGroupName() != null)
-      {
+      if (config.getDiscoveryGroupName() != null) {
          DiscoveryGroupConfiguration dg = activeMQServer.getConfiguration().getDiscoveryGroupConfigurations().get(config.getDiscoveryGroupName());
 
-         if (dg == null)
-         {
+         if (dg == null) {
             throw ActiveMQMessageBundle.BUNDLE.noDiscoveryGroupFound(dg);
          }
          locator = (ServerLocatorInternal) ActiveMQClient.createServerLocatorWithHA(dg);
       }
-      else
-      {
-         TransportConfiguration[] tcConfigs = config.getStaticConnectors() != null ? connectorNameListToArray(config.getStaticConnectors())
-               : null;
+      else {
+         TransportConfiguration[] tcConfigs = config.getStaticConnectors() != null ? connectorNameListToArray(config.getStaticConnectors()) : null;
 
          locator = (ServerLocatorInternal) ActiveMQClient.createServerLocatorWithHA(tcConfigs);
       }
       return locator;
    }
 
+   static final class NodeIdListener implements ClusterTopologyListener {
 
-   static final class NodeIdListener implements ClusterTopologyListener
-   {
       volatile boolean isNodePresent = false;
 
       private final SimpleString nodeId;
       private final CountDownLatch latch = new CountDownLatch(1);
 
-      public NodeIdListener(SimpleString nodeId)
-      {
+      public NodeIdListener(SimpleString nodeId) {
          this.nodeId = nodeId;
       }
 
       @Override
-      public void nodeUP(TopologyMember topologyMember, boolean last)
-      {
+      public void nodeUP(TopologyMember topologyMember, boolean last) {
          boolean isOurNodeId = nodeId != null && nodeId.toString().equals(topologyMember.getNodeId());
-         if (isOurNodeId)
-         {
+         if (isOurNodeId) {
             isNodePresent = true;
          }
-         if (isOurNodeId || last)
-         {
+         if (isOurNodeId || last) {
             latch.countDown();
          }
       }
 
       @Override
-      public void nodeDown(long eventUID, String nodeID)
-      {
+      public void nodeDown(long eventUID, String nodeID) {
          // no-op
       }
    }
 
-   private TransportConfiguration[] connectorNameListToArray(final List<String> connectorNames)
-   {
-      TransportConfiguration[] tcConfigs = (TransportConfiguration[]) Array.newInstance(TransportConfiguration.class,
-            connectorNames.size());
+   private TransportConfiguration[] connectorNameListToArray(final List<String> connectorNames) {
+      TransportConfiguration[] tcConfigs = (TransportConfiguration[]) Array.newInstance(TransportConfiguration.class, connectorNames.size());
       int count = 0;
-      for (String connectorName : connectorNames)
-      {
+      for (String connectorName : connectorNames) {
          TransportConfiguration connector = activeMQServer.getConfiguration().getConnectorConfigurations().get(connectorName);
 
-         if (connector == null)
-         {
+         if (connector == null) {
             ActiveMQServerLogger.LOGGER.bridgeNoConnector(connectorName);
 
             return null;

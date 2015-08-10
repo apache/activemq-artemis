@@ -21,12 +21,11 @@ import org.junit.Before;
 /**
  * adapted from: org.apache.activemq.JmsDurableTopicSelectorTest
  */
-public class JmsDurableTopicSelectorTest extends JmsTopicSelectorTest
-{
+public class JmsDurableTopicSelectorTest extends JmsTopicSelectorTest {
+
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       durable = true;
       super.setUp();
    }

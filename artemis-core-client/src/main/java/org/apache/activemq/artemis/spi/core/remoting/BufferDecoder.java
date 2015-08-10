@@ -18,13 +18,14 @@ package org.apache.activemq.artemis.spi.core.remoting;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 
-public interface BufferDecoder
-{
+public interface BufferDecoder {
+
    /**
     * called by the remoting system prior to {@link org.apache.activemq.artemis.spi.core.remoting.BufferHandler#bufferReceived(Object, ActiveMQBuffer)}.
     * <p>
     * The implementation should return true if there is enough data in the buffer to decode. otherwise false.
-    *                  * @param buffer the buffer
+    * * @param buffer the buffer
+    *
     * @return true id the buffer can be decoded..
     */
    int isReadyToHandle(ActiveMQBuffer buffer);

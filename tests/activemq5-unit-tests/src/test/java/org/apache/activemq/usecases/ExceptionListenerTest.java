@@ -24,6 +24,7 @@ import javax.jms.ExceptionListener;
 import javax.jms.JMSException;
 import javax.jms.JMSSecurityException;
 import javax.jms.Session;
+
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.ConnectionFailedException;
 import org.apache.activemq.broker.BrokerPlugin;
@@ -36,7 +37,6 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -45,74 +45,77 @@ import static org.junit.Assert.fail;
  * @author Oliver Belikan
  */
 public class ExceptionListenerTest implements ExceptionListener {
-    private static final Logger LOG = LoggerFactory.getLogger(ExceptionListenerTest.class);
-    BrokerService brokerService;
-    URI brokerUri;
-    LinkedList<Throwable> exceptionsViaListener = new LinkedList<Throwable>();
 
-    @Before
-    public void startBroker() throws Exception {
-        brokerService = new BrokerService();
-        brokerService.setAdvisorySupport(false);
-        brokerService.setUseJmx(false);
-        brokerService.setPersistent(false);
-        brokerService.setPlugins(new BrokerPlugin[]{new SimpleAuthenticationPlugin(new ArrayList())});
-        brokerUri = brokerService.addConnector("tcp://0.0.0.0:0").getConnectUri();
-        brokerService.start();
-    }
+   private static final Logger LOG = LoggerFactory.getLogger(ExceptionListenerTest.class);
+   BrokerService brokerService;
+   URI brokerUri;
+   LinkedList<Throwable> exceptionsViaListener = new LinkedList<Throwable>();
 
-    @After
-    public void stopBroker() throws Exception {
-        exceptionsViaListener.clear();
-        if (brokerService != null) {
-            brokerService.stop();
-        }
-    }
+   @Before
+   public void startBroker() throws Exception {
+      brokerService = new BrokerService();
+      brokerService.setAdvisorySupport(false);
+      brokerService.setUseJmx(false);
+      brokerService.setPersistent(false);
+      brokerService.setPlugins(new BrokerPlugin[]{new SimpleAuthenticationPlugin(new ArrayList())});
+      brokerUri = brokerService.addConnector("tcp://0.0.0.0:0").getConnectUri();
+      brokerService.start();
+   }
 
-    @Test
-    public void fireOnSecurityException() throws Exception {
-        doFireOnSecurityException(new ActiveMQConnectionFactory(brokerUri));
-    }
+   @After
+   public void stopBroker() throws Exception {
+      exceptionsViaListener.clear();
+      if (brokerService != null) {
+         brokerService.stop();
+      }
+   }
 
-    @Test
-    public void fireOnSecurityExceptionFailover() throws Exception {
-        doFireOnSecurityException(new ActiveMQConnectionFactory("failover://" + brokerUri));
-    }
+   @Test
+   public void fireOnSecurityException() throws Exception {
+      doFireOnSecurityException(new ActiveMQConnectionFactory(brokerUri));
+   }
 
-    public void doFireOnSecurityException(ActiveMQConnectionFactory factory) throws Exception {
-        factory.setWatchTopicAdvisories(false);
-        Connection connection = factory.createConnection();
-        connection.setExceptionListener(this);
+   @Test
+   public void fireOnSecurityExceptionFailover() throws Exception {
+      doFireOnSecurityException(new ActiveMQConnectionFactory("failover://" + brokerUri));
+   }
 
-        try {
-            connection.start();
-            fail("Expect securityException");
-        } catch (JMSSecurityException expected) {
-            expected.printStackTrace();
-            assertTrue("nested security exception: " + expected, expected.getCause() instanceof SecurityException);
-        }
+   public void doFireOnSecurityException(ActiveMQConnectionFactory factory) throws Exception {
+      factory.setWatchTopicAdvisories(false);
+      Connection connection = factory.createConnection();
+      connection.setExceptionListener(this);
 
-        Wait.waitFor(new Wait.Condition() {
-            @Override
-            public boolean isSatisified() throws Exception {
-                return !exceptionsViaListener.isEmpty();
-            }
-        });
-        Throwable expected = exceptionsViaListener.getFirst();
-        assertNotNull(expected);
-        assertNotNull(expected.getCause());
+      try {
+         connection.start();
+         fail("Expect securityException");
+      }
+      catch (JMSSecurityException expected) {
+         expected.printStackTrace();
+         assertTrue("nested security exception: " + expected, expected.getCause() instanceof SecurityException);
+      }
 
-        assertTrue("expected exception: " + expected, expected.getCause().getCause() instanceof SecurityException);
+      Wait.waitFor(new Wait.Condition() {
+         @Override
+         public boolean isSatisified() throws Exception {
+            return !exceptionsViaListener.isEmpty();
+         }
+      });
+      Throwable expected = exceptionsViaListener.getFirst();
+      assertNotNull(expected);
+      assertNotNull(expected.getCause());
 
-        try {
-            connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-            fail("Expect error b/c connection is auto closed on security exception above");
-        } catch (ConnectionFailedException e) {
-        }
-    }
+      assertTrue("expected exception: " + expected, expected.getCause().getCause() instanceof SecurityException);
 
-    public void onException(JMSException e) {
-        LOG.info("onException:" + e, new Throwable("FromHere"));
-        exceptionsViaListener.add(e);
-    }
+      try {
+         connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         fail("Expect error b/c connection is auto closed on security exception above");
+      }
+      catch (ConnectionFailedException e) {
+      }
+   }
+
+   public void onException(JMSException e) {
+      LOG.info("onException:" + e, new Throwable("FromHere"));
+      exceptionsViaListener.add(e);
+   }
 }

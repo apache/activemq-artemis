@@ -32,32 +32,31 @@ import org.apache.derby.jdbc.EmbeddedDataSource;
 //  https://issues.apache.org/activemq/browse/AMQ-2594
 public class JDBCStoreOrderTest extends StoreOrderTest {
 
-    private static final Logger LOG = LoggerFactory.getLogger(JDBCStoreOrderTest.class);
-    
-    @Override
-     protected void dumpMessages() throws Exception {
-        WireFormat wireFormat = new OpenWireFormat();
-        java.sql.Connection conn = ((JDBCPersistenceAdapter) broker.getPersistenceAdapter()).getDataSource().getConnection();
-        PreparedStatement statement = conn.prepareStatement("SELECT ID, MSG FROM ACTIVEMQ_MSGS");    
-        ResultSet result = statement.executeQuery();
-        while(result.next()) {
-            long id = result.getLong(1);
-            Message message = (Message)wireFormat.unmarshal(new ByteSequence(result.getBytes(2)));
-            LOG.info("id: " + id + ", message SeqId: " + message.getMessageId().getBrokerSequenceId() + ", MSG: " + message);
-        }
-        statement.close();
-        conn.close();
-    }
-    
-     @Override
-     protected void setPersistentAdapter(BrokerService brokerService)
-             throws Exception {
-        JDBCPersistenceAdapter jdbc = new JDBCPersistenceAdapter();
-        EmbeddedDataSource dataSource = new EmbeddedDataSource();
-        dataSource.setDatabaseName("derbyDb");
-        dataSource.setCreateDatabase("create");
-        jdbc.setDataSource(dataSource);
-        brokerService.setPersistenceAdapter(jdbc);
-    }
+   private static final Logger LOG = LoggerFactory.getLogger(JDBCStoreOrderTest.class);
+
+   @Override
+   protected void dumpMessages() throws Exception {
+      WireFormat wireFormat = new OpenWireFormat();
+      java.sql.Connection conn = ((JDBCPersistenceAdapter) broker.getPersistenceAdapter()).getDataSource().getConnection();
+      PreparedStatement statement = conn.prepareStatement("SELECT ID, MSG FROM ACTIVEMQ_MSGS");
+      ResultSet result = statement.executeQuery();
+      while (result.next()) {
+         long id = result.getLong(1);
+         Message message = (Message) wireFormat.unmarshal(new ByteSequence(result.getBytes(2)));
+         LOG.info("id: " + id + ", message SeqId: " + message.getMessageId().getBrokerSequenceId() + ", MSG: " + message);
+      }
+      statement.close();
+      conn.close();
+   }
+
+   @Override
+   protected void setPersistentAdapter(BrokerService brokerService) throws Exception {
+      JDBCPersistenceAdapter jdbc = new JDBCPersistenceAdapter();
+      EmbeddedDataSource dataSource = new EmbeddedDataSource();
+      dataSource.setDatabaseName("derbyDb");
+      dataSource.setCreateDatabase("create");
+      jdbc.setDataSource(dataSource);
+      brokerService.setPersistenceAdapter(jdbc);
+   }
 
 }

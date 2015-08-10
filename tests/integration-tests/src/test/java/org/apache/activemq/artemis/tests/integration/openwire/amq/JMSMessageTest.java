@@ -45,15 +45,11 @@ import org.junit.runners.Parameterized;
  * adapted from: org.apache.activemq.JMSMessageTest
  */
 @RunWith(Parameterized.class)
-public class JMSMessageTest extends BasicOpenWireTest
-{
+public class JMSMessageTest extends BasicOpenWireTest {
+
    @Parameterized.Parameters(name = "deliveryMode={0} destinationType={1}")
-   public static Collection<Object[]> getParams()
-   {
-      return Arrays.asList(new Object[][] {
-         {DeliveryMode.NON_PERSISTENT, ActiveMQDestination.QUEUE_TYPE},
-         {DeliveryMode.PERSISTENT, ActiveMQDestination.QUEUE_TYPE},
-      });
+   public static Collection<Object[]> getParams() {
+      return Arrays.asList(new Object[][]{{DeliveryMode.NON_PERSISTENT, ActiveMQDestination.QUEUE_TYPE}, {DeliveryMode.PERSISTENT, ActiveMQDestination.QUEUE_TYPE},});
    }
 
    public int deliveryMode = DeliveryMode.NON_PERSISTENT;
@@ -61,20 +57,17 @@ public class JMSMessageTest extends BasicOpenWireTest
    public ActiveMQDestination destination;
    public boolean durableConsumer;
 
-   public JMSMessageTest(int deliveryMode, byte destinationType)
-   {
+   public JMSMessageTest(int deliveryMode, byte destinationType) {
       this.deliveryMode = deliveryMode;
       this.destinationType = destinationType;
    }
 
    @Test
-   public void testTextMessage() throws Exception
-   {
+   public void testTextMessage() throws Exception {
 
       // Receive a message with the JMS API
       connection.start();
-      Session session = connection.createSession(false,
-            Session.AUTO_ACKNOWLEDGE);
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       destination = createDestination(session, destinationType);
       MessageConsumer consumer = session.createConsumer(destination);
       MessageProducer producer = session.createProducer(destination);
@@ -97,13 +90,11 @@ public class JMSMessageTest extends BasicOpenWireTest
    }
 
    @Test
-   public void testBytesMessageLength() throws Exception
-   {
+   public void testBytesMessageLength() throws Exception {
 
       // Receive a message with the JMS API
       connection.start();
-      Session session = connection.createSession(false,
-            Session.AUTO_ACKNOWLEDGE);
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       destination = createDestination(session, destinationType);
       MessageConsumer consumer = session.createConsumer(destination);
       MessageProducer producer = session.createProducer(destination);
@@ -129,12 +120,10 @@ public class JMSMessageTest extends BasicOpenWireTest
    }
 
    @Test
-   public void testObjectMessage() throws Exception
-   {
+   public void testObjectMessage() throws Exception {
       // Receive a message with the JMS API
       connection.start();
-      Session session = connection.createSession(false,
-            Session.AUTO_ACKNOWLEDGE);
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       destination = createDestination(session, destinationType);
       MessageConsumer consumer = session.createConsumer(destination);
       MessageProducer producer = session.createProducer(destination);
@@ -156,13 +145,11 @@ public class JMSMessageTest extends BasicOpenWireTest
    }
 
    @Test
-   public void testBytesMessage() throws Exception
-   {
+   public void testBytesMessage() throws Exception {
 
       // Receive a message with the JMS API
       connection.start();
-      Session session = connection.createSession(false,
-            Session.AUTO_ACKNOWLEDGE);
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       destination = createDestination(session, destinationType);
       MessageConsumer consumer = session.createConsumer(destination);
       MessageProducer producer = session.createProducer(destination);
@@ -180,13 +167,11 @@ public class JMSMessageTest extends BasicOpenWireTest
          assertNotNull(message);
          assertTrue(message.readBoolean());
 
-         try
-         {
+         try {
             message.readByte();
             fail("Expected exception not thrown.");
          }
-         catch (MessageEOFException e)
-         {
+         catch (MessageEOFException e) {
          }
 
       }
@@ -194,13 +179,11 @@ public class JMSMessageTest extends BasicOpenWireTest
    }
 
    @Test
-   public void testStreamMessage() throws Exception
-   {
+   public void testStreamMessage() throws Exception {
 
       // Receive a message with the JMS API
       connection.start();
-      Session session = connection.createSession(false,
-            Session.AUTO_ACKNOWLEDGE);
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       destination = createDestination(session, destinationType);
       MessageConsumer consumer = session.createConsumer(destination);
       MessageProducer producer = session.createProducer(destination);
@@ -219,40 +202,33 @@ public class JMSMessageTest extends BasicOpenWireTest
 
          // Invalid conversion should throw exception and not move the stream
          // position.
-         try
-         {
+         try {
             message.readByte();
             fail("Should have received NumberFormatException");
          }
-         catch (NumberFormatException e)
-         {
+         catch (NumberFormatException e) {
          }
 
-         assertEquals("This is a test to see how it works.",
-               message.readString());
+         assertEquals("This is a test to see how it works.", message.readString());
 
          // Invalid conversion should throw exception and not move the stream
          // position.
-         try
-         {
+         try {
             message.readByte();
             fail("Should have received MessageEOFException");
          }
-         catch (MessageEOFException e)
-         {
+         catch (MessageEOFException e) {
          }
       }
       assertNull(consumer.receiveNoWait());
    }
 
    @Test
-   public void testMapMessage() throws Exception
-   {
+   public void testMapMessage() throws Exception {
 
       // Receive a message with the JMS API
       connection.start();
-      Session session = connection.createSession(false,
-            Session.AUTO_ACKNOWLEDGE);
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       destination = createDestination(session, destinationType);
       MessageConsumer consumer = session.createConsumer(destination);
       MessageProducer producer = session.createProducer(destination);
@@ -273,8 +249,7 @@ public class JMSMessageTest extends BasicOpenWireTest
       assertNull(consumer.receiveNoWait());
    }
 
-   static class ForeignMessage implements TextMessage
-   {
+   static class ForeignMessage implements TextMessage {
 
       public int deliveryMode;
 
@@ -291,312 +266,259 @@ public class JMSMessageTest extends BasicOpenWireTest
       private final HashMap<String, Object> props = new HashMap<String, Object>();
 
       @Override
-      public String getJMSMessageID() throws JMSException
-      {
+      public String getJMSMessageID() throws JMSException {
          return messageId;
       }
 
       @Override
-      public void setJMSMessageID(String arg0) throws JMSException
-      {
+      public void setJMSMessageID(String arg0) throws JMSException {
          messageId = arg0;
       }
 
       @Override
-      public long getJMSTimestamp() throws JMSException
-      {
+      public long getJMSTimestamp() throws JMSException {
          return timestamp;
       }
 
       @Override
-      public void setJMSTimestamp(long arg0) throws JMSException
-      {
+      public void setJMSTimestamp(long arg0) throws JMSException {
          timestamp = arg0;
       }
 
       @Override
-      public byte[] getJMSCorrelationIDAsBytes() throws JMSException
-      {
+      public byte[] getJMSCorrelationIDAsBytes() throws JMSException {
          return null;
       }
 
       @Override
-      public void setJMSCorrelationIDAsBytes(byte[] arg0) throws JMSException
-      {
+      public void setJMSCorrelationIDAsBytes(byte[] arg0) throws JMSException {
       }
 
       @Override
-      public void setJMSCorrelationID(String arg0) throws JMSException
-      {
+      public void setJMSCorrelationID(String arg0) throws JMSException {
          correlationId = arg0;
       }
 
       @Override
-      public String getJMSCorrelationID() throws JMSException
-      {
+      public String getJMSCorrelationID() throws JMSException {
          return correlationId;
       }
 
       @Override
-      public Destination getJMSReplyTo() throws JMSException
-      {
+      public Destination getJMSReplyTo() throws JMSException {
          return replyTo;
       }
 
       @Override
-      public void setJMSReplyTo(Destination arg0) throws JMSException
-      {
+      public void setJMSReplyTo(Destination arg0) throws JMSException {
          replyTo = arg0;
       }
 
       @Override
-      public Destination getJMSDestination() throws JMSException
-      {
+      public Destination getJMSDestination() throws JMSException {
          return destination;
       }
 
       @Override
-      public void setJMSDestination(Destination arg0) throws JMSException
-      {
+      public void setJMSDestination(Destination arg0) throws JMSException {
          destination = arg0;
       }
 
       @Override
-      public int getJMSDeliveryMode() throws JMSException
-      {
+      public int getJMSDeliveryMode() throws JMSException {
          return deliveryMode;
       }
 
       @Override
-      public void setJMSDeliveryMode(int arg0) throws JMSException
-      {
+      public void setJMSDeliveryMode(int arg0) throws JMSException {
          deliveryMode = arg0;
       }
 
       @Override
-      public boolean getJMSRedelivered() throws JMSException
-      {
+      public boolean getJMSRedelivered() throws JMSException {
          return redelivered;
       }
 
       @Override
-      public void setJMSRedelivered(boolean arg0) throws JMSException
-      {
+      public void setJMSRedelivered(boolean arg0) throws JMSException {
          redelivered = arg0;
       }
 
       @Override
-      public String getJMSType() throws JMSException
-      {
+      public String getJMSType() throws JMSException {
          return type;
       }
 
       @Override
-      public void setJMSType(String arg0) throws JMSException
-      {
+      public void setJMSType(String arg0) throws JMSException {
          type = arg0;
       }
 
       @Override
-      public long getJMSExpiration() throws JMSException
-      {
+      public long getJMSExpiration() throws JMSException {
          return expiration;
       }
 
       @Override
-      public void setJMSExpiration(long arg0) throws JMSException
-      {
+      public void setJMSExpiration(long arg0) throws JMSException {
          expiration = arg0;
       }
 
       @Override
-      public int getJMSPriority() throws JMSException
-      {
+      public int getJMSPriority() throws JMSException {
          return priority;
       }
 
       @Override
-      public void setJMSPriority(int arg0) throws JMSException
-      {
+      public void setJMSPriority(int arg0) throws JMSException {
          priority = arg0;
       }
 
       @Override
-      public void clearProperties() throws JMSException
-      {
+      public void clearProperties() throws JMSException {
       }
 
       @Override
-      public boolean propertyExists(String arg0) throws JMSException
-      {
+      public boolean propertyExists(String arg0) throws JMSException {
          return false;
       }
 
       @Override
-      public boolean getBooleanProperty(String arg0) throws JMSException
-      {
+      public boolean getBooleanProperty(String arg0) throws JMSException {
          return false;
       }
 
       @Override
-      public byte getByteProperty(String arg0) throws JMSException
-      {
+      public byte getByteProperty(String arg0) throws JMSException {
          return 0;
       }
 
       @Override
-      public short getShortProperty(String arg0) throws JMSException
-      {
+      public short getShortProperty(String arg0) throws JMSException {
          return 0;
       }
 
       @Override
-      public int getIntProperty(String arg0) throws JMSException
-      {
+      public int getIntProperty(String arg0) throws JMSException {
          return 0;
       }
 
       @Override
-      public long getLongProperty(String arg0) throws JMSException
-      {
+      public long getLongProperty(String arg0) throws JMSException {
          return 0;
       }
 
       @Override
-      public float getFloatProperty(String arg0) throws JMSException
-      {
+      public float getFloatProperty(String arg0) throws JMSException {
          return 0;
       }
 
       @Override
-      public double getDoubleProperty(String arg0) throws JMSException
-      {
+      public double getDoubleProperty(String arg0) throws JMSException {
          return 0;
       }
 
       @Override
-      public String getStringProperty(String arg0) throws JMSException
-      {
+      public String getStringProperty(String arg0) throws JMSException {
          return (String) props.get(arg0);
       }
 
       @Override
-      public Object getObjectProperty(String arg0) throws JMSException
-      {
+      public Object getObjectProperty(String arg0) throws JMSException {
          return props.get(arg0);
       }
 
       @Override
-      public Enumeration<?> getPropertyNames() throws JMSException
-      {
+      public Enumeration<?> getPropertyNames() throws JMSException {
          return new Vector<String>(props.keySet()).elements();
       }
 
       @Override
-      public void setBooleanProperty(String arg0, boolean arg1) throws JMSException
-      {
+      public void setBooleanProperty(String arg0, boolean arg1) throws JMSException {
       }
 
       @Override
-      public void setByteProperty(String arg0, byte arg1) throws JMSException
-      {
+      public void setByteProperty(String arg0, byte arg1) throws JMSException {
       }
 
       @Override
-      public void setShortProperty(String arg0, short arg1) throws JMSException
-      {
+      public void setShortProperty(String arg0, short arg1) throws JMSException {
       }
 
       @Override
-      public void setIntProperty(String arg0, int arg1) throws JMSException
-      {
+      public void setIntProperty(String arg0, int arg1) throws JMSException {
       }
 
       @Override
-      public void setLongProperty(String arg0, long arg1) throws JMSException
-      {
+      public void setLongProperty(String arg0, long arg1) throws JMSException {
       }
 
       @Override
-      public void setFloatProperty(String arg0, float arg1) throws JMSException
-      {
+      public void setFloatProperty(String arg0, float arg1) throws JMSException {
       }
 
       @Override
-      public void setDoubleProperty(String arg0, double arg1) throws JMSException
-      {
+      public void setDoubleProperty(String arg0, double arg1) throws JMSException {
       }
 
       @Override
-      public void setStringProperty(String arg0, String arg1) throws JMSException
-      {
+      public void setStringProperty(String arg0, String arg1) throws JMSException {
          props.put(arg0, arg1);
       }
 
       @Override
-      public void setObjectProperty(String arg0, Object arg1) throws JMSException
-      {
+      public void setObjectProperty(String arg0, Object arg1) throws JMSException {
          props.put(arg0, arg1);
       }
 
       @Override
-      public void acknowledge() throws JMSException
-      {
+      public void acknowledge() throws JMSException {
       }
 
       @Override
-      public void clearBody() throws JMSException
-      {
+      public void clearBody() throws JMSException {
       }
 
       @Override
-      public void setText(String arg0) throws JMSException
-      {
+      public void setText(String arg0) throws JMSException {
          text = arg0;
       }
 
       @Override
-      public String getText() throws JMSException
-      {
+      public String getText() throws JMSException {
          return text;
       }
 
       @Override
-      public <T> T getBody(Class<T> arg0) throws JMSException
-      {
+      public <T> T getBody(Class<T> arg0) throws JMSException {
          // TODO Auto-generated method stub
          return null;
       }
 
       @Override
-      public long getJMSDeliveryTime() throws JMSException
-      {
+      public long getJMSDeliveryTime() throws JMSException {
          // TODO Auto-generated method stub
          return 0;
       }
 
       @Override
-      public boolean isBodyAssignableTo(Class arg0) throws JMSException
-      {
+      public boolean isBodyAssignableTo(Class arg0) throws JMSException {
          // TODO Auto-generated method stub
          return false;
       }
 
       @Override
-      public void setJMSDeliveryTime(long arg0) throws JMSException
-      {
+      public void setJMSDeliveryTime(long arg0) throws JMSException {
          // TODO Auto-generated method stub
       }
    }
 
    @Test
-   public void testForeignMessage() throws Exception
-   {
+   public void testForeignMessage() throws Exception {
 
       // Receive a message with the JMS API
       connection.start();
-      Session session = connection.createSession(false,
-            Session.AUTO_ACKNOWLEDGE);
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       destination = createDestination(session, destinationType);
       MessageConsumer consumer = session.createConsumer(destination);
       MessageProducer producer = session.createProducer(destination);

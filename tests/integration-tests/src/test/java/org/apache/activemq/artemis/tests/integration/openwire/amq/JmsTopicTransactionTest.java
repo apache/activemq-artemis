@@ -19,14 +19,13 @@ package org.apache.activemq.artemis.tests.integration.openwire.amq;
 /**
  * adapted from: org.apache.activemq.JmsTopicTransactionTest
  */
-public class JmsTopicTransactionTest extends JmsTransactionTestSupport
-{
+public class JmsTopicTransactionTest extends JmsTransactionTestSupport {
+
    /**
     * @see org.apache.activemq.JmsTransactionTestSupport#getJmsResourceProvider()
     */
    @Override
-   protected JmsResourceProvider getJmsResourceProvider()
-   {
+   protected JmsResourceProvider getJmsResourceProvider() {
       JmsResourceProvider p = new JmsResourceProvider();
       p.setTopic(true);
       p.setDurableName("testsub");

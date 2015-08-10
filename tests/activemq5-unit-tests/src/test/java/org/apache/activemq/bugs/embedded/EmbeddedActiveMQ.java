@@ -24,91 +24,81 @@ import javax.jms.Destination;
 import javax.jms.Message;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
+
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.broker.BrokerService;
 import org.apache.log4j.Logger;
 
-public class EmbeddedActiveMQ
-{
- 
-        private static Logger logger = Logger.getLogger(EmbeddedActiveMQ.class);
- 
-        public static void main(String[] args)
-        {
- 
-                BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-                BrokerService brokerService = null;
-                Connection connection = null;
- 
-                logger.info("Start...");
-                try
-                {
-                        brokerService = new BrokerService();
-                        brokerService.setBrokerName("TestMQ");
-                        brokerService.setUseJmx(true);
-                        logger.info("Broker '" + brokerService.getBrokerName() + "' is starting........");
-                        brokerService.start();
-                        ConnectionFactory fac = new ActiveMQConnectionFactory("vm://TestMQ");
-                        connection = fac.createConnection();
-                        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-                        Destination queue = session.createQueue("TEST.QUEUE");
-                        MessageProducer producer = session.createProducer(queue);
-                        for (int i = 0; i < 1000;i++) {
-                            Message msg = session.createTextMessage("test"+i);
-                            producer.send(msg);
-                        }
-                        logger.info(ThreadExplorer.show("Active threads after start:"));
-                        System.out.println("Press return to stop........");
-                        String key = br.readLine();
-                }
- 
-                catch (Exception e)
-                {
-                        e.printStackTrace();
-                }
-                finally
-                {
-                        try
-                        {
-                                br.close();
-                                logger.info("Broker '" + brokerService.getBrokerName() + "' is stopping........");
-                                connection.close();
-                                brokerService.stop(); 
-                                sleep(8);
-                                logger.info(ThreadExplorer.show("Active threads after stop:"));
- 
-                        }
-                        catch (Exception e)
-                        {
-                                e.printStackTrace();
-                        }
-                }
- 
-                logger.info("Waiting for list theads is greater then 1 ...");
-                int numTh = ThreadExplorer.active();
- 
-                while (numTh > 2)
-                {
-                        sleep(3);
-                        numTh = ThreadExplorer.active();
-                        logger.info(ThreadExplorer.show("Still active threads:"));
-                }
- 
-                System.out.println("Stop...");
-        }
- 
-        private static void sleep(int second)
-        {
-                try
-                {
-                        logger.info("Waiting for " + second + "s...");
-                        Thread.sleep(second * 1000L);
-                }
-                catch (InterruptedException e)
-                {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                }
-        }
- 
+public class EmbeddedActiveMQ {
+
+   private static Logger logger = Logger.getLogger(EmbeddedActiveMQ.class);
+
+   public static void main(String[] args) {
+
+      BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+      BrokerService brokerService = null;
+      Connection connection = null;
+
+      logger.info("Start...");
+      try {
+         brokerService = new BrokerService();
+         brokerService.setBrokerName("TestMQ");
+         brokerService.setUseJmx(true);
+         logger.info("Broker '" + brokerService.getBrokerName() + "' is starting........");
+         brokerService.start();
+         ConnectionFactory fac = new ActiveMQConnectionFactory("vm://TestMQ");
+         connection = fac.createConnection();
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         Destination queue = session.createQueue("TEST.QUEUE");
+         MessageProducer producer = session.createProducer(queue);
+         for (int i = 0; i < 1000; i++) {
+            Message msg = session.createTextMessage("test" + i);
+            producer.send(msg);
+         }
+         logger.info(ThreadExplorer.show("Active threads after start:"));
+         System.out.println("Press return to stop........");
+         String key = br.readLine();
+      }
+
+      catch (Exception e) {
+         e.printStackTrace();
+      }
+      finally {
+         try {
+            br.close();
+            logger.info("Broker '" + brokerService.getBrokerName() + "' is stopping........");
+            connection.close();
+            brokerService.stop();
+            sleep(8);
+            logger.info(ThreadExplorer.show("Active threads after stop:"));
+
+         }
+         catch (Exception e) {
+            e.printStackTrace();
+         }
+      }
+
+      logger.info("Waiting for list theads is greater then 1 ...");
+      int numTh = ThreadExplorer.active();
+
+      while (numTh > 2) {
+         sleep(3);
+         numTh = ThreadExplorer.active();
+         logger.info(ThreadExplorer.show("Still active threads:"));
+      }
+
+      System.out.println("Stop...");
+   }
+
+   private static void sleep(int second) {
+      try {
+         logger.info("Waiting for " + second + "s...");
+         Thread.sleep(second * 1000L);
+      }
+      catch (InterruptedException e) {
+         // TODO Auto-generated catch block
+         e.printStackTrace();
+      }
+   }
+
 }

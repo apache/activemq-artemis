@@ -24,8 +24,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * This IDGenerator doesn't support more than 16777215 IDs per 16 millisecond. It would throw an exception if this happens.
  * </p>
  */
-public class TimeAndCounterIDGenerator implements IDGenerator
-{
+public class TimeAndCounterIDGenerator implements IDGenerator {
    // Constants ----------------------------------------------------
 
    /**
@@ -53,8 +52,7 @@ public class TimeAndCounterIDGenerator implements IDGenerator
 
    // Constructors --------------------------------------------------
 
-   public TimeAndCounterIDGenerator()
-   {
+   public TimeAndCounterIDGenerator() {
       refresh();
    }
 
@@ -62,25 +60,21 @@ public class TimeAndCounterIDGenerator implements IDGenerator
 
    // Public --------------------------------------------------------
 
-   public long generateID()
-   {
+   public long generateID() {
       long idReturn = counter.incrementAndGet();
 
-      if ((idReturn & TimeAndCounterIDGenerator.ID_MASK) == 0)
-      {
+      if ((idReturn & TimeAndCounterIDGenerator.ID_MASK) == 0) {
          final long timePortion = idReturn & TimeAndCounterIDGenerator.TIME_ID_MASK;
 
          // Wrapping ID logic
 
-         if (timePortion >= newTM())
-         {
+         if (timePortion >= newTM()) {
             // Unlikely to happen
 
             wrapped = true;
 
          }
-         else
-         {
+         else {
             // Else.. no worry... we will just accept the new time portion being added
             // This time-mark would have been generated some time ago, so this is ok.
             // tmMark is just a cache to validate the MaxIDs, so there is no need to make it atomic (synchronized)
@@ -88,49 +82,42 @@ public class TimeAndCounterIDGenerator implements IDGenerator
          }
       }
 
-      if (wrapped)
-      {
+      if (wrapped) {
          // This will only happen if a computer can generate more than ID_MASK ids (16 million IDs per 16
          // milliseconds)
          // If this wrapping code starts to happen, it needs revision
          throw new IllegalStateException("The IDGenerator is being overlaped, and it needs revision as the system generated more than " + TimeAndCounterIDGenerator.ID_MASK +
-                                         " ids per 16 milliseconds which exceeded the IDgenerator limit");
+                                            " ids per 16 milliseconds which exceeded the IDgenerator limit");
       }
 
       return idReturn;
    }
 
-   public long getCurrentID()
-   {
+   public long getCurrentID() {
       return counter.get();
    }
 
    // for use in testcases
-   public long getInternalTimeMark()
-   {
+   public long getInternalTimeMark() {
       return tmMark;
    }
 
    // for use in testcases
-   public void setInternalID(final long id)
-   {
+   public void setInternalID(final long id) {
       counter.set(tmMark | id);
    }
 
    // for use in testcases
-   public void setInternalDate(final long date)
-   {
+   public void setInternalDate(final long date) {
       tmMark = (date & TimeAndCounterIDGenerator.MASK_TIME) << TimeAndCounterIDGenerator.BITS_TO_MOVE;
       counter.set(tmMark);
    }
 
-   public synchronized void refresh()
-   {
+   public synchronized void refresh() {
       long oldTm = tmMark;
       long newTm = newTM();
 
-      while (newTm <= oldTm)
-      {
+      while (newTm <= oldTm) {
          newTm = newTM();
       }
       tmMark = newTm;
@@ -138,15 +125,14 @@ public class TimeAndCounterIDGenerator implements IDGenerator
    }
 
    @Override
-   public String toString()
-   {
+   public String toString() {
       long currentCounter = counter.get();
       return "SequenceGenerator(tmMark=" + hex(tmMark) +
-             ", CurrentCounter = " +
-             currentCounter +
-             ", HexCurrentCounter = " +
-             hex(currentCounter) +
-             ")";
+         ", CurrentCounter = " +
+         currentCounter +
+         ", HexCurrentCounter = " +
+         hex(currentCounter) +
+         ")";
    }
 
    // Package protected ---------------------------------------------
@@ -155,13 +141,11 @@ public class TimeAndCounterIDGenerator implements IDGenerator
 
    // Private -------------------------------------------------------
 
-   private long newTM()
-   {
+   private long newTM() {
       return (System.currentTimeMillis() & TimeAndCounterIDGenerator.MASK_TIME) << TimeAndCounterIDGenerator.BITS_TO_MOVE;
    }
 
-   private String hex(final long x)
-   {
+   private String hex(final long x) {
       return String.format("%1$X", x);
    }
 

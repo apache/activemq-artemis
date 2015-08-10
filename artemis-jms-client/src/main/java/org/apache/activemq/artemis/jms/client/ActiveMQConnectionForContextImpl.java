@@ -26,19 +26,14 @@ import org.apache.activemq.artemis.api.jms.ActiveMQJMSConstants;
 import org.apache.activemq.artemis.utils.ReferenceCounter;
 import org.apache.activemq.artemis.utils.ReferenceCounterUtil;
 
-public abstract class ActiveMQConnectionForContextImpl implements ActiveMQConnectionForContext
-{
+public abstract class ActiveMQConnectionForContextImpl implements ActiveMQConnectionForContext {
 
-   final Runnable closeRunnable = new Runnable()
-   {
-      public void run()
-      {
-         try
-         {
+   final Runnable closeRunnable = new Runnable() {
+      public void run() {
+         try {
             close();
          }
-         catch (JMSException e)
-         {
+         catch (JMSException e) {
             throw JmsExceptionUtils.convertToRuntimeException(e);
          }
       }
@@ -48,10 +43,8 @@ public abstract class ActiveMQConnectionForContextImpl implements ActiveMQConnec
 
    protected final ThreadAwareContext threadAwareContext = new ThreadAwareContext();
 
-   public JMSContext createContext(int sessionMode)
-   {
-      switch (sessionMode)
-      {
+   public JMSContext createContext(int sessionMode) {
+      switch (sessionMode) {
          case Session.AUTO_ACKNOWLEDGE:
          case Session.CLIENT_ACKNOWLEDGE:
          case Session.DUPS_OK_ACKNOWLEDGE:
@@ -67,26 +60,22 @@ public abstract class ActiveMQConnectionForContextImpl implements ActiveMQConnec
       return new ActiveMQJMSContext(this, sessionMode, threadAwareContext);
    }
 
-   public XAJMSContext createXAContext()
-   {
+   public XAJMSContext createXAContext() {
       refCounter.increment();
 
       return new ActiveMQXAJMSContext(this, threadAwareContext);
    }
 
    @Override
-   public void closeFromContext()
-   {
+   public void closeFromContext() {
       refCounter.decrement();
    }
 
-   protected void incrementRefCounter()
-   {
+   protected void incrementRefCounter() {
       refCounter.increment();
    }
 
-   public ThreadAwareContext getThreadAwareContext()
-   {
+   public ThreadAwareContext getThreadAwareContext() {
       return threadAwareContext;
    }
 }

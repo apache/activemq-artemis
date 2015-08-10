@@ -37,8 +37,7 @@ import java.util.Map;
 
 /**
  */
-public class SingleLiveMultipleBackupsFailoverTest extends MultipleBackupsFailoverTestBase
-{
+public class SingleLiveMultipleBackupsFailoverTest extends MultipleBackupsFailoverTestBase {
 
    protected Map<Integer, TestableServer> servers = new HashMap<Integer, TestableServer>();
    protected ServerLocatorImpl locator;
@@ -46,10 +45,8 @@ public class SingleLiveMultipleBackupsFailoverTest extends MultipleBackupsFailov
    final boolean sharedStore = true;
    IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
-   public void _testLoop() throws Exception
-   {
-      for (int i = 0; i < 100; i++)
-      {
+   public void _testLoop() throws Exception {
+      for (int i = 0; i < 100; i++) {
          log.info("#test " + i);
          testMultipleFailovers();
          tearDown();
@@ -58,8 +55,7 @@ public class SingleLiveMultipleBackupsFailoverTest extends MultipleBackupsFailov
    }
 
    @Test
-   public void testMultipleFailovers() throws Exception
-   {
+   public void testMultipleFailovers() throws Exception {
       nodeManager = new InVMNodeManager(!sharedStore);
       createLiveConfig(0);
       createBackupConfig(0, 1, 0, 2, 3, 4, 5);
@@ -84,10 +80,7 @@ public class SingleLiveMultipleBackupsFailoverTest extends MultipleBackupsFailov
       // for logging and debugging
       topology.setOwner("testMultipleFailovers");
 
-      locator.setBlockOnNonDurableSend(true)
-              .setBlockOnDurableSend(true)
-              .setBlockOnAcknowledge(true)
-              .setReconnectAttempts(-1);
+      locator.setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setBlockOnAcknowledge(true).setReconnectAttempts(-1);
 
       ClientSessionFactoryInternal sf = createSessionFactoryAndWaitForTopology(locator, 2);
       int backupNode;
@@ -129,23 +122,13 @@ public class SingleLiveMultipleBackupsFailoverTest extends MultipleBackupsFailov
       locator.close();
    }
 
-   protected void createBackupConfig(int liveNode, int nodeid, int... nodes) throws Exception
-   {
+   protected void createBackupConfig(int liveNode, int nodeid, int... nodes) throws Exception {
       TransportConfiguration backupConnector = createTransportConfiguration(isNetty(), false, generateParams(nodeid, isNetty()));
 
-      Configuration config1 = super.createDefaultInVMConfig()
-         .clearAcceptorConfigurations()
-         .addAcceptorConfiguration(createTransportConfiguration(isNetty(), true, generateParams(nodeid, isNetty())))
-         .setHAPolicyConfiguration(sharedStore ? new SharedStoreSlavePolicyConfiguration() : new ReplicatedPolicyConfiguration())
-         .addConnectorConfiguration(backupConnector.getName(), backupConnector)
-         .setBindingsDirectory(getBindingsDir() + "_" + liveNode)
-         .setJournalDirectory(getJournalDir() + "_" + liveNode)
-         .setPagingDirectory(getPageDir() + "_" + liveNode)
-         .setLargeMessagesDirectory(getLargeMessagesDir() + "_" + liveNode);
+      Configuration config1 = super.createDefaultInVMConfig().clearAcceptorConfigurations().addAcceptorConfiguration(createTransportConfiguration(isNetty(), true, generateParams(nodeid, isNetty()))).setHAPolicyConfiguration(sharedStore ? new SharedStoreSlavePolicyConfiguration() : new ReplicatedPolicyConfiguration()).addConnectorConfiguration(backupConnector.getName(), backupConnector).setBindingsDirectory(getBindingsDir() + "_" + liveNode).setJournalDirectory(getJournalDir() + "_" + liveNode).setPagingDirectory(getPageDir() + "_" + liveNode).setLargeMessagesDirectory(getLargeMessagesDir() + "_" + liveNode);
 
       String[] staticConnectors = new String[nodes.length];
-      for (int i = 0; i < nodes.length; i++)
-      {
+      for (int i = 0; i < nodes.length; i++) {
          TransportConfiguration liveConnector = createTransportConfiguration(isNetty(), false, generateParams(nodes[i], isNetty()));
          config1.addConnectorConfiguration(liveConnector.getName(), liveConnector);
          staticConnectors[i] = liveConnector.getName();
@@ -155,20 +138,10 @@ public class SingleLiveMultipleBackupsFailoverTest extends MultipleBackupsFailov
       servers.put(nodeid, new SameProcessActiveMQServer(createInVMFailoverServer(true, config1, nodeManager, nodeid)));
    }
 
-   protected void createLiveConfig(int liveNode) throws Exception
-   {
+   protected void createLiveConfig(int liveNode) throws Exception {
       TransportConfiguration liveConnector = createTransportConfiguration(isNetty(), false, generateParams(liveNode, isNetty()));
 
-      Configuration config0 = super.createDefaultInVMConfig()
-         .clearAcceptorConfigurations()
-         .addAcceptorConfiguration(createTransportConfiguration(isNetty(), true, generateParams(liveNode, isNetty())))
-         .setHAPolicyConfiguration(sharedStore ? new SharedStoreMasterPolicyConfiguration() : new ReplicatedPolicyConfiguration())
-         .addClusterConfiguration(basicClusterConnectionConfig(liveConnector.getName()))
-         .addConnectorConfiguration(liveConnector.getName(), liveConnector)
-         .setBindingsDirectory(getBindingsDir() + "_" + liveNode)
-         .setJournalDirectory(getJournalDir() + "_" + liveNode)
-         .setPagingDirectory(getPageDir() + "_" + liveNode)
-         .setLargeMessagesDirectory(getLargeMessagesDir() + "_" + liveNode);
+      Configuration config0 = super.createDefaultInVMConfig().clearAcceptorConfigurations().addAcceptorConfiguration(createTransportConfiguration(isNetty(), true, generateParams(liveNode, isNetty()))).setHAPolicyConfiguration(sharedStore ? new SharedStoreMasterPolicyConfiguration() : new ReplicatedPolicyConfiguration()).addClusterConfiguration(basicClusterConnectionConfig(liveConnector.getName())).addConnectorConfiguration(liveConnector.getName(), liveConnector).setBindingsDirectory(getBindingsDir() + "_" + liveNode).setJournalDirectory(getJournalDir() + "_" + liveNode).setPagingDirectory(getPageDir() + "_" + liveNode).setLargeMessagesDirectory(getLargeMessagesDir() + "_" + liveNode);
 
       SameProcessActiveMQServer server = new SameProcessActiveMQServer(createInVMFailoverServer(true, config0, nodeManager, liveNode));
       addActiveMQComponent(server);
@@ -176,8 +149,7 @@ public class SingleLiveMultipleBackupsFailoverTest extends MultipleBackupsFailov
    }
 
    @Override
-   protected boolean isNetty()
-   {
+   protected boolean isNetty() {
       return false;
    }
 }

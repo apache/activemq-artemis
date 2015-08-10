@@ -36,8 +36,8 @@ import org.apache.activemq.artemis.api.jms.ActiveMQJMSConstants;
 /**
  * ActiveMQ Artemis implementation of a JMS MessageConsumer.
  */
-public final class ActiveMQMessageConsumer implements QueueReceiver, TopicSubscriber
-{
+public final class ActiveMQMessageConsumer implements QueueReceiver, TopicSubscriber {
+
    private final ClientConsumer consumer;
 
    private MessageListener listener;
@@ -66,8 +66,7 @@ public final class ActiveMQMessageConsumer implements QueueReceiver, TopicSubscr
                                      final boolean noLocal,
                                      final ActiveMQDestination destination,
                                      final String selector,
-                                     final SimpleString autoDeleteQueueName) throws JMSException
-   {
+                                     final SimpleString autoDeleteQueueName) throws JMSException {
       this.connection = connection;
 
       this.session = session;
@@ -87,91 +86,76 @@ public final class ActiveMQMessageConsumer implements QueueReceiver, TopicSubscr
 
    // MessageConsumer implementation --------------------------------
 
-   public String getMessageSelector() throws JMSException
-   {
+   public String getMessageSelector() throws JMSException {
       checkClosed();
 
       return selector;
    }
 
-   public MessageListener getMessageListener() throws JMSException
-   {
+   public MessageListener getMessageListener() throws JMSException {
       checkClosed();
 
       return listener;
    }
 
-   public void setMessageListener(final MessageListener listener) throws JMSException
-   {
+   public void setMessageListener(final MessageListener listener) throws JMSException {
       this.listener = listener;
 
       coreListener = listener == null ? null : new JMSMessageListenerWrapper(connection, session, consumer, listener, ackMode);
 
-      try
-      {
+      try {
          consumer.setMessageHandler(coreListener);
       }
-      catch (ActiveMQException e)
-      {
+      catch (ActiveMQException e) {
          throw JMSExceptionHelper.convertFromActiveMQException(e);
       }
    }
 
-   public Message receive() throws JMSException
-   {
+   public Message receive() throws JMSException {
       return getMessage(0, false);
    }
 
-   public Message receive(final long timeout) throws JMSException
-   {
+   public Message receive(final long timeout) throws JMSException {
       return getMessage(timeout, false);
    }
 
-   public Message receiveNoWait() throws JMSException
-   {
+   public Message receiveNoWait() throws JMSException {
       return getMessage(0, true);
    }
 
-   public void close() throws JMSException
-   {
-      try
-      {
+   public void close() throws JMSException {
+      try {
          consumer.close();
 
-         if (autoDeleteQueueName != null)
-         {
+         if (autoDeleteQueueName != null) {
             // If non durable subscriber need to delete subscription too
             session.deleteQueue(autoDeleteQueueName);
          }
 
          session.removeConsumer(this);
       }
-      catch (ActiveMQException e)
-      {
+      catch (ActiveMQException e) {
          throw JMSExceptionHelper.convertFromActiveMQException(e);
       }
    }
 
    // QueueReceiver implementation ----------------------------------
 
-   public Queue getQueue() throws JMSException
-   {
+   public Queue getQueue() throws JMSException {
       checkClosed();
 
-      return (Queue)destination;
+      return (Queue) destination;
    }
 
    // TopicSubscriber implementation --------------------------------
 
-   public Topic getTopic() throws JMSException
-   {
+   public Topic getTopic() throws JMSException {
       checkClosed();
 
-      return (Topic)destination;
+      return (Topic) destination;
    }
 
-   public boolean getNoLocal() throws JMSException
-   {
+   public boolean getNoLocal() throws JMSException {
       checkClosed();
 
       return noLocal;
@@ -180,16 +164,13 @@ public final class ActiveMQMessageConsumer implements QueueReceiver, TopicSubscr
    // Public --------------------------------------------------------
 
    @Override
-   public String toString()
-   {
+   public String toString() {
       return "ActiveMQMessageConsumer[" + consumer + "]";
    }
 
-   public boolean isClosed()
-   {
+   public boolean isClosed() {
       return consumer.isClosed();
    }
-
 
    // Package protected ---------------------------------------------
 
@@ -197,55 +178,44 @@ public final class ActiveMQMessageConsumer implements QueueReceiver, TopicSubscr
 
    // Private -------------------------------------------------------
 
-   private void checkClosed() throws JMSException
-   {
-      if (consumer.isClosed() || session.getCoreSession().isClosed())
-      {
+   private void checkClosed() throws JMSException {
+      if (consumer.isClosed() || session.getCoreSession().isClosed()) {
          throw new IllegalStateException("Consumer is closed");
       }
    }
 
-   private ActiveMQMessage getMessage(final long timeout, final boolean noWait) throws JMSException
-   {
-      try
-      {
+   private ActiveMQMessage getMessage(final long timeout, final boolean noWait) throws JMSException {
+      try {
          ClientMessage coreMessage;
 
-         if (noWait)
-         {
+         if (noWait) {
             coreMessage = consumer.receiveImmediate();
          }
-         else
-         {
+         else {
             coreMessage = consumer.receive(timeout);
          }
 
          ActiveMQMessage jmsMsg = null;
 
-         if (coreMessage != null)
-         {
-            boolean needSession =
-                     ackMode == Session.CLIENT_ACKNOWLEDGE || ackMode == ActiveMQJMSConstants.INDIVIDUAL_ACKNOWLEDGE;
+         if (coreMessage != null) {
+            boolean needSession = ackMode == Session.CLIENT_ACKNOWLEDGE || ackMode == ActiveMQJMSConstants.INDIVIDUAL_ACKNOWLEDGE;
             jmsMsg = ActiveMQMessage.createMessage(coreMessage, needSession ? session.getCoreSession() : null);
 
             jmsMsg.doBeforeReceive();
 
             // We Do the ack after doBeforeRecive, as in the case of large messages, this may fail so we don't want messages redelivered
             // https://issues.jboss.org/browse/JBPAPP-6110
-            if (session.getAcknowledgeMode() == ActiveMQJMSConstants.INDIVIDUAL_ACKNOWLEDGE)
-            {
+            if (session.getAcknowledgeMode() == ActiveMQJMSConstants.INDIVIDUAL_ACKNOWLEDGE) {
                jmsMsg.setIndividualAcknowledge();
             }
-            else
-            {
+            else {
                coreMessage.acknowledge();
             }
          }
 
          return jmsMsg;
       }
-      catch (ActiveMQException e)
-      {
+      catch (ActiveMQException e) {
          throw JMSExceptionHelper.convertFromActiveMQException(e);
       }
    }

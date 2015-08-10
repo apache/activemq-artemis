@@ -26,10 +26,9 @@ import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 /**
  * A simple JMS Queue example that creates a producer and consumer on a queue and sends then receives a message.
  */
-public class JMSContextExample
-{
-   public static void main(final String[] args) throws Exception
-   {
+public class JMSContextExample {
+
+   public static void main(final String[] args) throws Exception {
       // Instantiate the queue
       Queue queue = ActiveMQJMSClient.createQueue("exampleQueue");
 
@@ -37,8 +36,7 @@ public class JMSContextExample
       // Also instantiate the jmsContext
       // Using closeable interface
       try (ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory();
-           JMSContext jmsContext = cf.createContext())
-      {
+           JMSContext jmsContext = cf.createContext()) {
          // Create a message producer, note that we can chain all this into one statement
          jmsContext.createProducer().setDeliveryMode(DeliveryMode.PERSISTENT).send(queue, "this is a string");
 

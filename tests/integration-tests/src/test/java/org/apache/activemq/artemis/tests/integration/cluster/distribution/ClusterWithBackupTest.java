@@ -15,35 +15,32 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.integration.cluster.distribution;
+
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.junit.Before;
 
 import org.junit.Test;
 
-public class ClusterWithBackupTest extends ClusterTestBase
-{
+public class ClusterWithBackupTest extends ClusterTestBase {
+
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       setupServers();
    }
 
-   protected boolean isNetty()
-   {
+   protected boolean isNetty() {
       return false;
    }
 
    @Test
-   public void testBasicRoundRobin() throws Throwable
-   {
-      try
-      {
+   public void testBasicRoundRobin() throws Throwable {
+      try {
          setupCluster();
 
          startServers(0, 1, 2, 3, 4, 5);
@@ -74,21 +71,18 @@ public class ClusterWithBackupTest extends ClusterTestBase
 
          verifyNotReceive(0, 0, 1, 2);
       }
-      catch (Throwable e)
-      {
+      catch (Throwable e) {
          e.printStackTrace();
          log.error(e.getMessage(), e);
          throw e;
       }
    }
 
-   protected void setupCluster() throws Exception
-   {
+   protected void setupCluster() throws Exception {
       setupCluster(MessageLoadBalancingType.ON_DEMAND);
    }
 
-   protected void setupCluster(final MessageLoadBalancingType messageLoadBalancingType) throws Exception
-   {
+   protected void setupCluster(final MessageLoadBalancingType messageLoadBalancingType) throws Exception {
       setupClusterConnection("cluster0", "queues", messageLoadBalancingType, 1, isNetty(), 3, 4, 5);
 
       setupClusterConnection("cluster1", "queues", messageLoadBalancingType, 1, isNetty(), 4, 3, 5);
@@ -102,8 +96,7 @@ public class ClusterWithBackupTest extends ClusterTestBase
       setupClusterConnection("cluster2", "queues", messageLoadBalancingType, 1, isNetty(), 2, 3, 4);
    }
 
-   protected void setupServers() throws Exception
-   {
+   protected void setupServers() throws Exception {
       // The backups
       setupBackupServer(0, 3, isFileStorage(), true, isNetty());
       setupBackupServer(1, 4, isFileStorage(), true, isNetty());

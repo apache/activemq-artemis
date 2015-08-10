@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.jms.tests.message;
+
 import javax.jms.Connection;
 import javax.jms.DeliveryMode;
 import javax.jms.JMSException;
@@ -29,8 +30,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public abstract class MessageTestBase extends ActiveMQServerTestCase
-{
+public abstract class MessageTestBase extends ActiveMQServerTestCase {
    // Constants -----------------------------------------------------
 
    // Static --------------------------------------------------------
@@ -53,8 +53,7 @@ public abstract class MessageTestBase extends ActiveMQServerTestCase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       conn = getConnectionFactory().createConnection();
@@ -67,15 +66,13 @@ public abstract class MessageTestBase extends ActiveMQServerTestCase
    }
 
    @After
-   public void tearDown() throws Exception
-   {
+   public void tearDown() throws Exception {
       if (conn != null)
          conn.close();
    }
 
    @Test
-   public void testNonPersistentSend() throws Exception
-   {
+   public void testNonPersistentSend() throws Exception {
       prepareMessage(message);
 
       queueProd.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
@@ -94,8 +91,7 @@ public abstract class MessageTestBase extends ActiveMQServerTestCase
    }
 
    @Test
-   public void testPersistentSend() throws Exception
-   {
+   public void testPersistentSend() throws Exception {
       prepareMessage(message);
 
       queueProd.setDeliveryMode(DeliveryMode.PERSISTENT);
@@ -111,8 +107,7 @@ public abstract class MessageTestBase extends ActiveMQServerTestCase
    }
 
    @Test
-   public void testRedelivery() throws Exception
-   {
+   public void testRedelivery() throws Exception {
       prepareMessage(message);
 
       session.close();
@@ -144,8 +139,7 @@ public abstract class MessageTestBase extends ActiveMQServerTestCase
    }
 
    @Test
-   public void testSendMoreThanOnce() throws Exception
-   {
+   public void testSendMoreThanOnce() throws Exception {
       prepareMessage(message);
 
       session.close();
@@ -174,22 +168,20 @@ public abstract class MessageTestBase extends ActiveMQServerTestCase
       queueCons.close();
       session.close();
 
-
    }
 
    // Package protected ---------------------------------------------
 
    // Protected -----------------------------------------------------
 
-   protected void prepareMessage(final Message m) throws JMSException
-   {
+   protected void prepareMessage(final Message m) throws JMSException {
       m.setBooleanProperty("booleanProperty", true);
-      m.setByteProperty("byteProperty", (byte)3);
+      m.setByteProperty("byteProperty", (byte) 3);
       m.setDoubleProperty("doubleProperty", 4.0);
       m.setFloatProperty("floatProperty", 5.0f);
       m.setIntProperty("intProperty", 6);
       m.setLongProperty("longProperty", 7);
-      m.setShortProperty("shortProperty", (short)8);
+      m.setShortProperty("shortProperty", (short) 8);
       m.setStringProperty("stringProperty", "this is a String property");
 
       m.setJMSCorrelationID("this is the correlation ID");
@@ -197,21 +189,19 @@ public abstract class MessageTestBase extends ActiveMQServerTestCase
       m.setJMSType("someArbitraryType");
    }
 
-   private void assertEquivalent(final Message m, final int mode) throws JMSException
-   {
+   private void assertEquivalent(final Message m, final int mode) throws JMSException {
       assertEquivalent(m, mode, false);
    }
 
-   protected void assertEquivalent(final Message m, final int mode, final boolean redelivered) throws JMSException
-   {
+   protected void assertEquivalent(final Message m, final int mode, final boolean redelivered) throws JMSException {
       ProxyAssertSupport.assertNotNull(m);
       ProxyAssertSupport.assertEquals(true, m.getBooleanProperty("booleanProperty"));
-      ProxyAssertSupport.assertEquals((byte)3, m.getByteProperty("byteProperty"));
+      ProxyAssertSupport.assertEquals((byte) 3, m.getByteProperty("byteProperty"));
       ProxyAssertSupport.assertEquals(new Double(4.0), new Double(m.getDoubleProperty("doubleProperty")));
       ProxyAssertSupport.assertEquals(new Float(5.0f), new Float(m.getFloatProperty("floatProperty")));
       ProxyAssertSupport.assertEquals(6, m.getIntProperty("intProperty"));
       ProxyAssertSupport.assertEquals(7, m.getLongProperty("longProperty"));
-      ProxyAssertSupport.assertEquals((short)8, m.getShortProperty("shortProperty"));
+      ProxyAssertSupport.assertEquals((short) 8, m.getShortProperty("shortProperty"));
       ProxyAssertSupport.assertEquals("this is a String property", m.getStringProperty("stringProperty"));
 
       ProxyAssertSupport.assertEquals("this is the correlation ID", m.getJMSCorrelationID());

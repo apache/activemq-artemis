@@ -25,8 +25,8 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.spi.core.remoting.ClientProtocolManager;
 
-public interface ServerLocatorInternal extends ServerLocator
-{
+public interface ServerLocatorInternal extends ServerLocator {
+
    void start(Executor executor) throws Exception;
 
    void factoryClosed(final ClientSessionFactory factory);
@@ -35,9 +35,11 @@ public interface ServerLocatorInternal extends ServerLocator
 
    ServerLocatorInternal setAfterConnectionInternalListener(AfterConnectInternalListener listener);
 
-   /** Used to better identify Cluster Connection Locators on logs. To facilitate eventual debugging.
+   /**
+    * Used to better identify Cluster Connection Locators on logs. To facilitate eventual debugging.
     *
-    *  This method used to be on tests interface, but I'm now making it part of the public interface since*/
+    * This method used to be on tests interface, but I'm now making it part of the public interface since
+    */
    ServerLocatorInternal setIdentity(String identity);
 
    ServerLocatorInternal setNodeID(String nodeID);
@@ -53,15 +55,19 @@ public interface ServerLocatorInternal extends ServerLocator
 
    /**
     * Like {@link #connect()} but it does not log warnings if it fails to connect.
+    *
     * @throws ActiveMQException
     */
    ClientSessionFactoryInternal connectNoWarnings() throws ActiveMQException;
 
-   void notifyNodeUp(long uniqueEventID, String nodeID, String backupGroupName, String scaleDownGroupName,
-                     Pair<TransportConfiguration, TransportConfiguration> connectorPair, boolean last);
+   void notifyNodeUp(long uniqueEventID,
+                     String nodeID,
+                     String backupGroupName,
+                     String scaleDownGroupName,
+                     Pair<TransportConfiguration, TransportConfiguration> connectorPair,
+                     boolean last);
 
    /**
-    *
     * @param uniqueEventID 0 means get the previous ID +1
     * @param nodeID
     */

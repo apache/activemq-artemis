@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.spring;
 
-
 import org.jboss.logging.annotations.MessageBundle;
 
 /**
@@ -27,6 +26,6 @@ import org.jboss.logging.annotations.MessageBundle;
  * so 179000 to 179999
  */
 @MessageBundle(projectCode = "AMQ")
-public class ActiveMQSpringBundle
-{
+public class ActiveMQSpringBundle {
+
 }

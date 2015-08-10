@@ -27,33 +27,28 @@ import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
 import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
 
 @Command(name = "compact", description = "Compacts the journal of a non running server")
-public final class CompactJournal extends DataAbstract implements Action
-{
+public final class CompactJournal extends DataAbstract implements Action {
+
    @Override
-   public Object execute(ActionContext context) throws Exception
-   {
+   public Object execute(ActionContext context) throws Exception {
       super.execute(context);
-      try
-      {
+      try {
          Configuration configuration = getFileConfiguration();
          compactJournal(new File(getJournal()), "activemq-data", "amq", configuration.getJournalMinFiles(), configuration.getJournalFileSize(), null);
          compactJournal(new File(getBinding()), "activemq-bindings", "bindings", 2, 1048576, null);
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          treatError(e, "data", "compact");
       }
       return null;
    }
 
-
    void compactJournal(final File directory,
-                                     final String journalPrefix,
-                                     final String journalSuffix,
-                                     final int minFiles,
-                                     final int fileSize,
-                                     final IOCriticalErrorListener listener) throws Exception
-   {
+                       final String journalPrefix,
+                       final String journalSuffix,
+                       final int minFiles,
+                       final int fileSize,
+                       final IOCriticalErrorListener listener) throws Exception {
       NIOSequentialFileFactory nio = new NIOSequentialFileFactory(directory, listener, 1);
 
       JournalImpl journal = new JournalImpl(fileSize, minFiles, 0, 0, nio, journalPrefix, journalSuffix, 1);

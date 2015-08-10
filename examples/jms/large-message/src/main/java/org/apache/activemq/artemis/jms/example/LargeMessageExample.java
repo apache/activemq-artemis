@@ -38,8 +38,8 @@ import java.io.IOException;
  * This example demonstrates the ability of ActiveMQ Artemis to send and consume a very large message, much
  * bigger than can fit in RAM.
  */
-public class LargeMessageExample
-{
+public class LargeMessageExample {
+
    /**
     * The message we will send is size 2GiB, even though we are only running in 50MB of RAM on both
     * client and server.
@@ -49,26 +49,24 @@ public class LargeMessageExample
     */
    private static final long FILE_SIZE = 2L * 1024 * 1024 * 1024; // 2 GiB message
 
-   public static void main(final String[] args) throws Exception
-   {
+   public static void main(final String[] args) throws Exception {
       Process server = null;
       Connection connection = null;
       InitialContext initialContext = null;
 
-      try
-      {
+      try {
          server = ServerUtil.startServer(args[0], LargeMessageExample.class.getSimpleName(), 0, 5000);
 
          // Step 1. Create an initial context to perform the JNDI lookup.
          initialContext = new InitialContext();
 
          // Step 2. Perfom a lookup on the queue
-         Queue queue = (Queue)initialContext.lookup("queue/exampleQueue");
+         Queue queue = (Queue) initialContext.lookup("queue/exampleQueue");
 
          // Step 3. Perform a lookup on the Connection Factory. This ConnectionFactory has a special attribute set on
          // it.
          // Messages with more than 10K are considered large
-         ConnectionFactory cf = (ConnectionFactory)initialContext.lookup("ConnectionFactory");
+         ConnectionFactory cf = (ConnectionFactory) initialContext.lookup("ConnectionFactory");
 
          // Step 4. Create the JMS objects
          connection = cf.createConnection();
@@ -80,8 +78,8 @@ public class LargeMessageExample
          // Step 5. Create a huge file - this will form the body of the message we will send.
 
          System.out.println("Creating a file to send of size " + FILE_SIZE +
-                                    " bytes. This may take a little while... " +
-                                    "If this is too big for your disk you can easily change the FILE_SIZE in the example.");
+                               " bytes. This may take a little while... " +
+                               "If this is too big for your disk you can easily change the FILE_SIZE in the example.");
 
          File fileInput = new File("huge_message_to_send.dat");
 
@@ -129,9 +127,9 @@ public class LargeMessageExample
 
          initialContext = new InitialContext();
 
-         queue = (Queue)initialContext.lookup("queue/exampleQueue");
+         queue = (Queue) initialContext.lookup("queue/exampleQueue");
 
-         cf = (ConnectionFactory)initialContext.lookup("ConnectionFactory");
+         cf = (ConnectionFactory) initialContext.lookup("ConnectionFactory");
 
          connection = cf.createConnection();
 
@@ -145,10 +143,10 @@ public class LargeMessageExample
 
          // Step 12. Receive the message. When we receive the large message we initially just receive the message with
          // an empty body.
-         BytesMessage messageReceived = (BytesMessage)messageConsumer.receive(120000);
+         BytesMessage messageReceived = (BytesMessage) messageConsumer.receive(120000);
 
          System.out.println("Received message with: " + messageReceived.getLongProperty("_AMQ_LARGE_SIZE") +
-                                    " bytes. Now streaming to file on disk.");
+                               " bytes. Now streaming to file on disk.");
 
          // Step 13. We set an OutputStream on the message. This causes the message body to be written to the
          // OutputStream until there are no more bytes to be written.
@@ -169,16 +167,13 @@ public class LargeMessageExample
 
          System.out.println("File streamed to disk. Size of received file on disk is " + outputFile.length());
       }
-      finally
-      {
+      finally {
          // Step 12. Be sure to close our resources!
-         if (initialContext != null)
-         {
+         if (initialContext != null) {
             initialContext.close();
          }
 
-         if (connection != null)
-         {
+         if (connection != null) {
             connection.close();
          }
 
@@ -192,13 +187,11 @@ public class LargeMessageExample
     * @throws FileNotFoundException
     * @throws IOException
     */
-   private static void createFile(final File file, final long fileSize) throws IOException
-   {
+   private static void createFile(final File file, final long fileSize) throws IOException {
       FileOutputStream fileOut = new FileOutputStream(file);
       BufferedOutputStream buffOut = new BufferedOutputStream(fileOut);
       byte[] outBuffer = new byte[1024 * 1024];
-      for (long i = 0; i < fileSize; i += outBuffer.length)
-      {
+      for (long i = 0; i < fileSize; i += outBuffer.length) {
          buffOut.write(outBuffer);
       }
       buffOut.close();

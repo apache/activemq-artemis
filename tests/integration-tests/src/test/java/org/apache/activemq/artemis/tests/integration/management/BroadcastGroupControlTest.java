@@ -32,16 +32,14 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BroadcastGroupControlTest extends ManagementTestBase
-{
+public class BroadcastGroupControlTest extends ManagementTestBase {
 
    private ActiveMQServer server;
    BroadcastGroupConfiguration broadcastGroupConfig;
    BroadcastGroupControl broadcastGroupControl;
 
    @Test
-   public void testAttributes() throws Exception
-   {
+   public void testAttributes() throws Exception {
       UDPBroadcastEndpointFactory udpCfg = (UDPBroadcastEndpointFactory) broadcastGroupConfig.getEndpointFactory();
       Assert.assertEquals(broadcastGroupConfig.getName(), broadcastGroupControl.getName());
       Assert.assertEquals(udpCfg.getGroupAddress(), broadcastGroupControl.getGroupAddress());
@@ -52,7 +50,7 @@ public class BroadcastGroupControlTest extends ManagementTestBase
       Object[] connectorPairs = broadcastGroupControl.getConnectorPairs();
       Assert.assertEquals(1, connectorPairs.length);
 
-      String connectorPairData = (String)connectorPairs[0];
+      String connectorPairData = (String) connectorPairs[0];
       Assert.assertEquals(broadcastGroupConfig.getConnectorInfos().get(0), connectorPairData);
       String jsonString = broadcastGroupControl.getConnectorPairsAsJSON();
       Assert.assertNotNull(jsonString);
@@ -64,8 +62,7 @@ public class BroadcastGroupControlTest extends ManagementTestBase
    }
 
    @Test
-   public void testStartStop() throws Exception
-   {
+   public void testStartStop() throws Exception {
       // started by the server
       Assert.assertTrue(broadcastGroupControl.isStarted());
 
@@ -76,33 +73,21 @@ public class BroadcastGroupControlTest extends ManagementTestBase
       Assert.assertTrue(broadcastGroupControl.isStarted());
    }
 
-   protected BroadcastGroupControl createManagementControl(final String name) throws Exception
-   {
+   protected BroadcastGroupControl createManagementControl(final String name) throws Exception {
       return ManagementControlHelper.createBroadcastGroupControl(name, mbeanServer);
    }
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       TransportConfiguration connectorConfiguration = new TransportConfiguration(NETTY_CONNECTOR_FACTORY);
       List<String> connectorInfos = new ArrayList<String>();
       connectorInfos.add(connectorConfiguration.getName());
-      broadcastGroupConfig = new BroadcastGroupConfiguration()
-              .setName(RandomUtil.randomString())
-              .setBroadcastPeriod(RandomUtil.randomPositiveInt())
-              .setConnectorInfos(connectorInfos)
-              .setEndpointFactory(new UDPBroadcastEndpointFactory()
-                                          .setGroupAddress("231.7.7.7")
-                                          .setGroupPort(1199)
-                                          .setLocalBindPort(1198));
+      broadcastGroupConfig = new BroadcastGroupConfiguration().setName(RandomUtil.randomString()).setBroadcastPeriod(RandomUtil.randomPositiveInt()).setConnectorInfos(connectorInfos).setEndpointFactory(new UDPBroadcastEndpointFactory().setGroupAddress("231.7.7.7").setGroupPort(1199).setLocalBindPort(1198));
 
-      Configuration config = createDefaultInVMConfig()
-              .setJMXManagementEnabled(true)
-              .addConnectorConfiguration(connectorConfiguration.getName(), connectorConfiguration)
-              .addBroadcastGroupConfiguration(broadcastGroupConfig);
+      Configuration config = createDefaultInVMConfig().setJMXManagementEnabled(true).addConnectorConfiguration(connectorConfiguration.getName(), connectorConfiguration).addBroadcastGroupConfiguration(broadcastGroupConfig);
       server = addServer(ActiveMQServers.newActiveMQServer(config, mbeanServer, false));
       server.start();
 

@@ -19,8 +19,7 @@ package org.apache.activemq.artemis.jms.tests.message;
 import javax.jms.JMSException;
 import javax.jms.TextMessage;
 
-public class SimpleJMSTextMessage extends SimpleJMSMessage implements TextMessage
-{
+public class SimpleJMSTextMessage extends SimpleJMSMessage implements TextMessage {
    // Constants -----------------------------------------------------
 
    // Static --------------------------------------------------------
@@ -31,25 +30,21 @@ public class SimpleJMSTextMessage extends SimpleJMSMessage implements TextMessag
 
    // Constructors --------------------------------------------------
 
-   public SimpleJMSTextMessage()
-   {
+   public SimpleJMSTextMessage() {
       this(null);
    }
 
-   public SimpleJMSTextMessage(final String text)
-   {
+   public SimpleJMSTextMessage(final String text) {
       this.text = text;
    }
 
    // TextMessage implementation ------------------------------------
 
-   public void setText(final String text) throws JMSException
-   {
+   public void setText(final String text) throws JMSException {
       this.text = text;
    }
 
-   public String getText() throws JMSException
-   {
+   public String getText() throws JMSException {
       return text;
    }
 

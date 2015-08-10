@@ -48,8 +48,8 @@ import org.apache.activemq.artemis.utils.UUID;
 import org.junit.Before;
 import org.junit.Test;
 
-public class BackupSyncJournalTest extends FailoverTestBase
-{
+public class BackupSyncJournalTest extends FailoverTestBase {
+
    protected static final int BACKUP_WAIT_TIME = 20;
    private ServerLocatorInternal locator;
    protected ClientSessionFactoryInternal sessionFactory;
@@ -59,49 +59,39 @@ public class BackupSyncJournalTest extends FailoverTestBase
    private final int defaultNMsgs = 20;
    private int n_msgs = defaultNMsgs;
 
-   protected void setNumberOfMessages(int nmsg)
-   {
+   protected void setNumberOfMessages(int nmsg) {
       this.n_msgs = nmsg;
    }
 
-   protected int getNumberOfMessages()
-   {
+   protected int getNumberOfMessages() {
       return n_msgs;
    }
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       startBackupServer = false;
       super.setUp();
       setNumberOfMessages(defaultNMsgs);
-      locator = (ServerLocatorInternal) getServerLocator()
-              .setBlockOnNonDurableSend(true)
-              .setBlockOnDurableSend(true)
-              .setReconnectAttempts(-1);
+      locator = (ServerLocatorInternal) getServerLocator().setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setReconnectAttempts(-1);
       sessionFactory = createSessionFactoryAndWaitForTopology(locator, 1);
       syncDelay = new BackupSyncDelay(backupServer, liveServer);
 
    }
 
    @Test
-   public void testNodeID() throws Exception
-   {
+   public void testNodeID() throws Exception {
       startBackupFinishSyncing();
       assertTrue("must be running", backupServer.isStarted());
-      assertEquals("backup and live should have the same nodeID", liveServer.getServer().getNodeID(),
-                   backupServer.getServer().getNodeID());
+      assertEquals("backup and live should have the same nodeID", liveServer.getServer().getNodeID(), backupServer.getServer().getNodeID());
    }
 
    @Test
-   public void testReserveFileIdValuesOnBackup() throws Exception
-   {
+   public void testReserveFileIdValuesOnBackup() throws Exception {
       final int totalRounds = 50;
       createProducerSendSomeMessages();
       JournalImpl messageJournal = getMessageJournalFromServer(liveServer);
-      for (int i = 0; i < totalRounds; i++)
-      {
+      for (int i = 0; i < totalRounds; i++) {
          messageJournal.forceMoveNextFile();
          sendMessages(session, producer, n_msgs);
       }
@@ -110,8 +100,7 @@ public class BackupSyncJournalTest extends FailoverTestBase
 
       // in case of paging I must close the current page otherwise we will get a pending counter
       // what would make the verification on similar journal to fail after the recovery
-      if (store.isPaging())
-      {
+      if (store.isPaging()) {
          store.forceAnotherPage();
       }
       backupServer.start();
@@ -124,8 +113,7 @@ public class BackupSyncJournalTest extends FailoverTestBase
 
       // in case of paging I must close the current page otherwise we will get a pending counter
       // what would make the verification on similar journal to fail after the recovery
-      if (store.isPaging())
-      {
+      if (store.isPaging()) {
          store.forceAnotherPage();
       }
 
@@ -135,19 +123,16 @@ public class BackupSyncJournalTest extends FailoverTestBase
       // SEND more messages, now with the backup replicating
       sendMessages(session, producer, n_msgs);
 
-
       // in case of paging I must close the current page otherwise we will get a pending counter
       // what would make the verification on similar journal to fail after the recovery
-      if (store.isPaging())
-      {
+      if (store.isPaging()) {
          store.forceAnotherPage();
       }
 
       Set<Pair<Long, Integer>> liveIds = getFileIds(messageJournal);
       int size = messageJournal.getFileSize();
       PagingStore ps = liveServer.getServer().getPagingManager().getPageStore(ADDRESS);
-      if (ps.getPageSizeBytes() == PAGE_SIZE)
-      {
+      if (ps.getPageSizeBytes() == PAGE_SIZE) {
          assertTrue("isStarted", ps.isStarted());
          assertFalse("start paging should return false, because we expect paging to be running", ps.startPaging());
       }
@@ -157,27 +142,23 @@ public class BackupSyncJournalTest extends FailoverTestBase
       Set<Pair<Long, Integer>> backupIds = getFileIds(backupMsgJournal);
 
       int total = 0;
-      for (Pair<Long, Integer> pair : liveIds)
-      {
+      for (Pair<Long, Integer> pair : liveIds) {
          total += pair.getB();
       }
       int totalBackup = 0;
-      for (Pair<Long, Integer> pair : backupIds)
-      {
+      for (Pair<Long, Integer> pair : backupIds) {
          totalBackup += pair.getB();
       }
       assertEquals("number of records must match ", total, totalBackup);
 
       // "+ 2": there two other calls that send N_MSGS.
-      for (int i = 0; i < totalRounds + 3; i++)
-      {
+      for (int i = 0; i < totalRounds + 3; i++) {
          receiveMsgsInRange(0, n_msgs);
       }
       assertNoMoreMessages();
    }
 
-   protected void assertNoMoreMessages() throws ActiveMQException
-   {
+   protected void assertNoMoreMessages() throws ActiveMQException {
       session.start();
       ClientConsumer consumer = session.createConsumer(ADDRESS);
       ClientMessage msg = consumer.receiveImmediate();
@@ -187,18 +168,15 @@ public class BackupSyncJournalTest extends FailoverTestBase
 
    }
 
-   protected void startBackupFinishSyncing() throws Exception
-   {
+   protected void startBackupFinishSyncing() throws Exception {
       syncDelay.deliverUpToDateMsg();
       backupServer.start();
       waitForRemoteBackup(sessionFactory, BACKUP_WAIT_TIME, true, backupServer.getServer());
    }
 
    @Test
-   public void testReplicationDuringSync() throws Exception
-   {
-      try
-      {
+   public void testReplicationDuringSync() throws Exception {
+      try {
          createProducerSendSomeMessages();
          backupServer.start();
          waitForRemoteBackup(sessionFactory, BACKUP_WAIT_TIME, false, backupServer.getServer());
@@ -212,8 +190,7 @@ public class BackupSyncJournalTest extends FailoverTestBase
          receiveMsgsInRange(0, n_msgs);
          assertNoMoreMessages();
       }
-      catch (AssertionError error)
-      {
+      catch (AssertionError error) {
          printJournal(liveServer);
          printJournal(backupServer);
          // test failed
@@ -221,24 +198,20 @@ public class BackupSyncJournalTest extends FailoverTestBase
       }
    }
 
-   void printJournal(TestableServer server)
-   {
-      try
-      {
+   void printJournal(TestableServer server) {
+      try {
          System.out.println("\n\n BINDINGS JOURNAL\n\n");
          Configuration config = server.getServer().getConfiguration();
          DescribeJournal.describeBindingsJournal(config.getBindingsLocation());
          System.out.println("\n\n MESSAGES JOURNAL\n\n");
          DescribeJournal.describeMessagesJournal(config.getJournalLocation());
       }
-      catch (Exception ignored)
-      {
+      catch (Exception ignored) {
          ignored.printStackTrace();
       }
    }
 
-   protected void finishSyncAndFailover() throws Exception
-   {
+   protected void finishSyncAndFailover() throws Exception {
       syncDelay.deliverUpToDateMsg();
       waitForRemoteBackup(sessionFactory, BACKUP_WAIT_TIME, true, backupServer.getServer());
       assertFalse("should not be initialized", backupServer.getServer().isActive());
@@ -254,8 +227,7 @@ public class BackupSyncJournalTest extends FailoverTestBase
     * @throws java.io.IOException
     * @throws InterruptedException
     */
-   private void assertNodeIdWasSaved() throws Exception
-   {
+   private void assertNodeIdWasSaved() throws Exception {
       assertTrue("backup initialized", backupServer.getServer().waitForActivation(5, TimeUnit.SECONDS));
 
       // assert that nodeID was saved (to the right file!)
@@ -265,8 +237,7 @@ public class BackupSyncJournalTest extends FailoverTestBase
       File serverLockFile = new File(journalDirectory, "server.lock");
       assertTrue("server.lock must exist!\n " + serverLockFile, serverLockFile.exists());
       RandomAccessFile raFile = new RandomAccessFile(serverLockFile, "r");
-      try
-      {
+      try {
          // verify the nodeID was written correctly
          FileChannel channel = raFile.getChannel();
          final int size = 16;
@@ -280,15 +251,13 @@ public class BackupSyncJournalTest extends FailoverTestBase
          SimpleString storedNodeId = new SimpleString(uuid.toString());
          assertEquals("nodeId must match", backupServer.getServer().getNodeID(), storedNodeId);
       }
-      finally
-      {
+      finally {
          raFile.close();
       }
    }
 
    @Test
-   public void testMessageSyncSimple() throws Exception
-   {
+   public void testMessageSyncSimple() throws Exception {
       createProducerSendSomeMessages();
       startBackupCrashLive();
       receiveMsgsInRange(0, n_msgs);
@@ -301,8 +270,7 @@ public class BackupSyncJournalTest extends FailoverTestBase
     * @throws Exception
     */
    @Test
-   public void testFailBack() throws Exception
-   {
+   public void testFailBack() throws Exception {
       createProducerSendSomeMessages();
       startBackupCrashLive();
       receiveMsgsInRange(0, n_msgs);
@@ -322,8 +290,7 @@ public class BackupSyncJournalTest extends FailoverTestBase
       assertTrue("Fail-back must initialize live!", liveServer.getServer().waitForActivation(15, TimeUnit.SECONDS));
       assertFalse("must be LIVE!", liveServer.getServer().getHAPolicy().isBackup());
       int i = 0;
-      while (backupServer.isStarted() && i++ < 100)
-      {
+      while (backupServer.isStarted() && i++ < 100) {
          Thread.sleep(100);
       }
       assertFalse("Backup should stop!", backupServer.getServer().isStarted());
@@ -333,8 +300,7 @@ public class BackupSyncJournalTest extends FailoverTestBase
    }
 
    @Test
-   public void testMessageSync() throws Exception
-   {
+   public void testMessageSync() throws Exception {
       createProducerSendSomeMessages();
       receiveMsgsInRange(0, n_msgs / 2);
       startBackupCrashLive();
@@ -342,8 +308,7 @@ public class BackupSyncJournalTest extends FailoverTestBase
       assertNoMoreMessages();
    }
 
-   private void startBackupCrashLive() throws Exception
-   {
+   private void startBackupCrashLive() throws Exception {
       assertFalse("backup is started?", backupServer.isStarted());
       liveServer.removeInterceptor(syncDelay);
       backupServer.start();
@@ -352,8 +317,7 @@ public class BackupSyncJournalTest extends FailoverTestBase
       backupServer.getServer().waitForActivation(5, TimeUnit.SECONDS);
    }
 
-   protected void createProducerSendSomeMessages() throws ActiveMQException
-   {
+   protected void createProducerSendSomeMessages() throws ActiveMQException {
       session = addClientSession(sessionFactory.createSession(true, true));
       session.createQueue(ADDRESS, ADDRESS, null, true);
       if (producer != null)
@@ -363,8 +327,7 @@ public class BackupSyncJournalTest extends FailoverTestBase
       session.commit();
    }
 
-   protected void receiveMsgsInRange(int start, int end) throws ActiveMQException
-   {
+   protected void receiveMsgsInRange(int start, int end) throws ActiveMQException {
       session.start();
       ClientConsumer consumer = addClientConsumer(session.createConsumer(ADDRESS));
       receiveMessages(consumer, start, end, true);
@@ -372,11 +335,9 @@ public class BackupSyncJournalTest extends FailoverTestBase
       session.commit();
    }
 
-   private Set<Pair<Long, Integer>> getFileIds(JournalImpl journal)
-   {
+   private Set<Pair<Long, Integer>> getFileIds(JournalImpl journal) {
       Set<Pair<Long, Integer>> results = new HashSet<Pair<Long, Integer>>();
-      for (JournalFile jf : journal.getDataFiles())
-      {
+      for (JournalFile jf : journal.getDataFiles()) {
          results.add(getPair(jf));
       }
       results.add(getPair(journal.getCurrentFile()));
@@ -387,32 +348,27 @@ public class BackupSyncJournalTest extends FailoverTestBase
     * @param jf
     * @return
     */
-   private Pair<Long, Integer> getPair(JournalFile jf)
-   {
+   private Pair<Long, Integer> getPair(JournalFile jf) {
       return new Pair<Long, Integer>(jf.getFileID(), jf.getPosCount());
    }
 
-   static JournalImpl getMessageJournalFromServer(TestableServer server)
-   {
+   static JournalImpl getMessageJournalFromServer(TestableServer server) {
       JournalStorageManager sm = (JournalStorageManager) server.getServer().getStorageManager();
       return (JournalImpl) sm.getMessageJournal();
    }
 
    @Override
-   protected void createConfigs() throws Exception
-   {
+   protected void createConfigs() throws Exception {
       createReplicatedConfigs();
    }
 
    @Override
-   protected TransportConfiguration getAcceptorTransportConfiguration(boolean live)
-   {
+   protected TransportConfiguration getAcceptorTransportConfiguration(boolean live) {
       return TransportConfigurationUtils.getInVMAcceptor(live);
    }
 
    @Override
-   protected TransportConfiguration getConnectorTransportConfiguration(boolean live)
-   {
+   protected TransportConfiguration getConnectorTransportConfiguration(boolean live) {
       return TransportConfigurationUtils.getInVMConnector(live);
    }
 }

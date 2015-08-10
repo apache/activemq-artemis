@@ -18,8 +18,8 @@ package org.apache.activemq.artemis.jms.bridge;
 
 import org.apache.activemq.artemis.api.core.management.ActiveMQComponentControl;
 
-public interface JMSBridgeControl extends ActiveMQComponentControl
-{
+public interface JMSBridgeControl extends ActiveMQComponentControl {
+
    void pause() throws Exception;
 
    void resume() throws Exception;

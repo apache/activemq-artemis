@@ -39,13 +39,12 @@ import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class StompTest extends StompTestBase
-{
+public class StompTest extends StompTestBase {
+
    private static final transient IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    @Test
-   public void testSendManyMessages() throws Exception
-   {
+   public void testSendManyMessages() throws Exception {
       MessageConsumer consumer = session.createConsumer(queue);
 
       String frame = "CONNECT\n" + "login: brianm\n" + "passcode: wombats\n\n" + Stomp.NULL;
@@ -55,18 +54,15 @@ public class StompTest extends StompTestBase
       Assert.assertTrue(frame.startsWith("CONNECTED"));
       int count = 1000;
       final CountDownLatch latch = new CountDownLatch(count);
-      consumer.setMessageListener(new MessageListener()
-      {
+      consumer.setMessageListener(new MessageListener() {
 
-         public void onMessage(Message arg0)
-         {
+         public void onMessage(Message arg0) {
             latch.countDown();
          }
       });
 
       frame = "SEND\n" + "destination:" + getQueuePrefix() + getQueueName() + "\n\n" + "Hello World" + Stomp.NULL;
-      for (int i = 1; i <= count; i++)
-      {
+      for (int i = 1; i <= count; i++) {
          // Thread.sleep(1);
          // System.out.println(">>> " + i);
          sendFrame(frame);
@@ -76,8 +72,7 @@ public class StompTest extends StompTestBase
    }
 
    @Test
-   public void testConnect() throws Exception
-   {
+   public void testConnect() throws Exception {
 
       String connect_frame = "CONNECT\n" + "login: brianm\n" +
          "passcode: wombats\n" +
@@ -92,8 +87,7 @@ public class StompTest extends StompTestBase
    }
 
    @Test
-   public void testDisconnectAndError() throws Exception
-   {
+   public void testDisconnectAndError() throws Exception {
 
       String connectFrame = "CONNECT\n" + "login: brianm\n" +
          "passcode: wombats\n" +
@@ -123,8 +117,7 @@ public class StompTest extends StompTestBase
    }
 
    @Test
-   public void testSendMessage() throws Exception
-   {
+   public void testSendMessage() throws Exception {
 
       MessageConsumer consumer = session.createConsumer(queue);
 
@@ -152,8 +145,7 @@ public class StompTest extends StompTestBase
    }
 
    @Test
-   public void testSendMessageToNonExistentQueue() throws Exception
-   {
+   public void testSendMessageToNonExistentQueue() throws Exception {
       String nonExistentQueue = RandomUtil.randomString();
       String frame = "CONNECT\n" + "login: brianm\n" + "passcode: wombats\n\n" + Stomp.NULL;
       sendFrame(frame);
@@ -191,8 +183,7 @@ public class StompTest extends StompTestBase
     * This is contrary to STOMP spec but we deal with it so we can work nicely with crappy STOMP clients
     */
    @Test
-   public void testSendMessageWithLeadingNewLine() throws Exception
-   {
+   public void testSendMessageWithLeadingNewLine() throws Exception {
 
       MessageConsumer consumer = session.createConsumer(queue);
 
@@ -224,8 +215,7 @@ public class StompTest extends StompTestBase
    }
 
    @Test
-   public void testSendMessageWithReceipt() throws Exception
-   {
+   public void testSendMessageWithReceipt() throws Exception {
       MessageConsumer consumer = session.createConsumer(queue);
 
       String frame = "CONNECT\n" + "login: brianm\n" + "passcode: wombats\n\n" + Stomp.NULL;
@@ -260,8 +250,7 @@ public class StompTest extends StompTestBase
    }
 
    @Test
-   public void testSendMessageWithContentLength() throws Exception
-   {
+   public void testSendMessageWithContentLength() throws Exception {
 
       MessageConsumer consumer = session.createConsumer(queue);
 
@@ -297,8 +286,7 @@ public class StompTest extends StompTestBase
    }
 
    @Test
-   public void testJMSXGroupIdCanBeSet() throws Exception
-   {
+   public void testJMSXGroupIdCanBeSet() throws Exception {
 
       MessageConsumer consumer = session.createConsumer(queue);
 
@@ -326,8 +314,7 @@ public class StompTest extends StompTestBase
    }
 
    @Test
-   public void testSendMessageWithCustomHeadersAndSelector() throws Exception
-   {
+   public void testSendMessageWithCustomHeadersAndSelector() throws Exception {
 
       MessageConsumer consumer = session.createConsumer(queue, "foo = 'abc'");
 
@@ -356,8 +343,7 @@ public class StompTest extends StompTestBase
    }
 
    @Test
-   public void testSendMessageWithStandardHeaders() throws Exception
-   {
+   public void testSendMessageWithStandardHeaders() throws Exception {
 
       MessageConsumer consumer = session.createConsumer(queue);
 
@@ -399,8 +385,7 @@ public class StompTest extends StompTestBase
    }
 
    @Test
-   public void testSendMessageWithLongHeaders() throws Exception
-   {
+   public void testSendMessageWithLongHeaders() throws Exception {
       MessageConsumer consumer = session.createConsumer(queue);
 
       String frame = "CONNECT\n" + "login: brianm\n" + "passcode: wombats\n\n" + Stomp.NULL;
@@ -410,8 +395,7 @@ public class StompTest extends StompTestBase
       Assert.assertTrue(frame.startsWith("CONNECTED"));
 
       StringBuffer buffer = new StringBuffer();
-      for (int i = 0; i < 1024; i++)
-      {
+      for (int i = 0; i < 1024; i++) {
          buffer.append("a");
       }
       String longHeader = "longHeader:" + buffer.toString() + "\n";
@@ -446,8 +430,7 @@ public class StompTest extends StompTestBase
    }
 
    @Test
-   public void testSubscribeWithAutoAck() throws Exception
-   {
+   public void testSubscribeWithAutoAck() throws Exception {
 
       String frame = "CONNECT\n" + "login: brianm\n" + "passcode: wombats\n\n" + Stomp.NULL;
       sendFrame(frame);
@@ -477,8 +460,7 @@ public class StompTest extends StompTestBase
    }
 
    @Test
-   public void testSubscribeWithAutoAckAndBytesMessage() throws Exception
-   {
+   public void testSubscribeWithAutoAckAndBytesMessage() throws Exception {
 
       String frame = "CONNECT\n" + "login: brianm\n" + "passcode: wombats\n\n" + Stomp.NULL;
       sendFrame(frame);
@@ -511,8 +493,7 @@ public class StompTest extends StompTestBase
    }
 
    @Test
-   public void testSubscribeWithMessageSentWithProperties() throws Exception
-   {
+   public void testSubscribeWithMessageSentWithProperties() throws Exception {
 
       String frame = "CONNECT\n" + "login: brianm\n" + "passcode: wombats\n\n" + Stomp.NULL;
       sendFrame(frame);
@@ -556,8 +537,7 @@ public class StompTest extends StompTestBase
    }
 
    @Test
-   public void testSubscribeWithID() throws Exception
-   {
+   public void testSubscribeWithID() throws Exception {
 
       String frame = "CONNECT\n" + "login: brianm\n" + "passcode: wombats\n\n" + Stomp.NULL;
       sendFrame(frame);
@@ -587,8 +567,7 @@ public class StompTest extends StompTestBase
    }
 
    @Test
-   public void testBodyWithUTF8() throws Exception
-   {
+   public void testBodyWithUTF8() throws Exception {
 
       String frame = "CONNECT\n" + "login: brianm\n" + "passcode: wombats\n\n" + Stomp.NULL;
       sendFrame(frame);
@@ -614,8 +593,7 @@ public class StompTest extends StompTestBase
    }
 
    @Test
-   public void testMessagesAreInOrder() throws Exception
-   {
+   public void testMessagesAreInOrder() throws Exception {
       int ctr = 10;
       String[] data = new String[ctr];
 
@@ -628,14 +606,12 @@ public class StompTest extends StompTestBase
       frame = "SUBSCRIBE\n" + "destination:" + getQueuePrefix() + getQueueName() + "\n" + "ack:auto\n\n" + Stomp.NULL;
       sendFrame(frame);
 
-      for (int i = 0; i < ctr; ++i)
-      {
+      for (int i = 0; i < ctr; ++i) {
          data[i] = getName() + i;
          sendMessage(data[i]);
       }
 
-      for (int i = 0; i < ctr; ++i)
-      {
+      for (int i = 0; i < ctr; ++i) {
          frame = receiveFrame(1000);
          Assert.assertTrue("Message not in order", frame.indexOf(data[i]) >= 0);
       }
@@ -643,14 +619,12 @@ public class StompTest extends StompTestBase
       // sleep a while before publishing another set of messages
       waitForFrameToTakeEffect();
 
-      for (int i = 0; i < ctr; ++i)
-      {
+      for (int i = 0; i < ctr; ++i) {
          data[i] = getName() + ":second:" + i;
          sendMessage(data[i]);
       }
 
-      for (int i = 0; i < ctr; ++i)
-      {
+      for (int i = 0; i < ctr; ++i) {
          frame = receiveFrame(1000);
          Assert.assertTrue("Message not in order", frame.indexOf(data[i]) >= 0);
       }
@@ -660,8 +634,7 @@ public class StompTest extends StompTestBase
    }
 
    @Test
-   public void testSubscribeWithAutoAckAndSelector() throws Exception
-   {
+   public void testSubscribeWithAutoAckAndSelector() throws Exception {
 
       String frame = "CONNECT\n" + "login: brianm\n" + "passcode: wombats\n\n" + Stomp.NULL;
       sendFrame(frame);
@@ -690,8 +663,7 @@ public class StompTest extends StompTestBase
    }
 
    @Test
-   public void testSubscribeWithClientAck() throws Exception
-   {
+   public void testSubscribeWithClientAck() throws Exception {
 
       String frame = "CONNECT\n" + "login: brianm\n" + "passcode: wombats\n\n" + Stomp.NULL;
       sendFrame(frame);
@@ -724,8 +696,7 @@ public class StompTest extends StompTestBase
    }
 
    @Test
-   public void testRedeliveryWithClientAck() throws Exception
-   {
+   public void testRedeliveryWithClientAck() throws Exception {
 
       String frame = "CONNECT\n" + "login: brianm\n" + "passcode: wombats\n\n" + Stomp.NULL;
       sendFrame(frame);
@@ -752,19 +723,16 @@ public class StompTest extends StompTestBase
    }
 
    @Test
-   public void testSubscribeWithClientAckThenConsumingAgainWithAutoAckWithNoDisconnectFrame() throws Exception
-   {
+   public void testSubscribeWithClientAckThenConsumingAgainWithAutoAckWithNoDisconnectFrame() throws Exception {
       assertSubscribeWithClientAckThenConsumeWithAutoAck(false);
    }
 
    @Test
-   public void testSubscribeWithClientAckThenConsumingAgainWithAutoAckWithExplicitDisconnect() throws Exception
-   {
+   public void testSubscribeWithClientAckThenConsumingAgainWithAutoAckWithExplicitDisconnect() throws Exception {
       assertSubscribeWithClientAckThenConsumeWithAutoAck(true);
    }
 
-   protected void assertSubscribeWithClientAckThenConsumeWithAutoAck(boolean sendDisconnect) throws Exception
-   {
+   protected void assertSubscribeWithClientAckThenConsumeWithAutoAck(boolean sendDisconnect) throws Exception {
 
       String frame = "CONNECT\n" + "login: brianm\n" + "passcode: wombats\n\n" + Stomp.NULL;
       sendFrame(frame);
@@ -782,15 +750,13 @@ public class StompTest extends StompTestBase
 
       log.info("Reconnecting!");
 
-      if (sendDisconnect)
-      {
+      if (sendDisconnect) {
          frame = "DISCONNECT\n" + "\n\n" + Stomp.NULL;
          sendFrame(frame);
          waitForFrameToTakeEffect();
          reconnect();
       }
-      else
-      {
+      else {
          reconnect(100);
          waitForFrameToTakeEffect();
       }
@@ -843,8 +809,7 @@ public class StompTest extends StompTestBase
    }
 
    @Test
-   public void testUnsubscribe() throws Exception
-   {
+   public void testUnsubscribe() throws Exception {
 
       String frame = "CONNECT\n" + "login: brianm\n" + "passcode: wombats\n\n" + Stomp.NULL;
       sendFrame(frame);
@@ -881,8 +846,7 @@ public class StompTest extends StompTestBase
    }
 
    @Test
-   public void testUnsubscribeWithID() throws Exception
-   {
+   public void testUnsubscribeWithID() throws Exception {
 
       String frame = "CONNECT\n" + "login: brianm\n" + "passcode: wombats\n\n" + Stomp.NULL;
       sendFrame(frame);
@@ -920,8 +884,7 @@ public class StompTest extends StompTestBase
    }
 
    @Test
-   public void testTransactionCommit() throws Exception
-   {
+   public void testTransactionCommit() throws Exception {
       MessageConsumer consumer = session.createConsumer(queue);
 
       String frame = "CONNECT\n" + "login: brianm\n" + "passcode: wombats\n\n" + Stomp.NULL;
@@ -957,8 +920,7 @@ public class StompTest extends StompTestBase
    }
 
    @Test
-   public void testSuccessiveTransactionsWithSameID() throws Exception
-   {
+   public void testSuccessiveTransactionsWithSameID() throws Exception {
       MessageConsumer consumer = session.createConsumer(queue);
 
       String frame = "CONNECT\n" + "login: brianm\n" + "passcode: wombats\n\n" + Stomp.NULL;
@@ -1009,8 +971,7 @@ public class StompTest extends StompTestBase
    }
 
    @Test
-   public void testBeginSameTransactionTwice() throws Exception
-   {
+   public void testBeginSameTransactionTwice() throws Exception {
       String frame = "CONNECT\n" + "login: brianm\n" + "passcode: wombats\n\n" + Stomp.NULL;
       sendFrame(frame);
 
@@ -1030,8 +991,7 @@ public class StompTest extends StompTestBase
    }
 
    @Test
-   public void testTransactionRollback() throws Exception
-   {
+   public void testTransactionRollback() throws Exception {
       MessageConsumer consumer = session.createConsumer(queue);
 
       String frame = "CONNECT\n" + "login: brianm\n" + "passcode: wombats\n\n" + Stomp.NULL;
@@ -1081,8 +1041,7 @@ public class StompTest extends StompTestBase
    }
 
    @Test
-   public void testSubscribeToTopic() throws Exception
-   {
+   public void testSubscribeToTopic() throws Exception {
 
       String frame = "CONNECT\n" + "login: brianm\n" + "passcode: wombats\n\n" + Stomp.NULL;
       sendFrame(frame);
@@ -1127,14 +1086,12 @@ public class StompTest extends StompTestBase
       log.info("Received frame: " + frame);
       Assert.assertNull("No message should have been received since subscription was removed", frame);
 
-
       frame = "DISCONNECT\n" + "\n\n" + Stomp.NULL;
       sendFrame(frame);
    }
 
    @Test
-   public void testSubscribeToNonExistentQueue() throws Exception
-   {
+   public void testSubscribeToNonExistentQueue() throws Exception {
       String nonExistentQueue = RandomUtil.randomString();
 
       String frame = "CONNECT\n" + "login: brianm\n" + "passcode: wombats\n\n" + Stomp.NULL;
@@ -1184,14 +1141,12 @@ public class StompTest extends StompTestBase
       log.info("Received frame: " + frame);
       Assert.assertNull("No message should have been received since subscription was removed", frame);
 
-
       frame = "DISCONNECT\n" + "\n\n" + Stomp.NULL;
       sendFrame(frame);
    }
 
    @Test
-   public void testDurableSubscriberWithReconnection() throws Exception
-   {
+   public void testDurableSubscriberWithReconnection() throws Exception {
 
       String connectFame = "CONNECT\n" + "login: brianm\n" +
          "passcode: wombats\n" +
@@ -1250,8 +1205,7 @@ public class StompTest extends StompTestBase
    }
 
    @Test
-   public void testDurableSubscriber() throws Exception
-   {
+   public void testDurableSubscriber() throws Exception {
 
       String frame = "CONNECT\n" + "login: brianm\n" + "passcode: wombats\n" + "client-id: myclientid\n\n" + Stomp.NULL;
       sendFrame(frame);
@@ -1284,8 +1238,7 @@ public class StompTest extends StompTestBase
    }
 
    @Test
-   public void testSubscribeToTopicWithNoLocal() throws Exception
-   {
+   public void testSubscribeToTopicWithNoLocal() throws Exception {
 
       String frame = "CONNECT\n" + "login: brianm\n" + "passcode: wombats\n\n" + Stomp.NULL;
       sendFrame(frame);
@@ -1314,7 +1267,6 @@ public class StompTest extends StompTestBase
       log.info("Received frame: " + frame);
       Assert.assertNull("No message should have been received since subscription was removed", frame);
 
-
       // send message on another JMS connection => it should be received
       sendMessage(getName(), topic);
       frame = receiveFrame(10000);
@@ -1327,8 +1279,7 @@ public class StompTest extends StompTestBase
    }
 
    @Test
-   public void testClientAckNotPartOfTransaction() throws Exception
-   {
+   public void testClientAckNotPartOfTransaction() throws Exception {
 
       String frame = "CONNECT\n" + "login: brianm\n" + "passcode: wombats\n\n" + Stomp.NULL;
       sendFrame(frame);
@@ -1378,8 +1329,7 @@ public class StompTest extends StompTestBase
 
    // HORNETQ-1007
    @Test
-   public void testMultiProtocolConsumers() throws Exception
-   {
+   public void testMultiProtocolConsumers() throws Exception {
       final int TIME_OUT = 5000;
 
       int count = 1000;
@@ -1408,8 +1358,7 @@ public class StompTest extends StompTestBase
       MessageProducer producer = session.createProducer(topic);
       TextMessage message = session.createTextMessage(getName());
 
-      for (int i = 1; i <= count; i++)
-      {
+      for (int i = 1; i <= count; i++) {
          producer.send(message);
          Assert.assertNotNull(consumer1.receive(TIME_OUT));
          Assert.assertNotNull(consumer2.receive(TIME_OUT));
@@ -1445,8 +1394,7 @@ public class StompTest extends StompTestBase
 
    @Test
    //stomp should return an ERROR when acking a non-existent message
-   public void testUnexpectedAck() throws Exception
-   {
+   public void testUnexpectedAck() throws Exception {
 
       String frame = "CONNECT\n" + "login: brianm\n" + "passcode: wombats\n\n" + Stomp.NULL;
       sendFrame(frame);

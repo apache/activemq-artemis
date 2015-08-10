@@ -44,114 +44,116 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class PeerTransportTest extends TestCase {
-    protected static final int MESSAGE_COUNT = 50;
-    protected static final int NUMBER_IN_CLUSTER = 3;
-    private static final Logger LOG = LoggerFactory.getLogger(PeerTransportTest.class);
 
-    protected ActiveMQDestination destination;
-    protected boolean topic = true;
-    protected int deliveryMode = DeliveryMode.NON_PERSISTENT;
-    protected MessageProducer[] producers;
-    protected Connection[] connections;
-    protected MessageIdList messageIdList[];
+   protected static final int MESSAGE_COUNT = 50;
+   protected static final int NUMBER_IN_CLUSTER = 3;
+   private static final Logger LOG = LoggerFactory.getLogger(PeerTransportTest.class);
 
-    @Override
-    protected void setUp() throws Exception {
+   protected ActiveMQDestination destination;
+   protected boolean topic = true;
+   protected int deliveryMode = DeliveryMode.NON_PERSISTENT;
+   protected MessageProducer[] producers;
+   protected Connection[] connections;
+   protected MessageIdList messageIdList[];
 
-        connections = new Connection[NUMBER_IN_CLUSTER];
-        producers = new MessageProducer[NUMBER_IN_CLUSTER];
-        messageIdList = new MessageIdList[NUMBER_IN_CLUSTER];
-        ActiveMQDestination destination = createDestination();
+   @Override
+   protected void setUp() throws Exception {
 
-        for (int i = 0; i < NUMBER_IN_CLUSTER; i++) {
-            connections[i] = createConnection(i);
-            connections[i].setClientID("ClusterTest" + i);
-            connections[i].start();
+      connections = new Connection[NUMBER_IN_CLUSTER];
+      producers = new MessageProducer[NUMBER_IN_CLUSTER];
+      messageIdList = new MessageIdList[NUMBER_IN_CLUSTER];
+      ActiveMQDestination destination = createDestination();
 
-            Session session = connections[i].createSession(false, Session.AUTO_ACKNOWLEDGE);
-            producers[i] = session.createProducer(destination);
-            producers[i].setDeliveryMode(deliveryMode);
-            MessageConsumer consumer = createMessageConsumer(session, destination);
-            messageIdList[i] = new MessageIdList();
-            consumer.setMessageListener(messageIdList[i]);
-        }
+      for (int i = 0; i < NUMBER_IN_CLUSTER; i++) {
+         connections[i] = createConnection(i);
+         connections[i].setClientID("ClusterTest" + i);
+         connections[i].start();
 
-        LOG.info("Waiting for cluster to be fully connected");
+         Session session = connections[i].createSession(false, Session.AUTO_ACKNOWLEDGE);
+         producers[i] = session.createProducer(destination);
+         producers[i].setDeliveryMode(deliveryMode);
+         MessageConsumer consumer = createMessageConsumer(session, destination);
+         messageIdList[i] = new MessageIdList();
+         consumer.setMessageListener(messageIdList[i]);
+      }
 
-        // Each connection should see that NUMBER_IN_CLUSTER consumers get
-        // registered on the destination.
-        ActiveMQDestination advisoryDest = AdvisorySupport.getConsumerAdvisoryTopic(destination);
-        for (int i = 0; i < NUMBER_IN_CLUSTER; i++) {
-            Session session = connections[i].createSession(false, Session.AUTO_ACKNOWLEDGE);
-            MessageConsumer consumer = createMessageConsumer(session, advisoryDest);
+      LOG.info("Waiting for cluster to be fully connected");
 
-            int j = 0;
-            while (j < NUMBER_IN_CLUSTER) {
-                ActiveMQMessage message = (ActiveMQMessage)consumer.receive(1000);
-                if (message == null) {
-                    fail("Connection " + i + " saw " + j + " consumers, expected: " + NUMBER_IN_CLUSTER);
-                }
-                if (message.getDataStructure() != null && message.getDataStructure().getDataStructureType() == ConsumerInfo.DATA_STRUCTURE_TYPE) {
-                    j++;
-                }
+      // Each connection should see that NUMBER_IN_CLUSTER consumers get
+      // registered on the destination.
+      ActiveMQDestination advisoryDest = AdvisorySupport.getConsumerAdvisoryTopic(destination);
+      for (int i = 0; i < NUMBER_IN_CLUSTER; i++) {
+         Session session = connections[i].createSession(false, Session.AUTO_ACKNOWLEDGE);
+         MessageConsumer consumer = createMessageConsumer(session, advisoryDest);
+
+         int j = 0;
+         while (j < NUMBER_IN_CLUSTER) {
+            ActiveMQMessage message = (ActiveMQMessage) consumer.receive(1000);
+            if (message == null) {
+               fail("Connection " + i + " saw " + j + " consumers, expected: " + NUMBER_IN_CLUSTER);
             }
-
-            session.close();
-        }
-
-        LOG.info("Cluster is online.");
-    }
-
-    @Override
-    protected void tearDown() throws Exception {
-        if (connections != null) {
-            for (int i = 0; i < connections.length; i++) {
-                connections[i].close();
+            if (message.getDataStructure() != null && message.getDataStructure().getDataStructureType() == ConsumerInfo.DATA_STRUCTURE_TYPE) {
+               j++;
             }
-        }
-    }
+         }
 
-    protected MessageConsumer createMessageConsumer(Session session, Destination destination) throws JMSException {
-        return session.createConsumer(destination);
-    }
+         session.close();
+      }
 
-    protected Connection createConnection(int i) throws JMSException {
-        LOG.info("creating connection ....");
-        ActiveMQConnectionFactory fac = new ActiveMQConnectionFactory("peer://" + getClass().getName() + "/node" + i);
-        return fac.createConnection();
-    }
+      LOG.info("Cluster is online.");
+   }
 
-    protected ActiveMQDestination createDestination() {
-        return createDestination(getClass().getName());
-    }
+   @Override
+   protected void tearDown() throws Exception {
+      if (connections != null) {
+         for (int i = 0; i < connections.length; i++) {
+            connections[i].close();
+         }
+      }
+   }
 
-    protected ActiveMQDestination createDestination(String name) {
-        if (topic) {
-            return new ActiveMQTopic(name);
-        } else {
-            return new ActiveMQQueue(name);
-        }
-    }
+   protected MessageConsumer createMessageConsumer(Session session, Destination destination) throws JMSException {
+      return session.createConsumer(destination);
+   }
 
-    /**
-     * @throws Exception
-     */
-    public void testSendReceive() throws Exception {
-        for (int i = 0; i < MESSAGE_COUNT; i++) {
-            for (int x = 0; x < producers.length; x++) {
-                TextMessage textMessage = new ActiveMQTextMessage();
-                textMessage.setText("MSG-NO: " + i + " in cluster: " + x);
-                producers[x].send(textMessage);
-            }
-        }
+   protected Connection createConnection(int i) throws JMSException {
+      LOG.info("creating connection ....");
+      ActiveMQConnectionFactory fac = new ActiveMQConnectionFactory("peer://" + getClass().getName() + "/node" + i);
+      return fac.createConnection();
+   }
 
-        for (int i = 0; i < NUMBER_IN_CLUSTER; i++) {
-            messageIdList[i].assertMessagesReceived(expectedReceiveCount());
-        }
-    }
+   protected ActiveMQDestination createDestination() {
+      return createDestination(getClass().getName());
+   }
 
-    protected int expectedReceiveCount() {
-        return MESSAGE_COUNT * NUMBER_IN_CLUSTER;
-    }
+   protected ActiveMQDestination createDestination(String name) {
+      if (topic) {
+         return new ActiveMQTopic(name);
+      }
+      else {
+         return new ActiveMQQueue(name);
+      }
+   }
+
+   /**
+    * @throws Exception
+    */
+   public void testSendReceive() throws Exception {
+      for (int i = 0; i < MESSAGE_COUNT; i++) {
+         for (int x = 0; x < producers.length; x++) {
+            TextMessage textMessage = new ActiveMQTextMessage();
+            textMessage.setText("MSG-NO: " + i + " in cluster: " + x);
+            producers[x].send(textMessage);
+         }
+      }
+
+      for (int i = 0; i < NUMBER_IN_CLUSTER; i++) {
+         messageIdList[i].assertMessagesReceived(expectedReceiveCount());
+      }
+   }
+
+   protected int expectedReceiveCount() {
+      return MESSAGE_COUNT * NUMBER_IN_CLUSTER;
+   }
 
 }

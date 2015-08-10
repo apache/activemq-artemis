@@ -24,6 +24,6 @@ import org.apache.activemq.artemis.api.core.BaseInterceptor;
  * To add an interceptor to ActiveMQ Artemis server, you have to modify the server configuration file
  * {@literal broker.xml}.<br>
  */
-public interface StompFrameInterceptor extends BaseInterceptor<StompFrame>
-{
+public interface StompFrameInterceptor extends BaseInterceptor<StompFrame> {
+
 }

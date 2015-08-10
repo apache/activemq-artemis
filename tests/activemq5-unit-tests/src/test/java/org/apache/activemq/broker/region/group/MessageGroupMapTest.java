@@ -17,88 +17,89 @@
 package org.apache.activemq.broker.region.group;
 
 import junit.framework.TestCase;
+
 import org.apache.activemq.command.ConnectionId;
 import org.apache.activemq.command.ConsumerId;
 import org.apache.activemq.command.SessionId;
 
 /**
- * 
- * 
+ *
+ *
  */
 public class MessageGroupMapTest extends TestCase {
 
-    protected MessageGroupMap map;
-    private ConsumerId consumer1;
-    private ConsumerId consumer2;
-    private ConsumerId consumer3;
-    private long idCounter;
+   protected MessageGroupMap map;
+   private ConsumerId consumer1;
+   private ConsumerId consumer2;
+   private ConsumerId consumer3;
+   private long idCounter;
 
-    public void testSingleConsumerForManyBucks() throws Exception {
-        assertGet("1", null);
+   public void testSingleConsumerForManyBucks() throws Exception {
+      assertGet("1", null);
 
-        map.put("1", consumer1);
-        assertGet("1", consumer1);
-        map.put("2", consumer1);
-        assertGet("2", consumer1);
-        map.put("3", consumer1);
-        assertGet("3", consumer1);
+      map.put("1", consumer1);
+      assertGet("1", consumer1);
+      map.put("2", consumer1);
+      assertGet("2", consumer1);
+      map.put("3", consumer1);
+      assertGet("3", consumer1);
 
-        MessageGroupSet set = map.removeConsumer(consumer1);
-        assertContains(set, "1");
-        assertContains(set, "2");
-        assertContains(set, "3");
-        assertGet("1", null);
-        assertGet("2", null);
-        assertGet("3", null);
-    }
+      MessageGroupSet set = map.removeConsumer(consumer1);
+      assertContains(set, "1");
+      assertContains(set, "2");
+      assertContains(set, "3");
+      assertGet("1", null);
+      assertGet("2", null);
+      assertGet("3", null);
+   }
 
-    public void testManyConsumers() throws Exception {
-        assertGet("1", null);
+   public void testManyConsumers() throws Exception {
+      assertGet("1", null);
 
-        map.put("1", consumer1);
-        assertGet("1", consumer1);
-        map.put("2", consumer2);
-        assertGet("2", consumer2);
-        map.put("3", consumer3);
-        assertGet("3", consumer3);
+      map.put("1", consumer1);
+      assertGet("1", consumer1);
+      map.put("2", consumer2);
+      assertGet("2", consumer2);
+      map.put("3", consumer3);
+      assertGet("3", consumer3);
 
-        MessageGroupSet set = map.removeConsumer(consumer1);
-        assertContains(set, "1");
+      MessageGroupSet set = map.removeConsumer(consumer1);
+      assertContains(set, "1");
 
-        assertGet("1", null);
-        map.put("1", consumer2);
-        assertGet("1", consumer2);
+      assertGet("1", null);
+      map.put("1", consumer2);
+      assertGet("1", consumer2);
 
-        set = map.removeConsumer(consumer2);
-        assertContains(set, "1");
-        assertContains(set, "2");
-    }
+      set = map.removeConsumer(consumer2);
+      assertContains(set, "1");
+      assertContains(set, "2");
+   }
 
-    protected void setUp() throws Exception {
-        super.setUp();
-        map = createMessageGroupMap();
-        consumer1 = createConsumerId();
-        consumer2 = createConsumerId();
-        consumer3 = createConsumerId();
-    }
+   protected void setUp() throws Exception {
+      super.setUp();
+      map = createMessageGroupMap();
+      consumer1 = createConsumerId();
+      consumer2 = createConsumerId();
+      consumer3 = createConsumerId();
+   }
 
-    protected MessageGroupMap createMessageGroupMap() {
-        return new SimpleMessageGroupMap();
-    }
+   protected MessageGroupMap createMessageGroupMap() {
+      return new SimpleMessageGroupMap();
+   }
 
-    protected ConsumerId createConsumerId() {
-        ConnectionId connectionId = new ConnectionId("" + ++idCounter);
-        SessionId sessionId = new SessionId(connectionId, ++idCounter);
-        ConsumerId answer = new ConsumerId(sessionId, ++idCounter);
-        return answer;
-    }
+   protected ConsumerId createConsumerId() {
+      ConnectionId connectionId = new ConnectionId("" + ++idCounter);
+      SessionId sessionId = new SessionId(connectionId, ++idCounter);
+      ConsumerId answer = new ConsumerId(sessionId, ++idCounter);
+      return answer;
+   }
 
-    protected void assertGet(String groupdId, ConsumerId expected) {
-        ConsumerId actual = map.get(groupdId);
-        assertEquals("Entry for groupId: " + groupdId, expected, actual);
-    }
+   protected void assertGet(String groupdId, ConsumerId expected) {
+      ConsumerId actual = map.get(groupdId);
+      assertEquals("Entry for groupId: " + groupdId, expected, actual);
+   }
 
-    protected void assertContains(MessageGroupSet set, String groupID) {
-        assertTrue("MessageGroup set: " + set + " does not contain groupID: " + groupID, set.contains(groupID));
-    }
+   protected void assertContains(MessageGroupSet set, String groupID) {
+      assertTrue("MessageGroup set: " + set + " does not contain groupID: " + groupID, set.contains(groupID));
+   }
 }

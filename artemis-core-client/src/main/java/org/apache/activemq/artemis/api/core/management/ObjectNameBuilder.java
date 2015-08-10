@@ -24,8 +24,7 @@ import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 /**
  * Helper class to build ObjectNames for ActiveMQ Artemis resources.
  */
-public final class ObjectNameBuilder
-{
+public final class ObjectNameBuilder {
 
    // Constants -----------------------------------------------------
 
@@ -44,22 +43,18 @@ public final class ObjectNameBuilder
 
    // Static --------------------------------------------------------
 
-   public static ObjectNameBuilder create(final String domain)
-   {
-      if (domain == null)
-      {
+   public static ObjectNameBuilder create(final String domain) {
+      if (domain == null) {
          return new ObjectNameBuilder(ActiveMQDefaultConfiguration.getDefaultJmxDomain());
       }
-      else
-      {
+      else {
          return new ObjectNameBuilder(domain);
       }
    }
 
    // Constructors --------------------------------------------------
 
-   private ObjectNameBuilder(final String domain)
-   {
+   private ObjectNameBuilder(final String domain) {
       this.domain = domain;
    }
 
@@ -68,8 +63,7 @@ public final class ObjectNameBuilder
    /**
     * Returns the ObjectName used by the single {@link ActiveMQServerControl}.
     */
-   public ObjectName getActiveMQServerObjectName() throws Exception
-   {
+   public ObjectName getActiveMQServerObjectName() throws Exception {
       return ObjectName.getInstance(domain + ":module=Core,type=Server");
    }
 
@@ -78,8 +72,7 @@ public final class ObjectNameBuilder
     *
     * @see AddressControl
     */
-   public ObjectName getAddressObjectName(final SimpleString address) throws Exception
-   {
+   public ObjectName getAddressObjectName(final SimpleString address) throws Exception {
       return createObjectName(ObjectNameBuilder.CORE_MODULE, "Address", address.toString());
    }
 
@@ -88,14 +81,8 @@ public final class ObjectNameBuilder
     *
     * @see QueueControl
     */
-   public ObjectName getQueueObjectName(final SimpleString address, final SimpleString name) throws Exception
-   {
-      return ObjectName.getInstance(String.format("%s:module=%s,type=%s,address=%s,name=%s",
-                                                  domain,
-                                                  ObjectNameBuilder.CORE_MODULE,
-                                                  "Queue",
-                                                  ObjectName.quote(address.toString()),
-                                                  ObjectName.quote(name.toString())));
+   public ObjectName getQueueObjectName(final SimpleString address, final SimpleString name) throws Exception {
+      return ObjectName.getInstance(String.format("%s:module=%s,type=%s,address=%s,name=%s", domain, ObjectNameBuilder.CORE_MODULE, "Queue", ObjectName.quote(address.toString()), ObjectName.quote(name.toString())));
    }
 
    /**
@@ -103,8 +90,7 @@ public final class ObjectNameBuilder
     *
     * @see DivertControl
     */
-   public ObjectName getDivertObjectName(final String name) throws Exception
-   {
+   public ObjectName getDivertObjectName(final String name) throws Exception {
       return createObjectName(ObjectNameBuilder.CORE_MODULE, "Divert", name.toString());
    }
 
@@ -113,8 +99,7 @@ public final class ObjectNameBuilder
     *
     * @see AcceptorControl
     */
-   public ObjectName getAcceptorObjectName(final String name) throws Exception
-   {
+   public ObjectName getAcceptorObjectName(final String name) throws Exception {
       return createObjectName(ObjectNameBuilder.CORE_MODULE, "Acceptor", name);
    }
 
@@ -123,8 +108,7 @@ public final class ObjectNameBuilder
     *
     * @see BroadcastGroupControl
     */
-   public ObjectName getBroadcastGroupObjectName(final String name) throws Exception
-   {
+   public ObjectName getBroadcastGroupObjectName(final String name) throws Exception {
       return createObjectName(ObjectNameBuilder.CORE_MODULE, "BroadcastGroup", name);
    }
 
@@ -133,8 +117,7 @@ public final class ObjectNameBuilder
     *
     * @see BridgeControl
     */
-   public ObjectName getBridgeObjectName(final String name) throws Exception
-   {
+   public ObjectName getBridgeObjectName(final String name) throws Exception {
       return createObjectName(ObjectNameBuilder.CORE_MODULE, "Bridge", name);
    }
 
@@ -143,57 +126,46 @@ public final class ObjectNameBuilder
     *
     * @see ClusterConnectionControl
     */
-   public ObjectName getClusterConnectionObjectName(final String name) throws Exception
-   {
+   public ObjectName getClusterConnectionObjectName(final String name) throws Exception {
       return createObjectName(ObjectNameBuilder.CORE_MODULE, "ClusterConnection", name);
    }
 
    /**
     * Returns the ObjectName used by DiscoveryGroupControl.
     */
-   public ObjectName getDiscoveryGroupObjectName(final String name) throws Exception
-   {
+   public ObjectName getDiscoveryGroupObjectName(final String name) throws Exception {
       return createObjectName(ObjectNameBuilder.CORE_MODULE, "DiscoveryGroup", name);
    }
 
    /**
     * Returns the ObjectName used by JMSServerControl.
     */
-   public ObjectName getJMSServerObjectName() throws Exception
-   {
+   public ObjectName getJMSServerObjectName() throws Exception {
       return ObjectName.getInstance(domain + ":module=JMS,type=Server");
    }
 
    /**
     * Returns the ObjectName used by JMSQueueControl.
     */
-   public ObjectName getJMSQueueObjectName(final String name) throws Exception
-   {
+   public ObjectName getJMSQueueObjectName(final String name) throws Exception {
       return createObjectName(ObjectNameBuilder.JMS_MODULE, "Queue", name);
    }
 
    /**
     * Returns the ObjectName used by TopicControl.
     */
-   public ObjectName getJMSTopicObjectName(final String name) throws Exception
-   {
+   public ObjectName getJMSTopicObjectName(final String name) throws Exception {
       return createObjectName(ObjectNameBuilder.JMS_MODULE, "Topic", name);
    }
 
    /**
     * Returns the ObjectName used by ConnectionFactoryControl.
     */
-   public ObjectName getConnectionFactoryObjectName(final String name) throws Exception
-   {
+   public ObjectName getConnectionFactoryObjectName(final String name) throws Exception {
       return createObjectName(ObjectNameBuilder.JMS_MODULE, "ConnectionFactory", name);
    }
 
-   private ObjectName createObjectName(final String module, final String type, final String name) throws Exception
-   {
-      return ObjectName.getInstance(String.format("%s:module=%s,type=%s,name=%s",
-                                                  domain,
-                                                  module,
-                                                  type,
-                                                  ObjectName.quote(name)));
+   private ObjectName createObjectName(final String module, final String type, final String name) throws Exception {
+      return ObjectName.getInstance(String.format("%s:module=%s,type=%s,name=%s", domain, module, type, ObjectName.quote(name)));
    }
 }

@@ -39,59 +39,58 @@ import javax.naming.NamingException;
 /**
  * A simple polymorphic JMS consumer which can work with Queues or Topics which
  * uses JNDI to lookup the JMS connection factory and destination
- * 
- * 
  */
 public final class SimpleConsumer {
 
-    private static final org.apache.commons.logging.Log LOG = org.apache.commons.logging.LogFactory
-        .getLog(SimpleConsumer.class);
+   private static final org.apache.commons.logging.Log LOG = org.apache.commons.logging.LogFactory.getLog(SimpleConsumer.class);
 
-    private SimpleConsumer() {
-    }
+   private SimpleConsumer() {
+   }
 
-    /**
-     * @param args the queue used by the example
-     */
-    public static void main(String[] args) {
-        String destinationName = null;
-        Context jndiContext = null;
-        ConnectionFactory connectionFactory = null;
-        Connection connection = null;
-        Session session = null;
-        Destination destination = null;
-        MessageConsumer consumer = null;
+   /**
+    * @param args the queue used by the example
+    */
+   public static void main(String[] args) {
+      String destinationName = null;
+      Context jndiContext = null;
+      ConnectionFactory connectionFactory = null;
+      Connection connection = null;
+      Session session = null;
+      Destination destination = null;
+      MessageConsumer consumer = null;
 
         /*
          * Read destination name from command line and display it.
          */
-        if (args.length != 1) {
-            LOG.info("Usage: java SimpleConsumer <destination-name>");
-            System.exit(1);
-        }
-        destinationName = args[0];
-        LOG.info("Destination name is " + destinationName);
+      if (args.length != 1) {
+         LOG.info("Usage: java SimpleConsumer <destination-name>");
+         System.exit(1);
+      }
+      destinationName = args[0];
+      LOG.info("Destination name is " + destinationName);
 
         /*
          * Create a JNDI API InitialContext object
          */
-        try {
-            jndiContext = new InitialContext();
-        } catch (NamingException e) {
-            LOG.info("Could not create JNDI API " + "context: " + e.toString());
-            System.exit(1);
-        }
+      try {
+         jndiContext = new InitialContext();
+      }
+      catch (NamingException e) {
+         LOG.info("Could not create JNDI API " + "context: " + e.toString());
+         System.exit(1);
+      }
 
         /*
          * Look up connection factory and destination.
          */
-        try {
-            connectionFactory = (ConnectionFactory)jndiContext.lookup("ConnectionFactory");
-            destination = (Destination)jndiContext.lookup(destinationName);
-        } catch (NamingException e) {
-            LOG.info("JNDI API lookup failed: " + e.toString());
-            System.exit(1);
-        }
+      try {
+         connectionFactory = (ConnectionFactory) jndiContext.lookup("ConnectionFactory");
+         destination = (Destination) jndiContext.lookup(destinationName);
+      }
+      catch (NamingException e) {
+         LOG.info("JNDI API lookup failed: " + e.toString());
+         System.exit(1);
+      }
 
         /*
          * Create connection. Create session from connection; false means
@@ -100,31 +99,35 @@ public final class SimpleConsumer {
          * message is received indicating end of message stream. Close
          * connection.
          */
-        try {
-            connection = connectionFactory.createConnection();
-            session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-            consumer = session.createConsumer(destination);
-            connection.start();
-            while (true) {
-                Message m = consumer.receive(1);
-                if (m != null) {
-                    if (m instanceof TextMessage) {
-                        TextMessage message = (TextMessage)m;
-                        LOG.info("Reading message: " + message.getText());
-                    } else {
-                        break;
-                    }
-                }
+      try {
+         connection = connectionFactory.createConnection();
+         session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         consumer = session.createConsumer(destination);
+         connection.start();
+         while (true) {
+            Message m = consumer.receive(1);
+            if (m != null) {
+               if (m instanceof TextMessage) {
+                  TextMessage message = (TextMessage) m;
+                  LOG.info("Reading message: " + message.getText());
+               }
+               else {
+                  break;
+               }
             }
-        } catch (JMSException e) {
-            LOG.info("Exception occurred: " + e);
-        } finally {
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (JMSException e) {
-                }
+         }
+      }
+      catch (JMSException e) {
+         LOG.info("Exception occurred: " + e);
+      }
+      finally {
+         if (connection != null) {
+            try {
+               connection.close();
             }
-        }
-    }
+            catch (JMSException e) {
+            }
+         }
+      }
+   }
 }

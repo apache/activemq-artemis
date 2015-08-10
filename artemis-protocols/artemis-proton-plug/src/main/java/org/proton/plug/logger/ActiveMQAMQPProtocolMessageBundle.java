@@ -33,10 +33,9 @@ import org.jboss.logging.Messages;
  * articles. Unused methods should be marked as deprecated.
  */
 @MessageBundle(projectCode = "AMQ")
-public interface ActiveMQAMQPProtocolMessageBundle
-{
-   ActiveMQAMQPProtocolMessageBundle BUNDLE = Messages.getBundle(ActiveMQAMQPProtocolMessageBundle.class);
+public interface ActiveMQAMQPProtocolMessageBundle {
 
+   ActiveMQAMQPProtocolMessageBundle BUNDLE = Messages.getBundle(ActiveMQAMQPProtocolMessageBundle.class);
 
    @Message(id = 219000, value = "target address not set")
    ActiveMQAMQPInvalidFieldException targetAddressNotSet();

@@ -31,8 +31,8 @@ import java.util.concurrent.ScheduledExecutorService;
 /**
  * A holder for common services leveraged by the broker.
  */
-public interface ServiceRegistry
-{
+public interface ServiceRegistry {
+
    ExecutorService getExecutorService();
 
    void setExecutorService(ExecutorService executorService);
@@ -41,7 +41,8 @@ public interface ServiceRegistry
 
    void setScheduledExecutorService(ScheduledExecutorService scheduledExecutorService);
 
-   void addConnectorService(ConnectorServiceFactory connectorServiceFactory, ConnectorServiceConfiguration configuration);
+   void addConnectorService(ConnectorServiceFactory connectorServiceFactory,
+                            ConnectorServiceConfiguration configuration);
 
    void removeConnectorService(ConnectorServiceConfiguration configuration);
 
@@ -77,7 +78,7 @@ public interface ServiceRegistry
    /**
     * Get an instance of org.apache.activemq.artemis.core.server.cluster.Transformer for a divert
     *
-    * @param name the name of divert for which the transformer will be used
+    * @param name      the name of divert for which the transformer will be used
     * @param className the fully qualified name of the transformer implementation (can be null)
     * @return
     */
@@ -88,7 +89,7 @@ public interface ServiceRegistry
    /**
     * Get an instance of org.apache.activemq.artemis.core.server.cluster.Transformer for a bridge
     *
-    * @param name the name of bridge for which the transformer will be used
+    * @param name      the name of bridge for which the transformer will be used
     * @param className the fully qualified name of the transformer implementation (can be null)
     * @return
     */
@@ -99,7 +100,7 @@ public interface ServiceRegistry
    /**
     * Get an instance of org.apache.activemq.artemis.spi.core.remoting.AcceptorFactory
     *
-    * @param name the name of acceptor for which the factory will be used
+    * @param name      the name of acceptor for which the factory will be used
     * @param className the fully qualified name of the factory implementation (can be null)
     * @return
     */

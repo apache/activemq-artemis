@@ -16,12 +16,11 @@
  */
 package org.apache.activemq.artemis.api.core.management;
 
-
 /**
  * A BridgeControl is used to manage a Bridge.
  */
-public interface BridgeControl extends ActiveMQComponentControl
-{
+public interface BridgeControl extends ActiveMQComponentControl {
+
    /**
     * Returns the name of this bridge
     */

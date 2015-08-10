@@ -19,10 +19,9 @@ package org.apache.activemq.artemis.uri;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.utils.uri.URIFactory;
 
-public class ServerLocatorParser extends URIFactory<ServerLocator, String>
-{
-   public ServerLocatorParser()
-   {
+public class ServerLocatorParser extends URIFactory<ServerLocator, String> {
+
+   public ServerLocatorParser() {
       registerSchema(new InVMServerLocatorSchema());
       registerSchema(new TCPServerLocatorSchema());
       registerSchema(new UDPServerLocatorSchema());

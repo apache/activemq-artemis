@@ -39,8 +39,7 @@ import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
 import org.apache.activemq.artemis.utils.Base64;
 
 @Command(name = "decode", description = "Decode a journal's internal format into a new journal set of files")
-public class DecodeJournal extends Configurable implements Action
-{
+public class DecodeJournal extends Configurable implements Action {
 
    @Option(name = "--directory", description = "The journal folder (default journal folder from broker.xml)")
    public String directory;
@@ -57,34 +56,27 @@ public class DecodeJournal extends Configurable implements Action
    @Option(name = "--input", description = "The input file name (default=exp.dmp)", required = true)
    public String input = "exp.dmp";
 
-   public Object execute(ActionContext context) throws Exception
-   {
+   public Object execute(ActionContext context) throws Exception {
       super.execute(context);
-      try
-      {
-         if (directory == null)
-         {
+      try {
+         if (directory == null) {
             directory = getFileConfiguration().getJournalDirectory();
          }
          importJournal(directory, prefix, suffix, 2, size, input);
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          treatError(e, "data", "decode");
       }
 
       return null;
    }
 
-
-
    public static void importJournal(final String directory,
                                     final String journalPrefix,
                                     final String journalSuffix,
                                     final int minFiles,
                                     final int fileSize,
-                                    final String fileInput) throws Exception
-   {
+                                    final String fileInput) throws Exception {
       FileInputStream fileInputStream = new FileInputStream(new File(fileInput));
       importJournal(directory, journalPrefix, journalSuffix, minFiles, fileSize, fileInputStream);
 
@@ -95,8 +87,7 @@ public class DecodeJournal extends Configurable implements Action
                                     final String journalSuffix,
                                     final int minFiles,
                                     final int fileSize,
-                                    final InputStream stream) throws Exception
-   {
+                                    final InputStream stream) throws Exception {
       Reader reader = new InputStreamReader(stream);
       importJournal(directory, journalPrefix, journalSuffix, minFiles, fileSize, reader);
    }
@@ -106,13 +97,11 @@ public class DecodeJournal extends Configurable implements Action
                                     final String journalSuffix,
                                     final int minFiles,
                                     final int fileSize,
-                                    final Reader reader) throws Exception
-   {
+                                    final Reader reader) throws Exception {
 
       File journalDir = new File(directory);
 
-      if (!journalDir.exists())
-      {
+      if (!journalDir.exists()) {
          if (!journalDir.mkdirs())
             System.err.println("Could not create directory " + directory);
       }
@@ -121,8 +110,7 @@ public class DecodeJournal extends Configurable implements Action
 
       JournalImpl journal = new JournalImpl(fileSize, minFiles, 0, 0, nio, journalPrefix, journalSuffix, 1);
 
-      if (journal.orderFiles().size() != 0)
-      {
+      if (journal.orderFiles().size() != 0) {
          throw new IllegalStateException("Import needs to create a brand new journal");
       }
 
@@ -141,12 +129,10 @@ public class DecodeJournal extends Configurable implements Action
 
       Map<Long, JournalRecord> journalRecords = journal.getRecords();
 
-      while ((line = buffReader.readLine()) != null)
-      {
+      while ((line = buffReader.readLine()) != null) {
          lineNumber++;
          String[] splitLine = line.split(",");
-         if (splitLine[0].equals("#File"))
-         {
+         if (splitLine[0].equals("#File")) {
             txCounters.clear();
             continue;
          }
@@ -154,121 +140,102 @@ public class DecodeJournal extends Configurable implements Action
          Properties lineProperties = parseLine(splitLine);
 
          String operation = null;
-         try
-         {
+         try {
             operation = lineProperties.getProperty("operation");
 
-            if (operation.equals("AddRecord"))
-            {
+            if (operation.equals("AddRecord")) {
                RecordInfo info = parseRecord(lineProperties);
                journal.appendAddRecord(info.id, info.userRecordType, info.data, false);
             }
-            else if (operation.equals("AddRecordTX"))
-            {
+            else if (operation.equals("AddRecordTX")) {
                long txID = parseLong("txID", lineProperties);
                AtomicInteger counter = getCounter(txID, txCounters);
                counter.incrementAndGet();
                RecordInfo info = parseRecord(lineProperties);
                journal.appendAddRecordTransactional(txID, info.id, info.userRecordType, info.data);
             }
-            else if (operation.equals("AddRecordTX"))
-            {
+            else if (operation.equals("AddRecordTX")) {
                long txID = parseLong("txID", lineProperties);
                AtomicInteger counter = getCounter(txID, txCounters);
                counter.incrementAndGet();
                RecordInfo info = parseRecord(lineProperties);
                journal.appendAddRecordTransactional(txID, info.id, info.userRecordType, info.data);
             }
-            else if (operation.equals("UpdateTX"))
-            {
+            else if (operation.equals("UpdateTX")) {
                long txID = parseLong("txID", lineProperties);
                AtomicInteger counter = getCounter(txID, txCounters);
                counter.incrementAndGet();
                RecordInfo info = parseRecord(lineProperties);
                journal.appendUpdateRecordTransactional(txID, info.id, info.userRecordType, info.data);
             }
-            else if (operation.equals("Update"))
-            {
+            else if (operation.equals("Update")) {
                RecordInfo info = parseRecord(lineProperties);
                journal.appendUpdateRecord(info.id, info.userRecordType, info.data, false);
             }
-            else if (operation.equals("DeleteRecord"))
-            {
+            else if (operation.equals("DeleteRecord")) {
                long id = parseLong("id", lineProperties);
 
                // If not found it means the append/update records were reclaimed already
-               if (journalRecords.get(id) != null)
-               {
+               if (journalRecords.get(id) != null) {
                   journal.appendDeleteRecord(id, false);
                }
             }
-            else if (operation.equals("DeleteRecordTX"))
-            {
+            else if (operation.equals("DeleteRecordTX")) {
                long txID = parseLong("txID", lineProperties);
                long id = parseLong("id", lineProperties);
                AtomicInteger counter = getCounter(txID, txCounters);
                counter.incrementAndGet();
 
                // If not found it means the append/update records were reclaimed already
-               if (journalRecords.get(id) != null)
-               {
+               if (journalRecords.get(id) != null) {
                   journal.appendDeleteRecordTransactional(txID, id);
                }
             }
-            else if (operation.equals("Prepare"))
-            {
+            else if (operation.equals("Prepare")) {
                long txID = parseLong("txID", lineProperties);
                int numberOfRecords = parseInt("numberOfRecords", lineProperties);
                AtomicInteger counter = getCounter(txID, txCounters);
                byte[] data = parseEncoding("extraData", lineProperties);
 
-               if (counter.get() == numberOfRecords)
-               {
+               if (counter.get() == numberOfRecords) {
                   journal.appendPrepareRecord(txID, data, false);
                }
-               else
-               {
+               else {
                   System.err.println("Transaction " + txID +
-                                     " at line " +
-                                     lineNumber +
-                                     " is incomplete. The prepare record expected " +
-                                     numberOfRecords +
-                                     " while the import only had " +
-                                     counter);
+                                        " at line " +
+                                        lineNumber +
+                                        " is incomplete. The prepare record expected " +
+                                        numberOfRecords +
+                                        " while the import only had " +
+                                        counter);
                }
             }
-            else if (operation.equals("Commit"))
-            {
+            else if (operation.equals("Commit")) {
                long txID = parseLong("txID", lineProperties);
                int numberOfRecords = parseInt("numberOfRecords", lineProperties);
                AtomicInteger counter = getCounter(txID, txCounters);
-               if (counter.get() == numberOfRecords)
-               {
+               if (counter.get() == numberOfRecords) {
                   journal.appendCommitRecord(txID, false);
                }
-               else
-               {
+               else {
                   System.err.println("Transaction " + txID +
-                                     " at line " +
-                                     lineNumber +
-                                     " is incomplete. The commit record expected " +
-                                     numberOfRecords +
-                                     " while the import only had " +
-                                     counter);
+                                        " at line " +
+                                        lineNumber +
+                                        " is incomplete. The commit record expected " +
+                                        numberOfRecords +
+                                        " while the import only had " +
+                                        counter);
                }
             }
-            else if (operation.equals("Rollback"))
-            {
+            else if (operation.equals("Rollback")) {
                long txID = parseLong("txID", lineProperties);
                journal.appendRollbackRecord(txID, false);
             }
-            else
-            {
+            else {
                System.err.println("Invalid operation " + operation + " at line " + lineNumber);
             }
          }
-         catch (Exception ex)
-         {
+         catch (Exception ex) {
             System.err.println("Error at line " + lineNumber + ", operation=" + operation + " msg = " + ex.getMessage());
          }
       }
@@ -276,12 +243,10 @@ public class DecodeJournal extends Configurable implements Action
       journal.stop();
    }
 
-   protected static AtomicInteger getCounter(final Long txID, final Map<Long, AtomicInteger> txCounters)
-   {
+   protected static AtomicInteger getCounter(final Long txID, final Map<Long, AtomicInteger> txCounters) {
 
       AtomicInteger counter = txCounters.get(txID);
-      if (counter == null)
-      {
+      if (counter == null) {
          counter = new AtomicInteger(0);
          txCounters.put(txID, counter);
       }
@@ -289,17 +254,15 @@ public class DecodeJournal extends Configurable implements Action
       return counter;
    }
 
-   protected static RecordInfo parseRecord(final Properties properties) throws Exception
-   {
+   protected static RecordInfo parseRecord(final Properties properties) throws Exception {
       long id = parseLong("id", properties);
       byte userRecordType = parseByte("userRecordType", properties);
       boolean isUpdate = parseBoolean("isUpdate", properties);
       byte[] data = parseEncoding("data", properties);
-      return new RecordInfo(id, userRecordType, data, isUpdate, (short)0);
+      return new RecordInfo(id, userRecordType, data, isUpdate, (short) 0);
    }
 
-   private static byte[] parseEncoding(final String name, final Properties properties) throws Exception
-   {
+   private static byte[] parseEncoding(final String name, final Properties properties) throws Exception {
       String value = parseString(name, properties);
 
       return decode(value);
@@ -309,29 +272,25 @@ public class DecodeJournal extends Configurable implements Action
     * @param properties
     * @return
     */
-   private static int parseInt(final String name, final Properties properties) throws Exception
-   {
+   private static int parseInt(final String name, final Properties properties) throws Exception {
       String value = parseString(name, properties);
 
       return Integer.parseInt(value);
    }
 
-   private static long parseLong(final String name, final Properties properties) throws Exception
-   {
+   private static long parseLong(final String name, final Properties properties) throws Exception {
       String value = parseString(name, properties);
 
       return Long.parseLong(value);
    }
 
-   private static boolean parseBoolean(final String name, final Properties properties) throws Exception
-   {
+   private static boolean parseBoolean(final String name, final Properties properties) throws Exception {
       String value = parseString(name, properties);
 
       return Boolean.parseBoolean(value);
    }
 
-   private static byte parseByte(final String name, final Properties properties) throws Exception
-   {
+   private static byte parseByte(final String name, final Properties properties) throws Exception {
       String value = parseString(name, properties);
 
       return Byte.parseByte(value);
@@ -343,30 +302,24 @@ public class DecodeJournal extends Configurable implements Action
     * @return
     * @throws Exception
     */
-   private static String parseString(final String name, final Properties properties) throws Exception
-   {
+   private static String parseString(final String name, final Properties properties) throws Exception {
       String value = properties.getProperty(name);
 
-      if (value == null)
-      {
+      if (value == null) {
          throw new Exception("property " + name + " not found");
       }
       return value;
    }
 
-   protected static Properties parseLine(final String[] splitLine)
-   {
+   protected static Properties parseLine(final String[] splitLine) {
       Properties properties = new Properties();
 
-      for (String el : splitLine)
-      {
+      for (String el : splitLine) {
          String[] tuple = el.split("@");
-         if (tuple.length == 2)
-         {
+         if (tuple.length == 2) {
             properties.put(tuple[0], tuple[1]);
          }
-         else
-         {
+         else {
             properties.put(tuple[0], tuple[0]);
          }
       }
@@ -374,23 +327,18 @@ public class DecodeJournal extends Configurable implements Action
       return properties;
    }
 
-   private static byte[] decode(final String data)
-   {
+   private static byte[] decode(final String data) {
       return Base64.decode(data, Base64.DONT_BREAK_LINES | Base64.URL_SAFE);
    }
 
-
-   public void printUsage()
-   {
-      for (int i = 0; i < 10; i++)
-      {
+   public void printUsage() {
+      for (int i = 0; i < 10; i++) {
          System.err.println();
       }
       System.err.println("This method will export the journal at low level record.");
       System.err.println();
       System.err.println();
-      for (int i = 0; i < 10; i++)
-      {
+      for (int i = 0; i < 10; i++) {
          System.err.println();
       }
    }

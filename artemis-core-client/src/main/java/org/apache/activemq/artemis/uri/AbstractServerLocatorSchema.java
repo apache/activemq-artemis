@@ -22,11 +22,9 @@ import org.apache.activemq.artemis.utils.uri.URISchema;
 import java.net.URI;
 import java.util.Map;
 
-public abstract class AbstractServerLocatorSchema extends URISchema<ServerLocator, String>
-{
+public abstract class AbstractServerLocatorSchema extends URISchema<ServerLocator, String> {
 
-   protected ConnectionOptions newConnectionOptions(URI uri, Map<String, String> query) throws Exception
-   {
+   protected ConnectionOptions newConnectionOptions(URI uri, Map<String, String> query) throws Exception {
       return setData(uri, new ConnectionOptions(), query);
    }
 }

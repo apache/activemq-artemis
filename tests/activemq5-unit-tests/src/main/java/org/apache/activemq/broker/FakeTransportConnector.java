@@ -16,13 +16,11 @@
  */
 package org.apache.activemq.broker;
 
-
 import java.net.URI;
 
-public class FakeTransportConnector extends TransportConnector
-{
-   public FakeTransportConnector(URI uri)
-   {
+public class FakeTransportConnector extends TransportConnector {
+
+   public FakeTransportConnector(URI uri) {
       super();
       this.setUri(uri);
    }

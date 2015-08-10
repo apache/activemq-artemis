@@ -32,16 +32,14 @@ import org.apache.activemq.artemis.jms.client.ActiveMQQueue;
  * A simple example that demonstrates server side load-balancing of messages between the queue instances on different
  * nodes of the cluster.
  */
-public class ClusteredQueueExample
-{
-   public static void main(final String[] args) throws Exception
-   {
+public class ClusteredQueueExample {
+
+   public static void main(final String[] args) throws Exception {
       Connection connection0 = null;
 
       Connection connection1 = null;
 
-      try
-      {
+      try {
          // Step 2. Instantiate the Queue
          Queue queue = ActiveMQJMSClient.createQueue("exampleQueue");
 
@@ -82,8 +80,7 @@ public class ClusteredQueueExample
 
          final int numMessages = 10;
 
-         for (int i = 0; i < numMessages; i++)
-         {
+         for (int i = 0; i < numMessages; i++) {
             TextMessage message = session0.createTextMessage("This is text message " + i);
 
             producer.send(message);
@@ -96,28 +93,24 @@ public class ClusteredQueueExample
          // JMS Queues implement point-to-point message where each message is only ever consumed by a
          // maximum of one consumer
 
-         for (int i = 0; i < numMessages; i += 2)
-         {
-            TextMessage message0 = (TextMessage)consumer0.receive(5000);
+         for (int i = 0; i < numMessages; i += 2) {
+            TextMessage message0 = (TextMessage) consumer0.receive(5000);
 
             System.out.println("Got message: " + message0.getText() + " from node 0");
 
-            TextMessage message1 = (TextMessage)consumer1.receive(5000);
+            TextMessage message1 = (TextMessage) consumer1.receive(5000);
 
             System.out.println("Got message: " + message1.getText() + " from node 1");
          }
       }
-      finally
-      {
+      finally {
          // Step 15. Be sure to close our resources!
 
-         if (connection0 != null)
-         {
+         if (connection0 != null) {
             connection0.close();
          }
 
-         if (connection1 != null)
-         {
+         if (connection1 != null) {
             connection1.close();
          }
       }

@@ -21,8 +21,8 @@ import java.io.Serializable;
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 
-public class DivertConfiguration implements Serializable
-{
+public class DivertConfiguration implements Serializable {
+
    private static final long serialVersionUID = 6910543740464269629L;
 
    private String name = null;
@@ -39,50 +39,41 @@ public class DivertConfiguration implements Serializable
 
    private String transformerClassName = null;
 
-   public DivertConfiguration()
-   {
+   public DivertConfiguration() {
    }
 
-   public String getName()
-   {
+   public String getName() {
       return name;
    }
 
-   public String getRoutingName()
-   {
+   public String getRoutingName() {
       return routingName;
    }
 
-   public String getAddress()
-   {
+   public String getAddress() {
       return address;
    }
 
-   public String getForwardingAddress()
-   {
+   public String getForwardingAddress() {
       return forwardingAddress;
    }
 
-   public boolean isExclusive()
-   {
+   public boolean isExclusive() {
       return exclusive;
    }
 
-   public String getFilterString()
-   {
+   public String getFilterString() {
       return filterString;
    }
 
-   public String getTransformerClassName()
-   {
+   public String getTransformerClassName() {
       return transformerClassName;
    }
 
    /**
     * @param name the name to set
     */
-   public DivertConfiguration setName(final String name)
-   {
+   public DivertConfiguration setName(final String name) {
       this.name = name;
       return this;
    }
@@ -90,14 +81,11 @@ public class DivertConfiguration implements Serializable
    /**
     * @param routingName the routingName to set
     */
-   public DivertConfiguration setRoutingName(final String routingName)
-   {
-      if (routingName == null)
-      {
+   public DivertConfiguration setRoutingName(final String routingName) {
+      if (routingName == null) {
          this.routingName = UUIDGenerator.getInstance().generateStringUUID();
       }
-      else
-      {
+      else {
          this.routingName = routingName;
       }
       return this;
@@ -106,8 +94,7 @@ public class DivertConfiguration implements Serializable
    /**
     * @param address the address to set
     */
-   public DivertConfiguration setAddress(final String address)
-   {
+   public DivertConfiguration setAddress(final String address) {
       this.address = address;
       return this;
    }
@@ -115,8 +102,7 @@ public class DivertConfiguration implements Serializable
    /**
     * @param forwardingAddress the forwardingAddress to set
     */
-   public DivertConfiguration setForwardingAddress(final String forwardingAddress)
-   {
+   public DivertConfiguration setForwardingAddress(final String forwardingAddress) {
       this.forwardingAddress = forwardingAddress;
       return this;
    }
@@ -124,8 +110,7 @@ public class DivertConfiguration implements Serializable
    /**
     * @param exclusive the exclusive to set
     */
-   public DivertConfiguration setExclusive(final boolean exclusive)
-   {
+   public DivertConfiguration setExclusive(final boolean exclusive) {
       this.exclusive = exclusive;
       return this;
    }
@@ -133,8 +118,7 @@ public class DivertConfiguration implements Serializable
    /**
     * @param filterString the filterString to set
     */
-   public DivertConfiguration setFilterString(final String filterString)
-   {
+   public DivertConfiguration setFilterString(final String filterString) {
       this.filterString = filterString;
       return this;
    }
@@ -142,15 +126,13 @@ public class DivertConfiguration implements Serializable
    /**
     * @param transformerClassName the transformerClassName to set
     */
-   public DivertConfiguration setTransformerClassName(final String transformerClassName)
-   {
+   public DivertConfiguration setTransformerClassName(final String transformerClassName) {
       this.transformerClassName = transformerClassName;
       return this;
    }
 
    @Override
-   public int hashCode()
-   {
+   public int hashCode() {
       final int prime = 31;
       int result = 1;
       result = prime * result + ((address == null) ? 0 : address.hashCode());
@@ -164,17 +146,15 @@ public class DivertConfiguration implements Serializable
    }
 
    @Override
-   public boolean equals(Object obj)
-   {
+   public boolean equals(Object obj) {
       if (this == obj)
          return true;
       if (obj == null)
          return false;
       if (getClass() != obj.getClass())
          return false;
-      DivertConfiguration other = (DivertConfiguration)obj;
-      if (address == null)
-      {
+      DivertConfiguration other = (DivertConfiguration) obj;
+      if (address == null) {
          if (other.address != null)
             return false;
       }
@@ -182,36 +162,31 @@ public class DivertConfiguration implements Serializable
          return false;
       if (exclusive != other.exclusive)
          return false;
-      if (filterString == null)
-      {
+      if (filterString == null) {
          if (other.filterString != null)
             return false;
       }
       else if (!filterString.equals(other.filterString))
          return false;
-      if (forwardingAddress == null)
-      {
+      if (forwardingAddress == null) {
          if (other.forwardingAddress != null)
             return false;
       }
       else if (!forwardingAddress.equals(other.forwardingAddress))
          return false;
-      if (name == null)
-      {
+      if (name == null) {
          if (other.name != null)
             return false;
       }
       else if (!name.equals(other.name))
          return false;
-      if (routingName == null)
-      {
+      if (routingName == null) {
          if (other.routingName != null)
             return false;
       }
       else if (!routingName.equals(other.routingName))
          return false;
-      if (transformerClassName == null)
-      {
+      if (transformerClassName == null) {
          if (other.transformerClassName != null)
             return false;
       }

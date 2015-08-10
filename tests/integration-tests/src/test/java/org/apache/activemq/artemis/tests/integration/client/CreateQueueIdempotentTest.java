@@ -31,23 +31,20 @@ import org.junit.Test;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class CreateQueueIdempotentTest extends ActiveMQTestBase
-{
+public class CreateQueueIdempotentTest extends ActiveMQTestBase {
 
    private ActiveMQServer server;
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
       server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig(), true));
       server.start();
    }
 
    @Test
-   public void testSequentialCreateQueueIdempotency() throws Exception
-   {
+   public void testSequentialCreateQueueIdempotency() throws Exception {
       final SimpleString QUEUE = new SimpleString("SequentialCreateQueueIdempotency");
 
       ServerLocator locator = createInVMNonHALocator();
@@ -58,24 +55,20 @@ public class CreateQueueIdempotentTest extends ActiveMQTestBase
 
       session.createQueue(QUEUE, QUEUE, null, true);
 
-      try
-      {
+      try {
          session.createQueue(QUEUE, QUEUE, null, true);
          fail("Expected exception, queue already exists");
       }
-      catch (ActiveMQQueueExistsException qee)
-      {
+      catch (ActiveMQQueueExistsException qee) {
          //ok
       }
-      catch (ActiveMQException e)
-      {
+      catch (ActiveMQException e) {
          fail("Invalid Exception type:" + e.getType());
       }
    }
 
    @Test
-   public void testConcurrentCreateQueueIdempotency() throws Exception
-   {
+   public void testConcurrentCreateQueueIdempotency() throws Exception {
       final String QUEUE = "ConcurrentCreateQueueIdempotency";
       AtomicInteger queuesCreated = new AtomicInteger(0);
       AtomicInteger failedAttempts = new AtomicInteger(0);
@@ -84,20 +77,16 @@ public class CreateQueueIdempotentTest extends ActiveMQTestBase
 
       QueueCreator[] queueCreators = new QueueCreator[NUM_THREADS];
 
-
-      for (int i = 0; i < NUM_THREADS; i++)
-      {
+      for (int i = 0; i < NUM_THREADS; i++) {
          QueueCreator queueCreator = new QueueCreator(QUEUE, queuesCreated, failedAttempts);
          queueCreators[i] = queueCreator;
       }
 
-      for (int i = 0; i < NUM_THREADS; i++)
-      {
+      for (int i = 0; i < NUM_THREADS; i++) {
          queueCreators[i].start();
       }
 
-      for (int i = 0; i < NUM_THREADS; i++)
-      {
+      for (int i = 0; i < NUM_THREADS; i++) {
          queueCreators[i].join();
       }
 
@@ -118,28 +107,24 @@ public class CreateQueueIdempotentTest extends ActiveMQTestBase
 
    // Inner classes -------------------------------------------------
 
-   class QueueCreator extends Thread
-   {
+   class QueueCreator extends Thread {
+
       private String queueName = null;
       private AtomicInteger queuesCreated = null;
       private AtomicInteger failedAttempts = null;
 
-
-      QueueCreator(String queueName, AtomicInteger queuesCreated, AtomicInteger failedAttempts)
-      {
+      QueueCreator(String queueName, AtomicInteger queuesCreated, AtomicInteger failedAttempts) {
          this.queueName = queueName;
          this.queuesCreated = queuesCreated;
          this.failedAttempts = failedAttempts;
       }
 
       @Override
-      public void run()
-      {
+      public void run() {
          ServerLocator locator = null;
          ClientSession session = null;
 
-         try
-         {
+         try {
             locator = createInVMNonHALocator();
             ClientSessionFactory sf = createSessionFactory(locator);
             session = sf.createSession(false, true, true);
@@ -147,28 +132,21 @@ public class CreateQueueIdempotentTest extends ActiveMQTestBase
             session.createQueue(QUEUE, QUEUE, null, true);
             queuesCreated.incrementAndGet();
          }
-         catch (ActiveMQQueueExistsException qne)
-         {
+         catch (ActiveMQQueueExistsException qne) {
             failedAttempts.incrementAndGet();
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             e.printStackTrace();
          }
-         finally
-         {
-            if (locator != null)
-            {
+         finally {
+            if (locator != null) {
                locator.close();
             }
-            if (session != null)
-            {
-               try
-               {
+            if (session != null) {
+               try {
                   session.close();
                }
-               catch (ActiveMQException e)
-               {
+               catch (ActiveMQException e) {
                   e.printStackTrace();
                }
             }

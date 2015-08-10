@@ -33,8 +33,8 @@ import javax.management.MBeanOperationInfo;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 @Inherited
-public @interface Operation
-{
+public @interface Operation {
+
    String desc();
 
    int impact() default MBeanOperationInfo.INFO;

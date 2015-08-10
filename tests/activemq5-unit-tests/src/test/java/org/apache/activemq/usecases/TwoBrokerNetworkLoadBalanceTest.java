@@ -28,50 +28,51 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class TwoBrokerNetworkLoadBalanceTest extends JmsMultipleBrokersTestSupport {
-    protected static final Logger LOG = LoggerFactory.getLogger(TwoBrokerNetworkLoadBalanceTest.class);
-    public void testLoadBalancing() throws Exception {
-        bridgeBrokers("BrokerA", "BrokerB");
-        bridgeBrokers("BrokerB", "BrokerA");
 
-        startAllBrokers();
-        waitForBridgeFormation();
+   protected static final Logger LOG = LoggerFactory.getLogger(TwoBrokerNetworkLoadBalanceTest.class);
 
-        // Setup destination
-        Destination dest = createDestination("TEST.FOO", false);
+   public void testLoadBalancing() throws Exception {
+      bridgeBrokers("BrokerA", "BrokerB");
+      bridgeBrokers("BrokerB", "BrokerA");
 
-        // Setup consumers
-        MessageConsumer clientA = createConsumer("BrokerA", dest);
+      startAllBrokers();
+      waitForBridgeFormation();
 
-     // Setup consumers
-        MessageConsumer clientB = createConsumer("BrokerB", dest);
-        
-        // Send messages
-        sendMessages("BrokerA", dest, 5000);
+      // Setup destination
+      Destination dest = createDestination("TEST.FOO", false);
 
-        // Send messages
-        sendMessages("BrokerB", dest, 1000);
+      // Setup consumers
+      MessageConsumer clientA = createConsumer("BrokerA", dest);
 
-        // Get message count
-        final MessageIdList msgsA = getConsumerMessages("BrokerA", clientA);
-        final MessageIdList msgsB = getConsumerMessages("BrokerB", clientB);
+      // Setup consumers
+      MessageConsumer clientB = createConsumer("BrokerB", dest);
 
-        Wait.waitFor(new Wait.Condition() {
-            public boolean isSatisified() throws Exception {
-                return msgsA.getMessageCount() + msgsB.getMessageCount() == 6000;
-            }});
-        
-        LOG.info("A got: " +  msgsA.getMessageCount());
-        LOG.info("B got: " +  msgsB.getMessageCount());
-         
-        assertTrue("B got is fair share: " + msgsB.getMessageCount(), msgsB.getMessageCount() > 2000);
-    }
-    
-    public void setUp() throws Exception {
-        super.setAutoFail(true);
-        super.setUp();
-        createBroker(new URI(
-                "broker:(tcp://localhost:61616)/BrokerA?persistent=false&useJmx=false"));
-        createBroker(new URI(
-                "broker:(tcp://localhost:61617)/BrokerB?persistent=false&useJmx=false"));
-    }
+      // Send messages
+      sendMessages("BrokerA", dest, 5000);
+
+      // Send messages
+      sendMessages("BrokerB", dest, 1000);
+
+      // Get message count
+      final MessageIdList msgsA = getConsumerMessages("BrokerA", clientA);
+      final MessageIdList msgsB = getConsumerMessages("BrokerB", clientB);
+
+      Wait.waitFor(new Wait.Condition() {
+         public boolean isSatisified() throws Exception {
+            return msgsA.getMessageCount() + msgsB.getMessageCount() == 6000;
+         }
+      });
+
+      LOG.info("A got: " + msgsA.getMessageCount());
+      LOG.info("B got: " + msgsB.getMessageCount());
+
+      assertTrue("B got is fair share: " + msgsB.getMessageCount(), msgsB.getMessageCount() > 2000);
+   }
+
+   public void setUp() throws Exception {
+      super.setAutoFail(true);
+      super.setUp();
+      createBroker(new URI("broker:(tcp://localhost:61616)/BrokerA?persistent=false&useJmx=false"));
+      createBroker(new URI("broker:(tcp://localhost:61617)/BrokerB?persistent=false&useJmx=false"));
+   }
 }

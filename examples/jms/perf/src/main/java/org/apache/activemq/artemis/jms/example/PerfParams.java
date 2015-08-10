@@ -21,8 +21,8 @@ import java.io.Serializable;
 /**
  * Class that holds the parameters used in the performance examples
  */
-public class PerfParams implements Serializable
-{
+public class PerfParams implements Serializable {
+
    private static final long serialVersionUID = -4336539641012356002L;
 
    private int noOfMessagesToSend = 1000;
@@ -51,133 +51,107 @@ public class PerfParams implements Serializable
 
    private boolean dupsOK;
 
-   public synchronized int getNoOfMessagesToSend()
-   {
+   public synchronized int getNoOfMessagesToSend() {
       return noOfMessagesToSend;
    }
 
-   public synchronized void setNoOfMessagesToSend(final int noOfMessagesToSend)
-   {
+   public synchronized void setNoOfMessagesToSend(final int noOfMessagesToSend) {
       this.noOfMessagesToSend = noOfMessagesToSend;
    }
 
-   public synchronized int getNoOfWarmupMessages()
-   {
+   public synchronized int getNoOfWarmupMessages() {
       return noOfWarmupMessages;
    }
 
-   public synchronized void setNoOfWarmupMessages(final int noOfWarmupMessages)
-   {
+   public synchronized void setNoOfWarmupMessages(final int noOfWarmupMessages) {
       this.noOfWarmupMessages = noOfWarmupMessages;
    }
 
-   public synchronized int getMessageSize()
-   {
+   public synchronized int getMessageSize() {
       return messageSize;
    }
 
-   public synchronized void setMessageSize(final int messageSize)
-   {
+   public synchronized void setMessageSize(final int messageSize) {
       this.messageSize = messageSize;
    }
 
-   public synchronized boolean isDurable()
-   {
+   public synchronized boolean isDurable() {
       return durable;
    }
 
-   public synchronized void setDurable(final boolean durable)
-   {
+   public synchronized void setDurable(final boolean durable) {
       this.durable = durable;
    }
 
-   public synchronized boolean isSessionTransacted()
-   {
+   public synchronized boolean isSessionTransacted() {
       return isSessionTransacted;
    }
 
-   public synchronized void setSessionTransacted(final boolean isSessionTransacted)
-   {
+   public synchronized void setSessionTransacted(final boolean isSessionTransacted) {
       this.isSessionTransacted = isSessionTransacted;
    }
 
-   public synchronized int getBatchSize()
-   {
+   public synchronized int getBatchSize() {
       return batchSize;
    }
 
-   public synchronized void setBatchSize(final int batchSize)
-   {
+   public synchronized void setBatchSize(final int batchSize) {
       this.batchSize = batchSize;
    }
 
-   public synchronized boolean isDrainQueue()
-   {
+   public synchronized boolean isDrainQueue() {
       return drainQueue;
    }
 
-   public synchronized void setDrainQueue(final boolean drainQueue)
-   {
+   public synchronized void setDrainQueue(final boolean drainQueue) {
       this.drainQueue = drainQueue;
    }
 
-   public synchronized String getConnectionFactoryLookup()
-   {
+   public synchronized String getConnectionFactoryLookup() {
       return connectionFactoryLookup;
    }
 
-   public synchronized void setConnectionFactoryLookup(final String connectionFactoryLookup)
-   {
+   public synchronized void setConnectionFactoryLookup(final String connectionFactoryLookup) {
       this.connectionFactoryLookup = connectionFactoryLookup;
    }
 
-   public synchronized String getDestinationLookup()
-   {
+   public synchronized String getDestinationLookup() {
       return destinationLookup;
    }
 
-   public synchronized void setDestinationLookup(final String destinationLookup)
-   {
+   public synchronized void setDestinationLookup(final String destinationLookup) {
       this.destinationLookup = destinationLookup;
    }
 
-   public synchronized int getThrottleRate()
-   {
+   public synchronized int getThrottleRate() {
       return throttleRate;
    }
 
-   public synchronized void setThrottleRate(final int throttleRate)
-   {
+   public synchronized void setThrottleRate(final int throttleRate) {
       this.throttleRate = throttleRate;
    }
 
-   public synchronized boolean isDisableMessageID()
-   {
+   public synchronized boolean isDisableMessageID() {
       return disableMessageID;
    }
 
-   public synchronized void setDisableMessageID(final boolean disableMessageID)
-   {
+   public synchronized void setDisableMessageID(final boolean disableMessageID) {
       this.disableMessageID = disableMessageID;
    }
 
-   public synchronized boolean isDisableTimestamp()
-   {
+   public synchronized boolean isDisableTimestamp() {
       return disableTimestamp;
    }
 
-   public synchronized void setDisableTimestamp(final boolean disableTimestamp)
-   {
+   public synchronized void setDisableTimestamp(final boolean disableTimestamp) {
       this.disableTimestamp = disableTimestamp;
    }
 
-   public synchronized boolean isDupsOK()
-   {
+   public synchronized boolean isDupsOK() {
       return dupsOK;
    }
 
-   public synchronized void setDupsOK(final boolean dupsOK)
-   {
+   public synchronized void setDupsOK(final boolean dupsOK) {
       this.dupsOK = dupsOK;
    }
 

@@ -32,8 +32,8 @@ import org.apache.activemq.artemis.api.core.SimpleString;
  *
  * This provides a helper for core message to act some of the JMS functions used by the JMS wrapper
  */
-public class MessageUtil
-{
+public class MessageUtil {
+
    public static final SimpleString CORRELATIONID_HEADER_NAME = new SimpleString("JMSCorrelationID");
 
    public static final SimpleString REPLYTO_HEADER_NAME = new SimpleString("JMSReplyTo");
@@ -52,137 +52,99 @@ public class MessageUtil
 
    public static final SimpleString CONNECTION_ID_PROPERTY_NAME = new SimpleString("__AMQ_CID");
 
-
-
-   public static ActiveMQBuffer getBodyBuffer(Message message)
-   {
+   public static ActiveMQBuffer getBodyBuffer(Message message) {
       return message.getBodyBuffer();
    }
 
-
-
-   public static byte[] getJMSCorrelationIDAsBytes(Message message)
-   {
+   public static byte[] getJMSCorrelationIDAsBytes(Message message) {
       Object obj = message.getObjectProperty(CORRELATIONID_HEADER_NAME);
 
-      if (obj instanceof byte[])
-      {
-         return (byte[])obj;
+      if (obj instanceof byte[]) {
+         return (byte[]) obj;
       }
-      else
-      {
+      else {
          return null;
       }
    }
 
-
-
-   public static void setJMSType(Message message, String type)
-   {
+   public static void setJMSType(Message message, String type) {
       message.putStringProperty(TYPE_HEADER_NAME, new SimpleString(type));
    }
 
-   public static String getJMSType(Message message)
-   {
+   public static String getJMSType(Message message) {
       SimpleString ss = message.getSimpleStringProperty(TYPE_HEADER_NAME);
 
-      if (ss != null)
-      {
+      if (ss != null) {
          return ss.toString();
       }
-      else
-      {
+      else {
          return null;
       }
    }
 
-
-   public static final void setJMSCorrelationIDAsBytes(Message message, final byte[] correlationID) throws ActiveMQException
-   {
-      if (correlationID == null || correlationID.length == 0)
-      {
+   public static final void setJMSCorrelationIDAsBytes(Message message,
+                                                       final byte[] correlationID) throws ActiveMQException {
+      if (correlationID == null || correlationID.length == 0) {
          throw new ActiveMQException("Please specify a non-zero length byte[]");
       }
       message.putBytesProperty(CORRELATIONID_HEADER_NAME, correlationID);
    }
 
-   public static void setJMSCorrelationID(Message message, final String correlationID)
-   {
-      if (correlationID == null)
-      {
+   public static void setJMSCorrelationID(Message message, final String correlationID) {
+      if (correlationID == null) {
          message.removeProperty(CORRELATIONID_HEADER_NAME);
       }
-      else
-      {
+      else {
          message.putStringProperty(CORRELATIONID_HEADER_NAME, new SimpleString(correlationID));
       }
    }
 
-   public static String getJMSCorrelationID(Message message)
-   {
-      try
-      {
+   public static String getJMSCorrelationID(Message message) {
+      try {
          return message.getStringProperty(CORRELATIONID_HEADER_NAME);
       }
-      catch (ActiveMQPropertyConversionException e)
-      {
+      catch (ActiveMQPropertyConversionException e) {
          return null;
       }
    }
 
-
-   public static SimpleString getJMSReplyTo(Message message)
-   {
+   public static SimpleString getJMSReplyTo(Message message) {
       return message.getSimpleStringProperty(REPLYTO_HEADER_NAME);
    }
 
-   public static void setJMSReplyTo(Message message, final SimpleString dest)
-   {
+   public static void setJMSReplyTo(Message message, final SimpleString dest) {
 
-      if (dest == null)
-      {
+      if (dest == null) {
          message.removeProperty(REPLYTO_HEADER_NAME);
       }
-      else
-      {
+      else {
 
          message.putStringProperty(REPLYTO_HEADER_NAME, dest);
       }
    }
 
-
-
-   public static void clearProperties(Message message)
-   {
+   public static void clearProperties(Message message) {
 
       List<SimpleString> toRemove = new ArrayList<SimpleString>();
 
-      for (SimpleString propName : message.getPropertyNames())
-      {
+      for (SimpleString propName : message.getPropertyNames()) {
          if (!propName.startsWith(JMS) || propName.startsWith(JMSX) ||
-            propName.startsWith(JMS_))
-         {
+            propName.startsWith(JMS_)) {
             toRemove.add(propName);
          }
       }
 
-      for (SimpleString propName : toRemove)
-      {
+      for (SimpleString propName : toRemove) {
          message.removeProperty(propName);
       }
    }
 
-
-
-   public static Set<String> getPropertyNames(Message message)
-   {
+   public static Set<String> getPropertyNames(Message message) {
       HashSet<String> set = new HashSet<String>();
 
-      for (SimpleString propName : message.getPropertyNames())
-      {
+      for (SimpleString propName : message.getPropertyNames()) {
          if ((!propName.startsWith(JMS) || propName.startsWith(JMSX) ||
-            propName.startsWith(JMS_)) && !propName.startsWith(CONNECTION_ID_PROPERTY_NAME))
-         {
+            propName.startsWith(JMS_)) && !propName.startsWith(CONNECTION_ID_PROPERTY_NAME)) {
             set.add(propName.toString());
          }
       }
@@ -192,10 +154,8 @@ public class MessageUtil
       return set;
    }
 
-   public static boolean propertyExists(Message message, String name)
-   {
+   public static boolean propertyExists(Message message, String name) {
       return message.containsProperty(new SimpleString(name)) || name.equals(MessageUtil.JMSXDELIVERYCOUNT) ||
-         MessageUtil.JMSXGROUPID.equals(name) &&
-            message.containsProperty(Message.HDR_GROUP_ID);
+         MessageUtil.JMSXGROUPID.equals(name) && message.containsProperty(Message.HDR_GROUP_ID);
    }
 }

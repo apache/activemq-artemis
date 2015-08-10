@@ -21,11 +21,10 @@ import java.util.List;
 import org.apache.activemq.artemis.core.server.MessageReference;
 
 /**
- *
  * A TransactionOperation
  */
-public interface TransactionOperation
-{
+public interface TransactionOperation {
+
    void beforePrepare(Transaction tx) throws Exception;
 
    /**

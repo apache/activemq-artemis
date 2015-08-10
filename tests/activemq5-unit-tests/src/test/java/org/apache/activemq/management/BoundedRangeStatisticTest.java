@@ -16,23 +16,22 @@
  */
 package org.apache.activemq.management;
 
-
-
 /**
- * 
+ *
  */
 public class BoundedRangeStatisticTest extends RangeStatisticTest {
 
-    /**
-     * Use case for BoundedRangeStatisticImpl class.
-     * @throws Exception
-     */
-    public void testStatistic() throws Exception {
-        BoundedRangeStatisticImpl stat = new BoundedRangeStatisticImpl("myRange", "millis", "myDescription", 10, 3000);
-        assertStatistic(stat, "myRange", "millis", "myDescription");
-        assertEquals(10, stat.getLowerBound());
-        assertEquals(3000, stat.getUpperBound());
+   /**
+    * Use case for BoundedRangeStatisticImpl class.
+    *
+    * @throws Exception
+    */
+   public void testStatistic() throws Exception {
+      BoundedRangeStatisticImpl stat = new BoundedRangeStatisticImpl("myRange", "millis", "myDescription", 10, 3000);
+      assertStatistic(stat, "myRange", "millis", "myDescription");
+      assertEquals(10, stat.getLowerBound());
+      assertEquals(3000, stat.getUpperBound());
 
-        assertRangeStatistic(stat);
-    }
+      assertRangeStatistic(stat);
+   }
 }

@@ -53,8 +53,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class XaTimeoutTest extends ActiveMQTestBase
-{
+public class XaTimeoutTest extends ActiveMQTestBase {
 
    private final Map<String, AddressSettings> addressSettings = new HashMap<String, AddressSettings>();
 
@@ -76,14 +75,11 @@ public class XaTimeoutTest extends ActiveMQTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       addressSettings.clear();
-      configuration = createBasicConfig()
-         .setTransactionTimeoutScanPeriod(500)
-         .addAcceptorConfiguration(new TransportConfiguration(ActiveMQTestBase.INVM_ACCEPTOR_FACTORY));
+      configuration = createBasicConfig().setTransactionTimeoutScanPeriod(500).addAcceptorConfiguration(new TransportConfiguration(ActiveMQTestBase.INVM_ACCEPTOR_FACTORY));
       server = addServer(ActiveMQServers.newActiveMQServer(configuration, false));
       // start the server
       server.start();
@@ -97,8 +93,7 @@ public class XaTimeoutTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testSimpleTimeoutOnSendOnCommit() throws Exception
-   {
+   public void testSimpleTimeoutOnSendOnCommit() throws Exception {
       Xid xid = new XidImpl("xa1".getBytes(), 1, UUIDGenerator.getInstance().generateStringUUID().getBytes());
 
       ClientMessage m1 = createTextMessage(clientSession, "m1");
@@ -115,12 +110,10 @@ public class XaTimeoutTest extends ActiveMQTestBase
       CountDownLatch latch = new CountDownLatch(1);
       server.getResourceManager().getTransaction(xid).addOperation(new RollbackCompleteOperation(latch));
       Assert.assertTrue(latch.await(5, TimeUnit.SECONDS));
-      try
-      {
+      try {
          clientSession.commit(xid, true);
       }
-      catch (XAException e)
-      {
+      catch (XAException e) {
          Assert.assertTrue(e.errorCode == XAException.XAER_NOTA);
       }
       clientSession.start();
@@ -129,8 +122,7 @@ public class XaTimeoutTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testSimpleTimeoutOnReceive() throws Exception
-   {
+   public void testSimpleTimeoutOnReceive() throws Exception {
       Xid xid = new XidImpl("xa1".getBytes(), 1, UUIDGenerator.getInstance().generateStringUUID().getBytes());
 
       ClientMessage m1 = createTextMessage(clientSession, "m1");
@@ -167,12 +159,10 @@ public class XaTimeoutTest extends ActiveMQTestBase
       CountDownLatch latch = new CountDownLatch(1);
       server.getResourceManager().getTransaction(xid).addOperation(new RollbackCompleteOperation(latch));
       Assert.assertTrue(latch.await(5, TimeUnit.SECONDS));
-      try
-      {
+      try {
          clientSession.commit(xid, true);
       }
-      catch (XAException e)
-      {
+      catch (XAException e) {
          Assert.assertTrue(e.errorCode == XAException.XAER_NOTA);
       }
       clientSession.setTransactionTimeout(0);
@@ -200,8 +190,7 @@ public class XaTimeoutTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testSimpleTimeoutOnSendAndReceive() throws Exception
-   {
+   public void testSimpleTimeoutOnSendAndReceive() throws Exception {
       Xid xid = new XidImpl("xa1".getBytes(), 1, UUIDGenerator.getInstance().generateStringUUID().getBytes());
 
       ClientMessage m1 = createTextMessage(clientSession, "m1");
@@ -246,12 +235,10 @@ public class XaTimeoutTest extends ActiveMQTestBase
       CountDownLatch latch = new CountDownLatch(1);
       server.getResourceManager().getTransaction(xid).addOperation(new RollbackCompleteOperation(latch));
       Assert.assertTrue(latch.await(5, TimeUnit.SECONDS));
-      try
-      {
+      try {
          clientSession.commit(xid, true);
       }
-      catch (XAException e)
-      {
+      catch (XAException e) {
          Assert.assertTrue(e.errorCode == XAException.XAER_NOTA);
       }
       clientSession.setTransactionTimeout(0);
@@ -281,8 +268,7 @@ public class XaTimeoutTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testPreparedTransactionNotTimedOut() throws Exception
-   {
+   public void testPreparedTransactionNotTimedOut() throws Exception {
       Xid xid = new XidImpl("xa1".getBytes(), 1, UUIDGenerator.getInstance().generateStringUUID().getBytes());
 
       ClientMessage m1 = createTextMessage(clientSession, "m1");
@@ -356,10 +342,8 @@ public class XaTimeoutTest extends ActiveMQTestBase
       clientSession2.close();
    }
 
-
    @Test
-   public void testTimeoutOnConsumerResend() throws Exception
-   {
+   public void testTimeoutOnConsumerResend() throws Exception {
 
       int numberOfMessages = 100;
 
@@ -367,8 +351,7 @@ public class XaTimeoutTest extends ActiveMQTestBase
       {
          ClientSession simpleTXSession = sessionFactory.createTransactedSession();
          ClientProducer producerTX = simpleTXSession.createProducer(atestq);
-         for (int i = 0; i < numberOfMessages; i++)
-         {
+         for (int i = 0; i < numberOfMessages; i++) {
             ClientMessage m = createTextMessage(clientSession, "m-" + i);
             m.putIntProperty("msg", i);
             producerTX.send(m);
@@ -392,12 +375,9 @@ public class XaTimeoutTest extends ActiveMQTestBase
       outProducerSession.setTransactionTimeout(2);
       clientSession.setTransactionTimeout(2);
 
-      MessageHandler handler = new MessageHandler()
-      {
-         public void onMessage(ClientMessage message)
-         {
-            try
-            {
+      MessageHandler handler = new MessageHandler() {
+         public void onMessage(ClientMessage message) {
+            try {
                latchReceives.countDown();
 
                Xid xid = new XidImpl("xa1".getBytes(), 1, UUIDGenerator.getInstance().generateStringUUID().getBytes());
@@ -415,63 +395,51 @@ public class XaTimeoutTest extends ActiveMQTestBase
                outProducer.send(msgOut);
 
                boolean rollback = false;
-               if (msgCount.getAndIncrement() == 0)
-               {
+               if (msgCount.getAndIncrement() == 0) {
                   rollback = true;
                   System.out.println("Forcing first message to time out");
                   Thread.sleep(5000);
                }
 
-               try
-               {
+               try {
                   clientSession.end(xid, XAResource.TMSUCCESS);
                }
-               catch (Exception e)
-               {
+               catch (Exception e) {
                   e.printStackTrace();
                }
 
-               try
-               {
+               try {
                   outProducerSession.end(xidOut, XAResource.TMSUCCESS);
                }
-               catch (Exception e)
-               {
+               catch (Exception e) {
                   e.printStackTrace();
                }
 
-               if (rollback)
-               {
-                  try
-                  {
+               if (rollback) {
+                  try {
                      clientSession.rollback(xid);
                   }
-                  catch (Exception e)
-                  {
+                  catch (Exception e) {
                      e.printStackTrace();
                      clientSession.rollback();
                   }
 
-                  try
-                  {
+                  try {
                      outProducerSession.rollback(xidOut);
                   }
-                  catch (Exception e)
-                  {
+                  catch (Exception e) {
                      e.printStackTrace();
                      outProducerSession.rollback();
                   }
                }
-               else
-               {
+               else {
                   clientSession.prepare(xid);
                   outProducerSession.prepare(xidOut);
                   clientSession.commit(xid, false);
                   outProducerSession.commit(xidOut, false);
                }
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                e.printStackTrace();
                errors.incrementAndGet();
             }
@@ -489,15 +457,13 @@ public class XaTimeoutTest extends ActiveMQTestBase
       clientConsumer = clientSession.createConsumer(this.atestq);
       assertNull(clientConsumer.receiveImmediate());
 
-
       clientConsumer.close();
 
       clientConsumer = clientSession.createConsumer(outQueue);
 
       HashSet<Integer> msgsIds = new HashSet<Integer>();
 
-      for (int i = 0; i < numberOfMessages; i++)
-      {
+      for (int i = 0; i < numberOfMessages; i++) {
          ClientMessage msg = clientConsumer.receive(1000);
          assertNotNull(msg);
          msg.acknowledge();
@@ -506,15 +472,13 @@ public class XaTimeoutTest extends ActiveMQTestBase
 
       assertNull(clientConsumer.receiveImmediate());
 
-      for (int i = 0; i < numberOfMessages; i++)
-      {
+      for (int i = 0; i < numberOfMessages; i++) {
          assertTrue(msgsIds.contains(i));
       }
 
       outProducerSession.close();
 
    }
-
 
    /**
     * In case a timeout happens the server's object may still have the previous XID.
@@ -524,8 +488,7 @@ public class XaTimeoutTest extends ActiveMQTestBase
     * @throws Exception
     */
    @Test
-   public void testChangeXID() throws Exception
-   {
+   public void testChangeXID() throws Exception {
       Xid xid = new XidImpl("xa1".getBytes(), 1, UUIDGenerator.getInstance().generateStringUUID().getBytes());
       Xid xid2 = new XidImpl("xa1".getBytes(), 1, UUIDGenerator.getInstance().generateStringUUID().getBytes());
 
@@ -535,8 +498,7 @@ public class XaTimeoutTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testChangingTimeoutGetsPickedUp() throws Exception
-   {
+   public void testChangingTimeoutGetsPickedUp() throws Exception {
       Xid xid = new XidImpl("xa1".getBytes(), 1, UUIDGenerator.getInstance().generateStringUUID().getBytes());
 
       ClientMessage m1 = createTextMessage(clientSession, "m1");
@@ -562,12 +524,10 @@ public class XaTimeoutTest extends ActiveMQTestBase
       clientProducer.send(m4);
       clientSession.end(xid, XAResource.TMSUCCESS);
       Assert.assertTrue(latch.await(2600, TimeUnit.MILLISECONDS));
-      try
-      {
+      try {
          clientSession.commit(xid, true);
       }
-      catch (XAException e)
-      {
+      catch (XAException e) {
          Assert.assertTrue(e.errorCode == XAException.XAER_NOTA);
       }
       clientSession.start();
@@ -584,79 +544,61 @@ public class XaTimeoutTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testMultipleTransactionsTimedOut() throws Exception
-   {
+   public void testMultipleTransactionsTimedOut() throws Exception {
       Xid[] xids = new XidImpl[100];
-      for (int i = 0; i < xids.length; i++)
-      {
+      for (int i = 0; i < xids.length; i++) {
          xids[i] = new XidImpl(("xa" + i).getBytes(), 1, UUIDGenerator.getInstance().generateStringUUID().getBytes());
       }
       ClientSession[] clientSessions = new ClientSession[xids.length];
-      for (int i = 0; i < clientSessions.length; i++)
-      {
+      for (int i = 0; i < clientSessions.length; i++) {
          clientSessions[i] = sessionFactory.createSession(true, false, false);
          clientSessions[i].setTransactionTimeout(i < 50 ? 2 : 5000);
       }
 
       ClientProducer[] clientProducers = new ClientProducer[xids.length];
-      for (int i = 0; i < clientProducers.length; i++)
-      {
+      for (int i = 0; i < clientProducers.length; i++) {
          clientProducers[i] = clientSessions[i].createProducer(atestq);
       }
 
       ClientMessage[] messages = new ClientMessage[xids.length];
 
-      for (int i = 0; i < messages.length; i++)
-      {
+      for (int i = 0; i < messages.length; i++) {
          messages[i] = createTextMessage(clientSession, "m" + i);
       }
-      for (int i = 0; i < clientSessions.length; i++)
-      {
+      for (int i = 0; i < clientSessions.length; i++) {
          clientSessions[i].start(xids[i], XAResource.TMNOFLAGS);
       }
-      for (int i = 0; i < clientProducers.length; i++)
-      {
+      for (int i = 0; i < clientProducers.length; i++) {
          clientProducers[i].send(messages[i]);
       }
-      for (int i = 0; i < clientSessions.length; i++)
-      {
+      for (int i = 0; i < clientSessions.length; i++) {
          clientSessions[i].end(xids[i], XAResource.TMSUCCESS);
       }
       CountDownLatch[] latches = new CountDownLatch[xids.length];
-      for (int i1 = 0; i1 < latches.length; i1++)
-      {
+      for (int i1 = 0; i1 < latches.length; i1++) {
          latches[i1] = new CountDownLatch(1);
-         server.getResourceManager()
-            .getTransaction(xids[i1])
-            .addOperation(new RollbackCompleteOperation(latches[i1]));
+         server.getResourceManager().getTransaction(xids[i1]).addOperation(new RollbackCompleteOperation(latches[i1]));
       }
-      for (int i1 = 0; i1 < latches.length / 2; i1++)
-      {
+      for (int i1 = 0; i1 < latches.length / 2; i1++) {
          Assert.assertTrue(latches[i1].await(5, TimeUnit.SECONDS));
       }
 
-      for (int i = 0; i < clientSessions.length / 2; i++)
-      {
-         try
-         {
+      for (int i = 0; i < clientSessions.length / 2; i++) {
+         try {
             clientSessions[i].commit(xids[i], true);
          }
-         catch (XAException e)
-         {
+         catch (XAException e) {
             Assert.assertTrue(e.errorCode == XAException.XAER_NOTA);
          }
       }
-      for (int i = 50; i < clientSessions.length; i++)
-      {
+      for (int i = 50; i < clientSessions.length; i++) {
          clientSessions[i].commit(xids[i], true);
       }
-      for (ClientSession session : clientSessions)
-      {
+      for (ClientSession session : clientSessions) {
          session.close();
       }
       clientSession.start();
-      for (int i = 0; i < clientSessions.length / 2; i++)
-      {
+      for (int i = 0; i < clientSessions.length / 2; i++) {
          ClientMessage m = clientConsumer.receiveImmediate();
          Assert.assertNotNull(m);
       }
@@ -666,26 +608,20 @@ public class XaTimeoutTest extends ActiveMQTestBase
 
    // HORNETQ-1117 - Test that will timeout on a XA transaction and then will perform another XA operation
    @Test
-   public void testTimeoutOnXACall() throws Exception
-   {
+   public void testTimeoutOnXACall() throws Exception {
       final CountDownLatch latch = new CountDownLatch(1);
-      class SomeInterceptor implements Interceptor
-      {
+      class SomeInterceptor implements Interceptor {
 
          /* (non-Javadoc)
           * @see Interceptor#intercept(org.apache.activemq.artemis.core.protocol.core.Packet, RemotingConnection)
           */
          @Override
-         public boolean intercept(Packet packet, RemotingConnection connection) throws ActiveMQException
-         {
-            if (packet instanceof SessionXAStartMessage)
-            {
-               try
-               {
+         public boolean intercept(Packet packet, RemotingConnection connection) throws ActiveMQException {
+            if (packet instanceof SessionXAStartMessage) {
+               try {
                   latch.await(1, TimeUnit.MINUTES);
                }
-               catch (InterruptedException e)
-               {
+               catch (InterruptedException e) {
                   e.printStackTrace();
                }
             }
@@ -695,8 +631,7 @@ public class XaTimeoutTest extends ActiveMQTestBase
       }
       server.getRemotingService().addIncomingInterceptor(new SomeInterceptor());
 
-      ServerLocator locatorTimeout = createInVMNonHALocator()
-              .setCallTimeout(300);
+      ServerLocator locatorTimeout = createInVMNonHALocator().setCallTimeout(300);
       ClientSessionFactory factoryTimeout = locatorTimeout.createSessionFactory();
 
       final ClientSession sessionTimeout = factoryTimeout.createSession(true, false, false);
@@ -705,12 +640,10 @@ public class XaTimeoutTest extends ActiveMQTestBase
 
       boolean expectedException = false;
 
-      try
-      {
+      try {
          sessionTimeout.start(xid, XAResource.TMNOFLAGS);
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          expectedException = true;
          e.printStackTrace();
       }
@@ -729,18 +662,16 @@ public class XaTimeoutTest extends ActiveMQTestBase
       locatorTimeout.close();
    }
 
-   final class RollbackCompleteOperation extends TransactionOperationAbstract
-   {
+   final class RollbackCompleteOperation extends TransactionOperationAbstract {
+
       final CountDownLatch latch;
 
-      public RollbackCompleteOperation(final CountDownLatch latch)
-      {
+      public RollbackCompleteOperation(final CountDownLatch latch) {
          this.latch = latch;
       }
 
       @Override
-      public void afterRollback(final Transaction tx)
-      {
+      public void afterRollback(final Transaction tx) {
          latch.countDown();
       }
    }

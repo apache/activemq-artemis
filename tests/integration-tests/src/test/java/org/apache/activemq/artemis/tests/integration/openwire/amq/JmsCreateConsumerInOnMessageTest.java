@@ -30,8 +30,8 @@ import org.junit.Test;
 /**
  * adapted from: org.apache.activemq.JmsCreateConsumerInOnMessageTest
  */
-public class JmsCreateConsumerInOnMessageTest extends BasicOpenWireTest implements MessageListener
-{
+public class JmsCreateConsumerInOnMessageTest extends BasicOpenWireTest implements MessageListener {
+
    private Session publisherSession;
    private Session consumerSession;
    private MessageConsumer consumer;
@@ -46,15 +46,11 @@ public class JmsCreateConsumerInOnMessageTest extends BasicOpenWireTest implemen
     * @throws Exception
     */
    @Test
-   public void testCreateConsumer() throws Exception
-   {
+   public void testCreateConsumer() throws Exception {
       connection.setClientID("connection:" + "JmsCreateConsumerInOnMessageTest");
-      publisherSession = connection.createSession(false,
-            Session.AUTO_ACKNOWLEDGE);
-      consumerSession = connection.createSession(false,
-            Session.AUTO_ACKNOWLEDGE);
-      topic = (Topic) super.createDestination(consumerSession,
-            ActiveMQDestination.TOPIC_TYPE);
+      publisherSession = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      consumerSession = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      topic = (Topic) super.createDestination(consumerSession, ActiveMQDestination.TOPIC_TYPE);
       consumer = consumerSession.createConsumer(topic);
       consumer.setMessageListener(this);
       producer = publisherSession.createProducer(topic);
@@ -63,11 +59,9 @@ public class JmsCreateConsumerInOnMessageTest extends BasicOpenWireTest implemen
       producer.send(msg);
 
       System.out.println("message sent: " + msg);
-      synchronized (lock)
-      {
+      synchronized (lock) {
          long timeout = System.currentTimeMillis() + 3000;
-         while (testConsumer == null && timeout > System.currentTimeMillis())
-         {
+         while (testConsumer == null && timeout > System.currentTimeMillis()) {
             lock.wait(1000);
          }
       }
@@ -79,20 +73,16 @@ public class JmsCreateConsumerInOnMessageTest extends BasicOpenWireTest implemen
     *
     * @param message
     */
-   public void onMessage(Message message)
-   {
+   public void onMessage(Message message) {
       System.out.println("____________onmessage " + message);
-      try
-      {
-         synchronized (lock)
-         {
+      try {
+         synchronized (lock) {
             testConsumer = consumerSession.createConsumer(topic);
             consumerSession.createProducer(topic);
             lock.notify();
          }
       }
-      catch (Exception ex)
-      {
+      catch (Exception ex) {
          ex.printStackTrace();
          assertTrue(false);
       }

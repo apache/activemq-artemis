@@ -32,10 +32,9 @@ import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
  * A simple example that shows a JMS Topic clustered across two nodes of a cluster.
  * Messages are sent on one node and received by consumers on both nodes.
  */
-public class ClusteredTopicExample
-{
-   public static void main(final String[] args) throws Exception
-   {
+public class ClusteredTopicExample {
+
+   public static void main(final String[] args) throws Exception {
       Connection connection0 = null;
 
       Connection connection1 = null;
@@ -44,8 +43,7 @@ public class ClusteredTopicExample
 
       InitialContext ic1 = null;
 
-      try
-      {
+      try {
 
          // Step 1. Instantiate topic
          Topic topic = ActiveMQJMSClient.createTopic("exampleTopic");
@@ -87,8 +85,7 @@ public class ClusteredTopicExample
 
          final int numMessages = 10;
 
-         for (int i = 0; i < numMessages; i++)
-         {
+         for (int i = 0; i < numMessages; i++) {
             TextMessage message = session0.createTextMessage("This is text message " + i);
 
             producer.send(message);
@@ -100,37 +97,31 @@ public class ClusteredTopicExample
          // We note that all messages have been consumed by *both* consumers.
          // JMS Topics implement *publish-subscribe* messaging where all consumers get a copy of all messages
 
-         for (int i = 0; i < numMessages; i++)
-         {
-            TextMessage message0 = (TextMessage)consumer0.receive(5000);
+         for (int i = 0; i < numMessages; i++) {
+            TextMessage message0 = (TextMessage) consumer0.receive(5000);
 
             System.out.println("Got message: " + message0.getText() + " from node 0");
 
-            TextMessage message1 = (TextMessage)consumer1.receive(5000);
+            TextMessage message1 = (TextMessage) consumer1.receive(5000);
 
             System.out.println("Got message: " + message1.getText() + " from node 1");
          }
       }
-      finally
-      {
+      finally {
          // Step 15. Be sure to close our JMS resources!
-         if (connection0 != null)
-         {
+         if (connection0 != null) {
             connection0.close();
          }
 
-         if (connection1 != null)
-         {
+         if (connection1 != null) {
             connection1.close();
          }
 
-         if (ic0 != null)
-         {
+         if (ic0 != null) {
             ic0.close();
          }
 
-         if (ic1 != null)
-         {
+         if (ic1 != null) {
             ic1.close();
          }
       }

@@ -24,10 +24,9 @@ import org.apache.activemq.artemis.core.server.MessageReference;
 /**
  * Just a helper, when you don't want to implement all the methods on a transaction operation.
  */
-public abstract class TransactionOperationAbstract implements TransactionOperation
-{
-   public void beforePrepare(Transaction tx) throws Exception
-   {
+public abstract class TransactionOperationAbstract implements TransactionOperation {
+
+   public void beforePrepare(Transaction tx) throws Exception {
 
    }
 
@@ -36,13 +35,11 @@ public abstract class TransactionOperationAbstract implements TransactionOperati
     * <p>
     * Any verification has to be done on before prepare
     */
-   public void afterPrepare(Transaction tx)
-   {
+   public void afterPrepare(Transaction tx) {
 
    }
 
-   public void beforeCommit(Transaction tx) throws Exception
-   {
+   public void beforeCommit(Transaction tx) throws Exception {
    }
 
    /**
@@ -50,12 +47,10 @@ public abstract class TransactionOperationAbstract implements TransactionOperati
     * <p>
     * Any verification has to be done on before commit
     */
-   public void afterCommit(Transaction tx)
-   {
+   public void afterCommit(Transaction tx) {
    }
 
-   public void beforeRollback(Transaction tx) throws Exception
-   {
+   public void beforeRollback(Transaction tx) throws Exception {
    }
 
    /**
@@ -63,13 +58,11 @@ public abstract class TransactionOperationAbstract implements TransactionOperati
     * <p>
     * Any verification has to be done on before rollback
     */
-   public void afterRollback(Transaction tx)
-   {
+   public void afterRollback(Transaction tx) {
    }
 
    @Override
-   public List<MessageReference> getRelatedMessageReferences()
-   {
+   public List<MessageReference> getRelatedMessageReferences() {
       return Collections.emptyList();
    }
 
@@ -77,10 +70,8 @@ public abstract class TransactionOperationAbstract implements TransactionOperati
     * @see org.apache.activemq.artemis.core.transaction.TransactionOperation#getListOnConsumer(long)
     */
    @Override
-   public List<MessageReference> getListOnConsumer(long consumerID)
-   {
+   public List<MessageReference> getListOnConsumer(long consumerID) {
       return Collections.emptyList();
    }
-
 
 }

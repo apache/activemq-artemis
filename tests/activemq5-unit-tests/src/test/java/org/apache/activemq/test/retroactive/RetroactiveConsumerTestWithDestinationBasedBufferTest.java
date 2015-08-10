@@ -18,10 +18,11 @@ package org.apache.activemq.test.retroactive;
 
 /**
  *
- * 
+ *
  */
 public class RetroactiveConsumerTestWithDestinationBasedBufferTest extends RetroactiveConsumerTestWithSimpleMessageListTest {
-    protected String getBrokerXml() {
-        return "org/apache/activemq/test/retroactive/activemq-fixed-destination-buffer.xml";
-    }
+
+   protected String getBrokerXml() {
+      return "org/apache/activemq/test/retroactive/activemq-fixed-destination-buffer.xml";
+   }
 }

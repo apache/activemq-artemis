@@ -35,146 +35,147 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * 
+ *
  */
 public class JmsDurableTopicSlowReceiveTest extends JmsTopicSendReceiveTest {
-    
-    static final int NMSG = 200;
-    static final int MSIZE = 256000;
-    private static final transient Logger LOG = LoggerFactory.getLogger(JmsDurableTopicSlowReceiveTest.class);
-    private static final String COUNT_PROPERY_NAME = "count";
 
-    protected Connection connection2;
-    protected Session session2;
-    protected Session consumeSession2;
-    protected MessageConsumer consumer2;
-    protected MessageProducer producer2;
-    protected Destination consumerDestination2;
-    BrokerService broker;
-    private Connection connection3;
-    private Session consumeSession3;
-    private TopicSubscriber consumer3;
+   static final int NMSG = 200;
+   static final int MSIZE = 256000;
+   private static final transient Logger LOG = LoggerFactory.getLogger(JmsDurableTopicSlowReceiveTest.class);
+   private static final String COUNT_PROPERY_NAME = "count";
 
-    /**
-     * Set up a durable suscriber test.
-     * 
-     * @see junit.framework.TestCase#setUp()
-     */
-    protected void setUp() throws Exception {
-        this.durable = true;
-        broker = createBroker();
-        super.setUp();
-    }
+   protected Connection connection2;
+   protected Session session2;
+   protected Session consumeSession2;
+   protected MessageConsumer consumer2;
+   protected MessageProducer producer2;
+   protected Destination consumerDestination2;
+   BrokerService broker;
+   private Connection connection3;
+   private Session consumeSession3;
+   private TopicSubscriber consumer3;
 
-    protected void tearDown() throws Exception {
-        super.tearDown();
-        broker.stop();
-    }
+   /**
+    * Set up a durable suscriber test.
+    *
+    * @see junit.framework.TestCase#setUp()
+    */
+   protected void setUp() throws Exception {
+      this.durable = true;
+      broker = createBroker();
+      super.setUp();
+   }
 
-    protected ActiveMQConnectionFactory createConnectionFactory() throws Exception {
-        ActiveMQConnectionFactory result = new ActiveMQConnectionFactory("vm://localhost?async=false");
-        Properties props = new Properties();
-        props.put("prefetchPolicy.durableTopicPrefetch", "5");
-        props.put("prefetchPolicy.optimizeDurableTopicPrefetch", "5");
-        result.setProperties(props);
-        return result;
-    }
+   protected void tearDown() throws Exception {
+      super.tearDown();
+      broker.stop();
+   }
 
-    protected BrokerService createBroker() throws Exception {
-        BrokerService answer = new BrokerService();
-        configureBroker(answer);
-        answer.start();
-        return answer;
-    }
+   protected ActiveMQConnectionFactory createConnectionFactory() throws Exception {
+      ActiveMQConnectionFactory result = new ActiveMQConnectionFactory("vm://localhost?async=false");
+      Properties props = new Properties();
+      props.put("prefetchPolicy.durableTopicPrefetch", "5");
+      props.put("prefetchPolicy.optimizeDurableTopicPrefetch", "5");
+      result.setProperties(props);
+      return result;
+   }
 
-    protected void configureBroker(BrokerService answer) throws Exception {
-        answer.setDeleteAllMessagesOnStartup(true);
-    }
+   protected BrokerService createBroker() throws Exception {
+      BrokerService answer = new BrokerService();
+      configureBroker(answer);
+      answer.start();
+      return answer;
+   }
 
-    /**
-     * Test if all the messages sent are being received.
-     * 
-     * @throws Exception
-     */
-    public void testSlowReceiver() throws Exception {
-        connection2 = createConnection();
-        connection2.setClientID("test");
-        connection2.start();
-        consumeSession2 = connection2.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        session2 = connection2.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        consumerDestination2 = session2.createTopic(getConsumerSubject() + "2");
-        consumer2 = consumeSession2.createDurableSubscriber((Topic)consumerDestination2, getName());
+   protected void configureBroker(BrokerService answer) throws Exception {
+      answer.setDeleteAllMessagesOnStartup(true);
+   }
 
-        consumer2.close();
-        connection2.close();
-        new Thread(new Runnable() {
+   /**
+    * Test if all the messages sent are being received.
+    *
+    * @throws Exception
+    */
+   public void testSlowReceiver() throws Exception {
+      connection2 = createConnection();
+      connection2.setClientID("test");
+      connection2.start();
+      consumeSession2 = connection2.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      session2 = connection2.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      consumerDestination2 = session2.createTopic(getConsumerSubject() + "2");
+      consumer2 = consumeSession2.createDurableSubscriber((Topic) consumerDestination2, getName());
 
-            public void run() {
-                try {
-                    int count = 0;
-                    for (int loop = 0; loop < 4; loop++) {
-                        connection2 = createConnection();
-                        connection2.start();
-                        session2 = connection2.createSession(false, Session.AUTO_ACKNOWLEDGE);
-                        producer2 = session2.createProducer(null);
-                        producer2.setDeliveryMode(deliveryMode);
-                        Thread.sleep(1000);
-                        for (int i = 0; i < NMSG / 4; i++) {
-                            BytesMessage message = session2.createBytesMessage();
-                            message.writeBytes(new byte[MSIZE]);
-                            message.setStringProperty("test", "test");
-                            message.setIntProperty(COUNT_PROPERY_NAME, count);
-                            message.setJMSType("test");
-                            producer2.send(consumerDestination2, message);
-                            Thread.sleep(50);
-                            if (verbose) {
-                                LOG.debug("Sent(" + loop + "): " + i);
-                            }
-                            count++;
-                        }
-                        producer2.close();
-                        connection2.stop();
-                        connection2.close();
-                    }
-                } catch (Throwable e) {
-                    e.printStackTrace();
-                }
+      consumer2.close();
+      connection2.close();
+      new Thread(new Runnable() {
+
+         public void run() {
+            try {
+               int count = 0;
+               for (int loop = 0; loop < 4; loop++) {
+                  connection2 = createConnection();
+                  connection2.start();
+                  session2 = connection2.createSession(false, Session.AUTO_ACKNOWLEDGE);
+                  producer2 = session2.createProducer(null);
+                  producer2.setDeliveryMode(deliveryMode);
+                  Thread.sleep(1000);
+                  for (int i = 0; i < NMSG / 4; i++) {
+                     BytesMessage message = session2.createBytesMessage();
+                     message.writeBytes(new byte[MSIZE]);
+                     message.setStringProperty("test", "test");
+                     message.setIntProperty(COUNT_PROPERY_NAME, count);
+                     message.setJMSType("test");
+                     producer2.send(consumerDestination2, message);
+                     Thread.sleep(50);
+                     if (verbose) {
+                        LOG.debug("Sent(" + loop + "): " + i);
+                     }
+                     count++;
+                  }
+                  producer2.close();
+                  connection2.stop();
+                  connection2.close();
+               }
             }
-        }, "SENDER Thread").start();
-        connection3 = createConnection();
-        connection3.setClientID("test");
-        connection3.start();
-        consumeSession3 = connection3.createSession(false, Session.CLIENT_ACKNOWLEDGE);
-        consumer3 = consumeSession3.createDurableSubscriber((Topic)consumerDestination2, getName());
-        connection3.close();
-        int count = 0;
-        for (int loop = 0; loop < 4; ++loop) {
-            connection3 = createConnection();
-            connection3.setClientID("test");
-            connection3.start();
-            consumeSession3 = connection3.createSession(false, Session.CLIENT_ACKNOWLEDGE);
-            consumer3 = consumeSession3.createDurableSubscriber((Topic)consumerDestination2, getName());
-            Message msg = null;
-            int i;
-            for (i = 0; i < NMSG / 4; i++) {
-                msg = consumer3.receive(10000);
-                if (msg == null) {
-                    break;
-                }
-                if (verbose) {
-                    LOG.debug("Received(" + loop + "): " + i + " count = " + msg.getIntProperty(COUNT_PROPERY_NAME));
-                }
-                assertNotNull(msg);
-                assertEquals(msg.getJMSType(), "test");
-                assertEquals(msg.getStringProperty("test"), "test");
-                assertEquals("Messages received out of order", count, msg.getIntProperty(COUNT_PROPERY_NAME));
-                Thread.sleep(500);
-                msg.acknowledge();
-                count++;
+            catch (Throwable e) {
+               e.printStackTrace();
             }
-            consumer3.close();
-            assertEquals("Receiver " + loop, NMSG / 4, i);
-            connection3.close();
-        }
-    }
+         }
+      }, "SENDER Thread").start();
+      connection3 = createConnection();
+      connection3.setClientID("test");
+      connection3.start();
+      consumeSession3 = connection3.createSession(false, Session.CLIENT_ACKNOWLEDGE);
+      consumer3 = consumeSession3.createDurableSubscriber((Topic) consumerDestination2, getName());
+      connection3.close();
+      int count = 0;
+      for (int loop = 0; loop < 4; ++loop) {
+         connection3 = createConnection();
+         connection3.setClientID("test");
+         connection3.start();
+         consumeSession3 = connection3.createSession(false, Session.CLIENT_ACKNOWLEDGE);
+         consumer3 = consumeSession3.createDurableSubscriber((Topic) consumerDestination2, getName());
+         Message msg = null;
+         int i;
+         for (i = 0; i < NMSG / 4; i++) {
+            msg = consumer3.receive(10000);
+            if (msg == null) {
+               break;
+            }
+            if (verbose) {
+               LOG.debug("Received(" + loop + "): " + i + " count = " + msg.getIntProperty(COUNT_PROPERY_NAME));
+            }
+            assertNotNull(msg);
+            assertEquals(msg.getJMSType(), "test");
+            assertEquals(msg.getStringProperty("test"), "test");
+            assertEquals("Messages received out of order", count, msg.getIntProperty(COUNT_PROPERY_NAME));
+            Thread.sleep(500);
+            msg.acknowledge();
+            count++;
+         }
+         consumer3.close();
+         assertEquals("Receiver " + loop, NMSG / 4, i);
+         connection3.close();
+      }
+   }
 }

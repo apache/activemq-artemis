@@ -24,55 +24,46 @@ import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
 
 import javax.transaction.xa.Xid;
 
-public class AMQTransactionImpl extends TransactionImpl
-{
+public class AMQTransactionImpl extends TransactionImpl {
+
    private boolean rollbackForClose = false;
 
-   public AMQTransactionImpl(StorageManager storageManager, int timeoutSeconds)
-   {
+   public AMQTransactionImpl(StorageManager storageManager, int timeoutSeconds) {
       super(storageManager, timeoutSeconds);
    }
 
-   public AMQTransactionImpl(StorageManager storageManager)
-   {
+   public AMQTransactionImpl(StorageManager storageManager) {
       super(storageManager);
    }
 
-   public AMQTransactionImpl(Xid xid, StorageManager storageManager, int timeoutSeconds)
-   {
+   public AMQTransactionImpl(Xid xid, StorageManager storageManager, int timeoutSeconds) {
       super(xid, storageManager, timeoutSeconds);
    }
 
-   public AMQTransactionImpl(long id, Xid xid, StorageManager storageManager)
-   {
+   public AMQTransactionImpl(long id, Xid xid, StorageManager storageManager) {
       super(id, xid, storageManager);
    }
 
    @Override
-   public RefsOperation createRefsOperation(Queue queue)
-   {
+   public RefsOperation createRefsOperation(Queue queue) {
       return new AMQrefsOperation(queue, storageManager);
    }
 
-   public class AMQrefsOperation extends RefsOperation
-   {
-      public AMQrefsOperation(Queue queue, StorageManager storageManager)
-      {
+   public class AMQrefsOperation extends RefsOperation {
+
+      public AMQrefsOperation(Queue queue, StorageManager storageManager) {
          super(queue, storageManager);
       }
 
       @Override
-      public void afterRollback(Transaction tx)
-      {
-         if (rollbackForClose)
-         {
+      public void afterRollback(Transaction tx) {
+         if (rollbackForClose) {
             super.afterRollback(tx);
          }
       }
    }
 
-   public void setRollbackForClose()
-   {
+   public void setRollbackForClose() {
       this.rollbackForClose = true;
    }
 }

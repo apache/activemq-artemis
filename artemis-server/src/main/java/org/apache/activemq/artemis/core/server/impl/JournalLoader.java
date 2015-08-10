@@ -32,9 +32,10 @@ import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.transaction.ResourceManager;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 
-public interface JournalLoader
-{
-   void initQueues(Map<Long, QueueBindingInfo> queueBindingInfosMap, List<QueueBindingInfo> queueBindingInfos) throws Exception;
+public interface JournalLoader {
+
+   void initQueues(Map<Long, QueueBindingInfo> queueBindingInfosMap,
+                   List<QueueBindingInfo> queueBindingInfos) throws Exception;
 
    void handleAddMessage(Map<Long, Map<Long, AddMessageRecord>> queueMap) throws Exception;
 
@@ -44,13 +45,20 @@ public interface JournalLoader
 
    void handleDuplicateIds(Map<SimpleString, List<Pair<byte[], Long>>> duplicateIDMap) throws Exception;
 
-   void postLoad(Journal messageJournal, ResourceManager resourceManager, Map<SimpleString, List<Pair<byte[], Long>>> duplicateIDMap) throws Exception;
+   void postLoad(Journal messageJournal,
+                 ResourceManager resourceManager,
+                 Map<SimpleString, List<Pair<byte[], Long>>> duplicateIDMap) throws Exception;
 
    void handlePreparedSendMessage(ServerMessage message, Transaction tx, long queueID) throws Exception;
 
-   void handlePreparedAcknowledge(long messageID, List<MessageReference> referencesToAck, long queueID) throws Exception;
+   void handlePreparedAcknowledge(long messageID,
+                                  List<MessageReference> referencesToAck,
+                                  long queueID) throws Exception;
 
-   void handlePreparedTransaction(Transaction tx, List<MessageReference> referencesToAck, Xid xid, ResourceManager resourceManager) throws Exception;
+   void handlePreparedTransaction(Transaction tx,
+                                  List<MessageReference> referencesToAck,
+                                  Xid xid,
+                                  ResourceManager resourceManager) throws Exception;
 
    void recoverPendingPageCounters(List<PageCountPending> pendingNonTXPageCounter) throws Exception;
 

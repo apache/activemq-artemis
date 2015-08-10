@@ -29,60 +29,64 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * 
- * 
+ *
+ *
  */
 public class PluginBrokerTest extends JmsTopicSendReceiveTest {
-    private static final Logger LOG = LoggerFactory.getLogger(PluginBrokerTest.class);
-    private BrokerService broker;
 
-    protected void setUp() throws Exception {
-        broker = createBroker();
-        super.setUp();
-    }
+   private static final Logger LOG = LoggerFactory.getLogger(PluginBrokerTest.class);
+   private BrokerService broker;
 
-    protected void tearDown() throws Exception {
-        super.tearDown();
-        if (broker != null) {
-            broker.stop();
-        }   
-    }
+   protected void setUp() throws Exception {
+      broker = createBroker();
+      super.setUp();
+   }
 
-    protected BrokerService createBroker() throws Exception {
-        return createBroker("org/apache/activemq/util/plugin-broker.xml");
-    }
+   protected void tearDown() throws Exception {
+      super.tearDown();
+      if (broker != null) {
+         broker.stop();
+      }
+   }
 
-    protected BrokerService createBroker(String uri) throws Exception {
-        LOG.info("Loading broker configuration from the classpath with URI: " + uri);
-        return BrokerFactory.createBroker(new URI("xbean:" + uri));
-    }
+   protected BrokerService createBroker() throws Exception {
+      return createBroker("org/apache/activemq/util/plugin-broker.xml");
+   }
 
-	protected void assertMessageValid(int index, Message message)
-			throws JMSException {
-		// check if broker path has been set 
-		assertEquals("localhost", message.getStringProperty("BrokerPath"));
-		ActiveMQMessage amqMsg = (ActiveMQMessage)message;
-		if (index == 7) {
-			// check custom expiration
-			assertTrue("expiration is in range, depends on two distinct calls to System.currentTimeMillis", 1500 < amqMsg.getExpiration() - amqMsg.getTimestamp());
-		} else if (index == 9) {
-			// check ceiling
-			assertTrue("expiration ceeling is in range, depends on two distinct calls to System.currentTimeMillis", 59500 < amqMsg.getExpiration() - amqMsg.getTimestamp());
-		} else {
-			// check default expiration
-			assertEquals(1000, amqMsg.getExpiration() - amqMsg.getTimestamp());
-		}
-		super.assertMessageValid(index, message);
-	}
-	
-    protected void sendMessage(int index, Message message) throws Exception {
-    	if (index == 7) {
-    		producer.send(producerDestination, message, Message.DEFAULT_DELIVERY_MODE, Message.DEFAULT_PRIORITY, 2000);
-    	} else if (index == 9) {
-    		producer.send(producerDestination, message, Message.DEFAULT_DELIVERY_MODE, Message.DEFAULT_PRIORITY, 200000);
-    	} else {
-    		super.sendMessage(index, message);
-    	}
-    }
-    
+   protected BrokerService createBroker(String uri) throws Exception {
+      LOG.info("Loading broker configuration from the classpath with URI: " + uri);
+      return BrokerFactory.createBroker(new URI("xbean:" + uri));
+   }
+
+   protected void assertMessageValid(int index, Message message) throws JMSException {
+      // check if broker path has been set
+      assertEquals("localhost", message.getStringProperty("BrokerPath"));
+      ActiveMQMessage amqMsg = (ActiveMQMessage) message;
+      if (index == 7) {
+         // check custom expiration
+         assertTrue("expiration is in range, depends on two distinct calls to System.currentTimeMillis", 1500 < amqMsg.getExpiration() - amqMsg.getTimestamp());
+      }
+      else if (index == 9) {
+         // check ceiling
+         assertTrue("expiration ceeling is in range, depends on two distinct calls to System.currentTimeMillis", 59500 < amqMsg.getExpiration() - amqMsg.getTimestamp());
+      }
+      else {
+         // check default expiration
+         assertEquals(1000, amqMsg.getExpiration() - amqMsg.getTimestamp());
+      }
+      super.assertMessageValid(index, message);
+   }
+
+   protected void sendMessage(int index, Message message) throws Exception {
+      if (index == 7) {
+         producer.send(producerDestination, message, Message.DEFAULT_DELIVERY_MODE, Message.DEFAULT_PRIORITY, 2000);
+      }
+      else if (index == 9) {
+         producer.send(producerDestination, message, Message.DEFAULT_DELIVERY_MODE, Message.DEFAULT_PRIORITY, 200000);
+      }
+      else {
+         super.sendMessage(index, message);
+      }
+   }
+
 }

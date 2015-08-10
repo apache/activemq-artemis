@@ -35,15 +35,13 @@ import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
  *
  * Please see the readme.html for more information.
  */
-public class DivertExample
-{
-   public static void main(final String[] args) throws Exception
-   {
+public class DivertExample {
+
+   public static void main(final String[] args) throws Exception {
       Connection connectionLondon = null;
 
       Connection connectionNewYork = null;
-      try
-      {
+      try {
          // Step 2. Look-up the queue orderQueue on the London server - this is the queue any orders are sent to
          Queue orderQueue = ActiveMQJMSClient.createQueue("orders");
 
@@ -67,7 +65,7 @@ public class DivertExample
          ConnectionFactory cfLondon = new ActiveMQConnectionFactory("tcp://localhost:61616");
 
          // Step 9. Perform a lookup on the Connection Factory on the New York server
-         ConnectionFactory cfNewYork =  new ActiveMQConnectionFactory("tcp://localhost:61617");
+         ConnectionFactory cfNewYork = new ActiveMQConnectionFactory("tcp://localhost:61617");
 
          // Step 10. Create a JMS Connection on the London server
          connectionLondon = cfLondon.createConnection();
@@ -122,16 +120,16 @@ public class DivertExample
          System.out.println("Sent message: " + orderMessage.getText());
 
          // Step 24. The order message is consumed by the orderConsumer on the London server
-         TextMessage receivedOrder = (TextMessage)orderConsumer.receive(5000);
+         TextMessage receivedOrder = (TextMessage) orderConsumer.receive(5000);
 
          System.out.println("Received order: " + receivedOrder.getText());
 
          // Step 25. A copy of the order is also received by the spyTopic subscribers on the London server
-         TextMessage spiedOrder1 = (TextMessage)spySubscriberA.receive(5000);
+         TextMessage spiedOrder1 = (TextMessage) spySubscriberA.receive(5000);
 
          System.out.println("Snooped on order: " + spiedOrder1.getText());
 
-         TextMessage spiedOrder2 = (TextMessage)spySubscriberB.receive(5000);
+         TextMessage spiedOrder2 = (TextMessage) spySubscriberB.receive(5000);
 
          System.out.println("Snooped on order: " + spiedOrder2.getText());
 
@@ -144,25 +142,23 @@ public class DivertExample
 
          // Step 27. The price update *should* be received by the local subscriber since we only divert messages
          // where office = New York
-         TextMessage receivedUpdate = (TextMessage)priceUpdatesSubscriberLondon.receive(2000);
+         TextMessage receivedUpdate = (TextMessage) priceUpdatesSubscriberLondon.receive(2000);
 
          System.out.println("Received price update locally: " + receivedUpdate.getText());
 
          // Step 28. The price update *should not* be received in New York
 
-         TextMessage priceUpdate1 = (TextMessage)newYorkPriceUpdatesSubscriberA.receive(1000);
+         TextMessage priceUpdate1 = (TextMessage) newYorkPriceUpdatesSubscriberA.receive(1000);
 
-         if (priceUpdate1 != null)
-         {
+         if (priceUpdate1 != null) {
             throw new IllegalStateException("Message is not null");
          }
 
          System.out.println("Did not received price update in New York, look it's: " + priceUpdate1);
 
-         TextMessage priceUpdate2 = (TextMessage)newYorkPriceUpdatesSubscriberB.receive(1000);
+         TextMessage priceUpdate2 = (TextMessage) newYorkPriceUpdatesSubscriberB.receive(1000);
 
-         if (priceUpdate2 != null)
-         {
+         if (priceUpdate2 != null) {
             throw new IllegalStateException("Message is not null");
          }
 
@@ -182,8 +178,7 @@ public class DivertExample
          // it is destined for the New York office
          Message message = priceUpdatesSubscriberLondon.receive(1000);
 
-         if (message != null)
-         {
+         if (message != null) {
             throw new IllegalStateException("Message is not null");
          }
 
@@ -195,24 +190,21 @@ public class DivertExample
          // We notice how the forwarded messages have had a special header added by our custom transformer that
          // we told the divert to use
 
-         priceUpdate1 = (TextMessage)newYorkPriceUpdatesSubscriberA.receive(5000);
+         priceUpdate1 = (TextMessage) newYorkPriceUpdatesSubscriberA.receive(5000);
 
          System.out.println("Received forwarded price update on server 1: " + priceUpdate1.getText());
          System.out.println("Time of forward: " + priceUpdate1.getLongProperty("time_of_forward"));
 
-         priceUpdate2 = (TextMessage)newYorkPriceUpdatesSubscriberB.receive(5000);
+         priceUpdate2 = (TextMessage) newYorkPriceUpdatesSubscriberB.receive(5000);
 
          System.out.println("Received forwarded price update on server 2: " + priceUpdate2.getText());
          System.out.println("Time of forward: " + priceUpdate2.getLongProperty("time_of_forward"));
       }
-      finally
-      {
-         if (connectionLondon != null)
-         {
+      finally {
+         if (connectionLondon != null) {
             connectionLondon.close();
          }
-         if (connectionNewYork != null)
-         {
+         if (connectionNewYork != null) {
             connectionNewYork.close();
          }
       }

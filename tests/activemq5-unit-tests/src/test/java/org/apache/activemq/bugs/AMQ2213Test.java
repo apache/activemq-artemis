@@ -36,69 +36,66 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class AMQ2213Test
-{
-    BrokerService broker;
-    ConnectionFactory factory;
-    Connection connection;
-    Session session;
-    Queue queue;
-    MessageConsumer consumer;
+public class AMQ2213Test {
 
-    public void createBroker(boolean deleteAll) throws Exception {
-        broker = new BrokerService();
-        broker.setDeleteAllMessagesOnStartup(deleteAll);
-        broker.setDataDirectory("target/AMQ3145Test");
-        broker.setUseJmx(true);
-        broker.getManagementContext().setCreateConnector(false);
-        broker.addConnector("tcp://localhost:0");
-        broker.start();
-        broker.waitUntilStarted();
-        factory = new ActiveMQConnectionFactory(broker.getTransportConnectors().get(0).getConnectUri().toString());
-        connection = factory.createConnection();
-        connection.start();
-        session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
-    }
+   BrokerService broker;
+   ConnectionFactory factory;
+   Connection connection;
+   Session session;
+   Queue queue;
+   MessageConsumer consumer;
 
-    @Before
-    public void createBroker() throws Exception {
-        createBroker(true);
-    }
+   public void createBroker(boolean deleteAll) throws Exception {
+      broker = new BrokerService();
+      broker.setDeleteAllMessagesOnStartup(deleteAll);
+      broker.setDataDirectory("target/AMQ3145Test");
+      broker.setUseJmx(true);
+      broker.getManagementContext().setCreateConnector(false);
+      broker.addConnector("tcp://localhost:0");
+      broker.start();
+      broker.waitUntilStarted();
+      factory = new ActiveMQConnectionFactory(broker.getTransportConnectors().get(0).getConnectUri().toString());
+      connection = factory.createConnection();
+      connection.start();
+      session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
+   }
 
-    @After
-    public void tearDown() throws Exception {
-        if (consumer != null) {
-            consumer.close();
-        }
-        session.close();
-        connection.stop();
-        connection.close();
-        broker.stop();
-    }
+   @Before
+   public void createBroker() throws Exception {
+      createBroker(true);
+   }
 
-    @Test
-    public void testEqualsGenericSession() throws JMSException
-    {
-        assertNotNull(this.connection);
-        Session sess = this.connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        assertTrue(sess.equals(sess));
-    }
+   @After
+   public void tearDown() throws Exception {
+      if (consumer != null) {
+         consumer.close();
+      }
+      session.close();
+      connection.stop();
+      connection.close();
+      broker.stop();
+   }
 
-    @Test
-    public void testEqualsTopicSession() throws JMSException
-    {
-        assertNotNull(this.connection);
-        assertTrue(this.connection instanceof TopicConnection);
-        TopicSession sess = ((TopicConnection)this.connection).createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
-        assertTrue(sess.equals(sess));
-    }
+   @Test
+   public void testEqualsGenericSession() throws JMSException {
+      assertNotNull(this.connection);
+      Session sess = this.connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      assertTrue(sess.equals(sess));
+   }
 
-    @Test
-    public void testEqualsQueueSession() throws JMSException
-    {
-        assertNotNull(this.connection);
-        assertTrue(this.connection instanceof QueueConnection);
-        QueueSession sess = ((QueueConnection)this.connection).createQueueSession(false, Session.AUTO_ACKNOWLEDGE);
-        assertTrue(sess.equals(sess));
-    }
+   @Test
+   public void testEqualsTopicSession() throws JMSException {
+      assertNotNull(this.connection);
+      assertTrue(this.connection instanceof TopicConnection);
+      TopicSession sess = ((TopicConnection) this.connection).createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
+      assertTrue(sess.equals(sess));
+   }
+
+   @Test
+   public void testEqualsQueueSession() throws JMSException {
+      assertNotNull(this.connection);
+      assertTrue(this.connection instanceof QueueConnection);
+      QueueSession sess = ((QueueConnection) this.connection).createQueueSession(false, Session.AUTO_ACKNOWLEDGE);
+      assertTrue(sess.equals(sess));
+   }
 }

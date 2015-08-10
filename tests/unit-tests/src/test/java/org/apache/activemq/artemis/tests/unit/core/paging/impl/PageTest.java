@@ -36,8 +36,7 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class PageTest extends ActiveMQTestBase
-{
+public class PageTest extends ActiveMQTestBase {
    // Constants -----------------------------------------------------
 
    // Attributes ----------------------------------------------------
@@ -49,22 +48,19 @@ public class PageTest extends ActiveMQTestBase
    // Public --------------------------------------------------------
 
    @Test
-   public void testPageWithNIO() throws Exception
-   {
+   public void testPageWithNIO() throws Exception {
       recreateDirectory(getTestDir());
       testAdd(new NIOSequentialFileFactory(getTestDirfile(), 1), 1000);
    }
 
    @Test
-   public void testDamagedDataWithNIO() throws Exception
-   {
+   public void testDamagedDataWithNIO() throws Exception {
       recreateDirectory(getTestDir());
       testDamagedPage(new NIOSequentialFileFactory(getTestDirfile(), 1), 1000);
    }
 
    @Test
-   public void testPageFakeWithoutCallbacks() throws Exception
-   {
+   public void testPageFakeWithoutCallbacks() throws Exception {
       testAdd(new FakeSequentialFileFactory(1, false), 10);
    }
 
@@ -72,16 +68,14 @@ public class PageTest extends ActiveMQTestBase
     * Validate if everything we add is recovered
     */
    @Test
-   public void testDamagedPage() throws Exception
-   {
+   public void testDamagedPage() throws Exception {
       testDamagedPage(new FakeSequentialFileFactory(1, false), 100);
    }
 
    /**
     * Validate if everything we add is recovered
     */
-   protected void testAdd(final SequentialFileFactory factory, final int numberOfElements) throws Exception
-   {
+   protected void testAdd(final SequentialFileFactory factory, final int numberOfElements) throws Exception {
 
       SequentialFile file = factory.createSequentialFile("00010.page");
 
@@ -110,15 +104,10 @@ public class PageTest extends ActiveMQTestBase
 
       Assert.assertEquals(numberOfElements, impl.getNumberOfMessages());
 
-      for (int i = 0; i < msgs.size(); i++)
-      {
+      for (int i = 0; i < msgs.size(); i++) {
          Assert.assertEquals(simpleDestination, msgs.get(i).getMessage().getAddress());
 
-         ActiveMQTestBase.assertEqualsByteArrays(buffers.get(i).toByteBuffer().array(), msgs.get(i)
-                 .getMessage()
-                 .getBodyBuffer()
-                 .toByteBuffer()
-                 .array());
+         ActiveMQTestBase.assertEqualsByteArrays(buffers.get(i).toByteBuffer().array(), msgs.get(i).getMessage().getBodyBuffer().toByteBuffer().array());
       }
 
       impl.delete(null);
@@ -127,8 +116,7 @@ public class PageTest extends ActiveMQTestBase
 
    }
 
-   protected void testDamagedPage(final SequentialFileFactory factory, final int numberOfElements) throws Exception
-   {
+   protected void testDamagedPage(final SequentialFileFactory factory, final int numberOfElements) throws Exception {
 
       SequentialFile file = factory.createSequentialFile("00010.page");
 
@@ -161,8 +149,7 @@ public class PageTest extends ActiveMQTestBase
 
       ByteBuffer buffer = ByteBuffer.allocate((int) (positionB - file.position()));
 
-      for (int i = 0; i < buffer.capacity(); i++)
-      {
+      for (int i = 0; i < buffer.capacity(); i++) {
          buffer.put((byte) 'Z');
       }
 
@@ -182,15 +169,10 @@ public class PageTest extends ActiveMQTestBase
 
       Assert.assertEquals(numberOfElements, impl.getNumberOfMessages());
 
-      for (int i = 0; i < msgs.size(); i++)
-      {
+      for (int i = 0; i < msgs.size(); i++) {
          Assert.assertEquals(simpleDestination, msgs.get(i).getMessage().getAddress());
 
-         ActiveMQTestBase.assertEqualsByteArrays(buffers.get(i).toByteBuffer().array(), msgs.get(i)
-                 .getMessage()
-                 .getBodyBuffer()
-                 .toByteBuffer()
-                 .array());
+         ActiveMQTestBase.assertEqualsByteArrays(buffers.get(i).toByteBuffer().array(), msgs.get(i).getMessage().getBodyBuffer().toByteBuffer().array());
       }
 
       impl.delete(null);
@@ -209,19 +191,16 @@ public class PageTest extends ActiveMQTestBase
     * @throws Exception
     */
    protected ArrayList<ActiveMQBuffer> addPageElements(final SimpleString simpleDestination,
-                                                      final Page page,
-                                                      final int numberOfElements) throws Exception
-   {
+                                                       final Page page,
+                                                       final int numberOfElements) throws Exception {
       ArrayList<ActiveMQBuffer> buffers = new ArrayList<ActiveMQBuffer>();
 
       int initialNumberOfMessages = page.getNumberOfMessages();
 
-      for (int i = 0; i < numberOfElements; i++)
-      {
+      for (int i = 0; i < numberOfElements; i++) {
          ServerMessage msg = new ServerMessageImpl(i, 100);
 
-         for (int j = 0; j < 10; j++)
-         {
+         for (int j = 0; j < 10; j++) {
             msg.getBodyBuffer().writeByte((byte) 'b');
          }
 

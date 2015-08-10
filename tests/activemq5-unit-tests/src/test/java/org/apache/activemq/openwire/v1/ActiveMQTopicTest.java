@@ -23,22 +23,20 @@ import org.apache.activemq.command.ActiveMQTopic;
  * auto generated - do not modify! if you need to make a change, please see the
  * modify the groovy scripts in the under src/gram/script and then use maven
  * openwire:generate to regenerate this file.
- * 
- * 
  */
 public class ActiveMQTopicTest extends ActiveMQDestinationTestSupport {
 
-    public static final ActiveMQTopicTest SINGLETON = new ActiveMQTopicTest();
+   public static final ActiveMQTopicTest SINGLETON = new ActiveMQTopicTest();
 
-    public Object createObject() throws Exception {
-        ActiveMQTopic info = new ActiveMQTopic();
-        populateObject(info);
-        return info;
-    }
+   public Object createObject() throws Exception {
+      ActiveMQTopic info = new ActiveMQTopic();
+      populateObject(info);
+      return info;
+   }
 
-    protected void populateObject(Object object) throws Exception {
-        super.populateObject(object);
-        ActiveMQTopic info = (ActiveMQTopic)object;
+   protected void populateObject(Object object) throws Exception {
+      super.populateObject(object);
+      ActiveMQTopic info = (ActiveMQTopic) object;
 
-    }
+   }
 }

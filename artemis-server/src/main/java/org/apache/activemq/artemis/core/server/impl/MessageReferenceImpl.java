@@ -26,8 +26,8 @@ import org.apache.activemq.artemis.utils.MemorySize;
 /**
  * Implementation of a MessageReference
  */
-public class MessageReferenceImpl implements MessageReference
-{
+public class MessageReferenceImpl implements MessageReference {
+
    private final AtomicInteger deliveryCount = new AtomicInteger();
 
    private volatile int persistedCount;
@@ -42,39 +42,33 @@ public class MessageReferenceImpl implements MessageReference
 
    private boolean alreadyAcked;
 
-
    // Static --------------------------------------------------------
 
    private static final int memoryOffset;
 
-   static
-   {
+   static {
       // This is an estimate of how much memory a ServerMessageImpl takes up, exclusing body and properties
       // Note, it is only an estimate, it's not possible to be entirely sure with Java
       // This figure is calculated using the test utilities in org.apache.activemq.tests.unit.util.sizeof
       // The value is somewhat higher on 64 bit architectures, probably due to different alignment
 
-      if (MemorySize.is64bitArch())
-      {
+      if (MemorySize.is64bitArch()) {
          memoryOffset = 48;
       }
-      else
-      {
+      else {
          memoryOffset = 32;
       }
    }
 
    // Constructors --------------------------------------------------
 
-   public MessageReferenceImpl()
-   {
+   public MessageReferenceImpl() {
       queue = null;
 
       message = null;
    }
 
-   public MessageReferenceImpl(final MessageReferenceImpl other, final Queue queue)
-   {
+   public MessageReferenceImpl(final MessageReferenceImpl other, final Queue queue) {
       deliveryCount.set(other.deliveryCount.get());
 
       scheduledDeliveryTime = other.scheduledDeliveryTime;
@@ -84,8 +78,7 @@ public class MessageReferenceImpl implements MessageReference
       this.queue = queue;
    }
 
-   protected MessageReferenceImpl(final ServerMessage message, final Queue queue)
-   {
+   protected MessageReferenceImpl(final ServerMessage message, final Queue queue) {
       this.message = message;
 
       this.queue = queue;
@@ -96,117 +89,96 @@ public class MessageReferenceImpl implements MessageReference
    /**
     * @return the persistedCount
     */
-   public int getPersistedCount()
-   {
+   public int getPersistedCount() {
       return persistedCount;
    }
 
    /**
     * @param persistedCount the persistedCount to set
     */
-   public void setPersistedCount(int persistedCount)
-   {
+   public void setPersistedCount(int persistedCount) {
       this.persistedCount = persistedCount;
    }
 
-   public MessageReference copy(final Queue queue)
-   {
+   public MessageReference copy(final Queue queue) {
       return new MessageReferenceImpl(this, queue);
    }
 
-   public static int getMemoryEstimate()
-   {
+   public static int getMemoryEstimate() {
       return MessageReferenceImpl.memoryOffset;
    }
 
-   public int getDeliveryCount()
-   {
+   public int getDeliveryCount() {
       return deliveryCount.get();
    }
 
-   public void setDeliveryCount(final int deliveryCount)
-   {
+   public void setDeliveryCount(final int deliveryCount) {
       this.deliveryCount.set(deliveryCount);
       this.persistedCount = this.deliveryCount.get();
    }
 
-   public void incrementDeliveryCount()
-   {
+   public void incrementDeliveryCount() {
       deliveryCount.incrementAndGet();
    }
 
-   public void decrementDeliveryCount()
-   {
+   public void decrementDeliveryCount() {
       deliveryCount.decrementAndGet();
    }
 
-   public long getScheduledDeliveryTime()
-   {
+   public long getScheduledDeliveryTime() {
       return scheduledDeliveryTime;
    }
 
-   public void setScheduledDeliveryTime(final long scheduledDeliveryTime)
-   {
+   public void setScheduledDeliveryTime(final long scheduledDeliveryTime) {
       this.scheduledDeliveryTime = scheduledDeliveryTime;
    }
 
-   public ServerMessage getMessage()
-   {
+   public ServerMessage getMessage() {
       return message;
    }
 
-   public Queue getQueue()
-   {
+   public Queue getQueue() {
       return queue;
    }
 
-   public void handled()
-   {
+   public void handled() {
       queue.referenceHandled();
    }
 
    @Override
-   public void setAlreadyAcked()
-   {
+   public void setAlreadyAcked() {
       alreadyAcked = true;
    }
 
    @Override
-   public boolean isAlreadyAcked()
-   {
+   public boolean isAlreadyAcked() {
       return alreadyAcked;
    }
 
-   public boolean isPaged()
-   {
+   public boolean isPaged() {
       return false;
    }
 
-   public void acknowledge() throws Exception
-   {
+   public void acknowledge() throws Exception {
       queue.acknowledge(this);
    }
 
    @Override
-   public void setConsumerId(Long consumerID)
-   {
+   public void setConsumerId(Long consumerID) {
       this.consumerID = consumerID;
    }
 
    @Override
-   public Long getConsumerId()
-   {
+   public Long getConsumerId() {
       return this.consumerID;
    }
 
-   public int getMessageMemoryEstimate()
-   {
+   public int getMessageMemoryEstimate() {
       return message.getMemoryEstimate();
    }
 
    @Override
-   public String toString()
-   {
+   public String toString() {
       return "Reference[" + getMessage().getMessageID() +
          "]:" +
          (getMessage().isDurable() ? "RELIABLE" : "NON-RELIABLE") +
@@ -215,15 +187,12 @@ public class MessageReferenceImpl implements MessageReference
    }
 
    @Override
-   public boolean equals(Object other)
-   {
-      if (this == other)
-      {
+   public boolean equals(Object other) {
+      if (this == other) {
          return true;
       }
 
-      if (other instanceof MessageReferenceImpl)
-      {
+      if (other instanceof MessageReferenceImpl) {
          MessageReference reference = (MessageReferenceImpl) other;
 
          if (this.getMessage().equals(reference.getMessage()))
@@ -234,8 +203,7 @@ public class MessageReferenceImpl implements MessageReference
    }
 
    @Override
-   public int hashCode()
-   {
+   public int hashCode() {
       return this.getMessage().hashCode();
    }
 }

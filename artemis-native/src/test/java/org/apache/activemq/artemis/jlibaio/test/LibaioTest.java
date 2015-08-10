@@ -41,16 +41,15 @@ import org.junit.rules.TemporaryFolder;
  * This test is using a different package from {@link LibaioFile}
  * as I need to validate public methods on the API
  */
-public class LibaioTest
-{
+public class LibaioTest {
 
    @BeforeClass
-   public static void testAIO()
-   {
+   public static void testAIO() {
       Assume.assumeTrue(LibaioContext.isLoaded());
    }
 
-   /** This is just an arbitrary number for a number of elements you need to pass to the libaio init method
+   /**
+    * This is just an arbitrary number for a number of elements you need to pass to the libaio init method
     * Some of the tests are using half of this number, so if anyone decide to change this please use an even number.
     */
    private static final int LIBAIO_QUEUE_SIZE = 50;
@@ -61,25 +60,21 @@ public class LibaioTest
    public LibaioContext<TestInfo> control;
 
    @Before
-   public void setUpFactory()
-   {
+   public void setUpFactory() {
       control = new LibaioContext<>(LIBAIO_QUEUE_SIZE, true);
    }
 
    @After
-   public void deleteFactory()
-   {
+   public void deleteFactory() {
       control.close();
       validateLibaio();
    }
 
-   public void validateLibaio()
-   {
+   public void validateLibaio() {
       Assert.assertEquals(0, LibaioContext.getTotalMaxIO());
    }
 
-   public LibaioTest()
-   {
+   public LibaioTest() {
         /*
          *  I didn't use /tmp for three reasons
          *  - Most systems now will use tmpfs which is not compatible with O_DIRECT
@@ -92,15 +87,13 @@ public class LibaioTest
    }
 
    @Test
-   public void testOpen() throws Exception
-   {
+   public void testOpen() throws Exception {
       LibaioFile fileDescriptor = control.openFile(temporaryFolder.newFile("test.bin"), true);
       fileDescriptor.close();
    }
 
    @Test
-   public void testInitAndFallocate() throws Exception
-   {
+   public void testInitAndFallocate() throws Exception {
       LibaioFile fileDescriptor = control.openFile(temporaryFolder.newFile("test.bin"), true);
       fileDescriptor.fallocate(1024 * 1024);
 
@@ -112,7 +105,6 @@ public class LibaioTest
 
       fileDescriptor.close();
 
-
       buffer.position(0);
 
       LibaioFile fileDescriptor2 = control.openFile(temporaryFolder.newFile("test2.bin"), true);
@@ -120,8 +112,7 @@ public class LibaioTest
       fileDescriptor2.read(0, 1024 * 1024, buffer, new TestInfo());
 
       control.poll(callbacks, 1, 1);
-      for (int i = 0; i < 1024 * 1024; i++)
-      {
+      for (int i = 0; i < 1024 * 1024; i++) {
          Assert.assertEquals(0, buffer.get());
       }
 
@@ -129,8 +120,7 @@ public class LibaioTest
    }
 
    @Test
-   public void testSubmitWriteOnTwoFiles() throws Exception
-   {
+   public void testSubmitWriteOnTwoFiles() throws Exception {
 
       File file1 = temporaryFolder.newFile("test.bin");
       File file2 = temporaryFolder.newFile("test2.bin");
@@ -138,8 +128,7 @@ public class LibaioTest
       fillupFile(file1, LIBAIO_QUEUE_SIZE / 2);
       fillupFile(file2, LIBAIO_QUEUE_SIZE / 2);
 
-      LibaioFile[] fileDescriptor = new LibaioFile[]{control.openFile(file1, true),
-         control.openFile(file2, true)};
+      LibaioFile[] fileDescriptor = new LibaioFile[]{control.openFile(file1, true), control.openFile(file2, true)};
 
       Assert.assertEquals((LIBAIO_QUEUE_SIZE / 2) * 512, fileDescriptor[0].getSize());
       Assert.assertEquals((LIBAIO_QUEUE_SIZE / 2) * 512, fileDescriptor[1].getSize());
@@ -151,44 +140,36 @@ public class LibaioTest
 
       ByteBuffer buffer = LibaioContext.newAlignedBuffer(512, 512);
 
-      try
-      {
-         for (int i = 0; i < 512; i++)
-         {
+      try {
+         for (int i = 0; i < 512; i++) {
             buffer.put((byte) 'a');
          }
 
          TestInfo callback = new TestInfo();
          TestInfo[] callbacks = new TestInfo[LIBAIO_QUEUE_SIZE];
 
-         for (int i = 0; i < LIBAIO_QUEUE_SIZE / 2; i++)
-         {
-            for (LibaioFile file : fileDescriptor)
-            {
+         for (int i = 0; i < LIBAIO_QUEUE_SIZE / 2; i++) {
+            for (LibaioFile file : fileDescriptor) {
                file.write(i * 512, 512, buffer, callback);
             }
          }
 
          Assert.assertEquals(LIBAIO_QUEUE_SIZE, control.poll(callbacks, LIBAIO_QUEUE_SIZE, LIBAIO_QUEUE_SIZE));
 
-         for (Object returnedCallback : callbacks)
-         {
+         for (Object returnedCallback : callbacks) {
             Assert.assertSame(returnedCallback, callback);
          }
 
-         for (LibaioFile file : fileDescriptor)
-         {
+         for (LibaioFile file : fileDescriptor) {
             ByteBuffer bigbuffer = LibaioContext.newAlignedBuffer(512 * 25, 512);
             file.read(0, 512 * 25, bigbuffer, callback);
             Assert.assertEquals(1, control.poll(callbacks, 1, LIBAIO_QUEUE_SIZE));
 
-            for (Object returnedCallback : callbacks)
-            {
+            for (Object returnedCallback : callbacks) {
                Assert.assertSame(returnedCallback, callback);
             }
 
-            for (int i = 0; i < 512 * 25; i++)
-            {
+            for (int i = 0; i < 512 * 25; i++) {
                Assert.assertEquals((byte) 'a', bigbuffer.get());
             }
 
@@ -197,15 +178,13 @@ public class LibaioTest
             file.close();
          }
       }
-      finally
-      {
+      finally {
          LibaioContext.freeBuffer(buffer);
       }
    }
 
    @Test
-   public void testSubmitWriteAndRead() throws Exception
-   {
+   public void testSubmitWriteAndRead() throws Exception {
       TestInfo callback = new TestInfo();
 
       TestInfo[] callbacks = new TestInfo[LIBAIO_QUEUE_SIZE];
@@ -215,10 +194,8 @@ public class LibaioTest
       // ByteBuffer buffer = ByteBuffer.allocateDirect(512);
       ByteBuffer buffer = LibaioContext.newAlignedBuffer(512, 512);
 
-      try
-      {
-         for (int i = 0; i < 512; i++)
-         {
+      try {
+         for (int i = 0; i < 512; i++) {
             buffer.put((byte) 'a');
          }
 
@@ -235,8 +212,7 @@ public class LibaioTest
 
          buffer = LibaioContext.newAlignedBuffer(512, 512);
 
-         for (int i = 0; i < 512; i++)
-         {
+         for (int i = 0; i < 512; i++) {
             buffer.put((byte) 'B');
          }
 
@@ -250,13 +226,11 @@ public class LibaioTest
 
          Assert.assertEquals(1, control.poll(callbacks, 1, LIBAIO_QUEUE_SIZE));
 
-         for (int i = 0; i < 512; i++)
-         {
+         for (int i = 0; i < 512; i++) {
             Assert.assertEquals('B', buffer.get());
          }
       }
-      finally
-      {
+      finally {
          LibaioContext.freeBuffer(buffer);
          fileDescriptor.close();
       }
@@ -266,9 +240,7 @@ public class LibaioTest
    /**
     * This file is making use of libaio without O_DIRECT
     * We won't need special buffers on this case.
-    */
-   public void testSubmitWriteAndReadRegularBuffers() throws Exception
-   {
+    */ public void testSubmitWriteAndReadRegularBuffers() throws Exception {
       TestInfo callback = new TestInfo();
 
       TestInfo[] callbacks = new TestInfo[LIBAIO_QUEUE_SIZE];
@@ -283,10 +255,8 @@ public class LibaioTest
 
       ByteBuffer buffer = ByteBuffer.allocateDirect(BUFFER_SIZE);
 
-      try
-      {
-         for (int i = 0; i < BUFFER_SIZE; i++)
-         {
+      try {
+         for (int i = 0; i < BUFFER_SIZE; i++) {
             buffer.put((byte) 'a');
          }
 
@@ -302,8 +272,7 @@ public class LibaioTest
 
          buffer.rewind();
 
-         for (int i = 0; i < BUFFER_SIZE; i++)
-         {
+         for (int i = 0; i < BUFFER_SIZE; i++) {
             buffer.put((byte) 'B');
          }
 
@@ -317,20 +286,17 @@ public class LibaioTest
 
          Assert.assertEquals(1, control.poll(callbacks, 1, LIBAIO_QUEUE_SIZE));
 
-         for (int i = 0; i < BUFFER_SIZE; i++)
-         {
+         for (int i = 0; i < BUFFER_SIZE; i++) {
             Assert.assertEquals('B', buffer.get());
          }
       }
-      finally
-      {
+      finally {
          fileDescriptor.close();
       }
    }
 
    @Test
-   public void testSubmitRead() throws Exception
-   {
+   public void testSubmitRead() throws Exception {
 
       TestInfo callback = new TestInfo();
 
@@ -345,10 +311,8 @@ public class LibaioTest
       ByteBuffer buffer = LibaioContext.newAlignedBuffer(512, 512);
 
       final int BUFFER_SIZE = 512;
-      try
-      {
-         for (int i = 0; i < BUFFER_SIZE; i++)
-         {
+      try {
+         for (int i = 0; i < BUFFER_SIZE; i++) {
             buffer.put((byte) '@');
          }
 
@@ -364,21 +328,18 @@ public class LibaioTest
 
          Assert.assertSame(callback, callbacks[0]);
 
-         for (int i = 0; i < BUFFER_SIZE; i++)
-         {
+         for (int i = 0; i < BUFFER_SIZE; i++) {
             Assert.assertEquals('@', buffer.get());
          }
       }
-      finally
-      {
+      finally {
          LibaioContext.freeBuffer(buffer);
          fileDescriptor.close();
       }
    }
 
    @Test
-   public void testInvalidWrite() throws Exception
-   {
+   public void testInvalidWrite() throws Exception {
 
       TestInfo callback = new TestInfo();
 
@@ -390,11 +351,9 @@ public class LibaioTest
 
       LibaioFile fileDescriptor = control.openFile(file, true);
 
-      try
-      {
+      try {
          ByteBuffer buffer = ByteBuffer.allocateDirect(300);
-         for (int i = 0; i < 300; i++)
-         {
+         for (int i = 0; i < 300; i++) {
             buffer.put((byte) 'z');
          }
 
@@ -410,8 +369,7 @@ public class LibaioTest
          System.out.println("Error:" + callbacks[0]);
 
          buffer = fileDescriptor.newBuffer(512);
-         for (int i = 0; i < 512; i++)
-         {
+         for (int i = 0; i < 512; i++) {
             buffer.put((byte) 'z');
          }
 
@@ -434,15 +392,13 @@ public class LibaioTest
 
          TestInfo.checkLeaks();
       }
-      finally
-      {
+      finally {
          fileDescriptor.close();
       }
    }
 
    @Test
-   public void testLeaks() throws Exception
-   {
+   public void testLeaks() throws Exception {
       File file = temporaryFolder.newFile("test.bin");
 
       fillupFile(file, LIBAIO_QUEUE_SIZE * 2);
@@ -453,25 +409,20 @@ public class LibaioTest
 
       ByteBuffer bufferWrite = LibaioContext.newAlignedBuffer(512, 512);
 
-      try
-      {
-         for (int i = 0; i < 512; i++)
-         {
+      try {
+         for (int i = 0; i < 512; i++) {
             bufferWrite.put((byte) 'B');
          }
 
-         for (int j = 0; j < LIBAIO_QUEUE_SIZE * 2; j++)
-         {
-            for (int i = 0; i < LIBAIO_QUEUE_SIZE; i++)
-            {
+         for (int j = 0; j < LIBAIO_QUEUE_SIZE * 2; j++) {
+            for (int i = 0; i < LIBAIO_QUEUE_SIZE; i++) {
                TestInfo countClass = new TestInfo();
                fileDescriptor.write(i * 512, 512, bufferWrite, countClass);
             }
 
             Assert.assertEquals(LIBAIO_QUEUE_SIZE, control.poll(callbacks, LIBAIO_QUEUE_SIZE, LIBAIO_QUEUE_SIZE));
 
-            for (int i = 0; i < LIBAIO_QUEUE_SIZE; i++)
-            {
+            for (int i = 0; i < LIBAIO_QUEUE_SIZE; i++) {
                Assert.assertNotNull(callbacks[i]);
                callbacks[i] = null;
             }
@@ -479,15 +430,13 @@ public class LibaioTest
 
          TestInfo.checkLeaks();
       }
-      finally
-      {
+      finally {
          LibaioContext.freeBuffer(bufferWrite);
       }
    }
 
    @Test
-   public void testLock() throws Exception
-   {
+   public void testLock() throws Exception {
       File file = temporaryFolder.newFile("test.bin");
 
       LibaioFile fileDescriptor = control.openFile(file, true);
@@ -497,8 +446,7 @@ public class LibaioTest
    }
 
    @Test
-   public void testAlloc() throws Exception
-   {
+   public void testAlloc() throws Exception {
       File file = temporaryFolder.newFile("test.bin");
 
       LibaioFile fileDescriptor = control.openFile(file, true);
@@ -508,15 +456,12 @@ public class LibaioTest
    }
 
    @Test
-   public void testReleaseNullBuffer() throws Exception
-   {
+   public void testReleaseNullBuffer() throws Exception {
       boolean failed = false;
-      try
-      {
+      try {
          LibaioContext.freeBuffer(null);
       }
-      catch (Exception expected)
-      {
+      catch (Exception expected) {
          failed = true;
       }
 
@@ -525,20 +470,17 @@ public class LibaioTest
    }
 
    @Test
-   public void testMemset() throws Exception
-   {
+   public void testMemset() throws Exception {
 
       ByteBuffer buffer = LibaioContext.newAlignedBuffer(512 * 8, 512);
 
-      for (int i = 0; i < buffer.capacity(); i++)
-      {
+      for (int i = 0; i < buffer.capacity(); i++) {
          buffer.put((byte) 'z');
       }
 
       buffer.position(0);
 
-      for (int i = 0; i < buffer.capacity(); i++)
-      {
+      for (int i = 0; i < buffer.capacity(); i++) {
          Assert.assertEquals((byte) 'z', buffer.get());
       }
 
@@ -546,8 +488,7 @@ public class LibaioTest
 
       buffer.position(0);
 
-      for (int i = 0; i < buffer.capacity(); i++)
-      {
+      for (int i = 0; i < buffer.capacity(); i++) {
          Assert.assertEquals((byte) 0, buffer.get());
       }
 
@@ -556,32 +497,27 @@ public class LibaioTest
    }
 
    @Test
-   public void testIOExceptionConditions() throws Exception
-   {
+   public void testIOExceptionConditions() throws Exception {
       boolean exceptionThrown = false;
 
       control.close();
       control = new LibaioContext<>(LIBAIO_QUEUE_SIZE, false);
-      try
-      {
+      try {
          // There is no space for a queue this huge, the native layer should throw the exception
          LibaioContext newController = new LibaioContext(Integer.MAX_VALUE, false);
       }
-      catch (RuntimeException e)
-      {
+      catch (RuntimeException e) {
          exceptionThrown = true;
       }
 
       Assert.assertTrue(exceptionThrown);
       exceptionThrown = false;
 
-      try
-      {
+      try {
          // this should throw an exception, we shouldn't be able to open a directory!
          control.openFile(temporaryFolder.getRoot(), true);
       }
-      catch (IOException expected)
-      {
+      catch (IOException expected) {
          exceptionThrown = true;
       }
 
@@ -591,12 +527,10 @@ public class LibaioTest
 
       LibaioFile fileDescriptor = control.openFile(temporaryFolder.newFile(), true);
       fileDescriptor.close();
-      try
-      {
+      try {
          fileDescriptor.close();
       }
-      catch (IOException expected)
-      {
+      catch (IOException expected) {
          exceptionThrown = true;
       }
 
@@ -606,25 +540,20 @@ public class LibaioTest
 
       ByteBuffer buffer = fileDescriptor.newBuffer(512);
 
-      try
-      {
-         for (int i = 0; i < 512; i++)
-         {
+      try {
+         for (int i = 0; i < 512; i++) {
             buffer.put((byte) 'a');
          }
 
-         for (int i = 0; i < LIBAIO_QUEUE_SIZE; i++)
-         {
+         for (int i = 0; i < LIBAIO_QUEUE_SIZE; i++) {
             fileDescriptor.write(i * 512, 512, buffer, new TestInfo());
          }
 
          boolean ex = false;
-         try
-         {
+         try {
             fileDescriptor.write(0, 512, buffer, new TestInfo());
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             ex = true;
          }
 
@@ -651,49 +580,40 @@ public class LibaioTest
          TestInfo.checkLeaks();
 
          exceptionThrown = false;
-         try
-         {
+         try {
             LibaioContext.newAlignedBuffer(300, 512);
          }
-         catch (RuntimeException e)
-         {
+         catch (RuntimeException e) {
             exceptionThrown = true;
          }
 
          Assert.assertTrue(exceptionThrown);
 
          exceptionThrown = false;
-         try
-         {
+         try {
             LibaioContext.newAlignedBuffer(-512, 512);
          }
-         catch (RuntimeException e)
-         {
+         catch (RuntimeException e) {
             exceptionThrown = true;
          }
 
          Assert.assertTrue(exceptionThrown);
       }
-      finally
-      {
+      finally {
          LibaioContext.freeBuffer(buffer);
       }
    }
 
    @Test
-   public void testBlockedCallback() throws Exception
-   {
+   public void testBlockedCallback() throws Exception {
       final LibaioContext blockedContext = new LibaioContext(500, true);
-      Thread t = new Thread()
-      {
-         public void run()
-         {
+      Thread t = new Thread() {
+         public void run() {
             blockedContext.poll();
          }
       };
 
       t.start();
-
 
       int NUMBER_OF_BLOCKS = 5000;
 
@@ -705,17 +625,15 @@ public class LibaioTest
 
       final AtomicInteger errors = new AtomicInteger(0);
 
-      class MyCallback implements SubmitInfo
-      {
+      class MyCallback implements SubmitInfo {
+
          @Override
-         public void onError(int errno, String message)
-         {
+         public void onError(int errno, String message) {
             errors.incrementAndGet();
          }
 
          @Override
-         public void done()
-         {
+         public void done() {
             latch.countDown();
          }
       }
@@ -724,16 +642,13 @@ public class LibaioTest
 
       ByteBuffer buffer = LibaioContext.newAlignedBuffer(512, 512);
 
-
-      for (int i = 0; i < 512; i++)
-      {
-         buffer.put((byte)'a');
+      for (int i = 0; i < 512; i++) {
+         buffer.put((byte) 'a');
       }
 
       long start = System.currentTimeMillis();
 
-      for (int i = 0; i < NUMBER_OF_BLOCKS; i++)
-      {
+      for (int i = 0; i < NUMBER_OF_BLOCKS; i++) {
          aioFile.write(i * 512, 512, buffer, callback);
       }
 
@@ -741,19 +656,18 @@ public class LibaioTest
 
       latch.await();
 
-
       System.out.println("time = " + (end - start) + " writes/second=" + NUMBER_OF_BLOCKS * 1000L / (end - start));
-//
-//      MultiThreadAsynchronousFileTest.debug((sync ? "Sync result:" : "Async result:") + " Records/Second = " +
-//                                               MultiThreadAsynchronousFileTest.NUMBER_OF_THREADS *
-//                                                  MultiThreadAsynchronousFileTest.NUMBER_OF_LINES *
-//                                                  1000 /
-//                                                  (endTime - startTime) +
-//                                               " total time = " +
-//                                               (endTime - startTime) +
-//                                               " total number of records = " +
-//                                               MultiThreadAsynchronousFileTest.NUMBER_OF_THREADS *
-//                                                  MultiThreadAsynchronousFileTest.NUMBER_OF_LINES);
+      //
+      //      MultiThreadAsynchronousFileTest.debug((sync ? "Sync result:" : "Async result:") + " Records/Second = " +
+      //                                               MultiThreadAsynchronousFileTest.NUMBER_OF_THREADS *
+      //                                                  MultiThreadAsynchronousFileTest.NUMBER_OF_LINES *
+      //                                                  1000 /
+      //                                                  (endTime - startTime) +
+      //                                               " total time = " +
+      //                                               (endTime - startTime) +
+      //                                               " total number of records = " +
+      //                                               MultiThreadAsynchronousFileTest.NUMBER_OF_THREADS *
+      //                                                  MultiThreadAsynchronousFileTest.NUMBER_OF_LINES);
 
       Thread.sleep(100);
 
@@ -761,42 +675,34 @@ public class LibaioTest
       t.join();
    }
 
-   private void fillupFile(File file, int blocks) throws IOException
-   {
+   private void fillupFile(File file, int blocks) throws IOException {
       FileOutputStream fileOutputStream = new FileOutputStream(file);
       byte[] bufferWrite = new byte[512];
-      for (int i = 0; i < 512; i++)
-      {
+      for (int i = 0; i < 512; i++) {
          bufferWrite[i] = (byte) 0;
       }
 
-      for (int i = 0; i < blocks; i++)
-      {
+      for (int i = 0; i < blocks; i++) {
          fileOutputStream.write(bufferWrite);
       }
 
       fileOutputStream.close();
    }
 
+   static class TestInfo implements SubmitInfo {
 
-   static class TestInfo implements SubmitInfo
-   {
       static AtomicInteger count = new AtomicInteger();
 
       @Override
-      protected void finalize() throws Throwable
-      {
+      protected void finalize() throws Throwable {
          super.finalize();
          count.decrementAndGet();
       }
 
-      public static void checkLeaks() throws InterruptedException
-      {
-         for (int i = 0; count.get() != 0 && i < 50; i++)
-         {
+      public static void checkLeaks() throws InterruptedException {
+         for (int i = 0; count.get() != 0 && i < 50; i++) {
             WeakReference reference = new WeakReference(new Object());
-            while (reference.get() != null)
-            {
+            while (reference.get() != null) {
                System.gc();
                Thread.sleep(100);
             }
@@ -808,51 +714,42 @@ public class LibaioTest
       String errorMessage;
       int errno;
 
-      public TestInfo()
-      {
+      public TestInfo() {
          count.incrementAndGet();
       }
 
       @Override
-      public void onError(int errno, String message)
-      {
+      public void onError(int errno, String message) {
          this.errno = errno;
          this.errorMessage = message;
          this.error = true;
       }
 
       @Override
-      public void done()
-      {
+      public void done() {
       }
 
-      public int getErrno()
-      {
+      public int getErrno() {
          return errno;
       }
 
-      public void setErrno(int errno)
-      {
+      public void setErrno(int errno) {
          this.errno = errno;
       }
 
-      public boolean isError()
-      {
+      public boolean isError() {
          return error;
       }
 
-      public void setError(boolean error)
-      {
+      public void setError(boolean error) {
          this.error = error;
       }
 
-      public String getErrorMessage()
-      {
+      public String getErrorMessage() {
          return errorMessage;
       }
 
-      public void setErrorMessage(String errorMessage)
-      {
+      public void setErrorMessage(String errorMessage) {
          this.errorMessage = errorMessage;
       }
    }

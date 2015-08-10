@@ -34,71 +34,71 @@ import org.apache.activemq.spring.ConsumerBean;
  */
 public class AMQ1687Test extends EmbeddedBrokerTestSupport {
 
-    private Connection connection;
+   private Connection connection;
 
-    @Override
-    protected ConnectionFactory createConnectionFactory() throws Exception {
-        //prefetch change is not required, but test will not fail w/o it, only spew errors in the AMQ log.
-        return new ActiveMQConnectionFactory(
-                broker.getTransportConnectors().get(0).getPublishableConnectString() +"?jms.prefetchPolicy.all=5");
-    }
+   @Override
+   protected ConnectionFactory createConnectionFactory() throws Exception {
+      //prefetch change is not required, but test will not fail w/o it, only spew errors in the AMQ log.
+      return new ActiveMQConnectionFactory(broker.getTransportConnectors().get(0).getPublishableConnectString() + "?jms.prefetchPolicy.all=5");
+   }
 
-    public void testVirtualTopicCreation() throws Exception {
-        if (connection == null) {
-            connection = createConnection();
-        }
-        connection.start();
+   public void testVirtualTopicCreation() throws Exception {
+      if (connection == null) {
+         connection = createConnection();
+      }
+      connection.start();
 
-        ConsumerBean messageList = new ConsumerBean();
-        messageList.setVerbose(true);
+      ConsumerBean messageList = new ConsumerBean();
+      messageList.setVerbose(true);
 
-        String queueAName = getVirtualTopicConsumerName();
-        String queueBName = getVirtualTopicConsumerNameB();
+      String queueAName = getVirtualTopicConsumerName();
+      String queueBName = getVirtualTopicConsumerNameB();
 
-        // create consumer 'cluster'
-        ActiveMQQueue queue1 = new ActiveMQQueue(queueAName);
-        ActiveMQQueue queue2 = new ActiveMQQueue(queueBName);
+      // create consumer 'cluster'
+      ActiveMQQueue queue1 = new ActiveMQQueue(queueAName);
+      ActiveMQQueue queue2 = new ActiveMQQueue(queueBName);
 
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        MessageConsumer c1 = session.createConsumer(queue1);
-        MessageConsumer c2 = session.createConsumer(queue2);
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      MessageConsumer c1 = session.createConsumer(queue1);
+      MessageConsumer c2 = session.createConsumer(queue2);
 
-        c1.setMessageListener(messageList);
-        c2.setMessageListener(messageList);
+      c1.setMessageListener(messageList);
+      c2.setMessageListener(messageList);
 
-        // create topic producer
-        ActiveMQTopic topic = new ActiveMQTopic(getVirtualTopicName());
-        MessageProducer producer = session.createProducer(topic);
-        assertNotNull(producer);
+      // create topic producer
+      ActiveMQTopic topic = new ActiveMQTopic(getVirtualTopicName());
+      MessageProducer producer = session.createProducer(topic);
+      assertNotNull(producer);
 
-        int total = 100;
-        for (int i = 0; i < total; i++) {
-            producer.send(session.createTextMessage("message: " + i));
-        }
+      int total = 100;
+      for (int i = 0; i < total; i++) {
+         producer.send(session.createTextMessage("message: " + i));
+      }
 
-        messageList.assertMessagesArrived(total*2);
-    }
+      messageList.assertMessagesArrived(total * 2);
+   }
 
-    protected String getVirtualTopicName() {
-        return "VirtualTopic.TEST";
-    }
+   protected String getVirtualTopicName() {
+      return "VirtualTopic.TEST";
+   }
 
-    protected String getVirtualTopicConsumerName() {
-        return "Consumer.A.VirtualTopic.TEST";
-    }
+   protected String getVirtualTopicConsumerName() {
+      return "Consumer.A.VirtualTopic.TEST";
+   }
 
-    protected String getVirtualTopicConsumerNameB() {
-        return "Consumer.B.VirtualTopic.TEST";
-    }
+   protected String getVirtualTopicConsumerNameB() {
+      return "Consumer.B.VirtualTopic.TEST";
+   }
 
-    protected void setUp() throws Exception {
-        this.bindAddress="tcp://localhost:0";
-        super.setUp();
-    }
-    protected void tearDown() throws Exception {
-        if (connection != null) {
-            connection.close();
-        }
-        super.tearDown();
-    }
+   protected void setUp() throws Exception {
+      this.bindAddress = "tcp://localhost:0";
+      super.setUp();
+   }
+
+   protected void tearDown() throws Exception {
+      if (connection != null) {
+         connection.close();
+      }
+      super.tearDown();
+   }
 }

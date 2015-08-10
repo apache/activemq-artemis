@@ -28,36 +28,34 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.naming.InitialContext;
 
-public class ReplicatedMultipleFailoverExample
-{
+public class ReplicatedMultipleFailoverExample {
+
    private static Process server0;
 
    private static Process server1;
 
    private static Process server2;
 
-   public static void main(final String[] args) throws Exception
-   {
+   public static void main(final String[] args) throws Exception {
       final int numMessages = 30;
 
       Connection connection = null;
 
       InitialContext initialContext = null;
 
-      try
-      {
+      try {
          server0 = ServerUtil.startServer(args[0], ReplicatedMultipleFailoverExample.class.getSimpleName() + "0", 0, 5000);
          server1 = ServerUtil.startServer(args[1], ReplicatedMultipleFailoverExample.class.getSimpleName() + "1", 1, 5000);
          server2 = ServerUtil.startServer(args[2], ReplicatedMultipleFailoverExample.class.getSimpleName() + "2", 2, 5000);
 
-         Process[] processes = new Process[] {server0, server1, server2};
+         Process[] processes = new Process[]{server0, server1, server2};
 
          // Step 1. Get an initial context for looking up JNDI from the server #1
          initialContext = new InitialContext();
 
          // Step 2. Look up the JMS resources from JNDI
-         Queue queue = (Queue)initialContext.lookup("queue/exampleQueue");
-         ConnectionFactory connectionFactory = (ConnectionFactory)initialContext.lookup("ConnectionFactory");
+         Queue queue = (Queue) initialContext.lookup("queue/exampleQueue");
+         ConnectionFactory connectionFactory = (ConnectionFactory) initialContext.lookup("ConnectionFactory");
 
          // Step 3. Create a JMS Connection
          connection = connectionFactory.createConnection();
@@ -73,8 +71,7 @@ public class ReplicatedMultipleFailoverExample
          MessageConsumer consumer = session.createConsumer(queue);
 
          // Step 7. Send some messages to server #1, the live server
-         for (int i = 0; i < numMessages; i++)
-         {
+         for (int i = 0; i < numMessages; i++) {
             TextMessage message = session.createTextMessage("This is text message " + i);
             producer.send(message);
             System.out.println("Sent message: " + message.getText());
@@ -82,17 +79,15 @@ public class ReplicatedMultipleFailoverExample
 
          // Step 8. Receive and acknowledge a third of the sent messages
          TextMessage message0 = null;
-         for (int i = 0; i < numMessages / 3; i++)
-         {
-            message0 = (TextMessage)consumer.receive(5000);
+         for (int i = 0; i < numMessages / 3; i++) {
+            message0 = (TextMessage) consumer.receive(5000);
             System.out.println("Got message: " + message0.getText());
          }
          message0.acknowledge();
 
          // Step 9. Receive the rest third of the sent messages but *do not* acknowledge them yet
-         for (int i = numMessages / 3; i < numMessages; i++)
-         {
-            message0 = (TextMessage)consumer.receive(5000);
+         for (int i = numMessages / 3; i < numMessages; i++) {
+            message0 = (TextMessage) consumer.receive(5000);
             System.out.println("Got message: " + message0.getText());
          }
 
@@ -103,19 +98,16 @@ public class ReplicatedMultipleFailoverExample
 
          // Step 11. Acknowledging the 2nd half of the sent messages will fail as failover to the
          // backup server has occurred
-         try
-         {
+         try {
             message0.acknowledge();
          }
-         catch (JMSException e)
-         {
+         catch (JMSException e) {
             System.err.println("Got exception while acknowledging message: " + e.getMessage());
          }
 
          // Step 12. Consume again the 2nd third of the messages again. Note that they are not considered as redelivered.
-         for (int i = numMessages / 3; i < (numMessages / 3) * 2; i++)
-         {
-            message0 = (TextMessage)consumer.receive(5000);
+         for (int i = numMessages / 3; i < (numMessages / 3) * 2; i++) {
+            message0 = (TextMessage) consumer.receive(5000);
             System.out.printf("Got message: %s (redelivered?: %s)%n", message0.getText(), message0.getJMSRedelivered());
          }
          message0.acknowledge();
@@ -124,34 +116,28 @@ public class ReplicatedMultipleFailoverExample
 
          // Step 11. Acknowledging the 2nd half of the sent messages will fail as failover to the
          // backup server has occurred
-         try
-         {
+         try {
             message0.acknowledge();
          }
-         catch (JMSException e)
-         {
+         catch (JMSException e) {
             System.err.println("Got exception while acknowledging message: " + e.getMessage());
          }
 
          // Step 12. Consume again the 2nd third of the messages again. Note that they are not considered as redelivered.
-         for (int i = (numMessages / 3) * 2; i < numMessages; i++)
-         {
-            message0 = (TextMessage)consumer.receive(5000);
+         for (int i = (numMessages / 3) * 2; i < numMessages; i++) {
+            message0 = (TextMessage) consumer.receive(5000);
             System.out.printf("Got message: %s (redelivered?: %s)%n", message0.getText(), message0.getJMSRedelivered());
          }
          message0.acknowledge();
       }
-      finally
-      {
+      finally {
          // Step 13. Be sure to close our resources!
 
-         if (connection != null)
-         {
+         if (connection != null) {
             connection.close();
          }
 
-         if (initialContext != null)
-         {
+         if (initialContext != null) {
             initialContext.close();
          }
 

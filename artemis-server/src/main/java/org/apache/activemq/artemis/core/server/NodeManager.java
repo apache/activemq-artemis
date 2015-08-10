@@ -27,8 +27,8 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.utils.UUID;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 
-public abstract class NodeManager implements ActiveMQComponent
-{
+public abstract class NodeManager implements ActiveMQComponent {
+
    protected static final byte FIRST_TIME_START = '0';
    private static final String SERVER_LOCK_NAME = "server.lock";
    private static final String ACCESS_MODE = "rw";
@@ -42,8 +42,7 @@ public abstract class NodeManager implements ActiveMQComponent
 
    protected FileChannel channel;
 
-   public NodeManager(final boolean replicatedBackup, final File directory)
-   {
+   public NodeManager(final boolean replicatedBackup, final File directory) {
       this.directory = directory;
       this.replicatedBackup = replicatedBackup;
    }
@@ -64,30 +63,24 @@ public abstract class NodeManager implements ActiveMQComponent
 
    // --------------------------------------------------------------------
 
-   public synchronized void start() throws Exception
-   {
+   public synchronized void start() throws Exception {
       isStarted = true;
    }
 
-   public boolean isStarted()
-   {
+   public boolean isStarted() {
       return isStarted;
    }
 
-   public SimpleString getNodeId()
-   {
-      synchronized (nodeIDGuard)
-      {
+   public SimpleString getNodeId() {
+      synchronized (nodeIDGuard) {
          return nodeID;
       }
    }
 
    public abstract SimpleString readNodeId() throws ActiveMQIllegalStateException, IOException;
 
-   public UUID getUUID()
-   {
-      synchronized (nodeIDGuard)
-      {
+   public UUID getUUID() {
+      synchronized (nodeIDGuard) {
          return uuid;
       }
    }
@@ -99,10 +92,8 @@ public abstract class NodeManager implements ActiveMQComponent
     *
     * @param nodeID
     */
-   public void setNodeID(String nodeID)
-   {
-      synchronized (nodeIDGuard)
-      {
+   public void setNodeID(String nodeID) {
+      synchronized (nodeIDGuard) {
          this.nodeID = new SimpleString(nodeID);
          this.uuid = new UUID(UUID.TYPE_TIME_BASED, UUID.stringToBytes(nodeID));
       }
@@ -111,10 +102,8 @@ public abstract class NodeManager implements ActiveMQComponent
    /**
     * @param generateUUID
     */
-   protected void setUUID(UUID generateUUID)
-   {
-      synchronized (nodeIDGuard)
-      {
+   protected void setUUID(UUID generateUUID) {
+      synchronized (nodeIDGuard) {
          uuid = generateUUID;
          nodeID = new SimpleString(uuid.toString());
       }
@@ -127,18 +116,15 @@ public abstract class NodeManager implements ActiveMQComponent
    public abstract void interrupt();
 
    @Override
-   public synchronized void stop() throws Exception
-   {
+   public synchronized void stop() throws Exception {
       FileChannel channelCopy = channel;
       if (channelCopy != null)
          channelCopy.close();
       isStarted = false;
    }
 
-   public final void stopBackup() throws Exception
-   {
-      if (replicatedBackup && getNodeId() != null)
-      {
+   public final void stopBackup() throws Exception {
+      if (replicatedBackup && getNodeId() != null) {
          setUpServerLockFile();
       }
       releaseBackup();
@@ -156,37 +142,29 @@ public abstract class NodeManager implements ActiveMQComponent
     * the *current* nodeID
     * </ol>
     */
-   protected final synchronized void setUpServerLockFile() throws IOException
-   {
+   protected final synchronized void setUpServerLockFile() throws IOException {
       File serverLockFile = newFile(SERVER_LOCK_NAME);
 
       boolean fileCreated = false;
 
       int count = 0;
-      while (!serverLockFile.exists())
-      {
-         try
-         {
+      while (!serverLockFile.exists()) {
+         try {
             fileCreated = serverLockFile.createNewFile();
          }
-         catch (RuntimeException e)
-         {
+         catch (RuntimeException e) {
             ActiveMQServerLogger.LOGGER.nodeManagerCantOpenFile(e, serverLockFile);
             throw e;
          }
-         catch (IOException e)
-         {
+         catch (IOException e) {
             /*
             * on some OS's this may fail weirdly even tho the parent dir exists, retrying will work, some weird timing issue i think
             * */
-            if (count < 5)
-            {
-               try
-               {
+            if (count < 5) {
+               try {
                   Thread.sleep(100);
                }
-               catch (InterruptedException e1)
-               {
+               catch (InterruptedException e1) {
                }
                count++;
                continue;
@@ -194,8 +172,7 @@ public abstract class NodeManager implements ActiveMQComponent
             ActiveMQServerLogger.LOGGER.nodeManagerCantOpenFile(e, serverLockFile);
             throw e;
          }
-         if (!fileCreated)
-         {
+         if (!fileCreated) {
             throw new IllegalStateException("Unable to create server lock file");
          }
       }
@@ -205,8 +182,7 @@ public abstract class NodeManager implements ActiveMQComponent
 
       channel = raFile.getChannel();
 
-      if (fileCreated)
-      {
+      if (fileCreated) {
          ByteBuffer id = ByteBuffer.allocateDirect(3);
          byte[] bytes = new byte[3];
          bytes[0] = FIRST_TIME_START;
@@ -224,36 +200,30 @@ public abstract class NodeManager implements ActiveMQComponent
    /**
     * @return
     */
-   protected final File newFile(final String fileName)
-   {
+   protected final File newFile(final String fileName) {
       File file = new File(directory, fileName);
       return file;
    }
 
-   protected final synchronized void createNodeId() throws IOException
-   {
-      synchronized (nodeIDGuard)
-      {
+   protected final synchronized void createNodeId() throws IOException {
+      synchronized (nodeIDGuard) {
          ByteBuffer id = ByteBuffer.allocateDirect(16);
          int read = channel.read(id, 3);
-         if (replicatedBackup)
-         {
+         if (replicatedBackup) {
             id.position(0);
             id.put(getUUID().asBytes(), 0, 16);
             id.position(0);
             channel.write(id, 3);
             channel.force(true);
          }
-         else if (read != 16)
-         {
+         else if (read != 16) {
             setUUID(UUIDGenerator.getInstance().generateUUID());
             id.put(getUUID().asBytes(), 0, 16);
             id.position(0);
             channel.write(id, 3);
             channel.force(true);
          }
-         else
-         {
+         else {
             byte[] bytes = new byte[16];
             id.position(0);
             id.get(bytes);

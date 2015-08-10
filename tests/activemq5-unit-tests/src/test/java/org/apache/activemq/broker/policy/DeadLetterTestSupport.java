@@ -40,172 +40,174 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * 
+ *
  */
 public abstract class DeadLetterTestSupport extends TestSupport {
-    private static final Logger LOG = LoggerFactory.getLogger(DeadLetterTestSupport.class);
 
-    protected int messageCount = 10;
-    protected long timeToLive;
-    protected Connection connection;
-    protected Session session;
-    protected MessageConsumer consumer;
-    protected MessageProducer producer;
-    protected int deliveryMode = DeliveryMode.PERSISTENT;
-    protected boolean durableSubscriber;
-    protected Destination dlqDestination;
-    protected MessageConsumer dlqConsumer;
-    protected QueueBrowser dlqBrowser;
-    protected BrokerService broker;
-    protected boolean transactedMode;
-    protected int acknowledgeMode = Session.CLIENT_ACKNOWLEDGE;
-    private Destination destination;
+   private static final Logger LOG = LoggerFactory.getLogger(DeadLetterTestSupport.class);
 
-    protected void setUp() throws Exception {
-        super.setUp();
-        broker = createBroker();
-        broker.start();
-        connection = createConnection();
-        connection.setClientID(createClientId());
+   protected int messageCount = 10;
+   protected long timeToLive;
+   protected Connection connection;
+   protected Session session;
+   protected MessageConsumer consumer;
+   protected MessageProducer producer;
+   protected int deliveryMode = DeliveryMode.PERSISTENT;
+   protected boolean durableSubscriber;
+   protected Destination dlqDestination;
+   protected MessageConsumer dlqConsumer;
+   protected QueueBrowser dlqBrowser;
+   protected BrokerService broker;
+   protected boolean transactedMode;
+   protected int acknowledgeMode = Session.CLIENT_ACKNOWLEDGE;
+   private Destination destination;
 
-        session = connection.createSession(transactedMode, acknowledgeMode);
-        connection.start();
-    }
+   protected void setUp() throws Exception {
+      super.setUp();
+      broker = createBroker();
+      broker.start();
+      connection = createConnection();
+      connection.setClientID(createClientId());
 
-    protected String createClientId() {
-        return toString();
-    }
+      session = connection.createSession(transactedMode, acknowledgeMode);
+      connection.start();
+   }
 
-    protected void tearDown() throws Exception {
-        if (connection != null) {
-            connection.close();
-        }
-        if (broker != null) {
-            broker.stop();
-        }
-    }
+   protected String createClientId() {
+      return toString();
+   }
 
-    protected abstract void doTest() throws Exception;
+   protected void tearDown() throws Exception {
+      if (connection != null) {
+         connection.close();
+      }
+      if (broker != null) {
+         broker.stop();
+      }
+   }
 
-    protected BrokerService createBroker() throws Exception {
-        BrokerService broker = new BrokerService();
-        broker.setPersistent(false);
-        PolicyEntry policy = new PolicyEntry();
-        DeadLetterStrategy defaultDeadLetterStrategy = policy.getDeadLetterStrategy();
-        if(defaultDeadLetterStrategy!=null) {
-            defaultDeadLetterStrategy.setProcessNonPersistent(true);
-        }
-        PolicyMap pMap = new PolicyMap();
-        pMap.setDefaultEntry(policy);
-        broker.setDestinationPolicy(pMap);
-        return broker;
-    }
+   protected abstract void doTest() throws Exception;
 
-    protected void makeConsumer() throws JMSException {
-        Destination destination = getDestination();
-        LOG.info("Consuming from: " + destination);
-        if (durableSubscriber) {
-            consumer = session.createDurableSubscriber((Topic)destination, destination.toString());
-        } else {
-            consumer = session.createConsumer(destination);
-        }
-    }
+   protected BrokerService createBroker() throws Exception {
+      BrokerService broker = new BrokerService();
+      broker.setPersistent(false);
+      PolicyEntry policy = new PolicyEntry();
+      DeadLetterStrategy defaultDeadLetterStrategy = policy.getDeadLetterStrategy();
+      if (defaultDeadLetterStrategy != null) {
+         defaultDeadLetterStrategy.setProcessNonPersistent(true);
+      }
+      PolicyMap pMap = new PolicyMap();
+      pMap.setDefaultEntry(policy);
+      broker.setDestinationPolicy(pMap);
+      return broker;
+   }
 
-    protected void makeDlqConsumer() throws Exception {
-        dlqDestination = createDlqDestination();
+   protected void makeConsumer() throws JMSException {
+      Destination destination = getDestination();
+      LOG.info("Consuming from: " + destination);
+      if (durableSubscriber) {
+         consumer = session.createDurableSubscriber((Topic) destination, destination.toString());
+      }
+      else {
+         consumer = session.createConsumer(destination);
+      }
+   }
 
-        LOG.info("Consuming from dead letter on: " + dlqDestination);
-        dlqConsumer = session.createConsumer(dlqDestination);
-    }
-    
-    protected void makeDlqBrowser() throws JMSException {
-        dlqDestination = createDlqDestination();
+   protected void makeDlqConsumer() throws Exception {
+      dlqDestination = createDlqDestination();
 
-        LOG.info("Browsing dead letter on: " + dlqDestination);
-        dlqBrowser = session.createBrowser((Queue)dlqDestination);    	
-    }
+      LOG.info("Consuming from dead letter on: " + dlqDestination);
+      dlqConsumer = session.createConsumer(dlqDestination);
+   }
 
-    protected void sendMessages() throws JMSException {
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        producer = session.createProducer(getDestination());
-        producer.setDeliveryMode(deliveryMode);
-        producer.setTimeToLive(timeToLive);
+   protected void makeDlqBrowser() throws JMSException {
+      dlqDestination = createDlqDestination();
 
-        LOG.info("Sending " + messageCount + " messages to: " + getDestination());
-        for (int i = 0; i < messageCount; i++) {
-            Message message = createMessage(session, i);
-            producer.send(message);
-        }
-    }
+      LOG.info("Browsing dead letter on: " + dlqDestination);
+      dlqBrowser = session.createBrowser((Queue) dlqDestination);
+   }
 
-    protected TextMessage createMessage(Session session, int i) throws JMSException {
-        return session.createTextMessage(getMessageText(i));
-    }
+   protected void sendMessages() throws JMSException {
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      producer = session.createProducer(getDestination());
+      producer.setDeliveryMode(deliveryMode);
+      producer.setTimeToLive(timeToLive);
 
-    protected String getMessageText(int i) {
-        return "message: " + i;
-    }
+      LOG.info("Sending " + messageCount + " messages to: " + getDestination());
+      for (int i = 0; i < messageCount; i++) {
+         Message message = createMessage(session, i);
+         producer.send(message);
+      }
+   }
 
-    protected void assertMessage(Message message, int i) throws Exception {
-        LOG.info("Received message: " + message);
-        assertNotNull("No message received for index: " + i, message);
-        assertTrue("Should be a TextMessage not: " + message, message instanceof TextMessage);
-        TextMessage textMessage = (TextMessage)message;
-        assertEquals("text of message: " + i, getMessageText(i), textMessage.getText());
-    }
+   protected TextMessage createMessage(Session session, int i) throws JMSException {
+      return session.createTextMessage(getMessageText(i));
+   }
 
-    protected abstract Destination createDlqDestination();
+   protected String getMessageText(int i) {
+      return "message: " + i;
+   }
 
-    public void testTransientTopicMessage() throws Exception {
-        super.topic = true;
-        deliveryMode = DeliveryMode.NON_PERSISTENT;
-        durableSubscriber = true;
-        doTest();
-    }
+   protected void assertMessage(Message message, int i) throws Exception {
+      LOG.info("Received message: " + message);
+      assertNotNull("No message received for index: " + i, message);
+      assertTrue("Should be a TextMessage not: " + message, message instanceof TextMessage);
+      TextMessage textMessage = (TextMessage) message;
+      assertEquals("text of message: " + i, getMessageText(i), textMessage.getText());
+   }
 
-    public void testDurableTopicMessage() throws Exception {
-        super.topic = true;
-        deliveryMode = DeliveryMode.PERSISTENT;
-        durableSubscriber = true;
-        doTest();
-    }
+   protected abstract Destination createDlqDestination();
 
-    public void testTransientQueueMessage() throws Exception {
-        super.topic = false;
-        deliveryMode = DeliveryMode.NON_PERSISTENT;
-        durableSubscriber = false;
-        doTest();
-        validateConsumerPrefetch(this.getDestinationString(), 0);        
-    }
-        
-    public void testDurableQueueMessage() throws Exception {
-        super.topic = false;
-        deliveryMode = DeliveryMode.PERSISTENT;
-        durableSubscriber = false;
-        doTest();
-        validateConsumerPrefetch(this.getDestinationString(), 0);
-    }
+   public void testTransientTopicMessage() throws Exception {
+      super.topic = true;
+      deliveryMode = DeliveryMode.NON_PERSISTENT;
+      durableSubscriber = true;
+      doTest();
+   }
 
-    public Destination getDestination() {
-        if (destination == null) {
-            destination = createDestination();
-        }
-        return destination;
-    }
-    
-    private void validateConsumerPrefetch(String destination, long expectedCount) {
-        try {
-            Thread.sleep(100);
-        } catch (InterruptedException e) {
-        }
-        RegionBroker regionBroker = (RegionBroker) broker.getRegionBroker();
-        for (org.apache.activemq.broker.region.Destination dest : regionBroker.getQueueRegion().getDestinationMap().values()) {
-            if (dest.getName().equals(destination)) {
-                DestinationStatistics stats = dest.getDestinationStatistics();
-                LOG.info(">>>> inflight for : " + dest.getName() + ": " + stats.getInflight().getCount());
-                assertEquals("inflight for: " + dest.getName() + ": " + stats.getInflight().getCount() + " matches", 
-                        expectedCount, stats.getInflight().getCount());      
-            }
-        }
-    }
+   public void testDurableTopicMessage() throws Exception {
+      super.topic = true;
+      deliveryMode = DeliveryMode.PERSISTENT;
+      durableSubscriber = true;
+      doTest();
+   }
+
+   public void testTransientQueueMessage() throws Exception {
+      super.topic = false;
+      deliveryMode = DeliveryMode.NON_PERSISTENT;
+      durableSubscriber = false;
+      doTest();
+      validateConsumerPrefetch(this.getDestinationString(), 0);
+   }
+
+   public void testDurableQueueMessage() throws Exception {
+      super.topic = false;
+      deliveryMode = DeliveryMode.PERSISTENT;
+      durableSubscriber = false;
+      doTest();
+      validateConsumerPrefetch(this.getDestinationString(), 0);
+   }
+
+   public Destination getDestination() {
+      if (destination == null) {
+         destination = createDestination();
+      }
+      return destination;
+   }
+
+   private void validateConsumerPrefetch(String destination, long expectedCount) {
+      try {
+         Thread.sleep(100);
+      }
+      catch (InterruptedException e) {
+      }
+      RegionBroker regionBroker = (RegionBroker) broker.getRegionBroker();
+      for (org.apache.activemq.broker.region.Destination dest : regionBroker.getQueueRegion().getDestinationMap().values()) {
+         if (dest.getName().equals(destination)) {
+            DestinationStatistics stats = dest.getDestinationStatistics();
+            LOG.info(">>>> inflight for : " + dest.getName() + ": " + stats.getInflight().getCount());
+            assertEquals("inflight for: " + dest.getName() + ": " + stats.getInflight().getCount() + " matches", expectedCount, stats.getInflight().getCount());
+         }
+      }
+   }
 }

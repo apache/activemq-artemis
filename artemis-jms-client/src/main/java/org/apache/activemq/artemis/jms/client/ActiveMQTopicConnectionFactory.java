@@ -26,42 +26,35 @@ import org.apache.activemq.artemis.api.jms.JMSFactoryType;
 /**
  * {@inheritDoc}
  */
-public class ActiveMQTopicConnectionFactory extends ActiveMQConnectionFactory implements TopicConnectionFactory
-{
+public class ActiveMQTopicConnectionFactory extends ActiveMQConnectionFactory implements TopicConnectionFactory {
+
    private static final long serialVersionUID = 7317051989866548455L;
 
-   public ActiveMQTopicConnectionFactory()
-   {
+   public ActiveMQTopicConnectionFactory() {
       super();
    }
 
-   public ActiveMQTopicConnectionFactory(String url)
-   {
+   public ActiveMQTopicConnectionFactory(String url) {
       super(url);
    }
 
-   public ActiveMQTopicConnectionFactory(String url, String user, String password)
-   {
+   public ActiveMQTopicConnectionFactory(String url, String user, String password) {
       super(url, user, password);
    }
 
-   public ActiveMQTopicConnectionFactory(ServerLocator serverLocator)
-   {
+   public ActiveMQTopicConnectionFactory(ServerLocator serverLocator) {
       super(serverLocator);
    }
 
-   public ActiveMQTopicConnectionFactory(final boolean ha, final DiscoveryGroupConfiguration groupConfiguration)
-   {
+   public ActiveMQTopicConnectionFactory(final boolean ha, final DiscoveryGroupConfiguration groupConfiguration) {
       super(ha, groupConfiguration);
    }
 
-   public ActiveMQTopicConnectionFactory(final boolean ha, final TransportConfiguration... initialConnectors)
-   {
+   public ActiveMQTopicConnectionFactory(final boolean ha, final TransportConfiguration... initialConnectors) {
       super(ha, initialConnectors);
    }
 
-   public int getFactoryType()
-   {
+   public int getFactoryType() {
       return JMSFactoryType.TOPIC_CF.intValue();
    }
 }

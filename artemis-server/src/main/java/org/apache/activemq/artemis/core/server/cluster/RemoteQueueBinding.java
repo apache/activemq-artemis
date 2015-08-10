@@ -19,8 +19,8 @@ package org.apache.activemq.artemis.core.server.cluster;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.postoffice.QueueBinding;
 
-public interface RemoteQueueBinding extends QueueBinding
-{
+public interface RemoteQueueBinding extends QueueBinding {
+
    void addConsumer(SimpleString filterString) throws Exception;
 
    void removeConsumer(SimpleString filterString) throws Exception;

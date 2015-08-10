@@ -27,9 +27,8 @@ import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 /**
  * An aggregate interface for the JMS connection factories
  */
-public interface ActiveMQRAConnectionFactory extends XAQueueConnectionFactory,
-   XATopicConnectionFactory, Serializable, Referenceable
-{
+public interface ActiveMQRAConnectionFactory extends XAQueueConnectionFactory, XATopicConnectionFactory, Serializable, Referenceable {
+
    /**
     * Connection factory capable of handling connections
     */

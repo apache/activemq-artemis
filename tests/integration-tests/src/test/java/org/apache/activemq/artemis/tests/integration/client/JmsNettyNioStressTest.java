@@ -62,8 +62,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * counting strategy is used to verify that the count has reached the expected
  * value.
  */
-public class JmsNettyNioStressTest extends ActiveMQTestBase
-{
+public class JmsNettyNioStressTest extends ActiveMQTestBase {
 
    // Constants -----------------------------------------------------
 
@@ -77,13 +76,11 @@ public class JmsNettyNioStressTest extends ActiveMQTestBase
 
    // Remove this method to re-enable those tests
    @Test
-   public void testStressSendNetty() throws Exception
-   {
+   public void testStressSendNetty() throws Exception {
       doTestStressSend(true);
    }
 
-   public void doTestStressSend(final boolean netty) throws Exception
-   {
+   public void doTestStressSend(final boolean netty) throws Exception {
       // first set up the server
       Map<String, Object> params = new HashMap<String, Object>();
       params.put(TransportConstants.PORT_PROP_NAME, 61616);
@@ -93,10 +90,7 @@ public class JmsNettyNioStressTest extends ActiveMQTestBase
       params.put(TransportConstants.NIO_REMOTING_THREADS_PROPNAME, 1);
       params.put(TransportConstants.BATCH_DELAY, 50);
       TransportConfiguration transportConfig = new TransportConfiguration(ActiveMQTestBase.NETTY_ACCEPTOR_FACTORY, params);
-      Configuration config = createBasicConfig()
-              .setJMXManagementEnabled(false)
-              .clearAcceptorConfigurations()
-              .addAcceptorConfiguration(transportConfig);
+      Configuration config = createBasicConfig().setJMXManagementEnabled(false).clearAcceptorConfigurations().addAcceptorConfiguration(transportConfig);
       ActiveMQServer server = createServer(true, config);
       server.getConfiguration().setThreadPoolMaxSize(2);
       server.start();
@@ -108,8 +102,7 @@ public class JmsNettyNioStressTest extends ActiveMQTestBase
       connectionParams.put(TransportConstants.USE_NIO_PROP_NAME, true);
       connectionParams.put(TransportConstants.BATCH_DELAY, 50);
       connectionParams.put(TransportConstants.NIO_REMOTING_THREADS_PROPNAME, 6);
-      final TransportConfiguration transpConf = new TransportConfiguration(NettyConnectorFactory.class.getName(),
-                                                                           connectionParams);
+      final TransportConfiguration transpConf = new TransportConfiguration(NettyConnectorFactory.class.getName(), connectionParams);
       final ServerLocator locator = createNonHALocator(netty);
 
       // each thread will do this number of transactions
@@ -154,23 +147,18 @@ public class JmsNettyNioStressTest extends ActiveMQTestBase
       connectionConsumer.start();
 
       // these threads produce messages on the the first queue
-      for (int i = 0; i < numProducers; i++)
-      {
-         new Thread()
-         {
+      for (int i = 0; i < numProducers; i++) {
+         new Thread() {
             @Override
-            public void run()
-            {
+            public void run() {
 
                Session session = null;
-               try
-               {
+               try {
                   session = connectionProducer.createSession(true, Session.SESSION_TRANSACTED);
                   MessageProducer messageProducer = session.createProducer(ActiveMQDestination.createQueue("queue"));
                   messageProducer.setDeliveryMode(DeliveryMode.PERSISTENT);
 
-                  for (int i = 0; i < numberOfMessages; i++)
-                  {
+                  for (int i = 0; i < numberOfMessages; i++) {
                      BytesMessage message = session.createBytesMessage();
                      message.writeBytes(new byte[3000]);
                      message.setStringProperty("Service", "LoadShedService");
@@ -182,20 +170,15 @@ public class JmsNettyNioStressTest extends ActiveMQTestBase
                      totalCount.incrementAndGet();
                   }
                }
-               catch (Exception e)
-               {
+               catch (Exception e) {
                   throw new RuntimeException(e);
                }
-               finally
-               {
-                  if (session != null)
-                  {
-                     try
-                     {
+               finally {
+                  if (session != null) {
+                     try {
                         session.close();
                      }
-                     catch (Exception e)
-                     {
+                     catch (Exception e) {
                         e.printStackTrace();
                      }
                   }
@@ -205,25 +188,19 @@ public class JmsNettyNioStressTest extends ActiveMQTestBase
       }
 
       // these threads just consume from the one and produce on a second queue
-      for (int i = 0; i < numConsumerProducers; i++)
-      {
-         new Thread()
-         {
+      for (int i = 0; i < numConsumerProducers; i++) {
+         new Thread() {
             @Override
-            public void run()
-            {
+            public void run() {
                Session session = null;
-               try
-               {
+               try {
                   session = connectionConsumerProducer.createSession(true, Session.SESSION_TRANSACTED);
                   MessageConsumer consumer = session.createConsumer(ActiveMQDestination.createQueue("queue"));
                   MessageProducer messageProducer = session.createProducer(ActiveMQDestination.createQueue("queue2"));
                   messageProducer.setDeliveryMode(DeliveryMode.PERSISTENT);
-                  for (int i = 0; i < numberOfMessages; i++)
-                  {
+                  for (int i = 0; i < numberOfMessages; i++) {
                      BytesMessage message = (BytesMessage) consumer.receive(5000);
-                     if (message == null)
-                     {
+                     if (message == null) {
                         return;
                      }
                      message = session.createBytesMessage();
@@ -236,20 +213,15 @@ public class JmsNettyNioStressTest extends ActiveMQTestBase
                      totalCount.incrementAndGet();
                   }
                }
-               catch (Exception e)
-               {
+               catch (Exception e) {
                   throw new RuntimeException(e);
                }
-               finally
-               {
-                  if (session != null)
-                  {
-                     try
-                     {
+               finally {
+                  if (session != null) {
+                     try {
                         session.close();
                      }
-                     catch (Exception e)
-                     {
+                     catch (Exception e) {
                         e.printStackTrace();
                      }
                   }
@@ -259,23 +231,17 @@ public class JmsNettyNioStressTest extends ActiveMQTestBase
       }
 
       // these threads consume from the second queue
-      for (int i = 0; i < numConsumers; i++)
-      {
-         new Thread()
-         {
+      for (int i = 0; i < numConsumers; i++) {
+         new Thread() {
             @Override
-            public void run()
-            {
+            public void run() {
                Session session = null;
-               try
-               {
+               try {
                   session = connectionConsumer.createSession(true, Session.SESSION_TRANSACTED);
                   MessageConsumer consumer = session.createConsumer(ActiveMQDestination.createQueue("queue2"));
-                  for (int i = 0; i < numberOfMessages; i++)
-                  {
+                  for (int i = 0; i < numberOfMessages; i++) {
                      BytesMessage message = (BytesMessage) consumer.receive(5000);
-                     if (message == null)
-                     {
+                     if (message == null) {
                         return;
                      }
                      session.commit();
@@ -283,20 +249,15 @@ public class JmsNettyNioStressTest extends ActiveMQTestBase
                      totalCount.incrementAndGet();
                   }
                }
-               catch (Exception e)
-               {
+               catch (Exception e) {
                   throw new RuntimeException(e);
                }
-               finally
-               {
-                  if (session != null)
-                  {
-                     try
-                     {
+               finally {
+                  if (session != null) {
+                     try {
                         session.close();
                      }
-                     catch (Exception e)
-                     {
+                     catch (Exception e) {
                         e.printStackTrace();
                      }
                   }
@@ -309,8 +270,7 @@ public class JmsNettyNioStressTest extends ActiveMQTestBase
       // which would indicate that the system didn't stall
       int timeoutCounter = 0;
       int maxSecondsToWait = 60;
-      while (timeoutCounter < maxSecondsToWait && totalCount.get() < totalExpectedCount)
-      {
+      while (timeoutCounter < maxSecondsToWait && totalCount.get() < totalExpectedCount) {
          timeoutCounter++;
          Thread.sleep(1000);
          System.out.println("Not done yet.. " + (maxSecondsToWait - timeoutCounter) + "; " + totalCount.get());

@@ -20,7 +20,7 @@ import org.apache.activemq.broker.SpringTest;
 
 public class XBeanXmlTest extends SpringTest {
 
-    public void testSenderWithSpringXml() throws Exception {
-        assertSenderConfig("org/apache/activemq/xbean/spring.xml");
-    }
+   public void testSenderWithSpringXml() throws Exception {
+      assertSenderConfig("org/apache/activemq/xbean/spring.xml");
+   }
 }

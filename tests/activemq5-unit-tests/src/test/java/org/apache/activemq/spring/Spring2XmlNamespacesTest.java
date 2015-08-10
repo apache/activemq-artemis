@@ -17,7 +17,8 @@
 package org.apache.activemq.spring;
 
 public class Spring2XmlNamespacesTest extends SpringTestSupport {
-    public void testUsingSpringXmlNamespacesWithPublicXsdLocation() throws Exception {
-        assertSenderConfig("spring-embedded-xbean.xml");
-    }
+
+   public void testUsingSpringXmlNamespacesWithPublicXsdLocation() throws Exception {
+      assertSenderConfig("spring-embedded-xbean.xml");
+   }
 }

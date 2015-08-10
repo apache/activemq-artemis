@@ -22,29 +22,23 @@ import org.apache.activemq.artemis.core.server.LargeServerMessage;
 import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.impl.ServerMessageImpl;
 
-class NullStorageLargeServerMessage extends ServerMessageImpl implements LargeServerMessage
-{
+class NullStorageLargeServerMessage extends ServerMessageImpl implements LargeServerMessage {
 
-   public NullStorageLargeServerMessage()
-   {
+   public NullStorageLargeServerMessage() {
       super();
    }
 
-   public NullStorageLargeServerMessage(NullStorageLargeServerMessage other)
-   {
+   public NullStorageLargeServerMessage(NullStorageLargeServerMessage other) {
       super(other);
    }
 
    @Override
-   public void releaseResources()
-   {
+   public void releaseResources() {
    }
 
    @Override
-   public synchronized void addBytes(final byte[] bytes)
-   {
-      if (buffer == null)
-      {
+   public synchronized void addBytes(final byte[] bytes) {
+      if (buffer == null) {
          buffer = ActiveMQBuffers.dynamicBuffer(bytes.length);
       }
 
@@ -53,67 +47,55 @@ class NullStorageLargeServerMessage extends ServerMessageImpl implements LargeSe
    }
 
    @Override
-   public void deleteFile() throws Exception
-   {
+   public void deleteFile() throws Exception {
       // nothing to be done here.. we don really have a file on this Storage
    }
 
    @Override
-   public boolean isLargeMessage()
-   {
+   public boolean isLargeMessage() {
       return true;
    }
 
    @Override
-   public void decrementDelayDeletionCount()
-   {
+   public void decrementDelayDeletionCount() {
 
    }
 
    @Override
-   public void incrementDelayDeletionCount()
-   {
+   public void incrementDelayDeletionCount() {
 
    }
 
    @Override
-   public synchronized int getEncodeSize()
-   {
+   public synchronized int getEncodeSize() {
       return getHeadersAndPropertiesEncodeSize();
    }
 
    @Override
-   public String toString()
-   {
-      return "NullStorageLargeServerMessage[messageID=" + messageID + ", durable=" + durable + ", address=" + getAddress()  + ",properties=" + properties.toString() + "]";
+   public String toString() {
+      return "NullStorageLargeServerMessage[messageID=" + messageID + ", durable=" + durable + ", address=" + getAddress() + ",properties=" + properties.toString() + "]";
    }
 
-   public ServerMessage copy()
-   {
+   public ServerMessage copy() {
       // This is a simple copy, used only to avoid changing original properties
       return new NullStorageLargeServerMessage(this);
    }
 
    @Override
-   public void setPaged()
-   {
+   public void setPaged() {
    }
 
    @Override
-   public void setPendingRecordID(long pendingRecordID)
-   {
+   public void setPendingRecordID(long pendingRecordID) {
    }
 
    @Override
-   public long getPendingRecordID()
-   {
+   public long getPendingRecordID() {
       return -1;
    }
 
-
    @Override
-   public SequentialFile getFile()
-   {
+   public SequentialFile getFile() {
       return null;
    }
 

@@ -21,11 +21,12 @@ import java.security.Principal;
 import java.util.Set;
 
 public class StubSecurityContext extends SecurityContext {
-    StubSecurityContext() {
-        super("");
-    }
 
-    public Set<Principal> getPrincipals() {
-        return null;
-    }
+   StubSecurityContext() {
+      super("");
+   }
+
+   public Set<Principal> getPrincipals() {
+      return null;
+   }
 }

@@ -22,60 +22,49 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.MessageHandler;
 import org.apache.activemq.artemis.rest.ActiveMQRestLogger;
 
-public class PushConsumerMessageHandler implements MessageHandler
-{
+public class PushConsumerMessageHandler implements MessageHandler {
+
    private ClientSession session;
    private PushConsumer pushConsumer;
 
-   PushConsumerMessageHandler(PushConsumer pushConsumer, ClientSession session)
-   {
+   PushConsumerMessageHandler(PushConsumer pushConsumer, ClientSession session) {
       this.pushConsumer = pushConsumer;
       this.session = session;
    }
 
    @Override
-   public void onMessage(ClientMessage clientMessage)
-   {
+   public void onMessage(ClientMessage clientMessage) {
       ActiveMQRestLogger.LOGGER.debug(this + ": receiving " + clientMessage);
 
-      try
-      {
+      try {
          clientMessage.acknowledge();
          ActiveMQRestLogger.LOGGER.debug(this + ": acknowledged " + clientMessage);
       }
-      catch (ActiveMQException e)
-      {
+      catch (ActiveMQException e) {
          throw new RuntimeException(e.getMessage(), e);
       }
 
       ActiveMQRestLogger.LOGGER.debug(this + ": pushing " + clientMessage + " via " + pushConsumer.getStrategy());
       boolean acknowledge = pushConsumer.getStrategy().push(clientMessage);
 
-      if (acknowledge)
-      {
-         try
-         {
+      if (acknowledge) {
+         try {
             ActiveMQRestLogger.LOGGER.debug("Acknowledging: " + clientMessage.getMessageID());
             session.commit();
             return;
          }
-         catch (ActiveMQException e)
-         {
+         catch (ActiveMQException e) {
             throw new RuntimeException(e);
          }
       }
-      else
-      {
-         try
-         {
+      else {
+         try {
             session.rollback();
          }
-         catch (ActiveMQException e)
-         {
+         catch (ActiveMQException e) {
             throw new RuntimeException(e.getMessage(), e);
          }
-         if (pushConsumer.getRegistration().isDisableOnFailure())
-         {
+         if (pushConsumer.getRegistration().isDisableOnFailure()) {
             ActiveMQRestLogger.LOGGER.errorPushingMessage(pushConsumer.getRegistration().getTarget());
             pushConsumer.disableFromFailure();
             return;

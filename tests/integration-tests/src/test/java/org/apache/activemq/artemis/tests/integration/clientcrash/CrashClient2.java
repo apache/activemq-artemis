@@ -32,25 +32,21 @@ import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 /**
  * Code to be run in an external VM, via main()
  */
-public class CrashClient2
-{
+public class CrashClient2 {
    // Constants ------------------------------------------------------------------------------------
 
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    // Static ---------------------------------------------------------------------------------------
 
-   public static void main(final String[] args) throws Exception
-   {
-      try
-      {
+   public static void main(final String[] args) throws Exception {
+      try {
          log.debug("args = " + Arrays.asList(args));
 
          ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(NettyConnectorFactory.class.getName()));
          locator.setClientFailureCheckPeriod(ClientCrashTest.PING_PERIOD);
          locator.setConnectionTTL(ClientCrashTest.CONNECTION_TTL);
          ClientSessionFactory sf = locator.createSessionFactory();
-
 
          ClientSession session = sf.createSession(true, true, 1000000);
          ClientProducer producer = session.createProducer(ClientCrashTest.QUEUE2);
@@ -69,8 +65,7 @@ public class CrashClient2
 
          ClientMessage msg = cons.receive(10000);
 
-         if (msg == null)
-         {
+         if (msg == null) {
             log.error("Didn't receive msg");
 
             System.exit(1);
@@ -79,8 +74,7 @@ public class CrashClient2
          // exit without closing the session properly
          System.exit(9);
       }
-      catch (Throwable t)
-      {
+      catch (Throwable t) {
          log.error(t.getMessage(), t);
          System.exit(1);
       }

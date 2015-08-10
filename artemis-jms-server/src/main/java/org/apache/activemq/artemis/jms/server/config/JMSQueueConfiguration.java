@@ -16,8 +16,8 @@
  */
 package org.apache.activemq.artemis.jms.server.config;
 
-public interface JMSQueueConfiguration
-{
+public interface JMSQueueConfiguration {
+
    String getName();
 
    JMSQueueConfiguration setName(String name);

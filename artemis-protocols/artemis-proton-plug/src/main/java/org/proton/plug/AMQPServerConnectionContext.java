@@ -16,6 +16,6 @@
  */
 package org.proton.plug;
 
-public interface AMQPServerConnectionContext extends AMQPConnectionContext
-{
+public interface AMQPServerConnectionContext extends AMQPConnectionContext {
+
 }

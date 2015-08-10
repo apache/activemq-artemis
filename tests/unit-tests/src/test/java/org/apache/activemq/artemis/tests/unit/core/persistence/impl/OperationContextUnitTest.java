@@ -29,8 +29,7 @@ import org.apache.activemq.artemis.core.persistence.impl.journal.OperationContex
 import org.junit.Assert;
 import org.junit.Test;
 
-public class OperationContextUnitTest extends ActiveMQTestBase
-{
+public class OperationContextUnitTest extends ActiveMQTestBase {
 
    // Constants -----------------------------------------------------
 
@@ -43,52 +42,46 @@ public class OperationContextUnitTest extends ActiveMQTestBase
    // Public --------------------------------------------------------
 
    @Test
-   public void testCompleteTaskAfterPaging() throws Exception
-   {
+   public void testCompleteTaskAfterPaging() throws Exception {
       ExecutorService executor = Executors.newSingleThreadExecutor();
-      try
-      {
+      try {
          OperationContextImpl impl = new OperationContextImpl(executor);
          final CountDownLatch latch1 = new CountDownLatch(1);
          final CountDownLatch latch2 = new CountDownLatch(1);
 
-         impl.executeOnCompletion(new IOCallback()
-         {
+         impl.executeOnCompletion(new IOCallback() {
 
-            public void onError(int errorCode, String errorMessage)
-            {
+            public void onError(int errorCode, String errorMessage) {
             }
 
-            public void done()
-            {
+            public void done() {
                latch1.countDown();
             }
          });
 
          assertTrue(latch1.await(10, TimeUnit.SECONDS));
 
-         for (int i = 0; i < 10; i++) impl.storeLineUp();
-         for (int i = 0; i < 3; i++) impl.pageSyncLineUp();
+         for (int i = 0; i < 10; i++)
+            impl.storeLineUp();
+         for (int i = 0; i < 3; i++)
+            impl.pageSyncLineUp();
 
-         impl.executeOnCompletion(new IOCallback()
-         {
+         impl.executeOnCompletion(new IOCallback() {
 
-            public void onError(int errorCode, String errorMessage)
-            {
+            public void onError(int errorCode, String errorMessage) {
             }
 
-            public void done()
-            {
+            public void done() {
                latch2.countDown();
             }
          });
 
-
          assertFalse(latch2.await(1, TimeUnit.MILLISECONDS));
 
-         for (int i = 0; i < 9; i++) impl.done();
-         for (int i = 0; i < 2; i++) impl.pageSyncDone();
-
+         for (int i = 0; i < 9; i++)
+            impl.done();
+         for (int i = 0; i < 2; i++)
+            impl.pageSyncDone();
 
          assertFalse(latch2.await(1, TimeUnit.MILLISECONDS));
 
@@ -98,25 +91,21 @@ public class OperationContextUnitTest extends ActiveMQTestBase
          assertTrue(latch2.await(10, TimeUnit.SECONDS));
 
       }
-      finally
-      {
+      finally {
          executor.shutdown();
       }
    }
 
    @Test
-   public void testCaptureExceptionOnExecutor() throws Exception
-   {
+   public void testCaptureExceptionOnExecutor() throws Exception {
       ExecutorService executor = Executors.newSingleThreadExecutor();
       executor.shutdown();
 
       final CountDownLatch latch = new CountDownLatch(1);
 
-      final OperationContextImpl impl = new OperationContextImpl(executor)
-      {
+      final OperationContextImpl impl = new OperationContextImpl(executor) {
          @Override
-         public void complete()
-         {
+         public void complete() {
             super.complete();
             latch.countDown();
          }
@@ -127,17 +116,13 @@ public class OperationContextUnitTest extends ActiveMQTestBase
 
       final AtomicInteger numberOfFailures = new AtomicInteger(0);
 
-      Thread t = new Thread()
-      {
+      Thread t = new Thread() {
          @Override
-         public void run()
-         {
-            try
-            {
+         public void run() {
+            try {
                impl.waitCompletion(5000);
             }
-            catch (Throwable e)
-            {
+            catch (Throwable e) {
                e.printStackTrace();
                numberOfFailures.incrementAndGet();
             }
@@ -158,17 +143,14 @@ public class OperationContextUnitTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testCaptureExceptionOnFailure() throws Exception
-   {
+   public void testCaptureExceptionOnFailure() throws Exception {
       ExecutorService executor = Executors.newSingleThreadExecutor();
 
       final CountDownLatch latch = new CountDownLatch(1);
 
-      final OperationContextImpl context = new OperationContextImpl(executor)
-      {
+      final OperationContextImpl context = new OperationContextImpl(executor) {
          @Override
-         public void complete()
-         {
+         public void complete() {
             super.complete();
             latch.countDown();
          }
@@ -179,17 +161,13 @@ public class OperationContextUnitTest extends ActiveMQTestBase
 
       final AtomicInteger failures = new AtomicInteger(0);
 
-      Thread t = new Thread()
-      {
+      Thread t = new Thread() {
          @Override
-         public void run()
-         {
-            try
-            {
+         public void run() {
+            try {
                context.waitCompletion(5000);
             }
-            catch (Throwable e)
-            {
+            catch (Throwable e) {
                e.printStackTrace();
                failures.incrementAndGet();
             }
@@ -213,16 +191,13 @@ public class OperationContextUnitTest extends ActiveMQTestBase
       final AtomicInteger operations = new AtomicInteger(0);
 
       // We should be up to date with lineUps and executions. this should now just finish processing
-      context.executeOnCompletion(new IOCallback()
-      {
+      context.executeOnCompletion(new IOCallback() {
 
-         public void done()
-         {
+         public void done() {
             operations.incrementAndGet();
          }
 
-         public void onError(final int errorCode, final String errorMessage)
-         {
+         public void onError(final int errorCode, final String errorMessage) {
             failures.incrementAndGet();
          }
 

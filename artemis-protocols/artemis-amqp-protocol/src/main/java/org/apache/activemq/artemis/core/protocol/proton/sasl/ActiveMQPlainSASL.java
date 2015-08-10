@@ -20,29 +20,23 @@ import org.apache.activemq.artemis.core.security.SecurityStore;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 import org.proton.plug.sasl.ServerSASLPlain;
 
-public class ActiveMQPlainSASL extends ServerSASLPlain
-{
+public class ActiveMQPlainSASL extends ServerSASLPlain {
 
    private final ActiveMQSecurityManager securityManager;
 
    private final SecurityStore securityStore;
 
-
-   public ActiveMQPlainSASL(SecurityStore securityStore, ActiveMQSecurityManager securityManager)
-   {
+   public ActiveMQPlainSASL(SecurityStore securityStore, ActiveMQSecurityManager securityManager) {
       this.securityManager = securityManager;
       this.securityStore = securityStore;
    }
 
    @Override
-   protected boolean authenticate(String user, String password)
-   {
-      if (securityStore.isSecurityEnabled())
-      {
+   protected boolean authenticate(String user, String password) {
+      if (securityStore.isSecurityEnabled()) {
          return securityManager.validateUser(user, password);
       }
-      else
-      {
+      else {
          return true;
       }
    }

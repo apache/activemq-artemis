@@ -27,93 +27,96 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * 
+ *
  */
 public class JmsTopicSendReceiveTest extends JmsSendReceiveTestSupport {
-    private static final Logger LOG = LoggerFactory.getLogger(JmsTopicSendReceiveTest.class);
 
-    protected Connection connection;
+   private static final Logger LOG = LoggerFactory.getLogger(JmsTopicSendReceiveTest.class);
 
-    protected void setUp() throws Exception {
-        super.setUp();
+   protected Connection connection;
 
-        connectionFactory = createConnectionFactory();
-        connection = createConnection();
-        if (durable) {
-            connection.setClientID(getClass().getName());
-        }
+   protected void setUp() throws Exception {
+      super.setUp();
 
-        LOG.info("Created connection: " + connection);
+      connectionFactory = createConnectionFactory();
+      connection = createConnection();
+      if (durable) {
+         connection.setClientID(getClass().getName());
+      }
 
-        session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        consumeSession = createConsumerSession();
+      LOG.info("Created connection: " + connection);
 
-        LOG.info("Created session: " + session);
-        LOG.info("Created consumeSession: " + consumeSession);
-        producer = session.createProducer(null);
-        producer.setDeliveryMode(deliveryMode);
+      session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      consumeSession = createConsumerSession();
 
-        LOG.info("Created producer: " + producer + " delivery mode = " + (deliveryMode == DeliveryMode.PERSISTENT ? "PERSISTENT" : "NON_PERSISTENT"));
+      LOG.info("Created session: " + session);
+      LOG.info("Created consumeSession: " + consumeSession);
+      producer = session.createProducer(null);
+      producer.setDeliveryMode(deliveryMode);
 
-        if (topic) {
-            consumerDestination = session.createTopic(getConsumerSubject());
-            producerDestination = session.createTopic(getProducerSubject());
-        } else {
-            consumerDestination = session.createQueue(getConsumerSubject());
-            producerDestination = session.createQueue(getProducerSubject());
-        }
+      LOG.info("Created producer: " + producer + " delivery mode = " + (deliveryMode == DeliveryMode.PERSISTENT ? "PERSISTENT" : "NON_PERSISTENT"));
 
-        LOG.info("Created  consumer destination: " + consumerDestination + " of type: " + consumerDestination.getClass());
-        LOG.info("Created  producer destination: " + producerDestination + " of type: " + producerDestination.getClass());
-        consumer = createConsumer();
-        consumer.setMessageListener(this);
-        startConnection();
+      if (topic) {
+         consumerDestination = session.createTopic(getConsumerSubject());
+         producerDestination = session.createTopic(getProducerSubject());
+      }
+      else {
+         consumerDestination = session.createQueue(getConsumerSubject());
+         producerDestination = session.createQueue(getProducerSubject());
+      }
 
-        LOG.info("Created connection: " + connection);
-    }
+      LOG.info("Created  consumer destination: " + consumerDestination + " of type: " + consumerDestination.getClass());
+      LOG.info("Created  producer destination: " + producerDestination + " of type: " + producerDestination.getClass());
+      consumer = createConsumer();
+      consumer.setMessageListener(this);
+      startConnection();
 
-    protected void startConnection() throws JMSException {
-        connection.start();
-    }
+      LOG.info("Created connection: " + connection);
+   }
 
-    protected void tearDown() throws Exception {
-        LOG.info("Dumping stats...");
-        // TODO
-        // connectionFactory.getFactoryStats().dump(new IndentPrinter());
+   protected void startConnection() throws JMSException {
+      connection.start();
+   }
 
-        LOG.info("Closing down connection");
+   protected void tearDown() throws Exception {
+      LOG.info("Dumping stats...");
+      // TODO
+      // connectionFactory.getFactoryStats().dump(new IndentPrinter());
 
-        /** TODO we should be able to shut down properly */
-        session.close();
-        connection.close();
-    }
+      LOG.info("Closing down connection");
 
-    /**
-     * Creates a session.
-     * 
-     * @return session
-     * @throws JMSException
-     */
-    protected Session createConsumerSession() throws JMSException {
-        if (useSeparateSession) {
-            return connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        } else {
-            return session;
-        }
-    }
+      /** TODO we should be able to shut down properly */
+      session.close();
+      connection.close();
+   }
 
-    /**
-     * Creates a durable suscriber or a consumer.
-     * 
-     * @return MessageConsumer - durable suscriber or consumer.
-     * @throws JMSException
-     */
-    protected MessageConsumer createConsumer() throws JMSException {
-        if (durable) {
-            LOG.info("Creating durable consumer");
-            return consumeSession.createDurableSubscriber((Topic)consumerDestination, getName());
-        }
-        System.out.println(">>>>>>>creating cons on " + consumerDestination);
-        return consumeSession.createConsumer(consumerDestination);
-    }
+   /**
+    * Creates a session.
+    *
+    * @return session
+    * @throws JMSException
+    */
+   protected Session createConsumerSession() throws JMSException {
+      if (useSeparateSession) {
+         return connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      }
+      else {
+         return session;
+      }
+   }
+
+   /**
+    * Creates a durable suscriber or a consumer.
+    *
+    * @return MessageConsumer - durable suscriber or consumer.
+    * @throws JMSException
+    */
+   protected MessageConsumer createConsumer() throws JMSException {
+      if (durable) {
+         LOG.info("Creating durable consumer");
+         return consumeSession.createDurableSubscriber((Topic) consumerDestination, getName());
+      }
+      System.out.println(">>>>>>>creating cons on " + consumerDestination);
+      return consumeSession.createConsumer(consumerDestination);
+   }
 }

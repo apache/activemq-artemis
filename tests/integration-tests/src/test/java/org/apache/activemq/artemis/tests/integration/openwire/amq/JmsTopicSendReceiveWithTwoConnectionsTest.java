@@ -29,8 +29,7 @@ import org.junit.Before;
 /**
  * adapted from: JmsTopicSendReceiveWithTwoConnectionsTest
  */
-public class JmsTopicSendReceiveWithTwoConnectionsTest extends JmsSendReceiveTestSupport
-{
+public class JmsTopicSendReceiveWithTwoConnectionsTest extends JmsSendReceiveTestSupport {
 
    protected Connection sendConnection;
    protected Connection receiveConnection;
@@ -38,8 +37,7 @@ public class JmsTopicSendReceiveWithTwoConnectionsTest extends JmsSendReceiveTes
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       sendConnection = createSendConnection();
@@ -53,54 +51,42 @@ public class JmsTopicSendReceiveWithTwoConnectionsTest extends JmsSendReceiveTes
 
       producer = session.createProducer(null);
       producer.setDeliveryMode(deliveryMode);
-      if (topic)
-      {
-         consumerDestination = createDestination(session,
-               ActiveMQDestination.TOPIC_TYPE);
-         producerDestination = createDestination(session,
-               ActiveMQDestination.TOPIC_TYPE);
+      if (topic) {
+         consumerDestination = createDestination(session, ActiveMQDestination.TOPIC_TYPE);
+         producerDestination = createDestination(session, ActiveMQDestination.TOPIC_TYPE);
       }
-      else
-      {
-         consumerDestination = createDestination(session,
-               ActiveMQDestination.QUEUE_TYPE);
-         producerDestination = createDestination(session,
-               ActiveMQDestination.QUEUE_TYPE);
+      else {
+         consumerDestination = createDestination(session, ActiveMQDestination.QUEUE_TYPE);
+         producerDestination = createDestination(session, ActiveMQDestination.QUEUE_TYPE);
       }
 
       consumer = createConsumer(receiveSession, consumerDestination);
       consumer.setMessageListener(this);
    }
 
-   protected Session createReceiveSession(Connection receiveConnection) throws Exception
-   {
+   protected Session createReceiveSession(Connection receiveConnection) throws Exception {
       return receiveConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
    }
 
-   protected Session createSendSession(Connection sendConnection) throws Exception
-   {
+   protected Session createSendSession(Connection sendConnection) throws Exception {
       return sendConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
    }
 
-   protected Connection createReceiveConnection() throws Exception
-   {
+   protected Connection createReceiveConnection() throws Exception {
       return createConnection();
    }
 
-   protected Connection createSendConnection() throws Exception
-   {
+   protected Connection createSendConnection() throws Exception {
       return createConnection();
    }
 
-   protected MessageConsumer createConsumer(Session session, Destination dest) throws JMSException
-   {
+   protected MessageConsumer createConsumer(Session session, Destination dest) throws JMSException {
       return session.createConsumer(dest);
    }
 
    @Override
    @After
-   public void tearDown() throws Exception
-   {
+   public void tearDown() throws Exception {
       session.close();
       receiveSession.close();
       sendConnection.close();

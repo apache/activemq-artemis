@@ -20,18 +20,16 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.client.impl.ClientLargeMessageInternal;
 import org.apache.activemq.artemis.core.message.impl.MessageInternal;
 
-public class SessionReceiveClientLargeMessage extends SessionReceiveLargeMessage
-{
-   public SessionReceiveClientLargeMessage(MessageInternal message)
-   {
+public class SessionReceiveClientLargeMessage extends SessionReceiveLargeMessage {
+
+   public SessionReceiveClientLargeMessage(MessageInternal message) {
       super(message);
    }
 
    @Override
-   public void decodeRest(ActiveMQBuffer buffer)
-   {
+   public void decodeRest(ActiveMQBuffer buffer) {
       super.decodeRest(buffer);
 
-      ((ClientLargeMessageInternal)getLargeMessage()).setLargeMessageSize(getLargeMessageSize());
+      ((ClientLargeMessageInternal) getLargeMessage()).setLargeMessageSize(getLargeMessageSize());
    }
 }

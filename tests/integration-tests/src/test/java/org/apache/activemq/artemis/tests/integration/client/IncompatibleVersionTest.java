@@ -49,8 +49,8 @@ import org.junit.Test;
 
 import static org.apache.activemq.artemis.tests.util.RandomUtil.randomString;
 
-public class IncompatibleVersionTest extends ActiveMQTestBase
-{
+public class IncompatibleVersionTest extends ActiveMQTestBase {
+
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
    // Constants -----------------------------------------------------
 
@@ -69,8 +69,7 @@ public class IncompatibleVersionTest extends ActiveMQTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
       server = createServer(false, false);
       server.getConfiguration().setConnectionTTLOverride(500);
@@ -79,13 +78,12 @@ public class IncompatibleVersionTest extends ActiveMQTestBase
       locator = createInVMNonHALocator();
       ClientSessionFactory csf = createSessionFactory(locator);
 
-      connection = (CoreRemotingConnection)csf.getConnection();
+      connection = (CoreRemotingConnection) csf.getConnection();
    }
 
    @Override
    @After
-   public void tearDown()
-   {
+   public void tearDown() {
       connection.destroy();
 
       closeServerLocator(locator);
@@ -94,102 +92,74 @@ public class IncompatibleVersionTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testCompatibleClientVersion() throws Exception
-   {
+   public void testCompatibleClientVersion() throws Exception {
       doTestClientVersionCompatibility(true);
    }
 
    @Test
-   public void testIncompatibleClientVersion() throws Exception
-   {
+   public void testIncompatibleClientVersion() throws Exception {
       doTestClientVersionCompatibility(false);
    }
 
    @Test
-   public void testCompatibleClientVersionWithRealConnection1() throws Exception
-   {
+   public void testCompatibleClientVersionWithRealConnection1() throws Exception {
       assertTrue(doTestClientVersionCompatibilityWithRealConnection("1-3,5,7-10", 1));
    }
 
    @Test
-   public void testCompatibleClientVersionWithRealConnection2() throws Exception
-   {
+   public void testCompatibleClientVersionWithRealConnection2() throws Exception {
       assertTrue(doTestClientVersionCompatibilityWithRealConnection("1-3,5,7-10", 5));
    }
 
    @Test
-   public void testCompatibleClientVersionWithRealConnection3() throws Exception
-   {
+   public void testCompatibleClientVersionWithRealConnection3() throws Exception {
       assertTrue(doTestClientVersionCompatibilityWithRealConnection("1-3,5,7-10", 10));
    }
 
    @Test
-   public void testIncompatibleClientVersionWithRealConnection1() throws Exception
-   {
+   public void testIncompatibleClientVersionWithRealConnection1() throws Exception {
       assertFalse(doTestClientVersionCompatibilityWithRealConnection("1-3,5,7-10", 0));
    }
 
    @Test
-   public void testIncompatibleClientVersionWithRealConnection2() throws Exception
-   {
+   public void testIncompatibleClientVersionWithRealConnection2() throws Exception {
       assertFalse(doTestClientVersionCompatibilityWithRealConnection("1-3,5,7-10", 4));
    }
 
    @Test
-   public void testIncompatibleClientVersionWithRealConnection3() throws Exception
-   {
+   public void testIncompatibleClientVersionWithRealConnection3() throws Exception {
       assertFalse(doTestClientVersionCompatibilityWithRealConnection("1-3,5,7-10", 100));
    }
 
-   private void doTestClientVersionCompatibility(boolean compatible) throws Exception
-   {
+   private void doTestClientVersionCompatibility(boolean compatible) throws Exception {
       Channel channel1 = connection.getChannel(1, -1);
       long sessionChannelID = connection.generateChannelID();
       int version = VersionLoader.getVersion().getIncrementingVersion();
-      if (!compatible)
-      {
+      if (!compatible) {
          version = -1;
       }
-      Packet request = new CreateSessionMessage(randomString(),
-                                                sessionChannelID,
-                                                version,
-                                                null,
-                                                null,
-                                                ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE,
-                                                false,
-                                                true,
-                                                true,
-                                                false,
-                                                ActiveMQClient.DEFAULT_CONFIRMATION_WINDOW_SIZE,
-                                                null);
+      Packet request = new CreateSessionMessage(randomString(), sessionChannelID, version, null, null, ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, false, true, true, false, ActiveMQClient.DEFAULT_CONFIRMATION_WINDOW_SIZE, null);
 
-      if (compatible)
-      {
+      if (compatible) {
          CreateSessionResponseMessage packet = (CreateSessionResponseMessage) channel1.sendBlocking(request, PacketImpl.CREATESESSION_RESP);
          assertNotNull(packet);
          // 1 connection on the server
          assertEquals(1, server.getConnectionCount());
       }
-      else
-      {
-         try
-         {
+      else {
+         try {
             channel1.sendBlocking(request, PacketImpl.CREATESESSION_RESP);
             fail();
          }
-         catch (ActiveMQIncompatibleClientServerException icsv)
-         {
+         catch (ActiveMQIncompatibleClientServerException icsv) {
             //ok
          }
-         catch (ActiveMQException e)
-         {
+         catch (ActiveMQException e) {
             fail("Invalid Exception type:" + e.getType());
          }
          long start = System.currentTimeMillis();
-         while (System.currentTimeMillis() < start + 3 * RemotingServiceImpl.CONNECTION_TTL_CHECK_INTERVAL)
-         {
-            if (server.getConnectionCount() == 0)
-            {
+         while (System.currentTimeMillis() < start + 3 * RemotingServiceImpl.CONNECTION_TTL_CHECK_INTERVAL) {
+            if (server.getConnectionCount() == 0) {
                break;
             }
          }
@@ -198,8 +168,7 @@ public class IncompatibleVersionTest extends ActiveMQTestBase
       }
    }
 
-   private boolean doTestClientVersionCompatibilityWithRealConnection(String verList, int ver) throws Exception
-   {
+   private boolean doTestClientVersionCompatibilityWithRealConnection(String verList, int ver) throws Exception {
       String propFileName = "compatibility-test-activemq-version.properties";
       String serverStartedString = "IncompatibleVersionTest---server---started";
 
@@ -212,33 +181,22 @@ public class IncompatibleVersionTest extends ActiveMQTestBase
 
       Process serverProcess = null;
       boolean result = false;
-      try
-      {
-         serverProcess = SpawnedVMSupport.spawnVM("org.apache.activemq.artemis.tests.integration.client.IncompatibleVersionTest",
-                 new String[]{"-D" + VersionLoader.VERSION_PROP_FILE_KEY + "=" + propFileName},
-                 "server",
-                 serverStartedString);
+      try {
+         serverProcess = SpawnedVMSupport.spawnVM("org.apache.activemq.artemis.tests.integration.client.IncompatibleVersionTest", new String[]{"-D" + VersionLoader.VERSION_PROP_FILE_KEY + "=" + propFileName}, "server", serverStartedString);
          Thread.sleep(2000);
 
-         Process client = SpawnedVMSupport.spawnVM("org.apache.activemq.artemis.tests.integration.client.IncompatibleVersionTest",
-                                                   new String[]{"-D" + VersionLoader.VERSION_PROP_FILE_KEY + "=" + propFileName},
-                                                   "client");
+         Process client = SpawnedVMSupport.spawnVM("org.apache.activemq.artemis.tests.integration.client.IncompatibleVersionTest", new String[]{"-D" + VersionLoader.VERSION_PROP_FILE_KEY + "=" + propFileName}, "client");
 
-         if (client.waitFor() == 0)
-         {
+         if (client.waitFor() == 0) {
             result = true;
          }
       }
-      finally
-      {
-         if (serverProcess != null)
-         {
-            try
-            {
+      finally {
+         if (serverProcess != null) {
+            try {
                serverProcess.destroy();
             }
-            catch (Throwable t)
-            {
+            catch (Throwable t) {
                /* ignore */
             }
          }
@@ -247,13 +205,10 @@ public class IncompatibleVersionTest extends ActiveMQTestBase
       return result;
    }
 
-   private static class ServerStarter
-   {
-      public void perform(String startedString) throws Exception
-      {
-         Configuration config = new ConfigurationImpl()
-            .setSecurityEnabled(false)
-            .addAcceptorConfiguration(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY));
+   private static class ServerStarter {
+
+      public void perform(String startedString) throws Exception {
+         Configuration config = new ConfigurationImpl().setSecurityEnabled(false).addAcceptorConfiguration(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY));
          ActiveMQServer server = ActiveMQServers.newActiveMQServer(config, false);
          server.start();
 
@@ -261,48 +216,40 @@ public class IncompatibleVersionTest extends ActiveMQTestBase
       }
    }
 
-   private class ClientStarter
-   {
-      public void perform() throws Exception
-      {
+   private class ClientStarter {
+
+      public void perform() throws Exception {
          ServerLocator locator = null;
          ClientSessionFactory sf = null;
-         try
-         {
+         try {
             locator = createNettyNonHALocator();
             sf = locator.createSessionFactory();
             ClientSession session = sf.createSession(false, true, true);
             log.info("### client: connected. server incrementingVersion = " + session.getVersion());
             session.close();
          }
-         finally
-         {
+         finally {
             closeSessionFactory(sf);
             closeServerLocator(locator);
          }
       }
    }
 
-   public static void main(String[] args) throws Exception
-   {
+   public static void main(String[] args) throws Exception {
       IncompatibleVersionTest incompatibleVersionTest = new IncompatibleVersionTest();
       incompatibleVersionTest.execute(args);
    }
 
-   private void execute(String[] args) throws Exception
-   {
-      if (args[0].equals("server"))
-      {
+   private void execute(String[] args) throws Exception {
+      if (args[0].equals("server")) {
          ServerStarter ss = new ServerStarter();
          ss.perform(args[1]);
       }
-      else if (args[0].equals("client"))
-      {
+      else if (args[0].equals("client")) {
          ClientStarter cs = new ClientStarter();
          cs.perform();
       }
-      else
-      {
+      else {
          throw new Exception("args[0] must be \"server\" or \"client\"");
       }
    }

@@ -23,41 +23,35 @@ import java.util.Map;
 /**
  * a simple yes.no vote
  */
-public final class BooleanVote extends Vote<Boolean>
-{
+public final class BooleanVote extends Vote<Boolean> {
+
    private boolean vote;
 
-   public BooleanVote(boolean vote)
-   {
+   public BooleanVote(boolean vote) {
       this.vote = vote;
    }
 
    @Override
-   public boolean isRequestServerVote()
-   {
+   public boolean isRequestServerVote() {
       return false;
    }
 
-   public Boolean getVote()
-   {
+   public Boolean getVote() {
       return vote;
    }
 
    @Override
-   public Map<String, Object> getVoteMap()
-   {
+   public Map<String, Object> getVoteMap() {
       return null;
    }
 
    @Override
-   public void encode(ActiveMQBuffer buff)
-   {
+   public void encode(ActiveMQBuffer buff) {
       buff.writeBoolean(vote);
    }
 
    @Override
-   public void decode(ActiveMQBuffer buff)
-   {
+   public void decode(ActiveMQBuffer buff) {
       vote = buff.readBoolean();
    }
 

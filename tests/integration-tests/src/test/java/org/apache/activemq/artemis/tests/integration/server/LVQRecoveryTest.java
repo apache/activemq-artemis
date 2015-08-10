@@ -36,8 +36,8 @@ import org.junit.Test;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 
-public class LVQRecoveryTest extends ActiveMQTestBase
-{
+public class LVQRecoveryTest extends ActiveMQTestBase {
+
    private ActiveMQServer server;
 
    private ClientSession clientSession;
@@ -54,8 +54,7 @@ public class LVQRecoveryTest extends ActiveMQTestBase
    private ServerLocator locator;
 
    @Test
-   public void testMultipleMessagesAfterRecovery() throws Exception
-   {
+   public void testMultipleMessagesAfterRecovery() throws Exception {
       Xid xid = new XidImpl("bq1".getBytes(), 4, "gtid1".getBytes());
       ClientProducer producer = clientSessionXa.createProducer(address);
       SimpleString messageId1 = new SimpleString("SMID1");
@@ -94,8 +93,7 @@ public class LVQRecoveryTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testManyMessagesReceivedWithRollback() throws Exception
-   {
+   public void testManyMessagesReceivedWithRollback() throws Exception {
       Xid xid = new XidImpl("bq1".getBytes(), 4, "gtid1".getBytes());
       ClientProducer producer = clientSession.createProducer(address);
       ClientConsumer consumer = clientSessionXa.createConsumer(qName1);
@@ -165,29 +163,24 @@ public class LVQRecoveryTest extends ActiveMQTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       configuration = createDefaultInVMConfig();
       server = createServer(true, configuration);
       server.start();
 
-      qs = new AddressSettings()
-              .setLastValueQueue(true);
+      qs = new AddressSettings().setLastValueQueue(true);
       server.getAddressSettingsRepository().addMatch(address.toString(), qs);
       // then we create a client as normal
-      locator = createInVMNonHALocator()
-              .setBlockOnAcknowledge(true)
-              .setAckBatchSize(0);
+      locator = createInVMNonHALocator().setBlockOnAcknowledge(true).setAckBatchSize(0);
       ClientSessionFactory sessionFactory = createSessionFactory(locator);
       clientSession = sessionFactory.createSession(false, true, true);
       clientSessionXa = sessionFactory.createSession(true, false, false);
       clientSession.createQueue(address, qName1, null, true);
    }
 
-   private void restartServer() throws Exception
-   {
+   private void restartServer() throws Exception {
       server.stop();
       server = null;
       server = createServer(true, configuration);
@@ -198,9 +191,7 @@ public class LVQRecoveryTest extends ActiveMQTestBase
       server.getAddressSettingsRepository().addMatch(address.toString(), new AddressSettings().setLastValueQueue(true));
       // then we create a client as normal
       locator.close();
-      locator = createInVMNonHALocator()
-              .setBlockOnAcknowledge(true)
-              .setAckBatchSize(0);
+      locator = createInVMNonHALocator().setBlockOnAcknowledge(true).setAckBatchSize(0);
 
       ClientSessionFactory sessionFactory = createSessionFactory(locator);
       clientSession = sessionFactory.createSession(false, true, true);

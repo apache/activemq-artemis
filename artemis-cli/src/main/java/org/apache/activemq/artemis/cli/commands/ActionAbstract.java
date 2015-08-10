@@ -20,8 +20,7 @@ import java.io.File;
 
 import io.airlift.airline.Option;
 
-public abstract class ActionAbstract implements Action
-{
+public abstract class ActionAbstract implements Action {
 
    @Option(name = "--verbose", description = "Adds more information on the execution")
    boolean verbose;
@@ -33,40 +32,32 @@ public abstract class ActionAbstract implements Action
    protected ActionContext context;
 
    @Override
-   public boolean isVerbose()
-   {
+   public boolean isVerbose() {
       return verbose;
 
    }
 
    @Override
-   public void setHomeValues(File brokerHome, File brokerInstance)
-   {
-      if (brokerHome != null)
-      {
+   public void setHomeValues(File brokerHome, File brokerInstance) {
+      if (brokerHome != null) {
          this.brokerHome = brokerHome.getAbsolutePath();
       }
-      if (brokerInstance != null)
-      {
+      if (brokerInstance != null) {
          this.brokerInstance = brokerInstance.getAbsolutePath();
       }
    }
 
-   public String getBrokerInstance()
-   {
-      if (brokerInstance == null)
-      {
+   public String getBrokerInstance() {
+      if (brokerInstance == null) {
          /* We use File URI for locating files.  The ARTEMIS_HOME variable is used to determine file paths.  For Windows
          the ARTEMIS_HOME variable will include back slashes (An invalid file URI character path separator).  For this
          reason we overwrite the ARTEMIS_HOME variable with backslashes replaced with forward slashes. */
          brokerInstance = System.getProperty("artemis.instance");
-         if (brokerInstance != null)
-         {
+         if (brokerInstance != null) {
             brokerInstance = brokerInstance.replace("\\", "/");
             System.setProperty("artemis.instance", brokerInstance);
          }
-         if (brokerInstance == null)
-         {
+         if (brokerInstance == null) {
             // if still null we will try to improvise with "."
             brokerInstance = ".";
          }
@@ -74,23 +65,18 @@ public abstract class ActionAbstract implements Action
       return brokerInstance;
    }
 
-
-   public String getBrokerHome()
-   {
-      if (brokerHome == null)
-      {
+   public String getBrokerHome() {
+      if (brokerHome == null) {
          /* We use File URI for locating files.  The ARTEMIS_HOME variable is used to determine file paths.  For Windows
          the ARTEMIS_HOME variable will include back slashes (An invalid file URI character path separator).  For this
          reason we overwrite the ARTEMIS_HOME variable with backslashes replaced with forward slashes. */
          brokerHome = System.getProperty("artemis.home");
-         if (brokerHome != null)
-         {
+         if (brokerHome != null) {
             brokerHome = brokerHome.replace("\\", "/");
             System.setProperty("artemis.home", brokerHome);
          }
 
-         if (brokerHome == null)
-         {
+         if (brokerHome == null) {
             // if still null we will try to improvise with "."
             brokerHome = ".";
          }
@@ -98,9 +84,7 @@ public abstract class ActionAbstract implements Action
       return brokerHome;
    }
 
-
-   public Object execute(ActionContext context) throws Exception
-   {
+   public Object execute(ActionContext context) throws Exception {
       this.context = context;
 
       return null;

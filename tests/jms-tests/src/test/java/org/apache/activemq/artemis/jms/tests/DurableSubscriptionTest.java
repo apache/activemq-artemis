@@ -37,8 +37,7 @@ import org.junit.Test;
  * Tests focused on durable subscription behavior. More durable subscription tests can be found in
  * MessageConsumerTest.
  */
-public class DurableSubscriptionTest extends JMSTestCase
-{
+public class DurableSubscriptionTest extends JMSTestCase {
    // Constants -----------------------------------------------------
 
    // Static --------------------------------------------------------
@@ -50,12 +49,10 @@ public class DurableSubscriptionTest extends JMSTestCase
    // Public --------------------------------------------------------
 
    @Test
-   public void testSimplestDurableSubscription() throws Exception
-   {
+   public void testSimplestDurableSubscription() throws Exception {
       Connection conn = null;
 
-      try
-      {
+      try {
          conn = createConnection();
 
          conn.setClientID("brookeburke");
@@ -103,10 +100,8 @@ public class DurableSubscriptionTest extends JMSTestCase
 
          s.unsubscribe("monicabelucci");
       }
-      finally
-      {
-         if (conn != null)
-         {
+      finally {
+         if (conn != null) {
             conn.close();
          }
       }
@@ -120,12 +115,10 @@ public class DurableSubscriptionTest extends JMSTestCase
     * Test with a different topic (a redeployed topic is a different topic).
     */
    @Test
-   public void testDurableSubscriptionOnNewTopic() throws Exception
-   {
+   public void testDurableSubscriptionOnNewTopic() throws Exception {
       Connection conn = null;
 
-      try
-      {
+      try {
          conn = createConnection();
 
          conn.setClientID("brookeburke");
@@ -156,10 +149,8 @@ public class DurableSubscriptionTest extends JMSTestCase
 
          s.unsubscribe("monicabelucci");
       }
-      finally
-      {
-         if (conn != null)
-         {
+      finally {
+         if (conn != null) {
             conn.close();
          }
       }
@@ -173,12 +164,10 @@ public class DurableSubscriptionTest extends JMSTestCase
     * Test with a different selector.
     */
    @Test
-   public void testDurableSubscriptionDifferentSelector() throws Exception
-   {
+   public void testDurableSubscriptionDifferentSelector() throws Exception {
       Connection conn = null;
 
-      try
-      {
+      try {
          conn = createConnection();
 
          conn.setClientID("brookeburke");
@@ -187,10 +176,7 @@ public class DurableSubscriptionTest extends JMSTestCase
          MessageProducer prod = s.createProducer(ActiveMQServerTestCase.topic1);
          prod.setDeliveryMode(DeliveryMode.PERSISTENT);
 
-         MessageConsumer durable = s.createDurableSubscriber(ActiveMQServerTestCase.topic1,
-                                                             "monicabelucci",
-                                                             "color = 'red' AND shape = 'square'",
-                                                             false);
+         MessageConsumer durable = s.createDurableSubscriber(ActiveMQServerTestCase.topic1, "monicabelucci", "color = 'red' AND shape = 'square'", false);
 
          TextMessage tm = s.createTextMessage("A red square message");
          tm.setStringProperty("color", "red");
@@ -236,54 +222,44 @@ public class DurableSubscriptionTest extends JMSTestCase
 
          s.unsubscribe("monicabelucci");
       }
-      finally
-      {
-         if (conn != null)
-         {
+      finally {
+         if (conn != null) {
             conn.close();
          }
       }
    }
 
    @Test
-   public void testDurableSubscriptionOnTemporaryTopic() throws Exception
-   {
+   public void testDurableSubscriptionOnTemporaryTopic() throws Exception {
       Connection conn = null;
 
       conn = createConnection();
 
-      try
-      {
+      try {
          conn.setClientID("doesn't actually matter");
          Session s = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
          Topic temporaryTopic = s.createTemporaryTopic();
 
-         try
-         {
+         try {
             s.createDurableSubscriber(temporaryTopic, "mySubscription");
             ProxyAssertSupport.fail("this should throw exception");
          }
-         catch (InvalidDestinationException e)
-         {
+         catch (InvalidDestinationException e) {
             // OK
          }
       }
-      finally
-      {
-         if (conn != null)
-         {
+      finally {
+         if (conn != null) {
             conn.close();
          }
       }
    }
 
    @Test
-   public void testUnsubscribeDurableSubscription() throws Exception
-   {
+   public void testUnsubscribeDurableSubscription() throws Exception {
       Connection conn = null;
 
-      try
-      {
+      try {
          conn = createConnection();
          conn.setClientID("ak47");
 
@@ -306,37 +282,31 @@ public class DurableSubscriptionTest extends JMSTestCase
 
          s.unsubscribe("uzzi");
       }
-      finally
-      {
-         if (conn != null)
-         {
+      finally {
+         if (conn != null) {
             conn.close();
          }
       }
    }
 
    @Test
-   public void testInvalidSelectorException() throws Exception
-   {
+   public void testInvalidSelectorException() throws Exception {
       Connection c = createConnection();
       c.setClientID("sofiavergara");
       Session s = c.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-      try
-      {
+      try {
          s.createDurableSubscriber(ActiveMQServerTestCase.topic1, "mysubscribption", "=TEST 'test'", true);
          ProxyAssertSupport.fail("this should fail");
       }
-      catch (InvalidSelectorException e)
-      {
+      catch (InvalidSelectorException e) {
          // OK
       }
    }
 
    // See JMS 1.1. spec sec 6.11
    @Test
-   public void testUnsubscribeWithActiveConsumer() throws Exception
-   {
+   public void testUnsubscribeWithActiveConsumer() throws Exception {
       Connection conn = createConnection();
       conn.setClientID("zeke");
 
@@ -344,13 +314,11 @@ public class DurableSubscriptionTest extends JMSTestCase
 
       TopicSubscriber dursub = s.createDurableSubscriber(ActiveMQServerTestCase.topic1, "dursub0");
 
-      try
-      {
+      try {
          s.unsubscribe("dursub0");
          ProxyAssertSupport.fail();
       }
-      catch (IllegalStateException e)
-      {
+      catch (IllegalStateException e) {
          // Ok - it is illegal to ubscribe a subscription if it has active consumers
       }
 
@@ -360,8 +328,7 @@ public class DurableSubscriptionTest extends JMSTestCase
    }
 
    @Test
-   public void testSubscribeWithActiveSubscription() throws Exception
-   {
+   public void testSubscribeWithActiveSubscription() throws Exception {
       Connection conn = createConnection();
       conn.setClientID("zeke");
 
@@ -369,13 +336,11 @@ public class DurableSubscriptionTest extends JMSTestCase
 
       TopicSubscriber dursub1 = s.createDurableSubscriber(ActiveMQServerTestCase.topic1, "dursub1");
 
-      try
-      {
+      try {
          s.createDurableSubscriber(ActiveMQServerTestCase.topic1, "dursub1");
          ProxyAssertSupport.fail();
       }
-      catch (IllegalStateException e)
-      {
+      catch (IllegalStateException e) {
          // Ok - it is illegal to have more than one active subscriber on a subscrtiption at any one time
       }
 
@@ -385,15 +350,13 @@ public class DurableSubscriptionTest extends JMSTestCase
    }
 
    @Test
-   public void testDurableSubscriptionWithPeriodsInName() throws Exception
-   {
+   public void testDurableSubscriptionWithPeriodsInName() throws Exception {
       Connection conn = createConnection();
       conn.setClientID(".client.id.with.periods.");
 
       Session s = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-      TopicSubscriber subscriber = s.createDurableSubscriber(ActiveMQServerTestCase.topic1,
-                                                             ".subscription.name.with.periods.");
+      TopicSubscriber subscriber = s.createDurableSubscriber(ActiveMQServerTestCase.topic1, ".subscription.name.with.periods.");
 
       s.createProducer(ActiveMQServerTestCase.topic1).send(s.createTextMessage("Subscription test"));
 
@@ -410,14 +373,12 @@ public class DurableSubscriptionTest extends JMSTestCase
    }
 
    @Test
-   public void testNoLocal() throws Exception
-   {
+   public void testNoLocal() throws Exception {
       internalTestNoLocal(true);
       internalTestNoLocal(false);
    }
 
-   private void internalTestNoLocal(final boolean noLocal) throws Exception
-   {
+   private void internalTestNoLocal(final boolean noLocal) throws Exception {
 
       Connection conn1 = createConnection();
       conn1.setClientID(".client.id.with.periods.");
@@ -428,14 +389,8 @@ public class DurableSubscriptionTest extends JMSTestCase
       Session s1 = conn1.createSession(false, Session.AUTO_ACKNOWLEDGE);
       Session s2 = conn2.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-      TopicSubscriber subscriber1 = s1.createDurableSubscriber(ActiveMQServerTestCase.topic1,
-                                                               ".subscription.name.with.periods.",
-                                                               null,
-                                                               noLocal);
-      TopicSubscriber subscriber2 = s2.createDurableSubscriber(ActiveMQServerTestCase.topic1,
-                                                               ".subscription.name.with.periods.",
-                                                               null,
-                                                               false);
+      TopicSubscriber subscriber1 = s1.createDurableSubscriber(ActiveMQServerTestCase.topic1, ".subscription.name.with.periods.", null, noLocal);
+      TopicSubscriber subscriber2 = s2.createDurableSubscriber(ActiveMQServerTestCase.topic1, ".subscription.name.with.periods.", null, false);
 
       s1.createProducer(ActiveMQServerTestCase.topic1).send(s1.createTextMessage("Subscription test"));
 
@@ -443,12 +398,10 @@ public class DurableSubscriptionTest extends JMSTestCase
 
       Message m = subscriber1.receive(100L);
 
-      if (noLocal)
-      {
+      if (noLocal) {
          ProxyAssertSupport.assertNull(m);
       }
-      else
-      {
+      else {
          ProxyAssertSupport.assertNotNull(m);
       }
 

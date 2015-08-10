@@ -33,8 +33,7 @@ import org.apache.activemq.artemis.spi.core.remoting.ClientProtocolManagerFactor
  * grouping finder, after the initial connection is made the server will always send updates to the
  * client. But the listeners will listen for updates on grouping.
  */
-public interface ServerLocator extends AutoCloseable
-{
+public interface ServerLocator extends AutoCloseable {
 
    /**
     * Returns true if close was already called
@@ -98,7 +97,9 @@ public interface ServerLocator extends AutoCloseable
     * @throws Exception if a failure happened in creating the ClientSessionFactory or the
     *                   ServerLocator does not know about the passed in transportConfiguration
     */
-   ClientSessionFactory createSessionFactory(final TransportConfiguration transportConfiguration, int reconnectAttempts, boolean failoverOnInitialConnection) throws Exception;
+   ClientSessionFactory createSessionFactory(final TransportConfiguration transportConfiguration,
+                                             int reconnectAttempts,
+                                             boolean failoverOnInitialConnection) throws Exception;
 
    /**
     * Returns the period used to check if a client has failed to receive pings from the server.
@@ -183,7 +184,6 @@ public interface ServerLocator extends AutoCloseable
     * @return this ServerLocator
     */
    ServerLocator setCallTimeout(long callTimeout);
-
 
    /**
     * Returns the blocking calls failover timeout when the client is awaiting failover,
@@ -741,6 +741,7 @@ public interface ServerLocator extends AutoCloseable
 
    /**
     * Verify if all of the transports are using inVM.
+    *
     * @return {@code true} if the locator has all inVM transports.
     */
    boolean allInVM();

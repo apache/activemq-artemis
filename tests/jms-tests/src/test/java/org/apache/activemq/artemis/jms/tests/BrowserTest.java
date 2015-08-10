@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.jms.tests;
+
 import java.util.Enumeration;
 
 import javax.jms.Connection;
@@ -35,71 +36,60 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class BrowserTest extends JMSTestCase
-{
+public class BrowserTest extends JMSTestCase {
+
    Connection conn;
+
    @Test
-   public void testCreateBrowserOnNullDestination() throws Exception
-   {
+   public void testCreateBrowserOnNullDestination() throws Exception {
       conn = getConnectionFactory().createConnection();
 
       Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-      try
-      {
+      try {
          session.createBrowser(null);
          ProxyAssertSupport.fail("should throw exception");
       }
-      catch (InvalidDestinationException e)
-      {
+      catch (InvalidDestinationException e) {
          // OK
       }
    }
 
    @Test
-   public void testCreateBrowserOnNonExistentQueue() throws Exception
-   {
+   public void testCreateBrowserOnNonExistentQueue() throws Exception {
       Connection pconn = getConnectionFactory().createConnection();
 
-      try
-      {
+      try {
          Session ps = pconn.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-         try
-         {
-            ps.createBrowser(new Queue()
-            {
-               public String getQueueName() throws JMSException
-               {
+         try {
+            ps.createBrowser(new Queue() {
+               public String getQueueName() throws JMSException {
                   return "NoSuchQueue";
                }
             });
             ProxyAssertSupport.fail("should throw exception");
          }
-         catch (InvalidDestinationException e)
-         {
+         catch (InvalidDestinationException e) {
             // OK
          }
       }
-      finally
-      {
-         if (pconn != null)
-         {
+      finally {
+         if (pconn != null) {
             pconn.close();
          }
       }
    }
 
    @Test
-   public void testBrowse2() throws Exception
-   {
+   public void testBrowse2() throws Exception {
       conn = getConnectionFactory().createConnection();
 
       Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
       MessageProducer producer = session.createProducer(queue1);
 
-      ActiveMQConnectionFactory cf1 = (ActiveMQConnectionFactory)getConnectionFactory();
+      ActiveMQConnectionFactory cf1 = (ActiveMQConnectionFactory) getConnectionFactory();
 
       ClientSession coreSession = cf1.getServerLocator().createSessionFactory().createSession(true, true);
 
@@ -113,19 +103,15 @@ public class BrowserTest extends JMSTestCase
       m.setIntProperty("cnt", 0);
       producer.send(m);
 
-
       Assert.assertNotNull(browser.receiveImmediate());
 
       coreSession.close();
-
-
 
       drainDestination(getConnectionFactory(), queue1);
    }
 
    @Test
-   public void testBrowse() throws Exception
-   {
+   public void testBrowse() throws Exception {
       conn = getConnectionFactory().createConnection();
 
       Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -153,10 +139,8 @@ public class BrowserTest extends JMSTestCase
    }
 
    @Test
-   public void testBrowseWithSelector() throws Exception
-   {
-      try
-      {
+   public void testBrowseWithSelector() throws Exception {
+      try {
          conn = getConnectionFactory().createConnection();
 
          Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -165,24 +149,20 @@ public class BrowserTest extends JMSTestCase
 
          final int numMessages = 100;
 
-         for (int i = 0; i < numMessages; i++)
-         {
+         for (int i = 0; i < numMessages; i++) {
             Message m = session.createMessage();
             m.setIntProperty("test_counter", i + 1);
             producer.send(m);
          }
       }
-      finally
-      {
+      finally {
          removeAllMessages(queue1.getQueueName(), true);
       }
    }
 
    @Test
-   public void testGetEnumeration() throws Exception
-   {
-      try
-      {
+   public void testGetEnumeration() throws Exception {
+      try {
          conn = getConnectionFactory().createConnection();
 
          Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -202,7 +182,7 @@ public class BrowserTest extends JMSTestCase
 
          ProxyAssertSupport.assertTrue(en.hasMoreElements());
 
-         TextMessage rm = (TextMessage)en.nextElement();
+         TextMessage rm = (TextMessage) en.nextElement();
 
          ProxyAssertSupport.assertNotNull(rm);
          ProxyAssertSupport.assertEquals("A", rm.getText());
@@ -215,32 +195,27 @@ public class BrowserTest extends JMSTestCase
 
          ProxyAssertSupport.assertTrue(en.hasMoreElements());
 
-         rm = (TextMessage)en.nextElement();
+         rm = (TextMessage) en.nextElement();
 
          ProxyAssertSupport.assertNotNull(rm);
          ProxyAssertSupport.assertEquals("A", rm.getText());
 
          ProxyAssertSupport.assertFalse(en.hasMoreElements());
       }
-      finally
-      {
+      finally {
          removeAllMessages(queue1.getQueueName(), true);
       }
    }
 
    @Override
    @After
-   public void tearDown() throws Exception
-   {
-      try
-      {
-         if  (conn != null)
-         {
+   public void tearDown() throws Exception {
+      try {
+         if (conn != null) {
             conn.close();
          }
       }
-      finally
-      {
+      finally {
          super.tearDown();
       }
    }

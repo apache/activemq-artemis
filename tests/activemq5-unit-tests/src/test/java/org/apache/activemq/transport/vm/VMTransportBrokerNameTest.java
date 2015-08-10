@@ -28,23 +28,23 @@ import org.apache.activemq.broker.BrokerRegistry;
 
 public class VMTransportBrokerNameTest extends TestCase {
 
-    private static final String MY_BROKER = "myBroker";
-    final String vmUrl = "vm:(broker:(tcp://localhost:61616)/" + MY_BROKER + "?persistent=false)";
+   private static final String MY_BROKER = "myBroker";
+   final String vmUrl = "vm:(broker:(tcp://localhost:61616)/" + MY_BROKER + "?persistent=false)";
 
-    public void testBrokerName() throws Exception {
-        ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory(new URI(vmUrl));
-        ActiveMQConnection c1 = (ActiveMQConnection) cf.createConnection();
-        assertTrue("Transport has name in it: " + c1.getTransport(), c1.getTransport().toString().contains(MY_BROKER));
-        
-        // verify Broker is there with name
-        ActiveMQConnectionFactory cfbyName = new ActiveMQConnectionFactory(new URI("vm://" + MY_BROKER + "?create=false"));
-        Connection c2 = cfbyName.createConnection();
-        
-        assertNotNull(BrokerRegistry.getInstance().lookup(MY_BROKER));
-        assertEquals(BrokerRegistry.getInstance().findFirst().getBrokerName(), MY_BROKER);
-        assertEquals(BrokerRegistry.getInstance().getBrokers().size(), 1);
-        
-        c1.close();
-        c2.close();
-    }
+   public void testBrokerName() throws Exception {
+      ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory(new URI(vmUrl));
+      ActiveMQConnection c1 = (ActiveMQConnection) cf.createConnection();
+      assertTrue("Transport has name in it: " + c1.getTransport(), c1.getTransport().toString().contains(MY_BROKER));
+
+      // verify Broker is there with name
+      ActiveMQConnectionFactory cfbyName = new ActiveMQConnectionFactory(new URI("vm://" + MY_BROKER + "?create=false"));
+      Connection c2 = cfbyName.createConnection();
+
+      assertNotNull(BrokerRegistry.getInstance().lookup(MY_BROKER));
+      assertEquals(BrokerRegistry.getInstance().findFirst().getBrokerName(), MY_BROKER);
+      assertEquals(BrokerRegistry.getInstance().getBrokers().size(), 1);
+
+      c1.close();
+      c2.close();
+   }
 }

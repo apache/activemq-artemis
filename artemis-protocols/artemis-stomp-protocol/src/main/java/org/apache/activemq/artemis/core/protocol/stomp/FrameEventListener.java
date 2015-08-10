@@ -16,8 +16,7 @@
  */
 package org.apache.activemq.artemis.core.protocol.stomp;
 
-public interface FrameEventListener
-{
+public interface FrameEventListener {
 
    void replySent(StompFrame reply);
 

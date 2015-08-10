@@ -27,8 +27,8 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
 
-public class MQTTSubscriptionManager
-{
+public class MQTTSubscriptionManager {
+
    private MQTTSession session;
 
    private ConcurrentMap<Long, Integer> consumerQoSLevels;
@@ -37,37 +37,30 @@ public class MQTTSubscriptionManager
 
    private MQTTLogger log = MQTTLogger.LOGGER;
 
-   public MQTTSubscriptionManager(MQTTSession session)
-   {
+   public MQTTSubscriptionManager(MQTTSession session) {
       this.session = session;
 
       consumers = new ConcurrentHashMap<>();
       consumerQoSLevels = new ConcurrentHashMap<>();
    }
 
-   synchronized void start() throws Exception
-   {
-      for (MqttTopicSubscription subscription : session.getSessionState().getSubscriptions())
-      {
+   synchronized void start() throws Exception {
+      for (MqttTopicSubscription subscription : session.getSessionState().getSubscriptions()) {
          SimpleString q = createQueueForSubscription(subscription.topicName(), subscription.qualityOfService().value());
          createConsumerForSubscriptionQueue(q, subscription.topicName(), subscription.qualityOfService().value());
       }
    }
 
-   synchronized void stop(boolean clean) throws Exception
-   {
-      for (ServerConsumer consumer : consumers.values())
-      {
+   synchronized void stop(boolean clean) throws Exception {
+      for (ServerConsumer consumer : consumers.values()) {
          consumer.setStarted(false);
          consumer.disconnect();
          consumer.getQueue().removeConsumer(consumer);
          consumer.close(false);
       }
 
-      if (clean)
-      {
-         for (ServerConsumer consumer : consumers.values())
-         {
+      if (clean) {
+         for (ServerConsumer consumer : consumers.values()) {
             session.getServer().destroyQueue(consumer.getQueue().getName());
          }
       }
@@ -76,14 +69,12 @@ public class MQTTSubscriptionManager
    /**
     * Creates a Queue if it doesn't already exist, based on a topic and address.  Returning the queue name.
     */
-   private SimpleString createQueueForSubscription(String topic, int qos) throws Exception
-   {
+   private SimpleString createQueueForSubscription(String topic, int qos) throws Exception {
       String address = MQTTUtil.convertMQTTAddressFilterToCore(topic);
       SimpleString queue = getQueueNameForTopic(address);
 
       Queue q = session.getServer().locateQueue(queue);
-      if (q == null)
-      {
+      if (q == null) {
          session.getServerSession().createQueue(new SimpleString(address), queue, null, false, MQTTUtil.DURABLE_MESSAGES && qos >= 0);
       }
       return queue;
@@ -92,8 +83,7 @@ public class MQTTSubscriptionManager
    /**
     * Creates a new consumer for the queue associated with a subscription
     */
-   private void createConsumerForSubscriptionQueue(SimpleString queue, String topic, int qos) throws Exception
-   {
+   private void createConsumerForSubscriptionQueue(SimpleString queue, String topic, int qos) throws Exception {
       long cid = session.getServer().getStorageManager().generateID();
 
       ServerConsumer consumer = session.getServerSession().createConsumer(cid, queue, null, false, true, -1);
@@ -103,9 +93,7 @@ public class MQTTSubscriptionManager
       consumerQoSLevels.put(cid, qos);
    }
 
-
-   private void addSubscription(MqttTopicSubscription subscription) throws Exception
-   {
+   private void addSubscription(MqttTopicSubscription subscription) throws Exception {
       MqttTopicSubscription s = session.getSessionState().getSubscription(subscription.topicName());
 
       int qos = subscription.qualityOfService().value();
@@ -115,28 +103,23 @@ public class MQTTSubscriptionManager
 
       SimpleString q = createQueueForSubscription(topic, qos);
 
-      if (s == null)
-      {
+      if (s == null) {
          createConsumerForSubscriptionQueue(q, topic, qos);
       }
-      else
-      {
+      else {
          consumerQoSLevels.put(consumers.get(topic).getID(), qos);
       }
       session.getRetainMessageManager().addRetainedMessagesToQueue(q, topic);
    }
 
-   void removeSubscriptions(List<String> topics) throws Exception
-   {
-      for (String topic : topics)
-      {
+   void removeSubscriptions(List<String> topics) throws Exception {
+      for (String topic : topics) {
          removeSubscription(topic);
       }
    }
 
    // FIXME: Do we need this synchronzied?
-   private synchronized void removeSubscription(String address) throws Exception
-   {
+   private synchronized void removeSubscription(String address) throws Exception {
       ServerConsumer consumer = consumers.get(address);
       String internalAddress = MQTTUtil.convertMQTTAddressFilterToCore(address);
       SimpleString internalQueueName = getQueueNameForTopic(internalAddress);
@@ -148,8 +131,7 @@ public class MQTTSubscriptionManager
       consumerQoSLevels.remove(consumer.getID());
    }
 
-   private SimpleString getQueueNameForTopic(String topic)
-   {
+   private SimpleString getQueueNameForTopic(String topic) {
       return new SimpleString(session.getSessionState().getClientId() + "." + topic);
    }
 
@@ -158,28 +140,23 @@ public class MQTTSubscriptionManager
     *
     * @param subscriptions
     * @return An array of integers representing the list of accepted QoS for each topic.
-    *
     * @throws Exception
     */
-   int[] addSubscriptions(List<MqttTopicSubscription> subscriptions) throws Exception
-   {
+   int[] addSubscriptions(List<MqttTopicSubscription> subscriptions) throws Exception {
       int[] qos = new int[subscriptions.size()];
 
-      for (int i = 0; i < subscriptions.size(); i++)
-      {
+      for (int i = 0; i < subscriptions.size(); i++) {
          addSubscription(subscriptions.get(i));
          qos[i] = subscriptions.get(i).qualityOfService().value();
       }
       return qos;
    }
 
-   Map<Long, Integer> getConsumerQoSLevels()
-   {
+   Map<Long, Integer> getConsumerQoSLevels() {
       return consumerQoSLevels;
    }
 
-   ServerConsumer getConsumerForAddress(String address)
-   {
+   ServerConsumer getConsumerForAddress(String address) {
       return consumers.get(address);
    }
 }

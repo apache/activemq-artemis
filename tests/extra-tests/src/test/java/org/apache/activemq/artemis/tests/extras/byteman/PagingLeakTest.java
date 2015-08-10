@@ -43,64 +43,47 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(BMUnitRunner.class)
-public class PagingLeakTest extends ActiveMQTestBase
-{
+public class PagingLeakTest extends ActiveMQTestBase {
 
    private static final AtomicInteger pagePosInstances = new AtomicInteger(0);
 
-   public static void newPosition()
-   {
+   public static void newPosition() {
       pagePosInstances.incrementAndGet();
    }
 
-   public static void deletePosition()
-   {
+   public static void deletePosition() {
       pagePosInstances.decrementAndGet();
    }
 
    @Before
-   public void setup()
-   {
+   public void setup() {
       pagePosInstances.set(0);
    }
 
    @Test
-   @BMRules
-      (
-         rules =
-            {
-               @BMRule
-                  (
-                     name = "newPosition",
-                     targetClass = "org.apache.activemq.artemis.core.paging.cursor.impl.PagePositionImpl",
-                     targetMethod = "<init>()",
-                     targetLocation = "ENTRY",
-                     action = "org.apache.activemq.artemis.tests.extras.byteman.PagingLeakTest.newPosition()"
-                  ),
-               @BMRule
-                  (
-                     name = "finalPosition",
-                     targetClass = "org.apache.activemq.artemis.core.paging.cursor.impl.PagePositionImpl",
-                     targetMethod = "finalize",
-                     targetLocation = "ENTRY",
-                     action = "org.apache.activemq.artemis.tests.extras.byteman.PagingLeakTest.deletePosition()"
-                  )
-            }
-      )
-   public void testValidateLeak() throws Throwable
-   {
+   @BMRules(
+      rules = {@BMRule(
+         name = "newPosition",
+         targetClass = "org.apache.activemq.artemis.core.paging.cursor.impl.PagePositionImpl",
+         targetMethod = "<init>()",
+         targetLocation = "ENTRY",
+         action = "org.apache.activemq.artemis.tests.extras.byteman.PagingLeakTest.newPosition()"), @BMRule(
+         name = "finalPosition",
+         targetClass = "org.apache.activemq.artemis.core.paging.cursor.impl.PagePositionImpl",
+         targetMethod = "finalize",
+         targetLocation = "ENTRY",
+         action = "org.apache.activemq.artemis.tests.extras.byteman.PagingLeakTest.deletePosition()")})
+   public void testValidateLeak() throws Throwable {
       System.out.println("location::" + getBindingsDir());
 
       List<PagePositionImpl> positions = new ArrayList<PagePositionImpl>();
 
-      for (int i = 0; i < 300; i++)
-      {
+      for (int i = 0; i < 300; i++) {
          positions.add(new PagePositionImpl(3, 3));
       }
 
       long timeout = System.currentTimeMillis() + 5000;
-      while (pagePosInstances.get() != 300 && timeout > System.currentTimeMillis())
-      {
+      while (pagePosInstances.get() != 300 && timeout > System.currentTimeMillis()) {
          forceGC();
       }
 
@@ -110,8 +93,7 @@ public class PagingLeakTest extends ActiveMQTestBase
       positions.clear();
 
       timeout = System.currentTimeMillis() + 5000;
-      while (pagePosInstances.get() != 0 && timeout > System.currentTimeMillis())
-      {
+      while (pagePosInstances.get() != 0 && timeout > System.currentTimeMillis()) {
          forceGC();
       }
 
@@ -128,17 +110,14 @@ public class PagingLeakTest extends ActiveMQTestBase
 
       server.start();
 
-      AddressSettings settings = new AddressSettings()
-              .setPageSizeBytes(2 * 1024)
-              .setMaxSizeBytes(20 * 1024)
-              .setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE);
+      AddressSettings settings = new AddressSettings().setPageSizeBytes(2 * 1024).setMaxSizeBytes(20 * 1024).setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE);
 
       server.getAddressSettingsRepository().addMatch("#", settings);
 
       final SimpleString address = new SimpleString("pgdAddress");
 
-      class Consumer extends Thread
-      {
+      class Consumer extends Thread {
+
          final ServerLocator locator;
          final ClientSessionFactory sf;
          final ClientSession session;
@@ -147,8 +126,7 @@ public class PagingLeakTest extends ActiveMQTestBase
          final int sleepTime;
          final int maxConsumed;
 
-         Consumer(int sleepTime, String suffix, int maxConsumed) throws Exception
-         {
+         Consumer(int sleepTime, String suffix, int maxConsumed) throws Exception {
             server.createQueue(address, address.concat(suffix), null, true, false);
 
             this.sleepTime = sleepTime;
@@ -160,47 +138,38 @@ public class PagingLeakTest extends ActiveMQTestBase
             this.maxConsumed = maxConsumed;
          }
 
-         public void run()
-         {
-            try
-            {
+         public void run() {
+            try {
                session.start();
 
                long lastTime = System.currentTimeMillis();
 
-               for (long i = 0; i < maxConsumed; i++)
-               {
+               for (long i = 0; i < maxConsumed; i++) {
                   ClientMessage msg = consumer.receive(5000);
 
-                  if (msg == null)
-                  {
+                  if (msg == null) {
                      errors.add(new Exception("didn't receive a message"));
                      return;
                   }
 
                   msg.acknowledge();
 
-
-                  if (sleepTime > 0)
-                  {
+                  if (sleepTime > 0) {
 
                      Thread.sleep(sleepTime);
                   }
 
-                  if (i % 1000 == 0)
-                  {
+                  if (i % 1000 == 0) {
                      System.out.println("Consumed " + i + " events in " + (System.currentTimeMillis() - lastTime));
                      lastTime = System.currentTimeMillis();
                   }
                }
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                e.printStackTrace();
             }
          }
       }
-
 
       int numberOfMessages = 500;
 
@@ -212,25 +181,20 @@ public class PagingLeakTest extends ActiveMQTestBase
       final ClientSession session = sf.createSession(true, true);
       final ClientProducer producer = session.createProducer(address);
 
-
       byte[] b = new byte[1024];
 
-
-      for (long i = 0; i < numberOfMessages; i++)
-      {
+      for (long i = 0; i < numberOfMessages; i++) {
          ClientMessage msg = session.createMessage(true);
          msg.getBodyBuffer().writeBytes(b);
          producer.send(msg);
 
-         if (i == 100)
-         {
+         if (i == 100) {
             System.out.println("Starting consumers!!!");
             consumer1.start();
             consumer2.start();
          }
 
-         if (i % 250 == 0)
-         {
+         if (i % 250 == 0) {
             validateInstances();
          }
 
@@ -244,25 +208,21 @@ public class PagingLeakTest extends ActiveMQTestBase
       validateInstances();
       Throwable elast = null;
 
-      for (Throwable e : errors)
-      {
+      for (Throwable e : errors) {
          e.printStackTrace();
          elast = e;
       }
 
-      if (elast != null)
-      {
+      if (elast != null) {
          throw elast;
       }
 
    }
 
-   private void validateInstances()
-   {
+   private void validateInstances() {
       forceGC();
       int count2 = pagePosInstances.get();
       Assert.assertTrue("There is a leak, you shouldn't have this many instances (" + count2 + ")", count2 < 5000);
    }
-
 
 }

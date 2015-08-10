@@ -46,8 +46,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class XATest extends JMSTestBase
-{
+public class XATest extends JMSTestBase {
    // Constants -----------------------------------------------------
 
    // Static --------------------------------------------------------
@@ -68,8 +67,7 @@ public class XATest extends JMSTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       xacf = ActiveMQJMSClient.createConnectionFactory("tcp://localhost:61616", "test");
@@ -86,33 +84,26 @@ public class XATest extends JMSTestBase
 
    @Override
    @After
-   public void tearDown() throws Exception
-   {
-      if (TxUtils.isUncommitted(tm))
-      {
+   public void tearDown() throws Exception {
+      if (TxUtils.isUncommitted(tm)) {
          // roll it back
-         try
-         {
+         try {
             tm.rollback();
          }
-         catch (Throwable ignore)
-         {
+         catch (Throwable ignore) {
             // The connection will probably be closed so this may well throw an exception
          }
       }
-      if (tm.getTransaction() != null)
-      {
+      if (tm.getTransaction() != null) {
          Transaction tx = tm.suspend();
-         if (tx != null)
-         {
+         if (tx != null) {
             ExtrasTestLogger.LOGGER.warn("Transaction still associated with thread " + tx +
                                             " at status " +
                                             TxUtils.getStatusAsString(tx.getStatus()));
          }
       }
 
-      if (suspendedTx != null)
-      {
+      if (suspendedTx != null) {
          tm.resume(suspendedTx);
       }
 
@@ -127,15 +118,13 @@ public class XATest extends JMSTestBase
    // Public --------------------------------------------------------
 
    @Test
-   public void test2PCSendCommit1PCOptimization() throws Exception
-   {
+   public void test2PCSendCommit1PCOptimization() throws Exception {
       // Since both resources have same RM, TM will probably use 1PC optimization
 
       XAConnection conn = null;
       Connection conn2 = null;
 
-      try
-      {
+      try {
          conn = xacf.createXAConnection();
 
          tm.begin();
@@ -172,27 +161,22 @@ public class XATest extends JMSTestBase
          Assert.assertNotNull(m2);
          Assert.assertEquals("XATest2", m2.getText());
       }
-      finally
-      {
-         if (conn != null)
-         {
+      finally {
+         if (conn != null) {
             conn.close();
          }
-         if (conn2 != null)
-         {
+         if (conn2 != null) {
             conn2.close();
          }
       }
    }
 
    @Test
-   public void test2PCSendCommit() throws Exception
-   {
+   public void test2PCSendCommit() throws Exception {
       XAConnection conn = null;
       Connection conn2 = null;
 
-      try
-      {
+      try {
          conn = xacf.createXAConnection();
 
          tm.begin();
@@ -234,26 +218,21 @@ public class XATest extends JMSTestBase
          Assert.assertNotNull(m2);
          Assert.assertEquals("XATest2", m2.getText());
       }
-      finally
-      {
-         if (conn != null)
-         {
+      finally {
+         if (conn != null) {
             conn.close();
          }
-         if (conn2 != null)
-         {
+         if (conn2 != null) {
             conn2.close();
          }
       }
    }
 
    @Test
-   public void test2PCSendFailOnPrepare() throws Exception
-   {
+   public void test2PCSendFailOnPrepare() throws Exception {
       XAConnection conn = null;
       Connection conn2 = null;
-      try
-      {
+      try {
          conn = xacf.createXAConnection();
 
          tm.begin();
@@ -286,14 +265,12 @@ public class XATest extends JMSTestBase
          tx.delistResource(res3, XAResource.TMSUCCESS);
          tx.delistResource(res4, XAResource.TMSUCCESS);
 
-         try
-         {
+         try {
             tm.commit();
 
             Assert.fail("should not get here");
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             // We should expect this
          }
 
@@ -304,26 +281,21 @@ public class XATest extends JMSTestBase
          Message m2 = cons.receive(100);
          Assert.assertNull(m2);
       }
-      finally
-      {
-         if (conn != null)
-         {
+      finally {
+         if (conn != null) {
             conn.close();
          }
-         if (conn2 != null)
-         {
+         if (conn2 != null) {
             conn2.close();
          }
       }
    }
 
    @Test
-   public void test2PCSendRollback() throws Exception
-   {
+   public void test2PCSendRollback() throws Exception {
       XAConnection conn = null;
       Connection conn2 = null;
-      try
-      {
+      try {
          conn = xacf.createXAConnection();
 
          tm.begin();
@@ -360,29 +332,24 @@ public class XATest extends JMSTestBase
          Assert.assertNull(m2);
 
       }
-      finally
-      {
-         if (conn != null)
-         {
+      finally {
+         if (conn != null) {
             conn.close();
          }
-         if (conn2 != null)
-         {
+         if (conn2 != null) {
             conn2.close();
          }
       }
    }
 
    @Test
-   public void test2PCReceiveCommit1PCOptimization() throws Exception
-   {
+   public void test2PCReceiveCommit1PCOptimization() throws Exception {
       // Since both resources have some RM, TM will probably use 1PC optimization
 
       XAConnection conn = null;
       Connection conn2 = null;
 
-      try
-      {
+      try {
          conn2 = cf.createConnection();
          conn2.start();
          Session sessProducer = conn2.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -438,14 +405,11 @@ public class XATest extends JMSTestBase
 
          tm.commit();
       }
-      finally
-      {
-         if (conn != null)
-         {
+      finally {
+         if (conn != null) {
             conn.close();
          }
-         if (conn2 != null)
-         {
+         if (conn2 != null) {
             conn2.close();
          }
       }
@@ -453,13 +417,11 @@ public class XATest extends JMSTestBase
    }
 
    @Test
-   public void test2PCReceiveCommit() throws Exception
-   {
+   public void test2PCReceiveCommit() throws Exception {
       XAConnection conn = null;
       Connection conn2 = null;
 
-      try
-      {
+      try {
          conn2 = cf.createConnection();
          conn2.start();
          Session sessProducer = conn2.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -516,14 +478,11 @@ public class XATest extends JMSTestBase
 
          tm.commit();
       }
-      finally
-      {
-         if (conn != null)
-         {
+      finally {
+         if (conn != null) {
             conn.close();
          }
-         if (conn2 != null)
-         {
+         if (conn2 != null) {
             conn2.close();
          }
       }
@@ -531,15 +490,13 @@ public class XATest extends JMSTestBase
    }
 
    @Test
-   public void test2PCReceiveRollback1PCOptimization() throws Exception
-   {
+   public void test2PCReceiveRollback1PCOptimization() throws Exception {
       // Since both resources have some RM, TM will probably use 1PC optimization
 
       XAConnection conn = null;
       Connection conn2 = null;
 
-      try
-      {
+      try {
          conn2 = cf.createConnection();
          Session sessProducer = conn2.createSession(false, Session.AUTO_ACKNOWLEDGE);
          MessageProducer prod = sessProducer.createProducer(queue1);
@@ -599,27 +556,22 @@ public class XATest extends JMSTestBase
 
          tm.commit();
       }
-      finally
-      {
-         if (conn != null)
-         {
+      finally {
+         if (conn != null) {
             conn.close();
          }
-         if (conn2 != null)
-         {
+         if (conn2 != null) {
             conn2.close();
          }
       }
    }
 
    @Test
-   public void test2PCReceiveRollback() throws Exception
-   {
+   public void test2PCReceiveRollback() throws Exception {
       XAConnection conn = null;
       Connection conn2 = null;
 
-      try
-      {
+      try {
          conn2 = cf.createConnection();
          Session sessProducer = conn2.createSession(false, Session.AUTO_ACKNOWLEDGE);
          MessageProducer prod = sessProducer.createProducer(queue1);
@@ -681,14 +633,11 @@ public class XATest extends JMSTestBase
          tm.commit();
 
       }
-      finally
-      {
-         if (conn != null)
-         {
+      finally {
+         if (conn != null) {
             conn.close();
          }
-         if (conn2 != null)
-         {
+         if (conn2 != null) {
             conn2.close();
          }
       }
@@ -696,13 +645,11 @@ public class XATest extends JMSTestBase
    }
 
    @Test
-   public void test1PCSendCommit() throws Exception
-   {
+   public void test1PCSendCommit() throws Exception {
       XAConnection conn = null;
       Connection conn2 = null;
 
-      try
-      {
+      try {
          conn = xacf.createXAConnection();
 
          tm.begin();
@@ -735,14 +682,11 @@ public class XATest extends JMSTestBase
          Assert.assertNotNull(m2);
          Assert.assertEquals("XATest2", m2.getText());
       }
-      finally
-      {
-         if (conn != null)
-         {
+      finally {
+         if (conn != null) {
             conn.close();
          }
-         if (conn2 != null)
-         {
+         if (conn2 != null) {
             conn2.close();
          }
       }
@@ -750,13 +694,11 @@ public class XATest extends JMSTestBase
    }
 
    @Test
-   public void test1PCReceiveCommit() throws Exception
-   {
+   public void test1PCReceiveCommit() throws Exception {
       XAConnection conn = null;
       Connection conn2 = null;
 
-      try
-      {
+      try {
          conn2 = cf.createConnection();
          conn2.start();
          Session sessProducer = conn2.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -805,14 +747,11 @@ public class XATest extends JMSTestBase
 
          tm.commit();
       }
-      finally
-      {
-         if (conn != null)
-         {
+      finally {
+         if (conn != null) {
             conn.close();
          }
-         if (conn2 != null)
-         {
+         if (conn2 != null) {
             conn2.close();
          }
       }
@@ -820,13 +759,11 @@ public class XATest extends JMSTestBase
    }
 
    @Test
-   public void test1PCReceiveRollback() throws Exception
-   {
+   public void test1PCReceiveRollback() throws Exception {
       XAConnection conn = null;
       Connection conn2 = null;
 
-      try
-      {
+      try {
          conn2 = cf.createConnection();
          Session sessProducer = conn2.createSession(false, Session.AUTO_ACKNOWLEDGE);
          MessageProducer prod = sessProducer.createProducer(queue1);
@@ -886,14 +823,11 @@ public class XATest extends JMSTestBase
          tm.commit();
 
       }
-      finally
-      {
-         if (conn != null)
-         {
+      finally {
+         if (conn != null) {
             conn.close();
          }
-         if (conn2 != null)
-         {
+         if (conn2 != null) {
             conn2.close();
          }
       }
@@ -901,15 +835,13 @@ public class XATest extends JMSTestBase
    }
 
    @Test
-   public void testMultipleSessionsOneTxCommitAcknowledge1PCOptimization() throws Exception
-   {
+   public void testMultipleSessionsOneTxCommitAcknowledge1PCOptimization() throws Exception {
       XAConnection conn = null;
       Connection conn2 = null;
 
       // Since both resources have some RM, TM will probably use 1PC optimization
 
-      try
-      {
+      try {
          // First send 2 messages
          conn2 = cf.createConnection();
          Session sessProducer = conn2.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -963,14 +895,11 @@ public class XATest extends JMSTestBase
          Assert.assertNull(r3);
 
       }
-      finally
-      {
-         if (conn != null)
-         {
+      finally {
+         if (conn != null) {
             conn.close();
          }
-         if (conn2 != null)
-         {
+         if (conn2 != null) {
             conn2.close();
          }
       }
@@ -978,13 +907,11 @@ public class XATest extends JMSTestBase
    }
 
    @Test
-   public void testMultipleSessionsOneTxCommitAcknowledge() throws Exception
-   {
+   public void testMultipleSessionsOneTxCommitAcknowledge() throws Exception {
       XAConnection conn = null;
       Connection conn2 = null;
 
-      try
-      {
+      try {
          // First send 2 messages
          conn2 = cf.createConnection();
          Session sessProducer = conn2.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -1040,14 +967,11 @@ public class XATest extends JMSTestBase
          Assert.assertNull(r3);
 
       }
-      finally
-      {
-         if (conn != null)
-         {
+      finally {
+         if (conn != null) {
             conn.close();
          }
-         if (conn2 != null)
-         {
+         if (conn2 != null) {
             conn2.close();
          }
       }
@@ -1055,15 +979,13 @@ public class XATest extends JMSTestBase
    }
 
    @Test
-   public void testMultipleSessionsOneTxRollbackAcknowledge1PCOptimization() throws Exception
-   {
+   public void testMultipleSessionsOneTxRollbackAcknowledge1PCOptimization() throws Exception {
       XAConnection conn = null;
       Connection conn2 = null;
 
       // Since both resources have some RM, TM will probably use 1PC optimization
 
-      try
-      {
+      try {
          // First send 2 messages
          conn2 = cf.createConnection();
          Session sessProducer = conn2.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -1141,21 +1063,17 @@ public class XATest extends JMSTestBase
 
          boolean session1First = false;
 
-         if (r.getText().equals("jellyfish1"))
-         {
+         if (r.getText().equals("jellyfish1")) {
             session1First = true;
          }
-         else if (r.getText().equals("jellyfish3"))
-         {
+         else if (r.getText().equals("jellyfish3")) {
             session1First = false;
          }
-         else
-         {
+         else {
             Assert.fail("Unexpected message");
          }
 
-         if (session1First)
-         {
+         if (session1First) {
             r = (TextMessage) cons.receive(5000);
 
             Assert.assertNotNull(r);
@@ -1175,8 +1093,7 @@ public class XATest extends JMSTestBase
             Assert.assertEquals("jellyfish4", r.getText());
 
          }
-         else
-         {
+         else {
             r = (TextMessage) cons.receive(5000);
 
             Assert.assertNotNull(r);
@@ -1201,14 +1118,11 @@ public class XATest extends JMSTestBase
          Assert.assertNull(r);
 
       }
-      finally
-      {
-         if (conn != null)
-         {
+      finally {
+         if (conn != null) {
             conn.close();
          }
-         if (conn2 != null)
-         {
+         if (conn2 != null) {
             conn2.close();
          }
       }
@@ -1216,13 +1130,11 @@ public class XATest extends JMSTestBase
    }
 
    @Test
-   public void testMultipleSessionsOneTxRollbackAcknowledge() throws Exception
-   {
+   public void testMultipleSessionsOneTxRollbackAcknowledge() throws Exception {
       XAConnection conn = null;
       Connection conn2 = null;
 
-      try
-      {
+      try {
          // First send 2 messages
          conn2 = cf.createConnection();
          Session sessProducer = conn2.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -1305,21 +1217,17 @@ public class XATest extends JMSTestBase
 
          boolean session1First = false;
 
-         if (r.getText().equals("jellyfish1"))
-         {
+         if (r.getText().equals("jellyfish1")) {
             session1First = true;
          }
-         else if (r.getText().equals("jellyfish3"))
-         {
+         else if (r.getText().equals("jellyfish3")) {
             session1First = false;
          }
-         else
-         {
+         else {
             Assert.fail("Unexpected message");
          }
 
-         if (session1First)
-         {
+         if (session1First) {
             r = (TextMessage) cons.receive(5000);
 
             Assert.assertNotNull(r);
@@ -1339,8 +1247,7 @@ public class XATest extends JMSTestBase
             Assert.assertEquals("jellyfish4", r.getText());
 
          }
-         else
-         {
+         else {
             r = (TextMessage) cons.receive(5000);
 
             Assert.assertNotNull(r);
@@ -1364,27 +1271,22 @@ public class XATest extends JMSTestBase
 
          Assert.assertNull(r);
       }
-      finally
-      {
-         if (conn != null)
-         {
+      finally {
+         if (conn != null) {
             conn.close();
          }
-         if (conn2 != null)
-         {
+         if (conn2 != null) {
             conn2.close();
          }
       }
    }
 
    @Test
-   public void testMultipleSessionsOneTxRollbackAcknowledgeForceFailureInCommit() throws Exception
-   {
+   public void testMultipleSessionsOneTxRollbackAcknowledgeForceFailureInCommit() throws Exception {
       XAConnection conn = null;
       Connection conn2 = null;
 
-      try
-      {
+      try {
          // First send 4 messages
          conn2 = cf.createConnection();
          Session sessProducer = conn2.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -1449,13 +1351,11 @@ public class XATest extends JMSTestBase
          // the original consumer has closed, so it will cancelled to the server
          // the server cancel is asynch, so we need to sleep for a bit to make sure it completes
          ExtrasTestLogger.LOGGER.trace("Forcing failure");
-         try
-         {
+         try {
             tm.commit();
             Assert.fail("should not get here");
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             // We should expect this
          }
 
@@ -1493,14 +1393,11 @@ public class XATest extends JMSTestBase
 
          Assert.assertNull(r);
       }
-      finally
-      {
-         if (conn != null)
-         {
+      finally {
+         if (conn != null) {
             conn.close();
          }
-         if (conn2 != null)
-         {
+         if (conn2 != null) {
             conn2.close();
          }
       }
@@ -1508,16 +1405,14 @@ public class XATest extends JMSTestBase
    }
 
    @Test
-   public void testMultipleSessionsOneTxCommitSend1PCOptimization() throws Exception
-   {
+   public void testMultipleSessionsOneTxCommitSend1PCOptimization() throws Exception {
       // Since both resources have some RM, TM will probably use 1PC optimization
 
       XAConnection conn = null;
 
       Connection conn2 = null;
 
-      try
-      {
+      try {
          conn = xacf.createXAConnection();
          conn.start();
 
@@ -1563,30 +1458,25 @@ public class XATest extends JMSTestBase
          Assert.assertEquals("echidna2", r2.getText());
 
       }
-      finally
-      {
-         if (conn != null)
-         {
+      finally {
+         if (conn != null) {
             conn.close();
          }
-         if (conn2 != null)
-         {
+         if (conn2 != null) {
             conn2.close();
          }
       }
    }
 
    @Test
-   public void testMultipleSessionsOneTxCommitSend() throws Exception
-   {
+   public void testMultipleSessionsOneTxCommitSend() throws Exception {
       // Since both resources have some RM, TM will probably use 1PC optimization
 
       XAConnection conn = null;
 
       Connection conn2 = null;
 
-      try
-      {
+      try {
 
          conn = xacf.createXAConnection();
          conn.start();
@@ -1635,14 +1525,11 @@ public class XATest extends JMSTestBase
          Assert.assertEquals("echidna2", r2.getText());
 
       }
-      finally
-      {
-         if (conn != null)
-         {
+      finally {
+         if (conn != null) {
             conn.close();
          }
-         if (conn2 != null)
-         {
+         if (conn2 != null) {
             conn2.close();
          }
 
@@ -1651,16 +1538,14 @@ public class XATest extends JMSTestBase
    }
 
    @Test
-   public void testMultipleSessionsOneTxRollbackSend1PCOptimization() throws Exception
-   {
+   public void testMultipleSessionsOneTxRollbackSend1PCOptimization() throws Exception {
       // Since both resources have some RM, TM will probably use 1PC optimization
 
       XAConnection conn = null;
 
       Connection conn2 = null;
 
-      try
-      {
+      try {
          conn = xacf.createXAConnection();
          conn.start();
 
@@ -1701,28 +1586,23 @@ public class XATest extends JMSTestBase
          Assert.assertNull(r1);
 
       }
-      finally
-      {
-         if (conn != null)
-         {
+      finally {
+         if (conn != null) {
             conn.close();
          }
-         if (conn2 != null)
-         {
+         if (conn2 != null) {
             conn2.close();
          }
       }
    }
 
    @Test
-   public void testMultipleSessionsOneTxRollbackSend() throws Exception
-   {
+   public void testMultipleSessionsOneTxRollbackSend() throws Exception {
       XAConnection conn = null;
 
       Connection conn2 = null;
 
-      try
-      {
+      try {
 
          conn = xacf.createXAConnection();
          conn.start();
@@ -1765,28 +1645,23 @@ public class XATest extends JMSTestBase
          TextMessage r1 = (TextMessage) cons.receive(100);
          Assert.assertNull(r1);
       }
-      finally
-      {
-         if (conn != null)
-         {
+      finally {
+         if (conn != null) {
             conn.close();
          }
-         if (conn2 != null)
-         {
+         if (conn2 != null) {
             conn2.close();
          }
       }
    }
 
    @Test
-   public void testOneSessionTwoTransactionsCommitAcknowledge() throws Exception
-   {
+   public void testOneSessionTwoTransactionsCommitAcknowledge() throws Exception {
       XAConnection conn = null;
 
       Connection conn2 = null;
 
-      try
-      {
+      try {
          // First send 2 messages
          conn2 = cf.createConnection();
          Session sessProducer = conn2.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -1850,28 +1725,23 @@ public class XATest extends JMSTestBase
 
          tm.commit();
       }
-      finally
-      {
-         if (conn != null)
-         {
+      finally {
+         if (conn != null) {
             conn.close();
          }
-         if (conn2 != null)
-         {
+         if (conn2 != null) {
             conn2.close();
          }
       }
    }
 
    @Test
-   public void testOneSessionTwoTransactionsRollbackAcknowledge() throws Exception
-   {
+   public void testOneSessionTwoTransactionsRollbackAcknowledge() throws Exception {
       XAConnection conn = null;
 
       Connection conn2 = null;
 
-      try
-      {
+      try {
          // First send 2 messages
          conn2 = cf.createConnection();
          Session sessProducer = conn2.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -1949,14 +1819,11 @@ public class XATest extends JMSTestBase
          Assert.assertNull(r3);
 
       }
-      finally
-      {
-         if (conn != null)
-         {
+      finally {
+         if (conn != null) {
             conn.close();
          }
-         if (conn2 != null)
-         {
+         if (conn2 != null) {
             conn2.close();
          }
 
@@ -1965,14 +1832,12 @@ public class XATest extends JMSTestBase
    }
 
    @Test
-   public void testOneSessionTwoTransactionsCommitSend() throws Exception
-   {
+   public void testOneSessionTwoTransactionsCommitSend() throws Exception {
       XAConnection conn = null;
 
       Connection conn2 = null;
 
-      try
-      {
+      try {
          conn = xacf.createXAConnection();
 
          // Create a session
@@ -2030,14 +1895,11 @@ public class XATest extends JMSTestBase
          Assert.assertEquals("kangaroo1", r3.getText());
 
       }
-      finally
-      {
-         if (conn != null)
-         {
+      finally {
+         if (conn != null) {
             conn.close();
          }
-         if (conn2 != null)
-         {
+         if (conn2 != null) {
             conn2.close();
          }
 
@@ -2046,8 +1908,7 @@ public class XATest extends JMSTestBase
    }
 
    @Test
-   public void testIsSamRM() throws Exception
-   {
+   public void testIsSamRM() throws Exception {
       XAConnection conn = null;
 
       conn = xacf.createXAConnection();
@@ -2063,66 +1924,53 @@ public class XATest extends JMSTestBase
       Assert.assertTrue(res1.isSameRM(res2));
    }
 
-   static class DummyXAResource implements XAResource
-   {
+   static class DummyXAResource implements XAResource {
+
       boolean failOnPrepare;
 
-      DummyXAResource()
-      {
+      DummyXAResource() {
       }
 
-      DummyXAResource(final boolean failOnPrepare)
-      {
+      DummyXAResource(final boolean failOnPrepare) {
          this.failOnPrepare = failOnPrepare;
       }
 
-      public void commit(final Xid arg0, final boolean arg1) throws XAException
-      {
+      public void commit(final Xid arg0, final boolean arg1) throws XAException {
       }
 
-      public void end(final Xid arg0, final int arg1) throws XAException
-      {
+      public void end(final Xid arg0, final int arg1) throws XAException {
       }
 
-      public void forget(final Xid arg0) throws XAException
-      {
+      public void forget(final Xid arg0) throws XAException {
       }
 
-      public int getTransactionTimeout() throws XAException
-      {
+      public int getTransactionTimeout() throws XAException {
          return 0;
       }
 
-      public boolean isSameRM(final XAResource arg0) throws XAException
-      {
+      public boolean isSameRM(final XAResource arg0) throws XAException {
          return false;
       }
 
-      public int prepare(final Xid arg0) throws XAException
-      {
-         if (failOnPrepare)
-         {
+      public int prepare(final Xid arg0) throws XAException {
+         if (failOnPrepare) {
             throw new XAException(XAException.XAER_RMFAIL);
          }
          return XAResource.XA_OK;
       }
 
-      public Xid[] recover(final int arg0) throws XAException
-      {
+      public Xid[] recover(final int arg0) throws XAException {
          return null;
       }
 
-      public void rollback(final Xid arg0) throws XAException
-      {
+      public void rollback(final Xid arg0) throws XAException {
       }
 
-      public boolean setTransactionTimeout(final int arg0) throws XAException
-      {
+      public boolean setTransactionTimeout(final int arg0) throws XAException {
          return false;
       }
 
-      public void start(final Xid arg0, final int arg1) throws XAException
-      {
+      public void start(final Xid arg0, final int arg1) throws XAException {
 
       }
 

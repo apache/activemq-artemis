@@ -30,19 +30,16 @@ import org.apache.activemq.artemis.jms.client.ActiveMQObjectMessage;
 import org.apache.activemq.artemis.jms.client.ActiveMQStreamMessage;
 import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
 
-public class JMSTransactionDetail extends TransactionDetail
-{
-   public JMSTransactionDetail(Xid xid, Transaction tx, Long creation) throws Exception
-   {
-      super(xid,tx,creation);
+public class JMSTransactionDetail extends TransactionDetail {
+
+   public JMSTransactionDetail(Xid xid, Transaction tx, Long creation) throws Exception {
+      super(xid, tx, creation);
    }
 
    @Override
-   public String decodeMessageType(ServerMessage msg)
-   {
+   public String decodeMessageType(ServerMessage msg) {
       int type = msg.getType();
-      switch (type)
-      {
+      switch (type) {
          case ActiveMQMessage.TYPE: // 0
             return "Default";
          case ActiveMQObjectMessage.TYPE: // 2
@@ -61,14 +58,11 @@ public class JMSTransactionDetail extends TransactionDetail
    }
 
    @Override
-   public Map<String, Object> decodeMessageProperties(ServerMessage msg)
-   {
-      try
-      {
+   public Map<String, Object> decodeMessageProperties(ServerMessage msg) {
+      try {
          return ActiveMQMessage.coreMaptoJMSMap(msg.toMap());
       }
-      catch (Throwable t)
-      {
+      catch (Throwable t) {
          return null;
       }
    }

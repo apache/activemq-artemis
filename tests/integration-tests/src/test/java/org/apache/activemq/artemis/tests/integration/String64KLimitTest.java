@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.integration;
+
 import org.junit.Before;
 
 import org.junit.Test;
@@ -36,15 +37,13 @@ import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 
 /**
- *
  * There is a bug in JDK1.3, 1.4 whereby writeUTF fails if more than 64K bytes are written
  * we need to work with all size of strings
  *
  * http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4806007
  * http://jira.jboss.com/jira/browse/JBAS-2641
  */
-public class String64KLimitTest extends ActiveMQTestBase
-{
+public class String64KLimitTest extends ActiveMQTestBase {
    // Constants -----------------------------------------------------
 
    // Static --------------------------------------------------------
@@ -60,19 +59,16 @@ public class String64KLimitTest extends ActiveMQTestBase
 
    // Public --------------------------------------------------------
 
-   protected String genString(final int len)
-   {
+   protected String genString(final int len) {
       char[] chars = new char[len];
-      for (int i = 0; i < len; i++)
-      {
-         chars[i] = (char)(65 + i % 26);
+      for (int i = 0; i < len; i++) {
+         chars[i] = (char) (65 + i % 26);
       }
       return new String(chars);
    }
 
    @Test
-   public void test64KLimitWithWriteString() throws Exception
-   {
+   public void test64KLimitWithWriteString() throws Exception {
       SimpleString address = RandomUtil.randomSimpleString();
       SimpleString queue = RandomUtil.randomSimpleString();
 
@@ -136,8 +132,7 @@ public class String64KLimitTest extends ActiveMQTestBase
    }
 
    @Test
-   public void test64KLimitWithWriteUTF() throws Exception
-   {
+   public void test64KLimitWithWriteUTF() throws Exception {
       SimpleString address = RandomUtil.randomSimpleString();
       SimpleString queue = RandomUtil.randomSimpleString();
 
@@ -162,24 +157,20 @@ public class String64KLimitTest extends ActiveMQTestBase
       ClientMessage tm2 = session.createMessage(false);
       tm2.getBodyBuffer().writeUTF(s2);
 
-      try
-      {
+      try {
          ClientMessage tm3 = session.createMessage(false);
          tm3.getBodyBuffer().writeUTF(s3);
          Assert.fail("can not write UTF string bigger than 64K");
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
       }
 
-      try
-      {
+      try {
          ClientMessage tm4 = session.createMessage(false);
          tm4.getBodyBuffer().writeUTF(s4);
          Assert.fail("can not write UTF string bigger than 64K");
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
       }
 
       producer.send(tm1);
@@ -203,12 +194,10 @@ public class String64KLimitTest extends ActiveMQTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
-      Configuration config = createBasicConfig()
-         .addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY));
+      Configuration config = createBasicConfig().addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY));
       server = addServer(ActiveMQServers.newActiveMQServer(config, false));
       server.start();
       locator = createInVMNonHALocator();

@@ -36,8 +36,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 
-public class RestartSMTest extends ActiveMQTestBase
-{
+public class RestartSMTest extends ActiveMQTestBase {
 
    // Constants -----------------------------------------------------
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
@@ -56,16 +55,14 @@ public class RestartSMTest extends ActiveMQTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       execFactory = getOrderedExecutor();
    }
 
    @Test
-   public void testRestartStorageManager() throws Exception
-   {
+   public void testRestartStorageManager() throws Exception {
       File testdir = new File(getTestDir());
       deleteDirectory(testdir);
 
@@ -73,8 +70,7 @@ public class RestartSMTest extends ActiveMQTestBase
 
       final JournalStorageManager journal = new JournalStorageManager(createDefaultInVMConfig(), execFactory, null);
 
-      try
-      {
+      try {
 
          journal.start();
 
@@ -102,15 +98,12 @@ public class RestartSMTest extends ActiveMQTestBase
 
          journal.start();
       }
-      finally
-      {
+      finally {
 
-         try
-         {
+         try {
             journal.stop();
          }
-         catch (Exception ex)
-         {
+         catch (Exception ex) {
             RestartSMTest.log.warn(ex.getMessage(), ex);
          }
       }

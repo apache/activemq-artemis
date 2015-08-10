@@ -41,24 +41,22 @@ import org.apache.activemq.artemis.api.jms.management.JMSQueueControl;
 /**
  * An example showing how to use message counters to have information on a queue.
  */
-public class MessageCounterExample
-{
+public class MessageCounterExample {
+
    private static final String JMX_URL = "service:jmx:rmi:///jndi/rmi://localhost:3001/jmxrmi";
 
-   public static void main(final String[] args) throws Exception
-   {
+   public static void main(final String[] args) throws Exception {
       QueueConnection connection = null;
       InitialContext initialContext = null;
-      try
-      {
+      try {
          // Step 1. Create an initial context to perform the JNDI lookup.
          initialContext = new InitialContext();
 
          // Step 2. Perfom a lookup on the queue
-         Queue queue = (Queue)initialContext.lookup("queue/exampleQueue");
+         Queue queue = (Queue) initialContext.lookup("queue/exampleQueue");
 
          // Step 3. Perform a lookup on the Connection Factory
-         QueueConnectionFactory cf = (QueueConnectionFactory)initialContext.lookup("ConnectionFactory");
+         QueueConnectionFactory cf = (QueueConnectionFactory) initialContext.lookup("ConnectionFactory");
 
          // Step 4.Create a JMS Connection, session and a producer for the queue
          connection = cf.createQueueConnection();
@@ -76,13 +74,9 @@ public class MessageCounterExample
 
          // Step 7. Use JMX to retrieve the message counters using the JMSQueueControl
          ObjectName on = ObjectNameBuilder.DEFAULT.getJMSQueueObjectName(queue.getQueueName());
-         JMXConnector connector =
-                 JMXConnectorFactory.connect(new JMXServiceURL(JMX_URL), new HashMap<String, Object>());
+         JMXConnector connector = JMXConnectorFactory.connect(new JMXServiceURL(JMX_URL), new HashMap<String, Object>());
          MBeanServerConnection mbsc = connector.getMBeanServerConnection();
-         JMSQueueControl queueControl = MBeanServerInvocationHandler.newProxyInstance(mbsc,
-                                                                                      on,
-                                                                                      JMSQueueControl.class,
-                                                                                      false);
+         JMSQueueControl queueControl = MBeanServerInvocationHandler.newProxyInstance(mbsc, on, JMSQueueControl.class, false);
 
          // Step 8. List the message counters and convert them to MessageCounterInfo data structure.
          String counters = queueControl.listMessageCounter();
@@ -107,7 +101,7 @@ public class MessageCounterExample
          connection.start();
 
          // Step 14. Receive a JMS message from the queue. It corresponds to the message sent at step #5
-         TextMessage messageReceived = (TextMessage)consumer.receive(5000);
+         TextMessage messageReceived = (TextMessage) consumer.receive(5000);
          System.out.format("Received message: %s%n%n", messageReceived.getText());
 
          // Step 15. Sleep on last time to have the queue sampled
@@ -119,29 +113,21 @@ public class MessageCounterExample
          messageCounter = MessageCounterInfo.fromJSON(counters);
          displayMessageCounter(messageCounter);
       }
-      finally
-      {
+      finally {
          // Step 17. Be sure to close our JMS resources!
-         if (initialContext != null)
-         {
+         if (initialContext != null) {
             initialContext.close();
          }
-         if (connection != null)
-         {
+         if (connection != null) {
             connection.close();
          }
       }
    }
 
-   private static void displayMessageCounter(final MessageCounterInfo counter)
-   {
+   private static void displayMessageCounter(final MessageCounterInfo counter) {
       System.out.format("%s (sample updated at %s)%n", counter.getName(), counter.getUdpateTimestamp());
-      System.out.format("   %s message(s) added to the queue (since last sample: %s)%n",
-                        counter.getCount(),
-                        counter.getCountDelta());
-      System.out.format("   %s message(s) in the queue (since last sample: %s)%n",
-                        counter.getDepth(),
-                        counter.getDepthDelta());
+      System.out.format("   %s message(s) added to the queue (since last sample: %s)%n", counter.getCount(), counter.getCountDelta());
+      System.out.format("   %s message(s) in the queue (since last sample: %s)%n", counter.getDepth(), counter.getDepthDelta());
       System.out.format("   last message added at %s%n%n", counter.getLastAddTimestamp());
    }
 

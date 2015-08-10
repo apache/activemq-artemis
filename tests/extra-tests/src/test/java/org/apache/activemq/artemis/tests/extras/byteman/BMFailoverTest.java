@@ -51,8 +51,8 @@ import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 
 @RunWith(BMUnitRunner.class)
-public class BMFailoverTest extends FailoverTestBase
-{
+public class BMFailoverTest extends FailoverTestBase {
+
    private ServerLocator locator;
    private ClientSessionFactoryInternal sf;
    private ClientSessionFactoryInternal sf2;
@@ -60,56 +60,43 @@ public class BMFailoverTest extends FailoverTestBase
 
    @Before
    @Override
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
       stopped = false;
       locator = getServerLocator();
    }
 
    private static boolean stopped = false;
-   public static void stopAndThrow() throws ActiveMQUnBlockedException
-   {
-      if (!stopped)
-      {
-         try
-         {
+
+   public static void stopAndThrow() throws ActiveMQUnBlockedException {
+      if (!stopped) {
+         try {
             serverToStop.getServer().stop(true);
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             e.printStackTrace();
          }
-         try
-         {
+         try {
             Thread.sleep(2000);
          }
-         catch (InterruptedException e)
-         {
+         catch (InterruptedException e) {
             e.printStackTrace();
          }
          stopped = true;
          throw ActiveMQClientMessageBundle.BUNDLE.unblockingACall(null);
       }
    }
+
    @Test
-   @BMRules
-   (
-         rules =
-               {
-                     @BMRule
-                           (
-                                 name = "trace ActiveMQSessionContext xaEnd",
-                                 targetClass = "org.apache.activemq.artemis.core.protocol.core.impl.ActiveMQSessionContext",
-                                 targetMethod = "xaEnd",
-                                 targetLocation = "AT EXIT",
-                                 action = "org.apache.activemq.artemis.tests.extras.byteman.BMFailoverTest.stopAndThrow()"
-                           )
-               }
-   )
+   @BMRules(
+      rules = {@BMRule(
+         name = "trace ActiveMQSessionContext xaEnd",
+         targetClass = "org.apache.activemq.artemis.core.protocol.core.impl.ActiveMQSessionContext",
+         targetMethod = "xaEnd",
+         targetLocation = "AT EXIT",
+         action = "org.apache.activemq.artemis.tests.extras.byteman.BMFailoverTest.stopAndThrow()")})
    //https://bugzilla.redhat.com/show_bug.cgi?id=1152410
-   public void testFailOnEndAndRetry() throws Exception
-   {
+   public void testFailOnEndAndRetry() throws Exception {
       serverToStop = liveServer;
 
       createSessionFactory();
@@ -120,8 +107,7 @@ public class BMFailoverTest extends FailoverTestBase
 
       ClientProducer producer = session.createProducer(FailoverTestBase.ADDRESS);
 
-      for (int i = 0; i < 100; i++)
-      {
+      for (int i = 0; i < 100; i++) {
          producer.send(createMessage(session, i, true));
       }
 
@@ -132,8 +118,7 @@ public class BMFailoverTest extends FailoverTestBase
       session.start(xid, XAResource.TMNOFLAGS);
       session.start();
       // Receive MSGs but don't ack!
-      for (int i = 0; i < 100; i++)
-      {
+      for (int i = 0; i < 100; i++) {
          ClientMessage message = consumer.receive(1000);
 
          Assert.assertNotNull(message);
@@ -142,35 +127,28 @@ public class BMFailoverTest extends FailoverTestBase
 
          Assert.assertEquals(i, message.getIntProperty("counter").intValue());
       }
-      try
-      {
+      try {
          //top level prepare
          session.end(xid, XAResource.TMSUCCESS);
       }
-      catch (XAException e)
-      {
-         try
-         {
+      catch (XAException e) {
+         try {
             //top level abort
             session.end(xid, XAResource.TMFAIL);
          }
-         catch (XAException e1)
-         {
-            try
-            {
+         catch (XAException e1) {
+            try {
                //rollback
                session.rollback(xid);
             }
-            catch (XAException e2)
-            {
+            catch (XAException e2) {
             }
          }
       }
       xid = RandomUtil.randomXid();
       session.start(xid, XAResource.TMNOFLAGS);
 
-      for (int i = 0; i < 50; i++)
-      {
+      for (int i = 0; i < 50; i++) {
          ClientMessage message = consumer.receive(1000);
 
          Assert.assertNotNull(message);
@@ -184,25 +162,16 @@ public class BMFailoverTest extends FailoverTestBase
    }
 
    @Test
-   @BMRules
-      (
-         rules =
-            {
-               @BMRule
-                  (
-                     name = "trace clientsessionimpl commit",
-                     targetClass = "org.apache.activemq.artemis.core.client.impl.ClientSessionImpl",
-                     targetMethod = "start(javax.transaction.xa.Xid, int)",
-                     targetLocation = "AT EXIT",
-                     action = "org.apache.activemq.artemis.tests.extras.byteman.BMFailoverTest.serverToStop.getServer().stop(true)"
-                  )
-            }
-      )
-   public void testFailoverOnCommit2() throws Exception
-   {
+   @BMRules(
+      rules = {@BMRule(
+         name = "trace clientsessionimpl commit",
+         targetClass = "org.apache.activemq.artemis.core.client.impl.ClientSessionImpl",
+         targetMethod = "start(javax.transaction.xa.Xid, int)",
+         targetLocation = "AT EXIT",
+         action = "org.apache.activemq.artemis.tests.extras.byteman.BMFailoverTest.serverToStop.getServer().stop(true)")})
+   public void testFailoverOnCommit2() throws Exception {
       serverToStop = liveServer;
-      locator = getServerLocator()
-              .setFailoverOnInitialConnection(true);
+      locator = getServerLocator().setFailoverOnInitialConnection(true);
       SimpleString inQueue = new SimpleString("inQueue");
       SimpleString outQueue = new SimpleString("outQueue");
       createSessionFactory();
@@ -210,8 +179,7 @@ public class BMFailoverTest extends FailoverTestBase
 
       // closeable will take care of closing it
       try (ClientSession session = sf.createSession(false, true, true);
-           ClientProducer sendInitialProducer = session.createProducer();)
-      {
+           ClientProducer sendInitialProducer = session.createProducer();) {
          session.createQueue(inQueue, inQueue, null, true);
          session.createQueue(outQueue, outQueue, null, true);
          sendInitialProducer.send(inQueue, createMessage(session, 0, true));
@@ -238,13 +206,11 @@ public class BMFailoverTest extends FailoverTestBase
       //the mdb would ack the message before calling onMessage()
       m.acknowledge();
 
-      try
-      {
+      try {
          //this may fail but thats ok, it depends on the race and when failover actually happens
          xaSessionRec.end(xidRec, XAResource.TMSUCCESS);
       }
-      catch (XAException ignore)
-      {
+      catch (XAException ignore) {
       }
 
       //we always reset the client on the RA
@@ -252,8 +218,7 @@ public class BMFailoverTest extends FailoverTestBase
 
       // closeable will take care of closing it
       try (ClientSession session = sf.createSession(false, true, true);
-           ClientProducer sendInitialProducer = session.createProducer();)
-      {
+           ClientProducer sendInitialProducer = session.createProducer();) {
          sendInitialProducer.send(inQueue, createMessage(session, 0, true));
       }
 
@@ -278,47 +243,34 @@ public class BMFailoverTest extends FailoverTestBase
       xaSessionRec.getXAResource().prepare(xidRec);
       xaSessionRec.getXAResource().commit(xidRec, false);
 
-
       //let's close the consumer so anything pending is handled
       consumer.close();
 
       assertEquals(1, getMessageCount(inQ));
    }
 
-
    @Test
-   @BMRules
-      (
-         rules =
-            {
-               @BMRule
-                  (
-                     name = "trace clientsessionimpl commit",
-                     targetClass = "org.apache.activemq.artemis.core.client.impl.ClientSessionImpl",
-                     targetMethod = "commit",
-                     targetLocation = "ENTRY",
-                     action = "org.apache.activemq.artemis.tests.extras.byteman.BMFailoverTest.serverToStop.getServer().stop(true)"
-                  )
-            }
-      )
-   public void testFailoverOnCommit() throws Exception
-   {
+   @BMRules(
+      rules = {@BMRule(
+         name = "trace clientsessionimpl commit",
+         targetClass = "org.apache.activemq.artemis.core.client.impl.ClientSessionImpl",
+         targetMethod = "commit",
+         targetLocation = "ENTRY",
+         action = "org.apache.activemq.artemis.tests.extras.byteman.BMFailoverTest.serverToStop.getServer().stop(true)")})
+   public void testFailoverOnCommit() throws Exception {
       serverToStop = liveServer;
-      locator = getServerLocator()
-              .setFailoverOnInitialConnection(true);
+      locator = getServerLocator().setFailoverOnInitialConnection(true);
       createSessionFactory();
       ClientSession session = createSessionAndQueue();
 
       ClientProducer producer = addClientProducer(session.createProducer(FailoverTestBase.ADDRESS));
 
       sendMessages(session, producer, 10);
-      try
-      {
+      try {
          session.commit();
          fail("should have thrown an exception");
       }
-      catch (ActiveMQTransactionOutcomeUnknownException e)
-      {
+      catch (ActiveMQTransactionOutcomeUnknownException e) {
          //pass
       }
       sendMessages(session, producer, 10);
@@ -328,25 +280,16 @@ public class BMFailoverTest extends FailoverTestBase
    }
 
    @Test
-   @BMRules
-      (
-         rules =
-            {
-               @BMRule
-                  (
-                     name = "trace clientsessionimpl commit",
-                     targetClass = "org.apache.activemq.artemis.core.client.impl.ClientSessionImpl",
-                     targetMethod = "commit",
-                     targetLocation = "ENTRY",
-                     action = "org.apache.activemq.artemis.tests.extras.byteman.BMFailoverTest.serverToStop.getServer().stop(true)"
-                  )
-            }
-      )
-   public void testFailoverOnReceiveCommit() throws Exception
-   {
+   @BMRules(
+      rules = {@BMRule(
+         name = "trace clientsessionimpl commit",
+         targetClass = "org.apache.activemq.artemis.core.client.impl.ClientSessionImpl",
+         targetMethod = "commit",
+         targetLocation = "ENTRY",
+         action = "org.apache.activemq.artemis.tests.extras.byteman.BMFailoverTest.serverToStop.getServer().stop(true)")})
+   public void testFailoverOnReceiveCommit() throws Exception {
       serverToStop = liveServer;
-      locator = getServerLocator()
-              .setFailoverOnInitialConnection(true);
+      locator = getServerLocator().setFailoverOnInitialConnection(true);
       createSessionFactory();
       ClientSession session = createSessionAndQueue();
 
@@ -358,23 +301,19 @@ public class BMFailoverTest extends FailoverTestBase
 
       ClientConsumer consumer = session.createConsumer(FailoverTestBase.ADDRESS);
       session.start();
-      for (int i = 0; i < 10; i++)
-      {
+      for (int i = 0; i < 10; i++) {
          ClientMessage m = consumer.receive(500);
          assertNotNull(m);
          m.acknowledge();
       }
-      try
-      {
+      try {
          session.commit();
          fail("should have thrown an exception");
       }
-      catch (ActiveMQTransactionOutcomeUnknownException e)
-      {
+      catch (ActiveMQTransactionOutcomeUnknownException e) {
          //pass
       }
-      catch (ActiveMQTransactionRolledBackException e1)
-      {
+      catch (ActiveMQTransactionRolledBackException e1) {
          //pass
       }
       Queue bindable = (Queue) backupServer.getServer().getPostOffice().getBinding(FailoverTestBase.ADDRESS).getBindable();
@@ -383,57 +322,49 @@ public class BMFailoverTest extends FailoverTestBase
    }
 
    @Override
-   protected TransportConfiguration getAcceptorTransportConfiguration(final boolean live)
-   {
+   protected TransportConfiguration getAcceptorTransportConfiguration(final boolean live) {
       return getNettyAcceptorTransportConfiguration(live);
    }
 
    @Override
-   protected TransportConfiguration getConnectorTransportConfiguration(final boolean live)
-   {
+   protected TransportConfiguration getConnectorTransportConfiguration(final boolean live) {
       return getNettyConnectorTransportConfiguration(live);
    }
 
-   private ClientSession createSessionAndQueue() throws Exception
-   {
+   private ClientSession createSessionAndQueue() throws Exception {
       ClientSession session = createSession(sf, false, false);
 
       session.createQueue(FailoverTestBase.ADDRESS, FailoverTestBase.ADDRESS, null, true);
       return session;
    }
 
-   private ClientSession createXASessionAndQueue() throws Exception
-   {
+   private ClientSession createXASessionAndQueue() throws Exception {
       ClientSession session = addClientSession(sf.createSession(true, true, true));
 
       session.createQueue(FailoverTestBase.ADDRESS, FailoverTestBase.ADDRESS, null, true);
       return session;
    }
 
-   protected ClientSession
-   createSession(ClientSessionFactory sf1, boolean autoCommitSends, boolean autoCommitAcks) throws Exception
-   {
+   protected ClientSession createSession(ClientSessionFactory sf1,
+                                         boolean autoCommitSends,
+                                         boolean autoCommitAcks) throws Exception {
       return addClientSession(sf1.createSession(autoCommitSends, autoCommitAcks));
    }
 
-   protected ClientSession
-   createSession(ClientSessionFactory sf1, boolean xa, boolean autoCommitSends,   boolean autoCommitAcks) throws Exception
-   {
+   protected ClientSession createSession(ClientSessionFactory sf1,
+                                         boolean xa,
+                                         boolean autoCommitSends,
+                                         boolean autoCommitAcks) throws Exception {
       return addClientSession(sf1.createSession(xa, autoCommitSends, autoCommitAcks));
    }
 
-
-   private void createSessionFactory() throws Exception
-   {
-      locator.setBlockOnNonDurableSend(true)
-              .setBlockOnDurableSend(true)
-              .setReconnectAttempts(-1);
+   private void createSessionFactory() throws Exception {
+      locator.setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setReconnectAttempts(-1);
 
       sf = createSessionFactoryAndWaitForTopology(locator, 2);
    }
 
-   private void createSessionFactory2() throws Exception
-   {
+   private void createSessionFactory2() throws Exception {
       sf2 = createSessionFactoryAndWaitForTopology(locator, 2);
    }
 }

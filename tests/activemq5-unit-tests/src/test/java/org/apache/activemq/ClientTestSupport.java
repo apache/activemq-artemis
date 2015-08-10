@@ -45,133 +45,136 @@ import org.apache.activemq.transport.TransportFactory;
 
 public class ClientTestSupport extends TestCase {
 
-    protected BrokerService broker;
-    protected long idGenerator;
+   protected BrokerService broker;
+   protected long idGenerator;
 
-    private ActiveMQConnectionFactory connFactory;
-    private final String brokerURL = "vm://localhost?broker.persistent=false";
+   private ActiveMQConnectionFactory connFactory;
+   private final String brokerURL = "vm://localhost?broker.persistent=false";
 
-    @Override
-    public void setUp() throws Exception {
-        final AtomicBoolean connected = new AtomicBoolean(false);
-        TransportConnector connector;
+   @Override
+   public void setUp() throws Exception {
+      final AtomicBoolean connected = new AtomicBoolean(false);
+      TransportConnector connector;
 
-        // Start up a broker with a tcp connector.
-        try {
-            broker = BrokerFactory.createBroker(new URI(this.brokerURL));
-            broker.getBrokerName();
-            connector = new TransportConnector(TransportFactory.bind(new URI(this.brokerURL))) {
-                // Hook into the connector so we can assert that the server
-                // accepted a connection.
-                @Override
-                protected org.apache.activemq.broker.Connection createConnection(org.apache.activemq.transport.Transport transport) throws IOException {
-                    connected.set(true);
-                    return super.createConnection(transport);
-                }
-            };
-            broker.addConnector(connector);
-            broker.start();
-
-        } catch (IOException e) {
-            throw new JMSException("Error creating broker " + e);
-        } catch (URISyntaxException e) {
-            throw new JMSException("Error creating broker " + e);
-        }
-
-        URI connectURI;
-        connectURI = connector.getServer().getConnectURI();
-
-        // This should create the connection.
-        connFactory = new ActiveMQConnectionFactory(connectURI);
-    }
-
-    @Override
-    protected void tearDown() throws Exception {
-        super.tearDown();
-        if (broker != null) {
-            broker.stop();
-        }
-    }
-
-    public ActiveMQConnectionFactory getConnectionFactory() throws JMSException {
-        if (this.connFactory == null) {
-            throw new JMSException("ActiveMQConnectionFactory is null ");
-        }
-        return this.connFactory;
-    }
-
-    // Helper Classes
-    protected ConnectionInfo createConnectionInfo() throws Exception {
-        ConnectionInfo info = new ConnectionInfo();
-        info.setConnectionId(new ConnectionId("connection:" + (++idGenerator)));
-        info.setClientId(info.getConnectionId().getValue());
-        return info;
-    }
-
-    protected SessionInfo createSessionInfo(ConnectionInfo connectionInfo) throws Exception {
-        SessionInfo info = new SessionInfo(connectionInfo, ++idGenerator);
-        return info;
-    }
-
-    protected ConsumerInfo createConsumerInfo(SessionInfo sessionInfo, ActiveMQDestination destination) throws Exception {
-        ConsumerInfo info = new ConsumerInfo(sessionInfo, ++idGenerator);
-        info.setBrowser(false);
-        info.setDestination(destination);
-        info.setPrefetchSize(1000);
-        info.setDispatchAsync(false);
-        return info;
-    }
-
-    protected RemoveInfo closeConsumerInfo(ConsumerInfo consumerInfo) {
-        return consumerInfo.createRemoveCommand();
-    }
-
-    protected MessageAck createAck(ConsumerInfo consumerInfo, Message msg, int count, byte ackType) {
-        MessageAck ack = new MessageAck();
-        ack.setAckType(ackType);
-        ack.setConsumerId(consumerInfo.getConsumerId());
-        ack.setDestination(msg.getDestination());
-        ack.setLastMessageId(msg.getMessageId());
-        ack.setMessageCount(count);
-        return ack;
-    }
-
-    protected Message receiveMessage(StubConnection connection, int maxWait) throws InterruptedException {
-        while (true) {
-            Object o = connection.getDispatchQueue().poll(maxWait, TimeUnit.MILLISECONDS);
-
-            if (o == null) {
-                return null;
+      // Start up a broker with a tcp connector.
+      try {
+         broker = BrokerFactory.createBroker(new URI(this.brokerURL));
+         broker.getBrokerName();
+         connector = new TransportConnector(TransportFactory.bind(new URI(this.brokerURL))) {
+            // Hook into the connector so we can assert that the server
+            // accepted a connection.
+            @Override
+            protected org.apache.activemq.broker.Connection createConnection(org.apache.activemq.transport.Transport transport) throws IOException {
+               connected.set(true);
+               return super.createConnection(transport);
             }
+         };
+         broker.addConnector(connector);
+         broker.start();
 
-            if (o instanceof MessageDispatch) {
-                MessageDispatch dispatch = (MessageDispatch)o;
-                return dispatch.getMessage();
-            }
-        }
-    }
+      }
+      catch (IOException e) {
+         throw new JMSException("Error creating broker " + e);
+      }
+      catch (URISyntaxException e) {
+         throw new JMSException("Error creating broker " + e);
+      }
 
-    protected Broker getBroker() throws Exception {
-        return this.broker != null ? this.broker.getBroker() : null;
-    }
+      URI connectURI;
+      connectURI = connector.getServer().getConnectURI();
 
-    public static void removeMessageStore() {
-        if (System.getProperty("activemq.store.dir") != null) {
-            recursiveDelete(new File(System.getProperty("activemq.store.dir")));
-        }
-        if (System.getProperty("derby.system.home") != null) {
-            recursiveDelete(new File(System.getProperty("derby.system.home")));
-        }
-    }
+      // This should create the connection.
+      connFactory = new ActiveMQConnectionFactory(connectURI);
+   }
 
-    public static void recursiveDelete(File f) {
-        if (f.isDirectory()) {
-            File[] files = f.listFiles();
-            for (int i = 0; i < files.length; i++) {
-                recursiveDelete(files[i]);
-            }
-        }
-        f.delete();
-    }
+   @Override
+   protected void tearDown() throws Exception {
+      super.tearDown();
+      if (broker != null) {
+         broker.stop();
+      }
+   }
+
+   public ActiveMQConnectionFactory getConnectionFactory() throws JMSException {
+      if (this.connFactory == null) {
+         throw new JMSException("ActiveMQConnectionFactory is null ");
+      }
+      return this.connFactory;
+   }
+
+   // Helper Classes
+   protected ConnectionInfo createConnectionInfo() throws Exception {
+      ConnectionInfo info = new ConnectionInfo();
+      info.setConnectionId(new ConnectionId("connection:" + (++idGenerator)));
+      info.setClientId(info.getConnectionId().getValue());
+      return info;
+   }
+
+   protected SessionInfo createSessionInfo(ConnectionInfo connectionInfo) throws Exception {
+      SessionInfo info = new SessionInfo(connectionInfo, ++idGenerator);
+      return info;
+   }
+
+   protected ConsumerInfo createConsumerInfo(SessionInfo sessionInfo,
+                                             ActiveMQDestination destination) throws Exception {
+      ConsumerInfo info = new ConsumerInfo(sessionInfo, ++idGenerator);
+      info.setBrowser(false);
+      info.setDestination(destination);
+      info.setPrefetchSize(1000);
+      info.setDispatchAsync(false);
+      return info;
+   }
+
+   protected RemoveInfo closeConsumerInfo(ConsumerInfo consumerInfo) {
+      return consumerInfo.createRemoveCommand();
+   }
+
+   protected MessageAck createAck(ConsumerInfo consumerInfo, Message msg, int count, byte ackType) {
+      MessageAck ack = new MessageAck();
+      ack.setAckType(ackType);
+      ack.setConsumerId(consumerInfo.getConsumerId());
+      ack.setDestination(msg.getDestination());
+      ack.setLastMessageId(msg.getMessageId());
+      ack.setMessageCount(count);
+      return ack;
+   }
+
+   protected Message receiveMessage(StubConnection connection, int maxWait) throws InterruptedException {
+      while (true) {
+         Object o = connection.getDispatchQueue().poll(maxWait, TimeUnit.MILLISECONDS);
+
+         if (o == null) {
+            return null;
+         }
+
+         if (o instanceof MessageDispatch) {
+            MessageDispatch dispatch = (MessageDispatch) o;
+            return dispatch.getMessage();
+         }
+      }
+   }
+
+   protected Broker getBroker() throws Exception {
+      return this.broker != null ? this.broker.getBroker() : null;
+   }
+
+   public static void removeMessageStore() {
+      if (System.getProperty("activemq.store.dir") != null) {
+         recursiveDelete(new File(System.getProperty("activemq.store.dir")));
+      }
+      if (System.getProperty("derby.system.home") != null) {
+         recursiveDelete(new File(System.getProperty("derby.system.home")));
+      }
+   }
+
+   public static void recursiveDelete(File f) {
+      if (f.isDirectory()) {
+         File[] files = f.listFiles();
+         for (int i = 0; i < files.length; i++) {
+            recursiveDelete(files[i]);
+         }
+      }
+      f.delete();
+   }
 
 }

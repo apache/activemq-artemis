@@ -59,8 +59,8 @@ import org.junit.runner.Description;
  * org.apache.activemq.tests.integration.jms at the integration-tests project.
  */
 @Deprecated
-public abstract class ActiveMQServerTestCase
-{
+public abstract class ActiveMQServerTestCase {
+
    public static final int MAX_TIMEOUT = 1000 * 10 /* seconds */;
 
    public static final int MIN_TIMEOUT = 1000 * 1 /* seconds */;
@@ -71,19 +71,15 @@ public abstract class ActiveMQServerTestCase
    /**
     * Some testcases are time sensitive, and we need to make sure a GC would happen before certain scenarios
     */
-   public static void forceGC()
-   {
+   public static void forceGC() {
       WeakReference<Object> dumbReference = new WeakReference<Object>(new Object());
       // A loop that will wait GC, using the minimal time as possible
-      while (dumbReference.get() != null)
-      {
+      while (dumbReference.get() != null) {
          System.gc();
-         try
-         {
+         try {
             Thread.sleep(500);
          }
-         catch (InterruptedException e)
-         {
+         catch (InterruptedException e) {
          }
       }
    }
@@ -103,47 +99,39 @@ public abstract class ActiveMQServerTestCase
    private final Set<JMSContext> contextSet = new HashSet<JMSContext>();
 
    @Rule
-   public TestRule watcher = new TestWatcher()
-   {
+   public TestRule watcher = new TestWatcher() {
       @Override
-      protected void starting(Description description)
-      {
+      protected void starting(Description description) {
          log.info(String.format("#*#*# Starting test: %s()...", description.getMethodName()));
       }
 
       @Override
-      protected void finished(Description description)
-      {
+      protected void finished(Description description) {
          log.info(String.format("#*#*# Finished test: %s()...", description.getMethodName()));
       }
 
       @Override
-      protected void failed(Throwable e, Description description)
-      {
+      protected void failed(Throwable e, Description description) {
          ActiveMQServerTestCase.tearDownAllServers();
       }
    };
 
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       System.setProperty("java.naming.factory.initial", getContextFactory());
 
-      try
-      {
+      try {
          // create any new server we need
          ActiveMQServerTestCase.servers.add(ServerManagement.create());
          // start the servers if needed
-         if (!ActiveMQServerTestCase.servers.get(0).isStarted())
-         {
+         if (!ActiveMQServerTestCase.servers.get(0).isStarted()) {
             ActiveMQServerTestCase.servers.get(0).start(getConfiguration(), true);
          }
          // deploy the objects for this test
          deployAdministeredObjects();
          lookUp();
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          // if we get here we need to clean up for the next test
          e.printStackTrace();
          ActiveMQServerTestCase.servers.get(0).stop();
@@ -163,61 +151,50 @@ public abstract class ActiveMQServerTestCase
    }
 
    @After
-   public void tearDown() throws Exception
-   {
-      for (JMSContext context : contextSet)
-      {
+   public void tearDown() throws Exception {
+      for (JMSContext context : contextSet) {
          context.close();
       }
       contextSet.clear();
 
-      for (Connection localConn : connectionsSet)
-      {
+      for (Connection localConn : connectionsSet) {
          localConn.close();
       }
       connectionsSet.clear();
    }
 
-   public void stop() throws Exception
-   {
+   public void stop() throws Exception {
       ActiveMQServerTestCase.servers.get(0).stop();
    }
 
-   public String getContextFactory()
-   {
+   public String getContextFactory() {
       return org.apache.activemq.artemis.jms.tests.tools.container.InVMInitialContextFactory.class.getCanonicalName();
    }
 
-   public void start() throws Exception
-   {
+   public void start() throws Exception {
       System.setProperty("java.naming.factory.initial", getContextFactory());
       ActiveMQServerTestCase.servers.get(0).start(getConfiguration(), false);
    }
 
-   public void startNoDelete() throws Exception
-   {
+   public void startNoDelete() throws Exception {
       System.setProperty("java.naming.factory.initial", getContextFactory());
       ActiveMQServerTestCase.servers.get(0).start(getConfiguration(), false);
    }
 
-   public void stopServerPeer() throws Exception
-   {
+   public void stopServerPeer() throws Exception {
       ActiveMQServerTestCase.servers.get(0).stopServerPeer();
    }
 
-   public void startServerPeer() throws Exception
-   {
+   public void startServerPeer() throws Exception {
       System.setProperty("java.naming.factory.initial", getContextFactory());
       ActiveMQServerTestCase.servers.get(0).startServerPeer();
    }
 
-   protected HashMap<String, Object> getConfiguration()
-   {
+   protected HashMap<String, Object> getConfiguration() {
       return new HashMap<String, Object>();
    }
 
-   protected void deployAndLookupAdministeredObjects() throws Exception
-   {
+   protected void deployAndLookupAdministeredObjects() throws Exception {
       createTopic("Topic1");
       createTopic("Topic2");
       createTopic("Topic3");
@@ -229,8 +206,7 @@ public abstract class ActiveMQServerTestCase
       lookUp();
    }
 
-   protected void deployAdministeredObjects() throws Exception
-   {
+   protected void deployAdministeredObjects() throws Exception {
       createTopic("Topic1");
       createTopic("Topic2");
       createTopic("Topic3");
@@ -243,8 +219,7 @@ public abstract class ActiveMQServerTestCase
       deployConnectionFactory(0, JMSFactoryType.XA_CF, "CF_XA_TRUE", "/CF_XA_TRUE");
    }
 
-   private void lookUp() throws Exception
-   {
+   private void lookUp() throws Exception {
       InitialContext ic = getInitialContext();
       ActiveMQServerTestCase.topic1 = (Topic) ic.lookup("/topic/Topic1");
       ActiveMQServerTestCase.topic2 = (Topic) ic.lookup("/topic/Topic2");
@@ -255,8 +230,7 @@ public abstract class ActiveMQServerTestCase
       queue4 = (Queue) ic.lookup("/queue/Queue4");
    }
 
-   protected void undeployAdministeredObjects() throws Exception
-   {
+   protected void undeployAdministeredObjects() throws Exception {
       removeAllMessages("Topic1", false);
       removeAllMessages("Topic2", false);
       removeAllMessages("Topic3", false);
@@ -279,159 +253,127 @@ public abstract class ActiveMQServerTestCase
    }
 
    @AfterClass
-   public static final void tearDownAllServers()
-   {
-      for (Server s : servers)
-      {
-         try
-         {
+   public static final void tearDownAllServers() {
+      for (Server s : servers) {
+         try {
             s.stop();
          }
-         catch (Exception cause)
-         {
+         catch (Exception cause) {
             // ignore
          }
       }
       servers.clear();
    }
 
-   protected ActiveMQServer getJmsServer() throws Exception
-   {
+   protected ActiveMQServer getJmsServer() throws Exception {
       return ActiveMQServerTestCase.servers.get(0).getActiveMQServer();
    }
 
-   protected JMSServerManager getJmsServerManager() throws Exception
-   {
+   protected JMSServerManager getJmsServerManager() throws Exception {
       return ActiveMQServerTestCase.servers.get(0).getJMSServerManager();
    }
 
-   protected void checkNoSubscriptions(final Topic topic) throws Exception
-   {
+   protected void checkNoSubscriptions(final Topic topic) throws Exception {
 
    }
 
-   protected void drainDestination(final ConnectionFactory cf, final Destination dest) throws JMSException
-   {
+   protected void drainDestination(final ConnectionFactory cf, final Destination dest) throws JMSException {
       Connection conn = null;
-      try
-      {
+      try {
          conn = cf.createConnection();
          Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
          MessageConsumer cons = sess.createConsumer(dest);
          Message m = null;
          conn.start();
          log.trace("Draining messages from " + dest);
-         while (true)
-         {
+         while (true) {
             m = cons.receive(DRAIN_WAIT_TIME);
-            if (m == null)
-            {
+            if (m == null) {
                break;
             }
             log.trace("Drained message");
          }
       }
-      finally
-      {
-         if (conn != null)
-         {
+      finally {
+         if (conn != null) {
             conn.close();
          }
       }
    }
 
-   public InitialContext getInitialContext() throws Exception
-   {
+   public InitialContext getInitialContext() throws Exception {
       return new InitialContext(ServerManagement.getJNDIEnvironment(0));
    }
 
-   public ConnectionFactory getConnectionFactory() throws Exception
-   {
+   public ConnectionFactory getConnectionFactory() throws Exception {
       return (ConnectionFactory) getInitialContext().lookup("/ConnectionFactory");
    }
 
-   public TopicConnectionFactory getTopicConnectionFactory() throws Exception
-   {
+   public TopicConnectionFactory getTopicConnectionFactory() throws Exception {
       return (TopicConnectionFactory) getInitialContext().lookup("/CF_TOPIC");
    }
 
-   public XAConnectionFactory getXAConnectionFactory() throws Exception
-   {
+   public XAConnectionFactory getXAConnectionFactory() throws Exception {
       return (XAConnectionFactory) getInitialContext().lookup("/CF_XA_TRUE");
    }
 
-   public void createQueue(final String name) throws Exception
-   {
+   public void createQueue(final String name) throws Exception {
       ActiveMQServerTestCase.servers.get(0).createQueue(name, null);
    }
 
-   public void createTopic(final String name) throws Exception
-   {
+   public void createTopic(final String name) throws Exception {
       ActiveMQServerTestCase.servers.get(0).createTopic(name, null);
    }
 
-   public void destroyQueue(final String name) throws Exception
-   {
+   public void destroyQueue(final String name) throws Exception {
       ActiveMQServerTestCase.servers.get(0).destroyQueue(name, null);
    }
 
-   public void destroyTopic(final String name) throws Exception
-   {
+   public void destroyTopic(final String name) throws Exception {
       ActiveMQServerTestCase.servers.get(0).destroyTopic(name, null);
    }
 
-   public void createQueue(final String name, final int i) throws Exception
-   {
+   public void createQueue(final String name, final int i) throws Exception {
       ActiveMQServerTestCase.servers.get(i).createQueue(name, null);
    }
 
-   public void createTopic(final String name, final int i) throws Exception
-   {
+   public void createTopic(final String name, final int i) throws Exception {
       ActiveMQServerTestCase.servers.get(i).createTopic(name, null);
    }
 
-   public void destroyQueue(final String name, final int i) throws Exception
-   {
+   public void destroyQueue(final String name, final int i) throws Exception {
       ActiveMQServerTestCase.servers.get(i).destroyQueue(name, null);
    }
 
-   public boolean checkNoMessageData()
-   {
+   public boolean checkNoMessageData() {
       return false;
    }
 
-   public boolean checkEmpty(final Queue queue) throws Exception
-   {
+   public boolean checkEmpty(final Queue queue) throws Exception {
       Long messageCount = ActiveMQServerTestCase.servers.get(0).getMessageCountForQueue(queue.getQueueName());
-      if (messageCount > 0)
-      {
+      if (messageCount > 0) {
          removeAllMessages(queue.getQueueName(), true);
       }
       return true;
    }
 
-   public boolean checkEmpty(final Queue queue, final int i)
-   {
+   public boolean checkEmpty(final Queue queue, final int i) {
       return true;
    }
 
-   public boolean checkEmpty(final Topic topic)
-   {
+   public boolean checkEmpty(final Topic topic) {
       return true;
    }
 
-   protected void removeAllMessages(final String destName, final boolean isQueue) throws Exception
-   {
+   protected void removeAllMessages(final String destName, final boolean isQueue) throws Exception {
       ActiveMQServerTestCase.servers.get(0).removeAllMessages(destName, isQueue);
    }
 
-   protected boolean assertRemainingMessages(final int expected) throws Exception
-   {
+   protected boolean assertRemainingMessages(final int expected) throws Exception {
       String queueName = "Queue1";
       Binding binding = servers.get(0).getActiveMQServer().getPostOffice().getBinding(SimpleString.toSimpleString("jms.queue." + queueName));
-      if (binding != null && binding instanceof LocalQueueBinding)
-      {
-         ((LocalQueueBinding)binding).getQueue().flushExecutor();
+      if (binding != null && binding instanceof LocalQueueBinding) {
+         ((LocalQueueBinding) binding).getQueue().flushExecutor();
       }
       Long messageCount = ActiveMQServerTestCase.servers.get(0).getMessageCountForQueue(queueName);
 
@@ -439,44 +381,39 @@ public abstract class ActiveMQServerTestCase
       return expected == messageCount.intValue();
    }
 
-   protected static void assertActiveConnectionsOnTheServer(final int expectedSize) throws Exception
-   {
-      ProxyAssertSupport.assertEquals(expectedSize, ActiveMQServerTestCase.servers.get(0)
-         .getActiveMQServer()
-         .getActiveMQServerControl()
-         .getConnectionCount());
+   protected static void assertActiveConnectionsOnTheServer(final int expectedSize) throws Exception {
+      ProxyAssertSupport.assertEquals(expectedSize, ActiveMQServerTestCase.servers.get(0).getActiveMQServer().getActiveMQServerControl().getConnectionCount());
    }
 
    public static void deployConnectionFactory(final String clientId,
                                               final String objectName,
-                                              final String... jndiBindings) throws Exception
-   {
+                                              final String... jndiBindings) throws Exception {
       ActiveMQServerTestCase.servers.get(0).deployConnectionFactory(clientId, objectName, jndiBindings);
    }
 
    public static void deployConnectionFactory(final String objectName,
                                               final int prefetchSize,
-                                              final String... jndiBindings) throws Exception
-   {
+                                              final String... jndiBindings) throws Exception {
       ActiveMQServerTestCase.servers.get(0).deployConnectionFactory(objectName, prefetchSize, jndiBindings);
    }
-
 
    public static void deployConnectionFactory(final int server,
                                               final String objectName,
                                               final int prefetchSize,
-                                              final String... jndiBindings) throws Exception
-   {
+                                              final String... jndiBindings) throws Exception {
       ActiveMQServerTestCase.servers.get(server).deployConnectionFactory(objectName, prefetchSize, jndiBindings);
    }
 
-   public static void deployConnectionFactory(final int server, final String objectName, final String... jndiBindings) throws Exception
-   {
+   public static void deployConnectionFactory(final int server,
+                                              final String objectName,
+                                              final String... jndiBindings) throws Exception {
       ActiveMQServerTestCase.servers.get(server).deployConnectionFactory(objectName, jndiBindings);
    }
 
-   public static void deployConnectionFactory(final int server, JMSFactoryType type, final String objectName, final String... jndiBindings) throws Exception
-   {
+   public static void deployConnectionFactory(final int server,
+                                              JMSFactoryType type,
+                                              final String objectName,
+                                              final String... jndiBindings) throws Exception {
       ActiveMQServerTestCase.servers.get(server).deployConnectionFactory(objectName, type, jndiBindings);
    }
 
@@ -490,20 +427,8 @@ public abstract class ActiveMQServerTestCase
                                        final boolean supportsLoadBalancing,
                                        final int dupsOkBatchSize,
                                        final boolean blockOnAcknowledge,
-                                       final String... jndiBindings) throws Exception
-   {
-      ActiveMQServerTestCase.servers.get(0).deployConnectionFactory(clientId,
-                                                                   JMSFactoryType.CF,
-                                                                   objectName,
-                                                                   prefetchSize,
-                                                                   defaultTempQueueFullSize,
-                                                                   defaultTempQueuePageSize,
-                                                                   defaultTempQueueDownCacheSize,
-                                                                   supportsFailover,
-                                                                   supportsLoadBalancing,
-                                                                   dupsOkBatchSize,
-                                                                   blockOnAcknowledge,
-                                                                   jndiBindings);
+                                       final String... jndiBindings) throws Exception {
+      ActiveMQServerTestCase.servers.get(0).deployConnectionFactory(clientId, JMSFactoryType.CF, objectName, prefetchSize, defaultTempQueueFullSize, defaultTempQueuePageSize, defaultTempQueueDownCacheSize, supportsFailover, supportsLoadBalancing, dupsOkBatchSize, blockOnAcknowledge, jndiBindings);
    }
 
    public static void deployConnectionFactory(final String objectName,
@@ -511,54 +436,42 @@ public abstract class ActiveMQServerTestCase
                                               final int defaultTempQueueFullSize,
                                               final int defaultTempQueuePageSize,
                                               final int defaultTempQueueDownCacheSize,
-                                              final String... jndiBindings) throws Exception
-   {
-      ActiveMQServerTestCase.servers.get(0).deployConnectionFactory(objectName,
-                                                                   prefetchSize,
-                                                                   defaultTempQueueFullSize,
-                                                                   defaultTempQueuePageSize,
-                                                                   defaultTempQueueDownCacheSize,
-                                                                   jndiBindings);
+                                              final String... jndiBindings) throws Exception {
+      ActiveMQServerTestCase.servers.get(0).deployConnectionFactory(objectName, prefetchSize, defaultTempQueueFullSize, defaultTempQueuePageSize, defaultTempQueueDownCacheSize, jndiBindings);
    }
 
-   public static void undeployConnectionFactory(final String objectName) throws Exception
-   {
+   public static void undeployConnectionFactory(final String objectName) throws Exception {
       ActiveMQServerTestCase.servers.get(0).undeployConnectionFactory(objectName);
    }
 
-   protected List<String> listAllSubscribersForTopic(final String s) throws Exception
-   {
+   protected List<String> listAllSubscribersForTopic(final String s) throws Exception {
       return ActiveMQServerTestCase.servers.get(0).listAllSubscribersForTopic(s);
    }
 
-   protected Long getMessageCountForQueue(final String s) throws Exception
-   {
+   protected Long getMessageCountForQueue(final String s) throws Exception {
       return ActiveMQServerTestCase.servers.get(0).getMessageCountForQueue(s);
    }
 
-   protected Set<Role> getSecurityConfig() throws Exception
-   {
+   protected Set<Role> getSecurityConfig() throws Exception {
       return ActiveMQServerTestCase.servers.get(0).getSecurityConfig();
    }
 
-   protected void setSecurityConfig(final Set<Role> defConfig) throws Exception
-   {
+   protected void setSecurityConfig(final Set<Role> defConfig) throws Exception {
       ActiveMQServerTestCase.servers.get(0).setSecurityConfig(defConfig);
    }
 
-   protected void setSecurityConfigOnManager(final String destination, final boolean isQueue, final Set<Role> roles) throws Exception
-   {
+   protected void setSecurityConfigOnManager(final String destination,
+                                             final boolean isQueue,
+                                             final Set<Role> roles) throws Exception {
       ActiveMQServerTestCase.servers.get(0).configureSecurityForDestination(destination, isQueue, roles);
    }
 
-   protected final JMSContext addContext(JMSContext createContext)
-   {
+   protected final JMSContext addContext(JMSContext createContext) {
       contextSet.add(createContext);
       return createContext;
    }
 
-   protected final Connection addConnection(Connection conn)
-   {
+   protected final Connection addConnection(Connection conn) {
       connectionsSet.add(conn);
       return conn;
    }

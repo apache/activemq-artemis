@@ -30,60 +30,59 @@ import javax.jms.Session;
 import javax.jms.TemporaryQueue;
 
 public class TwoSecureBrokerRequestReplyTest extends JmsMultipleBrokersTestSupport {
-    private static final Logger LOG = LoggerFactory.getLogger(TwoSecureBrokerRequestReplyTest.class);
 
-    public void setUp() throws Exception {
-        super.setAutoFail(true);
-        super.setUp();
+   private static final Logger LOG = LoggerFactory.getLogger(TwoSecureBrokerRequestReplyTest.class);
 
-        createBroker(new ClassPathResource("org/apache/activemq/usecases/sender-secured.xml"));
-        createBroker(new ClassPathResource("org/apache/activemq/usecases/receiver-secured.xml"));
-    }
+   public void setUp() throws Exception {
+      super.setAutoFail(true);
+      super.setUp();
 
-    public void testRequestReply() throws Exception {
-        ActiveMQQueue requestReplyDest = new ActiveMQQueue("RequestReply");
+      createBroker(new ClassPathResource("org/apache/activemq/usecases/sender-secured.xml"));
+      createBroker(new ClassPathResource("org/apache/activemq/usecases/receiver-secured.xml"));
+   }
 
-        startAllBrokers();
-        waitForBridgeFormation();
-        waitForMinTopicRegionConsumerCount("sender", 1);
-        waitForMinTopicRegionConsumerCount("receiver", 1);
+   public void testRequestReply() throws Exception {
+      ActiveMQQueue requestReplyDest = new ActiveMQQueue("RequestReply");
 
+      startAllBrokers();
+      waitForBridgeFormation();
+      waitForMinTopicRegionConsumerCount("sender", 1);
+      waitForMinTopicRegionConsumerCount("receiver", 1);
 
-        ConnectionFactory factory = getConnectionFactory("sender");
-        ActiveMQConnection conn = (ActiveMQConnection) factory.createConnection("system", "manager");
-        conn.setWatchTopicAdvisories(false);
-        conn.start();
-        Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      ConnectionFactory factory = getConnectionFactory("sender");
+      ActiveMQConnection conn = (ActiveMQConnection) factory.createConnection("system", "manager");
+      conn.setWatchTopicAdvisories(false);
+      conn.start();
+      Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-        ConnectionFactory replyFactory = getConnectionFactory("receiver");
-        for (int i = 0; i < 2000; i++) {
-            TemporaryQueue tempDest = session.createTemporaryQueue();
-            MessageProducer producer = session.createProducer(requestReplyDest);
-            javax.jms.Message message = session.createTextMessage("req-" + i);
-            message.setJMSReplyTo(tempDest);
+      ConnectionFactory replyFactory = getConnectionFactory("receiver");
+      for (int i = 0; i < 2000; i++) {
+         TemporaryQueue tempDest = session.createTemporaryQueue();
+         MessageProducer producer = session.createProducer(requestReplyDest);
+         javax.jms.Message message = session.createTextMessage("req-" + i);
+         message.setJMSReplyTo(tempDest);
 
-            ActiveMQMessageConsumer consumer = (ActiveMQMessageConsumer) session.createConsumer(tempDest);
-            producer.send(message);
+         ActiveMQMessageConsumer consumer = (ActiveMQMessageConsumer) session.createConsumer(tempDest);
+         producer.send(message);
 
-            ActiveMQConnection replyConnection = (ActiveMQConnection) replyFactory.createConnection("system", "manager");
-            replyConnection.setWatchTopicAdvisories(false);
-            replyConnection.start();
-            Session replySession = replyConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-            ActiveMQMessageConsumer replyConsumer = (ActiveMQMessageConsumer) replySession.createConsumer(requestReplyDest);
-            javax.jms.Message msg = replyConsumer.receive(10000);
-            assertNotNull("request message not null: " + i, msg);
-            MessageProducer replyProducer = replySession.createProducer(msg.getJMSReplyTo());
-            replyProducer.send(session.createTextMessage("reply-" + i));
-            replyConnection.close();
+         ActiveMQConnection replyConnection = (ActiveMQConnection) replyFactory.createConnection("system", "manager");
+         replyConnection.setWatchTopicAdvisories(false);
+         replyConnection.start();
+         Session replySession = replyConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         ActiveMQMessageConsumer replyConsumer = (ActiveMQMessageConsumer) replySession.createConsumer(requestReplyDest);
+         javax.jms.Message msg = replyConsumer.receive(10000);
+         assertNotNull("request message not null: " + i, msg);
+         MessageProducer replyProducer = replySession.createProducer(msg.getJMSReplyTo());
+         replyProducer.send(session.createTextMessage("reply-" + i));
+         replyConnection.close();
 
-            javax.jms.Message reply = consumer.receive(10000);
-            assertNotNull("reply message : " + i + ", to: " + tempDest + ", by consumer:" + consumer.getConsumerId(), reply);
-            consumer.close();
-            tempDest.delete();
-            LOG.info("message #" + i + " processed");
-        }
+         javax.jms.Message reply = consumer.receive(10000);
+         assertNotNull("reply message : " + i + ", to: " + tempDest + ", by consumer:" + consumer.getConsumerId(), reply);
+         consumer.close();
+         tempDest.delete();
+         LOG.info("message #" + i + " processed");
+      }
 
-    }
-
+   }
 
 }

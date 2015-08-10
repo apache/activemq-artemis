@@ -26,35 +26,28 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Map;
 
-public class InVMServerLocatorSchema extends AbstractServerLocatorSchema
-{
+public class InVMServerLocatorSchema extends AbstractServerLocatorSchema {
+
    @Override
-   public String getSchemaName()
-   {
+   public String getSchemaName() {
       return SchemaConstants.VM;
    }
 
    @Override
-   protected ServerLocator internalNewObject(URI uri, Map<String, String> query, String name) throws Exception
-   {
+   protected ServerLocator internalNewObject(URI uri, Map<String, String> query, String name) throws Exception {
       TransportConfiguration tc = InVMTransportConfigurationSchema.createTransportConfiguration(uri, query, name, "org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory");
       ServerLocator factory = ActiveMQClient.createServerLocatorWithoutHA(tc);
       return URISchema.setData(uri, factory, query);
    }
 
-
-
    @Override
-   protected URI internalNewURI(ServerLocator bean) throws Exception
-   {
+   protected URI internalNewURI(ServerLocator bean) throws Exception {
       return getUri(bean.getStaticTransportConfigurations());
    }
 
-   public static URI getUri(TransportConfiguration[] configurations) throws URISyntaxException
-   {
+   public static URI getUri(TransportConfiguration[] configurations) throws URISyntaxException {
       String host = "0";
-      if (configurations != null && configurations.length > 0)
-      {
+      if (configurations != null && configurations.length > 0) {
          TransportConfiguration configuration = configurations[0];
          Map<String, Object> params = configuration.getParams();
          host = params.get("serverId") == null ? host : params.get("serverId").toString();

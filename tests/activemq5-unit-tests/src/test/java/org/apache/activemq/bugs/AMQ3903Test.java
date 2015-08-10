@@ -43,99 +43,102 @@ import org.slf4j.LoggerFactory;
 
 public class AMQ3903Test {
 
-    private static final transient Logger LOG = LoggerFactory.getLogger(AMQ3903Test.class);
+   private static final transient Logger LOG = LoggerFactory.getLogger(AMQ3903Test.class);
 
-    private static final String bindAddress = "tcp://0.0.0.0:0";
-    private BrokerService broker;
-    private ActiveMQConnectionFactory cf;
+   private static final String bindAddress = "tcp://0.0.0.0:0";
+   private BrokerService broker;
+   private ActiveMQConnectionFactory cf;
 
-    private static final int MESSAGE_COUNT = 100;
+   private static final int MESSAGE_COUNT = 100;
 
-    @Before
-    public void setUp() throws Exception {
-        broker = this.createBroker();
-        String address = broker.getTransportConnectors().get(0).getPublishableConnectString();
-        broker.start();
-        broker.waitUntilStarted();
+   @Before
+   public void setUp() throws Exception {
+      broker = this.createBroker();
+      String address = broker.getTransportConnectors().get(0).getPublishableConnectString();
+      broker.start();
+      broker.waitUntilStarted();
 
-        cf = new ActiveMQConnectionFactory(address);
-    }
+      cf = new ActiveMQConnectionFactory(address);
+   }
 
-    @After
-    public void tearDown() throws Exception {
-        if (broker != null) {
-            broker.stop();
-            broker.waitUntilStopped();
-        }
-    }
+   @After
+   public void tearDown() throws Exception {
+      if (broker != null) {
+         broker.stop();
+         broker.waitUntilStopped();
+      }
+   }
 
-    @Test
-    public void testAdvisoryForFastGenericProducer() throws Exception {
-        doTestAdvisoryForFastProducer(true);
-    }
+   @Test
+   public void testAdvisoryForFastGenericProducer() throws Exception {
+      doTestAdvisoryForFastProducer(true);
+   }
 
-    @Test
-    public void testAdvisoryForFastDedicatedProducer() throws Exception {
-        doTestAdvisoryForFastProducer(false);
-    }
+   @Test
+   public void testAdvisoryForFastDedicatedProducer() throws Exception {
+      doTestAdvisoryForFastProducer(false);
+   }
 
-    public void doTestAdvisoryForFastProducer(boolean genericProducer) throws Exception {
+   public void doTestAdvisoryForFastProducer(boolean genericProducer) throws Exception {
 
-        Connection connection = cf.createConnection();
-        connection.start();
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      Connection connection = cf.createConnection();
+      connection.start();
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-        final TemporaryQueue queue = session.createTemporaryQueue();
+      final TemporaryQueue queue = session.createTemporaryQueue();
 
-        final Topic advisoryTopic = AdvisorySupport.getFastProducerAdvisoryTopic((ActiveMQDestination) queue);
-        final Topic advisoryWhenFullTopic = AdvisorySupport.getFullAdvisoryTopic((ActiveMQDestination) queue);
+      final Topic advisoryTopic = AdvisorySupport.getFastProducerAdvisoryTopic((ActiveMQDestination) queue);
+      final Topic advisoryWhenFullTopic = AdvisorySupport.getFullAdvisoryTopic((ActiveMQDestination) queue);
 
-        MessageConsumer advisoryConsumer = session.createConsumer(advisoryTopic);
-        MessageConsumer advisoryWhenFullConsumer = session.createConsumer(advisoryWhenFullTopic);
+      MessageConsumer advisoryConsumer = session.createConsumer(advisoryTopic);
+      MessageConsumer advisoryWhenFullConsumer = session.createConsumer(advisoryWhenFullTopic);
 
-        MessageProducer producer = session.createProducer(genericProducer ? null : queue);
+      MessageProducer producer = session.createProducer(genericProducer ? null : queue);
 
-        try {
-            // send lots of messages to the tempQueue
-            for (int i = 0; i < MESSAGE_COUNT; i++) {
-                BytesMessage m = session.createBytesMessage();
-                m.writeBytes(new byte[1024]);
-                if (genericProducer) {
-                    producer.send(queue, m, DeliveryMode.PERSISTENT, 4, 0);
-                } else {
-                    producer.send(m);
-                }
+      try {
+         // send lots of messages to the tempQueue
+         for (int i = 0; i < MESSAGE_COUNT; i++) {
+            BytesMessage m = session.createBytesMessage();
+            m.writeBytes(new byte[1024]);
+            if (genericProducer) {
+               producer.send(queue, m, DeliveryMode.PERSISTENT, 4, 0);
             }
-        } catch (ResourceAllocationException expectedOnLimitReachedAfterFastAdvisory) {}
+            else {
+               producer.send(m);
+            }
+         }
+      }
+      catch (ResourceAllocationException expectedOnLimitReachedAfterFastAdvisory) {
+      }
 
-        // check one advisory message has produced on the advisoryTopic
-        Message advCmsg = advisoryConsumer.receive(4000);
-        assertNotNull(advCmsg);
+      // check one advisory message has produced on the advisoryTopic
+      Message advCmsg = advisoryConsumer.receive(4000);
+      assertNotNull(advCmsg);
 
-        advCmsg = advisoryWhenFullConsumer.receive(4000);
-        assertNotNull(advCmsg);
+      advCmsg = advisoryWhenFullConsumer.receive(4000);
+      assertNotNull(advCmsg);
 
-        connection.close();
-        LOG.debug("Connection closed, destinations should now become inactive.");
-    }
+      connection.close();
+      LOG.debug("Connection closed, destinations should now become inactive.");
+   }
 
-    protected BrokerService createBroker() throws Exception {
-        BrokerService answer = new BrokerService();
-        answer.setPersistent(false);
-        answer.setUseJmx(false);
+   protected BrokerService createBroker() throws Exception {
+      BrokerService answer = new BrokerService();
+      answer.setPersistent(false);
+      answer.setUseJmx(false);
 
-        PolicyEntry entry = new PolicyEntry();
-        entry.setAdvisoryForFastProducers(true);
-        entry.setAdvisoryWhenFull(true);
-        entry.setMemoryLimit(10000);
-        PolicyMap map = new PolicyMap();
-        map.setDefaultEntry(entry);
+      PolicyEntry entry = new PolicyEntry();
+      entry.setAdvisoryForFastProducers(true);
+      entry.setAdvisoryWhenFull(true);
+      entry.setMemoryLimit(10000);
+      PolicyMap map = new PolicyMap();
+      map.setDefaultEntry(entry);
 
-        answer.setDestinationPolicy(map);
-        answer.addConnector(bindAddress);
+      answer.setDestinationPolicy(map);
+      answer.addConnector(bindAddress);
 
-        answer.getSystemUsage().setSendFailIfNoSpace(true);
+      answer.getSystemUsage().setSendFailIfNoSpace(true);
 
-        return answer;
-    }
+      return answer;
+   }
 }

@@ -55,8 +55,8 @@ import org.apache.activemq.artemis.utils.UUIDGenerator;
  * <p>
  * Such as such adding extra properties and setting up notifications between the nodes.
  */
-public class ClusterConnectionBridge extends BridgeImpl
-{
+public class ClusterConnectionBridge extends BridgeImpl {
+
    private final ClusterConnection clusterConnection;
 
    private final ClusterManager clusterManager;
@@ -75,7 +75,8 @@ public class ClusterConnectionBridge extends BridgeImpl
 
    private final ServerLocatorInternal discoveryLocator;
 
-   public ClusterConnectionBridge(final ClusterConnection clusterConnection, final ClusterManager clusterManager,
+   public ClusterConnectionBridge(final ClusterConnection clusterConnection,
+                                  final ClusterManager clusterManager,
                                   final ServerLocatorInternal targetLocator,
                                   final ServerLocatorInternal discoveryLocator,
                                   final int initialConnectAttempts,
@@ -100,27 +101,9 @@ public class ClusterConnectionBridge extends BridgeImpl
                                   final SimpleString managementAddress,
                                   final SimpleString managementNotificationAddress,
                                   final MessageFlowRecord flowRecord,
-                                  final TransportConfiguration connector)
-   {
-      super(targetLocator,
-            initialConnectAttempts,
-            reconnectAttempts,
-            0, // reconnectAttemptsOnSameNode means nothing on the clustering bridge since we always try the same
-            retryInterval,
-            retryMultiplier,
-            maxRetryInterval,
-            nodeUUID,
-            name,
-            queue,
-            executor,
-            filterString,
-            forwardingAddress,
-            scheduledExecutor,
-            transformer,
-            useDuplicateDetection,
-            user,
-            password,
-            storageManager);
+                                  final TransportConfiguration connector) {
+      super(targetLocator, initialConnectAttempts, reconnectAttempts, 0, // reconnectAttemptsOnSameNode means nothing on the clustering bridge since we always try the same
+            retryInterval, retryMultiplier, maxRetryInterval, nodeUUID, name, queue, executor, filterString, forwardingAddress, scheduledExecutor, transformer, useDuplicateDetection, user, password, storageManager);
 
       this.discoveryLocator = discoveryLocator;
 
@@ -139,22 +122,18 @@ public class ClusterConnectionBridge extends BridgeImpl
       // we need to disable DLQ check on the clustered bridges
       queue.setInternalQueue(true);
 
-      if (ActiveMQServerLogger.LOGGER.isTraceEnabled())
-      {
-         ActiveMQServerLogger.LOGGER.trace("Setting up bridge between " + clusterConnection.getConnector() + " and " + targetLocator,
-                                          new Exception("trace"));
+      if (ActiveMQServerLogger.LOGGER.isTraceEnabled()) {
+         ActiveMQServerLogger.LOGGER.trace("Setting up bridge between " + clusterConnection.getConnector() + " and " + targetLocator, new Exception("trace"));
       }
    }
 
    @Override
-   protected ClientSessionFactoryInternal createSessionFactory() throws Exception
-   {
+   protected ClientSessionFactoryInternal createSessionFactory() throws Exception {
       serverLocator.setProtocolManagerFactory(ActiveMQServerSideProtocolManagerFactory.getInstance());
       ClientSessionFactoryInternal factory = (ClientSessionFactoryInternal) serverLocator.createSessionFactory(targetNodeID);
       setSessionFactory(factory);
 
-      if (factory == null)
-      {
+      if (factory == null) {
          return null;
       }
       factory.setReconnectAttempts(0);
@@ -163,8 +142,7 @@ public class ClusterConnectionBridge extends BridgeImpl
    }
 
    @Override
-   protected ServerMessage beforeForward(final ServerMessage message)
-   {
+   protected ServerMessage beforeForward(final ServerMessage message) {
       // We make a copy of the message, then we strip out the unwanted routing id headers and leave
       // only
       // the one pertinent for the address node - this is important since different queues on different
@@ -172,8 +150,7 @@ public class ClusterConnectionBridge extends BridgeImpl
       // Note we must copy since same message may get routed to other nodes which require different headers
       ServerMessage messageCopy = message.copy();
 
-      if (ActiveMQServerLogger.LOGGER.isTraceEnabled())
-      {
+      if (ActiveMQServerLogger.LOGGER.isTraceEnabled()) {
          ActiveMQServerLogger.LOGGER.trace("Clustered bridge  copied message " + message + " as " + messageCopy + " before delivery");
       }
 
@@ -183,17 +160,14 @@ public class ClusterConnectionBridge extends BridgeImpl
 
       byte[] queueIds = message.getBytesProperty(idsHeaderName);
 
-      if (queueIds == null)
-      {
+      if (queueIds == null) {
          // Sanity check only
          ActiveMQServerLogger.LOGGER.noQueueIdDefined(message, messageCopy, idsHeaderName);
          throw new IllegalStateException("no queueIDs defined");
       }
 
-      for (SimpleString propName : propNames)
-      {
-         if (propName.startsWith(MessageImpl.HDR_ROUTE_TO_IDS))
-         {
+      for (SimpleString propName : propNames) {
+         if (propName.startsWith(MessageImpl.HDR_ROUTE_TO_IDS)) {
             messageCopy.removeProperty(propName);
          }
       }
@@ -205,35 +179,29 @@ public class ClusterConnectionBridge extends BridgeImpl
       return messageCopy;
    }
 
-   private void setupNotificationConsumer() throws Exception
-   {
-      if (ActiveMQServerLogger.LOGGER.isDebugEnabled())
-      {
+   private void setupNotificationConsumer() throws Exception {
+      if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
          ActiveMQServerLogger.LOGGER.debug("Setting up notificationConsumer between " + this.clusterConnection.getConnector() +
-                                             " and " +
-                                             flowRecord.getBridge().getForwardingConnection() +
-                                             " clusterConnection = " +
-                                             this.clusterConnection.getName() +
-                                             " on server " +
-                                             clusterConnection.getServer());
+                                              " and " +
+                                              flowRecord.getBridge().getForwardingConnection() +
+                                              " clusterConnection = " +
+                                              this.clusterConnection.getName() +
+                                              " on server " +
+                                              clusterConnection.getServer());
       }
-      if (flowRecord != null)
-      {
+      if (flowRecord != null) {
          flowRecord.reset();
 
-         if (notifConsumer != null)
-         {
-            try
-            {
+         if (notifConsumer != null) {
+            try {
                ActiveMQServerLogger.LOGGER.debug("Closing notification Consumer for reopening " + notifConsumer +
-                                                   " on bridge " +
-                                                   this.getName());
+                                                    " on bridge " +
+                                                    this.getName());
                notifConsumer.close();
 
                notifConsumer = null;
             }
-            catch (ActiveMQException e)
-            {
+            catch (ActiveMQException e) {
                ActiveMQServerLogger.LOGGER.errorClosingConsumer(e);
             }
          }
@@ -281,20 +249,14 @@ public class ClusterConnectionBridge extends BridgeImpl
          session.start();
 
          ClientMessage message = session.createMessage(false);
-         if (ActiveMQServerLogger.LOGGER.isTraceEnabled())
-         {
+         if (ActiveMQServerLogger.LOGGER.isTraceEnabled()) {
             ActiveMQServerLogger.LOGGER.trace("Requesting sendQueueInfoToQueue through " + this, new Exception("trace"));
          }
-         ManagementHelper.putOperationInvocation(message,
-                                                 ResourceNames.CORE_SERVER,
-                                                 "sendQueueInfoToQueue",
-                                                 notifQueueName.toString(),
-                                                 flowRecord.getAddress());
+         ManagementHelper.putOperationInvocation(message, ResourceNames.CORE_SERVER, "sendQueueInfoToQueue", notifQueueName.toString(), flowRecord.getAddress());
 
          ClientProducer prod = session.createProducer(managementAddress);
 
-         if (ActiveMQServerLogger.LOGGER.isDebugEnabled())
-         {
+         if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
             ActiveMQServerLogger.LOGGER.debug("Cluster connetion bridge on " + clusterConnection + " requesting information on queues");
          }
 
@@ -305,22 +267,19 @@ public class ClusterConnectionBridge extends BridgeImpl
    /**
     * Takes in a string of an address filter or comma separated list and generates an appropriate JMS selector for
     * filtering queues.
+    *
     * @param address
     */
-   public static String createSelectorFromAddress(String address)
-   {
+   public static String createSelectorFromAddress(String address) {
       StringBuilder stringBuilder = new StringBuilder();
 
       // Support standard address (not a list) case.
-      if (!address.contains(","))
-      {
-         if (address.startsWith("!"))
-         {
+      if (!address.contains(",")) {
+         if (address.startsWith("!")) {
             stringBuilder.append(ManagementHelper.HDR_ADDRESS + " NOT LIKE '" + address.substring(1, address.length()) + "%'");
          }
-         else
-         {
-            stringBuilder.append(ManagementHelper.HDR_ADDRESS +  " LIKE '" + address + "%'");
+         else {
+            stringBuilder.append(ManagementHelper.HDR_ADDRESS + " LIKE '" + address + "%'");
          }
          return stringBuilder.toString();
       }
@@ -329,84 +288,76 @@ public class ClusterConnectionBridge extends BridgeImpl
       return buildSelectorFromArray(address.split(","));
    }
 
-   public static String buildSelectorFromArray(String[] list)
-   {
+   public static String buildSelectorFromArray(String[] list) {
       List<String> includes = new ArrayList<String>();
       List<String> excludes = new ArrayList<String>();
 
       // Split the list into addresses to match and addresses to exclude.
-      for (int i = 0; i < list.length; i++)
-      {
-         if (list[i].startsWith("!"))
-         {
+      for (int i = 0; i < list.length; i++) {
+         if (list[i].startsWith("!")) {
             excludes.add(list[i].substring(1, list[i].length()));
          }
-         else
-         {
+         else {
             includes.add(list[i]);
          }
       }
 
       // Build the address matching part of the selector
       StringBuilder builder = new StringBuilder("(");
-      if (includes.size() > 0)
-      {
-         if (excludes.size() > 0) builder.append("(");
-         for (int i = 0; i < includes.size(); i++)
-         {
+      if (includes.size() > 0) {
+         if (excludes.size() > 0)
+            builder.append("(");
+         for (int i = 0; i < includes.size(); i++) {
             builder.append("(" + ManagementHelper.HDR_ADDRESS + " LIKE '" + includes.get(i) + "%')");
-            if (i < includes.size() - 1) builder.append(" OR ");
+            if (i < includes.size() - 1)
+               builder.append(" OR ");
          }
-         if (excludes.size() > 0) builder.append(")");
+         if (excludes.size() > 0)
+            builder.append(")");
       }
 
       // Build the address exclusion part of the selector
-      if (excludes.size() > 0)
-      {
-         if (includes.size() > 0) builder.append(" AND (");
-         for (int i = 0; i < excludes.size(); i++)
-         {
+      if (excludes.size() > 0) {
+         if (includes.size() > 0)
+            builder.append(" AND (");
+         for (int i = 0; i < excludes.size(); i++) {
             builder.append("(" + ManagementHelper.HDR_ADDRESS + " NOT LIKE '" + excludes.get(i) + "%')");
-            if (i < excludes.size() - 1) builder.append(" AND ");
+            if (i < excludes.size() - 1)
+               builder.append(" AND ");
          }
-         if (includes.size() > 0) builder.append(")");
+         if (includes.size() > 0)
+            builder.append(")");
       }
       builder.append(")");
       return builder.toString();
    }
 
    @Override
-   protected void afterConnect() throws Exception
-   {
+   protected void afterConnect() throws Exception {
       super.afterConnect();
       setupNotificationConsumer();
    }
 
    @Override
-   protected void tryScheduleRetryReconnect(final ActiveMQExceptionType type)
-   {
+   protected void tryScheduleRetryReconnect(final ActiveMQExceptionType type) {
       scheduleRetryConnect();
    }
 
    @Override
-   protected void fail(final boolean permanently)
-   {
+   protected void fail(final boolean permanently) {
       ActiveMQServerLogger.LOGGER.debug("Cluster Bridge " + this.getName() + " failed, permanently=" + permanently);
       super.fail(permanently);
 
-      if (permanently)
-      {
+      if (permanently) {
          ActiveMQServerLogger.LOGGER.debug("cluster node for bridge " + this.getName() + " is permanently down");
          clusterConnection.removeRecord(targetNodeID);
       }
-      else
-      {
+      else {
          clusterConnection.disconnectRecord(targetNodeID);
       }
    }
 
-   protected boolean isPlainCoreBridge()
-   {
+   protected boolean isPlainCoreBridge() {
       return false;
    }
 }

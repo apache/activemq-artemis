@@ -42,299 +42,298 @@ import org.apache.activemq.store.kahadb.KahaDBPersistenceAdapter;
 
 public class DurableSubscriptionUnsubscribeTest extends TestSupport {
 
-    BrokerService broker = null;
-    Connection connection = null;
-    ActiveMQTopic topic;
+   BrokerService broker = null;
+   Connection connection = null;
+   ActiveMQTopic topic;
 
-    public void testJMXSubscriptionUnsubscribe() throws Exception {
-        doJMXUnsubscribe(false);
-    }
+   public void testJMXSubscriptionUnsubscribe() throws Exception {
+      doJMXUnsubscribe(false);
+   }
 
-    public void testJMXSubscriptionUnsubscribeWithRestart() throws Exception {
-        doJMXUnsubscribe(true);
-    }
+   public void testJMXSubscriptionUnsubscribeWithRestart() throws Exception {
+      doJMXUnsubscribe(true);
+   }
 
-    public void testConnectionSubscriptionUnsubscribe() throws Exception {
-        doConnectionUnsubscribe(false);
-    }
+   public void testConnectionSubscriptionUnsubscribe() throws Exception {
+      doConnectionUnsubscribe(false);
+   }
 
-    public void testConnectionSubscriptionUnsubscribeWithRestart() throws Exception {
-        doConnectionUnsubscribe(true);
-    }
+   public void testConnectionSubscriptionUnsubscribeWithRestart() throws Exception {
+      doConnectionUnsubscribe(true);
+   }
 
-    public void testDirectSubscriptionUnsubscribe() throws Exception {
-        doDirectUnsubscribe(false);
-    }
+   public void testDirectSubscriptionUnsubscribe() throws Exception {
+      doDirectUnsubscribe(false);
+   }
 
-    public void testDirectubscriptionUnsubscribeWithRestart() throws Exception {
-        doDirectUnsubscribe(true);
-    }
+   public void testDirectubscriptionUnsubscribeWithRestart() throws Exception {
+      doDirectUnsubscribe(true);
+   }
 
-    public void doJMXUnsubscribe(boolean restart) throws Exception {
-        createSubscriptions();
-        createAdvisorySubscription();
+   public void doJMXUnsubscribe(boolean restart) throws Exception {
+      createSubscriptions();
+      createAdvisorySubscription();
 
-        Thread.sleep(1000);
-        assertCount(100, 0);
+      Thread.sleep(1000);
+      assertCount(100, 0);
 
-        if (restart) {
-            restartBroker();
-            createAdvisorySubscription();
-            assertCount(100, 0);
-        }
+      if (restart) {
+         restartBroker();
+         createAdvisorySubscription();
+         assertCount(100, 0);
+      }
 
-        ObjectName[] subs = broker.getAdminView().getInactiveDurableTopicSubscribers();
+      ObjectName[] subs = broker.getAdminView().getInactiveDurableTopicSubscribers();
 
-        for (int i = 0; i < subs.length; i++) {
-            ObjectName subName = subs[i];
-            DurableSubscriptionViewMBean sub = (DurableSubscriptionViewMBean)broker.getManagementContext().newProxyInstance(subName, DurableSubscriptionViewMBean.class, true);
-            sub.destroy();
+      for (int i = 0; i < subs.length; i++) {
+         ObjectName subName = subs[i];
+         DurableSubscriptionViewMBean sub = (DurableSubscriptionViewMBean) broker.getManagementContext().newProxyInstance(subName, DurableSubscriptionViewMBean.class, true);
+         sub.destroy();
 
-            if (i % 20 == 0) {
-                Thread.sleep(1000);
-                assertCount(100 - i - 1, 0);
+         if (i % 20 == 0) {
+            Thread.sleep(1000);
+            assertCount(100 - i - 1, 0);
+         }
+      }
+
+      Thread.sleep(1000);
+      assertCount(0, 0);
+
+      if (restart) {
+         restartBroker();
+         createAdvisorySubscription();
+         assertCount(0, 0);
+      }
+   }
+
+   public void doConnectionUnsubscribe(boolean restart) throws Exception {
+      createSubscriptions();
+      createAdvisorySubscription();
+
+      Thread.sleep(1000);
+      assertCount(100, 0);
+
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      session.createDurableSubscriber(topic, "SubsId1");
+
+      Thread.sleep(1000);
+      assertCount(100, 1);
+
+      Session session2 = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      session2.createDurableSubscriber(topic, "SubsId2");
+
+      Thread.sleep(1000);
+      assertCount(100, 2);
+
+      session.close();
+
+      Thread.sleep(1000);
+      assertCount(100, 1);
+
+      session2.close();
+
+      Thread.sleep(1000);
+      assertCount(100, 0);
+
+      if (restart) {
+         restartBroker();
+         createAdvisorySubscription();
+         assertCount(100, 0);
+      }
+
+      for (int i = 0; i < 100; i++) {
+         session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         session.unsubscribe("SubsId" + i);
+         session.close();
+
+         if (i % 20 == 0) {
+            Thread.sleep(1000);
+            assertCount(100 - i - 1, 0);
+         }
+      }
+
+      Thread.sleep(1000);
+      assertCount(0, 0);
+
+      if (restart) {
+         restartBroker();
+         createAdvisorySubscription();
+         assertCount(0, 0);
+      }
+   }
+
+   public void doDirectUnsubscribe(boolean restart) throws Exception {
+      createSubscriptions();
+      createAdvisorySubscription();
+
+      Thread.sleep(1000);
+      assertCount(100, 0);
+
+      if (restart) {
+         restartBroker();
+         createAdvisorySubscription();
+         assertCount(100, 0);
+      }
+
+      for (int i = 0; i < 100; i++) {
+         RemoveSubscriptionInfo info = new RemoveSubscriptionInfo();
+         info.setClientId(getName());
+         info.setSubscriptionName("SubsId" + i);
+         ConnectionContext context = new ConnectionContext();
+         context.setBroker(broker.getRegionBroker());
+         context.setClientId(getName());
+         broker.getBroker().removeSubscription(context, info);
+
+         if (i % 20 == 0) {
+            Thread.sleep(1000);
+            assertCount(100 - i - 1, 0);
+         }
+      }
+
+      assertCount(0, 0);
+
+      if (restart) {
+         restartBroker();
+         createAdvisorySubscription();
+         assertCount(0, 0);
+      }
+   }
+
+   private void createSubscriptions() throws Exception {
+      for (int i = 0; i < 100; i++) {
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         session.createDurableSubscriber(topic, "SubsId" + i);
+         session.close();
+      }
+   }
+
+   private final AtomicInteger advisories = new AtomicInteger(0);
+
+   private void createAdvisorySubscription() throws Exception {
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      MessageConsumer advisoryConsumer = session.createConsumer(AdvisorySupport.getConsumerAdvisoryTopic(topic));
+      advisoryConsumer.setMessageListener(new MessageListener() {
+         @Override
+         public void onMessage(Message message) {
+            if (((ActiveMQMessage) message).getDataStructure() instanceof RemoveSubscriptionInfo) {
+               advisories.incrementAndGet();
             }
-        }
+         }
+      });
+   }
 
-        Thread.sleep(1000);
-        assertCount(0, 0);
+   private void assertCount(int all, int active) throws Exception {
+      int inactive = all - active;
 
-        if (restart) {
-            restartBroker();
-            createAdvisorySubscription();
-            assertCount(0, 0);
-        }
-    }
+      // broker check
+      Destination destination = broker.getDestination(topic);
+      List<Subscription> subs = destination.getConsumers();
+      int cActive = 0, cInactive = 0;
+      for (Subscription sub : subs) {
+         if (sub instanceof DurableTopicSubscription) {
+            DurableTopicSubscription durable = (DurableTopicSubscription) sub;
+            if (durable.isActive())
+               cActive++;
+            else
+               cInactive++;
+         }
+      }
+      assertEquals(active, cActive);
+      assertEquals(inactive, cInactive);
 
-    public void doConnectionUnsubscribe(boolean restart) throws Exception {
-        createSubscriptions();
-        createAdvisorySubscription();
+      // admin view
+      ObjectName[] subscriptions = broker.getAdminView().getDurableTopicSubscribers();
+      assertEquals(active, subscriptions.length);
+      subscriptions = broker.getAdminView().getInactiveDurableTopicSubscribers();
+      assertEquals(inactive, subscriptions.length);
 
-        Thread.sleep(1000);
-        assertCount(100, 0);
+      // check the strange false MBean
+      if (all == 0)
+         assertEquals(0, countMBean());
 
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        session.createDurableSubscriber(topic, "SubsId1");
+      // check if we got all advisories
+      assertEquals(100, all + advisories.get());
+   }
 
-        Thread.sleep(1000);
-        assertCount(100, 1);
+   private int countMBean() throws MalformedObjectNameException, InstanceNotFoundException {
+      int count = 0;
+      for (int i = 0; i < 100; i++) {
+         String name = "org.apache.activemq:BrokerName=" + getName() + ",Type=Subscription,active=false,name=" + getName() + "_SubsId" + i;
+         ObjectName sub = new ObjectName(name);
+         try {
+            broker.getManagementContext().getObjectInstance(sub);
+            count++;
+         }
+         catch (InstanceNotFoundException ignore) {
+            // this should happen
+         }
+      }
+      return count;
+   }
 
-        Session session2 = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        session2.createDurableSubscriber(topic, "SubsId2");
+   private void startBroker(boolean deleteMessages) throws Exception {
+      broker = BrokerFactory.createBroker("broker:(vm://" + getName() + ")");
+      broker.setUseJmx(true);
+      broker.getManagementContext().setCreateConnector(false);
+      broker.setBrokerName(getName());
 
-        Thread.sleep(1000);
-        assertCount(100, 2);
+      broker.setPersistent(true);
+      KahaDBPersistenceAdapter persistenceAdapter = new KahaDBPersistenceAdapter();
+      persistenceAdapter.setDirectory(new File("activemq-data/" + getName()));
+      broker.setPersistenceAdapter(persistenceAdapter);
+      if (deleteMessages) {
+         broker.setDeleteAllMessagesOnStartup(true);
+      }
 
-        session.close();
+      broker.setKeepDurableSubsActive(true);
 
-        Thread.sleep(1000);
-        assertCount(100, 1);
+      broker.start();
+      broker.waitUntilStarted();
 
-        session2.close();
+      connection = createConnection();
+   }
 
-        Thread.sleep(1000);
-        assertCount(100, 0);
+   private void stopBroker() throws Exception {
+      if (connection != null)
+         connection.close();
+      connection = null;
 
-        if (restart) {
-            restartBroker();
-            createAdvisorySubscription();
-            assertCount(100, 0);
-        }
+      if (broker != null) {
+         broker.stop();
+         broker.waitUntilStopped();
+      }
+      broker = null;
+   }
 
-        for (int i = 0; i < 100; i++) {
-            session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-            session.unsubscribe("SubsId" + i);
-            session.close();
+   private void restartBroker() throws Exception {
+      stopBroker();
+      startBroker(false);
+   }
 
-            if (i % 20 == 0) {
-                Thread.sleep(1000);
-                assertCount(100 - i - 1, 0);
-            }
-        }
+   @Override
+   protected ActiveMQConnectionFactory createConnectionFactory() throws Exception {
+      return new ActiveMQConnectionFactory("vm://" + getName() + "?waitForStart=5000&create=false");
+   }
 
-        Thread.sleep(1000);
-        assertCount(0, 0);
+   @Override
+   protected void setUp() throws Exception {
+      super.setUp();
 
-        if (restart) {
-            restartBroker();
-            createAdvisorySubscription();
-            assertCount(0, 0);
-        }
-    }
+      topic = (ActiveMQTopic) createDestination();
+      startBroker(true);
+   }
 
-    public void doDirectUnsubscribe(boolean restart) throws Exception {
-        createSubscriptions();
-        createAdvisorySubscription();
+   @Override
+   protected void tearDown() throws Exception {
+      stopBroker();
+      super.tearDown();
+   }
 
-        Thread.sleep(1000);
-        assertCount(100, 0);
-
-        if (restart) {
-            restartBroker();
-            createAdvisorySubscription();
-            assertCount(100, 0);
-        }
-
-        for (int i = 0; i < 100; i++) {
-            RemoveSubscriptionInfo info = new RemoveSubscriptionInfo();
-            info.setClientId(getName());
-            info.setSubscriptionName("SubsId" + i);
-            ConnectionContext context = new ConnectionContext();
-            context.setBroker(broker.getRegionBroker());
-            context.setClientId(getName());
-            broker.getBroker().removeSubscription(context, info);
-
-            if (i % 20 == 0) {
-                Thread.sleep(1000);
-                assertCount(100 - i - 1, 0);
-            }
-        }
-
-        assertCount(0, 0);
-
-        if (restart) {
-            restartBroker();
-            createAdvisorySubscription();
-            assertCount(0, 0);
-        }
-    }
-
-    private void createSubscriptions() throws Exception {
-        for (int i = 0; i < 100; i++) {
-            Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-            session.createDurableSubscriber(topic, "SubsId" + i);
-            session.close();
-        }
-    }
-
-    private final AtomicInteger advisories = new AtomicInteger(0);
-
-    private void createAdvisorySubscription() throws Exception {
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        MessageConsumer advisoryConsumer = session.createConsumer(AdvisorySupport.getConsumerAdvisoryTopic(topic));
-        advisoryConsumer.setMessageListener(new MessageListener() {
-            @Override
-            public void onMessage(Message message) {
-                if (((ActiveMQMessage)message).getDataStructure() instanceof RemoveSubscriptionInfo) {
-                    advisories.incrementAndGet();
-                }
-            }
-        });
-    }
-
-    private void assertCount(int all, int active) throws Exception {
-        int inactive = all - active;
-
-        // broker check
-        Destination destination = broker.getDestination(topic);
-        List<Subscription> subs = destination.getConsumers();
-        int cActive = 0, cInactive = 0;
-        for (Subscription sub: subs) {
-            if (sub instanceof DurableTopicSubscription) {
-                DurableTopicSubscription durable = (DurableTopicSubscription) sub;
-                if (durable.isActive())
-                    cActive++;
-                else
-                    cInactive++;
-            }
-        }
-        assertEquals(active, cActive);
-        assertEquals(inactive, cInactive);
-
-        // admin view
-        ObjectName[] subscriptions = broker.getAdminView().getDurableTopicSubscribers();
-        assertEquals(active, subscriptions.length);
-        subscriptions = broker.getAdminView().getInactiveDurableTopicSubscribers();
-        assertEquals(inactive, subscriptions.length);
-
-        // check the strange false MBean
-        if (all == 0)
-            assertEquals(0, countMBean());
-
-        // check if we got all advisories
-        assertEquals(100, all + advisories.get());
-    }
-
-    private int countMBean() throws MalformedObjectNameException, InstanceNotFoundException {
-        int count = 0;
-        for (int i = 0; i < 100; i++) {
-            String name = "org.apache.activemq:BrokerName=" + getName() + ",Type=Subscription,active=false,name=" + getName() + "_SubsId" + i;
-            ObjectName sub = new ObjectName(name);
-            try {
-                broker.getManagementContext().getObjectInstance(sub);
-                count++;
-            }
-            catch (InstanceNotFoundException ignore) {
-                // this should happen
-            }
-        }
-        return count;
-    }
-
-    private void startBroker(boolean deleteMessages) throws Exception {
-        broker = BrokerFactory.createBroker("broker:(vm://" + getName() + ")");
-        broker.setUseJmx(true);
-        broker.getManagementContext().setCreateConnector(false);
-        broker.setBrokerName(getName());
-
-        broker.setPersistent(true);
-        KahaDBPersistenceAdapter persistenceAdapter = new KahaDBPersistenceAdapter();
-        persistenceAdapter.setDirectory(new File("activemq-data/" + getName()));
-        broker.setPersistenceAdapter(persistenceAdapter);
-        if (deleteMessages) {
-            broker.setDeleteAllMessagesOnStartup(true);
-        }
-
-
-        broker.setKeepDurableSubsActive(true);
-
-        broker.start();
-        broker.waitUntilStarted();
-
-        connection = createConnection();
-    }
-
-    private void stopBroker() throws Exception {
-        if (connection != null)
-            connection.close();
-        connection = null;
-
-        if (broker != null) {
-            broker.stop();
-            broker.waitUntilStopped();
-        }
-        broker = null;
-    }
-
-    private void restartBroker() throws Exception {
-        stopBroker();
-        startBroker(false);
-    }
-
-    @Override
-    protected ActiveMQConnectionFactory createConnectionFactory() throws Exception {
-        return new ActiveMQConnectionFactory("vm://" + getName() + "?waitForStart=5000&create=false");
-    }
-
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-
-        topic = (ActiveMQTopic) createDestination();
-        startBroker(true);
-    }
-
-    @Override
-    protected void tearDown() throws Exception {
-        stopBroker();
-        super.tearDown();
-    }
-
-    @Override
-    protected Connection createConnection() throws Exception {
-        Connection rc = super.createConnection();
-        rc.setClientID(getName());
-        rc.start();
-        return rc;
-    }
+   @Override
+   protected Connection createConnection() throws Exception {
+      Connection rc = super.createConnection();
+      rc.setClientID(getName());
+      rc.start();
+      return rc;
+   }
 }

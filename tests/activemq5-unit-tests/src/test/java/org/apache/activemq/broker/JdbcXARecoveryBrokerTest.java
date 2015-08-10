@@ -17,6 +17,7 @@
 package org.apache.activemq.broker;
 
 import junit.framework.Test;
+
 import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.command.ActiveMQQueue;
 import org.apache.activemq.store.jdbc.JDBCPersistenceAdapter;
@@ -25,65 +26,66 @@ import org.apache.derby.jdbc.EmbeddedXADataSource;
 
 public class JdbcXARecoveryBrokerTest extends XARecoveryBrokerTest {
 
-    EmbeddedXADataSource dataSource;
+   EmbeddedXADataSource dataSource;
 
-    @Override
-    protected void setUp() throws Exception {
-        dataSource = new EmbeddedXADataSource();
-        dataSource.setDatabaseName("derbyDb");
-        dataSource.setCreateDatabase("create");
-        super.setUp();
-    }
+   @Override
+   protected void setUp() throws Exception {
+      dataSource = new EmbeddedXADataSource();
+      dataSource.setDatabaseName("derbyDb");
+      dataSource.setCreateDatabase("create");
+      super.setUp();
+   }
 
-    @Override
-    protected void tearDown() throws Exception {
-        super.tearDown();
-        stopDerby();
-    }
+   @Override
+   protected void tearDown() throws Exception {
+      super.tearDown();
+      stopDerby();
+   }
 
-    @Override
-    protected void configureBroker(BrokerService broker) throws Exception {
-        super.configureBroker(broker);
+   @Override
+   protected void configureBroker(BrokerService broker) throws Exception {
+      super.configureBroker(broker);
 
-        JDBCPersistenceAdapter jdbc = new JDBCPersistenceAdapter();
-        jdbc.setDataSource(dataSource);
-        broker.setPersistenceAdapter(jdbc);
-    }
+      JDBCPersistenceAdapter jdbc = new JDBCPersistenceAdapter();
+      jdbc.setDataSource(dataSource);
+      broker.setPersistenceAdapter(jdbc);
+   }
 
-    @Override
-    protected void restartBroker() throws Exception {
-        broker.stop();
-        stopDerby();
-        dataSource = new EmbeddedXADataSource();
-        dataSource.setDatabaseName("derbyDb");
-        dataSource.setCreateDatabase("create");
+   @Override
+   protected void restartBroker() throws Exception {
+      broker.stop();
+      stopDerby();
+      dataSource = new EmbeddedXADataSource();
+      dataSource.setDatabaseName("derbyDb");
+      dataSource.setCreateDatabase("create");
 
-        broker = createRestartedBroker();
-        broker.start();
-    }
+      broker = createRestartedBroker();
+      broker.start();
+   }
 
-    private void stopDerby() {
-        LOG.info("STOPPING DB!@!!!!");
-        final EmbeddedDataSource ds = dataSource;
-        try {
-            ds.setShutdownDatabase("shutdown");
-            ds.getConnection();
-        } catch (Exception ignored) {
-        }
+   private void stopDerby() {
+      LOG.info("STOPPING DB!@!!!!");
+      final EmbeddedDataSource ds = dataSource;
+      try {
+         ds.setShutdownDatabase("shutdown");
+         ds.getConnection();
+      }
+      catch (Exception ignored) {
+      }
 
-    }
+   }
 
-    public static Test suite() {
-        return suite(JdbcXARecoveryBrokerTest.class);
-    }
+   public static Test suite() {
+      return suite(JdbcXARecoveryBrokerTest.class);
+   }
 
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(suite());
-    }
+   public static void main(String[] args) {
+      junit.textui.TestRunner.run(suite());
+   }
 
-    @Override
-    protected ActiveMQDestination createDestination() {
-        return new ActiveMQQueue("test,special");
-    }
+   @Override
+   protected ActiveMQDestination createDestination() {
+      return new ActiveMQQueue("test,special");
+   }
 
 }

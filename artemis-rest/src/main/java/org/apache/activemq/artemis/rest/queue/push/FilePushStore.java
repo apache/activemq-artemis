@@ -29,92 +29,83 @@ import org.apache.activemq.artemis.rest.ActiveMQRestLogger;
 import org.apache.activemq.artemis.rest.queue.push.xml.PushRegistration;
 import org.apache.activemq.artemis.rest.topic.PushTopicRegistration;
 
-public class FilePushStore implements PushStore
-{
+public class FilePushStore implements PushStore {
+
    protected Map<String, PushRegistration> map = new HashMap<String, PushRegistration>();
    protected File dir;
    protected JAXBContext ctx;
 
-   public FilePushStore(String dirname) throws Exception
-   {
+   public FilePushStore(String dirname) throws Exception {
       this.dir = new File(dirname);
       this.ctx = JAXBContext.newInstance(PushRegistration.class, PushTopicRegistration.class);
-      if (this.dir.exists())
-      {
+      if (this.dir.exists()) {
          ActiveMQRestLogger.LOGGER.loadingRestStore(dir.getAbsolutePath());
-         for (File file : this.dir.listFiles())
-         {
-            if (!file.isFile()) continue;
+         for (File file : this.dir.listFiles()) {
+            if (!file.isFile())
+               continue;
             PushRegistration reg = null;
-            try
-            {
-               reg = (PushRegistration)ctx.createUnmarshaller().unmarshal(file);
+            try {
+               reg = (PushRegistration) ctx.createUnmarshaller().unmarshal(file);
                reg.setLoadedFrom(file);
                ActiveMQRestLogger.LOGGER.addingPushRegistration(reg.getId());
                map.put(reg.getId(), reg);
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                ActiveMQRestLogger.LOGGER.errorLoadingStore(e, file.getName());
             }
          }
       }
    }
 
-   public synchronized List<PushRegistration> getRegistrations()
-   {
+   public synchronized List<PushRegistration> getRegistrations() {
       List<PushRegistration> list = new ArrayList<PushRegistration>(map.values());
       return list;
    }
 
-   public synchronized List<PushRegistration> getByDestination(String destination)
-   {
+   public synchronized List<PushRegistration> getByDestination(String destination) {
       List<PushRegistration> list = new ArrayList<PushRegistration>();
-      for (PushRegistration reg : map.values())
-      {
-         if (reg.getDestination().equals(destination))
-         {
+      for (PushRegistration reg : map.values()) {
+         if (reg.getDestination().equals(destination)) {
             list.add(reg);
          }
       }
       return list;
    }
 
-   public synchronized void update(PushRegistration reg) throws Exception
-   {
-      if (reg.getLoadedFrom() == null) return;
+   public synchronized void update(PushRegistration reg) throws Exception {
+      if (reg.getLoadedFrom() == null)
+         return;
       save(reg);
    }
 
-   protected void save(PushRegistration reg) throws JAXBException
-   {
+   protected void save(PushRegistration reg) throws JAXBException {
       Marshaller marshaller = ctx.createMarshaller();
       marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-      marshaller.marshal(reg, (File)reg.getLoadedFrom());
+      marshaller.marshal(reg, (File) reg.getLoadedFrom());
    }
 
-   public synchronized void add(PushRegistration reg) throws Exception
-   {
+   public synchronized void add(PushRegistration reg) throws Exception {
       map.put(reg.getId(), reg);
-      if (!this.dir.exists()) this.dir.mkdirs();
+      if (!this.dir.exists())
+         this.dir.mkdirs();
       File fp = new File(dir, "reg-" + reg.getId() + ".xml");
       reg.setLoadedFrom(fp);
       //System.out.println("******* Saving: " + fp.getAbsolutePath());
       save(reg);
    }
 
-   public synchronized void remove(PushRegistration reg) throws Exception
-   {
+   public synchronized void remove(PushRegistration reg) throws Exception {
       map.remove(reg.getId());
-      if (reg.getLoadedFrom() == null) return;
-      File fp = (File)reg.getLoadedFrom();
+      if (reg.getLoadedFrom() == null)
+         return;
+      File fp = (File) reg.getLoadedFrom();
       fp.delete();
    }
 
-   public synchronized void removeAll() throws Exception
-   {
+   public synchronized void removeAll() throws Exception {
       ArrayList<PushRegistration> copy = new ArrayList<PushRegistration>(map.values());
-      for (PushRegistration reg : copy) remove(reg);
+      for (PushRegistration reg : copy)
+         remove(reg);
       this.dir.delete();
    }
 }

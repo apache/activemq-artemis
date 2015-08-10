@@ -19,42 +19,54 @@ package org.apache.activemq.artemis.ra;
 import javax.jms.Session;
 import javax.resource.spi.ConnectionRequestInfo;
 
-
 /**
  * Connection request information
  */
-public class ActiveMQRAConnectionRequestInfo implements ConnectionRequestInfo
-{
-   /** Trace enabled */
+public class ActiveMQRAConnectionRequestInfo implements ConnectionRequestInfo {
+
+   /**
+    * Trace enabled
+    */
    private static boolean trace = ActiveMQRALogger.LOGGER.isTraceEnabled();
 
-   /** The user name */
+   /**
+    * The user name
+    */
    private String userName;
 
-   /** The password */
+   /**
+    * The password
+    */
    private String password;
 
-   /** The client id */
+   /**
+    * The client id
+    */
    private String clientID;
 
-   /** The type */
+   /**
+    * The type
+    */
    private final int type;
 
-   /** Use transactions */
+   /**
+    * Use transactions
+    */
    private final boolean transacted;
 
-   /** The acknowledge mode */
+   /**
+    * The acknowledge mode
+    */
    private final int acknowledgeMode;
 
    /**
     * Constructor
+    *
     * @param prop The resource adapter properties
     * @param type The connection type
     */
-   public ActiveMQRAConnectionRequestInfo(final ActiveMQRAProperties prop, final int type)
-   {
-      if (ActiveMQRAConnectionRequestInfo.trace)
-      {
+   public ActiveMQRAConnectionRequestInfo(final ActiveMQRAProperties prop, final int type) {
+      if (ActiveMQRAConnectionRequestInfo.trace) {
          ActiveMQRALogger.LOGGER.trace("constructor(" + prop + ")");
       }
 
@@ -68,20 +80,19 @@ public class ActiveMQRAConnectionRequestInfo implements ConnectionRequestInfo
 
    /**
     * Constructor
-    * @param transacted Use transactions
+    *
+    * @param transacted      Use transactions
     * @param acknowledgeMode The acknowledge mode
-    * @param type The connection type
+    * @param type            The connection type
     */
-   public ActiveMQRAConnectionRequestInfo(final boolean transacted, final int acknowledgeMode, final int type)
-   {
-      if (ActiveMQRAConnectionRequestInfo.trace)
-      {
+   public ActiveMQRAConnectionRequestInfo(final boolean transacted, final int acknowledgeMode, final int type) {
+      if (ActiveMQRAConnectionRequestInfo.trace) {
          ActiveMQRALogger.LOGGER.trace("constructor(" + transacted +
-                                                  ", " +
-                                                  acknowledgeMode +
-                                                  ", " +
-                                                  type +
-                                                  ")");
+                                          ", " +
+                                          acknowledgeMode +
+                                          ", " +
+                                          type +
+                                          ")");
       }
 
       this.transacted = transacted;
@@ -91,37 +102,32 @@ public class ActiveMQRAConnectionRequestInfo implements ConnectionRequestInfo
 
    /**
     * Fill in default values if they are missing
+    *
     * @param prop The resource adapter properties
     */
-   public void setDefaults(final ActiveMQRAProperties prop)
-   {
-      if (ActiveMQRAConnectionRequestInfo.trace)
-      {
+   public void setDefaults(final ActiveMQRAProperties prop) {
+      if (ActiveMQRAConnectionRequestInfo.trace) {
          ActiveMQRALogger.LOGGER.trace("setDefaults(" + prop + ")");
       }
 
-      if (userName == null)
-      {
+      if (userName == null) {
          userName = prop.getUserName();
       }
-      if (password == null)
-      {
+      if (password == null) {
          password = prop.getPassword();
       }
-      if (clientID == null)
-      {
+      if (clientID == null) {
          clientID = prop.getClientID();
       }
    }
 
    /**
     * Get the user name
+    *
     * @return The value
     */
-   public String getUserName()
-   {
-      if (ActiveMQRAConnectionRequestInfo.trace)
-      {
+   public String getUserName() {
+      if (ActiveMQRAConnectionRequestInfo.trace) {
          ActiveMQRALogger.LOGGER.trace("getUserName()");
       }
 
@@ -130,12 +136,11 @@ public class ActiveMQRAConnectionRequestInfo implements ConnectionRequestInfo
 
    /**
     * Set the user name
+    *
     * @param userName The value
     */
-   public void setUserName(final String userName)
-   {
-      if (ActiveMQRAConnectionRequestInfo.trace)
-      {
+   public void setUserName(final String userName) {
+      if (ActiveMQRAConnectionRequestInfo.trace) {
          ActiveMQRALogger.LOGGER.trace("setUserName(" + userName + ")");
       }
 
@@ -144,12 +149,11 @@ public class ActiveMQRAConnectionRequestInfo implements ConnectionRequestInfo
 
    /**
     * Get the password
+    *
     * @return The value
     */
-   public String getPassword()
-   {
-      if (ActiveMQRAConnectionRequestInfo.trace)
-      {
+   public String getPassword() {
+      if (ActiveMQRAConnectionRequestInfo.trace) {
          ActiveMQRALogger.LOGGER.trace("getPassword()");
       }
 
@@ -158,12 +162,11 @@ public class ActiveMQRAConnectionRequestInfo implements ConnectionRequestInfo
 
    /**
     * Set the password
+    *
     * @param password The value
     */
-   public void setPassword(final String password)
-   {
-      if (ActiveMQRAConnectionRequestInfo.trace)
-      {
+   public void setPassword(final String password) {
+      if (ActiveMQRAConnectionRequestInfo.trace) {
          ActiveMQRALogger.LOGGER.trace("setPassword(****)");
       }
 
@@ -172,12 +175,11 @@ public class ActiveMQRAConnectionRequestInfo implements ConnectionRequestInfo
 
    /**
     * Get the client id
+    *
     * @return The value
     */
-   public String getClientID()
-   {
-      if (ActiveMQRAConnectionRequestInfo.trace)
-      {
+   public String getClientID() {
+      if (ActiveMQRAConnectionRequestInfo.trace) {
          ActiveMQRALogger.LOGGER.trace("getClientID()");
       }
 
@@ -186,12 +188,11 @@ public class ActiveMQRAConnectionRequestInfo implements ConnectionRequestInfo
 
    /**
     * Set the client id
+    *
     * @param clientID The value
     */
-   public void setClientID(final String clientID)
-   {
-      if (ActiveMQRAConnectionRequestInfo.trace)
-      {
+   public void setClientID(final String clientID) {
+      if (ActiveMQRAConnectionRequestInfo.trace) {
          ActiveMQRALogger.LOGGER.trace("setClientID(" + clientID + ")");
       }
 
@@ -200,12 +201,11 @@ public class ActiveMQRAConnectionRequestInfo implements ConnectionRequestInfo
 
    /**
     * Get the connection type
+    *
     * @return The type
     */
-   public int getType()
-   {
-      if (ActiveMQRAConnectionRequestInfo.trace)
-      {
+   public int getType() {
+      if (ActiveMQRAConnectionRequestInfo.trace) {
          ActiveMQRALogger.LOGGER.trace("getType()");
       }
 
@@ -214,12 +214,11 @@ public class ActiveMQRAConnectionRequestInfo implements ConnectionRequestInfo
 
    /**
     * Use transactions
+    *
     * @return True if transacted; otherwise false
     */
-   public boolean isTransacted()
-   {
-      if (ActiveMQRAConnectionRequestInfo.trace)
-      {
+   public boolean isTransacted() {
+      if (ActiveMQRAConnectionRequestInfo.trace) {
          ActiveMQRALogger.LOGGER.trace("isTransacted() " + transacted);
       }
 
@@ -228,12 +227,11 @@ public class ActiveMQRAConnectionRequestInfo implements ConnectionRequestInfo
 
    /**
     * Get the acknowledge mode
+    *
     * @return The mode
     */
-   public int getAcknowledgeMode()
-   {
-      if (ActiveMQRAConnectionRequestInfo.trace)
-      {
+   public int getAcknowledgeMode() {
+      if (ActiveMQRAConnectionRequestInfo.trace) {
          ActiveMQRALogger.LOGGER.trace("getAcknowledgeMode()");
       }
 
@@ -242,46 +240,41 @@ public class ActiveMQRAConnectionRequestInfo implements ConnectionRequestInfo
 
    /**
     * Indicates whether some other object is "equal to" this one.
+    *
     * @param obj Object with which to compare
     * @return True if this object is the same as the obj argument; false otherwise.
     */
    @Override
-   public boolean equals(final Object obj)
-   {
-      if (ActiveMQRAConnectionRequestInfo.trace)
-      {
+   public boolean equals(final Object obj) {
+      if (ActiveMQRAConnectionRequestInfo.trace) {
          ActiveMQRALogger.LOGGER.trace("equals(" + obj + ")");
       }
 
-      if (obj == null)
-      {
+      if (obj == null) {
          return false;
       }
 
-      if (obj instanceof ActiveMQRAConnectionRequestInfo)
-      {
-         ActiveMQRAConnectionRequestInfo you = (ActiveMQRAConnectionRequestInfo)obj;
+      if (obj instanceof ActiveMQRAConnectionRequestInfo) {
+         ActiveMQRAConnectionRequestInfo you = (ActiveMQRAConnectionRequestInfo) obj;
          return ActiveMQRaUtils.compare(userName, you.getUserName()) && ActiveMQRaUtils.compare(password, you.getPassword()) &&
-                ActiveMQRaUtils.compare(clientID, you.getClientID()) &&
-                type == you.getType() &&
-                transacted == you.isTransacted() &&
-                acknowledgeMode == you.getAcknowledgeMode();
+            ActiveMQRaUtils.compare(clientID, you.getClientID()) &&
+            type == you.getType() &&
+            transacted == you.isTransacted() &&
+            acknowledgeMode == you.getAcknowledgeMode();
       }
-      else
-      {
+      else {
          return false;
       }
    }
 
    /**
     * Return the hash code for the object
+    *
     * @return The hash code
     */
    @Override
-   public int hashCode()
-   {
-      if (ActiveMQRAConnectionRequestInfo.trace)
-      {
+   public int hashCode() {
+      if (ActiveMQRAConnectionRequestInfo.trace) {
          ActiveMQRALogger.LOGGER.trace("hashCode()");
       }
 
@@ -297,8 +290,7 @@ public class ActiveMQRAConnectionRequestInfo implements ConnectionRequestInfo
    }
 
    @Override
-   public String toString()
-   {
+   public String toString() {
       return "ActiveMQRAConnectionRequestInfo[type=" + type +
          ", transacted=" + transacted + ", acknowledgeMode=" + acknowledgeMode +
          ", clientID=" + clientID + ", userName=" + userName + ", password=****]";

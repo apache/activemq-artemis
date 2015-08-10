@@ -32,8 +32,7 @@ import org.junit.Test;
 /**
  * adapted from: org.apache.activemq.JmsDurableTopicSendReceiveTest
  */
-public class JmsDurableTopicSendReceiveTest extends JmsTopicSendReceiveTest
-{
+public class JmsDurableTopicSendReceiveTest extends JmsTopicSendReceiveTest {
 
    protected Connection connection2;
    protected Session session2;
@@ -50,8 +49,7 @@ public class JmsDurableTopicSendReceiveTest extends JmsTopicSendReceiveTest
     */
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       this.durable = true;
       super.setUp();
    }
@@ -62,8 +60,7 @@ public class JmsDurableTopicSendReceiveTest extends JmsTopicSendReceiveTest
     * @throws Exception
     */
    @Test
-   public void testSendWhileClosed() throws Exception
-   {
+   public void testSendWhileClosed() throws Exception {
       connection2 = factory.createConnection();
       connection2.setClientID("test");
       connection2.start();
@@ -93,9 +90,7 @@ public class JmsDurableTopicSendReceiveTest extends JmsTopicSendReceiveTest
       connection2.close();
    }
 
-
-   protected String getName()
-   {
+   protected String getName() {
       return "testSendWhileClosed";
    }
 

@@ -24,11 +24,10 @@ import org.jboss.resteasy.test.TestPortProvider;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class AutoAckTopicTest extends MessageTestBase
-{
+public class AutoAckTopicTest extends MessageTestBase {
+
    @Test
-   public void testSuccessFirst() throws Exception
-   {
+   public void testSuccessFirst() throws Exception {
       String testName = "AutoAckTopicTest.testSuccessFirst";
       TopicDeployment deployment = new TopicDeployment();
       deployment.setDuplicatesAllowed(true);
@@ -44,7 +43,6 @@ public class AutoAckTopicTest extends MessageTestBase
       Link sender = getLinkByTitle(manager.getTopicManager().getLinkStrategy(), response, "create");
       Link subscriptions = getLinkByTitle(manager.getTopicManager().getLinkStrategy(), response, "pull-subscriptions");
 
-
       ClientResponse<?> res = subscriptions.request().post();
       res.releaseConnection();
       Assert.assertEquals(201, res.getStatus());
@@ -54,7 +52,6 @@ public class AutoAckTopicTest extends MessageTestBase
       Assert.assertNotNull(consumeNext1);
       System.out.println("consumeNext1: " + consumeNext1);
 
-
       res = subscriptions.request().post();
       res.releaseConnection();
       Assert.assertEquals(201, res.getStatus());
@@ -63,7 +60,6 @@ public class AutoAckTopicTest extends MessageTestBase
       Link consumeNext2 = getLinkByTitle(manager.getTopicManager().getLinkStrategy(), res, "consume-next");
       Assert.assertNotNull(consumeNext2);
       System.out.println("consumeNext2: " + consumeNext2);
-
 
       res = sender.request().body("text/plain", "1").post();
       res.releaseConnection();
@@ -100,8 +96,7 @@ public class AutoAckTopicTest extends MessageTestBase
    }
 
    @Test
-   public void testNewSubNotBlockedByTimeoutTask() throws Exception
-   {
+   public void testNewSubNotBlockedByTimeoutTask() throws Exception {
       // Default config is 1s interval, 300s timeout.
 
       // Create a topic
@@ -149,31 +144,26 @@ public class AutoAckTopicTest extends MessageTestBase
       t.interrupt();
    }
 
-   private class NewPullSubscriber implements Runnable
-   {
+   private class NewPullSubscriber implements Runnable {
+
       private final String url;
       private boolean isFinished = false;
       private boolean failed = false;
 
-      public NewPullSubscriber(String url)
-      {
+      public NewPullSubscriber(String url) {
          this.url = url;
       }
 
-      public boolean isFinished()
-      {
+      public boolean isFinished() {
          return isFinished;
       }
 
-      public boolean isFailed()
-      {
+      public boolean isFailed() {
          return failed;
       }
 
-      public void run()
-      {
-         try
-         {
+      public void run() {
+         try {
             isFinished = false;
             ClientRequest request = new ClientRequest(url);
             ClientResponse<?> response = request.post();
@@ -182,48 +172,41 @@ public class AutoAckTopicTest extends MessageTestBase
             Assert.assertEquals(201, response.getStatus());
             isFinished = true;
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             System.out.println("Exception " + e);
             failed = true;
          }
       }
    }
 
-   private class AcceptWaitListener implements Runnable
-   {
+   private class AcceptWaitListener implements Runnable {
+
       private final int acceptWaitTime = 8;
       private String url;
       private boolean isFinished = false;
       private boolean failed = false;
 
-      public AcceptWaitListener(String url)
-      {
+      public AcceptWaitListener(String url) {
          this.url = url;
       }
 
-      public boolean isFinished()
-      {
+      public boolean isFinished() {
          return this.isFinished;
       }
 
-      public boolean isFailed()
-      {
+      public boolean isFailed() {
          return this.failed;
       }
 
-      public void run()
-      {
-         try
-         {
+      public void run() {
+         try {
             ClientRequest req = new ClientRequest(url);
             req.header("Accept-Wait", acceptWaitTime);
             ClientResponse<?> response = req.post();
             response.releaseConnection();
             isFinished = true;
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             failed = true;
          }
       }

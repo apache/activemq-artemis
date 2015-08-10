@@ -27,8 +27,8 @@ import org.apache.activemq.artemis.core.client.impl.ClientMessageImpl;
  * The ClientRequestor constructor is given a ClientSession and a request address.
  * It creates a temporary queue for the responses and provides a request method that sends the request message and waits for its reply.
  */
-public final class ClientRequestor
-{
+public final class ClientRequestor {
+
    private final ClientSession queueSession;
 
    private final ClientProducer requestProducer;
@@ -42,12 +42,11 @@ public final class ClientRequestor
     *
     * The implementation expects a ClientSession with automatic commits of sends and acknowledgements
     *
-    * @param session a ClientSession uses to handle requests and replies
+    * @param session        a ClientSession uses to handle requests and replies
     * @param requestAddress the address to send request messages to
     * @throws Exception
     */
-   public ClientRequestor(final ClientSession session, final SimpleString requestAddress) throws Exception
-   {
+   public ClientRequestor(final ClientSession session, final SimpleString requestAddress) throws Exception {
       queueSession = session;
 
       requestProducer = queueSession.createProducer(requestAddress);
@@ -59,8 +58,7 @@ public final class ClientRequestor
    /**
     * @see ClientRequestor#ClientRequestor(ClientSession, SimpleString)
     */
-   public ClientRequestor(final ClientSession session, final String requestAddress) throws Exception
-   {
+   public ClientRequestor(final ClientSession session, final String requestAddress) throws Exception {
       this(session, SimpleString.toSimpleString(requestAddress));
    }
 
@@ -72,8 +70,7 @@ public final class ClientRequestor
     * @return the reply message
     * @throws Exception
     */
-   public ClientMessage request(final ClientMessage request) throws Exception
-   {
+   public ClientMessage request(final ClientMessage request) throws Exception {
       return request(request, 0);
    }
 
@@ -81,13 +78,12 @@ public final class ClientRequestor
     * Sends a message to the request address and wait for the given timeout for a reply.
     * The temporary queue is used for the REPLYTO_HEADER_NAME, and only one reply per request is expected
     *
-    * @param request  the message to send
+    * @param request the message to send
     * @param timeout the timeout to wait for a reply (in milliseconds)
     * @return the reply message or {@code null} if no message is replied before the timeout elapses
     * @throws Exception
     */
-   public ClientMessage request(final ClientMessage request, final long timeout) throws Exception
-   {
+   public ClientMessage request(final ClientMessage request, final long timeout) throws Exception {
       request.putStringProperty(ClientMessageImpl.REPLYTO_HEADER_NAME, replyQueue);
       requestProducer.send(request);
       return replyConsumer.receive(timeout);
@@ -98,8 +94,7 @@ public final class ClientRequestor
     *
     * @throws Exception if an exception occurs while closing the ClientRequestor
     */
-   public void close() throws Exception
-   {
+   public void close() throws Exception {
       replyConsumer.close();
       requestProducer.close();
       queueSession.deleteQueue(replyQueue);

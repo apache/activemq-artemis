@@ -38,8 +38,7 @@ import org.junit.Test;
 /**
  * Testing of message property conversion. See {@link javax.jms.Message} for details
  */
-public class MessagePropertyConversionTest extends ActiveMQServerTestCase
-{
+public class MessagePropertyConversionTest extends ActiveMQServerTestCase {
    // Attributes ----------------------------------------------------
 
    private Connection producerConnection, consumerConnection;
@@ -56,8 +55,7 @@ public class MessagePropertyConversionTest extends ActiveMQServerTestCase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       producerConnection = getConnectionFactory().createConnection();
@@ -74,15 +72,13 @@ public class MessagePropertyConversionTest extends ActiveMQServerTestCase
 
    @Override
    @After
-   public void tearDown() throws Exception
-   {
+   public void tearDown() throws Exception {
       producerConnection.close();
       consumerConnection.close();
    }
 
    @Test
-   public void testObjectString() throws Exception
-   {
+   public void testObjectString() throws Exception {
       JMSContext ctx = addContext(getConnectionFactory().createContext());
 
       JMSProducer producer = ctx.createProducer();
@@ -97,98 +93,78 @@ public class MessagePropertyConversionTest extends ActiveMQServerTestCase
    }
 
    @Test
-   public void msgNullPropertyConversionTests() throws Exception
-   {
+   public void msgNullPropertyConversionTests() throws Exception {
       JMSContext ctx = addContext(getConnectionFactory().createContext());
 
       JMSProducer producer = ctx.createProducer();
 
-      try
-      {
+      try {
          producer.setProperty(null, true);
          ProxyAssertSupport.fail("expected IllegalArgumentException");
       }
-      catch (IllegalArgumentException e)
-      {
+      catch (IllegalArgumentException e) {
          //pass
       }
-      try
-      {
+      try {
          producer.setProperty(null, "string");
          ProxyAssertSupport.fail("expected IllegalArgumentException");
       }
-      catch (IllegalArgumentException e)
-      {
+      catch (IllegalArgumentException e) {
          //pass
       }
-      try
-      {
+      try {
          producer.setProperty(null, 1);
          ProxyAssertSupport.fail("expected IllegalArgumentException");
       }
-      catch (IllegalArgumentException e)
-      {
+      catch (IllegalArgumentException e) {
          //pass
       }
-      try
-      {
+      try {
          producer.setProperty(null, 1.0);
          ProxyAssertSupport.fail("expected IllegalArgumentException");
       }
-      catch (IllegalArgumentException e)
-      {
+      catch (IllegalArgumentException e) {
          //pass
       }
-      try
-      {
+      try {
          producer.setProperty(null, 1L);
          ProxyAssertSupport.fail("expected IllegalArgumentException");
       }
-      catch (IllegalArgumentException e)
-      {
+      catch (IllegalArgumentException e) {
          //pass
       }
-      try
-      {
+      try {
          producer.setProperty(null, 1.10f);
          ProxyAssertSupport.fail("expected IllegalArgumentException");
       }
-      catch (IllegalArgumentException e)
-      {
+      catch (IllegalArgumentException e) {
          //pass
       }
-      try
-      {
+      try {
          producer.setProperty(null, (byte) 1);
          ProxyAssertSupport.fail("expected IllegalArgumentException");
       }
-      catch (IllegalArgumentException e)
-      {
+      catch (IllegalArgumentException e) {
          //pass
       }
-      try
-      {
+      try {
          producer.setProperty(null, (short) 1);
          ProxyAssertSupport.fail("expected IllegalArgumentException");
       }
-      catch (IllegalArgumentException e)
-      {
+      catch (IllegalArgumentException e) {
          //pass
       }
-      try
-      {
+      try {
          producer.setProperty(null, new SimpleString("foo"));
          ProxyAssertSupport.fail("expected IllegalArgumentException");
       }
-      catch (IllegalArgumentException e)
-      {
+      catch (IllegalArgumentException e) {
          //pass
       }
    }
 
    @Test
-   public void msgPropertyConversionTests() throws Exception
-   {
+   public void msgPropertyConversionTests() throws Exception {
       JMSContext ctx = addContext(getConnectionFactory().createContext());
 
       JMSProducer producer = ctx.createProducer();
@@ -214,629 +190,501 @@ public class MessagePropertyConversionTest extends ActiveMQServerTestCase
       producer.setProperty("anotherString", "1");
       String myBool = producer.getStringProperty("aboolean");
 
-      if (Boolean.valueOf(myBool).booleanValue() != bool)
-      {
+      if (Boolean.valueOf(myBool).booleanValue() != bool) {
          ProxyAssertSupport.fail("conversion from boolean to string failed");
       }
 
-      try
-      {
+      try {
          producer.getByteProperty("aboolean");
          ProxyAssertSupport.fail("MessageFormatRuntimeException expected");
       }
-      catch (MessageFormatRuntimeException me)
-      {
+      catch (MessageFormatRuntimeException me) {
          //pass
       }
-      catch (Exception ee)
-      {
+      catch (Exception ee) {
          ProxyAssertSupport.fail("did not catch expected Exception -- boolean to byte");
       }
 
-      try
-      {
+      try {
          producer.getShortProperty("aboolean");
          ProxyAssertSupport.fail("MessageFormatRuntimeException expected");
       }
-      catch (MessageFormatRuntimeException me)
-      {
+      catch (MessageFormatRuntimeException me) {
          //pass
       }
-      catch (Exception ee)
-      {
+      catch (Exception ee) {
          ProxyAssertSupport.fail("Caught unexpected exception: " + ee);
       }
 
-      try
-      {
+      try {
          producer.getIntProperty("aboolean");
          ProxyAssertSupport.fail("MessageFormatRuntimeException expected");
       }
-      catch (MessageFormatRuntimeException me)
-      {
+      catch (MessageFormatRuntimeException me) {
          //pass
       }
-      catch (Exception ee)
-      {
+      catch (Exception ee) {
          ProxyAssertSupport.fail("Caught unexpected exception: " + ee);
       }
 
-      try
-      {
+      try {
          producer.getLongProperty("aboolean");
          ProxyAssertSupport.fail("MessageFormatRuntimeException expected");
       }
-      catch (MessageFormatRuntimeException me)
-      {
+      catch (MessageFormatRuntimeException me) {
          //pass
       }
-      catch (Exception ee)
-      {
+      catch (Exception ee) {
          ProxyAssertSupport.fail("Caught unexpected exception: " + ee);
       }
 
-      try
-      {
+      try {
          producer.getFloatProperty("aboolean");
          ProxyAssertSupport.fail("MessageFormatRuntimeException expected");
       }
-      catch (MessageFormatRuntimeException me)
-      {
+      catch (MessageFormatRuntimeException me) {
          //pass
       }
-      catch (Exception ee)
-      {
+      catch (Exception ee) {
          ProxyAssertSupport.fail("Caught unexpected exception: " + ee);
       }
 
       // invalid - boolean to double
-      try
-      {
+      try {
          producer.getDoubleProperty("aboolean");
          ProxyAssertSupport.fail("MessageFormatRuntimeException expected");
       }
-      catch (MessageFormatRuntimeException me)
-      {
+      catch (MessageFormatRuntimeException me) {
          //pass
       }
-      catch (Exception ee)
-      {
+      catch (Exception ee) {
          ProxyAssertSupport.fail("Caught unexpected exception: " + ee);
       }
 
       String myByte = producer.getStringProperty("abyte");
 
-      if (Byte.valueOf(myByte).byteValue() != bValue)
-      {
+      if (Byte.valueOf(myByte).byteValue() != bValue) {
          ProxyAssertSupport.fail("conversion from byte to string failed");
       }
 
-      if (producer.getShortProperty("abyte") != bValue)
-      {
+      if (producer.getShortProperty("abyte") != bValue) {
          ProxyAssertSupport.fail("conversion from byte to short failed");
       }
 
-      if (producer.getIntProperty("abyte") != bValue)
-      {
+      if (producer.getIntProperty("abyte") != bValue) {
          ProxyAssertSupport.fail("conversion from byte to int failed");
       }
 
-      if (producer.getLongProperty("abyte") != bValue)
-      {
+      if (producer.getLongProperty("abyte") != bValue) {
          ProxyAssertSupport.fail("conversion from byte to long failed");
       }
 
-      try
-      {
+      try {
          producer.getBooleanProperty("abyte");
          ProxyAssertSupport.fail("MessageFormatRuntimeException expected");
 
       }
-      catch (MessageFormatRuntimeException me)
-      {
+      catch (MessageFormatRuntimeException me) {
          //pass
       }
-      catch (Exception ee)
-      {
+      catch (Exception ee) {
          ProxyAssertSupport.fail("Caught unexpected exception: " + ee);
       }
 
-      try
-      {
+      try {
          producer.getFloatProperty("abyte");
          ProxyAssertSupport.fail("MessageFormatRuntimeException expected");
       }
-      catch (MessageFormatRuntimeException me)
-      {
+      catch (MessageFormatRuntimeException me) {
          //pass
       }
-      catch (Exception ee)
-      {
+      catch (Exception ee) {
          ProxyAssertSupport.fail("Caught unexpected exception: " + ee);
 
       }
 
-      try
-      {
+      try {
          producer.getDoubleProperty("abyte");
          ProxyAssertSupport.fail("MessageFormatRuntimeException expected");
 
       }
-      catch (MessageFormatRuntimeException me)
-      {
+      catch (MessageFormatRuntimeException me) {
          //pass
       }
-      catch (Exception ee)
-      {
+      catch (Exception ee) {
          ProxyAssertSupport.fail("Caught unexpected exception: " + ee);
       }
 
       String myshort = producer.getStringProperty("ashort");
 
-      if (Short.valueOf(myshort).shortValue() != nShort)
-      {
+      if (Short.valueOf(myshort).shortValue() != nShort) {
          ProxyAssertSupport.fail("conversion from short to string failed");
       }
 
-      if (producer.getIntProperty("ashort") != nShort)
-      {
+      if (producer.getIntProperty("ashort") != nShort) {
          ProxyAssertSupport.fail("conversion from short to int failed");
       }
 
-      if (producer.getLongProperty("ashort") != nShort)
-      {
+      if (producer.getLongProperty("ashort") != nShort) {
          ProxyAssertSupport.fail("conversion from short to long failed");
       }
 
-      try
-      {
+      try {
          producer.getBooleanProperty("ashort");
          ProxyAssertSupport.fail("MessageFormatRuntimeException expected");
 
       }
-      catch (MessageFormatRuntimeException me)
-      {
+      catch (MessageFormatRuntimeException me) {
          //pass
       }
-      catch (Exception ee)
-      {
+      catch (Exception ee) {
          ProxyAssertSupport.fail("Caught unexpected exception: " + ee);
 
       }
 
-      try
-      {
+      try {
          producer.getByteProperty("ashort");
          ProxyAssertSupport.fail("MessageFormatRuntimeException expected");
 
       }
-      catch (MessageFormatRuntimeException me)
-      {
+      catch (MessageFormatRuntimeException me) {
          //pass
       }
-      catch (Exception ee)
-      {
+      catch (Exception ee) {
          ProxyAssertSupport.fail("Caught unexpected exception: " + ee);
 
       }
 
-      try
-      {
+      try {
          producer.getFloatProperty("ashort");
          ProxyAssertSupport.fail("MessageFormatRuntimeException expected");
 
       }
-      catch (MessageFormatRuntimeException me)
-      {
+      catch (MessageFormatRuntimeException me) {
          //pass
       }
-      catch (Exception ee)
-      {
+      catch (Exception ee) {
          ProxyAssertSupport.fail("Caught unexpected exception: " + ee);
       }
 
-      try
-      {
+      try {
          producer.getDoubleProperty("ashort");
          ProxyAssertSupport.fail("MessageFormatRuntimeException expected");
 
       }
-      catch (MessageFormatRuntimeException me)
-      {
+      catch (MessageFormatRuntimeException me) {
          //pass
       }
-      catch (Exception ee)
-      {
+      catch (Exception ee) {
          ProxyAssertSupport.fail("Caught unexpected exception: " + ee);
 
       }
 
-      if (Integer.valueOf(producer.getStringProperty("anint")).intValue() != nInt)
-      {
+      if (Integer.valueOf(producer.getStringProperty("anint")).intValue() != nInt) {
          ProxyAssertSupport.fail("conversion from int to string failed");
       }
 
-      if (producer.getLongProperty("anint") != nInt)
-      {
+      if (producer.getLongProperty("anint") != nInt) {
          ProxyAssertSupport.fail("conversion from int to long failed");
       }
 
-      try
-      {
+      try {
          producer.getBooleanProperty("anint");
          ProxyAssertSupport.fail("MessageFormatRuntimeException expected");
 
       }
-      catch (MessageFormatRuntimeException me)
-      {
+      catch (MessageFormatRuntimeException me) {
          //pass
       }
-      catch (Exception ee)
-      {
+      catch (Exception ee) {
          ProxyAssertSupport.fail("Caught unexpected exception: " + ee);
       }
 
-      try
-      {
+      try {
          producer.getByteProperty("anint");
          ProxyAssertSupport.fail("MessageFormatRuntimeException expected");
 
       }
-      catch (MessageFormatRuntimeException me)
-      {
+      catch (MessageFormatRuntimeException me) {
          //pass
       }
-      catch (Exception ee)
-      {
+      catch (Exception ee) {
          ProxyAssertSupport.fail("Caught unexpected exception: " + ee);
       }
 
-      try
-      {
+      try {
          producer.getShortProperty("anint");
          ProxyAssertSupport.fail("MessageFormatRuntimeException expected");
 
       }
-      catch (MessageFormatRuntimeException me)
-      {
+      catch (MessageFormatRuntimeException me) {
          //pass
       }
-      catch (Exception ee)
-      {
+      catch (Exception ee) {
          ProxyAssertSupport.fail("Caught unexpected exception: " + ee);
       }
 
-      try
-      {
+      try {
          producer.getFloatProperty("anint");
          ProxyAssertSupport.fail("MessageFormatRuntimeException expected");
       }
-      catch (MessageFormatRuntimeException me)
-      {
+      catch (MessageFormatRuntimeException me) {
          //pass
       }
-      catch (Exception ee)
-      {
+      catch (Exception ee) {
          ProxyAssertSupport.fail("Caught unexpected exception: " + ee);
       }
 
-      try
-      {
+      try {
          producer.getDoubleProperty("anint");
          ProxyAssertSupport.fail("MessageFormatRuntimeException expected");
       }
-      catch (MessageFormatRuntimeException me)
-      {
+      catch (MessageFormatRuntimeException me) {
          //pass
       }
-      catch (Exception ee)
-      {
+      catch (Exception ee) {
          ProxyAssertSupport.fail("Caught unexpected exception: " + ee);
       }
 
-      if (Long.valueOf(producer.getStringProperty("along")).longValue() != nLong)
-      {
+      if (Long.valueOf(producer.getStringProperty("along")).longValue() != nLong) {
          ProxyAssertSupport.fail("conversion from long to string failed");
       }
 
-      try
-      {
+      try {
          producer.getBooleanProperty("along");
          ProxyAssertSupport.fail("MessageFormatRuntimeException expected");
       }
-      catch (MessageFormatRuntimeException me)
-      {
+      catch (MessageFormatRuntimeException me) {
          //pass
       }
-      catch (Exception ee)
-      {
+      catch (Exception ee) {
          ProxyAssertSupport.fail("Caught unexpected exception: " + ee);
       }
 
-      try
-      {
+      try {
          producer.getByteProperty("along");
          ProxyAssertSupport.fail("MessageFormatRuntimeException expected");
       }
-      catch (MessageFormatRuntimeException me)
-      {
+      catch (MessageFormatRuntimeException me) {
          //pass
       }
-      catch (Exception ee)
-      {
+      catch (Exception ee) {
          ProxyAssertSupport.fail("Caught unexpected exception: " + ee);
       }
 
-      try
-      {
+      try {
          producer.getShortProperty("along");
          ProxyAssertSupport.fail("MessageFormatRuntimeException expected");
       }
-      catch (MessageFormatRuntimeException me)
-      {
+      catch (MessageFormatRuntimeException me) {
          //pass
       }
-      catch (Exception ee)
-      {
+      catch (Exception ee) {
          ProxyAssertSupport.fail("Caught unexpected exception: " + ee);
       }
 
-      try
-      {
+      try {
          producer.getIntProperty("along");
          ProxyAssertSupport.fail("MessageFormatRuntimeException expected");
       }
-      catch (MessageFormatRuntimeException me)
-      {
+      catch (MessageFormatRuntimeException me) {
          //pass
       }
-      catch (Exception ee)
-      {
+      catch (Exception ee) {
          ProxyAssertSupport.fail("Caught unexpected exception: " + ee);
       }
 
-      try
-      {
+      try {
          producer.getFloatProperty("along");
          ProxyAssertSupport.fail("MessageFormatRuntimeException expected");
       }
-      catch (MessageFormatRuntimeException me)
-      {
+      catch (MessageFormatRuntimeException me) {
          //pass
       }
-      catch (Exception ee)
-      {
+      catch (Exception ee) {
          ProxyAssertSupport.fail("Caught unexpected exception: " + ee);
       }
 
-      try
-      {
+      try {
          producer.getDoubleProperty("along");
          ProxyAssertSupport.fail("MessageFormatRuntimeException expected");
       }
-      catch (MessageFormatRuntimeException me)
-      {
+      catch (MessageFormatRuntimeException me) {
          //pass
       }
-      catch (Exception ee)
-      {
+      catch (Exception ee) {
          ProxyAssertSupport.fail("Caught unexpected exception: " + ee);
       }
 
-      if (Float.valueOf(producer.getStringProperty("afloat")).floatValue() != nFloat)
-      {
+      if (Float.valueOf(producer.getStringProperty("afloat")).floatValue() != nFloat) {
          ProxyAssertSupport.fail("conversion from float to string failed");
       }
 
-      if (producer.getDoubleProperty("afloat") != nFloat)
-      {
+      if (producer.getDoubleProperty("afloat") != nFloat) {
          ProxyAssertSupport.fail("conversion from long to double failed");
       }
 
-      try
-      {
+      try {
          producer.getBooleanProperty("afloat");
          ProxyAssertSupport.fail("MessageFormatRuntimeException expected");
       }
-      catch (MessageFormatRuntimeException me)
-      {
+      catch (MessageFormatRuntimeException me) {
          //pass
       }
-      catch (Exception ee)
-      {
+      catch (Exception ee) {
          ProxyAssertSupport.fail("Caught unexpected exception: " + ee);
       }
 
-      try
-      {
+      try {
          producer.getByteProperty("afloat");
          ProxyAssertSupport.fail("MessageFormatRuntimeException expected");
       }
-      catch (MessageFormatRuntimeException me)
-      {
+      catch (MessageFormatRuntimeException me) {
          //pass
       }
-      catch (Exception ee)
-      {
+      catch (Exception ee) {
          ProxyAssertSupport.fail("Caught unexpected exception: " + ee);
       }
 
-      try
-      {
+      try {
          producer.getShortProperty("afloat");
          ProxyAssertSupport.fail("MessageFormatRuntimeException expected");
       }
-      catch (MessageFormatRuntimeException me)
-      {
+      catch (MessageFormatRuntimeException me) {
          //pass
       }
-      catch (Exception ee)
-      {
+      catch (Exception ee) {
          ProxyAssertSupport.fail("Caught unexpected exception: " + ee);
       }
 
-      try
-      {
+      try {
          producer.getIntProperty("afloat");
          ProxyAssertSupport.fail("MessageFormatRuntimeException expected");
       }
-      catch (MessageFormatRuntimeException me)
-      {
+      catch (MessageFormatRuntimeException me) {
          //pass
       }
-      catch (Exception ee)
-      {
+      catch (Exception ee) {
          ProxyAssertSupport.fail("Caught unexpected exception: " + ee);
       }
 
-      try
-      {
+      try {
          producer.getLongProperty("afloat");
          ProxyAssertSupport.fail("MessageFormatRuntimeException expected");
 
       }
-      catch (MessageFormatRuntimeException me)
-      {
+      catch (MessageFormatRuntimeException me) {
          //pass
       }
-      catch (Exception ee)
-      {
+      catch (Exception ee) {
          ProxyAssertSupport.fail("Caught unexpected exception: " + ee);
       }
 
-      if (Double.valueOf(producer.getStringProperty("adouble")).doubleValue() != nDouble)
-      {
+      if (Double.valueOf(producer.getStringProperty("adouble")).doubleValue() != nDouble) {
          ProxyAssertSupport.fail("conversion from double to string failed");
       }
 
-      try
-      {
+      try {
          producer.getBooleanProperty("adouble");
          ProxyAssertSupport.fail("MessageFormatRuntimeException expected");
       }
-      catch (MessageFormatRuntimeException me)
-      {
+      catch (MessageFormatRuntimeException me) {
          //pass
       }
-      catch (Exception ee)
-      {
+      catch (Exception ee) {
          ProxyAssertSupport.fail("Caught unexpected exception: " + ee);
       }
 
-      try
-      {
+      try {
          producer.getByteProperty("adouble");
          ProxyAssertSupport.fail("MessageFormatRuntimeException expected");
       }
-      catch (MessageFormatRuntimeException me)
-      {
+      catch (MessageFormatRuntimeException me) {
          //pass
       }
-      catch (Exception ee)
-      {
+      catch (Exception ee) {
          ProxyAssertSupport.fail("Caught unexpected exception: " + ee);
       }
 
-      try
-      {
+      try {
          producer.getShortProperty("adouble");
          ProxyAssertSupport.fail("MessageFormatRuntimeException expected");
       }
-      catch (MessageFormatRuntimeException me)
-      {
+      catch (MessageFormatRuntimeException me) {
          //pass
       }
-      catch (Exception ee)
-      {
+      catch (Exception ee) {
          ProxyAssertSupport.fail("Caught unexpected exception: " + ee);
       }
 
-      try
-      {
+      try {
          producer.getIntProperty("adouble");
          ProxyAssertSupport.fail("MessageFormatRuntimeException expected");
       }
-      catch (MessageFormatRuntimeException me)
-      {
+      catch (MessageFormatRuntimeException me) {
          //pass
       }
-      catch (Exception ee)
-      {
+      catch (Exception ee) {
          ProxyAssertSupport.fail("Caught unexpected exception: " + ee);
       }
 
-      try
-      {
+      try {
          producer.getLongProperty("adouble");
          ProxyAssertSupport.fail("MessageFormatRuntimeException expected");
       }
-      catch (MessageFormatRuntimeException me)
-      {
+      catch (MessageFormatRuntimeException me) {
          //pass
       }
-      catch (Exception ee)
-      {
+      catch (Exception ee) {
          ProxyAssertSupport.fail("Caught unexpected exception: " + ee);
       }
 
       // invalid - double to float
-      try
-      {
+      try {
          producer.getFloatProperty("adouble");
          ProxyAssertSupport.fail("MessageFormatRuntimeException expected");
       }
-      catch (MessageFormatRuntimeException me)
-      {
+      catch (MessageFormatRuntimeException me) {
          //pass
       }
-      catch (Exception ee)
-      {
+      catch (Exception ee) {
          ProxyAssertSupport.fail("Caught unexpected exception: " + ee);
       }
 
-      if ((producer.getBooleanProperty("true")) != true)
-      {
+      if ((producer.getBooleanProperty("true")) != true) {
          ProxyAssertSupport.fail("conversion from string to boolean - expect true  - failed");
       }
-      if ((producer.getBooleanProperty("false")) != false)
-      {
+      if ((producer.getBooleanProperty("false")) != false) {
          ProxyAssertSupport.fail("conversion from string to boolean expect false - failed");
       }
 
-      if (producer.getByteProperty("anotherString") != 1)
-      {
+      if (producer.getByteProperty("anotherString") != 1) {
          ProxyAssertSupport.fail("conversion from string to byte failed");
       }
 
-      if (producer.getShortProperty("anotherString") != 1)
-      {
+      if (producer.getShortProperty("anotherString") != 1) {
          ProxyAssertSupport.fail("conversion from string to short failed");
       }
 
-      if (producer.getIntProperty("anotherString") != 1)
-      {
+      if (producer.getIntProperty("anotherString") != 1) {
          ProxyAssertSupport.fail("conversion from string to int failed");
       }
 
-      if (producer.getLongProperty("anotherString") != 1)
-      {
+      if (producer.getLongProperty("anotherString") != 1) {
          ProxyAssertSupport.fail("conversion from string to long failed");
       }
 
-      if (producer.getFloatProperty("anotherString") != 1)
-      {
+      if (producer.getFloatProperty("anotherString") != 1) {
          ProxyAssertSupport.fail("conversion from string to float failed");
       }
 
-      if (producer.getDoubleProperty("anotherString") != 1)
-      {
+      if (producer.getDoubleProperty("anotherString") != 1) {
          ProxyAssertSupport.fail("conversion from string to double failed");
       }
    }
 
    @Test
-   public void testResetToNull() throws JMSException
-   {
+   public void testResetToNull() throws JMSException {
       Message m1 = queueProducerSession.createMessage();
       m1.setStringProperty("key", "fish");
       m1.setBooleanProperty("key", true);
@@ -853,8 +701,7 @@ public class MessagePropertyConversionTest extends ActiveMQServerTestCase
    }
 
    @Test
-   public void testBooleanConversion() throws Exception
-   {
+   public void testBooleanConversion() throws Exception {
       Message m1 = queueProducerSession.createMessage();
 
       boolean myBool = true;
@@ -869,64 +716,51 @@ public class MessagePropertyConversionTest extends ActiveMQServerTestCase
       ProxyAssertSupport.assertEquals(myBool, m2.getBooleanProperty("myBool"));
       ProxyAssertSupport.assertEquals(String.valueOf(myBool), m2.getStringProperty("myBool"));
 
-      try
-      {
+      try {
          m2.getByteProperty("myBool");
          ProxyAssertSupport.fail();
       }
-      catch (MessageFormatException e)
-      {
+      catch (MessageFormatException e) {
       }
 
-      try
-      {
+      try {
          m2.getShortProperty("myBool");
          ProxyAssertSupport.fail();
       }
-      catch (MessageFormatException e)
-      {
+      catch (MessageFormatException e) {
       }
 
-      try
-      {
+      try {
          m2.getIntProperty("myBool");
          ProxyAssertSupport.fail();
       }
-      catch (MessageFormatException e)
-      {
+      catch (MessageFormatException e) {
       }
 
-      try
-      {
+      try {
          m2.getLongProperty("myBool");
          ProxyAssertSupport.fail();
       }
-      catch (MessageFormatException e)
-      {
+      catch (MessageFormatException e) {
       }
 
-      try
-      {
+      try {
          m2.getFloatProperty("myBool");
          ProxyAssertSupport.fail();
       }
-      catch (MessageFormatException e)
-      {
+      catch (MessageFormatException e) {
       }
 
-      try
-      {
+      try {
          m2.getDoubleProperty("myBool");
          ProxyAssertSupport.fail();
       }
-      catch (MessageFormatException e)
-      {
+      catch (MessageFormatException e) {
       }
    }
 
    @Test
-   public void testByteConversion() throws Exception
-   {
+   public void testByteConversion() throws Exception {
       Message m1 = queueProducerSession.createMessage();
 
       byte myByte = 13;
@@ -943,37 +777,30 @@ public class MessagePropertyConversionTest extends ActiveMQServerTestCase
       ProxyAssertSupport.assertEquals(myByte, m2.getLongProperty("myByte"));
       ProxyAssertSupport.assertEquals(String.valueOf(myByte), m2.getStringProperty("myByte"));
 
-      try
-      {
+      try {
          m2.getBooleanProperty("myByte");
          ProxyAssertSupport.fail();
       }
-      catch (MessageFormatException e)
-      {
+      catch (MessageFormatException e) {
       }
 
-      try
-      {
+      try {
          m2.getFloatProperty("myByte");
          ProxyAssertSupport.fail();
       }
-      catch (MessageFormatException e)
-      {
+      catch (MessageFormatException e) {
       }
 
-      try
-      {
+      try {
          m2.getDoubleProperty("myByte");
          ProxyAssertSupport.fail();
       }
-      catch (MessageFormatException e)
-      {
+      catch (MessageFormatException e) {
       }
    }
 
    @Test
-   public void testShortConversion() throws Exception
-   {
+   public void testShortConversion() throws Exception {
       Message m1 = queueProducerSession.createMessage();
 
       short myShort = 15321;
@@ -989,46 +816,37 @@ public class MessagePropertyConversionTest extends ActiveMQServerTestCase
       ProxyAssertSupport.assertEquals(myShort, m2.getLongProperty("myShort"));
       ProxyAssertSupport.assertEquals(String.valueOf(myShort), m2.getStringProperty("myShort"));
 
-      try
-      {
+      try {
          m2.getByteProperty("myShort");
          ProxyAssertSupport.fail();
       }
-      catch (MessageFormatException e)
-      {
+      catch (MessageFormatException e) {
       }
 
-      try
-      {
+      try {
          m2.getBooleanProperty("myShort");
          ProxyAssertSupport.fail();
       }
-      catch (MessageFormatException e)
-      {
+      catch (MessageFormatException e) {
       }
 
-      try
-      {
+      try {
          m2.getFloatProperty("myShort");
          ProxyAssertSupport.fail();
       }
-      catch (MessageFormatException e)
-      {
+      catch (MessageFormatException e) {
       }
 
-      try
-      {
+      try {
          m2.getDoubleProperty("myShort");
          ProxyAssertSupport.fail();
       }
-      catch (MessageFormatException e)
-      {
+      catch (MessageFormatException e) {
       }
    }
 
    @Test
-   public void testIntConversion() throws Exception
-   {
+   public void testIntConversion() throws Exception {
       Message m1 = queueProducerSession.createMessage();
 
       int myInt = 0x71ab6c80;
@@ -1043,55 +861,44 @@ public class MessagePropertyConversionTest extends ActiveMQServerTestCase
       ProxyAssertSupport.assertEquals(myInt, m2.getLongProperty("myInt"));
       ProxyAssertSupport.assertEquals(String.valueOf(myInt), m2.getStringProperty("myInt"));
 
-      try
-      {
+      try {
          m2.getShortProperty("myInt");
          ProxyAssertSupport.fail();
       }
-      catch (MessageFormatException e)
-      {
+      catch (MessageFormatException e) {
       }
 
-      try
-      {
+      try {
          m2.getByteProperty("myInt");
          ProxyAssertSupport.fail();
       }
-      catch (MessageFormatException e)
-      {
+      catch (MessageFormatException e) {
       }
 
-      try
-      {
+      try {
          m2.getBooleanProperty("myInt");
          ProxyAssertSupport.fail();
       }
-      catch (MessageFormatException e)
-      {
+      catch (MessageFormatException e) {
       }
 
-      try
-      {
+      try {
          m2.getFloatProperty("myInt");
          ProxyAssertSupport.fail();
       }
-      catch (MessageFormatException e)
-      {
+      catch (MessageFormatException e) {
       }
 
-      try
-      {
+      try {
          m2.getDoubleProperty("myInt");
          ProxyAssertSupport.fail();
       }
-      catch (MessageFormatException e)
-      {
+      catch (MessageFormatException e) {
       }
    }
 
    @Test
-   public void testLongConversion() throws Exception
-   {
+   public void testLongConversion() throws Exception {
       Message m1 = queueProducerSession.createMessage();
 
       long myLong = 0x20bf1e3fb6fa31dfL;
@@ -1105,64 +912,51 @@ public class MessagePropertyConversionTest extends ActiveMQServerTestCase
       ProxyAssertSupport.assertEquals(myLong, m2.getLongProperty("myLong"));
       ProxyAssertSupport.assertEquals(String.valueOf(myLong), m2.getStringProperty("myLong"));
 
-      try
-      {
+      try {
          m2.getIntProperty("myLong");
          ProxyAssertSupport.fail();
       }
-      catch (MessageFormatException e)
-      {
+      catch (MessageFormatException e) {
       }
 
-      try
-      {
+      try {
          m2.getShortProperty("myLong");
          ProxyAssertSupport.fail();
       }
-      catch (MessageFormatException e)
-      {
+      catch (MessageFormatException e) {
       }
 
-      try
-      {
+      try {
          m2.getByteProperty("myLong");
          ProxyAssertSupport.fail();
       }
-      catch (MessageFormatException e)
-      {
+      catch (MessageFormatException e) {
       }
 
-      try
-      {
+      try {
          m2.getBooleanProperty("myLong");
          ProxyAssertSupport.fail();
       }
-      catch (MessageFormatException e)
-      {
+      catch (MessageFormatException e) {
       }
 
-      try
-      {
+      try {
          m2.getFloatProperty("myLong");
          ProxyAssertSupport.fail();
       }
-      catch (MessageFormatException e)
-      {
+      catch (MessageFormatException e) {
       }
 
-      try
-      {
+      try {
          m2.getDoubleProperty("myLong");
          ProxyAssertSupport.fail();
       }
-      catch (MessageFormatException e)
-      {
+      catch (MessageFormatException e) {
       }
    }
 
    @Test
-   public void testFloatConversion() throws Exception
-   {
+   public void testFloatConversion() throws Exception {
       Message m1 = queueProducerSession.createMessage();
 
       float myFloat = Float.MAX_VALUE - 23465;
@@ -1177,55 +971,44 @@ public class MessagePropertyConversionTest extends ActiveMQServerTestCase
       ProxyAssertSupport.assertEquals(String.valueOf(myFloat), m2.getStringProperty("myFloat"));
       ProxyAssertSupport.assertEquals(myFloat, m2.getDoubleProperty("myFloat"), 0);
 
-      try
-      {
+      try {
          m2.getIntProperty("myFloat");
          ProxyAssertSupport.fail();
       }
-      catch (MessageFormatException e)
-      {
+      catch (MessageFormatException e) {
       }
 
-      try
-      {
+      try {
          m2.getShortProperty("myFloat");
          ProxyAssertSupport.fail();
       }
-      catch (MessageFormatException e)
-      {
+      catch (MessageFormatException e) {
       }
 
-      try
-      {
+      try {
          m2.getLongProperty("myFloat");
          ProxyAssertSupport.fail();
       }
-      catch (MessageFormatException e)
-      {
+      catch (MessageFormatException e) {
       }
 
-      try
-      {
+      try {
          m2.getByteProperty("myFloat");
          ProxyAssertSupport.fail();
       }
-      catch (MessageFormatException e)
-      {
+      catch (MessageFormatException e) {
       }
 
-      try
-      {
+      try {
          m2.getBooleanProperty("myFloat");
          ProxyAssertSupport.fail();
       }
-      catch (MessageFormatException e)
-      {
+      catch (MessageFormatException e) {
       }
    }
 
    @Test
-   public void testDoubleConversion() throws Exception
-   {
+   public void testDoubleConversion() throws Exception {
       Message m1 = queueProducerSession.createMessage();
 
       double myDouble = Double.MAX_VALUE - 72387633;
@@ -1239,64 +1022,51 @@ public class MessagePropertyConversionTest extends ActiveMQServerTestCase
       ProxyAssertSupport.assertEquals(myDouble, m2.getDoubleProperty("myDouble"), 0);
       ProxyAssertSupport.assertEquals(String.valueOf(myDouble), m2.getStringProperty("myDouble"));
 
-      try
-      {
+      try {
          m2.getFloatProperty("myDouble");
          ProxyAssertSupport.fail();
       }
-      catch (MessageFormatException e)
-      {
+      catch (MessageFormatException e) {
       }
 
-      try
-      {
+      try {
          m2.getIntProperty("myDouble");
          ProxyAssertSupport.fail();
       }
-      catch (MessageFormatException e)
-      {
+      catch (MessageFormatException e) {
       }
 
-      try
-      {
+      try {
          m2.getShortProperty("myDouble");
          ProxyAssertSupport.fail();
       }
-      catch (MessageFormatException e)
-      {
+      catch (MessageFormatException e) {
       }
 
-      try
-      {
+      try {
          m2.getByteProperty("myDouble");
          ProxyAssertSupport.fail();
       }
-      catch (MessageFormatException e)
-      {
+      catch (MessageFormatException e) {
       }
 
-      try
-      {
+      try {
          m2.getBooleanProperty("myDouble");
          ProxyAssertSupport.fail();
       }
-      catch (MessageFormatException e)
-      {
+      catch (MessageFormatException e) {
       }
 
-      try
-      {
+      try {
          m2.getFloatProperty("myDouble");
          ProxyAssertSupport.fail();
       }
-      catch (MessageFormatException e)
-      {
+      catch (MessageFormatException e) {
       }
    }
 
    @Test
-   public void testStringConversion() throws Exception
-   {
+   public void testStringConversion() throws Exception {
       Message m1 = queueProducerSession.createMessage();
 
       boolean myBool = true;
@@ -1347,59 +1117,46 @@ public class MessagePropertyConversionTest extends ActiveMQServerTestCase
 
       ProxyAssertSupport.assertEquals(false, m4.getBooleanProperty("myIllegal"));
 
-      try
-      {
+      try {
          m4.getByteProperty("myIllegal");
          ProxyAssertSupport.fail();
       }
-      catch (NumberFormatException e)
-      {
+      catch (NumberFormatException e) {
       }
-      try
-      {
+      try {
          m4.getShortProperty("myIllegal");
          ProxyAssertSupport.fail();
       }
-      catch (NumberFormatException e)
-      {
+      catch (NumberFormatException e) {
       }
-      try
-      {
+      try {
          m4.getIntProperty("myIllegal");
          ProxyAssertSupport.fail();
       }
-      catch (NumberFormatException e)
-      {
+      catch (NumberFormatException e) {
       }
-      try
-      {
+      try {
          m4.getLongProperty("myIllegal");
          ProxyAssertSupport.fail();
       }
-      catch (NumberFormatException e)
-      {
+      catch (NumberFormatException e) {
       }
-      try
-      {
+      try {
          m4.getFloatProperty("myIllegal");
          ProxyAssertSupport.fail();
       }
-      catch (NumberFormatException e)
-      {
+      catch (NumberFormatException e) {
       }
-      try
-      {
+      try {
          m4.getDoubleProperty("myIllegal");
          ProxyAssertSupport.fail();
       }
-      catch (NumberFormatException e)
-      {
+      catch (NumberFormatException e) {
       }
    }
 
    @Test
-   public void testJMSXDeliveryCountConversion() throws Exception
-   {
+   public void testJMSXDeliveryCountConversion() throws Exception {
       Message m1 = queueProducerSession.createMessage();
       queueProducer.send(m1);
 

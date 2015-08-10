@@ -20,51 +20,44 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 
-public class SessionDeleteQueueMessage extends PacketImpl
-{
+public class SessionDeleteQueueMessage extends PacketImpl {
+
    private SimpleString queueName;
 
-   public SessionDeleteQueueMessage(final SimpleString queueName)
-   {
+   public SessionDeleteQueueMessage(final SimpleString queueName) {
       super(DELETE_QUEUE);
 
       this.queueName = queueName;
    }
 
-   public SessionDeleteQueueMessage()
-   {
+   public SessionDeleteQueueMessage() {
       super(DELETE_QUEUE);
    }
 
    @Override
-   public String toString()
-   {
+   public String toString() {
       StringBuffer buff = new StringBuffer(getParentString());
       buff.append(", queueName=" + queueName);
       buff.append("]");
       return buff.toString();
    }
 
-   public SimpleString getQueueName()
-   {
+   public SimpleString getQueueName() {
       return queueName;
    }
 
    @Override
-   public void encodeRest(final ActiveMQBuffer buffer)
-   {
+   public void encodeRest(final ActiveMQBuffer buffer) {
       buffer.writeSimpleString(queueName);
    }
 
    @Override
-   public void decodeRest(final ActiveMQBuffer buffer)
-   {
+   public void decodeRest(final ActiveMQBuffer buffer) {
       queueName = buffer.readSimpleString();
    }
 
    @Override
-   public int hashCode()
-   {
+   public int hashCode() {
       final int prime = 31;
       int result = super.hashCode();
       result = prime * result + ((queueName == null) ? 0 : queueName.hashCode());
@@ -72,17 +65,15 @@ public class SessionDeleteQueueMessage extends PacketImpl
    }
 
    @Override
-   public boolean equals(Object obj)
-   {
+   public boolean equals(Object obj) {
       if (this == obj)
          return true;
       if (!super.equals(obj))
          return false;
       if (!(obj instanceof SessionDeleteQueueMessage))
          return false;
-      SessionDeleteQueueMessage other = (SessionDeleteQueueMessage)obj;
-      if (queueName == null)
-      {
+      SessionDeleteQueueMessage other = (SessionDeleteQueueMessage) obj;
+      if (queueName == null) {
          if (other.queueName != null)
             return false;
       }

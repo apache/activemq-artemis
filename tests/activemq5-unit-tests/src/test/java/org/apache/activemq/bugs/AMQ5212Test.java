@@ -25,6 +25,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.Session;
+
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.ActiveMQMessageProducer;
@@ -40,186 +41,185 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 @RunWith(value = Parameterized.class)
 public class AMQ5212Test {
 
-    BrokerService brokerService;
+   BrokerService brokerService;
 
-    @Parameterized.Parameter(0)
-    public boolean concurrentStoreAndDispatchQ = true;
+   @Parameterized.Parameter(0)
+   public boolean concurrentStoreAndDispatchQ = true;
 
-    @Parameterized.Parameters(name = "concurrentStoreAndDispatch={0}")
-    public static Iterable<Object[]> getTestParameters() {
-        return Arrays.asList(new Object[][]{{Boolean.TRUE}, {Boolean.FALSE}});
-    }
+   @Parameterized.Parameters(name = "concurrentStoreAndDispatch={0}")
+   public static Iterable<Object[]> getTestParameters() {
+      return Arrays.asList(new Object[][]{{Boolean.TRUE}, {Boolean.FALSE}});
+   }
 
-    @Before
-    public void setUp() throws Exception {
-        start(true);
-    }
+   @Before
+   public void setUp() throws Exception {
+      start(true);
+   }
 
-    public void start(boolean deleteAllMessages) throws Exception {
-        brokerService = new BrokerService();
-        if (deleteAllMessages) {
-            brokerService.deleteAllMessages();
-        }
-        ((KahaDBPersistenceAdapter)brokerService.getPersistenceAdapter()).setConcurrentStoreAndDispatchQueues(concurrentStoreAndDispatchQ);
-        brokerService.addConnector("tcp://localhost:0");
-        brokerService.setAdvisorySupport(false);
-        brokerService.start();
-    }
+   public void start(boolean deleteAllMessages) throws Exception {
+      brokerService = new BrokerService();
+      if (deleteAllMessages) {
+         brokerService.deleteAllMessages();
+      }
+      ((KahaDBPersistenceAdapter) brokerService.getPersistenceAdapter()).setConcurrentStoreAndDispatchQueues(concurrentStoreAndDispatchQ);
+      brokerService.addConnector("tcp://localhost:0");
+      brokerService.setAdvisorySupport(false);
+      brokerService.start();
+   }
 
-    @After
-    public void tearDown() throws Exception {
-        brokerService.stop();
-    }
+   @After
+   public void tearDown() throws Exception {
+      brokerService.stop();
+   }
 
-    @Test
-    public void verifyDuplicateSuppressionWithConsumer() throws Exception {
-        doVerifyDuplicateSuppression(100, 100, true);
-    }
+   @Test
+   public void verifyDuplicateSuppressionWithConsumer() throws Exception {
+      doVerifyDuplicateSuppression(100, 100, true);
+   }
 
-    @Test
-    public void verifyDuplicateSuppression() throws Exception {
-        doVerifyDuplicateSuppression(100, 100, false);
-    }
+   @Test
+   public void verifyDuplicateSuppression() throws Exception {
+      doVerifyDuplicateSuppression(100, 100, false);
+   }
 
-    public void doVerifyDuplicateSuppression(final int numToSend, final int expectedTotalEnqueue, final boolean demand) throws Exception {
-        final ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(brokerService.getTransportConnectors().get(0).getPublishableConnectString());
-        connectionFactory.setCopyMessageOnSend(false);
-        connectionFactory.setWatchTopicAdvisories(false);
+   public void doVerifyDuplicateSuppression(final int numToSend,
+                                            final int expectedTotalEnqueue,
+                                            final boolean demand) throws Exception {
+      final ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(brokerService.getTransportConnectors().get(0).getPublishableConnectString());
+      connectionFactory.setCopyMessageOnSend(false);
+      connectionFactory.setWatchTopicAdvisories(false);
 
-        final int concurrency = 40;
-        final AtomicInteger workCount = new AtomicInteger(numToSend);
-        ExecutorService executorService = Executors.newFixedThreadPool(concurrency);
-        for (int i = 0; i < concurrency; i++) {
-            executorService.execute(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        int i;
-                        while ((i = workCount.getAndDecrement()) > 0) {
-                            ActiveMQConnection activeMQConnection = (ActiveMQConnection) connectionFactory.createConnection();
-                            activeMQConnection.start();
-                            ActiveMQSession activeMQSession = (ActiveMQSession) activeMQConnection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
-
-                            ActiveMQQueue dest = new ActiveMQQueue("queue-" + i + "-"
-                                    + AMQ5212Test.class.getSimpleName());
-                            ActiveMQMessageProducer activeMQMessageProducer = (ActiveMQMessageProducer) activeMQSession.createProducer(dest);
-                            if (demand) {
-                                // create demand so page in will happen
-                                activeMQSession.createConsumer(dest);
-                            }
-                            ActiveMQTextMessage message = new ActiveMQTextMessage();
-                            message.setDestination(dest);
-                            activeMQMessageProducer.send(message, null);
-
-                            // send a duplicate
-                            activeMQConnection.syncSendPacket(message);
-                            activeMQConnection.close();
-
-                        }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            });
-        }
-        TimeUnit.SECONDS.sleep(1);
-        executorService.shutdown();
-        executorService.awaitTermination(5, TimeUnit.MINUTES);
-
-        Wait.waitFor(new Wait.Condition() {
+      final int concurrency = 40;
+      final AtomicInteger workCount = new AtomicInteger(numToSend);
+      ExecutorService executorService = Executors.newFixedThreadPool(concurrency);
+      for (int i = 0; i < concurrency; i++) {
+         executorService.execute(new Runnable() {
             @Override
-            public boolean isSatisified() throws Exception {
-                return expectedTotalEnqueue == brokerService.getAdminView().getTotalEnqueueCount();
+            public void run() {
+               try {
+                  int i;
+                  while ((i = workCount.getAndDecrement()) > 0) {
+                     ActiveMQConnection activeMQConnection = (ActiveMQConnection) connectionFactory.createConnection();
+                     activeMQConnection.start();
+                     ActiveMQSession activeMQSession = (ActiveMQSession) activeMQConnection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
+
+                     ActiveMQQueue dest = new ActiveMQQueue("queue-" + i + "-" + AMQ5212Test.class.getSimpleName());
+                     ActiveMQMessageProducer activeMQMessageProducer = (ActiveMQMessageProducer) activeMQSession.createProducer(dest);
+                     if (demand) {
+                        // create demand so page in will happen
+                        activeMQSession.createConsumer(dest);
+                     }
+                     ActiveMQTextMessage message = new ActiveMQTextMessage();
+                     message.setDestination(dest);
+                     activeMQMessageProducer.send(message, null);
+
+                     // send a duplicate
+                     activeMQConnection.syncSendPacket(message);
+                     activeMQConnection.close();
+
+                  }
+               }
+               catch (Exception e) {
+                  e.printStackTrace();
+               }
             }
-        });
-        assertEquals("total enqueue as expected", expectedTotalEnqueue, brokerService.getAdminView().getTotalEnqueueCount());
-    }
+         });
+      }
+      TimeUnit.SECONDS.sleep(1);
+      executorService.shutdown();
+      executorService.awaitTermination(5, TimeUnit.MINUTES);
 
-    @Test
-    public void verifyConsumptionOnDuplicate() throws Exception {
+      Wait.waitFor(new Wait.Condition() {
+         @Override
+         public boolean isSatisified() throws Exception {
+            return expectedTotalEnqueue == brokerService.getAdminView().getTotalEnqueueCount();
+         }
+      });
+      assertEquals("total enqueue as expected", expectedTotalEnqueue, brokerService.getAdminView().getTotalEnqueueCount());
+   }
 
-        ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(brokerService.getTransportConnectors().get(0).getPublishableConnectString());
-        connectionFactory.setCopyMessageOnSend(false);
-        connectionFactory.setWatchTopicAdvisories(false);
+   @Test
+   public void verifyConsumptionOnDuplicate() throws Exception {
 
-        ActiveMQConnection activeMQConnection = (ActiveMQConnection) connectionFactory.createConnection();
-        activeMQConnection.start();
-        ActiveMQSession activeMQSession = (ActiveMQSession) activeMQConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(brokerService.getTransportConnectors().get(0).getPublishableConnectString());
+      connectionFactory.setCopyMessageOnSend(false);
+      connectionFactory.setWatchTopicAdvisories(false);
 
-        ActiveMQQueue dest = new ActiveMQQueue("Q");
-        ActiveMQMessageProducer activeMQMessageProducer = (ActiveMQMessageProducer) activeMQSession.createProducer(dest);
-        ActiveMQTextMessage message = new ActiveMQTextMessage();
-        message.setDestination(dest);
-        activeMQMessageProducer.send(message, null);
+      ActiveMQConnection activeMQConnection = (ActiveMQConnection) connectionFactory.createConnection();
+      activeMQConnection.start();
+      ActiveMQSession activeMQSession = (ActiveMQSession) activeMQConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-        // send a duplicate
-        activeMQConnection.syncSendPacket(message);
+      ActiveMQQueue dest = new ActiveMQQueue("Q");
+      ActiveMQMessageProducer activeMQMessageProducer = (ActiveMQMessageProducer) activeMQSession.createProducer(dest);
+      ActiveMQTextMessage message = new ActiveMQTextMessage();
+      message.setDestination(dest);
+      activeMQMessageProducer.send(message, null);
 
-        activeMQConnection.close();
+      // send a duplicate
+      activeMQConnection.syncSendPacket(message);
 
-        // verify original can be consumed after restart
-        brokerService.stop();
-        brokerService.start(false);
+      activeMQConnection.close();
 
-        connectionFactory = new ActiveMQConnectionFactory(brokerService.getTransportConnectors().get(0).getPublishableConnectString());
-        connectionFactory.setCopyMessageOnSend(false);
-        connectionFactory.setWatchTopicAdvisories(false);
+      // verify original can be consumed after restart
+      brokerService.stop();
+      brokerService.start(false);
 
-        activeMQConnection = (ActiveMQConnection) connectionFactory.createConnection();
-        activeMQConnection.start();
-        activeMQSession = (ActiveMQSession) activeMQConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      connectionFactory = new ActiveMQConnectionFactory(brokerService.getTransportConnectors().get(0).getPublishableConnectString());
+      connectionFactory.setCopyMessageOnSend(false);
+      connectionFactory.setWatchTopicAdvisories(false);
 
-        MessageConsumer messageConsumer = activeMQSession.createConsumer(dest);
-        Message received = messageConsumer.receive(4000);
-        assertNotNull("Got message", received);
-        assertEquals("match", message.getJMSMessageID(), received.getJMSMessageID());
+      activeMQConnection = (ActiveMQConnection) connectionFactory.createConnection();
+      activeMQConnection.start();
+      activeMQSession = (ActiveMQSession) activeMQConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-        activeMQConnection.close();
-    }
+      MessageConsumer messageConsumer = activeMQSession.createConsumer(dest);
+      Message received = messageConsumer.receive(4000);
+      assertNotNull("Got message", received);
+      assertEquals("match", message.getJMSMessageID(), received.getJMSMessageID());
 
-    @Test
-    public void verifyClientAckConsumptionOnDuplicate() throws Exception {
+      activeMQConnection.close();
+   }
 
-        ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(brokerService.getTransportConnectors().get(0).getPublishableConnectString());
-        connectionFactory.setCopyMessageOnSend(false);
-        connectionFactory.setWatchTopicAdvisories(false);
+   @Test
+   public void verifyClientAckConsumptionOnDuplicate() throws Exception {
 
-        ActiveMQConnection activeMQConnection = (ActiveMQConnection) connectionFactory.createConnection();
-        activeMQConnection.start();
-        ActiveMQSession activeMQSession = (ActiveMQSession) activeMQConnection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
+      ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(brokerService.getTransportConnectors().get(0).getPublishableConnectString());
+      connectionFactory.setCopyMessageOnSend(false);
+      connectionFactory.setWatchTopicAdvisories(false);
 
-        ActiveMQQueue dest = new ActiveMQQueue("Q");
+      ActiveMQConnection activeMQConnection = (ActiveMQConnection) connectionFactory.createConnection();
+      activeMQConnection.start();
+      ActiveMQSession activeMQSession = (ActiveMQSession) activeMQConnection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
 
-        MessageConsumer messageConsumer = activeMQSession.createConsumer(dest);
+      ActiveMQQueue dest = new ActiveMQQueue("Q");
 
-        ActiveMQMessageProducer activeMQMessageProducer = (ActiveMQMessageProducer) activeMQSession.createProducer(dest);
-        ActiveMQTextMessage message = new ActiveMQTextMessage();
-        message.setDestination(dest);
-        activeMQMessageProducer.send(message, null);
+      MessageConsumer messageConsumer = activeMQSession.createConsumer(dest);
 
-        // send a duplicate
-        activeMQConnection.syncSendPacket(message);
+      ActiveMQMessageProducer activeMQMessageProducer = (ActiveMQMessageProducer) activeMQSession.createProducer(dest);
+      ActiveMQTextMessage message = new ActiveMQTextMessage();
+      message.setDestination(dest);
+      activeMQMessageProducer.send(message, null);
 
+      // send a duplicate
+      activeMQConnection.syncSendPacket(message);
 
-        Message received = messageConsumer.receive(4000);
-        assertNotNull("Got message", received);
-        assertEquals("match", message.getJMSMessageID(), received.getJMSMessageID());
-        messageConsumer.close();
+      Message received = messageConsumer.receive(4000);
+      assertNotNull("Got message", received);
+      assertEquals("match", message.getJMSMessageID(), received.getJMSMessageID());
+      messageConsumer.close();
 
+      messageConsumer = activeMQSession.createConsumer(dest);
+      received = messageConsumer.receive(4000);
+      assertNotNull("Got message", received);
+      assertEquals("match", message.getJMSMessageID(), received.getJMSMessageID());
+      received.acknowledge();
 
-        messageConsumer = activeMQSession.createConsumer(dest);
-        received = messageConsumer.receive(4000);
-        assertNotNull("Got message", received);
-        assertEquals("match", message.getJMSMessageID(), received.getJMSMessageID());
-        received.acknowledge();
-
-        activeMQConnection.close();
-    }
+      activeMQConnection.close();
+   }
 }

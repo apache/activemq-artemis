@@ -21,11 +21,12 @@ import java.util.List;
 /**
  * A Callback to receive information about bad transactions for extra cleanup required for broken transactions such as large messages.
  */
-public interface TransactionFailureCallback
-{
+public interface TransactionFailureCallback {
 
-   /** To be used to inform about transactions without commit records.
-    *  This could be used to remove extra resources associated with the transactions (such as external files received during the transaction) */
+   /**
+    * To be used to inform about transactions without commit records.
+    * This could be used to remove extra resources associated with the transactions (such as external files received during the transaction)
+    */
    void failedTransaction(long transactionID, List<RecordInfo> records, List<RecordInfo> recordsToDelete);
 
 }

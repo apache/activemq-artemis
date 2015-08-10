@@ -28,30 +28,40 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * 
+ *
  */
 public class UnreliableCommandDatagramSocket extends CommandDatagramSocket {
-    private static final Logger LOG = LoggerFactory.getLogger(UnreliableCommandDatagramSocket.class);
 
-    private DropCommandStrategy dropCommandStrategy;
+   private static final Logger LOG = LoggerFactory.getLogger(UnreliableCommandDatagramSocket.class);
 
-    public UnreliableCommandDatagramSocket(UdpTransport transport, OpenWireFormat wireFormat, int datagramSize, SocketAddress targetAddress,
-                                           DatagramHeaderMarshaller headerMarshaller, DatagramSocket channel, DropCommandStrategy strategy) {
-        super(transport, wireFormat, datagramSize, targetAddress, headerMarshaller, channel);
-        this.dropCommandStrategy = strategy;
-    }
+   private DropCommandStrategy dropCommandStrategy;
 
-    protected void sendWriteBuffer(int commandId, SocketAddress address, byte[] data, boolean redelivery) throws IOException {
-        if (dropCommandStrategy.shouldDropCommand(commandId, address, redelivery)) {
-            LOG.info("Dropping datagram with command: " + commandId);
+   public UnreliableCommandDatagramSocket(UdpTransport transport,
+                                          OpenWireFormat wireFormat,
+                                          int datagramSize,
+                                          SocketAddress targetAddress,
+                                          DatagramHeaderMarshaller headerMarshaller,
+                                          DatagramSocket channel,
+                                          DropCommandStrategy strategy) {
+      super(transport, wireFormat, datagramSize, targetAddress, headerMarshaller, channel);
+      this.dropCommandStrategy = strategy;
+   }
 
-            // lets still add it to the replay buffer though!
-            ReplayBuffer bufferCache = getReplayBuffer();
-            if (bufferCache != null && !redelivery) {
-                bufferCache.addBuffer(commandId, data);
-            }
-        } else {
-            super.sendWriteBuffer(commandId, address, data, redelivery);
-        }
-    }
+   protected void sendWriteBuffer(int commandId,
+                                  SocketAddress address,
+                                  byte[] data,
+                                  boolean redelivery) throws IOException {
+      if (dropCommandStrategy.shouldDropCommand(commandId, address, redelivery)) {
+         LOG.info("Dropping datagram with command: " + commandId);
+
+         // lets still add it to the replay buffer though!
+         ReplayBuffer bufferCache = getReplayBuffer();
+         if (bufferCache != null && !redelivery) {
+            bufferCache.addBuffer(commandId, data);
+         }
+      }
+      else {
+         super.sendWriteBuffer(commandId, address, data, redelivery);
+      }
+   }
 }

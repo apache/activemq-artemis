@@ -24,25 +24,26 @@ import javax.jms.TextMessage;
 import org.apache.activemq.command.ActiveMQTopic;
 
 /**
- * 
+ *
  */
 public class RetroactiveConsumerTestWithLastImagePolicyWithWildcardTest extends RetroactiveConsumerTestWithSimpleMessageListTest {
-    private int counter = 1;
 
-    protected void sendMessage(MessageProducer producer, TextMessage message) throws JMSException {
-        ActiveMQTopic topic = new ActiveMQTopic(destination.getPhysicalName() + "." + (counter++));
-        producer.send(topic, message);
-    }
+   private int counter = 1;
 
-    protected MessageProducer createProducer() throws JMSException {
-        return session.createProducer(null);
-    }
+   protected void sendMessage(MessageProducer producer, TextMessage message) throws JMSException {
+      ActiveMQTopic topic = new ActiveMQTopic(destination.getPhysicalName() + "." + (counter++));
+      producer.send(topic, message);
+   }
 
-    protected MessageConsumer createConsumer() throws JMSException {
-        return session.createConsumer(new ActiveMQTopic(destination.getPhysicalName() + ".>"));
-    }
+   protected MessageProducer createProducer() throws JMSException {
+      return session.createProducer(null);
+   }
 
-    protected String getBrokerXml() {
-        return "org/apache/activemq/test/retroactive/activemq-lastimage-policy.xml";
-    }
+   protected MessageConsumer createConsumer() throws JMSException {
+      return session.createConsumer(new ActiveMQTopic(destination.getPhysicalName() + ".>"));
+   }
+
+   protected String getBrokerXml() {
+      return "org/apache/activemq/test/retroactive/activemq-lastimage-policy.xml";
+   }
 }

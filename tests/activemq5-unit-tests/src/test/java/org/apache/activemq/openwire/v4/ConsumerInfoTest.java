@@ -24,62 +24,58 @@ import java.io.IOException;
 import org.apache.activemq.openwire.*;
 import org.apache.activemq.command.*;
 
-
 /**
  * Test case for the OpenWire marshalling for ConsumerInfo
  *
  *
  * NOTE!: This file is auto generated - do not modify!
- *        if you need to make a change, please see the modify the groovy scripts in the
- *        under src/gram/script and then use maven openwire:generate to regenerate 
- *        this file.
- *
- * 
+ * if you need to make a change, please see the modify the groovy scripts in the
+ * under src/gram/script and then use maven openwire:generate to regenerate
+ * this file.
  */
 public class ConsumerInfoTest extends BaseCommandTestSupport {
 
+   public static ConsumerInfoTest SINGLETON = new ConsumerInfoTest();
 
-    public static ConsumerInfoTest SINGLETON = new ConsumerInfoTest();
+   public Object createObject() throws Exception {
+      ConsumerInfo info = new ConsumerInfo();
+      populateObject(info);
+      return info;
+   }
 
-    public Object createObject() throws Exception {
-        ConsumerInfo info = new ConsumerInfo();
-        populateObject(info);
-        return info;
-    }
+   protected void populateObject(Object object) throws Exception {
+      super.populateObject(object);
+      ConsumerInfo info = (ConsumerInfo) object;
 
-    protected void populateObject(Object object) throws Exception {
-        super.populateObject(object);
-        ConsumerInfo info = (ConsumerInfo) object;
-
-        info.setConsumerId(createConsumerId("ConsumerId:1"));
-        info.setBrowser(true);
-        info.setDestination(createActiveMQDestination("Destination:2"));
-        info.setPrefetchSize(1);
-        info.setMaximumPendingMessageLimit(2);
-        info.setDispatchAsync(false);
-        info.setSelector("Selector:3");
-        info.setSubscriptionName("SubscriptionName:4");
-        info.setNoLocal(true);
-        info.setExclusive(false);
-        info.setRetroactive(true);
-        info.setPriority((byte) 1);
-        {
-            BrokerId value[] = new BrokerId[2];
-            for( int i=0; i < 2; i++ ) {
-                value[i] = createBrokerId("BrokerPath:5");
-            }
-            info.setBrokerPath(value);
-        }
-        info.setAdditionalPredicate(createBooleanExpression("AdditionalPredicate:6"));
-        info.setNetworkSubscription(false);
-        info.setOptimizedAcknowledge(true);
-        info.setNoRangeAcks(false);
-        {
-            ConsumerId value[] = new ConsumerId[2];
-            for( int i=0; i < 2; i++ ) {
-                value[i] = createConsumerId("NetworkConsumerPath:7");
-            }
-            info.setNetworkConsumerPath(value);
-        }
-    }
+      info.setConsumerId(createConsumerId("ConsumerId:1"));
+      info.setBrowser(true);
+      info.setDestination(createActiveMQDestination("Destination:2"));
+      info.setPrefetchSize(1);
+      info.setMaximumPendingMessageLimit(2);
+      info.setDispatchAsync(false);
+      info.setSelector("Selector:3");
+      info.setSubscriptionName("SubscriptionName:4");
+      info.setNoLocal(true);
+      info.setExclusive(false);
+      info.setRetroactive(true);
+      info.setPriority((byte) 1);
+      {
+         BrokerId value[] = new BrokerId[2];
+         for (int i = 0; i < 2; i++) {
+            value[i] = createBrokerId("BrokerPath:5");
+         }
+         info.setBrokerPath(value);
+      }
+      info.setAdditionalPredicate(createBooleanExpression("AdditionalPredicate:6"));
+      info.setNetworkSubscription(false);
+      info.setOptimizedAcknowledge(true);
+      info.setNoRangeAcks(false);
+      {
+         ConsumerId value[] = new ConsumerId[2];
+         for (int i = 0; i < 2; i++) {
+            value[i] = createConsumerId("NetworkConsumerPath:7");
+         }
+         info.setNetworkConsumerPath(value);
+      }
+   }
 }

@@ -26,125 +26,101 @@ import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.postoffice.PostOffice;
 import org.apache.activemq.artemis.core.server.ServerMessage;
 
-public final class FakePagingManager implements PagingManager
-{
+public final class FakePagingManager implements PagingManager {
 
-   public void activate()
-   {
+   public void activate() {
    }
 
-   public long addSize(final long size)
-   {
+   public long addSize(final long size) {
       return 0;
    }
 
-   public void addTransaction(final PageTransactionInfo pageTransaction)
-   {
+   public void addTransaction(final PageTransactionInfo pageTransaction) {
    }
 
-   public PagingStore createPageStore(final SimpleString destination) throws Exception
-   {
+   public PagingStore createPageStore(final SimpleString destination) throws Exception {
       return null;
    }
 
-   public long getTotalMemory()
-   {
+   public long getTotalMemory() {
       return 0;
    }
 
-   public SimpleString[] getStoreNames()
-   {
+   public SimpleString[] getStoreNames() {
       return null;
    }
 
-   public long getMaxMemory()
-   {
+   public long getMaxMemory() {
       return 0;
    }
 
-   public PagingStore getPageStore(final SimpleString address) throws Exception
-   {
+   public PagingStore getPageStore(final SimpleString address) throws Exception {
       return null;
    }
 
-   public void deletePageStore(SimpleString storeName) throws Exception
-   {
+   public void deletePageStore(SimpleString storeName) throws Exception {
    }
 
-   public PageTransactionInfo getTransaction(final long transactionID)
-   {
+   public PageTransactionInfo getTransaction(final long transactionID) {
       return null;
    }
 
-   public boolean isBackup()
-   {
+   public boolean isBackup() {
       return false;
    }
 
-   public boolean isGlobalPageMode()
-   {
+   public boolean isGlobalPageMode() {
       return false;
    }
 
-   public boolean isPaging(final SimpleString destination) throws Exception
-   {
+   public boolean isPaging(final SimpleString destination) throws Exception {
       return false;
    }
 
-   public boolean page(final ServerMessage message, final boolean duplicateDetection) throws Exception
-   {
+   public boolean page(final ServerMessage message, final boolean duplicateDetection) throws Exception {
       return false;
    }
 
-   public boolean page(final ServerMessage message, final long transactionId, final boolean duplicateDetection) throws Exception
-   {
+   public boolean page(final ServerMessage message,
+                       final long transactionId,
+                       final boolean duplicateDetection) throws Exception {
       return false;
    }
 
-   public void reloadStores() throws Exception
-   {
+   public void reloadStores() throws Exception {
    }
 
-   public void removeTransaction(final long transactionID)
-   {
+   public void removeTransaction(final long transactionID) {
 
    }
 
-   public void setGlobalPageMode(final boolean globalMode)
-   {
+   public void setGlobalPageMode(final boolean globalMode) {
    }
 
-   public void setPostOffice(final PostOffice postOffice)
-   {
+   public void setPostOffice(final PostOffice postOffice) {
    }
 
-   public void resumeDepages()
-   {
+   public void resumeDepages() {
    }
 
-   public void sync(final Collection<SimpleString> destinationsToSync) throws Exception
-   {
+   public void sync(final Collection<SimpleString> destinationsToSync) throws Exception {
    }
 
-   public boolean isStarted()
-   {
+   public boolean isStarted() {
       return false;
    }
 
-   public void start() throws Exception
-   {
+   public void start() throws Exception {
    }
 
-   public void stop() throws Exception
-   {
+   public void stop() throws Exception {
    }
 
    /*
     * (non-Javadoc)
     * @see org.apache.activemq.artemis.core.paging.PagingManager#isGlobalFull()
     */
-   public boolean isGlobalFull()
-   {
+   public boolean isGlobalFull() {
       return false;
    }
 
@@ -152,8 +128,7 @@ public final class FakePagingManager implements PagingManager
     * (non-Javadoc)
     * @see org.apache.activemq.artemis.core.paging.PagingManager#getTransactions()
     */
-   public Map<Long, PageTransactionInfo> getTransactions()
-   {
+   public Map<Long, PageTransactionInfo> getTransactions() {
       return null;
    }
 
@@ -161,37 +136,31 @@ public final class FakePagingManager implements PagingManager
     * (non-Javadoc)
     * @see org.apache.activemq.artemis.core.paging.PagingManager#processReload()
     */
-   public void processReload()
-   {
+   public void processReload() {
    }
 
    @Override
-   public void disableCleanup()
-   {
+   public void disableCleanup() {
    }
 
    @Override
-   public void resumeCleanup()
-   {
+   public void resumeCleanup() {
    }
 
    /*
     * (non-Javadoc)
     * @see org.apache.activemq.artemis.core.settings.HierarchicalRepositoryChangeListener#onChange()
     */
-   public void onChange()
-   {
+   public void onChange() {
    }
 
    @Override
-   public void lock()
-   {
+   public void lock() {
       // no-op
    }
 
    @Override
-   public void unlock()
-   {
+   public void unlock() {
       // no-op
    }
 

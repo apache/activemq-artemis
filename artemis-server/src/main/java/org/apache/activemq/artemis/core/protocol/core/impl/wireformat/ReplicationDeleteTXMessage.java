@@ -22,30 +22,29 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 
-public class ReplicationDeleteTXMessage extends PacketImpl
-{
+public class ReplicationDeleteTXMessage extends PacketImpl {
 
    private long txId;
 
    private long id;
 
-   /** 0 - BindingsImpl, 1 - MessagesJournal */
+   /**
+    * 0 - BindingsImpl, 1 - MessagesJournal
+    */
    private byte journalID;
 
    private EncodingSupport encodingData;
 
    private byte[] recordData;
 
-   public ReplicationDeleteTXMessage()
-   {
+   public ReplicationDeleteTXMessage() {
       super(PacketImpl.REPLICATION_DELETE_TX);
    }
 
    public ReplicationDeleteTXMessage(final byte journalID,
                                      final long txId,
                                      final long id,
-                                     final EncodingSupport encodingData)
-   {
+                                     final EncodingSupport encodingData) {
       this();
       this.journalID = journalID;
       this.txId = txId;
@@ -54,8 +53,7 @@ public class ReplicationDeleteTXMessage extends PacketImpl
    }
 
    @Override
-   public void encodeRest(final ActiveMQBuffer buffer)
-   {
+   public void encodeRest(final ActiveMQBuffer buffer) {
       buffer.writeByte(journalID);
       buffer.writeLong(txId);
       buffer.writeLong(id);
@@ -64,8 +62,7 @@ public class ReplicationDeleteTXMessage extends PacketImpl
    }
 
    @Override
-   public void decodeRest(final ActiveMQBuffer buffer)
-   {
+   public void decodeRest(final ActiveMQBuffer buffer) {
       journalID = buffer.readByte();
       txId = buffer.readLong();
       id = buffer.readLong();
@@ -77,57 +74,50 @@ public class ReplicationDeleteTXMessage extends PacketImpl
    /**
     * @return the id
     */
-   public long getId()
-   {
+   public long getId() {
       return id;
    }
 
-   public long getTxId()
-   {
+   public long getTxId() {
       return txId;
    }
 
    /**
     * @return the journalID
     */
-   public byte getJournalID()
-   {
+   public byte getJournalID() {
       return journalID;
    }
 
    /**
     * @return the recordData
     */
-   public byte[] getRecordData()
-   {
+   public byte[] getRecordData() {
       return recordData;
    }
 
    @Override
-   public int hashCode()
-   {
+   public int hashCode() {
       final int prime = 31;
       int result = super.hashCode();
       result = prime * result + ((encodingData == null) ? 0 : encodingData.hashCode());
-      result = prime * result + (int)(id ^ (id >>> 32));
+      result = prime * result + (int) (id ^ (id >>> 32));
       result = prime * result + journalID;
       result = prime * result + Arrays.hashCode(recordData);
-      result = prime * result + (int)(txId ^ (txId >>> 32));
+      result = prime * result + (int) (txId ^ (txId >>> 32));
       return result;
    }
 
    @Override
-   public boolean equals(Object obj)
-   {
+   public boolean equals(Object obj) {
       if (this == obj)
          return true;
       if (!super.equals(obj))
          return false;
       if (getClass() != obj.getClass())
          return false;
-      ReplicationDeleteTXMessage other = (ReplicationDeleteTXMessage)obj;
-      if (encodingData == null)
-      {
+      ReplicationDeleteTXMessage other = (ReplicationDeleteTXMessage) obj;
+      if (encodingData == null) {
          if (other.encodingData != null)
             return false;
       }

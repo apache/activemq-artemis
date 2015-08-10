@@ -25,8 +25,8 @@ import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
  * Each TopologyMember represents a single server and possibly any backup server that may take over
  * its duties (using the nodeId of the original server).
  */
-public interface TopologyMember
-{
+public interface TopologyMember {
+
    /**
     * Returns the {@code backup-group-name} of the live server and backup servers associated with
     * Topology entry.

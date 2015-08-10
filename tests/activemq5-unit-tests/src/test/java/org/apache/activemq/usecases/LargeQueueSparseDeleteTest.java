@@ -36,165 +36,145 @@ import org.slf4j.LoggerFactory;
  * {@link org.apache.activemq.broker.region.Queue#moveMatchingMessagesTo(org.apache.activemq.broker.ConnectionContext, String, org.apache.activemq.command.ActiveMQDestination)}.
  */
 public class LargeQueueSparseDeleteTest extends EmbeddedBrokerTestSupport {
-    private static final Logger LOG = LoggerFactory.getLogger(LargeQueueSparseDeleteTest.class);
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void setUp() throws Exception {
-        super.useTopic = false;
-        super.setUp();
-    }
+   private static final Logger LOG = LoggerFactory.getLogger(LargeQueueSparseDeleteTest.class);
 
-    /**
-     * The test queue is filled with QUEUE_SIZE test messages, each with a
-     * numeric id property beginning at 0. Once the queue is filled, the last
-     * message (id = QUEUE_SIZE-1) is moved to another queue. The test succeeds
-     * if the move completes within TEST_TIMEOUT milliseconds.
-     *
-     * @throws Exception
-     */
-    public void testMoveMessages() throws Exception {
-        final int QUEUE_SIZE = 30000;
-        final String MOVE_TO_DESTINATION_NAME = getDestinationString()
-                + ".dest";
-        final long TEST_TIMEOUT = 20000;
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   protected void setUp() throws Exception {
+      super.useTopic = false;
+      super.setUp();
+   }
 
-        // Populate a test queue with uniquely-identifiable messages.
-        Connection conn = createConnection();
-        try {
-            conn.start();
-            Session session = conn.createSession(true,
-                    Session.SESSION_TRANSACTED);
-            MessageProducer producer = session.createProducer(destination);
-            for (int i = 0; i < QUEUE_SIZE; i++) {
-                Message message = session.createMessage();
-                message.setIntProperty("id", i);
-                producer.send(message);
-            }
-            session.commit();
-        } finally {
-            conn.close();
-        }
+   /**
+    * The test queue is filled with QUEUE_SIZE test messages, each with a
+    * numeric id property beginning at 0. Once the queue is filled, the last
+    * message (id = QUEUE_SIZE-1) is moved to another queue. The test succeeds
+    * if the move completes within TEST_TIMEOUT milliseconds.
+    *
+    * @throws Exception
+    */
+   public void testMoveMessages() throws Exception {
+      final int QUEUE_SIZE = 30000;
+      final String MOVE_TO_DESTINATION_NAME = getDestinationString() + ".dest";
+      final long TEST_TIMEOUT = 20000;
 
-        // Access the implementation of the test queue and move the last message
-        // to another queue. Verify that the move occurred within the limits of
-        // the test.
-        Queue queue = (Queue) broker.getRegionBroker().getDestinationMap().get(
-                destination);
+      // Populate a test queue with uniquely-identifiable messages.
+      Connection conn = createConnection();
+      try {
+         conn.start();
+         Session session = conn.createSession(true, Session.SESSION_TRANSACTED);
+         MessageProducer producer = session.createProducer(destination);
+         for (int i = 0; i < QUEUE_SIZE; i++) {
+            Message message = session.createMessage();
+            message.setIntProperty("id", i);
+            producer.send(message);
+         }
+         session.commit();
+      }
+      finally {
+         conn.close();
+      }
 
-        ConnectionContext context = new ConnectionContext(
-                new NonCachedMessageEvaluationContext());
-        context.setBroker(broker.getBroker());
-        context.getMessageEvaluationContext().setDestination(destination);
+      // Access the implementation of the test queue and move the last message
+      // to another queue. Verify that the move occurred within the limits of
+      // the test.
+      Queue queue = (Queue) broker.getRegionBroker().getDestinationMap().get(destination);
 
-        long startTimeMillis = System.currentTimeMillis();
-        Assert.assertEquals(1, queue
-                .moveMatchingMessagesTo(context, "id=" + (QUEUE_SIZE - 1),
-                        createDestination(MOVE_TO_DESTINATION_NAME)));
+      ConnectionContext context = new ConnectionContext(new NonCachedMessageEvaluationContext());
+      context.setBroker(broker.getBroker());
+      context.getMessageEvaluationContext().setDestination(destination);
 
-        long durationMillis = System.currentTimeMillis() - startTimeMillis;
+      long startTimeMillis = System.currentTimeMillis();
+      Assert.assertEquals(1, queue.moveMatchingMessagesTo(context, "id=" + (QUEUE_SIZE - 1), createDestination(MOVE_TO_DESTINATION_NAME)));
 
-        LOG.info("It took " + durationMillis
-                + "ms to move the last message from a queue a " + QUEUE_SIZE
-                + " messages.");
+      long durationMillis = System.currentTimeMillis() - startTimeMillis;
 
-        Assert.assertTrue("Moving the message took too long: " + durationMillis
-                + "ms", durationMillis < TEST_TIMEOUT);
-    }
+      LOG.info("It took " + durationMillis + "ms to move the last message from a queue a " + QUEUE_SIZE + " messages.");
 
-    public void testCopyMessages() throws Exception {
-        final int QUEUE_SIZE = 30000;
-        final String MOVE_TO_DESTINATION_NAME = getDestinationString()
-                + ".dest";
-        final long TEST_TIMEOUT = 10000;
+      Assert.assertTrue("Moving the message took too long: " + durationMillis + "ms", durationMillis < TEST_TIMEOUT);
+   }
 
-        // Populate a test queue with uniquely-identifiable messages.
-        Connection conn = createConnection();
-        try {
-            conn.start();
-            Session session = conn.createSession(true,
-                    Session.SESSION_TRANSACTED);
-            MessageProducer producer = session.createProducer(destination);
-            for (int i = 0; i < QUEUE_SIZE; i++) {
-                Message message = session.createMessage();
-                message.setIntProperty("id", i);
-                producer.send(message);
-            }
-            session.commit();
-        } finally {
-            conn.close();
-        }
+   public void testCopyMessages() throws Exception {
+      final int QUEUE_SIZE = 30000;
+      final String MOVE_TO_DESTINATION_NAME = getDestinationString() + ".dest";
+      final long TEST_TIMEOUT = 10000;
 
-        // Access the implementation of the test queue and move the last message
-        // to another queue. Verify that the move occurred within the limits of
-        // the test.
-        Queue queue = (Queue) broker.getRegionBroker().getDestinationMap().get(
-                destination);
+      // Populate a test queue with uniquely-identifiable messages.
+      Connection conn = createConnection();
+      try {
+         conn.start();
+         Session session = conn.createSession(true, Session.SESSION_TRANSACTED);
+         MessageProducer producer = session.createProducer(destination);
+         for (int i = 0; i < QUEUE_SIZE; i++) {
+            Message message = session.createMessage();
+            message.setIntProperty("id", i);
+            producer.send(message);
+         }
+         session.commit();
+      }
+      finally {
+         conn.close();
+      }
 
-        ConnectionContext context = new ConnectionContext(
-                new NonCachedMessageEvaluationContext());
-        context.setBroker(broker.getBroker());
-        context.getMessageEvaluationContext().setDestination(destination);
+      // Access the implementation of the test queue and move the last message
+      // to another queue. Verify that the move occurred within the limits of
+      // the test.
+      Queue queue = (Queue) broker.getRegionBroker().getDestinationMap().get(destination);
 
-        long startTimeMillis = System.currentTimeMillis();
-        Assert.assertEquals(1,
-            queue.copyMatchingMessagesTo(context, "id=" + (QUEUE_SIZE - 1), createDestination(MOVE_TO_DESTINATION_NAME)));
+      ConnectionContext context = new ConnectionContext(new NonCachedMessageEvaluationContext());
+      context.setBroker(broker.getBroker());
+      context.getMessageEvaluationContext().setDestination(destination);
 
-        long durationMillis = System.currentTimeMillis() - startTimeMillis;
+      long startTimeMillis = System.currentTimeMillis();
+      Assert.assertEquals(1, queue.copyMatchingMessagesTo(context, "id=" + (QUEUE_SIZE - 1), createDestination(MOVE_TO_DESTINATION_NAME)));
 
-        LOG.info("It took " + durationMillis
-                + "ms to copy the last message from a queue a " + QUEUE_SIZE
-                + " messages.");
+      long durationMillis = System.currentTimeMillis() - startTimeMillis;
 
-        Assert.assertTrue("Copying the message took too long: " + durationMillis
-                + "ms", durationMillis < TEST_TIMEOUT);
-    }
+      LOG.info("It took " + durationMillis + "ms to copy the last message from a queue a " + QUEUE_SIZE + " messages.");
 
-    public void testRemoveMessages() throws Exception {
-        final int QUEUE_SIZE = 30000;
-        final long TEST_TIMEOUT = 20000;
+      Assert.assertTrue("Copying the message took too long: " + durationMillis + "ms", durationMillis < TEST_TIMEOUT);
+   }
 
-        // Populate a test queue with uniquely-identifiable messages.
-        Connection conn = createConnection();
-        try {
-            conn.start();
-            Session session = conn.createSession(true,
-                    Session.SESSION_TRANSACTED);
-            MessageProducer producer = session.createProducer(destination);
-            for (int i = 0; i < QUEUE_SIZE; i++) {
-                Message message = session.createMessage();
-                message.setIntProperty("id", i);
-                producer.send(message);
-            }
-            session.commit();
-        } finally {
-            conn.close();
-        }
+   public void testRemoveMessages() throws Exception {
+      final int QUEUE_SIZE = 30000;
+      final long TEST_TIMEOUT = 20000;
 
-        // Access the implementation of the test queue and move the last message
-        // to another queue. Verify that the move occurred within the limits of
-        // the test.
-        Queue queue = (Queue) broker.getRegionBroker().getDestinationMap().get(
-                destination);
+      // Populate a test queue with uniquely-identifiable messages.
+      Connection conn = createConnection();
+      try {
+         conn.start();
+         Session session = conn.createSession(true, Session.SESSION_TRANSACTED);
+         MessageProducer producer = session.createProducer(destination);
+         for (int i = 0; i < QUEUE_SIZE; i++) {
+            Message message = session.createMessage();
+            message.setIntProperty("id", i);
+            producer.send(message);
+         }
+         session.commit();
+      }
+      finally {
+         conn.close();
+      }
 
-        ConnectionContext context = new ConnectionContext(
-                new NonCachedMessageEvaluationContext());
-        context.setBroker(broker.getBroker());
-        context.getMessageEvaluationContext().setDestination(destination);
+      // Access the implementation of the test queue and move the last message
+      // to another queue. Verify that the move occurred within the limits of
+      // the test.
+      Queue queue = (Queue) broker.getRegionBroker().getDestinationMap().get(destination);
 
-        long startTimeMillis = System.currentTimeMillis();
-        Assert.assertEquals(1,
-            queue.removeMatchingMessages("id=" + (QUEUE_SIZE - 1)));
+      ConnectionContext context = new ConnectionContext(new NonCachedMessageEvaluationContext());
+      context.setBroker(broker.getBroker());
+      context.getMessageEvaluationContext().setDestination(destination);
 
-        long durationMillis = System.currentTimeMillis() - startTimeMillis;
+      long startTimeMillis = System.currentTimeMillis();
+      Assert.assertEquals(1, queue.removeMatchingMessages("id=" + (QUEUE_SIZE - 1)));
 
-        LOG.info("It took " + durationMillis
-                + "ms to remove the last message from a queue a " + QUEUE_SIZE
-                + " messages.");
+      long durationMillis = System.currentTimeMillis() - startTimeMillis;
 
-        Assert.assertTrue("Removing the message took too long: " + durationMillis
-                + "ms", durationMillis < TEST_TIMEOUT);
-    }
+      LOG.info("It took " + durationMillis + "ms to remove the last message from a queue a " + QUEUE_SIZE + " messages.");
+
+      Assert.assertTrue("Removing the message took too long: " + durationMillis + "ms", durationMillis < TEST_TIMEOUT);
+   }
 }

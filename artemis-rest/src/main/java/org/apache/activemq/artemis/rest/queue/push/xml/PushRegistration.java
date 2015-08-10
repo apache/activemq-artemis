@@ -31,8 +31,8 @@ import java.util.List;
 @XmlRootElement(name = "push-registration")
 @XmlAccessorType(XmlAccessType.PROPERTY)
 @XmlType(propOrder = {"enabled", "destination", "durable", "selector", "target", "maxRetries", "retryWaitMillis", "disableOnFailure", "authenticationMechanism", "headers", "sessionCount"})
-public class PushRegistration implements Serializable
-{
+public class PushRegistration implements Serializable {
+
    private static final long serialVersionUID = -2749818399978544262L;
    private String id;
    private boolean durable;
@@ -49,150 +49,123 @@ public class PushRegistration implements Serializable
    private int sessionCount = 1;
 
    @XmlElement
-   public int getMaxRetries()
-   {
+   public int getMaxRetries() {
       return maxRetries;
    }
 
-   public void setMaxRetries(int maxRetries)
-   {
+   public void setMaxRetries(int maxRetries) {
       this.maxRetries = maxRetries;
    }
 
    @XmlElement
-   public long getRetryWaitMillis()
-   {
+   public long getRetryWaitMillis() {
       return retryWaitMillis;
    }
 
-   public void setRetryWaitMillis(long retryWaitMillis)
-   {
+   public void setRetryWaitMillis(long retryWaitMillis) {
       this.retryWaitMillis = retryWaitMillis;
    }
 
    @XmlElement
-   public boolean isDisableOnFailure()
-   {
+   public boolean isDisableOnFailure() {
       return disableOnFailure;
    }
 
-   public void setDisableOnFailure(boolean disableOnFailure)
-   {
+   public void setDisableOnFailure(boolean disableOnFailure) {
       this.disableOnFailure = disableOnFailure;
    }
 
    @XmlElement
-   public boolean isEnabled()
-   {
+   public boolean isEnabled() {
       return enabled;
    }
 
-   public void setEnabled(boolean enabled)
-   {
+   public void setEnabled(boolean enabled) {
       this.enabled = enabled;
    }
 
    @XmlTransient
-   public Object getLoadedFrom()
-   {
+   public Object getLoadedFrom() {
       return loadedFrom;
    }
 
-   public void setLoadedFrom(Object loadedFrom)
-   {
+   public void setLoadedFrom(Object loadedFrom) {
       this.loadedFrom = loadedFrom;
    }
 
    @XmlAttribute
-   public String getId()
-   {
+   public String getId() {
       return id;
    }
 
-   public void setId(String id)
-   {
+   public void setId(String id) {
       this.id = id;
    }
 
    @XmlElement
-   public String getDestination()
-   {
+   public String getDestination() {
       return destination;
    }
 
-   public void setDestination(String destination)
-   {
+   public void setDestination(String destination) {
       this.destination = destination;
    }
 
    @XmlElement
-   public boolean isDurable()
-   {
+   public boolean isDurable() {
       return durable;
    }
 
-   public void setDurable(boolean durable)
-   {
+   public void setDurable(boolean durable) {
       this.durable = durable;
    }
 
-   public String getSelector()
-   {
+   public String getSelector() {
       return selector;
    }
 
-   public void setSelector(String selector)
-   {
+   public void setSelector(String selector) {
       this.selector = selector;
    }
 
    @XmlElementRef
-   public XmlLink getTarget()
-   {
+   public XmlLink getTarget() {
       return target;
    }
 
-   public void setTarget(XmlLink target)
-   {
+   public void setTarget(XmlLink target) {
       this.target = target;
    }
 
    @XmlElementRef
-   public Authentication getAuthenticationMechanism()
-   {
+   public Authentication getAuthenticationMechanism() {
       return authenticationMechanism;
    }
 
-   public void setAuthenticationMechanism(Authentication authenticationMechanism)
-   {
+   public void setAuthenticationMechanism(Authentication authenticationMechanism) {
       this.authenticationMechanism = authenticationMechanism;
    }
 
    @XmlElementRef
-   public List<XmlHttpHeader> getHeaders()
-   {
+   public List<XmlHttpHeader> getHeaders() {
       return headers;
    }
 
-   public void setHeaders(List<XmlHttpHeader> headers)
-   {
+   public void setHeaders(List<XmlHttpHeader> headers) {
       this.headers = headers;
    }
 
    @XmlElement
-   public int getSessionCount()
-   {
+   public int getSessionCount() {
       return sessionCount;
    }
 
-   public void setSessionCount(int sessionCount)
-   {
+   public void setSessionCount(int sessionCount) {
       this.sessionCount = sessionCount;
    }
 
    @Override
-   public String toString()
-   {
+   public String toString() {
       return "PushRegistration{" +
          "id='" + id + '\'' +
          ", durable=" + durable +

@@ -18,28 +18,24 @@ package org.apache.activemq.artemis.tests.integration.stomp.util;
 
 import java.io.IOException;
 
-public class StompClientConnectionV11 extends AbstractStompClientConnection
-{
-   public StompClientConnectionV11(String host, int port) throws IOException
-   {
+public class StompClientConnectionV11 extends AbstractStompClientConnection {
+
+   public StompClientConnectionV11(String host, int port) throws IOException {
       super("1.1", host, port);
    }
 
-   public ClientStompFrame connect(String username, String passcode) throws IOException, InterruptedException
-   {
+   public ClientStompFrame connect(String username, String passcode) throws IOException, InterruptedException {
       ClientStompFrame frame = factory.newFrame(CONNECT_COMMAND);
       frame.addHeader(ACCEPT_HEADER, "1.1");
       frame.addHeader(HOST_HEADER, "localhost");
-      if (username != null)
-      {
+      if (username != null) {
          frame.addHeader(LOGIN_HEADER, username);
          frame.addHeader(PASSCODE_HEADER, passcode);
       }
 
       ClientStompFrame response = this.sendFrame(frame);
 
-      if (response.getCommand().equals(CONNECTED_COMMAND))
-      {
+      if (response.getCommand().equals(CONNECTED_COMMAND)) {
          String version = response.getHeader(VERSION_HEADER);
          assert (version.equals("1.1"));
 
@@ -47,30 +43,26 @@ public class StompClientConnectionV11 extends AbstractStompClientConnection
          this.passcode = passcode;
          this.connected = true;
       }
-      else
-      {
+      else {
          connected = false;
       }
       return response;
    }
 
-   public void connect(String username, String passcode, String clientID) throws IOException, InterruptedException
-   {
+   public void connect(String username, String passcode, String clientID) throws IOException, InterruptedException {
       ClientStompFrame frame = factory.newFrame(CONNECT_COMMAND);
       frame.addHeader(ACCEPT_HEADER, "1.1");
       frame.addHeader(HOST_HEADER, "localhost");
       frame.addHeader(CLIENT_ID_HEADER, clientID);
 
-      if (username != null)
-      {
+      if (username != null) {
          frame.addHeader(LOGIN_HEADER, username);
          frame.addHeader(PASSCODE_HEADER, passcode);
       }
 
       ClientStompFrame response = this.sendFrame(frame);
 
-      if (response.getCommand().equals(CONNECTED_COMMAND))
-      {
+      if (response.getCommand().equals(CONNECTED_COMMAND)) {
          String version = response.getHeader(VERSION_HEADER);
          assert (version.equals("1.1"));
 
@@ -78,27 +70,23 @@ public class StompClientConnectionV11 extends AbstractStompClientConnection
          this.passcode = passcode;
          this.connected = true;
       }
-      else
-      {
+      else {
          connected = false;
       }
    }
 
-   public void connect1(String username, String passcode) throws IOException, InterruptedException
-   {
+   public void connect1(String username, String passcode) throws IOException, InterruptedException {
       ClientStompFrame frame = factory.newFrame(STOMP_COMMAND);
       frame.addHeader(ACCEPT_HEADER, "1.0,1.1");
       frame.addHeader(HOST_HEADER, "127.0.0.1");
-      if (username != null)
-      {
+      if (username != null) {
          frame.addHeader(LOGIN_HEADER, username);
          frame.addHeader(PASSCODE_HEADER, passcode);
       }
 
       ClientStompFrame response = this.sendFrame(frame);
 
-      if (response.getCommand().equals(CONNECTED_COMMAND))
-      {
+      if (response.getCommand().equals(CONNECTED_COMMAND)) {
          String version = response.getHeader(VERSION_HEADER);
          assert (version.equals("1.1"));
 
@@ -106,16 +94,14 @@ public class StompClientConnectionV11 extends AbstractStompClientConnection
          this.passcode = passcode;
          this.connected = true;
       }
-      else
-      {
+      else {
          System.out.println("Connection failed with frame " + response);
          connected = false;
       }
    }
 
    @Override
-   public void disconnect() throws IOException, InterruptedException
-   {
+   public void disconnect() throws IOException, InterruptedException {
       stopPinger();
 
       ClientStompFrame frame = factory.newFrame(DISCONNECT_COMMAND);
@@ -123,8 +109,7 @@ public class StompClientConnectionV11 extends AbstractStompClientConnection
 
       ClientStompFrame result = this.sendFrame(frame);
 
-      if (result == null || (!"RECEIPT".equals(result.getCommand())) || (!"1".equals(result.getHeader("receipt-id"))))
-      {
+      if (result == null || (!"RECEIPT".equals(result.getCommand())) || (!"1".equals(result.getHeader("receipt-id")))) {
          throw new IOException("Disconnect failed! " + result);
       }
 
@@ -134,10 +119,8 @@ public class StompClientConnectionV11 extends AbstractStompClientConnection
    }
 
    @Override
-   public ClientStompFrame createFrame(String command)
-   {
+   public ClientStompFrame createFrame(String command) {
       return factory.newFrame(command);
    }
-
 
 }

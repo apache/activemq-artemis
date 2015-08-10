@@ -37,8 +37,7 @@ import org.junit.Test;
  * <br>
  * PagingTest has a lot of tests already. I decided to create a newer one more specialized on Ordering and counters
  */
-public class PagingSyncTest extends ActiveMQTestBase
-{
+public class PagingSyncTest extends ActiveMQTestBase {
 
    private static final int PAGE_MAX = 100 * 1024;
 
@@ -51,12 +50,10 @@ public class PagingSyncTest extends ActiveMQTestBase
    static final SimpleString ADDRESS = new SimpleString("SimpleAddress");
 
    @Test
-   public void testOrder1() throws Throwable
-   {
+   public void testOrder1() throws Throwable {
       boolean persistentMessages = true;
 
-      Configuration config = createDefaultInVMConfig()
-         .setJournalSyncNonTransactional(false);
+      Configuration config = createDefaultInVMConfig().setJournalSyncNonTransactional(false);
 
       ActiveMQServer server = createServer(true, config, PAGE_SIZE, PAGE_MAX, new HashMap<String, AddressSettings>());
 
@@ -66,14 +63,7 @@ public class PagingSyncTest extends ActiveMQTestBase
 
       final int numberOfMessages = 500;
 
-      ServerLocator locator = createInVMNonHALocator()
-              .setClientFailureCheckPeriod(1000)
-              .setConnectionTTL(2000)
-              .setReconnectAttempts(0)
-              .setBlockOnNonDurableSend(false)
-              .setBlockOnDurableSend(false)
-              .setBlockOnAcknowledge(false)
-              .setConsumerWindowSize(1024 * 1024);
+      ServerLocator locator = createInVMNonHALocator().setClientFailureCheckPeriod(1000).setConnectionTTL(2000).setReconnectAttempts(0).setBlockOnNonDurableSend(false).setBlockOnDurableSend(false).setBlockOnAcknowledge(false).setConsumerWindowSize(1024 * 1024);
 
       ClientSessionFactory sf = createSessionFactory(locator);
 
@@ -87,13 +77,11 @@ public class PagingSyncTest extends ActiveMQTestBase
 
       ByteBuffer bb = ByteBuffer.wrap(body);
 
-      for (int j = 1; j <= messageSize; j++)
-      {
+      for (int j = 1; j <= messageSize; j++) {
          bb.put(getSamplebyte(j));
       }
 
-      for (int i = 0; i < numberOfMessages; i++)
-      {
+      for (int i = 0; i < numberOfMessages; i++) {
          ClientMessage message = session.createMessage(persistentMessages);
 
          ActiveMQBuffer bodyLocal = message.getBodyBuffer();

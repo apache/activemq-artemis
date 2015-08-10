@@ -26,30 +26,27 @@ import org.apache.activemq.artemis.spi.core.remoting.ConnectionLifeCycleListener
 import org.apache.activemq.artemis.spi.core.remoting.Connector;
 import org.apache.activemq.artemis.spi.core.remoting.ConnectorFactory;
 
-public class InVMConnectorFactory implements ConnectorFactory
-{
+public class InVMConnectorFactory implements ConnectorFactory {
+
    public Connector createConnector(final Map<String, Object> configuration,
                                     final BufferHandler handler,
                                     final ConnectionLifeCycleListener listener,
                                     final Executor closeExecutor,
                                     final Executor threadPool,
                                     final ScheduledExecutorService scheduledThreadPool,
-                                    final ClientProtocolManager protocolManager)
-   {
+                                    final ClientProtocolManager protocolManager) {
       InVMConnector connector = new InVMConnector(configuration, handler, listener, closeExecutor, threadPool, protocolManager);
 
       return connector;
    }
 
    @Override
-   public boolean isReliable()
-   {
+   public boolean isReliable() {
       return true;
    }
 
    @Override
-   public Map<String, Object> getDefaults()
-   {
+   public Map<String, Object> getDefaults() {
       return InVMConnector.DEFAULT_CONFIG;
    }
 }

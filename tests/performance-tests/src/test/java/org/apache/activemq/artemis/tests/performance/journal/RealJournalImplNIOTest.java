@@ -22,13 +22,12 @@ import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
 import org.apache.activemq.artemis.tests.unit.UnitTestLogger;
 
-public class RealJournalImplNIOTest extends JournalImplTestUnit
-{
+public class RealJournalImplNIOTest extends JournalImplTestUnit {
+
    private static final UnitTestLogger log = UnitTestLogger.LOGGER;
 
    @Override
-   protected SequentialFileFactory getFileFactory() throws Exception
-   {
+   protected SequentialFileFactory getFileFactory() throws Exception {
       File file = new File(getTestDir());
 
       RealJournalImplNIOTest.log.debug("deleting directory " + getTestDir());

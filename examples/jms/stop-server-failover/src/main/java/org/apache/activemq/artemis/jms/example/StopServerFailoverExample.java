@@ -30,24 +30,22 @@ import javax.naming.InitialContext;
  * A simple example that demonstrates failover of the JMS connection from one node to another
  * when the live server crashes using a JMS <em>non-transacted</em> session.
  */
-public class StopServerFailoverExample
-{
-   public static void main(final String[] args) throws Exception
-   {
+public class StopServerFailoverExample {
+
+   public static void main(final String[] args) throws Exception {
       final int numMessages = 10;
 
       Connection connection = null;
 
       InitialContext initialContext = null;
 
-      try
-      {
+      try {
          // Step 1. Get an initial context for looking up JNDI from the server #1
          initialContext = new InitialContext();
 
          // Step 2. Look up the JMS resources from JNDI
-         Queue queue = (Queue)initialContext.lookup("queue/exampleQueue");
-         ConnectionFactory connectionFactory = (ConnectionFactory)initialContext.lookup("ConnectionFactory");
+         Queue queue = (Queue) initialContext.lookup("queue/exampleQueue");
+         ConnectionFactory connectionFactory = (ConnectionFactory) initialContext.lookup("ConnectionFactory");
 
          // Step 3. Create a JMS Connection
          connection = connectionFactory.createConnection();
@@ -63,8 +61,7 @@ public class StopServerFailoverExample
          MessageConsumer consumer = session.createConsumer(queue);
 
          // Step 7. Send some messages to server #1, the live server
-         for (int i = 0; i < numMessages; i++)
-         {
+         for (int i = 0; i < numMessages; i++) {
             TextMessage message = session.createTextMessage("This is text message " + i);
             producer.send(message);
             System.out.println("Sent message: " + message.getText());
@@ -72,17 +69,15 @@ public class StopServerFailoverExample
 
          // Step 8. Receive and acknowledge half of the sent messages
          TextMessage message0 = null;
-         for (int i = 0; i < numMessages / 2; i++)
-         {
-            message0 = (TextMessage)consumer.receive(5000);
+         for (int i = 0; i < numMessages / 2; i++) {
+            message0 = (TextMessage) consumer.receive(5000);
             System.out.println("Got message: " + message0.getText());
          }
          message0.acknowledge();
 
          // Step 9. Receive the 2nd half of the sent messages but *do not* acknowledge them yet
-         for (int i = numMessages / 2; i < numMessages; i++)
-         {
-            message0 = (TextMessage)consumer.receive(5000);
+         for (int i = numMessages / 2; i < numMessages; i++) {
+            message0 = (TextMessage) consumer.receive(5000);
             System.out.println("Got message: " + message0.getText());
          }
 
@@ -93,34 +88,28 @@ public class StopServerFailoverExample
 
          // Step 11. Acknowledging the 2nd half of the sent messages will fail as failover to the
          // backup server has occurred
-         try
-         {
+         try {
             message0.acknowledge();
          }
-         catch (JMSException e)
-         {
+         catch (JMSException e) {
             System.err.println("Got exception while acknowledging message: " + e.getMessage());
          }
 
          // Step 12. Consume again the 2nd half of the messages again. Note that they are not considered as redelivered.
-         for (int i = numMessages / 2; i < numMessages; i++)
-         {
-            message0 = (TextMessage)consumer.receive(5000);
+         for (int i = numMessages / 2; i < numMessages; i++) {
+            message0 = (TextMessage) consumer.receive(5000);
             System.out.printf("Got message: %s (redelivered?: %s)\n", message0.getText(), message0.getJMSRedelivered());
          }
          message0.acknowledge();
       }
-      finally
-      {
+      finally {
          // Step 13. Be sure to close our resources!
 
-         if (connection != null)
-         {
+         if (connection != null) {
             connection.close();
          }
 
-         if (initialContext != null)
-         {
+         if (initialContext != null) {
             initialContext.close();
          }
       }

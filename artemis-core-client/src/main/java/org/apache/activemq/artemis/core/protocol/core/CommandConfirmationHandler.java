@@ -16,13 +16,12 @@
  */
 package org.apache.activemq.artemis.core.protocol.core;
 
-
 /**
  * A CommandConfirmationHandler is used by the channel to confirm confirmations of packets.
  * <p>
  */
-public interface CommandConfirmationHandler
-{
+public interface CommandConfirmationHandler {
+
    /**
     * called by channel after a confirmation has been received.
     *

@@ -27,19 +27,17 @@ import org.apache.activemq.artemis.rest.queue.push.xml.PushRegistration;
 @XmlRootElement(name = "push-topic-registration")
 @XmlAccessorType(XmlAccessType.PROPERTY)
 @XmlType(propOrder = {"topic"})
-public class PushTopicRegistration extends PushRegistration
-{
+public class PushTopicRegistration extends PushRegistration {
+
    private static final long serialVersionUID = -2526239344680405891L;
    private String topic;
 
    @XmlElement
-   public String getTopic()
-   {
+   public String getTopic() {
       return topic;
    }
 
-   public void setTopic(String topic)
-   {
+   public void setTopic(String topic) {
       this.topic = topic;
    }
 }

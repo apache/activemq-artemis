@@ -32,36 +32,37 @@ import org.apache.activemq.test.TestSupport;
  *
  */
 public class ChangeSentMessageTest extends TestSupport {
-    private static final int COUNT = 200;
-    private static final String VALUE_NAME = "value";
 
-    /**
-     * test Object messages can be changed after sending with no side-affects
-     *
-     * @throws Exception
-     */
-    @SuppressWarnings("rawtypes")
-    public void testDoChangeSentMessage() throws Exception {
-        Destination destination = createDestination("test-" + ChangeSentMessageTest.class.getName());
-        Connection connection = createConnection();
-        connection.start();
-        Session consumerSession = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        MessageConsumer consumer = consumerSession.createConsumer(destination);
-        Session publisherSession = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        MessageProducer producer = publisherSession.createProducer(destination);
-        HashMap<String, Integer> map = new HashMap<String, Integer>();
-        ObjectMessage message = publisherSession.createObjectMessage();
-        for (int i = 0; i < COUNT; i++) {
-            map.put(VALUE_NAME, Integer.valueOf(i));
-            message.setObject(map);
-            producer.send(message);
-            assertTrue(message.getObject() == map);
-        }
-        for (int i = 0; i < COUNT; i++) {
-            ObjectMessage msg = (ObjectMessage)consumer.receive();
-            HashMap receivedMap = (HashMap)msg.getObject();
-            Integer intValue = (Integer)receivedMap.get(VALUE_NAME);
-            assertTrue(intValue.intValue() == i);
-        }
-    }
+   private static final int COUNT = 200;
+   private static final String VALUE_NAME = "value";
+
+   /**
+    * test Object messages can be changed after sending with no side-affects
+    *
+    * @throws Exception
+    */
+   @SuppressWarnings("rawtypes")
+   public void testDoChangeSentMessage() throws Exception {
+      Destination destination = createDestination("test-" + ChangeSentMessageTest.class.getName());
+      Connection connection = createConnection();
+      connection.start();
+      Session consumerSession = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      MessageConsumer consumer = consumerSession.createConsumer(destination);
+      Session publisherSession = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      MessageProducer producer = publisherSession.createProducer(destination);
+      HashMap<String, Integer> map = new HashMap<String, Integer>();
+      ObjectMessage message = publisherSession.createObjectMessage();
+      for (int i = 0; i < COUNT; i++) {
+         map.put(VALUE_NAME, Integer.valueOf(i));
+         message.setObject(map);
+         producer.send(message);
+         assertTrue(message.getObject() == map);
+      }
+      for (int i = 0; i < COUNT; i++) {
+         ObjectMessage msg = (ObjectMessage) consumer.receive();
+         HashMap receivedMap = (HashMap) msg.getObject();
+         Integer intValue = (Integer) receivedMap.get(VALUE_NAME);
+         assertTrue(intValue.intValue() == i);
+      }
+   }
 }

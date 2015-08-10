@@ -36,8 +36,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.management.Notification;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
 
-public class AcceptorControlTest extends ManagementTestBase
-{
+public class AcceptorControlTest extends ManagementTestBase {
    // Static --------------------------------------------------------
 
    // Constructors --------------------------------------------------
@@ -45,14 +44,10 @@ public class AcceptorControlTest extends ManagementTestBase
    // Public --------------------------------------------------------
 
    @Test
-   public void testAttributes() throws Exception
-   {
-      TransportConfiguration acceptorConfig = new TransportConfiguration(InVMAcceptorFactory.class.getName(),
-                                                                         new HashMap<String, Object>(),
-                                                                         RandomUtil.randomString());
+   public void testAttributes() throws Exception {
+      TransportConfiguration acceptorConfig = new TransportConfiguration(InVMAcceptorFactory.class.getName(), new HashMap<String, Object>(), RandomUtil.randomString());
 
-      Configuration config = createBasicConfig()
-         .addAcceptorConfiguration(acceptorConfig);
+      Configuration config = createBasicConfig().addAcceptorConfiguration(acceptorConfig);
       ActiveMQServer service = createServer(false, config);
       service.setMBeanServer(mbeanServer);
       service.start();
@@ -64,13 +59,9 @@ public class AcceptorControlTest extends ManagementTestBase
    }
 
    @Test
-   public void testStartStop() throws Exception
-   {
-      TransportConfiguration acceptorConfig = new TransportConfiguration(InVMAcceptorFactory.class.getName(),
-                                                                         new HashMap<String, Object>(),
-                                                                         RandomUtil.randomString());
-      Configuration config = createBasicConfig()
-         .addAcceptorConfiguration(acceptorConfig);
+   public void testStartStop() throws Exception {
+      TransportConfiguration acceptorConfig = new TransportConfiguration(InVMAcceptorFactory.class.getName(), new HashMap<String, Object>(), RandomUtil.randomString());
+      Configuration config = createBasicConfig().addAcceptorConfiguration(acceptorConfig);
       ActiveMQServer service = createServer(false, config);
       service.setMBeanServer(mbeanServer);
       service.start();
@@ -89,13 +80,11 @@ public class AcceptorControlTest extends ManagementTestBase
 
       Assert.assertFalse(acceptorControl.isStarted());
 
-      try
-      {
+      try {
          sf.createSession(false, true, true);
          Assert.fail("acceptor must not accept connections when stopped accepting");
       }
-      catch (ActiveMQException e)
-      {
+      catch (ActiveMQException e) {
       }
 
       acceptorControl.start();
@@ -112,25 +101,19 @@ public class AcceptorControlTest extends ManagementTestBase
 
       Assert.assertFalse(acceptorControl.isStarted());
 
-      try
-      {
+      try {
          sf.createSession(false, true, true);
          Assert.fail("acceptor must not accept connections when stopped accepting");
       }
-      catch (ActiveMQException e)
-      {
+      catch (ActiveMQException e) {
       }
 
    }
 
    @Test
-   public void testNotifications() throws Exception
-   {
-      TransportConfiguration acceptorConfig = new TransportConfiguration(InVMAcceptorFactory.class.getName(),
-                                                                         new HashMap<String, Object>(),
-                                                                         RandomUtil.randomString());
-      Configuration config = createBasicConfig()
-         .addAcceptorConfiguration(acceptorConfig);
+   public void testNotifications() throws Exception {
+      TransportConfiguration acceptorConfig = new TransportConfiguration(InVMAcceptorFactory.class.getName(), new HashMap<String, Object>(), RandomUtil.randomString());
+      Configuration config = createBasicConfig().addAcceptorConfiguration(acceptorConfig);
       ActiveMQServer service = createServer(false, config);
       service.setMBeanServer(mbeanServer);
       service.start();
@@ -148,24 +131,21 @@ public class AcceptorControlTest extends ManagementTestBase
       Assert.assertEquals(1, notifListener.getNotifications().size());
       Notification notif = notifListener.getNotifications().get(0);
       Assert.assertEquals(CoreNotificationType.ACCEPTOR_STOPPED, notif.getType());
-      Assert.assertEquals(InVMAcceptorFactory.class.getName(),
-                          notif.getProperties().getSimpleStringProperty(new SimpleString("factory")).toString());
+      Assert.assertEquals(InVMAcceptorFactory.class.getName(), notif.getProperties().getSimpleStringProperty(new SimpleString("factory")).toString());
 
       acceptorControl.start();
 
       Assert.assertEquals(2, notifListener.getNotifications().size());
       notif = notifListener.getNotifications().get(1);
       Assert.assertEquals(CoreNotificationType.ACCEPTOR_STARTED, notif.getType());
-      Assert.assertEquals(InVMAcceptorFactory.class.getName(),
-                          notif.getProperties().getSimpleStringProperty(new SimpleString("factory")).toString());
+      Assert.assertEquals(InVMAcceptorFactory.class.getName(), notif.getProperties().getSimpleStringProperty(new SimpleString("factory")).toString());
    }
 
    // Package protected ---------------------------------------------
 
    // Protected -----------------------------------------------------
 
-   protected AcceptorControl createManagementControl(final String name) throws Exception
-   {
+   protected AcceptorControl createManagementControl(final String name) throws Exception {
       return ManagementControlHelper.createAcceptorControl(name, mbeanServer);
    }
 }

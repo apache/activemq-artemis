@@ -47,155 +47,153 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class AMQ2801Test
-{
-    private static final Logger LOG = LoggerFactory.getLogger(AMQ2801Test.class);
+public class AMQ2801Test {
 
-    private static final String TOPICNAME = "InvalidPendingQueueTest";
-    private static final String SELECTOR1 = "JMS_ID" + " = '" + "TEST" + "'";
-    private static final String SELECTOR2 = "JMS_ID" + " = '" + "TEST2" + "'";
-    private static final String SUBSCRIPTION1 = "InvalidPendingQueueTest_1";
-    private static final String SUBSCRIPTION2 = "InvalidPendingQueueTest_2";
-    private static final int MSG_COUNT = 2500;
-    private Session session1;
-    private Connection conn1;
-    private Topic topic1;
-    private MessageConsumer consumer1;
-    private Session session2;
-    private Connection conn2;
-    private Topic topic2;
-    private MessageConsumer consumer2;
-    private BrokerService broker;
-    private String connectionUri;
+   private static final Logger LOG = LoggerFactory.getLogger(AMQ2801Test.class);
 
-    @Before
-    public void setUp() throws Exception {
-        broker = new BrokerService();
-        broker.setDataDirectory("target" + File.separator + "activemq-data");
-        broker.setPersistent(true);
-        broker.setUseJmx(true);
-        broker.setAdvisorySupport(false);
-        broker.setDeleteAllMessagesOnStartup(true);
-        broker.addConnector("tcp://localhost:0").setName("Default");
-        applyMemoryLimitPolicy(broker);
-        broker.start();
+   private static final String TOPICNAME = "InvalidPendingQueueTest";
+   private static final String SELECTOR1 = "JMS_ID" + " = '" + "TEST" + "'";
+   private static final String SELECTOR2 = "JMS_ID" + " = '" + "TEST2" + "'";
+   private static final String SUBSCRIPTION1 = "InvalidPendingQueueTest_1";
+   private static final String SUBSCRIPTION2 = "InvalidPendingQueueTest_2";
+   private static final int MSG_COUNT = 2500;
+   private Session session1;
+   private Connection conn1;
+   private Topic topic1;
+   private MessageConsumer consumer1;
+   private Session session2;
+   private Connection conn2;
+   private Topic topic2;
+   private MessageConsumer consumer2;
+   private BrokerService broker;
+   private String connectionUri;
 
-        connectionUri = broker.getTransportConnectors().get(0).getPublishableConnectString();
-    }
+   @Before
+   public void setUp() throws Exception {
+      broker = new BrokerService();
+      broker.setDataDirectory("target" + File.separator + "activemq-data");
+      broker.setPersistent(true);
+      broker.setUseJmx(true);
+      broker.setAdvisorySupport(false);
+      broker.setDeleteAllMessagesOnStartup(true);
+      broker.addConnector("tcp://localhost:0").setName("Default");
+      applyMemoryLimitPolicy(broker);
+      broker.start();
 
-    private void applyMemoryLimitPolicy(BrokerService broker) {
-        final SystemUsage memoryManager = new SystemUsage();
-        memoryManager.getMemoryUsage().setLimit(5818230784L);
-        memoryManager.getStoreUsage().setLimit(6442450944L);
-        memoryManager.getTempUsage().setLimit(3221225472L);
-        broker.setSystemUsage(memoryManager);
+      connectionUri = broker.getTransportConnectors().get(0).getPublishableConnectString();
+   }
 
-        final List<PolicyEntry> policyEntries = new ArrayList<PolicyEntry>();
-        final PolicyEntry entry = new PolicyEntry();
-        entry.setQueue(">");
-        entry.setProducerFlowControl(false);
-        entry.setMemoryLimit(504857608);
-        entry.setPendingQueuePolicy(new FilePendingQueueMessageStoragePolicy());
-        policyEntries.add(entry);
+   private void applyMemoryLimitPolicy(BrokerService broker) {
+      final SystemUsage memoryManager = new SystemUsage();
+      memoryManager.getMemoryUsage().setLimit(5818230784L);
+      memoryManager.getStoreUsage().setLimit(6442450944L);
+      memoryManager.getTempUsage().setLimit(3221225472L);
+      broker.setSystemUsage(memoryManager);
 
-        final PolicyMap policyMap = new PolicyMap();
-        policyMap.setPolicyEntries(policyEntries);
-        broker.setDestinationPolicy(policyMap);
-    }
+      final List<PolicyEntry> policyEntries = new ArrayList<PolicyEntry>();
+      final PolicyEntry entry = new PolicyEntry();
+      entry.setQueue(">");
+      entry.setProducerFlowControl(false);
+      entry.setMemoryLimit(504857608);
+      entry.setPendingQueuePolicy(new FilePendingQueueMessageStoragePolicy());
+      policyEntries.add(entry);
 
-    @After
-    public void tearDown() throws Exception {
-        conn1.close();
-        conn2.close();
-        if (broker != null) {
-            broker.stop();
-        }
-    }
+      final PolicyMap policyMap = new PolicyMap();
+      policyMap.setPolicyEntries(policyEntries);
+      broker.setDestinationPolicy(policyMap);
+   }
 
-    private void produceMessages() throws Exception {
-        TopicConnection connection = createConnection();
-        TopicSession session = connection.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
-        Topic topic = session.createTopic(TOPICNAME);
-        TopicPublisher producer = session.createPublisher(topic);
-        connection.start();
-        producer.setDeliveryMode(DeliveryMode.PERSISTENT);
-        long tStamp = System.currentTimeMillis();
-        BytesMessage message = session2.createBytesMessage();
-        for (int i = 1; i <= MSG_COUNT; i++)
-        {
-            message.setStringProperty("JMS_ID", "TEST");
-            message.setIntProperty("Type", i);
-            producer.publish(message);
-            if (i%100 == 0) {
-                LOG.info("sent: " + i + " @ " + ((System.currentTimeMillis() - tStamp) / 100)  + "m/ms");
-                tStamp = System.currentTimeMillis() ;
-            }
-        }
-    }
+   @After
+   public void tearDown() throws Exception {
+      conn1.close();
+      conn2.close();
+      if (broker != null) {
+         broker.stop();
+      }
+   }
 
-    private void activeateSubscribers() throws Exception {
-        // First consumer
-        conn1 = createConnection();
-        conn1.setClientID(SUBSCRIPTION1);
-        session1 = conn1.createSession(true, Session.SESSION_TRANSACTED);
-        topic1 = session1.createTopic(TOPICNAME);
-        consumer1 = session1.createDurableSubscriber(topic1, SUBSCRIPTION1, SELECTOR1, false);
-        conn1.start();
+   private void produceMessages() throws Exception {
+      TopicConnection connection = createConnection();
+      TopicSession session = connection.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
+      Topic topic = session.createTopic(TOPICNAME);
+      TopicPublisher producer = session.createPublisher(topic);
+      connection.start();
+      producer.setDeliveryMode(DeliveryMode.PERSISTENT);
+      long tStamp = System.currentTimeMillis();
+      BytesMessage message = session2.createBytesMessage();
+      for (int i = 1; i <= MSG_COUNT; i++) {
+         message.setStringProperty("JMS_ID", "TEST");
+         message.setIntProperty("Type", i);
+         producer.publish(message);
+         if (i % 100 == 0) {
+            LOG.info("sent: " + i + " @ " + ((System.currentTimeMillis() - tStamp) / 100) + "m/ms");
+            tStamp = System.currentTimeMillis();
+         }
+      }
+   }
 
-        // Second consumer that just exists
-        conn2 = createConnection();
-        conn2.setClientID(SUBSCRIPTION2);
-        session2 = conn2.createSession(true, Session.SESSION_TRANSACTED);
-        topic2 = session2.createTopic(TOPICNAME);
-        consumer2 = session2.createDurableSubscriber(topic2, SUBSCRIPTION2, SELECTOR2, false);
-        conn2.start();
-    }
+   private void activeateSubscribers() throws Exception {
+      // First consumer
+      conn1 = createConnection();
+      conn1.setClientID(SUBSCRIPTION1);
+      session1 = conn1.createSession(true, Session.SESSION_TRANSACTED);
+      topic1 = session1.createTopic(TOPICNAME);
+      consumer1 = session1.createDurableSubscriber(topic1, SUBSCRIPTION1, SELECTOR1, false);
+      conn1.start();
 
-    @Test
-    public void testInvalidPendingQueue() throws Exception {
+      // Second consumer that just exists
+      conn2 = createConnection();
+      conn2.setClientID(SUBSCRIPTION2);
+      session2 = conn2.createSession(true, Session.SESSION_TRANSACTED);
+      topic2 = session2.createTopic(TOPICNAME);
+      consumer2 = session2.createDurableSubscriber(topic2, SUBSCRIPTION2, SELECTOR2, false);
+      conn2.start();
+   }
 
-        activeateSubscribers();
+   @Test
+   public void testInvalidPendingQueue() throws Exception {
 
-        assertNotNull(consumer1);
-        assertNotNull(consumer2);
+      activeateSubscribers();
 
-        produceMessages();
-        LOG.debug("Sent messages to a single subscriber");
-        Thread.sleep(2000);
+      assertNotNull(consumer1);
+      assertNotNull(consumer2);
 
-        LOG.debug("Closing durable subscriber connections");
-        conn1.close();
-        conn2.close();
-        LOG.debug("Closed durable subscriber connections");
+      produceMessages();
+      LOG.debug("Sent messages to a single subscriber");
+      Thread.sleep(2000);
 
-        Thread.sleep(2000);
-        LOG.debug("Re-starting durable subscriber connections");
+      LOG.debug("Closing durable subscriber connections");
+      conn1.close();
+      conn2.close();
+      LOG.debug("Closed durable subscriber connections");
 
-        activeateSubscribers();
-        LOG.debug("Started up durable subscriber connections - now view activemq console to see pending queue size on the other subscriber");
+      Thread.sleep(2000);
+      LOG.debug("Re-starting durable subscriber connections");
 
-        ObjectName[] subs = broker.getAdminView().getDurableTopicSubscribers();
+      activeateSubscribers();
+      LOG.debug("Started up durable subscriber connections - now view activemq console to see pending queue size on the other subscriber");
 
-        for (int i = 0; i < subs.length; i++) {
-            ObjectName subName = subs[i];
-            DurableSubscriptionViewMBean sub = (DurableSubscriptionViewMBean)
-                broker.getManagementContext().newProxyInstance(subName, DurableSubscriptionViewMBean.class, true);
+      ObjectName[] subs = broker.getAdminView().getDurableTopicSubscribers();
 
-            LOG.info(sub.getSubscriptionName() + ": pending = " + sub.getPendingQueueSize() + ", dispatched: " + sub.getDispatchedQueueSize());
-            if(sub.getSubscriptionName().equals(SUBSCRIPTION1)) {
-                assertEquals("Incorrect number of pending messages", MSG_COUNT, sub.getPendingQueueSize() + sub.getDispatchedQueueSize());
-            } else {
-                assertEquals("Incorrect number of pending messages", 0, sub.getPendingQueueSize());
-            }
-        }
-    }
+      for (int i = 0; i < subs.length; i++) {
+         ObjectName subName = subs[i];
+         DurableSubscriptionViewMBean sub = (DurableSubscriptionViewMBean) broker.getManagementContext().newProxyInstance(subName, DurableSubscriptionViewMBean.class, true);
 
-    private TopicConnection createConnection() throws Exception
-    {
-        ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory();
-        connectionFactory.setBrokerURL(connectionUri);
-        TopicConnection conn = connectionFactory.createTopicConnection();
-        return conn;
-    }
+         LOG.info(sub.getSubscriptionName() + ": pending = " + sub.getPendingQueueSize() + ", dispatched: " + sub.getDispatchedQueueSize());
+         if (sub.getSubscriptionName().equals(SUBSCRIPTION1)) {
+            assertEquals("Incorrect number of pending messages", MSG_COUNT, sub.getPendingQueueSize() + sub.getDispatchedQueueSize());
+         }
+         else {
+            assertEquals("Incorrect number of pending messages", 0, sub.getPendingQueueSize());
+         }
+      }
+   }
+
+   private TopicConnection createConnection() throws Exception {
+      ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory();
+      connectionFactory.setBrokerURL(connectionUri);
+      TopicConnection conn = connectionFactory.createTopicConnection();
+      return conn;
+   }
 
 }

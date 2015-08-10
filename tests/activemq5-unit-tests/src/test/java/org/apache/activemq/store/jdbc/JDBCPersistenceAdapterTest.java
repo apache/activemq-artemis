@@ -25,41 +25,42 @@ import org.apache.activemq.store.PersistenceAdapterTestSupport;
 import org.apache.derby.jdbc.EmbeddedDataSource;
 
 public class JDBCPersistenceAdapterTest extends PersistenceAdapterTestSupport {
-    
-    protected PersistenceAdapter createPersistenceAdapter(boolean delete) throws IOException {
-        JDBCPersistenceAdapter jdbc = new JDBCPersistenceAdapter();
-        
-        // explicitly enable audit as it is now off by default
-        // due to org.apache.activemq.broker.ProducerBrokerExchange.canDispatch(Message)
-        jdbc.setEnableAudit(true);
-        
-        brokerService.setSchedulerSupport(false);
-        brokerService.setPersistenceAdapter(jdbc);
-        jdbc.setBrokerService(brokerService);
-        EmbeddedDataSource dataSource = new EmbeddedDataSource();
-        dataSource.setDatabaseName("derbyDb");
-        dataSource.setCreateDatabase("create");
-        jdbc.setDataSource(dataSource);
-        if( delete ) {
-            jdbc.deleteAllMessages();
-        }
-        return jdbc;
-    }
-    
-    public void testAuditOff() throws Exception {
-        pa.stop();
-        pa = createPersistenceAdapter(true);
-        ((JDBCPersistenceAdapter)pa).setEnableAudit(false);
-        pa.start();
-    	boolean failed = true;
-    	try {
-    		testStoreCanHandleDupMessages();
-    		failed = false;
-    	} catch (AssertionFailedError e) {
-    	}
-    	
-    	if (!failed) {
-    		fail("Should have failed with audit turned off");
-    	}
-    }   
+
+   protected PersistenceAdapter createPersistenceAdapter(boolean delete) throws IOException {
+      JDBCPersistenceAdapter jdbc = new JDBCPersistenceAdapter();
+
+      // explicitly enable audit as it is now off by default
+      // due to org.apache.activemq.broker.ProducerBrokerExchange.canDispatch(Message)
+      jdbc.setEnableAudit(true);
+
+      brokerService.setSchedulerSupport(false);
+      brokerService.setPersistenceAdapter(jdbc);
+      jdbc.setBrokerService(brokerService);
+      EmbeddedDataSource dataSource = new EmbeddedDataSource();
+      dataSource.setDatabaseName("derbyDb");
+      dataSource.setCreateDatabase("create");
+      jdbc.setDataSource(dataSource);
+      if (delete) {
+         jdbc.deleteAllMessages();
+      }
+      return jdbc;
+   }
+
+   public void testAuditOff() throws Exception {
+      pa.stop();
+      pa = createPersistenceAdapter(true);
+      ((JDBCPersistenceAdapter) pa).setEnableAudit(false);
+      pa.start();
+      boolean failed = true;
+      try {
+         testStoreCanHandleDupMessages();
+         failed = false;
+      }
+      catch (AssertionFailedError e) {
+      }
+
+      if (!failed) {
+         fail("Should have failed with audit turned off");
+      }
+   }
 }

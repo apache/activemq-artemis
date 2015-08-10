@@ -26,8 +26,7 @@ import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 
-public class TemporaryQueueClusterTest extends JMSClusteredTestBase
-{
+public class TemporaryQueueClusterTest extends JMSClusteredTestBase {
 
    // Constants -----------------------------------------------------
 
@@ -40,8 +39,7 @@ public class TemporaryQueueClusterTest extends JMSClusteredTestBase
    // Public --------------------------------------------------------
 
    @Test
-   public void testClusteredQueue() throws Exception
-   {
+   public void testClusteredQueue() throws Exception {
       System.out.println("Server1 = " + server1.getNodeID());
       System.out.println("Server2 = " + server2.getNodeID());
       jmsServer1.createQueue(false, "target", null, true, "/queue/target");
@@ -54,8 +52,7 @@ public class TemporaryQueueClusterTest extends JMSClusteredTestBase
 
       conn2.start();
 
-      try
-      {
+      try {
          Session session1 = conn1.createSession(false, Session.AUTO_ACKNOWLEDGE);
          Queue targetQueue1 = session1.createQueue("target");
 
@@ -73,23 +70,20 @@ public class TemporaryQueueClusterTest extends JMSClusteredTestBase
 
          prod1.send(msg);
 
-         TextMessage msgReceived = (TextMessage)cons2.receive(5000);
+         TextMessage msgReceived = (TextMessage) cons2.receive(5000);
 
          assertNotNull(msgReceived);
          assertEquals(msgReceived.getText(), msg.getText());
 
       }
-      finally
-      {
+      finally {
          conn1.close();
          conn2.close();
       }
    }
 
-
    @Test
-   public void testTemporaryQueue() throws Exception
-   {
+   public void testTemporaryQueue() throws Exception {
       jmsServer1.createQueue(false, "target", null, false, "/queue/target");
       jmsServer2.createQueue(false, "target", null, false, "/queue/target");
 
@@ -99,8 +93,7 @@ public class TemporaryQueueClusterTest extends JMSClusteredTestBase
       conn1.start();
       conn2.start();
 
-      try
-      {
+      try {
          Session session1 = conn1.createSession(false, Session.AUTO_ACKNOWLEDGE);
          Queue targetQueue1 = session1.createQueue("target");
          Queue tempQueue = session1.createTemporaryQueue();
@@ -114,18 +107,15 @@ public class TemporaryQueueClusterTest extends JMSClusteredTestBase
          // sleep a little bit to have the temp queue propagated to server #2
          Thread.sleep(3000);
 
-         for (int i = 0; i < 10; i++)
-         {
+         for (int i = 0; i < 10; i++) {
             TextMessage message = session1.createTextMessage("" + i);
             message.setJMSReplyTo(tempQueue);
             prod1.send(message);
          }
 
-         for (int i = 0; i < 10; i++)
-         {
-            if (i % 2 == 0)
-            {
-               TextMessage received = (TextMessage)cons2.receive(5000);
+         for (int i = 0; i < 10; i++) {
+            if (i % 2 == 0) {
+               TextMessage received = (TextMessage) cons2.receive(5000);
                System.out.println(received.getText());
                System.out.println("check temp queue on server #2");
                MessageProducer tempProducer = session2.createProducer(received.getJMSReplyTo());
@@ -134,17 +124,14 @@ public class TemporaryQueueClusterTest extends JMSClusteredTestBase
             }
          }
 
-         for (int i = 0; i < 10; i++)
-         {
-            if (i % 2 == 0)
-            {
-               TextMessage received = (TextMessage)tempCons1.receive(5000);
+         for (int i = 0; i < 10; i++) {
+            if (i % 2 == 0) {
+               TextMessage received = (TextMessage) tempCons1.receive(5000);
                System.out.println(received.getText());
             }
          }
       }
-      finally
-      {
+      finally {
          conn1.close();
          conn2.close();
       }

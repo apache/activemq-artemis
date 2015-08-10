@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.jms.tests.message;
+
 import org.junit.Before;
 import org.junit.After;
 
@@ -29,8 +30,7 @@ import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
 /**
  * A test that sends/receives text messages to the JMS provider and verifies their integrity.
  */
-public class TextMessageTest extends MessageTestBase
-{
+public class TextMessageTest extends MessageTestBase {
    // Constants -----------------------------------------------------
 
    // Static --------------------------------------------------------
@@ -43,27 +43,24 @@ public class TextMessageTest extends MessageTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
       message = session.createTextMessage();
    }
 
    @Override
    @After
-   public void tearDown() throws Exception
-   {
+   public void tearDown() throws Exception {
       message = null;
       super.tearDown();
    }
 
    @Test
-   public void testClearProperties() throws Exception
-   {
-      ((TextMessage)message).setText("something");
+   public void testClearProperties() throws Exception {
+      ((TextMessage) message).setText("something");
       queueProd.send(message);
 
-      TextMessage rm = (TextMessage)queueCons.receive();
+      TextMessage rm = (TextMessage) queueCons.receive();
 
       rm.clearProperties();
 
@@ -73,20 +70,18 @@ public class TextMessageTest extends MessageTestBase
    // Protected -----------------------------------------------------
 
    @Override
-   protected void prepareMessage(final Message m) throws JMSException
-   {
+   protected void prepareMessage(final Message m) throws JMSException {
       super.prepareMessage(m);
 
-      TextMessage tm = (TextMessage)m;
+      TextMessage tm = (TextMessage) m;
       tm.setText("this is the payload");
    }
 
    @Override
-   protected void assertEquivalent(final Message m, final int mode, final boolean redelivery) throws JMSException
-   {
+   protected void assertEquivalent(final Message m, final int mode, final boolean redelivery) throws JMSException {
       super.assertEquivalent(m, mode, redelivery);
 
-      TextMessage tm = (TextMessage)m;
+      TextMessage tm = (TextMessage) m;
       ProxyAssertSupport.assertEquals("this is the payload", tm.getText());
    }
 }

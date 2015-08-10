@@ -25,47 +25,36 @@ import java.net.URI;
 
 @XmlRootElement(name = "server")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class ServerDTO
-{
+public class ServerDTO {
 
    @XmlAttribute
    public String configuration;
-
 
    private File configurationFile;
 
    private URI configurationURI;
 
-
-   public URI getConfigurationURI() throws Exception
-   {
-      if (configurationURI == null)
-      {
+   public URI getConfigurationURI() throws Exception {
+      if (configurationURI == null) {
          configurationURI = new URI(fixupFileURI(configuration));
       }
 
       return configurationURI;
    }
 
-   public File getConfigurationFile() throws Exception
-   {
-      if (configurationFile == null)
-      {
+   public File getConfigurationFile() throws Exception {
+      if (configurationFile == null) {
          configurationFile = new File(new URI(fixupFileURI(configuration)).getSchemeSpecificPart());
       }
       return configurationFile;
    }
 
-   private static String fixupFileURI(String value)
-   {
-      if (value != null && value.startsWith("file:"))
-      {
+   private static String fixupFileURI(String value) {
+      if (value != null && value.startsWith("file:")) {
          value = value.substring("file:".length());
          value = new File(value).toURI().toString();
       }
       return value;
    }
-
-
 
 }

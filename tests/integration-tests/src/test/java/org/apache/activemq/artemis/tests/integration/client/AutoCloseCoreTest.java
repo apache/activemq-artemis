@@ -22,24 +22,20 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.tests.util.SingleServerTestBase;
 import org.junit.Test;
 
-public class AutoCloseCoreTest extends SingleServerTestBase
-{
+public class AutoCloseCoreTest extends SingleServerTestBase {
 
    @Test
-   public void testAutClose() throws Exception
-   {
+   public void testAutClose() throws Exception {
       ServerLocator locatorx;
       ClientSession sessionx;
       ClientSessionFactory factoryx;
       try (ServerLocator locator = createInVMNonHALocator();
            ClientSessionFactory factory = locator.createSessionFactory();
-           ClientSession session = factory.createSession(false, false))
-      {
+           ClientSession session = factory.createSession(false, false)) {
          locatorx = locator;
          sessionx = session;
          factoryx = factory;
       }
-
 
       assertTrue(locatorx.isClosed());
       assertTrue(sessionx.isClosed());

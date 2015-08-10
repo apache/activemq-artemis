@@ -33,34 +33,26 @@ import org.junit.runners.Parameterized;
  * adapted from: org.apache.activemq.JMSConsumerTest
  */
 @RunWith(Parameterized.class)
-public class JMSConsumer12Test extends BasicOpenWireTest
-{
+public class JMSConsumer12Test extends BasicOpenWireTest {
+
    @Parameterized.Parameters(name = "deliveryMode={0} destinationType={1}")
-   public static Collection<Object[]> getParams()
-   {
-      return Arrays.asList(new Object[][] {
-         {DeliveryMode.NON_PERSISTENT, ActiveMQDestination.QUEUE_TYPE},
-         {DeliveryMode.NON_PERSISTENT, ActiveMQDestination.TOPIC_TYPE}
-      });
+   public static Collection<Object[]> getParams() {
+      return Arrays.asList(new Object[][]{{DeliveryMode.NON_PERSISTENT, ActiveMQDestination.QUEUE_TYPE}, {DeliveryMode.NON_PERSISTENT, ActiveMQDestination.TOPIC_TYPE}});
    }
 
    public int deliveryMode;
    public byte destinationType;
 
-   public JMSConsumer12Test(int deliveryMode, byte destinationType)
-   {
+   public JMSConsumer12Test(int deliveryMode, byte destinationType) {
       this.deliveryMode = deliveryMode;
       this.destinationType = destinationType;
    }
 
    @Test
-   public void testDontStart() throws Exception
-   {
+   public void testDontStart() throws Exception {
 
-      Session session = connection.createSession(false,
-            Session.AUTO_ACKNOWLEDGE);
-      ActiveMQDestination destination = createDestination(session,
-            destinationType);
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      ActiveMQDestination destination = createDestination(session, destinationType);
       MessageConsumer consumer = session.createConsumer(destination);
 
       // Send the messages
@@ -71,12 +63,9 @@ public class JMSConsumer12Test extends BasicOpenWireTest
    }
 
    @Test
-   public void testStartAfterSend() throws Exception
-   {
-      Session session = connection.createSession(false,
-            Session.AUTO_ACKNOWLEDGE);
-      ActiveMQDestination destination = createDestination(session,
-            destinationType);
+   public void testStartAfterSend() throws Exception {
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      ActiveMQDestination destination = createDestination(session, destinationType);
       MessageConsumer consumer = session.createConsumer(destination);
 
       // Send the messages

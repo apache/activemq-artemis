@@ -27,8 +27,8 @@ import org.apache.activemq.artemis.api.core.TransportConfigurationHelper;
  * <p>
  * A Connector is used to connect to an org.apache.activemq.artemis.spi.core.remoting.Acceptor.
  */
-public interface ConnectorFactory extends TransportConfigurationHelper
-{
+public interface ConnectorFactory extends TransportConfigurationHelper {
+
    /**
     * creates a new instance of a connector.
     *

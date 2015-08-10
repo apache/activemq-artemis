@@ -38,35 +38,26 @@ import org.junit.runners.Parameterized;
  * adapted from: org.apache.activemq.JMSUsecaseTest
  */
 @RunWith(Parameterized.class)
-public class JMSUsecaseTest extends BasicOpenWireTest
-{
+public class JMSUsecaseTest extends BasicOpenWireTest {
+
    @Parameterized.Parameters(name = "deliveryMode={0} destinationType={1}")
-   public static Collection<Object[]> getParams()
-   {
-      return Arrays.asList(new Object[][] {
-         {DeliveryMode.NON_PERSISTENT, ActiveMQDestination.QUEUE_TYPE},
-         {DeliveryMode.NON_PERSISTENT, ActiveMQDestination.TEMP_QUEUE_TYPE},
-         {DeliveryMode.PERSISTENT, ActiveMQDestination.QUEUE_TYPE},
-         {DeliveryMode.PERSISTENT, ActiveMQDestination.TEMP_QUEUE_TYPE}
-      });
+   public static Collection<Object[]> getParams() {
+      return Arrays.asList(new Object[][]{{DeliveryMode.NON_PERSISTENT, ActiveMQDestination.QUEUE_TYPE}, {DeliveryMode.NON_PERSISTENT, ActiveMQDestination.TEMP_QUEUE_TYPE}, {DeliveryMode.PERSISTENT, ActiveMQDestination.QUEUE_TYPE}, {DeliveryMode.PERSISTENT, ActiveMQDestination.TEMP_QUEUE_TYPE}});
    }
 
    public int deliveryMode;
    public byte destinationType;
 
-   public JMSUsecaseTest(int deliveryMode, byte destinationType)
-   {
+   public JMSUsecaseTest(int deliveryMode, byte destinationType) {
       this.deliveryMode = deliveryMode;
       this.destinationType = destinationType;
    }
 
    @Test
-   public void testQueueBrowser() throws Exception
-   {
+   public void testQueueBrowser() throws Exception {
       // Send a message to the broker.
       connection.start();
-      Session session = connection.createSession(false,
-            Session.AUTO_ACKNOWLEDGE);
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       ActiveMQDestination destination = createDestination(session, destinationType);
       MessageProducer producer = session.createProducer(destination);
       producer.setDeliveryMode(this.deliveryMode);
@@ -75,8 +66,7 @@ public class JMSUsecaseTest extends BasicOpenWireTest
 
       QueueBrowser browser = session.createBrowser((Queue) destination);
       Enumeration<?> enumeration = browser.getEnumeration();
-      for (int i = 0; i < 5; i++)
-      {
+      for (int i = 0; i < 5; i++) {
          Thread.sleep(100);
          assertTrue(enumeration.hasMoreElements());
          Message m = (Message) enumeration.nextElement();

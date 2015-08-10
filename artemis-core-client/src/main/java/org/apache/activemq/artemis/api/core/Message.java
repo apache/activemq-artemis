@@ -21,7 +21,6 @@ import java.util.Set;
 
 import org.apache.activemq.artemis.utils.UUID;
 
-
 /**
  * A Message is a routable instance that has a payload.
  * <p>
@@ -50,8 +49,8 @@ import org.apache.activemq.artemis.utils.UUID;
  * If conversion is not allowed (for example calling {@code getFloatProperty} on a property set a
  * {@code boolean}), a {@link ActiveMQPropertyConversionException} will be thrown.
  */
-public interface Message
-{
+public interface Message {
+
    SimpleString HDR_ACTUAL_EXPIRY_TIME = new SimpleString("_AMQ_ACTUAL_EXPIRY");
 
    SimpleString HDR_ORIGINAL_ADDRESS = new SimpleString("_AMQ_ORIG_ADDRESS");
@@ -372,7 +371,7 @@ public interface Message
     * @param key   property name
     * @param value property value
     * @throws ActiveMQPropertyConversionException if the value is not one of the accepted property
-    *                                            types.
+    *                                             types.
     */
    Message putObjectProperty(SimpleString key, Object value) throws ActiveMQPropertyConversionException;
 
@@ -388,7 +387,6 @@ public interface Message
     * @return the value corresponding to the specified key or @{code null}
     */
    Object removeProperty(SimpleString key);
-
 
    /**
     * @see #removeProperty(SimpleString)

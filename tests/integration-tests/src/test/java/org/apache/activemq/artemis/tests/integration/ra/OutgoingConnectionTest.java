@@ -57,15 +57,14 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class OutgoingConnectionTest extends ActiveMQRATestBase
-{
+public class OutgoingConnectionTest extends ActiveMQRATestBase {
+
    private ActiveMQResourceAdapter resourceAdapter;
    private ActiveMQRAConnectionFactory qraConnectionFactory;
    private ActiveMQRAManagedConnectionFactory mcf;
 
    @Override
-   public boolean useSecurity()
-   {
+   public boolean useSecurity() {
       return true;
    }
 
@@ -73,8 +72,7 @@ public class OutgoingConnectionTest extends ActiveMQRATestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
       ActiveMQSecurityManagerImpl securityManager = (ActiveMQSecurityManagerImpl) server.getSecurityManager();
       securityManager.getConfiguration().addUser("testuser", "testpassword");
@@ -100,10 +98,8 @@ public class OutgoingConnectionTest extends ActiveMQRATestBase
 
    @Override
    @After
-   public void tearDown() throws Exception
-   {
-      if (resourceAdapter != null)
-      {
+   public void tearDown() throws Exception {
+      if (resourceAdapter != null) {
          resourceAdapter.stop();
       }
 
@@ -112,8 +108,7 @@ public class OutgoingConnectionTest extends ActiveMQRATestBase
    }
 
    @Test
-   public void testSimpleMessageSendAndReceiveXA() throws Exception
-   {
+   public void testSimpleMessageSendAndReceiveXA() throws Exception {
       Xid xid = new XidImpl("xa1".getBytes(), 1, UUIDGenerator.getInstance().generateStringUUID().getBytes());
       XAQueueConnection queueConnection = qraConnectionFactory.createXAQueueConnection();
       XASession s = queueConnection.createXASession();
@@ -144,8 +139,7 @@ public class OutgoingConnectionTest extends ActiveMQRATestBase
    }
 
    @Test
-   public void testInexistentUserOnCreateConnection() throws Exception
-   {
+   public void testInexistentUserOnCreateConnection() throws Exception {
       resourceAdapter = newResourceAdapter();
       MyBootstrapContext ctx = new MyBootstrapContext();
       resourceAdapter.start(ctx);
@@ -154,50 +148,41 @@ public class OutgoingConnectionTest extends ActiveMQRATestBase
       ActiveMQRAConnectionFactory qraConnectionFactory = new ActiveMQRAConnectionFactoryImpl(mcf, qraConnectionManager);
 
       Connection conn = null;
-      try
-      {
+      try {
          conn = qraConnectionFactory.createConnection("IDont", "Exist");
          fail("Exception was expected");
       }
-      catch (JMSSecurityException expected)
-      {
+      catch (JMSSecurityException expected) {
       }
 
       conn = qraConnectionFactory.createConnection("testuser", "testpassword");
       conn.close();
 
-
-      try
-      {
+      try {
          XAConnection xaconn = qraConnectionFactory.createXAConnection("IDont", "Exist");
          fail("Exception was expected");
       }
-      catch (JMSSecurityException expected)
-      {
+      catch (JMSSecurityException expected) {
       }
 
       XAConnection xaconn = qraConnectionFactory.createXAConnection("testuser", "testpassword");
       xaconn.close();
 
-      try
-      {
+      try {
          TopicConnection topicconn = qraConnectionFactory.createTopicConnection("IDont", "Exist");
          fail("Exception was expected");
       }
-      catch (JMSSecurityException expected)
-      {
+      catch (JMSSecurityException expected) {
       }
 
       TopicConnection topicconn = qraConnectionFactory.createTopicConnection("testuser", "testpassword");
       topicconn.close();
 
-      try
-      {
+      try {
          QueueConnection queueconn = qraConnectionFactory.createQueueConnection("IDont", "Exist");
          fail("Exception was expected");
       }
-      catch (JMSSecurityException expected)
-      {
+      catch (JMSSecurityException expected) {
       }
 
       QueueConnection queueconn = qraConnectionFactory.createQueueConnection("testuser", "testpassword");
@@ -205,12 +190,10 @@ public class OutgoingConnectionTest extends ActiveMQRATestBase
 
       mcf.stop();
 
-
    }
 
    @Test
-   public void testMultipleSessionsThrowsException() throws Exception
-   {
+   public void testMultipleSessionsThrowsException() throws Exception {
       resourceAdapter = newResourceAdapter();
       MyBootstrapContext ctx = new MyBootstrapContext();
       resourceAdapter.start(ctx);
@@ -219,19 +202,16 @@ public class OutgoingConnectionTest extends ActiveMQRATestBase
       ActiveMQRAConnectionFactory qraConnectionFactory = new ActiveMQRAConnectionFactoryImpl(mcf, qraConnectionManager);
       QueueConnection queueConnection = qraConnectionFactory.createQueueConnection();
       Session s = queueConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-      try
-      {
+      try {
          Session s2 = queueConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
          fail("should throw javax,jms.IllegalStateException: Only allowed one session per connection. See the J2EE spec, e.g. J2EE1.4 Section 6.6");
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
       }
    }
 
    @Test
-   public void testConnectionCredentials() throws Exception
-   {
+   public void testConnectionCredentials() throws Exception {
       resourceAdapter = newResourceAdapter();
       MyBootstrapContext ctx = new MyBootstrapContext();
       resourceAdapter.start(ctx);
@@ -247,8 +227,7 @@ public class OutgoingConnectionTest extends ActiveMQRATestBase
    }
 
    @Test
-   public void testConnectionCredentialsFail() throws Exception
-   {
+   public void testConnectionCredentialsFail() throws Exception {
       resourceAdapter = newResourceAdapter();
       MyBootstrapContext ctx = new MyBootstrapContext();
       resourceAdapter.start(ctx);
@@ -262,43 +241,37 @@ public class OutgoingConnectionTest extends ActiveMQRATestBase
       queueConnection.close();
       mc.destroy();
 
-      try
-      {
+      try {
          queueConnection = qraConnectionFactory.createQueueConnection("testuser", "testwrongpassword");
          queueConnection.createQueueSession(false, Session.AUTO_ACKNOWLEDGE).close();
          fail("should throw esxception");
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          //pass
       }
    }
 
    @Test
-   public void testConnectionCredentialsFailRecovery() throws Exception
-   {
+   public void testConnectionCredentialsFailRecovery() throws Exception {
       resourceAdapter = newResourceAdapter();
       MyBootstrapContext ctx = new MyBootstrapContext();
       resourceAdapter.start(ctx);
       ActiveMQRAManagedConnectionFactory mcf = new ActiveMQRAManagedConnectionFactory();
       mcf.setResourceAdapter(resourceAdapter);
       ActiveMQRAConnectionFactory qraConnectionFactory = new ActiveMQRAConnectionFactoryImpl(mcf, qraConnectionManager);
-      try
-      {
+      try {
          QueueConnection queueConnection = qraConnectionFactory.createQueueConnection("testuser", "testwrongpassword");
          queueConnection.createQueueSession(false, Session.AUTO_ACKNOWLEDGE).close();
          fail("should throw esxception");
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          //make sure the recovery is null
          assertNull(mcf.getResourceRecovery());
       }
    }
 
    @Test
-   public void testConnectionCredentialsOKRecovery() throws Exception
-   {
+   public void testConnectionCredentialsOKRecovery() throws Exception {
       resourceAdapter = newResourceAdapter();
       MyBootstrapContext ctx = new MyBootstrapContext();
       resourceAdapter.start(ctx);
@@ -312,8 +285,7 @@ public class OutgoingConnectionTest extends ActiveMQRATestBase
    }
 
    @Test
-   public void testJMSContext() throws Exception
-   {
+   public void testJMSContext() throws Exception {
       resourceAdapter = newResourceAdapter();
       MyBootstrapContext ctx = new MyBootstrapContext();
       resourceAdapter.start(ctx);
@@ -327,15 +299,14 @@ public class OutgoingConnectionTest extends ActiveMQRATestBase
    }
 
    @Test
-   public void testOutgoingXAResourceWrapper() throws Exception
-   {
+   public void testOutgoingXAResourceWrapper() throws Exception {
       XAQueueConnection queueConnection = qraConnectionFactory.createXAQueueConnection();
       XASession s = queueConnection.createXASession();
 
       XAResource resource = s.getXAResource();
       assertTrue(resource instanceof ActiveMQXAResourceWrapper);
 
-      ActiveMQXAResourceWrapperImpl xaResourceWrapper  = (ActiveMQXAResourceWrapperImpl) resource;
+      ActiveMQXAResourceWrapperImpl xaResourceWrapper = (ActiveMQXAResourceWrapperImpl) resource;
       assertTrue(xaResourceWrapper.getJndiName().equals("java://jmsXA NodeId:" + server.getNodeID()));
       assertTrue(xaResourceWrapper.getProductVersion().equals(VersionLoader.getVersion().getFullVersion()));
       assertTrue(xaResourceWrapper.getProductName().equals(ActiveMQResourceAdapter.PRODUCT_NAME));

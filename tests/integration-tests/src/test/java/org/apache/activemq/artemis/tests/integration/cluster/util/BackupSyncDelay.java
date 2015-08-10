@@ -56,15 +56,13 @@ import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
  * <li>not send an answer to it, when we deliver the packet later.
  * </ol>
  */
-public class BackupSyncDelay implements Interceptor
-{
+public class BackupSyncDelay implements Interceptor {
 
    private final ReplicationChannelHandler handler;
    private final ActiveMQServer backup;
    private final ActiveMQServer live;
 
-   public void deliverUpToDateMsg()
-   {
+   public void deliverUpToDateMsg() {
       live.getRemotingService().removeIncomingInterceptor(this);
       if (backup.isStarted())
          handler.deliver();
@@ -75,8 +73,7 @@ public class BackupSyncDelay implements Interceptor
     * @param live
     * @param packetCode which packet is going to be intercepted.
     */
-   public BackupSyncDelay(ActiveMQServer backup, ActiveMQServer live, byte packetCode)
-   {
+   public BackupSyncDelay(ActiveMQServer backup, ActiveMQServer live, byte packetCode) {
       this.backup = backup;
       this.live = live;
       live.getRemotingService().addIncomingInterceptor(this);
@@ -87,18 +84,14 @@ public class BackupSyncDelay implements Interceptor
     * @param backupServer
     * @param liveServer
     */
-   public BackupSyncDelay(TestableServer backupServer, TestableServer liveServer)
-   {
+   public BackupSyncDelay(TestableServer backupServer, TestableServer liveServer) {
       this(backupServer.getServer(), liveServer.getServer(), PacketImpl.REPLICATION_START_FINISH_SYNC);
    }
 
    @Override
-   public boolean intercept(Packet packet, RemotingConnection connection) throws ActiveMQException
-   {
-      if (packet.getType() == PacketImpl.BACKUP_REGISTRATION)
-      {
-         try
-         {
+   public boolean intercept(Packet packet, RemotingConnection connection) throws ActiveMQException {
+      if (packet.getType() == PacketImpl.BACKUP_REGISTRATION) {
+         try {
             SharedNothingBackupActivation activation = (SharedNothingBackupActivation) backup.getActivation();
             ReplicationEndpoint repEnd = activation.getReplicationEndpoint();
             handler.addSubHandler(repEnd);
@@ -107,21 +100,19 @@ public class BackupSyncDelay implements Interceptor
             handler.setChannel(repChannel);
             live.getRemotingService().removeIncomingInterceptor(this);
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             throw new RuntimeException(e);
          }
       }
       return true;
    }
 
-   public static class ReplicationChannelHandler implements ChannelHandler
-   {
+   public static class ReplicationChannelHandler implements ChannelHandler {
 
-      public ReplicationChannelHandler(byte type)
-      {
+      public ReplicationChannelHandler(byte type) {
          this.typeToIntercept = type;
       }
+
       private ReplicationEndpoint handler;
       private Packet onHold;
       private Channel channel;
@@ -131,64 +122,52 @@ public class BackupSyncDelay implements Interceptor
       private boolean mustHold = true;
       private final byte typeToIntercept;
 
-      public void addSubHandler(ReplicationEndpoint handler)
-      {
+      public void addSubHandler(ReplicationEndpoint handler) {
          this.handler = handler;
       }
 
-      public synchronized void deliver()
-      {
+      public synchronized void deliver() {
          deliver = true;
          if (!receivedUpToDate)
             return;
          if (delivered)
             return;
 
-         if (onHold == null)
-         {
+         if (onHold == null) {
             throw new NullPointerException("Don't have the 'sync is done' packet to deliver");
          }
          // Use wrapper to avoid sending a response
          ChannelWrapper wrapper = new ChannelWrapper(channel);
          handler.setChannel(wrapper);
-         try
-         {
+         try {
             handler.handlePacket(onHold);
             delivered = true;
          }
-         finally
-         {
+         finally {
             handler.setChannel(channel);
             channel.setHandler(handler);
             onHold = null;
          }
       }
 
-      public void setChannel(Channel channel)
-      {
+      public void setChannel(Channel channel) {
          this.channel = channel;
       }
 
-      public void setHold(boolean hold)
-      {
+      public void setHold(boolean hold) {
          mustHold = hold;
       }
 
       @Override
-      public synchronized void handlePacket(Packet packet)
-      {
-         if (onHold != null && deliver)
-         {
+      public synchronized void handlePacket(Packet packet) {
+         if (onHold != null && deliver) {
             deliver();
          }
 
-         if (typeToIntercept == PacketImpl.REPLICATION_START_FINISH_SYNC)
-         {
-            if (packet.getType() == PacketImpl.REPLICATION_START_FINISH_SYNC && mustHold)
-            {
-               ReplicationStartSyncMessage syncMsg = (ReplicationStartSyncMessage)packet;
-               if (syncMsg.isSynchronizationFinished() && !deliver)
-               {
+         if (typeToIntercept == PacketImpl.REPLICATION_START_FINISH_SYNC) {
+            if (packet.getType() == PacketImpl.REPLICATION_START_FINISH_SYNC && mustHold) {
+               ReplicationStartSyncMessage syncMsg = (ReplicationStartSyncMessage) packet;
+               if (syncMsg.isSynchronizationFinished() && !deliver) {
                   receivedUpToDate = true;
                   assert onHold == null;
                   onHold = packet;
@@ -198,8 +177,7 @@ public class BackupSyncDelay implements Interceptor
                }
             }
          }
-         else if (typeToIntercept == packet.getType())
-         {
+         else if (typeToIntercept == packet.getType()) {
             channel.send(new ReplicationResponseMessage());
             return;
          }
@@ -209,175 +187,147 @@ public class BackupSyncDelay implements Interceptor
 
    }
 
-   public static class ChannelWrapper implements Channel
-   {
+   public static class ChannelWrapper implements Channel {
 
       private final Channel channel;
 
-      public ChannelWrapper(Channel channel)
-      {
+      public ChannelWrapper(Channel channel) {
          this.channel = channel;
       }
 
       @Override
-      public String toString()
-      {
+      public String toString() {
          return "ChannelWrapper(" + channel + ")";
       }
 
       @Override
-      public long getID()
-      {
+      public long getID() {
          return channel.getID();
       }
 
       @Override
-      public boolean send(Packet packet)
-      {
+      public boolean send(Packet packet) {
          // no-op
          // channel.send(packet);
          return true;
       }
 
       @Override
-      public boolean sendBatched(Packet packet)
-      {
+      public boolean sendBatched(Packet packet) {
          throw new UnsupportedOperationException();
 
       }
 
       @Override
-      public boolean sendAndFlush(Packet packet)
-      {
+      public boolean sendAndFlush(Packet packet) {
          throw new UnsupportedOperationException();
       }
 
       @Override
-      public Packet sendBlocking(Packet packet, byte expected) throws ActiveMQException
-      {
+      public Packet sendBlocking(Packet packet, byte expected) throws ActiveMQException {
          throw new UnsupportedOperationException();
       }
 
       @Override
-      public void setHandler(ChannelHandler handler)
-      {
+      public void setHandler(ChannelHandler handler) {
          throw new UnsupportedOperationException();
       }
 
-      public ChannelHandler getHandler()
-      {
-         throw new UnsupportedOperationException();
-      }
-
-      @Override
-      public void close()
-      {
+      public ChannelHandler getHandler() {
          throw new UnsupportedOperationException();
       }
 
       @Override
-      public void transferConnection(CoreRemotingConnection newConnection)
-      {
+      public void close() {
+         throw new UnsupportedOperationException();
+      }
+
+      @Override
+      public void transferConnection(CoreRemotingConnection newConnection) {
          throw new UnsupportedOperationException();
 
       }
 
       @Override
-      public void replayCommands(int lastConfirmedCommandID)
-      {
+      public void replayCommands(int lastConfirmedCommandID) {
          throw new UnsupportedOperationException();
       }
 
       @Override
-      public int getLastConfirmedCommandID()
-      {
+      public int getLastConfirmedCommandID() {
          throw new UnsupportedOperationException();
       }
 
       @Override
-      public void lock()
-      {
+      public void lock() {
          throw new UnsupportedOperationException();
       }
 
       @Override
-      public void unlock()
-      {
+      public void unlock() {
          throw new UnsupportedOperationException();
 
       }
 
       @Override
-      public void returnBlocking()
-      {
+      public void returnBlocking() {
          throw new UnsupportedOperationException();
       }
 
       @Override
-      public void returnBlocking(Throwable cause)
-      {
+      public void returnBlocking(Throwable cause) {
          throw new UnsupportedOperationException();
       }
 
       @Override
-      public Lock getLock()
-      {
+      public Lock getLock() {
          throw new UnsupportedOperationException();
       }
 
       @Override
-      public CoreRemotingConnection getConnection()
-      {
+      public CoreRemotingConnection getConnection() {
          throw new UnsupportedOperationException();
       }
 
       @Override
-      public void confirm(Packet packet)
-      {
+      public void confirm(Packet packet) {
          throw new UnsupportedOperationException();
       }
 
       @Override
-      public void setCommandConfirmationHandler(CommandConfirmationHandler handler)
-      {
+      public void setCommandConfirmationHandler(CommandConfirmationHandler handler) {
          throw new UnsupportedOperationException();
 
       }
 
       @Override
-      public void flushConfirmations()
-      {
+      public void flushConfirmations() {
          throw new UnsupportedOperationException();
       }
 
       @Override
-      public void handlePacket(Packet packet)
-      {
+      public void handlePacket(Packet packet) {
          throw new UnsupportedOperationException();
 
       }
 
       @Override
-      public void clearCommands()
-      {
+      public void clearCommands() {
          throw new UnsupportedOperationException();
       }
 
       @Override
-      public int getConfirmationWindowSize()
-      {
+      public int getConfirmationWindowSize() {
          throw new UnsupportedOperationException();
       }
 
       @Override
-      public void setTransferring(boolean transferring)
-      {
+      public void setTransferring(boolean transferring) {
          throw new UnsupportedOperationException();
       }
 
       @Override
-      public boolean supports(byte packetID)
-      {
+      public boolean supports(byte packetID) {
          return true;
       }
 

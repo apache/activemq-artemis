@@ -17,15 +17,12 @@
 package org.apache.activemq.artemis.api.jms;
 
 // XXX no javadocs
-public enum JMSFactoryType
-{
+public enum JMSFactoryType {
    CF, QUEUE_CF, TOPIC_CF, XA_CF, QUEUE_XA_CF, TOPIC_XA_CF;
 
-   public int intValue()
-   {
+   public int intValue() {
       int val = 0;
-      switch (this)
-      {
+      switch (this) {
          case CF:
             val = 0;
             break;
@@ -48,11 +45,9 @@ public enum JMSFactoryType
       return val;
    }
 
-   public static JMSFactoryType valueOf(int val)
-   {
+   public static JMSFactoryType valueOf(int val) {
       JMSFactoryType type;
-      switch (val)
-      {
+      switch (val) {
          case 0:
             type = CF;
             break;

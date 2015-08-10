@@ -27,29 +27,25 @@ import org.junit.Test;
  *
  * Most of the cases are covered in OneWayTwoNodeClusterTest - we don't duplicate them all here
  */
-public class SymmetricClusterTest extends ClusterTestBase
-{
+public class SymmetricClusterTest extends ClusterTestBase {
+
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       setupServers();
    }
 
-   protected boolean isNetty()
-   {
+   protected boolean isNetty() {
       return false;
    }
 
    @Test
-   public void testStopAllStartAll() throws Throwable
-   {
-      try
-      {
+   public void testStopAllStartAll() throws Throwable {
+      try {
          setupCluster();
 
          startServers();
@@ -141,8 +137,7 @@ public class SymmetricClusterTest extends ClusterTestBase
          verifyNotReceive(0, 1, 2, 3, 4);
 
       }
-      catch (Throwable e)
-      {
+      catch (Throwable e) {
          System.out.println(ActiveMQTestBase.threadDump("SymmetricClusterTest::testStopAllStartAll"));
          throw e;
       }
@@ -150,8 +145,7 @@ public class SymmetricClusterTest extends ClusterTestBase
    }
 
    @Test
-   public void testBasicRoundRobin() throws Exception
-   {
+   public void testBasicRoundRobin() throws Exception {
       setupCluster();
 
       startServers();
@@ -193,10 +187,8 @@ public class SymmetricClusterTest extends ClusterTestBase
       verifyNotReceive(0, 1, 2, 3, 4);
    }
 
-
    @Test
-   public void testBasicRoundRobinManyMessages() throws Exception
-   {
+   public void testBasicRoundRobinManyMessages() throws Exception {
       setupCluster();
 
       startServers();
@@ -239,8 +231,7 @@ public class SymmetricClusterTest extends ClusterTestBase
    }
 
    @Test
-   public void testRoundRobinMultipleQueues() throws Exception
-   {
+   public void testRoundRobinMultipleQueues() throws Exception {
       SymmetricClusterTest.log.info("starting");
       setupCluster();
 
@@ -330,8 +321,7 @@ public class SymmetricClusterTest extends ClusterTestBase
    }
 
    @Test
-   public void testMultipleNonLoadBalancedQueues() throws Exception
-   {
+   public void testMultipleNonLoadBalancedQueues() throws Exception {
       setupCluster();
 
       startServers();
@@ -396,8 +386,7 @@ public class SymmetricClusterTest extends ClusterTestBase
    }
 
    @Test
-   public void testMixtureLoadBalancedAndNonLoadBalancedQueues() throws Exception
-   {
+   public void testMixtureLoadBalancedAndNonLoadBalancedQueues() throws Exception {
       setupCluster();
 
       startServers();
@@ -504,8 +493,7 @@ public class SymmetricClusterTest extends ClusterTestBase
    }
 
    @Test
-   public void testMixtureLoadBalancedAndNonLoadBalancedQueuesRemoveSomeQueuesAndConsumers() throws Exception
-   {
+   public void testMixtureLoadBalancedAndNonLoadBalancedQueuesRemoveSomeQueuesAndConsumers() throws Exception {
       setupCluster();
 
       startServers();
@@ -646,8 +634,7 @@ public class SymmetricClusterTest extends ClusterTestBase
    }
 
    @Test
-   public void testMixtureLoadBalancedAndNonLoadBalancedQueuesAddQueuesAndConsumersBeforeAllServersAreStarted() throws Exception
-   {
+   public void testMixtureLoadBalancedAndNonLoadBalancedQueuesAddQueuesAndConsumersBeforeAllServersAreStarted() throws Exception {
       setupCluster();
 
       startServers(0);
@@ -762,8 +749,7 @@ public class SymmetricClusterTest extends ClusterTestBase
    }
 
    @Test
-   public void testMixtureLoadBalancedAndNonLoadBalancedQueuesWithFilters() throws Exception
-   {
+   public void testMixtureLoadBalancedAndNonLoadBalancedQueuesWithFilters() throws Exception {
       setupCluster();
 
       startServers();
@@ -891,8 +877,7 @@ public class SymmetricClusterTest extends ClusterTestBase
    }
 
    @Test
-   public void testMixtureLoadBalancedAndNonLoadBalancedQueuesWithConsumersWithFilters() throws Exception
-   {
+   public void testMixtureLoadBalancedAndNonLoadBalancedQueuesWithConsumersWithFilters() throws Exception {
       setupCluster();
 
       startServers();
@@ -1020,8 +1005,7 @@ public class SymmetricClusterTest extends ClusterTestBase
    }
 
    @Test
-   public void testRouteWhenNoConsumersTrueLoadBalancedQueues() throws Exception
-   {
+   public void testRouteWhenNoConsumersTrueLoadBalancedQueues() throws Exception {
       setupCluster(MessageLoadBalancingType.STRICT);
 
       startServers();
@@ -1074,8 +1058,7 @@ public class SymmetricClusterTest extends ClusterTestBase
    }
 
    @Test
-   public void testRouteWhenNoConsumersFalseLocalConsumerLoadBalancedQueues() throws Exception
-   {
+   public void testRouteWhenNoConsumersFalseLocalConsumerLoadBalancedQueues() throws Exception {
       setupCluster(MessageLoadBalancingType.ON_DEMAND);
 
       startServers();
@@ -1129,8 +1112,7 @@ public class SymmetricClusterTest extends ClusterTestBase
    }
 
    @Test
-   public void testRouteWhenNoConsumersFalseNonLoadBalancedQueues2() throws Exception
-   {
+   public void testRouteWhenNoConsumersFalseNonLoadBalancedQueues2() throws Exception {
       setupCluster(MessageLoadBalancingType.ON_DEMAND);
 
       startServers();
@@ -1183,8 +1165,7 @@ public class SymmetricClusterTest extends ClusterTestBase
    }
 
    @Test
-   public void testRouteWhenNoConsumersFalseNonLoadBalancedQueues() throws Exception
-   {
+   public void testRouteWhenNoConsumersFalseNonLoadBalancedQueues() throws Exception {
       setupCluster(MessageLoadBalancingType.ON_DEMAND);
 
       startServers();
@@ -1237,8 +1218,7 @@ public class SymmetricClusterTest extends ClusterTestBase
    }
 
    @Test
-   public void testRouteWhenNoConsumersTrueNonLoadBalancedQueues() throws Exception
-   {
+   public void testRouteWhenNoConsumersTrueNonLoadBalancedQueues() throws Exception {
       setupCluster(MessageLoadBalancingType.STRICT);
 
       startServers();
@@ -1291,8 +1271,7 @@ public class SymmetricClusterTest extends ClusterTestBase
    }
 
    @Test
-   public void testNoLocalQueueNonLoadBalancedQueues() throws Exception
-   {
+   public void testNoLocalQueueNonLoadBalancedQueues() throws Exception {
       setupCluster(MessageLoadBalancingType.STRICT);
 
       startServers();
@@ -1330,8 +1309,7 @@ public class SymmetricClusterTest extends ClusterTestBase
    }
 
    @Test
-   public void testNoLocalQueueLoadBalancedQueues() throws Exception
-   {
+   public void testNoLocalQueueLoadBalancedQueues() throws Exception {
       setupCluster(MessageLoadBalancingType.STRICT);
 
       startServers();
@@ -1368,13 +1346,11 @@ public class SymmetricClusterTest extends ClusterTestBase
       verifyReceiveRoundRobinInSomeOrder(10, 1, 2, 3, 4);
    }
 
-   public void _testStartStopServers() throws Exception
-   {
+   public void _testStartStopServers() throws Exception {
       doTestStartStopServers(1, 3000);
    }
 
-   public void doTestStartStopServers(long pauseBeforeServerRestarts, long pauseAfterServerRestarts) throws Exception
-   {
+   public void doTestStartStopServers(long pauseBeforeServerRestarts, long pauseAfterServerRestarts) throws Exception {
       setupCluster();
 
       startServers();
@@ -1567,8 +1543,7 @@ public class SymmetricClusterTest extends ClusterTestBase
    }
 
    @Test
-   public void testStopSuccessiveServers() throws Exception
-   {
+   public void testStopSuccessiveServers() throws Exception {
       setupCluster();
 
       startServers();
@@ -1752,9 +1727,7 @@ public class SymmetricClusterTest extends ClusterTestBase
     * This test verifies that addresses matching a simple string filter such as 'jms' result in bindings being created
     * on appropriate nodes in the cluster.  It also verifies that addresses not matching the simple string filter do not
     * result in bindings being created.
-    */
-   public void testClusterAddressCreatesBindingsForSimpleStringAddressFilters() throws Exception
-   {
+    */ public void testClusterAddressCreatesBindingsForSimpleStringAddressFilters() throws Exception {
       setupCluster("jms", "jms", "jms", "jms", "jms");
       startServers();
 
@@ -1793,9 +1766,7 @@ public class SymmetricClusterTest extends ClusterTestBase
    /**
     * This test verifies that a string exclude filter '!jms.eu.uk' results in bindings not being created for this
     * address for nodes in a cluster.  But ensures that other addresses are matched and bindings created.
-    */
-   public void testClusterAddressDoesNotCreatesBindingsForStringExcludesAddressFilters() throws Exception
-   {
+    */ public void testClusterAddressDoesNotCreatesBindingsForStringExcludesAddressFilters() throws Exception {
       setupCluster("jms.eu.de,!jms.eu.uk", "jms.eu.de,!jms.eu.uk", "jms.eu.de,!jms.eu.uk", "jms.eu.de,!jms.eu.uk", "jms.eu.de,!jms.eu.uk");
       startServers();
 
@@ -1833,16 +1804,12 @@ public class SymmetricClusterTest extends ClusterTestBase
    /**
     * This test verifies that remote bindings are only created for queues that match jms.eu or jms.us excluding
     * jms.eu.uk and jms.us.bos.  Represented by the address filter 'jms.eu,!jms.eu.uk,jms.us,!jms.us.bos'
+    *
     * @throws Exception
     */
    @Test
-   public void testClusterAddressFiltersExcludesAndIncludesAddressesInList() throws Exception
-   {
-      setupCluster("jms.eu,!jms.eu.uk,jms.us,!jms.us.bos",
-                   "jms.eu,!jms.eu.uk,jms.us,!jms.us.bos",
-                   "jms.eu,!jms.eu.uk,jms.us,!jms.us.bos",
-                   "jms.eu,!jms.eu.uk,jms.us,!jms.us.bos",
-                   "jms.eu,!jms.eu.uk,jms.us,!jms.us.bos");
+   public void testClusterAddressFiltersExcludesAndIncludesAddressesInList() throws Exception {
+      setupCluster("jms.eu,!jms.eu.uk,jms.us,!jms.us.bos", "jms.eu,!jms.eu.uk,jms.us,!jms.us.bos", "jms.eu,!jms.eu.uk,jms.us,!jms.us.bos", "jms.eu,!jms.eu.uk,jms.us,!jms.us.bos", "jms.eu,!jms.eu.uk,jms.us,!jms.us.bos");
 
       startServers();
 
@@ -1925,8 +1892,7 @@ public class SymmetricClusterTest extends ClusterTestBase
       waitForBindings(4, "jms.us.bos", 0, 0, false);
    }
 
-   protected void setupCluster(String addr1, String addr2, String addr3, String addr4, String addr5) throws Exception
-   {
+   protected void setupCluster(String addr1, String addr2, String addr3, String addr4, String addr5) throws Exception {
       setupClusterConnection("cluster0", addr1, MessageLoadBalancingType.STRICT, 1, isNetty(), 0, 1, 2, 3, 4);
 
       setupClusterConnection("cluster1", addr2, MessageLoadBalancingType.STRICT, 1, isNetty(), 1, 0, 2, 3, 4);
@@ -1937,13 +1903,11 @@ public class SymmetricClusterTest extends ClusterTestBase
       setupClusterConnection("cluster4", addr5, MessageLoadBalancingType.STRICT, 1, isNetty(), 4, 0, 1, 2, 3);
    }
 
-   protected void setupCluster() throws Exception
-   {
+   protected void setupCluster() throws Exception {
       setupCluster(MessageLoadBalancingType.ON_DEMAND);
    }
 
-   protected void setupCluster(final MessageLoadBalancingType messageLoadBalancingType) throws Exception
-   {
+   protected void setupCluster(final MessageLoadBalancingType messageLoadBalancingType) throws Exception {
       setupClusterConnection("cluster0", "queues", messageLoadBalancingType, 1, isNetty(), 0, 1, 2, 3, 4);
 
       setupClusterConnection("cluster1", "queues", messageLoadBalancingType, 1, isNetty(), 1, 0, 2, 3, 4);
@@ -1955,8 +1919,7 @@ public class SymmetricClusterTest extends ClusterTestBase
       setupClusterConnection("cluster4", "queues", messageLoadBalancingType, 1, isNetty(), 4, 0, 1, 2, 3);
    }
 
-   protected void setupServers() throws Exception
-   {
+   protected void setupServers() throws Exception {
       setupServer(0, isFileStorage(), isNetty());
       setupServer(1, isFileStorage(), isNetty());
       setupServer(2, isFileStorage(), isNetty());
@@ -1964,13 +1927,11 @@ public class SymmetricClusterTest extends ClusterTestBase
       setupServer(4, isFileStorage(), isNetty());
    }
 
-   protected void startServers() throws Exception
-   {
+   protected void startServers() throws Exception {
       startServers(0, 1, 2, 3, 4);
    }
 
-   protected void stopServers() throws Exception
-   {
+   protected void stopServers() throws Exception {
       closeAllConsumers();
 
       closeAllSessionFactories();
@@ -1980,10 +1941,8 @@ public class SymmetricClusterTest extends ClusterTestBase
       stopServers(0, 1, 2, 3, 4);
    }
 
-
    @Override
-   protected boolean isFileStorage()
-   {
+   protected boolean isFileStorage() {
       return false;
    }
 }

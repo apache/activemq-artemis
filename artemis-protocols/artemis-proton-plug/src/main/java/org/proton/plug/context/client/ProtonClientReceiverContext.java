@@ -36,15 +36,16 @@ import org.proton.plug.exceptions.ActiveMQAMQPException;
 import static org.proton.plug.util.DeliveryUtil.readDelivery;
 import static org.proton.plug.util.DeliveryUtil.decodeMessageImpl;
 
-public class ProtonClientReceiverContext extends AbstractProtonReceiverContext implements AMQPClientReceiverContext
-{
-   public ProtonClientReceiverContext(AMQPSessionCallback sessionSPI, AbstractConnectionContext connection, AbstractProtonSessionContext protonSession, Receiver receiver)
-   {
+public class ProtonClientReceiverContext extends AbstractProtonReceiverContext implements AMQPClientReceiverContext {
+
+   public ProtonClientReceiverContext(AMQPSessionCallback sessionSPI,
+                                      AbstractConnectionContext connection,
+                                      AbstractProtonSessionContext protonSession,
+                                      Receiver receiver) {
       super(sessionSPI, connection, protonSession, receiver);
    }
 
-   public void onFlow(int credits)
-   {
+   public void onFlow(int credits) {
    }
 
    LinkedBlockingDeque<MessageImpl> queues = new LinkedBlockingDeque<>();
@@ -55,18 +56,15 @@ public class ProtonClientReceiverContext extends AbstractProtonReceiverContext i
    * This may be called more than once per deliver so we have to cache the buffer until we have received it all.
    *
    * */
-   public void onMessage(Delivery delivery) throws ActiveMQAMQPException
-   {
+   public void onMessage(Delivery delivery) throws ActiveMQAMQPException {
       ByteBuf buffer = PooledByteBufAllocator.DEFAULT.heapBuffer(1024);
-      try
-      {
-         synchronized (connection.getLock())
-         {
+      try {
+         synchronized (connection.getLock()) {
             readDelivery(receiver, buffer);
             MessageImpl clientMessage = decodeMessageImpl(buffer);
 
             // This second method could be better
-//            clientMessage.decode(buffer.nioBuffer());
+            //            clientMessage.decode(buffer.nioBuffer());
 
             receiver.advance();
             delivery.disposition(Accepted.getInstance());
@@ -74,16 +72,13 @@ public class ProtonClientReceiverContext extends AbstractProtonReceiverContext i
 
          }
       }
-      finally
-      {
+      finally {
          buffer.release();
       }
    }
 
-
    @Override
-   public ProtonJMessage receiveMessage(int time, TimeUnit unit) throws Exception
-   {
+   public ProtonJMessage receiveMessage(int time, TimeUnit unit) throws Exception {
       return queues.poll(time, unit);
    }
 }

@@ -26,6 +26,7 @@ import javax.jms.Topic;
 import javax.jms.TopicConnection;
 import javax.jms.TopicSession;
 import javax.jms.TopicSubscriber;
+
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.broker.region.policy.PolicyEntry;
@@ -37,99 +38,95 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 import static org.junit.Assert.assertNotNull;
 
 public class DurableSubscriptionHangTestCase {
-    private static final Logger LOG = LoggerFactory.getLogger(DurableSubscriptionHangTestCase.class);
-    final static String brokerName = "DurableSubscriptionHangTestCase";
-    final static String clientID = "myId";
-    private static final String topicName = "myTopic";
-    private static final String durableSubName = "mySub";
-    BrokerService brokerService;
 
-    @Before
-    public void startBroker() throws Exception {
-        brokerService = new BrokerService();
-        brokerService.setDeleteAllMessagesOnStartup(true);
-        brokerService.setBrokerName(brokerName);
-        PolicyMap policyMap = new PolicyMap();
-        PolicyEntry defaultEntry = new PolicyEntry();
-        defaultEntry.setExpireMessagesPeriod(5000);
-        policyMap.setDefaultEntry(defaultEntry);
-        brokerService.setDestinationPolicy(policyMap);
-        brokerService.start();
-    }
+   private static final Logger LOG = LoggerFactory.getLogger(DurableSubscriptionHangTestCase.class);
+   final static String brokerName = "DurableSubscriptionHangTestCase";
+   final static String clientID = "myId";
+   private static final String topicName = "myTopic";
+   private static final String durableSubName = "mySub";
+   BrokerService brokerService;
 
-    @After
-    public void brokerStop() throws Exception {
-        brokerService.stop();
-    }
+   @Before
+   public void startBroker() throws Exception {
+      brokerService = new BrokerService();
+      brokerService.setDeleteAllMessagesOnStartup(true);
+      brokerService.setBrokerName(brokerName);
+      PolicyMap policyMap = new PolicyMap();
+      PolicyEntry defaultEntry = new PolicyEntry();
+      defaultEntry.setExpireMessagesPeriod(5000);
+      policyMap.setDefaultEntry(defaultEntry);
+      brokerService.setDestinationPolicy(policyMap);
+      brokerService.start();
+   }
 
-	@Test
-	public void testHanging() throws Exception
-	{
-		registerDurableSubscription();
-		produceExpiredAndOneNonExpiredMessages();
-		TimeUnit.SECONDS.sleep(10);		// make sure messages are expired
-        Message message = collectMessagesFromDurableSubscriptionForOneMinute();
-        LOG.info("got message:" + message);
-        assertNotNull("Unable to read unexpired message", message);
-	}
+   @After
+   public void brokerStop() throws Exception {
+      brokerService.stop();
+   }
 
-	private void produceExpiredAndOneNonExpiredMessages() throws JMSException {
-		ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("vm://" + brokerName);
-        TopicConnection connection = connectionFactory.createTopicConnection();
-        TopicSession session = connection.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
-        Topic topic = session.createTopic(topicName);
-        MessageProducer producer = session.createProducer(topic);
-        producer.setTimeToLive(TimeUnit.SECONDS.toMillis(1));
-        for(int i=0; i<40000; i++)
-        {
-        	sendRandomMessage(session, producer);
-        }
-        producer.setTimeToLive(TimeUnit.DAYS.toMillis(1));
-        sendRandomMessage(session, producer);
-        connection.close();
-        LOG.info("produceExpiredAndOneNonExpiredMessages done");
-	}
+   @Test
+   public void testHanging() throws Exception {
+      registerDurableSubscription();
+      produceExpiredAndOneNonExpiredMessages();
+      TimeUnit.SECONDS.sleep(10);      // make sure messages are expired
+      Message message = collectMessagesFromDurableSubscriptionForOneMinute();
+      LOG.info("got message:" + message);
+      assertNotNull("Unable to read unexpired message", message);
+   }
 
-	private void registerDurableSubscription() throws JMSException
-	{
-		ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("vm://" + brokerName);
-		TopicConnection connection = connectionFactory.createTopicConnection();
-		connection.setClientID(clientID);
-		TopicSession topicSession = connection.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
-		Topic topic = topicSession.createTopic(topicName);
-		TopicSubscriber durableSubscriber = topicSession.createDurableSubscriber(topic, durableSubName);
-		connection.start();
-		durableSubscriber.close();
-		connection.close();
-		LOG.info("Durable Sub Registered");
-	}
+   private void produceExpiredAndOneNonExpiredMessages() throws JMSException {
+      ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("vm://" + brokerName);
+      TopicConnection connection = connectionFactory.createTopicConnection();
+      TopicSession session = connection.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
+      Topic topic = session.createTopic(topicName);
+      MessageProducer producer = session.createProducer(topic);
+      producer.setTimeToLive(TimeUnit.SECONDS.toMillis(1));
+      for (int i = 0; i < 40000; i++) {
+         sendRandomMessage(session, producer);
+      }
+      producer.setTimeToLive(TimeUnit.DAYS.toMillis(1));
+      sendRandomMessage(session, producer);
+      connection.close();
+      LOG.info("produceExpiredAndOneNonExpiredMessages done");
+   }
 
-	private Message collectMessagesFromDurableSubscriptionForOneMinute() throws Exception
-	{
-		ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("vm://" + brokerName);
-		TopicConnection connection = connectionFactory.createTopicConnection();
+   private void registerDurableSubscription() throws JMSException {
+      ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("vm://" + brokerName);
+      TopicConnection connection = connectionFactory.createTopicConnection();
+      connection.setClientID(clientID);
+      TopicSession topicSession = connection.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
+      Topic topic = topicSession.createTopic(topicName);
+      TopicSubscriber durableSubscriber = topicSession.createDurableSubscriber(topic, durableSubName);
+      connection.start();
+      durableSubscriber.close();
+      connection.close();
+      LOG.info("Durable Sub Registered");
+   }
 
-		connection.setClientID(clientID);
-		TopicSession topicSession = connection.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
-		Topic topic = topicSession.createTopic(topicName);
-		connection.start();
-		TopicSubscriber subscriber = topicSession.createDurableSubscriber(topic, durableSubName);
-		LOG.info("About to receive messages");
-		Message message = subscriber.receive(120000);
-		subscriber.close();
-		connection.close();
-		LOG.info("collectMessagesFromDurableSubscriptionForOneMinute done");
+   private Message collectMessagesFromDurableSubscriptionForOneMinute() throws Exception {
+      ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("vm://" + brokerName);
+      TopicConnection connection = connectionFactory.createTopicConnection();
 
-		return message;
-	}
+      connection.setClientID(clientID);
+      TopicSession topicSession = connection.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
+      Topic topic = topicSession.createTopic(topicName);
+      connection.start();
+      TopicSubscriber subscriber = topicSession.createDurableSubscriber(topic, durableSubName);
+      LOG.info("About to receive messages");
+      Message message = subscriber.receive(120000);
+      subscriber.close();
+      connection.close();
+      LOG.info("collectMessagesFromDurableSubscriptionForOneMinute done");
 
-	private void sendRandomMessage(TopicSession session, MessageProducer producer) throws JMSException {
-		TextMessage textMessage = session.createTextMessage();
-		textMessage.setText(RandomStringUtils.random(500, "abcdefghijklmnopqrstuvwxyz"));
-		producer.send(textMessage);
-	}
+      return message;
+   }
+
+   private void sendRandomMessage(TopicSession session, MessageProducer producer) throws JMSException {
+      TextMessage textMessage = session.createTextMessage();
+      textMessage.setText(RandomStringUtils.random(500, "abcdefghijklmnopqrstuvwxyz"));
+      producer.send(textMessage);
+   }
 }

@@ -36,8 +36,7 @@ import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
 import org.junit.Before;
 import org.junit.Test;
 
-public class PagingCounterTest extends ActiveMQTestBase
-{
+public class PagingCounterTest extends ActiveMQTestBase {
 
    // Constants -----------------------------------------------------
 
@@ -54,13 +53,11 @@ public class PagingCounterTest extends ActiveMQTestBase
    // Public --------------------------------------------------------
 
    @Test
-   public void testCounter() throws Exception
-   {
+   public void testCounter() throws Exception {
       ClientSessionFactory sf = createSessionFactory(sl);
       ClientSession session = sf.createSession();
 
-      try
-      {
+      try {
          Queue queue = server.createQueue(new SimpleString("A1"), new SimpleString("A1"), null, true, false);
 
          PageSubscriptionCounter counter = locateCounter(queue);
@@ -79,21 +76,18 @@ public class PagingCounterTest extends ActiveMQTestBase
 
          assertEquals(1, counter.getValue());
       }
-      finally
-      {
+      finally {
          sf.close();
          session.close();
       }
    }
 
    @Test
-   public void testCleanupCounter() throws Exception
-   {
+   public void testCleanupCounter() throws Exception {
       ClientSessionFactory sf = createSessionFactory(sl);
       ClientSession session = sf.createSession();
 
-      try
-      {
+      try {
          Queue queue = server.createQueue(new SimpleString("A1"), new SimpleString("A1"), null, true, false);
 
          PageSubscriptionCounter counter = locateCounter(queue);
@@ -102,13 +96,11 @@ public class PagingCounterTest extends ActiveMQTestBase
 
          Transaction tx = new TransactionImpl(server.getStorageManager());
 
-         for (int i = 0; i < 2100; i++)
-         {
+         for (int i = 0; i < 2100; i++) {
 
             counter.increment(tx, 1);
 
-            if (i % 200 == 0)
-            {
+            if (i % 200 == 0) {
                tx.commit();
 
                storage.waitOnOperations();
@@ -140,22 +132,18 @@ public class PagingCounterTest extends ActiveMQTestBase
          assertEquals(2100, counter.getValue());
 
       }
-      finally
-      {
+      finally {
          sf.close();
          session.close();
       }
    }
 
-
    @Test
-   public void testCleanupCounterNonPersistent() throws Exception
-   {
+   public void testCleanupCounterNonPersistent() throws Exception {
       ClientSessionFactory sf = createSessionFactory(sl);
       ClientSession session = sf.createSession();
 
-      try
-      {
+      try {
          Queue queue = server.createQueue(new SimpleString("A1"), new SimpleString("A1"), null, true, false);
 
          PageSubscriptionCounter counter = locateCounter(queue);
@@ -166,13 +154,11 @@ public class PagingCounterTest extends ActiveMQTestBase
 
          Transaction tx = new TransactionImpl(server.getStorageManager());
 
-         for (int i = 0; i < 2100; i++)
-         {
+         for (int i = 0; i < 2100; i++) {
 
             counter.increment(tx, 1);
 
-            if (i % 200 == 0)
-            {
+            if (i % 200 == 0) {
                tx.commit();
 
                storage.waitOnOperations();
@@ -204,16 +190,14 @@ public class PagingCounterTest extends ActiveMQTestBase
          assertEquals(0, counter.getValue());
 
       }
-      finally
-      {
+      finally {
          sf.close();
          session.close();
       }
    }
 
    @Test
-   public void testRestartCounter() throws Exception
-   {
+   public void testRestartCounter() throws Exception {
       Queue queue = server.createQueue(new SimpleString("A1"), new SimpleString("A1"), null, true, false);
 
       PageSubscriptionCounter counter = locateCounter(queue);
@@ -255,20 +239,15 @@ public class PagingCounterTest extends ActiveMQTestBase
     * @return
     * @throws Exception
     */
-   private PageSubscriptionCounter locateCounter(Queue queue) throws Exception
-   {
-      PageSubscription subscription = server.getPagingManager()
-         .getPageStore(new SimpleString("A1"))
-         .getCursorProvider()
-         .getSubscription(queue.getID());
+   private PageSubscriptionCounter locateCounter(Queue queue) throws Exception {
+      PageSubscription subscription = server.getPagingManager().getPageStore(new SimpleString("A1")).getCursorProvider().getSubscription(queue.getID());
 
       PageSubscriptionCounter counter = subscription.getCounter();
       return counter;
    }
 
    @Test
-   public void testPrepareCounter() throws Exception
-   {
+   public void testPrepareCounter() throws Exception {
       Xid xid = newXID();
 
       Queue queue = server.createQueue(new SimpleString("A1"), new SimpleString("A1"), null, true, false);
@@ -279,8 +258,7 @@ public class PagingCounterTest extends ActiveMQTestBase
 
       Transaction tx = new TransactionImpl(xid, server.getStorageManager(), 300);
 
-      for (int i = 0; i < 2000; i++)
-      {
+      for (int i = 0; i < 2000; i++) {
          counter.increment(tx, 1);
       }
 
@@ -318,14 +296,11 @@ public class PagingCounterTest extends ActiveMQTestBase
 
       assertEquals(2000, counter.getValue());
 
-
    }
-
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       server = newActiveMQServer();
@@ -333,16 +308,13 @@ public class PagingCounterTest extends ActiveMQTestBase
       sl = createInVMNonHALocator();
    }
 
-   private ActiveMQServer newActiveMQServer() throws Exception
-   {
+   private ActiveMQServer newActiveMQServer() throws Exception {
 
       OperationContextImpl.clearContext();
 
       ActiveMQServer server = super.createServer(true, false);
 
-      AddressSettings defaultSetting = new AddressSettings()
-              .setPageSizeBytes(10 * 1024)
-              .setMaxSizeBytes(20 * 1024);
+      AddressSettings defaultSetting = new AddressSettings().setPageSizeBytes(10 * 1024).setMaxSizeBytes(20 * 1024);
 
       server.getAddressSettingsRepository().addMatch("#", defaultSetting);
 

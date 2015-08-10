@@ -31,12 +31,11 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
-public class HQPropertiesConversionInterceptor implements Interceptor
-{
+public class HQPropertiesConversionInterceptor implements Interceptor {
+
    private static Map<SimpleString, SimpleString> dictionary;
 
-   static
-   {
+   static {
       Map<SimpleString, SimpleString> d = new HashMap<SimpleString, SimpleString>();
 
       // Add entries for outgoing messages
@@ -67,35 +66,29 @@ public class HQPropertiesConversionInterceptor implements Interceptor
    }
 
    @Override
-   public boolean intercept(Packet packet, RemotingConnection connection) throws ActiveMQException
-   {
-      if (isMessagePacket(packet))
-      {
+   public boolean intercept(Packet packet, RemotingConnection connection) throws ActiveMQException {
+      if (isMessagePacket(packet)) {
          handleReceiveMessage((MessagePacket) packet);
       }
       return true;
    }
 
-   private void handleReceiveMessage(MessagePacket messagePacket)
-   {
+   private void handleReceiveMessage(MessagePacket messagePacket) {
       Message message = messagePacket.getMessage();
       // We are modifying the key set so we iterate over a shallow copy.
-      for (SimpleString property : new HashSet<>(message.getPropertyNames()))
-      {
-         if (dictionary.containsKey(property))
-         {
+      for (SimpleString property : new HashSet<>(message.getPropertyNames())) {
+         if (dictionary.containsKey(property)) {
             message.putObjectProperty(dictionary.get(property), message.removeProperty(property));
          }
       }
    }
 
-   private boolean isMessagePacket(Packet packet)
-   {
+   private boolean isMessagePacket(Packet packet) {
       int type = packet.getType();
       return type == PacketImpl.SESS_SEND ||
-             type == PacketImpl.SESS_SEND_CONTINUATION ||
-             type == PacketImpl.SESS_SEND_LARGE ||
-             type == PacketImpl.SESS_RECEIVE_LARGE_MSG ||
-             type == PacketImpl.SESS_RECEIVE_MSG;
+         type == PacketImpl.SESS_SEND_CONTINUATION ||
+         type == PacketImpl.SESS_SEND_LARGE ||
+         type == PacketImpl.SESS_RECEIVE_LARGE_MSG ||
+         type == PacketImpl.SESS_RECEIVE_MSG;
    }
 }

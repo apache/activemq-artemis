@@ -18,38 +18,32 @@ package org.apache.activemq.artemis.core.cluster;
 
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 
-public class DiscoveryEntry
-{
+public class DiscoveryEntry {
+
    private final String nodeID;
    private final TransportConfiguration connector;
    private final long lastUpdate;
 
-
-   public DiscoveryEntry(final String nodeID, final TransportConfiguration connector, final long lastUpdate)
-   {
+   public DiscoveryEntry(final String nodeID, final TransportConfiguration connector, final long lastUpdate) {
       this.nodeID = nodeID;
       this.connector = connector;
       this.lastUpdate = lastUpdate;
    }
 
-   public String getNodeID()
-   {
+   public String getNodeID() {
       return nodeID;
    }
 
-   public TransportConfiguration getConnector()
-   {
+   public TransportConfiguration getConnector() {
       return connector;
    }
 
-   public long getLastUpdate()
-   {
+   public long getLastUpdate() {
       return lastUpdate;
    }
 
    @Override
-   public String toString()
-   {
+   public String toString() {
       return "DiscoveryEntry[nodeID=" + nodeID + ", connector=" + connector + ", lastUpdate=" + lastUpdate + "]";
    }
 }

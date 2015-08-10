@@ -32,64 +32,64 @@ import org.apache.activemq.store.jdbc.JDBCPersistenceAdapter;
 
 public class DurableSubscriptionReactivationTest extends EmbeddedBrokerTestSupport {
 
-    public boolean keepDurableSubsActive;
-    
-    public void initCombosForTestReactivateKeepaliveSubscription() {
-        addCombinationValues("keepDurableSubsActive", new Object[] { new Boolean(true), new Boolean(false) });
-    }
-    
-    public void testReactivateKeepaliveSubscription() throws Exception {
+   public boolean keepDurableSubsActive;
 
-        Connection connection = createConnection();
-        connection.setClientID("cliID");
-        connection.start();
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        TopicSubscriber subscriber = session.createDurableSubscriber((Topic) createDestination(), "subName");
-        subscriber.close();
-        connection.close();
+   public void initCombosForTestReactivateKeepaliveSubscription() {
+      addCombinationValues("keepDurableSubsActive", new Object[]{new Boolean(true), new Boolean(false)});
+   }
 
-        connection = createConnection();
-        connection.start();
-        session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        MessageProducer producer = session.createProducer(createDestination());
-        producer.send(session.createMessage());
-        connection.close();
+   public void testReactivateKeepaliveSubscription() throws Exception {
 
-        connection = createConnection();
-        connection.setClientID("cliID");
-        connection.start();
-        session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        subscriber = session.createDurableSubscriber((Topic) createDestination(), "subName");
-        Message message = subscriber.receive(1 * 1000);
-        subscriber.close();
-        connection.close();
+      Connection connection = createConnection();
+      connection.setClientID("cliID");
+      connection.start();
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      TopicSubscriber subscriber = session.createDurableSubscriber((Topic) createDestination(), "subName");
+      subscriber.close();
+      connection.close();
 
-        assertNotNull("Message not received.", message);
-    }
+      connection = createConnection();
+      connection.start();
+      session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      MessageProducer producer = session.createProducer(createDestination());
+      producer.send(session.createMessage());
+      connection.close();
 
-    protected void setUp() throws Exception {
-        useTopic = true;
-        super.setUp();
-    }
+      connection = createConnection();
+      connection.setClientID("cliID");
+      connection.start();
+      session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      subscriber = session.createDurableSubscriber((Topic) createDestination(), "subName");
+      Message message = subscriber.receive(1 * 1000);
+      subscriber.close();
+      connection.close();
 
-    protected void tearDown() throws Exception {
-        super.tearDown();
-    }
+      assertNotNull("Message not received.", message);
+   }
 
-    @Override
-    protected BrokerService createBroker() throws Exception {
-        BrokerService answer = super.createBroker();
-        answer.setKeepDurableSubsActive(keepDurableSubsActive);
-        answer.setPersistenceAdapter(new JDBCPersistenceAdapter());
-        answer.setDeleteAllMessagesOnStartup(true);
-        return answer;
-    }
+   protected void setUp() throws Exception {
+      useTopic = true;
+      super.setUp();
+   }
 
-    protected boolean isPersistent() {
-        return true;
-    }
-    
-    public static Test suite() {
-        return suite(DurableSubscriptionReactivationTest.class);
-      }
+   protected void tearDown() throws Exception {
+      super.tearDown();
+   }
+
+   @Override
+   protected BrokerService createBroker() throws Exception {
+      BrokerService answer = super.createBroker();
+      answer.setKeepDurableSubsActive(keepDurableSubsActive);
+      answer.setPersistenceAdapter(new JDBCPersistenceAdapter());
+      answer.setDeleteAllMessagesOnStartup(true);
+      return answer;
+   }
+
+   protected boolean isPersistent() {
+      return true;
+   }
+
+   public static Test suite() {
+      return suite(DurableSubscriptionReactivationTest.class);
+   }
 }

@@ -20,8 +20,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 
-public class CreateSharedQueueMessage extends PacketImpl
-{
+public class CreateSharedQueueMessage extends PacketImpl {
 
    private SimpleString address;
 
@@ -37,8 +36,7 @@ public class CreateSharedQueueMessage extends PacketImpl
                                    final SimpleString queueName,
                                    final SimpleString filterString,
                                    final boolean durable,
-                                   final boolean requiresResponse)
-   {
+                                   final boolean requiresResponse) {
       this();
 
       this.address = address;
@@ -48,16 +46,14 @@ public class CreateSharedQueueMessage extends PacketImpl
       this.requiresResponse = requiresResponse;
    }
 
-   public CreateSharedQueueMessage()
-   {
+   public CreateSharedQueueMessage() {
       super(CREATE_SHARED_QUEUE);
    }
 
    // Public --------------------------------------------------------
 
    @Override
-   public String toString()
-   {
+   public String toString() {
       StringBuffer buff = new StringBuffer(getParentString());
       buff.append(", address=" + address);
       buff.append(", queueName=" + queueName);
@@ -67,49 +63,40 @@ public class CreateSharedQueueMessage extends PacketImpl
       return buff.toString();
    }
 
-   public SimpleString getAddress()
-   {
+   public SimpleString getAddress() {
       return address;
    }
 
-   public SimpleString getQueueName()
-   {
+   public SimpleString getQueueName() {
       return queueName;
    }
 
-   public SimpleString getFilterString()
-   {
+   public SimpleString getFilterString() {
       return filterString;
    }
 
-   public boolean isRequiresResponse()
-   {
+   public boolean isRequiresResponse() {
       return requiresResponse;
    }
 
-   public void setAddress(SimpleString address)
-   {
+   public void setAddress(SimpleString address) {
       this.address = address;
    }
 
-   public void setQueueName(SimpleString queueName)
-   {
+   public void setQueueName(SimpleString queueName) {
       this.queueName = queueName;
    }
 
-   public void setFilterString(SimpleString filterString)
-   {
+   public void setFilterString(SimpleString filterString) {
       this.filterString = filterString;
    }
 
-   public boolean isDurable()
-   {
+   public boolean isDurable() {
       return durable;
    }
 
    @Override
-   public void encodeRest(final ActiveMQBuffer buffer)
-   {
+   public void encodeRest(final ActiveMQBuffer buffer) {
       buffer.writeSimpleString(address);
       buffer.writeSimpleString(queueName);
       buffer.writeNullableSimpleString(filterString);
@@ -118,8 +105,7 @@ public class CreateSharedQueueMessage extends PacketImpl
    }
 
    @Override
-   public void decodeRest(final ActiveMQBuffer buffer)
-   {
+   public void decodeRest(final ActiveMQBuffer buffer) {
       address = buffer.readSimpleString();
       queueName = buffer.readSimpleString();
       filterString = buffer.readNullableSimpleString();
@@ -128,8 +114,7 @@ public class CreateSharedQueueMessage extends PacketImpl
    }
 
    @Override
-   public int hashCode()
-   {
+   public int hashCode() {
       final int prime = 31;
       int result = super.hashCode();
       result = prime * result + ((address == null) ? 0 : address.hashCode());
@@ -141,31 +126,27 @@ public class CreateSharedQueueMessage extends PacketImpl
    }
 
    @Override
-   public boolean equals(Object obj)
-   {
+   public boolean equals(Object obj) {
       if (this == obj)
          return true;
       if (!super.equals(obj))
          return false;
       if (!(obj instanceof CreateSharedQueueMessage))
          return false;
-      CreateSharedQueueMessage other = (CreateSharedQueueMessage)obj;
-      if (address == null)
-      {
+      CreateSharedQueueMessage other = (CreateSharedQueueMessage) obj;
+      if (address == null) {
          if (other.address != null)
             return false;
       }
       else if (!address.equals(other.address))
          return false;
-      if (filterString == null)
-      {
+      if (filterString == null) {
          if (other.filterString != null)
             return false;
       }
       else if (!filterString.equals(other.filterString))
          return false;
-      if (queueName == null)
-      {
+      if (queueName == null) {
          if (other.queueName != null)
             return false;
       }

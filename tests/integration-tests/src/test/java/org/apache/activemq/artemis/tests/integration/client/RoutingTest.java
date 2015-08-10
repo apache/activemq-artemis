@@ -29,8 +29,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class RoutingTest extends ActiveMQTestBase
-{
+public class RoutingTest extends ActiveMQTestBase {
+
    public final SimpleString addressA = new SimpleString("addressA");
    public final SimpleString queueA = new SimpleString("queueA");
    public final SimpleString queueB = new SimpleString("queueB");
@@ -42,8 +42,7 @@ public class RoutingTest extends ActiveMQTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
       locator = createInVMNonHALocator();
       server = createServer(false);
@@ -53,16 +52,14 @@ public class RoutingTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testRouteToMultipleQueues() throws Exception
-   {
+   public void testRouteToMultipleQueues() throws Exception {
       ClientSession sendSession = cf.createSession(false, true, true);
       sendSession.createQueue(addressA, queueA, false);
       sendSession.createQueue(addressA, queueB, false);
       sendSession.createQueue(addressA, queueC, false);
       int numMessages = 300;
       ClientProducer p = sendSession.createProducer(addressA);
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          p.send(sendSession.createMessage(false));
       }
       ClientSession session = cf.createSession(false, true, true);
@@ -70,8 +67,7 @@ public class RoutingTest extends ActiveMQTestBase
       ClientConsumer c2 = session.createConsumer(queueB);
       ClientConsumer c3 = session.createConsumer(queueC);
       session.start();
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage m = c1.receive(5000);
          Assert.assertNotNull(m);
          m.acknowledge();
@@ -90,21 +86,18 @@ public class RoutingTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testRouteToSingleNonDurableQueue() throws Exception
-   {
+   public void testRouteToSingleNonDurableQueue() throws Exception {
       ClientSession sendSession = cf.createSession(false, true, true);
       sendSession.createQueue(addressA, queueA, false);
       int numMessages = 300;
       ClientProducer p = sendSession.createProducer(addressA);
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          p.send(sendSession.createMessage(false));
       }
       ClientSession session = cf.createSession(false, true, true);
       ClientConsumer c1 = session.createConsumer(queueA);
       session.start();
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage m = c1.receive(5000);
          Assert.assertNotNull(m);
          m.acknowledge();
@@ -115,21 +108,18 @@ public class RoutingTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testRouteToSingleDurableQueue() throws Exception
-   {
+   public void testRouteToSingleDurableQueue() throws Exception {
       ClientSession sendSession = cf.createSession(false, true, true);
       sendSession.createQueue(addressA, queueA, true);
       int numMessages = 300;
       ClientProducer p = sendSession.createProducer(addressA);
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          p.send(sendSession.createMessage(false));
       }
       ClientSession session = cf.createSession(false, true, true);
       ClientConsumer c1 = session.createConsumer(queueA);
       session.start();
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage m = c1.receive(5000);
          Assert.assertNotNull(m);
          m.acknowledge();
@@ -140,14 +130,12 @@ public class RoutingTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testRouteToSingleQueueWithFilter() throws Exception
-   {
+   public void testRouteToSingleQueueWithFilter() throws Exception {
       ClientSession sendSession = cf.createSession(false, true, true);
       sendSession.createQueue(addressA, queueA, new SimpleString("foo = 'bar'"), false);
       int numMessages = 300;
       ClientProducer p = sendSession.createProducer(addressA);
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage clientMessage = sendSession.createMessage(false);
          clientMessage.putStringProperty(new SimpleString("foo"), new SimpleString("bar"));
          p.send(clientMessage);
@@ -155,8 +143,7 @@ public class RoutingTest extends ActiveMQTestBase
       ClientSession session = cf.createSession(false, true, true);
       ClientConsumer c1 = session.createConsumer(queueA);
       session.start();
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage m = c1.receive(5000);
          Assert.assertNotNull(m);
          m.acknowledge();
@@ -167,27 +154,22 @@ public class RoutingTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testRouteToMultipleQueueWithFilters() throws Exception
-   {
+   public void testRouteToMultipleQueueWithFilters() throws Exception {
       ClientSession sendSession = cf.createSession(false, true, true);
       sendSession.createQueue(addressA, queueA, new SimpleString("foo = 'bar'"), false);
       sendSession.createQueue(addressA, queueB, new SimpleString("x = 1"), false);
       sendSession.createQueue(addressA, queueC, new SimpleString("b = false"), false);
       int numMessages = 300;
       ClientProducer p = sendSession.createProducer(addressA);
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage clientMessage = sendSession.createMessage(false);
-         if (i % 3 == 0)
-         {
+         if (i % 3 == 0) {
             clientMessage.putStringProperty(new SimpleString("foo"), new SimpleString("bar"));
          }
-         else if (i % 3 == 1)
-         {
+         else if (i % 3 == 1) {
             clientMessage.putIntProperty(new SimpleString("x"), 1);
          }
-         else
-         {
+         else {
             clientMessage.putBooleanProperty(new SimpleString("b"), false);
          }
          p.send(clientMessage);
@@ -197,8 +179,7 @@ public class RoutingTest extends ActiveMQTestBase
       ClientConsumer c2 = session.createConsumer(queueB);
       ClientConsumer c3 = session.createConsumer(queueC);
       session.start();
-      for (int i = 0; i < numMessages / 3; i++)
-      {
+      for (int i = 0; i < numMessages / 3; i++) {
          ClientMessage m = c1.receive(5000);
          Assert.assertNotNull(m);
          m.acknowledge();
@@ -217,21 +198,18 @@ public class RoutingTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testRouteToSingleTemporaryQueue() throws Exception
-   {
+   public void testRouteToSingleTemporaryQueue() throws Exception {
       ClientSession sendSession = cf.createSession(false, true, true);
       sendSession.createTemporaryQueue(addressA, queueA);
       int numMessages = 300;
       ClientProducer p = sendSession.createProducer(addressA);
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          p.send(sendSession.createMessage(false));
       }
       ClientSession session = cf.createSession(false, true, true);
       ClientConsumer c1 = session.createConsumer(queueA);
       session.start();
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage m = c1.receive(5000);
          Assert.assertNotNull(m);
          m.acknowledge();

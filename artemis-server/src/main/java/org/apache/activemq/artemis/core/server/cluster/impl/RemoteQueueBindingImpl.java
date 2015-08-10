@@ -35,8 +35,8 @@ import org.apache.activemq.artemis.core.server.RoutingContext;
 import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.artemis.core.server.cluster.RemoteQueueBinding;
 
-public class RemoteQueueBindingImpl implements RemoteQueueBinding
-{
+public class RemoteQueueBindingImpl implements RemoteQueueBinding {
+
    private final SimpleString address;
 
    private final Queue storeAndForwardQueue;
@@ -71,8 +71,7 @@ public class RemoteQueueBindingImpl implements RemoteQueueBinding
                                  final SimpleString filterString,
                                  final Queue storeAndForwardQueue,
                                  final SimpleString bridgeName,
-                                 final int distance) throws Exception
-   {
+                                 final int distance) throws Exception {
       this.id = id;
 
       this.address = address;
@@ -92,78 +91,61 @@ public class RemoteQueueBindingImpl implements RemoteQueueBinding
       this.distance = distance;
    }
 
-   public long getID()
-   {
+   public long getID() {
       return id;
    }
 
-   public SimpleString getAddress()
-   {
+   public SimpleString getAddress() {
       return address;
    }
 
-   public Bindable getBindable()
-   {
+   public Bindable getBindable() {
       return storeAndForwardQueue;
    }
 
-   public Queue getQueue()
-   {
+   public Queue getQueue() {
       return storeAndForwardQueue;
    }
 
-   public SimpleString getRoutingName()
-   {
+   public SimpleString getRoutingName() {
       return routingName;
    }
 
-   public SimpleString getUniqueName()
-   {
+   public SimpleString getUniqueName() {
       return uniqueName;
    }
 
-   public SimpleString getClusterName()
-   {
+   public SimpleString getClusterName() {
       return uniqueName;
    }
 
-   public boolean isExclusive()
-   {
+   public boolean isExclusive() {
       return false;
    }
 
-   public BindingType getType()
-   {
+   public BindingType getType() {
       return BindingType.REMOTE_QUEUE;
    }
 
-   public Filter getFilter()
-   {
+   public Filter getFilter() {
       return queueFilter;
    }
 
-   public int getDistance()
-   {
+   public int getDistance() {
       return distance;
    }
 
-   public synchronized boolean isHighAcceptPriority(final ServerMessage message)
-   {
-      if (consumerCount == 0)
-      {
+   public synchronized boolean isHighAcceptPriority(final ServerMessage message) {
+      if (consumerCount == 0) {
          return false;
       }
 
-      if (filters.isEmpty())
-      {
+      if (filters.isEmpty()) {
          return true;
       }
-      else
-      {
-         for (Filter filter : filters)
-         {
-            if (filter.match(message))
-            {
+      else {
+         for (Filter filter : filters) {
+            if (filter.match(message)) {
                return true;
             }
          }
@@ -172,20 +154,16 @@ public class RemoteQueueBindingImpl implements RemoteQueueBinding
       return false;
    }
 
-
    @Override
-   public void unproposed(SimpleString groupID)
-   {
+   public void unproposed(SimpleString groupID) {
    }
 
-   public void route(final ServerMessage message, final RoutingContext context)
-   {
+   public void route(final ServerMessage message, final RoutingContext context) {
       addRouteContextToMessage(message);
 
       List<Queue> durableQueuesOnContext = context.getDurableQueues(storeAndForwardQueue.getAddress());
 
-      if (!durableQueuesOnContext.contains(storeAndForwardQueue))
-      {
+      if (!durableQueuesOnContext.contains(storeAndForwardQueue)) {
          // There can be many remote bindings for the same node, we only want to add the message once to
          // the s & f queue for that node
          context.addQueue(storeAndForwardQueue.getAddress(), storeAndForwardQueue);
@@ -193,37 +171,31 @@ public class RemoteQueueBindingImpl implements RemoteQueueBinding
    }
 
    @Override
-   public void routeWithAck(ServerMessage message, RoutingContext context)
-   {
+   public void routeWithAck(ServerMessage message, RoutingContext context) {
       addRouteContextToMessage(message);
 
       List<Queue> durableQueuesOnContext = context.getDurableQueues(storeAndForwardQueue.getAddress());
 
-      if (!durableQueuesOnContext.contains(storeAndForwardQueue))
-      {
+      if (!durableQueuesOnContext.contains(storeAndForwardQueue)) {
          // There can be many remote bindings for the same node, we only want to add the message once to
          // the s & f queue for that node
          context.addQueueWithAck(storeAndForwardQueue.getAddress(), storeAndForwardQueue);
       }
    }
 
-   public synchronized void addConsumer(final SimpleString filterString) throws Exception
-   {
-      if (filterString != null)
-      {
+   public synchronized void addConsumer(final SimpleString filterString) throws Exception {
+      if (filterString != null) {
          // There can actually be many consumers on the same queue with the same filter, so we need to maintain a ref
          // count
 
          Integer i = filterCounts.get(filterString);
 
-         if (i == null)
-         {
+         if (i == null) {
             filterCounts.put(filterString, 1);
 
             filters.add(FilterImpl.createFilter(filterString));
          }
-         else
-         {
+         else {
             filterCounts.put(filterString, i + 1);
          }
       }
@@ -231,24 +203,19 @@ public class RemoteQueueBindingImpl implements RemoteQueueBinding
       consumerCount++;
    }
 
-   public synchronized void removeConsumer(final SimpleString filterString) throws Exception
-   {
-      if (filterString != null)
-      {
+   public synchronized void removeConsumer(final SimpleString filterString) throws Exception {
+      if (filterString != null) {
          Integer i = filterCounts.get(filterString);
 
-         if (i != null)
-         {
+         if (i != null) {
             int ii = i - 1;
 
-            if (ii == 0)
-            {
+            if (ii == 0) {
                filterCounts.remove(filterString);
 
                filters.remove(FilterImpl.createFilter(filterString));
             }
-            else
-            {
+            else {
                filterCounts.put(filterString, ii);
             }
          }
@@ -258,50 +225,45 @@ public class RemoteQueueBindingImpl implements RemoteQueueBinding
    }
 
    @Override
-   public void reset()
-   {
+   public void reset() {
       consumerCount = 0;
       filterCounts.clear();
       filters.clear();
    }
 
-   public synchronized int consumerCount()
-   {
+   public synchronized int consumerCount() {
       return consumerCount;
    }
 
    @Override
-   public String toString()
-   {
+   public String toString() {
       return "RemoteQueueBindingImpl(" +
-            (connected ? "connected" : "disconnected")
-            + ")[address=" + address +
-             ", consumerCount=" +
-             consumerCount +
-             ", distance=" +
-             distance +
-             ", filters=" +
-             filters +
-             ", id=" +
-             id +
-             ", idsHeaderName=" +
-             idsHeaderName +
-             ", queueFilter=" +
-             queueFilter +
-             ", remoteQueueID=" +
-             remoteQueueID +
-             ", routingName=" +
-             routingName +
-             ", storeAndForwardQueue=" +
-             storeAndForwardQueue +
-             ", uniqueName=" +
-             uniqueName +
-             "]";
+         (connected ? "connected" : "disconnected") + ")[address=" + address +
+         ", consumerCount=" +
+         consumerCount +
+         ", distance=" +
+         distance +
+         ", filters=" +
+         filters +
+         ", id=" +
+         id +
+         ", idsHeaderName=" +
+         idsHeaderName +
+         ", queueFilter=" +
+         queueFilter +
+         ", remoteQueueID=" +
+         remoteQueueID +
+         ", routingName=" +
+         routingName +
+         ", storeAndForwardQueue=" +
+         storeAndForwardQueue +
+         ", uniqueName=" +
+         uniqueName +
+         "]";
    }
 
    @Override
-   public String toManagementString()
-   {
+   public String toManagementString() {
       return "RemoteQueueBindingImpl [address=" + address +
          ", storeAndForwardQueue=" + storeAndForwardQueue.getName() +
          ", remoteQueueID=" +
@@ -309,49 +271,41 @@ public class RemoteQueueBindingImpl implements RemoteQueueBinding
    }
 
    @Override
-   public void disconnect()
-   {
+   public void disconnect() {
       connected = false;
    }
 
    @Override
-   public boolean isConnected()
-   {
+   public boolean isConnected() {
       return connected;
    }
 
    @Override
-   public void connect()
-   {
+   public void connect() {
       connected = true;
    }
 
-
-   public Set<Filter> getFilters()
-   {
+   public Set<Filter> getFilters() {
       return filters;
    }
 
-   public void close() throws Exception
-   {
+   public void close() throws Exception {
       storeAndForwardQueue.close();
    }
 
    /**
     * This will add routing information to the message.
     * This will be later processed during the delivery between the nodes. Because of that this has to be persisted as a property on the message.
+    *
     * @param message
     */
-   private void addRouteContextToMessage(final ServerMessage message)
-   {
+   private void addRouteContextToMessage(final ServerMessage message) {
       byte[] ids = message.getBytesProperty(idsHeaderName);
 
-      if (ids == null)
-      {
+      if (ids == null) {
          ids = new byte[8];
       }
-      else
-      {
+      else {
          byte[] newIds = new byte[ids.length + 8];
 
          System.arraycopy(ids, 0, newIds, 8, ids.length);
@@ -365,14 +319,12 @@ public class RemoteQueueBindingImpl implements RemoteQueueBinding
 
       message.putBytesProperty(idsHeaderName, ids);
 
-      if (ActiveMQServerLogger.LOGGER.isTraceEnabled())
-      {
+      if (ActiveMQServerLogger.LOGGER.isTraceEnabled()) {
          ActiveMQServerLogger.LOGGER.trace("Adding remoteQueue ID = " + remoteQueueID + " into message=" + message + " store-forward-queue=" + storeAndForwardQueue);
       }
    }
 
-   public long getRemoteQueueID()
-   {
-      return  remoteQueueID;
+   public long getRemoteQueueID() {
+      return remoteQueueID;
    }
 }

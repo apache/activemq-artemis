@@ -29,37 +29,35 @@ import org.junit.runner.RunWith;
 import java.io.IOException;
 import java.io.InputStream;
 
-
-@RunWith( FrameworkRunner.class )
+@RunWith(FrameworkRunner.class)
 @CreateLdapServer(transports = {@CreateTransport(protocol = "LDAP")})
 @ApplyLdifFiles(
-        "org/apache/activemq/security/activemq-apacheds-legacy.ldif"
-)
+   "org/apache/activemq/security/activemq-apacheds-legacy.ldif")
 public class CachedLDAPAuthorizationModuleLegacyTest extends AbstractCachedLDAPAuthorizationMapLegacyTest {
 
-    @Override
-    protected SimpleCachedLDAPAuthorizationMap createMap() {
-        SimpleCachedLDAPAuthorizationMap map = super.createMap();
-        map.setConnectionURL("ldap://localhost:" + getLdapServer().getPort());
-        return map;
-    }
-    
-    protected InputStream getAddLdif() {
-        return getClass().getClassLoader().getResourceAsStream("org/apache/activemq/security/activemq-apacheds-legacy-add.ldif");
-    }
-    
-    protected InputStream getRemoveLdif() {
-        return getClass().getClassLoader().getResourceAsStream("org/apache/activemq/security/activemq-apacheds-legacy-delete.ldif");
-    }
-    
-    protected String getQueueBaseDn() {
-        return "ou=Queue,ou=Destination,ou=ActiveMQ,ou=system";
-    }
-    
-    protected LdapConnection getLdapConnection() throws LdapException, IOException {
-        LdapConnection connection = new LdapNetworkConnection("localhost", getLdapServer().getPort());
-        connection.bind(new Dn("uid=admin,ou=system"), "secret");
-        return connection;
-    }
+   @Override
+   protected SimpleCachedLDAPAuthorizationMap createMap() {
+      SimpleCachedLDAPAuthorizationMap map = super.createMap();
+      map.setConnectionURL("ldap://localhost:" + getLdapServer().getPort());
+      return map;
+   }
+
+   protected InputStream getAddLdif() {
+      return getClass().getClassLoader().getResourceAsStream("org/apache/activemq/security/activemq-apacheds-legacy-add.ldif");
+   }
+
+   protected InputStream getRemoveLdif() {
+      return getClass().getClassLoader().getResourceAsStream("org/apache/activemq/security/activemq-apacheds-legacy-delete.ldif");
+   }
+
+   protected String getQueueBaseDn() {
+      return "ou=Queue,ou=Destination,ou=ActiveMQ,ou=system";
+   }
+
+   protected LdapConnection getLdapConnection() throws LdapException, IOException {
+      LdapConnection connection = new LdapNetworkConnection("localhost", getLdapServer().getPort());
+      connection.bind(new Dn("uid=admin,ou=system"), "secret");
+      return connection;
+   }
 }
 

@@ -32,66 +32,68 @@ import org.apache.activemq.util.MessageIdList;
 
 public class FanoutTest extends TestCase {
 
-    BrokerService broker1;
-    BrokerService broker2;
-    
-    ActiveMQConnectionFactory producerFactory = new ActiveMQConnectionFactory("fanout:(static:(tcp://localhost:61616,tcp://localhost:61617))?fanOutQueues=true");
-    Connection producerConnection;
-    Session producerSession;
-    int messageCount = 100;
+   BrokerService broker1;
+   BrokerService broker2;
 
-    public void setUp() throws Exception {
-        broker1 = BrokerFactory.createBroker("broker:(tcp://localhost:61616)/brokerA?persistent=false&useJmx=false");
-        broker2 = BrokerFactory.createBroker("broker:(tcp://localhost:61617)/brokerB?persistent=false&useJmx=false");
-        
-        broker1.start();
-        broker2.start();
-        
-        broker1.waitUntilStarted();
-        broker2.waitUntilStarted();
-        
-        producerConnection = producerFactory.createConnection();
-        producerConnection.start();
-        producerSession = producerConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-    }
-    
-    public void tearDown() throws Exception {
-        producerSession.close();
-        producerConnection.close();
-        
-        broker1.stop();
-        broker2.stop();
-    }
-    
-    public void testSendReceive() throws Exception {
+   ActiveMQConnectionFactory producerFactory = new ActiveMQConnectionFactory("fanout:(static:(tcp://localhost:61616,tcp://localhost:61617))?fanOutQueues=true");
+   Connection producerConnection;
+   Session producerSession;
+   int messageCount = 100;
 
-        MessageProducer prod = createProducer();
-        for (int i = 0; i < messageCount; i++) {
-            Message msg = producerSession.createTextMessage("Message " + i);
-            prod.send(msg);
-        }
-        prod.close();
-        
-        assertMessagesReceived("tcp://localhost:61616");
-        assertMessagesReceived("tcp://localhost:61617");
-        
-    }
-    
-    protected MessageProducer createProducer() throws Exception {
-        return producerSession.createProducer(producerSession.createQueue("TEST"));   
-    }
-    
-    protected void assertMessagesReceived(String brokerURL) throws Exception {
-        ActiveMQConnectionFactory consumerFactory = new ActiveMQConnectionFactory(brokerURL);
-        Connection consumerConnection = consumerFactory.createConnection();
-        consumerConnection.start();
-        Session consumerSession = consumerConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        MessageConsumer consumer = consumerSession.createConsumer(consumerSession.createQueue("TEST"));
-        MessageIdList listener = new MessageIdList();
-        consumer.setMessageListener(listener);
-        listener.waitForMessagesToArrive(messageCount);
-        listener.assertMessagesReceived(messageCount);
-        
-        consumer.close(); consumerConnection.close(); consumerSession.close();
-    }
+   public void setUp() throws Exception {
+      broker1 = BrokerFactory.createBroker("broker:(tcp://localhost:61616)/brokerA?persistent=false&useJmx=false");
+      broker2 = BrokerFactory.createBroker("broker:(tcp://localhost:61617)/brokerB?persistent=false&useJmx=false");
+
+      broker1.start();
+      broker2.start();
+
+      broker1.waitUntilStarted();
+      broker2.waitUntilStarted();
+
+      producerConnection = producerFactory.createConnection();
+      producerConnection.start();
+      producerSession = producerConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+   }
+
+   public void tearDown() throws Exception {
+      producerSession.close();
+      producerConnection.close();
+
+      broker1.stop();
+      broker2.stop();
+   }
+
+   public void testSendReceive() throws Exception {
+
+      MessageProducer prod = createProducer();
+      for (int i = 0; i < messageCount; i++) {
+         Message msg = producerSession.createTextMessage("Message " + i);
+         prod.send(msg);
+      }
+      prod.close();
+
+      assertMessagesReceived("tcp://localhost:61616");
+      assertMessagesReceived("tcp://localhost:61617");
+
+   }
+
+   protected MessageProducer createProducer() throws Exception {
+      return producerSession.createProducer(producerSession.createQueue("TEST"));
+   }
+
+   protected void assertMessagesReceived(String brokerURL) throws Exception {
+      ActiveMQConnectionFactory consumerFactory = new ActiveMQConnectionFactory(brokerURL);
+      Connection consumerConnection = consumerFactory.createConnection();
+      consumerConnection.start();
+      Session consumerSession = consumerConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      MessageConsumer consumer = consumerSession.createConsumer(consumerSession.createQueue("TEST"));
+      MessageIdList listener = new MessageIdList();
+      consumer.setMessageListener(listener);
+      listener.waitForMessagesToArrive(messageCount);
+      listener.assertMessagesReceived(messageCount);
+
+      consumer.close();
+      consumerConnection.close();
+      consumerSession.close();
+   }
 }

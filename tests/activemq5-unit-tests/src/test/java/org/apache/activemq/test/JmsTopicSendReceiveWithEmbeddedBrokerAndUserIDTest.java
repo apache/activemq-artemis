@@ -30,82 +30,83 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class JmsTopicSendReceiveWithEmbeddedBrokerAndUserIDTest extends JmsTopicSendReceiveWithTwoConnectionsAndEmbeddedBrokerTest {
-    private static final Logger LOG = LoggerFactory.getLogger(JmsTopicSendReceiveWithEmbeddedBrokerAndUserIDTest.class);
 
-    protected String userName = "James";
+   private static final Logger LOG = LoggerFactory.getLogger(JmsTopicSendReceiveWithEmbeddedBrokerAndUserIDTest.class);
 
-    @Override
-    protected ActiveMQConnectionFactory createConnectionFactory() throws Exception {
-        ActiveMQConnectionFactory answer = super.createConnectionFactory();
-        answer.setUserName(userName);
-        return answer;
-    }
+   protected String userName = "James";
 
-    @Override
-    protected void configureBroker(BrokerService answer) throws Exception {
-        answer.setPopulateJMSXUserID(true);
-        super.configureBroker(answer);
-    }
+   @Override
+   protected ActiveMQConnectionFactory createConnectionFactory() throws Exception {
+      ActiveMQConnectionFactory answer = super.createConnectionFactory();
+      answer.setUserName(userName);
+      return answer;
+   }
 
-    @Override
-    protected void assertMessagesReceivedAreValid(List<Message> receivedMessages) throws JMSException {
-        super.assertMessagesReceivedAreValid(receivedMessages);
+   @Override
+   protected void configureBroker(BrokerService answer) throws Exception {
+      answer.setPopulateJMSXUserID(true);
+      super.configureBroker(answer);
+   }
 
-        // lets assert that the user ID is set
-        for (Message message : receivedMessages) {
-            String userID = message.getStringProperty("JMSXUserID");
-            LOG.info("Received message with userID: " + userID);
-            assertEquals("JMSXUserID header", userName, userID);
-        }
-    }
+   @Override
+   protected void assertMessagesReceivedAreValid(List<Message> receivedMessages) throws JMSException {
+      super.assertMessagesReceivedAreValid(receivedMessages);
 
-    protected void assertMessagesAreReceived2() throws JMSException {
-        waitForMessagesToBeDelivered();
-        assertMessagesReceivedAreValid2(messages);
-    }
+      // lets assert that the user ID is set
+      for (Message message : receivedMessages) {
+         String userID = message.getStringProperty("JMSXUserID");
+         LOG.info("Received message with userID: " + userID);
+         assertEquals("JMSXUserID header", userName, userID);
+      }
+   }
 
-    protected void assertMessagesReceivedAreValid2(List<Message> receivedMessages) throws JMSException {
-        super.assertMessagesReceivedAreValid(receivedMessages);
+   protected void assertMessagesAreReceived2() throws JMSException {
+      waitForMessagesToBeDelivered();
+      assertMessagesReceivedAreValid2(messages);
+   }
 
-        // lets assert that the user ID is set
-        for (Message message : receivedMessages) {
-            String userID = (String) message.getObjectProperty("JMSXUserID");
-            LOG.info("Received message with userID: " + userID);
-            assertEquals("JMSXUserID header", userName, userID);
-        }
-    }
+   protected void assertMessagesReceivedAreValid2(List<Message> receivedMessages) throws JMSException {
+      super.assertMessagesReceivedAreValid(receivedMessages);
 
-    public void testSpoofedJMSXUserIdIsIgnored() throws Exception {
-        Thread.sleep(1000);
-        messages.clear();
+      // lets assert that the user ID is set
+      for (Message message : receivedMessages) {
+         String userID = (String) message.getObjectProperty("JMSXUserID");
+         LOG.info("Received message with userID: " + userID);
+         assertEquals("JMSXUserID header", userName, userID);
+      }
+   }
 
-        for (int i = 0; i < data.length; i++) {
-            Message message = createMessage(i);
-            configureMessage(message);
-            message.setStringProperty("JMSXUserID", "spoofedId");
-            if (verbose) {
-                LOG.info("About to send a message: " + message + " with text: " + data[i]);
-            }
-            sendMessage(i, message);
-        }
-        assertMessagesAreReceived();
-        LOG.info("" + data.length + " messages(s) received, closing down connections");
-    }
+   public void testSpoofedJMSXUserIdIsIgnored() throws Exception {
+      Thread.sleep(1000);
+      messages.clear();
 
-    public void testSpoofedJMSXUserIdIsIgnoredAsObjectProperty() throws Exception {
-        Thread.sleep(1000);
-        messages.clear();
+      for (int i = 0; i < data.length; i++) {
+         Message message = createMessage(i);
+         configureMessage(message);
+         message.setStringProperty("JMSXUserID", "spoofedId");
+         if (verbose) {
+            LOG.info("About to send a message: " + message + " with text: " + data[i]);
+         }
+         sendMessage(i, message);
+      }
+      assertMessagesAreReceived();
+      LOG.info("" + data.length + " messages(s) received, closing down connections");
+   }
 
-        for (int i = 0; i < data.length; i++) {
-            Message message = createMessage(i);
-            configureMessage(message);
-            message.setStringProperty("JMSXUserID", "spoofedId");
-            if (verbose) {
-                LOG.info("About to send a message: " + message + " with text: " + data[i]);
-            }
-            sendMessage(i, message);
-        }
-        assertMessagesAreReceived2();
-        LOG.info("" + data.length + " messages(s) received, closing down connections");
-    }
+   public void testSpoofedJMSXUserIdIsIgnoredAsObjectProperty() throws Exception {
+      Thread.sleep(1000);
+      messages.clear();
+
+      for (int i = 0; i < data.length; i++) {
+         Message message = createMessage(i);
+         configureMessage(message);
+         message.setStringProperty("JMSXUserID", "spoofedId");
+         if (verbose) {
+            LOG.info("About to send a message: " + message + " with text: " + data[i]);
+         }
+         sendMessage(i, message);
+      }
+      assertMessagesAreReceived2();
+      LOG.info("" + data.length + " messages(s) received, closing down connections");
+   }
 }

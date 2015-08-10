@@ -23,15 +23,15 @@ import org.apache.activemq.leveldb.LevelDBStore;
 import org.apache.activemq.store.PersistenceAdapter;
 
 /**
- * 
+ *
  */
 public class LevelDBDurableSubscriptionTest extends DurableSubscriptionTestSupport {
 
-    protected PersistenceAdapter createPersistenceAdapter() throws IOException {
-        File dataDir = new File("target/test-data/durableLevelDB");
-        LevelDBStore adaptor = new LevelDBStore();
-        adaptor.setDirectory(dataDir);
-        return adaptor;
-    }
+   protected PersistenceAdapter createPersistenceAdapter() throws IOException {
+      File dataDir = new File("target/test-data/durableLevelDB");
+      LevelDBStore adaptor = new LevelDBStore();
+      adaptor.setDirectory(dataDir);
+      return adaptor;
+   }
 
 }

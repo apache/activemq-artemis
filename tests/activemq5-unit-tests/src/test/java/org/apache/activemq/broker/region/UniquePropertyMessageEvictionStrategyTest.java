@@ -30,76 +30,73 @@ import java.util.List;
 
 public class UniquePropertyMessageEvictionStrategyTest extends EmbeddedBrokerTestSupport {
 
+   @Override
+   protected BrokerService createBroker() throws Exception {
+      BrokerService broker = super.createBroker();
+      final List<PolicyEntry> policyEntries = new ArrayList<PolicyEntry>();
+      final PolicyEntry entry = new PolicyEntry();
+      entry.setTopic(">");
 
+      entry.setAdvisoryForDiscardingMessages(true);
+      entry.setTopicPrefetch(1);
 
-    @Override
-    protected BrokerService createBroker() throws Exception {
-        BrokerService broker =  super.createBroker();
-                final List<PolicyEntry> policyEntries = new ArrayList<PolicyEntry>();
-        final PolicyEntry entry = new PolicyEntry();
-        entry.setTopic(">");
+      ConstantPendingMessageLimitStrategy pendingMessageLimitStrategy = new ConstantPendingMessageLimitStrategy();
+      pendingMessageLimitStrategy.setLimit(10);
+      entry.setPendingMessageLimitStrategy(pendingMessageLimitStrategy);
 
-        entry.setAdvisoryForDiscardingMessages(true);
-        entry.setTopicPrefetch(1);
+      UniquePropertyMessageEvictionStrategy messageEvictionStrategy = new UniquePropertyMessageEvictionStrategy();
+      messageEvictionStrategy.setPropertyName("sequenceI");
+      entry.setMessageEvictionStrategy(messageEvictionStrategy);
 
-        ConstantPendingMessageLimitStrategy pendingMessageLimitStrategy = new ConstantPendingMessageLimitStrategy();
-        pendingMessageLimitStrategy.setLimit(10);
-        entry.setPendingMessageLimitStrategy(pendingMessageLimitStrategy);
+      // let evicted messages disappear
+      entry.setDeadLetterStrategy(null);
+      policyEntries.add(entry);
 
+      final PolicyMap policyMap = new PolicyMap();
+      policyMap.setPolicyEntries(policyEntries);
+      broker.setDestinationPolicy(policyMap);
 
-        UniquePropertyMessageEvictionStrategy messageEvictionStrategy = new UniquePropertyMessageEvictionStrategy();
-        messageEvictionStrategy.setPropertyName("sequenceI");
-        entry.setMessageEvictionStrategy(messageEvictionStrategy);
+      return broker;
+   }
 
-        // let evicted messages disappear
-        entry.setDeadLetterStrategy(null);
-        policyEntries.add(entry);
+   public void testEviction() throws Exception {
+      Connection conn = connectionFactory.createConnection();
+      conn.start();
+      Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      javax.jms.Topic destination = session.createTopic("TEST");
 
-        final PolicyMap policyMap = new PolicyMap();
-        policyMap.setPolicyEntries(policyEntries);
-        broker.setDestinationPolicy(policyMap);
+      MessageProducer producer = session.createProducer(destination);
+      MessageConsumer consumer = session.createConsumer(destination);
 
-        return broker;
-    }
+      for (int i = 0; i < 10; i++) {
+         for (int j = 0; j < 10; j++) {
+            TextMessage msg = session.createTextMessage("message " + i + j);
+            msg.setIntProperty("sequenceI", i);
+            msg.setIntProperty("sequenceJ", j);
+            producer.send(msg);
+            Thread.sleep(100);
+         }
+      }
 
-    public void testEviction() throws Exception {
-        Connection conn = connectionFactory.createConnection();
-        conn.start();
-        Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        javax.jms.Topic destination = session.createTopic("TEST");
+      for (int i = 0; i < 11; i++) {
+         javax.jms.Message msg = consumer.receive(1000);
+         assertNotNull(msg);
+         int seqI = msg.getIntProperty("sequenceI");
+         int seqJ = msg.getIntProperty("sequenceJ");
+         if (i == 0) {
+            assertEquals(0, seqI);
+            assertEquals(0, seqJ);
+         }
+         else {
+            assertEquals(9, seqJ);
+            assertEquals(i - 1, seqI);
+         }
+         //System.out.println(msg.getIntProperty("sequenceI") + " " + msg.getIntProperty("sequenceJ"));
+      }
 
-        MessageProducer producer = session.createProducer(destination);
-        MessageConsumer consumer = session.createConsumer(destination);
+      javax.jms.Message msg = consumer.receive(1000);
+      assertNull(msg);
 
-        for (int i = 0; i < 10; i++) {
-            for (int j = 0; j < 10; j++) {
-                TextMessage msg = session.createTextMessage("message " + i + j);
-                msg.setIntProperty("sequenceI", i);
-                msg.setIntProperty("sequenceJ", j);
-                producer.send(msg);
-                Thread.sleep(100);
-            }
-        }
-
-
-        for (int i = 0; i < 11; i++) {
-            javax.jms.Message msg = consumer.receive(1000);
-            assertNotNull(msg);
-            int seqI = msg.getIntProperty("sequenceI");
-            int seqJ = msg.getIntProperty("sequenceJ");
-            if (i ==0 ) {
-                assertEquals(0, seqI);
-                assertEquals(0, seqJ);
-            } else {
-                    assertEquals(9, seqJ);
-                    assertEquals(i - 1, seqI);
-            }
-            //System.out.println(msg.getIntProperty("sequenceI") + " " + msg.getIntProperty("sequenceJ"));
-        }
-
-        javax.jms.Message msg = consumer.receive(1000);
-        assertNull(msg);
-
-    }
+   }
 
 }

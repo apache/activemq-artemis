@@ -30,6 +30,7 @@ import javax.jms.MessageListener;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.broker.region.policy.ConstantPendingMessageLimitStrategy;
@@ -45,188 +46,205 @@ import org.junit.Test;
  *         https://issues.apache.org/jira/browse/AMQ-3607
  */
 public class ActiveMQSlowConsumerManualTest {
-    private static final int PORT = 12345;
-    private static final ActiveMQTopic TOPIC = new ActiveMQTopic("TOPIC");
-    private static final String URL = "nio://localhost:" + PORT + "?socket.tcpNoDelay=true";
 
-    @Test(timeout = 60000)
-    public void testDefaultSettings() throws Exception {
-        runTest("testDefaultSettings", 30, -1, -1, false, false, false, false);
-    }
+   private static final int PORT = 12345;
+   private static final ActiveMQTopic TOPIC = new ActiveMQTopic("TOPIC");
+   private static final String URL = "nio://localhost:" + PORT + "?socket.tcpNoDelay=true";
 
-    @Test(timeout = 60000)
-    public void testDefaultSettingsWithOptimiseAcknowledge() throws Exception {
-        runTest("testDefaultSettingsWithOptimiseAcknowledge", 30, -1, -1, false, false, true, false);
-    }
+   @Test(timeout = 60000)
+   public void testDefaultSettings() throws Exception {
+      runTest("testDefaultSettings", 30, -1, -1, false, false, false, false);
+   }
 
-    @Test(timeout = 60000)
-    public void testBounded() throws Exception {
-        runTest("testBounded", 30, 5, 25, false, false, false, false);
-    }
+   @Test(timeout = 60000)
+   public void testDefaultSettingsWithOptimiseAcknowledge() throws Exception {
+      runTest("testDefaultSettingsWithOptimiseAcknowledge", 30, -1, -1, false, false, true, false);
+   }
 
-    @Test(timeout = 60000)
-    public void testBoundedWithOptimiseAcknowledge() throws Exception {
-        runTest("testBoundedWithOptimiseAcknowledge", 30, 5, 25, false, false, true, false);
-    }
+   @Test(timeout = 60000)
+   public void testBounded() throws Exception {
+      runTest("testBounded", 30, 5, 25, false, false, false, false);
+   }
 
-    public void runTest(String name, int sendMessageCount, int prefetchLimit, int messageLimit, boolean evictOldestMessage, boolean disableFlowControl, boolean optimizeAcknowledge, boolean persistent) throws Exception {
-        BrokerService broker = createBroker(persistent);
-        broker.setDestinationPolicy(buildPolicy(TOPIC, prefetchLimit, messageLimit, evictOldestMessage, disableFlowControl));
-        broker.start();
+   @Test(timeout = 60000)
+   public void testBoundedWithOptimiseAcknowledge() throws Exception {
+      runTest("testBoundedWithOptimiseAcknowledge", 30, 5, 25, false, false, true, false);
+   }
 
-        // Slow consumer
-        Session slowConsumerSession = buildSession("SlowConsumer", URL, optimizeAcknowledge);
-        final CountDownLatch blockSlowConsumer = new CountDownLatch(1);
-        final AtomicInteger slowConsumerReceiveCount = new AtomicInteger();
-        final List<Integer> slowConsumerReceived = sendMessageCount <= 1000 ? new ArrayList<Integer>() : null;
-        MessageConsumer slowConsumer = createSubscriber(slowConsumerSession,
-                new MessageListener() {
-                    @Override
-                    public void onMessage(Message message) {
-                        try {
-                            slowConsumerReceiveCount.incrementAndGet();
-                            int count = Integer.parseInt(((TextMessage) message).getText());
-                            if (slowConsumerReceived != null) slowConsumerReceived.add(count);
-                            if (count % 10000 == 0) System.out.println("SlowConsumer: Receive " + count);
-                            blockSlowConsumer.await();
-                        } catch (Exception ignored) {
-                        }
-                    }
-                }
-        );
+   public void runTest(String name,
+                       int sendMessageCount,
+                       int prefetchLimit,
+                       int messageLimit,
+                       boolean evictOldestMessage,
+                       boolean disableFlowControl,
+                       boolean optimizeAcknowledge,
+                       boolean persistent) throws Exception {
+      BrokerService broker = createBroker(persistent);
+      broker.setDestinationPolicy(buildPolicy(TOPIC, prefetchLimit, messageLimit, evictOldestMessage, disableFlowControl));
+      broker.start();
 
-        // Fast consumer
-        Session fastConsumerSession = buildSession("FastConsumer", URL, optimizeAcknowledge);
-        final AtomicInteger fastConsumerReceiveCount = new AtomicInteger();
-        final List<Integer> fastConsumerReceived = sendMessageCount <= 1000 ? new ArrayList<Integer>() : null;
-        MessageConsumer fastConsumer = createSubscriber(fastConsumerSession,
-                new MessageListener() {
-                    @Override
-                    public void onMessage(Message message) {
-                        try {
-                            fastConsumerReceiveCount.incrementAndGet();
-                            TimeUnit.MILLISECONDS.sleep(5);
-                            int count = Integer.parseInt(((TextMessage) message).getText());
-                            if (fastConsumerReceived != null) fastConsumerReceived.add(count);
-                            if (count % 10000 == 0) System.out.println("FastConsumer: Receive " + count);
-                        } catch (Exception ignored) {
-                        }
-                    }
-                }
-        );
+      // Slow consumer
+      Session slowConsumerSession = buildSession("SlowConsumer", URL, optimizeAcknowledge);
+      final CountDownLatch blockSlowConsumer = new CountDownLatch(1);
+      final AtomicInteger slowConsumerReceiveCount = new AtomicInteger();
+      final List<Integer> slowConsumerReceived = sendMessageCount <= 1000 ? new ArrayList<Integer>() : null;
+      MessageConsumer slowConsumer = createSubscriber(slowConsumerSession, new MessageListener() {
+                                                         @Override
+                                                         public void onMessage(Message message) {
+                                                            try {
+                                                               slowConsumerReceiveCount.incrementAndGet();
+                                                               int count = Integer.parseInt(((TextMessage) message).getText());
+                                                               if (slowConsumerReceived != null)
+                                                                  slowConsumerReceived.add(count);
+                                                               if (count % 10000 == 0)
+                                                                  System.out.println("SlowConsumer: Receive " + count);
+                                                               blockSlowConsumer.await();
+                                                            }
+                                                            catch (Exception ignored) {
+                                                            }
+                                                         }
+                                                      });
 
-        // Wait for consumers to connect
-        Thread.sleep(500);
+      // Fast consumer
+      Session fastConsumerSession = buildSession("FastConsumer", URL, optimizeAcknowledge);
+      final AtomicInteger fastConsumerReceiveCount = new AtomicInteger();
+      final List<Integer> fastConsumerReceived = sendMessageCount <= 1000 ? new ArrayList<Integer>() : null;
+      MessageConsumer fastConsumer = createSubscriber(fastConsumerSession, new MessageListener() {
+                                                         @Override
+                                                         public void onMessage(Message message) {
+                                                            try {
+                                                               fastConsumerReceiveCount.incrementAndGet();
+                                                               TimeUnit.MILLISECONDS.sleep(5);
+                                                               int count = Integer.parseInt(((TextMessage) message).getText());
+                                                               if (fastConsumerReceived != null)
+                                                                  fastConsumerReceived.add(count);
+                                                               if (count % 10000 == 0)
+                                                                  System.out.println("FastConsumer: Receive " + count);
+                                                            }
+                                                            catch (Exception ignored) {
+                                                            }
+                                                         }
+                                                      });
 
-        // Publisher
-        AtomicInteger sentCount = new AtomicInteger();
-        List<Integer> sent = sendMessageCount <= 1000 ? new ArrayList<Integer>() : null;
-        Session publisherSession = buildSession("Publisher", URL, optimizeAcknowledge);
-        MessageProducer publisher = createPublisher(publisherSession);
-        for (int i = 0; i < sendMessageCount; i++) {
-            sentCount.incrementAndGet();
-            if (sent != null) sent.add(i);
-            if (i % 10000 == 0) System.out.println("Publisher: Send " + i);
-            publisher.send(publisherSession.createTextMessage(Integer.toString(i)));
-        }
+      // Wait for consumers to connect
+      Thread.sleep(500);
 
-        // Wait for messages to arrive
-        Thread.sleep(500);
+      // Publisher
+      AtomicInteger sentCount = new AtomicInteger();
+      List<Integer> sent = sendMessageCount <= 1000 ? new ArrayList<Integer>() : null;
+      Session publisherSession = buildSession("Publisher", URL, optimizeAcknowledge);
+      MessageProducer publisher = createPublisher(publisherSession);
+      for (int i = 0; i < sendMessageCount; i++) {
+         sentCount.incrementAndGet();
+         if (sent != null)
+            sent.add(i);
+         if (i % 10000 == 0)
+            System.out.println("Publisher: Send " + i);
+         publisher.send(publisherSession.createTextMessage(Integer.toString(i)));
+      }
 
-        System.out.println(name + ": Publisher Sent: " + sentCount + " " + sent);
-        System.out.println(name + ": Whilst slow consumer blocked:");
-        System.out.println("\t\t- SlowConsumer Received: " + slowConsumerReceiveCount + " " + slowConsumerReceived);
-        System.out.println("\t\t- FastConsumer Received: " + fastConsumerReceiveCount + " " + fastConsumerReceived);
+      // Wait for messages to arrive
+      Thread.sleep(500);
 
-        // Unblock slow consumer
-        blockSlowConsumer.countDown();
+      System.out.println(name + ": Publisher Sent: " + sentCount + " " + sent);
+      System.out.println(name + ": Whilst slow consumer blocked:");
+      System.out.println("\t\t- SlowConsumer Received: " + slowConsumerReceiveCount + " " + slowConsumerReceived);
+      System.out.println("\t\t- FastConsumer Received: " + fastConsumerReceiveCount + " " + fastConsumerReceived);
 
-        // Wait for messages to arrive
-        Thread.sleep(500);
+      // Unblock slow consumer
+      blockSlowConsumer.countDown();
 
-        System.out.println(name + ": After slow consumer unblocked:");
-        System.out.println("\t\t- SlowConsumer Received: " + slowConsumerReceiveCount + " " + slowConsumerReceived);
-        System.out.println("\t\t- FastConsumer Received: " + fastConsumerReceiveCount + " " + fastConsumerReceived);
-        System.out.println();
+      // Wait for messages to arrive
+      Thread.sleep(500);
 
-        publisher.close();
-        publisherSession.close();
-        slowConsumer.close();
-        slowConsumerSession.close();
-        fastConsumer.close();
-        fastConsumerSession.close();
-        broker.stop();
+      System.out.println(name + ": After slow consumer unblocked:");
+      System.out.println("\t\t- SlowConsumer Received: " + slowConsumerReceiveCount + " " + slowConsumerReceived);
+      System.out.println("\t\t- FastConsumer Received: " + fastConsumerReceiveCount + " " + fastConsumerReceived);
+      System.out.println();
 
-        Assert.assertEquals("Fast consumer missed messages whilst slow consumer was blocking", sent, fastConsumerReceived);
-        // this is too timine dependent  as sometimes there is message eviction, would need to check the dlq
-        //Assert.assertEquals("Slow consumer received incorrect message count", Math.min(sendMessageCount, prefetchLimit + (messageLimit > 0 ? messageLimit : Integer.MAX_VALUE)), slowConsumerReceived.size());
-    }
+      publisher.close();
+      publisherSession.close();
+      slowConsumer.close();
+      slowConsumerSession.close();
+      fastConsumer.close();
+      fastConsumerSession.close();
+      broker.stop();
 
-    private static BrokerService createBroker(boolean persistent) throws Exception {
-        BrokerService broker = new BrokerService();
-        broker.setBrokerName("TestBroker");
-        broker.setPersistent(persistent);
-        broker.addConnector(URL);
-        return broker;
-    }
+      Assert.assertEquals("Fast consumer missed messages whilst slow consumer was blocking", sent, fastConsumerReceived);
+      // this is too timine dependent  as sometimes there is message eviction, would need to check the dlq
+      //Assert.assertEquals("Slow consumer received incorrect message count", Math.min(sendMessageCount, prefetchLimit + (messageLimit > 0 ? messageLimit : Integer.MAX_VALUE)), slowConsumerReceived.size());
+   }
 
-    private static MessageConsumer createSubscriber(Session session, MessageListener messageListener) throws JMSException {
-        MessageConsumer consumer = session.createConsumer(TOPIC);
-        consumer.setMessageListener(messageListener);
-        return consumer;
-    }
+   private static BrokerService createBroker(boolean persistent) throws Exception {
+      BrokerService broker = new BrokerService();
+      broker.setBrokerName("TestBroker");
+      broker.setPersistent(persistent);
+      broker.addConnector(URL);
+      return broker;
+   }
 
-    private static MessageProducer createPublisher(Session session) throws JMSException {
-        MessageProducer producer = session.createProducer(TOPIC);
-        producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
-        return producer;
-    }
+   private static MessageConsumer createSubscriber(Session session,
+                                                   MessageListener messageListener) throws JMSException {
+      MessageConsumer consumer = session.createConsumer(TOPIC);
+      consumer.setMessageListener(messageListener);
+      return consumer;
+   }
 
-    private static Session buildSession(String clientId, String url, boolean optimizeAcknowledge) throws JMSException {
-        ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(url);
+   private static MessageProducer createPublisher(Session session) throws JMSException {
+      MessageProducer producer = session.createProducer(TOPIC);
+      producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
+      return producer;
+   }
 
-        connectionFactory.setCopyMessageOnSend(false);
-        connectionFactory.setDisableTimeStampsByDefault(true);
-        connectionFactory.setOptimizeAcknowledge(optimizeAcknowledge);
-        if (optimizeAcknowledge) {
-            connectionFactory.setOptimizeAcknowledgeTimeOut(1);
-        }
+   private static Session buildSession(String clientId, String url, boolean optimizeAcknowledge) throws JMSException {
+      ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(url);
 
-        Connection connection = connectionFactory.createConnection();
-        connection.setClientID(clientId);
+      connectionFactory.setCopyMessageOnSend(false);
+      connectionFactory.setDisableTimeStampsByDefault(true);
+      connectionFactory.setOptimizeAcknowledge(optimizeAcknowledge);
+      if (optimizeAcknowledge) {
+         connectionFactory.setOptimizeAcknowledgeTimeOut(1);
+      }
 
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      Connection connection = connectionFactory.createConnection();
+      connection.setClientID(clientId);
 
-        connection.start();
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-        return session;
-    }
+      connection.start();
 
-    private static PolicyMap buildPolicy(ActiveMQTopic topic, int prefetchLimit, int messageLimit, boolean evictOldestMessage, boolean disableFlowControl) {
-        PolicyMap policyMap = new PolicyMap();
+      return session;
+   }
 
-        PolicyEntry policyEntry = new PolicyEntry();
+   private static PolicyMap buildPolicy(ActiveMQTopic topic,
+                                        int prefetchLimit,
+                                        int messageLimit,
+                                        boolean evictOldestMessage,
+                                        boolean disableFlowControl) {
+      PolicyMap policyMap = new PolicyMap();
 
-        if (evictOldestMessage) {
-            policyEntry.setMessageEvictionStrategy(new OldestMessageEvictionStrategy());
-        }
+      PolicyEntry policyEntry = new PolicyEntry();
 
-        if (disableFlowControl) {
-            policyEntry.setProducerFlowControl(false);
-        }
+      if (evictOldestMessage) {
+         policyEntry.setMessageEvictionStrategy(new OldestMessageEvictionStrategy());
+      }
 
-        if (prefetchLimit > 0) {
-            policyEntry.setTopicPrefetch(prefetchLimit);
-        }
+      if (disableFlowControl) {
+         policyEntry.setProducerFlowControl(false);
+      }
 
-        if (messageLimit > 0) {
-            ConstantPendingMessageLimitStrategy messageLimitStrategy = new ConstantPendingMessageLimitStrategy();
-            messageLimitStrategy.setLimit(messageLimit);
-            policyEntry.setPendingMessageLimitStrategy(messageLimitStrategy);
-        }
+      if (prefetchLimit > 0) {
+         policyEntry.setTopicPrefetch(prefetchLimit);
+      }
 
-        policyMap.put(topic, policyEntry);
+      if (messageLimit > 0) {
+         ConstantPendingMessageLimitStrategy messageLimitStrategy = new ConstantPendingMessageLimitStrategy();
+         messageLimitStrategy.setLimit(messageLimit);
+         policyEntry.setPendingMessageLimitStrategy(messageLimitStrategy);
+      }
 
-        return policyMap;
-    }
+      policyMap.put(topic, policyEntry);
+
+      return policyMap;
+   }
 }

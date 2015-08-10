@@ -30,8 +30,8 @@ import java.util.concurrent.TimeUnit;
 /**
  * This class is the implementation of ActiveMQ Artemis members discovery that will use JGroups.
  */
-public abstract class JGroupsBroadcastEndpoint implements BroadcastEndpoint
-{
+public abstract class JGroupsBroadcastEndpoint implements BroadcastEndpoint {
+
    private final String channelName;
 
    private boolean clientOpened;
@@ -42,15 +42,12 @@ public abstract class JGroupsBroadcastEndpoint implements BroadcastEndpoint
 
    private JGroupsReceiver receiver;
 
-   public JGroupsBroadcastEndpoint(String channelName)
-   {
+   public JGroupsBroadcastEndpoint(String channelName) {
       this.channelName = channelName;
    }
 
-   public void broadcast(final byte[] data) throws Exception
-   {
-      if (broadcastOpened)
-      {
+   public void broadcast(final byte[] data) throws Exception {
+      if (broadcastOpened) {
          org.jgroups.Message msg = new org.jgroups.Message();
 
          msg.setBuffer(data);
@@ -59,34 +56,26 @@ public abstract class JGroupsBroadcastEndpoint implements BroadcastEndpoint
       }
    }
 
-   public byte[] receiveBroadcast() throws Exception
-   {
-      if (clientOpened)
-      {
+   public byte[] receiveBroadcast() throws Exception {
+      if (clientOpened) {
          return receiver.receiveBroadcast();
       }
-      else
-      {
+      else {
          return null;
       }
    }
 
-   public byte[] receiveBroadcast(long time, TimeUnit unit) throws Exception
-   {
-      if (clientOpened)
-      {
+   public byte[] receiveBroadcast(long time, TimeUnit unit) throws Exception {
+      if (clientOpened) {
          return receiver.receiveBroadcast(time, unit);
       }
-      else
-      {
+      else {
          return null;
       }
    }
 
-   public synchronized void openClient() throws Exception
-   {
-      if (clientOpened)
-      {
+   public synchronized void openClient() throws Exception {
+      if (clientOpened) {
          return;
       }
       internalOpen();
@@ -95,34 +84,29 @@ public abstract class JGroupsBroadcastEndpoint implements BroadcastEndpoint
       clientOpened = true;
    }
 
-   public synchronized void openBroadcaster() throws Exception
-   {
-      if (broadcastOpened) return;
+   public synchronized void openBroadcaster() throws Exception {
+      if (broadcastOpened)
+         return;
       internalOpen();
       broadcastOpened = true;
    }
 
    public abstract JChannel createChannel() throws Exception;
 
-   public JGroupsBroadcastEndpoint initChannel() throws Exception
-   {
+   public JGroupsBroadcastEndpoint initChannel() throws Exception {
       this.channel = JChannelManager.getJChannel(channelName, this);
       return this;
    }
 
-   protected void internalOpen() throws Exception
-   {
+   protected void internalOpen() throws Exception {
       channel.connect();
    }
 
-   public synchronized void close(boolean isBroadcast) throws Exception
-   {
-      if (isBroadcast)
-      {
+   public synchronized void close(boolean isBroadcast) throws Exception {
+      if (isBroadcast) {
          broadcastOpened = false;
       }
-      else
-      {
+      else {
          channel.removeReceiver(receiver);
          clientOpened = false;
       }
@@ -133,8 +117,7 @@ public abstract class JGroupsBroadcastEndpoint implements BroadcastEndpoint
     * Closes the channel used in this JGroups Broadcast.
     * Can be overridden by implementations that use an externally managed channel.
     */
-   protected synchronized void internalCloseChannel()
-   {
+   protected synchronized void internalCloseChannel() {
       channel.close();
    }
 
@@ -142,23 +125,20 @@ public abstract class JGroupsBroadcastEndpoint implements BroadcastEndpoint
     * This class is used to receive messages from a JGroups channel.
     * Incoming messages are put into a queue.
     */
-   private static final class JGroupsReceiver extends ReceiverAdapter
-   {
+   private static final class JGroupsReceiver extends ReceiverAdapter {
+
       private final BlockingQueue<byte[]> dequeue = new LinkedBlockingDeque<byte[]>();
 
       @Override
-      public void receive(org.jgroups.Message msg)
-      {
+      public void receive(org.jgroups.Message msg) {
          dequeue.add(msg.getBuffer());
       }
 
-      public byte[] receiveBroadcast() throws Exception
-      {
+      public byte[] receiveBroadcast() throws Exception {
          return dequeue.take();
       }
 
-      public byte[] receiveBroadcast(long time, TimeUnit unit) throws Exception
-      {
+      public byte[] receiveBroadcast(long time, TimeUnit unit) throws Exception {
          return dequeue.poll(time, unit);
       }
    }
@@ -168,50 +148,41 @@ public abstract class JGroupsBroadcastEndpoint implements BroadcastEndpoint
     * controls the life of the JChannel. When reference count is zero, the channel
     * will be disconnected.
     */
-   protected static class JChannelWrapper
-   {
+   protected static class JChannelWrapper {
+
       int refCount = 1;
       JChannel channel;
       String channelName;
       final List<JGroupsReceiver> receivers = new ArrayList<JGroupsReceiver>();
 
-      public JChannelWrapper(String channelName, JChannel channel) throws Exception
-      {
+      public JChannelWrapper(String channelName, JChannel channel) throws Exception {
          this.refCount = 1;
          this.channelName = channelName;
          this.channel = channel;
       }
 
-      public synchronized void close()
-      {
+      public synchronized void close() {
          refCount--;
-         if (refCount == 0)
-         {
+         if (refCount == 0) {
             JChannelManager.closeChannel(this.channelName, channel);
          }
       }
 
-      public void removeReceiver(JGroupsReceiver receiver)
-      {
-         synchronized (receivers)
-         {
+      public void removeReceiver(JGroupsReceiver receiver) {
+         synchronized (receivers) {
             receivers.remove(receiver);
          }
       }
 
-      public synchronized void connect() throws Exception
-      {
-         if (channel.isConnected()) return;
-         channel.setReceiver(new ReceiverAdapter()
-         {
+      public synchronized void connect() throws Exception {
+         if (channel.isConnected())
+            return;
+         channel.setReceiver(new ReceiverAdapter() {
 
             @Override
-            public void receive(org.jgroups.Message msg)
-            {
-               synchronized (receivers)
-               {
-                  for (JGroupsReceiver r : receivers)
-                  {
+            public void receive(org.jgroups.Message msg) {
+               synchronized (receivers) {
+                  for (JGroupsReceiver r : receivers) {
                      r.receive(msg);
                   }
                }
@@ -220,28 +191,23 @@ public abstract class JGroupsBroadcastEndpoint implements BroadcastEndpoint
          channel.connect(channelName);
       }
 
-      public void addReceiver(JGroupsReceiver jGroupsReceiver)
-      {
-         synchronized (receivers)
-         {
+      public void addReceiver(JGroupsReceiver jGroupsReceiver) {
+         synchronized (receivers) {
             receivers.add(jGroupsReceiver);
          }
       }
 
-      public void send(org.jgroups.Message msg) throws Exception
-      {
+      public void send(org.jgroups.Message msg) throws Exception {
          channel.send(msg);
       }
 
-      public JChannelWrapper addRef()
-      {
+      public JChannelWrapper addRef() {
          this.refCount++;
          return this;
       }
 
       @Override
-      public String toString()
-      {
+      public String toString() {
          return "JChannelWrapper of [" + channel + "] " + refCount + " " + channelName;
       }
    }
@@ -253,19 +219,17 @@ public abstract class JGroupsBroadcastEndpoint implements BroadcastEndpoint
     * Wherever a JChannel is needed it should only get it by calling the getChannel()
     * method of this class. The real disconnect of channels are also done here only.
     */
-   protected static class JChannelManager
-   {
+   protected static class JChannelManager {
+
       private static Map<String, JChannelWrapper> channels;
 
-      public static synchronized JChannelWrapper getJChannel(String channelName, JGroupsBroadcastEndpoint endpoint) throws Exception
-      {
-         if (channels == null)
-         {
+      public static synchronized JChannelWrapper getJChannel(String channelName,
+                                                             JGroupsBroadcastEndpoint endpoint) throws Exception {
+         if (channels == null) {
             channels = new HashMap<>();
          }
          JChannelWrapper wrapper = channels.get(channelName);
-         if (wrapper == null)
-         {
+         if (wrapper == null) {
             wrapper = new JChannelWrapper(channelName, endpoint.createChannel());
             channels.put(channelName, wrapper);
             return wrapper;
@@ -273,14 +237,12 @@ public abstract class JGroupsBroadcastEndpoint implements BroadcastEndpoint
          return wrapper.addRef();
       }
 
-      public static synchronized void closeChannel(String channelName, JChannel channel)
-      {
+      public static synchronized void closeChannel(String channelName, JChannel channel) {
          channel.setReceiver(null);
          channel.disconnect();
          channel.close();
          JChannelWrapper wrapper = channels.remove(channelName);
-         if (wrapper == null)
-         {
+         if (wrapper == null) {
             throw new IllegalStateException("Did not find channel " + channelName);
          }
       }

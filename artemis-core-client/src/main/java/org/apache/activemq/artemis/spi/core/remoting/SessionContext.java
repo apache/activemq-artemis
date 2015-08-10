@@ -37,8 +37,8 @@ import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.utils.IDGenerator;
 import org.apache.activemq.artemis.utils.SimpleIDGenerator;
 
-public abstract class SessionContext
-{
+public abstract class SessionContext {
+
    protected ClientSessionInternal session;
 
    protected SendAcknowledgementHandler sendAckHandler;
@@ -47,20 +47,15 @@ public abstract class SessionContext
 
    protected final IDGenerator idGenerator = new SimpleIDGenerator(0);
 
-
-   public SessionContext(RemotingConnection remotingConnection)
-   {
+   public SessionContext(RemotingConnection remotingConnection) {
       this.remotingConnection = remotingConnection;
    }
 
-
-   public ClientSessionInternal getSession()
-   {
+   public ClientSessionInternal getSession() {
       return session;
    }
 
-   public void setSession(ClientSessionInternal session)
-   {
+   public void setSession(ClientSessionInternal session) {
       this.session = session;
    }
 
@@ -73,11 +68,9 @@ public abstract class SessionContext
     */
    public abstract boolean reattachOnNewConnection(RemotingConnection newConnection) throws ActiveMQException;
 
-   public RemotingConnection getRemotingConnection()
-   {
+   public RemotingConnection getRemotingConnection() {
       return remotingConnection;
    }
-
 
    public abstract void closeConsumer(ClientConsumer consumer) throws ActiveMQException;
 
@@ -85,49 +78,45 @@ public abstract class SessionContext
 
    public abstract boolean supportsLargeMessage();
 
-   protected void handleReceiveLargeMessage(ConsumerContext consumerID, ClientLargeMessageInternal clientLargeMessage, long largeMessageSize) throws Exception
-   {
+   protected void handleReceiveLargeMessage(ConsumerContext consumerID,
+                                            ClientLargeMessageInternal clientLargeMessage,
+                                            long largeMessageSize) throws Exception {
       ClientSessionInternal session = this.session;
-      if (session != null)
-      {
+      if (session != null) {
          session.handleReceiveLargeMessage(consumerID, clientLargeMessage, largeMessageSize);
       }
    }
 
-   protected void handleReceiveMessage(ConsumerContext consumerID, final ClientMessageInternal message) throws Exception
-   {
+   protected void handleReceiveMessage(ConsumerContext consumerID,
+                                       final ClientMessageInternal message) throws Exception {
 
       ClientSessionInternal session = this.session;
-      if (session != null)
-      {
+      if (session != null) {
          session.handleReceiveMessage(consumerID, message);
       }
    }
 
-   protected void handleReceiveContinuation(final ConsumerContext consumerID, byte[] chunk, int flowControlSize, boolean isContinues) throws Exception
-   {
+   protected void handleReceiveContinuation(final ConsumerContext consumerID,
+                                            byte[] chunk,
+                                            int flowControlSize,
+                                            boolean isContinues) throws Exception {
       ClientSessionInternal session = this.session;
-      if (session != null)
-      {
+      if (session != null) {
          session.handleReceiveContinuation(consumerID, chunk, flowControlSize, isContinues);
       }
    }
 
-   protected void handleReceiveProducerCredits(SimpleString address, int credits)
-   {
+   protected void handleReceiveProducerCredits(SimpleString address, int credits) {
       ClientSessionInternal session = this.session;
-      if (session != null)
-      {
+      if (session != null) {
          session.handleReceiveProducerCredits(address, credits);
       }
 
    }
 
-   protected void handleReceiveProducerFailCredits(SimpleString address, int credits)
-   {
+   protected void handleReceiveProducerFailCredits(SimpleString address, int credits) {
       ClientSessionInternal session = this.session;
-      if (session != null)
-      {
+      if (session != null) {
          session.handleReceiveProducerFailCredits(address, credits);
       }
 
@@ -135,7 +124,10 @@ public abstract class SessionContext
 
    public abstract int getCreditsOnSendingFull(MessageInternal msgI);
 
-   public abstract void sendFullMessage(MessageInternal msgI, boolean sendBlocking, SendAcknowledgementHandler handler, SimpleString defaultAddress) throws ActiveMQException;
+   public abstract void sendFullMessage(MessageInternal msgI,
+                                        boolean sendBlocking,
+                                        SendAcknowledgementHandler handler,
+                                        SimpleString defaultAddress) throws ActiveMQException;
 
    /**
     * it should return the number of credits (or bytes) used to send this packet
@@ -146,9 +138,12 @@ public abstract class SessionContext
     */
    public abstract int sendInitialChunkOnLargeMessage(MessageInternal msgI) throws ActiveMQException;
 
-
-   public abstract int sendLargeMessageChunk(MessageInternal msgI, long messageBodySize, boolean sendBlocking, boolean lastChunk, byte[] chunk, SendAcknowledgementHandler messageHandler) throws ActiveMQException;
-
+   public abstract int sendLargeMessageChunk(MessageInternal msgI,
+                                             long messageBodySize,
+                                             boolean sendBlocking,
+                                             boolean lastChunk,
+                                             byte[] chunk,
+                                             SendAcknowledgementHandler messageHandler) throws ActiveMQException;
 
    public abstract void setSendAcknowledgementHandler(final SendAcknowledgementHandler handler);
 
@@ -159,7 +154,11 @@ public abstract class SessionContext
 
    public abstract void deleteQueue(SimpleString queueName) throws ActiveMQException;
 
-   public abstract void createQueue(SimpleString address, SimpleString queueName, SimpleString filterString, boolean durable, boolean temp) throws ActiveMQException;
+   public abstract void createQueue(SimpleString address,
+                                    SimpleString queueName,
+                                    SimpleString filterString,
+                                    boolean durable,
+                                    boolean temp) throws ActiveMQException;
 
    public abstract ClientSession.QueueQuery queueQuery(SimpleString queueName) throws ActiveMQException;
 
@@ -168,7 +167,6 @@ public abstract class SessionContext
    public abstract ClientSession.AddressQuery addressQuery(final SimpleString address) throws ActiveMQException;
 
    public abstract void simpleCommit() throws ActiveMQException;
-
 
    /**
     * If we are doing a simple rollback on the RA, we need to ack the last message sent to the consumer,
@@ -185,7 +183,10 @@ public abstract class SessionContext
 
    public abstract void sessionStop() throws ActiveMQException;
 
-   public abstract void sendACK(boolean individual, boolean block, final ClientConsumer consumer, final Message message) throws ActiveMQException;
+   public abstract void sendACK(boolean individual,
+                                boolean block,
+                                final ClientConsumer consumer,
+                                final Message message) throws ActiveMQException;
 
    public abstract void expireMessage(final ClientConsumer consumer, Message message) throws ActiveMQException;
 
@@ -213,8 +214,14 @@ public abstract class SessionContext
 
    public abstract boolean configureTransactionTimeout(int seconds) throws ActiveMQException;
 
-   public abstract ClientConsumerInternal createConsumer(SimpleString queueName, SimpleString filterString, int windowSize, int maxRate, int ackBatchSize, boolean browseOnly,
-                                                         Executor executor, Executor flowControlExecutor) throws ActiveMQException;
+   public abstract ClientConsumerInternal createConsumer(SimpleString queueName,
+                                                         SimpleString filterString,
+                                                         int windowSize,
+                                                         int maxRate,
+                                                         int ackBatchSize,
+                                                         boolean browseOnly,
+                                                         Executor executor,
+                                                         Executor flowControlExecutor) throws ActiveMQException;
 
    /**
     * Performs a round trip to the server requesting what is the current tx timeout on the session
@@ -234,7 +241,6 @@ public abstract class SessionContext
                                         final boolean preAcknowledge,
                                         final SimpleString defaultAddress) throws ActiveMQException;
 
-
    public abstract void recreateConsumerOnServer(ClientConsumerInternal consumerInternal) throws ActiveMQException;
 
    public abstract void xaFailed(Xid xid) throws ActiveMQException;
@@ -242,7 +248,6 @@ public abstract class SessionContext
    public abstract void restartSession() throws ActiveMQException;
 
    public abstract void resetMetadata(HashMap<String, String> metaDataToSend);
-
 
    // Failover utility classes
 
@@ -257,11 +262,9 @@ public abstract class SessionContext
     */
    public abstract void lockCommunications();
 
-
    public abstract void releaseCommunications();
 
    public abstract void cleanup();
-
 
    public abstract void linkFlowControl(SimpleString address, ClientProducerCreditsImpl clientProducerCredits);
 }

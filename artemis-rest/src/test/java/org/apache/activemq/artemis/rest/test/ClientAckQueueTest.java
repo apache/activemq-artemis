@@ -29,19 +29,16 @@ import org.junit.Test;
 
 import static org.jboss.resteasy.test.TestPortProvider.generateURL;
 
-public class ClientAckQueueTest extends MessageTestBase
-{
+public class ClientAckQueueTest extends MessageTestBase {
 
    @BeforeClass
-   public static void setup() throws Exception
-   {
+   public static void setup() throws Exception {
       QueueDeployment deployment1 = new QueueDeployment("testQueue", true);
       manager.getQueueManager().deploy(deployment1);
    }
 
    @Test
-   public void testAckTimeoutX2() throws Exception
-   {
+   public void testAckTimeoutX2() throws Exception {
       QueueDeployment deployment = new QueueDeployment();
       deployment.setConsumerSessionTimeoutSeconds(1);
       deployment.setDuplicatesAllowed(true);
@@ -55,8 +52,7 @@ public class ClientAckQueueTest extends MessageTestBase
       testAckTimeout();
    }
 
-   public void testAckTimeout() throws Exception
-   {
+   public void testAckTimeout() throws Exception {
       ClientRequest request = new ClientRequest(generateURL("/queues/testAck"));
 
       ClientResponse<?> response = Util.head(request);
@@ -73,7 +69,6 @@ public class ClientAckQueueTest extends MessageTestBase
          ClientResponse<?> res = sender.request().body("text/plain", Integer.toString(1)).post();
          res.releaseConnection();
          Assert.assertEquals(201, res.getStatus());
-
 
          res = consumeNext.request().post(String.class);
          res.releaseConnection();
@@ -109,21 +104,18 @@ public class ClientAckQueueTest extends MessageTestBase
          System.out.println("consumeNext: " + consumeNext);
 
          ClientResponse ackRes = ack.request().formParameter("acknowledge", "true").post();
-         if (ackRes.getStatus() != 204)
-         {
+         if (ackRes.getStatus() != 204) {
             System.out.println(ackRes.getEntity(String.class));
          }
          ackRes.releaseConnection();
          Assert.assertEquals(204, ackRes.getStatus());
-
 
          Assert.assertEquals(204, session.request().delete().getStatus());
       }
    }
 
    @Test
-   public void testSuccessFirstX2() throws Exception
-   {
+   public void testSuccessFirstX2() throws Exception {
       String testName = "testSuccessFirstX2";
 
       QueueDeployment queueDeployment = new QueueDeployment(testName, true);
@@ -135,8 +127,7 @@ public class ClientAckQueueTest extends MessageTestBase
       testSuccessFirst(3, testName);
    }
 
-   public void testSuccessFirst(int start, String queueName) throws Exception
-   {
+   public void testSuccessFirst(int start, String queueName) throws Exception {
       ClientRequest request = new ClientRequest(generateURL(Util.getUrlPath(queueName)));
 
       ClientResponse<?> response = Util.head(request);
@@ -202,8 +193,7 @@ public class ClientAckQueueTest extends MessageTestBase
    }
 
    @Test
-   public void testPullX2() throws Exception
-   {
+   public void testPullX2() throws Exception {
       String testName = "testPullX2";
 
       QueueDeployment queueDeployment = new QueueDeployment(testName, true);
@@ -215,8 +205,7 @@ public class ClientAckQueueTest extends MessageTestBase
       testPull(4, testName);
    }
 
-   public void testPull(int start, String queueName) throws Exception
-   {
+   public void testPull(int start, String queueName) throws Exception {
       ClientRequest request = new ClientRequest(generateURL(Util.getUrlPath(queueName)));
 
       ClientResponse<?> response = Util.head(request);
@@ -255,7 +244,6 @@ public class ClientAckQueueTest extends MessageTestBase
       res.releaseConnection();
       Assert.assertEquals(201, res.getStatus());
 
-
       res = consumeNext.request().post(String.class);
       Assert.assertEquals(200, res.getStatus());
       Assert.assertEquals(Integer.toString(start++), res.getEntity());
@@ -287,8 +275,7 @@ public class ClientAckQueueTest extends MessageTestBase
    }
 
    @Test
-   public void testReconnectX2() throws Exception
-   {
+   public void testReconnectX2() throws Exception {
       String testName = "testReconnectX2";
 
       QueueDeployment queueDeployment = new QueueDeployment(testName, true);
@@ -300,8 +287,7 @@ public class ClientAckQueueTest extends MessageTestBase
       testReconnect(testName);
    }
 
-   public void testReconnect(String queueName) throws Exception
-   {
+   public void testReconnect(String queueName) throws Exception {
       ClientRequest request = new ClientRequest(generateURL(Util.getUrlPath(queueName)));
 
       ClientResponse<?> response = Util.head(request);
@@ -339,7 +325,6 @@ public class ClientAckQueueTest extends MessageTestBase
       res = sender.request().body("text/plain", Integer.toString(2)).post();
       res.releaseConnection();
       Assert.assertEquals(201, res.getStatus());
-
 
       res = consumeNext.request().header(Constants.WAIT_HEADER, "10").post(String.class);
       res.releaseConnection();

@@ -23,14 +23,14 @@ import org.apache.activemq.test.JmsTopicSendReceiveWithTwoConnectionsTest;
  */
 public class JmsQueueSendReceiveTwoConnectionsTest extends JmsTopicSendReceiveWithTwoConnectionsTest {
 
-    /**
-     * Set up the test with a queue and using two connections.
-     *
-     * @see junit.framework.TestCase#setUp()
-     */
-    @Override
-    protected void setUp() throws Exception {
-        topic = false;
-        super.setUp();
-    }
+   /**
+    * Set up the test with a queue and using two connections.
+    *
+    * @see junit.framework.TestCase#setUp()
+    */
+   @Override
+   protected void setUp() throws Exception {
+      topic = false;
+      super.setUp();
+   }
 }

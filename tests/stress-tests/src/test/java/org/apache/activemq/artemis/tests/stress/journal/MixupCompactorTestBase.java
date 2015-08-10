@@ -33,8 +33,7 @@ import org.junit.Test;
 /**
  * This class will control mix up compactor between each operation of a test
  */
-public abstract class MixupCompactorTestBase extends JournalImplTestBase
-{
+public abstract class MixupCompactorTestBase extends JournalImplTestBase {
 
    // Constants -----------------------------------------------------
 
@@ -63,8 +62,7 @@ public abstract class MixupCompactorTestBase extends JournalImplTestBase
    // Public --------------------------------------------------------
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       tCompact = null;
@@ -79,22 +77,18 @@ public abstract class MixupCompactorTestBase extends JournalImplTestBase
 
    @Override
    @After
-   public void tearDown() throws Exception
-   {
+   public void tearDown() throws Exception {
 
       File testDir = new File(getTestDir());
 
-      File[] files = testDir.listFiles(new FilenameFilter()
-      {
+      File[] files = testDir.listFiles(new FilenameFilter() {
 
-         public boolean accept(final File dir, final String name)
-         {
+         public boolean accept(final File dir, final String name) {
             return name.startsWith(filePrefix) && name.endsWith(fileExtension);
          }
       });
 
-      for (File file : files)
-      {
+      for (File file : files) {
          Assert.assertEquals("File " + file + " doesn't have the expected number of bytes", fileSize, file.length());
       }
 
@@ -102,21 +96,16 @@ public abstract class MixupCompactorTestBase extends JournalImplTestBase
    }
 
    @Override
-   public void createJournal() throws Exception
-   {
-      journal = new JournalImpl(fileSize, minFiles, 0, 0, fileFactory, filePrefix, fileExtension, maxAIO)
-      {
+   public void createJournal() throws Exception {
+      journal = new JournalImpl(fileSize, minFiles, 0, 0, fileFactory, filePrefix, fileExtension, maxAIO) {
 
          @Override
-         public void onCompactDone()
-         {
+         public void onCompactDone() {
             startedCompactingLatch.countDown();
-            try
-            {
+            try {
                releaseCompactingLatch.await();
             }
-            catch (InterruptedException e)
-            {
+            catch (InterruptedException e) {
                e.printStackTrace();
             }
          }
@@ -126,9 +115,7 @@ public abstract class MixupCompactorTestBase extends JournalImplTestBase
    }
 
    @Test
-   public void testMixOperations() throws Exception
-   {
-
+   public void testMixOperations() throws Exception {
 
       currentOperation = 0;
       internalTest();
@@ -136,22 +123,17 @@ public abstract class MixupCompactorTestBase extends JournalImplTestBase
 
       System.out.println("Using MAX_OPERATIONS = " + MAX_OPERATIONS);
 
-      for (int startAt = 0; startAt < MAX_OPERATIONS; startAt++)
-      {
-         for (int joinAt = startAt; joinAt < MAX_OPERATIONS; joinAt++)
-         {
-            for (int secondAt = joinAt; secondAt < MAX_OPERATIONS; secondAt++)
-            {
+      for (int startAt = 0; startAt < MAX_OPERATIONS; startAt++) {
+         for (int joinAt = startAt; joinAt < MAX_OPERATIONS; joinAt++) {
+            for (int secondAt = joinAt; secondAt < MAX_OPERATIONS; secondAt++) {
                System.out.println("start=" + startAt + ", join=" + joinAt + ", second=" + secondAt);
 
-               try
-               {
+               try {
                   tearDown();
                   setUp();
                   testMix(startAt, joinAt, secondAt);
                }
-               catch (Throwable e)
-               {
+               catch (Throwable e) {
                   throw new Exception("Error at compact=" + startCompactAt +
                                          ", joinCompactAt=" +
                                          joinCompactAt +
@@ -163,8 +145,7 @@ public abstract class MixupCompactorTestBase extends JournalImplTestBase
       }
    }
 
-   protected int testMix(final int startAt, final int joinAt, final int secondAt) throws Exception
-   {
+   protected int testMix(final int startAt, final int joinAt, final int secondAt) throws Exception {
       startCompactAt = startAt;
       joinCompactAt = joinAt;
       secondCompactAt = secondAt;
@@ -177,8 +158,7 @@ public abstract class MixupCompactorTestBase extends JournalImplTestBase
    }
 
    @Override
-   protected void beforeJournalOperation() throws Exception
-   {
+   protected void beforeJournalOperation() throws Exception {
       checkJournalOperation();
    }
 
@@ -186,18 +166,14 @@ public abstract class MixupCompactorTestBase extends JournalImplTestBase
     * @throws InterruptedException
     * @throws Exception
     */
-   protected void checkJournalOperation() throws Exception
-   {
-      if (startCompactAt == currentOperation)
-      {
+   protected void checkJournalOperation() throws Exception {
+      if (startCompactAt == currentOperation) {
          threadCompact();
       }
-      if (joinCompactAt == currentOperation)
-      {
+      if (joinCompactAt == currentOperation) {
          joinCompact();
       }
-      if (secondCompactAt == currentOperation)
-      {
+      if (secondCompactAt == currentOperation) {
          journal.testCompact();
       }
 
@@ -206,8 +182,7 @@ public abstract class MixupCompactorTestBase extends JournalImplTestBase
 
    protected abstract void internalTest() throws Exception;
 
-   private void joinCompact() throws InterruptedException
-   {
+   private void joinCompact() throws InterruptedException {
       releaseCompactingLatch.countDown();
 
       tCompact.join();
@@ -215,19 +190,14 @@ public abstract class MixupCompactorTestBase extends JournalImplTestBase
       tCompact = null;
    }
 
-   private void threadCompact() throws InterruptedException
-   {
-      tCompact = new Thread()
-      {
+   private void threadCompact() throws InterruptedException {
+      tCompact = new Thread() {
          @Override
-         public void run()
-         {
-            try
-            {
+         public void run() {
+            try {
                journal.testCompact();
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                e.printStackTrace();
             }
          }
@@ -239,8 +209,7 @@ public abstract class MixupCompactorTestBase extends JournalImplTestBase
    }
 
    @Override
-   protected SequentialFileFactory getFileFactory() throws Exception
-   {
+   protected SequentialFileFactory getFileFactory() throws Exception {
       return new NIOSequentialFileFactory(getTestDirfile(), 1);
    }
 }

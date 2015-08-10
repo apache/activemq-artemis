@@ -32,98 +32,97 @@ import org.apache.activemq.command.ActiveMQQueue;
 import org.apache.activemq.command.ActiveMQTopic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
 /**
- * 
+ *
  */
 public class DestinationListenerTest extends EmbeddedBrokerTestSupport implements DestinationListener {
-    private static final transient Logger LOG = LoggerFactory.getLogger(DestinationListenerTest.class);
-    protected ActiveMQConnection connection;
-    protected ActiveMQQueue sampleQueue = new ActiveMQQueue("foo.bar");
-    protected ActiveMQTopic sampleTopic = new ActiveMQTopic("cheese");
-    protected List<ActiveMQDestination> newDestinations = new ArrayList<ActiveMQDestination>();
 
-    public void testDestiationSourceHasInitialDestinations() throws Exception {
-        Thread.sleep(1000);
+   private static final transient Logger LOG = LoggerFactory.getLogger(DestinationListenerTest.class);
+   protected ActiveMQConnection connection;
+   protected ActiveMQQueue sampleQueue = new ActiveMQQueue("foo.bar");
+   protected ActiveMQTopic sampleTopic = new ActiveMQTopic("cheese");
+   protected List<ActiveMQDestination> newDestinations = new ArrayList<ActiveMQDestination>();
 
-        DestinationSource destinationSource = connection.getDestinationSource();
-        Set<ActiveMQQueue> queues = destinationSource.getQueues();
-        Set<ActiveMQTopic> topics = destinationSource.getTopics();
+   public void testDestiationSourceHasInitialDestinations() throws Exception {
+      Thread.sleep(1000);
 
-        LOG.info("Queues: " + queues);
-        LOG.info("Topics: " + topics);
+      DestinationSource destinationSource = connection.getDestinationSource();
+      Set<ActiveMQQueue> queues = destinationSource.getQueues();
+      Set<ActiveMQTopic> topics = destinationSource.getTopics();
 
-        assertTrue("The queues should not be empty!", !queues.isEmpty());
-        assertTrue("The topics should not be empty!", !topics.isEmpty());
+      LOG.info("Queues: " + queues);
+      LOG.info("Topics: " + topics);
 
-        assertTrue("queues contains initial queue: " + queues, queues.contains(sampleQueue));
-        assertTrue("topics contains initial topic: " + queues, topics.contains(sampleTopic));
-    }
+      assertTrue("The queues should not be empty!", !queues.isEmpty());
+      assertTrue("The topics should not be empty!", !topics.isEmpty());
 
-    public void testConsumerForcesNotificationOfNewDestination() throws Exception {
-        // now lets cause a destination to be created
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        ActiveMQQueue newQueue = new ActiveMQQueue("Test.Cheese");
-        session.createConsumer(newQueue);
+      assertTrue("queues contains initial queue: " + queues, queues.contains(sampleQueue));
+      assertTrue("topics contains initial topic: " + queues, topics.contains(sampleTopic));
+   }
 
-        Thread.sleep(3000);
+   public void testConsumerForcesNotificationOfNewDestination() throws Exception {
+      // now lets cause a destination to be created
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      ActiveMQQueue newQueue = new ActiveMQQueue("Test.Cheese");
+      session.createConsumer(newQueue);
 
-        assertThat(newQueue, isIn(newDestinations));
+      Thread.sleep(3000);
 
-        LOG.info("New destinations are: " + newDestinations);
-    }
+      assertThat(newQueue, isIn(newDestinations));
 
-    public void testProducerForcesNotificationOfNewDestination() throws Exception {
-        // now lets cause a destination to be created
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        ActiveMQQueue newQueue = new ActiveMQQueue("Test.Beer");
-        MessageProducer producer = session.createProducer(newQueue);
-        TextMessage message = session.createTextMessage("<hello>world</hello>");
-        producer.send(message);
+      LOG.info("New destinations are: " + newDestinations);
+   }
 
-        Thread.sleep(3000);
+   public void testProducerForcesNotificationOfNewDestination() throws Exception {
+      // now lets cause a destination to be created
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      ActiveMQQueue newQueue = new ActiveMQQueue("Test.Beer");
+      MessageProducer producer = session.createProducer(newQueue);
+      TextMessage message = session.createTextMessage("<hello>world</hello>");
+      producer.send(message);
 
-        assertThat(newQueue, isIn(newDestinations));
+      Thread.sleep(3000);
 
-        LOG.info("New destinations are: " + newDestinations);
-    }
+      assertThat(newQueue, isIn(newDestinations));
 
-    public void onDestinationEvent(DestinationEvent event) {
-        ActiveMQDestination destination = event.getDestination();
-        if (event.isAddOperation()) {
-            LOG.info("Added:   " + destination);
-            newDestinations.add(destination);
-        }
-        else {
-            LOG.info("Removed: " + destination);
-            newDestinations.remove(destination);
-        }
-    }
+      LOG.info("New destinations are: " + newDestinations);
+   }
 
-    protected void setUp() throws Exception {
-        super.setUp();
+   public void onDestinationEvent(DestinationEvent event) {
+      ActiveMQDestination destination = event.getDestination();
+      if (event.isAddOperation()) {
+         LOG.info("Added:   " + destination);
+         newDestinations.add(destination);
+      }
+      else {
+         LOG.info("Removed: " + destination);
+         newDestinations.remove(destination);
+      }
+   }
 
-        connection = (ActiveMQConnection) createConnection();
-        connection.start();
-        connection.getDestinationSource().setDestinationListener(this);
-    }
+   protected void setUp() throws Exception {
+      super.setUp();
 
-    @Override
-    protected BrokerService createBroker() throws Exception {
-        BrokerService broker = super.createBroker();
-        broker.setDestinations(new ActiveMQDestination[]{
-                sampleQueue,
-                sampleTopic
-        });
-        return broker;
-    }
+      connection = (ActiveMQConnection) createConnection();
+      connection.start();
+      connection.getDestinationSource().setDestinationListener(this);
+   }
 
-    protected void tearDown() throws Exception {
-        if (connection != null) {
-            connection.close();
-        }
-        super.tearDown();
-    }
+   @Override
+   protected BrokerService createBroker() throws Exception {
+      BrokerService broker = super.createBroker();
+      broker.setDestinations(new ActiveMQDestination[]{sampleQueue, sampleTopic});
+      return broker;
+   }
+
+   protected void tearDown() throws Exception {
+      if (connection != null) {
+         connection.close();
+      }
+      super.tearDown();
+   }
 }

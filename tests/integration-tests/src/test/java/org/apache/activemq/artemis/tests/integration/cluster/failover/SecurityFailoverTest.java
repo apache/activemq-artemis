@@ -29,23 +29,14 @@ import org.apache.activemq.artemis.core.server.impl.InVMNodeManager;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManagerImpl;
 import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer;
 
-public class SecurityFailoverTest extends FailoverTest
-{
+public class SecurityFailoverTest extends FailoverTest {
 
    protected ClientSession createSession(ClientSessionFactory sf,
                                          boolean isXA,
                                          boolean autoCommitSends,
                                          boolean autoCommitAcks,
-                                         int ackBatchSize) throws Exception
-   {
-      ClientSession session =
-               sf.createSession("a",
-                              "b",
-                              isXA,
-                              autoCommitSends,
-                              autoCommitAcks,
-                              sf.getServerLocator().isPreAcknowledge(),
-                              ackBatchSize);
+                                         int ackBatchSize) throws Exception {
+      ClientSession session = sf.createSession("a", "b", isXA, autoCommitSends, autoCommitAcks, sf.getServerLocator().isPreAcknowledge(), ackBatchSize);
       addClientSession(session);
       return session;
    }
@@ -54,24 +45,21 @@ public class SecurityFailoverTest extends FailoverTest
    protected ClientSession createSession(ClientSessionFactory sf,
                                          boolean autoCommitSends,
                                          boolean autoCommitAcks,
-                                         int ackBatchSize) throws Exception
-   {
-      ClientSession session =
-               sf.createSession("a", "b", false, autoCommitSends, autoCommitAcks, sf.getServerLocator()
-                                                                                  .isPreAcknowledge(), ackBatchSize);
+                                         int ackBatchSize) throws Exception {
+      ClientSession session = sf.createSession("a", "b", false, autoCommitSends, autoCommitAcks, sf.getServerLocator().isPreAcknowledge(), ackBatchSize);
       addClientSession(session);
       return session;
    }
 
    @Override
-   protected ClientSession createSession(ClientSessionFactory sf, boolean autoCommitSends, boolean autoCommitAcks) throws Exception
-   {
+   protected ClientSession createSession(ClientSessionFactory sf,
+                                         boolean autoCommitSends,
+                                         boolean autoCommitAcks) throws Exception {
       return createSession(sf, autoCommitSends, autoCommitAcks, sf.getServerLocator().getAckBatchSize());
    }
 
    @Override
-   protected ClientSession createSession(ClientSessionFactory sf) throws Exception
-   {
+   protected ClientSession createSession(ClientSessionFactory sf) throws Exception {
       return createSession(sf, true, true, sf.getServerLocator().getAckBatchSize());
    }
 
@@ -79,8 +67,7 @@ public class SecurityFailoverTest extends FailoverTest
    protected ClientSession createSession(ClientSessionFactory sf,
                                          boolean xa,
                                          boolean autoCommitSends,
-                                         boolean autoCommitAcks) throws Exception
-   {
+                                         boolean autoCommitAcks) throws Exception {
       return createSession(sf, xa, autoCommitSends, autoCommitAcks, sf.getServerLocator().getAckBatchSize());
    }
 
@@ -88,50 +75,32 @@ public class SecurityFailoverTest extends FailoverTest
     * @throws Exception
     */
    @Override
-   protected void createConfigs() throws Exception
-   {
+   protected void createConfigs() throws Exception {
       nodeManager = new InVMNodeManager(false);
       TransportConfiguration liveConnector = getConnectorTransportConfiguration(true);
       TransportConfiguration backupConnector = getConnectorTransportConfiguration(false);
 
-      backupConfig = super.createDefaultInVMConfig()
-         .clearAcceptorConfigurations()
-         .addAcceptorConfiguration(getAcceptorTransportConfiguration(false))
-         .setSecurityEnabled(true)
-         .setHAPolicyConfiguration(new SharedStoreSlavePolicyConfiguration()
-                                      .setFailbackDelay(1000))
-         .addConnectorConfiguration(liveConnector.getName(), liveConnector)
-         .addConnectorConfiguration(backupConnector.getName(), backupConnector)
-         .addClusterConfiguration(basicClusterConnectionConfig(backupConnector.getName(), liveConnector.getName()));
+      backupConfig = super.createDefaultInVMConfig().clearAcceptorConfigurations().addAcceptorConfiguration(getAcceptorTransportConfiguration(false)).setSecurityEnabled(true).setHAPolicyConfiguration(new SharedStoreSlavePolicyConfiguration().setFailbackDelay(1000)).addConnectorConfiguration(liveConnector.getName(), liveConnector).addConnectorConfiguration(backupConnector.getName(), backupConnector).addClusterConfiguration(basicClusterConnectionConfig(backupConnector.getName(), liveConnector.getName()));
 
       backupServer = createTestableServer(backupConfig);
       ActiveMQSecurityManagerImpl securityManager = installSecurity(backupServer);
       securityManager.getConfiguration().setDefaultUser(null);
 
-      liveConfig = super.createDefaultInVMConfig()
-         .clearAcceptorConfigurations()
-         .addAcceptorConfiguration(getAcceptorTransportConfiguration(true))
-         .setSecurityEnabled(true)
-         .setHAPolicyConfiguration(new SharedStoreMasterPolicyConfiguration())
-         .addClusterConfiguration(basicClusterConnectionConfig(liveConnector.getName()))
-         .addConnectorConfiguration(liveConnector.getName(), liveConnector);
+      liveConfig = super.createDefaultInVMConfig().clearAcceptorConfigurations().addAcceptorConfiguration(getAcceptorTransportConfiguration(true)).setSecurityEnabled(true).setHAPolicyConfiguration(new SharedStoreMasterPolicyConfiguration()).addClusterConfiguration(basicClusterConnectionConfig(liveConnector.getName())).addConnectorConfiguration(liveConnector.getName(), liveConnector);
 
       liveServer = createTestableServer(liveConfig);
       installSecurity(liveServer);
    }
 
    @Override
-   protected void beforeRestart(TestableServer server)
-   {
+   protected void beforeRestart(TestableServer server) {
       installSecurity(server);
    }
-
 
    /**
     * @return
     */
-   protected ActiveMQSecurityManagerImpl installSecurity(TestableServer server)
-   {
+   protected ActiveMQSecurityManagerImpl installSecurity(TestableServer server) {
       ActiveMQSecurityManagerImpl securityManager = (ActiveMQSecurityManagerImpl) server.getServer().getSecurityManager();
       securityManager.getConfiguration().addUser("a", "b");
       Role role = new Role("arole", true, true, true, true, true, true, true);

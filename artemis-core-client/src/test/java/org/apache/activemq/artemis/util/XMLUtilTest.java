@@ -26,15 +26,13 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-public class XMLUtilTest extends SilentTestCase
-{
+public class XMLUtilTest extends SilentTestCase {
    // Constructors --------------------------------------------------
 
    // Public --------------------------------------------------------
 
    @Test
-   public void testGetTextContext_1() throws Exception
-   {
+   public void testGetTextContext_1() throws Exception {
       String document = "<blah>foo</blah>";
 
       Element e = XMLUtil.stringToElement(document);
@@ -43,8 +41,7 @@ public class XMLUtilTest extends SilentTestCase
    }
 
    @Test
-   public void testGetTextContext_2() throws Exception
-   {
+   public void testGetTextContext_2() throws Exception {
       String document = "<blah someattribute=\"somevalue\">foo</blah>";
 
       Element e = XMLUtil.stringToElement(document);
@@ -53,8 +50,7 @@ public class XMLUtilTest extends SilentTestCase
    }
 
    @Test
-   public void testGetTextContext_3() throws Exception
-   {
+   public void testGetTextContext_3() throws Exception {
       String document = "<blah someattribute=\"somevalue\"><a/></blah>";
 
       Element e = XMLUtil.stringToElement(document);
@@ -67,8 +63,7 @@ public class XMLUtilTest extends SilentTestCase
    }
 
    @Test
-   public void testGetTextContext_4() throws Exception
-   {
+   public void testGetTextContext_4() throws Exception {
       String document = "<blah someattribute=\"somevalue\"><a></a></blah>";
 
       Element e = XMLUtil.stringToElement(document);
@@ -81,8 +76,7 @@ public class XMLUtilTest extends SilentTestCase
    }
 
    @Test
-   public void testGetTextContext_5() throws Exception
-   {
+   public void testGetTextContext_5() throws Exception {
       String document = "<blah someattribute=\"somevalue\"><a><b/></a></blah>";
 
       Element e = XMLUtil.stringToElement(document);
@@ -96,11 +90,9 @@ public class XMLUtilTest extends SilentTestCase
 
       // try to find <b>
       boolean found = false;
-      for (int i = 0; i < nl.getLength(); i++)
-      {
+      for (int i = 0; i < nl.getLength(); i++) {
          Node n = nl.item(i);
-         if ("b".equals(n.getNodeName()))
-         {
+         if ("b".equals(n.getNodeName())) {
             found = true;
          }
       }
@@ -108,8 +100,7 @@ public class XMLUtilTest extends SilentTestCase
    }
 
    @Test
-   public void testEquivalent_1() throws Exception
-   {
+   public void testEquivalent_1() throws Exception {
       String s = "<a/>";
       String s2 = "<a/>";
 
@@ -117,8 +108,7 @@ public class XMLUtilTest extends SilentTestCase
    }
 
    @Test
-   public void testEquivalent_2() throws Exception
-   {
+   public void testEquivalent_2() throws Exception {
       String s = "<a></a>";
       String s2 = "<a/>";
 
@@ -126,85 +116,68 @@ public class XMLUtilTest extends SilentTestCase
    }
 
    @Test
-   public void testEquivalent_3() throws Exception
-   {
+   public void testEquivalent_3() throws Exception {
       String s = "<a attr1=\"val1\" attr2=\"val2\"/>";
       String s2 = "<a attr2=\"val2\"/>";
 
-      try
-      {
-         XMLUtil.assertEquivalent(XMLUtil.stringToElement(s),
-                 XMLUtil.stringToElement(s2));
+      try {
+         XMLUtil.assertEquivalent(XMLUtil.stringToElement(s), XMLUtil.stringToElement(s2));
          Assert.fail("this should throw exception");
       }
-      catch (IllegalArgumentException e)
-      {
+      catch (IllegalArgumentException e) {
          // expected
       }
    }
 
    @Test
-   public void testEquivalent_4() throws Exception
-   {
+   public void testEquivalent_4() throws Exception {
       String s = "<a attr1=\"val1\" attr2=\"val2\"/>";
       String s2 = "<a attr2=\"val2\" attr1=\"val1\"/>";
 
-      XMLUtil.assertEquivalent(XMLUtil.stringToElement(s),
-              XMLUtil.stringToElement(s2));
+      XMLUtil.assertEquivalent(XMLUtil.stringToElement(s), XMLUtil.stringToElement(s2));
    }
 
    @Test
-   public void testEquivalent_5() throws Exception
-   {
+   public void testEquivalent_5() throws Exception {
       String s = "<a><b/></a>";
       String s2 = "<a><b/></a>";
 
-      XMLUtil.assertEquivalent(XMLUtil.stringToElement(s),
-              XMLUtil.stringToElement(s2));
+      XMLUtil.assertEquivalent(XMLUtil.stringToElement(s), XMLUtil.stringToElement(s2));
    }
 
    @Test
-   public void testEquivalent_6() throws Exception
-   {
+   public void testEquivalent_6() throws Exception {
       String s = "<enclosing><a attr1=\"val1\" attr2=\"val2\"/></enclosing>";
       String s2 = "<enclosing><a attr2=\"val2\" attr1=\"val1\"/></enclosing>";
 
-      XMLUtil.assertEquivalent(XMLUtil.stringToElement(s),
-              XMLUtil.stringToElement(s2));
+      XMLUtil.assertEquivalent(XMLUtil.stringToElement(s), XMLUtil.stringToElement(s2));
    }
 
    @Test
-   public void testEquivalent_7() throws Exception
-   {
+   public void testEquivalent_7() throws Exception {
       String s = "<a><b/><c/></a>";
       String s2 = "<a><c/><b/></a>";
 
-      try
-      {
-         XMLUtil.assertEquivalent(XMLUtil.stringToElement(s),
-                 XMLUtil.stringToElement(s2));
+      try {
+         XMLUtil.assertEquivalent(XMLUtil.stringToElement(s), XMLUtil.stringToElement(s2));
          Assert.fail("this should throw exception");
       }
-      catch (IllegalArgumentException e)
-      {
+      catch (IllegalArgumentException e) {
          // OK
          e.printStackTrace();
       }
    }
 
    @Test
-   public void testEquivalent_8() throws Exception
-   {
+   public void testEquivalent_8() throws Exception {
       String s = "<a><!-- some comment --><b/><!--some other comment --><c/><!-- blah --></a>";
       String s2 = "<a><b/><!--blah blah--><c/></a>";
 
-      XMLUtil.assertEquivalent(XMLUtil.stringToElement(s),
-              XMLUtil.stringToElement(s2));
+      XMLUtil.assertEquivalent(XMLUtil.stringToElement(s), XMLUtil.stringToElement(s2));
    }
 
    @Test
-   public void testElementToString_1() throws Exception
-   {
+   public void testElementToString_1() throws Exception {
       String s = "<a b=\"something\">somethingelse</a>";
       Element e = XMLUtil.stringToElement(s);
       String tostring = XMLUtil.elementToString(e);
@@ -213,8 +186,7 @@ public class XMLUtilTest extends SilentTestCase
    }
 
    @Test
-   public void testElementToString_2() throws Exception
-   {
+   public void testElementToString_2() throws Exception {
       String s = "<a b=\"something\"></a>";
       Element e = XMLUtil.stringToElement(s);
       String tostring = XMLUtil.elementToString(e);
@@ -223,8 +195,7 @@ public class XMLUtilTest extends SilentTestCase
    }
 
    @Test
-   public void testElementToString_3() throws Exception
-   {
+   public void testElementToString_3() throws Exception {
       String s = "<a b=\"something\"/>";
       Element e = XMLUtil.stringToElement(s);
       String tostring = XMLUtil.elementToString(e);
@@ -233,8 +204,7 @@ public class XMLUtilTest extends SilentTestCase
    }
 
    @Test
-   public void testElementToString_4() throws Exception
-   {
+   public void testElementToString_4() throws Exception {
       String s = "<a><![CDATA[somedata]]></a>";
       Element e = XMLUtil.stringToElement(s);
       String tostring = XMLUtil.elementToString(e);
@@ -243,22 +213,9 @@ public class XMLUtilTest extends SilentTestCase
    }
 
    @Test
-   public void testReplaceSystemProperties()
-   {
-      String before = "<configuration>\n" + "   <test name=\"${sysprop1}\">content1</test>\n"
-                      + "   <test name=\"test2\">content2</test>\n"
-                      + "   <test name=\"test3\">content3</test>\n"
-                      + "   <test name=\"test4\">${sysprop2}</test>\n"
-                      + "   <test name=\"test5\">content5</test>\n"
-                      + "   <test name=\"test6\">content6</test>\n"
-                      + "</configuration>";
-      String after = "<configuration>\n" + "   <test name=\"test1\">content1</test>\n"
-                     + "   <test name=\"test2\">content2</test>\n"
-                     + "   <test name=\"test3\">content3</test>\n"
-                     + "   <test name=\"test4\">content4</test>\n"
-                     + "   <test name=\"test5\">content5</test>\n"
-                     + "   <test name=\"test6\">content6</test>\n"
-                     + "</configuration>";
+   public void testReplaceSystemProperties() {
+      String before = "<configuration>\n" + "   <test name=\"${sysprop1}\">content1</test>\n" + "   <test name=\"test2\">content2</test>\n" + "   <test name=\"test3\">content3</test>\n" + "   <test name=\"test4\">${sysprop2}</test>\n" + "   <test name=\"test5\">content5</test>\n" + "   <test name=\"test6\">content6</test>\n" + "</configuration>";
+      String after = "<configuration>\n" + "   <test name=\"test1\">content1</test>\n" + "   <test name=\"test2\">content2</test>\n" + "   <test name=\"test3\">content3</test>\n" + "   <test name=\"test4\">content4</test>\n" + "   <test name=\"test5\">content5</test>\n" + "   <test name=\"test6\">content6</test>\n" + "</configuration>";
       System.setProperty("sysprop1", "test1");
       System.setProperty("sysprop2", "content4");
       String replaced = XMLUtil.replaceSystemProps(before);
@@ -266,8 +223,7 @@ public class XMLUtilTest extends SilentTestCase
    }
 
    @Test
-   public void testStripCDATA() throws Exception
-   {
+   public void testStripCDATA() throws Exception {
       String xml = "<![CDATA[somedata]]>";
       String stripped = XMLUtil.stripCDATA(xml);
 

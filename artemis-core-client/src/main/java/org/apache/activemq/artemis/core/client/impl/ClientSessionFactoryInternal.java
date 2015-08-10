@@ -24,8 +24,8 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.SessionFailureListener;
 import org.apache.activemq.artemis.utils.ConfirmationWindowWarning;
 
-public interface ClientSessionFactoryInternal extends ClientSessionFactory
-{
+public interface ClientSessionFactoryInternal extends ClientSessionFactory {
+
    void causeExit();
 
    void addFailureListener(SessionFailureListener listener);

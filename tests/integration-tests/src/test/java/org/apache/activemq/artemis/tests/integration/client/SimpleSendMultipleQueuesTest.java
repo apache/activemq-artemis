@@ -29,8 +29,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class SimpleSendMultipleQueuesTest extends ActiveMQTestBase
-{
+public class SimpleSendMultipleQueuesTest extends ActiveMQTestBase {
+
    public static final String address = "testaddress";
 
    public static final String queueName = "testqueue";
@@ -50,19 +50,17 @@ public class SimpleSendMultipleQueuesTest extends ActiveMQTestBase
    private ServerLocator locator;
 
    @Test
-   public void testSimpleSend() throws Exception
-   {
-      for (int i = 0; i < 1000; i++)
-      {
+   public void testSimpleSend() throws Exception {
+      for (int i = 0; i < 1000; i++) {
          ClientMessage message = session.createMessage(false);
 
          final String body = RandomUtil.randomString();
 
          message.getBodyBuffer().writeString(body);
 
-       //  log.info("sending message");
+         //  log.info("sending message");
          producer.send(message);
-        // log.info("sent message");
+         // log.info("sent message");
 
          ClientMessage received1 = consumer1.receive(1000);
          Assert.assertNotNull(received1);
@@ -80,8 +78,7 @@ public class SimpleSendMultipleQueuesTest extends ActiveMQTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       server = createServer(false, true);

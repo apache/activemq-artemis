@@ -26,100 +26,78 @@ import org.apache.activemq.artemis.utils.ConcurrentHashSet;
 import java.util.ServiceLoader;
 import java.util.Set;
 
-public final class RecoveryManager
-{
+public final class RecoveryManager {
+
    private ActiveMQRegistry registry;
 
-   private static final String RESOURCE_RECOVERY_CLASS_NAMES = "org.jboss.as.messaging.jms.AS7RecoveryRegistry;"
-            + "org.jboss.as.integration.activemq.recovery.AS5RecoveryRegistry";
+   private static final String RESOURCE_RECOVERY_CLASS_NAMES = "org.jboss.as.messaging.jms.AS7RecoveryRegistry;" + "org.jboss.as.integration.activemq.recovery.AS5RecoveryRegistry";
 
    private final Set<XARecoveryConfig> resources = new ConcurrentHashSet<XARecoveryConfig>();
 
-   public void start(final boolean useAutoRecovery)
-   {
-      if (useAutoRecovery)
-      {
+   public void start(final boolean useAutoRecovery) {
+      if (useAutoRecovery) {
          locateRecoveryRegistry();
       }
-      else
-      {
+      else {
          registry = null;
       }
    }
 
-   public XARecoveryConfig register(ActiveMQConnectionFactory factory, String userName, String password)
-   {
+   public XARecoveryConfig register(ActiveMQConnectionFactory factory, String userName, String password) {
       ActiveMQRALogger.LOGGER.debug("registering recovery for factory : " + factory);
 
       XARecoveryConfig config = XARecoveryConfig.newConfig(factory, userName, password);
       resources.add(config);
-      if (registry != null)
-      {
+      if (registry != null) {
          registry.register(config);
       }
       return config;
    }
 
-
-   public void unRegister(XARecoveryConfig resourceRecovery)
-   {
-      if (registry != null)
-      {
+   public void unRegister(XARecoveryConfig resourceRecovery) {
+      if (registry != null) {
          registry.unRegister(resourceRecovery);
       }
    }
 
-   public void stop()
-   {
-      if (registry != null)
-      {
-         for (XARecoveryConfig recovery : resources)
-         {
+   public void stop() {
+      if (registry != null) {
+         for (XARecoveryConfig recovery : resources) {
             registry.unRegister(recovery);
          }
          registry.stop();
       }
 
-
       resources.clear();
    }
 
-   private void locateRecoveryRegistry()
-   {
+   private void locateRecoveryRegistry() {
       String[] locatorClasses = RESOURCE_RECOVERY_CLASS_NAMES.split(";");
 
-      for (String locatorClasse : locatorClasses)
-      {
-         try
-         {
+      for (String locatorClasse : locatorClasses) {
+         try {
             ServiceLoader<ActiveMQRegistry> sl = ServiceLoader.load(ActiveMQRegistry.class);
-            if (sl.iterator().hasNext())
-            {
+            if (sl.iterator().hasNext()) {
                registry = sl.iterator().next();
             }
-            else
-            {
+            else {
                registry = ActiveMQRegistryImpl.getInstance();
             }
          }
-         catch (Throwable e)
-         {
+         catch (Throwable e) {
             ActiveMQRALogger.LOGGER.debug("unable to load  recovery registry " + locatorClasse, e);
          }
-         if (registry != null)
-         {
+         if (registry != null) {
             break;
          }
       }
 
-      if (registry != null)
-      {
+      if (registry != null) {
          ActiveMQRALogger.LOGGER.debug("Recovery Registry located = " + registry);
       }
    }
 
-   public Set<XARecoveryConfig> getResources()
-   {
+   public Set<XARecoveryConfig> getResources() {
       return resources;
    }
 }

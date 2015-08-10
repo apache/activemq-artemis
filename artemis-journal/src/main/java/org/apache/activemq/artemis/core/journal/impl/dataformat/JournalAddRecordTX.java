@@ -20,8 +20,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
 
-public class JournalAddRecordTX extends JournalInternalRecord
-{
+public class JournalAddRecordTX extends JournalInternalRecord {
 
    private final long txID;
 
@@ -42,8 +41,7 @@ public class JournalAddRecordTX extends JournalInternalRecord
                              final long txID,
                              final long id,
                              final byte recordType,
-                             final EncodingSupport record)
-   {
+                             final EncodingSupport record) {
 
       this.txID = txID;
 
@@ -57,14 +55,11 @@ public class JournalAddRecordTX extends JournalInternalRecord
    }
 
    @Override
-   public void encode(final ActiveMQBuffer buffer)
-   {
-      if (add)
-      {
+   public void encode(final ActiveMQBuffer buffer) {
+      if (add) {
          buffer.writeByte(JournalImpl.ADD_RECORD_TX);
       }
-      else
-      {
+      else {
          buffer.writeByte(JournalImpl.UPDATE_RECORD_TX);
       }
 
@@ -86,8 +81,7 @@ public class JournalAddRecordTX extends JournalInternalRecord
    }
 
    @Override
-   public int getEncodeSize()
-   {
+   public int getEncodeSize() {
       return JournalImpl.SIZE_ADD_RECORD_TX + record.getEncodeSize() + 1;
    }
 }

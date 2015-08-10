@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.integration.remoting;
+
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Before;
@@ -36,8 +37,7 @@ import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 
-public class BatchDelayTest extends ActiveMQTestBase
-{
+public class BatchDelayTest extends ActiveMQTestBase {
 
    private static final int N = 1000;
    private static final long DELAY = 500;
@@ -45,8 +45,7 @@ public class BatchDelayTest extends ActiveMQTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       Map<String, Object> params = new HashMap<String, Object>();
@@ -54,26 +53,22 @@ public class BatchDelayTest extends ActiveMQTestBase
 
       TransportConfiguration tc = new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params);
 
-      Configuration config = createBasicConfig()
-         .addAcceptorConfiguration(tc);
+      Configuration config = createBasicConfig().addAcceptorConfiguration(tc);
       server = createServer(false, config);
       server.start();
    }
 
-   protected ClientSessionFactory createSessionFactory() throws Exception
-   {
+   protected ClientSessionFactory createSessionFactory() throws Exception {
       Map<String, Object> params = new HashMap<String, Object>();
       params.put(TransportConstants.BATCH_DELAY, DELAY);
-      ServerLocator locator =
-               ActiveMQClient.createServerLocatorWithoutHA(createTransportConfiguration(true, false, params));
+      ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(createTransportConfiguration(true, false, params));
       addServerLocator(locator);
       ClientSessionFactory sf = createSessionFactory(locator);
       return addSessionFactory(sf);
    }
 
    @Test
-   public void testSendReceiveMany() throws Exception
-   {
+   public void testSendReceiveMany() throws Exception {
       ClientSessionFactory sf = createSessionFactory();
 
       ClientSession session = sf.createSession();
@@ -93,8 +88,7 @@ public class BatchDelayTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testSendReceiveOne() throws Exception
-   {
+   public void testSendReceiveOne() throws Exception {
       ClientSessionFactory sf = createSessionFactory();
 
       ClientSession session = sf.createSession();

@@ -16,47 +16,40 @@
  */
 package org.apache.activemq.artemis.selector.filter;
 
-
 /**
  * An expression which performs an operation on two expression values.
  *
  * @version $Revision: 1.2 $
  */
-public abstract class BinaryExpression implements Expression
-{
+public abstract class BinaryExpression implements Expression {
+
    protected Expression left;
    protected Expression right;
 
-   public BinaryExpression(Expression left, Expression right)
-   {
+   public BinaryExpression(Expression left, Expression right) {
       this.left = left;
       this.right = right;
    }
 
-   public Expression getLeft()
-   {
+   public Expression getLeft() {
       return left;
    }
 
-   public Expression getRight()
-   {
+   public Expression getRight() {
       return right;
    }
-
 
    /**
     * @see java.lang.Object#toString()
     */
-   public String toString()
-   {
+   public String toString() {
       return "(" + left.toString() + " " + getExpressionSymbol() + " " + right.toString() + ")";
    }
 
    /**
     * @see java.lang.Object#hashCode()
     */
-   public int hashCode()
-   {
+   public int hashCode() {
       int result = left.hashCode();
       result = 31 * result + right.hashCode();
       result = 31 * result + getExpressionSymbol().hashCode();
@@ -66,32 +59,26 @@ public abstract class BinaryExpression implements Expression
    /**
     * @see java.lang.Object#equals(java.lang.Object)
     */
-   public boolean equals(Object o)
-   {
-      if (this == o)
-      {
+   public boolean equals(Object o) {
+      if (this == o) {
          return true;
       }
 
-      if (o == null || getClass() != o.getClass())
-      {
+      if (o == null || getClass() != o.getClass()) {
          return false;
       }
 
-      final BinaryExpression that = (BinaryExpression)o;
+      final BinaryExpression that = (BinaryExpression) o;
 
-      if (!this.getExpressionSymbol().equals(that.getExpressionSymbol()))
-      {
+      if (!this.getExpressionSymbol().equals(that.getExpressionSymbol())) {
          return false;
       }
 
-      if (left != null && !left.equals(that.left))
-      {
+      if (left != null && !left.equals(that.left)) {
          return false;
       }
 
-      if (right != null && !right.equals(that.right))
-      {
+      if (right != null && !right.equals(that.right)) {
          return false;
       }
 
@@ -109,16 +96,14 @@ public abstract class BinaryExpression implements Expression
    /**
     * @param expression
     */
-   public void setRight(Expression expression)
-   {
+   public void setRight(Expression expression) {
       right = expression;
    }
 
    /**
     * @param expression
     */
-   public void setLeft(Expression expression)
-   {
+   public void setLeft(Expression expression) {
       left = expression;
    }
 

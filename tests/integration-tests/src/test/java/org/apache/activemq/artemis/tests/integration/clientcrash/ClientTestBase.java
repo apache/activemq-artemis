@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.integration.clientcrash;
+
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Before;
 
@@ -23,15 +24,13 @@ import org.junit.Assert;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 
-public abstract class ClientTestBase extends ActiveMQTestBase
-{
+public abstract class ClientTestBase extends ActiveMQTestBase {
 
    protected ActiveMQServer server;
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       Configuration config = createDefaultNettyConfig();
@@ -39,35 +38,28 @@ public abstract class ClientTestBase extends ActiveMQTestBase
       server.start();
    }
 
-   protected void assertActiveConnections(final int expectedActiveConnections) throws Exception
-   {
+   protected void assertActiveConnections(final int expectedActiveConnections) throws Exception {
       assertActiveConnections(expectedActiveConnections, 0);
    }
 
-   protected void assertActiveConnections(final int expectedActiveConnections, long timeout) throws Exception
-   {
+   protected void assertActiveConnections(final int expectedActiveConnections, long timeout) throws Exception {
       timeout += System.currentTimeMillis();
-      while (timeout > System.currentTimeMillis() && server.getActiveMQServerControl().getConnectionCount() != expectedActiveConnections)
-      {
+      while (timeout > System.currentTimeMillis() && server.getActiveMQServerControl().getConnectionCount() != expectedActiveConnections) {
          Thread.sleep(100);
       }
       Assert.assertEquals(expectedActiveConnections, server.getActiveMQServerControl().getConnectionCount());
    }
 
-   protected void assertActiveSession(final int expectedActiveSession) throws Exception
-   {
+   protected void assertActiveSession(final int expectedActiveSession) throws Exception {
       assertActiveSession(expectedActiveSession, 0);
    }
 
-   protected void assertActiveSession(final int expectedActiveSession, long timeout) throws Exception
-   {
+   protected void assertActiveSession(final int expectedActiveSession, long timeout) throws Exception {
       timeout += System.currentTimeMillis();
-      while (timeout > System.currentTimeMillis() && server.getSessions().size() != expectedActiveSession)
-      {
+      while (timeout > System.currentTimeMillis() && server.getSessions().size() != expectedActiveSession) {
          Thread.sleep(100);
       }
       Assert.assertEquals(expectedActiveSession, server.getSessions().size());
    }
-
 
 }

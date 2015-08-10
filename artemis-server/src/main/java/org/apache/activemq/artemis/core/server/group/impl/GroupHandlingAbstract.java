@@ -32,8 +32,8 @@ import org.apache.activemq.artemis.core.server.management.ManagementService;
 import org.apache.activemq.artemis.core.server.management.Notification;
 import org.apache.activemq.artemis.utils.TypedProperties;
 
-public abstract class GroupHandlingAbstract implements GroupingHandler
-{
+public abstract class GroupHandlingAbstract implements GroupingHandler {
+
    protected final Executor executor;
 
    protected final ManagementService managementService;
@@ -45,64 +45,49 @@ public abstract class GroupHandlingAbstract implements GroupingHandler
 
    public GroupHandlingAbstract(final Executor executor,
                                 final ManagementService managementService,
-                                final SimpleString address)
-   {
+                                final SimpleString address) {
       this.executor = executor;
       this.managementService = managementService;
       this.address = address;
    }
 
-   public void addListener(final UnproposalListener listener)
-   {
-      if (executor == null)
-      {
+   public void addListener(final UnproposalListener listener) {
+      if (executor == null) {
          listeners.add(listener);
       }
-      else
-      {
-         executor.execute(new Runnable()
-         {
-            public void run()
-            {
+      else {
+         executor.execute(new Runnable() {
+            public void run() {
                listeners.add(listener);
             }
          });
       }
    }
 
-   protected void fireUnproposed(final SimpleString groupID)
-   {
+   protected void fireUnproposed(final SimpleString groupID) {
 
-      Runnable runnable = new Runnable()
-      {
-         public void run()
-         {
-            for (UnproposalListener listener : listeners)
-            {
+      Runnable runnable = new Runnable() {
+         public void run() {
+            for (UnproposalListener listener : listeners) {
                listener.unproposed(groupID);
             }
          }
       };
-      if (executor != null)
-      {
+      if (executor != null) {
          executor.execute(runnable);
       }
-      else
-      {
+      else {
          // for tests only, where we don't need an executor
          runnable.run();
       }
    }
 
-   public void forceRemove(SimpleString groupid, SimpleString clusterName) throws Exception
-   {
+   public void forceRemove(SimpleString groupid, SimpleString clusterName) throws Exception {
       remove(groupid, clusterName);
       sendUnproposal(groupid, clusterName, 0);
    }
 
-
-   protected void sendUnproposal(SimpleString groupid, SimpleString clusterName, int distance)
-   {
+   protected void sendUnproposal(SimpleString groupid, SimpleString clusterName, int distance) {
       TypedProperties props = new TypedProperties();
       props.putSimpleStringProperty(ManagementHelper.HDR_PROPOSAL_GROUP_ID, groupid);
       props.putSimpleStringProperty(ManagementHelper.HDR_PROPOSAL_VALUE, clusterName);
@@ -110,15 +95,12 @@ public abstract class GroupHandlingAbstract implements GroupingHandler
       props.putSimpleStringProperty(ManagementHelper.HDR_ADDRESS, address);
       props.putIntProperty(ManagementHelper.HDR_DISTANCE, distance);
       Notification notification = new Notification(null, CoreNotificationType.UNPROPOSAL, props);
-      try
-      {
+      try {
          managementService.sendNotification(notification);
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          ActiveMQServerLogger.LOGGER.errorHandlingMessage(e);
       }
    }
-
 
 }

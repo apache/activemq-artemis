@@ -29,21 +29,22 @@ import javax.net.SocketFactory;
 
 /**
  * An implementation of the {@link Transport} interface using raw tcp/ip
- * 
+ *
  * @author David Martin Clavo david(dot)martin(dot)clavo(at)gmail.com (logging improvement modifications)
- * 
  */
 public class TcpFaultyTransport extends TcpTransport implements Transport, Service, Runnable {
 
-    public TcpFaultyTransport(WireFormat wireFormat, SocketFactory socketFactory, URI remoteLocation,
-                        URI localLocation) throws UnknownHostException, IOException {
-	super(wireFormat, socketFactory, remoteLocation, localLocation);
-    }
+   public TcpFaultyTransport(WireFormat wireFormat,
+                             SocketFactory socketFactory,
+                             URI remoteLocation,
+                             URI localLocation) throws UnknownHostException, IOException {
+      super(wireFormat, socketFactory, remoteLocation, localLocation);
+   }
 
-    /**
-     * @return pretty print of 'this'
-     */
-    public String toString() {
-        return "tcpfaulty://" + socket.getInetAddress() + ":" + socket.getPort();
-    }
+   /**
+    * @return pretty print of 'this'
+    */
+   public String toString() {
+      return "tcpfaulty://" + socket.getInetAddress() + ":" + socket.getPort();
+   }
 }

@@ -30,73 +30,58 @@ import org.junit.Test;
 /**
  *
  */
-public class MessageProducerTest extends JMSTestBase
-{
+public class MessageProducerTest extends JMSTestBase {
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
       conn = cf.createConnection();
    }
 
    @Test
-   public void testNoDefaultDestination() throws JMSException
-   {
+   public void testNoDefaultDestination() throws JMSException {
       Session session = conn.createSession();
-      try
-      {
+      try {
          MessageProducer producer = session.createProducer(null);
          Message m = session.createMessage();
-         try
-         {
+         try {
             producer.send(m);
             Assert.fail("must not be reached");
          }
-         catch (UnsupportedOperationException cause)
-         {
+         catch (UnsupportedOperationException cause) {
             // expected
          }
       }
-      finally
-      {
+      finally {
          session.close();
       }
    }
 
    @Test
-   public void testHasDefaultDestination() throws Exception
-   {
+   public void testHasDefaultDestination() throws Exception {
       Session session = conn.createSession();
-      try
-      {
+      try {
          Queue queue = createQueue(name.getMethodName());
          Queue queue2 = createQueue(name.getMethodName() + "2");
          MessageProducer producer = session.createProducer(queue);
          Message m = session.createMessage();
-         try
-         {
+         try {
             producer.send(queue2, m);
             Assert.fail("must not be reached");
          }
-         catch (UnsupportedOperationException cause)
-         {
+         catch (UnsupportedOperationException cause) {
             // expected
          }
-         try
-         {
+         try {
             producer.send(queue, m);
-            Assert.fail("tck7 requires an UnsupportedOperationException "
-                           + "even if the destination is the same as the default one");
+            Assert.fail("tck7 requires an UnsupportedOperationException " + "even if the destination is the same as the default one");
          }
-         catch (UnsupportedOperationException cause)
-         {
+         catch (UnsupportedOperationException cause) {
             // expected
          }
       }
-      finally
-      {
+      finally {
          session.close();
       }
    }

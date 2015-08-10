@@ -26,22 +26,22 @@ import org.slf4j.LoggerFactory;
 
 class BrokenPersistenceAdapter extends JDBCPersistenceAdapter {
 
-    private final Logger LOG = LoggerFactory.getLogger(BrokenPersistenceAdapter.class);
+   private final Logger LOG = LoggerFactory.getLogger(BrokenPersistenceAdapter.class);
 
-    private boolean shouldBreak = false;
+   private boolean shouldBreak = false;
 
-    @Override
-    public void commitTransaction(ConnectionContext context) throws IOException {
-        if ( shouldBreak ) {
-            LOG.warn("Throwing exception on purpose");
-            throw new IOException("Breaking on purpose");
-        }
-        LOG.debug("in commitTransaction");
-        super.commitTransaction(context);
-    }
+   @Override
+   public void commitTransaction(ConnectionContext context) throws IOException {
+      if (shouldBreak) {
+         LOG.warn("Throwing exception on purpose");
+         throw new IOException("Breaking on purpose");
+      }
+      LOG.debug("in commitTransaction");
+      super.commitTransaction(context);
+   }
 
-    public void setShouldBreak(boolean shouldBreak) {
-        this.shouldBreak = shouldBreak;
-    }
+   public void setShouldBreak(boolean shouldBreak) {
+      this.shouldBreak = shouldBreak;
+   }
 }
 

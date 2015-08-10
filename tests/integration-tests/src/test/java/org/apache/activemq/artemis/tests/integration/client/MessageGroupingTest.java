@@ -43,8 +43,8 @@ import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-public class MessageGroupingTest extends ActiveMQTestBase
-{
+public class MessageGroupingTest extends ActiveMQTestBase {
+
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    private ActiveMQServer server;
@@ -57,57 +57,47 @@ public class MessageGroupingTest extends ActiveMQTestBase
    private ServerLocator locator;
 
    @Test
-   public void testBasicGrouping() throws Exception
-   {
+   public void testBasicGrouping() throws Exception {
       doTestBasicGrouping();
    }
 
    @Test
-   public void testMultipleGrouping() throws Exception
-   {
+   public void testMultipleGrouping() throws Exception {
       doTestMultipleGrouping();
    }
 
    @Test
-   public void testMultipleGroupingSingleConsumerWithDirectDelivery() throws Exception
-   {
+   public void testMultipleGroupingSingleConsumerWithDirectDelivery() throws Exception {
       doTestMultipleGroupingSingleConsumer(true);
    }
 
    @Test
-   public void testMultipleGroupingSingleConsumerWithoutDirectDelivery() throws Exception
-   {
+   public void testMultipleGroupingSingleConsumerWithoutDirectDelivery() throws Exception {
       doTestMultipleGroupingSingleConsumer(false);
    }
 
    @Test
-   public void testMultipleGroupingTXCommit() throws Exception
-   {
+   public void testMultipleGroupingTXCommit() throws Exception {
       doTestMultipleGroupingTXCommit();
    }
 
    @Test
-   public void testMultipleGroupingTXRollback() throws Exception
-   {
+   public void testMultipleGroupingTXRollback() throws Exception {
       doTestMultipleGroupingTXRollback();
    }
 
    @Test
-   public void testMultipleGroupingXACommit() throws Exception
-   {
+   public void testMultipleGroupingXACommit() throws Exception {
       dotestMultipleGroupingXACommit();
    }
 
    @Test
-   public void testMultipleGroupingXARollback() throws Exception
-   {
+   public void testMultipleGroupingXARollback() throws Exception {
       doTestMultipleGroupingXARollback();
    }
 
-
    @Test
-   public void testLoadBalanceGroups() throws Exception
-   {
+   public void testLoadBalanceGroups() throws Exception {
       Assume.assumeFalse("only makes sense withOUT auto-group", clientSessionFactory.getServerLocator().isAutoGroup());
 
       ClientProducer clientProducer = clientSession.createProducer(qName);
@@ -118,49 +108,39 @@ public class MessageGroupingTest extends ActiveMQTestBase
       int[] counts = new int[consumers.length];
 
       clientSession.start();
-      try
-      {
+      try {
          //Add all messages for a particular group before moving onto the next
-         for (int group = 0; group < 10; group++)
-         {
-            for (int messageId = 0; messageId < 3; messageId++)
-            {
+         for (int group = 0; group < 10; group++) {
+            for (int messageId = 0; messageId < 3; messageId++) {
                ClientMessage message = clientSession.createMessage(false);
                message.putStringProperty("_AMQ_GROUP_ID", "" + group);
                clientProducer.send(message);
             }
          }
 
-         for (int c = 0; c < consumers.length; c++)
-         {
-            while (true)
-            {
+         for (int c = 0; c < consumers.length; c++) {
+            while (true) {
                ClientMessage msg = consumers[c].receiveImmediate();
-               if (msg == null)
-               {
+               if (msg == null) {
                   break;
                }
                counts[c]++;
             }
          }
 
-         for (int count : counts)
-         {
+         for (int count : counts) {
             Assert.assertNotEquals("You shouldn't have all messages bound to a single consumer", 30, count);
             Assert.assertNotEquals("But you shouldn't have also a single consumer bound to none", 0, count);
          }
       }
-      finally
-      {
+      finally {
          consumer1.close();
          consumer2.close();
          consumer3.close();
       }
    }
 
-
-   private void doTestBasicGrouping() throws Exception
-   {
+   private void doTestBasicGrouping() throws Exception {
       ClientProducer clientProducer = clientSession.createProducer(qName);
       ClientConsumer consumer = clientSession.createConsumer(qName);
       ClientConsumer consumer2 = clientSession.createConsumer(qName);
@@ -168,8 +148,7 @@ public class MessageGroupingTest extends ActiveMQTestBase
 
       SimpleString groupId = new SimpleString("grp1");
       int numMessages = 100;
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = createTextMessage(clientSession, "m" + i);
          message.putStringProperty(Message.HDR_GROUP_ID, groupId);
          clientProducer.send(message);
@@ -188,8 +167,7 @@ public class MessageGroupingTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testMultipleGroupingConsumeHalf() throws Exception
-   {
+   public void testMultipleGroupingConsumeHalf() throws Exception {
       ClientProducer clientProducer = clientSession.createProducer(qName);
       ClientConsumer consumer = clientSession.createConsumer(qName);
       ClientConsumer consumer2 = clientSession.createConsumer(qName);
@@ -201,22 +179,18 @@ public class MessageGroupingTest extends ActiveMQTestBase
       SimpleString groupId = new SimpleString("grp1");
       SimpleString groupId2 = new SimpleString("grp2");
       int numMessages = 100;
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = createTextMessage(clientSession, "m" + i);
-         if (i % 2 == 0 || i == 0)
-         {
+         if (i % 2 == 0 || i == 0) {
             message.putStringProperty(Message.HDR_GROUP_ID, groupId);
          }
-         else
-         {
+         else {
             message.putStringProperty(Message.HDR_GROUP_ID, groupId2);
          }
          clientProducer.send(message);
       }
 
-      for (int i = 0; i < numMessages / 2; i++)
-      {
+      for (int i = 0; i < numMessages / 2; i++) {
          ClientMessage cm = consumer.receive(500);
          Assert.assertNotNull(cm);
          Assert.assertEquals(cm.getBodyBuffer().readString(), "m" + i);
@@ -233,32 +207,26 @@ public class MessageGroupingTest extends ActiveMQTestBase
       consumer.close();
    }
 
-   private void doTestMultipleGroupingSingleConsumer(final boolean directDelivery) throws Exception
-   {
+   private void doTestMultipleGroupingSingleConsumer(final boolean directDelivery) throws Exception {
       ClientProducer clientProducer = clientSession.createProducer(qName);
       ClientConsumer consumer = clientSession.createConsumer(qName);
-      if (directDelivery)
-      {
+      if (directDelivery) {
          clientSession.start();
       }
       SimpleString groupId = new SimpleString("grp1");
       SimpleString groupId2 = new SimpleString("grp2");
       int numMessages = 100;
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = createTextMessage(clientSession, "m" + i);
-         if (i % 2 == 0 || i == 0)
-         {
+         if (i % 2 == 0 || i == 0) {
             message.putStringProperty(Message.HDR_GROUP_ID, groupId);
          }
-         else
-         {
+         else {
             message.putStringProperty(Message.HDR_GROUP_ID, groupId2);
          }
          clientProducer.send(message);
       }
-      if (!directDelivery)
-      {
+      if (!directDelivery) {
          clientSession.start();
       }
       CountDownLatch latch = new CountDownLatch(numMessages);
@@ -267,16 +235,14 @@ public class MessageGroupingTest extends ActiveMQTestBase
       Assert.assertTrue(latch.await(10, TimeUnit.SECONDS));
       Assert.assertEquals(dummyMessageHandler.list.size(), 100);
       int i = 0;
-      for (ClientMessage message : dummyMessageHandler.list)
-      {
+      for (ClientMessage message : dummyMessageHandler.list) {
          Assert.assertEquals(message.getBodyBuffer().readString(), "m" + i);
          i += 1;
       }
       consumer.close();
    }
 
-   private void doTestMultipleGroupingTXCommit() throws Exception
-   {
+   private void doTestMultipleGroupingTXCommit() throws Exception {
       ServerLocator locator = createInVMNonHALocator();
       ClientSessionFactory sessionFactory = createSessionFactory(locator);
       ClientSession clientSession = sessionFactory.createSession(false, false, false);
@@ -292,15 +258,12 @@ public class MessageGroupingTest extends ActiveMQTestBase
       SimpleString groupId = new SimpleString("grp1");
       SimpleString groupId2 = new SimpleString("grp2");
       int numMessages = 100;
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = createTextMessage(clientSession, "m" + i);
-         if (i % 2 == 0 || i == 0)
-         {
+         if (i % 2 == 0 || i == 0) {
             message.putStringProperty(Message.HDR_GROUP_ID, groupId);
          }
-         else
-         {
+         else {
             message.putStringProperty(Message.HDR_GROUP_ID, groupId2);
          }
          clientProducer.send(message);
@@ -315,15 +278,13 @@ public class MessageGroupingTest extends ActiveMQTestBase
       clientSession.commit();
       Assert.assertEquals(dummyMessageHandler.list.size(), 50);
       int i = 0;
-      for (ClientMessage message : dummyMessageHandler.list)
-      {
+      for (ClientMessage message : dummyMessageHandler.list) {
          Assert.assertEquals(message.getBodyBuffer().readString(), "m" + i);
          i += 2;
       }
       Assert.assertEquals(dummyMessageHandler2.list.size(), 50);
       i = 1;
-      for (ClientMessage message : dummyMessageHandler2.list)
-      {
+      for (ClientMessage message : dummyMessageHandler2.list) {
          Assert.assertEquals(message.getBodyBuffer().readString(), "m" + i);
          i += 2;
       }
@@ -335,8 +296,7 @@ public class MessageGroupingTest extends ActiveMQTestBase
       locator.close();
    }
 
-   private void doTestMultipleGroupingTXRollback() throws Exception
-   {
+   private void doTestMultipleGroupingTXRollback() throws Exception {
       log.info("*** starting test");
       ServerLocator locator = createInVMNonHALocator();
       locator.setBlockOnAcknowledge(true);
@@ -353,15 +313,12 @@ public class MessageGroupingTest extends ActiveMQTestBase
       SimpleString groupId = new SimpleString("grp1");
       SimpleString groupId2 = new SimpleString("grp2");
       int numMessages = 100;
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = createTextMessage(clientSession, "m" + i);
-         if (i % 2 == 0 || i == 0)
-         {
+         if (i % 2 == 0 || i == 0) {
             message.putStringProperty(Message.HDR_GROUP_ID, groupId);
          }
-         else
-         {
+         else {
             message.putStringProperty(Message.HDR_GROUP_ID, groupId2);
          }
          clientProducer.send(message);
@@ -375,15 +332,13 @@ public class MessageGroupingTest extends ActiveMQTestBase
       Assert.assertTrue(latch.await(10, TimeUnit.SECONDS));
       Assert.assertEquals(50, dummyMessageHandler.list.size(), dummyMessageHandler.list.size());
       int i = 0;
-      for (ClientMessage message : dummyMessageHandler.list)
-      {
+      for (ClientMessage message : dummyMessageHandler.list) {
          Assert.assertEquals(message.getBodyBuffer().readString(), "m" + i);
          i += 2;
       }
       Assert.assertEquals(dummyMessageHandler2.list.size(), 50);
       i = 1;
-      for (ClientMessage message : dummyMessageHandler2.list)
-      {
+      for (ClientMessage message : dummyMessageHandler2.list) {
          Assert.assertEquals(message.getBodyBuffer().readString(), "m" + i);
          i += 2;
       }
@@ -394,15 +349,13 @@ public class MessageGroupingTest extends ActiveMQTestBase
       Assert.assertTrue(latch.await(10, TimeUnit.SECONDS));
       Assert.assertEquals(dummyMessageHandler.list.size(), 50);
       i = 0;
-      for (ClientMessage message : dummyMessageHandler.list)
-      {
+      for (ClientMessage message : dummyMessageHandler.list) {
          Assert.assertEquals(message.getBodyBuffer().readString(), "m" + i);
          i += 2;
       }
       Assert.assertEquals(dummyMessageHandler2.list.size(), 50);
       i = 1;
-      for (ClientMessage message : dummyMessageHandler2.list)
-      {
+      for (ClientMessage message : dummyMessageHandler2.list) {
          Assert.assertEquals(message.getBodyBuffer().readString(), "m" + i);
          i += 2;
       }
@@ -412,8 +365,7 @@ public class MessageGroupingTest extends ActiveMQTestBase
       locator.close();
    }
 
-   private void dotestMultipleGroupingXACommit() throws Exception
-   {
+   private void dotestMultipleGroupingXACommit() throws Exception {
       ServerLocator locator = createInVMNonHALocator();
       ClientSessionFactory sessionFactory = createSessionFactory(locator);
       ClientSession clientSession = sessionFactory.createSession(true, false, false);
@@ -428,15 +380,12 @@ public class MessageGroupingTest extends ActiveMQTestBase
       SimpleString groupId = new SimpleString("grp1");
       SimpleString groupId2 = new SimpleString("grp2");
       int numMessages = 100;
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = createTextMessage(clientSession, "m" + i);
-         if (i % 2 == 0 || i == 0)
-         {
+         if (i % 2 == 0 || i == 0) {
             message.putStringProperty(Message.HDR_GROUP_ID, groupId);
          }
-         else
-         {
+         else {
             message.putStringProperty(Message.HDR_GROUP_ID, groupId2);
          }
          clientProducer.send(message);
@@ -452,15 +401,13 @@ public class MessageGroupingTest extends ActiveMQTestBase
       clientSession.commit(xid, false);
       Assert.assertEquals(dummyMessageHandler.list.size(), 50);
       int i = 0;
-      for (ClientMessage message : dummyMessageHandler.list)
-      {
+      for (ClientMessage message : dummyMessageHandler.list) {
          Assert.assertEquals(message.getBodyBuffer().readString(), "m" + i);
          i += 2;
       }
       Assert.assertEquals(dummyMessageHandler2.list.size(), 50);
       i = 1;
-      for (ClientMessage message : dummyMessageHandler2.list)
-      {
+      for (ClientMessage message : dummyMessageHandler2.list) {
          Assert.assertEquals(message.getBodyBuffer().readString(), "m" + i);
          i += 2;
       }
@@ -472,8 +419,7 @@ public class MessageGroupingTest extends ActiveMQTestBase
       locator.close();
    }
 
-   private void doTestMultipleGroupingXARollback() throws Exception
-   {
+   private void doTestMultipleGroupingXARollback() throws Exception {
       ServerLocator locator = createInVMNonHALocator();
       locator.setBlockOnAcknowledge(true);
       ClientSessionFactory sessionFactory = createSessionFactory(locator);
@@ -489,15 +435,12 @@ public class MessageGroupingTest extends ActiveMQTestBase
       SimpleString groupId = new SimpleString("grp1");
       SimpleString groupId2 = new SimpleString("grp2");
       int numMessages = 100;
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = createTextMessage(clientSession, "m" + i);
-         if (i % 2 == 0 || i == 0)
-         {
+         if (i % 2 == 0 || i == 0) {
             message.putStringProperty(Message.HDR_GROUP_ID, groupId);
          }
-         else
-         {
+         else {
             message.putStringProperty(Message.HDR_GROUP_ID, groupId2);
          }
          clientProducer.send(message);
@@ -512,15 +455,13 @@ public class MessageGroupingTest extends ActiveMQTestBase
       clientSession.end(xid, XAResource.TMSUCCESS);
       Assert.assertEquals(dummyMessageHandler.list.size(), 50);
       int i = 0;
-      for (ClientMessage message : dummyMessageHandler.list)
-      {
+      for (ClientMessage message : dummyMessageHandler.list) {
          Assert.assertEquals(message.getBodyBuffer().readString(), "m" + i);
          i += 2;
       }
       Assert.assertEquals(dummyMessageHandler2.list.size(), 50);
       i = 1;
-      for (ClientMessage message : dummyMessageHandler2.list)
-      {
+      for (ClientMessage message : dummyMessageHandler2.list) {
          Assert.assertEquals(message.getBodyBuffer().readString(), "m" + i);
          i += 2;
       }
@@ -535,15 +476,13 @@ public class MessageGroupingTest extends ActiveMQTestBase
       clientSession.commit(xid, false);
       Assert.assertEquals(dummyMessageHandler.list.size(), 50);
       i = 0;
-      for (ClientMessage message : dummyMessageHandler.list)
-      {
+      for (ClientMessage message : dummyMessageHandler.list) {
          Assert.assertEquals(message.getBodyBuffer().readString(), "m" + i);
          i += 2;
       }
       Assert.assertEquals(dummyMessageHandler2.list.size(), 50);
       i = 1;
-      for (ClientMessage message : dummyMessageHandler2.list)
-      {
+      for (ClientMessage message : dummyMessageHandler2.list) {
          Assert.assertEquals(message.getBodyBuffer().readString(), "m" + i);
          i += 2;
       }
@@ -553,8 +492,7 @@ public class MessageGroupingTest extends ActiveMQTestBase
       locator.close();
    }
 
-   private void doTestMultipleGrouping() throws Exception
-   {
+   private void doTestMultipleGrouping() throws Exception {
       ClientProducer clientProducer = clientSession.createProducer(qName);
       ClientConsumer consumer = clientSession.createConsumer(qName);
       ClientConsumer consumer2 = clientSession.createConsumer(qName);
@@ -563,15 +501,12 @@ public class MessageGroupingTest extends ActiveMQTestBase
       SimpleString groupId = new SimpleString("grp1");
       SimpleString groupId2 = new SimpleString("grp2");
       int numMessages = 4;
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = createTextMessage(clientSession, "m" + i);
-         if (i % 2 == 0 || i == 0)
-         {
+         if (i % 2 == 0 || i == 0) {
             message.putStringProperty(Message.HDR_GROUP_ID, groupId);
          }
-         else
-         {
+         else {
             message.putStringProperty(Message.HDR_GROUP_ID, groupId2);
          }
          clientProducer.send(message);
@@ -585,15 +520,13 @@ public class MessageGroupingTest extends ActiveMQTestBase
       Assert.assertTrue(latch.await(10, TimeUnit.SECONDS));
       Assert.assertEquals(numMessages / 2, dummyMessageHandler.list.size());
       int i = 0;
-      for (ClientMessage message : dummyMessageHandler.list)
-      {
+      for (ClientMessage message : dummyMessageHandler.list) {
          Assert.assertEquals(message.getBodyBuffer().readString(), "m" + i);
          i += 2;
       }
       Assert.assertEquals(numMessages / 2, dummyMessageHandler2.list.size());
       i = 1;
-      for (ClientMessage message : dummyMessageHandler2.list)
-      {
+      for (ClientMessage message : dummyMessageHandler2.list) {
          Assert.assertEquals(message.getBodyBuffer().readString(), "m" + i);
          i += 2;
       }
@@ -603,8 +536,7 @@ public class MessageGroupingTest extends ActiveMQTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
       Configuration configuration = createDefaultInVMConfig();
       server = addServer(ActiveMQServers.newActiveMQServer(configuration, false));
@@ -615,39 +547,33 @@ public class MessageGroupingTest extends ActiveMQTestBase
       clientSession.createQueue(qName, qName, null, false);
    }
 
-   private static class DummyMessageHandler implements MessageHandler
-   {
+   private static class DummyMessageHandler implements MessageHandler {
+
       ArrayList<ClientMessage> list = new ArrayList<ClientMessage>();
 
       private CountDownLatch latch;
 
       private final boolean acknowledge;
 
-      public DummyMessageHandler(final CountDownLatch latch, final boolean acknowledge)
-      {
+      public DummyMessageHandler(final CountDownLatch latch, final boolean acknowledge) {
          this.latch = latch;
          this.acknowledge = acknowledge;
       }
 
-      public void onMessage(final ClientMessage message)
-      {
+      public void onMessage(final ClientMessage message) {
          list.add(message);
-         if (acknowledge)
-         {
-            try
-            {
+         if (acknowledge) {
+            try {
                message.acknowledge();
             }
-            catch (ActiveMQException e)
-            {
+            catch (ActiveMQException e) {
                // ignore
             }
          }
          latch.countDown();
       }
 
-      public void reset(final CountDownLatch latch)
-      {
+      public void reset(final CountDownLatch latch) {
          list.clear();
          this.latch = latch;
       }

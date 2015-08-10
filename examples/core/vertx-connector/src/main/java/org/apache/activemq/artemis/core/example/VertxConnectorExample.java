@@ -31,8 +31,8 @@ import org.vertx.java.spi.cluster.impl.hazelcast.HazelcastClusterManagerFactory;
 /**
  * A simple example of using Vert.x connector service.
  */
-public class VertxConnectorExample
-{
+public class VertxConnectorExample {
+
    public static final String INCOMING = "incoming.vertx.address";
    public static final String OUTGOING = "outgoing.vertx.address";
    public static final String MSG = "Welcome to Vertx world!";
@@ -43,14 +43,11 @@ public class VertxConnectorExample
    private static final String HOST = "127.0.0.1";
    private static final int PORT = 0;
 
-   public static void main(final String[] args) throws Exception
-   {
-      System.setProperty("vertx.clusterManagerFactory",
-               HazelcastClusterManagerFactory.class.getName());
+   public static void main(final String[] args) throws Exception {
+      System.setProperty("vertx.clusterManagerFactory", HazelcastClusterManagerFactory.class.getName());
       PlatformManager platformManager = null;
 
-      try
-      {
+      try {
          // Step 1 Create a Vert.x PlatformManager
          platformManager = PlatformLocator.factory.createPlatformManager(PORT, HOST);
 
@@ -58,20 +55,17 @@ public class VertxConnectorExample
 
          // Step 2 Deploy a Verticle to receive message
          String verticle = "org.apache.activemq.artemis.core.example.ExampleVerticle";
-         platformManager.deployVerticle(verticle, null, new URL[0], 1, null,
-                  new Handler<AsyncResult<String>>(){
+         platformManager.deployVerticle(verticle, null, new URL[0], 1, null, new Handler<AsyncResult<String>>() {
 
-                     @Override
-                     public void handle(AsyncResult<String> result)
-                     {
-                        if (!result.succeeded())
-                        {
-                           throw new RuntimeException("failed to deploy verticle", result.cause());
-                        }
-                        latch0.countDown();
-                     }
+                                           @Override
+                                           public void handle(AsyncResult<String> result) {
+                                              if (!result.succeeded()) {
+                                                 throw new RuntimeException("failed to deploy verticle", result.cause());
+                                              }
+                                              latch0.countDown();
+                                           }
 
-         });
+                                        });
 
          latch0.await();
 
@@ -82,10 +76,8 @@ public class VertxConnectorExample
          // Step 4 Waiting for the Verticle to process the message
          latch.await(10000, TimeUnit.MILLISECONDS);
       }
-      finally
-      {
-         if(platformManager != null)
-         {
+      finally {
+         if (platformManager != null) {
             platformManager.undeployAll(null);
             platformManager.stop();
          }
@@ -93,18 +85,15 @@ public class VertxConnectorExample
       }
    }
 
-   private static void reportResultAndExit()
-   {
-      if (!result.get())
-      {
+   private static void reportResultAndExit() {
+      if (!result.get()) {
          System.err.println();
          System.err.println("#####################");
          System.err.println("###    FAILURE!   ###");
          System.err.println("#####################");
          System.exit(1);
       }
-      else
-      {
+      else {
          System.out.println();
          System.out.println("#####################");
          System.out.println("###    SUCCESS!   ###");

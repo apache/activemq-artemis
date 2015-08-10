@@ -27,18 +27,16 @@ import org.junit.Assert;
 import org.apache.activemq.artemis.utils.UUID;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 
-public class UUIDTest extends ActiveMQTestBase
-{
+public class UUIDTest extends ActiveMQTestBase {
+
    static final int MANY_TIMES = 100000;
 
    @Test
-   public void testManyUUIDs() throws Exception
-   {
+   public void testManyUUIDs() throws Exception {
       Set<String> uuidsSet = new HashSet<String>();
 
       UUIDGenerator gen = UUIDGenerator.getInstance();
-      for (int i = 0; i < getTimes(); i++)
-      {
+      for (int i = 0; i < getTimes(); i++) {
          uuidsSet.add(gen.generateStringUUID());
       }
 
@@ -46,17 +44,14 @@ public class UUIDTest extends ActiveMQTestBase
       Assert.assertEquals(getTimes(), uuidsSet.size());
    }
 
-   protected int getTimes()
-   {
+   protected int getTimes() {
       return MANY_TIMES;
    }
 
    @Test
-   public void testStringToUuidConversion()
-   {
+   public void testStringToUuidConversion() {
       UUIDGenerator gen = UUIDGenerator.getInstance();
-      for (int i = 0; i < MANY_TIMES; i++)
-      {
+      for (int i = 0; i < MANY_TIMES; i++) {
          final UUID uuid = gen.generateUUID();
          final String uuidString = uuid.toString();
          byte[] data2 = UUID.stringToBytes(uuidString);

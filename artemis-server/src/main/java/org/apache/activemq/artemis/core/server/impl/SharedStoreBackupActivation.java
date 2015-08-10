@@ -33,8 +33,8 @@ import org.apache.activemq.artemis.core.server.management.ManagementService;
 import java.nio.channels.ClosedChannelException;
 import java.util.concurrent.TimeUnit;
 
-public final class SharedStoreBackupActivation extends Activation
-{
+public final class SharedStoreBackupActivation extends Activation {
+
    //this is how we act as a backup
    private SharedStoreSlavePolicy sharedStoreSlavePolicy;
 
@@ -44,20 +44,16 @@ public final class SharedStoreBackupActivation extends Activation
 
    private boolean cancelFailBackChecker;
 
-   public SharedStoreBackupActivation(ActiveMQServerImpl server, SharedStoreSlavePolicy sharedStoreSlavePolicy)
-   {
+   public SharedStoreBackupActivation(ActiveMQServerImpl server, SharedStoreSlavePolicy sharedStoreSlavePolicy) {
       this.activeMQServer = server;
       this.sharedStoreSlavePolicy = sharedStoreSlavePolicy;
-      synchronized (failbackCheckerGuard)
-      {
+      synchronized (failbackCheckerGuard) {
          cancelFailBackChecker = false;
       }
    }
 
-   public void run()
-   {
-      try
-      {
+   public void run() {
+      try {
          activeMQServer.getNodeManager().startBackup();
 
          ScaleDownPolicy scaleDownPolicy = sharedStoreSlavePolicy.getScaleDownPolicy();
@@ -82,8 +78,7 @@ public final class SharedStoreBackupActivation extends Activation
          //activeMQServer.configuration.getHAPolicy().setPolicyType(HAPolicy.POLICY_TYPE.SHARED_STORE);
 
          activeMQServer.getBackupManager().activated();
-         if (activeMQServer.getState() != ActiveMQServerImpl.SERVER_STATE.STARTED)
-         {
+         if (activeMQServer.getState() != ActiveMQServerImpl.SERVER_STATE.STARTED) {
             return;
          }
 
@@ -91,25 +86,19 @@ public final class SharedStoreBackupActivation extends Activation
 
          activeMQServer.completeActivation();
 
-         if (scalingDown)
-         {
+         if (scalingDown) {
             ActiveMQServerLogger.LOGGER.backupServerScaledDown();
-            Thread t = new Thread(new Runnable()
-            {
+            Thread t = new Thread(new Runnable() {
                @Override
-               public void run()
-               {
-                  try
-                  {
+               public void run() {
+                  try {
                      activeMQServer.stop();
                      //we are shared store but if we were started by a parent server then we shouldn't restart
-                     if (sharedStoreSlavePolicy.isRestartBackup())
-                     {
+                     if (sharedStoreSlavePolicy.isRestartBackup()) {
                         activeMQServer.start();
                      }
                   }
-                  catch (Exception e)
-                  {
+                  catch (Exception e) {
                      ActiveMQServerLogger.LOGGER.serverRestartWarning();
                   }
                }
@@ -117,44 +106,34 @@ public final class SharedStoreBackupActivation extends Activation
             t.start();
             return;
          }
-         else
-         {
+         else {
             ActiveMQServerLogger.LOGGER.backupServerIsLive();
 
             activeMQServer.getNodeManager().releaseBackup();
          }
-         if (sharedStoreSlavePolicy.isAllowAutoFailBack())
-         {
+         if (sharedStoreSlavePolicy.isAllowAutoFailBack()) {
             startFailbackChecker();
          }
       }
-      catch (InterruptedException e)
-      {
+      catch (InterruptedException e) {
          // this is ok, we are being stopped
       }
-      catch (ClosedChannelException e)
-      {
+      catch (ClosedChannelException e) {
          // this is ok too, we are being stopped
       }
-      catch (Exception e)
-      {
-         if (!(e.getCause() instanceof InterruptedException))
-         {
+      catch (Exception e) {
+         if (!(e.getCause() instanceof InterruptedException)) {
             ActiveMQServerLogger.LOGGER.initializationError(e);
          }
       }
-      catch (Throwable e)
-      {
+      catch (Throwable e) {
          ActiveMQServerLogger.LOGGER.initializationError(e);
       }
    }
 
-   public void close(boolean permanently, boolean restarting) throws Exception
-   {
-      if (!restarting)
-      {
-         synchronized (failbackCheckerGuard)
-         {
+   public void close(boolean permanently, boolean restarting) throws Exception {
+      if (!restarting) {
+         synchronized (failbackCheckerGuard) {
             cancelFailBackChecker = true;
          }
       }
@@ -162,31 +141,24 @@ public final class SharedStoreBackupActivation extends Activation
       NodeManager nodeManagerInUse = activeMQServer.getNodeManager();
 
       //we need to check as the servers policy may have changed
-      if (activeMQServer.getHAPolicy().isBackup())
-      {
+      if (activeMQServer.getHAPolicy().isBackup()) {
 
          activeMQServer.interrupBackupThread(nodeManagerInUse);
 
-
-         if (nodeManagerInUse != null)
-         {
+         if (nodeManagerInUse != null) {
             nodeManagerInUse.stopBackup();
          }
       }
-      else
-      {
+      else {
 
-         if (nodeManagerInUse != null)
-         {
+         if (nodeManagerInUse != null) {
             // if we are now live, behave as live
             // We need to delete the file too, otherwise the backup will failover when we shutdown or if the backup is
             // started before the live
-            if (sharedStoreSlavePolicy.isFailoverOnServerShutdown() || permanently)
-            {
+            if (sharedStoreSlavePolicy.isFailoverOnServerShutdown() || permanently) {
                nodeManagerInUse.crashLiveServer();
             }
-            else
-            {
+            else {
                nodeManagerInUse.pauseLiveServer();
             }
          }
@@ -194,80 +166,58 @@ public final class SharedStoreBackupActivation extends Activation
    }
 
    @Override
-   public JournalLoader createJournalLoader(PostOffice postOffice, PagingManager pagingManager, StorageManager storageManager, QueueFactory queueFactory, NodeManager nodeManager, ManagementService managementService, GroupingHandler groupingHandler, Configuration configuration, ActiveMQServer parentServer) throws ActiveMQException
-   {
-      if (sharedStoreSlavePolicy.getScaleDownPolicy() != null && sharedStoreSlavePolicy.getScaleDownPolicy().isEnabled())
-      {
-         return new BackupRecoveryJournalLoader(postOffice,
-               pagingManager,
-               storageManager,
-               queueFactory,
-               nodeManager,
-               managementService,
-               groupingHandler,
-               configuration,
-               parentServer,
-               ScaleDownPolicy.getScaleDownConnector(sharedStoreSlavePolicy.getScaleDownPolicy(), activeMQServer),
-               activeMQServer.getClusterManager().getClusterController());
+   public JournalLoader createJournalLoader(PostOffice postOffice,
+                                            PagingManager pagingManager,
+                                            StorageManager storageManager,
+                                            QueueFactory queueFactory,
+                                            NodeManager nodeManager,
+                                            ManagementService managementService,
+                                            GroupingHandler groupingHandler,
+                                            Configuration configuration,
+                                            ActiveMQServer parentServer) throws ActiveMQException {
+      if (sharedStoreSlavePolicy.getScaleDownPolicy() != null && sharedStoreSlavePolicy.getScaleDownPolicy().isEnabled()) {
+         return new BackupRecoveryJournalLoader(postOffice, pagingManager, storageManager, queueFactory, nodeManager, managementService, groupingHandler, configuration, parentServer, ScaleDownPolicy.getScaleDownConnector(sharedStoreSlavePolicy.getScaleDownPolicy(), activeMQServer), activeMQServer.getClusterManager().getClusterController());
       }
-      else
-      {
-         return super.createJournalLoader(postOffice,
-               pagingManager,
-               storageManager,
-               queueFactory,
-               nodeManager,
-               managementService,
-               groupingHandler,
-               configuration,
-               parentServer);
+      else {
+         return super.createJournalLoader(postOffice, pagingManager, storageManager, queueFactory, nodeManager, managementService, groupingHandler, configuration, parentServer);
       }
    }
 
    /**
     * To be called by backup trying to fail back the server
     */
-   private void startFailbackChecker()
-   {
+   private void startFailbackChecker() {
       activeMQServer.getScheduledPool().scheduleAtFixedRate(new FailbackChecker(), 1000L, 1000L, TimeUnit.MILLISECONDS);
    }
-   private class FailbackChecker implements Runnable
-   {
+
+   private class FailbackChecker implements Runnable {
+
       private boolean restarting = false;
 
-      public void run()
-      {
-         try
-         {
-            if (!restarting && activeMQServer.getNodeManager().isAwaitingFailback())
-            {
+      public void run() {
+         try {
+            if (!restarting && activeMQServer.getNodeManager().isAwaitingFailback()) {
                ActiveMQServerLogger.LOGGER.awaitFailBack();
                restarting = true;
-               Thread t = new Thread(new Runnable()
-               {
-                  public void run()
-                  {
-                     try
-                     {
+               Thread t = new Thread(new Runnable() {
+                  public void run() {
+                     try {
                         ActiveMQServerLogger.LOGGER.debug(activeMQServer + "::Stopping live node in favor of failback");
 
                         activeMQServer.stop(true, false, true);
                         // We need to wait some time before we start the backup again
                         // otherwise we may eventually start before the live had a chance to get it
                         Thread.sleep(sharedStoreSlavePolicy.getFailbackDelay());
-                        synchronized (failbackCheckerGuard)
-                        {
+                        synchronized (failbackCheckerGuard) {
                            if (cancelFailBackChecker || !sharedStoreSlavePolicy.isRestartBackup())
                               return;
 
                            activeMQServer.setHAPolicy(sharedStoreSlavePolicy);
-                           ActiveMQServerLogger.LOGGER.debug(activeMQServer +
-                                 "::Starting backup node now after failback");
+                           ActiveMQServerLogger.LOGGER.debug(activeMQServer + "::Starting backup node now after failback");
                            activeMQServer.start();
                         }
                      }
-                     catch (Exception e)
-                     {
+                     catch (Exception e) {
                         ActiveMQServerLogger.LOGGER.serverRestartWarning();
                      }
                   }
@@ -275,8 +225,7 @@ public final class SharedStoreBackupActivation extends Activation
                t.start();
             }
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             ActiveMQServerLogger.LOGGER.serverRestartWarning(e);
          }
       }

@@ -93,8 +93,8 @@ import org.apache.activemq.util.IdGenerator;
 import org.apache.activemq.util.InetAddressUtil;
 import org.apache.activemq.util.LongSequenceGenerator;
 
-public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, NotificationListener
-{
+public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, NotificationListener {
+
    private static final IdGenerator BROKER_ID_GENERATOR = new IdGenerator();
    private static final IdGenerator ID_GENERATOR = new IdGenerator();
 
@@ -115,8 +115,7 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, No
    protected final ProducerId advisoryProducerId = new ProducerId();
 
    // from broker
-   protected final Map<ConnectionId, OpenWireConnection> brokerConnectionStates = Collections
-      .synchronizedMap(new HashMap<ConnectionId, OpenWireConnection>());
+   protected final Map<ConnectionId, OpenWireConnection> brokerConnectionStates = Collections.synchronizedMap(new HashMap<ConnectionId, OpenWireConnection>());
 
    private final CopyOnWriteArrayList<OpenWireConnection> connections = new CopyOnWriteArrayList<OpenWireConnection>();
 
@@ -134,8 +133,7 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, No
 
    private final ScheduledExecutorService scheduledPool;
 
-   public OpenWireProtocolManager(OpenWireProtocolManagerFactory factory, ActiveMQServer server)
-   {
+   public OpenWireProtocolManager(OpenWireProtocolManagerFactory factory, ActiveMQServer server) {
       this.factory = factory;
       this.server = server;
       this.wireFactory = new OpenWireFormatFactory();
@@ -145,76 +143,60 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, No
       advisoryProducerId.setConnectionId(ID_GENERATOR.generateId());
       ManagementService service = server.getManagementService();
       scheduledPool = server.getScheduledPool();
-      if (service != null)
-      {
+      if (service != null) {
          service.addNotificationListener(this);
       }
    }
 
-
-   public ProtocolManagerFactory<Interceptor> getFactory()
-   {
+   public ProtocolManagerFactory<Interceptor> getFactory() {
       return factory;
    }
 
-
    @Override
-   public void updateInterceptors(List<BaseInterceptor> incomingInterceptors, List<BaseInterceptor> outgoingInterceptors)
-   {
+   public void updateInterceptors(List<BaseInterceptor> incomingInterceptors,
+                                  List<BaseInterceptor> outgoingInterceptors) {
       // NO-OP
    }
 
    @Override
-   public ConnectionEntry createConnectionEntry(Acceptor acceptorUsed,
-                                                Connection connection)
-   {
+   public ConnectionEntry createConnectionEntry(Acceptor acceptorUsed, Connection connection) {
       OpenWireFormat wf = (OpenWireFormat) wireFactory.createWireFormat();
-      OpenWireConnection owConn = new OpenWireConnection(acceptorUsed,
-                                                         connection, this, wf);
+      OpenWireConnection owConn = new OpenWireConnection(acceptorUsed, connection, this, wf);
       owConn.init();
 
-      return new ConnectionEntry(owConn, null, System.currentTimeMillis(),
-                                 1 * 60 * 1000);
+      return new ConnectionEntry(owConn, null, System.currentTimeMillis(), 1 * 60 * 1000);
    }
 
    @Override
-   public MessageConverter getConverter()
-   {
+   public MessageConverter getConverter() {
       return new OpenWireMessageConverter();
    }
 
    @Override
-   public void removeHandler(String name)
-   {
+   public void removeHandler(String name) {
       // TODO Auto-generated method stub
    }
 
    @Override
-   public void handleBuffer(RemotingConnection connection, ActiveMQBuffer buffer)
-   {
+   public void handleBuffer(RemotingConnection connection, ActiveMQBuffer buffer) {
    }
 
    @Override
-   public void addChannelHandlers(ChannelPipeline pipeline)
-   {
+   public void addChannelHandlers(ChannelPipeline pipeline) {
       // TODO Auto-generated method stub
 
    }
 
    @Override
-   public boolean isProtocol(byte[] array)
-   {
-      if (array.length < 8)
-      {
-         throw new IllegalArgumentException("Protocol header length changed "
-                                               + array.length);
+   public boolean isProtocol(byte[] array) {
+      if (array.length < 8) {
+         throw new IllegalArgumentException("Protocol header length changed " + array.length);
       }
 
       int start = this.prefixPacketSize ? 4 : 0;
       int j = 0;
       // type
-      if (array[start] != WireFormatInfo.DATA_STRUCTURE_TYPE)
-      {
+      if (array[start] != WireFormatInfo.DATA_STRUCTURE_TYPE) {
          return false;
       }
       start++;
@@ -224,10 +206,8 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, No
       int useLen = remainingLen > magic.length ? magic.length : remainingLen;
       useLen += start;
       // magic
-      for (int i = start; i < useLen; i++)
-      {
-         if (array[i] != magic[j])
-         {
+      for (int i = start; i < useLen; i++) {
+         if (array[i] != magic[j]) {
             return false;
          }
          j++;
@@ -236,19 +216,15 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, No
    }
 
    @Override
-   public void handshake(NettyServerConnection connection, ActiveMQBuffer buffer)
-   {
+   public void handshake(NettyServerConnection connection, ActiveMQBuffer buffer) {
       // TODO Auto-generated method stub
 
    }
 
-   public void handleCommand(OpenWireConnection openWireConnection,
-                             Object command) throws Exception
-   {
+   public void handleCommand(OpenWireConnection openWireConnection, Object command) throws Exception {
       Command amqCmd = (Command) command;
       byte type = amqCmd.getDataStructureType();
-      switch (type)
-      {
+      switch (type) {
          case CommandTypes.CONNECTION_INFO:
             break;
          case CommandTypes.CONNECTION_CONTROL:
@@ -267,95 +243,69 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, No
       }
    }
 
-   public void sendReply(final OpenWireConnection connection,
-                         final Command command)
-   {
-      server.getStorageManager().afterCompleteOperations(new IOCallback()
-      {
-         public void onError(final int errorCode, final String errorMessage)
-         {
-            ActiveMQServerLogger.LOGGER.errorProcessingIOCallback(errorCode,
-                                                                  errorMessage);
+   public void sendReply(final OpenWireConnection connection, final Command command) {
+      server.getStorageManager().afterCompleteOperations(new IOCallback() {
+         public void onError(final int errorCode, final String errorMessage) {
+            ActiveMQServerLogger.LOGGER.errorProcessingIOCallback(errorCode, errorMessage);
          }
 
-         public void done()
-         {
+         public void done() {
             send(connection, command);
          }
       });
    }
 
-   public boolean send(final OpenWireConnection connection, final Command command)
-   {
-      if (ActiveMQServerLogger.LOGGER.isTraceEnabled())
-      {
+   public boolean send(final OpenWireConnection connection, final Command command) {
+      if (ActiveMQServerLogger.LOGGER.isTraceEnabled()) {
          ActiveMQServerLogger.LOGGER.trace("sending " + command);
       }
-      synchronized (connection)
-      {
-         if (connection.isDestroyed())
-         {
+      synchronized (connection) {
+         if (connection.isDestroyed()) {
             return false;
          }
 
-         try
-         {
+         try {
             connection.physicalSend(command);
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             return false;
          }
-         catch (Throwable t)
-         {
+         catch (Throwable t) {
             return false;
          }
          return true;
       }
    }
 
-   public void addConnection(AMQConnectionContext context, ConnectionInfo info) throws Exception
-   {
+   public void addConnection(AMQConnectionContext context, ConnectionInfo info) throws Exception {
       String username = info.getUserName();
       String password = info.getPassword();
 
-      if (!this.validateUser(username, password))
-      {
+      if (!this.validateUser(username, password)) {
          throw new SecurityException("User name [" + username + "] or password is invalid.");
       }
       String clientId = info.getClientId();
-      if (clientId == null)
-      {
-         throw new InvalidClientIDException(
-            "No clientID specified for connection request");
+      if (clientId == null) {
+         throw new InvalidClientIDException("No clientID specified for connection request");
       }
-      synchronized (clientIdSet)
-      {
+      synchronized (clientIdSet) {
          AMQConnectionContext oldContext = clientIdSet.get(clientId);
-         if (oldContext != null)
-         {
-            if (context.isAllowLinkStealing())
-            {
+         if (oldContext != null) {
+            if (context.isAllowLinkStealing()) {
                clientIdSet.remove(clientId);
-               if (oldContext.getConnection() != null)
-               {
+               if (oldContext.getConnection() != null) {
                   OpenWireConnection connection = oldContext.getConnection();
                   connection.disconnect(true);
                }
-               else
-               {
+               else {
                   // log error
                }
             }
-            else
-            {
-               throw new InvalidClientIDException("Broker: " + getBrokerName()
-                                                     + " - Client: " + clientId + " already connected from "
-                                                     + oldContext.getConnection().getRemoteAddress());
+            else {
+               throw new InvalidClientIDException("Broker: " + getBrokerName() + " - Client: " + clientId + " already connected from " + oldContext.getConnection().getRemoteAddress());
             }
          }
-         else
-         {
+         else {
             clientIdSet.put(clientId, context);
          }
       }
@@ -370,20 +320,15 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, No
       connectionInfos.put(copy.getConnectionId(), copy);
 
       // init the conn
-      addSessions(context.getConnection(), context.getConnectionState()
-         .getSessionIds());
+      addSessions(context.getConnection(), context.getConnectionState().getSessionIds());
    }
 
-   private void fireAdvisory(AMQConnectionContext context, ActiveMQTopic topic,
-                             Command copy) throws Exception
-   {
+   private void fireAdvisory(AMQConnectionContext context, ActiveMQTopic topic, Command copy) throws Exception {
       this.fireAdvisory(context, topic, copy, null);
    }
 
-   public BrokerId getBrokerId()
-   {
-      if (brokerId == null)
-      {
+   public BrokerId getBrokerId() {
+      if (brokerId == null) {
          brokerId = new BrokerId(BROKER_ID_GENERATOR.generateId());
       }
       return brokerId;
@@ -392,27 +337,24 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, No
    /*
     * See AdvisoryBroker.fireAdvisory()
     */
-   private void fireAdvisory(AMQConnectionContext context, ActiveMQTopic topic,
-                             Command command, ConsumerId targetConsumerId) throws Exception
-   {
+   private void fireAdvisory(AMQConnectionContext context,
+                             ActiveMQTopic topic,
+                             Command command,
+                             ConsumerId targetConsumerId) throws Exception {
       ActiveMQMessage advisoryMessage = new ActiveMQMessage();
-      advisoryMessage.setStringProperty(
-         AdvisorySupport.MSG_PROPERTY_ORIGIN_BROKER_NAME, getBrokerName());
+      advisoryMessage.setStringProperty(AdvisorySupport.MSG_PROPERTY_ORIGIN_BROKER_NAME, getBrokerName());
       String id = getBrokerId() != null ? getBrokerId().getValue() : "NOT_SET";
-      advisoryMessage.setStringProperty(
-         AdvisorySupport.MSG_PROPERTY_ORIGIN_BROKER_ID, id);
+      advisoryMessage.setStringProperty(AdvisorySupport.MSG_PROPERTY_ORIGIN_BROKER_ID, id);
 
       String url = "tcp://localhost:61616";
 
-      advisoryMessage.setStringProperty(
-         AdvisorySupport.MSG_PROPERTY_ORIGIN_BROKER_URL, url);
+      advisoryMessage.setStringProperty(AdvisorySupport.MSG_PROPERTY_ORIGIN_BROKER_URL, url);
 
       // set the data structure
       advisoryMessage.setDataStructure(command);
       advisoryMessage.setPersistent(false);
       advisoryMessage.setType(AdvisorySupport.ADIVSORY_MESSAGE_TYPE);
-      advisoryMessage.setMessageId(new MessageId(advisoryProducerId,
-                                                 messageIdGenerator.getNextSequenceId()));
+      advisoryMessage.setMessageId(new MessageId(advisoryProducerId, messageIdGenerator.getNextSequenceId()));
       advisoryMessage.setTargetConsumerId(targetConsumerId);
       advisoryMessage.setDestination(topic);
       advisoryMessage.setResponseRequired(false);
@@ -422,115 +364,84 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, No
       producerExchange.setConnectionContext(context);
       producerExchange.setMutable(true);
       producerExchange.setProducerState(new ProducerState(new ProducerInfo()));
-      try
-      {
+      try {
          context.setProducerFlowControl(false);
          AMQSession sess = context.getConnection().getAdvisorySession();
-         if (sess != null)
-         {
+         if (sess != null) {
             sess.send(producerExchange, advisoryMessage, false);
          }
       }
-      finally
-      {
+      finally {
          context.setProducerFlowControl(originalFlowControl);
       }
    }
 
-   public String getBrokerName()
-   {
-      if (brokerName == null)
-      {
-         try
-         {
-            brokerName = InetAddressUtil.getLocalHostName().toLowerCase(
-               Locale.ENGLISH);
+   public String getBrokerName() {
+      if (brokerName == null) {
+         try {
+            brokerName = InetAddressUtil.getLocalHostName().toLowerCase(Locale.ENGLISH);
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             brokerName = "localhost";
          }
       }
       return brokerName;
    }
 
-   public boolean isFaultTolerantConfiguration()
-   {
+   public boolean isFaultTolerantConfiguration() {
       return false;
    }
 
-   public void postProcessDispatch(MessageDispatch md)
-   {
+   public void postProcessDispatch(MessageDispatch md) {
       // TODO Auto-generated method stub
 
    }
 
-   public boolean isStopped()
-   {
+   public boolean isStopped() {
       // TODO Auto-generated method stub
       return false;
    }
 
-   public void preProcessDispatch(MessageDispatch messageDispatch)
-   {
+   public void preProcessDispatch(MessageDispatch messageDispatch) {
       // TODO Auto-generated method stub
 
    }
 
-   public boolean isStopping()
-   {
+   public boolean isStopping() {
       return false;
    }
 
-   public void addProducer(OpenWireConnection theConn, ProducerInfo info) throws Exception
-   {
+   public void addProducer(OpenWireConnection theConn, ProducerInfo info) throws Exception {
       SessionId sessionId = info.getProducerId().getParentId();
       ConnectionId connectionId = sessionId.getParentId();
       ConnectionState cs = theConn.getState();
-      if (cs == null)
-      {
-         throw new IllegalStateException(
-            "Cannot add a producer to a connection that had not been registered: "
-               + connectionId);
+      if (cs == null) {
+         throw new IllegalStateException("Cannot add a producer to a connection that had not been registered: " + connectionId);
       }
       SessionState ss = cs.getSessionState(sessionId);
-      if (ss == null)
-      {
-         throw new IllegalStateException(
-            "Cannot add a producer to a session that had not been registered: "
-               + sessionId);
+      if (ss == null) {
+         throw new IllegalStateException("Cannot add a producer to a session that had not been registered: " + sessionId);
       }
       // Avoid replaying dup commands
-      if (!ss.getProducerIds().contains(info.getProducerId()))
-      {
+      if (!ss.getProducerIds().contains(info.getProducerId())) {
          ActiveMQDestination destination = info.getDestination();
-         if (destination != null
-            && !AdvisorySupport.isAdvisoryTopic(destination))
-         {
-            if (theConn.getProducerCount() >= theConn
-               .getMaximumProducersAllowedPerConnection())
-            {
-               throw new IllegalStateException(
-                  "Can't add producer on connection " + connectionId
-                     + ": at maximum limit: "
-                     + theConn.getMaximumProducersAllowedPerConnection());
+         if (destination != null && !AdvisorySupport.isAdvisoryTopic(destination)) {
+            if (theConn.getProducerCount() >= theConn.getMaximumProducersAllowedPerConnection()) {
+               throw new IllegalStateException("Can't add producer on connection " + connectionId + ": at maximum limit: " + theConn.getMaximumProducersAllowedPerConnection());
             }
          }
 
          AMQSession amqSession = sessions.get(sessionId);
-         if (amqSession == null)
-         {
+         if (amqSession == null) {
             throw new IllegalStateException("Session not exist! : " + sessionId);
          }
 
          amqSession.createProducer(info);
 
-         try
-         {
+         try {
             ss.addProducer(info);
          }
-         catch (IllegalStateException e)
-         {
+         catch (IllegalStateException e) {
             amqSession.removeProducer(info);
          }
 
@@ -538,46 +449,29 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, No
 
    }
 
-   public void addConsumer(OpenWireConnection theConn, ConsumerInfo info) throws Exception
-   {
+   public void addConsumer(OpenWireConnection theConn, ConsumerInfo info) throws Exception {
       // Todo: add a destination interceptors holder here (amq supports this)
       SessionId sessionId = info.getConsumerId().getParentId();
       ConnectionId connectionId = sessionId.getParentId();
       ConnectionState cs = theConn.getState();
-      if (cs == null)
-      {
-         throw new IllegalStateException(
-            "Cannot add a consumer to a connection that had not been registered: "
-               + connectionId);
+      if (cs == null) {
+         throw new IllegalStateException("Cannot add a consumer to a connection that had not been registered: " + connectionId);
       }
       SessionState ss = cs.getSessionState(sessionId);
-      if (ss == null)
-      {
-         throw new IllegalStateException(
-            this.server
-               + " Cannot add a consumer to a session that had not been registered: "
-               + sessionId);
+      if (ss == null) {
+         throw new IllegalStateException(this.server + " Cannot add a consumer to a session that had not been registered: " + sessionId);
       }
       // Avoid replaying dup commands
-      if (!ss.getConsumerIds().contains(info.getConsumerId()))
-      {
+      if (!ss.getConsumerIds().contains(info.getConsumerId())) {
          ActiveMQDestination destination = info.getDestination();
-         if (destination != null
-            && !AdvisorySupport.isAdvisoryTopic(destination))
-         {
-            if (theConn.getConsumerCount() >= theConn
-               .getMaximumConsumersAllowedPerConnection())
-            {
-               throw new IllegalStateException(
-                  "Can't add consumer on connection " + connectionId
-                     + ": at maximum limit: "
-                     + theConn.getMaximumConsumersAllowedPerConnection());
+         if (destination != null && !AdvisorySupport.isAdvisoryTopic(destination)) {
+            if (theConn.getConsumerCount() >= theConn.getMaximumConsumersAllowedPerConnection()) {
+               throw new IllegalStateException("Can't add consumer on connection " + connectionId + ": at maximum limit: " + theConn.getMaximumConsumersAllowedPerConnection());
             }
          }
 
          AMQSession amqSession = sessions.get(sessionId);
-         if (amqSession == null)
-         {
+         if (amqSession == null) {
             throw new IllegalStateException("Session not exist! : " + sessionId);
          }
 
@@ -587,27 +481,20 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, No
       }
    }
 
-   public void addSessions(OpenWireConnection theConn, Set<SessionId> sessionSet)
-   {
+   public void addSessions(OpenWireConnection theConn, Set<SessionId> sessionSet) {
       Iterator<SessionId> iter = sessionSet.iterator();
-      while (iter.hasNext())
-      {
+      while (iter.hasNext()) {
          SessionId sid = iter.next();
-         addSession(theConn, theConn.getState().getSessionState(sid).getInfo(),
-                    true);
+         addSession(theConn, theConn.getState().getSessionState(sid).getInfo(), true);
       }
    }
 
-   public AMQSession addSession(OpenWireConnection theConn, SessionInfo ss)
-   {
+   public AMQSession addSession(OpenWireConnection theConn, SessionInfo ss) {
       return addSession(theConn, ss, false);
    }
 
-   public AMQSession addSession(OpenWireConnection theConn, SessionInfo ss,
-                                boolean internal)
-   {
-      AMQSession amqSession = new AMQSession(theConn.getState().getInfo(), ss,
-                                             server, theConn, scheduledPool, this);
+   public AMQSession addSession(OpenWireConnection theConn, SessionInfo ss, boolean internal) {
+      AMQSession amqSession = new AMQSession(theConn.getState().getInfo(), ss, server, theConn, scheduledPool, this);
       amqSession.initialize();
       amqSession.setInternal(internal);
       sessions.put(ss.getSessionId(), amqSession);
@@ -615,58 +502,45 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, No
       return amqSession;
    }
 
-   public void removeConnection(AMQConnectionContext context,
-                                ConnectionInfo info, Throwable error)
-   {
+   public void removeConnection(AMQConnectionContext context, ConnectionInfo info, Throwable error) {
       // todo roll back tx
       this.connections.remove(context.getConnection());
       this.connectionInfos.remove(info.getConnectionId());
       String clientId = info.getClientId();
-      if (clientId != null)
-      {
+      if (clientId != null) {
          this.clientIdSet.remove(clientId);
       }
    }
 
-   public void removeSession(AMQConnectionContext context, SessionInfo info) throws Exception
-   {
+   public void removeSession(AMQConnectionContext context, SessionInfo info) throws Exception {
       AMQSession session = sessions.remove(info.getSessionId());
-      if (session != null)
-      {
+      if (session != null) {
          session.close();
       }
    }
 
-   public void removeProducer(ProducerId id)
-   {
+   public void removeProducer(ProducerId id) {
       SessionId sessionId = id.getParentId();
       AMQSession session = sessions.get(sessionId);
       session.removeProducer(id);
    }
 
-   public AMQPersistenceAdapter getPersistenceAdapter()
-   {
+   public AMQPersistenceAdapter getPersistenceAdapter() {
       // TODO Auto-generated method stub
       return null;
    }
 
-   public AMQSession getSession(SessionId sessionId)
-   {
+   public AMQSession getSession(SessionId sessionId) {
       return sessions.get(sessionId);
    }
 
-   public void addDestination(OpenWireConnection connection,
-                              DestinationInfo info) throws Exception
-   {
+   public void addDestination(OpenWireConnection connection, DestinationInfo info) throws Exception {
       ActiveMQDestination dest = info.getDestination();
-      if (dest.isQueue())
-      {
-         SimpleString qName = new SimpleString("jms.queue."
-                                                  + dest.getPhysicalName());
+      if (dest.isQueue()) {
+         SimpleString qName = new SimpleString("jms.queue." + dest.getPhysicalName());
          ConnectionState state = connection.getState();
          ConnectionInfo connInfo = state.getInfo();
-         if (connInfo != null)
-         {
+         if (connInfo != null) {
             String user = connInfo.getUserName();
             String pass = connInfo.getPassword();
 
@@ -677,14 +551,12 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, No
             ((ActiveMQServerImpl) server).checkQueueCreationLimit(user);
          }
          this.server.createQueue(qName, qName, null, connInfo == null ? null : SimpleString.toSimpleString(connInfo.getUserName()), false, true);
-         if (dest.isTemporary())
-         {
+         if (dest.isTemporary()) {
             connection.registerTempQueue(qName);
          }
       }
 
-      if (!AdvisorySupport.isAdvisoryTopic(dest))
-      {
+      if (!AdvisorySupport.isAdvisoryTopic(dest)) {
          AMQConnectionContext context = connection.getConext();
          DestinationInfo advInfo = new DestinationInfo(context.getConnectionId(), DestinationInfo.ADD_OPERATION_TYPE, dest);
 
@@ -693,74 +565,58 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, No
       }
    }
 
-   public void deleteQueue(String q) throws Exception
-   {
+   public void deleteQueue(String q) throws Exception {
       server.destroyQueue(new SimpleString(q));
    }
 
-
-   public void endTransaction(TransactionInfo info) throws Exception
-   {
+   public void endTransaction(TransactionInfo info) throws Exception {
       AMQSession txSession = transactions.get(info.getTransactionId());
 
-      if (txSession != null)
-      {
+      if (txSession != null) {
          txSession.endTransaction(info);
       }
    }
 
-   public void commitTransactionOnePhase(TransactionInfo info) throws Exception
-   {
+   public void commitTransactionOnePhase(TransactionInfo info) throws Exception {
       AMQSession txSession = transactions.get(info.getTransactionId());
 
-      if (txSession != null)
-      {
+      if (txSession != null) {
          txSession.commitOnePhase(info);
       }
       transactions.remove(info.getTransactionId());
    }
 
-   public void prepareTransaction(TransactionInfo info) throws Exception
-   {
+   public void prepareTransaction(TransactionInfo info) throws Exception {
       XATransactionId xid = (XATransactionId) info.getTransactionId();
       AMQSession txSession = transactions.get(xid);
-      if (txSession != null)
-      {
+      if (txSession != null) {
          txSession.prepareTransaction(xid);
       }
    }
 
-   public void commitTransactionTwoPhase(TransactionInfo info) throws Exception
-   {
+   public void commitTransactionTwoPhase(TransactionInfo info) throws Exception {
       XATransactionId xid = (XATransactionId) info.getTransactionId();
       AMQSession txSession = transactions.get(xid);
-      if (txSession != null)
-      {
+      if (txSession != null) {
          txSession.commitTwoPhase(xid);
       }
       transactions.remove(xid);
    }
 
-   public void rollbackTransaction(TransactionInfo info) throws Exception
-   {
+   public void rollbackTransaction(TransactionInfo info) throws Exception {
       AMQSession txSession = transactions.get(info.getTransactionId());
-      if (txSession != null)
-      {
+      if (txSession != null) {
          txSession.rollback(info);
       }
       transactions.remove(info.getTransactionId());
    }
 
-   public TransactionId[] recoverTransactions(Set<SessionId> sIds)
-   {
+   public TransactionId[] recoverTransactions(Set<SessionId> sIds) {
       List<TransactionId> recovered = new ArrayList<TransactionId>();
-      if (sIds != null)
-      {
-         for (SessionId sid : sIds)
-         {
+      if (sIds != null) {
+         for (SessionId sid : sIds) {
             AMQSession s = this.sessions.get(sid);
-            if (s != null)
-            {
+            if (s != null) {
                s.recover(recovered);
             }
          }
@@ -768,46 +624,37 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, No
       return recovered.toArray(new TransactionId[0]);
    }
 
-   public boolean validateUser(String login, String passcode)
-   {
+   public boolean validateUser(String login, String passcode) {
       boolean validated = true;
 
       ActiveMQSecurityManager sm = server.getSecurityManager();
 
-      if (sm != null && server.getConfiguration().isSecurityEnabled())
-      {
+      if (sm != null && server.getConfiguration().isSecurityEnabled()) {
          validated = sm.validateUser(login, passcode);
       }
 
       return validated;
    }
 
-   public void forgetTransaction(TransactionId xid) throws Exception
-   {
+   public void forgetTransaction(TransactionId xid) throws Exception {
       AMQSession txSession = transactions.get(xid);
-      if (txSession != null)
-      {
+      if (txSession != null) {
          txSession.forget(xid);
       }
       transactions.remove(xid);
    }
 
-   public void registerTx(TransactionId txId, AMQSession amqSession)
-   {
+   public void registerTx(TransactionId txId, AMQSession amqSession) {
       transactions.put(txId, amqSession);
    }
 
    //advisory support
    @Override
-   public void onNotification(Notification notif)
-   {
-      try
-      {
-         if (notif.getType() instanceof CoreNotificationType)
-         {
-            CoreNotificationType type = (CoreNotificationType)notif.getType();
-            switch (type)
-            {
+   public void onNotification(Notification notif) {
+      try {
+         if (notif.getType() instanceof CoreNotificationType) {
+            CoreNotificationType type = (CoreNotificationType) notif.getType();
+            switch (type) {
                case CONSUMER_SLOW:
                   fireSlowConsumer(notif);
                   break;
@@ -816,14 +663,12 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, No
             }
          }
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          ActiveMQServerLogger.LOGGER.error("Failed to send notification " + notif, e);
       }
    }
 
-   private void fireSlowConsumer(Notification notif) throws Exception
-   {
+   private void fireSlowConsumer(Notification notif) throws Exception {
       SimpleString coreSessionId = notif.getProperties().getSimpleStringProperty(ManagementHelper.HDR_SESSION_NAME);
       Long coreConsumerId = notif.getProperties().getLongProperty(ManagementHelper.HDR_CONSUMER_NAME);
       SessionId sessionId = sessionIdMap.get(coreSessionId.toString());
@@ -831,8 +676,7 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, No
       AMQConsumer consumer = session.getConsumer(coreConsumerId);
       ActiveMQDestination destination = consumer.getDestination();
 
-      if (!AdvisorySupport.isAdvisoryTopic(destination))
-      {
+      if (!AdvisorySupport.isAdvisoryTopic(destination)) {
          ActiveMQTopic topic = AdvisorySupport.getSlowConsumerAdvisoryTopic(destination);
          ConnectionId connId = sessionId.getParentId();
          OpenWireConnection cc = this.brokerConnectionStates.get(connId);
@@ -843,11 +687,8 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, No
       }
    }
 
-   public void removeSubscription(RemoveSubscriptionInfo subInfo) throws Exception
-   {
-      SimpleString subQueueName = new SimpleString(
-              org.apache.activemq.artemis.jms.client.ActiveMQDestination.createQueueNameForDurableSubscription(
-                      true, subInfo.getClientId(), subInfo.getSubscriptionName()));
+   public void removeSubscription(RemoveSubscriptionInfo subInfo) throws Exception {
+      SimpleString subQueueName = new SimpleString(org.apache.activemq.artemis.jms.client.ActiveMQDestination.createQueueNameForDurableSubscription(true, subInfo.getClientId(), subInfo.getSubscriptionName()));
       server.destroyQueue(subQueueName);
    }
 }

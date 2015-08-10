@@ -31,17 +31,13 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory;
 
 /**
- *
  * This example shows how to run an ActiveMQ Artemis core client and server embedded in your
  * own application
  */
-public class EmbeddedRemoteExample
-{
+public class EmbeddedRemoteExample {
 
-   public static void main(final String[] args)
-   {
-      try
-      {
+   public static void main(final String[] args) {
+      try {
          // Step 3. As we are not using a JNDI environment we instantiate the objects directly
 
          /**
@@ -49,7 +45,7 @@ public class EmbeddedRemoteExample
           * If you modify it to run the example in two different hosts, remember to also modify the
           * server's Acceptor at {@link EmbeddedServer}
           */
-         Map<String,Object> map = new HashMap<String,Object>();
+         Map<String, Object> map = new HashMap<String, Object>();
          map.put("host", "localhost");
          map.put("port", 61616);
          // -------------------------------------------------------
@@ -68,8 +64,7 @@ public class EmbeddedRemoteExample
 
          ClientSession session = null;
 
-         try
-         {
+         try {
 
             // Step 5. Create the session, and producer
             session = sf.createSession();
@@ -95,17 +90,14 @@ public class EmbeddedRemoteExample
             ClientMessage messageReceived = messageConsumer.receive(1000);
             System.out.println("Received TextMessage:" + messageReceived.getStringProperty(propName));
          }
-         finally
-         {
+         finally {
             // Step 9. Be sure to close our resources!
-            if (sf != null)
-            {
+            if (sf != null) {
                sf.close();
             }
          }
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          e.printStackTrace();
       }
    }

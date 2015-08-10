@@ -38,18 +38,15 @@ import org.junit.Test;
 /**
  * This is an integration-tests that will take some time to run.
  */
-public class PageStressTest extends ActiveMQTestBase
-{
+public class PageStressTest extends ActiveMQTestBase {
+
    private ActiveMQServer server;
 
    private ServerLocator locator;
 
    @Test
-   public void testStopDuringDepage() throws Exception
-   {
-      Configuration config = createDefaultInVMConfig()
-              .setJournalSyncNonTransactional(false)
-              .setJournalSyncTransactional(false);
+   public void testStopDuringDepage() throws Exception {
+      Configuration config = createDefaultInVMConfig().setJournalSyncNonTransactional(false).setJournalSyncTransactional(false);
 
       HashMap<String, AddressSettings> settings = new HashMap<String, AddressSettings>();
 
@@ -71,10 +68,8 @@ public class PageStressTest extends ActiveMQTestBase
 
       ClientMessage message = createBytesMessage(session, ActiveMQBytesMessage.TYPE, new byte[700], true);
 
-      for (int i = 0; i < NUMBER_OF_MESSAGES; i++)
-      {
-         if (i % 10000 == 0)
-         {
+      for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
+         if (i % 10000 == 0) {
             System.out.println("Sent " + i);
          }
          prod.send(message);
@@ -88,19 +83,15 @@ public class PageStressTest extends ActiveMQTestBase
 
       int msgs = 0;
       ClientMessage msg;
-      do
-      {
+      do {
          msg = consumer.receive(10000);
-         if (msg != null)
-         {
+         if (msg != null) {
             msg.acknowledge();
-            if (++msgs % 1000 == 0)
-            {
+            if (++msgs % 1000 == 0) {
                System.out.println("Received " + msgs);
             }
          }
-      }
-      while (msg != null);
+      } while (msg != null);
 
       session.commit();
 
@@ -122,20 +113,16 @@ public class PageStressTest extends ActiveMQTestBase
 
       session.start();
 
-      do
-      {
+      do {
          msg = consumer.receive(10000);
-         if (msg != null)
-         {
+         if (msg != null) {
             msg.acknowledge();
             session.commit();
-            if (++msgs % 1000 == 0)
-            {
+            if (++msgs % 1000 == 0) {
                System.out.println("Received " + msgs);
             }
          }
-      }
-      while (msg != null);
+      } while (msg != null);
 
       System.out.println("msgs second time: " + msgs);
 
@@ -143,12 +130,10 @@ public class PageStressTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testPageOnMultipleDestinations() throws Exception
-   {
+   public void testPageOnMultipleDestinations() throws Exception {
       HashMap<String, AddressSettings> settings = new HashMap<>();
 
-      AddressSettings setting = new AddressSettings()
-              .setMaxSizeBytes(20 * 1024 * 1024);
+      AddressSettings setting = new AddressSettings().setMaxSizeBytes(20 * 1024 * 1024);
       settings.put("page-adr", setting);
 
       server = addServer(createServer(true, createDefaultInVMConfig(), 10 * 1024 * 1024, 20 * 1024 * 1024, settings));
@@ -171,10 +156,8 @@ public class PageStressTest extends ActiveMQTestBase
 
       int NUMBER_OF_MESSAGES = 60000;
 
-      for (int i = 0; i < NUMBER_OF_MESSAGES; i++)
-      {
-         if (i % 10000 == 0)
-         {
+      for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
+         if (i % 10000 == 0) {
             System.out.println(i);
          }
          prod.send(message);
@@ -186,11 +169,9 @@ public class PageStressTest extends ActiveMQTestBase
 
       int[] counters = new int[2];
 
-      ClientConsumer[] consumers = new ClientConsumer[]{session.createConsumer(queue[0]),
-              session.createConsumer(queue[1])};
+      ClientConsumer[] consumers = new ClientConsumer[]{session.createConsumer(queue[0]), session.createConsumer(queue[1])};
 
-      while (true)
-      {
+      while (true) {
          int msgs1 = readMessages(session, consumers[0], queue[0]);
          int msgs2 = readMessages(session, consumers[1], queue[1]);
          counters[0] += msgs1;
@@ -198,8 +179,7 @@ public class PageStressTest extends ActiveMQTestBase
 
          System.out.println("msgs1 = " + msgs1 + " msgs2 = " + msgs2);
 
-         if (msgs1 + msgs2 == 0)
-         {
+         if (msgs1 + msgs2 == 0) {
             break;
          }
       }
@@ -211,27 +191,24 @@ public class PageStressTest extends ActiveMQTestBase
       Assert.assertEquals(NUMBER_OF_MESSAGES, counters[1]);
    }
 
-   private int readMessages(final ClientSession session, final ClientConsumer consumer, final SimpleString queue) throws ActiveMQException
-   {
+   private int readMessages(final ClientSession session,
+                            final ClientConsumer consumer,
+                            final SimpleString queue) throws ActiveMQException {
       session.start();
       int msgs = 0;
 
       ClientMessage msg = null;
-      do
-      {
+      do {
          msg = consumer.receive(1000);
-         if (msg != null)
-         {
+         if (msg != null) {
             msg.acknowledge();
-            if (++msgs % 10000 == 0)
-            {
+            if (++msgs % 10000 == 0) {
                System.out.println("received " + msgs);
                session.commit();
 
             }
          }
-      }
-      while (msg != null);
+      } while (msg != null);
 
       session.commit();
 
@@ -242,23 +219,16 @@ public class PageStressTest extends ActiveMQTestBase
 
    // Protected -----------------------------------------------------
    @Override
-   protected Configuration createDefaultInVMConfig() throws Exception
-   {
-      Configuration config = super.createDefaultInVMConfig()
-         .setJournalFileSize(10 * 1024 * 1024)
-         .setJournalMinFiles(5);
+   protected Configuration createDefaultInVMConfig() throws Exception {
+      Configuration config = super.createDefaultInVMConfig().setJournalFileSize(10 * 1024 * 1024).setJournalMinFiles(5);
 
       return config;
    }
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
-      locator = createInVMNonHALocator()
-              .setBlockOnAcknowledge(true)
-              .setBlockOnDurableSend(false)
-              .setBlockOnNonDurableSend(false);
+      locator = createInVMNonHALocator().setBlockOnAcknowledge(true).setBlockOnDurableSend(false).setBlockOnNonDurableSend(false);
    }
 }

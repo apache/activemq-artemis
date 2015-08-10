@@ -20,19 +20,17 @@ import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.core.message.impl.MessageInternal;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 
-public abstract class MessagePacket extends PacketImpl
-{
+public abstract class MessagePacket extends PacketImpl {
+
    protected MessageInternal message;
 
-   public MessagePacket(final byte type, final MessageInternal message)
-   {
+   public MessagePacket(final byte type, final MessageInternal message) {
       super(type);
 
       this.message = message;
    }
 
-   public Message getMessage()
-   {
+   public Message getMessage() {
       return message;
    }
 

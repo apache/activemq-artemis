@@ -17,6 +17,7 @@
 package org.apache.activemq.transport.tcp;
 
 import junit.framework.TestCase;
+
 import org.apache.activemq.transport.*;
 
 import java.net.Socket;
@@ -26,54 +27,52 @@ import java.util.HashMap;
 /**
  * @author <a href="http://www.christianposta.com/blog">Christian Posta</a>
  */
-public class TcpTransportServerTest extends TestCase{
+public class TcpTransportServerTest extends TestCase {
 
-    public void testDefaultPropertiesSetOnTransport() throws Exception {
-        TcpTransportServer server = (TcpTransportServer) TransportFactory.bind(new URI("tcp://localhost:61616?trace=true"));
-        server.setTransportOption(new HashMap<String, Object>());
+   public void testDefaultPropertiesSetOnTransport() throws Exception {
+      TcpTransportServer server = (TcpTransportServer) TransportFactory.bind(new URI("tcp://localhost:61616?trace=true"));
+      server.setTransportOption(new HashMap<String, Object>());
 
-        server.setAcceptListener(new TransportAcceptListener() {
-            @Override
-            public void onAccept(Transport transport) {
-                assertTrue("This transport does not have a TransportLogger!!", hasTransportLogger(transport));
+      server.setAcceptListener(new TransportAcceptListener() {
+         @Override
+         public void onAccept(Transport transport) {
+            assertTrue("This transport does not have a TransportLogger!!", hasTransportLogger(transport));
+         }
+
+         @Override
+         public void onAcceptError(Exception error) {
+            fail("Should not have received an error!");
+         }
+      });
+
+      server.start();
+
+      Socket socket = new Socket("localhost", 61616);
+      server.handleSocket(socket);
+      server.stop();
+
+   }
+
+   private boolean hasTransportLogger(Transport transport) {
+      boolean end = false;
+
+      Transport current = transport;
+      while (!end) {
+
+         if (current instanceof TransportFilter) {
+            TransportFilter filter = (TransportFilter) current;
+
+            if (filter instanceof TransportLogger) {
+               return true;
             }
 
-            @Override
-            public void onAcceptError(Exception error) {
-                fail("Should not have received an error!");
-            }
-        });
+            current = filter.getNext();
+         }
+         else {
+            end = true;
+         }
+      }
 
-        server.start();
-
-
-        Socket socket = new Socket("localhost", 61616);
-        server.handleSocket(socket);
-        server.stop();
-
-
-    }
-
-    private boolean hasTransportLogger(Transport transport) {
-        boolean end = false;
-
-        Transport current = transport;
-        while(!end) {
-
-            if (current instanceof TransportFilter) {
-                TransportFilter filter = (TransportFilter) current;
-
-                if(filter instanceof TransportLogger){
-                    return true;
-                }
-
-                current = filter.getNext();
-            }
-            else {
-                end = true;
-            }
-        }
-
-        return false;
-    }
+      return false;
+   }
 }

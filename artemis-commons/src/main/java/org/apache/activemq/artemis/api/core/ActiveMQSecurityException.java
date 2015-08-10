@@ -21,17 +21,15 @@ import static org.apache.activemq.artemis.api.core.ActiveMQExceptionType.SECURIT
 /**
  * A security problem occurred (authentication issues, permission issues,...)
  */
-public final class ActiveMQSecurityException extends ActiveMQException
-{
+public final class ActiveMQSecurityException extends ActiveMQException {
+
    private static final long serialVersionUID = 3291210307590756881L;
 
-   public ActiveMQSecurityException()
-   {
+   public ActiveMQSecurityException() {
       super(SECURITY_EXCEPTION);
    }
 
-   public ActiveMQSecurityException(String msg)
-   {
+   public ActiveMQSecurityException(String msg) {
       super(SECURITY_EXCEPTION, msg);
    }
 }

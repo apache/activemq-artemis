@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
+
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.junit.Before;
 
@@ -31,21 +32,20 @@ import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
 
-public class BackupAuthenticationTest extends FailoverTestBase
-{
+public class BackupAuthenticationTest extends FailoverTestBase {
+
    private static CountDownLatch latch;
+
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       startBackupServer = false;
       latch = new CountDownLatch(1);
       super.setUp();
    }
 
    @Test
-   public void testPasswordSetting() throws Exception
-   {
+   public void testPasswordSetting() throws Exception {
       waitForServerToStart(liveServer.getServer());
       backupServer.start();
       assertTrue(latch.await(5, TimeUnit.SECONDS));
@@ -61,8 +61,7 @@ public class BackupAuthenticationTest extends FailoverTestBase
    }
 
    @Override
-   protected void createConfigs() throws Exception
-   {
+   protected void createConfigs() throws Exception {
       createReplicatedConfigs();
       backupConfig.setClusterPassword("crocodile");
       liveConfig.setIncomingInterceptorClassNames(Arrays.asList(NotifyingInterceptor.class.getName()));
@@ -71,29 +70,23 @@ public class BackupAuthenticationTest extends FailoverTestBase
    }
 
    @Override
-   protected TransportConfiguration getAcceptorTransportConfiguration(boolean live)
-   {
+   protected TransportConfiguration getAcceptorTransportConfiguration(boolean live) {
       return TransportConfigurationUtils.getInVMAcceptor(live);
    }
 
    @Override
-   protected TransportConfiguration getConnectorTransportConfiguration(boolean live)
-   {
+   protected TransportConfiguration getConnectorTransportConfiguration(boolean live) {
       return TransportConfigurationUtils.getInVMConnector(live);
    }
 
-   public static final class NotifyingInterceptor implements Interceptor
-   {
+   public static final class NotifyingInterceptor implements Interceptor {
 
       @Override
-      public boolean intercept(Packet packet, RemotingConnection connection) throws ActiveMQException
-      {
-         if (packet.getType() == PacketImpl.BACKUP_REGISTRATION)
-         {
+      public boolean intercept(Packet packet, RemotingConnection connection) throws ActiveMQException {
+         if (packet.getType() == PacketImpl.BACKUP_REGISTRATION) {
             latch.countDown();
          }
-         else if (packet.getType() == PacketImpl.CLUSTER_CONNECT)
-         {
+         else if (packet.getType() == PacketImpl.CLUSTER_CONNECT) {
             latch.countDown();
          }
          return true;

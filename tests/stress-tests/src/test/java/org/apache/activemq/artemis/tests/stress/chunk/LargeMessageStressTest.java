@@ -19,8 +19,7 @@ package org.apache.activemq.artemis.tests.stress.chunk;
 import org.apache.activemq.artemis.tests.integration.largemessage.LargeMessageTestBase;
 import org.junit.Test;
 
-public class LargeMessageStressTest extends LargeMessageTestBase
-{
+public class LargeMessageStressTest extends LargeMessageTestBase {
 
    // Constants -----------------------------------------------------
 
@@ -33,23 +32,8 @@ public class LargeMessageStressTest extends LargeMessageTestBase
    // Public --------------------------------------------------------
 
    @Test
-   public void testMessageChunkFilePersistenceOneHugeMessage() throws Exception
-   {
-      testChunks(false,
-                 false,
-                 false,
-                 true,
-                 true,
-                 false,
-                 false,
-                 false,
-                 true,
-                 1,
-                 200 * 1024L * 1024L + 1024L,
-                 120000,
-                 0,
-                 10 * 1024 * 1024,
-                 1024 * 1024);
+   public void testMessageChunkFilePersistenceOneHugeMessage() throws Exception {
+      testChunks(false, false, false, true, true, false, false, false, true, 1, 200 * 1024L * 1024L + 1024L, 120000, 0, 10 * 1024 * 1024, 1024 * 1024);
    }
 
    // Package protected ---------------------------------------------

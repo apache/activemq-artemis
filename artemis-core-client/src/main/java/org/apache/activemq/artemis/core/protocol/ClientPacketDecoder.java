@@ -27,14 +27,13 @@ import org.apache.activemq.artemis.core.protocol.core.impl.PacketDecoder;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionReceiveClientLargeMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionReceiveMessage;
 
-public class ClientPacketDecoder extends PacketDecoder
-{
+public class ClientPacketDecoder extends PacketDecoder {
+
    private static final long serialVersionUID = 6952614096979334582L;
    public static final ClientPacketDecoder INSTANCE = new ClientPacketDecoder();
 
    @Override
-   public  Packet decode(final ActiveMQBuffer in)
-   {
+   public Packet decode(final ActiveMQBuffer in) {
       final byte packetType = in.readByte();
 
       Packet packet = decode(packetType);
@@ -45,24 +44,19 @@ public class ClientPacketDecoder extends PacketDecoder
    }
 
    @Override
-   public Packet decode(byte packetType)
-   {
+   public Packet decode(byte packetType) {
       Packet packet;
 
-      switch (packetType)
-      {
-         case SESS_RECEIVE_MSG:
-         {
+      switch (packetType) {
+         case SESS_RECEIVE_MSG: {
             packet = new SessionReceiveMessage(new ClientMessageImpl());
             break;
          }
-         case SESS_RECEIVE_LARGE_MSG:
-         {
+         case SESS_RECEIVE_LARGE_MSG: {
             packet = new SessionReceiveClientLargeMessage(new ClientLargeMessageImpl());
             break;
          }
-         default:
-         {
+         default: {
             packet = super.decode(packetType);
          }
       }

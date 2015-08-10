@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
+
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.tests.integration.cluster.util.BackupSyncDelay;
 import org.junit.After;
@@ -23,14 +24,13 @@ import org.junit.Before;
 /**
  * See {@link BackupSyncDelay} for the rationale about these 'WithDelay' tests.
  */
-public class ReplicatedLargeMessageWithDelayFailoverTest extends ReplicatedLargeMessageFailoverTest
-{
+public class ReplicatedLargeMessageWithDelayFailoverTest extends ReplicatedLargeMessageFailoverTest {
+
    private BackupSyncDelay syncDelay;
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       startBackupServer = false;
       super.setUp();
       syncDelay = new BackupSyncDelay(backupServer, liveServer);
@@ -38,14 +38,12 @@ public class ReplicatedLargeMessageWithDelayFailoverTest extends ReplicatedLarge
    }
 
    @Override
-   protected void crash(ClientSession... sessions) throws Exception
-   {
+   protected void crash(ClientSession... sessions) throws Exception {
       crash(true, sessions);
    }
 
    @Override
-   protected void crash(boolean waitFailure, ClientSession... sessions) throws Exception
-   {
+   protected void crash(boolean waitFailure, ClientSession... sessions) throws Exception {
       syncDelay.deliverUpToDateMsg();
       waitForBackup(null, 30);
       super.crash(waitFailure, sessions);
@@ -53,8 +51,7 @@ public class ReplicatedLargeMessageWithDelayFailoverTest extends ReplicatedLarge
 
    @Override
    @After
-   public void tearDown() throws Exception
-   {
+   public void tearDown() throws Exception {
       syncDelay.deliverUpToDateMsg();
       super.tearDown();
    }

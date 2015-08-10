@@ -30,8 +30,8 @@ import org.apache.activemq.artemis.core.remoting.CloseListener;
 import org.apache.activemq.artemis.core.remoting.FailureListener;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 
-public abstract class AbstractRemotingConnection implements RemotingConnection
-{
+public abstract class AbstractRemotingConnection implements RemotingConnection {
+
    protected final List<FailureListener> failureListeners = new CopyOnWriteArrayList<FailureListener>();
    protected final List<CloseListener> closeListeners = new CopyOnWriteArrayList<CloseListener>();
    protected final Connection transportConnection;
@@ -39,35 +39,28 @@ public abstract class AbstractRemotingConnection implements RemotingConnection
    protected final long creationTime;
    protected volatile boolean dataReceived;
 
-   public AbstractRemotingConnection(final Connection transportConnection, final Executor executor)
-   {
+   public AbstractRemotingConnection(final Connection transportConnection, final Executor executor) {
       this.transportConnection = transportConnection;
       this.executor = executor;
       this.creationTime = System.currentTimeMillis();
    }
 
-   public List<FailureListener> getFailureListeners()
-   {
+   public List<FailureListener> getFailureListeners() {
       return new ArrayList<FailureListener>(failureListeners);
    }
 
-   protected void callFailureListeners(final ActiveMQException me, String scaleDownTargetNodeID)
-   {
+   protected void callFailureListeners(final ActiveMQException me, String scaleDownTargetNodeID) {
       final List<FailureListener> listenersClone = new ArrayList<FailureListener>(failureListeners);
 
-      for (final FailureListener listener : listenersClone)
-      {
-         try
-         {
+      for (final FailureListener listener : listenersClone) {
+         try {
             listener.connectionFailed(me, false, scaleDownTargetNodeID);
          }
-         catch (ActiveMQInterruptedException interrupted)
-         {
+         catch (ActiveMQInterruptedException interrupted) {
             // this is an expected behaviour.. no warn or error here
             ActiveMQClientLogger.LOGGER.debug("thread interrupted", interrupted);
          }
-         catch (final Throwable t)
-         {
+         catch (final Throwable t) {
             // Failure of one listener to execute shouldn't prevent others
             // from
             // executing
@@ -76,19 +69,14 @@ public abstract class AbstractRemotingConnection implements RemotingConnection
       }
    }
 
-
-   protected void callClosingListeners()
-   {
+   protected void callClosingListeners() {
       final List<CloseListener> listenersClone = new ArrayList<CloseListener>(closeListeners);
 
-      for (final CloseListener listener : listenersClone)
-      {
-         try
-         {
+      for (final CloseListener listener : listenersClone) {
+         try {
             listener.connectionClosed();
          }
-         catch (final Throwable t)
-         {
+         catch (final Throwable t) {
             // Failure of one listener to execute shouldn't prevent others
             // from
             // executing
@@ -97,64 +85,52 @@ public abstract class AbstractRemotingConnection implements RemotingConnection
       }
    }
 
-   public void setFailureListeners(final List<FailureListener> listeners)
-   {
+   public void setFailureListeners(final List<FailureListener> listeners) {
       failureListeners.clear();
 
       failureListeners.addAll(listeners);
    }
 
-   public Object getID()
-   {
+   public Object getID() {
       return transportConnection.getID();
    }
 
-   public String getRemoteAddress()
-   {
+   public String getRemoteAddress() {
       return transportConnection.getRemoteAddress();
    }
 
-   public void addFailureListener(final FailureListener listener)
-   {
-      if (listener == null)
-      {
+   public void addFailureListener(final FailureListener listener) {
+      if (listener == null) {
          throw ActiveMQClientMessageBundle.BUNDLE.failListenerCannotBeNull();
       }
       failureListeners.add(listener);
    }
 
-   public boolean removeFailureListener(final FailureListener listener)
-   {
-      if (listener == null)
-      {
+   public boolean removeFailureListener(final FailureListener listener) {
+      if (listener == null) {
          throw ActiveMQClientMessageBundle.BUNDLE.failListenerCannotBeNull();
       }
 
       return failureListeners.remove(listener);
    }
 
-   public void addCloseListener(final CloseListener listener)
-   {
-      if (listener == null)
-      {
+   public void addCloseListener(final CloseListener listener) {
+      if (listener == null) {
          throw ActiveMQClientMessageBundle.BUNDLE.closeListenerCannotBeNull();
       }
 
       closeListeners.add(listener);
    }
 
-   public boolean removeCloseListener(final CloseListener listener)
-   {
-      if (listener == null)
-      {
+   public boolean removeCloseListener(final CloseListener listener) {
+      if (listener == null) {
          throw ActiveMQClientMessageBundle.BUNDLE.closeListenerCannotBeNull();
       }
 
       return closeListeners.remove(listener);
    }
 
-   public List<CloseListener> removeCloseListeners()
-   {
+   public List<CloseListener> removeCloseListeners() {
       List<CloseListener> ret = new ArrayList<CloseListener>(closeListeners);
 
       closeListeners.clear();
@@ -162,8 +138,7 @@ public abstract class AbstractRemotingConnection implements RemotingConnection
       return ret;
    }
 
-   public List<FailureListener> removeFailureListeners()
-   {
+   public List<FailureListener> removeFailureListeners() {
       List<FailureListener> ret = getFailureListeners();
 
       failureListeners.clear();
@@ -171,30 +146,25 @@ public abstract class AbstractRemotingConnection implements RemotingConnection
       return ret;
    }
 
-   public void setCloseListeners(List<CloseListener> listeners)
-   {
+   public void setCloseListeners(List<CloseListener> listeners) {
       closeListeners.clear();
 
       closeListeners.addAll(listeners);
    }
 
-   public ActiveMQBuffer createTransportBuffer(final int size)
-   {
+   public ActiveMQBuffer createTransportBuffer(final int size) {
       return transportConnection.createTransportBuffer(size);
    }
 
-   public Connection getTransportConnection()
-   {
+   public Connection getTransportConnection() {
       return transportConnection;
    }
 
-   public long getCreationTime()
-   {
+   public long getCreationTime() {
       return creationTime;
    }
 
-   public boolean checkDataReceived()
-   {
+   public boolean checkDataReceived() {
       boolean res = dataReceived;
 
       dataReceived = false;
@@ -205,13 +175,11 @@ public abstract class AbstractRemotingConnection implements RemotingConnection
    /*
     * This can be called concurrently by more than one thread so needs to be locked
     */
-   public void fail(final ActiveMQException me)
-   {
+   public void fail(final ActiveMQException me) {
       fail(me, null);
    }
 
-   public void bufferReceived(final Object connectionID, final ActiveMQBuffer buffer)
-   {
+   public void bufferReceived(final Object connectionID, final ActiveMQBuffer buffer) {
       dataReceived = true;
    }
 

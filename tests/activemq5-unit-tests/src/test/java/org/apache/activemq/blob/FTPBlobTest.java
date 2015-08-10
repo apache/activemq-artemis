@@ -32,44 +32,43 @@ import org.apache.activemq.command.ActiveMQBlobMessage;
 
 public class FTPBlobTest extends FTPTestSupport {
 
-    public void testBlobFile() throws Exception {
-        setConnection();
-        // first create Message
-        File file = File.createTempFile("amq-data-file-", ".dat");
-        // lets write some data
-        String content = "hello world " + System.currentTimeMillis();
-        BufferedWriter writer = new BufferedWriter(new FileWriter(file));
-        writer.append(content);
-        writer.close();
+   public void testBlobFile() throws Exception {
+      setConnection();
+      // first create Message
+      File file = File.createTempFile("amq-data-file-", ".dat");
+      // lets write some data
+      String content = "hello world " + System.currentTimeMillis();
+      BufferedWriter writer = new BufferedWriter(new FileWriter(file));
+      writer.append(content);
+      writer.close();
 
-        ActiveMQSession session = (ActiveMQSession) connection.createSession(
-                false, Session.AUTO_ACKNOWLEDGE);
-        MessageProducer producer = session.createProducer(destination);
-        MessageConsumer consumer = session.createConsumer(destination);
-        BlobMessage message = session.createBlobMessage(file);
-        message.setName("fileName");
+      ActiveMQSession session = (ActiveMQSession) connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      MessageProducer producer = session.createProducer(destination);
+      MessageConsumer consumer = session.createConsumer(destination);
+      BlobMessage message = session.createBlobMessage(file);
+      message.setName("fileName");
 
-        producer.send(message);
-        Thread.sleep(1000);
+      producer.send(message);
+      Thread.sleep(1000);
 
-        // check message send
-        Message msg = consumer.receive(1000);
-        assertTrue(msg instanceof ActiveMQBlobMessage);
+      // check message send
+      Message msg = consumer.receive(1000);
+      assertTrue(msg instanceof ActiveMQBlobMessage);
 
-        assertEquals("name is correct", "fileName", ((ActiveMQBlobMessage)msg).getName());
-        InputStream input = ((ActiveMQBlobMessage) msg).getInputStream();
-        StringBuilder b = new StringBuilder();
-        int i = input.read();
-        while (i != -1) {
-            b.append((char) i);
-            i = input.read();
-        }
-        input.close();
-        File uploaded = new File(ftpHomeDirFile, msg.getJMSMessageID().toString().replace(":", "_"));
-        assertEquals(content, b.toString());
-        assertTrue(uploaded.exists());
-        ((ActiveMQBlobMessage)msg).deleteFile();
-        assertFalse(uploaded.exists());
-    }
+      assertEquals("name is correct", "fileName", ((ActiveMQBlobMessage) msg).getName());
+      InputStream input = ((ActiveMQBlobMessage) msg).getInputStream();
+      StringBuilder b = new StringBuilder();
+      int i = input.read();
+      while (i != -1) {
+         b.append((char) i);
+         i = input.read();
+      }
+      input.close();
+      File uploaded = new File(ftpHomeDirFile, msg.getJMSMessageID().toString().replace(":", "_"));
+      assertEquals(content, b.toString());
+      assertTrue(uploaded.exists());
+      ((ActiveMQBlobMessage) msg).deleteFile();
+      assertFalse(uploaded.exists());
+   }
 
 }

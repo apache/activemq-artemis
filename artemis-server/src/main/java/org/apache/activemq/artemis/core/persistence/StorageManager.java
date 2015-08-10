@@ -57,15 +57,12 @@ import org.apache.activemq.artemis.utils.IDGenerator;
  *
  * Note about IDGEnerator
  *
- *  I've changed StorageManager to extend IDGenerator, because in some places
- *  all we needed from the StorageManager was the idGeneration.
- *  I couldn't just get the IDGenerator from the inner part because the NullPersistent has its own sequence.
- *  So the best was to add the interface and adjust the callers for the method
- *
-
+ * I've changed StorageManager to extend IDGenerator, because in some places
+ * all we needed from the StorageManager was the idGeneration.
+ * I couldn't just get the IDGenerator from the inner part because the NullPersistent has its own sequence.
+ * So the best was to add the interface and adjust the callers for the method
  */
-public interface StorageManager extends IDGenerator, ActiveMQComponent
-{
+public interface StorageManager extends IDGenerator, ActiveMQComponent {
 
    /**
     * Get the context associated with the thread for later reuse
@@ -136,7 +133,6 @@ public interface StorageManager extends IDGenerator, ActiveMQComponent
     * @throws Exception
     */
    void afterPageRead() throws Exception;
-
 
    /**
     * AIO has an optimized buffer which has a method to release it
@@ -219,18 +215,15 @@ public interface StorageManager extends IDGenerator, ActiveMQComponent
     */
    LargeServerMessage createLargeMessage(long id, MessageInternal message) throws Exception;
 
-   enum LargeMessageExtension
-   {
+   enum LargeMessageExtension {
       DURABLE(".msg"), TEMPORARY(".tmp"), SYNC(".sync");
       final String extension;
 
-      private LargeMessageExtension(String extension)
-      {
+      private LargeMessageExtension(String extension) {
          this.extension = extension;
       }
 
-      public String getExtension()
-      {
+      public String getExtension() {
          return extension;
       }
    }
@@ -274,8 +267,7 @@ public interface StorageManager extends IDGenerator, ActiveMQComponent
                                              final Map<SimpleString, List<Pair<byte[], Long>>> duplicateIDMap,
                                              final Set<Pair<Long, Long>> pendingLargeMessages,
                                              List<PageCountPending> pendingNonTXPageCounter,
-                                             final JournalLoader journalLoader
-   ) throws Exception;
+                                             final JournalLoader journalLoader) throws Exception;
 
    long storeHeuristicCompletion(Xid xid, boolean isCommit) throws Exception;
 
@@ -287,7 +279,8 @@ public interface StorageManager extends IDGenerator, ActiveMQComponent
 
    void deleteQueueBinding(long tx, long queueBindingID) throws Exception;
 
-   JournalLoadInformation loadBindingJournal(List<QueueBindingInfo> queueBindingInfos, List<GroupingInfo> groupingInfos) throws Exception;
+   JournalLoadInformation loadBindingJournal(List<QueueBindingInfo> queueBindingInfos,
+                                             List<GroupingInfo> groupingInfos) throws Exception;
 
    // grouping related operations
    void addGrouping(GroupBinding groupBinding) throws Exception;
@@ -344,7 +337,9 @@ public interface StorageManager extends IDGenerator, ActiveMQComponent
    /**
     * @see org.apache.activemq.artemis.core.persistence.impl.journal.JournalStorageManager#startReplication(org.apache.activemq.artemis.core.replication.ReplicationManager, org.apache.activemq.artemis.core.paging.PagingManager, String, boolean)
     */
-   void startReplication(ReplicationManager replicationManager, PagingManager pagingManager, String nodeID,
+   void startReplication(ReplicationManager replicationManager,
+                         PagingManager pagingManager,
+                         String nodeID,
                          boolean autoFailBack) throws Exception;
 
    /**
@@ -384,12 +379,10 @@ public interface StorageManager extends IDGenerator, ActiveMQComponent
     */
    void storeID(long journalID, long id) throws Exception;
 
-
    /*
        Deletes the ID from IDManager.
     */
    void deleteID(long journalD) throws Exception;
-
 
    /**
     * Read lock the StorageManager. USE WITH CARE!

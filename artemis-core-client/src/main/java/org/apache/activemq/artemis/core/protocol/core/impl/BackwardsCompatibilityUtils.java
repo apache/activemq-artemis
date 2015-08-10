@@ -23,25 +23,21 @@ import org.apache.activemq.artemis.api.core.client.TopologyMember;
 
 /**
  * This is a utility class to house any HornetQ client specific backwards compatibility methods.
- *
  */
-public class BackwardsCompatibilityUtils
-{
+public class BackwardsCompatibilityUtils {
+
    private static int INITIAL_ACTIVEMQ_INCREMENTING_VERSION = 126;
 
-   public static Pair<TransportConfiguration, TransportConfiguration> getTCPair(int clientIncrementingVersion, TopologyMember member)
-   {
-      if (clientIncrementingVersion < INITIAL_ACTIVEMQ_INCREMENTING_VERSION)
-      {
+   public static Pair<TransportConfiguration, TransportConfiguration> getTCPair(int clientIncrementingVersion,
+                                                                                TopologyMember member) {
+      if (clientIncrementingVersion < INITIAL_ACTIVEMQ_INCREMENTING_VERSION) {
          return new Pair<>(replaceClassName(member.getLive()), replaceClassName(member.getBackup()));
       }
       return new Pair<>(member.getLive(), member.getBackup());
    }
 
-   private static TransportConfiguration replaceClassName(TransportConfiguration tc)
-   {
-      if (tc != null)
-      {
+   private static TransportConfiguration replaceClassName(TransportConfiguration tc) {
+      if (tc != null) {
          String className = tc.getFactoryClassName().replace("org.apache.activemq.artemis", "org.hornetq").replace("ActiveMQ", "HornetQ");
          return new TransportConfiguration(className, tc.getParams(), tc.getName());
       }

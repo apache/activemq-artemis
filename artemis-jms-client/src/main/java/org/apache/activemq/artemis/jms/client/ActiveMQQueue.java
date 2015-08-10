@@ -25,15 +25,14 @@ import org.apache.activemq.artemis.api.core.SimpleString;
  * <br>
  * This class can be instantiated directly.
  */
-public class ActiveMQQueue extends ActiveMQDestination implements Queue
-{
+public class ActiveMQQueue extends ActiveMQDestination implements Queue {
+
    // Constants -----------------------------------------------------
    private static final long serialVersionUID = -1106092883162295462L;
 
    // Static --------------------------------------------------------
 
-   public static SimpleString createAddressFromName(final String name)
-   {
+   public static SimpleString createAddressFromName(final String name) {
       return new SimpleString(JMS_QUEUE_ADDRESS_PREFIX + name);
    }
 
@@ -41,17 +40,13 @@ public class ActiveMQQueue extends ActiveMQDestination implements Queue
 
    // Constructors --------------------------------------------------
 
-   public ActiveMQQueue(final String name)
-   {
+   public ActiveMQQueue(final String name) {
       super(JMS_QUEUE_ADDRESS_PREFIX + name, name, false, true, null);
    }
 
-   public ActiveMQQueue(final String name, boolean temporary)
-   {
+   public ActiveMQQueue(final String name, boolean temporary) {
       super(JMS_QUEUE_ADDRESS_PREFIX + name, name, temporary, true, null);
    }
-
-
 
    /**
     * @param address
@@ -59,13 +54,11 @@ public class ActiveMQQueue extends ActiveMQDestination implements Queue
     * @param temporary
     * @param session
     */
-   public ActiveMQQueue(String address, String name, boolean temporary, ActiveMQSession session)
-   {
+   public ActiveMQQueue(String address, String name, boolean temporary, ActiveMQSession session) {
       super(address, name, temporary, true, session);
    }
 
-   public ActiveMQQueue(final String address, final String name)
-   {
+   public ActiveMQQueue(final String address, final String name) {
       super(address, name, false, true, null);
    }
 
@@ -73,14 +66,12 @@ public class ActiveMQQueue extends ActiveMQDestination implements Queue
 
    // Public --------------------------------------------------------
 
-   public String getQueueName()
-   {
+   public String getQueueName() {
       return name;
    }
 
    @Override
-   public String toString()
-   {
+   public String toString() {
       return "ActiveMQQueue[" + name + "]";
    }
 

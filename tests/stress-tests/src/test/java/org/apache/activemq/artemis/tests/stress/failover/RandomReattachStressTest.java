@@ -18,8 +18,7 @@ package org.apache.activemq.artemis.tests.stress.failover;
 
 import org.apache.activemq.artemis.tests.integration.cluster.reattach.RandomReattachTest;
 
-public class RandomReattachStressTest extends RandomReattachTest
-{
+public class RandomReattachStressTest extends RandomReattachTest {
 
    // Constants -----------------------------------------------------
 
@@ -36,8 +35,7 @@ public class RandomReattachStressTest extends RandomReattachTest
    // Protected -----------------------------------------------------
 
    @Override
-   protected int getNumIterations()
-   {
+   protected int getNumIterations() {
       return 100;
    }
 

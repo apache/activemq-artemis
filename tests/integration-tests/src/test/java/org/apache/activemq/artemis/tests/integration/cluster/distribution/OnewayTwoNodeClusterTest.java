@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.integration.cluster.distribution;
+
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.junit.Before;
@@ -25,41 +26,34 @@ import org.junit.Assert;
 
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 
+public class OnewayTwoNodeClusterTest extends ClusterTestBase {
 
-public class OnewayTwoNodeClusterTest extends ClusterTestBase
-{
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       setupServer(0, isFileStorage(), isNetty());
       setupServer(1, isFileStorage(), isNetty());
       setupCluster(MessageLoadBalancingType.ON_DEMAND);
 
-
    }
 
-   private void setupCluster(MessageLoadBalancingType messageLoadBalancingType)
-   {
-      for (ActiveMQServer server : servers)
-      {
-         if (server != null)
-         {
+   private void setupCluster(MessageLoadBalancingType messageLoadBalancingType) {
+      for (ActiveMQServer server : servers) {
+         if (server != null) {
             server.getConfiguration().getClusterConfigurations().clear();
          }
       }
       // server #0 is connected to server #1
       setupClusterConnection("cluster1", 0, 1, "queues", messageLoadBalancingType, 1, 0, 500, isNetty(), true);
       // server #1 is connected to nobody
-      setupClusterConnection("clusterX", 1, -1, "queues", messageLoadBalancingType, 1,  0, 500, isNetty(), true);
+      setupClusterConnection("clusterX", 1, -1, "queues", messageLoadBalancingType, 1, 0, 500, isNetty(), true);
    }
 
-   protected boolean  isNetty()
-   {
+   protected boolean isNetty() {
       return false;
    }
 
@@ -67,8 +61,7 @@ public class OnewayTwoNodeClusterTest extends ClusterTestBase
     * make sure source can shutdown if target is never started
     */
    @Test
-   public void testNeverStartTargetStartSourceThenStopSource() throws Exception
-   {
+   public void testNeverStartTargetStartSourceThenStopSource() throws Exception {
       startServers(0);
 
       // Give it a little time for the bridge to try to start
@@ -78,12 +71,11 @@ public class OnewayTwoNodeClusterTest extends ClusterTestBase
    }
 
    @Test
-   public void testStartTargetServerBeforeSourceServer() throws Exception
-   {
+   public void testStartTargetServerBeforeSourceServer() throws Exception {
       startServers(1, 0);
 
-      setupSessionFactory(0,  isNetty(), true);
-      setupSessionFactory(1,  isNetty(), true);
+      setupSessionFactory(0, isNetty(), true);
+      setupSessionFactory(1, isNetty(), true);
 
       String myFilter = "zebra";
 
@@ -101,16 +93,14 @@ public class OnewayTwoNodeClusterTest extends ClusterTestBase
    }
 
    @Test
-   public void testStartSourceServerBeforeTargetServer() throws Exception
-   {
+   public void testStartSourceServerBeforeTargetServer() throws Exception {
       startServers(0, 1);
 
       waitForTopology(servers[0], 2);
       waitForTopology(servers[1], 2);
 
-
-      setupSessionFactory(0,  isNetty(), true);
-      setupSessionFactory(1,  isNetty(), true);
+      setupSessionFactory(0, isNetty(), true);
+      setupSessionFactory(1, isNetty(), true);
 
       String myFilter = "bison";
 
@@ -128,15 +118,14 @@ public class OnewayTwoNodeClusterTest extends ClusterTestBase
    }
 
    @Test
-   public void testStopAndStartTarget() throws Exception
-   {
+   public void testStopAndStartTarget() throws Exception {
       startServers(0, 1);
 
       waitForTopology(servers[0], 2);
       waitForTopology(servers[1], 2);
 
-      setupSessionFactory(0,  isNetty(), true);
-      setupSessionFactory(1,  isNetty(), true);
+      setupSessionFactory(0, isNetty(), true);
+      setupSessionFactory(1, isNetty(), true);
 
       String myFilter = "bison";
 
@@ -169,8 +158,7 @@ public class OnewayTwoNodeClusterTest extends ClusterTestBase
 
       waitForTopology(servers[0], 2);
 
-      log.info("Server 1 id="  + servers[1].getNodeID());
-
+      log.info("Server 1 id=" + servers[1].getNodeID());
 
       long end = System.currentTimeMillis();
 
@@ -179,7 +167,7 @@ public class OnewayTwoNodeClusterTest extends ClusterTestBase
 
       Assert.assertTrue("Took too long to restart", end - start <= 5000);
 
-      setupSessionFactory(1,  isNetty(), true);
+      setupSessionFactory(1, isNetty(), true);
 
       addConsumer(0, 1, "queue0", null);
 
@@ -196,12 +184,11 @@ public class OnewayTwoNodeClusterTest extends ClusterTestBase
    }
 
    @Test
-   public void testBasicLocalReceive() throws Exception
-   {
+   public void testBasicLocalReceive() throws Exception {
       startServers(1, 0);
 
-      setupSessionFactory(0,  isNetty(), true);
-      setupSessionFactory(1,  isNetty(), true);
+      setupSessionFactory(0, isNetty(), true);
+      setupSessionFactory(1, isNetty(), true);
 
       createQueue(0, "queues.testaddress", "queue0", null, false);
       addConsumer(0, 0, "queue0", null);
@@ -217,12 +204,11 @@ public class OnewayTwoNodeClusterTest extends ClusterTestBase
    }
 
    @Test
-   public void testBasicRoundRobin() throws Exception
-   {
+   public void testBasicRoundRobin() throws Exception {
       startServers(1, 0);
 
-      setupSessionFactory(0,  isNetty(), true);
-      setupSessionFactory(1,  isNetty(), true);
+      setupSessionFactory(0, isNetty(), true);
+      setupSessionFactory(1, isNetty(), true);
 
       createQueue(0, "queues.testaddress", "queue0", null, false);
 
@@ -244,12 +230,11 @@ public class OnewayTwoNodeClusterTest extends ClusterTestBase
    }
 
    @Test
-   public void testRoundRobinMultipleQueues() throws Exception
-   {
+   public void testRoundRobinMultipleQueues() throws Exception {
       startServers(1, 0);
 
-      setupSessionFactory(0,  isNetty(), true);
-      setupSessionFactory(1,  isNetty(), true);
+      setupSessionFactory(0, isNetty(), true);
+      setupSessionFactory(1, isNetty(), true);
 
       createQueue(0, "queues.testaddress", "queue0", null, false);
       createQueue(1, "queues.testaddress", "queue0", null, false);
@@ -284,12 +269,11 @@ public class OnewayTwoNodeClusterTest extends ClusterTestBase
    }
 
    @Test
-   public void testMultipleNonLoadBalancedQueues() throws Exception
-   {
+   public void testMultipleNonLoadBalancedQueues() throws Exception {
       startServers(1, 0);
 
-      setupSessionFactory(0,  isNetty(), true);
-      setupSessionFactory(1,  isNetty(), true);
+      setupSessionFactory(0, isNetty(), true);
+      setupSessionFactory(1, isNetty(), true);
 
       createQueue(0, "queues.testaddress", "queue0", null, false);
       createQueue(0, "queues.testaddress", "queue1", null, false);
@@ -326,12 +310,11 @@ public class OnewayTwoNodeClusterTest extends ClusterTestBase
    }
 
    @Test
-   public void testMixtureLoadBalancedAndNonLoadBalancedQueues() throws Exception
-   {
+   public void testMixtureLoadBalancedAndNonLoadBalancedQueues() throws Exception {
       startServers(1, 0);
 
-      setupSessionFactory(0,  isNetty(), true);
-      setupSessionFactory(1,  isNetty(), true);
+      setupSessionFactory(0, isNetty(), true);
+      setupSessionFactory(1, isNetty(), true);
 
       createQueue(0, "queues.testaddress", "queue0", null, false);
       createQueue(0, "queues.testaddress", "queue1", null, false);
@@ -390,12 +373,11 @@ public class OnewayTwoNodeClusterTest extends ClusterTestBase
    }
 
    @Test
-   public void testMixtureLoadBalancedAndNonLoadBalancedQueuesRemoveSomeQueuesAndConsumers() throws Exception
-   {
+   public void testMixtureLoadBalancedAndNonLoadBalancedQueuesRemoveSomeQueuesAndConsumers() throws Exception {
       startServers(1, 0);
 
-      setupSessionFactory(0,  isNetty(), true);
-      setupSessionFactory(1,  isNetty(), true);
+      setupSessionFactory(0, isNetty(), true);
+      setupSessionFactory(1, isNetty(), true);
 
       createQueue(0, "queues.testaddress", "queue0", null, false);
       createQueue(0, "queues.testaddress", "queue1", null, false);
@@ -471,11 +453,10 @@ public class OnewayTwoNodeClusterTest extends ClusterTestBase
    }
 
    @Test
-   public void testMixtureLoadBalancedAndNonLoadBalancedQueuesAddQueuesOnTargetBeforeStartSource() throws Exception
-   {
+   public void testMixtureLoadBalancedAndNonLoadBalancedQueuesAddQueuesOnTargetBeforeStartSource() throws Exception {
       startServers(1);
 
-      setupSessionFactory(1,  isNetty(), true);
+      setupSessionFactory(1, isNetty(), true);
 
       createQueue(1, "queues.testaddress", "queue5", null, false);
       createQueue(1, "queues.testaddress", "queue6", null, false);
@@ -535,11 +516,10 @@ public class OnewayTwoNodeClusterTest extends ClusterTestBase
    }
 
    @Test
-   public void testMixtureLoadBalancedAndNonLoadBalancedQueuesAddQueuesOnSourceBeforeStartTarget() throws Exception
-   {
+   public void testMixtureLoadBalancedAndNonLoadBalancedQueuesAddQueuesOnSourceBeforeStartTarget() throws Exception {
       startServers(0);
 
-      setupSessionFactory(0,  isNetty(), true);
+      setupSessionFactory(0, isNetty(), true);
 
       createQueue(0, "queues.testaddress", "queue0", null, false);
       createQueue(0, "queues.testaddress", "queue1", null, false);
@@ -563,7 +543,7 @@ public class OnewayTwoNodeClusterTest extends ClusterTestBase
 
       startServers(1);
 
-      setupSessionFactory(1,  isNetty(), true);
+      setupSessionFactory(1, isNetty(), true);
 
       createQueue(1, "queues.testaddress", "queue5", null, false);
       createQueue(1, "queues.testaddress", "queue6", null, false);
@@ -599,12 +579,11 @@ public class OnewayTwoNodeClusterTest extends ClusterTestBase
    }
 
    @Test
-   public void testNotRouteToNonMatchingAddress() throws Exception
-   {
+   public void testNotRouteToNonMatchingAddress() throws Exception {
       startServers(1, 0);
 
-      setupSessionFactory(0,  isNetty(), true);
-      setupSessionFactory(1,  isNetty(), true);
+      setupSessionFactory(0, isNetty(), true);
+      setupSessionFactory(1, isNetty(), true);
 
       createQueue(0, "queues.testaddress", "queue0", null, false);
       createQueue(1, "queues.testaddress", "queue1", null, false);
@@ -635,12 +614,11 @@ public class OnewayTwoNodeClusterTest extends ClusterTestBase
    }
 
    @Test
-   public void testNonLoadBalancedQueuesWithFilters() throws Exception
-   {
+   public void testNonLoadBalancedQueuesWithFilters() throws Exception {
       startServers(1, 0);
 
-      setupSessionFactory(0,  isNetty(), true);
-      setupSessionFactory(1,  isNetty(), true);
+      setupSessionFactory(0, isNetty(), true);
+      setupSessionFactory(1, isNetty(), true);
 
       String filter1 = "giraffe";
       String filter2 = "aardvark";
@@ -697,12 +675,11 @@ public class OnewayTwoNodeClusterTest extends ClusterTestBase
    }
 
    @Test
-   public void testRoundRobinMultipleQueuesWithFilters() throws Exception
-   {
+   public void testRoundRobinMultipleQueuesWithFilters() throws Exception {
       startServers(1, 0);
 
-      setupSessionFactory(0,  isNetty(), true);
-      setupSessionFactory(1,  isNetty(), true);
+      setupSessionFactory(0, isNetty(), true);
+      setupSessionFactory(1, isNetty(), true);
 
       String filter1 = "giraffe";
       String filter2 = "aardvark";
@@ -762,12 +739,11 @@ public class OnewayTwoNodeClusterTest extends ClusterTestBase
    }
 
    @Test
-   public void testRouteWhenNoConsumersFalseNonBalancedQueues() throws Exception
-   {
+   public void testRouteWhenNoConsumersFalseNonBalancedQueues() throws Exception {
       startServers(1, 0);
 
-      setupSessionFactory(0,  isNetty(), true);
-      setupSessionFactory(1,  isNetty(), true);
+      setupSessionFactory(0, isNetty(), true);
+      setupSessionFactory(1, isNetty(), true);
 
       createQueue(0, "queues.testaddress", "queue0", null, false);
       createQueue(0, "queues.testaddress", "queue1", null, false);
@@ -796,12 +772,11 @@ public class OnewayTwoNodeClusterTest extends ClusterTestBase
    }
 
    @Test
-   public void testRouteWhenNoConsumersTrueNonBalancedQueues() throws Exception
-   {
+   public void testRouteWhenNoConsumersTrueNonBalancedQueues() throws Exception {
       startServers(1, 0);
 
-      setupSessionFactory(0,  isNetty(), true);
-      setupSessionFactory(1,  isNetty(), true);
+      setupSessionFactory(0, isNetty(), true);
+      setupSessionFactory(1, isNetty(), true);
 
       createQueue(0, "queues.testaddress", "queue0", null, false);
       createQueue(0, "queues.testaddress", "queue1", null, false);
@@ -830,13 +805,12 @@ public class OnewayTwoNodeClusterTest extends ClusterTestBase
    }
 
    @Test
-   public void testRouteWhenNoConsumersFalseLoadBalancedQueues() throws Exception
-   {
+   public void testRouteWhenNoConsumersFalseLoadBalancedQueues() throws Exception {
       setupCluster(MessageLoadBalancingType.STRICT);
       startServers(1, 0);
 
       setupSessionFactory(0, isNetty(), true);
-      setupSessionFactory(1,  isNetty(), true);
+      setupSessionFactory(1, isNetty(), true);
 
       createQueue(0, "queues.testaddress", "queue0", null, false);
       createQueue(0, "queues.testaddress", "queue1", null, false);
@@ -871,12 +845,11 @@ public class OnewayTwoNodeClusterTest extends ClusterTestBase
    }
 
    @Test
-   public void testRouteWhenNoConsumersFalseLoadBalancedQueuesLocalConsumer() throws Exception
-   {
+   public void testRouteWhenNoConsumersFalseLoadBalancedQueuesLocalConsumer() throws Exception {
       startServers(1, 0);
 
       setupSessionFactory(0, isNetty(), true);
-      setupSessionFactory(1,  isNetty(), true);
+      setupSessionFactory(1, isNetty(), true);
 
       createQueue(0, "queues.testaddress", "queue0", null, false);
       createQueue(0, "queues.testaddress", "queue1", null, false);
@@ -907,14 +880,13 @@ public class OnewayTwoNodeClusterTest extends ClusterTestBase
    }
 
    @Test
-   public void testRouteWhenNoConsumersFalseLoadBalancedQueuesNoLocalQueue() throws Exception
-   {
+   public void testRouteWhenNoConsumersFalseLoadBalancedQueuesNoLocalQueue() throws Exception {
       setupCluster(MessageLoadBalancingType.STRICT);
 
       startServers(1, 0);
 
-      setupSessionFactory(0,  isNetty(), true);
-      setupSessionFactory(1,  isNetty(), true);
+      setupSessionFactory(0, isNetty(), true);
+      setupSessionFactory(1, isNetty(), true);
 
       createQueue(0, "queues.testaddress", "queue0", null, false);
       createQueue(0, "queues.testaddress", "queue1", null, false);
@@ -940,12 +912,11 @@ public class OnewayTwoNodeClusterTest extends ClusterTestBase
    }
 
    @Test
-   public void testRouteWhenNoConsumersTrueLoadBalancedQueues() throws Exception
-   {
+   public void testRouteWhenNoConsumersTrueLoadBalancedQueues() throws Exception {
       setupCluster(MessageLoadBalancingType.STRICT);
       startServers(1, 0);
 
-      setupSessionFactory(0,  isNetty(), true);
+      setupSessionFactory(0, isNetty(), true);
       setupSessionFactory(1, isNetty(), true);
 
       createQueue(0, "queues.testaddress", "queue0", null, false);
@@ -977,16 +948,15 @@ public class OnewayTwoNodeClusterTest extends ClusterTestBase
    }
 
    @Test
-   public void testRouteWhenNoConsumersTrueLoadBalancedQueuesLocalConsumer() throws Exception
-   {
+   public void testRouteWhenNoConsumersTrueLoadBalancedQueuesLocalConsumer() throws Exception {
       servers[0].getConfiguration().getClusterConfigurations().clear();
       // server #0 is connected to server #1
-      setupClusterConnection("cluster1", 0, 1, "queues", MessageLoadBalancingType.STRICT, 1,  isNetty(), true);
+      setupClusterConnection("cluster1", 0, 1, "queues", MessageLoadBalancingType.STRICT, 1, isNetty(), true);
 
       startServers(1, 0);
 
-      setupSessionFactory(0,  isNetty(), true);
-      setupSessionFactory(1,  isNetty(), true);
+      setupSessionFactory(0, isNetty(), true);
+      setupSessionFactory(1, isNetty(), true);
 
       createQueue(0, "queues.testaddress", "queue0", null, false);
       createQueue(0, "queues.testaddress", "queue1", null, false);
@@ -1017,16 +987,15 @@ public class OnewayTwoNodeClusterTest extends ClusterTestBase
    }
 
    @Test
-   public void testRouteWhenNoConsumersTrueLoadBalancedQueuesNoLocalQueue() throws Exception
-   {
+   public void testRouteWhenNoConsumersTrueLoadBalancedQueuesNoLocalQueue() throws Exception {
       servers[0].getConfiguration().getClusterConfigurations().clear();
       // server #0 is connected to server #1
-      setupClusterConnection("cluster1", 0, 1, "queues", MessageLoadBalancingType.STRICT, 1,  isNetty(), true);
+      setupClusterConnection("cluster1", 0, 1, "queues", MessageLoadBalancingType.STRICT, 1, isNetty(), true);
 
       startServers(1, 0);
 
-      setupSessionFactory(0,  isNetty(), true);
-      setupSessionFactory(1,  isNetty(), true);
+      setupSessionFactory(0, isNetty(), true);
+      setupSessionFactory(1, isNetty(), true);
 
       createQueue(0, "queues.testaddress", "queue0", null, false);
       createQueue(0, "queues.testaddress", "queue1", null, false);
@@ -1052,12 +1021,11 @@ public class OnewayTwoNodeClusterTest extends ClusterTestBase
    }
 
    @Test
-   public void testNonLoadBalancedQueuesWithConsumersWithFilters() throws Exception
-   {
+   public void testNonLoadBalancedQueuesWithConsumersWithFilters() throws Exception {
       startServers(1, 0);
 
-      setupSessionFactory(0,  isNetty(), true);
-      setupSessionFactory(1,  isNetty(), true);
+      setupSessionFactory(0, isNetty(), true);
+      setupSessionFactory(1, isNetty(), true);
 
       String filter1 = "giraffe";
       String filter2 = "aardvark";
@@ -1110,14 +1078,13 @@ public class OnewayTwoNodeClusterTest extends ClusterTestBase
    }
 
    @Test
-   public void testRoundRobinMultipleQueuesWithConsumersWithFilters() throws Exception
-   {
+   public void testRoundRobinMultipleQueuesWithConsumersWithFilters() throws Exception {
       setupCluster(MessageLoadBalancingType.ON_DEMAND);
 
       startServers(1, 0);
 
-      setupSessionFactory(0,  isNetty(), true);
-      setupSessionFactory(1,  isNetty(), true);
+      setupSessionFactory(0, isNetty(), true);
+      setupSessionFactory(1, isNetty(), true);
 
       String filter1 = "giraffe";
       String filter2 = "aardvark";
@@ -1182,15 +1149,14 @@ public class OnewayTwoNodeClusterTest extends ClusterTestBase
    }
 
    @Test
-   public void testMultipleClusterConnections() throws Exception
-   {
-      setupClusterConnection("cluster2", 0, 1, "q2", MessageLoadBalancingType.ON_DEMAND, 1,  isNetty(), true);
-      setupClusterConnection("cluster3", 0, 1, "q3", MessageLoadBalancingType.ON_DEMAND, 1,  isNetty(), true);
+   public void testMultipleClusterConnections() throws Exception {
+      setupClusterConnection("cluster2", 0, 1, "q2", MessageLoadBalancingType.ON_DEMAND, 1, isNetty(), true);
+      setupClusterConnection("cluster3", 0, 1, "q3", MessageLoadBalancingType.ON_DEMAND, 1, isNetty(), true);
 
       startServers(1, 0);
 
-      setupSessionFactory(0,  isNetty(), true);
-      setupSessionFactory(1,  isNetty(), true);
+      setupSessionFactory(0, isNetty(), true);
+      setupSessionFactory(1, isNetty(), true);
 
       // Make sure the different connections don't conflict
 

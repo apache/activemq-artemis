@@ -39,8 +39,8 @@ import javax.jms.ExceptionListener;
 import javax.jms.JMSException;
 import javax.jms.Session;
 
-public class FailureDeadlockTest extends ActiveMQTestBase
-{
+public class FailureDeadlockTest extends ActiveMQTestBase {
+
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    private ActiveMQServer server;
@@ -53,8 +53,7 @@ public class FailureDeadlockTest extends ActiveMQTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
       server = createServer(false, createDefaultInVMConfig());
       jmsServer = new JMSServerManagerImpl(server);
@@ -69,30 +68,24 @@ public class FailureDeadlockTest extends ActiveMQTestBase
    // Test that two failures concurrently executing and calling the same exception listener
    // don't deadlock
    @Test
-   public void testDeadlock() throws Exception
-   {
-      for (int i = 0; i < 100; i++)
-      {
+   public void testDeadlock() throws Exception {
+      for (int i = 0; i < 100; i++) {
          final Connection conn1 = cf1.createConnection();
 
          Session sess1 = conn1.createSession(false, Session.AUTO_ACKNOWLEDGE);
-         RemotingConnection rc1 = ((ClientSessionInternal)((ActiveMQSession)sess1).getCoreSession()).getConnection();
+         RemotingConnection rc1 = ((ClientSessionInternal) ((ActiveMQSession) sess1).getCoreSession()).getConnection();
 
          final Connection conn2 = cf2.createConnection();
 
          Session sess2 = conn2.createSession(false, Session.AUTO_ACKNOWLEDGE);
-         RemotingConnection rc2 = ((ClientSessionInternal)((ActiveMQSession)sess2).getCoreSession()).getConnection();
+         RemotingConnection rc2 = ((ClientSessionInternal) ((ActiveMQSession) sess2).getCoreSession()).getConnection();
 
-         ExceptionListener listener1 = new ExceptionListener()
-         {
-            public void onException(final JMSException exception)
-            {
-               try
-               {
+         ExceptionListener listener1 = new ExceptionListener() {
+            public void onException(final JMSException exception) {
+               try {
                   conn2.close();
                }
-               catch (Exception e)
-               {
+               catch (Exception e) {
                   FailureDeadlockTest.log.error("Failed to close connection2", e);
                }
             }
@@ -120,18 +113,16 @@ public class FailureDeadlockTest extends ActiveMQTestBase
       }
    }
 
-   private class Failer extends Thread
-   {
+   private class Failer extends Thread {
+
       RemotingConnection conn;
 
-      Failer(final RemotingConnection conn)
-      {
+      Failer(final RemotingConnection conn) {
          this.conn = conn;
       }
 
       @Override
-      public void run()
-      {
+      public void run() {
          conn.fail(new ActiveMQNotConnectedException("blah"));
       }
    }
@@ -140,24 +131,20 @@ public class FailureDeadlockTest extends ActiveMQTestBase
    // Make sure that failing a connection removes it from the connection manager and can't be returned in a subsequent
    // call
    @Test
-   public void testUsingDeadConnection() throws Exception
-   {
-      for (int i = 0; i < 100; i++)
-      {
+   public void testUsingDeadConnection() throws Exception {
+      for (int i = 0; i < 100; i++) {
          final Connection conn1 = cf1.createConnection();
 
          Session sess1 = conn1.createSession(false, Session.AUTO_ACKNOWLEDGE);
-         RemotingConnection rc1 = ((ClientSessionInternal)((ActiveMQSession)sess1).getCoreSession()).getConnection();
+         RemotingConnection rc1 = ((ClientSessionInternal) ((ActiveMQSession) sess1).getCoreSession()).getConnection();
 
-         rc1.fail(new ActiveMQNotConnectedException( "blah"));
+         rc1.fail(new ActiveMQNotConnectedException("blah"));
 
-         try
-         {
+         try {
             conn1.createSession(false, Session.AUTO_ACKNOWLEDGE);
             Assert.fail("should throw exception");
          }
-         catch (JMSException e)
-         {
+         catch (JMSException e) {
             //pass
          }
 

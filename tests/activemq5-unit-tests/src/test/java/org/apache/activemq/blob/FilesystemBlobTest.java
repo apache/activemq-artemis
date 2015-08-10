@@ -35,70 +35,70 @@ import org.apache.activemq.util.IOHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 public class FilesystemBlobTest extends EmbeddedBrokerTestSupport {
-    private static final Logger LOG = LoggerFactory.getLogger(FilesystemBlobTest.class);
 
-    private Connection connection;
-    private final String tmpDir =  System.getProperty("user.dir") + "/target/FilesystemBlobTest";
-    @Override
-    public void setUp() throws Exception {
-        super.setUp();
-        // replace \ with / to let it work on windows too
-        String fileUrl = "file:///" +tmpDir.replaceAll("\\\\", "/");
-        LOG.info("Using file: " + fileUrl);
-        bindAddress = "vm://localhost?jms.blobTransferPolicy.defaultUploadUrl=" + fileUrl;
+   private static final Logger LOG = LoggerFactory.getLogger(FilesystemBlobTest.class);
 
-        connectionFactory = createConnectionFactory();
+   private Connection connection;
+   private final String tmpDir = System.getProperty("user.dir") + "/target/FilesystemBlobTest";
 
-        connection = createConnection();
-        connection.start();
-    }
+   @Override
+   public void setUp() throws Exception {
+      super.setUp();
+      // replace \ with / to let it work on windows too
+      String fileUrl = "file:///" + tmpDir.replaceAll("\\\\", "/");
+      LOG.info("Using file: " + fileUrl);
+      bindAddress = "vm://localhost?jms.blobTransferPolicy.defaultUploadUrl=" + fileUrl;
 
-    public void testBlobFile() throws Exception {
-        // first create Message
-        File file = File.createTempFile("amq-data-file-", ".dat");
-        // lets write some data
-        String content = "hello world " + System.currentTimeMillis();
-        BufferedWriter writer = new BufferedWriter(new FileWriter(file));
-        writer.append(content);
-        writer.close();
+      connectionFactory = createConnectionFactory();
 
-        ActiveMQSession session = (ActiveMQSession) connection.createSession(
-                false, Session.AUTO_ACKNOWLEDGE);
-        MessageProducer producer = session.createProducer(destination);
-        MessageConsumer consumer = session.createConsumer(destination);
-        BlobMessage message = session.createBlobMessage(file);
+      connection = createConnection();
+      connection.start();
+   }
 
-        producer.send(message);
-        Thread.sleep(1000);
+   public void testBlobFile() throws Exception {
+      // first create Message
+      File file = File.createTempFile("amq-data-file-", ".dat");
+      // lets write some data
+      String content = "hello world " + System.currentTimeMillis();
+      BufferedWriter writer = new BufferedWriter(new FileWriter(file));
+      writer.append(content);
+      writer.close();
 
-        // check message send
-        Message msg = consumer.receive(1000);
-        assertTrue(msg instanceof ActiveMQBlobMessage);
+      ActiveMQSession session = (ActiveMQSession) connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      MessageProducer producer = session.createProducer(destination);
+      MessageConsumer consumer = session.createConsumer(destination);
+      BlobMessage message = session.createBlobMessage(file);
 
-        InputStream input = ((ActiveMQBlobMessage) msg).getInputStream();
-        StringBuilder b = new StringBuilder();
-        int i = input.read();
-        while (i != -1) {
-            b.append((char) i);
-            i = input.read();
-        }
-        input.close();
-        File uploaded = new File(tmpDir, msg.getJMSMessageID().toString().replace(":", "_"));
-        assertEquals(content, b.toString());
-        assertTrue(uploaded.exists());
-        ((ActiveMQBlobMessage)msg).deleteFile();
-        assertFalse(uploaded.exists());
-    }
+      producer.send(message);
+      Thread.sleep(1000);
 
-    @Override
-    protected void tearDown() throws Exception {
-        if (connection != null) {
-            connection.stop();
-        }
-        super.tearDown();
+      // check message send
+      Message msg = consumer.receive(1000);
+      assertTrue(msg instanceof ActiveMQBlobMessage);
 
-        IOHelper.deleteFile(new File(tmpDir));
-    }
+      InputStream input = ((ActiveMQBlobMessage) msg).getInputStream();
+      StringBuilder b = new StringBuilder();
+      int i = input.read();
+      while (i != -1) {
+         b.append((char) i);
+         i = input.read();
+      }
+      input.close();
+      File uploaded = new File(tmpDir, msg.getJMSMessageID().toString().replace(":", "_"));
+      assertEquals(content, b.toString());
+      assertTrue(uploaded.exists());
+      ((ActiveMQBlobMessage) msg).deleteFile();
+      assertFalse(uploaded.exists());
+   }
+
+   @Override
+   protected void tearDown() throws Exception {
+      if (connection != null) {
+         connection.stop();
+      }
+      super.tearDown();
+
+      IOHelper.deleteFile(new File(tmpDir));
+   }
 }

@@ -27,40 +27,38 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
-/** This will emulate callbacks out of order from libaio*/
-public class CallbackOrderTest
-{
+/**
+ * This will emulate callbacks out of order from libaio
+ */
+public class CallbackOrderTest {
 
    @Rule
    public TemporaryFolder temporaryFolder;
 
-   public CallbackOrderTest()
-   {
+   public CallbackOrderTest() {
       File parent = new File("./target");
       parent.mkdirs();
       temporaryFolder = new TemporaryFolder(parent);
    }
 
-   /** This method will make sure callbacks will come back in order even when out order from libaio */
+   /**
+    * This method will make sure callbacks will come back in order even when out order from libaio
+    */
    @Test
-   public void testCallbackOutOfOrder() throws Exception
-   {
+   public void testCallbackOutOfOrder() throws Exception {
       AIOSequentialFileFactory factory = new AIOSequentialFileFactory(temporaryFolder.getRoot(), 100);
-      AIOSequentialFile file = (AIOSequentialFile)factory.createSequentialFile("test.bin");
+      AIOSequentialFile file = (AIOSequentialFile) factory.createSequentialFile("test.bin");
 
       final AtomicInteger count = new AtomicInteger(0);
 
-      IOCallback callback = new IOCallback()
-      {
+      IOCallback callback = new IOCallback() {
          @Override
-         public void done()
-         {
+         public void done() {
             count.incrementAndGet();
          }
 
          @Override
-         public void onError(int errorCode, String errorMessage)
-         {
+         public void onError(int errorCode, String errorMessage) {
 
          }
       };
@@ -69,20 +67,16 @@ public class CallbackOrderTest
 
       // We will repeat the teset a few times, increasing N
       // to increase possibility of issues due to reuse of callbacks
-      for (int n = 1; n < 100; n++)
-      {
+      for (int n = 1; n < 100; n++) {
          System.out.println("n = " + n);
          int N = n;
          count.set(0);
          list.clear();
-         for (int i = 0; i < N; i++)
-         {
+         for (int i = 0; i < N; i++) {
             list.add(file.getCallback(callback, null));
          }
 
-
-         for (int i = N - 1; i >= 0; i--)
-         {
+         for (int i = N - 1; i >= 0; i--) {
             list.get(i).done();
          }
 

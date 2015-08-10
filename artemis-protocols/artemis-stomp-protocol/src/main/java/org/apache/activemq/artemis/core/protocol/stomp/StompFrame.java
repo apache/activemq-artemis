@@ -27,8 +27,8 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 /**
  * Represents all the data in a STOMP frame.
  */
-public class StompFrame
-{
+public class StompFrame {
+
    protected static final byte[] END_OF_FRAME = new byte[]{0, '\n'};
 
    protected final String command;
@@ -47,72 +47,57 @@ public class StompFrame
 
    private boolean isPing;
 
-   public StompFrame(String command)
-   {
+   public StompFrame(String command) {
       this(command, false);
    }
 
-   public StompFrame(String command, boolean disconnect)
-   {
+   public StompFrame(String command, boolean disconnect) {
       this.command = command;
       this.headers = new LinkedHashMap<String, String>();
       this.disconnect = disconnect;
    }
 
-   public StompFrame(String command, Map<String, String> headers,
-                     byte[] content)
-   {
+   public StompFrame(String command, Map<String, String> headers, byte[] content) {
       this.command = command;
       this.headers = headers;
       this.bytesBody = content;
    }
 
-   public String getCommand()
-   {
+   public String getCommand() {
       return command;
    }
 
-   public int getEncodedSize() throws Exception
-   {
-      if (buffer == null)
-      {
+   public int getEncodedSize() throws Exception {
+      if (buffer == null) {
          buffer = toActiveMQBuffer();
       }
       return size;
    }
 
    @Override
-   public String toString()
-   {
+   public String toString() {
       return "StompFrame[command=" + command + ", headers=" + headers + ", content= " + this.body + " bytes " +
          Arrays.toString(bytesBody);
    }
 
-   public boolean isPing()
-   {
+   public boolean isPing() {
       return isPing;
    }
 
-   public void setPing(boolean ping)
-   {
+   public void setPing(boolean ping) {
       isPing = ping;
    }
 
-   public ActiveMQBuffer toActiveMQBuffer() throws Exception
-   {
-      if (buffer == null)
-      {
-         if (bytesBody != null)
-         {
+   public ActiveMQBuffer toActiveMQBuffer() throws Exception {
+      if (buffer == null) {
+         if (bytesBody != null) {
             buffer = ActiveMQBuffers.dynamicBuffer(bytesBody.length + 512);
          }
-         else
-         {
+         else {
             buffer = ActiveMQBuffers.dynamicBuffer(512);
          }
 
-         if (isPing())
-         {
+         if (isPing()) {
             buffer.writeByte((byte) 10);
             return buffer;
          }
@@ -122,8 +107,7 @@ public class StompFrame
          head.append(Stomp.NEWLINE);
          // Output the headers.
          encodeHeaders(head);
-         if (bytesBody != null && bytesBody.length > 0 && !hasHeader(Stomp.Headers.CONTENT_LENGTH))
-         {
+         if (bytesBody != null && bytesBody.length > 0 && !hasHeader(Stomp.Headers.CONTENT_LENGTH)) {
             head.append(Stomp.Headers.CONTENT_LENGTH);
             head.append(Stomp.Headers.SEPARATOR);
             head.append(bytesBody.length);
@@ -133,25 +117,21 @@ public class StompFrame
          head.append(Stomp.NEWLINE);
 
          buffer.writeBytes(head.toString().getBytes(StandardCharsets.UTF_8));
-         if (bytesBody != null)
-         {
+         if (bytesBody != null) {
             buffer.writeBytes(bytesBody);
          }
          buffer.writeBytes(END_OF_FRAME);
 
          size = buffer.writerIndex();
       }
-      else
-      {
+      else {
          buffer.readerIndex(0);
       }
       return buffer;
    }
 
-   protected void encodeHeaders(StringBuilder head)
-   {
-      for (Map.Entry<String, String> header : headers.entrySet())
-      {
+   protected void encodeHeaders(StringBuilder head) {
+      for (Map.Entry<String, String> header : headers.entrySet()) {
          head.append(header.getKey());
          head.append(Stomp.Headers.SEPARATOR);
          head.append(header.getValue());
@@ -159,83 +139,70 @@ public class StompFrame
       }
    }
 
-   public String getHeader(String key)
-   {
+   public String getHeader(String key) {
       return headers.get(key);
    }
 
-   public void addHeader(String key, String val)
-   {
+   public void addHeader(String key, String val) {
       headers.put(key, val);
    }
 
-   public Map<String, String> getHeadersMap()
-   {
+   public Map<String, String> getHeadersMap() {
       return headers;
    }
 
-   public class Header
-   {
+   public class Header {
+
       public String key;
       public String val;
 
-      public Header(String key, String val)
-      {
+      public Header(String key, String val) {
          this.key = key;
          this.val = val;
       }
 
-      public String getEncodedKey()
-      {
+      public String getEncodedKey() {
          return encode(key);
       }
 
-      public String getEncodedValue()
-      {
+      public String getEncodedValue() {
          return encode(val);
       }
    }
 
-   public String encode(String str)
-   {
+   public String encode(String str) {
       int len = str.length();
 
       char[] buffer = new char[2 * len];
       int iBuffer = 0;
-      for (int i = 0; i < len; i++)
-      {
+      for (int i = 0; i < len; i++) {
          char c = str.charAt(i);
 
          // \n
-         if (c == (byte) 10)
-         {
+         if (c == (byte) 10) {
             buffer[iBuffer] = (byte) 92;
             buffer[++iBuffer] = (byte) 110;
          }
 
          // \r
-         else if (c == (byte) 13)
-         {
+         else if (c == (byte) 13) {
             buffer[iBuffer] = (byte) 92;
             buffer[++iBuffer] = (byte) 114;
          }
 
          // \
-         else if (c == (byte) 92)
-         {
+         else if (c == (byte) 92) {
             buffer[iBuffer] = (byte) 92;
             buffer[++iBuffer] = (byte) 92;
          }
 
          // :
-         else if (c == (byte) 58)
-         {
+         else if (c == (byte) 58) {
             buffer[iBuffer] = (byte) 92;
             buffer[++iBuffer] = (byte) 99;
          }
 
-         else
-         {
+         else {
             buffer[iBuffer] = c;
          }
          iBuffer++;
@@ -244,23 +211,18 @@ public class StompFrame
       return new String(buffer, 0, iBuffer);
    }
 
-   public void setBody(String body)
-   {
+   public void setBody(String body) {
       this.body = body;
       this.bytesBody = body.getBytes(StandardCharsets.UTF_8);
    }
 
-   public boolean hasHeader(String key)
-   {
+   public boolean hasHeader(String key) {
       return headers.containsKey(key);
    }
 
-   public String getBody()
-   {
-      if (body == null)
-      {
-         if (bytesBody != null)
-         {
+   public String getBody() {
+      if (body == null) {
+         if (bytesBody != null) {
             body = new String(bytesBody, StandardCharsets.UTF_8);
          }
       }
@@ -268,23 +230,19 @@ public class StompFrame
    }
 
    //Since 1.1, there is a content-type header that needs to take care of
-   public byte[] getBodyAsBytes()
-   {
+   public byte[] getBodyAsBytes() {
       return bytesBody;
    }
 
-   public boolean needsDisconnect()
-   {
+   public boolean needsDisconnect() {
       return disconnect;
    }
 
-   public void setByteBody(byte[] content)
-   {
+   public void setByteBody(byte[] content) {
       this.bytesBody = content;
    }
 
-   public void setNeedsDisconnect(boolean b)
-   {
+   public void setNeedsDisconnect(boolean b) {
       disconnect = b;
    }
 }

@@ -26,8 +26,7 @@ import static org.apache.activemq.artemis.core.security.CheckType.DELETE_DURABLE
 import static org.apache.activemq.artemis.core.security.CheckType.DELETE_NON_DURABLE_QUEUE;
 import static org.apache.activemq.artemis.core.security.CheckType.SEND;
 
-public class RoleTest extends Assert
-{
+public class RoleTest extends Assert {
    // Constants -----------------------------------------------------
 
    // Attributes ----------------------------------------------------
@@ -39,8 +38,7 @@ public class RoleTest extends Assert
    // Public --------------------------------------------------------
 
    @Test
-   public void testReadRole() throws Exception
-   {
+   public void testReadRole() throws Exception {
       Role role = new Role("testReadRole", true, false, false, false, false, false, false);
       Assert.assertTrue(SEND.hasRole(role));
       Assert.assertFalse(CONSUME.hasRole(role));
@@ -51,8 +49,7 @@ public class RoleTest extends Assert
    }
 
    @Test
-   public void testWriteRole() throws Exception
-   {
+   public void testWriteRole() throws Exception {
       Role role = new Role("testWriteRole", false, true, false, false, false, false, false);
       Assert.assertFalse(SEND.hasRole(role));
       Assert.assertTrue(CONSUME.hasRole(role));
@@ -63,8 +60,7 @@ public class RoleTest extends Assert
    }
 
    @Test
-   public void testCreateRole() throws Exception
-   {
+   public void testCreateRole() throws Exception {
       Role role = new Role("testWriteRole", false, false, true, false, false, false, false);
       Assert.assertFalse(SEND.hasRole(role));
       Assert.assertFalse(CONSUME.hasRole(role));
@@ -75,8 +71,7 @@ public class RoleTest extends Assert
    }
 
    @Test
-   public void testEqualsAndHashcode() throws Exception
-   {
+   public void testEqualsAndHashcode() throws Exception {
       Role role = new Role("testEquals", true, true, true, false, false, false, false);
       Role sameRole = new Role("testEquals", true, true, true, false, false, false, false);
       Role roleWithDifferentName = new Role("notEquals", true, true, true, false, false, false, false);

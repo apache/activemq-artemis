@@ -17,6 +17,7 @@
 package org.apache.activemq.bugs;
 
 import static org.junit.Assert.*;
+
 import java.io.File;
 import java.util.concurrent.TimeUnit;
 
@@ -36,65 +37,64 @@ import org.junit.Test;
 
 public class AMQ2200Test {
 
-    private static final String bindAddress = "tcp://0.0.0.0:0";
-    private BrokerService broker;
-    private ActiveMQConnectionFactory cf;
+   private static final String bindAddress = "tcp://0.0.0.0:0";
+   private BrokerService broker;
+   private ActiveMQConnectionFactory cf;
 
-    @Before
-    public void setUp() throws Exception {
-        broker = new BrokerService();
-        broker.setDataDirectory("target" + File.separator + "activemq-data");
-        broker.setPersistent(true);
-        broker.setUseJmx(true);
-        broker.setAdvisorySupport(false);
-        broker.setDeleteAllMessagesOnStartup(true);
-        broker.addConnector(bindAddress);
-        String address = broker.getTransportConnectors().get(0).getPublishableConnectString();
-        broker.start();
-        broker.waitUntilStarted();
+   @Before
+   public void setUp() throws Exception {
+      broker = new BrokerService();
+      broker.setDataDirectory("target" + File.separator + "activemq-data");
+      broker.setPersistent(true);
+      broker.setUseJmx(true);
+      broker.setAdvisorySupport(false);
+      broker.setDeleteAllMessagesOnStartup(true);
+      broker.addConnector(bindAddress);
+      String address = broker.getTransportConnectors().get(0).getPublishableConnectString();
+      broker.start();
+      broker.waitUntilStarted();
 
-        cf = new ActiveMQConnectionFactory(address);
-    }
+      cf = new ActiveMQConnectionFactory(address);
+   }
 
-    @After
-    public void tearDown() throws Exception {
-        if (broker != null) {
-            broker.stop();
-            broker.waitUntilStopped();
-        }
-    }
+   @After
+   public void tearDown() throws Exception {
+      if (broker != null) {
+         broker.stop();
+         broker.waitUntilStopped();
+      }
+   }
 
-    @Test
-    public void testTopicSubscriptionView() throws Exception {
-    	TopicConnection connection = cf.createTopicConnection();
-    	TopicSession session = connection.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
+   @Test
+   public void testTopicSubscriptionView() throws Exception {
+      TopicConnection connection = cf.createTopicConnection();
+      TopicSession session = connection.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
 
-    	Topic destination = session.createTopic("TopicViewTestTopic");
-    	MessageConsumer consumer = session.createConsumer(destination);
-    	assertNotNull(consumer);
-    	TimeUnit.SECONDS.sleep(1);
+      Topic destination = session.createTopic("TopicViewTestTopic");
+      MessageConsumer consumer = session.createConsumer(destination);
+      assertNotNull(consumer);
+      TimeUnit.SECONDS.sleep(1);
 
-    	ObjectName subscriptionNames[] = broker.getAdminView().getTopicSubscribers();
-    	assertTrue(subscriptionNames.length > 0);
+      ObjectName subscriptionNames[] = broker.getAdminView().getTopicSubscribers();
+      assertTrue(subscriptionNames.length > 0);
 
-    	boolean fail = true;
-    	for(ObjectName name : subscriptionNames) {
-    		if (name.toString().contains("TopicViewTestTopic")) {
-                TopicSubscriptionViewMBean sub = (TopicSubscriptionViewMBean)
-                	broker.getManagementContext().newProxyInstance(name, TopicSubscriptionViewMBean.class, true);
-                assertNotNull(sub);
-                assertTrue(sub.getSessionId() != -1);
-                // Check that its the default value then configure something new.
-                assertTrue(sub.getMaximumPendingQueueSize() == -1);
-                sub.setMaximumPendingQueueSize(1000);
-                assertTrue(sub.getMaximumPendingQueueSize() != -1);
-                fail = false;
-    		}
-    	}
+      boolean fail = true;
+      for (ObjectName name : subscriptionNames) {
+         if (name.toString().contains("TopicViewTestTopic")) {
+            TopicSubscriptionViewMBean sub = (TopicSubscriptionViewMBean) broker.getManagementContext().newProxyInstance(name, TopicSubscriptionViewMBean.class, true);
+            assertNotNull(sub);
+            assertTrue(sub.getSessionId() != -1);
+            // Check that its the default value then configure something new.
+            assertTrue(sub.getMaximumPendingQueueSize() == -1);
+            sub.setMaximumPendingQueueSize(1000);
+            assertTrue(sub.getMaximumPendingQueueSize() != -1);
+            fail = false;
+         }
+      }
 
-    	if (fail) {
-    		fail("Didn't find the TopicSubscriptionView");
-    	}
-    }
+      if (fail) {
+         fail("Didn't find the TopicSubscriptionView");
+      }
+   }
 
 }

@@ -21,86 +21,70 @@ import java.util.Scanner;
 
 import io.airlift.airline.Option;
 
-public class InputAbstract extends ActionAbstract
-{
+public class InputAbstract extends ActionAbstract {
 
    private Scanner scanner;
 
    @Option(name = "--silent", description = "It will disable all the inputs, and it would make a best guess for any required input")
    private boolean silentInput = false;
 
-   public boolean isSilentInput()
-   {
+   public boolean isSilentInput() {
       return silentInput;
    }
 
-   public void setSilentInput(boolean silentInput)
-   {
+   public void setSilentInput(boolean silentInput) {
       this.silentInput = silentInput;
    }
 
-   protected String input(String propertyName, String prompt, String silentDefault)
-   {
-      if (silentInput)
-      {
+   protected String input(String propertyName, String prompt, String silentDefault) {
+      if (silentInput) {
          return silentDefault;
       }
 
       String inputStr;
       boolean valid = false;
       System.out.println();
-      do
-      {
+      do {
          context.out.println(propertyName + ": is mandatory with this configuration:");
          context.out.println(prompt);
          inputStr = scanner.nextLine();
-         if (inputStr.trim().equals(""))
-         {
+         if (inputStr.trim().equals("")) {
             System.out.println("Invalid Entry!");
          }
-         else
-         {
+         else {
             valid = true;
          }
-      }
-      while (!valid);
+      } while (!valid);
 
       return inputStr.trim();
    }
 
-   protected String inputPassword(String propertyName, String prompt, String silentDefault)
-   {
-      if (silentInput)
-      {
+   protected String inputPassword(String propertyName, String prompt, String silentDefault) {
+      if (silentInput) {
          return silentDefault;
       }
 
       String inputStr;
       boolean valid = false;
       System.out.println();
-      do
-      {
+      do {
          context.out.println(propertyName + ": is mandatory with this configuration:");
          context.out.println(prompt);
          inputStr = new String(System.console().readPassword());
 
-         if (inputStr.trim().equals(""))
-         {
+         if (inputStr.trim().equals("")) {
             System.out.println("Invalid Entry!");
          }
-         else
-         {
+         else {
             valid = true;
          }
-      }
-      while (!valid);
+      } while (!valid);
 
       return inputStr.trim();
    }
 
    @Override
-   public Object execute(ActionContext context) throws Exception
-   {
+   public Object execute(ActionContext context) throws Exception {
       super.execute(context);
 
       this.scanner = new Scanner(context.in);

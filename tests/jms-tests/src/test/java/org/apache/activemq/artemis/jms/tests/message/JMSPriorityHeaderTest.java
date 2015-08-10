@@ -27,16 +27,15 @@ import org.apache.activemq.artemis.jms.tests.ActiveMQServerTestCase;
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
 import org.junit.Test;
 
-public class JMSPriorityHeaderTest extends ActiveMQServerTestCase
-{
+public class JMSPriorityHeaderTest extends ActiveMQServerTestCase {
+
    /*
     * Note - this test is testing our current implementation of message ordering since the spec
     * does not mandate that all higher priority messages are delivered first - this
     * is just how we currently do it
     */
    @Test
-   public void testMessageOrder() throws Exception
-   {
+   public void testMessageOrder() throws Exception {
       Connection conn = getConnectionFactory().createConnection();
 
       conn.start();
@@ -75,57 +74,57 @@ public class JMSPriorityHeaderTest extends ActiveMQServerTestCase
       MessageConsumer cons = sessReceive.createConsumer(queue1);
 
       {
-         TextMessage t = (TextMessage)cons.receive(1000);
+         TextMessage t = (TextMessage) cons.receive(1000);
          ProxyAssertSupport.assertNotNull(t);
          ProxyAssertSupport.assertEquals("j", t.getText());
       }
       {
-         TextMessage t = (TextMessage)cons.receive(1000);
+         TextMessage t = (TextMessage) cons.receive(1000);
          ProxyAssertSupport.assertNotNull(t);
          ProxyAssertSupport.assertEquals("i", t.getText());
       }
       {
-         TextMessage t = (TextMessage)cons.receive(1000);
+         TextMessage t = (TextMessage) cons.receive(1000);
          ProxyAssertSupport.assertNotNull(t);
          ProxyAssertSupport.assertEquals("h", t.getText());
       }
       {
-         TextMessage t = (TextMessage)cons.receive(1000);
+         TextMessage t = (TextMessage) cons.receive(1000);
          ProxyAssertSupport.assertNotNull(t);
          ProxyAssertSupport.assertEquals("g", t.getText());
       }
       {
-         TextMessage t = (TextMessage)cons.receive(1000);
+         TextMessage t = (TextMessage) cons.receive(1000);
          ProxyAssertSupport.assertNotNull(t);
          ProxyAssertSupport.assertEquals("f", t.getText());
       }
       {
-         TextMessage t = (TextMessage)cons.receive(1000);
+         TextMessage t = (TextMessage) cons.receive(1000);
          ProxyAssertSupport.assertNotNull(t);
          ProxyAssertSupport.assertEquals("e", t.getText());
       }
       {
-         TextMessage t = (TextMessage)cons.receive(1000);
+         TextMessage t = (TextMessage) cons.receive(1000);
          ProxyAssertSupport.assertNotNull(t);
          ProxyAssertSupport.assertEquals("d", t.getText());
       }
       {
-         TextMessage t = (TextMessage)cons.receive(1000);
+         TextMessage t = (TextMessage) cons.receive(1000);
          ProxyAssertSupport.assertNotNull(t);
          ProxyAssertSupport.assertEquals("c", t.getText());
       }
       {
-         TextMessage t = (TextMessage)cons.receive(1000);
+         TextMessage t = (TextMessage) cons.receive(1000);
          ProxyAssertSupport.assertNotNull(t);
          ProxyAssertSupport.assertEquals("b", t.getText());
       }
       {
-         TextMessage t = (TextMessage)cons.receive(1000);
+         TextMessage t = (TextMessage) cons.receive(1000);
          ProxyAssertSupport.assertNotNull(t);
          ProxyAssertSupport.assertEquals("a", t.getText());
       }
       {
-         TextMessage t = (TextMessage)cons.receive(500);
+         TextMessage t = (TextMessage) cons.receive(500);
          ProxyAssertSupport.assertNull(t);
       }
 
@@ -148,57 +147,57 @@ public class JMSPriorityHeaderTest extends ActiveMQServerTestCase
       cons = sessReceive.createConsumer(queue1);
 
       {
-         TextMessage t = (TextMessage)cons.receive(1000);
+         TextMessage t = (TextMessage) cons.receive(1000);
          ProxyAssertSupport.assertNotNull(t);
          ProxyAssertSupport.assertEquals("j", t.getText());
       }
       {
-         TextMessage t = (TextMessage)cons.receive(1000);
+         TextMessage t = (TextMessage) cons.receive(1000);
          ProxyAssertSupport.assertNotNull(t);
          ProxyAssertSupport.assertEquals("h", t.getText());
       }
       {
-         TextMessage t = (TextMessage)cons.receive(1000);
+         TextMessage t = (TextMessage) cons.receive(1000);
          ProxyAssertSupport.assertNotNull(t);
          ProxyAssertSupport.assertEquals("i", t.getText());
       }
       {
-         TextMessage t = (TextMessage)cons.receive(1000);
+         TextMessage t = (TextMessage) cons.receive(1000);
          ProxyAssertSupport.assertNotNull(t);
          ProxyAssertSupport.assertEquals("f", t.getText());
       }
       {
-         TextMessage t = (TextMessage)cons.receive(1000);
+         TextMessage t = (TextMessage) cons.receive(1000);
          ProxyAssertSupport.assertNotNull(t);
          ProxyAssertSupport.assertEquals("g", t.getText());
       }
       {
-         TextMessage t = (TextMessage)cons.receive(1000);
+         TextMessage t = (TextMessage) cons.receive(1000);
          ProxyAssertSupport.assertNotNull(t);
          ProxyAssertSupport.assertEquals("d", t.getText());
       }
       {
-         TextMessage t = (TextMessage)cons.receive(1000);
+         TextMessage t = (TextMessage) cons.receive(1000);
          ProxyAssertSupport.assertNotNull(t);
          ProxyAssertSupport.assertEquals("e", t.getText());
       }
       {
-         TextMessage t = (TextMessage)cons.receive(1000);
+         TextMessage t = (TextMessage) cons.receive(1000);
          ProxyAssertSupport.assertNotNull(t);
          ProxyAssertSupport.assertEquals("a", t.getText());
       }
       {
-         TextMessage t = (TextMessage)cons.receive(1000);
+         TextMessage t = (TextMessage) cons.receive(1000);
          ProxyAssertSupport.assertNotNull(t);
          ProxyAssertSupport.assertEquals("b", t.getText());
       }
       {
-         TextMessage t = (TextMessage)cons.receive(1000);
+         TextMessage t = (TextMessage) cons.receive(1000);
          ProxyAssertSupport.assertNotNull(t);
          ProxyAssertSupport.assertEquals("c", t.getText());
       }
       {
-         TextMessage t = (TextMessage)cons.receiveNoWait();
+         TextMessage t = (TextMessage) cons.receiveNoWait();
          ProxyAssertSupport.assertNull(t);
       }
 
@@ -206,8 +205,7 @@ public class JMSPriorityHeaderTest extends ActiveMQServerTestCase
    }
 
    @Test
-   public void testSimple() throws Exception
-   {
+   public void testSimple() throws Exception {
       Connection conn = getConnectionFactory().createConnection();
 
       conn.start();
@@ -228,7 +226,7 @@ public class JMSPriorityHeaderTest extends ActiveMQServerTestCase
       MessageConsumer cons = sessReceive.createConsumer(queue1);
 
       {
-         TextMessage t = (TextMessage)cons.receive(1000);
+         TextMessage t = (TextMessage) cons.receive(1000);
          ProxyAssertSupport.assertNotNull(t);
          ProxyAssertSupport.assertEquals("a", t.getText());
          ProxyAssertSupport.assertEquals(7, t.getJMSPriority());
@@ -239,7 +237,7 @@ public class JMSPriorityHeaderTest extends ActiveMQServerTestCase
       Thread.sleep(2000);
 
       {
-         TextMessage t = (TextMessage)cons.receiveNoWait();
+         TextMessage t = (TextMessage) cons.receiveNoWait();
          ProxyAssertSupport.assertNull(t);
       }
 

@@ -22,8 +22,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public final class PriorityLinkedListTest extends Assert
-{
+public final class PriorityLinkedListTest extends Assert {
+
    protected Wibble a;
 
    protected Wibble b;
@@ -78,15 +78,12 @@ public final class PriorityLinkedListTest extends Assert
 
    private PriorityLinkedListImpl<Wibble> list;
 
-   protected PriorityLinkedListImpl<Wibble> getList()
-   {
+   protected PriorityLinkedListImpl<Wibble> getList() {
       return new PriorityLinkedListImpl<Wibble>(10);
    }
 
    @Before
-   public void setUp() throws Exception
-   {
-
+   public void setUp() throws Exception {
 
       list = getList();
 
@@ -119,8 +116,7 @@ public final class PriorityLinkedListTest extends Assert
    }
 
    @Test
-   public void testEmpty() throws Exception
-   {
+   public void testEmpty() throws Exception {
       Assert.assertTrue(list.isEmpty());
 
       list.addHead(a, 0);
@@ -135,8 +131,7 @@ public final class PriorityLinkedListTest extends Assert
    }
 
    @Test
-   public void testaddHead() throws Exception
-   {
+   public void testaddHead() throws Exception {
       list.addHead(a, 0);
       list.addHead(b, 0);
       list.addHead(c, 0);
@@ -156,8 +151,7 @@ public final class PriorityLinkedListTest extends Assert
    }
 
    @Test
-   public void testaddTail() throws Exception
-   {
+   public void testaddTail() throws Exception {
       list.addTail(a, 0);
       list.addTail(b, 0);
       list.addTail(c, 0);
@@ -177,8 +171,7 @@ public final class PriorityLinkedListTest extends Assert
    }
 
    @Test
-   public void testAddLastAndFirst() throws Exception
-   {
+   public void testAddLastAndFirst() throws Exception {
       list.addTail(a, 0);
       list.addTail(b, 0);
       list.addTail(c, 0);
@@ -225,8 +218,7 @@ public final class PriorityLinkedListTest extends Assert
    }
 
    @Test
-   public void testAddLastAndFirstWithIterator() throws Exception
-   {
+   public void testAddLastAndFirstWithIterator() throws Exception {
       list.addTail(a, 0);
       list.addTail(b, 0);
       list.addTail(c, 0);
@@ -295,8 +287,7 @@ public final class PriorityLinkedListTest extends Assert
    }
 
    @Test
-   public void testPoll() throws Exception
-   {
+   public void testPoll() throws Exception {
       list.addTail(a, 0);
       list.addTail(b, 1);
       list.addTail(c, 2);
@@ -446,8 +437,7 @@ public final class PriorityLinkedListTest extends Assert
    }
 
    @Test
-   public void testIterator()
-   {
+   public void testIterator() {
       list.addTail(a, 9);
       list.addTail(b, 9);
       list.addTail(c, 8);
@@ -479,8 +469,7 @@ public final class PriorityLinkedListTest extends Assert
 
       int count = 0;
       Wibble w1;
-      while (iter.hasNext())
-      {
+      while (iter.hasNext()) {
          w1 = iter.next();
          count++;
       }
@@ -775,8 +764,7 @@ public final class PriorityLinkedListTest extends Assert
    }
 
    @Test
-   public void testIteratorPicksUpHigherPriorities()
-   {
+   public void testIteratorPicksUpHigherPriorities() {
       list.addTail(a, 4);
       list.addTail(b, 4);
       list.addTail(c, 4);
@@ -812,8 +800,7 @@ public final class PriorityLinkedListTest extends Assert
    }
 
    @Test
-   public void testClear()
-   {
+   public void testClear() {
       list.addTail(a, 0);
       list.addTail(b, 3);
       list.addTail(c, 3);
@@ -831,8 +818,7 @@ public final class PriorityLinkedListTest extends Assert
    }
 
    @Test
-   public void testMixupIterator()
-   {
+   public void testMixupIterator() {
       list.addTail(c, 5);
       list.addTail(a, 4);
       list.addTail(b, 4);
@@ -851,8 +837,7 @@ public final class PriorityLinkedListTest extends Assert
    }
 
    @Test
-   public void testMixupIterator2()
-   {
+   public void testMixupIterator2() {
       list.addTail(c, 5);
 
       list.addTail(k, 0);
@@ -885,18 +870,16 @@ public final class PriorityLinkedListTest extends Assert
       iter.remove();
    }
 
-   static class Wibble
-   {
+   static class Wibble {
+
       String s1;
 
-      Wibble(final String s)
-      {
+      Wibble(final String s) {
          this.s1 = s;
       }
 
       @Override
-      public String toString()
-      {
+      public String toString() {
          return s1;
       }
    }

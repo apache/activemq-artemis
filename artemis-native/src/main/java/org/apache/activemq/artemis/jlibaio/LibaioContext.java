@@ -40,8 +40,7 @@ import static io.netty.util.internal.ObjectUtil.checkNotNull;
  * <br>
  * <a href="https://ext4.wiki.kernel.org/index.php/Clarifying_Direct_IO's_Semantics">Interesting reading for this.</a>
  */
-public class LibaioContext <Callback extends SubmitInfo> implements Closeable
-{
+public class LibaioContext<Callback extends SubmitInfo> implements Closeable {
 
    private static final AtomicLong totalMaxIO = new AtomicLong(0);
 
@@ -54,80 +53,69 @@ public class LibaioContext <Callback extends SubmitInfo> implements Closeable
 
    private static boolean loaded = false;
 
-   public static boolean isLoaded()
-   {
+   public static boolean isLoaded() {
       return loaded;
    }
 
-   private static boolean loadLibrary(final String name)
-   {
-      try
-      {
+   private static boolean loadLibrary(final String name) {
+      try {
          System.loadLibrary(name);
-         if (getNativeVersion() != EXPECTED_NATIVE_VERSION)
-         {
+         if (getNativeVersion() != EXPECTED_NATIVE_VERSION) {
             NativeLogger.LOGGER.incompatibleNativeLibrary();
             return false;
          }
-         else
-         {
+         else {
             return true;
          }
       }
-      catch (Throwable e)
-      {
+      catch (Throwable e) {
          NativeLogger.LOGGER.debug(name + " -> error loading the native library", e);
          return false;
       }
 
    }
 
-   static
-   {
+   static {
       String[] libraries = new String[]{"artemis-native-64", "artemis-native-32"};
 
-      for (String library : libraries)
-      {
-         if (loadLibrary(library))
-         {
+      for (String library : libraries) {
+         if (loadLibrary(library)) {
             loaded = true;
             break;
          }
-         else
-         {
+         else {
             NativeLogger.LOGGER.debug("Library " + library + " not found!");
          }
       }
 
-      if (!loaded)
-      {
+      if (!loaded) {
          NativeLogger.LOGGER.debug("Couldn't locate LibAIO Wrapper");
       }
    }
 
    /**
     * This is used to validate leaks on tests.
+    *
     * @return the number of allocated aio, to be used on test checks.
     */
-   public static long getTotalMaxIO()
-   {
+   public static long getTotalMaxIO() {
       return totalMaxIO.get();
    }
 
    /**
     * It will reset all the positions on the buffer to 0, using memset.
+    *
     * @param buffer a native buffer.
-s    */
-   public void memsetBuffer(ByteBuffer buffer)
-   {
+    *               s
+    */
+   public void memsetBuffer(ByteBuffer buffer) {
       memsetBuffer(buffer, buffer.limit());
    }
 
    /**
     * This is used on tests validating for leaks.
     */
-   public static void resetMaxAIO()
-   {
+   public static void resetMaxAIO() {
       totalMaxIO.set(0);
    }
 
@@ -146,78 +134,70 @@ s    */
     * The queue size here will use resources defined on the kernel parameter
     * <a href="https://www.kernel.org/doc/Documentation/sysctl/fs.txt">fs.aio-max-nr</a> .
     *
-    * @param queueSize the size to be initialize on libaio
-    *                  io_queue_init which can't be higher than /proc/sys/fs/aio-max-nr.
+    * @param queueSize    the size to be initialize on libaio
+    *                     io_queue_init which can't be higher than /proc/sys/fs/aio-max-nr.
     * @param useSemaphore should block on a semaphore avoiding using more submits than what's available.
     */
-   public LibaioContext(int queueSize, boolean useSemaphore)
-   {
-      try
-      {
+   public LibaioContext(int queueSize, boolean useSemaphore) {
+      try {
          this.ioContext = newContext(queueSize);
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          throw e;
       }
       this.queueSize = queueSize;
       totalMaxIO.addAndGet(queueSize);
-      if (useSemaphore)
-      {
+      if (useSemaphore) {
          this.ioSpace = new Semaphore(queueSize);
       }
-      else
-      {
+      else {
          this.ioSpace = null;
       }
    }
 
-
    /**
     * Documented at {@link LibaioFile#write(long, int, java.nio.ByteBuffer, SubmitInfo)}
-    * @param fd the file descriptor
-    * @param position the write position
-    * @param size number of bytes to use
+    *
+    * @param fd          the file descriptor
+    * @param position    the write position
+    * @param size        number of bytes to use
     * @param bufferWrite the native buffer
-    * @param callback a callback
+    * @param callback    a callback
     * @throws IOException in case of error
     */
-   public void submitWrite(int fd,long position, int size,
-                              ByteBuffer bufferWrite, Callback callback) throws IOException
-   {
-      try
-      {
-         if (ioSpace != null)
-         {
+   public void submitWrite(int fd,
+                           long position,
+                           int size,
+                           ByteBuffer bufferWrite,
+                           Callback callback) throws IOException {
+      try {
+         if (ioSpace != null) {
             ioSpace.acquire();
          }
       }
-      catch (InterruptedException e)
-      {
+      catch (InterruptedException e) {
          Thread.currentThread().interrupt();
          throw new IOException(e.getMessage(), e);
       }
       submitWrite(fd, this.ioContext, position, size, bufferWrite, callback);
    }
 
-   public void submitRead(int fd, long position, int size, ByteBuffer bufferWrite,
-                          Callback callback) throws IOException
-   {
-      try
-      {
-         if (ioSpace != null)
-         {
+   public void submitRead(int fd,
+                          long position,
+                          int size,
+                          ByteBuffer bufferWrite,
+                          Callback callback) throws IOException {
+      try {
+         if (ioSpace != null) {
             ioSpace.acquire();
          }
       }
-      catch (InterruptedException e)
-      {
+      catch (InterruptedException e) {
          Thread.currentThread().interrupt();
          throw new IOException(e.getMessage(), e);
       }
       submitRead(fd, this.ioContext, position, size, bufferWrite, callback);
    }
-
 
    /**
     * This is used to close the libaio queues and cleanup the native data used.
@@ -226,22 +206,18 @@ s    */
     * this could cause core dumps or VM crashes.
     */
    @Override
-   public void close()
-   {
-      if (!closed.getAndSet(true))
-      {
+   public void close() {
+      if (!closed.getAndSet(true)) {
          totalMaxIO.addAndGet(-queueSize);
 
-         if (ioContext != null)
-         {
+         if (ioContext != null) {
             deleteContext(ioContext);
          }
       }
    }
 
    @Override
-   protected void finalize() throws Throwable
-   {
+   protected void finalize() throws Throwable {
       super.finalize();
       close();
    }
@@ -250,13 +226,12 @@ s    */
     * It will open a file. If you set the direct flag = false then you won't need to use the special buffer.
     * Notice: This will create an empty file if the file doesn't already exist.
     *
-    * @param file the file to be open.
+    * @param file   the file to be open.
     * @param direct will set ODIRECT.
     * @return It will return a LibaioFile instance.
     * @throws IOException in case of error.
     */
-   public LibaioFile<Callback> openFile(File file, boolean direct) throws IOException
-   {
+   public LibaioFile<Callback> openFile(File file, boolean direct) throws IOException {
       return openFile(file.getPath(), direct);
    }
 
@@ -264,13 +239,12 @@ s    */
     * It will open a file. If you set the direct flag = false then you won't need to use the special buffer.
     * Notice: This will create an empty file if the file doesn't already exist.
     *
-    * @param file the file to be open.
+    * @param file   the file to be open.
     * @param direct should use O_DIRECT when opening the file.
     * @return a new open file.
     * @throws IOException in case of error.
     */
-   public LibaioFile<Callback> openFile(String file, boolean direct) throws IOException
-   {
+   public LibaioFile<Callback> openFile(String file, boolean direct) throws IOException {
       checkNotNull(file, "path");
       checkNotNull(ioContext, "IOContext");
 
@@ -283,13 +257,13 @@ s    */
    /**
     * It will open a file disassociated with any sort of factory.
     * This is useful when you won't use reading / writing through libaio like locking files.
-    * @param file a file name
+    *
+    * @param file   a file name
     * @param direct will use O_DIRECT
     * @return a new file
     * @throws IOException in case of error.
     */
-   public static LibaioFile openControlFile(String file, boolean direct) throws IOException
-   {
+   public static LibaioFile openControlFile(String file, boolean direct) throws IOException {
       checkNotNull(file, "path");
 
       // note: the native layer will throw an IOException in case of errors
@@ -306,7 +280,7 @@ s    */
     * Thread polling for any reason.
     * <br>
     * Notice that the native layer will invoke {@link SubmitInfo#onError(int, String)} in case of failures,
-    *     but it won't call done method for you.
+    * but it won't call done method for you.
     *
     * @param callbacks area to receive the callbacks passed on submission.The size of this callback has to
     *                  be greater than the parameter max.
@@ -316,36 +290,32 @@ s    */
     * @see LibaioFile#write(long, int, java.nio.ByteBuffer, SubmitInfo)
     * @see LibaioFile#read(long, int, java.nio.ByteBuffer, SubmitInfo)
     */
-   public int poll(Callback[] callbacks, int min, int max)
-   {
+   public int poll(Callback[] callbacks, int min, int max) {
       int released = poll(ioContext, callbacks, min, max);
-      if (ioSpace != null)
-      {
-         if (released > 0)
-         {
+      if (ioSpace != null) {
+         if (released > 0) {
             ioSpace.release(released);
          }
       }
-      return  released;
+      return released;
    }
 
    /**
     * It will start polling and will keep doing until the context is closed.
     * This will call callbacks on {@link SubmitInfo#onError(int, String)} and
-    *  {@link SubmitInfo#done()}.
+    * {@link SubmitInfo#done()}.
     * In case of error, both {@link SubmitInfo#onError(int, String)} and
-    *   {@link SubmitInfo#done()} are called.
+    * {@link SubmitInfo#done()} are called.
     */
-   public void poll()
-   {
+   public void poll() {
       blockedPoll(ioContext);
    }
 
-   /** Called from the native layer */
-   private void done(SubmitInfo info)
-   {
-      if (ioSpace != null)
-      {
+   /**
+    * Called from the native layer
+    */
+   private void done(SubmitInfo info) {
+      if (ioSpace != null) {
          ioSpace.release();
       }
       info.done();
@@ -364,7 +334,7 @@ s    */
    /**
     * it will return a file descriptor.
     *
-    * @param path the file name.
+    * @param path   the file name.
     * @param direct translates as O_DIRECT On open
     * @return a fd from open C call.
     */
@@ -380,7 +350,7 @@ s    */
     * <br>
     * Documented at {@link LibaioFile#newBuffer(int)}.
     *
-    * @param size needs to be % alignment
+    * @param size      needs to be % alignment
     * @param alignment the alignment used at the dispositive
     * @return a new native buffer used with posix_memalign
     */
@@ -388,6 +358,7 @@ s    */
 
    /**
     * This will call posix free to release the inner buffer allocated at {@link #newAlignedBuffer(int, int)}.
+    *
     * @param buffer a native buffer allocated with {@link #newAlignedBuffer(int, int)}.
     */
    public static native void freeBuffer(ByteBuffer buffer);
@@ -396,17 +367,21 @@ s    */
     * Documented at {@link LibaioFile#write(long, int, java.nio.ByteBuffer, SubmitInfo)}.
     */
    native void submitWrite(int fd,
-                              ByteBuffer libaioContext,
-                              long position, int size, ByteBuffer bufferWrite,
-                              Callback callback) throws IOException;
+                           ByteBuffer libaioContext,
+                           long position,
+                           int size,
+                           ByteBuffer bufferWrite,
+                           Callback callback) throws IOException;
 
    /**
     * Documented at {@link LibaioFile#read(long, int, java.nio.ByteBuffer, SubmitInfo)}.
     */
    native void submitRead(int fd,
-                             ByteBuffer libaioContext,
-                             long position, int size, ByteBuffer bufferWrite,
-                             Callback callback) throws IOException;
+                          ByteBuffer libaioContext,
+                          long position,
+                          int size,
+                          ByteBuffer bufferWrite,
+                          Callback callback) throws IOException;
 
    /**
     * Note: this shouldn't be done concurrently.
@@ -431,8 +406,7 @@ s    */
 
    static native int getBlockSizeFD(int fd);
 
-   public static int getBlockSize(File path)
-   {
+   public static int getBlockSize(File path) {
       return getBlockSize(path.getAbsolutePath());
    }
 

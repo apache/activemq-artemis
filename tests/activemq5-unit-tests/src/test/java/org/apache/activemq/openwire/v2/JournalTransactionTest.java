@@ -19,35 +19,31 @@ package org.apache.activemq.openwire.v2;
 import org.apache.activemq.command.JournalTransaction;
 import org.apache.activemq.openwire.DataFileGeneratorTestSupport;
 
-
 /**
  * Test case for the OpenWire marshalling for JournalTransaction
  *
  *
  * NOTE!: This file is auto generated - do not modify!
- *        if you need to make a change, please see the modify the groovy scripts in the
- *        under src/gram/script and then use maven openwire:generate to regenerate 
- *        this file.
- *
- * 
+ * if you need to make a change, please see the modify the groovy scripts in the
+ * under src/gram/script and then use maven openwire:generate to regenerate
+ * this file.
  */
 public class JournalTransactionTest extends DataFileGeneratorTestSupport {
 
+   public static final JournalTransactionTest SINGLETON = new JournalTransactionTest();
 
-    public static final JournalTransactionTest SINGLETON = new JournalTransactionTest();
+   public Object createObject() throws Exception {
+      JournalTransaction info = new JournalTransaction();
+      populateObject(info);
+      return info;
+   }
 
-    public Object createObject() throws Exception {
-        JournalTransaction info = new JournalTransaction();
-        populateObject(info);
-        return info;
-    }
+   protected void populateObject(Object object) throws Exception {
+      super.populateObject(object);
+      JournalTransaction info = (JournalTransaction) object;
 
-    protected void populateObject(Object object) throws Exception {
-        super.populateObject(object);
-        JournalTransaction info = (JournalTransaction) object;
-
-        info.setTransactionId(createTransactionId("TransactionId:1"));
-        info.setType((byte) 1);
-        info.setWasPrepared(true);
-    }
+      info.setTransactionId(createTransactionId("TransactionId:1"));
+      info.setType((byte) 1);
+      info.setWasPrepared(true);
+   }
 }

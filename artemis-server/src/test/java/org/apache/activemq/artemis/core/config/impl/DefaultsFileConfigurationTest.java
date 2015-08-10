@@ -28,20 +28,17 @@ import org.junit.Assert;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.journal.impl.JournalConstants;
 
-public class DefaultsFileConfigurationTest extends ConfigurationImplTest
-{
+public class DefaultsFileConfigurationTest extends ConfigurationImplTest {
+
    @Override
    @Test
-   public void testDefaults()
-   {
+   public void testDefaults() {
 
-      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultScheduledThreadPoolMaxSize(),
-                          conf.getScheduledThreadPoolMaxSize());
+      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultScheduledThreadPoolMaxSize(), conf.getScheduledThreadPoolMaxSize());
 
       Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultThreadPoolMaxSize(), conf.getThreadPoolMaxSize());
 
-      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultSecurityInvalidationInterval(),
-                          conf.getSecurityInvalidationInterval());
+      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultSecurityInvalidationInterval(), conf.getSecurityInvalidationInterval());
 
       Assert.assertEquals(ActiveMQDefaultConfiguration.isDefaultSecurityEnabled(), conf.isSecurityEnabled());
 
@@ -71,8 +68,7 @@ public class DefaultsFileConfigurationTest extends ConfigurationImplTest
 
       Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultManagementAddress(), conf.getManagementAddress());
 
-      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultManagementNotificationAddress(),
-                          conf.getManagementNotificationAddress());
+      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultManagementNotificationAddress(), conf.getManagementNotificationAddress());
 
       Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultClusterUser(), conf.getClusterUser());
 
@@ -90,8 +86,7 @@ public class DefaultsFileConfigurationTest extends ConfigurationImplTest
 
       Assert.assertEquals(ActiveMQDefaultConfiguration.isDefaultJournalSyncTransactional(), conf.isJournalSyncTransactional());
 
-      Assert.assertEquals(ActiveMQDefaultConfiguration.isDefaultJournalSyncNonTransactional(),
-                          conf.isJournalSyncNonTransactional());
+      Assert.assertEquals(ActiveMQDefaultConfiguration.isDefaultJournalSyncNonTransactional(), conf.isJournalSyncNonTransactional());
 
       Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultJournalFileSize(), conf.getJournalFileSize());
 
@@ -127,13 +122,11 @@ public class DefaultsFileConfigurationTest extends ConfigurationImplTest
 
       Assert.assertEquals(ActiveMQDefaultConfiguration.isDefaultMessageCounterEnabled(), conf.isMessageCounterEnabled());
 
-      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultTransactionTimeoutScanPeriod(),
-                          conf.getTransactionTimeoutScanPeriod());
+      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultTransactionTimeoutScanPeriod(), conf.getTransactionTimeoutScanPeriod());
 
       Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultMessageExpiryScanPeriod(), conf.getMessageExpiryScanPeriod());
 
-      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultMessageExpiryThreadPriority(),
-                          conf.getMessageExpiryThreadPriority());
+      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultMessageExpiryThreadPriority(), conf.getMessageExpiryThreadPriority());
 
       Assert.assertTrue(conf.getHAPolicyConfiguration() instanceof LiveOnlyPolicyConfiguration);
 
@@ -145,8 +138,7 @@ public class DefaultsFileConfigurationTest extends ConfigurationImplTest
    // Protected ---------------------------------------------------------------------------------------------
 
    @Override
-   protected Configuration createConfiguration() throws Exception
-   {
+   protected Configuration createConfiguration() throws Exception {
       FileConfiguration fc = new FileConfiguration();
       FileDeploymentManager deploymentManager = new FileDeploymentManager("ConfigurationTest-defaults.xml");
       deploymentManager.addDeployable(fc);

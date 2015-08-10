@@ -40,8 +40,8 @@ import java.util.concurrent.ScheduledExecutorService;
  * It may also listen to a queue, and forward them (e.g. messages arriving at the queue are picked
  * and tweeted to some Twitter account).
  */
-public final class ConnectorsService implements ActiveMQComponent
-{
+public final class ConnectorsService implements ActiveMQComponent {
+
    private final StorageManager storageManager;
 
    private final PostOffice postOffice;
@@ -60,8 +60,7 @@ public final class ConnectorsService implements ActiveMQComponent
                             final StorageManager storageManager,
                             final ScheduledExecutorService scheduledPool,
                             final PostOffice postOffice,
-                            final ServiceRegistry serviceRegistry)
-   {
+                            final ServiceRegistry serviceRegistry) {
       this.configuration = configuration;
       this.storageManager = storageManager;
       this.scheduledPool = scheduledPool;
@@ -69,44 +68,35 @@ public final class ConnectorsService implements ActiveMQComponent
       this.serviceRegistry = serviceRegistry;
    }
 
-   public void start() throws Exception
-   {
+   public void start() throws Exception {
       Collection<Pair<ConnectorServiceFactory, ConnectorServiceConfiguration>> connectorServiceFactories = serviceRegistry.getConnectorServices(configuration.getConnectorServiceConfigurations());
 
-      for (Pair<ConnectorServiceFactory, ConnectorServiceConfiguration> pair : connectorServiceFactories)
-      {
+      for (Pair<ConnectorServiceFactory, ConnectorServiceConfiguration> pair : connectorServiceFactories) {
          createService(pair.getB(), pair.getA());
       }
 
-      for (ConnectorService connector : connectors)
-      {
-         try
-         {
+      for (ConnectorService connector : connectors) {
+         try {
             connector.start();
          }
-         catch (Throwable e)
-         {
+         catch (Throwable e) {
             ActiveMQServerLogger.LOGGER.errorStartingConnectorService(e, connector.getName());
          }
       }
       isStarted = true;
    }
 
-   public void createService(ConnectorServiceConfiguration info, ConnectorServiceFactory factory)
-   {
-      if (info.getParams() != null)
-      {
+   public void createService(ConnectorServiceConfiguration info, ConnectorServiceFactory factory) {
+      if (info.getParams() != null) {
          Set<String> invalid = ConfigurationHelper.checkKeys(factory.getAllowableProperties(), info.getParams().keySet());
-         if (!invalid.isEmpty())
-         {
+         if (!invalid.isEmpty()) {
             ActiveMQServerLogger.LOGGER.connectorKeysInvalid(ConfigurationHelper.stringSetToCommaListString(invalid));
             return;
          }
       }
 
       Set<String> invalid = ConfigurationHelper.checkKeysExist(factory.getRequiredProperties(), info.getParams().keySet());
-      if (!invalid.isEmpty())
-      {
+      if (!invalid.isEmpty()) {
          ActiveMQServerLogger.LOGGER.connectorKeysMissing(ConfigurationHelper.stringSetToCommaListString(invalid));
          return;
       }
@@ -114,20 +104,15 @@ public final class ConnectorsService implements ActiveMQComponent
       connectors.add(connectorService);
    }
 
-   public void stop() throws Exception
-   {
-      if (!isStarted)
-      {
+   public void stop() throws Exception {
+      if (!isStarted) {
          return;
       }
-      for (ConnectorService connector : connectors)
-      {
-         try
-         {
+      for (ConnectorService connector : connectors) {
+         try {
             connector.stop();
          }
-         catch (Throwable e)
-         {
+         catch (Throwable e) {
             ActiveMQServerLogger.LOGGER.errorStoppingConnectorService(e, connector.getName());
          }
       }
@@ -135,13 +120,11 @@ public final class ConnectorsService implements ActiveMQComponent
       isStarted = false;
    }
 
-   public boolean isStarted()
-   {
+   public boolean isStarted() {
       return isStarted;
    }
 
-   public Set<ConnectorService> getConnectors()
-   {
+   public Set<ConnectorService> getConnectors() {
       return connectors;
    }
 }

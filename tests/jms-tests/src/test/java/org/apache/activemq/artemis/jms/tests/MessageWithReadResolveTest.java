@@ -32,8 +32,7 @@ import org.junit.Test;
  * <br>
  * See http://jira.jboss.com/jira/browse/JBMESSAGING-442
  */
-public class MessageWithReadResolveTest extends JMSTestCase
-{
+public class MessageWithReadResolveTest extends JMSTestCase {
 
    // Constants -----------------------------------------------------
 
@@ -48,8 +47,7 @@ public class MessageWithReadResolveTest extends JMSTestCase
    // Public --------------------------------------------------------
 
    @Test
-   public void testSendReceiveMessage() throws Exception
-   {
+   public void testSendReceiveMessage() throws Exception {
       Connection conn = createConnection();
 
       Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -89,30 +87,26 @@ public class MessageWithReadResolveTest extends JMSTestCase
    // Private -------------------------------------------------------
 
    /* This class would trigger the exception when serialized with jboss serialization */
-   public static class TestMessage implements Serializable
-   {
+   public static class TestMessage implements Serializable {
+
       private static final long serialVersionUID = -5932581134414145967L;
 
       private final long id;
 
       private Object clazz;
 
-      public TestMessage(final long id, final boolean useSimpleObject)
-      {
+      public TestMessage(final long id, final boolean useSimpleObject) {
          this.id = id;
-         if (useSimpleObject)
-         {
+         if (useSimpleObject) {
             clazz = String.class;
          }
-         else
-         {
+         else {
             clazz = TestEnum.class;
          }
       }
 
       @Override
-      public String toString()
-      {
+      public String toString() {
          StringBuffer sb = new StringBuffer();
          sb.append("TestMessage(");
          sb.append("id=" + id);
@@ -121,20 +115,17 @@ public class MessageWithReadResolveTest extends JMSTestCase
          return sb.toString();
       }
 
-      public long getID()
-      {
+      public long getID() {
          return id;
       }
 
    }
 
-   public static class TestEnum implements Serializable
-   {
+   public static class TestEnum implements Serializable {
 
       private static final long serialVersionUID = 4306026990380393029L;
 
-      public Object readResolve()
-      {
+      public Object readResolve() {
          return null;
       }
    }

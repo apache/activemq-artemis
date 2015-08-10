@@ -17,11 +17,12 @@
 package org.apache.activemq;
 
 /**
- * 
+ *
  */
 public class JMSQueueRedeliverTest extends JmsTopicRedeliverTest {
-    protected void setUp() throws Exception {
-        topic = false;
-        super.setUp();
-    }
+
+   protected void setUp() throws Exception {
+      topic = false;
+      super.setUp();
+   }
 }

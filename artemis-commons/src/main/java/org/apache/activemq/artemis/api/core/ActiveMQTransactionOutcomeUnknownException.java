@@ -19,17 +19,15 @@ package org.apache.activemq.artemis.api.core;
 /**
  * The outcome of a transaction is unknown.
  */
-public final class ActiveMQTransactionOutcomeUnknownException extends ActiveMQException
-{
+public final class ActiveMQTransactionOutcomeUnknownException extends ActiveMQException {
+
    private static final long serialVersionUID = 7940794286427650558L;
 
-   public ActiveMQTransactionOutcomeUnknownException()
-   {
+   public ActiveMQTransactionOutcomeUnknownException() {
       super(ActiveMQExceptionType.TRANSACTION_OUTCOME_UNKNOWN);
    }
 
-   public ActiveMQTransactionOutcomeUnknownException(String msg)
-   {
+   public ActiveMQTransactionOutcomeUnknownException(String msg) {
       super(ActiveMQExceptionType.TRANSACTION_OUTCOME_UNKNOWN, msg);
    }
 }

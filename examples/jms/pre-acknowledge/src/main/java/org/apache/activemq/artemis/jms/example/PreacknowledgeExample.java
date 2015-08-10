@@ -39,13 +39,11 @@ import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
  *
  * Please see the readme.html for more details.
  */
-public class PreacknowledgeExample
-{
-   public static void main(final String[] args) throws Exception
-   {
+public class PreacknowledgeExample {
+
+   public static void main(final String[] args) throws Exception {
       Connection connection = null;
-      try
-      {
+      try {
 
          // Step 2. instantiate the queue object
          Queue queue = ActiveMQJMSClient.createQueue("exampleQueue");
@@ -86,21 +84,18 @@ public class PreacknowledgeExample
 
          System.out.println("Queue message count is now " + count);
 
-         if (count != 0)
-         {
+         if (count != 0) {
             throw new IllegalStateException("Queue message count is not 0.");
          }
 
          // Step 8. Finally, receive the message
-         TextMessage messageReceived = (TextMessage)messageConsumer.receive(5000);
+         TextMessage messageReceived = (TextMessage) messageConsumer.receive(5000);
 
          System.out.println("Received message: " + messageReceived.getText());
       }
-      finally
-      {
+      finally {
          // Step 9. Be sure to close our resources!
-         if (connection != null)
-         {
+         if (connection != null) {
             connection.close();
          }
       }
@@ -108,9 +103,8 @@ public class PreacknowledgeExample
 
    // To do this we send a management message to get the message count.
    // In real life you wouldn't create a new session every time you send a management message
-   private static int getMessageCount(final Connection connection) throws Exception
-   {
-      QueueSession session = ((QueueConnection)connection).createQueueSession(false, Session.AUTO_ACKNOWLEDGE);
+   private static int getMessageCount(final Connection connection) throws Exception {
+      QueueSession session = ((QueueConnection) connection).createQueueSession(false, Session.AUTO_ACKNOWLEDGE);
 
       Queue managementQueue = ActiveMQJMSClient.createQueue("activemq.management");
 
@@ -124,7 +118,7 @@ public class PreacknowledgeExample
 
       Message response = requestor.request(m);
 
-      int messageCount = (Integer)JMSManagementHelper.getResult(response);
+      int messageCount = (Integer) JMSManagementHelper.getResult(response);
 
       return messageCount;
    }

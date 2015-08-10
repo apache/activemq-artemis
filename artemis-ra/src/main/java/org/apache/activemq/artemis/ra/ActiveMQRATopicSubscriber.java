@@ -20,59 +20,57 @@ import javax.jms.JMSException;
 import javax.jms.Topic;
 import javax.jms.TopicSubscriber;
 
-
 /**
  * A wrapper for a topic subscriber
  */
-public class ActiveMQRATopicSubscriber extends ActiveMQRAMessageConsumer implements TopicSubscriber
-{
-   /** Whether trace is enabled */
+public class ActiveMQRATopicSubscriber extends ActiveMQRAMessageConsumer implements TopicSubscriber {
+
+   /**
+    * Whether trace is enabled
+    */
    private static boolean trace = ActiveMQRALogger.LOGGER.isTraceEnabled();
 
    /**
     * Create a new wrapper
+    *
     * @param consumer the topic subscriber
-    * @param session the session
+    * @param session  the session
     */
-   public ActiveMQRATopicSubscriber(final TopicSubscriber consumer, final ActiveMQRASession session)
-   {
+   public ActiveMQRATopicSubscriber(final TopicSubscriber consumer, final ActiveMQRASession session) {
       super(consumer, session);
 
-      if (ActiveMQRATopicSubscriber.trace)
-      {
+      if (ActiveMQRATopicSubscriber.trace) {
          ActiveMQRALogger.LOGGER.trace("constructor(" + consumer + ", " + session + ")");
       }
    }
 
    /**
     * Get the no local value
+    *
     * @return The value
-    * @exception JMSException Thrown if an error occurs
+    * @throws JMSException Thrown if an error occurs
     */
-   public boolean getNoLocal() throws JMSException
-   {
-      if (ActiveMQRATopicSubscriber.trace)
-      {
+   public boolean getNoLocal() throws JMSException {
+      if (ActiveMQRATopicSubscriber.trace) {
          ActiveMQRALogger.LOGGER.trace("getNoLocal()");
       }
 
       checkState();
-      return ((TopicSubscriber)consumer).getNoLocal();
+      return ((TopicSubscriber) consumer).getNoLocal();
    }
 
    /**
     * Get the topic
+    *
     * @return The topic
-    * @exception JMSException Thrown if an error occurs
+    * @throws JMSException Thrown if an error occurs
     */
-   public Topic getTopic() throws JMSException
-   {
-      if (ActiveMQRATopicSubscriber.trace)
-      {
+   public Topic getTopic() throws JMSException {
+      if (ActiveMQRATopicSubscriber.trace) {
          ActiveMQRALogger.LOGGER.trace("getTopic()");
       }
 
       checkState();
-      return ((TopicSubscriber)consumer).getTopic();
+      return ((TopicSubscriber) consumer).getTopic();
    }
 }

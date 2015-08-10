@@ -46,45 +46,39 @@ import org.apache.activemq.artemis.utils.DefaultSensitiveStringCodec;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class JMSBridgeTest extends BridgeTestBase
-{
+public class JMSBridgeTest extends BridgeTestBase {
+
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    // MaxBatchSize but no MaxBatchTime
 
    @Test
-   public void testNoMaxBatchTime_AtMostOnce_P() throws Exception
-   {
+   public void testNoMaxBatchTime_AtMostOnce_P() throws Exception {
       testNoMaxBatchTime(QualityOfServiceMode.AT_MOST_ONCE, true);
    }
 
    @Test
-   public void testNoMaxBatchTime_DuplicatesOk_P() throws Exception
-   {
+   public void testNoMaxBatchTime_DuplicatesOk_P() throws Exception {
       testNoMaxBatchTime(QualityOfServiceMode.DUPLICATES_OK, true);
    }
 
    @Test
-   public void testNoMaxBatchTime_OnceAndOnlyOnce_P() throws Exception
-   {
+   public void testNoMaxBatchTime_OnceAndOnlyOnce_P() throws Exception {
       testNoMaxBatchTime(QualityOfServiceMode.ONCE_AND_ONLY_ONCE, true);
    }
 
    @Test
-   public void testNoMaxBatchTime_AtMostOnce_NP() throws Exception
-   {
+   public void testNoMaxBatchTime_AtMostOnce_NP() throws Exception {
       testNoMaxBatchTime(QualityOfServiceMode.AT_MOST_ONCE, false);
    }
 
    @Test
-   public void testNoMaxBatchTime_DuplicatesOk_NP() throws Exception
-   {
+   public void testNoMaxBatchTime_DuplicatesOk_NP() throws Exception {
       testNoMaxBatchTime(QualityOfServiceMode.DUPLICATES_OK, false);
    }
 
    @Test
-   public void testNoMaxBatchTime_OnceAndOnlyOnce_NP() throws Exception
-   {
+   public void testNoMaxBatchTime_OnceAndOnlyOnce_NP() throws Exception {
       testNoMaxBatchTime(QualityOfServiceMode.ONCE_AND_ONLY_ONCE, false);
    }
 
@@ -93,76 +87,64 @@ public class JMSBridgeTest extends BridgeTestBase
    // MaxBatchSize but no MaxBatchTime
 
    @Test
-   public void testNoMaxBatchTimeSameServer_AtMostOnce_P() throws Exception
-   {
+   public void testNoMaxBatchTimeSameServer_AtMostOnce_P() throws Exception {
       testNoMaxBatchTimeSameServer(QualityOfServiceMode.AT_MOST_ONCE, true);
    }
 
    @Test
-   public void testNoMaxBatchTimeSameServer_DuplicatesOk_P() throws Exception
-   {
+   public void testNoMaxBatchTimeSameServer_DuplicatesOk_P() throws Exception {
       testNoMaxBatchTimeSameServer(QualityOfServiceMode.DUPLICATES_OK, true);
    }
 
    @Test
-   public void testNoMaxBatchTimeSameServer_OnceAndOnlyOnce_P() throws Exception
-   {
+   public void testNoMaxBatchTimeSameServer_OnceAndOnlyOnce_P() throws Exception {
       testNoMaxBatchTimeSameServer(QualityOfServiceMode.ONCE_AND_ONLY_ONCE, true);
    }
 
    @Test
-   public void testNoMaxBatchTimeSameServer_AtMostOnce_NP() throws Exception
-   {
+   public void testNoMaxBatchTimeSameServer_AtMostOnce_NP() throws Exception {
       testNoMaxBatchTimeSameServer(QualityOfServiceMode.AT_MOST_ONCE, false);
    }
 
    @Test
-   public void testNoMaxBatchTimeSameServer_DuplicatesOk_NP() throws Exception
-   {
+   public void testNoMaxBatchTimeSameServer_DuplicatesOk_NP() throws Exception {
       testNoMaxBatchTimeSameServer(QualityOfServiceMode.DUPLICATES_OK, false);
    }
 
    @Test
-   public void testNoMaxBatchTimeSameServer_OnceAndOnlyOnce_NP() throws Exception
-   {
+   public void testNoMaxBatchTimeSameServer_OnceAndOnlyOnce_NP() throws Exception {
       testNoMaxBatchTimeSameServer(QualityOfServiceMode.ONCE_AND_ONLY_ONCE, false);
    }
 
    // MaxBatchTime but no MaxBatchSize
 
    @Test
-   public void testMaxBatchTime_AtMostOnce_P() throws Exception
-   {
+   public void testMaxBatchTime_AtMostOnce_P() throws Exception {
       testMaxBatchTime(QualityOfServiceMode.AT_MOST_ONCE, true);
    }
 
    @Test
-   public void testMaxBatchTime_DuplicatesOk_P() throws Exception
-   {
+   public void testMaxBatchTime_DuplicatesOk_P() throws Exception {
       testMaxBatchTime(QualityOfServiceMode.DUPLICATES_OK, true);
    }
 
    @Test
-   public void testMaxBatchTime_OnceAndOnlyOnce_P() throws Exception
-   {
+   public void testMaxBatchTime_OnceAndOnlyOnce_P() throws Exception {
       testMaxBatchTime(QualityOfServiceMode.ONCE_AND_ONLY_ONCE, true);
    }
 
    @Test
-   public void testMaxBatchTime_AtMostOnce_NP() throws Exception
-   {
+   public void testMaxBatchTime_AtMostOnce_NP() throws Exception {
       testMaxBatchTime(QualityOfServiceMode.AT_MOST_ONCE, false);
    }
 
    @Test
-   public void testMaxBatchTime_DuplicatesOk_NP() throws Exception
-   {
+   public void testMaxBatchTime_DuplicatesOk_NP() throws Exception {
       testMaxBatchTime(QualityOfServiceMode.DUPLICATES_OK, false);
    }
 
    @Test
-   public void testMaxBatchTime_OnceAndOnlyOnce_NP() throws Exception
-   {
+   public void testMaxBatchTime_OnceAndOnlyOnce_NP() throws Exception {
       testMaxBatchTime(QualityOfServiceMode.ONCE_AND_ONLY_ONCE, false);
    }
 
@@ -171,128 +153,108 @@ public class JMSBridgeTest extends BridgeTestBase
    // MaxBatchTime but no MaxBatchSize
 
    @Test
-   public void testMaxBatchTimeSameServer_AtMostOnce_P() throws Exception
-   {
+   public void testMaxBatchTimeSameServer_AtMostOnce_P() throws Exception {
       testMaxBatchTimeSameServer(QualityOfServiceMode.AT_MOST_ONCE, true);
    }
 
    @Test
-   public void testMaxBatchTimeSameServer_DuplicatesOk_P() throws Exception
-   {
+   public void testMaxBatchTimeSameServer_DuplicatesOk_P() throws Exception {
       testMaxBatchTimeSameServer(QualityOfServiceMode.DUPLICATES_OK, true);
    }
 
    @Test
-   public void testMaxBatchTimeSameServer_OnceAndOnlyOnce_P() throws Exception
-   {
+   public void testMaxBatchTimeSameServer_OnceAndOnlyOnce_P() throws Exception {
       testMaxBatchTimeSameServer(QualityOfServiceMode.ONCE_AND_ONLY_ONCE, true);
    }
 
    @Test
-   public void testMaxBatchTimeSameServer_AtMostOnce_NP() throws Exception
-   {
+   public void testMaxBatchTimeSameServer_AtMostOnce_NP() throws Exception {
       testMaxBatchTimeSameServer(QualityOfServiceMode.AT_MOST_ONCE, false);
    }
 
    @Test
-   public void testMaxBatchTimeSameServer_DuplicatesOk_NP() throws Exception
-   {
+   public void testMaxBatchTimeSameServer_DuplicatesOk_NP() throws Exception {
       testMaxBatchTimeSameServer(QualityOfServiceMode.DUPLICATES_OK, false);
    }
 
    @Test
-   public void testMaxBatchTimeSameServer_OnceAndOnlyOnce_NP() throws Exception
-   {
+   public void testMaxBatchTimeSameServer_OnceAndOnlyOnce_NP() throws Exception {
       testMaxBatchTimeSameServer(QualityOfServiceMode.ONCE_AND_ONLY_ONCE, false);
    }
 
    // Stress with batch size of 50
 
    @Test
-   public void testStress_AtMostOnce_P_50() throws Exception
-   {
+   public void testStress_AtMostOnce_P_50() throws Exception {
       testStress(QualityOfServiceMode.AT_MOST_ONCE, true, 50);
    }
 
    @Test
-   public void testStress_DuplicatesOk_P_50() throws Exception
-   {
+   public void testStress_DuplicatesOk_P_50() throws Exception {
       testStress(QualityOfServiceMode.DUPLICATES_OK, true, 50);
    }
 
    @Test
-   public void testStress_OnceAndOnlyOnce_P_50() throws Exception
-   {
+   public void testStress_OnceAndOnlyOnce_P_50() throws Exception {
       testStress(QualityOfServiceMode.ONCE_AND_ONLY_ONCE, true, 50);
    }
 
    @Test
-   public void testStress_AtMostOnce_NP_50() throws Exception
-   {
+   public void testStress_AtMostOnce_NP_50() throws Exception {
       testStress(QualityOfServiceMode.AT_MOST_ONCE, false, 50);
    }
 
    @Test
-   public void testStress_DuplicatesOk_NP_50() throws Exception
-   {
+   public void testStress_DuplicatesOk_NP_50() throws Exception {
       testStress(QualityOfServiceMode.DUPLICATES_OK, false, 50);
    }
 
    @Test
-   public void testStress_OnceAndOnlyOnce_NP_50() throws Exception
-   {
+   public void testStress_OnceAndOnlyOnce_NP_50() throws Exception {
       testStress(QualityOfServiceMode.ONCE_AND_ONLY_ONCE, false, 50);
    }
 
    // Stress with batch size of 1
 
    @Test
-   public void testStress_AtMostOnce_P_1() throws Exception
-   {
+   public void testStress_AtMostOnce_P_1() throws Exception {
       testStress(QualityOfServiceMode.AT_MOST_ONCE, true, 1);
    }
 
    @Test
-   public void testStress_DuplicatesOk_P_1() throws Exception
-   {
+   public void testStress_DuplicatesOk_P_1() throws Exception {
       testStress(QualityOfServiceMode.DUPLICATES_OK, true, 1);
    }
 
    @Test
-   public void testStress_OnceAndOnlyOnce_P_1() throws Exception
-   {
+   public void testStress_OnceAndOnlyOnce_P_1() throws Exception {
       testStress(QualityOfServiceMode.ONCE_AND_ONLY_ONCE, true, 1);
    }
 
    @Test
-   public void testStress_AtMostOnce_NP_1() throws Exception
-   {
+   public void testStress_AtMostOnce_NP_1() throws Exception {
       testStress(QualityOfServiceMode.AT_MOST_ONCE, false, 1);
    }
 
    @Test
-   public void testStress_DuplicatesOk_NP_1() throws Exception
-   {
+   public void testStress_DuplicatesOk_NP_1() throws Exception {
       testStress(QualityOfServiceMode.DUPLICATES_OK, false, 1);
    }
 
    @Test
-   public void testStress_OnceAndOnlyOnce_NP_1() throws Exception
-   {
+   public void testStress_OnceAndOnlyOnce_NP_1() throws Exception {
       testStress(QualityOfServiceMode.ONCE_AND_ONLY_ONCE, false, 1);
    }
 
    // Max batch time
 
    @Test
-   public void testStressMaxBatchTime_OnceAndOnlyOnce_NP() throws Exception
-   {
+   public void testStressMaxBatchTime_OnceAndOnlyOnce_NP() throws Exception {
       testStressBatchTime(QualityOfServiceMode.ONCE_AND_ONLY_ONCE, false, 200);
    }
 
    @Test
-   public void testStressMaxBatchTime_OnceAndOnlyOnce_P() throws Exception
-   {
+   public void testStressMaxBatchTime_OnceAndOnlyOnce_P() throws Exception {
       testStressBatchTime(QualityOfServiceMode.ONCE_AND_ONLY_ONCE, true, 200);
    }
 
@@ -301,109 +263,79 @@ public class JMSBridgeTest extends BridgeTestBase
    // Stress with batch size of 50
 
    @Test
-   public void testStressSameServer_AtMostOnce_P_50() throws Exception
-   {
+   public void testStressSameServer_AtMostOnce_P_50() throws Exception {
       testStressSameServer(QualityOfServiceMode.AT_MOST_ONCE, true, 50);
    }
 
    @Test
-   public void testStressSameServer_DuplicatesOk_P_50() throws Exception
-   {
+   public void testStressSameServer_DuplicatesOk_P_50() throws Exception {
       testStressSameServer(QualityOfServiceMode.DUPLICATES_OK, true, 50);
    }
 
    @Test
-   public void testStressSameServer_OnceAndOnlyOnce_P_50() throws Exception
-   {
+   public void testStressSameServer_OnceAndOnlyOnce_P_50() throws Exception {
       testStress(QualityOfServiceMode.ONCE_AND_ONLY_ONCE, true, 50);
    }
 
    @Test
-   public void testStressSameServer_AtMostOnce_NP_50() throws Exception
-   {
+   public void testStressSameServer_AtMostOnce_NP_50() throws Exception {
       testStressSameServer(QualityOfServiceMode.AT_MOST_ONCE, false, 50);
    }
 
    @Test
-   public void testStressSameServer_DuplicatesOk_NP_50() throws Exception
-   {
+   public void testStressSameServer_DuplicatesOk_NP_50() throws Exception {
       testStressSameServer(QualityOfServiceMode.DUPLICATES_OK, false, 50);
    }
 
    @Test
-   public void testStressSameServer_OnceAndOnlyOnce_NP_50() throws Exception
-   {
+   public void testStressSameServer_OnceAndOnlyOnce_NP_50() throws Exception {
       testStressSameServer(QualityOfServiceMode.ONCE_AND_ONLY_ONCE, false, 50);
    }
 
    // Stress with batch size of 1
 
    @Test
-   public void testStressSameServer_AtMostOnce_P_1() throws Exception
-   {
+   public void testStressSameServer_AtMostOnce_P_1() throws Exception {
       testStressSameServer(QualityOfServiceMode.AT_MOST_ONCE, true, 1);
    }
 
    @Test
-   public void testStressSameServer_DuplicatesOk_P_1() throws Exception
-   {
+   public void testStressSameServer_DuplicatesOk_P_1() throws Exception {
       testStressSameServer(QualityOfServiceMode.DUPLICATES_OK, true, 1);
    }
 
    @Test
-   public void testStressSameServer_OnceAndOnlyOnce_P_1() throws Exception
-   {
+   public void testStressSameServer_OnceAndOnlyOnce_P_1() throws Exception {
       testStressSameServer(QualityOfServiceMode.ONCE_AND_ONLY_ONCE, true, 1);
    }
 
    @Test
-   public void testStressSameServer_AtMostOnce_NP_1() throws Exception
-   {
+   public void testStressSameServer_AtMostOnce_NP_1() throws Exception {
       testStressSameServer(QualityOfServiceMode.AT_MOST_ONCE, false, 1);
    }
 
    @Test
-   public void testStressSameServer_DuplicatesOk_NP_1() throws Exception
-   {
+   public void testStressSameServer_DuplicatesOk_NP_1() throws Exception {
       testStressSameServer(QualityOfServiceMode.DUPLICATES_OK, false, 1);
    }
 
    @Test
-   public void testStressSameServer_OnceAndOnlyOnce_NP_1() throws Exception
-   {
+   public void testStressSameServer_OnceAndOnlyOnce_NP_1() throws Exception {
       testStressSameServer(QualityOfServiceMode.ONCE_AND_ONLY_ONCE, false, 1);
    }
 
    @Test
-   public void testStartBridgeFirst() throws Exception
-   {
+   public void testStartBridgeFirst() throws Exception {
       //stop the source server, we want to start the bridge first
       jmsServer0.stop();
       JMSBridgeImpl bridge = null;
 
       ConnectionFactoryFactory factInUse0 = cff0;
       ConnectionFactoryFactory factInUse1 = cff1;
-      try
-      {
+      try {
          final int NUM_MESSAGES = 10;
 
-         bridge = new JMSBridgeImpl(factInUse0,
-                                    factInUse1,
-                                    sourceQueueFactory,
-                                    targetQueueFactory,
-                                    null,
-                                    null,
-                                    null,
-                                    null,
-                                    null,
-                                    5000,
-                                    10,
-                                    QualityOfServiceMode.AT_MOST_ONCE,
-                                    NUM_MESSAGES,
-                                    -1,
-                                    null,
-                                    null,
-                                    false);
+         bridge = new JMSBridgeImpl(factInUse0, factInUse1, sourceQueueFactory, targetQueueFactory, null, null, null, null, null, 5000, 10, QualityOfServiceMode.AT_MOST_ONCE, NUM_MESSAGES, -1, null, null, false);
 
          bridge.start();
 
@@ -445,10 +377,8 @@ public class JMSBridgeTest extends BridgeTestBase
          checkAllMessageReceivedInOrder(cf1, targetQueue, 0, NUM_MESSAGES - 1, false);
 
       }
-      finally
-      {
-         if (bridge != null)
-         {
+      finally {
+         if (bridge != null) {
             JMSBridgeTest.log.info("Stopping bridge");
             bridge.stop();
          }
@@ -456,8 +386,7 @@ public class JMSBridgeTest extends BridgeTestBase
    }
 
    @Test
-   public void testParams() throws Exception
-   {
+   public void testParams() throws Exception {
       JMSBridgeImpl bridge = null;
 
       QualityOfServiceMode qosMode = QualityOfServiceMode.AT_MOST_ONCE;
@@ -484,278 +413,107 @@ public class JMSBridgeTest extends BridgeTestBase
 
       String clientID = null;
 
-      try
-      {
-         bridge =
-            new JMSBridgeImpl(null,
-                              cff1,
-                              sourceQueueFactory,
-                              targetQueueFactory,
-                              sourceUsername,
-                              sourcePassword,
-                              destUsername,
-                              destPassword,
-                              selector,
-                              failureRetryInterval,
-                              maxRetries,
-                              qosMode,
-                              batchSize,
-                              maxBatchTime,
-                              subName,
-                              clientID,
-                              false);
+      try {
+         bridge = new JMSBridgeImpl(null, cff1, sourceQueueFactory, targetQueueFactory, sourceUsername, sourcePassword, destUsername, destPassword, selector, failureRetryInterval, maxRetries, qosMode, batchSize, maxBatchTime, subName, clientID, false);
          fail("expected exception");
       }
-      catch (IllegalArgumentException e)
-      {
+      catch (IllegalArgumentException e) {
          // Ok
       }
-      finally
-      {
+      finally {
          stopComponent(bridge);
       }
 
-      try
-      {
-         bridge = new JMSBridgeImpl(cff0,
-                                    null,
-                                    sourceQueueFactory,
-                                    targetQueueFactory,
-                                    sourceUsername,
-                                    sourcePassword,
-                                    destUsername,
-                                    destPassword,
-                                    selector,
-                                    failureRetryInterval,
-                                    maxRetries,
-                                    qosMode,
-                                    batchSize,
-                                    maxBatchTime,
-                                    subName,
-                                    clientID,
-                                    false);
+      try {
+         bridge = new JMSBridgeImpl(cff0, null, sourceQueueFactory, targetQueueFactory, sourceUsername, sourcePassword, destUsername, destPassword, selector, failureRetryInterval, maxRetries, qosMode, batchSize, maxBatchTime, subName, clientID, false);
          fail("expected exception");
       }
-      catch (IllegalArgumentException e)
-      {
+      catch (IllegalArgumentException e) {
          // Ok
       }
-      finally
-      {
+      finally {
          stopComponent(bridge);
       }
 
-      try
-      {
-         bridge = new JMSBridgeImpl(cff0,
-                                    cff1,
-                                    null,
-                                    targetQueueFactory,
-                                    sourceUsername,
-                                    sourcePassword,
-                                    destUsername,
-                                    destPassword,
-                                    selector,
-                                    failureRetryInterval,
-                                    maxRetries,
-                                    qosMode,
-                                    batchSize,
-                                    maxBatchTime,
-                                    subName,
-                                    clientID,
-                                    false);
+      try {
+         bridge = new JMSBridgeImpl(cff0, cff1, null, targetQueueFactory, sourceUsername, sourcePassword, destUsername, destPassword, selector, failureRetryInterval, maxRetries, qosMode, batchSize, maxBatchTime, subName, clientID, false);
          fail("expected exception");
       }
-      catch (IllegalArgumentException e)
-      {
+      catch (IllegalArgumentException e) {
          // Ok
       }
-      finally
-      {
+      finally {
          stopComponent(bridge);
       }
 
-      try
-      {
-         bridge = new JMSBridgeImpl(cff0,
-                                    cff1,
-                                    sourceQueueFactory,
-                                    null,
-                                    sourceUsername,
-                                    sourcePassword,
-                                    destUsername,
-                                    destPassword,
-                                    selector,
-                                    failureRetryInterval,
-                                    maxRetries,
-                                    qosMode,
-                                    batchSize,
-                                    maxBatchTime,
-                                    subName,
-                                    clientID,
-                                    false);
+      try {
+         bridge = new JMSBridgeImpl(cff0, cff1, sourceQueueFactory, null, sourceUsername, sourcePassword, destUsername, destPassword, selector, failureRetryInterval, maxRetries, qosMode, batchSize, maxBatchTime, subName, clientID, false);
          fail("expected exception");
       }
-      catch (IllegalArgumentException e)
-      {
+      catch (IllegalArgumentException e) {
          // Ok
       }
-      finally
-      {
+      finally {
          stopComponent(bridge);
       }
 
-      try
-      {
-         bridge = new JMSBridgeImpl(cff0,
-                                    cff1,
-                                    sourceQueueFactory,
-                                    targetQueueFactory,
-                                    sourceUsername,
-                                    sourcePassword,
-                                    destUsername,
-                                    destPassword,
-                                    selector,
-                                    -2,
-                                    maxRetries,
-                                    qosMode,
-                                    batchSize,
-                                    maxBatchTime,
-                                    subName,
-                                    clientID,
-                                    false);
+      try {
+         bridge = new JMSBridgeImpl(cff0, cff1, sourceQueueFactory, targetQueueFactory, sourceUsername, sourcePassword, destUsername, destPassword, selector, -2, maxRetries, qosMode, batchSize, maxBatchTime, subName, clientID, false);
          fail("expected exception");
       }
-      catch (IllegalArgumentException e)
-      {
+      catch (IllegalArgumentException e) {
          // Ok
       }
-      finally
-      {
+      finally {
          stopComponent(bridge);
       }
 
-      try
-      {
-         bridge = new JMSBridgeImpl(cff0,
-                                    cff1,
-                                    sourceQueueFactory,
-                                    targetQueueFactory,
-                                    sourceUsername,
-                                    sourcePassword,
-                                    destUsername,
-                                    destPassword,
-                                    selector,
-                                    -1,
-                                    10,
-                                    qosMode,
-                                    batchSize,
-                                    maxBatchTime,
-                                    subName,
-                                    clientID,
-                                    false);
+      try {
+         bridge = new JMSBridgeImpl(cff0, cff1, sourceQueueFactory, targetQueueFactory, sourceUsername, sourcePassword, destUsername, destPassword, selector, -1, 10, qosMode, batchSize, maxBatchTime, subName, clientID, false);
          fail("expected exception");
       }
-      catch (IllegalArgumentException e)
-      {
+      catch (IllegalArgumentException e) {
          // Ok
       }
-      finally
-      {
+      finally {
          stopComponent(bridge);
       }
 
-      try
-      {
-         bridge = new JMSBridgeImpl(cff0,
-                                    cff1,
-                                    sourceQueueFactory,
-                                    null,
-                                    sourceUsername,
-                                    sourcePassword,
-                                    destUsername,
-                                    destPassword,
-                                    selector,
-                                    failureRetryInterval,
-                                    maxRetries,
-                                    qosMode,
-                                    0,
-                                    maxBatchTime,
-                                    subName,
-                                    clientID,
-                                    false);
+      try {
+         bridge = new JMSBridgeImpl(cff0, cff1, sourceQueueFactory, null, sourceUsername, sourcePassword, destUsername, destPassword, selector, failureRetryInterval, maxRetries, qosMode, 0, maxBatchTime, subName, clientID, false);
          fail("expected exception");
       }
-      catch (IllegalArgumentException e)
-      {
+      catch (IllegalArgumentException e) {
          // Ok
       }
-      finally
-      {
+      finally {
          stopComponent(bridge);
       }
 
-      try
-      {
-         bridge = new JMSBridgeImpl(cff0,
-                                    cff1,
-                                    sourceQueueFactory,
-                                    null,
-                                    sourceUsername,
-                                    sourcePassword,
-                                    destUsername,
-                                    destPassword,
-                                    selector,
-                                    failureRetryInterval,
-                                    maxRetries,
-                                    qosMode,
-                                    batchSize,
-                                    -2,
-                                    subName,
-                                    clientID,
-                                    false);
+      try {
+         bridge = new JMSBridgeImpl(cff0, cff1, sourceQueueFactory, null, sourceUsername, sourcePassword, destUsername, destPassword, selector, failureRetryInterval, maxRetries, qosMode, batchSize, -2, subName, clientID, false);
          fail("expected exception");
       }
-      catch (IllegalArgumentException e)
-      {
+      catch (IllegalArgumentException e) {
          // Ok
       }
-      finally
-      {
+      finally {
          stopComponent(bridge);
       }
    }
 
    @Test
-   public void testStartStopStart() throws Exception
-   {
+   public void testStartStopStart() throws Exception {
       JMSBridgeImpl bridge = null;
 
       Connection connSource = null;
 
       Connection connTarget = null;
 
-      try
-      {
+      try {
          final int NUM_MESSAGES = 10;
 
-         bridge = new JMSBridgeImpl(cff0,
-                                    cff1,
-                                    sourceQueueFactory,
-                                    targetQueueFactory,
-                                    null,
-                                    null,
-                                    null,
-                                    null,
-                                    null,
-                                    5000,
-                                    10,
-                                    QualityOfServiceMode.AT_MOST_ONCE,
-                                    1,
-                                    -1,
-                                    null,
-                                    null,
-                                    false);
+         bridge = new JMSBridgeImpl(cff0, cff1, sourceQueueFactory, targetQueueFactory, null, null, null, null, null, 5000, 10, QualityOfServiceMode.AT_MOST_ONCE, 1, -1, null, null, false);
 
          bridge.start();
 
@@ -769,8 +527,7 @@ public class JMSBridgeTest extends BridgeTestBase
 
          MessageProducer prod = sessSend.createProducer(sourceQueue);
 
-         for (int i = 0; i < NUM_MESSAGES; i++)
-         {
+         for (int i = 0; i < NUM_MESSAGES; i++) {
             TextMessage tm = sessSend.createTextMessage("message" + i);
             prod.send(tm);
          }
@@ -781,8 +538,7 @@ public class JMSBridgeTest extends BridgeTestBase
 
          connTarget.start();
 
-         for (int i = 0; i < NUM_MESSAGES; i++)
-         {
+         for (int i = 0; i < NUM_MESSAGES; i++) {
             TextMessage tm = (TextMessage) cons.receive(10000);
             Assert.assertNotNull(tm);
             Assert.assertEquals("message" + i, tm.getText());
@@ -791,20 +547,16 @@ public class JMSBridgeTest extends BridgeTestBase
          Message m = cons.receiveNoWait();
          Assert.assertNull(m);
       }
-      finally
-      {
-         if (connSource != null)
-         {
+      finally {
+         if (connSource != null) {
             connSource.close();
          }
 
-         if (connTarget != null)
-         {
+         if (connTarget != null) {
             connTarget.close();
          }
 
-         if (bridge != null)
-         {
+         if (bridge != null) {
             bridge.stop();
          }
 
@@ -813,37 +565,19 @@ public class JMSBridgeTest extends BridgeTestBase
    }
 
    @Test
-   public void testSelector() throws Exception
-   {
+   public void testSelector() throws Exception {
       JMSBridgeImpl bridge = null;
 
       Connection connSource = null;
 
       Connection connTarget = null;
 
-      try
-      {
+      try {
          final int NUM_MESSAGES = 10;
 
          String selector = "vegetable='radish'";
 
-         bridge = new JMSBridgeImpl(cff0,
-                                    cff1,
-                                    sourceQueueFactory,
-                                    targetQueueFactory,
-                                    null,
-                                    null,
-                                    null,
-                                    null,
-                                    selector,
-                                    5000,
-                                    10,
-                                    QualityOfServiceMode.AT_MOST_ONCE,
-                                    1,
-                                    -1,
-                                    null,
-                                    null,
-                                    false);
+         bridge = new JMSBridgeImpl(cff0, cff1, sourceQueueFactory, targetQueueFactory, null, null, null, null, selector, 5000, 10, QualityOfServiceMode.AT_MOST_ONCE, 1, -1, null, null, false);
 
          bridge.start();
 
@@ -853,16 +587,13 @@ public class JMSBridgeTest extends BridgeTestBase
 
          MessageProducer prod = sessSend.createProducer(sourceQueue);
 
-         for (int i = 0; i < NUM_MESSAGES; i++)
-         {
+         for (int i = 0; i < NUM_MESSAGES; i++) {
             TextMessage tm = sessSend.createTextMessage("message" + i);
 
-            if (i >= NUM_MESSAGES / 2)
-            {
+            if (i >= NUM_MESSAGES / 2) {
                tm.setStringProperty("vegetable", "radish");
             }
-            else
-            {
+            else {
                tm.setStringProperty("vegetable", "cauliflower");
             }
 
@@ -877,8 +608,7 @@ public class JMSBridgeTest extends BridgeTestBase
 
          connTarget.start();
 
-         for (int i = NUM_MESSAGES / 2; i < NUM_MESSAGES; i++)
-         {
+         for (int i = NUM_MESSAGES / 2; i < NUM_MESSAGES; i++) {
             TextMessage tm = (TextMessage) cons.receive(10000);
 
             Assert.assertNotNull(tm);
@@ -891,20 +621,16 @@ public class JMSBridgeTest extends BridgeTestBase
          Assert.assertNull(m);
 
       }
-      finally
-      {
-         if (connSource != null)
-         {
+      finally {
+         if (connSource != null) {
             connSource.close();
          }
 
-         if (connTarget != null)
-         {
+         if (connTarget != null) {
             connTarget.close();
          }
 
-         if (bridge != null)
-         {
+         if (bridge != null) {
             bridge.stop();
          }
 
@@ -913,8 +639,7 @@ public class JMSBridgeTest extends BridgeTestBase
    }
 
    @Test
-   public void testMaskPassword() throws Exception
-   {
+   public void testMaskPassword() throws Exception {
       JMSBridgeImpl bridge = null;
 
       Connection connSource = null;
@@ -924,13 +649,10 @@ public class JMSBridgeTest extends BridgeTestBase
       DefaultSensitiveStringCodec codec = new DefaultSensitiveStringCodec();
       String mask = (String) codec.encode("guest");
 
-      try
-      {
+      try {
          final int NUM_MESSAGES = 10;
 
-         bridge = new JMSBridgeImpl(cff0, cff1, sourceQueueFactory,
-                                    targetQueueFactory, "guest", mask, "guest", mask, null, 5000,
-                                    10, QualityOfServiceMode.AT_MOST_ONCE, 1, -1, null, null, false);
+         bridge = new JMSBridgeImpl(cff0, cff1, sourceQueueFactory, targetQueueFactory, "guest", mask, "guest", mask, null, 5000, 10, QualityOfServiceMode.AT_MOST_ONCE, 1, -1, null, null, false);
 
          bridge.setUseMaskedPassword(true);
 
@@ -938,13 +660,11 @@ public class JMSBridgeTest extends BridgeTestBase
 
          connSource = cf0.createConnection();
 
-         Session sessSend = connSource.createSession(false,
-                                                     Session.AUTO_ACKNOWLEDGE);
+         Session sessSend = connSource.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
          MessageProducer prod = sessSend.createProducer(sourceQueue);
 
-         for (int i = 0; i < NUM_MESSAGES; i++)
-         {
+         for (int i = 0; i < NUM_MESSAGES; i++) {
             TextMessage tm = sessSend.createTextMessage("message" + i);
 
             prod.send(tm);
@@ -952,15 +672,13 @@ public class JMSBridgeTest extends BridgeTestBase
 
          connTarget = cf1.createConnection();
 
-         Session sessRec = connTarget.createSession(false,
-                                                    Session.AUTO_ACKNOWLEDGE);
+         Session sessRec = connTarget.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
          MessageConsumer cons = sessRec.createConsumer(targetQueue);
 
          connTarget.start();
 
-         for (int i = 0; i < NUM_MESSAGES; i++)
-         {
+         for (int i = 0; i < NUM_MESSAGES; i++) {
             TextMessage tm = (TextMessage) cons.receive(10000);
 
             Assert.assertNotNull(tm);
@@ -973,20 +691,16 @@ public class JMSBridgeTest extends BridgeTestBase
          Assert.assertNull(m);
 
       }
-      finally
-      {
-         if (connSource != null)
-         {
+      finally {
+         if (connSource != null) {
             connSource.close();
          }
 
-         if (connTarget != null)
-         {
+         if (connTarget != null) {
             connTarget.close();
          }
 
-         if (bridge != null)
-         {
+         if (bridge != null) {
             bridge.stop();
          }
 
@@ -995,8 +709,7 @@ public class JMSBridgeTest extends BridgeTestBase
    }
 
    @Test
-   public void testPasswordCodec() throws Exception
-   {
+   public void testPasswordCodec() throws Exception {
       JMSBridgeImpl bridge = null;
 
       Connection connSource = null;
@@ -1010,13 +723,10 @@ public class JMSBridgeTest extends BridgeTestBase
 
       String mask = (String) codec.encode("guest");
 
-      try
-      {
+      try {
          final int NUM_MESSAGES = 10;
 
-         bridge = new JMSBridgeImpl(cff0, cff1, sourceQueueFactory,
-                                    targetQueueFactory, "guest", mask, "guest", mask, null, 5000,
-                                    10, QualityOfServiceMode.AT_MOST_ONCE, 1, -1, null, null, false);
+         bridge = new JMSBridgeImpl(cff0, cff1, sourceQueueFactory, targetQueueFactory, "guest", mask, "guest", mask, null, 5000, 10, QualityOfServiceMode.AT_MOST_ONCE, 1, -1, null, null, false);
 
          bridge.setUseMaskedPassword(true);
          bridge.setPasswordCodec(codec.getClass().getName() + ";key=bridgekey");
@@ -1025,13 +735,11 @@ public class JMSBridgeTest extends BridgeTestBase
 
          connSource = cf0.createConnection();
 
-         Session sessSend = connSource.createSession(false,
-                                                     Session.AUTO_ACKNOWLEDGE);
+         Session sessSend = connSource.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
          MessageProducer prod = sessSend.createProducer(sourceQueue);
 
-         for (int i = 0; i < NUM_MESSAGES; i++)
-         {
+         for (int i = 0; i < NUM_MESSAGES; i++) {
             TextMessage tm = sessSend.createTextMessage("message" + i);
 
             prod.send(tm);
@@ -1039,15 +747,13 @@ public class JMSBridgeTest extends BridgeTestBase
 
          connTarget = cf1.createConnection();
 
-         Session sessRec = connTarget.createSession(false,
-                                                    Session.AUTO_ACKNOWLEDGE);
+         Session sessRec = connTarget.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
          MessageConsumer cons = sessRec.createConsumer(targetQueue);
 
          connTarget.start();
 
-         for (int i = 0; i < NUM_MESSAGES; i++)
-         {
+         for (int i = 0; i < NUM_MESSAGES; i++) {
             TextMessage tm = (TextMessage) cons.receive(10000);
 
             Assert.assertNotNull(tm);
@@ -1060,20 +766,16 @@ public class JMSBridgeTest extends BridgeTestBase
          Assert.assertNull(m);
 
       }
-      finally
-      {
-         if (connSource != null)
-         {
+      finally {
+         if (connSource != null) {
             connSource.close();
          }
 
-         if (connTarget != null)
-         {
+         if (connTarget != null) {
             connTarget.close();
          }
 
-         if (bridge != null)
-         {
+         if (bridge != null) {
             bridge.stop();
          }
 
@@ -1082,19 +784,16 @@ public class JMSBridgeTest extends BridgeTestBase
    }
 
    @Test
-   public void testStartBridgeWithJTATransactionAlreadyRunningLargeMessage() throws Exception
-   {
+   public void testStartBridgeWithJTATransactionAlreadyRunningLargeMessage() throws Exception {
       internalTestStartBridgeWithJTATransactionAlreadyRunning(true);
    }
 
    @Test
-   public void testStartBridgeWithJTATransactionAlreadyRunningRegularMessage() throws Exception
-   {
+   public void testStartBridgeWithJTATransactionAlreadyRunningRegularMessage() throws Exception {
       internalTestStartBridgeWithJTATransactionAlreadyRunning(false);
    }
 
-   public void internalTestStartBridgeWithJTATransactionAlreadyRunning(final boolean largeMessage) throws Exception
-   {
+   public void internalTestStartBridgeWithJTATransactionAlreadyRunning(final boolean largeMessage) throws Exception {
       JMSBridgeImpl bridge = null;
 
       Transaction toResume = null;
@@ -1103,8 +802,7 @@ public class JMSBridgeTest extends BridgeTestBase
 
       TransactionManager mgr = newTransactionManager();
 
-      try
-      {
+      try {
 
          toResume = mgr.suspend();
 
@@ -1114,98 +812,54 @@ public class JMSBridgeTest extends BridgeTestBase
 
          final int NUM_MESSAGES = 10;
 
-         bridge = new JMSBridgeImpl(cff0,
-                                    cff1,
-                                    sourceTopicFactory,
-                                    targetQueueFactory,
-                                    null,
-                                    null,
-                                    null,
-                                    null,
-                                    null,
-                                    5000,
-                                    10,
-                                    QualityOfServiceMode.AT_MOST_ONCE,
-                                    1,
-                                    -1,
-                                    null,
-                                    null,
-                                    false);
+         bridge = new JMSBridgeImpl(cff0, cff1, sourceTopicFactory, targetQueueFactory, null, null, null, null, null, 5000, 10, QualityOfServiceMode.AT_MOST_ONCE, 1, -1, null, null, false);
          bridge.start();
 
          sendMessages(cf0, sourceTopic, 0, NUM_MESSAGES, false, largeMessage);
 
          checkAllMessageReceivedInOrder(cf1, targetQueue, 0, NUM_MESSAGES, largeMessage);
       }
-      finally
-      {
-         if (started != null)
-         {
-            try
-            {
+      finally {
+         if (started != null) {
+            try {
                started.rollback();
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                JMSBridgeTest.log.error("Failed to rollback", e);
             }
          }
 
-         if (toResume != null)
-         {
-            try
-            {
+         if (toResume != null) {
+            try {
                mgr.resume(toResume);
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                JMSBridgeTest.log.error("Failed to resume", e);
             }
          }
-         if (bridge != null)
-         {
+         if (bridge != null) {
             bridge.stop();
          }
       }
    }
 
    @Test
-   public void testNonDurableSubscriberLargeMessage() throws Exception
-   {
+   public void testNonDurableSubscriberLargeMessage() throws Exception {
       internalTestNonDurableSubscriber(true, 1);
    }
 
    @Test
-   public void testNonDurableSubscriberRegularMessage() throws Exception
-   {
+   public void testNonDurableSubscriberRegularMessage() throws Exception {
       internalTestNonDurableSubscriber(false, 1);
    }
 
-   public void internalTestNonDurableSubscriber(final boolean largeMessage, final int batchSize) throws Exception
-   {
+   public void internalTestNonDurableSubscriber(final boolean largeMessage, final int batchSize) throws Exception {
       JMSBridgeImpl bridge = null;
 
-      try
-      {
+      try {
          final int NUM_MESSAGES = 10;
 
-         bridge = new JMSBridgeImpl(cff0,
-                                    cff1,
-                                    sourceTopicFactory,
-                                    targetQueueFactory,
-                                    null,
-                                    null,
-                                    null,
-                                    null,
-                                    null,
-                                    5000,
-                                    10,
-                                    QualityOfServiceMode.AT_MOST_ONCE,
-                                    batchSize,
-                                    -1,
-                                    null,
-                                    null,
-                                    false);
+         bridge = new JMSBridgeImpl(cff0, cff1, sourceTopicFactory, targetQueueFactory, null, null, null, null, null, 5000, 10, QualityOfServiceMode.AT_MOST_ONCE, batchSize, -1, null, null, false);
 
          bridge.start();
 
@@ -1213,52 +867,30 @@ public class JMSBridgeTest extends BridgeTestBase
 
          checkAllMessageReceivedInOrder(cf1, targetQueue, 0, NUM_MESSAGES, largeMessage);
       }
-      finally
-      {
-         if (bridge != null)
-         {
+      finally {
+         if (bridge != null) {
             bridge.stop();
          }
       }
    }
 
    @Test
-   public void testDurableSubscriberLargeMessage() throws Exception
-   {
+   public void testDurableSubscriberLargeMessage() throws Exception {
       internalTestDurableSubscriber(true, 1);
    }
 
    @Test
-   public void testDurableSubscriberRegularMessage() throws Exception
-   {
+   public void testDurableSubscriberRegularMessage() throws Exception {
       internalTestDurableSubscriber(false, 1);
    }
 
-   public void internalTestDurableSubscriber(final boolean largeMessage, final int batchSize) throws Exception
-   {
+   public void internalTestDurableSubscriber(final boolean largeMessage, final int batchSize) throws Exception {
       JMSBridgeImpl bridge = null;
 
-      try
-      {
+      try {
          final int NUM_MESSAGES = 10;
 
-         bridge = new JMSBridgeImpl(cff0,
-                                    cff1,
-                                    sourceTopicFactory,
-                                    targetQueueFactory,
-                                    null,
-                                    null,
-                                    null,
-                                    null,
-                                    null,
-                                    5000,
-                                    10,
-                                    QualityOfServiceMode.AT_MOST_ONCE,
-                                    batchSize,
-                                    -1,
-                                    "subTest",
-                                    "clientid123",
-                                    false);
+         bridge = new JMSBridgeImpl(cff0, cff1, sourceTopicFactory, targetQueueFactory, null, null, null, null, null, 5000, 10, QualityOfServiceMode.AT_MOST_ONCE, batchSize, -1, "subTest", "clientid123", false);
 
          bridge.start();
 
@@ -1266,10 +898,8 @@ public class JMSBridgeTest extends BridgeTestBase
 
          checkAllMessageReceivedInOrder(cf1, targetQueue, 0, NUM_MESSAGES, largeMessage);
       }
-      finally
-      {
-         if (bridge != null)
-         {
+      finally {
+         if (bridge != null) {
             bridge.stop();
          }
 
@@ -1283,46 +913,26 @@ public class JMSBridgeTest extends BridgeTestBase
    }
 
    @Test
-   public void testMessageIDInHeaderOn() throws Exception
-   {
+   public void testMessageIDInHeaderOn() throws Exception {
       messageIDInHeader(true);
    }
 
    @Test
-   public void testMessageIDInHeaderOff() throws Exception
-   {
+   public void testMessageIDInHeaderOff() throws Exception {
       messageIDInHeader(false);
    }
 
-   private void messageIDInHeader(final boolean on) throws Exception
-   {
+   private void messageIDInHeader(final boolean on) throws Exception {
       JMSBridgeImpl bridge = null;
 
       Connection connSource = null;
 
       Connection connTarget = null;
 
-      try
-      {
+      try {
          final int NUM_MESSAGES = 10;
 
-         bridge = new JMSBridgeImpl(cff0,
-                                    cff1,
-                                    sourceQueueFactory,
-                                    targetQueueFactory,
-                                    null,
-                                    null,
-                                    null,
-                                    null,
-                                    null,
-                                    5000,
-                                    10,
-                                    QualityOfServiceMode.AT_MOST_ONCE,
-                                    1,
-                                    -1,
-                                    null,
-                                    null,
-                                    on);
+         bridge = new JMSBridgeImpl(cff0, cff1, sourceQueueFactory, targetQueueFactory, null, null, null, null, null, 5000, 10, QualityOfServiceMode.AT_MOST_ONCE, 1, -1, null, null, on);
 
          bridge.start();
 
@@ -1338,8 +948,7 @@ public class JMSBridgeTest extends BridgeTestBase
 
          MessageProducer prod = sessSource.createProducer(sourceQueue);
 
-         for (int i = 0; i < NUM_MESSAGES; i++)
-         {
+         for (int i = 0; i < NUM_MESSAGES; i++) {
             TextMessage tm = sessSource.createTextMessage("message" + i);
 
             // We add some properties to make sure they get passed through ok
@@ -1376,8 +985,7 @@ public class JMSBridgeTest extends BridgeTestBase
 
          List<TextMessage> msgs = new ArrayList<TextMessage>();
 
-         for (int i = 0; i < NUM_MESSAGES; i++)
-         {
+         for (int i = 0; i < NUM_MESSAGES; i++) {
             TextMessage tm = (TextMessage) cons.receive(5000);
 
             Assert.assertNotNull(tm);
@@ -1397,8 +1005,7 @@ public class JMSBridgeTest extends BridgeTestBase
 
             Assert.assertEquals("mygroup543", tm.getStringProperty("JMSXGroupID"));
 
-            if (on)
-            {
+            if (on) {
                String header = tm.getStringProperty(ActiveMQJMSConstants.AMQ_MESSAGING_BRIDGE_MESSAGE_ID_LIST);
 
                Assert.assertNotNull(header);
@@ -1409,16 +1016,14 @@ public class JMSBridgeTest extends BridgeTestBase
             }
          }
 
-         if (on)
-         {
+         if (on) {
             // Now we send them again back to the source
 
             Iterator<TextMessage> iter = msgs.iterator();
 
             List<String> ids2 = new ArrayList<String>();
 
-            while (iter.hasNext())
-            {
+            while (iter.hasNext()) {
                Message msg = iter.next();
 
                prod.send(msg);
@@ -1428,8 +1033,7 @@ public class JMSBridgeTest extends BridgeTestBase
 
             // And consume them again
 
-            for (int i = 0; i < NUM_MESSAGES; i++)
-            {
+            for (int i = 0; i < NUM_MESSAGES; i++) {
                TextMessage tm = (TextMessage) cons.receive(5000);
 
                Assert.assertNotNull(tm);
@@ -1458,78 +1062,52 @@ public class JMSBridgeTest extends BridgeTestBase
          }
 
       }
-      finally
-      {
-         if (bridge != null)
-         {
+      finally {
+         if (bridge != null) {
             bridge.stop();
          }
 
-         if (connSource != null)
-         {
+         if (connSource != null) {
             connSource.close();
          }
 
-         if (connTarget != null)
-         {
+         if (connTarget != null) {
             connTarget.close();
          }
       }
    }
 
    @Test
-   public void testPropertiesPreservedPOn() throws Exception
-   {
+   public void testPropertiesPreservedPOn() throws Exception {
       propertiesPreserved(true, true);
    }
 
    @Test
-   public void testPropertiesPreservedNPoff() throws Exception
-   {
+   public void testPropertiesPreservedNPoff() throws Exception {
       propertiesPreserved(false, true);
    }
 
    @Test
-   public void testPropertiesPreservedNPOn() throws Exception
-   {
+   public void testPropertiesPreservedNPOn() throws Exception {
       propertiesPreserved(false, true);
    }
 
    @Test
-   public void testPropertiesPreservedPoff() throws Exception
-   {
+   public void testPropertiesPreservedPoff() throws Exception {
       propertiesPreserved(true, true);
    }
 
-   private void propertiesPreserved(final boolean persistent, final boolean messageIDInHeader) throws Exception
-   {
+   private void propertiesPreserved(final boolean persistent, final boolean messageIDInHeader) throws Exception {
       JMSBridgeImpl bridge = null;
 
       Connection connSource = null;
 
       Connection connTarget = null;
 
-      try
-      {
+      try {
          final int NUM_MESSAGES = 10;
 
-         bridge = new JMSBridgeImpl(cff0,
-                                    cff1,
-                                    sourceQueueFactory,
-                                    targetQueueFactory,
-                                    null,
-                                    null,
-                                    null,
-                                    null,
-                                    null,
-                                    5000,
-                                    10,
-                                    QualityOfServiceMode.AT_MOST_ONCE,
-                                    1,
-                                    -1,
-                                    null,
-                                    null,
-                                    messageIDInHeader);
+         bridge = new JMSBridgeImpl(cff0, cff1, sourceQueueFactory, targetQueueFactory, null, null, null, null, null, 5000, 10, QualityOfServiceMode.AT_MOST_ONCE, 1, -1, null, null, messageIDInHeader);
 
          bridge.start();
 
@@ -1561,8 +1139,7 @@ public class JMSBridgeTest extends BridgeTestBase
 
          long expiration = tm.getJMSExpiration();
 
-         Assert.assertEquals(persistent ? DeliveryMode.PERSISTENT : DeliveryMode.NON_PERSISTENT,
-                             tm.getJMSDeliveryMode());
+         Assert.assertEquals(persistent ? DeliveryMode.PERSISTENT : DeliveryMode.NON_PERSISTENT, tm.getJMSDeliveryMode());
 
          tm = (TextMessage) cons.receive(1000);
 
@@ -1570,8 +1147,7 @@ public class JMSBridgeTest extends BridgeTestBase
 
          Assert.assertEquals("blahmessage", tm.getText());
 
-         Assert.assertEquals(persistent ? DeliveryMode.PERSISTENT : DeliveryMode.NON_PERSISTENT,
-                             tm.getJMSDeliveryMode());
+         Assert.assertEquals(persistent ? DeliveryMode.PERSISTENT : DeliveryMode.NON_PERSISTENT, tm.getJMSDeliveryMode());
 
          Assert.assertEquals(7, tm.getJMSPriority());
 
@@ -1591,8 +1167,7 @@ public class JMSBridgeTest extends BridgeTestBase
 
          prod.send(tm);
 
-         Assert.assertEquals(persistent ? DeliveryMode.PERSISTENT : DeliveryMode.NON_PERSISTENT,
-                             tm.getJMSDeliveryMode());
+         Assert.assertEquals(persistent ? DeliveryMode.PERSISTENT : DeliveryMode.NON_PERSISTENT, tm.getJMSDeliveryMode());
 
          tm = (TextMessage) cons.receive(1000);
 
@@ -1600,8 +1175,7 @@ public class JMSBridgeTest extends BridgeTestBase
 
          Assert.assertEquals("blahmessage2", tm.getText());
 
-         Assert.assertEquals(persistent ? DeliveryMode.PERSISTENT : DeliveryMode.NON_PERSISTENT,
-                             tm.getJMSDeliveryMode());
+         Assert.assertEquals(persistent ? DeliveryMode.PERSISTENT : DeliveryMode.NON_PERSISTENT, tm.getJMSDeliveryMode());
 
          Assert.assertEquals(7, tm.getJMSPriority());
 
@@ -1655,55 +1229,33 @@ public class JMSBridgeTest extends BridgeTestBase
          m = cons.receive(5000);
 
       }
-      finally
-      {
-         if (bridge != null)
-         {
+      finally {
+         if (bridge != null) {
             bridge.stop();
          }
 
-         if (connSource != null)
-         {
+         if (connSource != null) {
             connSource.close();
          }
 
-         if (connTarget != null)
-         {
+         if (connTarget != null) {
             connTarget.close();
          }
       }
    }
 
    @Test
-   public void testNoMessageIDInHeader() throws Exception
-   {
+   public void testNoMessageIDInHeader() throws Exception {
       JMSBridgeImpl bridge = null;
 
       Connection connSource = null;
 
       Connection connTarget = null;
 
-      try
-      {
+      try {
          final int NUM_MESSAGES = 10;
 
-         bridge = new JMSBridgeImpl(cff0,
-                                    cff1,
-                                    sourceQueueFactory,
-                                    targetQueueFactory,
-                                    null,
-                                    null,
-                                    null,
-                                    null,
-                                    null,
-                                    5000,
-                                    10,
-                                    QualityOfServiceMode.AT_MOST_ONCE,
-                                    1,
-                                    -1,
-                                    null,
-                                    null,
-                                    false);
+         bridge = new JMSBridgeImpl(cff0, cff1, sourceQueueFactory, targetQueueFactory, null, null, null, null, null, 5000, 10, QualityOfServiceMode.AT_MOST_ONCE, 1, -1, null, null, false);
 
          bridge.start();
 
@@ -1717,8 +1269,7 @@ public class JMSBridgeTest extends BridgeTestBase
 
          MessageProducer prod = sessSource.createProducer(sourceQueue);
 
-         for (int i = 0; i < NUM_MESSAGES; i++)
-         {
+         for (int i = 0; i < NUM_MESSAGES; i++) {
             TextMessage tm = sessSource.createTextMessage("message" + i);
 
             // We add some headers to make sure they get passed through ok
@@ -1737,8 +1288,7 @@ public class JMSBridgeTest extends BridgeTestBase
 
          connTarget.start();
 
-         for (int i = 0; i < NUM_MESSAGES; i++)
-         {
+         for (int i = 0; i < NUM_MESSAGES; i++) {
             TextMessage tm = (TextMessage) cons.receive(5000);
 
             Assert.assertNotNull(tm);
@@ -1754,20 +1304,16 @@ public class JMSBridgeTest extends BridgeTestBase
             Assert.assertNull(header);
          }
       }
-      finally
-      {
-         if (bridge != null)
-         {
+      finally {
+         if (bridge != null) {
             bridge.stop();
          }
 
-         if (connSource != null)
-         {
+         if (connSource != null) {
             connSource.close();
          }
 
-         if (connTarget != null)
-         {
+         if (connTarget != null) {
             connTarget.close();
          }
       }
@@ -1775,8 +1321,9 @@ public class JMSBridgeTest extends BridgeTestBase
 
    // Private -------------------------------------------------------------------------------
 
-   private void testStress(final QualityOfServiceMode qosMode, final boolean persistent, final int batchSize) throws Exception
-   {
+   private void testStress(final QualityOfServiceMode qosMode,
+                           final boolean persistent,
+                           final int batchSize) throws Exception {
       Connection connSource = null;
 
       JMSBridgeImpl bridge = null;
@@ -1785,32 +1332,14 @@ public class JMSBridgeTest extends BridgeTestBase
 
       ConnectionFactoryFactory factInUse0 = cff0;
       ConnectionFactoryFactory factInUse1 = cff1;
-      if (qosMode.equals(QualityOfServiceMode.ONCE_AND_ONLY_ONCE))
-      {
+      if (qosMode.equals(QualityOfServiceMode.ONCE_AND_ONLY_ONCE)) {
          factInUse0 = cff0xa;
          factInUse1 = cff1xa;
          ServiceUtils.setTransactionManager(newTransactionManager());
       }
 
-      try
-      {
-         bridge = new JMSBridgeImpl(factInUse0,
-                                    factInUse1,
-                                    sourceQueueFactory,
-                                    targetQueueFactory,
-                                    null,
-                                    null,
-                                    null,
-                                    null,
-                                    null,
-                                    5000,
-                                    10,
-                                    qosMode,
-                                    batchSize,
-                                    -1,
-                                    null,
-                                    null,
-                                    false);
+      try {
+         bridge = new JMSBridgeImpl(factInUse0, factInUse1, sourceQueueFactory, targetQueueFactory, null, null, null, null, null, 5000, 10, qosMode, batchSize, -1, null, null, false);
 
          bridge.start();
 
@@ -1836,41 +1365,35 @@ public class JMSBridgeTest extends BridgeTestBase
 
          t.join();
 
-         if (sender.ex != null)
-         {
+         if (sender.ex != null) {
             // An error occurred during the send
             throw sender.ex;
          }
 
       }
-      finally
-      {
-         if (t != null)
-         {
+      finally {
+         if (t != null) {
             t.join(10000);
          }
 
-         if (connSource != null)
-         {
-            try
-            {
+         if (connSource != null) {
+            try {
                connSource.close();
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                JMSBridgeTest.log.error("Failed to close connection", e);
             }
          }
 
-         if (bridge != null)
-         {
+         if (bridge != null) {
             bridge.stop();
          }
       }
    }
 
-   private void testStressBatchTime(final QualityOfServiceMode qosMode, final boolean persistent, final int maxBatchTime) throws Exception
-   {
+   private void testStressBatchTime(final QualityOfServiceMode qosMode,
+                                    final boolean persistent,
+                                    final int maxBatchTime) throws Exception {
       Connection connSource = null;
 
       JMSBridgeImpl bridge = null;
@@ -1879,32 +1402,14 @@ public class JMSBridgeTest extends BridgeTestBase
 
       ConnectionFactoryFactory factInUse0 = cff0;
       ConnectionFactoryFactory factInUse1 = cff1;
-      if (qosMode.equals(QualityOfServiceMode.ONCE_AND_ONLY_ONCE))
-      {
+      if (qosMode.equals(QualityOfServiceMode.ONCE_AND_ONLY_ONCE)) {
          factInUse0 = cff0xa;
          factInUse1 = cff1xa;
          ServiceUtils.setTransactionManager(newTransactionManager());
       }
 
-      try
-      {
-         bridge = new JMSBridgeImpl(factInUse0,
-                                    factInUse1,
-                                    sourceQueueFactory,
-                                    targetQueueFactory,
-                                    null,
-                                    null,
-                                    null,
-                                    null,
-                                    null,
-                                    5000,
-                                    10,
-                                    qosMode,
-                                    2,
-                                    maxBatchTime,
-                                    null,
-                                    null,
-                                    false);
+      try {
+         bridge = new JMSBridgeImpl(factInUse0, factInUse1, sourceQueueFactory, targetQueueFactory, null, null, null, null, null, 5000, 10, qosMode, 2, maxBatchTime, null, null, false);
 
          bridge.start();
 
@@ -1930,42 +1435,36 @@ public class JMSBridgeTest extends BridgeTestBase
 
          t.join();
 
-         if (sender.ex != null)
-         {
+         if (sender.ex != null) {
             // An error occurred during the send
             throw sender.ex;
          }
 
       }
-      finally
-      {
-         if (t != null)
-         {
+      finally {
+         if (t != null) {
             t.join(10000);
          }
 
-         if (connSource != null)
-         {
-            try
-            {
+         if (connSource != null) {
+            try {
                connSource.close();
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                JMSBridgeTest.log.error("Failed to close connection", e);
             }
          }
 
-         if (bridge != null)
-         {
+         if (bridge != null) {
             bridge.stop();
          }
       }
    }
 
    // Both source and destination on same rm
-   private void testStressSameServer(final QualityOfServiceMode qosMode, final boolean persistent, final int batchSize) throws Exception
-   {
+   private void testStressSameServer(final QualityOfServiceMode qosMode,
+                                     final boolean persistent,
+                                     final int batchSize) throws Exception {
       Connection connSource = null;
 
       JMSBridgeImpl bridge = null;
@@ -1973,30 +1472,12 @@ public class JMSBridgeTest extends BridgeTestBase
       Thread t = null;
 
       ConnectionFactoryFactory factInUse0 = cff0;
-      if (qosMode.equals(QualityOfServiceMode.ONCE_AND_ONLY_ONCE))
-      {
+      if (qosMode.equals(QualityOfServiceMode.ONCE_AND_ONLY_ONCE)) {
          factInUse0 = cff0xa;
       }
 
-      try
-      {
-         bridge = new JMSBridgeImpl(factInUse0,
-                                    factInUse0,
-                                    sourceQueueFactory,
-                                    localTargetQueueFactory,
-                                    null,
-                                    null,
-                                    null,
-                                    null,
-                                    null,
-                                    5000,
-                                    10,
-                                    qosMode,
-                                    batchSize,
-                                    -1,
-                                    null,
-                                    null,
-                                    false);
+      try {
+         bridge = new JMSBridgeImpl(factInUse0, factInUse0, sourceQueueFactory, localTargetQueueFactory, null, null, null, null, null, 5000, 10, qosMode, batchSize, -1, null, null, false);
 
          bridge.start();
 
@@ -2022,72 +1503,46 @@ public class JMSBridgeTest extends BridgeTestBase
 
          t.join();
 
-         if (sender.ex != null)
-         {
+         if (sender.ex != null) {
             // An error occurred during the send
             throw sender.ex;
          }
 
       }
-      finally
-      {
-         if (t != null)
-         {
+      finally {
+         if (t != null) {
             t.join(10000);
          }
 
-         if (connSource != null)
-         {
-            try
-            {
+         if (connSource != null) {
+            try {
                connSource.close();
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                JMSBridgeTest.log.error("Failed to close connection", e);
             }
          }
 
-         if (bridge != null)
-         {
+         if (bridge != null) {
             bridge.stop();
          }
       }
    }
 
-   private void testNoMaxBatchTime(final QualityOfServiceMode qosMode, final boolean persistent) throws Exception
-   {
+   private void testNoMaxBatchTime(final QualityOfServiceMode qosMode, final boolean persistent) throws Exception {
       JMSBridgeImpl bridge = null;
 
       ConnectionFactoryFactory factInUse0 = cff0;
       ConnectionFactoryFactory factInUse1 = cff1;
-      if (qosMode.equals(QualityOfServiceMode.ONCE_AND_ONLY_ONCE))
-      {
+      if (qosMode.equals(QualityOfServiceMode.ONCE_AND_ONLY_ONCE)) {
          factInUse0 = cff0xa;
          factInUse1 = cff1xa;
          ServiceUtils.setTransactionManager(newTransactionManager());
       }
-      try
-      {
+      try {
          final int NUM_MESSAGES = 10;
 
-         bridge = new JMSBridgeImpl(factInUse0,
-                                    factInUse1,
-                                    sourceQueueFactory,
-                                    targetQueueFactory,
-                                    null,
-                                    null,
-                                    null,
-                                    null,
-                                    null,
-                                    5000,
-                                    10,
-                                    qosMode,
-                                    NUM_MESSAGES,
-                                    -1,
-                                    null,
-                                    null,
-                                    false);
+         bridge = new JMSBridgeImpl(factInUse0, factInUse1, sourceQueueFactory, targetQueueFactory, null, null, null, null, null, 5000, 10, qosMode, NUM_MESSAGES, -1, null, null, false);
 
          bridge.start();
 
@@ -2123,48 +1578,28 @@ public class JMSBridgeTest extends BridgeTestBase
 
          checkAllMessageReceivedInOrder(cf1, targetQueue, 0, NUM_MESSAGES - 1, false);
       }
-      finally
-      {
-         if (bridge != null)
-         {
+      finally {
+         if (bridge != null) {
             JMSBridgeTest.log.info("Stopping bridge");
             bridge.stop();
          }
       }
    }
 
-   private void testNoMaxBatchTimeSameServer(final QualityOfServiceMode qosMode, final boolean persistent) throws Exception
-   {
+   private void testNoMaxBatchTimeSameServer(final QualityOfServiceMode qosMode,
+                                             final boolean persistent) throws Exception {
       JMSBridgeImpl bridge = null;
 
       ConnectionFactoryFactory factInUse0 = cff0;
-      if (qosMode.equals(QualityOfServiceMode.ONCE_AND_ONLY_ONCE))
-      {
+      if (qosMode.equals(QualityOfServiceMode.ONCE_AND_ONLY_ONCE)) {
          factInUse0 = cff0xa;
          ServiceUtils.setTransactionManager(newTransactionManager());
       }
 
-      try
-      {
+      try {
          final int NUM_MESSAGES = 10;
 
-         bridge = new JMSBridgeImpl(factInUse0,
-                                    factInUse0,
-                                    sourceQueueFactory,
-                                    localTargetQueueFactory,
-                                    null,
-                                    null,
-                                    null,
-                                    null,
-                                    null,
-                                    5000,
-                                    10,
-                                    qosMode,
-                                    NUM_MESSAGES,
-                                    -1,
-                                    null,
-                                    null,
-                                    false);
+         bridge = new JMSBridgeImpl(factInUse0, factInUse0, sourceQueueFactory, localTargetQueueFactory, null, null, null, null, null, 5000, 10, qosMode, NUM_MESSAGES, -1, null, null, false);
 
          bridge.start();
 
@@ -2200,51 +1635,30 @@ public class JMSBridgeTest extends BridgeTestBase
 
          checkAllMessageReceivedInOrder(cf0, localTargetQueue, 0, NUM_MESSAGES - 1, false);
       }
-      finally
-      {
-         if (bridge != null)
-         {
+      finally {
+         if (bridge != null) {
             bridge.stop();
          }
       }
    }
 
-   private void testMaxBatchTime(final QualityOfServiceMode qosMode, final boolean persistent) throws Exception
-   {
+   private void testMaxBatchTime(final QualityOfServiceMode qosMode, final boolean persistent) throws Exception {
       JMSBridgeImpl bridge = null;
 
       ConnectionFactoryFactory factInUse0 = cff0;
       ConnectionFactoryFactory factInUse1 = cff1;
-      if (qosMode.equals(QualityOfServiceMode.ONCE_AND_ONLY_ONCE))
-      {
+      if (qosMode.equals(QualityOfServiceMode.ONCE_AND_ONLY_ONCE)) {
          factInUse0 = cff0xa;
          factInUse1 = cff1xa;
          ServiceUtils.setTransactionManager(newTransactionManager());
       }
 
-      try
-      {
+      try {
          final long MAX_BATCH_TIME = 3000;
 
          final int MAX_BATCH_SIZE = 100000; // something big so it won't reach it
 
-         bridge = new JMSBridgeImpl(factInUse0,
-                                    factInUse1,
-                                    sourceQueueFactory,
-                                    targetQueueFactory,
-                                    null,
-                                    null,
-                                    null,
-                                    null,
-                                    null,
-                                    3000,
-                                    10,
-                                    qosMode,
-                                    MAX_BATCH_SIZE,
-                                    MAX_BATCH_TIME,
-                                    null,
-                                    null,
-                                    false);
+         bridge = new JMSBridgeImpl(factInUse0, factInUse1, sourceQueueFactory, targetQueueFactory, null, null, null, null, null, 3000, 10, qosMode, MAX_BATCH_SIZE, MAX_BATCH_TIME, null, null, false);
 
          bridge.start();
 
@@ -2262,49 +1676,29 @@ public class JMSBridgeTest extends BridgeTestBase
 
          checkAllMessageReceivedInOrder(cf1, targetQueue, 0, NUM_MESSAGES, false);
       }
-      finally
-      {
-         if (bridge != null)
-         {
+      finally {
+         if (bridge != null) {
             bridge.stop();
          }
       }
    }
 
-   private void testMaxBatchTimeSameServer(final QualityOfServiceMode qosMode, final boolean persistent) throws Exception
-   {
+   private void testMaxBatchTimeSameServer(final QualityOfServiceMode qosMode,
+                                           final boolean persistent) throws Exception {
       JMSBridgeImpl bridge = null;
 
       ConnectionFactoryFactory factInUse0 = cff0;
-      if (qosMode.equals(QualityOfServiceMode.ONCE_AND_ONLY_ONCE))
-      {
+      if (qosMode.equals(QualityOfServiceMode.ONCE_AND_ONLY_ONCE)) {
          factInUse0 = cff0xa;
          ServiceUtils.setTransactionManager(newTransactionManager());
       }
 
-      try
-      {
+      try {
          final long MAX_BATCH_TIME = 3000;
 
          final int MAX_BATCH_SIZE = 100000; // something big so it won't reach it
 
-         bridge = new JMSBridgeImpl(factInUse0,
-                                    factInUse0,
-                                    sourceQueueFactory,
-                                    localTargetQueueFactory,
-                                    null,
-                                    null,
-                                    null,
-                                    null,
-                                    null,
-                                    3000,
-                                    10,
-                                    qosMode,
-                                    MAX_BATCH_SIZE,
-                                    MAX_BATCH_TIME,
-                                    null,
-                                    null,
-                                    false);
+         bridge = new JMSBridgeImpl(factInUse0, factInUse0, sourceQueueFactory, localTargetQueueFactory, null, null, null, null, null, 3000, 10, qosMode, MAX_BATCH_SIZE, MAX_BATCH_TIME, null, null, false);
 
          bridge.start();
 
@@ -2324,77 +1718,36 @@ public class JMSBridgeTest extends BridgeTestBase
 
          checkAllMessageReceivedInOrder(cf0, localTargetQueue, 0, NUM_MESSAGES, false);
       }
-      finally
-      {
-         if (bridge != null)
-         {
+      finally {
+         if (bridge != null) {
             bridge.stop();
          }
       }
    }
 
    @Test
-   public void testSetTMClass() throws Exception
-   {
+   public void testSetTMClass() throws Exception {
       TransactionManagerLocatorImpl.tm = new DummyTransactionManager();
 
       JMSBridgeImpl bridge = null;
-      try
-      {
-         bridge = new JMSBridgeImpl(cff0,
-                                    cff0,
-                                    sourceQueueFactory,
-                                    localTargetQueueFactory,
-                                    null,
-                                    null,
-                                    null,
-                                    null,
-                                    null,
-                                    3000,
-                                    10,
-                                    QualityOfServiceMode.ONCE_AND_ONLY_ONCE,
-                                    10000,
-                                    3000,
-                                    null,
-                                    null,
-                                    false);
+      try {
+         bridge = new JMSBridgeImpl(cff0, cff0, sourceQueueFactory, localTargetQueueFactory, null, null, null, null, null, 3000, 10, QualityOfServiceMode.ONCE_AND_ONLY_ONCE, 10000, 3000, null, null, false);
          bridge.start();
       }
-      finally
-      {
-         if (bridge != null)
-         {
+      finally {
+         if (bridge != null) {
             bridge.stop();
          }
       }
    }
 
    @Test
-   public void testMBeanServer() throws Exception
-   {
+   public void testMBeanServer() throws Exception {
 
       MBeanServer mbeanServer = ManagementFactory.getPlatformMBeanServer();
       ObjectName objectName = new ObjectName("example.jmsbridge:service=JMSBridge");
 
-      JMSBridgeImpl bridge = new JMSBridgeImpl(cff0,
-                                               cff0,
-                                               sourceQueueFactory,
-                                               localTargetQueueFactory,
-                                               null,
-                                               null,
-                                               null,
-                                               null,
-                                               null,
-                                               5000,
-                                               10,
-                                               QualityOfServiceMode.AT_MOST_ONCE,
-                                               1,
-                                               -1,
-                                               null,
-                                               null,
-                                               false,
-                                               mbeanServer,
-                                               objectName.getCanonicalName());
+      JMSBridgeImpl bridge = new JMSBridgeImpl(cff0, cff0, sourceQueueFactory, localTargetQueueFactory, null, null, null, null, null, 5000, 10, QualityOfServiceMode.AT_MOST_ONCE, 1, -1, null, null, false, mbeanServer, objectName.getCanonicalName());
 
       Assert.assertTrue(mbeanServer.isRegistered(objectName));
 
@@ -2403,15 +1756,14 @@ public class JMSBridgeTest extends BridgeTestBase
       Assert.assertFalse(mbeanServer.isRegistered(objectName));
    }
 
-   public TransactionManager getNewTm()
-   {
+   public TransactionManager getNewTm() {
       return newTransactionManager();
    }
 
    // Inner classes -------------------------------------------------------------------
 
-   private static class StressSender implements Runnable
-   {
+   private static class StressSender implements Runnable {
+
       int numMessages;
 
       Session sess;
@@ -2420,12 +1772,9 @@ public class JMSBridgeTest extends BridgeTestBase
 
       Exception ex;
 
-      public void run()
-      {
-         try
-         {
-            for (int i = 0; i < numMessages; i++)
-            {
+      public void run() {
+         try {
+            for (int i = 0; i < numMessages; i++) {
                TextMessage tm = sess.createTextMessage("message" + i);
 
                prod.send(tm);
@@ -2433,8 +1782,7 @@ public class JMSBridgeTest extends BridgeTestBase
                JMSBridgeTest.log.trace("Sent message " + i);
             }
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             JMSBridgeTest.log.error("Failed to send", e);
             ex = e;
          }

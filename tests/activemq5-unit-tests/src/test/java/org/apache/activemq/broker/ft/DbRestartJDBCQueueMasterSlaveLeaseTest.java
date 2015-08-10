@@ -26,32 +26,33 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class DbRestartJDBCQueueMasterSlaveLeaseTest extends DbRestartJDBCQueueMasterSlaveTest {
-    private static final transient Logger LOG = LoggerFactory.getLogger(DbRestartJDBCQueueMasterSlaveLeaseTest.class);
 
-    @Override
-    protected void configureJdbcPersistenceAdapter(JDBCPersistenceAdapter persistenceAdapter) throws IOException {
-        super.configureJdbcPersistenceAdapter(persistenceAdapter);
-        persistenceAdapter.setLocker(new LeaseDatabaseLocker());
-        persistenceAdapter.getLocker().setLockAcquireSleepInterval(getLockAcquireSleepInterval());
-        persistenceAdapter.setLockKeepAlivePeriod(getLockKeepAlivePeriod());
-    }
+   private static final transient Logger LOG = LoggerFactory.getLogger(DbRestartJDBCQueueMasterSlaveLeaseTest.class);
 
-    @Override
-    protected void configureBroker(BrokerService brokerService) {
-        //let the brokers die on exception and master should have lease on restart
-        // which will delay slave start till it expires
-        LeaseLockerIOExceptionHandler ioExceptionHandler = new LeaseLockerIOExceptionHandler();
-        ioExceptionHandler.setIgnoreSQLExceptions(false);
-        ioExceptionHandler.setStopStartConnectors(false);
-        ioExceptionHandler.setResumeCheckSleepPeriod(500L);
-        brokerService.setIoExceptionHandler(ioExceptionHandler);
-    }
+   @Override
+   protected void configureJdbcPersistenceAdapter(JDBCPersistenceAdapter persistenceAdapter) throws IOException {
+      super.configureJdbcPersistenceAdapter(persistenceAdapter);
+      persistenceAdapter.setLocker(new LeaseDatabaseLocker());
+      persistenceAdapter.getLocker().setLockAcquireSleepInterval(getLockAcquireSleepInterval());
+      persistenceAdapter.setLockKeepAlivePeriod(getLockKeepAlivePeriod());
+   }
 
-    private long getLockKeepAlivePeriod() {
-        return 1000;
-    }
+   @Override
+   protected void configureBroker(BrokerService brokerService) {
+      //let the brokers die on exception and master should have lease on restart
+      // which will delay slave start till it expires
+      LeaseLockerIOExceptionHandler ioExceptionHandler = new LeaseLockerIOExceptionHandler();
+      ioExceptionHandler.setIgnoreSQLExceptions(false);
+      ioExceptionHandler.setStopStartConnectors(false);
+      ioExceptionHandler.setResumeCheckSleepPeriod(500L);
+      brokerService.setIoExceptionHandler(ioExceptionHandler);
+   }
 
-    private long getLockAcquireSleepInterval() {
-        return 8000;
-    }
+   private long getLockKeepAlivePeriod() {
+      return 1000;
+   }
+
+   private long getLockAcquireSleepInterval() {
+      return 8000;
+   }
 }

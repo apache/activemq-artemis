@@ -23,8 +23,8 @@ import org.apache.activemq.artemis.utils.json.JSONObject;
  * Helper class to create Java Objects from the
  * JSON serialization returned by {@link JMSServerControl#listConsumersAsJSON(String)} and related methods.
  */
-public class JMSConsumerInfo
-{
+public class JMSConsumerInfo {
+
    private final String consumerID;
 
    private final String connectionID;
@@ -47,21 +47,12 @@ public class JMSConsumerInfo
     * Returns an array of SubscriptionInfo corresponding to the JSON serialization returned
     * by {@link TopicControl#listAllSubscriptionsAsJSON()} and related methods.
     */
-   public static JMSConsumerInfo[] from(final String jsonString) throws Exception
-   {
+   public static JMSConsumerInfo[] from(final String jsonString) throws Exception {
       JSONArray array = new JSONArray(jsonString);
       JMSConsumerInfo[] infos = new JMSConsumerInfo[array.length()];
-      for (int i = 0; i < array.length(); i++)
-      {
+      for (int i = 0; i < array.length(); i++) {
          JSONObject sub = array.getJSONObject(i);
-         JMSConsumerInfo info = new JMSConsumerInfo(sub.getString("consumerID"),
-                                                    sub.getString("connectionID"),
-                                                    sub.getString("destinationName"),
-                                                    sub.getString("destinationType"),
-                                                    sub.getBoolean("browseOnly"),
-                                                    sub.getLong("creationTime"),
-                                                    sub.getBoolean("durable"),
-                                                    sub.optString("filter", null));
+         JMSConsumerInfo info = new JMSConsumerInfo(sub.getString("consumerID"), sub.getString("connectionID"), sub.getString("destinationName"), sub.getString("destinationType"), sub.getBoolean("browseOnly"), sub.getLong("creationTime"), sub.getBoolean("durable"), sub.optString("filter", null));
          infos[i] = info;
       }
 
@@ -72,13 +63,12 @@ public class JMSConsumerInfo
 
    private JMSConsumerInfo(final String consumerID,
                            final String connectionID,
-                            final String destinationName,
-                            final String destinationType,
-                            final boolean browseOnly,
-                            final long creationTime,
-                            final boolean durable,
-                            final String filter)
-   {
+                           final String destinationName,
+                           final String destinationType,
+                           final boolean browseOnly,
+                           final long creationTime,
+                           final boolean durable,
+                           final String filter) {
       this.consumerID = consumerID;
       this.connectionID = connectionID;
       this.destinationName = destinationName;
@@ -91,46 +81,38 @@ public class JMSConsumerInfo
 
    // Public --------------------------------------------------------
 
-   public String getConsumerID()
-   {
+   public String getConsumerID() {
       return consumerID;
    }
 
-   public String getConnectionID()
-   {
+   public String getConnectionID() {
       return connectionID;
    }
 
-   public String getDestinationName()
-   {
+   public String getDestinationName() {
       return destinationName;
    }
 
-   public String getDestinationType()
-   {
+   public String getDestinationType() {
       return destinationType;
    }
 
-   public boolean isBrowseOnly()
-   {
+   public boolean isBrowseOnly() {
       return browseOnly;
    }
 
-   public long getCreationTime()
-   {
+   public long getCreationTime() {
       return creationTime;
    }
 
    /**
     * @return the durable
     */
-   public boolean isDurable()
-   {
+   public boolean isDurable() {
       return durable;
    }
 
-   public String getFilter()
-   {
+   public String getFilter() {
       return filter;
    }
 }

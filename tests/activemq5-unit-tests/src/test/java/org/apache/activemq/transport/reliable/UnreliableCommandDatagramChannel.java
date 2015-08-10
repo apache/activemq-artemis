@@ -30,30 +30,40 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * 
+ *
  */
 public class UnreliableCommandDatagramChannel extends CommandDatagramChannel {
 
-    private static final Logger LOG = LoggerFactory.getLogger(UnreliableCommandDatagramChannel.class);
+   private static final Logger LOG = LoggerFactory.getLogger(UnreliableCommandDatagramChannel.class);
 
-    private DropCommandStrategy dropCommandStrategy;
+   private DropCommandStrategy dropCommandStrategy;
 
-    public UnreliableCommandDatagramChannel(UdpTransport transport, OpenWireFormat wireFormat, int datagramSize, SocketAddress targetAddress,
-                                            DatagramHeaderMarshaller headerMarshaller, ReplayBuffer replayBuffer, DatagramChannel channel, ByteBufferPool bufferPool,
-                                            DropCommandStrategy strategy) {
-        super(transport, wireFormat, datagramSize, targetAddress, headerMarshaller, channel, bufferPool);
-        this.dropCommandStrategy = strategy;
-    }
+   public UnreliableCommandDatagramChannel(UdpTransport transport,
+                                           OpenWireFormat wireFormat,
+                                           int datagramSize,
+                                           SocketAddress targetAddress,
+                                           DatagramHeaderMarshaller headerMarshaller,
+                                           ReplayBuffer replayBuffer,
+                                           DatagramChannel channel,
+                                           ByteBufferPool bufferPool,
+                                           DropCommandStrategy strategy) {
+      super(transport, wireFormat, datagramSize, targetAddress, headerMarshaller, channel, bufferPool);
+      this.dropCommandStrategy = strategy;
+   }
 
-    protected void sendWriteBuffer(int commandId, SocketAddress address, ByteBuffer writeBuffer, boolean redelivery) throws IOException {
-        if (dropCommandStrategy.shouldDropCommand(commandId, address, redelivery)) {
-            writeBuffer.flip();
-            LOG.info("Dropping datagram with command: " + commandId);
+   protected void sendWriteBuffer(int commandId,
+                                  SocketAddress address,
+                                  ByteBuffer writeBuffer,
+                                  boolean redelivery) throws IOException {
+      if (dropCommandStrategy.shouldDropCommand(commandId, address, redelivery)) {
+         writeBuffer.flip();
+         LOG.info("Dropping datagram with command: " + commandId);
 
-            // lets still add it to the replay buffer though!
-            getReplayBuffer().addBuffer(commandId, writeBuffer);
-        } else {
-            super.sendWriteBuffer(commandId, address, writeBuffer, redelivery);
-        }
-    }
+         // lets still add it to the replay buffer though!
+         getReplayBuffer().addBuffer(commandId, writeBuffer);
+      }
+      else {
+         super.sendWriteBuffer(commandId, address, writeBuffer, redelivery);
+      }
+   }
 }

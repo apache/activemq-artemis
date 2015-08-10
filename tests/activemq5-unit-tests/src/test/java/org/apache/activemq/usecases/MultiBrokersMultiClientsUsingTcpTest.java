@@ -28,59 +28,62 @@ import org.apache.activemq.network.NetworkBridgeConfiguration;
 import org.apache.activemq.transport.TransportFactory;
 
 /**
- * 
+ *
  */
 public class MultiBrokersMultiClientsUsingTcpTest extends MultiBrokersMultiClientsTest {
-    protected List<DemandForwardingBridge> bridges;
 
-    protected void bridgeAllBrokers(String groupName) throws Exception {
-        for (int i = 1; i <= BROKER_COUNT; i++) {
-            for (int j = 1; j <= BROKER_COUNT; j++) {
-                if (i != j) {
-                    bridgeBrokers("Broker" + i, "Broker" + j);
-                }
+   protected List<DemandForwardingBridge> bridges;
+
+   protected void bridgeAllBrokers(String groupName) throws Exception {
+      for (int i = 1; i <= BROKER_COUNT; i++) {
+         for (int j = 1; j <= BROKER_COUNT; j++) {
+            if (i != j) {
+               bridgeBrokers("Broker" + i, "Broker" + j);
             }
-        }
+         }
+      }
 
-        maxSetupTime = 5000;
-    }
+      maxSetupTime = 5000;
+   }
 
-    protected void bridgeBrokers(BrokerService localBroker, BrokerService remoteBroker) throws Exception {
-        List<TransportConnector> remoteTransports = remoteBroker.getTransportConnectors();
-        List<TransportConnector> localTransports = localBroker.getTransportConnectors();
+   protected void bridgeBrokers(BrokerService localBroker, BrokerService remoteBroker) throws Exception {
+      List<TransportConnector> remoteTransports = remoteBroker.getTransportConnectors();
+      List<TransportConnector> localTransports = localBroker.getTransportConnectors();
 
-        URI remoteURI;
-        URI localURI;
-        if (!remoteTransports.isEmpty() && !localTransports.isEmpty()) {
-            remoteURI = remoteTransports.get(0).getConnectUri();
-            localURI = localTransports.get(0).getConnectUri();
+      URI remoteURI;
+      URI localURI;
+      if (!remoteTransports.isEmpty() && !localTransports.isEmpty()) {
+         remoteURI = remoteTransports.get(0).getConnectUri();
+         localURI = localTransports.get(0).getConnectUri();
 
-            // Ensure that we are connecting using tcp
-            if (remoteURI.toString().startsWith("tcp:") && localURI.toString().startsWith("tcp:")) {
-                NetworkBridgeConfiguration config = new NetworkBridgeConfiguration();
-                config.setBrokerName(localBroker.getBrokerName());
-                DemandForwardingBridge bridge = new DemandForwardingBridge(config, TransportFactory.connect(localURI), TransportFactory.connect(remoteURI));
-                bridge.setBrokerService(localBroker);
-                bridges.add(bridge);
+         // Ensure that we are connecting using tcp
+         if (remoteURI.toString().startsWith("tcp:") && localURI.toString().startsWith("tcp:")) {
+            NetworkBridgeConfiguration config = new NetworkBridgeConfiguration();
+            config.setBrokerName(localBroker.getBrokerName());
+            DemandForwardingBridge bridge = new DemandForwardingBridge(config, TransportFactory.connect(localURI), TransportFactory.connect(remoteURI));
+            bridge.setBrokerService(localBroker);
+            bridges.add(bridge);
 
-                bridge.start();
-            } else {
-                throw new Exception("Remote broker or local broker is not using tcp connectors");
-            }
-        } else {
-            throw new Exception("Remote broker or local broker has no registered connectors.");
-        }
-    }
+            bridge.start();
+         }
+         else {
+            throw new Exception("Remote broker or local broker is not using tcp connectors");
+         }
+      }
+      else {
+         throw new Exception("Remote broker or local broker has no registered connectors.");
+      }
+   }
 
-    public void setUp() throws Exception {
-        super.setUp();
+   public void setUp() throws Exception {
+      super.setUp();
 
-        // Assign a tcp connector to each broker
-        int j = 0;
-        for (Iterator<BrokerItem> i = brokers.values().iterator(); i.hasNext();) {
-            i.next().broker.addConnector("tcp://localhost:" + (61616 + j++));
-        }
+      // Assign a tcp connector to each broker
+      int j = 0;
+      for (Iterator<BrokerItem> i = brokers.values().iterator(); i.hasNext(); ) {
+         i.next().broker.addConnector("tcp://localhost:" + (61616 + j++));
+      }
 
-        bridges = new ArrayList<DemandForwardingBridge>();
-    }
+      bridges = new ArrayList<DemandForwardingBridge>();
+   }
 }

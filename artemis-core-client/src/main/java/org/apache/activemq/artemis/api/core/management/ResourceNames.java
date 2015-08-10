@@ -22,8 +22,7 @@ package org.apache.activemq.artemis.api.core.management;
  * Resource's name is build by appending its <em>name</em> to its corresponding type.
  * For example, the resource name of the "foo" queue is {@code CORE_QUEUE + "foo"}.
  */
-public final class ResourceNames
-{
+public final class ResourceNames {
 
    public static final String CORE_SERVER = "core.server";
 
@@ -51,8 +50,7 @@ public final class ResourceNames
 
    public static final String JMS_CONNECTION_FACTORY = "jms.connectionfactory.";
 
-   private ResourceNames()
-   {
+   private ResourceNames() {
    }
 
 }

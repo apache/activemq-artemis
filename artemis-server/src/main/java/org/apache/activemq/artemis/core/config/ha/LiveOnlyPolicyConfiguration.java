@@ -19,30 +19,25 @@ package org.apache.activemq.artemis.core.config.ha;
 import org.apache.activemq.artemis.core.config.HAPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ScaleDownConfiguration;
 
-public class LiveOnlyPolicyConfiguration implements HAPolicyConfiguration
-{
-   public LiveOnlyPolicyConfiguration()
-   {
+public class LiveOnlyPolicyConfiguration implements HAPolicyConfiguration {
+
+   public LiveOnlyPolicyConfiguration() {
    }
 
-   public LiveOnlyPolicyConfiguration(ScaleDownConfiguration scaleDownConfiguration)
-   {
+   public LiveOnlyPolicyConfiguration(ScaleDownConfiguration scaleDownConfiguration) {
       this.scaleDownConfiguration = scaleDownConfiguration;
    }
 
    @Override
-   public TYPE getType()
-   {
+   public TYPE getType() {
       return TYPE.LIVE_ONLY;
    }
 
-   public ScaleDownConfiguration getScaleDownConfiguration()
-   {
+   public ScaleDownConfiguration getScaleDownConfiguration() {
       return scaleDownConfiguration;
    }
 
-   public void setScaleDownConfiguration(ScaleDownConfiguration scaleDownConfiguration)
-   {
+   public void setScaleDownConfiguration(ScaleDownConfiguration scaleDownConfiguration) {
       this.scaleDownConfiguration = scaleDownConfiguration;
    }
 

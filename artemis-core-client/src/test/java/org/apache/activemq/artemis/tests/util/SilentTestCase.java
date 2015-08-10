@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.util;
+
 import org.junit.Before;
 import org.junit.After;
 
@@ -29,8 +30,8 @@ import org.junit.Assert;
  * It is meant to avoid cluttering either during test execution when the tested code (expectedly)
  * writes to these.
  */
-public abstract class SilentTestCase extends Assert
-{
+public abstract class SilentTestCase extends Assert {
+
    private PrintStream origSysOut;
    private PrintStream origSysErr;
 
@@ -38,8 +39,7 @@ public abstract class SilentTestCase extends Assert
    private PrintStream sysErr;
 
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       origSysOut = System.out;
       origSysErr = System.err;
       sysOut = new PrintStream(new ByteArrayOutputStream());
@@ -49,8 +49,7 @@ public abstract class SilentTestCase extends Assert
    }
 
    @After
-   public void tearDown() throws Exception
-   {
+   public void tearDown() throws Exception {
       System.setOut(origSysOut);
       System.setErr(origSysErr);
    }

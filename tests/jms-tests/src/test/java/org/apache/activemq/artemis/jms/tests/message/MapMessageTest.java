@@ -28,8 +28,7 @@ import org.junit.Test;
 /**
  * A test that sends/receives map messages to the JMS provider and verifies their integrity.
  */
-public class MapMessageTest extends MessageTestBase
-{
+public class MapMessageTest extends MessageTestBase {
    // Constants -----------------------------------------------------
 
    // Static --------------------------------------------------------
@@ -42,8 +41,7 @@ public class MapMessageTest extends MessageTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       message = session.createMapMessage();
@@ -51,16 +49,14 @@ public class MapMessageTest extends MessageTestBase
 
    @Override
    @After
-   public void tearDown() throws Exception
-   {
+   public void tearDown() throws Exception {
       message = null;
 
       super.tearDown();
    }
 
    @Test
-   public void testNullValue() throws Exception
-   {
+   public void testNullValue() throws Exception {
       MapMessage m = session.createMapMessage();
 
       m.setString("nullValue", null);
@@ -77,8 +73,7 @@ public class MapMessageTest extends MessageTestBase
    // Protected -----------------------------------------------------
 
    @Override
-   protected void prepareMessage(final Message m) throws JMSException
-   {
+   protected void prepareMessage(final Message m) throws JMSException {
       super.prepareMessage(m);
 
       MapMessage mm = (MapMessage) m;
@@ -97,8 +92,7 @@ public class MapMessageTest extends MessageTestBase
    }
 
    @Override
-   protected void assertEquivalent(final Message m, final int mode, final boolean redelivery) throws JMSException
-   {
+   protected void assertEquivalent(final Message m, final int mode, final boolean redelivery) throws JMSException {
       super.assertEquivalent(m, mode, redelivery);
 
       MapMessage mm = (MapMessage) m;

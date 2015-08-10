@@ -26,49 +26,50 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * 
+ *
  */
 public class CompositeConsumeTest extends JmsTopicSendReceiveWithTwoConnectionsTest {
-    private static final Logger LOG = LoggerFactory.getLogger(CompositeConsumeTest.class);
 
-    public void testSendReceive() throws Exception {
-        messages.clear();
+   private static final Logger LOG = LoggerFactory.getLogger(CompositeConsumeTest.class);
 
-        Destination[] destinations = getDestinations();
-        int destIdx = 0;
+   public void testSendReceive() throws Exception {
+      messages.clear();
 
-        for (int i = 0; i < data.length; i++) {
-            Message message = session.createTextMessage(data[i]);
+      Destination[] destinations = getDestinations();
+      int destIdx = 0;
 
-            if (verbose) {
-                LOG.info("About to send a message: " + message + " with text: " + data[i]);
-            }
+      for (int i = 0; i < data.length; i++) {
+         Message message = session.createTextMessage(data[i]);
 
-            producer.send(destinations[destIdx], message);
+         if (verbose) {
+            LOG.info("About to send a message: " + message + " with text: " + data[i]);
+         }
 
-            if (++destIdx >= destinations.length) {
-                destIdx = 0;
-            }
-        }
+         producer.send(destinations[destIdx], message);
 
-        assertMessagesAreReceived();
-    }
+         if (++destIdx >= destinations.length) {
+            destIdx = 0;
+         }
+      }
 
-    /**
-     * Returns the subscription subject
-     */
-    protected String getSubject() {
-        return getPrefix() + "FOO.BAR," + getPrefix() + "FOO.X.Y," + getPrefix() + "BAR.>";
-    }
+      assertMessagesAreReceived();
+   }
 
-    /**
-     * Returns the destinations on which we publish
-     */
-    protected Destination[] getDestinations() {
-        return new Destination[]{new ActiveMQTopic(getPrefix() + "FOO.BAR"), new ActiveMQTopic(getPrefix() + "BAR.WHATNOT.XYZ"), new ActiveMQTopic(getPrefix() + "FOO.X.Y")};
-    }
+   /**
+    * Returns the subscription subject
+    */
+   protected String getSubject() {
+      return getPrefix() + "FOO.BAR," + getPrefix() + "FOO.X.Y," + getPrefix() + "BAR.>";
+   }
 
-    protected String getPrefix() {
-        return super.getSubject() + ".";
-    }
+   /**
+    * Returns the destinations on which we publish
+    */
+   protected Destination[] getDestinations() {
+      return new Destination[]{new ActiveMQTopic(getPrefix() + "FOO.BAR"), new ActiveMQTopic(getPrefix() + "BAR.WHATNOT.XYZ"), new ActiveMQTopic(getPrefix() + "FOO.X.Y")};
+   }
+
+   protected String getPrefix() {
+      return super.getSubject() + ".";
+   }
 }

@@ -28,8 +28,8 @@ import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer
 import org.junit.Before;
 import org.junit.Test;
 
-public abstract class ClusterWithBackupFailoverTestBase extends ClusterTestBase
-{
+public abstract class ClusterWithBackupFailoverTestBase extends ClusterTestBase {
+
    protected static final String QUEUE_NAME = "queue0";
    protected static final String QUEUES_TESTADDRESS = "queues.testaddress";
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
@@ -40,27 +40,23 @@ public abstract class ClusterWithBackupFailoverTestBase extends ClusterTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
       setupServers();
    }
 
-   protected boolean isNetty()
-   {
+   protected boolean isNetty() {
       return false;
    }
 
    @Test
-   public void testFailLiveNodes() throws Throwable
-   {
+   public void testFailLiveNodes() throws Throwable {
       setupCluster();
 
       startServers(3, 4, 5, 0, 1, 2);
       //startServers(0, 1, 2, 3, 4, 5);
 
-      for (int i = 0; i < 3; i++)
-      {
+      for (int i = 0; i < 3; i++) {
          waitForTopology(servers[i], 3, 3);
       }
 
@@ -177,8 +173,7 @@ public abstract class ClusterWithBackupFailoverTestBase extends ClusterTestBase
       removeConsumer(2);
    }
 
-   private void waitForBindings() throws Exception
-   {
+   private void waitForBindings() throws Exception {
       waitForBindings(0, QUEUES_TESTADDRESS, 1, 1, true);
       waitForBindings(1, QUEUES_TESTADDRESS, 1, 1, true);
       waitForBindings(2, QUEUES_TESTADDRESS, 1, 1, true);
@@ -189,14 +184,12 @@ public abstract class ClusterWithBackupFailoverTestBase extends ClusterTestBase
    }
 
    @Test
-   public void testFailBackupNodes() throws Exception
-   {
+   public void testFailBackupNodes() throws Exception {
       setupCluster();
 
       startServers(3, 4, 5, 0, 1, 2);
 
-      for (int i = 0; i < 3; i++)
-      {
+      for (int i = 0; i < 3; i++) {
          waitForTopology(servers[i], 3, 3);
       }
 
@@ -267,25 +260,20 @@ public abstract class ClusterWithBackupFailoverTestBase extends ClusterTestBase
       removeConsumer(2);
    }
 
-   protected void setupCluster() throws Exception
-   {
+   protected void setupCluster() throws Exception {
       setupCluster(MessageLoadBalancingType.ON_DEMAND);
    }
 
-
-   protected void failNode(final int node) throws Exception
-   {
+   protected void failNode(final int node) throws Exception {
       failNode(node, node);
    }
-
 
    /**
     * @param node             The node which we should fail
     * @param originalLiveNode The number of the original node, to locate session to fail
     * @throws Exception
     */
-   protected void failNode(final int node, final int originalLiveNode) throws Exception
-   {
+   protected void failNode(final int node, final int originalLiveNode) throws Exception {
       ClusterWithBackupFailoverTestBase.log.info("*** failing node " + node);
 
       ActiveMQServer server = getServer(node);
@@ -297,14 +285,11 @@ public abstract class ClusterWithBackupFailoverTestBase extends ClusterTestBase
       tstServer.crash(sessionsArray);
    }
 
-   private ClientSession[] exploreSessions(final int node)
-   {
+   private ClientSession[] exploreSessions(final int node) {
       HashSet<ClientSession> sessions = new HashSet<ClientSession>();
 
-      for (ConsumerHolder holder : consumers)
-      {
-         if (holder != null && holder.getNode() == node && holder.getSession() != null)
-         {
+      for (ConsumerHolder holder : consumers) {
+         if (holder != null && holder.getNode() == node && holder.getSession() != null) {
             sessions.add(holder.getSession());
          }
       }
@@ -314,8 +299,7 @@ public abstract class ClusterWithBackupFailoverTestBase extends ClusterTestBase
    }
 
    @Test
-   public void testFailAllNodes() throws Exception
-   {
+   public void testFailAllNodes() throws Exception {
       setupCluster();
 
       startServers(0, 1, 2, 3, 4, 5);

@@ -31,61 +31,46 @@ import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.tests.util.InVMNodeManagerServer;
 import org.junit.After;
 
-public abstract class BridgeTestBase extends ActiveMQTestBase
-{
+public abstract class BridgeTestBase extends ActiveMQTestBase {
 
    @Override
    @After
-   public void tearDown() throws Exception
-   {
+   public void tearDown() throws Exception {
       InVMConnector.failOnCreateConnection = false;
 
       super.tearDown();
    }
 
-   protected ActiveMQServer createActiveMQServer(final int id, final boolean netty, final Map<String, Object> params) throws Exception
-   {
+   protected ActiveMQServer createActiveMQServer(final int id,
+                                                 final boolean netty,
+                                                 final Map<String, Object> params) throws Exception {
       return createActiveMQServer(id, params, netty, null);
    }
 
    protected ActiveMQServer createActiveMQServer(final int id,
                                                  final Map<String, Object> params,
                                                  final boolean netty,
-                                                 final NodeManager nodeManager) throws Exception
-   {
+                                                 final NodeManager nodeManager) throws Exception {
       TransportConfiguration tc = new TransportConfiguration();
 
-      if (netty)
-      {
-         params.put(org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.PORT_PROP_NAME,
-                    org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.DEFAULT_PORT + id);
+      if (netty) {
+         params.put(org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.PORT_PROP_NAME, org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.DEFAULT_PORT + id);
          tc = new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params);
 
       }
-      else
-      {
+      else {
          params.put(org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants.SERVER_ID_PROP_NAME, id);
          tc = new TransportConfiguration(INVM_ACCEPTOR_FACTORY, params);
       }
-      Configuration serviceConf = createBasicConfig()
-         .setJournalType(getDefaultJournalType())
-         .setBindingsDirectory(getBindingsDir(id, false))
-         .setJournalMinFiles(2)
-         .setJournalDirectory(getJournalDir(id, false))
-         .setPagingDirectory(getPageDir(id, false))
-         .setLargeMessagesDirectory(getLargeMessagesDir(id, false))
+      Configuration serviceConf = createBasicConfig().setJournalType(getDefaultJournalType()).setBindingsDirectory(getBindingsDir(id, false)).setJournalMinFiles(2).setJournalDirectory(getJournalDir(id, false)).setPagingDirectory(getPageDir(id, false)).setLargeMessagesDirectory(getLargeMessagesDir(id, false))
          // these tests don't need any big storage so limiting the size of the journal files to speed up the test
-         .setJournalFileSize(100 * 1024)
-         .addAcceptorConfiguration(tc)
-         .setHAPolicyConfiguration(new SharedStoreMasterPolicyConfiguration());
+         .setJournalFileSize(100 * 1024).addAcceptorConfiguration(tc).setHAPolicyConfiguration(new SharedStoreMasterPolicyConfiguration());
 
       ActiveMQServer server;
-      if (nodeManager == null)
-      {
+      if (nodeManager == null) {
          server = ActiveMQServers.newActiveMQServer(serviceConf, true);
       }
-      else
-      {
+      else {
          server = new InVMNodeManagerServer(serviceConf, nodeManager);
       }
 
@@ -96,50 +81,34 @@ public abstract class BridgeTestBase extends ActiveMQTestBase
                                                        final Map<String, Object> params,
                                                        final boolean netty,
                                                        final int liveId,
-                                                       final NodeManager nodeManager) throws Exception
-   {
+                                                       final NodeManager nodeManager) throws Exception {
       TransportConfiguration tc = new TransportConfiguration();
 
-      if (netty)
-      {
-         params.put(org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.PORT_PROP_NAME,
-                    org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.DEFAULT_PORT + id);
+      if (netty) {
+         params.put(org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.PORT_PROP_NAME, org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.DEFAULT_PORT + id);
          tc = new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params);
 
       }
-      else
-      {
+      else {
          params.put(org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants.SERVER_ID_PROP_NAME, id);
          tc = new TransportConfiguration(INVM_ACCEPTOR_FACTORY, params);
       }
 
-      Configuration serviceConf = createBasicConfig()
-         .setJournalType(getDefaultJournalType())
-         .setBindingsDirectory(getBindingsDir(liveId, false))
-         .setJournalMinFiles(2)
-         .setJournalDirectory(getJournalDir(liveId, false))
-         .setPagingDirectory(getPageDir(liveId, false))
-         .setLargeMessagesDirectory(getLargeMessagesDir(liveId, false))
+      Configuration serviceConf = createBasicConfig().setJournalType(getDefaultJournalType()).setBindingsDirectory(getBindingsDir(liveId, false)).setJournalMinFiles(2).setJournalDirectory(getJournalDir(liveId, false)).setPagingDirectory(getPageDir(liveId, false)).setLargeMessagesDirectory(getLargeMessagesDir(liveId, false))
          // these tests don't need any big storage so limiting the size of the journal files to speed up the test
-         .setJournalFileSize(100 * 1024)
-         .addAcceptorConfiguration(tc)
-         .setHAPolicyConfiguration(new SharedStoreSlavePolicyConfiguration());
+         .setJournalFileSize(100 * 1024).addAcceptorConfiguration(tc).setHAPolicyConfiguration(new SharedStoreSlavePolicyConfiguration());
 
       ActiveMQServer server;
-      if (nodeManager == null)
-      {
+      if (nodeManager == null) {
          server = ActiveMQServers.newActiveMQServer(serviceConf, true);
       }
-      else
-      {
+      else {
          server = new InVMNodeManagerServer(serviceConf, nodeManager);
       }
       return addServer(server);
    }
 
-
-   protected void waitForServerStart(ActiveMQServer server) throws Exception
-   {
+   protected void waitForServerStart(ActiveMQServer server) throws Exception {
       if (!server.waitForActivation(5000L, TimeUnit.MILLISECONDS))
          throw new IllegalStateException("Timed out waiting for server starting = " + server);
    }

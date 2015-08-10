@@ -18,8 +18,7 @@ package org.proton.plug;
 
 import io.netty.buffer.ByteBuf;
 
-public interface AMQPConnectionContext
-{
+public interface AMQPConnectionContext {
 
    void close();
 
@@ -58,6 +57,5 @@ public interface AMQPConnectionContext
     * @param numberOfBytes
     */
    void outputDone(int numberOfBytes);
-
 
 }

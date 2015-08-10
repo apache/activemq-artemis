@@ -44,8 +44,8 @@ import java.util.Map;
 * Instead of loading into its own post office this will use its parent server (the actual live server) and load into that.
 * Since the server is already running we have to make sure we don't route any message that may subsequently get deleted or acked.
 * */
-public class BackupRecoveryJournalLoader extends PostOfficeJournalLoader
-{
+public class BackupRecoveryJournalLoader extends PostOfficeJournalLoader {
+
    private ActiveMQServer parentServer;
    private ServerLocator locator;
    private final ClusterController clusterController;
@@ -60,8 +60,7 @@ public class BackupRecoveryJournalLoader extends PostOfficeJournalLoader
                                       Configuration configuration,
                                       ActiveMQServer parentServer,
                                       ServerLocatorInternal locator,
-                                      ClusterController clusterController)
-   {
+                                      ClusterController clusterController) {
 
       super(postOffice, pagingManager, storageManager, queueFactory, nodeManager, managementService, groupingHandler, configuration);
       this.parentServer = parentServer;
@@ -70,38 +69,34 @@ public class BackupRecoveryJournalLoader extends PostOfficeJournalLoader
    }
 
    @Override
-   public void handleGroupingBindings(List< GroupingInfo > groupingInfos)
-   {
+   public void handleGroupingBindings(List<GroupingInfo> groupingInfos) {
       //currently only the node that is configured with the local group handler can recover these as all other nodes are
       //remote handlers, this means that you can only use FULL backup server when using group handlers.
       //todo maybe in the future we can restart the handler on the live server as a local handler and redistribute the state
-      if (groupingInfos != null && groupingInfos.size() > 0)
-      {
+      if (groupingInfos != null && groupingInfos.size() > 0) {
          ActiveMQServerLogger.LOGGER.groupBindingsOnRecovery();
       }
    }
 
    @Override
-   public void handleDuplicateIds(Map<SimpleString, List<Pair<byte[], Long>>> duplicateIDMap) throws Exception
-   {
+   public void handleDuplicateIds(Map<SimpleString, List<Pair<byte[], Long>>> duplicateIDMap) throws Exception {
       //nothing to do here so override so we dont bother creating the caches
    }
 
    @Override
-   public void postLoad(Journal messageJournal, ResourceManager resourceManager, Map<SimpleString, List<Pair<byte[], Long>>> duplicateIDMap) throws Exception
-   {
+   public void postLoad(Journal messageJournal,
+                        ResourceManager resourceManager,
+                        Map<SimpleString, List<Pair<byte[], Long>>> duplicateIDMap) throws Exception {
       ScaleDownHandler scaleDownHandler = new ScaleDownHandler(pagingManager, postOffice, nodeManager, clusterController, parentServer.getStorageManager());
       locator.setProtocolManagerFactory(ActiveMQServerSideProtocolManagerFactory.getInstance());
 
-      try (ClientSessionFactory sessionFactory = locator.createSessionFactory())
-      {
+      try (ClientSessionFactory sessionFactory = locator.createSessionFactory()) {
          scaleDownHandler.scaleDown(sessionFactory, resourceManager, duplicateIDMap, parentServer.getConfiguration().getManagementAddress(), parentServer.getNodeID());
       }
    }
 
    @Override
-   public void cleanUp()
-   {
+   public void cleanUp() {
       super.cleanUp();
       locator.close();
    }

@@ -26,78 +26,79 @@ import javax.jms.JMSException;
 /**
  *
  */
-public class LoadController extends LoadClient{
+public class LoadController extends LoadClient {
 
-    private int numberOfBatches=1;
-    private int batchSize =1000;
-    private int count;
-    private final CountDownLatch stopped = new CountDownLatch(1);
+   private int numberOfBatches = 1;
+   private int batchSize = 1000;
+   private int count;
+   private final CountDownLatch stopped = new CountDownLatch(1);
 
-    public LoadController(String name,ConnectionFactory factory) {
-       super(name,factory);
-    }
+   public LoadController(String name, ConnectionFactory factory) {
+      super(name, factory);
+   }
 
+   public int awaitTestComplete() throws InterruptedException {
+      stopped.await(60 * 5, TimeUnit.SECONDS);
+      return count;
+   }
 
-    public int awaitTestComplete() throws InterruptedException {
-        stopped.await(60*5,TimeUnit.SECONDS);
-        return count;
-    }
+   @Override
+   public void stop() throws JMSException, InterruptedException {
+      running = false;
+      stopped.countDown();
+      if (connection != null) {
+         this.connection.stop();
+      }
+   }
 
-    @Override
-    public void stop() throws JMSException, InterruptedException {
-        running = false;
-        stopped.countDown();
-        if (connection != null) {
-            this.connection.stop();
-        }
-    }
-
-    @Override
-    public void run() {
-        try {
-            for (int i = 0; i < numberOfBatches; i++) {
-                for (int j = 0; j < batchSize; j++) {
-                    String payLoad = "batch[" + i + "]no:" + j;
-                    send(payLoad);
-                }
-                for (int j = 0; j < batchSize; j++) {
-                    String result = consume();
-                    if (result != null) {
-                        count++;
-                    rate.increment();
-                    }
-                }
+   @Override
+   public void run() {
+      try {
+         for (int i = 0; i < numberOfBatches; i++) {
+            for (int j = 0; j < batchSize; j++) {
+               String payLoad = "batch[" + i + "]no:" + j;
+               send(payLoad);
             }
-        } catch (Throwable e) {
-            e.printStackTrace();
-        } finally {
-            stopped.countDown();
-        }
-    }
+            for (int j = 0; j < batchSize; j++) {
+               String result = consume();
+               if (result != null) {
+                  count++;
+                  rate.increment();
+               }
+            }
+         }
+      }
+      catch (Throwable e) {
+         e.printStackTrace();
+      }
+      finally {
+         stopped.countDown();
+      }
+   }
 
-    public int getNumberOfBatches() {
-        return numberOfBatches;
-    }
+   public int getNumberOfBatches() {
+      return numberOfBatches;
+   }
 
-    public void setNumberOfBatches(int numberOfBatches) {
-        this.numberOfBatches = numberOfBatches;
-    }
+   public void setNumberOfBatches(int numberOfBatches) {
+      this.numberOfBatches = numberOfBatches;
+   }
 
-    public int getBatchSize() {
-        return batchSize;
-    }
+   public int getBatchSize() {
+      return batchSize;
+   }
 
-    public void setBatchSize(int batchSize) {
-        this.batchSize = batchSize;
-    }
+   public void setBatchSize(int batchSize) {
+      this.batchSize = batchSize;
+   }
 
-    @Override
-    protected Destination getSendDestination() {
-        return startDestination;
-    }
+   @Override
+   protected Destination getSendDestination() {
+      return startDestination;
+   }
 
-    @Override
-    protected Destination getConsumeDestination() {
-        return nextDestination;
-    }
+   @Override
+   protected Destination getConsumeDestination() {
+      return nextDestination;
+   }
 }

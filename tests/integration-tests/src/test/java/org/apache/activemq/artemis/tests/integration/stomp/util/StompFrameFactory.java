@@ -16,8 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.stomp.util;
 
-public interface StompFrameFactory
-{
+public interface StompFrameFactory {
 
    ClientStompFrame createFrame(String data);
 

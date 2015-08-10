@@ -22,32 +22,27 @@ import org.proton.plug.ClientSASL;
  * This is a simple implementation provided with just user/password
  * TODO: this interface will probaby change as we are challenged with more SASL cases where there is a communication between client and server to determine the authentication
  */
-public class ClientSASLPlain implements ClientSASL
-{
+public class ClientSASLPlain implements ClientSASL {
+
    private String username;
    private String password;
 
-   public ClientSASLPlain(String user, String password)
-   {
+   public ClientSASLPlain(String user, String password) {
       this.username = user;
       this.password = password;
    }
 
-   public String getName()
-   {
+   public String getName() {
       return "PLAIN";
    }
 
-   public byte[] getBytes()
-   {
+   public byte[] getBytes() {
 
-      if (username == null)
-      {
+      if (username == null) {
          username = "";
       }
 
-      if (password == null)
-      {
+      if (password == null) {
          password = "";
       }
 
@@ -58,6 +53,5 @@ public class ClientSASLPlain implements ClientSASL
       System.arraycopy(passwordBytes, 0, data, 2 + usernameBytes.length, passwordBytes.length);
       return data;
    }
-
 
 }

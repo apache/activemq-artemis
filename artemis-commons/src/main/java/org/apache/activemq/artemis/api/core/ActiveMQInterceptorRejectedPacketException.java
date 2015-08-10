@@ -21,17 +21,15 @@ package org.apache.activemq.artemis.api.core;
  * See org.apache.activemq.artemis.api.core.client.ServerLocator#addOutgoingInterceptor(org.apache.activemq.artemis.api.core.Interceptor)
  */
 // XXX I doubt any reader will make much sense of this Javadoc's text.
-public final class ActiveMQInterceptorRejectedPacketException extends ActiveMQException
-{
+public final class ActiveMQInterceptorRejectedPacketException extends ActiveMQException {
+
    private static final long serialVersionUID = -5798841227645281815L;
 
-   public ActiveMQInterceptorRejectedPacketException()
-   {
+   public ActiveMQInterceptorRejectedPacketException() {
       super(ActiveMQExceptionType.INTERCEPTOR_REJECTED_PACKET);
    }
 
-   public ActiveMQInterceptorRejectedPacketException(String msg)
-   {
+   public ActiveMQInterceptorRejectedPacketException(String msg) {
       super(ActiveMQExceptionType.INTERCEPTOR_REJECTED_PACKET, msg);
    }
 }

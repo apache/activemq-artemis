@@ -28,8 +28,7 @@ import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 import org.apache.activemq.artemis.jms.referenceable.DestinationObjectFactory;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
 
-public class DestinationObjectFactoryTest extends ActiveMQTestBase
-{
+public class DestinationObjectFactoryTest extends ActiveMQTestBase {
    // Constants -----------------------------------------------------
 
    // Attributes ----------------------------------------------------
@@ -41,8 +40,7 @@ public class DestinationObjectFactoryTest extends ActiveMQTestBase
    // Public --------------------------------------------------------
 
    @Test
-   public void testReference() throws Exception
-   {
+   public void testReference() throws Exception {
       ActiveMQDestination queue = (ActiveMQDestination) ActiveMQJMSClient.createQueue(RandomUtil.randomString());
       Reference reference = queue.getReference();
 

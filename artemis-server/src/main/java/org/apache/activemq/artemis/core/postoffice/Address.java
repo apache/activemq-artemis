@@ -23,8 +23,8 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 /**
  * USed to hold a hierarchical style address, delimited by a '.'.
  */
-public interface Address
-{
+public interface Address {
+
    SimpleString getAddress();
 
    SimpleString[] getAddressParts();

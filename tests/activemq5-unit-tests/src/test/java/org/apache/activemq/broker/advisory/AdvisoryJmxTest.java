@@ -33,54 +33,52 @@ import javax.management.remote.JMXServiceURL;
 
 public class AdvisoryJmxTest extends EmbeddedBrokerTestSupport {
 
-        protected BrokerService createBroker() throws Exception {
-        BrokerService answer = new BrokerService();
-        answer.setPersistent(isPersistent());
-        answer.addConnector(bindAddress);
-        ManagementContext context = new ManagementContext();
-        context.setConnectorPort(1199);
-        answer.setManagementContext(context);
-        return answer;
-    }
+   protected BrokerService createBroker() throws Exception {
+      BrokerService answer = new BrokerService();
+      answer.setPersistent(isPersistent());
+      answer.addConnector(bindAddress);
+      ManagementContext context = new ManagementContext();
+      context.setConnectorPort(1199);
+      answer.setManagementContext(context);
+      return answer;
+   }
 
-    public void testCreateDeleteDestinations() throws Exception {
-        JMXServiceURL url = new JMXServiceURL("service:jmx:rmi:///jndi/rmi://localhost:1199/jmxrmi");
-        JMXConnector connector = JMXConnectorFactory.connect(url, null);
-        connector.connect();
-        MBeanServerConnection connection = connector.getMBeanServerConnection();
-        ObjectName name = new ObjectName("org.apache.activemq:type=Broker,brokerName=localhost");
-        BrokerViewMBean brokerMbean = (BrokerViewMBean) MBeanServerInvocationHandler.newProxyInstance(connection, name, BrokerViewMBean.class, true);
-        Connection conn = createConnection();
-        Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        MessageConsumer consumer = sess.createConsumer(sess.createTopic("ActiveMQ.Advisory.Queue"));
-        conn.start();
-        Destination dest = sess.createQueue("test");
+   public void testCreateDeleteDestinations() throws Exception {
+      JMXServiceURL url = new JMXServiceURL("service:jmx:rmi:///jndi/rmi://localhost:1199/jmxrmi");
+      JMXConnector connector = JMXConnectorFactory.connect(url, null);
+      connector.connect();
+      MBeanServerConnection connection = connector.getMBeanServerConnection();
+      ObjectName name = new ObjectName("org.apache.activemq:type=Broker,brokerName=localhost");
+      BrokerViewMBean brokerMbean = (BrokerViewMBean) MBeanServerInvocationHandler.newProxyInstance(connection, name, BrokerViewMBean.class, true);
+      Connection conn = createConnection();
+      Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      MessageConsumer consumer = sess.createConsumer(sess.createTopic("ActiveMQ.Advisory.Queue"));
+      conn.start();
+      Destination dest = sess.createQueue("test");
 
-        brokerMbean.addQueue("test");
+      brokerMbean.addQueue("test");
 
-        ActiveMQMessage msg = (ActiveMQMessage)consumer.receive(1000);
-        assertNotNull(msg);
-        assertTrue(msg.getDataStructure() instanceof DestinationInfo);
-        assertEquals(((DestinationInfo)msg.getDataStructure()).getDestination(), dest);
-        assertEquals(((DestinationInfo)msg.getDataStructure()).getOperationType(), 0);
+      ActiveMQMessage msg = (ActiveMQMessage) consumer.receive(1000);
+      assertNotNull(msg);
+      assertTrue(msg.getDataStructure() instanceof DestinationInfo);
+      assertEquals(((DestinationInfo) msg.getDataStructure()).getDestination(), dest);
+      assertEquals(((DestinationInfo) msg.getDataStructure()).getOperationType(), 0);
 
-        brokerMbean.removeQueue("test");
+      brokerMbean.removeQueue("test");
 
-        msg = (ActiveMQMessage)consumer.receive(1000);
-        assertNotNull(msg);
-        assertTrue(msg.getDataStructure() instanceof DestinationInfo);
-        assertEquals(((DestinationInfo)msg.getDataStructure()).getDestination(), dest);
-        assertEquals(((DestinationInfo)msg.getDataStructure()).getOperationType(), 1);
+      msg = (ActiveMQMessage) consumer.receive(1000);
+      assertNotNull(msg);
+      assertTrue(msg.getDataStructure() instanceof DestinationInfo);
+      assertEquals(((DestinationInfo) msg.getDataStructure()).getDestination(), dest);
+      assertEquals(((DestinationInfo) msg.getDataStructure()).getOperationType(), 1);
 
-
-        brokerMbean.addQueue("test");
-        msg = (ActiveMQMessage)consumer.receive(1000);
-        assertNotNull(msg);
-        assertTrue(msg.getDataStructure() instanceof DestinationInfo);
-        assertEquals(((DestinationInfo)msg.getDataStructure()).getDestination(), dest);
-        assertEquals(((DestinationInfo)msg.getDataStructure()).getOperationType(), 0);
-        assertEquals(((DestinationInfo)msg.getDataStructure()).getOperationType(), 0);
-    }
-
+      brokerMbean.addQueue("test");
+      msg = (ActiveMQMessage) consumer.receive(1000);
+      assertNotNull(msg);
+      assertTrue(msg.getDataStructure() instanceof DestinationInfo);
+      assertEquals(((DestinationInfo) msg.getDataStructure()).getDestination(), dest);
+      assertEquals(((DestinationInfo) msg.getDataStructure()).getOperationType(), 0);
+      assertEquals(((DestinationInfo) msg.getDataStructure()).getOperationType(), 0);
+   }
 
 }

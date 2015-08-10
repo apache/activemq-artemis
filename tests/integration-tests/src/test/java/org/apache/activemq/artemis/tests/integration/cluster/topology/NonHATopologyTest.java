@@ -39,58 +39,40 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
  *
  * Created to verify HORNETQ-913 / AS7-4548
  */
-public class NonHATopologyTest extends ActiveMQTestBase
-{
+public class NonHATopologyTest extends ActiveMQTestBase {
 
    @Test
-   public void testNetty() throws Exception
-   {
+   public void testNetty() throws Exception {
       internalTest(true);
    }
 
    @Test
-   public void testInVM() throws Exception
-   {
+   public void testInVM() throws Exception {
       internalTest(false);
    }
 
-   public void internalTest(boolean isNetty) throws Exception
-   {
+   public void internalTest(boolean isNetty) throws Exception {
 
       ActiveMQServer server = null;
       ServerLocatorInternal locator = null;
 
-      try
-      {
+      try {
 
          server = createServer(false, isNetty);
 
-         if (!isNetty)
-         {
-            server.getConfiguration()
-                  .getAcceptorConfigurations()
-                  .add(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY));
-            server.getConfiguration()
-                  .getConnectorConfigurations()
-                  .put("netty", new TransportConfiguration(NETTY_CONNECTOR_FACTORY));
+         if (!isNetty) {
+            server.getConfiguration().getAcceptorConfigurations().add(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY));
+            server.getConfiguration().getConnectorConfigurations().put("netty", new TransportConfiguration(NETTY_CONNECTOR_FACTORY));
 
             ArrayList<String> list = new ArrayList<String>();
             list.add("netty");
             Configuration config = server.getConfiguration();
-            config.getClusterConfigurations().add(new ClusterConnectionConfiguration()
-               .setName("tst")
-               .setAddress("jms")
-               .setConnectorName("netty")
-               .setRetryInterval(1000)
-               .setConfirmationWindowSize(1000)
-               .setMessageLoadBalancingType(MessageLoadBalancingType.ON_DEMAND)
-               .setStaticConnectors(list)
-               .setAllowDirectConnectionsOnly(true));
+            config.getClusterConfigurations().add(new ClusterConnectionConfiguration().setName("tst").setAddress("jms").setConnectorName("netty").setRetryInterval(1000).setConfirmationWindowSize(1000).setMessageLoadBalancingType(MessageLoadBalancingType.ON_DEMAND).setStaticConnectors(list).setAllowDirectConnectionsOnly(true));
          }
 
          server.start();
 
-         locator = (ServerLocatorInternal)createNonHALocator(isNetty);
+         locator = (ServerLocatorInternal) createNonHALocator(isNetty);
 
          ClientSessionFactory factory = createSessionFactory(locator);
 
@@ -100,36 +82,28 @@ public class NonHATopologyTest extends ActiveMQTestBase
 
          factory.close();
 
-         if (!isNetty)
-         {
+         if (!isNetty) {
             TopologyMemberImpl member = topology.getMembers().iterator().next();
-            if (isNetty)
-            {
+            if (isNetty) {
                assertEquals(NettyConnectorFactory.class.getName(), member.getLive().getFactoryClassName());
             }
-            else
-            {
+            else {
                assertEquals(InVMConnectorFactory.class.getName(), member.getLive().getFactoryClassName());
             }
          }
 
       }
-      finally
-      {
-         try
-         {
+      finally {
+         try {
             locator.close();
          }
-         catch (Exception ignored)
-         {
+         catch (Exception ignored) {
          }
 
-         try
-         {
+         try {
             server.stop();
          }
-         catch (Exception ignored)
-         {
+         catch (Exception ignored) {
          }
 
          server = null;

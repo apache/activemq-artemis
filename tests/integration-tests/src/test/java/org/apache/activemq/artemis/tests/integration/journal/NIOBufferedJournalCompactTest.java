@@ -22,12 +22,10 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
 
-public class NIOBufferedJournalCompactTest extends NIOJournalCompactTest
-{
+public class NIOBufferedJournalCompactTest extends NIOJournalCompactTest {
 
    @Override
-   protected SequentialFileFactory getFileFactory() throws Exception
-   {
+   protected SequentialFileFactory getFileFactory() throws Exception {
       File file = new File(getTestDir());
 
       ActiveMQTestBase.deleteDirectory(file);

@@ -19,17 +19,15 @@ package org.apache.activemq.artemis.api.core;
 /**
  * An address is full.
  */
-public final class ActiveMQAddressFullException extends ActiveMQException
-{
+public final class ActiveMQAddressFullException extends ActiveMQException {
+
    private static final long serialVersionUID = 0;
 
-   public ActiveMQAddressFullException(String message)
-   {
+   public ActiveMQAddressFullException(String message) {
       super(ActiveMQExceptionType.ADDRESS_FULL, message);
    }
 
-   public ActiveMQAddressFullException()
-   {
+   public ActiveMQAddressFullException() {
       super(ActiveMQExceptionType.ADDRESS_FULL);
    }
 }

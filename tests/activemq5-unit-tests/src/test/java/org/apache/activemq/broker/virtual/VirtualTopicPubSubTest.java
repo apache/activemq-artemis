@@ -34,96 +34,96 @@ import org.apache.activemq.spring.ConsumerBean;
 
 /**
  *
- * 
+ *
  */
 public class VirtualTopicPubSubTest extends EmbeddedBrokerTestSupport {
 
-    private Vector<Connection> connections = new Vector<Connection>();
-    public int ackMode = Session.AUTO_ACKNOWLEDGE;
+   private Vector<Connection> connections = new Vector<Connection>();
+   public int ackMode = Session.AUTO_ACKNOWLEDGE;
 
-    public static Test suite() {
-        return suite(VirtualTopicPubSubTest.class);
-    }
+   public static Test suite() {
+      return suite(VirtualTopicPubSubTest.class);
+   }
 
-    public void initCombosForTestVirtualTopicCreation() {
-        addCombinationValues("ackMode", new Object[] {new Integer(Session.AUTO_ACKNOWLEDGE), new Integer(Session.CLIENT_ACKNOWLEDGE) });
-    }
+   public void initCombosForTestVirtualTopicCreation() {
+      addCombinationValues("ackMode", new Object[]{new Integer(Session.AUTO_ACKNOWLEDGE), new Integer(Session.CLIENT_ACKNOWLEDGE)});
+   }
 
-    private boolean doneTwice = false;
+   private boolean doneTwice = false;
 
-	public void testVirtualTopicCreation() throws Exception {
-	  doTestVirtualTopicCreation(10);
-	}
+   public void testVirtualTopicCreation() throws Exception {
+      doTestVirtualTopicCreation(10);
+   }
 
-	public void doTestVirtualTopicCreation(int total) throws Exception {
+   public void doTestVirtualTopicCreation(int total) throws Exception {
 
-        ConsumerBean messageList = new ConsumerBean() {
-            public synchronized void onMessage(Message message) {
-                super.onMessage(message);
-                if (ackMode == Session.CLIENT_ACKNOWLEDGE) {
-                    try {
-                        message.acknowledge();
-                    } catch (JMSException e) {
-                        e.printStackTrace();
-                    }
-                }
-
+      ConsumerBean messageList = new ConsumerBean() {
+         public synchronized void onMessage(Message message) {
+            super.onMessage(message);
+            if (ackMode == Session.CLIENT_ACKNOWLEDGE) {
+               try {
+                  message.acknowledge();
+               }
+               catch (JMSException e) {
+                  e.printStackTrace();
+               }
             }
-        };
-        messageList.setVerbose(true);
 
-        String queueAName = getVirtualTopicConsumerName();
-        // create consumer 'cluster'
-        ActiveMQQueue queue1 = new ActiveMQQueue(queueAName);
-        ActiveMQQueue queue2 = new ActiveMQQueue(queueAName);
-  
-        Session session = createStartAndTrackConnection().createSession(false, ackMode);
-        MessageConsumer c1 = session.createConsumer(queue1);
-         
-        session = createStartAndTrackConnection().createSession(false, ackMode);
-        MessageConsumer c2 = session.createConsumer(queue2);
+         }
+      };
+      messageList.setVerbose(true);
 
-        c1.setMessageListener(messageList);
-        c2.setMessageListener(messageList);
+      String queueAName = getVirtualTopicConsumerName();
+      // create consumer 'cluster'
+      ActiveMQQueue queue1 = new ActiveMQQueue(queueAName);
+      ActiveMQQueue queue2 = new ActiveMQQueue(queueAName);
 
-        // create topic producer
-        Session producerSession = createStartAndTrackConnection().createSession(false, ackMode);
-        MessageProducer producer = producerSession.createProducer(new ActiveMQTopic(getVirtualTopicName()));
-        assertNotNull(producer);
+      Session session = createStartAndTrackConnection().createSession(false, ackMode);
+      MessageConsumer c1 = session.createConsumer(queue1);
 
-        for (int i = 0; i < total; i++) {
-            producer.send(producerSession.createTextMessage("message: " + i));
-        }
+      session = createStartAndTrackConnection().createSession(false, ackMode);
+      MessageConsumer c2 = session.createConsumer(queue2);
 
-        messageList.assertMessagesArrived(total);
+      c1.setMessageListener(messageList);
+      c2.setMessageListener(messageList);
 
-        // do twice so we confirm messages do not get redelivered after client acknowledgement
-        if( doneTwice == false ) {
-            doneTwice = true;
-            doTestVirtualTopicCreation(0);
-		}
-    }
+      // create topic producer
+      Session producerSession = createStartAndTrackConnection().createSession(false, ackMode);
+      MessageProducer producer = producerSession.createProducer(new ActiveMQTopic(getVirtualTopicName()));
+      assertNotNull(producer);
 
-    private Connection createStartAndTrackConnection() throws Exception {
-        Connection connection = createConnection();
-        connection.start();
-        connections.add(connection);
-        return connection;
-    }
+      for (int i = 0; i < total; i++) {
+         producer.send(producerSession.createTextMessage("message: " + i));
+      }
 
-    protected String getVirtualTopicName() {
-        return "VirtualTopic.TEST";
-    }
+      messageList.assertMessagesArrived(total);
 
-    protected String getVirtualTopicConsumerName() {
-        return "Consumer.A.VirtualTopic.TEST";
-    }
+      // do twice so we confirm messages do not get redelivered after client acknowledgement
+      if (doneTwice == false) {
+         doneTwice = true;
+         doTestVirtualTopicCreation(0);
+      }
+   }
 
+   private Connection createStartAndTrackConnection() throws Exception {
+      Connection connection = createConnection();
+      connection.start();
+      connections.add(connection);
+      return connection;
+   }
 
-    protected void tearDown() throws Exception {
-        for (Connection connection: connections) {
-            connection.close();
-        }
-        super.tearDown();
-    }
+   protected String getVirtualTopicName() {
+      return "VirtualTopic.TEST";
+   }
+
+   protected String getVirtualTopicConsumerName() {
+      return "Consumer.A.VirtualTopic.TEST";
+   }
+
+   protected void tearDown() throws Exception {
+      for (Connection connection : connections) {
+         connection.close();
+      }
+      super.tearDown();
+   }
 }

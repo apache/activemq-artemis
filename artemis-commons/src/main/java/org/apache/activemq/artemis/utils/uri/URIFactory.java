@@ -22,70 +22,57 @@ import java.net.URISyntaxException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class URIFactory<T, P>
-{
+public class URIFactory<T, P> {
 
    private URI defaultURI;
 
    private final Map<String, URISchema<T, P>> schemas = new ConcurrentHashMap<>();
 
-   public URI getDefaultURI()
-   {
+   public URI getDefaultURI() {
       return defaultURI;
    }
 
-   public void setDefaultURI(URI uri)
-   {
+   public void setDefaultURI(URI uri) {
       this.defaultURI = uri;
    }
 
-   public void registerSchema(URISchema<T, P> schemaFactory)
-   {
+   public void registerSchema(URISchema<T, P> schemaFactory) {
       schemas.put(schemaFactory.getSchemaName(), schemaFactory);
       schemaFactory.setFactory(this);
    }
 
-   public void removeSchema(final SchemaConstants schemaName)
-   {
+   public void removeSchema(final SchemaConstants schemaName) {
       schemas.remove(schemaName);
    }
 
-   public URI expandURI(String uriString) throws Exception
-   {
+   public URI expandURI(String uriString) throws Exception {
       return normalise(uriString);
    }
 
-   public T newObject(URI uri, P param) throws Exception
-   {
+   public T newObject(URI uri, P param) throws Exception {
       URISchema<T, P> schemaFactory = schemas.get(uri.getScheme());
 
-      if (schemaFactory == null)
-      {
+      if (schemaFactory == null) {
          throw new NullPointerException("Schema " + uri.getScheme() + " not found");
       }
-
 
       return schemaFactory.newObject(uri, param);
    }
 
-   public void populateObject(URI uri, T bean) throws Exception
-   {
+   public void populateObject(URI uri, T bean) throws Exception {
       URISchema<T, P> schemaFactory = schemas.get(uri.getScheme());
 
-      if (schemaFactory == null)
-      {
+      if (schemaFactory == null) {
          throw new NullPointerException("Schema " + uri.getScheme() + " not found");
       }
 
       schemaFactory.populateObject(uri, bean);
    }
 
-   public URI createSchema(String scheme, T bean) throws Exception
-   {
+   public URI createSchema(String scheme, T bean) throws Exception {
       URISchema<T, P> schemaFactory = schemas.get(scheme);
 
-      if (schemaFactory == null)
-      {
+      if (schemaFactory == null) {
          throw new NullPointerException("Schema " + scheme + " not found");
       }
       return schemaFactory.newURI(bean);
@@ -101,32 +88,24 @@ public class URIFactory<T, P>
    *
    * It is the job of the URISchema implementation to handle these fragments as needed.
    * */
-   private URI normalise(String uri) throws URISyntaxException
-   {
-      if (uri.startsWith("("))
-      {
+   private URI normalise(String uri) throws URISyntaxException {
+      if (uri.startsWith("(")) {
          String[] split = uri.split("\\)");
          String[] connectorURIS = split[0].substring(split[0].indexOf('(') + 1).split(",");
          String factoryQuery = split.length > 1 ? split[1] : "";
          StringBuilder builder = new StringBuilder(connectorURIS[0]);
-         if (factoryQuery != null && factoryQuery.length() > 0)
-         {
-            if (connectorURIS[0].contains("?"))
-            {
+         if (factoryQuery != null && factoryQuery.length() > 0) {
+            if (connectorURIS[0].contains("?")) {
                builder.append("&").append(factoryQuery.substring(1));
             }
-            else
-            {
+            else {
                builder.append(factoryQuery);
             }
          }
-         if (connectorURIS.length > 1)
-         {
+         if (connectorURIS.length > 1) {
             builder.append("#");
-            for (int i = 1; i < connectorURIS.length; i++)
-            {
-               if (i > 1)
-               {
+            for (int i = 1; i < connectorURIS.length; i++) {
+               if (i > 1) {
                   builder.append(",");
                }
                builder.append(connectorURIS[i]);

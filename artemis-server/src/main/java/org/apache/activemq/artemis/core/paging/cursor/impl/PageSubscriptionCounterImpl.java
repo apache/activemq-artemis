@@ -39,8 +39,8 @@ import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
 /**
  * This class will encapsulate the persistent counters for the PagingSubscription
  */
-public class PageSubscriptionCounterImpl implements PageSubscriptionCounter
-{
+public class PageSubscriptionCounterImpl implements PageSubscriptionCounter {
+
    private static final boolean isTrace = ActiveMQServerLogger.LOGGER.isTraceEnabled();
 
    private static final int FLUSH_COUNTER = 1000;
@@ -64,7 +64,6 @@ public class PageSubscriptionCounterImpl implements PageSubscriptionCounter
 
    private final LinkedList<Long> incrementRecords = new LinkedList<Long>();
 
-
    // We are storing pending counters for non transactional writes on page
    // we will recount a page case we still see pending records
    // as soon as we close a page we remove these records replacing by a regular page increment record
@@ -73,10 +72,8 @@ public class PageSubscriptionCounterImpl implements PageSubscriptionCounter
 
    private LinkedList<Pair<Long, Integer>> loadList;
 
-   private final Runnable cleanupCheck = new Runnable()
-   {
-      public void run()
-      {
+   private final Runnable cleanupCheck = new Runnable() {
+      public void run() {
          cleanup();
       }
    };
@@ -85,8 +82,7 @@ public class PageSubscriptionCounterImpl implements PageSubscriptionCounter
                                       final PageSubscription subscription,
                                       final Executor executor,
                                       final boolean persistent,
-                                      final long subscriptionID)
-   {
+                                      final long subscriptionID) {
       this.subscriptionID = subscriptionID;
       this.executor = executor;
       this.storage = storage;
@@ -95,38 +91,33 @@ public class PageSubscriptionCounterImpl implements PageSubscriptionCounter
    }
 
    @Override
-   public long getValue()
-   {
+   public long getValue() {
       return value.get() + pendingValue.get();
    }
 
-
    /**
     * This is used only on non transactional paging
+    *
     * @param page
     * @param increment
     * @throws Exception
     */
    @Override
-   public synchronized void pendingCounter(Page page, int increment) throws Exception
-   {
-      if (!persistent)
-      {
+   public synchronized void pendingCounter(Page page, int increment) throws Exception {
+      if (!persistent) {
          return; // nothing to be done
       }
 
-      Pair<Long, AtomicInteger> pendingInfo = pendingCounters.get((long)page.getPageId());
-      if (pendingInfo == null)
-      {
+      Pair<Long, AtomicInteger> pendingInfo = pendingCounters.get((long) page.getPageId());
+      if (pendingInfo == null) {
          // We have to make sure this is sync here
          // not syncing this to disk may cause the page files to be out of sync on pages.
          // we can't afford the case where a page file is written without a record here
          long id = storage.storePendingCounter(this.subscriptionID, page.getPageId(), increment);
          pendingInfo = new Pair<Long, AtomicInteger>(id, new AtomicInteger(1));
-         pendingCounters.put((long)page.getPageId(), pendingInfo);
+         pendingCounters.put((long) page.getPageId(), pendingInfo);
       }
-      else
-      {
+      else {
          pendingInfo.getB().addAndGet(increment);
       }
 
@@ -137,18 +128,16 @@ public class PageSubscriptionCounterImpl implements PageSubscriptionCounter
 
    /**
     * Cleanup temporary page counters on non transactional paged messages
+    *
     * @param pageID
     */
-   public void cleanupNonTXCounters(final long pageID) throws Exception
-   {
+   public void cleanupNonTXCounters(final long pageID) throws Exception {
       Pair<Long, AtomicInteger> pendingInfo;
-      synchronized (this)
-      {
+      synchronized (this) {
          pendingInfo = pendingCounters.remove(pageID);
       }
 
-      if (pendingInfo != null)
-      {
+      if (pendingInfo != null) {
          final AtomicInteger valueCleaned = pendingInfo.getB();
          Transaction tx = new TransactionImpl(storage);
          storage.deletePendingPageCounter(tx.getID(), pendingInfo.getA());
@@ -156,11 +145,9 @@ public class PageSubscriptionCounterImpl implements PageSubscriptionCounter
          // To apply the increment of the value just being cleaned
          increment(tx, valueCleaned.get());
 
-         tx.addOperation(new TransactionOperationAbstract()
-         {
+         tx.addOperation(new TransactionOperationAbstract() {
             @Override
-            public void afterCommit(Transaction tx)
-            {
+            public void afterCommit(Transaction tx) {
                pendingValue.addAndGet(-valueCleaned.get());
             }
          });
@@ -169,32 +156,24 @@ public class PageSubscriptionCounterImpl implements PageSubscriptionCounter
       }
    }
 
-
    @Override
-   public void increment(Transaction tx, int add) throws Exception
-   {
-      if (tx == null)
-      {
-         if (persistent)
-         {
+   public void increment(Transaction tx, int add) throws Exception {
+      if (tx == null) {
+         if (persistent) {
             long id = storage.storePageCounterInc(this.subscriptionID, add);
             incrementProcessed(id, add);
          }
-         else
-         {
+         else {
             incrementProcessed(-1, add);
          }
       }
-      else
-      {
-         if (persistent)
-         {
+      else {
+         if (persistent) {
             tx.setContainsPersistent();
             long id = storage.storePageCounterInc(tx.getID(), this.subscriptionID, add);
             applyIncrementOnTX(tx, id, add);
          }
-         else
-         {
+         else {
             applyIncrementOnTX(tx, -1, add);
          }
       }
@@ -202,16 +181,15 @@ public class PageSubscriptionCounterImpl implements PageSubscriptionCounter
 
    /**
     * This method will install the TXs
+    *
     * @param tx
     * @param recordID1
     * @param add
     */
-   public void applyIncrementOnTX(Transaction tx, long recordID1, int add)
-   {
-      CounterOperations oper = (CounterOperations)tx.getProperty(TransactionPropertyIndexes.PAGE_COUNT_INC);
+   public void applyIncrementOnTX(Transaction tx, long recordID1, int add) {
+      CounterOperations oper = (CounterOperations) tx.getProperty(TransactionPropertyIndexes.PAGE_COUNT_INC);
 
-      if (oper == null)
-      {
+      if (oper == null) {
          oper = new CounterOperations();
          tx.putProperty(TransactionPropertyIndexes.PAGE_COUNT_INC, oper);
          tx.addOperation(oper);
@@ -220,10 +198,8 @@ public class PageSubscriptionCounterImpl implements PageSubscriptionCounter
       oper.operations.add(new ItemOper(this, recordID1, add));
    }
 
-   public synchronized void loadValue(final long recordID1, final long value1)
-   {
-      if (this.subscription != null)
-      {
+   public synchronized void loadValue(final long recordID1, final long value1) {
+      if (this.subscription != null) {
          // it could be null on testcases... which is ok
          this.subscription.notEmpty();
       }
@@ -231,18 +207,15 @@ public class PageSubscriptionCounterImpl implements PageSubscriptionCounter
       this.recordID = recordID1;
    }
 
-   public synchronized void incrementProcessed(long id, int add)
-   {
+   public synchronized void incrementProcessed(long id, int add) {
       addInc(id, add);
-      if (incrementRecords.size() > FLUSH_COUNTER)
-      {
+      if (incrementRecords.size() > FLUSH_COUNTER) {
          executor.execute(cleanupCheck);
       }
 
    }
 
-   public void delete() throws Exception
-   {
+   public void delete() throws Exception {
       Transaction tx = new TransactionImpl(storage);
 
       delete(tx);
@@ -250,22 +223,17 @@ public class PageSubscriptionCounterImpl implements PageSubscriptionCounter
       tx.commit();
    }
 
-   public void delete(Transaction tx) throws Exception
-   {
+   public void delete(Transaction tx) throws Exception {
       // always lock the StorageManager first.
       storage.readLock();
-      try
-      {
-         synchronized (this)
-         {
-            for (Long record : incrementRecords)
-            {
+      try {
+         synchronized (this) {
+            for (Long record : incrementRecords) {
                storage.deleteIncrementRecord(tx.getID(), record.longValue());
                tx.setContainsPersistent();
             }
 
-            if (recordID >= 0)
-            {
+            if (recordID >= 0) {
                storage.deletePageCounter(tx.getID(), this.recordID);
                tx.setContainsPersistent();
             }
@@ -275,34 +243,27 @@ public class PageSubscriptionCounterImpl implements PageSubscriptionCounter
             incrementRecords.clear();
          }
       }
-      finally
-      {
+      finally {
          storage.readUnLock();
       }
    }
 
-   public void loadInc(long id, int add)
-   {
-      if (loadList == null)
-      {
+   public void loadInc(long id, int add) {
+      if (loadList == null) {
          loadList = new LinkedList<Pair<Long, Integer>>();
       }
 
       loadList.add(new Pair<Long, Integer>(id, add));
    }
 
-   public void processReload()
-   {
-      if (loadList != null)
-      {
-         if (subscription != null)
-         {
+   public void processReload() {
+      if (loadList != null) {
+         if (subscription != null) {
             // it could be null on testcases
             subscription.notEmpty();
          }
 
-         for (Pair<Long, Integer> incElement : loadList)
-         {
+         for (Pair<Long, Integer> incElement : loadList) {
             value.addAndGet(incElement.getB());
             incrementRecords.add(incElement.getA());
          }
@@ -311,33 +272,30 @@ public class PageSubscriptionCounterImpl implements PageSubscriptionCounter
       }
    }
 
-   public synchronized void addInc(long id, int variance)
-   {
+   public synchronized void addInc(long id, int variance) {
       value.addAndGet(variance);
 
-      if (id >= 0)
-      {
+      if (id >= 0) {
          incrementRecords.add(id);
       }
    }
 
-   /** used on testing only */
-   public void setPersistent(final boolean persistent)
-   {
+   /**
+    * used on testing only
+    */
+   public void setPersistent(final boolean persistent) {
       this.persistent = persistent;
    }
 
-
-   /** This method should always be called from a single threaded executor */
-   protected void cleanup()
-   {
+   /**
+    * This method should always be called from a single threaded executor
+    */
+   protected void cleanup() {
       ArrayList<Long> deleteList;
 
       long valueReplace;
-      synchronized (this)
-      {
-         if (incrementRecords.size() <= FLUSH_COUNTER)
-         {
+      synchronized (this) {
+         if (incrementRecords.size() <= FLUSH_COUNTER) {
             return;
          }
          valueReplace = value.get();
@@ -349,51 +307,41 @@ public class PageSubscriptionCounterImpl implements PageSubscriptionCounter
 
       long txCleanup = storage.generateID();
 
-      try
-      {
-         for (Long value1 : deleteList)
-         {
+      try {
+         for (Long value1 : deleteList) {
             storage.deleteIncrementRecord(txCleanup, value1);
          }
 
-         if (recordID >= 0)
-         {
+         if (recordID >= 0) {
             storage.deletePageCounter(txCleanup, recordID);
          }
 
          newRecordID = storage.storePageCounter(txCleanup, subscriptionID, valueReplace);
 
-         if (isTrace)
-         {
-            ActiveMQServerLogger.LOGGER.trace("Replacing page-counter record = "  + recordID + " by record = " + newRecordID + " on subscriptionID = " + this.subscriptionID + " for queue = " + this.subscription.getQueue().getName());
+         if (isTrace) {
+            ActiveMQServerLogger.LOGGER.trace("Replacing page-counter record = " + recordID + " by record = " + newRecordID + " on subscriptionID = " + this.subscriptionID + " for queue = " + this.subscription.getQueue().getName());
          }
 
          storage.commit(txCleanup);
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          newRecordID = recordID;
 
          ActiveMQServerLogger.LOGGER.problemCleaningPagesubscriptionCounter(e);
-         try
-         {
+         try {
             storage.rollback(txCleanup);
          }
-         catch (Exception ignored)
-         {
+         catch (Exception ignored) {
          }
       }
-      finally
-      {
+      finally {
          recordID = newRecordID;
       }
    }
 
-   private static class ItemOper
-   {
+   private static class ItemOper {
 
-      public ItemOper(PageSubscriptionCounterImpl counter, long id, int add)
-      {
+      public ItemOper(PageSubscriptionCounterImpl counter, long id, int add) {
          this.counter = counter;
          this.id = id;
          this.amount = add;
@@ -406,15 +354,13 @@ public class PageSubscriptionCounterImpl implements PageSubscriptionCounter
       int amount;
    }
 
-   private static class CounterOperations extends TransactionOperationAbstract implements TransactionOperation
-   {
+   private static class CounterOperations extends TransactionOperationAbstract implements TransactionOperation {
+
       LinkedList<ItemOper> operations = new LinkedList<ItemOper>();
 
       @Override
-      public void afterCommit(Transaction tx)
-      {
-         for (ItemOper oper : operations)
-         {
+      public void afterCommit(Transaction tx) {
+         for (ItemOper oper : operations) {
             oper.counter.incrementProcessed(oper.id, oper.amount);
          }
       }

@@ -34,16 +34,14 @@ import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
  * The same durable subscription can exist on more than one node of the cluster, and messages
  * sent to the topic will be load-balanced in a round-robin fashion between the two nodes
  */
-public class ClusteredDurableSubscriptionExample
-{
-   public static void main(final String[] args) throws Exception
-   {
+public class ClusteredDurableSubscriptionExample {
+
+   public static void main(final String[] args) throws Exception {
       Connection connection0 = null;
 
       Connection connection1 = null;
 
-      try
-      {
+      try {
          // Step 1. Instantiate the connection factory on server 0
          ConnectionFactory cf0 = new ActiveMQConnectionFactory("tcp://localhost:61616");
 
@@ -96,8 +94,7 @@ public class ClusteredDurableSubscriptionExample
 
          final int numMessages = 10;
 
-         for (int i = 0; i < numMessages; i++)
-         {
+         for (int i = 0; i < numMessages; i++) {
             TextMessage message = session0.createTextMessage("This is text message " + i);
 
             producer.send(message);
@@ -111,27 +108,23 @@ public class ClusteredDurableSubscriptionExample
          // The "logical" subscription is distributed across the cluster and contains exactly one copy of all the
          // messages
 
-         for (int i = 0; i < numMessages; i += 2)
-         {
-            TextMessage message0 = (TextMessage)subscriber0.receive(5000);
+         for (int i = 0; i < numMessages; i += 2) {
+            TextMessage message0 = (TextMessage) subscriber0.receive(5000);
 
             System.out.println("Got message: " + message0.getText() + " from node 0");
 
-            TextMessage message1 = (TextMessage)subscriber1.receive(5000);
+            TextMessage message1 = (TextMessage) subscriber1.receive(5000);
 
             System.out.println("Got message: " + message1.getText() + " from node 1");
          }
       }
-      finally
-      {
+      finally {
          // Step 15. Be sure to close our JMS resources!
-         if (connection0 != null)
-         {
+         if (connection0 != null) {
             connection0.close();
          }
 
-         if (connection1 != null)
-         {
+         if (connection1 != null) {
             connection1.close();
          }
       }

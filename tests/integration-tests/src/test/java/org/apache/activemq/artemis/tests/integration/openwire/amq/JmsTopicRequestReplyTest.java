@@ -40,8 +40,8 @@ import org.junit.Test;
 /**
  * adapted from: org.apache.activemq.JmsTopicRequestReplyTest
  */
-public class JmsTopicRequestReplyTest extends BasicOpenWireTest implements MessageListener
-{
+public class JmsTopicRequestReplyTest extends BasicOpenWireTest implements MessageListener {
+
    protected boolean useAsyncConsume;
    private Connection serverConnection;
    private Connection clientConnection;
@@ -53,13 +53,11 @@ public class JmsTopicRequestReplyTest extends BasicOpenWireTest implements Messa
    private String clientSideClientID;
 
    @Test
-   public void testSendAndReceive() throws Exception
-   {
+   public void testSendAndReceive() throws Exception {
       clientConnection = createConnection();
       clientConnection.setClientID("ClientConnection:" + name.getMethodName());
 
-      Session session = clientConnection.createSession(false,
-            Session.AUTO_ACKNOWLEDGE);
+      Session session = clientConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
       clientConnection.start();
 
@@ -73,13 +71,10 @@ public class JmsTopicRequestReplyTest extends BasicOpenWireTest implements Messa
       // replyDestination);
       // assertEquals("clientID from the temporary destination must be the
       // same", clientSideClientID, value);
-      System.out
-            .println("Both the clientID and destination clientID match properly: "
-                  + clientSideClientID);
+      System.out.println("Both the clientID and destination clientID match properly: " + clientSideClientID);
 
       /* build queues */
-      MessageProducer requestProducer = session
-            .createProducer(requestDestination);
+      MessageProducer requestProducer = session.createProducer(requestDestination);
       MessageConsumer replyConsumer = session.createConsumer(replyDestination);
 
       /* build requestmessage */
@@ -92,28 +87,23 @@ public class JmsTopicRequestReplyTest extends BasicOpenWireTest implements Messa
 
       Message msg = replyConsumer.receive(5000);
 
-      if (msg instanceof TextMessage)
-      {
+      if (msg instanceof TextMessage) {
          TextMessage replyMessage = (TextMessage) msg;
          System.out.println("Received reply.");
          System.out.println(replyMessage.toString());
-         assertEquals("Wrong message content", "Hello: Olivier",
-               replyMessage.getText());
+         assertEquals("Wrong message content", "Hello: Olivier", replyMessage.getText());
       }
-      else
-      {
+      else {
          fail("Should have received a reply by now");
       }
       replyConsumer.close();
       deleteTemporaryDestination(replyDestination);
 
-      assertEquals("Should not have had any failures: " + failures, 0,
-            failures.size());
+      assertEquals("Should not have had any failures: " + failures, 0, failures.size());
    }
 
    @Test
-   public void testSendAndReceiveWithDynamicallyCreatedProducer() throws Exception
-   {
+   public void testSendAndReceiveWithDynamicallyCreatedProducer() throws Exception {
       dynamicallyCreateProducer = true;
       testSendAndReceive();
    }
@@ -121,10 +111,8 @@ public class JmsTopicRequestReplyTest extends BasicOpenWireTest implements Messa
    /**
     * Use the asynchronous subscription mechanism
     */
-   public void onMessage(Message message)
-   {
-      try
-      {
+   public void onMessage(Message message) {
+      try {
          TextMessage requestMessage = (TextMessage) message;
 
          System.out.println("Received request.");
@@ -139,26 +127,22 @@ public class JmsTopicRequestReplyTest extends BasicOpenWireTest implements Messa
          // assertEquals("clientID from the temporary destination must be the
          // same", clientSideClientID, value);
 
-         TextMessage replyMessage = serverSession.createTextMessage("Hello: "
-               + requestMessage.getText());
+         TextMessage replyMessage = serverSession.createTextMessage("Hello: " + requestMessage.getText());
 
          replyMessage.setJMSCorrelationID(requestMessage.getJMSMessageID());
 
-         if (dynamicallyCreateProducer)
-         {
+         if (dynamicallyCreateProducer) {
             replyProducer = serverSession.createProducer(replyDestination);
             replyProducer.send(replyMessage);
          }
-         else
-         {
+         else {
             replyProducer.send(replyDestination, replyMessage);
          }
 
          System.out.println("Sent reply.");
          System.out.println(replyMessage.toString());
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          onException(e);
       }
    }
@@ -166,54 +150,42 @@ public class JmsTopicRequestReplyTest extends BasicOpenWireTest implements Messa
    /**
     * Use the synchronous subscription mechanism
     */
-   protected void syncConsumeLoop(MessageConsumer requestConsumer)
-   {
-      try
-      {
+   protected void syncConsumeLoop(MessageConsumer requestConsumer) {
+      try {
          Message message = requestConsumer.receive(5000);
-         if (message != null)
-         {
+         if (message != null) {
             onMessage(message);
          }
-         else
-         {
+         else {
             System.err.println("No message received");
          }
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          onException(e);
       }
    }
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       serverConnection = createConnection();
       serverConnection.setClientID("serverConnection:" + name.getMethodName());
-      serverSession = serverConnection.createSession(false,
-            Session.AUTO_ACKNOWLEDGE);
+      serverSession = serverConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
       replyProducer = serverSession.createProducer(null);
 
       requestDestination = createDestination(serverSession);
 
       /* build queues */
-      final MessageConsumer requestConsumer = serverSession
-            .createConsumer(requestDestination);
-      if (useAsyncConsume)
-      {
+      final MessageConsumer requestConsumer = serverSession.createConsumer(requestDestination);
+      if (useAsyncConsume) {
          requestConsumer.setMessageListener(this);
       }
-      else
-      {
-         Thread thread = new Thread(new Runnable()
-         {
-            public void run()
-            {
+      else {
+         Thread thread = new Thread(new Runnable() {
+            public void run() {
                syncConsumeLoop(requestConsumer);
             }
          });
@@ -224,8 +196,7 @@ public class JmsTopicRequestReplyTest extends BasicOpenWireTest implements Messa
 
    @Override
    @After
-   public void tearDown() throws Exception
-   {
+   public void tearDown() throws Exception {
 
       serverConnection.close();
       clientConnection.stop();
@@ -234,39 +205,31 @@ public class JmsTopicRequestReplyTest extends BasicOpenWireTest implements Messa
       super.tearDown();
    }
 
-   protected void onException(JMSException e)
-   {
+   protected void onException(JMSException e) {
       System.out.println("Caught: " + e);
       e.printStackTrace();
       failures.add(e);
    }
 
-   protected Destination createDestination(Session session) throws JMSException
-   {
-      if (topic)
-      {
+   protected Destination createDestination(Session session) throws JMSException {
+      if (topic) {
          return this.createDestination(session, ActiveMQDestination.TOPIC_TYPE);
       }
       return this.createDestination(session, ActiveMQDestination.QUEUE_TYPE);
    }
 
-   protected Destination createTemporaryDestination(Session session) throws JMSException
-   {
-      if (topic)
-      {
+   protected Destination createTemporaryDestination(Session session) throws JMSException {
+      if (topic) {
          return session.createTemporaryTopic();
       }
       return session.createTemporaryQueue();
    }
 
-   protected void deleteTemporaryDestination(Destination dest) throws JMSException
-   {
-      if (topic)
-      {
+   protected void deleteTemporaryDestination(Destination dest) throws JMSException {
+      if (topic) {
          ((TemporaryTopic) dest).delete();
       }
-      else
-      {
+      else {
          ((TemporaryQueue) dest).delete();
       }
    }

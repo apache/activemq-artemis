@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
+
 import org.apache.activemq.artemis.tests.integration.cluster.util.BackupSyncDelay;
 import org.junit.Before;
 
@@ -23,15 +24,13 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 /**
  * See {@link BackupSyncDelay} for the rationale about these 'WithDelay' tests.
  */
-public class ReplicatedWithDelayFailoverTest extends ReplicatedFailoverTest
-{
+public class ReplicatedWithDelayFailoverTest extends ReplicatedFailoverTest {
 
    private BackupSyncDelay syncDelay;
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       startBackupServer = false;
       super.setUp();
       syncDelay = new BackupSyncDelay(backupServer, liveServer);
@@ -40,21 +39,18 @@ public class ReplicatedWithDelayFailoverTest extends ReplicatedFailoverTest
    }
 
    @Override
-   protected void beforeWaitForRemoteBackupSynchronization()
-   {
+   protected void beforeWaitForRemoteBackupSynchronization() {
       syncDelay.deliverUpToDateMsg();
    }
 
    @Override
-   protected void crash(ClientSession... sessions) throws Exception
-   {
+   protected void crash(ClientSession... sessions) throws Exception {
       syncDelay.deliverUpToDateMsg();
       super.crash(sessions);
    }
 
    @Override
-   protected void crash(boolean waitFailure, ClientSession... sessions) throws Exception
-   {
+   protected void crash(boolean waitFailure, ClientSession... sessions) throws Exception {
       syncDelay.deliverUpToDateMsg();
       waitForBackup(null, 5);
       super.crash(waitFailure, sessions);

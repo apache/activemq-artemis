@@ -38,8 +38,7 @@ import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.junit.Assert;
 import org.junit.Test;
 
-public abstract class NetworkAddressTestBase extends ActiveMQTestBase
-{
+public abstract class NetworkAddressTestBase extends ActiveMQTestBase {
 
    // Constants -----------------------------------------------------
 
@@ -47,38 +46,30 @@ public abstract class NetworkAddressTestBase extends ActiveMQTestBase
 
    // Static --------------------------------------------------------
 
-   static
-   {
-      try
-      {
+   static {
+      try {
          Map<NetworkInterface, InetAddress> map = NetworkAddressTestBase.getAddressForEachNetworkInterface();
          StringBuilder s = new StringBuilder("using network settings:\n");
          Set<Entry<NetworkInterface, InetAddress>> set = map.entrySet();
-         for (Entry<NetworkInterface, InetAddress> entry : set)
-         {
+         for (Entry<NetworkInterface, InetAddress> entry : set) {
             s.append(entry.getKey().getDisplayName() + ": " + entry.getValue().getHostAddress() + "\n");
          }
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          e.printStackTrace();
       }
 
    }
 
-   public static Map<NetworkInterface, InetAddress> getAddressForEachNetworkInterface() throws Exception
-   {
+   public static Map<NetworkInterface, InetAddress> getAddressForEachNetworkInterface() throws Exception {
       Map<NetworkInterface, InetAddress> map = new HashMap<NetworkInterface, InetAddress>();
       Enumeration<NetworkInterface> ifaces = NetworkInterface.getNetworkInterfaces();
-      while (ifaces.hasMoreElements())
-      {
+      while (ifaces.hasMoreElements()) {
          NetworkInterface iface = ifaces.nextElement();
          Enumeration<InetAddress> enumeration = iface.getInetAddresses();
-         while (enumeration.hasMoreElements())
-         {
+         while (enumeration.hasMoreElements()) {
             InetAddress inetAddress = enumeration.nextElement();
-            if (inetAddress instanceof Inet4Address)
-            {
+            if (inetAddress instanceof Inet4Address) {
                map.put(iface, inetAddress);
                break;
             }
@@ -93,11 +84,9 @@ public abstract class NetworkAddressTestBase extends ActiveMQTestBase
    // Public --------------------------------------------------------
 
    @Test
-   public void testConnectToServerWithSameHost() throws Exception
-   {
+   public void testConnectToServerWithSameHost() throws Exception {
       Map<NetworkInterface, InetAddress> map = NetworkAddressTestBase.getAddressForEachNetworkInterface();
-      if (map.size() > 0)
-      {
+      if (map.size() > 0) {
          Set<Entry<NetworkInterface, InetAddress>> set = map.entrySet();
          Iterator<Entry<NetworkInterface, InetAddress>> iterator = set.iterator();
          InetAddress address = iterator.next().getValue();
@@ -107,23 +96,19 @@ public abstract class NetworkAddressTestBase extends ActiveMQTestBase
    }
 
    @Test
-   public void testConnectToServerAcceptingAllHosts() throws Exception
-   {
+   public void testConnectToServerAcceptingAllHosts() throws Exception {
       Map<NetworkInterface, InetAddress> map = NetworkAddressTestBase.getAddressForEachNetworkInterface();
       Set<Entry<NetworkInterface, InetAddress>> set = map.entrySet();
-      for (Entry<NetworkInterface, InetAddress> entry : set)
-      {
+      for (Entry<NetworkInterface, InetAddress> entry : set) {
          String host = entry.getValue().getHostAddress();
          testConnection("0.0.0.0", host, true, 0);
       }
    }
 
    @Test
-   public void testConnectToServerAcceptingOnlyAnotherHost() throws Exception
-   {
+   public void testConnectToServerAcceptingOnlyAnotherHost() throws Exception {
       Map<NetworkInterface, InetAddress> map = NetworkAddressTestBase.getAddressForEachNetworkInterface();
-      if (map.size() <= 1)
-      {
+      if (map.size() <= 1) {
          System.err.println("There must be at least 1 network interfaces: test will not be executed");
          return;
       }
@@ -137,11 +122,9 @@ public abstract class NetworkAddressTestBase extends ActiveMQTestBase
    }
 
    @Test
-   public void testConnectToServerUsingLocalPort() throws Exception
-   {
+   public void testConnectToServerUsingLocalPort() throws Exception {
       Map<NetworkInterface, InetAddress> map = NetworkAddressTestBase.getAddressForEachNetworkInterface();
-      if (map.size() <= 1)
-      {
+      if (map.size() <= 1) {
          System.err.println("There must be at least 1 network interfaces: test will not be executed");
          return;
       }
@@ -155,11 +138,9 @@ public abstract class NetworkAddressTestBase extends ActiveMQTestBase
    }
 
    @Test
-   public void testConnectorToServerAcceptingAListOfHosts() throws Exception
-   {
+   public void testConnectorToServerAcceptingAListOfHosts() throws Exception {
       Map<NetworkInterface, InetAddress> map = NetworkAddressTestBase.getAddressForEachNetworkInterface();
-      if (map.size() <= 1)
-      {
+      if (map.size() <= 1) {
          System.err.println("There must be at least 2 network interfaces: test will not be executed");
          return;
       }
@@ -176,11 +157,9 @@ public abstract class NetworkAddressTestBase extends ActiveMQTestBase
    }
 
    @Test
-   public void testConnectorToServerAcceptingAListOfHosts_2() throws Exception
-   {
+   public void testConnectorToServerAcceptingAListOfHosts_2() throws Exception {
       Map<NetworkInterface, InetAddress> map = NetworkAddressTestBase.getAddressForEachNetworkInterface();
-      if (map.size() <= 2)
-      {
+      if (map.size() <= 2) {
          System.err.println("There must be at least 3 network interfaces: test will not be executed");
          return;
       }
@@ -198,8 +177,10 @@ public abstract class NetworkAddressTestBase extends ActiveMQTestBase
       testConnection(listOfHosts, entry3.getValue().getHostAddress(), false, 0);
    }
 
-   public void testConnection(final String acceptorHost, final String connectorHost, final boolean mustConnect, final int localPort) throws Exception
-   {
+   public void testConnection(final String acceptorHost,
+                              final String connectorHost,
+                              final boolean mustConnect,
+                              final int localPort) throws Exception {
       System.out.println("acceptor=" + acceptorHost + ", connector=" + connectorHost + ", mustConnect=" + mustConnect);
 
       Map<String, Object> params = new HashMap<String, Object>();
@@ -211,24 +192,20 @@ public abstract class NetworkAddressTestBase extends ActiveMQTestBase
       Configuration config = createDefaultNettyConfig();
       config.setAcceptorConfigurations(transportConfigs);
       ActiveMQServer messagingService = createServer(false, config);
-      try
-      {
+      try {
          messagingService.start();
 
          params = new HashMap<String, Object>();
          params.put(getHostPropertyKey(), connectorHost);
-         if (localPort != 0)
-         {
+         if (localPort != 0) {
             params.put(getLocalPortProperty(), localPort);
          }
          TransportConfiguration connectorConfig = new TransportConfiguration(getConnectorFactoryClassName(), params);
          ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(connectorConfig));
 
-         if (mustConnect)
-         {
+         if (mustConnect) {
             ClientSessionFactory sf = createSessionFactory(locator);
-            if (localPort != 0)
-            {
+            if (localPort != 0) {
                Iterator<RemotingConnection> iterator = messagingService.getRemotingService().getConnections().iterator();
                Assert.assertTrue("no connection created", iterator.hasNext());
                String address = iterator.next().getTransportConnection().getRemoteAddress();
@@ -237,20 +214,16 @@ public abstract class NetworkAddressTestBase extends ActiveMQTestBase
             sf.close();
             System.out.println("connection OK");
          }
-         else
-         {
-            try
-            {
+         else {
+            try {
                locator.createSessionFactory();
                Assert.fail("session creation must fail because connector must not be able to connect to the server bound to another network interface");
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
             }
          }
       }
-      finally
-      {
+      finally {
          messagingService.stop();
       }
    }
@@ -266,7 +239,6 @@ public abstract class NetworkAddressTestBase extends ActiveMQTestBase
    protected abstract String getHostPropertyKey();
 
    protected abstract String getLocalPortProperty();
-
 
    // Private -------------------------------------------------------
 

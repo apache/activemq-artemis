@@ -32,24 +32,20 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- *
  * A NewDeadLetterAddressTest
  */
-public class NewDeadLetterAddressTest extends ActiveMQTestBase
-{
+public class NewDeadLetterAddressTest extends ActiveMQTestBase {
+
    private ActiveMQServer server;
 
    private ClientSession clientSession;
    private ServerLocator locator;
 
    @Test
-   public void testSendToDLAWhenNoRoute() throws Exception
-   {
+   public void testSendToDLAWhenNoRoute() throws Exception {
       SimpleString dla = new SimpleString("DLA");
       SimpleString address = new SimpleString("empty_address");
-      AddressSettings addressSettings = new AddressSettings()
-              .setDeadLetterAddress(dla)
-              .setSendToDLAOnNoRoute(true);
+      AddressSettings addressSettings = new AddressSettings().setDeadLetterAddress(dla).setSendToDLAOnNoRoute(true);
       server.getAddressSettingsRepository().addMatch(address.toString(), addressSettings);
       SimpleString dlq = new SimpleString("DLQ1");
       clientSession.createQueue(dla, dlq, null, false);
@@ -65,8 +61,7 @@ public class NewDeadLetterAddressTest extends ActiveMQTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
       server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig(), false));
       server.start();

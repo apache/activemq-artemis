@@ -44,8 +44,8 @@ import org.apache.activemq.artemis.rest.queue.DestinationServiceManager;
 import org.apache.activemq.artemis.rest.queue.QueueConsumer;
 import org.apache.activemq.artemis.rest.util.TimeoutTask;
 
-public class SubscriptionsResource implements TimeoutTask.Callback
-{
+public class SubscriptionsResource implements TimeoutTask.Callback {
+
    protected ConcurrentMap<String, QueueConsumer> queueConsumers = new ConcurrentHashMap<String, QueueConsumer>();
    protected ClientSessionFactory sessionFactory;
    protected String destination;
@@ -54,92 +54,77 @@ public class SubscriptionsResource implements TimeoutTask.Callback
    protected int consumerTimeoutSeconds;
    protected DestinationServiceManager serviceManager;
 
-   public DestinationServiceManager getServiceManager()
-   {
+   public DestinationServiceManager getServiceManager() {
       return serviceManager;
    }
 
-   public void setServiceManager(DestinationServiceManager serviceManager)
-   {
+   public void setServiceManager(DestinationServiceManager serviceManager) {
       this.serviceManager = serviceManager;
    }
 
-   public int getConsumerTimeoutSeconds()
-   {
+   public int getConsumerTimeoutSeconds() {
       return consumerTimeoutSeconds;
    }
 
-   public void setConsumerTimeoutSeconds(int consumerTimeoutSeconds)
-   {
+   public void setConsumerTimeoutSeconds(int consumerTimeoutSeconds) {
       this.consumerTimeoutSeconds = consumerTimeoutSeconds;
    }
 
-   public ClientSessionFactory getSessionFactory()
-   {
+   public ClientSessionFactory getSessionFactory() {
       return sessionFactory;
    }
 
-   public void setSessionFactory(ClientSessionFactory sessionFactory)
-   {
+   public void setSessionFactory(ClientSessionFactory sessionFactory) {
       this.sessionFactory = sessionFactory;
    }
 
-   public String getDestination()
-   {
+   public String getDestination() {
       return destination;
    }
 
-   public void setDestination(String destination)
-   {
+   public void setDestination(String destination) {
       this.destination = destination;
    }
 
-   public boolean testTimeout(String target, boolean autoShutdown)
-   {
+   public boolean testTimeout(String target, boolean autoShutdown) {
       QueueConsumer consumer = queueConsumers.get(target);
       Subscription subscription = (Subscription) consumer;
-      if (consumer == null) return false;
-      if (System.currentTimeMillis() - consumer.getLastPingTime() > subscription.getTimeout())
-      {
+      if (consumer == null)
+         return false;
+      if (System.currentTimeMillis() - consumer.getLastPingTime() > subscription.getTimeout()) {
          ActiveMQRestLogger.LOGGER.shutdownRestSubscription(consumer.getId());
-         if (autoShutdown)
-         {
+         if (autoShutdown) {
             shutdown(consumer);
          }
          return true;
       }
-      else
-      {
+      else {
          return false;
       }
    }
 
-   public void shutdown(String target)
-   {
+   public void shutdown(String target) {
       QueueConsumer consumer = queueConsumers.get(target);
-      if (consumer == null) return;
+      if (consumer == null)
+         return;
       shutdown(consumer);
    }
 
-   private void shutdown(QueueConsumer consumer)
-   {
-      synchronized (consumer)
-      {
+   private void shutdown(QueueConsumer consumer) {
+      synchronized (consumer) {
          consumer.shutdown();
          queueConsumers.remove(consumer.getId());
          Subscription subscription = (Subscription) consumer;
-         if (subscription.isDeleteWhenIdle()) deleteSubscriberQueue(consumer);
+         if (subscription.isDeleteWhenIdle())
+            deleteSubscriberQueue(consumer);
       }
    }
 
-   public void stop()
-   {
-      for (QueueConsumer consumer : queueConsumers.values())
-      {
+   public void stop() {
+      for (QueueConsumer consumer : queueConsumers.values()) {
          consumer.shutdown();
          Subscription subscription = (Subscription) consumer;
-         if (!subscription.isDurable())
-         {
+         if (!subscription.isDurable()) {
             deleteSubscriberQueue(consumer);
          }
 
@@ -147,8 +132,7 @@ public class SubscriptionsResource implements TimeoutTask.Callback
       queueConsumers.clear();
    }
 
-   protected String generateSubscriptionName()
-   {
+   protected String generateSubscriptionName() {
       return startup + "-" + sessionCounter.getAndIncrement() + "-" + destination;
    }
 
@@ -159,69 +143,54 @@ public class SubscriptionsResource implements TimeoutTask.Callback
                                       @FormParam("selector") String selector,
                                       @FormParam("delete-when-idle") Boolean destroyWhenIdle,
                                       @FormParam("idle-timeout") Long timeout,
-                                      @Context UriInfo uriInfo)
-   {
+                                      @Context UriInfo uriInfo) {
       ActiveMQRestLogger.LOGGER.debug("Handling POST request for \"" + uriInfo.getPath() + "\"");
 
       if (timeout == null)
          timeout = Long.valueOf(consumerTimeoutSeconds * 1000);
       boolean deleteWhenIdle = !durable; // default is true if non-durable
-      if (destroyWhenIdle != null) deleteWhenIdle = destroyWhenIdle.booleanValue();
+      if (destroyWhenIdle != null)
+         deleteWhenIdle = destroyWhenIdle.booleanValue();
 
-      if (subscriptionName != null)
-      {
+      if (subscriptionName != null) {
          // see if this is a reconnect
          QueueConsumer consumer = queueConsumers.get(subscriptionName);
-         if (consumer != null)
-         {
+         if (consumer != null) {
             boolean acked = consumer instanceof AcknowledgedSubscriptionResource;
             acked = !acked;
-            if (acked != autoAck)
-            {
-               throw new WebApplicationException(
-                  Response.status(412).entity("Consumer already exists and ack-modes don't match.").type("text/plain").build()
-               );
+            if (acked != autoAck) {
+               throw new WebApplicationException(Response.status(412).entity("Consumer already exists and ack-modes don't match.").type("text/plain").build());
             }
             Subscription sub = (Subscription) consumer;
-            if (sub.isDurable() != durable)
-            {
-               throw new WebApplicationException(
-                  Response.status(412).entity("Consumer already exists and durability doesn't match.").type("text/plain").build()
-               );
+            if (sub.isDurable() != durable) {
+               throw new WebApplicationException(Response.status(412).entity("Consumer already exists and durability doesn't match.").type("text/plain").build());
             }
             Response.ResponseBuilder builder = Response.noContent();
             String pathToPullSubscriptions = uriInfo.getMatchedURIs().get(0);
-            if (autoAck)
-            {
+            if (autoAck) {
                headAutoAckSubscriptionResponse(uriInfo, consumer, builder, pathToPullSubscriptions);
                consumer.setSessionLink(builder, uriInfo, pathToPullSubscriptions + "/auto-ack/" + consumer.getId());
             }
-            else
-            {
+            else {
                headAcknowledgedConsumerResponse(uriInfo, (AcknowledgedQueueConsumer) consumer, builder);
                consumer.setSessionLink(builder, uriInfo, pathToPullSubscriptions + "/acknowledged/" + consumer.getId());
             }
             return builder.build();
          }
       }
-      else
-      {
+      else {
          subscriptionName = generateSubscriptionName();
       }
       ClientSession session = null;
-      try
-      {
+      try {
          // if this is not a reconnect, create the subscription queue
-         if (!subscriptionExists(subscriptionName))
-         {
+         if (!subscriptionExists(subscriptionName)) {
             session = sessionFactory.createSession();
 
-            if (durable)
-            {
+            if (durable) {
                session.createQueue(destination, subscriptionName, true);
             }
-            else
-            {
+            else {
                session.createTemporaryQueue(destination, subscriptionName);
             }
          }
@@ -230,53 +199,50 @@ public class SubscriptionsResource implements TimeoutTask.Callback
          serviceManager.getTimeoutTask().add(this, consumer.getId());
 
          UriBuilder location = uriInfo.getAbsolutePathBuilder();
-         if (autoAck) location.path("auto-ack");
-         else location.path("acknowledged");
+         if (autoAck)
+            location.path("auto-ack");
+         else
+            location.path("acknowledged");
          location.path(consumer.getId());
          Response.ResponseBuilder builder = Response.created(location.build());
-         if (autoAck)
-         {
+         if (autoAck) {
             QueueConsumer.setConsumeNextLink(serviceManager.getLinkStrategy(), builder, uriInfo, uriInfo.getMatchedURIs().get(0) + "/auto-ack/" + consumer.getId(), "-1");
          }
-         else
-         {
+         else {
             AcknowledgedQueueConsumer.setAcknowledgeNextLink(serviceManager.getLinkStrategy(), builder, uriInfo, uriInfo.getMatchedURIs().get(0) + "/acknowledged/" + consumer.getId(), "-1");
 
          }
          return builder.build();
 
       }
-      catch (ActiveMQException e)
-      {
+      catch (ActiveMQException e) {
          throw new RuntimeException(e);
       }
-      finally
-      {
-         if (session != null)
-         {
-            try
-            {
+      finally {
+         if (session != null) {
+            try {
                session.close();
             }
-            catch (ActiveMQException e)
-            {
+            catch (ActiveMQException e) {
             }
          }
       }
    }
 
-   protected QueueConsumer createConsumer(boolean durable, boolean autoAck, String subscriptionName, String selector, long timeout, boolean deleteWhenIdle) throws ActiveMQException
-   {
+   protected QueueConsumer createConsumer(boolean durable,
+                                          boolean autoAck,
+                                          String subscriptionName,
+                                          String selector,
+                                          long timeout,
+                                          boolean deleteWhenIdle) throws ActiveMQException {
       QueueConsumer consumer;
-      if (autoAck)
-      {
+      if (autoAck) {
          SubscriptionResource subscription = new SubscriptionResource(sessionFactory, subscriptionName, subscriptionName, serviceManager, selector, durable, timeout);
          subscription.setDurable(durable);
          subscription.setDeleteWhenIdle(deleteWhenIdle);
          consumer = subscription;
       }
-      else
-      {
+      else {
          AcknowledgedSubscriptionResource subscription = new AcknowledgedSubscriptionResource(sessionFactory, subscriptionName, subscriptionName, serviceManager, selector, durable, timeout);
          subscription.setDurable(durable);
          subscription.setDeleteWhenIdle(deleteWhenIdle);
@@ -288,8 +254,7 @@ public class SubscriptionsResource implements TimeoutTask.Callback
    @Path("auto-ack/{consumer-id}")
    @GET
    public Response getAutoAckSubscription(@PathParam("consumer-id") String consumerId,
-                                          @Context UriInfo uriInfo) throws Exception
-   {
+                                          @Context UriInfo uriInfo) throws Exception {
       ActiveMQRestLogger.LOGGER.debug("Handling GET request for \"" + uriInfo.getPath() + "\"");
 
       return internalHeadAutoAckSubscription(uriInfo, consumerId);
@@ -298,15 +263,13 @@ public class SubscriptionsResource implements TimeoutTask.Callback
    @Path("auto-ack/{consumer-id}")
    @HEAD
    public Response headAutoAckSubscription(@PathParam("consumer-id") String consumerId,
-                                           @Context UriInfo uriInfo) throws Exception
-   {
+                                           @Context UriInfo uriInfo) throws Exception {
       ActiveMQRestLogger.LOGGER.debug("Handling HEAD request for \"" + uriInfo.getPath() + "\"");
 
       return internalHeadAutoAckSubscription(uriInfo, consumerId);
    }
 
-   private Response internalHeadAutoAckSubscription(UriInfo uriInfo, String consumerId)
-   {
+   private Response internalHeadAutoAckSubscription(UriInfo uriInfo, String consumerId) {
       QueueConsumer consumer = findAutoAckSubscription(consumerId);
       Response.ResponseBuilder builder = Response.noContent();
       String pathToPullSubscriptions = uriInfo.getMatchedURIs().get(1);
@@ -315,22 +278,20 @@ public class SubscriptionsResource implements TimeoutTask.Callback
       return builder.build();
    }
 
-   private void headAutoAckSubscriptionResponse(UriInfo uriInfo, QueueConsumer consumer, Response.ResponseBuilder builder, String pathToPullSubscriptions)
-   {
+   private void headAutoAckSubscriptionResponse(UriInfo uriInfo,
+                                                QueueConsumer consumer,
+                                                Response.ResponseBuilder builder,
+                                                String pathToPullSubscriptions) {
       // we synchronize just in case a failed request is still processing
-      synchronized (consumer)
-      {
+      synchronized (consumer) {
          QueueConsumer.setConsumeNextLink(serviceManager.getLinkStrategy(), builder, uriInfo, pathToPullSubscriptions + "/acknowledged/" + consumer.getId(), Long.toString(consumer.getConsumeIndex()));
       }
    }
 
    @Path("auto-ack/{subscription-id}")
-   public QueueConsumer findAutoAckSubscription(
-      @PathParam("subscription-id") String subscriptionId)
-   {
+   public QueueConsumer findAutoAckSubscription(@PathParam("subscription-id") String subscriptionId) {
       QueueConsumer consumer = queueConsumers.get(subscriptionId);
-      if (consumer == null)
-      {
+      if (consumer == null) {
          consumer = recreateTopicConsumer(subscriptionId, true);
       }
       return consumer;
@@ -339,8 +300,7 @@ public class SubscriptionsResource implements TimeoutTask.Callback
    @Path("acknowledged/{consumer-id}")
    @GET
    public Response getAcknowledgedConsumer(@PathParam("consumer-id") String consumerId,
-                                           @Context UriInfo uriInfo) throws Exception
-   {
+                                           @Context UriInfo uriInfo) throws Exception {
       ActiveMQRestLogger.LOGGER.debug("Handling GET request for \"" + uriInfo.getPath() + "\"");
 
       return internalHeadAcknowledgedConsumer(uriInfo, consumerId);
@@ -349,15 +309,13 @@ public class SubscriptionsResource implements TimeoutTask.Callback
    @Path("acknowledged/{consumer-id}")
    @HEAD
    public Response headAcknowledgedConsumer(@PathParam("consumer-id") String consumerId,
-                                            @Context UriInfo uriInfo) throws Exception
-   {
+                                            @Context UriInfo uriInfo) throws Exception {
       ActiveMQRestLogger.LOGGER.debug("Handling HEAD request for \"" + uriInfo.getPath() + "\"");
 
       return internalHeadAcknowledgedConsumer(uriInfo, consumerId);
    }
 
-   private Response internalHeadAcknowledgedConsumer(UriInfo uriInfo, String consumerId)
-   {
+   private Response internalHeadAcknowledgedConsumer(UriInfo uriInfo, String consumerId) {
       AcknowledgedQueueConsumer consumer = (AcknowledgedQueueConsumer) findAcknoledgeSubscription(consumerId);
       Response.ResponseBuilder builder = Response.ok();
       headAcknowledgedConsumerResponse(uriInfo, consumer, builder);
@@ -365,103 +323,80 @@ public class SubscriptionsResource implements TimeoutTask.Callback
       return builder.build();
    }
 
-   private void headAcknowledgedConsumerResponse(UriInfo uriInfo, AcknowledgedQueueConsumer consumer, Response.ResponseBuilder builder)
-   {
+   private void headAcknowledgedConsumerResponse(UriInfo uriInfo,
+                                                 AcknowledgedQueueConsumer consumer,
+                                                 Response.ResponseBuilder builder) {
       // we synchronize just in case a failed request is still processing
-      synchronized (consumer)
-      {
+      synchronized (consumer) {
          Acknowledgement ack = consumer.getAck();
-         if (ack == null || ack.wasSet())
-         {
+         if (ack == null || ack.wasSet()) {
             AcknowledgedQueueConsumer.setAcknowledgeNextLink(serviceManager.getLinkStrategy(), builder, uriInfo, uriInfo.getMatchedURIs().get(1) + "/acknowledged/" + consumer.getId(), Long.toString(consumer.getConsumeIndex()));
          }
-         else
-         {
+         else {
             consumer.setAcknowledgementLink(builder, uriInfo, uriInfo.getMatchedURIs().get(1) + "/acknowledged/" + consumer.getId());
          }
       }
    }
 
    @Path("acknowledged/{subscription-id}")
-   public QueueConsumer findAcknoledgeSubscription(
-      @PathParam("subscription-id") String subscriptionId)
-   {
+   public QueueConsumer findAcknoledgeSubscription(@PathParam("subscription-id") String subscriptionId) {
       QueueConsumer consumer = queueConsumers.get(subscriptionId);
-      if (consumer == null)
-      {
+      if (consumer == null) {
          consumer = recreateTopicConsumer(subscriptionId, false);
       }
       return consumer;
    }
 
-   private boolean subscriptionExists(String subscriptionId)
-   {
+   private boolean subscriptionExists(String subscriptionId) {
       ClientSession session = null;
-      try
-      {
+      try {
          session = sessionFactory.createSession();
 
          ClientSession.QueueQuery query = session.queueQuery(new SimpleString(subscriptionId));
          return query.isExists();
       }
-      catch (ActiveMQException e)
-      {
+      catch (ActiveMQException e) {
          throw new RuntimeException(e);
       }
-      finally
-      {
-         if (session != null)
-         {
-            try
-            {
+      finally {
+         if (session != null) {
+            try {
                session.close();
             }
-            catch (ActiveMQException e)
-            {
+            catch (ActiveMQException e) {
             }
          }
       }
    }
 
-   private QueueConsumer recreateTopicConsumer(String subscriptionId, boolean autoAck)
-   {
+   private QueueConsumer recreateTopicConsumer(String subscriptionId, boolean autoAck) {
       QueueConsumer consumer;
-      if (subscriptionExists(subscriptionId))
-      {
+      if (subscriptionExists(subscriptionId)) {
          QueueConsumer tmp = null;
-         try
-         {
+         try {
             tmp = createConsumer(true, autoAck, subscriptionId, null, consumerTimeoutSeconds * 1000, false);
          }
-         catch (ActiveMQException e)
-         {
+         catch (ActiveMQException e) {
             throw new RuntimeException(e);
          }
          consumer = queueConsumers.putIfAbsent(subscriptionId, tmp);
-         if (consumer == null)
-         {
+         if (consumer == null) {
             consumer = tmp;
             serviceManager.getTimeoutTask().add(this, subscriptionId);
          }
-         else
-         {
+         else {
             tmp.shutdown();
          }
       }
-      else
-      {
-         throw new WebApplicationException(Response.status(405)
-                                              .entity("Failed to find subscriber " + subscriptionId + " you will have to reconnect")
-                                              .type("text/plain").build());
+      else {
+         throw new WebApplicationException(Response.status(405).entity("Failed to find subscriber " + subscriptionId + " you will have to reconnect").type("text/plain").build());
       }
       return consumer;
    }
 
-
    @Path("acknowledged/{subscription-id}")
    @DELETE
-   public void deleteAckSubscription(@Context UriInfo uriInfo, @PathParam("subscription-id") String consumerId)
-   {
+   public void deleteAckSubscription(@Context UriInfo uriInfo, @PathParam("subscription-id") String consumerId) {
       ActiveMQRestLogger.LOGGER.debug("Handling DELETE request for \"" + uriInfo.getPath() + "\"");
 
       internalDeleteSubscription(consumerId);
@@ -469,50 +404,38 @@ public class SubscriptionsResource implements TimeoutTask.Callback
 
    @Path("auto-ack/{subscription-id}")
    @DELETE
-   public void deleteSubscription(@Context UriInfo uriInfo, @PathParam("subscription-id") String consumerId)
-   {
+   public void deleteSubscription(@Context UriInfo uriInfo, @PathParam("subscription-id") String consumerId) {
       ActiveMQRestLogger.LOGGER.debug("Handling DELETE request for \"" + uriInfo.getPath() + "\"");
 
       internalDeleteSubscription(consumerId);
    }
 
-   private void internalDeleteSubscription(String consumerId)
-   {
+   private void internalDeleteSubscription(String consumerId) {
       QueueConsumer consumer = queueConsumers.remove(consumerId);
-      if (consumer == null)
-      {
+      if (consumer == null) {
          String msg = "Failed to match a subscription to URL " + consumerId;
-         throw new WebApplicationException(Response.status(Response.Status.NOT_FOUND)
-                                              .entity(msg)
-                                              .type("text/plain").build());
+         throw new WebApplicationException(Response.status(Response.Status.NOT_FOUND).entity(msg).type("text/plain").build());
       }
       consumer.shutdown();
       deleteSubscriberQueue(consumer);
    }
 
-   private void deleteSubscriberQueue(QueueConsumer consumer)
-   {
+   private void deleteSubscriberQueue(QueueConsumer consumer) {
       String subscriptionName = consumer.getId();
       ClientSession session = null;
-      try
-      {
+      try {
          session = sessionFactory.createSession();
 
          session.deleteQueue(subscriptionName);
       }
-      catch (ActiveMQException e)
-      {
+      catch (ActiveMQException e) {
       }
-      finally
-      {
-         if (session != null)
-         {
-            try
-            {
+      finally {
+         if (session != null) {
+            try {
                session.close();
             }
-            catch (ActiveMQException e)
-            {
+            catch (ActiveMQException e) {
             }
          }
       }

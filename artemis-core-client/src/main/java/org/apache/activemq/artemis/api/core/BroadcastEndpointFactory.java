@@ -16,10 +16,9 @@
  */
 package org.apache.activemq.artemis.api.core;
 
-
 import java.io.Serializable;
 
-public interface BroadcastEndpointFactory extends Serializable
-{
+public interface BroadcastEndpointFactory extends Serializable {
+
    BroadcastEndpoint createBroadcastEndpoint() throws Exception;
 }

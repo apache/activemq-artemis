@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.util;
+
 import java.util.Iterator;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
@@ -26,29 +27,24 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class TypedPropertiesTest
-{
+public class TypedPropertiesTest {
 
-   private static void assertEqualsTypeProperties(final TypedProperties expected, final TypedProperties actual)
-   {
+   private static void assertEqualsTypeProperties(final TypedProperties expected, final TypedProperties actual) {
       Assert.assertNotNull(expected);
       Assert.assertNotNull(actual);
       Assert.assertEquals(expected.getEncodeSize(), actual.getEncodeSize());
       Assert.assertEquals(expected.getPropertyNames(), actual.getPropertyNames());
       Iterator<SimpleString> iterator = actual.getPropertyNames().iterator();
-      while (iterator.hasNext())
-      {
+      while (iterator.hasNext()) {
          SimpleString key = iterator.next();
          Object expectedValue = expected.getProperty(key);
          Object actualValue = actual.getProperty(key);
-         if (expectedValue instanceof byte[] && actualValue instanceof byte[])
-         {
-            byte[] expectedBytes = (byte[])expectedValue;
-            byte[] actualBytes = (byte[])actualValue;
+         if (expectedValue instanceof byte[] && actualValue instanceof byte[]) {
+            byte[] expectedBytes = (byte[]) expectedValue;
+            byte[] actualBytes = (byte[]) actualValue;
             Assert.assertArrayEquals(expectedBytes, actualBytes);
          }
-         else
-         {
+         else {
             Assert.assertEquals(expectedValue, actualValue);
          }
       }
@@ -63,8 +59,7 @@ public class TypedPropertiesTest
    private SimpleString key;
 
    @Test
-   public void testCopyContructor() throws Exception
-   {
+   public void testCopyContructor() throws Exception {
       props.putSimpleStringProperty(key, RandomUtil.randomSimpleString());
 
       TypedProperties copy = new TypedProperties(props);
@@ -77,8 +72,7 @@ public class TypedPropertiesTest
    }
 
    @Test
-   public void testRemove() throws Exception
-   {
+   public void testRemove() throws Exception {
       props.putSimpleStringProperty(key, RandomUtil.randomSimpleString());
 
       Assert.assertTrue(props.containsProperty(key));
@@ -91,8 +85,7 @@ public class TypedPropertiesTest
    }
 
    @Test
-   public void testClear() throws Exception
-   {
+   public void testClear() throws Exception {
       props.putSimpleStringProperty(key, RandomUtil.randomSimpleString());
 
       Assert.assertTrue(props.containsProperty(key));
@@ -105,52 +98,46 @@ public class TypedPropertiesTest
    }
 
    @Test
-   public void testKey() throws Exception
-   {
+   public void testKey() throws Exception {
       props.putBooleanProperty(key, true);
-      boolean bool = (Boolean)props.getProperty(key);
+      boolean bool = (Boolean) props.getProperty(key);
       Assert.assertEquals(true, bool);
 
       props.putCharProperty(key, 'a');
-      char c = (Character)props.getProperty(key);
+      char c = (Character) props.getProperty(key);
       Assert.assertEquals('a', c);
    }
 
    @Test
-   public void testGetPropertyOnEmptyProperties() throws Exception
-   {
+   public void testGetPropertyOnEmptyProperties() throws Exception {
       Assert.assertFalse(props.containsProperty(key));
       Assert.assertNull(props.getProperty(key));
    }
 
    @Test
-   public void testRemovePropertyOnEmptyProperties() throws Exception
-   {
+   public void testRemovePropertyOnEmptyProperties() throws Exception {
       Assert.assertFalse(props.containsProperty(key));
       Assert.assertNull(props.removeProperty(key));
    }
 
    @Test
-   public void testNullProperty() throws Exception
-   {
+   public void testNullProperty() throws Exception {
       props.putSimpleStringProperty(key, null);
       Assert.assertTrue(props.containsProperty(key));
       Assert.assertNull(props.getProperty(key));
    }
 
    @Test
-   public void testBytesPropertyWithNull() throws Exception
-   {
+   public void testBytesPropertyWithNull() throws Exception {
       props.putBytesProperty(key, null);
 
       Assert.assertTrue(props.containsProperty(key));
-      byte[] bb = (byte[])props.getProperty(key);
+      byte[] bb = (byte[]) props.getProperty(key);
       Assert.assertNull(bb);
    }
 
    @Test
-   public void testTypedProperties() throws Exception
-   {
+   public void testTypedProperties() throws Exception {
       SimpleString longKey = RandomUtil.randomSimpleString();
       long longValue = RandomUtil.randomLong();
       SimpleString simpleStringKey = RandomUtil.randomSimpleString();
@@ -168,8 +155,7 @@ public class TypedPropertiesTest
    }
 
    @Test
-   public void testEmptyTypedProperties() throws Exception
-   {
+   public void testEmptyTypedProperties() throws Exception {
       Assert.assertEquals(0, props.getPropertyNames().size());
 
       props.putTypedProperties(new TypedProperties());
@@ -178,8 +164,7 @@ public class TypedPropertiesTest
    }
 
    @Test
-   public void testNullTypedProperties() throws Exception
-   {
+   public void testNullTypedProperties() throws Exception {
       Assert.assertEquals(0, props.getPropertyNames().size());
 
       props.putTypedProperties(null);
@@ -188,8 +173,7 @@ public class TypedPropertiesTest
    }
 
    @Test
-   public void testEncodeDecode() throws Exception
-   {
+   public void testEncodeDecode() throws Exception {
       props.putByteProperty(RandomUtil.randomSimpleString(), RandomUtil.randomByte());
       props.putBytesProperty(RandomUtil.randomSimpleString(), RandomUtil.randomBytes());
       props.putBytesProperty(RandomUtil.randomSimpleString(), null);
@@ -225,8 +209,7 @@ public class TypedPropertiesTest
    }
 
    @Test
-   public void testEncodeDecodeEmpty() throws Exception
-   {
+   public void testEncodeDecodeEmpty() throws Exception {
       TypedProperties emptyProps = new TypedProperties();
 
       ActiveMQBuffer buffer = ActiveMQBuffers.dynamicBuffer(1024);
@@ -241,8 +224,7 @@ public class TypedPropertiesTest
    }
 
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       props = new TypedProperties();
       key = RandomUtil.randomSimpleString();
    }

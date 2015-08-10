@@ -18,8 +18,8 @@ package org.apache.activemq.artemis.core.paging.cursor.impl;
 
 import org.apache.activemq.artemis.core.paging.cursor.PagePosition;
 
-public class PagePositionImpl implements PagePosition
-{
+public class PagePositionImpl implements PagePosition {
+
    private long pageNr;
 
    /**
@@ -31,112 +31,98 @@ public class PagePositionImpl implements PagePosition
     */
    private int messageNr;
 
-   /** ID used for storage */
+   /**
+    * ID used for storage
+    */
    private long recordID = -1;
 
    /**
     * @param pageNr
     * @param messageNr
     */
-   public PagePositionImpl(long pageNr, int messageNr)
-   {
+   public PagePositionImpl(long pageNr, int messageNr) {
       this();
       this.pageNr = pageNr;
       this.messageNr = messageNr;
    }
 
-   public PagePositionImpl()
-   {
+   public PagePositionImpl() {
       super();
    }
 
    /**
     * @return the recordID
     */
-   public long getRecordID()
-   {
+   public long getRecordID() {
       return recordID;
    }
 
    /**
     * @param recordID the recordID to set
     */
-   public void setRecordID(long recordID)
-   {
+   public void setRecordID(long recordID) {
       this.recordID = recordID;
    }
 
    /**
     * @return the pageNr
     */
-   public long getPageNr()
-   {
+   public long getPageNr() {
       return pageNr;
    }
 
    /**
     * @return the messageNr
     */
-   public int getMessageNr()
-   {
+   public int getMessageNr() {
       return messageNr;
    }
 
    @Override
-   public int compareTo(PagePosition o)
-   {
-      if (pageNr > o.getPageNr())
-      {
+   public int compareTo(PagePosition o) {
+      if (pageNr > o.getPageNr()) {
          return 1;
       }
-      else if (pageNr < o.getPageNr())
-      {
+      else if (pageNr < o.getPageNr()) {
          return -1;
       }
-      else if (recordID > o.getRecordID())
-      {
+      else if (recordID > o.getRecordID()) {
          return 1;
       }
-      else if (recordID < o.getRecordID())
-      {
+      else if (recordID < o.getRecordID()) {
          return -1;
       }
-      else
-      {
+      else {
          return 0;
       }
    }
 
-   public PagePosition nextMessage()
-   {
+   public PagePosition nextMessage() {
       return new PagePositionImpl(this.pageNr, this.messageNr + 1);
    }
 
-   public PagePosition nextPage()
-   {
+   public PagePosition nextPage() {
       return new PagePositionImpl(this.pageNr + 1, 0);
    }
 
    @Override
-   public int hashCode()
-   {
+   public int hashCode() {
       final int prime = 31;
       int result = 1;
       result = prime * result + messageNr;
-      result = prime * result + (int)(pageNr ^ (pageNr >>> 32));
+      result = prime * result + (int) (pageNr ^ (pageNr >>> 32));
       return result;
    }
 
    @Override
-   public boolean equals(Object obj)
-   {
+   public boolean equals(Object obj) {
       if (this == obj)
          return true;
       if (obj == null)
          return false;
       if (getClass() != obj.getClass())
          return false;
-      PagePositionImpl other = (PagePositionImpl)obj;
+      PagePositionImpl other = (PagePositionImpl) obj;
       if (messageNr != other.messageNr)
          return false;
       if (pageNr != other.pageNr)
@@ -145,8 +131,7 @@ public class PagePositionImpl implements PagePosition
    }
 
    @Override
-   public String toString()
-   {
+   public String toString() {
       return "PagePositionImpl [pageNr=" + pageNr + ", messageNr=" + messageNr + ", recordID=" + recordID + "]";
    }
 
@@ -155,7 +140,6 @@ public class PagePositionImpl implements PagePosition
     * There is a rule for finalizing it where I'm establishing a counter, and that rule won't work without this method defined.
     * So, please don't remove it unless you had to remove that test for any weird reason.. it's here for a purpose!
     */
-   protected void finalize()
-   {
+   protected void finalize() {
    }
 }

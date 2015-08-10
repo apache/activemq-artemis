@@ -25,8 +25,7 @@ import org.apache.activemq.artemis.utils.XidCodecSupport;
 /**
  * to be called after a failure on an XA Session
  */
-public class SessionXAAfterFailedMessage extends PacketImpl
-{
+public class SessionXAAfterFailedMessage extends PacketImpl {
    // Constants -----------------------------------------------------
 
    // Attributes ----------------------------------------------------
@@ -37,40 +36,34 @@ public class SessionXAAfterFailedMessage extends PacketImpl
 
    // Constructors --------------------------------------------------
 
-   public SessionXAAfterFailedMessage(final Xid xid)
-   {
+   public SessionXAAfterFailedMessage(final Xid xid) {
       super(SESS_XA_FAILED);
 
       this.xid = xid;
    }
 
-   public SessionXAAfterFailedMessage()
-   {
+   public SessionXAAfterFailedMessage() {
       super(SESS_XA_FAILED);
    }
 
    // Public --------------------------------------------------------
 
-   public Xid getXid()
-   {
+   public Xid getXid() {
       return xid;
    }
 
    @Override
-   public void encodeRest(final ActiveMQBuffer buffer)
-   {
+   public void encodeRest(final ActiveMQBuffer buffer) {
       XidCodecSupport.encodeXid(xid, buffer);
    }
 
    @Override
-   public void decodeRest(final ActiveMQBuffer buffer)
-   {
+   public void decodeRest(final ActiveMQBuffer buffer) {
       xid = XidCodecSupport.decodeXid(buffer);
    }
 
    @Override
-   public int hashCode()
-   {
+   public int hashCode() {
       final int prime = 31;
       int result = super.hashCode();
       result = prime * result + ((xid == null) ? 0 : xid.hashCode());
@@ -78,17 +71,15 @@ public class SessionXAAfterFailedMessage extends PacketImpl
    }
 
    @Override
-   public boolean equals(Object obj)
-   {
+   public boolean equals(Object obj) {
       if (this == obj)
          return true;
       if (!super.equals(obj))
          return false;
       if (!(obj instanceof SessionXAAfterFailedMessage))
          return false;
-      SessionXAAfterFailedMessage other = (SessionXAAfterFailedMessage)obj;
-      if (xid == null)
-      {
+      SessionXAAfterFailedMessage other = (SessionXAAfterFailedMessage) obj;
+      if (xid == null) {
          if (other.xid != null)
             return false;
       }
@@ -96,6 +87,5 @@ public class SessionXAAfterFailedMessage extends PacketImpl
          return false;
       return true;
    }
-
 
 }

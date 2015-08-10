@@ -39,26 +39,25 @@ import org.proton.plug.logger.ActiveMQAMQPProtocolMessageBundle;
 import org.proton.plug.context.ProtonPlugSender;
 import org.apache.qpid.proton.amqp.messaging.Source;
 
-public class ProtonServerSenderContext extends AbstractProtonContextSender implements ProtonPlugSender
-{
+public class ProtonServerSenderContext extends AbstractProtonContextSender implements ProtonPlugSender {
 
    private static final Symbol SELECTOR = Symbol.getSymbol("jms-selector");
    private static final Symbol COPY = Symbol.valueOf("copy");
 
    private Object brokerConsumer;
 
-   public ProtonServerSenderContext(AbstractConnectionContext connection, Sender sender, AbstractProtonSessionContext protonSession, AMQPSessionCallback server)
-   {
+   public ProtonServerSenderContext(AbstractConnectionContext connection,
+                                    Sender sender,
+                                    AbstractProtonSessionContext protonSession,
+                                    AMQPSessionCallback server) {
       super(connection, sender, protonSession, server);
    }
 
-   public Object getBrokerConsumer()
-   {
+   public Object getBrokerConsumer() {
       return brokerConsumer;
    }
 
-   public void onFlow(int currentCredits)
-   {
+   public void onFlow(int currentCredits) {
       super.onFlow(currentCredits);
       sessionSPI.onFlowConsumer(brokerConsumer, currentCredits);
    }
@@ -66,20 +65,17 @@ public class ProtonServerSenderContext extends AbstractProtonContextSender imple
    /*
 * start the session
 * */
-   public void start() throws ActiveMQAMQPException
-   {
+   public void start() throws ActiveMQAMQPException {
       super.start();
       // protonSession.getServerSession().start();
 
       //todo add flow control
-      try
-      {
+      try {
          // to do whatever you need to make the broker start sending messages to the consumer
          sessionSPI.startSender(brokerConsumer);
          //protonSession.getServerSession().receiveConsumerCredits(consumerID, -1);
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.errorStartingConsumer(e.getMessage());
       }
    }
@@ -88,8 +84,7 @@ public class ProtonServerSenderContext extends AbstractProtonContextSender imple
     * create the actual underlying ActiveMQ Artemis Server Consumer
     */
    @Override
-   public void initialise() throws Exception
-   {
+   public void initialise() throws Exception {
       super.initialise();
 
       Source source = (Source) sender.getRemoteSource();
@@ -98,63 +93,50 @@ public class ProtonServerSenderContext extends AbstractProtonContextSender imple
 
       String selector = null;
       Map filter = source == null ? null : source.getFilter();
-      if (filter != null)
-      {
+      if (filter != null) {
          DescribedType value = (DescribedType) filter.get(SELECTOR);
-         if (value != null)
-         {
+         if (value != null) {
             selector = value.getDescribed().toString();
          }
       }
 
-      if (source != null)
-      {
-         if (source.getDynamic())
-         {
+      if (source != null) {
+         if (source.getDynamic()) {
             //if dynamic we have to create the node (queue) and set the address on the target, the node is temporary and
             // will be deleted on closing of the session
             queue = java.util.UUID.randomUUID().toString();
-            try
-            {
+            try {
                sessionSPI.createTemporaryQueue(queue);
                //protonSession.getServerSession().createQueue(queue, queue, null, true, false);
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.errorCreatingTemporaryQueue(e.getMessage());
             }
             source.setAddress(queue);
          }
-         else
-         {
+         else {
             //if not dynamic then we use the targets address as the address to forward the messages to, however there has to
             //be a queue bound to it so we nee to check this.
             queue = source.getAddress();
-            if (queue == null)
-            {
+            if (queue == null) {
                throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.sourceAddressNotSet();
             }
 
-            try
-            {
-               if (!sessionSPI.queueQuery(queue))
-               {
+            try {
+               if (!sessionSPI.queueQuery(queue)) {
                   throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.sourceAddressDoesntExist();
                }
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                throw new ActiveMQAMQPInternalErrorException(e.getMessage(), e);
             }
          }
 
          boolean browseOnly = source.getDistributionMode() != null && source.getDistributionMode().equals(COPY);
-         try
-         {
+         try {
             brokerConsumer = sessionSPI.createSender(this, queue, selector, browseOnly);
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.errorCreatingConsumer(e.getMessage());
          }
       }
@@ -163,120 +145,94 @@ public class ProtonServerSenderContext extends AbstractProtonContextSender imple
    /*
    * close the session
    * */
-   public void close() throws ActiveMQAMQPException
-   {
+   public void close() throws ActiveMQAMQPException {
       super.close();
-      try
-      {
+      try {
          sessionSPI.closeSender(brokerConsumer);
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          e.printStackTrace();
          throw new ActiveMQAMQPInternalErrorException(e.getMessage());
       }
    }
 
-
-   public void onMessage(Delivery delivery) throws ActiveMQAMQPException
-   {
+   public void onMessage(Delivery delivery) throws ActiveMQAMQPException {
       Object message = delivery.getContext();
 
       boolean preSettle = sender.getRemoteSenderSettleMode() == SenderSettleMode.SETTLED;
 
-
       DeliveryState remoteState = delivery.getRemoteState();
 
-      if (remoteState != null)
-      {
-         if (remoteState instanceof Accepted)
-         {
+      if (remoteState != null) {
+         if (remoteState instanceof Accepted) {
             //we have to individual ack as we can't guarantee we will get the delivery updates (including acks) in order
             // from dealer, a perf hit but a must
-            try
-            {
+            try {
                sessionSPI.ack(brokerConsumer, message);
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.errorAcknowledgingMessage(message.toString(), e.getMessage());
             }
          }
-         else if (remoteState instanceof Released)
-         {
-            try
-            {
+         else if (remoteState instanceof Released) {
+            try {
                sessionSPI.cancel(brokerConsumer, message, false);
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.errorCancellingMessage(message.toString(), e.getMessage());
             }
          }
-         else if (remoteState instanceof Rejected || remoteState instanceof Modified)
-         {
-            try
-            {
+         else if (remoteState instanceof Rejected || remoteState instanceof Modified) {
+            try {
                sessionSPI.cancel(brokerConsumer, message, true);
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.errorCancellingMessage(message.toString(), e.getMessage());
             }
          }
          //todo add tag caching
-         if (!preSettle)
-         {
+         if (!preSettle) {
             protonSession.replaceTag(delivery.getTag());
          }
 
-         synchronized (connection.getLock())
-         {
+         synchronized (connection.getLock()) {
             delivery.settle();
             sender.offer(1);
          }
 
       }
-      else
-      {
+      else {
          //todo not sure if we need to do anything here
       }
    }
 
    @Override
-   public synchronized void checkState()
-   {
+   public synchronized void checkState() {
       super.checkState();
       sessionSPI.resumeDelivery(brokerConsumer);
    }
 
-
    /**
     * handle an out going message from ActiveMQ Artemis, send via the Proton Sender
     */
-   public int deliverMessage(Object message, int deliveryCount) throws Exception
-   {
-      if (closed)
-      {
+   public int deliverMessage(Object message, int deliveryCount) throws Exception {
+      if (closed) {
          System.err.println("Message can't be delivered as it's closed");
          return 0;
       }
 
       //encode the message
       ProtonJMessage serverMessage;
-      try
-      {
+      try {
          // This can be done a lot better here
          serverMessage = sessionSPI.encodeMessage(message, deliveryCount);
       }
-      catch (Throwable e)
-      {
+      catch (Throwable e) {
          e.printStackTrace();
          throw new ActiveMQAMQPInternalErrorException(e.getMessage(), e);
       }
 
       return performSend(serverMessage, message);
    }
-
 
 }

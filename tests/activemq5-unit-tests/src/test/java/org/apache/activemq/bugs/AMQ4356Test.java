@@ -36,107 +36,107 @@ import org.junit.Test;
 
 public class AMQ4356Test {
 
-    private static BrokerService brokerService;
-    private static String BROKER_ADDRESS = "tcp://localhost:0";
+   private static BrokerService brokerService;
+   private static String BROKER_ADDRESS = "tcp://localhost:0";
 
-    private String connectionUri;
-    private ActiveMQConnectionFactory cf;
-    private final String CLIENT_ID = "AMQ4356Test";
-    private final String SUBSCRIPTION_NAME = "AMQ4356Test";
+   private String connectionUri;
+   private ActiveMQConnectionFactory cf;
+   private final String CLIENT_ID = "AMQ4356Test";
+   private final String SUBSCRIPTION_NAME = "AMQ4356Test";
 
-    private void createBroker(boolean deleteOnStart) throws Exception {
-        brokerService = new BrokerService();
-        brokerService.setUseJmx(true);
-        brokerService.setDeleteAllMessagesOnStartup(deleteOnStart);
-        connectionUri = brokerService.addConnector(BROKER_ADDRESS).getPublishableConnectString();
-        brokerService.start();
-        brokerService.waitUntilStarted();
+   private void createBroker(boolean deleteOnStart) throws Exception {
+      brokerService = new BrokerService();
+      brokerService.setUseJmx(true);
+      brokerService.setDeleteAllMessagesOnStartup(deleteOnStart);
+      connectionUri = brokerService.addConnector(BROKER_ADDRESS).getPublishableConnectString();
+      brokerService.start();
+      brokerService.waitUntilStarted();
 
-    }
+   }
 
-    private void startBroker() throws Exception {
-        createBroker(true);
-    }
+   private void startBroker() throws Exception {
+      createBroker(true);
+   }
 
-    private void restartBroker() throws Exception {
-        brokerService.stop();
-        brokerService.waitUntilStopped();
-        createBroker(false);
-    }
+   private void restartBroker() throws Exception {
+      brokerService.stop();
+      brokerService.waitUntilStopped();
+      createBroker(false);
+   }
 
-    @Before
-    public void setUp() throws Exception {
-        startBroker();
-        cf = new ActiveMQConnectionFactory(connectionUri);
-    }
+   @Before
+   public void setUp() throws Exception {
+      startBroker();
+      cf = new ActiveMQConnectionFactory(connectionUri);
+   }
 
-    @After
-    public void tearDown() throws Exception {
-        brokerService.stop();
-        brokerService.waitUntilStopped();
-    }
+   @After
+   public void tearDown() throws Exception {
+      brokerService.stop();
+      brokerService.waitUntilStopped();
+   }
 
-    @Test
-    public void testVirtualTopicUnsubDurable() throws Exception {
-        Connection connection = cf.createConnection();
-        connection.setClientID(CLIENT_ID);
-        connection.start();
+   @Test
+   public void testVirtualTopicUnsubDurable() throws Exception {
+      Connection connection = cf.createConnection();
+      connection.setClientID(CLIENT_ID);
+      connection.start();
 
-        // create consumer 'cluster'
-        ActiveMQQueue queue1 = new ActiveMQQueue(getVirtualTopicConsumerName());
-        ActiveMQQueue queue2 = new ActiveMQQueue(getVirtualTopicConsumerName());
+      // create consumer 'cluster'
+      ActiveMQQueue queue1 = new ActiveMQQueue(getVirtualTopicConsumerName());
+      ActiveMQQueue queue2 = new ActiveMQQueue(getVirtualTopicConsumerName());
 
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        MessageConsumer c1 = session.createConsumer(queue1);
-        c1.setMessageListener(new MessageListener() {
-            @Override
-            public void onMessage(Message message) {
-            }
-        });
-        MessageConsumer c2 = session.createConsumer(queue2);
-        c2.setMessageListener(new MessageListener() {
-            @Override
-            public void onMessage(Message message) {
-            }
-        });
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      MessageConsumer c1 = session.createConsumer(queue1);
+      c1.setMessageListener(new MessageListener() {
+         @Override
+         public void onMessage(Message message) {
+         }
+      });
+      MessageConsumer c2 = session.createConsumer(queue2);
+      c2.setMessageListener(new MessageListener() {
+         @Override
+         public void onMessage(Message message) {
+         }
+      });
 
-        ActiveMQTopic topic = new ActiveMQTopic(getVirtualTopicName());
-        MessageConsumer c3 = session.createDurableSubscriber(topic, SUBSCRIPTION_NAME);
+      ActiveMQTopic topic = new ActiveMQTopic(getVirtualTopicName());
+      MessageConsumer c3 = session.createDurableSubscriber(topic, SUBSCRIPTION_NAME);
 
-        assertEquals(1, brokerService.getAdminView().getDurableTopicSubscribers().length);
-        assertEquals(0, brokerService.getAdminView().getInactiveDurableTopicSubscribers().length);
+      assertEquals(1, brokerService.getAdminView().getDurableTopicSubscribers().length);
+      assertEquals(0, brokerService.getAdminView().getInactiveDurableTopicSubscribers().length);
 
-        c3.close();
+      c3.close();
 
-        // create topic producer
-        MessageProducer producer = session.createProducer(topic);
-        assertNotNull(producer);
+      // create topic producer
+      MessageProducer producer = session.createProducer(topic);
+      assertNotNull(producer);
 
-        int total = 10;
-        for (int i = 0; i < total; i++) {
-            producer.send(session.createTextMessage("message: " + i));
-        }
+      int total = 10;
+      for (int i = 0; i < total; i++) {
+         producer.send(session.createTextMessage("message: " + i));
+      }
 
-        assertEquals(0, brokerService.getAdminView().getDurableTopicSubscribers().length);
-        assertEquals(1, brokerService.getAdminView().getInactiveDurableTopicSubscribers().length);
+      assertEquals(0, brokerService.getAdminView().getDurableTopicSubscribers().length);
+      assertEquals(1, brokerService.getAdminView().getInactiveDurableTopicSubscribers().length);
 
-        session.unsubscribe(SUBSCRIPTION_NAME);
-        connection.close();
+      session.unsubscribe(SUBSCRIPTION_NAME);
+      connection.close();
 
-        assertEquals(0, brokerService.getAdminView().getDurableTopicSubscribers().length);
-        assertEquals(0, brokerService.getAdminView().getInactiveDurableTopicSubscribers().length);
+      assertEquals(0, brokerService.getAdminView().getDurableTopicSubscribers().length);
+      assertEquals(0, brokerService.getAdminView().getInactiveDurableTopicSubscribers().length);
 
-        restartBroker();
+      restartBroker();
 
-        assertEquals(0, brokerService.getAdminView().getDurableTopicSubscribers().length);
-        assertEquals(0, brokerService.getAdminView().getInactiveDurableTopicSubscribers().length);
-    }
+      assertEquals(0, brokerService.getAdminView().getDurableTopicSubscribers().length);
+      assertEquals(0, brokerService.getAdminView().getInactiveDurableTopicSubscribers().length);
+   }
 
-    protected String getVirtualTopicName() {
-        return "VirtualTopic.TEST";
-    }
+   protected String getVirtualTopicName() {
+      return "VirtualTopic.TEST";
+   }
 
-    protected String getVirtualTopicConsumerName() {
-        return "Consumer.A.VirtualTopic.TEST";
-    }
+   protected String getVirtualTopicConsumerName() {
+      return "Consumer.A.VirtualTopic.TEST";
+   }
 }

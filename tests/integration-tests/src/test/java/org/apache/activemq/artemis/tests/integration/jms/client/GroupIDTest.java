@@ -26,12 +26,10 @@ import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.api.jms.JMSFactoryType;
 import org.apache.activemq.artemis.jms.client.ActiveMQJMSConnectionFactory;
 
-public class GroupIDTest extends GroupingTest
-{
+public class GroupIDTest extends GroupingTest {
 
    @Override
-   protected ConnectionFactory getCF() throws Exception
-   {
+   protected ConnectionFactory getCF() throws Exception {
       ActiveMQJMSConnectionFactory cf = (ActiveMQJMSConnectionFactory) ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration(INVM_CONNECTOR_FACTORY));
 
       cf.setGroupID("wibble");
@@ -39,15 +37,12 @@ public class GroupIDTest extends GroupingTest
       return cf;
    }
 
-
    @Test
-   public void testManyGroups()
-   {
+   public void testManyGroups() {
       // this test does not make sense here
    }
 
    @Override
-   protected void setProperty(Message message)
-   {
+   protected void setProperty(Message message) {
    }
 }

@@ -134,8 +134,8 @@ import org.junit.runner.Description;
 /**
  * Base class with basic utilities on starting up a basic server
  */
-public abstract class ActiveMQTestBase extends Assert
-{
+public abstract class ActiveMQTestBase extends Assert {
+
    public static final String TARGET_TMP = "./target/tmp";
    public static final String INVM_ACCEPTOR_FACTORY = InVMAcceptorFactory.class.getCanonicalName();
    public static final String INVM_CONNECTOR_FACTORY = InVMConnectorFactory.class.getCanonicalName();
@@ -183,74 +183,58 @@ public abstract class ActiveMQTestBase extends Assert
    public RemoveFolder folder = new RemoveFolder(TARGET_TMP);
 
    @Rule
-   public TestRule watcher = new TestWatcher()
-   {
+   public TestRule watcher = new TestWatcher() {
       @Override
-      protected void starting(Description description)
-      {
+      protected void starting(Description description) {
          log.info(String.format("#*#*# Starting test: %s()...", description.getMethodName()));
       }
 
       @Override
-      protected void finished(Description description)
-      {
+      protected void finished(Description description) {
          log.info(String.format("#*#*# Finished test: %s()...", description.getMethodName()));
       }
    };
 
-   static
-   {
+   static {
       Random random = new Random();
       DEFAULT_UDP_PORT = 6000 + random.nextInt(1000);
    }
 
-   public ActiveMQTestBase()
-   {
+   public ActiveMQTestBase() {
       File parent = new File(TARGET_TMP);
       parent.mkdirs();
       temporaryFolder = new TemporaryFolder(parent);
    }
 
    @After
-   public void tearDown() throws Exception
-   {
-      for (ExecutorService s : executorSet)
-      {
+   public void tearDown() throws Exception {
+      for (ExecutorService s : executorSet) {
          s.shutdown();
       }
       closeAllSessionFactories();
       closeAllServerLocatorsFactories();
 
-      try
-      {
+      try {
          assertAllExecutorsFinished();
          assertAllClientConsumersAreClosed();
          assertAllClientProducersAreClosed();
          assertAllClientSessionsAreClosed();
       }
-      finally
-      {
-         synchronized (servers)
-         {
-            for (ActiveMQServer server : servers)
-            {
-               if (server == null)
-               {
+      finally {
+         synchronized (servers) {
+            for (ActiveMQServer server : servers) {
+               if (server == null) {
                   continue;
                }
-               try
-               {
+               try {
                   final ClusterManager clusterManager = server.getClusterManager();
-                  if (clusterManager != null)
-                  {
-                     for (ClusterConnection cc : clusterManager.getClusterConnections())
-                     {
+                  if (clusterManager != null) {
+                     for (ClusterConnection cc : clusterManager.getClusterConnections()) {
                         stopComponent(cc);
                      }
                   }
                }
-               catch (Exception e)
-               {
+               catch (Exception e) {
                   // no-op
                }
                stopComponentOutputExceptions(server);
@@ -261,72 +245,60 @@ public abstract class ActiveMQTestBase extends Assert
          closeAllOtherComponents();
 
          ArrayList<Exception> exceptions;
-         try
-         {
+         try {
             exceptions = checkCsfStopped();
          }
-         finally
-         {
+         finally {
             cleanupPools();
          }
          //clean up pools before failing
-         if (!exceptions.isEmpty())
-         {
-            for (Exception exception : exceptions)
-            {
+         if (!exceptions.isEmpty()) {
+            for (Exception exception : exceptions) {
                exception.printStackTrace();
             }
             fail("Client Session Factories still trying to reconnect, see above to see where created");
          }
          Map<Thread, StackTraceElement[]> threadMap = Thread.getAllStackTraces();
-         for (Thread thread : threadMap.keySet())
-         {
+         for (Thread thread : threadMap.keySet()) {
             StackTraceElement[] stack = threadMap.get(thread);
-            for (StackTraceElement stackTraceElement : stack)
-            {
-               if (stackTraceElement.getMethodName().contains("getConnectionWithRetry") && !alreadyFailedThread.contains(thread))
-               {
+            for (StackTraceElement stackTraceElement : stack) {
+               if (stackTraceElement.getMethodName().contains("getConnectionWithRetry") && !alreadyFailedThread.contains(thread)) {
                   alreadyFailedThread.add(thread);
                   System.out.println(threadDump(this.getName() + " has left threads running. Look at thread " +
-                                                        thread.getName() +
-                                                        " id = " +
-                                                        thread.getId() +
-                                                        " has running locators on test " +
-                                                        this.getName() +
-                                                        " on this following dump"));
+                                                   thread.getName() +
+                                                   " id = " +
+                                                   thread.getId() +
+                                                   " has running locators on test " +
+                                                   this.getName() +
+                                                   " on this following dump"));
                   fail("test '" + getName() + "' left serverlocator running, this could effect other tests");
                }
-               else if (stackTraceElement.getMethodName().contains("BroadcastGroupImpl.run") && !alreadyFailedThread.contains(thread))
-               {
+               else if (stackTraceElement.getMethodName().contains("BroadcastGroupImpl.run") && !alreadyFailedThread.contains(thread)) {
                   alreadyFailedThread.add(thread);
                   System.out.println(threadDump(this.getName() + " has left threads running. Look at thread " +
-                                                        thread.getName() +
-                                                        " id = " +
-                                                        thread.getId() +
-                                                        " is still broadcasting " +
-                                                        this.getName() +
-                                                        " on this following dump"));
+                                                   thread.getName() +
+                                                   " id = " +
+                                                   thread.getId() +
+                                                   " is still broadcasting " +
+                                                   this.getName() +
+                                                   " on this following dump"));
                   fail("test left broadcastgroupimpl running, this could effect other tests");
                }
             }
          }
 
-         if (checkThread)
-         {
+         if (checkThread) {
             StringBuffer buffer = null;
 
             boolean failed = true;
 
-
             long timeout = System.currentTimeMillis() + 60000;
-            while (failed && timeout > System.currentTimeMillis())
-            {
+            while (failed && timeout > System.currentTimeMillis()) {
                buffer = new StringBuffer();
 
                failed = checkThread(buffer);
 
-               if (failed)
-               {
+               if (failed) {
                   forceGC();
                   Thread.sleep(500);
                   log.info("There are still threads running, trying again");
@@ -334,23 +306,20 @@ public abstract class ActiveMQTestBase extends Assert
                }
             }
 
-            if (failed)
-            {
+            if (failed) {
                logAndSystemOut("Thread leaked on test " + this.getClass().getName() + "::" + this.getName() + "\n" +
-                                       buffer);
+                                  buffer);
                logAndSystemOut("Thread leakage");
 
                fail("Thread leaked");
             }
 
          }
-         else
-         {
+         else {
             checkThread = true;
          }
 
-         if (Thread.currentThread().getContextClassLoader() == null)
-         {
+         if (Thread.currentThread().getContextClassLoader() == null) {
             Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
             fail("Thread Context ClassLoader was set to null at some point before this test. We will set to this.getClass().getClassLoader(), but you are supposed to fix your tests");
          }
@@ -358,15 +327,13 @@ public abstract class ActiveMQTestBase extends Assert
          checkFilesUsage();
       }
 
-      if (InVMRegistry.instance.size() > 0)
-      {
+      if (InVMRegistry.instance.size() > 0) {
          fail("InVMREgistry size > 0");
       }
    }
 
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       sendMsgCount = 0;
       testDir = temporaryFolder.getRoot().getAbsolutePath();
       clearDataRecreateServerDirs();
@@ -381,80 +348,63 @@ public abstract class ActiveMQTestBase extends Assert
       logAndSystemOut("#test " + getName());
    }
 
-   public static void assertEqualsByteArrays(final byte[] expected, final byte[] actual)
-   {
-      for (int i = 0; i < expected.length; i++)
-      {
+   public static void assertEqualsByteArrays(final byte[] expected, final byte[] actual) {
+      for (int i = 0; i < expected.length; i++) {
          Assert.assertEquals("byte at index " + i, expected[i], actual[i]);
       }
    }
 
    /**
-    *
     * @param str
     * @param sub
     * @return
     */
-   public static int countOccurrencesOf(String str, String sub)
-   {
-      if (str == null || sub == null || str.length() == 0 || sub.length() == 0)
-      {
+   public static int countOccurrencesOf(String str, String sub) {
+      if (str == null || sub == null || str.length() == 0 || sub.length() == 0) {
          return 0;
       }
       int count = 0;
       int pos = 0;
       int idx;
-      while ((idx = str.indexOf(sub, pos)) != -1)
-      {
+      while ((idx = str.indexOf(sub, pos)) != -1) {
          ++count;
          pos = idx + sub.length();
       }
       return count;
    }
 
-   protected void disableCheckThread()
-   {
+   protected void disableCheckThread() {
       checkThread = false;
    }
 
-   protected String getName()
-   {
+   protected String getName() {
       return name.getMethodName();
    }
 
-   protected boolean isWindows()
-   {
+   protected boolean isWindows() {
       return (OS_TYPE.indexOf("win") >= 0);
    }
 
-   protected Configuration createDefaultInVMConfig() throws Exception
-   {
+   protected Configuration createDefaultInVMConfig() throws Exception {
       return createDefaultConfig(0, false);
    }
 
-   protected Configuration createDefaultInVMConfig(final int serverID) throws Exception
-   {
+   protected Configuration createDefaultInVMConfig(final int serverID) throws Exception {
       return createDefaultConfig(serverID, false);
    }
 
-   protected Configuration createDefaultNettyConfig() throws Exception
-   {
+   protected Configuration createDefaultNettyConfig() throws Exception {
       return createDefaultConfig(0, true);
    }
 
-   protected Configuration createDefaultConfig(final boolean netty) throws Exception
-   {
+   protected Configuration createDefaultConfig(final boolean netty) throws Exception {
       return createDefaultConfig(0, netty);
    }
 
-   protected Configuration createDefaultConfig(final int serverID, final boolean netty) throws Exception
-   {
-      ConfigurationImpl configuration = createBasicConfig(serverID)
-              .setJMXManagementEnabled(false)
-              .addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY, generateInVMParams(serverID)));
+   protected Configuration createDefaultConfig(final int serverID, final boolean netty) throws Exception {
+      ConfigurationImpl configuration = createBasicConfig(serverID).setJMXManagementEnabled(false).addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY, generateInVMParams(serverID)));
 
-      if (netty)
-      {
+      if (netty) {
          configuration.addAcceptorConfiguration(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY));
       }
 
@@ -462,13 +412,11 @@ public abstract class ActiveMQTestBase extends Assert
    }
 
    private Configuration createDefaultConfig(final int index,
-                                               final Map<String, Object> params,
-                                               final String... acceptors)
-   {
+                                             final Map<String, Object> params,
+                                             final String... acceptors) {
       Configuration configuration = createBasicConfig(index);
 
-      for (String acceptor : acceptors)
-      {
+      for (String acceptor : acceptors) {
          TransportConfiguration transportConfig = new TransportConfiguration(acceptor, params);
          configuration.getAcceptorConfigurations().add(transportConfig);
       }
@@ -476,8 +424,7 @@ public abstract class ActiveMQTestBase extends Assert
       return configuration;
    }
 
-   protected ConfigurationImpl createBasicConfig() throws Exception
-   {
+   protected ConfigurationImpl createBasicConfig() throws Exception {
       return createBasicConfig(-1);
    }
 
@@ -486,26 +433,13 @@ public abstract class ActiveMQTestBase extends Assert
     * @return
     * @throws Exception
     */
-   protected ConfigurationImpl createBasicConfig(final int serverID)
-   {
-      ConfigurationImpl configuration = new ConfigurationImpl()
-              .setSecurityEnabled(false)
-              .setJournalMinFiles(2)
-              .setJournalFileSize(100 * 1024)
-              .setJournalType(getDefaultJournalType())
-              .setJournalDirectory(getJournalDir(serverID, false))
-              .setBindingsDirectory(getBindingsDir(serverID, false))
-              .setPagingDirectory(getPageDir(serverID, false))
-              .setLargeMessagesDirectory(getLargeMessagesDir(serverID, false))
-              .setJournalCompactMinFiles(0)
-              .setJournalCompactPercentage(0)
-              .setClusterPassword(CLUSTER_PASSWORD);
+   protected ConfigurationImpl createBasicConfig(final int serverID) {
+      ConfigurationImpl configuration = new ConfigurationImpl().setSecurityEnabled(false).setJournalMinFiles(2).setJournalFileSize(100 * 1024).setJournalType(getDefaultJournalType()).setJournalDirectory(getJournalDir(serverID, false)).setBindingsDirectory(getBindingsDir(serverID, false)).setPagingDirectory(getPageDir(serverID, false)).setLargeMessagesDirectory(getLargeMessagesDir(serverID, false)).setJournalCompactMinFiles(0).setJournalCompactPercentage(0).setClusterPassword(CLUSTER_PASSWORD);
 
       return configuration;
    }
 
-   protected Map<String, Object> generateInVMParams(final int node)
-   {
+   protected Map<String, Object> generateInVMParams(final int node) {
       Map<String, Object> params = new HashMap<String, Object>();
 
       params.put(org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants.SERVER_ID_PROP_NAME, node);
@@ -513,41 +447,28 @@ public abstract class ActiveMQTestBase extends Assert
       return params;
    }
 
-   protected static final ClusterConnectionConfiguration basicClusterConnectionConfig(String connectorName, String... connectors)
-   {
+   protected static final ClusterConnectionConfiguration basicClusterConnectionConfig(String connectorName,
+                                                                                      String... connectors) {
       ArrayList<String> connectors0 = new ArrayList<>();
-      for (String c : connectors)
-      {
+      for (String c : connectors) {
          connectors0.add(c);
       }
-      ClusterConnectionConfiguration clusterConnectionConfiguration = new ClusterConnectionConfiguration()
-              .setName("cluster1")
-              .setAddress("jms")
-              .setConnectorName(connectorName)
-              .setRetryInterval(1000)
-              .setDuplicateDetection(false)
-              .setMaxHops(1)
-              .setConfirmationWindowSize(1)
-              .setMessageLoadBalancingType(MessageLoadBalancingType.STRICT)
-              .setStaticConnectors(connectors0);
+      ClusterConnectionConfiguration clusterConnectionConfiguration = new ClusterConnectionConfiguration().setName("cluster1").setAddress("jms").setConnectorName(connectorName).setRetryInterval(1000).setDuplicateDetection(false).setMaxHops(1).setConfirmationWindowSize(1).setMessageLoadBalancingType(MessageLoadBalancingType.STRICT).setStaticConnectors(connectors0);
 
       return clusterConnectionConfiguration;
    }
 
-   protected final OrderedExecutorFactory getOrderedExecutor()
-   {
+   protected final OrderedExecutorFactory getOrderedExecutor() {
       final ExecutorService executor = Executors.newCachedThreadPool();
       executorSet.add(executor);
       return new OrderedExecutorFactory(executor);
    }
 
-   protected static String getUDPDiscoveryAddress()
-   {
+   protected static String getUDPDiscoveryAddress() {
       return System.getProperty("TEST-UDP-ADDRESS", "230.1.2.3");
    }
 
-   protected static String getUDPDiscoveryAddress(final int variant)
-   {
+   protected static String getUDPDiscoveryAddress(final int variant) {
       String value = getUDPDiscoveryAddress();
 
       int posPoint = value.lastIndexOf('.');
@@ -557,72 +478,57 @@ public abstract class ActiveMQTestBase extends Assert
       return value.substring(0, posPoint + 1) + (last + variant);
    }
 
-   public static int getUDPDiscoveryPort()
-   {
+   public static int getUDPDiscoveryPort() {
       String port = System.getProperty("TEST-UDP-PORT");
-      if (port != null)
-      {
+      if (port != null) {
          return Integer.parseInt(port);
       }
       return DEFAULT_UDP_PORT;
    }
 
-   public static int getUDPDiscoveryPort(final int variant)
-   {
+   public static int getUDPDiscoveryPort(final int variant) {
       return getUDPDiscoveryPort() + variant;
    }
 
-   public static JournalType getDefaultJournalType()
-   {
-      if (LibaioContext.isLoaded())
-      {
+   public static JournalType getDefaultJournalType() {
+      if (LibaioContext.isLoaded()) {
          return JournalType.ASYNCIO;
       }
-      else
-      {
+      else {
          return JournalType.NIO;
       }
    }
 
-   public static void forceGC()
-   {
+   public static void forceGC() {
       log.info("#test forceGC");
       WeakReference<Object> dumbReference = new WeakReference<Object>(new Object());
       // A loop that will wait GC, using the minimal time as possible
-      while (dumbReference.get() != null)
-      {
+      while (dumbReference.get() != null) {
          System.gc();
-         try
-         {
+         try {
             Thread.sleep(100);
          }
-         catch (InterruptedException e)
-         {
+         catch (InterruptedException e) {
          }
       }
       log.info("#test forceGC Done");
    }
 
-   public static void forceGC(final Reference<?> ref, final long timeout)
-   {
+   public static void forceGC(final Reference<?> ref, final long timeout) {
       long waitUntil = System.currentTimeMillis() + timeout;
       // A loop that will wait GC, using the minimal time as possible
-      while (ref.get() != null && System.currentTimeMillis() < waitUntil)
-      {
+      while (ref.get() != null && System.currentTimeMillis() < waitUntil) {
          ArrayList<String> list = new ArrayList<String>();
-         for (int i = 0; i < 1000; i++)
-         {
+         for (int i = 0; i < 1000; i++) {
             list.add("Some string with garbage with concatenation " + i);
          }
          list.clear();
          list = null;
          System.gc();
-         try
-         {
+         try {
             Thread.sleep(500);
          }
-         catch (InterruptedException e)
-         {
+         catch (InterruptedException e) {
          }
       }
    }
@@ -633,39 +539,31 @@ public abstract class ActiveMQTestBase extends Assert
     * @param references
     * @throws InterruptedException
     */
-   public static void checkWeakReferences(final WeakReference<?>... references)
-   {
+   public static void checkWeakReferences(final WeakReference<?>... references) {
       int i = 0;
       boolean hasValue = false;
 
-      do
-      {
+      do {
          hasValue = false;
 
-         if (i > 0)
-         {
+         if (i > 0) {
             forceGC();
          }
 
-         for (WeakReference<?> ref : references)
-         {
-            if (ref.get() != null)
-            {
+         for (WeakReference<?> ref : references) {
+            if (ref.get() != null) {
                hasValue = true;
                break;
             }
          }
-      }
-      while (i++ <= 30 && hasValue);
+      } while (i++ <= 30 && hasValue);
 
-      for (WeakReference<?> ref : references)
-      {
+      for (WeakReference<?> ref : references) {
          Assert.assertNull(ref.get());
       }
    }
 
-   public static String threadDump(final String msg)
-   {
+   public static String threadDump(final String msg) {
       StringWriter str = new StringWriter();
       PrintWriter out = new PrintWriter(str);
 
@@ -674,19 +572,17 @@ public abstract class ActiveMQTestBase extends Assert
       out.println("*******************************************************************************");
       out.println("Complete Thread dump " + msg);
 
-      for (Map.Entry<Thread, StackTraceElement[]> el : stackTrace.entrySet())
-      {
+      for (Map.Entry<Thread, StackTraceElement[]> el : stackTrace.entrySet()) {
          out.println("===============================================================================");
          out.println("Thread " + el.getKey() +
-                             " name = " +
-                             el.getKey().getName() +
-                             " id = " +
-                             el.getKey().getId() +
-                             " group = " +
-                             el.getKey().getThreadGroup());
+                        " name = " +
+                        el.getKey().getName() +
+                        " id = " +
+                        el.getKey().getId() +
+                        " group = " +
+                        el.getKey().getThreadGroup());
          out.println();
-         for (StackTraceElement traceEl : el.getValue())
-         {
+         for (StackTraceElement traceEl : el.getValue()) {
             out.println(traceEl);
          }
       }
@@ -701,13 +597,11 @@ public abstract class ActiveMQTestBase extends Assert
    /**
     * Sends the message to both logger and System.out (for unit report)
     */
-   public void logAndSystemOut(String message, Exception e)
-   {
+   public void logAndSystemOut(String message, Exception e) {
       ActiveMQServerLogger log0 = ActiveMQServerLogger.LOGGER;
       log0.info(message, e);
       System.out.println(message);
-      if (e != null)
-      {
+      if (e != null) {
          e.printStackTrace(System.out);
       }
    }
@@ -715,23 +609,19 @@ public abstract class ActiveMQTestBase extends Assert
    /**
     * Sends the message to both logger and System.out (for unit report)
     */
-   public void logAndSystemOut(String message)
-   {
+   public void logAndSystemOut(String message) {
       logAndSystemOut(message, null);
    }
 
-   public static String dumpBytes(final byte[] bytes)
-   {
+   public static String dumpBytes(final byte[] bytes) {
       StringBuffer buff = new StringBuffer();
 
       buff.append(System.identityHashCode(bytes) + ", size: " + bytes.length + " [");
 
-      for (int i = 0; i < bytes.length; i++)
-      {
+      for (int i = 0; i < bytes.length; i++) {
          buff.append(bytes[i]);
 
-         if (i != bytes.length - 1)
-         {
+         if (i != bytes.length - 1) {
             buff.append(", ");
          }
       }
@@ -741,22 +631,18 @@ public abstract class ActiveMQTestBase extends Assert
       return buff.toString();
    }
 
-   public static String dumpBytesHex(final byte[] buffer, final int bytesPerLine)
-   {
+   public static String dumpBytesHex(final byte[] buffer, final int bytesPerLine) {
 
       StringBuffer buff = new StringBuffer();
 
       buff.append("[");
 
-      for (int i = 0; i < buffer.length; i++)
-      {
+      for (int i = 0; i < buffer.length; i++) {
          buff.append(String.format("%1$2X", buffer[i]));
-         if (i + 1 < buffer.length)
-         {
+         if (i + 1 < buffer.length) {
             buff.append(", ");
          }
-         if ((i + 1) % bytesPerLine == 0)
-         {
+         if ((i + 1) % bytesPerLine == 0) {
             buff.append("\n ");
          }
       }
@@ -766,23 +652,19 @@ public abstract class ActiveMQTestBase extends Assert
    }
 
    public static void assertEqualsTransportConfigurations(final TransportConfiguration[] expected,
-                                                          final TransportConfiguration[] actual)
-   {
+                                                          final TransportConfiguration[] actual) {
       assertEquals(expected.length, actual.length);
-      for (int i = 0; i < expected.length; i++)
-      {
+      for (int i = 0; i < expected.length; i++) {
          Assert.assertEquals("TransportConfiguration at index " + i, expected[i], actual[i]);
       }
    }
 
-   public static void assertEqualsBuffers(final int size, final ActiveMQBuffer expected, final ActiveMQBuffer actual)
-   {
+   public static void assertEqualsBuffers(final int size, final ActiveMQBuffer expected, final ActiveMQBuffer actual) {
       // assertEquals(expected.length, actual.length);
       expected.readerIndex(0);
       actual.readerIndex(0);
 
-      for (int i = 0; i < size; i++)
-      {
+      for (int i = 0; i < size; i++) {
          byte b1 = expected.readByte();
          byte b2 = actual.readByte();
          Assert.assertEquals("byte at index " + i, b1, b2);
@@ -791,26 +673,22 @@ public abstract class ActiveMQTestBase extends Assert
       actual.resetReaderIndex();
    }
 
-   public static void assertEqualsByteArrays(final int length, final byte[] expected, final byte[] actual)
-   {
+   public static void assertEqualsByteArrays(final int length, final byte[] expected, final byte[] actual) {
       // we check only for the given length (the arrays might be
       // larger)
       Assert.assertTrue(expected.length >= length);
       Assert.assertTrue(actual.length >= length);
-      for (int i = 0; i < length; i++)
-      {
+      for (int i = 0; i < length; i++) {
          Assert.assertEquals("byte at index " + i, expected[i], actual[i]);
       }
    }
 
-   public static void assertSameXids(final List<Xid> expected, final List<Xid> actual)
-   {
+   public static void assertSameXids(final List<Xid> expected, final List<Xid> actual) {
       Assert.assertNotNull(expected);
       Assert.assertNotNull(actual);
       Assert.assertEquals(expected.size(), actual.size());
 
-      for (int i = 0; i < expected.size(); i++)
-      {
+      for (int i = 0; i < expected.size(); i++) {
          Xid expectedXid = expected.get(i);
          Xid actualXid = actual.get(i);
          assertEqualsByteArrays(expectedXid.getBranchQualifier(), actualXid.getBranchQualifier());
@@ -819,20 +697,16 @@ public abstract class ActiveMQTestBase extends Assert
       }
    }
 
-   protected static void checkNoBinding(final Context context, final String binding)
-   {
-      try
-      {
+   protected static void checkNoBinding(final Context context, final String binding) {
+      try {
          context.lookup(binding);
          Assert.fail("there must be no resource to look up for " + binding);
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
       }
    }
 
-   protected static Object checkBinding(final Context context, final String binding) throws Exception
-   {
+   protected static Object checkBinding(final Context context, final String binding) throws Exception {
       Object o = context.lookup(binding);
       Assert.assertNotNull(o);
       return o;
@@ -843,14 +717,12 @@ public abstract class ActiveMQTestBase extends Assert
     * @return
     */
    protected ArrayList<String> registerConnectors(final ActiveMQServer server,
-                                                  final List<TransportConfiguration> connectorConfigs)
-   {
+                                                  final List<TransportConfiguration> connectorConfigs) {
       // The connectors need to be pre-configured at main config object but this method is taking
       // TransportConfigurations directly
       // So this will first register them at the config and then generate a list of objects
       ArrayList<String> connectors = new ArrayList<String>();
-      for (TransportConfiguration tnsp : connectorConfigs)
-      {
+      for (TransportConfiguration tnsp : connectorConfigs) {
          String name1 = RandomUtil.randomString();
 
          server.getConfiguration().getConnectorConfigurations().put(name1, tnsp);
@@ -860,29 +732,21 @@ public abstract class ActiveMQTestBase extends Assert
       return connectors;
    }
 
-   protected static final void checkFreePort(final int... ports)
-   {
-      for (int port : ports)
-      {
+   protected static final void checkFreePort(final int... ports) {
+      for (int port : ports) {
          ServerSocket ssocket = null;
-         try
-         {
+         try {
             ssocket = new ServerSocket(port);
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             throw new IllegalStateException("port " + port + " is bound", e);
          }
-         finally
-         {
-            if (ssocket != null)
-            {
-               try
-               {
+         finally {
+            if (ssocket != null) {
+               try {
                   ssocket.close();
                }
-               catch (IOException e)
-               {
+               catch (IOException e) {
                }
             }
          }
@@ -892,28 +756,23 @@ public abstract class ActiveMQTestBase extends Assert
    /**
     * @return the testDir
     */
-   protected final String getTestDir()
-   {
+   protected final String getTestDir() {
       return testDir;
    }
 
-   protected final File getTestDirfile()
-   {
+   protected final File getTestDirfile() {
       return new File(testDir);
    }
 
-   protected final void setTestDir(String testDir)
-   {
+   protected final void setTestDir(String testDir) {
       this.testDir = testDir;
    }
 
-   protected final void clearDataRecreateServerDirs()
-   {
+   protected final void clearDataRecreateServerDirs() {
       clearDataRecreateServerDirs(getTestDir());
    }
 
-   protected void clearDataRecreateServerDirs(final String testDir1)
-   {
+   protected void clearDataRecreateServerDirs(final String testDir1) {
       // Need to delete the root
 
       File file = new File(testDir1);
@@ -931,65 +790,55 @@ public abstract class ActiveMQTestBase extends Assert
    /**
     * @return the journalDir
     */
-   public String getJournalDir()
-   {
+   public String getJournalDir() {
       return getJournalDir(getTestDir());
    }
 
-   protected static String getJournalDir(final String testDir1)
-   {
+   protected static String getJournalDir(final String testDir1) {
       return testDir1 + "/journal";
    }
 
-   protected String getJournalDir(final int index, final boolean backup)
-   {
+   protected String getJournalDir(final int index, final boolean backup) {
       return getJournalDir(getTestDir(), index, backup);
    }
 
-   public static String getJournalDir(final String testDir, final int index, final boolean backup)
-   {
+   public static String getJournalDir(final String testDir, final int index, final boolean backup) {
       return getJournalDir(testDir) + directoryNameSuffix(index, backup);
    }
 
    /**
     * @return the bindingsDir
     */
-   protected String getBindingsDir()
-   {
+   protected String getBindingsDir() {
       return getBindingsDir(getTestDir());
    }
 
    /**
     * @return the bindingsDir
     */
-   protected static String getBindingsDir(final String testDir1)
-   {
+   protected static String getBindingsDir(final String testDir1) {
       return testDir1 + "/bindings";
    }
 
    /**
     * @return the bindingsDir
     */
-   protected String getBindingsDir(final int index, final boolean backup)
-   {
+   protected String getBindingsDir(final int index, final boolean backup) {
       return getBindingsDir(getTestDir(), index, backup);
    }
 
-   public static String getBindingsDir(final String testDir, final int index, final boolean backup)
-   {
+   public static String getBindingsDir(final String testDir, final int index, final boolean backup) {
       return getBindingsDir(testDir) + directoryNameSuffix(index, backup);
    }
 
    /**
     * @return the pageDir
     */
-   protected String getPageDir()
-   {
+   protected String getPageDir() {
       return getPageDir(getTestDir());
    }
 
-   protected File getPageDirFile()
-   {
+   protected File getPageDirFile() {
       return new File(getPageDir());
 
    }
@@ -997,49 +846,41 @@ public abstract class ActiveMQTestBase extends Assert
    /**
     * @return the pageDir
     */
-   protected static String getPageDir(final String testDir1)
-   {
+   protected static String getPageDir(final String testDir1) {
       return testDir1 + "/page";
    }
 
-   protected String getPageDir(final int index, final boolean backup)
-   {
+   protected String getPageDir(final int index, final boolean backup) {
       return getPageDir(getTestDir(), index, backup);
    }
 
-   public static String getPageDir(final String testDir, final int index, final boolean backup)
-   {
+   public static String getPageDir(final String testDir, final int index, final boolean backup) {
       return getPageDir(testDir) + directoryNameSuffix(index, backup);
    }
 
    /**
     * @return the largeMessagesDir
     */
-   protected String getLargeMessagesDir()
-   {
+   protected String getLargeMessagesDir() {
       return getLargeMessagesDir(getTestDir());
    }
 
    /**
     * @return the largeMessagesDir
     */
-   protected static String getLargeMessagesDir(final String testDir1)
-   {
+   protected static String getLargeMessagesDir(final String testDir1) {
       return testDir1 + "/large-msg";
    }
 
-   protected String getLargeMessagesDir(final int index, final boolean backup)
-   {
+   protected String getLargeMessagesDir(final int index, final boolean backup) {
       return getLargeMessagesDir(getTestDir(), index, backup);
    }
 
-   public static String getLargeMessagesDir(final String testDir, final int index, final boolean backup)
-   {
+   public static String getLargeMessagesDir(final String testDir, final int index, final boolean backup) {
       return getLargeMessagesDir(testDir) + directoryNameSuffix(index, backup);
    }
 
-   private static String directoryNameSuffix(int index, boolean backup)
-   {
+   private static String directoryNameSuffix(int index, boolean backup) {
       if (index == -1)
          return "";
       return index + "-" + (backup ? "B" : "L");
@@ -1048,104 +889,85 @@ public abstract class ActiveMQTestBase extends Assert
    /**
     * @return the clientLargeMessagesDir
     */
-   protected String getClientLargeMessagesDir()
-   {
+   protected String getClientLargeMessagesDir() {
       return getClientLargeMessagesDir(getTestDir());
    }
 
    /**
     * @return the clientLargeMessagesDir
     */
-   protected String getClientLargeMessagesDir(final String testDir1)
-   {
+   protected String getClientLargeMessagesDir(final String testDir1) {
       return testDir1 + "/client-large-msg";
    }
 
    /**
     * @return the temporaryDir
     */
-   protected final String getTemporaryDir()
-   {
+   protected final String getTemporaryDir() {
       return getTemporaryDir(getTestDir());
    }
 
    /**
     * @return the temporaryDir
     */
-   protected String getTemporaryDir(final String testDir1)
-   {
+   protected String getTemporaryDir(final String testDir1) {
       return testDir1 + "/temp";
    }
 
-   protected static void expectActiveMQException(final String message, final ActiveMQExceptionType errorCode, final ActiveMQAction action)
-   {
-      try
-      {
+   protected static void expectActiveMQException(final String message,
+                                                 final ActiveMQExceptionType errorCode,
+                                                 final ActiveMQAction action) {
+      try {
          action.run();
          Assert.fail(message);
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          Assert.assertTrue(e instanceof ActiveMQException);
          Assert.assertEquals(errorCode, ((ActiveMQException) e).getType());
       }
    }
 
-   protected static void expectActiveMQException(final ActiveMQExceptionType errorCode, final ActiveMQAction action)
-   {
-      expectActiveMQException("must throw an ActiveMQException with the expected errorCode: " + errorCode,
-                              errorCode,
-                              action);
+   protected static void expectActiveMQException(final ActiveMQExceptionType errorCode, final ActiveMQAction action) {
+      expectActiveMQException("must throw an ActiveMQException with the expected errorCode: " + errorCode, errorCode, action);
    }
 
-   protected static void expectXAException(final int errorCode, final ActiveMQAction action)
-   {
-      try
-      {
+   protected static void expectXAException(final int errorCode, final ActiveMQAction action) {
+      try {
          action.run();
          Assert.fail("must throw a XAException with the expected errorCode: " + errorCode);
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          Assert.assertTrue(e instanceof XAException);
          Assert.assertEquals(errorCode, ((XAException) e).errorCode);
       }
    }
 
-   public static byte getSamplebyte(final long position)
-   {
+   public static byte getSamplebyte(final long position) {
       return (byte) ('a' + position % ('z' - 'a' + 1));
    }
 
    // Creates a Fake LargeStream without using a real file
-   public static InputStream createFakeLargeStream(final long size) throws Exception
-   {
-      return new InputStream()
-      {
+   public static InputStream createFakeLargeStream(final long size) throws Exception {
+      return new InputStream() {
          private long count;
 
          private boolean closed = false;
 
          @Override
-         public void close() throws IOException
-         {
+         public void close() throws IOException {
             super.close();
             closed = true;
          }
 
          @Override
-         public int read() throws IOException
-         {
-            if (closed)
-            {
+         public int read() throws IOException {
+            if (closed) {
                throw new IOException("Stream was closed");
             }
-            if (count++ < size)
-            {
+            if (count++ < size) {
                return getSamplebyte(count - 1);
             }
-            else
-            {
+            else {
                return -1;
             }
          }
@@ -1157,12 +979,10 @@ public abstract class ActiveMQTestBase extends Assert
     * It validates a Bean (POJO) using simple setters and getters with random values.
     * You can pass a list of properties to be ignored, as some properties will have a pre-defined domain (not being possible to use random-values on them)
     */
-   protected void validateGettersAndSetters(final Object pojo, final String... ignoredProperties) throws Exception
-   {
+   protected void validateGettersAndSetters(final Object pojo, final String... ignoredProperties) throws Exception {
       HashSet<String> ignoreSet = new HashSet<String>();
 
-      for (String ignore : ignoredProperties)
-      {
+      for (String ignore : ignoredProperties) {
          ignoreSet.add(ignore);
       }
 
@@ -1170,44 +990,35 @@ public abstract class ActiveMQTestBase extends Assert
 
       PropertyDescriptor[] properties = info.getPropertyDescriptors();
 
-      for (PropertyDescriptor prop : properties)
-      {
+      for (PropertyDescriptor prop : properties) {
          Object value;
 
-         if (prop.getPropertyType() == String.class)
-         {
+         if (prop.getPropertyType() == String.class) {
             value = RandomUtil.randomString();
          }
-         else if (prop.getPropertyType() == Integer.class || prop.getPropertyType() == Integer.TYPE)
-         {
+         else if (prop.getPropertyType() == Integer.class || prop.getPropertyType() == Integer.TYPE) {
             value = RandomUtil.randomInt();
          }
-         else if (prop.getPropertyType() == Long.class || prop.getPropertyType() == Long.TYPE)
-         {
+         else if (prop.getPropertyType() == Long.class || prop.getPropertyType() == Long.TYPE) {
             value = RandomUtil.randomLong();
          }
-         else if (prop.getPropertyType() == Boolean.class || prop.getPropertyType() == Boolean.TYPE)
-         {
+         else if (prop.getPropertyType() == Boolean.class || prop.getPropertyType() == Boolean.TYPE) {
             value = RandomUtil.randomBoolean();
          }
-         else if (prop.getPropertyType() == Double.class || prop.getPropertyType() == Double.TYPE)
-         {
+         else if (prop.getPropertyType() == Double.class || prop.getPropertyType() == Double.TYPE) {
             value = RandomUtil.randomDouble();
          }
-         else
-         {
+         else {
             System.out.println("Can't validate property of type " + prop.getPropertyType() + " on " + prop.getName());
             value = null;
          }
 
-         if (value != null && prop.getWriteMethod() != null && prop.getReadMethod() == null)
-         {
+         if (value != null && prop.getWriteMethod() != null && prop.getReadMethod() == null) {
             System.out.println("WriteOnly property " + prop.getName() + " on " + pojo.getClass());
          }
          else if (value != null & prop.getWriteMethod() != null &&
-                 prop.getReadMethod() != null &&
-                 !ignoreSet.contains(prop.getName()))
-         {
+            prop.getReadMethod() != null &&
+            !ignoreSet.contains(prop.getName())) {
             System.out.println("Validating " + prop.getName() + " type = " + prop.getPropertyType());
             prop.getWriteMethod().invoke(pojo, value);
 
@@ -1220,41 +1031,39 @@ public abstract class ActiveMQTestBase extends Assert
     * @param queue
     * @throws InterruptedException
     */
-   protected void waitForNotPaging(Queue queue) throws InterruptedException
-   {
+   protected void waitForNotPaging(Queue queue) throws InterruptedException {
       waitForNotPaging(queue.getPageSubscription().getPagingStore());
    }
 
-   protected void waitForNotPaging(PagingStore store) throws InterruptedException
-   {
+   protected void waitForNotPaging(PagingStore store) throws InterruptedException {
       long timeout = System.currentTimeMillis() + 10000;
-      while (timeout > System.currentTimeMillis() && store.isPaging())
-      {
+      while (timeout > System.currentTimeMillis() && store.isPaging()) {
          Thread.sleep(100);
       }
       assertFalse(store.isPaging());
    }
 
-   protected Topology waitForTopology(final ActiveMQServer server, final int nodes) throws Exception
-   {
+   protected Topology waitForTopology(final ActiveMQServer server, final int nodes) throws Exception {
       return waitForTopology(server, nodes, -1, WAIT_TIMEOUT);
    }
 
-   protected Topology waitForTopology(final ActiveMQServer server, final int nodes, final int backups) throws Exception
-   {
+   protected Topology waitForTopology(final ActiveMQServer server,
+                                      final int nodes,
+                                      final int backups) throws Exception {
       return waitForTopology(server, nodes, backups, WAIT_TIMEOUT);
    }
 
-   protected Topology waitForTopology(final ActiveMQServer server, final int liveNodes, final int backupNodes, final long timeout) throws Exception
-   {
+   protected Topology waitForTopology(final ActiveMQServer server,
+                                      final int liveNodes,
+                                      final int backupNodes,
+                                      final long timeout) throws Exception {
       ActiveMQServerLogger.LOGGER.debug("waiting for " + liveNodes + " on the topology for server = " + server);
 
       long start = System.currentTimeMillis();
 
       Set<ClusterConnection> ccs = server.getClusterManager().getClusterConnections();
 
-      if (ccs.size() != 1)
-      {
+      if (ccs.size() != 1) {
          throw new IllegalStateException("You need a single cluster connection on this version of waitForTopology on ServiceTestBase");
       }
 
@@ -1264,32 +1073,25 @@ public abstract class ActiveMQTestBase extends Assert
 
       int backupNodesCount = 0;
 
-
-      do
-      {
+      do {
          liveNodesCount = 0;
          backupNodesCount = 0;
 
-         for (TopologyMemberImpl member : topology.getMembers())
-         {
-            if (member.getLive() != null)
-            {
+         for (TopologyMemberImpl member : topology.getMembers()) {
+            if (member.getLive() != null) {
                liveNodesCount++;
             }
-            if (member.getBackup() != null)
-            {
+            if (member.getBackup() != null) {
                backupNodesCount++;
             }
          }
 
-         if ((liveNodes == -1 || liveNodes == liveNodesCount) && (backupNodes == -1 || backupNodes == backupNodesCount))
-         {
+         if ((liveNodes == -1 || liveNodes == liveNodesCount) && (backupNodes == -1 || backupNodes == backupNodesCount)) {
             return topology;
          }
 
          Thread.sleep(10);
-      }
-      while (System.currentTimeMillis() - start < timeout);
+      } while (System.currentTimeMillis() - start < timeout);
 
       String msg = "Timed out waiting for cluster topology of live=" + liveNodes + ",backup=" + backupNodes +
          " (received live=" + liveNodesCount + ", backup=" + backupNodesCount +
@@ -1302,28 +1104,25 @@ public abstract class ActiveMQTestBase extends Assert
       throw new Exception(msg);
    }
 
-
-   protected void waitForTopology(final ActiveMQServer server, String clusterConnectionName, final int nodes, final long timeout) throws Exception
-   {
+   protected void waitForTopology(final ActiveMQServer server,
+                                  String clusterConnectionName,
+                                  final int nodes,
+                                  final long timeout) throws Exception {
       ActiveMQServerLogger.LOGGER.debug("waiting for " + nodes + " on the topology for server = " + server);
 
       long start = System.currentTimeMillis();
 
       ClusterConnection clusterConnection = server.getClusterManager().getClusterConnection(clusterConnectionName);
 
-
       Topology topology = clusterConnection.getTopology();
 
-      do
-      {
-         if (nodes == topology.getMembers().size())
-         {
+      do {
+         if (nodes == topology.getMembers().size()) {
             return;
          }
 
          Thread.sleep(10);
-      }
-      while (System.currentTimeMillis() - start < timeout);
+      } while (System.currentTimeMillis() - start < timeout);
 
       String msg = "Timed out waiting for cluster topology of " + nodes +
          " (received " +
@@ -1337,89 +1136,71 @@ public abstract class ActiveMQTestBase extends Assert
       throw new Exception(msg);
    }
 
-   protected static final void waitForComponent(final ActiveMQComponent component, final long seconds) throws InterruptedException
-   {
+   protected static final void waitForComponent(final ActiveMQComponent component,
+                                                final long seconds) throws InterruptedException {
       long time = System.currentTimeMillis();
       long toWait = seconds * 1000;
-      while (!component.isStarted())
-      {
+      while (!component.isStarted()) {
          Thread.sleep(50);
-         if (System.currentTimeMillis() > (time + toWait))
-         {
+         if (System.currentTimeMillis() > (time + toWait)) {
             fail("component did not start within timeout of " + seconds);
          }
       }
    }
 
-   protected static final Map<String, Object> generateParams(final int node, final boolean netty)
-   {
+   protected static final Map<String, Object> generateParams(final int node, final boolean netty) {
       Map<String, Object> params = new HashMap<String, Object>();
 
-      if (netty)
-      {
-         params.put(org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.PORT_PROP_NAME,
-                    org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.DEFAULT_PORT + node);
+      if (netty) {
+         params.put(org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.PORT_PROP_NAME, org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.DEFAULT_PORT + node);
       }
-      else
-      {
+      else {
          params.put(org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants.SERVER_ID_PROP_NAME, node);
       }
 
       return params;
    }
 
-   protected static final TransportConfiguration getNettyAcceptorTransportConfiguration(final boolean live)
-   {
-      if (live)
-      {
+   protected static final TransportConfiguration getNettyAcceptorTransportConfiguration(final boolean live) {
+      if (live) {
          return new TransportConfiguration(NETTY_ACCEPTOR_FACTORY);
       }
 
       Map<String, Object> server1Params = new HashMap<String, Object>();
 
-      server1Params.put(org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.PORT_PROP_NAME,
-                        org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.DEFAULT_PORT + 1);
+      server1Params.put(org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.PORT_PROP_NAME, org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.DEFAULT_PORT + 1);
 
       return new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, server1Params);
    }
 
-   protected static final TransportConfiguration getNettyConnectorTransportConfiguration(final boolean live)
-   {
-      if (live)
-      {
+   protected static final TransportConfiguration getNettyConnectorTransportConfiguration(final boolean live) {
+      if (live) {
          return new TransportConfiguration(NETTY_CONNECTOR_FACTORY);
       }
 
       Map<String, Object> server1Params = new HashMap<String, Object>();
 
-      server1Params.put(org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.PORT_PROP_NAME,
-                        org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.DEFAULT_PORT + 1);
+      server1Params.put(org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.PORT_PROP_NAME, org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.DEFAULT_PORT + 1);
       return new TransportConfiguration(NETTY_CONNECTOR_FACTORY, server1Params);
    }
 
-   protected static final TransportConfiguration createTransportConfiguration(boolean netty, boolean acceptor,
-                                                                              Map<String, Object> params)
-   {
+   protected static final TransportConfiguration createTransportConfiguration(boolean netty,
+                                                                              boolean acceptor,
+                                                                              Map<String, Object> params) {
       String className;
-      if (netty)
-      {
-         if (acceptor)
-         {
+      if (netty) {
+         if (acceptor) {
             className = NETTY_ACCEPTOR_FACTORY;
          }
-         else
-         {
+         else {
             className = NETTY_CONNECTOR_FACTORY;
          }
       }
-      else
-      {
-         if (acceptor)
-         {
+      else {
+         if (acceptor) {
             className = INVM_ACCEPTOR_FACTORY;
          }
-         else
-         {
+         else {
             className = INVM_CONNECTOR_FACTORY;
          }
       }
@@ -1428,44 +1209,36 @@ public abstract class ActiveMQTestBase extends Assert
       return new TransportConfiguration(className, params);
    }
 
-
-   protected void waitForServerToStart(ActiveMQServer server) throws InterruptedException
-   {
+   protected void waitForServerToStart(ActiveMQServer server) throws InterruptedException {
       if (server == null)
          return;
       final long wait = 5000;
       long timetowait = System.currentTimeMillis() + wait;
-      while (!server.isStarted() && System.currentTimeMillis() < timetowait)
-      {
+      while (!server.isStarted() && System.currentTimeMillis() < timetowait) {
          Thread.sleep(50);
       }
 
-      if (!server.isStarted())
-      {
+      if (!server.isStarted()) {
          log.info(threadDump("Server didn't start"));
          fail("server didn't start: " + server);
       }
 
-      if (!server.getHAPolicy().isBackup())
-      {
+      if (!server.getHAPolicy().isBackup()) {
          if (!server.waitForActivation(wait, TimeUnit.MILLISECONDS))
             fail("Server didn't initialize: " + server);
       }
    }
 
-   protected void waitForServerToStop(ActiveMQServer server) throws InterruptedException
-   {
+   protected void waitForServerToStop(ActiveMQServer server) throws InterruptedException {
       if (server == null)
          return;
       final long wait = 5000;
       long timetowait = System.currentTimeMillis() + wait;
-      while (server.isStarted() && System.currentTimeMillis() < timetowait)
-      {
+      while (server.isStarted() && System.currentTimeMillis() < timetowait) {
          Thread.sleep(50);
       }
 
-      if (server.isStarted())
-      {
+      if (server.isStarted()) {
          log.info(threadDump("Server didn't start"));
          fail("server didnt start: " + server);
       }
@@ -1474,8 +1247,7 @@ public abstract class ActiveMQTestBase extends Assert
    /**
     * @param backup
     */
-   public static final void waitForRemoteBackupSynchronization(final ActiveMQServer backup)
-   {
+   public static final void waitForRemoteBackupSynchronization(final ActiveMQServer backup) {
       waitForRemoteBackup(null, 10, true, backup);
    }
 
@@ -1485,172 +1257,134 @@ public abstract class ActiveMQTestBase extends Assert
     * @param waitForSync
     * @param backup
     */
-   public static final void waitForRemoteBackup(ClientSessionFactory sessionFactoryP, int seconds,
-                                                boolean waitForSync, final ActiveMQServer backup)
-   {
-      ClientSessionFactoryInternal sessionFactory = (ClientSessionFactoryInternal)sessionFactoryP;
+   public static final void waitForRemoteBackup(ClientSessionFactory sessionFactoryP,
+                                                int seconds,
+                                                boolean waitForSync,
+                                                final ActiveMQServer backup) {
+      ClientSessionFactoryInternal sessionFactory = (ClientSessionFactoryInternal) sessionFactoryP;
       final ActiveMQServerImpl actualServer = (ActiveMQServerImpl) backup;
       final long toWait = seconds * 1000;
       final long time = System.currentTimeMillis();
       int loop = 0;
-      while (true)
-      {
+      while (true) {
          Activation activation = actualServer.getActivation();
          boolean isReplicated = !backup.getHAPolicy().isSharedStore();
          boolean isRemoteUpToDate = true;
-         if (isReplicated)
-         {
-            if (activation instanceof SharedNothingBackupActivation)
-            {
+         if (isReplicated) {
+            if (activation instanceof SharedNothingBackupActivation) {
                isRemoteUpToDate = ((SharedNothingBackupActivation) activation).isRemoteBackupUpToDate();
             }
-            else
-            {
+            else {
                //we may have already failed over and changed the Activation
-               if (actualServer.isStarted())
-               {
+               if (actualServer.isStarted()) {
                   //let it fail a few time to have time to start stopping in the case of waiting to failback
                   isRemoteUpToDate = loop++ > 10;
                }
                //we could be waiting to failback or restart if the server is stopping
-               else
-               {
+               else {
                   isRemoteUpToDate = false;
                }
             }
          }
          if ((sessionFactory == null || sessionFactory.getBackupConnector() != null) &&
-               (isRemoteUpToDate || !waitForSync) &&
-            (!waitForSync || actualServer.getBackupManager() != null && actualServer.getBackupManager().isBackupAnnounced()))
-         {
+            (isRemoteUpToDate || !waitForSync) &&
+            (!waitForSync || actualServer.getBackupManager() != null && actualServer.getBackupManager().isBackupAnnounced())) {
             break;
          }
-         if (System.currentTimeMillis() > (time + toWait))
-         {
+         if (System.currentTimeMillis() > (time + toWait)) {
             fail("backup started? (" + actualServer.isStarted() + "). Finished synchronizing (" +
-                  (activation) + "). SessionFactory!=null ? " + (sessionFactory != null) +
+                    (activation) + "). SessionFactory!=null ? " + (sessionFactory != null) +
                     " || sessionFactory.getBackupConnector()==" +
                     (sessionFactory != null ? sessionFactory.getBackupConnector() : "not-applicable"));
          }
-         try
-         {
+         try {
             Thread.sleep(100);
          }
-         catch (InterruptedException e)
-         {
+         catch (InterruptedException e) {
             fail(e.getMessage());
          }
       }
    }
 
-   public static final void waitForRemoteBackup(ClientSessionFactory sessionFactory, int seconds)
-   {
+   public static final void waitForRemoteBackup(ClientSessionFactory sessionFactory, int seconds) {
       ClientSessionFactoryInternal factoryInternal = (ClientSessionFactoryInternal) sessionFactory;
       final long toWait = seconds * 1000;
       final long time = System.currentTimeMillis();
-      while (true)
-      {
-         if (factoryInternal.getBackupConnector() != null)
-         {
+      while (true) {
+         if (factoryInternal.getBackupConnector() != null) {
             break;
          }
-         if (System.currentTimeMillis() > (time + toWait))
-         {
+         if (System.currentTimeMillis() > (time + toWait)) {
             fail("Backup wasn't located");
          }
-         try
-         {
+         try {
             Thread.sleep(100);
          }
-         catch (InterruptedException e)
-         {
+         catch (InterruptedException e) {
             fail(e.getMessage());
          }
       }
    }
 
    protected final ActiveMQServer createServer(final boolean realFiles,
-                                              final Configuration configuration,
-                                              final long pageSize,
-                                              final long maxAddressSize,
-                                              final Map<String, AddressSettings> settings)
-   {
+                                               final Configuration configuration,
+                                               final long pageSize,
+                                               final long maxAddressSize,
+                                               final Map<String, AddressSettings> settings) {
       ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(configuration, realFiles));
 
-      if (settings != null)
-      {
-         for (Map.Entry<String, AddressSettings> setting : settings.entrySet())
-         {
+      if (settings != null) {
+         for (Map.Entry<String, AddressSettings> setting : settings.entrySet()) {
             server.getAddressSettingsRepository().addMatch(setting.getKey(), setting.getValue());
          }
       }
 
-      AddressSettings defaultSetting = new AddressSettings()
-              .setPageSizeBytes(pageSize)
-              .setMaxSizeBytes(maxAddressSize)
-              .setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE);
+      AddressSettings defaultSetting = new AddressSettings().setPageSizeBytes(pageSize).setMaxSizeBytes(maxAddressSize).setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE);
 
       server.getAddressSettingsRepository().addMatch("#", defaultSetting);
 
       return server;
    }
 
-   protected final ActiveMQServer createServer(final boolean realFiles) throws Exception
-   {
+   protected final ActiveMQServer createServer(final boolean realFiles) throws Exception {
       return createServer(realFiles, false);
    }
 
-   protected final ActiveMQServer createServer(final boolean realFiles, final boolean netty) throws Exception
-   {
+   protected final ActiveMQServer createServer(final boolean realFiles, final boolean netty) throws Exception {
       return createServer(realFiles, createDefaultConfig(netty), AddressSettings.DEFAULT_PAGE_SIZE, AddressSettings.DEFAULT_MAX_SIZE_BYTES, new HashMap<String, AddressSettings>());
    }
 
-   protected ActiveMQServer createServer(final boolean realFiles, final Configuration configuration)
-   {
+   protected ActiveMQServer createServer(final boolean realFiles, final Configuration configuration) {
       return createServer(realFiles, configuration, AddressSettings.DEFAULT_PAGE_SIZE, AddressSettings.DEFAULT_MAX_SIZE_BYTES, new HashMap<String, AddressSettings>());
    }
 
-   protected final ActiveMQServer createServer(final Configuration configuration)
-   {
+   protected final ActiveMQServer createServer(final Configuration configuration) {
       return createServer(configuration.isPersistenceEnabled(), configuration, AddressSettings.DEFAULT_PAGE_SIZE, AddressSettings.DEFAULT_MAX_SIZE_BYTES, new HashMap<String, AddressSettings>());
    }
 
    protected ActiveMQServer createInVMFailoverServer(final boolean realFiles,
-                                                    final Configuration configuration,
-                                                    final NodeManager nodeManager,
-                                                    final int id)
-   {
-      return createInVMFailoverServer(realFiles,
-                                      configuration,
-                                      -1,
-                                      -1,
-                                      new HashMap<String, AddressSettings>(),
-                                      nodeManager,
-                                      id);
+                                                     final Configuration configuration,
+                                                     final NodeManager nodeManager,
+                                                     final int id) {
+      return createInVMFailoverServer(realFiles, configuration, -1, -1, new HashMap<String, AddressSettings>(), nodeManager, id);
    }
 
    protected ActiveMQServer createInVMFailoverServer(final boolean realFiles,
-                                                    final Configuration configuration,
-                                                    final int pageSize,
-                                                    final int maxAddressSize,
-                                                    final Map<String, AddressSettings> settings,
-                                                    NodeManager nodeManager,
-                                                    final int id)
-   {
+                                                     final Configuration configuration,
+                                                     final int pageSize,
+                                                     final int maxAddressSize,
+                                                     final Map<String, AddressSettings> settings,
+                                                     NodeManager nodeManager,
+                                                     final int id) {
       ActiveMQServer server;
       ActiveMQSecurityManager securityManager = new ActiveMQSecurityManagerImpl();
       configuration.setPersistenceEnabled(realFiles);
-      server = addServer(new InVMNodeManagerServer(configuration,
-                                         ManagementFactory.getPlatformMBeanServer(),
-                                         securityManager,
-                                         nodeManager));
+      server = addServer(new InVMNodeManagerServer(configuration, ManagementFactory.getPlatformMBeanServer(), securityManager, nodeManager));
 
-      try
-      {
+      try {
          server.setIdentity("Server " + id);
 
-         for (Map.Entry<String, AddressSettings> setting : settings.entrySet())
-         {
+         for (Map.Entry<String, AddressSettings> setting : settings.entrySet()) {
             server.getAddressSettingsRepository().addMatch(setting.getKey(), setting.getValue());
          }
 
@@ -1662,52 +1396,36 @@ public abstract class ActiveMQTestBase extends Assert
 
          return server;
       }
-      finally
-      {
+      finally {
          addServer(server);
       }
    }
 
    protected ActiveMQServer createColocatedInVMFailoverServer(final boolean realFiles,
-                                                    final Configuration configuration,
-                                                    NodeManager liveNodeManager,
-                                                    NodeManager backupNodeManager,
-                                                    final int id)
-   {
-      return createColocatedInVMFailoverServer(realFiles,
-            configuration,
-            -1,
-            -1,
-            new HashMap<String, AddressSettings>(),
-            liveNodeManager,
-            backupNodeManager,
-            id);
+                                                              final Configuration configuration,
+                                                              NodeManager liveNodeManager,
+                                                              NodeManager backupNodeManager,
+                                                              final int id) {
+      return createColocatedInVMFailoverServer(realFiles, configuration, -1, -1, new HashMap<String, AddressSettings>(), liveNodeManager, backupNodeManager, id);
    }
 
    protected ActiveMQServer createColocatedInVMFailoverServer(final boolean realFiles,
-                                                    final Configuration configuration,
-                                                    final int pageSize,
-                                                    final int maxAddressSize,
-                                                    final Map<String, AddressSettings> settings,
-                                                    NodeManager liveNodeManager,
-                                                    NodeManager backupNodeManager,
-                                                    final int id)
-   {
+                                                              final Configuration configuration,
+                                                              final int pageSize,
+                                                              final int maxAddressSize,
+                                                              final Map<String, AddressSettings> settings,
+                                                              NodeManager liveNodeManager,
+                                                              NodeManager backupNodeManager,
+                                                              final int id) {
       ActiveMQServer server;
       ActiveMQSecurityManager securityManager = new ActiveMQSecurityManagerImpl();
       configuration.setPersistenceEnabled(realFiles);
-      server = new ColocatedActiveMQServer(configuration,
-            ManagementFactory.getPlatformMBeanServer(),
-            securityManager,
-            liveNodeManager,
-            backupNodeManager);
+      server = new ColocatedActiveMQServer(configuration, ManagementFactory.getPlatformMBeanServer(), securityManager, liveNodeManager, backupNodeManager);
 
-      try
-      {
+      try {
          server.setIdentity("Server " + id);
 
-         for (Map.Entry<String, AddressSettings> setting : settings.entrySet())
-         {
+         for (Map.Entry<String, AddressSettings> setting : settings.entrySet()) {
             server.getAddressSettingsRepository().addMatch(setting.getKey(), setting.getValue());
          }
 
@@ -1719,66 +1437,52 @@ public abstract class ActiveMQTestBase extends Assert
 
          return server;
       }
-      finally
-      {
+      finally {
          addServer(server);
       }
    }
 
    protected ActiveMQServer createClusteredServerWithParams(final boolean isNetty,
-                                                           final int index,
-                                                           final boolean realFiles,
-                                                           final Map<String, Object> params) throws Exception
-   {
+                                                            final int index,
+                                                            final boolean realFiles,
+                                                            final Map<String, Object> params) throws Exception {
       String acceptor = isNetty ? NETTY_ACCEPTOR_FACTORY : INVM_ACCEPTOR_FACTORY;
-      return createServer(realFiles, createDefaultConfig(index, params, acceptor), -1, -1,
-                          new HashMap<String, AddressSettings>());
+      return createServer(realFiles, createDefaultConfig(index, params, acceptor), -1, -1, new HashMap<String, AddressSettings>());
    }
 
    protected ActiveMQServer createClusteredServerWithParams(final boolean isNetty,
-                                                           final int index,
-                                                           final boolean realFiles,
-                                                           final int pageSize,
-                                                           final int maxAddressSize,
-                                                           final Map<String, Object> params) throws Exception
-   {
-      return createServer(realFiles, createDefaultConfig(index, params, (isNetty ? NETTY_ACCEPTOR_FACTORY : INVM_ACCEPTOR_FACTORY)),
-                          pageSize,
-                          maxAddressSize,
-                          new HashMap<String, AddressSettings>());
+                                                            final int index,
+                                                            final boolean realFiles,
+                                                            final int pageSize,
+                                                            final int maxAddressSize,
+                                                            final Map<String, Object> params) throws Exception {
+      return createServer(realFiles, createDefaultConfig(index, params, (isNetty ? NETTY_ACCEPTOR_FACTORY : INVM_ACCEPTOR_FACTORY)), pageSize, maxAddressSize, new HashMap<String, AddressSettings>());
    }
 
-   protected ServerLocator createFactory(final boolean isNetty) throws Exception
-   {
-      if (isNetty)
-      {
+   protected ServerLocator createFactory(final boolean isNetty) throws Exception {
+      if (isNetty) {
          return createNettyNonHALocator();
       }
-      else
-      {
+      else {
          return createInVMNonHALocator();
       }
    }
 
-   protected void createQueue(final String address, final String queue) throws Exception
-   {
+   protected void createQueue(final String address, final String queue) throws Exception {
       ServerLocator locator = createInVMNonHALocator();
       ClientSessionFactory sf = locator.createSessionFactory();
       ClientSession session = sf.createSession();
-      try
-      {
+      try {
          session.createQueue(address, queue);
       }
-      finally
-      {
+      finally {
          session.close();
          closeSessionFactory(sf);
          closeServerLocator(locator);
       }
    }
 
-   protected final ServerLocator createInVMLocator(final int serverID)
-   {
+   protected final ServerLocator createInVMLocator(final int serverID) {
       TransportConfiguration tnspConfig = createInVMTransportConnectorConfig(serverID, UUIDGenerator.getInstance().generateStringUUID());
 
       ServerLocator locator = ActiveMQClient.createServerLocatorWithHA(tnspConfig);
@@ -1789,12 +1493,10 @@ public abstract class ActiveMQTestBase extends Assert
     * @param serverID
     * @return
     */
-   protected final TransportConfiguration createInVMTransportConnectorConfig(final int serverID, String name1)
-   {
+   protected final TransportConfiguration createInVMTransportConnectorConfig(final int serverID, String name1) {
       Map<String, Object> server1Params = new HashMap<String, Object>();
 
-      if (serverID != 0)
-      {
+      if (serverID != 0) {
          server1Params.put(TransportConstants.SERVER_ID_PROP_NAME, serverID);
       }
 
@@ -1802,8 +1504,7 @@ public abstract class ActiveMQTestBase extends Assert
       return tnspConfig;
    }
 
-   public String getTextMessage(final ClientMessage m)
-   {
+   public String getTextMessage(final ClientMessage m) {
       m.getBodyBuffer().resetReaderIndex();
       return m.getBodyBuffer().readString();
    }
@@ -1811,8 +1512,7 @@ public abstract class ActiveMQTestBase extends Assert
    protected ClientMessage createBytesMessage(final ClientSession session,
                                               final byte type,
                                               final byte[] b,
-                                              final boolean durable)
-   {
+                                              final boolean durable) {
       ClientMessage message = session.createMessage(type, durable, 0, System.currentTimeMillis(), (byte) 1);
       message.getBodyBuffer().writeBytes(b);
       return message;
@@ -1823,8 +1523,7 @@ public abstract class ActiveMQTestBase extends Assert
     * @param message
     * @throws Exception
     */
-   protected void setBody(final int i, final ClientMessage message)
-   {
+   protected void setBody(final int i, final ClientMessage message) {
       message.getBodyBuffer().writeString("message" + i);
    }
 
@@ -1832,8 +1531,7 @@ public abstract class ActiveMQTestBase extends Assert
     * @param i
     * @param message
     */
-   protected void assertMessageBody(final int i, final ClientMessage message)
-   {
+   protected void assertMessageBody(final int i, final ClientMessage message) {
       Assert.assertEquals(message.toString(), "message" + i, message.getBodyBuffer().readString());
    }
 
@@ -1845,16 +1543,17 @@ public abstract class ActiveMQTestBase extends Assert
     * @param numMessages
     * @throws Exception
     */
-   public final void sendMessages(ClientSession session, ClientProducer producer, int numMessages) throws ActiveMQException
-   {
-      for (int i = 0; i < numMessages; i++)
-      {
+   public final void sendMessages(ClientSession session,
+                                  ClientProducer producer,
+                                  int numMessages) throws ActiveMQException {
+      for (int i = 0; i < numMessages; i++) {
          producer.send(createMessage(session, i, true));
       }
    }
 
-   protected final ClientMessage createMessage(ClientSession session, int counter, boolean durable) throws ActiveMQException
-   {
+   protected final ClientMessage createMessage(ClientSession session,
+                                               int counter,
+                                               boolean durable) throws ActiveMQException {
       ClientMessage message = session.createMessage(durable);
       setBody(counter, message);
       message.putIntProperty("counter", counter);
@@ -1862,10 +1561,11 @@ public abstract class ActiveMQTestBase extends Assert
       return message;
    }
 
-   protected final void receiveMessages(ClientConsumer consumer, final int start, final int msgCount, final boolean ack) throws ActiveMQException
-   {
-      for (int i = start; i < msgCount; i++)
-      {
+   protected final void receiveMessages(ClientConsumer consumer,
+                                        final int start,
+                                        final int msgCount,
+                                        final boolean ack) throws ActiveMQException {
+      for (int i = start; i < msgCount; i++) {
          ClientMessage message = consumer.receive(1000);
          Assert.assertNotNull("Expecting a message " + i, message);
          // sendCallNumber is just a debugging measure.
@@ -1873,8 +1573,7 @@ public abstract class ActiveMQTestBase extends Assert
          if (prop == null)
             prop = Integer.valueOf(-1);
          final int actual = message.getIntProperty("counter").intValue();
-         Assert.assertEquals("expected=" + i + ". Got: property['counter']=" + actual + " sendNumber=" + prop, i,
-                             actual);
+         Assert.assertEquals("expected=" + i + ". Got: property['counter']=" + actual + " sendNumber=" + prop, i, actual);
          assertMessageBody(i, message);
          if (ack)
             message.acknowledge();
@@ -1889,21 +1588,12 @@ public abstract class ActiveMQTestBase extends Assert
     * @return
     * @throws Exception
     */
-   protected Pair<List<RecordInfo>, List<PreparedTransactionInfo>> loadMessageJournal(Configuration config) throws Exception
-   {
+   protected Pair<List<RecordInfo>, List<PreparedTransactionInfo>> loadMessageJournal(Configuration config) throws Exception {
       JournalImpl messagesJournal = null;
-      try
-      {
+      try {
          SequentialFileFactory messagesFF = new NIOSequentialFileFactory(new File(getJournalDir()), null, 1);
 
-         messagesJournal = new JournalImpl(config.getJournalFileSize(),
-                                           config.getJournalMinFiles(),
-                                           0,
-                                           0,
-                                           messagesFF,
-                                           "activemq-data",
-                                           "amq",
-                                           1);
+         messagesJournal = new JournalImpl(config.getJournalFileSize(), config.getJournalMinFiles(), 0, 0, messagesFF, "activemq-data", "amq", 1);
          final List<RecordInfo> committedRecords = new LinkedList<RecordInfo>();
          final List<PreparedTransactionInfo> preparedTransactions = new LinkedList<PreparedTransactionInfo>();
 
@@ -1913,17 +1603,13 @@ public abstract class ActiveMQTestBase extends Assert
 
          return new Pair<List<RecordInfo>, List<PreparedTransactionInfo>>(committedRecords, preparedTransactions);
       }
-      finally
-      {
-         try
-         {
-            if (messagesJournal != null)
-            {
+      finally {
+         try {
+            if (messagesJournal != null) {
                messagesJournal.stop();
             }
          }
-         catch (Throwable ignored)
-         {
+         catch (Throwable ignored) {
          }
       }
 
@@ -1937,23 +1623,14 @@ public abstract class ActiveMQTestBase extends Assert
     * @return
     * @throws Exception
     */
-   protected HashMap<Integer, AtomicInteger> countJournal(Configuration config) throws Exception
-   {
+   protected HashMap<Integer, AtomicInteger> countJournal(Configuration config) throws Exception {
       final HashMap<Integer, AtomicInteger> recordsType = new HashMap<Integer, AtomicInteger>();
       SequentialFileFactory messagesFF = new NIOSequentialFileFactory(config.getJournalLocation(), null, 1);
 
-      JournalImpl messagesJournal = new JournalImpl(config.getJournalFileSize(),
-                                                    config.getJournalMinFiles(),
-                                                    0,
-                                                    0,
-                                                    messagesFF,
-                                                    "activemq-data",
-                                                    "amq",
-                                                    1);
+      JournalImpl messagesJournal = new JournalImpl(config.getJournalFileSize(), config.getJournalMinFiles(), 0, 0, messagesFF, "activemq-data", "amq", 1);
       List<JournalFile> filesToRead = messagesJournal.orderFiles();
 
-      for (JournalFile file : filesToRead)
-      {
+      for (JournalFile file : filesToRead) {
          JournalImpl.readJournalFile(messagesFF, file, new RecordTypeCounter(recordsType));
       }
       return recordsType;
@@ -1966,8 +1643,7 @@ public abstract class ActiveMQTestBase extends Assert
     * @return
     * @throws Exception
     */
-   protected HashMap<Integer, AtomicInteger> countJournalLivingRecords(Configuration config) throws Exception
-   {
+   protected HashMap<Integer, AtomicInteger> countJournalLivingRecords(Configuration config) throws Exception {
       return internalCountJournalLivingRecords(config, true);
    }
 
@@ -1979,52 +1655,32 @@ public abstract class ActiveMQTestBase extends Assert
     * @return
     * @throws Exception
     */
-   protected HashMap<Integer, AtomicInteger> internalCountJournalLivingRecords(Configuration config, boolean messageJournal) throws Exception
-   {
+   protected HashMap<Integer, AtomicInteger> internalCountJournalLivingRecords(Configuration config,
+                                                                               boolean messageJournal) throws Exception {
       final HashMap<Integer, AtomicInteger> recordsType = new HashMap<Integer, AtomicInteger>();
       SequentialFileFactory ff;
 
       JournalImpl journal;
 
-      if (messageJournal)
-      {
+      if (messageJournal) {
          ff = new NIOSequentialFileFactory(config.getJournalLocation(), null, 1);
-         journal = new JournalImpl(config.getJournalFileSize(),
-                                   config.getJournalMinFiles(),
-                                   0,
-                                   0,
-                                   ff,
-                                   "activemq-data",
-                                   "amq",
-                                   1);
+         journal = new JournalImpl(config.getJournalFileSize(), config.getJournalMinFiles(), 0, 0, ff, "activemq-data", "amq", 1);
       }
-      else
-      {
+      else {
          ff = new NIOSequentialFileFactory(config.getBindingsLocation(), null, 1);
-         journal = new JournalImpl(1024 * 1024,
-                                   2,
-                                   config.getJournalCompactMinFiles(),
-                                   config.getJournalCompactPercentage(),
-                                   ff,
-                                   "activemq-bindings",
-                                   "bindings",
-                                   1);
+         journal = new JournalImpl(1024 * 1024, 2, config.getJournalCompactMinFiles(), config.getJournalCompactPercentage(), ff, "activemq-bindings", "bindings", 1);
       }
       journal.start();
-
 
       final List<RecordInfo> committedRecords = new LinkedList<RecordInfo>();
       final List<PreparedTransactionInfo> preparedTransactions = new LinkedList<PreparedTransactionInfo>();
 
-
       journal.load(committedRecords, preparedTransactions, null, false);
 
-      for (RecordInfo info : committedRecords)
-      {
+      for (RecordInfo info : committedRecords) {
          Integer ikey = new Integer(info.getUserRecordType());
          AtomicInteger value = recordsType.get(ikey);
-         if (value == null)
-         {
+         if (value == null) {
             value = new AtomicInteger();
             recordsType.put(ikey, value);
          }
@@ -2036,76 +1692,62 @@ public abstract class ActiveMQTestBase extends Assert
       return recordsType;
    }
 
-   private static final class RecordTypeCounter implements JournalReaderCallback
-   {
+   private static final class RecordTypeCounter implements JournalReaderCallback {
+
       private final HashMap<Integer, AtomicInteger> recordsType;
 
       /**
        * @param recordsType
        */
-      public RecordTypeCounter(HashMap<Integer, AtomicInteger> recordsType)
-      {
+      public RecordTypeCounter(HashMap<Integer, AtomicInteger> recordsType) {
          this.recordsType = recordsType;
       }
 
-      AtomicInteger getType(byte key)
-      {
-         if (key == 0)
-         {
+      AtomicInteger getType(byte key) {
+         if (key == 0) {
             System.out.println("huh?");
          }
          Integer ikey = new Integer(key);
          AtomicInteger value = recordsType.get(ikey);
-         if (value == null)
-         {
+         if (value == null) {
             value = new AtomicInteger();
             recordsType.put(ikey, value);
          }
          return value;
       }
 
-      public void onReadUpdateRecordTX(long transactionID, RecordInfo recordInfo) throws Exception
-      {
+      public void onReadUpdateRecordTX(long transactionID, RecordInfo recordInfo) throws Exception {
          getType(recordInfo.getUserRecordType()).incrementAndGet();
       }
 
-      public void onReadUpdateRecord(RecordInfo recordInfo) throws Exception
-      {
+      public void onReadUpdateRecord(RecordInfo recordInfo) throws Exception {
          getType(recordInfo.getUserRecordType()).incrementAndGet();
       }
 
-      public void onReadAddRecordTX(long transactionID, RecordInfo recordInfo) throws Exception
-      {
+      public void onReadAddRecordTX(long transactionID, RecordInfo recordInfo) throws Exception {
          getType(recordInfo.getUserRecordType()).incrementAndGet();
       }
 
-      public void onReadAddRecord(RecordInfo recordInfo) throws Exception
-      {
+      public void onReadAddRecord(RecordInfo recordInfo) throws Exception {
          getType(recordInfo.getUserRecordType()).incrementAndGet();
       }
 
-      public void onReadRollbackRecord(long transactionID) throws Exception
-      {
+      public void onReadRollbackRecord(long transactionID) throws Exception {
       }
 
-      public void onReadPrepareRecord(long transactionID, byte[] extraData, int numberOfRecords) throws Exception
-      {
+      public void onReadPrepareRecord(long transactionID, byte[] extraData, int numberOfRecords) throws Exception {
       }
 
-      public void onReadDeleteRecordTX(long transactionID, RecordInfo recordInfo) throws Exception
-      {
+      public void onReadDeleteRecordTX(long transactionID, RecordInfo recordInfo) throws Exception {
       }
 
-      public void onReadDeleteRecord(long recordID) throws Exception
-      {
+      public void onReadDeleteRecord(long recordID) throws Exception {
       }
 
-      public void onReadCommitRecord(long transactionID, int numberOfRecords) throws Exception
-      {
+      public void onReadCommitRecord(long transactionID, int numberOfRecords) throws Exception {
       }
 
-      public void markAsDataFile(JournalFile file0)
-      {
+      public void markAsDataFile(JournalFile file0) {
       }
    }
 
@@ -2125,8 +1767,7 @@ public abstract class ActiveMQTestBase extends Assert
                                      final boolean local,
                                      final int expectedBindingCount,
                                      final int expectedConsumerCount,
-                                     long timeout) throws Exception
-   {
+                                     long timeout) throws Exception {
       final PostOffice po = server.getPostOffice();
 
       long start = System.currentTimeMillis();
@@ -2135,18 +1776,15 @@ public abstract class ActiveMQTestBase extends Assert
 
       int totConsumers = 0;
 
-      do
-      {
+      do {
          bindingCount = 0;
 
          totConsumers = 0;
 
          Bindings bindings = po.getBindingsForAddress(new SimpleString(address));
 
-         for (Binding binding : bindings.getBindings())
-         {
-            if (binding.isConnected() && (binding instanceof LocalQueueBinding && local || binding instanceof RemoteQueueBinding && !local))
-            {
+         for (Binding binding : bindings.getBindings()) {
+            if (binding.isConnected() && (binding instanceof LocalQueueBinding && local || binding instanceof RemoteQueueBinding && !local)) {
                QueueBinding qBinding = (QueueBinding) binding;
 
                bindingCount++;
@@ -2155,14 +1793,12 @@ public abstract class ActiveMQTestBase extends Assert
             }
          }
 
-         if (bindingCount == expectedBindingCount && totConsumers == expectedConsumerCount)
-         {
+         if (bindingCount == expectedBindingCount && totConsumers == expectedConsumerCount) {
             return true;
          }
 
          Thread.sleep(10);
-      }
-      while (System.currentTimeMillis() - start < timeout);
+      } while (System.currentTimeMillis() - start < timeout);
 
       String msg = "Timed out waiting for bindings (bindingCount = " + bindingCount +
          " (expecting " +
@@ -2183,22 +1819,17 @@ public abstract class ActiveMQTestBase extends Assert
     * Deleting a file on LargeDir is an asynchronous process. We need to keep looking for a while if
     * the file hasn't been deleted yet.
     */
-   protected void validateNoFilesOnLargeDir(final String directory, final int expect) throws Exception
-   {
+   protected void validateNoFilesOnLargeDir(final String directory, final int expect) throws Exception {
       File largeMessagesFileDir = new File(directory);
 
       // Deleting the file is async... we keep looking for a period of the time until the file is really gone
       long timeout = System.currentTimeMillis() + 5000;
-      while (timeout > System.currentTimeMillis() && largeMessagesFileDir.listFiles().length != expect)
-      {
+      while (timeout > System.currentTimeMillis() && largeMessagesFileDir.listFiles().length != expect) {
          Thread.sleep(100);
       }
 
-
-      if (expect != largeMessagesFileDir.listFiles().length)
-      {
-         for (File file : largeMessagesFileDir.listFiles())
-         {
+      if (expect != largeMessagesFileDir.listFiles().length) {
+         for (File file : largeMessagesFileDir.listFiles()) {
             System.out.println("File " + file + " still on ");
          }
       }
@@ -2210,47 +1841,38 @@ public abstract class ActiveMQTestBase extends Assert
     * Deleting a file on LargeDire is an asynchronous process. Wee need to keep looking for a while
     * if the file hasn't been deleted yet
     */
-   protected void validateNoFilesOnLargeDir() throws Exception
-   {
+   protected void validateNoFilesOnLargeDir() throws Exception {
       validateNoFilesOnLargeDir(getLargeMessagesDir(), 0);
    }
 
-   public void printBindings(ActiveMQServer server, String address) throws Exception
-   {
+   public void printBindings(ActiveMQServer server, String address) throws Exception {
       PostOffice po = server.getPostOffice();
       Bindings bindings = po.getBindingsForAddress(new SimpleString(address));
 
       System.err.println("=======================================================================");
       System.err.println("Binding information for address = " + address + " for server " + server);
 
-      for (Binding binding : bindings.getBindings())
-      {
+      for (Binding binding : bindings.getBindings()) {
          QueueBinding qBinding = (QueueBinding) binding;
          System.err.println("Binding = " + qBinding + ", queue=" + qBinding.getQueue());
       }
 
    }
 
-   private void assertAllExecutorsFinished() throws InterruptedException
-   {
-      for (ExecutorService s : executorSet)
-      {
+   private void assertAllExecutorsFinished() throws InterruptedException {
+      for (ExecutorService s : executorSet) {
          Assert.assertTrue(s.awaitTermination(5, TimeUnit.SECONDS));
       }
    }
 
-   private ArrayList<Exception> checkCsfStopped()
-   {
+   private ArrayList<Exception> checkCsfStopped() {
       long time = System.currentTimeMillis();
       long waitUntil = time + 5000;
-      while (!ClientSessionFactoryImpl.CLOSE_RUNNABLES.isEmpty() && time < waitUntil)
-      {
-         try
-         {
+      while (!ClientSessionFactoryImpl.CLOSE_RUNNABLES.isEmpty() && time < waitUntil) {
+         try {
             Thread.sleep(50);
          }
-         catch (InterruptedException e)
-         {
+         catch (InterruptedException e) {
             //ignore
          }
          time = System.currentTimeMillis();
@@ -2258,12 +1880,9 @@ public abstract class ActiveMQTestBase extends Assert
       List<ClientSessionFactoryImpl.CloseRunnable> closeRunnables = new ArrayList<>(ClientSessionFactoryImpl.CLOSE_RUNNABLES);
       ArrayList<Exception> exceptions = new ArrayList<>();
 
-      if (!closeRunnables.isEmpty())
-      {
-         for (ClientSessionFactoryImpl.CloseRunnable closeRunnable : closeRunnables)
-         {
-            if (closeRunnable != null)
-            {
+      if (!closeRunnables.isEmpty()) {
+         for (ClientSessionFactoryImpl.CloseRunnable closeRunnable : closeRunnables) {
+            if (closeRunnable != null) {
                exceptions.add(closeRunnable.stop().createTrace);
             }
          }
@@ -2272,12 +1891,9 @@ public abstract class ActiveMQTestBase extends Assert
       return exceptions;
    }
 
-   private void assertAllClientProducersAreClosed()
-   {
-      synchronized (clientProducers)
-      {
-         for (ClientProducer p : clientProducers)
-         {
+   private void assertAllClientProducersAreClosed() {
+      synchronized (clientProducers) {
+         for (ClientProducer p : clientProducers) {
             assertTrue(p + " should be closed", p.isClosed());
          }
          clientProducers.clear();
@@ -2287,12 +1903,9 @@ public abstract class ActiveMQTestBase extends Assert
    /**
     *
     */
-   private void closeAllOtherComponents()
-   {
-      synchronized (otherComponents)
-      {
-         for (ActiveMQComponent c : otherComponents)
-         {
+   private void closeAllOtherComponents() {
+      synchronized (otherComponents) {
+         for (ActiveMQComponent c : otherComponents) {
             stopComponent(c);
          }
          otherComponents.clear();
@@ -2303,28 +1916,23 @@ public abstract class ActiveMQTestBase extends Assert
     * @param buffer
     * @return
     */
-   private boolean checkThread(StringBuffer buffer)
-   {
+   private boolean checkThread(StringBuffer buffer) {
       boolean failedThread = false;
 
       Map<Thread, StackTraceElement[]> postThreads = Thread.getAllStackTraces();
 
-      if (postThreads != null && previousThreads != null && postThreads.size() > previousThreads.size())
-      {
+      if (postThreads != null && previousThreads != null && postThreads.size() > previousThreads.size()) {
 
          buffer.append("*********************************************************************************\n");
          buffer.append("LEAKING THREADS\n");
 
-         for (Thread aliveThread : postThreads.keySet())
-         {
-            if (!isExpectedThread(aliveThread) && !previousThreads.containsKey(aliveThread))
-            {
+         for (Thread aliveThread : postThreads.keySet()) {
+            if (!isExpectedThread(aliveThread) && !previousThreads.containsKey(aliveThread)) {
                failedThread = true;
                buffer.append("=============================================================================\n");
                buffer.append("Thread " + aliveThread + " is still alive with the following stackTrace:\n");
                StackTraceElement[] elements = postThreads.get(aliveThread);
-               for (StackTraceElement el : elements)
-               {
+               for (StackTraceElement el : elements) {
                   buffer.append(el + "\n");
                }
             }
@@ -2342,54 +1950,42 @@ public abstract class ActiveMQTestBase extends Assert
     * @param thread
     * @return
     */
-   private boolean isExpectedThread(Thread thread)
-   {
+   private boolean isExpectedThread(Thread thread) {
       final String threadName = thread.getName();
       final ThreadGroup group = thread.getThreadGroup();
       final boolean isSystemThread = group != null && "system".equals(group.getName());
       final String javaVendor = System.getProperty("java.vendor");
 
-      if (threadName.contains("SunPKCS11"))
-      {
+      if (threadName.contains("SunPKCS11")) {
          return true;
       }
-      else if (threadName.contains("Attach Listener"))
-      {
+      else if (threadName.contains("Attach Listener")) {
          return true;
       }
-      else if ((javaVendor.contains("IBM") || isSystemThread) && threadName.equals("process reaper"))
-      {
+      else if ((javaVendor.contains("IBM") || isSystemThread) && threadName.equals("process reaper")) {
          return true;
       }
-      else if (javaVendor.contains("IBM") && threadName.equals("MemoryPoolMXBean notification dispatcher"))
-      {
+      else if (javaVendor.contains("IBM") && threadName.equals("MemoryPoolMXBean notification dispatcher")) {
          return true;
       }
-      else if (threadName.contains("globalEventExecutor"))
-      {
+      else if (threadName.contains("globalEventExecutor")) {
          return true;
       }
-      else if (threadName.contains("threadDeathWatcher"))
-      {
+      else if (threadName.contains("threadDeathWatcher")) {
          return true;
       }
-      else if (threadName.contains("netty-threads"))
-      {
+      else if (threadName.contains("netty-threads")) {
          // This is ok as we use EventLoopGroup.shutdownGracefully() which will shutdown things with a bit of delay
          // if the EventLoop's are still busy.
          return true;
       }
-      else if (threadName.contains("threadDeathWatcher"))
-      {
+      else if (threadName.contains("threadDeathWatcher")) {
          //another netty thread
          return true;
       }
-      else
-      {
-         for (StackTraceElement element : thread.getStackTrace())
-         {
-            if (element.getClassName().contains("org.jboss.byteman.agent.TransformListener"))
-            {
+      else {
+         for (StackTraceElement element : thread.getStackTrace()) {
+            if (element.getClassName().contains("org.jboss.byteman.agent.TransformListener")) {
                return true;
             }
          }
@@ -2397,97 +1993,82 @@ public abstract class ActiveMQTestBase extends Assert
       }
    }
 
-   private void checkFilesUsage()
-   {
-
+   private void checkFilesUsage() {
 
       long timeout = System.currentTimeMillis() + 15000;
 
-//      while (AsynchronousFileImpl.getTotalMaxIO() != 0 && System.currentTimeMillis() > timeout)
-//      {
-//         try
-//         {
-//            Thread.sleep(100);
-//         }
-//         catch (Exception ignored)
-//         {
-//         }
-//      }
-//
-//      int invmSize = InVMRegistry.instance.size();
-//      if (invmSize > 0)
-//      {
-//         InVMRegistry.instance.clear();
-//         log.info(threadDump("Thread dump"));
-//         fail("invm registry still had acceptors registered");
-//      }
-//
-//      final int totalMaxIO = AsynchronousFileImpl.getTotalMaxIO();
-//      if (totalMaxIO != 0)
-//      {
-//         AsynchronousFileImpl.resetMaxAIO();
-//         Assert.fail("test did not close all its files " + totalMaxIO);
-//      }
+      //      while (AsynchronousFileImpl.getTotalMaxIO() != 0 && System.currentTimeMillis() > timeout)
+      //      {
+      //         try
+      //         {
+      //            Thread.sleep(100);
+      //         }
+      //         catch (Exception ignored)
+      //         {
+      //         }
+      //      }
+      //
+      //      int invmSize = InVMRegistry.instance.size();
+      //      if (invmSize > 0)
+      //      {
+      //         InVMRegistry.instance.clear();
+      //         log.info(threadDump("Thread dump"));
+      //         fail("invm registry still had acceptors registered");
+      //      }
+      //
+      //      final int totalMaxIO = AsynchronousFileImpl.getTotalMaxIO();
+      //      if (totalMaxIO != 0)
+      //      {
+      //         AsynchronousFileImpl.resetMaxAIO();
+      //         Assert.fail("test did not close all its files " + totalMaxIO);
+      //      }
    }
 
-   private void cleanupPools()
-   {
+   private void cleanupPools() {
       OperationContextImpl.clearContext();
 
       // We shutdown the global pools to give a better isolation between tests
-      try
-      {
+      try {
          ServerLocatorImpl.clearThreadPools();
       }
-      catch (Throwable e)
-      {
+      catch (Throwable e) {
          log.info(threadDump(e.getMessage()));
          System.err.println(threadDump(e.getMessage()));
       }
 
-      try
-      {
+      try {
          NettyConnector.clearThreadPools();
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          log.info(threadDump(e.getMessage()));
          System.err.println(threadDump(e.getMessage()));
       }
    }
 
-   protected static final void recreateDirectory(final String directory)
-   {
+   protected static final void recreateDirectory(final String directory) {
       File file = new File(directory);
       deleteDirectory(file);
       file.mkdirs();
    }
 
-   protected static final boolean deleteDirectory(final File directory)
-   {
-      if (directory.isDirectory())
-      {
+   protected static final boolean deleteDirectory(final File directory) {
+      if (directory.isDirectory()) {
          String[] files = directory.list();
          int num = 5;
          int attempts = 0;
-         while (files == null && (attempts < num))
-         {
-            try
-            {
+         while (files == null && (attempts < num)) {
+            try {
                Thread.sleep(100);
             }
-            catch (InterruptedException e)
-            {
+            catch (InterruptedException e) {
             }
             files = directory.list();
             attempts++;
          }
 
-         for (String file : files)
-         {
+         for (String file : files) {
             File f = new File(directory, file);
-            if (!deleteDirectory(f))
-            {
+            if (!deleteDirectory(f)) {
                log.warn("Failed to clean up file: " + f.getAbsolutePath());
             }
          }
@@ -2496,68 +2077,55 @@ public abstract class ActiveMQTestBase extends Assert
       return directory.delete();
    }
 
-   protected static final void copyRecursive(final File from, final File to) throws Exception
-   {
-      if (from.isDirectory())
-      {
-         if (!to.exists())
-         {
+   protected static final void copyRecursive(final File from, final File to) throws Exception {
+      if (from.isDirectory()) {
+         if (!to.exists()) {
             to.mkdir();
          }
 
          String[] subs = from.list();
 
-         for (String sub : subs)
-         {
+         for (String sub : subs) {
             copyRecursive(new File(from, sub), new File(to, sub));
          }
       }
-      else
-      {
+      else {
          InputStream in = null;
 
          OutputStream out = null;
 
-         try
-         {
+         try {
             in = new BufferedInputStream(new FileInputStream(from));
 
             out = new BufferedOutputStream(new FileOutputStream(to));
 
             int b;
 
-            while ((b = in.read()) != -1)
-            {
+            while ((b = in.read()) != -1) {
                out.write(b);
             }
          }
-         finally
-         {
-            if (in != null)
-            {
+         finally {
+            if (in != null) {
                in.close();
             }
 
-            if (out != null)
-            {
+            if (out != null) {
                out.close();
             }
          }
       }
    }
 
-   protected void assertRefListsIdenticalRefs(final List<MessageReference> l1, final List<MessageReference> l2)
-   {
-      if (l1.size() != l2.size())
-      {
+   protected void assertRefListsIdenticalRefs(final List<MessageReference> l1, final List<MessageReference> l2) {
+      if (l1.size() != l2.size()) {
          Assert.fail("Lists different sizes: " + l1.size() + ", " + l2.size());
       }
 
       Iterator<MessageReference> iter1 = l1.iterator();
       Iterator<MessageReference> iter2 = l2.iterator();
 
-      while (iter1.hasNext())
-      {
+      while (iter1.hasNext()) {
          MessageReference o1 = iter1.next();
          MessageReference o2 = iter2.next();
 
@@ -2565,8 +2133,7 @@ public abstract class ActiveMQTestBase extends Assert
       }
    }
 
-   protected ServerMessage generateMessage(final long id)
-   {
+   protected ServerMessage generateMessage(final long id) {
       ServerMessage message = new ServerMessageImpl(id, 1000);
 
       message.setMessageID(id);
@@ -2578,42 +2145,31 @@ public abstract class ActiveMQTestBase extends Assert
       return message;
    }
 
-   protected MessageReference generateReference(final Queue queue, final long id)
-   {
+   protected MessageReference generateReference(final Queue queue, final long id) {
       ServerMessage message = generateMessage(id);
 
       return message.createReference(queue);
    }
 
-   protected int calculateRecordSize(final int size, final int alignment)
-   {
+   protected int calculateRecordSize(final int size, final int alignment) {
       return (size / alignment + (size % alignment != 0 ? 1 : 0)) * alignment;
    }
 
-   protected ClientMessage createTextMessage(final ClientSession session, final String s)
-   {
+   protected ClientMessage createTextMessage(final ClientSession session, final String s) {
       return createTextMessage(session, s, true);
    }
 
-
-   protected ClientMessage createTextMessage(final ClientSession session, final String s, final boolean durable)
-   {
-      ClientMessage message = session.createMessage(Message.TEXT_TYPE,
-                                                    durable,
-                                                    0,
-                                                    System.currentTimeMillis(),
-                                                    (byte) 4);
+   protected ClientMessage createTextMessage(final ClientSession session, final String s, final boolean durable) {
+      ClientMessage message = session.createMessage(Message.TEXT_TYPE, durable, 0, System.currentTimeMillis(), (byte) 4);
       message.getBodyBuffer().writeString(s);
       return message;
    }
 
-   protected XidImpl newXID()
-   {
+   protected XidImpl newXID() {
       return new XidImpl("xa1".getBytes(), 1, UUIDGenerator.getInstance().generateStringUUID().getBytes());
    }
 
-   protected int getMessageCount(final ActiveMQServer service, final String address) throws Exception
-   {
+   protected int getMessageCount(final ActiveMQServer service, final String address) throws Exception {
       return getMessageCount(service.getPostOffice(), address);
    }
 
@@ -2623,14 +2179,12 @@ public abstract class ActiveMQTestBase extends Assert
     * @return
     * @throws Exception
     */
-   protected int getMessageCount(final PostOffice postOffice, final String address) throws Exception
-   {
+   protected int getMessageCount(final PostOffice postOffice, final String address) throws Exception {
       int messageCount = 0;
 
       List<QueueBinding> bindings = getLocalQueueBindings(postOffice, address);
 
-      for (QueueBinding qBinding : bindings)
-      {
+      for (QueueBinding qBinding : bindings) {
          qBinding.getQueue().flushExecutor();
          messageCount += getMessageCount(qBinding.getQueue());
       }
@@ -2638,46 +2192,39 @@ public abstract class ActiveMQTestBase extends Assert
       return messageCount;
    }
 
-   protected int getMessageCount(final Queue queue)
-   {
+   protected int getMessageCount(final Queue queue) {
       queue.flushExecutor();
-      return (int)queue.getMessageCount();
+      return (int) queue.getMessageCount();
    }
 
-   protected int getMessagesAdded(final Queue queue)
-   {
+   protected int getMessagesAdded(final Queue queue) {
       queue.flushExecutor();
-      return (int)queue.getMessagesAdded();
+      return (int) queue.getMessagesAdded();
    }
 
-   private List<QueueBinding> getLocalQueueBindings(final PostOffice postOffice, final String address) throws Exception
-   {
+   private List<QueueBinding> getLocalQueueBindings(final PostOffice postOffice,
+                                                    final String address) throws Exception {
       ArrayList<QueueBinding> bindingsFound = new ArrayList<QueueBinding>();
 
       Bindings bindings = postOffice.getBindingsForAddress(new SimpleString(address));
 
-      for (Binding binding : bindings.getBindings())
-      {
-         if (binding instanceof LocalQueueBinding)
-         {
+      for (Binding binding : bindings.getBindings()) {
+         if (binding instanceof LocalQueueBinding) {
             bindingsFound.add((QueueBinding) binding);
          }
       }
       return bindingsFound;
    }
 
-   protected final ServerLocator createInVMNonHALocator()
-   {
+   protected final ServerLocator createInVMNonHALocator() {
       return createNonHALocator(false);
    }
 
-   protected final ServerLocator createNettyNonHALocator()
-   {
+   protected final ServerLocator createNettyNonHALocator() {
       return createNonHALocator(true);
    }
 
-   protected final ServerLocator createNonHALocator(final boolean isNetty)
-   {
+   protected final ServerLocator createNonHALocator(final boolean isNetty) {
       ServerLocator locatorWithoutHA = internalCreateNonHALocator(isNetty);
       return addServerLocator(locatorWithoutHA);
    }
@@ -2685,141 +2232,108 @@ public abstract class ActiveMQTestBase extends Assert
    /**
     * Creates the Locator without adding it to the list where the tearDown will take place
     * This is because we don't want it closed in certain tests where we are issuing failures
+    *
     * @param isNetty
     * @return
     */
-   public ServerLocator internalCreateNonHALocator(boolean isNetty)
-   {
-      return isNetty
-              ? ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(NETTY_CONNECTOR_FACTORY))
-              : ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(INVM_CONNECTOR_FACTORY));
+   public ServerLocator internalCreateNonHALocator(boolean isNetty) {
+      return isNetty ? ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(NETTY_CONNECTOR_FACTORY)) : ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(INVM_CONNECTOR_FACTORY));
    }
 
-   protected static final void stopComponent(ActiveMQComponent component)
-   {
+   protected static final void stopComponent(ActiveMQComponent component) {
       if (component == null)
          return;
-      try
-      {
+      try {
          component.stop();
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          // no-op
       }
    }
 
-   protected static final void stopComponentOutputExceptions(ActiveMQComponent component)
-   {
+   protected static final void stopComponentOutputExceptions(ActiveMQComponent component) {
       if (component == null)
          return;
-      try
-      {
+      try {
          component.stop();
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          System.err.println("Exception closing " + component);
          e.printStackTrace();
       }
    }
 
-   protected final ClientSessionFactory createSessionFactory(ServerLocator locator) throws Exception
-   {
+   protected final ClientSessionFactory createSessionFactory(ServerLocator locator) throws Exception {
       ClientSessionFactory sf = locator.createSessionFactory();
       addSessionFactory(sf);
       return sf;
    }
 
-   protected final ActiveMQServer addServer(final ActiveMQServer server)
-   {
-      if (server != null)
-      {
-         synchronized (servers)
-         {
+   protected final ActiveMQServer addServer(final ActiveMQServer server) {
+      if (server != null) {
+         synchronized (servers) {
             servers.add(server);
          }
       }
       return server;
    }
 
-   protected final ServerLocator addServerLocator(final ServerLocator locator)
-   {
-      if (locator != null)
-      {
-         synchronized (locators)
-         {
+   protected final ServerLocator addServerLocator(final ServerLocator locator) {
+      if (locator != null) {
+         synchronized (locators) {
             locators.add(locator);
          }
       }
       return locator;
    }
 
-   protected final ClientSession addClientSession(final ClientSession session)
-   {
-      if (session != null)
-      {
-         synchronized (clientSessions)
-         {
+   protected final ClientSession addClientSession(final ClientSession session) {
+      if (session != null) {
+         synchronized (clientSessions) {
             clientSessions.add(session);
          }
       }
       return session;
    }
 
-   protected final ClientConsumer addClientConsumer(final ClientConsumer consumer)
-   {
-      if (consumer != null)
-      {
-         synchronized (clientConsumers)
-         {
+   protected final ClientConsumer addClientConsumer(final ClientConsumer consumer) {
+      if (consumer != null) {
+         synchronized (clientConsumers) {
             clientConsumers.add(consumer);
          }
       }
       return consumer;
    }
 
-   protected final ClientProducer addClientProducer(final ClientProducer producer)
-   {
-      if (producer != null)
-      {
-         synchronized (clientProducers)
-         {
+   protected final ClientProducer addClientProducer(final ClientProducer producer) {
+      if (producer != null) {
+         synchronized (clientProducers) {
             clientProducers.add(producer);
          }
       }
       return producer;
    }
 
-   protected final void addActiveMQComponent(final ActiveMQComponent component)
-   {
-      if (component != null)
-      {
-         synchronized (otherComponents)
-         {
+   protected final void addActiveMQComponent(final ActiveMQComponent component) {
+      if (component != null) {
+         synchronized (otherComponents) {
             otherComponents.add(component);
          }
       }
    }
 
-   protected final ClientSessionFactory addSessionFactory(final ClientSessionFactory sf)
-   {
-      if (sf != null)
-      {
-         synchronized (sessionFactories)
-         {
+   protected final ClientSessionFactory addSessionFactory(final ClientSessionFactory sf) {
+      if (sf != null) {
+         synchronized (sessionFactories) {
             sessionFactories.add(sf);
          }
       }
       return sf;
    }
 
-   private void assertAllClientConsumersAreClosed()
-   {
-      synchronized (clientConsumers)
-      {
-         for (ClientConsumer cc : clientConsumers)
-         {
+   private void assertAllClientConsumersAreClosed() {
+      synchronized (clientConsumers) {
+         for (ClientConsumer cc : clientConsumers) {
             if (cc == null)
                continue;
             assertTrue(cc.isClosed());
@@ -2828,12 +2342,9 @@ public abstract class ActiveMQTestBase extends Assert
       }
    }
 
-   private void assertAllClientSessionsAreClosed()
-   {
-      synchronized (clientSessions)
-      {
-         for (final ClientSession cs : clientSessions)
-         {
+   private void assertAllClientSessionsAreClosed() {
+      synchronized (clientSessions) {
+         for (final ClientSession cs : clientSessions) {
             if (cs == null)
                continue;
             assertTrue(cs.isClosed());
@@ -2842,12 +2353,9 @@ public abstract class ActiveMQTestBase extends Assert
       }
    }
 
-   protected void closeAllSessionFactories()
-   {
-      synchronized (sessionFactories)
-      {
-         for (ClientSessionFactory sf : sessionFactories)
-         {
+   protected void closeAllSessionFactories() {
+      synchronized (sessionFactories) {
+         for (ClientSessionFactory sf : sessionFactories) {
             closeSessionFactory(sf);
             assert sf.isClosed();
          }
@@ -2855,51 +2363,40 @@ public abstract class ActiveMQTestBase extends Assert
       }
    }
 
-   protected void closeAllServerLocatorsFactories()
-   {
-      synchronized (locators)
-      {
-         for (ServerLocator locator : locators)
-         {
+   protected void closeAllServerLocatorsFactories() {
+      synchronized (locators) {
+         for (ServerLocator locator : locators) {
             closeServerLocator(locator);
          }
          locators.clear();
       }
    }
 
-   public static final void closeServerLocator(ServerLocator locator)
-   {
+   public static final void closeServerLocator(ServerLocator locator) {
       if (locator == null)
          return;
-      try
-      {
+      try {
          locator.close();
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          e.printStackTrace();
       }
    }
 
-   public static final void closeSessionFactory(final ClientSessionFactory sf)
-   {
+   public static final void closeSessionFactory(final ClientSessionFactory sf) {
       if (sf == null)
          return;
-      try
-      {
+      try {
          sf.close();
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          e.printStackTrace();
       }
    }
 
-   public static void crashAndWaitForFailure(ActiveMQServer server, ClientSession... sessions) throws Exception
-   {
+   public static void crashAndWaitForFailure(ActiveMQServer server, ClientSession... sessions) throws Exception {
       CountDownLatch latch = new CountDownLatch(sessions.length);
-      for (ClientSession session : sessions)
-      {
+      for (ClientSession session : sessions) {
          CountDownSessionFailureListener listener = new CountDownSessionFailureListener(latch, session);
          session.addFailureListener(listener);
       }
@@ -2910,65 +2407,53 @@ public abstract class ActiveMQTestBase extends Assert
       Assert.assertTrue("server should be running!", server.isStarted());
       server.stop(true);
 
-      if (sessions.length > 0)
-      {
+      if (sessions.length > 0) {
          // Wait to be informed of failure
          boolean ok = latch.await(10000, TimeUnit.MILLISECONDS);
          Assert.assertTrue("Failed to stop the server! Latch count is " + latch.getCount() + " out of " +
-                                   sessions.length, ok);
+                              sessions.length, ok);
       }
    }
 
-   public static void crashAndWaitForFailure(ActiveMQServer server, ServerLocator locator) throws Exception
-   {
+   public static void crashAndWaitForFailure(ActiveMQServer server, ServerLocator locator) throws Exception {
       ClientSessionFactory sf = locator.createSessionFactory();
       ClientSession session = sf.createSession();
-      try
-      {
+      try {
          crashAndWaitForFailure(server, session);
       }
-      finally
-      {
-         try
-         {
+      finally {
+         try {
             session.close();
             sf.close();
          }
-         catch (Exception ignored)
-         {
+         catch (Exception ignored) {
          }
       }
    }
 
-   public interface RunnerWithEX
-   {
+   public interface RunnerWithEX {
+
       void run() throws Throwable;
    }
 
    // This can be used to interrupt a thread if it takes more than timeoutMilliseconds
-   public boolean runWithTimeout(final RunnerWithEX runner, final long timeoutMilliseconds) throws Throwable
-   {
+   public boolean runWithTimeout(final RunnerWithEX runner, final long timeoutMilliseconds) throws Throwable {
 
-      class ThreadRunner extends Thread
-      {
+      class ThreadRunner extends Thread {
 
          Throwable t;
 
          final RunnerWithEX run;
 
-         ThreadRunner(RunnerWithEX run)
-         {
+         ThreadRunner(RunnerWithEX run) {
             this.run = run;
          }
 
-         public void run()
-         {
-            try
-            {
+         public void run() {
+            try {
                runner.run();
             }
-            catch (Throwable t)
-            {
+            catch (Throwable t) {
                this.t = t;
             }
          }
@@ -2979,14 +2464,11 @@ public abstract class ActiveMQTestBase extends Assert
       runnerThread.start();
 
       boolean hadToInterrupt = false;
-      while (runnerThread.isAlive())
-      {
+      while (runnerThread.isAlive()) {
          runnerThread.join(timeoutMilliseconds);
-         if (runnerThread.isAlive())
-         {
+         if (runnerThread.isAlive()) {
             System.err.println("Thread still running, interrupting it now:");
-            for (Object t : runnerThread.getStackTrace())
-            {
+            for (Object t : runnerThread.getStackTrace()) {
                System.err.println(t);
             }
             hadToInterrupt = true;
@@ -2994,8 +2476,7 @@ public abstract class ActiveMQTestBase extends Assert
          }
       }
 
-      if (runnerThread.t != null)
-      {
+      if (runnerThread.t != null) {
          runnerThread.t.printStackTrace();
          throw runnerThread.t;
       }
@@ -3005,13 +2486,12 @@ public abstract class ActiveMQTestBase extends Assert
       return !hadToInterrupt;
    }
 
-
    // Private -------------------------------------------------------
 
    // Inner classes -------------------------------------------------
 
-   protected interface ActiveMQAction
-   {
+   protected interface ActiveMQAction {
+
       void run() throws Exception;
    }
 
@@ -3024,8 +2504,7 @@ public abstract class ActiveMQTestBase extends Assert
     * @param latch
     * @throws InterruptedException
     */
-   public static void waitForLatch(CountDownLatch latch) throws InterruptedException
-   {
+   public static void waitForLatch(CountDownLatch latch) throws InterruptedException {
       assertTrue("Latch has got to return within a minute", latch.await(1, TimeUnit.MINUTES));
    }
 }

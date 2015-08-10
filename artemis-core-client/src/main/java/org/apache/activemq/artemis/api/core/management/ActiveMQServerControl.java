@@ -21,8 +21,8 @@ import javax.management.MBeanOperationInfo;
 /**
  * An ActiveMQServerControl is used to manage ActiveMQ Artemis servers.
  */
-public interface ActiveMQServerControl
-{
+public interface ActiveMQServerControl {
+
    /**
     * Returns this server's version.
     */
@@ -131,7 +131,6 @@ public interface ActiveMQServerControl
     * do any clients failover on a server shutdown
     */
    void setFailoverOnServerShutdown(boolean failoverOnServerShutdown) throws Exception;
-
 
    /**
     * returns if clients failover on a server shutdown
@@ -513,15 +512,14 @@ public interface ActiveMQServerControl
    void sendQueueInfoToQueue(String queueName, String address) throws Exception;
 
    @Operation(desc = "Add security settings for addresses matching the addressMatch", impact = MBeanOperationInfo.ACTION)
-   void addSecuritySettings(
-      @Parameter(desc = "an address match", name = "addressMatch") String addressMatch,
-      @Parameter(desc = "a comma-separated list of roles allowed to send messages", name = "send") String sendRoles,
-      @Parameter(desc = "a comma-separated list of roles allowed to consume messages", name = "consume") String consumeRoles,
-      @Parameter(desc = "a comma-separated list of roles allowed to create durable queues", name = "createDurableQueueRoles") String createDurableQueueRoles,
-      @Parameter(desc = "a comma-separated list of roles allowed to delete durable queues", name = "deleteDurableQueueRoles") String deleteDurableQueueRoles,
-      @Parameter(desc = "a comma-separated list of roles allowed to create non durable queues", name = "createNonDurableQueueRoles") String createNonDurableQueueRoles,
-      @Parameter(desc = "a comma-separated list of roles allowed to delete non durable queues", name = "deleteNonDurableQueueRoles") String deleteNonDurableQueueRoles,
-      @Parameter(desc = "a comma-separated list of roles allowed to send management messages messages", name = "manage") String manageRoles) throws Exception;
+   void addSecuritySettings(@Parameter(desc = "an address match", name = "addressMatch") String addressMatch,
+                            @Parameter(desc = "a comma-separated list of roles allowed to send messages", name = "send") String sendRoles,
+                            @Parameter(desc = "a comma-separated list of roles allowed to consume messages", name = "consume") String consumeRoles,
+                            @Parameter(desc = "a comma-separated list of roles allowed to create durable queues", name = "createDurableQueueRoles") String createDurableQueueRoles,
+                            @Parameter(desc = "a comma-separated list of roles allowed to delete durable queues", name = "deleteDurableQueueRoles") String deleteDurableQueueRoles,
+                            @Parameter(desc = "a comma-separated list of roles allowed to create non durable queues", name = "createNonDurableQueueRoles") String createNonDurableQueueRoles,
+                            @Parameter(desc = "a comma-separated list of roles allowed to delete non durable queues", name = "deleteNonDurableQueueRoles") String deleteNonDurableQueueRoles,
+                            @Parameter(desc = "a comma-separated list of roles allowed to send management messages messages", name = "manage") String manageRoles) throws Exception;
 
    @Operation(desc = "Remove security settings for an address", impact = MBeanOperationInfo.ACTION)
    void removeSecuritySettings(@Parameter(desc = "an address match", name = "addressMatch") String addressMatch) throws Exception;
@@ -600,7 +598,6 @@ public interface ActiveMQServerControl
                      @Parameter(name = "user", desc = "User name") String user,
                      @Parameter(name = "password", desc = "User password") String password) throws Exception;
 
-
    @Operation(desc = "Destroy a bridge", impact = MBeanOperationInfo.ACTION)
    void destroyBridge(@Parameter(name = "name", desc = "Name of the bridge") String name) throws Exception;
 
@@ -610,6 +607,6 @@ public interface ActiveMQServerControl
    void updateDuplicateIdCache(String address, Object[] ids) throws Exception;
 
    @Operation(desc = "force the server to stop and to scale down to another server", impact = MBeanOperationInfo.UNKNOWN)
-   void scaleDown(@Parameter(name = "name", desc = "The connector to use to scale down, if not provided the first appropriate connector will be used")String connector) throws Exception;
+   void scaleDown(@Parameter(name = "name", desc = "The connector to use to scale down, if not provided the first appropriate connector will be used") String connector) throws Exception;
 }
 

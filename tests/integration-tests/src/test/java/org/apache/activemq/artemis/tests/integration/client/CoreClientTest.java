@@ -32,8 +32,8 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class CoreClientTest extends ActiveMQTestBase
-{
+public class CoreClientTest extends ActiveMQTestBase {
+
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    // Constants -----------------------------------------------------
@@ -47,19 +47,16 @@ public class CoreClientTest extends ActiveMQTestBase
    // Public --------------------------------------------------------
 
    @Test
-   public void testCoreClientNetty() throws Exception
-   {
+   public void testCoreClientNetty() throws Exception {
       testCoreClient(true);
    }
 
    @Test
-   public void testCoreClientInVM() throws Exception
-   {
+   public void testCoreClientInVM() throws Exception {
       testCoreClient(false);
    }
 
-   private void testCoreClient(final boolean netty) throws Exception
-   {
+   private void testCoreClient(final boolean netty) throws Exception {
       final SimpleString QUEUE = new SimpleString("CoreClientTestQueue");
 
       ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(createDefaultConfig(netty), false));
@@ -77,13 +74,8 @@ public class CoreClientTest extends ActiveMQTestBase
 
       final int numMessages = 1000;
 
-      for (int i = 0; i < numMessages; i++)
-      {
-         ClientMessage message = session.createMessage(ActiveMQTextMessage.TYPE,
-                                                             false,
-                                                             0,
-                                                             System.currentTimeMillis(),
-                                                             (byte)1);
+      for (int i = 0; i < numMessages; i++) {
+         ClientMessage message = session.createMessage(ActiveMQTextMessage.TYPE, false, 0, System.currentTimeMillis(), (byte) 1);
 
          message.putStringProperty("foo", "bar");
 
@@ -104,8 +96,7 @@ public class CoreClientTest extends ActiveMQTestBase
 
       session.start();
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message2 = consumer.receive();
 
          ActiveMQBuffer buffer = message2.getBodyBuffer();

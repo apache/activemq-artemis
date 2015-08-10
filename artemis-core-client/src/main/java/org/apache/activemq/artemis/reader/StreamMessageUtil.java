@@ -21,8 +21,8 @@ import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.utils.DataConstants;
 
-public class StreamMessageUtil extends MessageUtil
-{
+public class StreamMessageUtil extends MessageUtil {
+
    /**
     * Method to read boolean values out of the Stream protocol existent on JMS Stream Messages
     * Throws IllegalStateException if the type was invalid
@@ -30,13 +30,11 @@ public class StreamMessageUtil extends MessageUtil
     * @param message
     * @return
     */
-   public static boolean streamReadBoolean(Message message)
-   {
+   public static boolean streamReadBoolean(Message message) {
       ActiveMQBuffer buff = getBodyBuffer(message);
       byte type = buff.readByte();
 
-      switch (type)
-      {
+      switch (type) {
          case DataConstants.BOOLEAN:
             return buff.readBoolean();
          case DataConstants.STRING:
@@ -48,15 +46,12 @@ public class StreamMessageUtil extends MessageUtil
 
    }
 
-   public static byte streamReadByte(Message message)
-   {
+   public static byte streamReadByte(Message message) {
       ActiveMQBuffer buff = getBodyBuffer(message);
       int index = buff.readerIndex();
-      try
-      {
+      try {
          byte type = buff.readByte();
-         switch (type)
-         {
+         switch (type) {
             case DataConstants.BYTE:
                return buff.readByte();
             case DataConstants.STRING:
@@ -66,20 +61,17 @@ public class StreamMessageUtil extends MessageUtil
                throw new IllegalStateException("Invalid conversion");
          }
       }
-      catch (NumberFormatException e)
-      {
+      catch (NumberFormatException e) {
          buff.readerIndex(index);
          throw e;
       }
 
    }
 
-   public static short streamReadShort(Message message)
-   {
+   public static short streamReadShort(Message message) {
       ActiveMQBuffer buff = getBodyBuffer(message);
       byte type = buff.readByte();
-      switch (type)
-      {
+      switch (type) {
          case DataConstants.BYTE:
             return buff.readByte();
          case DataConstants.SHORT:
@@ -92,22 +84,18 @@ public class StreamMessageUtil extends MessageUtil
       }
    }
 
-   public static char streamReadChar(Message message)
-   {
+   public static char streamReadChar(Message message) {
       ActiveMQBuffer buff = getBodyBuffer(message);
       byte type = buff.readByte();
-      switch (type)
-      {
+      switch (type) {
          case DataConstants.CHAR:
-            return (char)buff.readShort();
+            return (char) buff.readShort();
          case DataConstants.STRING:
             String str = buff.readNullableString();
-            if (str == null)
-            {
+            if (str == null) {
                throw new NullPointerException("Invalid conversion");
             }
-            else
-            {
+            else {
                throw new IllegalStateException("Invalid conversion");
             }
          default:
@@ -116,12 +104,10 @@ public class StreamMessageUtil extends MessageUtil
 
    }
 
-   public static int streamReadInteger(Message message)
-   {
+   public static int streamReadInteger(Message message) {
       ActiveMQBuffer buff = getBodyBuffer(message);
       byte type = buff.readByte();
-      switch (type)
-      {
+      switch (type) {
          case DataConstants.BYTE:
             return buff.readByte();
          case DataConstants.SHORT:
@@ -136,13 +122,10 @@ public class StreamMessageUtil extends MessageUtil
       }
    }
 
-
-   public static long streamReadLong(Message message)
-   {
+   public static long streamReadLong(Message message) {
       ActiveMQBuffer buff = getBodyBuffer(message);
       byte type = buff.readByte();
-      switch (type)
-      {
+      switch (type) {
          case DataConstants.BYTE:
             return buff.readByte();
          case DataConstants.SHORT:
@@ -159,12 +142,10 @@ public class StreamMessageUtil extends MessageUtil
       }
    }
 
-   public static float streamReadFloat(Message message)
-   {
+   public static float streamReadFloat(Message message) {
       ActiveMQBuffer buff = getBodyBuffer(message);
       byte type = buff.readByte();
-      switch (type)
-      {
+      switch (type) {
          case DataConstants.FLOAT:
             return Float.intBitsToFloat(buff.readInt());
          case DataConstants.STRING:
@@ -175,13 +156,10 @@ public class StreamMessageUtil extends MessageUtil
       }
    }
 
-
-   public static double streamReadDouble(Message message)
-   {
+   public static double streamReadDouble(Message message) {
       ActiveMQBuffer buff = getBodyBuffer(message);
       byte type = buff.readByte();
-      switch (type)
-      {
+      switch (type) {
          case DataConstants.FLOAT:
             return Float.intBitsToFloat(buff.readInt());
          case DataConstants.DOUBLE:
@@ -194,13 +172,10 @@ public class StreamMessageUtil extends MessageUtil
       }
    }
 
-
-   public static String streamReadString(Message message)
-   {
+   public static String streamReadString(Message message) {
       ActiveMQBuffer buff = getBodyBuffer(message);
       byte type = buff.readByte();
-      switch (type)
-      {
+      switch (type) {
          case DataConstants.BOOLEAN:
             return String.valueOf(buff.readBoolean());
          case DataConstants.BYTE:
@@ -208,7 +183,7 @@ public class StreamMessageUtil extends MessageUtil
          case DataConstants.SHORT:
             return String.valueOf(buff.readShort());
          case DataConstants.CHAR:
-            return String.valueOf((char)buff.readShort());
+            return String.valueOf((char) buff.readShort());
          case DataConstants.INT:
             return String.valueOf(buff.readInt());
          case DataConstants.LONG:
@@ -227,23 +202,20 @@ public class StreamMessageUtil extends MessageUtil
    /**
     * Utility for reading bytes out of streaming.
     * It will return remainingBytes, bytesRead
+    *
     * @param remainingBytes remaining Bytes from previous read. Send it to 0 if it was the first call for the message
     * @param message
     * @return a pair of remaining bytes and bytes read
     */
-   public static Pair<Integer, Integer> streamReadBytes(Message message, int remainingBytes, byte[] value)
-   {
+   public static Pair<Integer, Integer> streamReadBytes(Message message, int remainingBytes, byte[] value) {
       ActiveMQBuffer buff = getBodyBuffer(message);
 
-      if (remainingBytes == -1)
-      {
+      if (remainingBytes == -1) {
          return new Pair<>(0, -1);
       }
-      else if (remainingBytes == 0)
-      {
+      else if (remainingBytes == 0) {
          byte type = buff.readByte();
-         if (type != DataConstants.BYTES)
-         {
+         if (type != DataConstants.BYTES) {
             throw new IllegalStateException("Invalid conversion");
          }
          remainingBytes = buff.readInt();
@@ -251,21 +223,18 @@ public class StreamMessageUtil extends MessageUtil
       int read = Math.min(value.length, remainingBytes);
       buff.readBytes(value, 0, read);
       remainingBytes -= read;
-      if (remainingBytes == 0)
-      {
+      if (remainingBytes == 0) {
          remainingBytes = -1;
       }
       return new Pair<>(remainingBytes, read);
 
    }
 
-   public static Object streamReadObject(Message message)
-   {
+   public static Object streamReadObject(Message message) {
       ActiveMQBuffer buff = getBodyBuffer(message);
 
       byte type = buff.readByte();
-      switch (type)
-      {
+      switch (type) {
          case DataConstants.BOOLEAN:
             return buff.readBoolean();
          case DataConstants.BYTE:
@@ -273,7 +242,7 @@ public class StreamMessageUtil extends MessageUtil
          case DataConstants.SHORT:
             return buff.readShort();
          case DataConstants.CHAR:
-            return (char)buff.readShort();
+            return (char) buff.readShort();
          case DataConstants.INT:
             return buff.readInt();
          case DataConstants.LONG:
@@ -294,6 +263,5 @@ public class StreamMessageUtil extends MessageUtil
       }
 
    }
-
 
 }

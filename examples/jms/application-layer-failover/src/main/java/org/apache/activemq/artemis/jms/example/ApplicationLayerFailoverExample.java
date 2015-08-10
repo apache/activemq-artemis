@@ -37,8 +37,8 @@ import org.apache.activemq.artemis.util.ServerUtil;
  * A simple example that demonstrates application-layer failover of the JMS connection from one node to another
  * when the live server crashes
  */
-public class ApplicationLayerFailoverExample
-{
+public class ApplicationLayerFailoverExample {
+
    private static InitialContext initialContext;
 
    private static Connection connection;
@@ -55,10 +55,8 @@ public class ApplicationLayerFailoverExample
 
    private static Process server1;
 
-   public static void main(final String[] args) throws Exception
-   {
-      try
-      {
+   public static void main(final String[] args) throws Exception {
+      try {
          server0 = ServerUtil.startServer(args[0], ApplicationLayerFailoverExample.class.getSimpleName() + "0", 0, 5000);
          server1 = ServerUtil.startServer(args[1], ApplicationLayerFailoverExample.class.getSimpleName() + "1", 1, 5000);
 
@@ -75,8 +73,7 @@ public class ApplicationLayerFailoverExample
 
          final int numMessages = 10;
 
-         for (int i = 0; i < numMessages; i++)
-         {
+         for (int i = 0; i < numMessages; i++) {
             TextMessage message = session.createTextMessage("This is text message " + i);
 
             producer.send(message);
@@ -86,9 +83,8 @@ public class ApplicationLayerFailoverExample
 
          // Step 4. We consume those messages on server 1.
 
-         for (int i = 0; i < numMessages; i++)
-         {
-            TextMessage message0 = (TextMessage)consumer.receive(5000);
+         for (int i = 0; i < numMessages; i++) {
+            TextMessage message0 = (TextMessage) consumer.receive(5000);
 
             System.out.println("Got message: " + message0.getText());
          }
@@ -108,8 +104,7 @@ public class ApplicationLayerFailoverExample
 
          // Step 8. We now send some more messages
 
-         for (int i = numMessages; i < numMessages * 2; i++)
-         {
+         for (int i = numMessages; i < numMessages * 2; i++) {
             TextMessage message = session.createTextMessage("This is text message " + i);
 
             producer.send(message);
@@ -119,19 +114,16 @@ public class ApplicationLayerFailoverExample
 
          // Step 9. And consume them.
 
-         for (int i = 0; i < numMessages; i++)
-         {
-            TextMessage message0 = (TextMessage)consumer.receive(5000);
+         for (int i = 0; i < numMessages; i++) {
+            TextMessage message0 = (TextMessage) consumer.receive(5000);
 
             System.out.println("Got message: " + message0.getText());
          }
       }
-      catch(Throwable t)
-      {
+      catch (Throwable t) {
          t.printStackTrace();
       }
-      finally
-      {
+      finally {
          // Step 14. Be sure to close our resources!
          closeResources();
          ServerUtil.killServer(server0);
@@ -139,8 +131,7 @@ public class ApplicationLayerFailoverExample
       }
    }
 
-   private static void createJMSObjects(final int server) throws Exception
-   {
+   private static void createJMSObjects(final int server) throws Exception {
       // Step 1. Instantiate a JMS Connection Factory object from JNDI on server 1
       ConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://127.0.0.1:" + (61616 + server));
 
@@ -163,49 +154,37 @@ public class ApplicationLayerFailoverExample
       producer = session.createProducer(queue);
    }
 
-   private static void closeResources()
-   {
-      if (initialContext != null)
-      {
-         try
-         {
+   private static void closeResources() {
+      if (initialContext != null) {
+         try {
             initialContext.close();
          }
-         catch (NamingException e)
-         {
+         catch (NamingException e) {
             e.printStackTrace();
          }
       }
 
-      if (connection != null)
-      {
-         try
-         {
+      if (connection != null) {
+         try {
             connection.close();
          }
-         catch (JMSException e)
-         {
+         catch (JMSException e) {
             e.printStackTrace();
          }
       }
    }
 
-   private static class ExampleListener implements ExceptionListener
-   {
-      public void onException(final JMSException exception)
-      {
-         try
-         {
+   private static class ExampleListener implements ExceptionListener {
+
+      public void onException(final JMSException exception) {
+         try {
             connection.close();
          }
-         catch (JMSException e)
-         {
+         catch (JMSException e) {
             //ignore
          }
-         for(int i = 0; i < 10; i++)
-         {
-            try
-            {
+         for (int i = 0; i < 10; i++) {
+            try {
                // Step 7. The ExceptionListener gets called and we recreate the JMS objects on the new node
 
                System.out.println("Connection failure has been detected on a the client.");
@@ -226,15 +205,12 @@ public class ApplicationLayerFailoverExample
 
                return;
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                System.out.println("Failed to handle failover, trying again.");
-               try
-               {
+               try {
                   Thread.sleep(500);
                }
-               catch (InterruptedException e1)
-               {
+               catch (InterruptedException e1) {
                   //ignored
                }
             }

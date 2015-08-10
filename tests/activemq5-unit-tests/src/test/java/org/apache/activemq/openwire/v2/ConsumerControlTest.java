@@ -18,38 +18,34 @@ package org.apache.activemq.openwire.v2;
 
 import org.apache.activemq.command.ConsumerControl;
 
-
 /**
  * Test case for the OpenWire marshalling for ConsumerControl
  *
  *
  * NOTE!: This file is auto generated - do not modify!
- *        if you need to make a change, please see the modify the groovy scripts in the
- *        under src/gram/script and then use maven openwire:generate to regenerate 
- *        this file.
- *
- * 
+ * if you need to make a change, please see the modify the groovy scripts in the
+ * under src/gram/script and then use maven openwire:generate to regenerate
+ * this file.
  */
 public class ConsumerControlTest extends BaseCommandTestSupport {
 
+   public static final ConsumerControlTest SINGLETON = new ConsumerControlTest();
 
-    public static final ConsumerControlTest SINGLETON = new ConsumerControlTest();
+   public Object createObject() throws Exception {
+      ConsumerControl info = new ConsumerControl();
+      populateObject(info);
+      return info;
+   }
 
-    public Object createObject() throws Exception {
-        ConsumerControl info = new ConsumerControl();
-        populateObject(info);
-        return info;
-    }
+   protected void populateObject(Object object) throws Exception {
+      super.populateObject(object);
+      ConsumerControl info = (ConsumerControl) object;
 
-    protected void populateObject(Object object) throws Exception {
-        super.populateObject(object);
-        ConsumerControl info = (ConsumerControl) object;
-
-        info.setClose(true);
-        info.setConsumerId(createConsumerId("ConsumerId:1"));
-        info.setPrefetch(1);
-        info.setFlush(false);
-        info.setStart(true);
-        info.setStop(false);
-    }
+      info.setClose(true);
+      info.setConsumerId(createConsumerId("ConsumerId:1"));
+      info.setPrefetch(1);
+      info.setFlush(false);
+      info.setStart(true);
+      info.setStop(false);
+   }
 }

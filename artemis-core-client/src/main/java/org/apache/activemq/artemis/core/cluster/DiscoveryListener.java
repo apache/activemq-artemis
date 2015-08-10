@@ -21,7 +21,7 @@ import java.util.List;
 /**
  * To be called any time Discovery changes its list of nodes.
  */
-public interface DiscoveryListener
-{
+public interface DiscoveryListener {
+
    void connectorsChanged(List<DiscoveryEntry> newConnectors);
 }

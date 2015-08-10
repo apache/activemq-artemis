@@ -20,35 +20,30 @@ import java.io.File;
 
 import io.airlift.airline.Help;
 
-public class HelpAction extends Help implements Action
-{
+public class HelpAction extends Help implements Action {
+
    @Override
-   public boolean isVerbose()
-   {
+   public boolean isVerbose() {
       return false;
    }
 
    @Override
-   public void setHomeValues(File brokerHome, File brokerInstance)
-   {
+   public void setHomeValues(File brokerHome, File brokerInstance) {
 
    }
 
    @Override
-   public String getBrokerInstance()
-   {
+   public String getBrokerInstance() {
       return null;
    }
 
    @Override
-   public String getBrokerHome()
-   {
+   public String getBrokerHome() {
       return null;
    }
 
    @Override
-   public Object execute(ActionContext context) throws Exception
-   {
+   public Object execute(ActionContext context) throws Exception {
       super.run();
       return null;
    }

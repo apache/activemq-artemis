@@ -23,8 +23,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "basic-security")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class BasicSecurityDTO extends SecurityDTO
-{
+public class BasicSecurityDTO extends SecurityDTO {
+
    @XmlAttribute(required = true)
    public String users;
 

@@ -36,20 +36,18 @@ import javax.naming.InitialContext;
  * In this example there are two nodes running in a cluster, both server will be running for start,
  * but after a while the first server will crash. This will trigger a fail-over event
  */
-public class ClientSideFailoverListerExample
-{
+public class ClientSideFailoverListerExample {
+
    private static Process server0;
 
    private static Process server1;
 
-   public static void main(final String[] args) throws Exception
-   {
+   public static void main(final String[] args) throws Exception {
       InitialContext initialContext = null;
 
       Connection connectionA = null;
 
-      try
-      {
+      try {
          server0 = ServerUtil.startServer(args[0], ClientSideFailoverListerExample.class.getSimpleName() + "0", 0, 5000);
          server1 = ServerUtil.startServer(args[1], ClientSideFailoverListerExample.class.getSimpleName() + "1", 1, 0);
 
@@ -77,8 +75,7 @@ public class ClientSideFailoverListerExample
          // Step 7. We send some messages on each producer
          final int numMessages = 10;
 
-         for (int i = 0; i < numMessages; i++)
-         {
+         for (int i = 0; i < numMessages; i++) {
             TextMessage messageA = sessionA.createTextMessage("A:This is text message " + i);
             producerA.send(messageA);
             System.out.println("Sent message: " + messageA.getText());
@@ -92,17 +89,14 @@ public class ClientSideFailoverListerExample
          // We reached message no 5 the first server will crash
          consume(sessionA, queue, numMessages, "A");
       }
-      finally
-      {
+      finally {
          // Step 10. Be sure to close our resources!
 
-         if (connectionA != null)
-         {
+         if (connectionA != null) {
             connectionA.close();
          }
 
-         if (initialContext != null)
-         {
+         if (initialContext != null) {
             initialContext.close();
          }
 
@@ -111,16 +105,13 @@ public class ClientSideFailoverListerExample
       }
    }
 
-   private static void consume(Session session, Queue queue, int numMessages, String node) throws Exception
-   {
+   private static void consume(Session session, Queue queue, int numMessages, String node) throws Exception {
       MessageConsumer consumer = session.createConsumer(queue);
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          TextMessage message = (TextMessage) consumer.receive(2000);
          System.out.println("Got message: " + message.getText() + " from node " + node);
-         if (i == 5)
-         {
+         if (i == 5) {
             ServerUtil.killServer(server0);
          }
       }
@@ -129,10 +120,9 @@ public class ClientSideFailoverListerExample
 
    }
 
-   private static class FailoverListenerImpl implements FailoverEventListener
-   {
-      public void failoverEvent(FailoverEventType eventType)
-      {
+   private static class FailoverListenerImpl implements FailoverEventListener {
+
+      public void failoverEvent(FailoverEventType eventType) {
          System.out.println("Failover event triggered :" + eventType.toString());
       }
    }

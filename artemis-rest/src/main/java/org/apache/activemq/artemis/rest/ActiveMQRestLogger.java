@@ -40,8 +40,8 @@ import org.jboss.logging.annotations.MessageLogger;
  * so an INFO message would be 191000 to 191999
  */
 @MessageLogger(projectCode = "AMQ")
-public interface ActiveMQRestLogger extends BasicLogger
-{
+public interface ActiveMQRestLogger extends BasicLogger {
+
    ActiveMQRestLogger LOGGER = Logger.getMessageLogger(ActiveMQRestLogger.class, ActiveMQRestLogger.class.getPackage().getName());
 
    @LogMessage(level = Logger.Level.INFO)

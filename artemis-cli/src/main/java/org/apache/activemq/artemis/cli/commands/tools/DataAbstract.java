@@ -22,9 +22,11 @@ import java.io.File;
 import io.airlift.airline.Option;
 import org.apache.activemq.artemis.cli.commands.Configurable;
 
-/** Abstract class for places where you need bindings, journal paging and large messages configuration */
-public abstract class DataAbstract extends Configurable
-{
+/**
+ * Abstract class for places where you need bindings, journal paging and large messages configuration
+ */
+public abstract class DataAbstract extends Configurable {
+
    @Option(name = "--bindings", description = "The folder used for bindings (default from broker.xml)")
    public String binding;
 
@@ -37,11 +39,8 @@ public abstract class DataAbstract extends Configurable
    @Option(name = "--large-messages", description = "The folder used for large-messages (default from broker.xml)")
    public String largeMessges;
 
-
-   public String getLargeMessages() throws Exception
-   {
-      if (largeMessges == null)
-      {
+   public String getLargeMessages() throws Exception {
+      if (largeMessges == null) {
          largeMessges = getFileConfiguration().getLargeMessagesLocation().getAbsolutePath();
       }
 
@@ -50,11 +49,8 @@ public abstract class DataAbstract extends Configurable
       return largeMessges;
    }
 
-
-   public String getBinding() throws Exception
-   {
-      if (binding == null)
-      {
+   public String getBinding() throws Exception {
+      if (binding == null) {
          binding = getFileConfiguration().getBindingsLocation().getAbsolutePath();
       }
 
@@ -63,10 +59,8 @@ public abstract class DataAbstract extends Configurable
       return binding;
    }
 
-   public String getJournal() throws Exception
-   {
-      if (journal == null)
-      {
+   public String getJournal() throws Exception {
+      if (journal == null) {
          journal = getFileConfiguration().getJournalLocation().getAbsolutePath();
       }
 
@@ -75,10 +69,8 @@ public abstract class DataAbstract extends Configurable
       return journal;
    }
 
-   public String getPaging() throws Exception
-   {
-      if (paging == null)
-      {
+   public String getPaging() throws Exception {
+      if (paging == null) {
          paging = getFileConfiguration().getPagingLocation().getAbsolutePath();
       }
 
@@ -87,11 +79,9 @@ public abstract class DataAbstract extends Configurable
       return paging;
    }
 
-   private void checkIfDirectoryExists(String directory)
-   {
+   private void checkIfDirectoryExists(String directory) {
       File f = new File(directory);
-      if (!f.exists())
-      {
+      if (!f.exists()) {
          throw new IllegalStateException("Could not find folder: " + directory + ", please pass --bindings, --journal and --paging as arguments");
       }
    }

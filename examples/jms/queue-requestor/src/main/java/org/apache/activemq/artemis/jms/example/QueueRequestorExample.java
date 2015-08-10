@@ -29,22 +29,20 @@ import javax.naming.InitialContext;
 /**
  * A simple JMS example that shows how to use queues requestors.
  */
-public class QueueRequestorExample
-{
-   public static void main(final String[] args) throws Exception
-   {
+public class QueueRequestorExample {
+
+   public static void main(final String[] args) throws Exception {
       QueueConnection connection = null;
       InitialContext initialContext = null;
-      try
-      {
+      try {
          // Step 1. Create an initial context to perform the JNDI lookup.
          initialContext = new InitialContext();
 
          // Step 2. Perfom a lookup on the queue
-         Queue queue = (Queue)initialContext.lookup("queue/exampleQueue");
+         Queue queue = (Queue) initialContext.lookup("queue/exampleQueue");
 
          // Step 3. Look-up the JMS queue connection factory
-         QueueConnectionFactory cf = (QueueConnectionFactory)initialContext.lookup("ConnectionFactory");
+         QueueConnectionFactory cf = (QueueConnectionFactory) initialContext.lookup("ConnectionFactory");
 
          // Step 4. Create a TextReverserService which consumes messages from the queue and sends message with reversed
          // text
@@ -66,7 +64,7 @@ public class QueueRequestorExample
          TextMessage request = session.createTextMessage("Hello, World!");
 
          // Step 10. Use the requestor to send the request and wait to receive a reply
-         TextMessage reply = (TextMessage)queueRequestor.request(request);
+         TextMessage reply = (TextMessage) queueRequestor.request(request);
 
          // Step 11. The reply's text contains the reversed request's text
          System.out.println("Send request: " + request.getText());
@@ -78,23 +76,18 @@ public class QueueRequestorExample
          // Step 13. close the text reverser service
          reverserService.close();
       }
-      finally
-      {
-         if (connection != null)
-         {
-            try
-            {
+      finally {
+         if (connection != null) {
+            try {
                // Step 14. Be sure to close the JMS resources!
                connection.close();
             }
-            catch (JMSException e)
-            {
+            catch (JMSException e) {
                e.printStackTrace();
             }
          }
 
-         if (initialContext != null)
-         {
+         if (initialContext != null) {
             // Also the InitialContext
             initialContext.close();
          }

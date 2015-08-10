@@ -25,6 +25,7 @@ import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
+
 import org.apache.activemq.EmbeddedBrokerTestSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,118 +35,117 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class ProducerListenerTest extends EmbeddedBrokerTestSupport implements ProducerListener {
-    private static final Logger LOG = LoggerFactory.getLogger(ProducerListenerTest.class);
 
-    protected Session consumerSession1;
-    protected Session consumerSession2;
-    protected int consumerCounter;
-    protected ProducerEventSource producerEventSource;
-    protected BlockingQueue<ProducerEvent> eventQueue = new ArrayBlockingQueue<ProducerEvent>(1000);
-    private Connection connection;
+   private static final Logger LOG = LoggerFactory.getLogger(ProducerListenerTest.class);
 
-    public void testProducerEvents() throws Exception {
-        producerEventSource.start();
+   protected Session consumerSession1;
+   protected Session consumerSession2;
+   protected int consumerCounter;
+   protected ProducerEventSource producerEventSource;
+   protected BlockingQueue<ProducerEvent> eventQueue = new ArrayBlockingQueue<ProducerEvent>(1000);
+   private Connection connection;
 
-        consumerSession1 = createProducer();
-        assertProducerEvent(1, true);
+   public void testProducerEvents() throws Exception {
+      producerEventSource.start();
 
-        consumerSession2 = createProducer();
-        assertProducerEvent(2, true);
+      consumerSession1 = createProducer();
+      assertProducerEvent(1, true);
 
-        consumerSession1.close();
-        consumerSession1 = null;
-        assertProducerEvent(1, false);
+      consumerSession2 = createProducer();
+      assertProducerEvent(2, true);
 
-        consumerSession2.close();
-        consumerSession2 = null;
-        assertProducerEvent(0, false);
-    }
+      consumerSession1.close();
+      consumerSession1 = null;
+      assertProducerEvent(1, false);
 
-    public void testListenWhileAlreadyConsumersActive() throws Exception {
-        consumerSession1 = createProducer();
-        consumerSession2 = createProducer();
+      consumerSession2.close();
+      consumerSession2 = null;
+      assertProducerEvent(0, false);
+   }
 
-        producerEventSource.start();
-        assertProducerEvent(2, true);
-        assertProducerEvent(2, true);
+   public void testListenWhileAlreadyConsumersActive() throws Exception {
+      consumerSession1 = createProducer();
+      consumerSession2 = createProducer();
 
-        consumerSession1.close();
-        consumerSession1 = null;
-        assertProducerEvent(1, false);
+      producerEventSource.start();
+      assertProducerEvent(2, true);
+      assertProducerEvent(2, true);
 
-        consumerSession2.close();
-        consumerSession2 = null;
-        assertProducerEvent(0, false);
-    }
+      consumerSession1.close();
+      consumerSession1 = null;
+      assertProducerEvent(1, false);
 
-    public void testConsumerEventsOnTemporaryDestination() throws Exception {
+      consumerSession2.close();
+      consumerSession2 = null;
+      assertProducerEvent(0, false);
+   }
 
-        Session s = connection.createSession(true,Session.AUTO_ACKNOWLEDGE);
-        Destination dest = useTopic ? s.createTemporaryTopic() : s.createTemporaryQueue();
-        producerEventSource = new ProducerEventSource(connection, dest);
-        producerEventSource.setProducerListener(this);
-        producerEventSource.start();
-        MessageProducer producer = s.createProducer(dest);
-        assertProducerEvent(1, true);
-        producer.close();
-        assertProducerEvent(0, false);
-    }
+   public void testConsumerEventsOnTemporaryDestination() throws Exception {
 
+      Session s = connection.createSession(true, Session.AUTO_ACKNOWLEDGE);
+      Destination dest = useTopic ? s.createTemporaryTopic() : s.createTemporaryQueue();
+      producerEventSource = new ProducerEventSource(connection, dest);
+      producerEventSource.setProducerListener(this);
+      producerEventSource.start();
+      MessageProducer producer = s.createProducer(dest);
+      assertProducerEvent(1, true);
+      producer.close();
+      assertProducerEvent(0, false);
+   }
 
+   @Override
+   public void onProducerEvent(ProducerEvent event) {
+      eventQueue.add(event);
+   }
 
-    @Override
-    public void onProducerEvent(ProducerEvent event) {
-        eventQueue.add(event);
-    }
+   @Override
+   protected void setUp() throws Exception {
+      super.setUp();
 
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
+      connection = createConnection();
+      connection.start();
+      producerEventSource = new ProducerEventSource(connection, destination);
+      producerEventSource.setProducerListener(this);
+   }
 
-        connection = createConnection();
-        connection.start();
-        producerEventSource = new ProducerEventSource(connection, destination);
-        producerEventSource.setProducerListener(this);
-    }
+   @Override
+   protected void tearDown() throws Exception {
+      if (producerEventSource != null) {
+         producerEventSource.stop();
+      }
+      if (consumerSession2 != null) {
+         consumerSession2.close();
+      }
+      if (consumerSession1 != null) {
+         consumerSession1.close();
+      }
+      if (connection != null) {
+         connection.close();
+      }
+      super.tearDown();
+   }
 
-    @Override
-    protected void tearDown() throws Exception {
-        if (producerEventSource != null) {
-            producerEventSource.stop();
-        }
-        if (consumerSession2 != null) {
-            consumerSession2.close();
-        }
-        if (consumerSession1 != null) {
-            consumerSession1.close();
-        }
-        if (connection != null) {
-            connection.close();
-        }
-        super.tearDown();
-    }
+   protected void assertProducerEvent(int count, boolean started) throws InterruptedException {
+      ProducerEvent event = waitForProducerEvent();
+      assertEquals("Producer count", count, event.getProducerCount());
+      assertEquals("started", started, event.isStarted());
+   }
 
-    protected void assertProducerEvent(int count, boolean started) throws InterruptedException {
-        ProducerEvent event = waitForProducerEvent();
-        assertEquals("Producer count", count, event.getProducerCount());
-        assertEquals("started", started, event.isStarted());
-    }
+   protected Session createProducer() throws JMSException {
+      final String consumerText = "Consumer: " + (++consumerCounter);
+      LOG.info("Creating consumer: " + consumerText + " on destination: " + destination);
 
-    protected Session createProducer() throws JMSException {
-        final String consumerText = "Consumer: " + (++consumerCounter);
-        LOG.info("Creating consumer: " + consumerText + " on destination: " + destination);
+      Session answer = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      MessageProducer producer = answer.createProducer(destination);
+      assertNotNull(producer);
 
-        Session answer = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        MessageProducer producer = answer.createProducer(destination);
-        assertNotNull(producer);
+      return answer;
+   }
 
-        return answer;
-    }
-
-    protected ProducerEvent waitForProducerEvent() throws InterruptedException {
-        ProducerEvent answer = eventQueue.poll(100000, TimeUnit.MILLISECONDS);
-        assertTrue("Should have received a consumer event!", answer != null);
-        return answer;
-    }
+   protected ProducerEvent waitForProducerEvent() throws InterruptedException {
+      ProducerEvent answer = eventQueue.poll(100000, TimeUnit.MILLISECONDS);
+      assertTrue("Should have received a consumer event!", answer != null);
+      return answer;
+   }
 
 }

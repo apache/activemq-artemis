@@ -25,11 +25,12 @@ import org.apache.activemq.artemis.core.security.Role;
  * Use to validate whether a user has is valid to connect to the server and perform certain
  * functions
  */
-public interface ActiveMQSecurityManager
-{
+public interface ActiveMQSecurityManager {
+
    /**
     * is this a valid user.
-    * @param user the user
+    *
+    * @param user     the user
     * @param password the users password
     * @return true if a valid user
     */
@@ -38,9 +39,9 @@ public interface ActiveMQSecurityManager
    /**
     * is this a valid user and do they have the correct role
     *
-    * @param user the user
-    * @param password the users password
-    * @param roles the roles the user has
+    * @param user      the user
+    * @param password  the users password
+    * @param roles     the roles the user has
     * @param checkType the type of check to perform
     * @return true if the user is valid and they have the correct roles
     */

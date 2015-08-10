@@ -35,8 +35,7 @@ import org.junit.Test;
  * and having multiple restarts,
  * To make sure the journal would survive at multiple restarts of the server
  */
-public class JournalRestartStressTest extends ActiveMQTestBase
-{
+public class JournalRestartStressTest extends ActiveMQTestBase {
 
    // Constants -----------------------------------------------------
 
@@ -49,8 +48,7 @@ public class JournalRestartStressTest extends ActiveMQTestBase
    // Public --------------------------------------------------------
 
    @Test
-   public void testLoad() throws Throwable
-   {
+   public void testLoad() throws Throwable {
       ActiveMQServer server2 = createServer(true, false);
 
       server2.getConfiguration().setJournalFileSize(10 * 1024 * 1024);
@@ -58,35 +56,28 @@ public class JournalRestartStressTest extends ActiveMQTestBase
       server2.getConfiguration().setJournalCompactMinFiles(3);
       server2.getConfiguration().setJournalCompactPercentage(50);
 
-      for (int i = 0; i < 10; i++)
-      {
+      for (int i = 0; i < 10; i++) {
          server2.start();
 
-         ServerLocator locator = createInVMNonHALocator()
-                 .setMinLargeMessageSize(1024 * 1024)
-                 .setBlockOnDurableSend(false);
+         ServerLocator locator = createInVMNonHALocator().setMinLargeMessageSize(1024 * 1024).setBlockOnDurableSend(false);
 
          ClientSessionFactory sf = createSessionFactory(locator);
 
          ClientSession session = sf.createSession(true, true);
 
-         try
-         {
+         try {
             session.createQueue("slow-queue", "slow-queue");
          }
-         catch (Exception ignored)
-         {
+         catch (Exception ignored) {
          }
 
          session.start();
          ClientConsumer consumer = session.createConsumer("slow-queue");
 
-         while (true)
-         {
+         while (true) {
             System.out.println("Received message from previous");
             ClientMessage msg = consumer.receiveImmediate();
-            if (msg == null)
-            {
+            if (msg == null) {
                break;
             }
             msg.acknowledge();
@@ -110,8 +101,7 @@ public class JournalRestartStressTest extends ActiveMQTestBase
     * @throws InterruptedException
     * @throws Throwable
     */
-   private void produceMessages(final ClientSessionFactory sf, final int NMSGS) throws Throwable
-   {
+   private void produceMessages(final ClientSessionFactory sf, final int NMSGS) throws Throwable {
 
       final int TIMEOUT = 5000;
 
@@ -121,12 +111,10 @@ public class JournalRestartStressTest extends ActiveMQTestBase
 
       ClientProducer prod2 = sessionSend.createProducer("slow-queue");
 
-      try
-      {
+      try {
          sessionSend.createQueue("Queue", "Queue", true);
       }
-      catch (Exception ignored)
-      {
+      catch (Exception ignored) {
       }
 
       final ClientSession sessionReceive = sf.createSession(true, true);
@@ -134,35 +122,28 @@ public class JournalRestartStressTest extends ActiveMQTestBase
 
       final ArrayList<Throwable> errors = new ArrayList<Throwable>();
 
-      Thread tReceive = new Thread()
-      {
+      Thread tReceive = new Thread() {
          @Override
-         public void run()
-         {
-            try
-            {
+         public void run() {
+            try {
                ClientConsumer consumer = sessionReceive.createConsumer("Queue");
 
-               for (int i = 0; i < NMSGS; i++)
-               {
-                  if (i % 500 == 0)
-                  {
+               for (int i = 0; i < NMSGS; i++) {
+                  if (i % 500 == 0) {
                      double percent = (double) i / (double) NMSGS;
                      System.out.println("msgs " + i + " of " + NMSGS + ", " + (int) (percent * 100) + "%");
                      Thread.sleep(100);
                   }
 
                   ClientMessage msg = consumer.receive(TIMEOUT);
-                  if (msg == null)
-                  {
+                  if (msg == null) {
                      errors.add(new Exception("Didn't receive msgs"));
                      break;
                   }
                   msg.acknowledge();
                }
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                errors.add(e);
             }
          }
@@ -174,14 +155,12 @@ public class JournalRestartStressTest extends ActiveMQTestBase
 
       Random random = new Random();
 
-      for (int i = 0; i < NMSGS; i++)
-      {
+      for (int i = 0; i < NMSGS; i++) {
          ClientMessage msg = sessionSend.createMessage(true);
 
          int size = RandomUtil.randomPositiveInt() % 10024;
 
-         if (size == 0)
-         {
+         if (size == 0) {
             size = 10 * 1024;
          }
 
@@ -193,8 +172,7 @@ public class JournalRestartStressTest extends ActiveMQTestBase
 
          prod.send(msg);
 
-         if (i % 5000 == 0)
-         {
+         if (i % 5000 == 0) {
             prod2.send(msg);
             System.out.println("Sending slow message");
          }
@@ -206,8 +184,7 @@ public class JournalRestartStressTest extends ActiveMQTestBase
       sessionSend.close();
       sf.close();
 
-      for (Throwable e : errors)
-      {
+      for (Throwable e : errors) {
          throw e;
       }
    }

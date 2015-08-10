@@ -32,23 +32,21 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * A simple JMS example that consumes messages using selectors.
  */
-public class TopicSelectorExample2
-{
-   public static void main(final String[] args) throws Exception
-   {
+public class TopicSelectorExample2 {
+
+   public static void main(final String[] args) throws Exception {
       AtomicBoolean result = new AtomicBoolean(true);
       Connection connection = null;
       InitialContext initialContext = null;
-      try
-      {
+      try {
          // /Step 1. Create an initial context to perform the JNDI lookup.
          initialContext = new InitialContext();
 
          // Step 2. perform a lookup on the topic
-         Topic topic = (Topic)initialContext.lookup("topic/exampleTopic");
+         Topic topic = (Topic) initialContext.lookup("topic/exampleTopic");
 
          // Step 3. perform a lookup on the Connection Factory
-         ConnectionFactory cf = (ConnectionFactory)initialContext.lookup("ConnectionFactory");
+         ConnectionFactory cf = (ConnectionFactory) initialContext.lookup("ConnectionFactory");
 
          // Step 4. Create a JMS Connection
          connection = cf.createConnection();
@@ -102,52 +100,44 @@ public class TopicSelectorExample2
          if (!result.get())
             throw new IllegalStateException();
       }
-      finally
-      {
+      finally {
          // Step 14. Be sure to close our JMS resources!
-         if (connection != null)
-         {
+         if (connection != null) {
             connection.close();
          }
 
          // Also the initialContext
-         if (initialContext != null)
-         {
+         if (initialContext != null) {
             initialContext.close();
          }
       }
    }
 }
 
-class SimpleMessageListener implements MessageListener
-{
+class SimpleMessageListener implements MessageListener {
+
    private final String name;
    AtomicBoolean result;
 
-   public SimpleMessageListener(final String listener, AtomicBoolean result)
-   {
+   public SimpleMessageListener(final String listener, AtomicBoolean result) {
       name = listener;
       this.result = result;
    }
 
-   public void onMessage(final Message msg)
-   {
-      TextMessage textMessage = (TextMessage)msg;
-      try
-      {
+   public void onMessage(final Message msg) {
+      TextMessage textMessage = (TextMessage) msg;
+      try {
          String colorProp = msg.getStringProperty("color");
          System.out.println("Receiver " + name +
-                                    " receives message [" +
-                                    textMessage.getText() +
-                                    "] with color property: " +
-                                    colorProp);
-         if (!colorProp.equals(name) && !name.equals("all"))
-         {
+                               " receives message [" +
+                               textMessage.getText() +
+                               "] with color property: " +
+                               colorProp);
+         if (!colorProp.equals(name) && !name.equals("all")) {
             result.set(false);
          }
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          e.printStackTrace();
          result.set(false);
       }

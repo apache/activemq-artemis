@@ -37,7 +37,7 @@ import org.jboss.logging.annotations.MessageLogger;
  */
 
 @MessageLogger(projectCode = "AMQ")
-public interface MQTTLogger extends BasicLogger
-{
+public interface MQTTLogger extends BasicLogger {
+
    MQTTLogger LOGGER = Logger.getMessageLogger(MQTTLogger.class, MQTTLogger.class.getPackage().getName());
 }

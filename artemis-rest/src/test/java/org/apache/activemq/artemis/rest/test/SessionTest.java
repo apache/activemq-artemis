@@ -28,11 +28,10 @@ import org.junit.Test;
 
 import static org.jboss.resteasy.test.TestPortProvider.generateURL;
 
-public class SessionTest extends MessageTestBase
-{
+public class SessionTest extends MessageTestBase {
+
    @BeforeClass
-   public static void setup() throws Exception
-   {
+   public static void setup() throws Exception {
       QueueDeployment deployment1 = new QueueDeployment("testQueue", true);
       manager.getQueueManager().deploy(deployment1);
       TopicDeployment deployment = new TopicDeployment();
@@ -44,8 +43,7 @@ public class SessionTest extends MessageTestBase
    }
 
    @Test
-   public void testRestartFromAutoAckSession() throws Exception
-   {
+   public void testRestartFromAutoAckSession() throws Exception {
       ClientRequest request = new ClientRequest(generateURL("/queues/testQueue"));
 
       ClientResponse<?> response = request.head();
@@ -98,10 +96,8 @@ public class SessionTest extends MessageTestBase
       Assert.assertEquals(204, response.getStatus());
    }
 
-
    @Test
-   public void testTopicRestartFromAutoAckSession() throws Exception
-   {
+   public void testTopicRestartFromAutoAckSession() throws Exception {
       ClientRequest request = new ClientRequest(generateURL("/topics/testTopic"));
 
       ClientResponse<?> response = request.head();
@@ -156,10 +152,8 @@ public class SessionTest extends MessageTestBase
       Assert.assertEquals(204, response.getStatus());
    }
 
-
    @Test
-   public void testRestartFromAckSession() throws Exception
-   {
+   public void testRestartFromAckSession() throws Exception {
       ClientRequest request = new ClientRequest(generateURL("/queues/testQueue"));
 
       ClientResponse<?> response = request.head();
@@ -235,8 +229,7 @@ public class SessionTest extends MessageTestBase
    }
 
    @Test
-   public void testTopicRestartFromAckSession() throws Exception
-   {
+   public void testTopicRestartFromAckSession() throws Exception {
       ClientRequest request = new ClientRequest(generateURL("/topics/testTopic"));
 
       ClientResponse<?> response = request.head();

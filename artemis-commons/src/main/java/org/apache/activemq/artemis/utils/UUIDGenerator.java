@@ -35,8 +35,8 @@ import java.util.concurrent.TimeUnit;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.logs.ActiveMQUtilLogger;
 
-public final class UUIDGenerator
-{
+public final class UUIDGenerator {
+
    private static final UUIDGenerator sSingleton = new UUIDGenerator();
 
    // Windows has some fake adapters that will return the same HARDWARE ADDRESS on any computer. We need to ignore those
@@ -56,8 +56,7 @@ public final class UUIDGenerator
    /**
     * Constructor is private to enforce singleton access.
     */
-   private UUIDGenerator()
-   {
+   private UUIDGenerator() {
    }
 
    /**
@@ -65,8 +64,7 @@ public final class UUIDGenerator
     *
     * @return Instance of UUID Generator
     */
-   public static UUIDGenerator getInstance()
-   {
+   public static UUIDGenerator getInstance() {
       return UUIDGenerator.sSingleton;
    }
 
@@ -84,33 +82,27 @@ public final class UUIDGenerator
     *
     * @return A Random number generator.
     */
-   public Random getRandomNumberGenerator()
-   {
+   public Random getRandomNumberGenerator() {
       /*
        * Could be synchronized, but since side effects are trivial (ie.
        * possibility of generating more than one SecureRandom, of which all but
        * one are dumped) let's not add synchronization overhead:
        */
-      if (mRnd == null)
-      {
+      if (mRnd == null) {
          mRnd = new SecureRandom();
       }
       return mRnd;
    }
 
-   public UUID generateTimeBasedUUID(final byte[] byteAddr)
-   {
+   public UUID generateTimeBasedUUID(final byte[] byteAddr) {
       byte[] contents = new byte[16];
       int pos = 10;
-      for (int i = 0; i < 6; ++i)
-      {
+      for (int i = 0; i < 6; ++i) {
          contents[pos + i] = byteAddr[i];
       }
 
-      synchronized (mTimerLock)
-      {
-         if (mTimer == null)
-         {
+      synchronized (mTimerLock) {
+         if (mTimer == null) {
             mTimer = new UUIDTimer(getRandomNumberGenerator());
          }
 
@@ -120,8 +112,7 @@ public final class UUIDGenerator
       return new UUID(UUID.TYPE_TIME_BASED, contents);
    }
 
-   public byte[] generateDummyAddress()
-   {
+   public byte[] generateDummyAddress() {
       Random rnd = getRandomNumberGenerator();
       byte[] dummy = new byte[6];
       rnd.nextBytes(dummy);
@@ -130,8 +121,7 @@ public final class UUIDGenerator
        */
       dummy[0] |= (byte) 0x01;
 
-      if (ActiveMQUtilLogger.LOGGER.isDebugEnabled())
-      {
+      if (ActiveMQUtilLogger.LOGGER.isDebugEnabled()) {
          ActiveMQUtilLogger.LOGGER.debug("using dummy address " + UUIDGenerator.asString(dummy));
       }
       return dummy;
@@ -143,14 +133,12 @@ public final class UUIDGenerator
     *
     * @return A byte array containing the hardware address.
     */
-   public static byte[] getHardwareAddress()
-   {
+   public static byte[] getHardwareAddress() {
       Method getHardwareAddressMethod;
       Method isUpMethod;
       Method isLoopbackMethod;
       Method isVirtualMethod;
-      try
-      {
+      try {
          getHardwareAddressMethod = NetworkInterface.class.getMethod("getHardwareAddress");
          isUpMethod = NetworkInterface.class.getMethod("isUp");
          isLoopbackMethod = NetworkInterface.class.getMethod("isLoopback");
@@ -159,49 +147,37 @@ public final class UUIDGenerator
          ExecutorService executor = Executors.newFixedThreadPool(0);
          executor.shutdownNow();
       }
-      catch (Throwable t)
-      {
+      catch (Throwable t) {
          // not on Java 6 or not enough security permission
          return null;
       }
 
-      try
-      {
+      try {
          List<NetworkInterface> ifaces = getAllNetworkInterfaces();
 
-         if (ifaces.size() == 0)
-         {
+         if (ifaces.size() == 0) {
             return null;
          }
 
-         byte[] address = findFirstMatchingHardwareAddress(ifaces,
-                                                           getHardwareAddressMethod,
-                                                           isUpMethod,
-                                                           isLoopbackMethod,
-                                                           isVirtualMethod);
-         if (address != null)
-         {
-            if (ActiveMQUtilLogger.LOGGER.isDebugEnabled())
-            {
+         byte[] address = findFirstMatchingHardwareAddress(ifaces, getHardwareAddressMethod, isUpMethod, isLoopbackMethod, isVirtualMethod);
+         if (address != null) {
+            if (ActiveMQUtilLogger.LOGGER.isDebugEnabled()) {
                ActiveMQUtilLogger.LOGGER.debug("using hardware address " + UUIDGenerator.asString(address));
             }
             return address;
          }
          return null;
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          return null;
       }
    }
 
-   public SimpleString generateSimpleStringUUID()
-   {
+   public SimpleString generateSimpleStringUUID() {
       return new SimpleString(generateStringUUID());
    }
 
-   public UUID generateUUID()
-   {
+   public UUID generateUUID() {
       byte[] address = getAddressBytes();
 
       UUID uid = generateTimeBasedUUID(address);
@@ -209,39 +185,30 @@ public final class UUIDGenerator
       return uid;
    }
 
-   public String generateStringUUID()
-   {
+   public String generateStringUUID() {
       byte[] address = getAddressBytes();
 
-      if (address == null)
-      {
+      if (address == null) {
          return java.util.UUID.randomUUID().toString();
       }
-      else
-      {
+      else {
          return generateTimeBasedUUID(address).toString();
       }
    }
 
-   public static byte[] getZeroPaddedSixBytes(final byte[] bytes)
-   {
-      if (bytes == null)
-      {
+   public static byte[] getZeroPaddedSixBytes(final byte[] bytes) {
+      if (bytes == null) {
          return null;
       }
-      if (bytes.length > 0 && bytes.length <= 6)
-      {
-         if (bytes.length == 6)
-         {
+      if (bytes.length > 0 && bytes.length <= 6) {
+         if (bytes.length == 6) {
             return bytes;
          }
-         else
-         {
+         else {
             // pad with zeroes to have a 6-byte array
             byte[] paddedAddress = new byte[6];
             System.arraycopy(bytes, 0, paddedAddress, 0, bytes.length);
-            for (int i = bytes.length; i < 6; i++)
-            {
+            for (int i = bytes.length; i < 6; i++) {
                paddedAddress[i] = 0;
             }
             return paddedAddress;
@@ -252,25 +219,19 @@ public final class UUIDGenerator
 
    // Private -------------------------------------------------------
 
-   private static boolean isBlackList(final byte[] address)
-   {
-      for (byte[] blackList : UUIDGenerator.BLACK_LIST)
-      {
-         if (Arrays.equals(address, blackList))
-         {
+   private static boolean isBlackList(final byte[] address) {
+      for (byte[] blackList : UUIDGenerator.BLACK_LIST) {
+         if (Arrays.equals(address, blackList)) {
             return true;
          }
       }
       return false;
    }
 
-   private byte[] getAddressBytes()
-   {
-      if (address == null)
-      {
+   private byte[] getAddressBytes() {
+      if (address == null) {
          address = UUIDGenerator.getHardwareAddress();
-         if (address == null)
-         {
+         if (address == null) {
             address = generateDummyAddress();
          }
       }
@@ -278,16 +239,13 @@ public final class UUIDGenerator
       return address;
    }
 
-   private static String asString(final byte[] bytes)
-   {
-      if (bytes == null)
-      {
+   private static String asString(final byte[] bytes) {
+      if (bytes == null) {
          return null;
       }
 
       StringBuilder s = new StringBuilder();
-      for (int i = 0; i < bytes.length - 1; i++)
-      {
+      for (int i = 0; i < bytes.length - 1; i++) {
          s.append(Integer.toHexString(bytes[i]));
          s.append(":");
       }
@@ -295,22 +253,18 @@ public final class UUIDGenerator
       return s.toString();
    }
 
-   private static List<NetworkInterface> getAllNetworkInterfaces()
-   {
+   private static List<NetworkInterface> getAllNetworkInterfaces() {
       Enumeration<NetworkInterface> networkInterfaces;
-      try
-      {
+      try {
          networkInterfaces = NetworkInterface.getNetworkInterfaces();
 
          List<NetworkInterface> ifaces = new ArrayList<NetworkInterface>();
-         while (networkInterfaces.hasMoreElements())
-         {
+         while (networkInterfaces.hasMoreElements()) {
             ifaces.add(networkInterfaces.nextElement());
          }
          return ifaces;
       }
-      catch (SocketException e)
-      {
+      catch (SocketException e) {
          return Collections.emptyList();
       }
    }
@@ -319,40 +273,32 @@ public final class UUIDGenerator
                                                           final Method getHardwareAddressMethod,
                                                           final Method isUpMethod,
                                                           final Method isLoopbackMethod,
-                                                          final Method isVirtualMethod)
-   {
+                                                          final Method isVirtualMethod) {
       ExecutorService executor = Executors.newFixedThreadPool(ifaces.size());
       Collection<Callable<byte[]>> tasks = new ArrayList<Callable<byte[]>>(ifaces.size());
 
-      for (final NetworkInterface networkInterface : ifaces)
-      {
-         tasks.add(new Callable<byte[]>()
-         {
-            public byte[] call() throws Exception
-            {
+      for (final NetworkInterface networkInterface : ifaces) {
+         tasks.add(new Callable<byte[]>() {
+            public byte[] call() throws Exception {
                boolean up = (Boolean) isUpMethod.invoke(networkInterface);
                boolean loopback = (Boolean) isLoopbackMethod.invoke(networkInterface);
                boolean virtual = (Boolean) isVirtualMethod.invoke(networkInterface);
 
-               if (loopback || virtual || !up)
-               {
+               if (loopback || virtual || !up) {
                   throw new Exception("not suitable interface");
                }
 
                Object res = getHardwareAddressMethod.invoke(networkInterface);
-               if (res != null && res instanceof byte[])
-               {
+               if (res != null && res instanceof byte[]) {
 
                   byte[] address = (byte[]) res;
                   byte[] paddedAddress = UUIDGenerator.getZeroPaddedSixBytes(address);
 
-                  if (UUIDGenerator.isBlackList(address))
-                  {
+                  if (UUIDGenerator.isBlackList(address)) {
                      throw new Exception("black listed address");
                   }
 
-                  if (paddedAddress != null)
-                  {
+                  if (paddedAddress != null) {
                      return paddedAddress;
                   }
                }
@@ -361,18 +307,15 @@ public final class UUIDGenerator
             }
          });
       }
-      try
-      {
+      try {
          // we wait 5 seconds to get the first matching hardware address. After that, we give up and return null
          byte[] address = executor.invokeAny(tasks, 5, TimeUnit.SECONDS);
          return address;
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          return null;
       }
-      finally
-      {
+      finally {
          executor.shutdownNow();
       }
    }

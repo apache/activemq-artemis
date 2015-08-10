@@ -20,8 +20,8 @@ import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.core.config.HAPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ScaleDownConfiguration;
 
-public class SharedStoreSlavePolicyConfiguration implements HAPolicyConfiguration
-{
+public class SharedStoreSlavePolicyConfiguration implements HAPolicyConfiguration {
+
    private long failbackDelay = ActiveMQDefaultConfiguration.getDefaultFailbackDelay();
 
    private boolean failoverOnServerShutdown = ActiveMQDefaultConfiguration.isDefaultFailoverOnServerShutdown();
@@ -32,67 +32,55 @@ public class SharedStoreSlavePolicyConfiguration implements HAPolicyConfiguratio
 
    private ScaleDownConfiguration scaleDownConfiguration;
 
-   public SharedStoreSlavePolicyConfiguration()
-   {
+   public SharedStoreSlavePolicyConfiguration() {
    }
 
    @Override
-   public TYPE getType()
-   {
+   public TYPE getType() {
       return TYPE.SHARED_STORE_SLAVE;
    }
 
-   public boolean isRestartBackup()
-   {
+   public boolean isRestartBackup() {
       return restartBackup;
    }
 
-   public SharedStoreSlavePolicyConfiguration setRestartBackup(boolean restartBackup)
-   {
+   public SharedStoreSlavePolicyConfiguration setRestartBackup(boolean restartBackup) {
       this.restartBackup = restartBackup;
       return this;
    }
 
-   public ScaleDownConfiguration getScaleDownConfiguration()
-   {
+   public ScaleDownConfiguration getScaleDownConfiguration() {
       return scaleDownConfiguration;
    }
 
-   public SharedStoreSlavePolicyConfiguration setScaleDownConfiguration(ScaleDownConfiguration scaleDownConfiguration)
-   {
+   public SharedStoreSlavePolicyConfiguration setScaleDownConfiguration(ScaleDownConfiguration scaleDownConfiguration) {
       this.scaleDownConfiguration = scaleDownConfiguration;
       return this;
    }
 
-   public boolean isAllowFailBack()
-   {
+   public boolean isAllowFailBack() {
       return allowFailBack;
    }
 
-   public SharedStoreSlavePolicyConfiguration setAllowFailBack(boolean allowFailBack)
-   {
+   public SharedStoreSlavePolicyConfiguration setAllowFailBack(boolean allowFailBack) {
       this.allowFailBack = allowFailBack;
       return this;
    }
 
-   public boolean isFailoverOnServerShutdown()
-   {
+   public boolean isFailoverOnServerShutdown() {
       return failoverOnServerShutdown;
    }
 
-   public SharedStoreSlavePolicyConfiguration setFailoverOnServerShutdown(boolean failoverOnServerShutdown)
-   {
+   public SharedStoreSlavePolicyConfiguration setFailoverOnServerShutdown(boolean failoverOnServerShutdown) {
       this.failoverOnServerShutdown = failoverOnServerShutdown;
       return this;
    }
 
-   public long getFailbackDelay()
-   {
+   public long getFailbackDelay() {
       return failbackDelay;
    }
 
-   public SharedStoreSlavePolicyConfiguration setFailbackDelay(long failbackDelay)
-   {
+   public SharedStoreSlavePolicyConfiguration setFailbackDelay(long failbackDelay) {
       this.failbackDelay = failbackDelay;
       return this;
    }

@@ -42,8 +42,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class SecurityTest extends ActiveMQTestBase
-{
+public class SecurityTest extends ActiveMQTestBase {
+
    /*
     * create session tests
     */
@@ -57,16 +57,14 @@ public class SecurityTest extends ActiveMQTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       locator = createInVMNonHALocator();
    }
 
    @Test
-   public void testCreateSessionWithNullUserPass() throws Exception
-   {
+   public void testCreateSessionWithNullUserPass() throws Exception {
       ActiveMQServer server = createServer();
       ActiveMQSecurityManagerImpl securityManager = (ActiveMQSecurityManagerImpl) server.getSecurityManager();
       securityManager.getConfiguration().addUser("guest", "guest");
@@ -74,14 +72,12 @@ public class SecurityTest extends ActiveMQTestBase
       server.start();
       ClientSessionFactory cf = createSessionFactory(locator);
 
-      try
-      {
+      try {
          ClientSession session = cf.createSession(false, true, true);
 
          session.close();
       }
-      catch (ActiveMQException e)
-      {
+      catch (ActiveMQException e) {
          Assert.fail("should not throw exception");
       }
    }
@@ -90,83 +86,69 @@ public class SecurityTest extends ActiveMQTestBase
     * @return
     * @throws Exception
     */
-   private ActiveMQServer createServer() throws Exception
-   {
-      configuration = createDefaultInVMConfig()
-         .setSecurityEnabled(true);
+   private ActiveMQServer createServer() throws Exception {
+      configuration = createDefaultInVMConfig().setSecurityEnabled(true);
       ActiveMQServer server = createServer(false, configuration);
       return server;
    }
 
    @Test
-   public void testCreateSessionWithNullUserPassNoGuest() throws Exception
-   {
+   public void testCreateSessionWithNullUserPassNoGuest() throws Exception {
       ActiveMQServer server = createServer();
       server.start();
       ClientSessionFactory cf = createSessionFactory(locator);
-      try
-      {
+      try {
          cf.createSession(false, true, true);
          Assert.fail("should throw exception");
       }
-      catch (ActiveMQSecurityException se)
-      {
+      catch (ActiveMQSecurityException se) {
          //ok
       }
-      catch (ActiveMQException e)
-      {
+      catch (ActiveMQException e) {
          fail("Invalid Exception type:" + e.getType());
       }
    }
 
    @Test
-   public void testCreateSessionWithCorrectUserWrongPass() throws Exception
-   {
+   public void testCreateSessionWithCorrectUserWrongPass() throws Exception {
       ActiveMQServer server = createServer();
       ActiveMQSecurityManagerImpl securityManager = (ActiveMQSecurityManagerImpl) server.getSecurityManager();
       securityManager.getConfiguration().addUser("newuser", "apass");
       server.start();
       ClientSessionFactory cf = createSessionFactory(locator);
 
-      try
-      {
+      try {
          cf.createSession("newuser", "awrongpass", false, true, true, false, -1);
          Assert.fail("should not throw exception");
       }
-      catch (ActiveMQSecurityException se)
-      {
+      catch (ActiveMQSecurityException se) {
          //ok
       }
-      catch (ActiveMQException e)
-      {
+      catch (ActiveMQException e) {
          fail("Invalid Exception type:" + e.getType());
       }
    }
 
    @Test
-   public void testCreateSessionWithCorrectUserCorrectPass() throws Exception
-   {
+   public void testCreateSessionWithCorrectUserCorrectPass() throws Exception {
       ActiveMQServer server = createServer();
       ActiveMQSecurityManagerImpl securityManager = (ActiveMQSecurityManagerImpl) server.getSecurityManager();
       securityManager.getConfiguration().addUser("newuser", "apass");
       server.start();
       ClientSessionFactory cf = createSessionFactory(locator);
 
-      try
-      {
+      try {
          ClientSession session = cf.createSession("newuser", "apass", false, true, true, false, -1);
 
          session.close();
       }
-      catch (ActiveMQException e)
-      {
+      catch (ActiveMQException e) {
          Assert.fail("should not throw exception");
       }
    }
 
    @Test
-   public void testCreateDurableQueueWithRole() throws Exception
-   {
+   public void testCreateDurableQueueWithRole() throws Exception {
       ActiveMQServer server = createServer();
       server.start();
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
@@ -184,8 +166,7 @@ public class SecurityTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testCreateDurableQueueWithoutRole() throws Exception
-   {
+   public void testCreateDurableQueueWithoutRole() throws Exception {
       ActiveMQServer server = createServer();
 
       server.start();
@@ -199,25 +180,21 @@ public class SecurityTest extends ActiveMQTestBase
       securityManager.getConfiguration().addRole("auser", "arole");
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession session = cf.createSession("auser", "pass", false, true, true, false, -1);
-      try
-      {
+      try {
          session.createQueue(SecurityTest.addressA, SecurityTest.queueA, true);
          Assert.fail("should throw exception");
       }
-      catch (ActiveMQSecurityException se)
-      {
+      catch (ActiveMQSecurityException se) {
          //ok
       }
-      catch (ActiveMQException e)
-      {
+      catch (ActiveMQException e) {
          fail("Invalid Exception type:" + e.getType());
       }
       session.close();
    }
 
    @Test
-   public void testDeleteDurableQueueWithRole() throws Exception
-   {
+   public void testDeleteDurableQueueWithRole() throws Exception {
       ActiveMQServer server = createServer();
       server.start();
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
@@ -236,8 +213,7 @@ public class SecurityTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testDeleteDurableQueueWithoutRole() throws Exception
-   {
+   public void testDeleteDurableQueueWithoutRole() throws Exception {
       ActiveMQServer server = createServer();
       server.start();
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
@@ -251,25 +227,21 @@ public class SecurityTest extends ActiveMQTestBase
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession session = cf.createSession("auser", "pass", false, true, true, false, -1);
       session.createQueue(SecurityTest.addressA, SecurityTest.queueA, true);
-      try
-      {
+      try {
          session.deleteQueue(SecurityTest.queueA);
          Assert.fail("should throw exception");
       }
-      catch (ActiveMQSecurityException se)
-      {
+      catch (ActiveMQSecurityException se) {
          //ok
       }
-      catch (ActiveMQException e)
-      {
+      catch (ActiveMQException e) {
          fail("Invalid Exception type:" + e.getType());
       }
       session.close();
    }
 
    @Test
-   public void testCreateTempQueueWithRole() throws Exception
-   {
+   public void testCreateTempQueueWithRole() throws Exception {
       ActiveMQServer server = createServer();
 
       server.start();
@@ -288,8 +260,7 @@ public class SecurityTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testCreateTempQueueWithoutRole() throws Exception
-   {
+   public void testCreateTempQueueWithoutRole() throws Exception {
       ActiveMQServer server = createServer();
 
       server.start();
@@ -303,25 +274,21 @@ public class SecurityTest extends ActiveMQTestBase
       securityManager.getConfiguration().addRole("auser", "arole");
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession session = cf.createSession("auser", "pass", false, true, true, false, -1);
-      try
-      {
+      try {
          session.createQueue(SecurityTest.addressA, SecurityTest.queueA, false);
          Assert.fail("should throw exception");
       }
-      catch (ActiveMQSecurityException se)
-      {
+      catch (ActiveMQSecurityException se) {
          //ok
       }
-      catch (ActiveMQException e)
-      {
+      catch (ActiveMQException e) {
          fail("Invalid Exception type:" + e.getType());
       }
       session.close();
    }
 
    @Test
-   public void testDeleteTempQueueWithRole() throws Exception
-   {
+   public void testDeleteTempQueueWithRole() throws Exception {
       ActiveMQServer server = createServer();
       server.start();
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
@@ -340,8 +307,7 @@ public class SecurityTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testDeleteTempQueueWithoutRole() throws Exception
-   {
+   public void testDeleteTempQueueWithoutRole() throws Exception {
       ActiveMQServer server = createServer();
       server.start();
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
@@ -355,25 +321,21 @@ public class SecurityTest extends ActiveMQTestBase
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession session = cf.createSession("auser", "pass", false, true, true, false, -1);
       session.createQueue(SecurityTest.addressA, SecurityTest.queueA, false);
-      try
-      {
+      try {
          session.deleteQueue(SecurityTest.queueA);
          Assert.fail("should throw exception");
       }
-      catch (ActiveMQSecurityException se)
-      {
+      catch (ActiveMQSecurityException se) {
          //ok
       }
-      catch (ActiveMQException e)
-      {
+      catch (ActiveMQException e) {
          fail("Invalid Exception type:" + e.getType());
       }
       session.close();
    }
 
    @Test
-   public void testSendWithRole() throws Exception
-   {
+   public void testSendWithRole() throws Exception {
       ActiveMQServer server = createServer();
 
       server.start();
@@ -425,12 +387,10 @@ public class SecurityTest extends ActiveMQTestBase
       // This was added to validate https://issues.jboss.org/browse/SOA-3363
       securityRepository.addMatch(SecurityTest.addressA, roles);
       boolean failed = false;
-      try
-      {
+      try {
          cp.send(session.createMessage(true));
       }
-      catch (ActiveMQException e)
-      {
+      catch (ActiveMQException e) {
          failed = true;
       }
       // This was added to validate https://issues.jboss.org/browse/SOA-3363 ^^^^^
@@ -439,8 +399,7 @@ public class SecurityTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testSendWithoutRole() throws Exception
-   {
+   public void testSendWithoutRole() throws Exception {
       ActiveMQServer server = createServer();
 
       server.start();
@@ -457,24 +416,20 @@ public class SecurityTest extends ActiveMQTestBase
       ClientSession session = cf.createSession("auser", "pass", false, true, true, false, -1);
       session.createQueue(SecurityTest.addressA, SecurityTest.queueA, true);
       ClientProducer cp = session.createProducer(SecurityTest.addressA);
-      try
-      {
+      try {
          cp.send(session.createMessage(false));
       }
-      catch (ActiveMQSecurityException se)
-      {
+      catch (ActiveMQSecurityException se) {
          //ok
       }
-      catch (ActiveMQException e)
-      {
+      catch (ActiveMQException e) {
          fail("Invalid Exception type:" + e.getType());
       }
       session.close();
    }
 
    @Test
-   public void testNonBlockSendWithoutRole() throws Exception
-   {
+   public void testNonBlockSendWithoutRole() throws Exception {
       ActiveMQServer server = createServer();
 
       server.start();
@@ -498,8 +453,7 @@ public class SecurityTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testCreateConsumerWithRole() throws Exception
-   {
+   public void testCreateConsumerWithRole() throws Exception {
       ActiveMQServer server = createServer();
       server.start();
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
@@ -527,8 +481,7 @@ public class SecurityTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testCreateConsumerWithoutRole() throws Exception
-   {
+   public void testCreateConsumerWithoutRole() throws Exception {
       ActiveMQServer server = createServer();
       server.start();
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
@@ -550,16 +503,13 @@ public class SecurityTest extends ActiveMQTestBase
       senSession.createQueue(SecurityTest.addressA, SecurityTest.queueA, true);
       ClientProducer cp = senSession.createProducer(SecurityTest.addressA);
       cp.send(session.createMessage(false));
-      try
-      {
+      try {
          session.createConsumer(SecurityTest.queueA);
       }
-      catch (ActiveMQSecurityException se)
-      {
+      catch (ActiveMQSecurityException se) {
          //ok
       }
-      catch (ActiveMQException e)
-      {
+      catch (ActiveMQException e) {
          fail("Invalid Exception type:" + e.getType());
       }
       session.close();
@@ -567,11 +517,8 @@ public class SecurityTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testSendMessageUpdateRoleCached() throws Exception
-   {
-      Configuration configuration = createDefaultInVMConfig()
-         .setSecurityEnabled(true)
-         .setSecurityInvalidationInterval(10000);
+   public void testSendMessageUpdateRoleCached() throws Exception {
+      Configuration configuration = createDefaultInVMConfig().setSecurityEnabled(true).setSecurityInvalidationInterval(10000);
       ActiveMQServer server = createServer(false, configuration);
       server.start();
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
@@ -595,16 +542,13 @@ public class SecurityTest extends ActiveMQTestBase
       senSession.createQueue(SecurityTest.addressA, SecurityTest.queueA, true);
       ClientProducer cp = senSession.createProducer(SecurityTest.addressA);
       cp.send(session.createMessage(false));
-      try
-      {
+      try {
          session.createConsumer(SecurityTest.queueA);
       }
-      catch (ActiveMQSecurityException se)
-      {
+      catch (ActiveMQSecurityException se) {
          //ok
       }
-      catch (ActiveMQException e)
-      {
+      catch (ActiveMQException e) {
          fail("Invalid Exception type:" + e.getType());
       }
 
@@ -623,11 +567,8 @@ public class SecurityTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testSendMessageUpdateRoleCached2() throws Exception
-   {
-      Configuration configuration = createDefaultInVMConfig()
-         .setSecurityEnabled(true)
-         .setSecurityInvalidationInterval(0);
+   public void testSendMessageUpdateRoleCached2() throws Exception {
+      Configuration configuration = createDefaultInVMConfig().setSecurityEnabled(true).setSecurityInvalidationInterval(0);
       ActiveMQServer server = createServer(false, configuration);
 
       server.start();
@@ -652,16 +593,13 @@ public class SecurityTest extends ActiveMQTestBase
       senSession.createQueue(SecurityTest.addressA, SecurityTest.queueA, true);
       ClientProducer cp = senSession.createProducer(SecurityTest.addressA);
       cp.send(session.createMessage(false));
-      try
-      {
+      try {
          session.createConsumer(SecurityTest.queueA);
       }
-      catch (ActiveMQSecurityException se)
-      {
+      catch (ActiveMQSecurityException se) {
          //ok
       }
-      catch (ActiveMQException e)
-      {
+      catch (ActiveMQException e) {
          fail("Invalid Exception type:" + e.getType());
       }
 
@@ -674,16 +612,13 @@ public class SecurityTest extends ActiveMQTestBase
       // next createConsumer should fail
       securityManager.getConfiguration().removeRole("auser", "receiver");
 
-      try
-      {
+      try {
          session.createConsumer(SecurityTest.queueA);
       }
-      catch (ActiveMQSecurityException se)
-      {
+      catch (ActiveMQSecurityException se) {
          //ok
       }
-      catch (ActiveMQException e)
-      {
+      catch (ActiveMQException e) {
          fail("Invalid Exception type:" + e.getType());
       }
 
@@ -693,11 +628,8 @@ public class SecurityTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testSendMessageUpdateSender() throws Exception
-   {
-      Configuration configuration = createDefaultInVMConfig()
-         .setSecurityEnabled(true)
-         .setSecurityInvalidationInterval(-1);
+   public void testSendMessageUpdateSender() throws Exception {
+      Configuration configuration = createDefaultInVMConfig().setSecurityEnabled(true).setSecurityInvalidationInterval(-1);
       ActiveMQServer server = createServer(false, configuration);
       server.start();
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
@@ -725,16 +657,13 @@ public class SecurityTest extends ActiveMQTestBase
       senSession.createQueue(SecurityTest.addressA, SecurityTest.queueA, true);
       ClientProducer cp = senSession.createProducer(SecurityTest.addressA);
       cp.send(session.createMessage(false));
-      try
-      {
+      try {
          session.createConsumer(SecurityTest.queueA);
       }
-      catch (ActiveMQSecurityException se)
-      {
+      catch (ActiveMQSecurityException se) {
          //ok
       }
-      catch (ActiveMQException e)
-      {
+      catch (ActiveMQException e) {
          fail("Invalid Exception type:" + e.getType());
       }
 
@@ -751,13 +680,11 @@ public class SecurityTest extends ActiveMQTestBase
       ClientProducer prod = sendingSession.createProducer(SecurityTest.addressA);
       prod.send(CreateMessage.createTextMessage(sendingSession, "Test", true));
       prod.send(CreateMessage.createTextMessage(sendingSession, "Test", true));
-      try
-      {
+      try {
          sendingSession.commit();
          Assert.fail("Expected exception");
       }
-      catch (ActiveMQException e)
-      {
+      catch (ActiveMQException e) {
          // I would expect the commit to fail, since there were failures registered
       }
 
@@ -773,13 +700,11 @@ public class SecurityTest extends ActiveMQTestBase
       prod.send(CreateMessage.createTextMessage(sendingSession, "Test", true));
       sendingSession.end(xid, XAResource.TMSUCCESS);
 
-      try
-      {
+      try {
          sendingSession.prepare(xid);
          Assert.fail("Exception was expected");
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          e.printStackTrace();
       }
 
@@ -795,8 +720,7 @@ public class SecurityTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testSendManagementWithRole() throws Exception
-   {
+   public void testSendManagementWithRole() throws Exception {
       ActiveMQServer server = createServer();
 
       server.start();
@@ -817,8 +741,7 @@ public class SecurityTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testSendManagementWithoutRole() throws Exception
-   {
+   public void testSendManagementWithoutRole() throws Exception {
       ActiveMQServer server = createServer();
 
       server.start();
@@ -835,16 +758,13 @@ public class SecurityTest extends ActiveMQTestBase
       session.createQueue(configuration.getManagementAddress().toString(), SecurityTest.queueA, true);
       ClientProducer cp = session.createProducer(configuration.getManagementAddress());
       cp.send(session.createMessage(false));
-      try
-      {
+      try {
          cp.send(session.createMessage(false));
       }
-      catch (ActiveMQSecurityException se)
-      {
+      catch (ActiveMQSecurityException se) {
          //ok
       }
-      catch (ActiveMQException e)
-      {
+      catch (ActiveMQException e) {
          fail("Invalid Exception type:" + e.getType());
       }
       session.close();
@@ -852,8 +772,7 @@ public class SecurityTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testNonBlockSendManagementWithoutRole() throws Exception
-   {
+   public void testNonBlockSendManagementWithoutRole() throws Exception {
       ActiveMQServer server = createServer();
 
       server.start();
@@ -878,8 +797,7 @@ public class SecurityTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testComplexRoles() throws Exception
-   {
+   public void testComplexRoles() throws Exception {
       ActiveMQServer server = createServer();
       server.start();
       ActiveMQSecurityManagerImpl securityManager = (ActiveMQSecurityManagerImpl) server.getSecurityManager();
@@ -919,8 +837,7 @@ public class SecurityTest extends ActiveMQTestBase
       ClientSession andrewConnection = null;
       ClientSession frankConnection = null;
       ClientSession samConnection = null;
-      locator.setBlockOnNonDurableSend(true)
-              .setBlockOnDurableSend(true);
+      locator.setBlockOnNonDurableSend(true).setBlockOnDurableSend(true);
       ClientSessionFactory factory = createSessionFactory(locator);
 
       ClientSession adminSession = factory.createSession("all", "all", false, true, true, false, -1);
@@ -931,32 +848,26 @@ public class SecurityTest extends ActiveMQTestBase
       String usQueueName = "news.us.usQueue";
       adminSession.createQueue(usQueueName, usQueueName, false);
       // Step 4. Try to create a JMS Connection without user/password. It will fail.
-      try
-      {
+      try {
          factory.createSession(false, true, true);
          Assert.fail("should throw exception");
       }
-      catch (ActiveMQSecurityException se)
-      {
+      catch (ActiveMQSecurityException se) {
          //ok
       }
-      catch (ActiveMQException e)
-      {
+      catch (ActiveMQException e) {
          fail("Invalid Exception type:" + e.getType());
       }
 
       // Step 5. bill tries to make a connection using wrong password
-      try
-      {
+      try {
          billConnection = factory.createSession("bill", "activemq1", false, true, true, false, -1);
          Assert.fail("should throw exception");
       }
-      catch (ActiveMQSecurityException se)
-      {
+      catch (ActiveMQSecurityException se) {
          //ok
       }
-      catch (ActiveMQException e)
-      {
+      catch (ActiveMQException e) {
          fail("Invalid Exception type:" + e.getType());
       }
 
@@ -1017,8 +928,7 @@ public class SecurityTest extends ActiveMQTestBase
 
    }
 
-   public void _testComplexRoles2() throws Exception
-   {
+   public void _testComplexRoles2() throws Exception {
       ActiveMQServer server = createServer();
       server.start();
       ActiveMQSecurityManagerImpl securityManager = (ActiveMQSecurityManagerImpl) server.getSecurityManager();
@@ -1059,8 +969,7 @@ public class SecurityTest extends ActiveMQTestBase
       ClientSession frankConnection = null;
       ClientSession samConnection = null;
       ClientSessionFactory factory = createSessionFactory(locator);
-      factory.getServerLocator().setBlockOnNonDurableSend(true)
-              .setBlockOnDurableSend(true);
+      factory.getServerLocator().setBlockOnNonDurableSend(true).setBlockOnDurableSend(true);
 
       ClientSession adminSession = factory.createSession("all", "all", false, true, true, false, -1);
       String genericQueueName = "genericQueue";
@@ -1070,32 +979,26 @@ public class SecurityTest extends ActiveMQTestBase
       String usQueueName = "news.us.usQueue";
       adminSession.createQueue(usQueueName, usQueueName, false);
       // Step 4. Try to create a JMS Connection without user/password. It will fail.
-      try
-      {
+      try {
          factory.createSession(false, true, true);
          Assert.fail("should throw exception");
       }
-      catch (ActiveMQSecurityException se)
-      {
+      catch (ActiveMQSecurityException se) {
          //ok
       }
-      catch (ActiveMQException e)
-      {
+      catch (ActiveMQException e) {
          fail("Invalid Exception type:" + e.getType());
       }
 
       // Step 5. bill tries to make a connection using wrong password
-      try
-      {
+      try {
          billConnection = factory.createSession("bill", "activemq1", false, true, true, false, -1);
          Assert.fail("should throw exception");
       }
-      catch (ActiveMQSecurityException se)
-      {
+      catch (ActiveMQSecurityException se) {
          //ok
       }
-      catch (ActiveMQException e)
-      {
+      catch (ActiveMQException e) {
          fail("Invalid Exception type:" + e.getType());
       }
 
@@ -1147,11 +1050,10 @@ public class SecurityTest extends ActiveMQTestBase
    }
 
    // Check the user connection has both send and receive permissions on the queue
-   private void checkUserSendAndReceive(final String genericQueueName, final ClientSession connection) throws Exception
-   {
+   private void checkUserSendAndReceive(final String genericQueueName,
+                                        final ClientSession connection) throws Exception {
       connection.start();
-      try
-      {
+      try {
          ClientProducer prod = connection.createProducer(genericQueueName);
          ClientConsumer con = connection.createConsumer(genericQueueName);
          ClientMessage m = connection.createMessage(false);
@@ -1160,28 +1062,24 @@ public class SecurityTest extends ActiveMQTestBase
          Assert.assertNotNull(rec);
          rec.acknowledge();
       }
-      finally
-      {
+      finally {
          connection.stop();
       }
    }
 
    // Check the user can receive message but cannot send message.
-   private void checkUserReceiveNoSend(final String queue, final ClientSession connection,
-                                       final ClientSession sendingConn) throws Exception
-   {
+   private void checkUserReceiveNoSend(final String queue,
+                                       final ClientSession connection,
+                                       final ClientSession sendingConn) throws Exception {
       connection.start();
-      try
-      {
+      try {
          ClientProducer prod = connection.createProducer(queue);
          ClientMessage m = connection.createMessage(false);
-         try
-         {
+         try {
             prod.send(m);
             Assert.fail("should throw exception");
          }
-         catch (ActiveMQException e)
-         {
+         catch (ActiveMQException e) {
             // pass
          }
 
@@ -1192,67 +1090,56 @@ public class SecurityTest extends ActiveMQTestBase
          Assert.assertNotNull(rec);
          rec.acknowledge();
       }
-      finally
-      {
+      finally {
          connection.stop();
       }
    }
 
-   private void checkUserNoSendNoReceive(final String queue, final ClientSession connection,
-                                         final ClientSession sendingConn) throws Exception
-   {
+   private void checkUserNoSendNoReceive(final String queue,
+                                         final ClientSession connection,
+                                         final ClientSession sendingConn) throws Exception {
       connection.start();
-      try
-      {
+      try {
          ClientProducer prod = connection.createProducer(queue);
          ClientMessage m = connection.createMessage(false);
-         try
-         {
+         try {
             prod.send(m);
             Assert.fail("should throw exception");
          }
-         catch (ActiveMQException e)
-         {
+         catch (ActiveMQException e) {
             // pass
          }
 
          prod = sendingConn.createProducer(queue);
          prod.send(m);
 
-         try
-         {
+         try {
             connection.createConsumer(queue);
             Assert.fail("should throw exception");
          }
-         catch (ActiveMQException e)
-         {
+         catch (ActiveMQException e) {
             // pass
          }
       }
-      finally
-      {
+      finally {
          connection.stop();
       }
    }
 
    // Check the user can send message but cannot receive message
-   private void checkUserSendNoReceive(final String queue, final ClientSession connection) throws Exception
-   {
+   private void checkUserSendNoReceive(final String queue, final ClientSession connection) throws Exception {
       ClientProducer prod = connection.createProducer(queue);
       ClientMessage m = connection.createMessage(false);
       prod.send(m);
 
-      try
-      {
+      try {
          connection.createConsumer(queue);
          Assert.fail("should throw exception");
       }
-      catch (ActiveMQSecurityException se)
-      {
+      catch (ActiveMQSecurityException se) {
          //ok
       }
-      catch (ActiveMQException e)
-      {
+      catch (ActiveMQException e) {
          fail("Invalid Exception type:" + e.getType());
       }
    }

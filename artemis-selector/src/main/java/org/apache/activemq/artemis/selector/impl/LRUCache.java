@@ -26,16 +26,15 @@ import java.util.Map;
  * @param <V>
  */
 
-public class LRUCache<K, V> extends LinkedHashMap<K, V>
-{
+public class LRUCache<K, V> extends LinkedHashMap<K, V> {
+
    private static final long serialVersionUID = -342098639681884413L;
    protected int maxCacheSize = 10000;
 
    /**
     * Default constructor for an LRU Cache The default capacity is 10000
     */
-   public LRUCache()
-   {
+   public LRUCache() {
       this(0, 10000, 0.75f, true);
    }
 
@@ -44,8 +43,7 @@ public class LRUCache<K, V> extends LinkedHashMap<K, V>
     *
     * @param maximumCacheSize
     */
-   public LRUCache(int maximumCacheSize)
-   {
+   public LRUCache(int maximumCacheSize) {
       this(0, maximumCacheSize, 0.75f, true);
    }
 
@@ -62,8 +60,7 @@ public class LRUCache<K, V> extends LinkedHashMap<K, V>
     *                                  the load factor is non-positive.
     */
 
-   public LRUCache(int initialCapacity, int maximumCacheSize, float loadFactor, boolean accessOrder)
-   {
+   public LRUCache(int initialCapacity, int maximumCacheSize, float loadFactor, boolean accessOrder) {
       super(initialCapacity, loadFactor, accessOrder);
       this.maxCacheSize = maximumCacheSize;
    }
@@ -71,30 +68,25 @@ public class LRUCache<K, V> extends LinkedHashMap<K, V>
    /**
     * @return Returns the maxCacheSize.
     */
-   public int getMaxCacheSize()
-   {
+   public int getMaxCacheSize() {
       return maxCacheSize;
    }
 
    /**
     * @param maxCacheSize The maxCacheSize to set.
     */
-   public void setMaxCacheSize(int maxCacheSize)
-   {
+   public void setMaxCacheSize(int maxCacheSize) {
       this.maxCacheSize = maxCacheSize;
    }
 
-   protected boolean removeEldestEntry(Map.Entry<K, V> eldest)
-   {
-      if (size() > maxCacheSize)
-      {
+   protected boolean removeEldestEntry(Map.Entry<K, V> eldest) {
+      if (size() > maxCacheSize) {
          onCacheEviction(eldest);
          return true;
       }
       return false;
    }
 
-   protected void onCacheEviction(Map.Entry<K, V> eldest)
-   {
+   protected void onCacheEviction(Map.Entry<K, V> eldest) {
    }
 }

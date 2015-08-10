@@ -23,20 +23,17 @@ import javax.jms.TextMessage;
 
 import org.apache.activemq.artemis.utils.ReusableLatch;
 
-public class ExampleListener implements MessageListener
-{
+public class ExampleListener implements MessageListener {
+
    public static String lastMessage = null;
 
    public static ReusableLatch latch = new ReusableLatch();
 
-   public void onMessage(Message message)
-   {
-      try
-      {
-         lastMessage = ((TextMessage)message).getText();
+   public void onMessage(Message message) {
+      try {
+         lastMessage = ((TextMessage) message).getText();
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          throw new RuntimeException(e);
       }
       System.out.println("MESSAGE RECEIVED: " + lastMessage);

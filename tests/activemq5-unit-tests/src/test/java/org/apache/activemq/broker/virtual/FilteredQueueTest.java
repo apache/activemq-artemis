@@ -19,18 +19,18 @@ package org.apache.activemq.broker.virtual;
 import org.apache.activemq.spring.ConsumerBean;
 
 /**
- * 
+ *
  */
 public class FilteredQueueTest extends CompositeQueueTest {
 
-    @Override
-    protected String getBrokerConfigUri() {
-        return "org/apache/activemq/broker/virtual/filtered-queue.xml";
-    }
+   @Override
+   protected String getBrokerConfigUri() {
+      return "org/apache/activemq/broker/virtual/filtered-queue.xml";
+   }
 
-    @Override
-    protected void assertMessagesArrived(ConsumerBean messageList1, ConsumerBean messageList2) {
-        messageList1.assertMessagesArrived(total / 2);
-        messageList2.assertMessagesArrived(1);
-    }
+   @Override
+   protected void assertMessagesArrived(ConsumerBean messageList1, ConsumerBean messageList2) {
+      messageList1.assertMessagesArrived(total / 2);
+      messageList2.assertMessagesArrived(1);
+   }
 }

@@ -22,8 +22,7 @@ import org.apache.activemq.artemis.core.paging.PagedMessage;
 /**
  * The provider of Cursor for a given Address
  */
-public interface PageCursorProvider
-{
+public interface PageCursorProvider {
 
    PageCache getPageCache(long pageNr);
 

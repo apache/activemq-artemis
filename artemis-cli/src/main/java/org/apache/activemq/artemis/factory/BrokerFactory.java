@@ -27,60 +27,47 @@ import org.apache.activemq.artemis.integration.Broker;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 import org.apache.activemq.artemis.utils.FactoryFinder;
 
-public class BrokerFactory
-{
+public class BrokerFactory {
 
-   public static BrokerDTO createBrokerConfiguration(URI configURI) throws Exception
-   {
-      if (configURI.getScheme() == null)
-      {
+   public static BrokerDTO createBrokerConfiguration(URI configURI) throws Exception {
+      if (configURI.getScheme() == null) {
          throw new ConfigurationException("Invalid configuration URI, no scheme specified: " + configURI);
       }
 
       BrokerFactoryHandler factory = null;
-      try
-      {
+      try {
          FactoryFinder finder = new FactoryFinder("META-INF/services/org/apache/activemq/artemis/broker/");
          factory = (BrokerFactoryHandler) finder.newInstance(configURI.getScheme());
       }
-      catch (IOException ioe)
-      {
+      catch (IOException ioe) {
          throw new ConfigurationException("Invalid configuration URI, can't find configuration scheme: " + configURI.getScheme());
       }
-
 
       return factory.createBroker(configURI);
    }
 
-   public static BrokerDTO createBrokerConfiguration(String configuration) throws Exception
-   {
+   public static BrokerDTO createBrokerConfiguration(String configuration) throws Exception {
       return createBrokerConfiguration(new URI(configuration));
    }
 
-   static String fixupFileURI(String value)
-   {
-      if (value != null && value.startsWith("file:"))
-      {
+   static String fixupFileURI(String value) {
+      if (value != null && value.startsWith("file:")) {
          value = value.substring("file:".length());
          value = new File(value).toURI().toString();
       }
       return value;
    }
 
-   public static Broker createServer(ServerDTO brokerDTO, ActiveMQSecurityManager security) throws Exception
-   {
-      if (brokerDTO.configuration != null)
-      {
+   public static Broker createServer(ServerDTO brokerDTO, ActiveMQSecurityManager security) throws Exception {
+      if (brokerDTO.configuration != null) {
          BrokerHandler handler;
          URI configURI = brokerDTO.getConfigurationURI();
 
-         try
-         {
+         try {
             FactoryFinder finder = new FactoryFinder("META-INF/services/org/apache/activemq/artemis/broker/server/");
             handler = (BrokerHandler) finder.newInstance(configURI.getScheme());
          }
-         catch (IOException ioe)
-         {
+         catch (IOException ioe) {
             throw new ConfigurationException("Invalid configuration URI, can't find configuration scheme: " + configURI.getScheme());
          }
 

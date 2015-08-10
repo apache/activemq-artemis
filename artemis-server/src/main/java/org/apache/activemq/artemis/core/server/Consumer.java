@@ -20,8 +20,8 @@ import java.util.List;
 
 import org.apache.activemq.artemis.core.filter.Filter;
 
-public interface Consumer
-{
+public interface Consumer {
+
    /**
     * There was a change on semantic during 2.3 here.<br>
     * We now first accept the message, and the actual deliver is done as part of
@@ -30,6 +30,7 @@ public interface Consumer
     * consumers.
     * <p>
     * This should return busy if handle is called before proceed deliver is called
+    *
     * @param reference
     * @return
     * @throws Exception
@@ -41,6 +42,7 @@ public interface Consumer
     * Notice that handle should hold a readLock and proceedDelivery should release the readLock
     * any lock operation on Consumer should also get a writeLock on the readWriteLock
     * to guarantee there are no pending deliveries
+    *
     * @throws Exception
     */
    void proceedDeliver(MessageReference reference) throws Exception;
@@ -50,20 +52,20 @@ public interface Consumer
    /**
     * @return the list of messages being delivered
     */
-   List<MessageReference>  getDeliveringMessages();
+   List<MessageReference> getDeliveringMessages();
 
    String debug();
-
 
    /**
     * This method will create a string representation meant for management operations.
     * This is different from the toString method that's meant for debugging and will contain information that regular users won't understand well
+    *
     * @return
     */
    String toManagementString();
 
-  /**
-   * disconnect the consumer
-   */
+   /**
+    * disconnect the consumer
+    */
    void disconnect();
 }

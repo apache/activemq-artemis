@@ -27,8 +27,8 @@ import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.utils.json.JSONArray;
 
-public interface ServerSession
-{
+public interface ServerSession {
+
    String getName();
 
    String getUsername();
@@ -88,14 +88,17 @@ public interface ServerSession
    void stop();
 
    Queue createQueue(SimpleString address,
-                    SimpleString name,
-                    SimpleString filterString,
-                    boolean temporary,
-                    boolean durable) throws Exception;
+                     SimpleString name,
+                     SimpleString filterString,
+                     boolean temporary,
+                     boolean durable) throws Exception;
 
    void deleteQueue(SimpleString name) throws Exception;
 
-   ServerConsumer createConsumer(long consumerID, SimpleString queueName, SimpleString filterString, boolean browseOnly) throws Exception;
+   ServerConsumer createConsumer(long consumerID,
+                                 SimpleString queueName,
+                                 SimpleString filterString,
+                                 boolean browseOnly) throws Exception;
 
    QueueQueryResult executeQueueQuery(SimpleString name) throws Exception;
 

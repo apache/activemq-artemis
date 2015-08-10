@@ -19,8 +19,7 @@ package org.apache.activemq.artemis.tests.integration.remoting;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Test;
 
-public class DestroyConsumerTest extends ActiveMQTestBase
-{
+public class DestroyConsumerTest extends ActiveMQTestBase {
 
    // Constants -----------------------------------------------------
 
@@ -33,8 +32,7 @@ public class DestroyConsumerTest extends ActiveMQTestBase
    // Public --------------------------------------------------------
 
    @Test
-   public void testFoo()
-   {
+   public void testFoo() {
    }
 
    // public void testDestroyConsumer() throws Exception

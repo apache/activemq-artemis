@@ -16,59 +16,51 @@
  */
 package org.apache.activemq.artemis.core.server.impl;
 
-
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.TopologyMember;
 import org.apache.activemq.artemis.core.server.LiveNodeLocator;
 
-public class NamedNodeIdNodeLocator extends LiveNodeLocator
-{
+public class NamedNodeIdNodeLocator extends LiveNodeLocator {
+
    private final String nodeID;
 
    private final Pair<TransportConfiguration, TransportConfiguration> liveConfiguration;
 
-   public NamedNodeIdNodeLocator(String nodeID, Pair<TransportConfiguration, TransportConfiguration> liveConfiguration)
-   {
+   public NamedNodeIdNodeLocator(String nodeID,
+                                 Pair<TransportConfiguration, TransportConfiguration> liveConfiguration) {
       this.nodeID = nodeID;
       this.liveConfiguration = liveConfiguration;
    }
 
-
    @Override
-   public void locateNode(long timeout) throws ActiveMQException
-   {
+   public void locateNode(long timeout) throws ActiveMQException {
       //noop
    }
 
    @Override
-   public void locateNode() throws ActiveMQException
-   {
+   public void locateNode() throws ActiveMQException {
       //noop
    }
 
    @Override
-   public Pair<TransportConfiguration, TransportConfiguration> getLiveConfiguration()
-   {
+   public Pair<TransportConfiguration, TransportConfiguration> getLiveConfiguration() {
       return liveConfiguration;
    }
 
    @Override
-   public String getNodeID()
-   {
+   public String getNodeID() {
       return nodeID;
    }
 
    @Override
-   public void nodeUP(TopologyMember member, boolean last)
-   {
+   public void nodeUP(TopologyMember member, boolean last) {
 
    }
 
    @Override
-   public void nodeDown(long eventUID, String nodeID)
-   {
+   public void nodeDown(long eventUID, String nodeID) {
 
    }
 }

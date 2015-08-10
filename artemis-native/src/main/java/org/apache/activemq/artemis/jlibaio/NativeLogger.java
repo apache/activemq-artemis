@@ -37,13 +37,12 @@ import org.jboss.logging.annotations.MessageLogger;
  * so an INFO message would be 1000 to 6000
  */
 @MessageLogger(projectCode = "jlibaio")
-public interface NativeLogger extends BasicLogger
-{
+public interface NativeLogger extends BasicLogger {
+
    /**
     * The journal logger.
     */
    NativeLogger LOGGER = Logger.getMessageLogger(NativeLogger.class, NativeLogger.class.getPackage().getName());
-
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 1001, value = "You have a native library with a different version than expected", format = Message.Format.MESSAGE_FORMAT)

@@ -26,8 +26,8 @@ import org.junit.Before;
  * Any test based on a single server can extend this class.
  * This is useful for quick writing tests with starting a server, locator, factory... etc
  */
-public abstract class SingleServerTestBase extends ActiveMQTestBase
-{
+public abstract class SingleServerTestBase extends ActiveMQTestBase {
+
    protected ActiveMQServer server;
 
    protected ClientSession session;
@@ -36,11 +36,9 @@ public abstract class SingleServerTestBase extends ActiveMQTestBase
 
    protected ServerLocator locator;
 
-
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       server = createServer(false, createDefaultInVMConfig());
@@ -51,8 +49,7 @@ public abstract class SingleServerTestBase extends ActiveMQTestBase
       session = addClientSession(sf.createSession(false, true, true));
    }
 
-   protected ServerLocator createLocator()
-   {
+   protected ServerLocator createLocator() {
       return createInVMNonHALocator();
    }
 }

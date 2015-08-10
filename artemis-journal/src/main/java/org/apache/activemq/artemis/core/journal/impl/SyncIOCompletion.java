@@ -21,8 +21,7 @@ import org.apache.activemq.artemis.core.journal.IOCompletion;
 /**
  * Internal class used to manage explicit syncs on the Journal through callbacks.
  */
-public abstract class SyncIOCompletion implements IOCompletion
-{
+public abstract class SyncIOCompletion implements IOCompletion {
 
    // Constants -----------------------------------------------------
 

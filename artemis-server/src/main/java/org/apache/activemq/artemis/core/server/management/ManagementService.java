@@ -50,8 +50,7 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.transaction.ResourceManager;
 import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 
-public interface ManagementService extends NotificationService, ActiveMQComponent
-{
+public interface ManagementService extends NotificationService, ActiveMQComponent {
    // Configuration
 
    MessageCounterManager getMessageCounterManager();
@@ -67,17 +66,17 @@ public interface ManagementService extends NotificationService, ActiveMQComponen
    void setStorageManager(StorageManager storageManager);
 
    ActiveMQServerControlImpl registerServer(final PostOffice postOffice,
-                                           final StorageManager storageManager,
-                                           final Configuration configuration,
-                                           final HierarchicalRepository<AddressSettings> addressSettingsRepository,
-                                           final HierarchicalRepository<Set<Role>> securityRepository,
-                                           final ResourceManager resourceManager,
-                                           final RemotingService remotingService,
-                                           final ActiveMQServer messagingServer,
-                                           final QueueFactory queueFactory,
-                                           final ScheduledExecutorService scheduledThreadPool,
-                                           final PagingManager pagingManager,
-                                           final boolean backup) throws Exception;
+                                            final StorageManager storageManager,
+                                            final Configuration configuration,
+                                            final HierarchicalRepository<AddressSettings> addressSettingsRepository,
+                                            final HierarchicalRepository<Set<Role>> securityRepository,
+                                            final ResourceManager resourceManager,
+                                            final RemotingService remotingService,
+                                            final ActiveMQServer messagingServer,
+                                            final QueueFactory queueFactory,
+                                            final ScheduledExecutorService scheduledThreadPool,
+                                            final PagingManager pagingManager,
+                                            final boolean backup) throws Exception;
 
    void unregisterServer() throws Exception;
 
@@ -105,11 +104,12 @@ public interface ManagementService extends NotificationService, ActiveMQComponen
 
    void unregisterDivert(SimpleString name) throws Exception;
 
-   void registerBroadcastGroup(BroadcastGroup broadcastGroup, BroadcastGroupConfiguration configuration) throws Exception;
+   void registerBroadcastGroup(BroadcastGroup broadcastGroup,
+                               BroadcastGroupConfiguration configuration) throws Exception;
 
    void unregisterBroadcastGroup(String name) throws Exception;
 
- //  void registerDiscoveryGroup(DiscoveryGroup discoveryGroup, DiscoveryGroupConfiguration configuration) throws Exception;
+   //  void registerDiscoveryGroup(DiscoveryGroup discoveryGroup, DiscoveryGroupConfiguration configuration) throws Exception;
 
    //void unregisterDiscoveryGroup(String name) throws Exception;
 

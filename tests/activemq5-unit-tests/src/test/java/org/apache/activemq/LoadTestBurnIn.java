@@ -34,6 +34,7 @@ import javax.jms.Session;
 import javax.jms.Topic;
 
 import junit.framework.Test;
+
 import org.apache.activemq.broker.BrokerFactory;
 import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.broker.TransportConnector;
@@ -45,127 +46,125 @@ import org.slf4j.LoggerFactory;
  * Small burn test moves sends a moderate amount of messages through the broker,
  * to checking to make sure that the broker does not lock up after a while of
  * sustained messaging.
- * 
- * 
  */
 public class LoadTestBurnIn extends JmsTestSupport {
-    private static final transient Logger LOG = LoggerFactory.getLogger(LoadTestBurnIn.class);
 
-    public ActiveMQDestination destination;
-    public int deliveryMode;
-    public byte destinationType;
-    public boolean durableConsumer;
-    public int messageCount = 50000;
-    public int messageSize = 1024;
+   private static final transient Logger LOG = LoggerFactory.getLogger(LoadTestBurnIn.class);
 
-    public static Test suite() {
-        return suite(LoadTestBurnIn.class);
-    }
+   public ActiveMQDestination destination;
+   public int deliveryMode;
+   public byte destinationType;
+   public boolean durableConsumer;
+   public int messageCount = 50000;
+   public int messageSize = 1024;
 
-    protected void setUp() throws Exception {
-        LOG.info("Start: " + getName());
-        super.setUp();
-    }
+   public static Test suite() {
+      return suite(LoadTestBurnIn.class);
+   }
 
-    protected void tearDown() throws Exception {
-        try {
-            super.tearDown();
-        } catch (Throwable e) {
-            e.printStackTrace(System.out);
-        } finally {
-            LOG.info("End: " + getName());
-        }
-    }
+   protected void setUp() throws Exception {
+      LOG.info("Start: " + getName());
+      super.setUp();
+   }
 
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(suite());
-    }
+   protected void tearDown() throws Exception {
+      try {
+         super.tearDown();
+      }
+      catch (Throwable e) {
+         e.printStackTrace(System.out);
+      }
+      finally {
+         LOG.info("End: " + getName());
+      }
+   }
 
-    protected BrokerService createBroker() throws Exception {
-        return BrokerFactory.createBroker(new URI("broker://(tcp://localhost:0)?useJmx=true"));
-        // return BrokerFactory.createBroker(new
-        // URI("xbean:org/apache/activemq/broker/store/loadtester.xml"));
-    }
+   public static void main(String[] args) {
+      junit.textui.TestRunner.run(suite());
+   }
 
-    protected ConnectionFactory createConnectionFactory() throws URISyntaxException, IOException {
-        return new ActiveMQConnectionFactory(((TransportConnector)broker.getTransportConnectors().get(0))
-            .getServer().getConnectURI());
-    }
+   protected BrokerService createBroker() throws Exception {
+      return BrokerFactory.createBroker(new URI("broker://(tcp://localhost:0)?useJmx=true"));
+      // return BrokerFactory.createBroker(new
+      // URI("xbean:org/apache/activemq/broker/store/loadtester.xml"));
+   }
 
-    public void initCombosForTestSendReceive() {
-        addCombinationValues("deliveryMode", new Object[] {Integer.valueOf(DeliveryMode.NON_PERSISTENT),
-                                                           Integer.valueOf(DeliveryMode.PERSISTENT)});
-        addCombinationValues("destinationType", new Object[] {Byte.valueOf(ActiveMQDestination.TOPIC_TYPE)});
-        addCombinationValues("durableConsumer", new Object[] {Boolean.TRUE});
-        addCombinationValues("messageSize", new Object[] {Integer.valueOf(101), Integer.valueOf(102),
-                                                          Integer.valueOf(103), Integer.valueOf(104),
-                                                          Integer.valueOf(105), Integer.valueOf(106),
-                                                          Integer.valueOf(107), Integer.valueOf(108)});
-    }
+   protected ConnectionFactory createConnectionFactory() throws URISyntaxException, IOException {
+      return new ActiveMQConnectionFactory(((TransportConnector) broker.getTransportConnectors().get(0)).getServer().getConnectURI());
+   }
 
-    public void testSendReceive() throws Exception {
+   public void initCombosForTestSendReceive() {
+      addCombinationValues("deliveryMode", new Object[]{Integer.valueOf(DeliveryMode.NON_PERSISTENT), Integer.valueOf(DeliveryMode.PERSISTENT)});
+      addCombinationValues("destinationType", new Object[]{Byte.valueOf(ActiveMQDestination.TOPIC_TYPE)});
+      addCombinationValues("durableConsumer", new Object[]{Boolean.TRUE});
+      addCombinationValues("messageSize", new Object[]{Integer.valueOf(101), Integer.valueOf(102), Integer.valueOf(103), Integer.valueOf(104), Integer.valueOf(105), Integer.valueOf(106), Integer.valueOf(107), Integer.valueOf(108)});
+   }
 
-        // Durable consumer combination is only valid with topics
-        if (durableConsumer && destinationType != ActiveMQDestination.TOPIC_TYPE) {
-            return;
-        }
+   public void testSendReceive() throws Exception {
 
-        connection.setClientID(getName());
-        connection.getPrefetchPolicy().setAll(1000);
-        connection.start();
+      // Durable consumer combination is only valid with topics
+      if (durableConsumer && destinationType != ActiveMQDestination.TOPIC_TYPE) {
+         return;
+      }
 
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        destination = createDestination(session, destinationType);
-        MessageConsumer consumer;
-        if (durableConsumer) {
-            consumer = session.createDurableSubscriber((Topic)destination, "sub1:"
-                                                                           + System.currentTimeMillis());
-        } else {
-            consumer = session.createConsumer(destination);
-        }
-        profilerPause("Ready: ");
+      connection.setClientID(getName());
+      connection.getPrefetchPolicy().setAll(1000);
+      connection.start();
 
-        final CountDownLatch producerDoneLatch = new CountDownLatch(1);
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      destination = createDestination(session, destinationType);
+      MessageConsumer consumer;
+      if (durableConsumer) {
+         consumer = session.createDurableSubscriber((Topic) destination, "sub1:" + System.currentTimeMillis());
+      }
+      else {
+         consumer = session.createConsumer(destination);
+      }
+      profilerPause("Ready: ");
 
-        // Send the messages, async
-        new Thread() {
-            public void run() {
-                Connection connection2 = null;
-                try {
-                    connection2 = factory.createConnection();
-                    Session session = connection2.createSession(false, Session.AUTO_ACKNOWLEDGE);
-                    MessageProducer producer = session.createProducer(destination);
-                    producer.setDeliveryMode(deliveryMode);
-                    for (int i = 0; i < messageCount; i++) {
-                        BytesMessage m = session.createBytesMessage();
-                        m.writeBytes(new byte[messageSize]);
-                        producer.send(m);
-                    }
-                    producer.close();
-                } catch (JMSException e) {
-                    e.printStackTrace();
-                } finally {
-                    safeClose(connection2);
-                    producerDoneLatch.countDown();
-                }
+      final CountDownLatch producerDoneLatch = new CountDownLatch(1);
 
+      // Send the messages, async
+      new Thread() {
+         public void run() {
+            Connection connection2 = null;
+            try {
+               connection2 = factory.createConnection();
+               Session session = connection2.createSession(false, Session.AUTO_ACKNOWLEDGE);
+               MessageProducer producer = session.createProducer(destination);
+               producer.setDeliveryMode(deliveryMode);
+               for (int i = 0; i < messageCount; i++) {
+                  BytesMessage m = session.createBytesMessage();
+                  m.writeBytes(new byte[messageSize]);
+                  producer.send(m);
+               }
+               producer.close();
             }
-        }.start();
+            catch (JMSException e) {
+               e.printStackTrace();
+            }
+            finally {
+               safeClose(connection2);
+               producerDoneLatch.countDown();
+            }
 
-        // Make sure all the messages were delivered.
-        Message message = null;
-        for (int i = 0; i < messageCount; i++) {
-            message = consumer.receive(5000);
-            assertNotNull("Did not get message: " + i, message);
-        }
+         }
+      }.start();
 
-        profilerPause("Done: ");
+      // Make sure all the messages were delivered.
+      Message message = null;
+      for (int i = 0; i < messageCount; i++) {
+         message = consumer.receive(5000);
+         assertNotNull("Did not get message: " + i, message);
+      }
 
-        assertNull(consumer.receiveNoWait());
-        message.acknowledge();
+      profilerPause("Done: ");
 
-        // Make sure the producer thread finishes.
-        assertTrue(producerDoneLatch.await(5, TimeUnit.SECONDS));
-    }
+      assertNull(consumer.receiveNoWait());
+      message.acknowledge();
+
+      // Make sure the producer thread finishes.
+      assertTrue(producerDoneLatch.await(5, TimeUnit.SECONDS));
+   }
 
 }

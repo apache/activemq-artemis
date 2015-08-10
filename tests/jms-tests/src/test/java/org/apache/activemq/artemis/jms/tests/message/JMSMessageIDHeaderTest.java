@@ -21,8 +21,7 @@ import javax.jms.Message;
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
 import org.junit.Test;
 
-public class JMSMessageIDHeaderTest extends MessageHeaderTestBase
-{
+public class JMSMessageIDHeaderTest extends MessageHeaderTestBase {
    // Constants -----------------------------------------------------
 
    // Static --------------------------------------------------------
@@ -34,8 +33,7 @@ public class JMSMessageIDHeaderTest extends MessageHeaderTestBase
    // Public --------------------------------------------------------
 
    @Test
-   public void testJMSMessageIDPrefix() throws Exception
-   {
+   public void testJMSMessageIDPrefix() throws Exception {
       Message m = queueProducerSession.createMessage();
       queueProducer.send(m);
       String messageID = queueConsumer.receive().getJMSMessageID();
@@ -45,10 +43,8 @@ public class JMSMessageIDHeaderTest extends MessageHeaderTestBase
    }
 
    @Test
-   public void testJMSMessageIDChangedAfterSendingMessage() throws Exception
-   {
-      try
-      {
+   public void testJMSMessageIDChangedAfterSendingMessage() throws Exception {
+      try {
          Message m = queueProducerSession.createMessage();
          m.setJMSMessageID("ID:something");
 
@@ -56,17 +52,14 @@ public class JMSMessageIDHeaderTest extends MessageHeaderTestBase
 
          ProxyAssertSupport.assertFalse("ID:something".equals(m.getJMSMessageID()));
       }
-      finally
-      {
+      finally {
          removeAllMessages(queue1.getQueueName(), true);
       }
    }
 
    @Test
-   public void testJMSMessageID() throws Exception
-   {
-      try
-      {
+   public void testJMSMessageID() throws Exception {
+      try {
          Message m = queueProducerSession.createMessage();
          ProxyAssertSupport.assertNull(m.getJMSMessageID());
 
@@ -75,8 +68,7 @@ public class JMSMessageIDHeaderTest extends MessageHeaderTestBase
          ProxyAssertSupport.assertNotNull(m.getJMSMessageID());
          ProxyAssertSupport.assertTrue(m.getJMSMessageID().startsWith("ID:"));
       }
-      finally
-      {
+      finally {
          removeAllMessages(queue1.getQueueName(), true);
       }
    }

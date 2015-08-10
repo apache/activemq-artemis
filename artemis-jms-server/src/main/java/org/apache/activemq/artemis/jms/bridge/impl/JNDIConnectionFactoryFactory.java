@@ -20,16 +20,13 @@ import org.apache.activemq.artemis.jms.bridge.ConnectionFactoryFactory;
 
 import java.util.Hashtable;
 
+public class JNDIConnectionFactoryFactory extends JNDIFactorySupport implements ConnectionFactoryFactory {
 
-public class JNDIConnectionFactoryFactory extends JNDIFactorySupport implements ConnectionFactoryFactory
-{
-   public JNDIConnectionFactoryFactory(final Hashtable jndiProperties, final String lookup)
-   {
+   public JNDIConnectionFactoryFactory(final Hashtable jndiProperties, final String lookup) {
       super(jndiProperties, lookup);
    }
 
-   public Object createConnectionFactory() throws Exception
-   {
+   public Object createConnectionFactory() throws Exception {
       return createObject();
    }
 

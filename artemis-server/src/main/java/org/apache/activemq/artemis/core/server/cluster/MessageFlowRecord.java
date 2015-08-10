@@ -18,8 +18,8 @@ package org.apache.activemq.artemis.core.server.cluster;
 
 import org.apache.activemq.artemis.api.core.client.MessageHandler;
 
-public interface MessageFlowRecord extends MessageHandler
-{
+public interface MessageFlowRecord extends MessageHandler {
+
    String getAddress();
 
    int getMaxHops();

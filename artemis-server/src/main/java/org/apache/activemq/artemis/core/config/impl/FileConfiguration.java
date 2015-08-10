@@ -30,8 +30,8 @@ import javax.management.MBeanServer;
 /**
  * A {@code FileConfiguration} reads configuration values from a file.
  */
-public final class FileConfiguration extends ConfigurationImpl implements Deployable
-{
+public final class FileConfiguration extends ConfigurationImpl implements Deployable {
+
    private static final long serialVersionUID = -4766689627675039596L;
 
    private static final String CONFIGURATION_SCHEMA_URL = "schema/artemis-configuration.xsd";
@@ -44,8 +44,7 @@ public final class FileConfiguration extends ConfigurationImpl implements Deploy
    private boolean parsed = false;
 
    @Override
-   public void parse(Element config) throws Exception
-   {
+   public void parse(Element config) throws Exception {
       FileConfigurationParser parser = new FileConfigurationParser();
 
       // https://jira.jboss.org/browse/HORNETQ-478 - We only want to validate AIO when
@@ -59,26 +58,25 @@ public final class FileConfiguration extends ConfigurationImpl implements Deploy
    }
 
    @Override
-   public boolean isParsed()
-   {
+   public boolean isParsed() {
       return parsed;
    }
 
    @Override
-   public String getRootElement()
-   {
+   public String getRootElement() {
       return CONFIGURATION_SCHEMA_ROOT_ELEMENT;
    }
 
    @Override
-   public void buildService(ActiveMQSecurityManager securityManager, MBeanServer mBeanServer, Map<String, Deployable> deployables, Map<String, ActiveMQComponent> components)
-   {
+   public void buildService(ActiveMQSecurityManager securityManager,
+                            MBeanServer mBeanServer,
+                            Map<String, Deployable> deployables,
+                            Map<String, ActiveMQComponent> components) {
       components.put(getRootElement(), new ActiveMQServerImpl(this, mBeanServer, securityManager));
    }
 
    @Override
-   public String getSchema()
-   {
+   public String getSchema() {
       return CONFIGURATION_SCHEMA_URL;
    }
 }

@@ -21,20 +21,20 @@ import javax.jms.DeliveryMode;
 import org.apache.activemq.test.JmsResourceProvider;
 
 /**
- * 
+ *
  */
 public class JmsDurableTopicTransactionTest extends JmsTopicTransactionTest {
 
-    /**
-     * @see JmsTransactionTestSupport#getJmsResourceProvider()
-     */
-    protected JmsResourceProvider getJmsResourceProvider() {
-        JmsResourceProvider provider = new JmsResourceProvider();
-        provider.setTopic(true);
-        provider.setDeliveryMode(DeliveryMode.PERSISTENT);
-        provider.setClientID(getClass().getName());
-        provider.setDurableName(getName());
-        return provider;
-    }
+   /**
+    * @see JmsTransactionTestSupport#getJmsResourceProvider()
+    */
+   protected JmsResourceProvider getJmsResourceProvider() {
+      JmsResourceProvider provider = new JmsResourceProvider();
+      provider.setTopic(true);
+      provider.setDeliveryMode(DeliveryMode.PERSISTENT);
+      provider.setClientID(getClass().getName());
+      provider.setDurableName(getName());
+      return provider;
+   }
 
 }

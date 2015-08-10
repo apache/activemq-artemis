@@ -27,8 +27,8 @@ import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 import org.apache.activemq.artemis.utils.ReusableLatch;
 
-public interface RemotingService
-{
+public interface RemotingService {
+
    /**
     * Remove a connection from the connections held by the remoting service.
     * <strong>This method must be used only from the management API.

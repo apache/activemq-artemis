@@ -22,76 +22,77 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 
 import junit.framework.TestCase;
+
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.ActiveMQXAConnectionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * 
+ *
  */
 public class InitialContextTest extends TestCase {
 
-    private static final Logger LOG = LoggerFactory.getLogger(InitialContextTest.class);
+   private static final Logger LOG = LoggerFactory.getLogger(InitialContextTest.class);
 
-    public void testInitialContext() throws Exception {
-        InitialContext context = new InitialContext();
-        assertTrue("Created context", context != null);
+   public void testInitialContext() throws Exception {
+      InitialContext context = new InitialContext();
+      assertTrue("Created context", context != null);
 
-        ActiveMQConnectionFactory connectionFactory = (ActiveMQConnectionFactory)context.lookup("ConnectionFactory");
+      ActiveMQConnectionFactory connectionFactory = (ActiveMQConnectionFactory) context.lookup("ConnectionFactory");
 
-        assertTrue("Should have created a ConnectionFactory", connectionFactory != null);
+      assertTrue("Should have created a ConnectionFactory", connectionFactory != null);
 
-        LOG.info("Created with brokerURL: " + connectionFactory.getBrokerURL());
+      LOG.info("Created with brokerURL: " + connectionFactory.getBrokerURL());
 
-    }
+   }
 
-    public void testInitialContextHasXA() throws Exception {
-        InitialContext context = new InitialContext();
-        assertTrue("Created context", context != null);
+   public void testInitialContextHasXA() throws Exception {
+      InitialContext context = new InitialContext();
+      assertTrue("Created context", context != null);
 
-        ActiveMQXAConnectionFactory connectionFactory = (ActiveMQXAConnectionFactory)context.lookup("XAConnectionFactory");
+      ActiveMQXAConnectionFactory connectionFactory = (ActiveMQXAConnectionFactory) context.lookup("XAConnectionFactory");
 
-        assertTrue("Should have created an XAConnectionFactory", connectionFactory != null);
+      assertTrue("Should have created an XAConnectionFactory", connectionFactory != null);
 
-        LOG.info("Created with brokerURL: " + connectionFactory.getBrokerURL());
+      LOG.info("Created with brokerURL: " + connectionFactory.getBrokerURL());
 
-    }
+   }
 
-    public void testUsingStandardJNDIKeys() throws Exception {
-        Properties properties = new Properties();
-        properties.put(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.jndi.ActiveMQInitialContextFactory");
-        String expected = "tcp://localhost:65432";
-        properties.put(Context.PROVIDER_URL, expected);
+   public void testUsingStandardJNDIKeys() throws Exception {
+      Properties properties = new Properties();
+      properties.put(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.jndi.ActiveMQInitialContextFactory");
+      String expected = "tcp://localhost:65432";
+      properties.put(Context.PROVIDER_URL, expected);
 
-        InitialContext context = new InitialContext(properties);
-        assertTrue("Created context", context != null);
+      InitialContext context = new InitialContext(properties);
+      assertTrue("Created context", context != null);
 
-        ActiveMQConnectionFactory connectionFactory = (ActiveMQConnectionFactory)context.lookup("ConnectionFactory");
+      ActiveMQConnectionFactory connectionFactory = (ActiveMQConnectionFactory) context.lookup("ConnectionFactory");
 
-        assertTrue("Should have created a ConnectionFactory", connectionFactory != null);
+      assertTrue("Should have created a ConnectionFactory", connectionFactory != null);
 
-        assertEquals("the brokerURL should match", expected, connectionFactory.getBrokerURL());
-    }
+      assertEquals("the brokerURL should match", expected, connectionFactory.getBrokerURL());
+   }
 
-    public void testConnectionFactoryPolicyConfig() throws Exception {
+   public void testConnectionFactoryPolicyConfig() throws Exception {
 
-        Properties properties = new Properties();
-        properties.put(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.jndi.ActiveMQInitialContextFactory");
-        properties.put(Context.PROVIDER_URL, "tcp://localhost:65432");
-        properties.put("prefetchPolicy.queuePrefetch", "777");
-        properties.put("redeliveryPolicy.maximumRedeliveries", "15");
-        properties.put("redeliveryPolicy.backOffMultiplier", "32");
+      Properties properties = new Properties();
+      properties.put(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.jndi.ActiveMQInitialContextFactory");
+      properties.put(Context.PROVIDER_URL, "tcp://localhost:65432");
+      properties.put("prefetchPolicy.queuePrefetch", "777");
+      properties.put("redeliveryPolicy.maximumRedeliveries", "15");
+      properties.put("redeliveryPolicy.backOffMultiplier", "32");
 
-        InitialContext context = new InitialContext(properties);
-        assertTrue("Created context", context != null);
+      InitialContext context = new InitialContext(properties);
+      assertTrue("Created context", context != null);
 
-        ActiveMQConnectionFactory connectionFactory = (ActiveMQConnectionFactory)context.lookup("ConnectionFactory");
+      ActiveMQConnectionFactory connectionFactory = (ActiveMQConnectionFactory) context.lookup("ConnectionFactory");
 
-        assertTrue("Should have created a ConnectionFactory", connectionFactory != null);
+      assertTrue("Should have created a ConnectionFactory", connectionFactory != null);
 
-        assertEquals(777, connectionFactory.getPrefetchPolicy().getQueuePrefetch());
-        assertEquals(15, connectionFactory.getRedeliveryPolicy().getMaximumRedeliveries());
-        assertEquals(32d, connectionFactory.getRedeliveryPolicy().getBackOffMultiplier());
-    }
+      assertEquals(777, connectionFactory.getPrefetchPolicy().getQueuePrefetch());
+      assertEquals(15, connectionFactory.getRedeliveryPolicy().getMaximumRedeliveries());
+      assertEquals(32d, connectionFactory.getRedeliveryPolicy().getBackOffMultiplier());
+   }
 }

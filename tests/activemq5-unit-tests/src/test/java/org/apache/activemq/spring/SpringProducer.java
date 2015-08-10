@@ -28,52 +28,53 @@ import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.core.MessageCreator;
 
 public class SpringProducer {
-    private static final Logger LOG = LoggerFactory.getLogger(SpringProducer.class);
-    private JmsTemplate template;
-    private Destination destination;
-    private int messageCount = 10;
 
-    public void start() throws JMSException {
-        for (int i = 0; i < messageCount; i++) {
-            final String text = "Text for message: " + i;
-            template.send(destination, new MessageCreator() {
-                public Message createMessage(Session session) throws JMSException {
-                    LOG.info("Sending message: " + text);
-                    TextMessage message = session.createTextMessage(text);
-                    message.setStringProperty("next", "foo");
-                    return message;
-                }
-            });
-        }
-    }
+   private static final Logger LOG = LoggerFactory.getLogger(SpringProducer.class);
+   private JmsTemplate template;
+   private Destination destination;
+   private int messageCount = 10;
 
-    public void stop() throws JMSException {
-    }
+   public void start() throws JMSException {
+      for (int i = 0; i < messageCount; i++) {
+         final String text = "Text for message: " + i;
+         template.send(destination, new MessageCreator() {
+            public Message createMessage(Session session) throws JMSException {
+               LOG.info("Sending message: " + text);
+               TextMessage message = session.createTextMessage(text);
+               message.setStringProperty("next", "foo");
+               return message;
+            }
+         });
+      }
+   }
 
-    // Properties
-    //-------------------------------------------------------------------------
+   public void stop() throws JMSException {
+   }
 
-    public JmsTemplate getTemplate() {
-        return template;
-    }
+   // Properties
+   //-------------------------------------------------------------------------
 
-    public void setTemplate(JmsTemplate template) {
-        this.template = template;
-    }
+   public JmsTemplate getTemplate() {
+      return template;
+   }
 
-    public int getMessageCount() {
-        return messageCount;
-    }
+   public void setTemplate(JmsTemplate template) {
+      this.template = template;
+   }
 
-    public void setMessageCount(int messageCount) {
-        this.messageCount = messageCount;
-    }
+   public int getMessageCount() {
+      return messageCount;
+   }
 
-    public Destination getDestination() {
-        return destination;
-    }
+   public void setMessageCount(int messageCount) {
+      this.messageCount = messageCount;
+   }
 
-    public void setDestination(Destination destination) {
-        this.destination = destination;
-    }
+   public Destination getDestination() {
+      return destination;
+   }
+
+   public void setDestination(Destination destination) {
+      this.destination = destination;
+   }
 }

@@ -20,38 +20,33 @@ package org.apache.activemq.artemis.core.protocol.mqtt;
 /**
  * MQTT Acks only hold message ID information.  From this we must infer the internal message ID and consumer.
  */
-class MQTTMessageInfo
-{
+class MQTTMessageInfo {
+
    private long serverMessageId;
 
    private long consumerId;
 
    private String address;
 
-   MQTTMessageInfo(long serverMessageId, long consumerId, String address)
-   {
+   MQTTMessageInfo(long serverMessageId, long consumerId, String address) {
       this.serverMessageId = serverMessageId;
       this.consumerId = consumerId;
       this.address = address;
    }
 
-   long getServerMessageId()
-   {
+   long getServerMessageId() {
       return serverMessageId;
    }
 
-   long getConsumerId()
-   {
+   long getConsumerId() {
       return consumerId;
    }
 
-   String getAddress()
-   {
+   String getAddress() {
       return address;
    }
 
-   public String toString()
-   {
+   public String toString() {
       return ("ServerMessageId: " + serverMessageId + " ConsumerId: " + consumerId + " addr: " + address);
    }
 }

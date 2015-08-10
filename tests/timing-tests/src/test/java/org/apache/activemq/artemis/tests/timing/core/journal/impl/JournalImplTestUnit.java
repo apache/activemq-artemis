@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.timing.core.journal.impl;
+
 import java.util.ArrayList;
 
 import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
@@ -26,22 +27,20 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 
-public abstract class JournalImplTestUnit extends JournalImplTestBase
-{
+public abstract class JournalImplTestUnit extends JournalImplTestBase {
+
    private static final UnitTestLogger log = UnitTestLogger.LOGGER;
 
    @Override
    @After
-   public void tearDown() throws Exception
-   {
+   public void tearDown() throws Exception {
       super.tearDown();
 
       Assert.assertEquals(0, LibaioContext.getTotalMaxIO());
    }
 
    @Test
-   public void testAddUpdateDeleteManyLargeFileSize() throws Exception
-   {
+   public void testAddUpdateDeleteManyLargeFileSize() throws Exception {
       final int numberAdds = 10000;
 
       final int numberUpdates = 5000;
@@ -50,22 +49,19 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase
 
       long[] adds = new long[numberAdds];
 
-      for (int i = 0; i < numberAdds; i++)
-      {
+      for (int i = 0; i < numberAdds; i++) {
          adds[i] = i;
       }
 
       long[] updates = new long[numberUpdates];
 
-      for (int i = 0; i < numberUpdates; i++)
-      {
+      for (int i = 0; i < numberUpdates; i++) {
          updates[i] = i;
       }
 
       long[] deletes = new long[numberDeletes];
 
-      for (int i = 0; i < numberDeletes; i++)
-      {
+      for (int i = 0; i < numberDeletes; i++) {
          deletes[i] = i;
       }
 
@@ -84,8 +80,7 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase
    }
 
    @Test
-   public void testAddUpdateDeleteManySmallFileSize() throws Exception
-   {
+   public void testAddUpdateDeleteManySmallFileSize() throws Exception {
       final int numberAdds = 10000;
 
       final int numberUpdates = 5000;
@@ -94,22 +89,19 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase
 
       long[] adds = new long[numberAdds];
 
-      for (int i = 0; i < numberAdds; i++)
-      {
+      for (int i = 0; i < numberAdds; i++) {
          adds[i] = i;
       }
 
       long[] updates = new long[numberUpdates];
 
-      for (int i = 0; i < numberUpdates; i++)
-      {
+      for (int i = 0; i < numberUpdates; i++) {
          updates[i] = i;
       }
 
       long[] deletes = new long[numberDeletes];
 
-      for (int i = 0; i < numberDeletes; i++)
-      {
+      for (int i = 0; i < numberDeletes; i++) {
          deletes[i] = i;
       }
 
@@ -129,8 +121,7 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase
    }
 
    @Test
-   public void testReclaimAndReload() throws Exception
-   {
+   public void testReclaimAndReload() throws Exception {
       setup(2, 10 * 1024 * 1024, false);
       createJournal();
       startJournal();
@@ -142,24 +133,21 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase
 
       int NUMBER_OF_RECORDS = 1000;
 
-      for (int count = 0; count < NUMBER_OF_RECORDS; count++)
-      {
-         journal.appendAddRecord(count, (byte)0, record, false);
+      for (int count = 0; count < NUMBER_OF_RECORDS; count++) {
+         journal.appendAddRecord(count, (byte) 0, record, false);
 
-         if (count >= NUMBER_OF_RECORDS / 2)
-         {
+         if (count >= NUMBER_OF_RECORDS / 2) {
             journal.appendDeleteRecord(count - NUMBER_OF_RECORDS / 2, false);
          }
 
-         if (count % 100 == 0)
-         {
+         if (count % 100 == 0) {
             JournalImplTestUnit.log.debug("Done: " + count);
          }
       }
 
       long end = System.currentTimeMillis();
 
-      double rate = 1000 * (double)NUMBER_OF_RECORDS / (end - start);
+      double rate = 1000 * (double) NUMBER_OF_RECORDS / (end - start);
 
       JournalImplTestUnit.log.debug("Rate of " + rate + " adds/removes per sec");
 

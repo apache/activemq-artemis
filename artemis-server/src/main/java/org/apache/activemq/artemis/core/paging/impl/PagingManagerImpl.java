@@ -32,8 +32,8 @@ import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 
-public final class PagingManagerImpl implements PagingManager
-{
+public final class PagingManagerImpl implements PagingManager {
+
    private volatile boolean started = false;
 
    /**
@@ -52,8 +52,7 @@ public final class PagingManagerImpl implements PagingManager
 
    private volatile boolean cleanupEnabled = true;
 
-   private final ConcurrentMap</*TransactionID*/Long, PageTransactionInfo> transactions =
-      new ConcurrentHashMap<Long, PageTransactionInfo>();
+   private final ConcurrentMap</*TransactionID*/Long, PageTransactionInfo> transactions = new ConcurrentHashMap<Long, PageTransactionInfo>();
 
    // Static
    // --------------------------------------------------------------------------------------------------------------------------
@@ -64,92 +63,73 @@ public final class PagingManagerImpl implements PagingManager
    // --------------------------------------------------------------------------------------------------------------------
 
    public PagingManagerImpl(final PagingStoreFactory pagingSPI,
-                            final HierarchicalRepository<AddressSettings> addressSettingsRepository)
-   {
+                            final HierarchicalRepository<AddressSettings> addressSettingsRepository) {
       pagingStoreFactory = pagingSPI;
       this.addressSettingsRepository = addressSettingsRepository;
       addressSettingsRepository.registerListener(this);
    }
 
    @Override
-   public void onChange()
-   {
+   public void onChange() {
       reaplySettings();
    }
 
-   private void reaplySettings()
-   {
-      for (PagingStore store : stores.values())
-      {
+   private void reaplySettings() {
+      for (PagingStore store : stores.values()) {
          AddressSettings settings = this.addressSettingsRepository.getMatch(store.getAddress().toString());
          store.applySetting(settings);
       }
    }
 
-   public void disableCleanup()
-   {
-      if (!cleanupEnabled)
-      {
+   public void disableCleanup() {
+      if (!cleanupEnabled) {
          return;
       }
 
       lock();
-      try
-      {
+      try {
          cleanupEnabled = false;
-         for (PagingStore store : stores.values())
-         {
+         for (PagingStore store : stores.values()) {
             store.disableCleanup();
          }
       }
-      finally
-      {
+      finally {
          unlock();
       }
    }
 
-   public void resumeCleanup()
-   {
-      if (cleanupEnabled)
-      {
+   public void resumeCleanup() {
+      if (cleanupEnabled) {
          return;
       }
 
       lock();
-      try
-      {
+      try {
          cleanupEnabled = true;
-         for (PagingStore store : stores.values())
-         {
+         for (PagingStore store : stores.values()) {
             store.enableCleanup();
          }
       }
-      finally
-      {
+      finally {
          unlock();
       }
    }
 
-   public SimpleString[] getStoreNames()
-   {
+   public SimpleString[] getStoreNames() {
       Set<SimpleString> names = stores.keySet();
       return names.toArray(new SimpleString[names.size()]);
    }
 
-   public void reloadStores() throws Exception
-   {
+   public void reloadStores() throws Exception {
       lock();
-      try
-      {
+      try {
          List<PagingStore> reloadedStores = pagingStoreFactory.reloadStores(addressSettingsRepository);
 
-         for (PagingStore store : reloadedStores)
-         {
+         for (PagingStore store : reloadedStores) {
             // when reloading, we need to close the previously loaded version of this
             // store
             PagingStore oldStore = stores.remove(store.getStoreName());
-            if (oldStore != null)
-            {
+            if (oldStore != null) {
                oldStore.stop();
                oldStore = null;
             }
@@ -157,26 +137,21 @@ public final class PagingManagerImpl implements PagingManager
             stores.put(store.getStoreName(), store);
          }
       }
-      finally
-      {
+      finally {
          unlock();
       }
 
    }
 
-   public void deletePageStore(final SimpleString storeName) throws Exception
-   {
+   public void deletePageStore(final SimpleString storeName) throws Exception {
       syncLock.readLock().lock();
-      try
-      {
+      try {
          PagingStore store = stores.remove(storeName);
-         if (store != null)
-         {
+         if (store != null) {
             store.stop();
          }
       }
-      finally
-      {
+      finally {
          syncLock.readLock().unlock();
       }
    }
@@ -184,65 +159,51 @@ public final class PagingManagerImpl implements PagingManager
    /**
     * stores is a ConcurrentHashMap, so we don't need to synchronize this method
     */
-   public PagingStore getPageStore(final SimpleString storeName) throws Exception
-   {
+   public PagingStore getPageStore(final SimpleString storeName) throws Exception {
       PagingStore store = stores.get(storeName);
 
-      if (store != null)
-      {
+      if (store != null) {
          return store;
       }
       return newStore(storeName);
    }
 
-   public void addTransaction(final PageTransactionInfo pageTransaction)
-   {
-      if (isTrace)
-      {
+   public void addTransaction(final PageTransactionInfo pageTransaction) {
+      if (isTrace) {
          ActiveMQServerLogger.LOGGER.trace("Adding pageTransaction " + pageTransaction.getTransactionID());
       }
       transactions.put(pageTransaction.getTransactionID(), pageTransaction);
    }
 
-   public void removeTransaction(final long id)
-   {
-      if (isTrace)
-      {
+   public void removeTransaction(final long id) {
+      if (isTrace) {
          ActiveMQServerLogger.LOGGER.trace("Removing pageTransaction " + id);
       }
       transactions.remove(id);
    }
 
-   public PageTransactionInfo getTransaction(final long id)
-   {
-      if (isTrace)
-      {
+   public PageTransactionInfo getTransaction(final long id) {
+      if (isTrace) {
          ActiveMQServerLogger.LOGGER.trace("looking up pageTX = " + id);
       }
       return transactions.get(id);
    }
 
    @Override
-   public Map<Long, PageTransactionInfo> getTransactions()
-   {
+   public Map<Long, PageTransactionInfo> getTransactions() {
       return transactions;
    }
 
-
    @Override
-   public boolean isStarted()
-   {
+   public boolean isStarted() {
       return started;
    }
 
    @Override
-   public void start() throws Exception
-   {
+   public void start() throws Exception {
       lock();
-      try
-      {
-         if (started)
-         {
+      try {
+         if (started) {
             return;
          }
 
@@ -252,77 +213,61 @@ public final class PagingManagerImpl implements PagingManager
 
          started = true;
       }
-      finally
-      {
+      finally {
          unlock();
       }
    }
 
-   public synchronized void stop() throws Exception
-   {
-      if (!started)
-      {
+   public synchronized void stop() throws Exception {
+      if (!started) {
          return;
       }
       started = false;
 
       lock();
-      try
-      {
+      try {
 
-         for (PagingStore store : stores.values())
-         {
+         for (PagingStore store : stores.values()) {
             store.stop();
          }
 
          pagingStoreFactory.stop();
       }
-      finally
-      {
+      finally {
          unlock();
       }
    }
 
-   public void processReload() throws Exception
-   {
-      for (PagingStore store : stores.values())
-      {
+   public void processReload() throws Exception {
+      for (PagingStore store : stores.values()) {
          store.processReload();
       }
    }
 
-
-   private PagingStore newStore(final SimpleString address) throws Exception
-   {
+   private PagingStore newStore(final SimpleString address) throws Exception {
       syncLock.readLock().lock();
-      try
-      {
+      try {
          PagingStore store = stores.get(address);
-         if (store == null)
-         {
+         if (store == null) {
             store = pagingStoreFactory.newStore(address, addressSettingsRepository.getMatch(address.toString()));
             store.start();
-            if (!cleanupEnabled)
-            {
+            if (!cleanupEnabled) {
                store.disableCleanup();
             }
             stores.put(address, store);
          }
          return store;
       }
-      finally
-      {
+      finally {
          syncLock.readLock().unlock();
       }
    }
 
-   public void unlock()
-   {
+   public void unlock() {
       syncLock.writeLock().unlock();
    }
 
-   public void lock()
-   {
+   public void lock() {
       syncLock.writeLock().lock();
    }
 

@@ -36,8 +36,8 @@ import org.junit.Test;
 import java.util.HashMap;
 import java.util.Map;
 
-public class StompWebSocketTest extends ActiveMQTestBase
-{
+public class StompWebSocketTest extends ActiveMQTestBase {
+
    private JMSServerManager server;
 
    /**
@@ -46,8 +46,7 @@ public class StompWebSocketTest extends ActiveMQTestBase
     * from http://github.com/jmesnil/stomp-websocket
     */
    @Test
-   public void testConnect() throws Exception
-   {
+   public void testConnect() throws Exception {
       //Thread.sleep(10000000);
    }
 
@@ -55,8 +54,7 @@ public class StompWebSocketTest extends ActiveMQTestBase
    //-------------------------------------------------------------------------
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       server = createServer();
       server.start();
    }
@@ -65,20 +63,13 @@ public class StompWebSocketTest extends ActiveMQTestBase
     * @return
     * @throws Exception
     */
-   private JMSServerManager createServer() throws Exception
-   {
+   private JMSServerManager createServer() throws Exception {
       Map<String, Object> params = new HashMap<String, Object>();
       params.put(TransportConstants.PROTOCOLS_PROP_NAME, StompProtocolManagerFactory.STOMP_PROTOCOL_NAME);
       params.put(TransportConstants.PORT_PROP_NAME, TransportConstants.DEFAULT_STOMP_PORT + 1);
       TransportConfiguration stompTransport = new TransportConfiguration(NettyAcceptorFactory.class.getName(), params);
 
-      Configuration config = createBasicConfig()
-         .addAcceptorConfiguration(stompTransport)
-         .addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName()))
-         .addQueueConfiguration(new CoreQueueConfiguration()
-                                   .setAddress(getQueueName())
-                                   .setName(getQueueName())
-                                   .setDurable(false));
+      Configuration config = createBasicConfig().addAcceptorConfiguration(stompTransport).addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName())).addQueueConfiguration(new CoreQueueConfiguration().setAddress(getQueueName()).setName(getQueueName()).setDurable(false));
 
       ActiveMQServer activeMQServer = addServer(ActiveMQServers.newActiveMQServer(config));
 
@@ -88,8 +79,7 @@ public class StompWebSocketTest extends ActiveMQTestBase
       return server;
    }
 
-   protected String getQueueName()
-   {
+   protected String getQueueName() {
       return "/queue/test";
    }
 }

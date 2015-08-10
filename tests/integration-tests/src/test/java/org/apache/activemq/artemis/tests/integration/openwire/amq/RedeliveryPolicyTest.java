@@ -32,11 +32,10 @@ import org.junit.Test;
 /**
  * adapted from: org.apache.activemq.RedeliveryPolicyTest
  */
-public class RedeliveryPolicyTest extends BasicOpenWireTest
-{
+public class RedeliveryPolicyTest extends BasicOpenWireTest {
+
    @Test
-   public void testGetNext() throws Exception
-   {
+   public void testGetNext() throws Exception {
 
       RedeliveryPolicy policy = new RedeliveryPolicy();
       policy.setInitialRedeliveryDelay(0);
@@ -60,8 +59,7 @@ public class RedeliveryPolicyTest extends BasicOpenWireTest
     * @throws Exception
     */
    @Test
-   public void testExponentialRedeliveryPolicyDelaysDeliveryOnRollback() throws Exception
-   {
+   public void testExponentialRedeliveryPolicyDelaysDeliveryOnRollback() throws Exception {
 
       // Receive a message with the JMS API
       RedeliveryPolicy policy = connection.getRedeliveryPolicy();
@@ -71,8 +69,7 @@ public class RedeliveryPolicyTest extends BasicOpenWireTest
       policy.setUseExponentialBackOff(true);
 
       connection.start();
-      Session session = connection
-            .createSession(true, Session.AUTO_ACKNOWLEDGE);
+      Session session = connection.createSession(true, Session.AUTO_ACKNOWLEDGE);
       ActiveMQQueue destination = new ActiveMQQueue("testExponentialRedeliveryPolicyDelaysDeliveryOnRollback");
       this.makeSureCoreQueueExist("testExponentialRedeliveryPolicyDelaysDeliveryOnRollback");
       MessageProducer producer = session.createProducer(destination);
@@ -119,8 +116,7 @@ public class RedeliveryPolicyTest extends BasicOpenWireTest
     * @throws Exception
     */
    @Test
-   public void testNornalRedeliveryPolicyDelaysDeliveryOnRollback() throws Exception
-   {
+   public void testNornalRedeliveryPolicyDelaysDeliveryOnRollback() throws Exception {
 
       // Receive a message with the JMS API
       RedeliveryPolicy policy = connection.getRedeliveryPolicy();
@@ -128,8 +124,7 @@ public class RedeliveryPolicyTest extends BasicOpenWireTest
       policy.setRedeliveryDelay(500);
 
       connection.start();
-      Session session = connection
-            .createSession(true, Session.AUTO_ACKNOWLEDGE);
+      Session session = connection.createSession(true, Session.AUTO_ACKNOWLEDGE);
       ActiveMQQueue destination = new ActiveMQQueue("testNornalRedeliveryPolicyDelaysDeliveryOnRollback");
       this.makeSureCoreQueueExist("testNornalRedeliveryPolicyDelaysDeliveryOnRollback");
       MessageProducer producer = session.createProducer(destination);
@@ -174,8 +169,7 @@ public class RedeliveryPolicyTest extends BasicOpenWireTest
     * @throws Exception
     */
    @Test
-   public void testDLQHandling() throws Exception
-   {
+   public void testDLQHandling() throws Exception {
       this.makeSureCoreQueueExist("ActiveMQ.DLQ");
       // Receive a message with the JMS API
       RedeliveryPolicy policy = connection.getRedeliveryPolicy();
@@ -223,10 +217,8 @@ public class RedeliveryPolicyTest extends BasicOpenWireTest
       m = (TextMessage) dlqConsumer.receive(1000);
       assertNotNull(m);
       assertEquals("1st", m.getText());
-      String cause = m
-            .getStringProperty(ActiveMQMessage.DLQ_DELIVERY_FAILURE_CAUSE_PROPERTY);
-      assertTrue("cause exception has policy ref",
-            cause.contains("RedeliveryPolicy"));
+      String cause = m.getStringProperty(ActiveMQMessage.DLQ_DELIVERY_FAILURE_CAUSE_PROPERTY);
+      assertTrue("cause exception has policy ref", cause.contains("RedeliveryPolicy"));
       session.commit();
    }
 
@@ -234,8 +226,7 @@ public class RedeliveryPolicyTest extends BasicOpenWireTest
     * @throws Exception
     */
    @Test
-   public void testInfiniteMaximumNumberOfRedeliveries() throws Exception
-   {
+   public void testInfiniteMaximumNumberOfRedeliveries() throws Exception {
 
       // Receive a message with the JMS API
       RedeliveryPolicy policy = connection.getRedeliveryPolicy();
@@ -245,8 +236,7 @@ public class RedeliveryPolicyTest extends BasicOpenWireTest
       policy.setMaximumRedeliveries(-1);
 
       connection.start();
-      Session session = connection
-            .createSession(true, Session.AUTO_ACKNOWLEDGE);
+      Session session = connection.createSession(true, Session.AUTO_ACKNOWLEDGE);
       ActiveMQQueue destination = new ActiveMQQueue("TEST");
       this.makeSureCoreQueueExist("TEST");
       MessageProducer producer = session.createProducer(destination);
@@ -302,8 +292,7 @@ public class RedeliveryPolicyTest extends BasicOpenWireTest
     * @throws Exception
     */
    @Test
-   public void testMaximumRedeliveryDelay() throws Exception
-   {
+   public void testMaximumRedeliveryDelay() throws Exception {
 
       // Receive a message with the JMS API
       RedeliveryPolicy policy = connection.getRedeliveryPolicy();
@@ -316,8 +305,7 @@ public class RedeliveryPolicyTest extends BasicOpenWireTest
       policy.setUseExponentialBackOff(true);
 
       connection.start();
-      Session session = connection
-            .createSession(true, Session.AUTO_ACKNOWLEDGE);
+      Session session = connection.createSession(true, Session.AUTO_ACKNOWLEDGE);
       ActiveMQQueue destination = new ActiveMQQueue("TEST");
       this.makeSureCoreQueueExist("TEST");
       MessageProducer producer = session.createProducer(destination);
@@ -331,8 +319,7 @@ public class RedeliveryPolicyTest extends BasicOpenWireTest
 
       TextMessage m;
 
-      for (int i = 0; i < 10; ++i)
-      {
+      for (int i = 0; i < 10; ++i) {
          // we should be able to get the 1st message redelivered until a
          // session.commit is called
          m = (TextMessage) consumer.receive(2000);
@@ -358,8 +345,7 @@ public class RedeliveryPolicyTest extends BasicOpenWireTest
     * @throws Exception
     */
    @Test
-   public void testZeroMaximumNumberOfRedeliveries() throws Exception
-   {
+   public void testZeroMaximumNumberOfRedeliveries() throws Exception {
 
       // Receive a message with the JMS API
       RedeliveryPolicy policy = connection.getRedeliveryPolicy();
@@ -369,8 +355,7 @@ public class RedeliveryPolicyTest extends BasicOpenWireTest
       policy.setMaximumRedeliveries(0);
 
       connection.start();
-      Session session = connection
-            .createSession(true, Session.AUTO_ACKNOWLEDGE);
+      Session session = connection.createSession(true, Session.AUTO_ACKNOWLEDGE);
       ActiveMQQueue destination = new ActiveMQQueue("TEST");
       this.makeSureCoreQueueExist("TEST");
       MessageProducer producer = session.createProducer(destination);
@@ -398,8 +383,7 @@ public class RedeliveryPolicyTest extends BasicOpenWireTest
    }
 
    @Test
-   public void testInitialRedeliveryDelayZero() throws Exception
-   {
+   public void testInitialRedeliveryDelayZero() throws Exception {
       // Receive a message with the JMS API
       RedeliveryPolicy policy = connection.getRedeliveryPolicy();
       policy.setInitialRedeliveryDelay(0);
@@ -438,8 +422,7 @@ public class RedeliveryPolicyTest extends BasicOpenWireTest
    }
 
    @Test
-   public void testInitialRedeliveryDelayOne() throws Exception
-   {
+   public void testInitialRedeliveryDelayOne() throws Exception {
       // Receive a message with the JMS API
       RedeliveryPolicy policy = connection.getRedeliveryPolicy();
       policy.setInitialRedeliveryDelay(1000);
@@ -479,8 +462,7 @@ public class RedeliveryPolicyTest extends BasicOpenWireTest
    }
 
    @Test
-   public void testRedeliveryDelayOne() throws Exception
-   {
+   public void testRedeliveryDelayOne() throws Exception {
       // Receive a message with the JMS API
       RedeliveryPolicy policy = connection.getRedeliveryPolicy();
       policy.setInitialRedeliveryDelay(0);
@@ -525,8 +507,7 @@ public class RedeliveryPolicyTest extends BasicOpenWireTest
    }
 
    @Test
-   public void testRedeliveryPolicyPerDestination() throws Exception
-   {
+   public void testRedeliveryPolicyPerDestination() throws Exception {
       RedeliveryPolicy queuePolicy = new RedeliveryPolicy();
       queuePolicy.setInitialRedeliveryDelay(0);
       queuePolicy.setRedeliveryDelay(1000);
@@ -545,8 +526,7 @@ public class RedeliveryPolicyTest extends BasicOpenWireTest
       map.put(new ActiveMQQueue(">"), queuePolicy);
 
       connection.start();
-      Session session = connection
-            .createSession(true, Session.AUTO_ACKNOWLEDGE);
+      Session session = connection.createSession(true, Session.AUTO_ACKNOWLEDGE);
       ActiveMQQueue queue = new ActiveMQQueue("TEST");
       ActiveMQTopic topic = new ActiveMQTopic("TEST");
       this.makeSureCoreQueueExist("TEST");

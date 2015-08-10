@@ -34,18 +34,15 @@ import org.objectweb.jtests.jms.framework.TestConfig;
  * <br />
  * See JMS specifications, sec. 4.4 Session
  */
-public class TopicSessionTest extends PubSubTestCase
-{
+public class TopicSessionTest extends PubSubTestCase {
 
    /**
     * Test that if we rollback a transaction which has consumed a message,
     * the message is effectively redelivered.
     */
    @Test
-   public void testRollbackReceivedMessage()
-   {
-      try
-      {
+   public void testRollbackReceivedMessage() {
+      try {
          publisherConnection.stop();
          // publisherSession has been declared has non transacted
          // we recreate it as a transacted session
@@ -76,7 +73,7 @@ public class TopicSessionTest extends PubSubTestCase
          Message msg1 = subscriber.receive(TestConfig.TIMEOUT);
          Assert.assertTrue("no message received", msg1 != null);
          Assert.assertTrue(msg1 instanceof TextMessage);
-         Assert.assertEquals("testRollbackReceivedMessage", ((TextMessage)msg1).getText());
+         Assert.assertEquals("testRollbackReceivedMessage", ((TextMessage) msg1).getText());
 
          // we rollback the transaction of subscriberSession
          subscriberSession.rollback();
@@ -85,13 +82,12 @@ public class TopicSessionTest extends PubSubTestCase
          Message msg2 = subscriber.receive(TestConfig.TIMEOUT);
          Assert.assertTrue("no message received after rollbacking subscriber session.", msg2 != null);
          Assert.assertTrue(msg2 instanceof TextMessage);
-         Assert.assertEquals("testRollbackReceivedMessage", ((TextMessage)msg2).getText());
+         Assert.assertEquals("testRollbackReceivedMessage", ((TextMessage) msg2).getText());
 
          // finally we commit the subscriberSession transaction
          subscriberSession.commit();
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          fail(e);
       }
    }
@@ -101,10 +97,8 @@ public class TopicSessionTest extends PubSubTestCase
     * topic while it was inactive.
     */
    @Test
-   public void testDurableSubscriber()
-   {
-      try
-      {
+   public void testDurableSubscriber() {
+      try {
          subscriber = subscriberSession.createDurableSubscriber(subscriberTopic, "testTopic");
          subscriberConnection.close();
          subscriberConnection = null;
@@ -119,12 +113,11 @@ public class TopicSessionTest extends PubSubTestCase
          subscriber = subscriberSession.createDurableSubscriber(subscriberTopic, "testTopic");
          subscriberConnection.start();
 
-         TextMessage m = (TextMessage)subscriber.receive(TestConfig.TIMEOUT);
+         TextMessage m = (TextMessage) subscriber.receive(TestConfig.TIMEOUT);
          Assert.assertTrue(m != null);
          Assert.assertEquals("test", m.getText());
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          fail(e);
       }
    }
@@ -133,17 +126,14 @@ public class TopicSessionTest extends PubSubTestCase
     * Test the unsubscription of a durable subscriber.
     */
    @Test
-   public void testUnsubscribe()
-   {
-      try
-      {
+   public void testUnsubscribe() {
+      try {
          subscriber = subscriberSession.createDurableSubscriber(subscriberTopic, "topic");
          subscriber.close();
          // nothing should happen when unsubscribing the durable subscriber
          subscriberSession.unsubscribe("topic");
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          fail(e);
       }
    }
@@ -153,18 +143,14 @@ public class TopicSessionTest extends PubSubTestCase
     * message selector throws a <code>javax.jms.InvalidSelectorException</code>.
     */
    @Test
-   public void testCreateDurableSubscriber_2()
-   {
-      try
-      {
+   public void testCreateDurableSubscriber_2() {
+      try {
          subscriberSession.createDurableSubscriber(subscriberTopic, "topic", "definitely not a message selector!", true);
          Assert.fail("Should throw a javax.jms.InvalidSelectorException.\n");
       }
-      catch (InvalidSelectorException e)
-      {
+      catch (InvalidSelectorException e) {
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          Assert.fail("Should throw a javax.jms.InvalidSelectorException, not a " + e);
       }
    }
@@ -174,18 +160,14 @@ public class TopicSessionTest extends PubSubTestCase
     * <code>Topic</code> throws a <code>javax.jms.InvalidDestinationException</code>.
     */
    @Test
-   public void testCreateDurableSubscriber_1()
-   {
-      try
-      {
-         subscriberSession.createDurableSubscriber((Topic)null, "topic");
+   public void testCreateDurableSubscriber_1() {
+      try {
+         subscriberSession.createDurableSubscriber((Topic) null, "topic");
          Assert.fail("Should throw a javax.jms.InvalidDestinationException.\n");
       }
-      catch (InvalidDestinationException e)
-      {
+      catch (InvalidDestinationException e) {
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          Assert.fail("Should throw a javax.jms.InvalidDestinationException, not a " + e);
       }
    }
@@ -195,18 +177,14 @@ public class TopicSessionTest extends PubSubTestCase
     * message selector throws a <code>javax.jms.InvalidSelectorException</code>.
     */
    @Test
-   public void testCreateSubscriber_2()
-   {
-      try
-      {
+   public void testCreateSubscriber_2() {
+      try {
          subscriberSession.createSubscriber(subscriberTopic, "definitely not a message selector!", true);
          Assert.fail("Should throw a javax.jms.InvalidSelectorException.\n");
       }
-      catch (InvalidSelectorException e)
-      {
+      catch (InvalidSelectorException e) {
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          Assert.fail("Should throw a javax.jms.InvalidSelectorException, not a " + e);
       }
    }
@@ -216,18 +194,14 @@ public class TopicSessionTest extends PubSubTestCase
     * <code>Topic</code> throws a <code>javax.jms.InvalidDestinationException</code>.
     */
    @Test
-   public void testCreateSubscriber_1()
-   {
-      try
-      {
-         subscriberSession.createSubscriber((Topic)null);
+   public void testCreateSubscriber_1() {
+      try {
+         subscriberSession.createSubscriber((Topic) null);
          Assert.fail("Should throw a javax.jms.InvalidDestinationException.\n");
       }
-      catch (InvalidDestinationException e)
-      {
+      catch (InvalidDestinationException e) {
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          Assert.fail("Should throw a javax.jms.InvalidDestinationException, not a " + e);
       }
    }

@@ -20,14 +20,14 @@ import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.network.NetworkConnector;
 
 public class TwoBrokerNetworkConnectorWildcardStaticallyIncludedDestinationTest extends AbstractTwoBrokerNetworkConnectorWildcardIncludedDestinationTestSupport {
-	
-    protected void addIncludedDestination(NetworkConnector nc) {
-        nc.addExcludedDestination(ActiveMQDestination.createDestination("local.>", ActiveMQDestination.QUEUE_TYPE));
-        nc.addExcludedDestination(ActiveMQDestination.createDestination("local.>", ActiveMQDestination.TOPIC_TYPE));
-        nc.addExcludedDestination(ActiveMQDestination.createDestination("Consumer.*.local.>", ActiveMQDestination.QUEUE_TYPE));
-        nc.addStaticallyIncludedDestination(ActiveMQDestination.createDestination("global.>", ActiveMQDestination.QUEUE_TYPE));
-        nc.addStaticallyIncludedDestination(ActiveMQDestination.createDestination("global.>", ActiveMQDestination.TOPIC_TYPE));
-        nc.addStaticallyIncludedDestination(ActiveMQDestination.createDestination("Consumer.*.global.>", ActiveMQDestination.QUEUE_TYPE));
-    }
-    
+
+   protected void addIncludedDestination(NetworkConnector nc) {
+      nc.addExcludedDestination(ActiveMQDestination.createDestination("local.>", ActiveMQDestination.QUEUE_TYPE));
+      nc.addExcludedDestination(ActiveMQDestination.createDestination("local.>", ActiveMQDestination.TOPIC_TYPE));
+      nc.addExcludedDestination(ActiveMQDestination.createDestination("Consumer.*.local.>", ActiveMQDestination.QUEUE_TYPE));
+      nc.addStaticallyIncludedDestination(ActiveMQDestination.createDestination("global.>", ActiveMQDestination.QUEUE_TYPE));
+      nc.addStaticallyIncludedDestination(ActiveMQDestination.createDestination("global.>", ActiveMQDestination.TOPIC_TYPE));
+      nc.addStaticallyIncludedDestination(ActiveMQDestination.createDestination("Consumer.*.global.>", ActiveMQDestination.QUEUE_TYPE));
+   }
+
 }

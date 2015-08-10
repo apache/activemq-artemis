@@ -23,8 +23,7 @@ import javax.jms.Message;
 
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
 
-public class JMSDeliveryModeHeaderTest extends MessageHeaderTestBase
-{
+public class JMSDeliveryModeHeaderTest extends MessageHeaderTestBase {
    // Constants -----------------------------------------------------
 
    // Static --------------------------------------------------------
@@ -36,14 +35,12 @@ public class JMSDeliveryModeHeaderTest extends MessageHeaderTestBase
    // Public --------------------------------------------------------
 
    @Test
-   public void testDefaultDeliveryMode() throws Exception
-   {
+   public void testDefaultDeliveryMode() throws Exception {
       ProxyAssertSupport.assertEquals(DeliveryMode.PERSISTENT, queueProducer.getDeliveryMode());
    }
 
    @Test
-   public void testNonPersistentDeliveryMode() throws Exception
-   {
+   public void testNonPersistentDeliveryMode() throws Exception {
       queueProducer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
       ProxyAssertSupport.assertEquals(DeliveryMode.NON_PERSISTENT, queueProducer.getDeliveryMode());
 
@@ -54,8 +51,7 @@ public class JMSDeliveryModeHeaderTest extends MessageHeaderTestBase
    }
 
    @Test
-   public void testPersistentDeliveryMode() throws Exception
-   {
+   public void testPersistentDeliveryMode() throws Exception {
       queueProducer.setDeliveryMode(DeliveryMode.PERSISTENT);
       ProxyAssertSupport.assertEquals(DeliveryMode.PERSISTENT, queueProducer.getDeliveryMode());
 

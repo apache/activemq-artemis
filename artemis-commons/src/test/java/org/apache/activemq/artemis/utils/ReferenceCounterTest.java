@@ -26,39 +26,34 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class ReferenceCounterTest extends Assert
-{
+public class ReferenceCounterTest extends Assert {
 
-   class LatchRunner implements Runnable
-   {
+   class LatchRunner implements Runnable {
+
       final CountDownLatch latch = new CountDownLatch(1);
       final AtomicInteger counts = new AtomicInteger(0);
       volatile Thread lastThreadUsed;
 
-      public void run()
-      {
+      public void run() {
          counts.incrementAndGet();
          latch.countDown();
       }
    }
 
    @Test
-   public void testReferenceNoExecutor() throws Exception
-   {
+   public void testReferenceNoExecutor() throws Exception {
       internalTestReferenceNoExecutor(null);
    }
 
    @Test
-   public void testReferenceWithExecutor() throws Exception
-   {
+   public void testReferenceWithExecutor() throws Exception {
       ExecutorService executor = Executors.newSingleThreadExecutor();
       internalTestReferenceNoExecutor(executor);
       executor.shutdown();
    }
 
    @Test
-   public void testReferenceValidExecutorUsed() throws Exception
-   {
+   public void testReferenceValidExecutorUsed() throws Exception {
       ExecutorService executor = Executors.newSingleThreadExecutor();
       LatchRunner runner = new LatchRunner();
       ReferenceCounterUtil counter = new ReferenceCounterUtil(runner, executor);
@@ -72,61 +67,49 @@ public class ReferenceCounterTest extends Assert
       executor.shutdown();
    }
 
-   public void internalTestReferenceNoExecutor(Executor executor) throws Exception
-   {
+   public void internalTestReferenceNoExecutor(Executor executor) throws Exception {
       LatchRunner runner = new LatchRunner();
 
       final ReferenceCounterUtil ref;
 
-      if (executor == null)
-      {
+      if (executor == null) {
          ref = new ReferenceCounterUtil(runner);
       }
-      else
-      {
+      else {
          ref = new ReferenceCounterUtil(runner, executor);
       }
 
       Thread[] t = new Thread[100];
 
-      for (int i = 0; i < t.length; i++)
-      {
-         t[i] = new Thread()
-         {
-            public void run()
-            {
+      for (int i = 0; i < t.length; i++) {
+         t[i] = new Thread() {
+            public void run() {
                ref.increment();
             }
          };
          t[i].start();
       }
 
-      for (Thread tx : t)
-      {
+      for (Thread tx : t) {
          tx.join();
       }
 
-      for (int i = 0; i < t.length; i++)
-      {
-         t[i] = new Thread()
-         {
-            public void run()
-            {
+      for (int i = 0; i < t.length; i++) {
+         t[i] = new Thread() {
+            public void run() {
                ref.decrement();
             }
          };
          t[i].start();
       }
 
-      for (Thread tx : t)
-      {
+      for (Thread tx : t) {
          tx.join();
       }
 
       assertTrue(runner.latch.await(5, TimeUnit.SECONDS));
 
       assertEquals(1, runner.counts.get());
-
 
    }
 }

@@ -58,8 +58,8 @@ import org.apache.activemq.artemis.utils.VersionLoader;
  * The flat implementation of {@link TopicConnection} and {@link QueueConnection} is per design,
  * following the common usage of these as one flat API in JMS 1.1.
  */
-public class ActiveMQConnection extends ActiveMQConnectionForContextImpl implements TopicConnection, QueueConnection
-{
+public class ActiveMQConnection extends ActiveMQConnectionForContextImpl implements TopicConnection, QueueConnection {
+
    // Constants ------------------------------------------------------------------------------------
    public static final int TYPE_GENERIC_CONNECTION = 0;
 
@@ -127,10 +127,13 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
 
    // Constructors ---------------------------------------------------------------------------------
 
-   public ActiveMQConnection(final String username, final String password, final int connectionType,
-                             final String clientID, final int dupsOKBatchSize, final int transactionBatchSize,
-                             final ClientSessionFactory sessionFactory)
-   {
+   public ActiveMQConnection(final String username,
+                             final String password,
+                             final int connectionType,
+                             final String clientID,
+                             final int dupsOKBatchSize,
+                             final int transactionBatchSize,
+                             final ClientSessionFactory sessionFactory) {
       this.username = username;
 
       this.password = password;
@@ -160,8 +163,7 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
     * For that reason we have this method to force that nonXASession, since the JMS Javadoc
     * mandates createSession to return a XASession.
     */
-   public Session createNonXASession(final boolean transacted, final int acknowledgeMode) throws JMSException
-   {
+   public Session createNonXASession(final boolean transacted, final int acknowledgeMode) throws JMSException {
       checkClosed();
 
       return createSessionInternal(false, transacted, acknowledgeMode, ActiveMQConnection.TYPE_GENERIC_CONNECTION);
@@ -175,8 +177,7 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
     * For that reason we have this method to force that nonXASession, since the JMS Javadoc
     * mandates createSession to return a XASession.
     */
-   public Session createNonXATopicSession(final boolean transacted, final int acknowledgeMode) throws JMSException
-   {
+   public Session createNonXATopicSession(final boolean transacted, final int acknowledgeMode) throws JMSException {
       checkClosed();
 
       return createSessionInternal(false, transacted, acknowledgeMode, ActiveMQConnection.TYPE_TOPIC_CONNECTION);
@@ -190,63 +191,51 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
     * For that reason we have this method to force that nonXASession, since the JMS Javadoc
     * mandates createSession to return a XASession.
     */
-   public Session createNonXAQueueSession(final boolean transacted, final int acknowledgeMode) throws JMSException
-   {
+   public Session createNonXAQueueSession(final boolean transacted, final int acknowledgeMode) throws JMSException {
       checkClosed();
 
       return createSessionInternal(false, transacted, acknowledgeMode, ActiveMQConnection.TYPE_QUEUE_CONNECTION);
    }
 
-
    // Connection implementation --------------------------------------------------------------------
 
-   public synchronized Session createSession(final boolean transacted, final int acknowledgeMode) throws JMSException
-   {
+   public synchronized Session createSession(final boolean transacted, final int acknowledgeMode) throws JMSException {
       checkClosed();
 
       return createSessionInternal(false, transacted, checkAck(transacted, acknowledgeMode), ActiveMQConnection.TYPE_GENERIC_CONNECTION);
    }
 
-   public String getClientID() throws JMSException
-   {
+   public String getClientID() throws JMSException {
       checkClosed();
 
       return clientID;
    }
 
-   public void setClientID(final String clientID) throws JMSException
-   {
+   public void setClientID(final String clientID) throws JMSException {
       checkClosed();
 
-      if (this.clientID != null)
-      {
+      if (this.clientID != null) {
          throw new IllegalStateException("Client id has already been set");
       }
 
-      if (!justCreated)
-      {
+      if (!justCreated) {
          throw new IllegalStateException("setClientID can only be called directly after the connection is created");
       }
 
-      try
-      {
+      try {
          initialSession.addUniqueMetaData(ClientSession.JMS_SESSION_CLIENT_ID_PROPERTY, clientID);
       }
-      catch (ActiveMQException e)
-      {
-         if (e.getType() == ActiveMQExceptionType.DUPLICATE_METADATA)
-         {
+      catch (ActiveMQException e) {
+         if (e.getType() == ActiveMQExceptionType.DUPLICATE_METADATA) {
             throw new InvalidClientIDException("clientID=" + clientID + " was already set into another connection");
          }
       }
 
       this.clientID = clientID;
-      try
-      {
+      try {
          this.addSessionMetaData(initialSession);
       }
-      catch (ActiveMQException e)
-      {
+      catch (ActiveMQException e) {
          JMSException ex = new JMSException("Internal error setting metadata jms-client-id");
          ex.setLinkedException(e);
          ex.initCause(e);
@@ -256,22 +245,19 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
       justCreated = false;
    }
 
-   public ConnectionMetaData getMetaData() throws JMSException
-   {
+   public ConnectionMetaData getMetaData() throws JMSException {
       checkClosed();
 
       justCreated = false;
 
-      if (metaData == null)
-      {
+      if (metaData == null) {
          metaData = new ActiveMQConnectionMetaData(thisVersion);
       }
 
       return metaData;
    }
 
-   public ExceptionListener getExceptionListener() throws JMSException
-   {
+   public ExceptionListener getExceptionListener() throws JMSException {
       checkClosed();
 
       justCreated = false;
@@ -279,20 +265,17 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
       return exceptionListener;
    }
 
-   public void setExceptionListener(final ExceptionListener listener) throws JMSException
-   {
+   public void setExceptionListener(final ExceptionListener listener) throws JMSException {
       checkClosed();
 
       exceptionListener = listener;
       justCreated = false;
    }
 
-   public synchronized void start() throws JMSException
-   {
+   public synchronized void start() throws JMSException {
       checkClosed();
 
-      for (ActiveMQSession session : sessions)
-      {
+      for (ActiveMQSession session : sessions) {
          session.start();
       }
 
@@ -300,13 +283,10 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
       started = true;
    }
 
-   public synchronized void signalStopToAllSessions()
-   {
-      for (ActiveMQSession session : sessions)
-      {
+   public synchronized void signalStopToAllSessions() {
+      for (ActiveMQSession session : sessions) {
          ClientSession coreSession = session.getCoreSession();
-         if (coreSession instanceof ClientSessionInternal)
-         {
+         if (coreSession instanceof ClientSessionInternal) {
             ClientSessionInternal internalSession = (ClientSessionInternal) coreSession;
             internalSession.setStopSignal();
          }
@@ -314,14 +294,12 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
 
    }
 
-   public synchronized void stop() throws JMSException
-   {
+   public synchronized void stop() throws JMSException {
       threadAwareContext.assertNotMessageListenerThread();
 
       checkClosed();
 
-      for (ActiveMQSession session : sessions)
-      {
+      for (ActiveMQSession session : sessions) {
          session.stop();
       }
 
@@ -329,67 +307,54 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
       started = false;
    }
 
-   public final synchronized void close() throws JMSException
-   {
+   public final synchronized void close() throws JMSException {
       threadAwareContext.assertNotCompletionListenerThread();
       threadAwareContext.assertNotMessageListenerThread();
 
-      if (closed)
-      {
+      if (closed) {
          return;
       }
 
       sessionFactory.close();
 
-      try
-      {
-         for (ActiveMQSession session : new HashSet<ActiveMQSession>(sessions))
-         {
+      try {
+         for (ActiveMQSession session : new HashSet<ActiveMQSession>(sessions)) {
             session.close();
          }
 
-         try
-         {
-            if (!tempQueues.isEmpty())
-            {
+         try {
+            if (!tempQueues.isEmpty()) {
                // Remove any temporary queues
 
-               for (SimpleString queueName : tempQueues)
-               {
-                  if (!initialSession.isClosed())
-                  {
-                     try
-                     {
+               for (SimpleString queueName : tempQueues) {
+                  if (!initialSession.isClosed()) {
+                     try {
                         initialSession.deleteQueue(queueName);
                      }
-                     catch (ActiveMQException ignore)
-                     {
+                     catch (ActiveMQException ignore) {
                         // Exception on deleting queue shouldn't prevent close from completing
                      }
                   }
                }
             }
          }
-         finally
-         {
-            if (initialSession != null)
-            {
+         finally {
+            if (initialSession != null) {
                initialSession.close();
             }
          }
 
          closed = true;
       }
-      catch (ActiveMQException e)
-      {
+      catch (ActiveMQException e) {
          throw JMSExceptionHelper.convertFromActiveMQException(e);
       }
    }
 
-   public ConnectionConsumer
-   createConnectionConsumer(final Destination destination, final String messageSelector,
-                            final ServerSessionPool sessionPool, final int maxMessages) throws JMSException
-   {
+   public ConnectionConsumer createConnectionConsumer(final Destination destination,
+                                                      final String messageSelector,
+                                                      final ServerSessionPool sessionPool,
+                                                      final int maxMessages) throws JMSException {
       checkClosed();
 
       checkTempQueues(destination);
@@ -398,26 +363,23 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
       return null;
    }
 
-   private void checkTempQueues(Destination destination) throws JMSException
-   {
+   private void checkTempQueues(Destination destination) throws JMSException {
       ActiveMQDestination jbdest = (ActiveMQDestination) destination;
 
-      if (jbdest.isTemporary() && !containsTemporaryQueue(jbdest.getSimpleAddress()))
-      {
+      if (jbdest.isTemporary() && !containsTemporaryQueue(jbdest.getSimpleAddress())) {
          throw new JMSException("Can not create consumer for temporary destination " + destination +
                                    " from another JMS connection");
       }
    }
 
-   public ConnectionConsumer
-   createDurableConnectionConsumer(final Topic topic, final String subscriptionName,
-                                   final String messageSelector, final ServerSessionPool sessionPool,
-                                   final int maxMessages) throws JMSException
-   {
+   public ConnectionConsumer createDurableConnectionConsumer(final Topic topic,
+                                                             final String subscriptionName,
+                                                             final String messageSelector,
+                                                             final ServerSessionPool sessionPool,
+                                                             final int maxMessages) throws JMSException {
       checkClosed();
       // As spec. section 4.11
-      if (connectionType == ActiveMQConnection.TYPE_QUEUE_CONNECTION)
-      {
+      if (connectionType == ActiveMQConnection.TYPE_QUEUE_CONNECTION) {
          String msg = "Cannot create a durable connection consumer on a QueueConnection";
          throw new javax.jms.IllegalStateException(msg);
       }
@@ -427,24 +389,21 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
    }
 
    @Override
-   public Session createSession(int sessionMode) throws JMSException
-   {
+   public Session createSession(int sessionMode) throws JMSException {
       checkClosed();
       return createSessionInternal(false, sessionMode == Session.SESSION_TRANSACTED, sessionMode, ActiveMQSession.TYPE_GENERIC_SESSION);
 
    }
 
    @Override
-   public Session createSession() throws JMSException
-   {
+   public Session createSession() throws JMSException {
       checkClosed();
       return createSessionInternal(false, false, Session.AUTO_ACKNOWLEDGE, ActiveMQSession.TYPE_GENERIC_SESSION);
    }
 
    // QueueConnection implementation ---------------------------------------------------------------
 
-   public QueueSession createQueueSession(final boolean transacted, int acknowledgeMode) throws JMSException
-   {
+   public QueueSession createQueueSession(final boolean transacted, int acknowledgeMode) throws JMSException {
       checkClosed();
       return createSessionInternal(false, transacted, checkAck(transacted, acknowledgeMode), ActiveMQSession.TYPE_QUEUE_SESSION);
    }
@@ -453,20 +412,18 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
     * I'm keeping this as static as the same check will be done within RA.
     * This is to conform with TCK Tests where we must return ackMode exactly as they want if transacted=false
     */
-   public static int checkAck(boolean transacted, int acknowledgeMode)
-   {
-      if (!transacted && acknowledgeMode == Session.SESSION_TRANSACTED)
-      {
+   public static int checkAck(boolean transacted, int acknowledgeMode) {
+      if (!transacted && acknowledgeMode == Session.SESSION_TRANSACTED) {
          return Session.AUTO_ACKNOWLEDGE;
       }
 
       return acknowledgeMode;
    }
 
-   public ConnectionConsumer
-   createConnectionConsumer(final Queue queue, final String messageSelector,
-                            final ServerSessionPool sessionPool, final int maxMessages) throws JMSException
-   {
+   public ConnectionConsumer createConnectionConsumer(final Queue queue,
+                                                      final String messageSelector,
+                                                      final ServerSessionPool sessionPool,
+                                                      final int maxMessages) throws JMSException {
       checkClosed();
       checkTempQueues(queue);
       return null;
@@ -474,30 +431,35 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
 
    // TopicConnection implementation ---------------------------------------------------------------
 
-   public TopicSession createTopicSession(final boolean transacted, final int acknowledgeMode) throws JMSException
-   {
+   public TopicSession createTopicSession(final boolean transacted, final int acknowledgeMode) throws JMSException {
       checkClosed();
       return createSessionInternal(false, transacted, checkAck(transacted, acknowledgeMode), ActiveMQSession.TYPE_TOPIC_SESSION);
    }
 
-   public ConnectionConsumer
-   createConnectionConsumer(final Topic topic, final String messageSelector,
-                            final ServerSessionPool sessionPool, final int maxMessages) throws JMSException
-   {
+   public ConnectionConsumer createConnectionConsumer(final Topic topic,
+                                                      final String messageSelector,
+                                                      final ServerSessionPool sessionPool,
+                                                      final int maxMessages) throws JMSException {
       checkClosed();
       checkTempQueues(topic);
       return null;
    }
 
    @Override
-   public ConnectionConsumer createSharedConnectionConsumer(Topic topic, String subscriptionName, String messageSelector, ServerSessionPool sessionPool, int maxMessages) throws JMSException
-   {
+   public ConnectionConsumer createSharedConnectionConsumer(Topic topic,
+                                                            String subscriptionName,
+                                                            String messageSelector,
+                                                            ServerSessionPool sessionPool,
+                                                            int maxMessages) throws JMSException {
       return null; // we offer RA
    }
 
    @Override
-   public ConnectionConsumer createSharedDurableConnectionConsumer(Topic topic, String subscriptionName, String messageSelector, ServerSessionPool sessionPool, int maxMessages) throws JMSException
-   {
+   public ConnectionConsumer createSharedDurableConnectionConsumer(Topic topic,
+                                                                   String subscriptionName,
+                                                                   String messageSelector,
+                                                                   ServerSessionPool sessionPool,
+                                                                   int maxMessages) throws JMSException {
       return null; // we offer RA
    }
 
@@ -509,8 +471,7 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
     * @param listener the listener to add
     * @throws JMSException
     */
-   public void setFailoverListener(final FailoverEventListener listener) throws JMSException
-   {
+   public void setFailoverListener(final FailoverEventListener listener) throws JMSException {
       checkClosed();
 
       justCreated = false;
@@ -523,8 +484,7 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
     * @return {@link FailoverEventListener} the current failover event listener for this connection
     * @throws JMSException
     */
-   public FailoverEventListener getFailoverListener() throws JMSException
-   {
+   public FailoverEventListener getFailoverListener() throws JMSException {
       checkClosed();
 
       justCreated = false;
@@ -532,54 +492,44 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
       return failoverEventListener;
    }
 
-   public void addTemporaryQueue(final SimpleString queueAddress)
-   {
+   public void addTemporaryQueue(final SimpleString queueAddress) {
       tempQueues.add(queueAddress);
       knownDestinations.add(queueAddress);
    }
 
-   public void removeTemporaryQueue(final SimpleString queueAddress)
-   {
+   public void removeTemporaryQueue(final SimpleString queueAddress) {
       tempQueues.remove(queueAddress);
    }
 
-   public void addKnownDestination(final SimpleString address)
-   {
+   public void addKnownDestination(final SimpleString address) {
       knownDestinations.add(address);
    }
 
-   public boolean containsKnownDestination(final SimpleString address)
-   {
+   public boolean containsKnownDestination(final SimpleString address) {
       return knownDestinations.contains(address);
    }
 
-   public boolean containsTemporaryQueue(final SimpleString queueAddress)
-   {
+   public boolean containsTemporaryQueue(final SimpleString queueAddress) {
       return tempQueues.contains(queueAddress);
    }
 
-   public boolean hasNoLocal()
-   {
+   public boolean hasNoLocal() {
       return hasNoLocal;
    }
 
-   public void setHasNoLocal()
-   {
+   public void setHasNoLocal() {
       hasNoLocal = true;
    }
 
-   public SimpleString getUID()
-   {
+   public SimpleString getUID() {
       return uid;
    }
 
-   public void removeSession(final ActiveMQSession session)
-   {
+   public void removeSession(final ActiveMQSession session) {
       sessions.remove(session);
    }
 
-   public ClientSession getInitialSession()
-   {
+   public ClientSession getInitialSession() {
       return initialSession;
    }
 
@@ -590,70 +540,48 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
    // In case the user forgets to close the connection manually
 
    @Override
-   protected final void finalize() throws Throwable
-   {
-      if (!closed)
-      {
+   protected final void finalize() throws Throwable {
+      if (!closed) {
          ActiveMQJMSClientLogger.LOGGER.connectionLeftOpen(creationStack);
 
          close();
       }
    }
 
-   protected boolean isXA()
-   {
+   protected boolean isXA() {
       return false;
    }
 
-   protected final ActiveMQSession
-   createSessionInternal(final boolean isXA, final boolean transacted, int acknowledgeMode, final int type) throws JMSException
-   {
-      if (transacted)
-      {
+   protected final ActiveMQSession createSessionInternal(final boolean isXA,
+                                                         final boolean transacted,
+                                                         int acknowledgeMode,
+                                                         final int type) throws JMSException {
+      if (transacted) {
          acknowledgeMode = Session.SESSION_TRANSACTED;
       }
 
-      try
-      {
+      try {
          ClientSession session;
 
-         if (acknowledgeMode == Session.SESSION_TRANSACTED)
-         {
-            session =
-               sessionFactory.createSession(username, password, isXA, false, false,
-                                            sessionFactory.getServerLocator().isPreAcknowledge(),
-                                            transactionBatchSize);
+         if (acknowledgeMode == Session.SESSION_TRANSACTED) {
+            session = sessionFactory.createSession(username, password, isXA, false, false, sessionFactory.getServerLocator().isPreAcknowledge(), transactionBatchSize);
          }
-         else if (acknowledgeMode == Session.AUTO_ACKNOWLEDGE)
-         {
-            session =
-               sessionFactory.createSession(username, password, isXA, true, true,
-                                            sessionFactory.getServerLocator().isPreAcknowledge(), 0);
+         else if (acknowledgeMode == Session.AUTO_ACKNOWLEDGE) {
+            session = sessionFactory.createSession(username, password, isXA, true, true, sessionFactory.getServerLocator().isPreAcknowledge(), 0);
          }
-         else if (acknowledgeMode == Session.DUPS_OK_ACKNOWLEDGE)
-         {
-            session =
-               sessionFactory.createSession(username, password, isXA, true, true,
-                                            sessionFactory.getServerLocator().isPreAcknowledge(), dupsOKBatchSize);
+         else if (acknowledgeMode == Session.DUPS_OK_ACKNOWLEDGE) {
+            session = sessionFactory.createSession(username, password, isXA, true, true, sessionFactory.getServerLocator().isPreAcknowledge(), dupsOKBatchSize);
          }
-         else if (acknowledgeMode == Session.CLIENT_ACKNOWLEDGE)
-         {
-            session =
-               sessionFactory.createSession(username, password, isXA, true, false,
-                                            sessionFactory.getServerLocator().isPreAcknowledge(),
-                                            transactionBatchSize);
+         else if (acknowledgeMode == Session.CLIENT_ACKNOWLEDGE) {
+            session = sessionFactory.createSession(username, password, isXA, true, false, sessionFactory.getServerLocator().isPreAcknowledge(), transactionBatchSize);
          }
-         else if (acknowledgeMode == ActiveMQJMSConstants.INDIVIDUAL_ACKNOWLEDGE)
-         {
-            session =
-               sessionFactory.createSession(username, password, isXA, true, false, false, transactionBatchSize);
+         else if (acknowledgeMode == ActiveMQJMSConstants.INDIVIDUAL_ACKNOWLEDGE) {
+            session = sessionFactory.createSession(username, password, isXA, true, false, false, transactionBatchSize);
          }
-         else if (acknowledgeMode == ActiveMQJMSConstants.PRE_ACKNOWLEDGE)
-         {
+         else if (acknowledgeMode == ActiveMQJMSConstants.PRE_ACKNOWLEDGE) {
             session = sessionFactory.createSession(username, password, isXA, true, false, true, transactionBatchSize);
          }
-         else
-         {
+         else {
             throw new JMSRuntimeException("Invalid ackmode: " + acknowledgeMode);
          }
 
@@ -669,8 +597,7 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
 
          sessions.add(jbs);
 
-         if (started)
-         {
+         if (started) {
             session.start();
          }
 
@@ -678,8 +605,7 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
 
          return jbs;
       }
-      catch (ActiveMQException e)
-      {
+      catch (ActiveMQException e) {
          throw JMSExceptionHelper.convertFromActiveMQException(e);
       }
    }
@@ -693,30 +619,27 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
     * @param type
     * @return
     */
-   protected ActiveMQSession createAMQSession(boolean isXA, boolean transacted, int acknowledgeMode, ClientSession session, int type)
-   {
-      if (isXA)
-      {
+   protected ActiveMQSession createAMQSession(boolean isXA,
+                                              boolean transacted,
+                                              int acknowledgeMode,
+                                              ClientSession session,
+                                              int type) {
+      if (isXA) {
          return new ActiveMQXASession(this, transacted, true, acknowledgeMode, session, type);
       }
-      else
-      {
+      else {
          return new ActiveMQSession(this, transacted, false, acknowledgeMode, session, type);
       }
    }
 
-   protected final void checkClosed() throws JMSException
-   {
-      if (closed)
-      {
+   protected final void checkClosed() throws JMSException {
+      if (closed) {
          throw new IllegalStateException("Connection is closed");
       }
    }
 
-   public void authorize() throws JMSException
-   {
-      try
-      {
+   public void authorize() throws JMSException {
+      try {
          initialSession = sessionFactory.createSession(username, password, false, false, false, false, 0);
 
          addSessionMetaData(initialSession);
@@ -724,79 +647,62 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
          initialSession.addFailureListener(listener);
          initialSession.addFailoverListener(failoverListener);
       }
-      catch (ActiveMQException me)
-      {
+      catch (ActiveMQException me) {
          throw JMSExceptionHelper.convertFromActiveMQException(me);
       }
    }
 
-   private void addSessionMetaData(ClientSession session) throws ActiveMQException
-   {
+   private void addSessionMetaData(ClientSession session) throws ActiveMQException {
       session.addMetaData(ClientSession.JMS_SESSION_IDENTIFIER_PROPERTY, "");
-      if (clientID != null)
-      {
+      if (clientID != null) {
          session.addMetaData(ClientSession.JMS_SESSION_CLIENT_ID_PROPERTY, clientID);
       }
    }
 
-   public void setReference(ActiveMQConnectionFactory factory)
-   {
+   public void setReference(ActiveMQConnectionFactory factory) {
       this.factoryReference = factory;
    }
 
-   public boolean isStarted()
-   {
+   public boolean isStarted() {
       return started;
    }
 
-
    // Inner classes --------------------------------------------------------------------------------
 
-   private static class JMSFailureListener implements SessionFailureListener
-   {
+   private static class JMSFailureListener implements SessionFailureListener {
+
       private final WeakReference<ActiveMQConnection> connectionRef;
 
-      JMSFailureListener(final ActiveMQConnection connection)
-      {
+      JMSFailureListener(final ActiveMQConnection connection) {
          connectionRef = new WeakReference<ActiveMQConnection>(connection);
       }
 
       @Override
-      public synchronized void connectionFailed(final ActiveMQException me, boolean failedOver)
-      {
-         if (me == null)
-         {
+      public synchronized void connectionFailed(final ActiveMQException me, boolean failedOver) {
+         if (me == null) {
             return;
          }
 
          ActiveMQConnection conn = connectionRef.get();
 
-         if (conn != null)
-         {
-            try
-            {
+         if (conn != null) {
+            try {
                final ExceptionListener exceptionListener = conn.getExceptionListener();
 
-               if (exceptionListener != null)
-               {
-                  final JMSException je =
-                     new JMSException(me.toString(), failedOver ? EXCEPTION_FAILOVER : EXCEPTION_DISCONNECT);
+               if (exceptionListener != null) {
+                  final JMSException je = new JMSException(me.toString(), failedOver ? EXCEPTION_FAILOVER : EXCEPTION_DISCONNECT);
 
                   je.initCause(me);
 
-                  new Thread(new Runnable()
-                  {
-                     public void run()
-                     {
+                  new Thread(new Runnable() {
+                     public void run() {
                         exceptionListener.onException(je);
                      }
                   }).start();
                }
             }
-            catch (JMSException e)
-            {
-               if (!conn.closed)
-               {
+            catch (JMSException e) {
+               if (!conn.closed) {
                   ActiveMQJMSClientLogger.LOGGER.errorCallingExcListener(e);
                }
             }
@@ -804,54 +710,43 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
       }
 
       @Override
-      public void connectionFailed(final ActiveMQException me, boolean failedOver, String scaleDownTargetNodeID)
-      {
+      public void connectionFailed(final ActiveMQException me, boolean failedOver, String scaleDownTargetNodeID) {
          connectionFailed(me, failedOver);
       }
 
-      public void beforeReconnect(final ActiveMQException me)
-      {
+      public void beforeReconnect(final ActiveMQException me) {
 
       }
 
    }
 
-   private static class FailoverEventListenerImpl implements FailoverEventListener
-   {
+   private static class FailoverEventListenerImpl implements FailoverEventListener {
+
       private final WeakReference<ActiveMQConnection> connectionRef;
 
-      FailoverEventListenerImpl(final ActiveMQConnection connection)
-      {
+      FailoverEventListenerImpl(final ActiveMQConnection connection) {
          connectionRef = new WeakReference<ActiveMQConnection>(connection);
       }
 
       @Override
-      public void failoverEvent(final FailoverEventType eventType)
-      {
+      public void failoverEvent(final FailoverEventType eventType) {
          ActiveMQConnection conn = connectionRef.get();
 
-         if (conn != null)
-         {
-            try
-            {
+         if (conn != null) {
+            try {
                final FailoverEventListener failoverListener = conn.getFailoverListener();
 
-               if (failoverListener != null)
-               {
+               if (failoverListener != null) {
 
-                  new Thread(new Runnable()
-                  {
-                     public void run()
-                     {
+                  new Thread(new Runnable() {
+                     public void run() {
                         failoverListener.failoverEvent(eventType);
                      }
                   }).start();
                }
             }
-            catch (JMSException e)
-            {
-               if (!conn.closed)
-               {
+            catch (JMSException e) {
+               if (!conn.closed) {
                   ActiveMQJMSClientLogger.LOGGER.errorCallingFailoverListener(e);
                }
             }

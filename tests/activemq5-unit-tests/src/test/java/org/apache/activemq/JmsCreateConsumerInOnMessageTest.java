@@ -25,75 +25,76 @@ import javax.jms.Session;
 import javax.jms.Topic;
 
 /**
- * 
+ *
  */
 public class JmsCreateConsumerInOnMessageTest extends TestSupport implements MessageListener {
 
-    private Connection connection;
-    private Session publisherSession;
-    private Session consumerSession;
-    private MessageConsumer consumer;
-    private MessageConsumer testConsumer;
-    private MessageProducer producer;
-    private Topic topic;
-    private final Object lock = new Object();
+   private Connection connection;
+   private Session publisherSession;
+   private Session consumerSession;
+   private MessageConsumer consumer;
+   private MessageConsumer testConsumer;
+   private MessageProducer producer;
+   private Topic topic;
+   private final Object lock = new Object();
 
-    /*
-     * @see junit.framework.TestCase#setUp()
-     */
-    protected void setUp() throws Exception {
-        super.setUp();
-        super.topic = true;
-        connection = createConnection();
-        connection.setClientID("connection:" + getSubject());
-        publisherSession = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        consumerSession = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        topic = (Topic)super.createDestination("Test.Topic");
-        consumer = consumerSession.createConsumer(topic);
-        consumer.setMessageListener(this);
-        producer = publisherSession.createProducer(topic);
-        connection.start();
-    }
+   /*
+    * @see junit.framework.TestCase#setUp()
+    */
+   protected void setUp() throws Exception {
+      super.setUp();
+      super.topic = true;
+      connection = createConnection();
+      connection.setClientID("connection:" + getSubject());
+      publisherSession = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      consumerSession = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      topic = (Topic) super.createDestination("Test.Topic");
+      consumer = consumerSession.createConsumer(topic);
+      consumer.setMessageListener(this);
+      producer = publisherSession.createProducer(topic);
+      connection.start();
+   }
 
-    /*
-     * @see junit.framework.TestCase#tearDown()
-     */
-    protected void tearDown() throws Exception {
-        super.tearDown();
-        connection.close();
-    }
+   /*
+    * @see junit.framework.TestCase#tearDown()
+    */
+   protected void tearDown() throws Exception {
+      super.tearDown();
+      connection.close();
+   }
 
-    /**
-     * Tests if a consumer can be created asynchronusly
-     * 
-     * @throws Exception
-     */
-    public void testCreateConsumer() throws Exception {
-        Message msg = super.createMessage();
-        producer.send(msg);
-        synchronized (lock) {
-            while(testConsumer == null) {
-                lock.wait(3000);
-            }
-        }
-        assertTrue(testConsumer != null);
-    }
+   /**
+    * Tests if a consumer can be created asynchronusly
+    *
+    * @throws Exception
+    */
+   public void testCreateConsumer() throws Exception {
+      Message msg = super.createMessage();
+      producer.send(msg);
+      synchronized (lock) {
+         while (testConsumer == null) {
+            lock.wait(3000);
+         }
+      }
+      assertTrue(testConsumer != null);
+   }
 
-    /**
-     * Use the asynchronous subscription mechanism
-     * 
-     * @param message
-     */
-    public void onMessage(Message message) {
-        try {
-            testConsumer = consumerSession.createConsumer(topic);
-            consumerSession.createProducer(topic);
-            synchronized (lock) {
-                lock.notify();
-            }
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            assertTrue(false);
-        }
-    }
+   /**
+    * Use the asynchronous subscription mechanism
+    *
+    * @param message
+    */
+   public void onMessage(Message message) {
+      try {
+         testConsumer = consumerSession.createConsumer(topic);
+         consumerSession.createProducer(topic);
+         synchronized (lock) {
+            lock.notify();
+         }
+      }
+      catch (Exception ex) {
+         ex.printStackTrace();
+         assertTrue(false);
+      }
+   }
 }

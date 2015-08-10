@@ -25,41 +25,42 @@ import org.apache.activemq.util.Wait;
 import org.junit.Test;
 
 public class NetworkLoopBackTest {
-    @Test
-    public void testLoopbackOnDifferentUrlScheme() throws Exception {
-        final BrokerService brokerServce = new BrokerService();
-        brokerServce.setPersistent(false);
 
-        TransportConnector transportConnector = brokerServce.addConnector("nio://0.0.0.0:0");
-        // connection filter is bypassed when scheme is different
-        final NetworkConnector networkConnector = brokerServce.addNetworkConnector("static:(tcp://"
-                + transportConnector.getConnectUri().getHost() + ":" +  transportConnector.getConnectUri().getPort() + ")");
+   @Test
+   public void testLoopbackOnDifferentUrlScheme() throws Exception {
+      final BrokerService brokerServce = new BrokerService();
+      brokerServce.setPersistent(false);
 
-        brokerServce.start();
-        brokerServce.waitUntilStarted();
+      TransportConnector transportConnector = brokerServce.addConnector("nio://0.0.0.0:0");
+      // connection filter is bypassed when scheme is different
+      final NetworkConnector networkConnector = brokerServce.addNetworkConnector("static:(tcp://" + transportConnector.getConnectUri().getHost() + ":" + transportConnector.getConnectUri().getPort() + ")");
 
-        try {
-            Wait.waitFor(new Wait.Condition() {
-                @Override
-                public boolean isSatisified() throws Exception {
-                    return 1 == networkConnector.bridges.size();
-                }
-            });
+      brokerServce.start();
+      brokerServce.waitUntilStarted();
 
-            final DemandForwardingBridgeSupport loopbackBridge = (DemandForwardingBridgeSupport) networkConnector.bridges.elements().nextElement();
-            assertTrue("nc started", networkConnector.isStarted());
+      try {
+         Wait.waitFor(new Wait.Condition() {
+            @Override
+            public boolean isSatisified() throws Exception {
+               return 1 == networkConnector.bridges.size();
+            }
+         });
 
-            assertTrue("It should get disposed", Wait.waitFor(new Wait.Condition() {
-                @Override
-                public boolean isSatisified() throws Exception {
-                    return loopbackBridge.getRemoteBroker().isDisposed();
-                }
-            }));
+         final DemandForwardingBridgeSupport loopbackBridge = (DemandForwardingBridgeSupport) networkConnector.bridges.elements().nextElement();
+         assertTrue("nc started", networkConnector.isStarted());
 
-            assertEquals("No peer brokers", 0, brokerServce.getBroker().getPeerBrokerInfos().length);
+         assertTrue("It should get disposed", Wait.waitFor(new Wait.Condition() {
+            @Override
+            public boolean isSatisified() throws Exception {
+               return loopbackBridge.getRemoteBroker().isDisposed();
+            }
+         }));
 
-        } finally {
-            brokerServce.stop();
-        }
-    }
+         assertEquals("No peer brokers", 0, brokerServce.getBroker().getPeerBrokerInfos().length);
+
+      }
+      finally {
+         brokerServce.stop();
+      }
+   }
 }

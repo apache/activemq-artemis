@@ -19,30 +19,25 @@ package org.apache.activemq.artemis.core.journal.impl.dataformat;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
 
-public class ByteArrayEncoding implements EncodingSupport
-{
+public class ByteArrayEncoding implements EncodingSupport {
 
    final byte[] data;
 
-   public ByteArrayEncoding(final byte[] data)
-   {
+   public ByteArrayEncoding(final byte[] data) {
       this.data = data;
    }
 
    // Public --------------------------------------------------------
 
-   public void decode(final ActiveMQBuffer buffer)
-   {
+   public void decode(final ActiveMQBuffer buffer) {
       throw new IllegalStateException("operation not supported");
    }
 
-   public void encode(final ActiveMQBuffer buffer)
-   {
+   public void encode(final ActiveMQBuffer buffer) {
       buffer.writeBytes(data);
    }
 
-   public int getEncodeSize()
-   {
+   public int getEncodeSize() {
       return data.length;
    }
 }

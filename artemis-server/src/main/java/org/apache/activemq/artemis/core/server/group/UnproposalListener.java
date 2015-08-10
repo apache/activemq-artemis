@@ -18,7 +18,7 @@ package org.apache.activemq.artemis.core.server.group;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 
-public interface UnproposalListener
-{
+public interface UnproposalListener {
+
    void unproposed(SimpleString groupID);
 }

@@ -44,31 +44,31 @@ import org.objectweb.jtests.jms.conform.topic.TemporaryTopicTest;
  */
 public class JoramJmsTest extends TestCase {
 
-    public static Test suite() {
-        TestSuite suite = new TestSuite();
-        suite.addTestSuite(SelectorTest.class);
-        suite.addTestSuite(ConnectionTest.class);
-        suite.addTestSuite(TopicConnectionTest.class);
-        suite.addTestSuite(MessageHeaderTest.class);
-        suite.addTestSuite(MessageBodyTest.class);
-        suite.addTestSuite(MessageDefaultTest.class);
-        suite.addTestSuite(MessageTypeTest.class);
-        suite.addTestSuite(JMSXPropertyTest.class);
-        suite.addTestSuite(MessagePropertyConversionTest.class);
-        suite.addTestSuite(TemporaryQueueTest.class);
-        suite.addTestSuite(SelectorSyntaxTest.class);
-        suite.addTestSuite(QueueSessionTest.class);
-        suite.addTestSuite(SessionTest.class);
-        suite.addTestSuite(TopicSessionTest.class);
-        suite.addTestSuite(TemporaryTopicTest.class);
-        suite.addTestSuite(UnifiedSessionTest.class);
-        suite.addTestSuite(QueueBrowserTest.class);
-        suite.addTestSuite(MessagePropertyTest.class);
-        return suite;
-    }
+   public static Test suite() {
+      TestSuite suite = new TestSuite();
+      suite.addTestSuite(SelectorTest.class);
+      suite.addTestSuite(ConnectionTest.class);
+      suite.addTestSuite(TopicConnectionTest.class);
+      suite.addTestSuite(MessageHeaderTest.class);
+      suite.addTestSuite(MessageBodyTest.class);
+      suite.addTestSuite(MessageDefaultTest.class);
+      suite.addTestSuite(MessageTypeTest.class);
+      suite.addTestSuite(JMSXPropertyTest.class);
+      suite.addTestSuite(MessagePropertyConversionTest.class);
+      suite.addTestSuite(TemporaryQueueTest.class);
+      suite.addTestSuite(SelectorSyntaxTest.class);
+      suite.addTestSuite(QueueSessionTest.class);
+      suite.addTestSuite(SessionTest.class);
+      suite.addTestSuite(TopicSessionTest.class);
+      suite.addTestSuite(TemporaryTopicTest.class);
+      suite.addTestSuite(UnifiedSessionTest.class);
+      suite.addTestSuite(QueueBrowserTest.class);
+      suite.addTestSuite(MessagePropertyTest.class);
+      return suite;
+   }
 
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(suite());
-    }
+   public static void main(String[] args) {
+      junit.textui.TestRunner.run(suite());
+   }
 
 }

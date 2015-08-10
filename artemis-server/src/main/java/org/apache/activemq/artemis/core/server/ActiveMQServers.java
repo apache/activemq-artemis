@@ -31,35 +31,27 @@ import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManagerImpl
  * This class should be used when you want to instantiate an ActiveMQServer instance for embedding in
  * your own application, as opposed to directly instantiating an implementing instance.
  */
-public final class ActiveMQServers
-{
+public final class ActiveMQServers {
 
-   private ActiveMQServers()
-   {
+   private ActiveMQServers() {
       // Utility class
    }
 
-   public static ActiveMQServer newActiveMQServer(final Configuration config, final boolean enablePersistence)
-   {
+   public static ActiveMQServer newActiveMQServer(final Configuration config, final boolean enablePersistence) {
       ActiveMQSecurityManager securityManager = new ActiveMQSecurityManagerImpl();
 
-      ActiveMQServer server = ActiveMQServers.newActiveMQServer(config,
-                                                                ManagementFactory.getPlatformMBeanServer(),
-                                                                securityManager,
-                                                                enablePersistence);
+      ActiveMQServer server = ActiveMQServers.newActiveMQServer(config, ManagementFactory.getPlatformMBeanServer(), securityManager, enablePersistence);
 
       return server;
    }
 
-   public static ActiveMQServer newActiveMQServer(final Configuration config)
-   {
+   public static ActiveMQServer newActiveMQServer(final Configuration config) {
       return ActiveMQServers.newActiveMQServer(config, config.isPersistenceEnabled());
    }
 
    public static ActiveMQServer newActiveMQServer(final Configuration config,
                                                   final MBeanServer mbeanServer,
-                                                  final boolean enablePersistence)
-   {
+                                                  final boolean enablePersistence) {
       ActiveMQSecurityManager securityManager = new ActiveMQSecurityManagerImpl();
 
       ActiveMQServer server = ActiveMQServers.newActiveMQServer(config, mbeanServer, securityManager, enablePersistence);
@@ -67,15 +59,13 @@ public final class ActiveMQServers
       return server;
    }
 
-   public static ActiveMQServer newActiveMQServer(final Configuration config, final MBeanServer mbeanServer)
-   {
+   public static ActiveMQServer newActiveMQServer(final Configuration config, final MBeanServer mbeanServer) {
       return ActiveMQServers.newActiveMQServer(config, mbeanServer, true);
    }
 
    public static ActiveMQServer newActiveMQServer(final Configuration config,
                                                   final MBeanServer mbeanServer,
-                                                  final ActiveMQSecurityManager securityManager)
-   {
+                                                  final ActiveMQSecurityManager securityManager) {
       ActiveMQServer server = ActiveMQServers.newActiveMQServer(config, mbeanServer, securityManager, true);
 
       return server;
@@ -84,8 +74,7 @@ public final class ActiveMQServers
    public static ActiveMQServer newActiveMQServer(final Configuration config,
                                                   final MBeanServer mbeanServer,
                                                   final ActiveMQSecurityManager securityManager,
-                                                  final boolean enablePersistence)
-   {
+                                                  final boolean enablePersistence) {
       config.setPersistenceEnabled(enablePersistence);
 
       ActiveMQServer server = new ActiveMQServerImpl(config, mbeanServer, securityManager);
@@ -93,17 +82,12 @@ public final class ActiveMQServers
       return server;
    }
 
-   public static ActiveMQServer newActiveMQServer(Configuration config,
-                                                  String defUser, String defPass)
-   {
+   public static ActiveMQServer newActiveMQServer(Configuration config, String defUser, String defPass) {
       ActiveMQSecurityManagerImpl securityManager = new ActiveMQSecurityManagerImpl();
 
       securityManager.getConfiguration().addUser(defUser, defPass);
 
-      ActiveMQServer server = ActiveMQServers.newActiveMQServer(config,
-                                                                ManagementFactory.getPlatformMBeanServer(),
-                                                                securityManager,
-                                                                config.isPersistenceEnabled());
+      ActiveMQServer server = ActiveMQServers.newActiveMQServer(config, ManagementFactory.getPlatformMBeanServer(), securityManager, config.isPersistenceEnabled());
 
       return server;
    }
@@ -112,8 +96,7 @@ public final class ActiveMQServers
                                                   final MBeanServer mbeanServer,
                                                   final boolean enablePersistence,
                                                   String user,
-                                                  String password)
-   {
+                                                  String password) {
       ActiveMQSecurityManagerImpl securityManager = new ActiveMQSecurityManagerImpl();
 
       securityManager.getConfiguration().addUser(user, password);

@@ -19,66 +19,56 @@ package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 
-public class SubscribeClusterTopologyUpdatesMessage extends PacketImpl
-{
+public class SubscribeClusterTopologyUpdatesMessage extends PacketImpl {
 
    private boolean clusterConnection;
 
-   public SubscribeClusterTopologyUpdatesMessage(final boolean clusterConnection)
-   {
+   public SubscribeClusterTopologyUpdatesMessage(final boolean clusterConnection) {
       super(SUBSCRIBE_TOPOLOGY);
 
       this.clusterConnection = clusterConnection;
    }
 
-   protected SubscribeClusterTopologyUpdatesMessage(byte packetType, final boolean clusterConnection)
-   {
+   protected SubscribeClusterTopologyUpdatesMessage(byte packetType, final boolean clusterConnection) {
       super(packetType);
 
       this.clusterConnection = clusterConnection;
    }
 
-   public SubscribeClusterTopologyUpdatesMessage()
-   {
+   public SubscribeClusterTopologyUpdatesMessage() {
       super(SUBSCRIBE_TOPOLOGY);
    }
 
-   protected SubscribeClusterTopologyUpdatesMessage(byte packetType)
-   {
+   protected SubscribeClusterTopologyUpdatesMessage(byte packetType) {
       super(packetType);
    }
 
    // Public --------------------------------------------------------
 
-   public boolean isClusterConnection()
-   {
+   public boolean isClusterConnection() {
       return clusterConnection;
    }
 
    @Override
-   public void encodeRest(final ActiveMQBuffer buffer)
-   {
+   public void encodeRest(final ActiveMQBuffer buffer) {
       buffer.writeBoolean(clusterConnection);
    }
 
    @Override
-   public void decodeRest(final ActiveMQBuffer buffer)
-   {
+   public void decodeRest(final ActiveMQBuffer buffer) {
       clusterConnection = buffer.readBoolean();
    }
 
    @Override
-   public String toString()
-   {
+   public String toString() {
       return "SubscribeClusterTopologyUpdatesMessage [clusterConnection=" + clusterConnection +
-             ", toString()=" +
-             super.toString() +
-             "]";
+         ", toString()=" +
+         super.toString() +
+         "]";
    }
 
    @Override
-   public int hashCode()
-   {
+   public int hashCode() {
       final int prime = 31;
       int result = super.hashCode();
       result = prime * result + (clusterConnection ? 1231 : 1237);
@@ -86,15 +76,14 @@ public class SubscribeClusterTopologyUpdatesMessage extends PacketImpl
    }
 
    @Override
-   public boolean equals(Object obj)
-   {
+   public boolean equals(Object obj) {
       if (this == obj)
          return true;
       if (!super.equals(obj))
          return false;
       if (!(obj instanceof SubscribeClusterTopologyUpdatesMessage))
          return false;
-      SubscribeClusterTopologyUpdatesMessage other = (SubscribeClusterTopologyUpdatesMessage)obj;
+      SubscribeClusterTopologyUpdatesMessage other = (SubscribeClusterTopologyUpdatesMessage) obj;
       if (clusterConnection != other.clusterConnection)
          return false;
       return true;

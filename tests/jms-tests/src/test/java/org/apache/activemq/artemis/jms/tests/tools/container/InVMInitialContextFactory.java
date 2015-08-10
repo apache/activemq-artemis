@@ -27,29 +27,25 @@ import javax.naming.spi.InitialContextFactory;
 /**
  * An in-VM JNDI InitialContextFactory. Lightweight JNDI implementation used for testing.
  */
-public class InVMInitialContextFactory implements InitialContextFactory
-{
+public class InVMInitialContextFactory implements InitialContextFactory {
    // Constants -----------------------------------------------------
 
    // Static --------------------------------------------------------
 
    private static Map initialContexts;
 
-   static
-   {
+   static {
       InVMInitialContextFactory.reset();
    }
 
-   public static Hashtable<String, String> getJNDIEnvironment()
-   {
+   public static Hashtable<String, String> getJNDIEnvironment() {
       return InVMInitialContextFactory.getJNDIEnvironment(0);
    }
 
    /**
     * @return the JNDI environment to use to get this InitialContextFactory.
     */
-   public static Hashtable<String, String> getJNDIEnvironment(final int serverIndex)
-   {
+   public static Hashtable<String, String> getJNDIEnvironment(final int serverIndex) {
       Hashtable<String, String> env = new Hashtable<String, String>();
       env.put("java.naming.factory.initial", "org.apache.activemq.artemis.jms.tests.tools.container.InVMInitialContextFactory");
       env.put(Constants.SERVER_INDEX_PROPERTY_NAME, Integer.toString(serverIndex));
@@ -62,26 +58,21 @@ public class InVMInitialContextFactory implements InitialContextFactory
 
    // Public --------------------------------------------------------
 
-   public Context getInitialContext(final Hashtable environment) throws NamingException
-   {
+   public Context getInitialContext(final Hashtable environment) throws NamingException {
       // try first in the environment passed as argument ...
-      String s = (String)environment.get(Constants.SERVER_INDEX_PROPERTY_NAME);
+      String s = (String) environment.get(Constants.SERVER_INDEX_PROPERTY_NAME);
 
-      if (s == null)
-      {
+      if (s == null) {
          // ... then in the global environment
          s = System.getProperty(Constants.SERVER_INDEX_PROPERTY_NAME);
 
-         if (s == null)
-         {
+         if (s == null) {
             // try the thread name
             String tName = Thread.currentThread().getName();
-            if (tName.contains("server"))
-            {
+            if (tName.contains("server")) {
                s = tName.substring(6);
             }
-            if (s == null)
-            {
+            if (s == null) {
                throw new NamingException("Cannot figure out server index!");
             }
          }
@@ -89,26 +80,22 @@ public class InVMInitialContextFactory implements InitialContextFactory
 
       int serverIndex;
 
-      try
-      {
+      try {
          serverIndex = Integer.parseInt(s);
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          throw new NamingException("Failure parsing \"" + Constants.SERVER_INDEX_PROPERTY_NAME +
-                                   "\". " +
-                                   s +
-                                   " is not an integer");
+                                      "\". " +
+                                      s +
+                                      " is not an integer");
       }
 
       // Note! This MUST be synchronized
-      synchronized (InVMInitialContextFactory.initialContexts)
-      {
+      synchronized (InVMInitialContextFactory.initialContexts) {
 
-         InVMContext ic = (InVMContext)InVMInitialContextFactory.initialContexts.get(new Integer(serverIndex));
+         InVMContext ic = (InVMContext) InVMInitialContextFactory.initialContexts.get(new Integer(serverIndex));
 
-         if (ic == null)
-         {
+         if (ic == null) {
             ic = new InVMContext(s);
             ic.bind("java:/", new InVMContext(s));
             InVMInitialContextFactory.initialContexts.put(new Integer(serverIndex), ic);
@@ -118,8 +105,7 @@ public class InVMInitialContextFactory implements InitialContextFactory
       }
    }
 
-   public static void reset()
-   {
+   public static void reset() {
       InVMInitialContextFactory.initialContexts = new HashMap();
    }
 

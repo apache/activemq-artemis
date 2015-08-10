@@ -33,8 +33,8 @@ import org.junit.Before;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 
-public abstract class StorageManagerTestBase extends ActiveMQTestBase
-{
+public abstract class StorageManagerTestBase extends ActiveMQTestBase {
+
    protected ExecutorService executor;
 
    protected ExecutorFactory execFactory;
@@ -45,8 +45,7 @@ public abstract class StorageManagerTestBase extends ActiveMQTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       execFactory = getOrderedExecutor();
@@ -54,32 +53,25 @@ public abstract class StorageManagerTestBase extends ActiveMQTestBase
 
    @Override
    @After
-   public void tearDown() throws Exception
-   {
+   public void tearDown() throws Exception {
       Exception exception = null;
 
-      if (journal != null)
-      {
-         try
-         {
+      if (journal != null) {
+         try {
             journal.stop();
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             exception = e;
          }
 
          journal = null;
       }
 
-      if (jmsJournal != null)
-      {
-         try
-         {
+      if (jmsJournal != null) {
+         try {
             jmsJournal.stop();
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             if (exception != null)
                exception = e;
          }
@@ -95,8 +87,7 @@ public abstract class StorageManagerTestBase extends ActiveMQTestBase
    /**
     * @throws Exception
     */
-   protected void createStorage() throws Exception
-   {
+   protected void createStorage() throws Exception {
       journal = createJournalStorageManager(createDefaultInVMConfig());
 
       journal.start();
@@ -109,8 +100,7 @@ public abstract class StorageManagerTestBase extends ActiveMQTestBase
    /**
     * @param configuration
     */
-   protected JournalStorageManager createJournalStorageManager(Configuration configuration)
-   {
+   protected JournalStorageManager createJournalStorageManager(Configuration configuration) {
       JournalStorageManager jsm = new JournalStorageManager(configuration, execFactory, null);
       addActiveMQComponent(jsm);
       return jsm;
@@ -119,8 +109,7 @@ public abstract class StorageManagerTestBase extends ActiveMQTestBase
    /**
     * @throws Exception
     */
-   protected void createJMSStorage() throws Exception
-   {
+   protected void createJMSStorage() throws Exception {
       jmsJournal = new JMSJournalStorageManagerImpl(new TimeAndCounterIDGenerator(), createDefaultInVMConfig(), null);
       addActiveMQComponent(jmsJournal);
       jmsJournal.start();

@@ -38,8 +38,8 @@ import org.jboss.logging.annotations.MessageLogger;
  * so an INFO message would be 191000 to 191999
  */
 @MessageLogger(projectCode = "AMQ")
-public interface ActiveMQVertxLogger extends BasicLogger
-{
+public interface ActiveMQVertxLogger extends BasicLogger {
+
    /**
     * The vertx logger.
     */

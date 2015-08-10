@@ -17,22 +17,22 @@
 package org.apache.activemq.network;
 
 /**
- * 
+ *
  */
 public class MulticastNetworkTest extends SimpleNetworkTest {
 
-    protected String getRemoteBrokerURI() {
-        return "org/apache/activemq/network/multicast/remoteBroker.xml";
-    }
+   protected String getRemoteBrokerURI() {
+      return "org/apache/activemq/network/multicast/remoteBroker.xml";
+   }
 
-    protected String getLocalBrokerURI() {
-        return "org/apache/activemq/network/multicast/localBroker.xml";
-    }
+   protected String getLocalBrokerURI() {
+      return "org/apache/activemq/network/multicast/localBroker.xml";
+   }
 
-    // blocked out for multi cast because temp dest request reply isn't supported
-    // with dynamicallyAddedDestinations
-    @Override
-    public void testRequestReply() throws Exception {
+   // blocked out for multi cast because temp dest request reply isn't supported
+   // with dynamicallyAddedDestinations
+   @Override
+   public void testRequestReply() throws Exception {
 
-    }
+   }
 }

@@ -16,39 +16,33 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
-
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 
-public class DisconnectConsumerMessage extends PacketImpl
-{
+public class DisconnectConsumerMessage extends PacketImpl {
+
    private long consumerId;
 
-   public DisconnectConsumerMessage(final long consumerId)
-   {
+   public DisconnectConsumerMessage(final long consumerId) {
       super(DISCONNECT_CONSUMER);
       this.consumerId = consumerId;
    }
 
-   public DisconnectConsumerMessage()
-   {
+   public DisconnectConsumerMessage() {
       super(DISCONNECT_CONSUMER);
    }
 
    @Override
-   public void encodeRest(final ActiveMQBuffer buffer)
-   {
+   public void encodeRest(final ActiveMQBuffer buffer) {
       buffer.writeLong(consumerId);
    }
 
    @Override
-   public void decodeRest(final ActiveMQBuffer buffer)
-   {
+   public void decodeRest(final ActiveMQBuffer buffer) {
       consumerId = buffer.readLong();
    }
 
-   public long getConsumerId()
-   {
+   public long getConsumerId() {
       return consumerId;
    }
 }

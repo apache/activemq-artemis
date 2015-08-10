@@ -48,8 +48,8 @@ import org.apache.activemq.artemis.core.journal.impl.dataformat.JournalInternalR
  *
  * Its main purpose is to store the data as a Journal would, but without verifying records.
  */
-public final class FileWrapperJournal extends JournalBase
-{
+public final class FileWrapperJournal extends JournalBase {
+
    private final ReentrantLock lockAppend = new ReentrantLock();
 
    private final ConcurrentMap<Long, AtomicInteger> transactions = new ConcurrentHashMap<Long, AtomicInteger>();
@@ -60,29 +60,25 @@ public final class FileWrapperJournal extends JournalBase
     * @param journal
     * @throws Exception
     */
-   public FileWrapperJournal(Journal journal) throws Exception
-   {
+   public FileWrapperJournal(Journal journal) throws Exception {
       super(journal.getFileFactory().isSupportsCallbacks(), journal.getFileSize());
-      this.journal = (JournalImpl)journal;
+      this.journal = (JournalImpl) journal;
       currentFile = this.journal.setUpCurrentFile(JournalImpl.SIZE_HEADER);
    }
 
    @Override
-   public void start() throws Exception
-   {
+   public void start() throws Exception {
       throw new UnsupportedOperationException();
    }
 
    @Override
-   public void stop() throws Exception
-   {
+   public void stop() throws Exception {
       if (currentFile.getFile().isOpen())
          currentFile.getFile().close();
    }
 
    @Override
-   public boolean isStarted()
-   {
+   public boolean isStarted() {
       throw new UnsupportedOperationException();
    }
 
@@ -91,8 +87,11 @@ public final class FileWrapperJournal extends JournalBase
    // ------------------------
 
    @Override
-   public void appendAddRecord(long id, byte recordType, EncodingSupport record, boolean sync, IOCompletion callback) throws Exception
-   {
+   public void appendAddRecord(long id,
+                               byte recordType,
+                               EncodingSupport record,
+                               boolean sync,
+                               IOCompletion callback) throws Exception {
       JournalInternalRecord addRecord = new JournalAddRecord(true, id, recordType, record);
 
       writeRecord(addRecord, sync, callback);
@@ -101,80 +100,81 @@ public final class FileWrapperJournal extends JournalBase
    /**
     * Write the record to the current file.
     */
-   private void writeRecord(JournalInternalRecord encoder, final boolean sync, final IOCompletion callback) throws Exception
-   {
+   private void writeRecord(JournalInternalRecord encoder,
+                            final boolean sync,
+                            final IOCompletion callback) throws Exception {
 
       lockAppend.lock();
-      try
-      {
-         if (callback != null)
-         {
+      try {
+         if (callback != null) {
             callback.storeLineUp();
          }
          currentFile = journal.switchFileIfNecessary(encoder.getEncodeSize());
          encoder.setFileID(currentFile.getRecordID());
 
-         if (callback != null)
-         {
+         if (callback != null) {
             currentFile.getFile().write(encoder, sync, callback);
          }
-         else
-         {
+         else {
             currentFile.getFile().write(encoder, sync);
          }
       }
-      finally
-      {
+      finally {
          lockAppend.unlock();
       }
    }
 
    @Override
-   public void appendDeleteRecord(long id, boolean sync, IOCompletion callback) throws Exception
-   {
+   public void appendDeleteRecord(long id, boolean sync, IOCompletion callback) throws Exception {
       JournalInternalRecord deleteRecord = new JournalDeleteRecord(id);
       writeRecord(deleteRecord, sync, callback);
    }
 
    @Override
-   public void appendDeleteRecordTransactional(long txID, long id, EncodingSupport record) throws Exception
-   {
+   public void appendDeleteRecordTransactional(long txID, long id, EncodingSupport record) throws Exception {
       count(txID);
       JournalInternalRecord deleteRecordTX = new JournalDeleteRecordTX(txID, id, record);
       writeRecord(deleteRecordTX, false, null);
    }
 
    @Override
-   public void appendAddRecordTransactional(long txID, long id, byte recordType, EncodingSupport record) throws Exception
-   {
+   public void appendAddRecordTransactional(long txID,
+                                            long id,
+                                            byte recordType,
+                                            EncodingSupport record) throws Exception {
       count(txID);
       JournalInternalRecord addRecord = new JournalAddRecordTX(true, txID, id, recordType, record);
       writeRecord(addRecord, false, null);
    }
 
    @Override
-   public void
-   appendUpdateRecord(long id, byte recordType, EncodingSupport record, boolean sync, IOCompletion callback) throws Exception
-   {
+   public void appendUpdateRecord(long id,
+                                  byte recordType,
+                                  EncodingSupport record,
+                                  boolean sync,
+                                  IOCompletion callback) throws Exception {
       JournalInternalRecord updateRecord = new JournalAddRecord(false, id, recordType, record);
       writeRecord(updateRecord, sync, callback);
    }
 
    @Override
-   public void appendUpdateRecordTransactional(long txID, long id, byte recordType, EncodingSupport record) throws Exception
-   {
+   public void appendUpdateRecordTransactional(long txID,
+                                               long id,
+                                               byte recordType,
+                                               EncodingSupport record) throws Exception {
       count(txID);
       JournalInternalRecord updateRecordTX = new JournalAddRecordTX(false, txID, id, recordType, record);
       writeRecord(updateRecordTX, false, null);
    }
 
    @Override
-   public void appendCommitRecord(long txID, boolean sync, IOCompletion callback, boolean lineUpContext) throws Exception
-   {
+   public void appendCommitRecord(long txID,
+                                  boolean sync,
+                                  IOCompletion callback,
+                                  boolean lineUpContext) throws Exception {
       JournalInternalRecord commitRecord = new JournalCompleteRecordTX(TX_RECORD_TYPE.COMMIT, txID, null);
       AtomicInteger value = transactions.remove(Long.valueOf(txID));
-      if (value != null)
-      {
+      if (value != null) {
          commitRecord.setNumberOfRecords(value.get());
       }
 
@@ -182,160 +182,138 @@ public final class FileWrapperJournal extends JournalBase
    }
 
    @Override
-   public void appendPrepareRecord(long txID, EncodingSupport transactionData, boolean sync, IOCompletion callback) throws Exception
-   {
+   public void appendPrepareRecord(long txID,
+                                   EncodingSupport transactionData,
+                                   boolean sync,
+                                   IOCompletion callback) throws Exception {
       JournalInternalRecord prepareRecord = new JournalCompleteRecordTX(TX_RECORD_TYPE.PREPARE, txID, transactionData);
       AtomicInteger value = transactions.get(Long.valueOf(txID));
-      if (value != null)
-      {
+      if (value != null) {
          prepareRecord.setNumberOfRecords(value.get());
       }
       writeRecord(prepareRecord, sync, callback);
    }
 
-   private int count(long txID) throws ActiveMQException
-   {
+   private int count(long txID) throws ActiveMQException {
       AtomicInteger defaultValue = new AtomicInteger(1);
       AtomicInteger count = transactions.putIfAbsent(Long.valueOf(txID), defaultValue);
-      if (count != null)
-      {
+      if (count != null) {
          return count.incrementAndGet();
       }
       return defaultValue.get();
    }
 
    @Override
-   public String toString()
-   {
+   public String toString() {
       return FileWrapperJournal.class.getName() + "(currentFile=[" + currentFile + "], hash=" + super.toString() + ")";
    }
 
    // UNSUPPORTED STUFF
 
    @Override
-   public void appendRollbackRecord(long txID, boolean sync, IOCompletion callback) throws Exception
-   {
+   public void appendRollbackRecord(long txID, boolean sync, IOCompletion callback) throws Exception {
       throw new ActiveMQUnsupportedPacketException();
    }
 
    @Override
-   public JournalLoadInformation load(LoaderCallback reloadManager) throws Exception
-   {
+   public JournalLoadInformation load(LoaderCallback reloadManager) throws Exception {
       throw new ActiveMQUnsupportedPacketException();
    }
 
    @Override
-   public JournalLoadInformation loadInternalOnly() throws Exception
-   {
+   public JournalLoadInformation loadInternalOnly() throws Exception {
       throw new ActiveMQUnsupportedPacketException();
    }
 
    @Override
-   public void lineUpContext(IOCompletion callback)
-   {
+   public void lineUpContext(IOCompletion callback) {
       throw new UnsupportedOperationException();
    }
 
    @Override
    public JournalLoadInformation load(List<RecordInfo> committedRecords,
-                                      List<PreparedTransactionInfo> preparedTransactions, TransactionFailureCallback transactionFailure) throws Exception
-   {
+                                      List<PreparedTransactionInfo> preparedTransactions,
+                                      TransactionFailureCallback transactionFailure) throws Exception {
       throw new ActiveMQUnsupportedPacketException();
    }
 
    @Override
-   public int getAlignment() throws Exception
-   {
+   public int getAlignment() throws Exception {
       throw new ActiveMQUnsupportedPacketException();
    }
 
    @Override
-   public int getNumberOfRecords()
-   {
+   public int getNumberOfRecords() {
       throw new UnsupportedOperationException();
    }
 
    @Override
-   public int getUserVersion()
-   {
+   public int getUserVersion() {
       throw new UnsupportedOperationException();
    }
 
    @Override
-   public void perfBlast(int pages)
-   {
+   public void perfBlast(int pages) {
       throw new UnsupportedOperationException();
    }
 
    @Override
-   public void runDirectJournalBlast() throws Exception
-   {
+   public void runDirectJournalBlast() throws Exception {
       throw new UnsupportedOperationException();
    }
 
    @Override
-   public JournalLoadInformation loadSyncOnly(JournalState state) throws Exception
-   {
+   public JournalLoadInformation loadSyncOnly(JournalState state) throws Exception {
       throw new UnsupportedOperationException();
    }
 
    @Override
-   public Map<Long, JournalFile> createFilesForBackupSync(long[] fileIds) throws Exception
-   {
+   public Map<Long, JournalFile> createFilesForBackupSync(long[] fileIds) throws Exception {
       throw new UnsupportedOperationException();
    }
 
    @Override
-   public void synchronizationLock()
-   {
+   public void synchronizationLock() {
       throw new UnsupportedOperationException();
    }
 
    @Override
-   public void synchronizationUnlock()
-   {
+   public void synchronizationUnlock() {
       throw new UnsupportedOperationException();
    }
 
    @Override
-   public void forceMoveNextFile()
-   {
+   public void forceMoveNextFile() {
       throw new UnsupportedOperationException();
    }
 
    @Override
-   public JournalFile[] getDataFiles()
-   {
+   public JournalFile[] getDataFiles() {
       throw new UnsupportedOperationException();
    }
 
    @Override
-   void scheduleReclaim()
-   {
+   void scheduleReclaim() {
       // no-op
    }
 
    @Override
-   public SequentialFileFactory getFileFactory()
-   {
+   public SequentialFileFactory getFileFactory() {
       throw new UnsupportedOperationException();
    }
 
    @Override
-   public void scheduleCompactAndBlock(int timeout) throws Exception
-   {
+   public void scheduleCompactAndBlock(int timeout) throws Exception {
       throw new UnsupportedOperationException();
    }
 
    @Override
-   public void replicationSyncPreserveOldFiles()
-   {
+   public void replicationSyncPreserveOldFiles() {
       throw new UnsupportedOperationException();
    }
 
    @Override
-   public void replicationSyncFinished()
-   {
+   public void replicationSyncFinished() {
       throw new UnsupportedOperationException();
    }
 }

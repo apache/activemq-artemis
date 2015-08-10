@@ -35,37 +35,11 @@ import org.junit.runners.Parameterized;
  * adapted from: org.apache.activemq.JMSConsumerTest
  */
 @RunWith(Parameterized.class)
-public class JMSConsumer3Test extends BasicOpenWireTest
-{
+public class JMSConsumer3Test extends BasicOpenWireTest {
+
    @Parameterized.Parameters(name = "deliveryMode={0} ackMode={1} destinationType={2}")
-   public static Collection<Object[]> getParams()
-   {
-      return Arrays.asList(new Object[][] {
-         {DeliveryMode.NON_PERSISTENT, Session.AUTO_ACKNOWLEDGE, ActiveMQDestination.QUEUE_TYPE},
-         {DeliveryMode.NON_PERSISTENT, Session.AUTO_ACKNOWLEDGE, ActiveMQDestination.TOPIC_TYPE},
-         {DeliveryMode.NON_PERSISTENT, Session.AUTO_ACKNOWLEDGE, ActiveMQDestination.TEMP_QUEUE_TYPE},
-         {DeliveryMode.NON_PERSISTENT, Session.AUTO_ACKNOWLEDGE, ActiveMQDestination.TEMP_TOPIC_TYPE},
-         {DeliveryMode.NON_PERSISTENT, Session.DUPS_OK_ACKNOWLEDGE, ActiveMQDestination.QUEUE_TYPE},
-         {DeliveryMode.NON_PERSISTENT, Session.DUPS_OK_ACKNOWLEDGE, ActiveMQDestination.TOPIC_TYPE},
-         {DeliveryMode.NON_PERSISTENT, Session.DUPS_OK_ACKNOWLEDGE, ActiveMQDestination.TEMP_QUEUE_TYPE},
-         {DeliveryMode.NON_PERSISTENT, Session.DUPS_OK_ACKNOWLEDGE, ActiveMQDestination.TEMP_TOPIC_TYPE},
-         {DeliveryMode.NON_PERSISTENT, Session.CLIENT_ACKNOWLEDGE, ActiveMQDestination.QUEUE_TYPE},
-         {DeliveryMode.NON_PERSISTENT, Session.CLIENT_ACKNOWLEDGE, ActiveMQDestination.TOPIC_TYPE},
-         {DeliveryMode.NON_PERSISTENT, Session.CLIENT_ACKNOWLEDGE, ActiveMQDestination.TEMP_QUEUE_TYPE},
-         {DeliveryMode.NON_PERSISTENT, Session.CLIENT_ACKNOWLEDGE, ActiveMQDestination.TEMP_TOPIC_TYPE},
-         {DeliveryMode.PERSISTENT, Session.AUTO_ACKNOWLEDGE, ActiveMQDestination.QUEUE_TYPE},
-         {DeliveryMode.PERSISTENT, Session.AUTO_ACKNOWLEDGE, ActiveMQDestination.TOPIC_TYPE},
-         {DeliveryMode.PERSISTENT, Session.AUTO_ACKNOWLEDGE, ActiveMQDestination.TEMP_QUEUE_TYPE},
-         {DeliveryMode.PERSISTENT, Session.AUTO_ACKNOWLEDGE, ActiveMQDestination.TEMP_TOPIC_TYPE},
-         {DeliveryMode.PERSISTENT, Session.DUPS_OK_ACKNOWLEDGE, ActiveMQDestination.QUEUE_TYPE},
-         {DeliveryMode.PERSISTENT, Session.DUPS_OK_ACKNOWLEDGE, ActiveMQDestination.TOPIC_TYPE},
-         {DeliveryMode.PERSISTENT, Session.DUPS_OK_ACKNOWLEDGE, ActiveMQDestination.TEMP_QUEUE_TYPE},
-         {DeliveryMode.PERSISTENT, Session.DUPS_OK_ACKNOWLEDGE, ActiveMQDestination.TEMP_TOPIC_TYPE},
-         {DeliveryMode.PERSISTENT, Session.CLIENT_ACKNOWLEDGE, ActiveMQDestination.QUEUE_TYPE},
-         {DeliveryMode.PERSISTENT, Session.CLIENT_ACKNOWLEDGE, ActiveMQDestination.TOPIC_TYPE},
-         {DeliveryMode.PERSISTENT, Session.CLIENT_ACKNOWLEDGE, ActiveMQDestination.TEMP_QUEUE_TYPE},
-         {DeliveryMode.PERSISTENT, Session.CLIENT_ACKNOWLEDGE, ActiveMQDestination.TEMP_TOPIC_TYPE}
-      });
+   public static Collection<Object[]> getParams() {
+      return Arrays.asList(new Object[][]{{DeliveryMode.NON_PERSISTENT, Session.AUTO_ACKNOWLEDGE, ActiveMQDestination.QUEUE_TYPE}, {DeliveryMode.NON_PERSISTENT, Session.AUTO_ACKNOWLEDGE, ActiveMQDestination.TOPIC_TYPE}, {DeliveryMode.NON_PERSISTENT, Session.AUTO_ACKNOWLEDGE, ActiveMQDestination.TEMP_QUEUE_TYPE}, {DeliveryMode.NON_PERSISTENT, Session.AUTO_ACKNOWLEDGE, ActiveMQDestination.TEMP_TOPIC_TYPE}, {DeliveryMode.NON_PERSISTENT, Session.DUPS_OK_ACKNOWLEDGE, ActiveMQDestination.QUEUE_TYPE}, {DeliveryMode.NON_PERSISTENT, Session.DUPS_OK_ACKNOWLEDGE, ActiveMQDestination.TOPIC_TYPE}, {DeliveryMode.NON_PERSISTENT, Session.DUPS_OK_ACKNOWLEDGE, ActiveMQDestination.TEMP_QUEUE_TYPE}, {DeliveryMode.NON_PERSISTENT, Session.DUPS_OK_ACKNOWLEDGE, ActiveMQDestination.TEMP_TOPIC_TYPE}, {DeliveryMode.NON_PERSISTENT, Session.CLIENT_ACKNOWLEDGE, ActiveMQDestination.QUEUE_TYPE}, {DeliveryMode.NON_PERSISTENT, Session.CLIENT_ACKNOWLEDGE, ActiveMQDestination.TOPIC_TYPE}, {DeliveryMode.NON_PERSISTENT, Session.CLIENT_ACKNOWLEDGE, ActiveMQDestination.TEMP_QUEUE_TYPE}, {DeliveryMode.NON_PERSISTENT, Session.CLIENT_ACKNOWLEDGE, ActiveMQDestination.TEMP_TOPIC_TYPE}, {DeliveryMode.PERSISTENT, Session.AUTO_ACKNOWLEDGE, ActiveMQDestination.QUEUE_TYPE}, {DeliveryMode.PERSISTENT, Session.AUTO_ACKNOWLEDGE, ActiveMQDestination.TOPIC_TYPE}, {DeliveryMode.PERSISTENT, Session.AUTO_ACKNOWLEDGE, ActiveMQDestination.TEMP_QUEUE_TYPE}, {DeliveryMode.PERSISTENT, Session.AUTO_ACKNOWLEDGE, ActiveMQDestination.TEMP_TOPIC_TYPE}, {DeliveryMode.PERSISTENT, Session.DUPS_OK_ACKNOWLEDGE, ActiveMQDestination.QUEUE_TYPE}, {DeliveryMode.PERSISTENT, Session.DUPS_OK_ACKNOWLEDGE, ActiveMQDestination.TOPIC_TYPE}, {DeliveryMode.PERSISTENT, Session.DUPS_OK_ACKNOWLEDGE, ActiveMQDestination.TEMP_QUEUE_TYPE}, {DeliveryMode.PERSISTENT, Session.DUPS_OK_ACKNOWLEDGE, ActiveMQDestination.TEMP_TOPIC_TYPE}, {DeliveryMode.PERSISTENT, Session.CLIENT_ACKNOWLEDGE, ActiveMQDestination.QUEUE_TYPE}, {DeliveryMode.PERSISTENT, Session.CLIENT_ACKNOWLEDGE, ActiveMQDestination.TOPIC_TYPE}, {DeliveryMode.PERSISTENT, Session.CLIENT_ACKNOWLEDGE, ActiveMQDestination.TEMP_QUEUE_TYPE}, {DeliveryMode.PERSISTENT, Session.CLIENT_ACKNOWLEDGE, ActiveMQDestination.TEMP_TOPIC_TYPE}});
    }
 
    public ActiveMQDestination destination;
@@ -75,18 +49,16 @@ public class JMSConsumer3Test extends BasicOpenWireTest
    public byte destinationType;
    public boolean durableConsumer;
 
-   public JMSConsumer3Test(int deliveryMode, int ackMode, byte destinationType)
-   {
+   public JMSConsumer3Test(int deliveryMode, int ackMode, byte destinationType) {
       this.deliveryMode = deliveryMode;
       this.ackMode = ackMode;
       this.destinationType = destinationType;
    }
 
    @Test
-   public void testMutiReceiveWithPrefetch1() throws Exception
-   {
+   public void testMutiReceiveWithPrefetch1() throws Exception {
       // Set prefetch to 1
-      ((ActiveMQConnection)connection).getPrefetchPolicy().setAll(1);
+      ((ActiveMQConnection) connection).getPrefetchPolicy().setAll(1);
       connection.start();
 
       // Use all the ack modes
@@ -100,8 +72,7 @@ public class JMSConsumer3Test extends BasicOpenWireTest
       System.out.println("messages are sent.");
       // Make sure 4 messages were delivered.
       Message message = null;
-      for (int i = 0; i < 4; i++)
-      {
+      for (int i = 0; i < 4; i++) {
          message = consumer.receive(5000);
          System.out.println("message received: " + message + " ack mode: " + ackMode);
          assertNotNull(message);

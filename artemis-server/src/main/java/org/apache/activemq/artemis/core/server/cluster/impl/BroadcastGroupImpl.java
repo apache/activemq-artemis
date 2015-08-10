@@ -39,13 +39,13 @@ import org.apache.activemq.artemis.utils.UUIDGenerator;
 
 /**
  * <p>This class will use the {@link BroadcastEndpoint} to send periodical updates on the list for connections
- *    used by this server. </p>
+ * used by this server. </p>
  *
  * <p>This is totally generic to the mechanism used on the transmission. It originally only had UDP but this got refactored
  * into sub classes of {@link BroadcastEndpoint}</p>
  */
-public class BroadcastGroupImpl implements BroadcastGroup, Runnable
-{
+public class BroadcastGroupImpl implements BroadcastGroup, Runnable {
+
    private final NodeManager nodeManager;
 
    private final String name;
@@ -70,13 +70,11 @@ public class BroadcastGroupImpl implements BroadcastGroup, Runnable
 
    private BroadcastEndpoint endpoint;
 
-
    public BroadcastGroupImpl(final NodeManager nodeManager,
-                                  final String name,
-                                  final long broadCastPeriod,
-                                  final ScheduledExecutorService scheduledExecutor,
-                                  final BroadcastEndpointFactory endpointFactory) throws Exception
-   {
+                             final String name,
+                             final long broadCastPeriod,
+                             final ScheduledExecutorService scheduledExecutor,
+                             final BroadcastEndpointFactory endpointFactory) throws Exception {
       this.nodeManager = nodeManager;
 
       this.name = name;
@@ -90,15 +88,12 @@ public class BroadcastGroupImpl implements BroadcastGroup, Runnable
       uniqueID = UUIDGenerator.getInstance().generateStringUUID();
    }
 
-   public void setNotificationService(final NotificationService notificationService)
-   {
+   public void setNotificationService(final NotificationService notificationService) {
       this.notificationService = notificationService;
    }
 
-   public synchronized void start() throws Exception
-   {
-      if (started)
-      {
+   public synchronized void start() throws Exception {
+      if (started) {
          return;
       }
 
@@ -106,8 +101,7 @@ public class BroadcastGroupImpl implements BroadcastGroup, Runnable
 
       started = true;
 
-      if (notificationService != null)
-      {
+      if (notificationService != null) {
          TypedProperties props = new TypedProperties();
          props.putSimpleStringProperty(new SimpleString("name"), new SimpleString(name));
          Notification notification = new Notification(nodeManager.getNodeId().toString(), CoreNotificationType.BROADCAST_GROUP_STARTED, props);
@@ -117,84 +111,65 @@ public class BroadcastGroupImpl implements BroadcastGroup, Runnable
       activate();
    }
 
-   public synchronized void stop()
-   {
-      if (!started)
-      {
+   public synchronized void stop() {
+      if (!started) {
          return;
       }
 
-      if (future != null)
-      {
+      if (future != null) {
          future.cancel(false);
       }
 
-      try
-      {
+      try {
          endpoint.close(true);
       }
-      catch (Exception e1)
-      {
+      catch (Exception e1) {
          ActiveMQServerLogger.LOGGER.broadcastGroupClosed(e1);
       }
 
       started = false;
 
-      if (notificationService != null)
-      {
+      if (notificationService != null) {
          TypedProperties props = new TypedProperties();
          props.putSimpleStringProperty(new SimpleString("name"), new SimpleString(name));
          Notification notification = new Notification(nodeManager.getNodeId().toString(), CoreNotificationType.BROADCAST_GROUP_STOPPED, props);
-         try
-         {
+         try {
             notificationService.sendNotification(notification);
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             ActiveMQServerLogger.LOGGER.broadcastGroupClosed(e);
          }
       }
 
    }
 
-   public synchronized boolean isStarted()
-   {
+   public synchronized boolean isStarted() {
       return started;
    }
 
-   public String getName()
-   {
+   public String getName() {
       return name;
    }
 
-   public synchronized void addConnector(final TransportConfiguration tcConfig)
-   {
+   public synchronized void addConnector(final TransportConfiguration tcConfig) {
       connectors.add(tcConfig);
    }
 
-   public synchronized void removeConnector(final TransportConfiguration tcConfig)
-   {
+   public synchronized void removeConnector(final TransportConfiguration tcConfig) {
       connectors.remove(tcConfig);
    }
 
-   public synchronized int size()
-   {
+   public synchronized int size() {
       return connectors.size();
    }
 
-   private synchronized void activate()
-   {
-      if (scheduledExecutor != null)
-      {
-         future = scheduledExecutor.scheduleWithFixedDelay(this,
-            0L,
-            broadCastPeriod,
-            TimeUnit.MILLISECONDS);
+   private synchronized void activate() {
+      if (scheduledExecutor != null) {
+         future = scheduledExecutor.scheduleWithFixedDelay(this, 0L, broadCastPeriod, TimeUnit.MILLISECONDS);
       }
    }
 
-   public synchronized void broadcastConnectors() throws Exception
-   {
+   public synchronized void broadcastConnectors() throws Exception {
       ActiveMQBuffer buff = ActiveMQBuffers.dynamicBuffer(4096);
 
       buff.writeString(nodeManager.getNodeId().toString());
@@ -203,8 +178,7 @@ public class BroadcastGroupImpl implements BroadcastGroup, Runnable
 
       buff.writeInt(connectors.size());
 
-      for (TransportConfiguration tcConfig : connectors)
-      {
+      for (TransportConfiguration tcConfig : connectors) {
          tcConfig.encode(buff);
       }
 
@@ -213,28 +187,22 @@ public class BroadcastGroupImpl implements BroadcastGroup, Runnable
       endpoint.broadcast(data);
    }
 
-   public void run()
-   {
-      if (!started)
-      {
+   public void run() {
+      if (!started) {
          return;
       }
 
-      try
-      {
+      try {
          broadcastConnectors();
          loggedBroadcastException = false;
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          // only log the exception at ERROR level once, even if it fails multiple times in a row - HORNETQ-919
-         if (!loggedBroadcastException)
-         {
+         if (!loggedBroadcastException) {
             ActiveMQServerLogger.LOGGER.errorBroadcastingConnectorConfigs(e);
             loggedBroadcastException = true;
          }
-         else
-         {
+         else {
             ActiveMQServerLogger.LOGGER.debug("Failed to broadcast connector configs...again", e);
          }
       }

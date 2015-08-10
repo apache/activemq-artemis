@@ -43,28 +43,22 @@ import java.util.Collection;
  * simulating what would happen during a real scale down.
  */
 @RunWith(value = Parameterized.class)
-public class ScaleDownDirectTest extends ClusterTestBase
-{
-   @Parameterized.Parameters(name = "isNetty={0}")
-   public static Collection getParameters()
-   {
-      return Arrays.asList(new Object[][]{
-         {false}, {true}
-      });
-   }
+public class ScaleDownDirectTest extends ClusterTestBase {
 
+   @Parameterized.Parameters(name = "isNetty={0}")
+   public static Collection getParameters() {
+      return Arrays.asList(new Object[][]{{false}, {true}});
+   }
 
    private final boolean isNetty;
 
-   public ScaleDownDirectTest(boolean isNetty)
-   {
+   public ScaleDownDirectTest(boolean isNetty) {
       this.isNetty = isNetty;
    }
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
       setupLiveServer(0, isFileStorage(), isNetty, true);
       setupLiveServer(1, isFileStorage(), isNetty, true);
@@ -75,19 +69,16 @@ public class ScaleDownDirectTest extends ClusterTestBase
    }
 
    @Test
-   public void testSendMixedSmallMessages() throws Exception
-   {
+   public void testSendMixedSmallMessages() throws Exception {
       internalTest(100, 100);
    }
 
    @Test
-   public void testSendMixedLargelMessages() throws Exception
-   {
+   public void testSendMixedLargelMessages() throws Exception {
       internalTest(2 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, 100);
    }
 
-   protected void internalTest(int bufferSize, int numberOfMessages) throws Exception
-   {
+   protected void internalTest(int bufferSize, int numberOfMessages) throws Exception {
       ClientSessionFactory sf = sfs[0];
 
       ClientSession session = sf.createSession(true, true);
@@ -97,13 +88,11 @@ public class ScaleDownDirectTest extends ClusterTestBase
       ClientProducer producer = session.createProducer("ad1");
 
       byte[] buffer = new byte[bufferSize];
-      for (int i = 0; i < bufferSize; i++)
-      {
+      for (int i = 0; i < bufferSize; i++) {
          buffer[i] = getSamplebyte(i);
       }
 
-      for (int i = 0; i < numberOfMessages; i++)
-      {
+      for (int i = 0; i < numberOfMessages; i++) {
          ClientMessage message = session.createMessage(true);
          message.putIntProperty("i", i);
          message.getBodyBuffer().writeBytes(buffer);
@@ -112,8 +101,7 @@ public class ScaleDownDirectTest extends ClusterTestBase
 
       session.createQueue("ad1", "queue2", true);
 
-      for (int i = numberOfMessages; i < (numberOfMessages * 2); i++)
-      {
+      for (int i = numberOfMessages; i < (numberOfMessages * 2); i++) {
          ClientMessage message = session.createMessage(true);
          message.putIntProperty("i", i);
          message.getBodyBuffer().writeBytes(buffer);
@@ -133,13 +121,11 @@ public class ScaleDownDirectTest extends ClusterTestBase
       ClientConsumer consumer1 = session.createConsumer("queue1");
       session.start();
 
-
-      for (int i = 0; i < numberOfMessages * 2; i++)
-      {
+      for (int i = 0; i < numberOfMessages * 2; i++) {
          ClientMessage message = consumer1.receive(5000);
          assertNotNull(message);
          assertEquals(i, message.getIntProperty("i").intValue());
-//         message.acknowledge();
+         //         message.acknowledge();
 
          checkBody(message, bufferSize);
 
@@ -150,12 +136,11 @@ public class ScaleDownDirectTest extends ClusterTestBase
       assertNull(messageCheckNull);
 
       ClientConsumer consumer2 = session.createConsumer("queue2");
-      for (int i = numberOfMessages; i < numberOfMessages * 2; i++)
-      {
+      for (int i = numberOfMessages; i < numberOfMessages * 2; i++) {
          ClientMessage message = consumer2.receive(5000);
          assertNotNull(message);
          assertEquals(i, message.getIntProperty("i").intValue());
-//         message.acknowledge();
+         //         message.acknowledge();
          checkBody(message, bufferSize);
       }
 
@@ -166,11 +151,8 @@ public class ScaleDownDirectTest extends ClusterTestBase
       assertNull(messageCheckNull);
    }
 
-
-
    @Test
-   public void testPaging() throws Exception
-   {
+   public void testPaging() throws Exception {
       final int CHUNK_SIZE = 50;
       int messageCount = 0;
       final String addressName = "testAddress";
@@ -183,19 +165,15 @@ public class ScaleDownDirectTest extends ClusterTestBase
       ClientSession session = addClientSession(sf.createSession(false, false));
       ClientProducer producer = addClientProducer(session.createProducer(addressName));
 
-      AddressSettings defaultSetting = new AddressSettings()
-              .setPageSizeBytes(10 * 1024)
-              .setMaxSizeBytes(20 * 1024);
+      AddressSettings defaultSetting = new AddressSettings().setPageSizeBytes(10 * 1024).setMaxSizeBytes(20 * 1024);
       servers[0].getAddressSettingsRepository().addMatch("#", defaultSetting);
 
-      while (!servers[0].getPagingManager().getPageStore(new SimpleString(addressName)).isPaging())
-      {
-         for (int i = 0; i < CHUNK_SIZE; i++)
-         {
+      while (!servers[0].getPagingManager().getPageStore(new SimpleString(addressName)).isPaging()) {
+         for (int i = 0; i < CHUNK_SIZE; i++) {
             Message message = session.createMessage(true);
             message.getBodyBuffer().writeBytes(new byte[1024]);
             // The only purpose of this count here is for eventually debug messages on print-data / print-pages
-//            message.putIntProperty("count", messageCount);
+            //            message.putIntProperty("count", messageCount);
             producer.send(message);
             messageCount++;
          }
@@ -207,22 +185,18 @@ public class ScaleDownDirectTest extends ClusterTestBase
       servers[0].stop();
 
       addConsumer(0, 1, queueName, null);
-      for (int i = 0; i < messageCount; i++)
-      {
+      for (int i = 0; i < messageCount; i++) {
          ClientMessage message = consumers[0].getConsumer().receive(500);
          Assert.assertNotNull(message);
-//         Assert.assertEquals(i, message.getIntProperty("count").intValue());
+         //         Assert.assertEquals(i, message.getIntProperty("count").intValue());
       }
 
       Assert.assertNull(consumers[0].getConsumer().receiveImmediate());
       removeConsumer(0);
    }
 
-
-
    @Test
-   public void testBasicScaleDown() throws Exception
-   {
+   public void testBasicScaleDown() throws Exception {
       final int TEST_SIZE = 2;
       final String addressName = "testAddress";
       final String queueName1 = "testQueue1";
@@ -279,29 +253,21 @@ public class ScaleDownDirectTest extends ClusterTestBase
       removeConsumer(0);
    }
 
-   private void checkBody(ClientMessage message, int bufferSize)
-   {
+   private void checkBody(ClientMessage message, int bufferSize) {
       assertEquals(bufferSize, message.getBodySize());
       byte[] body = new byte[message.getBodySize()];
       message.getBodyBuffer().readBytes(body);
-      for (int bpos = 0; bpos < bufferSize; bpos++)
-      {
-         if (getSamplebyte(bpos) != body[bpos])
-         {
+      for (int bpos = 0; bpos < bufferSize; bpos++) {
+         if (getSamplebyte(bpos) != body[bpos]) {
             fail("body comparison failure at " + message);
          }
       }
    }
 
-   private long performScaledown() throws Exception
-   {
-      ScaleDownHandler handler = new ScaleDownHandler(servers[0].getPagingManager(), servers[0].getPostOffice(),
-                                                      servers[0].getNodeManager(),
-                                                      servers[0].getClusterManager().getClusterController(),
-                                                      servers[0].getStorageManager());
+   private long performScaledown() throws Exception {
+      ScaleDownHandler handler = new ScaleDownHandler(servers[0].getPagingManager(), servers[0].getPostOffice(), servers[0].getNodeManager(), servers[0].getClusterManager().getClusterController(), servers[0].getStorageManager());
 
       return handler.scaleDownMessages(sfs[1], servers[1].getNodeID());
    }
-
 
 }

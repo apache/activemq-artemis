@@ -19,11 +19,9 @@ package org.apache.activemq.artemis.cli.commands;
 import java.io.InputStream;
 import java.io.PrintStream;
 
-public class ActionContext
-{
+public class ActionContext {
 
-   public ActionContext(InputStream in, PrintStream out, PrintStream err)
-   {
+   public ActionContext(InputStream in, PrintStream out, PrintStream err) {
       this.in = in;
       this.out = out;
       this.err = err;
@@ -33,8 +31,7 @@ public class ActionContext
    public PrintStream out;
    public PrintStream err;
 
-   public static ActionContext system()
-   {
+   public static ActionContext system() {
       return new ActionContext(System.in, System.out, System.err);
    }
 

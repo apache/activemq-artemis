@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.unit.util;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
@@ -35,12 +36,10 @@ import org.apache.activemq.artemis.utils.DataConstants;
 import org.apache.activemq.artemis.utils.Random;
 import org.apache.activemq.artemis.utils.UTF8Util;
 
-public class UTF8Test extends ActiveMQTestBase
-{
+public class UTF8Test extends ActiveMQTestBase {
 
    @Test
-   public void testValidateUTF() throws Exception
-   {
+   public void testValidateUTF() throws Exception {
       ActiveMQBuffer buffer = ActiveMQBuffers.fixedBuffer(60 * 1024);
 
       byte[] bytes = new byte[20000];
@@ -58,10 +57,8 @@ public class UTF8Test extends ActiveMQTestBase
    }
 
    @Test
-   public void testValidateUTFOnDataInput() throws Exception
-   {
-      for (int i = 0; i < 100; i++)
-      {
+   public void testValidateUTFOnDataInput() throws Exception {
+      for (int i = 0; i < 100; i++) {
          Random random = new Random();
 
          // Random size between 15k and 20K
@@ -72,9 +69,7 @@ public class UTF8Test extends ActiveMQTestBase
          String str = new String(bytes);
 
          // The maximum size the encoded UTF string would reach is str.length * 3 (look at the UTF8 implementation)
-         testValidateUTFOnDataInputStream(str,
-                                          ActiveMQBuffers.wrappedBuffer(ByteBuffer.allocate(str.length() * 3 +
-                                                                                               DataConstants.SIZE_SHORT)));
+         testValidateUTFOnDataInputStream(str, ActiveMQBuffers.wrappedBuffer(ByteBuffer.allocate(str.length() * 3 + DataConstants.SIZE_SHORT)));
 
          testValidateUTFOnDataInputStream(str, ActiveMQBuffers.dynamicBuffer(100));
 
@@ -82,8 +77,7 @@ public class UTF8Test extends ActiveMQTestBase
       }
    }
 
-   private void testValidateUTFOnDataInputStream(final String str, final ActiveMQBuffer wrap) throws Exception
-   {
+   private void testValidateUTFOnDataInputStream(final String str, final ActiveMQBuffer wrap) throws Exception {
       UTF8Util.saveUTF(wrap, str);
 
       DataInputStream data = new DataInputStream(new ByteArrayInputStream(wrap.toByteBuffer().array()));
@@ -105,13 +99,11 @@ public class UTF8Test extends ActiveMQTestBase
    }
 
    @Test
-   public void testBigSize() throws Exception
-   {
+   public void testBigSize() throws Exception {
 
       char[] chars = new char[0xffff + 1];
 
-      for (int i = 0; i < chars.length; i++)
-      {
+      for (int i = 0; i < chars.length; i++) {
          chars[i] = ' ';
       }
 
@@ -119,33 +111,28 @@ public class UTF8Test extends ActiveMQTestBase
 
       ActiveMQBuffer buffer = ActiveMQBuffers.fixedBuffer(0xffff + 4);
 
-      try
-      {
+      try {
          UTF8Util.saveUTF(buffer, str);
          Assert.fail("String is too big, supposed to throw an exception");
       }
-      catch (Exception ignored)
-      {
+      catch (Exception ignored) {
       }
 
       Assert.assertEquals("A buffer was supposed to be untouched since the string was too big", 0, buffer.writerIndex());
 
       chars = new char[25000];
 
-      for (int i = 0; i < chars.length; i++)
-      {
+      for (int i = 0; i < chars.length; i++) {
          chars[i] = 0x810;
       }
 
       str = new String(chars);
 
-      try
-      {
+      try {
          UTF8Util.saveUTF(buffer, str);
          Assert.fail("Encoded String is too big, supposed to throw an exception");
       }
-      catch (Exception ignored)
-      {
+      catch (Exception ignored) {
       }
 
       Assert.assertEquals("A buffer was supposed to be untouched since the string was too big", 0, buffer.writerIndex());
@@ -153,9 +140,8 @@ public class UTF8Test extends ActiveMQTestBase
       // Testing a string right on the limit
       chars = new char[0xffff];
 
-      for (int i = 0; i < chars.length; i++)
-      {
-         chars[i] = (char)(i % 100 + 1);
+      for (int i = 0; i < chars.length; i++) {
+         chars[i] = (char) (i % 100 + 1);
       }
 
       str = new String(chars);
@@ -172,8 +158,7 @@ public class UTF8Test extends ActiveMQTestBase
 
    @Override
    @After
-   public void tearDown() throws Exception
-   {
+   public void tearDown() throws Exception {
       UTF8Util.clearBuffer();
       super.tearDown();
    }

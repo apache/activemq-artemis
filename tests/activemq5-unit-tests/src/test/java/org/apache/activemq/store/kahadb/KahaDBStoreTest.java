@@ -20,6 +20,7 @@ import java.util.Vector;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+
 import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.command.ActiveMQMessage;
 import org.apache.activemq.command.ActiveMQQueue;
@@ -31,79 +32,80 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-
 import static org.junit.Assert.assertTrue;
 
 public class KahaDBStoreTest {
 
-    KahaDBStore.KahaDBMessageStore underTest;
-    KahaDBStore store;
-    ActiveMQMessage message;
-    ProducerId producerId = new ProducerId("1.1.1");
-    private static final int MESSAGE_COUNT = 2000;
-    private Vector<Throwable> exceptions = new Vector<Throwable>();
+   KahaDBStore.KahaDBMessageStore underTest;
+   KahaDBStore store;
+   ActiveMQMessage message;
+   ProducerId producerId = new ProducerId("1.1.1");
+   private static final int MESSAGE_COUNT = 2000;
+   private Vector<Throwable> exceptions = new Vector<Throwable>();
 
-    @Before
-    public void initStore() throws Exception {
-        ActiveMQDestination destination = new ActiveMQQueue("Test");
-        store = new KahaDBStore();
-        store.setMaxAsyncJobs(100);
-        store.setDeleteAllMessages(true);
-        store.start();
-        underTest = store.new KahaDBMessageStore(destination);
-        underTest.start();
-        message = new ActiveMQMessage();
-        message.setDestination(destination);
-    }
+   @Before
+   public void initStore() throws Exception {
+      ActiveMQDestination destination = new ActiveMQQueue("Test");
+      store = new KahaDBStore();
+      store.setMaxAsyncJobs(100);
+      store.setDeleteAllMessages(true);
+      store.start();
+      underTest = store.new KahaDBMessageStore(destination);
+      underTest.start();
+      message = new ActiveMQMessage();
+      message.setDestination(destination);
+   }
 
-    @After
-    public void destroyStore() throws Exception {
-        if (store != null) {
-            store.stop();
-        }
-    }
+   @After
+   public void destroyStore() throws Exception {
+      if (store != null) {
+         store.stop();
+      }
+   }
 
-    @Test
-    public void testConcurrentStoreAndDispatchQueue() throws Exception {
+   @Test
+   public void testConcurrentStoreAndDispatchQueue() throws Exception {
 
-        ExecutorService executor = Executors.newCachedThreadPool();
-        for (int i=0; i<MESSAGE_COUNT; i++) {
-            final int id = ++i;
-            executor.execute(new Runnable() {
-                public void run() {
-                    try {
-                        Message msg = message.copy();
-                        msg.setMessageId(new MessageId(producerId, id));
-                        underTest.asyncAddQueueMessage(null, msg);
-                    } catch (Exception e) {
-                        exceptions.add(e);
-                    }
-                }
-            });
-        }
+      ExecutorService executor = Executors.newCachedThreadPool();
+      for (int i = 0; i < MESSAGE_COUNT; i++) {
+         final int id = ++i;
+         executor.execute(new Runnable() {
+            public void run() {
+               try {
+                  Message msg = message.copy();
+                  msg.setMessageId(new MessageId(producerId, id));
+                  underTest.asyncAddQueueMessage(null, msg);
+               }
+               catch (Exception e) {
+                  exceptions.add(e);
+               }
+            }
+         });
+      }
 
-        ExecutorService executor2 = Executors.newCachedThreadPool();
-        for (int i=0; i<MESSAGE_COUNT; i++) {
-            final int id = ++i;
-            executor2.execute(new Runnable() {
-                public void run() {
-                    try {
-                        MessageAck ack = new MessageAck();
-                        ack.setLastMessageId(new MessageId(producerId, id));
-                        underTest.removeAsyncMessage(null, ack);
-                    } catch (Exception e) {
-                        exceptions.add(e);
-                    }
-                }
-            });
-        }
+      ExecutorService executor2 = Executors.newCachedThreadPool();
+      for (int i = 0; i < MESSAGE_COUNT; i++) {
+         final int id = ++i;
+         executor2.execute(new Runnable() {
+            public void run() {
+               try {
+                  MessageAck ack = new MessageAck();
+                  ack.setLastMessageId(new MessageId(producerId, id));
+                  underTest.removeAsyncMessage(null, ack);
+               }
+               catch (Exception e) {
+                  exceptions.add(e);
+               }
+            }
+         });
+      }
 
-        executor.shutdown();
-        executor.awaitTermination(60, TimeUnit.SECONDS);
+      executor.shutdown();
+      executor.awaitTermination(60, TimeUnit.SECONDS);
 
-        executor2.shutdown();
-        executor2.awaitTermination(60, TimeUnit.SECONDS);
+      executor2.shutdown();
+      executor2.awaitTermination(60, TimeUnit.SECONDS);
 
-        assertTrue("no exceptions " + exceptions, exceptions.isEmpty());
-    }
+      assertTrue("no exceptions " + exceptions, exceptions.isEmpty());
+   }
 }

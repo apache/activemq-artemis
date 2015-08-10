@@ -48,19 +48,14 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 @RunWith(value = Parameterized.class)
-public class ConsumerTest extends ActiveMQTestBase
-{
+public class ConsumerTest extends ActiveMQTestBase {
+
    @Parameterized.Parameters(name = "isNetty={0}")
-   public static Collection getParameters()
-   {
-      return Arrays.asList(new Object[][]{
-         {true},
-         {false}
-      });
+   public static Collection getParameters() {
+      return Arrays.asList(new Object[][]{{true}, {false}});
    }
 
-   public ConsumerTest(boolean netty)
-   {
+   public ConsumerTest(boolean netty) {
       this.netty = netty;
    }
 
@@ -71,15 +66,13 @@ public class ConsumerTest extends ActiveMQTestBase
 
    private ServerLocator locator;
 
-   protected boolean isNetty()
-   {
+   protected boolean isNetty() {
       return netty;
    }
 
    @Before
    @Override
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       server = createServer(false, isNetty());
@@ -90,13 +83,10 @@ public class ConsumerTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testStressConnection() throws Exception
-   {
+   public void testStressConnection() throws Exception {
 
-      for (int i = 0; i < 10; i++)
-      {
-         ServerLocator locatorSendx = createFactory(isNetty())
-                 .setReconnectAttempts(-1);
+      for (int i = 0; i < 10; i++) {
+         ServerLocator locatorSendx = createFactory(isNetty()).setReconnectAttempts(-1);
          ClientSessionFactory factoryx = locatorSendx.createSessionFactory();
          factoryx.close();
          locatorSendx.close();
@@ -104,10 +94,8 @@ public class ConsumerTest extends ActiveMQTestBase
 
    }
 
-
    @Test
-   public void testConsumerAckImmediateAutoCommitTrue() throws Exception
-   {
+   public void testConsumerAckImmediateAutoCommitTrue() throws Exception {
       ClientSessionFactory sf = createSessionFactory(locator);
 
       ClientSession session = sf.createSession(false, true, true, true);
@@ -118,16 +106,14 @@ public class ConsumerTest extends ActiveMQTestBase
 
       final int numMessages = 100;
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = createTextMessage(session, "m" + i);
          producer.send(message);
       }
 
       ClientConsumer consumer = session.createConsumer(QUEUE);
       session.start();
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message2 = consumer.receive(1000);
 
          Assert.assertEquals("m" + i, message2.getBodyBuffer().readString());
@@ -140,8 +126,7 @@ public class ConsumerTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testConsumerAckImmediateAutoCommitFalse() throws Exception
-   {
+   public void testConsumerAckImmediateAutoCommitFalse() throws Exception {
 
       ClientSessionFactory sf = createSessionFactory(locator);
 
@@ -153,16 +138,14 @@ public class ConsumerTest extends ActiveMQTestBase
 
       final int numMessages = 100;
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = createTextMessage(session, "m" + i);
          producer.send(message);
       }
 
       ClientConsumer consumer = session.createConsumer(QUEUE);
       session.start();
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message2 = consumer.receive(1000);
 
          Assert.assertEquals("m" + i, message2.getBodyBuffer().readString());
@@ -175,8 +158,7 @@ public class ConsumerTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testConsumerAckImmediateAckIgnored() throws Exception
-   {
+   public void testConsumerAckImmediateAckIgnored() throws Exception {
 
       ClientSessionFactory sf = createSessionFactory(locator);
 
@@ -188,21 +170,18 @@ public class ConsumerTest extends ActiveMQTestBase
 
       final int numMessages = 100;
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = createTextMessage(session, "m" + i);
          producer.send(message);
       }
 
       ClientConsumer consumer = session.createConsumer(QUEUE);
       session.start();
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message2 = consumer.receive(1000);
 
          Assert.assertEquals("m" + i, message2.getBodyBuffer().readString());
-         if (i < 50)
-         {
+         if (i < 50) {
             message2.acknowledge();
          }
       }
@@ -214,8 +193,7 @@ public class ConsumerTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testConsumerAckImmediateCloseSession() throws Exception
-   {
+   public void testConsumerAckImmediateCloseSession() throws Exception {
 
       ClientSessionFactory sf = createSessionFactory(locator);
 
@@ -227,21 +205,18 @@ public class ConsumerTest extends ActiveMQTestBase
 
       final int numMessages = 100;
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = createTextMessage(session, "m" + i);
          producer.send(message);
       }
 
       ClientConsumer consumer = session.createConsumer(QUEUE);
       session.start();
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message2 = consumer.receive(1000);
 
          Assert.assertEquals("m" + i, message2.getBodyBuffer().readString());
-         if (i < 50)
-         {
+         if (i < 50) {
             message2.acknowledge();
          }
       }
@@ -256,8 +231,7 @@ public class ConsumerTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testAcksWithSmallSendWindow() throws Exception
-   {
+   public void testAcksWithSmallSendWindow() throws Exception {
       ClientSessionFactory sf = createSessionFactory(locator);
 
       ClientSession session = sf.createSession(false, true, true);
@@ -268,41 +242,31 @@ public class ConsumerTest extends ActiveMQTestBase
 
       final int numMessages = 10000;
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = createTextMessage(session, "m" + i);
          producer.send(message);
       }
       session.close();
       sf.close();
       final CountDownLatch latch = new CountDownLatch(numMessages);
-      server.getRemotingService().addIncomingInterceptor(new Interceptor()
-      {
-         public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException
-         {
-            if (packet.getType() == PacketImpl.SESS_ACKNOWLEDGE)
-            {
+      server.getRemotingService().addIncomingInterceptor(new Interceptor() {
+         public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException {
+            if (packet.getType() == PacketImpl.SESS_ACKNOWLEDGE) {
                latch.countDown();
             }
             return true;
          }
       });
-      ServerLocator locator = createInVMNonHALocator()
-              .setConfirmationWindowSize(100)
-              .setAckBatchSize(-1);
+      ServerLocator locator = createInVMNonHALocator().setConfirmationWindowSize(100).setAckBatchSize(-1);
       ClientSessionFactory sfReceive = createSessionFactory(locator);
       ClientSession sessionRec = sfReceive.createSession(false, true, true);
       ClientConsumer consumer = sessionRec.createConsumer(QUEUE);
-      consumer.setMessageHandler(new MessageHandler()
-      {
-         public void onMessage(final ClientMessage message)
-         {
-            try
-            {
+      consumer.setMessageHandler(new MessageHandler() {
+         public void onMessage(final ClientMessage message) {
+            try {
                message.acknowledge();
             }
-            catch (ActiveMQException e)
-            {
+            catch (ActiveMQException e) {
                e.printStackTrace();
             }
          }
@@ -315,8 +279,7 @@ public class ConsumerTest extends ActiveMQTestBase
 
    // https://jira.jboss.org/browse/HORNETQ-410
    @Test
-   public void testConsumeWithNoConsumerFlowControl() throws Exception
-   {
+   public void testConsumeWithNoConsumerFlowControl() throws Exception {
 
       ServerLocator locator = createInVMNonHALocator();
 
@@ -334,16 +297,14 @@ public class ConsumerTest extends ActiveMQTestBase
 
       final int numMessages = 100;
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = createTextMessage(session, "m" + i);
          producer.send(message);
       }
 
       ClientConsumer consumer = session.createConsumer(QUEUE);
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = consumer.receive(10000);
          assertNotNull(message);
          message.acknowledge();
@@ -356,8 +317,7 @@ public class ConsumerTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testClearListener() throws Exception
-   {
+   public void testClearListener() throws Exception {
       ClientSessionFactory sf = createSessionFactory(locator);
 
       ClientSession session = sf.createSession(false, true, true);
@@ -366,10 +326,8 @@ public class ConsumerTest extends ActiveMQTestBase
 
       ClientConsumer consumer = session.createConsumer(QUEUE);
 
-      consumer.setMessageHandler(new MessageHandler()
-      {
-         public void onMessage(final ClientMessage msg)
-         {
+      consumer.setMessageHandler(new MessageHandler() {
+         public void onMessage(final ClientMessage msg) {
          }
       });
 
@@ -380,8 +338,7 @@ public class ConsumerTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testNoReceiveWithListener() throws Exception
-   {
+   public void testNoReceiveWithListener() throws Exception {
       ClientSessionFactory sf = createSessionFactory(locator);
 
       ClientSession session = sf.createSession(false, true, true);
@@ -390,34 +347,27 @@ public class ConsumerTest extends ActiveMQTestBase
 
       ClientConsumer consumer = session.createConsumer(QUEUE);
 
-      consumer.setMessageHandler(new MessageHandler()
-      {
-         public void onMessage(final ClientMessage msg)
-         {
+      consumer.setMessageHandler(new MessageHandler() {
+         public void onMessage(final ClientMessage msg) {
          }
       });
 
-      try
-      {
+      try {
          consumer.receiveImmediate();
          Assert.fail("Should throw exception");
       }
-      catch (ActiveMQIllegalStateException ise)
-      {
+      catch (ActiveMQIllegalStateException ise) {
          //ok
       }
-      catch (ActiveMQException me)
-      {
+      catch (ActiveMQException me) {
          Assert.fail("Wrong exception code");
       }
 
       session.close();
    }
 
-
    @Test
-   public void testReceiveAndResend() throws Exception
-   {
+   public void testReceiveAndResend() throws Exception {
 
       final Set<Object> sessions = new ConcurrentHashSet<Object>();
       final AtomicInteger errors = new AtomicInteger(0);
@@ -430,8 +380,7 @@ public class ConsumerTest extends ActiveMQTestBase
       final CountDownLatch latchReceive = new CountDownLatch(numberOfSessions * numberOfMessages);
 
       ClientSessionFactory sf = locator.createSessionFactory();
-      for (int i = 0; i < numberOfSessions; i++)
-      {
+      for (int i = 0; i < numberOfSessions; i++) {
 
          ClientSession session = sf.createSession(false, true, true);
 
@@ -439,32 +388,25 @@ public class ConsumerTest extends ActiveMQTestBase
 
          session.createQueue(QUEUE, QUEUE.concat("" + i), null, false);
 
-         if (i == 0)
-         {
+         if (i == 0) {
             session.createQueue(QUEUE_RESPONSE, QUEUE_RESPONSE);
          }
-
 
          ClientConsumer consumer = session.createConsumer(QUEUE.concat("" + i));
          sessions.add(consumer);
 
          {
 
-            consumer.setMessageHandler(new MessageHandler()
-            {
-               public void onMessage(final ClientMessage msg)
-               {
-                  try
-                  {
-                     ServerLocator locatorSendx = createFactory(isNetty())
-                             .setReconnectAttempts(-1);
+            consumer.setMessageHandler(new MessageHandler() {
+               public void onMessage(final ClientMessage msg) {
+                  try {
+                     ServerLocator locatorSendx = createFactory(isNetty()).setReconnectAttempts(-1);
                      ClientSessionFactory factoryx = locatorSendx.createSessionFactory();
                      ClientSession sessionSend = factoryx.createSession(true, true);
 
                      sessions.add(sessionSend);
                      sessions.add(locatorSendx);
                      sessions.add(factoryx);
-
 
                      final ClientProducer prod = sessionSend.createProducer(QUEUE_RESPONSE);
                      sessionSend.start();
@@ -477,20 +419,17 @@ public class ConsumerTest extends ActiveMQTestBase
                      sessionSend.commit();
                      sessionSend.close();
                      factoryx.close();
-                     if (Thread.currentThread().isInterrupted())
-                     {
+                     if (Thread.currentThread().isInterrupted()) {
                         System.err.println("Netty has interrupted a thread!!!");
                         errors.incrementAndGet();
                      }
 
                   }
-                  catch (Throwable e)
-                  {
+                  catch (Throwable e) {
                      e.printStackTrace();
                      errors.incrementAndGet();
                   }
-                  finally
-                  {
+                  finally {
                      latchReceive.countDown();
                   }
                }
@@ -500,31 +439,24 @@ public class ConsumerTest extends ActiveMQTestBase
          session.start();
       }
 
-
-      Thread tCons = new Thread()
-      {
-         public void run()
-         {
-            try
-            {
+      Thread tCons = new Thread() {
+         public void run() {
+            try {
                final ServerLocator locatorSend = createFactory(isNetty());
                final ClientSessionFactory factory = locatorSend.createSessionFactory();
                final ClientSession sessionSend = factory.createSession(true, true);
                ClientConsumer cons = sessionSend.createConsumer(QUEUE_RESPONSE);
                sessionSend.start();
 
-               for (int i = 0; i < numberOfMessages * numberOfSessions; i++)
-               {
+               for (int i = 0; i < numberOfMessages * numberOfSessions; i++) {
                   ClientMessage msg = cons.receive(5000);
-                  if (msg == null)
-                  {
+                  if (msg == null) {
                      break;
                   }
                   msg.acknowledge();
                }
 
-               if (cons.receiveImmediate() != null)
-               {
+               if (cons.receiveImmediate() != null) {
                   System.out.println("ERROR: Received an extra message");
                   errors.incrementAndGet();
                }
@@ -532,8 +464,7 @@ public class ConsumerTest extends ActiveMQTestBase
                factory.close();
                locatorSend.close();
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                e.printStackTrace();
                errors.incrementAndGet();
 
@@ -547,14 +478,11 @@ public class ConsumerTest extends ActiveMQTestBase
       ClientSession mainSessionSend = sf.createSession(true, true);
       ClientProducer mainProd = mainSessionSend.createProducer(QUEUE);
 
-      for (int i = 0; i < numberOfMessages; i++)
-      {
+      for (int i = 0; i < numberOfMessages; i++) {
          mainProd.send(mainSessionSend.createMessage(true));
       }
 
-
       latchReceive.await(2, TimeUnit.MINUTES);
-
 
       tCons.join();
 
@@ -566,8 +494,7 @@ public class ConsumerTest extends ActiveMQTestBase
    // https://jira.jboss.org/jira/browse/HORNETQ-111
    // Test that, on rollback credits are released for messages cleared in the buffer
    @Test
-   public void testConsumerCreditsOnRollback() throws Exception
-   {
+   public void testConsumerCreditsOnRollback() throws Exception {
       locator.setConsumerWindowSize(10000);
 
       ClientSessionFactory sf = createSessionFactory(locator);
@@ -582,8 +509,7 @@ public class ConsumerTest extends ActiveMQTestBase
 
       final byte[] bytes = new byte[1000];
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session.createMessage(false);
 
          message.getBodyBuffer().writeBytes(bytes);
@@ -598,20 +524,17 @@ public class ConsumerTest extends ActiveMQTestBase
       ClientConsumer consumer = session.createConsumer(QUEUE);
       session.start();
 
-      for (int i = 0; i < 110; i++)
-      {
+      for (int i = 0; i < 110; i++) {
          ClientMessage message = consumer.receive();
 
          int count = message.getIntProperty("count");
 
          boolean redelivered = message.getDeliveryCount() > 1;
 
-         if (count % 2 == 0 && !redelivered)
-         {
+         if (count % 2 == 0 && !redelivered) {
             session.rollback();
          }
-         else
-         {
+         else {
             session.commit();
          }
       }
@@ -622,10 +545,8 @@ public class ConsumerTest extends ActiveMQTestBase
    // https://jira.jboss.org/jira/browse/HORNETQ-111
    // Test that, on rollback credits are released for messages cleared in the buffer
    @Test
-   public void testConsumerCreditsOnRollbackLargeMessages() throws Exception
-   {
-      locator.setConsumerWindowSize(10000)
-              .setMinLargeMessageSize(1000);
+   public void testConsumerCreditsOnRollbackLargeMessages() throws Exception {
+      locator.setConsumerWindowSize(10000).setMinLargeMessageSize(1000);
 
       ClientSessionFactory sf = createSessionFactory(locator);
 
@@ -639,8 +560,7 @@ public class ConsumerTest extends ActiveMQTestBase
 
       final byte[] bytes = new byte[10000];
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session.createMessage(false);
 
          message.getBodyBuffer().writeBytes(bytes);
@@ -655,20 +575,17 @@ public class ConsumerTest extends ActiveMQTestBase
       ClientConsumer consumer = session.createConsumer(QUEUE);
       session.start();
 
-      for (int i = 0; i < 110; i++)
-      {
+      for (int i = 0; i < 110; i++) {
          ClientMessage message = consumer.receive();
 
          int count = message.getIntProperty("count");
 
          boolean redelivered = message.getDeliveryCount() > 1;
 
-         if (count % 2 == 0 && !redelivered)
-         {
+         if (count % 2 == 0 && !redelivered) {
             session.rollback();
          }
-         else
-         {
+         else {
             session.commit();
          }
       }

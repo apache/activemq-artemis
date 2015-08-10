@@ -35,8 +35,8 @@ import org.apache.activemq.artemis.core.transaction.TransactionOperationAbstract
  *
  * A fixed size rotating cache of last X duplicate ids.
  */
-public class DuplicateIDCacheImpl implements DuplicateIDCache
-{
+public class DuplicateIDCacheImpl implements DuplicateIDCache {
+
    // ByteHolder, position
    private final Map<ByteArrayHolder, Integer> cache = new ConcurrentHashMap<ByteArrayHolder, Integer>();
 
@@ -57,8 +57,7 @@ public class DuplicateIDCacheImpl implements DuplicateIDCache
    public DuplicateIDCacheImpl(final SimpleString address,
                                final int size,
                                final StorageManager storageManager,
-                               final boolean persist)
-   {
+                               final boolean persist) {
       this.address = address;
 
       cacheSize = size;
@@ -70,16 +69,13 @@ public class DuplicateIDCacheImpl implements DuplicateIDCache
       this.persist = persist;
    }
 
-   public void load(final List<Pair<byte[], Long>> theIds) throws Exception
-   {
+   public void load(final List<Pair<byte[], Long>> theIds) throws Exception {
       int count = 0;
 
       long txID = -1;
 
-      for (Pair<byte[], Long> id : theIds)
-      {
-         if (count < cacheSize)
-         {
+      for (Pair<byte[], Long> id : theIds) {
+         if (count < cacheSize) {
             ByteArrayHolder bah = new ByteArrayHolder(id.getA());
 
             Pair<ByteArrayHolder, Long> pair = new Pair<ByteArrayHolder, Long>(bah, id.getB());
@@ -88,11 +84,9 @@ public class DuplicateIDCacheImpl implements DuplicateIDCache
 
             ids.add(pair);
          }
-         else
-         {
+         else {
             // cache size has been reduced in config - delete the extra records
-            if (txID == -1)
-            {
+            if (txID == -1) {
                txID = storageManager.generateID();
             }
 
@@ -102,37 +96,30 @@ public class DuplicateIDCacheImpl implements DuplicateIDCache
          count++;
       }
 
-      if (txID != -1)
-      {
+      if (txID != -1) {
          storageManager.commit(txID);
       }
 
       pos = ids.size();
 
-      if (pos == cacheSize)
-      {
+      if (pos == cacheSize) {
          pos = 0;
       }
 
    }
 
-
-   public void deleteFromCache(byte[] duplicateID) throws Exception
-   {
+   public void deleteFromCache(byte[] duplicateID) throws Exception {
       ByteArrayHolder bah = new ByteArrayHolder(duplicateID);
 
       Integer posUsed = cache.remove(bah);
 
-      if (posUsed != null)
-      {
+      if (posUsed != null) {
          Pair<ByteArrayHolder, Long> id;
 
-         synchronized (this)
-         {
+         synchronized (this) {
             id = ids.get(posUsed.intValue());
 
-            if (id.getA().equals(bah))
-            {
+            if (id.getA().equals(bah)) {
                id.setA(null);
                storageManager.deleteDuplicateID(id.getB());
                id.setB(null);
@@ -142,30 +129,23 @@ public class DuplicateIDCacheImpl implements DuplicateIDCache
 
    }
 
-
-   public boolean contains(final byte[] duplID)
-   {
+   public boolean contains(final byte[] duplID) {
       return cache.get(new ByteArrayHolder(duplID)) != null;
    }
 
-   public synchronized void addToCache(final byte[] duplID, final Transaction tx) throws Exception
-   {
+   public synchronized void addToCache(final byte[] duplID, final Transaction tx) throws Exception {
       long recordID = -1;
 
-      if (tx == null)
-      {
-         if (persist)
-         {
+      if (tx == null) {
+         if (persist) {
             recordID = storageManager.generateID();
             storageManager.storeDuplicateID(address, duplID, recordID);
          }
 
          addToCacheInMemory(duplID, recordID);
       }
-      else
-      {
-         if (persist)
-         {
+      else {
+         if (persist) {
             recordID = storageManager.generateID();
             storageManager.storeDuplicateIDTransactional(tx.getID(), address, duplID, recordID);
 
@@ -178,41 +158,34 @@ public class DuplicateIDCacheImpl implements DuplicateIDCache
       }
    }
 
-   public void load(final Transaction tx, final byte[] duplID)
-   {
+   public void load(final Transaction tx, final byte[] duplID) {
       tx.addOperation(new AddDuplicateIDOperation(duplID, tx.getID()));
    }
 
-   private synchronized void addToCacheInMemory(final byte[] duplID, final long recordID)
-   {
+   private synchronized void addToCacheInMemory(final byte[] duplID, final long recordID) {
       ByteArrayHolder holder = new ByteArrayHolder(duplID);
 
       cache.put(holder, pos);
 
       Pair<ByteArrayHolder, Long> id;
 
-      if (pos < ids.size())
-      {
+      if (pos < ids.size()) {
          // Need fast array style access here -hence ArrayList typing
          id = ids.get(pos);
 
          // The id here might be null if it was explicit deleted
-         if (id.getA() != null)
-         {
+         if (id.getA() != null) {
             cache.remove(id.getA());
 
             // Record already exists - we delete the old one and add the new one
             // Note we can't use update since journal update doesn't let older records get
             // reclaimed
 
-            if (id.getB() != null)
-            {
-               try
-               {
+            if (id.getB() != null) {
+               try {
                   storageManager.deleteDuplicateID(id.getB());
                }
-               catch (Exception e)
-               {
+               catch (Exception e) {
                   ActiveMQServerLogger.LOGGER.errorDeletingDuplicateCache(e);
                }
             }
@@ -226,8 +199,7 @@ public class DuplicateIDCacheImpl implements DuplicateIDCache
 
          holder.pos = pos;
       }
-      else
-      {
+      else {
          id = new Pair<ByteArrayHolder, Long>(holder, recordID >= 0 ? recordID : null);
 
          ids.add(id);
@@ -235,21 +207,16 @@ public class DuplicateIDCacheImpl implements DuplicateIDCache
          holder.pos = pos;
       }
 
-      if (pos++ == cacheSize - 1)
-      {
+      if (pos++ == cacheSize - 1) {
          pos = 0;
       }
    }
 
-   public void clear() throws Exception
-   {
-      synchronized (this)
-      {
-         if (ids.size() > 0)
-         {
+   public void clear() throws Exception {
+      synchronized (this) {
+         if (ids.size() > 0) {
             long tx = storageManager.generateID();
-            for (Pair<ByteArrayHolder, Long> id : ids)
-            {
+            for (Pair<ByteArrayHolder, Long> id : ids) {
                storageManager.deleteDuplicateIDTransactional(tx, id.getB());
             }
             storageManager.commit(tx);
@@ -262,34 +229,29 @@ public class DuplicateIDCacheImpl implements DuplicateIDCache
    }
 
    @Override
-   public List<Pair<byte[], Long>> getMap()
-   {
+   public List<Pair<byte[], Long>> getMap() {
       List<Pair<byte[], Long>> list = new ArrayList<>();
-      for (Pair<ByteArrayHolder, Long> id : ids)
-      {
+      for (Pair<ByteArrayHolder, Long> id : ids) {
          list.add(new Pair<>(id.getA().bytes, id.getB()));
       }
       return list;
    }
 
-   private final class AddDuplicateIDOperation extends TransactionOperationAbstract
-   {
+   private final class AddDuplicateIDOperation extends TransactionOperationAbstract {
+
       final byte[] duplID;
 
       final long recordID;
 
       volatile boolean done;
 
-      AddDuplicateIDOperation(final byte[] duplID, final long recordID)
-      {
+      AddDuplicateIDOperation(final byte[] duplID, final long recordID) {
          this.duplID = duplID;
          this.recordID = recordID;
       }
 
-      private void process()
-      {
-         if (!done)
-         {
+      private void process() {
+         if (!done) {
             addToCacheInMemory(duplID, recordID);
 
             done = true;
@@ -297,22 +259,19 @@ public class DuplicateIDCacheImpl implements DuplicateIDCache
       }
 
       @Override
-      public void afterCommit(final Transaction tx)
-      {
+      public void afterCommit(final Transaction tx) {
          process();
       }
 
       @Override
-      public List<MessageReference> getRelatedMessageReferences()
-      {
+      public List<MessageReference> getRelatedMessageReferences() {
          return null;
       }
    }
 
-   private static final class ByteArrayHolder
-   {
-      ByteArrayHolder(final byte[] bytes)
-      {
+   private static final class ByteArrayHolder {
+
+      ByteArrayHolder(final byte[] bytes) {
          this.bytes = bytes;
       }
 
@@ -323,40 +282,31 @@ public class DuplicateIDCacheImpl implements DuplicateIDCache
       int pos;
 
       @Override
-      public boolean equals(final Object other)
-      {
-         if (other instanceof ByteArrayHolder)
-         {
+      public boolean equals(final Object other) {
+         if (other instanceof ByteArrayHolder) {
             ByteArrayHolder s = (ByteArrayHolder) other;
 
-            if (bytes.length != s.bytes.length)
-            {
+            if (bytes.length != s.bytes.length) {
                return false;
             }
 
-            for (int i = 0; i < bytes.length; i++)
-            {
-               if (bytes[i] != s.bytes[i])
-               {
+            for (int i = 0; i < bytes.length; i++) {
+               if (bytes[i] != s.bytes[i]) {
                   return false;
                }
             }
 
             return true;
          }
-         else
-         {
+         else {
             return false;
          }
       }
 
       @Override
-      public int hashCode()
-      {
-         if (hash == 0)
-         {
-            for (byte b : bytes)
-            {
+      public int hashCode() {
+         if (hash == 0) {
+            for (byte b : bytes) {
                hash = 31 * hash + b;
             }
          }

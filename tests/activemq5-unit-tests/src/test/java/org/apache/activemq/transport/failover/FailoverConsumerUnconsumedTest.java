@@ -54,329 +54,325 @@ import org.junit.Test;
 // see https://issues.apache.org/activemq/browse/AMQ-2573
 public class FailoverConsumerUnconsumedTest {
 
-    private static final Logger LOG = LoggerFactory.getLogger(FailoverConsumerUnconsumedTest.class);
-    private static final String QUEUE_NAME = "FailoverWithUnconsumed";
-    private static final String TRANSPORT_URI = "tcp://localhost:0";
-    private String url;
-    final int prefetch = 10;
-    BrokerService broker;
+   private static final Logger LOG = LoggerFactory.getLogger(FailoverConsumerUnconsumedTest.class);
+   private static final String QUEUE_NAME = "FailoverWithUnconsumed";
+   private static final String TRANSPORT_URI = "tcp://localhost:0";
+   private String url;
+   final int prefetch = 10;
+   BrokerService broker;
 
-    @After
-    public void stopBroker() throws Exception {
-        if (broker != null) {
-            broker.stop();
-        }
-    }
+   @After
+   public void stopBroker() throws Exception {
+      if (broker != null) {
+         broker.stop();
+      }
+   }
 
-    public void startBroker(boolean deleteAllMessagesOnStartup) throws Exception {
-        broker = createBroker(deleteAllMessagesOnStartup);
-        broker.start();
-    }
+   public void startBroker(boolean deleteAllMessagesOnStartup) throws Exception {
+      broker = createBroker(deleteAllMessagesOnStartup);
+      broker.start();
+   }
 
-    public BrokerService createBroker(boolean deleteAllMessagesOnStartup) throws Exception {
-        return createBroker(deleteAllMessagesOnStartup, TRANSPORT_URI);
-    }
+   public BrokerService createBroker(boolean deleteAllMessagesOnStartup) throws Exception {
+      return createBroker(deleteAllMessagesOnStartup, TRANSPORT_URI);
+   }
 
-    public BrokerService createBroker(boolean deleteAllMessagesOnStartup, String bindAddress) throws Exception {
-        broker = new BrokerService();
-        broker.addConnector(bindAddress);
-        broker.setDeleteAllMessagesOnStartup(deleteAllMessagesOnStartup);
+   public BrokerService createBroker(boolean deleteAllMessagesOnStartup, String bindAddress) throws Exception {
+      broker = new BrokerService();
+      broker.addConnector(bindAddress);
+      broker.setDeleteAllMessagesOnStartup(deleteAllMessagesOnStartup);
 
-        this.url = broker.getTransportConnectors().get(0).getConnectUri().toString();
+      this.url = broker.getTransportConnectors().get(0).getConnectUri().toString();
 
-        return broker;
-    }
+      return broker;
+   }
 
-    @Test
-    public void testFailoverConsumerDups() throws Exception {
-        doTestFailoverConsumerDups(true);
-    }
+   @Test
+   public void testFailoverConsumerDups() throws Exception {
+      doTestFailoverConsumerDups(true);
+   }
 
-    @Test
-    public void testFailoverConsumerDupsNoAdvisoryWatch() throws Exception {
-        doTestFailoverConsumerDups(false);
-    }
+   @Test
+   public void testFailoverConsumerDupsNoAdvisoryWatch() throws Exception {
+      doTestFailoverConsumerDups(false);
+   }
 
-    @SuppressWarnings("unchecked")
-    @Test
-    public void testFailoverClientAckMissingRedelivery() throws Exception {
+   @SuppressWarnings("unchecked")
+   @Test
+   public void testFailoverClientAckMissingRedelivery() throws Exception {
 
-        final int maxConsumers = 2;
-        broker = createBroker(true);
+      final int maxConsumers = 2;
+      broker = createBroker(true);
 
-        broker.setPlugins(new BrokerPlugin[] {
-                new BrokerPluginSupport() {
-                    int consumerCount;
+      broker.setPlugins(new BrokerPlugin[]{new BrokerPluginSupport() {
+         int consumerCount;
 
-                    // broker is killed on x create consumer
-                    @Override
-                    public Subscription addConsumer(ConnectionContext context,
-                            final ConsumerInfo info) throws Exception {
-                         if (++consumerCount == maxConsumers) {
-                             context.setDontSendReponse(true);
-                             Executors.newSingleThreadExecutor().execute(new Runnable() {
-                                 public void run() {
-                                     LOG.info("Stopping broker on consumer: " + info.getConsumerId());
-                                     try {
-                                         broker.stop();
-                                     } catch (Exception e) {
-                                         e.printStackTrace();
-                                     }
-                                 }
-                             });
-                         }
-                        return super.addConsumer(context, info);
-                    }
-                }
-        });
-        broker.start();
-
-        ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory("failover:(" + url + ")");
-        cf.setWatchTopicAdvisories(false);
-
-        final ActiveMQConnection connection = (ActiveMQConnection) cf.createConnection();
-        connection.start();
-
-        final Session consumerSession = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
-        final Queue destination = consumerSession.createQueue(QUEUE_NAME + "?jms.consumer.prefetch=" + prefetch);
-
-        final Vector<TestConsumer> testConsumers = new Vector<TestConsumer>();
-        TestConsumer testConsumer = new TestConsumer(consumerSession, destination, connection);
-        testConsumer.setMessageListener(new MessageListener() {
-            @Override
-            public void onMessage(Message message) {
-                try {
-                    LOG.info("onMessage:" + message.getJMSMessageID());
-                } catch (JMSException e) {
-                    e.printStackTrace();
-                }
+         // broker is killed on x create consumer
+         @Override
+         public Subscription addConsumer(ConnectionContext context, final ConsumerInfo info) throws Exception {
+            if (++consumerCount == maxConsumers) {
+               context.setDontSendReponse(true);
+               Executors.newSingleThreadExecutor().execute(new Runnable() {
+                  public void run() {
+                     LOG.info("Stopping broker on consumer: " + info.getConsumerId());
+                     try {
+                        broker.stop();
+                     }
+                     catch (Exception e) {
+                        e.printStackTrace();
+                     }
+                  }
+               });
             }
-        });
-        testConsumers.add(testConsumer);
+            return super.addConsumer(context, info);
+         }
+      }});
+      broker.start();
 
+      ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory("failover:(" + url + ")");
+      cf.setWatchTopicAdvisories(false);
 
-        produceMessage(consumerSession, destination, maxConsumers * prefetch);
+      final ActiveMQConnection connection = (ActiveMQConnection) cf.createConnection();
+      connection.start();
 
-        assertTrue("add messages are delivered", Wait.waitFor(new Wait.Condition() {
-            public boolean isSatisified() throws Exception {
-                int totalDelivered = 0;
-                for (TestConsumer testConsumer : testConsumers) {
-                    long delivered = testConsumer.deliveredSize();
-                    LOG.info(testConsumer.getConsumerId() + " delivered: " + delivered);
-                    totalDelivered += delivered;
-                }
-                return totalDelivered == maxConsumers * prefetch;
+      final Session consumerSession = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
+      final Queue destination = consumerSession.createQueue(QUEUE_NAME + "?jms.consumer.prefetch=" + prefetch);
+
+      final Vector<TestConsumer> testConsumers = new Vector<TestConsumer>();
+      TestConsumer testConsumer = new TestConsumer(consumerSession, destination, connection);
+      testConsumer.setMessageListener(new MessageListener() {
+         @Override
+         public void onMessage(Message message) {
+            try {
+               LOG.info("onMessage:" + message.getJMSMessageID());
             }
-        }));
-
-        final CountDownLatch shutdownConsumerAdded = new CountDownLatch(1);
-
-        Executors.newSingleThreadExecutor().execute(new Runnable() {
-            public void run() {
-                try {
-                    LOG.info("add last consumer...");
-                    TestConsumer testConsumer = new TestConsumer(consumerSession, destination, connection);
-                    testConsumer.setMessageListener(new MessageListener() {
-                                @Override
-                                public void onMessage(Message message) {
-                                    try {
-                                        LOG.info("onMessage:" + message.getJMSMessageID());
-                                    } catch (JMSException e) {
-                                        e.printStackTrace();
-                                    }
-                                }
-                            });
-                    testConsumers.add(testConsumer);
-                    shutdownConsumerAdded.countDown();
-                    LOG.info("done add last consumer");
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+            catch (JMSException e) {
+               e.printStackTrace();
             }
-        });
+         }
+      });
+      testConsumers.add(testConsumer);
 
-        // will be stopped by the plugin
-        broker.waitUntilStopped();
+      produceMessage(consumerSession, destination, maxConsumers * prefetch);
 
-        broker = createBroker(false, this.url);
-        broker.start();
-
-        assertTrue("consumer added through failover", shutdownConsumerAdded.await(30, TimeUnit.SECONDS));
-
-        // each should again get prefetch messages - all unacked deliveries should be rolledback
-        assertTrue("after restart all messages are re dispatched", Wait.waitFor(new Wait.Condition() {
-            public boolean isSatisified() throws Exception {
-                int totalDelivered = 0;
-                for (TestConsumer testConsumer : testConsumers) {
-                    long delivered = testConsumer.deliveredSize();
-                    LOG.info(testConsumer.getConsumerId() + " delivered: " + delivered);
-                    totalDelivered += delivered;
-                }
-                return totalDelivered == maxConsumers * prefetch;
+      assertTrue("add messages are delivered", Wait.waitFor(new Wait.Condition() {
+         public boolean isSatisified() throws Exception {
+            int totalDelivered = 0;
+            for (TestConsumer testConsumer : testConsumers) {
+               long delivered = testConsumer.deliveredSize();
+               LOG.info(testConsumer.getConsumerId() + " delivered: " + delivered);
+               totalDelivered += delivered;
             }
-        }));
+            return totalDelivered == maxConsumers * prefetch;
+         }
+      }));
 
-        assertTrue("after restart each got prefetch amount", Wait.waitFor(new Wait.Condition() {
-            public boolean isSatisified() throws Exception {
-                for (TestConsumer testConsumer : testConsumers) {
-                    long delivered = testConsumer.deliveredSize();
-                    LOG.info(testConsumer.getConsumerId() + " delivered: " + delivered);
-                    if (delivered != prefetch) {
-                        return false;
-                    }
-                }
-                return true;
+      final CountDownLatch shutdownConsumerAdded = new CountDownLatch(1);
+
+      Executors.newSingleThreadExecutor().execute(new Runnable() {
+         public void run() {
+            try {
+               LOG.info("add last consumer...");
+               TestConsumer testConsumer = new TestConsumer(consumerSession, destination, connection);
+               testConsumer.setMessageListener(new MessageListener() {
+                  @Override
+                  public void onMessage(Message message) {
+                     try {
+                        LOG.info("onMessage:" + message.getJMSMessageID());
+                     }
+                     catch (JMSException e) {
+                        e.printStackTrace();
+                     }
+                  }
+               });
+               testConsumers.add(testConsumer);
+               shutdownConsumerAdded.countDown();
+               LOG.info("done add last consumer");
             }
-        }));
-
-        connection.close();
-    }
-
-    @SuppressWarnings("unchecked")
-    public void doTestFailoverConsumerDups(final boolean watchTopicAdvisories) throws Exception {
-
-        final int maxConsumers = 4;
-        broker = createBroker(true);
-
-        broker.setPlugins(new BrokerPlugin[] {
-                new BrokerPluginSupport() {
-                    int consumerCount;
-
-                    // broker is killed on x create consumer
-                    @Override
-                    public Subscription addConsumer(ConnectionContext context,
-                            final ConsumerInfo info) throws Exception {
-                         if (++consumerCount == maxConsumers + (watchTopicAdvisories ? 1:0)) {
-                             context.setDontSendReponse(true);
-                             Executors.newSingleThreadExecutor().execute(new Runnable() {
-                                 public void run() {
-                                     LOG.info("Stopping broker on consumer: " + info.getConsumerId());
-                                     try {
-                                         broker.stop();
-                                     } catch (Exception e) {
-                                         e.printStackTrace();
-                                     }
-                                 }
-                             });
-                         }
-                        return super.addConsumer(context, info);
-                    }
-                }
-        });
-        broker.start();
-
-        ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory("failover:(" + url + ")");
-        cf.setWatchTopicAdvisories(watchTopicAdvisories);
-
-        final ActiveMQConnection connection = (ActiveMQConnection) cf.createConnection();
-        connection.start();
-
-        final Session consumerSession = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        final Queue destination = consumerSession.createQueue(QUEUE_NAME + "?jms.consumer.prefetch=" + prefetch);
-
-        final Vector<TestConsumer> testConsumers = new Vector<TestConsumer>();
-        for (int i=0; i<maxConsumers -1; i++) {
-            testConsumers.add(new TestConsumer(consumerSession, destination, connection));
-        }
-
-        produceMessage(consumerSession, destination, maxConsumers * prefetch);
-
-        assertTrue("add messages are dispatched", Wait.waitFor(new Wait.Condition() {
-            public boolean isSatisified() throws Exception {
-                int totalUnconsumed = 0;
-                for (TestConsumer testConsumer : testConsumers) {
-                    long unconsumed = testConsumer.unconsumedSize();
-                    LOG.info(testConsumer.getConsumerId() + " unconsumed: " + unconsumed);
-                    totalUnconsumed += unconsumed;
-                }
-                return totalUnconsumed == (maxConsumers-1) * prefetch;
+            catch (Exception e) {
+               e.printStackTrace();
             }
-        }));
+         }
+      });
 
-        final CountDownLatch shutdownConsumerAdded = new CountDownLatch(1);
+      // will be stopped by the plugin
+      broker.waitUntilStopped();
 
-        Executors.newSingleThreadExecutor().execute(new Runnable() {
-            public void run() {
-                try {
-                    LOG.info("add last consumer...");
-                    testConsumers.add(new TestConsumer(consumerSession, destination, connection));
-                    shutdownConsumerAdded.countDown();
-                    LOG.info("done add last consumer");
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+      broker = createBroker(false, this.url);
+      broker.start();
+
+      assertTrue("consumer added through failover", shutdownConsumerAdded.await(30, TimeUnit.SECONDS));
+
+      // each should again get prefetch messages - all unacked deliveries should be rolledback
+      assertTrue("after restart all messages are re dispatched", Wait.waitFor(new Wait.Condition() {
+         public boolean isSatisified() throws Exception {
+            int totalDelivered = 0;
+            for (TestConsumer testConsumer : testConsumers) {
+               long delivered = testConsumer.deliveredSize();
+               LOG.info(testConsumer.getConsumerId() + " delivered: " + delivered);
+               totalDelivered += delivered;
             }
-        });
+            return totalDelivered == maxConsumers * prefetch;
+         }
+      }));
 
-        // will be stopped by the plugin
-        broker.waitUntilStopped();
-
-        // verify interrupt
-        assertTrue("add messages dispatched and unconsumed are cleaned up", Wait.waitFor(new Wait.Condition() {
-            public boolean isSatisified() throws Exception {
-                int totalUnconsumed = 0;
-                for (TestConsumer testConsumer : testConsumers) {
-                    long unconsumed = testConsumer.unconsumedSize();
-                    LOG.info(testConsumer.getConsumerId() + " unconsumed: " + unconsumed);
-                    totalUnconsumed += unconsumed;
-                }
-                return totalUnconsumed == 0;
+      assertTrue("after restart each got prefetch amount", Wait.waitFor(new Wait.Condition() {
+         public boolean isSatisified() throws Exception {
+            for (TestConsumer testConsumer : testConsumers) {
+               long delivered = testConsumer.deliveredSize();
+               LOG.info(testConsumer.getConsumerId() + " delivered: " + delivered);
+               if (delivered != prefetch) {
+                  return false;
+               }
             }
-        }));
+            return true;
+         }
+      }));
 
-        broker = createBroker(false, this.url);
-        broker.start();
+      connection.close();
+   }
 
-        assertTrue("consumer added through failover", shutdownConsumerAdded.await(30, TimeUnit.SECONDS));
+   @SuppressWarnings("unchecked")
+   public void doTestFailoverConsumerDups(final boolean watchTopicAdvisories) throws Exception {
 
-        // each should again get prefetch messages - all unconsumed deliveries should be rolledback
-        assertTrue("after start all messages are re dispatched", Wait.waitFor(new Wait.Condition() {
-            public boolean isSatisified() throws Exception {
-                int totalUnconsumed = 0;
-                for (TestConsumer testConsumer : testConsumers) {
-                    long unconsumed = testConsumer.unconsumedSize();
-                    LOG.info(testConsumer.getConsumerId() + " after restart: unconsumed: " + unconsumed);
-                    totalUnconsumed += unconsumed;
-                }
-                return totalUnconsumed == (maxConsumers) * prefetch;
+      final int maxConsumers = 4;
+      broker = createBroker(true);
+
+      broker.setPlugins(new BrokerPlugin[]{new BrokerPluginSupport() {
+         int consumerCount;
+
+         // broker is killed on x create consumer
+         @Override
+         public Subscription addConsumer(ConnectionContext context, final ConsumerInfo info) throws Exception {
+            if (++consumerCount == maxConsumers + (watchTopicAdvisories ? 1 : 0)) {
+               context.setDontSendReponse(true);
+               Executors.newSingleThreadExecutor().execute(new Runnable() {
+                  public void run() {
+                     LOG.info("Stopping broker on consumer: " + info.getConsumerId());
+                     try {
+                        broker.stop();
+                     }
+                     catch (Exception e) {
+                        e.printStackTrace();
+                     }
+                  }
+               });
             }
-        }));
+            return super.addConsumer(context, info);
+         }
+      }});
+      broker.start();
 
-        connection.close();
-    }
+      ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory("failover:(" + url + ")");
+      cf.setWatchTopicAdvisories(watchTopicAdvisories);
 
-    private void produceMessage(final Session producerSession, Queue destination, long count)
-        throws JMSException {
-        MessageProducer producer = producerSession.createProducer(destination);
-        for (int i=0; i<count; i++) {
-            TextMessage message = producerSession.createTextMessage("Test message " + i);
-            producer.send(message);
-        }
-        producer.close();
-    }
+      final ActiveMQConnection connection = (ActiveMQConnection) cf.createConnection();
+      connection.start();
 
-    // allow access to unconsumedMessages
-    class TestConsumer extends ActiveMQMessageConsumer {
+      final Session consumerSession = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      final Queue destination = consumerSession.createQueue(QUEUE_NAME + "?jms.consumer.prefetch=" + prefetch);
 
-        TestConsumer(Session consumerSession, Destination destination, ActiveMQConnection connection) throws Exception {
-            super((ActiveMQSession) consumerSession,
-                new ConsumerId(new SessionId(connection.getConnectionInfo().getConnectionId(),1), nextGen()),
-                ActiveMQMessageTransformation.transformDestination(destination), null, "",
-                prefetch, -1, false, false, true, null);
-        }
+      final Vector<TestConsumer> testConsumers = new Vector<TestConsumer>();
+      for (int i = 0; i < maxConsumers - 1; i++) {
+         testConsumers.add(new TestConsumer(consumerSession, destination, connection));
+      }
 
-        public int unconsumedSize() {
-            return unconsumedMessages.size();
-        }
+      produceMessage(consumerSession, destination, maxConsumers * prefetch);
 
-        public int deliveredSize() {
-            return deliveredMessages.size();
-        }
-    }
+      assertTrue("add messages are dispatched", Wait.waitFor(new Wait.Condition() {
+         public boolean isSatisified() throws Exception {
+            int totalUnconsumed = 0;
+            for (TestConsumer testConsumer : testConsumers) {
+               long unconsumed = testConsumer.unconsumedSize();
+               LOG.info(testConsumer.getConsumerId() + " unconsumed: " + unconsumed);
+               totalUnconsumed += unconsumed;
+            }
+            return totalUnconsumed == (maxConsumers - 1) * prefetch;
+         }
+      }));
 
-    static long idGen = 100;
-    private static long nextGen() {
-        idGen -=5;
-        return idGen;
-    }
+      final CountDownLatch shutdownConsumerAdded = new CountDownLatch(1);
+
+      Executors.newSingleThreadExecutor().execute(new Runnable() {
+         public void run() {
+            try {
+               LOG.info("add last consumer...");
+               testConsumers.add(new TestConsumer(consumerSession, destination, connection));
+               shutdownConsumerAdded.countDown();
+               LOG.info("done add last consumer");
+            }
+            catch (Exception e) {
+               e.printStackTrace();
+            }
+         }
+      });
+
+      // will be stopped by the plugin
+      broker.waitUntilStopped();
+
+      // verify interrupt
+      assertTrue("add messages dispatched and unconsumed are cleaned up", Wait.waitFor(new Wait.Condition() {
+         public boolean isSatisified() throws Exception {
+            int totalUnconsumed = 0;
+            for (TestConsumer testConsumer : testConsumers) {
+               long unconsumed = testConsumer.unconsumedSize();
+               LOG.info(testConsumer.getConsumerId() + " unconsumed: " + unconsumed);
+               totalUnconsumed += unconsumed;
+            }
+            return totalUnconsumed == 0;
+         }
+      }));
+
+      broker = createBroker(false, this.url);
+      broker.start();
+
+      assertTrue("consumer added through failover", shutdownConsumerAdded.await(30, TimeUnit.SECONDS));
+
+      // each should again get prefetch messages - all unconsumed deliveries should be rolledback
+      assertTrue("after start all messages are re dispatched", Wait.waitFor(new Wait.Condition() {
+         public boolean isSatisified() throws Exception {
+            int totalUnconsumed = 0;
+            for (TestConsumer testConsumer : testConsumers) {
+               long unconsumed = testConsumer.unconsumedSize();
+               LOG.info(testConsumer.getConsumerId() + " after restart: unconsumed: " + unconsumed);
+               totalUnconsumed += unconsumed;
+            }
+            return totalUnconsumed == (maxConsumers) * prefetch;
+         }
+      }));
+
+      connection.close();
+   }
+
+   private void produceMessage(final Session producerSession, Queue destination, long count) throws JMSException {
+      MessageProducer producer = producerSession.createProducer(destination);
+      for (int i = 0; i < count; i++) {
+         TextMessage message = producerSession.createTextMessage("Test message " + i);
+         producer.send(message);
+      }
+      producer.close();
+   }
+
+   // allow access to unconsumedMessages
+   class TestConsumer extends ActiveMQMessageConsumer {
+
+      TestConsumer(Session consumerSession, Destination destination, ActiveMQConnection connection) throws Exception {
+         super((ActiveMQSession) consumerSession, new ConsumerId(new SessionId(connection.getConnectionInfo().getConnectionId(), 1), nextGen()), ActiveMQMessageTransformation.transformDestination(destination), null, "", prefetch, -1, false, false, true, null);
+      }
+
+      public int unconsumedSize() {
+         return unconsumedMessages.size();
+      }
+
+      public int deliveredSize() {
+         return deliveredMessages.size();
+      }
+   }
+
+   static long idGen = 100;
+
+   private static long nextGen() {
+      idGen -= 5;
+      return idGen;
+   }
 }

@@ -19,57 +19,55 @@ package org.apache.activemq.artemis.ra;
 import javax.jms.JMSException;
 import javax.jms.TextMessage;
 
-
 /**
  * A wrapper for a message
  */
-public class ActiveMQRATextMessage extends ActiveMQRAMessage implements TextMessage
-{
-   /** Whether trace is enabled */
+public class ActiveMQRATextMessage extends ActiveMQRAMessage implements TextMessage {
+
+   /**
+    * Whether trace is enabled
+    */
    private static boolean trace = ActiveMQRALogger.LOGGER.isTraceEnabled();
 
    /**
     * Create a new wrapper
+    *
     * @param message the message
     * @param session the session
     */
-   public ActiveMQRATextMessage(final TextMessage message, final ActiveMQRASession session)
-   {
+   public ActiveMQRATextMessage(final TextMessage message, final ActiveMQRASession session) {
       super(message, session);
 
-      if (ActiveMQRATextMessage.trace)
-      {
+      if (ActiveMQRATextMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("constructor(" + message + ", " + session + ")");
       }
    }
 
    /**
     * Get text
+    *
     * @return The text
-    * @exception JMSException Thrown if an error occurs
+    * @throws JMSException Thrown if an error occurs
     */
-   public String getText() throws JMSException
-   {
-      if (ActiveMQRATextMessage.trace)
-      {
+   public String getText() throws JMSException {
+      if (ActiveMQRATextMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("getText()");
       }
 
-      return ((TextMessage)message).getText();
+      return ((TextMessage) message).getText();
    }
 
    /**
     * Set text
+    *
     * @param string The text
-    * @exception JMSException Thrown if an error occurs
+    * @throws JMSException Thrown if an error occurs
     */
-   public void setText(final String string) throws JMSException
-   {
-      if (ActiveMQRATextMessage.trace)
-      {
+   public void setText(final String string) throws JMSException {
+      if (ActiveMQRATextMessage.trace) {
          ActiveMQRALogger.LOGGER.trace("setText(" + string + ")");
       }
 
-      ((TextMessage)message).setText(string);
+      ((TextMessage) message).setText(string);
    }
 }

@@ -17,10 +17,9 @@
 
 package org.apache.activemq.artemis.jms.example;
 
-public class Server
-{
-   public static void main(String arg[])
-   {
+public class Server {
+
+   public static void main(String arg[]) {
       System.out.println("***********************************************************************************");
       System.out.println("You need to start manually under ./target/server/bin just run ./artemis run");
       System.out.println("***********************************************************************************");

@@ -30,49 +30,49 @@ import org.apache.activemq.util.ProducerThread;
 
 public class JobSchedulerBrokerShutdownTest extends EmbeddedBrokerTestSupport {
 
-    @Override
-    protected BrokerService createBroker() throws Exception {
-        File schedulerDirectory = new File("target/scheduler");
+   @Override
+   protected BrokerService createBroker() throws Exception {
+      File schedulerDirectory = new File("target/scheduler");
 
-        IOHelper.mkdirs(schedulerDirectory);
-        IOHelper.deleteChildren(schedulerDirectory);
+      IOHelper.mkdirs(schedulerDirectory);
+      IOHelper.deleteChildren(schedulerDirectory);
 
-        BrokerService broker = super.createBroker();
-        broker.setSchedulerSupport(true);
-        broker.setDataDirectory("target");
-        broker.setSchedulerDirectoryFile(schedulerDirectory);
-        broker.getSystemUsage().getStoreUsage().setLimit(1 * 512);
-        broker.deleteAllMessages();
-        return broker;
-    }
+      BrokerService broker = super.createBroker();
+      broker.setSchedulerSupport(true);
+      broker.setDataDirectory("target");
+      broker.setSchedulerDirectoryFile(schedulerDirectory);
+      broker.getSystemUsage().getStoreUsage().setLimit(1 * 512);
+      broker.deleteAllMessages();
+      return broker;
+   }
 
-    @Override
-    protected boolean isPersistent() {
-        return true;
-    }
+   @Override
+   protected boolean isPersistent() {
+      return true;
+   }
 
-    public void testSchedule() throws Exception {
+   public void testSchedule() throws Exception {
 
-        Connection connection = createConnection();
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      Connection connection = createConnection();
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-        connection.start();
-        final long time = 1000;
+      connection.start();
+      final long time = 1000;
 
-        ProducerThread producer = new ProducerThread(session, destination) {
-            @Override
-            protected Message createMessage(int i) throws Exception {
-                Message message = super.createMessage(i);
-                message.setLongProperty(ScheduledMessage.AMQ_SCHEDULED_DELAY, time);
-                return message;
-            }
-        };
+      ProducerThread producer = new ProducerThread(session, destination) {
+         @Override
+         protected Message createMessage(int i) throws Exception {
+            Message message = super.createMessage(i);
+            message.setLongProperty(ScheduledMessage.AMQ_SCHEDULED_DELAY, time);
+            return message;
+         }
+      };
 
-        producer.setMessageCount(200);
-        producer.setDaemon(true);
+      producer.setMessageCount(200);
+      producer.setDaemon(true);
 
-        producer.start();
+      producer.start();
 
-        Thread.sleep(5000);
-    }
+      Thread.sleep(5000);
+   }
 }

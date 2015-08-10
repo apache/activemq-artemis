@@ -34,14 +34,12 @@ import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 /**
  * A simple JMS Queue example that sends and receives message groups.
  */
-public class MessageGroupExample
-{
-   public static void main(final String[] args) throws Exception
-   {
+public class MessageGroupExample {
+
+   public static void main(final String[] args) throws Exception {
       final Map<String, String> messageReceiverMap = new ConcurrentHashMap<String, String>();
       Connection connection = null;
-      try
-      {
+      try {
 
          // Step 2. Perform a lookup on the queue
          Queue queue = ActiveMQJMSClient.createQueue("queue/exampleQueue");
@@ -67,8 +65,7 @@ public class MessageGroupExample
          // Step 8. Create and send 10 text messages with group id 'Group-0'
          int msgCount = 10;
          TextMessage[] groupMessages = new TextMessage[msgCount];
-         for (int i = 0; i < msgCount; i++)
-         {
+         for (int i = 0; i < msgCount; i++) {
             groupMessages[i] = session.createTextMessage("Group-0 message " + i);
             groupMessages[i].setStringProperty("JMSXGroupID", "Group-0");
             producer.send(groupMessages[i]);
@@ -84,49 +81,41 @@ public class MessageGroupExample
 
          // Step 10. check the group messages are received by only one consumer
          String trueReceiver = messageReceiverMap.get(groupMessages[0].getText());
-         for (TextMessage grpMsg : groupMessages)
-         {
+         for (TextMessage grpMsg : groupMessages) {
             String receiver = messageReceiverMap.get(grpMsg.getText());
-            if (!trueReceiver.equals(receiver))
-            {
+            if (!trueReceiver.equals(receiver)) {
                throw new IllegalStateException("Group message [" + grpMsg.getText() + "[ went to wrong receiver: " + receiver);
             }
          }
 
          cf.close();
       }
-      finally
-      {
+      finally {
          // Step 11. Be sure to close our JMS resources!
-         if (connection != null)
-         {
+         if (connection != null) {
             connection.close();
          }
       }
    }
 }
 
-class SimpleMessageListener implements MessageListener
-{
+class SimpleMessageListener implements MessageListener {
+
    private final String name;
    private final Map<String, String> messageReceiverMap;
 
-   public SimpleMessageListener(final String listenerName, Map<String, String> messageReceiverMap)
-   {
+   public SimpleMessageListener(final String listenerName, Map<String, String> messageReceiverMap) {
       name = listenerName;
       this.messageReceiverMap = messageReceiverMap;
    }
 
-   public void onMessage(final Message message)
-   {
-      try
-      {
-         TextMessage msg = (TextMessage)message;
+   public void onMessage(final Message message) {
+      try {
+         TextMessage msg = (TextMessage) message;
          System.out.format("Message: [%s] received by %s%n", msg.getText(), name);
          messageReceiverMap.put(msg.getText(), name);
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          e.printStackTrace();
       }
    }

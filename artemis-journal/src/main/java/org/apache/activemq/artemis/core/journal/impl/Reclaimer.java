@@ -16,11 +16,9 @@
  */
 package org.apache.activemq.artemis.core.journal.impl;
 
-
 import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
 
 /**
- *
  * <p>The journal consists of an ordered list of journal files Fn where {@code 0 <= n <= N}</p>
  *
  * <p>A journal file can contain either positives (pos) or negatives (neg)</p>
@@ -34,19 +32,16 @@ import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
  * <p>2) All pos that correspond to any neg in file Fn, must all live in any file Fm where {@code 0 <= m <= n}
  * which are also marked for deletion in the same pass of the algorithm.</p>
  */
-public class Reclaimer
-{
+public class Reclaimer {
+
    private static boolean trace = ActiveMQJournalLogger.LOGGER.isTraceEnabled();
 
-   private static void trace(final String message)
-   {
+   private static void trace(final String message) {
       ActiveMQJournalLogger.LOGGER.trace(message);
    }
 
-   public void scan(final JournalFile[] files)
-   {
-      for (int i = 0; i < files.length; i++)
-      {
+   public void scan(final JournalFile[] files) {
+      for (int i = 0; i < files.length; i++) {
          // First we evaluate criterion 1)
 
          JournalFile currentFile = files[i];
@@ -55,22 +50,18 @@ public class Reclaimer
 
          int totNeg = 0;
 
-         if (Reclaimer.trace)
-         {
+         if (Reclaimer.trace) {
             Reclaimer.trace("posCount on " + currentFile + " = " + posCount);
          }
 
-         for (int j = i; j < files.length; j++)
-         {
-            if (Reclaimer.trace)
-            {
-               if (files[j].getNegCount(currentFile) != 0)
-               {
+         for (int j = i; j < files.length; j++) {
+            if (Reclaimer.trace) {
+               if (files[j].getNegCount(currentFile) != 0) {
                   Reclaimer.trace("Negative from " + files[j] +
-                                  " into " +
-                                  currentFile +
-                                  " = " +
-                                  files[j].getNegCount(currentFile));
+                                     " into " +
+                                     currentFile +
+                                     " = " +
+                                     files[j].getNegCount(currentFile));
                }
             }
 
@@ -79,26 +70,20 @@ public class Reclaimer
 
          currentFile.setCanReclaim(true);
 
-         if (posCount <= totNeg)
-         {
+         if (posCount <= totNeg) {
             // Now we evaluate criterion 2)
 
-            for (int j = 0; j <= i; j++)
-            {
+            for (int j = 0; j <= i; j++) {
                JournalFile file = files[j];
 
                int negCount = currentFile.getNegCount(file);
 
-               if (negCount != 0)
-               {
-                  if (file.isCanReclaim())
-                  {
+               if (negCount != 0) {
+                  if (file.isCanReclaim()) {
                      // Ok
                   }
-                  else
-                  {
-                     if (Reclaimer.trace)
-                     {
+                  else {
+                     if (Reclaimer.trace) {
                         Reclaimer.trace(currentFile + " Can't be reclaimed because " + file + " has negative values");
                      }
 
@@ -109,8 +94,7 @@ public class Reclaimer
                }
             }
          }
-         else
-         {
+         else {
             currentFile.setCanReclaim(false);
          }
       }

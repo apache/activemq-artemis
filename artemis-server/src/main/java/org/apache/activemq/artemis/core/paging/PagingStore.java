@@ -41,8 +41,8 @@ import org.apache.activemq.artemis.core.transaction.Transaction;
  *
  * @see PagingManager
  */
-public interface PagingStore extends ActiveMQComponent
-{
+public interface PagingStore extends ActiveMQComponent {
+
    SimpleString getAddress();
 
    int getNumberOfPages();
@@ -110,7 +110,6 @@ public interface PagingStore extends ActiveMQComponent
     * @throws Exception Note: This should still be part of the interface, even though ActiveMQ Artemis only uses through the
     */
    Page depage() throws Exception;
-
 
    void forceAnotherPage() throws Exception;
 

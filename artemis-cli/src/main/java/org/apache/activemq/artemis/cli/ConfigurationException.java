@@ -16,10 +16,9 @@
  */
 package org.apache.activemq.artemis.cli;
 
-public class ConfigurationException extends Exception
-{
-   public ConfigurationException(String message)
-   {
+public class ConfigurationException extends Exception {
+
+   public ConfigurationException(String message) {
       super(message);
    }
 }

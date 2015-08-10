@@ -40,8 +40,8 @@ import org.junit.Test;
 /**
  * adapted from: org.apache.activemq.JmsSendReceiveTestSupport
  */
-public abstract class JmsSendReceiveTestSupport extends BasicOpenWireTest implements MessageListener
-{
+public abstract class JmsSendReceiveTestSupport extends BasicOpenWireTest implements MessageListener {
+
    protected int messageCount = 100;
    protected String[] data;
    protected Session session;
@@ -50,8 +50,7 @@ public abstract class JmsSendReceiveTestSupport extends BasicOpenWireTest implem
    protected MessageProducer producer;
    protected Destination consumerDestination;
    protected Destination producerDestination;
-   protected List<Message> messages = Collections
-         .synchronizedList(new ArrayList<Message>());
+   protected List<Message> messages = Collections.synchronizedList(new ArrayList<Message>());
    protected boolean topic = true;
    protected boolean durable;
    protected int deliveryMode = DeliveryMode.PERSISTENT;
@@ -61,16 +60,13 @@ public abstract class JmsSendReceiveTestSupport extends BasicOpenWireTest implem
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
       String temp = System.getProperty("messageCount");
 
-      if (temp != null)
-      {
+      if (temp != null) {
          int i = Integer.parseInt(temp);
-         if (i > 0)
-         {
+         if (i > 0) {
             messageCount = i;
          }
       }
@@ -78,8 +74,7 @@ public abstract class JmsSendReceiveTestSupport extends BasicOpenWireTest implem
       System.out.println("Message count for test case is: " + messageCount);
       data = new String[messageCount];
 
-      for (int i = 0; i < messageCount; i++)
-      {
+      for (int i = 0; i < messageCount; i++) {
          data[i] = "Text for message: " + i + " at " + new Date();
       }
    }
@@ -90,11 +85,9 @@ public abstract class JmsSendReceiveTestSupport extends BasicOpenWireTest implem
     * @throws Exception
     */
    @Test
-   public void testSendReceive() throws Exception
-   {
+   public void testSendReceive() throws Exception {
       messages.clear();
-      for (int i = 0; i < data.length; i++)
-      {
+      for (int i = 0; i < data.length; i++) {
          Message message = session.createTextMessage(data[i]);
          message.setStringProperty("stringProperty", data[i]);
          message.setIntProperty("intProperty", i);
@@ -110,36 +103,29 @@ public abstract class JmsSendReceiveTestSupport extends BasicOpenWireTest implem
    /**
     * Tests if the messages received are valid.
     *
-    * @param receivedMessages
-    *           - list of received messages.
+    * @param receivedMessages - list of received messages.
     * @throws JMSException
     */
-   protected void assertMessagesReceivedAreValid(List<Message> receivedMessages) throws JMSException
-   {
+   protected void assertMessagesReceivedAreValid(List<Message> receivedMessages) throws JMSException {
       List<Object> copyOfMessages = Arrays.asList(receivedMessages.toArray());
       int counter = 0;
 
-      if (data.length != copyOfMessages.size())
-      {
-         for (Iterator<Object> iter = copyOfMessages.iterator(); iter.hasNext();)
-         {
+      if (data.length != copyOfMessages.size()) {
+         for (Iterator<Object> iter = copyOfMessages.iterator(); iter.hasNext(); ) {
             TextMessage message = (TextMessage) iter.next();
             System.out.println("<== " + counter++ + " = " + message.getText());
          }
       }
 
-      assertEquals("Not enough messages received", data.length,
-            receivedMessages.size());
+      assertEquals("Not enough messages received", data.length, receivedMessages.size());
 
-      for (int i = 0; i < data.length; i++)
-      {
+      for (int i = 0; i < data.length; i++) {
          TextMessage received = (TextMessage) receivedMessages.get(i);
          String text = received.getText();
          String stringProperty = received.getStringProperty("stringProperty");
          int intProperty = received.getIntProperty("intProperty");
 
-         if (verbose)
-         {
+         if (verbose) {
             System.out.println("Received Text: " + text);
          }
 
@@ -152,22 +138,17 @@ public abstract class JmsSendReceiveTestSupport extends BasicOpenWireTest implem
    /**
     * Waits for messages to be delivered.
     */
-   protected void waitForMessagesToBeDelivered()
-   {
+   protected void waitForMessagesToBeDelivered() {
       long maxWaitTime = 60000;
       long waitTime = maxWaitTime;
       long start = (maxWaitTime <= 0) ? 0 : System.currentTimeMillis();
 
-      synchronized (lock)
-      {
-         while (messages.size() < data.length && waitTime >= 0)
-         {
-            try
-            {
+      synchronized (lock) {
+         while (messages.size() < data.length && waitTime >= 0) {
+            try {
                lock.wait(200);
             }
-            catch (InterruptedException e)
-            {
+            catch (InterruptedException e) {
                e.printStackTrace();
             }
 
@@ -181,8 +162,7 @@ public abstract class JmsSendReceiveTestSupport extends BasicOpenWireTest implem
     *
     * @throws JMSException
     */
-   protected void assertMessagesAreReceived() throws JMSException
-   {
+   protected void assertMessagesAreReceived() throws JMSException {
       waitForMessagesToBeDelivered();
       assertMessagesReceivedAreValid(messages);
    }
@@ -192,8 +172,7 @@ public abstract class JmsSendReceiveTestSupport extends BasicOpenWireTest implem
     *
     * @throws Exception
     */
-   protected void messageSent() throws Exception
-   {
+   protected void messageSent() throws Exception {
 
    }
 
@@ -202,45 +181,36 @@ public abstract class JmsSendReceiveTestSupport extends BasicOpenWireTest implem
     *
     * @see javax.jms.MessageListener#onMessage(javax.jms.Message)
     */
-   public synchronized void onMessage(Message message)
-   {
+   public synchronized void onMessage(Message message) {
       consumeMessage(message, messages);
    }
 
    /**
     * Consumes messages.
     *
-    * @param message
-    *           - message to be consumed.
-    * @param messageList
-    *           -list of consumed messages.
+    * @param message     - message to be consumed.
+    * @param messageList -list of consumed messages.
     */
-   protected void consumeMessage(Message message, List<Message> messageList)
-   {
-      if (verbose)
-      {
+   protected void consumeMessage(Message message, List<Message> messageList) {
+      if (verbose) {
          System.out.println("Received message: " + message);
       }
 
       messageList.add(message);
 
-      if (messageList.size() >= data.length)
-      {
-         synchronized (lock)
-         {
+      if (messageList.size() >= data.length) {
+         synchronized (lock) {
             lock.notifyAll();
          }
       }
    }
 
-   protected Message createMessage(int index) throws JMSException
-   {
+   protected Message createMessage(int index) throws JMSException {
       Message message = session.createTextMessage(data[index]);
       return message;
    }
 
-   protected void configureMessage(Message message) throws JMSException
-   {
+   protected void configureMessage(Message message) throws JMSException {
    }
 
 }

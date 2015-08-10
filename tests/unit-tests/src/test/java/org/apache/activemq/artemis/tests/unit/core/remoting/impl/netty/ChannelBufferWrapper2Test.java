@@ -23,8 +23,7 @@ import org.apache.activemq.artemis.tests.unit.core.remoting.ActiveMQBufferTestBa
 /**
  * Same as ChannelBufferWrapperTest, but using a different constructor
  */
-public class ChannelBufferWrapper2Test extends ActiveMQBufferTestBase
-{
+public class ChannelBufferWrapper2Test extends ActiveMQBufferTestBase {
 
    // Constants -----------------------------------------------------
 
@@ -39,8 +38,7 @@ public class ChannelBufferWrapper2Test extends ActiveMQBufferTestBase
    // BufferWrapperBase overrides -----------------------------------
 
    @Override
-   protected ActiveMQBuffer createBuffer()
-   {
+   protected ActiveMQBuffer createBuffer() {
       return ActiveMQBuffers.dynamicBuffer(512);
    }
 

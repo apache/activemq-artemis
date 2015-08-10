@@ -26,37 +26,37 @@ import org.apache.activemq.store.PersistenceAdapter;
 import org.apache.activemq.store.jdbc.JDBCPersistenceAdapter;
 
 /**
- * 
+ *
  */
 public class JDBCPersistenceXBeanConfigTest extends TestCase {
 
-    protected BrokerService brokerService;
+   protected BrokerService brokerService;
 
-    public void testConfiguredCorrectly() throws Exception {
+   public void testConfiguredCorrectly() throws Exception {
 
-        PersistenceAdapter persistenceAdapter = brokerService.getPersistenceAdapter();
-        assertNotNull(persistenceAdapter);
-        assertTrue(persistenceAdapter instanceof JDBCPersistenceAdapter);
+      PersistenceAdapter persistenceAdapter = brokerService.getPersistenceAdapter();
+      assertNotNull(persistenceAdapter);
+      assertTrue(persistenceAdapter instanceof JDBCPersistenceAdapter);
 
-        JDBCPersistenceAdapter jpa = (JDBCPersistenceAdapter)persistenceAdapter;
-        assertEquals("BROKER1.", jpa.getStatements().getTablePrefix());
+      JDBCPersistenceAdapter jpa = (JDBCPersistenceAdapter) persistenceAdapter;
+      assertEquals("BROKER1.", jpa.getStatements().getTablePrefix());
 
-    }
+   }
 
-    protected void setUp() throws Exception {
-        brokerService = createBroker();
-        brokerService.start();
-    }
+   protected void setUp() throws Exception {
+      brokerService = createBroker();
+      brokerService.start();
+   }
 
-    protected void tearDown() throws Exception {
-        if (brokerService != null) {
-            brokerService.stop();
-        }
-    }
+   protected void tearDown() throws Exception {
+      if (brokerService != null) {
+         brokerService.stop();
+      }
+   }
 
-    protected BrokerService createBroker() throws Exception {
-        String uri = "org/apache/activemq/xbean/jdbc-persistence-test.xml";
-        return BrokerFactory.createBroker(new URI("xbean:" + uri));
-    }
+   protected BrokerService createBroker() throws Exception {
+      String uri = "org/apache/activemq/xbean/jdbc-persistence-test.xml";
+      return BrokerFactory.createBroker(new URI("xbean:" + uri));
+   }
 
 }

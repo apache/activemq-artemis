@@ -35,73 +35,73 @@ import org.junit.Test;
 
 public class JobSchedulerTxTest extends JobSchedulerTestSupport {
 
-    @Test
-    public void testTxSendWithRollback() throws Exception {
-        final int COUNT = 10;
-        Connection connection = createConnection();
+   @Test
+   public void testTxSendWithRollback() throws Exception {
+      final int COUNT = 10;
+      Connection connection = createConnection();
 
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        MessageConsumer consumer = session.createConsumer(destination);
-        final CountDownLatch latch = new CountDownLatch(COUNT);
-        consumer.setMessageListener(new MessageListener() {
-            @Override
-            public void onMessage(Message message) {
-                latch.countDown();
-            }
-        });
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      MessageConsumer consumer = session.createConsumer(destination);
+      final CountDownLatch latch = new CountDownLatch(COUNT);
+      consumer.setMessageListener(new MessageListener() {
+         @Override
+         public void onMessage(Message message) {
+            latch.countDown();
+         }
+      });
 
-        connection.start();
-        long time = 5000;
-        Session producerSession = connection.createSession(true, Session.SESSION_TRANSACTED);
-        MessageProducer producer = producerSession.createProducer(destination);
+      connection.start();
+      long time = 5000;
+      Session producerSession = connection.createSession(true, Session.SESSION_TRANSACTED);
+      MessageProducer producer = producerSession.createProducer(destination);
 
-        for (int i = 0; i < COUNT; ++i) {
-            TextMessage message = session.createTextMessage("test msg");
-            message.setLongProperty(ScheduledMessage.AMQ_SCHEDULED_DELAY, time);
-            producer.send(message);
-        }
-        producer.close();
-        producerSession.rollback();
+      for (int i = 0; i < COUNT; ++i) {
+         TextMessage message = session.createTextMessage("test msg");
+         message.setLongProperty(ScheduledMessage.AMQ_SCHEDULED_DELAY, time);
+         producer.send(message);
+      }
+      producer.close();
+      producerSession.rollback();
 
-        // make sure the message isn't delivered early
-        Thread.sleep(2000);
-        assertEquals(COUNT, latch.getCount());
-        latch.await(5, TimeUnit.SECONDS);
-        assertEquals(COUNT, latch.getCount());
-    }
+      // make sure the message isn't delivered early
+      Thread.sleep(2000);
+      assertEquals(COUNT, latch.getCount());
+      latch.await(5, TimeUnit.SECONDS);
+      assertEquals(COUNT, latch.getCount());
+   }
 
-    @Test
-    public void testTxSendWithCommit() throws Exception {
-        final int COUNT = 10;
-        Connection connection = createConnection();
+   @Test
+   public void testTxSendWithCommit() throws Exception {
+      final int COUNT = 10;
+      Connection connection = createConnection();
 
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        MessageConsumer consumer = session.createConsumer(destination);
-        final CountDownLatch latch = new CountDownLatch(COUNT);
-        consumer.setMessageListener(new MessageListener() {
-            @Override
-            public void onMessage(Message message) {
-                latch.countDown();
-            }
-        });
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      MessageConsumer consumer = session.createConsumer(destination);
+      final CountDownLatch latch = new CountDownLatch(COUNT);
+      consumer.setMessageListener(new MessageListener() {
+         @Override
+         public void onMessage(Message message) {
+            latch.countDown();
+         }
+      });
 
-        connection.start();
-        long time = 5000;
-        Session producerSession = connection.createSession(true, Session.SESSION_TRANSACTED);
-        MessageProducer producer = producerSession.createProducer(destination);
+      connection.start();
+      long time = 5000;
+      Session producerSession = connection.createSession(true, Session.SESSION_TRANSACTED);
+      MessageProducer producer = producerSession.createProducer(destination);
 
-        for (int i = 0; i < COUNT; ++i) {
-            TextMessage message = session.createTextMessage("test msg");
-            message.setLongProperty(ScheduledMessage.AMQ_SCHEDULED_DELAY, time);
-            producer.send(message);
-        }
-        producer.close();
-        producerSession.commit();
+      for (int i = 0; i < COUNT; ++i) {
+         TextMessage message = session.createTextMessage("test msg");
+         message.setLongProperty(ScheduledMessage.AMQ_SCHEDULED_DELAY, time);
+         producer.send(message);
+      }
+      producer.close();
+      producerSession.commit();
 
-        // make sure the message isn't delivered early
-        Thread.sleep(2000);
-        assertEquals(COUNT, latch.getCount());
-        latch.await(5, TimeUnit.SECONDS);
-        assertEquals(0, latch.getCount());
-    }
+      // make sure the message isn't delivered early
+      Thread.sleep(2000);
+      assertEquals(COUNT, latch.getCount());
+      latch.await(5, TimeUnit.SECONDS);
+      assertEquals(0, latch.getCount());
+   }
 }

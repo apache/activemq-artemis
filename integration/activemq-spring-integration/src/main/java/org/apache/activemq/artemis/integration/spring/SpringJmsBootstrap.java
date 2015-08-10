@@ -22,10 +22,9 @@ import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 
-public class SpringJmsBootstrap extends EmbeddedJMS implements BeanFactoryAware
-{
-   public void setBeanFactory(BeanFactory beanFactory) throws BeansException
-   {
+public class SpringJmsBootstrap extends EmbeddedJMS implements BeanFactoryAware {
+
+   public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
       registry = new SpringBindingRegistry((ConfigurableBeanFactory) beanFactory);
    }
 }

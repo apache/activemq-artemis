@@ -31,12 +31,10 @@ import org.apache.activemq.artemis.utils.DeflaterReader;
 import org.apache.activemq.artemis.utils.InflaterReader;
 import org.apache.activemq.artemis.utils.InflaterWriter;
 
-public class CompressionUtilTest extends Assert
-{
+public class CompressionUtilTest extends Assert {
 
    @Test
-   public void testDeflaterReader() throws Exception
-   {
+   public void testDeflaterReader() throws Exception {
       String inputString = "blahblahblah??blahblahblahblahblah??blablahblah??blablahblah??bla";
       byte[] input = inputString.getBytes(StandardCharsets.UTF_8);
 
@@ -48,8 +46,7 @@ public class CompressionUtilTest extends Assert
       ArrayList<Integer> zipHolder = new ArrayList<Integer>();
       int b = reader.read();
 
-      while (b != -1)
-      {
+      while (b != -1) {
          zipHolder.add(b);
          b = reader.read();
       }
@@ -57,8 +54,7 @@ public class CompressionUtilTest extends Assert
       assertEquals(input.length, counter.get());
 
       byte[] allCompressed = new byte[zipHolder.size()];
-      for (int i = 0; i < allCompressed.length; i++)
-      {
+      for (int i = 0; i < allCompressed.length; i++) {
          allCompressed[i] = (byte) zipHolder.get(i).intValue();
       }
 
@@ -73,8 +69,7 @@ public class CompressionUtilTest extends Assert
    }
 
    @Test
-   public void testDeflaterReader2() throws Exception
-   {
+   public void testDeflaterReader2() throws Exception {
       String inputString = "blahblahblah??blahblahblahblahblah??blablahblah??blablahblah??bla";
       byte[] input = inputString.getBytes(StandardCharsets.UTF_8);
 
@@ -87,11 +82,9 @@ public class CompressionUtilTest extends Assert
       ArrayList<Integer> zipHolder = new ArrayList<Integer>();
 
       int n = reader.read(buffer);
-      while (n != -1)
-      {
-         for (int i = 0; i < n; i++)
-         {
-            zipHolder.add((int)buffer[i]);
+      while (n != -1) {
+         for (int i = 0; i < n; i++) {
+            zipHolder.add((int) buffer[i]);
          }
          n = reader.read(buffer);
       }
@@ -99,8 +92,7 @@ public class CompressionUtilTest extends Assert
       assertEquals(input.length, counter.get());
 
       byte[] allCompressed = new byte[zipHolder.size()];
-      for (int i = 0; i < allCompressed.length; i++)
-      {
+      for (int i = 0; i < allCompressed.length; i++) {
          allCompressed[i] = (byte) zipHolder.get(i).intValue();
       }
 
@@ -115,8 +107,7 @@ public class CompressionUtilTest extends Assert
    }
 
    @Test
-   public void testInflaterReader() throws Exception
-   {
+   public void testInflaterReader() throws Exception {
       String inputString = "blahblahblah??blahblahblahblahblah??blablahblah??blablahblah??bla";
       byte[] input = inputString.getBytes(StandardCharsets.UTF_8);
       byte[] output = new byte[30];
@@ -134,16 +125,14 @@ public class CompressionUtilTest extends Assert
       ArrayList<Integer> holder = new ArrayList<Integer>();
       int read = inflater.read();
 
-      while (read != -1)
-      {
+      while (read != -1) {
          holder.add(read);
          read = inflater.read();
       }
 
       byte[] result = new byte[holder.size()];
 
-      for (int i = 0; i < result.length; i++)
-      {
+      for (int i = 0; i < result.length; i++) {
          result[i] = holder.get(i).byteValue();
       }
 
@@ -154,8 +143,7 @@ public class CompressionUtilTest extends Assert
    }
 
    @Test
-   public void testInflaterWriter() throws Exception
-   {
+   public void testInflaterWriter() throws Exception {
       String inputString = "blahblahblah??blahblahblahblahblah??blablahblah??blablahblah??bla";
       byte[] input = inputString.getBytes(StandardCharsets.UTF_8);
       byte[] output = new byte[30];
@@ -175,8 +163,7 @@ public class CompressionUtilTest extends Assert
       byte[] zipBuffer = new byte[12];
 
       int n = byteInput.read(zipBuffer);
-      while (n > 0)
-      {
+      while (n > 0) {
          writer.write(zipBuffer, 0, n);
          n = byteInput.read(zipBuffer);
       }
@@ -189,10 +176,8 @@ public class CompressionUtilTest extends Assert
       assertEquals(inputString, outStr);
    }
 
-   private void compareByteArray(byte[] first, byte[] second, int length)
-   {
-      for (int i = 0; i < length; i++)
-      {
+   private void compareByteArray(byte[] first, byte[] second, int length) {
+      for (int i = 0; i < length; i++) {
          assertEquals(first[i], second[i]);
       }
    }

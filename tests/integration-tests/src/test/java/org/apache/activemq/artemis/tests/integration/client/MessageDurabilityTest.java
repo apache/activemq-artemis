@@ -32,8 +32,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class MessageDurabilityTest extends ActiveMQTestBase
-{
+public class MessageDurabilityTest extends ActiveMQTestBase {
 
    // Constants -----------------------------------------------------
 
@@ -54,8 +53,7 @@ public class MessageDurabilityTest extends ActiveMQTestBase
    // Public --------------------------------------------------------
 
    @Test
-   public void testNonDurableMessageOnNonDurableQueue() throws Exception
-   {
+   public void testNonDurableMessageOnNonDurableQueue() throws Exception {
       boolean durable = true;
 
       SimpleString address = RandomUtil.randomSimpleString();
@@ -69,23 +67,19 @@ public class MessageDurabilityTest extends ActiveMQTestBase
       restart();
 
       session.start();
-      try
-      {
+      try {
          session.createConsumer(queue);
       }
-      catch (ActiveMQNonExistentQueueException neqe)
-      {
+      catch (ActiveMQNonExistentQueueException neqe) {
          //ok
       }
-      catch (ActiveMQException e)
-      {
+      catch (ActiveMQException e) {
          fail("Invalid Exception type:" + e.getType());
       }
    }
 
    @Test
-   public void testNonDurableMessageOnDurableQueue() throws Exception
-   {
+   public void testNonDurableMessageOnDurableQueue() throws Exception {
       boolean durable = true;
 
       SimpleString address = RandomUtil.randomSimpleString();
@@ -107,8 +101,7 @@ public class MessageDurabilityTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testDurableMessageOnDurableQueue() throws Exception
-   {
+   public void testDurableMessageOnDurableQueue() throws Exception {
       boolean durable = true;
 
       SimpleString address = RandomUtil.randomSimpleString();
@@ -133,8 +126,7 @@ public class MessageDurabilityTest extends ActiveMQTestBase
     * we can send a durable msg to a non durable queue but the msg won't be persisted
     */
    @Test
-   public void testDurableMessageOnNonDurableQueue() throws Exception
-   {
+   public void testDurableMessageOnNonDurableQueue() throws Exception {
       boolean durable = true;
 
       SimpleString address = RandomUtil.randomSimpleString();
@@ -149,10 +141,8 @@ public class MessageDurabilityTest extends ActiveMQTestBase
 
       session.start();
 
-      ActiveMQTestBase.expectActiveMQException(ActiveMQExceptionType.QUEUE_DOES_NOT_EXIST, new ActiveMQAction()
-      {
-         public void run() throws ActiveMQException
-         {
+      ActiveMQTestBase.expectActiveMQException(ActiveMQExceptionType.QUEUE_DOES_NOT_EXIST, new ActiveMQAction() {
+         public void run() throws ActiveMQException {
             session.createConsumer(queue);
          }
       });
@@ -162,8 +152,7 @@ public class MessageDurabilityTest extends ActiveMQTestBase
     * we can send a durable msg to a temp queue but the msg won't be persisted
     */
    @Test
-   public void testDurableMessageOnTemporaryQueue() throws Exception
-   {
+   public void testDurableMessageOnTemporaryQueue() throws Exception {
       boolean durable = true;
 
       SimpleString address = RandomUtil.randomSimpleString();
@@ -177,10 +166,8 @@ public class MessageDurabilityTest extends ActiveMQTestBase
       restart();
 
       session.start();
-      ActiveMQTestBase.expectActiveMQException(ActiveMQExceptionType.QUEUE_DOES_NOT_EXIST, new ActiveMQAction()
-      {
-         public void run() throws ActiveMQException
-         {
+      ActiveMQTestBase.expectActiveMQException(ActiveMQExceptionType.QUEUE_DOES_NOT_EXIST, new ActiveMQAction() {
+         public void run() throws ActiveMQException {
             session.createConsumer(queue);
          }
       });
@@ -192,8 +179,7 @@ public class MessageDurabilityTest extends ActiveMQTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       server = createServer(true);
@@ -205,8 +191,7 @@ public class MessageDurabilityTest extends ActiveMQTestBase
 
    // Private -------------------------------------------------------
 
-   private void restart() throws Exception
-   {
+   private void restart() throws Exception {
       session.close();
 
       server.stop();

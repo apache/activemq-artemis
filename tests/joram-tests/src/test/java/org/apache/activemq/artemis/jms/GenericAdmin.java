@@ -27,102 +27,86 @@ import org.objectweb.jtests.jms.admin.Admin;
  *
  * @FIXME delegate to a JBoss defined admin class
  */
-public class GenericAdmin implements Admin
-{
+public class GenericAdmin implements Admin {
+
    public static final Logger log = Logger.getLogger(GenericAdmin.class);
 
    public static Admin delegate = new AbstractAdmin();
 
-   public String getName()
-   {
+   public String getName() {
       String name = GenericAdmin.delegate.getName();
       GenericAdmin.log.debug("Using admin '" + name + "' delegate=" + GenericAdmin.delegate);
       return name;
    }
 
-   public void start() throws Exception
-   {
+   public void start() throws Exception {
    }
 
-   public void stop() throws Exception
-   {
+   public void stop() throws Exception {
    }
 
-   public Context createContext() throws NamingException
-   {
+   public Context createContext() throws NamingException {
       Context ctx = GenericAdmin.delegate.createContext();
       GenericAdmin.log.debug("Using initial context: " + ctx.getEnvironment());
       return ctx;
    }
 
-   public void createConnectionFactory(final String name)
-   {
+   public void createConnectionFactory(final String name) {
       GenericAdmin.log.debug("createConnectionFactory '" + name + "'");
       GenericAdmin.delegate.createConnectionFactory(name);
    }
 
-   public void deleteConnectionFactory(final String name)
-   {
+   public void deleteConnectionFactory(final String name) {
       GenericAdmin.log.debug("deleteConnectionFactory '" + name + "'");
       GenericAdmin.delegate.deleteConnectionFactory(name);
    }
 
-   public void createQueue(final String name)
-   {
+   public void createQueue(final String name) {
       GenericAdmin.log.debug("createQueue '" + name + "'");
       GenericAdmin.delegate.createQueue(name);
    }
 
-   public void deleteQueue(final String name)
-   {
+   public void deleteQueue(final String name) {
       GenericAdmin.log.debug("deleteQueue '" + name + "'");
       GenericAdmin.delegate.deleteQueue(name);
    }
 
-   public void createQueueConnectionFactory(final String name)
-   {
+   public void createQueueConnectionFactory(final String name) {
       GenericAdmin.log.debug("createQueueConnectionFactory '" + name + "'");
       GenericAdmin.delegate.createQueueConnectionFactory(name);
    }
 
-   public void deleteQueueConnectionFactory(final String name)
-   {
+   public void deleteQueueConnectionFactory(final String name) {
       GenericAdmin.log.debug("deleteQueueConnectionFactory '" + name + "'");
       GenericAdmin.delegate.deleteQueueConnectionFactory(name);
    }
 
-   public void createTopic(final String name)
-   {
+   public void createTopic(final String name) {
       GenericAdmin.log.debug("createTopic '" + name + "'");
       GenericAdmin.delegate.createTopic(name);
    }
 
-   public void deleteTopic(final String name)
-   {
+   public void deleteTopic(final String name) {
       GenericAdmin.log.debug("deleteTopic '" + name + "'");
       GenericAdmin.delegate.deleteTopic(name);
    }
 
-   public void createTopicConnectionFactory(final String name)
-   {
+   public void createTopicConnectionFactory(final String name) {
       GenericAdmin.log.debug("createTopicConnectionFactory '" + name + "'");
       GenericAdmin.delegate.createTopicConnectionFactory(name);
    }
 
-   public void deleteTopicConnectionFactory(final String name)
-   {
+   public void deleteTopicConnectionFactory(final String name) {
       GenericAdmin.log.debug("deleteTopicConnectionFactory '" + name + "'");
       GenericAdmin.delegate.deleteTopicConnectionFactory(name);
    }
 
-   public void startServer() throws Exception
-   {
+   public void startServer() throws Exception {
       GenericAdmin.log.debug("startEmbeddedServer");
       GenericAdmin.delegate.startServer();
    }
 
-   public void stopServer() throws Exception
-   {
+   public void stopServer() throws Exception {
       GenericAdmin.log.debug("stopEmbeddedServer");
       GenericAdmin.delegate.stopServer();
    }

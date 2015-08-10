@@ -23,7 +23,9 @@ import java.util.concurrent.TimeUnit;
 import javax.jms.Connection;
 import javax.jms.MessageConsumer;
 import javax.jms.Session;
+
 import junit.framework.Test;
+
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.JmsTestSupport;
 import org.apache.activemq.broker.BrokerService;
@@ -36,76 +38,78 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class SoWriteTimeoutClientTest extends JmsTestSupport {
-    private static final Logger LOG = LoggerFactory.getLogger(SoWriteTimeoutClientTest.class);
 
-    protected BrokerService createBroker() throws Exception {
-        BrokerService broker =  new BrokerService();
-        broker.setDeleteAllMessagesOnStartup(true);
-        KahaDBPersistenceAdapter adapter = new KahaDBPersistenceAdapter();
-        adapter.setConcurrentStoreAndDispatchQueues(false);
-        broker.setPersistenceAdapter(adapter);
-        broker.addConnector("tcp://localhost:0?wireFormat.maxInactivityDuration=0");
-        return broker;
-    }
+   private static final Logger LOG = LoggerFactory.getLogger(SoWriteTimeoutClientTest.class);
 
-    public void testSendWithClientWriteTimeout() throws Exception {
-        final ActiveMQQueue dest = new ActiveMQQueue("testClientWriteTimeout");
-        messageTextPrefix = initMessagePrefix(80*1024);
+   protected BrokerService createBroker() throws Exception {
+      BrokerService broker = new BrokerService();
+      broker.setDeleteAllMessagesOnStartup(true);
+      KahaDBPersistenceAdapter adapter = new KahaDBPersistenceAdapter();
+      adapter.setConcurrentStoreAndDispatchQueues(false);
+      broker.setPersistenceAdapter(adapter);
+      broker.addConnector("tcp://localhost:0?wireFormat.maxInactivityDuration=0");
+      return broker;
+   }
 
-        URI tcpBrokerUri = URISupport.removeQuery(broker.getTransportConnectors().get(0).getConnectUri());
-        LOG.info("consuming using uri: " + tcpBrokerUri);
+   public void testSendWithClientWriteTimeout() throws Exception {
+      final ActiveMQQueue dest = new ActiveMQQueue("testClientWriteTimeout");
+      messageTextPrefix = initMessagePrefix(80 * 1024);
 
-         ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(tcpBrokerUri);
-        Connection c = factory.createConnection();
-        c.start();
-        Session session = c.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        MessageConsumer consumer = session.createConsumer(dest);
+      URI tcpBrokerUri = URISupport.removeQuery(broker.getTransportConnectors().get(0).getConnectUri());
+      LOG.info("consuming using uri: " + tcpBrokerUri);
 
-        SocketProxy proxy = new SocketProxy();
-        proxy.setTarget(tcpBrokerUri);
-        proxy.open();
+      ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(tcpBrokerUri);
+      Connection c = factory.createConnection();
+      c.start();
+      Session session = c.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      MessageConsumer consumer = session.createConsumer(dest);
 
-        ActiveMQConnectionFactory pFactory = new ActiveMQConnectionFactory("failover:(" + proxy.getUrl() + "?soWriteTimeout=4000&sleep=500)?jms.useAsyncSend=true&trackMessages=true&maxCacheSize=6638400");
-        final Connection pc = pFactory.createConnection();
-        pc.start();
-        proxy.pause();
+      SocketProxy proxy = new SocketProxy();
+      proxy.setTarget(tcpBrokerUri);
+      proxy.open();
 
-        final int messageCount = 20;
-        ExecutorService executorService = Executors.newCachedThreadPool();
-        executorService.execute(new Runnable() {
-            @Override
-            public void run() {
-                try{
-                    sendMessages(pc, dest, messageCount);
-                } catch (Exception ignored) {
-                    ignored.printStackTrace();
-                }
+      ActiveMQConnectionFactory pFactory = new ActiveMQConnectionFactory("failover:(" + proxy.getUrl() + "?soWriteTimeout=4000&sleep=500)?jms.useAsyncSend=true&trackMessages=true&maxCacheSize=6638400");
+      final Connection pc = pFactory.createConnection();
+      pc.start();
+      proxy.pause();
+
+      final int messageCount = 20;
+      ExecutorService executorService = Executors.newCachedThreadPool();
+      executorService.execute(new Runnable() {
+         @Override
+         public void run() {
+            try {
+               sendMessages(pc, dest, messageCount);
             }
-        });
-
-        // wait for timeout and reconnect
-        TimeUnit.SECONDS.sleep(8);
-        proxy.goOn();
-        for (int i=0; i<messageCount; i++) {
-            assertNotNull("Got message " + i  + " after reconnect", consumer.receive(5000));
-        }
-
-        assertTrue("no pending messages when done", Wait.waitFor(new Wait.Condition() {
-            @Override
-            public boolean isSatisified() throws Exception {
-
-                LOG.info("current total message count: " + broker.getAdminView().getTotalMessageCount());
-                return broker.getAdminView().getTotalMessageCount() == 0;
+            catch (Exception ignored) {
+               ignored.printStackTrace();
             }
-        }));
-    }
+         }
+      });
 
-    private String initMessagePrefix(int i) {
-        byte[] content = new byte[i];
-        return new String(content);
-    }
+      // wait for timeout and reconnect
+      TimeUnit.SECONDS.sleep(8);
+      proxy.goOn();
+      for (int i = 0; i < messageCount; i++) {
+         assertNotNull("Got message " + i + " after reconnect", consumer.receive(5000));
+      }
 
-    public static Test suite() {
-        return suite(SoWriteTimeoutClientTest.class);
-    }
+      assertTrue("no pending messages when done", Wait.waitFor(new Wait.Condition() {
+         @Override
+         public boolean isSatisified() throws Exception {
+
+            LOG.info("current total message count: " + broker.getAdminView().getTotalMessageCount());
+            return broker.getAdminView().getTotalMessageCount() == 0;
+         }
+      }));
+   }
+
+   private String initMessagePrefix(int i) {
+      byte[] content = new byte[i];
+      return new String(content);
+   }
+
+   public static Test suite() {
+      return suite(SoWriteTimeoutClientTest.class);
+   }
 }

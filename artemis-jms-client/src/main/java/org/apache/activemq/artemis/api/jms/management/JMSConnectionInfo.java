@@ -19,8 +19,7 @@ package org.apache.activemq.artemis.api.jms.management;
 import org.apache.activemq.artemis.utils.json.JSONArray;
 import org.apache.activemq.artemis.utils.json.JSONObject;
 
-public class JMSConnectionInfo
-{
+public class JMSConnectionInfo {
 
    private final String connectionID;
 
@@ -32,24 +31,17 @@ public class JMSConnectionInfo
 
    private final String username;
 
-
    // Static --------------------------------------------------------
 
-   public static JMSConnectionInfo[] from(final String jsonString) throws Exception
-   {
+   public static JMSConnectionInfo[] from(final String jsonString) throws Exception {
       JSONArray array = new JSONArray(jsonString);
       JMSConnectionInfo[] infos = new JMSConnectionInfo[array.length()];
-      for (int i = 0; i < array.length(); i++)
-      {
+      for (int i = 0; i < array.length(); i++) {
          JSONObject obj = array.getJSONObject(i);
          String cid = obj.isNull("clientID") ? null : obj.getString("clientID");
          String uname = obj.isNull("principal") ? null : obj.getString("principal");
 
-         JMSConnectionInfo info = new JMSConnectionInfo(obj.getString("connectionID"),
-                                                        obj.getString("clientAddress"),
-                                                        obj.getLong("creationTime"),
-                                                        cid,
-                                                        uname);
+         JMSConnectionInfo info = new JMSConnectionInfo(obj.getString("connectionID"), obj.getString("clientAddress"), obj.getLong("creationTime"), cid, uname);
          infos[i] = info;
       }
       return infos;
@@ -61,8 +53,7 @@ public class JMSConnectionInfo
                              final String clientAddress,
                              final long creationTime,
                              final String clientID,
-                             final String username)
-   {
+                             final String username) {
       this.connectionID = connectionID;
       this.clientAddress = clientAddress;
       this.creationTime = creationTime;
@@ -72,28 +63,23 @@ public class JMSConnectionInfo
 
    // Public --------------------------------------------------------
 
-   public String getConnectionID()
-   {
+   public String getConnectionID() {
       return connectionID;
    }
 
-   public String getClientAddress()
-   {
+   public String getClientAddress() {
       return clientAddress;
    }
 
-   public long getCreationTime()
-   {
+   public long getCreationTime() {
       return creationTime;
    }
 
-   public String getClientID()
-   {
+   public String getClientID() {
       return clientID;
    }
 
-   public String getUsername()
-   {
+   public String getUsername() {
       return username;
    }
 }

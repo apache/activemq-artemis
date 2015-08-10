@@ -22,133 +22,112 @@ import io.netty.buffer.CompositeByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.buffer.UnpooledByteBufAllocator;
 
-
 /**
  * A {@link ByteBufAllocator} which is partial pooled. Which means only direct {@link ByteBuf}s are pooled. The rest
  * is unpooled.
  */
-public class PartialPooledByteBufAllocator implements ByteBufAllocator
-{
+public class PartialPooledByteBufAllocator implements ByteBufAllocator {
+
    private static final ByteBufAllocator POOLED = new PooledByteBufAllocator(false);
    private static final ByteBufAllocator UNPOOLED = new UnpooledByteBufAllocator(false);
 
    public static final PartialPooledByteBufAllocator INSTANCE = new PartialPooledByteBufAllocator();
 
-   private PartialPooledByteBufAllocator()
-   {
+   private PartialPooledByteBufAllocator() {
    }
 
    @Override
-   public ByteBuf buffer()
-   {
+   public ByteBuf buffer() {
       return UNPOOLED.heapBuffer();
    }
 
    @Override
-   public ByteBuf buffer(int initialCapacity)
-   {
+   public ByteBuf buffer(int initialCapacity) {
       return UNPOOLED.heapBuffer(initialCapacity);
    }
 
    @Override
-   public ByteBuf buffer(int initialCapacity, int maxCapacity)
-   {
+   public ByteBuf buffer(int initialCapacity, int maxCapacity) {
       return UNPOOLED.heapBuffer(initialCapacity, maxCapacity);
    }
 
    @Override
-   public ByteBuf ioBuffer()
-   {
+   public ByteBuf ioBuffer() {
       return UNPOOLED.heapBuffer();
    }
 
    @Override
-   public ByteBuf ioBuffer(int initialCapacity)
-   {
+   public ByteBuf ioBuffer(int initialCapacity) {
       return UNPOOLED.heapBuffer(initialCapacity);
    }
 
    @Override
-   public ByteBuf ioBuffer(int initialCapacity, int maxCapacity)
-   {
+   public ByteBuf ioBuffer(int initialCapacity, int maxCapacity) {
       return UNPOOLED.heapBuffer(initialCapacity, maxCapacity);
    }
 
    @Override
-   public ByteBuf heapBuffer()
-   {
+   public ByteBuf heapBuffer() {
       return UNPOOLED.heapBuffer();
    }
 
    @Override
-   public ByteBuf heapBuffer(int initialCapacity)
-   {
+   public ByteBuf heapBuffer(int initialCapacity) {
       return UNPOOLED.heapBuffer(initialCapacity);
    }
 
    @Override
-   public ByteBuf heapBuffer(int initialCapacity, int maxCapacity)
-   {
+   public ByteBuf heapBuffer(int initialCapacity, int maxCapacity) {
       return UNPOOLED.heapBuffer(initialCapacity, maxCapacity);
    }
 
    @Override
-   public ByteBuf directBuffer()
-   {
+   public ByteBuf directBuffer() {
       return POOLED.directBuffer();
    }
 
    @Override
-   public ByteBuf directBuffer(int initialCapacity)
-   {
+   public ByteBuf directBuffer(int initialCapacity) {
       return POOLED.directBuffer(initialCapacity);
    }
 
    @Override
-   public ByteBuf directBuffer(int initialCapacity, int maxCapacity)
-   {
+   public ByteBuf directBuffer(int initialCapacity, int maxCapacity) {
       return POOLED.directBuffer(initialCapacity, maxCapacity);
    }
 
    @Override
-   public CompositeByteBuf compositeBuffer()
-   {
+   public CompositeByteBuf compositeBuffer() {
       return UNPOOLED.compositeHeapBuffer();
    }
 
    @Override
-   public CompositeByteBuf compositeBuffer(int maxNumComponents)
-   {
+   public CompositeByteBuf compositeBuffer(int maxNumComponents) {
       return UNPOOLED.compositeHeapBuffer(maxNumComponents);
    }
 
    @Override
-   public CompositeByteBuf compositeHeapBuffer()
-   {
+   public CompositeByteBuf compositeHeapBuffer() {
       return UNPOOLED.compositeHeapBuffer();
    }
 
    @Override
-   public CompositeByteBuf compositeHeapBuffer(int maxNumComponents)
-   {
+   public CompositeByteBuf compositeHeapBuffer(int maxNumComponents) {
       return UNPOOLED.compositeHeapBuffer(maxNumComponents);
    }
 
    @Override
-   public CompositeByteBuf compositeDirectBuffer()
-   {
+   public CompositeByteBuf compositeDirectBuffer() {
       return POOLED.compositeDirectBuffer();
    }
 
    @Override
-   public CompositeByteBuf compositeDirectBuffer(int maxNumComponents)
-   {
+   public CompositeByteBuf compositeDirectBuffer(int maxNumComponents) {
       return POOLED.compositeDirectBuffer();
    }
 
    @Override
-   public boolean isDirectBufferPooled()
-   {
+   public boolean isDirectBufferPooled() {
       return true;
    }
 }

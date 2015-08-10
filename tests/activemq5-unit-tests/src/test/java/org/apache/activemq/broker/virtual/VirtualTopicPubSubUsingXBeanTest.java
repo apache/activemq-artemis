@@ -23,30 +23,30 @@ import org.apache.activemq.xbean.XBeanBrokerFactory;
 
 /**
  *
- * 
+ *
  */
 public class VirtualTopicPubSubUsingXBeanTest extends VirtualTopicPubSubTest {
 
-    protected String getVirtualTopicConsumerName() {
-        return "VirtualTopicConsumers.ConsumerNumberOne.FOO";
-    }
+   protected String getVirtualTopicConsumerName() {
+      return "VirtualTopicConsumers.ConsumerNumberOne.FOO";
+   }
 
-    protected String getVirtualTopicName() {
-        return "FOO";
-    }
+   protected String getVirtualTopicName() {
+      return "FOO";
+   }
 
-    protected BrokerService createBroker() throws Exception {
-        XBeanBrokerFactory factory = new XBeanBrokerFactory();
-        BrokerService answer = factory.createBroker(new URI(getBrokerConfigUri()));
-        
-        // lets disable persistence as we are a test
-        answer.setPersistent(false);
-        
-        return answer;
-    }
+   protected BrokerService createBroker() throws Exception {
+      XBeanBrokerFactory factory = new XBeanBrokerFactory();
+      BrokerService answer = factory.createBroker(new URI(getBrokerConfigUri()));
 
-    protected String getBrokerConfigUri() {
-        return "org/apache/activemq/broker/virtual/global-virtual-topics.xml";
-    }
+      // lets disable persistence as we are a test
+      answer.setPersistent(false);
+
+      return answer;
+   }
+
+   protected String getBrokerConfigUri() {
+      return "org/apache/activemq/broker/virtual/global-virtual-topics.xml";
+   }
 
 }

@@ -48,174 +48,182 @@ import java.util.List;
 import static org.junit.Assert.assertTrue;
 
 public abstract class DurableSubscriptionOfflineTestBase {
-    private static final Logger LOG = LoggerFactory.getLogger(DurableSubscriptionOfflineTestBase.class);
-    public boolean usePrioritySupport = Boolean.TRUE;
-    public int journalMaxFileLength = Journal.DEFAULT_MAX_FILE_LENGTH;
-    public boolean keepDurableSubsActive = true;
-    protected BrokerService broker;
-    protected ActiveMQTopic topic;
-    protected final List<Throwable> exceptions = new ArrayList<Throwable>();
-    protected ActiveMQConnectionFactory connectionFactory;
-    protected boolean isTopic = true;
-    public PersistenceAdapterChoice defaultPersistenceAdapter = PersistenceAdapterChoice.KahaDB;
 
-    @Rule
-    public TestName testName = new TestName();
+   private static final Logger LOG = LoggerFactory.getLogger(DurableSubscriptionOfflineTestBase.class);
+   public boolean usePrioritySupport = Boolean.TRUE;
+   public int journalMaxFileLength = Journal.DEFAULT_MAX_FILE_LENGTH;
+   public boolean keepDurableSubsActive = true;
+   protected BrokerService broker;
+   protected ActiveMQTopic topic;
+   protected final List<Throwable> exceptions = new ArrayList<Throwable>();
+   protected ActiveMQConnectionFactory connectionFactory;
+   protected boolean isTopic = true;
+   public PersistenceAdapterChoice defaultPersistenceAdapter = PersistenceAdapterChoice.KahaDB;
 
-    protected ActiveMQConnectionFactory createConnectionFactory() throws Exception {
-        ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("vm://" + getName(true));
-        connectionFactory.setWatchTopicAdvisories(false);
-        return connectionFactory;
-    }
+   @Rule
+   public TestName testName = new TestName();
 
-    protected Connection createConnection() throws Exception {
-        return createConnection("cliName");
-    }
+   protected ActiveMQConnectionFactory createConnectionFactory() throws Exception {
+      ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("vm://" + getName(true));
+      connectionFactory.setWatchTopicAdvisories(false);
+      return connectionFactory;
+   }
 
-    protected Connection createConnection(String name) throws Exception {
-        ConnectionFactory connectionFactory1 = createConnectionFactory();
-        Connection connection = connectionFactory1.createConnection();
-        connection.setClientID(name);
-        connection.start();
-        return connection;
-    }
+   protected Connection createConnection() throws Exception {
+      return createConnection("cliName");
+   }
 
-    public ActiveMQConnectionFactory getConnectionFactory() throws Exception {
-        if (connectionFactory == null) {
-            connectionFactory = createConnectionFactory();
-            assertTrue("Should have created a connection factory!", connectionFactory != null);
-        }
-        return connectionFactory;
-    }
+   protected Connection createConnection(String name) throws Exception {
+      ConnectionFactory connectionFactory1 = createConnectionFactory();
+      Connection connection = connectionFactory1.createConnection();
+      connection.setClientID(name);
+      connection.start();
+      return connection;
+   }
 
-    @Before
-    public void setUp() throws Exception {
-        exceptions.clear();
-        topic = (ActiveMQTopic) createDestination();
-        createBroker();
-    }
+   public ActiveMQConnectionFactory getConnectionFactory() throws Exception {
+      if (connectionFactory == null) {
+         connectionFactory = createConnectionFactory();
+         assertTrue("Should have created a connection factory!", connectionFactory != null);
+      }
+      return connectionFactory;
+   }
 
-    @After
-    public void tearDown() throws Exception {
-        destroyBroker();
-    }
+   @Before
+   public void setUp() throws Exception {
+      exceptions.clear();
+      topic = (ActiveMQTopic) createDestination();
+      createBroker();
+   }
 
-    protected void createBroker() throws Exception {
-        createBroker(true);
-    }
+   @After
+   public void tearDown() throws Exception {
+      destroyBroker();
+   }
 
-    protected void createBroker(boolean deleteAllMessages) throws Exception {
-        String currentTestName = getName(true);
-        broker = BrokerFactory.createBroker("broker:(vm://" + currentTestName +")");
-        broker.setBrokerName(currentTestName);
-        broker.setDeleteAllMessagesOnStartup(deleteAllMessages);
-        broker.getManagementContext().setCreateConnector(false);
-        broker.setAdvisorySupport(false);
-        broker.setKeepDurableSubsActive(keepDurableSubsActive);
-        broker.addConnector("tcp://0.0.0.0:0");
+   protected void createBroker() throws Exception {
+      createBroker(true);
+   }
 
-        if (usePrioritySupport) {
-            PolicyEntry policy = new PolicyEntry();
-            policy.setPrioritizedMessages(true);
-            PolicyMap policyMap = new PolicyMap();
-            policyMap.setDefaultEntry(policy);
-            broker.setDestinationPolicy(policyMap);
-        }
+   protected void createBroker(boolean deleteAllMessages) throws Exception {
+      String currentTestName = getName(true);
+      broker = BrokerFactory.createBroker("broker:(vm://" + currentTestName + ")");
+      broker.setBrokerName(currentTestName);
+      broker.setDeleteAllMessagesOnStartup(deleteAllMessages);
+      broker.getManagementContext().setCreateConnector(false);
+      broker.setAdvisorySupport(false);
+      broker.setKeepDurableSubsActive(keepDurableSubsActive);
+      broker.addConnector("tcp://0.0.0.0:0");
 
-        setDefaultPersistenceAdapter(broker);
-        if (broker.getPersistenceAdapter() instanceof JDBCPersistenceAdapter) {
-            // ensure it kicks in during tests
-            ((JDBCPersistenceAdapter)broker.getPersistenceAdapter()).setCleanupPeriod(2*1000);
-        } else if (broker.getPersistenceAdapter() instanceof KahaDBPersistenceAdapter) {
-            // have lots of journal files
-            ((KahaDBPersistenceAdapter)broker.getPersistenceAdapter()).setJournalMaxFileLength(journalMaxFileLength);
-        }
-        broker.start();
-        broker.waitUntilStarted();
-    }
+      if (usePrioritySupport) {
+         PolicyEntry policy = new PolicyEntry();
+         policy.setPrioritizedMessages(true);
+         PolicyMap policyMap = new PolicyMap();
+         policyMap.setDefaultEntry(policy);
+         broker.setDestinationPolicy(policyMap);
+      }
 
-    protected void destroyBroker() throws Exception {
-        if (broker != null)
-            broker.stop();
-    }
+      setDefaultPersistenceAdapter(broker);
+      if (broker.getPersistenceAdapter() instanceof JDBCPersistenceAdapter) {
+         // ensure it kicks in during tests
+         ((JDBCPersistenceAdapter) broker.getPersistenceAdapter()).setCleanupPeriod(2 * 1000);
+      }
+      else if (broker.getPersistenceAdapter() instanceof KahaDBPersistenceAdapter) {
+         // have lots of journal files
+         ((KahaDBPersistenceAdapter) broker.getPersistenceAdapter()).setJournalMaxFileLength(journalMaxFileLength);
+      }
+      broker.start();
+      broker.waitUntilStarted();
+   }
 
-    protected Destination createDestination(String subject) {
-        if (isTopic) {
-            return new ActiveMQTopic(subject);
-        } else {
-            return new ActiveMQQueue(subject);
-        }
-    }
+   protected void destroyBroker() throws Exception {
+      if (broker != null)
+         broker.stop();
+   }
 
-    protected Destination createDestination() {
-        return createDestination(getDestinationString());
-    }
+   protected Destination createDestination(String subject) {
+      if (isTopic) {
+         return new ActiveMQTopic(subject);
+      }
+      else {
+         return new ActiveMQQueue(subject);
+      }
+   }
 
-    /**
-     * Returns the name of the destination used in this test case
-     */
-    protected String getDestinationString() {
-        return getClass().getName() + "." + getName(true);
-    }
+   protected Destination createDestination() {
+      return createDestination(getDestinationString());
+   }
 
+   /**
+    * Returns the name of the destination used in this test case
+    */
+   protected String getDestinationString() {
+      return getClass().getName() + "." + getName(true);
+   }
 
-    public String getName() {
-        return getName(false);
-    }
+   public String getName() {
+      return getName(false);
+   }
 
-    protected String getName(boolean original) {
-        String currentTestName = testName.getMethodName();
-        currentTestName = currentTestName.replace("[","");
-        currentTestName = currentTestName.replace("]","");
-        return currentTestName;
-    }
+   protected String getName(boolean original) {
+      String currentTestName = testName.getMethodName();
+      currentTestName = currentTestName.replace("[", "");
+      currentTestName = currentTestName.replace("]", "");
+      return currentTestName;
+   }
 
-    public PersistenceAdapter setDefaultPersistenceAdapter(BrokerService broker) throws IOException {
-        return setPersistenceAdapter(broker, defaultPersistenceAdapter);
-    }
+   public PersistenceAdapter setDefaultPersistenceAdapter(BrokerService broker) throws IOException {
+      return setPersistenceAdapter(broker, defaultPersistenceAdapter);
+   }
 
-    public PersistenceAdapter setPersistenceAdapter(BrokerService broker, PersistenceAdapterChoice choice) throws IOException {
-        PersistenceAdapter adapter = null;
-        switch (choice) {
-            case JDBC:
-                LOG.debug(">>>> setPersistenceAdapter to JDBC ");
-                adapter = new JDBCPersistenceAdapter();
-                break;
-            case KahaDB:
-                LOG.debug(">>>> setPersistenceAdapter to KahaDB ");
-                adapter = new KahaDBPersistenceAdapter();
-                break;
-            case LevelDB:
-                LOG.debug(">>>> setPersistenceAdapter to LevelDB ");
-                adapter = new LevelDBPersistenceAdapter();
-                break;
-            case MEM:
-                LOG.debug(">>>> setPersistenceAdapter to MEM ");
-                adapter = new MemoryPersistenceAdapter();
-                break;
-        }
-        broker.setPersistenceAdapter(adapter);
-        return adapter;
-    }
+   public PersistenceAdapter setPersistenceAdapter(BrokerService broker,
+                                                   PersistenceAdapterChoice choice) throws IOException {
+      PersistenceAdapter adapter = null;
+      switch (choice) {
+         case JDBC:
+            LOG.debug(">>>> setPersistenceAdapter to JDBC ");
+            adapter = new JDBCPersistenceAdapter();
+            break;
+         case KahaDB:
+            LOG.debug(">>>> setPersistenceAdapter to KahaDB ");
+            adapter = new KahaDBPersistenceAdapter();
+            break;
+         case LevelDB:
+            LOG.debug(">>>> setPersistenceAdapter to LevelDB ");
+            adapter = new LevelDBPersistenceAdapter();
+            break;
+         case MEM:
+            LOG.debug(">>>> setPersistenceAdapter to MEM ");
+            adapter = new MemoryPersistenceAdapter();
+            break;
+      }
+      broker.setPersistenceAdapter(adapter);
+      return adapter;
+   }
 }
 
 class DurableSubscriptionOfflineTestListener implements MessageListener {
-    private static final Logger LOG = LoggerFactory.getLogger(DurableSubscriptionOfflineTestListener.class);
-    int count = 0;
-    String id = null;
 
-    DurableSubscriptionOfflineTestListener() {}
+   private static final Logger LOG = LoggerFactory.getLogger(DurableSubscriptionOfflineTestListener.class);
+   int count = 0;
+   String id = null;
 
-    DurableSubscriptionOfflineTestListener(String id) {
-        this.id = id;
-    }
-    @Override
-    public void onMessage(javax.jms.Message message) {
-        count++;
-        if (id != null) {
-            try {
-                LOG.info(id + ", " + message.getJMSMessageID());
-            } catch (Exception ignored) {}
-        }
-    }
+   DurableSubscriptionOfflineTestListener() {
+   }
+
+   DurableSubscriptionOfflineTestListener(String id) {
+      this.id = id;
+   }
+
+   @Override
+   public void onMessage(javax.jms.Message message) {
+      count++;
+      if (id != null) {
+         try {
+            LOG.info(id + ", " + message.getJMSMessageID());
+         }
+         catch (Exception ignored) {
+         }
+      }
+   }
 }

@@ -19,28 +19,24 @@ package org.apache.activemq.artemis.core.protocol.openwire.amq;
 import org.apache.activemq.command.MessageAck;
 import org.apache.activemq.command.MessagePull;
 
-public class AMQSingleConsumerBrokerExchange extends AMQConsumerBrokerExchange
-{
+public class AMQSingleConsumerBrokerExchange extends AMQConsumerBrokerExchange {
+
    private AMQConsumer consumer;
 
-   public AMQSingleConsumerBrokerExchange(AMQSession amqSession, AMQConsumer consumer)
-   {
+   public AMQSingleConsumerBrokerExchange(AMQSession amqSession, AMQConsumer consumer) {
       super(amqSession);
       this.consumer = consumer;
    }
 
-   public void processMessagePull(MessagePull messagePull) throws Exception
-   {
+   public void processMessagePull(MessagePull messagePull) throws Exception {
       consumer.processMessagePull(messagePull);
    }
 
-   public void removeConsumer() throws Exception
-   {
+   public void removeConsumer() throws Exception {
       consumer.removeConsumer();
    }
 
-   public void acknowledge(MessageAck ack) throws Exception
-   {
+   public void acknowledge(MessageAck ack) throws Exception {
       amqSession.acknowledge(ack, consumer);
    }
 }

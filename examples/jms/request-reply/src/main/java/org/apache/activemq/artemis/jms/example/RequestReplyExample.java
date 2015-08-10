@@ -41,16 +41,14 @@ import javax.naming.InitialContext;
  *
  * Or better still use the correlation id, and just store the requests in a map, then you don't need a temporary queue at all
  */
-public class RequestReplyExample
-{
-   public static void main(final String[] args) throws Exception
-   {
+public class RequestReplyExample {
+
+   public static void main(final String[] args) throws Exception {
       final Map<String, TextMessage> requestMap = new HashMap<String, TextMessage>();
       Connection connection = null;
       InitialContext initialContext = null;
 
-      try
-      {
+      try {
          // Step 1. Start the request server
          SimpleRequestServer server = new SimpleRequestServer();
          server.start();
@@ -59,10 +57,10 @@ public class RequestReplyExample
          initialContext = new InitialContext();
 
          // Step 3. Lookup the queue for sending the request message
-         Queue requestQueue = (Queue)initialContext.lookup("queue/exampleQueue");
+         Queue requestQueue = (Queue) initialContext.lookup("queue/exampleQueue");
 
          // Step 4. Lookup for the Connection Factory
-         ConnectionFactory cf = (ConnectionFactory)initialContext.lookup("ConnectionFactory");
+         ConnectionFactory cf = (ConnectionFactory) initialContext.lookup("ConnectionFactory");
 
          // Step 5. Create a JMS Connection
          connection = cf.createConnection();
@@ -100,7 +98,7 @@ public class RequestReplyExample
          requestMap.put(requestMsg.getJMSMessageID(), requestMsg);
 
          // Step 15. Receive the reply message.
-         TextMessage replyMessageReceived = (TextMessage)replyConsumer.receive();
+         TextMessage replyMessageReceived = (TextMessage) replyConsumer.receive();
 
          System.out.println("Received reply: " + replyMessageReceived.getText());
          System.out.println("CorrelatedId: " + replyMessageReceived.getJMSCorrelationID());
@@ -121,24 +119,21 @@ public class RequestReplyExample
          // Step 19. Shutdown the request server
          server.shutdown();
       }
-      finally
-      {
+      finally {
          // Step 20. Be sure to close our JMS resources!
-         if (connection != null)
-         {
+         if (connection != null) {
             connection.close();
          }
          // Step 21. Also close the initialContext!
-         if (initialContext != null)
-         {
+         if (initialContext != null) {
             initialContext.close();
          }
       }
    }
 }
 
-class SimpleRequestServer implements MessageListener
-{
+class SimpleRequestServer implements MessageListener {
+
    private Connection connection;
 
    private Session session;
@@ -147,16 +142,15 @@ class SimpleRequestServer implements MessageListener
 
    MessageConsumer requestConsumer;
 
-   public void start() throws Exception
-   {
+   public void start() throws Exception {
       // Get an initial context to perform the JNDI lookup.
       InitialContext initialContext = new InitialContext();
 
       // Lookup the queue to receive the request message
-      Queue requestQueue = (Queue)initialContext.lookup("queue/exampleQueue");
+      Queue requestQueue = (Queue) initialContext.lookup("queue/exampleQueue");
 
       // Lookup for the Connection Factory
-      ConnectionFactory cfact = (ConnectionFactory)initialContext.lookup("ConnectionFactory");
+      ConnectionFactory cfact = (ConnectionFactory) initialContext.lookup("ConnectionFactory");
 
       // Create a connection
       connection = cfact.createConnection();
@@ -177,11 +171,9 @@ class SimpleRequestServer implements MessageListener
       requestConsumer.setMessageListener(this);
    }
 
-   public void onMessage(final Message request)
-   {
-      try
-      {
-         System.out.println("Received request message: " + ((TextMessage)request).getText());
+   public void onMessage(final Message request) {
+      try {
+         System.out.println("Received request message: " + ((TextMessage) request).getText());
 
          // Extract the ReplyTo destination
          Destination replyDestination = request.getJMSReplyTo();
@@ -199,14 +191,12 @@ class SimpleRequestServer implements MessageListener
 
          System.out.println("Reply sent");
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          e.printStackTrace();
       }
    }
 
-   public void shutdown() throws JMSException
-   {
+   public void shutdown() throws JMSException {
       connection.close();
    }
 }

@@ -38,156 +38,171 @@ import org.apache.activemq.util.URISupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DurableConsumerCloseAndReconnectTcpTest extends DurableConsumerCloseAndReconnectTest
-implements ExceptionListener, TransportListener {
-    private static final Logger LOG = LoggerFactory.getLogger(DurableConsumerCloseAndReconnectTcpTest.class);
-    
-    private BrokerService broker;
-    private TransportConnector connector;
+public class DurableConsumerCloseAndReconnectTcpTest extends DurableConsumerCloseAndReconnectTest implements ExceptionListener, TransportListener {
 
-    private CountDownLatch gotException = new CountDownLatch(1);
+   private static final Logger LOG = LoggerFactory.getLogger(DurableConsumerCloseAndReconnectTcpTest.class);
 
-    private Exception reconnectException;
+   private BrokerService broker;
+   private TransportConnector connector;
 
-    private boolean reconnectInExceptionListener;
+   private CountDownLatch gotException = new CountDownLatch(1);
 
-    private boolean reconnectInTransportListener;
-    
-    public void setUp() throws Exception {
-        broker = new BrokerService();
-        // let the client initiate the inactivity timeout
-        connector = broker.addConnector("tcp://localhost:0?transport.useInactivityMonitor=false");
-        broker.setPersistent(false);
-        broker.start();
-        broker.waitUntilStarted();
-        
-        class SlowCloseSocketTcpTransportFactory extends TcpTransportFactory {
+   private Exception reconnectException;
 
-            class SlowCloseSocketFactory extends SocketFactory {
-                
-                class SlowCloseSocket extends Socket {
-                    public SlowCloseSocket(String host, int port) throws IOException {
-                        super(host, port);
-                    }
+   private boolean reconnectInExceptionListener;
 
-                    public SlowCloseSocket(InetAddress host, int port) throws IOException {
-                        super(host, port);
-                    }
+   private boolean reconnectInTransportListener;
 
-                    public SlowCloseSocket(String host, int port, InetAddress localHost, int localPort) throws IOException {
-                        super(host, port, localHost, localPort);
-                    }
+   public void setUp() throws Exception {
+      broker = new BrokerService();
+      // let the client initiate the inactivity timeout
+      connector = broker.addConnector("tcp://localhost:0?transport.useInactivityMonitor=false");
+      broker.setPersistent(false);
+      broker.start();
+      broker.waitUntilStarted();
 
-                    public SlowCloseSocket(InetAddress address, int port, InetAddress localAddress, int localPort) throws IOException {
-                        super(address, port, localAddress, localPort);
-                    }
+      class SlowCloseSocketTcpTransportFactory extends TcpTransportFactory {
 
-                    @Override
-                    public synchronized void close() throws IOException {
-                        LOG.info("delaying close");
-                        try {
-                            TimeUnit.MILLISECONDS.sleep(500);
-                        } catch (InterruptedException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
-                        }
-                        super.close();
-                    }
-                    
-                    
-                }
-                @Override
-                public Socket createSocket(String host, int port) throws IOException, UnknownHostException {
-                    return new SlowCloseSocket(host, port);
-                }
+         class SlowCloseSocketFactory extends SocketFactory {
 
-                @Override
-                public Socket createSocket(InetAddress host, int port) throws IOException {
-                    return new SlowCloseSocket(host, port);
-                }
+            class SlowCloseSocket extends Socket {
 
-                @Override
-                public Socket createSocket(String host, int port, InetAddress localHost, int localPort) throws IOException,
-                        UnknownHostException {
-                    return new SlowCloseSocket(host, port, localHost, localPort);
-                }
+               public SlowCloseSocket(String host, int port) throws IOException {
+                  super(host, port);
+               }
 
-                @Override
-                public Socket createSocket(InetAddress address, int port, InetAddress localAddress, int localPort) throws IOException {
-                    return new SlowCloseSocket(address, port, localAddress, localPort);
-                }
-                
+               public SlowCloseSocket(InetAddress host, int port) throws IOException {
+                  super(host, port);
+               }
+
+               public SlowCloseSocket(String host, int port, InetAddress localHost, int localPort) throws IOException {
+                  super(host, port, localHost, localPort);
+               }
+
+               public SlowCloseSocket(InetAddress address,
+                                      int port,
+                                      InetAddress localAddress,
+                                      int localPort) throws IOException {
+                  super(address, port, localAddress, localPort);
+               }
+
+               @Override
+               public synchronized void close() throws IOException {
+                  LOG.info("delaying close");
+                  try {
+                     TimeUnit.MILLISECONDS.sleep(500);
+                  }
+                  catch (InterruptedException e) {
+                     // TODO Auto-generated catch block
+                     e.printStackTrace();
+                  }
+                  super.close();
+               }
+
             }
+
             @Override
-            protected SocketFactory createSocketFactory() throws IOException {
-                return new SlowCloseSocketFactory();
+            public Socket createSocket(String host, int port) throws IOException, UnknownHostException {
+               return new SlowCloseSocket(host, port);
             }
-            
-        }
-        
-        TransportFactory.registerTransportFactory("tcp", new SlowCloseSocketTcpTransportFactory());
-        
-    }
-    
-    public void tearDown() throws Exception {
-        broker.stop();
-        broker.waitUntilStopped();
-    }
 
-    protected ActiveMQConnectionFactory createConnectionFactory() throws Exception {
-        return new ActiveMQConnectionFactory(URISupport.removeQuery(connector.getConnectUri()) + "?useKeepAlive=false&wireFormat.maxInactivityDuration=2000");
-    }
-
-    @Override
-    public void testCreateDurableConsumerCloseThenReconnect() throws Exception {
-        reconnectInExceptionListener = true;
-        makeConsumer();
-        connection.setExceptionListener(this);
-        ((ActiveMQConnection)connection).addTransportListener(this);
-        assertTrue("inactive connection timedout", gotException.await(30, TimeUnit.SECONDS));
-        assertNotNull("Got expected exception on close reconnect overlap: " + reconnectException, reconnectException);
-    }
-
-    
-    public void testCreateDurableConsumerSlowCloseThenReconnectTransportListener() throws Exception {
-        reconnectInTransportListener = true;
-        makeConsumer();
-        connection.setExceptionListener(this);
-        ((ActiveMQConnection)connection).addTransportListener(this);
-        assertTrue("inactive connection timedout", gotException.await(30, TimeUnit.SECONDS));
-        assertNull("No exception: " + reconnectException, reconnectException);
-    }
-    
-    public void onException(JMSException exception) {
-        LOG.info("Exception listener exception:" + exception);
-        if (reconnectInExceptionListener) {
-            try {
-                makeConsumer();
-            } catch (Exception e) {
-                reconnectException = e;
+            @Override
+            public Socket createSocket(InetAddress host, int port) throws IOException {
+               return new SlowCloseSocket(host, port);
             }
-        
-            gotException.countDown();
-        }
-    }
 
-    public void onCommand(Object command) {}
+            @Override
+            public Socket createSocket(String host,
+                                       int port,
+                                       InetAddress localHost,
+                                       int localPort) throws IOException, UnknownHostException {
+               return new SlowCloseSocket(host, port, localHost, localPort);
+            }
 
-    public void onException(IOException error) {
-       LOG.info("Transport listener exception:" + error);
-       if (reconnectInTransportListener) {
-           try {
-               TimeUnit.MILLISECONDS.sleep(500);
-               makeConsumer();
-           } catch (Exception e) {
-               reconnectException = e;
-           }
-       
-           gotException.countDown();
-       }
-    }
+            @Override
+            public Socket createSocket(InetAddress address,
+                                       int port,
+                                       InetAddress localAddress,
+                                       int localPort) throws IOException {
+               return new SlowCloseSocket(address, port, localAddress, localPort);
+            }
 
-    public void transportInterupted() {}
+         }
 
-    public void transportResumed() {}
+         @Override
+         protected SocketFactory createSocketFactory() throws IOException {
+            return new SlowCloseSocketFactory();
+         }
+
+      }
+
+      TransportFactory.registerTransportFactory("tcp", new SlowCloseSocketTcpTransportFactory());
+
+   }
+
+   public void tearDown() throws Exception {
+      broker.stop();
+      broker.waitUntilStopped();
+   }
+
+   protected ActiveMQConnectionFactory createConnectionFactory() throws Exception {
+      return new ActiveMQConnectionFactory(URISupport.removeQuery(connector.getConnectUri()) + "?useKeepAlive=false&wireFormat.maxInactivityDuration=2000");
+   }
+
+   @Override
+   public void testCreateDurableConsumerCloseThenReconnect() throws Exception {
+      reconnectInExceptionListener = true;
+      makeConsumer();
+      connection.setExceptionListener(this);
+      ((ActiveMQConnection) connection).addTransportListener(this);
+      assertTrue("inactive connection timedout", gotException.await(30, TimeUnit.SECONDS));
+      assertNotNull("Got expected exception on close reconnect overlap: " + reconnectException, reconnectException);
+   }
+
+   public void testCreateDurableConsumerSlowCloseThenReconnectTransportListener() throws Exception {
+      reconnectInTransportListener = true;
+      makeConsumer();
+      connection.setExceptionListener(this);
+      ((ActiveMQConnection) connection).addTransportListener(this);
+      assertTrue("inactive connection timedout", gotException.await(30, TimeUnit.SECONDS));
+      assertNull("No exception: " + reconnectException, reconnectException);
+   }
+
+   public void onException(JMSException exception) {
+      LOG.info("Exception listener exception:" + exception);
+      if (reconnectInExceptionListener) {
+         try {
+            makeConsumer();
+         }
+         catch (Exception e) {
+            reconnectException = e;
+         }
+
+         gotException.countDown();
+      }
+   }
+
+   public void onCommand(Object command) {
+   }
+
+   public void onException(IOException error) {
+      LOG.info("Transport listener exception:" + error);
+      if (reconnectInTransportListener) {
+         try {
+            TimeUnit.MILLISECONDS.sleep(500);
+            makeConsumer();
+         }
+         catch (Exception e) {
+            reconnectException = e;
+         }
+
+         gotException.countDown();
+      }
+   }
+
+   public void transportInterupted() {
+   }
+
+   public void transportResumed() {
+   }
 }

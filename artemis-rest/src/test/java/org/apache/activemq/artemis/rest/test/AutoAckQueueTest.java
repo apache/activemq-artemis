@@ -25,11 +25,10 @@ import org.jboss.resteasy.test.TestPortProvider;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class AutoAckQueueTest extends MessageTestBase
-{
+public class AutoAckQueueTest extends MessageTestBase {
+
    @Test
-   public void testSuccessFirst() throws Exception
-   {
+   public void testSuccessFirst() throws Exception {
       String testName = "testSuccessFirst";
       QueueDeployment deployment = new QueueDeployment();
       deployment.setDuplicatesAllowed(true);

@@ -29,46 +29,37 @@ import org.apache.activemq.artemis.api.jms.JMSFactoryType;
  * <p>
  * We consider the XAConnectionFactory to be the most complete possible option. It can be casted to any other connection factory since it is fully functional
  */
-public class ActiveMQXAConnectionFactory extends ActiveMQConnectionFactory implements XATopicConnectionFactory,
-   XAQueueConnectionFactory
-{
+public class ActiveMQXAConnectionFactory extends ActiveMQConnectionFactory implements XATopicConnectionFactory, XAQueueConnectionFactory {
+
    private static final long serialVersionUID = 743611571839154115L;
 
-   public ActiveMQXAConnectionFactory()
-   {
+   public ActiveMQXAConnectionFactory() {
       super();
    }
 
-   public ActiveMQXAConnectionFactory(String uri)
-   {
+   public ActiveMQXAConnectionFactory(String uri) {
       super(uri);
    }
 
-   public ActiveMQXAConnectionFactory(String url, String user, String password)
-   {
+   public ActiveMQXAConnectionFactory(String url, String user, String password) {
       super(url, user, password);
    }
 
-   public ActiveMQXAConnectionFactory(ServerLocator serverLocator)
-   {
+   public ActiveMQXAConnectionFactory(ServerLocator serverLocator) {
       super(serverLocator);
    }
 
-   public ActiveMQXAConnectionFactory(final boolean ha, final DiscoveryGroupConfiguration groupConfiguration)
-   {
+   public ActiveMQXAConnectionFactory(final boolean ha, final DiscoveryGroupConfiguration groupConfiguration) {
       super(ha, groupConfiguration);
    }
 
-   public ActiveMQXAConnectionFactory(final boolean ha, final TransportConfiguration... initialConnectors)
-   {
+   public ActiveMQXAConnectionFactory(final boolean ha, final TransportConfiguration... initialConnectors) {
       super(ha, initialConnectors);
    }
 
    @Override
-   public int getFactoryType()
-   {
+   public int getFactoryType() {
       return JMSFactoryType.XA_CF.intValue();
    }
-
 
 }

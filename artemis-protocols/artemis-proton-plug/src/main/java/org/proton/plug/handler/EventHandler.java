@@ -25,8 +25,7 @@ import org.apache.qpid.proton.engine.Transport;
 /**
  * EventHandler
  */
-public interface EventHandler
-{
+public interface EventHandler {
 
    void onSASLInit(ProtonHandler handler, Connection connection);
 

@@ -31,13 +31,11 @@ import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
  * This example demonstrates how a message producer can be limited to produce messages at a maximum rate
  * specified in messages per sec.
  */
-public class ProducerRateLimitExample
-{
-   public static void main(final String[] args) throws Exception
-   {
+public class ProducerRateLimitExample {
+
+   public static void main(final String[] args) throws Exception {
       Connection connection = null;
-      try
-      {
+      try {
          // Step 2. Perfom a lookup on the queue
          Queue queue = ActiveMQJMSClient.createQueue("exampleQueue");
 
@@ -63,8 +61,7 @@ public class ProducerRateLimitExample
 
          long start = System.currentTimeMillis();
 
-         while (System.currentTimeMillis() - start <= duration)
-         {
+         while (System.currentTimeMillis() - start <= duration) {
             TextMessage message = session.createTextMessage("This is text message: " + i++);
 
             producer.send(message);
@@ -72,7 +69,7 @@ public class ProducerRateLimitExample
 
          long end = System.currentTimeMillis();
 
-         double rate = 1000 * (double)i / (end - start);
+         double rate = 1000 * (double) i / (end - start);
 
          System.out.println("We sent " + i + " messages in " + (end - start) + " milliseconds");
 
@@ -87,12 +84,10 @@ public class ProducerRateLimitExample
          System.out.println("Now consuming the messages...");
 
          i = 0;
-         while (true)
-         {
-            TextMessage messageReceived = (TextMessage)messageConsumer.receive(5000);
+         while (true) {
+            TextMessage messageReceived = (TextMessage) messageConsumer.receive(5000);
 
-            if (messageReceived == null)
-            {
+            if (messageReceived == null) {
                break;
             }
 
@@ -101,11 +96,9 @@ public class ProducerRateLimitExample
 
          System.out.println("Received " + i + " messages");
       }
-      finally
-      {
+      finally {
          // Step 9. Be sure to close our resources!
-         if (connection != null)
-         {
+         if (connection != null) {
             connection.close();
          }
       }

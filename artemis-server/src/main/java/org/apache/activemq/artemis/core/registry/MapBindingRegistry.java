@@ -21,26 +21,22 @@ import java.util.concurrent.ConcurrentMap;
 
 import org.apache.activemq.artemis.spi.core.naming.BindingRegistry;
 
-public class MapBindingRegistry implements BindingRegistry
-{
+public class MapBindingRegistry implements BindingRegistry {
+
    protected ConcurrentMap<String, Object> registry = new ConcurrentHashMap<String, Object>();
 
-   public Object lookup(String name)
-   {
+   public Object lookup(String name) {
       return registry.get(name);
    }
 
-   public boolean bind(String name, Object obj)
-   {
+   public boolean bind(String name, Object obj) {
       return registry.putIfAbsent(name, obj) == null;
    }
 
-   public void unbind(String name)
-   {
+   public void unbind(String name) {
       registry.remove(name);
    }
 
-   public void close()
-   {
+   public void close() {
    }
 }

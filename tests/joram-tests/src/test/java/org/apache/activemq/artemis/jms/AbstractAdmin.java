@@ -24,82 +24,66 @@ import org.objectweb.jtests.jms.admin.Admin;
 /**
  * AbstractAdmin.
  */
-public class AbstractAdmin implements Admin
-{
-   public String getName()
-   {
+public class AbstractAdmin implements Admin {
+
+   public String getName() {
       return getClass().getName();
    }
 
-   public void start()
-   {
+   public void start() {
    }
 
-   public void stop() throws Exception
-   {
+   public void stop() throws Exception {
 
    }
 
-   public InitialContext createContext() throws NamingException
-   {
+   public InitialContext createContext() throws NamingException {
       return new InitialContext();
    }
 
-   public void createConnectionFactory(final String name)
-   {
+   public void createConnectionFactory(final String name) {
       throw new RuntimeException("FIXME NYI createConnectionFactory");
    }
 
-   public void deleteConnectionFactory(final String name)
-   {
+   public void deleteConnectionFactory(final String name) {
       throw new RuntimeException("FIXME NYI deleteConnectionFactory");
    }
 
-   public void createQueue(final String name)
-   {
+   public void createQueue(final String name) {
       throw new RuntimeException("FIXME NYI createQueue");
    }
 
-   public void deleteQueue(final String name)
-   {
+   public void deleteQueue(final String name) {
       throw new RuntimeException("FIXME NYI deleteQueue");
    }
 
-   public void createQueueConnectionFactory(final String name)
-   {
+   public void createQueueConnectionFactory(final String name) {
       createConnectionFactory(name);
    }
 
-   public void deleteQueueConnectionFactory(final String name)
-   {
+   public void deleteQueueConnectionFactory(final String name) {
       deleteConnectionFactory(name);
    }
 
-   public void createTopic(final String name)
-   {
+   public void createTopic(final String name) {
       throw new RuntimeException("FIXME NYI createTopic");
    }
 
-   public void deleteTopic(final String name)
-   {
+   public void deleteTopic(final String name) {
       throw new RuntimeException("FIXME NYI deleteTopic");
    }
 
-   public void createTopicConnectionFactory(final String name)
-   {
+   public void createTopicConnectionFactory(final String name) {
       createConnectionFactory(name);
    }
 
-   public void deleteTopicConnectionFactory(final String name)
-   {
+   public void deleteTopicConnectionFactory(final String name) {
       deleteConnectionFactory(name);
    }
 
-   public void startServer()
-   {
+   public void startServer() {
    }
 
-   public void stopServer()
-   {
+   public void stopServer() {
    }
 }

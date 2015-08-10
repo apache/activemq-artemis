@@ -33,154 +33,152 @@ import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 public class AMQ3410Test extends TestCase {
-	@SuppressWarnings("unused")
-	private static final Logger LOG = LoggerFactory
-			.getLogger(PurgeCommandTest.class);
-	private static final Collection<String> DEFAULT_OPTIONS = Arrays
-			.asList(new String[] { "--amqurl", "tcp://localhost:61616", });
 
-	private static final Collection<String> DEFAULT_TOKENS = Arrays
-			.asList(new String[] { "FOO.QUEUE" });
+   @SuppressWarnings("unused")
+   private static final Logger LOG = LoggerFactory.getLogger(PurgeCommandTest.class);
+   private static final Collection<String> DEFAULT_OPTIONS = Arrays.asList(new String[]{"--amqurl", "tcp://localhost:61616",});
 
-	protected AbstractApplicationContext context;
+   private static final Collection<String> DEFAULT_TOKENS = Arrays.asList(new String[]{"FOO.QUEUE"});
 
-	protected void setUp() throws Exception {
-		super.setUp();
+   protected AbstractApplicationContext context;
 
-		context = createApplicationContext();
+   protected void setUp() throws Exception {
+      super.setUp();
 
-	}
+      context = createApplicationContext();
 
-	protected AbstractApplicationContext createApplicationContext() {
-		return new ClassPathXmlApplicationContext("org/apache/activemq/console/command/activemq.xml");
-	}
+   }
 
-	protected void tearDown() throws Exception {
-		BrokerService broker = (BrokerService) context.getBean("localbroker");
-		broker.stop();
-		broker = (BrokerService) context.getBean("default");
-		broker.stop();
-		super.tearDown();
-	}
+   protected AbstractApplicationContext createApplicationContext() {
+      return new ClassPathXmlApplicationContext("org/apache/activemq/console/command/activemq.xml");
+   }
 
-	public void testNoFactorySet() throws Exception {
-		AmqBrowseCommand command = new AmqBrowseCommand();
-		CommandContext context = new CommandContext();
+   protected void tearDown() throws Exception {
+      BrokerService broker = (BrokerService) context.getBean("localbroker");
+      broker.stop();
+      broker = (BrokerService) context.getBean("default");
+      broker.stop();
+      super.tearDown();
+   }
 
-		context.setFormatter(new CommandShellOutputFormatter(System.out));
+   public void testNoFactorySet() throws Exception {
+      AmqBrowseCommand command = new AmqBrowseCommand();
+      CommandContext context = new CommandContext();
 
-		command.setCommandContext(context);
+      context.setFormatter(new CommandShellOutputFormatter(System.out));
 
-		List<String> tokens = new ArrayList<String>();
-		tokens.addAll(DEFAULT_OPTIONS);
-		tokens.addAll(DEFAULT_TOKENS);
+      command.setCommandContext(context);
 
-		command.execute(tokens);
-		assertNotNull(command.getConnectionFactory());
-		assertTrue(command.getConnectionFactory() instanceof ActiveMQConnectionFactory);
-	}
+      List<String> tokens = new ArrayList<String>();
+      tokens.addAll(DEFAULT_OPTIONS);
+      tokens.addAll(DEFAULT_TOKENS);
 
-	public void testFactorySet() throws Exception {
-		AmqBrowseCommand command = new AmqBrowseCommand();
-		CommandContext context = new CommandContext();
+      command.execute(tokens);
+      assertNotNull(command.getConnectionFactory());
+      assertTrue(command.getConnectionFactory() instanceof ActiveMQConnectionFactory);
+   }
 
-		context.setFormatter(new CommandShellOutputFormatter(System.out));
+   public void testFactorySet() throws Exception {
+      AmqBrowseCommand command = new AmqBrowseCommand();
+      CommandContext context = new CommandContext();
 
-		command.setCommandContext(context);
+      context.setFormatter(new CommandShellOutputFormatter(System.out));
 
-		List<String> tokens = new ArrayList<String>();
-		tokens.addAll(DEFAULT_OPTIONS);
-		tokens.add("--factory");
-		tokens.add(DummyConnectionFactory.class.getCanonicalName());
-		tokens.addAll(DEFAULT_TOKENS);
+      command.setCommandContext(context);
 
-		command.execute(tokens);
+      List<String> tokens = new ArrayList<String>();
+      tokens.addAll(DEFAULT_OPTIONS);
+      tokens.add("--factory");
+      tokens.add(DummyConnectionFactory.class.getCanonicalName());
+      tokens.addAll(DEFAULT_TOKENS);
 
-		assertNotNull(command.getConnectionFactory());
-		assertTrue("wrong instance returned: "
-				+ command.getConnectionFactory().getClass().getName(), command
-				.getConnectionFactory() instanceof DummyConnectionFactory);
-	}
+      command.execute(tokens);
 
-	public void testFactorySetWrong1() throws Exception {
-		AmqBrowseCommand command = new AmqBrowseCommand();
-		CommandContext context = new CommandContext();
+      assertNotNull(command.getConnectionFactory());
+      assertTrue("wrong instance returned: " + command.getConnectionFactory().getClass().getName(), command.getConnectionFactory() instanceof DummyConnectionFactory);
+   }
 
-		context.setFormatter(new CommandShellOutputFormatter(System.out));
+   public void testFactorySetWrong1() throws Exception {
+      AmqBrowseCommand command = new AmqBrowseCommand();
+      CommandContext context = new CommandContext();
 
-		command.setCommandContext(context);
+      context.setFormatter(new CommandShellOutputFormatter(System.out));
 
-		List<String> tokens = new ArrayList<String>();
-		tokens.addAll(DEFAULT_OPTIONS);
-		tokens.add("--factory");
-		tokens
-				.add("org.apache.activemq.console.command.TestAMQ3410.DoesntExistFactory");
-		tokens.addAll(DEFAULT_TOKENS);
+      command.setCommandContext(context);
 
-		try {
-		command.execute(tokens);
-		} catch (Throwable cause) {
-			while (null != cause) {
-				if (cause instanceof java.lang.ClassNotFoundException)
-					return;
-				cause = cause.getCause();
-	}
-		}
-		assertFalse("No exception caught", true);
-	}
+      List<String> tokens = new ArrayList<String>();
+      tokens.addAll(DEFAULT_OPTIONS);
+      tokens.add("--factory");
+      tokens.add("org.apache.activemq.console.command.TestAMQ3410.DoesntExistFactory");
+      tokens.addAll(DEFAULT_TOKENS);
 
-	public void testFactorySetWrong2() throws Exception {
-		AmqBrowseCommand command = new AmqBrowseCommand();
-		CommandContext context = new CommandContext();
+      try {
+         command.execute(tokens);
+      }
+      catch (Throwable cause) {
+         while (null != cause) {
+            if (cause instanceof java.lang.ClassNotFoundException)
+               return;
+            cause = cause.getCause();
+         }
+      }
+      assertFalse("No exception caught", true);
+   }
 
-		context.setFormatter(new CommandShellOutputFormatter(System.out));
+   public void testFactorySetWrong2() throws Exception {
+      AmqBrowseCommand command = new AmqBrowseCommand();
+      CommandContext context = new CommandContext();
 
-		command.setCommandContext(context);
+      context.setFormatter(new CommandShellOutputFormatter(System.out));
 
-		List<String> tokens = new ArrayList<String>();
-		tokens.addAll(DEFAULT_OPTIONS);
-		tokens.add("--factory");
-		tokens.add(InvalidConnectionFactory.class.getCanonicalName());
-		tokens.addAll(DEFAULT_TOKENS);
+      command.setCommandContext(context);
 
-		try {
-			command.execute(tokens);
-		} catch (Throwable e) {
-			Throwable cause = e;
-			while (null != cause) {
-				if (cause instanceof java.lang.NoSuchMethodException)
-					return;
-				cause = cause.getCause();
-			}
-			assertFalse(e.toString(), true);
-		}
-		assertFalse("No exception caught", true);
-	}
+      List<String> tokens = new ArrayList<String>();
+      tokens.addAll(DEFAULT_OPTIONS);
+      tokens.add("--factory");
+      tokens.add(InvalidConnectionFactory.class.getCanonicalName());
+      tokens.addAll(DEFAULT_TOKENS);
 
-	public void testFactorySetWrong3() throws Exception {
-		AmqBrowseCommand command = new AmqBrowseCommand();
-		CommandContext context = new CommandContext();
+      try {
+         command.execute(tokens);
+      }
+      catch (Throwable e) {
+         Throwable cause = e;
+         while (null != cause) {
+            if (cause instanceof java.lang.NoSuchMethodException)
+               return;
+            cause = cause.getCause();
+         }
+         assertFalse(e.toString(), true);
+      }
+      assertFalse("No exception caught", true);
+   }
 
-		context.setFormatter(new CommandShellOutputFormatter(System.out));
+   public void testFactorySetWrong3() throws Exception {
+      AmqBrowseCommand command = new AmqBrowseCommand();
+      CommandContext context = new CommandContext();
 
-		command.setCommandContext(context);
+      context.setFormatter(new CommandShellOutputFormatter(System.out));
 
-		List<String> tokens = new ArrayList<String>();
-		tokens.addAll(DEFAULT_OPTIONS);
-		tokens.add("--factory");
-		tokens.add("java.lang.Object");
-		tokens.addAll(DEFAULT_TOKENS);
+      command.setCommandContext(context);
 
-		try {
-		command.execute(tokens);
-		} catch (Throwable cause) {
-			while (null != cause) {
-				if (cause instanceof java.lang.NoSuchMethodException)
-					return;
-				cause = cause.getCause();
-	}
-		}
-		assertFalse(true);
-	}
+      List<String> tokens = new ArrayList<String>();
+      tokens.addAll(DEFAULT_OPTIONS);
+      tokens.add("--factory");
+      tokens.add("java.lang.Object");
+      tokens.addAll(DEFAULT_TOKENS);
+
+      try {
+         command.execute(tokens);
+      }
+      catch (Throwable cause) {
+         while (null != cause) {
+            if (cause instanceof java.lang.NoSuchMethodException)
+               return;
+            cause = cause.getCause();
+         }
+      }
+      assertFalse(true);
+   }
 
 }

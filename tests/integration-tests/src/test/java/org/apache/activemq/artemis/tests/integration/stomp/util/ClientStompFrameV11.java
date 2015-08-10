@@ -17,12 +17,11 @@
 package org.apache.activemq.artemis.tests.integration.stomp.util;
 
 /**
- *         pls use factory to create frames.
+ * pls use factory to create frames.
  */
-public class ClientStompFrameV11 extends AbstractClientStompFrame
-{
-   static
-   {
+public class ClientStompFrameV11 extends AbstractClientStompFrame {
+
+   static {
       validCommands.add("NACK");
       validCommands.add("STOMP");
    }
@@ -30,46 +29,39 @@ public class ClientStompFrameV11 extends AbstractClientStompFrame
    boolean forceOneway = false;
    boolean isPing = false;
 
-   public ClientStompFrameV11(String command)
-   {
+   public ClientStompFrameV11(String command) {
       super(command);
    }
 
-   public ClientStompFrameV11(String command, boolean validate)
-   {
+   public ClientStompFrameV11(String command, boolean validate) {
       super(command, validate);
    }
 
-   public void setForceOneway()
-   {
+   public void setForceOneway() {
       forceOneway = true;
    }
 
    @Override
-   public boolean needsReply()
-   {
-      if (forceOneway) return false;
+   public boolean needsReply() {
+      if (forceOneway)
+         return false;
 
-      if ("CONNECT".equals(command) || "STOMP".equals(command) || headerKeys.contains(HEADER_RECEIPT))
-      {
+      if ("CONNECT".equals(command) || "STOMP".equals(command) || headerKeys.contains(HEADER_RECEIPT)) {
          return true;
       }
       return false;
    }
 
-   public void setPing(boolean b)
-   {
+   public void setPing(boolean b) {
       isPing = b;
    }
 
-   public boolean isPing()
-   {
+   public boolean isPing() {
       return isPing;
    }
 
    @Override
-   public String toString()
-   {
+   public String toString() {
       return "[1.1]" + super.toString();
    }
 }

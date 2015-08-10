@@ -21,10 +21,9 @@ import javax.naming.Name;
 import javax.naming.NameParser;
 import javax.naming.NamingException;
 
-public class NameParserImpl implements NameParser
-{
-   public Name parse(String name) throws NamingException
-   {
+public class NameParserImpl implements NameParser {
+
+   public Name parse(String name) throws NamingException {
       return new CompositeName(name);
    }
 }

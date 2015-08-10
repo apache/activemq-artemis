@@ -23,7 +23,9 @@ import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+
 import junit.framework.Test;
+
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.CombinationTestSupport;
 import org.apache.activemq.JmsTestSupport;
@@ -38,100 +40,102 @@ import org.slf4j.LoggerFactory;
 
 public class XBeanSecurityWithGuestTest extends JmsTestSupport {
 
-    private static final Logger LOG = LoggerFactory.getLogger(XBeanSecurityWithGuestTest.class);
-    public ActiveMQDestination destination;
-    
-    public static Test suite() {
-        return suite(XBeanSecurityWithGuestTest.class);
-    }
-    
-    public void testUserSendGoodPassword() throws JMSException {
-        Message m = doSend(false);
-        assertEquals("system", ((ActiveMQMessage)m).getUserID());
-        assertEquals("system", m.getStringProperty("JMSXUserID"));
-    }
-    
-    public void testUserSendWrongPassword() throws JMSException {
-        Message m = doSend(false);
-        // note brokerService.useAuthenticatedPrincipalForJMXUserID=true for this
-        assertEquals("guest", ((ActiveMQMessage)m).getUserID());
-        assertEquals("guest", m.getStringProperty("JMSXUserID"));
-    }
+   private static final Logger LOG = LoggerFactory.getLogger(XBeanSecurityWithGuestTest.class);
+   public ActiveMQDestination destination;
 
-    public void testUserSendNoCredentials() throws JMSException {
-        Message m = doSend(false);
-        // note brokerService.useAuthenticatedPrincipalForJMXUserID=true for this
-        assertEquals("guest", ((ActiveMQMessage)m).getUserID());
-        assertEquals("guest", m.getStringProperty("JMSXUserID"));
-    }
+   public static Test suite() {
+      return suite(XBeanSecurityWithGuestTest.class);
+   }
 
-    protected BrokerService createBroker() throws Exception {
-        return createBroker("org/apache/activemq/security/jaas-broker-guest.xml");
-    }
+   public void testUserSendGoodPassword() throws JMSException {
+      Message m = doSend(false);
+      assertEquals("system", ((ActiveMQMessage) m).getUserID());
+      assertEquals("system", m.getStringProperty("JMSXUserID"));
+   }
 
-    protected BrokerService createBroker(String uri) throws Exception {
-        LOG.info("Loading broker configuration from the classpath with URI: " + uri);
-        return BrokerFactory.createBroker(new URI("xbean:" + uri));
-    }
+   public void testUserSendWrongPassword() throws JMSException {
+      Message m = doSend(false);
+      // note brokerService.useAuthenticatedPrincipalForJMXUserID=true for this
+      assertEquals("guest", ((ActiveMQMessage) m).getUserID());
+      assertEquals("guest", m.getStringProperty("JMSXUserID"));
+   }
 
-    public Message doSend(boolean fail) throws JMSException {
+   public void testUserSendNoCredentials() throws JMSException {
+      Message m = doSend(false);
+      // note brokerService.useAuthenticatedPrincipalForJMXUserID=true for this
+      assertEquals("guest", ((ActiveMQMessage) m).getUserID());
+      assertEquals("guest", m.getStringProperty("JMSXUserID"));
+   }
 
-        Connection adminConnection = factory.createConnection("system", "manager");
-        connections.add(adminConnection);
+   protected BrokerService createBroker() throws Exception {
+      return createBroker("org/apache/activemq/security/jaas-broker-guest.xml");
+   }
 
-        adminConnection.start();
-        Session adminSession = adminConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        MessageConsumer consumer = adminSession.createConsumer(destination);
+   protected BrokerService createBroker(String uri) throws Exception {
+      LOG.info("Loading broker configuration from the classpath with URI: " + uri);
+      return BrokerFactory.createBroker(new URI("xbean:" + uri));
+   }
 
-        connections.remove(connection);
-        connection = (ActiveMQConnection)factory.createConnection(userName, password);
-        connections.add(connection);
+   public Message doSend(boolean fail) throws JMSException {
 
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        try {
-            sendMessages(session, destination, 1);
-        } catch (JMSException e) {
-            // If test is expected to fail, the cause must only be a
-            // SecurityException
-            // otherwise rethrow the exception
-            if (!fail || !(e.getCause() instanceof SecurityException)) {
-                throw e;
-            }
-        }
+      Connection adminConnection = factory.createConnection("system", "manager");
+      connections.add(adminConnection);
 
-        Message m = consumer.receive(1000);
-        if (fail) {
-            assertNull(m);
-        } else {
-            assertNotNull(m);
-            assertEquals("0", ((TextMessage)m).getText());
-            assertNull(consumer.receiveNoWait());
-        }
-        return m;
-    }
-    
-    /**
-     * @see {@link CombinationTestSupport}
-     */
-    public void initCombosForTestUserSendGoodPassword() {
-        addCombinationValues("userName", new Object[] {"system"});
-        addCombinationValues("password", new Object[] {"manager"});
-        addCombinationValues("destination", new Object[] {new ActiveMQQueue("test"), new ActiveMQTopic("test")});
-    }
-    
-    /**
-     * @see {@link CombinationTestSupport}
-     */
-    public void initCombosForTestUserSendWrongPassword() {
-        addCombinationValues("userName", new Object[] {"system"});
-        addCombinationValues("password", new Object[] {"wrongpassword"});
-        addCombinationValues("destination", new Object[] {new ActiveMQQueue("GuestQueue")});
-    }
+      adminConnection.start();
+      Session adminSession = adminConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      MessageConsumer consumer = adminSession.createConsumer(destination);
 
-    public void initCombosForTestUserSendNoCredentials() {
-        addCombinationValues("userName", new Object[] {"", null});
-        addCombinationValues("password", new Object[] {"", null});
-        addCombinationValues("destination", new Object[] {new ActiveMQQueue("GuestQueue")});
-    }
+      connections.remove(connection);
+      connection = (ActiveMQConnection) factory.createConnection(userName, password);
+      connections.add(connection);
+
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      try {
+         sendMessages(session, destination, 1);
+      }
+      catch (JMSException e) {
+         // If test is expected to fail, the cause must only be a
+         // SecurityException
+         // otherwise rethrow the exception
+         if (!fail || !(e.getCause() instanceof SecurityException)) {
+            throw e;
+         }
+      }
+
+      Message m = consumer.receive(1000);
+      if (fail) {
+         assertNull(m);
+      }
+      else {
+         assertNotNull(m);
+         assertEquals("0", ((TextMessage) m).getText());
+         assertNull(consumer.receiveNoWait());
+      }
+      return m;
+   }
+
+   /**
+    * @see {@link CombinationTestSupport}
+    */
+   public void initCombosForTestUserSendGoodPassword() {
+      addCombinationValues("userName", new Object[]{"system"});
+      addCombinationValues("password", new Object[]{"manager"});
+      addCombinationValues("destination", new Object[]{new ActiveMQQueue("test"), new ActiveMQTopic("test")});
+   }
+
+   /**
+    * @see {@link CombinationTestSupport}
+    */
+   public void initCombosForTestUserSendWrongPassword() {
+      addCombinationValues("userName", new Object[]{"system"});
+      addCombinationValues("password", new Object[]{"wrongpassword"});
+      addCombinationValues("destination", new Object[]{new ActiveMQQueue("GuestQueue")});
+   }
+
+   public void initCombosForTestUserSendNoCredentials() {
+      addCombinationValues("userName", new Object[]{"", null});
+      addCombinationValues("password", new Object[]{"", null});
+      addCombinationValues("destination", new Object[]{new ActiveMQQueue("GuestQueue")});
+   }
 
 }

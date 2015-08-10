@@ -40,36 +40,28 @@ import java.util.Arrays;
 import java.util.Collection;
 
 @RunWith(value = Parameterized.class)
-public class LargeMessageOverBridgeTest extends JMSClusteredTestBase
-{
+public class LargeMessageOverBridgeTest extends JMSClusteredTestBase {
 
    private final boolean persistent;
 
    @Override
-   protected boolean enablePersistence()
-   {
+   protected boolean enablePersistence() {
       return persistent;
    }
 
    @Parameterized.Parameters(name = "persistent={0}")
-   public static Collection getParameters()
-   {
-      return Arrays.asList(new Object[][]{
-         {true},
-         {false}
-      });
+   public static Collection getParameters() {
+      return Arrays.asList(new Object[][]{{true}, {false}});
    }
 
    @Override
-   protected final ConfigurationImpl createBasicConfig(final int serverID)
-   {
+   protected final ConfigurationImpl createBasicConfig(final int serverID) {
       ConfigurationImpl configuration = super.createBasicConfig(serverID);
       configuration.setJournalFileSize(1024 * 1024);
       return configuration;
    }
 
-   public LargeMessageOverBridgeTest(boolean persistent)
-   {
+   public LargeMessageOverBridgeTest(boolean persistent) {
       this.persistent = persistent;
    }
 
@@ -79,8 +71,7 @@ public class LargeMessageOverBridgeTest extends JMSClusteredTestBase
     * @throws Exception
     */
    @Test
-   public void testSendHalfLargeTextMessage() throws Exception
-   {
+   public void testSendHalfLargeTextMessage() throws Exception {
       createQueue("Q1");
 
       Queue queue = (Queue) context1.lookup("queue/Q1");
@@ -95,13 +86,11 @@ public class LargeMessageOverBridgeTest extends JMSClusteredTestBase
 
       StringBuffer buffer = new StringBuffer();
 
-      for (int i = 0; i < 51180; i++)
-      {
+      for (int i = 0; i < 51180; i++) {
          buffer.append('a');
       }
 
-      for (int i = 0; i < 10; i++)
-      {
+      for (int i = 0; i < 10; i++) {
          TextMessage msg = session1.createTextMessage(buffer.toString());
          prod1.send(msg);
       }
@@ -122,11 +111,10 @@ public class LargeMessageOverBridgeTest extends JMSClusteredTestBase
     * @throws Exception
     */
    @Test
-   public void testSendMapMessageOverCluster() throws Exception
-   {
+   public void testSendMapMessageOverCluster() throws Exception {
       createQueue("Q1");
 
-      Queue queue = (Queue)context1.lookup("queue/Q1");
+      Queue queue = (Queue) context1.lookup("queue/Q1");
       Connection conn1 = cf1.createConnection();
       Session session1 = conn1.createSession(false, Session.AUTO_ACKNOWLEDGE);
       MessageProducer prod1 = session1.createProducer(queue);
@@ -138,24 +126,21 @@ public class LargeMessageOverBridgeTest extends JMSClusteredTestBase
 
       StringBuffer buffer = new StringBuffer();
 
-      for (int i = 0; i < 3810002; i++)
-      {
+      for (int i = 0; i < 3810002; i++) {
          buffer.append('a');
       }
 
       final int NUMBER_OF_MESSAGES = 1;
 
-      for (int i = 0; i < NUMBER_OF_MESSAGES; i++)
-      {
+      for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
          MapMessage msg = session1.createMapMessage();
          msg.setString("str", buffer.toString());
          msg.setIntProperty("i", i);
          prod1.send(msg);
       }
 
-      for (int i = 0; i < NUMBER_OF_MESSAGES; i++)
-      {
-         MapMessage msg = (MapMessage)cons2.receive(5000);
+      for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
+         MapMessage msg = (MapMessage) cons2.receive(5000);
          assertEquals(buffer.toString(), msg.getString("str"));
       }
 
@@ -166,25 +151,20 @@ public class LargeMessageOverBridgeTest extends JMSClusteredTestBase
 
    }
 
-
    /**
     * the hack to create the failing condition in certain tests
     *
     * @param config
     */
-   private void installHack(Configuration config)
-   {
-      if (this.getName().equals("testSendBytesAsLargeOnBridgeOnly"))
-      {
-         for (ClusterConnectionConfiguration conn : config.getClusterConfigurations())
-         {
+   private void installHack(Configuration config) {
+      if (this.getName().equals("testSendBytesAsLargeOnBridgeOnly")) {
+         for (ClusterConnectionConfiguration conn : config.getClusterConfigurations()) {
             conn.setMinLargeMessageSize(1000);
          }
       }
    }
 
-   protected Configuration createConfigServer(final int source, final int destination) throws Exception
-   {
+   protected Configuration createConfigServer(final int source, final int destination) throws Exception {
       Configuration config = super.createConfigServer(source, destination);
 
       installHack(config);
@@ -192,17 +172,14 @@ public class LargeMessageOverBridgeTest extends JMSClusteredTestBase
       return config;
    }
 
-
    /**
     * This was causing a text message to ber eventually converted into large message when sent over the bridge
     *
     * @throws Exception
     */
    @Test
-   public void testSendBytesAsLargeOnBridgeOnly() throws Exception
-   {
+   public void testSendBytesAsLargeOnBridgeOnly() throws Exception {
       createQueue("Q1");
-
 
       Queue queue = (Queue) context1.lookup("queue/Q1");
       Connection conn1 = cf1.createConnection();
@@ -216,13 +193,11 @@ public class LargeMessageOverBridgeTest extends JMSClusteredTestBase
 
       byte[] bytes = new byte[10 * 1024];
 
-      for (int i = 0; i < bytes.length; i++)
-      {
+      for (int i = 0; i < bytes.length; i++) {
          bytes[i] = getSamplebyte(i);
       }
 
-      for (int i = 0; i < 10; i++)
-      {
+      for (int i = 0; i < 10; i++) {
          BytesMessage msg = session1.createBytesMessage();
          msg.writeBytes(bytes);
          prod1.send(msg);
@@ -230,15 +205,12 @@ public class LargeMessageOverBridgeTest extends JMSClusteredTestBase
 
       session1.commit();
 
-
-      for (int i = 0; i < 5; i++)
-      {
+      for (int i = 0; i < 5; i++) {
          BytesMessage msg2 = (BytesMessage) cons2.receive(5000);
          assertNotNull(msg2);
          msg2.acknowledge();
 
-         for (int j = 0; j < bytes.length; j++)
-         {
+         for (int j = 0; j < bytes.length; j++) {
             assertEquals("Position " + i, msg2.readByte(), bytes[j]);
          }
       }
@@ -253,13 +225,10 @@ public class LargeMessageOverBridgeTest extends JMSClusteredTestBase
     * @throws Exception
     */
    @Test
-   public void testSendLargeForBridge() throws Exception
-   {
+   public void testSendLargeForBridge() throws Exception {
       createQueue("Q1");
 
-
       Queue queue = (Queue) context1.lookup("queue/Q1");
-
 
       ActiveMQConnectionFactory cf1 = ActiveMQJMSClient.createConnectionFactoryWithHA(JMSFactoryType.CF, new TransportConfiguration(INVM_CONNECTOR_FACTORY, generateInVMParams(1)));
       cf1.setMinLargeMessageSize(200 * 1024);
@@ -275,13 +244,11 @@ public class LargeMessageOverBridgeTest extends JMSClusteredTestBase
 
       byte[] bytes = new byte[150 * 1024];
 
-      for (int i = 0; i < bytes.length; i++)
-      {
+      for (int i = 0; i < bytes.length; i++) {
          bytes[i] = getSamplebyte(i);
       }
 
-      for (int i = 0; i < 10; i++)
-      {
+      for (int i = 0; i < 10; i++) {
          BytesMessage msg = session1.createBytesMessage();
          msg.writeBytes(bytes);
          prod1.send(msg);
@@ -289,15 +256,12 @@ public class LargeMessageOverBridgeTest extends JMSClusteredTestBase
 
       session1.commit();
 
-
-      for (int i = 0; i < 5; i++)
-      {
+      for (int i = 0; i < 5; i++) {
          BytesMessage msg2 = (BytesMessage) cons2.receive(5000);
          assertNotNull(msg2);
          msg2.acknowledge();
 
-         for (int j = 0; j < bytes.length; j++)
-         {
+         for (int j = 0; j < bytes.length; j++) {
             assertEquals("Position " + i, msg2.readByte(), bytes[j]);
          }
       }

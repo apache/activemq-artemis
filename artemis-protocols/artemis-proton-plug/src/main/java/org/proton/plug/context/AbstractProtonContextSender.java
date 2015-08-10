@@ -30,8 +30,8 @@ import org.proton.plug.util.NettyWritable;
 /**
  * A this is a wrapper around an ActiveMQ Artemis ServerConsumer for handling outgoing messages and incoming acks via a Proton Sender
  */
-public abstract class AbstractProtonContextSender extends ProtonInitializable implements ProtonDeliveryHandler
-{
+public abstract class AbstractProtonContextSender extends ProtonInitializable implements ProtonDeliveryHandler {
+
    protected final AbstractProtonSessionContext protonSession;
    protected final Sender sender;
    protected final AbstractConnectionContext connection;
@@ -39,25 +39,24 @@ public abstract class AbstractProtonContextSender extends ProtonInitializable im
    protected final AMQPSessionCallback sessionSPI;
    protected CreditsSemaphore creditsSemaphore = new CreditsSemaphore(0);
 
-
-   public AbstractProtonContextSender(AbstractConnectionContext connection, Sender sender, AbstractProtonSessionContext protonSession, AMQPSessionCallback server)
-   {
+   public AbstractProtonContextSender(AbstractConnectionContext connection,
+                                      Sender sender,
+                                      AbstractProtonSessionContext protonSession,
+                                      AMQPSessionCallback server) {
       this.connection = connection;
       this.sender = sender;
       this.protonSession = protonSession;
       this.sessionSPI = server;
    }
 
-   public void onFlow(int credits)
-   {
+   public void onFlow(int credits) {
       this.creditsSemaphore.setCredits(credits);
    }
 
    /*
    * start the session
    * */
-   public void start() throws ActiveMQAMQPException
-   {
+   public void start() throws ActiveMQAMQPException {
       sessionSPI.start();
       // protonSession.getServerSession().start();
    }
@@ -65,12 +64,10 @@ public abstract class AbstractProtonContextSender extends ProtonInitializable im
    /*
    * close the session
    * */
-   public void close() throws ActiveMQAMQPException
-   {
+   public void close() throws ActiveMQAMQPException {
       closed = true;
       protonSession.removeSender(sender);
-      synchronized (connection.getLock())
-      {
+      synchronized (connection.getLock()) {
          sender.close();
       }
 
@@ -80,31 +77,24 @@ public abstract class AbstractProtonContextSender extends ProtonInitializable im
    @Override
    /*
    * handle an incoming Ack from Proton, basically pass to ActiveMQ Artemis to handle
-   * */
-   public abstract void onMessage(Delivery delivery) throws ActiveMQAMQPException;
+   * */ public abstract void onMessage(Delivery delivery) throws ActiveMQAMQPException;
 
    /*
    * check the state of the consumer, i.e. are there any more messages. only really needed for browsers?
    * */
-   public void checkState()
-   {
+   public void checkState() {
    }
 
-   public Sender getSender()
-   {
+   public Sender getSender() {
       return sender;
    }
 
-   protected int performSend(ProtonJMessage serverMessage, Object context)
-   {
-      if (!creditsSemaphore.tryAcquire())
-      {
-         try
-         {
+   protected int performSend(ProtonJMessage serverMessage, Object context) {
+      if (!creditsSemaphore.tryAcquire()) {
+         try {
             creditsSemaphore.acquire();
          }
-         catch (InterruptedException e)
-         {
+         catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             // nothing to be done here.. we just keep going
             throw new IllegalStateException(e.getMessage(), e);
@@ -118,14 +108,12 @@ public abstract class AbstractProtonContextSender extends ProtonInitializable im
       byte[] tag = preSettle ? new byte[0] : protonSession.getTag();
 
       ByteBuf nettyBuffer = PooledByteBufAllocator.DEFAULT.heapBuffer(1024);
-      try
-      {
+      try {
          serverMessage.encode(new NettyWritable(nettyBuffer));
 
          int size = nettyBuffer.writerIndex();
 
-         synchronized (connection.getLock())
-         {
+         synchronized (connection.getLock()) {
             final Delivery delivery;
             delivery = sender.delivery(tag, 0, tag.length);
             delivery.setContext(context);
@@ -133,12 +121,10 @@ public abstract class AbstractProtonContextSender extends ProtonInitializable im
             // this will avoid a copy.. patch provided by Norman using buffer.array()
             sender.send(nettyBuffer.array(), nettyBuffer.arrayOffset() + nettyBuffer.readerIndex(), nettyBuffer.readableBytes());
 
-            if (preSettle)
-            {
+            if (preSettle) {
                delivery.settle();
             }
-            else
-            {
+            else {
                sender.advance();
             }
          }
@@ -147,8 +133,7 @@ public abstract class AbstractProtonContextSender extends ProtonInitializable im
 
          return size;
       }
-      finally
-      {
+      finally {
          nettyBuffer.release();
       }
    }

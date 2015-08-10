@@ -23,22 +23,23 @@ import javax.management.remote.JMXPrincipal;
 import javax.net.ssl.SSLSocket;
 
 /**
- * 
+ *
  */
 public final class SslSocketHelper {
 
-    private SslSocketHelper() {
-    }
+   private SslSocketHelper() {
+   }
 
-    public static SSLSocket createSSLSocket(String certDistinguishedName, boolean wantAuth, boolean needAuth)
-        throws IOException {
-        JMXPrincipal principal = new JMXPrincipal(certDistinguishedName);
-        X509Certificate cert = new StubX509Certificate(principal);
-        StubSSLSession sslSession = new StubSSLSession(cert);
+   public static SSLSocket createSSLSocket(String certDistinguishedName,
+                                           boolean wantAuth,
+                                           boolean needAuth) throws IOException {
+      JMXPrincipal principal = new JMXPrincipal(certDistinguishedName);
+      X509Certificate cert = new StubX509Certificate(principal);
+      StubSSLSession sslSession = new StubSSLSession(cert);
 
-        StubSSLSocket sslSocket = new StubSSLSocket(sslSession);
-        sslSocket.setWantClientAuth(wantAuth);
-        sslSocket.setNeedClientAuth(needAuth);
-        return sslSocket;
-    }
+      StubSSLSocket sslSocket = new StubSSLSocket(sslSession);
+      sslSocket.setWantClientAuth(wantAuth);
+      sslSocket.setNeedClientAuth(needAuth);
+      return sslSocket;
+   }
 }

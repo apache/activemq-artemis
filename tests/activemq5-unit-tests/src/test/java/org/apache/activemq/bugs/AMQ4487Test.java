@@ -40,96 +40,96 @@ import org.slf4j.LoggerFactory;
 
 public class AMQ4487Test {
 
-    private static final Logger LOG = LoggerFactory.getLogger(AMQ4487Test.class);
+   private static final Logger LOG = LoggerFactory.getLogger(AMQ4487Test.class);
 
-    private final String destinationName = "TEST.QUEUE";
-    private BrokerService broker;
-    private ActiveMQConnectionFactory factory;
+   private final String destinationName = "TEST.QUEUE";
+   private BrokerService broker;
+   private ActiveMQConnectionFactory factory;
 
-    @Before
-    public void startBroker() throws Exception {
-        broker = new BrokerService();
-        broker.deleteAllMessages();
-        broker.setUseJmx(false);
-        broker.setAdvisorySupport(false);
+   @Before
+   public void startBroker() throws Exception {
+      broker = new BrokerService();
+      broker.deleteAllMessages();
+      broker.setUseJmx(false);
+      broker.setAdvisorySupport(false);
 
-        PolicyEntry policy = new PolicyEntry();
-        policy.setQueue(">");
-        policy.setMaxProducersToAudit(75);
-        PolicyMap pMap = new PolicyMap();
-        pMap.setDefaultEntry(policy);
-        broker.setDestinationPolicy(pMap);
+      PolicyEntry policy = new PolicyEntry();
+      policy.setQueue(">");
+      policy.setMaxProducersToAudit(75);
+      PolicyMap pMap = new PolicyMap();
+      pMap.setDefaultEntry(policy);
+      broker.setDestinationPolicy(pMap);
 
-        broker.start();
-        broker.waitUntilStarted();
-        factory = new ActiveMQConnectionFactory("vm://localhost");
-    }
+      broker.start();
+      broker.waitUntilStarted();
+      factory = new ActiveMQConnectionFactory("vm://localhost");
+   }
 
-    @After
-    public void stopBroker() throws Exception {
-        broker.stop();
-        broker.waitUntilStopped();
-    }
+   @After
+   public void stopBroker() throws Exception {
+      broker.stop();
+      broker.waitUntilStopped();
+   }
 
-    private void sendMessages(int messageToSend) throws Exception {
-        String data = "";
-        for (int i = 0; i < 1024 * 2; i++) {
-            data += "x";
-        }
+   private void sendMessages(int messageToSend) throws Exception {
+      String data = "";
+      for (int i = 0; i < 1024 * 2; i++) {
+         data += "x";
+      }
 
-        Connection connection = factory.createConnection();
-        connection.start();
+      Connection connection = factory.createConnection();
+      connection.start();
 
-        for (int i = 0; i < messageToSend; i++) {
-            Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-            Queue queue = session.createQueue(destinationName);
-            MessageProducer producer = session.createProducer(queue);
-            producer.send(session.createTextMessage(data));
-            session.close();
-        }
+      for (int i = 0; i < messageToSend; i++) {
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         Queue queue = session.createQueue(destinationName);
+         MessageProducer producer = session.createProducer(queue);
+         producer.send(session.createTextMessage(data));
+         session.close();
+      }
 
-        connection.close();
-    }
+      connection.close();
+   }
 
-    @Test
-    public void testBrowsingWithLessThanMaxAuditDepth() throws Exception {
-        doTestBrowsing(75);
-    }
+   @Test
+   public void testBrowsingWithLessThanMaxAuditDepth() throws Exception {
+      doTestBrowsing(75);
+   }
 
-    @Test
-    public void testBrowsingWithMoreThanMaxAuditDepth() throws Exception {
-        doTestBrowsing(300);
-    }
+   @Test
+   public void testBrowsingWithMoreThanMaxAuditDepth() throws Exception {
+      doTestBrowsing(300);
+   }
 
-    @SuppressWarnings("rawtypes")
-    private void doTestBrowsing(int messagesToSend) throws Exception {
+   @SuppressWarnings("rawtypes")
+   private void doTestBrowsing(int messagesToSend) throws Exception {
 
-        Connection connection = factory.createConnection();
-        connection.start();
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        Queue queue = session.createQueue(destinationName);
+      Connection connection = factory.createConnection();
+      connection.start();
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      Queue queue = session.createQueue(destinationName);
 
-        sendMessages(messagesToSend);
+      sendMessages(messagesToSend);
 
-        QueueBrowser browser = session.createBrowser(queue);
-        Enumeration enumeration = browser.getEnumeration();
-        int received = 0;
-        while (enumeration.hasMoreElements()) {
-            Message m = (Message) enumeration.nextElement();
-            assertNotNull(m);
+      QueueBrowser browser = session.createBrowser(queue);
+      Enumeration enumeration = browser.getEnumeration();
+      int received = 0;
+      while (enumeration.hasMoreElements()) {
+         Message m = (Message) enumeration.nextElement();
+         assertNotNull(m);
 
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Browsed Message: {}", m.getJMSMessageID());
-            }
+         if (LOG.isDebugEnabled()) {
+            LOG.debug("Browsed Message: {}", m.getJMSMessageID());
+         }
 
-            received++;
-            if (received > messagesToSend) {
-                break;
-            }
-        }
+         received++;
+         if (received > messagesToSend) {
+            break;
+         }
+      }
 
-        browser.close();
+      browser.close();
 
-        assertEquals(messagesToSend, received);
-    }
+      assertEquals(messagesToSend, received);
+   }
 }

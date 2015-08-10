@@ -16,8 +16,8 @@
  */
 package org.apache.activemq.artemis.utils;
 
-public interface LinkedList<E>
-{
+public interface LinkedList<E> {
+
    void addHead(E e);
 
    void addTail(E e);

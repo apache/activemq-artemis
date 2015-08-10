@@ -55,11 +55,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ActiveMQConnectionFactory extends JNDIBaseStorable implements ConnectionFactory, QueueConnectionFactory, TopicConnectionFactory, StatsCapable, Cloneable {
+
    private static final Logger LOG = LoggerFactory.getLogger(ActiveMQConnectionFactory.class);
    private static final String DEFAULT_BROKER_HOST;
    private static final int DEFAULT_BROKER_PORT;
    private static URI defaultTcpUri;
-   static{
+
+   static {
       String host = null;
       String port = null;
       try {
@@ -67,7 +69,7 @@ public class ActiveMQConnectionFactory extends JNDIBaseStorable implements Conne
             @Override
             public String run() {
                String result = System.getProperty("org.apache.activemq.AMQ_HOST");
-               result = (result==null||result.isEmpty()) ?  System.getProperty("AMQ_HOST","localhost") : result;
+               result = (result == null || result.isEmpty()) ? System.getProperty("AMQ_HOST", "localhost") : result;
                return result;
             }
          });
@@ -75,12 +77,13 @@ public class ActiveMQConnectionFactory extends JNDIBaseStorable implements Conne
             @Override
             public String run() {
                String result = System.getProperty("org.apache.activemq.AMQ_PORT");
-               result = (result==null||result.isEmpty()) ?  System.getProperty("AMQ_PORT","61616") : result;
+               result = (result == null || result.isEmpty()) ? System.getProperty("AMQ_PORT", "61616") : result;
                return result;
             }
          });
-      }catch(Throwable e){
-         LOG.debug("Failed to look up System properties for host and port",e);
+      }
+      catch (Throwable e) {
+         LOG.debug("Failed to look up System properties for host and port", e);
       }
       host = (host == null || host.isEmpty()) ? "localhost" : host;
       port = (port == null || port.isEmpty()) ? "61616" : port;
@@ -88,10 +91,9 @@ public class ActiveMQConnectionFactory extends JNDIBaseStorable implements Conne
       DEFAULT_BROKER_PORT = Integer.parseInt(port);
    }
 
-
    public static final String DEFAULT_BROKER_BIND_URL;
 
-   static{
+   static {
       final String defaultURL = "tcp://" + DEFAULT_BROKER_HOST + ":" + DEFAULT_BROKER_PORT;
       String bindURL = null;
 
@@ -100,24 +102,26 @@ public class ActiveMQConnectionFactory extends JNDIBaseStorable implements Conne
             @Override
             public String run() {
                String result = System.getProperty("org.apache.activemq.BROKER_BIND_URL");
-               result = (result==null||result.isEmpty()) ?  System.getProperty("BROKER_BIND_URL",defaultURL) : result;
+               result = (result == null || result.isEmpty()) ? System.getProperty("BROKER_BIND_URL", defaultURL) : result;
                return result;
             }
          });
-      }catch(Throwable e){
-         LOG.debug("Failed to look up System properties for host and port",e);
+      }
+      catch (Throwable e) {
+         LOG.debug("Failed to look up System properties for host and port", e);
       }
       bindURL = (bindURL == null || bindURL.isEmpty()) ? defaultURL : bindURL;
       DEFAULT_BROKER_BIND_URL = bindURL;
-        try {
-            defaultTcpUri = new URI(defaultURL);
-        } catch (URISyntaxException e) {
-            LOG.debug("Failed to build default tcp url",e);
-        }
+      try {
+         defaultTcpUri = new URI(defaultURL);
+      }
+      catch (URISyntaxException e) {
+         LOG.debug("Failed to build default tcp url", e);
+      }
 
    }
 
-   public static final String DEFAULT_BROKER_URL = "failover://"+DEFAULT_BROKER_BIND_URL;
+   public static final String DEFAULT_BROKER_URL = "failover://" + DEFAULT_BROKER_BIND_URL;
    public static final String DEFAULT_USER = null;
    public static final String DEFAULT_PASSWORD = null;
    public static final int DEFAULT_PRODUCER_WINDOW_SIZE = 0;
@@ -127,8 +131,8 @@ public class ActiveMQConnectionFactory extends JNDIBaseStorable implements Conne
    protected String userName;
    protected String password;
    protected String clientID;
-   protected boolean dispatchAsync=true;
-   protected boolean alwaysSessionAsync=true;
+   protected boolean dispatchAsync = true;
+   protected boolean alwaysSessionAsync = true;
 
    JMSStatsImpl factoryStats = new JMSStatsImpl();
 
@@ -140,9 +144,11 @@ public class ActiveMQConnectionFactory extends JNDIBaseStorable implements Conne
    // client policies
    private ActiveMQPrefetchPolicy prefetchPolicy = new ActiveMQPrefetchPolicy();
    private RedeliveryPolicyMap redeliveryPolicyMap = new RedeliveryPolicyMap();
+
    {
       redeliveryPolicyMap.setDefaultEntry(new RedeliveryPolicy());
    }
+
    private BlobTransferPolicy blobTransferPolicy = new BlobTransferPolicy();
    private MessageTransformer transformer;
 
@@ -164,7 +170,7 @@ public class ActiveMQConnectionFactory extends JNDIBaseStorable implements Conne
    private int producerWindowSize = DEFAULT_PRODUCER_WINDOW_SIZE;
    private long warnAboutUnstartedConnectionTimeout = 500L;
    private int sendTimeout = 0;
-   private boolean sendAcksAsync=true;
+   private boolean sendAcksAsync = true;
    private TransportListener transportListener;
    private ExceptionListener exceptionListener;
    private int auditDepth = ActiveMQMessageAudit.DEFAULT_WINDOW_SIZE;
@@ -195,19 +201,18 @@ public class ActiveMQConnectionFactory extends JNDIBaseStorable implements Conne
 
    public ActiveMQConnectionFactory(String brokerURL) {
       this(createURI(brokerURL));
-      try
-      {
+      try {
          URI uri = new URI(brokerURL);
          String scheme = uri.getScheme();
          if ("vm".equals(scheme)) {
             Map<String, String> params = URISupport.parseParameters(uri);
             params.clear();
 
-            this.vmBrokerUri = URISupport.createRemainingURI(uri, params);;
+            this.vmBrokerUri = URISupport.createRemainingURI(uri, params);
+            ;
          }
       }
-      catch (URISyntaxException e)
-      {
+      catch (URISyntaxException e) {
       }
 
    }
@@ -230,8 +235,9 @@ public class ActiveMQConnectionFactory extends JNDIBaseStorable implements Conne
 
    public ActiveMQConnectionFactory copy() {
       try {
-         return (ActiveMQConnectionFactory)super.clone();
-      } catch (CloneNotSupportedException e) {
+         return (ActiveMQConnectionFactory) super.clone();
+      }
+      catch (CloneNotSupportedException e) {
          throw new RuntimeException("This should never happen: " + e, e);
       }
    }
@@ -241,18 +247,19 @@ public class ActiveMQConnectionFactory extends JNDIBaseStorable implements Conne
          URI uri = new URI(brokerURL);
          String scheme = uri.getScheme();
          if ("vm".equals(scheme)) {
-             Map<String, String> params = URISupport.parseParameters(uri);
-             //EMPTY_MAP is immutable, so use a normal map instead.
-             if (params == Collections.EMPTY_MAP) {
-                 params = new HashMap<String, String>();
-             }
-             params.put("invmBrokerId", uri.getHost() == null ? "localhost" : uri.getHost());
-             defaultTcpUri = URISupport.createRemainingURI(defaultTcpUri, params);
-             return defaultTcpUri;
+            Map<String, String> params = URISupport.parseParameters(uri);
+            //EMPTY_MAP is immutable, so use a normal map instead.
+            if (params == Collections.EMPTY_MAP) {
+               params = new HashMap<String, String>();
+            }
+            params.put("invmBrokerId", uri.getHost() == null ? "localhost" : uri.getHost());
+            defaultTcpUri = URISupport.createRemainingURI(defaultTcpUri, params);
+            return defaultTcpUri;
          }
          return uri;
-      } catch (URISyntaxException e) {
-         throw (IllegalArgumentException)new IllegalArgumentException("Invalid broker URI: " + brokerURL).initCause(e);
+      }
+      catch (URISyntaxException e) {
+         throw (IllegalArgumentException) new IllegalArgumentException("Invalid broker URI: " + brokerURL).initCause(e);
       }
    }
 
@@ -307,7 +314,8 @@ public class ActiveMQConnectionFactory extends JNDIBaseStorable implements Conne
          Transport t = TransportFactory.connect(brokerURL);
          System.out.println("xxxxxxxxxxxx created transport" + t);
          return t;
-      } catch (Exception e) {
+      }
+      catch (Exception e) {
          throw JMSExceptionSupport.create("Could not create Transport. Reason: " + e, e);
       }
    }
@@ -333,26 +341,29 @@ public class ActiveMQConnectionFactory extends JNDIBaseStorable implements Conne
          }
 
          return connection;
-      } catch (JMSException e) {
+      }
+      catch (JMSException e) {
          // Clean up!
          try {
             connection.close();
-         } catch (Throwable ignore) {
+         }
+         catch (Throwable ignore) {
          }
          throw e;
-      } catch (Exception e) {
+      }
+      catch (Exception e) {
          // Clean up!
          try {
             connection.close();
-         } catch (Throwable ignore) {
+         }
+         catch (Throwable ignore) {
          }
          throw JMSExceptionSupport.create("Could not connect to broker URL: " + brokerURL + ". Reason: " + e, e);
       }
    }
 
    protected ActiveMQConnection createActiveMQConnection(Transport transport, JMSStatsImpl stats) throws Exception {
-      ActiveMQConnection connection = new ActiveMQConnection(transport, getClientIdGenerator(),
-              getConnectionIdGenerator(), stats);
+      ActiveMQConnection connection = new ActiveMQConnection(transport, getClientIdGenerator(), getConnectionIdGenerator(), stats);
       return connection;
    }
 
@@ -414,22 +425,21 @@ public class ActiveMQConnectionFactory extends JNDIBaseStorable implements Conne
 
    public String getBrokerURL() {
       System.out.println("vm uri: " + vmBrokerUri);
-      if (vmBrokerUri != null) return vmBrokerUri.toString();
+      if (vmBrokerUri != null)
+         return vmBrokerUri.toString();
       return brokerURL == null ? null : brokerURL.toString();
    }
 
    public void setBrokerURL(String brokerURL) {
       URI uri = null;
-      try
-      {
+      try {
          uri = new URI(brokerURL);
          String scheme = uri.getScheme();
          if ("vm".equals(scheme)) {
             this.vmBrokerUri = uri;
          }
       }
-      catch (URISyntaxException e)
-      {
+      catch (URISyntaxException e) {
       }
       this.brokerURL = createURI(brokerURL);
 
@@ -440,43 +450,38 @@ public class ActiveMQConnectionFactory extends JNDIBaseStorable implements Conne
          // It might be a standard URI or...
          try {
 
-            Map<String,String> map = URISupport.parseQuery(this.brokerURL.getQuery());
-            Map<String,Object> jmsOptionsMap = IntrospectionSupport.extractProperties(map, "jms.");
+            Map<String, String> map = URISupport.parseQuery(this.brokerURL.getQuery());
+            Map<String, Object> jmsOptionsMap = IntrospectionSupport.extractProperties(map, "jms.");
             if (buildFromMap(jmsOptionsMap)) {
                if (!jmsOptionsMap.isEmpty()) {
-                  String msg = "There are " + jmsOptionsMap.size()
-                          + " jms options that couldn't be set on the ConnectionFactory."
-                          + " Check the options are spelled correctly."
-                          + " Unknown parameters=[" + jmsOptionsMap + "]."
-                          + " This connection factory cannot be started.";
+                  String msg = "There are " + jmsOptionsMap.size() + " jms options that couldn't be set on the ConnectionFactory." + " Check the options are spelled correctly." + " Unknown parameters=[" + jmsOptionsMap + "]." + " This connection factory cannot be started.";
                   throw new IllegalArgumentException(msg);
                }
 
                this.brokerURL = URISupport.createRemainingURI(this.brokerURL, map);
             }
 
-         } catch (URISyntaxException e) {
+         }
+         catch (URISyntaxException e) {
          }
 
-      } else {
+      }
+      else {
 
          // It might be a composite URI.
          try {
             CompositeData data = URISupport.parseComposite(this.brokerURL);
-            Map<String,Object> jmsOptionsMap = IntrospectionSupport.extractProperties(data.getParameters(), "jms.");
+            Map<String, Object> jmsOptionsMap = IntrospectionSupport.extractProperties(data.getParameters(), "jms.");
             if (buildFromMap(jmsOptionsMap)) {
                if (!jmsOptionsMap.isEmpty()) {
-                  String msg = "There are " + jmsOptionsMap.size()
-                          + " jms options that couldn't be set on the ConnectionFactory."
-                          + " Check the options are spelled correctly."
-                          + " Unknown parameters=[" + jmsOptionsMap + "]."
-                          + " This connection factory cannot be started.";
+                  String msg = "There are " + jmsOptionsMap.size() + " jms options that couldn't be set on the ConnectionFactory." + " Check the options are spelled correctly." + " Unknown parameters=[" + jmsOptionsMap + "]." + " This connection factory cannot be started.";
                   throw new IllegalArgumentException(msg);
                }
 
                this.brokerURL = data.toURI();
             }
-         } catch (URISyntaxException e) {
+         }
+         catch (URISyntaxException e) {
          }
       }
    }
@@ -629,12 +634,11 @@ public class ActiveMQConnectionFactory extends JNDIBaseStorable implements Conne
       this.messagePrioritySupported = messagePrioritySupported;
    }
 
-
    public void setTransformer(MessageTransformer transformer) {
       this.transformer = transformer;
    }
 
-   @SuppressWarnings({ "unchecked", "rawtypes" })
+   @SuppressWarnings({"unchecked", "rawtypes"})
    @Override
    public void buildFromProperties(Properties properties) {
 
@@ -722,7 +726,7 @@ public class ActiveMQConnectionFactory extends JNDIBaseStorable implements Conne
       props.setProperty("alwaysSyncSend", Boolean.toString(isAlwaysSyncSend()));
       props.setProperty("producerWindowSize", Integer.toString(getProducerWindowSize()));
       props.setProperty("sendTimeout", Integer.toString(getSendTimeout()));
-      props.setProperty("sendAcksAsync",Boolean.toString(isSendAcksAsync()));
+      props.setProperty("sendAcksAsync", Boolean.toString(isSendAcksAsync()));
       props.setProperty("auditDepth", Integer.toString(getAuditDepth()));
       props.setProperty("auditMaximumProducerNumber", Integer.toString(getAuditMaximumProducerNumber()));
       props.setProperty("checkForDuplicates", Boolean.toString(isCheckForDuplicates()));
@@ -785,7 +789,7 @@ public class ActiveMQConnectionFactory extends JNDIBaseStorable implements Conne
    }
 
    public void setOptimizeAcknowledgeTimeOut(long optimizeAcknowledgeTimeOut) {
-      this.optimizeAcknowledgeTimeOut =  optimizeAcknowledgeTimeOut;
+      this.optimizeAcknowledgeTimeOut = optimizeAcknowledgeTimeOut;
    }
 
    public long getOptimizeAcknowledgeTimeOut() {
@@ -812,7 +816,8 @@ public class ActiveMQConnectionFactory extends JNDIBaseStorable implements Conne
       if (clientIdGenerator == null) {
          if (clientIDPrefix != null) {
             clientIdGenerator = new IdGenerator(clientIDPrefix);
-         } else {
+         }
+         else {
             clientIdGenerator = new IdGenerator();
          }
       }
@@ -831,7 +836,8 @@ public class ActiveMQConnectionFactory extends JNDIBaseStorable implements Conne
       if (connectionIdGenerator == null) {
          if (connectionIDPrefix != null) {
             connectionIdGenerator = new IdGenerator(connectionIDPrefix);
-         } else {
+         }
+         else {
             connectionIdGenerator = new IdGenerator();
          }
       }
@@ -873,7 +879,6 @@ public class ActiveMQConnectionFactory extends JNDIBaseStorable implements Conne
    public void setTransportListener(TransportListener transportListener) {
       this.transportListener = transportListener;
    }
-
 
    public ExceptionListener getExceptionListener() {
       return exceptionListener;
@@ -919,8 +924,7 @@ public class ActiveMQConnectionFactory extends JNDIBaseStorable implements Conne
       return clientInternalExceptionListener;
    }
 
-   public void setClientInternalExceptionListener(
-           ClientInternalExceptionListener clientInternalExceptionListener) {
+   public void setClientInternalExceptionListener(ClientInternalExceptionListener clientInternalExceptionListener) {
       this.clientInternalExceptionListener = clientInternalExceptionListener;
    }
 
@@ -939,7 +943,6 @@ public class ActiveMQConnectionFactory extends JNDIBaseStorable implements Conne
    public void setTransactedIndividualAck(boolean transactedIndividualAck) {
       this.transactedIndividualAck = transactedIndividualAck;
    }
-
 
    public boolean isNonBlockingRedelivery() {
       return nonBlockingRedelivery;
@@ -980,7 +983,6 @@ public class ActiveMQConnectionFactory extends JNDIBaseStorable implements Conne
    public void setOptimizedAckScheduledAckInterval(long optimizedAckScheduledAckInterval) {
       this.optimizedAckScheduledAckInterval = optimizedAckScheduledAckInterval;
    }
-
 
    public boolean isRmIdFromConnectionId() {
       return rmIdFromConnectionId;

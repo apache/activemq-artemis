@@ -31,8 +31,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class ScaleDownPolicy
-{
+public class ScaleDownPolicy {
+
    private List<String> connectors = new ArrayList<>();
 
    private String discoveryGroup = null;
@@ -43,100 +43,80 @@ public class ScaleDownPolicy
 
    private boolean enabled;
 
-   public ScaleDownPolicy()
-   {
+   public ScaleDownPolicy() {
    }
 
-   public ScaleDownPolicy(List<String> connectors, String groupName, String clusterName, boolean enabled)
-   {
+   public ScaleDownPolicy(List<String> connectors, String groupName, String clusterName, boolean enabled) {
       this.connectors = connectors;
       this.groupName = groupName;
       this.clusterName = clusterName;
       this.enabled = enabled;
    }
 
-   public ScaleDownPolicy(String discoveryGroup, String groupName, String clusterName, boolean enabled)
-   {
+   public ScaleDownPolicy(String discoveryGroup, String groupName, String clusterName, boolean enabled) {
       this.discoveryGroup = discoveryGroup;
       this.groupName = groupName;
       this.clusterName = clusterName;
       this.enabled = enabled;
    }
 
-
-   public List<String> getConnectors()
-   {
+   public List<String> getConnectors() {
       return connectors;
    }
 
-   public void setConnectors(List<String> connectors)
-   {
+   public void setConnectors(List<String> connectors) {
       this.connectors = connectors;
    }
 
-   public String getDiscoveryGroup()
-   {
+   public String getDiscoveryGroup() {
       return discoveryGroup;
    }
 
-   public void setDiscoveryGroup(String discoveryGroup)
-   {
+   public void setDiscoveryGroup(String discoveryGroup) {
       this.discoveryGroup = discoveryGroup;
    }
 
-   public String getGroupName()
-   {
+   public String getGroupName() {
       return groupName;
    }
 
-   public void setGroupName(String groupName)
-   {
+   public void setGroupName(String groupName) {
       this.groupName = groupName;
    }
 
-   public String getClusterName()
-   {
+   public String getClusterName() {
       return clusterName;
    }
 
-   public void setClusterName(String clusterName)
-   {
+   public void setClusterName(String clusterName) {
       this.clusterName = clusterName;
    }
 
-   public boolean isEnabled()
-   {
+   public boolean isEnabled() {
       return enabled;
    }
 
-   public void setEnabled(boolean enabled)
-   {
+   public void setEnabled(boolean enabled) {
       this.enabled = enabled;
    }
 
-   public static ServerLocatorInternal getScaleDownConnector(ScaleDownPolicy scaleDownPolicy, ActiveMQServer activeMQServer) throws ActiveMQException
-   {
-      if (!scaleDownPolicy.getConnectors().isEmpty())
-      {
+   public static ServerLocatorInternal getScaleDownConnector(ScaleDownPolicy scaleDownPolicy,
+                                                             ActiveMQServer activeMQServer) throws ActiveMQException {
+      if (!scaleDownPolicy.getConnectors().isEmpty()) {
          return (ServerLocatorInternal) ActiveMQClient.createServerLocatorWithHA(connectorNameListToArray(scaleDownPolicy.getConnectors(), activeMQServer));
       }
-      else if (scaleDownPolicy.getDiscoveryGroup() != null)
-      {
+      else if (scaleDownPolicy.getDiscoveryGroup() != null) {
          DiscoveryGroupConfiguration dg = activeMQServer.getConfiguration().getDiscoveryGroupConfigurations().get(scaleDownPolicy.getDiscoveryGroup());
 
-         if (dg == null)
-         {
+         if (dg == null) {
             throw ActiveMQMessageBundle.BUNDLE.noDiscoveryGroupFound(dg);
          }
-         return  (ServerLocatorInternal) ActiveMQClient.createServerLocatorWithHA(dg);
+         return (ServerLocatorInternal) ActiveMQClient.createServerLocatorWithHA(dg);
       }
-      else
-      {
+      else {
          Map<String, TransportConfiguration> connectorConfigurations = activeMQServer.getConfiguration().getConnectorConfigurations();
-         for (TransportConfiguration transportConfiguration : connectorConfigurations.values())
-         {
-            if (transportConfiguration.getFactoryClassName().equals(InVMConnectorFactory.class.getName()))
-            {
+         for (TransportConfiguration transportConfiguration : connectorConfigurations.values()) {
+            if (transportConfiguration.getFactoryClassName().equals(InVMConnectorFactory.class.getName())) {
                return (ServerLocatorInternal) ActiveMQClient.createServerLocatorWithHA(transportConfiguration);
             }
          }
@@ -144,17 +124,14 @@ public class ScaleDownPolicy
       throw ActiveMQMessageBundle.BUNDLE.noConfigurationFoundForScaleDown();
    }
 
-   private static TransportConfiguration[] connectorNameListToArray(final List<String> connectorNames, ActiveMQServer activeMQServer)
-   {
-      TransportConfiguration[] tcConfigs = (TransportConfiguration[]) Array.newInstance(TransportConfiguration.class,
-            connectorNames.size());
+   private static TransportConfiguration[] connectorNameListToArray(final List<String> connectorNames,
+                                                                    ActiveMQServer activeMQServer) {
+      TransportConfiguration[] tcConfigs = (TransportConfiguration[]) Array.newInstance(TransportConfiguration.class, connectorNames.size());
       int count = 0;
-      for (String connectorName : connectorNames)
-      {
+      for (String connectorName : connectorNames) {
          TransportConfiguration connector = activeMQServer.getConfiguration().getConnectorConfigurations().get(connectorName);
 
-         if (connector == null)
-         {
+         if (connector == null) {
             ActiveMQServerLogger.LOGGER.bridgeNoConnector(connectorName);
 
             return null;

@@ -39,165 +39,162 @@ import static org.apache.activemq.TestSupport.*;
  */
 public class TwoBrokerVirtualTopicForwardingTest extends JmsMultipleBrokersTestSupport {
 
-    public void testBridgeVirtualTopicQueues() throws Exception {
+   public void testBridgeVirtualTopicQueues() throws Exception {
 
-        bridgeAndConfigureBrokers("BrokerA", "BrokerB");
-        startAllBrokers();
-        waitForBridgeFormation();
+      bridgeAndConfigureBrokers("BrokerA", "BrokerB");
+      startAllBrokers();
+      waitForBridgeFormation();
 
-        MessageConsumer clientA = createConsumer("BrokerA", createDestination("Consumer.A.VirtualTopic.tempTopic", false));
-        MessageConsumer clientB = createConsumer("BrokerB", createDestination("Consumer.B.VirtualTopic.tempTopic", false));
+      MessageConsumer clientA = createConsumer("BrokerA", createDestination("Consumer.A.VirtualTopic.tempTopic", false));
+      MessageConsumer clientB = createConsumer("BrokerB", createDestination("Consumer.B.VirtualTopic.tempTopic", false));
 
+      // give a sec to let advisories propagate
+      Thread.sleep(500);
 
-        // give a sec to let advisories propagate
-        Thread.sleep(500);
+      ActiveMQQueue queueA = new ActiveMQQueue("Consumer.A.VirtualTopic.tempTopic");
+      Destination destination = getDestination(brokers.get("BrokerA").broker, queueA);
+      assertEquals(1, destination.getConsumers().size());
 
-        ActiveMQQueue queueA = new ActiveMQQueue("Consumer.A.VirtualTopic.tempTopic");
-        Destination destination = getDestination(brokers.get("BrokerA").broker, queueA);
-        assertEquals(1, destination.getConsumers().size());
+      ActiveMQQueue queueB = new ActiveMQQueue("Consumer.B.VirtualTopic.tempTopic");
+      destination = getDestination(brokers.get("BrokerA").broker, queueB);
+      assertEquals(1, destination.getConsumers().size());
 
-        ActiveMQQueue queueB = new ActiveMQQueue("Consumer.B.VirtualTopic.tempTopic");
-        destination = getDestination(brokers.get("BrokerA").broker, queueB);
-        assertEquals(1, destination.getConsumers().size());
+      ActiveMQTopic virtualTopic = new ActiveMQTopic("VirtualTopic.tempTopic");
+      assertNull(getDestination(brokers.get("BrokerA").broker, virtualTopic));
+      assertNull(getDestination(brokers.get("BrokerB").broker, virtualTopic));
 
-        ActiveMQTopic virtualTopic = new ActiveMQTopic("VirtualTopic.tempTopic");
-        assertNull(getDestination(brokers.get("BrokerA").broker, virtualTopic));
-        assertNull(getDestination(brokers.get("BrokerB").broker, virtualTopic));
+      // send some messages
+      sendMessages("BrokerA", virtualTopic, 1);
 
-        // send some messages
-        sendMessages("BrokerA", virtualTopic, 1);
+      MessageIdList msgsA = getConsumerMessages("BrokerA", clientA);
+      MessageIdList msgsB = getConsumerMessages("BrokerB", clientB);
 
-        MessageIdList msgsA = getConsumerMessages("BrokerA", clientA);
-        MessageIdList msgsB = getConsumerMessages("BrokerB", clientB);
+      msgsA.waitForMessagesToArrive(1);
+      msgsB.waitForMessagesToArrive(1);
 
-        msgsA.waitForMessagesToArrive(1);
-        msgsB.waitForMessagesToArrive(1);
+      // ensure we don't get any more messages
+      Thread.sleep(2000);
 
-        // ensure we don't get any more messages
-        Thread.sleep(2000);
+      assertEquals(1, msgsA.getMessageCount());
+      assertEquals(1, msgsB.getMessageCount());
 
-        assertEquals(1, msgsA.getMessageCount());
-        assertEquals(1, msgsB.getMessageCount());
+   }
 
-    }
+   public void testDontBridgeQueuesWithOnlyQueueConsumers() throws Exception {
+      dontBridgeVirtualTopicConsumerQueues("BrokerA", "BrokerB");
 
-    public void testDontBridgeQueuesWithOnlyQueueConsumers() throws Exception{
-        dontBridgeVirtualTopicConsumerQueues("BrokerA", "BrokerB");
+      startAllBrokers();
+      waitForBridgeFormation();
 
-        startAllBrokers();
-        waitForBridgeFormation();
+      MessageConsumer clientA = createConsumer("BrokerA", createDestination("Consumer.A.VirtualTopic.tempTopic", false));
+      MessageConsumer clientB = createConsumer("BrokerB", createDestination("Consumer.B.VirtualTopic.tempTopic", false));
 
-        MessageConsumer clientA = createConsumer("BrokerA", createDestination("Consumer.A.VirtualTopic.tempTopic", false));
-        MessageConsumer clientB = createConsumer("BrokerB", createDestination("Consumer.B.VirtualTopic.tempTopic", false));
+      // give a sec to let advisories propagate
+      Thread.sleep(500);
 
+      ActiveMQQueue queueA = new ActiveMQQueue("Consumer.A.VirtualTopic.tempTopic");
+      Destination destination = getDestination(brokers.get("BrokerA").broker, queueA);
+      assertEquals(1, destination.getConsumers().size());
 
-        // give a sec to let advisories propagate
-        Thread.sleep(500);
+      ActiveMQQueue queueB = new ActiveMQQueue("Consumer.B.VirtualTopic.tempTopic");
+      destination = getDestination(brokers.get("BrokerA").broker, queueB);
+      assertNull(destination);
 
-        ActiveMQQueue queueA = new ActiveMQQueue("Consumer.A.VirtualTopic.tempTopic");
-        Destination destination = getDestination(brokers.get("BrokerA").broker, queueA);
-        assertEquals(1, destination.getConsumers().size());
+      ActiveMQTopic virtualTopic = new ActiveMQTopic("VirtualTopic.tempTopic");
+      assertNull(getDestination(brokers.get("BrokerA").broker, virtualTopic));
+      assertNull(getDestination(brokers.get("BrokerB").broker, virtualTopic));
 
-        ActiveMQQueue queueB = new ActiveMQQueue("Consumer.B.VirtualTopic.tempTopic");
-        destination = getDestination(brokers.get("BrokerA").broker, queueB);
-        assertNull(destination);
+      // send some messages
+      sendMessages("BrokerA", virtualTopic, 1);
 
-        ActiveMQTopic virtualTopic = new ActiveMQTopic("VirtualTopic.tempTopic");
-        assertNull(getDestination(brokers.get("BrokerA").broker, virtualTopic));
-        assertNull(getDestination(brokers.get("BrokerB").broker, virtualTopic));
+      MessageIdList msgsA = getConsumerMessages("BrokerA", clientA);
+      MessageIdList msgsB = getConsumerMessages("BrokerB", clientB);
 
-        // send some messages
-        sendMessages("BrokerA", virtualTopic, 1);
+      msgsA.waitForMessagesToArrive(1);
+      msgsB.waitForMessagesToArrive(0);
 
-        MessageIdList msgsA = getConsumerMessages("BrokerA", clientA);
-        MessageIdList msgsB = getConsumerMessages("BrokerB", clientB);
+      // ensure we don't get any more messages
+      Thread.sleep(2000);
 
-        msgsA.waitForMessagesToArrive(1);
-        msgsB.waitForMessagesToArrive(0);
+      assertEquals(1, msgsA.getMessageCount());
+      assertEquals(0, msgsB.getMessageCount());
+   }
 
-        // ensure we don't get any more messages
-        Thread.sleep(2000);
+   public void testDontBridgeQueuesWithBothTypesConsumers() throws Exception {
+      dontBridgeVirtualTopicConsumerQueues("BrokerA", "BrokerB");
 
-        assertEquals(1, msgsA.getMessageCount());
-        assertEquals(0, msgsB.getMessageCount());
-    }
+      startAllBrokers();
+      waitForBridgeFormation();
 
-    public void testDontBridgeQueuesWithBothTypesConsumers() throws Exception{
-        dontBridgeVirtualTopicConsumerQueues("BrokerA", "BrokerB");
+      MessageConsumer clientA = createConsumer("BrokerA", createDestination("Consumer.A.VirtualTopic.tempTopic", false));
+      MessageConsumer clientB = createConsumer("BrokerB", createDestination("Consumer.B.VirtualTopic.tempTopic", false));
+      MessageConsumer clientC = createConsumer("BrokerB", createDestination("VirtualTopic.tempTopic", true));
 
-        startAllBrokers();
-        waitForBridgeFormation();
+      // give a sec to let advisories propagate
+      Thread.sleep(500);
 
-        MessageConsumer clientA = createConsumer("BrokerA", createDestination("Consumer.A.VirtualTopic.tempTopic", false));
-        MessageConsumer clientB = createConsumer("BrokerB", createDestination("Consumer.B.VirtualTopic.tempTopic", false));
-        MessageConsumer clientC = createConsumer("BrokerB", createDestination("VirtualTopic.tempTopic", true));
+      ActiveMQQueue queueA = new ActiveMQQueue("Consumer.A.VirtualTopic.tempTopic");
+      Destination destination = getDestination(brokers.get("BrokerA").broker, queueA);
+      assertEquals(1, destination.getConsumers().size());
 
+      ActiveMQQueue queueB = new ActiveMQQueue("Consumer.B.VirtualTopic.tempTopic");
+      destination = getDestination(brokers.get("BrokerA").broker, queueB);
+      assertNull(destination);
 
-        // give a sec to let advisories propagate
-        Thread.sleep(500);
+      ActiveMQTopic virtualTopic = new ActiveMQTopic("VirtualTopic.tempTopic");
+      assertNotNull(getDestination(brokers.get("BrokerA").broker, virtualTopic));
+      assertNotNull(getDestination(brokers.get("BrokerB").broker, virtualTopic));
 
-        ActiveMQQueue queueA = new ActiveMQQueue("Consumer.A.VirtualTopic.tempTopic");
-        Destination destination = getDestination(brokers.get("BrokerA").broker, queueA);
-        assertEquals(1, destination.getConsumers().size());
+      // send some messages
+      sendMessages("BrokerA", virtualTopic, 1);
 
-        ActiveMQQueue queueB = new ActiveMQQueue("Consumer.B.VirtualTopic.tempTopic");
-        destination = getDestination(brokers.get("BrokerA").broker, queueB);
-        assertNull(destination);
+      MessageIdList msgsA = getConsumerMessages("BrokerA", clientA);
+      MessageIdList msgsB = getConsumerMessages("BrokerB", clientB);
 
-        ActiveMQTopic virtualTopic = new ActiveMQTopic("VirtualTopic.tempTopic");
-        assertNotNull(getDestination(brokers.get("BrokerA").broker, virtualTopic));
-        assertNotNull(getDestination(brokers.get("BrokerB").broker, virtualTopic));
+      msgsA.waitForMessagesToArrive(1);
+      msgsB.waitForMessagesToArrive(1);
 
-        // send some messages
-        sendMessages("BrokerA", virtualTopic, 1);
+      // ensure we don't get any more messages
+      Thread.sleep(2000);
 
-        MessageIdList msgsA = getConsumerMessages("BrokerA", clientA);
-        MessageIdList msgsB = getConsumerMessages("BrokerB", clientB);
+      assertEquals(1, msgsA.getMessageCount());
+      assertEquals(1, msgsB.getMessageCount());
+   }
 
-        msgsA.waitForMessagesToArrive(1);
-        msgsB.waitForMessagesToArrive(1);
+   private void bridgeAndConfigureBrokers(String local, String remote) throws Exception {
+      NetworkConnector bridge = bridgeBrokers(local, remote);
+      bridge.setDecreaseNetworkConsumerPriority(true);
+   }
 
-        // ensure we don't get any more messages
-        Thread.sleep(2000);
+   private void dontBridgeVirtualTopicConsumerQueues(String local, String remote) throws Exception {
+      NetworkConnector bridge = bridgeBrokers(local, remote);
+      bridge.setDecreaseNetworkConsumerPriority(true);
 
-        assertEquals(1, msgsA.getMessageCount());
-        assertEquals(1, msgsB.getMessageCount());
-    }
+      LinkedList<ActiveMQDestination> excludedDestinations = new LinkedList<ActiveMQDestination>();
+      excludedDestinations.add(new ActiveMQQueue("Consumer.*.VirtualTopic.>"));
 
-    private void bridgeAndConfigureBrokers(String local, String remote) throws Exception {
-        NetworkConnector bridge = bridgeBrokers(local, remote);
-        bridge.setDecreaseNetworkConsumerPriority(true);
-    }
+      bridge.setExcludedDestinations(excludedDestinations);
 
-    private void dontBridgeVirtualTopicConsumerQueues(String local, String remote) throws Exception {
-        NetworkConnector bridge = bridgeBrokers(local, remote);
-        bridge.setDecreaseNetworkConsumerPriority(true);
+   }
 
-        LinkedList<ActiveMQDestination> excludedDestinations = new LinkedList<ActiveMQDestination>();
-        excludedDestinations.add(new ActiveMQQueue("Consumer.*.VirtualTopic.>"));
+   public void setUp() throws Exception {
+      super.setAutoFail(true);
+      super.setUp();
+      String options = new String("?useJmx=false&deleteAllMessagesOnStartup=true");
+      createAndConfigureBroker(new URI("broker:(tcp://localhost:61616)/BrokerA" + options));
+      createAndConfigureBroker(new URI("broker:(tcp://localhost:61617)/BrokerB" + options));
+   }
 
-        bridge.setExcludedDestinations(excludedDestinations);
+   private BrokerService createAndConfigureBroker(URI uri) throws Exception {
+      BrokerService broker = createBroker(uri);
+      configurePersistenceAdapter(broker);
+      return broker;
+   }
 
-    }
-
-    public void setUp() throws Exception {
-        super.setAutoFail(true);
-        super.setUp();
-        String options = new String("?useJmx=false&deleteAllMessagesOnStartup=true");
-        createAndConfigureBroker(new URI("broker:(tcp://localhost:61616)/BrokerA" + options));
-        createAndConfigureBroker(new URI("broker:(tcp://localhost:61617)/BrokerB" + options));
-    }
-
-    private BrokerService createAndConfigureBroker(URI uri) throws Exception {
-        BrokerService broker = createBroker(uri);
-        configurePersistenceAdapter(broker);
-        return broker;
-    }
-
-    protected void configurePersistenceAdapter(BrokerService broker) throws IOException {
-        File dataFileDir = new File("target/test-amq-data/kahadb/" + broker.getBrokerName());
-        KahaDBStore kaha = new KahaDBStore();
-        kaha.setDirectory(dataFileDir);
-        broker.setPersistenceAdapter(kaha);
-    }
+   protected void configurePersistenceAdapter(BrokerService broker) throws IOException {
+      File dataFileDir = new File("target/test-amq-data/kahadb/" + broker.getBrokerName());
+      KahaDBStore kaha = new KahaDBStore();
+      kaha.setDirectory(dataFileDir);
+      broker.setPersistenceAdapter(kaha);
+   }
 }

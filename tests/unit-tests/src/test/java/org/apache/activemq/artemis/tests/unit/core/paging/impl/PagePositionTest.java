@@ -19,8 +19,7 @@ package org.apache.activemq.artemis.tests.unit.core.paging.impl;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Test;
 
-public class PagePositionTest extends ActiveMQTestBase
-{
+public class PagePositionTest extends ActiveMQTestBase {
 
    // Constants -----------------------------------------------------
 
@@ -33,8 +32,7 @@ public class PagePositionTest extends ActiveMQTestBase
    // Public --------------------------------------------------------
 
    @Test
-   public void testNextSequenceOf()
-   {
+   public void testNextSequenceOf() {
 
    }
 

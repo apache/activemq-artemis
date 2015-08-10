@@ -20,15 +20,13 @@ import java.util.Map;
 
 import org.apache.activemq.artemis.core.protocol.stomp.v11.StompFrameV11;
 
-public class StompFrameV12 extends StompFrameV11
-{
-   public StompFrameV12(String command, Map<String, String> headers, byte[] content)
-   {
+public class StompFrameV12 extends StompFrameV11 {
+
+   public StompFrameV12(String command, Map<String, String> headers, byte[] content) {
       super(command, headers, content);
    }
 
-   public StompFrameV12(String command)
-   {
+   public StompFrameV12(String command) {
       super(command);
    }
 }

@@ -16,10 +16,7 @@
  */
 package org.apache.activemq.artemis.core.paging.cursor;
 
-
-
-public interface PagePosition extends Comparable<PagePosition>
-{
+public interface PagePosition extends Comparable<PagePosition> {
 
    // The recordID associated during ack
    long getRecordID();

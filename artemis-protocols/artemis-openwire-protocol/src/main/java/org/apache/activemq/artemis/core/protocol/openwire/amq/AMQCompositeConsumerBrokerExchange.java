@@ -22,39 +22,31 @@ import org.apache.activemq.command.MessagePull;
 
 import java.util.Map;
 
-public class AMQCompositeConsumerBrokerExchange extends AMQConsumerBrokerExchange
-{
+public class AMQCompositeConsumerBrokerExchange extends AMQConsumerBrokerExchange {
 
    private final Map<ActiveMQDestination, AMQConsumer> consumerMap;
 
-   public AMQCompositeConsumerBrokerExchange(AMQSession amqSession, Map<ActiveMQDestination, AMQConsumer> consumerMap)
-   {
+   public AMQCompositeConsumerBrokerExchange(AMQSession amqSession, Map<ActiveMQDestination, AMQConsumer> consumerMap) {
       super(amqSession);
       this.consumerMap = consumerMap;
    }
 
-   public void processMessagePull(MessagePull messagePull) throws Exception
-   {
+   public void processMessagePull(MessagePull messagePull) throws Exception {
       AMQConsumer amqConsumer = consumerMap.get(messagePull.getDestination());
-      if (amqConsumer != null)
-      {
+      if (amqConsumer != null) {
          amqConsumer.processMessagePull(messagePull);
       }
    }
 
-   public void acknowledge(MessageAck ack) throws Exception
-   {
+   public void acknowledge(MessageAck ack) throws Exception {
       AMQConsumer amqConsumer = consumerMap.get(ack.getDestination());
-      if (amqConsumer != null)
-      {
+      if (amqConsumer != null) {
          amqSession.acknowledge(ack, amqConsumer);
       }
    }
 
-   public void removeConsumer() throws Exception
-   {
-      for (AMQConsumer amqConsumer : consumerMap.values())
-      {
+   public void removeConsumer() throws Exception {
+      for (AMQConsumer amqConsumer : consumerMap.values()) {
          amqConsumer.removeConsumer();
       }
    }

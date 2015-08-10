@@ -25,8 +25,8 @@ import java.util.Map;
  *
  * when a commit is read, the JournalTransaction will inquire the JournalCompactor about the existent records
  */
-public interface JournalRecordProvider
-{
+public interface JournalRecordProvider {
+
    JournalCompactor getCompactor();
 
    Map<Long, JournalRecord> getRecords();

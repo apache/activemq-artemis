@@ -41,8 +41,7 @@ import org.apache.activemq.artemis.jms.server.JMSServerManager;
 import org.apache.activemq.artemis.jms.server.config.ConnectionFactoryConfiguration;
 import org.apache.activemq.artemis.jms.server.management.JMSManagementService;
 
-public class JMSManagementServiceImpl implements JMSManagementService
-{
+public class JMSManagementServiceImpl implements JMSManagementService {
 
    // Constants -----------------------------------------------------
 
@@ -54,8 +53,9 @@ public class JMSManagementServiceImpl implements JMSManagementService
 
    // Static --------------------------------------------------------
 
-   public JMSManagementServiceImpl(final ManagementService managementService, final ActiveMQServer server, final JMSServerManager jmsServerManager)
-   {
+   public JMSManagementServiceImpl(final ManagementService managementService,
+                                   final ActiveMQServer server,
+                                   final JMSServerManager jmsServerManager) {
       this.managementService = managementService;
       this.jmsServerManager = jmsServerManager;
    }
@@ -64,8 +64,7 @@ public class JMSManagementServiceImpl implements JMSManagementService
 
    // JMSManagementRegistration implementation ----------------------
 
-   public synchronized JMSServerControl registerJMSServer(final JMSServerManager server) throws Exception
-   {
+   public synchronized JMSServerControl registerJMSServer(final JMSServerManager server) throws Exception {
       ObjectName objectName = managementService.getObjectNameBuilder().getJMSServerObjectName();
       JMSServerControlImpl control = new JMSServerControlImpl(server);
       managementService.registerInJMX(objectName, control);
@@ -73,23 +72,16 @@ public class JMSManagementServiceImpl implements JMSManagementService
       return control;
    }
 
-   public synchronized void unregisterJMSServer() throws Exception
-   {
+   public synchronized void unregisterJMSServer() throws Exception {
       ObjectName objectName = managementService.getObjectNameBuilder().getJMSServerObjectName();
       managementService.unregisterFromJMX(objectName);
       managementService.unregisterFromRegistry(ResourceNames.JMS_SERVER);
    }
 
-   public synchronized void registerQueue(final ActiveMQQueue queue, final Queue serverQueue) throws Exception
-   {
-      QueueControl coreQueueControl = (QueueControl)managementService.getResource(ResourceNames.CORE_QUEUE + queue.getAddress());
+   public synchronized void registerQueue(final ActiveMQQueue queue, final Queue serverQueue) throws Exception {
+      QueueControl coreQueueControl = (QueueControl) managementService.getResource(ResourceNames.CORE_QUEUE + queue.getAddress());
       MessageCounterManager messageCounterManager = managementService.getMessageCounterManager();
-      MessageCounter counter = new MessageCounter(queue.getName(),
-                                                  null,
-                                                  serverQueue,
-                                                  false,
-                                                  coreQueueControl.isDurable(),
-                                                  messageCounterManager.getMaxDayCount());
+      MessageCounter counter = new MessageCounter(queue.getName(), null, serverQueue, false, coreQueueControl.isDurable(), messageCounterManager.getMaxDayCount());
       messageCounterManager.registerMessageCounter(queue.getName(), counter);
       ObjectName objectName = managementService.getObjectNameBuilder().getJMSQueueObjectName(queue.getQueueName());
       JMSQueueControlImpl control = new JMSQueueControlImpl(queue, coreQueueControl, jmsServerManager, counter);
@@ -97,24 +89,21 @@ public class JMSManagementServiceImpl implements JMSManagementService
       managementService.registerInRegistry(ResourceNames.JMS_QUEUE + queue.getQueueName(), control);
    }
 
-   public synchronized void unregisterQueue(final String name) throws Exception
-   {
+   public synchronized void unregisterQueue(final String name) throws Exception {
       ObjectName objectName = managementService.getObjectNameBuilder().getJMSQueueObjectName(name);
       managementService.unregisterFromJMX(objectName);
       managementService.unregisterFromRegistry(ResourceNames.JMS_QUEUE + name);
    }
 
-   public synchronized void registerTopic(final ActiveMQTopic topic) throws Exception
-   {
+   public synchronized void registerTopic(final ActiveMQTopic topic) throws Exception {
       ObjectName objectName = managementService.getObjectNameBuilder().getJMSTopicObjectName(topic.getTopicName());
-      AddressControl addressControl = (AddressControl)managementService.getResource(ResourceNames.CORE_ADDRESS + topic.getAddress());
+      AddressControl addressControl = (AddressControl) managementService.getResource(ResourceNames.CORE_ADDRESS + topic.getAddress());
       JMSTopicControlImpl control = new JMSTopicControlImpl(topic, jmsServerManager, addressControl, managementService);
       managementService.registerInJMX(objectName, control);
       managementService.registerInRegistry(ResourceNames.JMS_TOPIC + topic.getTopicName(), control);
    }
 
-   public synchronized void unregisterTopic(final String name) throws Exception
-   {
+   public synchronized void unregisterTopic(final String name) throws Exception {
       ObjectName objectName = managementService.getObjectNameBuilder().getJMSTopicObjectName(name);
       managementService.unregisterFromJMX(objectName);
       managementService.unregisterFromRegistry(ResourceNames.JMS_TOPIC + name);
@@ -122,34 +111,28 @@ public class JMSManagementServiceImpl implements JMSManagementService
 
    public synchronized void registerConnectionFactory(final String name,
                                                       final ConnectionFactoryConfiguration cfConfig,
-                                                      final ActiveMQConnectionFactory connectionFactory) throws Exception
-   {
+                                                      final ActiveMQConnectionFactory connectionFactory) throws Exception {
       ObjectName objectName = managementService.getObjectNameBuilder().getConnectionFactoryObjectName(name);
       JMSConnectionFactoryControlImpl control = new JMSConnectionFactoryControlImpl(cfConfig, connectionFactory, jmsServerManager, name);
       managementService.registerInJMX(objectName, control);
       managementService.registerInRegistry(ResourceNames.JMS_CONNECTION_FACTORY + name, control);
    }
 
-   public synchronized void unregisterConnectionFactory(final String name) throws Exception
-   {
+   public synchronized void unregisterConnectionFactory(final String name) throws Exception {
       ObjectName objectName = managementService.getObjectNameBuilder().getConnectionFactoryObjectName(name);
       managementService.unregisterFromJMX(objectName);
       managementService.unregisterFromRegistry(ResourceNames.JMS_CONNECTION_FACTORY + name);
    }
 
-   public void stop() throws Exception
-   {
-      for (Object resource : managementService.getResources(ConnectionFactoryControl.class))
-      {
-         unregisterConnectionFactory(((ConnectionFactoryControl)resource).getName());
+   public void stop() throws Exception {
+      for (Object resource : managementService.getResources(ConnectionFactoryControl.class)) {
+         unregisterConnectionFactory(((ConnectionFactoryControl) resource).getName());
       }
-      for (Object resource : managementService.getResources(JMSQueueControl.class))
-      {
-         unregisterQueue(((JMSQueueControl)resource).getName());
+      for (Object resource : managementService.getResources(JMSQueueControl.class)) {
+         unregisterQueue(((JMSQueueControl) resource).getName());
       }
-      for (Object resource : managementService.getResources(TopicControl.class))
-      {
-         unregisterTopic(((TopicControl)resource).getName());
+      for (Object resource : managementService.getResources(TopicControl.class)) {
+         unregisterTopic(((TopicControl) resource).getName());
       }
    }
 

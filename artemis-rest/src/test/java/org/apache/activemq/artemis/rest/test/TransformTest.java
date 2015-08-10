@@ -37,12 +37,10 @@ import org.junit.Test;
 
 import static org.jboss.resteasy.test.TestPortProvider.generateURL;
 
-public class TransformTest extends MessageTestBase
-{
+public class TransformTest extends MessageTestBase {
 
    @BeforeClass
-   public static void setup() throws Exception
-   {
+   public static void setup() throws Exception {
       QueueDeployment deployment = new QueueDeployment();
       deployment.setDuplicatesAllowed(true);
       deployment.setDurableSend(false);
@@ -51,81 +49,74 @@ public class TransformTest extends MessageTestBase
    }
 
    @XmlRootElement
-   public static class Order implements Serializable
-   {
+   public static class Order implements Serializable {
+
       private static final long serialVersionUID = 2510412973800601968L;
       private String name;
       private String amount;
 
-      public String getName()
-      {
+      public String getName() {
          return name;
       }
 
-      public void setName(String name)
-      {
+      public void setName(String name) {
          this.name = name;
       }
 
-      public String getAmount()
-      {
+      public String getAmount() {
          return amount;
       }
 
-      public void setAmount(String amount)
-      {
+      public void setAmount(String amount) {
          this.amount = amount;
       }
 
       @Override
-      public boolean equals(Object o)
-      {
-         if (this == o) return true;
-         if (o == null || getClass() != o.getClass()) return false;
+      public boolean equals(Object o) {
+         if (this == o)
+            return true;
+         if (o == null || getClass() != o.getClass())
+            return false;
 
          Order order = (Order) o;
 
-         if (!amount.equals(order.amount)) return false;
-         if (!name.equals(order.name)) return false;
+         if (!amount.equals(order.amount))
+            return false;
+         if (!name.equals(order.name))
+            return false;
 
          return true;
       }
 
       @Override
-      public int hashCode()
-      {
+      public int hashCode() {
          int result = name.hashCode();
          result = 31 * result + amount.hashCode();
          return result;
       }
    }
 
-   public static void publish(String destination, Serializable object, String contentType) throws Exception
-   {
+   public static void publish(String destination, Serializable object, String contentType) throws Exception {
       ClientSession session = manager.getQueueManager().getSessionFactory().createSession();
-      try
-      {
+      try {
          ClientProducer producer = session.createProducer(destination);
          ClientMessage message = session.createMessage(Message.OBJECT_TYPE, false);
-         if (contentType == null)
-         {
+         if (contentType == null) {
             ActiveMQ.setEntity(message, object);
          }
-         else ActiveMQ.setEntity(message, object, contentType);
+         else
+            ActiveMQ.setEntity(message, object, contentType);
          producer.send(message);
          session.start();
       }
-      finally
-      {
+      finally {
          session.close();
       }
 
    }
 
-
    @Test
-   public void testTransform() throws Exception
-   {
+   public void testTransform() throws Exception {
 
       ClientRequest request = new ClientRequest(generateURL("/queues/testQueue"));
 
@@ -146,7 +137,6 @@ public class TransformTest extends MessageTestBase
          order.setName("1");
          order.setAmount("$5.00");
          publish("testQueue", order, null);
-
 
          response = consumeNext.request().accept("application/xml").post(String.class);
          Assert.assertEquals(200, response.getStatus());
@@ -193,20 +183,17 @@ public class TransformTest extends MessageTestBase
       }
    }
 
-   public static class Listener implements MessageHandler
-   {
+   public static class Listener implements MessageHandler {
+
       public static Order order;
       public static CountDownLatch latch = new CountDownLatch(1);
 
-      public void onMessage(ClientMessage clientMessage)
-      {
+      public void onMessage(ClientMessage clientMessage) {
          System.out.println("onMessage!");
-         try
-         {
+         try {
             order = ActiveMQ.getEntity(clientMessage, Order.class);
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             e.printStackTrace();
          }
          latch.countDown();
@@ -214,8 +201,7 @@ public class TransformTest extends MessageTestBase
    }
 
    @Test
-   public void testJmsConsumer() throws Exception
-   {
+   public void testJmsConsumer() throws Exception {
       QueueDeployment deployment = new QueueDeployment();
       deployment.setDuplicatesAllowed(true);
       deployment.setDurableSend(false);
@@ -223,8 +209,7 @@ public class TransformTest extends MessageTestBase
       deployment.setName(queueName);
       manager.getQueueManager().deploy(deployment);
       ClientSession session = manager.getQueueManager().getSessionFactory().createSession();
-      try
-      {
+      try {
          session.createConsumer(queueName).setMessageHandler(new Listener());
          session.start();
 
@@ -255,8 +240,7 @@ public class TransformTest extends MessageTestBase
             Assert.assertEquals(order, Listener.order);
          }
       }
-      finally
-      {
+      finally {
          session.close();
       }
    }

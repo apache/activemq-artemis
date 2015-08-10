@@ -22,7 +22,9 @@ import javax.jms.JMSException;
 import javax.jms.TextMessage;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
+
 import junit.framework.Test;
+
 import org.apache.activemq.broker.BrokerRestartTestSupport;
 import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.broker.StubConnection;
@@ -47,182 +49,167 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class AMQ5567Test extends BrokerRestartTestSupport {
-    protected static final Logger LOG = LoggerFactory.getLogger(AMQ5567Test.class);
-    ActiveMQQueue destination = new ActiveMQQueue("Q");
 
-    @Override
-    protected void configureBroker(BrokerService broker) throws Exception {
-        super.configureBroker(broker);
-        broker.setPersistenceAdapter(persistenceAdapter);
-    }
+   protected static final Logger LOG = LoggerFactory.getLogger(AMQ5567Test.class);
+   ActiveMQQueue destination = new ActiveMQQueue("Q");
 
-    protected PolicyEntry getDefaultPolicy() {
-        PolicyEntry policy = new PolicyEntry();
-        policy.setMemoryLimit(60*1024);
-        return policy;
-    }
+   @Override
+   protected void configureBroker(BrokerService broker) throws Exception {
+      super.configureBroker(broker);
+      broker.setPersistenceAdapter(persistenceAdapter);
+   }
 
-    public void initCombosForTestPreparedTransactionNotDispatched() throws Exception {
-        PersistenceAdapter[] persistenceAdapters = new PersistenceAdapter[]{
-                new KahaDBPersistenceAdapter(),
-                new LevelDBPersistenceAdapter(),
-                new JDBCPersistenceAdapter(JDBCPersistenceAdapter.createDataSource(IOHelper.getDefaultDataDirectory()), new OpenWireFormat())
-        };
-        for (PersistenceAdapter adapter : persistenceAdapters) {
-            adapter.setDirectory(new File(IOHelper.getDefaultDataDirectory()));
-        }
-        addCombinationValues("persistenceAdapter", persistenceAdapters);
-    }
+   protected PolicyEntry getDefaultPolicy() {
+      PolicyEntry policy = new PolicyEntry();
+      policy.setMemoryLimit(60 * 1024);
+      return policy;
+   }
 
-    public void testPreparedTransactionNotDispatched() throws Exception {
+   public void initCombosForTestPreparedTransactionNotDispatched() throws Exception {
+      PersistenceAdapter[] persistenceAdapters = new PersistenceAdapter[]{new KahaDBPersistenceAdapter(), new LevelDBPersistenceAdapter(), new JDBCPersistenceAdapter(JDBCPersistenceAdapter.createDataSource(IOHelper.getDefaultDataDirectory()), new OpenWireFormat())};
+      for (PersistenceAdapter adapter : persistenceAdapters) {
+         adapter.setDirectory(new File(IOHelper.getDefaultDataDirectory()));
+      }
+      addCombinationValues("persistenceAdapter", persistenceAdapters);
+   }
 
-        ActiveMQDestination destination = new ActiveMQQueue("Q");
+   public void testPreparedTransactionNotDispatched() throws Exception {
 
-        StubConnection connection = createConnection();
-        ConnectionInfo connectionInfo = createConnectionInfo();
-        SessionInfo sessionInfo = createSessionInfo(connectionInfo);
-        ProducerInfo producerInfo = createProducerInfo(sessionInfo);
-        connection.send(connectionInfo);
-        connection.send(sessionInfo);
-        connection.send(producerInfo);
+      ActiveMQDestination destination = new ActiveMQQueue("Q");
 
+      StubConnection connection = createConnection();
+      ConnectionInfo connectionInfo = createConnectionInfo();
+      SessionInfo sessionInfo = createSessionInfo(connectionInfo);
+      ProducerInfo producerInfo = createProducerInfo(sessionInfo);
+      connection.send(connectionInfo);
+      connection.send(sessionInfo);
+      connection.send(producerInfo);
 
-        XATransactionId txid = createXATransaction(sessionInfo);
-        connection.send(createBeginTransaction(connectionInfo, txid));
-        Message message = createMessage(producerInfo, destination);
-        message.setPersistent(true);
-        message.setTransactionId(txid);
-        connection.send(message);
+      XATransactionId txid = createXATransaction(sessionInfo);
+      connection.send(createBeginTransaction(connectionInfo, txid));
+      Message message = createMessage(producerInfo, destination);
+      message.setPersistent(true);
+      message.setTransactionId(txid);
+      connection.send(message);
 
-        connection.send(createPrepareTransaction(connectionInfo, txid));
+      connection.send(createPrepareTransaction(connectionInfo, txid));
 
+      // send another non tx, will poke dispatch
+      message = createMessage(producerInfo, destination);
+      message.setPersistent(true);
+      connection.send(message);
 
-        // send another non tx, will poke dispatch
-        message = createMessage(producerInfo, destination);
-        message.setPersistent(true);
-        connection.send(message);
+      // Since prepared but not committed.. only one should get delivered
+      StubConnection connectionC = createConnection();
+      ConnectionInfo connectionInfoC = createConnectionInfo();
+      SessionInfo sessionInfoC = createSessionInfo(connectionInfoC);
+      ConsumerInfo consumerInfo = createConsumerInfo(sessionInfoC, destination);
+      connectionC.send(connectionInfoC);
+      connectionC.send(sessionInfoC);
+      connectionC.send(consumerInfo);
 
+      Message m = receiveMessage(connectionC, TimeUnit.SECONDS.toMillis(10));
+      LOG.info("received: " + m);
+      assertNotNull("Got message", m);
+      assertNull("Got non tx message", m.getTransactionId());
 
-        // Since prepared but not committed.. only one should get delivered
-        StubConnection connectionC = createConnection();
-        ConnectionInfo connectionInfoC = createConnectionInfo();
-        SessionInfo sessionInfoC = createSessionInfo(connectionInfoC);
-        ConsumerInfo consumerInfo = createConsumerInfo(sessionInfoC, destination);
-        connectionC.send(connectionInfoC);
-        connectionC.send(sessionInfoC);
-        connectionC.send(consumerInfo);
+      // cannot get the prepared message till commit
+      assertNull(receiveMessage(connectionC));
+      assertNoMessagesLeft(connectionC);
 
-        Message m = receiveMessage(connectionC, TimeUnit.SECONDS.toMillis(10));
-        LOG.info("received: " + m);
-        assertNotNull("Got message", m);
-        assertNull("Got non tx message", m.getTransactionId());
+      LOG.info("commit: " + txid);
+      connection.request(createCommitTransaction2Phase(connectionInfo, txid));
 
-        // cannot get the prepared message till commit
-        assertNull(receiveMessage(connectionC));
-        assertNoMessagesLeft(connectionC);
+      m = receiveMessage(connectionC, TimeUnit.SECONDS.toMillis(10));
+      LOG.info("received: " + m);
+      assertNotNull("Got non null message", m);
 
-        LOG.info("commit: " + txid);
-        connection.request(createCommitTransaction2Phase(connectionInfo, txid));
+   }
 
-        m = receiveMessage(connectionC, TimeUnit.SECONDS.toMillis(10));
-        LOG.info("received: " + m);
-        assertNotNull("Got non null message", m);
+   public void initCombosForTestCursorStoreSync() throws Exception {
+      PersistenceAdapter[] persistenceAdapters = new PersistenceAdapter[]{new KahaDBPersistenceAdapter(), new LevelDBPersistenceAdapter(), new JDBCPersistenceAdapter(JDBCPersistenceAdapter.createDataSource(IOHelper.getDefaultDataDirectory()), new OpenWireFormat())};
+      for (PersistenceAdapter adapter : persistenceAdapters) {
+         adapter.setDirectory(new File(IOHelper.getDefaultDataDirectory()));
+      }
+      addCombinationValues("persistenceAdapter", persistenceAdapters);
+   }
 
-    }
+   public void testCursorStoreSync() throws Exception {
 
-    public void initCombosForTestCursorStoreSync() throws Exception {
-        PersistenceAdapter[] persistenceAdapters = new PersistenceAdapter[]{
-                new KahaDBPersistenceAdapter(),
-                new LevelDBPersistenceAdapter(),
-                new JDBCPersistenceAdapter(JDBCPersistenceAdapter.createDataSource(IOHelper.getDefaultDataDirectory()), new OpenWireFormat())
-        };
-        for (PersistenceAdapter adapter : persistenceAdapters) {
-            adapter.setDirectory(new File(IOHelper.getDefaultDataDirectory()));
-        }
-        addCombinationValues("persistenceAdapter", persistenceAdapters);
-    }
+      StubConnection connection = createConnection();
+      ConnectionInfo connectionInfo = createConnectionInfo();
+      SessionInfo sessionInfo = createSessionInfo(connectionInfo);
+      ProducerInfo producerInfo = createProducerInfo(sessionInfo);
+      connection.send(connectionInfo);
+      connection.send(sessionInfo);
+      connection.send(producerInfo);
 
-    public void testCursorStoreSync() throws Exception {
+      XATransactionId txid = createXATransaction(sessionInfo);
+      connection.send(createBeginTransaction(connectionInfo, txid));
+      Message message = createMessage(producerInfo, destination);
+      message.setPersistent(true);
+      message.setTransactionId(txid);
+      connection.request(message);
 
-        StubConnection connection = createConnection();
-        ConnectionInfo connectionInfo = createConnectionInfo();
-        SessionInfo sessionInfo = createSessionInfo(connectionInfo);
-        ProducerInfo producerInfo = createProducerInfo(sessionInfo);
-        connection.send(connectionInfo);
-        connection.send(sessionInfo);
-        connection.send(producerInfo);
+      connection.request(createPrepareTransaction(connectionInfo, txid));
 
+      QueueViewMBean proxy = getProxyToQueueViewMBean();
+      assertTrue("cache is enabled", proxy.isCacheEnabled());
 
-        XATransactionId txid = createXATransaction(sessionInfo);
-        connection.send(createBeginTransaction(connectionInfo, txid));
-        Message message = createMessage(producerInfo, destination);
-        message.setPersistent(true);
-        message.setTransactionId(txid);
-        connection.request(message);
+      // send another non tx, will fill cursor
+      String payload = new String(new byte[10 * 1024]);
+      for (int i = 0; i < 6; i++) {
+         message = createMessage(producerInfo, destination);
+         message.setPersistent(true);
+         ((TextMessage) message).setText(payload);
+         connection.request(message);
+      }
 
-        connection.request(createPrepareTransaction(connectionInfo, txid));
+      assertTrue("cache is disabled", !proxy.isCacheEnabled());
 
-        QueueViewMBean proxy = getProxyToQueueViewMBean();
-        assertTrue("cache is enabled", proxy.isCacheEnabled());
+      StubConnection connectionC = createConnection();
+      ConnectionInfo connectionInfoC = createConnectionInfo();
+      SessionInfo sessionInfoC = createSessionInfo(connectionInfoC);
+      ConsumerInfo consumerInfo = createConsumerInfo(sessionInfoC, destination);
+      connectionC.send(connectionInfoC);
+      connectionC.send(sessionInfoC);
+      connectionC.send(consumerInfo);
 
-        // send another non tx, will fill cursor
-        String payload = new String(new byte[10*1024]);
-        for (int i=0; i<6; i++) {
-            message = createMessage(producerInfo, destination);
-            message.setPersistent(true);
-            ((TextMessage)message).setText(payload);
-            connection.request(message);
-        }
+      Message m = null;
+      for (int i = 0; i < 3; i++) {
+         m = receiveMessage(connectionC, TimeUnit.SECONDS.toMillis(10));
+         LOG.info("received: " + m);
+         assertNotNull("Got message", m);
+         assertNull("Got non tx message", m.getTransactionId());
+         connectionC.request(createAck(consumerInfo, m, 1, MessageAck.STANDARD_ACK_TYPE));
+      }
 
-        assertTrue("cache is disabled", !proxy.isCacheEnabled());
+      LOG.info("commit: " + txid);
+      connection.request(createCommitTransaction2Phase(connectionInfo, txid));
+      // consume the rest including the 2pc send in TX
 
-        StubConnection connectionC = createConnection();
-        ConnectionInfo connectionInfoC = createConnectionInfo();
-        SessionInfo sessionInfoC = createSessionInfo(connectionInfoC);
-        ConsumerInfo consumerInfo = createConsumerInfo(sessionInfoC, destination);
-        connectionC.send(connectionInfoC);
-        connectionC.send(sessionInfoC);
-        connectionC.send(consumerInfo);
-
-        Message m = null;
-        for (int i=0; i<3; i++) {
-            m = receiveMessage(connectionC, TimeUnit.SECONDS.toMillis(10));
-            LOG.info("received: " + m);
-            assertNotNull("Got message", m);
+      for (int i = 0; i < 4; i++) {
+         m = receiveMessage(connectionC, TimeUnit.SECONDS.toMillis(10));
+         LOG.info("received[" + i + "] " + m);
+         assertNotNull("Got message", m);
+         if (i == 3) {
+            assertNotNull("Got  tx message", m.getTransactionId());
+         }
+         else {
             assertNull("Got non tx message", m.getTransactionId());
-            connectionC.request(createAck(consumerInfo, m, 1, MessageAck.STANDARD_ACK_TYPE));
-        }
+         }
+         connectionC.request(createAck(consumerInfo, m, 1, MessageAck.STANDARD_ACK_TYPE));
+      }
+   }
 
-        LOG.info("commit: " + txid);
-        connection.request(createCommitTransaction2Phase(connectionInfo, txid));
-        // consume the rest including the 2pc send in TX
+   private QueueViewMBean getProxyToQueueViewMBean() throws MalformedObjectNameException, JMSException {
+      ObjectName queueViewMBeanName = new ObjectName("org.apache.activemq" + ":destinationType=Queue,destinationName=" + destination.getQueueName() + ",type=Broker,brokerName=localhost");
+      QueueViewMBean proxy = (QueueViewMBean) broker.getManagementContext().newProxyInstance(queueViewMBeanName, QueueViewMBean.class, true);
+      return proxy;
+   }
 
-        for (int i=0; i<4; i++) {
-            m = receiveMessage(connectionC, TimeUnit.SECONDS.toMillis(10));
-            LOG.info("received[" + i + "] " + m);
-            assertNotNull("Got message", m);
-            if (i==3 ) {
-                assertNotNull("Got  tx message", m.getTransactionId());
-            } else {
-                assertNull("Got non tx message", m.getTransactionId());
-            }
-            connectionC.request(createAck(consumerInfo, m, 1, MessageAck.STANDARD_ACK_TYPE));
-        }
-    }
-
-    private QueueViewMBean getProxyToQueueViewMBean()
-            throws MalformedObjectNameException, JMSException {
-        ObjectName queueViewMBeanName = new ObjectName("org.apache.activemq"
-                + ":destinationType=Queue,destinationName=" + destination.getQueueName()
-                + ",type=Broker,brokerName=localhost");
-        QueueViewMBean proxy = (QueueViewMBean) broker.getManagementContext()
-                .newProxyInstance(queueViewMBeanName,
-                        QueueViewMBean.class, true);
-        return proxy;
-    }
-
-    public static Test suite() {
-        return suite(AMQ5567Test.class);
-    }
+   public static Test suite() {
+      return suite(AMQ5567Test.class);
+   }
 
 }

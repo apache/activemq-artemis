@@ -23,18 +23,18 @@ import org.apache.activemq.store.jdbc.JDBCPersistenceAdapter;
 import org.apache.derby.jdbc.EmbeddedDataSource;
 
 /**
- * 
+ *
  */
 public class JDBCDurableSubscriptionTest extends DurableSubscriptionTestSupport {
 
-    protected PersistenceAdapter createPersistenceAdapter() throws IOException {
-        JDBCPersistenceAdapter jdbc = new JDBCPersistenceAdapter();
-        EmbeddedDataSource dataSource = new EmbeddedDataSource();
-        dataSource.setDatabaseName("derbyDb");
-        dataSource.setCreateDatabase("create");
-        jdbc.setDataSource(dataSource);
-        jdbc.setCleanupPeriod(1000); // set up small cleanup period
-        return jdbc;
-    }
+   protected PersistenceAdapter createPersistenceAdapter() throws IOException {
+      JDBCPersistenceAdapter jdbc = new JDBCPersistenceAdapter();
+      EmbeddedDataSource dataSource = new EmbeddedDataSource();
+      dataSource.setDatabaseName("derbyDb");
+      dataSource.setCreateDatabase("create");
+      jdbc.setDataSource(dataSource);
+      jdbc.setCleanupPeriod(1000); // set up small cleanup period
+      return jdbc;
+   }
 
 }

@@ -28,21 +28,20 @@ import java.net.URI;
 import java.util.List;
 import java.util.Map;
 
-public class TCPSchema extends AbstractCFSchema
-{
+public class TCPSchema extends AbstractCFSchema {
+
    @Override
-   public String getSchemaName()
-   {
+   public String getSchemaName() {
       return SchemaConstants.TCP;
    }
 
    @Override
-   protected ActiveMQConnectionFactory internalNewObject(URI uri, Map<String, String> query, String name) throws Exception
-   {
+   protected ActiveMQConnectionFactory internalNewObject(URI uri,
+                                                         Map<String, String> query,
+                                                         String name) throws Exception {
       JMSConnectionOptions options = newConectionOptions(uri, query);
 
-      List<TransportConfiguration> configurations =
-            TCPTransportConfigurationSchema.getTransportConfigurations(uri, query, TransportConstants.ALLOWABLE_CONNECTOR_KEYS, name, NettyConnectorFactory.class.getName());
+      List<TransportConfiguration> configurations = TCPTransportConfigurationSchema.getTransportConfigurations(uri, query, TransportConstants.ALLOWABLE_CONNECTOR_KEYS, name, NettyConnectorFactory.class.getName());
 
       TransportConfiguration[] tcs = new TransportConfiguration[configurations.size()];
 
@@ -50,21 +49,18 @@ public class TCPSchema extends AbstractCFSchema
 
       ActiveMQConnectionFactory factory;
 
-      if (options.isHa())
-      {
+      if (options.isHa()) {
          factory = ActiveMQJMSClient.createConnectionFactoryWithHA(options.getFactoryTypeEnum(), tcs);
       }
-      else
-      {
-         factory =  ActiveMQJMSClient.createConnectionFactoryWithoutHA(options.getFactoryTypeEnum(), tcs);
+      else {
+         factory = ActiveMQJMSClient.createConnectionFactoryWithoutHA(options.getFactoryTypeEnum(), tcs);
       }
 
       return URISchema.setData(uri, factory, query);
    }
 
    @Override
-   protected URI internalNewURI(ActiveMQConnectionFactory bean) throws Exception
-   {
+   protected URI internalNewURI(ActiveMQConnectionFactory bean) throws Exception {
       String query = URISchema.getData(null, bean);
       TransportConfiguration[] staticConnectors = bean.getStaticConnectors();
       return TCPServerLocatorSchema.getURI(query, staticConnectors);

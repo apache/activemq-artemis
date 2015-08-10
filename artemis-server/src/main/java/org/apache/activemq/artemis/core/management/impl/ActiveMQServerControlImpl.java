@@ -90,9 +90,7 @@ import org.apache.activemq.artemis.utils.TypedProperties;
 import org.apache.activemq.artemis.utils.json.JSONArray;
 import org.apache.activemq.artemis.utils.json.JSONObject;
 
-public class ActiveMQServerControlImpl extends AbstractControl implements ActiveMQServerControl, NotificationEmitter,
-                                                                         org.apache.activemq.artemis.core.server.management.NotificationListener
-{
+public class ActiveMQServerControlImpl extends AbstractControl implements ActiveMQServerControl, NotificationEmitter, org.apache.activemq.artemis.core.server.management.NotificationListener {
    // Constants -----------------------------------------------------
 
    // Attributes ----------------------------------------------------
@@ -123,8 +121,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
                                     final ActiveMQServer messagingServer,
                                     final MessageCounterManager messageCounterManager,
                                     final StorageManager storageManager,
-                                    final NotificationBroadcasterSupport broadcaster) throws Exception
-   {
+                                    final NotificationBroadcasterSupport broadcaster) throws Exception {
       super(ActiveMQServerControl.class, storageManager);
       this.postOffice = postOffice;
       this.configuration = configuration;
@@ -138,896 +135,715 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    // ActiveMQServerControlMBean implementation --------------------
 
-   public boolean isStarted()
-   {
+   public boolean isStarted() {
       clearIO();
-      try
-      {
+      try {
          return server.isStarted();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public String getVersion()
-   {
+   public String getVersion() {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          return server.getVersion().getFullVersion();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public boolean isBackup()
-   {
+   public boolean isBackup() {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          return server.getHAPolicy().isBackup();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public boolean isSharedStore()
-   {
+   public boolean isSharedStore() {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          return server.getHAPolicy().isSharedStore();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public String getBindingsDirectory()
-   {
+   public String getBindingsDirectory() {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          return configuration.getBindingsDirectory();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public String[] getInterceptorClassNames()
-   {
+   public String[] getInterceptorClassNames() {
       checkStarted();
 
       clearIO();
-      try
-      {
-         return configuration.getIncomingInterceptorClassNames().toArray(new String[configuration.getIncomingInterceptorClassNames()
-               .size()]);
+      try {
+         return configuration.getIncomingInterceptorClassNames().toArray(new String[configuration.getIncomingInterceptorClassNames().size()]);
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public String[] getIncomingInterceptorClassNames()
-   {
+   public String[] getIncomingInterceptorClassNames() {
       checkStarted();
 
       clearIO();
-      try
-      {
-         return configuration.getIncomingInterceptorClassNames().toArray(new String[configuration.getIncomingInterceptorClassNames()
-               .size()]);
+      try {
+         return configuration.getIncomingInterceptorClassNames().toArray(new String[configuration.getIncomingInterceptorClassNames().size()]);
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public String[] getOutgoingInterceptorClassNames()
-   {
+   public String[] getOutgoingInterceptorClassNames() {
       checkStarted();
 
       clearIO();
-      try
-      {
-         return configuration.getOutgoingInterceptorClassNames().toArray(new String[configuration.getOutgoingInterceptorClassNames()
-               .size()]);
+      try {
+         return configuration.getOutgoingInterceptorClassNames().toArray(new String[configuration.getOutgoingInterceptorClassNames().size()]);
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public int getJournalBufferSize()
-   {
+   public int getJournalBufferSize() {
       checkStarted();
 
       clearIO();
-      try
-      {
-         return configuration.getJournalType() == JournalType.ASYNCIO ? configuration.getJournalBufferSize_AIO()
-               : configuration.getJournalBufferSize_NIO();
+      try {
+         return configuration.getJournalType() == JournalType.ASYNCIO ? configuration.getJournalBufferSize_AIO() : configuration.getJournalBufferSize_NIO();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public int getJournalBufferTimeout()
-   {
+   public int getJournalBufferTimeout() {
       checkStarted();
 
       clearIO();
-      try
-      {
-         return configuration.getJournalType() == JournalType.ASYNCIO ? configuration.getJournalBufferTimeout_AIO()
-               : configuration.getJournalBufferTimeout_NIO();
+      try {
+         return configuration.getJournalType() == JournalType.ASYNCIO ? configuration.getJournalBufferTimeout_AIO() : configuration.getJournalBufferTimeout_NIO();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public void setFailoverOnServerShutdown(boolean failoverOnServerShutdown)
-   {
+   public void setFailoverOnServerShutdown(boolean failoverOnServerShutdown) {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          HAPolicy haPolicy = server.getHAPolicy();
-         if (haPolicy instanceof SharedStoreSlavePolicy)
-         {
+         if (haPolicy instanceof SharedStoreSlavePolicy) {
             ((SharedStoreSlavePolicy) haPolicy).setFailoverOnServerShutdown(failoverOnServerShutdown);
          }
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-
-   public boolean isFailoverOnServerShutdown()
-   {
+   public boolean isFailoverOnServerShutdown() {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          HAPolicy haPolicy = server.getHAPolicy();
-         if (haPolicy instanceof SharedStoreSlavePolicy)
-         {
+         if (haPolicy instanceof SharedStoreSlavePolicy) {
             return ((SharedStoreSlavePolicy) haPolicy).isFailoverOnServerShutdown();
          }
-         else
-         {
+         else {
             return false;
          }
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public int getJournalMaxIO()
-   {
+   public int getJournalMaxIO() {
       checkStarted();
 
       clearIO();
-      try
-      {
-         return configuration.getJournalType() == JournalType.ASYNCIO ? configuration.getJournalMaxIO_AIO()
-               : configuration.getJournalMaxIO_NIO();
+      try {
+         return configuration.getJournalType() == JournalType.ASYNCIO ? configuration.getJournalMaxIO_AIO() : configuration.getJournalMaxIO_NIO();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public String getJournalDirectory()
-   {
+   public String getJournalDirectory() {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          return configuration.getJournalDirectory();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public int getJournalFileSize()
-   {
+   public int getJournalFileSize() {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          return configuration.getJournalFileSize();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public int getJournalMinFiles()
-   {
+   public int getJournalMinFiles() {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          return configuration.getJournalMinFiles();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public int getJournalCompactMinFiles()
-   {
+   public int getJournalCompactMinFiles() {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          return configuration.getJournalCompactMinFiles();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public int getJournalCompactPercentage()
-   {
+   public int getJournalCompactPercentage() {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          return configuration.getJournalCompactPercentage();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public boolean isPersistenceEnabled()
-   {
+   public boolean isPersistenceEnabled() {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          return configuration.isPersistenceEnabled();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public String getJournalType()
-   {
+   public String getJournalType() {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          return configuration.getJournalType().toString();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public String getPagingDirectory()
-   {
+   public String getPagingDirectory() {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          return configuration.getPagingDirectory();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public int getScheduledThreadPoolMaxSize()
-   {
+   public int getScheduledThreadPoolMaxSize() {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          return configuration.getScheduledThreadPoolMaxSize();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public int getThreadPoolMaxSize()
-   {
+   public int getThreadPoolMaxSize() {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          return configuration.getThreadPoolMaxSize();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public long getSecurityInvalidationInterval()
-   {
+   public long getSecurityInvalidationInterval() {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          return configuration.getSecurityInvalidationInterval();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public boolean isClustered()
-   {
+   public boolean isClustered() {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          return configuration.isClustered();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public boolean isCreateBindingsDir()
-   {
+   public boolean isCreateBindingsDir() {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          return configuration.isCreateBindingsDir();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public boolean isCreateJournalDir()
-   {
+   public boolean isCreateJournalDir() {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          return configuration.isCreateJournalDir();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public boolean isJournalSyncNonTransactional()
-   {
+   public boolean isJournalSyncNonTransactional() {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          return configuration.isJournalSyncNonTransactional();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public boolean isJournalSyncTransactional()
-   {
+   public boolean isJournalSyncTransactional() {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          return configuration.isJournalSyncTransactional();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public boolean isSecurityEnabled()
-   {
+   public boolean isSecurityEnabled() {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          return configuration.isSecurityEnabled();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public boolean isAsyncConnectionExecutionEnabled()
-   {
+   public boolean isAsyncConnectionExecutionEnabled() {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          return configuration.isAsyncConnectionExecutionEnabled();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public void deployQueue(final String address, final String name, final String filterString) throws Exception
-   {
+   public void deployQueue(final String address, final String name, final String filterString) throws Exception {
       checkStarted();
 
       clearIO();
-      try
-      {
-         server.deployQueue(new SimpleString(address),
-               new SimpleString(name),
-               new SimpleString(filterString),
-               true,
-               false);
+      try {
+         server.deployQueue(new SimpleString(address), new SimpleString(name), new SimpleString(filterString), true, false);
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public void deployQueue(final String address, final String name, final String filterStr, final boolean durable) throws Exception
-   {
+   public void deployQueue(final String address,
+                           final String name,
+                           final String filterStr,
+                           final boolean durable) throws Exception {
       checkStarted();
 
       SimpleString filter = filterStr == null ? null : new SimpleString(filterStr);
       clearIO();
-      try
-      {
+      try {
 
          server.deployQueue(new SimpleString(address), new SimpleString(name), filter, durable, false);
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public void createQueue(final String address, final String name) throws Exception
-   {
+   public void createQueue(final String address, final String name) throws Exception {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          server.createQueue(new SimpleString(address), new SimpleString(name), null, true, false);
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public void createQueue(final String address, final String name, final boolean durable) throws Exception
-   {
+   public void createQueue(final String address, final String name, final boolean durable) throws Exception {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          server.createQueue(new SimpleString(address), new SimpleString(name), null, durable, false);
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public void createQueue(final String address, final String name, final String filterStr, final boolean durable) throws Exception
-   {
+   public void createQueue(final String address,
+                           final String name,
+                           final String filterStr,
+                           final boolean durable) throws Exception {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          SimpleString filter = null;
-         if (filterStr != null && !filterStr.trim().equals(""))
-         {
+         if (filterStr != null && !filterStr.trim().equals("")) {
             filter = new SimpleString(filterStr);
          }
 
          server.createQueue(new SimpleString(address), new SimpleString(name), filter, durable, false);
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public String[] getQueueNames()
-   {
+   public String[] getQueueNames() {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          Object[] queues = server.getManagementService().getResources(QueueControl.class);
          String[] names = new String[queues.length];
-         for (int i = 0; i < queues.length; i++)
-         {
+         for (int i = 0; i < queues.length; i++) {
             QueueControl queue = (QueueControl) queues[i];
             names[i] = queue.getName();
          }
 
          return names;
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public String[] getAddressNames()
-   {
+   public String[] getAddressNames() {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          Object[] addresses = server.getManagementService().getResources(AddressControl.class);
          String[] names = new String[addresses.length];
-         for (int i = 0; i < addresses.length; i++)
-         {
+         for (int i = 0; i < addresses.length; i++) {
             AddressControl address = (AddressControl) addresses[i];
             names[i] = address.getAddress();
          }
 
          return names;
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public void destroyQueue(final String name) throws Exception
-   {
+   public void destroyQueue(final String name) throws Exception {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          SimpleString queueName = new SimpleString(name);
 
          server.destroyQueue(queueName, null, true);
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public int getConnectionCount()
-   {
+   public int getConnectionCount() {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          return server.getConnectionCount();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public void enableMessageCounters()
-   {
+   public void enableMessageCounters() {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          setMessageCounterEnabled(true);
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public void disableMessageCounters()
-   {
+   public void disableMessageCounters() {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          setMessageCounterEnabled(false);
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public void resetAllMessageCounters()
-   {
+   public void resetAllMessageCounters() {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          messageCounterManager.resetAllCounters();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public void resetAllMessageCounterHistories()
-   {
+   public void resetAllMessageCounterHistories() {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          messageCounterManager.resetAllCounterHistories();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public boolean isMessageCounterEnabled()
-   {
+   public boolean isMessageCounterEnabled() {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          return configuration.isMessageCounterEnabled();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public synchronized long getMessageCounterSamplePeriod()
-   {
+   public synchronized long getMessageCounterSamplePeriod() {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          return messageCounterManager.getSamplePeriod();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public synchronized void setMessageCounterSamplePeriod(final long newPeriod)
-   {
+   public synchronized void setMessageCounterSamplePeriod(final long newPeriod) {
       checkStarted();
 
       checkStarted();
 
       clearIO();
-      try
-      {
-         if (newPeriod < MessageCounterManagerImpl.MIN_SAMPLE_PERIOD)
-         {
+      try {
+         if (newPeriod < MessageCounterManagerImpl.MIN_SAMPLE_PERIOD) {
             throw ActiveMQMessageBundle.BUNDLE.invalidMessageCounterPeriod(MessageCounterManagerImpl.MIN_SAMPLE_PERIOD);
          }
 
-         if (messageCounterManager != null && newPeriod != messageCounterManager.getSamplePeriod())
-         {
+         if (messageCounterManager != null && newPeriod != messageCounterManager.getSamplePeriod()) {
             messageCounterManager.reschedule(newPeriod);
          }
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public int getMessageCounterMaxDayCount()
-   {
+   public int getMessageCounterMaxDayCount() {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          return messageCounterManager.getMaxDayCount();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public void setMessageCounterMaxDayCount(final int count)
-   {
+   public void setMessageCounterMaxDayCount(final int count) {
       checkStarted();
 
       clearIO();
-      try
-      {
-         if (count <= 0)
-         {
+      try {
+         if (count <= 0) {
             throw ActiveMQMessageBundle.BUNDLE.greaterThanZero(count);
          }
          messageCounterManager.setMaxDayCount(count);
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public String[] listPreparedTransactions()
-   {
+   public String[] listPreparedTransactions() {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM);
 
          Map<Xid, Long> xids = resourceManager.getPreparedTransactionsWithCreationTime();
          ArrayList<Entry<Xid, Long>> xidsSortedByCreationTime = new ArrayList<Map.Entry<Xid, Long>>(xids.entrySet());
-         Collections.sort(xidsSortedByCreationTime, new Comparator<Entry<Xid, Long>>()
-         {
-            public int compare(final Entry<Xid, Long> entry1, final Entry<Xid, Long> entry2)
-            {
+         Collections.sort(xidsSortedByCreationTime, new Comparator<Entry<Xid, Long>>() {
+            public int compare(final Entry<Xid, Long> entry1, final Entry<Xid, Long> entry2) {
                // sort by creation time, oldest first
                return (int) (entry1.getValue() - entry2.getValue());
             }
          });
          String[] s = new String[xidsSortedByCreationTime.size()];
          int i = 0;
-         for (Map.Entry<Xid, Long> entry : xidsSortedByCreationTime)
-         {
+         for (Map.Entry<Xid, Long> entry : xidsSortedByCreationTime) {
             Date creation = new Date(entry.getValue());
             Xid xid = entry.getKey();
             s[i++] = dateFormat.format(creation) + " base64: " + XidImpl.toBase64String(xid) + " " + xid.toString();
          }
          return s;
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public String listPreparedTransactionDetailsAsJSON() throws Exception
-   {
+   public String listPreparedTransactionDetailsAsJSON() throws Exception {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          Map<Xid, Long> xids = resourceManager.getPreparedTransactionsWithCreationTime();
-         if (xids == null || xids.size() == 0)
-         {
+         if (xids == null || xids.size() == 0) {
             return "";
          }
 
          ArrayList<Entry<Xid, Long>> xidsSortedByCreationTime = new ArrayList<Map.Entry<Xid, Long>>(xids.entrySet());
-         Collections.sort(xidsSortedByCreationTime, new Comparator<Entry<Xid, Long>>()
-         {
-            public int compare(final Entry<Xid, Long> entry1, final Entry<Xid, Long> entry2)
-            {
+         Collections.sort(xidsSortedByCreationTime, new Comparator<Entry<Xid, Long>>() {
+            public int compare(final Entry<Xid, Long> entry1, final Entry<Xid, Long> entry2) {
                // sort by creation time, oldest first
                return (int) (entry1.getValue() - entry2.getValue());
             }
          });
 
          JSONArray txDetailListJson = new JSONArray();
-         for (Map.Entry<Xid, Long> entry : xidsSortedByCreationTime)
-         {
+         for (Map.Entry<Xid, Long> entry : xidsSortedByCreationTime) {
             Xid xid = entry.getKey();
-            TransactionDetail detail = new CoreTransactionDetail(xid,
-                  resourceManager.getTransaction(xid),
-                  entry.getValue());
+            TransactionDetail detail = new CoreTransactionDetail(xid, resourceManager.getTransaction(xid), entry.getValue());
 
             txDetailListJson.put(detail.toJSON());
          }
          return txDetailListJson.toString();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public String listPreparedTransactionDetailsAsHTML() throws Exception
-   {
+   public String listPreparedTransactionDetailsAsHTML() throws Exception {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          Map<Xid, Long> xids = resourceManager.getPreparedTransactionsWithCreationTime();
-         if (xids == null || xids.size() == 0)
-         {
+         if (xids == null || xids.size() == 0) {
             return "<h3>*** Prepared Transaction Details ***</h3><p>No entry.</p>";
          }
 
          ArrayList<Entry<Xid, Long>> xidsSortedByCreationTime = new ArrayList<Map.Entry<Xid, Long>>(xids.entrySet());
-         Collections.sort(xidsSortedByCreationTime, new Comparator<Entry<Xid, Long>>()
-         {
-            public int compare(final Entry<Xid, Long> entry1, final Entry<Xid, Long> entry2)
-            {
+         Collections.sort(xidsSortedByCreationTime, new Comparator<Entry<Xid, Long>>() {
+            public int compare(final Entry<Xid, Long> entry1, final Entry<Xid, Long> entry2) {
                // sort by creation time, oldest first
                return (int) (entry1.getValue() - entry2.getValue());
             }
@@ -1036,12 +852,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
          StringBuilder html = new StringBuilder();
          html.append("<h3>*** Prepared Transaction Details ***</h3>");
 
-         for (Map.Entry<Xid, Long> entry : xidsSortedByCreationTime)
-         {
+         for (Map.Entry<Xid, Long> entry : xidsSortedByCreationTime) {
             Xid xid = entry.getKey();
-            TransactionDetail detail = new CoreTransactionDetail(xid,
-                  resourceManager.getTransaction(xid),
-                  entry.getValue());
+            TransactionDetail detail = new CoreTransactionDetail(xid, resourceManager.getTransaction(xid), entry.getValue());
 
             JSONObject txJson = detail.toJSON();
 
@@ -1062,15 +875,13 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
             html.append("<table border=\"1\" cellspacing=\"0\" cellpadding=\"0\">");
 
             JSONArray msgs = txJson.getJSONArray(TransactionDetail.KEY_TX_RELATED_MESSAGES);
-            for (int i = 0; i < msgs.length(); i++)
-            {
+            for (int i = 0; i < msgs.length(); i++) {
                JSONObject msgJson = msgs.getJSONObject(i);
                JSONObject props = msgJson.getJSONObject(TransactionDetail.KEY_MSG_PROPERTIES);
                StringBuilder propstr = new StringBuilder();
                @SuppressWarnings("unchecked")
                Iterator<String> propkeys = props.keys();
-               while (propkeys.hasNext())
-               {
+               while (propkeys.hasNext()) {
                   String key = propkeys.next();
                   propstr.append(key);
                   propstr.append("=");
@@ -1091,69 +902,56 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
          return html.toString();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public String[] listHeuristicCommittedTransactions()
-   {
+   public String[] listHeuristicCommittedTransactions() {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          List<Xid> xids = resourceManager.getHeuristicCommittedTransactions();
          String[] s = new String[xids.size()];
          int i = 0;
-         for (Xid xid : xids)
-         {
+         for (Xid xid : xids) {
             s[i++] = XidImpl.toBase64String(xid);
          }
          return s;
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public String[] listHeuristicRolledBackTransactions()
-   {
+   public String[] listHeuristicRolledBackTransactions() {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          List<Xid> xids = resourceManager.getHeuristicRolledbackTransactions();
          String[] s = new String[xids.size()];
          int i = 0;
-         for (Xid xid : xids)
-         {
+         for (Xid xid : xids) {
             s[i++] = XidImpl.toBase64String(xid);
          }
          return s;
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public synchronized boolean commitPreparedTransaction(final String transactionAsBase64) throws Exception
-   {
+   public synchronized boolean commitPreparedTransaction(final String transactionAsBase64) throws Exception {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          List<Xid> xids = resourceManager.getPreparedTransactions();
 
-         for (Xid xid : xids)
-         {
-            if (XidImpl.toBase64String(xid).equals(transactionAsBase64))
-            {
+         for (Xid xid : xids) {
+            if (XidImpl.toBase64String(xid).equals(transactionAsBase64)) {
                Transaction transaction = resourceManager.removeTransaction(xid);
                transaction.commit(false);
                long recordID = server.getStorageManager().storeHeuristicCompletion(xid, true);
@@ -1164,26 +962,21 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
          }
          return false;
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public synchronized boolean rollbackPreparedTransaction(final String transactionAsBase64) throws Exception
-   {
+   public synchronized boolean rollbackPreparedTransaction(final String transactionAsBase64) throws Exception {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
 
          List<Xid> xids = resourceManager.getPreparedTransactions();
 
-         for (Xid xid : xids)
-         {
-            if (XidImpl.toBase64String(xid).equals(transactionAsBase64))
-            {
+         for (Xid xid : xids) {
+            if (XidImpl.toBase64String(xid).equals(transactionAsBase64)) {
                Transaction transaction = resourceManager.removeTransaction(xid);
                transaction.rollback();
                long recordID = server.getStorageManager().storeHeuristicCompletion(xid, false);
@@ -1194,76 +987,62 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
          }
          return false;
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public String[] listRemoteAddresses()
-   {
+   public String[] listRemoteAddresses() {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          Set<RemotingConnection> connections = remotingService.getConnections();
 
          String[] remoteAddresses = new String[connections.size()];
          int i = 0;
-         for (RemotingConnection connection : connections)
-         {
+         for (RemotingConnection connection : connections) {
             remoteAddresses[i++] = connection.getRemoteAddress();
          }
          return remoteAddresses;
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
 
    }
 
-   public String[] listRemoteAddresses(final String ipAddress)
-   {
+   public String[] listRemoteAddresses(final String ipAddress) {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          Set<RemotingConnection> connections = remotingService.getConnections();
          List<String> remoteConnections = new ArrayList<String>();
-         for (RemotingConnection connection : connections)
-         {
+         for (RemotingConnection connection : connections) {
             String remoteAddress = connection.getRemoteAddress();
-            if (remoteAddress.contains(ipAddress))
-            {
+            if (remoteAddress.contains(ipAddress)) {
                remoteConnections.add(connection.getRemoteAddress());
             }
          }
          return remoteConnections.toArray(new String[remoteConnections.size()]);
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
 
    }
 
-   public synchronized boolean closeConnectionsForAddress(final String ipAddress)
-   {
+   public synchronized boolean closeConnectionsForAddress(final String ipAddress) {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          boolean closed = false;
          Set<RemotingConnection> connections = remotingService.getConnections();
-         for (RemotingConnection connection : connections)
-         {
+         for (RemotingConnection connection : connections) {
             String remoteAddress = connection.getRemoteAddress();
-            if (remoteAddress.contains(ipAddress))
-            {
+            if (remoteAddress.contains(ipAddress)) {
                connection.fail(ActiveMQMessageBundle.BUNDLE.connectionsClosedByManagement(ipAddress));
                remotingService.removeConnection(connection.getID());
                closed = true;
@@ -1272,43 +1051,33 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
          return closed;
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
 
    }
 
-   public synchronized boolean closeConsumerConnectionsForAddress(final String address)
-   {
+   public synchronized boolean closeConsumerConnectionsForAddress(final String address) {
       boolean closed = false;
       checkStarted();
 
       clearIO();
-      try
-      {
-         for (Binding binding : postOffice.getMatchingBindings(SimpleString.toSimpleString(address)).getBindings())
-         {
-            if (binding instanceof LocalQueueBinding)
-            {
+      try {
+         for (Binding binding : postOffice.getMatchingBindings(SimpleString.toSimpleString(address)).getBindings()) {
+            if (binding instanceof LocalQueueBinding) {
                Queue queue = ((LocalQueueBinding) binding).getQueue();
-               for (Consumer consumer : queue.getConsumers())
-               {
-                  if (consumer instanceof ServerConsumer)
-                  {
+               for (Consumer consumer : queue.getConsumers()) {
+                  if (consumer instanceof ServerConsumer) {
                      ServerConsumer serverConsumer = (ServerConsumer) consumer;
                      RemotingConnection connection = null;
 
-                     for (RemotingConnection potentialConnection : remotingService.getConnections())
-                     {
-                        if (potentialConnection.getID().toString().equals(serverConsumer.getConnectionID()))
-                        {
+                     for (RemotingConnection potentialConnection : remotingService.getConnections()) {
+                        if (potentialConnection.getID().toString().equals(serverConsumer.getConnectionID())) {
                            connection = potentialConnection;
                         }
                      }
 
-                     if (connection != null)
-                     {
+                     if (connection != null) {
                         remotingService.removeConnection(connection.getID());
                         connection.fail(ActiveMQMessageBundle.BUNDLE.consumerConnectionsClosedByManagement(address));
                         closed = true;
@@ -1318,41 +1087,32 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
             }
          }
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          ActiveMQServerLogger.LOGGER.failedToCloseConsumerConnectionsForAddress(address, e);
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
       return closed;
    }
 
-   public synchronized boolean closeConnectionsForUser(final String userName)
-   {
+   public synchronized boolean closeConnectionsForUser(final String userName) {
       boolean closed = false;
       checkStarted();
 
       clearIO();
-      try
-      {
-         for (ServerSession serverSession : server.getSessions())
-         {
-            if (serverSession.getUsername() != null && serverSession.getUsername().equals(userName))
-            {
+      try {
+         for (ServerSession serverSession : server.getSessions()) {
+            if (serverSession.getUsername() != null && serverSession.getUsername().equals(userName)) {
                RemotingConnection connection = null;
 
-               for (RemotingConnection potentialConnection : remotingService.getConnections())
-               {
-                  if (potentialConnection.getID().toString().equals(serverSession.getConnectionID().toString()))
-                  {
+               for (RemotingConnection potentialConnection : remotingService.getConnections()) {
+                  if (potentialConnection.getID().toString().equals(serverSession.getConnectionID().toString())) {
                      connection = potentialConnection;
                   }
                }
 
-               if (connection != null)
-               {
+               if (connection != null) {
                   remotingService.removeConnection(connection.getID());
                   connection.fail(ActiveMQMessageBundle.BUNDLE.connectionsForUserClosedByManagement(userName));
                   closed = true;
@@ -1360,90 +1120,72 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
             }
          }
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
       return closed;
    }
 
-   public String[] listConnectionIDs()
-   {
+   public String[] listConnectionIDs() {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          Set<RemotingConnection> connections = remotingService.getConnections();
          String[] connectionIDs = new String[connections.size()];
          int i = 0;
-         for (RemotingConnection connection : connections)
-         {
+         for (RemotingConnection connection : connections) {
             connectionIDs[i++] = connection.getID().toString();
          }
          return connectionIDs;
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public String[] listSessions(final String connectionID)
-   {
+   public String[] listSessions(final String connectionID) {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          List<ServerSession> sessions = server.getSessions(connectionID);
          String[] sessionIDs = new String[sessions.size()];
          int i = 0;
-         for (ServerSession serverSession : sessions)
-         {
+         for (ServerSession serverSession : sessions) {
             sessionIDs[i++] = serverSession.getName();
          }
          return sessionIDs;
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-
    /* (non-Javadoc)
    * @see org.apache.activemq.artemis.api.core.management.ActiveMQServerControl#listProducersInfoAsJSON()
    */
-   public String listProducersInfoAsJSON() throws Exception
-   {
+   public String listProducersInfoAsJSON() throws Exception {
       JSONArray producers = new JSONArray();
 
-
-      for (ServerSession session : server.getSessions())
-      {
+      for (ServerSession session : server.getSessions()) {
          session.describeProducersInfo(producers);
       }
 
       return producers.toString();
    }
 
-
-   public Object[] getConnectors() throws Exception
-   {
+   public Object[] getConnectors() throws Exception {
       checkStarted();
 
       clearIO();
-      try
-      {
-         Collection<TransportConfiguration> connectorConfigurations = configuration.getConnectorConfigurations()
-               .values();
+      try {
+         Collection<TransportConfiguration> connectorConfigurations = configuration.getConnectorConfigurations().values();
 
          Object[] ret = new Object[connectorConfigurations.size()];
 
          int i = 0;
-         for (TransportConfiguration config : connectorConfigurations)
-         {
+         for (TransportConfiguration config : connectorConfigurations) {
             Object[] tc = new Object[3];
 
             tc[0] = config.getName();
@@ -1455,30 +1197,25 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
          return ret;
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public String getConnectorsAsJSON() throws Exception
-   {
+   public String getConnectorsAsJSON() throws Exception {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          JSONArray array = new JSONArray();
 
-         for (TransportConfiguration config : configuration.getConnectorConfigurations().values())
-         {
+         for (TransportConfiguration config : configuration.getConnectorConfigurations().values()) {
             array.put(new JSONObject(config));
          }
 
          return array.toString();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
@@ -1490,123 +1227,86 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
                                    final String deleteDurableQueueRoles,
                                    final String createNonDurableQueueRoles,
                                    final String deleteNonDurableQueueRoles,
-                                   final String manageRoles) throws Exception
-   {
+                                   final String manageRoles) throws Exception {
       checkStarted();
 
       clearIO();
-      try
-      {
-         Set<Role> roles = SecurityFormatter.createSecurity(sendRoles,
-               consumeRoles,
-               createDurableQueueRoles,
-               deleteDurableQueueRoles,
-               createNonDurableQueueRoles,
-               deleteNonDurableQueueRoles,
-               manageRoles);
+      try {
+         Set<Role> roles = SecurityFormatter.createSecurity(sendRoles, consumeRoles, createDurableQueueRoles, deleteDurableQueueRoles, createNonDurableQueueRoles, deleteNonDurableQueueRoles, manageRoles);
 
          server.getSecurityRepository().addMatch(addressMatch, roles);
 
-         PersistedRoles persistedRoles = new PersistedRoles(addressMatch,
-               sendRoles,
-               consumeRoles,
-               createDurableQueueRoles,
-               deleteDurableQueueRoles,
-               createNonDurableQueueRoles,
-               deleteNonDurableQueueRoles,
-               manageRoles);
+         PersistedRoles persistedRoles = new PersistedRoles(addressMatch, sendRoles, consumeRoles, createDurableQueueRoles, deleteDurableQueueRoles, createNonDurableQueueRoles, deleteNonDurableQueueRoles, manageRoles);
 
          storageManager.storeSecurityRoles(persistedRoles);
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public void removeSecuritySettings(final String addressMatch) throws Exception
-   {
+   public void removeSecuritySettings(final String addressMatch) throws Exception {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          server.getSecurityRepository().removeMatch(addressMatch);
          storageManager.deleteSecurityRoles(new SimpleString(addressMatch));
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public Object[] getRoles(final String addressMatch) throws Exception
-   {
+   public Object[] getRoles(final String addressMatch) throws Exception {
       checkStarted();
 
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          Set<Role> roles = server.getSecurityRepository().getMatch(addressMatch);
 
          Object[] objRoles = new Object[roles.size()];
 
          int i = 0;
-         for (Role role : roles)
-         {
-            objRoles[i++] = new Object[]{role.getName(),
-                  CheckType.SEND.hasRole(role),
-                  CheckType.CONSUME.hasRole(role),
-                  CheckType.CREATE_DURABLE_QUEUE.hasRole(role),
-                  CheckType.DELETE_DURABLE_QUEUE.hasRole(role),
-                  CheckType.CREATE_NON_DURABLE_QUEUE.hasRole(role),
-                  CheckType.DELETE_NON_DURABLE_QUEUE.hasRole(role),
-                  CheckType.MANAGE.hasRole(role)};
+         for (Role role : roles) {
+            objRoles[i++] = new Object[]{role.getName(), CheckType.SEND.hasRole(role), CheckType.CONSUME.hasRole(role), CheckType.CREATE_DURABLE_QUEUE.hasRole(role), CheckType.DELETE_DURABLE_QUEUE.hasRole(role), CheckType.CREATE_NON_DURABLE_QUEUE.hasRole(role), CheckType.DELETE_NON_DURABLE_QUEUE.hasRole(role), CheckType.MANAGE.hasRole(role)};
          }
          return objRoles;
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public String getRolesAsJSON(final String addressMatch) throws Exception
-   {
+   public String getRolesAsJSON(final String addressMatch) throws Exception {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          JSONArray json = new JSONArray();
          Set<Role> roles = server.getSecurityRepository().getMatch(addressMatch);
 
-         for (Role role : roles)
-         {
+         for (Role role : roles) {
             json.put(new JSONObject(role));
          }
          return json.toString();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public String getAddressSettingsAsJSON(final String address) throws Exception
-   {
+   public String getAddressSettingsAsJSON(final String address) throws Exception {
       checkStarted();
 
       AddressSettings addressSettings = server.getAddressSettingsRepository().getMatch(address);
       Map<String, Object> settings = new HashMap<String, Object>();
-      if (addressSettings.getDeadLetterAddress() != null)
-      {
+      if (addressSettings.getDeadLetterAddress() != null) {
          settings.put("DLA", addressSettings.getDeadLetterAddress());
       }
-      if (addressSettings.getExpiryAddress() != null)
-      {
+      if (addressSettings.getExpiryAddress() != null) {
          settings.put("expiryAddress", addressSettings.getExpiryAddress());
       }
       settings.put("expiryDelay", addressSettings.getExpiryDelay());
@@ -1620,15 +1320,11 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       settings.put("redistributionDelay", addressSettings.getRedistributionDelay());
       settings.put("lastValueQueue", addressSettings.isLastValueQueue());
       settings.put("sendToDLAOnNoRoute", addressSettings.isSendToDLAOnNoRoute());
-      String policy = addressSettings.getAddressFullMessagePolicy() == AddressFullMessagePolicy.PAGE ? "PAGE"
-            : addressSettings.getAddressFullMessagePolicy() == AddressFullMessagePolicy.BLOCK ? "BLOCK"
-            : addressSettings.getAddressFullMessagePolicy() == AddressFullMessagePolicy.DROP ? "DROP"
-            : "FAIL";
+      String policy = addressSettings.getAddressFullMessagePolicy() == AddressFullMessagePolicy.PAGE ? "PAGE" : addressSettings.getAddressFullMessagePolicy() == AddressFullMessagePolicy.BLOCK ? "BLOCK" : addressSettings.getAddressFullMessagePolicy() == AddressFullMessagePolicy.DROP ? "DROP" : "FAIL";
       settings.put("addressFullMessagePolicy", policy);
       settings.put("slowConsumerThreshold", addressSettings.getSlowConsumerThreshold());
       settings.put("slowConsumerCheckPeriod", addressSettings.getSlowConsumerCheckPeriod());
-      policy = addressSettings.getSlowConsumerPolicy() == SlowConsumerPolicy.NOTIFY ? "NOTIFY"
-         : "KILL";
+      policy = addressSettings.getSlowConsumerPolicy() == SlowConsumerPolicy.NOTIFY ? "NOTIFY" : "KILL";
       settings.put("slowConsumerPolicy", policy);
       settings.put("autoCreateJmsQueues", addressSettings.isAutoCreateJmsQueues());
       settings.put("autoDeleteJmsQueues", addressSettings.isAutoDeleteJmsQueues());
@@ -1636,7 +1332,6 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       JSONObject jsonObject = new JSONObject(settings);
       return jsonObject.toString();
    }
-
 
    public void addAddressSettings(final String address,
                                   final String DLA,
@@ -1657,18 +1352,15 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
                                   final long slowConsumerCheckPeriod,
                                   final String slowConsumerPolicy,
                                   final boolean autoCreateJmsQueues,
-                                  final boolean autoDeleteJmsQueues) throws Exception
-   {
+                                  final boolean autoDeleteJmsQueues) throws Exception {
       checkStarted();
 
       // JBPAPP-6334 requested this to be pageSizeBytes > maxSizeBytes
-      if (pageSizeBytes > maxSizeBytes && maxSizeBytes > 0)
-      {
+      if (pageSizeBytes > maxSizeBytes && maxSizeBytes > 0) {
          throw new IllegalStateException("pageSize has to be lower than maxSizeBytes. Invalid argument (" + pageSizeBytes + " < " + maxSizeBytes + ")");
       }
 
-      if (maxSizeBytes < -1)
-      {
+      if (maxSizeBytes < -1) {
          throw new IllegalStateException("Invalid argument on maxSizeBytes");
       }
 
@@ -1686,38 +1378,30 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       addressSettings.setMaxRedeliveryDelay(maxRedeliveryDelay);
       addressSettings.setRedistributionDelay(redistributionDelay);
       addressSettings.setSendToDLAOnNoRoute(sendToDLAOnNoRoute);
-      if (addressFullMessagePolicy == null)
-      {
+      if (addressFullMessagePolicy == null) {
          addressSettings.setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE);
       }
-      else if (addressFullMessagePolicy.equalsIgnoreCase("PAGE"))
-      {
+      else if (addressFullMessagePolicy.equalsIgnoreCase("PAGE")) {
          addressSettings.setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE);
       }
-      else if (addressFullMessagePolicy.equalsIgnoreCase("DROP"))
-      {
+      else if (addressFullMessagePolicy.equalsIgnoreCase("DROP")) {
          addressSettings.setAddressFullMessagePolicy(AddressFullMessagePolicy.DROP);
       }
-      else if (addressFullMessagePolicy.equalsIgnoreCase("BLOCK"))
-      {
+      else if (addressFullMessagePolicy.equalsIgnoreCase("BLOCK")) {
          addressSettings.setAddressFullMessagePolicy(AddressFullMessagePolicy.BLOCK);
       }
-      else if (addressFullMessagePolicy.equalsIgnoreCase("FAIL"))
-      {
+      else if (addressFullMessagePolicy.equalsIgnoreCase("FAIL")) {
          addressSettings.setAddressFullMessagePolicy(AddressFullMessagePolicy.FAIL);
       }
       addressSettings.setSlowConsumerThreshold(slowConsumerThreshold);
       addressSettings.setSlowConsumerCheckPeriod(slowConsumerCheckPeriod);
-      if (slowConsumerPolicy == null)
-      {
+      if (slowConsumerPolicy == null) {
          addressSettings.setSlowConsumerPolicy(SlowConsumerPolicy.NOTIFY);
       }
-      else if (slowConsumerPolicy.equalsIgnoreCase("NOTIFY"))
-      {
+      else if (slowConsumerPolicy.equalsIgnoreCase("NOTIFY")) {
          addressSettings.setSlowConsumerPolicy(SlowConsumerPolicy.NOTIFY);
       }
-      else if (slowConsumerPolicy.equalsIgnoreCase("KILL"))
-      {
+      else if (slowConsumerPolicy.equalsIgnoreCase("KILL")) {
          addressSettings.setSlowConsumerPolicy(SlowConsumerPolicy.KILL);
       }
       addressSettings.setAutoCreateJmsQueues(autoCreateJmsQueues);
@@ -1727,56 +1411,47 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       storageManager.storeAddressSetting(new PersistedAddressSetting(new SimpleString(address), addressSettings));
    }
 
-   public void removeAddressSettings(final String addressMatch) throws Exception
-   {
+   public void removeAddressSettings(final String addressMatch) throws Exception {
       checkStarted();
 
       server.getAddressSettingsRepository().removeMatch(addressMatch);
       storageManager.deleteAddressSetting(new SimpleString(addressMatch));
    }
 
-   public void sendQueueInfoToQueue(final String queueName, final String address) throws Exception
-   {
+   public void sendQueueInfoToQueue(final String queueName, final String address) throws Exception {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          postOffice.sendQueueInfoToQueue(new SimpleString(queueName), new SimpleString(address));
 
          GroupingHandler handler = server.getGroupingHandler();
-         if (handler != null)
-         {
+         if (handler != null) {
             // the group handler would miss responses if the group was requested before the reset was done
             // on that case we ask the groupinghandler to replay its send in case it's waiting for the information
             handler.resendPending();
          }
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public String[] getDivertNames()
-   {
+   public String[] getDivertNames() {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          Object[] diverts = server.getManagementService().getResources(DivertControl.class);
          String[] names = new String[diverts.length];
-         for (int i = 0; i < diverts.length; i++)
-         {
+         for (int i = 0; i < diverts.length; i++) {
             DivertControl divert = (DivertControl) diverts[i];
             names[i] = divert.getUniqueName();
          }
 
          return names;
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
@@ -1787,63 +1462,46 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
                             final String forwardingAddress,
                             final boolean exclusive,
                             final String filterString,
-                            final String transformerClassName) throws Exception
-   {
+                            final String transformerClassName) throws Exception {
       checkStarted();
 
       clearIO();
-      try
-      {
-         DivertConfiguration config = new DivertConfiguration()
-            .setName(name)
-            .setRoutingName(routingName)
-            .setAddress(address)
-            .setForwardingAddress(forwardingAddress)
-            .setExclusive(exclusive)
-            .setFilterString(filterString)
-            .setTransformerClassName(transformerClassName);
+      try {
+         DivertConfiguration config = new DivertConfiguration().setName(name).setRoutingName(routingName).setAddress(address).setForwardingAddress(forwardingAddress).setExclusive(exclusive).setFilterString(filterString).setTransformerClassName(transformerClassName);
          server.deployDivert(config);
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public void destroyDivert(final String name) throws Exception
-   {
+   public void destroyDivert(final String name) throws Exception {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          server.destroyDivert(SimpleString.toSimpleString(name));
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public String[] getBridgeNames()
-   {
+   public String[] getBridgeNames() {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          Object[] bridges = server.getManagementService().getResources(BridgeControl.class);
          String[] names = new String[bridges.length];
-         for (int i = 0; i < bridges.length; i++)
-         {
+         for (int i = 0; i < bridges.length; i++) {
             BridgeControl bridge = (BridgeControl) bridges[i];
             names[i] = bridge.getName();
          }
 
          return names;
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
@@ -1864,66 +1522,41 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
                             boolean useDiscoveryGroup,
                             final boolean ha,
                             final String user,
-                            final String password) throws Exception
-   {
+                            final String password) throws Exception {
       checkStarted();
 
       clearIO();
 
-      try
-      {
-         BridgeConfiguration config = new BridgeConfiguration()
-               .setName(name)
-               .setQueueName(queueName)
-               .setForwardingAddress(forwardingAddress)
-               .setFilterString(filterString)
-               .setTransformerClassName(transformerClassName)
-               .setClientFailureCheckPeriod(clientFailureCheckPeriod)
-               .setRetryInterval(retryInterval)
-               .setRetryIntervalMultiplier(retryIntervalMultiplier)
-               .setInitialConnectAttempts(initialConnectAttempts)
-               .setReconnectAttempts(reconnectAttempts)
-               .setUseDuplicateDetection(useDuplicateDetection)
-               .setConfirmationWindowSize(confirmationWindowSize)
-               .setHA(ha)
-               .setUser(user)
-               .setPassword(password);
+      try {
+         BridgeConfiguration config = new BridgeConfiguration().setName(name).setQueueName(queueName).setForwardingAddress(forwardingAddress).setFilterString(filterString).setTransformerClassName(transformerClassName).setClientFailureCheckPeriod(clientFailureCheckPeriod).setRetryInterval(retryInterval).setRetryIntervalMultiplier(retryIntervalMultiplier).setInitialConnectAttempts(initialConnectAttempts).setReconnectAttempts(reconnectAttempts).setUseDuplicateDetection(useDuplicateDetection).setConfirmationWindowSize(confirmationWindowSize).setHA(ha).setUser(user).setPassword(password);
 
-         if (useDiscoveryGroup)
-         {
+         if (useDiscoveryGroup) {
             config.setDiscoveryGroupName(staticConnectorsOrDiscoveryGroup);
          }
-         else
-         {
+         else {
             config.setStaticConnectors(toList(staticConnectorsOrDiscoveryGroup));
          }
 
          server.deployBridge(config);
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-
-   public void destroyBridge(final String name) throws Exception
-   {
+   public void destroyBridge(final String name) throws Exception {
       checkStarted();
 
       clearIO();
-      try
-      {
+      try {
          server.destroyBridge(name);
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public void forceFailover() throws Exception
-   {
+   public void forceFailover() throws Exception {
       checkStarted();
 
       clearIO();
@@ -1932,43 +1565,35 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
    }
 
    @Override
-   public void updateDuplicateIdCache(String address, Object[] ids) throws Exception
-   {
+   public void updateDuplicateIdCache(String address, Object[] ids) throws Exception {
       clearIO();
-      try
-      {
+      try {
          DuplicateIDCache duplicateIDCache = server.getPostOffice().getDuplicateIDCache(new SimpleString(address));
-         for (Object id : ids)
-         {
-            duplicateIDCache.addToCache(((String)id).getBytes(), null);
+         for (Object id : ids) {
+            duplicateIDCache.addToCache(((String) id).getBytes(), null);
          }
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
    @Override
-   public void scaleDown(String connector) throws Exception
-   {
+   public void scaleDown(String connector) throws Exception {
       checkStarted();
 
       clearIO();
       HAPolicy haPolicy = server.getHAPolicy();
-      if (haPolicy instanceof LiveOnlyPolicy)
-      {
+      if (haPolicy instanceof LiveOnlyPolicy) {
          LiveOnlyPolicy liveOnlyPolicy = (LiveOnlyPolicy) haPolicy;
 
-         if (liveOnlyPolicy.getScaleDownPolicy() == null)
-         {
+         if (liveOnlyPolicy.getScaleDownPolicy() == null) {
             liveOnlyPolicy.setScaleDownPolicy(new ScaleDownPolicy());
          }
 
          liveOnlyPolicy.getScaleDownPolicy().setEnabled(true);
 
-         if (connector != null)
-         {
+         if (connector != null) {
             liveOnlyPolicy.getScaleDownPolicy().getConnectors().add(0, connector);
          }
 
@@ -1981,58 +1606,45 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    public void removeNotificationListener(final NotificationListener listener,
                                           final NotificationFilter filter,
-                                          final Object handback) throws ListenerNotFoundException
-   {
+                                          final Object handback) throws ListenerNotFoundException {
       clearIO();
-      try
-      {
+      try {
          broadcaster.removeNotificationListener(listener, filter, handback);
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public void removeNotificationListener(final NotificationListener listener) throws ListenerNotFoundException
-   {
+   public void removeNotificationListener(final NotificationListener listener) throws ListenerNotFoundException {
       clearIO();
-      try
-      {
+      try {
          broadcaster.removeNotificationListener(listener);
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
    public void addNotificationListener(final NotificationListener listener,
                                        final NotificationFilter filter,
-                                       final Object handback) throws IllegalArgumentException
-   {
+                                       final Object handback) throws IllegalArgumentException {
       clearIO();
-      try
-      {
+      try {
          broadcaster.addNotificationListener(listener, filter, handback);
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public MBeanNotificationInfo[] getNotificationInfo()
-   {
+   public MBeanNotificationInfo[] getNotificationInfo() {
       CoreNotificationType[] values = CoreNotificationType.values();
       String[] names = new String[values.length];
-      for (int i = 0; i < values.length; i++)
-      {
+      for (int i = 0; i < values.length; i++) {
          names[i] = values[i].toString();
       }
-      return new MBeanNotificationInfo[]{new MBeanNotificationInfo(names,
-            this.getClass().getName(),
-            "Notifications emitted by a Core Server")};
+      return new MBeanNotificationInfo[]{new MBeanNotificationInfo(names, this.getClass().getName(), "Notifications emitted by a Core Server")};
    }
 
    // Package protected ---------------------------------------------
@@ -2041,29 +1653,23 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    // Private -------------------------------------------------------
 
-   private synchronized void setMessageCounterEnabled(final boolean enable)
-   {
-      if (isStarted())
-      {
-         if (configuration.isMessageCounterEnabled() && !enable)
-         {
+   private synchronized void setMessageCounterEnabled(final boolean enable) {
+      if (isStarted()) {
+         if (configuration.isMessageCounterEnabled() && !enable) {
             stopMessageCounters();
          }
-         else if (!configuration.isMessageCounterEnabled() && enable)
-         {
+         else if (!configuration.isMessageCounterEnabled() && enable) {
             startMessageCounters();
          }
       }
       configuration.setMessageCounterEnabled(enable);
    }
 
-   private void startMessageCounters()
-   {
+   private void startMessageCounters() {
       messageCounterManager.start();
    }
 
-   private void stopMessageCounters()
-   {
+   private void stopMessageCounters() {
       messageCounterManager.stop();
 
       messageCounterManager.resetAllCounters();
@@ -2071,114 +1677,93 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       messageCounterManager.resetAllCounterHistories();
    }
 
-   public long getConnectionTTLOverride()
-   {
+   public long getConnectionTTLOverride() {
       return configuration.getConnectionTTLOverride();
    }
 
-   public int getIDCacheSize()
-   {
+   public int getIDCacheSize() {
       return configuration.getIDCacheSize();
    }
 
-   public String getLargeMessagesDirectory()
-   {
+   public String getLargeMessagesDirectory() {
       return configuration.getLargeMessagesDirectory();
    }
 
-   public String getManagementAddress()
-   {
+   public String getManagementAddress() {
       return configuration.getManagementAddress().toString();
    }
 
-   public String getManagementNotificationAddress()
-   {
+   public String getManagementNotificationAddress() {
       return configuration.getManagementNotificationAddress().toString();
    }
 
-   public long getMessageExpiryScanPeriod()
-   {
+   public long getMessageExpiryScanPeriod() {
       return configuration.getMessageExpiryScanPeriod();
    }
 
-   public long getMessageExpiryThreadPriority()
-   {
+   public long getMessageExpiryThreadPriority() {
       return configuration.getMessageExpiryThreadPriority();
    }
 
-   public long getTransactionTimeout()
-   {
+   public long getTransactionTimeout() {
       return configuration.getTransactionTimeout();
    }
 
-   public long getTransactionTimeoutScanPeriod()
-   {
+   public long getTransactionTimeoutScanPeriod() {
       return configuration.getTransactionTimeoutScanPeriod();
    }
 
-   public boolean isPersistDeliveryCountBeforeDelivery()
-   {
+   public boolean isPersistDeliveryCountBeforeDelivery() {
       return configuration.isPersistDeliveryCountBeforeDelivery();
    }
 
-   public boolean isPersistIDCache()
-   {
+   public boolean isPersistIDCache() {
       return configuration.isPersistIDCache();
    }
 
-   public boolean isWildcardRoutingEnabled()
-   {
+   public boolean isWildcardRoutingEnabled() {
       return configuration.isWildcardRoutingEnabled();
    }
 
    @Override
-   protected MBeanOperationInfo[] fillMBeanOperationInfo()
-   {
+   protected MBeanOperationInfo[] fillMBeanOperationInfo() {
       return MBeanInfoHelper.getMBeanOperationsInfo(ActiveMQServerControl.class);
    }
 
-   private void checkStarted()
-   {
-      if (!server.isStarted())
-      {
+   private void checkStarted() {
+      if (!server.isStarted()) {
          throw new IllegalStateException("Broker is not started. It can not be managed yet");
       }
    }
 
-   public String[] listTargetAddresses(final String sessionID)
-   {
+   public String[] listTargetAddresses(final String sessionID) {
       ServerSession session = server.getSessionByID(sessionID);
-      if (session != null)
-      {
+      if (session != null) {
          return session.getTargetAddresses();
       }
       return new String[0];
    }
 
-   private static List<String> toList(final String commaSeparatedString)
-   {
+   private static List<String> toList(final String commaSeparatedString) {
       List<String> list = new ArrayList<String>();
-      if (commaSeparatedString == null || commaSeparatedString.trim().length() == 0)
-      {
+      if (commaSeparatedString == null || commaSeparatedString.trim().length() == 0) {
          return list;
       }
       String[] values = commaSeparatedString.split(",");
-      for (String value : values)
-      {
+      for (String value : values) {
          list.add(value.trim());
       }
       return list;
    }
 
    @Override
-   public void onNotification(org.apache.activemq.artemis.core.server.management.Notification notification)
-   {
-      if (!(notification.getType() instanceof CoreNotificationType)) return;
+   public void onNotification(org.apache.activemq.artemis.core.server.management.Notification notification) {
+      if (!(notification.getType() instanceof CoreNotificationType))
+         return;
       CoreNotificationType type = (CoreNotificationType) notification.getType();
       TypedProperties prop = notification.getProperties();
 
-      this.broadcaster.sendNotification(new Notification(type.toString(), this,
-            notifSeq.incrementAndGet(), notification.toString()));
+      this.broadcaster.sendNotification(new Notification(type.toString(), this, notifSeq.incrementAndGet(), notification.toString()));
    }
 
 }

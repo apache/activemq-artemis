@@ -24,8 +24,7 @@ import org.apache.activemq.artemis.api.core.management.Parameter;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.junit.Before;
 
-public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTest
-{
+public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTest {
 
    // Constants -----------------------------------------------------
 
@@ -33,11 +32,9 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
 
    // Static --------------------------------------------------------
 
-   private static String[] toStringArray(final Object[] res)
-   {
+   private static String[] toStringArray(final Object[] res) {
       String[] names = new String[res.length];
-      for (int i = 0; i < res.length; i++)
-      {
+      for (int i = 0; i < res.length; i++) {
          names[i] = res[i].toString();
       }
       return names;
@@ -54,8 +51,7 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       locator = createInVMNonHALocator();
@@ -64,8 +60,7 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
       session.start();
    }
 
-   protected void restartServer() throws Exception
-   {
+   protected void restartServer() throws Exception {
       session.close();
 
       super.restartServer();
@@ -79,431 +74,351 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
 
    // the core messaging proxy doesn't work when the server is stopped so we cant run these 2 tests
    @Override
-   public void testScaleDownWithOutConnector() throws Exception
-   {
+   public void testScaleDownWithOutConnector() throws Exception {
    }
 
    @Override
-   public void testScaleDownWithConnector() throws Exception
-   {
+   public void testScaleDownWithConnector() throws Exception {
    }
 
    @Override
-   protected ActiveMQServerControl createManagementControl() throws Exception
-   {
-      return new ActiveMQServerControl()
-      {
+   protected ActiveMQServerControl createManagementControl() throws Exception {
+      return new ActiveMQServerControl() {
          @Override
-         public void updateDuplicateIdCache(String address, Object[] ids)
-         {
+         public void updateDuplicateIdCache(String address, Object[] ids) {
 
          }
 
          @Override
-         public void scaleDown(String connector) throws Exception
-         {
+         public void scaleDown(String connector) throws Exception {
             throw new UnsupportedOperationException();
          }
 
          private final CoreMessagingProxy proxy = new CoreMessagingProxy(session, ResourceNames.CORE_SERVER);
 
-         public boolean isSharedStore()
-         {
+         public boolean isSharedStore() {
             return (Boolean) proxy.retrieveAttributeValue("sharedStore");
          }
 
-         public boolean closeConnectionsForAddress(final String ipAddress) throws Exception
-         {
+         public boolean closeConnectionsForAddress(final String ipAddress) throws Exception {
             return (Boolean) proxy.invokeOperation("closeConnectionsForAddress", ipAddress);
          }
 
-         public boolean closeConsumerConnectionsForAddress(final String address) throws Exception
-         {
+         public boolean closeConsumerConnectionsForAddress(final String address) throws Exception {
             return (Boolean) proxy.invokeOperation("closeConsumerConnectionsForAddress", address);
          }
 
-         public boolean closeConnectionsForUser(final String userName) throws Exception
-         {
+         public boolean closeConnectionsForUser(final String userName) throws Exception {
             return (Boolean) proxy.invokeOperation("closeConnectionsForUser", userName);
          }
 
-         public boolean commitPreparedTransaction(final String transactionAsBase64) throws Exception
-         {
+         public boolean commitPreparedTransaction(final String transactionAsBase64) throws Exception {
             return (Boolean) proxy.invokeOperation("commitPreparedTransaction", transactionAsBase64);
          }
 
-         public void createQueue(final String address, final String name) throws Exception
-         {
+         public void createQueue(final String address, final String name) throws Exception {
             proxy.invokeOperation("createQueue", address, name);
          }
 
-         public void createQueue(final String address, final String name, final String filter, final boolean durable) throws Exception
-         {
+         public void createQueue(final String address,
+                                 final String name,
+                                 final String filter,
+                                 final boolean durable) throws Exception {
             proxy.invokeOperation("createQueue", address, name, filter, durable);
          }
 
-         public void createQueue(final String address, final String name, final boolean durable) throws Exception
-         {
+         public void createQueue(final String address, final String name, final boolean durable) throws Exception {
             proxy.invokeOperation("createQueue", address, name, durable);
          }
 
-         public void deployQueue(final String address, final String name, final String filter, final boolean durable) throws Exception
-         {
+         public void deployQueue(final String address,
+                                 final String name,
+                                 final String filter,
+                                 final boolean durable) throws Exception {
             proxy.invokeOperation("deployQueue", address, name, filter, durable);
          }
 
-         public void deployQueue(final String address, final String name, final String filterString) throws Exception
-         {
+         public void deployQueue(final String address, final String name, final String filterString) throws Exception {
             proxy.invokeOperation("deployQueue", address, name);
          }
 
-         public void destroyQueue(final String name) throws Exception
-         {
+         public void destroyQueue(final String name) throws Exception {
             proxy.invokeOperation("destroyQueue", name);
          }
 
-         public void disableMessageCounters() throws Exception
-         {
+         public void disableMessageCounters() throws Exception {
             proxy.invokeOperation("disableMessageCounters");
          }
 
-         public void enableMessageCounters() throws Exception
-         {
+         public void enableMessageCounters() throws Exception {
             proxy.invokeOperation("enableMessageCounters");
          }
 
-         public String getBindingsDirectory()
-         {
+         public String getBindingsDirectory() {
             return (String) proxy.retrieveAttributeValue("bindingsDirectory");
          }
 
-         public int getConnectionCount()
-         {
+         public int getConnectionCount() {
             return (Integer) proxy.retrieveAttributeValue("connectionCount");
          }
 
-         public long getConnectionTTLOverride()
-         {
+         public long getConnectionTTLOverride() {
             return (Long) proxy.retrieveAttributeValue("connectionTTLOverride", Long.class);
          }
 
-         public Object[] getConnectors() throws Exception
-         {
+         public Object[] getConnectors() throws Exception {
             return (Object[]) proxy.retrieveAttributeValue("connectors");
          }
 
-         public String getConnectorsAsJSON() throws Exception
-         {
+         public String getConnectorsAsJSON() throws Exception {
             return (String) proxy.retrieveAttributeValue("connectorsAsJSON");
          }
 
-         public String[] getAddressNames()
-         {
+         public String[] getAddressNames() {
             return ActiveMQServerControlUsingCoreTest.toStringArray((Object[]) proxy.retrieveAttributeValue("addressNames"));
          }
 
-         public String[] getQueueNames()
-         {
+         public String[] getQueueNames() {
             return ActiveMQServerControlUsingCoreTest.toStringArray((Object[]) proxy.retrieveAttributeValue("queueNames"));
          }
 
-         public int getIDCacheSize()
-         {
+         public int getIDCacheSize() {
             return (Integer) proxy.retrieveAttributeValue("IDCacheSize");
          }
 
-         public String[] getInterceptorClassNames()
-         {
+         public String[] getInterceptorClassNames() {
             return ActiveMQServerControlUsingCoreTest.toStringArray((Object[]) proxy.retrieveAttributeValue("incomingInterceptorClassNames"));
          }
 
-         public String[] getIncomingInterceptorClassNames()
-         {
+         public String[] getIncomingInterceptorClassNames() {
             return ActiveMQServerControlUsingCoreTest.toStringArray((Object[]) proxy.retrieveAttributeValue("incomingInterceptorClassNames"));
          }
 
-         public String[] getOutgoingInterceptorClassNames()
-         {
+         public String[] getOutgoingInterceptorClassNames() {
             return ActiveMQServerControlUsingCoreTest.toStringArray((Object[]) proxy.retrieveAttributeValue("outgoingInterceptorClassNames"));
          }
 
-         public String getJournalDirectory()
-         {
+         public String getJournalDirectory() {
             return (String) proxy.retrieveAttributeValue("journalDirectory");
          }
 
-         public int getJournalFileSize()
-         {
+         public int getJournalFileSize() {
             return (Integer) proxy.retrieveAttributeValue("journalFileSize");
          }
 
-         public int getJournalMaxIO()
-         {
+         public int getJournalMaxIO() {
             return (Integer) proxy.retrieveAttributeValue("journalMaxIO");
          }
 
-         public int getJournalMinFiles()
-         {
+         public int getJournalMinFiles() {
             return (Integer) proxy.retrieveAttributeValue("journalMinFiles");
          }
 
-         public String getJournalType()
-         {
+         public String getJournalType() {
             return (String) proxy.retrieveAttributeValue("journalType");
          }
 
-         public String getLargeMessagesDirectory()
-         {
+         public String getLargeMessagesDirectory() {
             return (String) proxy.retrieveAttributeValue("largeMessagesDirectory");
          }
 
-         public String getManagementAddress()
-         {
+         public String getManagementAddress() {
             return (String) proxy.retrieveAttributeValue("managementAddress");
          }
 
-         public String getManagementNotificationAddress()
-         {
+         public String getManagementNotificationAddress() {
             return (String) proxy.retrieveAttributeValue("managementNotificationAddress");
          }
 
-         public int getMessageCounterMaxDayCount()
-         {
+         public int getMessageCounterMaxDayCount() {
             return (Integer) proxy.retrieveAttributeValue("messageCounterMaxDayCount");
          }
 
-         public long getMessageCounterSamplePeriod()
-         {
+         public long getMessageCounterSamplePeriod() {
             return (Long) proxy.retrieveAttributeValue("messageCounterSamplePeriod", Long.class);
          }
 
-         public long getMessageExpiryScanPeriod()
-         {
+         public long getMessageExpiryScanPeriod() {
             return (Long) proxy.retrieveAttributeValue("messageExpiryScanPeriod", Long.class);
          }
 
-         public long getMessageExpiryThreadPriority()
-         {
+         public long getMessageExpiryThreadPriority() {
             return (Long) proxy.retrieveAttributeValue("messageExpiryThreadPriority", Long.class);
          }
 
-         public String getPagingDirectory()
-         {
+         public String getPagingDirectory() {
             return (String) proxy.retrieveAttributeValue("pagingDirectory");
          }
 
-         public int getScheduledThreadPoolMaxSize()
-         {
+         public int getScheduledThreadPoolMaxSize() {
             return (Integer) proxy.retrieveAttributeValue("scheduledThreadPoolMaxSize");
          }
 
-         public int getThreadPoolMaxSize()
-         {
+         public int getThreadPoolMaxSize() {
             return (Integer) proxy.retrieveAttributeValue("threadPoolMaxSize");
          }
 
-         public long getSecurityInvalidationInterval()
-         {
+         public long getSecurityInvalidationInterval() {
             return (Long) proxy.retrieveAttributeValue("securityInvalidationInterval", Long.class);
          }
 
-         public long getTransactionTimeout()
-         {
+         public long getTransactionTimeout() {
             return (Long) proxy.retrieveAttributeValue("transactionTimeout", Long.class);
          }
 
-         public long getTransactionTimeoutScanPeriod()
-         {
+         public long getTransactionTimeoutScanPeriod() {
             return (Long) proxy.retrieveAttributeValue("transactionTimeoutScanPeriod", Long.class);
          }
 
-         public String getVersion()
-         {
+         public String getVersion() {
             return (String) proxy.retrieveAttributeValue("version");
          }
 
-         public boolean isBackup()
-         {
+         public boolean isBackup() {
             return (Boolean) proxy.retrieveAttributeValue("backup");
          }
 
-         public boolean isClustered()
-         {
+         public boolean isClustered() {
             return (Boolean) proxy.retrieveAttributeValue("clustered");
          }
 
-         public boolean isCreateBindingsDir()
-         {
+         public boolean isCreateBindingsDir() {
             return (Boolean) proxy.retrieveAttributeValue("createBindingsDir");
          }
 
-         public boolean isCreateJournalDir()
-         {
+         public boolean isCreateJournalDir() {
             return (Boolean) proxy.retrieveAttributeValue("createJournalDir");
          }
 
-         public boolean isJournalSyncNonTransactional()
-         {
+         public boolean isJournalSyncNonTransactional() {
             return (Boolean) proxy.retrieveAttributeValue("journalSyncNonTransactional");
          }
 
-         public boolean isJournalSyncTransactional()
-         {
+         public boolean isJournalSyncTransactional() {
             return (Boolean) proxy.retrieveAttributeValue("journalSyncTransactional");
          }
 
-         public void setFailoverOnServerShutdown(boolean failoverOnServerShutdown) throws Exception
-         {
+         public void setFailoverOnServerShutdown(boolean failoverOnServerShutdown) throws Exception {
             proxy.invokeOperation("setFailoverOnServerShutdown", failoverOnServerShutdown);
          }
 
-         public boolean isFailoverOnServerShutdown()
-         {
+         public boolean isFailoverOnServerShutdown() {
             return (Boolean) proxy.retrieveAttributeValue("failoverOnServerShutdown");
          }
 
-         public void setScaleDown(boolean scaleDown) throws Exception
-         {
+         public void setScaleDown(boolean scaleDown) throws Exception {
             proxy.invokeOperation("setEnabled", scaleDown);
          }
 
-         public boolean isScaleDown()
-         {
+         public boolean isScaleDown() {
             return (Boolean) proxy.retrieveAttributeValue("scaleDown");
          }
 
-         public boolean isMessageCounterEnabled()
-         {
+         public boolean isMessageCounterEnabled() {
             return (Boolean) proxy.retrieveAttributeValue("messageCounterEnabled");
          }
 
-         public boolean isPersistDeliveryCountBeforeDelivery()
-         {
+         public boolean isPersistDeliveryCountBeforeDelivery() {
             return (Boolean) proxy.retrieveAttributeValue("persistDeliveryCountBeforeDelivery");
          }
 
-         public boolean isAsyncConnectionExecutionEnabled()
-         {
+         public boolean isAsyncConnectionExecutionEnabled() {
             return (Boolean) proxy.retrieveAttributeValue("asyncConnectionExecutionEnabled");
          }
 
-         public boolean isPersistIDCache()
-         {
+         public boolean isPersistIDCache() {
             return (Boolean) proxy.retrieveAttributeValue("persistIDCache");
          }
 
-         public boolean isSecurityEnabled()
-         {
+         public boolean isSecurityEnabled() {
             return (Boolean) proxy.retrieveAttributeValue("securityEnabled");
          }
 
-         public boolean isStarted()
-         {
+         public boolean isStarted() {
             return (Boolean) proxy.retrieveAttributeValue("started");
          }
 
-         public boolean isWildcardRoutingEnabled()
-         {
+         public boolean isWildcardRoutingEnabled() {
             return (Boolean) proxy.retrieveAttributeValue("wildcardRoutingEnabled");
          }
 
-         public String[] listConnectionIDs() throws Exception
-         {
+         public String[] listConnectionIDs() throws Exception {
             return (String[]) proxy.invokeOperation("listConnectionIDs");
          }
 
-         public String[] listPreparedTransactions() throws Exception
-         {
+         public String[] listPreparedTransactions() throws Exception {
             return (String[]) proxy.invokeOperation("listPreparedTransactions");
          }
 
-         public String listPreparedTransactionDetailsAsJSON() throws Exception
-         {
+         public String listPreparedTransactionDetailsAsJSON() throws Exception {
             return (String) proxy.invokeOperation("listPreparedTransactionDetailsAsJSON");
          }
 
-         public String listPreparedTransactionDetailsAsHTML() throws Exception
-         {
+         public String listPreparedTransactionDetailsAsHTML() throws Exception {
             return (String) proxy.invokeOperation("listPreparedTransactionDetailsAsHTML");
          }
 
-         public String[] listHeuristicCommittedTransactions() throws Exception
-         {
+         public String[] listHeuristicCommittedTransactions() throws Exception {
             return (String[]) proxy.invokeOperation("listHeuristicCommittedTransactions");
          }
 
-         public String[] listHeuristicRolledBackTransactions() throws Exception
-         {
+         public String[] listHeuristicRolledBackTransactions() throws Exception {
             return (String[]) proxy.invokeOperation("listHeuristicRolledBackTransactions");
          }
 
-         public String[] listRemoteAddresses() throws Exception
-         {
+         public String[] listRemoteAddresses() throws Exception {
             return (String[]) proxy.invokeOperation("listRemoteAddresses");
          }
 
-         public String[] listRemoteAddresses(final String ipAddress) throws Exception
-         {
+         public String[] listRemoteAddresses(final String ipAddress) throws Exception {
             return (String[]) proxy.invokeOperation("listRemoteAddresses", ipAddress);
          }
 
-         public String[] listSessions(final String connectionID) throws Exception
-         {
+         public String[] listSessions(final String connectionID) throws Exception {
             return (String[]) proxy.invokeOperation("listSessions", connectionID);
          }
 
-         public void resetAllMessageCounterHistories() throws Exception
-         {
+         public void resetAllMessageCounterHistories() throws Exception {
             proxy.invokeOperation("resetAllMessageCounterHistories");
          }
 
-         public void resetAllMessageCounters() throws Exception
-         {
+         public void resetAllMessageCounters() throws Exception {
             proxy.invokeOperation("resetAllMessageCounters");
          }
 
-         public boolean rollbackPreparedTransaction(final String transactionAsBase64) throws Exception
-         {
+         public boolean rollbackPreparedTransaction(final String transactionAsBase64) throws Exception {
             return (Boolean) proxy.invokeOperation("rollbackPreparedTransaction", transactionAsBase64);
          }
 
-         public void sendQueueInfoToQueue(final String queueName, final String address) throws Exception
-         {
+         public void sendQueueInfoToQueue(final String queueName, final String address) throws Exception {
             proxy.invokeOperation("sendQueueInfoToQueue", queueName, address);
          }
 
-         public void setMessageCounterMaxDayCount(final int count) throws Exception
-         {
+         public void setMessageCounterMaxDayCount(final int count) throws Exception {
             proxy.invokeOperation("setMessageCounterMaxDayCount", count);
          }
 
-         public void setMessageCounterSamplePeriod(final long newPeriod) throws Exception
-         {
+         public void setMessageCounterSamplePeriod(final long newPeriod) throws Exception {
             proxy.invokeOperation("setMessageCounterSamplePeriod", newPeriod);
          }
 
-         public int getJournalBufferSize()
-         {
+         public int getJournalBufferSize() {
             return (Integer) proxy.retrieveAttributeValue("JournalBufferSize");
          }
 
-         public int getJournalBufferTimeout()
-         {
+         public int getJournalBufferTimeout() {
             return (Integer) proxy.retrieveAttributeValue("JournalBufferTimeout");
          }
 
-         public int getJournalCompactMinFiles()
-         {
+         public int getJournalCompactMinFiles() {
             return (Integer) proxy.retrieveAttributeValue("JournalCompactMinFiles");
          }
 
-         public int getJournalCompactPercentage()
-         {
+         public int getJournalCompactPercentage() {
             return (Integer) proxy.retrieveAttributeValue("JournalCompactPercentage");
          }
 
-         public boolean isPersistenceEnabled()
-         {
+         public boolean isPersistenceEnabled() {
             return (Boolean) proxy.retrieveAttributeValue("PersistenceEnabled");
          }
 
@@ -514,31 +429,19 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
                                          String deleteDurableQueueRoles,
                                          String createNonDurableQueueRoles,
                                          String deleteNonDurableQueueRoles,
-                                         String manageRoles) throws Exception
-         {
-            proxy.invokeOperation("addSecuritySettings",
-                                  addressMatch,
-                                  sendRoles,
-                                  consumeRoles,
-                                  createDurableQueueRoles,
-                                  deleteDurableQueueRoles,
-                                  createNonDurableQueueRoles,
-                                  deleteNonDurableQueueRoles,
-                                  manageRoles);
+                                         String manageRoles) throws Exception {
+            proxy.invokeOperation("addSecuritySettings", addressMatch, sendRoles, consumeRoles, createDurableQueueRoles, deleteDurableQueueRoles, createNonDurableQueueRoles, deleteNonDurableQueueRoles, manageRoles);
          }
 
-         public void removeSecuritySettings(String addressMatch) throws Exception
-         {
+         public void removeSecuritySettings(String addressMatch) throws Exception {
             proxy.invokeOperation("removeSecuritySettings", addressMatch);
          }
 
-         public Object[] getRoles(String addressMatch) throws Exception
-         {
+         public Object[] getRoles(String addressMatch) throws Exception {
             return (Object[]) proxy.invokeOperation("getRoles", addressMatch);
          }
 
-         public String getRolesAsJSON(String addressMatch) throws Exception
-         {
+         public String getRolesAsJSON(String addressMatch) throws Exception {
             return (String) proxy.invokeOperation("getRolesAsJSON", addressMatch);
          }
 
@@ -561,33 +464,11 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
                                         @Parameter(desc = "how often (in seconds) to check for slow consumers", name = "slowConsumerCheckPeriod") long slowConsumerCheckPeriod,
                                         @Parameter(desc = "the policy to use when a slow consumer is detected", name = "slowConsumerPolicy") String slowConsumerPolicy,
                                         @Parameter(desc = "allow queues to be created automatically", name = "autoCreateJmsQueues") boolean autoCreateJmsQueues,
-                                        @Parameter(desc = "allow auto-created queues to be deleted automatically", name = "autoDeleteJmsQueues") boolean autoDeleteJmsQueues) throws Exception
-         {
-            proxy.invokeOperation("addAddressSettings",
-                                  addressMatch,
-                                  DLA,
-                                  expiryAddress,
-                                  expiryDelay,
-                                  lastValueQueue,
-                                  deliveryAttempts,
-                                  maxSizeBytes,
-                                  pageSizeBytes,
-                                  pageMaxCacheSize,
-                                  redeliveryDelay,
-                                  redeliveryMultiplier,
-                                  maxRedeliveryDelay,
-                                  redistributionDelay,
-                                  sendToDLAOnNoRoute,
-                                  addressFullMessagePolicy,
-                                  slowConsumerThreshold,
-                                  slowConsumerCheckPeriod,
-                                  slowConsumerPolicy,
-                                  autoCreateJmsQueues,
-                                  autoDeleteJmsQueues);
+                                        @Parameter(desc = "allow auto-created queues to be deleted automatically", name = "autoDeleteJmsQueues") boolean autoDeleteJmsQueues) throws Exception {
+            proxy.invokeOperation("addAddressSettings", addressMatch, DLA, expiryAddress, expiryDelay, lastValueQueue, deliveryAttempts, maxSizeBytes, pageSizeBytes, pageMaxCacheSize, redeliveryDelay, redeliveryMultiplier, maxRedeliveryDelay, redistributionDelay, sendToDLAOnNoRoute, addressFullMessagePolicy, slowConsumerThreshold, slowConsumerCheckPeriod, slowConsumerPolicy, autoCreateJmsQueues, autoDeleteJmsQueues);
          }
 
-         public void removeAddressSettings(String addressMatch) throws Exception
-         {
+         public void removeAddressSettings(String addressMatch) throws Exception {
             proxy.invokeOperation("removeAddressSettings", addressMatch);
          }
 
@@ -597,51 +478,36 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
                                   String forwardingAddress,
                                   boolean exclusive,
                                   String filterString,
-                                  String transformerClassName) throws Exception
-         {
-            proxy.invokeOperation("createDivert",
-                                  name,
-                                  routingName,
-                                  address,
-                                  forwardingAddress,
-                                  exclusive,
-                                  filterString,
-                                  transformerClassName);
+                                  String transformerClassName) throws Exception {
+            proxy.invokeOperation("createDivert", name, routingName, address, forwardingAddress, exclusive, filterString, transformerClassName);
          }
 
-         public void destroyDivert(String name) throws Exception
-         {
+         public void destroyDivert(String name) throws Exception {
             proxy.invokeOperation("destroyDivert", name);
          }
 
-         public String[] getBridgeNames()
-         {
+         public String[] getBridgeNames() {
             return ActiveMQServerControlUsingCoreTest.toStringArray((Object[]) proxy.retrieveAttributeValue("bridgeNames"));
          }
 
-         public void destroyBridge(String name) throws Exception
-         {
+         public void destroyBridge(String name) throws Exception {
             proxy.invokeOperation("destroyBridge", name);
 
          }
 
-         public void forceFailover() throws Exception
-         {
+         public void forceFailover() throws Exception {
             proxy.invokeOperation("forceFailover");
          }
 
-         public String getLiveConnectorName() throws Exception
-         {
+         public String getLiveConnectorName() throws Exception {
             return (String) proxy.retrieveAttributeValue("liveConnectorName");
          }
 
-         public String getAddressSettingsAsJSON(String addressMatch) throws Exception
-         {
+         public String getAddressSettingsAsJSON(String addressMatch) throws Exception {
             return (String) proxy.invokeOperation("getAddressSettingsAsJSON", addressMatch);
          }
 
-         public String[] getDivertNames()
-         {
+         public String[] getDivertNames() {
             return ActiveMQServerControlUsingCoreTest.toStringArray((Object[]) proxy.retrieveAttributeValue("divertNames"));
          }
 
@@ -661,31 +527,11 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
                                   boolean useDiscovery,
                                   boolean ha,
                                   String user,
-                                  String password) throws Exception
-         {
-            proxy.invokeOperation("createBridge",
-                                  name,
-                                  queueName,
-                                  forwardingAddress,
-                                  filterString,
-                                  transformerClassName,
-                                  retryInterval,
-                                  retryIntervalMultiplier,
-                                  initialConnectAttempts,
-                                  reconnectAttempts,
-                                  useDuplicateDetection,
-                                  confirmationWindowSize,
-                                  clientFailureCheckPeriod,
-                                  connectorNames,
-                                  useDiscovery,
-                                  ha,
-                                  user,
-                                  password);
+                                  String password) throws Exception {
+            proxy.invokeOperation("createBridge", name, queueName, forwardingAddress, filterString, transformerClassName, retryInterval, retryIntervalMultiplier, initialConnectAttempts, reconnectAttempts, useDuplicateDetection, confirmationWindowSize, clientFailureCheckPeriod, connectorNames, useDiscovery, ha, user, password);
          }
 
-
-         public String listProducersInfoAsJSON() throws Exception
-         {
+         public String listProducersInfoAsJSON() throws Exception {
             return (String) proxy.invokeOperation("listProducersInfoAsJSON");
          }
       };

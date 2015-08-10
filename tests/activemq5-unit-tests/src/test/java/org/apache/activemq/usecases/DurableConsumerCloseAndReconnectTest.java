@@ -38,209 +38,211 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 
 /**
- * 
+ *
  */
 public class DurableConsumerCloseAndReconnectTest extends TestSupport {
-    protected static final long RECEIVE_TIMEOUT = 5000L;
-    private static final Logger LOG = LoggerFactory.getLogger(DurableConsumerCloseAndReconnectTest.class);
 
-    BrokerService brokerService;
+   protected static final long RECEIVE_TIMEOUT = 5000L;
+   private static final Logger LOG = LoggerFactory.getLogger(DurableConsumerCloseAndReconnectTest.class);
 
-    protected Connection connection;
-    private Session session;
-    private MessageConsumer consumer;
-    private MessageProducer producer;
-    private Destination destination;
-    private int messageCount;
+   BrokerService brokerService;
 
-    private String vmConnectorURI;
+   protected Connection connection;
+   private Session session;
+   private MessageConsumer consumer;
+   private MessageProducer producer;
+   private Destination destination;
+   private int messageCount;
 
-    
-    @Override
-    protected void setUp() throws Exception {
-        createBroker();
-        super.setUp();
-    }
+   private String vmConnectorURI;
 
-    @Override
-    protected void tearDown() throws Exception {
-        stopBroker();
-        super.tearDown();
-    }
+   @Override
+   protected void setUp() throws Exception {
+      createBroker();
+      super.setUp();
+   }
 
-    protected ActiveMQConnectionFactory createConnectionFactory() throws Exception {
-        return new ActiveMQConnectionFactory(vmConnectorURI);
-    }
+   @Override
+   protected void tearDown() throws Exception {
+      stopBroker();
+      super.tearDown();
+   }
 
-    protected void createBroker() throws Exception {
-        brokerService = new BrokerService();
-        brokerService.setUseJmx(false);
-        brokerService.setPersistent(false);
-        KahaDBPersistenceAdapter store = new KahaDBPersistenceAdapter();
-        brokerService.setPersistenceAdapter(store);
-        brokerService.start();
-        brokerService.waitUntilStarted();
-        vmConnectorURI = brokerService.getVmConnectorURI().toString();
-    }
+   protected ActiveMQConnectionFactory createConnectionFactory() throws Exception {
+      return new ActiveMQConnectionFactory(vmConnectorURI);
+   }
 
-    protected void stopBroker() throws Exception {
-        brokerService.stop();
-        brokerService.waitUntilStopped();
-    }
+   protected void createBroker() throws Exception {
+      brokerService = new BrokerService();
+      brokerService.setUseJmx(false);
+      brokerService.setPersistent(false);
+      KahaDBPersistenceAdapter store = new KahaDBPersistenceAdapter();
+      brokerService.setPersistenceAdapter(store);
+      brokerService.start();
+      brokerService.waitUntilStarted();
+      vmConnectorURI = brokerService.getVmConnectorURI().toString();
+   }
 
-    public void testDurableSubscriberReconnectMultipleTimes() throws Exception {
-        Connection dummyConnection = createConnection();
-        dummyConnection.start();
+   protected void stopBroker() throws Exception {
+      brokerService.stop();
+      brokerService.waitUntilStopped();
+   }
 
-        makeConsumer(Session.AUTO_ACKNOWLEDGE);
-        closeConsumer();
+   public void testDurableSubscriberReconnectMultipleTimes() throws Exception {
+      Connection dummyConnection = createConnection();
+      dummyConnection.start();
 
-        publish(30);
+      makeConsumer(Session.AUTO_ACKNOWLEDGE);
+      closeConsumer();
 
-        int counter = 1;
-        for (int i = 0; i < 15; i++) {
-            makeConsumer(Session.AUTO_ACKNOWLEDGE);
-            Message message = consumer.receive(RECEIVE_TIMEOUT);
-            assertTrue("Should have received a message!", message != null);
-            LOG.info("Received message " + counter++);
-            message = consumer.receive(RECEIVE_TIMEOUT);
-            assertTrue("Should have received a message!", message != null);
-            LOG.info("Received message " + counter++);
-            closeConsumer();
-        }
+      publish(30);
 
-        dummyConnection.close();
-    }
+      int counter = 1;
+      for (int i = 0; i < 15; i++) {
+         makeConsumer(Session.AUTO_ACKNOWLEDGE);
+         Message message = consumer.receive(RECEIVE_TIMEOUT);
+         assertTrue("Should have received a message!", message != null);
+         LOG.info("Received message " + counter++);
+         message = consumer.receive(RECEIVE_TIMEOUT);
+         assertTrue("Should have received a message!", message != null);
+         LOG.info("Received message " + counter++);
+         closeConsumer();
+      }
 
-    public void testCreateDurableConsumerCloseThenReconnect() throws Exception {
-        // force the server to stay up across both connection tests
-        Connection dummyConnection = createConnection();
-        dummyConnection.start();
+      dummyConnection.close();
+   }
 
-        consumeMessagesDeliveredWhileConsumerClosed();
+   public void testCreateDurableConsumerCloseThenReconnect() throws Exception {
+      // force the server to stay up across both connection tests
+      Connection dummyConnection = createConnection();
+      dummyConnection.start();
 
-        dummyConnection.close();
+      consumeMessagesDeliveredWhileConsumerClosed();
 
-        // now lets try again without one connection open
-        consumeMessagesDeliveredWhileConsumerClosed();       
-    }
+      dummyConnection.close();
 
-    protected void consumeMessagesDeliveredWhileConsumerClosed() throws Exception {
-        // default to client ack for consumer
-        makeConsumer();
-        closeConsumer();
+      // now lets try again without one connection open
+      consumeMessagesDeliveredWhileConsumerClosed();
+   }
 
-        publish(1);
+   protected void consumeMessagesDeliveredWhileConsumerClosed() throws Exception {
+      // default to client ack for consumer
+      makeConsumer();
+      closeConsumer();
 
-        // wait a few moments for the close to really occur
-        Thread.sleep(1000);
+      publish(1);
 
-        makeConsumer();
+      // wait a few moments for the close to really occur
+      Thread.sleep(1000);
 
-        Message message = consumer.receive(RECEIVE_TIMEOUT);
-        assertTrue("Should have received a message!", message != null);
+      makeConsumer();
 
-        closeConsumer();
+      Message message = consumer.receive(RECEIVE_TIMEOUT);
+      assertTrue("Should have received a message!", message != null);
 
-        LOG.info("Now lets create the consumer again and because we didn't ack, we should get it again");
-        makeConsumer();
+      closeConsumer();
 
-        message = consumer.receive(RECEIVE_TIMEOUT);
-        assertTrue("Should have received a message!", message != null);
-        message.acknowledge();
+      LOG.info("Now lets create the consumer again and because we didn't ack, we should get it again");
+      makeConsumer();
 
-        closeConsumer();
+      message = consumer.receive(RECEIVE_TIMEOUT);
+      assertTrue("Should have received a message!", message != null);
+      message.acknowledge();
 
-        LOG.info("Now lets create the consumer again and because we did ack, we should not get it again");
-        makeConsumer();
+      closeConsumer();
 
-        message = consumer.receive(2000);
-        assertTrue("Should have no more messages left!", message == null);
+      LOG.info("Now lets create the consumer again and because we did ack, we should not get it again");
+      makeConsumer();
 
-        closeConsumer();
+      message = consumer.receive(2000);
+      assertTrue("Should have no more messages left!", message == null);
 
-        LOG.info("Lets publish one more message now");
-        publish(1);
+      closeConsumer();
 
-        makeConsumer();
-        message = consumer.receive(RECEIVE_TIMEOUT);
-        assertTrue("Should have received a message!", message != null);
-        message.acknowledge();
+      LOG.info("Lets publish one more message now");
+      publish(1);
 
-        closeConsumer();
-    }
+      makeConsumer();
+      message = consumer.receive(RECEIVE_TIMEOUT);
+      assertTrue("Should have received a message!", message != null);
+      message.acknowledge();
 
-    protected void publish(int numMessages) throws Exception {
-        connection = createConnection();
-        connection.start();
+      closeConsumer();
+   }
 
-        session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
-        destination = createDestination();
+   protected void publish(int numMessages) throws Exception {
+      connection = createConnection();
+      connection.start();
 
-        producer = session.createProducer(destination);
-        producer.setDeliveryMode(DeliveryMode.PERSISTENT);
-        for (int i = 0; i < numMessages; i++) {
-            TextMessage msg = session.createTextMessage("This is a test: " + messageCount++);
-            producer.send(msg);
-        }
+      session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
+      destination = createDestination();
 
-        producer.close();
-        producer = null;
-        closeSession();
-    }
+      producer = session.createProducer(destination);
+      producer.setDeliveryMode(DeliveryMode.PERSISTENT);
+      for (int i = 0; i < numMessages; i++) {
+         TextMessage msg = session.createTextMessage("This is a test: " + messageCount++);
+         producer.send(msg);
+      }
 
-    protected Destination createDestination() throws JMSException {
-        if (isTopic()) {
-            return session.createTopic(getSubject());
-        } else {
-            return session.createQueue(getSubject());
-        }
-    }
+      producer.close();
+      producer = null;
+      closeSession();
+   }
 
-    protected boolean isTopic() {
-        return true;
-    }
+   protected Destination createDestination() throws JMSException {
+      if (isTopic()) {
+         return session.createTopic(getSubject());
+      }
+      else {
+         return session.createQueue(getSubject());
+      }
+   }
 
-    protected void closeConsumer() throws JMSException {
-        LOG.info("Closing the consumer");
-        consumer.close();
-        consumer = null;
-        closeSession();
-    }
+   protected boolean isTopic() {
+      return true;
+   }
 
-    protected void closeSession() throws JMSException {
-        session.close();
-        session = null;
-        connection.close();
-        connection = null;
-    }
+   protected void closeConsumer() throws JMSException {
+      LOG.info("Closing the consumer");
+      consumer.close();
+      consumer = null;
+      closeSession();
+   }
 
-    protected void makeConsumer() throws Exception {
-        makeConsumer(Session.CLIENT_ACKNOWLEDGE);
-    }
+   protected void closeSession() throws JMSException {
+      session.close();
+      session = null;
+      connection.close();
+      connection = null;
+   }
 
-    protected void makeConsumer(int ackMode) throws Exception {
-        String durableName = getName();
-        String clientID = getSubject();
-        LOG.info("Creating a durable subscriber for clientID: " + clientID + " and durable name: " + durableName);
-        createSession(clientID, ackMode);
-        consumer = createConsumer(durableName);
-    }
+   protected void makeConsumer() throws Exception {
+      makeConsumer(Session.CLIENT_ACKNOWLEDGE);
+   }
 
-    private MessageConsumer createConsumer(String durableName) throws JMSException {
-        if (destination instanceof Topic) {
-            return session.createDurableSubscriber((Topic)destination, durableName);
-        } else {
-            return session.createConsumer(destination);
-        }
-    }
+   protected void makeConsumer(int ackMode) throws Exception {
+      String durableName = getName();
+      String clientID = getSubject();
+      LOG.info("Creating a durable subscriber for clientID: " + clientID + " and durable name: " + durableName);
+      createSession(clientID, ackMode);
+      consumer = createConsumer(durableName);
+   }
 
-    protected void createSession(String clientID, int ackMode) throws Exception {
-        connection = createConnection();
-        connection.setClientID(clientID);
-        connection.start();
+   private MessageConsumer createConsumer(String durableName) throws JMSException {
+      if (destination instanceof Topic) {
+         return session.createDurableSubscriber((Topic) destination, durableName);
+      }
+      else {
+         return session.createConsumer(destination);
+      }
+   }
 
-        session = connection.createSession(false, ackMode);
-        destination = createDestination();
-    }
+   protected void createSession(String clientID, int ackMode) throws Exception {
+      connection = createConnection();
+      connection.setClientID(clientID);
+      connection.start();
+
+      session = connection.createSession(false, ackMode);
+      destination = createDestination();
+   }
 }

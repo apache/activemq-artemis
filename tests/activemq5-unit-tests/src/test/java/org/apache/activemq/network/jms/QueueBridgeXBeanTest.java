@@ -19,23 +19,22 @@ package org.apache.activemq.network.jms;
 import org.apache.xbean.spring.context.ClassPathXmlApplicationContext;
 import org.springframework.context.support.AbstractApplicationContext;
 
-
 /**
  *
- * 
+ *
  */
 public class QueueBridgeXBeanTest extends QueueBridgeTest {
 
-    protected AbstractApplicationContext createApplicationContext() {
-        return new ClassPathXmlApplicationContext("org/apache/activemq/network/jms/queue-xbean.xml");
-    }
+   protected AbstractApplicationContext createApplicationContext() {
+      return new ClassPathXmlApplicationContext("org/apache/activemq/network/jms/queue-xbean.xml");
+   }
 
     /*
     protected void createConnections() throws JMSException {
         ActiveMQConnectionFactory fac = (ActiveMQConnectionFactory) context.getBean("localFactory");
         localConnection = fac.createQueueConnection();
         localConnection.start();
-        
+
         fac = (ActiveMQConnectionFactory) context.getBean("remoteFactory");
         remoteConnection = fac.createQueueConnection();
         remoteConnection.start();

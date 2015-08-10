@@ -17,7 +17,6 @@
 package org.apache.activemq.artemis.core.server;
 
 /**
- *
  * A HandleStatus
  *
  * HANDLED means the MessageReference was handled
@@ -26,7 +25,6 @@ package org.apache.activemq.artemis.core.server;
  *
  * BUSY means the MessageReference was rejected since the ClientConsumer was busy
  */
-public enum HandleStatus
-{
+public enum HandleStatus {
    HANDLED, NO_MATCH, BUSY;
 }

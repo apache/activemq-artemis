@@ -16,29 +16,24 @@
  */
 package org.apache.activemq.artemis.core.protocol.openwire.amq;
 
-public class AMQBrokerStoppedException extends IllegalStateException
-{
+public class AMQBrokerStoppedException extends IllegalStateException {
 
    private static final long serialVersionUID = -7543507221414251115L;
 
-   public AMQBrokerStoppedException()
-   {
+   public AMQBrokerStoppedException() {
       super();
    }
 
-   public AMQBrokerStoppedException(String message, Throwable cause)
-   {
+   public AMQBrokerStoppedException(String message, Throwable cause) {
       super(message);
       initCause(cause);
    }
 
-   public AMQBrokerStoppedException(String s)
-   {
+   public AMQBrokerStoppedException(String s) {
       super(s);
    }
 
-   public AMQBrokerStoppedException(Throwable cause)
-   {
+   public AMQBrokerStoppedException(Throwable cause) {
       initCause(cause);
    }
 

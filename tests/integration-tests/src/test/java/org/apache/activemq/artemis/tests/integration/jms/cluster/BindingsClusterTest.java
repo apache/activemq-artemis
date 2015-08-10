@@ -46,24 +46,21 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 @RunWith(value = Parameterized.class)
-public class BindingsClusterTest extends JMSClusteredTestBase
-{
+public class BindingsClusterTest extends JMSClusteredTestBase {
+
    private final boolean crash;
 
-   public BindingsClusterTest(boolean crash)
-   {
+   public BindingsClusterTest(boolean crash) {
       this.crash = crash;
    }
 
    @Parameterized.Parameters(name = "crash={0}")
-   public static Collection getParameters()
-   {
+   public static Collection getParameters() {
       return Arrays.asList(new Object[][]{{true}, {false}});
    }
 
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       //todo fix if needed
       super.setUp();
       jmsServer1.getActiveMQServer().setIdentity("Server 1");
@@ -71,14 +68,12 @@ public class BindingsClusterTest extends JMSClusteredTestBase
    }
 
    @Override
-   protected boolean enablePersistence()
-   {
+   protected boolean enablePersistence() {
       return true;
    }
 
    @Test
-   public void testSendToSingleDisconnectedBinding() throws Exception
-   {
+   public void testSendToSingleDisconnectedBinding() throws Exception {
       Connection conn1 = cf1.createConnection();
 
       conn1.setClientID("someClient1");
@@ -91,8 +86,7 @@ public class BindingsClusterTest extends JMSClusteredTestBase
 
       conn2.start();
 
-      try
-      {
+      try {
 
          Topic topic1 = createTopic("t1", true);
 
@@ -116,9 +110,7 @@ public class BindingsClusterTest extends JMSClusteredTestBase
 
          prod1.setDeliveryMode(DeliveryMode.PERSISTENT);
 
-
          prod1.send(session1.createTextMessage("m1"));
-
 
          printBindings(jmsServer1.getActiveMQServer(), "jms.topic.t1");
          printBindings(jmsServer2.getActiveMQServer(), "jms.topic.t1");
@@ -138,8 +130,7 @@ public class BindingsClusterTest extends JMSClusteredTestBase
 
          prod1.send(session1.createTextMessage("m3"));
 
-         cf2 = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration(InVMConnectorFactory.class.getName(),
-                                                                                                                generateInVMParams(2)));
+         cf2 = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration(InVMConnectorFactory.class.getName(), generateInVMParams(2)));
 
          conn2 = cf2.createConnection();
 
@@ -171,8 +162,7 @@ public class BindingsClusterTest extends JMSClusteredTestBase
 
          cons2.close();
       }
-      finally
-      {
+      finally {
          conn1.close();
          conn2.close();
       }
@@ -182,8 +172,7 @@ public class BindingsClusterTest extends JMSClusteredTestBase
    }
 
    @Test
-   public void testSendToSingleDisconnectedBindingWhenLocalAvailable() throws Exception
-   {
+   public void testSendToSingleDisconnectedBindingWhenLocalAvailable() throws Exception {
       Connection conn1 = cf1.createConnection();
 
       conn1.setClientID("someClient2");
@@ -196,8 +185,7 @@ public class BindingsClusterTest extends JMSClusteredTestBase
 
       conn2.start();
 
-      try
-      {
+      try {
 
          Topic topic1 = createTopic("t1", true);
 
@@ -223,9 +211,7 @@ public class BindingsClusterTest extends JMSClusteredTestBase
 
          prod1.setDeliveryMode(DeliveryMode.PERSISTENT);
 
-
          prod1.send(session1.createTextMessage("m1"));
-
 
          printBindings(jmsServer1.getActiveMQServer(), "jms.topic.t1");
          printBindings(jmsServer2.getActiveMQServer(), "jms.topic.t1");
@@ -249,8 +235,7 @@ public class BindingsClusterTest extends JMSClusteredTestBase
          prod1.send(session1.createTextMessage("m5"));
          prod1.send(session1.createTextMessage("m6"));
 
-         cf2 = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration(InVMConnectorFactory.class.getName(),
-                                                                                                                generateInVMParams(2)));
+         cf2 = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration(InVMConnectorFactory.class.getName(), generateInVMParams(2)));
 
          conn2 = cf2.createConnection();
 
@@ -278,7 +263,6 @@ public class BindingsClusterTest extends JMSClusteredTestBase
 
          assertEquals("m2", received.getText());
 
-
          received = (TextMessage) cons1.receive(5000);
 
          assertNotNull(received);
@@ -299,8 +283,7 @@ public class BindingsClusterTest extends JMSClusteredTestBase
 
          cons2.close();
       }
-      finally
-      {
+      finally {
          conn1.close();
          conn2.close();
       }
@@ -310,8 +293,7 @@ public class BindingsClusterTest extends JMSClusteredTestBase
    }
 
    @Test
-   public void testRemoteBindingRemovedOnReconnectLocalAvailable() throws Exception
-   {
+   public void testRemoteBindingRemovedOnReconnectLocalAvailable() throws Exception {
       Connection conn1 = cf1.createConnection();
 
       conn1.setClientID("someClient2");
@@ -324,8 +306,7 @@ public class BindingsClusterTest extends JMSClusteredTestBase
 
       conn2.start();
 
-      try
-      {
+      try {
 
          Topic topic1 = createTopic("t1", true);
 
@@ -345,10 +326,8 @@ public class BindingsClusterTest extends JMSClusteredTestBase
 
          prod1.setDeliveryMode(DeliveryMode.PERSISTENT);
 
-
          prod1.send(session1.createTextMessage("m1"));
          prod1.send(session1.createTextMessage("m2"));
-
 
          printBindings(jmsServer1.getActiveMQServer(), "jms.topic.t1");
          printBindings(jmsServer2.getActiveMQServer(), "jms.topic.t1");
@@ -387,7 +366,6 @@ public class BindingsClusterTest extends JMSClusteredTestBase
 
          assertEquals("m3", received.getText());
 
-
          received = (TextMessage) cons1.receive(5000);
 
          assertNotNull(received);
@@ -414,8 +392,7 @@ public class BindingsClusterTest extends JMSClusteredTestBase
 
          cons2.close();
       }
-      finally
-      {
+      finally {
          conn1.close();
          conn2.close();
       }
@@ -424,29 +401,23 @@ public class BindingsClusterTest extends JMSClusteredTestBase
       jmsServer2.destroyTopic("t1");
    }
 
-   private void crash() throws Exception
-   {
-      if (crash)
-      {
+   private void crash() throws Exception {
+      if (crash) {
          jmsServer2.stop();
       }
-      else
-      {
+      else {
          final CountDownLatch latch = new CountDownLatch(1);
          ClusterConnectionImpl next = (ClusterConnectionImpl) server1.getClusterManager().getClusterConnections().iterator().next();
          BridgeImpl bridge = (BridgeImpl) next.getRecords().values().iterator().next().getBridge();
          RemotingConnection forwardingConnection = getForwardingConnection(bridge);
-         forwardingConnection.addFailureListener(new FailureListener()
-         {
+         forwardingConnection.addFailureListener(new FailureListener() {
             @Override
-            public void connectionFailed(ActiveMQException exception, boolean failedOver)
-            {
+            public void connectionFailed(ActiveMQException exception, boolean failedOver) {
                latch.countDown();
             }
 
             @Override
-            public void connectionFailed(final ActiveMQException me, boolean failedOver, String scaleDownTargetNodeID)
-            {
+            public void connectionFailed(final ActiveMQException me, boolean failedOver, String scaleDownTargetNodeID) {
                connectionFailed(me, failedOver);
             }
          });
@@ -455,30 +426,24 @@ public class BindingsClusterTest extends JMSClusteredTestBase
       }
    }
 
-   private void restart() throws Exception
-   {
-      if (crash)
-      {
+   private void restart() throws Exception {
+      if (crash) {
          jmsServer2.start();
       }
    }
 
-   private RemotingConnection getForwardingConnection(final Bridge bridge) throws Exception
-   {
+   private RemotingConnection getForwardingConnection(final Bridge bridge) throws Exception {
       long start = System.currentTimeMillis();
 
-      do
-      {
+      do {
          RemotingConnection forwardingConnection = ((BridgeImpl) bridge).getForwardingConnection();
 
-         if (forwardingConnection != null)
-         {
+         if (forwardingConnection != null) {
             return forwardingConnection;
          }
 
          Thread.sleep(10);
-      }
-      while (System.currentTimeMillis() - start < 50000);
+      } while (System.currentTimeMillis() - start < 50000);
 
       throw new IllegalStateException("Failed to get forwarding connection");
    }

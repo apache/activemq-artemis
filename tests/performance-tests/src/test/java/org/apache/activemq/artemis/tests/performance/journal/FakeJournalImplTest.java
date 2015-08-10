@@ -20,14 +20,12 @@ import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.tests.unit.core.journal.impl.fakes.FakeSequentialFileFactory;
 
 /**
- *
  * A FakeJournalImplTest
  */
-public class FakeJournalImplTest extends JournalImplTestUnit
-{
+public class FakeJournalImplTest extends JournalImplTestUnit {
+
    @Override
-   protected SequentialFileFactory getFileFactory() throws Exception
-   {
+   protected SequentialFileFactory getFileFactory() throws Exception {
       return new FakeSequentialFileFactory();
    }
 }

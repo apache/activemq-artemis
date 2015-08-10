@@ -34,79 +34,80 @@ import org.apache.activemq.broker.region.policy.PolicyMap;
 import org.apache.activemq.command.ActiveMQDestination;
 
 /**
- * 
+ *
  */
 public class NoConsumerDeadLetterTest extends DeadLetterTestSupport {
 
-    // lets disable the inapplicable tests
-    public void testDurableQueueMessage() throws Exception {
-    }
+   // lets disable the inapplicable tests
+   public void testDurableQueueMessage() throws Exception {
+   }
 
-    public void testDurableTopicMessage() throws Exception {
-    }
+   public void testDurableTopicMessage() throws Exception {
+   }
 
-    protected void doTest() throws Exception {
-        makeDlqConsumer();
-        sendMessages();
+   protected void doTest() throws Exception {
+      makeDlqConsumer();
+      sendMessages();
 
-        for (int i = 0; i < messageCount; i++) {
-            Message msg = dlqConsumer.receive(1000);
-            assertNotNull("Should be a message for loop: " + i, msg);
-        }
-    }
-    
-    public void testConsumerReceivesMessages() throws Exception {
-    	this.topic = false;
-        ActiveMQConnectionFactory factory = (ActiveMQConnectionFactory)createConnectionFactory();
-        connection = (ActiveMQConnection)factory.createConnection();
-        connection.start();
+      for (int i = 0; i < messageCount; i++) {
+         Message msg = dlqConsumer.receive(1000);
+         assertNotNull("Should be a message for loop: " + i, msg);
+      }
+   }
 
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        MessageProducer producer = session.createProducer(getDestination());
-        producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
-   
-        Topic advisoryTopic = AdvisorySupport.getNoQueueConsumersAdvisoryTopic(getDestination());
-        MessageConsumer advisoryConsumer = session.createConsumer(advisoryTopic);
-        
-        TextMessage msg = session.createTextMessage("Message: x");
-        producer.send(msg);
-        
-        Message advisoryMessage = advisoryConsumer.receive(1000);
-        assertNotNull("Advisory message not received", advisoryMessage);
-        
-        Thread.sleep(1000);
-        
-        factory = (ActiveMQConnectionFactory)createConnectionFactory();
-        connection = (ActiveMQConnection)factory.createConnection();
-        connection.start();
-        
-        session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        
-        MessageConsumer consumer = session.createConsumer(getDestination());
-        Message received = consumer.receive(1000);
-        assertNotNull("Message not received", received);
-    }
+   public void testConsumerReceivesMessages() throws Exception {
+      this.topic = false;
+      ActiveMQConnectionFactory factory = (ActiveMQConnectionFactory) createConnectionFactory();
+      connection = (ActiveMQConnection) factory.createConnection();
+      connection.start();
 
-    protected BrokerService createBroker() throws Exception {
-        BrokerService broker = super.createBroker();
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      MessageProducer producer = session.createProducer(getDestination());
+      producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
 
-        PolicyEntry policy = new PolicyEntry();
-        policy.setSendAdvisoryIfNoConsumers(true);
+      Topic advisoryTopic = AdvisorySupport.getNoQueueConsumersAdvisoryTopic(getDestination());
+      MessageConsumer advisoryConsumer = session.createConsumer(advisoryTopic);
 
-        PolicyMap pMap = new PolicyMap();
-        pMap.setDefaultEntry(policy);
+      TextMessage msg = session.createTextMessage("Message: x");
+      producer.send(msg);
 
-        broker.setDestinationPolicy(pMap);
+      Message advisoryMessage = advisoryConsumer.receive(1000);
+      assertNotNull("Advisory message not received", advisoryMessage);
 
-        return broker;
-    }
+      Thread.sleep(1000);
 
-    protected Destination createDlqDestination() {
-    	if (this.topic) {
-    		return AdvisorySupport.getNoTopicConsumersAdvisoryTopic((ActiveMQDestination)getDestination());
-    	} else {
-    		return AdvisorySupport.getNoQueueConsumersAdvisoryTopic((ActiveMQDestination)getDestination());
-    	}
-    }
+      factory = (ActiveMQConnectionFactory) createConnectionFactory();
+      connection = (ActiveMQConnection) factory.createConnection();
+      connection.start();
+
+      session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+
+      MessageConsumer consumer = session.createConsumer(getDestination());
+      Message received = consumer.receive(1000);
+      assertNotNull("Message not received", received);
+   }
+
+   protected BrokerService createBroker() throws Exception {
+      BrokerService broker = super.createBroker();
+
+      PolicyEntry policy = new PolicyEntry();
+      policy.setSendAdvisoryIfNoConsumers(true);
+
+      PolicyMap pMap = new PolicyMap();
+      pMap.setDefaultEntry(policy);
+
+      broker.setDestinationPolicy(pMap);
+
+      return broker;
+   }
+
+   protected Destination createDlqDestination() {
+      if (this.topic) {
+         return AdvisorySupport.getNoTopicConsumersAdvisoryTopic((ActiveMQDestination) getDestination());
+      }
+      else {
+         return AdvisorySupport.getNoQueueConsumersAdvisoryTopic((ActiveMQDestination) getDestination());
+      }
+   }
 
 }

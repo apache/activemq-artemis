@@ -29,76 +29,58 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class NettySecurityClientTest extends ActiveMQTestBase
-{
+public class NettySecurityClientTest extends ActiveMQTestBase {
 
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    private ActiveMQServer messagingService;
 
    @Test
-   public void testProducerConsumerClientWithoutSecurityManager() throws Exception
-   {
+   public void testProducerConsumerClientWithoutSecurityManager() throws Exception {
       doTestProducerConsumerClient(false);
    }
 
    @Test
-   public void testProducerConsumerClientWithSecurityManager() throws Exception
-   {
+   public void testProducerConsumerClientWithSecurityManager() throws Exception {
       doTestProducerConsumerClient(true);
    }
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
-      ConfigurationImpl config = createBasicConfig()
-         .addAcceptorConfiguration(getNettyAcceptorTransportConfiguration(true));
+      ConfigurationImpl config = createBasicConfig().addAcceptorConfiguration(getNettyAcceptorTransportConfiguration(true));
       messagingService = createServer(false, config);
       messagingService.start();
       waitForServerToStart(messagingService);
    }
 
-   private void doTestProducerConsumerClient(final boolean withSecurityManager) throws Exception
-   {
+   private void doTestProducerConsumerClient(final boolean withSecurityManager) throws Exception {
       String[] vmargs = new String[0];
-      if (withSecurityManager)
-      {
-         URL securityPolicyURL = Thread.currentThread()
-            .getContextClassLoader()
-            .getResource("restricted-security-client.policy");
+      if (withSecurityManager) {
+         URL securityPolicyURL = Thread.currentThread().getContextClassLoader().getResource("restricted-security-client.policy");
          vmargs = new String[]{"-Djava.security.manager", "-Djava.security.policy=" + securityPolicyURL.getPath()};
       }
 
       // spawn a JVM that creates a client with a security manager which sends and receives a
       // test message
-      Process p = SpawnedVMSupport.spawnVM(SimpleClient.class.getName(),
-                                           "-Xms512m", "-Xmx512m",
-                                           vmargs,
-                                           false,
-                                           true,
-                                           new String[]{NETTY_CONNECTOR_FACTORY});
+      Process p = SpawnedVMSupport.spawnVM(SimpleClient.class.getName(), "-Xms512m", "-Xmx512m", vmargs, false, true, new String[]{NETTY_CONNECTOR_FACTORY});
 
       InputStreamReader isr = new InputStreamReader(p.getInputStream());
 
       BufferedReader br = new BufferedReader(isr);
       String line = null;
-      while ((line = br.readLine()) != null)
-      {
+      while ((line = br.readLine()) != null) {
          //System.out.println(line);
          line = line.replace('|', '\n');
-         if (line.startsWith("Listening"))
-         {
+         if (line.startsWith("Listening")) {
             continue;
          }
-         else if ("OK".equals(line.trim()))
-         {
+         else if ("OK".equals(line.trim())) {
             break;
          }
-         else
-         {
+         else {
             //Assert.fail("Exception when starting the client: " + line);
             System.out.println(line);
          }

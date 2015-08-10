@@ -53,8 +53,8 @@ import java.io.File;
  * articles. Unused methods should be marked as deprecated.
  */
 @MessageBundle(projectCode = "AMQ")
-public interface ActiveMQMessageBundle
-{
+public interface ActiveMQMessageBundle {
+
    ActiveMQMessageBundle BUNDLE = Messages.getBundle(ActiveMQMessageBundle.class);
 
    @Message(id = 119000, value = "Activation for server {0}", format = Message.Format.MESSAGE_FORMAT)
@@ -100,12 +100,11 @@ public interface ActiveMQMessageBundle
    ActiveMQInternalErrorException bindingNotDivert(SimpleString name);
 
    @Message(id = 119014,
-            value = "Did not receive data from {0}. It is likely the client has exited or crashed without "
-               +
-               "closing its connection, or the network between the server and client has failed. " +
-               "You also might have configured connection-ttl and client-failure-check-period incorrectly. " +
-               "Please check user manual for more information." +
-               " The connection will now be closed.", format = Message.Format.MESSAGE_FORMAT)
+      value = "Did not receive data from {0}. It is likely the client has exited or crashed without " +
+         "closing its connection, or the network between the server and client has failed. " +
+         "You also might have configured connection-ttl and client-failure-check-period incorrectly. " +
+         "Please check user manual for more information." +
+         " The connection will now be closed.", format = Message.Format.MESSAGE_FORMAT)
    ActiveMQConnectionTimedOutException clientExited(String remoteAddress);
 
    @Message(id = 119017, value = "Queue {0} does not exist", format = Message.Format.MESSAGE_FORMAT)
@@ -316,21 +315,20 @@ public interface ActiveMQMessageBundle
    ActiveMQInvalidTransientQueueUseException queueSubscriptionBelongsToDifferentFilter(SimpleString queueName);
 
    @Message(id = 119085, value = "Classpath lacks a protocol-manager for protocol {0}",
-            format = Message.Format.MESSAGE_FORMAT)
+      format = Message.Format.MESSAGE_FORMAT)
    ActiveMQException noProtocolManagerFound(String protocol);
 
    // this code has to match with version 2.3.x as it's used on integration tests at Wildfly and JBoss EAP
    @Message(id = 119099, value = "Unable to authenticate cluster user: {0}",
-            format = Message.Format.MESSAGE_FORMAT)
+      format = Message.Format.MESSAGE_FORMAT)
    ActiveMQClusterSecurityException unableToValidateClusterUser(String user);
 
-
    @Message(id = 119100, value = "Trying to move a journal file that refers to a file instead of a directory: {0}",
-            format = Message.Format.MESSAGE_FORMAT)
+      format = Message.Format.MESSAGE_FORMAT)
    IllegalStateException journalDirIsFile(File fDir);
 
    @Message(id = 119101, value = "error trying to backup journal files at directory: {0}",
-            format = Message.Format.MESSAGE_FORMAT)
+      format = Message.Format.MESSAGE_FORMAT)
    IllegalStateException couldNotMoveJournal(File dir);
 
    @Message(id = 119102, value = "Address \"{0}\" is full.", format = Message.Format.MESSAGE_FORMAT)

@@ -27,15 +27,14 @@ import org.apache.activemq.artemis.rest.MessageServiceManager;
 import org.jboss.resteasy.plugins.server.tjws.TJWSEmbeddedJaxrsServer;
 import org.jboss.resteasy.test.TestPortProvider;
 
-public class Embedded
-{
+public class Embedded {
+
    protected MessageServiceManager manager = new MessageServiceManager();
    protected MessageServiceConfiguration config = new MessageServiceConfiguration();
    protected ActiveMQServer activeMQServer;
    protected TJWSEmbeddedJaxrsServer tjws = new TJWSEmbeddedJaxrsServer();
 
-   public Embedded()
-   {
+   public Embedded() {
       int port = TestPortProvider.getPort();
       System.out.println("default port is: " + port);
       tjws.setPort(port);
@@ -43,45 +42,34 @@ public class Embedded
       tjws.setSecurityDomain(null);
    }
 
-   public MessageServiceConfiguration getConfig()
-   {
+   public MessageServiceConfiguration getConfig() {
       return config;
    }
 
-   public void setConfig(MessageServiceConfiguration config)
-   {
+   public void setConfig(MessageServiceConfiguration config) {
       this.config = config;
    }
 
-   public ActiveMQServer getActiveMQServer()
-   {
+   public ActiveMQServer getActiveMQServer() {
       return activeMQServer;
    }
 
-   public void setActiveMQServer(ActiveMQServer activeMQServer)
-   {
+   public void setActiveMQServer(ActiveMQServer activeMQServer) {
       this.activeMQServer = activeMQServer;
    }
 
-   public TJWSEmbeddedJaxrsServer getJaxrsServer()
-   {
+   public TJWSEmbeddedJaxrsServer getJaxrsServer() {
       return tjws;
    }
 
-   public MessageServiceManager getManager()
-   {
+   public MessageServiceManager getManager() {
       return manager;
    }
 
-   public void start() throws Exception
-   {
+   public void start() throws Exception {
       System.out.println("\nStarting Embedded");
-      if (activeMQServer == null)
-      {
-         Configuration configuration = new ConfigurationImpl()
-            .setPersistenceEnabled(false)
-            .setSecurityEnabled(false)
-            .addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName()));
+      if (activeMQServer == null) {
+         Configuration configuration = new ConfigurationImpl().setPersistenceEnabled(false).setSecurityEnabled(false).addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName()));
 
          activeMQServer = ActiveMQServers.newActiveMQServer(configuration);
          activeMQServer.start();
@@ -94,8 +82,7 @@ public class Embedded
 
    }
 
-   public void stop() throws Exception
-   {
+   public void stop() throws Exception {
       System.out.println("\nStopping Embedded");
       manager.stop();
       tjws.stop();

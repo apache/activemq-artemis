@@ -38,8 +38,7 @@ import org.junit.Test;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
-public class SelectorTest extends ActiveMQServerTestCase
-{
+public class SelectorTest extends ActiveMQServerTestCase {
 
    /**
     * Test case for http://jira.jboss.org/jira/browse/JBMESSAGING-105
@@ -50,12 +49,10 @@ public class SelectorTest extends ActiveMQServerTestCase
     * message is now attempted. The message should be redelivered.
     */
    @Test
-   public void testSelectiveClosingConsumer() throws Exception
-   {
+   public void testSelectiveClosingConsumer() throws Exception {
       Connection conn = null;
 
-      try
-      {
+      try {
          conn = getConnectionFactory().createConnection();
          conn.start();
 
@@ -95,24 +92,20 @@ public class SelectorTest extends ActiveMQServerTestCase
          ProxyAssertSupport.assertEquals(rec.getJMSMessageID(), blueMessage.getJMSMessageID());
          ProxyAssertSupport.assertEquals("blue", rec.getStringProperty("color"));
       }
-      finally
-      {
-         if (conn != null)
-         {
+      finally {
+         if (conn != null) {
             conn.close();
          }
       }
    }
 
    @Test
-   public void testManyTopic() throws Exception
-   {
+   public void testManyTopic() throws Exception {
       String selector1 = "beatle = 'john'";
 
       Connection conn = null;
 
-      try
-      {
+      try {
          conn = getConnectionFactory().createConnection();
          conn.start();
 
@@ -122,8 +115,7 @@ public class SelectorTest extends ActiveMQServerTestCase
 
          MessageProducer prod = sess.createProducer(ActiveMQServerTestCase.topic1);
 
-         for (int j = 0; j < 100; j++)
-         {
+         for (int j = 0; j < 100; j++) {
             Message m = sess.createMessage();
 
             m.setStringProperty("beatle", "john");
@@ -137,8 +129,7 @@ public class SelectorTest extends ActiveMQServerTestCase
             prod.send(m);
          }
 
-         for (int j = 0; j < 100; j++)
-         {
+         for (int j = 0; j < 100; j++) {
             Message m = cons1.receive(1000);
 
             ProxyAssertSupport.assertNotNull(m);
@@ -150,24 +141,20 @@ public class SelectorTest extends ActiveMQServerTestCase
 
          ProxyAssertSupport.assertNull(m);
       }
-      finally
-      {
-         if (conn != null)
-         {
+      finally {
+         if (conn != null) {
             conn.close();
          }
       }
    }
 
    @Test
-   public void testManyQueue() throws Exception
-   {
+   public void testManyQueue() throws Exception {
       String selector1 = "beatle = 'john'";
 
       Connection conn = null;
 
-      try
-      {
+      try {
          conn = getConnectionFactory().createConnection();
 
          conn.start();
@@ -178,8 +165,7 @@ public class SelectorTest extends ActiveMQServerTestCase
 
          MessageProducer prod = sess.createProducer(queue1);
 
-         for (int j = 0; j < 100; j++)
-         {
+         for (int j = 0; j < 100; j++) {
             Message m = sess.createMessage();
 
             m.setStringProperty("beatle", "john");
@@ -197,8 +183,7 @@ public class SelectorTest extends ActiveMQServerTestCase
             prod.send(m);
          }
 
-         for (int j = 0; j < 100; j++)
-         {
+         for (int j = 0; j < 100; j++) {
             Message m = cons1.receive(1000);
 
             ProxyAssertSupport.assertNotNull(m);
@@ -218,8 +203,7 @@ public class SelectorTest extends ActiveMQServerTestCase
 
          MessageConsumer cons2 = sess.createConsumer(queue1, selector2);
 
-         for (int j = 0; j < 100; j++)
-         {
+         for (int j = 0; j < 100; j++) {
             m = cons2.receive(1000);
 
             ProxyAssertSupport.assertNotNull(m);
@@ -229,19 +213,17 @@ public class SelectorTest extends ActiveMQServerTestCase
             ProxyAssertSupport.assertEquals("kermit the frog", m.getStringProperty("beatle"));
          }
 
-//         m = cons2.receiveNoWait();
-//
-//         if (m != null)
-//         {
-//            log.info("got " + m.getStringProperty("beatle") + " j: " + m.getIntProperty("wibble"));
-//         }
+         //         m = cons2.receiveNoWait();
+         //
+         //         if (m != null)
+         //         {
+         //            log.info("got " + m.getStringProperty("beatle") + " j: " + m.getIntProperty("wibble"));
+         //         }
 
          //ProxyAssertSupport.assertNull(m);
       }
-      finally
-      {
-         if (conn != null)
-         {
+      finally {
+         if (conn != null) {
             conn.close();
          }
       }
@@ -251,14 +233,12 @@ public class SelectorTest extends ActiveMQServerTestCase
    // http://jira.jboss.org/jira/browse/JBMESSAGING-775
 
    @Test
-   public void testManyQueueWithExpired() throws Exception
-   {
+   public void testManyQueueWithExpired() throws Exception {
       String selector1 = "beatle = 'john'";
 
       Connection conn = null;
 
-      try
-      {
+      try {
          conn = getConnectionFactory().createConnection();
          conn.start();
 
@@ -268,8 +248,7 @@ public class SelectorTest extends ActiveMQServerTestCase
 
          MessageProducer prod = sess.createProducer(queue1);
 
-         for (int j = 0; j < NUM_MESSAGES; j++)
-         {
+         for (int j = 0; j < NUM_MESSAGES; j++) {
             Message m = sess.createMessage();
 
             m.setStringProperty("beatle", "john");
@@ -307,8 +286,7 @@ public class SelectorTest extends ActiveMQServerTestCase
 
          MessageConsumer cons1 = sess.createConsumer(queue1, selector1);
 
-         for (int j = 0; j < NUM_MESSAGES; j++)
-         {
+         for (int j = 0; j < NUM_MESSAGES; j++) {
             Message m = cons1.receive(1000);
 
             ProxyAssertSupport.assertNotNull(m);
@@ -324,8 +302,7 @@ public class SelectorTest extends ActiveMQServerTestCase
 
          MessageConsumer cons2 = sess.createConsumer(queue1, selector2);
 
-         for (int j = 0; j < NUM_MESSAGES; j++)
-         {
+         for (int j = 0; j < NUM_MESSAGES; j++) {
             m = cons2.receive(1000);
 
             ProxyAssertSupport.assertNotNull(m);
@@ -337,37 +314,31 @@ public class SelectorTest extends ActiveMQServerTestCase
 
          ProxyAssertSupport.assertNull(m);
       }
-      finally
-      {
-         if (conn != null)
-         {
+      finally {
+         if (conn != null) {
             conn.close();
          }
       }
    }
 
    @Test
-   public void testManyRedeliveriesTopic() throws Exception
-   {
+   public void testManyRedeliveriesTopic() throws Exception {
       String selector1 = "beatle = 'john'";
 
       Connection conn = null;
 
-      try
-      {
+      try {
          conn = getConnectionFactory().createConnection();
          conn.start();
 
-         for (int i = 0; i < 5; i++)
-         {
+         for (int i = 0; i < 5; i++) {
             Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
             MessageConsumer cons1 = sess.createConsumer(ActiveMQServerTestCase.topic1, selector1);
 
             MessageProducer prod = sess.createProducer(ActiveMQServerTestCase.topic1);
 
-            for (int j = 0; j < 10; j++)
-            {
+            for (int j = 0; j < 10; j++) {
                Message m = sess.createMessage();
 
                m.setStringProperty("beatle", "john");
@@ -381,8 +352,7 @@ public class SelectorTest extends ActiveMQServerTestCase
                prod.send(m);
             }
 
-            for (int j = 0; j < 10; j++)
-            {
+            for (int j = 0; j < 10; j++) {
                Message m = cons1.receive(1000);
 
                ProxyAssertSupport.assertNotNull(m);
@@ -395,38 +365,32 @@ public class SelectorTest extends ActiveMQServerTestCase
             sess.close();
          }
       }
-      finally
-      {
-         if (conn != null)
-         {
+      finally {
+         if (conn != null) {
             conn.close();
          }
       }
    }
 
    @Test
-   public void testManyRedeliveriesQueue() throws Exception
-   {
+   public void testManyRedeliveriesQueue() throws Exception {
       String selector1 = "beatle = 'john'";
 
       Connection conn = null;
 
-      try
-      {
+      try {
          conn = getConnectionFactory().createConnection();
 
          conn.start();
 
-         for (int i = 0; i < 5; i++)
-         {
+         for (int i = 0; i < 5; i++) {
             Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
             MessageConsumer cons1 = sess.createConsumer(queue1, selector1);
 
             MessageProducer prod = sess.createProducer(queue1);
 
-            for (int j = 0; j < 10; j++)
-            {
+            for (int j = 0; j < 10; j++) {
                TextMessage m = sess.createTextMessage("message-a-" + j);
 
                m.setStringProperty("beatle", "john");
@@ -440,8 +404,7 @@ public class SelectorTest extends ActiveMQServerTestCase
                prod.send(m);
             }
 
-            for (int j = 0; j < 10; j++)
-            {
+            for (int j = 0; j < 10; j++) {
                Message m = cons1.receive(1000);
 
                ProxyAssertSupport.assertNotNull(m);
@@ -454,10 +417,8 @@ public class SelectorTest extends ActiveMQServerTestCase
             sess.close();
          }
       }
-      finally
-      {
-         if (conn != null)
-         {
+      finally {
+         if (conn != null) {
             conn.close();
          }
 
@@ -466,8 +427,7 @@ public class SelectorTest extends ActiveMQServerTestCase
    }
 
    @Test
-   public void testWithSelector() throws Exception
-   {
+   public void testWithSelector() throws Exception {
       String selector1 = "beatle = 'john'";
       String selector2 = "beatle = 'paul'";
       String selector3 = "beatle = 'george'";
@@ -476,8 +436,7 @@ public class SelectorTest extends ActiveMQServerTestCase
 
       Connection conn = null;
 
-      try
-      {
+      try {
          conn = getConnectionFactory().createConnection();
          conn.start();
          Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -541,22 +500,18 @@ public class SelectorTest extends ActiveMQServerTestCase
          ProxyAssertSupport.assertEquals("ringo", r4.getStringProperty("beatle"));
          ProxyAssertSupport.assertEquals("jesus", r5.getStringProperty("beatle"));
       }
-      finally
-      {
-         if (conn != null)
-         {
+      finally {
+         if (conn != null) {
             conn.close();
          }
       }
    }
 
    @Test
-   public void testManyConsumersWithDifferentSelectors() throws Exception
-   {
+   public void testManyConsumersWithDifferentSelectors() throws Exception {
       Connection conn = null;
 
-      try
-      {
+      try {
          conn = getConnectionFactory().createConnection();
          Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
          MessageProducer p = sess.createProducer(queue1);
@@ -567,8 +522,7 @@ public class SelectorTest extends ActiveMQServerTestCase
          Session cs2 = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
          final MessageConsumer c2 = cs2.createConsumer(queue1, "weight = 2");
 
-         for (int i = 0; i < 10; i++)
-         {
+         for (int i = 0; i < 10; i++) {
             Message m = sess.createTextMessage("message" + i);
             m.setIntProperty("weight", i % 2 + 1);
             p.send(m);
@@ -581,55 +535,41 @@ public class SelectorTest extends ActiveMQServerTestCase
          final CountDownLatch latch = new CountDownLatch(1);
          final CountDownLatch latch2 = new CountDownLatch(1);
 
-         new Thread(new Runnable()
-         {
-            public void run()
-            {
-               try
-               {
-                  while (true)
-                  {
+         new Thread(new Runnable() {
+            public void run() {
+               try {
+                  while (true) {
                      Message m = c.receive(1000);
-                     if (m != null)
-                     {
+                     if (m != null) {
                         received.add(m);
                      }
-                     else
-                     {
+                     else {
                         latch.countDown();
                         return;
                      }
                   }
                }
-               catch (Exception e)
-               {
+               catch (Exception e) {
                   log.error("receive failed", e);
                }
             }
          }, "consumer thread 1").start();
 
-         new Thread(new Runnable()
-         {
-            public void run()
-            {
-               try
-               {
-                  while (true)
-                  {
+         new Thread(new Runnable() {
+            public void run() {
+               try {
+                  while (true) {
                      Message m = c2.receive(1000);
-                     if (m != null)
-                     {
+                     if (m != null) {
                         received2.add(m);
                      }
-                     else
-                     {
+                     else {
                         latch2.countDown();
                         return;
                      }
                   }
                }
-               catch (Exception e)
-               {
+               catch (Exception e) {
                   log.error("receive failed", e);
                }
             }
@@ -639,35 +579,29 @@ public class SelectorTest extends ActiveMQServerTestCase
          ActiveMQTestBase.waitForLatch(latch2);
 
          ProxyAssertSupport.assertEquals(5, received.size());
-         for (Message m : received)
-         {
+         for (Message m : received) {
             int value = m.getIntProperty("weight");
             ProxyAssertSupport.assertEquals(value, 1);
          }
 
          ProxyAssertSupport.assertEquals(5, received2.size());
-         for (Message m : received2)
-         {
+         for (Message m : received2) {
             int value = m.getIntProperty("weight");
             ProxyAssertSupport.assertEquals(value, 2);
          }
       }
-      finally
-      {
-         if (conn != null)
-         {
+      finally {
+         if (conn != null) {
             conn.close();
          }
       }
    }
 
    @Test
-   public void testDeliveryModeOnSelector() throws Exception
-   {
+   public void testDeliveryModeOnSelector() throws Exception {
       Connection conn = null;
 
-      try
-      {
+      try {
          conn = getConnectionFactory().createConnection();
          conn.start();
 
@@ -688,7 +622,7 @@ public class SelectorTest extends ActiveMQServerTestCase
          msg = session.createTextMessage("Persistent");
          prodPersistent.send(msg);
 
-         msg = (TextMessage)persistentConsumer.receive(2000);
+         msg = (TextMessage) persistentConsumer.receive(2000);
          ProxyAssertSupport.assertNotNull(msg);
          ProxyAssertSupport.assertEquals(DeliveryMode.PERSISTENT, msg.getJMSDeliveryMode());
          ProxyAssertSupport.assertEquals("Persistent", msg.getText());
@@ -698,29 +632,25 @@ public class SelectorTest extends ActiveMQServerTestCase
          persistentConsumer.close();
 
          MessageConsumer genericConsumer = session.createConsumer(queue1);
-         msg = (TextMessage)genericConsumer.receive(1000);
+         msg = (TextMessage) genericConsumer.receive(1000);
 
          ProxyAssertSupport.assertNotNull(msg);
 
          ProxyAssertSupport.assertEquals("NonPersistent", msg.getText());
          ProxyAssertSupport.assertEquals(DeliveryMode.NON_PERSISTENT, msg.getJMSDeliveryMode());
       }
-      finally
-      {
-         if (conn != null)
-         {
+      finally {
+         if (conn != null) {
             conn.close();
          }
       }
    }
 
    @Test
-   public void testJMSMessageIDOnSelector() throws Exception
-   {
+   public void testJMSMessageIDOnSelector() throws Exception {
       Connection conn = null;
 
-      try
-      {
+      try {
          conn = getConnectionFactory().createConnection();
          conn.start();
 
@@ -740,7 +670,7 @@ public class SelectorTest extends ActiveMQServerTestCase
 
          conn.start();
 
-         TextMessage rec = (TextMessage)cons.receive(10000);
+         TextMessage rec = (TextMessage) cons.receive(10000);
 
          assertNotNull(rec);
 
@@ -749,22 +679,18 @@ public class SelectorTest extends ActiveMQServerTestCase
          assertNull(cons.receiveNoWait());
 
       }
-      finally
-      {
-         if (conn != null)
-         {
+      finally {
+         if (conn != null) {
             conn.close();
          }
       }
    }
 
    @Test
-   public void testJMSPriorityOnSelector() throws Exception
-   {
+   public void testJMSPriorityOnSelector() throws Exception {
       Connection conn = null;
 
-      try
-      {
+      try {
          conn = getConnectionFactory().createConnection();
          conn.start();
 
@@ -784,7 +710,7 @@ public class SelectorTest extends ActiveMQServerTestCase
 
          conn.start();
 
-         TextMessage rec = (TextMessage)cons.receive(10000);
+         TextMessage rec = (TextMessage) cons.receive(10000);
 
          assertNotNull(rec);
 
@@ -793,22 +719,18 @@ public class SelectorTest extends ActiveMQServerTestCase
          assertNull(cons.receiveNoWait());
 
       }
-      finally
-      {
-         if (conn != null)
-         {
+      finally {
+         if (conn != null) {
             conn.close();
          }
       }
    }
 
    @Test
-   public void testJMSTimestampOnSelector() throws Exception
-   {
+   public void testJMSTimestampOnSelector() throws Exception {
       Connection conn = null;
 
-      try
-      {
+      try {
          conn = getConnectionFactory().createConnection();
          conn.start();
 
@@ -830,7 +752,7 @@ public class SelectorTest extends ActiveMQServerTestCase
 
          conn.start();
 
-         TextMessage rec = (TextMessage)cons.receive(10000);
+         TextMessage rec = (TextMessage) cons.receive(10000);
 
          assertNotNull(rec);
 
@@ -839,22 +761,18 @@ public class SelectorTest extends ActiveMQServerTestCase
          assertNull(cons.receiveNoWait());
 
       }
-      finally
-      {
-         if (conn != null)
-         {
+      finally {
+         if (conn != null) {
             conn.close();
          }
       }
    }
 
    @Test
-   public void testJMSExpirationOnSelector() throws Exception
-   {
+   public void testJMSExpirationOnSelector() throws Exception {
       Connection conn = null;
 
-      try
-      {
+      try {
          conn = getConnectionFactory().createConnection();
          conn.start();
 
@@ -879,7 +797,7 @@ public class SelectorTest extends ActiveMQServerTestCase
 
          conn.start();
 
-         TextMessage rec = (TextMessage)cons.receive(10000);
+         TextMessage rec = (TextMessage) cons.receive(10000);
 
          assertNotNull(rec);
 
@@ -888,22 +806,18 @@ public class SelectorTest extends ActiveMQServerTestCase
          assertNull(cons.receiveNoWait());
 
       }
-      finally
-      {
-         if (conn != null)
-         {
+      finally {
+         if (conn != null) {
             conn.close();
          }
       }
    }
 
    @Test
-   public void testJMSTypeOnSelector() throws Exception
-   {
+   public void testJMSTypeOnSelector() throws Exception {
       Connection conn = null;
 
-      try
-      {
+      try {
          conn = getConnectionFactory().createConnection();
          conn.start();
 
@@ -925,7 +839,7 @@ public class SelectorTest extends ActiveMQServerTestCase
 
          conn.start();
 
-         TextMessage rec = (TextMessage)cons.receive(10000);
+         TextMessage rec = (TextMessage) cons.receive(10000);
 
          assertNotNull(rec);
 
@@ -934,22 +848,18 @@ public class SelectorTest extends ActiveMQServerTestCase
          assertNull(cons.receiveNoWait());
 
       }
-      finally
-      {
-         if (conn != null)
-         {
+      finally {
+         if (conn != null) {
             conn.close();
          }
       }
    }
 
    @Test
-   public void testJMSCorrelationIDOnSelector() throws Exception
-   {
+   public void testJMSCorrelationIDOnSelector() throws Exception {
       Connection conn = null;
 
-      try
-      {
+      try {
          conn = getConnectionFactory().createConnection();
          conn.start();
 
@@ -971,7 +881,7 @@ public class SelectorTest extends ActiveMQServerTestCase
 
          conn.start();
 
-         TextMessage rec = (TextMessage)cons.receive(10000);
+         TextMessage rec = (TextMessage) cons.receive(10000);
 
          assertNotNull(rec);
 
@@ -980,27 +890,22 @@ public class SelectorTest extends ActiveMQServerTestCase
          assertNull(cons.receiveNoWait());
 
       }
-      finally
-      {
-         if (conn != null)
-         {
+      finally {
+         if (conn != null) {
             conn.close();
          }
       }
    }
 
-
    // Test case proposed by a customer on this user forum:
    // http://community.jboss.org/thread/153426?tstart=0
    // This test needs to be moved away
-   public void disabled_testMultipleConsumers() throws Exception
-   {
+   public void disabled_testMultipleConsumers() throws Exception {
       Connection conn = null;
 
-      try
-      {
+      try {
          ConnectionFactory factory = getConnectionFactory();
-         ActiveMQConnectionFactory hcf = (ActiveMQConnectionFactory)factory;
+         ActiveMQConnectionFactory hcf = (ActiveMQConnectionFactory) factory;
 
          hcf.setConsumerWindowSize(0);
 
@@ -1055,10 +960,9 @@ public class SelectorTest extends ActiveMQServerTestCase
          msgProducer.close();
          msgProducer = null;
 
-
          MessageConsumer msgConsumer = session.createConsumer(queue1, "PROP2 = 'VALUE2'");
 
-         tm = (TextMessage)msgConsumer.receive(5000);
+         tm = (TextMessage) msgConsumer.receive(5000);
 
          assertNotNull(tm);
 
@@ -1069,7 +973,6 @@ public class SelectorTest extends ActiveMQServerTestCase
 
          conn.close(); // this should close the consumer, producer and session associated with the connection
 
-
          // Reopen the connection and consumer
 
          conn = getConnectionFactory().createConnection();
@@ -1079,25 +982,23 @@ public class SelectorTest extends ActiveMQServerTestCase
 
          msgConsumer = session.createConsumer(queue1);
 
-         tm = (TextMessage)msgConsumer.receive(5000);
+         tm = (TextMessage) msgConsumer.receive(5000);
          Assert.assertEquals("1", tm.getText());
          Assert.assertEquals("VALUE1", tm.getStringProperty("PROP1"));
 
-
-         tm = (TextMessage)msgConsumer.receive(5000);
+         tm = (TextMessage) msgConsumer.receive(5000);
          Assert.assertEquals("2", tm.getText());
          Assert.assertEquals("VALUE1", tm.getStringProperty("PROP1"));
 
-         tm = (TextMessage)msgConsumer.receive(5000);
+         tm = (TextMessage) msgConsumer.receive(5000);
          Assert.assertEquals("4", tm.getText());
          Assert.assertEquals("VALUE2", tm.getStringProperty("PROP2"));
 
-
-         tm = (TextMessage)msgConsumer.receive(5000);
+         tm = (TextMessage) msgConsumer.receive(5000);
          Assert.assertEquals("5", tm.getText());
          Assert.assertEquals("VALUE1", tm.getStringProperty("PROP1"));
 
-         tm = (TextMessage)msgConsumer.receive(5000);
+         tm = (TextMessage) msgConsumer.receive(5000);
          Assert.assertEquals("6", tm.getText());
          Assert.assertEquals("VALUE1", tm.getStringProperty("PROP1"));
          Assert.assertEquals("VALUE2", tm.getStringProperty("PROP2"));
@@ -1105,10 +1006,8 @@ public class SelectorTest extends ActiveMQServerTestCase
          tm.acknowledge();
 
       }
-      finally
-      {
-         if (conn != null)
-         {
+      finally {
+         if (conn != null) {
             conn.close();
          }
       }

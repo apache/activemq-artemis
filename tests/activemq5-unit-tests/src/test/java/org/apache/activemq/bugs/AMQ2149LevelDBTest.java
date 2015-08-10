@@ -21,10 +21,10 @@ import org.apache.activemq.leveldb.LevelDBStore;
 
 public class AMQ2149LevelDBTest extends AMQ2149Test {
 
-    @Override
-    protected void configurePersistenceAdapter(BrokerService brokerService) throws Exception {
-        LevelDBStore persistenceFactory = new LevelDBStore();
-        persistenceFactory.setDirectory(dataDirFile);
-        brokerService.setPersistenceAdapter(persistenceFactory);
-    }
+   @Override
+   protected void configurePersistenceAdapter(BrokerService brokerService) throws Exception {
+      LevelDBStore persistenceFactory = new LevelDBStore();
+      persistenceFactory.setDirectory(dataDirFile);
+      brokerService.setPersistenceAdapter(persistenceFactory);
+   }
 }

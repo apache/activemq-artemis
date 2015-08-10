@@ -16,19 +16,16 @@
  */
 package org.apache.activemq.artemis.core.server.cluster.impl;
 
-public enum MessageLoadBalancingType
-{
+public enum MessageLoadBalancingType {
    OFF("OFF"), STRICT("STRICT"), ON_DEMAND("ON_DEMAND");
 
    private String type;
 
-   MessageLoadBalancingType(final String type)
-   {
+   MessageLoadBalancingType(final String type) {
       this.type = type;
    }
 
-   public String getType()
-   {
+   public String getType() {
       return type;
    }
 }

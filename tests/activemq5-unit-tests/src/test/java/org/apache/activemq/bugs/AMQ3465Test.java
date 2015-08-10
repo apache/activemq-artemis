@@ -46,150 +46,150 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class AMQ3465Test
-{
-    private final String xaDestinationName = "DestinationXA";
-    private final String destinationName = "Destination";
-    private BrokerService broker;
-    private String connectionUri;
-    private long txGenerator = System.currentTimeMillis();
+public class AMQ3465Test {
 
-    private XAConnectionFactory xaConnectionFactory;
-    private ConnectionFactory connectionFactory;
+   private final String xaDestinationName = "DestinationXA";
+   private final String destinationName = "Destination";
+   private BrokerService broker;
+   private String connectionUri;
+   private long txGenerator = System.currentTimeMillis();
 
-    @Before
-    public void startBroker() throws Exception {
-        broker = new BrokerService();
-        broker.setDeleteAllMessagesOnStartup(true);
-        broker.setPersistent(false);
-        broker.setUseJmx(false);
-        broker.addConnector("tcp://0.0.0.0:0");
-        broker.start();
-        broker.waitUntilStarted();
+   private XAConnectionFactory xaConnectionFactory;
+   private ConnectionFactory connectionFactory;
 
-        connectionUri = broker.getTransportConnectors().get(0).getPublishableConnectString();
+   @Before
+   public void startBroker() throws Exception {
+      broker = new BrokerService();
+      broker.setDeleteAllMessagesOnStartup(true);
+      broker.setPersistent(false);
+      broker.setUseJmx(false);
+      broker.addConnector("tcp://0.0.0.0:0");
+      broker.start();
+      broker.waitUntilStarted();
 
-        connectionFactory = new ActiveMQConnectionFactory(connectionUri);
-        xaConnectionFactory = new ActiveMQXAConnectionFactory(connectionUri);
-    }
+      connectionUri = broker.getTransportConnectors().get(0).getPublishableConnectString();
 
-    @After
-    public void stopBroker() throws Exception {
-        broker.stop();
-        broker.waitUntilStopped();
-    }
+      connectionFactory = new ActiveMQConnectionFactory(connectionUri);
+      xaConnectionFactory = new ActiveMQXAConnectionFactory(connectionUri);
+   }
+
+   @After
+   public void stopBroker() throws Exception {
+      broker.stop();
+      broker.waitUntilStopped();
+   }
 
    @Test
    public void testMixedXAandNonXAorTXSessions() throws Exception {
 
-       XAConnection xaConnection = xaConnectionFactory.createXAConnection();
-       xaConnection.start();
-       XASession session = xaConnection.createXASession();
-       XAResource resource = session.getXAResource();
-       Destination dest = new ActiveMQQueue(xaDestinationName);
+      XAConnection xaConnection = xaConnectionFactory.createXAConnection();
+      xaConnection.start();
+      XASession session = xaConnection.createXASession();
+      XAResource resource = session.getXAResource();
+      Destination dest = new ActiveMQQueue(xaDestinationName);
 
-       // publish a message
-       Xid tid = createXid();
-       resource.start(tid, XAResource.TMNOFLAGS);
-       MessageProducer producer = session.createProducer(dest);
-       ActiveMQTextMessage message  = new ActiveMQTextMessage();
-       message.setText("Some Text");
-       producer.send(message);
-       resource.end(tid, XAResource.TMSUCCESS);
-       resource.commit(tid, true);
-       session.close();
+      // publish a message
+      Xid tid = createXid();
+      resource.start(tid, XAResource.TMNOFLAGS);
+      MessageProducer producer = session.createProducer(dest);
+      ActiveMQTextMessage message = new ActiveMQTextMessage();
+      message.setText("Some Text");
+      producer.send(message);
+      resource.end(tid, XAResource.TMSUCCESS);
+      resource.commit(tid, true);
+      session.close();
 
-       session = xaConnection.createXASession();
-       MessageConsumer consumer = session.createConsumer(dest);
-       tid = createXid();
-       resource = session.getXAResource();
-       resource.start(tid, XAResource.TMNOFLAGS);
-       TextMessage receivedMessage = (TextMessage) consumer.receive(1000);
-       assertNotNull(receivedMessage);
-       assertEquals("Some Text", receivedMessage.getText());
-       resource.end(tid, XAResource.TMSUCCESS);
+      session = xaConnection.createXASession();
+      MessageConsumer consumer = session.createConsumer(dest);
+      tid = createXid();
+      resource = session.getXAResource();
+      resource.start(tid, XAResource.TMNOFLAGS);
+      TextMessage receivedMessage = (TextMessage) consumer.receive(1000);
+      assertNotNull(receivedMessage);
+      assertEquals("Some Text", receivedMessage.getText());
+      resource.end(tid, XAResource.TMSUCCESS);
 
-       // Test that a normal session doesn't operate on XASession state.
-       Connection connection2 = connectionFactory.createConnection();
-       connection2.start();
-       ActiveMQSession session2 = (ActiveMQSession) connection2.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      // Test that a normal session doesn't operate on XASession state.
+      Connection connection2 = connectionFactory.createConnection();
+      connection2.start();
+      ActiveMQSession session2 = (ActiveMQSession) connection2.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-       if (session2.isTransacted()) {
-           session2.rollback();
-       }
+      if (session2.isTransacted()) {
+         session2.rollback();
+      }
 
-       session2.close();
+      session2.close();
 
-       resource.commit(tid, true);
+      resource.commit(tid, true);
    }
 
    @Test
    public void testMixedXAandNonXALocalTXSessions() throws Exception {
 
-       XAConnection xaConnection = xaConnectionFactory.createXAConnection();
-       xaConnection.start();
-       XASession session = xaConnection.createXASession();
-       XAResource resource = session.getXAResource();
-       Destination dest = new ActiveMQQueue(xaDestinationName);
+      XAConnection xaConnection = xaConnectionFactory.createXAConnection();
+      xaConnection.start();
+      XASession session = xaConnection.createXASession();
+      XAResource resource = session.getXAResource();
+      Destination dest = new ActiveMQQueue(xaDestinationName);
 
-       // publish a message
-       Xid tid = createXid();
-       resource.start(tid, XAResource.TMNOFLAGS);
-       MessageProducer producer = session.createProducer(dest);
-       ActiveMQTextMessage message  = new ActiveMQTextMessage();
-       message.setText("Some Text");
-       producer.send(message);
-       resource.end(tid, XAResource.TMSUCCESS);
-       resource.commit(tid, true);
-       session.close();
+      // publish a message
+      Xid tid = createXid();
+      resource.start(tid, XAResource.TMNOFLAGS);
+      MessageProducer producer = session.createProducer(dest);
+      ActiveMQTextMessage message = new ActiveMQTextMessage();
+      message.setText("Some Text");
+      producer.send(message);
+      resource.end(tid, XAResource.TMSUCCESS);
+      resource.commit(tid, true);
+      session.close();
 
-       session = xaConnection.createXASession();
-       MessageConsumer consumer = session.createConsumer(dest);
-       tid = createXid();
-       resource = session.getXAResource();
-       resource.start(tid, XAResource.TMNOFLAGS);
-       TextMessage receivedMessage = (TextMessage) consumer.receive(1000);
-       assertNotNull(receivedMessage);
-       assertEquals("Some Text", receivedMessage.getText());
-       resource.end(tid, XAResource.TMSUCCESS);
+      session = xaConnection.createXASession();
+      MessageConsumer consumer = session.createConsumer(dest);
+      tid = createXid();
+      resource = session.getXAResource();
+      resource.start(tid, XAResource.TMNOFLAGS);
+      TextMessage receivedMessage = (TextMessage) consumer.receive(1000);
+      assertNotNull(receivedMessage);
+      assertEquals("Some Text", receivedMessage.getText());
+      resource.end(tid, XAResource.TMSUCCESS);
 
-       // Test that a normal session doesn't operate on XASession state.
-       Connection connection2 = connectionFactory.createConnection();
-       connection2.start();
-       ActiveMQSession session2 = (ActiveMQSession) connection2.createSession(true, Session.AUTO_ACKNOWLEDGE);
-       Destination destination = new ActiveMQQueue(destinationName);
-       ActiveMQMessageProducer producer2 = (ActiveMQMessageProducer) session2.createProducer(destination);
-       producer2.send(session2.createTextMessage("Local-TX"));
+      // Test that a normal session doesn't operate on XASession state.
+      Connection connection2 = connectionFactory.createConnection();
+      connection2.start();
+      ActiveMQSession session2 = (ActiveMQSession) connection2.createSession(true, Session.AUTO_ACKNOWLEDGE);
+      Destination destination = new ActiveMQQueue(destinationName);
+      ActiveMQMessageProducer producer2 = (ActiveMQMessageProducer) session2.createProducer(destination);
+      producer2.send(session2.createTextMessage("Local-TX"));
 
-       if (session2.isTransacted()) {
-           session2.rollback();
-       }
+      if (session2.isTransacted()) {
+         session2.rollback();
+      }
 
-       session2.close();
+      session2.close();
 
-       resource.commit(tid, true);
+      resource.commit(tid, true);
    }
 
    public Xid createXid() throws IOException {
 
-       ByteArrayOutputStream baos = new ByteArrayOutputStream();
-       DataOutputStream os = new DataOutputStream(baos);
-       os.writeLong(++txGenerator);
-       os.close();
-       final byte[] bs = baos.toByteArray();
+      ByteArrayOutputStream baos = new ByteArrayOutputStream();
+      DataOutputStream os = new DataOutputStream(baos);
+      os.writeLong(++txGenerator);
+      os.close();
+      final byte[] bs = baos.toByteArray();
 
-       return new Xid() {
-           public int getFormatId() {
-               return 86;
-           }
+      return new Xid() {
+         public int getFormatId() {
+            return 86;
+         }
 
-           public byte[] getGlobalTransactionId() {
-               return bs;
-           }
+         public byte[] getGlobalTransactionId() {
+            return bs;
+         }
 
-           public byte[] getBranchQualifier() {
-               return bs;
-           }
-       };
+         public byte[] getBranchQualifier() {
+            return bs;
+         }
+      };
    }
 }

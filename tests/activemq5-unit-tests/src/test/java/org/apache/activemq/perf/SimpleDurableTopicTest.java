@@ -26,49 +26,53 @@ import javax.jms.Destination;
 import javax.jms.JMSException;
 
 /**
- * 
+ *
  */
 public class SimpleDurableTopicTest extends SimpleTopicTest {
-    protected long initialConsumerDelay = 0;
-    @Override
-    protected void setUp() throws Exception {
-        numberOfDestinations=1;
-        numberOfConsumers = 1;
-        numberofProducers = Integer.parseInt(System.getProperty("SimpleDurableTopicTest.numberofProducers", "20"), 20);
-        sampleCount= Integer.parseInt(System.getProperty("SimpleDurableTopicTest.sampleCount", "1000"), 10);
-        playloadSize = 1024;
-        super.setUp();
-    }
 
+   protected long initialConsumerDelay = 0;
 
-    @Override
-    protected void configureBroker(BrokerService answer,String uri) throws Exception {
-        LevelDBStoreFactory persistenceFactory = new LevelDBStoreFactory();
-        answer.setPersistenceFactory(persistenceFactory);
-        //answer.setDeleteAllMessagesOnStartup(true);
-        answer.addConnector(uri);
-        answer.setUseShutdownHook(false);
-    }
-    
-    @Override
-    protected PerfProducer createProducer(ConnectionFactory fac, Destination dest, int number, byte payload[]) throws JMSException {
-        PerfProducer pp = new PerfProducer(fac, dest, payload);
-        pp.setDeliveryMode(DeliveryMode.PERSISTENT);
-        return pp;
-    }
+   @Override
+   protected void setUp() throws Exception {
+      numberOfDestinations = 1;
+      numberOfConsumers = 1;
+      numberofProducers = Integer.parseInt(System.getProperty("SimpleDurableTopicTest.numberofProducers", "20"), 20);
+      sampleCount = Integer.parseInt(System.getProperty("SimpleDurableTopicTest.sampleCount", "1000"), 10);
+      playloadSize = 1024;
+      super.setUp();
+   }
 
-    @Override
-    protected PerfConsumer createConsumer(ConnectionFactory fac, Destination dest, int number) throws JMSException {
-        PerfConsumer result = new PerfConsumer(fac, dest, "subs:" + number);
-        result.setInitialDelay(this.initialConsumerDelay);
-        return result;
-    }
-    
-    @Override
-    protected ActiveMQConnectionFactory createConnectionFactory(String uri) throws Exception {
-        ActiveMQConnectionFactory result = super.createConnectionFactory(uri);
-        //result.setSendAcksAsync(false);
-        return result;
-    }
+   @Override
+   protected void configureBroker(BrokerService answer, String uri) throws Exception {
+      LevelDBStoreFactory persistenceFactory = new LevelDBStoreFactory();
+      answer.setPersistenceFactory(persistenceFactory);
+      //answer.setDeleteAllMessagesOnStartup(true);
+      answer.addConnector(uri);
+      answer.setUseShutdownHook(false);
+   }
+
+   @Override
+   protected PerfProducer createProducer(ConnectionFactory fac,
+                                         Destination dest,
+                                         int number,
+                                         byte payload[]) throws JMSException {
+      PerfProducer pp = new PerfProducer(fac, dest, payload);
+      pp.setDeliveryMode(DeliveryMode.PERSISTENT);
+      return pp;
+   }
+
+   @Override
+   protected PerfConsumer createConsumer(ConnectionFactory fac, Destination dest, int number) throws JMSException {
+      PerfConsumer result = new PerfConsumer(fac, dest, "subs:" + number);
+      result.setInitialDelay(this.initialConsumerDelay);
+      return result;
+   }
+
+   @Override
+   protected ActiveMQConnectionFactory createConnectionFactory(String uri) throws Exception {
+      ActiveMQConnectionFactory result = super.createConnectionFactory(uri);
+      //result.setSendAcksAsync(false);
+      return result;
+   }
 
 }

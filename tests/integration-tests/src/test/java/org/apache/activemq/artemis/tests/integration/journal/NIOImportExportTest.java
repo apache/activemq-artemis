@@ -23,15 +23,13 @@ import org.apache.activemq.artemis.tests.unit.core.journal.impl.JournalImplTestB
 import org.apache.activemq.artemis.tests.unit.core.journal.impl.fakes.SimpleEncoding;
 import org.junit.Test;
 
-public class NIOImportExportTest extends JournalImplTestBase
-{
+public class NIOImportExportTest extends JournalImplTestBase {
 
    /* (non-Javadoc)
     * @see JournalImplTestBase#getFileFactory()
     */
    @Override
-   protected SequentialFileFactory getFileFactory() throws Exception
-   {
+   protected SequentialFileFactory getFileFactory() throws Exception {
       return new NIOSequentialFileFactory(getTestDirfile(), true, 1);
    }
 
@@ -46,8 +44,7 @@ public class NIOImportExportTest extends JournalImplTestBase
    // Public --------------------------------------------------------
 
    @Test
-   public void testExportImport() throws Exception
-   {
+   public void testExportImport() throws Exception {
       setup(10, 10 * 1024, true);
 
       createJournal();
@@ -101,8 +98,7 @@ public class NIOImportExportTest extends JournalImplTestBase
    }
 
    @Test
-   public void testExportImport3() throws Exception
-   {
+   public void testExportImport3() throws Exception {
       setup(10, 10 * 1024, true);
 
       createJournal();
@@ -137,7 +133,7 @@ public class NIOImportExportTest extends JournalImplTestBase
 
       addTx(11, 12, 13);
 
-      EncodingSupport xid = new SimpleEncoding(10, (byte)0);
+      EncodingSupport xid = new SimpleEncoding(10, (byte) 0);
       prepare(11, xid);
 
       stopJournal();
@@ -165,8 +161,7 @@ public class NIOImportExportTest extends JournalImplTestBase
    }
 
    @Test
-   public void testExportImport2() throws Exception
-   {
+   public void testExportImport2() throws Exception {
       setup(10, 10 * 1024, true);
 
       createJournal();

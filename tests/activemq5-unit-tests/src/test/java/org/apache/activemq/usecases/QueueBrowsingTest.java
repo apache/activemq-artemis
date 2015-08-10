@@ -19,7 +19,6 @@ package org.apache.activemq.usecases;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-
 import java.io.IOException;
 import java.net.URI;
 import java.util.Enumeration;
@@ -46,171 +45,173 @@ import org.slf4j.LoggerFactory;
 
 public class QueueBrowsingTest {
 
-    private static final Logger LOG = LoggerFactory.getLogger(QueueBrowsingTest.class);
+   private static final Logger LOG = LoggerFactory.getLogger(QueueBrowsingTest.class);
 
-    private BrokerService broker;
-    private URI connectUri;
-    private ActiveMQConnectionFactory factory;
-    private final int maxPageSize = 100;
+   private BrokerService broker;
+   private URI connectUri;
+   private ActiveMQConnectionFactory factory;
+   private final int maxPageSize = 100;
 
-    @Before
-    public void startBroker() throws Exception {
-        broker = createBroker();
-        TransportConnector connector = broker.addConnector("tcp://0.0.0.0:0");
-        broker.deleteAllMessages();
-        broker.start();
-        broker.waitUntilStarted();
+   @Before
+   public void startBroker() throws Exception {
+      broker = createBroker();
+      TransportConnector connector = broker.addConnector("tcp://0.0.0.0:0");
+      broker.deleteAllMessages();
+      broker.start();
+      broker.waitUntilStarted();
 
-        PolicyEntry policy = new PolicyEntry();
-        policy.setMaxPageSize(maxPageSize);
-        broker.setDestinationPolicy(new PolicyMap());
-        broker.getDestinationPolicy().setDefaultEntry(policy);
+      PolicyEntry policy = new PolicyEntry();
+      policy.setMaxPageSize(maxPageSize);
+      broker.setDestinationPolicy(new PolicyMap());
+      broker.getDestinationPolicy().setDefaultEntry(policy);
 
-        connectUri = connector.getConnectUri();
-        factory = new ActiveMQConnectionFactory(connectUri);
-    }
+      connectUri = connector.getConnectUri();
+      factory = new ActiveMQConnectionFactory(connectUri);
+   }
 
-    public BrokerService createBroker() throws IOException {
-        return new BrokerService();
-    }
+   public BrokerService createBroker() throws IOException {
+      return new BrokerService();
+   }
 
-    @After
-    public void stopBroker() throws Exception {
-        broker.stop();
-        broker.waitUntilStopped();
-    }
+   @After
+   public void stopBroker() throws Exception {
+      broker.stop();
+      broker.waitUntilStopped();
+   }
 
-    @Test
-    public void testBrowsing() throws JMSException {
+   @Test
+   public void testBrowsing() throws JMSException {
 
-        int messageToSend = 370;
+      int messageToSend = 370;
 
-        ActiveMQQueue queue = new ActiveMQQueue("TEST");
-        Connection connection = factory.createConnection();
-        connection.start();
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        MessageProducer producer = session.createProducer(queue);
+      ActiveMQQueue queue = new ActiveMQQueue("TEST");
+      Connection connection = factory.createConnection();
+      connection.start();
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      MessageProducer producer = session.createProducer(queue);
 
-        String data = "";
-        for( int i=0; i < 1024*2; i++ ) {
-            data += "x";
-        }
+      String data = "";
+      for (int i = 0; i < 1024 * 2; i++) {
+         data += "x";
+      }
 
-        for( int i=0; i < messageToSend; i++ ) {
-            producer.send(session.createTextMessage(data));
-        }
+      for (int i = 0; i < messageToSend; i++) {
+         producer.send(session.createTextMessage(data));
+      }
 
-        QueueBrowser browser = session.createBrowser(queue);
-        Enumeration<?> enumeration = browser.getEnumeration();
-        int received = 0;
-        while (enumeration.hasMoreElements()) {
-            Message m = (Message) enumeration.nextElement();
-            received++;
-            LOG.info("Browsed message " + received + ": " + m.getJMSMessageID());
-        }
+      QueueBrowser browser = session.createBrowser(queue);
+      Enumeration<?> enumeration = browser.getEnumeration();
+      int received = 0;
+      while (enumeration.hasMoreElements()) {
+         Message m = (Message) enumeration.nextElement();
+         received++;
+         LOG.info("Browsed message " + received + ": " + m.getJMSMessageID());
+      }
 
-        browser.close();
+      browser.close();
 
-        assertEquals(messageToSend, received);
-    }
+      assertEquals(messageToSend, received);
+   }
 
-    @Test
-    public void testBrowseConcurrent() throws Exception {
-        final int messageToSend = 370;
+   @Test
+   public void testBrowseConcurrent() throws Exception {
+      final int messageToSend = 370;
 
-        final ActiveMQQueue queue = new ActiveMQQueue("TEST");
-        Connection connection = factory.createConnection();
-        connection.start();
-        final Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      final ActiveMQQueue queue = new ActiveMQQueue("TEST");
+      Connection connection = factory.createConnection();
+      connection.start();
+      final Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-        MessageProducer producer = session.createProducer(queue);
+      MessageProducer producer = session.createProducer(queue);
 
-        String data = "";
-        for( int i=0; i < 1024*2; i++ ) {
-            data += "x";
-        }
+      String data = "";
+      for (int i = 0; i < 1024 * 2; i++) {
+         data += "x";
+      }
 
-        for( int i=0; i < messageToSend; i++ ) {
-            producer.send(session.createTextMessage(data));
-        }
+      for (int i = 0; i < messageToSend; i++) {
+         producer.send(session.createTextMessage(data));
+      }
 
-        Thread browserThread = new Thread() {
-            @Override
-            public void run() {
-                try {
-                    QueueBrowser browser = session.createBrowser(queue);
-                    Enumeration<?> enumeration = browser.getEnumeration();
-                    int received = 0;
-                    while (enumeration.hasMoreElements()) {
-                        Message m = (Message) enumeration.nextElement();
-                        received++;
-                        LOG.info("Browsed message " + received + ": " + m.getJMSMessageID());
-                    }
-                    assertEquals("Browsed all messages", messageToSend, received);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+      Thread browserThread = new Thread() {
+         @Override
+         public void run() {
+            try {
+               QueueBrowser browser = session.createBrowser(queue);
+               Enumeration<?> enumeration = browser.getEnumeration();
+               int received = 0;
+               while (enumeration.hasMoreElements()) {
+                  Message m = (Message) enumeration.nextElement();
+                  received++;
+                  LOG.info("Browsed message " + received + ": " + m.getJMSMessageID());
+               }
+               assertEquals("Browsed all messages", messageToSend, received);
             }
-        };
-
-        browserThread.start();
-
-        Thread consumerThread = new Thread() {
-            @Override
-            public void run() {
-                try {
-                    MessageConsumer consumer = session.createConsumer(queue);
-                    int received = 0;
-                    while (true) {
-                        Message m = consumer.receive(1000);
-                        if (m == null)
-                            break;
-                        received++;
-                    }
-                    assertEquals("Consumed all messages", messageToSend, received);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+            catch (Exception e) {
+               e.printStackTrace();
             }
-        };
+         }
+      };
 
-        consumerThread.start();
+      browserThread.start();
 
-        browserThread.join();
-        consumerThread.join();
-    }
+      Thread consumerThread = new Thread() {
+         @Override
+         public void run() {
+            try {
+               MessageConsumer consumer = session.createConsumer(queue);
+               int received = 0;
+               while (true) {
+                  Message m = consumer.receive(1000);
+                  if (m == null)
+                     break;
+                  received++;
+               }
+               assertEquals("Consumed all messages", messageToSend, received);
+            }
+            catch (Exception e) {
+               e.printStackTrace();
+            }
+         }
+      };
 
-    @Test
-    public void testMemoryLimit() throws Exception {
-        broker.getSystemUsage().getMemoryUsage().setLimit(16 * 1024);
+      consumerThread.start();
 
-        int messageToSend = 370;
+      browserThread.join();
+      consumerThread.join();
+   }
 
-        ActiveMQQueue queue = new ActiveMQQueue("TEST");
-        Connection connection = factory.createConnection();
-        connection.start();
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        MessageProducer producer = session.createProducer(queue);
+   @Test
+   public void testMemoryLimit() throws Exception {
+      broker.getSystemUsage().getMemoryUsage().setLimit(16 * 1024);
 
-        String data = "";
-        for( int i=0; i < 1024*2; i++ ) {
-            data += "x";
-        }
+      int messageToSend = 370;
 
-        for( int i=0; i < messageToSend; i++ ) {
-            producer.send(session.createTextMessage(data));
-        }
+      ActiveMQQueue queue = new ActiveMQQueue("TEST");
+      Connection connection = factory.createConnection();
+      connection.start();
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      MessageProducer producer = session.createProducer(queue);
 
-        QueueBrowser browser = session.createBrowser(queue);
-        Enumeration<?> enumeration = browser.getEnumeration();
-        int received = 0;
-        while (enumeration.hasMoreElements()) {
-            Message m = (Message) enumeration.nextElement();
-            received++;
-            LOG.info("Browsed message " + received + ": " + m.getJMSMessageID());
-        }
+      String data = "";
+      for (int i = 0; i < 1024 * 2; i++) {
+         data += "x";
+      }
 
-        browser.close();
-        assertTrue("got at least maxPageSize", received >= maxPageSize);
-    }
+      for (int i = 0; i < messageToSend; i++) {
+         producer.send(session.createTextMessage(data));
+      }
+
+      QueueBrowser browser = session.createBrowser(queue);
+      Enumeration<?> enumeration = browser.getEnumeration();
+      int received = 0;
+      while (enumeration.hasMoreElements()) {
+         Message m = (Message) enumeration.nextElement();
+         received++;
+         LOG.info("Browsed message " + received + ": " + m.getJMSMessageID());
+      }
+
+      browser.close();
+      assertTrue("got at least maxPageSize", received >= maxPageSize);
+   }
 }

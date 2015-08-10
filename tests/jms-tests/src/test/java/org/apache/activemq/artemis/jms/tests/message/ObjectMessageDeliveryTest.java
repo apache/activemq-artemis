@@ -31,11 +31,9 @@ import org.apache.activemq.artemis.jms.tests.ActiveMQServerTestCase;
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
 
 /**
- *
  * ObjectMessageDeliveryTest
  */
-public class ObjectMessageDeliveryTest extends ActiveMQServerTestCase
-{
+public class ObjectMessageDeliveryTest extends ActiveMQServerTestCase {
    // Constants -----------------------------------------------------
 
    // Static --------------------------------------------------------
@@ -46,8 +44,8 @@ public class ObjectMessageDeliveryTest extends ActiveMQServerTestCase
 
    // Public --------------------------------------------------------
 
-   static class TestObject implements Serializable
-   {
+   static class TestObject implements Serializable {
+
       private static final long serialVersionUID = -340663970717491155L;
 
       String text;
@@ -57,12 +55,10 @@ public class ObjectMessageDeliveryTest extends ActiveMQServerTestCase
     *
     */
    @Test
-   public void testTopic() throws Exception
-   {
+   public void testTopic() throws Exception {
       TopicConnection conn = getTopicConnectionFactory().createTopicConnection();
 
-      try
-      {
+      try {
          TopicSession s = conn.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
          TopicPublisher publisher = s.createPublisher(ActiveMQServerTestCase.topic1);
          TopicSubscriber sub = s.createSubscriber(ActiveMQServerTestCase.topic1);
@@ -95,33 +91,31 @@ public class ObjectMessageDeliveryTest extends ActiveMQServerTestCase
 
          publisher.send(om3);
 
-         ObjectMessage rm1 = (ObjectMessage)sub.receive(ActiveMQServerTestCase.MAX_TIMEOUT);
+         ObjectMessage rm1 = (ObjectMessage) sub.receive(ActiveMQServerTestCase.MAX_TIMEOUT);
 
-         ObjectMessage rm2 = (ObjectMessage)sub.receive(ActiveMQServerTestCase.MAX_TIMEOUT);
+         ObjectMessage rm2 = (ObjectMessage) sub.receive(ActiveMQServerTestCase.MAX_TIMEOUT);
 
-         ObjectMessage rm3 = (ObjectMessage)sub.receive(ActiveMQServerTestCase.MAX_TIMEOUT);
+         ObjectMessage rm3 = (ObjectMessage) sub.receive(ActiveMQServerTestCase.MAX_TIMEOUT);
 
          ProxyAssertSupport.assertNotNull(rm1);
 
-         TestObject ro1 = (TestObject)rm1.getObject();
+         TestObject ro1 = (TestObject) rm1.getObject();
 
          ProxyAssertSupport.assertEquals(to1.text, ro1.text);
          ProxyAssertSupport.assertNotNull(rm1);
 
-         TestObject ro2 = (TestObject)rm2.getObject();
+         TestObject ro2 = (TestObject) rm2.getObject();
 
          ProxyAssertSupport.assertEquals(to2.text, ro2.text);
 
          ProxyAssertSupport.assertNotNull(rm2);
 
-         TestObject ro3 = (TestObject)rm3.getObject();
+         TestObject ro3 = (TestObject) rm3.getObject();
 
          ProxyAssertSupport.assertEquals(to3.text, ro3.text);
       }
-      finally
-      {
-         if (conn != null)
-         {
+      finally {
+         if (conn != null) {
             conn.close();
          }
       }

@@ -42,8 +42,8 @@ import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-public class DeadLetterAddressTest extends ActiveMQTestBase
-{
+public class DeadLetterAddressTest extends ActiveMQTestBase {
+
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    private ActiveMQServer server;
@@ -52,14 +52,11 @@ public class DeadLetterAddressTest extends ActiveMQTestBase
    private ServerLocator locator;
 
    @Test
-   public void testBasicSend() throws Exception
-   {
+   public void testBasicSend() throws Exception {
       SimpleString dla = new SimpleString("DLA");
       SimpleString qName = new SimpleString("q1");
       SimpleString adName = new SimpleString("ad1");
-      AddressSettings addressSettings = new AddressSettings()
-              .setMaxDeliveryAttempts(1)
-              .setDeadLetterAddress(dla);
+      AddressSettings addressSettings = new AddressSettings().setMaxDeliveryAttempts(1).setDeadLetterAddress(dla);
       server.getAddressSettingsRepository().addMatch(adName.toString(), addressSettings);
       SimpleString dlq = new SimpleString("DLQ1");
       clientSession.createQueue(dla, dlq, null, false);
@@ -87,13 +84,10 @@ public class DeadLetterAddressTest extends ActiveMQTestBase
 
    // HORNETQ- 1084
    @Test
-   public void testBasicSendWithDLAButNoBinding() throws Exception
-   {
+   public void testBasicSendWithDLAButNoBinding() throws Exception {
       SimpleString dla = new SimpleString("DLA");
       SimpleString qName = new SimpleString("q1");
-      AddressSettings addressSettings = new AddressSettings()
-              .setMaxDeliveryAttempts(1)
-              .setDeadLetterAddress(dla);
+      AddressSettings addressSettings = new AddressSettings().setMaxDeliveryAttempts(1).setDeadLetterAddress(dla);
       server.getAddressSettingsRepository().addMatch(qName.toString(), addressSettings);
       //SimpleString dlq = new SimpleString("DLQ1");
       //clientSession.createQueue(dla, dlq, null, false);
@@ -111,18 +105,15 @@ public class DeadLetterAddressTest extends ActiveMQTestBase
       m = clientConsumer.receiveImmediate();
       Assert.assertNull(m);
       clientConsumer.close();
-      Queue q = (Queue)server.getPostOffice().getBinding(qName).getBindable();
+      Queue q = (Queue) server.getPostOffice().getBinding(qName).getBindable();
       Assert.assertEquals(0, q.getDeliveringCount());
    }
 
    @Test
-   public void testBasicSend2times() throws Exception
-   {
+   public void testBasicSend2times() throws Exception {
       SimpleString dla = new SimpleString("DLA");
       SimpleString qName = new SimpleString("q1");
-      AddressSettings addressSettings = new AddressSettings()
-              .setMaxDeliveryAttempts(2)
-              .setDeadLetterAddress(dla);
+      AddressSettings addressSettings = new AddressSettings().setMaxDeliveryAttempts(2).setDeadLetterAddress(dla);
       server.getAddressSettingsRepository().addMatch(qName.toString(), addressSettings);
       SimpleString dlq = new SimpleString("DLQ1");
       clientSession.createQueue(dla, dlq, null, false);
@@ -154,13 +145,10 @@ public class DeadLetterAddressTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testReceiveWithListeners() throws Exception
-   {
+   public void testReceiveWithListeners() throws Exception {
       SimpleString dla = new SimpleString("DLA");
       SimpleString qName = new SimpleString("q1");
-      AddressSettings addressSettings = new AddressSettings()
-              .setMaxDeliveryAttempts(2)
-              .setDeadLetterAddress(dla);
+      AddressSettings addressSettings = new AddressSettings().setMaxDeliveryAttempts(2).setDeadLetterAddress(dla);
       server.getAddressSettingsRepository().addMatch(qName.toString(), addressSettings);
       SimpleString dlq = new SimpleString("DLQ1");
       clientSession.createQueue(dla, dlq, null, false);
@@ -180,29 +168,25 @@ public class DeadLetterAddressTest extends ActiveMQTestBase
       Assert.assertEquals(m.getBodyBuffer().readString(), "heyho!");
    }
 
-   class  TestHandler implements MessageHandler
-   {
+   class TestHandler implements MessageHandler {
+
       private final CountDownLatch latch;
       int count = 0;
 
       private final ClientSession clientSession;
 
-      public TestHandler(CountDownLatch latch, ClientSession clientSession)
-      {
+      public TestHandler(CountDownLatch latch, ClientSession clientSession) {
          this.latch = latch;
          this.clientSession = clientSession;
       }
 
-      public void onMessage(ClientMessage message)
-      {
+      public void onMessage(ClientMessage message) {
          count++;
          latch.countDown();
-         try
-         {
+         try {
             clientSession.rollback(true);
          }
-         catch (ActiveMQException e)
-         {
+         catch (ActiveMQException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
          }
          throw new RuntimeException();
@@ -210,13 +194,10 @@ public class DeadLetterAddressTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testBasicSendToMultipleQueues() throws Exception
-   {
+   public void testBasicSendToMultipleQueues() throws Exception {
       SimpleString dla = new SimpleString("DLA");
       SimpleString qName = new SimpleString("q1");
-      AddressSettings addressSettings = new AddressSettings()
-              .setMaxDeliveryAttempts(1)
-              .setDeadLetterAddress(dla);
+      AddressSettings addressSettings = new AddressSettings().setMaxDeliveryAttempts(1).setDeadLetterAddress(dla);
       server.getAddressSettingsRepository().addMatch(qName.toString(), addressSettings);
       SimpleString dlq = new SimpleString("DLQ1");
       SimpleString dlq2 = new SimpleString("DLQ2");
@@ -251,8 +232,7 @@ public class DeadLetterAddressTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testBasicSendToNoQueue() throws Exception
-   {
+   public void testBasicSendToNoQueue() throws Exception {
       SimpleString qName = new SimpleString("q1");
       AddressSettings addressSettings = new AddressSettings().setMaxDeliveryAttempts(1);
       server.getAddressSettingsRepository().addMatch(qName.toString(), addressSettings);
@@ -273,15 +253,12 @@ public class DeadLetterAddressTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testHeadersSet() throws Exception
-   {
+   public void testHeadersSet() throws Exception {
       final int MAX_DELIVERIES = 16;
       final int NUM_MESSAGES = 5;
       SimpleString dla = new SimpleString("DLA");
       SimpleString qName = new SimpleString("q1");
-      AddressSettings addressSettings = new AddressSettings()
-              .setMaxDeliveryAttempts(MAX_DELIVERIES)
-              .setDeadLetterAddress(dla);
+      AddressSettings addressSettings = new AddressSettings().setMaxDeliveryAttempts(MAX_DELIVERIES).setDeadLetterAddress(dla);
       server.getAddressSettingsRepository().addMatch(qName.toString(), addressSettings);
       SimpleString dlq = new SimpleString("DLQ1");
       clientSession.createQueue(dla, dlq, null, false);
@@ -292,8 +269,7 @@ public class DeadLetterAddressTest extends ActiveMQTestBase
       ClientProducer producer = sendSession.createProducer(qName);
       Map<String, Long> origIds = new HashMap<String, Long>();
 
-      for (int i = 0; i < NUM_MESSAGES; i++)
-      {
+      for (int i = 0; i < NUM_MESSAGES; i++) {
          ClientMessage tm = createTextMessage(clientSession, "Message:" + i);
          producer.send(tm);
       }
@@ -301,16 +277,13 @@ public class DeadLetterAddressTest extends ActiveMQTestBase
       ClientConsumer clientConsumer = clientSession.createConsumer(qName);
       clientSession.start();
 
-      for (int i = 0; i < MAX_DELIVERIES; i++)
-      {
-         for (int j = 0; j < NUM_MESSAGES; j++)
-         {
+      for (int i = 0; i < MAX_DELIVERIES; i++) {
+         for (int j = 0; j < NUM_MESSAGES; j++) {
             ClientMessage tm = clientConsumer.receive(1000);
 
             Assert.assertNotNull(tm);
             tm.acknowledge();
-            if (i == 0)
-            {
+            if (i == 0) {
                origIds.put("Message:" + j, tm.getMessageID());
             }
             Assert.assertEquals("Message:" + j, tm.getBodyBuffer().readString());
@@ -321,20 +294,18 @@ public class DeadLetterAddressTest extends ActiveMQTestBase
       long timeout = System.currentTimeMillis() + 5000;
 
       // DLA transfer is asynchronous fired on the rollback
-      while (System.currentTimeMillis() < timeout && getMessageCount(((Queue)server.getPostOffice().getBinding(qName).getBindable())) != 0)
-      {
+      while (System.currentTimeMillis() < timeout && getMessageCount(((Queue) server.getPostOffice().getBinding(qName).getBindable())) != 0) {
          Thread.sleep(1);
       }
 
-      Assert.assertEquals(0, getMessageCount(((Queue)server.getPostOffice().getBinding(qName).getBindable())));
+      Assert.assertEquals(0, getMessageCount(((Queue) server.getPostOffice().getBinding(qName).getBindable())));
       ClientMessage m = clientConsumer.receiveImmediate();
       Assert.assertNull(m);
       // All the messages should now be in the DLQ
 
       ClientConsumer cc3 = clientSession.createConsumer(dlq);
 
-      for (int i = 0; i < NUM_MESSAGES; i++)
-      {
+      for (int i = 0; i < NUM_MESSAGES; i++) {
          ClientMessage tm = cc3.receive(1000);
 
          Assert.assertNotNull(tm);
@@ -343,9 +314,9 @@ public class DeadLetterAddressTest extends ActiveMQTestBase
          Assert.assertEquals("Message:" + i, text);
 
          // Check the headers
-         SimpleString origDest = (SimpleString)tm.getObjectProperty(Message.HDR_ORIGINAL_ADDRESS);
+         SimpleString origDest = (SimpleString) tm.getObjectProperty(Message.HDR_ORIGINAL_ADDRESS);
 
-         Long origMessageId = (Long)tm.getObjectProperty(Message.HDR_ORIG_MESSAGE_ID);
+         Long origMessageId = (Long) tm.getObjectProperty(Message.HDR_ORIG_MESSAGE_ID);
 
          Assert.assertEquals(qName, origDest);
 
@@ -359,17 +330,14 @@ public class DeadLetterAddressTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testDeadlLetterAddressWithDefaultAddressSettings() throws Exception
-   {
+   public void testDeadlLetterAddressWithDefaultAddressSettings() throws Exception {
       int deliveryAttempt = 3;
 
       SimpleString address = RandomUtil.randomSimpleString();
       SimpleString queue = RandomUtil.randomSimpleString();
       SimpleString deadLetterAddress = RandomUtil.randomSimpleString();
       SimpleString deadLetterQueue = RandomUtil.randomSimpleString();
-      AddressSettings addressSettings = new AddressSettings()
-              .setMaxDeliveryAttempts(deliveryAttempt)
-              .setDeadLetterAddress(deadLetterAddress);
+      AddressSettings addressSettings = new AddressSettings().setMaxDeliveryAttempts(deliveryAttempt).setDeadLetterAddress(deadLetterAddress);
       server.getAddressSettingsRepository().setDefault(addressSettings);
 
       clientSession.createQueue(address, queue, false);
@@ -381,8 +349,7 @@ public class DeadLetterAddressTest extends ActiveMQTestBase
 
       clientSession.start();
       ClientConsumer clientConsumer = clientSession.createConsumer(queue);
-      for (int i = 0; i < deliveryAttempt; i++)
-      {
+      for (int i = 0; i < deliveryAttempt; i++) {
          ClientMessage m = clientConsumer.receive(500);
          Assert.assertNotNull(m);
          DeadLetterAddressTest.log.info("i is " + i);
@@ -402,17 +369,14 @@ public class DeadLetterAddressTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testDeadlLetterAddressWithWildcardAddressSettings() throws Exception
-   {
+   public void testDeadlLetterAddressWithWildcardAddressSettings() throws Exception {
       int deliveryAttempt = 3;
 
       SimpleString address = RandomUtil.randomSimpleString();
       SimpleString queue = RandomUtil.randomSimpleString();
       SimpleString deadLetterAddress = RandomUtil.randomSimpleString();
       SimpleString deadLetterQueue = RandomUtil.randomSimpleString();
-      AddressSettings addressSettings = new AddressSettings()
-              .setMaxDeliveryAttempts(deliveryAttempt)
-              .setDeadLetterAddress(deadLetterAddress);
+      AddressSettings addressSettings = new AddressSettings().setMaxDeliveryAttempts(deliveryAttempt).setDeadLetterAddress(deadLetterAddress);
       server.getAddressSettingsRepository().addMatch("*", addressSettings);
 
       clientSession.createQueue(address, queue, false);
@@ -424,8 +388,7 @@ public class DeadLetterAddressTest extends ActiveMQTestBase
 
       clientSession.start();
       ClientConsumer clientConsumer = clientSession.createConsumer(queue);
-      for (int i = 0; i < deliveryAttempt; i++)
-      {
+      for (int i = 0; i < deliveryAttempt; i++) {
          ClientMessage m = clientConsumer.receive(500);
          Assert.assertNotNull(m);
          Assert.assertEquals(i + 1, m.getDeliveryCount());
@@ -443,8 +406,7 @@ public class DeadLetterAddressTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testDeadLetterAddressWithOverridenSublevelAddressSettings() throws Exception
-   {
+   public void testDeadLetterAddressWithOverridenSublevelAddressSettings() throws Exception {
       int defaultDeliveryAttempt = 3;
       int specificeDeliveryAttempt = defaultDeliveryAttempt + 1;
 
@@ -455,13 +417,9 @@ public class DeadLetterAddressTest extends ActiveMQTestBase
       SimpleString specificDeadLetterAddress = RandomUtil.randomSimpleString();
       SimpleString specificDeadLetterQueue = RandomUtil.randomSimpleString();
 
-      AddressSettings defaultAddressSettings = new AddressSettings()
-              .setMaxDeliveryAttempts(defaultDeliveryAttempt)
-              .setDeadLetterAddress(defaultDeadLetterAddress);
+      AddressSettings defaultAddressSettings = new AddressSettings().setMaxDeliveryAttempts(defaultDeliveryAttempt).setDeadLetterAddress(defaultDeadLetterAddress);
       server.getAddressSettingsRepository().addMatch("*", defaultAddressSettings);
-      AddressSettings specificAddressSettings = new AddressSettings()
-              .setMaxDeliveryAttempts(specificeDeliveryAttempt)
-              .setDeadLetterAddress(specificDeadLetterAddress);
+      AddressSettings specificAddressSettings = new AddressSettings().setMaxDeliveryAttempts(specificeDeliveryAttempt).setDeadLetterAddress(specificDeadLetterAddress);
       server.getAddressSettingsRepository().addMatch(address.toString(), specificAddressSettings);
 
       clientSession.createQueue(address, queue, false);
@@ -477,8 +435,7 @@ public class DeadLetterAddressTest extends ActiveMQTestBase
       ClientConsumer defaultDeadLetterConsumer = clientSession.createConsumer(defaultDeadLetterQueue);
       ClientConsumer specificDeadLetterConsumer = clientSession.createConsumer(specificDeadLetterQueue);
 
-      for (int i = 0; i < defaultDeliveryAttempt; i++)
-      {
+      for (int i = 0; i < defaultDeliveryAttempt; i++) {
          ClientMessage m = clientConsumer.receive(500);
          Assert.assertNotNull(m);
          Assert.assertEquals(i + 1, m.getDeliveryCount());
@@ -502,8 +459,7 @@ public class DeadLetterAddressTest extends ActiveMQTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
       server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig(), false));
       server.start();

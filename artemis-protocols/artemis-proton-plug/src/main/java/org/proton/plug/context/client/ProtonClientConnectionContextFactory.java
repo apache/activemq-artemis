@@ -20,23 +20,23 @@ import org.proton.plug.AMQPConnectionContext;
 import org.proton.plug.AMQPConnectionContextFactory;
 import org.proton.plug.AMQPConnectionCallback;
 
-public class ProtonClientConnectionContextFactory extends AMQPConnectionContextFactory
-{
+public class ProtonClientConnectionContextFactory extends AMQPConnectionContextFactory {
+
    private static final AMQPConnectionContextFactory theInstance = new ProtonClientConnectionContextFactory();
 
-   public static AMQPConnectionContextFactory getFactory()
-   {
+   public static AMQPConnectionContextFactory getFactory() {
       return theInstance;
    }
 
-   public AMQPConnectionContext createConnection(AMQPConnectionCallback connectionCallback)
-   {
+   public AMQPConnectionContext createConnection(AMQPConnectionCallback connectionCallback) {
       return new ProtonClientConnectionContext(connectionCallback);
    }
 
    @Override
-   public AMQPConnectionContext createConnection(AMQPConnectionCallback connectionCallback, int idleTimeout, int maxFrameSize, int channelMax)
-   {
+   public AMQPConnectionContext createConnection(AMQPConnectionCallback connectionCallback,
+                                                 int idleTimeout,
+                                                 int maxFrameSize,
+                                                 int channelMax) {
       return new ProtonClientConnectionContext(connectionCallback, idleTimeout, maxFrameSize, channelMax);
    }
 }

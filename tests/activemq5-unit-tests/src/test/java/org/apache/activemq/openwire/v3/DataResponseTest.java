@@ -18,33 +18,29 @@ package org.apache.activemq.openwire.v3;
 
 import org.apache.activemq.command.DataResponse;
 
-
 /**
  * Test case for the OpenWire marshalling for DataResponse
  *
  *
  * NOTE!: This file is auto generated - do not modify!
- *        if you need to make a change, please see the modify the groovy scripts in the
- *        under src/gram/script and then use maven openwire:generate to regenerate 
- *        this file.
- *
- * 
+ * if you need to make a change, please see the modify the groovy scripts in the
+ * under src/gram/script and then use maven openwire:generate to regenerate
+ * this file.
  */
 public class DataResponseTest extends ResponseTest {
 
+   public static final DataResponseTest SINGLETON = new DataResponseTest();
 
-    public static final DataResponseTest SINGLETON = new DataResponseTest();
+   public Object createObject() throws Exception {
+      DataResponse info = new DataResponse();
+      populateObject(info);
+      return info;
+   }
 
-    public Object createObject() throws Exception {
-        DataResponse info = new DataResponse();
-        populateObject(info);
-        return info;
-    }
+   protected void populateObject(Object object) throws Exception {
+      super.populateObject(object);
+      DataResponse info = (DataResponse) object;
 
-    protected void populateObject(Object object) throws Exception {
-        super.populateObject(object);
-        DataResponse info = (DataResponse) object;
-
-        info.setData(createDataStructure("Data:1"));
-    }
+      info.setData(createDataStructure("Data:1"));
+   }
 }

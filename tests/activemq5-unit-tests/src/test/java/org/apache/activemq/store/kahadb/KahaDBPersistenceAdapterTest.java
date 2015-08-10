@@ -23,17 +23,16 @@ import org.apache.activemq.store.PersistenceAdapter;
 import org.apache.activemq.store.PersistenceAdapterTestSupport;
 
 /**
- * 
  * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
 public class KahaDBPersistenceAdapterTest extends PersistenceAdapterTestSupport {
-    
-    protected PersistenceAdapter createPersistenceAdapter(boolean delete) throws IOException {
-        KahaDBStore kaha = new KahaDBStore();
-        kaha.setDirectory(new File("target/activemq-data/kahadb"));
-        if (delete) {
-            kaha.deleteAllMessages();
-        }
-        return kaha;
-    }
+
+   protected PersistenceAdapter createPersistenceAdapter(boolean delete) throws IOException {
+      KahaDBStore kaha = new KahaDBStore();
+      kaha.setDirectory(new File("target/activemq-data/kahadb"));
+      if (delete) {
+         kaha.deleteAllMessages();
+      }
+      return kaha;
+   }
 }

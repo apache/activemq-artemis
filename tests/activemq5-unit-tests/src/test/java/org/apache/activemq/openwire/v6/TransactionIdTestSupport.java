@@ -24,24 +24,20 @@ import java.io.IOException;
 import org.apache.activemq.openwire.*;
 import org.apache.activemq.command.*;
 
-
 /**
  * Test case for the OpenWire marshalling for TransactionId
  *
  *
  * NOTE!: This file is auto generated - do not modify!
- *        if you need to make a change, please see the modify the groovy scripts in the
- *        under src/gram/script and then use maven openwire:generate to regenerate 
- *        this file.
- *
- * 
+ * if you need to make a change, please see the modify the groovy scripts in the
+ * under src/gram/script and then use maven openwire:generate to regenerate
+ * this file.
  */
 public abstract class TransactionIdTestSupport extends DataFileGeneratorTestSupport {
 
+   protected void populateObject(Object object) throws Exception {
+      super.populateObject(object);
+      TransactionId info = (TransactionId) object;
 
-    protected void populateObject(Object object) throws Exception {
-        super.populateObject(object);
-        TransactionId info = (TransactionId) object;
-
-    }
+   }
 }

@@ -37,84 +37,83 @@ import org.slf4j.LoggerFactory;
 
 public class AMQ4220Test {
 
-    static final Logger LOG = LoggerFactory.getLogger(AMQ4220Test.class);
-    private final static int maxFileLength = 1024*1024*32;
-    private final static String destinationName = "TEST.QUEUE";
-    BrokerService broker;
+   static final Logger LOG = LoggerFactory.getLogger(AMQ4220Test.class);
+   private final static int maxFileLength = 1024 * 1024 * 32;
+   private final static String destinationName = "TEST.QUEUE";
+   BrokerService broker;
 
-    @Before
-    public void setUp() throws Exception {
-        prepareBrokerWithMultiStore(true);
-        broker.start();
-        broker.waitUntilStarted();
-    }
+   @Before
+   public void setUp() throws Exception {
+      prepareBrokerWithMultiStore(true);
+      broker.start();
+      broker.waitUntilStarted();
+   }
 
-    @After
-    public void tearDown() throws Exception {
-        broker.stop();
-    }
+   @After
+   public void tearDown() throws Exception {
+      broker.stop();
+   }
 
-    protected BrokerService createBroker(PersistenceAdapter kaha) throws Exception {
-        BrokerService broker = new BrokerService();
-        broker.setUseJmx(true);
-        broker.setBrokerName("localhost");
-        broker.setPersistenceAdapter(kaha);
-        return broker;
-    }
+   protected BrokerService createBroker(PersistenceAdapter kaha) throws Exception {
+      BrokerService broker = new BrokerService();
+      broker.setUseJmx(true);
+      broker.setBrokerName("localhost");
+      broker.setPersistenceAdapter(kaha);
+      return broker;
+   }
 
-    @Test
-    public void testRestartAfterQueueDelete() throws Exception {
+   @Test
+   public void testRestartAfterQueueDelete() throws Exception {
 
-        // Ensure we have an Admin View.
-        assertTrue("Broker doesn't have an Admin View.", Wait.waitFor(new Wait.Condition() {
-            @Override
-            public boolean isSatisified() throws Exception {
-                return (broker.getAdminView()) != null;
-            }
-        }));
+      // Ensure we have an Admin View.
+      assertTrue("Broker doesn't have an Admin View.", Wait.waitFor(new Wait.Condition() {
+         @Override
+         public boolean isSatisified() throws Exception {
+            return (broker.getAdminView()) != null;
+         }
+      }));
 
+      LOG.info("Adding initial destination: {}", destinationName);
 
-        LOG.info("Adding initial destination: {}", destinationName);
+      broker.getAdminView().addQueue(destinationName);
 
-        broker.getAdminView().addQueue(destinationName);
+      assertNotNull(broker.getDestination(new ActiveMQQueue(destinationName)));
 
-        assertNotNull(broker.getDestination(new ActiveMQQueue(destinationName)));
+      LOG.info("Removing initial destination: {}", destinationName);
 
-        LOG.info("Removing initial destination: {}", destinationName);
+      broker.getAdminView().removeQueue(destinationName);
 
-        broker.getAdminView().removeQueue(destinationName);
+      LOG.info("Adding back destination: {}", destinationName);
 
-        LOG.info("Adding back destination: {}", destinationName);
+      broker.getAdminView().addQueue(destinationName);
 
-        broker.getAdminView().addQueue(destinationName);
+      assertNotNull(broker.getDestination(new ActiveMQQueue(destinationName)));
+   }
 
-        assertNotNull(broker.getDestination(new ActiveMQQueue(destinationName)));
-    }
+   protected KahaDBPersistenceAdapter createStore(boolean delete) throws IOException {
+      KahaDBPersistenceAdapter kaha = new KahaDBPersistenceAdapter();
+      kaha.setJournalMaxFileLength(maxFileLength);
+      kaha.setCleanupInterval(5000);
+      if (delete) {
+         kaha.deleteAllMessages();
+      }
+      return kaha;
+   }
 
-    protected KahaDBPersistenceAdapter createStore(boolean delete) throws IOException {
-        KahaDBPersistenceAdapter kaha = new KahaDBPersistenceAdapter();
-        kaha.setJournalMaxFileLength(maxFileLength);
-        kaha.setCleanupInterval(5000);
-        if (delete) {
-            kaha.deleteAllMessages();
-        }
-        return kaha;
-    }
+   public void prepareBrokerWithMultiStore(boolean deleteAllMessages) throws Exception {
 
-    public void prepareBrokerWithMultiStore(boolean deleteAllMessages) throws Exception {
+      MultiKahaDBPersistenceAdapter multiKahaDBPersistenceAdapter = new MultiKahaDBPersistenceAdapter();
+      if (deleteAllMessages) {
+         multiKahaDBPersistenceAdapter.deleteAllMessages();
+      }
+      ArrayList<FilteredKahaDBPersistenceAdapter> adapters = new ArrayList<FilteredKahaDBPersistenceAdapter>();
 
-        MultiKahaDBPersistenceAdapter multiKahaDBPersistenceAdapter = new MultiKahaDBPersistenceAdapter();
-        if (deleteAllMessages) {
-            multiKahaDBPersistenceAdapter.deleteAllMessages();
-        }
-        ArrayList<FilteredKahaDBPersistenceAdapter> adapters = new ArrayList<FilteredKahaDBPersistenceAdapter>();
+      FilteredKahaDBPersistenceAdapter template = new FilteredKahaDBPersistenceAdapter();
+      template.setPersistenceAdapter(createStore(deleteAllMessages));
+      template.setPerDestination(true);
+      adapters.add(template);
 
-        FilteredKahaDBPersistenceAdapter template = new FilteredKahaDBPersistenceAdapter();
-        template.setPersistenceAdapter(createStore(deleteAllMessages));
-        template.setPerDestination(true);
-        adapters.add(template);
-
-        multiKahaDBPersistenceAdapter.setFilteredPersistenceAdapters(adapters);
-        broker = createBroker(multiKahaDBPersistenceAdapter);
-    }
+      multiKahaDBPersistenceAdapter.setFilteredPersistenceAdapters(adapters);
+      broker = createBroker(multiKahaDBPersistenceAdapter);
+   }
 }

@@ -21,17 +21,15 @@ package org.apache.activemq.artemis.api.core;
  * <p>
  * Normally this means you are trying to use a newer client on an older server.
  */
-public final class ActiveMQIncompatibleClientServerException extends ActiveMQException
-{
+public final class ActiveMQIncompatibleClientServerException extends ActiveMQException {
+
    private static final long serialVersionUID = -1662999230291452298L;
 
-   public ActiveMQIncompatibleClientServerException()
-   {
+   public ActiveMQIncompatibleClientServerException() {
       super(ActiveMQExceptionType.INCOMPATIBLE_CLIENT_SERVER_VERSIONS);
    }
 
-   public ActiveMQIncompatibleClientServerException(String msg)
-   {
+   public ActiveMQIncompatibleClientServerException(String msg) {
       super(ActiveMQExceptionType.INCOMPATIBLE_CLIENT_SERVER_VERSIONS, msg);
    }
 }

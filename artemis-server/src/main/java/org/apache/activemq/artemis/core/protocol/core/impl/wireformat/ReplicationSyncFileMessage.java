@@ -30,8 +30,7 @@ import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
  * Message is used to sync {@link org.apache.activemq.artemis.core.journal.SequentialFile}s to a backup server. The {@link FileType} controls
  * which extra information is sent.
  */
-public final class ReplicationSyncFileMessage extends PacketImpl
-{
+public final class ReplicationSyncFileMessage extends PacketImpl {
 
    /**
     * The JournalType or {@code null} if sync'ing large-messages.
@@ -47,26 +46,23 @@ public final class ReplicationSyncFileMessage extends PacketImpl
    private byte[] byteArray;
    private SimpleString pageStoreName;
    private FileType fileType;
-   public enum FileType
-   {
+
+   public enum FileType {
       JOURNAL(0), PAGE(1), LARGE_MESSAGE(2);
 
       private byte code;
       private static final Set<FileType> ALL_OF = EnumSet.allOf(FileType.class);
 
-      private FileType(int code)
-      {
-         this.code = (byte)code;
+      private FileType(int code) {
+         this.code = (byte) code;
       }
 
       /**
        * @param readByte
        * @return {@link FileType} corresponding to the byte code.
        */
-      public static FileType getFileType(byte readByte)
-      {
-         for (FileType type : ALL_OF)
-         {
+      public static FileType getFileType(byte readByte) {
+         for (FileType type : ALL_OF) {
             if (type.code == readByte)
                return type;
          }
@@ -74,14 +70,15 @@ public final class ReplicationSyncFileMessage extends PacketImpl
       }
    }
 
-   public ReplicationSyncFileMessage()
-   {
+   public ReplicationSyncFileMessage() {
       super(REPLICATION_SYNC_FILE);
    }
 
-   public ReplicationSyncFileMessage(JournalContent content, SimpleString storeName, long id, int size,
-                                     ByteBuffer buffer)
-   {
+   public ReplicationSyncFileMessage(JournalContent content,
+                                     SimpleString storeName,
+                                     long id,
+                                     int size,
+                                     ByteBuffer buffer) {
       this();
       this.byteBuffer = buffer;
       this.pageStoreName = storeName;
@@ -91,38 +88,30 @@ public final class ReplicationSyncFileMessage extends PacketImpl
       determineType();
    }
 
-   private void determineType()
-   {
-      if (journalType != null)
-      {
+   private void determineType() {
+      if (journalType != null) {
          fileType = FileType.JOURNAL;
       }
-      else if (pageStoreName != null)
-      {
+      else if (pageStoreName != null) {
          fileType = FileType.PAGE;
       }
-      else
-      {
+      else {
          fileType = FileType.LARGE_MESSAGE;
       }
    }
 
    @Override
-   public void encodeRest(final ActiveMQBuffer buffer)
-   {
+   public void encodeRest(final ActiveMQBuffer buffer) {
       buffer.writeLong(fileId);
       if (fileId == -1)
          return;
       buffer.writeByte(fileType.code);
-      switch (fileType)
-      {
-         case JOURNAL:
-         {
+      switch (fileType) {
+         case JOURNAL: {
             buffer.writeByte(journalType.typeByte);
             break;
          }
-         case PAGE:
-         {
+         case PAGE: {
             buffer.writeSimpleString(pageStoreName);
             break;
          }
@@ -136,78 +125,65 @@ public final class ReplicationSyncFileMessage extends PacketImpl
        * sending -1 will close the file in case of a journal, but not in case of a largeMessage
        * (which might receive appends)
        */
-      if (dataSize > 0)
-      {
+      if (dataSize > 0) {
          buffer.writeBytes(byteBuffer);
       }
    }
 
    @Override
-   public void decodeRest(final ActiveMQBuffer buffer)
-   {
+   public void decodeRest(final ActiveMQBuffer buffer) {
       fileId = buffer.readLong();
-      switch (FileType.getFileType(buffer.readByte()))
-      {
-         case JOURNAL:
-         {
+      switch (FileType.getFileType(buffer.readByte())) {
+         case JOURNAL: {
             journalType = JournalContent.getType(buffer.readByte());
             fileType = FileType.JOURNAL;
             break;
          }
-         case PAGE:
-         {
+         case PAGE: {
             pageStoreName = buffer.readSimpleString();
             fileType = FileType.PAGE;
             break;
          }
-         case LARGE_MESSAGE:
-         {
+         case LARGE_MESSAGE: {
             fileType = FileType.LARGE_MESSAGE;
             break;
          }
       }
       int size = buffer.readInt();
-      if (size > 0)
-      {
+      if (size > 0) {
          byteArray = new byte[size];
          buffer.readBytes(byteArray);
       }
    }
 
-   public long getId()
-   {
+   public long getId() {
       return fileId;
    }
 
-   public JournalContent getJournalContent()
-   {
+   public JournalContent getJournalContent() {
       return journalType;
    }
 
-   public byte[] getData()
-   {
+   public byte[] getData() {
       return byteArray;
    }
 
-   public FileType getFileType()
-   {
+   public FileType getFileType() {
       return fileType;
    }
 
-   public SimpleString getPageStore()
-   {
+   public SimpleString getPageStore() {
       return pageStoreName;
    }
 
    @Override
-   public int hashCode()
-   {
+   public int hashCode() {
       final int prime = 31;
       int result = super.hashCode();
       result = prime * result + Arrays.hashCode(byteArray);
       result = prime * result + ((byteBuffer == null) ? 0 : byteBuffer.hashCode());
       result = prime * result + dataSize;
-      result = prime * result + (int)(fileId ^ (fileId >>> 32));
+      result = prime * result + (int) (fileId ^ (fileId >>> 32));
       result = prime * result + ((fileType == null) ? 0 : fileType.hashCode());
       result = prime * result + ((journalType == null) ? 0 : journalType.hashCode());
       result = prime * result + ((pageStoreName == null) ? 0 : pageStoreName.hashCode());
@@ -215,70 +191,54 @@ public final class ReplicationSyncFileMessage extends PacketImpl
    }
 
    @Override
-   public boolean equals(Object obj)
-   {
-      if (this == obj)
-      {
+   public boolean equals(Object obj) {
+      if (this == obj) {
          return true;
       }
-      if (!super.equals(obj))
-      {
+      if (!super.equals(obj)) {
          return false;
       }
-      if (!(obj instanceof ReplicationSyncFileMessage))
-      {
+      if (!(obj instanceof ReplicationSyncFileMessage)) {
          return false;
       }
-      ReplicationSyncFileMessage other = (ReplicationSyncFileMessage)obj;
-      if (!Arrays.equals(byteArray, other.byteArray))
-      {
+      ReplicationSyncFileMessage other = (ReplicationSyncFileMessage) obj;
+      if (!Arrays.equals(byteArray, other.byteArray)) {
          return false;
       }
-      if (byteBuffer == null)
-      {
-         if (other.byteBuffer != null)
-         {
+      if (byteBuffer == null) {
+         if (other.byteBuffer != null) {
             return false;
          }
       }
-      else if (!byteBuffer.equals(other.byteBuffer))
-      {
+      else if (!byteBuffer.equals(other.byteBuffer)) {
          return false;
       }
-      if (dataSize != other.dataSize)
-      {
+      if (dataSize != other.dataSize) {
          return false;
       }
-      if (fileId != other.fileId)
-      {
+      if (fileId != other.fileId) {
          return false;
       }
-      if (fileType != other.fileType)
-      {
+      if (fileType != other.fileType) {
          return false;
       }
-      if (journalType != other.journalType)
-      {
+      if (journalType != other.journalType) {
          return false;
       }
-      if (pageStoreName == null)
-      {
-         if (other.pageStoreName != null)
-         {
+      if (pageStoreName == null) {
+         if (other.pageStoreName != null) {
             return false;
          }
       }
-      else if (!pageStoreName.equals(other.pageStoreName))
-      {
+      else if (!pageStoreName.equals(other.pageStoreName)) {
          return false;
       }
       return true;
    }
 
    @Override
-   public String toString()
-   {
+   public String toString() {
       return ReplicationSyncFileMessage.class.getSimpleName() + "(" + fileType +
-               (journalType != null ? ", " + journalType : "") + ", id=" + fileId + ")";
+         (journalType != null ? ", " + journalType : "") + ", id=" + fileId + ")";
    }
 }

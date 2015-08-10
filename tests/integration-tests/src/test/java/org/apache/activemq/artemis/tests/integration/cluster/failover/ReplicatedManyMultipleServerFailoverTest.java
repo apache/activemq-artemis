@@ -16,17 +16,15 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
-public class ReplicatedManyMultipleServerFailoverTest extends ReplicatedMultipleServerFailoverTest
-{
+public class ReplicatedManyMultipleServerFailoverTest extends ReplicatedMultipleServerFailoverTest {
+
    @Override
-   public int getLiveServerCount()
-   {
+   public int getLiveServerCount() {
       return 6;
    }
 
    @Override
-   public int getBackupServerCount()
-   {
+   public int getBackupServerCount() {
       return 6;
    }
 }

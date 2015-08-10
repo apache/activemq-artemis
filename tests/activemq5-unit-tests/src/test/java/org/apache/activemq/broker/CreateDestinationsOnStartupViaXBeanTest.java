@@ -26,44 +26,44 @@ import org.apache.activemq.command.ActiveMQTopic;
 import org.apache.activemq.xbean.XBeanBrokerFactory;
 
 /**
- * 
- * 
+ *
+ *
  */
 public class CreateDestinationsOnStartupViaXBeanTest extends EmbeddedBrokerTestSupport {
 
-    public void testNewDestinationsAreCreatedOnStartup() throws Exception {
-        assertQueueCreated("FOO.BAR", true);
-        assertQueueCreated("FOO.DoesNotExist", false);
-        
-        assertTopicCreated("SOME.TOPIC", true);
-        assertTopicCreated("FOO.DoesNotExist", false);
-    }
+   public void testNewDestinationsAreCreatedOnStartup() throws Exception {
+      assertQueueCreated("FOO.BAR", true);
+      assertQueueCreated("FOO.DoesNotExist", false);
 
-    protected void assertQueueCreated(String name, boolean expected) throws Exception {
-        assertDestinationCreated(new ActiveMQQueue(name), expected);
-    }
-    
-    protected void assertTopicCreated(String name, boolean expected) throws Exception {
-        assertDestinationCreated(new ActiveMQTopic(name), expected);
-    }
+      assertTopicCreated("SOME.TOPIC", true);
+      assertTopicCreated("FOO.DoesNotExist", false);
+   }
 
-    protected void assertDestinationCreated(ActiveMQDestination destination, boolean expected) throws Exception {
-        Set answer = broker.getBroker().getDestinations(destination);
-        int size = expected ? 1 : 0;
-        assertEquals("Could not find destination: " + destination + ". Size of found destinations: " + answer, size, answer.size());
-    }
-    
-    protected BrokerService createBroker() throws Exception {
-        XBeanBrokerFactory factory = new XBeanBrokerFactory();
-        BrokerService answer = factory.createBroker(new URI(getBrokerConfigUri()));
-        
-        // lets disable persistence as we are a test
-        answer.setPersistent(false);
-        
-        return answer;
-    }
+   protected void assertQueueCreated(String name, boolean expected) throws Exception {
+      assertDestinationCreated(new ActiveMQQueue(name), expected);
+   }
 
-    protected String getBrokerConfigUri() {
-        return "org/apache/activemq/broker/destinations-on-start.xml";
-    }
+   protected void assertTopicCreated(String name, boolean expected) throws Exception {
+      assertDestinationCreated(new ActiveMQTopic(name), expected);
+   }
+
+   protected void assertDestinationCreated(ActiveMQDestination destination, boolean expected) throws Exception {
+      Set answer = broker.getBroker().getDestinations(destination);
+      int size = expected ? 1 : 0;
+      assertEquals("Could not find destination: " + destination + ". Size of found destinations: " + answer, size, answer.size());
+   }
+
+   protected BrokerService createBroker() throws Exception {
+      XBeanBrokerFactory factory = new XBeanBrokerFactory();
+      BrokerService answer = factory.createBroker(new URI(getBrokerConfigUri()));
+
+      // lets disable persistence as we are a test
+      answer.setPersistent(false);
+
+      return answer;
+   }
+
+   protected String getBrokerConfigUri() {
+      return "org/apache/activemq/broker/destinations-on-start.xml";
+   }
 }

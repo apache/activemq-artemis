@@ -24,11 +24,12 @@ import javax.jms.Session;
  *
  */
 public class TemporaryTopicMemoryAllocationTest extends MemoryAllocationTest {
-    public TemporaryTopicMemoryAllocationTest() {
-        super();
-    }
 
-    protected Destination getDestination(Session session) throws JMSException {
-        return session.createTemporaryTopic();
-    }
+   public TemporaryTopicMemoryAllocationTest() {
+      super();
+   }
+
+   protected Destination getDestination(Session session) throws JMSException {
+      return session.createTemporaryTopic();
+   }
 }

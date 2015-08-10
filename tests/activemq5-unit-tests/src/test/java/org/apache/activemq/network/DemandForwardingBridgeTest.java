@@ -33,145 +33,146 @@ import org.apache.activemq.util.Wait;
 
 public class DemandForwardingBridgeTest extends NetworkTestSupport {
 
-    public ActiveMQDestination destination;
-    public byte destinationType;
-    public int deliveryMode;
-    private DemandForwardingBridge bridge;
+   public ActiveMQDestination destination;
+   public byte destinationType;
+   public int deliveryMode;
+   private DemandForwardingBridge bridge;
 
-    public void initCombosForTestSendThenAddConsumer() {
-        addCombinationValues("deliveryMode", new Object[] {new Integer(DeliveryMode.NON_PERSISTENT), new Integer(DeliveryMode.PERSISTENT)});
-        addCombinationValues("destinationType", new Object[] {new Byte(ActiveMQDestination.QUEUE_TYPE)});
-    }
+   public void initCombosForTestSendThenAddConsumer() {
+      addCombinationValues("deliveryMode", new Object[]{new Integer(DeliveryMode.NON_PERSISTENT), new Integer(DeliveryMode.PERSISTENT)});
+      addCombinationValues("destinationType", new Object[]{new Byte(ActiveMQDestination.QUEUE_TYPE)});
+   }
 
-    public void testSendThenAddConsumer() throws Exception {
+   public void testSendThenAddConsumer() throws Exception {
 
-        // Start a producer on local broker
-        StubConnection connection1 = createConnection();
-        ConnectionInfo connectionInfo1 = createConnectionInfo();
-        SessionInfo sessionInfo1 = createSessionInfo(connectionInfo1);
-        ProducerInfo producerInfo = createProducerInfo(sessionInfo1);
-        connection1.send(connectionInfo1);
-        connection1.send(sessionInfo1);
-        connection1.send(producerInfo);
+      // Start a producer on local broker
+      StubConnection connection1 = createConnection();
+      ConnectionInfo connectionInfo1 = createConnectionInfo();
+      SessionInfo sessionInfo1 = createSessionInfo(connectionInfo1);
+      ProducerInfo producerInfo = createProducerInfo(sessionInfo1);
+      connection1.send(connectionInfo1);
+      connection1.send(sessionInfo1);
+      connection1.send(producerInfo);
 
-        destination = createDestinationInfo(connection1, connectionInfo1, destinationType);
+      destination = createDestinationInfo(connection1, connectionInfo1, destinationType);
 
-        // Start a consumer on a remote broker
-        final StubConnection connection2 = createRemoteConnection();
-        ConnectionInfo connectionInfo2 = createConnectionInfo();
-        SessionInfo sessionInfo2 = createSessionInfo(connectionInfo2);
-        connection2.send(connectionInfo2);
-        connection2.send(sessionInfo2);
+      // Start a consumer on a remote broker
+      final StubConnection connection2 = createRemoteConnection();
+      ConnectionInfo connectionInfo2 = createConnectionInfo();
+      SessionInfo sessionInfo2 = createSessionInfo(connectionInfo2);
+      connection2.send(connectionInfo2);
+      connection2.send(sessionInfo2);
 
-        // Send the message to the local broker.
-        connection1.send(createMessage(producerInfo, destination, deliveryMode));
+      // Send the message to the local broker.
+      connection1.send(createMessage(producerInfo, destination, deliveryMode));
 
-        // Verify that the message stayed on the local broker.
-        ConsumerInfo consumerInfo1 = createConsumerInfo(sessionInfo1, destination);
-        connection1.send(consumerInfo1);
-        Message m = receiveMessage(connection1);
-        assertNotNull(m);
-        // Close consumer to cause the message to rollback.
-        connection1.send(consumerInfo1.createRemoveCommand());
+      // Verify that the message stayed on the local broker.
+      ConsumerInfo consumerInfo1 = createConsumerInfo(sessionInfo1, destination);
+      connection1.send(consumerInfo1);
+      Message m = receiveMessage(connection1);
+      assertNotNull(m);
+      // Close consumer to cause the message to rollback.
+      connection1.send(consumerInfo1.createRemoveCommand());
 
-        final DestinationStatistics destinationStatistics = broker.getDestination(destination).getDestinationStatistics();
-        assertEquals("broker dest stat dispatched", 1, destinationStatistics.getDispatched().getCount());
-        assertEquals("broker dest stat dequeues", 0, destinationStatistics.getDequeues().getCount());
-        assertEquals("broker dest stat forwards", 0, destinationStatistics.getForwards().getCount());
+      final DestinationStatistics destinationStatistics = broker.getDestination(destination).getDestinationStatistics();
+      assertEquals("broker dest stat dispatched", 1, destinationStatistics.getDispatched().getCount());
+      assertEquals("broker dest stat dequeues", 0, destinationStatistics.getDequeues().getCount());
+      assertEquals("broker dest stat forwards", 0, destinationStatistics.getForwards().getCount());
 
-        // Now create remote consumer that should cause message to move to this
-        // remote consumer.
-        final ConsumerInfo consumerInfo2 = createConsumerInfo(sessionInfo2, destination);
-        connection2.request(consumerInfo2);
+      // Now create remote consumer that should cause message to move to this
+      // remote consumer.
+      final ConsumerInfo consumerInfo2 = createConsumerInfo(sessionInfo2, destination);
+      connection2.request(consumerInfo2);
 
-        // Make sure the message was delivered via the remote.
-        assertTrue("message was received", Wait.waitFor(new Wait.Condition() {
-            @Override
-            public boolean isSatisified() throws Exception {
-                Message msg = receiveMessage(connection2);
-                if (msg != null) {
-                    connection2.request(createAck(consumerInfo2, msg, 1, MessageAck.STANDARD_ACK_TYPE));
-                    return true;
-                }
-
-                return false;
+      // Make sure the message was delivered via the remote.
+      assertTrue("message was received", Wait.waitFor(new Wait.Condition() {
+         @Override
+         public boolean isSatisified() throws Exception {
+            Message msg = receiveMessage(connection2);
+            if (msg != null) {
+               connection2.request(createAck(consumerInfo2, msg, 1, MessageAck.STANDARD_ACK_TYPE));
+               return true;
             }
-        }));
 
-        assertTrue("broker dest stat forwards", Wait.waitFor(new Wait.Condition() {
-            @Override
-            public boolean isSatisified() throws Exception {
-                return 1 == destinationStatistics.getForwards().getCount();
-            }
-        }));
+            return false;
+         }
+      }));
 
-        assertEquals("broker dest stat dequeues", 1, destinationStatistics.getDequeues().getCount());
-    }
+      assertTrue("broker dest stat forwards", Wait.waitFor(new Wait.Condition() {
+         @Override
+         public boolean isSatisified() throws Exception {
+            return 1 == destinationStatistics.getForwards().getCount();
+         }
+      }));
 
-    public void initCombosForTestAddConsumerThenSend() {
-        addCombinationValues("deliveryMode", new Object[] {new Integer(DeliveryMode.NON_PERSISTENT), new Integer(DeliveryMode.PERSISTENT)});
-        addCombinationValues("destinationType", new Object[] {new Byte(ActiveMQDestination.QUEUE_TYPE), new Byte(ActiveMQDestination.TOPIC_TYPE)});
-    }
+      assertEquals("broker dest stat dequeues", 1, destinationStatistics.getDequeues().getCount());
+   }
 
-    public void testAddConsumerThenSend() throws Exception {
+   public void initCombosForTestAddConsumerThenSend() {
+      addCombinationValues("deliveryMode", new Object[]{new Integer(DeliveryMode.NON_PERSISTENT), new Integer(DeliveryMode.PERSISTENT)});
+      addCombinationValues("destinationType", new Object[]{new Byte(ActiveMQDestination.QUEUE_TYPE), new Byte(ActiveMQDestination.TOPIC_TYPE)});
+   }
 
-        // Start a producer on local broker
-        StubConnection connection1 = createConnection();
-        ConnectionInfo connectionInfo1 = createConnectionInfo();
-        SessionInfo sessionInfo1 = createSessionInfo(connectionInfo1);
-        ProducerInfo producerInfo = createProducerInfo(sessionInfo1);
-        connection1.send(connectionInfo1);
-        connection1.send(sessionInfo1);
-        connection1.send(producerInfo);
+   public void testAddConsumerThenSend() throws Exception {
 
-        destination = createDestinationInfo(connection1, connectionInfo1, destinationType);
+      // Start a producer on local broker
+      StubConnection connection1 = createConnection();
+      ConnectionInfo connectionInfo1 = createConnectionInfo();
+      SessionInfo sessionInfo1 = createSessionInfo(connectionInfo1);
+      ProducerInfo producerInfo = createProducerInfo(sessionInfo1);
+      connection1.send(connectionInfo1);
+      connection1.send(sessionInfo1);
+      connection1.send(producerInfo);
 
-        // Start a consumer on a remote broker
-        StubConnection connection2 = createRemoteConnection();
-        ConnectionInfo connectionInfo2 = createConnectionInfo();
-        SessionInfo sessionInfo2 = createSessionInfo(connectionInfo2);
-        connection2.send(connectionInfo2);
-        connection2.send(sessionInfo2);
-        ConsumerInfo consumerInfo = createConsumerInfo(sessionInfo2, destination);
-        connection2.send(consumerInfo);
+      destination = createDestinationInfo(connection1, connectionInfo1, destinationType);
 
-        // Give demand forwarding bridge a chance to finish forwarding the
-        // subscriptions.
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException ie) {
-            ie.printStackTrace();
-        }
+      // Start a consumer on a remote broker
+      StubConnection connection2 = createRemoteConnection();
+      ConnectionInfo connectionInfo2 = createConnectionInfo();
+      SessionInfo sessionInfo2 = createSessionInfo(connectionInfo2);
+      connection2.send(connectionInfo2);
+      connection2.send(sessionInfo2);
+      ConsumerInfo consumerInfo = createConsumerInfo(sessionInfo2, destination);
+      connection2.send(consumerInfo);
 
-        // Send the message to the local boker.
-        connection1.request(createMessage(producerInfo, destination, deliveryMode));
-        // Make sure the message was delivered via the remote.
-        receiveMessage(connection2);
-    }
+      // Give demand forwarding bridge a chance to finish forwarding the
+      // subscriptions.
+      try {
+         Thread.sleep(1000);
+      }
+      catch (InterruptedException ie) {
+         ie.printStackTrace();
+      }
 
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-        NetworkBridgeConfiguration config = new NetworkBridgeConfiguration();
-        config.setBrokerName("local");
-        config.setDispatchAsync(false);
-        bridge = new DemandForwardingBridge(config, createTransport(), createRemoteTransport());
-        bridge.setBrokerService(broker);
-        bridge.start();
-    }
+      // Send the message to the local boker.
+      connection1.request(createMessage(producerInfo, destination, deliveryMode));
+      // Make sure the message was delivered via the remote.
+      receiveMessage(connection2);
+   }
 
-    @Override
-    protected void tearDown() throws Exception {
-        bridge.stop();
-        super.tearDown();
-    }
+   @Override
+   protected void setUp() throws Exception {
+      super.setUp();
+      NetworkBridgeConfiguration config = new NetworkBridgeConfiguration();
+      config.setBrokerName("local");
+      config.setDispatchAsync(false);
+      bridge = new DemandForwardingBridge(config, createTransport(), createRemoteTransport());
+      bridge.setBrokerService(broker);
+      bridge.start();
+   }
 
-    public static Test suite() {
-        return suite(DemandForwardingBridgeTest.class);
-    }
+   @Override
+   protected void tearDown() throws Exception {
+      bridge.stop();
+      super.tearDown();
+   }
 
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(suite());
-    }
+   public static Test suite() {
+      return suite(DemandForwardingBridgeTest.class);
+   }
+
+   public static void main(String[] args) {
+      junit.textui.TestRunner.run(suite());
+   }
 
 }

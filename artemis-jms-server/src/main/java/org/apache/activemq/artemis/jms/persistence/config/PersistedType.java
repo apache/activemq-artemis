@@ -16,14 +16,11 @@
  */
 package org.apache.activemq.artemis.jms.persistence.config;
 
-public enum PersistedType
-{
+public enum PersistedType {
    ConnectionFactory, Topic, Queue;
 
-   public byte getType()
-   {
-      switch (this)
-      {
+   public byte getType() {
+      switch (this) {
          case ConnectionFactory:
             return 0;
          case Topic:
@@ -35,10 +32,8 @@ public enum PersistedType
       }
    }
 
-   public static PersistedType getType(byte type)
-   {
-      switch (type)
-      {
+   public static PersistedType getType(byte type) {
+      switch (type) {
          case 0:
             return ConnectionFactory;
          case 1:

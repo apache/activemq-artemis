@@ -34,8 +34,7 @@ import org.apache.activemq.artemis.utils.DataConstants;
  * <p>
  * Every property on this class has to be also set through encoders through EncodingSupport implementation at this class.
  */
-public class ConnectionFactoryConfigurationImpl implements ConnectionFactoryConfiguration
-{
+public class ConnectionFactoryConfigurationImpl implements ConnectionFactoryConfiguration {
    // Constants -----------------------------------------------------
 
    // Attributes ----------------------------------------------------
@@ -120,404 +119,332 @@ public class ConnectionFactoryConfigurationImpl implements ConnectionFactoryConf
 
    // Constructors --------------------------------------------------
 
-   public ConnectionFactoryConfigurationImpl()
-   {
+   public ConnectionFactoryConfigurationImpl() {
    }
 
    // ConnectionFactoryConfiguration implementation -----------------
 
-   public String[] getBindings()
-   {
+   public String[] getBindings() {
       return bindings;
    }
 
-   public ConnectionFactoryConfiguration setBindings(final String... bindings)
-   {
+   public ConnectionFactoryConfiguration setBindings(final String... bindings) {
       this.bindings = bindings;
       return this;
    }
 
-   public String getName()
-   {
+   public String getName() {
       return name;
    }
 
-   public ConnectionFactoryConfiguration setName(String name)
-   {
+   public ConnectionFactoryConfiguration setName(String name) {
       this.name = name;
       return this;
    }
 
-   public boolean isPersisted()
-   {
+   public boolean isPersisted() {
       return persisted;
    }
 
    /**
     * @return the discoveryGroupName
     */
-   public String getDiscoveryGroupName()
-   {
+   public String getDiscoveryGroupName() {
       return discoveryGroupName;
    }
 
    /**
     * @param discoveryGroupName the discoveryGroupName to set
     */
-   public ConnectionFactoryConfiguration setDiscoveryGroupName(String discoveryGroupName)
-   {
+   public ConnectionFactoryConfiguration setDiscoveryGroupName(String discoveryGroupName) {
       this.discoveryGroupName = discoveryGroupName;
       return this;
    }
 
-   public List<String> getConnectorNames()
-   {
+   public List<String> getConnectorNames() {
       return connectorNames;
    }
 
-   public ConnectionFactoryConfiguration setConnectorNames(final List<String> connectorNames)
-   {
+   public ConnectionFactoryConfiguration setConnectorNames(final List<String> connectorNames) {
       this.connectorNames = connectorNames;
       return this;
    }
 
-   public boolean isHA()
-   {
+   public boolean isHA() {
       return ha;
    }
 
-   public ConnectionFactoryConfiguration setHA(final boolean ha)
-   {
+   public ConnectionFactoryConfiguration setHA(final boolean ha) {
       this.ha = ha;
       return this;
    }
 
-   public String getClientID()
-   {
+   public String getClientID() {
       return clientID;
    }
 
-   public ConnectionFactoryConfiguration setClientID(final String clientID)
-   {
+   public ConnectionFactoryConfiguration setClientID(final String clientID) {
       this.clientID = clientID;
       return this;
    }
 
-   public long getClientFailureCheckPeriod()
-   {
+   public long getClientFailureCheckPeriod() {
       return clientFailureCheckPeriod;
    }
 
-   public ConnectionFactoryConfiguration setClientFailureCheckPeriod(final long clientFailureCheckPeriod)
-   {
+   public ConnectionFactoryConfiguration setClientFailureCheckPeriod(final long clientFailureCheckPeriod) {
       this.clientFailureCheckPeriod = clientFailureCheckPeriod;
       return this;
    }
 
-   public long getConnectionTTL()
-   {
+   public long getConnectionTTL() {
       return connectionTTL;
    }
 
-   public ConnectionFactoryConfiguration setConnectionTTL(final long connectionTTL)
-   {
+   public ConnectionFactoryConfiguration setConnectionTTL(final long connectionTTL) {
       this.connectionTTL = connectionTTL;
       return this;
    }
 
-   public long getCallTimeout()
-   {
+   public long getCallTimeout() {
       return callTimeout;
    }
 
-   public ConnectionFactoryConfiguration setCallTimeout(final long callTimeout)
-   {
+   public ConnectionFactoryConfiguration setCallTimeout(final long callTimeout) {
       this.callTimeout = callTimeout;
       return this;
    }
 
-   public long getCallFailoverTimeout()
-   {
+   public long getCallFailoverTimeout() {
       return callFailoverTimeout;
    }
 
-   public ConnectionFactoryConfiguration setCallFailoverTimeout(long callFailoverTimeout)
-   {
+   public ConnectionFactoryConfiguration setCallFailoverTimeout(long callFailoverTimeout) {
       this.callFailoverTimeout = callFailoverTimeout;
       return this;
    }
 
-   public boolean isCacheLargeMessagesClient()
-   {
+   public boolean isCacheLargeMessagesClient() {
       return cacheLargeMessagesClient;
    }
 
-   public ConnectionFactoryConfiguration setCacheLargeMessagesClient(final boolean cacheLargeMessagesClient)
-   {
+   public ConnectionFactoryConfiguration setCacheLargeMessagesClient(final boolean cacheLargeMessagesClient) {
       this.cacheLargeMessagesClient = cacheLargeMessagesClient;
       return this;
    }
 
-   public int getMinLargeMessageSize()
-   {
+   public int getMinLargeMessageSize() {
       return minLargeMessageSize;
    }
 
-   public ConnectionFactoryConfiguration setMinLargeMessageSize(final int minLargeMessageSize)
-   {
+   public ConnectionFactoryConfiguration setMinLargeMessageSize(final int minLargeMessageSize) {
       this.minLargeMessageSize = minLargeMessageSize;
       return this;
    }
 
-   public int getConsumerWindowSize()
-   {
+   public int getConsumerWindowSize() {
       return consumerWindowSize;
    }
 
-   public ConnectionFactoryConfiguration setConsumerWindowSize(final int consumerWindowSize)
-   {
+   public ConnectionFactoryConfiguration setConsumerWindowSize(final int consumerWindowSize) {
       this.consumerWindowSize = consumerWindowSize;
       return this;
    }
 
-   public int getConsumerMaxRate()
-   {
+   public int getConsumerMaxRate() {
       return consumerMaxRate;
    }
 
-   public ConnectionFactoryConfiguration setConsumerMaxRate(final int consumerMaxRate)
-   {
+   public ConnectionFactoryConfiguration setConsumerMaxRate(final int consumerMaxRate) {
       this.consumerMaxRate = consumerMaxRate;
       return this;
    }
 
-   public int getConfirmationWindowSize()
-   {
+   public int getConfirmationWindowSize() {
       return confirmationWindowSize;
    }
 
-   public ConnectionFactoryConfiguration setConfirmationWindowSize(final int confirmationWindowSize)
-   {
+   public ConnectionFactoryConfiguration setConfirmationWindowSize(final int confirmationWindowSize) {
       this.confirmationWindowSize = confirmationWindowSize;
       return this;
    }
 
-   public int getProducerMaxRate()
-   {
+   public int getProducerMaxRate() {
       return producerMaxRate;
    }
 
-   public ConnectionFactoryConfiguration setProducerMaxRate(final int producerMaxRate)
-   {
+   public ConnectionFactoryConfiguration setProducerMaxRate(final int producerMaxRate) {
       this.producerMaxRate = producerMaxRate;
       return this;
    }
 
-   public int getProducerWindowSize()
-   {
+   public int getProducerWindowSize() {
       return producerWindowSize;
    }
 
-   public ConnectionFactoryConfiguration setProducerWindowSize(final int producerWindowSize)
-   {
+   public ConnectionFactoryConfiguration setProducerWindowSize(final int producerWindowSize) {
       this.producerWindowSize = producerWindowSize;
       return this;
    }
 
-   public boolean isBlockOnAcknowledge()
-   {
+   public boolean isBlockOnAcknowledge() {
       return blockOnAcknowledge;
    }
 
-   public ConnectionFactoryConfiguration setBlockOnAcknowledge(final boolean blockOnAcknowledge)
-   {
+   public ConnectionFactoryConfiguration setBlockOnAcknowledge(final boolean blockOnAcknowledge) {
       this.blockOnAcknowledge = blockOnAcknowledge;
       return this;
    }
 
-   public boolean isBlockOnDurableSend()
-   {
+   public boolean isBlockOnDurableSend() {
       return blockOnDurableSend;
    }
 
-   public ConnectionFactoryConfiguration setBlockOnDurableSend(final boolean blockOnDurableSend)
-   {
+   public ConnectionFactoryConfiguration setBlockOnDurableSend(final boolean blockOnDurableSend) {
       this.blockOnDurableSend = blockOnDurableSend;
       return this;
    }
 
-   public boolean isBlockOnNonDurableSend()
-   {
+   public boolean isBlockOnNonDurableSend() {
       return blockOnNonDurableSend;
    }
 
-   public ConnectionFactoryConfiguration setBlockOnNonDurableSend(final boolean blockOnNonDurableSend)
-   {
+   public ConnectionFactoryConfiguration setBlockOnNonDurableSend(final boolean blockOnNonDurableSend) {
       this.blockOnNonDurableSend = blockOnNonDurableSend;
       return this;
    }
 
-   public boolean isAutoGroup()
-   {
+   public boolean isAutoGroup() {
       return autoGroup;
    }
 
-   public ConnectionFactoryConfiguration setAutoGroup(final boolean autoGroup)
-   {
+   public ConnectionFactoryConfiguration setAutoGroup(final boolean autoGroup) {
       this.autoGroup = autoGroup;
       return this;
    }
 
-   public boolean isPreAcknowledge()
-   {
+   public boolean isPreAcknowledge() {
       return preAcknowledge;
    }
 
-   public ConnectionFactoryConfiguration setPreAcknowledge(final boolean preAcknowledge)
-   {
+   public ConnectionFactoryConfiguration setPreAcknowledge(final boolean preAcknowledge) {
       this.preAcknowledge = preAcknowledge;
       return this;
    }
 
-   public String getLoadBalancingPolicyClassName()
-   {
+   public String getLoadBalancingPolicyClassName() {
       return loadBalancingPolicyClassName;
    }
 
-   public ConnectionFactoryConfiguration setLoadBalancingPolicyClassName(final String loadBalancingPolicyClassName)
-   {
+   public ConnectionFactoryConfiguration setLoadBalancingPolicyClassName(final String loadBalancingPolicyClassName) {
       this.loadBalancingPolicyClassName = loadBalancingPolicyClassName;
       return this;
    }
 
-   public int getTransactionBatchSize()
-   {
+   public int getTransactionBatchSize() {
       return transactionBatchSize;
    }
 
-   public ConnectionFactoryConfiguration setTransactionBatchSize(final int transactionBatchSize)
-   {
+   public ConnectionFactoryConfiguration setTransactionBatchSize(final int transactionBatchSize) {
       this.transactionBatchSize = transactionBatchSize;
       return this;
    }
 
-   public int getDupsOKBatchSize()
-   {
+   public int getDupsOKBatchSize() {
       return dupsOKBatchSize;
    }
 
-   public ConnectionFactoryConfiguration setDupsOKBatchSize(final int dupsOKBatchSize)
-   {
+   public ConnectionFactoryConfiguration setDupsOKBatchSize(final int dupsOKBatchSize) {
       this.dupsOKBatchSize = dupsOKBatchSize;
       return this;
    }
 
-   public long getInitialWaitTimeout()
-   {
+   public long getInitialWaitTimeout() {
       return initialWaitTimeout;
    }
 
-   public ConnectionFactoryConfiguration setInitialWaitTimeout(final long initialWaitTimeout)
-   {
+   public ConnectionFactoryConfiguration setInitialWaitTimeout(final long initialWaitTimeout) {
       this.initialWaitTimeout = initialWaitTimeout;
       return this;
    }
 
-   public boolean isUseGlobalPools()
-   {
+   public boolean isUseGlobalPools() {
       return useGlobalPools;
    }
 
-   public ConnectionFactoryConfiguration setUseGlobalPools(final boolean useGlobalPools)
-   {
+   public ConnectionFactoryConfiguration setUseGlobalPools(final boolean useGlobalPools) {
       this.useGlobalPools = useGlobalPools;
       return this;
    }
 
-   public int getScheduledThreadPoolMaxSize()
-   {
+   public int getScheduledThreadPoolMaxSize() {
       return scheduledThreadPoolMaxSize;
    }
 
-   public ConnectionFactoryConfiguration setScheduledThreadPoolMaxSize(final int scheduledThreadPoolMaxSize)
-   {
+   public ConnectionFactoryConfiguration setScheduledThreadPoolMaxSize(final int scheduledThreadPoolMaxSize) {
       this.scheduledThreadPoolMaxSize = scheduledThreadPoolMaxSize;
       return this;
    }
 
-   public int getThreadPoolMaxSize()
-   {
+   public int getThreadPoolMaxSize() {
       return threadPoolMaxSize;
    }
 
-   public ConnectionFactoryConfiguration setThreadPoolMaxSize(final int threadPoolMaxSize)
-   {
+   public ConnectionFactoryConfiguration setThreadPoolMaxSize(final int threadPoolMaxSize) {
       this.threadPoolMaxSize = threadPoolMaxSize;
       return this;
    }
 
-   public long getRetryInterval()
-   {
+   public long getRetryInterval() {
       return retryInterval;
    }
 
-   public ConnectionFactoryConfiguration setRetryInterval(final long retryInterval)
-   {
+   public ConnectionFactoryConfiguration setRetryInterval(final long retryInterval) {
       this.retryInterval = retryInterval;
       return this;
    }
 
-   public double getRetryIntervalMultiplier()
-   {
+   public double getRetryIntervalMultiplier() {
       return retryIntervalMultiplier;
    }
 
-   public ConnectionFactoryConfiguration setRetryIntervalMultiplier(final double retryIntervalMultiplier)
-   {
+   public ConnectionFactoryConfiguration setRetryIntervalMultiplier(final double retryIntervalMultiplier) {
       this.retryIntervalMultiplier = retryIntervalMultiplier;
       return this;
    }
 
-   public long getMaxRetryInterval()
-   {
+   public long getMaxRetryInterval() {
       return maxRetryInterval;
    }
 
-   public ConnectionFactoryConfiguration setMaxRetryInterval(final long maxRetryInterval)
-   {
+   public ConnectionFactoryConfiguration setMaxRetryInterval(final long maxRetryInterval) {
       this.maxRetryInterval = maxRetryInterval;
       return this;
    }
 
-   public int getReconnectAttempts()
-   {
+   public int getReconnectAttempts() {
       return reconnectAttempts;
    }
 
-   public ConnectionFactoryConfiguration setReconnectAttempts(final int reconnectAttempts)
-   {
+   public ConnectionFactoryConfiguration setReconnectAttempts(final int reconnectAttempts) {
       this.reconnectAttempts = reconnectAttempts;
       return this;
    }
 
-   public boolean isFailoverOnInitialConnection()
-   {
+   public boolean isFailoverOnInitialConnection() {
       return failoverOnInitialConnection;
    }
 
-   public ConnectionFactoryConfiguration setFailoverOnInitialConnection(final boolean failover)
-   {
+   public ConnectionFactoryConfiguration setFailoverOnInitialConnection(final boolean failover) {
       failoverOnInitialConnection = failover;
       return this;
    }
 
-   public String getGroupID()
-   {
+   public String getGroupID() {
       return groupID;
    }
 
-   public ConnectionFactoryConfiguration setGroupID(final String groupID)
-   {
+   public ConnectionFactoryConfiguration setGroupID(final String groupID) {
       this.groupID = groupID;
       return this;
    }
@@ -525,8 +452,7 @@ public class ConnectionFactoryConfigurationImpl implements ConnectionFactoryConf
    // Encoding Support Implementation --------------------------------------------------------------
 
    @Override
-   public void decode(final ActiveMQBuffer buffer)
-   {
+   public void decode(final ActiveMQBuffer buffer) {
       persisted = true;
 
       name = buffer.readSimpleString().toString();
@@ -535,12 +461,10 @@ public class ConnectionFactoryConfigurationImpl implements ConnectionFactoryConf
 
       int nConnectors = buffer.readInt();
 
-      if (nConnectors > 0)
-      {
+      if (nConnectors > 0) {
          connectorNames = new ArrayList<String>(nConnectors);
 
-         for (int i = 0; i < nConnectors; i++)
-         {
+         for (int i = 0; i < nConnectors; i++) {
             SimpleString str = buffer.readSimpleString();
 
             connectorNames.add(str.toString());
@@ -613,24 +537,20 @@ public class ConnectionFactoryConfigurationImpl implements ConnectionFactoryConf
    }
 
    @Override
-   public void encode(final ActiveMQBuffer buffer)
-   {
+   public void encode(final ActiveMQBuffer buffer) {
       persisted = true;
 
       BufferHelper.writeAsSimpleString(buffer, name);
 
       BufferHelper.writeAsNullableSimpleString(buffer, discoveryGroupName);
 
-      if (this.connectorNames == null)
-      {
+      if (this.connectorNames == null) {
          buffer.writeInt(0);
       }
-      else
-      {
+      else {
          buffer.writeInt(connectorNames.size());
 
-         for (String tc : connectorNames)
-         {
+         for (String tc : connectorNames) {
             BufferHelper.writeAsSimpleString(buffer, tc);
          }
       }
@@ -701,18 +621,15 @@ public class ConnectionFactoryConfigurationImpl implements ConnectionFactoryConf
    }
 
    @Override
-   public int getEncodeSize()
-   {
+   public int getEncodeSize() {
       int size = BufferHelper.sizeOfSimpleString(name) +
 
          BufferHelper.sizeOfNullableSimpleString(discoveryGroupName);
 
       size += DataConstants.SIZE_INT;
 
-      if (this.connectorNames != null)
-      {
-         for (String tc : connectorNames)
-         {
+      if (this.connectorNames != null) {
+         for (String tc : connectorNames) {
             size += BufferHelper.sizeOfSimpleString(tc);
          }
       }
@@ -812,27 +729,23 @@ public class ConnectionFactoryConfigurationImpl implements ConnectionFactoryConf
       return size;
    }
 
-   public ConnectionFactoryConfiguration setFactoryType(final JMSFactoryType factoryType)
-   {
+   public ConnectionFactoryConfiguration setFactoryType(final JMSFactoryType factoryType) {
       this.factoryType = factoryType;
       return this;
    }
 
-   public JMSFactoryType getFactoryType()
-   {
+   public JMSFactoryType getFactoryType() {
       return factoryType;
    }
 
    @Override
-   public ConnectionFactoryConfiguration setCompressLargeMessages(boolean compressLargeMessage)
-   {
+   public ConnectionFactoryConfiguration setCompressLargeMessages(boolean compressLargeMessage) {
       this.compressLargeMessage = compressLargeMessage;
       return this;
    }
 
    @Override
-   public boolean isCompressLargeMessages()
-   {
+   public boolean isCompressLargeMessages() {
       return this.compressLargeMessage;
    }
 

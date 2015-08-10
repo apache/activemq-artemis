@@ -41,102 +41,105 @@ import org.junit.Test;
 
 public class AMQ4513Test {
 
-    private BrokerService brokerService;
-    private String connectionUri;
+   private BrokerService brokerService;
+   private String connectionUri;
 
-    @Before
-    public void setup() throws Exception {
-        brokerService = new BrokerService();
+   @Before
+   public void setup() throws Exception {
+      brokerService = new BrokerService();
 
-        connectionUri = brokerService.addConnector("tcp://localhost:0").getPublishableConnectString();
+      connectionUri = brokerService.addConnector("tcp://localhost:0").getPublishableConnectString();
 
-        // Configure Dead Letter Strategy
-        DeadLetterStrategy strategy = new IndividualDeadLetterStrategy();
-        ((IndividualDeadLetterStrategy)strategy).setUseQueueForQueueMessages(true);
-        ((IndividualDeadLetterStrategy)strategy).setQueuePrefix("DLQ.");
-        strategy.setProcessNonPersistent(false);
-        strategy.setProcessExpired(false);
+      // Configure Dead Letter Strategy
+      DeadLetterStrategy strategy = new IndividualDeadLetterStrategy();
+      ((IndividualDeadLetterStrategy) strategy).setUseQueueForQueueMessages(true);
+      ((IndividualDeadLetterStrategy) strategy).setQueuePrefix("DLQ.");
+      strategy.setProcessNonPersistent(false);
+      strategy.setProcessExpired(false);
 
-        // Add policy and individual DLQ strategy
-        PolicyEntry policy = new PolicyEntry();
-        policy.setTimeBeforeDispatchStarts(3000);
-        policy.setDeadLetterStrategy(strategy);
+      // Add policy and individual DLQ strategy
+      PolicyEntry policy = new PolicyEntry();
+      policy.setTimeBeforeDispatchStarts(3000);
+      policy.setDeadLetterStrategy(strategy);
 
-        PolicyMap pMap = new PolicyMap();
-        pMap.setDefaultEntry(policy);
+      PolicyMap pMap = new PolicyMap();
+      pMap.setDefaultEntry(policy);
 
-        brokerService.setDestinationPolicy(pMap);
+      brokerService.setDestinationPolicy(pMap);
 
-        brokerService.setPersistent(false);
-        brokerService.start();
-    }
+      brokerService.setPersistent(false);
+      brokerService.start();
+   }
 
-    @After
-    public void stop() throws Exception {
-        brokerService.stop();
-    }
+   @After
+   public void stop() throws Exception {
+      brokerService.stop();
+   }
 
-    @Test(timeout=360000)
-    public void test() throws Exception {
+   @Test(timeout = 360000)
+   public void test() throws Exception {
 
-        final ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory(connectionUri);
+      final ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory(connectionUri);
 
-        ExecutorService service = Executors.newFixedThreadPool(25);
+      ExecutorService service = Executors.newFixedThreadPool(25);
 
-        final Random ripple = new Random(System.currentTimeMillis());
+      final Random ripple = new Random(System.currentTimeMillis());
 
-        for (int i = 0; i < 1000; ++i) {
-            service.execute(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        ActiveMQConnection connection = (ActiveMQConnection) cf.createConnection();
-                        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-                        Destination destination = session.createTemporaryQueue();
-                        session.createProducer(destination);
-                        connection.close();
-                        TimeUnit.MILLISECONDS.sleep(ripple.nextInt(20));
-                    } catch (Exception e) {
-                    }
-                }
-            });
+      for (int i = 0; i < 1000; ++i) {
+         service.execute(new Runnable() {
+            @Override
+            public void run() {
+               try {
+                  ActiveMQConnection connection = (ActiveMQConnection) cf.createConnection();
+                  Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+                  Destination destination = session.createTemporaryQueue();
+                  session.createProducer(destination);
+                  connection.close();
+                  TimeUnit.MILLISECONDS.sleep(ripple.nextInt(20));
+               }
+               catch (Exception e) {
+               }
+            }
+         });
 
-            service.execute(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        ActiveMQConnection connection = (ActiveMQConnection) cf.createConnection();
-                        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-                        Destination destination = session.createTemporaryQueue();
-                        MessageProducer producer = session.createProducer(destination);
-                        producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
-                        producer.setTimeToLive(400);
-                        producer.send(session.createTextMessage());
-                        producer.send(session.createTextMessage());
-                        TimeUnit.MILLISECONDS.sleep(500);
-                        connection.close();
-                    } catch (Exception e) {
-                    }
-                }
-            });
+         service.execute(new Runnable() {
+            @Override
+            public void run() {
+               try {
+                  ActiveMQConnection connection = (ActiveMQConnection) cf.createConnection();
+                  Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+                  Destination destination = session.createTemporaryQueue();
+                  MessageProducer producer = session.createProducer(destination);
+                  producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
+                  producer.setTimeToLive(400);
+                  producer.send(session.createTextMessage());
+                  producer.send(session.createTextMessage());
+                  TimeUnit.MILLISECONDS.sleep(500);
+                  connection.close();
+               }
+               catch (Exception e) {
+               }
+            }
+         });
 
-            service.execute(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        ActiveMQConnection connection = (ActiveMQConnection) cf.createConnection();
-                        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-                        Destination destination = session.createTemporaryQueue();
-                        session.createProducer(destination);
-                        connection.close();
-                        TimeUnit.MILLISECONDS.sleep(ripple.nextInt(20));
-                    } catch (Exception e) {
-                    }
-                }
-            });
-        }
+         service.execute(new Runnable() {
+            @Override
+            public void run() {
+               try {
+                  ActiveMQConnection connection = (ActiveMQConnection) cf.createConnection();
+                  Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+                  Destination destination = session.createTemporaryQueue();
+                  session.createProducer(destination);
+                  connection.close();
+                  TimeUnit.MILLISECONDS.sleep(ripple.nextInt(20));
+               }
+               catch (Exception e) {
+               }
+            }
+         });
+      }
 
-        service.shutdown();
-        assertTrue(service.awaitTermination(5, TimeUnit.MINUTES));
-    }
+      service.shutdown();
+      assertTrue(service.awaitTermination(5, TimeUnit.MINUTES));
+   }
 }

@@ -24,16 +24,11 @@ import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.api.jms.JMSFactoryType;
 import org.apache.activemq.artemis.jms.client.ActiveMQJMSConnectionFactory;
 
-public class AutoGroupingTest extends GroupingTest
-{
+public class AutoGroupingTest extends GroupingTest {
 
    @Override
-   protected ConnectionFactory getCF() throws Exception
-   {
-      ActiveMQJMSConnectionFactory cf1 =
-               (ActiveMQJMSConnectionFactory) ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF,
-                                                                                                new TransportConfiguration(
-                                                                                                   INVM_CONNECTOR_FACTORY));
+   protected ConnectionFactory getCF() throws Exception {
+      ActiveMQJMSConnectionFactory cf1 = (ActiveMQJMSConnectionFactory) ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration(INVM_CONNECTOR_FACTORY));
 
       cf1.setAutoGroup(true);
 
@@ -41,8 +36,7 @@ public class AutoGroupingTest extends GroupingTest
    }
 
    @Override
-   protected void setProperty(Message message)
-   {
+   protected void setProperty(Message message) {
    }
 
 }

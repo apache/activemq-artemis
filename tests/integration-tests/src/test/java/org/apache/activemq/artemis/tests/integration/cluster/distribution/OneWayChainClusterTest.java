@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.integration.cluster.distribution;
+
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.junit.Before;
 
@@ -28,14 +29,13 @@ import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import java.util.Map;
 import java.util.Set;
 
-public class OneWayChainClusterTest extends ClusterTestBase
-{
+public class OneWayChainClusterTest extends ClusterTestBase {
+
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       setupServer(0, isFileStorage(), isNetty());
@@ -45,14 +45,12 @@ public class OneWayChainClusterTest extends ClusterTestBase
       setupServer(4, isFileStorage(), isNetty());
    }
 
-   protected boolean isNetty()
-   {
+   protected boolean isNetty() {
       return false;
    }
 
    @Test
-   public void testBasicRoundRobin() throws Exception
-   {
+   public void testBasicRoundRobin() throws Exception {
       setupClusterConnection("cluster0-1", 0, 1, "queues", MessageLoadBalancingType.ON_DEMAND, 4, isNetty(), true);
       setupClusterConnection("cluster1-2", 1, 2, "queues", MessageLoadBalancingType.ON_DEMAND, 4, isNetty(), true);
       setupClusterConnection("cluster2-3", 2, 3, "queues", MessageLoadBalancingType.ON_DEMAND, 4, isNetty(), true);
@@ -82,8 +80,7 @@ public class OneWayChainClusterTest extends ClusterTestBase
    }
 
    @Test
-   public void testBasicNonLoadBalanced() throws Exception
-   {
+   public void testBasicNonLoadBalanced() throws Exception {
       setupClusterConnection("cluster0-1", 0, 1, "queues", MessageLoadBalancingType.ON_DEMAND, 4, isNetty(), true);
       setupClusterConnection("cluster1-2", 1, 2, "queues", MessageLoadBalancingType.ON_DEMAND, 4, isNetty(), true);
       setupClusterConnection("cluster2-3", 2, 3, "queues", MessageLoadBalancingType.ON_DEMAND, 4, isNetty(), true);
@@ -116,8 +113,7 @@ public class OneWayChainClusterTest extends ClusterTestBase
    }
 
    @Test
-   public void testRoundRobinForwardWhenNoConsumersTrue() throws Exception
-   {
+   public void testRoundRobinForwardWhenNoConsumersTrue() throws Exception {
       setupClusterConnection("cluster0-1", 0, 1, "queues", MessageLoadBalancingType.STRICT, 4, isNetty(), true);
       setupClusterConnection("cluster1-2", 1, 2, "queues", MessageLoadBalancingType.STRICT, 4, isNetty(), true);
       setupClusterConnection("cluster2-3", 2, 3, "queues", MessageLoadBalancingType.STRICT, 4, isNetty(), true);
@@ -148,8 +144,7 @@ public class OneWayChainClusterTest extends ClusterTestBase
    }
 
    @Test
-   public void testRoundRobinForwardWhenNoConsumersFalseNoLocalQueue() throws Exception
-   {
+   public void testRoundRobinForwardWhenNoConsumersFalseNoLocalQueue() throws Exception {
       setupClusterConnection("cluster0-1", 0, 1, "queues", MessageLoadBalancingType.ON_DEMAND, 4, isNetty(), true);
       setupClusterConnection("cluster1-2", 1, 2, "queues", MessageLoadBalancingType.ON_DEMAND, 4, isNetty(), true);
       setupClusterConnection("cluster2-3", 2, 3, "queues", MessageLoadBalancingType.ON_DEMAND, 4, isNetty(), true);
@@ -175,8 +170,7 @@ public class OneWayChainClusterTest extends ClusterTestBase
    }
 
    @Test
-   public void testRoundRobinForwardWhenNoConsumersFalse() throws Exception
-   {
+   public void testRoundRobinForwardWhenNoConsumersFalse() throws Exception {
       setupClusterConnection("cluster0-1", 0, 1, "queues", MessageLoadBalancingType.ON_DEMAND, 4, isNetty(), true);
       setupClusterConnection("cluster1-2", 1, 2, "queues", MessageLoadBalancingType.ON_DEMAND, 4, isNetty(), true);
       setupClusterConnection("cluster2-3", 2, 3, "queues", MessageLoadBalancingType.ON_DEMAND, 4, isNetty(), true);
@@ -209,8 +203,7 @@ public class OneWayChainClusterTest extends ClusterTestBase
    }
 
    @Test
-   public void testRoundRobinForwardWhenNoConsumersFalseLocalConsumer() throws Exception
-   {
+   public void testRoundRobinForwardWhenNoConsumersFalseLocalConsumer() throws Exception {
       setupClusterConnection("cluster0-1", 0, 1, "queues", MessageLoadBalancingType.ON_DEMAND, 4, isNetty(), true);
       setupClusterConnection("cluster1-2", 1, 2, "queues", MessageLoadBalancingType.ON_DEMAND, 4, isNetty(), true);
       setupClusterConnection("cluster2-3", 2, 3, "queues", MessageLoadBalancingType.ON_DEMAND, 4, isNetty(), true);
@@ -243,8 +236,7 @@ public class OneWayChainClusterTest extends ClusterTestBase
    }
 
    @Test
-   public void testHopsTooLow() throws Exception
-   {
+   public void testHopsTooLow() throws Exception {
       setupClusterConnection("cluster0-1", 0, 1, "queues", MessageLoadBalancingType.ON_DEMAND, 3, isNetty(), true);
       setupClusterConnection("cluster1-2", 1, 2, "queues", MessageLoadBalancingType.ON_DEMAND, 3, isNetty(), true);
       setupClusterConnection("cluster2-3", 2, 3, "queues", MessageLoadBalancingType.ON_DEMAND, 3, isNetty(), true);
@@ -272,8 +264,7 @@ public class OneWayChainClusterTest extends ClusterTestBase
    }
 
    @Test
-   public void testStartStopMiddleOfChain() throws Exception
-   {
+   public void testStartStopMiddleOfChain() throws Exception {
       setupClusterConnection("cluster0-1", 0, 1, "queues", MessageLoadBalancingType.ON_DEMAND, 4, isNetty(), true);
       setupClusterConnection("cluster1-2", 1, 2, "queues", MessageLoadBalancingType.ON_DEMAND, 4, isNetty(), true);
       setupClusterConnection("cluster2-3", 2, 3, "queues", MessageLoadBalancingType.ON_DEMAND, 4, isNetty(), true);
@@ -320,7 +311,6 @@ public class OneWayChainClusterTest extends ClusterTestBase
 
       startServers(2);
 
-
       Thread.sleep(1000);
 
       waitForTopology(servers[1], 5);
@@ -332,7 +322,6 @@ public class OneWayChainClusterTest extends ClusterTestBase
       log.info(clusterDescription(servers[3]));
       log.info(clusterDescription(servers[4]));
 
-
       send(0, "queues.testaddress", 10, false, null);
 
       verifyReceiveRoundRobin(10, 0, 1);
@@ -340,8 +329,7 @@ public class OneWayChainClusterTest extends ClusterTestBase
    }
 
    @Test
-   public void testChainClusterConnections() throws Exception
-   {
+   public void testChainClusterConnections() throws Exception {
       setupClusterConnection("cluster0-1", 0, 1, "queues", MessageLoadBalancingType.ON_DEMAND, 4, isNetty(), true);
       setupClusterConnection("cluster1-2", 1, 2, "queues", MessageLoadBalancingType.ON_DEMAND, 4, isNetty(), true);
       setupClusterConnection("cluster2-3", 2, 3, "queues", MessageLoadBalancingType.ON_DEMAND, 4, isNetty(), true);
@@ -356,11 +344,9 @@ public class OneWayChainClusterTest extends ClusterTestBase
 
       long timeout = System.currentTimeMillis() + 5000;
       Map<String, MessageFlowRecord> records = null;
-      while (timeout > System.currentTimeMillis())
-      {
-         records =  ccon.getRecords();
-         if (records != null && records.size() == 1)
-         {
+      while (timeout > System.currentTimeMillis()) {
+         records = ccon.getRecords();
+         if (records != null && records.size() == 1) {
             break;
          }
       }
@@ -371,7 +357,7 @@ public class OneWayChainClusterTest extends ClusterTestBase
       assertEquals(1, connectionSet.size());
       ccon = (ClusterConnectionImpl) connectionSet.iterator().next();
 
-      records =  ccon.getRecords();
+      records = ccon.getRecords();
       assertNotNull(records);
       assertEquals(records.size(), 1);
       getServer(2).getClusterManager().getClusterConnections();
@@ -379,7 +365,7 @@ public class OneWayChainClusterTest extends ClusterTestBase
       assertEquals(1, connectionSet.size());
       ccon = (ClusterConnectionImpl) connectionSet.iterator().next();
 
-      records =  ccon.getRecords();
+      records = ccon.getRecords();
       assertNotNull(records);
       assertEquals(records.size(), 1);
       getServer(3).getClusterManager().getClusterConnections();
@@ -387,7 +373,7 @@ public class OneWayChainClusterTest extends ClusterTestBase
       assertEquals(1, connectionSet.size());
       ccon = (ClusterConnectionImpl) connectionSet.iterator().next();
 
-      records =  ccon.getRecords();
+      records = ccon.getRecords();
       assertNotNull(records);
       assertEquals(records.size(), 1);
 
@@ -396,7 +382,7 @@ public class OneWayChainClusterTest extends ClusterTestBase
       assertEquals(1, connectionSet.size());
       ccon = (ClusterConnectionImpl) connectionSet.iterator().next();
 
-      records =  ccon.getRecords();
+      records = ccon.getRecords();
       assertNotNull(records);
       assertEquals(records.size(), 1);
    }

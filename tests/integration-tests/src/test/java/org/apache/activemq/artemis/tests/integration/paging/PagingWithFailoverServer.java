@@ -19,63 +19,56 @@ package org.apache.activemq.artemis.tests.integration.paging;
 import org.apache.activemq.artemis.tests.util.SpawnedVMSupport;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 
-public class PagingWithFailoverServer extends SpawnedServerSupport
-{
-   public static Process spawnVM(final String testDir, final int thisPort, final int otherPort) throws Exception
-   {
+public class PagingWithFailoverServer extends SpawnedServerSupport {
+
+   public static Process spawnVM(final String testDir, final int thisPort, final int otherPort) throws Exception {
       return spawnVM(testDir, thisPort, otherPort, false);
    }
 
-   public static Process spawnVM(final String testDir, final int thisPort, final int otherPort, final boolean isBackup) throws Exception
-   {
+   public static Process spawnVM(final String testDir,
+                                 final int thisPort,
+                                 final int otherPort,
+                                 final boolean isBackup) throws Exception {
       return SpawnedVMSupport.spawnVM(PagingWithFailoverServer.class.getName(), testDir, Integer.toString(thisPort), Integer.toString(otherPort), Boolean.toString(isBackup));
    }
 
-
    private ActiveMQServer server;
 
-
-   public ActiveMQServer getServer()
-   {
+   public ActiveMQServer getServer() {
       return server;
    }
 
-   public void perform(final String folder, final int thisPort, final int otherPort, final boolean isBackup) throws Exception
-   {
-      try
-      {
+   public void perform(final String folder,
+                       final int thisPort,
+                       final int otherPort,
+                       final boolean isBackup) throws Exception {
+      try {
          server = createServer(folder, thisPort, otherPort, isBackup);
 
          server.start();
 
          System.out.println("Server started!!!");
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          e.printStackTrace();
          System.exit(-1);
       }
    }
 
-   public static ActiveMQServer createServer(String folder, int thisPort, int otherPort, boolean isBackup)
-   {
+   public static ActiveMQServer createServer(String folder, int thisPort, int otherPort, boolean isBackup) {
       return createSharedFolderServer(folder, thisPort, otherPort, isBackup);
    }
 
-   public static void main(String[] arg)
-   {
-      if (arg.length != 4)
-      {
+   public static void main(String[] arg) {
+      if (arg.length != 4) {
          System.out.println("expected folder portThisServer portOtherServer isBackup");
       }
       PagingWithFailoverServer server = new PagingWithFailoverServer();
 
-      try
-      {
+      try {
          server.perform(arg[0], Integer.parseInt(arg[1]), Integer.parseInt(arg[2]), Boolean.parseBoolean(arg[3]));
       }
-      catch (Throwable e)
-      {
+      catch (Throwable e) {
          e.printStackTrace();
          System.exit(-1);
       }

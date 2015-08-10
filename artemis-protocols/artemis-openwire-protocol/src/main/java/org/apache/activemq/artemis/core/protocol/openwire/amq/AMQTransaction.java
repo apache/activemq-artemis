@@ -31,8 +31,8 @@ import org.apache.activemq.command.TransactionId;
 import org.apache.activemq.transaction.Synchronization;
 import org.slf4j.Logger;
 
-public abstract class AMQTransaction
-{
+public abstract class AMQTransaction {
+
    public static final byte START_STATE = 0; // can go to: 1,2,3
    public static final byte IN_USE_STATE = 1; // can go to: 2,3
    public static final byte PREPARED_STATE = 2; // can go to: 3
@@ -41,76 +41,59 @@ public abstract class AMQTransaction
 
    private final ArrayList<Synchronization> synchronizations = new ArrayList<Synchronization>();
    private byte state = START_STATE;
-   protected FutureTask<?> preCommitTask = new FutureTask<Object>(
-         new Callable<Object>()
-         {
-            public Object call() throws Exception
-            {
-               doPreCommit();
-               return null;
-            }
-         });
-   protected FutureTask<?> postCommitTask = new FutureTask<Object>(
-         new Callable<Object>()
-         {
-            public Object call() throws Exception
-            {
-               doPostCommit();
-               return null;
-            }
-         });
+   protected FutureTask<?> preCommitTask = new FutureTask<Object>(new Callable<Object>() {
+      public Object call() throws Exception {
+         doPreCommit();
+         return null;
+      }
+   });
+   protected FutureTask<?> postCommitTask = new FutureTask<Object>(new Callable<Object>() {
+      public Object call() throws Exception {
+         doPostCommit();
+         return null;
+      }
+   });
 
-   public byte getState()
-   {
+   public byte getState() {
       return state;
    }
 
-   public void setState(byte state)
-   {
+   public void setState(byte state) {
       this.state = state;
    }
 
-   public boolean isCommitted()
-   {
+   public boolean isCommitted() {
       return committed;
    }
 
-   public void setCommitted(boolean committed)
-   {
+   public void setCommitted(boolean committed) {
       this.committed = committed;
    }
 
-   public void addSynchronization(Synchronization r)
-   {
+   public void addSynchronization(Synchronization r) {
       synchronizations.add(r);
-      if (state == START_STATE)
-      {
+      if (state == START_STATE) {
          state = IN_USE_STATE;
       }
    }
 
-   public Synchronization findMatching(Synchronization r)
-   {
+   public Synchronization findMatching(Synchronization r) {
       int existing = synchronizations.indexOf(r);
-      if (existing != -1)
-      {
+      if (existing != -1) {
          return synchronizations.get(existing);
       }
       return null;
    }
 
-   public void removeSynchronization(Synchronization r)
-   {
+   public void removeSynchronization(Synchronization r) {
       synchronizations.remove(r);
    }
 
-   public void prePrepare() throws Exception
-   {
+   public void prePrepare() throws Exception {
 
       // Is it ok to call prepare now given the state of the
       // transaction?
-      switch (state)
-      {
+      switch (state) {
          case START_STATE:
          case IN_USE_STATE:
             break;
@@ -127,46 +110,34 @@ public abstract class AMQTransaction
       // }
    }
 
-   protected void fireBeforeCommit() throws Exception
-   {
-      for (Iterator<Synchronization> iter = synchronizations.iterator(); iter
-            .hasNext();)
-      {
+   protected void fireBeforeCommit() throws Exception {
+      for (Iterator<Synchronization> iter = synchronizations.iterator(); iter.hasNext(); ) {
          Synchronization s = iter.next();
          s.beforeCommit();
       }
    }
 
-   protected void fireAfterCommit() throws Exception
-   {
-      for (Iterator<Synchronization> iter = synchronizations.iterator(); iter
-            .hasNext();)
-      {
+   protected void fireAfterCommit() throws Exception {
+      for (Iterator<Synchronization> iter = synchronizations.iterator(); iter.hasNext(); ) {
          Synchronization s = iter.next();
          s.afterCommit();
       }
    }
 
-   public void fireAfterRollback() throws Exception
-   {
+   public void fireAfterRollback() throws Exception {
       Collections.reverse(synchronizations);
-      for (Iterator<Synchronization> iter = synchronizations.iterator(); iter
-            .hasNext();)
-      {
+      for (Iterator<Synchronization> iter = synchronizations.iterator(); iter.hasNext(); ) {
          Synchronization s = iter.next();
          s.afterRollback();
       }
    }
 
    @Override
-   public String toString()
-   {
-      return "Local-" + getTransactionId() + "[synchronizations="
-            + synchronizations + "]";
+   public String toString() {
+      return "Local-" + getTransactionId() + "[synchronizations=" + synchronizations + "]";
    }
 
-   public abstract void commit(boolean onePhase) throws XAException,
-         IOException;
+   public abstract void commit(boolean onePhase) throws XAException, IOException;
 
    public abstract void rollback() throws XAException, IOException;
 
@@ -176,52 +147,40 @@ public abstract class AMQTransaction
 
    public abstract Logger getLog();
 
-   public boolean isPrepared()
-   {
+   public boolean isPrepared() {
       return getState() == PREPARED_STATE;
    }
 
-   public int size()
-   {
+   public int size() {
       return synchronizations.size();
    }
 
-   protected void waitPostCommitDone(FutureTask<?> postCommitTask) throws XAException, IOException
-   {
-      try
-      {
+   protected void waitPostCommitDone(FutureTask<?> postCommitTask) throws XAException, IOException {
+      try {
          postCommitTask.get();
       }
-      catch (InterruptedException e)
-      {
+      catch (InterruptedException e) {
          throw new InterruptedIOException(e.toString());
       }
-      catch (ExecutionException e)
-      {
+      catch (ExecutionException e) {
          Throwable t = e.getCause();
-         if (t instanceof XAException)
-         {
+         if (t instanceof XAException) {
             throw (XAException) t;
          }
-         else if (t instanceof IOException)
-         {
+         else if (t instanceof IOException) {
             throw (IOException) t;
          }
-         else
-         {
+         else {
             throw new XAException(e.toString());
          }
       }
    }
 
-   protected void doPreCommit() throws XAException
-   {
-      try
-      {
+   protected void doPreCommit() throws XAException {
+      try {
          fireBeforeCommit();
       }
-      catch (Throwable e)
-      {
+      catch (Throwable e) {
          // I guess this could happen. Post commit task failed
          // to execute properly.
          getLog().warn("PRE COMMIT FAILED: ", e);
@@ -232,15 +191,12 @@ public abstract class AMQTransaction
       }
    }
 
-   protected void doPostCommit() throws XAException
-   {
-      try
-      {
+   protected void doPostCommit() throws XAException {
+      try {
          setCommitted(true);
          fireAfterCommit();
       }
-      catch (Throwable e)
-      {
+      catch (Throwable e) {
          // I guess this could happen. Post commit task failed
          // to execute properly.
          getLog().warn("POST COMMIT FAILED: ", e);

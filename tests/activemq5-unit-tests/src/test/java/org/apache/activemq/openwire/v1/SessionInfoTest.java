@@ -20,28 +20,26 @@ import org.apache.activemq.command.SessionInfo;
 
 /**
  * Test case for the OpenWire marshalling for SessionInfo
- * 
- * 
+ *
+ *
  * NOTE!: This file is auto generated - do not modify! if you need to make a
  * change, please see the modify the groovy scripts in the under src/gram/script
  * and then use maven openwire:generate to regenerate this file.
- * 
- * 
  */
 public class SessionInfoTest extends BaseCommandTestSupport {
 
-    public static final SessionInfoTest SINGLETON = new SessionInfoTest();
+   public static final SessionInfoTest SINGLETON = new SessionInfoTest();
 
-    public Object createObject() throws Exception {
-        SessionInfo info = new SessionInfo();
-        populateObject(info);
-        return info;
-    }
+   public Object createObject() throws Exception {
+      SessionInfo info = new SessionInfo();
+      populateObject(info);
+      return info;
+   }
 
-    protected void populateObject(Object object) throws Exception {
-        super.populateObject(object);
-        SessionInfo info = (SessionInfo)object;
-        info.setSessionId(createSessionId("SessionId:1"));
+   protected void populateObject(Object object) throws Exception {
+      super.populateObject(object);
+      SessionInfo info = (SessionInfo) object;
+      info.setSessionId(createSessionId("SessionId:1"));
 
-    }
+   }
 }

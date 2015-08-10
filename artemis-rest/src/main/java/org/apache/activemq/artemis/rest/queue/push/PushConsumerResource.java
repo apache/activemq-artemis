@@ -36,8 +36,8 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.rest.queue.push.xml.PushRegistration;
 import org.apache.activemq.artemis.rest.ActiveMQRestLogger;
 
-public class PushConsumerResource
-{
+public class PushConsumerResource {
+
    protected Map<String, PushConsumer> consumers = new ConcurrentHashMap<String, PushConsumer>();
    protected ClientSessionFactory sessionFactory;
    protected String destination;
@@ -45,32 +45,27 @@ public class PushConsumerResource
    protected final AtomicLong sessionCounter = new AtomicLong(1);
    protected PushStore pushStore;
 
-   public void start()
-   {
+   public void start() {
 
    }
 
-   public void stop()
-   {
-      for (PushConsumer consumer : consumers.values())
-      {
+   public void stop() {
+      for (PushConsumer consumer : consumers.values()) {
          consumer.stop();
       }
    }
 
-   public PushStore getPushStore()
-   {
+   public PushStore getPushStore() {
       return pushStore;
    }
 
-   public void setPushStore(PushStore pushStore)
-   {
+   public void setPushStore(PushStore pushStore) {
       this.pushStore = pushStore;
    }
 
-   public void addRegistration(PushRegistration reg) throws Exception
-   {
-      if (reg.isEnabled() == false) return;
+   public void addRegistration(PushRegistration reg) throws Exception {
+      if (reg.isEnabled() == false)
+         return;
       PushConsumer consumer = new PushConsumer(sessionFactory, destination, reg.getId(), reg, pushStore);
       consumer.start();
       consumers.put(reg.getId(), consumer);
@@ -78,8 +73,7 @@ public class PushConsumerResource
 
    @POST
    @Consumes("application/xml")
-   public Response create(@Context UriInfo uriInfo, PushRegistration registration)
-   {
+   public Response create(@Context UriInfo uriInfo, PushRegistration registration) {
       ActiveMQRestLogger.LOGGER.debug("Handling POST request for \"" + uriInfo.getPath() + "\"");
 
       // todo put some logic here to check for duplicates
@@ -87,16 +81,13 @@ public class PushConsumerResource
       registration.setId(genId);
       registration.setDestination(destination);
       PushConsumer consumer = new PushConsumer(sessionFactory, destination, genId, registration, pushStore);
-      try
-      {
+      try {
          consumer.start();
-         if (registration.isDurable() && pushStore != null)
-         {
+         if (registration.isDurable() && pushStore != null) {
             pushStore.add(registration);
          }
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          consumer.stop();
          throw new WebApplicationException(e, Response.serverError().entity("Failed to start consumer.").type("text/plain").build());
       }
@@ -110,13 +101,11 @@ public class PushConsumerResource
    @GET
    @Path("{consumer-id}")
    @Produces("application/xml")
-   public PushRegistration getConsumer(@Context UriInfo uriInfo, @PathParam("consumer-id") String consumerId)
-   {
+   public PushRegistration getConsumer(@Context UriInfo uriInfo, @PathParam("consumer-id") String consumerId) {
       ActiveMQRestLogger.LOGGER.debug("Handling GET request for \"" + uriInfo.getPath() + "\"");
 
       PushConsumer consumer = consumers.get(consumerId);
-      if (consumer == null)
-      {
+      if (consumer == null) {
          throw new WebApplicationException(Response.status(404).entity("Could not find consumer.").type("text/plain").build());
       }
       return consumer.getRegistration();
@@ -124,40 +113,33 @@ public class PushConsumerResource
 
    @DELETE
    @Path("{consumer-id}")
-   public void deleteConsumer(@Context UriInfo uriInfo, @PathParam("consumer-id") String consumerId)
-   {
+   public void deleteConsumer(@Context UriInfo uriInfo, @PathParam("consumer-id") String consumerId) {
       ActiveMQRestLogger.LOGGER.debug("Handling DELETE request for \"" + uriInfo.getPath() + "\"");
 
       PushConsumer consumer = consumers.remove(consumerId);
-      if (consumer == null)
-      {
+      if (consumer == null) {
          throw new WebApplicationException(Response.status(404).entity("Could not find consumer.").type("text/plain").build());
       }
       consumer.stop();
    }
 
-   public Map<String, PushConsumer> getConsumers()
-   {
+   public Map<String, PushConsumer> getConsumers() {
       return consumers;
    }
 
-   public ClientSessionFactory getSessionFactory()
-   {
+   public ClientSessionFactory getSessionFactory() {
       return sessionFactory;
    }
 
-   public void setSessionFactory(ClientSessionFactory sessionFactory)
-   {
+   public void setSessionFactory(ClientSessionFactory sessionFactory) {
       this.sessionFactory = sessionFactory;
    }
 
-   public String getDestination()
-   {
+   public String getDestination() {
       return destination;
    }
 
-   public void setDestination(String destination)
-   {
+   public void setDestination(String destination) {
       this.destination = destination;
    }
 }

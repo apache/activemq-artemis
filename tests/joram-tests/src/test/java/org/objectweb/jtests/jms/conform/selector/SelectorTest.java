@@ -27,18 +27,15 @@ import org.objectweb.jtests.jms.framework.TestConfig;
 /**
  * Test the message selector features of JMS
  */
-public class SelectorTest extends PTPTestCase
-{
+public class SelectorTest extends PTPTestCase {
 
    /**
     * Test that an empty string as a message selector indicates that there
     * is no message selector for the message consumer.
     */
    @Test
-   public void testEmptyStringAsSelector() throws Exception
-   {
-      if (receiver != null)
-      {
+   public void testEmptyStringAsSelector() throws Exception {
+      if (receiver != null) {
          receiver.close();
       }
       receiver = receiverSession.createReceiver(receiverQueue, "");
@@ -47,7 +44,7 @@ public class SelectorTest extends PTPTestCase
       message.setText("testEmptyStringAsSelector");
       sender.send(message);
 
-      TextMessage msg = (TextMessage)receiver.receive(TestConfig.TIMEOUT);
+      TextMessage msg = (TextMessage) receiver.receive(TestConfig.TIMEOUT);
       Assert.assertTrue("No message was received", msg != null);
       Assert.assertEquals("testEmptyStringAsSelector", msg.getText());
    }
@@ -56,15 +53,13 @@ public class SelectorTest extends PTPTestCase
     * Tats that String literals are well handled by the message selector.
     * <br />
     * <ul>
-    *   <li><code>"string = 'literal''s;"</code> is <code>true</code> for "literal's" and <code>false</code> for "literal"</li>
+    * <li><code>"string = 'literal''s;"</code> is <code>true</code> for "literal's" and <code>false</code> for "literal"</li>
     * </ul>
     */
 
    @Test
-   public void testStringLiterals() throws Exception
-   {
-      if (receiver != null)
-      {
+   public void testStringLiterals() throws Exception {
+      if (receiver != null) {
          receiver.close();
       }
       receiver = receiverSession.createReceiver(receiverQueue, "string = 'literal''s'");
@@ -79,7 +74,7 @@ public class SelectorTest extends PTPTestCase
       message.setText("testStringLiterals:2");
       sender.send(message);
 
-      TextMessage msg = (TextMessage)receiver.receive(TestConfig.TIMEOUT);
+      TextMessage msg = (TextMessage) receiver.receive(TestConfig.TIMEOUT);
       Assert.assertTrue("No message was received", msg != null);
       Assert.assertEquals("testStringLiterals:2", msg.getText());
    }
@@ -89,10 +84,8 @@ public class SelectorTest extends PTPTestCase
     * or <code>'NON_PERSISTENT'</code> when used in a message selector (chapter 3.8.1.3).
     */
    @Test
-   public void testJMSDeliveryModeInSelector() throws Exception
-   {
-      if (receiver != null)
-      {
+   public void testJMSDeliveryModeInSelector() throws Exception {
+      if (receiver != null) {
          receiver.close();
       }
       receiver = receiverSession.createReceiver(receiverQueue, "JMSDeliveryMode = 'PERSISTENT'");
@@ -107,7 +100,7 @@ public class SelectorTest extends PTPTestCase
       // send a message in *persistent*
       sender.send(message, DeliveryMode.PERSISTENT, sender.getPriority(), sender.getTimeToLive());
 
-      TextMessage msg = (TextMessage)receiver.receive(TestConfig.TIMEOUT);
+      TextMessage msg = (TextMessage) receiver.receive(TestConfig.TIMEOUT);
       Assert.assertTrue("No message was received", msg != null);
       // only the message sent in persistent mode should be received.
       Assert.assertEquals(DeliveryMode.PERSISTENT, msg.getJMSDeliveryMode());
@@ -120,10 +113,8 @@ public class SelectorTest extends PTPTestCase
     * Based on the example of chapter 3.8.1.1 about identifiers.
     */
    @Test
-   public void testIdentifierConversion() throws Exception
-   {
-      if (receiver != null)
-      {
+   public void testIdentifierConversion() throws Exception {
+      if (receiver != null) {
          receiver.close();
       }
       receiver = receiverSession.createReceiver(receiverQueue, "NumberOfOrders > 1");
@@ -138,7 +129,7 @@ public class SelectorTest extends PTPTestCase
       message.setText("testIdentifierConversion:2");
       sender.send(message);
 
-      TextMessage msg = (TextMessage)receiver.receive(TestConfig.TIMEOUT);
+      TextMessage msg = (TextMessage) receiver.receive(TestConfig.TIMEOUT);
       Assert.assertEquals("testIdentifierConversion:2", msg.getText());
    }
 
@@ -146,14 +137,12 @@ public class SelectorTest extends PTPTestCase
     * Test the message selector using the filter example provided by the JMS specifications.
     * <br />
     * <ul>
-    *   <li><code>"JMSType = 'car' AND color = 'blue' AND weight > 2500"</code></li>
+    * <li><code>"JMSType = 'car' AND color = 'blue' AND weight > 2500"</code></li>
     * </ul>
     */
    @Test
-   public void testSelectorExampleFromSpecs() throws Exception
-   {
-      if (receiver != null)
-      {
+   public void testSelectorExampleFromSpecs() throws Exception {
+      if (receiver != null) {
          receiver.close();
       }
       receiver = receiverSession.createReceiver(receiverQueue, "JMSType = 'car' AND color = 'blue' AND weight > 2500");
@@ -172,7 +161,7 @@ public class SelectorTest extends PTPTestCase
       message.setText("testSelectorExampleFromSpecs:2");
       sender.send(message);
 
-      TextMessage msg = (TextMessage)receiver.receive(TestConfig.TIMEOUT);
+      TextMessage msg = (TextMessage) receiver.receive(TestConfig.TIMEOUT);
       Assert.assertEquals("testSelectorExampleFromSpecs:2", msg.getText());
    }
 
@@ -180,14 +169,12 @@ public class SelectorTest extends PTPTestCase
     * Test the ">" condition in message selector.
     * <br />
     * <ul>
-    *   <li><code>"weight > 2500"</code> is <code>true</code> for 3000 and <code>false</code> for 1000</li>
+    * <li><code>"weight > 2500"</code> is <code>true</code> for 3000 and <code>false</code> for 1000</li>
     * </ul>
     */
    @Test
-   public void testGreaterThan() throws Exception
-   {
-      if (receiver != null)
-      {
+   public void testGreaterThan() throws Exception {
+      if (receiver != null) {
          receiver.close();
       }
       receiver = receiverSession.createReceiver(receiverQueue, "weight > 2500");
@@ -202,7 +189,7 @@ public class SelectorTest extends PTPTestCase
       message.setText("testGreaterThan:2");
       sender.send(message);
 
-      TextMessage msg = (TextMessage)receiver.receive(TestConfig.TIMEOUT);
+      TextMessage msg = (TextMessage) receiver.receive(TestConfig.TIMEOUT);
       Assert.assertEquals("testGreaterThan:2", msg.getText());
    }
 
@@ -210,14 +197,12 @@ public class SelectorTest extends PTPTestCase
     * Test the "=" condition in message selector.
     * <br />
     * <ul>
-    *   <li><code>"weight = 2500"</code>  is <code>true</code> for 2500 and <code>false</code> for 1000</li>
+    * <li><code>"weight = 2500"</code>  is <code>true</code> for 2500 and <code>false</code> for 1000</li>
     * </ul>
     */
    @Test
-   public void testEquals() throws Exception
-   {
-      if (receiver != null)
-      {
+   public void testEquals() throws Exception {
+      if (receiver != null) {
          receiver.close();
       }
       receiver = receiverSession.createReceiver(receiverQueue, "weight = 2500");
@@ -232,7 +217,7 @@ public class SelectorTest extends PTPTestCase
       message.setText("testEquals:2");
       sender.send(message);
 
-      TextMessage msg = (TextMessage)receiver.receive(TestConfig.TIMEOUT);
+      TextMessage msg = (TextMessage) receiver.receive(TestConfig.TIMEOUT);
       Assert.assertEquals("testEquals:2", msg.getText());
    }
 
@@ -240,14 +225,12 @@ public class SelectorTest extends PTPTestCase
     * Test the "<>" (not equal) condition in message selector.
     * <br />
     * <ul>
-    *   <li><code>"weight <> 2500"</code>  is <code>true</code> for 1000 and <code>false</code> for 2500</li>
+    * <li><code>"weight <> 2500"</code>  is <code>true</code> for 1000 and <code>false</code> for 2500</li>
     * </ul>
     */
    @Test
-   public void testNotEquals() throws Exception
-   {
-      if (receiver != null)
-      {
+   public void testNotEquals() throws Exception {
+      if (receiver != null) {
          receiver.close();
       }
       receiver = receiverSession.createReceiver(receiverQueue, "weight <> 2500");
@@ -262,7 +245,7 @@ public class SelectorTest extends PTPTestCase
       message.setText("testEquals:2");
       sender.send(message);
 
-      TextMessage msg = (TextMessage)receiver.receive(TestConfig.TIMEOUT);
+      TextMessage msg = (TextMessage) receiver.receive(TestConfig.TIMEOUT);
       Assert.assertEquals("testEquals:2", msg.getText());
    }
 
@@ -270,14 +253,12 @@ public class SelectorTest extends PTPTestCase
     * Test the BETWEEN condition in message selector.
     * <br />
     * <ul>
-    *   <li>"age BETWEEN 15 and 19" is <code>true</code> for 17 and <code>false</code> for 20</li>
+    * <li>"age BETWEEN 15 and 19" is <code>true</code> for 17 and <code>false</code> for 20</li>
     * </ul>
     */
    @Test
-   public void testBetween() throws Exception
-   {
-      if (receiver != null)
-      {
+   public void testBetween() throws Exception {
+      if (receiver != null) {
          receiver.close();
       }
       receiver = receiverSession.createReceiver(receiverQueue, "age BETWEEN 15 and 19");
@@ -292,7 +273,7 @@ public class SelectorTest extends PTPTestCase
       message.setText("testBetween:2");
       sender.send(message);
 
-      TextMessage msg = (TextMessage)receiver.receive(TestConfig.TIMEOUT);
+      TextMessage msg = (TextMessage) receiver.receive(TestConfig.TIMEOUT);
       Assert.assertTrue("Message not received", msg != null);
       Assert.assertTrue("Message of another test: " + msg.getText(), msg.getText().startsWith("testBetween"));
       Assert.assertEquals("testBetween:2", msg.getText());
@@ -302,14 +283,12 @@ public class SelectorTest extends PTPTestCase
     * Test the IN condition in message selector.
     * <br />
     * <ul>
-    *   <li>"Country IN ('UK', 'US', 'France')" is <code>true</code> for 'UK' and <code>false</code> for 'Peru'</li>
+    * <li>"Country IN ('UK', 'US', 'France')" is <code>true</code> for 'UK' and <code>false</code> for 'Peru'</li>
     * </ul>
     */
    @Test
-   public void testIn() throws Exception
-   {
-      if (receiver != null)
-      {
+   public void testIn() throws Exception {
+      if (receiver != null) {
          receiver.close();
       }
       receiver = receiverSession.createReceiver(receiverQueue, "Country IN ('UK', 'US', 'France')");
@@ -324,7 +303,7 @@ public class SelectorTest extends PTPTestCase
       message.setText("testIn:2");
       sender.send(message);
 
-      TextMessage msg = (TextMessage)receiver.receive(TestConfig.TIMEOUT);
+      TextMessage msg = (TextMessage) receiver.receive(TestConfig.TIMEOUT);
       Assert.assertTrue("Message not received", msg != null);
       Assert.assertTrue("Message of another test: " + msg.getText(), msg.getText().startsWith("testIn"));
       Assert.assertEquals("testIn:2", msg.getText());
@@ -334,14 +313,12 @@ public class SelectorTest extends PTPTestCase
     * Test the LIKE ... ESCAPE condition in message selector
     * <br />
     * <ul>
-    *   <li>"underscored LIKE '\_%' ESCAPE '\'" is <code>true</code> for '_foo' and <code>false</code> for 'bar'</li>
+    * <li>"underscored LIKE '\_%' ESCAPE '\'" is <code>true</code> for '_foo' and <code>false</code> for 'bar'</li>
     * </ul>
     */
    @Test
-   public void testLikeEscape() throws Exception
-   {
-      if (receiver != null)
-      {
+   public void testLikeEscape() throws Exception {
+      if (receiver != null) {
          receiver.close();
       }
       receiver = receiverSession.createReceiver(receiverQueue, "underscored LIKE '\\_%' ESCAPE '\\'");
@@ -356,7 +333,7 @@ public class SelectorTest extends PTPTestCase
       message.setText("testLikeEscape:2");
       sender.send(message);
 
-      TextMessage msg = (TextMessage)receiver.receive(TestConfig.TIMEOUT);
+      TextMessage msg = (TextMessage) receiver.receive(TestConfig.TIMEOUT);
       Assert.assertTrue("Message not received", msg != null);
       Assert.assertTrue("Message of another test: " + msg.getText(), msg.getText().startsWith("testLikeEscape"));
       Assert.assertEquals("testLikeEscape:2", msg.getText());
@@ -366,14 +343,12 @@ public class SelectorTest extends PTPTestCase
     * Test the LIKE condition with '_' in the pattern.
     * <br />
     * <ul>
-    *   <li>"word LIKE 'l_se'" is <code>true</code> for 'lose' and <code>false</code> for 'loose'</li>
+    * <li>"word LIKE 'l_se'" is <code>true</code> for 'lose' and <code>false</code> for 'loose'</li>
     * </ul>
     */
    @Test
-   public void testLike_2() throws Exception
-   {
-      if (receiver != null)
-      {
+   public void testLike_2() throws Exception {
+      if (receiver != null) {
          receiver.close();
       }
       receiver = receiverSession.createReceiver(receiverQueue, "word LIKE 'l_se'");
@@ -388,7 +363,7 @@ public class SelectorTest extends PTPTestCase
       message.setText("testLike_2:2");
       sender.send(message);
 
-      TextMessage msg = (TextMessage)receiver.receive(TestConfig.TIMEOUT);
+      TextMessage msg = (TextMessage) receiver.receive(TestConfig.TIMEOUT);
       Assert.assertTrue("Message not received", msg != null);
       Assert.assertTrue("Message of another test: " + msg.getText(), msg.getText().startsWith("testLike_2"));
       Assert.assertEquals("testLike_2:2", msg.getText());
@@ -398,14 +373,12 @@ public class SelectorTest extends PTPTestCase
     * Test the LIKE condition with '%' in the pattern.
     * <br />
     * <ul>
-    *   <li>"phone LIKE '12%3'" is <code>true</code> for '12993' and <code>false</code> for '1234'</li>
+    * <li>"phone LIKE '12%3'" is <code>true</code> for '12993' and <code>false</code> for '1234'</li>
     * </ul>
     */
    @Test
-   public void testLike_1() throws Exception
-   {
-      if (receiver != null)
-      {
+   public void testLike_1() throws Exception {
+      if (receiver != null) {
          receiver.close();
       }
       receiver = receiverSession.createReceiver(receiverQueue, "phone LIKE '12%3'");
@@ -420,7 +393,7 @@ public class SelectorTest extends PTPTestCase
       message.setText("testLike_1:2");
       sender.send(message);
 
-      TextMessage msg = (TextMessage)receiver.receive(TestConfig.TIMEOUT);
+      TextMessage msg = (TextMessage) receiver.receive(TestConfig.TIMEOUT);
       Assert.assertTrue("Message not received", msg != null);
       Assert.assertTrue("Message of another test: " + msg.getText(), msg.getText().startsWith("testLike_1"));
       Assert.assertEquals("testLike_1:2", msg.getText());
@@ -430,14 +403,12 @@ public class SelectorTest extends PTPTestCase
     * Test the <code>NULL</code> value in message selector.
     * <br />
     * <ul>
-    *   <li><code>"prop IS NULL"</code></li>
+    * <li><code>"prop IS NULL"</code></li>
     * </ul>
     */
    @Test
-   public void testNull() throws Exception
-   {
-      if (receiver != null)
-      {
+   public void testNull() throws Exception {
+      if (receiver != null) {
          receiver.close();
       }
       receiver = receiverSession.createReceiver(receiverQueue, "prop_name IS NULL");
@@ -451,7 +422,7 @@ public class SelectorTest extends PTPTestCase
       message.setText("testNull:2");
       sender.send(message);
 
-      TextMessage msg = (TextMessage)receiver.receive(TestConfig.TIMEOUT);
+      TextMessage msg = (TextMessage) receiver.receive(TestConfig.TIMEOUT);
       Assert.assertTrue(msg != null);
       Assert.assertEquals("testNull:2", msg.getText());
    }

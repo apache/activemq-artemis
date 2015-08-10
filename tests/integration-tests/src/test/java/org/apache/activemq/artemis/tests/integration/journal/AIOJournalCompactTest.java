@@ -24,26 +24,21 @@ import org.apache.activemq.artemis.core.io.aio.AIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.impl.JournalConstants;
 import org.junit.BeforeClass;
 
-public class AIOJournalCompactTest extends NIOJournalCompactTest
-{
+public class AIOJournalCompactTest extends NIOJournalCompactTest {
+
    @BeforeClass
-   public static void hasAIO()
-   {
+   public static void hasAIO() {
       org.junit.Assume.assumeTrue("Test case needs AIO to run", AIOSequentialFileFactory.isSupported());
    }
 
    @Override
-   protected SequentialFileFactory getFileFactory() throws Exception
-   {
+   protected SequentialFileFactory getFileFactory() throws Exception {
       File file = new File(getTestDir());
 
       ActiveMQTestBase.deleteDirectory(file);
 
       file.mkdir();
 
-      return new AIOSequentialFileFactory(getTestDirfile(),
-                                          JournalConstants.DEFAULT_JOURNAL_BUFFER_SIZE_AIO,
-                                          100000, 10,
-                                          false);
+      return new AIOSequentialFileFactory(getTestDirfile(), JournalConstants.DEFAULT_JOURNAL_BUFFER_SIZE_AIO, 100000, 10, false);
    }
 }

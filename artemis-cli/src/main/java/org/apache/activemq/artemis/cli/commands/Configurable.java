@@ -36,14 +36,13 @@ import org.apache.activemq.artemis.jms.server.config.impl.FileJMSConfiguration;
 /**
  * Abstract class where we can replace the configuration in various places *
  */
-public abstract class Configurable extends ActionAbstract
-{
+public abstract class Configurable extends ActionAbstract {
+
    @Arguments(description = "Broker Configuration URI, default 'xml:${ARTEMIS_INSTANCE}/etc/bootstrap.xml'")
    String configuration;
 
    @Option(name = "--broker", description = "This would override the broker configuration from the bootstrap")
    String brokerConfig;
-
 
    @Inject
    public GlobalMetadata global;
@@ -52,8 +51,7 @@ public abstract class Configurable extends ActionAbstract
 
    private FileConfiguration fileConfiguration;
 
-   protected void treatError(Exception e, String group, String command)
-   {
+   protected void treatError(Exception e, String group, String command) {
       ActiveMQBootstrapLogger.LOGGER.debug(e.getMessage(), e);
       System.err.println();
       System.err.println("Error:" + e.getMessage());
@@ -61,16 +59,11 @@ public abstract class Configurable extends ActionAbstract
       helpGroup(group, command);
    }
 
-   protected void helpGroup(String groupName, String commandName)
-   {
-      for (CommandGroupMetadata group: global.getCommandGroups())
-      {
-         if (group.getName().equals(groupName))
-         {
-            for (CommandMetadata command: group.getCommands())
-            {
-               if (command.getName().equals(commandName))
-               {
+   protected void helpGroup(String groupName, String commandName) {
+      for (CommandGroupMetadata group : global.getCommandGroups()) {
+         if (group.getName().equals(groupName)) {
+            for (CommandMetadata command : group.getCommands()) {
+               if (command.getName().equals(commandName)) {
                   Help.help(command);
                }
             }
@@ -79,13 +72,9 @@ public abstract class Configurable extends ActionAbstract
       }
    }
 
-
-   protected FileConfiguration getFileConfiguration() throws Exception
-   {
-      if (fileConfiguration == null)
-      {
-         if (getBrokerInstance() == null)
-         {
+   protected FileConfiguration getFileConfiguration() throws Exception {
+      if (fileConfiguration == null) {
+         if (getBrokerInstance() == null) {
             final String defaultLocation = "./data";
             fileConfiguration = new FileConfiguration();
             // These will be the default places in case the file can't be loaded
@@ -94,8 +83,7 @@ public abstract class Configurable extends ActionAbstract
             fileConfiguration.setLargeMessagesDirectory(defaultLocation + "/largemessages");
             fileConfiguration.setPagingDirectory(defaultLocation + "/paging");
          }
-         else
-         {
+         else {
             fileConfiguration = new FileConfiguration();
             FileJMSConfiguration jmsConfiguration = new FileJMSConfiguration();
 
@@ -111,20 +99,14 @@ public abstract class Configurable extends ActionAbstract
       return fileConfiguration;
    }
 
-
-   protected BrokerDTO getBrokerDTO() throws Exception
-   {
-      if (brokerDTO == null)
-      {
+   protected BrokerDTO getBrokerDTO() throws Exception {
+      if (brokerDTO == null) {
          getConfiguration();
-
 
          brokerDTO = BrokerFactory.createBrokerConfiguration(configuration);
 
-         if (brokerConfig != null)
-         {
-            if (!brokerConfig.startsWith("file:"))
-            {
+         if (brokerConfig != null) {
+            if (!brokerConfig.startsWith("file:")) {
                brokerConfig = "file:" + brokerConfig;
             }
 
@@ -135,10 +117,8 @@ public abstract class Configurable extends ActionAbstract
       return brokerDTO;
    }
 
-   protected String getConfiguration()
-   {
-      if (configuration == null)
-      {
+   protected String getConfiguration() {
+      if (configuration == null) {
          File xmlFile = new File(new File(new File(getBrokerInstance()), "etc"), "bootstrap.xml");
          configuration = "xml:" + xmlFile.toURI().toString().substring("file:".length());
 
@@ -150,6 +130,5 @@ public abstract class Configurable extends ActionAbstract
 
       return configuration;
    }
-
 
 }

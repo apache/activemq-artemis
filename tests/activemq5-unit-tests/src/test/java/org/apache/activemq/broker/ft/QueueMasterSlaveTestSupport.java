@@ -40,117 +40,118 @@ import org.springframework.core.io.ClassPathResource;
  * Test failover for Queues
  */
 abstract public class QueueMasterSlaveTestSupport extends JmsTopicSendReceiveWithTwoConnectionsTest {
-    private static final transient Logger LOG = LoggerFactory.getLogger(QueueMasterSlaveTestSupport.class);
 
-    protected BrokerService master;
-    protected AtomicReference<BrokerService> slave = new AtomicReference<BrokerService>();
-    protected CountDownLatch slaveStarted = new CountDownLatch(1);
-    protected int inflightMessageCount;
-    protected int failureCount = 50;
-    protected String uriString = "failover://(tcp://localhost:62001,tcp://localhost:62002)?randomize=false&useExponentialBackOff=false";
+   private static final transient Logger LOG = LoggerFactory.getLogger(QueueMasterSlaveTestSupport.class);
 
-    @Override
-    protected void setUp() throws Exception {
-        setMaxTestTime(TimeUnit.MINUTES.toMillis(10));
-        setAutoFail(true);
-        if (System.getProperty("basedir") == null) {
-            File file = new File(".");
-            System.setProperty("basedir", file.getAbsolutePath());
-        }
-        super.messageCount = 500;
-        failureCount = super.messageCount / 2;
-        super.topic = isTopic();
-        createMaster();
-        createSlave();
-        // wait for thing to connect
-        Thread.sleep(1000);
-        super.setUp();
-    }
+   protected BrokerService master;
+   protected AtomicReference<BrokerService> slave = new AtomicReference<BrokerService>();
+   protected CountDownLatch slaveStarted = new CountDownLatch(1);
+   protected int inflightMessageCount;
+   protected int failureCount = 50;
+   protected String uriString = "failover://(tcp://localhost:62001,tcp://localhost:62002)?randomize=false&useExponentialBackOff=false";
 
-    protected String getSlaveXml() {
-        return "org/apache/activemq/broker/ft/slave.xml";
-    }
+   @Override
+   protected void setUp() throws Exception {
+      setMaxTestTime(TimeUnit.MINUTES.toMillis(10));
+      setAutoFail(true);
+      if (System.getProperty("basedir") == null) {
+         File file = new File(".");
+         System.setProperty("basedir", file.getAbsolutePath());
+      }
+      super.messageCount = 500;
+      failureCount = super.messageCount / 2;
+      super.topic = isTopic();
+      createMaster();
+      createSlave();
+      // wait for thing to connect
+      Thread.sleep(1000);
+      super.setUp();
+   }
 
-    protected String getMasterXml() {
-        return "org/apache/activemq/broker/ft/master.xml";
-    }
+   protected String getSlaveXml() {
+      return "org/apache/activemq/broker/ft/slave.xml";
+   }
 
-    @Override
-    protected void tearDown() throws Exception {
-        super.tearDown();
-        master.stop();
-        master.waitUntilStopped();
-        slaveStarted.await(60, TimeUnit.SECONDS);
-        BrokerService brokerService = slave.get();
-        if( brokerService!=null ) {
-            brokerService.stop();
-        }
-        master.stop();
-    }
+   protected String getMasterXml() {
+      return "org/apache/activemq/broker/ft/master.xml";
+   }
 
-    @Override
-    protected ActiveMQConnectionFactory createConnectionFactory() throws Exception {
-        return new ActiveMQConnectionFactory(uriString);
-    }
+   @Override
+   protected void tearDown() throws Exception {
+      super.tearDown();
+      master.stop();
+      master.waitUntilStopped();
+      slaveStarted.await(60, TimeUnit.SECONDS);
+      BrokerService brokerService = slave.get();
+      if (brokerService != null) {
+         brokerService.stop();
+      }
+      master.stop();
+   }
 
-    @Override
-    protected void messageSent() throws Exception {
-        if (++inflightMessageCount == failureCount) {
-            Thread.sleep(1000);
-            LOG.error("MASTER STOPPED!@!!!!");
-            master.stop();
-        }
-    }
+   @Override
+   protected ActiveMQConnectionFactory createConnectionFactory() throws Exception {
+      return new ActiveMQConnectionFactory(uriString);
+   }
 
-    protected boolean isTopic() {
-        return false;
-    }
+   @Override
+   protected void messageSent() throws Exception {
+      if (++inflightMessageCount == failureCount) {
+         Thread.sleep(1000);
+         LOG.error("MASTER STOPPED!@!!!!");
+         master.stop();
+      }
+   }
 
-    protected void createMaster() throws Exception {
-        BrokerFactoryBean brokerFactory = new BrokerFactoryBean(new ClassPathResource(getMasterXml()));
-        brokerFactory.afterPropertiesSet();
-        master = brokerFactory.getBroker();
-        master.start();
-    }
+   protected boolean isTopic() {
+      return false;
+   }
 
-    protected void createSlave() throws Exception {
-        BrokerFactoryBean brokerFactory = new BrokerFactoryBean(new ClassPathResource(getSlaveXml()));
-        brokerFactory.afterPropertiesSet();
-        BrokerService broker = brokerFactory.getBroker();
-        broker.start();
-        slave.set(broker);
-        slaveStarted.countDown();
-    }
+   protected void createMaster() throws Exception {
+      BrokerFactoryBean brokerFactory = new BrokerFactoryBean(new ClassPathResource(getMasterXml()));
+      brokerFactory.afterPropertiesSet();
+      master = brokerFactory.getBroker();
+      master.start();
+   }
 
-    public void testVirtualTopicFailover() throws Exception {
+   protected void createSlave() throws Exception {
+      BrokerFactoryBean brokerFactory = new BrokerFactoryBean(new ClassPathResource(getSlaveXml()));
+      brokerFactory.afterPropertiesSet();
+      BrokerService broker = brokerFactory.getBroker();
+      broker.start();
+      slave.set(broker);
+      slaveStarted.countDown();
+   }
 
-        MessageConsumer qConsumer = session.createConsumer(new ActiveMQQueue("Consumer.A.VirtualTopic.TA1"));
-        assertNull("No message there yet", qConsumer.receive(1000));
-        qConsumer.close();
-        assertTrue(!master.isSlave());
-        master.stop();
-        assertTrue("slave started", slaveStarted.await(60, TimeUnit.SECONDS));
-        assertTrue(!slave.get().isSlave());
+   public void testVirtualTopicFailover() throws Exception {
 
-        final String text = "ForUWhenSlaveKicksIn";
-        producer.send(new ActiveMQTopic("VirtualTopic.TA1"), session.createTextMessage(text));
+      MessageConsumer qConsumer = session.createConsumer(new ActiveMQQueue("Consumer.A.VirtualTopic.TA1"));
+      assertNull("No message there yet", qConsumer.receive(1000));
+      qConsumer.close();
+      assertTrue(!master.isSlave());
+      master.stop();
+      assertTrue("slave started", slaveStarted.await(60, TimeUnit.SECONDS));
+      assertTrue(!slave.get().isSlave());
 
-        qConsumer = session.createConsumer(new ActiveMQQueue("Consumer.A.VirtualTopic.TA1"));
+      final String text = "ForUWhenSlaveKicksIn";
+      producer.send(new ActiveMQTopic("VirtualTopic.TA1"), session.createTextMessage(text));
 
-        javax.jms.Message message = qConsumer.receive(4000);
-        assertNotNull("Get message after failover", message);
-        assertEquals("correct message", text, ((TextMessage)message).getText());
-    }
+      qConsumer = session.createConsumer(new ActiveMQQueue("Consumer.A.VirtualTopic.TA1"));
 
-    public void testAdvisory() throws Exception {
-        MessageConsumer advConsumer = session.createConsumer(AdvisorySupport.getMasterBrokerAdvisoryTopic());
+      javax.jms.Message message = qConsumer.receive(4000);
+      assertNotNull("Get message after failover", message);
+      assertEquals("correct message", text, ((TextMessage) message).getText());
+   }
 
-        master.stop();
-        assertTrue("slave started", slaveStarted.await(60, TimeUnit.SECONDS));
-        LOG.info("slave started");
-        Message advisoryMessage = advConsumer.receive(5000);
-        LOG.info("received " + advisoryMessage);
-        assertNotNull("Didn't received advisory", advisoryMessage);
+   public void testAdvisory() throws Exception {
+      MessageConsumer advConsumer = session.createConsumer(AdvisorySupport.getMasterBrokerAdvisoryTopic());
 
-    }
+      master.stop();
+      assertTrue("slave started", slaveStarted.await(60, TimeUnit.SECONDS));
+      LOG.info("slave started");
+      Message advisoryMessage = advConsumer.receive(5000);
+      LOG.info("received " + advisoryMessage);
+      assertNotNull("Didn't received advisory", advisoryMessage);
+
+   }
 }

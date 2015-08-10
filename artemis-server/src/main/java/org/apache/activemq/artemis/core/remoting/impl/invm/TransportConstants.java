@@ -16,9 +16,8 @@
  */
 package org.apache.activemq.artemis.core.remoting.impl.invm;
 
+public final class TransportConstants {
 
-public final class TransportConstants
-{
    public static final String SERVER_ID_PROP_NAME = "serverId";
 
    public static final int DEFAULT_SERVER_ID = 0;
@@ -27,8 +26,7 @@ public final class TransportConstants
 
    public static final long DEFAULT_CONNECTIONS_ALLOWED = -1L;
 
-   private TransportConstants()
-   {
+   private TransportConstants() {
       // Utility class
    }
 }

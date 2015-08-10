@@ -33,6 +33,6 @@ import org.jboss.logging.annotations.MessageLogger;
  * so an INFO message would be 171000 to 171999
  */
 @MessageLogger(projectCode = "AMQ")
-public class ActiveMQSpringLogger
-{
+public class ActiveMQSpringLogger {
+
 }

@@ -22,35 +22,30 @@ import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
 import java.io.ObjectInputStream;
 
-public class ConsumedObjectMessage extends ConsumedMessage
-{
+public class ConsumedObjectMessage extends ConsumedMessage {
+
    protected Object readObject;
 
-   public ConsumedObjectMessage(ClientMessage message)
-   {
+   public ConsumedObjectMessage(ClientMessage message) {
       super(message);
-      if (message.getType() != ClientMessage.OBJECT_TYPE) throw new IllegalArgumentException("Client message must be an OBJECT_TYPE");
+      if (message.getType() != ClientMessage.OBJECT_TYPE)
+         throw new IllegalArgumentException("Client message must be an OBJECT_TYPE");
    }
 
    @Override
-   public void build(Response.ResponseBuilder builder)
-   {
+   public void build(Response.ResponseBuilder builder) {
       buildHeaders(builder);
-      if (readObject == null)
-      {
+      if (readObject == null) {
          int size = message.getBodyBuffer().readInt();
-         if (size > 0)
-         {
+         if (size > 0) {
             byte[] body = new byte[size];
             message.getBodyBuffer().readBytes(body);
             ByteArrayInputStream bais = new ByteArrayInputStream(body);
-            try
-            {
+            try {
                ObjectInputStream ois = new ObjectInputStream(bais);
                readObject = ois.readObject();
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                throw new RuntimeException(e);
             }
          }

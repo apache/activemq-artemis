@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 package org.objectweb.jtests.jms.framework;
+
 import javax.jms.JMSException;
 import java.io.IOException;
 import java.util.Properties;
@@ -29,11 +30,11 @@ import org.objectweb.jtests.jms.admin.AdminFactory;
  * Class extending <code>junit.framework.TestCase</code> to
  * provide a new <code>fail()</code> method with an <code>Exception</code>
  * as parameter.
- *<br />
+ * <br />
  * Every Test Case for JMS should extend this class instead of <code>junit.framework.TestCase</code>
  */
-public abstract class JMSTestCase extends Assert
-{
+public abstract class JMSTestCase extends Assert {
+
    public static final String PROP_FILE_NAME = "provider.properties";
 
    public static boolean startServer = true;
@@ -47,66 +48,56 @@ public abstract class JMSTestCase extends Assert
     * message of the failure will contained both the JMSException and its linked exception
     * (provided there's one).
     */
-   public void fail(final Exception e)
-   {
-      if (e instanceof javax.jms.JMSException)
-      {
-         JMSException exception = (JMSException)e;
+   public void fail(final Exception e) {
+      if (e instanceof javax.jms.JMSException) {
+         JMSException exception = (JMSException) e;
          String message = e.toString();
          Exception linkedException = exception.getLinkedException();
-         if (linkedException != null)
-         {
+         if (linkedException != null) {
             message += " [linked exception: " + linkedException + "]";
          }
          Assert.fail(message);
       }
-      else
-      {
+      else {
          Assert.fail(e.getMessage());
       }
    }
 
    /**
     * Should be overridden
+    *
     * @return
     */
-   protected Properties getProviderProperties() throws IOException
-   {
+   protected Properties getProviderProperties() throws IOException {
       Properties props = new Properties();
       props.load(ClassLoader.getSystemResourceAsStream(JMSTestCase.PROP_FILE_NAME));
       return props;
    }
 
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
 
       // Admin step
       // gets the provider administration wrapper...
       Properties props = getProviderProperties();
       admin = AdminFactory.getAdmin(props);
 
-      if (startServer)
-      {
+      if (startServer) {
          admin.startServer();
       }
       admin.start();
    }
 
    @After
-   public void tearDown() throws Exception
-   {
-      try
-      {
+   public void tearDown() throws Exception {
+      try {
          admin.stop();
 
-         if (startServer)
-         {
+         if (startServer) {
             admin.stopServer();
          }
       }
-      finally
-      {
+      finally {
 
       }
    }

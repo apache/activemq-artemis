@@ -18,9 +18,7 @@ package org.apache.activemq.artemis.jms.server.config.impl;
 
 import org.apache.activemq.artemis.jms.server.config.TopicConfiguration;
 
-
-public class TopicConfigurationImpl implements TopicConfiguration
-{
+public class TopicConfigurationImpl implements TopicConfiguration {
 
    // Constants -----------------------------------------------------
 
@@ -34,30 +32,25 @@ public class TopicConfigurationImpl implements TopicConfiguration
 
    // Constructors --------------------------------------------------
 
-   public TopicConfigurationImpl()
-   {
+   public TopicConfigurationImpl() {
    }
 
    // TopicConfiguration implementation -----------------------------
 
-   public String[] getBindings()
-   {
+   public String[] getBindings() {
       return bindings;
    }
 
-   public TopicConfigurationImpl setBindings(String... bindings)
-   {
+   public TopicConfigurationImpl setBindings(String... bindings) {
       this.bindings = bindings;
       return this;
    }
 
-   public String getName()
-   {
+   public String getName() {
       return name;
    }
 
-   public TopicConfigurationImpl setName(String name)
-   {
+   public TopicConfigurationImpl setName(String name) {
       this.name = name;
       return this;
    }

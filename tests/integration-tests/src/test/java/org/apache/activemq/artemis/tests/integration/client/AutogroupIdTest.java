@@ -34,8 +34,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class AutogroupIdTest extends ActiveMQTestBase
-{
+public class AutogroupIdTest extends ActiveMQTestBase {
+
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    public final SimpleString addressA = new SimpleString("addressA");
@@ -56,8 +56,7 @@ public class AutogroupIdTest extends ActiveMQTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       server = createServer(false);
@@ -74,8 +73,7 @@ public class AutogroupIdTest extends ActiveMQTestBase
    * */
 
    @Test
-   public void testGroupIdAutomaticallySet() throws Exception
-   {
+   public void testGroupIdAutomaticallySet() throws Exception {
       locator.setAutoGroup(true);
       ClientSessionFactory sf = createSessionFactory(locator);
       ClientSession session = sf.createSession(false, true, true);
@@ -100,8 +98,7 @@ public class AutogroupIdTest extends ActiveMQTestBase
 
       final int numMessages = 100;
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          producer.send(session.createMessage(false));
       }
       waitForLatch(latch);
@@ -119,8 +116,7 @@ public class AutogroupIdTest extends ActiveMQTestBase
    * tests when the autogroupid is set only 2 consumers (out of 3) gets all the messages from 2 producers
    * */
    @Test
-   public void testGroupIdAutomaticallySetMultipleProducers() throws Exception
-   {
+   public void testGroupIdAutomaticallySetMultipleProducers() throws Exception {
       locator.setAutoGroup(true);
       ClientSessionFactory sf = createSessionFactory(locator);
       ClientSession session = sf.createSession(false, true, true);
@@ -147,12 +143,10 @@ public class AutogroupIdTest extends ActiveMQTestBase
 
       final int numMessages = 100;
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          producer.send(session.createMessage(false));
       }
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          producer2.send(session.createMessage(false));
       }
       waitForLatch(latch);
@@ -168,8 +162,7 @@ public class AutogroupIdTest extends ActiveMQTestBase
    * tests that even though we have a grouping round robin distributor we don't pin the consumer as autogroup is false
    * */
    @Test
-   public void testGroupIdAutomaticallyNotSet() throws Exception
-   {
+   public void testGroupIdAutomaticallyNotSet() throws Exception {
       ClientSessionFactory sf = createSessionFactory(locator);
 
       ClientSession session = sf.createSession(false, true, true);
@@ -192,8 +185,7 @@ public class AutogroupIdTest extends ActiveMQTestBase
 
       final int numMessages = 100;
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          producer.send(session.createMessage(false));
       }
       waitForLatch(latch);
@@ -205,26 +197,22 @@ public class AutogroupIdTest extends ActiveMQTestBase
 
    }
 
-   private static class MyMessageHandler implements MessageHandler
-   {
+   private static class MyMessageHandler implements MessageHandler {
+
       int messagesReceived = 0;
 
       private final CountDownLatch latch;
 
-      public MyMessageHandler(final CountDownLatch latch)
-      {
+      public MyMessageHandler(final CountDownLatch latch) {
          this.latch = latch;
       }
 
-      public void onMessage(final ClientMessage message)
-      {
+      public void onMessage(final ClientMessage message) {
          messagesReceived++;
-         try
-         {
+         try {
             message.acknowledge();
          }
-         catch (ActiveMQException e)
-         {
+         catch (ActiveMQException e) {
             e.printStackTrace();
          }
          latch.countDown();

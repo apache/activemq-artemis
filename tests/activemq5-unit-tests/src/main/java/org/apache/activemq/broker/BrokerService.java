@@ -63,10 +63,9 @@ import org.slf4j.LoggerFactory;
  * Manages the life-cycle of an ActiveMQ Broker. A BrokerService consists of a
  * number of transport connectors, network connectors and a bunch of properties
  * which can be used to configure the broker as its lazily created.
- *
  */
-public class BrokerService implements Service
-{
+public class BrokerService implements Service {
+
    public static final String DEFAULT_PORT = "61616";
    public static final String DEFAULT_BROKER_NAME = "localhost";
    public static final String BROKER_VERSION;
@@ -99,81 +98,63 @@ public class BrokerService implements Service
 
    public static WeakHashMap<Broker, Exception> map = new WeakHashMap<>();
 
-   static
-   {
+   static {
       InputStream in;
       String version = null;
-      if ((in = BrokerService.class.getResourceAsStream("/org/apache/activemq/version.txt")) != null)
-      {
+      if ((in = BrokerService.class.getResourceAsStream("/org/apache/activemq/version.txt")) != null) {
          BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-         try
-         {
+         try {
             version = reader.readLine();
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
          }
       }
       BROKER_VERSION = version;
    }
 
    @Override
-   public String toString()
-   {
+   public String toString() {
       return "BrokerService[" + getBrokerName() + "]";
    }
 
-   private String getBrokerVersion()
-   {
+   private String getBrokerVersion() {
       String version = ActiveMQConnectionMetaData.PROVIDER_VERSION;
-      if (version == null)
-      {
+      if (version == null) {
          version = BROKER_VERSION;
       }
 
       return version;
    }
 
-
    @Override
-   public void start() throws Exception
-   {
+   public void start() throws Exception {
       Exception e = new Exception();
       e.fillInStackTrace();
       startBroker(startAsync);
       map.put(broker, e);
    }
 
-   private void startBroker(boolean async) throws Exception
-   {
-      if (async)
-      {
-         new Thread("Broker Starting Thread")
-         {
+   private void startBroker(boolean async) throws Exception {
+      if (async) {
+         new Thread("Broker Starting Thread") {
             @Override
-            public void run()
-            {
-               try
-               {
+            public void run() {
+               try {
                   doStartBroker();
                }
-               catch (Throwable t)
-               {
+               catch (Throwable t) {
                   startException = t;
                }
             }
          }.start();
       }
-      else
-      {
+      else {
          doStartBroker();
       }
    }
 
-   private void doStartBroker() throws Exception
-   {
-      if (startException != null)
-      {
+   private void doStartBroker() throws Exception {
+      if (startException != null) {
          return;
       }
 
@@ -182,16 +163,13 @@ public class BrokerService implements Service
 
       LOG.info("Apache ActiveMQ Artemis Wrapper {} ({}, {}) is starting", new Object[]{getBrokerVersion(), getBrokerName(), brokerId});
 
-      try
-      {
+      try {
          broker.start();
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          throw e;
       }
-      catch (Throwable t)
-      {
+      catch (Throwable t) {
          throw new Exception(t);
       }
 
@@ -201,14 +179,12 @@ public class BrokerService implements Service
    }
 
    @Override
-   public void stop() throws Exception
-   {
+   public void stop() throws Exception {
       System.out.println("broker is: " + broker);
 
       LOG.info("Apache ActiveMQ Artemis{} ({}, {}) is shutting down", new Object[]{getBrokerVersion(), getBrokerName(), brokerId});
 
-      if (broker != null)
-      {
+      if (broker != null) {
          System.out.println("______________________stopping broker: " + broker.getClass().getName());
          broker.stop();
          broker = null;
@@ -219,63 +195,51 @@ public class BrokerService implements Service
    // Properties
    // -------------------------------------------------------------------------
 
-   public Broker getBroker() throws Exception
-   {
-      if (broker == null)
-      {
+   public Broker getBroker() throws Exception {
+      if (broker == null) {
          broker = createBroker();
       }
       return broker;
    }
 
-   public String getBrokerName()
-   {
+   public String getBrokerName() {
       return brokerName;
    }
 
-   public void setBrokerName(String brokerName)
-   {
-      if (brokerName == null)
-      {
+   public void setBrokerName(String brokerName) {
+      if (brokerName == null) {
          throw new NullPointerException("The broker name cannot be null");
       }
       String str = brokerName.replaceAll("[^a-zA-Z0-9\\.\\_\\-\\:]", "_");
-      if (!str.equals(brokerName))
-      {
+      if (!str.equals(brokerName)) {
          LOG.error("Broker Name: {} contained illegal characters - replaced with {}", brokerName, str);
       }
       this.brokerName = str.trim();
    }
 
-   protected Broker createBroker() throws Exception
-   {
+   protected Broker createBroker() throws Exception {
       broker = createBrokerWrapper();
       return broker;
    }
 
-   private Broker createBrokerWrapper()
-   {
+   private Broker createBrokerWrapper() {
       return new ArtemisBrokerWrapper(this);
    }
 
-   public void makeSureDestinationExists(ActiveMQDestination activemqDestination) throws Exception
-   {
+   public void makeSureDestinationExists(ActiveMQDestination activemqDestination) throws Exception {
       ArtemisBrokerWrapper hqBroker = (ArtemisBrokerWrapper) this.broker;
       //it can be null
-      if (activemqDestination == null)
-      {
+      if (activemqDestination == null) {
          return;
       }
-      if (activemqDestination.isQueue())
-      {
+      if (activemqDestination.isQueue()) {
          String qname = activemqDestination.getPhysicalName();
          System.out.println("physical name: " + qname);
          hqBroker.makeSureQueueExists(qname);
       }
    }
 
-   public boolean enableSsl()
-   {
+   public boolean enableSsl() {
       return this.SERVER_SIDE_KEYSTORE != null;
    }
 
@@ -286,413 +250,325 @@ public class BrokerService implements Service
    //we may get class cast exception as in TestSupport it
    //casts the broker to RegionBroker, which we didn't
    //implement (wrap) yet. Consider solving it later.
-   public Broker getRegionBroker()
-   {
+   public Broker getRegionBroker() {
       return broker;
    }
 
-   public void setPersistenceAdapter(PersistenceAdapter persistenceAdapter) throws IOException
-   {
+   public void setPersistenceAdapter(PersistenceAdapter persistenceAdapter) throws IOException {
    }
 
-   public File getDataDirectoryFile()
-   {
-      if (dataDirectoryFile == null)
-      {
+   public File getDataDirectoryFile() {
+      if (dataDirectoryFile == null) {
          dataDirectoryFile = new File(IOHelper.getDefaultDataDirectory());
       }
       return dataDirectoryFile;
    }
 
-   public File getBrokerDataDirectory()
-   {
+   public File getBrokerDataDirectory() {
       String brokerDir = getBrokerName();
       return new File(getDataDirectoryFile(), brokerDir);
    }
 
-   public PersistenceAdapter getPersistenceAdapter() throws IOException
-   {
+   public PersistenceAdapter getPersistenceAdapter() throws IOException {
       return null;
    }
 
-   public void waitUntilStopped()
-   {
+   public void waitUntilStopped() {
    }
 
-   public boolean waitUntilStarted()
-   {
+   public boolean waitUntilStarted() {
       return true;
    }
 
-   public void setDestinationPolicy(PolicyMap policyMap)
-   {
+   public void setDestinationPolicy(PolicyMap policyMap) {
       this.destinationPolicy = policyMap;
    }
 
-   public void setDeleteAllMessagesOnStartup(boolean deletePersistentMessagesOnStartup)
-   {
+   public void setDeleteAllMessagesOnStartup(boolean deletePersistentMessagesOnStartup) {
    }
 
-   public void setUseJmx(boolean useJmx)
-   {
+   public void setUseJmx(boolean useJmx) {
    }
 
-   public ManagementContext getManagementContext()
-   {
+   public ManagementContext getManagementContext() {
       return null;
    }
 
-   public BrokerView getAdminView() throws Exception
-   {
+   public BrokerView getAdminView() throws Exception {
       return null;
    }
 
-   public List<TransportConnector> getTransportConnectors()
-   {
+   public List<TransportConnector> getTransportConnectors() {
       return transportConnectors;
    }
 
-   public TransportConnector addConnector(String bindAddress) throws Exception
-   {
+   public TransportConnector addConnector(String bindAddress) throws Exception {
       return addConnector(new URI(bindAddress));
    }
 
-   public void setIoExceptionHandler(IOExceptionHandler ioExceptionHandler)
-   {
+   public void setIoExceptionHandler(IOExceptionHandler ioExceptionHandler) {
    }
 
-   public void setPersistent(boolean persistent)
-   {
+   public void setPersistent(boolean persistent) {
    }
 
-   public boolean isSlave()
-   {
+   public boolean isSlave() {
       return false;
    }
 
-   public Destination getDestination(ActiveMQDestination destination) throws Exception
-   {
+   public Destination getDestination(ActiveMQDestination destination) throws Exception {
       return null;
    }
 
-   public void setAllowTempAutoCreationOnSend(boolean allowTempAutoCreationOnSend)
-   {
+   public void setAllowTempAutoCreationOnSend(boolean allowTempAutoCreationOnSend) {
    }
 
-   public void setDedicatedTaskRunner(boolean dedicatedTaskRunner)
-   {
+   public void setDedicatedTaskRunner(boolean dedicatedTaskRunner) {
    }
 
-   public void setAdvisorySupport(boolean advisorySupport)
-   {
+   public void setAdvisorySupport(boolean advisorySupport) {
    }
 
-   public void setUseShutdownHook(boolean useShutdownHook)
-   {
+   public void setUseShutdownHook(boolean useShutdownHook) {
    }
 
-   public void deleteAllMessages() throws IOException
-   {
+   public void deleteAllMessages() throws IOException {
    }
 
-   public Service[] getServices()
-   {
+   public Service[] getServices() {
       return null;
    }
 
-   public void setPopulateUserNameInMBeans(boolean value)
-   {
+   public void setPopulateUserNameInMBeans(boolean value) {
    }
 
-   public void setDestinations(ActiveMQDestination[] destinations)
-   {
+   public void setDestinations(ActiveMQDestination[] destinations) {
    }
 
-   public URI getVmConnectorURI()
-   {
+   public URI getVmConnectorURI() {
       return null;
    }
 
-   public SystemUsage getSystemUsage()
-   {
-      if (systemUsage == null)
-      {
+   public SystemUsage getSystemUsage() {
+      if (systemUsage == null) {
          systemUsage = new SystemUsage();
       }
       return systemUsage;
    }
 
-   public synchronized PListStore getTempDataStore()
-   {
+   public synchronized PListStore getTempDataStore() {
       return null;
    }
 
-   public void setJmsBridgeConnectors(JmsConnector[] jmsConnectors)
-   {
+   public void setJmsBridgeConnectors(JmsConnector[] jmsConnectors) {
    }
 
-   public void setDestinationInterceptors(DestinationInterceptor[] destinationInterceptors)
-   {
+   public void setDestinationInterceptors(DestinationInterceptor[] destinationInterceptors) {
    }
 
-   public SslContext getSslContext()
-   {
+   public SslContext getSslContext() {
       return null;
    }
 
-   public void setDataDirectory(String dataDirectory)
-   {
+   public void setDataDirectory(String dataDirectory) {
    }
 
-   public void setPlugins(BrokerPlugin[] plugins)
-   {
+   public void setPlugins(BrokerPlugin[] plugins) {
    }
 
-   public void setKeepDurableSubsActive(boolean keepDurableSubsActive)
-   {
+   public void setKeepDurableSubsActive(boolean keepDurableSubsActive) {
    }
 
-   public NetworkConnector addNetworkConnector(String discoveryAddress) throws Exception
-   {
+   public NetworkConnector addNetworkConnector(String discoveryAddress) throws Exception {
       return null;
    }
 
-   public TransportConnector getConnectorByName(String connectorName)
-   {
+   public TransportConnector getConnectorByName(String connectorName) {
       return null;
    }
 
-   public TransportConnector addConnector(TransportConnector connector) throws Exception
-   {
+   public TransportConnector addConnector(TransportConnector connector) throws Exception {
       return connector;
    }
 
-   public void setEnableStatistics(boolean enableStatistics)
-   {
+   public void setEnableStatistics(boolean enableStatistics) {
    }
 
-   public void setSystemUsage(SystemUsage memoryManager)
-   {
+   public void setSystemUsage(SystemUsage memoryManager) {
       this.systemUsage = memoryManager;
    }
 
-   public void setManagementContext(ManagementContext managementContext)
-   {
+   public void setManagementContext(ManagementContext managementContext) {
    }
 
-   public void setSchedulerDirectoryFile(File schedulerDirectory)
-   {
+   public void setSchedulerDirectoryFile(File schedulerDirectory) {
    }
 
-   public List<NetworkConnector> getNetworkConnectors()
-   {
+   public List<NetworkConnector> getNetworkConnectors() {
       return new ArrayList<>();
    }
 
-   public void setSchedulerSupport(boolean schedulerSupport)
-   {
+   public void setSchedulerSupport(boolean schedulerSupport) {
    }
 
-   public void setPopulateJMSXUserID(boolean populateJMSXUserID)
-   {
+   public void setPopulateJMSXUserID(boolean populateJMSXUserID) {
    }
 
-   public boolean isUseJmx()
-   {
+   public boolean isUseJmx() {
       return false;
    }
 
-   public boolean isPersistent()
-   {
+   public boolean isPersistent() {
       return false;
    }
 
-   public TransportConnector getTransportConnectorByScheme(String scheme)
-   {
+   public TransportConnector getTransportConnectorByScheme(String scheme) {
       return null;
    }
 
-   public TaskRunnerFactory getTaskRunnerFactory()
-   {
+   public TaskRunnerFactory getTaskRunnerFactory() {
       return null;
    }
 
-   public boolean isStarted()
-   {
-      if (broker == null) return false;
+   public boolean isStarted() {
+      if (broker == null)
+         return false;
       return !broker.isStopped();
    }
 
-   public ProxyConnector addProxyConnector(ProxyConnector connector) throws Exception
-   {
+   public ProxyConnector addProxyConnector(ProxyConnector connector) throws Exception {
       return connector;
    }
 
-   public void setDataDirectoryFile(File dataDirectoryFile)
-   {
+   public void setDataDirectoryFile(File dataDirectoryFile) {
       this.dataDirectoryFile = dataDirectoryFile;
    }
 
-   public PolicyMap getDestinationPolicy()
-   {
+   public PolicyMap getDestinationPolicy() {
       return this.destinationPolicy;
    }
 
-   public void setTransportConnectorURIs(String[] transportConnectorURIs)
-   {
+   public void setTransportConnectorURIs(String[] transportConnectorURIs) {
    }
 
-   public boolean isPopulateJMSXUserID()
-   {
+   public boolean isPopulateJMSXUserID() {
       return false;
    }
 
-   public NetworkConnector getNetworkConnectorByName(String connectorName)
-   {
+   public NetworkConnector getNetworkConnectorByName(String connectorName) {
       return null;
    }
 
-   public boolean removeNetworkConnector(NetworkConnector connector)
-   {
+   public boolean removeNetworkConnector(NetworkConnector connector) {
       return true;
    }
 
-   public void setTransportConnectors(List<TransportConnector> transportConnectors) throws Exception
-   {
+   public void setTransportConnectors(List<TransportConnector> transportConnectors) throws Exception {
    }
 
-   public NetworkConnector addNetworkConnector(NetworkConnector connector) throws Exception
-   {
+   public NetworkConnector addNetworkConnector(NetworkConnector connector) throws Exception {
       return connector;
    }
 
-   public void setTempDataStore(PListStore tempDataStore)
-   {
+   public void setTempDataStore(PListStore tempDataStore) {
    }
 
-   public void setJobSchedulerStore(JobSchedulerStore jobSchedulerStore)
-   {
+   public void setJobSchedulerStore(JobSchedulerStore jobSchedulerStore) {
    }
 
-   public ObjectName getBrokerObjectName() throws MalformedObjectNameException
-   {
+   public ObjectName getBrokerObjectName() throws MalformedObjectNameException {
       return null;
    }
 
-   public TransportConnector addConnector(URI bindAddress) throws Exception
-   {
+   public TransportConnector addConnector(URI bindAddress) throws Exception {
       Integer port = bindAddress.getPort();
       FakeTransportConnector connector = null;
-      if (port != 0)
-      {
+      if (port != 0) {
          connector = new FakeTransportConnector(bindAddress);
          this.transportConnectors.add(connector);
          this.extraConnectors.add(port);
       }
-      else
-      {
+      else {
          connector = new FakeTransportConnector(new URI(this.getDefaultUri()));
          this.transportConnectors.add(connector);
       }
       return connector;
    }
 
-   public void setCacheTempDestinations(boolean cacheTempDestinations)
-   {
+   public void setCacheTempDestinations(boolean cacheTempDestinations) {
    }
 
-   public void setOfflineDurableSubscriberTimeout(long offlineDurableSubscriberTimeout)
-   {
+   public void setOfflineDurableSubscriberTimeout(long offlineDurableSubscriberTimeout) {
    }
 
-   public void setOfflineDurableSubscriberTaskSchedule(long offlineDurableSubscriberTaskSchedule)
-   {
+   public void setOfflineDurableSubscriberTaskSchedule(long offlineDurableSubscriberTaskSchedule) {
    }
 
-   public boolean isStopped()
-   {
+   public boolean isStopped() {
       return broker != null ? broker.isStopped() : true;
    }
 
-   public void setBrokerId(String brokerId)
-   {
+   public void setBrokerId(String brokerId) {
    }
 
-   public BrokerPlugin[] getPlugins()
-   {
+   public BrokerPlugin[] getPlugins() {
       return null;
    }
 
-   public void stopAllConnectors(ServiceStopper stopper)
-   {
+   public void stopAllConnectors(ServiceStopper stopper) {
    }
 
-   public void setMessageAuthorizationPolicy(MessageAuthorizationPolicy messageAuthorizationPolicy)
-   {
+   public void setMessageAuthorizationPolicy(MessageAuthorizationPolicy messageAuthorizationPolicy) {
    }
 
-   public void setNetworkConnectorStartAsync(boolean networkConnectorStartAsync)
-   {
+   public void setNetworkConnectorStartAsync(boolean networkConnectorStartAsync) {
    }
 
-   public boolean isRestartAllowed()
-   {
+   public boolean isRestartAllowed() {
       return true;
    }
 
-   public void setTaskRunnerFactory(TaskRunnerFactory taskRunnerFactory)
-   {
+   public void setTaskRunnerFactory(TaskRunnerFactory taskRunnerFactory) {
    }
 
-   public void start(boolean force) throws Exception
-   {
+   public void start(boolean force) throws Exception {
       this.start();
    }
 
-   public void setMonitorConnectionSplits(boolean monitorConnectionSplits)
-   {
+   public void setMonitorConnectionSplits(boolean monitorConnectionSplits) {
    }
 
-   public void setUseMirroredQueues(boolean useMirroredQueues)
-   {
+   public void setUseMirroredQueues(boolean useMirroredQueues) {
    }
 
-   public File getTmpDataDirectory()
-   {
+   public File getTmpDataDirectory() {
       return null;
    }
 
-   public boolean isUseShutdownHook()
-   {
+   public boolean isUseShutdownHook() {
       return true;
    }
 
-   public boolean isDeleteAllMessagesOnStartup()
-   {
+   public boolean isDeleteAllMessagesOnStartup() {
       return false;
    }
 
-   public void setUseVirtualTopics(boolean useVirtualTopics)
-   {
+   public void setUseVirtualTopics(boolean useVirtualTopics) {
    }
 
-   public boolean isUseLoggingForShutdownErrors()
-   {
+   public boolean isUseLoggingForShutdownErrors() {
       return true;
    }
 
-   public TransportConnector addConnector(TransportServer transport) throws Exception
-   {
+   public TransportConnector addConnector(TransportServer transport) throws Exception {
       return null;
    }
 
-   public synchronized JobSchedulerStore getJobSchedulerStore()
-   {
+   public synchronized JobSchedulerStore getJobSchedulerStore() {
       return null;
    }
 
-   public boolean removeConnector(TransportConnector connector) throws Exception
-   {
+   public boolean removeConnector(TransportConnector connector) throws Exception {
       return true;
    }
 
@@ -700,71 +576,54 @@ public class BrokerService implements Service
       return null;
    }
 
-   public void setUseAuthenticatedPrincipalForJMSXUserID(boolean useAuthenticatedPrincipalForJMSXUserID)
-   {
+   public void setUseAuthenticatedPrincipalForJMSXUserID(boolean useAuthenticatedPrincipalForJMSXUserID) {
    }
 
-   public void setSchedulePeriodForDestinationPurge(int schedulePeriodForDestinationPurge)
-   {
+   public void setSchedulePeriodForDestinationPurge(int schedulePeriodForDestinationPurge) {
    }
 
-   public void setMbeanInvocationTimeout(long mbeanInvocationTimeout)
-   {
+   public void setMbeanInvocationTimeout(long mbeanInvocationTimeout) {
    }
 
-   public void setNetworkConnectors(List<?> networkConnectors) throws Exception
-   {
+   public void setNetworkConnectors(List<?> networkConnectors) throws Exception {
    }
 
-   public void removeDestination(ActiveMQDestination destination) throws Exception
-   {
+   public void removeDestination(ActiveMQDestination destination) throws Exception {
    }
 
-   public void setMaxPurgedDestinationsPerSweep(int maxPurgedDestinationsPerSweep)
-   {
+   public void setMaxPurgedDestinationsPerSweep(int maxPurgedDestinationsPerSweep) {
    }
 
-   public void setBrokerObjectName(ObjectName brokerObjectName)
-   {
+   public void setBrokerObjectName(ObjectName brokerObjectName) {
    }
 
-   public Map<String, String> getTransportConnectorURIsAsMap()
-   {
+   public Map<String, String> getTransportConnectorURIsAsMap() {
       return null;
    }
 
-   public void setSslContext(SslContext sslContext)
-   {
+   public void setSslContext(SslContext sslContext) {
    }
 
-   public void setPersistenceFactory(PersistenceAdapterFactory persistenceFactory)
-   {
+   public void setPersistenceFactory(PersistenceAdapterFactory persistenceFactory) {
    }
 
-   protected TransportConnector createTransportConnector(URI brokerURI) throws Exception
-   {
+   protected TransportConnector createTransportConnector(URI brokerURI) throws Exception {
       return null;
    }
 
-   public String getDefaultUri()
-   {
+   public String getDefaultUri() {
       return "tcp://localhost:61616";
    }
 
-   public static boolean checkStopped()
-   {
+   public static boolean checkStopped() {
       boolean runningBrokers = false;
-      for (Map.Entry<Broker, Exception> brokerExceptionEntry : map.entrySet())
-      {
+      for (Map.Entry<Broker, Exception> brokerExceptionEntry : map.entrySet()) {
          Broker b = brokerExceptionEntry.getKey();
-         if (!b.isStopped())
-         {
-            try
-            {
+         if (!b.isStopped()) {
+            try {
                b.stop();
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                e.printStackTrace();
             }
             brokerExceptionEntry.getValue().printStackTrace();

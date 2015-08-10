@@ -32,21 +32,19 @@ import org.apache.activemq.artemis.jms.client.ActiveMQQueue;
  * A simple example that demonstrates server side load-balancing of messages between the queue instances on different
  * nodes of the cluster.
  */
-public class ClusteredGroupingExample
-{
-   public static void main(String[] args) throws Exception
-   {
+public class ClusteredGroupingExample {
+
+   public static void main(String[] args) throws Exception {
       Connection connection0 = null;
 
       Connection connection1 = null;
 
       Connection connection2 = null;
 
-      try
-      {
+      try {
          // Step 1. We will instantiate the queue object directly on this example
          //         This could be done through JNDI or JMSession.createQueue
-         Queue queue =  ActiveMQJMSClient.createQueue("exampleQueue");
+         Queue queue = ActiveMQJMSClient.createQueue("exampleQueue");
 
          // Step 2. create a connection factory towards server 0.
          ConnectionFactory cf0 = new ActiveMQConnectionFactory("tcp://localhost:61616");
@@ -85,7 +83,6 @@ public class ClusteredGroupingExample
          // Step 12. We create JMS MessageConsumer objects on server 0
          MessageConsumer consumer = session0.createConsumer(queue);
 
-
          // Step 13. We create a JMS MessageProducer object on server 0, 1 and 2
          MessageProducer producer0 = session0.createProducer(queue);
 
@@ -97,8 +94,7 @@ public class ClusteredGroupingExample
 
          final int numMessages = 10;
 
-         for (int i = 0; i < numMessages; i++)
-         {
+         for (int i = 0; i < numMessages; i++) {
             TextMessage message = session0.createTextMessage("This is text message " + i);
 
             message.setStringProperty("JMSXGroupID", "Group-0");
@@ -108,8 +104,7 @@ public class ClusteredGroupingExample
             System.out.println("Sent messages: " + message.getText() + " to node 0");
          }
 
-         for (int i = 0; i < numMessages; i++)
-         {
+         for (int i = 0; i < numMessages; i++) {
             TextMessage message = session1.createTextMessage("This is text message " + (i + 10));
 
             message.setStringProperty("JMSXGroupID", "Group-0");
@@ -120,8 +115,7 @@ public class ClusteredGroupingExample
 
          }
 
-         for (int i = 0; i < numMessages; i++)
-         {
+         for (int i = 0; i < numMessages; i++) {
             TextMessage message = session2.createTextMessage("This is text message " + (i + 20));
 
             message.setStringProperty("JMSXGroupID", "Group-0");
@@ -134,30 +128,25 @@ public class ClusteredGroupingExample
          // Step 15. We now consume those messages from server 0
          // We note the messages have all been sent to the same consumer on the same node
 
-         for (int i = 0; i < numMessages * 3; i++)
-         {
-            TextMessage message0 = (TextMessage)consumer.receive(5000);
+         for (int i = 0; i < numMessages * 3; i++) {
+            TextMessage message0 = (TextMessage) consumer.receive(5000);
 
             System.out.println("Got message: " + message0.getText() + " from node 0");
 
          }
       }
-      finally
-      {
+      finally {
          // Step 17. Be sure to close our resources!
 
-         if (connection0 != null)
-         {
+         if (connection0 != null) {
             connection0.close();
          }
 
-         if (connection1 != null)
-         {
+         if (connection1 != null) {
             connection1.close();
          }
 
-         if (connection2 != null)
-         {
+         if (connection2 != null) {
             connection2.close();
          }
       }

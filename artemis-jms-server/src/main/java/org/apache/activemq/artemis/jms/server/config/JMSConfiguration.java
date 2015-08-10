@@ -18,8 +18,8 @@ package org.apache.activemq.artemis.jms.server.config;
 
 import java.util.List;
 
-public interface JMSConfiguration
-{
+public interface JMSConfiguration {
+
    List<JMSQueueConfiguration> getQueueConfigurations();
 
    JMSConfiguration setQueueConfigurations(List<JMSQueueConfiguration> queueConfigurations);

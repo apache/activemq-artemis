@@ -20,8 +20,8 @@ import org.apache.activemq.command.BrokerInfo;
 import org.apache.activemq.command.ConnectionControl;
 import org.apache.activemq.artemis.core.protocol.openwire.OpenWireConnection;
 
-public interface AMQConnector
-{
+public interface AMQConnector {
+
    /**
     * @return brokerInfo
     */
@@ -34,7 +34,7 @@ public interface AMQConnector
 
    /**
     * @return true if update client connections when brokers leave/join a
-    *         cluster
+    * cluster
     */
    boolean isUpdateClusterClients();
 
@@ -51,7 +51,7 @@ public interface AMQConnector
 
    /**
     * @return true if clients should be updated when a broker is removed from a
-    *         broker
+    * broker
     */
    boolean isUpdateClusterClientsOnRemove();
 

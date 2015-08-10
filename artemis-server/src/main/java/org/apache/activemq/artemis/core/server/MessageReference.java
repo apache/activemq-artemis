@@ -16,14 +16,12 @@
  */
 package org.apache.activemq.artemis.core.server;
 
-
 /**
  * A reference to a message.
  *
  * Channels store message references rather than the messages themselves.
  */
-public interface MessageReference
-{
+public interface MessageReference {
 
    boolean isPaged();
 
@@ -32,6 +30,7 @@ public interface MessageReference
    /**
     * We define this method aggregation here because on paging we need to hold the original estimate,
     * so we need to perform some extra steps on paging.
+    *
     * @return
     */
    int getMessageMemoryEstimate();
@@ -39,7 +38,6 @@ public interface MessageReference
    MessageReference copy(Queue queue);
 
    /**
-    *
     * @return The time in the future that delivery will be delayed until, or zero if
     * no scheduled delivery will occur
     */

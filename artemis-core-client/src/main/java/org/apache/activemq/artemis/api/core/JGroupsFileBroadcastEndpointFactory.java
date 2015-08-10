@@ -16,36 +16,31 @@
  */
 package org.apache.activemq.artemis.api.core;
 
-public class JGroupsFileBroadcastEndpointFactory implements BroadcastEndpointFactory
-{
+public class JGroupsFileBroadcastEndpointFactory implements BroadcastEndpointFactory {
+
    private String file;
 
    private String channelName;
 
    @Override
-   public BroadcastEndpoint createBroadcastEndpoint() throws Exception
-   {
+   public BroadcastEndpoint createBroadcastEndpoint() throws Exception {
       return new JGroupsFileBroadcastEndpoint(file, channelName).initChannel();
    }
 
-   public String getFile()
-   {
+   public String getFile() {
       return file;
    }
 
-   public JGroupsFileBroadcastEndpointFactory setFile(String file)
-   {
+   public JGroupsFileBroadcastEndpointFactory setFile(String file) {
       this.file = file;
       return this;
    }
 
-   public String getChannelName()
-   {
+   public String getChannelName() {
       return channelName;
    }
 
-   public JGroupsFileBroadcastEndpointFactory setChannelName(String channelName)
-   {
+   public JGroupsFileBroadcastEndpointFactory setChannelName(String channelName) {
       this.channelName = channelName;
       return this;
    }

@@ -21,8 +21,8 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import java.util.HashSet;
 import java.util.Set;
 
-public class AeroGearConstants
-{
+public class AeroGearConstants {
+
    public static final Set<String> ALLOWABLE_PROPERTIES = new HashSet<>();
    public static final Set<String> REQUIRED_PROPERTIES = new HashSet<>();
 
@@ -42,7 +42,6 @@ public class AeroGearConstants
    public static final String ALIASES_NAME = "aliases";
    public static final String DEVICE_TYPE_NAME = "device-types";
 
-
    public static final SimpleString AEROGEAR_ALERT = new SimpleString("AEROGEAR_ALERT");
    public static final SimpleString AEROGEAR_SOUND = new SimpleString("AEROGEAR_SOUND");
    public static final SimpleString AEROGEAR_CONTENT_AVAILABLE = new SimpleString("AEROGEAR_CONTENT_AVAILABLE");
@@ -58,8 +57,7 @@ public class AeroGearConstants
    public static final int DEFAULT_RETRY_INTERVAL = 5;
    public static final int DEFAULT_RETRY_ATTEMPTS = 5;
 
-   static
-   {
+   static {
       ALLOWABLE_PROPERTIES.add(QUEUE_NAME);
       ALLOWABLE_PROPERTIES.add(ENDPOINT_NAME);
       ALLOWABLE_PROPERTIES.add(APPLICATION_ID_NAME);

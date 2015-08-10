@@ -19,18 +19,16 @@ package org.apache.activemq.artemis.core.journal.impl.dataformat;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
 
-public class JournalRollbackRecordTX extends JournalInternalRecord
-{
+public class JournalRollbackRecordTX extends JournalInternalRecord {
+
    private final long txID;
 
-   public JournalRollbackRecordTX(final long txID)
-   {
+   public JournalRollbackRecordTX(final long txID) {
       this.txID = txID;
    }
 
    @Override
-   public void encode(final ActiveMQBuffer buffer)
-   {
+   public void encode(final ActiveMQBuffer buffer) {
       buffer.writeByte(JournalImpl.ROLLBACK_RECORD);
       buffer.writeInt(fileID);
       buffer.writeByte(compactCount);
@@ -40,8 +38,7 @@ public class JournalRollbackRecordTX extends JournalInternalRecord
    }
 
    @Override
-   public int getEncodeSize()
-   {
+   public int getEncodeSize() {
       return JournalImpl.SIZE_ROLLBACK_RECORD + 1;
    }
 }

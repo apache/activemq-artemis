@@ -51,8 +51,8 @@ import static org.apache.activemq.artemis.core.server.cluster.qourum.SharedNothi
 import static org.apache.activemq.artemis.core.server.cluster.qourum.SharedNothingBackupQuorum.BACKUP_ACTIVATION.FAIL_OVER;
 import static org.apache.activemq.artemis.core.server.cluster.qourum.SharedNothingBackupQuorum.BACKUP_ACTIVATION.STOP;
 
-public final class SharedNothingBackupActivation extends Activation
-{
+public final class SharedNothingBackupActivation extends Activation {
+
    //this is how we act when we start as a backup
    private ReplicaPolicy replicaPolicy;
 
@@ -75,8 +75,7 @@ public final class SharedNothingBackupActivation extends Activation
                                         boolean attemptFailBack,
                                         Map<String, Object> activationParams,
                                         ActiveMQServerImpl.ShutdownOnCriticalErrorListener shutdownOnCriticalIO,
-                                        ReplicaPolicy replicaPolicy)
-   {
+                                        ReplicaPolicy replicaPolicy) {
       this.activeMQServer = activeMQServer;
       this.attemptFailBack = attemptFailBack;
       this.activationParams = activationParams;
@@ -85,28 +84,23 @@ public final class SharedNothingBackupActivation extends Activation
       backupSyncLatch.setCount(1);
    }
 
-   public void init() throws Exception
-   {
+   public void init() throws Exception {
       assert replicationEndpoint == null;
       activeMQServer.resetNodeManager();
       backupUpToDate = false;
       replicationEndpoint = new ReplicationEndpoint(activeMQServer, shutdownOnCriticalIO, attemptFailBack, this);
    }
 
-   public void run()
-   {
-      try
-      {
-         synchronized (activeMQServer)
-         {
+   public void run() {
+      try {
+         synchronized (activeMQServer) {
             activeMQServer.setState(ActiveMQServerImpl.SERVER_STATE.STARTED);
          }
          // move all data away:
          activeMQServer.getNodeManager().stop();
          activeMQServer.moveServerData();
          activeMQServer.getNodeManager().start();
-         synchronized (this)
-         {
+         synchronized (this) {
             if (closed)
                return;
          }
@@ -116,8 +110,7 @@ public final class SharedNothingBackupActivation extends Activation
          if (!activeMQServer.initialisePart1(scalingDown))
             return;
 
-         synchronized (this)
-         {
+         synchronized (this) {
             if (closed)
                return;
             backupQuorum = new SharedNothingBackupQuorum(activeMQServer.getStorageManager(), activeMQServer.getNodeManager(), activeMQServer.getScheduledPool());
@@ -126,16 +119,12 @@ public final class SharedNothingBackupActivation extends Activation
 
          //use a Node Locator to connect to the cluster
          LiveNodeLocator nodeLocator;
-         if (activationParams.get(ActivationParams.REPLICATION_ENDPOINT) != null)
-         {
+         if (activationParams.get(ActivationParams.REPLICATION_ENDPOINT) != null) {
             TopologyMember member = (TopologyMember) activationParams.get(ActivationParams.REPLICATION_ENDPOINT);
             nodeLocator = new NamedNodeIdNodeLocator(member.getNodeId(), new Pair<>(member.getLive(), member.getBackup()));
          }
-         else
-         {
-            nodeLocator = replicaPolicy.getGroupName() == null ?
-                  new AnyLiveNodeLocatorForReplication(backupQuorum, activeMQServer) :
-                  new NamedLiveNodeLocatorForReplication(replicaPolicy.getGroupName(), backupQuorum);
+         else {
+            nodeLocator = replicaPolicy.getGroupName() == null ? new AnyLiveNodeLocatorForReplication(backupQuorum, activeMQServer) : new NamedLiveNodeLocatorForReplication(replicaPolicy.getGroupName(), backupQuorum);
          }
          ClusterController clusterController = activeMQServer.getClusterManager().getClusterController();
          clusterController.addClusterTopologyListenerForReplication(nodeLocator);
@@ -156,45 +145,36 @@ public final class SharedNothingBackupActivation extends Activation
          activeMQServer.setState(ActiveMQServerImpl.SERVER_STATE.STARTED);
 
          SharedNothingBackupQuorum.BACKUP_ACTIVATION signal;
-         do
-         {
+         do {
             //locate the first live server to try to replicate
             nodeLocator.locateNode();
-            if (closed)
-            {
+            if (closed) {
                return;
             }
             Pair<TransportConfiguration, TransportConfiguration> possibleLive = nodeLocator.getLiveConfiguration();
             nodeID = nodeLocator.getNodeID();
             //in a normal (non failback) scenario if we couldn't find our live server we should fail
-            if (!attemptFailBack)
-            {
+            if (!attemptFailBack) {
                //this shouldn't happen
                if (nodeID == null)
                   throw new RuntimeException("Could not establish the connection");
                activeMQServer.getNodeManager().setNodeID(nodeID);
             }
 
-            try
-            {
-               clusterControl =  clusterController.connectToNodeInReplicatedCluster(possibleLive.getA());
+            try {
+               clusterControl = clusterController.connectToNodeInReplicatedCluster(possibleLive.getA());
             }
-            catch (Exception e)
-            {
-               if (possibleLive.getB() != null)
-               {
-                  try
-                  {
+            catch (Exception e) {
+               if (possibleLive.getB() != null) {
+                  try {
                      clusterControl = clusterController.connectToNodeInReplicatedCluster(possibleLive.getB());
                   }
-                  catch (Exception e1)
-                  {
+                  catch (Exception e1) {
                      clusterControl = null;
                   }
                }
             }
-            if (clusterControl == null)
-            {
+            if (clusterControl == null) {
                //its ok to retry here since we haven't started replication yet
                //it may just be the server has gone since discovery
                Thread.sleep(clusterController.getRetryIntervalForReplicatedCluster());
@@ -221,19 +201,14 @@ public final class SharedNothingBackupActivation extends Activation
             else if (signal == FAIL_OVER)
                break;
                // something has gone badly run restart from scratch
-            else if (signal == SharedNothingBackupQuorum.BACKUP_ACTIVATION.FAILURE_REPLICATING)
-            {
-               Thread startThread = new Thread(new Runnable()
-               {
+            else if (signal == SharedNothingBackupQuorum.BACKUP_ACTIVATION.FAILURE_REPLICATING) {
+               Thread startThread = new Thread(new Runnable() {
                   @Override
-                  public void run()
-                  {
-                     try
-                     {
+                  public void run() {
+                     try {
                         activeMQServer.stop();
                      }
-                     catch (Exception e)
-                     {
+                     catch (Exception e) {
                         ActiveMQServerLogger.LOGGER.errorRestartingBackupServer(e, activeMQServer);
                      }
                   }
@@ -245,46 +220,38 @@ public final class SharedNothingBackupActivation extends Activation
             //close this session factory, we're done with it
             clusterControl.close();
             backupQuorum.reset();
-            if (replicationEndpoint.getChannel() != null)
-            {
+            if (replicationEndpoint.getChannel() != null) {
                replicationEndpoint.getChannel().close();
                replicationEndpoint.setChannel(null);
             }
-         }
-         while (signal == SharedNothingBackupQuorum.BACKUP_ACTIVATION.ALREADY_REPLICATING);
+         } while (signal == SharedNothingBackupQuorum.BACKUP_ACTIVATION.ALREADY_REPLICATING);
 
          activeMQServer.getClusterManager().getQuorumManager().unRegisterQuorum(backupQuorum);
 
-         if (!isRemoteBackupUpToDate())
-         {
+         if (!isRemoteBackupUpToDate()) {
             throw ActiveMQMessageBundle.BUNDLE.backupServerNotInSync();
          }
 
          replicaPolicy.getReplicatedPolicy().setReplicaPolicy(replicaPolicy);
          activeMQServer.setHAPolicy(replicaPolicy.getReplicatedPolicy());
-         synchronized (activeMQServer)
-         {
+         synchronized (activeMQServer) {
             if (!activeMQServer.isStarted())
                return;
             ActiveMQServerLogger.LOGGER.becomingLive(activeMQServer);
             activeMQServer.getNodeManager().stopBackup();
             activeMQServer.getStorageManager().start();
             activeMQServer.getBackupManager().activated();
-            if (scalingDown)
-            {
+            if (scalingDown) {
                activeMQServer.initialisePart2(true);
             }
-            else
-            {
+            else {
                activeMQServer.setActivation(new SharedNothingLiveActivation(activeMQServer, replicaPolicy.getReplicatedPolicy()));
                activeMQServer.initialisePart2(false);
 
-               if (activeMQServer.getIdentity() != null)
-               {
+               if (activeMQServer.getIdentity() != null) {
                   ActiveMQServerLogger.LOGGER.serverIsLive(activeMQServer.getIdentity());
                }
-               else
-               {
+               else {
                   ActiveMQServerLogger.LOGGER.serverIsLive();
                }
 
@@ -293,8 +260,7 @@ public final class SharedNothingBackupActivation extends Activation
             activeMQServer.completeActivation();
          }
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          if ((e instanceof InterruptedException || e instanceof IllegalStateException) && !activeMQServer.isStarted())
             // do not log these errors if the server is being stopped.
             return;
@@ -303,111 +269,85 @@ public final class SharedNothingBackupActivation extends Activation
       }
    }
 
-   public void close(final boolean permanently, boolean restarting) throws Exception
-   {
-      synchronized (this)
-      {
+   public void close(final boolean permanently, boolean restarting) throws Exception {
+      synchronized (this) {
          if (backupQuorum != null)
             backupQuorum.causeExit(STOP);
          replicationEndpoint = null;
          closed = true;
       }
       //we have to check as the server policy may have changed
-      if (activeMQServer.getHAPolicy().isBackup())
-      {
+      if (activeMQServer.getHAPolicy().isBackup()) {
          // To avoid a NPE cause by the stop
          NodeManager nodeManagerInUse = activeMQServer.getNodeManager();
 
          activeMQServer.interrupBackupThread(nodeManagerInUse);
 
-         if (nodeManagerInUse != null)
-         {
+         if (nodeManagerInUse != null) {
             nodeManagerInUse.stopBackup();
          }
       }
    }
 
    @Override
-   public void preStorageClose() throws Exception
-   {
-      if (replicationEndpoint != null)
-      {
+   public void preStorageClose() throws Exception {
+      if (replicationEndpoint != null) {
          replicationEndpoint.stop();
       }
    }
 
    @Override
-   public JournalLoader createJournalLoader(PostOffice postOffice, PagingManager pagingManager, StorageManager storageManager, QueueFactory queueFactory, NodeManager nodeManager, ManagementService managementService, GroupingHandler groupingHandler, Configuration configuration, ActiveMQServer parentServer) throws ActiveMQException
-   {
-      if (replicaPolicy.getScaleDownPolicy() != null && replicaPolicy.getScaleDownPolicy().isEnabled())
-      {
-         return new BackupRecoveryJournalLoader(postOffice,
-               pagingManager,
-               storageManager,
-               queueFactory,
-               nodeManager,
-               managementService,
-               groupingHandler,
-               configuration,
-               parentServer,
-               ScaleDownPolicy.getScaleDownConnector(replicaPolicy.getScaleDownPolicy(), activeMQServer),
-               activeMQServer.getClusterManager().getClusterController());
+   public JournalLoader createJournalLoader(PostOffice postOffice,
+                                            PagingManager pagingManager,
+                                            StorageManager storageManager,
+                                            QueueFactory queueFactory,
+                                            NodeManager nodeManager,
+                                            ManagementService managementService,
+                                            GroupingHandler groupingHandler,
+                                            Configuration configuration,
+                                            ActiveMQServer parentServer) throws ActiveMQException {
+      if (replicaPolicy.getScaleDownPolicy() != null && replicaPolicy.getScaleDownPolicy().isEnabled()) {
+         return new BackupRecoveryJournalLoader(postOffice, pagingManager, storageManager, queueFactory, nodeManager, managementService, groupingHandler, configuration, parentServer, ScaleDownPolicy.getScaleDownConnector(replicaPolicy.getScaleDownPolicy(), activeMQServer), activeMQServer.getClusterManager().getClusterController());
       }
-      else
-      {
-         return super.createJournalLoader(postOffice,
-               pagingManager,
-               storageManager,
-               queueFactory,
-               nodeManager,
-               managementService,
-               groupingHandler,
-               configuration,
-               parentServer);
+      else {
+         return super.createJournalLoader(postOffice, pagingManager, storageManager, queueFactory, nodeManager, managementService, groupingHandler, configuration, parentServer);
       }
    }
 
    @Override
-   public void haStarted()
-   {
+   public void haStarted() {
       activeMQServer.getClusterManager().getClusterController().setReplicatedClusterName(replicaPolicy.getClusterName());
    }
 
-
    /**
     * Wait for backup synchronization when using synchronization
+    *
     * @param timeout
     * @param unit
-    * @see java.util.concurrent.CountDownLatch#await(long, TimeUnit)
     * @return {@code true} if the server was already initialized or if it was initialized within the
-    *         timeout period, {@code false} otherwise.
+    * timeout period, {@code false} otherwise.
     * @throws InterruptedException
+    * @see java.util.concurrent.CountDownLatch#await(long, TimeUnit)
     */
-   public boolean waitForBackupSync(long timeout, TimeUnit unit) throws InterruptedException
-   {
+   public boolean waitForBackupSync(long timeout, TimeUnit unit) throws InterruptedException {
       return backupSyncLatch.await(timeout, unit);
    }
 
    /**
     * Live has notified this server that it is going to stop.
     */
-   public void failOver(final ReplicationLiveIsStoppingMessage.LiveStopping finalMessage)
-   {
-      if (finalMessage == null)
-      {
+   public void failOver(final ReplicationLiveIsStoppingMessage.LiveStopping finalMessage) {
+      if (finalMessage == null) {
          backupQuorum.causeExit(FAILURE_REPLICATING);
       }
-      else
-      {
+      else {
          backupQuorum.failOver(finalMessage);
       }
    }
 
-   public ReplicationEndpoint getReplicationEndpoint()
-   {
+   public ReplicationEndpoint getReplicationEndpoint() {
       return replicationEndpoint;
    }
-
 
    /**
     * Whether a remote backup server was in sync with its live server. If it was not in sync, it may
@@ -418,13 +358,11 @@ public final class SharedNothingBackupActivation extends Activation
     * @return whether the backup is up-to-date, if the server is not a backup it always returns
     * {@code true}.
     */
-   public boolean isRemoteBackupUpToDate()
-   {
+   public boolean isRemoteBackupUpToDate() {
       return backupUpToDate;
    }
 
-   public void setRemoteBackupUpToDate()
-   {
+   public void setRemoteBackupUpToDate() {
       activeMQServer.getBackupManager().announceBackup();
       backupUpToDate = true;
       backupSyncLatch.countDown();
@@ -433,34 +371,26 @@ public final class SharedNothingBackupActivation extends Activation
    /**
     * @throws ActiveMQException
     */
-   public void remoteFailOver(ReplicationLiveIsStoppingMessage.LiveStopping finalMessage) throws ActiveMQException
-   {
+   public void remoteFailOver(ReplicationLiveIsStoppingMessage.LiveStopping finalMessage) throws ActiveMQException {
       ActiveMQServerLogger.LOGGER.trace("Remote fail-over, got message=" + finalMessage + ", backupUpToDate=" +
-            backupUpToDate);
-      if (!activeMQServer.getHAPolicy().isBackup() || activeMQServer.getHAPolicy().isSharedStore())
-      {
+                                           backupUpToDate);
+      if (!activeMQServer.getHAPolicy().isBackup() || activeMQServer.getHAPolicy().isSharedStore()) {
          throw new ActiveMQInternalErrorException();
       }
 
-      if (!backupUpToDate)
-      {
+      if (!backupUpToDate) {
          failOver(null);
       }
-      else
-      {
+      else {
          failOver(finalMessage);
       }
    }
 
+   private class EndpointConnector implements Runnable {
 
-
-   private class EndpointConnector implements Runnable
-   {
       @Override
-      public void run()
-      {
-         try
-         {
+      public void run() {
+         try {
             //we should only try once, if its not there we should move on.
             clusterControl.getSessionFactory().setReconnectAttempts(1);
             backupQuorum.setSessionFactory(clusterControl.getSessionFactory());
@@ -470,20 +400,17 @@ public final class SharedNothingBackupActivation extends Activation
             replicationEndpoint.start();
             clusterControl.announceReplicatingBackupToLive(attemptFailBack, replicaPolicy.getClusterName());
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             //we shouldn't stop the server just mark the connector as tried and unavailable
             ActiveMQServerLogger.LOGGER.replicationStartProblem(e);
             backupQuorum.causeExit(FAILURE_REPLICATING);
          }
       }
 
-      private synchronized ReplicationEndpoint connectToReplicationEndpoint(final ClusterControl control) throws Exception
-      {
+      private synchronized ReplicationEndpoint connectToReplicationEndpoint(final ClusterControl control) throws Exception {
          if (!activeMQServer.isStarted())
             return null;
-         if (!activeMQServer.getHAPolicy().isBackup())
-         {
+         if (!activeMQServer.getHAPolicy().isBackup()) {
             throw ActiveMQMessageBundle.BUNDLE.serverNotBackupServer();
          }
 
@@ -491,8 +418,7 @@ public final class SharedNothingBackupActivation extends Activation
 
          replicationChannel.setHandler(replicationEndpoint);
 
-         if (replicationEndpoint.getChannel() != null)
-         {
+         if (replicationEndpoint.getChannel() != null) {
             throw ActiveMQMessageBundle.BUNDLE.alreadyHaveReplicationServer();
          }
 

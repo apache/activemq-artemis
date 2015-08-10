@@ -40,41 +40,27 @@ import org.junit.runners.Parameterized;
  * adapted from: org.apache.activemq.JMSConsumerTest
  */
 @RunWith(Parameterized.class)
-public class JMSConsumer5Test extends BasicOpenWireTest
-{
+public class JMSConsumer5Test extends BasicOpenWireTest {
+
    @Parameterized.Parameters(name = "deliveryMode={0} destinationType={1}")
-   public static Collection<Object[]> getParams()
-   {
-      return Arrays.asList(new Object[][] {
-         {DeliveryMode.NON_PERSISTENT, ActiveMQDestination.QUEUE_TYPE},
-         {DeliveryMode.NON_PERSISTENT, ActiveMQDestination.TOPIC_TYPE},
-         {DeliveryMode.NON_PERSISTENT, ActiveMQDestination.TEMP_QUEUE_TYPE},
-         {DeliveryMode.NON_PERSISTENT, ActiveMQDestination.TEMP_TOPIC_TYPE},
-         {DeliveryMode.PERSISTENT, ActiveMQDestination.QUEUE_TYPE},
-         {DeliveryMode.PERSISTENT, ActiveMQDestination.TOPIC_TYPE},
-         {DeliveryMode.PERSISTENT, ActiveMQDestination.TEMP_QUEUE_TYPE},
-         {DeliveryMode.PERSISTENT, ActiveMQDestination.TEMP_TOPIC_TYPE}
-      });
+   public static Collection<Object[]> getParams() {
+      return Arrays.asList(new Object[][]{{DeliveryMode.NON_PERSISTENT, ActiveMQDestination.QUEUE_TYPE}, {DeliveryMode.NON_PERSISTENT, ActiveMQDestination.TOPIC_TYPE}, {DeliveryMode.NON_PERSISTENT, ActiveMQDestination.TEMP_QUEUE_TYPE}, {DeliveryMode.NON_PERSISTENT, ActiveMQDestination.TEMP_TOPIC_TYPE}, {DeliveryMode.PERSISTENT, ActiveMQDestination.QUEUE_TYPE}, {DeliveryMode.PERSISTENT, ActiveMQDestination.TOPIC_TYPE}, {DeliveryMode.PERSISTENT, ActiveMQDestination.TEMP_QUEUE_TYPE}, {DeliveryMode.PERSISTENT, ActiveMQDestination.TEMP_TOPIC_TYPE}});
    }
 
    public int deliveryMode;
    public byte destinationType;
 
-   public JMSConsumer5Test(int deliveryMode, byte destinationType)
-   {
+   public JMSConsumer5Test(int deliveryMode, byte destinationType) {
       this.deliveryMode = deliveryMode;
       this.destinationType = destinationType;
    }
 
    @Test
-   public void testSendReceiveBytesMessage() throws Exception
-   {
+   public void testSendReceiveBytesMessage() throws Exception {
       // Receive a message with the JMS API
       connection.start();
-      Session session = connection.createSession(false,
-            Session.AUTO_ACKNOWLEDGE);
-      ActiveMQDestination destination = createDestination(session,
-            destinationType);
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      ActiveMQDestination destination = createDestination(session, destinationType);
       MessageConsumer consumer = session.createConsumer(destination);
       MessageProducer producer = session.createProducer(destination);
 
@@ -93,31 +79,25 @@ public class JMSConsumer5Test extends BasicOpenWireTest
    }
 
    @Test
-   public void testSetMessageListenerAfterStart() throws Exception
-   {
+   public void testSetMessageListenerAfterStart() throws Exception {
       final AtomicInteger counter = new AtomicInteger(0);
       final CountDownLatch done = new CountDownLatch(1);
 
       // Receive a message with the JMS API
       connection.start();
-      Session session = connection.createSession(false,
-            Session.AUTO_ACKNOWLEDGE);
-      ActiveMQDestination destination = createDestination(session,
-            destinationType);
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      ActiveMQDestination destination = createDestination(session, destinationType);
       MessageConsumer consumer = session.createConsumer(destination);
 
       // Send the messages
       sendMessages(session, destination, 4);
 
       // See if the message get sent to the listener
-      consumer.setMessageListener(new MessageListener()
-      {
+      consumer.setMessageListener(new MessageListener() {
          @Override
-         public void onMessage(Message m)
-         {
+         public void onMessage(Message m) {
             counter.incrementAndGet();
-            if (counter.get() == 4)
-            {
+            if (counter.get() == 4) {
                System.out.println("ok finished all 4, done sleep");
                done.countDown();
             }

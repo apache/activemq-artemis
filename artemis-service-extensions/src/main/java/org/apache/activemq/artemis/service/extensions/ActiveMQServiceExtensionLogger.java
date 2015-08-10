@@ -39,8 +39,8 @@ import org.jboss.logging.annotations.MessageLogger;
  */
 
 @MessageLogger(projectCode = "AMQ")
-public interface ActiveMQServiceExtensionLogger extends BasicLogger
-{
+public interface ActiveMQServiceExtensionLogger extends BasicLogger {
+
    /**
     * The default logger.
     */

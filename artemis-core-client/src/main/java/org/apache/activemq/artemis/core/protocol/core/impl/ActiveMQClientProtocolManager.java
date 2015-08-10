@@ -72,8 +72,8 @@ import org.apache.activemq.artemis.utils.VersionLoader;
  * Implementations of this class need to be stateless.
  */
 
-public class ActiveMQClientProtocolManager implements ClientProtocolManager
-{
+public class ActiveMQClientProtocolManager implements ClientProtocolManager {
+
    private static final String handshake = "ARTEMIS";
 
    private final int versionID = VersionLoader.getVersion().getIncrementingVersion();
@@ -106,117 +106,89 @@ public class ActiveMQClientProtocolManager implements ClientProtocolManager
 
    private final CountDownLatch waitLatch = new CountDownLatch(1);
 
-
-   public ActiveMQClientProtocolManager()
-   {
+   public ActiveMQClientProtocolManager() {
    }
 
-   public String getName()
-   {
+   public String getName() {
       return ActiveMQClient.DEFAULT_CORE_PROTOCOL;
    }
 
-   public void setSessionFactory(ClientSessionFactory factory)
-   {
-      this.factoryInternal = (ClientSessionFactoryInternal)factory;
+   public void setSessionFactory(ClientSessionFactory factory) {
+      this.factoryInternal = (ClientSessionFactoryInternal) factory;
    }
 
-   public ClientSessionFactory getSessionFactory()
-   {
+   public ClientSessionFactory getSessionFactory() {
       return this.factoryInternal;
    }
 
    @Override
-   public void addChannelHandlers(ChannelPipeline pipeline)
-   {
+   public void addChannelHandlers(ChannelPipeline pipeline) {
       pipeline.addLast("activemq-decoder", new ActiveMQFrameDecoder2());
    }
 
-   public boolean waitOnLatch(long milliseconds) throws InterruptedException
-   {
+   public boolean waitOnLatch(long milliseconds) throws InterruptedException {
       return waitLatch.await(milliseconds, TimeUnit.MILLISECONDS);
    }
 
-   public Channel getChannel0()
-   {
-      if (connection == null)
-      {
+   public Channel getChannel0() {
+      if (connection == null) {
          return null;
       }
-      else
-      {
+      else {
          return connection.getChannel(ChannelImpl.CHANNEL_ID.PING.id, -1);
       }
    }
 
-   public RemotingConnection getCurrentConnection()
-   {
+   public RemotingConnection getCurrentConnection() {
       return connection;
    }
 
-
-   public Channel getChannel1()
-   {
-      if (connection == null)
-      {
+   public Channel getChannel1() {
+      if (connection == null) {
          return null;
       }
-      else
-      {
+      else {
          return connection.getChannel(1, -1);
       }
    }
 
-   public Lock lockSessionCreation()
-   {
-      try
-      {
+   public Lock lockSessionCreation() {
+      try {
          Lock localFailoverLock = factoryInternal.lockFailover();
-         try
-         {
-            if (connection == null)
-            {
+         try {
+            if (connection == null) {
                return null;
             }
 
             Lock lock = getChannel1().getLock();
 
             // Lock it - this must be done while the failoverLock is held
-            while (isAlive() && !lock.tryLock(100, TimeUnit.MILLISECONDS))
-            {
+            while (isAlive() && !lock.tryLock(100, TimeUnit.MILLISECONDS)) {
             }
 
             return lock;
          }
-         finally
-         {
+         finally {
             localFailoverLock.unlock();
          }
          // We can now release the failoverLock
       }
-      catch (InterruptedException e)
-      {
+      catch (InterruptedException e) {
          Thread.currentThread().interrupt();
          return null;
       }
    }
 
-
-   public void stop()
-   {
+   public void stop() {
       alive = false;
 
-
-      synchronized (inCreateSessionGuard)
-      {
+      synchronized (inCreateSessionGuard) {
          if (inCreateSessionLatch != null)
             inCreateSessionLatch.countDown();
       }
 
-
       Channel channel1 = getChannel1();
-      if (channel1 != null)
-      {
+      if (channel1 != null) {
          channel1.returnBlocking();
       }
 
@@ -224,15 +196,12 @@ public class ActiveMQClientProtocolManager implements ClientProtocolManager
 
    }
 
-   public boolean isAlive()
-   {
+   public boolean isAlive() {
       return alive;
    }
 
-
    @Override
-   public void ping(long connectionTTL)
-   {
+   public void ping(long connectionTTL) {
       Channel channel = connection.getChannel(ChannelImpl.CHANNEL_ID.PING.id, -1);
 
       Ping ping = new Ping(connectionTTL);
@@ -243,37 +212,26 @@ public class ActiveMQClientProtocolManager implements ClientProtocolManager
    }
 
    @Override
-   public void sendSubscribeTopology(final boolean isServer)
-   {
-      getChannel0().send(new SubscribeClusterTopologyUpdatesMessageV2(isServer,
-                                                                      VersionLoader.getVersion()
-                                                                         .getIncrementingVersion()));
+   public void sendSubscribeTopology(final boolean isServer) {
+      getChannel0().send(new SubscribeClusterTopologyUpdatesMessageV2(isServer, VersionLoader.getVersion().getIncrementingVersion()));
    }
 
    @Override
-   public SessionContext createSessionContext(String name, String username, String password,
-                                              boolean xa, boolean autoCommitSends, boolean autoCommitAcks,
-                                              boolean preAcknowledge, int minLargeMessageSize, int confirmationWindowSize) throws ActiveMQException
-   {
-      for (Version clientVersion : VersionLoader.getClientVersions())
-      {
-         try
-         {
-            return createSessionContext(clientVersion,
-                                        name,
-                                        username,
-                                        password,
-                                        xa,
-                                        autoCommitSends,
-                                        autoCommitAcks,
-                                        preAcknowledge,
-                                        minLargeMessageSize,
-                                        confirmationWindowSize);
+   public SessionContext createSessionContext(String name,
+                                              String username,
+                                              String password,
+                                              boolean xa,
+                                              boolean autoCommitSends,
+                                              boolean autoCommitAcks,
+                                              boolean preAcknowledge,
+                                              int minLargeMessageSize,
+                                              int confirmationWindowSize) throws ActiveMQException {
+      for (Version clientVersion : VersionLoader.getClientVersions()) {
+         try {
+            return createSessionContext(clientVersion, name, username, password, xa, autoCommitSends, autoCommitAcks, preAcknowledge, minLargeMessageSize, confirmationWindowSize);
          }
-         catch (ActiveMQException e)
-         {
-            if (e.getType() != ActiveMQExceptionType.INCOMPATIBLE_CLIENT_SERVER_VERSIONS)
-            {
+         catch (ActiveMQException e) {
+            if (e.getType() != ActiveMQExceptionType.INCOMPATIBLE_CLIENT_SERVER_VERSIONS) {
                throw e;
             }
          }
@@ -282,10 +240,16 @@ public class ActiveMQClientProtocolManager implements ClientProtocolManager
       throw new ActiveMQException(ActiveMQExceptionType.INCOMPATIBLE_CLIENT_SERVER_VERSIONS);
    }
 
-   public SessionContext createSessionContext(Version clientVersion, String name, String username, String password,
-                                              boolean xa, boolean autoCommitSends, boolean autoCommitAcks,
-                                              boolean preAcknowledge, int minLargeMessageSize, int confirmationWindowSize) throws ActiveMQException
-   {
+   public SessionContext createSessionContext(Version clientVersion,
+                                              String name,
+                                              String username,
+                                              String password,
+                                              boolean xa,
+                                              boolean autoCommitSends,
+                                              boolean autoCommitAcks,
+                                              boolean preAcknowledge,
+                                              int minLargeMessageSize,
+                                              int confirmationWindowSize) throws ActiveMQException {
       if (!isAlive())
          throw ActiveMQClientMessageBundle.BUNDLE.clientSessionClosed();
 
@@ -293,20 +257,17 @@ public class ActiveMQClientProtocolManager implements ClientProtocolManager
       CreateSessionResponseMessage response = null;
 
       boolean retry;
-      do
-      {
+      do {
          retry = false;
 
          Lock lock = null;
 
-         try
-         {
+         try {
 
             lock = lockSessionCreation();
 
             // We now set a flag saying createSession is executing
-            synchronized (inCreateSessionGuard)
-            {
+            synchronized (inCreateSessionGuard) {
                if (!isAlive())
                   throw ActiveMQClientMessageBundle.BUNDLE.clientSessionClosed();
                inCreateSession = true;
@@ -315,32 +276,17 @@ public class ActiveMQClientProtocolManager implements ClientProtocolManager
 
             long sessionChannelID = connection.generateChannelID();
 
-            Packet request = new CreateSessionMessage(name,
-                                                      sessionChannelID,
-                                                      clientVersion.getIncrementingVersion(),
-                                                      username,
-                                                      password,
-                                                      minLargeMessageSize,
-                                                      xa,
-                                                      autoCommitSends,
-                                                      autoCommitAcks,
-                                                      preAcknowledge,
-                                                      confirmationWindowSize,
-                                                      null);
+            Packet request = new CreateSessionMessage(name, sessionChannelID, clientVersion.getIncrementingVersion(), username, password, minLargeMessageSize, xa, autoCommitSends, autoCommitAcks, preAcknowledge, confirmationWindowSize, null);
 
-
-            try
-            {
+            try {
                // channel1 reference here has to go away
                response = (CreateSessionResponseMessage) getChannel1().sendBlocking(request, PacketImpl.CREATESESSION_RESP);
             }
-            catch (ActiveMQException cause)
-            {
+            catch (ActiveMQException cause) {
                if (!isAlive())
                   throw cause;
 
-               if (cause.getType() == ActiveMQExceptionType.UNBLOCKED)
-               {
+               if (cause.getType() == ActiveMQExceptionType.UNBLOCKED) {
                   // This means the thread was blocked on create session and failover unblocked it
                   // so failover could occur
 
@@ -348,37 +294,29 @@ public class ActiveMQClientProtocolManager implements ClientProtocolManager
 
                   continue;
                }
-               else
-               {
+               else {
                   throw cause;
                }
             }
 
             sessionChannel = connection.getChannel(sessionChannelID, confirmationWindowSize);
 
-
          }
-         catch (Throwable t)
-         {
-            if (lock != null)
-            {
+         catch (Throwable t) {
+            if (lock != null) {
                lock.unlock();
                lock = null;
             }
 
-            if (t instanceof ActiveMQException)
-            {
+            if (t instanceof ActiveMQException) {
                throw (ActiveMQException) t;
             }
-            else
-            {
+            else {
                throw ActiveMQClientMessageBundle.BUNDLE.failedToCreateSession(t);
             }
          }
-         finally
-         {
-            if (lock != null)
-            {
+         finally {
+            if (lock != null) {
                lock.unlock();
             }
 
@@ -386,60 +324,48 @@ public class ActiveMQClientProtocolManager implements ClientProtocolManager
             inCreateSession = false;
             inCreateSessionLatch.countDown();
          }
-      }
-      while (retry);
-
+      } while (retry);
 
       // these objects won't be null, otherwise it would keep retrying on the previous loop
       return new ActiveMQSessionContext(name, connection, sessionChannel, response.getServerVersion(), confirmationWindowSize);
 
    }
 
-   public boolean cleanupBeforeFailover(ActiveMQException cause)
-   {
+   public boolean cleanupBeforeFailover(ActiveMQException cause) {
 
       boolean needToInterrupt;
 
       CountDownLatch exitLockLatch;
       Lock lock = lockSessionCreation();
 
-      if (lock == null)
-      {
+      if (lock == null) {
          return false;
       }
 
-      try
-      {
-         synchronized (inCreateSessionGuard)
-         {
+      try {
+         synchronized (inCreateSessionGuard) {
             needToInterrupt = inCreateSession;
             exitLockLatch = inCreateSessionLatch;
          }
       }
-      finally
-      {
+      finally {
          lock.unlock();
       }
 
-      if (needToInterrupt)
-      {
+      if (needToInterrupt) {
          forceReturnChannel1(cause);
 
          // Now we need to make sure that the thread has actually exited and returned it's
          // connections
          // before failover occurs
 
-         while (inCreateSession && isAlive())
-         {
-            try
-            {
-               if (exitLockLatch != null)
-               {
+         while (inCreateSession && isAlive()) {
+            try {
+               if (exitLockLatch != null) {
                   exitLockLatch.await(500, TimeUnit.MILLISECONDS);
                }
             }
-            catch (InterruptedException e1)
-            {
+            catch (InterruptedException e1) {
                throw new ActiveMQInterruptedException(e1);
             }
          }
@@ -449,37 +375,31 @@ public class ActiveMQClientProtocolManager implements ClientProtocolManager
    }
 
    @Override
-   public boolean checkForFailover(String liveNodeID) throws ActiveMQException
-   {
+   public boolean checkForFailover(String liveNodeID) throws ActiveMQException {
       CheckFailoverMessage packet = new CheckFailoverMessage(liveNodeID);
-      CheckFailoverReplyMessage message = (CheckFailoverReplyMessage) getChannel1().sendBlocking(packet,
-                                                                                                 PacketImpl.CHECK_FOR_FAILOVER_REPLY);
+      CheckFailoverReplyMessage message = (CheckFailoverReplyMessage) getChannel1().sendBlocking(packet, PacketImpl.CHECK_FOR_FAILOVER_REPLY);
       return message.isOkToFailover();
    }
 
-
-   public RemotingConnection connect(Connection transportConnection, long callTimeout, long callFailoverTimeout,
-                                     List<Interceptor> incomingInterceptors, List<Interceptor> outgoingInterceptors,
-                                     TopologyResponseHandler topologyResponseHandler)
-   {
-      this.connection = new RemotingConnectionImpl(getPacketDecoder(), transportConnection,
-                                                                             callTimeout, callFailoverTimeout,
-                                                                             incomingInterceptors, outgoingInterceptors);
+   public RemotingConnection connect(Connection transportConnection,
+                                     long callTimeout,
+                                     long callFailoverTimeout,
+                                     List<Interceptor> incomingInterceptors,
+                                     List<Interceptor> outgoingInterceptors,
+                                     TopologyResponseHandler topologyResponseHandler) {
+      this.connection = new RemotingConnectionImpl(getPacketDecoder(), transportConnection, callTimeout, callFailoverTimeout, incomingInterceptors, outgoingInterceptors);
 
       this.topologyResponseHandler = topologyResponseHandler;
 
       getChannel0().setHandler(new Channel0Handler(connection));
-
 
       sendHandshake(transportConnection);
 
       return connection;
    }
 
-   private void sendHandshake(Connection transportConnection)
-   {
-      if (transportConnection.isUsingProtocolHandling())
-      {
+   private void sendHandshake(Connection transportConnection) {
+      if (transportConnection.isUsingProtocolHandling()) {
          // no need to send handshake on inVM as inVM is not using the NettyProtocolHandling
          ActiveMQBuffer amqbuffer = connection.createTransportBuffer(handshake.length());
          amqbuffer.writeBytes(handshake.getBytes());
@@ -487,29 +407,24 @@ public class ActiveMQClientProtocolManager implements ClientProtocolManager
       }
    }
 
+   private class Channel0Handler implements ChannelHandler {
 
-   private class Channel0Handler implements ChannelHandler
-   {
       private final CoreRemotingConnection conn;
 
-      private Channel0Handler(final CoreRemotingConnection conn)
-      {
+      private Channel0Handler(final CoreRemotingConnection conn) {
          this.conn = conn;
       }
 
-      public void handlePacket(final Packet packet)
-      {
+      public void handlePacket(final Packet packet) {
          final byte type = packet.getType();
 
-         if (type == PacketImpl.DISCONNECT || type == PacketImpl.DISCONNECT_V2)
-         {
+         if (type == PacketImpl.DISCONNECT || type == PacketImpl.DISCONNECT_V2) {
             final DisconnectMessage msg = (DisconnectMessage) packet;
             String scaleDownTargetNodeID = null;
 
             SimpleString nodeID = msg.getNodeID();
 
-            if (packet instanceof DisconnectMessage_V2)
-            {
+            if (packet instanceof DisconnectMessage_V2) {
                final DisconnectMessage_V2 msg_v2 = (DisconnectMessage_V2) packet;
                scaleDownTargetNodeID = msg_v2.getScaleDownNodeID() == null ? null : msg_v2.getScaleDownNodeID().toString();
             }
@@ -517,23 +432,19 @@ public class ActiveMQClientProtocolManager implements ClientProtocolManager
             if (topologyResponseHandler != null)
                topologyResponseHandler.nodeDisconnected(conn, nodeID == null ? null : nodeID.toString(), scaleDownTargetNodeID);
          }
-         else if (type == PacketImpl.CLUSTER_TOPOLOGY)
-         {
+         else if (type == PacketImpl.CLUSTER_TOPOLOGY) {
             ClusterTopologyChangeMessage topMessage = (ClusterTopologyChangeMessage) packet;
             notifyTopologyChange(topMessage);
          }
-         else if (type == PacketImpl.CLUSTER_TOPOLOGY_V2)
-         {
+         else if (type == PacketImpl.CLUSTER_TOPOLOGY_V2) {
             ClusterTopologyChangeMessage_V2 topMessage = (ClusterTopologyChangeMessage_V2) packet;
             notifyTopologyChange(topMessage);
          }
-         else if (type == PacketImpl.CLUSTER_TOPOLOGY || type == PacketImpl.CLUSTER_TOPOLOGY_V2 || type == PacketImpl.CLUSTER_TOPOLOGY_V3)
-         {
+         else if (type == PacketImpl.CLUSTER_TOPOLOGY || type == PacketImpl.CLUSTER_TOPOLOGY_V2 || type == PacketImpl.CLUSTER_TOPOLOGY_V3) {
             ClusterTopologyChangeMessage topMessage = (ClusterTopologyChangeMessage) packet;
             notifyTopologyChange(topMessage);
          }
-         else if (type == PacketImpl.CHECK_FOR_FAILOVER_REPLY)
-         {
+         else if (type == PacketImpl.CHECK_FOR_FAILOVER_REPLY) {
             System.out.println("Channel0Handler.handlePacket");
          }
       }
@@ -541,73 +452,57 @@ public class ActiveMQClientProtocolManager implements ClientProtocolManager
       /**
        * @param topMessage
        */
-      private void notifyTopologyChange(final ClusterTopologyChangeMessage topMessage)
-      {
+      private void notifyTopologyChange(final ClusterTopologyChangeMessage topMessage) {
          final long eventUID;
          final String backupGroupName;
          final String scaleDownGroupName;
-         if (topMessage instanceof ClusterTopologyChangeMessage_V3)
-         {
+         if (topMessage instanceof ClusterTopologyChangeMessage_V3) {
             eventUID = ((ClusterTopologyChangeMessage_V3) topMessage).getUniqueEventID();
             backupGroupName = ((ClusterTopologyChangeMessage_V3) topMessage).getBackupGroupName();
             scaleDownGroupName = ((ClusterTopologyChangeMessage_V3) topMessage).getScaleDownGroupName();
          }
-         else if (topMessage instanceof ClusterTopologyChangeMessage_V2)
-         {
+         else if (topMessage instanceof ClusterTopologyChangeMessage_V2) {
             eventUID = ((ClusterTopologyChangeMessage_V2) topMessage).getUniqueEventID();
             backupGroupName = ((ClusterTopologyChangeMessage_V2) topMessage).getBackupGroupName();
             scaleDownGroupName = null;
          }
-         else
-         {
+         else {
             eventUID = System.currentTimeMillis();
             backupGroupName = null;
             scaleDownGroupName = null;
          }
 
-         if (topMessage.isExit())
-         {
-            if (ActiveMQClientLogger.LOGGER.isDebugEnabled())
-            {
+         if (topMessage.isExit()) {
+            if (ActiveMQClientLogger.LOGGER.isDebugEnabled()) {
                ActiveMQClientLogger.LOGGER.debug("Notifying " + topMessage.getNodeID() + " going down");
             }
 
-            if (topologyResponseHandler != null)
-            {
+            if (topologyResponseHandler != null) {
                topologyResponseHandler.notifyNodeDown(eventUID, topMessage.getNodeID());
             }
          }
-         else
-         {
+         else {
             Pair<TransportConfiguration, TransportConfiguration> transportConfig = topMessage.getPair();
-            if (transportConfig.getA() == null && transportConfig.getB() == null)
-            {
-               transportConfig = new Pair<>(conn.getTransportConnection()
-                                               .getConnectorConfig(),
-                                            null);
+            if (transportConfig.getA() == null && transportConfig.getB() == null) {
+               transportConfig = new Pair<>(conn.getTransportConnection().getConnectorConfig(), null);
             }
 
-            if (topologyResponseHandler != null)
-            {
+            if (topologyResponseHandler != null) {
                topologyResponseHandler.notifyNodeUp(eventUID, topMessage.getNodeID(), backupGroupName, scaleDownGroupName, transportConfig, topMessage.isLast());
             }
          }
       }
    }
 
-   protected PacketDecoder getPacketDecoder()
-   {
+   protected PacketDecoder getPacketDecoder() {
       return ClientPacketDecoder.INSTANCE;
    }
 
-   private void forceReturnChannel1(ActiveMQException cause)
-   {
-      if (connection != null)
-      {
+   private void forceReturnChannel1(ActiveMQException cause) {
+      if (connection != null) {
          Channel channel1 = connection.getChannel(1, -1);
 
-         if (channel1 != null)
-         {
+         if (channel1 != null) {
             channel1.returnBlocking(cause);
          }
       }

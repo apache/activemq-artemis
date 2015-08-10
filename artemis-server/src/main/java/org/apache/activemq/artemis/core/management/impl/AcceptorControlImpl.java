@@ -25,8 +25,7 @@ import org.apache.activemq.artemis.api.core.management.AcceptorControl;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 
-public class AcceptorControlImpl extends AbstractControl implements AcceptorControl
-{
+public class AcceptorControlImpl extends AbstractControl implements AcceptorControl {
 
    // Constants -----------------------------------------------------
 
@@ -42,8 +41,7 @@ public class AcceptorControlImpl extends AbstractControl implements AcceptorCont
 
    public AcceptorControlImpl(final Acceptor acceptor,
                               final StorageManager storageManager,
-                              final TransportConfiguration configuration) throws Exception
-   {
+                              final TransportConfiguration configuration) throws Exception {
       super(AcceptorControl.class, storageManager);
       this.acceptor = acceptor;
       this.configuration = configuration;
@@ -51,87 +49,68 @@ public class AcceptorControlImpl extends AbstractControl implements AcceptorCont
 
    // AcceptorControlMBean implementation ---------------------------
 
-   public String getFactoryClassName()
-   {
+   public String getFactoryClassName() {
       clearIO();
-      try
-      {
+      try {
          return configuration.getFactoryClassName();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public String getName()
-   {
+   public String getName() {
       clearIO();
-      try
-      {
+      try {
          return configuration.getName();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public Map<String, Object> getParameters()
-   {
+   public Map<String, Object> getParameters() {
       clearIO();
-      try
-      {
+      try {
          return configuration.getParams();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public boolean isStarted()
-   {
+   public boolean isStarted() {
       clearIO();
-      try
-      {
+      try {
          return acceptor.isStarted();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public void start() throws Exception
-   {
+   public void start() throws Exception {
       clearIO();
-      try
-      {
+      try {
          acceptor.start();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public void stop() throws Exception
-   {
+   public void stop() throws Exception {
       clearIO();
-      try
-      {
+      try {
          acceptor.stop();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
    @Override
-   protected MBeanOperationInfo[] fillMBeanOperationInfo()
-   {
+   protected MBeanOperationInfo[] fillMBeanOperationInfo() {
       return MBeanInfoHelper.getMBeanOperationsInfo(AcceptorControl.class);
    }
 

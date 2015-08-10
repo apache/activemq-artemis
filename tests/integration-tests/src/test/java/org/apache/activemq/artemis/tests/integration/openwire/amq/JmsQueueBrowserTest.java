@@ -33,8 +33,8 @@ import org.junit.Test;
 /**
  * adapted from: org.apache.activemq.JmsQueueBrowserTest
  */
-public class JmsQueueBrowserTest extends BasicOpenWireTest
-{
+public class JmsQueueBrowserTest extends BasicOpenWireTest {
+
    /**
     * Tests the queue browser. Browses the messages then the consumer tries to
     * receive them. The messages should still be in the queue even when it was
@@ -43,23 +43,17 @@ public class JmsQueueBrowserTest extends BasicOpenWireTest
     * @throws Exception
     */
    @Test
-   public void testReceiveBrowseReceive() throws Exception
-   {
-      Session session = connection.createSession(false,
-            Session.AUTO_ACKNOWLEDGE);
+   public void testReceiveBrowseReceive() throws Exception {
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       ActiveMQQueue destination = (ActiveMQQueue) this.createDestination(session, ActiveMQDestination.QUEUE_TYPE);
       MessageProducer producer = session.createProducer(destination);
       MessageConsumer consumer = session.createConsumer(destination);
       connection.start();
 
-      Message[] outbound = new Message[]
-      {session.createTextMessage("First Message"),
-            session.createTextMessage("Second Message"),
-            session.createTextMessage("Third Message")};
+      Message[] outbound = new Message[]{session.createTextMessage("First Message"), session.createTextMessage("Second Message"), session.createTextMessage("Third Message")};
 
       // lets consume any outstanding messages from previous test runs
-      while (consumer.receive(1000) != null)
-      {
+      while (consumer.receive(1000) != null) {
       }
 
       producer.send(outbound[0]);
@@ -76,21 +70,17 @@ public class JmsQueueBrowserTest extends BasicOpenWireTest
       Enumeration<?> enumeration = browser.getEnumeration();
 
       // browse the second
-      assertTrue("should have received the second message",
-            enumeration.hasMoreElements());
+      assertTrue("should have received the second message", enumeration.hasMoreElements());
       assertEquals(outbound[1], enumeration.nextElement());
 
       // browse the third.
-      assertTrue("Should have received the third message",
-            enumeration.hasMoreElements());
+      assertTrue("Should have received the third message", enumeration.hasMoreElements());
       assertEquals(outbound[2], enumeration.nextElement());
 
       // There should be no more.
       boolean tooMany = false;
-      while (enumeration.hasMoreElements())
-      {
-         System.out.println("Got extra message: "
-               + ((TextMessage) enumeration.nextElement()).getText());
+      while (enumeration.hasMoreElements()) {
+         System.out.println("Got extra message: " + ((TextMessage) enumeration.nextElement()).getText());
          tooMany = true;
       }
       assertFalse(tooMany);
@@ -106,64 +96,53 @@ public class JmsQueueBrowserTest extends BasicOpenWireTest
    }
 
    @Test
-   public void testBatchSendBrowseReceive() throws Exception
-   {
-      Session session = connection.createSession(false,
-            Session.AUTO_ACKNOWLEDGE);
+   public void testBatchSendBrowseReceive() throws Exception {
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       ActiveMQQueue destination = (ActiveMQQueue) this.createDestination(session, ActiveMQDestination.QUEUE_TYPE);
       MessageProducer producer = session.createProducer(destination);
       MessageConsumer consumer = session.createConsumer(destination);
       connection.start();
 
       TextMessage[] outbound = new TextMessage[10];
-      for (int i = 0; i < 10; i++)
-      {
+      for (int i = 0; i < 10; i++) {
          outbound[i] = session.createTextMessage(i + " Message");
       }
 
       // lets consume any outstanding messages from previous test runs
-      while (consumer.receive(1000) != null)
-      {
+      while (consumer.receive(1000) != null) {
       }
       consumer.close();
 
-      for (int i = 0; i < outbound.length; i++)
-      {
+      for (int i = 0; i < outbound.length; i++) {
          producer.send(outbound[i]);
       }
 
       QueueBrowser browser = session.createBrowser(destination);
       Enumeration<?> enumeration = browser.getEnumeration();
 
-      for (int i = 0; i < outbound.length; i++)
-      {
+      for (int i = 0; i < outbound.length; i++) {
          assertTrue("should have a", enumeration.hasMoreElements());
          assertEquals(outbound[i], enumeration.nextElement());
       }
       browser.close();
 
-      for (int i = 0; i < outbound.length; i++)
-      {
+      for (int i = 0; i < outbound.length; i++) {
          producer.send(outbound[i]);
       }
 
       // verify second batch is visible to browse
       browser = session.createBrowser(destination);
       enumeration = browser.getEnumeration();
-      for (int j = 0; j < 2; j++)
-      {
-         for (int i = 0; i < outbound.length; i++)
-         {
+      for (int j = 0; j < 2; j++) {
+         for (int i = 0; i < outbound.length; i++) {
             assertTrue("should have a", enumeration.hasMoreElements());
-            assertEquals("j=" + j + ", i=" + i, outbound[i].getText(),
-                  ((TextMessage) enumeration.nextElement()).getText());
+            assertEquals("j=" + j + ", i=" + i, outbound[i].getText(), ((TextMessage) enumeration.nextElement()).getText());
          }
       }
       browser.close();
 
       consumer = session.createConsumer(destination);
-      for (int i = 0; i < outbound.length * 2; i++)
-      {
+      for (int i = 0; i < outbound.length * 2; i++) {
          assertNotNull("Got message: " + i, consumer.receive(2000));
       }
       consumer.close();
@@ -289,10 +268,8 @@ public class JmsQueueBrowserTest extends BasicOpenWireTest
 */
 
    @Test
-   public void testBrowseReceive() throws Exception
-   {
-      Session session = connection.createSession(false,
-            Session.AUTO_ACKNOWLEDGE);
+   public void testBrowseReceive() throws Exception {
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       ActiveMQQueue destination = (ActiveMQQueue) this.createDestination(session, ActiveMQDestination.QUEUE_TYPE);
 
       connection.start();
@@ -301,15 +278,11 @@ public class JmsQueueBrowserTest extends BasicOpenWireTest
       MessageConsumer consumer = session.createConsumer(destination);
       System.out.println("created consumer ... ");
       // lets consume any outstanding messages from previous test runs
-      while (consumer.receive(1000) != null)
-      {
+      while (consumer.receive(1000) != null) {
       }
       consumer.close();
 
-      Message[] outbound = new Message[]
-      {session.createTextMessage("First Message"),
-            session.createTextMessage("Second Message"),
-            session.createTextMessage("Third Message")};
+      Message[] outbound = new Message[]{session.createTextMessage("First Message"), session.createTextMessage("Second Message"), session.createTextMessage("Third Message")};
 
       MessageProducer producer = session.createProducer(destination);
       producer.send(outbound[0]);
@@ -323,8 +296,7 @@ public class JmsQueueBrowserTest extends BasicOpenWireTest
 
       System.out.println("browsing first");
       // browse the first message
-      assertTrue("should have received the first message",
-            enumeration.hasMoreElements());
+      assertTrue("should have received the first message", enumeration.hasMoreElements());
       System.out.println("we have more");
       assertEquals(outbound[0], enumeration.nextElement());
 
@@ -340,10 +312,8 @@ public class JmsQueueBrowserTest extends BasicOpenWireTest
    }
 
    @Test
-   public void testLargeNumberOfMessages() throws Exception
-   {
-      Session session = connection.createSession(false,
-            Session.AUTO_ACKNOWLEDGE);
+   public void testLargeNumberOfMessages() throws Exception {
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       ActiveMQQueue destination = (ActiveMQQueue) this.createDestination(session, ActiveMQDestination.QUEUE_TYPE);
       connection.start();
 
@@ -351,8 +321,7 @@ public class JmsQueueBrowserTest extends BasicOpenWireTest
 
       int numberOfMessages = 4096;
 
-      for (int i = 0; i < numberOfMessages; i++)
-      {
+      for (int i = 0; i < numberOfMessages; i++) {
          producer.send(session.createTextMessage("Message: " + i));
       }
 
@@ -363,8 +332,7 @@ public class JmsQueueBrowserTest extends BasicOpenWireTest
 
       int numberBrowsed = 0;
 
-      while (enumeration.hasMoreElements())
-      {
+      while (enumeration.hasMoreElements()) {
          Message browsed = (Message) enumeration.nextElement();
 
          System.out.println("Browsed Message [{}]" + browsed.getJMSMessageID());
@@ -448,24 +416,18 @@ public class JmsQueueBrowserTest extends BasicOpenWireTest
    */
 
    @Test
-   public void testBrowseClose() throws Exception
-   {
-      Session session = connection.createSession(false,
-            Session.AUTO_ACKNOWLEDGE);
+   public void testBrowseClose() throws Exception {
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       ActiveMQQueue destination = (ActiveMQQueue) this.createDestination(session, ActiveMQDestination.QUEUE_TYPE);
 
       connection.start();
 
-      TextMessage[] outbound = new TextMessage[]
-      {session.createTextMessage("First Message"),
-            session.createTextMessage("Second Message"),
-            session.createTextMessage("Third Message")};
+      TextMessage[] outbound = new TextMessage[]{session.createTextMessage("First Message"), session.createTextMessage("Second Message"), session.createTextMessage("Third Message")};
 
       // create consumer
       MessageConsumer consumer = session.createConsumer(destination);
       // lets consume any outstanding messages from previous test runs
-      while (consumer.receive(1000) != null)
-      {
+      while (consumer.receive(1000) != null) {
       }
       consumer.close();
 
@@ -488,17 +450,11 @@ public class JmsQueueBrowserTest extends BasicOpenWireTest
       consumer = session.createConsumer(destination);
       // Receive the first message.
       TextMessage msg = (TextMessage) consumer.receive(1000);
-      assertEquals(
-            "Expected " + outbound[0].getText() + " but received "
-                  + msg.getText(), outbound[0], msg);
+      assertEquals("Expected " + outbound[0].getText() + " but received " + msg.getText(), outbound[0], msg);
       msg = (TextMessage) consumer.receive(1000);
-      assertEquals(
-            "Expected " + outbound[1].getText() + " but received "
-                  + msg.getText(), outbound[1], msg);
+      assertEquals("Expected " + outbound[1].getText() + " but received " + msg.getText(), outbound[1], msg);
       msg = (TextMessage) consumer.receive(1000);
-      assertEquals(
-            "Expected " + outbound[2].getText() + " but received "
-                  + msg.getText(), outbound[2], msg);
+      assertEquals("Expected " + outbound[2].getText() + " but received " + msg.getText(), outbound[2], msg);
 
       consumer.close();
       producer.close();

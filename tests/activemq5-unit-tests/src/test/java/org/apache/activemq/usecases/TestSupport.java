@@ -34,114 +34,118 @@ import org.apache.activemq.command.ActiveMQTopic;
  */
 public class TestSupport extends TestCase {
 
-    protected ActiveMQConnectionFactory connectionFactory;
-    protected boolean topic = true;
+   protected ActiveMQConnectionFactory connectionFactory;
+   protected boolean topic = true;
 
-    public TestSupport() {
-        super();
-    }
+   public TestSupport() {
+      super();
+   }
 
-    public TestSupport(String name) {
-        super(name);
-    }
+   public TestSupport(String name) {
+      super(name);
+   }
 
-    protected ActiveMQMessage createMessage() {
-        return new ActiveMQMessage();
-    }
+   protected ActiveMQMessage createMessage() {
+      return new ActiveMQMessage();
+   }
 
-    protected Destination createDestination(String subject) {
-        if (topic) {
-            return new ActiveMQTopic(subject);
-        } else {
-            return new ActiveMQQueue(subject);
-        }
-    }
+   protected Destination createDestination(String subject) {
+      if (topic) {
+         return new ActiveMQTopic(subject);
+      }
+      else {
+         return new ActiveMQQueue(subject);
+      }
+   }
 
-    protected void assertTextMessagesEqual(Message[] firstSet, Message[] secondSet) throws JMSException {
-        assertTextMessagesEqual("", firstSet, secondSet);
-    }
+   protected void assertTextMessagesEqual(Message[] firstSet, Message[] secondSet) throws JMSException {
+      assertTextMessagesEqual("", firstSet, secondSet);
+   }
 
-    /**
-     * @param messsage
-     * @param firstSet
-     * @param secondSet
-     */
-    protected void assertTextMessagesEqual(String messsage, Message[] firstSet, Message[] secondSet) throws JMSException {
-        assertEquals("Message count does not match: " + messsage, firstSet.length, secondSet.length);
-        for (int i = 0; i < secondSet.length; i++) {
-            TextMessage m1 = (TextMessage)firstSet[i];
-            TextMessage m2 = (TextMessage)secondSet[i];
-            assertTextMessageEqual("Message " + (i + 1) + " did not match : ", m1, m2);
-        }
-    }
+   /**
+    * @param messsage
+    * @param firstSet
+    * @param secondSet
+    */
+   protected void assertTextMessagesEqual(String messsage,
+                                          Message[] firstSet,
+                                          Message[] secondSet) throws JMSException {
+      assertEquals("Message count does not match: " + messsage, firstSet.length, secondSet.length);
+      for (int i = 0; i < secondSet.length; i++) {
+         TextMessage m1 = (TextMessage) firstSet[i];
+         TextMessage m2 = (TextMessage) secondSet[i];
+         assertTextMessageEqual("Message " + (i + 1) + " did not match : ", m1, m2);
+      }
+   }
 
-    protected void assertEquals(TextMessage m1, TextMessage m2) throws JMSException {
-        assertEquals("", m1, m2);
-    }
+   protected void assertEquals(TextMessage m1, TextMessage m2) throws JMSException {
+      assertEquals("", m1, m2);
+   }
 
-    /**
-     * @param message
-     * @param firstSet
-     * @param secondSet
-     */
-    protected void assertTextMessageEqual(String message, TextMessage m1, TextMessage m2) throws JMSException {
-        assertFalse(message + ": expected {" + m1 + "}, but was {" + m2 + "}", m1 == null ^ m2 == null);
-        if (m1 == null) {
-            return;
-        }
-        assertEquals(message, m1.getText(), m2.getText());
-    }
+   /**
+    * @param message
+    * @param firstSet
+    * @param secondSet
+    */
+   protected void assertTextMessageEqual(String message, TextMessage m1, TextMessage m2) throws JMSException {
+      assertFalse(message + ": expected {" + m1 + "}, but was {" + m2 + "}", m1 == null ^ m2 == null);
+      if (m1 == null) {
+         return;
+      }
+      assertEquals(message, m1.getText(), m2.getText());
+   }
 
-    protected void assertEquals(Message m1, Message m2) throws JMSException {
-        assertEquals("", m1, m2);
-    }
+   protected void assertEquals(Message m1, Message m2) throws JMSException {
+      assertEquals("", m1, m2);
+   }
 
-    /**
-     * @param message
-     * @param firstSet
-     * @param secondSet
-     */
-    protected void assertEquals(String message, Message m1, Message m2) throws JMSException {
-        assertFalse(message + ": expected {" + m1 + "}, but was {" + m2 + "}", m1 == null ^ m2 == null);
-        if (m1 == null) {
-            return;
-        }
-        assertTrue(message + ": expected {" + m1 + "}, but was {" + m2 + "}", m1.getClass() == m2.getClass());
-        if (m1 instanceof TextMessage) {
-            assertTextMessageEqual(message, (TextMessage)m1, (TextMessage)m2);
-        } else {
-            assertEquals(message, m1, m2);
-        }
-    }
+   /**
+    * @param message
+    * @param firstSet
+    * @param secondSet
+    */
+   protected void assertEquals(String message, Message m1, Message m2) throws JMSException {
+      assertFalse(message + ": expected {" + m1 + "}, but was {" + m2 + "}", m1 == null ^ m2 == null);
+      if (m1 == null) {
+         return;
+      }
+      assertTrue(message + ": expected {" + m1 + "}, but was {" + m2 + "}", m1.getClass() == m2.getClass());
+      if (m1 instanceof TextMessage) {
+         assertTextMessageEqual(message, (TextMessage) m1, (TextMessage) m2);
+      }
+      else {
+         assertEquals(message, m1, m2);
+      }
+   }
 
-    protected ActiveMQConnectionFactory createConnectionFactory() throws Exception {
-        return new ActiveMQConnectionFactory("vm://localhost?broker.persistent=false");
-    }
+   protected ActiveMQConnectionFactory createConnectionFactory() throws Exception {
+      return new ActiveMQConnectionFactory("vm://localhost?broker.persistent=false");
+   }
 
-    /**
-     * Factory method to create a new connection
-     */
-    protected Connection createConnection() throws Exception {
-        return getConnectionFactory().createConnection();
-    }
+   /**
+    * Factory method to create a new connection
+    */
+   protected Connection createConnection() throws Exception {
+      return getConnectionFactory().createConnection();
+   }
 
-    public ActiveMQConnectionFactory getConnectionFactory() throws Exception {
-        if (connectionFactory == null) {
-            connectionFactory = createConnectionFactory();
-            assertTrue("Should have created a connection factory!", connectionFactory != null);
-        }
-        return connectionFactory;
-    }
+   public ActiveMQConnectionFactory getConnectionFactory() throws Exception {
+      if (connectionFactory == null) {
+         connectionFactory = createConnectionFactory();
+         assertTrue("Should have created a connection factory!", connectionFactory != null);
+      }
+      return connectionFactory;
+   }
 
-    protected String getConsumerSubject() {
-        return getSubject();
-    }
+   protected String getConsumerSubject() {
+      return getSubject();
+   }
 
-    protected String getProducerSubject() {
-        return getSubject();
-    }
+   protected String getProducerSubject() {
+      return getSubject();
+   }
 
-    protected String getSubject() {
-        return getClass().getName() + "." + getName();
-    }
+   protected String getSubject() {
+      return getClass().getName() + "." + getName();
+   }
 }

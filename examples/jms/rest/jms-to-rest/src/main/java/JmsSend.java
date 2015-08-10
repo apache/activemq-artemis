@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 
 import javax.jms.Connection;
@@ -23,16 +24,14 @@ import javax.jms.MessageProducer;
 import javax.jms.ObjectMessage;
 import javax.jms.Session;
 
-public class JmsSend
-{
-   public static void main(String[] args) throws Exception
-   {
+public class JmsSend {
+
+   public static void main(String[] args) throws Exception {
       ConnectionFactory factory = JmsHelper.createConnectionFactory("activemq-client.xml");
       Destination destination = (ActiveMQDestination) ActiveMQDestination.fromAddress("jms.queue.orders");
 
       Connection conn = factory.createConnection();
-      try
-      {
+      try {
          Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
          MessageProducer producer = session.createProducer(destination);
          ObjectMessage message = session.createObjectMessage();
@@ -41,8 +40,7 @@ public class JmsSend
          message.setObject(order);
          producer.send(message);
       }
-      finally
-      {
+      finally {
          conn.close();
       }
    }

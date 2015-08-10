@@ -52,7 +52,10 @@ public class SystemUsage implements Service {
       this("default", null, null, null);
    }
 
-   public SystemUsage(String name, PersistenceAdapter adapter, PListStore tempStore, JobSchedulerStore jobSchedulerStore) {
+   public SystemUsage(String name,
+                      PersistenceAdapter adapter,
+                      PListStore tempStore,
+                      JobSchedulerStore jobSchedulerStore) {
       this.parent = null;
       this.name = name;
       this.memoryUsage = new MemoryUsage(name + ":memory");
@@ -144,7 +147,8 @@ public class SystemUsage implements Service {
    public boolean isSendFailIfNoSpace() {
       if (sendFailIfNoSpaceExplicitySet || parent == null) {
          return sendFailIfNoSpace;
-      } else {
+      }
+      else {
          return parent.isSendFailIfNoSpace();
       }
    }
@@ -176,7 +180,8 @@ public class SystemUsage implements Service {
    public long getSendFailIfNoSpaceAfterTimeout() {
       if (sendFailIfNoSpaceAfterTimeoutExplicitySet || parent == null) {
          return sendFailIfNoSpaceAfterTimeout;
-      } else {
+      }
+      else {
          return parent.getSendFailIfNoSpaceAfterTimeout();
       }
    }
@@ -255,8 +260,7 @@ public class SystemUsage implements Service {
    }
 
    /**
-    * @param executor
-    *            the executor to set
+    * @param executor the executor to set
     */
    public void setExecutor(ThreadPoolExecutor executor) {
       this.executor = executor;
@@ -269,7 +273,7 @@ public class SystemUsage implements Service {
       if (this.tempUsage != null) {
          this.tempUsage.setExecutor(this.executor);
       }
-      if(this.jobSchedulerUsage != null) {
+      if (this.jobSchedulerUsage != null) {
          this.jobSchedulerUsage.setExecutor(this.executor);
       }
    }

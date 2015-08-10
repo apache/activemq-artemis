@@ -23,8 +23,8 @@ package org.apache.activemq.artemis.core.persistence.impl.journal;
  * This is where the definitions will exist and this is what these tests should be using to verify
  * the IDs.
  */
-public final class JournalRecordIds
-{
+public final class JournalRecordIds {
+
    // grouping journal record type
    static final byte GROUP_RECORD = 20;
 
@@ -34,6 +34,7 @@ public final class JournalRecordIds
 
    /**
     * Records storing the current recordID number.
+    *
     * @see org.apache.activemq.artemis.utils.IDGenerator
     * @see BatchingIDGenerator
     */

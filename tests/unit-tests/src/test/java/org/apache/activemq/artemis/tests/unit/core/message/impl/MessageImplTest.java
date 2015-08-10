@@ -31,16 +31,13 @@ import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class MessageImplTest extends ActiveMQTestBase
-{
+public class MessageImplTest extends ActiveMQTestBase {
+
    @Test
-   public void getSetAttributes()
-   {
-      for (int j = 0; j < 10; j++)
-      {
+   public void getSetAttributes() {
+      for (int j = 0; j < 10; j++) {
          byte[] bytes = new byte[1000];
-         for (int i = 0; i < bytes.length; i++)
-         {
+         for (int i = 0; i < bytes.length; i++) {
             bytes[i] = RandomUtil.randomByte();
          }
 
@@ -84,8 +81,7 @@ public class MessageImplTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testExpired()
-   {
+   public void testExpired() {
       Message message = new ClientMessageImpl();
 
       Assert.assertEquals(0, message.getExpiration());
@@ -105,10 +101,8 @@ public class MessageImplTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testProperties()
-   {
-      for (int j = 0; j < 10; j++)
-      {
+   public void testProperties() {
+      for (int j = 0; j < 10; j++) {
          Message msg = new ClientMessageImpl();
 
          SimpleString prop1 = new SimpleString("prop1");
@@ -228,17 +222,15 @@ public class MessageImplTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testMessageCopyIssue() throws Exception
-   {
-      for (long i = 0; i < 300; i++)
-      {
-         if (i % 10 == 0) System.out.println("#test " + i);
+   public void testMessageCopyIssue() throws Exception {
+      for (long i = 0; i < 300; i++) {
+         if (i % 10 == 0)
+            System.out.println("#test " + i);
          internalMessageCopy();
       }
    }
 
-   private void internalMessageCopy() throws Exception
-   {
+   private void internalMessageCopy() throws Exception {
       final long RUNS = 2;
       final ServerMessageImpl msg = new ServerMessageImpl(123, 18);
 
@@ -253,28 +245,22 @@ public class MessageImplTest extends ActiveMQTestBase
 
       final CountDownLatch latchAlign = new CountDownLatch(T1_number + T2_number);
       final CountDownLatch latchReady = new CountDownLatch(1);
-      class T1 extends Thread
-      {
+      class T1 extends Thread {
+
          @Override
-         public void run()
-         {
+         public void run() {
             latchAlign.countDown();
-            try
-            {
+            try {
                latchReady.await();
             }
-            catch (Exception ignored)
-            {
+            catch (Exception ignored) {
             }
 
-            for (int i = 0; i < RUNS; i++)
-            {
-               try
-               {
+            for (int i = 0; i < RUNS; i++) {
+               try {
                   ServerMessageImpl newMsg = (ServerMessageImpl) msg.copy();
                }
-               catch (Throwable e)
-               {
+               catch (Throwable e) {
                   e.printStackTrace();
                   errors.incrementAndGet();
                }
@@ -285,38 +271,30 @@ public class MessageImplTest extends ActiveMQTestBase
       final String bigString;
       {
          StringBuffer buffer = new StringBuffer();
-         for (int i = 0; i < 500; i++)
-         {
+         for (int i = 0; i < 500; i++) {
             buffer.append(" ");
          }
          bigString = buffer.toString();
       }
 
+      class T2 extends Thread {
 
-      class T2 extends Thread
-      {
          @Override
-         public void run()
-         {
+         public void run() {
             latchAlign.countDown();
-            try
-            {
+            try {
                latchReady.await();
             }
-            catch (Exception ignored)
-            {
+            catch (Exception ignored) {
             }
 
-            for (int i = 0; i < RUNS; i++)
-            {
-               try
-               {
+            for (int i = 0; i < RUNS; i++) {
+               try {
                   SessionSendMessage ssm = new SessionSendMessage(msg);
                   ActiveMQBuffer buf = ssm.encode(null);
                   simulateRead(buf);
                }
-               catch (Throwable e)
-               {
+               catch (Throwable e) {
                   e.printStackTrace();
                   errors.incrementAndGet();
                }
@@ -324,18 +302,15 @@ public class MessageImplTest extends ActiveMQTestBase
          }
       }
 
-
       ArrayList<Thread> threads = new ArrayList<Thread>();
 
-      for (int i = 0; i < T1_number; i++)
-      {
+      for (int i = 0; i < T1_number; i++) {
          T1 t = new T1();
          threads.add(t);
          t.start();
       }
 
-      for (int i = 0; i < T2_number; i++)
-      {
+      for (int i = 0; i < T2_number; i++) {
          T2 t2 = new T2();
          threads.add(t2);
          t2.start();
@@ -345,24 +320,20 @@ public class MessageImplTest extends ActiveMQTestBase
 
       latchReady.countDown();
 
-      for (Thread t : threads)
-      {
+      for (Thread t : threads) {
          t.join();
       }
 
       Assert.assertEquals(0, errors.get());
    }
 
-
-   private void simulateRead(ActiveMQBuffer buf)
-   {
+   private void simulateRead(ActiveMQBuffer buf) {
       buf.setIndex(buf.capacity() / 2, buf.capacity() / 2);
 
       // ok this is not actually happening during the read process, but changing this shouldn't affect the buffer on copy
       // this is to exaggerate the isolation on this test
       buf.writeBytes(new byte[1024]);
    }
-
 
    // Protected -------------------------------------------------------------------------------
    // Private ----------------------------------------------------------------------------------

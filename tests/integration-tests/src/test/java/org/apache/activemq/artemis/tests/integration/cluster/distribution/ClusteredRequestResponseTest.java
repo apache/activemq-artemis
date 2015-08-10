@@ -20,33 +20,27 @@ import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancing
 import org.junit.Before;
 import org.junit.Test;
 
-
-public class ClusteredRequestResponseTest extends ClusterTestBase
-{
+public class ClusteredRequestResponseTest extends ClusterTestBase {
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       setupServers();
    }
 
-   protected boolean isNetty()
-   {
+   protected boolean isNetty() {
       return false;
    }
 
    @Test
-   public void testRequestResponse() throws Exception
-   {
+   public void testRequestResponse() throws Exception {
       setupCluster();
 
       startServers(0, 1, 2, 3, 4);
 
-      for (int i = 0; i < 5; i++)
-      {
+      for (int i = 0; i < 5; i++) {
          waitForTopology(servers[i], 5);
       }
 
@@ -89,14 +83,12 @@ public class ClusteredRequestResponseTest extends ClusterTestBase
     *
     * TODO: I believe this test is invalid. I'm just ignoring it for now. It will probably go away
     */
-   public void invalidTest_testRequestResponseNoWaitForBindings() throws Exception
-   {
+   public void invalidTest_testRequestResponseNoWaitForBindings() throws Exception {
       setupCluster();
 
       startServers(0, 1, 2, 3, 4);
 
-      for (int i = 0; i < 5; i++)
-      {
+      for (int i = 0; i < 5; i++) {
          waitForTopology(servers[i], 5);
       }
 
@@ -128,13 +120,11 @@ public class ClusteredRequestResponseTest extends ClusterTestBase
       verifyReceiveAll(10, 0);
    }
 
-   protected void setupCluster() throws Exception
-   {
+   protected void setupCluster() throws Exception {
       setupCluster(MessageLoadBalancingType.ON_DEMAND);
    }
 
-   protected void setupCluster(final MessageLoadBalancingType messageLoadBalancingType) throws Exception
-   {
+   protected void setupCluster(final MessageLoadBalancingType messageLoadBalancingType) throws Exception {
       setupClusterConnection("cluster0", "queues", messageLoadBalancingType, 1, isNetty(), 0, 1, 2, 3, 4);
 
       setupClusterConnection("cluster1", "queues", messageLoadBalancingType, 1, isNetty(), 1, 0, 2, 3, 4);
@@ -146,8 +136,7 @@ public class ClusteredRequestResponseTest extends ClusterTestBase
       setupClusterConnection("cluster4", "queues", messageLoadBalancingType, 1, isNetty(), 4, 0, 1, 2, 3);
    }
 
-   protected void setupServers() throws Exception
-   {
+   protected void setupServers() throws Exception {
       setupServer(0, isFileStorage(), isNetty());
       setupServer(1, isFileStorage(), isNetty());
       setupServer(2, isFileStorage(), isNetty());

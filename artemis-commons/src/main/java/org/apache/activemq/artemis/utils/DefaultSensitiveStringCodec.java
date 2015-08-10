@@ -38,31 +38,24 @@ import javax.crypto.spec.SecretKeySpec;
  * The decode() and encode() method is copied originally from
  * JBoss AS code base.
  */
-public class DefaultSensitiveStringCodec implements SensitiveDataCodec<String>
-{
+public class DefaultSensitiveStringCodec implements SensitiveDataCodec<String> {
+
    private byte[] internalKey = "clusterpassword".getBytes();
 
-   public String decode(Object secret) throws NoSuchPaddingException,
-                                      NoSuchAlgorithmException,
-                                      InvalidKeyException,
-                                      BadPaddingException,
-                                      IllegalBlockSizeException
-   {
+   public String decode(Object secret) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
       SecretKeySpec key = new SecretKeySpec(internalKey, "Blowfish");
 
-      BigInteger n = new BigInteger((String)secret, 16);
+      BigInteger n = new BigInteger((String) secret, 16);
       byte[] encoding = n.toByteArray();
 
       // JBAS-3457: fix leading zeros
-      if (encoding.length % 8 != 0)
-      {
+      if (encoding.length % 8 != 0) {
          int length = encoding.length;
          int newLength = ((length / 8) + 1) * 8;
          int pad = newLength - length; // number of leading zeros
          byte[] old = encoding;
          encoding = new byte[newLength];
-         for (int i = old.length - 1; i >= 0; i--)
-         {
+         for (int i = old.length - 1; i >= 0; i--) {
             encoding[i + pad] = old[i];
          }
       }
@@ -74,12 +67,7 @@ public class DefaultSensitiveStringCodec implements SensitiveDataCodec<String>
       return new String(decode);
    }
 
-   public Object encode(String secret) throws NoSuchPaddingException,
-                                      NoSuchAlgorithmException,
-                                      InvalidKeyException,
-                                      BadPaddingException,
-                                      IllegalBlockSizeException
-   {
+   public Object encode(String secret) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
       SecretKeySpec key = new SecretKeySpec(internalKey, "Blowfish");
 
       Cipher cipher = Cipher.getInstance("Blowfish");
@@ -89,24 +77,21 @@ public class DefaultSensitiveStringCodec implements SensitiveDataCodec<String>
       return n.toString(16);
    }
 
-   public void init(Map<String, String> params)
-   {
+   public void init(Map<String, String> params) {
       String key = params.get("key");
-      if (key != null)
-      {
+      if (key != null) {
          updateKey(key);
       }
    }
 
    /**
     * This main class is as documented on configuration-index.md, where the user can mask the password here. *
+    *
     * @param args
     * @throws Exception
     */
-   public static void main(String[] args) throws Exception
-   {
-      if (args.length != 1)
-      {
+   public static void main(String[] args) throws Exception {
+      if (args.length != 1) {
          System.err.println("Use: java -cp <classPath> org.apache.activemq.artemis.utils.DefaultSensitiveStringCodec password-to-encode");
          System.err.println("Error: no password on the args");
          System.exit(-1);
@@ -116,10 +101,8 @@ public class DefaultSensitiveStringCodec implements SensitiveDataCodec<String>
       System.out.println("Encoded password (without quotes): \"" + encode + "\"");
    }
 
-   private void updateKey(String key)
-   {
+   private void updateKey(String key) {
       this.internalKey = key.getBytes();
    }
-
 
 }

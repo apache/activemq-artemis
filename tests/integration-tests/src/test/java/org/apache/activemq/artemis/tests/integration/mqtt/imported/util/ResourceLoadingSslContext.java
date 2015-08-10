@@ -42,8 +42,7 @@ import org.springframework.util.ResourceUtils;
 /**
  * Extends the SslContext so that it's easier to configure from spring.
  */
-public class ResourceLoadingSslContext extends SslContext
-{
+public class ResourceLoadingSslContext extends SslContext {
 
    private String keyStoreType = "jks";
    private String trustStoreType = "jks";
@@ -66,14 +65,11 @@ public class ResourceLoadingSslContext extends SslContext
     * signature change.
     */
    @PostConstruct
-   private void postConstruct()
-   {
-      try
-      {
+   private void postConstruct() {
+      try {
          afterPropertiesSet();
       }
-      catch (Exception ex)
-      {
+      catch (Exception ex) {
          throw new RuntimeException(ex);
       }
    }
@@ -82,26 +78,21 @@ public class ResourceLoadingSslContext extends SslContext
     * @throws Exception
     * @org.apache.xbean.InitMethod
     */
-   public void afterPropertiesSet() throws Exception
-   {
+   public void afterPropertiesSet() throws Exception {
       keyManagers.addAll(createKeyManagers());
       trustManagers.addAll(createTrustManagers());
-      if (secureRandom == null)
-      {
+      if (secureRandom == null) {
          secureRandom = createSecureRandom();
       }
    }
 
-   private SecureRandom createSecureRandom() throws NoSuchAlgorithmException
-   {
+   private SecureRandom createSecureRandom() throws NoSuchAlgorithmException {
       return SecureRandom.getInstance(secureRandomAlgorithm);
    }
 
-   private Collection<TrustManager> createTrustManagers() throws Exception
-   {
+   private Collection<TrustManager> createTrustManagers() throws Exception {
       KeyStore ks = createTrustManagerKeyStore();
-      if (ks == null)
-      {
+      if (ks == null) {
          return new ArrayList<TrustManager>(0);
       }
 
@@ -110,11 +101,9 @@ public class ResourceLoadingSslContext extends SslContext
       return Arrays.asList(tmf.getTrustManagers());
    }
 
-   private Collection<KeyManager> createKeyManagers() throws Exception
-   {
+   private Collection<KeyManager> createKeyManagers() throws Exception {
       KeyStore ks = createKeyManagerKeyStore();
-      if (ks == null)
-      {
+      if (ks == null) {
          return new ArrayList<KeyManager>(0);
       }
 
@@ -123,160 +112,128 @@ public class ResourceLoadingSslContext extends SslContext
       return Arrays.asList(tmf.getKeyManagers());
    }
 
-   private KeyStore createTrustManagerKeyStore() throws Exception
-   {
-      if (trustStore == null)
-      {
+   private KeyStore createTrustManagerKeyStore() throws Exception {
+      if (trustStore == null) {
          return null;
       }
 
       KeyStore ks = KeyStore.getInstance(trustStoreType);
       InputStream is = resourceFromString(trustStore).getInputStream();
-      try
-      {
+      try {
          ks.load(is, trustStorePassword == null ? null : trustStorePassword.toCharArray());
       }
-      finally
-      {
+      finally {
          is.close();
       }
       return ks;
    }
 
-   private KeyStore createKeyManagerKeyStore() throws Exception
-   {
-      if (keyStore == null)
-      {
+   private KeyStore createKeyManagerKeyStore() throws Exception {
+      if (keyStore == null) {
          return null;
       }
 
       KeyStore ks = KeyStore.getInstance(keyStoreType);
       InputStream is = resourceFromString(keyStore).getInputStream();
-      try
-      {
+      try {
          ks.load(is, keyStorePassword == null ? null : keyStorePassword.toCharArray());
       }
-      finally
-      {
+      finally {
          is.close();
       }
       return ks;
    }
 
-   public String getTrustStoreType()
-   {
+   public String getTrustStoreType() {
       return trustStoreType;
    }
 
-   public String getKeyStoreType()
-   {
+   public String getKeyStoreType() {
       return keyStoreType;
    }
 
-   public String getKeyStore()
-   {
+   public String getKeyStore() {
       return keyStore;
    }
 
-   public void setKeyStore(String keyStore) throws MalformedURLException
-   {
+   public void setKeyStore(String keyStore) throws MalformedURLException {
       this.keyStore = keyStore;
    }
 
-   public String getTrustStore()
-   {
+   public String getTrustStore() {
       return trustStore;
    }
 
-   public void setTrustStore(String trustStore) throws MalformedURLException
-   {
+   public void setTrustStore(String trustStore) throws MalformedURLException {
       this.trustStore = trustStore;
    }
 
-   public String getKeyStoreAlgorithm()
-   {
+   public String getKeyStoreAlgorithm() {
       return keyStoreAlgorithm;
    }
 
-   public void setKeyStoreAlgorithm(String keyAlgorithm)
-   {
+   public void setKeyStoreAlgorithm(String keyAlgorithm) {
       this.keyStoreAlgorithm = keyAlgorithm;
    }
 
-   public String getTrustStoreAlgorithm()
-   {
+   public String getTrustStoreAlgorithm() {
       return trustStoreAlgorithm;
    }
 
-   public void setTrustStoreAlgorithm(String trustAlgorithm)
-   {
+   public void setTrustStoreAlgorithm(String trustAlgorithm) {
       this.trustStoreAlgorithm = trustAlgorithm;
    }
 
-   public String getKeyStoreKeyPassword()
-   {
+   public String getKeyStoreKeyPassword() {
       return keyStoreKeyPassword;
    }
 
-   public void setKeyStoreKeyPassword(String keyPassword)
-   {
+   public void setKeyStoreKeyPassword(String keyPassword) {
       this.keyStoreKeyPassword = keyPassword;
    }
 
-   public String getKeyStorePassword()
-   {
+   public String getKeyStorePassword() {
       return keyStorePassword;
    }
 
-   public void setKeyStorePassword(String keyPassword)
-   {
+   public void setKeyStorePassword(String keyPassword) {
       this.keyStorePassword = keyPassword;
    }
 
-   public String getTrustStorePassword()
-   {
+   public String getTrustStorePassword() {
       return trustStorePassword;
    }
 
-   public void setTrustStorePassword(String trustPassword)
-   {
+   public void setTrustStorePassword(String trustPassword) {
       this.trustStorePassword = trustPassword;
    }
 
-   public void setKeyStoreType(String keyType)
-   {
+   public void setKeyStoreType(String keyType) {
       this.keyStoreType = keyType;
    }
 
-   public void setTrustStoreType(String trustType)
-   {
+   public void setTrustStoreType(String trustType) {
       this.trustStoreType = trustType;
    }
 
-   public String getSecureRandomAlgorithm()
-   {
+   public String getSecureRandomAlgorithm() {
       return secureRandomAlgorithm;
    }
 
-   public void setSecureRandomAlgorithm(String secureRandomAlgorithm)
-   {
+   public void setSecureRandomAlgorithm(String secureRandomAlgorithm) {
       this.secureRandomAlgorithm = secureRandomAlgorithm;
    }
 
-   public static Resource resourceFromString(String uri) throws MalformedURLException
-   {
+   public static Resource resourceFromString(String uri) throws MalformedURLException {
       Resource resource;
       File file = new File(uri);
-      if (file.exists())
-      {
+      if (file.exists()) {
          resource = new FileSystemResource(uri);
       }
-      else if (ResourceUtils.isUrl(uri))
-      {
+      else if (ResourceUtils.isUrl(uri)) {
          resource = new UrlResource(uri);
       }
-      else
-      {
+      else {
          resource = new ClassPathResource(uri);
       }
       return resource;

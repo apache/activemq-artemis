@@ -29,20 +29,18 @@ import org.apache.activemq.artemis.core.server.cluster.qourum.SharedNothingBacku
  *
  * This is used for replication (which needs a QuorumManager) and scaling-down (which does not need a QuorumManager).
  */
-public abstract class LiveNodeLocator implements ClusterTopologyListener
-{
+public abstract class LiveNodeLocator implements ClusterTopologyListener {
+
    private SharedNothingBackupQuorum backupQuorum;
 
-   public LiveNodeLocator(SharedNothingBackupQuorum backupQuorum)
-   {
+   public LiveNodeLocator(SharedNothingBackupQuorum backupQuorum) {
       this.backupQuorum = backupQuorum;
    }
 
    /**
     * Use this constructor when the LiveNodeLocator is used for scaling down rather than replicating
     */
-   public LiveNodeLocator()
-   {
+   public LiveNodeLocator() {
    }
 
    /**
@@ -68,16 +66,12 @@ public abstract class LiveNodeLocator implements ClusterTopologyListener
    /**
     * tells the locator the the current connector has failed.
     */
-   public void notifyRegistrationFailed(boolean alreadyReplicating)
-   {
-      if (backupQuorum != null)
-      {
-         if (alreadyReplicating)
-         {
+   public void notifyRegistrationFailed(boolean alreadyReplicating) {
+      if (backupQuorum != null) {
+         if (alreadyReplicating) {
             backupQuorum.notifyAlreadyReplicating();
          }
-         else
-         {
+         else {
             backupQuorum.notifyRegistrationFailed();
          }
       }
@@ -86,8 +80,7 @@ public abstract class LiveNodeLocator implements ClusterTopologyListener
    /**
     * connects to the cluster
     */
-   public void connectToCluster(ServerLocatorInternal serverLocator) throws ActiveMQException
-   {
+   public void connectToCluster(ServerLocatorInternal serverLocator) throws ActiveMQException {
       serverLocator.connect();
    }
 }

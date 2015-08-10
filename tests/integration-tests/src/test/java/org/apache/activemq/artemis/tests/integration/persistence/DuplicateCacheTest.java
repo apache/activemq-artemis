@@ -25,27 +25,23 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class DuplicateCacheTest extends StorageManagerTestBase
-{
+public class DuplicateCacheTest extends StorageManagerTestBase {
 
    @After
    @Override
-   public void tearDown() throws Exception
-   {
+   public void tearDown() throws Exception {
       super.tearDown();
    }
 
    @Test
-   public void testDuplicate() throws Exception
-   {
+   public void testDuplicate() throws Exception {
       createStorage();
 
       DuplicateIDCache cache = new DuplicateIDCacheImpl(new SimpleString("test"), 2000, journal, true);
 
       TransactionImpl tx = new TransactionImpl(journal);
 
-      for (int i = 0; i < 5000; i++)
-      {
+      for (int i = 0; i < 5000; i++) {
          byte[] bytes = RandomUtil.randomBytes();
 
          cache.addToCache(bytes, tx);
@@ -55,8 +51,7 @@ public class DuplicateCacheTest extends StorageManagerTestBase
 
       tx = new TransactionImpl(journal);
 
-      for (int i = 0; i < 5000; i++)
-      {
+      for (int i = 0; i < 5000; i++) {
          byte[] bytes = RandomUtil.randomBytes();
 
          cache.addToCache(bytes, tx);
@@ -77,18 +72,15 @@ public class DuplicateCacheTest extends StorageManagerTestBase
       Assert.assertFalse(cache.contains(id));
    }
 
-
    @Test
-   public void testDuplicateNonPersistent() throws Exception
-   {
+   public void testDuplicateNonPersistent() throws Exception {
       createStorage();
 
       DuplicateIDCache cache = new DuplicateIDCacheImpl(new SimpleString("test"), 2000, journal, false);
 
       TransactionImpl tx = new TransactionImpl(journal);
 
-      for (int i = 0; i < 5000; i++)
-      {
+      for (int i = 0; i < 5000; i++) {
          byte[] bytes = RandomUtil.randomBytes();
 
          cache.addToCache(bytes, tx);
@@ -96,8 +88,7 @@ public class DuplicateCacheTest extends StorageManagerTestBase
 
       tx.commit();
 
-      for (int i = 0; i < 5000; i++)
-      {
+      for (int i = 0; i < 5000; i++) {
          byte[] bytes = RandomUtil.randomBytes();
 
          cache.addToCache(bytes, null);

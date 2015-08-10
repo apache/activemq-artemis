@@ -29,53 +29,51 @@ import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 /**
- * 
  * @author Neil Clayton
- * 
  */
 public class MultipleTestsWithSpringFactoryBeanTest extends TestCase {
-    
-    private static final Logger LOG = LoggerFactory.getLogger(MultipleTestsWithSpringFactoryBeanTest.class);
-    
-    protected AbstractApplicationContext context;
-    protected BrokerService service;
-    private Connection connection;
 
-    public void test1() throws Exception {
-    }
-    
-    public void test2() throws Exception {
-    }
-    
-    protected void setUp() throws Exception {
-        LOG.info("### starting up the test case: " + getName());
-        
-        super.setUp();
-        context = new ClassPathXmlApplicationContext("org/apache/activemq/xbean/spring2.xml");
-        service = (BrokerService) context.getBean("broker");
-        
-        // already started
-        service.start();
-        
-        connection = createConnectionFactory().createConnection();
-        connection.start();
-        LOG.info("### started up the test case: " + getName());
-    }
+   private static final Logger LOG = LoggerFactory.getLogger(MultipleTestsWithSpringFactoryBeanTest.class);
 
-    protected void tearDown() throws Exception {
-        connection.close();
-        
-        // stopped as part of the context
-        service.stop();
-        context.close();
-        super.tearDown();
-        
-        LOG.info("### closed down the test case: " + getName());
-    }
+   protected AbstractApplicationContext context;
+   protected BrokerService service;
+   private Connection connection;
 
-    protected ConnectionFactory createConnectionFactory() {
-        ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory();
-        factory.setBrokerURL("vm://localhost");
-        return factory;
-    }
+   public void test1() throws Exception {
+   }
+
+   public void test2() throws Exception {
+   }
+
+   protected void setUp() throws Exception {
+      LOG.info("### starting up the test case: " + getName());
+
+      super.setUp();
+      context = new ClassPathXmlApplicationContext("org/apache/activemq/xbean/spring2.xml");
+      service = (BrokerService) context.getBean("broker");
+
+      // already started
+      service.start();
+
+      connection = createConnectionFactory().createConnection();
+      connection.start();
+      LOG.info("### started up the test case: " + getName());
+   }
+
+   protected void tearDown() throws Exception {
+      connection.close();
+
+      // stopped as part of the context
+      service.stop();
+      context.close();
+      super.tearDown();
+
+      LOG.info("### closed down the test case: " + getName());
+   }
+
+   protected ConnectionFactory createConnectionFactory() {
+      ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory();
+      factory.setBrokerURL("vm://localhost");
+      return factory;
+   }
 }

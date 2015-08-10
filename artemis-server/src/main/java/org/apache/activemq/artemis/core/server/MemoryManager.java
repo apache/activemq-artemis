@@ -24,8 +24,8 @@ import org.apache.activemq.artemis.utils.SizeFormatterUtil;
  * This class will run a thread monitoring memory usage and log warnings in case we are low on
  * memory.
  */
-public class MemoryManager implements ActiveMQComponent
-{
+public class MemoryManager implements ActiveMQComponent {
+
    private final Runtime runtime;
 
    private final long measureInterval;
@@ -38,8 +38,7 @@ public class MemoryManager implements ActiveMQComponent
 
    private volatile boolean low;
 
-   public MemoryManager(final int memoryWarningThreshold, final long measureInterval)
-   {
+   public MemoryManager(final int memoryWarningThreshold, final long measureInterval) {
       runtime = Runtime.getRuntime();
 
       this.measureInterval = measureInterval;
@@ -47,24 +46,20 @@ public class MemoryManager implements ActiveMQComponent
       this.memoryWarningThreshold = memoryWarningThreshold;
    }
 
-   public boolean isMemoryLow()
-   {
+   public boolean isMemoryLow() {
       return low;
    }
 
-   public synchronized boolean isStarted()
-   {
+   public synchronized boolean isStarted() {
       return started;
    }
 
-   public synchronized void start()
-   {
+   public synchronized void start() {
       ActiveMQServerLogger.LOGGER.debug("Starting MemoryManager with MEASURE_INTERVAL: " + measureInterval +
-                                  " FREE_MEMORY_PERCENT: " +
-                                  memoryWarningThreshold);
+                                           " FREE_MEMORY_PERCENT: " +
+                                           memoryWarningThreshold);
 
-      if (started)
-      {
+      if (started) {
          // Already started
          return;
       }
@@ -78,10 +73,8 @@ public class MemoryManager implements ActiveMQComponent
       thread.start();
    }
 
-   public synchronized void stop()
-   {
-      if (!started)
-      {
+   public synchronized void stop() {
+      if (!started) {
          // Already stopped
          return;
       }
@@ -90,34 +83,26 @@ public class MemoryManager implements ActiveMQComponent
 
       thread.interrupt();
 
-      try
-      {
+      try {
          thread.join();
       }
-      catch (InterruptedException ignore)
-      {
+      catch (InterruptedException ignore) {
       }
    }
 
-   private class MemoryRunnable implements Runnable
-   {
-      public void run()
-      {
-         while (true)
-         {
-            try
-            {
-               if (thread.isInterrupted() && !started)
-               {
+   private class MemoryRunnable implements Runnable {
+
+      public void run() {
+         while (true) {
+            try {
+               if (thread.isInterrupted() && !started) {
                   break;
                }
 
                Thread.sleep(measureInterval);
             }
-            catch (InterruptedException ignore)
-            {
-               if (!started)
-               {
+            catch (InterruptedException ignore) {
+               if (!started) {
                   return;
                }
             }
@@ -138,19 +123,16 @@ public class MemoryManager implements ActiveMQComponent
             info.append(String.format("total memory:     %s%n", SizeFormatterUtil.sizeof(totalMemory)));
             info.append(String.format("available memory: %.2f%%%n", availableMemoryPercent));
 
-            if (ActiveMQServerLogger.LOGGER.isDebugEnabled())
-            {
+            if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
                ActiveMQServerLogger.LOGGER.debug(info);
             }
 
-            if (availableMemoryPercent <= memoryWarningThreshold)
-            {
+            if (availableMemoryPercent <= memoryWarningThreshold) {
                ActiveMQServerLogger.LOGGER.memoryError(memoryWarningThreshold, info.toString());
 
                low = true;
             }
-            else
-            {
+            else {
                low = false;
             }
 

@@ -28,18 +28,28 @@ import org.apache.activemq.artemis.core.transaction.ResourceManager;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.protocol.SessionCallback;
 
-public interface ServerSessionFactory
-{
+public interface ServerSessionFactory {
 
-   ServerSessionImpl createCoreSession(String name, String username, String password,
-         int minLargeMessageSize, boolean autoCommitSends,
-         boolean autoCommitAcks, boolean preAcknowledge,
-         boolean persistDeliveryCountBeforeDelivery, boolean xa,
-         RemotingConnection connection, StorageManager storageManager,
-         PostOffice postOffice, ResourceManager resourceManager,
-         SecurityStore securityStore, ManagementService managementService,
-         ActiveMQServerImpl activeMQServerImpl, SimpleString managementAddress,
-         SimpleString simpleString, SessionCallback callback,
-         QueueCreator queueCreator, OperationContext context) throws Exception;
+   ServerSessionImpl createCoreSession(String name,
+                                       String username,
+                                       String password,
+                                       int minLargeMessageSize,
+                                       boolean autoCommitSends,
+                                       boolean autoCommitAcks,
+                                       boolean preAcknowledge,
+                                       boolean persistDeliveryCountBeforeDelivery,
+                                       boolean xa,
+                                       RemotingConnection connection,
+                                       StorageManager storageManager,
+                                       PostOffice postOffice,
+                                       ResourceManager resourceManager,
+                                       SecurityStore securityStore,
+                                       ManagementService managementService,
+                                       ActiveMQServerImpl activeMQServerImpl,
+                                       SimpleString managementAddress,
+                                       SimpleString simpleString,
+                                       SessionCallback callback,
+                                       QueueCreator queueCreator,
+                                       OperationContext context) throws Exception;
 
 }

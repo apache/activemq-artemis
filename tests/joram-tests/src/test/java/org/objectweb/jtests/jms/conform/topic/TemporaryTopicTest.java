@@ -30,8 +30,7 @@ import org.objectweb.jtests.jms.framework.TestConfig;
 /**
  * Test the <code>javax.jms.TemporaryTopic</code> features.
  */
-public class TemporaryTopicTest extends PubSubTestCase
-{
+public class TemporaryTopicTest extends PubSubTestCase {
 
    private TemporaryTopic tempTopic;
 
@@ -41,10 +40,8 @@ public class TemporaryTopicTest extends PubSubTestCase
     * Test a TemporaryTopic
     */
    @Test
-   public void testTemporaryTopic()
-   {
-      try
-      {
+   public void testTemporaryTopic() {
+      try {
          // we stop both publisher and subscriber connections
          publisherConnection.stop();
          subscriberConnection.stop();
@@ -64,11 +61,10 @@ public class TemporaryTopicTest extends PubSubTestCase
 
          Message m = tempSubscriber.receive(TestConfig.TIMEOUT);
          Assert.assertTrue(m instanceof TextMessage);
-         TextMessage msg = (TextMessage)m;
+         TextMessage msg = (TextMessage) m;
          Assert.assertEquals("testTemporaryTopic", msg.getText());
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          fail(e);
       }
    }

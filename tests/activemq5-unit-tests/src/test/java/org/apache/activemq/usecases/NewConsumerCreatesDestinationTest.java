@@ -32,32 +32,33 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class NewConsumerCreatesDestinationTest extends EmbeddedBrokerAndConnectionTestSupport {
-    private static final Logger LOG = LoggerFactory.getLogger(NewConsumerCreatesDestinationTest.class);
 
-    private ActiveMQQueue wildcard;
+   private static final Logger LOG = LoggerFactory.getLogger(NewConsumerCreatesDestinationTest.class);
 
-    public void testNewConsumerCausesNewDestinationToBeAutoCreated() throws Exception {
+   private ActiveMQQueue wildcard;
 
-        // lets create a wildcard thats kinda like those used by Virtual Topics
-        String wildcardText = "org.*" + getDestinationString().substring("org.apache".length());
-        wildcard = new ActiveMQQueue(wildcardText);
+   public void testNewConsumerCausesNewDestinationToBeAutoCreated() throws Exception {
 
-        LOG.info("Using wildcard: " + wildcard);
-        LOG.info("on destination: " + destination);
+      // lets create a wildcard thats kinda like those used by Virtual Topics
+      String wildcardText = "org.*" + getDestinationString().substring("org.apache".length());
+      wildcard = new ActiveMQQueue(wildcardText);
 
-        assertDestinationCreated(destination, false);
-        assertDestinationCreated(wildcard, false);
+      LOG.info("Using wildcard: " + wildcard);
+      LOG.info("on destination: " + destination);
 
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        session.createConsumer(destination);
+      assertDestinationCreated(destination, false);
+      assertDestinationCreated(wildcard, false);
 
-        assertDestinationCreated(destination, true);
-        assertDestinationCreated(wildcard, true);
-    }
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      session.createConsumer(destination);
 
-    protected void assertDestinationCreated(Destination destination, boolean expected) throws Exception {
-        Set<?> answer = broker.getBroker().getDestinations((ActiveMQDestination) destination);
-        int size = expected ? 1 : 0;
-        assertEquals("Size of found destinations: " + answer, size, answer.size());
-    }
+      assertDestinationCreated(destination, true);
+      assertDestinationCreated(wildcard, true);
+   }
+
+   protected void assertDestinationCreated(Destination destination, boolean expected) throws Exception {
+      Set<?> answer = broker.getBroker().getDestinations((ActiveMQDestination) destination);
+      int size = expected ? 1 : 0;
+      assertEquals("Size of found destinations: " + answer, size, answer.size());
+   }
 }

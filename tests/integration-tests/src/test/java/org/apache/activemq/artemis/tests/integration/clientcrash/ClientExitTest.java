@@ -35,8 +35,7 @@ import org.junit.Test;
  * This is not technically a crash test, but it uses the same type of topology as the crash tests
  * (local server, remote VM client).
  */
-public class ClientExitTest extends ClientTestBase
-{
+public class ClientExitTest extends ClientTestBase {
    // Constants ------------------------------------------------------------------------------------
 
    private static final String MESSAGE_TEXT = RandomUtil.randomString();
@@ -58,12 +57,9 @@ public class ClientExitTest extends ClientTestBase
    // Public ---------------------------------------------------------------------------------------
 
    @Test
-   public void testGracefulClientExit() throws Exception
-   {
+   public void testGracefulClientExit() throws Exception {
       // spawn a JVM that creates a JMS client, which sends a test message
-      Process p = SpawnedVMSupport.spawnVM(GracefulClient.class.getName(),
-                                           ClientExitTest.QUEUE.toString(),
-                                           ClientExitTest.MESSAGE_TEXT);
+      Process p = SpawnedVMSupport.spawnVM(GracefulClient.class.getName(), ClientExitTest.QUEUE.toString(), ClientExitTest.MESSAGE_TEXT);
 
       // read the message from the queue
 
@@ -98,8 +94,7 @@ public class ClientExitTest extends ClientTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       ServerLocator locator = createNettyNonHALocator();

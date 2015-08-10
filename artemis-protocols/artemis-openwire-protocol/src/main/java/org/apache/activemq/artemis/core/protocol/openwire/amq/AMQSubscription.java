@@ -31,11 +31,11 @@ import org.apache.activemq.command.MessagePull;
 import org.apache.activemq.command.Response;
 import org.apache.activemq.filter.MessageEvaluationContext;
 
-public interface AMQSubscription extends AMQSubscriptionRecovery
-{
+public interface AMQSubscription extends AMQSubscriptionRecovery {
 
    /**
     * Used to add messages that match the subscription.
+    *
     * @param node
     * @throws Exception
     * @throws InterruptedException
@@ -45,6 +45,7 @@ public interface AMQSubscription extends AMQSubscriptionRecovery
 
    /**
     * Used when client acknowledge receipt of dispatched message.
+    *
     * @throws IOException
     * @throws Exception
     */
@@ -57,12 +58,14 @@ public interface AMQSubscription extends AMQSubscriptionRecovery
 
    /**
     * Returns true if this subscription is a Wildcard subscription.
+    *
     * @return true if wildcard subscription.
     */
    boolean isWildcard();
 
    /**
     * Is the subscription interested in the message?
+    *
     * @param node
     * @param context
     * @return
@@ -72,6 +75,7 @@ public interface AMQSubscription extends AMQSubscriptionRecovery
 
    /**
     * Is the subscription interested in messages in the destination?
+    *
     * @param destination
     * @return
     */
@@ -79,6 +83,7 @@ public interface AMQSubscription extends AMQSubscriptionRecovery
 
    /**
     * The subscription will be receiving messages from the destination.
+    *
     * @param context
     * @param destination
     * @throws Exception
@@ -87,6 +92,7 @@ public interface AMQSubscription extends AMQSubscriptionRecovery
 
    /**
     * The subscription will be no longer be receiving messages from the destination.
+    *
     * @param context
     * @param destination
     * @return a list of un-acked messages that were added to the subscription.
@@ -106,10 +112,11 @@ public interface AMQSubscription extends AMQSubscriptionRecovery
 
    /**
     * Used by a Slave Broker to update dispatch information
+    *
     * @param mdn
     * @throws Exception
     */
-   void processMessageDispatchNotification(MessageDispatchNotification  mdn) throws Exception;
+   void processMessageDispatchNotification(MessageDispatchNotification mdn) throws Exception;
 
    /**
     * @return number of messages pending delivery
@@ -174,6 +181,7 @@ public interface AMQSubscription extends AMQSubscriptionRecovery
 
    /**
     * inform the MessageConsumer on the client to change it's prefetch
+    *
     * @param newPrefetch
     */
    void updateConsumerPrefetch(int newPrefetch);
@@ -201,6 +209,7 @@ public interface AMQSubscription extends AMQSubscriptionRecovery
    /**
     * Informs the Broker if the subscription needs to intervention to recover it's state
     * e.g. DurableTopicSubscriber may do
+    *
     * @return true if recovery required
     */
    boolean isRecoveryRequired();
@@ -235,7 +244,7 @@ public interface AMQSubscription extends AMQSubscriptionRecovery
     */
    long getTimeOfLastMessageAck();
 
-   long  getConsumedCount();
+   long getConsumedCount();
 
    void incrementConsumedCount();
 

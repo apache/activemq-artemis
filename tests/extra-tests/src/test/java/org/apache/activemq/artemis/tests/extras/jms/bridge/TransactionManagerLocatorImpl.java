@@ -21,18 +21,16 @@ import javax.transaction.TransactionManager;
 
 import org.apache.activemq.artemis.service.extensions.transactions.TransactionManagerLocator;
 
-public class TransactionManagerLocatorImpl implements TransactionManagerLocator
-{
+public class TransactionManagerLocatorImpl implements TransactionManagerLocator {
+
    public static TransactionManager tm = null;
 
    @Override
-   public TransactionManager getTransactionManager()
-   {
+   public TransactionManager getTransactionManager() {
       return tm;
    }
 
-   public void setTransactionManager(TransactionManager transactionManager)
-   {
+   public void setTransactionManager(TransactionManager transactionManager) {
       tm = transactionManager;
    }
 }

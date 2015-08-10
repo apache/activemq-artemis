@@ -20,38 +20,30 @@ import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.command.ActiveMQQueue;
 import org.apache.activemq.command.Message;
 
-public class AMQSharedDeadLetterStrategy extends AMQAbstractDeadLetterStrategy
-{
+public class AMQSharedDeadLetterStrategy extends AMQAbstractDeadLetterStrategy {
+
    public static final String DEFAULT_DEAD_LETTER_QUEUE_NAME = "ActiveMQ.DLQ";
 
-   private ActiveMQDestination deadLetterQueue = new ActiveMQQueue(
-         DEFAULT_DEAD_LETTER_QUEUE_NAME);
+   private ActiveMQDestination deadLetterQueue = new ActiveMQQueue(DEFAULT_DEAD_LETTER_QUEUE_NAME);
 
-   public ActiveMQDestination getDeadLetterQueueFor(Message message,
-         AMQSubscription subscription)
-   {
+   public ActiveMQDestination getDeadLetterQueueFor(Message message, AMQSubscription subscription) {
       return deadLetterQueue;
    }
 
-   public ActiveMQDestination getDeadLetterQueue()
-   {
+   public ActiveMQDestination getDeadLetterQueue() {
       return deadLetterQueue;
    }
 
-   public void setDeadLetterQueue(ActiveMQDestination deadLetterQueue)
-   {
+   public void setDeadLetterQueue(ActiveMQDestination deadLetterQueue) {
       this.deadLetterQueue = deadLetterQueue;
    }
 
    @Override
-   public boolean isDLQ(ActiveMQDestination destination)
-   {
-      if (destination.equals(deadLetterQueue))
-      {
+   public boolean isDLQ(ActiveMQDestination destination) {
+      if (destination.equals(deadLetterQueue)) {
          return true;
       }
-      else
-      {
+      else {
          return false;
       }
    }

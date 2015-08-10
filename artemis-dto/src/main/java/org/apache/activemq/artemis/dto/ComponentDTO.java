@@ -23,8 +23,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "component")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class ComponentDTO
-{
+public class ComponentDTO {
+
    @XmlAttribute
    public String componentClassName;
 }

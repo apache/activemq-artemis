@@ -28,11 +28,10 @@ import org.apache.activemq.artemis.utils.UUID;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class RealNodeManagerTest extends NodeManagerTest
-{
+public class RealNodeManagerTest extends NodeManagerTest {
+
    @Test
-   public void testId() throws Exception
-   {
+   public void testId() throws Exception {
       NodeManager nodeManager = new FileLockNodeManager(new File(getTemporaryDir()), false);
       nodeManager.start();
       UUID id1 = nodeManager.getUUID();
@@ -43,22 +42,17 @@ public class RealNodeManagerTest extends NodeManagerTest
    }
 
    @Override
-   public void performWork(NodeManagerAction... actions) throws Exception
-   {
+   public void performWork(NodeManagerAction... actions) throws Exception {
       List<Process> processes = new ArrayList<Process>();
-      for (NodeManagerAction action : actions)
-      {
+      for (NodeManagerAction action : actions) {
          Process p = SpawnedVMSupport.spawnVM(NodeManagerAction.class.getName(), "-Xms512m", "-Xmx512m", new String[0], true, true, action.getWork());
          processes.add(p);
       }
-      for (Process process : processes)
-      {
+      for (Process process : processes) {
          process.waitFor();
       }
-      for (Process process : processes)
-      {
-         if (process.exitValue() == 9)
-         {
+      for (Process process : processes) {
+         if (process.exitValue() == 9) {
             Assert.fail("failed see output");
          }
       }

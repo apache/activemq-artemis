@@ -47,8 +47,8 @@ import org.w3c.dom.Node;
  * articles. Unused methods should be marked as deprecated.
  */
 @MessageLogger(projectCode = "AMQ")
-public interface ActiveMQClientLogger extends BasicLogger
-{
+public interface ActiveMQClientLogger extends BasicLogger {
+
    /**
     * The default logger.
     */
@@ -92,15 +92,14 @@ public interface ActiveMQClientLogger extends BasicLogger
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 212007,
-            value = "connector.create or connectorFactory.createConnector should never throw an exception, implementation is badly behaved, but we will deal with it anyway.",
-            format = Message.Format.MESSAGE_FORMAT)
+      value = "connector.create or connectorFactory.createConnector should never throw an exception, implementation is badly behaved, but we will deal with it anyway.",
+      format = Message.Format.MESSAGE_FORMAT)
    void createConnectorException(@Cause Exception e);
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 212008,
-            value = "I am closing a core ClientSessionFactory you left open. Please make sure you close all ClientSessionFactories explicitly "
-               + "before letting them go out of scope! {0}",
-            format = Message.Format.MESSAGE_FORMAT)
+      value = "I am closing a core ClientSessionFactory you left open. Please make sure you close all ClientSessionFactories explicitly " + "before letting them go out of scope! {0}",
+      format = Message.Format.MESSAGE_FORMAT)
    void factoryLeftOpen(@Cause Exception e, int i);
 
    @LogMessage(level = Logger.Level.WARN)
@@ -129,8 +128,8 @@ public interface ActiveMQClientLogger extends BasicLogger
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 212016,
-            value = "I am closing a core ClientSession you left open. Please make sure you close all ClientSessions explicitly before letting them go out of scope! {0}",
-            format = Message.Format.MESSAGE_FORMAT)
+      value = "I am closing a core ClientSession you left open. Please make sure you close all ClientSessions explicitly before letting them go out of scope! {0}",
+      format = Message.Format.MESSAGE_FORMAT)
    void clientSessionNotClosed(@Cause Exception e, int identity);
 
    @LogMessage(level = Logger.Level.WARN)
@@ -183,8 +182,8 @@ public interface ActiveMQClientLogger extends BasicLogger
 
    @LogMessage(level = Logger.Level.DEBUG)
    @Message(id = 212029,
-            value = "Closing a Server Locator left open. Please make sure you close all Server Locators explicitly before letting them go out of scope! {0}",
-            format = Message.Format.MESSAGE_FORMAT)
+      value = "Closing a Server Locator left open. Please make sure you close all Server Locators explicitly before letting them go out of scope! {0}",
+      format = Message.Format.MESSAGE_FORMAT)
    void serverLocatorNotClosed(@Cause Exception e, int identity);
 
    @LogMessage(level = Logger.Level.WARN)
@@ -205,12 +204,8 @@ public interface ActiveMQClientLogger extends BasicLogger
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 212034,
-            value = "There are more than one servers on the network broadcasting the same node id. "
-               + "You will see this message exactly once (per node) if a node is restarted, in which case it can be safely "
-               + "ignored. But if it is logged continuously it means you really do have more than one node on the same network "
-               + "active concurrently with the same node id. This could occur if you have a backup node active at the same time as "
-               + "its live node. nodeID={0}",
-            format = Message.Format.MESSAGE_FORMAT)
+      value = "There are more than one servers on the network broadcasting the same node id. " + "You will see this message exactly once (per node) if a node is restarted, in which case it can be safely " + "ignored. But if it is logged continuously it means you really do have more than one node on the same network " + "active concurrently with the same node id. This could occur if you have a backup node active at the same time as " + "its live node. nodeID={0}",
+      format = Message.Format.MESSAGE_FORMAT)
    void multipleServersBroadcastingSameNode(String nodeId);
 
    @LogMessage(level = Logger.Level.WARN)
@@ -219,8 +214,8 @@ public interface ActiveMQClientLogger extends BasicLogger
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 212036,
-            value = "Can not find packet to clear: {0} last received command id first stored command id {1}",
-            format = Message.Format.MESSAGE_FORMAT)
+      value = "Can not find packet to clear: {0} last received command id first stored command id {1}",
+      format = Message.Format.MESSAGE_FORMAT)
    void cannotFindPacketToClear(Integer lastReceivedCommandID, Integer firstStoredCommandID);
 
    @LogMessage(level = Logger.Level.WARN)
@@ -257,7 +252,7 @@ public interface ActiveMQClientLogger extends BasicLogger
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 212046, value = "Cannot find activemq-version.properties on classpath: {0}",
-            format = Message.Format.MESSAGE_FORMAT)
+      format = Message.Format.MESSAGE_FORMAT)
    void noVersionOnClasspath(String classpath);
 
    @LogMessage(level = Logger.Level.WARN)
@@ -266,32 +261,32 @@ public interface ActiveMQClientLogger extends BasicLogger
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 212048, value = "local-bind-address specified for broadcast group but no local-bind-port specified so socket will NOT be bound to a local address/port",
-            format = Message.Format.MESSAGE_FORMAT)
+      format = Message.Format.MESSAGE_FORMAT)
    void broadcastGroupBindError();
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 212049,
-            value = "Could not bind to {0} ({1} address); " +
-               "make sure your discovery group-address is of the same type as the IP stack (IPv4 or IPv6)." +
-               "\nIgnoring discovery group-address, but this may lead to cross talking.",
-            format = Message.Format.MESSAGE_FORMAT)
+      value = "Could not bind to {0} ({1} address); " +
+         "make sure your discovery group-address is of the same type as the IP stack (IPv4 or IPv6)." +
+         "\nIgnoring discovery group-address, but this may lead to cross talking.",
+      format = Message.Format.MESSAGE_FORMAT)
    void ioDiscoveryError(String hostAddress, String s);
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 212050, value = "Compressed large message tried to read {0} bytes from stream {1}",
-            format = Message.Format.MESSAGE_FORMAT)
+      format = Message.Format.MESSAGE_FORMAT)
    void compressedLargeMessageError(int length, int nReadBytes);
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 212051,
-            value = "Invalid concurrent session usage. Sessions are not supposed to be used by more than one thread concurrently.",
-            format = Message.Format.MESSAGE_FORMAT)
+      value = "Invalid concurrent session usage. Sessions are not supposed to be used by more than one thread concurrently.",
+      format = Message.Format.MESSAGE_FORMAT)
    void invalidConcurrentSessionUsage(@Cause Throwable t);
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 212052,
-            value = "Packet {0} was answered out of sequence due to a previous server timeout and it''s being ignored",
-            format = Message.Format.MESSAGE_FORMAT)
+      value = "Packet {0} was answered out of sequence due to a previous server timeout and it''s being ignored",
+      format = Message.Format.MESSAGE_FORMAT)
    void packetOutOfOrder(Object obj, @Cause Throwable t);
 
    /**
@@ -300,15 +295,14 @@ public interface ActiveMQClientLogger extends BasicLogger
     */
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 212053,
-            value = "CompletionListener/SendAcknowledgementHandler used with confirmationWindowSize=-1. Enable confirmationWindowSize to receive acks from server!",
-            format = Message.Format.MESSAGE_FORMAT)
+      value = "CompletionListener/SendAcknowledgementHandler used with confirmationWindowSize=-1. Enable confirmationWindowSize to receive acks from server!",
+      format = Message.Format.MESSAGE_FORMAT)
    void confirmationWindowDisabledWarning();
-
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 212054,
-            value = "Destination address={0} is blocked. If the system is configured to block make sure you consume messages on this configuration.",
-            format = Message.Format.MESSAGE_FORMAT)
+      value = "Destination address={0} is blocked. If the system is configured to block make sure you consume messages on this configuration.",
+      format = Message.Format.MESSAGE_FORMAT)
    void outOfCreditOnFlowControl(String address);
 
    @LogMessage(level = Logger.Level.WARN)

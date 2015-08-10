@@ -26,8 +26,7 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.XMLUtil;
 import org.w3c.dom.Element;
 
-public class ConfigurationValidationTest extends ActiveMQTestBase
-{
+public class ConfigurationValidationTest extends ActiveMQTestBase {
 
    // Constants -----------------------------------------------------
 
@@ -44,8 +43,7 @@ public class ConfigurationValidationTest extends ActiveMQTestBase
     * It runs fine on the CLI with the proper env setting.
     */
    @Test
-   public void testMinimalConfiguration() throws Exception
-   {
+   public void testMinimalConfiguration() throws Exception {
       String xml = "<core xmlns='urn:activemq:core'>" + "</core>";
       Element element = XMLUtil.stringToElement(xml);
       Assert.assertNotNull(element);
@@ -53,8 +51,7 @@ public class ConfigurationValidationTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testFullConfiguration() throws Exception
-   {
+   public void testFullConfiguration() throws Exception {
       FileConfiguration fc = new FileConfiguration();
       FileDeploymentManager deploymentManager = new FileDeploymentManager("ConfigurationTest-full-config.xml");
       deploymentManager.addDeployable(fc);

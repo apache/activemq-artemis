@@ -25,8 +25,8 @@ import org.apache.activemq.artemis.spi.core.remoting.SessionContext;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
-public class ClientProducerCreditsImpl implements ClientProducerCredits
-{
+public class ClientProducerCreditsImpl implements ClientProducerCredits {
+
    private final Semaphore semaphore;
 
    private final int windowSize;
@@ -51,8 +51,7 @@ public class ClientProducerCreditsImpl implements ClientProducerCredits
 
    public ClientProducerCreditsImpl(final ClientSessionInternal session,
                                     final SimpleString address,
-                                    final int windowSize)
-   {
+                                    final int windowSize) {
       this.session = session;
 
       this.address = address;
@@ -64,8 +63,7 @@ public class ClientProducerCreditsImpl implements ClientProducerCredits
       semaphore = new Semaphore(0, false);
    }
 
-   public void init(SessionContext sessionContext)
-   {
+   public void init(SessionContext sessionContext) {
       // We initial request twice as many credits as we request in subsequent requests
       // This allows the producer to keep sending as more arrive, minimising pauses
       checkCredits(windowSize);
@@ -75,50 +73,38 @@ public class ClientProducerCreditsImpl implements ClientProducerCredits
       this.sessionContext.linkFlowControl(address, this);
    }
 
-   public void acquireCredits(final int credits) throws InterruptedException, ActiveMQException
-   {
+   public void acquireCredits(final int credits) throws InterruptedException, ActiveMQException {
       checkCredits(credits);
-
 
       boolean tryAcquire;
 
-      synchronized (this)
-      {
+      synchronized (this) {
          tryAcquire = semaphore.tryAcquire(credits);
       }
 
-      if (!tryAcquire)
-      {
-         if (!closed)
-         {
+      if (!tryAcquire) {
+         if (!closed) {
             this.blocked = true;
-            try
-            {
-               while (!semaphore.tryAcquire(credits, 10, TimeUnit.SECONDS))
-               {
+            try {
+               while (!semaphore.tryAcquire(credits, 10, TimeUnit.SECONDS)) {
                   // I'm using string concatenation here in case address is null
                   // better getting a "null" string than a NPE
                   ActiveMQClientLogger.LOGGER.outOfCreditOnFlowControl("" + address);
                }
             }
-            finally
-            {
+            finally {
                this.blocked = false;
             }
          }
       }
 
-
-      synchronized (this)
-      {
+      synchronized (this) {
          pendingCredits -= credits;
       }
 
       // check to see if the blocking mode is FAIL on the server
-      synchronized (this)
-      {
-         if (serverRespondedWithFail)
-         {
+      synchronized (this) {
+         if (serverRespondedWithFail) {
             serverRespondedWithFail = false;
 
             // remove existing credits to force the client to ask the server for more on the next send
@@ -131,35 +117,29 @@ public class ClientProducerCreditsImpl implements ClientProducerCredits
       }
    }
 
-   public boolean isBlocked()
-   {
+   public boolean isBlocked() {
       return blocked;
    }
 
-   public int getBalance()
-   {
+   public int getBalance() {
       return semaphore.availablePermits();
    }
 
-   public void receiveCredits(final int credits)
-   {
-      synchronized (this)
-      {
+   public void receiveCredits(final int credits) {
+      synchronized (this) {
          arriving -= credits;
       }
 
       semaphore.release(credits);
    }
 
-   public void receiveFailCredits(final int credits)
-   {
+   public void receiveFailCredits(final int credits) {
       serverRespondedWithFail = true;
       // receive credits like normal to keep the sender from blocking
       receiveCredits(credits);
    }
 
-   public synchronized void reset()
-   {
+   public synchronized void reset() {
       // Any pendingCredits credits from before failover won't arrive, so we re-initialise
 
       semaphore.drainPermits();
@@ -174,39 +154,32 @@ public class ClientProducerCreditsImpl implements ClientProducerCredits
       checkCredits(Math.max(windowSize * 2, beforeFailure));
    }
 
-   public void close()
-   {
+   public void close() {
       // Closing a producer that is blocking should make it return
       closed = true;
 
       semaphore.release(Integer.MAX_VALUE / 2);
    }
 
-   public synchronized void incrementRefCount()
-   {
+   public synchronized void incrementRefCount() {
       refCount++;
    }
 
-   public synchronized int decrementRefCount()
-   {
+   public synchronized int decrementRefCount() {
       return --refCount;
    }
 
-   public synchronized void releaseOutstanding()
-   {
+   public synchronized void releaseOutstanding() {
       semaphore.drainPermits();
    }
 
-   private void checkCredits(final int credits)
-   {
+   private void checkCredits(final int credits) {
       int needed = Math.max(credits, windowSize);
 
       int toRequest = -1;
 
-      synchronized (this)
-      {
-         if (semaphore.availablePermits() + arriving < needed)
-         {
+      synchronized (this) {
+         if (semaphore.availablePermits() + arriving < needed) {
             toRequest = needed - arriving;
 
             pendingCredits += toRequest;
@@ -214,14 +187,12 @@ public class ClientProducerCreditsImpl implements ClientProducerCredits
          }
       }
 
-      if (toRequest != -1)
-      {
+      if (toRequest != -1) {
          requestCredits(toRequest);
       }
    }
 
-   private void requestCredits(final int credits)
-   {
+   private void requestCredits(final int credits) {
       session.sendProducerCreditsMessage(credits, address);
    }
 }

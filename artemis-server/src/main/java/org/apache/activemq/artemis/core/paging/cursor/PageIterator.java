@@ -19,7 +19,7 @@ package org.apache.activemq.artemis.core.paging.cursor;
 
 import org.apache.activemq.artemis.utils.LinkedListIterator;
 
-public interface PageIterator extends LinkedListIterator<PagedReference>
-{
+public interface PageIterator extends LinkedListIterator<PagedReference> {
+
    void redeliver(PagePosition reference);
 }

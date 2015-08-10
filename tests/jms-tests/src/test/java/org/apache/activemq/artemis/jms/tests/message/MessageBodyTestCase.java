@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.jms.tests.message;
+
 import javax.jms.Connection;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
@@ -23,22 +24,20 @@ import javax.jms.Session;
 import org.apache.activemq.artemis.jms.tests.ActiveMQServerTestCase;
 import org.junit.Before;
 
-public abstract class MessageBodyTestCase extends ActiveMQServerTestCase
-{
+public abstract class MessageBodyTestCase extends ActiveMQServerTestCase {
+
    protected Connection producerConnection, consumerConnection;
    protected Session queueProducerSession, queueConsumerSession;
    protected MessageProducer queueProducer;
    protected MessageConsumer queueConsumer;
 
-   enum JmsMessageType
-   {
+   enum JmsMessageType {
       TEXT, MAP, OBJECT, BYTE, STREAM;
    }
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       producerConnection = addConnection(getConnectionFactory().createConnection());

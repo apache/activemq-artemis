@@ -22,56 +22,59 @@ import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.broker.BrokerService;
 
 /**
- * 
+ *
  */
 public class TwoBrokerTopicSendReceiveUsingJavaConfigurationTest extends TwoBrokerTopicSendReceiveTest {
-    BrokerService receiveBroker;
-    BrokerService sendBroker;
 
-    protected ActiveMQConnectionFactory createReceiverConnectionFactory() throws JMSException {
-        try {
-            receiveBroker = new BrokerService();
-            receiveBroker.setBrokerName("receiveBroker");
-            receiveBroker.setUseJmx(false);
-            receiveBroker.setPersistent(false);
-            receiveBroker.addConnector("tcp://localhost:62002");
-            receiveBroker.addNetworkConnector("static:failover:tcp://localhost:62001");
-            receiveBroker.start();
+   BrokerService receiveBroker;
+   BrokerService sendBroker;
 
-            ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("tcp://localhost:62002");
-            return factory;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
+   protected ActiveMQConnectionFactory createReceiverConnectionFactory() throws JMSException {
+      try {
+         receiveBroker = new BrokerService();
+         receiveBroker.setBrokerName("receiveBroker");
+         receiveBroker.setUseJmx(false);
+         receiveBroker.setPersistent(false);
+         receiveBroker.addConnector("tcp://localhost:62002");
+         receiveBroker.addNetworkConnector("static:failover:tcp://localhost:62001");
+         receiveBroker.start();
 
-    protected ActiveMQConnectionFactory createSenderConnectionFactory() throws JMSException {
-        try {
-            sendBroker = new BrokerService();
-            sendBroker.setBrokerName("sendBroker");
-            sendBroker.setUseJmx(false);
-            sendBroker.setPersistent(false);
-            sendBroker.addConnector("tcp://localhost:62001");
-            sendBroker.addNetworkConnector("static:failover:tcp://localhost:62002");
-            sendBroker.start();
+         ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("tcp://localhost:62002");
+         return factory;
+      }
+      catch (Exception e) {
+         e.printStackTrace();
+         return null;
+      }
+   }
 
-            ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("tcp://localhost:62001");
-            return factory;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
+   protected ActiveMQConnectionFactory createSenderConnectionFactory() throws JMSException {
+      try {
+         sendBroker = new BrokerService();
+         sendBroker.setBrokerName("sendBroker");
+         sendBroker.setUseJmx(false);
+         sendBroker.setPersistent(false);
+         sendBroker.addConnector("tcp://localhost:62001");
+         sendBroker.addNetworkConnector("static:failover:tcp://localhost:62002");
+         sendBroker.start();
 
-    protected void tearDown() throws Exception {
-        super.tearDown();
-        if (sendBroker != null) {
-            sendBroker.stop();
-        }
-        if (receiveBroker != null) {
-            receiveBroker.stop();
-        }
-    }
+         ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("tcp://localhost:62001");
+         return factory;
+      }
+      catch (Exception e) {
+         e.printStackTrace();
+         return null;
+      }
+   }
+
+   protected void tearDown() throws Exception {
+      super.tearDown();
+      if (sendBroker != null) {
+         sendBroker.stop();
+      }
+      if (receiveBroker != null) {
+         receiveBroker.stop();
+      }
+   }
 
 }

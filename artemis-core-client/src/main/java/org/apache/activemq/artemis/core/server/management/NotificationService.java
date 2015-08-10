@@ -16,8 +16,8 @@
  */
 package org.apache.activemq.artemis.core.server.management;
 
-public interface NotificationService
-{
+public interface NotificationService {
+
    /**
     * the message corresponding to a notification will always contain the properties:
     * <ul>

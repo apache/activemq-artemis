@@ -46,67 +46,54 @@ import static org.proton.plug.context.AMQPConstants.Connection.DEFAULT_MAX_FRAME
 /**
  * A proton protocol manager, basically reads the Proton Input and maps proton resources to ActiveMQ Artemis resources
  */
-public class ProtonProtocolManager implements ProtocolManager<Interceptor>, NotificationListener
-{
+public class ProtonProtocolManager implements ProtocolManager<Interceptor>, NotificationListener {
+
    private final ActiveMQServer server;
 
    private MessageConverter protonConverter;
 
-
    private final ProtonProtocolManagerFactory factory;
 
-   public ProtonProtocolManager(ProtonProtocolManagerFactory factory, ActiveMQServer server)
-   {
+   public ProtonProtocolManager(ProtonProtocolManagerFactory factory, ActiveMQServer server) {
       this.factory = factory;
       this.server = server;
       this.protonConverter = new ProtonMessageConverter(server.getStorageManager());
    }
 
-   public ActiveMQServer getServer()
-   {
+   public ActiveMQServer getServer() {
       return server;
    }
 
-
    @Override
-   public MessageConverter getConverter()
-   {
+   public MessageConverter getConverter() {
       return protonConverter;
    }
 
    @Override
-   public void onNotification(Notification notification)
-   {
+   public void onNotification(Notification notification) {
 
    }
 
    @Override
-   public ProtocolManagerFactory<Interceptor> getFactory()
-   {
+   public ProtocolManagerFactory<Interceptor> getFactory() {
       return factory;
    }
 
    @Override
-   public void updateInterceptors(List<BaseInterceptor> incomingInterceptors, List<BaseInterceptor> outgoingInterceptors)
-   {
+   public void updateInterceptors(List<BaseInterceptor> incomingInterceptors,
+                                  List<BaseInterceptor> outgoingInterceptors) {
       // no op
    }
 
    @Override
-   public ConnectionEntry createConnectionEntry(Acceptor acceptorUsed, Connection remotingConnection)
-   {
+   public ConnectionEntry createConnectionEntry(Acceptor acceptorUsed, Connection remotingConnection) {
       ActiveMQProtonConnectionCallback connectionCallback = new ActiveMQProtonConnectionCallback(this, remotingConnection);
       long ttl = ActiveMQClient.DEFAULT_CONNECTION_TTL;
 
-      if (server.getConfiguration().getConnectionTTLOverride() != -1)
-      {
+      if (server.getConfiguration().getConnectionTTLOverride() != -1) {
          ttl = server.getConfiguration().getConnectionTTLOverride();
       }
-      AMQPServerConnectionContext amqpConnection = ProtonServerConnectionContextFactory.getFactory().createConnection(
-            connectionCallback,
-            (int) ttl,
-            DEFAULT_MAX_FRAME_SIZE,
-            DEFAULT_CHANNEL_MAX);
+      AMQPServerConnectionContext amqpConnection = ProtonServerConnectionContextFactory.getFactory().createConnection(connectionCallback, (int) ttl, DEFAULT_MAX_FRAME_SIZE, DEFAULT_CHANNEL_MAX);
 
       Executor executor = server.getExecutorFactory().getExecutor();
 
@@ -114,42 +101,35 @@ public class ProtonProtocolManager implements ProtocolManager<Interceptor>, Noti
 
       connectionCallback.setProtonConnectionDelegate(delegate);
 
-      ConnectionEntry entry = new ConnectionEntry(delegate, executor,
-                                                  System.currentTimeMillis(), ttl);
+      ConnectionEntry entry = new ConnectionEntry(delegate, executor, System.currentTimeMillis(), ttl);
 
       return entry;
    }
 
    @Override
-   public void removeHandler(String name)
-   {
+   public void removeHandler(String name) {
 
    }
 
    @Override
-   public void handleBuffer(RemotingConnection connection, ActiveMQBuffer buffer)
-   {
+   public void handleBuffer(RemotingConnection connection, ActiveMQBuffer buffer) {
       ActiveMQProtonRemotingConnection protonConnection = (ActiveMQProtonRemotingConnection) connection;
 
       protonConnection.bufferReceived(protonConnection.getID(), buffer);
    }
 
    @Override
-   public void addChannelHandlers(ChannelPipeline pipeline)
-   {
+   public void addChannelHandlers(ChannelPipeline pipeline) {
 
    }
 
    @Override
-   public boolean isProtocol(byte[] array)
-   {
+   public boolean isProtocol(byte[] array) {
       return array.length >= 4 && array[0] == (byte) 'A' && array[1] == (byte) 'M' && array[2] == (byte) 'Q' && array[3] == (byte) 'P';
    }
 
    @Override
-   public void handshake(NettyServerConnection connection, ActiveMQBuffer buffer)
-   {
+   public void handshake(NettyServerConnection connection, ActiveMQBuffer buffer) {
    }
-
 
 }

@@ -19,22 +19,19 @@ package org.apache.activemq.artemis.core.protocol.openwire.amq;
 import org.apache.activemq.command.ProducerInfo;
 import org.apache.activemq.artemis.core.protocol.openwire.OpenWireUtil;
 
-public class AMQProducer
-{
+public class AMQProducer {
+
    private AMQSession amqSession;
    private ProducerInfo info;
 
-   public AMQProducer(AMQSession amqSession, ProducerInfo info)
-   {
+   public AMQProducer(AMQSession amqSession, ProducerInfo info) {
       this.amqSession = amqSession;
       this.info = info;
    }
 
-   public void init() throws Exception
-   {
+   public void init() throws Exception {
       // If the destination is specified check that it exists.
-      if (info.getDestination() != null)
-      {
+      if (info.getDestination() != null) {
          OpenWireUtil.validateDestination(info.getDestination(), amqSession);
       }
    }

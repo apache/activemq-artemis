@@ -33,12 +33,10 @@ import org.apache.activemq.artemis.tests.integration.cluster.distribution.Cluste
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Test;
 
-public abstract class GroupingFailoverTestBase extends ClusterTestBase
-{
+public abstract class GroupingFailoverTestBase extends ClusterTestBase {
 
    @Test
-   public void testGroupingLocalHandlerFails() throws Exception
-   {
+   public void testGroupingLocalHandlerFails() throws Exception {
       setupBackupServer(2, 0, isFileStorage(), isSharedStore(), isNetty());
 
       setupLiveServer(0, isFileStorage(), isSharedStore(), isNetty(), false);
@@ -56,11 +54,10 @@ public abstract class GroupingFailoverTestBase extends ClusterTestBase
       setUpGroupHandler(GroupingHandlerConfiguration.TYPE.REMOTE, 1);
 
       setUpGroupHandler(GroupingHandlerConfiguration.TYPE.LOCAL, 2);
-      if (!isSharedStore())
-      {
-         ((ReplicatedPolicyConfiguration)servers[0].getConfiguration().getHAPolicyConfiguration()).setGroupName("group1");
-         ((ReplicatedPolicyConfiguration)servers[1].getConfiguration().getHAPolicyConfiguration()).setGroupName("group2");
-         ((ReplicaPolicyConfiguration)servers[2].getConfiguration().getHAPolicyConfiguration()).setGroupName("group1");
+      if (!isSharedStore()) {
+         ((ReplicatedPolicyConfiguration) servers[0].getConfiguration().getHAPolicyConfiguration()).setGroupName("group1");
+         ((ReplicatedPolicyConfiguration) servers[1].getConfiguration().getHAPolicyConfiguration()).setGroupName("group2");
+         ((ReplicaPolicyConfiguration) servers[2].getConfiguration().getHAPolicyConfiguration()).setGroupName("group1");
       }
 
       startServers(0, 1, 2);
@@ -88,8 +85,7 @@ public abstract class GroupingFailoverTestBase extends ClusterTestBase
 
       verifyReceiveAll(10, 0);
 
-      if (!isSharedStore())
-      {
+      if (!isSharedStore()) {
          waitForBackupTopologyAnnouncement(sfs[0]);
       }
 
@@ -112,32 +108,26 @@ public abstract class GroupingFailoverTestBase extends ClusterTestBase
       verifyReceiveAll(10, 2);
    }
 
-   public void waitForBackupTopologyAnnouncement(ClientSessionFactory sf) throws Exception
-   {
+   public void waitForBackupTopologyAnnouncement(ClientSessionFactory sf) throws Exception {
       long start = System.currentTimeMillis();
 
       ServerLocator locator = sf.getServerLocator();
-      do
-      {
+      do {
          Collection<TopologyMemberImpl> members = locator.getTopology().getMembers();
-         for (TopologyMemberImpl member : members)
-         {
-            if (member.getBackup() != null)
-            {
+         for (TopologyMemberImpl member : members) {
+            if (member.getBackup() != null) {
                return;
             }
          }
 
          Thread.sleep(10);
-      }
-      while (System.currentTimeMillis() - start < ActiveMQTestBase.WAIT_TIMEOUT);
+      } while (System.currentTimeMillis() - start < ActiveMQTestBase.WAIT_TIMEOUT);
 
       throw new IllegalStateException("Timed out waiting for backup announce");
    }
 
    @Test
-   public void testGroupingLocalHandlerFailsMultipleGroups() throws Exception
-   {
+   public void testGroupingLocalHandlerFailsMultipleGroups() throws Exception {
       setupBackupServer(2, 0, isFileStorage(), isSharedStore(), isNetty());
 
       setupLiveServer(0, isFileStorage(), isSharedStore(), isNetty(), false);
@@ -156,11 +146,10 @@ public abstract class GroupingFailoverTestBase extends ClusterTestBase
 
       setUpGroupHandler(GroupingHandlerConfiguration.TYPE.LOCAL, 2);
 
-      if (!isSharedStore())
-      {
-         ((ReplicatedPolicyConfiguration)servers[0].getConfiguration().getHAPolicyConfiguration()).setGroupName("group1");
-         ((ReplicatedPolicyConfiguration)servers[1].getConfiguration().getHAPolicyConfiguration()).setGroupName("group2");
-         ((ReplicaPolicyConfiguration)servers[2].getConfiguration().getHAPolicyConfiguration()).setGroupName("group1");
+      if (!isSharedStore()) {
+         ((ReplicatedPolicyConfiguration) servers[0].getConfiguration().getHAPolicyConfiguration()).setGroupName("group1");
+         ((ReplicatedPolicyConfiguration) servers[1].getConfiguration().getHAPolicyConfiguration()).setGroupName("group2");
+         ((ReplicaPolicyConfiguration) servers[2].getConfiguration().getHAPolicyConfiguration()).setGroupName("group1");
       }
 
       startServers(0, 1, 2);
@@ -197,9 +186,8 @@ public abstract class GroupingFailoverTestBase extends ClusterTestBase
 
       verifyReceiveAllWithGroupIDRoundRobin(0, 30, 0, 1);
 
-      if (!isSharedStore())
-      {
-         SharedNothingBackupActivation backupActivation =  (SharedNothingBackupActivation) servers[2].getActivation();
+      if (!isSharedStore()) {
+         SharedNothingBackupActivation backupActivation = (SharedNothingBackupActivation) servers[2].getActivation();
          assertTrue(backupActivation.waitForBackupSync(10, TimeUnit.SECONDS));
       }
 
@@ -231,8 +219,7 @@ public abstract class GroupingFailoverTestBase extends ClusterTestBase
       verifyReceiveAllWithGroupIDRoundRobin(2, 30, 1, 2);
    }
 
-   public boolean isNetty()
-   {
+   public boolean isNetty() {
       return true;
    }
 }

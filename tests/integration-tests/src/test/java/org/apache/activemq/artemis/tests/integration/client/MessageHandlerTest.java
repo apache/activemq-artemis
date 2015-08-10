@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 package org.apache.activemq.artemis.tests.integration.client;
+
 import org.junit.Before;
 
 import org.junit.Test;
@@ -36,8 +37,8 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 
-public class MessageHandlerTest extends ActiveMQTestBase
-{
+public class MessageHandlerTest extends ActiveMQTestBase {
+
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    private ActiveMQServer server;
@@ -50,8 +51,7 @@ public class MessageHandlerTest extends ActiveMQTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       server = createServer(false);
@@ -64,8 +64,7 @@ public class MessageHandlerTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testSetMessageHandlerWithMessagesPending() throws Exception
-   {
+   public void testSetMessageHandlerWithMessagesPending() throws Exception {
       ClientSession session = sf.createSession(false, true, true);
 
       session.createQueue(QUEUE, QUEUE, null, false);
@@ -74,8 +73,7 @@ public class MessageHandlerTest extends ActiveMQTestBase
 
       final int numMessages = 100;
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = createTextMessage(session, "m" + i);
          producer.send(message);
       }
@@ -88,18 +86,15 @@ public class MessageHandlerTest extends ActiveMQTestBase
 
       // Message should be in consumer
 
-      class MyHandler implements MessageHandler
-      {
-         public void onMessage(final ClientMessage message)
-         {
-            try
-            {
+      class MyHandler implements MessageHandler {
+
+         public void onMessage(final ClientMessage message) {
+            try {
                Thread.sleep(10);
 
                message.acknowledge();
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
             }
          }
       }
@@ -124,8 +119,7 @@ public class MessageHandlerTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testSetResetMessageHandler() throws Exception
-   {
+   public void testSetResetMessageHandler() throws Exception {
       final ClientSession session = sf.createSession(false, true, true);
 
       session.createQueue(QUEUE, QUEUE, null, false);
@@ -134,8 +128,7 @@ public class MessageHandlerTest extends ActiveMQTestBase
 
       final int numMessages = 100;
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = createTextMessage(session, "m" + i);
 
          message.putIntProperty(new SimpleString("i"), i);
@@ -149,8 +142,8 @@ public class MessageHandlerTest extends ActiveMQTestBase
 
       // Message should be in consumer
 
-      class MyHandler implements MessageHandler
-      {
+      class MyHandler implements MessageHandler {
+
          int messageReceived = 0;
 
          boolean failed;
@@ -159,18 +152,14 @@ public class MessageHandlerTest extends ActiveMQTestBase
 
          private final CountDownLatch latch;
 
-         public MyHandler(final CountDownLatch latch)
-         {
+         public MyHandler(final CountDownLatch latch) {
             this.latch = latch;
          }
 
-         public void onMessage(final ClientMessage message)
-         {
+         public void onMessage(final ClientMessage message) {
 
-            try
-            {
-               if (!started)
-               {
+            try {
+               if (!started) {
                   failed = true;
                }
 
@@ -180,8 +169,7 @@ public class MessageHandlerTest extends ActiveMQTestBase
 
                latch.countDown();
 
-               if (latch.getCount() == 0)
-               {
+               if (latch.getCount() == 0) {
                   message.acknowledge();
 
                   started = false;
@@ -190,8 +178,7 @@ public class MessageHandlerTest extends ActiveMQTestBase
                }
 
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
             }
          }
       }
@@ -201,7 +188,6 @@ public class MessageHandlerTest extends ActiveMQTestBase
       consumer.setMessageHandler(handler);
 
       session.start();
-
 
       waitForLatch(latch);
 
@@ -225,8 +211,7 @@ public class MessageHandlerTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testSetUnsetMessageHandler() throws Exception
-   {
+   public void testSetUnsetMessageHandler() throws Exception {
       final ClientSession session = sf.createSession(false, true, true);
 
       session.createQueue(QUEUE, QUEUE, null, false);
@@ -235,8 +220,7 @@ public class MessageHandlerTest extends ActiveMQTestBase
 
       final int numMessages = 100;
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = createTextMessage(session, "m" + i);
          message.putIntProperty(new SimpleString("i"), i);
          producer.send(message);
@@ -250,8 +234,8 @@ public class MessageHandlerTest extends ActiveMQTestBase
 
       // Message should be in consumer
 
-      class MyHandler implements MessageHandler
-      {
+      class MyHandler implements MessageHandler {
+
          int messageReceived = 0;
 
          boolean failed;
@@ -260,25 +244,20 @@ public class MessageHandlerTest extends ActiveMQTestBase
 
          private final CountDownLatch latch;
 
-         public MyHandler(final CountDownLatch latch)
-         {
+         public MyHandler(final CountDownLatch latch) {
             this.latch = latch;
          }
 
-         public void onMessage(final ClientMessage message)
-         {
+         public void onMessage(final ClientMessage message) {
 
-            try
-            {
-               if (!started)
-               {
+            try {
+               if (!started) {
                   failed = true;
                }
                messageReceived++;
                latch.countDown();
 
-               if (latch.getCount() == 0)
-               {
+               if (latch.getCount() == 0) {
 
                   message.acknowledge();
                   started = false;
@@ -286,8 +265,7 @@ public class MessageHandlerTest extends ActiveMQTestBase
                }
 
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
             }
          }
       }
@@ -312,8 +290,7 @@ public class MessageHandlerTest extends ActiveMQTestBase
    }
 
    @Test
-   public void testSetUnsetResetMessageHandler() throws Exception
-   {
+   public void testSetUnsetResetMessageHandler() throws Exception {
       final ClientSession session = sf.createSession(false, true, true);
 
       session.createQueue(QUEUE, QUEUE, null, false);
@@ -322,8 +299,7 @@ public class MessageHandlerTest extends ActiveMQTestBase
 
       final int numMessages = 100;
 
-      for (int i = 0; i < numMessages; i++)
-      {
+      for (int i = 0; i < numMessages; i++) {
          ClientMessage message = createTextMessage(session, "m" + i);
          message.putIntProperty(new SimpleString("i"), i);
          producer.send(message);
@@ -337,8 +313,8 @@ public class MessageHandlerTest extends ActiveMQTestBase
 
       // Message should be in consumer
 
-      class MyHandler implements MessageHandler
-      {
+      class MyHandler implements MessageHandler {
+
          int messageReceived = 0;
 
          boolean failed;
@@ -347,25 +323,20 @@ public class MessageHandlerTest extends ActiveMQTestBase
 
          private final CountDownLatch latch;
 
-         public MyHandler(final CountDownLatch latch)
-         {
+         public MyHandler(final CountDownLatch latch) {
             this.latch = latch;
          }
 
-         public void onMessage(final ClientMessage message)
-         {
+         public void onMessage(final ClientMessage message) {
 
-            try
-            {
-               if (!started)
-               {
+            try {
+               if (!started) {
                   failed = true;
                }
                messageReceived++;
                latch.countDown();
 
-               if (latch.getCount() == 0)
-               {
+               if (latch.getCount() == 0) {
 
                   message.acknowledge();
                   started = false;
@@ -373,8 +344,7 @@ public class MessageHandlerTest extends ActiveMQTestBase
                }
 
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
             }
          }
       }

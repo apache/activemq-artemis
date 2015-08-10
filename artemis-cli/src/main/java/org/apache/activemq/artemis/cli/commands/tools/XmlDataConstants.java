@@ -20,12 +20,12 @@ package org.apache.activemq.artemis.cli.commands.tools;
  * The constants shared by <code>org.apache.activemq.tools.XmlDataImporter</code> and
  * <code>org.apache.activemq.tools.XmlDataExporter</code>.
  */
-public final class XmlDataConstants
-{
-   private XmlDataConstants()
-   {
+public final class XmlDataConstants {
+
+   private XmlDataConstants() {
       // Utility
    }
+
    static final String XML_VERSION = "1.0";
    static final String DOCUMENT_PARENT = "activemq-journal";
    static final String BINDINGS_PARENT = "bindings";

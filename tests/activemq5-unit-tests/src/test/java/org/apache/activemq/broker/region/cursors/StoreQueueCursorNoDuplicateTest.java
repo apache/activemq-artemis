@@ -36,98 +36,94 @@ import org.slf4j.LoggerFactory;
 
 /**
  * @author gtully
- * https://issues.apache.org/activemq/browse/AMQ-2020
- **/
+ *         https://issues.apache.org/activemq/browse/AMQ-2020
+ */
 public class StoreQueueCursorNoDuplicateTest extends TestCase {
-    static final Logger LOG = LoggerFactory.getLogger(StoreQueueCursorNoDuplicateTest.class);
-            ActiveMQQueue destination = new ActiveMQQueue("queue-"
-            + StoreQueueCursorNoDuplicateTest.class.getSimpleName());
-    BrokerService brokerService;
 
-    final static String mesageIdRoot = "11111:22222:0:";
-    final int messageBytesSize = 1024;
-    final String text = new String(new byte[messageBytesSize]);
+   static final Logger LOG = LoggerFactory.getLogger(StoreQueueCursorNoDuplicateTest.class);
+   ActiveMQQueue destination = new ActiveMQQueue("queue-" + StoreQueueCursorNoDuplicateTest.class.getSimpleName());
+   BrokerService brokerService;
 
-    protected int count = 6;
+   final static String mesageIdRoot = "11111:22222:0:";
+   final int messageBytesSize = 1024;
+   final String text = new String(new byte[messageBytesSize]);
 
-    @Override
-    public void setUp() throws Exception {
-        brokerService = createBroker();
-        brokerService.setUseJmx(false);
-        brokerService.deleteAllMessages();
-        brokerService.start();
-    }
+   protected int count = 6;
 
-    protected BrokerService createBroker() throws Exception {
-        return new BrokerService();
-    }
+   @Override
+   public void setUp() throws Exception {
+      brokerService = createBroker();
+      brokerService.setUseJmx(false);
+      brokerService.deleteAllMessages();
+      brokerService.start();
+   }
 
-    @Override
-    public void tearDown() throws Exception {
-        brokerService.stop();
-    }
+   protected BrokerService createBroker() throws Exception {
+      return new BrokerService();
+   }
 
-    public void testNoDuplicateAfterCacheFullAndReadPast() throws Exception {
-        final PersistenceAdapter persistenceAdapter = brokerService
-                .getPersistenceAdapter();
-        final MessageStore queueMessageStore = persistenceAdapter
-                .createQueueMessageStore(destination);
-        final ConsumerInfo consumerInfo = new ConsumerInfo();
-        final DestinationStatistics destinationStatistics = new DestinationStatistics();
-        consumerInfo.setExclusive(true);
+   @Override
+   public void tearDown() throws Exception {
+      brokerService.stop();
+   }
 
-        final Queue queue = new Queue(brokerService, destination,
-                queueMessageStore, destinationStatistics, null);
+   public void testNoDuplicateAfterCacheFullAndReadPast() throws Exception {
+      final PersistenceAdapter persistenceAdapter = brokerService.getPersistenceAdapter();
+      final MessageStore queueMessageStore = persistenceAdapter.createQueueMessageStore(destination);
+      final ConsumerInfo consumerInfo = new ConsumerInfo();
+      final DestinationStatistics destinationStatistics = new DestinationStatistics();
+      consumerInfo.setExclusive(true);
 
-        queueMessageStore.start();
-        queueMessageStore.registerIndexListener(null);
+      final Queue queue = new Queue(brokerService, destination, queueMessageStore, destinationStatistics, null);
 
-        QueueStorePrefetch underTest = new QueueStorePrefetch(queue, brokerService.getBroker());
-        SystemUsage systemUsage = new SystemUsage();
-        // ensure memory limit is reached
-        systemUsage.getMemoryUsage().setLimit(messageBytesSize * (count + 2));
-        underTest.setSystemUsage(systemUsage);
-        underTest.setEnableAudit(false);
-        underTest.start();
-        assertTrue("cache enabled", underTest.isUseCache() && underTest.isCacheEnabled());
+      queueMessageStore.start();
+      queueMessageStore.registerIndexListener(null);
 
-        final ConnectionContext contextNotInTx = new ConnectionContext();
-        for (int i = 0; i < count; i++) {
-            ActiveMQTextMessage msg = getMessage(i);
-            msg.setMemoryUsage(systemUsage.getMemoryUsage());
+      QueueStorePrefetch underTest = new QueueStorePrefetch(queue, brokerService.getBroker());
+      SystemUsage systemUsage = new SystemUsage();
+      // ensure memory limit is reached
+      systemUsage.getMemoryUsage().setLimit(messageBytesSize * (count + 2));
+      underTest.setSystemUsage(systemUsage);
+      underTest.setEnableAudit(false);
+      underTest.start();
+      assertTrue("cache enabled", underTest.isUseCache() && underTest.isCacheEnabled());
 
-            queueMessageStore.addMessage(contextNotInTx, msg);
-            underTest.addMessageLast(msg);
-        }
+      final ConnectionContext contextNotInTx = new ConnectionContext();
+      for (int i = 0; i < count; i++) {
+         ActiveMQTextMessage msg = getMessage(i);
+         msg.setMemoryUsage(systemUsage.getMemoryUsage());
 
-        assertTrue("cache is disabled as limit reached", !underTest.isCacheEnabled());
-        int dequeueCount = 0;
+         queueMessageStore.addMessage(contextNotInTx, msg);
+         underTest.addMessageLast(msg);
+      }
 
-        underTest.setMaxBatchSize(2);
-        underTest.reset();
-        while (underTest.hasNext() && dequeueCount < count) {
-            MessageReference ref = underTest.next();
-            ref.decrementReferenceCount();
-            underTest.remove();
-            LOG.info("Received message: {} with body: {}",
-                     ref.getMessageId(), ((ActiveMQTextMessage)ref.getMessage()).getText());
-            assertEquals(dequeueCount++, ref.getMessageId().getProducerSequenceId());
-        }
-        underTest.release();
-        assertEquals(count, dequeueCount);
-    }
+      assertTrue("cache is disabled as limit reached", !underTest.isCacheEnabled());
+      int dequeueCount = 0;
 
-    private ActiveMQTextMessage getMessage(int i) throws Exception {
-        ActiveMQTextMessage message = new ActiveMQTextMessage();
-        MessageId id = new MessageId(mesageIdRoot + i);
-        id.setBrokerSequenceId(i);
-        id.setProducerSequenceId(i);
-        message.setMessageId(id);
-        message.setDestination(destination);
-        message.setPersistent(true);
-        message.setResponseRequired(true);
-        message.setText("Msg:" + i + " " + text);
-        assertEquals(message.getMessageId().getProducerSequenceId(), i);
-        return message;
-    }
+      underTest.setMaxBatchSize(2);
+      underTest.reset();
+      while (underTest.hasNext() && dequeueCount < count) {
+         MessageReference ref = underTest.next();
+         ref.decrementReferenceCount();
+         underTest.remove();
+         LOG.info("Received message: {} with body: {}", ref.getMessageId(), ((ActiveMQTextMessage) ref.getMessage()).getText());
+         assertEquals(dequeueCount++, ref.getMessageId().getProducerSequenceId());
+      }
+      underTest.release();
+      assertEquals(count, dequeueCount);
+   }
+
+   private ActiveMQTextMessage getMessage(int i) throws Exception {
+      ActiveMQTextMessage message = new ActiveMQTextMessage();
+      MessageId id = new MessageId(mesageIdRoot + i);
+      id.setBrokerSequenceId(i);
+      id.setProducerSequenceId(i);
+      message.setMessageId(id);
+      message.setDestination(destination);
+      message.setPersistent(true);
+      message.setResponseRequired(true);
+      message.setText("Msg:" + i + " " + text);
+      assertEquals(message.getMessageId().getProducerSequenceId(), i);
+      return message;
+   }
 }

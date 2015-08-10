@@ -21,8 +21,7 @@ import java.io.Serializable;
 /**
  * ObjectMessageTest needed a simple class to test ClassLoadingIsolations
  */
-public class SomeObject implements Serializable
-{
+public class SomeObject implements Serializable {
 
    private static final long serialVersionUID = -2939720794544432834L;
 
@@ -30,32 +29,26 @@ public class SomeObject implements Serializable
 
    int j;
 
-   public SomeObject(final int i, final int j)
-   {
+   public SomeObject(final int i, final int j) {
       this.i = i;
       this.j = j;
    }
 
    @Override
-   public boolean equals(final Object o)
-   {
-      if (this == o)
-      {
+   public boolean equals(final Object o) {
+      if (this == o) {
          return true;
       }
-      if (o == null || getClass() != o.getClass())
-      {
+      if (o == null || getClass() != o.getClass()) {
          return false;
       }
 
-      SomeObject that = (SomeObject)o;
+      SomeObject that = (SomeObject) o;
 
-      if (i != that.i)
-      {
+      if (i != that.i) {
          return false;
       }
-      if (j != that.j)
-      {
+      if (j != that.j) {
          return false;
       }
 
@@ -63,8 +56,7 @@ public class SomeObject implements Serializable
    }
 
    @Override
-   public int hashCode()
-   {
+   public int hashCode() {
       int result;
       result = i;
       result = 31 * result + j;

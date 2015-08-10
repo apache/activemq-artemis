@@ -30,87 +30,87 @@ import org.apache.activemq.artemis.core.client.impl.ServerLocatorImpl;
 import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.test.JmsTopicSendReceiveTest;
 
-
 /**
  *
  */
 public class JmsQueueCompositeSendReceiveTest extends JmsTopicSendReceiveTest {
-    private static final org.apache.commons.logging.Log LOG = org.apache.commons.logging.LogFactory
-            .getLog(JmsQueueCompositeSendReceiveTest.class);
 
-    /**
-     * Sets a test to have a queue destination and non-persistent delivery mode.
-     *
-     * @see junit.framework.TestCase#setUp()
-     */
-    protected void setUp() throws Exception {
-        topic = false;
-        deliveryMode = DeliveryMode.NON_PERSISTENT;
-        super.setUp();
-    }
+   private static final org.apache.commons.logging.Log LOG = org.apache.commons.logging.LogFactory.getLog(JmsQueueCompositeSendReceiveTest.class);
 
-    /**
-     * Returns the consumer subject.
-     *
-     * @return String - consumer subject
-     * @see org.apache.activemq.test.TestSupport#getConsumerSubject()
-     */
-    protected String getConsumerSubject() {
-        return "FOO.BAR.HUMBUG";
-    }
+   /**
+    * Sets a test to have a queue destination and non-persistent delivery mode.
+    *
+    * @see junit.framework.TestCase#setUp()
+    */
+   protected void setUp() throws Exception {
+      topic = false;
+      deliveryMode = DeliveryMode.NON_PERSISTENT;
+      super.setUp();
+   }
 
-    /**
-     * Returns the producer subject.
-     *
-     * @return String - producer subject
-     * @see org.apache.activemq.test.TestSupport#getProducerSubject()
-     */
-    protected String getProducerSubject() {
-        return "FOO.BAR.HUMBUG,FOO.BAR.HUMBUG2";
-    }
+   /**
+    * Returns the consumer subject.
+    *
+    * @return String - consumer subject
+    * @see org.apache.activemq.test.TestSupport#getConsumerSubject()
+    */
+   protected String getConsumerSubject() {
+      return "FOO.BAR.HUMBUG";
+   }
 
-    /**
-     * Test if all the messages sent are being received.
-     *
-     * @throws Exception
-     */
-    public void testSendReceive() throws Exception {
-        super.testSendReceive();
-        messages.clear();
-        Destination consumerDestination = consumeSession.createQueue("FOO.BAR.HUMBUG2");
-        LOG.info("Created  consumer destination: " + consumerDestination + " of type: " + consumerDestination.getClass());
-        MessageConsumer consumer = null;
-        if (durable) {
-            LOG.info("Creating durable consumer");
-            consumer = consumeSession.createDurableSubscriber((Topic) consumerDestination, getName());
-        } else {
-            consumer = consumeSession.createConsumer(consumerDestination);
-        }
-        consumer.setMessageListener(this);
+   /**
+    * Returns the producer subject.
+    *
+    * @return String - producer subject
+    * @see org.apache.activemq.test.TestSupport#getProducerSubject()
+    */
+   protected String getProducerSubject() {
+      return "FOO.BAR.HUMBUG,FOO.BAR.HUMBUG2";
+   }
 
-        assertMessagesAreReceived();
-        LOG.info("" + data.length + " messages(s) received, closing down connections");
-    }
+   /**
+    * Test if all the messages sent are being received.
+    *
+    * @throws Exception
+    */
+   public void testSendReceive() throws Exception {
+      super.testSendReceive();
+      messages.clear();
+      Destination consumerDestination = consumeSession.createQueue("FOO.BAR.HUMBUG2");
+      LOG.info("Created  consumer destination: " + consumerDestination + " of type: " + consumerDestination.getClass());
+      MessageConsumer consumer = null;
+      if (durable) {
+         LOG.info("Creating durable consumer");
+         consumer = consumeSession.createDurableSubscriber((Topic) consumerDestination, getName());
+      }
+      else {
+         consumer = consumeSession.createConsumer(consumerDestination);
+      }
+      consumer.setMessageListener(this);
 
-    public void testDuplicate() throws Exception {
-        ActiveMQDestination queue = (ActiveMQDestination)session.createQueue("TEST,TEST");
-        for (int i = 0; i < data.length; i++) {
-            Message message = createMessage(i);
-            configureMessage(message);
-            if (verbose) {
-                LOG.info("About to send a message: " + message + " with text: " + data[i]);
-            }
-            producer.send(queue, message);
-        }
+      assertMessagesAreReceived();
+      LOG.info("" + data.length + " messages(s) received, closing down connections");
+   }
 
-        Thread.sleep(200); // wait for messages to be queue;
+   public void testDuplicate() throws Exception {
+      ActiveMQDestination queue = (ActiveMQDestination) session.createQueue("TEST,TEST");
+      for (int i = 0; i < data.length; i++) {
+         Message message = createMessage(i);
+         configureMessage(message);
+         if (verbose) {
+            LOG.info("About to send a message: " + message + " with text: " + data[i]);
+         }
+         producer.send(queue, message);
+      }
 
-        try (ServerLocator locator = ServerLocatorImpl.newLocator("tcp://localhost:61616");
-             ClientSessionFactory factory = locator.createSessionFactory();
-             ClientSession session = factory.createSession()) {
-            ClientSession.QueueQuery query = session.queueQuery(new SimpleString("jms.queue.TEST"));
-            assertNotNull(query);
-            assertEquals(data.length, query.getMessageCount());
-        }
-    }
+      Thread.sleep(200); // wait for messages to be queue;
+
+      try (ServerLocator locator = ServerLocatorImpl.newLocator("tcp://localhost:61616");
+           ClientSessionFactory factory = locator.createSessionFactory();
+           ClientSession session = factory.createSession()) {
+         ClientSession.QueueQuery query = session.queueQuery(new SimpleString("jms.queue.TEST"));
+         assertNotNull(query);
+         assertEquals(data.length, query.getMessageCount());
+      }
+   }
 }

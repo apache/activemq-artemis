@@ -42,134 +42,133 @@ import org.slf4j.LoggerFactory;
 
 public class AMQ3157Test extends EmbeddedBrokerTestSupport {
 
-    private static final transient Logger LOG = LoggerFactory.getLogger(AMQ3157Test.class);
-    private Connection connection;
+   private static final transient Logger LOG = LoggerFactory.getLogger(AMQ3157Test.class);
+   private Connection connection;
 
-    public void testInactiveMirroredQueueIsCleanedUp() throws Exception {
+   public void testInactiveMirroredQueueIsCleanedUp() throws Exception {
 
-        if (connection == null) {
-            connection = createConnection();
-        }
-        connection.start();
+      if (connection == null) {
+         connection = createConnection();
+      }
+      connection.start();
 
-        ConsumerBean messageList = new ConsumerBean();
-        messageList.setVerbose(true);
+      ConsumerBean messageList = new ConsumerBean();
+      messageList.setVerbose(true);
 
-        ActiveMQDestination consumeDestination = createConsumeDestination();
+      ActiveMQDestination consumeDestination = createConsumeDestination();
 
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        LOG.info("Consuming from: " + consumeDestination);
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      LOG.info("Consuming from: " + consumeDestination);
 
-        MessageConsumer c1 = session.createConsumer(consumeDestination);
-        c1.setMessageListener(messageList);
+      MessageConsumer c1 = session.createConsumer(consumeDestination);
+      c1.setMessageListener(messageList);
 
-        // create topic producer
-        ActiveMQQueue sendDestination = new ActiveMQQueue(getQueueName());
-        LOG.info("Sending to: " + sendDestination);
+      // create topic producer
+      ActiveMQQueue sendDestination = new ActiveMQQueue(getQueueName());
+      LOG.info("Sending to: " + sendDestination);
 
-        MessageProducer producer = session.createProducer(sendDestination);
-        assertNotNull(producer);
+      MessageProducer producer = session.createProducer(sendDestination);
+      assertNotNull(producer);
 
-        final int total = 10;
-        for (int i = 0; i < total; i++) {
-            producer.send(session.createTextMessage("message: " + i));
-        }
+      final int total = 10;
+      for (int i = 0; i < total; i++) {
+         producer.send(session.createTextMessage("message: " + i));
+      }
 
-        messageList.assertMessagesArrived(total);
-        LOG.info("Received: " + messageList);
-        messageList.flushMessages();
+      messageList.assertMessagesArrived(total);
+      LOG.info("Received: " + messageList);
+      messageList.flushMessages();
 
-        MessageConsumer c2 = session.createConsumer(sendDestination);
-        c2.setMessageListener(messageList);
-        messageList.assertMessagesArrived(total);
-        LOG.info("Q Received: " + messageList);
+      MessageConsumer c2 = session.createConsumer(sendDestination);
+      c2.setMessageListener(messageList);
+      messageList.assertMessagesArrived(total);
+      LOG.info("Q Received: " + messageList);
 
-        connection.close();
+      connection.close();
 
-        List<ObjectName> topics = Arrays.asList(broker.getAdminView().getTopics());
-        assertTrue(topics.contains(createObjectName(consumeDestination)));
-        List<ObjectName> queues = Arrays.asList(broker.getAdminView().getQueues());
-        assertTrue(queues.contains(createObjectName(sendDestination)));
+      List<ObjectName> topics = Arrays.asList(broker.getAdminView().getTopics());
+      assertTrue(topics.contains(createObjectName(consumeDestination)));
+      List<ObjectName> queues = Arrays.asList(broker.getAdminView().getQueues());
+      assertTrue(queues.contains(createObjectName(sendDestination)));
 
-        Thread.sleep(TimeUnit.SECONDS.toMillis(10));
+      Thread.sleep(TimeUnit.SECONDS.toMillis(10));
 
-        topics = Arrays.asList(broker.getAdminView().getTopics());
-        if (topics != null) {
-            assertFalse("Virtual Topic Desination did not get cleaned up.",
-                        topics.contains(createObjectName(consumeDestination)));
-        }
-        queues = Arrays.asList(broker.getAdminView().getQueues());
-        if (queues != null) {
-            assertFalse("Mirrored Queue Desination did not get cleaned up.",
-                        queues.contains(createObjectName(sendDestination)));
-        }
-    }
+      topics = Arrays.asList(broker.getAdminView().getTopics());
+      if (topics != null) {
+         assertFalse("Virtual Topic Desination did not get cleaned up.", topics.contains(createObjectName(consumeDestination)));
+      }
+      queues = Arrays.asList(broker.getAdminView().getQueues());
+      if (queues != null) {
+         assertFalse("Mirrored Queue Desination did not get cleaned up.", queues.contains(createObjectName(sendDestination)));
+      }
+   }
 
-    protected ActiveMQDestination createConsumeDestination() {
-        return new ActiveMQTopic("VirtualTopic.Mirror." + getQueueName());
-    }
+   protected ActiveMQDestination createConsumeDestination() {
+      return new ActiveMQTopic("VirtualTopic.Mirror." + getQueueName());
+   }
 
-    protected String getQueueName() {
-        return "My.Queue";
-    }
+   protected String getQueueName() {
+      return "My.Queue";
+   }
 
-    @Override
-    protected BrokerService createBroker() throws Exception {
-        BrokerService answer = new BrokerService();
-        answer.setUseMirroredQueues(true);
-        answer.setPersistent(isPersistent());
-        answer.setSchedulePeriodForDestinationPurge(1000);
+   @Override
+   protected BrokerService createBroker() throws Exception {
+      BrokerService answer = new BrokerService();
+      answer.setUseMirroredQueues(true);
+      answer.setPersistent(isPersistent());
+      answer.setSchedulePeriodForDestinationPurge(1000);
 
-        PolicyEntry entry = new PolicyEntry();
-        entry.setGcInactiveDestinations(true);
-        entry.setInactiveTimoutBeforeGC(5000);
-        entry.setProducerFlowControl(true);
-        PolicyMap map = new PolicyMap();
-        map.setDefaultEntry(entry);
+      PolicyEntry entry = new PolicyEntry();
+      entry.setGcInactiveDestinations(true);
+      entry.setInactiveTimoutBeforeGC(5000);
+      entry.setProducerFlowControl(true);
+      PolicyMap map = new PolicyMap();
+      map.setDefaultEntry(entry);
 
-        MirroredQueue mirrorQ = new MirroredQueue();
-        mirrorQ.setCopyMessage(true);
-        DestinationInterceptor[] destinationInterceptors = new DestinationInterceptor[]{mirrorQ};
-        answer.setDestinationInterceptors(destinationInterceptors);
+      MirroredQueue mirrorQ = new MirroredQueue();
+      mirrorQ.setCopyMessage(true);
+      DestinationInterceptor[] destinationInterceptors = new DestinationInterceptor[]{mirrorQ};
+      answer.setDestinationInterceptors(destinationInterceptors);
 
-        answer.setDestinationPolicy(map);
-        answer.addConnector(bindAddress);
+      answer.setDestinationPolicy(map);
+      answer.addConnector(bindAddress);
 
-        return answer;
-    }
+      return answer;
+   }
 
-    protected DestinationViewMBean createView(ActiveMQDestination destination) throws Exception {
-        String domain = "org.apache.activemq";
-        ObjectName name;
-        if (destination.isQueue()) {
-            name = new ObjectName(domain + ":BrokerName=localhost,Type=Queue,Destination=" + destination.getPhysicalName());
-        } else {
-            name = new ObjectName(domain + ":BrokerName=localhost,Type=Topic,Destination=" + destination.getPhysicalName());
-        }
-        return (DestinationViewMBean) broker.getManagementContext().newProxyInstance(name, DestinationViewMBean.class,
-                true);
-    }
+   protected DestinationViewMBean createView(ActiveMQDestination destination) throws Exception {
+      String domain = "org.apache.activemq";
+      ObjectName name;
+      if (destination.isQueue()) {
+         name = new ObjectName(domain + ":BrokerName=localhost,Type=Queue,Destination=" + destination.getPhysicalName());
+      }
+      else {
+         name = new ObjectName(domain + ":BrokerName=localhost,Type=Topic,Destination=" + destination.getPhysicalName());
+      }
+      return (DestinationViewMBean) broker.getManagementContext().newProxyInstance(name, DestinationViewMBean.class, true);
+   }
 
-    protected ObjectName createObjectName(ActiveMQDestination destination) throws Exception {
-        String domain = "org.apache.activemq";
-        ObjectName name;
-        if (destination.isQueue()) {
-            name = new ObjectName(domain + ":type=Broker,brokerName=localhost," +
+   protected ObjectName createObjectName(ActiveMQDestination destination) throws Exception {
+      String domain = "org.apache.activemq";
+      ObjectName name;
+      if (destination.isQueue()) {
+         name = new ObjectName(domain + ":type=Broker,brokerName=localhost," +
                                   "destinationType=Queue,destinationName=" + destination.getPhysicalName());
-        } else {
-            name = new ObjectName(domain + ":type=Broker,brokerName=localhost," +
+      }
+      else {
+         name = new ObjectName(domain + ":type=Broker,brokerName=localhost," +
                                   "destinationType=Topic,destinationName=" + destination.getPhysicalName());
-        }
+      }
 
-        return name;
-    }
+      return name;
+   }
 
-    @Override
-    protected void tearDown() throws Exception {
-        if (connection != null) {
-            connection.close();
-        }
-        super.tearDown();
-    }
+   @Override
+   protected void tearDown() throws Exception {
+      if (connection != null) {
+         connection.close();
+      }
+      super.tearDown();
+   }
 
 }

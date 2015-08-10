@@ -25,106 +25,107 @@ import javax.jms.Queue;
 import javax.jms.Session;
 
 /**
- * 
+ *
  */
 public class JmsClientAckListenerTest extends TestSupport implements MessageListener {
 
-    private Connection connection;
-    private boolean dontAck;
+   private Connection connection;
+   private boolean dontAck;
 
-    protected void setUp() throws Exception {
-        super.setUp();
-        connection = createConnection();
-    }
+   protected void setUp() throws Exception {
+      super.setUp();
+      connection = createConnection();
+   }
 
-    /**
-     * @see junit.framework.TestCase#tearDown()
-     */
-    protected void tearDown() throws Exception {
-        if (connection != null) {
-            connection.close();
-            connection = null;
-        }
-        super.tearDown();
-    }
+   /**
+    * @see junit.framework.TestCase#tearDown()
+    */
+   protected void tearDown() throws Exception {
+      if (connection != null) {
+         connection.close();
+         connection = null;
+      }
+      super.tearDown();
+   }
 
-    /**
-     * Tests if acknowleged messages are being consumed.
-     * 
-     * @throws javax.jms.JMSException
-     */
-    public void testAckedMessageAreConsumed() throws Exception {
-        connection.start();
-        Session session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
-        Queue queue = session.createQueue("test");
-        MessageProducer producer = session.createProducer(queue);
-        producer.send(session.createTextMessage("Hello"));
+   /**
+    * Tests if acknowleged messages are being consumed.
+    *
+    * @throws javax.jms.JMSException
+    */
+   public void testAckedMessageAreConsumed() throws Exception {
+      connection.start();
+      Session session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
+      Queue queue = session.createQueue("test");
+      MessageProducer producer = session.createProducer(queue);
+      producer.send(session.createTextMessage("Hello"));
 
-        // Consume the message...
-        MessageConsumer consumer = session.createConsumer(queue);
-        consumer.setMessageListener(this);
+      // Consume the message...
+      MessageConsumer consumer = session.createConsumer(queue);
+      consumer.setMessageListener(this);
 
-        Thread.sleep(10000);
+      Thread.sleep(10000);
 
-        // Reset the session.
-        session.close();
+      // Reset the session.
+      session.close();
 
-        session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
+      session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
 
-        // Attempt to Consume the message...
-        consumer = session.createConsumer(queue);
-        Message msg = consumer.receive(1000);
-        assertNull(msg);
+      // Attempt to Consume the message...
+      consumer = session.createConsumer(queue);
+      Message msg = consumer.receive(1000);
+      assertNull(msg);
 
-        session.close();
-    }
+      session.close();
+   }
 
-    /**
-     * Tests if unacknowleged messages are being redelivered when the consumer
-     * connects again.
-     * 
-     * @throws javax.jms.JMSException
-     */
-    public void testUnAckedMessageAreNotConsumedOnSessionClose() throws Exception {
-        connection.start();
-        // don't aknowledge message on onMessage() call
-        dontAck = true;
-        Session session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
-        Queue queue = session.createQueue("test");
-        MessageProducer producer = session.createProducer(queue);
-        producer.send(session.createTextMessage("Hello"));
+   /**
+    * Tests if unacknowleged messages are being redelivered when the consumer
+    * connects again.
+    *
+    * @throws javax.jms.JMSException
+    */
+   public void testUnAckedMessageAreNotConsumedOnSessionClose() throws Exception {
+      connection.start();
+      // don't aknowledge message on onMessage() call
+      dontAck = true;
+      Session session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
+      Queue queue = session.createQueue("test");
+      MessageProducer producer = session.createProducer(queue);
+      producer.send(session.createTextMessage("Hello"));
 
-        // Consume the message...
-        MessageConsumer consumer = session.createConsumer(queue);
-        consumer.setMessageListener(this);
-        // Don't ack the message.
+      // Consume the message...
+      MessageConsumer consumer = session.createConsumer(queue);
+      consumer.setMessageListener(this);
+      // Don't ack the message.
 
-        // Reset the session. This should cause the Unacked message to be
-        // redelivered.
-        session.close();
+      // Reset the session. This should cause the Unacked message to be
+      // redelivered.
+      session.close();
 
-        Thread.sleep(10000);
-        session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
-        // Attempt to Consume the message...
-        consumer = session.createConsumer(queue);
-        Message msg = consumer.receive(2000);
-        assertNotNull(msg);
-        msg.acknowledge();
+      Thread.sleep(10000);
+      session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
+      // Attempt to Consume the message...
+      consumer = session.createConsumer(queue);
+      Message msg = consumer.receive(2000);
+      assertNotNull(msg);
+      msg.acknowledge();
 
-        session.close();
-    }
+      session.close();
+   }
 
-    public void onMessage(Message message) {
+   public void onMessage(Message message) {
 
-        assertNotNull(message);
-        if (!dontAck) {
-            try {
-                message.acknowledge();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+      assertNotNull(message);
+      if (!dontAck) {
+         try {
+            message.acknowledge();
+         }
+         catch (Exception e) {
+            e.printStackTrace();
+         }
 
-        }
+      }
 
-    }
+   }
 }

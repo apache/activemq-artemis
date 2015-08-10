@@ -43,41 +43,35 @@ import org.junit.rules.TemporaryFolder;
 /**
  * Test to validate that the CLI doesn't throw improper exceptions when invoked.
  */
-public class ArtemisTest
-{
+public class ArtemisTest {
+
    @Rule
    public TemporaryFolder temporaryFolder;
 
-   public ArtemisTest()
-   {
+   public ArtemisTest() {
       File parent = new File("./target/tmp");
       parent.mkdirs();
       temporaryFolder = new TemporaryFolder(parent);
    }
 
-
    @After
-   public void cleanup()
-   {
+   public void cleanup() {
       System.clearProperty("artemis.instance");
       Run.setEmbedded(false);
    }
 
    @Test
-   public void invalidCliDoesntThrowException()
-   {
+   public void invalidCliDoesntThrowException() {
       testCli("create");
    }
 
    @Test
-   public void invalidPathDoesntThrowException()
-   {
-      testCli("create","/rawr");
+   public void invalidPathDoesntThrowException() {
+      testCli("create", "/rawr");
    }
 
    @Test
-   public void testSync() throws Exception
-   {
+   public void testSync() throws Exception {
       int writes = 2560;
       int tries = 10;
       long totalAvg = SyncCalculation.syncTest(temporaryFolder.getRoot(), 4096, writes, tries, true, true);
@@ -88,9 +82,9 @@ public class ArtemisTest
       Assert.assertEquals(0, LibaioContext.getTotalMaxIO());
 
    }
+
    @Test
-   public void testSimpleRun() throws Exception
-   {
+   public void testSimpleRun() throws Exception {
       String queues = "q1,t2";
       String topics = "t1,t2";
       Run.setEmbedded(true);
@@ -99,23 +93,18 @@ public class ArtemisTest
       // Some exceptions may happen on the initialization, but they should be ok on start the basic core protocol
       Artemis.execute("run");
 
-
       try (ServerLocator locator = ServerLocatorImpl.newLocator("tcp://localhost:61616");
            ClientSessionFactory factory = locator.createSessionFactory();
-           ClientSession coreSession = factory.createSession())
-      {
-         for (String str: queues.split(","))
-         {
+           ClientSession coreSession = factory.createSession()) {
+         for (String str : queues.split(",")) {
             ClientSession.QueueQuery queryResult = coreSession.queueQuery(SimpleString.toSimpleString("jms.queue." + str));
             Assert.assertTrue("Couldn't find queue " + str, queryResult.isExists());
          }
-         for (String str: topics.split(","))
-         {
+         for (String str : topics.split(",")) {
             ClientSession.QueueQuery queryResult = coreSession.queueQuery(SimpleString.toSimpleString("jms.topic." + str));
             Assert.assertTrue("Couldn't find topic " + str, queryResult.isExists());
          }
       }
-
 
       Assert.assertEquals(Integer.valueOf(1000), Artemis.execute("producer", "--message-count", "1000", "--verbose"));
       Assert.assertEquals(Integer.valueOf(1000), Artemis.execute("consumer", "--verbose", "--break-on-null", "--receive-timeout", "100"));
@@ -125,13 +114,11 @@ public class ArtemisTest
       Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
       MessageProducer producer = session.createProducer(ActiveMQDestination.createDestination("queue://TEST", ActiveMQDestination.QUEUE_TYPE));
 
-
       TextMessage message = session.createTextMessage("Banana");
       message.setStringProperty("fruit", "banana");
       producer.send(message);
 
-      for (int i = 0; i < 100; i++)
-      {
+      for (int i = 0; i < 100; i++) {
          message = session.createTextMessage("orange");
          message.setStringProperty("fruit", "orange");
          producer.send(message);
@@ -154,7 +141,7 @@ public class ArtemisTest
       Assert.assertEquals(Integer.valueOf(1), Artemis.execute("consumer", "--txt-size", "50", "--verbose", "--break-on-null", "--receive-timeout", "100", "--filter", "fruit='banana'"));
 
       // Checking it was acked before
-      Assert.assertEquals(Integer.valueOf(100), Artemis.execute("consumer", "--txt-size", "50", "--verbose",  "--break-on-null", "--receive-timeout", "100"));
+      Assert.assertEquals(Integer.valueOf(100), Artemis.execute("consumer", "--txt-size", "50", "--verbose", "--break-on-null", "--receive-timeout", "100"));
 
       Artemis.execute("stop");
       Assert.assertTrue(Run.latchRunning.await(5, TimeUnit.SECONDS));
@@ -162,14 +149,11 @@ public class ArtemisTest
 
    }
 
-   private void testCli(String... args)
-   {
-      try
-      {
+   private void testCli(String... args) {
+      try {
          Artemis.main(args);
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          e.printStackTrace();
          Assert.fail("Exception caught " + e.getMessage());
       }

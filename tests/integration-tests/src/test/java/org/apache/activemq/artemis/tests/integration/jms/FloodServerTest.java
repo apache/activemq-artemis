@@ -44,11 +44,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *
  * A FloodServerTest
  */
-public class FloodServerTest extends ActiveMQTestBase
-{
+public class FloodServerTest extends ActiveMQTestBase {
    // Constants -----------------------------------------------------
 
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
@@ -77,8 +75,7 @@ public class FloodServerTest extends ActiveMQTestBase
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       Configuration config = createDefaultNettyConfig();
@@ -99,8 +96,7 @@ public class FloodServerTest extends ActiveMQTestBase
 
    // Inner classes -------------------------------------------------
 
-   private void registerConnectionFactory() throws Exception
-   {
+   private void registerConnectionFactory() throws Exception {
       int retryInterval = 1000;
       double retryIntervalMultiplier = 1.0;
       int reconnectAttempts = -1;
@@ -109,51 +105,15 @@ public class FloodServerTest extends ActiveMQTestBase
       List<TransportConfiguration> connectorConfigs = new ArrayList<TransportConfiguration>();
       connectorConfigs.add(new TransportConfiguration(NettyConnectorFactory.class.getName()));
 
-      serverManager.createConnectionFactory("ManualReconnectionToSingleServerTest",
-                                          false,
-                                          JMSFactoryType.CF,
-                                            registerConnectors(server, connectorConfigs),
-                                            null,
-                                            1000,
-                                            ActiveMQClient.DEFAULT_CONNECTION_TTL,
-                                            callTimeout,
-                                            ActiveMQClient.DEFAULT_CALL_FAILOVER_TIMEOUT,
-                                            ActiveMQClient.DEFAULT_CACHE_LARGE_MESSAGE_CLIENT,
-                                            ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE,
-                                            ActiveMQClient.DEFAULT_COMPRESS_LARGE_MESSAGES,
-                                            ActiveMQClient.DEFAULT_CONSUMER_WINDOW_SIZE,
-                                            ActiveMQClient.DEFAULT_CONSUMER_MAX_RATE,
-                                            ActiveMQClient.DEFAULT_CONFIRMATION_WINDOW_SIZE,
-                                            ActiveMQClient.DEFAULT_PRODUCER_WINDOW_SIZE,
-                                            ActiveMQClient.DEFAULT_PRODUCER_MAX_RATE,
-                                            false,
-                                            false,
-                                            false,
-                                            ActiveMQClient.DEFAULT_AUTO_GROUP,
-                                            false,
-                                            ActiveMQClient.DEFAULT_CONNECTION_LOAD_BALANCING_POLICY_CLASS_NAME,
-                                            ActiveMQClient.DEFAULT_ACK_BATCH_SIZE,
-                                            ActiveMQClient.DEFAULT_ACK_BATCH_SIZE,
-                                            ActiveMQClient.DEFAULT_USE_GLOBAL_POOLS,
-                                            ActiveMQClient.DEFAULT_SCHEDULED_THREAD_POOL_MAX_SIZE,
-                                            ActiveMQClient.DEFAULT_THREAD_POOL_MAX_SIZE,
-                                            retryInterval,
-                                            retryIntervalMultiplier,
-                                            1000,
-                                            reconnectAttempts,
-                                            ActiveMQClient.DEFAULT_FAILOVER_ON_INITIAL_CONNECTION,
-                                            null,
-                                            "/cf");
+      serverManager.createConnectionFactory("ManualReconnectionToSingleServerTest", false, JMSFactoryType.CF, registerConnectors(server, connectorConfigs), null, 1000, ActiveMQClient.DEFAULT_CONNECTION_TTL, callTimeout, ActiveMQClient.DEFAULT_CALL_FAILOVER_TIMEOUT, ActiveMQClient.DEFAULT_CACHE_LARGE_MESSAGE_CLIENT, ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, ActiveMQClient.DEFAULT_COMPRESS_LARGE_MESSAGES, ActiveMQClient.DEFAULT_CONSUMER_WINDOW_SIZE, ActiveMQClient.DEFAULT_CONSUMER_MAX_RATE, ActiveMQClient.DEFAULT_CONFIRMATION_WINDOW_SIZE, ActiveMQClient.DEFAULT_PRODUCER_WINDOW_SIZE, ActiveMQClient.DEFAULT_PRODUCER_MAX_RATE, false, false, false, ActiveMQClient.DEFAULT_AUTO_GROUP, false, ActiveMQClient.DEFAULT_CONNECTION_LOAD_BALANCING_POLICY_CLASS_NAME, ActiveMQClient.DEFAULT_ACK_BATCH_SIZE, ActiveMQClient.DEFAULT_ACK_BATCH_SIZE, ActiveMQClient.DEFAULT_USE_GLOBAL_POOLS, ActiveMQClient.DEFAULT_SCHEDULED_THREAD_POOL_MAX_SIZE, ActiveMQClient.DEFAULT_THREAD_POOL_MAX_SIZE, retryInterval, retryIntervalMultiplier, 1000, reconnectAttempts, ActiveMQClient.DEFAULT_FAILOVER_ON_INITIAL_CONNECTION, null, "/cf");
    }
 
    @Test
-   public void testFoo()
-   {
+   public void testFoo() {
    }
 
-   public void _testFlood() throws Exception
-   {
-      ConnectionFactory cf = (ConnectionFactory)initialContext.lookup("/cf");
+   public void _testFlood() throws Exception {
+      ConnectionFactory cf = (ConnectionFactory) initialContext.lookup("/cf");
 
       final int numProducers = 20;
 
@@ -163,42 +123,36 @@ public class FloodServerTest extends ActiveMQTestBase
 
       ProducerThread[] producers = new ProducerThread[numProducers];
 
-      for (int i = 0; i < numProducers; i++)
-      {
+      for (int i = 0; i < numProducers; i++) {
          producers[i] = new ProducerThread(cf, numMessages);
       }
 
       ConsumerThread[] consumers = new ConsumerThread[numConsumers];
 
-      for (int i = 0; i < numConsumers; i++)
-      {
+      for (int i = 0; i < numConsumers; i++) {
          consumers[i] = new ConsumerThread(cf, numMessages);
       }
 
-      for (int i = 0; i < numConsumers; i++)
-      {
+      for (int i = 0; i < numConsumers; i++) {
          consumers[i].start();
       }
 
-      for (int i = 0; i < numProducers; i++)
-      {
+      for (int i = 0; i < numProducers; i++) {
          producers[i].start();
       }
 
-      for (int i = 0; i < numConsumers; i++)
-      {
+      for (int i = 0; i < numConsumers; i++) {
          consumers[i].join();
       }
 
-      for (int i = 0; i < numProducers; i++)
-      {
+      for (int i = 0; i < numProducers; i++) {
          producers[i].join();
       }
 
    }
 
-   class ProducerThread extends Thread
-   {
+   class ProducerThread extends Thread {
+
       private final Connection connection;
 
       private final Session session;
@@ -207,8 +161,7 @@ public class FloodServerTest extends ActiveMQTestBase
 
       private final int numMessages;
 
-      ProducerThread(final ConnectionFactory cf, final int numMessages) throws Exception
-      {
+      ProducerThread(final ConnectionFactory cf, final int numMessages) throws Exception {
          connection = cf.createConnection();
 
          session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -221,18 +174,15 @@ public class FloodServerTest extends ActiveMQTestBase
       }
 
       @Override
-      public void run()
-      {
-         try
-         {
+      public void run() {
+         try {
             byte[] bytes = new byte[1000];
 
             BytesMessage message = session.createBytesMessage();
 
             message.writeBytes(bytes);
 
-            for (int i = 0; i < numMessages; i++)
-            {
+            for (int i = 0; i < numMessages; i++) {
                producer.send(message);
 
                // if (i % 1000 == 0)
@@ -243,15 +193,14 @@ public class FloodServerTest extends ActiveMQTestBase
 
             connection.close();
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             e.printStackTrace();
          }
       }
    }
 
-   class ConsumerThread extends Thread
-   {
+   class ConsumerThread extends Thread {
+
       private final Connection connection;
 
       private final Session session;
@@ -260,8 +209,7 @@ public class FloodServerTest extends ActiveMQTestBase
 
       private final int numMessages;
 
-      ConsumerThread(final ConnectionFactory cf, final int numMessages) throws Exception
-      {
+      ConsumerThread(final ConnectionFactory cf, final int numMessages) throws Exception {
          connection = cf.createConnection();
 
          connection.start();
@@ -274,16 +222,12 @@ public class FloodServerTest extends ActiveMQTestBase
       }
 
       @Override
-      public void run()
-      {
-         try
-         {
-            for (int i = 0; i < numMessages; i++)
-            {
+      public void run() {
+         try {
+            for (int i = 0; i < numMessages; i++) {
                Message msg = consumer.receive();
 
-               if (msg == null)
-               {
+               if (msg == null) {
                   FloodServerTest.log.error("message is null");
                   break;
                }
@@ -296,8 +240,7 @@ public class FloodServerTest extends ActiveMQTestBase
 
             connection.close();
          }
-         catch (Exception e)
-         {
+         catch (Exception e) {
             e.printStackTrace();
          }
       }

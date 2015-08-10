@@ -23,8 +23,7 @@ import org.apache.activemq.artemis.core.config.DivertConfiguration;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.server.Divert;
 
-public class DivertControlImpl extends AbstractControl implements DivertControl
-{
+public class DivertControlImpl extends AbstractControl implements DivertControl {
 
    // Constants -----------------------------------------------------
 
@@ -42,110 +41,86 @@ public class DivertControlImpl extends AbstractControl implements DivertControl
 
    public DivertControlImpl(final Divert divert,
                             final StorageManager storageManager,
-                            final DivertConfiguration configuration) throws Exception
-   {
+                            final DivertConfiguration configuration) throws Exception {
       super(DivertControl.class, storageManager);
       this.divert = divert;
       this.configuration = configuration;
    }
 
-   public String getAddress()
-   {
+   public String getAddress() {
       clearIO();
-      try
-      {
+      try {
          return configuration.getAddress();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public String getFilter()
-   {
+   public String getFilter() {
       clearIO();
-      try
-      {
+      try {
          return configuration.getFilterString();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public String getForwardingAddress()
-   {
+   public String getForwardingAddress() {
       clearIO();
-      try
-      {
+      try {
          return configuration.getForwardingAddress();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public String getRoutingName()
-   {
+   public String getRoutingName() {
       clearIO();
-      try
-      {
+      try {
          return divert.getRoutingName().toString();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public String getTransformerClassName()
-   {
+   public String getTransformerClassName() {
       clearIO();
-      try
-      {
+      try {
          return configuration.getTransformerClassName();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public String getUniqueName()
-   {
+   public String getUniqueName() {
       clearIO();
-      try
-      {
+      try {
          return divert.getUniqueName().toString();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
-   public boolean isExclusive()
-   {
+   public boolean isExclusive() {
       clearIO();
-      try
-      {
+      try {
          return divert.isExclusive();
       }
-      finally
-      {
+      finally {
          blockOnIO();
       }
    }
 
    @Override
-   protected MBeanOperationInfo[] fillMBeanOperationInfo()
-   {
+   protected MBeanOperationInfo[] fillMBeanOperationInfo() {
       return MBeanInfoHelper.getMBeanOperationsInfo(DivertControl.class);
    }
-
 
    // Public --------------------------------------------------------
 

@@ -20,8 +20,8 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "rest-messaging")
-public class MessageServiceConfiguration
-{
+public class MessageServiceConfiguration {
+
    private int producerSessionPoolSize = 10;
    private long producerTimeToLive = -1;
    private int timeoutTaskInterval = 1;
@@ -35,123 +35,101 @@ public class MessageServiceConfiguration
    private boolean useLinkHeaders = false;
 
    @XmlElement(name = "server-in-vm-id")
-   public String getInVmId()
-   {
+   public String getInVmId() {
       return inVmId;
    }
 
-   public void setInVmId(String inVmId)
-   {
+   public void setInVmId(String inVmId) {
       this.inVmId = inVmId;
    }
 
    @XmlElement(name = "use-link-headers")
-   public boolean isUseLinkHeaders()
-   {
+   public boolean isUseLinkHeaders() {
       return useLinkHeaders;
    }
 
-   public void setUseLinkHeaders(boolean useLinkHeaders)
-   {
+   public void setUseLinkHeaders(boolean useLinkHeaders) {
       this.useLinkHeaders = useLinkHeaders;
    }
 
    @XmlElement(name = "default-durable-send")
-   public boolean isDefaultDurableSend()
-   {
+   public boolean isDefaultDurableSend() {
       return defaultDurableSend;
    }
 
-   public void setDefaultDurableSend(boolean defaultDurableSend)
-   {
+   public void setDefaultDurableSend(boolean defaultDurableSend) {
       this.defaultDurableSend = defaultDurableSend;
    }
 
    @XmlElement(name = "dups-ok")
-   public boolean isDupsOk()
-   {
+   public boolean isDupsOk() {
       return dupsOk;
    }
 
-   public void setDupsOk(boolean dupsOk)
-   {
+   public void setDupsOk(boolean dupsOk) {
       this.dupsOk = dupsOk;
    }
 
    @XmlElement(name = "topic-push-store-dir")
-   public String getTopicPushStoreDirectory()
-   {
+   public String getTopicPushStoreDirectory() {
       return topicPushStoreDirectory;
    }
 
-   public void setTopicPushStoreDirectory(String topicPushStoreDirectory)
-   {
+   public void setTopicPushStoreDirectory(String topicPushStoreDirectory) {
       this.topicPushStoreDirectory = topicPushStoreDirectory;
    }
 
    @XmlElement(name = "queue-push-store-dir")
-   public String getQueuePushStoreDirectory()
-   {
+   public String getQueuePushStoreDirectory() {
       return queuePushStoreDirectory;
    }
 
-   public void setQueuePushStoreDirectory(String queuePushStoreDirectory)
-   {
+   public void setQueuePushStoreDirectory(String queuePushStoreDirectory) {
       this.queuePushStoreDirectory = queuePushStoreDirectory;
    }
 
    @XmlElement(name = "producer-time-to-live")
-   public long getProducerTimeToLive()
-   {
+   public long getProducerTimeToLive() {
       return producerTimeToLive;
    }
 
-   public void setProducerTimeToLive(long producerTimeToLive)
-   {
+   public void setProducerTimeToLive(long producerTimeToLive) {
       this.producerTimeToLive = producerTimeToLive;
    }
 
    @XmlElement(name = "producer-session-pool-size")
-   public int getProducerSessionPoolSize()
-   {
+   public int getProducerSessionPoolSize() {
       return producerSessionPoolSize;
    }
 
-   public void setProducerSessionPoolSize(int producerSessionPoolSize)
-   {
+   public void setProducerSessionPoolSize(int producerSessionPoolSize) {
       this.producerSessionPoolSize = producerSessionPoolSize;
    }
 
    @XmlElement(name = "session-timeout-task-interval")
-   public int getTimeoutTaskInterval()
-   {
+   public int getTimeoutTaskInterval() {
       return timeoutTaskInterval;
    }
 
-   public void setTimeoutTaskInterval(int timeoutTaskInterval)
-   {
+   public void setTimeoutTaskInterval(int timeoutTaskInterval) {
       this.timeoutTaskInterval = timeoutTaskInterval;
    }
 
    @XmlElement(name = "consumer-session-timeout-seconds")
-   public int getConsumerSessionTimeoutSeconds()
-   {
+   public int getConsumerSessionTimeoutSeconds() {
       return consumerSessionTimeoutSeconds;
    }
 
-   public void setConsumerSessionTimeoutSeconds(int consumerSessionTimeoutSeconds)
-   {
+   public void setConsumerSessionTimeoutSeconds(int consumerSessionTimeoutSeconds) {
       this.consumerSessionTimeoutSeconds = consumerSessionTimeoutSeconds;
    }
 
    @XmlElement(name = "consumer-window-size")
-   public int getConsumerWindowSize()
-   {
+   public int getConsumerWindowSize() {
       return consumerWindowSize;
    }
 
-   public void setConsumerWindowSize(int consumerWindowSize)
-   {
+   public void setConsumerWindowSize(int consumerWindowSize) {
       this.consumerWindowSize = consumerWindowSize;
    }
 }

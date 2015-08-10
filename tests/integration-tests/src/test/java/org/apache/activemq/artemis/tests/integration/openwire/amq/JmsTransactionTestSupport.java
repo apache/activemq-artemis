@@ -38,8 +38,8 @@ import org.junit.Test;
 /**
  * adapted from: org.apache.activemq.JmsTransactionTestSupport
  */
-public abstract class JmsTransactionTestSupport extends BasicOpenWireTest implements MessageListener
-{
+public abstract class JmsTransactionTestSupport extends BasicOpenWireTest implements MessageListener {
+
    private static final int MESSAGE_COUNT = 5;
    private static final String MESSAGE_TEXT = "message";
 
@@ -59,8 +59,7 @@ public abstract class JmsTransactionTestSupport extends BasicOpenWireTest implem
 
    @Override
    @Before
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
 
       resourceProvider = getJmsResourceProvider();
@@ -70,17 +69,14 @@ public abstract class JmsTransactionTestSupport extends BasicOpenWireTest implem
       reconnect();
    }
 
-   protected void reconnect() throws Exception
-   {
+   protected void reconnect() throws Exception {
 
-      if (connection != null)
-      {
+      if (connection != null) {
          // Close the prev connection.
          connection.close();
       }
       session = null;
-      connection = (ActiveMQConnection) resourceProvider
-            .createConnection(this.factory);
+      connection = (ActiveMQConnection) resourceProvider.createConnection(this.factory);
       reconnectSession();
       connection.start();
    }
@@ -90,10 +86,8 @@ public abstract class JmsTransactionTestSupport extends BasicOpenWireTest implem
     *
     * @throws JMSException
     */
-   protected void reconnectSession() throws JMSException
-   {
-      if (session != null)
-      {
+   protected void reconnectSession() throws JMSException {
+      if (session != null) {
          session.close();
       }
 
@@ -103,23 +97,19 @@ public abstract class JmsTransactionTestSupport extends BasicOpenWireTest implem
       consumer = resourceProvider.createConsumer(session, destination);
    }
 
-   protected void setSessionTransacted()
-   {
+   protected void setSessionTransacted() {
       resourceProvider.setTransacted(true);
    }
 
-   protected void beginTx() throws Exception
-   {
+   protected void beginTx() throws Exception {
       // no-op for local tx
    }
 
-   protected void commitTx() throws Exception
-   {
+   protected void commitTx() throws Exception {
       session.commit();
    }
 
-   protected void rollbackTx() throws Exception
-   {
+   protected void rollbackTx() throws Exception {
       session.rollback();
    }
 
@@ -129,31 +119,24 @@ public abstract class JmsTransactionTestSupport extends BasicOpenWireTest implem
     * @throws Exception
     */
    @Test
-   public void testSendReceiveTransactedBatches() throws Exception
-   {
+   public void testSendReceiveTransactedBatches() throws Exception {
 
       TextMessage message = session.createTextMessage("Batch Message");
-      for (int j = 0; j < batchCount; j++)
-      {
-         System.out.println("Producing bacth " + j + " of " + batchSize
-               + " messages");
+      for (int j = 0; j < batchCount; j++) {
+         System.out.println("Producing bacth " + j + " of " + batchSize + " messages");
 
          beginTx();
-         for (int i = 0; i < batchSize; i++)
-         {
+         for (int i = 0; i < batchSize; i++) {
             producer.send(message);
          }
          messageSent();
          commitTx();
-         System.out.println("Consuming bacth " + j + " of " + batchSize
-               + " messages");
+         System.out.println("Consuming bacth " + j + " of " + batchSize + " messages");
 
          beginTx();
-         for (int i = 0; i < batchSize; i++)
-         {
+         for (int i = 0; i < batchSize; i++) {
             message = (TextMessage) consumer.receive(1000 * 5);
-            assertNotNull("Received only " + i + " messages in batch " + j,
-                  message);
+            assertNotNull("Received only " + i + " messages in batch " + j, message);
             assertEquals("Batch Message", message.getText());
          }
 
@@ -162,8 +145,7 @@ public abstract class JmsTransactionTestSupport extends BasicOpenWireTest implem
       }
    }
 
-   protected void messageSent() throws Exception
-   {
+   protected void messageSent() throws Exception {
    }
 
    /**
@@ -173,11 +155,8 @@ public abstract class JmsTransactionTestSupport extends BasicOpenWireTest implem
     * @throws Exception
     */
    @Test
-   public void testSendRollback() throws Exception
-   {
-      Message[] outbound = new Message[]
-      {session.createTextMessage("First Message"),
-            session.createTextMessage("Second Message")};
+   public void testSendRollback() throws Exception {
+      Message[] outbound = new Message[]{session.createTextMessage("First Message"), session.createTextMessage("Second Message")};
 
       // sends a message
       beginTx();
@@ -200,13 +179,13 @@ public abstract class JmsTransactionTestSupport extends BasicOpenWireTest implem
       System.out.println("About to consume message 1");
       Message message = consumer.receive(1000);
       messages.add(message);
-      System.out.println("Received: " + ((TextMessage)message).getText());
+      System.out.println("Received: " + ((TextMessage) message).getText());
 
       // receives the second message
       System.out.println("About to consume message 2");
       message = consumer.receive(4000);
       messages.add(message);
-      System.out.println("Received: " + ((TextMessage)message).getText());
+      System.out.println("Received: " + ((TextMessage) message).getText());
 
       // validates that the rollbacked was not consumed
       commitTx();
@@ -221,10 +200,8 @@ public abstract class JmsTransactionTestSupport extends BasicOpenWireTest implem
     * @throws Exception
     */
    @Test
-   public void testAckMessageInTx() throws Exception
-   {
-      Message[] outbound = new Message[]
-      {session.createTextMessage("First Message")};
+   public void testAckMessageInTx() throws Exception {
+      Message[] outbound = new Message[]{session.createTextMessage("First Message")};
 
       // sends a message
       beginTx();
@@ -257,11 +234,8 @@ public abstract class JmsTransactionTestSupport extends BasicOpenWireTest implem
     * @throws Exception
     */
    @Test
-   public void testSendSessionClose() throws Exception
-   {
-      Message[] outbound = new Message[]
-      {session.createTextMessage("First Message"),
-            session.createTextMessage("Second Message")};
+   public void testSendSessionClose() throws Exception {
+      Message[] outbound = new Message[]{session.createTextMessage("First Message"), session.createTextMessage("Second Message")};
 
       // sends a message
       beginTx();
@@ -307,11 +281,8 @@ public abstract class JmsTransactionTestSupport extends BasicOpenWireTest implem
     * @throws Exception
     */
    @Test
-   public void testSendSessionAndConnectionClose() throws Exception
-   {
-      Message[] outbound = new Message[]
-      {session.createTextMessage("First Message"),
-            session.createTextMessage("Second Message")};
+   public void testSendSessionAndConnectionClose() throws Exception {
+      Message[] outbound = new Message[]{session.createTextMessage("First Message"), session.createTextMessage("Second Message")};
 
       // sends a message
       beginTx();
@@ -359,16 +330,12 @@ public abstract class JmsTransactionTestSupport extends BasicOpenWireTest implem
     * @throws Exception
     */
    @Test
-   public void testReceiveRollback() throws Exception
-   {
-      Message[] outbound = new Message[]
-      {session.createTextMessage("First Message"),
-            session.createTextMessage("Second Message")};
+   public void testReceiveRollback() throws Exception {
+      Message[] outbound = new Message[]{session.createTextMessage("First Message"), session.createTextMessage("Second Message")};
 
       // lets consume any outstanding messages from prev test runs
       beginTx();
-      while (consumer.receive(1000) != null)
-      {
+      while (consumer.receive(1000) != null) {
       }
       commitTx();
 
@@ -415,16 +382,12 @@ public abstract class JmsTransactionTestSupport extends BasicOpenWireTest implem
     * @throws Exception
     */
    @Test
-   public void testReceiveTwoThenRollback() throws Exception
-   {
-      Message[] outbound = new Message[]
-      {session.createTextMessage("First Message"),
-            session.createTextMessage("Second Message")};
+   public void testReceiveTwoThenRollback() throws Exception {
+      Message[] outbound = new Message[]{session.createTextMessage("First Message"), session.createTextMessage("Second Message")};
 
       // lets consume any outstanding messages from prev test runs
       beginTx();
-      while (consumer.receive(1000) != null)
-      {
+      while (consumer.receive(1000) != null) {
       }
       commitTx();
 
@@ -460,8 +423,7 @@ public abstract class JmsTransactionTestSupport extends BasicOpenWireTest implem
       messages.add(message);
       assertEquals(outbound[0], message);
       message = (TextMessage) consumer.receive(5000);
-      assertNotNull("Should have re-received the second message again!",
-            message);
+      assertNotNull("Should have re-received the second message again!", message);
       System.out.println("received2: " + message.getText());
       messages.add(message);
       assertEquals(outbound[1], message);
@@ -482,18 +444,12 @@ public abstract class JmsTransactionTestSupport extends BasicOpenWireTest implem
     * @throws Exception
     */
    @Test
-   public void testSendReceiveWithPrefetchOne() throws Exception
-   {
+   public void testSendReceiveWithPrefetchOne() throws Exception {
       setPrefetchToOne();
-      Message[] outbound = new Message[]
-      {session.createTextMessage("First Message"),
-            session.createTextMessage("Second Message"),
-            session.createTextMessage("Third Message"),
-            session.createTextMessage("Fourth Message")};
+      Message[] outbound = new Message[]{session.createTextMessage("First Message"), session.createTextMessage("Second Message"), session.createTextMessage("Third Message"), session.createTextMessage("Fourth Message")};
 
       beginTx();
-      for (int i = 0; i < outbound.length; i++)
-      {
+      for (int i = 0; i < outbound.length; i++) {
          // sends a message
          producer.send(outbound[i]);
       }
@@ -501,8 +457,7 @@ public abstract class JmsTransactionTestSupport extends BasicOpenWireTest implem
 
       // receives the first message
       beginTx();
-      for (int i = 0; i < outbound.length; i++)
-      {
+      for (int i = 0; i < outbound.length; i++) {
          System.out.println("About to consume message 1");
          Message message = consumer.receive(1000);
          assertNotNull(message);
@@ -520,10 +475,8 @@ public abstract class JmsTransactionTestSupport extends BasicOpenWireTest implem
     * @throws Exception
     */
    @Test
-   public void testReceiveTwoThenRollbackManyTimes() throws Exception
-   {
-      for (int i = 0; i < 5; i++)
-      {
+   public void testReceiveTwoThenRollbackManyTimes() throws Exception {
+      for (int i = 0; i < 5; i++) {
          testReceiveTwoThenRollback();
       }
    }
@@ -535,8 +488,7 @@ public abstract class JmsTransactionTestSupport extends BasicOpenWireTest implem
     * @throws Exception
     */
    @Test
-   public void testSendRollbackWithPrefetchOfOne() throws Exception
-   {
+   public void testSendRollbackWithPrefetchOfOne() throws Exception {
       setPrefetchToOne();
       testSendRollback();
    }
@@ -548,8 +500,7 @@ public abstract class JmsTransactionTestSupport extends BasicOpenWireTest implem
     * @throws Exception
     */
    @Test
-   public void testReceiveRollbackWithPrefetchOfOne() throws Exception
-   {
+   public void testReceiveRollbackWithPrefetchOfOne() throws Exception {
       setPrefetchToOne();
       testReceiveRollback();
    }
@@ -558,20 +509,15 @@ public abstract class JmsTransactionTestSupport extends BasicOpenWireTest implem
     * Tests if the messages can still be received if the consumer is closed
     * (session is not closed).
     *
-    * @throws Exception
-    *            see http://jira.codehaus.org/browse/AMQ-143
+    * @throws Exception see http://jira.codehaus.org/browse/AMQ-143
     */
    @Test
-   public void testCloseConsumerBeforeCommit() throws Exception
-   {
-      TextMessage[] outbound = new TextMessage[]
-      {session.createTextMessage("First Message"),
-            session.createTextMessage("Second Message")};
+   public void testCloseConsumerBeforeCommit() throws Exception {
+      TextMessage[] outbound = new TextMessage[]{session.createTextMessage("First Message"), session.createTextMessage("Second Message")};
 
       // lets consume any outstanding messages from prev test runs
       beginTx();
-      while (consumer.receiveNoWait() != null)
-      {
+      while (consumer.receiveNoWait() != null) {
       }
 
       commitTx();
@@ -604,8 +550,7 @@ public abstract class JmsTransactionTestSupport extends BasicOpenWireTest implem
    }
 
    @Test
-   public void testChangeMutableObjectInObjectMessageThenRollback() throws Exception
-   {
+   public void testChangeMutableObjectInObjectMessageThenRollback() throws Exception {
       ArrayList<String> list = new ArrayList<String>();
       list.add("First");
       Message outbound = session.createObjectMessage(list);
@@ -622,13 +567,11 @@ public abstract class JmsTransactionTestSupport extends BasicOpenWireTest implem
       List<String> body = assertReceivedObjectMessageWithListBody(message);
 
       // now lets try mutate it
-      try
-      {
+      try {
          message.setStringProperty("foo", "def");
          fail("Cannot change properties of the object!");
       }
-      catch (JMSException e)
-      {
+      catch (JMSException e) {
          System.out.println("Caught expected exception: " + e);
          e.printStackTrace();
       }
@@ -639,20 +582,16 @@ public abstract class JmsTransactionTestSupport extends BasicOpenWireTest implem
       beginTx();
       message = consumer.receive(5000);
       List<String> secondBody = assertReceivedObjectMessageWithListBody(message);
-      assertNotSame("Second call should return a different body", secondBody,
-            body);
+      assertNotSame("Second call should return a different body", secondBody, body);
       commitTx();
    }
 
    @SuppressWarnings("unchecked")
-   protected List<String> assertReceivedObjectMessageWithListBody(
-         Message message) throws JMSException
-   {
+   protected List<String> assertReceivedObjectMessageWithListBody(Message message) throws JMSException {
       assertNotNull("Should have received a message!", message);
       assertEquals("foo header", "abc", message.getStringProperty("foo"));
 
-      assertTrue("Should be an object message but was: " + message,
-            message instanceof ObjectMessage);
+      assertTrue("Should be an object message but was: " + message, message instanceof ObjectMessage);
       ObjectMessage objectMessage = (ObjectMessage) message;
       List<String> body = (List<String>) objectMessage.getObject();
       System.out.println("Received body: " + body);
@@ -665,8 +604,7 @@ public abstract class JmsTransactionTestSupport extends BasicOpenWireTest implem
    /**
     * Sets the prefeftch policy to one.
     */
-   protected void setPrefetchToOne()
-   {
+   protected void setPrefetchToOne() {
       ActiveMQPrefetchPolicy prefetchPolicy = getPrefetchPolicy();
       prefetchPolicy.setQueuePrefetch(1);
       prefetchPolicy.setTopicPrefetch(1);
@@ -674,18 +612,15 @@ public abstract class JmsTransactionTestSupport extends BasicOpenWireTest implem
       prefetchPolicy.setOptimizeDurableTopicPrefetch(1);
    }
 
-   protected ActiveMQPrefetchPolicy getPrefetchPolicy()
-   {
+   protected ActiveMQPrefetchPolicy getPrefetchPolicy() {
       return ((ActiveMQConnection) connection).getPrefetchPolicy();
    }
 
    // This test won't work with xa tx so no beginTx() has been added.
    @Test
-   public void testMessageListener() throws Exception
-   {
+   public void testMessageListener() throws Exception {
       // send messages
-      for (int i = 0; i < MESSAGE_COUNT; i++)
-      {
+      for (int i = 0; i < MESSAGE_COUNT; i++) {
          producer.send(session.createTextMessage(MESSAGE_TEXT + i));
       }
       commitTx();
@@ -703,54 +638,41 @@ public abstract class JmsTransactionTestSupport extends BasicOpenWireTest implem
    }
 
    @Override
-   public void onMessage(Message message)
-   {
-      if (!resendPhase)
-      {
+   public void onMessage(Message message) {
+      if (!resendPhase) {
          unackMessages.add(message);
-         if (unackMessages.size() == MESSAGE_COUNT)
-         {
-            try
-            {
+         if (unackMessages.size() == MESSAGE_COUNT) {
+            try {
                rollbackTx();
                resendPhase = true;
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                e.printStackTrace();
             }
          }
       }
-      else
-      {
+      else {
          ackMessages.add(message);
-         if (ackMessages.size() == MESSAGE_COUNT)
-         {
-            try
-            {
+         if (ackMessages.size() == MESSAGE_COUNT) {
+            try {
                commitTx();
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                e.printStackTrace();
             }
          }
       }
    }
 
-   private void waitReceiveUnack() throws Exception
-   {
-      for (int i = 0; i < 100 && !resendPhase; i++)
-      {
+   private void waitReceiveUnack() throws Exception {
+      for (int i = 0; i < 100 && !resendPhase; i++) {
          Thread.sleep(100);
       }
       assertTrue(resendPhase);
    }
 
-   private void waitReceiveAck() throws Exception
-   {
-      for (int i = 0; i < 100 && ackMessages.size() < MESSAGE_COUNT; i++)
-      {
+   private void waitReceiveAck() throws Exception {
+      for (int i = 0; i < 100 && ackMessages.size() < MESSAGE_COUNT; i++) {
          Thread.sleep(100);
       }
       assertFalse(ackMessages.size() < MESSAGE_COUNT);

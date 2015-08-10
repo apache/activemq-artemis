@@ -22,14 +22,13 @@ import org.apache.activemq.artemis.core.paging.cursor.PageSubscription;
 import org.apache.activemq.artemis.core.postoffice.PostOffice;
 
 /**
- *
  * A QueueFactory
  *
  * Implementations of this class know how to create queues with the correct attribute values
  * based on default and overrides
  */
-public interface QueueFactory
-{
+public interface QueueFactory {
+
    Queue createQueue(long persistenceID,
                      final SimpleString address,
                      SimpleString name,
@@ -42,6 +41,7 @@ public interface QueueFactory
 
    /**
     * This is required for delete-all-reference to work correctly with paging
+    *
     * @param postOffice
     */
    void setPostOffice(PostOffice postOffice);

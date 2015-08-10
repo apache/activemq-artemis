@@ -17,12 +17,12 @@
 package org.apache.activemq.security;
 
 /**
- * 
- * 
+ *
+ *
  */
 public class SimpleAuthorizationMapTest extends AuthorizationMapTest {
-    
-    protected AuthorizationMap createAuthorizationMap() {
-        return SimpleSecurityBrokerSystemTest.createAuthorizationMap();
-    }
+
+   protected AuthorizationMap createAuthorizationMap() {
+      return SimpleSecurityBrokerSystemTest.createAuthorizationMap();
+   }
 }

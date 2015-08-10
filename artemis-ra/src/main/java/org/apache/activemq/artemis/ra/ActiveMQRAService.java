@@ -22,13 +22,11 @@ import javax.management.MBeanServer;
 import javax.management.ObjectInstance;
 import javax.management.ObjectName;
 
-
 /**
  * An ActiveMQRAService ensures that ActiveMQ Artemis Resource Adapter will be stopped *before* the ActiveMQ Artemis server.
  * https://jira.jboss.org/browse/HORNETQ-339
  */
-public class ActiveMQRAService
-{
+public class ActiveMQRAService {
    // Constants -----------------------------------------------------
    // Attributes ----------------------------------------------------
 
@@ -40,33 +38,27 @@ public class ActiveMQRAService
 
    // Constructors --------------------------------------------------
 
-   public ActiveMQRAService(final MBeanServer mBeanServer, final String resourceAdapterObjectName)
-   {
+   public ActiveMQRAService(final MBeanServer mBeanServer, final String resourceAdapterObjectName) {
       this.mBeanServer = mBeanServer;
       this.resourceAdapterObjectName = resourceAdapterObjectName;
    }
 
    // Public --------------------------------------------------------
 
-   public void stop()
-   {
-      try
-      {
+   public void stop() {
+      try {
          ObjectName objectName = new ObjectName(resourceAdapterObjectName);
          Set<ObjectInstance> mbeanSet = mBeanServer.queryMBeans(objectName, null);
 
-         for (ObjectInstance mbean : mbeanSet)
-         {
-            String stateString = (String)mBeanServer.getAttribute(mbean.getObjectName(), "StateString");
+         for (ObjectInstance mbean : mbeanSet) {
+            String stateString = (String) mBeanServer.getAttribute(mbean.getObjectName(), "StateString");
 
-            if ("Started".equalsIgnoreCase(stateString) || "Starting".equalsIgnoreCase(stateString))
-            {
+            if ("Started".equalsIgnoreCase(stateString) || "Starting".equalsIgnoreCase(stateString)) {
                mBeanServer.invoke(mbean.getObjectName(), "stop", new Object[0], new String[0]);
             }
          }
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
          ActiveMQRALogger.LOGGER.errorStoppingRA(e);
       }
    }

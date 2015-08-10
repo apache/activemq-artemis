@@ -22,68 +22,60 @@ import org.apache.activemq.artemis.core.server.impl.LiveOnlyActivation;
 
 import java.util.Map;
 
-public class LiveOnlyPolicy implements HAPolicy<Activation>
-{
+public class LiveOnlyPolicy implements HAPolicy<Activation> {
+
    private ScaleDownPolicy scaleDownPolicy;
 
-   public LiveOnlyPolicy()
-   {
+   public LiveOnlyPolicy() {
    }
 
-   public LiveOnlyPolicy(ScaleDownPolicy scaleDownPolicy)
-   {
+   public LiveOnlyPolicy(ScaleDownPolicy scaleDownPolicy) {
       this.scaleDownPolicy = scaleDownPolicy;
    }
 
    @Override
-   public Activation createActivation(ActiveMQServerImpl server, boolean wasLive, Map<String, Object> activationParams, ActiveMQServerImpl.ShutdownOnCriticalErrorListener shutdownOnCriticalIO)
-   {
+   public Activation createActivation(ActiveMQServerImpl server,
+                                      boolean wasLive,
+                                      Map<String, Object> activationParams,
+                                      ActiveMQServerImpl.ShutdownOnCriticalErrorListener shutdownOnCriticalIO) {
       return new LiveOnlyActivation(server, this);
    }
 
    @Override
-   public String getBackupGroupName()
-   {
+   public String getBackupGroupName() {
       return null;
    }
 
    @Override
-   public String getScaleDownGroupName()
-   {
+   public String getScaleDownGroupName() {
       return scaleDownPolicy == null ? null : scaleDownPolicy.getGroupName();
    }
 
    @Override
-   public String getScaleDownClustername()
-   {
+   public String getScaleDownClustername() {
       return null;
    }
 
    @Override
-   public boolean isSharedStore()
-   {
+   public boolean isSharedStore() {
       return false;
    }
 
    @Override
-   public boolean isBackup()
-   {
+   public boolean isBackup() {
       return false;
    }
 
    @Override
-   public boolean canScaleDown()
-   {
+   public boolean canScaleDown() {
       return scaleDownPolicy != null;
    }
 
-   public ScaleDownPolicy getScaleDownPolicy()
-   {
+   public ScaleDownPolicy getScaleDownPolicy() {
       return scaleDownPolicy;
    }
 
-   public void setScaleDownPolicy(ScaleDownPolicy scaleDownPolicy)
-   {
+   public void setScaleDownPolicy(ScaleDownPolicy scaleDownPolicy) {
       this.scaleDownPolicy = scaleDownPolicy;
    }
 }

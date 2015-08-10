@@ -32,10 +32,11 @@ import org.apache.activemq.artemis.spi.core.remoting.Connection;
  * Perhaps a better name for this class now would be ProtocolConnection as this
  * represents the link with the used protocol
  */
-public interface RemotingConnection extends BufferHandler
-{
+public interface RemotingConnection extends BufferHandler {
+
    /**
     * Returns the unique id of the {@link RemotingConnection}.
+    *
     * @return the id
     */
    Object getID();
@@ -90,7 +91,6 @@ public interface RemotingConnection extends BufferHandler
 
    void setCloseListeners(List<CloseListener> listeners);
 
-
    /**
     * return all the failure listeners
     *
@@ -99,7 +99,6 @@ public interface RemotingConnection extends BufferHandler
    List<FailureListener> getFailureListeners();
 
    List<FailureListener> removeFailureListeners();
-
 
    /**
     * set the failure listeners.
@@ -129,7 +128,7 @@ public interface RemotingConnection extends BufferHandler
    /**
     * called when the underlying connection fails.
     *
-    * @param me the exception that caused the failure
+    * @param me                    the exception that caused the failure
     * @param scaleDownTargetNodeID the ID of the node where scale down is targeted
     */
    void fail(ActiveMQException me, String scaleDownTargetNodeID);
@@ -148,12 +147,14 @@ public interface RemotingConnection extends BufferHandler
 
    /**
     * Returns whether or not the {@link RemotingConnection} is a client
+    *
     * @return true if client, false if a server
     */
    boolean isClient();
 
    /**
     * Returns true if this {@link RemotingConnection} has been destroyed.
+    *
     * @return true if destroyed, otherwise false
     */
    boolean isDestroyed();

@@ -41,21 +41,19 @@ import java.io.Serializable;
  * openwire clients, i.e. core producers sending messages
  * to be received by openwire receivers, and vice versa.
  */
-public class GeneralInteropTest extends BasicOpenWireTest
-{
+public class GeneralInteropTest extends BasicOpenWireTest {
+
    private ServerLocator locator;
 
    @Before
    @Override
-   public void setUp() throws Exception
-   {
+   public void setUp() throws Exception {
       super.setUp();
       locator = this.createInVMNonHALocator();
    }
 
    @Test
-   public void testReceivingFromCore() throws Exception
-   {
+   public void testReceivingFromCore() throws Exception {
       final String text = "HelloWorld";
 
       //text messages
@@ -77,11 +75,11 @@ public class GeneralInteropTest extends BasicOpenWireTest
       MapMessage mapMessage = (MapMessage) consumer.receive(5000);
 
       assertTrue(mapMessage.getBoolean("aboolean"));
-      assertEquals((byte)4, mapMessage.getByte("abyte"));
+      assertEquals((byte) 4, mapMessage.getByte("abyte"));
       byte[] bytes = mapMessage.getBytes("abytes");
       assertEquals(2, bytes.length);
-      assertEquals((byte)4, bytes[0]);
-      assertEquals((byte)5, bytes[1]);
+      assertEquals((byte) 4, bytes[0]);
+      assertEquals((byte) 5, bytes[1]);
       assertEquals('a', mapMessage.getChar("achar"));
       Double doubleVal = mapMessage.getDouble("adouble");
       assertTrue(doubleVal.equals(Double.valueOf(4.4)));
@@ -108,7 +106,7 @@ public class GeneralInteropTest extends BasicOpenWireTest
 
       StreamMessage streamMessage = (StreamMessage) consumer.receive(5000);
       assertTrue(streamMessage.readBoolean());
-      assertEquals((byte)2, streamMessage.readByte());
+      assertEquals((byte) 2, streamMessage.readByte());
 
       byte[] streamBytes = new byte[2];
       streamMessage.readBytes(streamBytes);
@@ -123,7 +121,7 @@ public class GeneralInteropTest extends BasicOpenWireTest
       assertTrue(streamFloat.equals(Float.valueOf(93.9F)));
       assertEquals(7657, streamMessage.readInt());
       assertEquals(239999L, streamMessage.readLong());
-      assertEquals((short)34222, streamMessage.readShort());
+      assertEquals((short) 34222, streamMessage.readShort());
       assertEquals("hello streammessage", streamMessage.readString());
 
       //bytes messages
@@ -134,15 +132,14 @@ public class GeneralInteropTest extends BasicOpenWireTest
       byte[] rawBytes = new byte[bytesData.length];
       bytesMessage.readBytes(rawBytes);
 
-      for (int i = 0; i < bytesData.length; i++)
-      {
+      for (int i = 0; i < bytesData.length; i++) {
          assertEquals("failed at " + i, bytesData[i], rawBytes[i]);
       }
       assertTrue(bytesMessage.readBoolean());
       assertEquals(99999L, bytesMessage.readLong());
       assertEquals('h', bytesMessage.readChar());
       assertEquals(987, bytesMessage.readInt());
-      assertEquals((short)1099, bytesMessage.readShort());
+      assertEquals((short) 1099, bytesMessage.readShort());
       assertEquals("hellobytes", bytesMessage.readUTF());
 
       //generic message
@@ -154,13 +151,12 @@ public class GeneralInteropTest extends BasicOpenWireTest
       assertFalse(genericMessage.getBooleanProperty("booleanProperty"));
       assertEquals(99999L, genericMessage.getLongProperty("longProperty"));
       assertEquals(979, genericMessage.getIntProperty("intProperty"));
-      assertEquals((short)1099, genericMessage.getShortProperty("shortProperty"));
+      assertEquals((short) 1099, genericMessage.getShortProperty("shortProperty"));
       assertEquals("HelloMessage", genericMessage.getStringProperty("stringProperty"));
    }
 
    @Test
-   public void testMutipleReceivingFromCore() throws Exception
-   {
+   public void testMutipleReceivingFromCore() throws Exception {
       final String text = "HelloWorld";
       final int num = 100;
       //text messages
@@ -172,51 +168,43 @@ public class GeneralInteropTest extends BasicOpenWireTest
 
       final ActiveMQMessageConsumer consumer = (ActiveMQMessageConsumer) session.createConsumer(destination);
 
-      for (int i = 0; i < num; i++)
-      {
+      for (int i = 0; i < num; i++) {
          TextMessage textMessage = (TextMessage) consumer.receive(5000);
          assertEquals(text + i, textMessage.getText());
       }
    }
 
-   private void sendMultipleTextMessagesUsingCoreJms(String queueName, String text, int num) throws Exception
-   {
+   private void sendMultipleTextMessagesUsingCoreJms(String queueName, String text, int num) throws Exception {
       Connection jmsConn = null;
-      try
-      {
+      try {
          jmsConn = coreCf.createConnection();
          Session session = jmsConn.createSession(false, Session.AUTO_ACKNOWLEDGE);
          Queue queue = session.createQueue(queueName);
          MessageProducer producer = session.createProducer(queue);
-         for (int i = 0; i < num; i++)
-         {
+         for (int i = 0; i < num; i++) {
             TextMessage msg = session.createTextMessage(text + i);
             producer.send(msg);
          }
       }
-      finally
-      {
-         if (jmsConn != null)
-         {
+      finally {
+         if (jmsConn != null) {
             jmsConn.close();
          }
       }
    }
 
-   private void sendMessageUsingCoreJms(String queueName) throws Exception
-   {
+   private void sendMessageUsingCoreJms(String queueName) throws Exception {
       Connection jmsConn = null;
-      try
-      {
+      try {
          jmsConn = coreCf.createConnection();
          Session session = jmsConn.createSession(false, Session.AUTO_ACKNOWLEDGE);
          javax.jms.Message message = session.createMessage();
 
          message.setBooleanProperty("booleanProperty", false);
          message.setLongProperty("longProperty", 99999L);
-         message.setByteProperty("byteProperty", (byte)5);
+         message.setByteProperty("byteProperty", (byte) 5);
          message.setIntProperty("intProperty", 979);
-         message.setShortProperty("shortProperty", (short)1099);
+         message.setShortProperty("shortProperty", (short) 1099);
          message.setStringProperty("stringProperty", "HelloMessage");
 
          Queue queue = session.createQueue(queueName);
@@ -224,21 +212,17 @@ public class GeneralInteropTest extends BasicOpenWireTest
 
          producer.send(message);
       }
-      finally
-      {
-         if (jmsConn != null)
-         {
+      finally {
+         if (jmsConn != null) {
             jmsConn.close();
          }
       }
 
    }
 
-   private void sendBytesMessageUsingCoreJms(String queueName, byte[] data) throws Exception
-   {
+   private void sendBytesMessageUsingCoreJms(String queueName, byte[] data) throws Exception {
       Connection jmsConn = null;
-      try
-      {
+      try {
          jmsConn = coreCf.createConnection();
          Session session = jmsConn.createSession(false, Session.AUTO_ACKNOWLEDGE);
          BytesMessage bytesMessage = session.createBytesMessage();
@@ -248,7 +232,7 @@ public class GeneralInteropTest extends BasicOpenWireTest
          bytesMessage.writeLong(99999L);
          bytesMessage.writeChar('h');
          bytesMessage.writeInt(987);
-         bytesMessage.writeShort((short)1099);
+         bytesMessage.writeShort((short) 1099);
          bytesMessage.writeUTF("hellobytes");
 
          Queue queue = session.createQueue(queueName);
@@ -256,21 +240,17 @@ public class GeneralInteropTest extends BasicOpenWireTest
 
          producer.send(bytesMessage);
       }
-      finally
-      {
-         if (jmsConn != null)
-         {
+      finally {
+         if (jmsConn != null) {
             jmsConn.close();
          }
       }
 
    }
 
-   private void sendObjectMessageUsingCoreJms(String queueName, Serializable object) throws Exception
-   {
+   private void sendObjectMessageUsingCoreJms(String queueName, Serializable object) throws Exception {
       Connection jmsConn = null;
-      try
-      {
+      try {
          jmsConn = coreCf.createConnection();
          Session session = jmsConn.createSession(false, Session.AUTO_ACKNOWLEDGE);
          ObjectMessage objectMessage = session.createObjectMessage(object);
@@ -280,33 +260,29 @@ public class GeneralInteropTest extends BasicOpenWireTest
 
          producer.send(objectMessage);
       }
-      finally
-      {
-         if (jmsConn != null)
-         {
+      finally {
+         if (jmsConn != null) {
             jmsConn.close();
          }
       }
 
    }
 
-   private void sendStreamMessageUsingCoreJms(String queueName) throws Exception
-   {
+   private void sendStreamMessageUsingCoreJms(String queueName) throws Exception {
       Connection jmsConn = null;
-      try
-      {
+      try {
          jmsConn = coreCf.createConnection();
          Session session = jmsConn.createSession(false, Session.AUTO_ACKNOWLEDGE);
          StreamMessage msg = session.createStreamMessage();
          msg.writeBoolean(true);
-         msg.writeByte((byte)2);
-         msg.writeBytes(new byte[]{6,7});
+         msg.writeByte((byte) 2);
+         msg.writeBytes(new byte[]{6, 7});
          msg.writeChar('b');
-         msg.writeDouble((double)6.5);
-         msg.writeFloat((float)93.9);
+         msg.writeDouble((double) 6.5);
+         msg.writeFloat((float) 93.9);
          msg.writeInt(7657);
          msg.writeLong(239999L);
-         msg.writeShort((short)34222);
+         msg.writeShort((short) 34222);
          msg.writeString("hello streammessage");
 
          Queue queue = session.createQueue(queueName);
@@ -314,33 +290,29 @@ public class GeneralInteropTest extends BasicOpenWireTest
 
          producer.send(msg);
       }
-      finally
-      {
-         if (jmsConn != null)
-         {
+      finally {
+         if (jmsConn != null) {
             jmsConn.close();
          }
       }
 
    }
 
-   private void sendMapMessageUsingCoreJms(String queueName) throws Exception
-   {
+   private void sendMapMessageUsingCoreJms(String queueName) throws Exception {
       Connection jmsConn = null;
-      try
-      {
+      try {
          jmsConn = coreCf.createConnection();
          Session session = jmsConn.createSession(false, Session.AUTO_ACKNOWLEDGE);
          MapMessage mapMessage = session.createMapMessage();
          mapMessage.setBoolean("aboolean", true);
-         mapMessage.setByte("abyte", (byte)4);
+         mapMessage.setByte("abyte", (byte) 4);
          mapMessage.setBytes("abytes", new byte[]{4, 5});
          mapMessage.setChar("achar", 'a');
          mapMessage.setDouble("adouble", 4.4);
          mapMessage.setFloat("afloat", 4.5f);
          mapMessage.setInt("aint", 40);
          mapMessage.setLong("along", 80L);
-         mapMessage.setShort("ashort", (short)65);
+         mapMessage.setShort("ashort", (short) 65);
          mapMessage.setString("astring", "hello");
 
          Queue queue = session.createQueue(queueName);
@@ -348,21 +320,17 @@ public class GeneralInteropTest extends BasicOpenWireTest
 
          producer.send(mapMessage);
       }
-      finally
-      {
-         if (jmsConn != null)
-         {
+      finally {
+         if (jmsConn != null) {
             jmsConn.close();
          }
       }
 
    }
 
-   private void sendTextMessageUsingCoreJms(String address, String text) throws Exception
-   {
+   private void sendTextMessageUsingCoreJms(String address, String text) throws Exception {
       Connection jmsConn = null;
-      try
-      {
+      try {
          jmsConn = coreCf.createConnection();
          Session session = jmsConn.createSession(false, Session.AUTO_ACKNOWLEDGE);
          TextMessage msg = session.createTextMessage(text);
@@ -371,10 +339,8 @@ public class GeneralInteropTest extends BasicOpenWireTest
 
          producer.send(msg);
       }
-      finally
-      {
-         if (jmsConn != null)
-         {
+      finally {
+         if (jmsConn != null) {
             jmsConn.close();
          }
       }
@@ -382,13 +348,11 @@ public class GeneralInteropTest extends BasicOpenWireTest
    }
 
    @Test
-   public void testSendingToCoreJms() throws Exception
-   {
+   public void testSendingToCoreJms() throws Exception {
       final String text = "HelloWorld";
       Connection jmsConn = null;
 
-      try
-      {
+      try {
          jmsConn = coreCf.createConnection();
          jmsConn.start();
 
@@ -439,7 +403,7 @@ public class GeneralInteropTest extends BasicOpenWireTest
 
          StreamMessage streamMessage = (StreamMessage) coreConsumer.receive(5000);
          assertTrue(streamMessage.readBoolean());
-         assertEquals((byte)2, streamMessage.readByte());
+         assertEquals((byte) 2, streamMessage.readByte());
 
          byte[] streamBytes = new byte[2];
          streamMessage.readBytes(streamBytes);
@@ -454,7 +418,7 @@ public class GeneralInteropTest extends BasicOpenWireTest
          assertTrue(streamFloat.equals(Float.valueOf(93.9F)));
          assertEquals(7657, streamMessage.readInt());
          assertEquals(239999L, streamMessage.readLong());
-         assertEquals((short)34222, streamMessage.readShort());
+         assertEquals((short) 34222, streamMessage.readShort());
          assertEquals("hello streammessage", streamMessage.readString());
 
          //bytes messages
@@ -465,8 +429,7 @@ public class GeneralInteropTest extends BasicOpenWireTest
          byte[] rawBytes = new byte[bytesData.length];
          bytesMessage.readBytes(rawBytes);
 
-         for (int i = 0; i < bytesData.length; i++)
-         {
+         for (int i = 0; i < bytesData.length; i++) {
             assertEquals(bytesData[i], rawBytes[i]);
          }
 
@@ -479,27 +442,23 @@ public class GeneralInteropTest extends BasicOpenWireTest
          assertFalse(genericMessage.getBooleanProperty("booleanProperty"));
          assertEquals(99999L, genericMessage.getLongProperty("longProperty"));
          assertEquals(979, genericMessage.getIntProperty("intProperty"));
-         assertEquals((short)1099, genericMessage.getShortProperty("shortProperty"));
+         assertEquals((short) 1099, genericMessage.getShortProperty("shortProperty"));
          assertEquals("HelloMessage", genericMessage.getStringProperty("stringProperty"));
       }
-      finally
-      {
-         if (jmsConn != null)
-         {
+      finally {
+         if (jmsConn != null) {
             jmsConn.close();
          }
       }
    }
 
    @Test
-   public void testMultipleSendingToCoreJms() throws Exception
-   {
+   public void testMultipleSendingToCoreJms() throws Exception {
       final String text = "HelloWorld";
       final int num = 100;
       Connection jmsConn = null;
 
-      try
-      {
+      try {
          jmsConn = coreCf.createConnection();
          jmsConn.start();
 
@@ -510,37 +469,31 @@ public class GeneralInteropTest extends BasicOpenWireTest
          //text messages
          sendMultipleTextMessagesUsingOpenWire(text, num);
 
-         for (int i = 0; i < num; i++)
-         {
+         for (int i = 0; i < num; i++) {
             TextMessage txtMessage = (TextMessage) coreConsumer.receive(5000);
             assertEquals(text + i, txtMessage.getText());
          }
       }
-      finally
-      {
-         if (jmsConn != null)
-         {
+      finally {
+         if (jmsConn != null) {
             jmsConn.close();
          }
       }
    }
 
-   private void sendMultipleTextMessagesUsingOpenWire(String text, int num) throws Exception
-   {
+   private void sendMultipleTextMessagesUsingOpenWire(String text, int num) throws Exception {
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       ActiveMQDestination destination = createDestination(session, ActiveMQDestination.QUEUE_TYPE);
 
       final ActiveMQMessageProducer producer = (ActiveMQMessageProducer) session.createProducer(destination);
 
-      for (int i = 0; i < num; i++)
-      {
+      for (int i = 0; i < num; i++) {
          TextMessage textMessage = session.createTextMessage(text + i);
          producer.send(textMessage);
       }
    }
 
-   private void sendMessageUsingOpenWire(String queueName) throws Exception
-   {
+   private void sendMessageUsingOpenWire(String queueName) throws Exception {
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       ActiveMQDestination destination = createDestination(session, ActiveMQDestination.QUEUE_TYPE);
 
@@ -551,16 +504,15 @@ public class GeneralInteropTest extends BasicOpenWireTest
 
       message.setBooleanProperty("booleanProperty", false);
       message.setLongProperty("longProperty", 99999L);
-      message.setByteProperty("byteProperty", (byte)5);
+      message.setByteProperty("byteProperty", (byte) 5);
       message.setIntProperty("intProperty", 979);
-      message.setShortProperty("shortProperty", (short)1099);
+      message.setShortProperty("shortProperty", (short) 1099);
       message.setStringProperty("stringProperty", "HelloMessage");
 
       producer.send(message);
    }
 
-   private void sendBytesMessageUsingOpenWire(byte[] bytesData) throws Exception
-   {
+   private void sendBytesMessageUsingOpenWire(byte[] bytesData) throws Exception {
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       ActiveMQDestination destination = createDestination(session, ActiveMQDestination.QUEUE_TYPE);
 
@@ -573,14 +525,13 @@ public class GeneralInteropTest extends BasicOpenWireTest
       bytesMessage.writeLong(99999L);
       bytesMessage.writeChar('h');
       bytesMessage.writeInt(987);
-      bytesMessage.writeShort((short)1099);
+      bytesMessage.writeShort((short) 1099);
       bytesMessage.writeUTF("hellobytes");
 
       producer.send(bytesMessage);
    }
 
-   private void sendStreamMessageUsingOpenWire(String queueName) throws Exception
-   {
+   private void sendStreamMessageUsingOpenWire(String queueName) throws Exception {
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       ActiveMQDestination destination = createDestination(session, ActiveMQDestination.QUEUE_TYPE);
 
@@ -589,21 +540,20 @@ public class GeneralInteropTest extends BasicOpenWireTest
 
       StreamMessage streamMessage = session.createStreamMessage();
       streamMessage.writeBoolean(true);
-      streamMessage.writeByte((byte)2);
-      streamMessage.writeBytes(new byte[]{6,7});
+      streamMessage.writeByte((byte) 2);
+      streamMessage.writeBytes(new byte[]{6, 7});
       streamMessage.writeChar('b');
-      streamMessage.writeDouble((double)6.5);
-      streamMessage.writeFloat((float)93.9);
+      streamMessage.writeDouble((double) 6.5);
+      streamMessage.writeFloat((float) 93.9);
       streamMessage.writeInt(7657);
       streamMessage.writeLong(239999L);
-      streamMessage.writeShort((short)34222);
+      streamMessage.writeShort((short) 34222);
       streamMessage.writeString("hello streammessage");
 
       producer.send(streamMessage);
    }
 
-   private void sendObjectMessageUsingOpenWire(SimpleSerializable obj) throws Exception
-   {
+   private void sendObjectMessageUsingOpenWire(SimpleSerializable obj) throws Exception {
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       ActiveMQDestination destination = createDestination(session, ActiveMQDestination.QUEUE_TYPE);
 
@@ -615,8 +565,7 @@ public class GeneralInteropTest extends BasicOpenWireTest
       producer.send(objectMessage);
    }
 
-   private void sendMapMessageUsingOpenWire() throws Exception
-   {
+   private void sendMapMessageUsingOpenWire() throws Exception {
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       ActiveMQDestination destination = createDestination(session, ActiveMQDestination.QUEUE_TYPE);
 
@@ -625,21 +574,20 @@ public class GeneralInteropTest extends BasicOpenWireTest
 
       MapMessage mapMessage = session.createMapMessage();
       mapMessage.setBoolean("aboolean", true);
-      mapMessage.setByte("abyte", (byte)4);
+      mapMessage.setByte("abyte", (byte) 4);
       mapMessage.setBytes("abytes", new byte[]{4, 5});
       mapMessage.setChar("achar", 'a');
       mapMessage.setDouble("adouble", 4.4);
       mapMessage.setFloat("afloat", 4.5f);
       mapMessage.setInt("aint", 40);
       mapMessage.setLong("along", 80L);
-      mapMessage.setShort("ashort", (short)65);
+      mapMessage.setShort("ashort", (short) 65);
       mapMessage.setString("astring", "hello");
 
       producer.send(mapMessage);
    }
 
-   private void sendTextMessageUsingOpenWire(String text) throws Exception
-   {
+   private void sendTextMessageUsingOpenWire(String text) throws Exception {
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       ActiveMQDestination destination = createDestination(session, ActiveMQDestination.QUEUE_TYPE);
 
@@ -650,8 +598,8 @@ public class GeneralInteropTest extends BasicOpenWireTest
       producer.send(textMessage);
    }
 
-   private static class SimpleSerializable implements Serializable
-   {
+   private static class SimpleSerializable implements Serializable {
+
       private static final long serialVersionUID = -1034113865185130710L;
       public String objName = "simple-serializable";
       public int intVal = 9999;

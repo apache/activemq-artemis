@@ -34,48 +34,36 @@ import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.jms.server.config.impl.ConnectionFactoryConfigurationImpl;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
 
-public class StoreConfigTest extends JMSTestBase
-{
+public class StoreConfigTest extends JMSTestBase {
 
    @Override
-   protected boolean usePersistence()
-   {
+   protected boolean usePersistence() {
       return true;
    }
 
    @Test
-   public void testCreateCF() throws Exception
-   {
+   public void testCreateCF() throws Exception {
       server.getConfiguration().getConnectorConfigurations().put("tst", new TransportConfiguration(INVM_CONNECTOR_FACTORY));
 
       server.getConfiguration().getConnectorConfigurations().put("np", new TransportConfiguration(INVM_CONNECTOR_FACTORY));
 
       List<String> transportConfigurations = new ArrayList<String>();
       transportConfigurations.add("tst");
-      ConnectionFactoryConfigurationImpl factCFG = (ConnectionFactoryConfigurationImpl) new ConnectionFactoryConfigurationImpl()
-         .setName("tst")
-         .setConnectorNames(transportConfigurations);
+      ConnectionFactoryConfigurationImpl factCFG = (ConnectionFactoryConfigurationImpl) new ConnectionFactoryConfigurationImpl().setName("tst").setConnectorNames(transportConfigurations);
 
-      jmsServer.createConnectionFactory(true, factCFG, "/someCF", "/someCF2" );
+      jmsServer.createConnectionFactory(true, factCFG, "/someCF", "/someCF2");
 
+      ConnectionFactoryConfigurationImpl nonPersisted = (ConnectionFactoryConfigurationImpl) new ConnectionFactoryConfigurationImpl().setName("np").setConnectorNames(transportConfigurations);
 
-      ConnectionFactoryConfigurationImpl nonPersisted = (ConnectionFactoryConfigurationImpl) new ConnectionFactoryConfigurationImpl()
-         .setName("np")
-         .setConnectorNames(transportConfigurations);
+      jmsServer.createConnectionFactory(false, nonPersisted, "/nonPersisted");
 
-      jmsServer.createConnectionFactory(false, nonPersisted, "/nonPersisted" );
-
-
-      try
-      {
+      try {
          jmsServer.addConnectionFactoryToBindingRegistry("np", "/someCF");
          fail("Failure expected and the API let duplicates");
       }
-      catch (NamingException expected)
-      {
+      catch (NamingException expected) {
          // expected
       }
-
 
       openCon("/someCF");
       openCon("/someCF2");
@@ -94,20 +82,17 @@ public class StoreConfigTest extends JMSTestBase
       jmsServer.start();
 
       jmsServer.addConnectionFactoryToBindingRegistry("tst", "/newJNDI");
-      try
-      {
+      try {
          jmsServer.addConnectionFactoryToBindingRegistry("tst", "/newJNDI");
          fail("Failure expected and the API let duplicates");
       }
-      catch (NamingException expected)
-      {
-        // expected
+      catch (NamingException expected) {
+         // expected
       }
       openCon("/someCF");
       openCon("/someCF2");
       openCon("/newJNDI");
       assertNullJNDI("/nonPersisted");
-
 
       jmsServer.stop();
 
@@ -121,8 +106,7 @@ public class StoreConfigTest extends JMSTestBase
    }
 
    @Test
-   public void testCreateTopic() throws Exception
-   {
+   public void testCreateTopic() throws Exception {
       server.getConfiguration().getConnectorConfigurations().put("tst", new TransportConfiguration(INVM_CONNECTOR_FACTORY));
 
       server.getConfiguration().getConnectorConfigurations().put("np", new TransportConfiguration(INVM_CONNECTOR_FACTORY));
@@ -130,9 +114,7 @@ public class StoreConfigTest extends JMSTestBase
       List<String> transportConfigurations = new ArrayList<String>();
       transportConfigurations.add("tst");
 
-      ConnectionFactoryConfigurationImpl factCFG = (ConnectionFactoryConfigurationImpl) new ConnectionFactoryConfigurationImpl()
-         .setName("tst")
-         .setConnectorNames(transportConfigurations);
+      ConnectionFactoryConfigurationImpl factCFG = (ConnectionFactoryConfigurationImpl) new ConnectionFactoryConfigurationImpl().setName("tst").setConnectorNames(transportConfigurations);
 
       jmsServer.createConnectionFactory(true, factCFG, "/someCF");
 
@@ -159,9 +141,7 @@ public class StoreConfigTest extends JMSTestBase
       assertNullJNDI("/t2");
       assertNullJNDI("/t.2");
 
-
       jmsServer.start();
-
 
       checkDestination("/t1");
       checkDestination("/t.1");
@@ -181,7 +161,6 @@ public class StoreConfigTest extends JMSTestBase
       assertNullJNDI("/t2");
       assertNullJNDI("/t.2");
 
-
       assertTrue(jmsServer.removeTopicFromBindingRegistry("topicOne", "/tI"));
 
       assertFalse(jmsServer.removeTopicFromBindingRegistry("topicOne", "nothing"));
@@ -200,7 +179,6 @@ public class StoreConfigTest extends JMSTestBase
       checkDestination("/t1");
       checkDestination("/t.1");
 
-
       jmsServer.removeTopicFromBindingRegistry("topicOne");
 
       assertTrue(jmsServer.createTopic(true, "topicOne", "/topicx.1", "/topicx.2"));
@@ -213,14 +191,11 @@ public class StoreConfigTest extends JMSTestBase
       checkDestination("/topicx.2");
    }
 
-
-
-   private void checkDestination(String name) throws Exception
-   {
+   private void checkDestination(String name) throws Exception {
       ConnectionFactory cf = (ConnectionFactory) namingContext.lookup("/someCF");
       Connection conn = cf.createConnection();
       Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-      Destination dest = (Destination)namingContext.lookup(name);
+      Destination dest = (Destination) namingContext.lookup(name);
 
       conn.start();
       MessageConsumer cons = sess.createConsumer(dest);
@@ -232,22 +207,16 @@ public class StoreConfigTest extends JMSTestBase
 
    }
 
-
-
-
    @Test
-   public void testCreateQueue() throws Exception
-   {
+   public void testCreateQueue() throws Exception {
       server.getConfiguration().getConnectorConfigurations().put("tst", new TransportConfiguration(INVM_CONNECTOR_FACTORY));
 
-//      server.getConfiguration().getConnectorConfigurations().put("np", new TransportConfiguration(INVM_CONNECTOR_FACTORY));
+      //      server.getConfiguration().getConnectorConfigurations().put("np", new TransportConfiguration(INVM_CONNECTOR_FACTORY));
 
       List<String> transportConfigurations = new ArrayList<String>();
       transportConfigurations.add("tst");
 
-      ConnectionFactoryConfigurationImpl factCFG = (ConnectionFactoryConfigurationImpl) new ConnectionFactoryConfigurationImpl()
-         .setName("tst")
-         .setConnectorNames(transportConfigurations);
+      ConnectionFactoryConfigurationImpl factCFG = (ConnectionFactoryConfigurationImpl) new ConnectionFactoryConfigurationImpl().setName("tst").setConnectorNames(transportConfigurations);
 
       jmsServer.createConnectionFactory(true, factCFG, "/someCF");
 
@@ -275,9 +244,7 @@ public class StoreConfigTest extends JMSTestBase
       assertNullJNDI("/q2");
       assertNullJNDI("/q.2");
 
-
       jmsServer.start();
-
 
       checkDestination("/q1");
       checkDestination("/q.1");
@@ -297,7 +264,6 @@ public class StoreConfigTest extends JMSTestBase
       assertNullJNDI("/q2");
       assertNullJNDI("/q.2");
 
-
       assertTrue(jmsServer.removeQueueFromBindingRegistry("queue1", "/q1"));
 
       assertFalse(jmsServer.removeQueueFromBindingRegistry("queue1", "nothing"));
@@ -316,7 +282,6 @@ public class StoreConfigTest extends JMSTestBase
 
       jmsServer.removeQueueFromBindingRegistry("queue1");
 
-
       assertTrue(jmsServer.createQueue(true, "queue1", null, true, "/newq1", "/newq.1"));
       assertNullJNDI("/q1");
       assertNullJNDI("/q.1");
@@ -325,33 +290,29 @@ public class StoreConfigTest extends JMSTestBase
       checkDestination("/newq1");
       checkDestination("newq.1");
 
-
       jmsServer.stop();
    }
 
    /**
     *
     */
-   private void assertNullJNDI(String name)
-   {
+   private void assertNullJNDI(String name) {
       Object obj = null;
-      try
-      {
+      try {
          obj = namingContext.lookup(name);
       }
-      catch (Exception expected)
-      {
+      catch (Exception expected) {
       }
 
       assertNull(obj);
    }
-    /**
+
+   /**
     * @throws NamingException
     * @throws JMSException
     */
-   private void openCon(String name) throws NamingException, JMSException
-   {
-      ConnectionFactory cf = (ConnectionFactory)namingContext.lookup(name);
+   private void openCon(String name) throws NamingException, JMSException {
+      ConnectionFactory cf = (ConnectionFactory) namingContext.lookup(name);
 
       Connection conn = cf.createConnection();
 

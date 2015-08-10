@@ -23,13 +23,13 @@ import org.apache.activemq.artemis.cli.commands.Create;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class StreamClassPathTest
-{
+public class StreamClassPathTest {
 
-   /** Validate if all the known resources are available on the classpath for the jar */
+   /**
+    * Validate if all the known resources are available on the classpath for the jar
+    */
    @Test
-   public void testFindStreams() throws Exception
-   {
+   public void testFindStreams() throws Exception {
       openStream(Create.BIN_ARTEMIS_CMD);
       openStream(Create.BIN_ARTEMIS_SERVICE_EXE);
       openStream(Create.BIN_ARTEMIS_SERVICE_XML);
@@ -52,9 +52,7 @@ public class StreamClassPathTest
       openStream(Create.ETC_JOURNAL_BUFFER_SETTINGS);
    }
 
-
-   private void openStream(String source) throws Exception
-   {
+   private void openStream(String source) throws Exception {
       Create create = new Create();
       InputStream in = create.openStream(source);
       Assert.assertNotNull(source + " not found", in);

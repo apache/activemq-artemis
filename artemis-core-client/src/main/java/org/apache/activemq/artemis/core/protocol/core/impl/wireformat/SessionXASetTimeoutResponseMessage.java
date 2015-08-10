@@ -19,50 +19,43 @@ package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 
-public class SessionXASetTimeoutResponseMessage extends PacketImpl
-{
+public class SessionXASetTimeoutResponseMessage extends PacketImpl {
+
    private boolean ok;
 
-   public SessionXASetTimeoutResponseMessage(final boolean ok)
-   {
+   public SessionXASetTimeoutResponseMessage(final boolean ok) {
       super(SESS_XA_SET_TIMEOUT_RESP);
 
       this.ok = ok;
    }
 
-   public SessionXASetTimeoutResponseMessage()
-   {
+   public SessionXASetTimeoutResponseMessage() {
       super(SESS_XA_SET_TIMEOUT_RESP);
    }
 
    // Public --------------------------------------------------------
 
    @Override
-   public boolean isResponse()
-   {
+   public boolean isResponse() {
       return true;
    }
 
-   public boolean isOK()
-   {
+   public boolean isOK() {
       return ok;
    }
 
    @Override
-   public void encodeRest(final ActiveMQBuffer buffer)
-   {
+   public void encodeRest(final ActiveMQBuffer buffer) {
       buffer.writeBoolean(ok);
    }
 
    @Override
-   public void decodeRest(final ActiveMQBuffer buffer)
-   {
+   public void decodeRest(final ActiveMQBuffer buffer) {
       ok = buffer.readBoolean();
    }
 
    @Override
-   public int hashCode()
-   {
+   public int hashCode() {
       final int prime = 31;
       int result = super.hashCode();
       result = prime * result + (ok ? 1231 : 1237);
@@ -70,15 +63,14 @@ public class SessionXASetTimeoutResponseMessage extends PacketImpl
    }
 
    @Override
-   public boolean equals(Object obj)
-   {
+   public boolean equals(Object obj) {
       if (this == obj)
          return true;
       if (!super.equals(obj))
          return false;
       if (!(obj instanceof SessionXASetTimeoutResponseMessage))
          return false;
-      SessionXASetTimeoutResponseMessage other = (SessionXASetTimeoutResponseMessage)obj;
+      SessionXASetTimeoutResponseMessage other = (SessionXASetTimeoutResponseMessage) obj;
       if (ok != other.ok)
          return false;
       return true;

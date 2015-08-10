@@ -35,8 +35,8 @@ import org.apache.activemq.artemis.core.server.cluster.qourum.SharedNothingBacku
  * This implementation looks for any available live node, once tried with no success it is marked as
  * tried and the next available is used.
  */
-public class AnyLiveNodeLocatorForReplication extends LiveNodeLocator
-{
+public class AnyLiveNodeLocatorForReplication extends LiveNodeLocator {
+
    private final Lock lock = new ReentrantLock();
    private final Condition condition = lock.newCondition();
    private final ActiveMQServerImpl server;
@@ -45,67 +45,52 @@ public class AnyLiveNodeLocatorForReplication extends LiveNodeLocator
 
    private String nodeID;
 
-   public AnyLiveNodeLocatorForReplication(SharedNothingBackupQuorum backupQuorum, ActiveMQServerImpl server)
-   {
+   public AnyLiveNodeLocatorForReplication(SharedNothingBackupQuorum backupQuorum, ActiveMQServerImpl server) {
       super(backupQuorum);
       this.server = server;
    }
 
    @Override
-   public void locateNode() throws ActiveMQException
-   {
+   public void locateNode() throws ActiveMQException {
       locateNode(-1L);
    }
 
    @Override
-   public void locateNode(long timeout) throws ActiveMQException
-   {
+   public void locateNode(long timeout) throws ActiveMQException {
       //first time
-      try
-      {
+      try {
          lock.lock();
-         if (untriedConnectors.isEmpty())
-         {
-            try
-            {
-               if (timeout != -1L)
-               {
+         if (untriedConnectors.isEmpty()) {
+            try {
+               if (timeout != -1L) {
                   condition.await(timeout, TimeUnit.MILLISECONDS);
                }
-               else
-               {
+               else {
                   condition.await();
                }
             }
-            catch (InterruptedException e)
-            {
+            catch (InterruptedException e) {
 
             }
          }
       }
-      finally
-      {
+      finally {
          lock.unlock();
       }
    }
 
    @Override
-   public void nodeUP(TopologyMember topologyMember, boolean last)
-   {
-      try
-      {
+   public void nodeUP(TopologyMember topologyMember, boolean last) {
+      try {
          lock.lock();
-         Pair<TransportConfiguration, TransportConfiguration> connector =
-            new Pair<TransportConfiguration, TransportConfiguration>(topologyMember.getLive(), topologyMember.getBackup());
+         Pair<TransportConfiguration, TransportConfiguration> connector = new Pair<TransportConfiguration, TransportConfiguration>(topologyMember.getLive(), topologyMember.getBackup());
 
-         if (server.checkLiveIsNotColocated(topologyMember.getNodeId()))
-         {
+         if (server.checkLiveIsNotColocated(topologyMember.getNodeId())) {
             untriedConnectors.put(topologyMember.getNodeId(), connector);
             condition.signal();
          }
       }
-      finally
-      {
+      finally {
          lock.unlock();
       }
    }
@@ -117,65 +102,52 @@ public class AnyLiveNodeLocatorForReplication extends LiveNodeLocator
     * TODO: there will be a better way to do this by finding which nodes backup has gone down.
     */
    @Override
-   public void nodeDown(long eventUID, String nodeID)
-   {
-      try
-      {
+   public void nodeDown(long eventUID, String nodeID) {
+      try {
          lock.lock();
          untriedConnectors.putAll(triedConnectors);
          triedConnectors.clear();
-         if (untriedConnectors.size() > 0)
-         {
+         if (untriedConnectors.size() > 0) {
             condition.signal();
          }
       }
-      finally
-      {
+      finally {
          lock.unlock();
       }
    }
 
    @Override
-   public String getNodeID()
-   {
+   public String getNodeID() {
       return nodeID;
    }
 
    @Override
-   public Pair<TransportConfiguration, TransportConfiguration> getLiveConfiguration()
-   {
-      try
-      {
+   public Pair<TransportConfiguration, TransportConfiguration> getLiveConfiguration() {
+      try {
          lock.lock();
          Iterator<String> iterator = untriedConnectors.keySet().iterator();
          //sanity check but this should never happen
-         if (iterator.hasNext())
-         {
+         if (iterator.hasNext()) {
             nodeID = iterator.next();
          }
          return untriedConnectors.get(nodeID);
       }
-      finally
-      {
+      finally {
          lock.unlock();
       }
    }
 
    @Override
-   public void notifyRegistrationFailed(boolean alreadyReplicating)
-   {
-      try
-      {
+   public void notifyRegistrationFailed(boolean alreadyReplicating) {
+      try {
          lock.lock();
          Pair<TransportConfiguration, TransportConfiguration> tc = untriedConnectors.remove(nodeID);
          //it may have been removed
-         if (tc != null)
-         {
+         if (tc != null) {
             triedConnectors.put(nodeID, tc);
          }
       }
-      finally
-      {
+      finally {
          lock.unlock();
       }
       super.notifyRegistrationFailed(alreadyReplicating);

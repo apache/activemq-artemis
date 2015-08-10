@@ -37,39 +37,28 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 @RunWith(BMUnitRunner.class)
-public class ClusteredGroupingTest extends ClusterTestBase
-{
+public class ClusteredGroupingTest extends ClusterTestBase {
+
    @Test
-   @BMRules
-      (
-         rules =
-            {
-               @BMRule
-                  (
-                     name = "blow-up",
-                     targetClass = "org.apache.activemq.artemis.core.server.group.impl.LocalGroupingHandler",
-                     targetMethod = "removeGrouping",
-                     targetLocation = "ENTRY",
-                     action = "org.apache.activemq.artemis.tests.extras.byteman.ClusteredGroupingTest.pause($1);"
-                  ),
-               @BMRule
-                  (
-                     name = "blow-up2",
-                     targetClass = "org.apache.activemq.artemis.core.server.group.impl.GroupHandlingAbstract",
-                     targetMethod = "forceRemove",
-                     targetLocation = "ENTRY",
-                     action = "org.apache.activemq.artemis.tests.extras.byteman.ClusteredGroupingTest.restart2();"
-                  )
-            }
-      )
-   public void test2serversLocalGoesDown() throws Exception
-   {
+   @BMRules(
+      rules = {@BMRule(
+         name = "blow-up",
+         targetClass = "org.apache.activemq.artemis.core.server.group.impl.LocalGroupingHandler",
+         targetMethod = "removeGrouping",
+         targetLocation = "ENTRY",
+         action = "org.apache.activemq.artemis.tests.extras.byteman.ClusteredGroupingTest.pause($1);"), @BMRule(
+         name = "blow-up2",
+         targetClass = "org.apache.activemq.artemis.core.server.group.impl.GroupHandlingAbstract",
+         targetMethod = "forceRemove",
+         targetLocation = "ENTRY",
+         action = "org.apache.activemq.artemis.tests.extras.byteman.ClusteredGroupingTest.restart2();")})
+   public void test2serversLocalGoesDown() throws Exception {
       setupServer(0, isFileStorage(), isNetty());
       setupServer(1, isFileStorage(), isNetty());
 
       setupClusterConnection("cluster0", "queues", MessageLoadBalancingType.ON_DEMAND, 1, 0, 500, isNetty(), 0, 1);
 
-      setupClusterConnection("cluster1", "queues", MessageLoadBalancingType.ON_DEMAND, 1,  0, 500, isNetty(), 1, 0);
+      setupClusterConnection("cluster1", "queues", MessageLoadBalancingType.ON_DEMAND, 1, 0, 500, isNetty(), 1, 0);
 
       setUpGroupHandler(GroupingHandlerConfiguration.TYPE.LOCAL, 0);
       setUpGroupHandler(GroupingHandlerConfiguration.TYPE.REMOTE, 1);
@@ -99,54 +88,41 @@ public class ClusteredGroupingTest extends ClusterTestBase
 
       assertTrue(latch2.await(20000, TimeUnit.MILLISECONDS));
 
-      try
-      {
-         try
-         {
+      try {
+         try {
             sendWithProperty(0, "queues.testaddress", 1, true, Message.HDR_GROUP_ID, new SimpleString("id1"));
          }
-         catch (ActiveMQNonExistentQueueException e)
-         {
+         catch (ActiveMQNonExistentQueueException e) {
             fail("did not handle removal of queue");
          }
       }
-      finally
-      {
+      finally {
          latch.countDown();
       }
    }
 
    @Test
-   @BMRules
-      (
-         rules =
-            {
-               @BMRule
-                  (
-                     name = "blow-up",
-                     targetClass = "org.apache.activemq.artemis.core.server.group.impl.RemoteGroupingHandler",
-                     targetMethod = "onNotification",
-                     targetLocation = "ENTRY",
-                     action = "org.apache.activemq.artemis.tests.extras.byteman.ClusteredGroupingTest.pause2($1);"
-                  ),
-               @BMRule(name = "blow-up2",
-                       targetClass = "org.apache.activemq.artemis.core.server.group.impl.RemoteGroupingHandler",
-                       targetMethod = "remove",
-                       targetLocation = "ENTRY",
-                       action = "org.apache.activemq.artemis.tests.extras.byteman.ClusteredGroupingTest.restart2();")
-            }
-      )
-   public void test3serversLocalGoesDown() throws Exception
-   {
+   @BMRules(
+      rules = {@BMRule(
+         name = "blow-up",
+         targetClass = "org.apache.activemq.artemis.core.server.group.impl.RemoteGroupingHandler",
+         targetMethod = "onNotification",
+         targetLocation = "ENTRY",
+         action = "org.apache.activemq.artemis.tests.extras.byteman.ClusteredGroupingTest.pause2($1);"), @BMRule(name = "blow-up2",
+         targetClass = "org.apache.activemq.artemis.core.server.group.impl.RemoteGroupingHandler",
+         targetMethod = "remove",
+         targetLocation = "ENTRY",
+         action = "org.apache.activemq.artemis.tests.extras.byteman.ClusteredGroupingTest.restart2();")})
+   public void test3serversLocalGoesDown() throws Exception {
       setupServer(0, isFileStorage(), isNetty());
       setupServer(1, isFileStorage(), isNetty());
       setupServer(2, isFileStorage(), isNetty());
 
-      setupClusterConnection("cluster0", "queues", MessageLoadBalancingType.ON_DEMAND, 1,  0, 500, isNetty(), 0, 1, 2);
+      setupClusterConnection("cluster0", "queues", MessageLoadBalancingType.ON_DEMAND, 1, 0, 500, isNetty(), 0, 1, 2);
 
-      setupClusterConnection("cluster1", "queues", MessageLoadBalancingType.ON_DEMAND, 1,  0, 500, isNetty(), 1, 0, 2);
+      setupClusterConnection("cluster1", "queues", MessageLoadBalancingType.ON_DEMAND, 1, 0, 500, isNetty(), 1, 0, 2);
 
-      setupClusterConnection("cluster2", "queues", MessageLoadBalancingType.ON_DEMAND, 1,  0, 500, isNetty(), 2, 0, 1);
+      setupClusterConnection("cluster2", "queues", MessageLoadBalancingType.ON_DEMAND, 1, 0, 500, isNetty(), 2, 0, 1);
 
       setUpGroupHandler(GroupingHandlerConfiguration.TYPE.LOCAL, 0);
       setUpGroupHandler(GroupingHandlerConfiguration.TYPE.REMOTE, 1);
@@ -182,19 +158,15 @@ public class ClusteredGroupingTest extends ClusterTestBase
 
       assertTrue(latch2.await(20000, TimeUnit.MILLISECONDS));
 
-      try
-      {
-         try
-         {
+      try {
+         try {
             sendWithProperty(1, "queues.testaddress", 1, true, Message.HDR_GROUP_ID, new SimpleString("id1"));
          }
-         catch (ActiveMQNonExistentQueueException e)
-         {
+         catch (ActiveMQNonExistentQueueException e) {
             fail("did not handle removal of queue");
          }
       }
-      finally
-      {
+      finally {
          latch.countDown();
       }
 
@@ -202,36 +174,27 @@ public class ClusteredGroupingTest extends ClusterTestBase
    }
 
    @Test
-   @BMRules
-      (
-         rules =
-            {
-               @BMRule
-                  (
-                     name = "blow-up",
-                     targetClass = "org.apache.activemq.artemis.core.server.group.impl.LocalGroupingHandler",
-                     targetMethod = "onNotification",
-                     targetLocation = "ENTRY",
-                     action = "org.apache.activemq.artemis.tests.extras.byteman.ClusteredGroupingTest.pause2($1);"
-                  ),
-               @BMRule(name = "blow-up2",
-                       targetClass = "org.apache.activemq.artemis.core.server.group.impl.LocalGroupingHandler",
-                       targetMethod = "remove",
-                       targetLocation = "ENTRY",
-                       action = "org.apache.activemq.artemis.tests.extras.byteman.ClusteredGroupingTest.restart2();")
-            }
-      )
-   public void testLocal3serversLocalGoesDown() throws Exception
-   {
+   @BMRules(
+      rules = {@BMRule(
+         name = "blow-up",
+         targetClass = "org.apache.activemq.artemis.core.server.group.impl.LocalGroupingHandler",
+         targetMethod = "onNotification",
+         targetLocation = "ENTRY",
+         action = "org.apache.activemq.artemis.tests.extras.byteman.ClusteredGroupingTest.pause2($1);"), @BMRule(name = "blow-up2",
+         targetClass = "org.apache.activemq.artemis.core.server.group.impl.LocalGroupingHandler",
+         targetMethod = "remove",
+         targetLocation = "ENTRY",
+         action = "org.apache.activemq.artemis.tests.extras.byteman.ClusteredGroupingTest.restart2();")})
+   public void testLocal3serversLocalGoesDown() throws Exception {
       setupServer(0, isFileStorage(), isNetty());
       setupServer(1, isFileStorage(), isNetty());
       setupServer(2, isFileStorage(), isNetty());
 
-      setupClusterConnection("cluster0", "queues", MessageLoadBalancingType.ON_DEMAND, 1,  0, 500, isNetty(), 0, 1, 2);
+      setupClusterConnection("cluster0", "queues", MessageLoadBalancingType.ON_DEMAND, 1, 0, 500, isNetty(), 0, 1, 2);
 
-      setupClusterConnection("cluster1", "queues", MessageLoadBalancingType.ON_DEMAND, 1,  0, 500, isNetty(), 1, 0, 2);
+      setupClusterConnection("cluster1", "queues", MessageLoadBalancingType.ON_DEMAND, 1, 0, 500, isNetty(), 1, 0, 2);
 
-      setupClusterConnection("cluster2", "queues", MessageLoadBalancingType.ON_DEMAND, 1,  0, 500, isNetty(), 2, 0, 1);
+      setupClusterConnection("cluster2", "queues", MessageLoadBalancingType.ON_DEMAND, 1, 0, 500, isNetty(), 2, 0, 1);
 
       setUpGroupHandler(GroupingHandlerConfiguration.TYPE.LOCAL, 0);
       setUpGroupHandler(GroupingHandlerConfiguration.TYPE.REMOTE, 1);
@@ -267,19 +230,15 @@ public class ClusteredGroupingTest extends ClusterTestBase
 
       assertTrue(latch2.await(20000, TimeUnit.MILLISECONDS));
 
-      try
-      {
-         try
-         {
+      try {
+         try {
             sendWithProperty(0, "queues.testaddress", 1, true, Message.HDR_GROUP_ID, new SimpleString("id1"));
          }
-         catch (ActiveMQNonExistentQueueException e)
-         {
+         catch (ActiveMQNonExistentQueueException e) {
             fail("did not handle removal of queue");
          }
       }
-      finally
-      {
+      finally {
          latch.countDown();
       }
 
@@ -287,39 +246,30 @@ public class ClusteredGroupingTest extends ClusterTestBase
    }
 
    @Test
-   @BMRules
-      (
-         rules =
-            {
-               @BMRule
-                  (
-                     name = "blow-up",
-                     targetClass = "org.apache.activemq.artemis.core.server.group.impl.LocalGroupingHandler",
-                     targetMethod = "onNotification",
-                     targetLocation = "ENTRY",
-                     action = "org.apache.activemq.artemis.tests.extras.byteman.ClusteredGroupingTest.pause2($1);"
-                  ),
-               @BMRule(name = "blow-up2",
-                       targetClass = "org.apache.activemq.artemis.core.server.group.impl.LocalGroupingHandler",
-                       targetMethod = "remove",
-                       targetLocation = "ENTRY",
-                       action = "org.apache.activemq.artemis.tests.extras.byteman.ClusteredGroupingTest.restart2();")
-            }
-      )
-   public void testLocal4serversLocalGoesDown() throws Exception
-   {
+   @BMRules(
+      rules = {@BMRule(
+         name = "blow-up",
+         targetClass = "org.apache.activemq.artemis.core.server.group.impl.LocalGroupingHandler",
+         targetMethod = "onNotification",
+         targetLocation = "ENTRY",
+         action = "org.apache.activemq.artemis.tests.extras.byteman.ClusteredGroupingTest.pause2($1);"), @BMRule(name = "blow-up2",
+         targetClass = "org.apache.activemq.artemis.core.server.group.impl.LocalGroupingHandler",
+         targetMethod = "remove",
+         targetLocation = "ENTRY",
+         action = "org.apache.activemq.artemis.tests.extras.byteman.ClusteredGroupingTest.restart2();")})
+   public void testLocal4serversLocalGoesDown() throws Exception {
       setupServer(0, isFileStorage(), isNetty());
       setupServer(1, isFileStorage(), isNetty());
       setupServer(2, isFileStorage(), isNetty());
       setupServer(3, isFileStorage(), isNetty());
 
-      setupClusterConnection("cluster0", "queues", MessageLoadBalancingType.ON_DEMAND, 1,  0, 500, isNetty(), 0, 1, 2, 3);
+      setupClusterConnection("cluster0", "queues", MessageLoadBalancingType.ON_DEMAND, 1, 0, 500, isNetty(), 0, 1, 2, 3);
 
-      setupClusterConnection("cluster1", "queues", MessageLoadBalancingType.ON_DEMAND, 1,  0, 500, isNetty(), 1, 0, 2, 3);
+      setupClusterConnection("cluster1", "queues", MessageLoadBalancingType.ON_DEMAND, 1, 0, 500, isNetty(), 1, 0, 2, 3);
 
-      setupClusterConnection("cluster2", "queues", MessageLoadBalancingType.ON_DEMAND, 1,  0, 500, isNetty(), 2, 0, 1, 3);
+      setupClusterConnection("cluster2", "queues", MessageLoadBalancingType.ON_DEMAND, 1, 0, 500, isNetty(), 2, 0, 1, 3);
 
-      setupClusterConnection("cluster3", "queues", MessageLoadBalancingType.ON_DEMAND, 1,  0, 500, isNetty(), 3, 1, 2, 3);
+      setupClusterConnection("cluster3", "queues", MessageLoadBalancingType.ON_DEMAND, 1, 0, 500, isNetty(), 3, 1, 2, 3);
 
       setUpGroupHandler(GroupingHandlerConfiguration.TYPE.LOCAL, 0);
       setUpGroupHandler(GroupingHandlerConfiguration.TYPE.REMOTE, 1);
@@ -360,19 +310,15 @@ public class ClusteredGroupingTest extends ClusterTestBase
 
       assertTrue(latch2.await(20000, TimeUnit.MILLISECONDS));
 
-      try
-      {
-         try
-         {
+      try {
+         try {
             sendWithProperty(0, "queues.testaddress", 1, true, Message.HDR_GROUP_ID, new SimpleString("id1"));
          }
-         catch (ActiveMQNonExistentQueueException e)
-         {
+         catch (ActiveMQNonExistentQueueException e) {
             fail("did not handle removal of queue");
          }
       }
-      finally
-      {
+      finally {
          latch.countDown();
       }
       //now restart server
@@ -384,14 +330,11 @@ public class ClusteredGroupingTest extends ClusterTestBase
       assertHandlersAreSame(getServer(0), getServer(1), getServer(2), getServer(3));
    }
 
-   private void assertHandlersAreSame(ActiveMQServer server, ActiveMQServer... qServers)
-   {
+   private void assertHandlersAreSame(ActiveMQServer server, ActiveMQServer... qServers) {
       SimpleString id = server.getGroupingHandler().getProposal(new SimpleString("id1.queue0"), false).getClusterName();
-      for (ActiveMQServer qServer : qServers)
-      {
+      for (ActiveMQServer qServer : qServers) {
          Response proposal = qServer.getGroupingHandler().getProposal(new SimpleString("id1.queue0"), false);
-         if (proposal != null)
-         {
+         if (proposal != null) {
             assertEquals(qServer.getIdentity() + " is incorrect", id, proposal.getChosenClusterName());
          }
       }
@@ -401,51 +344,39 @@ public class ClusteredGroupingTest extends ClusterTestBase
    static CountDownLatch latch2;
    static Thread main;
 
-   public static void pause(SimpleString clusterName)
-   {
-      if (clusterName.toString().startsWith("queue0"))
-      {
-         try
-         {
+   public static void pause(SimpleString clusterName) {
+      if (clusterName.toString().startsWith("queue0")) {
+         try {
             latch2.countDown();
             latch.await();
          }
-         catch (InterruptedException e)
-         {
+         catch (InterruptedException e) {
             e.printStackTrace();
          }
       }
    }
 
-   public static void pause2(Notification notification)
-   {
-      if (notification.getType() == CoreNotificationType.BINDING_REMOVED)
-      {
-         SimpleString clusterName = notification.getProperties()
-            .getSimpleStringProperty(ManagementHelper.HDR_CLUSTER_NAME);
+   public static void pause2(Notification notification) {
+      if (notification.getType() == CoreNotificationType.BINDING_REMOVED) {
+         SimpleString clusterName = notification.getProperties().getSimpleStringProperty(ManagementHelper.HDR_CLUSTER_NAME);
          boolean inMain = main == Thread.currentThread();
-         if (clusterName.toString().startsWith("queue0") && !inMain)
-         {
-            try
-            {
+         if (clusterName.toString().startsWith("queue0") && !inMain) {
+            try {
                latch2.countDown();
                latch.await();
             }
-            catch (InterruptedException e)
-            {
+            catch (InterruptedException e) {
                e.printStackTrace();
             }
          }
       }
    }
 
-   public static void restart2()
-   {
+   public static void restart2() {
       latch.countDown();
    }
 
-   public boolean isNetty()
-   {
+   public boolean isNetty() {
       return true;
    }
 }

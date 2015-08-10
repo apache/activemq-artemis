@@ -22,16 +22,14 @@ import org.apache.activemq.artemis.tests.integration.IntegrationTestLogger;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Test;
 
-public class SymmetricClusterWithBackupTest extends SymmetricClusterTest
-{
+public class SymmetricClusterWithBackupTest extends SymmetricClusterTest {
+
    private static final IntegrationTestLogger log = IntegrationTestLogger.LOGGER;
 
    @Override
    @Test
-   public void testStopAllStartAll() throws Throwable
-   {
-      try
-      {
+   public void testStopAllStartAll() throws Throwable {
+      try {
          setupCluster();
 
          startServers();
@@ -120,8 +118,7 @@ public class SymmetricClusterWithBackupTest extends SymmetricClusterTest
 
          verifyNotReceive(0, 1, 2, 3, 4);
       }
-      catch (Throwable e)
-      {
+      catch (Throwable e) {
          System.out.println(ActiveMQTestBase.threadDump("SymmetricClusterWithBackupTest::testStopAllStartAll"));
          throw e;
       }
@@ -129,8 +126,7 @@ public class SymmetricClusterWithBackupTest extends SymmetricClusterTest
 
    @Override
    @Test
-   public void testMixtureLoadBalancedAndNonLoadBalancedQueuesAddQueuesAndConsumersBeforeAllServersAreStarted() throws Exception
-   {
+   public void testMixtureLoadBalancedAndNonLoadBalancedQueuesAddQueuesAndConsumersBeforeAllServersAreStarted() throws Exception {
       setupCluster();
 
       startServers(5, 0);
@@ -244,8 +240,7 @@ public class SymmetricClusterWithBackupTest extends SymmetricClusterTest
    }
 
    @Override
-   public void _testStartStopServers() throws Exception
-   {
+   public void _testStartStopServers() throws Exception {
       setupCluster();
 
       startServers();
@@ -442,95 +437,33 @@ public class SymmetricClusterWithBackupTest extends SymmetricClusterTest
    }
 
    @Override
-   protected void setupCluster(final MessageLoadBalancingType messageLoadBalancingType) throws Exception
-   {
+   protected void setupCluster(final MessageLoadBalancingType messageLoadBalancingType) throws Exception {
       // The lives
-      setupClusterConnectionWithBackups("cluster0",
-                                        "queues",
-                                        messageLoadBalancingType,
-                                        1,
-                                        isNetty(),
-                                        0,
-                                        new int[]{1, 2, 3, 4});
+      setupClusterConnectionWithBackups("cluster0", "queues", messageLoadBalancingType, 1, isNetty(), 0, new int[]{1, 2, 3, 4});
 
-      setupClusterConnectionWithBackups("cluster1",
-                                        "queues",
-                                        messageLoadBalancingType,
-                                        1,
-                                        isNetty(),
-                                        1,
-                                        new int[]{0, 2, 3, 4});
+      setupClusterConnectionWithBackups("cluster1", "queues", messageLoadBalancingType, 1, isNetty(), 1, new int[]{0, 2, 3, 4});
 
-      setupClusterConnectionWithBackups("cluster2",
-                                        "queues",
-                                        messageLoadBalancingType,
-                                        1,
-                                        isNetty(),
-                                        2,
-                                        new int[]{0, 1, 3, 4});
+      setupClusterConnectionWithBackups("cluster2", "queues", messageLoadBalancingType, 1, isNetty(), 2, new int[]{0, 1, 3, 4});
 
-      setupClusterConnectionWithBackups("cluster3",
-                                        "queues",
-                                        messageLoadBalancingType,
-                                        1,
-                                        isNetty(),
-                                        3,
-                                        new int[]{0, 1, 2, 4});
+      setupClusterConnectionWithBackups("cluster3", "queues", messageLoadBalancingType, 1, isNetty(), 3, new int[]{0, 1, 2, 4});
 
-      setupClusterConnectionWithBackups("cluster4",
-                                        "queues",
-                                        messageLoadBalancingType,
-                                        1,
-                                        isNetty(),
-                                        4,
-                                        new int[]{0, 1, 2, 3});
+      setupClusterConnectionWithBackups("cluster4", "queues", messageLoadBalancingType, 1, isNetty(), 4, new int[]{0, 1, 2, 3});
 
       // The backups
 
-      setupClusterConnectionWithBackups("cluster0",
-                                        "queues",
-                                        messageLoadBalancingType,
-                                        1,
-                                        isNetty(),
-                                        5,
-                                        new int[]{0, 1, 2, 3, 4});
+      setupClusterConnectionWithBackups("cluster0", "queues", messageLoadBalancingType, 1, isNetty(), 5, new int[]{0, 1, 2, 3, 4});
 
-      setupClusterConnectionWithBackups("cluster1",
-                                        "queues",
-                                        messageLoadBalancingType,
-                                        1,
-                                        isNetty(),
-                                        6,
-                                        new int[]{0, 1, 2, 3, 4});
+      setupClusterConnectionWithBackups("cluster1", "queues", messageLoadBalancingType, 1, isNetty(), 6, new int[]{0, 1, 2, 3, 4});
 
-      setupClusterConnectionWithBackups("cluster2",
-                                        "queues",
-                                        messageLoadBalancingType,
-                                        1,
-                                        isNetty(),
-                                        7,
-                                        new int[]{0, 1, 2, 3, 4});
+      setupClusterConnectionWithBackups("cluster2", "queues", messageLoadBalancingType, 1, isNetty(), 7, new int[]{0, 1, 2, 3, 4});
 
-      setupClusterConnectionWithBackups("cluster3",
-                                        "queues",
-                                        messageLoadBalancingType,
-                                        1,
-                                        isNetty(),
-                                        8,
-                                        new int[]{0, 1, 2, 3, 4});
+      setupClusterConnectionWithBackups("cluster3", "queues", messageLoadBalancingType, 1, isNetty(), 8, new int[]{0, 1, 2, 3, 4});
 
-      setupClusterConnectionWithBackups("cluster4",
-                                        "queues",
-                                        messageLoadBalancingType,
-                                        1,
-                                        isNetty(),
-                                        9,
-                                        new int[]{0, 1, 2, 3, 4});
+      setupClusterConnectionWithBackups("cluster4", "queues", messageLoadBalancingType, 1, isNetty(), 9, new int[]{0, 1, 2, 3, 4});
    }
 
    @Override
-   protected void setupServers() throws Exception
-   {
+   protected void setupServers() throws Exception {
       // The backups
       setupBackupServer(5, 0, isFileStorage(), true, isNetty());
       setupBackupServer(6, 1, isFileStorage(), true, isNetty());
@@ -547,8 +480,7 @@ public class SymmetricClusterWithBackupTest extends SymmetricClusterTest
    }
 
    @Override
-   protected void startServers() throws Exception
-   {
+   protected void startServers() throws Exception {
       // Need to set backup, since when restarting backup after it has failed over, backup will have been set to false
 
       getServer(5).getConfiguration().setHAPolicyConfiguration(new SharedStoreSlavePolicyConfiguration());
@@ -561,8 +493,7 @@ public class SymmetricClusterWithBackupTest extends SymmetricClusterTest
    }
 
    @Override
-   protected void stopServers() throws Exception
-   {
+   protected void stopServers() throws Exception {
       closeAllConsumers();
 
       closeAllSessionFactories();

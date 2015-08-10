@@ -21,10 +21,10 @@ import java.util.regex.Pattern;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 
 /**
-    a Match is the holder for the match string and the object to hold against it.
+ * a Match is the holder for the match string and the object to hold against it.
  */
-public class Match<T>
-{
+public class Match<T> {
+
    public static final String WORD_WILDCARD = "*";
 
    private static final String WORD_WILDCARD_REPLACEMENT = "[^.]+";
@@ -45,17 +45,14 @@ public class Match<T>
 
    private T value;
 
-   public Match(final String match)
-   {
+   public Match(final String match) {
       this.match = match;
       String actMatch = match;
       // replace any regex characters
-      if (Match.WILDCARD.equals(match))
-      {
+      if (Match.WILDCARD.equals(match)) {
          actMatch = Match.WILDCARD_REPLACEMENT;
       }
-      else
-      {
+      else {
          // this is to match with what's documented
          actMatch = actMatch.replace(DOT_WILDCARD, WILDCARD);
 
@@ -69,69 +66,58 @@ public class Match<T>
 
    }
 
-   public String getMatch()
-   {
+   public String getMatch() {
       return match;
    }
 
-   public void setMatch(final String match)
-   {
+   public void setMatch(final String match) {
       this.match = match;
    }
 
-   public Pattern getPattern()
-   {
+   public Pattern getPattern() {
       return pattern;
    }
 
-   public T getValue()
-   {
+   public T getValue() {
       return value;
    }
 
-   public void setValue(final T value)
-   {
+   public void setValue(final T value) {
       this.value = value;
    }
 
    @Override
-   public boolean equals(final Object o)
-   {
-      if (this == o)
-      {
+   public boolean equals(final Object o) {
+      if (this == o) {
          return true;
       }
-      if (o == null || getClass() != o.getClass())
-      {
+      if (o == null || getClass() != o.getClass()) {
          return false;
       }
 
       @SuppressWarnings("rawtypes")
-      Match that = (Match)o;
+      Match that = (Match) o;
 
       return !(match != null ? !match.equals(that.match) : that.match != null);
 
    }
 
    @Override
-   public int hashCode()
-   {
+   public int hashCode() {
       return match != null ? match.hashCode() : 0;
    }
 
    /**
     * utility method to verify consistency of match
+    *
     * @param match the match to validate
     * @throws IllegalArgumentException if a match isn't valid
     */
-   public static void verify(final String match) throws IllegalArgumentException
-   {
-      if (match == null)
-      {
+   public static void verify(final String match) throws IllegalArgumentException {
+      if (match == null) {
          throw ActiveMQMessageBundle.BUNDLE.nullMatch();
       }
-      if (match.contains("#") && match.indexOf("#") < match.length() - 1)
-      {
+      if (match.contains("#") && match.indexOf("#") < match.length() - 1) {
          throw ActiveMQMessageBundle.BUNDLE.invalidMatch();
       }
    }
