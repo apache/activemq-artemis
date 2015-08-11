@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -633,6 +634,22 @@ public class BrokerService implements Service {
       map.clear();
       return runningBrokers;
    }
+
+   public URI getConnectURI() {
+      URI uri = null;
+      try {
+         if (this.extraConnectors.size() > 0) {
+            Integer port = extraConnectors.iterator().next();
+            uri = new URI("tcp://localhost:" + port);
+         } else {
+            uri = new URI(this.getDefaultUri());
+         }
+      } catch (URISyntaxException e) {
+         //ignore
+      }
+      return uri;
+   }
+
 }
 
 

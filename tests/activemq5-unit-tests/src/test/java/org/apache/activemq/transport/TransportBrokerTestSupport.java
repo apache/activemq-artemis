@@ -25,6 +25,7 @@ import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.broker.BrokerTest;
 import org.apache.activemq.broker.StubConnection;
 import org.apache.activemq.broker.TransportConnector;
+import org.apache.activemq.broker.artemiswrapper.ArtemisBrokerWrapper;
 
 public abstract class TransportBrokerTestSupport extends BrokerTest {
 
@@ -65,7 +66,7 @@ public abstract class TransportBrokerTestSupport extends BrokerTest {
       // Note: on platforms like OS X we cannot bind to the actual hostname, so we
       // instead use the original host name (typically localhost) to bind to
 
-      URI actualURI = connector.getServer().getConnectURI();
+      URI actualURI = this.broker.getConnectURI();
       URI connectURI = new URI(actualURI.getScheme(), actualURI.getUserInfo(), bindURI.getHost(), actualURI.getPort(), actualURI.getPath(), bindURI.getQuery(), bindURI.getFragment());
 
       Transport transport = TransportFactory.connect(connectURI);
