@@ -38,9 +38,14 @@ public class ReplicatedMultipleServerFailoverExtraBackupsTest extends Replicated
       ((ReplicaPolicyConfiguration) backupServers.get(3).getServer().getConfiguration().getHAPolicyConfiguration()).setGroupName(getNodeGroupName() + "-1");
 
       startServers(liveServers);
-      startServers(backupServers);
+      backupServers.get(0).start();
+      backupServers.get(1).start();
       waitForRemoteBackupSynchronization(backupServers.get(0).getServer());
       waitForRemoteBackupSynchronization(backupServers.get(1).getServer());
+
+      // wait to start the other 2 backups so the first 2 can sync with the 2 live servers
+      backupServers.get(2).start();
+      backupServers.get(3).start();
 
       sendCrashReceive();
       waitForTopology(backupServers.get(0).getServer(), liveServers.size(), 2);
