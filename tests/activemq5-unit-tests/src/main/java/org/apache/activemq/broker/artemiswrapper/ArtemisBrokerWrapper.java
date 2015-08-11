@@ -199,6 +199,12 @@ public class ArtemisBrokerWrapper extends ArtemisBrokerBase {
             settings.setSlowConsumerCheckPeriod(1);
             settings.setSlowConsumerPolicy(SlowConsumerPolicy.NOTIFY);
          }
+         if (entry.isProducerFlowControl()) {
+            settings.setMaxSizeBytes(10240).setAddressFullMessagePolicy(AddressFullMessagePolicy.BLOCK);
+            if (bservice.getSystemUsage().isSendFailIfNoSpace()) {
+               settings.setAddressFullMessagePolicy(AddressFullMessagePolicy.FAIL);
+            }
+         }
       }
 
       PolicyEntry defaultEntry = policyMap.getDefaultEntry();
@@ -209,7 +215,7 @@ public class ArtemisBrokerWrapper extends ArtemisBrokerBase {
             settingsMap.put("#", defSettings);
          }
          if (defaultEntry.isProducerFlowControl()) {
-            defSettings.setMaxSizeBytes(1).setAddressFullMessagePolicy(AddressFullMessagePolicy.BLOCK);
+            defSettings.setMaxSizeBytes(10240).setAddressFullMessagePolicy(AddressFullMessagePolicy.BLOCK);
             if (bservice.getSystemUsage().isSendFailIfNoSpace()) {
                defSettings.setAddressFullMessagePolicy(AddressFullMessagePolicy.FAIL);
             }
