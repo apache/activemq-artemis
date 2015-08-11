@@ -27,7 +27,6 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ClusterTopologyListener;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.api.core.client.TopologyMember;
-import org.apache.activemq.artemis.core.client.impl.ServerLocatorImpl;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.cluster.ClusterConnection;
@@ -41,6 +40,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
@@ -54,6 +54,10 @@ public abstract class TopologyClusterTestBase extends ClusterTestBase {
       private final CountDownLatch upLatch;
       private final List<String> nodes;
       private final CountDownLatch downLatch;
+
+      // we need a separate list of the nodes we've seen go up that we don't remove IDs from
+      // because stale UDP messages can mess up tests once nodes start going down
+      private final List<String> seenUp = new ArrayList<>();
 
       /**
        * @param upLatch
@@ -70,8 +74,9 @@ public abstract class TopologyClusterTestBase extends ClusterTestBase {
       public synchronized void nodeUP(TopologyMember topologyMember, boolean last) {
          final String nodeID = topologyMember.getNodeId();
 
-         if (!nodes.contains(nodeID)) {
+         if (!seenUp.contains(nodeID)) {
             nodes.add(nodeID);
+            seenUp.add(nodeID);
             upLatch.countDown();
          }
       }
@@ -198,9 +203,9 @@ public abstract class TopologyClusterTestBase extends ClusterTestBase {
 
       ServerLocator locator = createHAServerLocator();
 
-      ((ServerLocatorImpl) locator).getTopology().setOwner("testReceive");
+      locator.getTopology().setOwner("testReceive");
 
-      final List<String> nodes = new ArrayList<String>();
+      final List<String> nodes = Collections.synchronizedList(new ArrayList<String>());
       final CountDownLatch upLatch = new CountDownLatch(5);
       final CountDownLatch downLatch = new CountDownLatch(4);
 
@@ -246,7 +251,7 @@ public abstract class TopologyClusterTestBase extends ClusterTestBase {
       waitForClusterConnections(3, 4);
       waitForClusterConnections(4, 4);
 
-      final List<String> nodes = new ArrayList<String>();
+      final List<String> nodes = Collections.synchronizedList(new ArrayList<String>());
       final CountDownLatch upLatch = new CountDownLatch(5);
       final CountDownLatch downLatch = new CountDownLatch(4);
 
@@ -296,7 +301,7 @@ public abstract class TopologyClusterTestBase extends ClusterTestBase {
       waitForClusterConnections(3, 4);
       waitForClusterConnections(4, 4);
 
-      final List<String> nodes = new ArrayList<String>();
+      final List<String> nodes = Collections.synchronizedList(new ArrayList<String>());
       final CountDownLatch upLatch = new CountDownLatch(5);
 
       locator.addClusterTopologyListener(new LatchListener(upLatch, nodes, new CountDownLatch(0)));
@@ -384,7 +389,7 @@ public abstract class TopologyClusterTestBase extends ClusterTestBase {
       waitForClusterConnections(3, 4);
       waitForClusterConnections(4, 4);
 
-      final List<String> nodes = new ArrayList<String>();
+      final List<String> nodes = Collections.synchronizedList(new ArrayList<String>());
       final CountDownLatch upLatch = new CountDownLatch(5);
       final CountDownLatch downLatch = new CountDownLatch(4);
 
