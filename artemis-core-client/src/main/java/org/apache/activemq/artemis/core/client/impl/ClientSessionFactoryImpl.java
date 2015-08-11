@@ -579,7 +579,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
                sessionsToClose = new HashSet<ClientSessionInternal>(sessions);
             }
             callFailoverListeners(FailoverEventType.FAILOVER_FAILED);
-            callSessionFailureListeners(me, true, false);
+            callSessionFailureListeners(me, true, false, scaleDownTargetNodeID);
          }
       }
       finally {

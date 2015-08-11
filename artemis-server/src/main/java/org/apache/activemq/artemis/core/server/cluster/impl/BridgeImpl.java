@@ -565,7 +565,7 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
       catch (Throwable dontCare) {
       }
 
-      if (scaleDownTargetNodeID != null && !scaleDownTargetNodeID.equals(nodeUUID)) {
+      if (scaleDownTargetNodeID != null && !scaleDownTargetNodeID.equals(nodeUUID.toString())) {
          synchronized (this) {
             try {
                ActiveMQServerLogger.LOGGER.debug("Moving " + queue.getMessageCount() + " messages from " + queue.getName() + " to " + scaleDownTargetNodeID);
@@ -587,8 +587,7 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
       else {
          ActiveMQServerLogger.LOGGER.debug("Received invalid scaleDownTargetNodeID: " + scaleDownTargetNodeID);
 
-         //we never fail permanently here, this only happens once all reconnect tries have happened
-         fail(false);
+         fail(me.getType() == ActiveMQExceptionType.DISCONNECTED);
       }
 
       tryScheduleRetryReconnect(me.getType());

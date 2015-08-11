@@ -340,7 +340,9 @@ public class ClusterConnectionBridge extends BridgeImpl {
 
    @Override
    protected void tryScheduleRetryReconnect(final ActiveMQExceptionType type) {
-      scheduleRetryConnect();
+      if (type != ActiveMQExceptionType.DISCONNECTED) {
+         scheduleRetryConnect();
+      }
    }
 
    @Override

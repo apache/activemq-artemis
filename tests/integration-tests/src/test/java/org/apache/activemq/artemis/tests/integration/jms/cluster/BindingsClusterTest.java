@@ -402,27 +402,31 @@ public class BindingsClusterTest extends JMSClusteredTestBase {
    }
 
    private void crash() throws Exception {
+      /*
+       * Rather than just calling stop() on the server here we want to simulate an actual node crash or bridge failure
+       * so the bridge's failure listener needs to get something other than a DISCONNECTED message.  In this case we
+       * simulate a NOT_CONNECTED exception.
+       */
+      final CountDownLatch latch = new CountDownLatch(1);
+      ClusterConnectionImpl next = (ClusterConnectionImpl) server1.getClusterManager().getClusterConnections().iterator().next();
+      BridgeImpl bridge = (BridgeImpl) next.getRecords().values().iterator().next().getBridge();
+      RemotingConnection forwardingConnection = getForwardingConnection(bridge);
+      forwardingConnection.addFailureListener(new FailureListener() {
+         @Override
+         public void connectionFailed(ActiveMQException exception, boolean failedOver) {
+            latch.countDown();
+         }
+
+         @Override
+         public void connectionFailed(final ActiveMQException me, boolean failedOver, String scaleDownTargetNodeID) {
+            connectionFailed(me, failedOver);
+         }
+      });
+      forwardingConnection.fail(new ActiveMQNotConnectedException());
+      assertTrue(latch.await(5000, TimeUnit.MILLISECONDS));
+
       if (crash) {
          jmsServer2.stop();
-      }
-      else {
-         final CountDownLatch latch = new CountDownLatch(1);
-         ClusterConnectionImpl next = (ClusterConnectionImpl) server1.getClusterManager().getClusterConnections().iterator().next();
-         BridgeImpl bridge = (BridgeImpl) next.getRecords().values().iterator().next().getBridge();
-         RemotingConnection forwardingConnection = getForwardingConnection(bridge);
-         forwardingConnection.addFailureListener(new FailureListener() {
-            @Override
-            public void connectionFailed(ActiveMQException exception, boolean failedOver) {
-               latch.countDown();
-            }
-
-            @Override
-            public void connectionFailed(final ActiveMQException me, boolean failedOver, String scaleDownTargetNodeID) {
-               connectionFailed(me, failedOver);
-            }
-         });
-         forwardingConnection.fail(new ActiveMQNotConnectedException());
-         assertTrue(latch.await(5000, TimeUnit.MILLISECONDS));
       }
    }
 
