@@ -37,6 +37,9 @@ public class ArtemisCLIPlugin extends ArtemisAbstractPlugin {
 
    private PluginDescriptor descriptor;
 
+   @Parameter(defaultValue = "${noServer}")
+   boolean ignore;
+
    @Parameter(defaultValue = "server")
    String name;
 
@@ -90,6 +93,11 @@ public class ArtemisCLIPlugin extends ArtemisAbstractPlugin {
       return artemisScript != null && Files.exists(artemisScript, LinkOption.NOFOLLOW_LINKS);
 
    }
+
+   protected boolean isIgnore() {
+      return ignore;
+   }
+
 
    @Override
    protected void doExecute() throws MojoExecutionException, MojoFailureException {

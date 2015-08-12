@@ -37,10 +37,18 @@ public class ArtemisClientPlugin extends ArtemisAbstractPlugin {
    @Parameter
    String[] args;
 
+   @Parameter(defaultValue = "${noClient}")
+   boolean ignore;
+
    /**
     * @parameter
     */
    private Properties systemProperties;
+
+   @Override
+   protected boolean isIgnore() {
+      return ignore;
+   }
 
    @Override
    protected void doExecute() throws MojoExecutionException, MojoFailureException {
