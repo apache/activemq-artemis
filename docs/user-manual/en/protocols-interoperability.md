@@ -1,4 +1,125 @@
-# Interoperability
+# Protocols and Interoperability
+
+## Protocols
+
+ActiveMQ Artemis has a plugable protocol architecture.  Protocol plugins come in the form of ActiveMQ Artemis protocol
+modules.  Each protocol module should be added to the brokers class path and are loaded by the broker at boot time.
+ActiveMQ Artemis ships with 5 protocol modules out of the box.  The 5 modules offer support for the following protocols:
+
+* AMQP
+* OpenWire
+* MQTT
+* STOMP
+* HornetQ
+
+In addition to the protocols above ActiveMQ Artemis also offers support for it's own highly performant native protocol
+ "Core".
+
+## Configuring protocols
+
+In order to make use of a particular protocol, a transport must be configured with the desired protocol enabled.  There
+is a whole section on configuring transports that can be found [here](configuring-transports.md).
+
+The default configuration shipped with the ActiveMQ Artemis distribution comes with a number of acceptors already
+defined, one for each of the above protocols plus a generic acceptor that supports all protocols.  To enable a
+protocol on a particular acceptor simply add a url parameter "protocol=AMQP,STOMP" to the acceptor url.  Where the value
+of the parameter is a comma separated list of protocol names.  If the protocol parameter is ommited from the url all
+protocols are enabled.
+
+    <!-- The following example enables only MQTT on port 1883 -->
+    <acceptors>
+       <acceptor>tcp://localhost:1883?protocols=MQTT</acceptor>
+    </acceptors>
+
+    <!-- The following example enables MQTT and AMQP on port 61617 -->
+    <acceptors>
+       <acceptor>tcp://localhost:1883?protocols=MQTT,AMQP</acceptor>
+    </acceptors>
+
+    <!-- The following example enables all protocols on 61616 -->
+    <acceptors>
+       <acceptor>tcp://localhost:61616</acceptor>
+    </acceptors>
+
+## AMQP
+
+Apache ActiveMQ Artemis supports the [AMQP
+1.0](https://www.oasis-open.org/committees/tc_home.php?wg_abbrev=amqp)
+specification. To enable AMQP you must configure a Netty Acceptor to
+receive AMQP clients, like so:
+
+    <acceptor name="amqp-acceptor">tcp://localhost:5672?protocols=AMQP</acceptor>
+
+
+Apache ActiveMQ Artemis will then accept AMQP 1.0 clients on port 5672 which is the
+default AMQP port.
+
+There are 2 AMQP examples available see proton-j and proton-ruby which
+use the qpid Java and Ruby clients respectively.
+
+### AMQP and security
+
+The Apache ActiveMQ Artemis Server accepts AMQP SASL Authentication and will use this
+to map onto the underlying session created for the connection so you can
+use the normal Apache ActiveMQ Artemis security configuration.
+
+### AMQP Links
+
+An AMQP Link is a uni directional transport for messages between a
+source and a target, i.e. a client and the Apache ActiveMQ Artemis Broker. A link will
+have an endpoint of which there are 2 kinds, a Sender and A Receiver. At
+the Broker a Sender will have its messages converted into an Apache ActiveMQ Artemis
+Message and forwarded to its destination or target. A Receiver will map
+onto an Apache ActiveMQ Artemis Server Consumer and convert Apache ActiveMQ Artemis messages back into
+AMQP messages before being delivered.
+
+### AMQP and destinations
+
+If an AMQP Link is dynamic then a temporary queue will be created and
+either the remote source or remote target address will be set to the
+name of the temporary queue. If the Link is not dynamic then the the
+address of the remote target or source will used for the queue. If this
+does not exist then an exception will be sent
+
+> **Note**
+>
+> For the next version we will add a flag to aut create durable queue
+> but for now you will have to add them via the configuration
+
+### AMQP and Coordinations - Handling Transactions
+
+An AMQP links target can also be a Coordinator, the Coordinator is used
+to handle transactions. If a coordinator is used the the underlying
+HormetQ Server session will be transacted and will be either rolled back
+or committed via the coordinator.
+
+> **Note**
+>
+> AMQP allows the use of multiple transactions per session,
+> `amqp:multi-txns-per-ssn`, however in this version Apache ActiveMQ Artemis will only
+> support single transactions per session
+
+## OpenWire
+
+Apache ActiveMQ Artemis now supports the
+[OpenWire](http://activemq.apache.org/openwire.html) protocol so that an
+Apache ActiveMQ Artemis JMS client can talk directly to an Apache ActiveMQ Artemis server. To enable
+OpenWire support you must configure a Netty Acceptor, like so:
+
+    <acceptor name="openwire-acceptor">tcp://localhost:61616?protocols=OPENWIRE</acceptor>
+
+
+The Apache ActiveMQ Artemis server will then listens on port 61616 for incoming
+openwire commands. Please note the "protocols" is not mandatory here.
+The openwire configuration conforms to Apache ActiveMQ Artemis's "Single Port" feature.
+Please refer to [Configuring Single
+Port](#configuring-transports.single-port) for details.
+
+Please refer to the openwire example for more coding details.
+
+Currently we support Apache ActiveMQ Artemis clients that using standard JMS APIs. In
+the future we will get more supports for some advanced, Apache ActiveMQ Artemis
+specific features into Apache ActiveMQ Artemis.
 
 ## Stomp
 
@@ -239,82 +360,3 @@ and the Apache ActiveMQ Artemis jars and simply run `java org.codehaus.stomp.jms
 
 Please see [Rest Interface](rest.md)
 
-## AMQP
-
-Apache ActiveMQ Artemis supports the [AMQP
-1.0](https://www.oasis-open.org/committees/tc_home.php?wg_abbrev=amqp)
-specification. To enable AMQP you must configure a Netty Acceptor to
-receive AMQP clients, like so:
-
-    <acceptor name="stomp-acceptor">tcp://localhost:5672?protocols=AMQP</acceptor>
-
-
-Apache ActiveMQ Artemis will then accept AMQP 1.0 clients on port 5672 which is the
-default AMQP port.
-
-There are 2 Stomp examples available see proton-j and proton-ruby which
-use the qpid Java and Ruby clients respectively
-
-### AMQP and security
-
-The Apache ActiveMQ Artemis Server accepts AMQP SASL Authentication and will use this
-to map onto the underlying session created for the connection so you can
-use the normal Apache ActiveMQ Artemis security configuration.
-
-### AMQP Links
-
-An AMQP Link is a uni directional transport for messages between a
-source and a target, i.e. a client and the Apache ActiveMQ Artemis Broker. A link will
-have an endpoint of which there are 2 kinds, a Sender and A Receiver. At
-the Broker a Sender will have its messages converted into an Apache ActiveMQ Artemis
-Message and forwarded to its destination or target. A Receiver will map
-onto an Apache ActiveMQ Artemis Server Consumer and convert Apache ActiveMQ Artemis messages back into
-AMQP messages before being delivered.
-
-### AMQP and destinations
-
-If an AMQP Link is dynamic then a temporary queue will be created and
-either the remote source or remote target address will be set to the
-name of the temporary queue. If the Link is not dynamic then the the
-address of the remote target or source will used for the queue. If this
-does not exist then an exception will be sent
-
-> **Note**
->
-> For the next version we will add a flag to aut create durable queue
-> but for now you will have to add them via the configuration
-
-### AMQP and Coordinations - Handling Transactions
-
-An AMQP links target can also be a Coordinator, the Coordinator is used
-to handle transactions. If a coordinator is used the the underlying
-HormetQ Server session will be transacted and will be either rolled back
-or committed via the coordinator.
-
-> **Note**
->
-> AMQP allows the use of multiple transactions per session,
-> `amqp:multi-txns-per-ssn`, however in this version Apache ActiveMQ Artemis will only
-> support single transactions per session
-
-## OpenWire
-
-Apache ActiveMQ Artemis now supports the
-[OpenWire](http://activemq.apache.org/openwire.html) protocol so that an
-Apache ActiveMQ Artemis JMS client can talk directly to an Apache ActiveMQ Artemis server. To enable
-OpenWire support you must configure a Netty Acceptor, like so:
-
-    <acceptor name="openwire-acceptor">tcp://localhost:61616?protocols=OPENWIRE</acceptor>
-
-
-The Apache ActiveMQ Artemis server will then listens on port 61616 for incoming
-openwire commands. Please note the "protocols" is not mandatory here.
-The openwire configuration conforms to Apache ActiveMQ Artemis's "Single Port" feature.
-Please refer to [Configuring Single
-Port](#configuring-transports.single-port) for details.
-
-Please refer to the openwire example for more coding details.
-
-Currently we support Apache ActiveMQ Artemis clients that using standard JMS APIs. In
-the future we will get more supports for some advanced, Apache ActiveMQ Artemis
-specific features into Apache ActiveMQ Artemis.
