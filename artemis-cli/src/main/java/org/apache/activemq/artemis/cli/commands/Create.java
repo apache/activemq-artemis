@@ -157,6 +157,9 @@ public class Create extends InputAbstract {
    @Option(name = "--topics", description = "comma separated list of jms topics ")
    String topics;
 
+   @Option(name = "--aio", description = "Force aio journal on the configuration regardless of the library being available or not.")
+   boolean forceLibaio;
+
    boolean IS_WINDOWS;
 
    boolean IS_CYGWIN;
@@ -665,7 +668,11 @@ public class Create extends InputAbstract {
    }
 
    private boolean supportsLibaio() {
-      if (LibaioContext.isLoaded()) {
+      if (forceLibaio) {
+         // forcing libaio
+         return true;
+      }
+      else if (LibaioContext.isLoaded()) {
          try (LibaioContext context = new LibaioContext(1, true)) {
             File tmpFile = new File(directory, "validateAIO.bin");
             boolean supportsLibaio = true;
