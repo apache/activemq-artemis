@@ -625,44 +625,44 @@ JNIEXPORT jint JNICALL Java_org_apache_activemq_artemis_jlibaio_LibaioContext_ge
 JNIEXPORT jlong JNICALL Java_org_apache_activemq_artemis_jlibaio_LibaioContext_getSize
   (JNIEnv * env, jclass clazz, jint fd)
 {
-	struct stat statBuffer;
+    struct stat statBuffer;
 
-	if (fstat(fd, &statBuffer) < 0)
-	{
-	    throwIOExceptionErrorNo(env, "Cannot determine file size:", errno);
-		return -1l;
-	}
-	return statBuffer.st_size;
+    if (fstat(fd, &statBuffer) < 0)
+    {
+        throwIOExceptionErrorNo(env, "Cannot determine file size:", errno);
+        return -1l;
+    }
+    return statBuffer.st_size;
 }
 
 JNIEXPORT jint JNICALL Java_org_apache_activemq_artemis_jlibaio_LibaioContext_getBlockSizeFD
   (JNIEnv * env, jclass clazz, jint fd)
 {
-	struct stat statBuffer;
+    struct stat statBuffer;
 
-	if (fstat(fd, &statBuffer) < 0)
-	{
-	    throwIOExceptionErrorNo(env, "Cannot determine file size:", errno);
-		return -1l;
-	}
-	return statBuffer.st_blksize;
+    if (fstat(fd, &statBuffer) < 0)
+    {
+        throwIOExceptionErrorNo(env, "Cannot determine file size:", errno);
+        return -1l;
+    }
+    return statBuffer.st_blksize;
 }
 
 JNIEXPORT jint JNICALL Java_org_apache_activemq_artemis_jlibaio_LibaioContext_getBlockSize
   (JNIEnv * env, jclass clazz, jstring path)
 {
     const char* f_path = (*env)->GetStringUTFChars(env, path, 0);
-	struct stat statBuffer;
+    struct stat statBuffer;
 
-	if (stat(f_path, &statBuffer) < 0)
-	{
-	    throwIOExceptionErrorNo(env, "Cannot determine file size:", errno);
-		return -1l;
-	}
+    if (stat(f_path, &statBuffer) < 0)
+    {
+        throwIOExceptionErrorNo(env, "Cannot determine file size:", errno);
+        return -1l;
+    }
 
     (*env)->ReleaseStringUTFChars(env, path, f_path);
 
-	return statBuffer.st_blksize;
+    return statBuffer.st_blksize;
 }
 
 JNIEXPORT void JNICALL Java_org_apache_activemq_artemis_jlibaio_LibaioContext_fallocate
@@ -679,17 +679,17 @@ JNIEXPORT void JNICALL Java_org_apache_activemq_artemis_jlibaio_LibaioContext_fa
 JNIEXPORT void JNICALL Java_org_apache_activemq_artemis_jlibaio_LibaioContext_fill
   (JNIEnv * env, jclass clazz, jint fd, jlong size)
 {
-	void * preAllocBuffer = 0;
-	if (posix_memalign(&preAllocBuffer, 512, size) != 0)
-	{
-	      throwOutOfMemoryError(env);
-	      return;
-	}
-	memset(preAllocBuffer, 0, size);
+    void * preAllocBuffer = 0;
+    if (posix_memalign(&preAllocBuffer, 512, size) != 0)
+    {
+          throwOutOfMemoryError(env);
+          return;
+    }
+    memset(preAllocBuffer, 0, size);
     lseek (fd, 0, SEEK_SET);
     write(fd, preAllocBuffer, size);
-	lseek (fd, 0, SEEK_SET);
-	free (preAllocBuffer);
+    lseek (fd, 0, SEEK_SET);
+    free (preAllocBuffer);
 }
 
 JNIEXPORT void JNICALL Java_org_apache_activemq_artemis_jlibaio_LibaioContext_memsetBuffer
