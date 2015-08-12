@@ -45,7 +45,7 @@ under the License.
 
    <profiles>
       <profile>
-         <id>examples</id>
+         <id>release</id>
          <modules>
             <module>proton-cpp</module>
             <module>proton-j</module>
@@ -53,9 +53,11 @@ under the License.
          </modules>
       </profile>
       <profile>
-         <id>release</id>
+         <id>examples</id>
          <modules>
-            <module>proton-cpp</module>
+            <!-- this one to be run manually
+            <module>proton-cpp</module> -->
+
             <module>proton-j</module>
             <module>proton-ruby</module>
          </modules>

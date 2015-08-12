@@ -43,6 +43,9 @@ under the License.
          <id>release</id>
          <modules>
             <module>chat</module>
+            <module>queue</module>
+            <module>message-listener</module>
+            <module>message-recovery</module>
          </modules>
       </profile>
       <profile>
@@ -50,6 +53,10 @@ under the License.
          <modules>
             <!-- Needs to be done manually
             <module>chat</module> -->
+
+            <module>queue</module>
+            <module>message-listener</module>
+            <module>message-recovery</module>
          </modules>
       </profile>
    </profiles>

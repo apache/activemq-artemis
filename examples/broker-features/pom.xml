@@ -51,6 +51,7 @@ under the License.
             <module>ha</module>
             <module>standard</module>
             <module>sub-modules</module>
+            <module>perf</module>
          </modules>
       </profile>
       <profile>
@@ -60,6 +61,7 @@ under the License.
             <module>ha</module>
             <module>standard</module>
             <module>sub-modules</module>
+            <module>perf</module>
          </modules>
       </profile>
    </profiles>

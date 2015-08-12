@@ -132,9 +132,6 @@ public class Chat implements javax.jms.MessageListener {
     * Main program entry point.
     */
    public static void main(String[] argv) {
-
-      System.out.println("len::" + argv.length);
-      
       // Is there anything to do?
       if (argv.length == 0) {
          printUsage();

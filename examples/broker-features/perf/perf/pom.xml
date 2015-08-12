@@ -32,7 +32,7 @@ under the License.
    <name>ActiveMQ Artemis JMS PerfExample Example</name>
 
    <properties>
-      <activemq.basedir>${project.basedir}/../../..</activemq.basedir>
+      <activemq.basedir>${project.basedir}/../../../..</activemq.basedir>
    </properties>
 
    <dependencies>

@@ -17,22 +17,22 @@
 
 package org.apache.activemq.artemis.util;
 
-import org.apache.activemq.artemis.api.core.TransportConfiguration;
-import org.apache.activemq.artemis.api.core.client.ClientSession;
-import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
-import org.apache.activemq.artemis.api.jms.JMSFactoryType;
-import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory;
-import org.apache.activemq.artemis.jms.client.ActiveMQConnection;
-import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
-
 import javax.jms.Connection;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.HashMap;
 
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnection;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+
+/**
+ * A tool to let clients start, stop and kill Artemis servers
+ */
 public class ServerUtil {
 
    public static Process startServer(String artemisInstance, String serverName) throws Exception {
@@ -76,19 +76,20 @@ public class ServerUtil {
    }
 
    public static void waitForServerToStart(int id, int timeout) throws InterruptedException {
+      waitForServerToStart("tcp://localhost:" + (61616 + id), timeout);
+   }
+
+   public static void waitForServerToStart(String uri, long timeout) throws InterruptedException {
       long realTimeout = System.currentTimeMillis() + timeout;
       while (System.currentTimeMillis() < realTimeout) {
          try {
-            HashMap<String, Object> params = new HashMap<String, Object>();
-            params.put("host", "localhost");
-            params.put("port", 61616 + id);
-            TransportConfiguration transportConfiguration = new TransportConfiguration(NettyConnectorFactory.class.getName(), params);
-            ActiveMQConnectionFactory cf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, transportConfiguration);
+            ActiveMQConnectionFactory cf = ActiveMQJMSClient.createConnectionFactory(uri, null);
             cf.createConnection().close();
-            System.out.println("server " + id + " started");
+            cf.close();
+            System.out.println("server " + uri + " started");
          }
          catch (Exception e) {
-            System.out.println("awaiting server " + id + " start at " + (61616 + id));
+            System.out.println("awaiting server " + uri + " start at ");
             Thread.sleep(500);
             continue;
          }

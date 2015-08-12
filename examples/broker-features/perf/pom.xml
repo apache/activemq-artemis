@@ -40,7 +40,7 @@ under the License.
       filtered resources, i.e. build is platform dependent!
       -->
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-      <activemq.basedir>${project.basedir}/../..</activemq.basedir>
+      <activemq.basedir>${project.basedir}/../../..</activemq.basedir>
    </properties>
 
    <modules>

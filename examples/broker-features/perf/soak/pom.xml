@@ -41,7 +41,7 @@ under the License.
 
    <properties>
       <server.dir>${basedir}/server0/</server.dir>
-      <activemq.basedir>${project.basedir}/../../..</activemq.basedir>
+      <activemq.basedir>${project.basedir}/../../../..</activemq.basedir>
    </properties>
 
    <profiles>
