@@ -121,6 +121,90 @@ Currently we support Apache ActiveMQ Artemis clients that using standard JMS API
 the future we will get more supports for some advanced, Apache ActiveMQ Artemis
 specific features into Apache ActiveMQ Artemis.
 
+## MQTT
+
+MQTT is a light weight, client to server, publish / subscribe messaging protocol.  MQTT has been specifically
+designed to reduce transport overhead (and thus network traffic) and code footprint on client devices.
+For this reason MQTT is ideally suited to constrained devices such as sensors and actuators and is quickly
+becoming the defacto standard communication protocol for IoT.
+
+Apache ActiveMQ Artemis supports MQTT v3.1.1 (and also the older v3.1 code message format).  To enable MQTT,
+simply add an appropriate acceptor with the MQTT protocol enabled.  For example:
+
+    <acceptor name="mqtt">tcp://localhost:1883?protocols=MQTT</acceptor>
+
+By default the configuration shipped with Apache ActiveMQ Artemis has the above acceptor already defined, MQTT is
+also active by default on the generic acceptor defined on port 61616 (where all protocols are enabled), in the out
+of the box configuration.
+
+The best source of information on the MQTT protocol is in the specification.  The MQTT v3.1.1 specification can
+be downloaded from the OASIS website here: http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html
+
+Some note worthy features of MQTT are explained below:
+
+### MQTT Quality of Service
+
+MQTT offers 3 quality of service levels.
+
+Each message (or topic subscription) can define a quality of service that is associated with it.  The quality of service
+level defined on a topic is the maximum level a client is willing to accept.  The quality of service level on a
+message is the desired quality of service level for this message.  The broker will attempt to deliver messages to
+subscribers at the highest quality of service level based on what is defined on the message and topic subscription.
+
+Each quality of service level offers a level of guarantee by which a message is sent or received:
+
+* QoS 0: AT MOST ONCE: Guarantees that a particular message is only ever received by the subscriber a maximum of one time.
+This does mean that the message may never arrive.  The sender and the receiver will attempt to deliver the message,
+but if something fails and the message does not reach it's destination (say due to a network connection) the message
+may be lost.  This QoS has the least network traffic overhead and the least burden on the client and the broker and is often
+useful for telemetry data where it doesn't matter if some of the data is lost.
+
+* QoS 1: AT LEAST ONCE: Guarentees that a message will reach it's intended recipient one or more times.  The sender will
+continue to send the message until it receives an acknowledgment from the recipient, confirming it has received the message.
+The result of this QoS is that the recipient may receive the message multiple times, and also increases the network
+overhead than QoS 0, (due to acks).  In addition more burden is placed on the sender as it needs to store the message
+and retry should it fail to receive an ack in a reasonable time.
+
+* QoS 2: EXACTLY ONCE: The most costly of the QoS (in terms of network traffic and burden on sender and receiver) this
+QoS will ensure that the message is received by a recipient exactly one time.  This ensures that the receiver never gets
+any duplicate copies of the message and will eventually get it, but at the extra cost of network overhead and complexity
+required on the sender and receiver.
+
+### MQTT Retain Messages
+
+MQTT has an interesting feature in which messages can be "retained" for a particular address.  This means that once a
+retain message has been sent to an address, any new subscribers to that address will receive the last sent retain
+message before any others messages, this happens even if the retained message was sent before a client has connected
+or subscribed.  An example of where this feature might be useful is in environments such as IoT where devices need to
+quickly get the current state of a system when they are on boarded into a system.
+
+### Will Messages
+
+A will message can be sent when a client initially connects to a broker.  Clients are able to set a "will
+message" as part of the connect packet.  If the client abnormally disconnects, say due to a device or network failure
+the broker will proceed to publish the will message to the specified address (as defined also in the connect packet).
+Other subscribers to the will topic will receive the will message and can react accordingly. This feature can be useful
+ in an IoT style scenario to detect errors across a potentially large scale deployment of devices.
+
+
+### Wild card subscriptions
+
+MQTT addresses are hierarchical much like a file system, and use "/" charactor to separate heirarchical levels.
+Subscribers are able to subscribe to specific topics or to whole branches of a heirarchy.
+
+To subscribe to branches of an address hierarchy a subscriber can use wild cards.
+
+There are 2 types of wild card in MQTT:
+
+ * "#" Multi level wild card.  Adding this wild card to an address would match all branches of the address heirarchy
+ under a specified node.  For example:  /uk/#  Would match /uk/cities, /uk/cities/newcastle and also /uk/rivers/tyne.
+ Subscribing to an address "#" would result in subscribing to all topics in the broker.  This can be useful, but should
+ be done so with care since it has significant performance implications.
+
+ * "+" Single level wild card.  Matches a single level in the address hierarchy.  For example /uk/+/stores would
+   match /uk/newcastle/stores but not /uk/cities/newcastle/stores.
+
+
 ## Stomp
 
 [Stomp](http://stomp.github.com/) is a text-orientated wire protocol
