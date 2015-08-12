@@ -1139,7 +1139,7 @@ public interface ActiveMQServerLogger extends BasicLogger {
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 222196,
-      value = "Couldn't find binding with id={0} on routeFromCluster for message={1} binding = {2}",
+      value = "Could not find binding with id={0} on routeFromCluster for message={1} binding = {2}",
       format = Message.Format.MESSAGE_FORMAT)
    void bindingNotFound(long id, String message, String binding);
 
@@ -1151,7 +1151,7 @@ public interface ActiveMQServerLogger extends BasicLogger {
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 222198,
-      value = "Couldn't flush ClusterManager executor ({0}) in 10 seconds, verify your thread pool size",
+      value = "Could not flush ClusterManager executor ({0}) in 10 seconds, verify your thread pool size",
       format = Message.Format.MESSAGE_FORMAT)
    void couldNotFlushClusterManager(String manager);
 
@@ -1163,7 +1163,7 @@ public interface ActiveMQServerLogger extends BasicLogger {
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 222200,
-      value = "Couldn't finish executor on {0}",
+      value = "Could not finish executor on {0}",
       format = Message.Format.MESSAGE_FORMAT)
    void couldNotFinishExecutor(String clusterConnection);
 
