@@ -51,7 +51,7 @@
 * [AeroGear Integration](aerogear-integration.md)
 * [VertX Integration](vertx-integration.md)
 * [Intercepting Operations](intercepting-operations.md)
-* [Interoperability](interoperability.md)
+* [Protocols and Interoperability](protocols-interoperability.md)
 * [Tools](tools.md)
 * [Performance Tuning](perf-tuning.md)
 * [Configuration Reference](configuration-index.md)
