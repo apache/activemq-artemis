@@ -36,9 +36,9 @@
        <!-- for the paho dependency -->
        <repository>
            <id>eclipse.m2</id>
-           <url>https://repo.eclipse.org/content/groups/snapshots/</url>
-           <releases><enabled>false</enabled></releases>
-           <snapshots><enabled>true</enabled></snapshots>
+           <url>https://repo.eclipse.org/content/repositories/paho-releases/</url>
+           <releases><enabled>true</enabled></releases>
+           <snapshots><enabled>false</enabled></snapshots>
        </repository>
    </repositories>
 
