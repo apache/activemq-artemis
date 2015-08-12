@@ -79,6 +79,8 @@ public class BrokerService implements Service {
    public String TRUSTSTORE_PASSWORD;
    public String storeType;
 
+   private SslContext sslContext;
+
    private static final Logger LOG = LoggerFactory.getLogger(BrokerService.class);
 
    @SuppressWarnings("unused")
@@ -91,7 +93,7 @@ public class BrokerService implements Service {
    private boolean startAsync = false;
    public Set<Integer> extraConnectors = new HashSet<Integer>();
 
-   private final List<TransportConnector> transportConnectors = new ArrayList<TransportConnector>();
+   private List<TransportConnector> transportConnectors = new ArrayList<TransportConnector>();
    private File dataDirectoryFile;
 
    private PolicyMap destinationPolicy;
@@ -368,7 +370,7 @@ public class BrokerService implements Service {
    }
 
    public SslContext getSslContext() {
-      return null;
+      return this.sslContext;
    }
 
    public void setDataDirectory(String dataDirectory) {
@@ -465,6 +467,7 @@ public class BrokerService implements Service {
    }
 
    public void setTransportConnectors(List<TransportConnector> transportConnectors) throws Exception {
+      this.transportConnectors = transportConnectors;
    }
 
    public NetworkConnector addNetworkConnector(NetworkConnector connector) throws Exception {
@@ -603,6 +606,7 @@ public class BrokerService implements Service {
    }
 
    public void setSslContext(SslContext sslContext) {
+      this.sslContext = sslContext;
    }
 
    public void setPersistenceFactory(PersistenceAdapterFactory persistenceFactory) {
