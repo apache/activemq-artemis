@@ -84,7 +84,7 @@ public class ActiveMQTextMessage extends ActiveMQMessage implements TextMessage 
          this.text = null;
       }
 
-      writeBodyText(message, this.text);
+      writeBodyText(message.getBodyBuffer(), this.text);
    }
 
    public String getText() {
@@ -109,7 +109,7 @@ public class ActiveMQTextMessage extends ActiveMQMessage implements TextMessage 
    public void doBeforeReceive() throws ActiveMQException {
       super.doBeforeReceive();
 
-      text = readBodyText(message);
+      text = readBodyText(message.getBodyBuffer());
    }
 
    @Override

@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.api.core;
 
+import java.io.DataInput;
 import java.nio.ByteBuffer;
 
 import io.netty.buffer.ByteBuf;
@@ -29,7 +30,7 @@ import io.netty.buffer.ByteBuf;
  *
  * @see ActiveMQBuffers
  */
-public interface ActiveMQBuffer {
+public interface ActiveMQBuffer extends DataInput {
 
    /**
     * Returns the underlying Netty's ByteBuf
@@ -642,7 +643,7 @@ public interface ActiveMQBuffer {
     * @return an unsigned byte at the current {@code readerIndex}
     * @throws IndexOutOfBoundsException if {@code this.readableBytes} is less than {@code 1}
     */
-   short readUnsignedByte();
+   int readUnsignedByte();
 
    /**
     * Gets a 16-bit short integer at the current {@code readerIndex}
@@ -874,7 +875,7 @@ public interface ActiveMQBuffer {
     * @param length The number of bytes to skip
     * @throws IndexOutOfBoundsException if {@code length} is greater than {@code this.readableBytes}
     */
-   void skipBytes(int length);
+   int skipBytes(int length);
 
    /**
     * Sets the specified byte at the current {@code writerIndex}

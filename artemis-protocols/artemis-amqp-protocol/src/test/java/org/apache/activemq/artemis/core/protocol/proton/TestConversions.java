@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.core.protocol.proton;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -473,7 +474,7 @@ public class TestConversions extends Assert {
       }
 
       @Override
-      public short readUnsignedByte() {
+      public int readUnsignedByte() {
          return 0;
       }
 
@@ -588,8 +589,8 @@ public class TestConversions extends Assert {
       }
 
       @Override
-      public void skipBytes(int length) {
-
+      public int skipBytes(int length) {
+         return length;
       }
 
       @Override
@@ -680,6 +681,19 @@ public class TestConversions extends Assert {
       @Override
       public void writeBytes(ByteBuffer src) {
 
+      }
+
+      @Override
+      public void readFully(byte[] b) throws IOException {
+      }
+
+      @Override
+      public void readFully(byte[] b, int off, int len) throws IOException {
+      }
+
+      @Override
+      public String readLine() throws IOException {
+         return null;
       }
 
       @Override

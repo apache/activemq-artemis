@@ -102,7 +102,7 @@ public class ActiveMQBytesMessage extends ActiveMQMessage implements BytesMessag
    public boolean readBoolean() throws JMSException {
       checkRead();
       try {
-         return bytesReadBoolean(message);
+         return bytesReadBoolean(message.getBodyBuffer());
       }
       catch (IndexOutOfBoundsException e) {
          throw new MessageEOFException("");
@@ -112,7 +112,7 @@ public class ActiveMQBytesMessage extends ActiveMQMessage implements BytesMessag
    public byte readByte() throws JMSException {
       checkRead();
       try {
-         return bytesReadByte(message);
+         return bytesReadByte(message.getBodyBuffer());
       }
       catch (IndexOutOfBoundsException e) {
          throw new MessageEOFException("");
@@ -122,7 +122,7 @@ public class ActiveMQBytesMessage extends ActiveMQMessage implements BytesMessag
    public int readUnsignedByte() throws JMSException {
       checkRead();
       try {
-         return bytesReadUnsignedByte(message);
+         return bytesReadUnsignedByte(message.getBodyBuffer());
       }
       catch (IndexOutOfBoundsException e) {
          throw new MessageEOFException("");
@@ -132,7 +132,7 @@ public class ActiveMQBytesMessage extends ActiveMQMessage implements BytesMessag
    public short readShort() throws JMSException {
       checkRead();
       try {
-         return bytesReadShort(message);
+         return bytesReadShort(message.getBodyBuffer());
       }
       catch (IndexOutOfBoundsException e) {
          throw new MessageEOFException("");
@@ -142,7 +142,7 @@ public class ActiveMQBytesMessage extends ActiveMQMessage implements BytesMessag
    public int readUnsignedShort() throws JMSException {
       checkRead();
       try {
-         return bytesReadUnsignedShort(message);
+         return bytesReadUnsignedShort(message.getBodyBuffer());
       }
       catch (IndexOutOfBoundsException e) {
          throw new MessageEOFException("");
@@ -152,7 +152,7 @@ public class ActiveMQBytesMessage extends ActiveMQMessage implements BytesMessag
    public char readChar() throws JMSException {
       checkRead();
       try {
-         return bytesReadChar(message);
+         return bytesReadChar(message.getBodyBuffer());
       }
       catch (IndexOutOfBoundsException e) {
          throw new MessageEOFException("");
@@ -162,7 +162,7 @@ public class ActiveMQBytesMessage extends ActiveMQMessage implements BytesMessag
    public int readInt() throws JMSException {
       checkRead();
       try {
-         return bytesReadInt(message);
+         return bytesReadInt(message.getBodyBuffer());
       }
       catch (IndexOutOfBoundsException e) {
          throw new MessageEOFException("");
@@ -172,7 +172,7 @@ public class ActiveMQBytesMessage extends ActiveMQMessage implements BytesMessag
    public long readLong() throws JMSException {
       checkRead();
       try {
-         return bytesReadLong(message);
+         return bytesReadLong(message.getBodyBuffer());
       }
       catch (IndexOutOfBoundsException e) {
          throw new MessageEOFException("");
@@ -182,7 +182,7 @@ public class ActiveMQBytesMessage extends ActiveMQMessage implements BytesMessag
    public float readFloat() throws JMSException {
       checkRead();
       try {
-         return bytesReadFloat(message);
+         return bytesReadFloat(message.getBodyBuffer());
       }
       catch (IndexOutOfBoundsException e) {
          throw new MessageEOFException("");
@@ -192,7 +192,7 @@ public class ActiveMQBytesMessage extends ActiveMQMessage implements BytesMessag
    public double readDouble() throws JMSException {
       checkRead();
       try {
-         return bytesReadDouble(message);
+         return bytesReadDouble(message.getBodyBuffer());
       }
       catch (IndexOutOfBoundsException e) {
          throw new MessageEOFException("");
@@ -202,7 +202,7 @@ public class ActiveMQBytesMessage extends ActiveMQMessage implements BytesMessag
    public String readUTF() throws JMSException {
       checkRead();
       try {
-         return bytesReadUTF(message);
+         return bytesReadUTF(message.getBodyBuffer());
       }
       catch (IndexOutOfBoundsException e) {
          throw new MessageEOFException("");
@@ -217,59 +217,59 @@ public class ActiveMQBytesMessage extends ActiveMQMessage implements BytesMessag
 
    public int readBytes(final byte[] value) throws JMSException {
       checkRead();
-      return bytesReadBytes(message, value);
+      return bytesReadBytes(message.getBodyBuffer(), value);
    }
 
    public int readBytes(final byte[] value, final int length) throws JMSException {
       checkRead();
-      return bytesReadBytes(message, value, length);
+      return bytesReadBytes(message.getBodyBuffer(), value, length);
 
    }
 
    public void writeBoolean(final boolean value) throws JMSException {
       checkWrite();
-      bytesWriteBoolean(message, value);
+      bytesWriteBoolean(message.getBodyBuffer(), value);
    }
 
    public void writeByte(final byte value) throws JMSException {
       checkWrite();
-      bytesWriteByte(message, value);
+      bytesWriteByte(message.getBodyBuffer(), value);
    }
 
    public void writeShort(final short value) throws JMSException {
       checkWrite();
-      bytesWriteShort(message, value);
+      bytesWriteShort(message.getBodyBuffer(), value);
    }
 
    public void writeChar(final char value) throws JMSException {
       checkWrite();
-      bytesWriteChar(message, value);
+      bytesWriteChar(message.getBodyBuffer(), value);
    }
 
    public void writeInt(final int value) throws JMSException {
       checkWrite();
-      bytesWriteInt(message, value);
+      bytesWriteInt(message.getBodyBuffer(), value);
    }
 
    public void writeLong(final long value) throws JMSException {
       checkWrite();
-      bytesWriteLong(message, value);
+      bytesWriteLong(message.getBodyBuffer(), value);
    }
 
    public void writeFloat(final float value) throws JMSException {
       checkWrite();
-      bytesWriteFloat(message, value);
+      bytesWriteFloat(message.getBodyBuffer(), value);
    }
 
    public void writeDouble(final double value) throws JMSException {
       checkWrite();
-      bytesWriteDouble(message, value);
+      bytesWriteDouble(message.getBodyBuffer(), value);
    }
 
    public void writeUTF(final String value) throws JMSException {
       checkWrite();
       try {
-         bytesWriteUTF(message, value);
+         bytesWriteUTF(message.getBodyBuffer(), value);
       }
       catch (Exception e) {
          JMSException je = new JMSException("Failed to write UTF");
@@ -282,17 +282,17 @@ public class ActiveMQBytesMessage extends ActiveMQMessage implements BytesMessag
 
    public void writeBytes(final byte[] value) throws JMSException {
       checkWrite();
-      bytesWriteBytes(message, value);
+      bytesWriteBytes(message.getBodyBuffer(), value);
    }
 
    public void writeBytes(final byte[] value, final int offset, final int length) throws JMSException {
       checkWrite();
-      bytesWriteBytes(message, value, offset, length);
+      bytesWriteBytes(message.getBodyBuffer(), value, offset, length);
    }
 
    public void writeObject(final Object value) throws JMSException {
       checkWrite();
-      if (!bytesWriteObject(message, value)) {
+      if (!bytesWriteObject(message.getBodyBuffer(), value)) {
          throw new MessageFormatException("Invalid object for properties");
       }
    }
@@ -304,7 +304,7 @@ public class ActiveMQBytesMessage extends ActiveMQMessage implements BytesMessag
          bodyLength = message.getBodySize();
       }
 
-      bytesMessageReset(message);
+      bytesMessageReset(message.getBodyBuffer());
    }
 
    @Override

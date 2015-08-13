@@ -275,12 +275,6 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
          return HandleStatus.BUSY;
       }
 
-      // TODO - https://jira.jboss.org/browse/HORNETQ-533
-      // if (!writeReady.get())
-      // {
-      // return HandleStatus.BUSY;
-      // }
-
       synchronized (lock) {
          // If the consumer is stopped then we don't accept the message, it
          // should go back into the

@@ -38,6 +38,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQInterruptedException;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
 import org.apache.activemq.artemis.core.client.ActiveMQClientMessageBundle;
+import org.apache.activemq.artemis.utils.ByteUtil;
 import org.apache.activemq.artemis.utils.DataConstants;
 import org.apache.activemq.artemis.utils.UTF8Util;
 
@@ -666,7 +667,7 @@ public class LargeMessageControllerImpl implements LargeMessageController {
       throw new IllegalAccessError(LargeMessageControllerImpl.READ_ONLY_ERROR_MESSAGE);
    }
 
-   public short readUnsignedByte() {
+   public int readUnsignedByte() {
       return (short) (readByte() & 0xFF);
    }
 
@@ -758,11 +759,12 @@ public class LargeMessageControllerImpl implements LargeMessageController {
       readerIndex += length;
    }
 
-   public void skipBytes(final int length) {
+   public int skipBytes(final int length) {
 
       long newReaderIndex = readerIndex + length;
       checkForPacket(newReaderIndex);
       readerIndex = newReaderIndex;
+      return length;
    }
 
    public void writeByte(final byte value) {
@@ -1176,7 +1178,24 @@ public class LargeMessageControllerImpl implements LargeMessageController {
             }
          }
       }
+   }
 
+   /** from {@link java.io.DataInput} interface */
+   @Override
+   public void readFully(byte[] b) throws IOException {
+      readBytes(b);
+   }
+
+   /** from {@link java.io.DataInput} interface */
+   @Override
+   public void readFully(byte[] b, int off, int len) throws IOException {
+      readBytes(b, off, len);
+   }
+
+   /** from {@link java.io.DataInput} interface */
+   @Override
+   public String readLine() throws IOException {
+      return ByteUtil.readLine(this);
    }
 
    public ByteBuf byteBuf() {

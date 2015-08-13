@@ -40,9 +40,23 @@ import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQNonExistentQueueException;
 import org.apache.activemq.artemis.api.core.ActiveMQSecurityException;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQBrokerStoppedException;
 import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQCompositeConsumerBrokerExchange;
+import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQConnectionContext;
 import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQConsumer;
+import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQConsumerBrokerExchange;
+import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQMessageAuthorizationPolicy;
+import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQProducerBrokerExchange;
+import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQSession;
 import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQSingleConsumerBrokerExchange;
+import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQTransaction;
+import org.apache.activemq.artemis.core.remoting.CloseListener;
+import org.apache.activemq.artemis.core.remoting.FailureListener;
+import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
+import org.apache.activemq.artemis.spi.core.remoting.Connection;
+import org.apache.activemq.artemis.utils.ConcurrentHashSet;
 import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.command.ActiveMQMessage;
 import org.apache.activemq.command.BrokerInfo;
@@ -77,20 +91,7 @@ import org.apache.activemq.command.ShutdownInfo;
 import org.apache.activemq.command.TransactionId;
 import org.apache.activemq.command.TransactionInfo;
 import org.apache.activemq.command.WireFormatInfo;
-import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQBrokerStoppedException;
-import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQConnectionContext;
-import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQConsumerBrokerExchange;
-import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQMessageAuthorizationPolicy;
-import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQProducerBrokerExchange;
-import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQSession;
-import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQTransaction;
-import org.apache.activemq.artemis.core.remoting.CloseListener;
-import org.apache.activemq.artemis.core.remoting.FailureListener;
-import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.openwire.OpenWireFormat;
-import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
-import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
-import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.state.CommandVisitor;
 import org.apache.activemq.state.ConnectionState;
 import org.apache.activemq.state.ConsumerState;
@@ -100,7 +101,6 @@ import org.apache.activemq.thread.TaskRunner;
 import org.apache.activemq.thread.TaskRunnerFactory;
 import org.apache.activemq.transport.TransmitCallback;
 import org.apache.activemq.util.ByteSequence;
-import org.apache.activemq.artemis.utils.ConcurrentHashSet;
 import org.apache.activemq.wireformat.WireFormat;
 
 /**
@@ -176,8 +176,6 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor {
 
    private final Set<String> tempQueues = new ConcurrentHashSet<String>();
 
-   private DataInputWrapper dataInput = new DataInputWrapper();
-
    private Map<TransactionId, TransactionInfo> txMap = new ConcurrentHashMap<TransactionId, TransactionInfo>();
 
    private volatile AMQSession advisorySession;
@@ -196,95 +194,77 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor {
    @Override
    public void bufferReceived(Object connectionID, ActiveMQBuffer buffer) {
       try {
-         dataInput.receiveData(buffer);
-      }
-      catch (Throwable t) {
-         ActiveMQServerLogger.LOGGER.error("decoding error", t);
-         return;
-      }
+         Object object = wireFormat.unmarshal(buffer);
 
-      // this.setDataReceived();
-      while (dataInput.readable()) {
-         try {
-            Object object = null;
-            try {
-               object = wireFormat.unmarshal(dataInput);
-               dataInput.mark();
+         Command command = (Command) object;
+         boolean responseRequired = command.isResponseRequired();
+         int commandId = command.getCommandId();
+         // the connection handles pings, negotiations directly.
+         // and delegate all other commands to manager.
+         if (command.getClass() == KeepAliveInfo.class) {
+            KeepAliveInfo info = (KeepAliveInfo) command;
+            if (info.isResponseRequired()) {
+               info.setResponseRequired(false);
+               protocolManager.sendReply(this, info);
             }
-            catch (NotEnoughBytesException e) {
-               //meaning the dataInput hasn't enough bytes for a command.
-               //in that case we just return and waiting for the next
-               //call of bufferReceived()
-               return;
+         }
+         else if (command.getClass() == WireFormatInfo.class) {
+            // amq here starts a read/write monitor thread (detect ttl?)
+            negotiate((WireFormatInfo) command);
+         }
+         else if (command.getClass() == ConnectionInfo.class || command.getClass() == ConsumerInfo.class || command.getClass() == RemoveInfo.class ||
+                  command.getClass() == SessionInfo.class || command.getClass() == ProducerInfo.class || ActiveMQMessage.class.isAssignableFrom(command.getClass()) ||
+                  command.getClass() == MessageAck.class || command.getClass() == TransactionInfo.class || command.getClass() == DestinationInfo.class ||
+                  command.getClass() == ShutdownInfo.class || command.getClass() == RemoveSubscriptionInfo.class) {
+            Response response = null;
+
+            if (pendingStop) {
+               response = new ExceptionResponse(this.stopError);
             }
+            else {
+               response = ((Command) command).visit(this);
 
-            Command command = (Command) object;
-            boolean responseRequired = command.isResponseRequired();
-            int commandId = command.getCommandId();
-            // the connection handles pings, negotiations directly.
-            // and delegate all other commands to manager.
-            if (command.getClass() == KeepAliveInfo.class) {
-               KeepAliveInfo info = (KeepAliveInfo) command;
-               if (info.isResponseRequired()) {
-                  info.setResponseRequired(false);
-                  protocolManager.sendReply(this, info);
-               }
-            }
-            else if (command.getClass() == WireFormatInfo.class) {
-               // amq here starts a read/write monitor thread (detect ttl?)
-               negotiate((WireFormatInfo) command);
-            }
-            else if (command.getClass() == ConnectionInfo.class || command.getClass() == ConsumerInfo.class || command.getClass() == RemoveInfo.class || command.getClass() == SessionInfo.class || command.getClass() == ProducerInfo.class || ActiveMQMessage.class.isAssignableFrom(command.getClass()) || command.getClass() == MessageAck.class || command.getClass() == TransactionInfo.class || command.getClass() == DestinationInfo.class || command.getClass() == ShutdownInfo.class || command.getClass() == RemoveSubscriptionInfo.class) {
-               Response response = null;
-
-               if (pendingStop) {
-                  response = new ExceptionResponse(this.stopError);
-               }
-               else {
-                  response = ((Command) command).visit(this);
-
-                  if (response instanceof ExceptionResponse) {
-                     if (!responseRequired) {
-                        Throwable cause = ((ExceptionResponse) response).getException();
-                        serviceException(cause);
-                        response = null;
-                     }
-                  }
-               }
-
-               if (responseRequired) {
-                  if (response == null) {
-                     response = new Response();
-                  }
-               }
-
-               // The context may have been flagged so that the response is not
-               // sent.
-               if (context != null) {
-                  if (context.isDontSendReponse()) {
-                     context.setDontSendReponse(false);
+               if (response instanceof ExceptionResponse) {
+                  if (!responseRequired) {
+                     Throwable cause = ((ExceptionResponse) response).getException();
+                     serviceException(cause);
                      response = null;
                   }
                }
+            }
 
-               if (response != null && !protocolManager.isStopping()) {
-                  response.setCorrelationId(commandId);
-                  dispatchSync(response);
+            if (responseRequired) {
+               if (response == null) {
+                  response = new Response();
                }
+            }
 
+            // The context may have been flagged so that the response is not
+            // sent.
+            if (context != null) {
+               if (context.isDontSendReponse()) {
+                  context.setDontSendReponse(false);
+                  response = null;
+               }
             }
-            else {
-               // note!!! wait for negotiation (e.g. use a countdown latch)
-               // before handling any other commands
-               this.protocolManager.handleCommand(this, command);
+
+            if (response != null && !protocolManager.isStopping()) {
+               response.setCorrelationId(commandId);
+               dispatchSync(response);
             }
+
          }
-         catch (IOException e) {
-            ActiveMQServerLogger.LOGGER.error("error decoding", e);
+         else {
+            // note!!! wait for negotiation (e.g. use a countdown latch)
+            // before handling any other commands
+            this.protocolManager.handleCommand(this, command);
          }
-         catch (Throwable t) {
-            ActiveMQServerLogger.LOGGER.error("error decoding", t);
-         }
+      }
+      catch (IOException e) {
+         ActiveMQServerLogger.LOGGER.error("error decoding", e);
+      }
+      catch (Throwable t) {
+         ActiveMQServerLogger.LOGGER.error("error decoding", t);
       }
    }
 
@@ -624,6 +604,7 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor {
 
    public void serviceExceptionAsync(final IOException e) {
       if (asyncException.compareAndSet(false, true)) {
+         // Why this is not through an executor?
          new Thread("Async Exception Handler") {
             @Override
             public void run() {

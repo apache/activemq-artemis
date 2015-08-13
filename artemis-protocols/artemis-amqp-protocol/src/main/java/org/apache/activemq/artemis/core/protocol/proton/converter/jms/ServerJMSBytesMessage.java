@@ -60,128 +60,128 @@ public class ServerJMSBytesMessage extends ServerJMSMessage implements BytesMess
 
    @Override
    public boolean readBoolean() throws JMSException {
-      return bytesReadBoolean(message);
+      return bytesReadBoolean(getReadBodyBuffer());
    }
 
    @Override
    public byte readByte() throws JMSException {
-      return bytesReadByte(message);
+      return bytesReadByte(getReadBodyBuffer());
    }
 
    @Override
    public int readUnsignedByte() throws JMSException {
-      return bytesReadUnsignedByte(message);
+      return bytesReadUnsignedByte(getReadBodyBuffer());
    }
 
    @Override
    public short readShort() throws JMSException {
-      return bytesReadShort(message);
+      return bytesReadShort(getReadBodyBuffer());
    }
 
    @Override
    public int readUnsignedShort() throws JMSException {
-      return bytesReadUnsignedShort(message);
+      return bytesReadUnsignedShort(getReadBodyBuffer());
    }
 
    @Override
    public char readChar() throws JMSException {
-      return bytesReadChar(message);
+      return bytesReadChar(getReadBodyBuffer());
    }
 
    @Override
    public int readInt() throws JMSException {
-      return bytesReadInt(message);
+      return bytesReadInt(getReadBodyBuffer());
    }
 
    @Override
    public long readLong() throws JMSException {
-      return bytesReadLong(message);
+      return bytesReadLong(getReadBodyBuffer());
    }
 
    @Override
    public float readFloat() throws JMSException {
-      return bytesReadFloat(message);
+      return bytesReadFloat(getReadBodyBuffer());
    }
 
    @Override
    public double readDouble() throws JMSException {
-      return bytesReadDouble(message);
+      return bytesReadDouble(getReadBodyBuffer());
    }
 
    @Override
    public String readUTF() throws JMSException {
-      return bytesReadUTF(message);
+      return bytesReadUTF(getReadBodyBuffer());
    }
 
    @Override
    public int readBytes(byte[] value) throws JMSException {
-      return bytesReadBytes(message, value);
+      return bytesReadBytes(getReadBodyBuffer(), value);
    }
 
    @Override
    public int readBytes(byte[] value, int length) throws JMSException {
-      return bytesReadBytes(message, value, length);
+      return bytesReadBytes(getReadBodyBuffer(), value, length);
    }
 
    @Override
    public void writeBoolean(boolean value) throws JMSException {
-      bytesWriteBoolean(message, value);
+      bytesWriteBoolean(getWriteBodyBuffer(), value);
 
    }
 
    @Override
    public void writeByte(byte value) throws JMSException {
-      bytesWriteByte(message, value);
+      bytesWriteByte(getWriteBodyBuffer(), value);
    }
 
    @Override
    public void writeShort(short value) throws JMSException {
-      bytesWriteShort(message, value);
+      bytesWriteShort(getWriteBodyBuffer(), value);
    }
 
    @Override
    public void writeChar(char value) throws JMSException {
-      bytesWriteChar(message, value);
+      bytesWriteChar(getWriteBodyBuffer(), value);
    }
 
    @Override
    public void writeInt(int value) throws JMSException {
-      bytesWriteInt(message, value);
+      bytesWriteInt(getWriteBodyBuffer(), value);
    }
 
    @Override
    public void writeLong(long value) throws JMSException {
-      bytesWriteLong(message, value);
+      bytesWriteLong(getWriteBodyBuffer(), value);
    }
 
    @Override
    public void writeFloat(float value) throws JMSException {
-      bytesWriteFloat(message, value);
+      bytesWriteFloat(getWriteBodyBuffer(), value);
    }
 
    @Override
    public void writeDouble(double value) throws JMSException {
-      bytesWriteDouble(message, value);
+      bytesWriteDouble(getWriteBodyBuffer(), value);
    }
 
    @Override
    public void writeUTF(String value) throws JMSException {
-      bytesWriteUTF(message, value);
+      bytesWriteUTF(getWriteBodyBuffer(), value);
    }
 
    @Override
    public void writeBytes(byte[] value) throws JMSException {
-      bytesWriteBytes(message, value);
+      bytesWriteBytes(getWriteBodyBuffer(), value);
    }
 
    @Override
    public void writeBytes(byte[] value, int offset, int length) throws JMSException {
-      bytesWriteBytes(message, value, offset, length);
+      bytesWriteBytes(getWriteBodyBuffer(), value, offset, length);
    }
 
    @Override
    public void writeObject(Object value) throws JMSException {
-      if (!bytesWriteObject(message, value)) {
+      if (!bytesWriteObject(getWriteBodyBuffer(), value)) {
          throw new JMSException("Can't make conversion of " + value + " to any known type");
       }
    }
@@ -199,7 +199,8 @@ public class ServerJMSBytesMessage extends ServerJMSMessage implements BytesMess
 
    @Override
    public void reset() throws JMSException {
-      bytesMessageReset(message);
+      bytesMessageReset(getReadBodyBuffer());
+      bytesMessageReset(getWriteBodyBuffer());
    }
 
 }

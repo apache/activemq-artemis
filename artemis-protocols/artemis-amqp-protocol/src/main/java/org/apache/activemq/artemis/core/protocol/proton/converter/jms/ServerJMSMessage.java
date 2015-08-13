@@ -23,6 +23,7 @@ import javax.jms.Message;
 import java.util.Collections;
 import java.util.Enumeration;
 
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.message.impl.MessageInternal;
@@ -44,6 +45,24 @@ public class ServerJMSMessage implements Message {
       this.message = message;
       this.deliveryCount = deliveryCount;
    }
+
+   private ActiveMQBuffer readBodyBuffer;
+
+   /** When reading we use a protected copy so multi-threads can work fine */
+   protected ActiveMQBuffer getReadBodyBuffer() {
+      if (readBodyBuffer == null) {
+         // to avoid clashes between multiple threads
+         readBodyBuffer = message.getBodyBufferCopy();
+      }
+      return readBodyBuffer;
+   }
+
+   /** When writing on the conversion we use the buffer directly */
+   protected ActiveMQBuffer getWriteBodyBuffer() {
+      readBodyBuffer = null; // it invalidates this buffer if anything is written
+      return message.getBodyBuffer();
+   }
+
 
    @Override
    public final String getJMSMessageID() throws JMSException {

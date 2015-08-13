@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.transports.netty;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.embedded.EmbeddedChannel;
@@ -23,10 +27,6 @@ import org.apache.activemq.artemis.core.remoting.impl.netty.ActiveMQFrameDecoder
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
 
 public class ActiveMQFrameDecoder2Test extends ActiveMQTestBase {
 

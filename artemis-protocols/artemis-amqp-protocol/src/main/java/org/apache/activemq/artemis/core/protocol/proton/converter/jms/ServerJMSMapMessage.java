@@ -247,12 +247,12 @@ public final class ServerJMSMapMessage extends ServerJMSMessage implements MapMe
 
    public void encode() throws Exception {
       super.encode();
-      writeBodyMap(message, map);
+      writeBodyMap(getWriteBodyBuffer(), map);
    }
 
    public void decode() throws Exception {
       super.decode();
-      readBodyMap(message, map);
+      readBodyMap(getReadBodyBuffer(), map);
    }
 
    // Package protected ---------------------------------------------

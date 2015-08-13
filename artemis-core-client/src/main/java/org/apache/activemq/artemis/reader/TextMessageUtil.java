@@ -17,7 +17,6 @@
 package org.apache.activemq.artemis.reader;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
-import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
 
 public class TextMessageUtil extends MessageUtil {
@@ -25,8 +24,7 @@ public class TextMessageUtil extends MessageUtil {
    /**
     * Utility method to set the Text message on a message body
     */
-   public static void writeBodyText(Message message, SimpleString text) {
-      ActiveMQBuffer buff = getBodyBuffer(message);
+   public static void writeBodyText(ActiveMQBuffer buff, SimpleString text) {
       buff.clear();
       buff.writeNullableSimpleString(text);
    }
@@ -34,8 +32,7 @@ public class TextMessageUtil extends MessageUtil {
    /**
     * Utility method to set the Text message on a message body
     */
-   public static SimpleString readBodyText(Message message) {
-      ActiveMQBuffer buff = getBodyBuffer(message);
+   public static SimpleString readBodyText(ActiveMQBuffer buff) {
       buff.resetReaderIndex();
       return buff.readNullableSimpleString();
    }

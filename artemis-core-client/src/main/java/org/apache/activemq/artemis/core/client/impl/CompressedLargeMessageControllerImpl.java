@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.core.client.impl;
 
 import java.io.DataInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
@@ -27,8 +28,8 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
-import org.apache.activemq.artemis.utils.DataConstants;
 import org.apache.activemq.artemis.utils.ActiveMQBufferInputStream;
+import org.apache.activemq.artemis.utils.DataConstants;
 import org.apache.activemq.artemis.utils.InflaterReader;
 import org.apache.activemq.artemis.utils.InflaterWriter;
 import org.apache.activemq.artemis.utils.UTF8Util;
@@ -302,9 +303,9 @@ final class CompressedLargeMessageControllerImpl implements LargeMessageControll
       throw new IllegalAccessError(OPERATION_NOT_SUPPORTED);
    }
 
-   public short readUnsignedByte() {
+   public int readUnsignedByte() {
       try {
-         return (short) getStream().readUnsignedByte();
+         return getStream().readUnsignedByte();
       }
       catch (Exception e) {
          throw new IllegalStateException(e.getMessage(), e);
@@ -391,17 +392,38 @@ final class CompressedLargeMessageControllerImpl implements LargeMessageControll
       dst.put(bytesToGet);
    }
 
-   public void skipBytes(final int length) {
+   public int skipBytes(final int length) {
 
       try {
          for (int i = 0; i < length; i++) {
             getStream().read();
          }
+         return length;
       }
       catch (Exception e) {
          throw new IllegalStateException(e.getMessage(), e);
       }
    }
+
+
+   /** from {@link java.io.DataInput} interface */
+   @Override
+   public void readFully(byte[] b) throws IOException {
+      readBytes(b);
+   }
+
+   /** from {@link java.io.DataInput} interface */
+   @Override
+   public void readFully(byte[] b, int off, int len) throws IOException {
+      readBytes(b, off, len);
+   }
+
+   /** from {@link java.io.DataInput} interface */
+   @Override
+   public String readLine() throws IOException {
+      return getStream().readLine();
+   }
+
 
    public void writeByte(final byte value) {
       throw new IllegalAccessError(OPERATION_NOT_SUPPORTED);

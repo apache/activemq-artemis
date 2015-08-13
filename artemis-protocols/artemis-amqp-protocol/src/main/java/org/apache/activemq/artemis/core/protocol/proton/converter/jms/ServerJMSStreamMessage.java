@@ -21,13 +21,11 @@ import javax.jms.MessageEOFException;
 import javax.jms.MessageFormatException;
 import javax.jms.StreamMessage;
 
-import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.core.message.impl.MessageInternal;
 import org.apache.activemq.artemis.utils.DataConstants;
 
-import static org.apache.activemq.artemis.reader.MessageUtil.getBodyBuffer;
 import static org.apache.activemq.artemis.reader.StreamMessageUtil.streamReadBoolean;
 import static org.apache.activemq.artemis.reader.StreamMessageUtil.streamReadByte;
 import static org.apache.activemq.artemis.reader.StreamMessageUtil.streamReadBytes;
@@ -48,14 +46,14 @@ public final class ServerJMSStreamMessage extends ServerJMSMessage implements St
 
    public ServerJMSStreamMessage(MessageInternal message, int deliveryCount) {
       super(message, deliveryCount);
-
    }
 
    // StreamMessage implementation ----------------------------------
 
    public boolean readBoolean() throws JMSException {
+
       try {
-         return streamReadBoolean(message);
+         return streamReadBoolean(getReadBodyBuffer());
       }
       catch (IllegalStateException e) {
          throw new MessageFormatException(e.getMessage());
@@ -67,7 +65,7 @@ public final class ServerJMSStreamMessage extends ServerJMSMessage implements St
 
    public byte readByte() throws JMSException {
       try {
-         return streamReadByte(message);
+         return streamReadByte(getReadBodyBuffer());
       }
       catch (IllegalStateException e) {
          throw new MessageFormatException(e.getMessage());
@@ -80,7 +78,7 @@ public final class ServerJMSStreamMessage extends ServerJMSMessage implements St
    public short readShort() throws JMSException {
 
       try {
-         return streamReadShort(message);
+         return streamReadShort(getReadBodyBuffer());
       }
       catch (IllegalStateException e) {
          throw new MessageFormatException(e.getMessage());
@@ -93,7 +91,7 @@ public final class ServerJMSStreamMessage extends ServerJMSMessage implements St
    public char readChar() throws JMSException {
 
       try {
-         return streamReadChar(message);
+         return streamReadChar(getReadBodyBuffer());
       }
       catch (IllegalStateException e) {
          throw new MessageFormatException(e.getMessage());
@@ -106,7 +104,7 @@ public final class ServerJMSStreamMessage extends ServerJMSMessage implements St
    public int readInt() throws JMSException {
 
       try {
-         return streamReadInteger(message);
+         return streamReadInteger(getReadBodyBuffer());
       }
       catch (IllegalStateException e) {
          throw new MessageFormatException(e.getMessage());
@@ -119,7 +117,7 @@ public final class ServerJMSStreamMessage extends ServerJMSMessage implements St
    public long readLong() throws JMSException {
 
       try {
-         return streamReadLong(message);
+         return streamReadLong(getReadBodyBuffer());
       }
       catch (IllegalStateException e) {
          throw new MessageFormatException(e.getMessage());
@@ -132,7 +130,7 @@ public final class ServerJMSStreamMessage extends ServerJMSMessage implements St
    public float readFloat() throws JMSException {
 
       try {
-         return streamReadFloat(message);
+         return streamReadFloat(getReadBodyBuffer());
       }
       catch (IllegalStateException e) {
          throw new MessageFormatException(e.getMessage());
@@ -145,7 +143,7 @@ public final class ServerJMSStreamMessage extends ServerJMSMessage implements St
    public double readDouble() throws JMSException {
 
       try {
-         return streamReadDouble(message);
+         return streamReadDouble(getReadBodyBuffer());
       }
       catch (IllegalStateException e) {
          throw new MessageFormatException(e.getMessage());
@@ -158,7 +156,7 @@ public final class ServerJMSStreamMessage extends ServerJMSMessage implements St
    public String readString() throws JMSException {
 
       try {
-         return streamReadString(message);
+         return streamReadString(getReadBodyBuffer());
       }
       catch (IllegalStateException e) {
          throw new MessageFormatException(e.getMessage());
@@ -176,7 +174,7 @@ public final class ServerJMSStreamMessage extends ServerJMSMessage implements St
    public int readBytes(final byte[] value) throws JMSException {
 
       try {
-         Pair<Integer, Integer> pairRead = streamReadBytes(message, len, value);
+         Pair<Integer, Integer> pairRead = streamReadBytes(getReadBodyBuffer(), len, value);
 
          len = pairRead.getA();
          return pairRead.getB();
@@ -191,11 +189,11 @@ public final class ServerJMSStreamMessage extends ServerJMSMessage implements St
 
    public Object readObject() throws JMSException {
 
-      if (getBodyBuffer(message).readerIndex() >= message.getEndOfBodyPosition()) {
+      if (getReadBodyBuffer().readerIndex() >= message.getEndOfBodyPosition()) {
          throw new MessageEOFException("");
       }
       try {
-         return streamReadObject(message);
+         return streamReadObject(getReadBodyBuffer());
       }
       catch (IllegalStateException e) {
          throw new MessageFormatException(e.getMessage());
@@ -207,70 +205,70 @@ public final class ServerJMSStreamMessage extends ServerJMSMessage implements St
 
    public void writeBoolean(final boolean value) throws JMSException {
 
-      getBuffer().writeByte(DataConstants.BOOLEAN);
-      getBuffer().writeBoolean(value);
+      getWriteBodyBuffer().writeByte(DataConstants.BOOLEAN);
+      getWriteBodyBuffer().writeBoolean(value);
    }
 
    public void writeByte(final byte value) throws JMSException {
 
-      getBuffer().writeByte(DataConstants.BYTE);
-      getBuffer().writeByte(value);
+      getWriteBodyBuffer().writeByte(DataConstants.BYTE);
+      getWriteBodyBuffer().writeByte(value);
    }
 
    public void writeShort(final short value) throws JMSException {
 
-      getBuffer().writeByte(DataConstants.SHORT);
-      getBuffer().writeShort(value);
+      getWriteBodyBuffer().writeByte(DataConstants.SHORT);
+      getWriteBodyBuffer().writeShort(value);
    }
 
    public void writeChar(final char value) throws JMSException {
 
-      getBuffer().writeByte(DataConstants.CHAR);
-      getBuffer().writeShort((short) value);
+      getWriteBodyBuffer().writeByte(DataConstants.CHAR);
+      getWriteBodyBuffer().writeShort((short) value);
    }
 
    public void writeInt(final int value) throws JMSException {
 
-      getBuffer().writeByte(DataConstants.INT);
-      getBuffer().writeInt(value);
+      getWriteBodyBuffer().writeByte(DataConstants.INT);
+      getWriteBodyBuffer().writeInt(value);
    }
 
    public void writeLong(final long value) throws JMSException {
 
-      getBuffer().writeByte(DataConstants.LONG);
-      getBuffer().writeLong(value);
+      getWriteBodyBuffer().writeByte(DataConstants.LONG);
+      getWriteBodyBuffer().writeLong(value);
    }
 
    public void writeFloat(final float value) throws JMSException {
 
-      getBuffer().writeByte(DataConstants.FLOAT);
-      getBuffer().writeInt(Float.floatToIntBits(value));
+      getWriteBodyBuffer().writeByte(DataConstants.FLOAT);
+      getWriteBodyBuffer().writeInt(Float.floatToIntBits(value));
    }
 
    public void writeDouble(final double value) throws JMSException {
 
-      getBuffer().writeByte(DataConstants.DOUBLE);
-      getBuffer().writeLong(Double.doubleToLongBits(value));
+      getWriteBodyBuffer().writeByte(DataConstants.DOUBLE);
+      getWriteBodyBuffer().writeLong(Double.doubleToLongBits(value));
    }
 
    public void writeString(final String value) throws JMSException {
 
-      getBuffer().writeByte(DataConstants.STRING);
-      getBuffer().writeNullableString(value);
+      getWriteBodyBuffer().writeByte(DataConstants.STRING);
+      getWriteBodyBuffer().writeNullableString(value);
    }
 
    public void writeBytes(final byte[] value) throws JMSException {
 
-      getBuffer().writeByte(DataConstants.BYTES);
-      getBuffer().writeInt(value.length);
-      getBuffer().writeBytes(value);
+      getWriteBodyBuffer().writeByte(DataConstants.BYTES);
+      getWriteBodyBuffer().writeInt(value.length);
+      getWriteBodyBuffer().writeBytes(value);
    }
 
    public void writeBytes(final byte[] value, final int offset, final int length) throws JMSException {
 
-      getBuffer().writeByte(DataConstants.BYTES);
-      getBuffer().writeInt(length);
-      getBuffer().writeBytes(value, offset, length);
+      getWriteBodyBuffer().writeByte(DataConstants.BYTES);
+      getWriteBodyBuffer().writeInt(length);
+      getWriteBodyBuffer().writeBytes(value, offset, length);
    }
 
    public void writeObject(final Object value) throws JMSException {
@@ -313,7 +311,7 @@ public final class ServerJMSStreamMessage extends ServerJMSMessage implements St
    }
 
    public void reset() throws JMSException {
-      getBuffer().resetReaderIndex();
+      getWriteBodyBuffer().resetReaderIndex();
    }
 
    // ActiveMQRAMessage overrides ----------------------------------------
@@ -322,11 +320,7 @@ public final class ServerJMSStreamMessage extends ServerJMSMessage implements St
    public void clearBody() throws JMSException {
       super.clearBody();
 
-      getBuffer().clear();
-   }
-
-   private ActiveMQBuffer getBuffer() {
-      return message.getBodyBuffer();
+      getWriteBodyBuffer().clear();
    }
 
    public void decode() throws Exception {
