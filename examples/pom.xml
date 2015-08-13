@@ -93,8 +93,7 @@ under the License.
    </profiles>
 
    <modules>
-      <module>broker-features</module>
-      <module>perf</module>
+      <module>features</module>
       <module>protocols</module>
    </modules>
 
