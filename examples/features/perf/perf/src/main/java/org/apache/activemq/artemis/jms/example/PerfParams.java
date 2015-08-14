@@ -39,9 +39,7 @@ public class PerfParams implements Serializable {
 
    private boolean drainQueue = true;
 
-   private String connectionFactoryLookup;
-
-   private String destinationLookup;
+   private String destinationName;
 
    private int throttleRate;
 
@@ -49,7 +47,19 @@ public class PerfParams implements Serializable {
 
    private boolean disableTimestamp;
 
+   private boolean openwire;
+
    private boolean dupsOK;
+
+   private String uri;
+
+   public String getUri() {
+      return uri;
+   }
+
+   public void setUri(String uri) {
+      this.uri = uri;
+   }
 
    public synchronized int getNoOfMessagesToSend() {
       return noOfMessagesToSend;
@@ -99,28 +109,20 @@ public class PerfParams implements Serializable {
       this.batchSize = batchSize;
    }
 
+   public String getDestinationName() {
+      return destinationName;
+   }
+
+   public void setDestinationName(String destinationName) {
+      this.destinationName = destinationName;
+   }
+
    public synchronized boolean isDrainQueue() {
       return drainQueue;
    }
 
    public synchronized void setDrainQueue(final boolean drainQueue) {
       this.drainQueue = drainQueue;
-   }
-
-   public synchronized String getConnectionFactoryLookup() {
-      return connectionFactoryLookup;
-   }
-
-   public synchronized void setConnectionFactoryLookup(final String connectionFactoryLookup) {
-      this.connectionFactoryLookup = connectionFactoryLookup;
-   }
-
-   public synchronized String getDestinationLookup() {
-      return destinationLookup;
-   }
-
-   public synchronized void setDestinationLookup(final String destinationLookup) {
-      this.destinationLookup = destinationLookup;
    }
 
    public synchronized int getThrottleRate() {
@@ -155,4 +157,11 @@ public class PerfParams implements Serializable {
       this.dupsOK = dupsOK;
    }
 
+   public boolean isOpenwire() {
+      return openwire;
+   }
+
+   public void setOpenwire(boolean openwire) {
+      this.openwire = openwire;
+   }
 }

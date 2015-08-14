@@ -33,6 +33,8 @@ under the License.
    <name>ActiveMQ Artemis Examples</name>
 
    <properties>
+      <slf4j-version>1.7.10</slf4j-version>
+      <activemq5-version>5.12.0</activemq5-version>
       <udp-address>231.7.7.7</udp-address>
       <activemq.basedir>${project.basedir}/..</activemq.basedir>
    </properties>

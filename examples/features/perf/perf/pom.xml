@@ -18,7 +18,8 @@ specific language governing permissions and limitations
 under the License.
 -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
    <modelVersion>4.0.0</modelVersion>
 
    <parent>
@@ -27,9 +28,9 @@ under the License.
       <version>1.0.1-SNAPSHOT</version>
    </parent>
 
-   <artifactId>perf</artifactId>
+   <artifactId>openwire-perf</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ Artemis JMS PerfExample Example</name>
+   <name>ActiveMQ Artemis JMS Perf example for openwire</name>
 
    <properties>
       <activemq.basedir>${project.basedir}/../../../..</activemq.basedir>
@@ -37,33 +38,24 @@ under the License.
 
    <dependencies>
       <dependency>
-         <groupId>org.apache.activemq</groupId>
-         <artifactId>artemis-server</artifactId>
-         <version>${project.version}</version>
+         <groupId>org.apache.geronimo.specs</groupId>
+         <artifactId>geronimo-jms_1.1_spec</artifactId>
+         <version>1.1</version>
       </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
-         <artifactId>artemis-jms-server</artifactId>
-         <version>${project.version}</version>
+         <artifactId>activemq-client</artifactId>
+         <version>${activemq5-version}</version>
       </dependency>
       <dependency>
+         <groupId>org.slf4j</groupId>
+         <artifactId>slf4j-nop</artifactId>
+         <version>${slf4j-version}</version>
+      </dependency>
+      <dependency>
+         <!-- this is to have the ServerUtil -->
          <groupId>org.apache.activemq</groupId>
-         <artifactId>artemis-core-client</artifactId>
-         <version>${project.version}</version>
-      </dependency>
-      <dependency>
-         <groupId>org.apache.activemq</groupId>
-         <artifactId>artemis-commons</artifactId>
-         <version>${project.version}</version>
-      </dependency>
-      <dependency>
-         <groupId>io.netty</groupId>
-         <artifactId>netty-all</artifactId>
-         <version>${netty.version}</version>
-      </dependency>
-      <dependency>
-         <groupId>org.apache.activemq</groupId>
-         <artifactId>artemis-jms-client</artifactId>
+         <artifactId>artemis-cli</artifactId>
          <version>${project.version}</version>
       </dependency>
    </dependencies>
@@ -76,30 +68,37 @@ under the License.
                <plugin>
                   <groupId>org.apache.activemq</groupId>
                   <artifactId>artemis-maven-plugin</artifactId>
-                     <executions>
-                        <execution>
-                           <id>create</id>
-                           <goals>
-                              <goal>create</goal>
-                           </goals>
-                        </execution>
-                        <execution>
-                           <id>runClient</id>
-                           <goals>
-                              <goal>runClient</goal>
-                           </goals>
-                           <configuration>
-                              <clientClass>org.apache.activemq.artemis.jms.example.Server</clientClass>
-                           </configuration>
-                        </execution>
-                     </executions>
-                     <dependencies>
-                        <dependency>
-                           <groupId>org.apache.activemq.examples.soak</groupId>
-                           <artifactId>perf</artifactId>
-                           <version>${project.version}</version>
-                        </dependency>
-                     </dependencies>
+                  <executions>
+                     <execution>
+                        <id>create</id>
+                        <configuration>
+                           <noAutoTune>false</noAutoTune>
+                           <args>
+                              <arg>--queues</arg>
+                              <arg>perfQueue</arg>
+                           </args>
+                        </configuration>
+                        <goals>
+                           <goal>create</goal>
+                        </goals>
+                     </execution>
+                     <execution>
+                        <id>runClient</id>
+                        <goals>
+                           <goal>runClient</goal>
+                        </goals>
+                        <configuration>
+                           <clientClass>org.apache.activemq.artemis.jms.example.Server</clientClass>
+                        </configuration>
+                     </execution>
+                  </executions>
+                  <dependencies>
+                     <dependency>
+                        <groupId>org.apache.activemq.examples.soak</groupId>
+                        <artifactId>openwire-perf</artifactId>
+                        <version>${project.version}</version>
+                     </dependency>
+                  </dependencies>
                </plugin>
             </plugins>
          </build>
@@ -109,20 +108,26 @@ under the License.
          <build>
             <plugins>
                <plugin>
-                  <groupId>org.codehaus.mojo</groupId>
-                  <artifactId>exec-maven-plugin</artifactId>
-                  <version>1.1</version>
+                  <groupId>org.apache.activemq</groupId>
+                  <artifactId>artemis-maven-plugin</artifactId>
                   <executions>
                      <execution>
-                        <phase>package</phase>
+                        <id>runClient</id>
                         <goals>
-                           <goal>java</goal>
+                           <goal>runClient</goal>
                         </goals>
+                        <configuration>
+                           <clientClass>org.apache.activemq.artemis.jms.example.PerfListener</clientClass>
+                        </configuration>
                      </execution>
                   </executions>
-                  <configuration>
-                     <mainClass>org.apache.activemq.artemis.jms.example.PerfListener</mainClass>
-                  </configuration>
+                  <dependencies>
+                     <dependency>
+                        <groupId>org.apache.activemq.examples.soak</groupId>
+                        <artifactId>openwire-perf</artifactId>
+                        <version>${project.version}</version>
+                     </dependency>
+                  </dependencies>
                </plugin>
             </plugins>
          </build>
@@ -132,25 +137,29 @@ under the License.
          <build>
             <plugins>
                <plugin>
-                  <groupId>org.codehaus.mojo</groupId>
-                  <artifactId>exec-maven-plugin</artifactId>
-                  <version>1.1</version>
+                  <groupId>org.apache.activemq</groupId>
+                  <artifactId>artemis-maven-plugin</artifactId>
                   <executions>
                      <execution>
-                        <phase>package</phase>
+                        <id>runClient</id>
                         <goals>
-                           <goal>java</goal>
+                           <goal>runClient</goal>
                         </goals>
+                        <configuration>
+                           <clientClass>org.apache.activemq.artemis.jms.example.PerfSender</clientClass>
+                        </configuration>
                      </execution>
                   </executions>
-                  <configuration>
-                     <mainClass>org.apache.activemq.artemis.jms.example.PerfSender</mainClass>
-                  </configuration>
+                  <dependencies>
+                     <dependency>
+                        <groupId>org.apache.activemq.examples.soak</groupId>
+                        <artifactId>openwire-perf</artifactId>
+                        <version>${project.version}</version>
+                     </dependency>
+                  </dependencies>
                </plugin>
             </plugins>
          </build>
       </profile>
    </profiles>
-
-
 </project>
