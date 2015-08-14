@@ -58,7 +58,7 @@
          ${project.version}(${activemq.version.incrementingVersion})
       </ActiveMQ-Version>
       <resteasy.version>3.0.9.Final</resteasy.version>
-      <proton.version>0.9.1</proton.version>
+      <proton.version>0.10</proton.version>
       <fuse.mqtt.client.version>1.10</fuse.mqtt.client.version>
       <skipUnitTests>true</skipUnitTests>
       <skipJmsTests>true</skipJmsTests>
