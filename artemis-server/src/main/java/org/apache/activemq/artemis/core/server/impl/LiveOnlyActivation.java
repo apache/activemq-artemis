@@ -84,6 +84,12 @@ public class LiveOnlyActivation extends Activation {
          scaleDownServerLocator.close();
          scaleDownServerLocator = null;
       }
+
+      try {
+         activeMQServer.getNodeManager().stop();
+      }
+      catch (Throwable ignored) {
+      }
    }
 
    public void freezeConnections(RemotingService remotingService) {
