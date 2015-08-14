@@ -89,7 +89,7 @@ public final class ActiveMQStreamMessage extends ActiveMQMessage implements Stre
    public boolean readBoolean() throws JMSException {
       checkRead();
       try {
-         return streamReadBoolean(message);
+         return streamReadBoolean(message.getBodyBuffer());
       }
       catch (IllegalStateException e) {
          throw new MessageFormatException(e.getMessage());
@@ -103,7 +103,7 @@ public final class ActiveMQStreamMessage extends ActiveMQMessage implements Stre
       checkRead();
 
       try {
-         return streamReadByte(message);
+         return streamReadByte(message.getBodyBuffer());
       }
       catch (IllegalStateException e) {
          throw new MessageFormatException(e.getMessage());
@@ -116,7 +116,7 @@ public final class ActiveMQStreamMessage extends ActiveMQMessage implements Stre
    public short readShort() throws JMSException {
       checkRead();
       try {
-         return streamReadShort(message);
+         return streamReadShort(message.getBodyBuffer());
       }
       catch (IllegalStateException e) {
          throw new MessageFormatException(e.getMessage());
@@ -129,7 +129,7 @@ public final class ActiveMQStreamMessage extends ActiveMQMessage implements Stre
    public char readChar() throws JMSException {
       checkRead();
       try {
-         return streamReadChar(message);
+         return streamReadChar(message.getBodyBuffer());
       }
       catch (IllegalStateException e) {
          throw new MessageFormatException(e.getMessage());
@@ -142,7 +142,7 @@ public final class ActiveMQStreamMessage extends ActiveMQMessage implements Stre
    public int readInt() throws JMSException {
       checkRead();
       try {
-         return streamReadInteger(message);
+         return streamReadInteger(message.getBodyBuffer());
       }
       catch (IllegalStateException e) {
          throw new MessageFormatException(e.getMessage());
@@ -155,7 +155,7 @@ public final class ActiveMQStreamMessage extends ActiveMQMessage implements Stre
    public long readLong() throws JMSException {
       checkRead();
       try {
-         return streamReadLong(message);
+         return streamReadLong(message.getBodyBuffer());
       }
       catch (IllegalStateException e) {
          throw new MessageFormatException(e.getMessage());
@@ -168,7 +168,7 @@ public final class ActiveMQStreamMessage extends ActiveMQMessage implements Stre
    public float readFloat() throws JMSException {
       checkRead();
       try {
-         return streamReadFloat(message);
+         return streamReadFloat(message.getBodyBuffer());
       }
       catch (IllegalStateException e) {
          throw new MessageFormatException(e.getMessage());
@@ -181,7 +181,7 @@ public final class ActiveMQStreamMessage extends ActiveMQMessage implements Stre
    public double readDouble() throws JMSException {
       checkRead();
       try {
-         return streamReadDouble(message);
+         return streamReadDouble(message.getBodyBuffer());
       }
       catch (IllegalStateException e) {
          throw new MessageFormatException(e.getMessage());
@@ -194,7 +194,7 @@ public final class ActiveMQStreamMessage extends ActiveMQMessage implements Stre
    public String readString() throws JMSException {
       checkRead();
       try {
-         return streamReadString(message);
+         return streamReadString(message.getBodyBuffer());
       }
       catch (IllegalStateException e) {
          throw new MessageFormatException(e.getMessage());
@@ -212,7 +212,7 @@ public final class ActiveMQStreamMessage extends ActiveMQMessage implements Stre
    public int readBytes(final byte[] value) throws JMSException {
       checkRead();
       try {
-         Pair<Integer, Integer> pairRead = streamReadBytes(message, len, value);
+         Pair<Integer, Integer> pairRead = streamReadBytes(message.getBodyBuffer(), len, value);
 
          len = pairRead.getA();
          return pairRead.getB();
@@ -228,7 +228,7 @@ public final class ActiveMQStreamMessage extends ActiveMQMessage implements Stre
    public Object readObject() throws JMSException {
       checkRead();
       try {
-         return streamReadObject(message);
+         return streamReadObject(message.getBodyBuffer());
       }
       catch (IllegalStateException e) {
          throw new MessageFormatException(e.getMessage());

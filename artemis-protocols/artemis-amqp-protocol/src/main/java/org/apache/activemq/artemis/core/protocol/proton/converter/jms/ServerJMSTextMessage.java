@@ -63,7 +63,7 @@ public class ServerJMSTextMessage extends ServerJMSMessage implements TextMessag
          this.text = null;
       }
 
-      writeBodyText(message, this.text);
+      writeBodyText(getWriteBodyBuffer(), this.text);
    }
 
    public String getText() {
@@ -84,12 +84,12 @@ public class ServerJMSTextMessage extends ServerJMSMessage implements TextMessag
 
    public void encode() throws Exception {
       super.encode();
-      writeBodyText(message, text);
+      writeBodyText(getWriteBodyBuffer(), text);
    }
 
    public void decode() throws Exception {
       super.decode();
-      text = readBodyText(message);
+      text = readBodyText(getReadBodyBuffer());
    }
 
 }

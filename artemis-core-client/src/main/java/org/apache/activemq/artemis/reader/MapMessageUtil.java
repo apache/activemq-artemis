@@ -17,7 +17,6 @@
 package org.apache.activemq.artemis.reader;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
-import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.utils.TypedProperties;
 
 public class MapMessageUtil extends MessageUtil {
@@ -25,16 +24,15 @@ public class MapMessageUtil extends MessageUtil {
    /**
     * Utility method to set the map on a message body
     */
-   public static void writeBodyMap(Message message, TypedProperties properties) {
-      ActiveMQBuffer buff = getBodyBuffer(message);
-      buff.resetWriterIndex();
-      properties.encode(buff);
+   public static void writeBodyMap(ActiveMQBuffer message, TypedProperties properties) {
+      message.resetWriterIndex();
+      properties.encode(message);
    }
 
    /**
     * Utility method to set the map on a message body
     */
-   public static TypedProperties readBodyMap(Message message) {
+   public static TypedProperties readBodyMap(ActiveMQBuffer message) {
       TypedProperties map = new TypedProperties();
       readBodyMap(message, map);
       return map;
@@ -43,10 +41,9 @@ public class MapMessageUtil extends MessageUtil {
    /**
     * Utility method to set the map on a message body
     */
-   public static void readBodyMap(Message message, TypedProperties map) {
-      ActiveMQBuffer buff = getBodyBuffer(message);
-      buff.resetReaderIndex();
-      map.decode(buff);
+   public static void readBodyMap(ActiveMQBuffer message, TypedProperties map) {
+      message.resetReaderIndex();
+      map.decode(message);
    }
 
 }

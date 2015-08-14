@@ -16,12 +16,14 @@
  */
 package org.apache.activemq.artemis.core.buffers.impl;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.utils.ByteUtil;
 import org.apache.activemq.artemis.utils.DataConstants;
 import org.apache.activemq.artemis.utils.UTF8Util;
 
@@ -350,7 +352,7 @@ public class ChannelBufferWrapper implements ActiveMQBuffer {
       return new ChannelBufferWrapper(buffer.readSlice(length), releasable);
    }
 
-   public short readUnsignedByte() {
+   public int readUnsignedByte() {
       return buffer.readUnsignedByte();
    }
 
@@ -426,8 +428,9 @@ public class ChannelBufferWrapper implements ActiveMQBuffer {
       buffer.setShort(index, value);
    }
 
-   public void skipBytes(final int length) {
+   public int skipBytes(final int length) {
       buffer.skipBytes(length);
+      return length;
    }
 
    public ActiveMQBuffer slice() {
@@ -509,5 +512,24 @@ public class ChannelBufferWrapper implements ActiveMQBuffer {
    public void writeShort(final short value) {
       buffer.writeShort(value);
    }
+
+   /** from {@link java.io.DataInput} interface */
+   @Override
+   public void readFully(byte[] b) throws IOException {
+      readBytes(b);
+   }
+
+   /** from {@link java.io.DataInput} interface */
+   @Override
+   public void readFully(byte[] b, int off, int len) throws IOException {
+      readBytes(b, off, len);
+   }
+
+   /** from {@link java.io.DataInput} interface */
+   @Override
+   public String readLine() throws IOException {
+      return ByteUtil.readLine(this);
+   }
+
 
 }

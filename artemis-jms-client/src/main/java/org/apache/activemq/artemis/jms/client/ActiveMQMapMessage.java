@@ -317,7 +317,7 @@ public final class ActiveMQMapMessage extends ActiveMQMessage implements MapMess
    @Override
    public void doBeforeSend() throws Exception {
       if (invalid) {
-         writeBodyMap(message, map);
+         writeBodyMap(message.getBodyBuffer(), map);
          invalid = false;
       }
 
@@ -328,7 +328,7 @@ public final class ActiveMQMapMessage extends ActiveMQMessage implements MapMess
    public void doBeforeReceive() throws ActiveMQException {
       super.doBeforeReceive();
 
-      readBodyMap(message, map);
+      readBodyMap(message.getBodyBuffer(), map);
    }
 
    // Package protected ---------------------------------------------

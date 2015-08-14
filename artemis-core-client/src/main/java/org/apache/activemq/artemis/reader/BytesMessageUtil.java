@@ -16,115 +16,115 @@
  */
 package org.apache.activemq.artemis.reader;
 
-import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 
 public class BytesMessageUtil extends MessageUtil {
 
-   public static boolean bytesReadBoolean(Message message) {
-      return getBodyBuffer(message).readBoolean();
+   public static boolean bytesReadBoolean(ActiveMQBuffer message) {
+      return message.readBoolean();
    }
 
-   public static byte bytesReadByte(Message message) {
-      return getBodyBuffer(message).readByte();
+   public static byte bytesReadByte(ActiveMQBuffer message) {
+      return message.readByte();
    }
 
-   public static int bytesReadUnsignedByte(Message message) {
-      return getBodyBuffer(message).readUnsignedByte();
+   public static int bytesReadUnsignedByte(ActiveMQBuffer message) {
+      return message.readUnsignedByte();
    }
 
-   public static short bytesReadShort(Message message) {
-      return getBodyBuffer(message).readShort();
+   public static short bytesReadShort(ActiveMQBuffer message) {
+      return message.readShort();
    }
 
-   public static int bytesReadUnsignedShort(Message message) {
-      return getBodyBuffer(message).readUnsignedShort();
+   public static int bytesReadUnsignedShort(ActiveMQBuffer message) {
+      return message.readUnsignedShort();
    }
 
-   public static char bytesReadChar(Message message) {
-      return (char) getBodyBuffer(message).readShort();
+   public static char bytesReadChar(ActiveMQBuffer message) {
+      return (char) message.readShort();
    }
 
-   public static int bytesReadInt(Message message) {
-      return getBodyBuffer(message).readInt();
+   public static int bytesReadInt(ActiveMQBuffer message) {
+      return message.readInt();
    }
 
-   public static long bytesReadLong(Message message) {
-      return getBodyBuffer(message).readLong();
+   public static long bytesReadLong(ActiveMQBuffer message) {
+      return message.readLong();
    }
 
-   public static float bytesReadFloat(Message message) {
-      return Float.intBitsToFloat(getBodyBuffer(message).readInt());
+   public static float bytesReadFloat(ActiveMQBuffer message) {
+      return Float.intBitsToFloat(message.readInt());
    }
 
-   public static double bytesReadDouble(Message message) {
-      return Double.longBitsToDouble(getBodyBuffer(message).readLong());
+   public static double bytesReadDouble(ActiveMQBuffer message) {
+      return Double.longBitsToDouble(message.readLong());
    }
 
-   public static String bytesReadUTF(Message message) {
-      return getBodyBuffer(message).readUTF();
+   public static String bytesReadUTF(ActiveMQBuffer message) {
+      return message.readUTF();
    }
 
-   public static int bytesReadBytes(Message message, final byte[] value) {
+   public static int bytesReadBytes(ActiveMQBuffer message, final byte[] value) {
       return bytesReadBytes(message, value, value.length);
    }
 
-   public static int bytesReadBytes(Message message, final byte[] value, final int length) {
-      if (!getBodyBuffer(message).readable()) {
+   public static int bytesReadBytes(ActiveMQBuffer message, final byte[] value, final int length) {
+      if (!message.readable()) {
          return -1;
       }
 
-      int read = Math.min(length, getBodyBuffer(message).readableBytes());
+      int read = Math.min(length, message.readableBytes());
 
       if (read != 0) {
-         getBodyBuffer(message).readBytes(value, 0, read);
+         message.readBytes(value, 0, read);
       }
 
       return read;
 
    }
 
-   public static void bytesWriteBoolean(Message message, boolean value) {
-      getBodyBuffer(message).writeBoolean(value);
+   public static void bytesWriteBoolean(ActiveMQBuffer message, boolean value) {
+      message.writeBoolean(value);
    }
 
-   public static void bytesWriteByte(Message message, byte value) {
-      getBodyBuffer(message).writeByte(value);
+   public static void bytesWriteByte(ActiveMQBuffer message, byte value) {
+      message.writeByte(value);
    }
 
-   public static void bytesWriteShort(Message message, short value) {
-      getBodyBuffer(message).writeShort(value);
+   public static void bytesWriteShort(ActiveMQBuffer message, short value) {
+      message.writeShort(value);
    }
 
-   public static void bytesWriteChar(Message message, char value) {
-      getBodyBuffer(message).writeShort((short) value);
+   public static void bytesWriteChar(ActiveMQBuffer message, char value) {
+      message.writeShort((short) value);
    }
 
-   public static void bytesWriteInt(Message message, int value) {
-      getBodyBuffer(message).writeInt(value);
+   public static void bytesWriteInt(ActiveMQBuffer message, int value) {
+      message.writeInt(value);
    }
 
-   public static void bytesWriteLong(Message message, long value) {
-      getBodyBuffer(message).writeLong(value);
+   public static void bytesWriteLong(ActiveMQBuffer message, long value) {
+      message.writeLong(value);
    }
 
-   public static void bytesWriteFloat(Message message, float value) {
-      getBodyBuffer(message).writeInt(Float.floatToIntBits(value));
+   public static void bytesWriteFloat(ActiveMQBuffer message, float value) {
+      message.writeInt(Float.floatToIntBits(value));
    }
 
-   public static void bytesWriteDouble(Message message, double value) {
-      getBodyBuffer(message).writeLong(Double.doubleToLongBits(value));
+   public static void bytesWriteDouble(ActiveMQBuffer message, double value) {
+      message.writeLong(Double.doubleToLongBits(value));
    }
 
-   public static void bytesWriteUTF(Message message, String value) {
-      getBodyBuffer(message).writeUTF(value);
+   public static void bytesWriteUTF(ActiveMQBuffer message, String value) {
+      message.writeUTF(value);
    }
 
-   public static void bytesWriteBytes(Message message, byte[] value) {
-      getBodyBuffer(message).writeBytes(value);
+   public static void bytesWriteBytes(ActiveMQBuffer message, byte[] value) {
+      message.writeBytes(value);
    }
 
-   public static void bytesWriteBytes(Message message, final byte[] value, final int offset, final int length) {
-      getBodyBuffer(message).writeBytes(value, offset, length);
+   public static void bytesWriteBytes(ActiveMQBuffer message, final byte[] value, final int offset, final int length) {
+      message.writeBytes(value, offset, length);
    }
 
    /**
@@ -134,7 +134,7 @@ public class BytesMessageUtil extends MessageUtil {
     * @param value
     * @return
     */
-   public static boolean bytesWriteObject(Message message, Object value) {
+   public static boolean bytesWriteObject(ActiveMQBuffer message, Object value) {
       if (value == null) {
          throw new NullPointerException("Attempt to write a null value");
       }
@@ -175,8 +175,8 @@ public class BytesMessageUtil extends MessageUtil {
       return true;
    }
 
-   public static void bytesMessageReset(Message message) {
-      getBodyBuffer(message).resetReaderIndex();
+   public static void bytesMessageReset(ActiveMQBuffer message) {
+      message.resetReaderIndex();
    }
 
 }

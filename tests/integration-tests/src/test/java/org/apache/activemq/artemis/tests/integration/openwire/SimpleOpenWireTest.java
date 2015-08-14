@@ -27,17 +27,17 @@ import javax.jms.Session;
 import javax.jms.TemporaryQueue;
 import javax.jms.TemporaryTopic;
 import javax.jms.TextMessage;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.command.ActiveMQQueue;
 import org.apache.activemq.command.ActiveMQTopic;
-import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-
-import java.util.concurrent.TimeUnit;
 
 public class SimpleOpenWireTest extends BasicOpenWireTest {
 
@@ -300,60 +300,6 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
       }
    }
 
-   /**
-    * This is the example shipped with the distribution
-    *
-    * @throws Exception
-    */
-   @Test
-   public void testOpenWireExample() throws Exception {
-      Connection exConn = null;
-
-      try {
-         String urlString = "tcp://" + OWHOST + ":" + OWPORT + "?wireFormat.cacheEnabled=true";
-         ActiveMQConnectionFactory exFact = new ActiveMQConnectionFactory(urlString);
-
-         // Step 2. Perfom a lookup on the queue
-         Queue queue = new ActiveMQQueue(durableQueueName);
-
-         // Step 4.Create a JMS Connection
-         exConn = exFact.createConnection();
-
-         // Step 10. Start the Connection
-         exConn.start();
-
-         // Step 5. Create a JMS Session
-         Session session = exConn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-
-         // Step 6. Create a JMS Message Producer
-         MessageProducer producer = session.createProducer(queue);
-
-         // Step 7. Create a Text Message
-         TextMessage message = session.createTextMessage("This is a text message");
-
-         //System.out.println("Sent message: " + message.getText());
-
-         // Step 8. Send the Message
-         producer.send(message);
-
-         // Step 9. Create a JMS Message Consumer
-         MessageConsumer messageConsumer = session.createConsumer(queue);
-
-         // Step 11. Receive the message
-         TextMessage messageReceived = (TextMessage) messageConsumer.receive(5000);
-
-         System.out.println("Received message: " + messageReceived);
-
-         assertEquals("This is a text message", messageReceived.getText());
-      }
-      finally {
-         if (exConn != null) {
-            exConn.close();
-         }
-      }
-
-   }
-
    @Test
    public void testFailoverTransportReconnect() throws Exception {
       Connection exConn = null;
@@ -389,4 +335,132 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
          }
       }
    }
+
+   /**
+    * This is the example shipped with the distribution
+    *
+    * @throws Exception
+    */
+   @Test
+   public void testOpenWireExample() throws Exception {
+      Connection exConn = null;
+
+      SimpleString durableQueue = new SimpleString("jms.queue.exampleQueue");
+      this.server.createQueue(durableQueue, durableQueue, null, true, false);
+
+      try {
+         ActiveMQConnectionFactory exFact = new ActiveMQConnectionFactory();
+
+         Queue queue = new ActiveMQQueue(durableQueueName);
+
+         exConn = exFact.createConnection();
+
+         exConn.start();
+
+         Session session = exConn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+
+         MessageProducer producer = session.createProducer(queue);
+
+         TextMessage message = session.createTextMessage("This is a text message");
+
+         producer.send(message);
+
+         MessageConsumer messageConsumer = session.createConsumer(queue);
+
+         TextMessage messageReceived = (TextMessage) messageConsumer.receive(5000);
+
+         assertEquals("This is a text message", messageReceived.getText());
+      }
+      finally {
+         if (exConn != null) {
+            exConn.close();
+         }
+      }
+
+   }
+
+
+   /**
+    * This is the example shipped with the distribution
+    *
+    * @throws Exception
+    */
+   @Test
+   public void testMultipleConsumers() throws Exception {
+      Connection exConn = null;
+
+      SimpleString durableQueue = new SimpleString("jms.queue.exampleQueue");
+      this.server.createQueue(durableQueue, durableQueue, null, true, false);
+
+      try {
+         ActiveMQConnectionFactory exFact = new ActiveMQConnectionFactory();
+
+         Queue queue = new ActiveMQQueue(durableQueueName);
+
+         exConn = exFact.createConnection();
+
+         exConn.start();
+
+         Session session = exConn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+
+         MessageProducer producer = session.createProducer(queue);
+
+         TextMessage message = session.createTextMessage("This is a text message");
+
+         producer.send(message);
+
+         MessageConsumer messageConsumer = session.createConsumer(queue);
+
+         TextMessage messageReceived = (TextMessage) messageConsumer.receive(5000);
+
+         assertEquals("This is a text message", messageReceived.getText());
+      }
+      finally {
+         if (exConn != null) {
+            exConn.close();
+         }
+      }
+
+   }
+
+   @Test
+   public void testMixedOpenWireExample() throws Exception {
+      Connection openConn = null;
+
+      SimpleString durableQueue = new SimpleString("jms.queue.exampleQueue");
+      this.server.createQueue(durableQueue, durableQueue, null, true, false);
+
+      ActiveMQConnectionFactory openCF = new ActiveMQConnectionFactory();
+
+      Queue queue = new ActiveMQQueue("exampleQueue");
+
+      openConn = openCF.createConnection();
+
+      openConn.start();
+
+      Session openSession = openConn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+
+      MessageProducer producer = openSession.createProducer(queue);
+
+      TextMessage message = openSession.createTextMessage("This is a text message");
+
+      producer.send(message);
+
+      org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory artemisCF = new org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory();
+
+      Connection artemisConn = artemisCF.createConnection();
+      Session artemisSession = artemisConn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      artemisConn.start();
+      MessageConsumer messageConsumer = artemisSession.createConsumer(artemisSession.createQueue("exampleQueue"));
+
+      TextMessage messageReceived = (TextMessage) messageConsumer.receive(5000);
+
+      assertEquals("This is a text message", messageReceived.getText());
+
+      openConn.close();
+      artemisConn.close();
+
+   }
+
+
 }

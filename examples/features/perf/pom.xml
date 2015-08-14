@@ -22,8 +22,8 @@ under the License.
    <modelVersion>4.0.0</modelVersion>
 
    <parent>
-      <groupId>org.apache.activemq.examples</groupId>
-      <artifactId>artemis-examples</artifactId>
+      <groupId>org.apache.activemq.examples.clustered</groupId>
+      <artifactId>broker-features</artifactId>
       <version>1.0.1-SNAPSHOT</version>
    </parent>
 

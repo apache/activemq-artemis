@@ -21,7 +21,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQPropertyConversionException;
 import org.apache.activemq.artemis.api.core.Message;
@@ -52,9 +51,9 @@ public class MessageUtil {
 
    public static final SimpleString CONNECTION_ID_PROPERTY_NAME = new SimpleString("__AMQ_CID");
 
-   public static ActiveMQBuffer getBodyBuffer(Message message) {
-      return message.getBodyBuffer();
-   }
+//   public static ActiveMQBuffer getBodyBuffer(Message message) {
+//      return message.getBodyBuffer();
+//   }
 
    public static byte[] getJMSCorrelationIDAsBytes(Message message) {
       Object obj = message.getObjectProperty(CORRELATIONID_HEADER_NAME);

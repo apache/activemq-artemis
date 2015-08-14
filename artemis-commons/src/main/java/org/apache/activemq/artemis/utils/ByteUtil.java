@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.utils;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.UnpooledByteBufAllocator;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 
 public class ByteUtil {
 
@@ -65,6 +66,17 @@ public class ByteUtil {
       ByteBuf buffer = UnpooledByteBufAllocator.DEFAULT.heapBuffer(8, 8);
       buffer.writeLong(x);
       return buffer.array();
+   }
+
+
+   public static String readLine(ActiveMQBuffer buffer) {
+      StringBuilder sb = new StringBuilder("");
+      char c = buffer.readChar();
+      while (c != '\n') {
+         sb.append(c);
+         c = buffer.readChar();
+      }
+      return sb.toString();
    }
 
 }

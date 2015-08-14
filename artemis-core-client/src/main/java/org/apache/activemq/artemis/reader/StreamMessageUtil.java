@@ -17,7 +17,6 @@
 package org.apache.activemq.artemis.reader;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
-import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.utils.DataConstants;
 
@@ -27,11 +26,10 @@ public class StreamMessageUtil extends MessageUtil {
     * Method to read boolean values out of the Stream protocol existent on JMS Stream Messages
     * Throws IllegalStateException if the type was invalid
     *
-    * @param message
+    * @param buff
     * @return
     */
-   public static boolean streamReadBoolean(Message message) {
-      ActiveMQBuffer buff = getBodyBuffer(message);
+   public static boolean streamReadBoolean(ActiveMQBuffer buff) {
       byte type = buff.readByte();
 
       switch (type) {
@@ -46,8 +44,7 @@ public class StreamMessageUtil extends MessageUtil {
 
    }
 
-   public static byte streamReadByte(Message message) {
-      ActiveMQBuffer buff = getBodyBuffer(message);
+   public static byte streamReadByte(ActiveMQBuffer buff) {
       int index = buff.readerIndex();
       try {
          byte type = buff.readByte();
@@ -68,8 +65,7 @@ public class StreamMessageUtil extends MessageUtil {
 
    }
 
-   public static short streamReadShort(Message message) {
-      ActiveMQBuffer buff = getBodyBuffer(message);
+   public static short streamReadShort(ActiveMQBuffer buff) {
       byte type = buff.readByte();
       switch (type) {
          case DataConstants.BYTE:
@@ -84,8 +80,7 @@ public class StreamMessageUtil extends MessageUtil {
       }
    }
 
-   public static char streamReadChar(Message message) {
-      ActiveMQBuffer buff = getBodyBuffer(message);
+   public static char streamReadChar(ActiveMQBuffer buff) {
       byte type = buff.readByte();
       switch (type) {
          case DataConstants.CHAR:
@@ -104,8 +99,7 @@ public class StreamMessageUtil extends MessageUtil {
 
    }
 
-   public static int streamReadInteger(Message message) {
-      ActiveMQBuffer buff = getBodyBuffer(message);
+   public static int streamReadInteger(ActiveMQBuffer buff) {
       byte type = buff.readByte();
       switch (type) {
          case DataConstants.BYTE:
@@ -122,8 +116,7 @@ public class StreamMessageUtil extends MessageUtil {
       }
    }
 
-   public static long streamReadLong(Message message) {
-      ActiveMQBuffer buff = getBodyBuffer(message);
+   public static long streamReadLong(ActiveMQBuffer buff) {
       byte type = buff.readByte();
       switch (type) {
          case DataConstants.BYTE:
@@ -142,8 +135,7 @@ public class StreamMessageUtil extends MessageUtil {
       }
    }
 
-   public static float streamReadFloat(Message message) {
-      ActiveMQBuffer buff = getBodyBuffer(message);
+   public static float streamReadFloat(ActiveMQBuffer buff) {
       byte type = buff.readByte();
       switch (type) {
          case DataConstants.FLOAT:
@@ -156,8 +148,7 @@ public class StreamMessageUtil extends MessageUtil {
       }
    }
 
-   public static double streamReadDouble(Message message) {
-      ActiveMQBuffer buff = getBodyBuffer(message);
+   public static double streamReadDouble(ActiveMQBuffer buff) {
       byte type = buff.readByte();
       switch (type) {
          case DataConstants.FLOAT:
@@ -172,8 +163,7 @@ public class StreamMessageUtil extends MessageUtil {
       }
    }
 
-   public static String streamReadString(Message message) {
-      ActiveMQBuffer buff = getBodyBuffer(message);
+   public static String streamReadString(ActiveMQBuffer buff) {
       byte type = buff.readByte();
       switch (type) {
          case DataConstants.BOOLEAN:
@@ -204,12 +194,10 @@ public class StreamMessageUtil extends MessageUtil {
     * It will return remainingBytes, bytesRead
     *
     * @param remainingBytes remaining Bytes from previous read. Send it to 0 if it was the first call for the message
-    * @param message
+    * @param buff
     * @return a pair of remaining bytes and bytes read
     */
-   public static Pair<Integer, Integer> streamReadBytes(Message message, int remainingBytes, byte[] value) {
-      ActiveMQBuffer buff = getBodyBuffer(message);
-
+   public static Pair<Integer, Integer> streamReadBytes(ActiveMQBuffer buff, int remainingBytes, byte[] value) {
       if (remainingBytes == -1) {
          return new Pair<>(0, -1);
       }
@@ -230,9 +218,7 @@ public class StreamMessageUtil extends MessageUtil {
 
    }
 
-   public static Object streamReadObject(Message message) {
-      ActiveMQBuffer buff = getBodyBuffer(message);
-
+   public static Object streamReadObject(ActiveMQBuffer buff) {
       byte type = buff.readByte();
       switch (type) {
          case DataConstants.BOOLEAN:
