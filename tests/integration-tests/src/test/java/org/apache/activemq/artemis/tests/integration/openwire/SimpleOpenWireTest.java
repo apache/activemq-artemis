@@ -87,6 +87,16 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
       session.close();
    }
 
+
+   @Test
+   public void testKeepAlive() throws Exception {
+      connection.start();
+
+      Thread.sleep(125000);
+
+      connection.createSession(false, 1);
+   }
+
    @Test
    public void testSimpleTopic() throws Exception {
       connection.start();

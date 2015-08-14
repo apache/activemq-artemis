@@ -201,11 +201,12 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor {
          // the connection handles pings, negotiations directly.
          // and delegate all other commands to manager.
          if (command.getClass() == KeepAliveInfo.class) {
+            dataReceived = true;
             KeepAliveInfo info = (KeepAliveInfo) command;
-            if (info.isResponseRequired()) {
-               info.setResponseRequired(false);
-               protocolManager.sendReply(this, info);
-            }
+            info.setResponseRequired(false);
+            // if we don't respond to KeepAlive commands then the client will think the server is dead and timeout
+            // for some reason KeepAliveInfo.isResponseRequired() is always false
+            protocolManager.sendReply(this, info);
          }
          else if (command.getClass() == WireFormatInfo.class) {
             // amq here starts a read/write monitor thread (detect ttl?)

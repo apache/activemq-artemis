@@ -1941,7 +1941,6 @@ public class FailoverTest extends FailoverTestBase {
    public void testBackupServerNotRemoved() throws Exception {
       // HORNETQ-720 Disabling test for replicating backups.
       if (!(backupServer.getServer().getHAPolicy() instanceof SharedStoreSlavePolicy)) {
-         waitForComponent(backupServer, 1);
          return;
       }
       locator.setFailoverOnInitialConnection(true);
