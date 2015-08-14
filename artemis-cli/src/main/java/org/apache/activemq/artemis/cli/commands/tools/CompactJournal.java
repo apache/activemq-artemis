@@ -33,14 +33,12 @@ public final class CompactJournal extends DataAbstract implements Action {
    public Object execute(ActionContext context) throws Exception {
       super.execute(context);
       try {
-         testLock();
          Configuration configuration = getFileConfiguration();
          compactJournal(new File(getJournal()), "activemq-data", "amq", configuration.getJournalMinFiles(), configuration.getJournalFileSize(), null);
          compactJournal(new File(getBinding()), "activemq-bindings", "bindings", 2, 1048576, null);
       }
       catch (Exception e) {
          treatError(e, "data", "compact");
-         return e;
       }
       return null;
    }

@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
-import java.nio.channels.FileLock;
 
 import org.apache.activemq.artemis.api.core.ActiveMQIllegalStateException;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -130,8 +129,6 @@ public abstract class NodeManager implements ActiveMQComponent {
       }
       releaseBackup();
    }
-
-   public abstract FileLock tryLockLive();
 
    /**
     * Ensures existence of persistent information about the server's nodeID.

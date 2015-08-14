@@ -18,15 +18,9 @@
 package org.apache.activemq.artemis.cli.commands.tools;
 
 import java.io.File;
-import java.nio.channels.FileLock;
 
 import io.airlift.airline.Option;
 import org.apache.activemq.artemis.cli.commands.Configurable;
-import org.apache.activemq.artemis.core.config.Configuration;
-import org.apache.activemq.artemis.core.server.JournalType;
-import org.apache.activemq.artemis.core.server.impl.AIOFileLockNodeManager;
-import org.apache.activemq.artemis.core.server.impl.FileLockNodeManager;
-import org.apache.activemq.artemis.jlibaio.LibaioContext;
 
 /**
  * Abstract class for places where you need bindings, journal paging and large messages configuration
@@ -44,31 +38,6 @@ public abstract class DataAbstract extends Configurable {
 
    @Option(name = "--large-messages", description = "The folder used for large-messages (default from broker.xml)")
    public String largeMessges;
-
-
-   protected void testLock() throws Exception {
-
-      FileLockNodeManager fileLockNodeManager;
-      Configuration configuration = getFileConfiguration();
-      if (getFileConfiguration().getJournalType() == JournalType.ASYNCIO && LibaioContext.isLoaded()) {
-         fileLockNodeManager = new AIOFileLockNodeManager(new File(getJournal()), false, configuration.getJournalLockAcquisitionTimeout());
-      }
-      else {
-         fileLockNodeManager = new FileLockNodeManager(new File(getJournal()), false, configuration.getJournalLockAcquisitionTimeout());
-      }
-
-      fileLockNodeManager.start();
-
-      try (FileLock lock = fileLockNodeManager.tryLockLive()) {
-         if (lock == null) {
-            throw new RuntimeException("Server is locked!");
-         }
-      }
-      finally {
-         fileLockNodeManager.stop();
-      }
-
-   }
 
    public String getLargeMessages() throws Exception {
       if (largeMessges == null) {

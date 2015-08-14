@@ -17,7 +17,6 @@
 package org.apache.activemq.artemis.tests.integration.discovery;
 
 import java.net.InetAddress;
-import java.nio.channels.FileLock;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -175,11 +174,6 @@ public class DiscoveryBaseTest extends ActiveMQTestBase {
       public FakeNodeManager(String nodeID) {
          super(false, null);
          this.setNodeID(nodeID);
-      }
-
-      @Override
-      public FileLock tryLockLive() {
-         return null;
       }
 
       @Override
