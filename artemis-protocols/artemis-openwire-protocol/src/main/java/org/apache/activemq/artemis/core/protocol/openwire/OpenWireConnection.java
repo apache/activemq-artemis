@@ -194,9 +194,8 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor {
    @Override
    public void bufferReceived(Object connectionID, ActiveMQBuffer buffer) {
       try {
-         Object object = wireFormat.unmarshal(buffer);
+         Command command = (Command) wireFormat.unmarshal(buffer);
 
-         Command command = (Command) object;
          boolean responseRequired = command.isResponseRequired();
          int commandId = command.getCommandId();
          // the connection handles pings, negotiations directly.

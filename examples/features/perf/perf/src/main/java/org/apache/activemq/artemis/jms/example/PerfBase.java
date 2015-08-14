@@ -27,7 +27,6 @@ import javax.jms.MessageConsumer;
 import javax.jms.MessageListener;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
-import javax.naming.InitialContext;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.Properties;
@@ -60,7 +59,7 @@ public abstract class PerfBase {
    protected static String getPerfFileName(final String[] args) {
       String fileName;
 
-      if (args.length > 0) {
+      if (args != null && args.length > 0) {
          fileName = args[0];
       }
       else {
@@ -95,12 +94,13 @@ public abstract class PerfBase {
       boolean transacted = Boolean.valueOf(props.getProperty("transacted"));
       int batchSize = Integer.valueOf(props.getProperty("batch-size"));
       boolean drainQueue = Boolean.valueOf(props.getProperty("drain-queue"));
-      String destinationLookup = props.getProperty("destination-lookup");
-      String connectionFactoryLookup = props.getProperty("connection-factory-lookup");
+      String destinationName = props.getProperty("destination-name");
       int throttleRate = Integer.valueOf(props.getProperty("throttle-rate"));
       boolean dupsOK = Boolean.valueOf(props.getProperty("dups-ok-acknowlege"));
       boolean disableMessageID = Boolean.valueOf(props.getProperty("disable-message-id"));
       boolean disableTimestamp = Boolean.valueOf(props.getProperty("disable-message-timestamp"));
+      boolean openwire = Boolean.valueOf(props.getProperty("openwire", "true"));
+      String uri = props.getProperty("server-uri", "tcp://localhost:61616");
 
       PerfBase.log.info("num-messages: " + noOfMessages);
       PerfBase.log.info("num-warmup-messages: " + noOfWarmupMessages);
@@ -110,11 +110,12 @@ public abstract class PerfBase {
       PerfBase.log.info("batch-size: " + batchSize);
       PerfBase.log.info("drain-queue: " + drainQueue);
       PerfBase.log.info("throttle-rate: " + throttleRate);
-      PerfBase.log.info("connection-factory-lookup: " + connectionFactoryLookup);
-      PerfBase.log.info("destination-lookup: " + destinationLookup);
+      PerfBase.log.info("destination-name: " + destinationName);
       PerfBase.log.info("disable-message-id: " + disableMessageID);
       PerfBase.log.info("disable-message-timestamp: " + disableTimestamp);
       PerfBase.log.info("dups-ok-acknowledge: " + dupsOK);
+      PerfBase.log.info("server-uri: " + uri);
+      PerfBase.log.info("openwire:" + openwire);
 
       PerfParams perfParams = new PerfParams();
       perfParams.setNoOfMessagesToSend(noOfMessages);
@@ -124,12 +125,13 @@ public abstract class PerfBase {
       perfParams.setSessionTransacted(transacted);
       perfParams.setBatchSize(batchSize);
       perfParams.setDrainQueue(drainQueue);
-      perfParams.setConnectionFactoryLookup(connectionFactoryLookup);
-      perfParams.setDestinationLookup(destinationLookup);
+      perfParams.setDestinationName(destinationName);
       perfParams.setThrottleRate(throttleRate);
       perfParams.setDisableMessageID(disableMessageID);
       perfParams.setDisableTimestamp(disableTimestamp);
       perfParams.setDupsOK(dupsOK);
+      perfParams.setOpenwire(openwire);
+      perfParams.setUri(uri);
 
       return perfParams;
    }
@@ -151,17 +153,23 @@ public abstract class PerfBase {
    private long start;
 
    private void init() throws Exception {
-      InitialContext ic = new InitialContext();
-      System.out.println("ic = " + ic);
-      factory = (ConnectionFactory) ic.lookup(perfParams.getConnectionFactoryLookup());
+      if (perfParams.isOpenwire()) {
+         factory = new org.apache.activemq.ActiveMQConnectionFactory(perfParams.getUri());
 
-      destination = (Destination) ic.lookup(perfParams.getDestinationLookup());
+         destination = new org.apache.activemq.command.ActiveMQQueue(perfParams.getDestinationName());
 
-      connection = factory.createConnection();
+         connection = factory.createConnection();
+      }
+      else {
+         factory = new  org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory(perfParams.getUri());
+
+         destination = new org.apache.activemq.artemis.jms.client.ActiveMQQueue(perfParams.getDestinationName());
+
+         connection = factory.createConnection();
+
+      }
 
       session = connection.createSession(perfParams.isSessionTransacted(), perfParams.isDupsOK() ? Session.DUPS_OK_ACKNOWLEDGE : Session.AUTO_ACKNOWLEDGE);
-
-      ic.close();
    }
 
    private void displayAverage(final long numberOfMessages, final long start, final long end) {

@@ -46,7 +46,8 @@ ${journal-buffer.settings}
 ${connector-config.settings}
       <acceptors>
          <!-- Default ActiveMQ Artemis Acceptor.  Multi-protocol adapter.  Currently supports Core, OpenWire, Stomp and AMQP. -->
-         <acceptor name="artemis">tcp://${host}:${default.port}</acceptor>
+         <!-- performance tests have shown that openWire performs best with these buffer sizes -->
+         <acceptor name="artemis">tcp://${host}:${default.port}?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576</acceptor>
 
          <!-- AMQP Acceptor.  Listens on default AMQP port for AMQP traffic.-->
          <acceptor name="amqp">tcp://${host}:${amqp.port}?protocols=AMQP</acceptor>
