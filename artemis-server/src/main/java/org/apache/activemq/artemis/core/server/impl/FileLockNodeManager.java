@@ -73,6 +73,15 @@ public class FileLockNodeManager extends NodeManager {
       super.start();
    }
 
+   public FileLock tryLockLive() {
+      try {
+         return tryLock(FileLockNodeManager.LIVE_LOCK_POS);
+      }
+      catch (Exception e) {
+         throw new RuntimeException(e.getMessage(), e);
+      }
+   }
+
    @Override
    public boolean isAwaitingFailback() throws Exception {
       return getState() == FileLockNodeManager.FAILINGBACK;

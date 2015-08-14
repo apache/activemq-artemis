@@ -63,10 +63,12 @@ public class PrintData extends DataAbstract implements Action {
    public Object execute(ActionContext context) throws Exception {
       super.execute(context);
       try {
+         testLock();
          printData(new File(getBinding()), new File(getJournal()), new File(getPaging()));
       }
       catch (Exception e) {
          treatError(e, "data", "print");
+         return e;
       }
       return null;
    }

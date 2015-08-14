@@ -93,6 +93,15 @@ public class ArtemisTest {
       // Some exceptions may happen on the initialization, but they should be ok on start the basic core protocol
       Artemis.execute("run");
 
+      Object object = Artemis.execute("data", "print");
+      Assert.assertTrue("An error was expected", object != null && object instanceof Throwable);
+
+      object = Artemis.execute("data", "compact");
+      Assert.assertTrue("An error was expected", object != null && object instanceof Throwable);
+
+      object = Artemis.execute("data", "exp");
+      Assert.assertTrue("An error was expected", object != null && object instanceof Throwable);
+
       try (ServerLocator locator = ServerLocatorImpl.newLocator("tcp://localhost:61616");
            ClientSessionFactory factory = locator.createSessionFactory();
            ClientSession coreSession = factory.createSession()) {

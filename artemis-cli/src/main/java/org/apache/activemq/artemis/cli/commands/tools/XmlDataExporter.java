@@ -129,10 +129,12 @@ public final class XmlDataExporter extends DataAbstract implements Action {
       super.execute(context);
 
       try {
+         testLock();
          process(context.out, getBinding(), getJournal(), getPaging(), getLargeMessages());
       }
       catch (Exception e) {
          treatError(e, "data", "exp");
+         return e;
       }
       return null;
    }

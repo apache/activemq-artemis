@@ -347,9 +347,10 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    protected NodeManager createNodeManager(final File directory, boolean replicatingBackup) {
       NodeManager manager;
       if (!configuration.isPersistenceEnabled()) {
-         manager = new InVMNodeManager(replicatingBackup);
+         return new InVMNodeManager(replicatingBackup);
       }
-      else if (configuration.getJournalType() == JournalType.ASYNCIO && LibaioContext.isLoaded()) {
+
+      if (configuration.getJournalType() == JournalType.ASYNCIO && LibaioContext.isLoaded()) {
          manager = new AIOFileLockNodeManager(directory, replicatingBackup, configuration.getJournalLockAcquisitionTimeout());
       }
       else {
