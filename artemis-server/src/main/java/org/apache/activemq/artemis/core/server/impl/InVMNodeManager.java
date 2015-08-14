@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.core.server.impl;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.channels.FileLock;
 import java.util.concurrent.Semaphore;
 
 import org.apache.activemq.artemis.api.core.ActiveMQIllegalStateException;
@@ -93,6 +94,12 @@ public final class InVMNodeManager extends NodeManager {
    @Override
    public void startBackup() throws Exception {
       backupLock.acquire();
+   }
+
+   @Override
+   public FileLock tryLockLive() {
+      // no op.. doesn't make sense on InVM
+      return null;
    }
 
    @Override

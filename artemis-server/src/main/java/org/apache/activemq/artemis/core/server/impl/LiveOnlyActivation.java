@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.core.server.impl;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentMap;
+
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -31,11 +36,6 @@ import org.apache.activemq.artemis.core.server.LiveNodeLocator;
 import org.apache.activemq.artemis.core.server.cluster.ActiveMQServerSideProtocolManagerFactory;
 import org.apache.activemq.artemis.core.server.cluster.ha.LiveOnlyPolicy;
 import org.apache.activemq.artemis.core.server.cluster.ha.ScaleDownPolicy;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentMap;
 
 public class LiveOnlyActivation extends Activation {
 
@@ -55,6 +55,11 @@ public class LiveOnlyActivation extends Activation {
 
    public void run() {
       try {
+
+         /* We will hold a lock here so print-data and other tools
+          *  won't be able to run */
+         activeMQServer.getNodeManager().startLiveNode();
+
          activeMQServer.initialisePart1(false);
 
          activeMQServer.initialisePart2(false);
