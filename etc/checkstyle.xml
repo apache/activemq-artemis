@@ -23,7 +23,7 @@ under the License.
         "-//Puppy Crawl//DTD Check Configuration 1.2//EN"
         "http://www.puppycrawl.com/dtds/configuration_1_2.dtd">
 
-<!-- See http://checkstyle.sourceforge.net/availablechecks.html for documentation on available checks -->
+<!-- See http://checkstyle.sourceforge.net/checks.html for documentation on available checks -->
 <module name="Checker">
    <!-- Checks to see if a file contains a tab character. -->
    <module name="FileTabCharacter">
