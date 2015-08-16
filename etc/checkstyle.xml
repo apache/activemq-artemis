@@ -54,10 +54,6 @@ under the License.
       <module name="EqualsHashCode"/>
       <!-- Checks for illegal instantiations where a factory method is preferred. -->
       <module name="IllegalInstantiation"/>
-      <!-- Checks for redundant exceptions declared in throws clause such as duplicates, unchecked exceptions or subclasses of another declared exception. -->
-      <module name="RedundantThrows">
-         <property name="allowUnchecked" value="true"/>
-      </module>
 
       <!-- Checks that long constants are defined with an upper ell. -->
       <module name="UpperEll"/>
@@ -90,6 +86,8 @@ under the License.
          <property name="basicOffset" value="3"/>
          <property name="caseIndent" value="3"/>
          <property name="throwsIndent" value="3"/>
+         <property name="arrayInitIndent" value="3"/>
+         <property name="lineWrappingIndentation" value="3"/>
       </module>
 
        <module name="IllegalImport">

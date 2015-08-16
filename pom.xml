@@ -910,7 +910,7 @@
          <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-checkstyle-plugin</artifactId>
-            <version>2.12</version>
+            <version>2.16</version>
             <dependencies>
                <!-- This was initially done to enforce name on Parameter annotation
                     I've developed a customized check and I needed this jar to deploy the specialized checkstyle -->
@@ -1014,7 +1014,7 @@
          <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-checkstyle-plugin</artifactId>
-            <version>2.12</version>
+            <version>2.16</version>
             <configuration>
                <configLocation>${activemq.basedir}/etc/checkstyle.xml</configLocation>
                <failsOnError>false</failsOnError>
