@@ -924,6 +924,7 @@
             <configuration>
                <skip>${skipStyleCheck}</skip>
                <configLocation>${activemq.basedir}/etc/checkstyle.xml</configLocation>
+               <suppressionsLocation>${activemq.basedir}/etc/checkstyle-suppressions.xml</suppressionsLocation>
                <failsOnError>false</failsOnError>
                <failOnViolation>true</failOnViolation>
                <consoleOutput>true</consoleOutput>
