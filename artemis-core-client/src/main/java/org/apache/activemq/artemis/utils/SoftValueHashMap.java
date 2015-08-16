@@ -50,7 +50,7 @@ public class SoftValueHashMap<K, V extends SoftValueHashMap.ValueCache> implemen
 
    // Static --------------------------------------------------------
 
-   public abstract interface ValueCache {
+   public interface ValueCache {
 
       boolean isLive();
    }
