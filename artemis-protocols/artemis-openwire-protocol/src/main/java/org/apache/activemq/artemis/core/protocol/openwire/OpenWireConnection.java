@@ -270,6 +270,8 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor {
 
    private void negotiate(WireFormatInfo command) throws IOException {
       this.wireFormat.renegotiateWireFormat(command);
+      //throw back a brokerInfo here
+      protocolManager.sendBrokerInfo(this);
    }
 
    @Override
@@ -1084,7 +1086,7 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor {
             }
          }
       }
-      catch (Exception e) {
+      catch (Throwable e) {
          if (e instanceof ActiveMQSecurityException) {
             resp = new ExceptionResponse(new JMSSecurityException(e.getMessage()));
          }
