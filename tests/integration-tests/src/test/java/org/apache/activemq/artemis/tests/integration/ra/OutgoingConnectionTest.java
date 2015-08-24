@@ -42,9 +42,11 @@ import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.ra.ActiveMQRAConnectionFactory;
 import org.apache.activemq.artemis.ra.ActiveMQRAConnectionFactoryImpl;
 import org.apache.activemq.artemis.ra.ActiveMQRAConnectionManager;
+import org.apache.activemq.artemis.ra.ActiveMQRAManagedConnection;
 import org.apache.activemq.artemis.ra.ActiveMQRAManagedConnectionFactory;
 import org.apache.activemq.artemis.ra.ActiveMQRASession;
 import org.apache.activemq.artemis.ra.ActiveMQResourceAdapter;
@@ -310,5 +312,55 @@ public class OutgoingConnectionTest extends ActiveMQRATestBase {
       assertTrue(xaResourceWrapper.getJndiName().equals("java://jmsXA NodeId:" + server.getNodeID()));
       assertTrue(xaResourceWrapper.getProductVersion().equals(VersionLoader.getVersion().getFullVersion()));
       assertTrue(xaResourceWrapper.getProductName().equals(ActiveMQResourceAdapter.PRODUCT_NAME));
+   }
+
+   @Test
+   public void testSharedActiveMQConnectionFactory() throws Exception {
+      Session s = null;
+      Session s2 = null;
+      ActiveMQRAManagedConnection mc = null;
+      ActiveMQRAManagedConnection mc2 = null;
+
+      try {
+         resourceAdapter = new ActiveMQResourceAdapter();
+
+         resourceAdapter.setConnectorClassName(InVMConnectorFactory.class.getName());
+         MyBootstrapContext ctx = new MyBootstrapContext();
+         resourceAdapter.start(ctx);
+         ActiveMQRAConnectionManager qraConnectionManager = new ActiveMQRAConnectionManager();
+         ActiveMQRAManagedConnectionFactory mcf = new ActiveMQRAManagedConnectionFactory();
+         mcf.setResourceAdapter(resourceAdapter);
+         ActiveMQRAConnectionFactory qraConnectionFactory = new ActiveMQRAConnectionFactoryImpl(mcf, qraConnectionManager);
+
+         QueueConnection queueConnection = qraConnectionFactory.createQueueConnection();
+         s = queueConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         mc = (ActiveMQRAManagedConnection) ((ActiveMQRASession) s).getManagedConnection();
+         ActiveMQConnectionFactory cf1 = mc.getConnectionFactory();
+
+         QueueConnection queueConnection2 = qraConnectionFactory.createQueueConnection();
+         s2 = queueConnection2.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         mc2 = (ActiveMQRAManagedConnection) ((ActiveMQRASession) s2).getManagedConnection();
+         ActiveMQConnectionFactory cf2 = mc2.getConnectionFactory();
+
+         // we're not testing equality so don't use equals(); we're testing if they are actually the *same* object
+         assertTrue(cf1 == cf2);
+      }
+      finally {
+         if (s != null) {
+            s.close();
+         }
+
+         if (mc != null) {
+            mc.destroy();
+         }
+
+         if (s2 != null) {
+            s2.close();
+         }
+
+         if (mc2 != null) {
+            mc2.destroy();
+         }
+      }
    }
 }

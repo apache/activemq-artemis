@@ -17,10 +17,15 @@
 package org.apache.activemq.artemis.tests.unit.ra;
 
 import java.beans.PropertyDescriptor;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import org.apache.activemq.artemis.ra.ConnectionFactoryProperties;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.ra.ActiveMQResourceAdapter;
@@ -98,5 +103,86 @@ public class ConnectionFactoryPropertiesTest extends ActiveMQTestBase {
          names.add(propDesc.getDisplayName());
       }
       return names;
+   }
+
+   @Test
+   public void testEquality() throws Exception {
+      ConnectionFactoryProperties cfp1 = new ConnectionFactoryProperties();
+      List<String> connectorClassNames1 = new ArrayList<String>();
+      connectorClassNames1.add("myConnector");
+      cfp1.setParsedConnectorClassNames(connectorClassNames1);
+      List<Map<String, Object>> connectionParameters1 = new ArrayList<Map<String, Object>>();
+      Map<String, Object> params1 = new HashMap<String, Object>();
+      params1.put("port", "0");
+      connectionParameters1.add(params1);
+      cfp1.setParsedConnectionParameters(connectionParameters1);
+      cfp1.setAutoGroup(true);
+
+      ConnectionFactoryProperties cfp2 = new ConnectionFactoryProperties();
+      List<String> connectorClassNames2 = new ArrayList<String>();
+      connectorClassNames2.add("myConnector");
+      cfp2.setParsedConnectorClassNames(connectorClassNames2);
+      List<Map<String, Object>> connectionParameters2 = new ArrayList<Map<String, Object>>();
+      Map<String, Object> params2 = new HashMap<String, Object>();
+      params2.put("port", "0");
+      connectionParameters2.add(params2);
+      cfp2.setParsedConnectionParameters(connectionParameters2);
+      cfp2.setAutoGroup(true);
+
+      assertTrue(cfp1.equals(cfp2));
+   }
+
+   @Test
+   public void testInequality() throws Exception {
+      ConnectionFactoryProperties cfp1 = new ConnectionFactoryProperties();
+      List<String> connectorClassNames1 = new ArrayList<String>();
+      connectorClassNames1.add("myConnector");
+      cfp1.setParsedConnectorClassNames(connectorClassNames1);
+      List<Map<String, Object>> connectionParameters1 = new ArrayList<Map<String, Object>>();
+      Map<String, Object> params1 = new HashMap<String, Object>();
+      params1.put("port", "0");
+      connectionParameters1.add(params1);
+      cfp1.setParsedConnectionParameters(connectionParameters1);
+      cfp1.setAutoGroup(true);
+
+      ConnectionFactoryProperties cfp2 = new ConnectionFactoryProperties();
+      List<String> connectorClassNames2 = new ArrayList<String>();
+      connectorClassNames2.add("myConnector");
+      cfp2.setParsedConnectorClassNames(connectorClassNames2);
+      List<Map<String, Object>> connectionParameters2 = new ArrayList<Map<String, Object>>();
+      Map<String, Object> params2 = new HashMap<String, Object>();
+      params2.put("port", "1");
+      connectionParameters2.add(params2);
+      cfp2.setParsedConnectionParameters(connectionParameters2);
+      cfp2.setAutoGroup(true);
+
+      assertFalse(cfp1.equals(cfp2));
+   }
+
+   @Test
+   public void testInequality2() throws Exception {
+      ConnectionFactoryProperties cfp1 = new ConnectionFactoryProperties();
+      List<String> connectorClassNames1 = new ArrayList<String>();
+      connectorClassNames1.add("myConnector");
+      cfp1.setParsedConnectorClassNames(connectorClassNames1);
+      List<Map<String, Object>> connectionParameters1 = new ArrayList<Map<String, Object>>();
+      Map<String, Object> params1 = new HashMap<String, Object>();
+      params1.put("port", "0");
+      connectionParameters1.add(params1);
+      cfp1.setParsedConnectionParameters(connectionParameters1);
+      cfp1.setAutoGroup(true);
+
+      ConnectionFactoryProperties cfp2 = new ConnectionFactoryProperties();
+      List<String> connectorClassNames2 = new ArrayList<String>();
+      connectorClassNames2.add("myConnector2");
+      cfp2.setParsedConnectorClassNames(connectorClassNames2);
+      List<Map<String, Object>> connectionParameters2 = new ArrayList<Map<String, Object>>();
+      Map<String, Object> params2 = new HashMap<String, Object>();
+      params2.put("port", "0");
+      connectionParameters2.add(params2);
+      cfp2.setParsedConnectionParameters(connectionParameters2);
+      cfp2.setAutoGroup(true);
+
+      assertFalse(cfp1.equals(cfp2));
    }
 }
