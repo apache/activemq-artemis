@@ -31,6 +31,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.command.ActiveMQQueue;
 import org.apache.activemq.command.ActiveMQTopic;
@@ -470,6 +471,46 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
       openConn.close();
       artemisConn.close();
 
+   }
+
+
+   // simple test sending openwire, consuming core
+   @Test
+   public void testMixedOpenWireExample2() throws Exception {
+      Connection conn1 = null;
+
+      SimpleString durableQueue = new SimpleString("jms.queue.exampleQueue");
+      this.server.createQueue(durableQueue, durableQueue, null, true, false);
+
+      Queue queue = ActiveMQJMSClient.createQueue("exampleQueue");
+
+      org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory artemisCF = new org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory();
+
+      conn1 = artemisCF.createConnection();
+
+      conn1.start();
+
+      Session session1 = conn1.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      MessageProducer producer = session1.createProducer(queue);
+      for (int i = 0; i < 10; i++) {
+         TextMessage message = session1.createTextMessage("This is a text message");
+         producer.send(message);
+      }
+
+      ActiveMQConnectionFactory openCF = new ActiveMQConnectionFactory();
+
+      Connection conn2 = openCF.createConnection();
+      Session sess2 = conn2.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      conn2.start();
+      MessageConsumer messageConsumer = sess2.createConsumer(sess2.createQueue("exampleQueue"));
+
+      for (int i = 0; i < 10; i++) {
+         TextMessage messageReceived = (TextMessage) messageConsumer.receive(5000);
+         assertEquals("This is a text message", messageReceived.getText());
+      }
+
+      conn1.close();
+      conn2.close();
    }
 
 
