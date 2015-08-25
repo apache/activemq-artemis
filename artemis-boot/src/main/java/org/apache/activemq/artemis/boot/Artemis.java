@@ -52,7 +52,7 @@ public class Artemis {
    }
 
    /** This is a good method for booting an embedded command */
-   public static void execute(File fileHome, File fileInstance, String ... args) throws Throwable {
+   public static Object execute(File fileHome, File fileInstance, String ... args) throws Throwable {
       ArrayList<File> dirs = new ArrayList<File>();
       if (fileHome != null) {
          dirs.add(new File(fileHome, "lib"));
@@ -113,7 +113,7 @@ public class Artemis {
       Class<?> clazz = loader.loadClass("org.apache.activemq.artemis.cli.Artemis");
       Method method = clazz.getMethod("execute", File.class, File.class, args.getClass());
       try {
-         method.invoke(null, fileHome, fileInstance, args);
+         return method.invoke(null, fileHome, fileInstance, args);
       }
       catch (InvocationTargetException e) {
          throw e.getTargetException();
