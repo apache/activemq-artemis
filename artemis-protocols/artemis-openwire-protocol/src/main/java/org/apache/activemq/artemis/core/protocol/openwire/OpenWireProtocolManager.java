@@ -67,6 +67,7 @@ import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.command.ActiveMQMessage;
 import org.apache.activemq.command.ActiveMQTopic;
 import org.apache.activemq.command.BrokerId;
+import org.apache.activemq.command.BrokerInfo;
 import org.apache.activemq.command.Command;
 import org.apache.activemq.command.CommandTypes;
 import org.apache.activemq.command.ConnectionId;
@@ -135,6 +136,7 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, No
 
    private final ScheduledExecutorService scheduledPool;
 
+
    public OpenWireProtocolManager(OpenWireProtocolManagerFactory factory, ActiveMQServer server) {
       this.factory = factory;
       this.server = server;
@@ -148,6 +150,7 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, No
       if (service != null) {
          service.addNotificationListener(this);
       }
+
    }
 
    public ProtocolManagerFactory<Interceptor> getFactory() {
@@ -692,5 +695,18 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, No
    public void removeSubscription(RemoveSubscriptionInfo subInfo) throws Exception {
       SimpleString subQueueName = new SimpleString(org.apache.activemq.artemis.jms.client.ActiveMQDestination.createQueueNameForDurableSubscription(true, subInfo.getClientId(), subInfo.getSubscriptionName()));
       server.destroyQueue(subQueueName);
+   }
+
+   public void sendBrokerInfo(OpenWireConnection connection) {
+      BrokerInfo brokerInfo = new BrokerInfo();
+      brokerInfo.setBrokerName(server.getIdentity());
+      brokerInfo.setBrokerId(new BrokerId(server.getNodeID().toString()));
+      brokerInfo.setPeerBrokerInfos(null);
+      brokerInfo.setFaultTolerantConfiguration(false);
+      brokerInfo.setBrokerURL(connection.getLocalAddress());
+
+      //cluster support yet to support
+      brokerInfo.setPeerBrokerInfos(null);
+      connection.dispatchAsync(brokerInfo);
    }
 }

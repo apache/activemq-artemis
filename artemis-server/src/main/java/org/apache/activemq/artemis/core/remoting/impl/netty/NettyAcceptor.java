@@ -579,6 +579,7 @@ public class NettyAcceptor implements Acceptor {
       }
       return sb.toString();
    }
+
    // Inner classes -----------------------------------------------------------------------------
 
    private final class ActiveMQServerChannelHandler extends ActiveMQChannelHandler implements ConnectionCreator {
