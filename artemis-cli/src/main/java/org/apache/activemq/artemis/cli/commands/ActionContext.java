@@ -27,6 +27,10 @@ public class ActionContext {
       this.err = err;
    }
 
+   public ActionContext() {
+      this(System.in, System.out, System.err);
+   }
+
    public InputStream in;
    public PrintStream out;
    public PrintStream err;

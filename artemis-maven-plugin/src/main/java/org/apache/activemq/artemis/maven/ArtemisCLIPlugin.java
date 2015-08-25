@@ -21,7 +21,6 @@ import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 
-import org.apache.activemq.artemis.cli.Artemis;
 import org.apache.activemq.artemis.cli.commands.Run;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -31,6 +30,7 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
+import org.apache.activemq.artemis.boot.Artemis;
 
 @Mojo(name = "cli", defaultPhase = LifecyclePhase.VERIFY)
 public class ArtemisCLIPlugin extends ArtemisAbstractPlugin {
@@ -158,7 +158,7 @@ public class ArtemisCLIPlugin extends ArtemisAbstractPlugin {
 
          org.apache.activemq.artemis.cli.process.ProcessBuilder.cleanupProcess();
       }
-      catch (Exception e) {
+      catch (Throwable e) {
          throw new MojoExecutionException(e.getMessage(), e);
       }
    }

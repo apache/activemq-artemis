@@ -148,15 +148,10 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
       this.protocolMap.put(coreProtocolManagerFactory.getProtocols()[0], coreProtocolManagerFactory.createProtocolManager(server, coreProtocolManagerFactory.filterInterceptors(incomingInterceptors), coreProtocolManagerFactory.filterInterceptors(outgoingInterceptors)));
 
       if (config.isResolveProtocols()) {
-         ServiceLoader<ProtocolManagerFactory> serviceLoader = ServiceLoader.load(ProtocolManagerFactory.class, this.getClass().getClassLoader());
-         if (serviceLoader != null) {
-            for (ProtocolManagerFactory next : serviceLoader) {
-               String[] protocols = next.getProtocols();
-               for (String protocol : protocols) {
-                  ActiveMQServerLogger.LOGGER.addingProtocolSupport(protocol, next.getModuleName());
-                  protocolMap.put(protocol, next.createProtocolManager(server, next.filterInterceptors(incomingInterceptors), next.filterInterceptors(outgoingInterceptors)));
-               }
-            }
+         resolveProtocols(server, this.getClass().getClassLoader());
+
+         if (this.getClass().getClassLoader() != Thread.currentThread().getContextClassLoader()) {
+            resolveProtocols(server, Thread.currentThread().getContextClassLoader());
          }
       }
 
@@ -171,7 +166,18 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
       }
    }
 
-   // RemotingService implementation -------------------------------
+   private void resolveProtocols(ActiveMQServer server, ClassLoader loader) {
+      ServiceLoader<ProtocolManagerFactory> serviceLoader = ServiceLoader.load(ProtocolManagerFactory.class, loader);
+      if (serviceLoader != null) {
+         for (ProtocolManagerFactory next : serviceLoader) {
+            String[] protocols = next.getProtocols();
+            for (String protocol : protocols) {
+               ActiveMQServerLogger.LOGGER.addingProtocolSupport(protocol, next.getModuleName());
+               protocolMap.put(protocol, next.createProtocolManager(server, next.filterInterceptors(incomingInterceptors), next.filterInterceptors(outgoingInterceptors)));
+            }
+         }
+      }
+   }
 
    private void setInterceptors(Configuration configuration) {
       incomingInterceptors.addAll(serviceRegistry.getIncomingInterceptors(configuration.getIncomingInterceptorClassNames()));

@@ -91,7 +91,7 @@ public class ArtemisTest {
       Artemis.main("create", temporaryFolder.getRoot().getAbsolutePath(), "--force", "--silent", "--no-web", "--queues", queues, "--topics", topics);
       System.setProperty("artemis.instance", temporaryFolder.getRoot().getAbsolutePath());
       // Some exceptions may happen on the initialization, but they should be ok on start the basic core protocol
-      Artemis.execute("run");
+      Artemis.internalExecute("run");
 
       try (ServerLocator locator = ServerLocatorImpl.newLocator("tcp://localhost:61616");
            ClientSessionFactory factory = locator.createSessionFactory();
@@ -106,8 +106,8 @@ public class ArtemisTest {
          }
       }
 
-      Assert.assertEquals(Integer.valueOf(1000), Artemis.execute("producer", "--message-count", "1000", "--verbose"));
-      Assert.assertEquals(Integer.valueOf(1000), Artemis.execute("consumer", "--verbose", "--break-on-null", "--receive-timeout", "100"));
+      Assert.assertEquals(Integer.valueOf(1000), Artemis.internalExecute("producer", "--message-count", "1000", "--verbose"));
+      Assert.assertEquals(Integer.valueOf(1000), Artemis.internalExecute("consumer", "--verbose", "--break-on-null", "--receive-timeout", "100"));
 
       ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory("tcp://localhost:61616");
       Connection connection = cf.createConnection();
@@ -128,22 +128,22 @@ public class ArtemisTest {
       connection.close();
       cf.close();
 
-      Assert.assertEquals(Integer.valueOf(1), Artemis.execute("browser", "--txt-size", "50", "--verbose", "--filter", "fruit='banana'"));
+      Assert.assertEquals(Integer.valueOf(1), Artemis.internalExecute("browser", "--txt-size", "50", "--verbose", "--filter", "fruit='banana'"));
 
-      Assert.assertEquals(Integer.valueOf(100), Artemis.execute("browser", "--txt-size", "50", "--verbose", "--filter", "fruit='orange'"));
+      Assert.assertEquals(Integer.valueOf(100), Artemis.internalExecute("browser", "--txt-size", "50", "--verbose", "--filter", "fruit='orange'"));
 
-      Assert.assertEquals(Integer.valueOf(101), Artemis.execute("browser", "--txt-size", "50", "--verbose"));
+      Assert.assertEquals(Integer.valueOf(101), Artemis.internalExecute("browser", "--txt-size", "50", "--verbose"));
 
       // should only receive 10 messages on browse as I'm setting messageCount=10
-      Assert.assertEquals(Integer.valueOf(10), Artemis.execute("browser", "--txt-size", "50", "--verbose", "--message-count", "10"));
+      Assert.assertEquals(Integer.valueOf(10), Artemis.internalExecute("browser", "--txt-size", "50", "--verbose", "--message-count", "10"));
 
       // Nothing was consumed until here as it was only browsing, check it's receiving again
-      Assert.assertEquals(Integer.valueOf(1), Artemis.execute("consumer", "--txt-size", "50", "--verbose", "--break-on-null", "--receive-timeout", "100", "--filter", "fruit='banana'"));
+      Assert.assertEquals(Integer.valueOf(1), Artemis.internalExecute("consumer", "--txt-size", "50", "--verbose", "--break-on-null", "--receive-timeout", "100", "--filter", "fruit='banana'"));
 
       // Checking it was acked before
-      Assert.assertEquals(Integer.valueOf(100), Artemis.execute("consumer", "--txt-size", "50", "--verbose", "--break-on-null", "--receive-timeout", "100"));
+      Assert.assertEquals(Integer.valueOf(100), Artemis.internalExecute("consumer", "--txt-size", "50", "--verbose", "--break-on-null", "--receive-timeout", "100"));
 
-      Artemis.execute("stop");
+      Artemis.internalExecute("stop");
       Assert.assertTrue(Run.latchRunning.await(5, TimeUnit.SECONDS));
       Assert.assertEquals(0, LibaioContext.getTotalMaxIO());
 

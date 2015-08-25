@@ -44,13 +44,26 @@ public class Artemis {
 
    @SuppressWarnings("unchecked")
    public static void main(String... args) throws Exception {
+      execute(null, null, args);
+   }
+
+   public static Object internalExecute(String... args) throws Exception {
+      return internalExecute(null, null, args);
+   }
+
+   public static Object execute(File artemisHome, File artemisInstance, List<String> args) throws Exception {
+      return execute(artemisHome, artemisInstance, (String[]) args.toArray(new String[args.size()]));
+   }
+
+   public static Object execute(File artemisHome, File artemisInstance, String... args) throws Exception {
       try {
-         execute(args);
+         return internalExecute(artemisHome, artemisInstance, args);
       }
       catch (ConfigurationException configException) {
          System.err.println(configException.getMessage());
          System.out.println();
          System.out.println("Configuration should be specified as 'scheme:location'. Default configuration is 'xml:${ARTEMIS_INSTANCE}/etc/bootstrap.xml'");
+         return null;
       }
       catch (RuntimeException re) {
          System.err.println(re.getMessage());
@@ -59,18 +72,13 @@ public class Artemis {
          Cli<Action> parser = builder(null).build();
 
          parser.parse("help").execute(ActionContext.system());
+         return null;
       }
    }
 
-   public static Object execute(String... args) throws Exception {
-      return execute(null, null, args);
-   }
-
-   public static Object execute(File artemisHome, File artemisInstance, List<String> args) throws Exception {
-      return execute(artemisHome, artemisInstance, (String[]) args.toArray(new String[args.size()]));
-   }
-
-   public static Object execute(File artemisHome, File artemisInstance, String... args) throws Exception {
+   /** This method is used to validate exception returns.
+    *  Useful on test cases */
+   public static Object internalExecute(File artemisHome, File artemisInstance, String[] args) throws Exception {
       Action action = builder(artemisInstance).build().parse(args);
       action.setHomeValues(artemisHome, artemisInstance);
 

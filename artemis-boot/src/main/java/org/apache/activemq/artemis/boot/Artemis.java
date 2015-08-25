@@ -25,6 +25,7 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 
 /**
  * <p>
@@ -35,19 +36,31 @@ import java.util.Comparator;
 public class Artemis {
 
    public static void main(String[] args) throws Throwable {
-      ArrayList<File> dirs = new ArrayList<File>();
-
       String home = System.getProperty("artemis.home");
-      if (home != null) {
-         dirs.add(new File(new File(home), "lib"));
-      }
+
+      File fileHome = home != null ? new File(home) : null;
 
       String instance = System.getProperty("artemis.instance");
-      File instanceFile = null;
-      if (instance != null) {
-         instanceFile = new File(instance);
-         dirs.add(new File(instanceFile, "lib"));
+      File fileInstance = instance != null ? new File(instance) : null;
+      execute(fileHome, fileInstance, args);
+   }
+
+
+   /** This is a good method for booting an embedded command */
+   public static void execute(File artemisHome, File artemisInstance, List<String> args) throws Throwable {
+      execute(artemisHome, artemisInstance, (String[]) args.toArray(new String[args.size()]));
+   }
+
+   /** This is a good method for booting an embedded command */
+   public static void execute(File fileHome, File fileInstance, String ... args) throws Throwable {
+      ArrayList<File> dirs = new ArrayList<File>();
+      if (fileHome != null) {
+         dirs.add(new File(fileHome, "lib"));
       }
+      if (fileInstance != null) {
+         dirs.add(new File(fileInstance, "lib"));
+      }
+
 
       ArrayList<URL> urls = new ArrayList<URL>();
       for (File bootdir : dirs) {
@@ -75,8 +88,8 @@ public class Artemis {
          }
       }
 
-      if (instance != null) {
-         System.setProperty("java.io.tmpdir", new File(new File(instance), "tmp").getCanonicalPath());
+      if (fileInstance != null) {
+         System.setProperty("java.io.tmpdir", new File(fileInstance, "tmp").getCanonicalPath());
       }
 
       // Lets try to covert the logging.configuration setting to a valid URI
@@ -86,22 +99,27 @@ public class Artemis {
       }
 
       // Without the etc on the config, things like JGroups configuration wouldn't be loaded
-      if (instanceFile != null) {
-         File etcFile = new File(instance, "etc");
+      if (fileInstance != null) {
+         File etcFile = new File(fileInstance, "etc");
          // Adding etc to the classLoader so modules can lookup for their configs
          urls.add(etcFile.toURI().toURL());
       }
+
+      ClassLoader originalCL = Thread.currentThread().getContextClassLoader();
 
       // Now setup our classloader..
       URLClassLoader loader = new URLClassLoader(urls.toArray(new URL[urls.size()]));
       Thread.currentThread().setContextClassLoader(loader);
       Class<?> clazz = loader.loadClass("org.apache.activemq.artemis.cli.Artemis");
-      Method method = clazz.getMethod("main", args.getClass());
+      Method method = clazz.getMethod("execute", File.class, File.class, args.getClass());
       try {
-         method.invoke(null, (Object) args);
+         method.invoke(null, fileHome, fileInstance, args);
       }
       catch (InvocationTargetException e) {
          throw e.getTargetException();
+      }
+      finally {
+         Thread.currentThread().setContextClassLoader(originalCL);
       }
 
    }
