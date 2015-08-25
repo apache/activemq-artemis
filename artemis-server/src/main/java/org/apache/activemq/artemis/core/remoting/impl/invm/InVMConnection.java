@@ -208,6 +208,10 @@ public class InVMConnection implements Connection {
       return "invm:" + serverID;
    }
 
+   public String getLocalAddress() {
+      return "invm:" + serverID;
+   }
+
    public int getBatchingBufferSize() {
       return -1;
    }

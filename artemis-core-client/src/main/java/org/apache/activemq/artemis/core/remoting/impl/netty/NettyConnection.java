@@ -298,6 +298,14 @@ public class NettyConnection implements Connection {
       return address.toString();
    }
 
+   public String getLocalAddress() {
+      SocketAddress address = channel.localAddress();
+      if (address == null) {
+         return null;
+      }
+      return "tcp://" + address.toString();
+   }
+
    public boolean isDirectDeliver() {
       return directDeliver;
    }

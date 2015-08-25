@@ -46,7 +46,6 @@ import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQPersistenceAdap
 import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQProducerBrokerExchange;
 import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQServerSession;
 import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQSession;
-import org.apache.activemq.artemis.core.remoting.impl.netty.NettyAcceptor;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyServerConnection;
 import org.apache.activemq.artemis.core.security.CheckType;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -137,7 +136,6 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, No
 
    private final ScheduledExecutorService scheduledPool;
 
-   private BrokerInfo brokerInfo = new BrokerInfo();
 
    public OpenWireProtocolManager(OpenWireProtocolManagerFactory factory, ActiveMQServer server) {
       this.factory = factory;
@@ -152,11 +150,6 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, No
       if (service != null) {
          service.addNotificationListener(this);
       }
-      brokerInfo.setBrokerName(server.getIdentity());
-      brokerInfo.setBrokerId(new BrokerId(server.getNodeID().toString()));
-      brokerInfo.setPeerBrokerInfos(null);
-      brokerInfo.setFaultTolerantConfiguration(false);
-      brokerInfo.setBrokerURL(null);
 
    }
 
@@ -172,10 +165,6 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, No
 
    @Override
    public ConnectionEntry createConnectionEntry(Acceptor acceptorUsed, Connection connection) {
-      if (brokerInfo.getBrokerURL() == null) {
-         NettyAcceptor nettyAcceptor = (NettyAcceptor)acceptorUsed;
-         brokerInfo.setBrokerURL(nettyAcceptor.getURL());
-      }
       OpenWireFormat wf = (OpenWireFormat) wireFactory.createWireFormat();
       OpenWireConnection owConn = new OpenWireConnection(acceptorUsed, connection, this, wf);
       owConn.init();
@@ -709,9 +698,15 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, No
    }
 
    public void sendBrokerInfo(OpenWireConnection connection) {
-      BrokerInfo copy = brokerInfo.copy();
+      BrokerInfo brokerInfo = new BrokerInfo();
+      brokerInfo.setBrokerName(server.getIdentity());
+      brokerInfo.setBrokerId(new BrokerId(server.getNodeID().toString()));
+      brokerInfo.setPeerBrokerInfos(null);
+      brokerInfo.setFaultTolerantConfiguration(false);
+      brokerInfo.setBrokerURL(connection.getLocalAddress());
+
       //cluster support yet to support
-      copy.setPeerBrokerInfos(null);
-      connection.dispatchAsync(copy);
+      brokerInfo.setPeerBrokerInfos(null);
+      connection.dispatchAsync(brokerInfo);
    }
 }

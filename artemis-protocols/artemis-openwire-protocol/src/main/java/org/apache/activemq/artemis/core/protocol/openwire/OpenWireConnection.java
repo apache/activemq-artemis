@@ -191,6 +191,10 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor {
       this.creationTime = System.currentTimeMillis();
    }
 
+   public String getLocalAddress() {
+      return transportConnection.getLocalAddress();
+   }
+
    @Override
    public void bufferReceived(Object connectionID, ActiveMQBuffer buffer) {
       try {

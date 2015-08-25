@@ -580,9 +580,6 @@ public class NettyAcceptor implements Acceptor {
       return sb.toString();
    }
 
-   public String getURL() {
-      return "tcp://" + this.host + ":" + this.port;
-   }
    // Inner classes -----------------------------------------------------------------------------
 
    private final class ActiveMQServerChannelHandler extends ActiveMQChannelHandler implements ConnectionCreator {

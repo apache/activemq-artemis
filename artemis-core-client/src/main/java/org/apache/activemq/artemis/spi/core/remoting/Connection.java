@@ -91,6 +91,15 @@ public interface Connection {
    String getRemoteAddress();
 
    /**
+    * Returns a string representation of the local address this connection is connected to.
+    * This is useful when the server is configured at 0.0.0.0 (or multiple IPs).
+    * This will give you the actual IP that's being used.
+    *
+    * @return the local address
+    */
+   String getLocalAddress();
+
+   /**
     * Called periodically to flush any data in the batch buffer
     */
    void checkFlushBatchBuffer();
