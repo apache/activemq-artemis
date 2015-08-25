@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.activemq.artemis.cli.Artemis;
+import org.apache.activemq.artemis.boot.Artemis;
 import org.apache.activemq.artemis.utils.FileUtil;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -351,7 +351,7 @@ public class ArtemisCreatePlugin extends ArtemisAbstractPlugin {
          getLog().info("###################################################################################################");
 
       }
-      catch (Exception e) {
+      catch (Throwable e) {
          getLog().error(e);
          throw new MojoFailureException(e.getMessage());
       }
