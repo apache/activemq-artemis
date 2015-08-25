@@ -351,7 +351,7 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, No
       String id = getBrokerId() != null ? getBrokerId().getValue() : "NOT_SET";
       advisoryMessage.setStringProperty(AdvisorySupport.MSG_PROPERTY_ORIGIN_BROKER_ID, id);
 
-      String url = "tcp://localhost:61616";
+      String url = context.getConnection().getLocalAddress();
 
       advisoryMessage.setStringProperty(AdvisorySupport.MSG_PROPERTY_ORIGIN_BROKER_URL, url);
 

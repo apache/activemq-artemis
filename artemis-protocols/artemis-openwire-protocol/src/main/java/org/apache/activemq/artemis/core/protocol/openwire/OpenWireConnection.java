@@ -124,7 +124,7 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor {
 
    private final Object sendLock = new Object();
 
-   private boolean dataReceived;
+   private volatile boolean dataReceived;
 
    private OpenWireFormat wireFormat;
 
@@ -198,6 +198,8 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor {
    @Override
    public void bufferReceived(Object connectionID, ActiveMQBuffer buffer) {
       try {
+         dataReceived = true;
+
          Command command = (Command) wireFormat.unmarshal(buffer);
 
          boolean responseRequired = command.isResponseRequired();
@@ -205,7 +207,6 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor {
          // the connection handles pings, negotiations directly.
          // and delegate all other commands to manager.
          if (command.getClass() == KeepAliveInfo.class) {
-            dataReceived = true;
             KeepAliveInfo info = (KeepAliveInfo) command;
             info.setResponseRequired(false);
             // if we don't respond to KeepAlive commands then the client will think the server is dead and timeout
