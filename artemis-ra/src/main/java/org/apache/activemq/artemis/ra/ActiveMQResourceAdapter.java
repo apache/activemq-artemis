@@ -122,6 +122,13 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
    private String entries;
 
    /**
+    * Keep track of the connection factories that we create so we don't create a bunch of instances of factories
+    * configured the exact same way. Using the same connection factory instance also makes connection load-balancing
+    * behave as expected for outbound connections.
+    */
+   private final Map<ConnectionFactoryProperties, ActiveMQConnectionFactory> knownConnectionFactories = new HashMap<ConnectionFactoryProperties, ActiveMQConnectionFactory>();
+
+   /**
     * Constructor
     */
    public ActiveMQResourceAdapter() {
@@ -266,6 +273,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
       }
 
       managedConnectionFactories.clear();
+
+      knownConnectionFactories.clear();
 
       if (defaultActiveMQConnectionFactory != null) {
          defaultActiveMQConnectionFactory.close();
@@ -1586,107 +1595,124 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
 
    public ActiveMQConnectionFactory createActiveMQConnectionFactory(final ConnectionFactoryProperties overrideProperties) {
       ActiveMQConnectionFactory cf;
-      List<String> connectorClassName = overrideProperties.getParsedConnectorClassNames() != null ? overrideProperties.getParsedConnectorClassNames() : raProperties.getParsedConnectorClassNames();
+      boolean known = false;
 
-      String discoveryAddress = overrideProperties.getDiscoveryAddress() != null ? overrideProperties.getDiscoveryAddress() : getDiscoveryAddress();
+      synchronized (knownConnectionFactories) {
+         if (!knownConnectionFactories.keySet().contains(overrideProperties)) {
+            List<String> connectorClassName = overrideProperties.getParsedConnectorClassNames() != null ? overrideProperties.getParsedConnectorClassNames() : raProperties.getParsedConnectorClassNames();
 
-      Boolean ha = overrideProperties.isHA() != null ? overrideProperties.isHA() : getHA();
+            String discoveryAddress = overrideProperties.getDiscoveryAddress() != null ? overrideProperties.getDiscoveryAddress() : getDiscoveryAddress();
 
-      String jgroupsFileName = overrideProperties.getJgroupsFile() != null ? overrideProperties.getJgroupsFile() : getJgroupsFile();
+            Boolean ha = overrideProperties.isHA() != null ? overrideProperties.isHA() : getHA();
 
-      String jgroupsChannel = overrideProperties.getJgroupsChannelName() != null ? overrideProperties.getJgroupsChannelName() : getJgroupsChannelName();
+            String jgroupsFileName = overrideProperties.getJgroupsFile() != null ? overrideProperties.getJgroupsFile() : getJgroupsFile();
 
-      String jgroupsLocatorClassName = raProperties.getJgroupsChannelLocatorClass();
+            String jgroupsChannel = overrideProperties.getJgroupsChannelName() != null ? overrideProperties.getJgroupsChannelName() : getJgroupsChannelName();
 
-      if (ha == null) {
-         ha = ActiveMQClient.DEFAULT_IS_HA;
-      }
+            String jgroupsLocatorClassName = raProperties.getJgroupsChannelLocatorClass();
 
-      if (discoveryAddress != null || jgroupsFileName != null || jgroupsLocatorClassName != null) {
-         BroadcastEndpointFactory endpointFactory = null;
-
-         if (jgroupsLocatorClassName != null) {
-            String jchannelRefName = raProperties.getJgroupsChannelRefName();
-            JChannel jchannel = ActiveMQRaUtils.locateJGroupsChannel(jgroupsLocatorClassName, jchannelRefName);
-            endpointFactory = new ChannelBroadcastEndpointFactory(jchannel, jgroupsChannel);
-         }
-         else if (discoveryAddress != null) {
-            Integer discoveryPort = overrideProperties.getDiscoveryPort() != null ? overrideProperties.getDiscoveryPort() : getDiscoveryPort();
-            if (discoveryPort == null) {
-               discoveryPort = ActiveMQClient.DEFAULT_DISCOVERY_PORT;
+            if (ha == null) {
+               ha = ActiveMQClient.DEFAULT_IS_HA;
             }
 
-            String localBindAddress = overrideProperties.getDiscoveryLocalBindAddress() != null ? overrideProperties.getDiscoveryLocalBindAddress() : raProperties.getDiscoveryLocalBindAddress();
-            endpointFactory = new UDPBroadcastEndpointFactory().setGroupAddress(discoveryAddress).setGroupPort(discoveryPort).setLocalBindAddress(localBindAddress).setLocalBindPort(-1);
-         }
-         else if (jgroupsFileName != null) {
-            endpointFactory = new JGroupsFileBroadcastEndpointFactory().setChannelName(jgroupsChannel).setFile(jgroupsFileName);
-         }
-         Long refreshTimeout = overrideProperties.getDiscoveryRefreshTimeout() != null ? overrideProperties.getDiscoveryRefreshTimeout() : raProperties.getDiscoveryRefreshTimeout();
-         if (refreshTimeout == null) {
-            refreshTimeout = ActiveMQClient.DEFAULT_DISCOVERY_REFRESH_TIMEOUT;
-         }
+            if (discoveryAddress != null || jgroupsFileName != null || jgroupsLocatorClassName != null) {
+               BroadcastEndpointFactory endpointFactory = null;
 
-         Long initialTimeout = overrideProperties.getDiscoveryInitialWaitTimeout() != null ? overrideProperties.getDiscoveryInitialWaitTimeout() : raProperties.getDiscoveryInitialWaitTimeout();
+               if (jgroupsLocatorClassName != null) {
+                  String jchannelRefName = raProperties.getJgroupsChannelRefName();
+                  JChannel jchannel = ActiveMQRaUtils.locateJGroupsChannel(jgroupsLocatorClassName, jchannelRefName);
+                  endpointFactory = new ChannelBroadcastEndpointFactory(jchannel, jgroupsChannel);
+               }
+               else if (discoveryAddress != null) {
+                  Integer discoveryPort = overrideProperties.getDiscoveryPort() != null ? overrideProperties.getDiscoveryPort() : getDiscoveryPort();
+                  if (discoveryPort == null) {
+                     discoveryPort = ActiveMQClient.DEFAULT_DISCOVERY_PORT;
+                  }
 
-         if (initialTimeout == null) {
-            initialTimeout = ActiveMQClient.DEFAULT_DISCOVERY_INITIAL_WAIT_TIMEOUT;
-         }
+                  String localBindAddress = overrideProperties.getDiscoveryLocalBindAddress() != null ? overrideProperties.getDiscoveryLocalBindAddress() : raProperties.getDiscoveryLocalBindAddress();
+                  endpointFactory = new UDPBroadcastEndpointFactory().setGroupAddress(discoveryAddress).setGroupPort(discoveryPort).setLocalBindAddress(localBindAddress).setLocalBindPort(-1);
+               }
+               else if (jgroupsFileName != null) {
+                  endpointFactory = new JGroupsFileBroadcastEndpointFactory().setChannelName(jgroupsChannel).setFile(jgroupsFileName);
+               }
+               Long refreshTimeout = overrideProperties.getDiscoveryRefreshTimeout() != null ? overrideProperties.getDiscoveryRefreshTimeout() : raProperties.getDiscoveryRefreshTimeout();
+               if (refreshTimeout == null) {
+                  refreshTimeout = ActiveMQClient.DEFAULT_DISCOVERY_REFRESH_TIMEOUT;
+               }
 
-         DiscoveryGroupConfiguration groupConfiguration = new DiscoveryGroupConfiguration().setRefreshTimeout(refreshTimeout).setDiscoveryInitialWaitTimeout(initialTimeout).setBroadcastEndpointFactory(endpointFactory);
+               Long initialTimeout = overrideProperties.getDiscoveryInitialWaitTimeout() != null ? overrideProperties.getDiscoveryInitialWaitTimeout() : raProperties.getDiscoveryInitialWaitTimeout();
 
-         if (ActiveMQRALogger.LOGGER.isDebugEnabled()) {
-            ActiveMQRALogger.LOGGER.debug("Creating Connection Factory on the resource adapter for discovery=" + groupConfiguration + " with ha=" + ha);
-         }
+               if (initialTimeout == null) {
+                  initialTimeout = ActiveMQClient.DEFAULT_DISCOVERY_INITIAL_WAIT_TIMEOUT;
+               }
 
-         if (ha) {
-            cf = ActiveMQJMSClient.createConnectionFactoryWithHA(groupConfiguration, JMSFactoryType.XA_CF);
-         }
-         else {
-            cf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(groupConfiguration, JMSFactoryType.XA_CF);
-         }
-      }
-      else if (connectorClassName != null) {
-         TransportConfiguration[] transportConfigurations = new TransportConfiguration[connectorClassName.size()];
+               DiscoveryGroupConfiguration groupConfiguration = new DiscoveryGroupConfiguration().setRefreshTimeout(refreshTimeout).setDiscoveryInitialWaitTimeout(initialTimeout).setBroadcastEndpointFactory(endpointFactory);
 
-         List<Map<String, Object>> connectionParams;
-         if (overrideProperties.getParsedConnectorClassNames() != null) {
-            connectionParams = overrideProperties.getParsedConnectionParameters();
-         }
-         else {
-            connectionParams = raProperties.getParsedConnectionParameters();
-         }
+               if (ActiveMQRALogger.LOGGER.isDebugEnabled()) {
+                  ActiveMQRALogger.LOGGER.debug("Creating Connection Factory on the resource adapter for discovery=" + groupConfiguration + " with ha=" + ha);
+               }
 
-         for (int i = 0; i < connectorClassName.size(); i++) {
-            TransportConfiguration tc;
-            if (connectionParams == null || i >= connectionParams.size()) {
-               tc = new TransportConfiguration(connectorClassName.get(i));
-               ActiveMQRALogger.LOGGER.debug("No connector params provided using default");
+               if (ha) {
+                  cf = ActiveMQJMSClient.createConnectionFactoryWithHA(groupConfiguration, JMSFactoryType.XA_CF);
+               }
+               else {
+                  cf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(groupConfiguration, JMSFactoryType.XA_CF);
+               }
+            }
+            else if (connectorClassName != null) {
+               TransportConfiguration[] transportConfigurations = new TransportConfiguration[connectorClassName.size()];
+
+               List<Map<String, Object>> connectionParams;
+               if (overrideProperties.getParsedConnectorClassNames() != null) {
+                  connectionParams = overrideProperties.getParsedConnectionParameters();
+               }
+               else {
+                  connectionParams = raProperties.getParsedConnectionParameters();
+               }
+
+               for (int i = 0; i < connectorClassName.size(); i++) {
+                  TransportConfiguration tc;
+                  if (connectionParams == null || i >= connectionParams.size()) {
+                     tc = new TransportConfiguration(connectorClassName.get(i));
+                     ActiveMQRALogger.LOGGER.debug("No connector params provided using default");
+                  }
+                  else {
+                     tc = new TransportConfiguration(connectorClassName.get(i), connectionParams.get(i));
+                  }
+
+                  transportConfigurations[i] = tc;
+               }
+
+               if (ActiveMQRALogger.LOGGER.isDebugEnabled()) {
+                  ActiveMQRALogger.LOGGER.debug("Creating Connection Factory on the resource adapter for transport=" +
+                                                   Arrays.toString(transportConfigurations) + " with ha=" + ha);
+               }
+
+               if (ha) {
+                  cf = ActiveMQJMSClient.createConnectionFactoryWithHA(JMSFactoryType.XA_CF, transportConfigurations);
+               }
+               else {
+                  cf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.XA_CF, transportConfigurations);
+               }
             }
             else {
-               tc = new TransportConfiguration(connectorClassName.get(i), connectionParams.get(i));
+               throw new IllegalArgumentException("must provide either TransportType or DiscoveryGroupAddress and DiscoveryGroupPort for ResourceAdapter Connection Factory");
             }
 
-            transportConfigurations[i] = tc;
-         }
-
-         if (ActiveMQRALogger.LOGGER.isDebugEnabled()) {
-            ActiveMQRALogger.LOGGER.debug("Creating Connection Factory on the resource adapter for transport=" +
-                                             Arrays.toString(transportConfigurations) + " with ha=" + ha);
-         }
-
-         if (ha) {
-            cf = ActiveMQJMSClient.createConnectionFactoryWithHA(JMSFactoryType.XA_CF, transportConfigurations);
+            setParams(cf, overrideProperties);
+            knownConnectionFactories.put(overrideProperties, cf);
          }
          else {
-            cf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.XA_CF, transportConfigurations);
+            cf = knownConnectionFactories.get(overrideProperties);
+            known = true;
          }
       }
-      else {
-         throw new IllegalArgumentException("must provide either TransportType or DiscoveryGroupAddress and DiscoveryGroupPort for ResourceAdapter Connection Factory");
+
+      if (known && cf.getServerLocator().isClosed()) {
+         knownConnectionFactories.remove(overrideProperties);
+         cf = createActiveMQConnectionFactory(overrideProperties);
       }
 
-      setParams(cf, overrideProperties);
       return cf;
    }
 

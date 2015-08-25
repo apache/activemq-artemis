@@ -16,18 +16,30 @@
  */
 package org.apache.activemq.artemis.tests.integration.ra;
 
+import javax.jms.QueueConnection;
+import javax.jms.Session;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.core.client.impl.ServerLocatorImpl;
 import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.ra.ActiveMQRAConnectionFactory;
+import org.apache.activemq.artemis.ra.ActiveMQRAConnectionFactoryImpl;
+import org.apache.activemq.artemis.ra.ActiveMQRAConnectionManager;
+import org.apache.activemq.artemis.ra.ActiveMQRAManagedConnection;
+import org.apache.activemq.artemis.ra.ActiveMQRAManagedConnectionFactory;
+import org.apache.activemq.artemis.ra.ActiveMQRASession;
 import org.apache.activemq.artemis.ra.ActiveMQResourceAdapter;
 import org.apache.activemq.artemis.ra.inflow.ActiveMQActivation;
 import org.apache.activemq.artemis.ra.inflow.ActiveMQActivationSpec;
 import org.junit.Test;
-
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 public class ActiveMQClusteredTest extends ActiveMQRAClusteredTestBase {
 
@@ -106,5 +118,56 @@ public class ActiveMQClusteredTest extends ActiveMQRAClusteredTestBase {
       assertNull(server.locateQueue(tempQueue));
       assertNull(secondaryServer.locateQueue(tempQueue));
 
+   }
+
+   @Test
+   public void testOutboundLoadBalancing() throws Exception {
+      final int CONNECTION_COUNT = 100;
+      ActiveMQResourceAdapter qResourceAdapter = newResourceAdapter();
+      List<Session> sessions = new ArrayList<>();
+      List<ActiveMQRAManagedConnection> managedConnections = new ArrayList<>();
+
+      try {
+         MyBootstrapContext ctx = new MyBootstrapContext();
+         qResourceAdapter.start(ctx);
+         ActiveMQRAConnectionManager qraConnectionManager = new ActiveMQRAConnectionManager();
+         ActiveMQRAManagedConnectionFactory mcf = new ActiveMQRAManagedConnectionFactory();
+         mcf.setResourceAdapter(qResourceAdapter);
+         ActiveMQRAConnectionFactory qraConnectionFactory = new ActiveMQRAConnectionFactoryImpl(mcf, qraConnectionManager);
+
+         QueueConnection queueConnection = qraConnectionFactory.createQueueConnection();
+         Session s = queueConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         sessions.add(s);
+         ActiveMQRAManagedConnection mc = (ActiveMQRAManagedConnection) ((ActiveMQRASession) s).getManagedConnection();
+         managedConnections.add(mc);
+         ActiveMQConnectionFactory cf1 = mc.getConnectionFactory();
+
+         long timeout = 10000;
+         long now = System.currentTimeMillis();
+
+         while (!((ServerLocatorImpl)cf1.getServerLocator()).isReceivedToplogy()) {
+            Thread.sleep(50);
+         }
+
+         for (int i = 0; i < CONNECTION_COUNT; i++) {
+            queueConnection = qraConnectionFactory.createQueueConnection();
+            s = queueConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+            sessions.add(s);
+            mc = (ActiveMQRAManagedConnection) ((ActiveMQRASession) s).getManagedConnection();
+            managedConnections.add(mc);
+         }
+
+         assertTrue(server.getConnectionCount() >= (CONNECTION_COUNT / 2));
+         assertTrue(secondaryServer.getConnectionCount() >= (CONNECTION_COUNT / 2));
+      }
+      finally {
+         for (Session s : sessions) {
+            s.close();
+         }
+
+         for (ActiveMQRAManagedConnection mc : managedConnections) {
+            mc.destroy();
+         }
+      }
    }
 }

@@ -682,4 +682,317 @@ public class ConnectionFactoryProperties {
    public boolean isHasBeenUpdated() {
       return hasBeenUpdated;
    }
+
+   @Override
+   public boolean equals(Object obj) {
+      if (this == obj)
+         return true;
+      if (obj == null)
+         return false;
+      if (getClass() != obj.getClass())
+         return false;
+      ConnectionFactoryProperties other = (ConnectionFactoryProperties) obj;
+      if (this.autoGroup == null) {
+         if (other.autoGroup != null)
+            return false;
+      }
+      else if (!this.autoGroup.equals(other.autoGroup))
+         return false;
+      if (this.blockOnAcknowledge == null) {
+         if (other.blockOnAcknowledge != null)
+            return false;
+      }
+      else if (!this.blockOnAcknowledge.equals(other.blockOnAcknowledge))
+         return false;
+      if (this.blockOnDurableSend == null) {
+         if (other.blockOnDurableSend != null)
+            return false;
+      }
+      else if (!this.blockOnDurableSend.equals(other.blockOnDurableSend))
+         return false;
+      if (this.blockOnNonDurableSend == null) {
+         if (other.blockOnNonDurableSend != null)
+            return false;
+      }
+      else if (!this.blockOnNonDurableSend.equals(other.blockOnNonDurableSend))
+         return false;
+      if (this.cacheLargeMessagesClient == null) {
+         if (other.cacheLargeMessagesClient != null)
+            return false;
+      }
+      else if (!this.cacheLargeMessagesClient.equals(other.cacheLargeMessagesClient))
+         return false;
+      if (this.compressLargeMessage == null) {
+         if (other.compressLargeMessage != null)
+            return false;
+      }
+      else if (!this.compressLargeMessage.equals(other.compressLargeMessage))
+         return false;
+      if (this.failoverOnInitialConnection == null) {
+         if (other.failoverOnInitialConnection != null)
+            return false;
+      }
+      else if (!this.failoverOnInitialConnection.equals(other.failoverOnInitialConnection))
+         return false;
+      if (this.ha == null) {
+         if (other.ha != null)
+            return false;
+      }
+      else if (!this.ha.equals(other.ha))
+         return false;
+      if (this.preAcknowledge == null) {
+         if (other.preAcknowledge != null)
+            return false;
+      }
+      else if (!this.preAcknowledge.equals(other.preAcknowledge))
+         return false;
+      if (this.callFailoverTimeout == null) {
+         if (other.callFailoverTimeout != null)
+            return false;
+      }
+      else if (!this.callFailoverTimeout.equals(other.callFailoverTimeout))
+         return false;
+      if (this.callTimeout == null) {
+         if (other.callTimeout != null)
+            return false;
+      }
+      else if (!this.callTimeout.equals(other.callTimeout))
+         return false;
+      if (this.clientFailureCheckPeriod == null) {
+         if (other.clientFailureCheckPeriod != null)
+            return false;
+      }
+      else if (!this.clientFailureCheckPeriod.equals(other.clientFailureCheckPeriod))
+         return false;
+      if (this.clientID == null) {
+         if (other.clientID != null)
+            return false;
+      }
+      else if (!this.clientID.equals(other.clientID))
+         return false;
+      if (this.confirmationWindowSize == null) {
+         if (other.confirmationWindowSize != null)
+            return false;
+      }
+      else if (!this.confirmationWindowSize.equals(other.confirmationWindowSize))
+         return false;
+      if (this.connectionLoadBalancingPolicyClassName == null) {
+         if (other.connectionLoadBalancingPolicyClassName != null)
+            return false;
+      }
+      else if (!this.connectionLoadBalancingPolicyClassName.equals(other.connectionLoadBalancingPolicyClassName))
+         return false;
+      if (this.connectionTTL == null) {
+         if (other.connectionTTL != null)
+            return false;
+      }
+      else if (!this.connectionTTL.equals(other.connectionTTL))
+         return false;
+      if (this.consumerMaxRate == null) {
+         if (other.consumerMaxRate != null)
+            return false;
+      }
+      else if (!this.consumerMaxRate.equals(other.consumerMaxRate))
+         return false;
+      if (this.consumerWindowSize == null) {
+         if (other.consumerWindowSize != null)
+            return false;
+      }
+      else if (!this.consumerWindowSize.equals(other.consumerWindowSize))
+         return false;
+      if (this.discoveryAddress == null) {
+         if (other.discoveryAddress != null)
+            return false;
+      }
+      else if (!this.discoveryAddress.equals(other.discoveryAddress))
+         return false;
+      if (this.discoveryInitialWaitTimeout == null) {
+         if (other.discoveryInitialWaitTimeout != null)
+            return false;
+      }
+      else if (!this.discoveryInitialWaitTimeout.equals(other.discoveryInitialWaitTimeout))
+         return false;
+      if (this.discoveryLocalBindAddress == null) {
+         if (other.discoveryLocalBindAddress != null)
+            return false;
+      }
+      else if (!this.discoveryLocalBindAddress.equals(other.discoveryLocalBindAddress))
+         return false;
+      if (this.discoveryPort == null) {
+         if (other.discoveryPort != null)
+            return false;
+      }
+      else if (!this.discoveryPort.equals(other.discoveryPort))
+         return false;
+      if (this.discoveryRefreshTimeout == null) {
+         if (other.discoveryRefreshTimeout != null)
+            return false;
+      }
+      else if (!this.discoveryRefreshTimeout.equals(other.discoveryRefreshTimeout))
+         return false;
+      if (this.dupsOKBatchSize == null) {
+         if (other.dupsOKBatchSize != null)
+            return false;
+      }
+      else if (!this.dupsOKBatchSize.equals(other.dupsOKBatchSize))
+         return false;
+      if (this.groupID == null) {
+         if (other.groupID != null)
+            return false;
+      }
+      else if (!this.groupID.equals(other.groupID))
+         return false;
+      if (this.initialConnectAttempts == null) {
+         if (other.initialConnectAttempts != null)
+            return false;
+      }
+      else if (!this.initialConnectAttempts.equals(other.initialConnectAttempts))
+         return false;
+      if (this.initialMessagePacketSize == null) {
+         if (other.initialMessagePacketSize != null)
+            return false;
+      }
+      else if (!this.initialMessagePacketSize.equals(other.initialMessagePacketSize))
+         return false;
+      if (this.jgroupsChannelName == null) {
+         if (other.jgroupsChannelName != null)
+            return false;
+      }
+      else if (!this.jgroupsChannelName.equals(other.jgroupsChannelName))
+         return false;
+      if (this.jgroupsFile == null) {
+         if (other.jgroupsFile != null)
+            return false;
+      }
+      else if (!this.jgroupsFile.equals(other.jgroupsFile))
+         return false;
+      if (this.maxRetryInterval == null) {
+         if (other.maxRetryInterval != null)
+            return false;
+      }
+      else if (!this.maxRetryInterval.equals(other.maxRetryInterval))
+         return false;
+      if (this.minLargeMessageSize == null) {
+         if (other.minLargeMessageSize != null)
+            return false;
+      }
+      else if (!this.minLargeMessageSize.equals(other.minLargeMessageSize))
+         return false;
+      if (this.producerMaxRate == null) {
+         if (other.producerMaxRate != null)
+            return false;
+      }
+      else if (!this.producerMaxRate.equals(other.producerMaxRate))
+         return false;
+      if (this.producerWindowSize == null) {
+         if (other.producerWindowSize != null)
+            return false;
+      }
+      else if (!this.producerWindowSize.equals(other.producerWindowSize))
+         return false;
+      if (this.reconnectAttempts == null) {
+         if (other.reconnectAttempts != null)
+            return false;
+      }
+      else if (!this.reconnectAttempts.equals(other.reconnectAttempts))
+         return false;
+      if (this.retryInterval == null) {
+         if (other.retryInterval != null)
+            return false;
+      }
+      else if (!this.retryInterval.equals(other.retryInterval))
+         return false;
+      if (this.retryIntervalMultiplier == null) {
+         if (other.retryIntervalMultiplier != null)
+            return false;
+      }
+      else if (!this.retryIntervalMultiplier.equals(other.retryIntervalMultiplier))
+         return false;
+      if (this.scheduledThreadPoolMaxSize == null) {
+         if (other.scheduledThreadPoolMaxSize != null)
+            return false;
+      }
+      else if (!this.scheduledThreadPoolMaxSize.equals(other.scheduledThreadPoolMaxSize))
+         return false;
+      if (this.threadPoolMaxSize == null) {
+         if (other.threadPoolMaxSize != null)
+            return false;
+      }
+      else if (!this.threadPoolMaxSize.equals(other.threadPoolMaxSize))
+         return false;
+      if (this.transactionBatchSize == null) {
+         if (other.transactionBatchSize != null)
+            return false;
+      }
+      else if (!this.transactionBatchSize.equals(other.transactionBatchSize))
+         return false;
+      if (this.useGlobalPools == null) {
+         if (other.useGlobalPools != null)
+            return false;
+      }
+      else if (!this.useGlobalPools.equals(other.useGlobalPools))
+         return false;
+      if (connectorClassName == null) {
+         if (other.connectorClassName != null)
+            return false;
+      }
+      else if (!connectorClassName.equals(other.connectorClassName))
+         return false;
+      if (this.connectionParameters == null) {
+         if (other.connectionParameters != null)
+            return false;
+      }
+      else if (!connectionParameters.equals(other.connectionParameters))
+         return false;
+      return true;
+   }
+
+   @Override
+   public int hashCode() {
+      final int prime = 31;
+      int result = 1;
+      result = prime * result + ((ha == null) ? 0 : ha.hashCode());
+      result = prime * result + ((connectionLoadBalancingPolicyClassName == null) ? 0 : connectionLoadBalancingPolicyClassName.hashCode());
+      result = prime * result + ((jgroupsFile == null) ? 0 : jgroupsFile.hashCode());
+      result = prime * result + ((jgroupsChannelName == null) ? 0 : jgroupsChannelName.hashCode());
+      result = prime * result + ((discoveryAddress == null) ? 0 : discoveryAddress.hashCode());
+      result = prime * result + ((discoveryPort == null) ? 0 : discoveryPort.hashCode());
+      result = prime * result + ((discoveryLocalBindAddress == null) ? 0 : discoveryLocalBindAddress.hashCode());
+      result = prime * result + ((discoveryRefreshTimeout == null) ? 0 : discoveryRefreshTimeout.hashCode());
+      result = prime * result + ((discoveryInitialWaitTimeout == null) ? 0 : discoveryInitialWaitTimeout.hashCode());
+      result = prime * result + ((clientID == null) ? 0 : clientID.hashCode());
+      result = prime * result + ((dupsOKBatchSize == null) ? 0 : dupsOKBatchSize.hashCode());
+      result = prime * result + ((transactionBatchSize == null) ? 0 : transactionBatchSize.hashCode());
+      result = prime * result + ((clientFailureCheckPeriod == null) ? 0 : clientFailureCheckPeriod.hashCode());
+      result = prime * result + ((connectionTTL == null) ? 0 : connectionTTL.hashCode());
+      result = prime * result + ((cacheLargeMessagesClient == null) ? 0 : cacheLargeMessagesClient.hashCode());
+      result = prime * result + ((callTimeout == null) ? 0 : callTimeout.hashCode());
+      result = prime * result + ((callFailoverTimeout == null) ? 0 : callFailoverTimeout.hashCode());
+      result = prime * result + ((compressLargeMessage == null) ? 0 : compressLargeMessage.hashCode());
+      result = prime * result + ((consumerWindowSize == null) ? 0 : consumerWindowSize.hashCode());
+      result = prime * result + ((producerWindowSize == null) ? 0 : producerWindowSize.hashCode());
+      result = prime * result + ((consumerMaxRate == null) ? 0 : consumerMaxRate.hashCode());
+      result = prime * result + ((confirmationWindowSize == null) ? 0 : confirmationWindowSize.hashCode());
+      result = prime * result + ((failoverOnInitialConnection == null) ? 0 : failoverOnInitialConnection.hashCode());
+      result = prime * result + ((producerMaxRate == null) ? 0 : producerMaxRate.hashCode());
+      result = prime * result + ((minLargeMessageSize == null) ? 0 : minLargeMessageSize.hashCode());
+      result = prime * result + ((blockOnAcknowledge == null) ? 0 : blockOnAcknowledge.hashCode());
+      result = prime * result + ((blockOnNonDurableSend == null) ? 0 : blockOnNonDurableSend.hashCode());
+      result = prime * result + ((blockOnDurableSend == null) ? 0 : blockOnDurableSend.hashCode());
+      result = prime * result + ((autoGroup == null) ? 0 : autoGroup.hashCode());
+      result = prime * result + ((preAcknowledge == null) ? 0 : preAcknowledge.hashCode());
+      result = prime * result + ((initialConnectAttempts == null) ? 0 : initialConnectAttempts.hashCode());
+      result = prime * result + ((retryInterval == null) ? 0 : retryInterval.hashCode());
+      result = prime * result + ((retryIntervalMultiplier == null) ? 0 : retryIntervalMultiplier.hashCode());
+      result = prime * result + ((maxRetryInterval == null) ? 0 : maxRetryInterval.hashCode());
+      result = prime * result + ((reconnectAttempts == null) ? 0 : reconnectAttempts.hashCode());
+      result = prime * result + ((useGlobalPools == null) ? 0 : useGlobalPools.hashCode());
+      result = prime * result + ((initialMessagePacketSize == null) ? 0 : initialMessagePacketSize.hashCode());
+      result = prime * result + ((scheduledThreadPoolMaxSize == null) ? 0 : scheduledThreadPoolMaxSize.hashCode());
+      result = prime * result + ((threadPoolMaxSize == null) ? 0 : threadPoolMaxSize.hashCode());
+      result = prime * result + ((groupID == null) ? 0 : groupID.hashCode());
+      result = prime * result + ((connectorClassName == null) ? 0 : connectorClassName.hashCode());
+      result = prime * result + ((connectionParameters == null) ? 0 : connectionParameters.hashCode());
+      return result;
+   }
 }
