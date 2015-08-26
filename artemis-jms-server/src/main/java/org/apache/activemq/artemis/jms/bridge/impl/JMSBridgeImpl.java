@@ -891,7 +891,7 @@ public final class JMSBridgeImpl implements JMSBridge {
       Object cf = cff.createConnectionFactory();
 
       if (cf instanceof ActiveMQConnectionFactory && registry != null) {
-         registry.register(XARecoveryConfig.newConfig((ActiveMQConnectionFactory) cf, username, password));
+         registry.register(XARecoveryConfig.newConfig((ActiveMQConnectionFactory) cf, username, password, null));
       }
 
       if (qualityOfServiceMode == QualityOfServiceMode.ONCE_AND_ONLY_ONCE && !(cf instanceof XAConnectionFactory)) {

@@ -26,7 +26,9 @@ import javax.resource.spi.ResourceAdapter;
 import javax.resource.spi.ResourceAdapterAssociation;
 import javax.security.auth.Subject;
 import java.io.PrintWriter;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
@@ -158,7 +160,10 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
    private synchronized void registerRecovery() {
       if (recoveryConnectionFactory == null) {
          recoveryConnectionFactory = ra.createRecoveryActiveMQConnectionFactory(mcfProperties);
-         resourceRecovery = ra.getRecoveryManager().register(recoveryConnectionFactory, null, null);
+
+         Map<String, String> recoveryConfProps = new HashMap<String, String>();
+         recoveryConfProps.put(XARecoveryConfig.JNDI_NAME_PROPERTY_KEY, ra.getJndiName());
+         resourceRecovery = ra.getRecoveryManager().register(recoveryConnectionFactory, null, null, recoveryConfProps);
       }
    }
 

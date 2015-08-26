@@ -55,6 +55,7 @@ import org.apache.activemq.artemis.ra.inflow.ActiveMQActivationSpec;
 import org.apache.activemq.artemis.ra.recovery.RecoveryManager;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.service.extensions.ServiceUtils;
+import org.apache.activemq.artemis.service.extensions.xa.recovery.XARecoveryConfig;
 import org.apache.activemq.artemis.utils.SensitiveDataCodec;
 import org.jgroups.JChannel;
 
@@ -1545,7 +1546,10 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
       raProperties.init();
       defaultActiveMQConnectionFactory = createActiveMQConnectionFactory(raProperties);
       recoveryActiveMQConnectionFactory = createRecoveryActiveMQConnectionFactory(raProperties);
-      recoveryManager.register(recoveryActiveMQConnectionFactory, raProperties.getUserName(), raProperties.getPassword());
+
+      Map<String, String> recoveryConfProps = new HashMap<String, String>();
+      recoveryConfProps.put(XARecoveryConfig.JNDI_NAME_PROPERTY_KEY, getJndiName());
+      recoveryManager.register(recoveryActiveMQConnectionFactory, raProperties.getUserName(), raProperties.getPassword(), recoveryConfProps);
    }
 
    public Map<ActivationSpec, ActiveMQActivation> getActivations() {

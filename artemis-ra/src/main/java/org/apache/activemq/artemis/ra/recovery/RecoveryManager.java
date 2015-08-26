@@ -23,6 +23,7 @@ import org.apache.activemq.artemis.service.extensions.xa.recovery.ActiveMQRegist
 import org.apache.activemq.artemis.service.extensions.xa.recovery.XARecoveryConfig;
 import org.apache.activemq.artemis.utils.ConcurrentHashSet;
 
+import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.Set;
 
@@ -43,10 +44,10 @@ public final class RecoveryManager {
       }
    }
 
-   public XARecoveryConfig register(ActiveMQConnectionFactory factory, String userName, String password) {
+   public XARecoveryConfig register(ActiveMQConnectionFactory factory, String userName, String password,  Map<String, String> properties) {
       ActiveMQRALogger.LOGGER.debug("registering recovery for factory : " + factory);
 
-      XARecoveryConfig config = XARecoveryConfig.newConfig(factory, userName, password);
+      XARecoveryConfig config = XARecoveryConfig.newConfig(factory, userName, password, properties);
       resources.add(config);
       if (registry != null) {
          registry.register(config);
