@@ -402,6 +402,9 @@
                   <!-- exclude tests that can cause hang -->
                   <exclude>**/org/apache/activemq/PerDestinationStoreLimitTest.java</exclude>
                   <exclude>**/org/apache/activemq/ProducerFlowControlTest.java</exclude>
+                  <!-- exclude tests that are on client side only -->
+                  <exclude>**/org/apache/activemq/transport/tcp/TransportConnectorInvalidSocketOptionsTest.java</exclude>
+                  <exclude>**/org/apache/activemq/transport/tcp/TransportUriTest.java</exclude>
                </excludes>
             </configuration>
          </plugin>
