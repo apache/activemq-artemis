@@ -17,6 +17,9 @@
 package org.apache.activemq.artemis.service.extensions.xa.recovery;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
@@ -31,18 +34,21 @@ import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
  */
 public class XARecoveryConfig {
 
+   public static final String JNDI_NAME_PROPERTY_KEY = "JNDI_NAME";
+
    private final boolean ha;
    private final TransportConfiguration[] transportConfiguration;
    private final DiscoveryGroupConfiguration discoveryConfiguration;
    private final String username;
    private final String password;
+   private final Map<String, String> properties;
 
-   public static XARecoveryConfig newConfig(ActiveMQConnectionFactory factory, String userName, String password) {
+   public static XARecoveryConfig newConfig(ActiveMQConnectionFactory factory, String userName, String password, Map<String, String> properties) {
       if (factory.getServerLocator().getDiscoveryGroupConfiguration() != null) {
-         return new XARecoveryConfig(factory.getServerLocator().isHA(), factory.getServerLocator().getDiscoveryGroupConfiguration(), userName, password);
+         return new XARecoveryConfig(factory.getServerLocator().isHA(), factory.getServerLocator().getDiscoveryGroupConfiguration(), userName, password, properties);
       }
       else {
-         return new XARecoveryConfig(factory.getServerLocator().isHA(), factory.getServerLocator().getStaticTransportConfigurations(), userName, password);
+         return new XARecoveryConfig(factory.getServerLocator().isHA(), factory.getServerLocator().getStaticTransportConfigurations(), userName, password, properties);
       }
 
    }
@@ -50,23 +56,27 @@ public class XARecoveryConfig {
    public XARecoveryConfig(final boolean ha,
                            final TransportConfiguration[] transportConfiguration,
                            final String username,
-                           final String password) {
+                           final String password,
+                           final Map<String, String> properties) {
       this.transportConfiguration = transportConfiguration;
       this.discoveryConfiguration = null;
       this.username = username;
       this.password = password;
       this.ha = ha;
+      this.properties = properties == null ? Collections.unmodifiableMap(new HashMap<String, String>()) : Collections.unmodifiableMap(properties);
    }
 
    public XARecoveryConfig(final boolean ha,
                            final DiscoveryGroupConfiguration discoveryConfiguration,
                            final String username,
-                           final String password) {
+                           final String password,
+                           final Map<String, String> properties) {
       this.discoveryConfiguration = discoveryConfiguration;
       this.transportConfiguration = null;
       this.username = username;
       this.password = password;
       this.ha = ha;
+      this.properties = properties == null ? Collections.unmodifiableMap(new HashMap<String, String>()) : Collections.unmodifiableMap(properties);
    }
 
    public boolean isHA() {
@@ -87,6 +97,10 @@ public class XARecoveryConfig {
 
    public String getPassword() {
       return password;
+   }
+
+   public Map<String, String> getProperties() {
+      return properties;
    }
 
    /**
@@ -142,10 +156,18 @@ public class XARecoveryConfig {
     */
    @Override
    public String toString() {
-      return "XARecoveryConfig [transportConfiguration = " + Arrays.toString(transportConfiguration) +
-         ", discoveryConfiguration = " + discoveryConfiguration +
-         ", username=" +
-         username +
-         ", password=****]";
+      StringBuilder builder = new StringBuilder();
+
+      builder.append("XARecoveryConfig [transportConfiguration=" + Arrays.toString(transportConfiguration));
+      builder.append(", discoveryConfiguration=" + discoveryConfiguration);
+      builder.append(", username=" + username);
+      builder.append(", password=****");
+
+      for (Map.Entry<String, String> entry : properties.entrySet()) {
+         builder.append(", " + entry.getKey() + "=" + entry.getValue());
+      }
+      builder.append("]");
+
+      return builder.toString();
    }
 }

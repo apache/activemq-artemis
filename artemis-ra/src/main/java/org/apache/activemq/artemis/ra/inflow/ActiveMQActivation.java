@@ -30,7 +30,9 @@ import javax.resource.spi.work.WorkManager;
 import javax.transaction.xa.XAResource;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -333,7 +335,9 @@ public class ActiveMQActivation {
          handler.start();
       }
 
-      resourceRecovery = ra.getRecoveryManager().register(factory, spec.getUser(), spec.getPassword());
+      Map<String, String> recoveryConfProps = new HashMap<String, String>();
+      recoveryConfProps.put(XARecoveryConfig.JNDI_NAME_PROPERTY_KEY, ra.getJndiName());
+      resourceRecovery = ra.getRecoveryManager().register(factory, spec.getUser(), spec.getPassword(), recoveryConfProps);
 
       ActiveMQRALogger.LOGGER.debug("Setup complete " + this);
    }
