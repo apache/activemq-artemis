@@ -40,6 +40,7 @@ import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.spi.core.remoting.ConnectionLifeCycleListener;
 import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
 import org.apache.activemq.artemis.utils.ConcurrentHashSet;
+import org.apache.activemq.artemis.utils.IPV6Util;
 
 public class NettyConnection implements Connection {
 
@@ -303,7 +304,7 @@ public class NettyConnection implements Connection {
       if (address == null) {
          return null;
       }
-      return "tcp://" + address.toString();
+      return "tcp://" + IPV6Util.encloseHost(address.toString());
    }
 
    public boolean isDirectDeliver() {

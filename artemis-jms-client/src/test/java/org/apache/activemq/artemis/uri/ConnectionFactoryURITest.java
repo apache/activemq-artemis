@@ -67,6 +67,18 @@ public class ConnectionFactoryURITest {
       persistIP6(IPV6, factory);
    }
 
+
+   @Test
+   public void testIPv6_2() throws Exception {
+      Map<String,Object> params = new HashMap<>();
+      params.put("host", "[" + IPV6 + "]");
+      params.put("port", 5445);
+      TransportConfiguration transport = new TransportConfiguration(NettyConnectorFactory.class.getName(), params);
+      ActiveMQConnectionFactory factory = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, transport);
+
+      persistIP6(IPV6, factory);
+   }
+
    @Test
    public void testIPv6NewURI() throws Exception {
       persistIP6(IPV6, new ActiveMQConnectionFactory("tcp://[" + IPV6 + "]:5445"));
