@@ -69,10 +69,14 @@ public class GeneralInteropTest extends BasicOpenWireTest {
 
       assertEquals(text, textMessage.getText());
 
+      assertEquals(destination, textMessage.getJMSDestination());
+
       //map messages
       sendMapMessageUsingCoreJms(queueName);
 
       MapMessage mapMessage = (MapMessage) consumer.receive(5000);
+
+      assertEquals(destination, mapMessage.getJMSDestination());
 
       assertTrue(mapMessage.getBoolean("aboolean"));
       assertEquals((byte) 4, mapMessage.getByte("abyte"));
@@ -105,6 +109,9 @@ public class GeneralInteropTest extends BasicOpenWireTest {
       sendStreamMessageUsingCoreJms(queueName);
 
       StreamMessage streamMessage = (StreamMessage) consumer.receive(5000);
+
+      assertEquals(destination, streamMessage.getJMSDestination());
+
       assertTrue(streamMessage.readBoolean());
       assertEquals((byte) 2, streamMessage.readByte());
 
@@ -146,6 +153,8 @@ public class GeneralInteropTest extends BasicOpenWireTest {
       sendMessageUsingCoreJms(queueName);
 
       javax.jms.Message genericMessage = consumer.receive(5000);
+
+      assertEquals(destination, genericMessage.getJMSDestination());
       String value = genericMessage.getStringProperty("stringProperty");
       assertEquals("HelloMessage", value);
       assertFalse(genericMessage.getBooleanProperty("booleanProperty"));
@@ -171,6 +180,8 @@ public class GeneralInteropTest extends BasicOpenWireTest {
       for (int i = 0; i < num; i++) {
          TextMessage textMessage = (TextMessage) consumer.receive(5000);
          assertEquals(text + i, textMessage.getText());
+
+         assertEquals(destination, textMessage.getJMSDestination());
       }
    }
 
@@ -365,11 +376,14 @@ public class GeneralInteropTest extends BasicOpenWireTest {
 
          TextMessage txtMessage = (TextMessage) coreConsumer.receive(5000);
          assertEquals(text, txtMessage.getText());
+         assertEquals(txtMessage.getJMSDestination(), queue);
 
          // map messages
          sendMapMessageUsingOpenWire();
 
          MapMessage mapMessage = (MapMessage) coreConsumer.receive(5000);
+
+         assertEquals(mapMessage.getJMSDestination(), queue);
 
          assertTrue(mapMessage.getBoolean("aboolean"));
          assertEquals((byte) 4, mapMessage.getByte("abyte"));
@@ -392,6 +406,9 @@ public class GeneralInteropTest extends BasicOpenWireTest {
          sendObjectMessageUsingOpenWire(obj);
 
          ObjectMessage objectMessage = (ObjectMessage) coreConsumer.receive(5000);
+
+         assertEquals(objectMessage.getJMSDestination(), queue);
+
          SimpleSerializable data = (SimpleSerializable) objectMessage.getObject();
 
          assertEquals(obj.objName, data.objName);
@@ -402,6 +419,8 @@ public class GeneralInteropTest extends BasicOpenWireTest {
          sendStreamMessageUsingOpenWire(queueName);
 
          StreamMessage streamMessage = (StreamMessage) coreConsumer.receive(5000);
+
+         assertEquals(streamMessage.getJMSDestination(), queue);
          assertTrue(streamMessage.readBoolean());
          assertEquals((byte) 2, streamMessage.readByte());
 
@@ -426,6 +445,8 @@ public class GeneralInteropTest extends BasicOpenWireTest {
          sendBytesMessageUsingOpenWire(bytesData);
 
          BytesMessage bytesMessage = (BytesMessage) coreConsumer.receive(5000);
+
+         assertEquals(bytesMessage.getJMSDestination(), queue);
          byte[] rawBytes = new byte[bytesData.length];
          bytesMessage.readBytes(rawBytes);
 
@@ -437,6 +458,7 @@ public class GeneralInteropTest extends BasicOpenWireTest {
          sendMessageUsingOpenWire(queueName);
 
          javax.jms.Message genericMessage = coreConsumer.receive(5000);
+         assertEquals(genericMessage.getJMSDestination(), queue);
          String value = genericMessage.getStringProperty("stringProperty");
          assertEquals("HelloMessage", value);
          assertFalse(genericMessage.getBooleanProperty("booleanProperty"));
@@ -471,6 +493,7 @@ public class GeneralInteropTest extends BasicOpenWireTest {
 
          for (int i = 0; i < num; i++) {
             TextMessage txtMessage = (TextMessage) coreConsumer.receive(5000);
+            assertEquals(txtMessage.getJMSDestination(), queue);
             assertEquals(text + i, txtMessage.getText());
          }
       }
