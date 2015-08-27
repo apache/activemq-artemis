@@ -20,6 +20,7 @@ package org.apache.activemq.artemis.uri;
 import java.beans.PropertyDescriptor;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.InvocationTargetException;
@@ -53,15 +54,25 @@ public class ConnectionFactoryURITest {
 
    ConnectionFactoryParser parser = new ConnectionFactoryParser();
 
+   private static final String IPV6 = "fe80::baf6:b1ff:fe12:daf7%eth0";
+
    @Test
    public void testIPv6() throws Exception {
-      String ipv6 = "fe80::baf6:b1ff:fe12:daf7%eth0";
       Map<String,Object> params = new HashMap<>();
-      params.put("host", ipv6);
+      params.put("host", IPV6);
       params.put("port", 5445);
       TransportConfiguration transport = new TransportConfiguration(NettyConnectorFactory.class.getName(), params);
       ActiveMQConnectionFactory factory = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, transport);
 
+      persistIP6(IPV6, factory);
+   }
+
+   @Test
+   public void testIPv6NewURI() throws Exception {
+      persistIP6(IPV6, new ActiveMQConnectionFactory("tcp://[" + IPV6 + "]:5445"));
+   }
+
+   private void persistIP6(String ipv6, ActiveMQConnectionFactory factory) throws IOException, ClassNotFoundException {
       ByteArrayOutputStream baos = new ByteArrayOutputStream();
       ObjectOutputStream outStream = new ObjectOutputStream(baos);
       outStream.writeObject(factory);
