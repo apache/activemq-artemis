@@ -18,6 +18,10 @@
 package org.apache.activemq.artemis.uri;
 
 import java.beans.PropertyDescriptor;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.util.HashMap;
@@ -48,6 +52,28 @@ import org.junit.Test;
 public class ConnectionFactoryURITest {
 
    ConnectionFactoryParser parser = new ConnectionFactoryParser();
+
+   @Test
+   public void testIPv6() throws Exception {
+      String ipv6 = "fe80::baf6:b1ff:fe12:daf7%eth0";
+      Map<String,Object> params = new HashMap<>();
+      params.put("host", ipv6);
+      params.put("port", 5445);
+      TransportConfiguration transport = new TransportConfiguration(NettyConnectorFactory.class.getName(), params);
+      ActiveMQConnectionFactory factory = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, transport);
+
+      ByteArrayOutputStream baos = new ByteArrayOutputStream();
+      ObjectOutputStream outStream = new ObjectOutputStream(baos);
+      outStream.writeObject(factory);
+      outStream.close();
+      baos.close();
+      ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+      ObjectInputStream in = new ObjectInputStream(bais);
+      factory = (ActiveMQConnectionFactory) in.readObject();
+      in.close();
+      bais.close();
+      Assert.assertEquals("[" + ipv6 + "]", factory.getStaticConnectors()[0].getParams().get("host"));
+   }
 
    @Test
    public void testQUEUE_XA_CF() throws Exception {
