@@ -370,6 +370,10 @@ public class AMQConsumer implements BrowserListener {
       session.removeConsumer(nativeId);
    }
 
+   public org.apache.activemq.command.ActiveMQDestination getActualDestination() {
+      return actualDest;
+   }
+
    private class MessagePullHandler {
 
       private long next = -1;

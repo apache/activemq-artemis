@@ -18,11 +18,14 @@ package org.apache.activemq.artemis.core.protocol.openwire;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
+import org.apache.activemq.artemis.core.server.ServerMessage;
 import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQServerSession;
 import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQSession;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.BindingQueryResult;
+import org.apache.activemq.command.ActiveMQQueue;
+import org.apache.activemq.command.ActiveMQTopic;
 import org.apache.activemq.util.ByteSequence;
 import org.apache.activemq.artemis.api.core.SimpleString;
 
@@ -41,6 +44,23 @@ public class OpenWireUtil {
       }
       else {
          return new SimpleString("jms.topic." + dest.getPhysicalName());
+      }
+   }
+
+   /**
+    * We convert the core address to an ActiveMQ Destination. We use the actual address on the message rather than the
+    * destination set on the consumer because it maybe different and the JMS spec says that it should be what ever was
+    * set on publish/send so a divert or wildcard may mean thats its different to the destination subscribed to by the
+    * consumer
+    */
+   public static ActiveMQDestination toAMQAddress(ServerMessage message, ActiveMQDestination actualDestination) {
+      String address = message.getAddress().toString();
+      String strippedAddress = address.replace("jms.queue.", "").replace("jms.topic.", "");
+      if (actualDestination.isQueue()) {
+         return new ActiveMQQueue(strippedAddress);
+      }
+      else {
+         return new ActiveMQTopic(strippedAddress);
       }
    }
 
