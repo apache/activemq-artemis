@@ -39,7 +39,6 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQNonExistentQueueException;
 import org.apache.activemq.artemis.api.core.ActiveMQSecurityException;
-import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQBrokerStoppedException;
 import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQCompositeConsumerBrokerExchange;
 import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQConnectionContext;
 import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQConsumer;
@@ -634,28 +633,6 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor, S
       // synchronously to a transport
       if (e instanceof IOException) {
          serviceTransportException((IOException) e);
-      }
-      else if (e.getClass() == AMQBrokerStoppedException.class) {
-         // Handle the case where the broker is stopped
-         // But the client is still connected.
-         if (!stopping.get()) {
-            ConnectionError ce = new ConnectionError();
-            ce.setException(e);
-            dispatchSync(ce);
-            // Record the error that caused the transport to stop
-            this.stopError = e;
-            // Wait a little bit to try to get the output buffer to flush
-            // the exception notification to the client.
-            try {
-               Thread.sleep(500);
-            }
-            catch (InterruptedException ie) {
-               Thread.currentThread().interrupt();
-            }
-            // Worst case is we just kill the connection before the
-            // notification gets to him.
-            stopAsync();
-         }
       }
       else if (!stopping.get() && !inServiceException) {
          inServiceException = true;
