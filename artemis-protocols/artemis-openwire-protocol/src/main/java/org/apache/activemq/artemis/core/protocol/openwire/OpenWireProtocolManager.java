@@ -113,8 +113,6 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, No
 
    private boolean prefixPacketSize = true;
 
-   private BrokerState brokerState;
-
    private BrokerId brokerId;
    protected final ProducerId advisoryProducerId = new ProducerId();
 
@@ -143,7 +141,6 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, No
       this.wireFactory = new OpenWireFormatFactory();
       // preferred prop, should be done via config
       wireFactory.setCacheEnabled(false);
-      brokerState = new BrokerState();
       advisoryProducerId.setConnectionId(ID_GENERATOR.generateId());
       ManagementService service = server.getManagementService();
       scheduledPool = server.getScheduledPool();

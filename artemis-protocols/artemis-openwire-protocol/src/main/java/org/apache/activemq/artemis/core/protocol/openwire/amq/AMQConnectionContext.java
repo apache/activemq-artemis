@@ -30,7 +30,6 @@ import org.apache.activemq.state.ConnectionState;
 public class AMQConnectionContext {
 
    private OpenWireConnection connection;
-   private AMQConnector connector;
    private OpenWireProtocolManager broker; //use protocol manager to represent the broker
    private boolean inRecoveryMode;
    private ConnectionId connectionId;
@@ -67,7 +66,6 @@ public class AMQConnectionContext {
    public AMQConnectionContext copy() {
       AMQConnectionContext rc = new AMQConnectionContext(this.messageEvaluationContext);
       rc.connection = this.connection;
-      rc.connector = this.connector;
       rc.broker = this.broker;
       rc.inRecoveryMode = this.inRecoveryMode;
       rc.connectionId = this.connectionId;
@@ -111,20 +109,6 @@ public class AMQConnectionContext {
     */
    public void setConnection(OpenWireConnection connection) {
       this.connection = connection;
-   }
-
-   /**
-    * @return the connector being used.
-    */
-   public AMQConnector getConnector() {
-      return connector;
-   }
-
-   /**
-    * @param connector being used.
-    */
-   public void setConnector(AMQConnector connector) {
-      this.connector = connector;
    }
 
    /**
@@ -257,7 +241,10 @@ public class AMQConnectionContext {
    }
 
    public boolean isAllowLinkStealing() {
-      return connector != null && connector.isAllowLinkStealing();
+      // TODO: check what this means,
+      //       on the activemq implementation this used to check on
+      //       the connector, so this looks like a configuration option
+      return true;
    }
 
 }

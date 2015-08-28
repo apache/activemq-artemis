@@ -106,8 +106,6 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor, S
 
    private final Connection transportConnection;
 
-   private final AMQConnectorImpl acceptorUsed;
-
    private final long creationTime;
 
    private final List<FailureListener> failureListeners = new CopyOnWriteArrayList<FailureListener>();
@@ -119,6 +117,8 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor, S
    private final Object sendLock = new Object();
 
    private volatile boolean dataReceived;
+
+   private final Acceptor acceptorUsed;
 
    private OpenWireFormat wireFormat;
 
@@ -155,7 +155,7 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor, S
                              OpenWireFormat wf) {
       this.protocolManager = openWireProtocolManager;
       this.transportConnection = connection;
-      this.acceptorUsed = new AMQConnectorImpl(acceptorUsed);
+      this.acceptorUsed = acceptorUsed;
       this.wireFormat = wf;
       this.creationTime = System.currentTimeMillis();
    }
@@ -541,7 +541,6 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor, S
       context.setConnectionId(info.getConnectionId());
       // for now we pass the manager as the connector and see what happens
       // it should be related to activemq's Acceptor
-      context.setConnector(this.acceptorUsed);
       context.setFaultTolerant(info.isFaultTolerant());
       context.setUserName(info.getUserName());
       context.setWireFormatInfo(wireFormatInfo);
@@ -565,7 +564,7 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor, S
       }
       if (info.isManageable()) {
          // send ConnectionCommand
-         ConnectionControl command = this.acceptorUsed.getConnectionControl();
+         ConnectionControl command = new ConnectionControl();
          command.setFaultTolerant(protocolManager.isFaultTolerantConfiguration());
          if (info.isFailoverReconnect()) {
             command.setRebalanceConnection(false);
@@ -704,7 +703,6 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor, S
    }
 
    protected void doStop() throws Exception {
-      this.acceptorUsed.onStopped(this);
       /*
        * What's a duplex bridge? try { synchronized (this) { if (duplexBridge !=
        * null) { duplexBridge.stop(); } } } catch (Exception ignore) {
@@ -1007,7 +1005,8 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor, S
             result = new AMQProducerBrokerExchange();
             result.setConnectionContext(context);
             //todo implement reconnect https://issues.apache.org/jira/browse/ARTEMIS-194
-            if (context.isReconnect() || (context.isNetworkConnection() && this.acceptorUsed.isAuditNetworkProducers())) {
+            //todo: this used to check for  && this.acceptorUsed.isAuditNetworkProducers()
+            if (context.isReconnect() || (context.isNetworkConnection())) {
                // once implemented ARTEMIS-194, we need to set the storedSequenceID here somehow
                // We have different semantics on Artemis Journal, but we could adapt something for this
                // TBD during the implemetnation of ARTEMIS-194
@@ -1195,11 +1194,11 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor, S
    }
 
    public int getMaximumConsumersAllowedPerConnection() {
-      return this.acceptorUsed.getMaximumConsumersAllowedPerConnection();
+      return 1000000;//this belongs to configuration, now hardcoded
    }
 
    public int getMaximumProducersAllowedPerConnection() {
-      return this.acceptorUsed.getMaximumProducersAllowedPerConnection();
+      return 1000000;//this belongs to configuration, now hardcoded
    }
 
    public void deliverMessage(MessageDispatch dispatch) {
