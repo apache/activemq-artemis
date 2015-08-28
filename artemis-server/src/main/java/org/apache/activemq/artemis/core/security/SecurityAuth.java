@@ -1,4 +1,4 @@
-/*
+/**
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -14,30 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.core.protocol.openwire.amq;
 
-import org.apache.activemq.broker.region.MessageReference;
-import org.apache.activemq.command.ActiveMQDestination;
+package org.apache.activemq.artemis.core.security;
 
-/**
- * An interface for recoverying transient messages held by the broker for
- * retractive recovery for subscribers
- */
-public interface AMQSubscriptionRecovery {
+public interface SecurityAuth {
 
-   /**
-    * Add a message to the SubscriptionRecovery
-    *
-    * @param context
-    * @param message
-    * @return true if the message is accepted
-    * @throws Exception
-    */
-   boolean addRecoveredMessage(AMQConnectionContext context, MessageReference message) throws Exception;
+   String getUsername();
 
-   /**
-    * @return the Destination associated with this Subscription
-    */
-   ActiveMQDestination getActiveMQDestination();
+   String getPassword();
 
 }

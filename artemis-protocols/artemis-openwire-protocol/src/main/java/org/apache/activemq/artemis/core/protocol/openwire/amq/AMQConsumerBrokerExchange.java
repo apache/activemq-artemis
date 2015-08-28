@@ -23,8 +23,6 @@ public abstract class AMQConsumerBrokerExchange {
 
    protected final AMQSession amqSession;
    private AMQConnectionContext connectionContext;
-   private AMQDestination regionDestination;
-   private AMQSubscription subscription;
    private boolean wildcard;
 
    public AMQConsumerBrokerExchange(AMQSession amqSession) {
@@ -43,34 +41,6 @@ public abstract class AMQConsumerBrokerExchange {
     */
    public void setConnectionContext(AMQConnectionContext connectionContext) {
       this.connectionContext = connectionContext;
-   }
-
-   /**
-    * @return the regionDestination
-    */
-   public AMQDestination getRegionDestination() {
-      return this.regionDestination;
-   }
-
-   /**
-    * @param regionDestination the regionDestination to set
-    */
-   public void setRegionDestination(AMQDestination regionDestination) {
-      this.regionDestination = regionDestination;
-   }
-
-   /**
-    * @return the subscription
-    */
-   public AMQSubscription getSubscription() {
-      return this.subscription;
-   }
-
-   /**
-    * @param subscription the subscription to set
-    */
-   public void setSubscription(AMQSubscription subscription) {
-      this.subscription = subscription;
    }
 
    /**

@@ -33,6 +33,7 @@ import org.apache.activemq.artemis.core.postoffice.PostOffice;
 import org.apache.activemq.artemis.core.remoting.server.RemotingService;
 import org.apache.activemq.artemis.core.replication.ReplicationManager;
 import org.apache.activemq.artemis.core.security.Role;
+import org.apache.activemq.artemis.core.security.SecurityAuth;
 import org.apache.activemq.artemis.core.security.SecurityStore;
 import org.apache.activemq.artemis.core.server.cluster.ClusterManager;
 import org.apache.activemq.artemis.core.server.cluster.ha.HAPolicy;
@@ -103,6 +104,8 @@ public interface ActiveMQServer extends ActiveMQComponent {
    void registerActivateCallback(ActivateCallback callback);
 
    void unregisterActivateCallback(ActivateCallback callback);
+
+   void checkQueueCreationLimit(String username) throws Exception;
 
    ServerSession createSession(String name,
                                String username,
@@ -221,12 +224,12 @@ public interface ActiveMQServer extends ActiveMQComponent {
 
    void destroyQueue(SimpleString queueName) throws Exception;
 
-   void destroyQueue(SimpleString queueName, ServerSession session) throws Exception;
+   void destroyQueue(SimpleString queueName, SecurityAuth session) throws Exception;
 
-   void destroyQueue(SimpleString queueName, ServerSession session, boolean checkConsumerCount) throws Exception;
+   void destroyQueue(SimpleString queueName, SecurityAuth session, boolean checkConsumerCount) throws Exception;
 
    void destroyQueue(SimpleString queueName,
-                     ServerSession session,
+                     SecurityAuth session,
                      boolean checkConsumerCount,
                      boolean removeConsumers) throws Exception;
 

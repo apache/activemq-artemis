@@ -39,18 +39,16 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQNonExistentQueueException;
 import org.apache.activemq.artemis.api.core.ActiveMQSecurityException;
-import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQBrokerStoppedException;
 import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQCompositeConsumerBrokerExchange;
 import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQConnectionContext;
 import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQConsumer;
 import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQConsumerBrokerExchange;
-import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQMessageAuthorizationPolicy;
 import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQProducerBrokerExchange;
 import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQSession;
 import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQSingleConsumerBrokerExchange;
-import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQTransaction;
 import org.apache.activemq.artemis.core.remoting.CloseListener;
 import org.apache.activemq.artemis.core.remoting.FailureListener;
+import org.apache.activemq.artemis.core.security.SecurityAuth;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
@@ -96,7 +94,6 @@ import org.apache.activemq.state.ConnectionState;
 import org.apache.activemq.state.ConsumerState;
 import org.apache.activemq.state.ProducerState;
 import org.apache.activemq.state.SessionState;
-import org.apache.activemq.thread.TaskRunner;
 import org.apache.activemq.thread.TaskRunnerFactory;
 import org.apache.activemq.transport.TransmitCallback;
 import org.apache.activemq.util.ByteSequence;
@@ -105,7 +102,7 @@ import org.apache.activemq.wireformat.WireFormat;
 /**
  * Represents an activemq connection.
  */
-public class OpenWireConnection implements RemotingConnection, CommandVisitor {
+public class OpenWireConnection implements RemotingConnection, CommandVisitor, SecurityAuth {
 
    private final OpenWireProtocolManager protocolManager;
 
@@ -131,10 +128,6 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor {
 
    private AMQConnectionContext context;
 
-   private AMQMessageAuthorizationPolicy messageAuthorizationPolicy;
-
-   private boolean networkConnection;
-
    private boolean manageable;
 
    private boolean pendingStop;
@@ -152,17 +145,9 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor {
 
    private final CountDownLatch stopped = new CountDownLatch(1);
 
-   protected TaskRunner taskRunner;
-
    private boolean active;
 
    protected final List<Command> dispatchQueue = new LinkedList<Command>();
-
-   private boolean markedCandidate;
-
-   private boolean blockedCandidate;
-
-   private long timeStamp;
 
    private boolean inServiceException;
 
@@ -188,6 +173,39 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor {
       this.acceptorUsed = new AMQConnectorImpl(acceptorUsed);
       this.wireFormat = wf;
       this.creationTime = System.currentTimeMillis();
+   }
+
+
+   // SecurityAuth implementation
+   @Override
+   public String getUsername() {
+      ConnectionInfo info = getConnectionInfo();
+      if (info == null) {
+         return null;
+      }
+      return info.getUserName();
+   }
+
+   // SecurityAuth implementation
+   @Override
+   public String getPassword() {
+      ConnectionInfo info = getConnectionInfo();
+      if (info == null) {
+         return null;
+      }
+      return info.getPassword();
+   }
+
+
+   private ConnectionInfo getConnectionInfo() {
+      if (state == null) {
+         return null;
+      }
+      ConnectionInfo info = state.getInfo();
+      if (info == null) {
+         return null;
+      }
+      return info;
    }
 
    public String getLocalAddress() {
@@ -540,10 +558,7 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor {
       // for now we pass the manager as the connector and see what happens
       // it should be related to activemq's Acceptor
       context.setConnector(this.acceptorUsed);
-      context.setMessageAuthorizationPolicy(getMessageAuthorizationPolicy());
-      context.setNetworkConnection(networkConnection);
       context.setFaultTolerant(faultTolerantConnection);
-      context.setTransactions(new ConcurrentHashMap<TransactionId, AMQTransaction>());
       context.setUserName(info.getUserName());
       context.setWireFormatInfo(wireFormatInfo);
       context.setReconnect(info.isFailoverReconnect());
@@ -578,30 +593,12 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor {
    }
 
    public void dispatchAsync(Command message) {
-      if (!stopping.get()) {
-         if (taskRunner == null) {
-            dispatchSync(message);
-         }
-         else {
-            synchronized (dispatchQueue) {
-               dispatchQueue.add(message);
-            }
-            try {
-               taskRunner.wakeup();
-            }
-            catch (InterruptedException e) {
-               Thread.currentThread().interrupt();
-            }
-         }
-      }
-      else {
-         if (message.isMessageDispatch()) {
-            MessageDispatch md = (MessageDispatch) message;
-            TransmitCallback sub = md.getTransmitCallback();
-            protocolManager.postProcessDispatch(md);
-            if (sub != null) {
-               sub.onFailure();
-            }
+      if (message.isMessageDispatch()) {
+         MessageDispatch md = (MessageDispatch) message;
+         TransmitCallback sub = md.getTransmitCallback();
+         protocolManager.postProcessDispatch(md);
+         if (sub != null) {
+            sub.onFailure();
          }
       }
    }
@@ -632,28 +629,6 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor {
       // synchronously to a transport
       if (e instanceof IOException) {
          serviceTransportException((IOException) e);
-      }
-      else if (e.getClass() == AMQBrokerStoppedException.class) {
-         // Handle the case where the broker is stopped
-         // But the client is still connected.
-         if (!stopping.get()) {
-            ConnectionError ce = new ConnectionError();
-            ce.setException(e);
-            dispatchSync(ce);
-            // Record the error that caused the transport to stop
-            this.stopError = e;
-            // Wait a little bit to try to get the output buffer to flush
-            // the exception notification to the client.
-            try {
-               Thread.sleep(500);
-            }
-            catch (InterruptedException ie) {
-               Thread.currentThread().interrupt();
-            }
-            // Worst case is we just kill the connection before the
-            // notification gets to him.
-            stopAsync();
-         }
       }
       else if (!stopping.get() && !inServiceException) {
          inServiceException = true;
@@ -688,22 +663,8 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor {
        */
    }
 
-   public void setMarkedCandidate(boolean markedCandidate) {
-      this.markedCandidate = markedCandidate;
-      if (!markedCandidate) {
-         timeStamp = 0;
-         blockedCandidate = false;
-      }
-   }
-
    protected void dispatch(Command command) throws IOException {
-      try {
-         setMarkedCandidate(true);
-         this.physicalSend(command);
-      }
-      finally {
-         setMarkedCandidate(false);
-      }
+      this.physicalSend(command);
    }
 
    protected void processDispatch(Command command) throws IOException {
@@ -736,10 +697,6 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor {
             }
          }
       }
-   }
-
-   private AMQMessageAuthorizationPolicy getMessageAuthorizationPolicy() {
-      return this.messageAuthorizationPolicy;
    }
 
    public void delayedStop(final int waitTime, final String reason, Throwable cause) {
@@ -818,11 +775,6 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor {
       }
       catch (Exception e) {
          // log
-      }
-
-      if (taskRunner != null) {
-         taskRunner.shutdown(1);
-         taskRunner = null;
       }
 
       active = false;
@@ -1116,9 +1068,10 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor {
             result.setConnectionContext(context);
             //todo implement reconnect https://issues.apache.org/jira/browse/ARTEMIS-194
             if (context.isReconnect() || (context.isNetworkConnection() && this.acceptorUsed.isAuditNetworkProducers())) {
-               if (protocolManager.getPersistenceAdapter() != null) {
-                  result.setLastStoredSequenceId(protocolManager.getPersistenceAdapter().getLastProducerSequenceId(id));
-               }
+               // once implemented ARTEMIS-194, we need to set the storedSequenceID here somehow
+               // We have different semantics on Artemis Journal, but we could adapt something for this
+               // TBD during the implemetnation of ARTEMIS-194
+               result.setLastStoredSequenceId(0);
             }
             SessionState ss = state.getSessionState(id.getParentId());
             if (ss != null) {

@@ -16,20 +16,16 @@
  */
 package org.apache.activemq.artemis.core.protocol.openwire.amq;
 
-import java.io.IOException;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.apache.activemq.broker.region.MessageReference;
+import org.apache.activemq.artemis.core.protocol.openwire.OpenWireConnection;
+import org.apache.activemq.artemis.core.protocol.openwire.OpenWireProtocolManager;
 import org.apache.activemq.command.ConnectionId;
 import org.apache.activemq.command.ConnectionInfo;
-import org.apache.activemq.command.TransactionId;
 import org.apache.activemq.command.WireFormatInfo;
 import org.apache.activemq.command.XATransactionId;
 import org.apache.activemq.filter.MessageEvaluationContext;
 import org.apache.activemq.state.ConnectionState;
-import org.apache.activemq.artemis.core.protocol.openwire.OpenWireConnection;
-import org.apache.activemq.artemis.core.protocol.openwire.OpenWireProtocolManager;
 
 public class AMQConnectionContext {
 
@@ -37,9 +33,6 @@ public class AMQConnectionContext {
    private AMQConnector connector;
    private OpenWireProtocolManager broker; //use protocol manager to represent the broker
    private boolean inRecoveryMode;
-   private AMQTransaction transaction;
-   private ConcurrentMap<TransactionId, AMQTransaction> transactions;
-   private AMQSecurityContext securityContext;
    private ConnectionId connectionId;
    private String clientId;
    private String userName;
@@ -47,7 +40,6 @@ public class AMQConnectionContext {
    private WireFormatInfo wireFormatInfo;
    private Object longTermStoreContext;
    private boolean producerFlowControl = true;
-   private AMQMessageAuthorizationPolicy messageAuthorizationPolicy;
    private boolean networkConnection;
    private boolean faultTolerant;
    private final AtomicBoolean stopping = new AtomicBoolean();
@@ -78,9 +70,6 @@ public class AMQConnectionContext {
       rc.connector = this.connector;
       rc.broker = this.broker;
       rc.inRecoveryMode = this.inRecoveryMode;
-      rc.transaction = this.transaction;
-      rc.transactions = this.transactions;
-      rc.securityContext = this.securityContext;
       rc.connectionId = this.connectionId;
       rc.clientId = this.clientId;
       rc.userName = this.userName;
@@ -88,27 +77,12 @@ public class AMQConnectionContext {
       rc.wireFormatInfo = this.wireFormatInfo;
       rc.longTermStoreContext = this.longTermStoreContext;
       rc.producerFlowControl = this.producerFlowControl;
-      rc.messageAuthorizationPolicy = this.messageAuthorizationPolicy;
       rc.networkConnection = this.networkConnection;
       rc.faultTolerant = this.faultTolerant;
       rc.stopping.set(this.stopping.get());
       rc.dontSendResponse = this.dontSendResponse;
       rc.clientMaster = this.clientMaster;
       return rc;
-   }
-
-   public AMQSecurityContext getSecurityContext() {
-      return securityContext;
-   }
-
-   public void setSecurityContext(AMQSecurityContext subject) {
-      this.securityContext = subject;
-      if (subject != null) {
-         setUserName(subject.getUserName());
-      }
-      else {
-         setUserName(null);
-      }
    }
 
    /**
@@ -140,20 +114,6 @@ public class AMQConnectionContext {
    }
 
    /**
-    * @return the transaction being used.
-    */
-   public AMQTransaction getTransaction() {
-      return transaction;
-   }
-
-   /**
-    * @param transaction being used.
-    */
-   public void setTransaction(AMQTransaction transaction) {
-      this.transaction = transaction;
-   }
-
-   /**
     * @return the connector being used.
     */
    public AMQConnector getConnector() {
@@ -167,18 +127,6 @@ public class AMQConnectionContext {
       this.connector = connector;
    }
 
-   public AMQMessageAuthorizationPolicy getMessageAuthorizationPolicy() {
-      return messageAuthorizationPolicy;
-   }
-
-   /**
-    * Sets the policy used to decide if the current connection is authorized to
-    * consume a given message
-    */
-   public void setMessageAuthorizationPolicy(AMQMessageAuthorizationPolicy messageAuthorizationPolicy) {
-      this.messageAuthorizationPolicy = messageAuthorizationPolicy;
-   }
-
    /**
     * @return
     */
@@ -188,18 +136,6 @@ public class AMQConnectionContext {
 
    public void setInRecoveryMode(boolean inRecoveryMode) {
       this.inRecoveryMode = inRecoveryMode;
-   }
-
-   public ConcurrentMap<TransactionId, AMQTransaction> getTransactions() {
-      return transactions;
-   }
-
-   public void setTransactions(ConcurrentMap<TransactionId, AMQTransaction> transactions) {
-      this.transactions = transactions;
-   }
-
-   public boolean isInTransaction() {
-      return transaction != null;
    }
 
    public String getClientId() {
@@ -260,13 +196,6 @@ public class AMQConnectionContext {
 
    public void setProducerFlowControl(boolean disableProducerFlowControl) {
       this.producerFlowControl = disableProducerFlowControl;
-   }
-
-   public boolean isAllowedToConsume(MessageReference n) throws IOException {
-      if (messageAuthorizationPolicy != null) {
-         return messageAuthorizationPolicy.isAllowedToConsume(this, n.getMessage());
-      }
-      return true;
    }
 
    public synchronized boolean isNetworkConnection() {

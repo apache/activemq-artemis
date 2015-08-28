@@ -25,10 +25,10 @@ import org.apache.activemq.artemis.api.core.management.CoreNotificationType;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.core.security.CheckType;
 import org.apache.activemq.artemis.core.security.Role;
+import org.apache.activemq.artemis.core.security.SecurityAuth;
 import org.apache.activemq.artemis.core.security.SecurityStore;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
-import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.management.Notification;
 import org.apache.activemq.artemis.core.server.management.NotificationService;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
@@ -138,7 +138,7 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
 
    public void check(final SimpleString address,
                      final CheckType checkType,
-                     final ServerSession session) throws Exception {
+                     final SecurityAuth session) throws Exception {
       if (securityEnabled) {
          if (trace) {
             ActiveMQServerLogger.LOGGER.trace("checking access permissions to " + address);
