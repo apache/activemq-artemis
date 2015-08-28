@@ -26,7 +26,6 @@ import org.apache.activemq.state.ProducerState;
 public class AMQProducerBrokerExchange {
 
    private AMQConnectionContext connectionContext;
-   private AMQDestination regionDestination;
    private ProducerState producerState;
    private boolean mutable = true;
    private AtomicLong lastSendSequenceNumber = new AtomicLong(-1);
@@ -40,7 +39,6 @@ public class AMQProducerBrokerExchange {
    public AMQProducerBrokerExchange copy() {
       AMQProducerBrokerExchange rc = new AMQProducerBrokerExchange();
       rc.connectionContext = connectionContext.copy();
-      rc.regionDestination = regionDestination;
       rc.producerState = producerState;
       rc.mutable = mutable;
       return rc;
@@ -72,20 +70,6 @@ public class AMQProducerBrokerExchange {
     */
    public void setMutable(boolean mutable) {
       this.mutable = mutable;
-   }
-
-   /**
-    * @return the regionDestination
-    */
-   public AMQDestination getRegionDestination() {
-      return this.regionDestination;
-   }
-
-   /**
-    * @param regionDestination the regionDestination to set
-    */
-   public void setRegionDestination(AMQDestination regionDestination) {
-      this.regionDestination = regionDestination;
    }
 
    /**
@@ -147,10 +131,6 @@ public class AMQProducerBrokerExchange {
 
    public void blockingOnFlowControl(boolean blockingOnFlowControl) {
       flowControlInfo.setBlockingOnFlowControl(blockingOnFlowControl);
-   }
-
-   public void incrementTimeBlocked(AMQDestination destination, long timeBlocked) {
-      flowControlInfo.incrementTimeBlocked(timeBlocked);
    }
 
    public boolean isBlockedForFlowControl() {

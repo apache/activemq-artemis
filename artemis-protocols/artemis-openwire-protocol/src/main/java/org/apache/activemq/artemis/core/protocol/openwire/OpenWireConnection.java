@@ -97,7 +97,6 @@ import org.apache.activemq.state.ConnectionState;
 import org.apache.activemq.state.ConsumerState;
 import org.apache.activemq.state.ProducerState;
 import org.apache.activemq.state.SessionState;
-import org.apache.activemq.thread.TaskRunner;
 import org.apache.activemq.thread.TaskRunnerFactory;
 import org.apache.activemq.transport.TransmitCallback;
 import org.apache.activemq.util.ByteSequence;
@@ -134,8 +133,6 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor, S
 
    private AMQMessageAuthorizationPolicy messageAuthorizationPolicy;
 
-   private boolean networkConnection;
-
    private boolean manageable;
 
    private boolean pendingStop;
@@ -153,17 +150,9 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor, S
 
    private final CountDownLatch stopped = new CountDownLatch(1);
 
-   protected TaskRunner taskRunner;
-
    private boolean active;
 
    protected final List<Command> dispatchQueue = new LinkedList<Command>();
-
-   private boolean markedCandidate;
-
-   private boolean blockedCandidate;
-
-   private long timeStamp;
 
    private boolean inServiceException;
 
@@ -575,7 +564,6 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor, S
       // it should be related to activemq's Acceptor
       context.setConnector(this.acceptorUsed);
       context.setMessageAuthorizationPolicy(getMessageAuthorizationPolicy());
-      context.setNetworkConnection(networkConnection);
       context.setFaultTolerant(faultTolerantConnection);
       context.setTransactions(new ConcurrentHashMap<TransactionId, AMQTransaction>());
       context.setUserName(info.getUserName());
@@ -612,30 +600,12 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor, S
    }
 
    public void dispatchAsync(Command message) {
-      if (!stopping.get()) {
-         if (taskRunner == null) {
-            dispatchSync(message);
-         }
-         else {
-            synchronized (dispatchQueue) {
-               dispatchQueue.add(message);
-            }
-            try {
-               taskRunner.wakeup();
-            }
-            catch (InterruptedException e) {
-               Thread.currentThread().interrupt();
-            }
-         }
-      }
-      else {
-         if (message.isMessageDispatch()) {
-            MessageDispatch md = (MessageDispatch) message;
-            TransmitCallback sub = md.getTransmitCallback();
-            protocolManager.postProcessDispatch(md);
-            if (sub != null) {
-               sub.onFailure();
-            }
+      if (message.isMessageDispatch()) {
+         MessageDispatch md = (MessageDispatch) message;
+         TransmitCallback sub = md.getTransmitCallback();
+         protocolManager.postProcessDispatch(md);
+         if (sub != null) {
+            sub.onFailure();
          }
       }
    }
@@ -722,22 +692,8 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor, S
        */
    }
 
-   public void setMarkedCandidate(boolean markedCandidate) {
-      this.markedCandidate = markedCandidate;
-      if (!markedCandidate) {
-         timeStamp = 0;
-         blockedCandidate = false;
-      }
-   }
-
    protected void dispatch(Command command) throws IOException {
-      try {
-         setMarkedCandidate(true);
-         this.physicalSend(command);
-      }
-      finally {
-         setMarkedCandidate(false);
-      }
+      this.physicalSend(command);
    }
 
    protected void processDispatch(Command command) throws IOException {
@@ -852,11 +808,6 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor, S
       }
       catch (Exception e) {
          // log
-      }
-
-      if (taskRunner != null) {
-         taskRunner.shutdown(1);
-         taskRunner = null;
       }
 
       active = false;

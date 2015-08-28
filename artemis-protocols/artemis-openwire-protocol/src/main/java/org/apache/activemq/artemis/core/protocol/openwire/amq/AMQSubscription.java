@@ -16,11 +16,9 @@
  */
 package org.apache.activemq.artemis.core.protocol.openwire.amq;
 
-import java.io.IOException;
-import java.util.List;
-
 import javax.jms.InvalidSelectorException;
 import javax.management.ObjectName;
+import java.io.IOException;
 
 import org.apache.activemq.broker.region.MessageReference;
 import org.apache.activemq.command.ActiveMQDestination;
@@ -80,24 +78,6 @@ public interface AMQSubscription extends AMQSubscriptionRecovery {
     * @return
     */
    boolean matches(ActiveMQDestination destination);
-
-   /**
-    * The subscription will be receiving messages from the destination.
-    *
-    * @param context
-    * @param destination
-    * @throws Exception
-    */
-   void add(AMQConnectionContext context, AMQDestination destination) throws Exception;
-
-   /**
-    * The subscription will be no longer be receiving messages from the destination.
-    *
-    * @param context
-    * @param destination
-    * @return a list of un-acked messages that were added to the subscription.
-    */
-   List<MessageReference> remove(AMQConnectionContext context, AMQDestination destination) throws Exception;
 
    /**
     * The ConsumerInfo object that created the subscription.
