@@ -23,7 +23,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.activemq.broker.region.MessageReference;
 import org.apache.activemq.command.ConnectionId;
 import org.apache.activemq.command.ConnectionInfo;
-import org.apache.activemq.command.TransactionId;
 import org.apache.activemq.command.WireFormatInfo;
 import org.apache.activemq.command.XATransactionId;
 import org.apache.activemq.filter.MessageEvaluationContext;
@@ -45,7 +44,6 @@ public class AMQConnectionContext {
    private WireFormatInfo wireFormatInfo;
    private Object longTermStoreContext;
    private boolean producerFlowControl = true;
-   private AMQMessageAuthorizationPolicy messageAuthorizationPolicy;
    private boolean networkConnection;
    private boolean faultTolerant;
    private final AtomicBoolean stopping = new AtomicBoolean();
@@ -84,7 +82,6 @@ public class AMQConnectionContext {
       rc.wireFormatInfo = this.wireFormatInfo;
       rc.longTermStoreContext = this.longTermStoreContext;
       rc.producerFlowControl = this.producerFlowControl;
-      rc.messageAuthorizationPolicy = this.messageAuthorizationPolicy;
       rc.networkConnection = this.networkConnection;
       rc.faultTolerant = this.faultTolerant;
       rc.stopping.set(this.stopping.get());
@@ -147,18 +144,6 @@ public class AMQConnectionContext {
     */
    public void setConnector(AMQConnector connector) {
       this.connector = connector;
-   }
-
-   public AMQMessageAuthorizationPolicy getMessageAuthorizationPolicy() {
-      return messageAuthorizationPolicy;
-   }
-
-   /**
-    * Sets the policy used to decide if the current connection is authorized to
-    * consume a given message
-    */
-   public void setMessageAuthorizationPolicy(AMQMessageAuthorizationPolicy messageAuthorizationPolicy) {
-      this.messageAuthorizationPolicy = messageAuthorizationPolicy;
    }
 
    /**
@@ -230,13 +215,6 @@ public class AMQConnectionContext {
 
    public void setProducerFlowControl(boolean disableProducerFlowControl) {
       this.producerFlowControl = disableProducerFlowControl;
-   }
-
-   public boolean isAllowedToConsume(MessageReference n) throws IOException {
-      if (messageAuthorizationPolicy != null) {
-         return messageAuthorizationPolicy.isAllowedToConsume(this, n.getMessage());
-      }
-      return true;
    }
 
    public synchronized boolean isNetworkConnection() {

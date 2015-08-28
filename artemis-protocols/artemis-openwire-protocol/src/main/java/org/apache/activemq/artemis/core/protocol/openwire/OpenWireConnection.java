@@ -43,7 +43,6 @@ import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQCompositeConsum
 import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQConnectionContext;
 import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQConsumer;
 import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQConsumerBrokerExchange;
-import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQMessageAuthorizationPolicy;
 import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQProducerBrokerExchange;
 import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQSession;
 import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQSingleConsumerBrokerExchange;
@@ -128,8 +127,6 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor, S
    private boolean faultTolerantConnection;
 
    private AMQConnectionContext context;
-
-   private AMQMessageAuthorizationPolicy messageAuthorizationPolicy;
 
    private boolean manageable;
 
@@ -561,7 +558,6 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor, S
       // for now we pass the manager as the connector and see what happens
       // it should be related to activemq's Acceptor
       context.setConnector(this.acceptorUsed);
-      context.setMessageAuthorizationPolicy(getMessageAuthorizationPolicy());
       context.setFaultTolerant(faultTolerantConnection);
       context.setUserName(info.getUserName());
       context.setWireFormatInfo(wireFormatInfo);
@@ -701,10 +697,6 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor, S
             }
          }
       }
-   }
-
-   private AMQMessageAuthorizationPolicy getMessageAuthorizationPolicy() {
-      return this.messageAuthorizationPolicy;
    }
 
    public void delayedStop(final int waitTime, final String reason, Throwable cause) {
