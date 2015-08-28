@@ -22,6 +22,8 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.net.URI;
+import java.util.Iterator;
+import java.util.Set;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -31,12 +33,13 @@ import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.jms.Topic;
-import javax.management.ObjectName;
 
 import org.apache.activemq.advisory.DestinationSource;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.postoffice.PostOffice;
 import org.apache.activemq.broker.BrokerFactory;
 import org.apache.activemq.broker.BrokerService;
-import org.apache.activemq.broker.jmx.DestinationViewMBean;
+import org.apache.activemq.broker.artemiswrapper.ArtemisBrokerWrapper;
 import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.command.ActiveMQTopic;
 import org.junit.After;
@@ -45,8 +48,8 @@ import org.junit.Test;
 
 public class RemoveDestinationTest {
 
-   private static final String VM_BROKER_URL = "vm://localhost?create=false";
-   private static final String BROKER_URL = "broker:vm://localhost?broker.persistent=false&broker.useJmx=true";
+   private static final String TCP_BROKER_URL = "tcp://localhost:61616?create=false";
+   private static final String BROKER_URL = "broker:tcp://localhost:61616?broker.persistent=false&broker.useJmx=true";
 
    BrokerService broker;
 
@@ -65,7 +68,7 @@ public class RemoveDestinationTest {
    }
 
    private Connection createConnection(final boolean start) throws JMSException {
-      ConnectionFactory cf = new ActiveMQConnectionFactory(VM_BROKER_URL);
+      ConnectionFactory cf = new ActiveMQConnectionFactory(TCP_BROKER_URL);
       Connection conn = cf.createConnection();
       if (start) {
          conn.start();
@@ -118,7 +121,7 @@ public class RemoveDestinationTest {
 
       ActiveMQTopic amqTopic = (ActiveMQTopic) topic;
 
-      assertTrue(destinationPresentInAdminView(broker, amqTopic));
+      assertTrue(destinationPresentInAdminView(amqTopic));
       assertTrue(destinationSource.getTopics().contains(amqTopic));
 
       // This line generates a broker error since the consumer is still active.
@@ -133,7 +136,7 @@ public class RemoveDestinationTest {
       Thread.sleep(3000);
 
       assertTrue(destinationSource.getTopics().contains(amqTopic));
-      assertTrue(destinationPresentInAdminView(broker, amqTopic));
+      assertTrue(destinationPresentInAdminView(amqTopic));
 
       consumer.close();
       producer.close();
@@ -146,16 +149,18 @@ public class RemoveDestinationTest {
       amqConnection.destroyDestination(amqTopic);
       Thread.sleep(3000);
       assertFalse(destinationSource.getTopics().contains(amqTopic));
-      assertFalse(destinationPresentInAdminView(broker, amqTopic));
+      assertFalse(destinationPresentInAdminView(amqTopic));
    }
 
-   private boolean destinationPresentInAdminView(BrokerService broker2, ActiveMQTopic amqTopic) throws Exception {
+   private boolean destinationPresentInAdminView(ActiveMQTopic amqTopic) throws Exception {
       boolean found = false;
-      for (ObjectName name : broker.getAdminView().getTopics()) {
-
-         DestinationViewMBean proxy = (DestinationViewMBean) broker.getManagementContext().newProxyInstance(name, DestinationViewMBean.class, true);
-
-         if (proxy.getName().equals(amqTopic.getPhysicalName())) {
+      ArtemisBrokerWrapper wrapper = (ArtemisBrokerWrapper) broker.getBroker();
+      PostOffice po = wrapper.getServer().getPostOffice();
+      Set<SimpleString> addressSet = po.getAddresses();
+      Iterator<SimpleString> iter = addressSet.iterator();
+      String addressToFind = "jms.topic." + amqTopic.getPhysicalName();
+      while (iter.hasNext()) {
+         if (addressToFind.equals(iter.next().toString())) {
             found = true;
             break;
          }

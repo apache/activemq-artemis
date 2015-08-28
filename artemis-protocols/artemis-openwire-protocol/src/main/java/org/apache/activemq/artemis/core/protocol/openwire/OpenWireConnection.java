@@ -39,7 +39,6 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQNonExistentQueueException;
 import org.apache.activemq.artemis.api.core.ActiveMQSecurityException;
-import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQBrokerStoppedException;
 import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQCompositeConsumerBrokerExchange;
 import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQConnectionContext;
@@ -174,7 +173,7 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor {
 
    private ConnectionState state;
 
-   private final Set<String> tempQueues = new ConcurrentHashSet<String>();
+   private final Set<ActiveMQDestination> tempQueues = new ConcurrentHashSet<ActiveMQDestination>();
 
    private Map<TransactionId, TransactionInfo> txMap = new ConcurrentHashMap<TransactionId, TransactionInfo>();
 
@@ -227,7 +226,14 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor {
                response = new ExceptionResponse(this.stopError);
             }
             else {
-               response = ((Command) command).visit(this);
+               try {
+                  response = ((Command) command).visit(this);
+               }
+               catch (Exception e) {
+                  if (responseRequired) {
+                     response = new ExceptionResponse(e);
+                  }
+               }
 
                if (response instanceof ExceptionResponse) {
                   if (!responseRequired) {
@@ -409,10 +415,10 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor {
    }
 
    private void deleteTempQueues() throws Exception {
-      Iterator<String> queueNames = tempQueues.iterator();
-      while (queueNames.hasNext()) {
-         String q = queueNames.next();
-         protocolManager.deleteQueue(q);
+      Iterator<ActiveMQDestination> tmpQs = tempQueues.iterator();
+      while (tmpQs.hasNext()) {
+         ActiveMQDestination q = tmpQs.next();
+         protocolManager.removeDestination(this, q);
       }
    }
 
@@ -1230,10 +1236,7 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor {
    @Override
    public Response processRemoveDestination(DestinationInfo info) throws Exception {
       ActiveMQDestination dest = info.getDestination();
-      if (dest.isQueue()) {
-         String qName = "jms.queue." + dest.getPhysicalName();
-         protocolManager.deleteQueue(qName);
-      }
+      protocolManager.removeDestination(this, dest);
       return null;
    }
 
@@ -1320,8 +1323,8 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor {
       return this.wireFormat;
    }
 
-   public void registerTempQueue(SimpleString qName) {
-      tempQueues.add(qName.toString());
+   public void registerTempQueue(ActiveMQDestination queue) {
+      tempQueues.add(queue);
    }
 
    @Override
