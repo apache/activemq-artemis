@@ -172,30 +172,6 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    private final TransactionFactory transactionFactory;
 
-   //create an 'empty' session. Only used by AMQServerSession
-   //in order to check username and password
-   protected ServerSessionImpl(String username, String password) {
-      this.username = username;
-      this.password = password;
-
-      this.transactionFactory = null;
-      this.strictUpdateDeliveryCount = false;
-      this.storageManager = null;
-      this.server = null;
-      this.securityStore = null;
-      this.resourceManager = null;
-      this.remotingConnection = null;
-      this.preAcknowledge = false;
-      this.postOffice = null;
-      this.name = null;
-      this.minLargeMessageSize = 0;
-      this.managementService = null;
-      this.managementAddress = null;
-      this.context = null;
-      this.callback = null;
-      this.queueCreator = null;
-   }
-
    public ServerSessionImpl(final String name,
                             final String username,
                             final String password,
@@ -494,7 +470,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
          securityStore.check(address, CheckType.CREATE_NON_DURABLE_QUEUE, this);
       }
 
-      ((ActiveMQServerImpl) server).checkQueueCreationLimit(getUsername());
+      server.checkQueueCreationLimit(getUsername());
 
       Queue queue;
 
@@ -538,7 +514,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
                                  final SimpleString filterString) throws Exception {
       securityStore.check(address, CheckType.CREATE_NON_DURABLE_QUEUE, this);
 
-      ((ActiveMQServerImpl) server).checkQueueCreationLimit(getUsername());
+      server.checkQueueCreationLimit(getUsername());
 
       server.createSharedQueue(address, name, filterString, SimpleString.toSimpleString(getUsername()), durable);
    }

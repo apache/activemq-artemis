@@ -51,6 +51,7 @@ import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQSingleConsumerB
 import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQTransaction;
 import org.apache.activemq.artemis.core.remoting.CloseListener;
 import org.apache.activemq.artemis.core.remoting.FailureListener;
+import org.apache.activemq.artemis.core.security.SecurityAuth;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
@@ -105,7 +106,7 @@ import org.apache.activemq.wireformat.WireFormat;
 /**
  * Represents an activemq connection.
  */
-public class OpenWireConnection implements RemotingConnection, CommandVisitor {
+public class OpenWireConnection implements RemotingConnection, CommandVisitor, SecurityAuth {
 
    private final OpenWireProtocolManager protocolManager;
 
@@ -188,6 +189,39 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor {
       this.acceptorUsed = new AMQConnectorImpl(acceptorUsed);
       this.wireFormat = wf;
       this.creationTime = System.currentTimeMillis();
+   }
+
+
+   // SecurityAuth implementation
+   @Override
+   public String getUsername() {
+      ConnectionInfo info = getConnectionInfo();
+      if (info == null) {
+         return null;
+      }
+      return info.getUserName();
+   }
+
+   // SecurityAuth implementation
+   @Override
+   public String getPassword() {
+      ConnectionInfo info = getConnectionInfo();
+      if (info == null) {
+         return null;
+      }
+      return info.getPassword();
+   }
+
+
+   private ConnectionInfo getConnectionInfo() {
+      if (state == null) {
+         return null;
+      }
+      ConnectionInfo info = state.getInfo();
+      if (info == null) {
+         return null;
+      }
+      return info;
    }
 
    public String getLocalAddress() {

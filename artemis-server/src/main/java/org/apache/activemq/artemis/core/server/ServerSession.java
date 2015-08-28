@@ -23,17 +23,14 @@ import java.util.Set;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.message.impl.MessageInternal;
 import org.apache.activemq.artemis.core.persistence.OperationContext;
+import org.apache.activemq.artemis.core.security.SecurityAuth;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.utils.json.JSONArray;
 
-public interface ServerSession {
+public interface ServerSession extends SecurityAuth {
 
    String getName();
-
-   String getUsername();
-
-   String getPassword();
 
    int getMinLargeMessageSize();
 

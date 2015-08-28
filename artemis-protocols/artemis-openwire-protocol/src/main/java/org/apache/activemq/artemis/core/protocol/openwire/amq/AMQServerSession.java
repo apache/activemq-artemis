@@ -88,11 +88,6 @@ public class AMQServerSession extends ServerSessionImpl {
       super(name, username, password, minLargeMessageSize, autoCommitSends, autoCommitAcks, preAcknowledge, persistDeliveryCountBeforeDelivery, xa, connection, storageManager, postOffice, resourceManager, securityStore, managementService, activeMQServerImpl, managementAddress, simpleString, callback, context, new AMQTransactionFactory(), queueCreator);
    }
 
-   //create a fake session just for security check
-   public AMQServerSession(String user, String pass) {
-      super(user, pass);
-   }
-
    protected void doClose(final boolean failed) throws Exception {
       synchronized (this) {
          if (tx != null && tx.getXid() == null) {

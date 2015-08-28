@@ -1,4 +1,4 @@
-/*
+/**
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -14,17 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.apache.activemq.artemis.core.security;
 
-import org.apache.activemq.artemis.api.core.SimpleString;
+public interface SecurityAuth {
 
-public interface SecurityStore {
+   String getUsername();
 
-   void authenticate(String user, String password) throws Exception;
+   String getPassword();
 
-   void check(SimpleString address, CheckType checkType, SecurityAuth session) throws Exception;
-
-   boolean isSecurityEnabled();
-
-   void stop();
 }

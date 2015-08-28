@@ -47,14 +47,12 @@ import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQConnectionConte
 import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQConsumer;
 import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQPersistenceAdapter;
 import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQProducerBrokerExchange;
-import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQServerSession;
 import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQSession;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyServerConnection;
 import org.apache.activemq.artemis.core.security.CheckType;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.Queue;
-import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.core.server.management.ManagementService;
 import org.apache.activemq.artemis.core.server.management.Notification;
 import org.apache.activemq.artemis.core.server.management.NotificationListener;
@@ -583,21 +581,17 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, No
       ActiveMQDestination dest = info.getDestination();
       if (dest.isQueue()) {
          SimpleString qName = OpenWireUtil.toCoreAddress(dest);
-         ConnectionState state = connection.getState();
-         ConnectionInfo connInfo = state.getInfo();
-         if (connInfo != null) {
-            String user = connInfo.getUserName();
-            String pass = connInfo.getPassword();
+         if (connection.getState().getInfo() != null) {
 
-            AMQServerSession fakeSession = new AMQServerSession(user, pass);
             CheckType checkType = dest.isTemporary() ? CheckType.CREATE_NON_DURABLE_QUEUE : CheckType.CREATE_DURABLE_QUEUE;
-            ((ActiveMQServerImpl) server).getSecurityStore().check(qName, checkType, fakeSession);
+            server.getSecurityStore().check(qName, checkType, connection);
 
-            ((ActiveMQServerImpl) server).checkQueueCreationLimit(user);
+            server.checkQueueCreationLimit(connection.getUsername());
          }
 
          QueueBinding binding = (QueueBinding) server.getPostOffice().getBinding(qName);
          if (binding == null) {
+            ConnectionInfo connInfo = connection.getState().getInfo();
             this.server.createQueue(qName, qName, null, connInfo == null ? null : SimpleString.toSimpleString(connInfo.getUserName()), false, dest.isTemporary());
          }
          if (dest.isTemporary()) {
