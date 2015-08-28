@@ -48,7 +48,6 @@ import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQMessageAuthoriz
 import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQProducerBrokerExchange;
 import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQSession;
 import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQSingleConsumerBrokerExchange;
-import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQTransaction;
 import org.apache.activemq.artemis.core.remoting.CloseListener;
 import org.apache.activemq.artemis.core.remoting.FailureListener;
 import org.apache.activemq.artemis.core.security.SecurityAuth;
@@ -565,7 +564,6 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor, S
       context.setConnector(this.acceptorUsed);
       context.setMessageAuthorizationPolicy(getMessageAuthorizationPolicy());
       context.setFaultTolerant(faultTolerantConnection);
-      context.setTransactions(new ConcurrentHashMap<TransactionId, AMQTransaction>());
       context.setUserName(info.getUserName());
       context.setWireFormatInfo(wireFormatInfo);
       context.setReconnect(info.isFailoverReconnect());

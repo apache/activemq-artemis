@@ -37,8 +37,6 @@ public class AMQConnectionContext {
    private AMQConnector connector;
    private OpenWireProtocolManager broker; //use protocol manager to represent the broker
    private boolean inRecoveryMode;
-   private AMQTransaction transaction;
-   private ConcurrentMap<TransactionId, AMQTransaction> transactions;
    private AMQSecurityContext securityContext;
    private ConnectionId connectionId;
    private String clientId;
@@ -78,8 +76,6 @@ public class AMQConnectionContext {
       rc.connector = this.connector;
       rc.broker = this.broker;
       rc.inRecoveryMode = this.inRecoveryMode;
-      rc.transaction = this.transaction;
-      rc.transactions = this.transactions;
       rc.securityContext = this.securityContext;
       rc.connectionId = this.connectionId;
       rc.clientId = this.clientId;
@@ -140,20 +136,6 @@ public class AMQConnectionContext {
    }
 
    /**
-    * @return the transaction being used.
-    */
-   public AMQTransaction getTransaction() {
-      return transaction;
-   }
-
-   /**
-    * @param transaction being used.
-    */
-   public void setTransaction(AMQTransaction transaction) {
-      this.transaction = transaction;
-   }
-
-   /**
     * @return the connector being used.
     */
    public AMQConnector getConnector() {
@@ -188,18 +170,6 @@ public class AMQConnectionContext {
 
    public void setInRecoveryMode(boolean inRecoveryMode) {
       this.inRecoveryMode = inRecoveryMode;
-   }
-
-   public ConcurrentMap<TransactionId, AMQTransaction> getTransactions() {
-      return transactions;
-   }
-
-   public void setTransactions(ConcurrentMap<TransactionId, AMQTransaction> transactions) {
-      this.transactions = transactions;
-   }
-
-   public boolean isInTransaction() {
-      return transaction != null;
    }
 
    public String getClientId() {
