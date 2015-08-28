@@ -33,7 +33,6 @@ public class AMQConnectionContext {
    private AMQConnector connector;
    private OpenWireProtocolManager broker; //use protocol manager to represent the broker
    private boolean inRecoveryMode;
-   private AMQSecurityContext securityContext;
    private ConnectionId connectionId;
    private String clientId;
    private String userName;
@@ -71,7 +70,6 @@ public class AMQConnectionContext {
       rc.connector = this.connector;
       rc.broker = this.broker;
       rc.inRecoveryMode = this.inRecoveryMode;
-      rc.securityContext = this.securityContext;
       rc.connectionId = this.connectionId;
       rc.clientId = this.clientId;
       rc.userName = this.userName;
@@ -85,20 +83,6 @@ public class AMQConnectionContext {
       rc.dontSendResponse = this.dontSendResponse;
       rc.clientMaster = this.clientMaster;
       return rc;
-   }
-
-   public AMQSecurityContext getSecurityContext() {
-      return securityContext;
-   }
-
-   public void setSecurityContext(AMQSecurityContext subject) {
-      this.securityContext = subject;
-      if (subject != null) {
-         setUserName(subject.getUserName());
-      }
-      else {
-         setUserName(null);
-      }
    }
 
    /**
