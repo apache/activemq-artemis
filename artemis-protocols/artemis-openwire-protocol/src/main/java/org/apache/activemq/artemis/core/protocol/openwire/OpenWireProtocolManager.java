@@ -40,6 +40,9 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.management.CoreNotificationType;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.core.io.IOCallback;
+import org.apache.activemq.artemis.core.postoffice.Binding;
+import org.apache.activemq.artemis.core.postoffice.Bindings;
+import org.apache.activemq.artemis.core.postoffice.QueueBinding;
 import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQConnectionContext;
 import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQConsumer;
 import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQPersistenceAdapter;
@@ -50,6 +53,7 @@ import org.apache.activemq.artemis.core.remoting.impl.netty.NettyServerConnectio
 import org.apache.activemq.artemis.core.security.CheckType;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.core.server.management.ManagementService;
 import org.apache.activemq.artemis.core.server.management.Notification;
@@ -135,7 +139,6 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, No
    private Map<String, SessionId> sessionIdMap = new ConcurrentHashMap<String, SessionId>();
 
    private final ScheduledExecutorService scheduledPool;
-
 
    public OpenWireProtocolManager(OpenWireProtocolManagerFactory factory, ActiveMQServer server) {
       this.factory = factory;
@@ -429,17 +432,24 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, No
       }
       // Avoid replaying dup commands
       if (!ss.getProducerIds().contains(info.getProducerId())) {
-         ActiveMQDestination destination = info.getDestination();
-         if (destination != null && !AdvisorySupport.isAdvisoryTopic(destination)) {
-            if (theConn.getProducerCount() >= theConn.getMaximumProducersAllowedPerConnection()) {
-               throw new IllegalStateException("Can't add producer on connection " + connectionId + ": at maximum limit: " + theConn.getMaximumProducersAllowedPerConnection());
-            }
-         }
 
          AMQSession amqSession = sessions.get(sessionId);
          if (amqSession == null) {
             throw new IllegalStateException("Session not exist! : " + sessionId);
          }
+
+         ActiveMQDestination destination = info.getDestination();
+         if (destination != null && !AdvisorySupport.isAdvisoryTopic(destination)) {
+            if (theConn.getProducerCount() >= theConn.getMaximumProducersAllowedPerConnection()) {
+               throw new IllegalStateException("Can't add producer on connection " + connectionId + ": at maximum limit: " + theConn.getMaximumProducersAllowedPerConnection());
+            }
+            if (destination.isQueue()) {
+               OpenWireUtil.validateDestination(destination, amqSession);
+            }
+            DestinationInfo destInfo = new DestinationInfo(theConn.getConext().getConnectionId(), DestinationInfo.ADD_OPERATION_TYPE, destination);
+            this.addDestination(theConn, destInfo);
+         }
+
 
          amqSession.createProducer(info);
 
@@ -539,10 +549,40 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, No
       return sessions.get(sessionId);
    }
 
+   public void removeDestination(OpenWireConnection connection, ActiveMQDestination dest) throws Exception {
+      if (dest.isQueue()) {
+         SimpleString qName = new SimpleString("jms.queue." + dest.getPhysicalName());
+         this.server.destroyQueue(qName);
+      }
+      else {
+         Bindings bindings = this.server.getPostOffice().getBindingsForAddress(SimpleString.toSimpleString("jms.topic." + dest.getPhysicalName()));
+         Iterator<Binding> iterator = bindings.getBindings().iterator();
+
+         while (iterator.hasNext()) {
+            Queue b = (Queue) iterator.next().getBindable();
+            if (b.getConsumerCount() > 0) {
+               throw new Exception("Destination still has an active subscription: " + dest.getPhysicalName());
+            }
+            if (b.isDurable()) {
+               throw new Exception("Destination still has durable subscription: " + dest.getPhysicalName());
+            }
+            b.deleteQueue();
+         }
+      }
+
+      if (!AdvisorySupport.isAdvisoryTopic(dest)) {
+         AMQConnectionContext context = connection.getConext();
+         DestinationInfo advInfo = new DestinationInfo(context.getConnectionId(), DestinationInfo.REMOVE_OPERATION_TYPE, dest);
+
+         ActiveMQTopic topic = AdvisorySupport.getDestinationAdvisoryTopic(dest);
+         fireAdvisory(context, topic, advInfo);
+      }
+   }
+
    public void addDestination(OpenWireConnection connection, DestinationInfo info) throws Exception {
       ActiveMQDestination dest = info.getDestination();
       if (dest.isQueue()) {
-         SimpleString qName = new SimpleString("jms.queue." + dest.getPhysicalName());
+         SimpleString qName = OpenWireUtil.toCoreAddress(dest);
          ConnectionState state = connection.getState();
          ConnectionInfo connInfo = state.getInfo();
          if (connInfo != null) {
@@ -555,9 +595,13 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, No
 
             ((ActiveMQServerImpl) server).checkQueueCreationLimit(user);
          }
-         this.server.createQueue(qName, qName, null, connInfo == null ? null : SimpleString.toSimpleString(connInfo.getUserName()), false, true);
+
+         QueueBinding binding = (QueueBinding) server.getPostOffice().getBinding(qName);
+         if (binding == null) {
+            this.server.createQueue(qName, qName, null, connInfo == null ? null : SimpleString.toSimpleString(connInfo.getUserName()), false, dest.isTemporary());
+         }
          if (dest.isTemporary()) {
-            connection.registerTempQueue(qName);
+            connection.registerTempQueue(dest);
          }
       }
 
@@ -568,10 +612,6 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, No
          ActiveMQTopic topic = AdvisorySupport.getDestinationAdvisoryTopic(dest);
          fireAdvisory(context, topic, advInfo);
       }
-   }
-
-   public void deleteQueue(String q) throws Exception {
-      server.destroyQueue(new SimpleString(q));
    }
 
    public void endTransaction(TransactionInfo info) throws Exception {

@@ -614,4 +614,9 @@ public abstract class ArtemisBrokerBase implements Broker {
       return directory.delete();
    }
 
+   public ActiveMQServer getServer()
+   {
+      return server;
+   }
+
 }

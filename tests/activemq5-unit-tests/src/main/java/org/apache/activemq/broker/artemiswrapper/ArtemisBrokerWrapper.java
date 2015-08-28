@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.broker.artemiswrapper;
 
-import java.net.URI;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -35,7 +34,6 @@ import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.settings.impl.SlowConsumerPolicy;
-import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManagerImpl;
 import org.apache.activemq.artemiswrapper.ArtemisBrokerHelper;
@@ -82,6 +80,7 @@ public class ArtemisBrokerWrapper extends ArtemisBrokerBase {
       }
       SimpleString dla = new SimpleString("jms.queue.ActiveMQ.DLQ");
       commonSettings.setDeadLetterAddress(dla);
+      commonSettings.setAutoCreateJmsQueues(true);
 
       serverConfig.getAcceptorConfigurations().add(transportConfiguration);
       if (this.bservice.enableSsl()) {
