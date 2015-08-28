@@ -1076,9 +1076,10 @@ public class OpenWireConnection implements RemotingConnection, CommandVisitor, S
             result.setConnectionContext(context);
             //todo implement reconnect https://issues.apache.org/jira/browse/ARTEMIS-194
             if (context.isReconnect() || (context.isNetworkConnection() && this.acceptorUsed.isAuditNetworkProducers())) {
-               if (protocolManager.getPersistenceAdapter() != null) {
-                  result.setLastStoredSequenceId(protocolManager.getPersistenceAdapter().getLastProducerSequenceId(id));
-               }
+               // once implemented ARTEMIS-194, we need to set the storedSequenceID here somehow
+               // We have different semantics on Artemis Journal, but we could adapt something for this
+               // TBD during the implemetnation of ARTEMIS-194
+               result.setLastStoredSequenceId(0);
             }
             SessionState ss = state.getSessionState(id.getParentId());
             if (ss != null) {

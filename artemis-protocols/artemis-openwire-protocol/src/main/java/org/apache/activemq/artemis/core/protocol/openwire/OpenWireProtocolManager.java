@@ -45,7 +45,6 @@ import org.apache.activemq.artemis.core.postoffice.Bindings;
 import org.apache.activemq.artemis.core.postoffice.QueueBinding;
 import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQConnectionContext;
 import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQConsumer;
-import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQPersistenceAdapter;
 import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQProducerBrokerExchange;
 import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQSession;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyServerConnection;
@@ -536,11 +535,6 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, No
       SessionId sessionId = id.getParentId();
       AMQSession session = sessions.get(sessionId);
       session.removeProducer(id);
-   }
-
-   public AMQPersistenceAdapter getPersistenceAdapter() {
-      // TODO Auto-generated method stub
-      return null;
    }
 
    public AMQSession getSession(SessionId sessionId) {
