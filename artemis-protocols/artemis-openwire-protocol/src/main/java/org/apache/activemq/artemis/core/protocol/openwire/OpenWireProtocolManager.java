@@ -572,16 +572,15 @@ public class OpenWireProtocolManager implements ProtocolManager<Interceptor>, No
       ActiveMQDestination dest = info.getDestination();
       if (dest.isQueue()) {
          SimpleString qName = OpenWireUtil.toCoreAddress(dest);
-         if (connection.getState().getInfo() != null) {
-
-            CheckType checkType = dest.isTemporary() ? CheckType.CREATE_NON_DURABLE_QUEUE : CheckType.CREATE_DURABLE_QUEUE;
-            server.getSecurityStore().check(qName, checkType, connection);
-
-            server.checkQueueCreationLimit(connection.getUsername());
-         }
-
          QueueBinding binding = (QueueBinding) server.getPostOffice().getBinding(qName);
          if (binding == null) {
+            if (connection.getState().getInfo() != null) {
+
+               CheckType checkType = dest.isTemporary() ? CheckType.CREATE_NON_DURABLE_QUEUE : CheckType.CREATE_DURABLE_QUEUE;
+               server.getSecurityStore().check(qName, checkType, connection);
+
+               server.checkQueueCreationLimit(connection.getUsername());
+            }
             ConnectionInfo connInfo = connection.getState().getInfo();
             this.server.createQueue(qName, qName, null, connInfo == null ? null : SimpleString.toSimpleString(connInfo.getUserName()), false, dest.isTemporary());
          }
