@@ -220,7 +220,7 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
                ProtocolManager protocolManager = protocolMap.get(protocol);
 
                if (protocolManager == null) {
-                  throw ActiveMQMessageBundle.BUNDLE.noProtocolManagerFound(protocol);
+                  ActiveMQServerLogger.LOGGER.noProtocolManagerFound(protocol, info.toString());
                }
                else {
                   supportedProtocols.put(protocol, protocolManager);
@@ -237,7 +237,7 @@ public class RemotingServiceImpl implements RemotingService, ConnectionLifeCycle
                      ProtocolManager protocolManager = protocolMap.get(actualProtocol);
 
                      if (protocolManager == null) {
-                        throw ActiveMQMessageBundle.BUNDLE.noProtocolManagerFound(actualProtocol);
+                        ActiveMQServerLogger.LOGGER.noProtocolManagerFound(actualProtocol, info.toString());
                      }
                      else {
                         supportedProtocols.put(actualProtocol, protocolManager);

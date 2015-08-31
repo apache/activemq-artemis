@@ -61,7 +61,7 @@ public interface ActiveMQBootstrapLogger extends BasicLogger {
    @Message(id = 101003, value = "Halting ActiveMQ Artemis Server after user request", format = Message.Format.MESSAGE_FORMAT)
    void serverKilled();
 
-   @LogMessage(level = Logger.Level.INFO)
+   @LogMessage(level = Logger.Level.DEBUG)
    @Message(id = 101005, value = "Using broker configuration: {0}", format = Message.Format.MESSAGE_FORMAT)
    void usingBrokerConfig(String location);
 

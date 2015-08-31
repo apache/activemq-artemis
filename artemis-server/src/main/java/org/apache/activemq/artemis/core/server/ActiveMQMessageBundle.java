@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.server;
 
+import java.io.File;
+
 import org.apache.activemq.artemis.api.core.ActiveMQAddressFullException;
 import org.apache.activemq.artemis.api.core.ActiveMQClusterSecurityException;
 import org.apache.activemq.artemis.api.core.ActiveMQConnectionTimedOutException;
@@ -36,12 +38,10 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationSyncFileMessage;
 import org.apache.activemq.artemis.core.security.CheckType;
+import org.jboss.logging.Messages;
 import org.jboss.logging.annotations.Cause;
 import org.jboss.logging.annotations.Message;
 import org.jboss.logging.annotations.MessageBundle;
-import org.jboss.logging.Messages;
-
-import java.io.File;
 
 /**
  * Logger Code 11
@@ -314,11 +314,7 @@ public interface ActiveMQMessageBundle {
    @Message(id = 119083, value = "Queue {0} has a different filter than requested", format = Message.Format.MESSAGE_FORMAT)
    ActiveMQInvalidTransientQueueUseException queueSubscriptionBelongsToDifferentFilter(SimpleString queueName);
 
-   @Message(id = 119085, value = "Classpath lacks a protocol-manager for protocol {0}",
-      format = Message.Format.MESSAGE_FORMAT)
-   ActiveMQException noProtocolManagerFound(String protocol);
-
-   // this code has to match with version 2.3.x as it's used on integration tests at Wildfly and JBoss EAP
+    // this code has to match with version 2.3.x as it's used on integration tests at Wildfly and JBoss EAP
    @Message(id = 119099, value = "Unable to authenticate cluster user: {0}",
       format = Message.Format.MESSAGE_FORMAT)
    ActiveMQClusterSecurityException unableToValidateClusterUser(String user);

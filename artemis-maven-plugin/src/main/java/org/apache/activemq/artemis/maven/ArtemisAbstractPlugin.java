@@ -17,6 +17,7 @@
 
 package org.apache.activemq.artemis.maven;
 
+import org.apache.activemq.artemis.cli.commands.Configurable;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -32,6 +33,10 @@ public abstract class ArtemisAbstractPlugin extends AbstractMojo {
       }
       else {
          doExecute();
+         // We could execute the maven plugins over and over on examples
+         // For that reason we just unlock the server here
+         // Notice this has no implementations if you are using spawn
+         Configurable.unlock();
       }
    }
 

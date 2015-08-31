@@ -28,6 +28,7 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.cli.Artemis;
+import org.apache.activemq.artemis.cli.commands.Configurable;
 import org.apache.activemq.artemis.cli.commands.Run;
 import org.apache.activemq.artemis.cli.commands.util.SyncCalculation;
 import org.apache.activemq.artemis.core.client.impl.ServerLocatorImpl;
@@ -58,6 +59,7 @@ public class ArtemisTest {
    public void cleanup() {
       System.clearProperty("artemis.instance");
       Run.setEmbedded(false);
+      Configurable.unlock();
    }
 
    @Test

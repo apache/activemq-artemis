@@ -19,15 +19,14 @@ package org.apache.activemq.artemis.cli.commands.tools;
 import java.io.File;
 
 import io.airlift.airline.Command;
-import org.apache.activemq.artemis.cli.commands.Action;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.io.IOCriticalErrorListener;
-import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
 import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
+import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
 
 @Command(name = "compact", description = "Compacts the journal of a non running server")
-public final class CompactJournal extends DataAbstract implements Action {
+public final class CompactJournal extends LockAbstract {
 
    @Override
    public Object execute(ActionContext context) throws Exception {
@@ -35,7 +34,10 @@ public final class CompactJournal extends DataAbstract implements Action {
       try {
          Configuration configuration = getFileConfiguration();
          compactJournal(new File(getJournal()), "activemq-data", "amq", configuration.getJournalMinFiles(), configuration.getJournalFileSize(), null);
+         System.out.println("Compactation succeeded for " + getJournal());
          compactJournal(new File(getBinding()), "activemq-bindings", "bindings", 2, 1048576, null);
+         System.out.println("Compactation succeeded for " + getBinding());
+
       }
       catch (Exception e) {
          treatError(e, "data", "compact");
