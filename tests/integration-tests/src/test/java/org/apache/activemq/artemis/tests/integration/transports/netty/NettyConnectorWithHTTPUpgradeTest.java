@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.transports.netty;
 
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLEngine;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -33,6 +37,7 @@ import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpRequestDecoder;
 import io.netty.handler.codec.http.HttpResponseEncoder;
+import io.netty.handler.ssl.SslHandler;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.ActiveMQNotConnectedException;
@@ -45,6 +50,7 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.core.remoting.impl.ssl.SSLSupport;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyAcceptor;
@@ -56,6 +62,8 @@ import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
 import static io.netty.handler.codec.http.HttpHeaders.Names.UPGRADE;
 import static io.netty.handler.codec.http.HttpResponseStatus.SWITCHING_PROTOCOLS;
@@ -69,7 +77,18 @@ import static org.apache.activemq.artemis.tests.util.RandomUtil.randomString;
 /**
  * Test that Netty Connector can connect to a Web Server and upgrade from a HTTP request to its remoting protocol.
  */
+@RunWith(value = Parameterized.class)
 public class NettyConnectorWithHTTPUpgradeTest extends ActiveMQTestBase {
+   private Boolean useSSL = false;
+
+   @Parameterized.Parameters(name = "useSSL={0}")
+   public static Collection getParameters() {
+      return Arrays.asList(new Object[][]{{true}, {false}});
+   }
+
+   public NettyConnectorWithHTTPUpgradeTest(Boolean useSSL) {
+      this.useSSL = useSSL;
+   }
 
    private static final SimpleString QUEUE = new SimpleString("NettyConnectorWithHTTPUpgradeTest");
 
@@ -83,6 +102,10 @@ public class NettyConnectorWithHTTPUpgradeTest extends ActiveMQTestBase {
    private NioEventLoopGroup bossGroup;
    private NioEventLoopGroup workerGroup;
 
+   private String SERVER_SIDE_KEYSTORE = "server-side-keystore.jks";
+   private String CLIENT_SIDE_TRUSTSTORE = "client-side-truststore.jks";
+   private final String PASSWORD = "secureexample";
+
    @Override
    @Before
    public void setUp() throws Exception {
@@ -91,6 +114,13 @@ public class NettyConnectorWithHTTPUpgradeTest extends ActiveMQTestBase {
       // This prop controls the usage of HTTP Get + Upgrade from Netty connector
       httpParams.put(TransportConstants.HTTP_UPGRADE_ENABLED_PROP_NAME, true);
       httpParams.put(TransportConstants.PORT_PROP_NAME, HTTP_PORT);
+      if (useSSL) {
+         httpParams.put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
+         httpParams.put(TransportConstants.KEYSTORE_PATH_PROP_NAME, SERVER_SIDE_KEYSTORE);
+         httpParams.put(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, PASSWORD);
+         httpParams.put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, CLIENT_SIDE_TRUSTSTORE);
+         httpParams.put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, PASSWORD);
+      }
       acceptorName = randomString();
 
       conf = createDefaultNettyConfig().addAcceptorConfiguration(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, httpParams, acceptorName));
@@ -173,16 +203,29 @@ public class NettyConnectorWithHTTPUpgradeTest extends ActiveMQTestBase {
       assertTrue(((ActiveMQException) e).getType() == ActiveMQExceptionType.NOT_CONNECTED);
    }
 
-   private void startWebServer(int port) throws InterruptedException {
+   private void startWebServer(int port) throws Exception {
       bossGroup = new NioEventLoopGroup();
       workerGroup = new NioEventLoopGroup();
       ServerBootstrap b = new ServerBootstrap();
+      final SSLContext context;
+      if (useSSL) {
+         context = SSLSupport.createContext("JKS", SERVER_SIDE_KEYSTORE, PASSWORD, null, null, null);
+      }
+      else {
+         context = null;
+      }
       b.childOption(ChannelOption.ALLOCATOR, PartialPooledByteBufAllocator.INSTANCE);
       b.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class).childHandler(new ChannelInitializer<SocketChannel>() {
          @Override
          protected void initChannel(SocketChannel ch) throws Exception {
             // create a HTTP server
             ChannelPipeline p = ch.pipeline();
+            if (useSSL) {
+               SSLEngine engine = context.createSSLEngine();
+               engine.setUseClientMode(false);
+               SslHandler handler = new SslHandler(engine);
+               p.addLast("ssl", handler);
+            }
             p.addLast("decoder", new HttpRequestDecoder());
             p.addLast("encoder", new HttpResponseEncoder());
             p.addLast("http-upgrade-handler", new SimpleChannelInboundHandler<Object>() {

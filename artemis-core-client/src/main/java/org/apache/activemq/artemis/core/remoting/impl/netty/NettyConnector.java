@@ -632,7 +632,11 @@ public class NettyConnector extends AbstractConnector {
             try {
                //get this first incase it removes itself
                HttpUpgradeHandler httpUpgradeHandler = (HttpUpgradeHandler) ch.pipeline().get("http-upgrade");
-               URI uri = new URI("http", null, host, port, null, null, null);
+               String scheme = "http";
+               if (sslEnabled) {
+                  scheme = "https";
+               }
+               URI uri = new URI(scheme, null, host, port, null, null, null);
                HttpRequest request = new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, uri.getRawPath());
                request.headers().set(HttpHeaders.Names.HOST, host);
                request.headers().set(HttpHeaders.Names.UPGRADE, ACTIVEMQ_REMOTING);
